@@ -1,0 +1,39 @@
+GDB默认情况下是一个纯CLI调试器，可以使用-tui参数使gdb提供一个基于CLI的简单的交互式界面：
+$ gdb -tui [需要被调试的可执行文件]
+ 
+gdb的一些基本操作 >>
+	r(run)			开始执行程序
+	n(next)			执行下一条语句(不会进入子函数)
+	s(step)			单步调试(会进入子函数内部)
+	c(continue)		继续执行程序
+	l(list)			查看当前程序运行位置附近的代码片段
+	b(break)		设置断点
+	p(print)		显示变量/函数等信息
+	i(info)			可搭配不同指令显示具体的状态信息(断点,显示等)
+	d(delete)		删除设置(断点,显示信息等)
+	q(quit)			退出gdb
+	bt(backtrace)	显示函数堆栈
+
+break >>
+	break用于下断点。
+	break [行号]
+	break [函数名]
+	break [地址]
+
+display >>
+	让每次运行暂停时都显示指定的信息。可显示变量/函数等信息。
+
+delete >>
+	删除已经存在的设置信息。
+	delete [数据类型] [号码]
+	举例：
+		delete breakpoint 1			//删除1号断点
+
+一次显示多个变量的信息 >>
+	display/print {变量1, 变量2, 变量3......}
+
+info locals >>
+	显示当前函数的局部变量信息。
+
+until/finish >>
+	until用于跳出循环，finish用于结束当前函数。

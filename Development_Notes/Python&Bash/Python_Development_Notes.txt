@@ -1,0 +1,106 @@
+常用的数据类型 >>
+
+list(列表) >
+list是一个有序集合，可以容纳各类数据，并能随意添加和删除。
+list中的数据可以是另一个list，访问方式类似二维数组。
+定义一个list：
+>>> list = ['first', 'second']
+取出list中指定下标的内容(下标可以为负数，即逆序取出内容)：
+>>> list[0]
+'first'
+计算list的长度：
+>>> len(list)
+2
+向list尾部添加内容：
+>>> list.append('third')
+>>> list
+['first', 'second', 'third']
+向指定位置添加内容：
+>>> list.insert(0, 'one')		#在list表首添加字符串"one"
+['one', 'first', 'second', 'third']
+删除指定位置的数据：
+>>> list.pop(0)					#删除list表首的数据，不写参数时默认删除list最后一个数据
+>>> list
+['first', 'second', 'third']
+替换指定位置的数据：
+>>> list[0] = [1, 2, 3]			#将list表首的数据替换为另一个list：[1, 2, 3]
+>>> list
+[[1, 2, 3], 'second', 'third']
+
+tuple(元组) >
+tuple与list类似，但tuple中的数据不可修改，因此没有append()、insert()、pop()之类的方法。
+定义一一个至少有一个元素的tuple时，需要写成：
+>>> turple = (1, )
+逗号不能省略，这是为了消歧义(防止与数学括号相混淆)。
+另外，如果tuple的成员是一个list，则list是可变的(tuple只保证每一个tuple内成员的引用不变，但成员本身依旧是可变的)。
+
+dict(字典) >
+dict使用键-值(key-value)存储，类似于java中的Map，拥有很快的查找速度。
+相对于list，dict拥有更快的查找删除速度，而且不会随着dict内容的增加而减慢查找删除速度，但dict内存开销更大(空间换时间)。
+在dict中，key是唯一、不能改变的，value则没有此限制。
+dict根据key的值来计算对应value的位置(hash算法)，因此key是不能改变的，而可变对象list不能作为key。
+定义dict使用大括号：
+>>> dict = {'first': 'one', 'second': 2, 'third': 3}
+取出dict中的某个内容：
+>>> dict['first']
+'one'
+改变指定key的value：
+>>> dict['first'] = 1
+>>> dict
+{'first': 1, 'second': 2, 'third': 3}
+可以判断一个list中是否存在某个key：
+>>> 'first' in dict
+True
+向dict中添加数据类似于操作数组：
+>>> dict['new'] = 4
+>>> dict
+{'first': 1, 'second': 2, 'third': 3, 'new': 4}
+删除dict中的内容使用pop(key)方法，删除了某个dict中的某个key，则该key的value也会随之被删除：
+>>> dict.pop('new')
+>>> dict
+{'first': 1, 'second': 2, 'third': 3}
+
+set(集合) >
+set是一组没有value的key的集合，set中的内容是不可重复的。
+定义一个set：
+>>> set = {1, 2, 3, 3}		#即使你在定义时输入重复的元素，解释器也会将其自动忽略
+>>> set
+{1, 2, 3}
+可以使用add(key)函数对给set添加key：
+>>> set.add('test')
+>>> set
+{1, 2, 3, 'test'}
+
+
+
+判断变量是否是某一种类型 >>
+使用isinstance()函数可以判断某个变量是否是某种类型：
+>>> isinstance(100, int)
+True
+>>> class List(object): pass
+>>> list = List()
+>>> isinstance(list, List)
+True
+如果比较的是类实例，只要这个实例对应的类是从比较的类型中派生出来的，返回值都为True。
+
+
+
+关于range()函数 >>
+range(start, stop, step)函数接收三个参数，产生[start, end)范围的数字，以step为间隔。
+默认值start和step都为0。
+在python2中，range()的返回类型是一个list。
+在python3中，range()返回的是迭代值，如果想得到list需要用list()显式地进行强制类型转换。
+
+
+
+关于global关键字 >>
+在python中变量是无类型的，因此定义变量与复制变量语句相同，在函数中，可以直接引用全局变量，但一个作用域只能有一个变量名，如果对全局变量进行赋值，解释器就会认为你创建了一个局部变量，该变量在函数结束之后是会被释放的。
+如果想要在函数中对全局变量进行值修改需要使用global关键字将该变量名声明为全局的。
+
+
+
+与c/c++的基本语法差异 >>
+python没有自增自减运算符。
+python中的逻辑运算符用直白的英语表示：与 => and 或 => or 非 => not
+python没有三目运算符，可以用类似的语句替代： A and B or C
+需要注意的是，该语句与三目运算符并不完全等价，在运算中，空字符串‘’，数字0，空list[]，空dict{}，空()，None，在逻辑运算中都被当作假来处理。

@@ -1,0 +1,167 @@
+JDK8中加入了一些重要的新特性：
+
+
+接口默认方法 >>
+接口现在允许拥有带有实现的默认方法，在方法前使用关键字default来区别于普通的抽象方法。
+一个接口可以有多个默认方法，也可以只有默认方法而不含有传统的抽象方法，同时，默认方法不强制子类重写，并且可以像类的成员方法一样被继承。
+
+举例：
+
+interface test1<T> {
+	default T abcd(T a) {
+		return a;
+	}
+	default T abc(T a) {
+		return a;
+	}
+}
+
+----
+
+可以让一个类继承多个带有抽象方法的接口来实现多重继承。
+当一个类继承了两个带有相同函数签名的默认方法的接口时，编译时会报错，这时，需要在同时继承了这两个接口的类中重写引发冲突的默认方法。
+
+举例：
+
+//接口test1中含有默认方法T abc(T a)
+interface test1<T> {
+	default T abc(T a) {
+		return a;
+	}
+}
+
+//接口test2中也含有默认方法T abc(T a)
+interface test2<T> {
+	default T abc(T a) {
+		return a;
+	}
+}
+
+//类test同时实现接口test1和test2
+class test<T> implements test1<T>, test2<T> {
+	@Override
+	public T abc(T a) {
+		......
+		return ...
+	}
+}
+
+----
+
+如果你想在重写的方法中直接使用原先接口中的某个默认方法的实现，可以使用super关键字。
+
+举例：
+
+//类中的T abc(T a)方法用test1接口中的默认方法实现
+class test<T> implements test1<T>, test2<T> {
+	@Override
+	public T abc(T a) {
+		//如果重写的是返回值为void的函数，则直接 test1.super.abc(a); 作用是执行test1的对应默认方法。
+		return test1.super.abc(a);
+	}
+}
+
+========
+
+
+Lambda表达式 >>
+Lambda表达式用在函数接口中，函数接口是指有且只有一个抽象方法的接口。
+
+举例：
+
+interface test<T> {
+	T getT(T a);
+}
+
+----
+
+含有多个默认方法的接口依然可以是函数接口，只要抽象方法只有一个即可。
+
+举例：
+
+//以下符合函数接口要求
+interface test1<T> {
+	T getT(T a);
+	default T abc(T a) {
+		return a;
+	}
+	default T abcd(T a) {
+		return a;
+	}
+}
+
+----
+
+对于函数接口，在JDK1.8之前一般用匿名类实现。
+
+举例：
+
+interface test<T> {
+	T getT(T a);
+}
+
+test<Integer> t = new test<Integer>() {
+	@Override
+	public Integer getT(Integer a) {
+		return a;
+	}
+};
+
+----
+
+在JDK1.8之后可以使用Lambda表达式来实现。
+
+举例：
+
+test1<Integer> t = (Integer a) -> a;
+
+Lambda表达式的一般规则：
+对一个函数
+
+int function(参数列表) {
+	//函数内容
+	return ...	//函数返回值、返回值也可以是表达式
+}
+
+对应的Lambda表达式形式为：
+
+(参数列表) -> {//函数内容; return 返回值;}
+
+如果函数内容为空，直接返回结果，则表达式可简写为：
+
+(参数列表) -> 表达式;
+
+举例：
+
+int sum(int a, int b) {
+	return a + b;
+}
+
+写成Lambda表达式形式为： (a, b) -> a + b;
+
+----
+
+灵活使用Lambda表达式能够使代码更简洁，可读性更高。
+此外，对于函数接口，还可以将本类的某个符合函数接口签名的函数作为引用实例化出接口对象。
+
+举例：
+
+interface A {
+	void get();
+}
+
+class B {
+	
+	A a = this::test;
+	
+	private int test() {
+		System.out.println("Test!");
+		return 0;
+	}
+}
+
+使用符号"::"将符合签名的函数作为重写内容构造出接口对象。
+需要注意的是，接口的成员函数为公有成员，但如果使用函数引用实现接口时，不必考虑被引用函数的访问限制，即使是本类的私有成员，一样可以作为引用来实现接口，但如果是重写接口则必须访问权限为public(重写权限必须大于等于原有权限)。
+只要方法签名相同(返回值类型可以不同)，你甚至可以使用抽象方法来作为引用来实现一个函数接口。
+
+========

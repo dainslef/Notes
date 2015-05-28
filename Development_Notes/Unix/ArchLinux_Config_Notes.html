@@ -1,0 +1,655 @@
+<html>
+	<head>
+	<meta charset="utf-8"/>
+		<title>ArchLinux安装配置总结</title>
+		<style type="text/css">
+			body
+			{
+				background-color: #ECF2F5;
+				margin: 0;		/*默认情况下。<div>标签与浏览器边界之间会有一定空隙，需要手动设置margin属性的值为0才能紧靠浏览器边界*/
+				min-width: 1000px;		/*限制页面的最小宽度*/
+			}
+			.head
+			{
+				font-family: 华文隶书;
+				font-size: 25px;
+				height: 80px;
+				width: 100%;
+				color: #177ABC;
+				text-align: center;
+			}
+			.left
+			{
+				border: dashed 2px #33AADD;
+				font-family: 隶书;
+				font-size: 20px;
+				width: 20%;
+				float: left;
+				color: #7085BE;
+				margin-left: 1%;
+				position: fixed;
+				padding: 10px;
+			}
+			.middle
+			{
+				font-family: "黑体";
+				font-size: 15px;
+				color: #7085BE;
+				float: left;
+				width: 70%;
+				margin-left: 25%;
+				margin-bottom: 20px;
+				border: solid 1px #33AADD; 
+				clear: both;
+				padding-left: 20px;
+				padding-right: 20px;
+				padding-bottom: 20px;
+			}
+			.bottom
+			{
+				font-family: 华文隶书;
+				font-size: 15px;
+				width: 100%;
+				text-align: center;
+				clear: left;
+				padding-top: 20px;
+				padding-bottom: 20px;
+				background-color: #D6D6D6;
+				border-top: outset 1px;
+			}
+			p
+			{
+				font-family: 微软雅黑;
+				font-size: 15px;
+				color: #494949;
+			}
+			h2
+			{
+				color: #7085BE;
+				font-family: 幼圆;
+				font-size: 25px;
+				text-align: center;
+			}
+			a
+			{
+				text-decoration: none;		/*去掉下划线*/
+				color: #0077BB;
+			}
+			span
+			{
+				color: #939393;
+				font-size: 15px;
+				font-family: 黑体;
+			}
+			span.blue
+			{
+				color: #7085BE;
+				font-family: "Source Code Pro";
+			}
+			span.center
+			{
+				color: #535353;
+				text-align: center;
+			}
+			blockquote
+			{
+				color: #0077BB;
+				font-family: "Source Code Pro";
+			}
+		</style>
+	</head>
+	<body>
+		<div class="head">
+			<h1 id="start">ArchLinux安装配置总结</h1>
+		</div>
+		<div style="width: 100%; padding-bottom: 10px"><font style="font-size: 16px; font-family: 微软雅黑; color: #7085BE"><marquee behavior="alternate" vspace="10px">------------------By 程张磊 at 2014-2-25 18:43 PM</marquee></font></div>
+		<div class="left">
+		<a href="#start"><h2>目录</h2></a>
+			<ol>
+				<li><a href="#first">无线网络配置</a></li>
+				<li><a href="#second">基本安装教程</a></li>
+				<li><a href="#third">系统の基本配置</a></li>
+				<li><a href="#fourth">常见问题の记录</a></li>
+			</ol>
+		</div>
+		<div class="middle">
+			<h2 id="first">无线网络配置</h2>
+			<ul>
+			<li><p>ArchLinux的安装是基于网络的，将ArchLinux安装在硬盘而不是虚拟机中，则首先需要配置无线网络，配置完成无线网络之后才能正常执行安装流程。</p></li><br/>
+			<li><p>使用<span class="blue"><strong> iwconfig </strong></span>命令查看无线网卡是否被正常驱动，并记录下无线网卡の名称。</p>
+			<p>查看无线网卡是否被rf锁定：</p>
+			<blockquote># rfkill list</blockquote>
+			<p>如果有rf锁，解除：</p>
+			<blockquote># rfkill unblock all</blockquote></li><br/>
+			<li><p>启动无线网卡：</p>
+			<blockquote># ip link set wlp2s0 up<span>&nbsp;&nbsp;&nbsp;&nbsp;//わたしのNICは「wlp2s0」です。</span></blockquote></li><br/>
+			<li><p>扫描无线网络：</p>
+			<blockquote># iwlist wlp2s0 scanning</blockquote></li><br/>
+			<li><p>创建wpa配置文件：</p>
+			<blockquote># nano /etc/wpa_supplicant/wifi.conf</blockquote></li><br/>
+			<li><p>在<span class="blue"> wifi.conf </span>中写入要连接的无线配置信息：</p>
+			<blockquote>network={<br/><span class="blue">ssid</span>="<font style="color: #4F4F4F">要连接的无线の名字</font>"<br/><span class="blue">psk</span>="<font style="color: #4F4F4F">无线の密码</font>"<br/>}</blockquote></li><br/>
+			<li><p>启用配置文件：</p>
+			<blockquote># wpa_supplicant -BDwext -i wlp2s0 -c /etc/wpa_supplicant/wifi.conf</blockquote></Li><br/>
+			<li><p>激活网络服务：</p>
+			<blockquote># dhclient wlp2s0</blockquote></li><br/>
+			<li><p>测试网络是否联通：</p>
+			<blockquote># ping www.baidu.com</blockquote></li><br/>
+			<li><p>如果ping没反应的话尝试以下步骤&gt;&gt;<br/>正常情况下网络应该已经通了，如果网络异常，尝试查看路由信息：</p>
+			<blockquote># route -n</blockquote>
+			<p>尝试添加地址：</p>
+			<blockquote># route add default gw yourIP</blockquote>
+			<p>当wpa出现异常，可以尝试关闭后重新打开，关闭wpa：</p>
+			<blockquote># wpa_cli terminate</blockquote></li><br/>
+			<li><p>以上配置无线网络的方法适用于在尚未安装桌面环境时的配置，当桌面环境完成安装后，可用<span class="blue"> NetworkManager </span>搭配各大桌面的图形化前端来实现便捷的无线网络管理。<br/>安装<span class="blue"> NetworkManager </span>：</p>
+			<blockquote># pacman -S networkmanager</blockquote>
+			<p>在各大桌面环境下拥有不同的图形化前端搭配<span class="blue"> NetworkManager </span>来使用。<br/>gnome桌面环境下，安装：</p>
+			<blockquote># pacman -S network-manager-applet</blockquote>
+			<p>KDE桌面环境下，安装：</p>
+			<blockquote># pacman -S kdeplasma-applets-plasma-nm<span>&nbsp;&nbsp;&nbsp;&nbsp;//旧版本的KDE网络组件在AUR仓库中，包名为：kdeplasma-applets-networkmanagement</span></blockquote>
+			<p>在网络组件完成配置之后，可以激活<span class="blue"> NetworkManager服务 </span>来接管网络连接：</p>
+			<blockquote># systemctl enable NetworkManager<span>&nbsp;&nbsp;&nbsp;&nbsp;//输入命令时注意服务名称的大小写</span></blockquote>
+			<p>不使用<span class="blue"> NetworkManager服务 </span>时，可以禁用该服务：</p>
+			<blockquote># systemctl disable NetworkManager</blockquote></li>
+			</ul>
+			<br/><br/><br/>
+			<h2 id="second">基本安装教程</h2>
+			<ul>
+			<li><p>首先进行磁盘分区：</p>
+			<blockquote># fdisk -l<span>&nbsp;&nbsp;&nbsp;&nbsp;//查看分区情况</span></blockquote></li><br/>
+			<li><p>在/dev/sda1建立ext4文件系统的主分区，在/dev/sda2建立swap交换区：</p>
+			<blockquote># mkfs.ext4 /dev/sda1<br/># mkswap /dev/sda2</blockquote></li><br/>
+			<li><p>挂载刚才建立的两个分区：</p>
+			<blockquote># mount -t ext4 /dev/sda1 /mnt<span>&nbsp;&nbsp;&nbsp;&nbsp;//将sda1挂载到/mnt目录下(以/mnt为安装的根目录)</span><br/># swapon /dev/sda2<span>&nbsp;&nbsp;&nbsp;&nbsp;//将sda2的swap分区开启</span></blockquote></li><br/>
+			<li><p>修改软件源：</p>
+			<blockquote># vi /etc/pacman.d/mirrorlist</blockquote></li><br/>
+			<li><p>安装基础包组件：</p>
+			<blockquote># pacstrap -i /mnt base base-devel<span>&nbsp;&nbsp;&nbsp;&nbsp;//不做开发的话<span class="blue"> base-devel </span>包组就没必要安装了</span></blockquote></li><br/>
+			<li><p>安装网络工具，否则安装完成之后无法配置无线网络：</p>
+			<blockquote># pacstrap -i /mnt wpa_supplicant dhclient</blockquote></li><br/>
+			<li><p>生成fstab文件：</p>
+			<blockquote># genfstab -U -p /mnt > /mnt/etc/fstab</blockquote></li><br/>
+			<li><p>chroot切换根目录：</p>
+			<blockquote># arch-chroot /mnt</blockquote></li><br/>
+			<li><p>设置国家及语言编码：</p>
+			<blockquote># nano /etc/locale.gen<br/># echo "LANG=zh_CN.utf8" > /etc/environment<br/># echo "LC_ALL=zh_CN.UTF-8" >> /etc/environment<br/># locale-gen<span>&nbsp;&nbsp;&nbsp;&nbsp;//更新语言配置</span></blockquote></li><br/>
+			<li><p>设置时区：</p>
+			<blockquote># ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime<span>&nbsp;&nbsp;&nbsp;&nbsp;//使用软链接来链接时区文件，时区配置可以放在完成系统安装后执行</span></blockquote></li><br/>
+			<li><p>设置主机名：</p>
+			<blockquote># echo "Aspire-E1-572G" > /etc/hostname<span>&nbsp;&nbsp;&nbsp;&nbsp;//主机名可以随便写，我用的是自己电脑の型号</span></blockquote></li><br/>
+			<li><p>设置root密码：</p>
+			<blockquote># passwd root</blockquote></li><br/>
+			<li><p>安装grub引导器：</p>
+			<blockquote># pacman -S grub</blockquote><p>如果采用UEFI引导，还需要安装efibootmgr：</p><blockquote># pacman -S efibootmgr<span>&nbsp;&nbsp;&nbsp;&nbsp;//MBR引导的旧式计算机不需要！</span></blockquote></li><br/>
+			<li><p>默认情况下ArchLinux的grub只能识别出ArchLinux自身，如果硬盘上有其它OS，需要安装os-prober才能正常识别出其它OS：</p>
+			<blockquote># pacman -S os-prober</blockquote></li><br/>
+			<li><p>生成grub的配置文件：</p>
+			<blockquote># grub-mkconfig -o /boot/grub/grub.cfg</blockquote></li><br/>
+			</ul>
+			<p style="text-align: center;font-size: 20px;color: blue;">以上，基本安装结束。</p>
+			<br/><br/><br/>
+			<h2 id="third">安装完成之后の基本配置</h2>
+			<ul>
+			<li><p>安装完成后开始添加用户：</p>
+			<blockquote># useradd -m dainslef<span>&nbsp;&nbsp;&nbsp;&nbsp;//使用-m参数在创建用户的同时创建该用户のhome目录</span></blockquote></li><br/>
+			<li><p>设置用户の密码：</p>
+			<blockquote># passwd dainslef</blockquote></li><br/>
+			<li><p>安装sudo让普通用户执行root命令：</p>
+			<blockquote># pacman -S sudo<br/># nano /etc/sudoers<span>&nbsp;&nbsp;&nbsp;&nbsp;//编辑sudoers文件让普通用户能够以root权限执行命令</span></blockquote></li><br/>
+			<li><p>安装中文字体：</p>
+			<blockquote># pacman -S wqy-microhei<span>&nbsp;&nbsp;&nbsp;&nbsp;//记住不要手贱去装wqy-microhei-lite这个字体包，会造成Netbeans中使用文泉驿等宽微米黑字体时空格变成口口(囧)</span></blockquote>
+			<p>安装等宽字体：</p>
+			<blockquote># pacman -S ttf-dejavu<span>&nbsp;&nbsp;&nbsp;&nbsp;//没有此字体，会使某些符号不够漂亮，建议在安装桌面环境时选择此字体作为桌面环境的默认依赖字体</span><br/># pacman -S adobe-source-code-pro-fonts<span>&nbsp;&nbsp;&nbsp;&nbsp;//adobe出品的一款很适合编程的等宽字体</span></blockquote>
+			<p>gnome桌面环境下，推荐的字体配置为：</p>
+			<blockquote>[缩放比例] <span>0.9</span><br/>[微调] <span>Slight</span><br/>[抗锯齿] <span>Rgba</span><br/>[窗口标题] <span>文泉驿微米黒 Bold 11</span><br/>[界面/文档] <span>文泉驿微米黒 Regular 11</span><br/>[等宽] <span>Source Code Pro Regular 11</span></blockquote>
+			<p>以上配置在使用qtcreator时可能会造成界面字体偏大(qt5界面不受缩放影响)，如果需要使用qtcreator，可以使用以下配置：</p>
+			<blockquote>[缩放比例] <span>1.0</span><br/>[微调] <span>Slight</span><br/>[抗锯齿] <span>Rgba</span><br/>[窗口标题] <span>文泉驿微米黒 Bold 10</span><br/>[界面/文档] <span>文泉驿微米黒 Regular 10</span><br/>[等宽] <span>Source Code Pro Regular 10</span></blockquote></li><br/>
+			<li><p>安装基本的图形环境以及驱动程序：</p>
+			<blockquote># pacman -S xorg-server xorg-xinit<span>&nbsp;&nbsp;&nbsp;&nbsp;//不必完整安装xorg包组，只需安装核心组件即可！</span><br/># pacman -S xf86-video-ati<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装开源AMD显卡驱动，或者安装闭源驱动catalyst</span><br/># pacman -S xf86-video-intel<span>&nbsp;&nbsp;&nbsp;&nbsp;//如果是Intel处理器，则安装Intel核芯显卡驱动</span><br/># pacman -S xf86-input-synaptics<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装触摸板驱动</span></blockquote></li><br/>
+			<li><p>安装KDE桌面环境，推荐采用安装<span class="blue"> 虚包 </span>(meta/包指针)的方式，这样能够及时更新包组中的成员：</p>
+			<blockquote># pacman -S kde-meta<br/><span class="blue">1)</span> kde-meta-kdeaccessibility <span class="blue">2)</span>kde-meta-kdeadmin <span class="blue">3)</span>kde-meta-kdeartwork <span class="blue">4)</span>kde-meta-kdebase <span class="blue">5)</span>kde-meta-kdeedu <span class="blue">6)</span>kde-meta-kdegames <span class="blue">7)</span>kde-meta-kdegraphics <span class="blue">8)</span>kde-meta-kdemultimedia <span class="blue">9)</span>kde-meta-kdenetwork <span class="blue">10)</span>kde-meta-kdepim <span class="blue">11)</span>kde-meta-kdeplasma-addons <span class="blue">12)</span>kde-meta-kdesdk <span class="blue">13)</span>kde-meta-kdetoys <span class="blue">14)</span>kde-meta-kdeutils <span class="blue">15)</span>kde-meta-kdewebdev <span class="blue">16)</span>kde-wallpapers</blockquote>
+			<p>其中有需要装的为<span class="blue"> 2 4 7 10 12 14 </span>。</p>
+			<blockquote># pacman -S kde-meta-kdeadmin kde-meta-kdebase kde-meta-kdegraphics kde-meta-kdepim kde-meta-kdesdk kde-meta-kdeutils</blockquote>
+			<p>2为KDE用户账户管理工具，4为KDE基础组件，7为KDE界面设置(包含锁屏设置等)和截图工具，10为KDE邮件&联系人&笔记本等工具集，12为KDE高级编辑器(Kate)&二进制编辑器(okteta)等重要开发工具，14为KDE壁纸管理器&打印机服务&解压工具&计算器等工具集，以上这些推荐安装。然而，1为KDE残障人士辅助工具，3和16为为KDE额外主题及壁纸，6和13为游戏，8为KDE多媒体输出&音量控制工具&无用的播放器，9为一些用不到的聊天工具(kopete等)，11为桌面附加组件，15为一些不常用的网络开发工具，没有必要完全安装。此外，KDE桌面环境推荐使用<span class="blue"> phonon-qt4/qt5-vlc </span>作为音频后端。</p></li><br/>
+			<li><p>KDE中有几个实用组件需要单独指定安装：</p>
+			<blockquote># pacman -S kdeplasma-addons-applets-icontasks<span>&nbsp;&nbsp;&nbsp;&nbsp;//图标任务管理器</span><br/># pacman -S kdeplasma-addons-applets-weather<span>&nbsp;&nbsp;&nbsp;&nbsp;//通知区域天气插件</span><br/># pacman -S kdeplasma-addons-applets-lancelot<span>&nbsp;&nbsp;&nbsp;&nbsp;//lancelot启动器</span><br/># pacman -S kdemultimedia-kmix<span>&nbsp;&nbsp;&nbsp;&nbsp;//音频混合控制器</span><br/># pacman -S kdenetwork-kget<span>&nbsp;&nbsp;&nbsp;&nbsp;//kget下载管理器</span><br/># pacman -S kdevelop<span>&nbsp;&nbsp;&nbsp;&nbsp;//KDE集成开发环境</span><br/># pacman -S bluedevil<span>&nbsp;&nbsp;&nbsp;&nbsp;//KDE蓝牙管理器</span></blockquote></li><br/>
+			<li><p>需要注意的是，如果你的机器是Intel主板，安装完KDE桌面环境后音频设备工作不正常，则可能需要安装<span class="blue"> pulseaudio </span>才能正常输出声音。特别的，在使用vlc作为后端音频服务的时候，需要安装<span class="blue"> pulseaudio-alsa </span>，否则网页播放Flash会出现没有声音的情况！<br/></p>
+			<blockquote># pacman -S pulseaudio-alsa</blockquote>
+			<p>此外，如果遇见开机默认外置喇叭不出声音，只有插上耳机再拔掉喇叭才能出声的情况，需要在<span class="blue"> [系统设置->多媒体->音频和视频设置->音频硬件设置] </span>中将声卡选择为<span class="blue"> 内部音频 </span>，配置选择为<span class="blue"> 模拟立体声双工 </span>，设备设置中的连接器设置为<span class="blue"> Speakers </span>，这样开机就会自动让外置喇叭发声了。<br/>KDE的系统警告音特别大，且不受kmix音量控制，系统的警告通知音量在<span class="blue"> [系统设置->应用程序和系统通知->管理通知->播放器设置->使用KDE声音系统] </span>选项中，将音量调低即可。</p></li><br/>
+			<li><p>KDE桌面环境在使用gstreamer作为音频后端时，推荐安装smplayer作为视频播放器(Qt图形界面+Mplayer后端实现)，在使用vlc作为后端时，推荐使用vlc播放器(Qt图形界面+vlc后端)，能够更有效地利用依赖关系。</p></li><br/>
+			<li><p>如果不习惯使用KDE桌面环境，则可以使用gnome桌面环境：</p>
+			<blockquote># pacman -S gnome-shell<span>&nbsp;&nbsp;&nbsp;&nbsp;//gnome-shell包含一个最小化的可启动的gnome环境</span></blockquote>
+			<p>仅仅安装gnome-shell是完全不够的，还需要安装一些常用的gnome组件：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">包名称</span></th><th style="width: 200px"><span class="blue">软件包简介</span></th></tr>
+				<tr><td>gnome-control-center</td><td>gnome控制中心</td></tr>
+				<tr><td>gnome-screenshot</td><td>gnome截图</td></tr>
+				<tr><td>gnome-disk-utility</td><td>镜像刻录工具</td></tr>
+				<tr><td>gnome-system-monitor</td><td>gnome资源监视器</td></tr>
+				<tr><td>nautilus</td><td>gnome文件管理器</td></tr>
+				<tr><td>gnome-terminal</td><td>gnome终端</td></tr>
+				<tr><td>gnome-font-viewer</td><td>gnome字体浏览器</td></tr>
+				<tr><td>gdm</td><td>gnome登陆器</td></tr>
+				<tr><td>eog</td><td>gnome之眼</td></tr>
+				<tr><td>evince</td><td>pdf文档阅读器</td></tr>
+				<tr><td>gnome-calculator</td><td>gnome计算器</td></tr>
+				<tr><td>yelp</td><td>gnome帮助查看器</td></tr>
+			</table></blockquote>
+			<p>gnome-extra包组中，也需要安装一些必要的包：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">软件包简介</span></th></tr>
+				<tr><td><span class="blue">devhelp</span></td><td>gnome开发者文档浏览器</td></tr>
+				<tr><td><span class="blue">gnome-nettool</span></td><td>gnome网络工具</td></tr>
+				<tr><td><span class="blue">file-roller</span></td><td>gnome归档管理器</td></tr>
+				<tr><td><span class="blue">vinagre</span></td><td>gnome桌面的远程控制服务</td></tr>
+				<tr><td>cheese</td><td>茄子大头贴，聊天工具必备摄像头组件</td></tr>
+				<tr><td>gedit</td><td>gnome文本编辑器</td></tr>
+				<tr><td>anjuta</td><td>gnome开发用的IDE</td></tr>
+				<tr><td>gnome-devel-docs</td><td>gnome开发者文档</td></tr>
+				<tr><td>gnome-color-manager</td><td>gnome色彩管理器</td></tr>	
+			</table></blockquote>
+			<p>默认的gnome桌面环境是非常简<span class="blue">(nan)</span>洁<span class="blue">(yong)</span>的，可定制的选项很少，并且许多必要的功能都没有实现。可以通过安装gnome-extensions来解决这个问题：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">扩展名称</span></th><th style="width: 400px"><span class="blue">扩展功能简介</span></th></tr>
+				<tr><td>Applications menu</td><td>经典gnome风格的菜单插件</td></tr>
+				<tr><td>Taskbar</td><td>顶栏任务管理器</td></tr>
+				<tr><td>OpenWeather</td><td>顶栏天气指示器</td></tr>
+				<tr><td>Alternatetab</td><td>多任务切换插件</td></tr>
+				<tr><td>Lock Keys</td><td>键盘锁定提示</td></tr>
+				<tr><td>Dash to dock</td><td>桌面Dock插件</td></tr>
+				<tr><td>Systemmonitor</td><td>系统监视器插件</td></tr>
+				<tr><td>Panel world clock</td><td>顶栏世界时钟插件</td></tr>
+				<tr><td>Media player indicator</td><td>播放器指示器插件</td></tr>
+				<tr><td>Drop down terminal</td><td>下拉终端插件</td></tr>
+				<tr><td>Places status indicator</td><td>文件夹快速访问插件</td></tr>
+				<tr><td>Native window placement</td><td>Dash视图自然排列</td></tr>
+			</table></blockquote>
+			<p>安装完gedit和eog之后，如果有需要可以安装对应插件(这些插件通常<span class="blue">用不到</span>，一般<span class="blue">没有必要</span>安装)：</p>
+			<blockquote># pacman -S gedit-plugins eog-plugins</blockquote></li><br/>
+			<li><p>如果比较习惯传统的gnome2风格的桌面环境，可以尝试使用<span class="blue"> MATE </span>作为桌面环境。<br/>安装MATE桌面环境的基本包组：</p>
+			<blockquote># pacman -S mate</blockquote>
+			<p>在<span class="blue"> mate </span>包组中，同样有些包是<span class="blue">不必要安装</span>的：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">软件包介绍</span></th></tr>
+				<tr><td>mate-dialogs</td><td>用于在命令行下弹出MATE桌面的窗口，没必要安装</td></tr>
+				<tr><td>mate-backgrounds</td><td>MATE桌面环境的默认壁纸包，没有必要安装</td></tr>
+				<tr><td>mate-themes</td><td>MATE桌面环境的默认主题包，推荐使用更漂亮的<span class="blue"> Numix </span>主题作为替代</td></tr>
+			</table></blockquote>
+			<p>仅仅安装<span class="blue"> mate包组 </span>是不够的，还要选择安装<span class="blue"> mate-extra </span>包组中的一些组件来构建功能完整的桌面环境：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">软件包介绍</span></th></tr>
+				<tr><td>mate-media-pulseaudio</td><td>MATE桌面环境的音频控制器</td></tr>
+				<tr><td>mate-power-manager</td><td>MATE桌面环境的电源管理组件</td></tr>
+				<tr><td>mate-system-monitor</td><td>MATE桌面环境的任务管理器组件</td></tr>
+				<tr><td>mate-screensaver</td><td>MATE桌面环境的锁屏模块</td></tr>
+				<tr><td>mate-terminal</td><td>MATE桌面环境的终端模拟器</td></tr>
+				<tr><td>mate-utils</td><td>包含常用的磁盘分析工具，截图工具等</td></tr>
+				<tr><td>atril</td><td>MATE桌面环境的文档阅读器</td></tr>
+				<tr><td>engrampa</td><td>MATE桌面环境的归档管理器</td></tr>
+				<tr><td>eom</td><td>MATE之眼</td></tr>
+				<tr><td>pluma</td><td>MATE桌面环境的文本编辑器(不推荐安装，文本编辑bluefish更强大)</td></tr>
+			</table></blockquote>
+			<p>MATE桌面环境推荐使用<span class="blue"> lightdm </span>作为登陆器：</p>
+			<blockquote># pacman -S lightdm lightdm-gtk-greeter</blockquote>
+			<p>默认配置的lightdm简直丑的突破天际，更改lightdm的配置文件<span class="blue"> /etc/lightdm/lightdm-gtk-greeter.conf </span>，在该配置文件中指定lightdm的风格和壁纸。<br/>默认配置下，lightdm的界面始终为英文，如果需要lightdm显示中文，需要将<span class="blue"> LANG=zh_CN.UTF-8 </span>写入<span class="blue"> /etc/environment </span>文件中。<br/>默认配置下，MATE桌面环境使用的<span class="blue"> mate-screensaver </span>始终使用的是默认壁纸，更改壁纸需要手动创建文件<span class="blue"> /usr/share/glib-2.0/schemas/mate-background.gschema.override </span>，并在配置文件中写入下列内容：</p>
+			<blockquote>[org.mate.background]<br/>picture-filename='/path/to/the/background.jpg'</blockquote>
+			<p>使用<span class="blue"> glib-compile-schemas </span>指令使配置生效：</p>
+			<blockquote># glib-compile-schemas /usr/share/glib-2.0/schemas/</blockquote>
+			<p>默认情况下，MATE桌面环境的桌面会显示已挂载的分区图标，这会打乱桌面图标布局，可以使用<span class="blue"> dconf-editor </span>来修改桌面的图标显示，取消<span class="blue"> org.mate.caja.desktop.volumes-visible </span>属性即可。</p></li><br/>
+			<li><p>除了MATE之外，习惯gnome2风格的还可以选择使用<span class="blue">Xfce</span>作为桌面环境。<br/>安装Xfce4桌面环境的基本包组：</p>
+			<blockquote># pacman -S xfce4</blockquote>
+			<p>在<span class="blue"> xfce4 </span>包组中，依然有些包是<span class="blue">不必要安装</span>的：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">软件包介绍</span></th></tr>
+				<tr><td>gtk2-xfce-engine</td><td rowspan="2">Xfce桌面环境的默认gtk控件主题引擎，很丑，不要装了，反正不会用默认的主题的</td></tr>
+				<tr><td>gtk3-xfce-engine</td></tr>
+				<tr><td>xfce4-appfinder</td><td>搜索工具，基本用不到</td></tr>
+				<tr><td>thunar-volman</td><td>thunar文件管理器的卷管理插件，用不到</td></tr>
+				<tr><td>xfwm4-themes</td><td>Xfce桌面环境的默认窗口管理器主题，也很丑，也不要装了</td></tr>
+			</table></blockquote>
+			<p>仅仅安装<span class="blue"> xfce4 </span>包组是不够的，还要选择安装<span class="blue"> xfce4-goodies </span>包组中的一些组件来构建功能完整的桌面环境：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">软件包介绍</span></th></tr>
+				<tr><td>mousepad</td><td>Xfce桌面环境的文本编辑器(不推荐安装，文本编辑bluefish更强大)</td></tr>
+				<tr><td>ristretto</td><td>Xfce桌面环境的图片浏览器</td></tr>
+				<tr><td>xfce4-notifyd</td><td>Xfce桌面环境的通知系统</td></tr>
+				<tr><td>xfce4-screenshooter</td><td>Xfce桌面环境的截图工具</td></tr>
+				<tr><td>xfce4-taskmanager</td><td>Xfce桌面环境的任务管理器</td></tr>
+				<tr><td>xfce4-weather-plugin</td><td>Xfce桌面环境的面板天气插件</td></tr>
+				<tr><td>thunar-archive-plugin</td><td>thunar文件管理器的压缩文档支持</td></tr>
+			</table></blockquote>
+			<p>相对与重量级的gnome、KDE之类的桌面环境，轻量级的Xfce项目并没有提供完整的常用工具组，除了以上的包之外，还需要安装<span class="blue"> zathura-pdf-mupdf </span>作为pdf阅读器，<span class="blue"> gnome-disk-utility </span>作为磁盘刻录工具，<span class="blue"> file-roller </span>作为解压工具，<span class="blue"> slock </span>作为锁屏工具，<span class="blue"> thunderbird </span>作为邮件客户端，<span class="blue"> xfce-polkit-git </span>作为polkit的xfce前端(这个包在<span class="blue">AUR</span>中)。</p>
+			<blockquote># pacman -S zathura-pdf-mupdf gnome-disk-utility file-roller slock thunderbird</blockquote>
+			<p>Xfce桌面环境也推荐使用<span class="blue"> lightdm </span>作为登陆器，配置过程类似与MATE桌面环境。</p></li><br/>
+			<li><p>默认情况下，挂载Windows分区读写じやない，需要安装：</p>
+			<blockquote># pacman -S ntfs-3g<span>&nbsp;&nbsp;&nbsp;&nbsp;//让nautilus/dolphin/caja能够正常读写挂载的Windows分区</span></blockquote></li><br/>
+			<li><p>安装图形界面之后，可能无法直接启动，需要配置以下文件：</p>
+			<blockquote>/etc/X11/xinit/xinitrc<br/>~/.xinitrc</blockquote>
+			<p>在文件内容中添加启动桌面指定环境的语句：<span class="blue"> exec startkde </span> (以kde桌面环境为例)<br/>如果是gnome桌面环境，则添加语句：<span class="blue"> exec gnome-session </span><br/>如果是MATE桌面环境，则添加语句：<span class="blue"> exec mate-session </span></p></li><br/>
+			<li><p>使ArchLinux可以开机后自动执行图形界面：</p>
+			<blockquote># systemctl enable kdm.service<span>&nbsp;&nbsp;&nbsp;&nbsp;//如果是KDE桌面环境，使用KDM作为登陆器</span><br/># systemctl enable gdm.service</blockquote></li><br/>
+			<li><p>安装完KDE桌面环境后需要安装中文语言包(可能会出现中文汉化不完全的问题)，修改编码：</p>
+			<blockquote># vim /etc/locale.gen<span>&nbsp;&nbsp;&nbsp;&nbsp;//去掉<span class="blue">/etc/locale.gen</span>文件内中文编码<span class="blue"> zh_CN.UTF-8 </span>前的#号注释，为系统添加中文编码支持</span><br/># echo "LC_ALL=zh_CN.UTF-8" >> /etc/environment<br/># locale-gen<span>&nbsp;&nbsp;&nbsp;&nbsp;//使中文编码生效</span></blockquote></li><br/>
+			<li><p>使用KDE桌面环境时，默认是不会在家目录下生成用户文件夹的，故需要安装xdg工具：</p>
+			<blockquote># pacman -S xdg-user-dirs</blockquote>
+			<p>使用以下命令首次生成用户文件夹：</p>
+			<blockquote>$ xdg-user-dirs-update</blockquote>
+			<p>如果不慎删除了某个默认用户文件夹，使用如下命令强制重新生成家目录文件夹：</p>
+			<blockquote>$ xdg-user-dirs-update --force</blockquote></li><br/>
+			<li><p>在KDE桌面环境下的默认gtk程序惨不忍睹，安装KDE下的gtk配置以及gtk主题：</p>
+			<blockquote># pacman -S kde-gtk-config oxygen-gtk2 oxygen-gtk3</blockquote></li><br/>
+			<li><p>在KDE桌面环境中，推荐从AUR中安装全局菜单组件和bespin界面风格：</p>
+			<blockquote>$ yaourt -S kdeplasma-applets-menubar bespin-svn</blockquote></li><br/>
+			<li><p>安装KDE桌面环境的配套音乐播放器Amarok：</p>
+			<blockquote># pacman -S amarok<br/></blockquote>
+			<p>如果后端采用gstreamer解码器，必须安装gs解码器才能播放mp3，ape等格式<span>(推荐使用vlc作为后端，可省去安装此解码器的过程。)</span>：</p>
+			<blockquote># pacman -S gst-plugins-good gst-plugins-bad gst-plugins-ugly<span>&nbsp;&nbsp;&nbsp;&nbsp;//使播放器能够播放mp3等格式</span><br/># pacman -S gst-libav<span>&nbsp;&nbsp;&nbsp;&nbsp;//使播放器能够播放ape等格式</span></blockquote></li><br/>
+			<li><p>设置完时区之后，有可能需要ntp服务才能同步事件(部分桌面环境不需要)：</p>
+			<blockquote># pacman -S ntp</blockquote></li><br/>
+			<li><p>安装yaourt，在<span class="blue"> /etc/pacman.conf </span>中添加软件仓库：</p>
+			<blockquote>[<span class="blue">archlinuxfr</span>]<br/>SigLevel = Optional TrustAll<br/>Server = <span class="blue">http://repo.archlinux.fr/$arch</span></blockquote>
+			<p>刷新源一遍之后，在命令行中安装：</p>
+			<blockquote># pacman -Sy yaourt</blockquote>
+			<p>使用yaourt来更新所有系统中的包：</p>
+			<blockquote>$ yaourt -Syua</blockquote>
+			<p>还可以使用国内用户打包的archlinuxcn仓库，该仓库中包含有许多常用的官方尚未收录的软件的二进制包(<span class="blue">chrome，wps</span>等)，在<span class="blue"> /etc/pacman.conf </span>文件中添加：</p>
+			<blockquote>[<span class="blue">archlinuxcn</span>]<br/>Server = <span class="blue">http://repo.archLinuxcn.org/$arch</span><span>&nbsp;&nbsp;&nbsp;&nbsp;//实际上由于网络问题，下载archlinuxcn源中的包特别慢，一般情况下还是不要添加此源，直接去AUR中编译安装更快，除非你需要的软件被墙了。</span></blockquote>
+			</li><br/>
+			<li><p>ArchLinux中pacmanの图形化前端：</p>
+			<ol><li><p>KDE桌面环境中推荐使用apper</p>
+			<blockquote># pacman -S apper</blockquote></li>
+			<li><p>gnome桌面环境中推荐使用packagekit</p>
+			<blockquote># pacman -S gnome-packagekit</blockquote></li></ol></li><br/>
+			<li><p>安装firefox火狐浏览器和thunderbird雷鸟邮件客户端：</p>
+			<blockquote># pacman -S firefox firefox-i18n-zh-cn thunderbird thunderbird-i18n-zh-cn<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装浏览器和邮件客户端的同时安装中文汉化包</span></blockquote></li><br/>
+			<li><p>安装fcitx输入法作为中文输入法：</p>
+			<blockquote># pacman -S fcitx-im</blockquote>
+			<p>为保证fcitx能够正常在各个环境中使用，安装：</p>
+			<blockquote># pacman -S fcitx-qt5</blockquote>
+			<p>推荐使用AUR里的搜狗拼音输入法：</p>
+			<blockquote># yaourt -S fcitx-sogoupinyin</blockquote>
+			<p>如果是KDE环境下，需要安装图形配置工具：</p>
+			<blockquote># pacman -S kcm-fcitx</blockquote>
+			<p>gnome桌面环境下，安装图形配置工具：</p>
+			<blockquote># pacman -S fcitx-configtool</blockquote>
+			<p>如果使用登陆器(KDM,GDM等)则需家目录下创建<span class="blue"> .xprofile </span>文件写入以下配置：</p>
+			<blockquote>export GTK_IM_MODULE=fcitx<br/>export QT_IM_MODULE=fcitx<br/>export XMODIFIERS="@im=fcitx"<span>&nbsp;&nbsp;&nbsp;&nbsp;//让fcitx成为默认输入法</span></blockquote>
+			<p>如果使用startx启动图形环境，则将该配置写入<span class="blue"> .xinitrc </span>文件中。</p></li><br/>
+			<li><p>在gnome桌面环境下，对ibus输入法的支持更好：</p>
+			<blockquote># pacman -S ibus<br/># pacman -S ibus-anthy ibus-pinyin<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装日语と中文输入法，实测中文输入法中googlepinyin以及sunpinyin等老牌输入法对新界面的ibus支持欠佳</span></blockquote>
+			<p>gnome桌面环境在最新版本中使用ibus输入法也需要在<span class="blue"> .xprofile </span>文件(使用DM登录DE)或是在<span class="blue"> .profile </span>文件(使用startx启动DE)中写入如下配置来调用ibus输入法：</p>
+			<blockquote>export GTK_IM_MODULE=ibus<br/>export QT_IM_MODULE=ibus<br/>export XMODIFIERS="@im=ibus"<span>&nbsp;&nbsp;&nbsp;&nbsp;//缺少这些配置ibus将在Qt程序中无法启动</span></blockquote>
+			<p>ibus在ArchLinux中有bug，无法保存配置，执行以下命令后可以恢复正常：</p>
+			<blockquote># dconf update<span>&nbsp;&nbsp;&nbsp;&nbsp;//更新dconf配置</span><br/>$ ibus-daemon -rdx<span>&nbsp;&nbsp;&nbsp;&nbsp;//重启ibus</span></blockquote></li><br/>
+			<li><p>如果使用gnome桌面环境，建议安装<span class="blue"> telepathy包组 </span>，否则无法使用在线账户功能：</p>
+			<blockquote># pacman -S telepathy</blockquote></li><br/>
+			<li><p>安装常用的CLI文本编辑器<span class="blue"> VIM </span>：</p>
+			<blockquote># pacman -S gvim<span>&nbsp;&nbsp;&nbsp;&nbsp;//推荐安装带有GUI的gvim，安装gvim的同时会自动安装CLI下的vim</span></blockquote>
+			<p>通过git安装vim插件管理器<span class="blue"> Vundle </span>：</p>
+			<blockquote>$ git clone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装该插件之前需要安装版本控制软件git</span></blockquote></li><br/>
+			<li><p>安装功能强大的<span class="blue"> ZSH </span>：</p>
+			<blockquote># pacman -S zsh</blockquote>
+			<p>ZSH搭配<span class="blue"> OhMyZsh </span>插件效果更好：</p>
+			<blockquote>$ git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh</blockquote></li><br/>
+			<li><p>安装办公套件：</p>
+			<ol><li><p>在KDE桌面环境中，通常使用calligra办公套件：</p>
+			<blockquote># pacman -S calligra-meta</blockquote></li>
+			<li><p>在gnome桌面环境中，通常使用libreoffice办公套件：</p>
+			<blockquote># pacman -S libreoffice-fresh libreoffice-fresh-zh-CN<span>&nbsp;&nbsp;&nbsp;&nbsp;//libreoffice-fresh是较新的版本，还可以选择安装包含稳定版本libreoffice的libreoffcie-still包组</span></blockquote></li></ol>
+			</li><br/>
+			<li><p>安装下载工具：</p>
+			<ol><li><p>Linux下常用的下载工具是wget和curl等命令行工具：</p>
+			<blockquote># pacman -S wget curl<span>&nbsp;&nbsp;&nbsp;&nbsp;//常见的命令行下载工具</span></blockquote></li>
+			<li><p><span class="blue"> aria2 </span>是命令行下的高级下载工具，拥有比wget/curl等工具更强大的功能，能够支持HTTP,FTP,BitTorrent,Metalink等多种协议：</p>
+			<blockquote># pacman -S aria2<span>&nbsp;&nbsp;&nbsp;&nbsp;//常用命令格式为<span class="blue"> aria2c [OPTIONS] [URL | MAGNET | TORRENT_FILE | METALINK_FILE] </span></span></blockquote></li>
+			<li><p>如果需要使用ed2k协议，则需要安装<span class="blue"> amule </span>：</p>
+			<blockquote># pacman -S amule<span>&nbsp;&nbsp;&nbsp;&nbsp;//amule类似与win系统下的“电驴”，是一个支持ed2k协议的p2p下载工具</span></blockquote></li></ol>
+			</li><br/>
+			<li><p>安装AUR源里的wps:<br/>安装wps相对于别的平台要麻烦一些，由于wps是32位的程序，在64的ArchLinux中安装wps需要开启multilib源，去掉<span class="blue"> /etc/pacman.conf </span>文件中关于multilib源里的注释。然后用yaourt搜索wps并完成安装。</p></li><br/>
+			<li><p>安装虚拟机VirtualBox(在宿主机中安装需要virtualbox-host-modules，提供vboxdrv等内核模块)：</p>
+			<blockquote># pacman -S virtualbox virtualbox-host-dkms virtualbox-host-modules</blockquote>
+			<p>虚拟机安装完成之后，需要启用内核中对应的虚拟机模块才能使虚拟机正常运行：</p>
+			<blockquote># modprobe vboxdrv</blockquote>
+			<p>如果需要使用桥接网卡，则需要挂载对应网络模块：</p>
+			<blockquote># modprobe vboxnetflt</blockquote>
+			<p>对于使用<span class="blue"> systemd </span>的发行版，将需要开机自启动的内核模块写入 <span class="blue"> /etc/modules-load.d/ </span> 目录的任意文件中。在gnome桌面环境中，默认没有安装qt，而virtualbox是qt程序，だから，需要安装qt4，否则没有图形界面：</p>
+			<blockquote># pacman -S qt4</blockquote></li><br/>
+			<li><p>ArchLinux源中のNetbeans和Eclipse非常给力，默认中文，だから，可以放弃从官方下载安装的方式：</p>
+			<blockquote># pacman -S netbeans eclipse eclipse-cdt<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装netbeans和eclipse</span><br/># pacman -S junit<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装java单元测试工具JUnit</span><br/><span class="blue">注意：</span><span>在pacman源中安装的Netbeans无法在普通用户下调用源中安装的tomcat（权限不足，不建议使用root账户进行开发工作！），所以如果进行JavaWeb开发仍需要从<span class="blue">Apache Tomcat官网</span>下载Tomcat的二进制包，在Netbeans得添加服务器选项中添加Tomcat的路径。(不要忘记给相关启动脚本添加可执行权限！)</span></blockquote></li><br/>
+			<li><p>配置OpenGL开发环境时需要安装mesa相关包（通常在安装桌面环境时已经随依赖安装），以及freeglut包。</p>
+			<blockquote># pacman -S freeglut</blockquote></li><br/>
+			<li><p>将需要的开发工具和开发环境一并安装：</p>
+			<blockquote># pacman -S ctags cmake apache nginx mariadb clang boost freeglut gcc gcc-ada gcc-fortran gcc-go gcc-objc gdb gdc gnustep-core nasm yasm perl php python python2 js npm mono jdk7-openjdk jdk8-openjdk junit tomcat7 tomcat8 ruby qtcreator</blockquote></li><br/>
+			<li><p>安装开发环境的对应的文档：</p>
+			<blockquote># pacman -S linux-docs openjdk8-doc qt5-doc gcc-docs php-docs python-docs ruby-docs</blockquote></li><br/>
+			<li><p>最后安装主流的版本控制系统：</p>
+			<blockquote># pacman -S git subversion</blockquote></li>
+			</ul>
+			<br/><br/><br/>
+			<h2 id="fourth">ArchLinux常见问题の记录</h2>
+			<ol>
+			<li><p>在使用<span class="blue"> man </span>命令时，有时会有一个指令对应多种内容的情况(比如某些C函数与bash指令同名)，此时可以使用下列命令：</p>
+			<blockquote>$ man [<span class="blue">分卷号</span>] [<span class="blue">指令名称</span>]</blockquote>
+			<p>关于<span class="blue">分卷号</span>，一般有：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 100px"><span class="blue">分卷号</span></th><th style="width: 400px"><span class="blue">功能</span></th></tr>
+				<tr><td>1</td><td>可由任何人启动的<span class="blue">用户命令</span></td></tr>
+				<tr><td>2</td><td><span class="blue">系统调用</span>，即由内核提供的函数</td></tr>
+				<tr><td>3</td><td><span class="blue">库函数</span>，比如标准C库libc</td></tr>
+				<tr><td>4</td><td>设备，即/dev目录下的特殊文件</td></tr>
+				<tr><td>5</td><td>文件格式描述，例如/etc/passwd</td></tr>
+				<tr><td>6</td><td>游戏</td></tr>
+				<tr><td>7</td><td>杂项， 例如宏命令包、惯例等</td></tr>
+				<tr><td>8</td><td>系统管理员工具， 只能由root启动</td></tr>
+				<tr><td>9</td><td>其他（Linux特定的）， 用来存放内核例行程序的文档</td></tr>
+				<tr><td>n</td><td>新文档，可能要移到更适合的领域</td></tr>
+				<tr><td>o</td><td>老文档，可能会在一段期限内保留</td></tr>
+				<tr><td>i</td><td>本地文档，与本特定系统有关的</td></tr>
+			</table></blockquote>
+			</li><br/>
+			<li><p>ArchLinux的DNS配置在<span class="blue"> /etc/resolv.conf </span>文件中，需要注意的是该文件中的配置受到<span class="blue"> /etc/resolvconf.conf </span>控制，直接修改<span class="blue"> /etc/resolv.conf </span>的配置是不会保存的(下次开机会重置)，应该在<span class="blue"> /etc/resolvconf.conf </span>文件中加入内容：</p>
+			<blockquote>name_servers=114.114.114.114</blockquote></li><br/>
+			<li><p>ArchLinux使用pacman作为包管理器，软件包的操作管理记录可以在日志文件<span class="blue"> /var/log/pacman.log </span>中查看。</p></li><br/>
+			<li><p>ArchLinux在使用<span class="blue"> gnome 3.12 </span>版本以上的桌面环境时，如果使用startx启动桌面环境的话，会发现菜单里没有锁屏按钮。<br/>因为gnome桌面の锁屏功能需要调用gdm登陆器，だから，如果想要正常使用锁屏功能，需要开启gdm服务，使用gdm来登陆桌面环境：</p>
+			<blockquote># systemctl enable gdm.service</blockquote>
+			<p>如果不再需要使用登陆器登陆桌面环境了，可以关闭登陆器服务：</p>
+			<blockquote># systemctl disable gdm.service</blockquote>
+			<p>如果是KDE桌面环境，操作方式类似：</p>
+			<blockquote># systemctl enable kdm.service<span>&nbsp;&nbsp;&nbsp;&nbsp;//开启KDE的图形登陆器kdm服务<br/></span># systemctl disable kdm.service<span>&nbsp;&nbsp;&nbsp;&nbsp;//关闭kdm服务</span></blockquote></li><br/>
+			<li><p>ArchLinux在使用gnome桌面环境时，默认情况下控制面板中的在线账户选项时无效，需要安装telepathy包组才能正常添加在线账户。</p>
+			<blockquote># pacman -S telepathy-gabble<span>&nbsp;&nbsp;&nbsp;&nbsp;//只需安装这一个包就可以正常使用部分在线账户，如果需要使用webfetion或是webqq等通信协议，则请完整安装telepathy包组。</span></blockquote></li><br/>
+			<li><p>在默认情况下，使用ArchLinux的grub扫描硬盘生成grub.cfg文件时，是不会扫描出硬盘上所存在的其它系统的，需要安装以下组件：</p>
+			<blockquote># pacman -S os-prober</blockquote></li><br/>
+			<li><p>在默认情况下，ArchLinux的时区设置为UTC，即硬件时钟(RTC)为标准时钟(UTC)，而系统的本地时间(Local time)是由硬件时钟加时区时差得到的。这样的配置通常是Unix系列的默认设置(包括Mac OS X)。而在Windows下，默认硬件时间即为本地时间(Local time)，故会与以硬件时间为UTC的ArchLinux产生冲突。推荐将ArchLinux修改为与Windows相同的localtime配置：</p>
+			<blockquote># timedatectl set-timezone Asia/Shanghai<span>&nbsp;&nbsp;&nbsp;&nbsp;//将时区设为上海时间(CST)</span></blockquote>
+			<p>使用指定时区时，则需要将实时时间设为本地时间：</p>
+			<blockquote># timedatectl set-local-rtc 1</blockquote>
+			<p>如果不需要使用localtime时区而需要改回UTC，执行：</p>
+			<blockquote># timedatectl set-timezone UTC</blockquote>
+			<p>查看当前的时区配置：</p>
+			<blockquote>$ timedatectl status</blockquote>
+			<p>开启时间同步服务：</p>
+			<blockquote># timedatectl set-ntp 1<span>&nbsp;&nbsp;&nbsp;&nbsp;//<span class="blue">0</span>为关闭时间同步服务</span></blockquote>
+			<p>开启systemd自带的时间同步服务会导致在没有网络的情况下关机特别慢(系统会一直等待时间同步服务结束)，因此，如非必要，不推荐打开时间同步服务。为了与Windows时间保持同步，则推荐使用两种时间搭配：</p>
+			<blockquote>1.指定时区 + 本地时间RTC。<br/>2.UTC时区 + UTC时间为RTC。</blockquote></li><br/>
+			<li><p>在默认情况下，使用gnome桌面环境时，ArchLinux开机时启动桌面环境后音量会自动重置为0，无论你上次关机时音量是多少。解决开机自动静音问题需要安装以下组件(KDE桌面环境不需要！)：</p>
+			<blockquote># pacman -S alsa-utils</blockquote></li><br/>
+			<li><p>在默认情况下，ArchLinux在源中安装的Tomcat需要root权限才能够启动，所以在使用NetBeans/Eclipse等集成开发环境进行WEB开发时，需要从Tomcat官网下载独立得二进制包放在用户有权限的家目录下以供IDE使用，需要注意的是，默认解压出的Tomcat二进制包中的启动脚本是没有启动权限的，因此不要忘记将<span class="blue"> ~/apache-tomcat-*/bin </span>目录下的启动脚本添加可执行权限：</p>
+			<blockquote>$ chmod u+x *.sh</blockquote></li><br/>
+			<li><p>在默认情况下，ArchLinux的蓝牙服务是开启的，查看蓝牙服务的状态使用命令：</p>
+			<blockquote># systemctl status bluetooth.service</blockquote>
+			<p>不需要使用蓝牙服务的话，使用以下命令关闭：</p>
+			<blockquote># systemctl disable bluetooth.service</blockquote></li><br/>
+			<li><p>默认情况下，ArchLinux是无法挂载使用mtp服务的设备的，可以通过安装gvfs-mtp让nautilus识别出mtp设备，或是安装kio-mtp让dolphin识别出mtp设备：</p>
+			<blockquote># pacman -S gvfs-mtp<span>&nbsp;&nbsp;&nbsp;&nbsp;//用于gnome桌面环境</span><br/># pacman -S kio-mtp<span>&nbsp;&nbsp;&nbsp;&nbsp;//用于KDE桌面环境</span></blockquote></li><br/>
+			<li><p>在安装字体时，记住千万不要手贱去装<span class="blue"> wqy-microhei-lite </span>这个字体包，会造成Netbeans中使用文泉驿等宽微米黑字体时空格变成口口(是非もなし)。</p></li><br/>
+			<li><p>在使用gnome桌面环境时，通常会选择安装libreoffice作为办公套件，在安装时，不推荐完整安装libreoffice包组，会将在gnome桌面环境下完全无用的<span class="blue"> libreoffice-kde4 </span>也一起安装进来，<span class="blue"> libreoffice-kde4 </span>会带来许多无用的KDE依赖。同时，也不推荐安装libreoffice-sdk，这是libreoffice的开发包，对普通用户无用。<span>(最新版本的ArchLinux中，libreoffice已经不再分开打包，可以忽略此条)</span></p></li><br/>
+			<li><p>在使用gnome桌面时，如过你的机器使用的是Intel的核芯显卡，则有可能会出现屏幕亮度无法保存的情况，解决办法是使用Xorg服务中的亮度调节命令，由于gnome桌面环境在登录时会自动执行.xprofile文件，故可在.xprofile文件中写入以下指令：<span>(在Linux 3.17内核之后，不再会出现此问题，因此使用新内核的话可以无视此条)</span></p>
+			<blockquote>xbacklight -set xx<span>&nbsp;&nbsp;&nbsp;&nbsp;//xx代表亮度的百分比，推荐60</span></blockquote></li><br/>
+			<li><p><span class="blue"> ~/.local/share/applications/mimeapps.list </span>文件是控制扩展名与默认应用关联的文件，需要谨慎配置。在gnome桌面环境下可能会遇到一些与之相关的问题：</p>
+			<ul><li><p>有时在gnome控制中心中更改默认应用程序时会出现无法保存的情况，这时需要自行修改mimeapps.list文件，将希望的应用程序改为默认值，或者直接删除该文件，系统会重新生成一个默认配置的文件。</p></li>
+			<li><p>在使用gnome扩展Places Status Indicator时，如果安装了音乐播放器audacious，则默认情况下会出现从扩展中打开文件夹并不是启用nautious，而是使用audacious打开。出现这种情况就是对于inode/directory类型的应用关联出现了问题，可以在mimeapps.list文件中的<span class="blue"> [Default Applications] </span>中写入键值<span class="blue"> inode/directory=nautilus.desktop </span>，即手动指定了目录类型的默认打开方式，执行以下命令的作用类似：</p>
+			<blockquote>$ xdg-mime default nautilus.desktop inode/directory</blockquote></li>			
+			</ul></li><br/>
+			<li><p>有时，ArchLinux的密钥会出现更新不及时的情况，安装部分包会出现下列错误提示：</p>
+			<blockquote>error: key "****" cound not be looked up remotely<br/>error: required key missing from keyring<br/>error: failed to committrasaction (unexpected error)<br/>Errors occurred, no packages were upgraded.</blockquote>
+			<p>遇到这种情况，可以手动使用<span class="blue"> pacman-key </span>工具更新密钥库：</p>
+			<blockquote># pacman-key --populate</blockquote></li><br/>
+			<li><p>pacman的源数据存放在<span class="blue"> /var/lib/pacman/sync </span>目录下，根据源的名字会分别生成对应的源数据库文件<span class="blue">[<span>源名称</span>].db</span>，当pacman同步源出问题时(比如<span class="blue"> 0.0   B  0.00B/s 00:00 [------------]   0% </span>问题)，可以尝试删除这些源数据文件，然后使用<span class="blue"> # pacman -Syu </span>命令重新生成源数据文件。</p></li><br/>
+			<li><p>有时，安装zsh后系统会自动生成高优先级的zshrc配置文件，使得用户自己的配置文件无法生效，遇到此种情况时可以尝试移除<span class="blue"> /etc/zsh/zshrc </span>以及<span class="blue"> /etc/skel/.zshrc </span>这两个zsh配置文件。</li><br/>
+			<li><p>默认情况下，使用<span class="blue">KDE</span>桌面环境并使用<span class="blue">kdm</span>作为启动管理器时，无法使用sudo命令或是在虚拟终端登录su来使用管理员权限启动GUI程序，会提示<span class="blue">can not connect to X Server:0.0</span>(使用startx手动启动桌面环境不会有此现象)，原因是当前用户没有连接到Xserver的权限，在普通用户目录下的.xprofile文件中加入一句<span class="blue"> xhost + </span>即可。</p></li><br/>
+			<li><p>默认情况下，一些文件管理器是不会显示出fstab挂载列表外的硬盘其它分区的。<br/>基于<span class="blue"> gtk </span>的文件管理器(如<span class="blue"> thunar，pcmanfm </span>等)，要在文件管理器中显示出存在于当前硬盘但在fstab列表外的其它分区时需要额外安装<span class="blue"> gvfs </span>(kde桌面下的文件管理器<span class="blue"> dolphin </span>不需要， 而gnome桌面的默认文件管理器<span class="blue"> nautilus </span>则已经将该包加入默认的依赖当中，无需手动安装)。<br/>此外，在ArchLinux中挂载非系统分区需要密码验证，非常麻烦，可以修改配置文件：</p>
+			<blockquote>/usr/share/polkit-1/actions/org.freedesktop.udisks2.policy</blockquote>
+			<p>将此配置文件中的<span class="blue"> &lt;action id="org.freedesktop.udisks2.filesystem-mount-system"&gt; </span>标签中的子标签<span class="blue"> &lt;allow_active&gt;&lt;/allow_active&gt; </span>的值改为<span class="blue"> yes </span>即可无需通过密码验证直接挂载分区。</p></li><br/>
+			<li><p>默认情况下，gnome和KDE之类的重量级桌面环境在桌面包组依赖关系中已经包含了应用程序权限工具<span class="blue"> polkit </span>，但是轻量级桌面环境需要手动安装polkit的前端工具，<span class="blue"> Xfce </span>桌面环境需要安装<span class="blue"> xfce-polkit-git </span>(此包在AUR中)，<span class="blue"> MATE </span>桌面环境需要安装<span class="blue"> mate-polkit </span>。如果没有安装polkit或是polkit的前端工具，程序在执行一些需要申请root权限的功能时会<span class="blue">报错</span>，比如文件管理器挂载Win下的分区，VirtualBox安装功能增强包等。</p></li><br/>
+			<li><p>默认情况下，安装的stardict是不包含词库的，需要自行下载，可以在官网上下载tar.gz格式的词库文件解压后得到的文件夹放在dic目录中。词库位置为<span class="blue"> ～/.satdict/dic </span>(该目录默认不存在，需要自己手动建立)。</p></li><br/>
+			<li><p>现在ArchLinux支持多个版本的JDK共存，当你同时安装了<span class="blue"> openjdk7 </span>和<span class="blue"> openjdk8 </span>时，如果想切换默认使用的JDK版本，使用如下命令：</p>
+			<blockquote># archlinux-java set 'java-8-openjdk'<span>&nbsp;&nbsp;&nbsp;&nbsp;//将默认JDK版本切换为openjdk8</span><br/># archlinux-java set 'java-7-openjdk'<span>&nbsp;&nbsp;&nbsp;&nbsp;//将默认JDK版本切换为openjdk7</span></blockquote>
+			<p>默认情况下，JDK的环境变量之一CLASSPATH是不需要配置的(CLASSPATH不存在于环境变量中)，java指令会自动搜索当前目录的class文件，但是当CLASSPATH被别的程序修改而不再是不存在于环境变量列表中时，需要仔细查看CLASSPATH的值，确认CLASSPATH是否将当前目录包含在了其中，如果CLASSPATH中不包含当前目录，则可以在<span class="blue"> .xprofile </span>文件中加入语句：</p>
+			<blockquote>export CLASSPATH=$CLASSPATH:.</blockquote></li><br/>
+			<li><p>可以通过修改<span class="blue">EDITOR</span>环境变量的值来改变系统默认的编辑器，默认情况下，系统会将老旧难用的<span class="blue"> vi </span>作为系统的编辑器，推荐使用简单易上手的<span class="blue"> nano </span>或是功能更强大的<span class="blue"> vim </span>作为系统的默认编辑器，在<span class="blue"> .xprofile </span>文件中加入语句：</p>
+			<blockquote>export EDITOR=vim<span>&nbsp;&nbsp;&nbsp;&nbsp;//将vim作为默认编辑器</span></blockquote>
+			<p>或者：</p>
+			<blockquote>export EDITOR=nano<span>&nbsp;&nbsp;&nbsp;&nbsp;//将nano设置为默认的编辑器</blockquote></li><br/>
+			<li><p>Nautilus文件管理器的缩略图保存在以下位置：</p>
+			<blockquote>/home/~/.cache/thumbnails/normal</blockquote>
+			<p>如果遇到缩略图无法正常预览的情况，则可以尝试重建缩略图图标缓存，即删除对应的normal文件夹，即可回复缩略图的正常显示。</p></li><br/>
+			<li><p>默认情况下，在ArchLinux中，pacman包管理器默认是没有开启彩色的终端输出的，需要开启彩色输出需要修改<span class="blue"> /etc/pacman.conf </span>文件，去掉选项<span class="blue"> Color </span>前面的<span class="blue"> # </span>注释。</p></li><br/>
+			<li><p>默认情况下，<span class="blue"> mariadb </span>数据库安装完之后是没有初始化的，需要手动运行初始化命令：</p>
+			<blockquote># mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</blockquote></li><br/>
+			<li><p>命令行工具<span class="blue"> grep </span>在<span class="blue"> 2.21 </span>版本之后取消了对环境变量<span class="blue"> GREP_OPTIONS </span>的支持，如果安装了OhMyZsh插件或是有其它脚本创建了此环境变量，则在使用grep时会出现错误提示。要解决此问题，需要修改<span class="blue"> ~/.oh-my-zsh/lib/grep.zsh </span>文件，注释掉其中关于GREP_OPTIONS环境变量值的export。此外，如果需要grep输出内容高亮关键字显示，可以采用alias命令别名的方式，在<span class="blue"> .oh-my-zsh/lib/grep.zsh </span>文件中添加：</p>
+			<blockquote>alias grep="grep --color=auto"</blockquote>
+			<p>需要注意的是，此配置比较诡异，写在<span class="blue"> .xprofile </span>文件中是没有效果的。<span>(OhMyZsh插件的最近分支已经修正了这个问题，新版grep.zsh也采用了alias别名的方式来实现grep彩色输出，故无需再做修改)</span></p></li><br/>
+			<li><p>在<span class="blue"> 2015-1-27 </span>的更新中，<span class="blue"> network-manager-applet </span>包中取消了"网络连接"功能的图标，如果需要连接到DSL网络，需要从终端启动网络连接编辑器。执行指令：</p>
+			<blockquote>$ nm-connetion-editor</blockquote>
+			<p>即可启动网络连接编辑器，并从中添加<span class="blue"> DSL连接 </span>。</p><br/></li>
+			<li><p>当ArchLinux装在VirtualBox中时(即ArchLinux作为guest)，启用增强功能的方式与其他Linux有所区别，在ArchLinux需要不必采用附加镜像安装增强功能的方式，而是直接安装官方仓库中的virtualbox-guest-modules包即可，如过需要增强功能随着内核升级而动态更新则需要安装dkms服务，执行以下命令完成增强功能的安装：</p>
+			<blockquote># pacman -S virtualbox-guest-modules virtualbox-guest-dkms</blockquote>
+			<p>当增强功能安装完成后，需要启动对应的内核模块：</p>
+			<blockquote># modprobe -a vboxguest vboxsf vboxvideo</blockquote>
+			<p>之后还需要运行VirtualBox客户端脚本确保相关特性全部开启：</p>
+			<blockquote># VBoxClient-all</blockquote>
+			<p>如果经常使用增强功能，则可以开启服务：</p>
+			<blockquote># systemctl enable vboxservice</blockquote>
+			<p>然后就可以尝试挂载你的分区了：</p>
+			<blockquote># mount -t vboxsf <span class="blue">[你的共享文件夹的名字] [需要挂载到的位置]</span></blockquote></li><br/>
+			<li><p>默认情况下，gtk程序和qt程序使用的是不同的样式风格，对于使用qt4图形库的应用程序，可以使用<span class="blue"> qtconfig-qt4 </span>来设置qt程序的风格。然而，在qt5中，<span class="blue"> qtconfig </span>配置工具被移除了，qt5使用环境变量<span class="blue"> QT_STYLE_OVERRIDE </span>来配置qt5应用程序的界面风格。qt图形库默认内置了<span class="blue"> GTK+、CDE、Windows </span>等多种风格，在gnome桌面环境中，推荐使用<span class="blue"> GTK+ </span>风格，能够使基于qt的应用程序拥有类似gtk程序的界面风格。可以将需要的风格写入<span class="blue"> .xprofile </span>文件中(使用<span class="blue"> xinit </span>指令启动桌面环境的写入<span class="blue">.xinitrc</span>文件中)：</p>
+			<blockquote>export QT_STYLE_OVERRIDE=GTK+</blockquote></li><br/>
+			<li><p>对于采用Intel/ATI平台的计算机，若不需要使用独立显卡，则不必安装xf86-video-ati独显驱动，在3.12内核中已经集成了AMD系列GPU的DPM(Dynamic Power Manager)，无需额外设置，系统会自动关闭ATI独显来节省功耗/降低发热。使用如下命令来查看各个显卡的运行状态：</p>
+			<blockquote># cat /sys/kernel/debug/vgaswitcheroo/switch</blockquote>
+			<p>如果得到类似下面的结果。则说明电源管理正常生效：</p>
+			<blockquote><font style="color: #4F4F4F;">0:IGD:+:Pwr:0000:00:02.0<br/>1:DIS: :DynOff:0000:03:00.0</font></blockquote>
+			<p>其中，<span class="blue"> IGD </span>代表Intel核芯显卡，<span class="blue"> DIS </span>代表独立显卡，<span class="blue"> Pwr </span>代表正在通电工作，<span class="blue"> DynOff </span>代表电源动态关闭，现阶段(截至到目前最新的3.17内核)AMD的独显在与Intel核显协同工作时总是动态关闭的。<br/>如果需要启用ATI独显，则需要安装对应驱动，Linux平台下的双显卡动态切换技术远不如Windows下的成熟，推荐使用“ATI开源驱动+PRIME”的解决方案。首先，使用<span class="blue"> xrandr </span>命令检查系统中存在的显卡(<span class="blue"> xrandr </span>命令在<span class="blue"> xorg-server-utils </span>包组中)：</p>
+			<blockquote>$ xrandr --listproviders</blockquote>
+			<P>正常情况下，你将看到类似的输出：</p>
+			<blockquote><font style="color: #4F4F4F;">Providers: number : 2<br/>Provider 0: id: 0x7a cap: 0xb, Source Output, Sink Output, Sink Offload crtcs: 3 outputs: 4 associated providers: 1 name:Intel<br/>Provider 1: id: 0x51 cap: 0xf, Source Output, Sink Output, Source Offload, Sink Offload crtcs: 6 outputs: 1 associated providers: 1 name:radeon</font></blockquote>
+			<p>这说明当前的系统中存在有ID为0x7a的Intel核芯显卡以及ID为0x51的ATI独立显卡。使用mesa-demos包中的glxinfo命令做测试：</p>
+			<blockquote>$ glxinfo | grep "OpenGL renderer"</blockquote>
+			<p>输出结果为：</p>
+			<blockquote><font style="color: #4F4F4F;">OpenGL renderer string: Mesa DRI Intel(R) Ivybridge Mobile</font></blockquote>
+			<p>不难看出在默认情况下，系统总是调用核芯显卡的。为了使用独立显卡，你必须先将集成显卡定义为offload provider，因为当前连接到显示器的是集成显卡：</p>
+			<blockquote>$ xrandr --setprovideroffloadsink radeon Intel</blockquote>
+			<p>这个命令最后的两个参数就是前面查到的显卡名称，独立显卡名称写在前，核芯显卡名称放在后面(注意大小写！)。再次运行glxinfo命令测试：</p>
+			<blockquote>$ DRI_PRIME=1 glxinfo | grep "OpenGL renderer"</blockquote>
+			<p>如果看到测试结果为：</p>
+			<blockquote><font style="color: #4F4F4F;">OpenGL renderer string: Gallium 0.4 on AMD TURKS</font></blockquote>
+			<p>那么，ATI的独立显卡已经开始工作了。如果每次开机都需要使用独立显卡，则推荐将上述命令写入.xprofile文件中。</p>
+			<p><span class="blue"> PS： </span>现阶段PRIME需要搭配基于Xrender的旧式窗口管理器(xcompmgr, xfwm, compton's default backend, cairo-compmgr, and a few others)，如果使用了基于GL混合成型的窗口管理器(Mutter/muffin, Compiz, compton with GLX backend, Kwin's OpenGL backend, etc)，使用PRIME启动程序后只有一个黑窗口，程序并未正常运作。这意味着主流的几大新式桌面环境(比如gnome3和Cinnamon以及开启了OpenGL混合成型的KDE)是不能够使用PRIME的。</p></li><br/>
+			<li><p><span class="blue"> pacman </span>包管理器的一些高级功能：</p>
+			<ul><li><p>安装包时指定包的安装原因为<span class="blue"> 手动安装 </span></p>
+			<blockquote># pacman -S --asexplicit [<span class="blue">package_name</span>]</blockquote></li>
+			<li><p>安装包时指定包的安装原因为<span class="blue"> 作为依赖安装 </span></p>
+			<blockquote># pacman -S --asdeps [<span class="blue">package_name</span>]</blockquote></li></ul></li><br/>
+			<li><p>ArchLinux默认安装的基础包base里只有一些常规命令，另外有一些常用的命令行工具需要安装：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">功能</span></th></tr>
+				<tr><td>net-tools</td><td>包含ifconfig,netstat等常用网络工具</td></tr>
+				<tr><td>zip/unzip/p7zip/unrar</td><td>zip/7z/rar压缩文件的压缩与解压工具</td></tr>
+				<tr><td>at</td><td>定时执行操作命令</td></tr>
+				<tr><td>nmap</td><td>高级端口扫描工具</td></tr>
+				<tr><td>openssh</td><td>ssh远程登录</td></tr>
+				<tr><td>screenfetch</td><td>CLI下的Arch字符图标と系统信息显示</td></tr>
+				<tr><td>cmake</td><td>编译安装时经常会用到的工具</td></tr>
+				<tr><td>wget</td><td>简单的单线程下载工具</td></tr>
+				<tr><td>aria2</td><td>命令行下的下载工具，支持多种协议</td></tr>
+				<tr><td>curl</td><td>命令行下的下载工具，支持多种协议</td></tr>
+				<tr><td>tcpdump</td><td>网络数据采集分析工具</td></tr>
+				<tr><td>abs</td><td>ArchLinuxの打包系统</td></tr>
+				<tr><td>docker</td><td>高效的开发部署容器</td></tr>
+				<tr><td>ctags</td><td>语法分析工具</td></tr>
+				<tr><td>dosfstools</td><td>为mkfs/gparted等工具添加fat16/32文件系统支持</td></tr>
+				<tr><td>sysstat</td><td>系统状态工具集(iostat,isag,mpstat,pidstat,sadf,sar)</td></tr>
+				<tr><td>arch-install-scripts</td><td>常用的一些安装工具(比如genfstab就在此包中)</td></tr>
+			</table></blockquote>
+			<p>还有一些软件可以选择安装：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">功能</span></th></tr>
+				<tr><td><span class="blue">mednafen</span></td><td>街机游戏模拟器</td></tr>
+				<tr><td><span class="blue">emacs</span></td><td>大名鼎鼎的编辑器之神</td></tr>
+				<tr><td>p7zip</td><td>7z压缩文件的解压工具(带有GUI)</td></tr>
+				<tr><td>htop</td><td>进程查看工具，功能类似top，但更加全面</td></tr>
+				<tr><td>mlocate</td><td>命令行文件搜索工具，带有locate和updatedb指令</td></tr>
+				<tr><td>lsof</td><td>列出系统当前打开的文件</td></tr>
+				<tr><td>iotop</td><td>进程磁盘读写查看器</td></tr>
+				<tr><td>man-pages-zh_cn</td><td>中文的man手册(不推荐安装，因为中文man手册已经多年无人维护，多数内容已过时)</td></tr>
+				<tr><td>bc</td><td>简单的命令行计算器</td></tr>
+				<tr><td>pv</td><td>电影风格的文本输出</td></tr>
+				<tr><td>tree</td><td>树状显示文件</td></tr>
+				<tr><td>mesa-demos</td><td>包含有glxinfo等3D图形测试工具</td></tr>
+				<tr><td>glances</td><td>全面的系统资源监视工具</td></tr>
+				<tr><td>wireless_tools</td><td>含有iwconfig和iwlist等无线网络配置工具</td></tr>
+				<tr><td>pkgfile</td><td>根据需要的文件来查找对应的软件包</td></tr>
+			</table></blockquote></li><br/>
+			<li><p>桌面环境常搭配的工具/娱乐软件：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">功能</span></th></tr>
+				<tr><td>audacious</td><td>音乐播放器</td></tr>
+				<tr><td>blender</td><td>开源的3D建模工具</td></tr>
+				<tr><td>bluefish</td><td>WEB开发编辑器</td></tr>
+				<tr><td>gimp</td><td>开源的图像处理软件</td></tr>
+				<tr><td>inkscape</td><td>矢量图编辑器</td></tr>
+				<tr><td>vlc</td><td>多媒体播放器</td></tr>
+				<tr><td>stardict-lite</td><td>stardict的轻量版本，相比完整版精简了无用功能，依赖干净</td></tr>
+				<tr><td>thunderbird</td><td>相比gnome默认的evolution来说要更快更强</td></tr>
+				<tr><td>mednafen</td><td>掌机游戏模拟器</td></tr>
+				<tr><td>ppsspp</td><td>PSP游戏模拟器</td></tr>
+				<tr><td>virtualbox</td><td>虚拟机</td></tr>
+				<tr><td>mypaint</td><td>绘画软件</td></tr>
+				<tr><td>ghex</td><td>gnome二进制编辑器，不过没有被收入gnome相关包组中</td></tr>
+				<tr><td>kchmviewer</td><td>chm帮助文档阅读器，虽然名称中有'K'，但并没有KDE依赖，仅仅依赖Qt5</td></tr>
+				<tr><td>pidgin</td><td>聊天工具，主要用来搭配lwqq插件聊webqq</td></tr>
+				<tr><td>gvim/emacs</td><td>神之编辑器和编辑器之神2333</td></tr>
+				<tr><td>gparted/partitionmanager</td><td>gtk/KDE的parted分区工具图形前端</td></tr>
+				<tr><td>libreoffice-fresh</td><td>office办公</td></tr>
+			</table></blockquote></li><br/>
+			<li><p>ArchLinux中有许多包已经被默认地添加进了包组(Package Groups)中，安装时使用包组名可以快速地安装整个包组中的软件。<br/>常见的包组有：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">包组名称</span></th><th style="width: 400px"><span class="blue">组件功能</span></th></tr>
+				<tr><td>base</td><td>基础包组，必装</td></tr>
+				<tr><td>base-devel</td><td>基础开发工具包组，必装</td></tr>
+				<tr><td>gnustep-core</td><td>objective-c的开发库</td></tr>
+				<tr><td>gnome</td><td>gnome桌面环境的基础包组</td></tr>
+				<tr><td>gnome-extra</td><td>gnome桌面环境的附加软件包组</td></tr>
+				<tr><td>kde</td><td>完整KDE桌面环境的包组</td></tr>
+				<tr><td>kde-meta</td><td>KDE桌面环境的虚包包组(动态更新包内成员，推荐使用)</td></tr>
+				<tr><td>mate</td><td>MATE桌面环境的基础组件</td></tr>
+				<tr><td>mate-extra</td><td>MATE桌面环境的附加组件</td></tr>
+				<tr><td>xfce4</td><td>xfce桌面环境的基础组件</td></tr>
+				<tr><td>xfce4-goodies</td><td>xfce桌面环境的附加组件</td></tr>
+				<tr><td>vim-plugins</td><td>vim编辑器的附加插件包组</td></tr>
+				<tr><td>qt</td><td>qt5包组</td></tr>
+				<tr><td>libreoffice-still</td><td>稳定版libreoffice套件</td></tr>
+				<tr><td>fcitx-im</td><td>fcitx输入法包组</td></tr>
+				<tr><td>calligra-meta</td><td>Koffice办公套件包组</td></tr>
+				<tr><td>telepathy</td><td>gnome桌面环境的在线账户包组</td></tr>
+				<tr><td>gstreamer0.10-plugins</td><td>多媒体解码器包组</td></tr>
+			</table></blockquote></li>
+			</ol>
+		</div>
+		<div class="bottom">
+			<a href="#start">--&gt;点我回到页面顶端</a><br/>
+			<span class="center">-------Last Update at 2015-2-28 03:10 AM--------</span><br/>
+			<span class="center">-----------By <span class="blue">程张磊/dainslef</span> at 2014-2-25 18:43 PM------------</span>
+		</div>
+	</body>
+</html>

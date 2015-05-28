@@ -1,0 +1,319 @@
+<html>
+	<head>
+	<meta charset="utf-8"/>
+		<title>Ubuntu安装配置总结</title>
+		<style type="text/css">
+			body
+			{
+				background-color: wheat;
+				margin: 0px;
+				min-width: 1000px;		/*限制页面的最小宽度*/
+			}
+			.head
+			{
+				font-family: 华文隶书;
+				font-size: 25px;
+				height: 80px;
+				width: 100%;
+				color: indianred;
+				text-align: center;
+			}
+			.left
+			{
+				border: dashed 2px darkred;
+				font-family: 隶书;
+				font-size: 20px;
+				width: 20%;
+				float: left;
+				color: red;
+				margin-left: 1%;
+				position: fixed;
+				padding: 10px;
+			}
+			.middle
+			{
+				font-family: Source Code Pro;
+				font-size: 15px;
+				color: darkred;
+				float: left;
+				width: 70%;				
+				margin-left: 25%;
+				margin-bottom: 20px;
+				border: solid 1px darkred; 
+				clear: both;
+				padding-left: 20px;
+				padding-right: 20px;
+				padding-bottom: 20px;
+			}
+			.bottom
+			{
+				font-family: 华文隶书;
+				font-size: 15px;
+				width: 100%;
+				text-align: center;
+				clear: left;
+				padding-top: 20px;
+				padding-bottom: 20px;
+				background-color: #FAE4DC;
+				border-top: outset 1px black;
+			}
+			p
+			{
+				font-family: 微软雅黑;
+				font-size: 15px;
+				color: #494949;
+			}
+			h2
+			{
+				color: firebrick;
+				font-family: 幼圆;
+				font-size: 25px;
+				text-align: center;
+			}
+			a
+			{
+				text-decoration: none;		/*去掉下划线*/
+				color: brown;
+			}
+			span
+			{
+				color: #8B4C39;
+				font-size: 15px;
+				font-family: 黑体;
+			}
+			span.red
+			{
+				color: red;
+			}
+			span.center
+			{
+				color: #535353;
+				text-align: center;
+			}
+			blockquote
+			{
+				color: deeppink;
+				font-family: Source Code Pro;
+			}
+		</style>		
+	</head>
+	<body>
+		<div class="head">
+			<h1 id="start">Ubuntu最小化安装配置总结</h1>
+		</div>
+		<div style="width: 100%; padding-bottom: 10px"><font style="font-size: 16px; font-family: 黑体;  color: #CD7054"><marquee behavior="alternate" vspace="10px">------------------By 程张磊 at 2014-7-28 15:42 PM</marquee></span></div>
+		<div class="left">
+		<a href="#start"><h2>目录</h2></a>
+			<ol>
+				<li><a href="#first">系统基本安装</a></li>
+				<li><a href="#second">Ubuntu常用软件</a></li>
+				<li><a href="#third">Ubuntu常见问题の记录</a></li>
+			</ol>		
+		</div>
+		<div class="middle">
+			<h2 id="first">系统基本安装</h2>
+			<ul>
+			<li><p>Ubuntu默认的是LiveCD安装方式，此种安装方式优点是安装简单，但安装过程中无法定制安装，安装结束后会有许多无用组件。だから、我选择Ubuntu Core版本，Core版本默认只会安装一个基本环境，并不会安装桌面环境及一些无用组件。</p></li><br/>
+			<li><p>解压核心包，通过<span class="red"> chroot </span>的方式进行配置。默认情况下，Core版本是没有安装内核的，首先安装内核以及内核头文件(VirtualBox的DKMS需要用到):</p>
+			<blockquote># apt install linux-image-generic linux-headers-generic</blockquote></li><br/>
+			<li><p>Unity桌面环境安装方式：</p>
+			<ol><li><p>完成网络连接之后，可以开始安装桌面环境，我选择安装ubuntu的默认桌面环境unity。</p>
+			<blockquote># apt-get install unity</blockquote></li>
+			<li><p>unity包组中仅仅包含最基本的unity桌面环境基本组件，这些组件并不足以正常使用桌面环境，以下是一些必要安装的包：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="red">软件包/包组名称</span></th><th style="width: 350px"><span class="red">软件包/包组简介</span></th></tr>
+				<tr><td>unity</td><td>unity桌面环境的核心包组</td></tr>
+				<tr><td>ubuntu-session</td><td>ubuntu会话包组，缺少此包将无法登录会话</td></tr>
+				<tr><td>ubuntu-settings</td><td>ubuntu默认配置。缺少此包会导致unity桌面环境显示异常(卡死)</td></tr>
+				<tr><td>light-themes</td><td>ubuntu的主题包组，缺少此包组桌面环境会变得无法直视</td></tr>
+				<tr><td>notify-osd</td><td>unity桌面环境的系统通知体系</td></tr>	
+				<tr><td>overlay-scrollbar</td><td>unity特色的滚动条隐藏</td></tr>
+				<tr><td>xinit</td><td>包含命令行启动x窗口的"startx"指令</td></tr>
+			</table></blockquote></li>
+			<li><p>安装unity包组只是安装了基本的unity桌面环境，而与一般的DE不同，unity并不包含基本常用的程序(音乐播放器、文件管理器、虚拟终端之类的程序)，需要自己选配常用程序，我选择gnome桌面环境下的组件作为unity环境的补充。</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="red">软件包名称</span></th><th style="width: 350px"><span class="red">软件包简介</span></th></tr>
+				<tr><td>fonts-wqy-microhei</td><td>文泉驿微米黑</td></tr>
+				<tr><td>dmz-cursor-theme</td><td>unity鼠标主题</td></tr>
+				<tr><td>software-center</td><td>ubuntu特色的软件中心(熟悉包管理器的不必安装)</td></tr>
+				<tr><td>gnome-terminal</td><td>gnome终端</td></tr>
+				<tr><td>gnome-mplayer/smplayer</td><td>mplayerのgnome/qt前端实现</td></tr>
+				<tr><td>gnome-screenshot</td><td>gnome截图工具</td></tr>
+				<tr><td>eog</td><td>gnomeの眼图片浏览器</td></tr>
+				<tr><td>evince</td><td>PDF文档浏览器</td></tr>
+				<tr><td>evolution</td><td>邮件客户端</td></tr>
+				<tr><td>file-roller</td><td>gnome归档管理器</td></tr>
+				<tr><td>audacious</td><td>音乐播放器</td></tr>
+			</table></blockquote></li>
+			</ol></li><br/>
+			<li><p>不习惯Unity桌面环境的可以安装更加完善与成熟的KDE桌面环境：</p>
+			<ol><li><p>安装KDE的plasma工作空间和基本的KDE应用程序：</p>
+			<blockquote># apt-get install plasma-desktop kdebase-apps</blockquote></li>
+			<li><p>默认情况下，只安装一些基本的KDE应用程序是不够的，有一些KDE包组可以选择安装：</p>
+			<blockquote># apt-get install kdegraphics<span>&nbsp;&nbsp;&nbsp;&nbsp;//包含ksnapshot和okular等工具</span><br/># apt-get install kdeutils<span>&nbsp;&nbsp;&nbsp;&nbsp;//包含解压工具ark</span><br/># apt-get install kdepim<span>&nbsp;&nbsp;&nbsp;&nbsp;//包含KDE邮件程序kmail</span></blockquote></li>
+			<li><p>Ubuntu的KDE环境下有synaptic包管理器的对应QT实现：</p>
+			<blockquote># apt-get install muon</blockquote></li>
+			<li><p>安装KDE桌面的一些plasma插件(不必完整安装plasma-addons包组)：</p>
+			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="red">软件包名称</span></th><th style="width: 350px"><span class="red">软件包简介</span></th></tr>
+				<tr><td>plasma-nm</td><td>KDE网络管理器组件</td></tr>
+				<tr><td>plasma-netbook</td><td>“搜索和启动”桌面布局</td></tr>
+				<tr><td>plasma-widget-lancelot</td><td>lancelot启动器插件</td></tr>
+				<tr><td>plasma-widget-menubar</td><td>KDE全局菜单插件</td></tr>
+				<tr><td>plasma-widgets-addons</td><td>KDE插件工具集，包括icons-task等必备plasma插件</td></tr>
+			</table></blockquote></li>
+			<li><p>安装KDE下的办公工具及语言包：</p>
+			<blockquote># apt-get install calligra calligra-l10n-zhcn</blockquote></li>
+			<li><p>安装KDE平台下的开发工具：</p>
+			<blockquote># apt-get install kdevelop kate</blockquote></li>
+			<li><p>让dolphin文件管理器支持mtp手机挂载：</p>
+			<blockquote># apt-get install kio-mtp</blockquote></li>
+			<li><p>让KDE下的gtk程序拥有KDE风格的外观：</p>
+			<blockquote># apt-get install kde-config-gtk-style<span>&nbsp;&nbsp;&nbsp;&nbsp;//gtk风格调整面板</span><br/># apt-get install gtk2-engines-oxygen gtk3-engines-oxygen<span>&nbsp;&nbsp;&nbsp;&nbsp;//KDE的gtk主题引擎</span></blockquote></li>
+			<li><p>安装音频控制器和音乐播放器：</p>
+			<blockquote># apt-get install kmix amarok</blockquote></li>
+			<li><p>安装KDE语言包及附加非开源软件：</p>
+			<blockquote># apt-get install language-pack-kde-zh-hans kubuntu-restricted-extras</blockquote></li>
+			</ol></li><br/>
+			<li><p>安装完常用软件后开始安装中文语言包：</p>
+			<blockquote># apt-get install language-pack-zh-hans language-pack-zh-hans-base language-pack-gnome-zh-hans language-pack-gnome-zh-hans-base</blockquote></li><br/>
+			</ul>
+			<p style="text-align: center;font-size: 20px;color: red;">以上，基本安装结束。</p>
+			<br/><br/><br/>
+			<h2 id="second">Ubuntu常用软件</h2>
+			<ul>
+			<li><p>开机启动：</p><span>通过对grub2配置更改开机背景，配置多系统启动。通过修改/etc/fstab文件来实现分区的挂载。<br/>使用gparted作为分区工具。</span></li><br/>
+			<li><p>数据库：</p>
+			<span>配置mysql及相关依赖包。安装mysql workbench和LibreOfficeBase。</span></li><br/>
+			<li><p>终端：</p>
+			<span>gnome桌面环境推荐使用下拉式终端guake。<br/>KDE桌面环境下推荐使用下拉式终端yakuake。<br/>配置shell的.bashrc文件。<br/>使用glances、htop等工具作为命令行下的辅助工具。</span></li><br/>
+			<li><p>开发环境：</p>
+			<span><ol>
+				<li><span class="red">GCC：</span><br/>安装gcc及相关插件(包括g++，gcc-opt，gccgo，gccgo-go，gnat，gdc，gfrotran等)。<br/>安装clang及其依赖包。安装boost库libboost-dev。<br/>如果需要在c/c++中调用python，可以安装python-dev和python3-dev。</li><br/>
+				<li><span class="red">Objective-C：</span><br/>安装gobjc，gobjc++，gnustep-core-devel等objective-c的开发库。</li><br/>
+				<li><span class="red">JAVA：</span><br/>安装最新版OPEN JDK。<br/>安装gcj-jdk。<br/>安装java单元测试工具junit和junit4以及相关的说明文档junit-doc/junit4-doc。</li><br/>
+				<li><span class="red">WEB开发：</span><br/>安装Tomcat7/Tomcat8和apache2，nginx作为web服务器。<br/>安装<span class="red">npm</span>(nodejs包管理器)</li><br/>
+				<li><span class="red">汇编：</span><br/>安装汇编工具nasm/yasm(assembler)。</li><br/>
+				<li><span class="red">文本编辑器：</span><br/>安装vim及其插件，安装ctags并启用taglist插件。<br/>安装emacs。<br/>补全自带编辑器(gedit/kate)的插件。<br/>安装ghex作为gnome/unity桌面环境下的二进制编辑器，安装okteta作为KDE桌面环境下的二进制编辑器。</li><br/>
+				<li><span class="red">HTML：</span><br/>使用Bluefish作为网页编辑器。</li><br/>
+				<li><span class="red">Shell：</span><br/>推荐使用功能更加强大的zsh作为默认shell(使用Kdevelop作为KDE集成开发环境。<br/>使用chsh命令更改默认shell)，配置zsh的.zshrc文件，使用git克隆.oh-my-zsh的源码库到本地。</li><br/>
+				<li><span class="red">OpenGL：</span><br/>安装OpenGL对应的开发包：<blockquote># apt-get install freeglut3-dev</blockquote></li>
+				<li><span class="red">IDE：</span><br/>使用Eclipse和Netbeans做为Java集成开发环境。<br/>使用Kdevelop作为KDE集成开发环境。<br/>使用Qt Creator作为QT集成开发环境。</li>
+			</ol></span></li><br/>
+			<li><p>输入法：</p>
+			<span>采用小企鹅输入法fcitx搭配sougoupinyin组件。</span><blockquote># apt-get install fcitx</blockquote></li><br/>
+			<li><p>多媒体：</p>
+			<span>视屏播放器采用vlc。<br/>音频非线性编辑软件采用audacity。<br/>录制视屏采用RecordMyDesktop。<br/>图片编辑采用GIMP。<br/>矢量图编辑采用Inkscape。<br/>鼠标绘图软件采用mypaint。<br/>3D建模使用blender。</span></li><br/>
+			<li><p>娱乐：</p>
+			<span>安装掌机模拟器mednafen。<br/>安装psp模拟器ppsspp。<blockquote>(sudo add-apt-repository ppa:ppsspp/stable)</blockquote></span></li><br/>
+			<li><p>互联网与即时通讯：</p>
+			<span>浏览器采用chrome和firefox(google杯具被墙)。<br/>收发邮件采用自带的thunderbird或选择安装evolution。<br/>通讯软件采用OpenFetion和pidgin搭配lwqq组件。<blockquote>(sudo add-apt-repository ppa:lainme/pidgin-lwqq)</blockquote></span></li><br/>
+			<li><p>软件管理：</p>
+			<span>采用新立得软件包管理器(synaptic)。<br/>KDE桌面环境下使用Muon(KDE原生，作用与synaptic类似)。<br/>安装版本控制器git。</span></li><br/>
+			<li><p>系统美化：</p>
+			<span>使用UnityTweakTool来调整系统的主题及其它美化设置；<br/>(字体采用文泉驿微米黑，11号，全局缩放0.9)<br/>使用Cario-Dock作为底栏dock插件。<br/>使用ClassicMenu Indicator和indicator-china-weather作为panel插件。<br/>使用docky作为底栏dock插件备选。<br/>KDE桌面环境下使用默认panel作为dock或是daisy作为dock。<blockquote>(sudo add-apt-repository ppa:samrog131/ppa)</blockquote></span></li><br/>
+			<li><p>词典软件：</p>
+			<span>采用stardict。搭配金山词霸的词库。<br/>KDE桌面环境下使用基于QT图形技术的Qstardict。</span></li><br/>
+			<li><p>搜索插件：</p>
+			<span>使用synapse或indicator-synapse作为搜索插件。<blockquote>(sudo add-apt-repository ppa:noobslab/apps)</blockquote></span></li><br/>
+			<li><p>文档：</p>
+			<span>使用kchmviewer作为KDE桌面环境下的chm文档查看器。<br/>使用WPS作为Office文档的处理工具。<br/>使用chmsee或xchm作为Unity桌面环境下的chm文档查看器。</span></li><br/>
+			<li><p>常用的PPA汇总：</p>
+			<span>软件类：<blockquote>sudo add-apt-repository ppa:webupd8team/sublime-text-2<br/>sudo add-apt-repository ppa:lainme/pidgin-lwqq<br/>sudo add-apt-repository ppa:ubuntu-wine/ppa<br/>sudo add-apt-repository ppa:samrog131/ppa<br/>sudo add-apt-repository ppa:noobslab/apps<br/>sudo add-apt-repository ppa:ppsspp/stable</blockquote>美化类：<blockquote>sudo add-apt-repository ppa:webupd8team/themes<br/>sudo add-apt-repository ppa:snwh/moka-gtk-theme-daily<br/>sudo add-apt-repository ppa:snwh/moka-icon-theme-daily<br/>sudo add-apt-repository ppa:alecive/antigone<br/>sudo add-apt-repository ppa:noobslab/themes<br/>sudo add-apt-repository ppa:noobslab/icons<br/>sudo add-apt-repository ppa:noobslab/icons2<br/>sudo add-apt-repository ppa:noobslab/potenza<br/>sudo add-apt-repository ppa:numix/ppa</blockquote></span></li>
+			</ul>
+			<br/><br/><br/>
+			<h2 id="third">Ubuntu常见问题の记录</h2>
+			<ol>
+			<li><p>在ubuntu14.04中，可以选择直接用搜狗官网中下载搜狗输入法linux版本。搜狗输入法需要使用fcitx作为输入框架：</p>
+			<blockquote># apt-get install fcitx</blockquote>
+			<p>安装fcitx之后，使用<span class="red"> dpkg -i </span>命令安装下载好的搜狗拼音deb包。在默认情况下，无论是unity或是kde桌面环境都是使用ibus作为默认输入法，可以使用im-config来调整默认输入法。使用搜狗输入法需要将默认ibus输入源中的快捷键清除，否则会造成快捷键冲突而使得搜狗输入法无法调用。</p></li><br/>
+			<li><p>如果默认情况下没有中文支持，可以尝试更改<span class="red"> /var/lib/locales/supported.d/local </span>文件，在文件中添加<span class="red"> zh_CN.UTF-8 UTF-8 </span>，然后执行命令：</p>
+			<blockquote># locale-gen<span>&nbsp;&nbsp;&nbsp;&nbsp;//使修改后的编码生效</span></blockquote>
+			</li><br/>
+			<li><p>如果不慎删除了用户的主目录下的文件夹，可以安装<span class="red"> xdg-user-dirs </span>来重新生成用户文件夹：</p>
+			<blockquote>$ xdg-user-dirs-update</blockquote>
+			<p>当生成的用户文件夹不小心被删除了时，可以使用下列命令强制生成用户文件夹：</p>
+			<blockquote>$ xdg-user-dirs-update --force</blockquote></li><br/>
+			<li><p>在ubuntu中，如果在安装系统时选择了错误的默认语言区域（错误的语言环境可能会导致部分软件不能正确的选择语言），可以修改配置文件：<span class="red"> /etc/default/locale </span>，将文件改为如下内容：</p>
+			<blockquote>LANG="zh_CN.UTF-8"<br/>LC_NUMERIC="zh_CN.UTF-8"<br/>LC_TIME="zh_CN.UTF-8"<br/>LC_MONETARY="zh_CN.UTF-8"<br/>LC_PAPER="zh_CN.UTF-8"<br/>LC_NAME="zh_CN.UTF-8"<br/>LC_ADDRESS="zh_CN.UTF-8"<br/>LC_TELEPHONE="zh_CN.UTF-8"<br/>LC_MEASUREMENT="zh_CN.UTF-8"<br/>LC_IDENTIFICATION="zh_CN.UTF-8"</blockquote>
+			<p>保证这些配置的值全部为"zh_CN.UTF-8"即可确定系统为中文环境！当然，最行之有效的方法是添加：<span class="red"> LC_ALL="zh_CN.UTF-8" </span>，即可将整个系统环境设置为中文。LC_ALL的配置优先级最高，会覆盖掉其他的语言环境设置。配置完成后，不要忘记使用locale-gen命令更新环境！如果locale-gen输出结果中没有中文环境，可以使用：</p>
+			<blockquote>locale-gen [中文环境编码]</blockquote><p>来添加生成中文环境。如果locale-gen命令中输出了用不到的环境，则可以编辑<span class="red"> /var/lib/locales/supported.d/local </span>，删除对应的文本即可。</p></li><br/>
+			<li><p>在ubuntu14.04中，chromium插件的安装方式发生了变化，不再使用adobe提供的官方插件，而是使用与chrome相同的内置插件。先安装插件包：</p>
+			<blockquote># apt-get install pepperflashplugin-nonfree</blockquote>
+			<p>更新插件：</p>
+			<blockquote># update-pepperflashplugin-nonfree --install </blockquote></li><br/>
+			<li><p>如果安装了多个登录管理器，可以使用<span class="red"> "dpkg-reconfig 登录管理器名称" </span>命令来重新配置默认登录管理器。</p></li><br/>
+			<li><p>ubuntu默认的KDE桌面环境开机会自动执行脚本<span class="red"> ~/.kde/env/setlocale.sh </span>，该脚本会改变系统的语言环境设置，建议删除：</p>
+			<blockquote>$ rm -r ~/.kde/env</blockquote></li><br/>
+			<li><p>默认情况下，安装的qtcreator和gimp等软件都是英文的，需要安装额外的中文包：</p>
+			<blockquote># apt-get install qttranslations5-l10n<span>&nbsp;&nbsp;&nbsp;&nbsp;//qtcreator的中文包</span><br/># apt-get install language-pack-zh-hans-base<span>&nbsp;&nbsp;&nbsp;&nbsp;//gimp属于gtk程序，需要安装gtk包组的中文包</span></blockquote></li><br/>
+			<li><p>采用gstreamer作为音频后端的时候，需要安装额外的解码器来保证rhythmbox和amarok等播放器能够正常播放mp3和ape之类的版权受限格式：</p>
+			<blockquote># apt-get install gstreamer1.0-libav</blockquote></li><br/>
+			<li><p>采用ati闭源驱动时，不要随便改动闭源驱动的配置(Linux下的闭源驱动不支持双显卡动态切换，装了闭源驱动就一直使用独立显卡)，很可能造成显卡驱动无法正常加载，从而使的KDE等桌面环境无法开启特效等问题。如果显卡驱动配置不慎遭到改动，可手动复制默认的配置文件恢复默认配置：</p>
+			<blockquote># cp /etc/ati/amdpcsdb.default /etc/ati/amdpcsdb</blockquote></li><br/>
+			<li><p>在安装了多个版本的jdk时，可以手动选择需要使用的版本：</p>
+			<blockquote># update-alternatives --config java<span>&nbsp;&nbsp;&nbsp;&nbsp;//重新设定java默认使用的版本</span><br/># update-alternatives --config javac<span>&nbsp;&nbsp;&nbsp;&nbsp;//重新设定javac默认使用的版本</span></blockquote></li><br/>
+			<li><p>与修改jdk默认版本的方式类似，修该鼠标指针也可以用更改默认包的方法：</p>
+			<blockquote># update-alternatives --config x-cursor-theme</blockquote>
+			<p>也可以手动从某个目录中安装新的鼠标指针：</p>
+			<blockquote># update-alternatives --install /usr/share/icons/default/index.theme x-cursor-theme /*/*..../cursor.theme 80<span>&nbsp;&nbsp;&nbsp;&nbsp;//最后的数字代表优先级</span></blockquote>
+			<p>有时使用命令更新鼠标指针依然会在部分界面失效，此时需要手动修改dconf配置来更改鼠标指针，保证在update-alternatives和dconf中选择的是同一个鼠标指针。</p></li><br/>
+			<li><p>修改一个用户的用户名(包括家目录)：</p>
+			<ol><li><p>首先要将家目录内容复制到新的家目录下。</p>
+			<blockquote>cp -a /home/illidan/. /home/dainslef</blockquote></li>
+			<li><p>然后退出登录，在root用户下更改用户名称。</p>
+			<blockquote>usermod -l dainslef illidan</blockquote></li>
+			<li><p>将新的用户转移到新的家目录。</p>
+			<blockquote>usermod -d /home/dainslef dainslef</blockquote></li>
+			<li><p>给新的用户名生成新的用户组。</p>
+			<blockquote>groupmod -n dainslef illidan</blockquote></li>
+			<li><p>删除旧的目录。</p>
+			<blockquote>rm -r /home/illidan</blockquote></li></ol></li><br/>
+			<li><p>ubuntu关闭<span class="red"> pppoeconf </span>恢复<span class="red"> networkmanger：</span></p>
+			<ol><li><p>首先，编辑<span class="red"> /etc/NetworkManager/NetworkManager.conf </span>，将<span class="red"> [ifupdown] managed=false </span>修改为<span class="red"> [ifupdown] managed=true </span></p></li>
+			<li><p>编辑<span class="red"> /etc/network/interfaces </span>文件，只保留</p>
+			<blockquote>auto lo<br/>iface lo inet loopback</blockquote></li>
+			<li><p>重启计算机。</p></li></ol></li><br/>
+			<li><p>在使用Unity桌面环境时，如果遇到fcitx输入法无法自启动的情况，可以将其收到手动添加到<span class="red"> gnome-session-properties(启动应用程序) </span>中。将<span class="red"> fcitx -d </span>添加到自启动指令中(使用其它方法，比如将自启动指令写入<span class="red">.xprofile</span>文件中等方式虽然可以正常使fcitx开机自启，但fcitx的托盘图标不能正常显示)。</p></li><br/>
+			<li><p>可以通过<span class="red"> dconf-editor </span>来进行各类桌面配置，常用的有：</p>
+			<blockquote>com.canonical.unity-greeter<span>&nbsp;&nbsp;&nbsp;&nbsp;//登录界面配置</span><br/>
+			org.gnome.desktop.interface<span>&nbsp;&nbsp;&nbsp;&nbsp;//桌面主题、字体配置、鼠标主题</span><br/>
+			com.canonical.Unity<span>&nbsp;&nbsp;&nbsp;&nbsp;//设置全局菜单和侧边栏的显示</span></blockquote></li><br/>
+			<li><p>默认情况下，安装玩qtcreator之后是没有安装mysql数据库驱动的，如果在Qt开发中使用了mysql数据库，则需要安装<span class="red"> libqt5sql-myql </span>数据库驱动，其它的数据库驱动如<span class="red"> odbc </span>也是类似操作。</p></li><br/>
+			<li><p>默认情况下，debian系包管理使用<span class="red"> # apt-get autoremove </span>很多时候是不能清除一些受系统保护的无用依赖的(比如旧版本的内核)，如果需要解除系统对这些包的保护，可以移除<span class="red"> /etc/apt/apt.conf.d/ </span>目录下的一些<span class="red">apt</span>配置文件，执行指令：</p>
+			<blockquote># rm /etc/apt/apt.conf.d/01autoremove /etc/apt/apt.conf.d/01autoremove-kernels</blockquote></li><br/>
+			<li><p>debian系列的软件源格式说明。<br/>debian系列的软件源由以下几个部分构成：</p>
+			<blockquote>deb/deb-src [软件源地址] [版本号] [仓库类型]</blockquote>
+			<p>第一部分代表软件源是预编译包还是源码，第二部分是软件源站点地址，第三部分是发行版当前的版本号，比如说ubuntu 15.04的版本号就是vivid，而一个版本号还会衍生出几个子版本，比如ubuntu系列的就有<span class="red"> *、*-updates、*-backports、*-security、*-proposed </span>等五种，每一种源还有对应的仓库类型，ubuntu的仓库类型有<span class="red"> main、restricted、universe、multiverse </span>等，ubuntu还有不属于其的"partner"源，保存着一些特殊的分发包，比如flash插件等，"partner"源只有一个与版本号名字相同的主版本，而仓库名即为"partner"(这个源只有官方的地址可用)。<br/>
+			以<span class="red"> ubuntu 15.04 vivid </span>和国内的北京大学源为例，可用的源列表为：
+			<blockquote>deb http://mirror.bjtu.edu.cn/ubuntu/ <span class="red">vivid</span> main restricted universe multiverse<br/>deb http://mirror.bjtu.edu.cn/ubuntu/ <span class="red">vivid-security</span> main restricted universe multiverse<br/>deb http://mirror.bjtu.edu.cn/ubuntu/ <span class="red">vivid-updates</span> main restricted universe multiverse<br/>deb http://mirror.bjtu.edu.cn/ubuntu/ <span class="red">vivid-proposed</span> main restricted universe multiverse<br/>deb http://mirror.bjtu.edu.cn/ubuntu/ <span class="red">vivid-backports</span> main restricted universe multiverse<br/><br/>deb http://archive.canonical.com/ubuntu/ <span class="red">vivid</span> partner </blockquote>
+			<p>debian的源格式与ubuntu完全相同，但版本号、子版本和仓库类型略有不同，debian的主版本号有<span class="red"> stable、testing </span>等，也可以直接使用版本代号作为主版本号，debian的子版本有<span class="red"> *、*-updates、*-backports、*-proposed-updates </span>，仓库类型有<span class="red"> main、contrib、non-free </span>等。</p></li><br/>
+			<li><p>chrome浏览器可以直接从goole服务器站点下载：</p>
+			<blockquote>$ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb</blockquote></li><br/>
+			<li><p>debian系的一些高级包管理操作：</p>
+			<p>原先<span class="red"> apt-get mark* </span>系列指令已经被废弃，标记软件包安装原因的指令转移到<span class="red"> apt-mask </span>下：
+			<ul><li>查看手动安装的包<span class="red">(Manaul)</span>：
+			<blockquote>$ apt-mark showmanual</blockquote></li>
+			<li>查看自动安装的包<span class="red">(Auto)</span>：
+			<blockquote>$ apt-mark showauto</blockquote></li>
+			<li>查看指定保留的包<span class="red">(Hold)</span>：
+			<blockquote>$ apt-mark showhold</blockquote></li>
+			<li>指定某个包的安装原因为自动安装<span class="red">(Auto)</span>：
+			<blockquote># apt-mark auto [<span class="red">package_name</span>]</blockquote></li></ul>
+			</p>
+			<p>较新的debian系统中还可以直接使用<span class="red">apt</span>指令来完成一些操作，比如：
+			<ul><li>查看一个包的详细信息：
+			<blockquote>$ apt show [<span class="red">package_name</span>]</blockquote></li>
+			<li>更新源：
+			<blockquote># apt update</blockquote></li>
+			<li>完整更新包：</li>
+			<blockquote># apt full-upgrade</blockquote></ul></p></li>
+			</ol>
+		</div>
+		<div class="bottom">
+			<a href="#start">--&gt;点我回到页面顶端</a><br/>
+			<span class="center">-------最近更新 at 2014-11-30 07:18 AM--------</span><br/>		
+			<span class="center">-----------By <span class="red">程张磊/dainslef</span> at 2014-07-28 15:42 PM------------</span>
+		</div>
+	</body>
+</html>

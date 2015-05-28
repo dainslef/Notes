@@ -1,0 +1,365 @@
+Qt项目的构建 >>
+进入项目代码所在的目录，执行命令：
+$ qmake -project		//根据Qt版本的不同，选择具体的构建工具，构建Qt4项目时使用qmake-qt4，Qt5项目为qmake-qt5
+$ qmake [项目名称].pro	//项目名称一般为源码所在的文件夹的名称
+$ make
+如果make时提示找不到对应的Qt库的头文件则需要在项目的pro文件中添加对应的内容，如果提示GUI相关的头文件找不到，就添加"QT += widgets"，如果是数据库的头文件找不到，就添加"Qt += sql"。
+
+========
+
+
+Qt的一些常用快捷键 >>
+Ctrl + Tab					切换正在编辑的代码文件
+F4							在配对的源码与头文件之前相互切换
+Ctrl + Shift + R			高亮显示当前光标所在的变量的所有使用情况，并可以批量修改
+Alt + 数字键					快速打开底栏的功能标签
+Ctrl + E > 2				打开横向分栏
+Ctrl + E > 3				打开竖向分栏
+Ctrl + / 					注释/取消注释选定内容
+Ctrl + I 					自动缩进选中代码
+Ctrl + Shift + UP 			将当前行的代码向上移动一行
+Ctrl + Shift + DOWN 		将当前行的代码向下移动一行
+
+========
+
+
+Qt的常用控件 >>
+QLineEdit			//单行文本编辑框
+QTextEdit			//多行文本编辑框
+QRadioButton		//单选框
+QCheckButton		//复选框
+QComboBox			//组合框(下拉列表框)，使用setMaxVisibleItems(int maxItems)能设置同时显示的最大数目，但该选项在gtk+/mac风格下无效
+QToolBox			//工具箱，可以用来实现抽屉效果
+QToolButton			//工具箱按钮，有按下和弹起状态
+QListWdget			//列表框，可以设置表格模式或图标模式，通过setCurrentItem(nullptr)清除当前选中的子目标
+
+========
+
+
+在Qt中使用c++11 >>
+默认情况下，Qt是没有开启c++11支持的，让Qt5支持c++11需要在项目的pro文件中添加语句"CONFIG += c++11"，让Qt4支持c++11则需要在项目的pro文件中加入"QMAKE_CXXFLAGS += -std=c++11"。
+添加QMAKE_CXXFLAGS参数的方法也使用于Qt5，只要编译器支持，还可以使用更新的c++1y。
+添加CONFIG参数的方式只在Qt5中有效，且只能支持c++11。
+
+========
+
+
+关于Qt的信号(signals)和槽(slots)机制 >>
+在Qt中，使用信号和槽传递消息，用户可以自行定义信号和槽，Qt对象中也包含了许多预定义的信号和槽。
+一个类中如果需要声明信号和槽则需要从QObject类(或其子类)中继承，并在类的声明中加入宏Q_OBJECT。
+信号(signals)只需要声明而不需要实现。使用emit关键字可以发送信号。信号的访问权限是protected且不可更改，也就是说无法在该类以及该类子类之外的区域发送信号，但信号的连接是随意的，可以在类外进行信号连接。
+槽(slots)可以自定以访问权限，槽中的函数就像类的普通成员函数一样，除了函数声明之外需要有对应的函数实现。
+Qt中，使用QObject类中的静态函数connect将信号与槽相连，connect的函数原型是 "bool connect(sender, SIGNAL(signals()), receiver, SLOT(slots()))" ，其中sender和receiver分别表示信号发送者与信号接收者，可以传递实例指针或者实例引用作为参数。SIGNAL()中填写的是sender的信号函数，SLOT()中填写的是receiver的槽函数，信号的函数参数类型以及位置需要与槽函数一一对应，信号的参数目可以大于槽参数的数目，多余的参数会被忽略，此外参数只应该填写参数类型而不能画蛇添足的把参数名一起加上，这样会编译报错。使用emit关键字发送信号之后，传递给信号的参数值会按照对应位置传到槽中，然后槽函数执行。
+多个信号与多个槽之间可以任意组合。
+connect除了可以将信号和槽相连之外，还可以用于连接信号实现信号传递。
+
+举例：
+
+文件1 test.h
+
+#include <iostream>
+#include <qt4/QtGui/QApplication>
+
+class A : public QObject
+{
+	Q_OBJECT
+signals:
+	void send(int);
+public slots:
+	void get(int);
+public:
+	A(int);
+	int set(int);
+	int a;
+};
+
+文件2 test.cc
+
+#include <test.h>
+
+A::A(int a) : a(a)
+{
+}
+
+void A::get(int a)
+{
+	this->a = a;
+}
+
+int A::set(int a)
+{
+	emit send(a);		//发送信号send(int)，a的值作为参数传递到get(int)方法中
+	return 0;
+}
+
+int main(int argc, char *argv[])
+{
+	A *a = new A(10);
+	QObject::connect(a, SIGNAL(send(int)), a, SLOT(get(int)));		//用connect方法将实例指针a的send(int)信号与实例指针a的get(int)槽相连
+	std::cout << a->a << std::endl;
+	a->set(5);		//调用set(int)方法就会发送send(int)信号，使得get(int)槽函数调用，成员变量a的值发生改变
+	std::cout << a->a << std::endl;
+	return 0;
+}
+
+输出结果：
+10
+5
+
+在实际应用中，需要注意，常见的槽功能(比如打开/关闭窗口之类的)，在QWidget之类的父类中已经为你实现了，继承父类自然就获得了这些槽函数，不用画蛇添足地自己重新实现功能类似的函数。
+
+========
+
+
+关于Qt的经典错误 "undefined reference to vtable for XXX(类名)" >>
+在一个类的定义中，如果使用类Q_OBJECT宏，则需要将对应的代码使用moc工具进行预处理生成 "*.moc" 文件才能够正常编译，而qmake工具在扫描代码中的Q_OBJECT时只会从 "*.h" 命名的文件中查找，如果在编码过程中没有按照编码规范而是将类的定义写在 "*.cpp/*.cc" 文件中的话，qmake工具是不会识别的，生成对应的Makefile文件也不会将对应的 "*.moc" 文件加入编译使得make指令编译报错。
+正确的做法是按照c++标准将类的定义写在 "*.h" 头文件中。
+此外，Qt在编译项目时默认采用的是make编译，会在编译时忽略那些未曾改动的文件，因此有时出现此错误时还可以尝试完全删除已经存在的二进制文件和编译中间文件，然后从头开始重新编译整个项目。
+一般对于此类错误的解决办法是手动运行qmake后整个项目重新编译。
+
+========
+
+
+Qt事件机制 >>
+事件(event)是有系统或者Qt本身在不同的时刻发出的。当用户按下鼠标，敲下键盘，或者是窗口需要重新绘制的时候，都会发出一个相应的事件。一些事件是在对用户操作做出响应的时候发出，如键盘事件等；另一些事件则是由系统自动发出,如计时器事件。
+Qt在main函数中要创建一个QApplication对象，在执行该对象的exec()函数时，就进入了事件的监听循环。每当事件发生时，Qt就会产生一个事件对象(所有的事件对象都继承于QEvent类)，然后将这个事件对象作为参数传递给QObject的event()函数，event()函数并不直接处理事件，而是将事件分类之后调用特定的事件处理函数，常见的事件处理函数有mousePressEvent()、keyPressEvent()之类的，想要自行处理事件就要重写对应的事件处理函数。
+除了系统产生的预定义事件外，可以自己使用int QEvent::registerEventType(int hint)方法注册自定义事件，hint为事件序列号，0~999被系统占用，从QEvent::User(1000号)到QEvent::MaxUser(65535号)都是允许用户注册的值。事件类型为QEvent::Type，用QEvent::registerEventType注册时会返回整型的事件号，需要进行强制类型转换。
+
+发送事件可以使用以下函数：
+void QCoreApplication::postEvent (QObject * receiver, QEvent * event) [static]
+bool QCoreApplication::sendEvent (QObject * receiver, QEvent * event) [static]
+void QCoreApplication::sendPostedEvents (QObject * receiver, int event_type) [static]
+bool QCoreApplication::notify (QObject * receiver, QEvent * event) [virtual]
+postEvent函数将事件放入事件消息队列中，然后立即返回，函数只将事件放入队列的尾端，不保证事件立即得到处理。
+sendEent函数用notify函数将事件直接派发给接收者和进行处理，返回事件处理者的返回值。事件会立即送至接受者，被发送后，Qt不会自动delete该事件，因此合适的做法是在栈上创建事件。
+sendPostedEvents函数将事件队列中用postEvent函数放入的对应接受者和事件类型的事件立即分发，但是来自窗口系统的事件不被分发，它们被processEvents()函数分发。如果接受者是null，则对应所有的接受者；如果event_type为0，则对应receiver的所有的事件。该函数必须和receiver在同一个线程内被调用。 
+
+处理事件可以重写void QWidget::customEvent(QEvent*)或bool QWidget::event(QEvent*)函数，区别是前者不需要返回值，后者在处理完自定义事件之后需要继续返回对应控件的父类事件处理函数(event是直接的事件处理函数)，返回事件循环的时候要注意当前类的继承关系，只返回最基本的循环QObject::event()的话会有许多事件不被处理。
+
+如果一个类的多个控件都需要相同的事件处理则可以重新实现bool QObject::eventFilter(QObject * watched, QEvent * event)函数，然后在对应的控件对象上使用void QObject::installEventFilter(QObject * filterObj)函数安装过滤器，参数为要安装的过滤器所在的类指针。
+
+在处理键盘事件时需要注意，如果已经接收了某个按键的事件同时进行操作，然后将事件继续返回事件队列时，如果这个键盘事件有系统默认的操作，则系统默认的操作依然会继续执行，则有可能与自己定义的操作产生冲突，正确的做法是对自己要处理的键盘事件返回true(这样系统定义的操作将不会触发，能够避免冲突)，只将不处理的键盘事件返回事件循环。
+
+========
+
+
+Qt的事件机制与信号槽的区别 >>
+Qt中的事件是由窗口产生的，而信号槽机制还可用在命令行里，同时事件处理函数的返回值是有意义的，我们要根据这个返回值来确定是否还要继续事件的处理，但信号与槽绑定时并不关注返回值。事件通过事件队列来响应，如果事件的处理中又产生了新的事件，那么新的事件会加入到队列尾，直到当前事件处理完毕后， QApplication再去队列头取下一个事件来处理。而信号的处理方式有些不同，信号处理是立即回调的，也就是一个信号产生后，他上面所注册的所有槽都会立即被回调。
+
+========
+
+
+Qt中的数据库连接 >>
+Qt中数据库连接主要是使用QSqlDatabase类，在使用这个类时需要注意，此类的构造函数是protected的，因此不能在类外使用，一般使用该类的静态成员函数QSqlDatabase::addDatabase()来创建QSqlDataBase对象。
+在Linux/Unix系统中，连接本地数据库时QSqlDatabase::setHostName()的参数因该填"localhost"，而不是环境变量中的hostname。
+
+========
+
+
+使用QSqlTableMode搭配QTableView实现数据库直接操作 >>
+先创建出一个QSqlTableMode对象，如果已经有数据库连接且不需要从新的数据库中读取数据，则构造函数中的QSqlDatabase对象可以取默认值。
+然后调用QSqlTableMode的成员函数setTable()设置要显示的表名，用setHeaderData()设置每一列显示的数据。
+在设置完QSqlTableMode之后，调用其成员函数select()将数据表格配置提交生效。
+然后创建QTableView对象，使用其成员函数setModel()将先前建立的QSqlTableMode对象作为参数传入即可。
+QSqlTableMode可以直接在表上进行修改操作，使用其成员函数insertRow()和removeRow()可分别实现插入行与删除行操作，需要注意的是，删除行时需要手动调用select()成员函数进行提交，否则被删除的行将依然占位置(虽然内容已被清除)。
+在Qt中，数据库记录行数是从0开始计数的，而QSqlTableMode在显示数据库数据时，表格是从1开始计数的，使用rowCount()函数得到的返回值比表格上显示的行数小1。
+
+----
+
+刷新QTableView >
+默认情况下，数据库的数据发生了变化，QTableView是不会实时更新的，需要调用QSqlTableModel::select()函数更新QTableView。
+
+========
+
+
+Qt中的布局 >>
+
+在Qt中，常用的布局控件有 >
+QHBoxLayout：水平布局
+QVBoxLayout：垂直布局
+QGridLayout：表格布局
+QSpacerItem: "面板弹簧"，可以控制组件的对齐方式
+QStackedLayout：把子控件进行分组或者分页，一次只显示一组或者一页，隐藏其他组或者页上的控件
+
+布局之间可以相互嵌套，从而构成复杂的界面。
+需要注意的是，Qt中的布局的构造函数中同样可以设定父窗口，但如果传入了父类窗口指针，则该布局会尝试成为该窗口的默认布局，但许多控件是拥有默认布局的，在运行时会发出警告。
+
+----
+
+限制布局的大小 >
+在Qt中，无法直接地限定一个布局的大小，如果需要一块布局限定在指定的大小下，比较简单的做法是将目标布局放入一个QWidget控件中，然后使用setFixedSize()成员函数限定QWidget控件的大小即可。
+
+=======
+
+
+关于qApp >>
+Qt中如果包含了QApplication/QCoreApplication头文件，就可以使用全局变量qApp，改变量的作用是返回一个当前实例。
+
+qApp的宏定义为 >
+QApplication中：#define qApp (static_cast<QApplication *>(QCoreApplication::instance()))
+QCoreapplication中：#define qApp QCoreApplication::instance()
+
+在使用一些静态槽函数时，连接信号槽时就需要使用此变量，比如QApplication::aboutQt()。
+
+========
+
+
+Qt的菜单构建 >>
+
+构建主菜单 >
+Qt中的菜单栏为QMenuBar，而显示在菜单栏上的一级选项为QMenu，而每个QMenu可以通过addAction(QAction*)来添加QAction作为菜单项。
+一般来说，Qt应用程序都会包含一个继承于QMainWindow类的主窗口，主窗口通过setMenuBar(QMenuBar*)方法来设定窗口的菜单栏。
+而QMenuBar菜单栏通过addMenu(QMenu*)方法添加QMenu作为一级菜单，QMenu也可以通过addMenu(QMenu*)来添加二级菜单。
+QAction除了添加在菜单中，还可以添加在QToolBar中。
+
+----
+
+构建右键菜单 >
+QWidget及其子类都可以通过重写虚函数contextMenuEvent(QContextMenuEvent*)来构建右键菜单。
+...
+void QWidget::contextMenuEvent(QContextMenuEvent*)
+{
+	QMenu *contextMenu = new QMenu(this);
+	contextMenu->addAction(new QAction("Test"));
+	contextMenu->exec(cursor().pos());		//使用cursor()获取当前控件的QCursor鼠标对象，然后使用QCursor::pos()获得当前鼠标的位置，这样右键菜单便能在鼠标位置出现
+}
+...
+
+========
+
+
+关于在Qt中自定义控件类 >>
+Qt中的控件类一般在构造函数中都有一个(QWidget *parent = 0)的参数用来指定当前类的实例属于哪个父窗口(该参数默认为0，即没有父窗口)，当一个控件类实例的父窗口被关闭时，Qt会自动析构以此窗口为父窗口的所有控件类。
+在给Qt控件定义父窗口时需要注意，布局控件(Q*Layout)在实例化时参数填写了父窗口则代表将这个实例化的布局应用到作为参数传入父窗口上，很多时候这样做是无效的，会提示父窗口已经拥有布局，因此在实例化布局控件是没必要指定父窗口。
+当我们需要自定义自己的控件时，一般会根据需求继承于QWidget或其子类，在自定义控件类的构造函数中，建议也要添加一个参数用于设定父窗口，推荐如下方式在类内声明构造函数：
+MyWidget(QWidget *parent = 0);
+类外定义写成：
+MyWidget::MyWidget(QWidget *parent) : QWidget(parent)
+{
+	/* 函数体 */
+};
+与标准c++不同的是，Qt类中的成员函数默认参数只能写在类体内部的函数声明中，在类外的函数实现中再给函数参数设定默认值同时在实例化时用省略默认值的形式调用函数会报错(但在标准c++中，成员函数的默认参数既可以写在类内的声明中，也可以写在类外的定义中)。
+
+========
+
+
+关于在Qt中新建窗口 >>
+Qt中一般新建一个窗口都采取在堆中分配内存的方式(使用new操作符来创建一个指向该块内存的指针)，在main函数中，也可已尝试不使用指针直接在栈中创建对象，但是，在其他函数中，是不能这样做的，因为一个函数结束，则该函数的栈就会被销毁，而对象如果实在栈中创建则会随着函数的结束而被删除。
+新建窗口的构造函数一般有两种，show()只会创建一个普通的新窗口，用户可以在新窗口和旧窗口之间切换焦点，而exec()则会创建一个模态窗口，在新创建的模态窗口被关闭前，你不能将焦点切换回父窗口。
+
+========
+
+
+Qt中常用的一些预设窗口 >>
+对于一些功能简单的交互对话框，我们不必要一一自己实现，在Qt中提供了许多预设好的简单对话框(均为静态成员函数，可直接使用)：
+用于获取输入数据的对话框为QInputDialog >
+QString QInputDialog::getText(...)		//用于获取字符串
+int QInputDialog::getInt(...)			//用于获取整型数值
+...
+提示用户和获取用户判断的对话框为QMessageBox >
+StandardButton QMessageBox::question(...)		//询问用户的判断
+StandardButton QMessageBox::information(...)	//提示用户普通信息
+StandardButton QMessageBox::warning(...)		//提示用户警告信息
+StandardButton QMessageBox::critical(...)		//提示用户危险信息
+...
+
+========
+
+
+关于字符串处理 >>
+Qt基于c++语言，与java/c#不同，没有自动装箱和拆箱机制，在java中，可以直接将数字与字符串简单得用加号相连并保持数字的语义转化为新的字符串，但在c++中，数字是不能直接与字符串相加的，需要借助标准库中的函数进行转换才能与字符串相加。
+在Qt中，默认字符串与数字用加号拼接然后转换为QString类型时，数字会被当作ASC码对待，要使数字保持语义转化为字符串则需要使用QString QString::number(int/double/long)函数进行转换。
+QString可以通过QString::toStdString()来得到传统风格的c++字符串类型(std::string)，而std::string可以通过std::string::c_str()函数转换为c风格的char*字符数组指针。
+
+========
+
+
+关于QLabel多行显示文本 >>
+在默认情况下，QLabel控件只会单行显示文本，一旦文本内容超过了QLabel控件的Width，就无法显示。如果需要在指定宽度下完整显示文本，就需要将QLabel设置为允许多行显示。使用setWordWrap(true)方法设置QLabel的允许多行显示。
+
+========
+
+
+关于 "底层受到操作系统信号而停止错误" >>
+通常情况下，遇到此类问题可能是对空指针进行了操作。
+在Qt中，需要注意指针是否已经被初始化，同时，在编写类的析构函数时也许要慎重，如果一个指针需要传递给其他类使用，则不能在当前类的析构函数中delete此指针。
+
+========
+
+
+关于 "错误:Warning: File '***' has modification time 3.9e+08 s in the future" >>
+一般情况下，Qt在make项目时连续出现类似错误(并且呈现出死循环状态)，一般是项目中的文件时间混乱，部分文件的时间超过了系统当前的时间造成的。
+解决办法是将项目里的所有文件touch一遍即可。
+此外，make出现 "make: 警告：检测到时钟错误。您的创建可能是不完整的。" 的错误提示一般也是类似原因造成的。
+
+----
+
+
+关于限制QLineEdit的输入内容 >>
+很多时候，需要对用户输入的内容加以限制，对于简单的限制，可以使用 void QLineEdit::setValidator(const QValidator * v) 限制输入内容。
+
+限制只能输入整数 >
+QLineEdit *lineEdit = new QLineEdit();
+lineEdit->setValidator(new QIntValidator(0, 1000, this));		//限制输入0~1000的数值
+
+----
+
+限制只能输入小数 >
+QLineEdit *lineEdit = new QLineEdit();
+lineEdit->setValidator(new QDoubleValidator(0, 10000, 2, this));		//限制输入0~10000的数值，最大保留小数点后两位
+
+----
+
+复杂的输入限制 >
+对于复杂的输入限制，可以使用正则表达式校验器QRegExpValidator。
+QLineEdit *lineEdit = new QLineEdit();
+lineEdit->setValidator(new QRegExpValidator(QRegExp("正则表达式内容")), this);
+
+========
+
+
+关于图片的显示以及图片存储入数据库的操作 >>
+
+在QLabel控件中显示图片 >
+首先得到要打开的图片的路径：
+QString url = QFileDialog::getOpenFileName(this);
+创建一个QLabel控件：
+QLabel *label = new QLabel;
+用前面得到的路径变量url创建一个QPixmap控件：
+QPixmap pixmap(url);
+通过setPixmap()函数设定QLabel的QPixmap控件来让QLabel显示图片：
+label->setPixmap(pixmap);
+如果图片大小不匹配，可以通过sacled()函数改变图片的显示比例：
+QPixmap QPixmap::scaled(int width, int height);
+需要注意的是该函数返回的是QPixmap类型，变更了大小的新的QPixmap在返回值中，需要显式的赋值给一个QPixmap对象。
+
+----
+
+向数据库中写入图片 >
+首先通过得到的文件路径用QFile打开文件：
+QFile file(url);
+然后将得到的文件对象设置OpenMode(对于上传图片到数据库的操作，只需要只读属性)，未设置此属性会造成无权限读取文件：
+file.open(QIODevice::ReadOnly);
+将打开的文件对象转化为二进制数据：
+QByteArray byte = file.readAll();
+将得到的二进制数用QVariant封装：
+QVariant var(byte);
+然后使用QSqlQuery对象执行插入语句将var插入数据库(不能使用exec()语句直接插入，因为QVariant与QString不能直接相连)：
+sql.prepare("inesrt into [表名] (列名) values(?)");
+sql.addBindValue(var);
+sql.exec();
+
+----
+
+从数据库中读取图片 >
+首先使用QSqlQuery对象执行exec()查询语句，然后将智能指针下移一个位置:
+sql.exec("查询语句");
+sql.next();
+将QSqlQuery对象中的数据转化为二进制数据：
+QByteArray byte = sql.value(0).toByteArray();
+将得到的二进制数据传入QPixmap对象：
+QPixmap map;
+map.loadFromData(byte);
+最后将QPixmap对象绑定到QLabel控件上：
+QLabel *label = new QLabel;
+label->setPixmap(map);
