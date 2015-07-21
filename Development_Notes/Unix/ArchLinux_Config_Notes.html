@@ -222,26 +222,26 @@
 			<p>仅仅安装gnome-shell是完全不够的，还需要安装一些常用的gnome组件：</p>
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 				<tr><th style="width: 200px"><span class="blue">包名称</span></th><th style="width: 200px"><span class="blue">软件包简介</span></th></tr>
-				<tr><td>gnome-control-center</td><td>gnome控制中心</td></tr>
-				<tr><td>gnome-screenshot</td><td>gnome截图</td></tr>
-				<tr><td>gnome-disk-utility</td><td>镜像刻录工具</td></tr>
-				<tr><td>gnome-system-monitor</td><td>gnome资源监视器</td></tr>
-				<tr><td>nautilus</td><td>gnome文件管理器</td></tr>
-				<tr><td>gnome-terminal</td><td>gnome终端</td></tr>
+				<tr><td><span class="blue">gnome-control-center</span></td><td>gnome控制中心</td></tr>
+				<tr><td><span class="blue">gnome-screenshot</span></td><td>gnome截图</td></tr>
+				<tr><td><span class="blue">gnome-disk-utility</span></td><td>镜像刻录工具</td></tr>
+				<tr><td><span class="blue">gnome-system-monitor</span></td><td>gnome资源监视器</td></tr>
+				<tr><td><span class="blue">nautilus</span></td><td>gnome文件管理器</td></tr>
+				<tr><td><span class="blue">gnome-terminal</span></td><td>gnome终端</td></tr>				
+				<tr><td><span class="blue">gdm</span></td><td>gnome登陆器</td></tr>
+				<tr><td><span class="blue">eog</span></td><td>gnome之眼</td></tr>
+				<tr><td><span class="blue">evince</span></td><td>pdf文档阅读器</td></tr>
+				<tr><td>yelp</td><td>gnome帮助浏览器</td></tr>
 				<tr><td>gnome-font-viewer</td><td>gnome字体浏览器</td></tr>
-				<tr><td>gdm</td><td>gnome登陆器</td></tr>
-				<tr><td>eog</td><td>gnome之眼</td></tr>
-				<tr><td>evince</td><td>pdf文档阅读器</td></tr>
 				<tr><td>gnome-calculator</td><td>gnome计算器</td></tr>
-				<tr><td>yelp</td><td>gnome帮助查看器</td></tr>
 			</table></blockquote>
-			<p>gnome-extra包组中，也需要安装一些必要的包：</p>
+			<p>gnome-extra包组中，一些包可选安装：</p>
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">软件包简介</span></th></tr>
-				<tr><td><span class="blue">devhelp</span></td><td>gnome开发者文档浏览器</td></tr>
-				<tr><td><span class="blue">gnome-nettool</span></td><td>gnome网络工具</td></tr>
 				<tr><td><span class="blue">file-roller</span></td><td>gnome归档管理器</td></tr>
-				<tr><td><span class="blue">vinagre</span></td><td>gnome桌面的远程控制服务</td></tr>
+				<tr><td>devhelp</td><td>gnome开发者文档浏览器</td></tr>
+				<tr><td>gnome-nettool</td><td>gnome网络工具</td></tr>				
+				<tr><td>vinagre</td><td>gnome桌面的远程控制服务</td></tr>
 				<tr><td>cheese</td><td>茄子大头贴，聊天工具必备摄像头组件</td></tr>
 				<tr><td>gedit</td><td>gnome文本编辑器</td></tr>
 				<tr><td>anjuta</td><td>gnome开发用的IDE</td></tr>
@@ -268,17 +268,17 @@
 			<blockquote># pacman -S gedit-plugins eog-plugins</blockquote></li><br/>
 			<li><p>如果比较习惯传统的gnome2风格的桌面环境，可以尝试使用<span class="blue"> MATE </span>作为桌面环境。<br/>安装MATE桌面环境的基本包组：</p>
 			<blockquote># pacman -S mate</blockquote>
-			<p>在<span class="blue"> mate </span>包组中，同样有些包是<span class="blue">不必要安装</span>的：</p>
+			<p>在<span class="blue"> mate </span>包组中，只需要安装一些<span class="blue">必备组件</span>，其它的必要包会作为依赖被安装：</p>
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">软件包介绍</span></th></tr>
-				<tr><td>mate-dialogs</td><td>用于在命令行下弹出MATE桌面的窗口，没必要安装</td></tr>
-				<tr><td>mate-backgrounds</td><td>MATE桌面环境的默认壁纸包，没有必要安装</td></tr>
-				<tr><td>mate-themes</td><td>MATE桌面环境的默认主题包，推荐使用更漂亮的<span class="blue"> Numix </span>主题作为替代</td></tr>
+				<tr><td>caja</td><td>MATE桌面环境的默认文件管理器</td></tr>
+				<tr><td>mate-control-center</td><td>MATE桌面环境的控制中心</td></tr>
+				<tr><td>mate-notification-daemon</td><td>MATE桌面环境的通知服务</td></tr>
 			</table></blockquote>
-			<p>仅仅安装<span class="blue"> mate包组 </span>是不够的，还要选择安装<span class="blue"> mate-extra </span>包组中的一些组件来构建功能完整的桌面环境：</p>
+			<p>仅仅安装<span class="blue"> mate </span>包组是不够的，还要选择安装<span class="blue"> mate-extra </span>包组中的一些组件来构建功能完整的桌面环境：</p>
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">软件包介绍</span></th></tr>
-				<tr><td>mate-media-pulseaudio</td><td>MATE桌面环境的音频控制器</td></tr>
+				<tr><td>mate-media</td><td>MATE桌面环境的音频控制器</td></tr>
 				<tr><td>mate-power-manager</td><td>MATE桌面环境的电源管理组件</td></tr>
 				<tr><td>mate-system-monitor</td><td>MATE桌面环境的任务管理器组件</td></tr>
 				<tr><td>mate-screensaver</td><td>MATE桌面环境的锁屏模块</td></tr>
@@ -321,8 +321,16 @@
 			<p>相对与重量级的gnome、KDE之类的桌面环境，轻量级的Xfce项目并没有提供完整的常用工具组，除了以上的包之外，还需要安装<span class="blue"> zathura-pdf-mupdf </span>作为pdf阅读器，<span class="blue"> gnome-disk-utility </span>作为磁盘刻录工具，<span class="blue"> file-roller </span>作为解压工具，<span class="blue"> slock </span>作为锁屏工具，<span class="blue"> thunderbird </span>作为邮件客户端，<span class="blue"> xfce-polkit-git </span>作为polkit的xfce前端(这个包在<span class="blue">AUR</span>中)。</p>
 			<blockquote># pacman -S zathura-pdf-mupdf gnome-disk-utility file-roller slock thunderbird</blockquote>
 			<p>Xfce桌面环境也推荐使用<span class="blue"> lightdm </span>作为登陆器，配置过程类似与MATE桌面环境。</p></li><br/>
+			<li><p>文件服务相关：</p>
+			<ol><li><p>默认情况下，使用nautilus/thunar/caja之类的基于gvfs的文件管理器可能看不到Windows分区，需要安装<span class="blue"> gvfs </span>文件服务：</p>
+			<blockquote># pacman -S gvfs</blockquote></li>
 			<li><p>默认情况下，挂载Windows分区读写じやない，需要安装：</p>
-			<blockquote># pacman -S ntfs-3g<span>&nbsp;&nbsp;&nbsp;&nbsp;//让nautilus/dolphin/caja能够正常读写挂载的Windows分区</span></blockquote></li><br/>
+			<blockquote># pacman -S ntfs-3g<span>&nbsp;&nbsp;&nbsp;&nbsp;//让nautilus/dolphin/caja能够正常读写挂载的Windows分区</span></blockquote></li>
+			<li><p>使用nautilus/thunar/caja等基于gvfs的文件管理器访问一些特殊的文件协议时需要安装额外的包：</p>
+			<blockquote># pacman -S gvfs-mtp<span>&nbsp;&nbsp;&nbsp;&nbsp;//访问内置存储的手机/mp3时会用到</span><br/># pacman -S gvfs-smb<span>&nbsp;&nbsp;&nbsp;&nbsp;//访问smaba文件服务时会用到</span></blockquote></li>
+			<li><p>使用dolphin等基于KDE技术的文件管理器访问mtp需要安装：</p>
+			<blockquote># pacman -S kio-mtp</blockquote></li>
+			</ol></li><br/>
 			<li><p>安装图形界面之后，可能无法直接启动，需要配置以下文件：</p>
 			<blockquote>/etc/X11/xinit/xinitrc<br/>~/.xinitrc</blockquote>
 			<p>在文件内容中添加启动桌面指定环境的语句：<span class="blue"> exec startkde </span> (以kde桌面环境为例)<br/>如果是gnome桌面环境，则添加语句：<span class="blue"> exec gnome-session </span><br/>如果是MATE桌面环境，则添加语句：<span class="blue"> exec mate-session </span></p></li><br/>
@@ -419,7 +427,7 @@
 			<li><p>配置OpenGL开发环境时需要安装mesa相关包（通常在安装桌面环境时已经随依赖安装），以及freeglut包。</p>
 			<blockquote># pacman -S freeglut</blockquote></li><br/>
 			<li><p>将需要的开发工具和开发环境一并安装：</p>
-			<blockquote># pacman -S ctags cmake apache nginx mariadb clang boost freeglut gcc gcc-ada gcc-fortran gcc-go gcc-objc gdb gdc gnustep-core nasm yasm perl php python python2 js npm mono jdk7-openjdk jdk8-openjdk junit tomcat7 tomcat8 ruby qtcreator</blockquote></li><br/>
+			<blockquote># pacman -S ctags cmake mariadb clang boost freeglut gcc gcc-ada gcc-fortran gcc-go gcc-objc gdb gdc gnustep-core nasm yasm perl php python js npm mono jdk7-openjdk jdk8-openjdk ruby qtcreator</blockquote></li><br/>
 			<li><p>安装开发环境的对应的文档：</p>
 			<blockquote># pacman -S linux-docs openjdk8-doc qt5-doc gcc-docs php-docs python-docs ruby-docs</blockquote></li><br/>
 			<li><p>最后安装主流的版本控制系统：</p>
@@ -446,6 +454,14 @@
 				<tr><td>o</td><td>老文档，可能会在一段期限内保留</td></tr>
 				<tr><td>i</td><td>本地文档，与本特定系统有关的</td></tr>
 			</table></blockquote>
+			</li><br/>
+			<li><p>关于 <span class="blue"> gconf/dconf </span>：</p>
+			<p>gconf/dconf是gnome系列桌面(包括gnome、Xfce、MATE等)下的配置管理机制，多数gtk+软件可通过其调整配置(类Windows下的注册表)。dconf是gnome桌面环境下的新一代配置管理工具，用于取代gnome2时代的gconf，相比之下，原先的gconf采用的是xml的格式明文保存配置，而gnome3之后的dconf采用二进制文件的形式保存配置。</p>
+			<p>使用dconf命令：</p>
+			<blockquote>$ dconf write [<span class="blue">配置路径</span>] [<span class="blue">配置值</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//向指定键值写入新的属性值</span><br/>$ dconf list [<span class="blue">配置路径</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出指定路径的属性值</span></blockquote>
+			<p>使用dconf设置MATE桌面的文件挂载显示：</p>
+			<blockquote>$ dconf write /org/mate/caja/desktop/volumes-visible false</blockquote>
+			<p><span class="blue"> dconf/gconf </span>对应的图形化前端为 <span class="blue"> dconf-editor/gconf-editor </span>，熟悉命令行操作则没有必要安装。</p>
 			</li><br/>
 			<li><p>ArchLinux的DNS配置在<span class="blue"> /etc/resolv.conf </span>文件中，需要注意的是该文件中的配置受到<span class="blue"> /etc/resolvconf.conf </span>控制，直接修改<span class="blue"> /etc/resolv.conf </span>的配置是不会保存的(下次开机会重置)，应该在<span class="blue"> /etc/resolvconf.conf </span>文件中加入内容：</p>
 			<blockquote>name_servers=114.114.114.114</blockquote></li><br/>
@@ -480,8 +496,6 @@
 			<blockquote># systemctl status bluetooth.service</blockquote>
 			<p>不需要使用蓝牙服务的话，使用以下命令关闭：</p>
 			<blockquote># systemctl disable bluetooth.service</blockquote></li><br/>
-			<li><p>默认情况下，ArchLinux是无法挂载使用mtp服务的设备的，可以通过安装gvfs-mtp让nautilus识别出mtp设备，或是安装kio-mtp让dolphin识别出mtp设备：</p>
-			<blockquote># pacman -S gvfs-mtp<span>&nbsp;&nbsp;&nbsp;&nbsp;//用于gnome桌面环境</span><br/># pacman -S kio-mtp<span>&nbsp;&nbsp;&nbsp;&nbsp;//用于KDE桌面环境</span></blockquote></li><br/>
 			<li><p>在安装字体时，记住千万不要手贱去装<span class="blue"> wqy-microhei-lite </span>这个字体包，会造成Netbeans中使用文泉驿等宽微米黑字体时空格变成口口(是非もなし)。</p></li><br/>
 			<li><p>在使用gnome桌面环境时，通常会选择安装libreoffice作为办公套件，在安装时，不推荐完整安装libreoffice包组，会将在gnome桌面环境下完全无用的<span class="blue"> libreoffice-kde4 </span>也一起安装进来，<span class="blue"> libreoffice-kde4 </span>会带来许多无用的KDE依赖。同时，也不推荐安装libreoffice-sdk，这是libreoffice的开发包，对普通用户无用。<span>(最新版本的ArchLinux中，libreoffice已经不再分开打包，可以忽略此条)</span></p></li><br/>
 			<li><p>在使用gnome桌面时，如过你的机器使用的是Intel的核芯显卡，则有可能会出现屏幕亮度无法保存的情况，解决办法是使用Xorg服务中的亮度调节命令，由于gnome桌面环境在登录时会自动执行.xprofile文件，故可在.xprofile文件中写入以下指令：<span>(在Linux 3.17内核之后，不再会出现此问题，因此使用新内核的话可以无视此条)</span></p>
@@ -489,7 +503,8 @@
 			<li><p><span class="blue"> ~/.local/share/applications/mimeapps.list </span>文件是控制扩展名与默认应用关联的文件，需要谨慎配置。在gnome桌面环境下可能会遇到一些与之相关的问题：</p>
 			<ul><li><p>有时在gnome控制中心中更改默认应用程序时会出现无法保存的情况，这时需要自行修改mimeapps.list文件，将希望的应用程序改为默认值，或者直接删除该文件，系统会重新生成一个默认配置的文件。</p></li>
 			<li><p>在使用gnome扩展Places Status Indicator时，如果安装了音乐播放器audacious，则默认情况下会出现从扩展中打开文件夹并不是启用nautious，而是使用audacious打开。出现这种情况就是对于inode/directory类型的应用关联出现了问题，可以在mimeapps.list文件中的<span class="blue"> [Default Applications] </span>中写入键值<span class="blue"> inode/directory=nautilus.desktop </span>，即手动指定了目录类型的默认打开方式，执行以下命令的作用类似：</p>
-			<blockquote>$ xdg-mime default nautilus.desktop inode/directory</blockquote></li>			
+			<blockquote>$ xdg-mime default nautilus.desktop inode/directory</blockquote></li>
+			<p>有时候，仅仅设置<span class="blue"> [Default Applications] </span>并不能完全阻止丧病的audacious，需要完全屏蔽audacious与目录的关联的关联：在mimeapps.list文件中写入<span class="blue"> [Removed Associations] </span>属性中添加键值<span class="blue"> inode/directory=audacious.desktop </span>，即在访问目录的程序中屏蔽audacious。</p>			
 			</ul></li><br/>
 			<li><p>有时，ArchLinux的密钥会出现更新不及时的情况，安装部分包会出现下列错误提示：</p>
 			<blockquote>error: key "****" cound not be looked up remotely<br/>error: required key missing from keyring<br/>error: failed to committrasaction (unexpected error)<br/>Errors occurred, no packages were upgraded.</blockquote>

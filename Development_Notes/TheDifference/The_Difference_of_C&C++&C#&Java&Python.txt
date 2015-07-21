@@ -42,7 +42,9 @@ java中通过final来定义一个不可更改的变量。
 final关键字可用于类之前，表示该类为"终极类"，不可被继承。
 final关键字可用于函数之前，表示该函数不可被重写。
 c# >
-c#中同样通过关键字const来定义一个不可更改的变量。
+c#中同样通过关键字const来定义一个编译期不可更改的变量，但const关键字通常用来修饰值类型，不能修饰string以外的非空引用类型。
+c#中const关键字不能与static关键字共同修饰同一个变量，但c/c++中可以。
+c#中使用readonly关键字定义一个运行时的只读变量，readonly可以修饰所有类型。
 c#中使用关键字sealed来定义一个不可继承的类(密封类)。
 sealed关键字用于函数之前，表示该函数不可被重写。
 
@@ -98,7 +100,7 @@ c# >
 c#作为c++与java杂交的产物，同时包含class&struct&interface。
 但与c++不同，c#中的class是引用类型，可以为null，但struct是值类型，不能为null，class传递的是引用，struct传递是值复制。
 struct中成员默认public访问权限，且struct没有默认的空构造函数。struct中的成员也不能拥有默认值，即不能像类一样定义成员的同时赋初值。struct的构造函数必须要初始化所有的成员变量。实例化struct不使用new关键字。
-class支持继承和多态，struct不支持，但是struct可以和类一样实现接口。
+class支持继承和多态，struct不支持(因此不能对struct使用sealed关键字)，但是struct可以和类一样实现接口。
 由于struct不支持继承，其成员不能以protected 或Protected Internal修饰。
 c#中的interface类似于java，但与java不同的是inteface中只能包含抽象函数而不能定义变量(java中interface允许定义变量，并可以给定义的变量赋初值)，成员不能使用public关键字(java中可以，无论是否使用public关键字都为公有成员)，成员一定是公有成员。重写interface中的函数时，需要设为公有成员。
 c#中的interface可以像类一样直接实例化。
@@ -157,12 +159,18 @@ c++ >
 c++中的template(模板)，用在class和struct中，同时支持int，float等基础类型和Object类型。
 在c++11中，template搭配auto&decltype关键字可实现template返回值类型推断(在c++14标准中，啊uto关键字可以自动推断返回类型而无需搭配decltype关键字)。
 c++中的template会在编译时根据实例化的类型对应编译成不同的实现，同时编译时会检测实例化的泛型对象的函数签名是否与类中已有的函数签名冲突，发生冲突将不能通过编译。
+c++的模版不仅可用于类定义，还可用于定义函数(函数模版)。
+c++类模版不支持泛型推断，函数模版支持泛型推断。
+c++类模版支持部分非类型参数(int/char以及指针类型)。
+c++11之后，模版支持设置默认泛型参数类型。
 java >
 java中的泛型用于class和implements，只支持Integer，String之类的Object类型。
 java中泛型对象的函数签名与已有函数签名发生冲突时，同样不能通过编译。
+java1.7开始支持泛型推断，java1.8引入基于上下文的泛型推断。
 c# >
 c#中的泛型语法类似于java，但实际使用与c++更相近，同时支持值类型与引用类型。
 c#泛型可以搭配委托实现泛型委托。
+c#不支持泛型推断，实例化泛型对象时需要显式声明泛型参数类型。
 
 泛型是多态性的表现，模版是泛型的一种具体实现，但c++中的模板属于编译时多态，java/c#中的泛型属于运行时多态。
 java/c#中的泛型可以实现类型约束，只有满足特定约束的类型才能正常实例化。
@@ -319,8 +327,8 @@ class Test
 	
 	static void Main(string[] args)
 	{
-		callBack(new GetNum(addition));
-		callBack(new GetNum(multiplication));
+		callBack(addition);
+		callBack(multiplication);
 	}
 }
 

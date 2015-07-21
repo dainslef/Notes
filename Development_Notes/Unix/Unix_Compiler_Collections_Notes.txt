@@ -89,6 +89,6 @@ gcc编译objc源码指令：
 $ gcc `gnustep-config --objc-flags` -lobjc -lgnustep-base [源码文件]
 由于gnustep-config是与gnu编译器组配套的，故其生成的编译参数并不完全适用于clang编译器，故需要手动指定编译参数以符合clang编译器的要求，根据编译器输出的异常信息将gnustep-config指令生成的参数中不符合要求的参数剔除，并加入其他需要的编译器参数。
 clang编译objc源码指令(以 Archlinux + gcc 4.9.2 为例)：
-$ clang -fconstant-string-class=NSConstantString -lgnustep-base -lobjc -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.9.2/include [源码文件]
+$ clang -fconstant-string-class=NSConstantString -lgnustep-base -lobjc -I/usr/lib/gcc/x86_64-unknown-linux-gnu/[gcc-version]/include [源码文件]
 
 在编译程序时，可以为程序添加代码优化选项来提升程序的运行效率，gcc和clang都有O1，O2，O3三个代码优化级别，O1最低，O3优化最高，使用优化选项能大幅度提升生成二进制文件的执行效率，但会使得生成的程序难以调试。故一般只在程序完成测试之后进入发布阶段才会启用编译优化选项。

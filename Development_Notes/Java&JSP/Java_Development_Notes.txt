@@ -19,10 +19,10 @@ list.add(type);
 Map<Key, Type>  map = new HashMap<Key, Type>();
 map.put(key, type);
 
-Java支持泛型<>菱形推断，实例化时类型可以省略，上面的语句实例化可以简写为：
-List list = new ArrayList<>();
+Java支持泛型<>菱形推断，实例化时类型可以省略(Java1.7新特性)，上面的语句实例化可以简写为：
+List<Type> list = new ArrayList<>();
 Map map = new HashMap<>();
-甚至，你还可以直接省略<>符号，完全让编译器推断：
+甚至，你还可以直接省略<>符号，完全让编译器推断(Java1.8新特性，一般编译器会隐式推断为Object类型)：
 List list = new ArrayList();
 Map map = new HashMap();
 
@@ -35,6 +35,7 @@ Set set = map.keySet();
 Iterator iteratorSet = set.iterator();
 
 Map使用get(key)可以得到对应的键值，但是这个键值是Object型的，需要通过向下转型来恢复键值类型。
+HashMap之类的容器只能一个键对应一个键值，如果需要一个键绑定多个键值可以使用IdentityHashMap。
 
 ========
 
@@ -155,8 +156,14 @@ static void showMessageDialog(Component parentComponent, Object message) 							
 static void showMessageDialog(Component parentComponent, Object message, String title, int messageType) 				//调出对话框，它显示使用由 messageType 参数确定的默认图标的 message。 
 static void showMessageDialog(Component parentComponent, Object message, String title, int messageType, Icon icon) 						//调出一个显示信息的对话框，为其指定了所有参数。 
 其中，messageType可以取DEFAULT_OPTION、YES_NO_OPTION、YES_NO_CANCEL_OPTION 或 OK_CANCEL_OPTION等。
-此外，还有showInputDialog、showConfirmDialog等方法。
+此外，还有showInputDialog、showConfirmDialog等方法可以用于显示其他用途的窗口。
 
 ----
 
 使用JTable显示数据库 >
+构建一个JTable主要有两种方式：
+JTable(Object[][] rowData, Object[] columnNames);
+JTable(TableModel dm);
+即使用Object数组确定表格模型或是使用TableModel类构建表格模型。
+使用对象数组构建表格模型可以先从数组库中读取对应数据，然后将数据存储在对象数组中。
+使用TableModel类可以先构建TableMode对象，然后使用TableMode类的成员方法setValueAt(Object aValue, int rowIndex, int columnIndex)设定表格模型每个位置的数据，最后在JTable使用构造函数或在已有的JTable对象调用setModel(TableModel dataModel)成员方法创建表格。

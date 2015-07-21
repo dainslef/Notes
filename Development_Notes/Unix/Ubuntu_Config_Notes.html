@@ -224,6 +224,8 @@
 			<br/><br/><br/>
 			<h2 id="third">Ubuntu常见问题の记录</h2>
 			<ol>
+			<li><p>使用Ubuntu Core版本安装的系统，默认apt工具中是没有<span class="red"> add-apt-repository </span>这个用于添加PPA的指令的。该工具是Ubuntu自己维护的，debian中没有，由 <span class="red"> software-properties-common </span>包提供，可以自行安装：</p>
+			<blockquote># apt install software-properties-common</blockquote></li><br/>
 			<li><p>在ubuntu14.04中，可以选择直接用搜狗官网中下载搜狗输入法linux版本。搜狗输入法需要使用fcitx作为输入框架：</p>
 			<blockquote># apt-get install fcitx</blockquote>
 			<p>安装fcitx之后，使用<span class="red"> dpkg -i </span>命令安装下载好的搜狗拼音deb包。在默认情况下，无论是unity或是kde桌面环境都是使用ibus作为默认输入法，可以使用im-config来调整默认输入法。使用搜狗输入法需要将默认ibus输入源中的快捷键清除，否则会造成快捷键冲突而使得搜狗输入法无法调用。</p></li><br/>
@@ -237,7 +239,7 @@
 			<li><p>在ubuntu中，如果在安装系统时选择了错误的默认语言区域（错误的语言环境可能会导致部分软件不能正确的选择语言），可以修改配置文件：<span class="red"> /etc/default/locale </span>，将文件改为如下内容：</p>
 			<blockquote>LANG="zh_CN.UTF-8"<br/>LC_NUMERIC="zh_CN.UTF-8"<br/>LC_TIME="zh_CN.UTF-8"<br/>LC_MONETARY="zh_CN.UTF-8"<br/>LC_PAPER="zh_CN.UTF-8"<br/>LC_NAME="zh_CN.UTF-8"<br/>LC_ADDRESS="zh_CN.UTF-8"<br/>LC_TELEPHONE="zh_CN.UTF-8"<br/>LC_MEASUREMENT="zh_CN.UTF-8"<br/>LC_IDENTIFICATION="zh_CN.UTF-8"</blockquote>
 			<p>保证这些配置的值全部为"zh_CN.UTF-8"即可确定系统为中文环境！当然，最行之有效的方法是添加：<span class="red"> LC_ALL="zh_CN.UTF-8" </span>，即可将整个系统环境设置为中文。LC_ALL的配置优先级最高，会覆盖掉其他的语言环境设置。配置完成后，不要忘记使用locale-gen命令更新环境！如果locale-gen输出结果中没有中文环境，可以使用：</p>
-			<blockquote>locale-gen [中文环境编码]</blockquote><p>来添加生成中文环境。如果locale-gen命令中输出了用不到的环境，则可以编辑<span class="red"> /var/lib/locales/supported.d/local </span>，删除对应的文本即可。</p></li><br/>
+			<blockquote># locale-gen [<span class="red">中文环境编码</span>]</blockquote><p>来添加生成中文环境。如果locale-gen命令中输出了用不到的环境，则可以编辑<span class="red"> /var/lib/locales/supported.d/local </span>，删除对应的文本即可。</p></li><br/>
 			<li><p>在ubuntu14.04中，chromium插件的安装方式发生了变化，不再使用adobe提供的官方插件，而是使用与chrome相同的内置插件。先安装插件包：</p>
 			<blockquote># apt-get install pepperflashplugin-nonfree</blockquote>
 			<p>更新插件：</p>

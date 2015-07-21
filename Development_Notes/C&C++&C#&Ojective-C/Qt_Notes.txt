@@ -111,11 +111,31 @@ int main(int argc, char *argv[])
 ========
 
 
-关于Qt的经典错误 "undefined reference to vtable for XXX(类名)" >>
+Qt常见错误 >>
+
+关于 "undefined reference to vtable for XXX(类名)" 错误 >
 在一个类的定义中，如果使用类Q_OBJECT宏，则需要将对应的代码使用moc工具进行预处理生成 "*.moc" 文件才能够正常编译，而qmake工具在扫描代码中的Q_OBJECT时只会从 "*.h" 命名的文件中查找，如果在编码过程中没有按照编码规范而是将类的定义写在 "*.cpp/*.cc" 文件中的话，qmake工具是不会识别的，生成对应的Makefile文件也不会将对应的 "*.moc" 文件加入编译使得make指令编译报错。
 正确的做法是按照c++标准将类的定义写在 "*.h" 头文件中。
 此外，Qt在编译项目时默认采用的是make编译，会在编译时忽略那些未曾改动的文件，因此有时出现此错误时还可以尝试完全删除已经存在的二进制文件和编译中间文件，然后从头开始重新编译整个项目。
 一般对于此类错误的解决办法是手动运行qmake后整个项目重新编译。
+
+----
+
+关于 "错误:Warning: File '***' has modification time 3.9e+08 s in the future" >
+一般情况下，Qt在make项目时连续出现类似错误(并且呈现出死循环状态)，一般是项目中的文件时间混乱，部分文件的时间超过了系统当前的时间造成的。
+解决办法是将项目里的所有文件touch一遍即可。
+此外，make出现 "make: 警告：检测到时钟错误。您的创建可能是不完整的。" 的错误提示一般也是类似原因造成的。
+
+----
+
+关于 "qt error: C2001: 常量中有换行符" 错误 >
+在Windows环境中使用Qt+VC编译器并且源码为utf-8编码时，需要保留BOM，使用无BOM的utf-8编码会让编译器在遇到中文字符时报编码错误，需要将文件编码的UTF-8 BOM选项设置为 "如果编码是utf-8则添加" 。
+
+----
+
+关于 "底层受到操作系统信号而停止" 错误 >
+通常情况下，遇到此类问题可能是对空指针进行了操作。
+在Qt中，需要注意指针是否已经被初始化，同时，在编写类的析构函数时也许要慎重，如果一个指针需要传递给其他类使用，则不能在当前类的析构函数中delete此指针。
 
 ========
 
@@ -189,6 +209,12 @@ QStackedLayout：把子控件进行分组或者分页，一次只显示一组或
 限制布局的大小 >
 在Qt中，无法直接地限定一个布局的大小，如果需要一块布局限定在指定的大小下，比较简单的做法是将目标布局放入一个QWidget控件中，然后使用setFixedSize()成员函数限定QWidget控件的大小即可。
 
+----
+
+栅格化布局 >
+在使用QtCreator设计UI时，默认情况下，界面元素的布局是不会随着窗口大小的变化而变化的，如果需要设计元素布局会随着窗口改变的界面，则需要使用栅格化布局。
+栅格化布局本质上是将整个界面的布局设置为QGirdLayout，处于该布局内的窗口元素都会随着窗口大小的改变而变化其位置与间隔。
+
 =======
 
 
@@ -228,6 +254,28 @@ void QWidget::contextMenuEvent(QContextMenuEvent*)
 ========
 
 
+Qt鼠标监听 >>
+
+鼠标点按事件 >
+Qt中鼠标点按动作会触发下列事件：
+void QWidget::mousePressEvent(QMouseEvent *e);
+void QWidget::mouseReleaseEvent(QMouseEvent *e);
+重写这些事件处理函数即可。
+对于鼠标事件QMouseEvent，可以使用QPoint QMouseEvent::pos()获取控件内坐标，和QPoint QMouseEvent::globalPos()获取全局坐标(显示器坐标)。
+
+----
+
+鼠标移动事件 >
+移动鼠标会触发下列事件：
+void QWidget::mouseMoveEvent(QMouseEvent *e);
+void QWidget::leaveEvent(QEvent *event);
+void QWidget::enterEvent(QEvent *event);
+当鼠标移入控件时，会触发enterEvent()函数，当鼠标移出控件时会触发leaveEvent()，触发这些事件并不需要控件获得焦点，只需要鼠标进入/退出指定控件区域即会触发。
+需要注意的是，默认情况下Qt只监听鼠标按下之后的动作，如果需要Qt监听所有鼠标动作需要使用函数setMouseTracking(true);
+
+========
+
+
 关于在Qt中自定义控件类 >>
 Qt中的控件类一般在构造函数中都有一个(QWidget *parent = 0)的参数用来指定当前类的实例属于哪个父窗口(该参数默认为0，即没有父窗口)，当一个控件类实例的父窗口被关闭时，Qt会自动析构以此窗口为父窗口的所有控件类。
 在给Qt控件定义父窗口时需要注意，布局控件(Q*Layout)在实例化时参数填写了父窗口则代表将这个实例化的布局应用到作为参数传入父窗口上，很多时候这样做是无效的，会提示父窗口已经拥有布局，因此在实例化布局控件是没必要指定父窗口。
@@ -246,6 +294,7 @@ MyWidget::MyWidget(QWidget *parent) : QWidget(parent)
 关于在Qt中新建窗口 >>
 Qt中一般新建一个窗口都采取在堆中分配内存的方式(使用new操作符来创建一个指向该块内存的指针)，在main函数中，也可已尝试不使用指针直接在栈中创建对象，但是，在其他函数中，是不能这样做的，因为一个函数结束，则该函数的栈就会被销毁，而对象如果实在栈中创建则会随着函数的结束而被删除。
 新建窗口的构造函数一般有两种，show()只会创建一个普通的新窗口，用户可以在新窗口和旧窗口之间切换焦点，而exec()则会创建一个模态窗口，在新创建的模态窗口被关闭前，你不能将焦点切换回父窗口。
+show()创建窗口之后程序会继续执行后面的代码，但使用exec()创建模态窗口则会阻塞线程，直到模态对话框收到accept()/reject()操作才会继续执行代码。
 
 ========
 
@@ -255,6 +304,7 @@ Qt中常用的一些预设窗口 >>
 用于获取输入数据的对话框为QInputDialog >
 QString QInputDialog::getText(...)		//用于获取字符串
 int QInputDialog::getInt(...)			//用于获取整型数值
+QString QFileDialog::getOpenFileName(...)		//用于获取选择的文件路径
 ...
 提示用户和获取用户判断的对话框为QMessageBox >
 StandardButton QMessageBox::question(...)		//询问用户的判断
@@ -280,23 +330,10 @@ QString可以通过QString::toStdString()来得到传统风格的c++字符串类
 ========
 
 
-关于 "底层受到操作系统信号而停止错误" >>
-通常情况下，遇到此类问题可能是对空指针进行了操作。
-在Qt中，需要注意指针是否已经被初始化，同时，在编写类的析构函数时也许要慎重，如果一个指针需要传递给其他类使用，则不能在当前类的析构函数中delete此指针。
-
-========
-
-
-关于 "错误:Warning: File '***' has modification time 3.9e+08 s in the future" >>
-一般情况下，Qt在make项目时连续出现类似错误(并且呈现出死循环状态)，一般是项目中的文件时间混乱，部分文件的时间超过了系统当前的时间造成的。
-解决办法是将项目里的所有文件touch一遍即可。
-此外，make出现 "make: 警告：检测到时钟错误。您的创建可能是不完整的。" 的错误提示一般也是类似原因造成的。
-
-----
-
-
 关于限制QLineEdit的输入内容 >>
 很多时候，需要对用户输入的内容加以限制，对于简单的限制，可以使用 void QLineEdit::setValidator(const QValidator * v) 限制输入内容。
+
+----
 
 限制只能输入整数 >
 QLineEdit *lineEdit = new QLineEdit();
@@ -363,3 +400,63 @@ map.loadFromData(byte);
 最后将QPixmap对象绑定到QLabel控件上：
 QLabel *label = new QLabel;
 label->setPixmap(map);
+
+========
+
+
+Qt绘图系统 >>
+Qt的绘图系统包括QPainter、QPaintDevice、QPaintEngine三个类。
+QPainter用于执行绘图的操作，QPaintDevice则是一个二维空间的抽象，给QPainter提供绘制图形的空间，而QPaintEngine通常对于开发人员透明，用于QPainter和QPaintDevice之间的通讯。
+QPaintDevice相当于画板，QPainter相当于画笔，QPaintDevice有多种子类如QPixmap、QImage等。
+
+----
+
+paintEvent() >
+一般而言，自行绘制图形可以自定义一个类继承于QWidget，然后重写QWidget::paintEvent(QPiantEvent*)事件处理函数，将绘制图形的操作放在paintEvent()事件处理函数中。
+在Qt4之后，绘图操作可以不必放在paintEvent()事件处理函数中运行，但对于从QWidget继承过来的类而言，必须将绘制操作放在paintEvent()中，可以封装一个类用于管理paint操作，然后将该类放在paintEvent()中实例化。
+paintEvent()是一个会被频繁触发的事件，每次窗口有刷新行为都会触发该事件函数进行重绘。
+paintEvent()事件函数也可以被手动触发，QWidget的子类使用repaint()/update()成员函数就能主动触发重绘事件。
+
+----
+
+QPainter >
+QPainter相当于画笔，用于控制线的样式、颜色、粗细等。
+使用QPainter绘制图像时，需要在构建QPainter实例时传入需要绘制的设备的地址作为参数或者使用begin()成员函数来确定绘制设备，比如 QPainter painter(this); 就是实例化了一个绘制当前控件的QPainter。
+一个painter只能同时绘制一个设备(一支笔不能同时在两张纸上写字)，当可以在绘制设备之间进行切换，从一个绘制设备切换到另一个绘制设备之前需要使用end()成员函数结束上一个被绘制的设备，然后将下一个可绘制设备的地址传入begin()成员函数进行绘制。
+
+----
+
+QPixmap >
+使用默认的构造函数(无参构造函数)构造QPixmap时，会产生一个空的QPixmap对象，空的QPixmap对象是不能传入QPainter进行绘制操作的(运行时提示"QPainter::begin: Paint device returned engine == 0, type: 2")，需要重载的赋值操作符/load()等成员函数加载数据之后才能绘制，也可以使用带有初始大小的QPixmap(const QSize& size)/QPixmap(int width, int height)等构造函数创建一个初始非空的QPixmap对象。
+相比直接在控件上进行绘制，使用QPixmap最大的不同是像QPixmap中绘制的数据是可以被保存下来的，而直接在控件上绘制则每次刷新会丢失先前绘制的内容。
+QPixmap可以使用 QImage QPixmap::toImage() const 转换为QImage。
+
+----
+
+QImage >
+与QPixmap类似，使用无参构造函数创建的QImage同样是空的，没有分配内存不能直接用于QPainter绘制，使用QPainter绘制需要使用有参构造函数构建非空的QImage对象。
+相比QPixmap，QImage支持进行像素级别的操作，QPixmap的实现依赖于硬件，QImage不依赖于硬件，QPixmap主要用于绘图,针对屏幕显示而最佳化设计，QImage主要是为图像I/O、图片访问和像素修改而设计。
+
+----
+
+图片透明化 >
+使用QImage处理图片时可以通过设置图片的Alpha通道使图片透明化。
+简单的透明处理可以使用 void QImage::setAlphaChannel(const QImage & alphaChannel); 以另一个QImage对象作为参数使图片透明化。
+如果需要手动指定透明度(Alpha值)，则可以创建一个带有Alpha通道的QImage对象，如 QImage temp_image(win_size, QImage::Format_ARGB32);
+使用设置了透明画刷的QPainter对其进行色彩填充，然后将此QImage作为setAlphaChannel()成员函数的参数。
+示例代码：
+int alpha = 100;		//定义alpha透明度
+QImage temp_image(100，100)；		//创建空白QImage
+QPainter painter(&image);
+painter.fillRect(0, 0, 100, 100, QColor(alpha, alpha, alpha, alpha));		//填充色彩
+image.setAlphaChannel(temp_image);				//以temp_image为样本设置原图像的alpha通道
+
+=========
+
+
+Qt窗口截图 >>
+一般使用QWidget的静态成员函数进行截图：
+QPixmap grabWidget(QObject *widget, int x=0, int y=0, int w=-1, int h=-1);
+也可以使用QScreen对象进行截图操作。
+QScreen *screen = QGuiApplication::primaryScreen();
+QPixmap view = screen->grabWindow(this->winId(), 0, 0, size().width(), size().height());
