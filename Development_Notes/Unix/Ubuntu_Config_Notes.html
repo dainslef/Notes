@@ -259,7 +259,10 @@
 			<blockquote># update-alternatives --config x-cursor-theme</blockquote>
 			<p>也可以手动从某个目录中安装新的鼠标指针：</p>
 			<blockquote># update-alternatives --install /usr/share/icons/default/index.theme x-cursor-theme /*/*..../cursor.theme 80<span>&nbsp;&nbsp;&nbsp;&nbsp;//最后的数字代表优先级</span></blockquote>
-			<p>有时使用命令更新鼠标指针依然会在部分界面失效，此时需要手动修改dconf配置来更改鼠标指针，保证在update-alternatives和dconf中选择的是同一个鼠标指针。</p></li><br/>
+			<p>不同软件读取系统信息的方式不同，类似firefox等软件会从dconf中读取鼠标信息，因而有时使用命令更新鼠标指针依然会在部分界面失效，此时需要手动修改dconf配置来更改鼠标指针，保证在 <span class="red">update-alternatives</span>和 <span class="red">dconf</span> 中选择的是同一个鼠标指针。例如使用名为 <span class="red">DMZ-Black</span> 的鼠标指针，可以执行dconf命令：</p>
+			<blockquote> $ dconf write /org/gnome/desktop/interface/cursor-theme \'DMZ-Black\'</blockquote>
+			<p>或者：</p>
+			<blockquote> $ dconf write /org/gnome/desktop/interface/cursor-theme "'DMZ-Black'"<br/><span>//键值为字符串时，字符串要带上单引号，单引号需要使用转义字符表示，或将单引号外围加上一层单引号</span></blockquote></li><br/>
 			<li><p>修改一个用户的用户名(包括家目录)：</p>
 			<ol><li><p>首先要将家目录内容复制到新的家目录下。</p>
 			<blockquote>cp -a /home/illidan/. /home/dainslef</blockquote></li>

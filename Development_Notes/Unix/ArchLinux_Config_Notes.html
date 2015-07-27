@@ -529,7 +529,7 @@
 			<li><p>Nautilus文件管理器的缩略图保存在以下位置：</p>
 			<blockquote>/home/~/.cache/thumbnails/normal</blockquote>
 			<p>如果遇到缩略图无法正常预览的情况，则可以尝试重建缩略图图标缓存，即删除对应的normal文件夹，即可回复缩略图的正常显示。</p></li><br/>
-			<li><p>默认情况下，在ArchLinux中，pacman包管理器默认是没有开启彩色的终端输出的，需要开启彩色输出需要修改<span class="blue"> /etc/pacman.conf </span>文件，去掉选项<span class="blue"> Color </span>前面的<span class="blue"> # </span>注释。</p></li><br/>
+			<li><p>默认情况下，在ArchLinux中，pacman包管理器默认是没有开启彩色的终端输出的，需要开启彩色输出需要修改<span class="blue"> /etc/pacman.conf </span>文件，去掉选项<span class="blue"> Color </span>前面的<span class="blue"> # </span>注释。<br/>pacman包管理器中还隐藏了一个有趣的彩蛋，在配置文件中加入<span class="blue"> ILoveCandy </span>，安装包的进度条会变成吃豆人的风格。</p></li><br/>
 			<li><p>默认情况下，<span class="blue"> mariadb </span>数据库安装完之后是没有初始化的，需要手动运行初始化命令：</p>
 			<blockquote># mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</blockquote></li><br/>
 			<li><p>命令行工具<span class="blue"> grep </span>在<span class="blue"> 2.21 </span>版本之后取消了对环境变量<span class="blue"> GREP_OPTIONS </span>的支持，如果安装了OhMyZsh插件或是有其它脚本创建了此环境变量，则在使用grep时会出现错误提示。要解决此问题，需要修改<span class="blue"> ~/.oh-my-zsh/lib/grep.zsh </span>文件，注释掉其中关于GREP_OPTIONS环境变量值的export。此外，如果需要grep输出内容高亮关键字显示，可以采用alias命令别名的方式，在<span class="blue"> .oh-my-zsh/lib/grep.zsh </span>文件中添加：</p>
@@ -579,7 +579,7 @@
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">功能</span></th></tr>
 				<tr><td>net-tools</td><td>包含ifconfig,netstat等常用网络工具</td></tr>
-				<tr><td>zip/unzip/p7zip/unrar</td><td>zip/7z/rar压缩文件的压缩与解压工具</td></tr>
+				<tr><td>p7zip</td><td>p7zip支持zip/7z/rar文件的压缩与解压</td></tr>
 				<tr><td>at</td><td>定时执行操作命令</td></tr>
 				<tr><td>nmap</td><td>高级端口扫描工具</td></tr>
 				<tr><td>openssh</td><td>ssh远程登录</td></tr>
@@ -601,7 +601,7 @@
 				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">功能</span></th></tr>
 				<tr><td><span class="blue">mednafen</span></td><td>街机游戏模拟器</td></tr>
 				<tr><td><span class="blue">emacs</span></td><td>大名鼎鼎的编辑器之神</td></tr>
-				<tr><td>p7zip</td><td>7z压缩文件的解压工具(带有GUI)</td></tr>
+				<tr><td>zip/unzip/unrar</td><td>可选安装，zip/rar等压缩文件的命令行工具，p7zip已经支持这些格式</td></tr>
 				<tr><td>htop</td><td>进程查看工具，功能类似top，但更加全面</td></tr>
 				<tr><td>mlocate</td><td>命令行文件搜索工具，带有locate和updatedb指令</td></tr>
 				<tr><td>lsof</td><td>列出系统当前打开的文件</td></tr>
