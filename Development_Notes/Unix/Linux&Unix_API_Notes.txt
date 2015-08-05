@@ -1,3 +1,62 @@
+Unix时间API >>
+Unix环境下的时间获取相关函数定义在 "/usr/include/time.h" 头文件之中。
+
+----
+
+获取当前的系统时间 >
+time_t time(time_t *t);
+参数是一个time_t类型变量的地址，函数会返回当前系统的时间，同时将当前系统的时间写入传入的地址中。
+如果只是从返回值获取当前时间，不需要将时间写入传入参数中，则参数可以填NULL，函数正常运行。
+需要注意的是time_t保存的是 1970-01-01 00:00:00 +0000 (UTC) 开始到当前时间的秒数的数值，一般不直接使用。
+
+----
+
+将时间转化为可读格式 >
+struct tm *localtime(const time_t *timep);
+函数接受参数为time()返回的标准时间秒数，将其转换返回对应的可读时间结构体指针tm*类型。
+结构体tm的定义为：
+struct tm {
+	int tm_sec;    /* Seconds (0-60) */
+	int tm_min;    /* Minutes (0-59) */
+	int tm_hour;   /* Hours (0-23) */
+	int tm_mday;   /* Day of the month (1-31) */
+	int tm_mon;    /* Month (0-11) */
+	int tm_year;   /* Year - 1900 */
+	int tm_wday;   /* Day of the week (0-6, Sunday = 0) */
+	int tm_yday;   /* Day in the year (0-365, 1 Jan = 0) */
+	int tm_isdst;  /* Daylight saving time */
+};
+可以从结构体的对应成员中读取对应的时间信息。
+
+----
+
+将时间转化为标准字符串表示 >
+char *asctime(const struct tm *tm);
+对于localtime()函数获得的当前时间，可以使用该函数转化为可读的字符串形式，返回值为标准时间字符串的地址。
+需要注意的是，该函数返回的地址指向的字符串内容中已经包含了换行符，不需要再额外添加。
+一个典型的输出如：Wed Jul 29 01:04:10 2015
+
+实例代码：
+
+#include <stdio.h>
+#include <time.h>
+
+int main(void)
+{
+	time_t now = time(NULL);
+	struct tm *tm_now = localtime(&now);
+	printf("当前的时间是：%d点%d分%d秒。\n", tm_now->tm_hour, tm_now->tm_min, tm_now->tm_sec);
+	printf("标准的时间输出：%s", asctime(tm_now));
+	return 0;
+}
+
+运行结果：
+当前的时间是：1点15分39秒。
+标准的时间输出：Wed Jul 29 01:15:39 2015
+
+========
+
+
 Unix文件操作API >>
 Unix环境下基本的文件操作为open、read、write、close、ioctl。
 相关的头文件在 "/usr/include/unistd.h"、"/usr/include/fcntl.h"、"/usr/include/sys/ioctl.h" 之中。
@@ -114,7 +173,7 @@ This is child process!
 The PID is 13724
 Ths PPID is 13722
 End!
-  PID TTY          TIME CMD
+PID TTY          TIME CMD
 10480 pts/0    00:00:00 zsh
 13722 pts/0    00:00:00 a.out
 13724 pts/0    00:00:00 a.out <defunct>
@@ -146,8 +205,8 @@ exec()函数为系统调用，执行后，会将当前的进程完全替换为�
 
 int main(void)
 {
-	char *envp[] = {"LC_ALL=zh_CN.UTF-8", NULL};
-	char *argv[] = {"ls", "-l", NULL};		//不要想当然地认为*argv[]的第一个参数是没用的，第一个参数不能为NULL，否则exec()系统调用执行失败，而且exec()执行新指令时如果指令参数不正确时指令在终端上显示的错误信息会将argv[0]作为输入的程序名！
+	char *envp[] = { "LC_ALL=zh_CN.UTF-8", NULL };
+	char *argv[] = { "ls", "-l", NULL };		//不要想当然地认为*argv[]的第一个参数是没用的，第一个参数不能为NULL，否则exec()系统调用执行失败，而且exec()执行新指令时如果指令参数不正确时指令在终端上显示的错误信息会将argv[0]作为输入的程序名！
 	printf("The PID is %d\n", getpid());
 	execve("/usr/bin/ls", argv, envp);		//execve()系统调用的envp如果不需要设置可以填NULL，与system()函数不同，用exec系统调用在执行程序时，如果参数中的envp为NULL，则程序就在无环境变量的状态运行，即系统当前的环境变量不会对exec()系统调用产生影响，但会对依赖shell的system()函数产生影响。在这段代码中，如果用户为中文环境且exec()系统调用没有设置环境变量则ls命令显示的中文目录会为问号，但system()函数执行ls命令则能正常显示。
 	/*
@@ -443,7 +502,7 @@ int main(void)
 	pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
 	
 	if (!pthread_mutex_init(mutex, &attr))
-		printf("成功创建了互斥量！\n");		//创建了一个进程互斥的互斥量
+		printf("成功创建了互斥量！\n");			//创建了一个进程互斥的互斥量
 
 	signal(SIGQUIT, dealSignal);
 	printf("父进程启动：\n");

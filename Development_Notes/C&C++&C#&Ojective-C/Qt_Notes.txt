@@ -157,8 +157,15 @@ Qt常见错误 >>
 Qt事件机制 >>
 事件(event)是有系统或者Qt本身在不同的时刻发出的。当用户按下鼠标，敲下键盘，或者是窗口需要重新绘制的时候，都会发出一个相应的事件。一些事件是在对用户操作做出响应的时候发出，如键盘事件等；另一些事件则是由系统自动发出,如计时器事件。
 Qt在main函数中要创建一个QApplication对象，在执行该对象的exec()函数时，就进入了事件的监听循环。每当事件发生时，Qt就会产生一个事件对象(所有的事件对象都继承于QEvent类)，然后将这个事件对象作为参数传递给QObject的event()函数，event()函数并不直接处理事件，而是将事件分类之后调用特定的事件处理函数，常见的事件处理函数有mousePressEvent()、keyPressEvent()之类的，想要自行处理事件就要重写对应的事件处理函数。
+
+----
+
+注册自定义事件 >
 除了系统产生的预定义事件外，可以自己使用 QEvent::registerEventType(int hint) 方法注册自定义事件，hint为事件序列号，0~999被系统占用，从QEvent::User(1000号)到QEvent::MaxUser(65535号)都是允许用户注册的值。事件类型为QEvent::Type，用QEvent::registerEventType注册时会返回整型的事件号，需要进行强制类型转换。
 
+----
+
+产生一个事件 >
 发送事件可以使用以下函数：
 void QCoreApplication::postEvent (QObject * receiver, QEvent * event) [static]
 bool QCoreApplication::sendEvent (QObject * receiver, QEvent * event) [static]
@@ -168,16 +175,18 @@ postEvent函数将事件放入事件消息队列中，然后立即返回，函�
 sendEent函数用notify函数将事件直接派发给接收者和进行处理，返回事件处理者的返回值。事件会立即送至接受者，被发送后，Qt不会自动delete该事件，因此合适的做法是在栈上创建事件。
 sendPostedEvents函数将事件队列中用postEvent函数放入的对应接受者和事件类型的事件立即分发，但是来自窗口系统的事件不被分发，它们被processEvents()函数分发。如果接受者是null，则对应所有的接受者；如果event_type为0，则对应receiver的所有的事件。该函数必须和receiver在同一个线程内被调用。 
 
+----
+
+处理事件 >
 处理事件可以重写 QWidget::customEvent(QEvent*) 或 QWidget::event(QEvent*) 函数，区别是前者不需要返回值，后者在处理完自定义事件之后需要继续返回对应控件的父类事件处理函数(event是直接的事件处理函数)，返回事件循环的时候要注意当前类的继承关系，只返回最基本的循环QObject::event()的话会有许多事件不被处理。
 
 如果一个类的多个控件都需要相同的事件处理则可以重新实现 QObject::eventFilter(QObject * watched, QEvent * event) 函数，然后在对应的控件对象上使用 QObject::installEventFilter(QObject * filterObj) 函数安装过滤器，参数为要安装的过滤器所在的类指针。
 
 在处理键盘事件时需要注意，如果已经接收了某个按键的事件同时进行操作，然后将事件继续返回事件队列时，如果这个键盘事件有系统默认的操作，则系统默认的操作依然会继续执行，则有可能与自己定义的操作产生冲突，正确的做法是对自己要处理的键盘事件返回true(这样系统定义的操作将不会触发，能够避免冲突)，只将不处理的键盘事件返回事件循环。
 
-========
+----
 
-
-Qt的事件机制与信号槽的区别 >>
+事件机制与信号槽的区别 >
 Qt中的事件是由窗口产生的，而信号槽机制还可用在命令行里，同时事件处理函数的返回值是有意义的，我们要根据这个返回值来确定是否还要继续事件的处理，但信号与槽绑定时并不关注返回值。事件通过事件队列来响应，如果事件的处理中又产生了新的事件，那么新的事件会加入到队列尾，直到当前事件处理完毕后， QApplication再去队列头取下一个事件来处理。而信号的处理方式有些不同，信号处理是立即回调的，也就是一个信号产生后，他上面所注册的所有槽都会立即被回调。
 
 ========
@@ -190,7 +199,26 @@ Qt中数据库连接主要是使用QSqlDatabase类，在使用这个类时需要
 ========
 
 
-使用QSqlTableMode搭配QTableView实现数据库直接操作 >>
+Qt中的表格 >>
+在Qt中，表格主要通过QTableView以及QTableWidget两类控件实现。
+QTableView需要搭配model填充数据内容。
+QTableWidget是QTableView的子类，相当于一个设定好了model的QTableView控件。
+
+----
+
+使用QTableWidget >
+QTableWidget可以使用 QTableWidget::setColumnCount(int columns)/QTableWidget::setRowCount(int rows) 来设定表格的大小，使用 QTableWidget::setItem(int row, int column, QTableWidgetItem * item) 设定每一个单元格中的内容。
+需要注意的是，每一个单元格中的内容都是对象(QTableWidgetItem)，都需要使用new操作符构造对象与分配内存，因此，对于数据量较大的表格来说(几十w甚至上百w)，全部填充单元格的CPU、内存开销都是非常恐怖的。
+QTableWidget中，每一个单元格的对象生命周期与整张表格相同，使用setItem()成员函数向原先有内容的单元格中设置新对象时原先的对象不会自动被销毁，一般使用setItem()之后不再替换该单元格上的对象，而是直接修改对象存储的内容。
+
+----
+
+使用QTableView >
+QTableView可以自由搭配不同的model，通过 QTableView::setModel(QAbstractItemModel * model) 来设定使用的model，QTableView本身并不存放数据，数据保存在model中，可以通过 QAbstractItemView::model() 来获取表格中已经组装的model，大量的变更数据可以直接delete旧的model，然后设定并组装新的model。
+
+----
+
+使用QSqlTableMode搭配QTableView实现数据库直接操作 >
 先创建出一个QSqlTableMode对象，如果已经有数据库连接且不需要从新的数据库中读取数据，则构造函数中的QSqlDatabase对象可以取默认值。
 然后调用QSqlTableMode的成员函数setTable()设置要显示的表名，用setHeaderData()设置每一列显示的数据。
 在设置完QSqlTableMode之后，调用其成员函数select()将数据表格配置提交生效。
@@ -201,7 +229,7 @@ QSqlTableMode可以直接在表上进行修改操作，使用其成员函数inse
 ----
 
 刷新QTableView >
-默认情况下，数据库的数据发生了变化，QTableView是不会实时更新的，需要调用 QSqlTableModel::select() 函数更新QTableView。
+默认情况下，数据库的数据发生了变化，QTableView是不会实时更新的(model未发生变化)，需要调用 QSqlTableModel::select() 函数更新QSqlTableMode内的数据，然后QTableView才会将这些数据显示出来。
 
 ========
 
@@ -344,6 +372,11 @@ Qt基于c++语言，与java/c#不同，没有自动装箱和拆箱机制，在ja
 在Qt中，默认字符串与数字用加号拼接然后转换为QString类型时，数字会被当作ASC码对待，要使数字保持语义转化为字符串则需要使用 QString::number(int/double/long) 函数进行转换。
 QString可以通过 QString::toStdString() 来得到传统风格的c++字符串类型(std::string)，而std::string可以通过 std::string::c_str() 函数转换为c风格的char*字符数组指针。
 
+----
+
+格式化文本 >
+QString类提供了格式化文本的功能，可以使用其成员函数 QString::sprintf(const char *cformat, ...) 进行文本格式化。
+
 ========
 
 
@@ -435,7 +468,7 @@ QPaintDevice相当于画板，QPainter相当于画笔，QPaintDevice有多种子
 ----
 
 paintEvent() >
-一般而言，自行绘制图形可以自定义一个类继承于QWidget，然后重写QWidget::paintEvent(QPiantEvent*)事件处理函数，将绘制图形的操作放在paintEvent()事件处理函数中。
+一般而言，自行绘制图形可以自定义一个类继承于QWidget，然后重写 QWidget::paintEvent(QPiantEvent*) 事件处理函数，将绘制图形的操作放在paintEvent()事件处理函数中。
 在Qt4之后，绘图操作可以不必放在paintEvent()事件处理函数中运行，但对于从QWidget继承过来的类而言，必须将绘制操作放在paintEvent()中，可以封装一个类用于管理paint操作，然后将该类放在paintEvent()中实例化。
 paintEvent()是一个会被频繁触发的事件，每次窗口有刷新行为都会触发该事件函数进行重绘。
 paintEvent()事件函数也可以被手动触发，QWidget的子类使用repaint()/update()成员函数就能主动触发重绘事件。
@@ -464,7 +497,7 @@ QImage >
 
 图片透明化 >
 使用QImage处理图片时可以通过设置图片的Alpha通道使图片透明化。
-简单的透明处理可以使用 void QImage::setAlphaChannel(const QImage & alphaChannel); 以另一个QImage对象作为参数使图片透明化。
+简单的透明处理可以使用 QImage::setAlphaChannel(const QImage & alphaChannel) 以另一个QImage对象作为参数使图片透明化。
 如果需要手动指定透明度(Alpha值)，则可以创建一个带有Alpha通道的QImage对象，如 QImage temp_image(win_size, QImage::Format_ARGB32);
 使用设置了透明画刷的QPainter对其进行色彩填充，然后将此QImage作为 QImage::setAlphaChannel() 成员函数的参数。
 示例代码：
