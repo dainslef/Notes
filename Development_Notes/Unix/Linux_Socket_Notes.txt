@@ -10,7 +10,7 @@ Socket通信 >>
 
 涉及的函数 >
 包括socket、bind、listen、connect、accpet、recv、send等函数。
-相关函数的定义在 "/usr/include/sys/socket.h" 头文件中。
+相关函数的定义在 /usr/include/sys/socket.h 头文件中。
 
 ----
 
@@ -32,7 +32,7 @@ struct sockaddr {
 	sa_family_t sa_family;		//协议簇
 	char sa_data[14];			//地址 + 端口号
 }
-通常情况下，并不直接创建sockaddr结构体，而是将IP地址的信息写入与sockaddr大小相同的sockaddr_in这个结构体中，sockaddr_in定义在 "/usr/include/netinet/in.h" 文件中，定义如下：
+通常情况下，并不直接创建sockaddr结构体，而是将IP地址的信息写入与sockaddr大小相同的sockaddr_in这个结构体中，sockaddr_in定义在 /usr/include/netinet/in.h 文件中，定义如下：
 struct sockaddr_in {
     sa_family_t sin_family; 		/* 协议族，address family: AF_INET */
     in_port_t sin_port;   			/* 端口号，port in network byte order */
@@ -45,7 +45,7 @@ struct in_addr {
 };
 sockfd参数为socket()函数成功时返回的套接字描述符。
 addr为结构体sockaddr的地址，使用时，一般先将IP地址的信息定义在sockaddr_in结构体中，然后在将其强制类型转换为sockaddr类型。
-将IP地址赋值给in_addr结构体的s_addr，需要通过inet_addr()函数进行转换，该函数定义在 "/usr/include/arpa/inet.h" 文件中。
+将IP地址赋值给in_addr结构体的s_addr，需要通过inet_addr()函数进行转换，该函数定义在 /usr/include/arpa/inet.h 文件中。
 addrlen设置了addr结构体中所能容纳的最大字节数。
 函数成功返回0，失败时返回-1，并置errno。
 

@@ -1,0 +1,256 @@
+mysql的服务管理 >>
+mysql的服务管理根据发行版的不同，操作方式也不尽相同。
+
+----
+
+在ArchLinux中使用mysql >
+在Archlinux下，登录mysql之前需要启动mysql服务：
+(启动mysql服务时需要以root用户启动，否则会一直显示正在启动而无法启动成功！)
+# cd /usr/share/mysql
+# ./mysql.server start
+其它的mysql服务状态命令：
+# ./mysql.server stop				//停止mysql服务
+# ./mysql.server reload				//重新加载服务
+# ./mysql.server restart			//重新启动服务
+
+----
+
+在基于systemd的发行版中使用mysql >
+在Archinux和Fedora等采用systemd作为服务管理系统的发行版中，可以使用systemd提供的服务管理指令来管理mysql服务：
+# systemctl start mysqld			//开启mysql服务
+# systemctl stop mysqld				//停止mysql服务
+# systemctl reload mysqld			//重新加载mysql服务
+# systemctl restart	mysqld			//重新启动mysql服务
+在Ubuntu 15.04之后也采用systemd作为服务管理系统，但在ubuntu中，mysql的服务名称并不是mysqld而直接是mysql。
+mysql服务的名字为mysqld，可以将mysql服务设置为开机自启动：
+# systemctl enable mysqld
+停止mysql服务开机自启动：
+# systemctl disable mysqld
+
+----
+
+在基于SysVinit的发行版和FreeBSD中使用mysql >
+在CentOS6等旧式发行版中，采用的是SysVinit作为服务管理，也有对应指令进行服务管理：
+# service mysqld start				//开启服务
+# service mysqld restart			//重新加载服务
+# service mysqld stop				//停止服务
+
+----
+
+在Windows中使用mysql >
+在Windows中使用mysql需要将mysql的安装目录下的bin文件夹加入环境变量PATH中。
+> mysqld							//开启服务
+> mysqladmin -u [具有管理员权限的用户名] -p		//使用管理员账户关闭服务
+
+----
+
+登录与配置数据库 >
+成功启动mysql服务之后，可以使用命令登录数据库：
+# mysql -u root
+在Archlinux中，默认root用户是没有密码的，进入数据库命令行中，输入：
+set password = password('015');
+然后退出数据库，即可将密码设置为015。
+或者使用mysqladmin命令：
+$ mysqladmin -u root password '015'
+设置了密码之后下此再以root用户登录数据库时，需要使用 mysql -u root -p 来登录，否则会报错。
+当设置了密码之后再次使用mysqladmin命令修改密码时需要添加-p参数，并需要输入先前的密码：
+$ mysqladmin -u root -p password '015'
+
+----
+
+mysql的驱动配置 >
+在Netbeans之类的IDE中启动mysql，需要加载jdbc驱动到库中。
+在Ubuntu发行版中使用qtcreator开发Qt5程序，需要安装libqt5sql-mysql包。
+在Linux发行版中，使用C API连接mysql数据库时需要安装额外的开发包才能有对应的头文件，在debian系中，执行指令：
+# apt-get install libmysqlclient-devel
+在RedHat系发行版中，执行：
+# yum/dnf install mysql-devel
+在ArchLinux中不需要，ArchLinux将头文件与库与数据库本身一同打包。
+
+========
+
+
+mysql的账户管理 >>
+
+查看用户信息 >
+mysql数据库中，账户的信息保存在mysql数据库的表user中，查询该表即可得到用户信息。
+select * from mysql.user;
+
+----
+
+创建用户 >
+在mysql中创建用户分为创建本地账户和创建远程账户两种，默认创建的是远程账户：
+create user [用户名];					//创建一个不允许本地登录的远程账户
+相当于：
+create user [用户名%'%'];
+创建本地账户：
+create user [用户名@localhost];
+
+----
+
+删除账户 >
+删除一个远程账户：
+drop user [用户名@'%'];
+删除一个本地账户：
+drop user [用户名@localhost];
+
+----
+
+授权用户 >
+默认情况下，新创建的用户是没有权限的，使用root账户登录数据库中对新创建的账户进行授权。
+授予账户某个数据库的查询和更新的权限：
+grant select,update on [数据库名].* to [用户名]@[登录方式];
+授权某个账户所有权限：
+grant all privileges on *.* to [用户名]@[登录方式];
+
+========
+
+
+mysql数据库的常用操作 >>
+
+mysql注释 >
+单行注释 --
+多行注释 /* */
+
+----
+
+常用的数据库指令 >
+status;							//查看数据库基本状态
+show databases;					//查询有哪些数据库
+create database [数据库名];		//创建数据库
+drop database [数据库名];		//删除数据库
+use [数据库名]					//切换正在使用的数据库
+desc [表名];					//查看表格的结构
+truncate table [表名];			//清除指定表格的内容(速度快，但不可恢复)
+delete from [表名];				//删除指定表格的内容(速度慢，但可以恢复)
+show variables like 'character_set_%';									//查看数据库当前配置的默认编码
+
+----
+
+常用的sql语句 >
+insert into [表名] ([列名1], [列名2], ....) values([值1], [值2], ....);	//插入值是字段加单引号，数值则不用
+update [表名] set [列名] = '[内容]' where [列名] = '[内容]';				//更新符合条件的记录
+select count(*)	from [表名];												//查询表中共有多少条记录
+alter table [表名] add column [列名] [字段类型];							//添加列
+alter table [表名] drop column [列名];									//删除列
+delete from [表名] where [限制条件];										//删除满足限制条件的行
+
+----
+
+设置与取消主键自增 >
+设置主键自增：
+alert table [表名] auto_increment=[数字];			//设置自增属性
+alter table [表名] change [主键列名] [主键列名] [属性] auto_increment;
+取消主键自增：
+alter table [表名] change [列名] [列名] [属性];
+设置属性时添加自增属性对于已有的列，必须清空数据才能正常设置自增属性。
+被设置自增属性的列必须是主键。
+
+----
+
+为已建好的表加上唯一性约束 >
+alter table [表名] add unique([列名]);
+
+----
+
+备份和还原数据库 >
+导出所有数据库：
+$ mysqldump -u [数据库用户名] -p -A > [备份文件的保存路径]
+导出某一个数据库：
+$ mysqldump -u [数据库用户名] [要备份的数据库名称] -p > [备份文件的保存路径]
+例子：mysqldump -u root -p test > d:\test.sql (注意：此备份只备份数据和数据结构，没有备份存储过程和触发器)
+只导出数据不导出数据结构：输入：mysqldump -u [数据库用户名] -t [要备份的数据库名称] -p > [备份文件的保存路径] 
+还原数据库时需要先登陆mysql用户，选择数据库后执行：source [备份文件的保存路径]
+
+========
+
+
+中文编码支持 >>
+默认情况下，mysql数据库的编码为latin1，次编码并不支持东亚语系的文字显示，需要修改为支持各国文字的utf8编码。
+
+----
+
+修改数据库编码 >
+如果需要将数据库的默认编码设置为 UTF-8，则需要修改配置文件，在Debian/Ubuntu系中，配置文件为 /etc/mysql/mariadb.conf.d/client.cnf ，在RedHat系中，配置文件为 /etc/my.cnf ，在其中加入配置：
+[client]
+# Default is Latin1, if you need UTF-8 set this (also in server section)
+default-character-set = utf8
+[server]
+default-character-set = utf8
+
+----
+
+JDBC连接编码设置 >
+使用JDBC往mysql中写入中文数据时需要注意mysql的编码问题，编码问题体现在以下几个方面：
+1.数据库表的编码，ENGINE=InnoDB DEFAULT CHARSET=utf8;
+2.数据库连接的编码，jdbc:mysql://localhost:3306/xxx?useUnicode=true&characterEncoding=UTF-8
+3.页面提交内容的编码, request.setCharacterEncoding("UTF-8");response.setCharacterEncoding("UTF-8");
+只有三者编码相同且支持中文(utf8)时，才不会出现中文编码问题。
+
+========
+
+
+向mysql中添加图片 >>
+如果需要向数据库中插入图片，则字段应该选择BLOB类型。
+BLOB(binary large object)，二进制大对象，是一个可以存储二进制文件的容器。
+在mysql中，与BLOB相关的类型有四种：TinyBlob、Blob、MediumBlum、LongBlum，这几个类型的区别在于存储文件的大小上限不同，TinyBlob最大255B，Blob最大65KB，MediumBlob最大16MB，LongBlob最大4GB。
+
+========
+
+
+使用C风格API访问mysql数据库 >>
+mysql数据库提供了标准的访问方式，包含头文件 /usr/include/mysql/mysql.h 即可使用mysql的C语言绑定。
+使用Unix工具链进行编译时，需要添加参数 -lmysqlclient 链接 libmysqlclient.so 动态库。
+
+----
+
+常用的变量类型 >
+MYSQL 存储相关连接信息
+MYSQL_RES 存储返回值相关信息
+
+----
+
+连接数据库 >
+MYSQL* mysql_init(MYSQL *mysql);
+MYSQL* mysql_real_connect(MYSQL *mysql, const char *host, const char *user, const char *passwd, const char *db, unsigned int port, const char *unix_socket, unsigned long clientflag);
+建立连接使用需要首先使用mysql_init()进行初始化操作，如果初始化的是一个MYSQL*指针，则参数填NULL，然后将返回值赋值给需要被初始化的指针；如果初始化的是一个MYSQL结构体，则直接将结构体变量的地址做为参数传入mysql_init()函数中。
+执行mysql_init()成功则返回MYSQL句柄指针，内存不足时执行失败返回NULL。
+初始化操作完成后可以使用mysql_real_connect()进行数据库连接，连接成功返回0，失败返回错误代码。
+mysql_real_connect()中port参数用于显式指定连接端口，unix_socket为socket连接类型，clientflag为mysql运行ODBC的标记，一般本地连接这三个参数全填0。
+需要注意的是mysql_connect()已不推荐使用，仅仅为了兼容而保留。
+
+----
+
+执行SQL语句 >
+int mysql_query(MYSQL *mysql, const char *q);
+int mysql_real_query(MYSQL *mysql, const char *q, unsigned long length);
+一般性的sql语句可以直接使用mysql_query()执行，q参数为需要执行的sql语句字符数组指针。
+mysql_real_query()相比mysql_query()而言效率更高，因为其不调用strlen()来获取字符数组长度。
+两个函数在执行成功时返回0，执行失败时返回错误代码。
+需要注意的是，如果执行的sql语句中包含有二进制内容，则一定需要使用mysql_real_query()，因为mysql_query()会调用strlen()来获取字符数组长度，而strlen()判断字符数组结束是以"\0"作为标志的，但对于二进制数据而言，数据中是可能带有"\0"的，因而使用mysql_query()可能会造成对数据长度的误判使得程序未按预期执行。
+
+----
+
+获取查询SQL语句的返回内容 >
+MYSQL_RES* mysql_store_result(MYSQL *mysql);
+MYSQL_RES* mysql_use_result(MYSQL *mysql);
+unsigned int mysql_field_count(MYSQL *mysql);
+unsigned int mysql_num_fields(MYSQL_RES *res);
+MYSQL_ROW mysql_fetch_row(MYSQL_RES *result);
+mysql_store_result()和mysql_use_result()都可以获取执行查询语句之后的结果集内容，如果没有返回内容则返回NULL。
+mysql_field_count()用于获取最近查询的列数，mysql_num_fields()用于获得指定查询结果的列数。
+得到结果集之后使用mysql_fetch_row()按行读取结果集中的内容，每次执行mysql_fetch_row()会返回下一行的内容，返回值类型MYSQL_ROW的实际类型为二维指针char**，保存了每一列的字符数组指针。
+mysql_store_result()与mysql_use_result()之间的区别是，前者会将结果集拷贝到本地，开销大，后者直接读取服务器中的数据，每次只拷贝一行，开销小，但是后者需要在下一次SQL语句执行之前将结果集中的数据全部读出，但前者就不需要。
+
+----
+
+切换当前数据库 >
+int mysql_select_db(MYSQL *mysql,const char *db);
+切换选择的数据库，相当于mysql指令 "use [数据库名]" 。
+
+----
+
+关闭数据库连接 >
+void mysql_close(MYSQL *sock);
+如果传入的参数是指针，则指针所指向的MYSQL结构体内存区域会被释放掉。
+立即访问执行mysql_close()之后的MYSQL指针会报错(野指针)，如果在关闭连接之后需要重新启用连接，需要重新执行初始化操作mysql_init()。

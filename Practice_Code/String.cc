@@ -21,7 +21,7 @@ public:
 	String& operator=(const String&);
 	String& operator=(const char*);
 	~String();
-	char*& operator*();
+	char* const& operator*();
 
 private:
 	char *str;			//用于保存字符数据
@@ -67,7 +67,7 @@ String& String::operator=(const char *str)
 	return *this;
 }
 
-char*& String::operator*()
+char* const& String::operator*()
 {
 	return str;
 }
