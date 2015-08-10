@@ -275,9 +275,9 @@ QCoreapplication中：#define qApp QCoreApplication::instance()
 Qt的菜单构建 >>
 
 构建主菜单 >
-Qt中的菜单栏为QMenuBar，而显示在菜单栏上的一级选项为QMenu，而每个QMenu可以通过addAction(QAction*)来添加QAction作为菜单项。
-一般来说，Qt应用程序都会包含一个继承于QMainWindow类的主窗口，主窗口通过setMenuBar(QMenuBar*)方法来设定窗口的菜单栏。
-而QMenuBar菜单栏通过addMenu(QMenu*)方法添加QMenu作为一级菜单，QMenu也可以通过addMenu(QMenu*)来添加二级菜单。
+Qt中的菜单栏为QMenuBar，而显示在菜单栏上的一级选项为QMenu，而每个QMenu可以通过 QMenu::addAction(QAction*) 来添加QAction作为菜单项。
+一般来说，Qt应用程序都会包含一个继承于QMainWindow类的主窗口，主窗口通过 QMainWindow::setMenuBar(QMenuBar*) 方法来设定窗口的菜单栏。
+而QMenuBar菜单栏通过 QMenuBar::addMenu(QMenu*) 方法添加QMenu作为一级菜单，QMenu也可以通过 QMenu::addMenu(QMenu*) 来添加二级菜单。
 QAction除了添加在菜单中，还可以添加在QToolBar中。
 
 ----
@@ -303,7 +303,7 @@ Qt中鼠标点按动作会触发下列事件：
 void QWidget::mousePressEvent(QMouseEvent *e);
 void QWidget::mouseReleaseEvent(QMouseEvent *e);
 重写这些事件处理函数即可。
-对于鼠标事件QMouseEvent，可以使用 QPoint QMouseEvent::pos() 获取控件内坐标，和 QPoint QMouseEvent::globalPos() 获取全局坐标(显示器坐标)。
+对于鼠标事件QMouseEvent，可以使用 QMouseEvent::pos() 获取控件内坐标，和 QMouseEvent::globalPos() 获取全局坐标(显示器坐标)。
 
 ----
 
@@ -363,6 +363,17 @@ Qt中窗口按钮、边框设置 >
 默认情况下，可以使用Qt预设的窗口边框样式，在枚举类型 enum Qt::WindowType 中，常用的有 Qt::Widget、Qt::Window、Qt::Dialog 等样式。
 如果预设的窗口样式不能满足需求，则可以使用 Qt::CustomizeWindowHint 搭配自定义按钮组成需要的样式，例如，创建一个仅带有空的标题栏的窗口可以使用代码：
 setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+----
+
+窗口大小的设置 >
+一般而言设置Qt的窗口大小可以使用下列函数：
+void QWidget::setGeometry(int x, int y, int w, int h);
+void QWidget::resize(int w, int h);
+前者在设置大小的同时还能设置窗口在屏幕的显示位置，后者用于重新设定窗口大小。
+当窗口采用栅格化布局的时候，使用以上两个函数在设定大小时很可能不会生效，此时可以使用 QWidget::setFixedSize(const QSize &) 来设定固定的窗口大小，这个大小能够覆盖布局定义的大小而强制生效，如果只需要设定宽或是高可以单独使用 QWidget::setFixedWidth(int w) 或是 QWidget::setFixedHeight(int h) 。
+窗口设置了固定的大小如果需要再改动，可以将宏 QWIDGETSIZE_MAX 作为参数传入 QWidget::setFixedSize(const QSize &) 函数中，窗口就会重新变成可调大小。
+使用 QWidget::sizeHint() 函数可以获取Qt判断的窗口最合适大小。
 
 ========
 

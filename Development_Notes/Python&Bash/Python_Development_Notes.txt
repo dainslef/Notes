@@ -108,7 +108,7 @@ True
 
 关于range()函数 >>
 range(start, stop, step)函数接收三个参数，产生[start, end)范围的数字，以step为间隔。
-默认值start和step都为0。
+默认值start为0，step为1。
 在python2中，range()的返回类型是一个list。
 在python3中，range()返回的是迭代值，如果想得到list需要用list()显式地进行强制类型转换。
 range()函数一般用于for循环遍历，例如：

@@ -311,9 +311,16 @@
 			<blockquote>$ apt show [<span class="red">package_name</span>]</blockquote></li>
 			<li>更新源：
 			<blockquote># apt update</blockquote></li>
-			<li>完整更新包：</li>
-			<blockquote># apt full-upgrade</blockquote></ul></p></li>
-			</ol>
+			<li>完整更新包：
+			<blockquote># apt full-upgrade</blockquote></li></ul></p>
+			<p>清理无用依赖、删除软件包时可以加上<span class="red"> --purge </span>参数来在删除包的同时清理无用的配置文件：</p>
+			<blockquote># apt-get autoremove --purge<br/>
+			# apt-get remove --purge [<span class="red">package_name</span>]</blockquote>
+			<p>可以使用<span class="red"> dpkg </span>工具查看所有已安装的包的状态：</p>
+			<blockquote># dpkg -l</blockquote>
+			<p>其中，第一栏则为包的当前状态，<span class="red"> ii </span>表示包已安装，<span class="red"> rc </span>代表包有残余配置文件，使用如下命令可以查找到所有带有残余配置文件的包：</p>
+			<blockquote># dpkg -l | grep '^rc'</blockquote>
+			</li></ol>
 		</div>
 		<div class="bottom">
 			<a href="#start">--&gt;点我回到页面顶端</a><br/>

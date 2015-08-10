@@ -40,6 +40,35 @@ HashMap之类的容器只能一个键对应一个键值，如果需要一个键�
 ========
 
 
+关于泛型方法 >>
+Java中的泛型同样支持独立于类的泛型方法，与C++/C#等语言不通，Java在泛型方法中的类型声明放在方法的修饰符(public,static,final,abstract等)之后，返回值声明之前。
+Java中的泛型不需要也不支持使用"<>"符号显式指定泛型类型，在泛型方法中输入内容JVM会自动进行类型推倒。
+
+示例代码：
+
+public class Test {
+	public static void main(String[] args) {
+		Func t = new Func();
+		System.out.println(t.getType(123));
+		System.out.println(t.getType("Test"));
+		System.out.println(t.getType(25.672));
+	}
+}
+
+class Func {
+	public <T> T getType(T t) {
+		return t;
+	}
+}
+
+输出结果：(Windows 10 && JDK 1.8)
+123
+Test
+25.672
+
+========
+
+
 关于final关键字 >>
 Java中有类似C/C++的const关键字的final关键字，final关键字用于定义不可修改的变量，变量加上此关键字之后只能在构造函数或是定义时被初始化。
 final还可以用在类之前代表该类不可被继承，也可以用在方法前表示该方法不可被重写。
