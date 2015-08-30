@@ -110,6 +110,14 @@ class Program
 public int a { get; set; }
 同时，不用定义私有变量num来存储属性的内容。
 
+----
+
+成员属性初始化 >
+在C#6.0中，开始支持对自动成员属性进行类内初始化，可以直接在类中对自动成员属性赋初值：
+public int a { get; set; } = "Hello World!";
+该特性也同样支持只读属性：
+public int a { get; } = "Hello World!";
+
 ========
 
 
@@ -120,6 +128,7 @@ C#中的结构体为值类型，即完全在栈中分配内存，而引用类型
 在C#中，结构类型全部继承自System.ValueType类，但结构体是隐式密封(sealed)的，不能被继承，但结构体可以用来实现接口。需要注意的是，用来实现接口的结构体虽然本身为值类型，但如果发生向上转型重新变为父类接口对象则值类型的特性也将随之消失。
 在C#中，由于结构体不能被继承，因此结构体定义时不能使用sealed和abstract关键字，结构体成员定义时也不能使用protected、internal等关键字。
 在C#中，结构体带有默认的无参构造函数，且该默认构造函数一直存在(无论你是否创建了有参构造函数)，默认的无参构造函数不能被自定义(改写)。创建有参构造函数时，必须在该构造函数中初始化所有的成员变量，否则无法通过编译。创建结构体时可以不适用new操作符，不使用new操作符创建的结构体对象中的结构体成员全部处于未初始化状态，需要经过初始化操作(手动访问赋值)之后方可使用。
+在C#6.0之后，开发者可以自定义无参构造函数。
 如果需要使用结构体提供的有参构造函数，则必须使用new操作符进行对象创建，语法类似于Class。
 在C#中结构体成员可以使用static修饰，结构体也可以创建静态构造函数。
 在C#中结构体中可以正常使用泛型。
@@ -160,6 +169,7 @@ struct Test<T>
 {
 	static public int a;
 }
+
 class Program
 {
 	static void Main(string[] args)
@@ -328,14 +338,13 @@ Lambda表达式不能直接加括号执行，而是需要创建一个函数对�
 如果Lambda表达式在类中被定义，则Lambda表达式能够访问到类的成员。
 如同函数一样，Lambda有自己的作用域，Lambda表达式内部定义的变量是不能在外部访问到的。
 
-示例代码：
+示例代码-1：
 
 using System;
 
 class Test
 {
 	static int num = 100;
-
 	static Action setNum200 = () => num = 200;
 
 	static void setNum(int newNum) {
@@ -356,6 +365,34 @@ class Test
 100
 200
 500
+
+----
+
+使用Lambda表达式定义成员函数 >
+在C#6.0中，开始支持使用Lambda表达式直接定义成员函数。
+示例代码-1中使用新的语法可以使用如下格式书写。
+
+示例代码-2：
+
+using System;
+
+class Test
+{
+	static int num = 100;
+	static Action setNum200 = () => num = 200;
+
+	static void setNum(int newNum)
+		=> (new Action<int>(n => num = n))(newNum);		//直接使用Lambda实现成员函数
+
+	static void Main(string[] args)
+	{
+		Console.WriteLine(num);
+		setNum200();
+		Console.WriteLine(num);
+		setNum(500);
+		Console.WriteLine(num);
+	}
+}
 
 ========
 

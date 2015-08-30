@@ -111,49 +111,6 @@ int main(int argc, char *argv[])
 ========
 
 
-Qt常见错误 >>
-
-关于 "undefined reference to vtable for XXX(类名)" 错误 >
-在一个类的定义中，如果使用类Q_OBJECT宏，则需要将对应的代码使用moc工具进行预处理生成 "*.moc" 文件才能够正常编译，而qmake工具在扫描代码中的Q_OBJECT时只会从 "*.h" 命名的文件中查找，如果在编码过程中没有按照编码规范而是将类的定义写在 "*.cpp/*.cc" 文件中的话，qmake工具是不会识别的，生成对应的Makefile文件也不会将对应的 "*.moc" 文件加入编译使得make指令编译报错。
-正确的做法是按照c++标准将类的定义写在 "*.h" 头文件中。
-此外，Qt在编译项目时默认采用的是make编译，会在编译时忽略那些未曾改动的文件，因此有时出现此错误时还可以尝试完全删除已经存在的二进制文件和编译中间文件，然后从头开始重新编译整个项目。
-一般对于此类错误的解决办法是手动运行qmake后整个项目重新编译。
-
-----
-
-关于 "错误:Warning: File '***' has modification time 3.9e+08 s in the future" >
-一般情况下，Qt在make项目时连续出现类似错误(并且呈现出死循环状态)，一般是项目中的文件时间混乱，部分文件的时间超过了系统当前的时间造成的。
-解决办法是将项目里的所有文件touch一遍即可。
-此外，make出现 "make: 警告：检测到时钟错误。您的创建可能是不完整的。" 的错误提示一般也是类似原因造成的。
-
-----
-
-关于 "qt error: C2001: 常量中有换行符" 错误 >
-在Windows环境中使用Qt+VC编译器并且源码为utf-8编码时，需要保留BOM，使用无BOM的utf-8编码会让编译器在遇到中文字符时报编码错误，需要将文件编码的UTF-8 BOM选项设置为 "如果编码是utf-8则添加" 。
-
-----
-
-关于 "底层受到操作系统信号而停止" 错误 >
-通常情况下，遇到此类问题可能是对空指针进行了操作。
-在Qt中，需要注意指针是否已经被初始化，同时，在编写类的析构函数时也许要慎重，如果一个指针需要传递给其他类使用，则不能在当前类的析构函数中delete此指针。
-
-----
-
-关于 "Z-order assignment: '***' is not a valid widget." 警告 >
-在使用QtDesigner拖放控件顺序不当时可能会出现此警告，解决方法是删除对应控件的 <zorder></zorder> 标签。
-
-----
-
-关于Windows专属BUG：中文乱码 >
-在Windows系统下，使用VS开发Qt程序时，即使代码文件的编码设置为"UTF-8"，并且通过 QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8")); 显式设定编码为UTF-8，依然会出现中文乱码的问题。
-对于少量的中文内容，可以使用 QString::fromLocal8bit(const char*); 函数让中文内容正常显示。
-对于大量的中文内容，每次出现中文都使用QString的成员函数转换非常麻烦，可以使用如下宏解决中文编码问题：
-#pragma execution_character_set("utf-8")
-需要注意的是，该宏需要特定版本的VS支持，对于VS2010，需要安装VS2010SP1更新。VS2012不支持该宏，VS2013支持。
-
-========
-
-
 Qt事件机制 >>
 事件(event)是有系统或者Qt本身在不同的时刻发出的。当用户按下鼠标，敲下键盘，或者是窗口需要重新绘制的时候，都会发出一个相应的事件。一些事件是在对用户操作做出响应的时候发出，如键盘事件等；另一些事件则是由系统自动发出,如计时器事件。
 Qt在main函数中要创建一个QApplication对象，在执行该对象的exec()函数时，就进入了事件的监听循环。每当事件发生时，Qt就会产生一个事件对象(所有的事件对象都继承于QEvent类)，然后将这个事件对象作为参数传递给QObject的event()函数，event()函数并不直接处理事件，而是将事件分类之后调用特定的事件处理函数，常见的事件处理函数有mousePressEvent()、keyPressEvent()之类的，想要自行处理事件就要重写对应的事件处理函数。
@@ -208,8 +165,55 @@ QTableWidget是QTableView的子类，相当于一个设定好了model的QTableVi
 
 使用QTableWidget >
 QTableWidget可以使用 QTableWidget::setColumnCount(int columns)/QTableWidget::setRowCount(int rows) 来设定表格的大小，使用 QTableWidget::setItem(int row, int column, QTableWidgetItem * item) 设定每一个单元格中的内容。
-需要注意的是，每一个单元格中的内容都是对象(QTableWidgetItem)，都需要使用new操作符构造对象与分配内存，因此，对于数据量较大的表格来说(几十w甚至上百w)，全部填充单元格的CPU、内存开销都是非常恐怖的。
+需要注意的是，默认情况下每一个单元格中的内容都是对象(QTableWidgetItem)，都需要使用new操作符构造对象与分配内存，因此，对于数据量较大的表格来说(几十w甚至上百w)，全部填充单元格的CPU、内存开销都是非常恐怖的。
 QTableWidget中，每一个单元格的对象生命周期与整张表格相同，使用setItem()成员函数向原先有内容的单元格中设置新对象时原先的对象不会自动被销毁，一般使用setItem()之后不再替换该单元格上的对象，而是直接修改对象存储的内容。
+
+----
+
+向QTableWidget中添加控件 >
+QTableWidget还可以使用 QTableWidget::setCellWidget(int row, int column, QWidget * widget) 来向指定单元格中添加控件。
+当使用了setCellWidget()添加控件之后，该单元格便不能使用 QTableWidget::item(int row, int column) 方法来获取指定单元格的内容(会报空指针错误)，因为该单元格中没有QTableWidgetItem，正确的访问方式是使用 QTableWidget::cellWidget(int row, int column) 来获取指定单元格的对象指针。
+需要注意的是，向表格直接使用setCellWidget()设置的控件是不受setTextAlign()影响的，会自动挤到单元格的一边，需要控件居中显示则需要新建QWidget并设置Layout作为容器，在向设置好布局的Widget中添加需要的控件，然后再将Widget设置到表格中。
+
+示例代码：
+QWidget *widget = new QWidget(table);
+QHBoxLayout *layout = new QHBoxLayout(widget);
+layout->addWidget(new QCheckBox(widget));
+widget->setLayout(layout);
+table->setCellWidget(row, column, widget);
+
+----
+
+设置QTableWidget不可编辑 >
+使用setEditTriggers(QAbstractItemView::NoEditTriggers)可以将整个表格设为不可编辑。
+需要注意的是，该不可编辑设置只对QTableWidgetItem有效，使用setCellWidget()方法设置的控件不会受到影响。
+
+----
+
+设置表格列自动扩展 >
+通过 QTableView::horizontalHeader() 方法可以获取整个表格的QHeaderView，然后使用其成员函数setStretchLastSection(bool stretch)，参数为true时则最后一栏的长度会自动扩展，也可以使用setResizeMode(QHeaderView::Stretch)来使所有列自动扩展。
+
+示例代码：
+QTableWidget *table = new QTableWidget;
+table->horizontalHeader()->setStretchLastSection(true);				//最后一行自动扩展
+table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);		//所有行自动扩展
+
+----
+
+设置表格列自动适配宽度 >
+使用 QTableView::resizeColumnsToContents() 可以使所有列的列宽自动适配内容宽度。
+使用 QTableView::resizeColumnToContents(int column) 设置指定列为自动适配内容宽度。
+
+----
+
+获取QTableWidget中发生变化的位置 >
+首先通过 QObject::sender() 获取信号的发出源对象，使用dynamic_cast宏转换为QWidget，再使用 QWidget::frameGeometry() 得到一个QRect型返回值表示该控件在其parent窗口中的位置，再通过 QTableView::indexAt(const QPoint & pos) 得到包含有单元格位置信息的QModelIndex返回值，使用  QModelIndex::row()/QModelIndex::column() 获取源对象的行列值。
+
+示例代码：
+QTableWidget *table = new QTableWidget;
+QModeIndex index = table->indexAt(dynamic_cast<QWidget*>(sender())->frameGeometry().center());
+int row = index.row();
+int column = index.column();
 
 ----
 
@@ -240,8 +244,9 @@ Qt中的布局 >>
 QHBoxLayout：水平布局
 QVBoxLayout：垂直布局
 QGridLayout：表格布局
-QSpacerItem: "面板弹簧"，可以控制组件的对齐方式
+QSpacerItem："面板弹簧"，可以控制组件的对齐方式
 QStackedLayout：把子控件进行分组或者分页，一次只显示一组或者一页，隐藏其他组或者页上的控件
+QSplitter：分裂器，使用分裂器可以将两个控件(布局)绑定为一个整体，处于一个水平/垂直分裂器中的两个控件可以自由控制水平/垂直方向上分配的空间(自由分界)
 
 布局之间可以相互嵌套，从而构成复杂的界面。
 需要注意的是，Qt中的布局的构造函数中同样可以设定父窗口，但如果传入了父类窗口指针，则该布局会尝试成为该窗口的默认布局，但许多控件是拥有默认布局的，在运行时会发出警告。
@@ -279,6 +284,8 @@ Qt中的菜单栏为QMenuBar，而显示在菜单栏上的一级选项为QMenu�
 一般来说，Qt应用程序都会包含一个继承于QMainWindow类的主窗口，主窗口通过 QMainWindow::setMenuBar(QMenuBar*) 方法来设定窗口的菜单栏。
 而QMenuBar菜单栏通过 QMenuBar::addMenu(QMenu*) 方法添加QMenu作为一级菜单，QMenu也可以通过 QMenu::addMenu(QMenu*) 来添加二级菜单。
 QAction除了添加在菜单中，还可以添加在QToolBar中。
+QAction可以保持按下的状态，通过 QAction::setCheckable(bool) 设置为true时，按下QAction便不会自动弹起，需要再次点击才会弹起。
+默认情况下，可以有多个QAction保持按下的状态，如果需要限定只能有一个QAction保持按下的状态，则可以将这些QAction加入同一个QActionGroup中。
 
 ----
 
@@ -337,8 +344,22 @@ Qt中的窗口 >>
 
 关于在Qt中新建窗口 >
 Qt中一般新建一个窗口都采取在堆中分配内存的方式(使用new操作符来创建一个指向该块内存的指针)，在main函数中，也可已尝试不使用指针直接在栈中创建对象，但是，在其他函数中，是不能这样做的，因为一个函数结束，则该函数的栈就会被销毁，而对象如果实在栈中创建则会随着函数的结束而被删除。
-新建窗口的构造函数一般有两种，show()只会创建一个普通的新窗口，用户可以在新窗口和旧窗口之间切换焦点，而exec()则会创建一个模态窗口，在新创建的模态窗口被关闭前，你不能将焦点切换回父窗口。
+新建窗口的构造函数一般有两种，show()默认只会创建一个普通的新窗口，用户可以在新窗口和旧窗口之间切换焦点，而exec()则会创建一个模态窗口，在新创建的模态窗口被关闭前，你不能将焦点切换回父窗口。
+show()通过设置参数也可以创建模态窗口，但exec()只能创建模态窗口。
 show()创建窗口之后程序会继续执行后面的代码，但使用exec()创建模态窗口则会阻塞线程，直到模态对话框收到accept()/reject()操作才会继续执行代码。
+
+----
+
+窗口内存回收 >
+一般情况下，通过指定QWidget*的父窗口指针，当父窗口被析构时，当前窗口的内存也被释放。
+如果不指定父窗口，则可使用创建栈变量的形式，出栈时变量自动释放：
+QWidget w;
+w.exec();
+还可以通过设置窗口的Qt::WA_DeleteOnClose属性来让窗口关闭时自动释放内存：
+QWidget *w = new QWidget;
+w->setAttribute(Qt::WA_DeleteOnClose, true);
+w->show();
+需要注意的是，设置了Qt::WA_DeleteOnClose属性则不能将窗口类以栈变量的形式创建，因为栈变量在出栈时还会被删除一次，造成重复删除。
 
 ----
 
@@ -527,3 +548,60 @@ QPixmap grabWidget(QObject *widget, int x=0, int y=0, int w=-1, int h=-1);
 也可以使用QScreen对象进行截图操作。
 QScreen *screen = QGuiApplication::primaryScreen();
 QPixmap view = screen->grabWindow(this->winId(), 0, 0, size().width(), size().height());
+
+========
+
+
+Qt常见错误 >>
+
+关于 "undefined reference to vtable for XXX(类名)" 错误 >
+在一个类的定义中，如果使用类Q_OBJECT宏，则需要将对应的代码使用moc工具进行预处理生成 "*.moc" 文件才能够正常编译，而qmake工具在扫描代码中的Q_OBJECT时只会从 "*.h" 命名的文件中查找，如果在编码过程中没有按照编码规范而是将类的定义写在 "*.cpp/*.cc" 文件中的话，qmake工具是不会识别的，生成对应的Makefile文件也不会将对应的 "*.moc" 文件加入编译使得make指令编译报错。
+正确的做法是按照c++标准将类的定义写在 "*.h" 头文件中。
+此外，Qt在编译项目时默认采用的是make编译，会在编译时忽略那些未曾改动的文件，因此有时出现此错误时还可以尝试完全删除已经存在的二进制文件和编译中间文件，然后从头开始重新编译整个项目。
+一般对于此类错误的解决办法是手动运行qmake后整个项目重新编译。
+
+----
+
+关于 "错误:Warning: File '***' has modification time 3.9e+08 s in the future" >
+一般情况下，Qt在make项目时连续出现类似错误(并且呈现出死循环状态)，一般是项目中的文件时间混乱，部分文件的时间超过了系统当前的时间造成的。
+解决办法是将项目里的所有文件touch一遍即可。
+此外，make出现 "make: 警告：检测到时钟错误。您的创建可能是不完整的。" 的错误提示一般也是类似原因造成的。
+
+----
+
+关于 "qt error: C2001: 常量中有换行符" 错误 >
+在Windows环境中使用Qt+VC编译器并且源码为utf-8编码时，需要保留BOM，使用无BOM的utf-8编码会让编译器在遇到中文字符时报编码错误，需要将文件编码的UTF-8 BOM选项设置为 "如果编码是utf-8则添加" 。
+
+----
+
+关于 "底层受到操作系统信号而停止" 错误 >
+通常情况下，遇到此类问题可能是对空指针进行了操作。
+在Qt中，需要注意指针是否已经被初始化，同时，在编写类的析构函数时也许要慎重，如果一个指针需要传递给其他类使用，则不能在当前类的析构函数中delete此指针。
+
+----
+
+关于 "Z-order assignment: '***' is not a valid widget." 警告 >
+在使用QtDesigner拖放控件顺序不当时可能会出现此警告，解决方法是删除对应控件的 <zorder></zorder> 标签。
+
+----
+
+关于Windows专属BUG：中文乱码 >
+在Windows系统下，使用VS开发Qt程序时，即使代码文件的编码设置为"UTF-8"，并且通过 QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8")); 显式设定编码为UTF-8，依然会出现中文乱码的问题。
+对于少量的中文内容，可以使用 QString::fromLocal8bit(const char*); 函数让中文内容正常显示。
+对于大量的中文内容，每次出现中文都使用QString的成员函数转换非常麻烦，可以使用如下宏解决中文编码问题：
+#pragma execution_character_set("utf-8")
+需要注意的是，该宏需要特定版本的VS支持，对于VS2010，需要安装VS2010SP1更新。VS2012不支持该宏，VS2013支持。
+
+----
+
+关于 "This application failed to start because it could not find or load the Qt platform plugin "windows"." 运行错误 >
+在使用非安装版本的Qt或是系统中未安装Qt时启动Qt程序可能会遇到此错误提示，原因是未能加载Qt的运行时动态链接库。
+需要将Qt安装目录下的 "...\plugins\platforms" 文件夹复制到需要执行的程序所在的目录。
+需要注意的是，直接将platforms文件夹中的dll复制出来是没有效果的。
+
+----
+
+关于 "找不到Qt5Core.dll" 运行错误 >
+在已经安装了Qt的机器上出现此错误，一般为Qt的环境变量未正确配置。
+需要创建环境变量 "QTDIR" ，绑定的位置为Qt的主要目录(即包含有bin、include、lib等目录的路径)。
+需要将 "%QTDIR%\bin" 加入PATH环境变量中。

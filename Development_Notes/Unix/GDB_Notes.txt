@@ -32,8 +32,10 @@ delete >>
 一次显示多个变量的信息 >>
 	display/print {变量1, 变量2, 变量3......}
 
-info locals >>
-	显示当前函数的局部变量信息。
+info >>
+	info可以用于查看一些信息。
+	info locals 	显示当前函数的局部变量信息
+	info threads	显示线程信息
 
 until/finish >>
 	until用于跳出循环，finish用于结束当前函数。

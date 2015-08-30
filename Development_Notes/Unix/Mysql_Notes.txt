@@ -128,11 +128,11 @@ show variables like 'character_set_%';									//查看数据库当前配置的�
 ----
 
 常用的sql语句 >
-insert into [表名] ([列名1], [列名2], ....) values([值1], [值2], ....);	//插入值是字段加单引号，数值则不用
+insert into [表名] ([列名1], [列名2], ....) values([值1], [值2], ....);		//插入值是字段加单引号，数值则不用
 update [表名] set [列名] = '[内容]' where [列名] = '[内容]';				//更新符合条件的记录
 select count(*)	from [表名];												//查询表中共有多少条记录
 alter table [表名] add column [列名] [字段类型];							//添加列
-alter table [表名] drop column [列名];									//删除列
+alter table [表名] drop column [列名];										//删除列
 delete from [表名] where [限制条件];										//删除满足限制条件的行
 
 ----
@@ -161,6 +161,26 @@ $ mysqldump -u [数据库用户名] [要备份的数据库名称] -p > [备份�
 例子：mysqldump -u root -p test > d:\test.sql (注意：此备份只备份数据和数据结构，没有备份存储过程和触发器)
 只导出数据不导出数据结构：输入：mysqldump -u [数据库用户名] -t [要备份的数据库名称] -p > [备份文件的保存路径] 
 还原数据库时需要先登陆mysql用户，选择数据库后执行：source [备份文件的保存路径]
+
+----
+
+设置超时连接时间 >
+在mysql中，如果一段时间没有与数据库进行交互，则服务端会自动关闭数据库连接(超时关闭)，这个超时时间可以由 wait_timeout/interactive_timeout 两个参数决定。
+默认情况下，超时连接的时间为 28800 秒，也就是8个小时。
+在数据库命令行界面中使用：
+> show global variables like '%timeout%';
+即可以查询当前数据库设置的超时连接数值。
+在数据库命令行中使用：
+> set global wait_timeout = [需要的超时时间];
+> set global interactive_timeout = [需要的超时时间];
+即可将mysql的超时时间设置为需要的值。
+
+----
+
+关于 "Another MySQL daemon already running with the same unix socket" 服务启动错误 >
+在mysql服务启动的情况下，如果机器没有正常关机，下次开机启动mysql服务很可能会出现错误:
+ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock'
+的错误，原因是服务的mysql.sock文件已经存在，会让系统认为已经有一个mysql在默认的端口启动了。
 
 ========
 

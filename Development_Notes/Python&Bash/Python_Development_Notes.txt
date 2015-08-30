@@ -84,7 +84,7 @@ set是一组没有value的key的集合，set中的内容是不可重复的。
 
 查看变量类型 >
 使用type()函数可以查看变量类型：
->>> a = lambda x : x + 2
+>>> a = lambda x: x + 2
 >>> type(a)
 <class 'function'>
 >>> b = {'first': 1, 'second': 2, 'third': 3}

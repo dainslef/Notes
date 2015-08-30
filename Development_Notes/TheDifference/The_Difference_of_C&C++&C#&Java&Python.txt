@@ -456,6 +456,7 @@ java中的Lambda语法类似c#，在只有一个Lambda参数时能够省略参�
 java中的Lambda能够访问当前作用域中的变量。
 c# >
 c#从3.0开始支持Lambda表达式，c#中的Lambda表达式是主流非函数式编程语言中最强大的，c#中的Lambda与c#语言的特色delegate互通，能够更加简洁地代替匿名委托，实现回调、事件等，同时Lambda还能方便地用在Linq中进行数据库操作。
+从C#6.0开始，Lambda表达式直接可以用于成员函数的定义。
 python >
 python中的Lambda表达式有诸多限制，python中的Lambda表达式只允许有一行函数体，这大大限制了Lambda的应用(但也比残废的java强)。python中的Lambda也可以作为函数对象使用。
 

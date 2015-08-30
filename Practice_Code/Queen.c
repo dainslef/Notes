@@ -14,7 +14,7 @@
 #define queen 8
 
 int count = 0;
-int Map[queen] = {0};		//用数组Map来记录每一行皇后的位置，Map[1] = 2表示皇后的位置在第1行的第2个位置。
+int Map[queen] = { 0 };		//用数组Map来记录每一行皇后的位置，Map[1] = 2表示皇后的位置在第1行的第2个位置。
 
 void show()		//打印找到的解法
 {

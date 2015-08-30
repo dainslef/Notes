@@ -26,7 +26,7 @@ def find(row, line):
 
 def Queen(row):
     if row == queen:
-        global count        #使用global关键字声明全局变量    
+        global count        #使用global关键字声明全局变量
         count += 1
         print("找到了第" + str(count) + "种解法：")
         show()
