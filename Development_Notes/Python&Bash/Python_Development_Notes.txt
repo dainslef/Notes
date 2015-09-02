@@ -77,6 +77,20 @@ set是一组没有value的key的集合，set中的内容是不可重复的。
 >>> set
 {1, 2, 3, 'test'}
 
+----
+
+使用循环生成list、set、dict等 >
+在定义容器的表达式中，可以直接加入for、if语句等作为条件生成容器内容。
+>>> list = [i for i in range(0, 10) if i > 5]
+>>> list
+[6, 7, 8, 9]
+>>> set = {i for i in range(0, 10)}
+>>> set
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+>>> dict = {i: i + 1 for i in range(0, 10) if i % 3 == 0}
+>>> dict
+{0: 1, 9: 10, 3: 4, 6: 7}
+
 ========
 
 
@@ -109,8 +123,8 @@ True
 关于range()函数 >>
 range(start, stop, step)函数接收三个参数，产生[start, end)范围的数字，以step为间隔。
 默认值start为0，step为1。
-在python2中，range()的返回类型是一个list。
-在python3中，range()返回的是迭代值，如果想得到list需要用list()显式地进行强制类型转换。
+在Python2中，range()的返回类型是一个list。
+在Python3中，range()返回的是迭代值，如果想得到list需要用list()显式地进行强制类型转换。
 range()函数一般用于for循环遍历，例如：
 for a in range(0, 5):
 	print(a, end = ' ')
@@ -120,14 +134,104 @@ for a in range(0, 5):
 
 
 关于global关键字 >>
-在python中变量是无类型的，因此定义变量与复制变量语句相同，在函数中，可以直接引用全局变量，但一个作用域只能有一个变量名，如果对全局变量进行赋值，解释器就会认为你创建了一个局部变量，该变量在函数结束之后是会被释放的。
+在Python中变量是无类型的，因此定义变量与复制变量语句相同，在函数中，可以直接引用全局变量，但一个作用域只能有一个变量名，如果对全局变量进行赋值，解释器就会认为你创建了一个局部变量，该变量在函数结束之后是会被释放的。
 如果想要在函数中对全局变量进行值修改需要使用global关键字将该变量名声明为全局的。
 
 ========
 
 
+关于生成器(generator) >>
+使用生成器可以方便的生成一串特定的值。
+在函数定义中使用关键字yield则该函数则成为了一个生成。
+执行生成器函数不会得到该函数的返回值，而是得到一个生成器对象，对生成器对象使用next()函数便会执行一次生成器，执行到yield关键字时便会停下来，返回yield语句的返回值，再次调用next()便会从上次yield结束的语句继续开始执行，直到一个新的yield语句。
+在Python3之前，可以使用 生成器对象.next() 的方式进行生成器迭代，在Python3中变成了 生成器对象.__next()__ ，作用与next()相同。
+
+实例代码：
+
+def get():
+	for i in range(0, 3):
+		yield i
+	return 100
+
+a = get()
+print(type(a))
+print(next(a))
+print(a.__next__())
+print(a.__next__())
+
+输出结果：
+<class 'generator'>
+0
+1
+Traceback (most recent call last):
+  File "test.py", line 10, in <module>
+    print(a.__next__())
+StopIteration: 100
+
+----
+
+遍历生成器与获取生成器的返回值 >
+一般在实际编码中很少直接使用next()函数来进行生成器迭代，而是采用for循环的形式。
+正常情况下，是不能获得生成器函数中的返回值的，如果需要返回值，则可以捕获StopIteration异常。
+
+实例代码：
+
+def get():
+	for i in range(0, 3):
+		yield i
+	return 100
+
+
+a = get()
+while True:
+	try:
+		print(next(a))
+	except StopIteration as ex:
+		print("The return value is: ", ex.value)
+		break
+		
+输出结果：
+0
+1
+2
+The return value is:  100
+
+----
+
+使用send()与生成器进行交互 >
+当使用next()生成器启动后，便可以使用 生成器对象.send(内容) 向生成器传递内容，send()传递的内容将作为yield表达式的返回值。
+next()就相当于send(None)，即默认yield表达式的返回值。
+执行了send()函数相当于执行了一次next()，然后将send()中的参数作为yield的返回值。
+首次启动生成器必须使用next()，因为第一次迭代没有yield表达式参与，以后的每一次迭代都可以使用send()代替next()
+
+实例代码：
+
+def get():
+	m = 0
+	for i in range(0, 3):
+		m = yield i
+		print(m)
+	
+a= get()
+next(a)
+print(a.send(10))
+print(a.send(20))
+
+输出结果：
+10
+1
+20
+2
+
+========
+
+
 与c/c++的基本语法差异 >>
-python没有自增自减运算符。
-python中的逻辑运算符用直白的英语表示：与 => and 或 => or 非 => not
-python没有三目运算符，可以用类似的语句替代： A and B or C
+Python没有自增自减运算符。
+Python中没有switch关键字。
+Python中的逻辑运算符用直白的英语表示：与 => and 或 => or 非 => not (位运算依然是^、|、~、&)
+Python比较对象是否相同用is、is not
+Python比较是否属于用in、not in
+Python乘方用**符号，2 ** 3的值是8，相当于2 ^ 3(数学意义上)。
+Python没有三目运算符，可以用类似的语句替代： A and B or C
 需要注意的是，该语句与三目运算符并不完全等价，在运算中，空字符串‘’，数字0，空list[]，空dict{}，空()，None，在逻辑运算中都被当作假来处理。

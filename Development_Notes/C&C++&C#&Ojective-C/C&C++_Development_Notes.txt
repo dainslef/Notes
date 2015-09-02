@@ -69,6 +69,8 @@ c/c++中const使用的区别 >>
 const变量初始化 >
 在c语言中，const变量在定义时可以不初始化，编译器会自动为其初始化为一个默认值。
 在c++中，const变量在定义的同时必须显式地初始化，定义没有初始化的const变量将无法通过编译。
+const变量在类中定义时，则初始化需要放在构造函数的初始化列表中(c++98)。
+在c++11中，成员变量初始化可以直接在类中进行，const成员变量也一样可以在类中初始化。
 
 ----
 
@@ -1097,6 +1099,24 @@ Disconnect slot1(int, int, int).
 This is slot1(int, char).
 This is slot2.
 300
+
+========
+
+
+boost时间库 >>
+boost时间库提供了跨平台的时间解决方案，相关头文件为 "/usr/include/boost/date_time/posix_time/posix_time.hpp" 。
+
+获取当前时间 >
+使用boost::posix_time::second_clock/microsec_clock::universal_time()可以获取当前UTC时间的秒数/微秒数。
+使用boost::posix_time::second_clock/microsec_clock::local_time()可以获取当前本地时间的秒数/微秒数。
+获取的时间使用boost::posix_time::ptime类型保存。
+使用boost::posix_time::to_iso_string()可以以获取的boost::posix_time::ptime作为参数，然后输出为标准的字符串(std::string)来表示时间。
+
+----
+
+获取时间间隔 >
+boost::posix_time::ptime类重载了减号，两个boost::posix_time::ptime对象可以相减得到类型为boost::posix_time::time_duration的时间间隔。
+boost::posix_time::time_duration可以使用total_microseconds()/total_milliseconds()/total_nanoseconds()/total_seconds()分别获取时间间隔对应的微秒/毫秒/纳秒/秒等作为单位的时间表示。
 
 ========
 
