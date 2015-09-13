@@ -552,6 +552,26 @@ QPixmap view = screen->grabWindow(this->winId(), 0, 0, size().width(), size().he
 ========
 
 
+Qt网页浏览 >>
+Qt提供了基于WebKit引擎的QWebKit做为网页解析引擎。网页浏览功能可以使用QWebView控件。
+使用QWebView控件需要添加QWebKit库(该库默认没有被引用)。
+
+----
+
+加载页面 >
+使用 QWebView::load(const QUrl & url) 将连接地址做为参数可以让QWebView载入一个页面。
+需要注意的是，连接地址需要符合URL(统一资源定位符)的规范，格式应写成 "协议://路径1/路径2/路径xxx?参数1=参数值1&参数2=参数值2&参数xxx=参数值xxx" 。
+常见的协议有：http(超文本传输协议资源)、https(用安全套接字层传送的超文本传输协议)、ftp(文件传输协议)、file(本地电脑或互联网分享文件)。
+
+----
+
+响应页面点击事件 >
+在QWebView中展示的页面点击链接可以发出信号 QWebView::linkClicked(const QUrl & url) ，捕获该信号进行处理即可。
+需要注意的是，默认情况下，点击链接并不会自动发送该信号，需要使用 QWebView::page() 获取当前页面，然后再使用 void QWebPage::setLinkDelegationPolicy(LinkDelegationPolicy policy) 将获取页面的链接代理设置为 QWebPage::DelegateExternalLinks/QWebPage::DelegateAllLinks 时才会触发连接信号。
+
+========
+
+
 Qt常见错误 >>
 
 关于 "undefined reference to vtable for XXX(类名)" 错误 >

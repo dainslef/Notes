@@ -438,14 +438,14 @@
 			<blockquote># modprobe vboxnetflt</blockquote>
 			<p>对于使用<span class="blue"> systemd </span>的发行版，将需要开机自启动的内核模块写入 <span class="blue"> /etc/modules-load.d/ </span> 目录的任意文件中。在gnome桌面环境中，默认没有安装qt，而virtualbox是qt程序，だから，需要安装qt4，否则没有图形界面：</p>
 			<blockquote># pacman -S qt4</blockquote></li><br/>
-			<li><p>ArchLinux源中のNetbeans和Eclipse非常给力，默认中文，だから，可以放弃从官方下载安装的方式：</p>
-			<blockquote># pacman -S netbeans eclipse eclipse-cdt<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装netbeans和eclipse</span><br/># pacman -S junit<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装java单元测试工具JUnit</span><br/><span class="blue">注意：</span><span>在pacman源中安装的Netbeans无法在普通用户下调用源中安装的tomcat（权限不足，不建议使用root账户进行开发工作！），所以如果进行JavaWeb开发仍需要从<span class="blue">Apache Tomcat官网</span>下载Tomcat的二进制包，在Netbeans得添加服务器选项中添加Tomcat的路径。(不要忘记给相关启动脚本添加可执行权限！)</span></blockquote></li><br/>
+			<li><p>ArchLinux源中のNetbeans非常给力，默认中文，だから，可以放弃从官方下载安装的方式：</p>
+			<blockquote># pacman -S netbeans<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装netbeans</span><br/><span class="blue">注意：</span><span>在pacman源中安装的Netbeans无法在普通用户下调用源中安装的tomcat（权限不足，不建议使用root账户进行开发工作！），所以如果进行JavaWeb开发仍需要从<span class="blue">Apache Tomcat官网</span>下载Tomcat的二进制包，在Netbeans得添加服务器选项中添加Tomcat的路径。(不要忘记给相关启动脚本添加可执行权限！)</span></blockquote></li><br/>
 			<li><p>配置OpenGL开发环境时需要安装mesa相关包（通常在安装桌面环境时已经随依赖安装），以及freeglut包。</p>
 			<blockquote># pacman -S freeglut</blockquote></li><br/>
 			<li><p>将需要的开发工具和开发环境一并安装：</p>
-			<blockquote># pacman -S ctags cmake mariadb clang boost freeglut gcc gcc-ada gcc-fortran gcc-go gcc-objc gdb gdc gnustep-core nasm yasm perl php python js npm mono jdk7-openjdk jdk8-openjdk ruby qtcreator</blockquote></li><br/>
+			<blockquote># pacman -S ctags cmake mariadb clang boost freeglut gcc gcc-ada gcc-fortran gcc-go gcc-objc gdb gnustep-core nasm yasm perl php python js npm mono jdk7-openjdk jdk8-openjdk scala ruby qtcreator</blockquote></li><br/>
 			<li><p>安装开发环境的对应的文档：</p>
-			<blockquote># pacman -S openjdk8-doc qt5-doc gcc-docs php-docs python-docs ruby-docs</blockquote></li><br/>
+			<blockquote># pacman -S openjdk8-doc qt5-doc php-docs python-docs scala-docs ruby-docs</blockquote></li><br/>
 			<li><p>最后安装主流的版本控制系统：</p>
 			<blockquote># pacman -S git subversion</blockquote></li>
 			</ul>
@@ -479,7 +479,9 @@
 			<blockquote>$ dconf write /org/mate/caja/desktop/volumes-visible false</blockquote>
 			<p><span class="blue"> dconf/gconf </span>对应的图形化前端为 <span class="blue"> dconf-editor/gconf-editor </span>，熟悉命令行操作则没有必要安装。</p>
 			</li><br/>
-			<li><p>ArchLinux的DNS配置在<span class="blue"> /etc/resolv.conf </span>文件中，需要注意的是该文件中的配置受到<span class="blue"> /etc/resolvconf.conf </span>控制，直接修改<span class="blue"> /etc/resolv.conf </span>的配置是不会保存的(下次开机会重置)，应该在<span class="blue"> /etc/resolvconf.conf </span>文件中加入内容：</p>
+			<li><p>ArchLinux的DNS配置在<span class="blue"> /etc/resolv.conf </span>文件中，修改DNS可以在该配置文件中加入：</p>
+			<blockquote>nameserver 114.114.114.114</blockquote>
+			<p>默认情况下，如果安装了<span class="blue"> networkmanager </span>，则配置文件会被该包重写。<br/>如果安装了<span class="blue"> netctl </span>，则该文件中的配置受到<span class="blue"> /etc/resolvconf.conf </span>的管理，直接修改<span class="blue"> /etc/resolv.conf </span>的配置是不会保存的(下次开机会被netctl的配置文件重写，重写优先级比networkmanager高)，应该在<span class="blue"> /etc/resolvconf.conf </span>文件中加入内容：</p>
 			<blockquote>name_servers=114.114.114.114</blockquote></li><br/>
 			<li><p>ArchLinux使用pacman作为包管理器，软件包的操作管理记录可以在日志文件<span class="blue"> /var/log/pacman.log </span>中查看。</p></li><br/>
 			<li><p>ArchLinux在使用<span class="blue"> gnome 3.12 </span>版本以上的桌面环境时，如果使用startx启动桌面环境的话，会发现菜单里没有锁屏按钮。<br/>因为gnome桌面の锁屏功能需要调用gdm登陆器，だから，如果想要正常使用锁屏功能，需要开启gdm服务，使用gdm来登陆桌面环境：</p>
@@ -504,8 +506,9 @@
 			<blockquote># timedatectl set-ntp 1<span>&nbsp;&nbsp;&nbsp;&nbsp;//<span class="blue">0</span>为关闭时间同步服务</span></blockquote>
 			<p>开启systemd自带的时间同步服务会导致在没有网络的情况下关机特别慢(系统会一直等待时间同步服务结束)，因此，如非必要，不推荐打开时间同步服务。为了与Windows时间保持同步，则推荐使用两种时间搭配：</p>
 			<blockquote>1.指定时区 + 本地时间RTC。<br/>2.UTC时区 + UTC时间为RTC。</blockquote></li><br/>
-			<li><p>在默认情况下，使用gnome桌面环境时，ArchLinux开机时启动桌面环境后音量会自动重置为0，无论你上次关机时音量是多少。解决开机自动静音问题需要安装以下组件(KDE桌面环境不需要！)：</p>
+			<li><p>在默认情况下，使用gnome桌面环境时，ArchLinux开机时启动桌面环境后音量会自动重置为0，无论你上次关机时音量是多少。解决开机自动静音问题需要安装以下组件(KDE桌面环境不需要，在 <span class="blue"> gnome 3.16 </span>之后，该问题已被解决，可忽略此条)：</p>
 			<blockquote># pacman -S alsa-utils</blockquote></li><br/>
+			<li><p>在默认情况下，使用gnome桌面环境时，gnome-terminal可能会出现一开始无法启动的情况，需要在系统设置了LC_ALL和locales等语言环境时才能正常启动。</p></li>
 			<li><p>在默认情况下，ArchLinux在源中安装的Tomcat需要root权限才能够启动，所以在使用NetBeans/Eclipse等集成开发环境进行WEB开发时，需要从Tomcat官网下载独立得二进制包放在用户有权限的家目录下以供IDE使用，需要注意的是，默认解压出的Tomcat二进制包中的启动脚本是没有启动权限的，因此不要忘记将<span class="blue"> ~/apache-tomcat-*/bin </span>目录下的启动脚本添加可执行权限：</p>
 			<blockquote>$ chmod u+x *.sh</blockquote></li><br/>
 			<li><p>在默认情况下，ArchLinux的蓝牙服务是开启的，查看蓝牙服务的状态使用命令：</p>

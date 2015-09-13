@@ -1,0 +1,28 @@
+﻿Scala开发环境 >>
+在Linux/Unix环境下，无需额外的Scala配置，只需从对应发行版的包管理器中直接安装Scala开发包即可。
+在Windows环境下，需要新建环境变量"SCALA_HOME"，环境变量的值即为Scala的安装目录，然后将"%SCALA_HOME%\bin"加入PATH环境变量中。
+
+----
+
+让VIM支持Scala语法高亮 >
+在bash中输入以下脚本指令：
+$ mkdir -p ~/.vim/{ftdetect,indent,syntax} && for d in ftdetect indent syntax ; do wget --no-check-certificate -O ~/.vim/$d/scala.vim https://raw.githubusercontent.com/derekwyatt/vim-scala/master/syntax/scala.vim; done'
+如果使用Vundle来管理插件，则可以在配置文件中添加：
+Plugin 'derekwyatt/vim-scala'
+
+----
+
+让Eclipse支持Scala项目 >
+安装Scala IDE插件即可。
+
+----
+
+编译Scala代码 >
+与编译Java代码类似，编译Scala代码使用scalac命令：
+$ scalac [*.scala]
+编译后即可得到字节码文件*.class。
+执行字节码可以使用scala或是java指令：
+$ java [字节码文件名称]				//执行字节码文件可以省略后缀名
+或者：
+$ scala [字节码文件名称]
+需要注意的是，Scala语言并不强制要求类名与文件名相同，但Java语言有这样的要求，因而使用java指令执行scala编译器得到的字节码时需要注意类名与文件名。
