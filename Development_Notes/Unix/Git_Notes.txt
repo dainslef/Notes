@@ -108,7 +108,7 @@ $ git tag -d [要删除的标签名]
 管理Git分支 >
 查看当前所处的分支：
 $ git branch
-查看所有的分支：
+查看所有的分支(包括远程分支)：
 $ git branch -a
 创建分支：
 $ git branch [分支名]

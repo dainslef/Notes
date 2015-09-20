@@ -593,13 +593,28 @@ int main(void)
 
 关于左值引用(lvalue reference)和右值引用(rvalue reference) >>
 在c++中，左值(lvalue)代表持久性的对象，右值(rvalue)代表短暂的对象，左值可以被取地址，右值不能被取地址。
+在c++11中加入了右值引用的概念。
 
-引用绑定遵循以下规则：
+----
+
+引用绑定规则 >
 非const左值引用可以绑定到非const左值。
 const左值引用可以绑定到任意左值和任意右值(无论是否const)。
 非const右值引用可以绑定到非const右值。
 const右值引用可以绑定到任意右值(无论是否const)。
 
+----
+
+移动语义(move semantics) >
+在c++11中，加入了std::move()函数来获取一个左值对应的右值。
+一个类可以定义移动构造函数来定义以对象右值来构建新对象的方式。
+在传统c++中，通过原有对象构建新对象只有一种方式，即复制构造函数，复制构造函数的参数为"const Type&"类型，即const左值引用，可以绑定任意左值和任意右值，对于左值对象，为了实现真正的对象复制(深复制)，目标对象中的指针是不能直接拷贝的，而是需要重新分配内存，并复制目标对象的指针指向的内容；而对于右值对象，由于右值对象不可改动，理论上可以直接移动目标对象的内容无需重新分配内存，但传统c++没有对这两种情况进行区分，导致对象为右值时，往往也要进行不必要的拷贝行为。
+在c++11中，可以自行定义移动构造函数，参数类型为"Type &&"，即移动构造函数接收到的都是右值，目标对象的成员可以安全地进行语义移动操作，指针也可以直接拷贝。
+当一个右值被传入构造函数时，会优先匹配移动构造函数。
+
+----
+
+注意事项 >
 需要注意的是，无论左值引用或是右值引用本身都是左值，因此虽然不能直接对右值取地址，但是可以对右值引用取地址。
 引用一但绑定就不可更改，因此引用与指针不同，指针分为指向const内容的指针(const 类型名 *指针名)和自身保存地址不可变的const指针(类型名* const 指针名)，而引用本身一定是不可变的，因此只有绑定const值的引用(const 类型名 &引用名)，而没有真正的const引用，"类型名& const 引用名"这样的定义是不被编译器允许的。
 
@@ -728,7 +743,7 @@ Lambda表达式 >>
 在c++11中引入了Lambda表达式，语法格式大致为：
 [当前作用域变量捕获方式](参数表) { 函数体; };					//标准形式
 [当前作用域变量捕获方式] { 函数体; };							//无需参数的形式
-[当前作用域变量捕获方式](参数表) -> 返回类型 { 函数体; };			//显式指定返回值的形式
+[当前作用域变量捕获方式](参数表) -> 返回类型 { 函数体; };		//显式指定返回值的形式
 
 需要注意的是，与普通函数相同，如果需要表达式有返回值则需要在函数体中使用return语句返回值。
 与java/c#等语言不同，c++中的Lambda表达式不能省略参数类型，也不能在函数体只有一句的时候省略函数体外的花括号。
@@ -769,6 +784,46 @@ int main(void)
 
 输出结果(gcc 5.1.0 && ArchLinux x86_64)：
 4
+
+----
+
+c++14中的Lambda表达式新特性 >
+在c++14中，加入了范型Lambda，并支持在Lambda使用表达式捕获作用域中的变量，且没有捕获变量的Lambda可以与函数指针进行转化(不是函数对象)。
+在c++11中，Lambda表达式中的参数必须显式指定参数的类型，但在c++14中，参数的类型可以使用auto关键字，编译器会对所有的被使用的该表达式进行参数类型推断，然后根据使用的参数类型编译出对应的Lambda表达式实例。
+在c++11中，对变量的捕获包括值捕获和左值引用捕获两种，而在c++14中，Lambda表达式中支持使用表达式捕获，通过简单的表达式进行一些捕获值初始化(lambda capture initializers)，或是对捕获变量重命名(设置全局传递方式的操作符依然要放在最前面)。
+在c++11中，Lambda表达式只能转化为函数对象std::function，但在c++14中，对于没有捕获变量的Lambda，是可以直接转化为原生的函数指针的，Lambda与普通函数最大的区别在与Lamdba可以获取当前作用域中的变量作为初始化内容，而函数不可以，一旦Lambda没有捕获当前作用域中的变量，则该Lambda便可以转化为一个普通的函数，即可以由原生的函数指针进行表示。
+
+举例：
+
+#include <iostream>
+
+using namespace std;
+
+int main(void)
+{
+	// 范型Lambda表达式
+	auto lambda1 = [](auto num) { return num; };
+	cout << "Use int as args: " << lambda1(100) << endl;
+	cout << "Use string as args: " << lambda1("string") << endl;
+
+	// Lambda表达式支持表达式捕获
+	int a = 100, b = 200, c = 300;
+	auto lambda2 = [=, num1 = a + 50, &num2 = b]() { num2 = num1 + c; };	//以捕获值的方式捕获变量a，并用a的值加上50并命名为num1，然后将b的引用命名为num2
+	lambda2();
+	cout << "After run lambda2, the value b is: " << b << endl;
+	
+	// 未捕获变量的Lambda可以转化为函数指针
+	int (*get_num)(int) = [](int num) { return num; };
+	cout << "Run lambda function point:" << get_num(100) << endl;
+
+	return 0;
+}
+
+输出结果(gcc 5.2.0 && ArchLinux x86_64)：
+Use int as args: 100
+Use string as args: string
+After run lambda2, the value b is: 450
+Run lambda function point: 100
 
 ========
 
@@ -823,9 +878,9 @@ void insert(iterator position, InputIterator first, InputIterator last);
 
 序列式容器都提供了以下构造函数(以vector为例)：
 vector();
-vector(size_type num, const TYPE &val);			//使用num个值为val的元素初始化vector
+vector(size_type num, const TYPE &val);					//使用num个值为val的元素初始化vector
 vector(const vector &from);
-vector(input_iterator start, input_iterator end);			//使用某个已存在的vector的[start, end)来构建一个新的vector
+vector(input_iterator start, input_iterator end);		//使用某个已存在的vector的[start, end)来构建一个新的vector
 
 vector容器特点：
 vector容器是数组式的容器类型，vector容器中存储的数据元素被放在一块连续的内存中，vector容器支持随机存取，可以通过数组式的下标(即"[]"操作符)进行元素访问、修改。
@@ -900,6 +955,40 @@ shared_ptr和weak_ptr都没有release()成员函数，即不能手动释放动�
 智能指针的转型 >
 c++的类型转换函数dynamic_cast<>()、static_cast<>()、const_cast<>()并不能用于智能指针对象的转换，智能指针实际是一个包含了指针的容器对象，并不能简单地转换为普通指针类型。
 将智能指针对象进行转型需要使用dynamic_pointer_cast<>()、static_pointer_cast<>()、const_pointer_cast<>()，其中的模版参数为目标对象的类型(不是指针类型)。
+
+----
+
+改变做为形参传入的智能指针所指向的内容 >
+当智能指针做为形参时，如果需要改变指针指向的内容，则需要像普通指针一样，将新的内容赋值到"*智能指针对象"上(此项操作需要智能指针已被初始化且被分配了足够的内存)。
+如果智能指针是shared_ptr，则还需要考虑到智能指针保存内容的生命周期。
+如果传入的是一个尚未初始化的智能指针，需要在函数内对其进行赋值，而还要保证外部能使用这个指针，此时则需要传递智能指针的引用或地址，保证函数内部能访问到原始的智能指针，否则进行的操作都是对形参复制的智能指针进行的，不会改变外部的智能指针未被初始化的状态。
+
+示例代码：
+
+#include <iostream>
+#include <memory>
+#include <stdio.h>
+
+using namespace std;
+
+void init(shared_ptr<int> temp)		//如果需要函数改变传入的未初始化的智能指针，正确的方法是传入引用或是传入智能指针的地址(指针)
+{
+	shared_ptr<int> num(new int);
+	*num = 100;
+	temp = num;
+}
+
+int main(void)
+{
+	shared_ptr<int> temp;
+	init(temp);
+	cout << *temp << endl;			//错误，运行init()函数之后，外部的智能指针temp实际上并未发生变化，依然处于未初始化状态，试图访问其内容会报错
+	system("pause");
+	return 0;
+}
+
+输出结果(VS 2015 && Windows10 x86_64)：
+报错，提示访问空指针(0x0000000)。
 
 ========
 
@@ -1084,7 +1173,7 @@ int main(void)
 	a.sig.connect(2, boost::bind(&B::slot2, b, 1.0, _1));
 	cout << *a.sig(0) << endl;
 	cout << "\nDisconnect slot1(int, int, int)." << endl;
-	link.disconnect();			//取消槽函数slot1(int, int, int)的连接
+	link.disconnect();						//取消槽函数slot1(int, int, int)的连接
 	cout << a.sig(1).value() << endl;		//调用value()成员函数获取合并器返回值
 	return 0;
 }
@@ -1210,6 +1299,13 @@ c++中的关键字explicit作用是防止构造函数隐式转换的发生。
 c99中新引入了关键字restrict，restrict关键字用在指针的定义中，格式为 "变量类型* restrict 指针名" ，作用是是告知编译器该指针始终指向首次初始化时的内容，不会发生改变。
 restrict关键字不会改变指针的用法，但会让编译器更加安全高效准确地优化代码，使用restrict关键字定义的指针的指向不应进行改动。
 restrict关键字只在支持c99以上的c编译器中使用，c++没有引入这个关键字。
+
+----
+
+关于mutable关键字 >
+mutable关键字用于定义一个易变的变量，只能用于修饰类的非静态数据成员，语法格式上与const类似。
+一般成员变量在const修饰的成员函数中是不可被更改的，但使用了mutable关键字定义的变量，即使是在const成员函数中，依然可以被修改。
+c语言没有这个关键字。
 
 ----
 
