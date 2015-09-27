@@ -369,6 +369,8 @@ Qt中常用的一些预设窗口 >
 QString QInputDialog::getText(...)				//用于获取字符串
 int QInputDialog::getInt(...)					//用于获取整型数值
 QString QFileDialog::getOpenFileName(...)		//用于获取选择的文件路径
+QColor QColorDialog::getColor(...)				//用于提供色彩选择对话框
+QFont QFontDialog::getFont(...)					//用于提供文字选择对话框
 ...
 提示用户和获取用户判断的对话框为QMessageBox >
 StandardButton QMessageBox::question(...)		//询问用户的判断
@@ -457,6 +459,14 @@ label->setPixmap(pixmap);
 如果图片大小不匹配，可以通过 QPixmap::sacled() 函数改变图片的显示比例：
 QPixmap QPixmap::scaled(int width, int height);
 需要注意的是该函数返回的是QPixmap类型，变更了大小的新的QPixmap在返回值中，需要显式的赋值给一个QPixmap对象。
+
+----
+
+在QComobox/QListWidget中显示图片 >
+使用 QComboBox::addItem(const QIcon &icon, const QString &text, const QVariant &userData = QVariant()) 向一个组合框添加选项内容时，将需要在组合框中显示的图片转换成QIcon类型，填入第一个参数即可。
+需要注意的是，QComboBox在显示图片是是有自身默认的大小的，无论原图片的大小如何，都会被缩放成QComboBox中指定的大小。
+指定QComboBox中显示图片的大小需要使用 QComboBox::setIconSize(const QSize &size) 来显式指定。
+对于QListWidget，操作方式类似，控制显示图片的大小同样需要使用 QListWidget::setIconSize(const QSize &size) 来显式指定。
 
 ----
 
@@ -568,6 +578,18 @@ Qt提供了基于WebKit引擎的QWebKit做为网页解析引擎。网页浏览�
 响应页面点击事件 >
 在QWebView中展示的页面点击链接可以发出信号 QWebView::linkClicked(const QUrl & url) ，捕获该信号进行处理即可。
 需要注意的是，默认情况下，点击链接并不会自动发送该信号，需要使用 QWebView::page() 获取当前页面，然后再使用 void QWebPage::setLinkDelegationPolicy(LinkDelegationPolicy policy) 将获取页面的链接代理设置为 QWebPage::DelegateExternalLinks/QWebPage::DelegateAllLinks 时才会触发连接信号。
+
+========
+
+
+Qt字体设置 >>
+通过使用QFontDataBase对象可以获取当前系统的字体数据。
+打印出当前系统支持的字体：
+foreach (const QString &font_name, QFontDatabase().families())
+	std::cout << font_name <<std::endl;
+其中，QStringList QFontDatabase::families(WritingSystem writingSystem = Any) const 函数的参数可以用于指定文字类型，例如，列出简体中文的字体可以写成：
+foreach (const QString &font_name, QFontDatabase().families(QFontDatabase::SimplifiedChinese))
+	std::cout << font_name <<std::endl;
 
 ========
 

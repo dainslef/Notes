@@ -76,21 +76,34 @@ final还可以用在类之前代表该类不可被继承，也可以用在方法
 ========
 
 
-连接Access数据库 >>
+与Access数据库交互 >>
 JDK 1.7之前，可以使用JDBC-ODBC桥接Access数据库，但在JAVA8之后，JDBC-ODBC桥被移除，只能使用专有的Access驱动来连接Access数据库(驱动名称：Access_JDBC40.jar)。
 
-连接Access数据库的一般步骤：
+----
+
+连接Access数据库的一般步骤 >
 String connectUrl = "jdbc:Access:///***.accdb";					//这样写是相对路径
 //String connectUrl = "jdbc:Access:///c:/a/b/***.accdb";		//这样写是绝对路径
 Class.forName("com.hxtt.sql.access.AccessDriver");
 connection = DriverManager.getConnection(connectUrl);
 statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);			//后面的两个参数是为了得到resultSet集能够进行last()操作
 
-Access数据库的一些小常识：
+----
+
+Access数据库的一些小常识 >
 1.表单的高级字段设置在"开始 - 视图 - 设计视图"中。
 2.配置自增属性需要将字段类型设为"自动编号"。
 3.默认情况下，创建的数据类型"数字"的字段大小为"长整型"，这是不支持小数输入的，小数输入会自动被去尾，需要将字段大小设置为"单精度浮点型/双精度浮点型"才能支持小数位。
 4.如果需要某个字段的内容唯一不可重复，可以将改字段的索引设置为"有(无重复)"即可。
+
+=======
+
+
+在Eclipse中查看JDK类源码 >>
+与NetBeans不同，在Eclipse中默认是无法直接查看JDK中类库的源码的，需要手动指定源码的位置。
+一般情况下，JDK源码位于JDK的安装目录下的"src.zip"文件中。
+在Eclipse中按以下步骤添加源码路径：
+Window => Preferences => Java => Installed JREs => 选中使用的JRE => Edit => 选中../xxx/rt.jar => Source Attachment Configuration => Exernal location => 选中src.zip => OK => Finish
 
 =======
 
