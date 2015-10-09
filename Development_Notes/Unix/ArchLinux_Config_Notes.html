@@ -178,6 +178,7 @@
 				<tr><td>pcmciautils</td><td>pcmcia设备管理工具，用不到</td></tr>
 				<tr><td>lvm2</td><td>不使用逻辑卷则用不到此包</td></tr>
 				<tr><td>dhcpd</td><td>自动分配ip由networkmanager(dhclient)替代</td></tr>
+				<tr><td>fakeroot</td><td>用于模拟root权限，一般用户用不到</td></tr>
 			</table>
 			<p>实际上，大多数 <span class="blue">base</span> 包组中的软件包都会被其它包所依赖，不必指定安装，只需手动安装部分即可：</p>
 			<blockquote># pacstrap -i /mnt linux iputils vi usbutils psmisc netctl nano</blockquote></li><br/>
@@ -288,6 +289,7 @@
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">软件包介绍</span></th></tr>
 				<tr><td>caja</td><td>MATE桌面环境的默认文件管理器</td></tr>
+				<tr><td>mate-panel</td><td>MATE桌面的面板</td></tr>
 				<tr><td>mate-control-center</td><td>MATE桌面环境的控制中心</td></tr>
 				<tr><td>mate-notification-daemon</td><td>MATE桌面环境的通知服务</td></tr>
 			</table></blockquote>
@@ -312,7 +314,7 @@
 			<p>使用<span class="blue"> glib-compile-schemas </span>指令使配置生效：</p>
 			<blockquote># glib-compile-schemas /usr/share/glib-2.0/schemas/</blockquote>
 			<p>默认情况下，MATE桌面环境的桌面会显示已挂载的分区图标，这会打乱桌面图标布局，可以使用<span class="blue"> dconf-editor </span>来修改桌面的图标显示，取消<span class="blue"> org.mate.caja.desktop.volumes-visible </span>属性即可。</p></li><br/>
-			<li><p>除了MATE之外，习惯gnome2风格的还可以选择使用<span class="blue">Xfce</span>作为桌面环境。<br/>安装Xfce4桌面环境的基本包组：</p>
+			<li><p>除了MATE之外，习惯gnome2风格的还可以选择使用<span class="blue"> Xfce </span>作为桌面环境。<br/>安装Xfce4桌面环境的基本包组：</p>
 			<blockquote># pacman -S xfce4</blockquote>
 			<p>在<span class="blue"> xfce4 </span>包组中，依然有些包是<span class="blue">不必要安装</span>的：</p>
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
@@ -593,7 +595,9 @@
 			<ul><li><p>安装包时指定包的安装原因为<span class="blue"> 手动安装 </span></p>
 			<blockquote># pacman -S --asexplicit [<span class="blue">package_name</span>]</blockquote></li>
 			<li><p>安装包时指定包的安装原因为<span class="blue"> 作为依赖安装 </span></p>
-			<blockquote># pacman -S --asdeps [<span class="blue">package_name</span>]</blockquote></li></ul></li><br/>
+			<blockquote># pacman -S --asdeps [<span class="blue">package_name</span>]</blockquote></li>
+			<li><p>默认情况下，在本地包版本高于源中的版本时，pacman会忽略源中的版本，强制更新包到源中的版本(降级)可以使用：</p>
+			<blockquote># pacman -Suu</blockquote></li><br/>
 			<li><p>ArchLinux默认安装的基础包base里只有一些常规命令，另外有一些常用的命令行工具需要安装：</p>
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">功能</span></th></tr>
@@ -637,24 +641,25 @@
 			<li><p>桌面环境常搭配的工具/娱乐软件：</p>
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">功能</span></th></tr>
-				<tr><td>audacious</td><td>音乐播放器</td></tr>
-				<tr><td>blender</td><td>开源的3D建模工具</td></tr>
-				<tr><td>bluefish</td><td>WEB开发编辑器</td></tr>
-				<tr><td>gimp</td><td>开源的图像处理软件</td></tr>
-				<tr><td>inkscape</td><td>矢量图编辑器</td></tr>
-				<tr><td>vlc</td><td>多媒体播放器</td></tr>
-				<tr><td>stardict-lite</td><td>stardict的轻量版本，相比完整版精简了无用功能，依赖干净</td></tr>
-				<tr><td>thunderbird</td><td>相比gnome默认的evolution来说要更快更强</td></tr>
-				<tr><td>mednafen</td><td>掌机游戏模拟器</td></tr>
-				<tr><td>ppsspp</td><td>PSP游戏模拟器</td></tr>
-				<tr><td>virtualbox</td><td>虚拟机</td></tr>
+				<tr><td><span class="blue">audacious</span></td><td>音乐播放器</td></tr>
+				<tr><td><span class="blue">bluefish</span></td><td>WEB开发编辑器</td></tr>
+				<tr><td><span class="blue">gimp</span></td><td>开源的图像处理软件</td></tr>
+				<tr><td><span class="blue">inkscape</span></td><td>矢量图编辑器</td></tr>
+				<tr><td><span class="blue">vlc</span></td><td>多媒体播放器</td></tr>
+				<tr><td><span class="blue">stardict-lite</span></td><td>stardict的轻量版本，相比完整版精简了无用功能，依赖干净</td></tr>
+				<tr><td><span class="blue">thunderbird</span></td><td>相比gnome默认的evolution来说要更快更强</td></tr>
+				<tr><td><span class="blue">mednafen</span></td><td>掌机游戏模拟器</td></tr>
+				<tr><td><span class="blue">ppsspp</span></td><td>PSP游戏模拟器</td></tr>
+				<tr><td><span class="blue">virtualbox</span></td><td>虚拟机</td></tr>
+				<tr><td><span class="blue">kchmviewer</span></td><td>chm帮助文档阅读器，虽然名称中有'K'，但并没有KDE依赖，仅仅依赖Qt5</td></tr>
+				<tr><td><span class="blue">gvim/emacs</span></td><td>神之编辑器和编辑器之神2333</td></tr>
+				<tr><td><span class="blue">gparted/partitionmanager</span></td><td>gtk/KDE的parted分区工具图形前端</td></tr>
+				<tr><td><span class="blue">libreoffice-fresh</span></td><td>office办公</td></tr>
+				<tr><td>audacity</td><td>音频剪辑软件</td></tr>
 				<tr><td>mypaint</td><td>绘画软件</td></tr>
-				<tr><td>ghex</td><td>gnome二进制编辑器，不过没有被收入gnome相关包组中</td></tr>
-				<tr><td>kchmviewer</td><td>chm帮助文档阅读器，虽然名称中有'K'，但并没有KDE依赖，仅仅依赖Qt5</td></tr>
+				<tr><td>blender</td><td>开源的3D建模工具</td></tr>
 				<tr><td>pidgin</td><td>聊天工具，主要用来搭配lwqq插件聊webqq</td></tr>
-				<tr><td>gvim/emacs</td><td>神之编辑器和编辑器之神2333</td></tr>
-				<tr><td>gparted/partitionmanager</td><td>gtk/KDE的parted分区工具图形前端</td></tr>
-				<tr><td>libreoffice-fresh</td><td>office办公</td></tr>
+				<tr><td>ghex</td><td>gnome二进制编辑器，不过没有被收入gnome相关包组中</td></tr>
 			</table></blockquote></li><br/>
 			<li><p>ArchLinux中有许多包已经被默认地添加进了包组(Package Groups)中，安装时使用包组名可以快速地安装整个包组中的软件。<br/>常见的包组有：</p>
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">

@@ -51,6 +51,7 @@ Scala基本语言特性 >>
 5.函数/方法返回值的空类型为Unit，相当于Java/C++中的void。
 6.没有原生enum类型，应继承枚举助手类Enumeration。
 7.不提供类似Java/C++中的三目运算符，但if语句表达式带有返回值，可以提供类似效果。
+8.访问类成员权限默认为public，因而没有public关键字，但有private和protected关键字，作用与Java一致。
 
 ----
 
@@ -126,3 +127,8 @@ scala> show100				//直接使用函数名得到的是函数对象而非调用函
 res0: () => Int = <function0>
 scala> show100()
 res1: Int = 100
+
+========
+
+
+Scala中的OOP >>

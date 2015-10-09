@@ -409,13 +409,16 @@ QString可以通过 QString::toStdString() 来得到传统风格的c++字符串�
 ----
 
 格式化文本 >
-QString类提供了格式化文本的功能，可以使用其成员函数 QString::sprintf(const char *cformat, ...) 进行文本格式化。
+QString类提供了多样的格式化文本功能，类C风格的格式化可以使用其成员函数 QString::sprintf(const char *cformat, ...) 进行。
+需要注意的是，Qt本身并不推荐使用QString::sprintf()来进行文本格式化，QString::sprintf()在Qt5.5中已经被标记为"Obsolete"(废弃的)，可能会在未来版本中移除该函数。
+Qt风格的文本格式化应使用 QString::arg(const QString & a, int fieldWidth = 0, QChar fillChar = QLatin1Char( ' ' )) 来进行。
 
 ========
 
 
 关于QLabel多行显示文本 >>
-在默认情况下，QLabel控件只会单行显示文本，一旦文本内容超过了QLabel控件的Width，就无法显示。如果需要在指定宽度下完整显示文本，就需要将QLabel设置为允许多行显示。使用setWordWrap(true)方法设置QLabel的允许多行显示。
+在默认情况下，QLabel控件只会单行显示文本，一旦文本内容超过了QLabel控件的Width，就无法显示。
+如果需要在指定宽度下完整显示文本，就需要将QLabel设置为允许多行显示。使用setWordWrap(true)方法设置QLabel的允许多行显示。
 
 ========
 
@@ -441,6 +444,32 @@ lineEdit->setValidator(new QDoubleValidator(0, 10000, 2, this));		//限制输入
 对于复杂的输入限制，可以使用正则表达式校验器QRegExpValidator。
 QLineEdit *lineEdit = new QLineEdit();
 lineEdit->setValidator(new QRegExpValidator(QRegExp("正则表达式内容")), this);
+
+========
+
+
+关于使用QListWidget >>
+QListWidget是一个自带了model的QListView实现，使用QListWidget可以方便的构建列表框。
+
+----
+
+使用IconMode >
+QListWdget默认以列表的模式显示，但QListWidget实现了QListView中的setViewModel()方法，支持图标模式。
+使用方法 QListWidget::setViewMode(ViewMode mode) ，参数为 QListView::IconMode 即可将QListWidget设置为图标模式。
+使用方法 QListWidget::setMovement(Movement movement) 可以设置图标的移动模式，参数为 QListView::Static 时图标不可移动。
+
+----
+
+使用QListWidgetItem保存数据 >
+QListWidget中的每一个列表项都是一个QListWidgetItem对象，对于QListWidgetItem，常用的方法有：
+void QListWidgetItem::setText(const QString &text)						//设置列表项/图标模式下的显示文字
+void QListWidgetItem::setData(int role, const QVariant &value)			//设置item保存的数据内容
+需要注意的是setData()成员函数中的第一个参数为保存数据的角色，该值一般不要取0，item默认的文本数据就保存在0角色中，即在role为0时，setText()和setData()只有一个能生效(后调用的那个会把先前的数据覆盖)，推荐role的值使用 Qt::DisplayPropertyRole 。
+
+----
+
+使QListWidgetItem对齐 >
+如果给QListWidgetItem设定了文本，那么，在文本长度不一致的时候，图标很可能不会保持对齐状态，此时可以使用 QListWidgetItem::setSizeHint(const QSize &size) 来强制设定每个item的大小，使每个item大小完全相同，达到对齐的效果(过长的文本会以省略号显示)。
 
 ========
 
@@ -521,6 +550,9 @@ QPainter >
 QPainter相当于画笔，用于控制线的样式、颜色、粗细等。
 使用QPainter绘制图像时，需要在构建QPainter实例时传入需要绘制的设备的地址作为参数或者使用begin()成员函数来确定绘制设备，比如 QPainter painter(this); 就是实例化了一个绘制当前控件的QPainter。
 一个painter只能同时绘制一个设备(一支笔不能同时在两张纸上写字)，当可以在绘制设备之间进行切换，从一个绘制设备切换到另一个绘制设备之前需要使用end()成员函数结束上一个被绘制的设备，然后将下一个可绘制设备的地址传入begin()成员函数进行绘制。
+QPainter不仅能用于绘制图像，还可以用于绘制文字(使用drawText()方法)。
+QPainter使用 QPainter::setPen(const QPen &pen) 可以设置画笔的样式(线形、色彩等)。
+QPainter使用 QPainter::setFont(const QFont &font) 可以设置文本的字体。
 
 ----
 
@@ -584,12 +616,26 @@ Qt提供了基于WebKit引擎的QWebKit做为网页解析引擎。网页浏览�
 
 Qt字体设置 >>
 通过使用QFontDataBase对象可以获取当前系统的字体数据。
-打印出当前系统支持的字体：
+通过使用QFontMetrics对象可以获取指定样式字体的宽度、高度。
+
+----
+
+打印出当前系统支持的字体 >
 foreach (const QString &font_name, QFontDatabase().families())
 	std::cout << font_name <<std::endl;
 其中，QStringList QFontDatabase::families(WritingSystem writingSystem = Any) const 函数的参数可以用于指定文字类型，例如，列出简体中文的字体可以写成：
 foreach (const QString &font_name, QFontDatabase().families(QFontDatabase::SimplifiedChinese))
 	std::cout << font_name <<std::endl;
+
+----
+
+获取文本的宽高 >
+QFontMetrics类的构造函数可以使用QFont做为参数。
+使用 int QFontMetrics::width(const QString &text, int len = -1) const 可以获取指定文本的宽度。
+QFont font("times", 24);
+QFontMetrics fm(font);
+int pixelsWide = fm.width("What's the width of this text?");
+int pixelsHigh = fm.height();
 
 ========
 

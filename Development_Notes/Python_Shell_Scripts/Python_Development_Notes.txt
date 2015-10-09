@@ -181,7 +181,6 @@ def get():
 		yield i
 	return 100
 
-
 a = get()
 while True:
 	try:
