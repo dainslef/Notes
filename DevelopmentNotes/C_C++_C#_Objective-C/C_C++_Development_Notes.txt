@@ -869,7 +869,7 @@ std::advance(iterator_int, num);			//像iterator_int增加指定的偏移量
 序列式容器中元素的次序与元素的值无关，只与元素插入的顺序有关。
 序列式容器都有以下常用成员函数：
 void pop_back();					//删除容器尾部的最后一个元素
-void push_back(const T& x);			//在容器尾部添加一个元素
+void push_back(const T &x);			//在容器尾部添加一个元素
 reference front();					//返回容器内首个元素的引用(可以通过此函数修改元素的值)
 reference back();					//返回容器最末元素的引用
 iterator insert(iterator position, const T& x);
@@ -1241,7 +1241,7 @@ namespace A
 ----
 
 关于在switch的case语句中定义局部变量 >
-在c语言中，不允许在switch的case语句内定义局部变量，以下语句是错误的：
+在c语言中，不允许在switch的case语句内直接定义局部变量，以下语句是错误的：
 
 int a = 0;
 switch (a)
@@ -1265,6 +1265,20 @@ case 0:
 }
 
 将定义与赋值拆开可以通过c++编译器，但依旧会在c编译器中报错。
+出现此种情况是因为在c/c++中，case标签不具有独立的作用域，同时在不使用break语句的情况下，case标签中的变量定义语句根据传入值的不同不一定会被执行，变量不一定会被定义，因而在c/c++中不允许这样的行为。
+正确的做法是在需要在case标签内容中定义变量时使用"{}"(花括号)来构建一个独立作用域，使变量定义对其它case标签不可见，如下所示：
+
+int a = 0;
+switch (a)
+{
+case 0:
+	{
+		int b = 0;
+		break;
+	}
+}
+
+以上代码可以在c/c++编译器中编译通过。
 
 ========
 

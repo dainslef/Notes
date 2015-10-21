@@ -39,7 +39,7 @@
 				width: 70%;
 				margin-left: 25%;
 				margin-bottom: 20px;
-				border: solid 1px #33AADD; 
+				border: solid 1px #33AADD;
 				clear: both;
 				padding-left: 20px;
 				padding-right: 20px;
@@ -178,10 +178,16 @@
 				<tr><td>pcmciautils</td><td>pcmcia设备管理工具，用不到</td></tr>
 				<tr><td>lvm2</td><td>不使用逻辑卷则用不到此包</td></tr>
 				<tr><td>dhcpd</td><td>自动分配ip由networkmanager(dhclient)替代</td></tr>
-				<tr><td>fakeroot</td><td>用于模拟root权限，一般用户用不到</td></tr>
 			</table>
-			<p>实际上，大多数 <span class="blue">base</span> 包组中的软件包都会被其它包所依赖，不必指定安装，只需手动安装部分即可：</p>
-			<blockquote># pacstrap -i /mnt linux iputils vi usbutils psmisc netctl nano</blockquote></li><br/>
+			<p><span class="blue">base</span> 包组中的一些<span class="blue">必选</span>包的功能说明：</p>
+			<table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
+				<tr><th style="width: 200px"><span class="blue">包名称</span></th><th style="width: 400px"><span class="blue">包简介</span></th></tr>
+				<tr><td>fakeroot</td><td>用于模拟root权限，构建软件包时需要用到</td></tr>
+				<tr><td>sed</td><td>用于文件处理，可进行数据的替换、删除、新增、选取</td></tr>
+				<tr><td>iputils</td><td>网络工具集</td></tr>
+			</table>
+			<p>大多数 <span class="blue">base</span> 包组中的软件包都会被其它包所依赖，不必指定安装，只需手动安装部分即可：</p>
+			<blockquote># pacstrap -i /mnt linux iputils usbutils psmisc netctl nano</blockquote></li><br/>
 			<li><p>安装网络工具，否则安装完成之后无法配置无线网络：</p>
 			<blockquote># pacstrap -i /mnt wpa_supplicant dhclient</blockquote></li><br/>
 			<li><p>生成fstab文件：</p>
@@ -244,7 +250,7 @@
 				<tr><td><span class="blue">gnome-disk-utility</span></td><td>镜像刻录工具</td></tr>
 				<tr><td><span class="blue">gnome-system-monitor</span></td><td>gnome资源监视器</td></tr>
 				<tr><td><span class="blue">nautilus</span></td><td>gnome文件管理器</td></tr>
-				<tr><td><span class="blue">gnome-terminal</span></td><td>gnome终端</td></tr>				
+				<tr><td><span class="blue">gnome-terminal</span></td><td>gnome终端</td></tr>
 				<tr><td><span class="blue">gdm</span></td><td>gnome登陆器</td></tr>
 				<tr><td><span class="blue">eog</span></td><td>gnome之眼</td></tr>
 				<tr><td><span class="blue">evince</span></td><td>pdf文档阅读器</td></tr>
@@ -257,13 +263,13 @@
 				<tr><th style="width: 200px"><span class="blue">包名称</span></th><th style="width: 400px"><span class="blue">包简介</span></th></tr>
 				<tr><td><span class="blue">file-roller</span></td><td>gnome归档管理器</td></tr>
 				<tr><td>devhelp</td><td>gnome开发者文档浏览器</td></tr>
-				<tr><td>gnome-nettool</td><td>gnome网络工具</td></tr>				
+				<tr><td>gnome-nettool</td><td>gnome网络工具</td></tr>
 				<tr><td>vinagre</td><td>gnome桌面的远程控制服务</td></tr>
 				<tr><td>cheese</td><td>茄子大头贴，聊天工具必备摄像头组件</td></tr>
 				<tr><td>gedit</td><td>gnome文本编辑器</td></tr>
 				<tr><td>anjuta</td><td>gnome开发用的IDE</td></tr>
 				<tr><td>gnome-devel-docs</td><td>gnome开发者文档</td></tr>
-				<tr><td>gnome-color-manager</td><td>gnome色彩管理器</td></tr>	
+				<tr><td>gnome-color-manager</td><td>gnome色彩管理器</td></tr>
 			</table></blockquote>
 			<p>默认的gnome桌面环境是非常简<span class="blue">(nan)</span>洁<span class="blue">(yong)</span>的，可定制的选项很少，并且许多必要的功能都没有实现。可以通过安装gnome-extensions来解决这个问题：</p>
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
@@ -445,7 +451,7 @@
 			<li><p>配置OpenGL开发环境时需要安装mesa相关包（通常在安装桌面环境时已经随依赖安装），以及freeglut包。</p>
 			<blockquote># pacman -S freeglut</blockquote></li><br/>
 			<li><p>将需要的开发工具和开发环境一并安装：</p>
-			<blockquote># pacman -S ctags cmake mariadb clang boost freeglut gcc gcc-ada gcc-fortran gcc-go gcc-objc gdb gnustep-core nasm yasm perl php python js npm mono jdk7-openjdk jdk8-openjdk scala sbcl ruby qtcreator</blockquote></li><br/>
+			<blockquote># pacman -S ctags mariadb clang boost freeglut gcc gcc-ada gcc-fortran gcc-go gcc-objc gdb gnustep-core nasm php python js npm mono jdk7-openjdk jdk8-openjdk scala sbcl ruby qtcreator</blockquote></li><br/>
 			<li><p>安装开发环境的对应的文档：</p>
 			<blockquote># pacman -S openjdk8-doc qt5-doc php-docs python-docs scala-docs ruby-docs</blockquote></li><br/>
 			<li><p>最后安装主流的版本控制系统：</p>
@@ -525,7 +531,7 @@
 			<ul><li><p>有时在gnome控制中心中更改默认应用程序时会出现无法保存的情况，这时需要自行修改mimeapps.list文件，将希望的应用程序改为默认值，或者直接删除该文件，系统会重新生成一个默认配置的文件。</p></li>
 			<li><p>在使用gnome扩展Places Status Indicator时，如果安装了音乐播放器audacious，则默认情况下会出现从扩展中打开文件夹并不是启用nautious，而是使用audacious打开。出现这种情况就是对于inode/directory类型的应用关联出现了问题，可以在mimeapps.list文件中的<span class="blue"> [Default Applications] </span>中写入键值<span class="blue"> inode/directory=nautilus.desktop </span>，即手动指定了目录类型的默认打开方式，执行以下命令的作用类似：</p>
 			<blockquote>$ xdg-mime default nautilus.desktop inode/directory</blockquote></li>
-			<p>有时候，仅仅设置<span class="blue"> [Default Applications] </span>并不能完全阻止丧病的audacious，需要完全屏蔽audacious与目录的关联的关联：在mimeapps.list文件中写入<span class="blue"> [Removed Associations] </span>属性中添加键值<span class="blue"> inode/directory=audacious.desktop </span>，即在访问目录的程序中屏蔽audacious。</p>			
+			<p>有时候，仅仅设置<span class="blue"> [Default Applications] </span>并不能完全阻止丧病的audacious，需要完全屏蔽audacious与目录的关联的关联：在mimeapps.list文件中写入<span class="blue"> [Removed Associations] </span>属性中添加键值<span class="blue"> inode/directory=audacious.desktop </span>，即在访问目录的程序中屏蔽audacious。</p>
 			</ul></li><br/>
 			<li><p>有时，ArchLinux的密钥会出现更新不及时的情况，安装部分包会出现下列错误提示：</p>
 			<blockquote>error: key "****" cound not be looked up remotely<br/>error: required key missing from keyring<br/>error: failed to committrasaction (unexpected error)<br/>Errors occurred, no packages were upgraded.</blockquote>
