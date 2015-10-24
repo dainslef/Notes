@@ -218,6 +218,7 @@ JFrame(框架)
 JDialog(对话框，比JFrame消耗资源少)
 JPanel(面板)
 JScrollPane(滚动面板)
+JFrame一般做为顶层容器，可以独立做为对话框显示，但JPanel不能独立做为对话框。
 文本组件：
 JLabel(显示文本)
 JTextField(单行编辑框)

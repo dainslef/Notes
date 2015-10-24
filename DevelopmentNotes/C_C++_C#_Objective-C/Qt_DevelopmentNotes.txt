@@ -44,8 +44,9 @@ QListWdget			//列表框，可以设置表格模式或图标模式，通过setCu
 ========
 
 
-关于Qt的信号(signals)和槽(slots)机制 >>
-在Qt中，使用信号和槽传递消息，用户可以自行定义信号和槽，Qt对象中也包含了许多预定义的信号和槽。
+Qt的信号(signals)和槽(slots)机制 >>
+Qt中的信号和槽类似C#中的委托事件机制，是观察者模式的一种实现。只要信号一触发，与信号绑定的槽函数都会被调用。
+Qt使用信号和槽传递消息，用户可以自行定义信号和槽，Qt对象中也包含了许多预定义的信号和槽。
 一个类中如果需要声明信号和槽则需要从QObject类(或其子类)中继承，并在类的声明中加入宏Q_OBJECT。
 信号(signals)只需要声明而不需要实现。使用emit关键字可以发送信号。信号的访问权限是protected且不可更改，也就是说无法在该类以及该类子类之外的区域发送信号，但信号的连接是随意的，可以在类外进行信号连接。
 槽(slots)可以自定以访问权限，槽中的函数就像类的普通成员函数一样，除了函数声明之外需要有对应的函数实现。
@@ -124,10 +125,10 @@ Qt在main函数中要创建一个QApplication对象，在执行该对象的exec(
 
 产生一个事件 >
 发送事件可以使用以下函数：
-void QCoreApplication::postEvent (QObject * receiver, QEvent * event) [static]
-bool QCoreApplication::sendEvent (QObject * receiver, QEvent * event) [static]
-void QCoreApplication::sendPostedEvents (QObject * receiver, int event_type) [static]
-bool QCoreApplication::notify (QObject * receiver, QEvent * event) [virtual]
+void QCoreApplication::postEvent(QObject * receiver, QEvent * event) [static]
+bool QCoreApplication::sendEvent(QObject * receiver, QEvent * event) [static]
+void QCoreApplication::sendPostedEvents(QObject * receiver, int event_type) [static]
+bool QCoreApplication::notify(QObject * receiver, QEvent * event) [virtual]
 postEvent函数将事件放入事件消息队列中，然后立即返回，函数只将事件放入队列的尾端，不保证事件立即得到处理。
 sendEent函数用notify函数将事件直接派发给接收者和进行处理，返回事件处理者的返回值。事件会立即送至接受者，被发送后，Qt不会自动delete该事件，因此合适的做法是在栈上创建事件。
 sendPostedEvents函数将事件队列中用postEvent函数放入的对应接受者和事件类型的事件立即分发，但是来自窗口系统的事件不被分发，它们被processEvents()函数分发。如果接受者是null，则对应所有的接受者；如果event_type为0，则对应receiver的所有的事件。该函数必须和receiver在同一个线程内被调用。 

@@ -120,6 +120,146 @@ True
 ========
 
 
+Python中的OOP >>
+与传统的OOP语言类似，Python中的class具有独立的变量作用域。
+相比传统的OOP语言如Java、C++等，Python对于OOP并没有完整的支持，在Python中不支持函数重载、不支持定义保护对象。
+
+----
+
+定义类的实例成员 >
+在Python中，每个类的实例成员函数的第一个参数必须为当前类的实例(一般命名为self)。
+Python中的实例成员变量、实例成员函数也必须通过对象实例来调用。
+需要注意的是，即使是在类的内部，访问类的实例成员依然需要通过对象实例而不能直接使用变量名(直接使用变量名相当于是在函数内部创建一个与类成员变量同名的内部变量)。
+例如：
+
+class Test:
+	def __init__(self, num1, num2):
+		self.num1 = num2	#实例变量定义无需单独声明，在构造函数中定义即可在整个类中使用
+		self.num2 = num1
+	
+	def show(self):						#实例成员函数第一个参数为对象实例
+		print(self.num1, self.num2)		#即使在类内部访问类的实例成员变量也需要通过实例对象
+										#直接访问num1、num2如使用语句 print(num1) 则会得到错误提示 NameError: name 'num1' is not defined
+		
+test = Test(1, 2)
+test.show()
+
+输出结果：
+2 1
+
+----
+
+定义类的静态成员 >
+在Python中同样可以定义类的静态成员，与传统的OOP语言类似，访问静态成员使用 "类名.静态成员名" 即可。
+类的静态成员函数在定义时类似普通函数，不需要将第一个参数设定为当前类的实例，只需注意函数的缩进即可(作用域在类中)。
+定义类的静态成员变量有两种方式，可以直接将变量名写在类的非函数作用域中(不需要使用类名)，也可以在构造函数中定义(格式类似与实例变量，需要写类名，否则就会变成局部变量)。
+需要注意的是，即使在类的内部，访问静态成员同样需要使用类名而不能直接调用。
+Python中同一个类的静态成员函数不能与实例成员函数同名，但静态成员变量可以与实例成员变量同名。
+例如：
+
+class Test:
+
+	num1 = 100
+	num2 = 200					#在类作用域中定义静态成员变量num1，num2
+
+	def __init__(self, num1, num2):
+		self.num1 = num2
+		self.num2 = num1		#定义实例成员变量num1，num2
+		Test.num3 = num2
+		Test.num4 = num1		#在构造函数中定义静态成员变量num3，num4
+
+	def show(self):
+		print(self.num1, self.num2)
+		Test.static_show()		#即使在类内部，访问自身类的静态成员函数也需要加类名
+
+	def static_show():			#静态成员函数的定义类似于普通函数，只是作用域不同
+		print(Test.num1, Test.num2, Test.num3, Test.num4)
+
+test = Test(1, 2)
+test.show()
+
+输出结果：
+2 1
+100 200 2 1
+
+----
+
+私有成员 >
+Python的类中默认成员的访问属性为公有，在Python中不能定义保护成员，但可以定义私有成员。
+在命名类的成员时，以 "__" 开头的成员都是私有成员，不能在类的外部被访问。
+例如：
+
+class Test:
+
+	__num = 100
+
+	def __init__(self, num):
+		self.__num = num
+		Test.__num = num
+
+	def show(self):
+		print(self.__num, Test.__num)
+
+test = Test(1)
+test.show()							#调用show()成员函数正确打印私有成员内容
+print(test.__num, Test.__num)		#直接输出私有成员内容报错，错误提示 " 'Test'对象没有属性__num "
+
+输出结果：
+1 1
+Traceback (most recent call last):
+  File "test.py", line 14, in <module>
+    print(test.__num, Test.__num)
+AttributeError: 'Test' object has no attribute '__num'
+
+实际上，Python中的隐藏变量并不是真的把变量隐藏了，仅仅是Python解释器对私有变量的名称做了一些改动使得外界无法访问。
+以 "__xxx" 为名的私有成员的实际名称被改成了 "_类名__xxx" ，只要使用改动后的名称，就可以访问私有成员变量了。
+上个例子稍作修改即可访问到私有变量：
+
+class Test:
+
+	__num = 100
+
+	def __init__(self, num):
+		self.__num = num
+		Test.__num = num
+
+	def show(self):
+		print(self.__num, Test.__num)
+
+test = Test(1)
+test.show()
+print(test._Test__num, Test._Test__num)			#需要注意的是，不同的Python解释器重命名的方式可能略有不同
+
+输出结果：
+1 1
+1 1					#正常获得了私有成员变量的内容
+
+----
+
+一些特殊的内置成员 >
+在Python中，有一类特殊的类成员，命名以 "__" 开始也以 "__" 结束，这一类成员并不是私有成员，可以直接被访问。
+
+系统定义的属性与方法：
+Class.__doc__ 				# 类型帮助信息 'Class Doc.' 
+Class.__name__ 				# 类型名称 'Class' 
+Class.__module__ 			# 类型所在模块 '__main__' 
+Class.__bases__ 			# 类型所继承的基类 (<type 'object'>,) 
+Class.__dict__ 				# 类型字典，存储所有类型成员信息。 <dictproxy object at 0x00D3AD70> 
+Class().__class__ 			# 类型 <class '__main__.Class'> 
+Class().__module__ 			# 实例类型所在模块 '__main__' 
+Class().__dict__ 			# 对象字典，存储所有实例成员信息。 {'i': 1234}
+
+一些常用的特殊方法：
+t = T() 实际调用 t.__init__() 构造函数
+del t 实际调用 t.__del__() 析构函数
+repr(t) 实际调用 t.__repr__() 将对象转成字符串显示(适合解释器阅读)
+str(t) 实际调用 t.__str__() 将值转化为字符串形式(适合人阅读)，print()打印会调用对象的__str__()函数
+format(t, format_spec) 实际调用 t.__format__(format_spec) 格式化字符串的值
+t() 实际调用 t.__call__() 类提供与函数类似的行为
+
+========
+
+
 关于range()函数 >>
 range(start, stop, step)函数接收三个参数，产生[start, end)范围的数字，以step为间隔。
 默认值start为0，step为1。
@@ -165,7 +305,7 @@ print(a.__next__())
 1
 Traceback (most recent call last):
   File "test.py", line 10, in <module>
-    print(a.__next__())
+	print(a.__next__())
 StopIteration: 100
 
 ----
@@ -186,14 +326,14 @@ while True:
 	try:
 		print(next(a))
 	except StopIteration as ex:
-		print("The return value is: ", ex.value)
+		print("The return value is:", ex.value)
 		break
 		
 输出结果：
 0
 1
 2
-The return value is:  100
+The return value is: 100
 
 ----
 
