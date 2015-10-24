@@ -1,0 +1,169 @@
+OS X源于BSD系列，在使用方式上与传统的Linux发行版有较大的不同。
+
+========
+
+
+OS X下的一些常用功能 >>
+
+常用快捷键 >
+锁屏: Control + Shift + Power
+全屏截图: Shift + Command + 3
+指定位置截图: Shift + Command + 4
+保存: Command + S
+全选: Command + A
+行首/行尾: Control + A/E
+Home/End/PageDown/PageUp: Fn + Left/Right/Down/Up
+复制/粘贴文件: Command + C/V
+剪切文件: Option + Command + V
+切换程序: Command + Tab
+切换当前程序的窗口: Command + `
+退出程序: Command + Q
+关闭当前窗口: Command + W
+最小化窗口: Command + M
+
+----
+
+常用命令行指令 >
+# scutil --set HostName [主机名]				//设置主机名称
+# scutil --set ComputerName [主机共享名称]	//设置主机共享名称	
+
+----
+
+常用软件 >
+The Unarchiver								//解压软件
+VLC											//多媒体播放器
+AppCleaner									//APP卸载工具
+TextMate									//文本编辑器
+
+----
+
+一些特殊目录 >
+~/Library/Caches/							//缓存目录
+~/Library/Application Support/				//缓存配置目录
+
+========
+
+
+与常规PC的不同之处 >>
+Mac机与常规的PC有较大的差异，需要一个适应过程。
+
+----
+
+基本操作差异 >
+1.缺少一些常用按键，且按键逻辑不统一。
+没有Home/End/PageDown/PageUp等按键，需要通过Fn搭配方向键等组合键才能实现行首/行尾/翻页等操作。
+同时，在部分编辑器以及终端中，行首/行尾操作需要通过Control加A/E等按键完成。
+2.Finder少一些常用的功能。
+Finder右键菜单中没有创建文件的选项，甚至创建文本都需要使用Terminal中的touch指令。
+Finder右键菜单没有剪切功能，通过组合键能实现类似效果。
+3.Windows/Linux中以Control作为组合键触发的一些快捷操作在OS X中全部使用Command键进行触发。
+
+----
+
+Drawin与GNU/Linux的差异 >
+1.基础UID与Linux中不同，Linux中普通用户UID为1000开始，OS X中UID从500开始。
+2.家目录与Linux/BSD中不同，OS X中的/home目录默认是空的，用户家目录的位置为/Users。
+3.root用户目录与Linux中不同，位于/var/root。
+4.Darwin没有默认的包管理器。
+5.环境变量记录在文件/etc/paths中。
+
+----
+
+文件系统 >
+在OS X中，默认文件系统为HFS+，此类文件系统同时支持区分大小写(Case-Sensitive)和忽略大小写两种类型，在格式化时可以进行选择。
+需要注意的是，如果选择了区分大小写形式的HFS+文件系统，则部分软件将无法安装(比如PhotoShop等)。
+文件系统类型在安装了OS X之后除了重装系统之外无法更改，需要慎重选择。
+
+========
+
+
+包管理 >>
+OS X中当下最流行、最主流的包管理器为Homebrew。另外，MacPorts也是不错的选择。
+
+----
+
+Homebrew与MacPorts的区别 >
+Homebrew基于Git，是比较轻量级的一个包管理器。
+与传统的包管理器不同，使用Homebrew并不需要使用root用户，只需要一个普通的OS X管理员用户即可。
+Homebrew将软件包安装在/usr/local/目录下，在OS X中该目录默认情况下为空，因此当用户不再需要使用Homebrew时，只需完整删除/usr/local/目录下的所有内容即可(需要注意的是，有些非Bundle形式安装的软件也是会将一些内容安装在/usr/local目录下的，比如VirtualBox。如果安装了此类软件，清理/usr/local目录时需要仔细辨别)。
+默认情况下，在OS X中，/usr/local的所有者为root，用户组为wheel，而安装了Homebrew之后，该目录所有者会被更改为当前用户，用户组被改为admin。
+
+----
+
+安装Homebrew >
+Homebrew采用Ruby语言开发，OS X中已经带有ruby开发环境。
+Homebrew需要用到Git等工具，在安装Homebrew之前需要先安装Xcode命令行工具(或者直接完整安装Xcode)。
+之后在Terminal中执行：
+$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+----
+
+Homebrew基本指令 >
+$ brew update								//更新源
+$ brew ugrade								//升级包
+$ brew install [package_name]				//安装包
+$ brew leaves								//查看没有被依赖的包
+
+----
+
+安装OS X缺失的一些命令行工具和开发环境 >
+$ brew install aria2 wget python3 gcc screenfetch nmap scala p7zip mariadb boost sbcl go
+
+----
+
+使用通过HomeBrew安装的mysql/mariadb >
+通过HomeBrew安装的mysql/mariadb使用时不需要root权限。
+mariadb与mysql数据库的操作指令相同。
+mariadb与mysql数据库存储位置相同，路径为/usr/local/var/mysql/。
+启动服务使用指令：
+$ mysql.server start
+停止mysql服务：
+$ mysql.server stop
+
+========
+
+
+一些问题的处理方案 >>
+
+切换分辨率/语言时，OS X下的登陆界面的分辨率/语言依然不变 >
+可以尝试更改登录界面的选项。
+也可以尝试以下指令:
+# languagesetup
+登陆界面的分辨率/语言未发生变化是由于登陆界面的数据未更新，使用root权限执行languagesetup重设语言即会刷新登陆界面信息。
+
+----
+
+在BootCamp安装的Windows系统中调整了分区，重启后Mac分区在启动页中消失 >
+发生此种情况的原因是Windows下的一些分区管理工具将Mac分区的分区Type UUID改成了Windows的Type UUID，只需将分区类型ID改回来即可恢复Mac分区。
+具体解决方法：
+1.使用Windows的diskpart分区工具更改Type UUID，在CMD下执行以下指令：
+> diskpart													#进入diskpart分区工具
+> list disk													#列出所有磁盘
+> select disk [磁盘号]										#指定正在使用的磁盘
+> list partition											#列出所选磁盘中的所有分区
+> select partition [分区号]									#指明OS X所在的分区号
+> set id=48465300-0000-11AA-AA11-00306543ECAC				#设置分区的Type UUID
+2.也可以使用Linux/Unix中的parted工具进行分区类型ID变更，推荐使用parted的图形化前端gparted，只需要在分区标志中去掉msdata即可使Mac分区正常启动。
+
+----
+
+使用默认bootloader引导Linux系统 >>
+需要创建一个100MB左右的分区(其实可以更小)，在分区的中创建System/Library/CoreServices目录：
+$ mkdir -p /Volumes/[启动分区名称]/System/Library/CoreServices/
+并在该目录中放入Linux的efi启动文件。
+同时创建系统描述文件：
+$ nano /Volumes/[启动分区名称]/System/Library/CoreServices/SystemVersion.plist
+在描述文件中添加以下内容：
+<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+<dict>
+    <key>ProductBuildVersion</key>
+    <string></string>
+    <key>ProductName</key>
+    <string>Linux</string>
+    <key>ProductVersion</key>
+    <string>Arch Linux</string>
+</dict>
+</plist>
+然后使用OS X系统的启动管理器bless来创建启动项，执行指令：
+# bless --folder=/Volumes/[启动分区名称]/System/Library/CoreServices/ --file=/Volumes/[启动分区名称]/System/Library/CoreServices/boot.efi --setBoot
