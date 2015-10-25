@@ -13,6 +13,13 @@ $ git config --global push.default [推送选项]
 current/simple：推送当前分支到远程关联的同名分支。
 matching：推送与远程仓库具有的分支中所有与本地仓库分支同名的本地分支。
 
+设置Git换行符处理方式：
+$ git config --global core.autocrlf [换行符处理方式]
+取值含义：
+true：Windows提交到Unix环境时使用，提交时将CRLF转换为LF，而签出代码时自动将LF转换为CRLF。
+input：Unix环境中使用，提交时CRLF换行符转换为LF，而签出代码时LF不转换为CRLF。
+false：Windows环境中使用，不转换CRLF，直接提交。
+
 ========
 
 
@@ -23,7 +30,6 @@ matching：推送与远程仓库具有的分支中所有与本地仓库分支同
 选择一个可用的空目录作为源码仓库，运行：
 $ git init
 就成功地生成了一个源码版本库，成功生成了版本库之后用户的源码仓库目录下会多出一个名为".git"的目录，该目录记录了版本库的各种信息，不要随意修改。
-
 ----
 
 向版本库添加文件 >
@@ -196,6 +202,7 @@ $ ssh-keygen -t rsa -C "GitHub邮箱名称"
 生成密钥的过程中会有选项，全部回车默认即可。
 命令执行结束之后会在本地家目录下的.ssh文件夹下生成两个密钥文件：id_rsa和id_rsa.pub。
 将公钥id_rsa.pub中的内容复制到GitHub个人设置中的"SSH keys"页面中。
+需要注意的是，id_rsa以及id_rsa.pub文件的权限必须设置为仅当前用户可见(600)，如果密钥文件其他用户、用户组可见则无法完成同步操作。
 
 ----
 

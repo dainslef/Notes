@@ -177,6 +177,7 @@
 				<tr><td>mdadm</td><td>Raid管理工具，没有磁盘阵列的PC用不到(多块硬盘组<span class="blue">Raid 0</span>的用户除外)</td></tr>
 				<tr><td>pcmciautils</td><td>pcmcia设备管理工具，用不到</td></tr>
 				<tr><td>lvm2</td><td>不使用逻辑卷则用不到此包</td></tr>
+				<tr><td>netctl</td><td>包含了一些默认的网络配置文件，不需要</td></tr>
 				<tr><td>dhcpd</td><td>自动分配ip由networkmanager(dhclient)替代</td></tr>
 			</table>
 			<p><span class="blue">base</span> 包组中的一些<span class="blue">必选</span>包的功能说明：</p>
@@ -185,9 +186,12 @@
 				<tr><td>fakeroot</td><td>用于模拟root权限，构建软件包时需要用到</td></tr>
 				<tr><td>sed</td><td>用于文件处理，可进行数据的替换、删除、新增、选取</td></tr>
 				<tr><td>iputils</td><td>网络工具集</td></tr>
+				<tr><td>findutils</td><td>包含find等常用工具</td></tr>
+				<tr><td>usbutils</td><td>包含lsusb等工具</td></tr>
+				<tr><td>systemd-sysvcompat</td><td>包含/sbin/init，缺少此包则系统无法初始化</td>
 			</table>
 			<p>大多数 <span class="blue">base</span> 包组中的软件包都会被其它包所依赖，不必指定安装，只需手动安装部分即可：</p>
-			<blockquote># pacstrap -i /mnt linux iputils usbutils psmisc netctl nano</blockquote></li><br/>
+			<blockquote># pacstrap -i /mnt linux iputils usbutils nano fakeroot systemd-sysvcompat</blockquote></li><br/>
 			<li><p>安装网络工具，否则安装完成之后无法配置无线网络：</p>
 			<blockquote># pacstrap -i /mnt wpa_supplicant dhclient</blockquote></li><br/>
 			<li><p>生成fstab文件：</p>
@@ -609,17 +613,14 @@
 				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">功能</span></th></tr>
 				<tr><td>net-tools</td><td>包含ifconfig,netstat等常用网络工具</td></tr>
 				<tr><td>p7zip</td><td>p7zip支持zip/7z/rar文件的压缩与解压，还是多种GUI归档管理器(engrampa、file-roller等)的后端</td></tr>
-				<tr><td>at</td><td>定时执行操作命令</td></tr>
 				<tr><td>nmap</td><td>高级端口扫描工具</td></tr>
 				<tr><td>openssh</td><td>ssh远程登录</td></tr>
 				<tr><td>screenfetch</td><td>CLI下的Arch字符图标と系统信息显示</td></tr>
-				<tr><td>cmake</td><td>编译安装时经常会用到的工具</td></tr>
 				<tr><td>wget</td><td>简单的单线程下载工具</td></tr>
 				<tr><td>aria2</td><td>命令行下的下载工具，支持多种协议</td></tr>
 				<tr><td>curl</td><td>命令行下的下载工具，支持多种协议</td></tr>
 				<tr><td>tcpdump</td><td>网络数据采集分析工具</td></tr>
 				<tr><td>abs</td><td>ArchLinuxの打包系统</td></tr>
-				<tr><td>docker</td><td>高效的开发部署容器</td></tr>
 				<tr><td>ctags</td><td>语法分析工具</td></tr>
 				<tr><td>dosfstools</td><td>为mkfs/gparted等工具添加fat16/32文件系统支持</td></tr>
 				<tr><td>sysstat</td><td>系统状态工具集(iostat,isag,mpstat,pidstat,sadf,sar)</td></tr>
@@ -630,6 +631,9 @@
 				<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">功能</span></th></tr>
 				<tr><td><span class="blue">mednafen</span></td><td>街机游戏模拟器</td></tr>
 				<tr><td><span class="blue">emacs</span></td><td>大名鼎鼎的编辑器之神</td></tr>
+				<tr><td>at</td><td>定时执行操作命令</td></tr>
+				<tr><td>docker</td><td>高效的开发部署容器</td></tr>
+				<tr><td>cmake</td><td>编译安装时经常会用到的工具</td></tr>
 				<tr><td>zip/unzip/unrar</td><td>可选安装，zip/rar等压缩文件的命令行工具，p7zip已经支持这些格式</td></tr>
 				<tr><td>htop</td><td>进程查看工具，功能类似top，但更加全面</td></tr>
 				<tr><td>mlocate</td><td>命令行文件搜索工具，带有locate和updatedb指令</td></tr>
