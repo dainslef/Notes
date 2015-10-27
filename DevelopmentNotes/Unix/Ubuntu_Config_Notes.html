@@ -36,10 +36,10 @@
 				font-size: 15px;
 				color: darkred;
 				float: left;
-				width: 70%;				
+				width: 70%;
 				margin-left: 25%;
 				margin-bottom: 20px;
-				border: solid 1px darkred; 
+				border: solid 1px darkred;
 				clear: both;
 				padding-left: 20px;
 				padding-right: 20px;
@@ -95,7 +95,7 @@
 				color: deeppink;
 				font-family: Source Code Pro;
 			}
-		</style>		
+		</style>
 	</head>
 	<body>
 		<div class="head">
@@ -108,7 +108,7 @@
 				<li><a href="#first">系统基本安装</a></li>
 				<li><a href="#second">Ubuntu常用软件</a></li>
 				<li><a href="#third">Ubuntu常见问题の记录</a></li>
-			</ol>		
+			</ol>
 		</div>
 		<div class="middle">
 			<h2 id="first">系统基本安装</h2>
@@ -126,25 +126,29 @@
 				<tr><td>ubuntu-session</td><td>ubuntu会话包组，缺少此包将无法登录会话</td></tr>
 				<tr><td>ubuntu-settings</td><td>ubuntu默认配置。缺少此包会导致unity桌面环境显示异常(卡死)</td></tr>
 				<tr><td>light-themes</td><td>ubuntu的主题包组，缺少此包组桌面环境会变得无法直视</td></tr>
-				<tr><td>notify-osd</td><td>unity桌面环境的系统通知体系</td></tr>	
-				<tr><td>overlay-scrollbar</td><td>unity特色的滚动条隐藏</td></tr>
-				<tr><td>xinit</td><td>包含命令行启动x窗口的"startx"指令</td></tr>
+				<tr><td>notify-osd</td><td>unity桌面环境的系统通知体系</td></tr>
+				<tr><td>overlay-scrollbar</td><td>unity特色的滚动条隐藏(ubuntu 15.10之后unity使用gtk的标准滚动条隐藏方式，无需安装)</td></tr>
+				<tr><td>xinit</td><td>包含命令行启动x窗口的"startx"指令(安装了启动管理器则无需此包)</td></tr>
 			</table></blockquote></li>
-			<li><p>安装unity包组只是安装了基本的unity桌面环境，而与一般的DE不同，unity并不包含基本常用的程序(音乐播放器、文件管理器、虚拟终端之类的程序)，需要自己选配常用程序，我选择gnome桌面环境下的组件作为unity环境的补充。</p>
+			<li><p>安装unity包组只是安装了基本的unity桌面环境，而与一般的DE不同，unity并不包含基本常用的程序(音乐播放器、文件管理器、虚拟终端之类的程序)，需要自己选配常用程序，安装gnome桌面环境下的组件以及一些其他常用程序作为unity环境的补充。</p>
 			<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 				<tr><th style="width: 200px"><span class="red">软件包名称</span></th><th style="width: 350px"><span class="red">软件包简介</span></th></tr>
 				<tr><td>fonts-wqy-microhei</td><td>文泉驿微米黑</td></tr>
 				<tr><td>dmz-cursor-theme</td><td>unity鼠标主题</td></tr>
-				<tr><td>software-center</td><td>ubuntu特色的软件中心(熟悉包管理器的不必安装)</td></tr>
 				<tr><td>gnome-terminal</td><td>gnome终端</td></tr>
-				<tr><td>gnome-mplayer/smplayer</td><td>mplayerのgnome/qt前端实现</td></tr>
+				<tr><td>nautilus</td><td>gnome文件管理器</td></tr>
+				<tr><td>vlc</td><td>vlc播放器</td></tr>
 				<tr><td>gnome-screenshot</td><td>gnome截图工具</td></tr>
 				<tr><td>eog</td><td>gnomeの眼图片浏览器</td></tr>
 				<tr><td>evince</td><td>PDF文档浏览器</td></tr>
-				<tr><td>evolution</td><td>邮件客户端</td></tr>
 				<tr><td>file-roller</td><td>gnome归档管理器</td></tr>
 				<tr><td>audacious</td><td>音乐播放器</td></tr>
+				<tr><td>thunderbird</td><td>Mozilla邮件客户端</td></tr>
+				<tr><td>firefox</td><td>Mozilla浏览器</td></tr>
+				<tr><td>synaptic</td><td>debian图形化包管理器</td></tr>
 			</table></blockquote></li>
+			<li><p>执行安装指令：</p>
+			<blockquote># apt install unity ubuntu-session ubuntu-settings light-themes notify-osd fonts-wqy-microhei dmz-cursor-theme gnome-terminal nautilus vlc gnome-screenshot eog evince file-roller audacious thuderbird firefox synaptic</blockquote></li>
 			</ol></li><br/>
 			<li><p>不习惯Unity桌面环境的可以安装更加完善与成熟的KDE桌面环境：</p>
 			<ol><li><p>安装KDE的plasma工作空间和基本的KDE应用程序：</p>
@@ -324,7 +328,7 @@
 		</div>
 		<div class="bottom">
 			<a href="#start">--&gt;点我回到页面顶端</a><br/>
-			<span class="center">-------最近更新 at 2014-11-30 07:18 AM--------</span><br/>		
+			<span class="center">-------最近更新 at 2014-11-30 07:18 AM--------</span><br/>
 			<span class="center">-----------By <span class="red">程张磊/dainslef</span> at 2014-07-28 15:42 PM------------</span>
 		</div>
 	</body>

@@ -26,6 +26,7 @@ Home/End/PageDown/PageUp: Fn + Left/Right/Down/Up
 常用命令行指令 >
 # scutil --set HostName [主机名]				//设置主机名称
 # scutil --set ComputerName [主机共享名称]	//设置主机共享名称
+$ defaults write com.apple.finder AppleShowAllFiles YES/NO			//显示/取消显示隐藏文件，需要重新登陆账户才会生效
 
 ----
 
@@ -103,7 +104,7 @@ Homebrew基本指令 >
 $ brew update								//更新源
 $ brew ugrade								//升级包
 $ brew install [package_name]				//安装包
-$ brew leaves								//查看没有被依赖的包
+$ brew leaves								//查看没有其它包被依赖的包
 
 ----
 
@@ -122,6 +123,39 @@ mariadb与mysql数据库存储位置相同，路径为/usr/local/var/mysql/。
 $ mysql.server start
 停止mysql服务：
 $ mysql.server stop
+
+========
+
+
+OS X下的软件管理 >>
+在OS X中，软件包常以dmg格式的镜像封存，而安装软件的方式分为Bundle以及pkg形式。
+
+----
+
+Bundle >
+在OS X中最常见的软件包是以Bundle的形式存在的，Bundle饰一个以 ".app" 为后缀的目录，外观为可执行程序的图标，封装了程序执行所需的一些必要资源以及真正的可执行文件。
+dmg镜像中若直接包含Bundle软件，则将其复制到/Application或是~/Application目录下即可(推荐存放在用户的Application目录下)。
+
+----
+
+pkg >
+一些大型的软件包如Adobe系列、Office系列等的dmg镜像中保存的是pkg格式的安装包，双击进行安装，步骤与Windows系统下的安装流程类似。
+通过pkg安装的软件最终也会在/Application目录下创建软件的Bundle，但通过此中方式安装的软件往往会在系统的其它目录创建程序所需的其它文件。
+通过pkg安装的软件所有者往往为root，不能随意移动到~/Application/路径下。
+
+----
+
+软件存放路径 >
+默认情况下，Bundle形式的软件一般存在于/Application/目录或是~/Application/目录下。
+OS X的系统默认Bundle应用存放在/Application/目录下，一些pkg形式或事通过AppStore安装的应用也在该目录下。
+默认情况下~/Application目录为空。
+用户自行安装的Bundle应用推荐存放在~/Application目录下，避免与系统程序混淆。
+
+----
+
+安装Qt >
+与常规的Unix程序不同，Qt不推荐使用Homebrew安装，因为通过Homebrew安装的Qt并没有像其他Unix软件包一样创建符号连接到/usr/local/bin目录下，同时也不带有QtCreator程序。
+从Qt官网下载Qt的dmg安装镜像，按步骤安装到自定义路径之后，创建符号链接到~/Application目录下，即可在Launchpad中看到Qt的相关应用。
 
 ========
 
