@@ -241,7 +241,7 @@ QSqlTableMode可以直接在表上进行修改操作，使用其成员函数inse
 
 Qt中的布局 >>
 
-在Qt中，常用的布局控件有 >
+常用的布局样式 >
 QHBoxLayout：水平布局
 QVBoxLayout：垂直布局
 QGridLayout：表格布局
@@ -269,7 +269,7 @@ QSplitter：分裂器，使用分裂器可以将两个控件(布局)绑定为一
 关于qApp >>
 Qt中如果包含了QApplication/QCoreApplication头文件，就可以使用全局变量qApp，改变量的作用是返回一个当前实例。
 
-qApp的宏定义为 >
+qApp的宏定义 >
 QApplication中：#define qApp (static_cast<QApplication *>(QCoreApplication::instance()))
 QCoreapplication中：#define qApp QCoreApplication::instance()
 
@@ -326,7 +326,7 @@ void QWidget::enterEvent(QEvent *event);
 ========
 
 
-关于在Qt中自定义控件类 >>
+自定义控件 >>
 Qt中的控件类一般在构造函数中都有一个(QWidget *parent = 0)的参数用来指定当前类的实例属于哪个父窗口(该参数默认为0，即没有父窗口)，当一个控件类实例的父窗口被关闭时，Qt会自动析构以此窗口为父窗口的所有控件类。
 在给Qt控件定义父窗口时需要注意，布局控件(Q*Layout)在实例化时参数填写了父窗口则代表将这个实例化的布局应用到作为参数传入父窗口上，很多时候这样做是无效的，会提示父窗口已经拥有布局，因此在实例化布局控件是没必要指定父窗口。
 当我们需要自定义自己的控件时，一般会根据需求继承于QWidget或其子类，在自定义控件类的构造函数中，建议也要添加一个参数用于设定父窗口，推荐如下方式在类内声明构造函数：
@@ -337,6 +337,18 @@ MyWidget::MyWidget(QWidget *parent) : QWidget(parent)
 	/* 函数体 */
 };
 与标准c++不同的是，Qt类中的成员函数默认参数只能写在类体内部的函数声明中，在类外的函数实现中再给函数参数设定默认值同时在实例化时用省略默认值的形式调用函数会报错(但在标准c++中，成员函数的默认参数既可以写在类内的声明中，也可以写在类外的定义中)。
+
+----
+
+获取子控件的指针 >
+当一个窗体中包含了大量的子控件时，若要获取某个子控件的指针，不必将该控件做为成员变量写入类定义中，
+Qt提供了以下方式来获取子控件的指针：
+template<typename T> T QObject::findChild (const QString &name = QString()) const		//通过ObjectName来获取需要的控件指针
+template<typename T>  QList<T> QObject::findChildren(const QRegExp &regExp) const		//通过正则表达式来获取子控件指针
+const QObjectList& QObject::children() const											//直接返回所有子控件
+前两种方法需要知道控件的类型，最后一种不需要，但得到的是QObject类型。
+借助Qt的元对象系统，可以获取QObject类的真实类型信息，如可使用以下方式获取类名：
+QString class_name = obj->metaObject()->className();
 
 ========
 
@@ -518,7 +530,9 @@ void QHeaderView::setMinimumSectionSize(int size)									//设置最小列宽
 遍历QTreeWidgetItem >
 使用QTreeWidgetItem的迭代器对象QTreeWidgetItemIterator即可进行QTreeWidget的遍历：
 for (QTreeWidgetItemIterator it(QTreeWidget*); *it; ++it)
+{
 	/* do something... */
+}
 QTreeWidgetItemIterator可以分别以QTreeWidget指针或是QTreeWidgetItem指针进行构建，用来遍历不同层次的目录树。
 
 ========
