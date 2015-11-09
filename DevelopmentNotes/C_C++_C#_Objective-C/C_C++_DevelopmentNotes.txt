@@ -1,8 +1,8 @@
 五大内存区 >>
 c/c++中，内存分为5个区，分别是堆区，栈区，静态区，文字常量区，程序代码区。
 
-栈区(stack)：由编译器自动分配释放，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈，地址由高向低减少。 
-堆区(heap)：由malloc，new等分配的空间的地址，地址由低向高增长，需要程序员手动释放(free，delete)，若程序员不释放，程序结束时可能由OS回收。注意它与数据结构中的堆是两回事，分配方式类似于链表。 
+栈区(stack)：由编译器自动分配释放，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈，地址由高向低减少。
+堆区(heap)：由malloc，new等分配的空间的地址，地址由低向高增长，需要程序员手动释放(free，delete)，若程序员不释放，程序结束时可能由OS回收。注意它与数据结构中的堆是两回事，分配方式类似于链表。
 全局/静态变量区(static)：全局变量和静态变量的存储是放在一块的，已初始化的全局变量和静态变量在一块区域，未初始化的全局变量和未初始化的静态变量在相邻的另一块区域。程序结束后由系统释放。
 文字常量区：常量字符串就是放在这里的，程序结束后由系统释放。
 程序代码区：存放函数体的二进制代码。
@@ -480,7 +480,7 @@ int main(void)
 	A *a = new E;
 	B b;
 	D d;
-	
+
 	//在64bit的Linux中，普通指针的大小为8B，故需要转换为一个占有8个字节的类型来保存内容，否则可能会发生截断
 	cout << "调用类A的get(int)函数 ";
 	((int (*)())*(long*)*(long*)&d)();
@@ -639,7 +639,7 @@ const int &&x = std::move(b);	//正确，const右值引用可以绑定到非cons
 关于绑定指针的引用 >>
 c++中，引用同样可以绑定在指针类型上，具体格式为：
 
-左值引用绑定指针 > 
+左值引用绑定指针 >
 类型名 *&引用名 = 变量名;
 类型名* const &引用名 = const右值/非const右值/变量名;
 
@@ -777,7 +777,7 @@ int main(void)
 	int a = 1;
 	int b = 2;
 	function<int(int, int)> test
-		= [=, &a](int x, int y) { return a = x + y + b; };			//图省事可以直接使用auto类型推断 
+		= [=, &a](int x, int y) { return a = x + y + b; };			//图省事可以直接使用auto类型推断
 	test(1, 1);
 	cout << a << endl;
 	return 0;
@@ -812,7 +812,7 @@ int main(void)
 	auto lambda2 = [=, num1 = a + 50, &num2 = b]() { num2 = num1 + c; };	//以捕获值的方式捕获变量a，并用a的值加上50并命名为num1，然后将b的引用命名为num2
 	lambda2();
 	cout << "After run lambda2, the value b is: " << b << endl;
-	
+
 	// 未捕获变量的Lambda可以转化为函数指针
 	int (*get_num)(int) = [](int num) { return num; };
 	cout << "Run lambda function point:" << get_num(100) << endl;
@@ -1047,13 +1047,13 @@ int main(void)
 	A a1(888);
 	A *a2 = new A(888);
 	shared_ptr<A> a3 = make_shared<A>(888);
-	
+
 	function<int()> p0 = bind(get0, 100);
 	function<int(int)> p1 = bind(A::get, a1, 1, placeholders::_1);
 	function<int(int)> p2 = bind(A::get, a2, 2, placeholders::_1);
 	auto p3 = bind(A::get, a3, 3, placeholders::_1);
 	auto p4 = bind(A::get, ref(a1), 1, placeholders::_1);
-	
+
 	cout << p0() << endl;
 	cout << p1(0) << " p1()调用后num的值：";
 	cout << a1.num << endl;
@@ -1172,7 +1172,7 @@ int main(void)
 	A a;
 	B b;
 	a.sig.connect(1, boost::bind(&B::slot1, b, _1, 'a'));
-	boost::signals2::connection link = 
+	boost::signals2::connection link =
 		a.sig.connect(1, boost::bind(&B::slot1, b, _1, 1, 2), boost::signals2::at_front);
 	a.sig.connect(2, boost::bind(&B::slot2, b, 1.0, _1));
 	cout << *a.sig(0) << endl;

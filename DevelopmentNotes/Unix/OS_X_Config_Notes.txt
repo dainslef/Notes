@@ -9,6 +9,7 @@ OS X下的一些常用功能 >>
 锁屏: Control + Shift + Power
 全屏截图: Shift + Command + 3
 指定位置截图: Shift + Command + 4
+指定窗口截图: Shift + Command + 4 然后将光标放在需要截图的窗口上，按空格键确认
 保存: Command + S
 全选: Command + A
 行首/行尾: Control + A/E
@@ -20,6 +21,7 @@ Home/End/PageDown/PageUp: Fn + Left/Right/Down/Up
 退出程序: Command + Q
 关闭当前窗口: Command + W
 最小化窗口: Command + M
+立即息屏进入睡眠: Command + Alt + [电源键]
 
 ----
 
@@ -27,6 +29,7 @@ Home/End/PageDown/PageUp: Fn + Left/Right/Down/Up
 # scutil --set HostName [主机名]				//设置主机名称
 # scutil --set ComputerName [主机共享名称]	//设置主机共享名称
 $ defaults write com.apple.finder AppleShowAllFiles YES/NO			//显示/取消显示隐藏文件，需要重新登陆账户才会生效
+$ defaults write com.apple.notificationcenterui bannerTime [数值]	//控制通知中心点的通知停留时间，单位为秒，不加数值参数时则恢复默认的通知逻辑(一直显示通知)
 
 ----
 
@@ -34,14 +37,18 @@ $ defaults write com.apple.finder AppleShowAllFiles YES/NO			//显示/取消显�
 The Unarchiver								//解压软件
 VLC											//多媒体播放器
 AppCleaner									//APP卸载工具
-TextMate									//文本编辑器
+MacDown										//所见即所得的Markdown编辑工具
 Xcode										//OS X下的集成开发环境
+iTerm2										//OS X下的终端模拟器，比自带的功能更强大
 
 ----
 
 一些特殊目录 >
 ~/Library/Caches/							//缓存目录
 ~/Library/Application Support/				//缓存配置目录
+/System/Library/Fonts/						//系统默认字体目录
+/Library/Fonts/								//系统可选字体目录
+~/Library/Fonts/							//用户字体目录
 
 ========
 
@@ -55,6 +62,7 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 1.缺少一些常用按键，且按键逻辑不统一。
 没有Home/End/PageDown/PageUp等按键，需要通过Fn搭配方向键等组合键才能实现行首/行尾/翻页等操作。
 同时，在部分编辑器以及终端中，行首/行尾操作需要通过Control加A/E等按键完成。
+在部分开发环境中，行首行尾的快捷键不使用系统方案，而是有程序自身定义，比如在Eclipse中，行首/行尾为"Command + 方向键左/右"。
 2.Finder少一些常用的功能。
 Finder右键菜单中没有创建文件的选项，甚至创建文本都需要使用Terminal中的touch指令。
 Finder右键菜单没有剪切功能，通过组合键能实现类似效果。
@@ -105,19 +113,21 @@ $ brew update								//更新源
 $ brew ugrade								//升级包
 $ brew install [package_name]				//安装包
 $ brew leaves								//查看没有其它包被依赖的包
+$ brew deps [package_name]					//显示指定包的依赖
 
 ----
 
 安装OS X缺失的一些命令行工具和开发环境 >
-$ brew install aria2 wget python3 gcc screenfetch nmap scala p7zip mariadb boost sbcl go
+$ brew install aria2 wget python3 gcc screenfetch nmap scala p7zip mariadb boost sbcl go mono pandoc homebrew/dupes/gdb
 需要注意的是，通过Homebrew安装的包文件全部保存在/usr/local/Cellar目录下。
+与Linux下的常规包管理器不同，Homebrew在安装包和删除包的时候，不会有多余的确认提示，输入指令就会直接执行。
 对于带有头文件的包(如boost、gcc等)，会在/usr/local/include目录下创建符号链接，指向/usr/local/Cellar目录中的具体包内容。
 
 ----
 
 使用通过HomeBrew安装的mysql/mariadb >
 通过HomeBrew安装的mysql/mariadb使用时不需要root权限。
-mariadb与mysql数据库的操作指令相同。
+mariadb与mysql数据库的操作指令相同，因此mariadb与mysql软件包只能选择一个进行安装。
 mariadb与mysql数据库存储位置相同，路径为/usr/local/var/mysql/。
 启动服务使用指令：
 $ mysql.server start
@@ -135,13 +145,14 @@ OS X下的软件管理 >>
 Bundle >
 在OS X中最常见的软件包是以Bundle的形式存在的，Bundle饰一个以 ".app" 为后缀的目录，外观为可执行程序的图标，封装了程序执行所需的一些必要资源以及真正的可执行文件。
 dmg镜像中若直接包含Bundle软件，则将其复制到/Application或是~/Application目录下即可(推荐存放在用户的Application目录下)。
+常规的Bundle程序所有者为当前用户。
 
 ----
 
 pkg >
 一些大型的软件包如Adobe系列、Office系列等的dmg镜像中保存的是pkg格式的安装包，双击进行安装，步骤与Windows系统下的安装流程类似。
 通过pkg安装的软件最终也会在/Application目录下创建软件的Bundle，但通过此中方式安装的软件往往会在系统的其它目录创建程序所需的其它文件。
-通过pkg安装的软件所有者往往为root，不能随意移动到~/Application/路径下。
+通过pkg安装的软件所有者一般为root，不能随意移动到~/Application/路径下。
 
 ----
 
@@ -184,7 +195,7 @@ OS X的系统默认Bundle应用存放在/Application/目录下，一些pkg形式
 
 ----
 
-使用默认bootloader引导Linux系统 >>
+使用默认bootloader引导Linux系统 >
 需要创建一个100MB左右的分区(其实可以更小)，在分区的中创建System/Library/CoreServices目录：
 $ mkdir -p /Volumes/[启动分区名称]/System/Library/CoreServices/
 并在该目录中放入Linux的efi启动文件。

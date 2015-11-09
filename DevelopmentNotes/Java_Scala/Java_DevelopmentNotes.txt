@@ -99,11 +99,23 @@ Access数据库的一些小常识 >
 ========
 
 
-在Eclipse中查看JDK类源码 >>
+Eclipse小技巧 >
+Eclipse是Java开发中最常用的IDE，Eclipse通过插件扩展可以进行多种语言的开发。
+
+----
+
+在Eclipse中查看JDK类源码 >
 与NetBeans不同，在Eclipse中默认是无法直接查看JDK中类库的源码的，需要手动指定源码的位置。
 一般情况下，JDK源码位于JDK的安装目录下的"src.zip"文件中。
 在Eclipse中按以下步骤添加源码路径：
 Window => Preferences => Java => Installed JREs => 选中使用的JRE => Edit => 选中../xxx/rt.jar => Source Attachment Configuration => Exernal location => 选中src.zip => OK => Finish
+
+----
+
+设置Eclipse编辑器自动换行 >
+Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方插件进行实现。
+在Eclipse中按以下步骤安装 "Word Wrap" 插件使编辑器能够自动换行：
+Help => Install New Software => Add Repository => 输入仓库地址 http://ahtik.com/eclipse-update => 安装WordWrap插件 => 安装完成之后重启IDE => 编辑器中点右键，激活 "Word Warp" 选项 => Finish
 
 ========
 
@@ -149,7 +161,7 @@ import b.B;
 public class A {
 	public static void main(String[] args) {
 		B.getNow();
-	}	
+	}
 }
 
 
@@ -172,8 +184,8 @@ import static b.B.getNow;
 public class A {
 	public static void main(String[] args) {
 		getNow();
-	}	
-} 
+	}
+}
 
 B.java:
 
@@ -289,9 +301,9 @@ JScrollPane scrollPane = new JScrollPane(textArea);
 
 静态MessageBox方法 >
 与Qt一样，Java也提供了弹出MessageBox的静态方法，即JOptionPane.showMessageDialog。
-static void showMessageDialog(Component parentComponent, Object message) 									//调出标题为 "Message" 的信息消息对话框。 
-static void showMessageDialog(Component parentComponent, Object message, String title, int messageType) 				//调出对话框，它显示使用由 messageType 参数确定的默认图标的 message。 
-static void showMessageDialog(Component parentComponent, Object message, String title, int messageType, Icon icon) 						//调出一个显示信息的对话框，为其指定了所有参数。 
+static void showMessageDialog(Component parentComponent, Object message) 									//调出标题为 "Message" 的信息消息对话框。
+static void showMessageDialog(Component parentComponent, Object message, String title, int messageType) 				//调出对话框，它显示使用由 messageType 参数确定的默认图标的 message。
+static void showMessageDialog(Component parentComponent, Object message, String title, int messageType, Icon icon) 						//调出一个显示信息的对话框，为其指定了所有参数。
 其中，messageType可以取DEFAULT_OPTION、YES_NO_OPTION、YES_NO_CANCEL_OPTION 或 OK_CANCEL_OPTION等。
 此外，还有showInputDialog、showConfirmDialog等方法可以用于显示其他用途的窗口。
 
