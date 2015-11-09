@@ -235,7 +235,7 @@ printf("%d %d\n", a, ++a);
 
 输出结果为：
 1 1		(gcc 4.9.2 && ArchLinux x86_64)
-0 1		(clang 3.5.1 && ArchLinux x86_64) 
+0 1		(clang 3.5.1 && ArchLinux x86_64)
 
 在clang中会给出警告，warning: unsequenced modification and access to 'a' ，即无序地修改和存取变量a。
 
