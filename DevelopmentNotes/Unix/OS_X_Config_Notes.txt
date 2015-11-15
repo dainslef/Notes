@@ -29,7 +29,8 @@ Home/End/PageDown/PageUp: Fn + Left/Right/Down/Up
 # scutil --set HostName [主机名]				//设置主机名称
 # scutil --set ComputerName [主机共享名称]	//设置主机共享名称
 $ defaults write com.apple.finder AppleShowAllFiles YES/NO			//显示/取消显示隐藏文件，需要重新登陆账户才会生效
-$ defaults write com.apple.notificationcenterui bannerTime [数值]	//控制通知中心点的通知停留时间，单位为秒，不加数值参数时则恢复默认的通知逻辑(一直显示通知)
+$ defaults write com.apple.notificationcenterui bannerTime [数值]	//控制通知中心点的通知停留时间，单位为秒
+$ defaults delete com.apple.notificationcenterui bannerTime			//恢复默认的通知停留时间(一直显示)
 
 ----
 
@@ -134,6 +135,22 @@ $ mysql.server start
 停止mysql服务：
 $ mysql.server stop
 
+----
+
+安装Qt >
+与常规的Unix程序不同，Qt不推荐使用Homebrew安装，因为通过Homebrew安装的Qt并没有像其他Unix软件包一样创建符号连接到/usr/local/bin目录下，同时也不带有QtCreator程序。
+从Qt官网下载Qt的dmg安装镜像，按步骤安装到自定义路径之后，创建符号链接到~/Application目录下，即可在Launchpad中看到Qt的相关应用。
+
+----
+
+删除JDK >
+JDK需要自行手工删除，JDK的相关文件位于以下目录：
+/Library/Internet Plug-Ins/JavaAppletPlugin.plugin
+/System/Library/Java/Support/CoreDeploy.bundle/Contents/JavaAppletPlugin.plugin
+/Library/Java/JavaVirtualMachines/＊
+删除JDK时需要移除这些目录。
+当安装了新版本的JDK时，旧版本的JDK不会自动卸载，其包文件依然位于/Library/Java/JavaVirtualMachines路径下，文件夹名称即为对应的JDK版本，手动删除不需要的版本即可。
+
 ========
 
 
@@ -161,12 +178,6 @@ pkg >
 OS X的系统默认Bundle应用存放在/Application/目录下，一些pkg形式或事通过AppStore安装的应用也在该目录下。
 默认情况下~/Application目录为空。
 用户自行安装的Bundle应用推荐存放在~/Application目录下，避免与系统程序混淆。
-
-----
-
-安装Qt >
-与常规的Unix程序不同，Qt不推荐使用Homebrew安装，因为通过Homebrew安装的Qt并没有像其他Unix软件包一样创建符号连接到/usr/local/bin目录下，同时也不带有QtCreator程序。
-从Qt官网下载Qt的dmg安装镜像，按步骤安装到自定义路径之后，创建符号链接到~/Application目录下，即可在Launchpad中看到Qt的相关应用。
 
 ========
 

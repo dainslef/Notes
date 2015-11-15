@@ -164,7 +164,6 @@ public class A {
 	}
 }
 
-
 B.java:
 
 package b;
@@ -210,11 +209,10 @@ $ javac -cp [第三方库的路径] [源码文件]
 编译生成的class文件是无法直接被java指令执行的，因为该class文件使用了第三方库，而这个库的位置并不在系统的环境变量之中，因此运行也需要显式地指定所需库的位置：
 $ java -Djava.ext.dirs=[第三方库所在的目录] [编译生成的class文件]
 
-
 ========
 
 
-Swing开发小知识点 >>
+Swing开发注记 >>
 
 设置边框 >
 一般的GUI容器类如JFrame、JPanel等都可以通过setBorder()方法来设置边框。
@@ -271,7 +269,7 @@ Java的事件机制是通过监听器实现的。
 实现KeyListener接口，重写keyTyped(KeyEvent)方法，通过getKeyChar()方法获取输入的字符，然后对其进行判断，如果是想要屏蔽的按键则使用setKeyChar('\0')将其转化为空输入。
 
 举例：(只接受数字输入)
-KeyEvent keyEvent = (e) -> {
+KeyEvent keyEvent = e -> {
 	if ((e.getKeyChar() < '0' || e.getKeyChar() > '9'))
 		e.setKeyChar('\0');
 }
@@ -316,3 +314,15 @@ JTable(TableModel dm);
 即使用Object数组确定表格模型或是使用TableModel类构建表格模型。
 使用对象数组构建表格模型可以先从数组库中读取对应数据，然后将数据存储在对象数组中。
 使用TableModel类可以先构建TableMode对象，然后使用TableMode类的成员方法setValueAt(Object aValue, int rowIndex, int columnIndex)设定表格模型每个位置的数据，最后在JTable使用构造函数或在已有的JTable对象调用setModel(TableModel dataModel)成员方法创建表格。
+
+========
+
+
+常见问题记录 >>
+
+String.split()方法 >
+函数的定义为：
+public String[] split(String regex)
+String类中提供的文本切片函数String.split()接收的参数是正则表达式(Regex)。
+因此，以一些特殊符号("."、"+"等)作为分隔符时，不能直接使用符号本身，而是需要使用转义符号，如以小数点作为分隔符切片需要写成：
+String[] nums = "123.456.789".split("\\.");
