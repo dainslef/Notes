@@ -99,7 +99,7 @@ Access数据库的一些小常识 >
 ========
 
 
-Eclipse小技巧 >
+Eclipse使用注记 >>
 Eclipse是Java开发中最常用的IDE，Eclipse通过插件扩展可以进行多种语言的开发。
 
 ----
@@ -116,6 +116,37 @@ Window => Preferences => Java => Installed JREs => 选中使用的JRE => Edit =>
 Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方插件进行实现。
 在Eclipse中按以下步骤安装 "Word Wrap" 插件使编辑器能够自动换行：
 Help => Install New Software => Add Repository => 输入仓库地址 http://ahtik.com/eclipse-update => 安装WordWrap插件 => 安装完成之后重启IDE => 编辑器中点右键，激活 "Word Warp" 选项 => Finish
+
+========
+
+
+IntelliJ IDEA常用配置项 >>
+IntelliJ IDEA相比Eclipse而言，有着更精美的UI，且对Scala、Golang等冷门语言有着更好的支持。
+
+----
+
+设置显示行号和不可见空白 >
+File => Settings => Editor => General => Appearance => ...
+勾选"Show whitespaces(显示空白)"和"Show line numbers(显示行号)"选项。
+勾选"Show menthod separators"则会在方法定义之间出现横线做为分隔符。
+
+----
+
+设置缩进 >
+默认情况下，IDEA使用的是空格做为缩进，如果需要使用tab缩进，则按以下路径设置：
+File => Settings => Editor => Code Style => [目标语言] => Tabs and Indents
+选中"Use tab charactor"。
+勾选"Smart tabs"则会在行尾使用tab键时使用空格代替tab。
+勾选"Keep indents on empyt lines"则会在空行中保持缩进。
+
+----
+
+其它常用选项 >
+File => Settings => Editor => General => Code Folding				//代码折叠
+File => Settings => Editor => General => Soft Wraps					//代码自动换行
+File => Settings => Editor => General => Virtual Space				//设置空白处的点按逻辑
+File => Settings => Editor => Code Style = Scala => Other 
+	=> Enfore procedure syntax for methods with Unit return type 	//设置Scala函数自动补全空返回类型
 
 ========
 

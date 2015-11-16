@@ -623,9 +623,14 @@ object TestTuple extends App {
 输出结果：
 1 2 3
 
+需要注意的是，元组不能够使用for循环进行遍历。
+
 ----
 
 列表(List)与可变列表(LinkedList) >
+在Scala中，List类型的完整路径为scala.collection.immmutable.List。
+List为不可变对象，可以使用for循环进行遍历。
+可变列表LinkedList在现在的版本中已被标记为废弃的。
 
 ----
 
