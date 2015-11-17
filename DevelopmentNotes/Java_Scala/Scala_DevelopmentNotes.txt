@@ -556,6 +556,7 @@ scala> var arrayBuffer = new ArrayBuffer[Int]
 arrayBuffer: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer()
 var a = ArrayBuffer(100, 200)					//同样可以使用伴生对象的apply()方法创建ArrayBuffer
 a: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(100, 200)
+
 ArrayBuffer可以使用"+="和"-="进行增加与删除元素：
 scala> arrayBuffer += 10
 res10: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10)
@@ -572,6 +573,7 @@ found : Int(10)
 required: String
 	arrayBuffer = arrayBuffer + 10
 								^
+
 与Java中的ArrayList类似，ArrayBuffer也允许在任意位置进行元素插入：
 scala> arrayBuffer.insert(1, -100)					//在索引1的位置插入数值-100
 scala> arrayBuffer
@@ -598,10 +600,12 @@ Scala的容器分为元组(Tuple)、序列(Seq)、集合(Set)和映射(Map)四�
 元组是最简单的容器，无需额外的类型名称，直接使用"(T1, T2, T3)"就可以构建出一个元祖。如下所示：
 scala> var tuple = (1, 2, 3)
 tuple: (Int, Int, Int) = (1,2,3)
-元组中允许包含重复的值，也允许不同类型的值。
+
+元组中允许包含重复的值，也允许不同类型的值，但元组一经创建，内容便不可改变。
 元组可以通过"元组对象._索引号"的形式访问，不过元组是从1开始而非0，如下所示：
 scala> println(tuple._1 + " " + tuple._2 + " " + tuple._3)
 1 2 3
+
 元组可以用来一次性初始化多个变量：
 scala> var (a, b, c) = tuple			//等价于 var (a, b, c) = (1, 2, 3)
 a: Int = 1
@@ -609,10 +613,12 @@ b: Int = 2
 c: Int = 3
 scala> println(s"$a $b $c")
 1 2 3
+
 元组可以包含不同的类型：
 scala> var (num, str) = (123, "456")
 num: Int = 123
 str: String = 456
+
 元组用作函数返回类型时，即可让一个函数拥有多个返回值，如下所示：
 
 object TestTuple extends App {
@@ -628,19 +634,22 @@ object TestTuple extends App {
 
 ----
 
-列表(List)与可变列表(LinkedList) >
-在Scala中，List[T]类型的完整路径为scala.collection.immmutable.List。
+列表(List)与可变列表(ListBuffer) >
+在Scala中，List[T]类型的完整包路径为scala.collection.immmutable.List。
 List为不可变对象，可以使用for循环进行遍历。
 构建一个列表：
 scala> var list0 = List(1, 2, 3)
 list0: List[Int] = List(1, 2, 3)
+
 除了直接使用List类型提供的apply()方法构建列表对象之外，还可以使用"::"操作符来将多个值构成列表，使用操作符构成列表时需要注意，列表的最后一个值必须为Nil，如下所示：
 scala> var list1 = 0 :: 1 :: 2 :: 3 :: Nil
 list1: List[Int] = List(0, 1, 2, 3)
+
 列表同样允许不同类型的值，也允许重复的值，如下所示：
 scala> var list2 = 1 :: 1 :: "str" :: 2.0 :: Nil
 list2: List[Any] = List(1, 1, str, 2.0)
 只不过，若列表中存储的若是相同的类型，则编译器会将List[T]推导为具体的类型，若列表中成员类型各不相同，则编译器会使用所有类型的基类Any作为泛型类型及List[Any]。
+
 列表支持从已有的列表进行创建：
 scala> var list0 = 1 :: 2 :: 3 :: Nil
 list0: List[Int] = List(1, 2, 3)
@@ -650,6 +659,7 @@ scala> var list2 = list0 :: 4				//列表是不能从尾部创建(List以Nil结�
 <console>:11: error: value :: is not a member of Int
 	var list2 = list0 :: 4
 					  ^
+
 使用":::"运算符可以叠加两个列表：
 scala> var list2 = list0 ::: list1
 list2: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
@@ -664,6 +674,7 @@ res0: Int = 1
 在Scala中，同样支持可变列表类型。
 可变列表scala.collection.mutable.LinkedList在现在的版本中(2.11.7)已被标记为废弃的。
 当前版本可以使用scala.collection.mutable.ListBuffer为可变列表。
+不可变列表List不支持"+="和"-="运算，但ListBuffer类型支持。
 ListBuffer[T]类的常规操作如下所示：
 
 object TestList extends App {
@@ -689,14 +700,74 @@ str 2.0 new
 ----
 
 集合(Set) >
-集合同样允许任意类型的值，但集合中不能包含重复的值。
-在使用Set类的apply()方法构建集合时，重复的值会被忽略，如下所示：
+Set[T]完整包路径为scala.collection.immutable.Set。
+集合同样允许任意类型的元素，但集合中不能包含重复的元素。
+在使用Set类的apply()方法构建集合时，重复的元素会被忽略，如下所示：
 scala> var set = Set(1, 1, 's', "str")
-set: scala.collection.immutable.Set[Any] = Set(1, s, str)		//重复的值"1"被忽略了
+set: scala.collection.immutable.Set[Any] = Set(1, s, str)		//重复的元素"1"被忽略了
+
+Set可以使用"+"、"-"操作符来增加或是减少元素并返回新的集合。
+使用"+"、"-"操作符会返回新的集合，但原集合内的值不会发生改变，如下所示：
+scala> var set1 = set + 3
+set1: scala.collection.immutable.Set[Any] = Set(1, s, str, 3)	//原集合添加元素输出新的集合
+scala> set
+res0: scala.collection.immutable.Set[Any] = Set(1, s, str)		//原集合本身没有变化
+scala> var set2 = set - 's'
+set2: scala.collection.immutable.Set[Any] = Set(1, str)			//从集合中移除一个元素
+scala> set
+res1: scala.collection.immutable.Set[Any] = Set(1, s, str)
+
+与动态数组ArrayBuffer类似，集合可以使用"+="、"-="来增加或减少内部的元素：
+scala> var set = Set(1, 2, 3)
+set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+scala> set += 4					//增加元素"4"
+scala> set
+res14: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 4)
+scala> set -= 4					//移除元素"4"
+scala> set
+res16: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+
+使用contains()方法可以判断某个元素是否在集合中：
+scala> set.contains('s')
+res2: Boolean = true
+使用find()方法可以传入一个高阶函数(T => Boolean)自定义规则进行查找，find()方法返回Option[T]，找到一个符合要求的元素立即返回Some[T]，找不到则返回None，如下所示：
+scala> var set = Set(1, 2, 3, 's', "str")
+set: scala.collection.immutable.Set[Any] = Set(s, 1, 2, str, 3)
+scala> set.find(_.isInstanceOf[Int])
+res7: Option[Any] = Some(1)					//返回第一个匹配到的元素
+scala> set.find(_.isInstanceOf[Double])
+res8: Option[Any] = None					//没有匹配则返回None
+
+scala.collection.immutable.Set以哈希集实现，元素依据HashCode进行组织。
+Set的相关类型还有：
+scala.collection.mutable.LinkedHashSet		//链式哈希集，依照插入的顺序排列
+scala.collection.immutable.SortedSet		//红黑树实现的排序集
 
 ----
 
 映射(Map) >
+Map[A, B]类型的完整包路径为scala.collection.immutable.Map。
+映射中的每一个元素都是一组对偶(Tuple2)，分别为key和value，key不可重复，通过"->"操作符可以将两个值组成一组对偶，如下所示：
+scala> var map = Map(1 -> "1", 2 -> "2", 3 -> "3")
+map: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
+scala> for ((key, value) <- map) println(s"key: $key value: $value")
+key: 1 value: 1
+key: 2 value: 2
+key: 3 value: 3								//使用for循环遍历map
+
+使用updated()方法可以更新指定key对应的value之后输出，通过"+"方法添加对偶后输出，也可以通过"-"移除指定key的对偶后输出。
+但这些操作不会改变原本Map保存的内容：
+scala> map updated (1, "0")
+res20: scala.collection.immutable.Map[Int,String] = Map(1 -> 0, 2 -> 2, 3 -> 3)
+scala> map + (4 -> "4")
+res21: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4)
+scala> map - 1
+res22: scala.collection.immutable.Map[Int,String] = Map(2 -> 2, 3 -> 3)
+scala> map									//更改的结果作为返回值输出，原本的Map值没有任何改变
+res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
+
+与Set、ListBuffer等类似，Map也支持"+="、"-="操作符。
+Map使用"+="向自身添加对偶，使用"-="从自身移除指定key对应的对偶。
 
 ========
 
