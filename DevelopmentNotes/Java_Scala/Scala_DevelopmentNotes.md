@@ -212,7 +212,7 @@ object Main extends App {
 
 	//单行语句可直接作为参数
 	show(println("123"))
-	
+
 	//多行语句可放在大括号中
 	show {
 		println("456")

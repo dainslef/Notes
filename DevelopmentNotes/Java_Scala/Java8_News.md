@@ -43,7 +43,7 @@ class Test<T> implements Test1<T>, Test2<T> {
 	}
 }
 ```
-	
+
 如果你想在重写的方法中直接使用原先接口中的某个默认方法实现，可以使用`super`关键字。
 例如：
 
@@ -75,7 +75,7 @@ interface Test<T> {
 	T getT(T a);
 }
 ```
-	
+
 对于**函数接口**，只能带有一个**抽象方法**，但可以带有任意数量的**默认方法**。
 例如：
 
@@ -124,7 +124,7 @@ int function(参数列表) {
 	return 返回值;
 }
 ```
-	
+
 对应的Lambda表达式格式为：
 
 ```java
@@ -171,7 +171,7 @@ interface A {
 }
 
 class B {
-	
+
 	A a = this::test;
 
 	private int test() {
