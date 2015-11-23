@@ -57,6 +57,7 @@ Iterator iteratorSet = set.iterator();
 `Map`使用`get(key)`可以得到对应的键值，但是这个键值是`Object`型的，需要通过向下转型来恢复键值类型。
 `HashMap`之类的容器只能一个键对应**一个**键值，如果需要一个键绑定多个键值可以使用`IdentityHashMap`。
 
+---
 
 
 #浅复制与深复制
@@ -213,7 +214,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 
 #IntelliJ IDEA常用配置项
-**IntelliJ IDEA**相比Eclipse而言，有着更精美的UI，且对`Scala`、`Golang`等冷门语言有着更好的支持。
+**IntelliJ IDEA**相比Eclipse而言，有着更精美的UI，且对`Scala``Golang`等冷门语言有着更好的支持。
 
 ##设置显示行号和不可见空白
 `File`=>`Settings`=>`Editor`=>`General`=>`Appearance`=> ...
@@ -448,10 +449,10 @@ JScrollPane scrollPane = new JScrollPane(textArea);
 static void showMessageDialog(Component parentComponent, Object message) 									//调出标题为 "Message" 的信息消息对话框。
 static void showMessageDialog(Component parentComponent, Object message, String title, int messageType) 				//调出对话框，它显示使用由 messageType 参数确定的默认图标的 message。
 static void showMessageDialog(Component parentComponent, Object message, String title, int messageType, Icon icon) 						//调出一个显示信息的对话框，为其指定了所有参数。
-其中，messageType可以取DEFAULT_OPTION、YES_NO_OPTION、YES_NO_CANCEL_OPTION 或 OK_CANCEL_OPTION等。
 ```
 
-此外，还有`showInputDialog()`、`showConfirmDialog()`等方法可以用于显示其他用途的窗口。
+其中，`messageType`可以取`DEFAULT_OPTION``YES_NO_OPTION``YES_NO_CANCEL_OPTION`或`OK_CANCEL_OPTION`等。
+此外，还有`showInputDialog()``showConfirmDialog()`等方法可以用于显示其他用途的窗口。
 
 ##使用JTable显示数据库
 构建一个`JTable`主要有两种方式：

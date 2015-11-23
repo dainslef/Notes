@@ -52,9 +52,9 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 - 没有**自增/自减**操作符。
 - 所有类型皆为对象，基础类型如`Int``Double`等都是类，函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
 - 没有原生enum类型，应继承枚举助手类`Enumeration`。
-- 不提供类似Java/C++中的**三目运算符**，但`if`语句表达式带有**返回值**，可以提供类似效果。
+- 不提供类似Java/C++中的**三目运算符**，但`if`语句表达式带有**返回值**，可以实现类似效果。
 - 访问类成员权限默认为`public`，因而没有`public`关键字，但有`private`和`protected`关键字，作用与Java大致相同，但支持**更细粒度**的权限控制。
-- 支持**函数重载**，可以使用操作符作为函数名，达到类似C++/C#中操作符重载的效果。
+- 可以使用操作符作为函数名，达到类似C++/C#中操作符重载的效果。
 - 类的成员变量可以与方法名称**相同**。
 
 ##Hello World
@@ -133,7 +133,7 @@ scala> println(num)
 ```
 
 需要注意的是，在Scala中，赋值表达式的值为`Unit`，而不是类似Java/C++中的以被赋值的变量类型为表达式的值。例如：
-
+pre
 ```scala
 scala> var _num = 0
 _num: Int = 0
@@ -695,11 +695,19 @@ required: String
 scala> arrayBuffer.insert(1, -100)					//在索引1的位置插入数值-100
 scala> arrayBuffer
 res17: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, -100, 100)
+```
+
 插入多个元素：
+
+```scala
 scala> arrayBuffer.insert(1, 7, 8, 9)				//在索引1的位置插入数值7，8，9
 scala> arrayBuffer
 res19: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 7, 8, 9, -100, 100)
-删除操作类似，移除操作可以指定首位进行批量移除：
+```
+
+删除操作类似，移除操作可以指定首尾进行**批量移除**：
+
+```scala
 scala> arrayBuffer.remove(1, 4)
 scala> arrayBuffer
 res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)		//删除了索引1到4位之间的元素
@@ -740,7 +748,7 @@ scala> println(s"$a $b $c")
 1 2 3
 ```
 
-元组可以包含不同的类型：
+元组可以包含**不同**的类型：
 
 ```scala
 scala> var (num, str) = (123, "456")
@@ -871,7 +879,7 @@ scala> set
 res1: scala.collection.immutable.Set[Any] = Set(1, s, str)
 ```
 
-与动态数组`ArrayBuffer`类似，集合可以使用`+=`-=`来增加或减少内部的元素：
+与动态数组`ArrayBuffer`类似，集合可以使用`+=``-=`来增加或减少内部的元素：
 
 ```scala
 scala> var set = Set(1, 2, 3)
