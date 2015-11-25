@@ -1,15 +1,15 @@
 [TOC]
 
 #Java中的集合类型
-与常见的编程语言相同，Java中的常见的**集合类型**为`List`、`Set`、`Map`。
+与常见的编程语言相同，Java中的常见的**集合类型**为`List``Set``Map`。
 `List`特点：元素**有序**，元素**可重复**。
 `Map`特点：元素按键值对存储，**无序**。
 `Set`特点：元素**无序**，元素**不可重复**(注意：元素虽然无放入顺序，但是元素在`Set`中的位置是有该元素的**HashCode**决定的，其位置其实是固定的)。
 
 在Java中，这三种集合类型都是以接口形式存在的，不能直接使用，要使用这三种类型可以使用其实现类：
-`List`的实现类为`LinkedList`，`ArrayList`，`Vector`；
-`Set`接口有两个实现类：`HashSet`(底层由HashMap实现)，`LinkedHashSet`；
-`Map`接口有三个实现类：`HashMap`，`HashTable`，`LinkeHashMap`；
+`List`的实现类为`LinkedList``ArrayList``Vector`；
+`Set`接口有两个实现类`HashSet``LinkedHashSet`；
+`Map`接口有三个实现类`HashMap``HashTable``LinkeHashMap`；
 
 这些实现类各有优缺点：
 `ArrayList`是**非线程安全**的，效率**高**；
@@ -201,7 +201,7 @@ Statement statement = connection
 
 ##在Eclipse中查看JDK类源码
 与**NetBeans**不同，在Eclipse中默认是无法直接查看JDK中类库的源码的，需要手动指定源码的位置。
-一般情况下，JDK源码位于JDK的安装目录下的"src.zip"文件中。
+一般情况下，JDK源码位于JDK的安装目录下的`src.zip`文件中。
 在Eclipse中按以下步骤添加源码路径：
 `Window`=>`Preferences`=>`Java`=>`Installed JREs`=>选中使用的`JRE` =>`Edit`=>选中`../xxx/rt.jar`=>`Source Attachment Configuration`=>`Exernal location`=>选中`src.zip`=>`OK`=>`Finish`
 

@@ -173,7 +173,7 @@ Hello World!
 
 与**C++**中的Lambda用法类似：
 
-```c++
+```cpp
 #include <iostream>
 
 using namespace std;
