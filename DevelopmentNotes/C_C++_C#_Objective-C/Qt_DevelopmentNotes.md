@@ -124,10 +124,10 @@ int main(int argc, char *argv[])
 **发送**事件可以使用以下函数：
 
 ```cpp
-void QCoreApplication::postEvent(QObject * receiver, QEvent * event) [static]
-bool QCoreApplication::sendEvent(QObject * receiver, QEvent * event) [static]
-void QCoreApplication::sendPostedEvents(QObject * receiver, int event_type) [static]
-bool QCoreApplication::notify(QObject * receiver, QEvent * event) [virtual]
+void QCoreApplication::postEvent(QObject * receiver, QEvent * event);
+bool QCoreApplication::sendEvent(QObject * receiver, QEvent * event);
+void QCoreApplication::sendPostedEvents(QObject * receiver, int event_type);
+bool QCoreApplication::notify(QObject * receiver, QEvent * event);
 ```
 
 `postEvent()`函数将事件放入事件消息队列中，然后立即返回，函数只将事件放入队列的尾端，不保证事件立即得到处理。
@@ -335,9 +335,9 @@ MyWidget::MyWidget(QWidget *parent) : QWidget(parent)
 Qt提供了以下方式来获取子控件的指针：
 
 ```cpp
-template<typename T> T QObject::findChild (const QString &name = QString()) const		//通过ObjectName来获取需要的控件指针
-template<typename T>  QList<T> QObject::findChildren(const QRegExp &regExp) const		//通过正则表达式来获取子控件指针
-const QObjectList& QObject::children() const											//直接返回所有子控件
+template<typename T> T QObject::findChild (const QString &name = QString()) const;		//通过ObjectName来获取需要的控件指针
+template<typename T>  QList<T> QObject::findChildren(const QRegExp &regExp) const;		//通过正则表达式来获取子控件指针
+const QObjectList& QObject::children() const;											//直接返回所有子控件
 ```
 
 前两种方法需要知道控件的**类型**，最后一种不需要，但得到的是`QObject`类型。
@@ -382,22 +382,22 @@ w->show();
 如获取用户输入可以使用`QDialog`子类的成员函数：
 
 ```cpp
-QString QInputDialog::getText(...)				//用于获取字符串
-int QInputDialog::getInt(...)					//用于获取整型数值
-QColor QColorDialog::getColor(...)				//用于提供色彩选择对话框
-QFont QFontDialog::getFont(...)					//用于提供文字选择对话框
-QString QFileDialog::getOpenFileName(...)		//用于获取选择的文件路径(文件原先存在)
-QString QFileDialog::getSaveFileName(...)		//用于获取创建的文件路径(文件原先不存在)
-QString QFileDialog::getExistingDirectory(...)	//用于获取指定目录的路径
+QString QInputDialog::getText(...);				//用于获取字符串
+int QInputDialog::getInt(...);					//用于获取整型数值
+QColor QColorDialog::getColor(...);				//用于提供色彩选择对话框
+QFont QFontDialog::getFont(...);				//用于提供文字选择对话框
+QString QFileDialog::getOpenFileName(...);		//用于获取选择的文件路径(文件原先存在)
+QString QFileDialog::getSaveFileName(...);		//用于获取创建的文件路径(文件原先不存在)
+QString QFileDialog::getExistingDirectory(...);	//用于获取指定目录的路径
 ```
 
 提示用户和获取用户判断的对话框为`QMessageBox`：
 
 ```cpp
-StandardButton QMessageBox::question(...)		//询问用户的判断
-StandardButton QMessageBox::information(...)	//提示用户普通信息
-StandardButton QMessageBox::warning(...)		//提示用户警告信息
-StandardButton QMessageBox::critical(...)		//提示用户危险信息
+StandardButton QMessageBox::question(...);		//询问用户的判断
+StandardButton QMessageBox::information(...);	//提示用户普通信息
+StandardButton QMessageBox::warning(...);		//提示用户警告信息
+StandardButton QMessageBox::critical(...);		//提示用户危险信息
 ```
 
 ##Qt中窗口按钮、边框设置
@@ -474,24 +474,38 @@ lineEdit->setValidator(new QRegExpValidator(QRegExp("正则表达式内容")), t
 
 #使用QListWidget
 `QListWidget`是一个自带了**model**的`QListView`实现，使用`QListWidget`可以方便的构建列表框。
+`QListWdget`的索引号从**0**开始。
 
 ##使用IconMode
 `QListWdget`默认以列表的模式显示，但`QListWidget`实现了`QListView`中的`setViewModel()`方法，支持**图标模式**。
 使用方法`QListWidget::setViewMode(ViewMode mode)`，参数为`QListView::IconMode`即可将`QListWidget`设置为图标模式。
 使用方法`QListWidget::setMovement(Movement movement)`可以设置图标的移动模式，参数为`QListView::Static`时图标不可移动。
 
+##使QListWidgetItem能被勾选
+`QListWidgetItem`使用`void QListWidgetItem::setCheckState(Qt::CheckState state)`来设置勾选状态，使用此成员方法则item前会出现类似`QCheckBox`样式的复选框。
+当`state`参数取值`Qt::Checked`为勾选状态，`Qt::Unchecked`为非勾选状态。
+
 ##使用QListWidgetItem保存数据
 `QListWidget`中的每一个列表项都是一个`QListWidgetItem`对象，对于`QListWidgetItem`，常用的方法有：
 
 ```cpp
-void QListWidgetItem::setText(const QString &text)						//设置列表项/图标模式下的显示文字
-void QListWidgetItem::setData(int role, const QVariant &value)			//设置item保存的数据内容
+void QListWidgetItem::setText(const QString &text);						//设置列表项/图标模式下的显示文字
+void QListWidgetItem::setData(int role, const QVariant &value);			//设置item保存的数据内容
 ```
 
-需要注意的是`setData()`成员函数中的第一个参数为保存数据的角色，该值一般不要取0，item默认的文本数据就保存在0角色中，即在role为0时，`setText()`和`setData()`只有**一个**能生效(后调用的那个会把先前的数据覆盖)，推荐role的值使用`Qt::DisplayPropertyRole`。
+需要注意的是`setData()`成员函数中的第一个参数为保存数据的角色`Qt::ItemDataRole`，该值从0~14之间的为Qt自身使用的Role，比如item默认的文本数据就保存在0角色中，即在role为0时，`setText()`和`setData()`只有**一个**能生效(后调用的那个会把先前的数据覆盖)。
+提供给用户使用的Role从`Qt::UserRole`开始，`Qt::UserRole`之后的数值都可以由用户使用。
 
-# #使QListWidgetItem对齐
+##使QListWidgetItem对齐
 如果给`QListWidgetItem`设定了文本，那么，在文本长度不一致的时候，图标很可能不会保持对齐状态，此时可以使用`QListWidgetItem::setSizeHint(const QSize &size)`来强制设定每个item的大小，使每个item大小完全相同，达到对齐的效果(过长的文本会以省略号显示)。
+
+##查找指定名称的QListWidgetItem
+可以使用`QList<QListWidgetItem*> QListWidget::findItems(const QString& text, Qt::MatchFlags flags) const`来查找指定文本内容的`QListWidgetItem`。
+其中，可以通过设定`flags`来设定一些简单的匹配规则，常用的匹配规则有：
+`Qt::MatchStartsWith`查找名称最前部分匹配text的item
+`Qt::MatchEndsWith`查找名称最后部分匹配text的item
+`Qt::MatchContains`查找名称包含text的item
+`Qt::MatchFixedString`查找完全匹配text的item，默认情况下是忽略大小写的，通过设置`Qt::MatchCaseSensitive`可设置匹配为大小写敏感
 
 ---
 
@@ -504,12 +518,13 @@ void QListWidgetItem::setData(int role, const QVariant &value)			//设置item保
 可以使用以下方法来对`QTreeWidgetItem`进行设置：
 
 ```cpp
-void QTreeWidgetItem::setText(int column, const QString &text)						//设置指定列的文本内容
-void QTreeWidgetItem::setCheckState(int column, Qt::CheckState state)				//设置指定列的勾选状态，使用该方法后指定列会处于可勾选状态
-void QTreeWidgetItem::setData(int column, int role, const QVariant &value)			//item的每一列都可以用来保存数据
-void QTreeWidgetItem::setFlags(Qt::ItemFlags flags)									//设置标志，可用来控制item的一些行为。比如：是否可用(Qt::ItemIsEnabled)、是否可编辑(Qt::ItemIsEditable)、是否可选中(Qt::ItemIsSelectable)、是否可由用户点选(Qt::ItemIsUserCheckable)等。
-每一个QTreeWidgetItem还可以添加其它QTreeWidgetItem，从而形成树状。
+void QTreeWidgetItem::setText(int column, const QString &text);						//设置指定列的文本内容
+void QTreeWidgetItem::setCheckState(int column, Qt::CheckState state);				//设置指定列的勾选状态，使用该方法后指定列会处于可勾选状态
+void QTreeWidgetItem::setData(int column, int role, const QVariant &value);			//item的每一列都可以用来保存数据
+void QTreeWidgetItem::setFlags(Qt::ItemFlags flags);								//设置标志，可用来控制item的一些行为。比如：是否可用(Qt::ItemIsEnabled)、是否可编辑(Qt::ItemIsEditable)、是否可选中(Qt::ItemIsSelectable)、是否可由用户点选(Qt::ItemIsUserCheckable)等。
 ```
+
+每一个`QTreeWidgetItem`还可以添加其它`QTreeWidgetItem`，从而形成**树状**。
 
 ##设置列宽
 使用`QTreeView::resizeColumnToContents(int column) [slot]`可以设置指定列的**列宽自适应**。
@@ -518,17 +533,17 @@ void QTreeWidgetItem::setFlags(Qt::ItemFlags flags)									//设置标志，可
 使用以下方法对`QTreeWidget`进行列宽设置：
 
 ```cpp
-void QHeaderView::setStretchLastSection(bool stretch)								//设置最后一列自动扩展
-void QHeaderView::setSectionResizeMode(int logicalIndex, ResizeMode mode)			//设置指定列的列宽扩展模式，有固定大小(Fixed)、扩展列宽到合适大小(Stretch)、根据内容宽度决定列宽(ResizeToContents)等
+void QHeaderView::setStretchLastSection(bool stretch);								//设置最后一列自动扩展
+void QHeaderView::setSectionResizeMode(int logicalIndex, ResizeMode mode);			//设置指定列的列宽扩展模式，有固定大小(Fixed)、扩展列宽到合适大小(Stretch)、根据内容宽度决定列宽(ResizeToContents)等
 ```
 
 ##其它常用设置
 
 ```cpp
-void QHeaderView::setSortIndicatorShown(bool show)									//使QTreeWidget的头标签支持点按排序
-void QTreeWidgetItem::setBackgroundColor(int column, const QBrush &brush)			//填充指定列的背景色
-void QHeaderView::setDefaultSectionSize(int size)									//设置默认列宽
-void QHeaderView::setMinimumSectionSize(int size)									//设置最小列宽
+void QHeaderView::setSortIndicatorShown(bool show);									//使QTreeWidget的头标签支持点按排序
+void QTreeWidgetItem::setBackgroundColor(int column, const QBrush &brush);			//填充指定列的背景色
+void QHeaderView::setDefaultSectionSize(int size);									//设置默认列宽
+void QHeaderView::setMinimumSectionSize(int size);									//设置最小列宽
 ```
 
 ##遍历QTreeWidgetItem

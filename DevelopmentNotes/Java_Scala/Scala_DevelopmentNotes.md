@@ -926,6 +926,14 @@ scala> for ((key, value) <- map) println(s"key: $key value: $value")
 key: 1 value: 1
 key: 2 value: 2
 key: 3 value: 3								//使用for循环遍历map
+scala> for (value <- map.values) println(s"value: $value ")
+value: 1
+value: 2
+value: 3									//仅遍历map的value
+scala> for (key <- map.keys) println(s"value: $key ")
+value: 1
+value: 2
+value: 3									//仅遍历map的key
 ```
 
 使用`updated()`方法可以更新指定key对应的value之后输出，通过`+`方法添加对偶后输出，也可以通过`-`移除指定key的对偶后输出。
