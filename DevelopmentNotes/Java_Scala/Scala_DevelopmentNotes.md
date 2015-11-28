@@ -1,10 +1,10 @@
 [TOC]
 
-#Scala开发环境
+##Scala开发环境
 在**Linux/Unix**环境下，无需额外的Scala配置，只需从对应发行版的包管理器中直接安装Scala开发包即可。
 在**Windows**环境下，需要新建环境变量`SCALA_HOME`，环境变量的值即为Scala的安装目录，然后将`%SCALA_HOME%\bin`加入**PATH**环境变量中。
 
-##让VIM支持Scala语法高亮
+###让VIM支持Scala语法高亮
 vim默认不支持Scala的语法高亮，可以使用**Derek Wyatt**开发的`vim-scala`插件，代码托管在**GitHub**上，项目主页是：
 `https://github.com/derekwyatt/vim-scala`
 可以使用**Vundle**来安装此插件，在配置文件`.vimrc`中添加：
@@ -13,10 +13,10 @@ vim默认不支持Scala的语法高亮，可以使用**Derek Wyatt**开发的`vi
 Plugin 'derekwyatt/vim-scala'
 ```
 
-##让Eclipse支持Scala项目
+###让Eclipse支持Scala项目
 安装`Scala IDE`插件即可。
 
-##编译/执行Scala代码
+###编译/执行Scala代码
 与编译Java代码类似，编译Scala代码使用`scalac`命令：
 `$ scalac [*.scala]`
 编译后即可得到字节码文件*.class。
@@ -28,7 +28,7 @@ Plugin 'derekwyatt/vim-scala'
 需要注意的是，虽然Scala是基于`JVM`的语言，但`scalac`编译得到的字节码直接由java命令执行会出现一些错误。
 此外，虽然Scala并不强制要求类名要与文件名相同，但在部分IDE中，如果类名与文件名不同，构建项目会出现错误。
 
-##使用Scala解释器
+###使用Scala解释器
 在命令行中输入无参数的`scala`指令即可进入交互式的Scala解释器。
 常用的Scala解释器**指令**：
 
@@ -39,13 +39,12 @@ scala> :reset				//重置解释器的状态，会清空已保存的变量、类�
 
 Scala解释器与Python解释器类似，可以直接将代码一行行地输入解释器，解释器会执行代码并给出反馈，对初学者而言是一个练习的好方法。
 
----
 
 
-#Scala基本语言特性
+##Scala基本语言特性
 相比`Java``C++`等语言，`Scala`融合了`OOP``FP`等编程范式，同时语法上更**灵活**。
 
-##语法基础(概览)
+###语法基础(概览)
 - Scala语言中不强制要求分号，可以依行断句，只有一行带有多个语句时才要求分号隔开。
 - 使用`var``val`定义`变量``常量`，类型可以由编译器推导，也可以显式指定。定义变量时甚至可以省略`var``val`关键字，无关键字时定义的变量默认即为`val`，在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
 - 使用`def`关键字定义**方法**，`var``val`定义**函数**，需要注意的是使用`var`定义的函数是可以更改实现的，但`def`定义的方法一经定义实现就**不可改变**。
@@ -57,7 +56,7 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 - 可以使用操作符作为函数名，达到类似C++/C#中操作符重载的效果。
 - 类的成员变量可以与方法名称**相同**。
 
-##Hello World
+###Hello World
 创建文件`Test.scala`，输入以下代码：
 
 ```scala
@@ -79,7 +78,7 @@ object Test extends App {
 
 单例对象的名称可以与源码文件的文件名不同。
 
-##方法(Method)
+###方法(Method)
 与Java不同，Scala中同时支持`函数`与`方法`(Java只有方法而没有真正意义上的"函数"，只有与"函数"类似的"静态方法")。
 方法由`def`关键字定义，可以被def方法、val函数重写。一个典型的方法格式如下：
 
@@ -145,7 +144,7 @@ required: Int
 									  ^
 ```
 
-##函数(Function)
+###函数(Function)
 在Scala中函数使用`var``val`关键字定义，即函数是一个存储了函数对象的字段。
 一个典型的函数定义如下：
 
@@ -196,7 +195,7 @@ class Test
 }
 ```
 
-##传名参数(By-name Parameter)
+###传名参数(By-name Parameter)
 当一个方法接收的**参数**为**空**时，该参数即为**传名参数(By-name Parameter)**，如下所示：
 
 ```scala
@@ -226,7 +225,7 @@ object Main extends App {
 456
 789
 
-##函数作为参数
+###函数作为参数
 Scala为函数式编程语言，在Scala中函数对象可以直接作为参数传递。
 当函数作为参数存在时，传名参数与普通的空参函数参数定义**不能**同时存在，如下定义只能存在一个：
 
@@ -238,10 +237,9 @@ var func: (() => T) => Unit = (arg: () => T) => arg
 
 在接收参数时，空参函数参数只能接收同样空参的函数，即`() =>`不能被省略，而传名参数则无此限制。
 
----
 
 
-#类型系统
+##类型系统
 在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
 在Scala中，基础类型如`Int``Float``Double``Unit`等全部从`AnyVal`类中派生，因而可以直接在泛型中直接使用这些类作为类型参数。
 同时，Scala中提供了`隐式转换(ImplicitConversion)`来保证`Int``Float``Double`等类型之间可以**自动进行转换**。
@@ -254,10 +252,10 @@ var num = str.toInt
 
 在Scala中，所有的基础类型之外的引用类型派生自类`AnyRef`。
 
-##底类型(Bottom)
+###底类型(Bottom)
 与Java不同，Scala中存在底类型(bottom)。底类型包括Nothing和Null，Nothing是所有类型的子类，Null是所有引用类型(AnyRef)的子类，Nothing类没有值，Null类只有一个值null(类似于Java中null的作用)。
 
-##可空类型
+###可空类型
 在Scala中，使用`Option[T]`表示可空类型，`Option[T]`包含两个子类，`Some[T]`和`None`，分别代表值存在/值为空。
 对`Option[T]`类型使用`getOrElse()`方法来获取存在的值或是当值不存在时使用指定的值，如下所示：
 
@@ -295,18 +293,17 @@ object TestOption extends App {
 123
 No Value
 
----
 
 
-#Scala中的OOP
+##Scala中的OOP
 Scala是一门同时具有函数式与面向对象特性的多重范式的语言，除了具有函数式特性外，对**OOP**也有着完整的支持。
 
-##类(class)与特质(trait)
+###类(class)与特质(trait)
 Scala不支持**多重继承**，但可以继承多个`trait`。
 Scala中的`trait`对应Java中的`interface`，但相比Java中的`interface`，Scala中的`trait`除了没有默认构造器之外，拥有绝大部分类的特性。
 Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
 
-##构造器(Constructor)
+###构造器(Constructor)
 在Scala中构造方法的作用与Java类似，用于在创建类实例的同时对指定的成员进行初始化。
 在语法上，Scala中类可以拥有一个**主构造器(primary constructor)**和任意个**辅助构造器(auxiliary constructor)**。
 主构造器的参数定义紧跟在类名之后，辅助构造器定义在类体中，使用this关键字，在辅助构造器中最终必须调用主构造器。
@@ -333,7 +330,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 }
 ```
 
-##访问权限
+###访问权限
 Scala中的成员默认访问权限即为公有，因而Scala中没有`public`关键字。
 Scala中的保护成员和私有成员使用关键字`protected``private`，作用大体上与Java相同，但Scala在访问权限上支持**更细粒度**的划分。
 在Scala中，访问级别关键字之后可以使用中括号带上更具体的访问区域限制，可以是当前定义的类、当前定义类的外部类(若存在外部类)、包名(某个包内的所有类实例可访问)或是`this`关键字(仅当前实例可访问)。
@@ -355,7 +352,7 @@ class Access(a: Int = 1, var b: Double = 2.0) {
 }
 ```
 
-##字段
+###字段
 Scala类中的字段不仅仅是定义了一个成员变量，编译器还可能会自动为字段生成与字段同名的`getter`和`setter`方法。
 `var`关键字定义的字段编译器会同时为其生成`setter`和`getter`方法，若对象的的权限为私有/保护，则对应生成的`setter`和`getter`方法同样为**私有/保护**权限。
 `val`关键字定义的字段为**只读**字断，编译器不会为其合成`setter`方法。
@@ -396,8 +393,8 @@ class Override {
 需要注意的是，在实际编码过程中，虽然给`private[this]`的字段定义同名的`setter``getter`方法不会报错，但实际调用过程中会提示错误(如上例子中给num字段赋值回得到错误**reassignment to val**，因此不要手动给字段定义同名的`setter``getter`方法)。
 此外，由于字段名称可以与方法名称相同，因而即使编译器生成了`setter``getter`方法，编码者依然可以使用字段名称定义其它签名的重载函数。
 
-##多态
-###重写
+###多态
+####重写
 在Scala中，默认情况下，子类的并不会重写父类的同名方法，而是需要显式地在方法定义前加上`override`关键字才会发生重写行为。
 Scala中的重写遵循以下规则：
 
@@ -405,17 +402,17 @@ Scala中的重写遵循以下规则：
 - var只能重写另一个抽象的var(即只有定义没有实现)。
 - val可以重写另一个val以及不带有参数的def。
 
-###重载
+####重载
 Scala支持函数重载，并且可以使用**操作符**作为函数名，使用操作符作为函数名可以达到类似**C++**中**操作符重载**的效果。
 
-##继承
+###继承
 Scala中的继承采用的是**混入(mixin)**机制，相比传统的单根继承，mixin机制保留了多重继承的大部分优点，同时又避免了多重继承可能可能引入的菱形继承问题。
 
-##伴生对象
+###伴生对象
 在Scala中没有`static`关键字，也没有**静态成员**的概念，Scala使用**单例对象**来达到近似静态成员的作用。
 每一个类可以拥有一个同名的**伴生对象**(单例)，伴生对象使用object关键字定义，且一个类和其伴生对象的定义必须写在同一个文件中。
 
-##apply()/update()方法
+###apply()/update()方法
 在Scala中，允许使用函数风格进行一些对象操作。
 假设有一个**类实例a**，使用：
 
@@ -480,7 +477,7 @@ object Apply {
 90 180
 1000 180
 
-##提取器
+###提取器
 在Scala中，还提供了被称为**提取器**的`unapply()`方法。
 `unapply()`方法则与`apply()`方法相反，可以从对象中提取出需要的数据(在实际使用过程中，可以从任意的目标里提取数据)。
 `unapply()`方法返回值必须为`Option`及其子类，单一返回值使用`Option[T]`，多个返回值可以包含在元组中`Option[(T1, T2, T3, ...)]`。
@@ -547,7 +544,7 @@ Case Nothing
 abc cde
 abc cde efg
 
-##使用匿名类初始化
+###使用匿名类初始化
 在Scala中，创建类实例的**同时**可以直接对类的成员变量进行初始化。
 如下代码所示：
 
@@ -588,13 +585,12 @@ class Num {
 输出结果：
 Num 100
 
----
 
 
-#枚举(Enumerate)
+##枚举(Enumerate)
 在Scala中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
 
-##继承枚举类
+###继承枚举类
 继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。
 默认的Value方法会按变量名生成枚举名和并从0开始生成枚举ID，若需要手动设定枚举的名称喝枚举ID则可以使用Value方法的重载`Value(id: Int, name: Strig)`。
 如下代码所示：
@@ -627,13 +623,12 @@ object TestEnumeration extends App {
 red:0 green:1 blue:2
 white_0:100 black_0:200
 
----
 
 
-#数组
+##数组
 Scala中数组的概念与Java中基本类似。
 
-##定长数组
+###定长数组
 在Scala中定长数组使用Array[T]进行表示，定长数组与Java中概念类似。
 构建一个固定长度的数组如下所示：
 
@@ -654,7 +649,7 @@ java.lang.ArrayIndexOutOfBoundsException: 100
 
 需要注意的是，Scala定长数组与Java中的定长数组仅仅是语法不同，并无本质区别，`new Array[Int](10)`相当于Java中的`new int[10]`。
 
-##变长数组
+###变长数组
 在Scala中，变长数组使用`ArrayBuffer[T]`进行表示，`ArrayBuffer`不在默认导入的包路径中，而是位于`scala.collection.mutable.ArrayBuffer`。
 Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素，创建一个`ArrayBuffer`：
 
@@ -715,13 +710,12 @@ res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)		//删�
 
 需要注意的是，`ArrayBuffer`是**线性结构**，只有在尾部进行插入删除操作才是高效的，在其它位置进行的元素操作都会造成大量的元素移动。
 
----
 
 
-#容器
+##容器
 Scala的容器分为`元组(Tuple)``序列(Seq)``集合(Set)`和`映射(Map)`四大类。
 
-##元组(Tuple)
+###元组(Tuple)
 元组是最简单的容器，无需额外的类型名称，直接使用`(T1, T2, T3)`就可以构建出一个元祖。如下所示：
 
 ```scala
@@ -771,7 +765,7 @@ object TestTuple extends App {
 
 需要注意的是，元组**不能**够使用for循环进行遍历。
 
-##列表(List)与可变列表(ListBuffer)
+###列表(List)与可变列表(ListBuffer)
 在Scala中，`List[T]`类型的完整包路径为`scala.collection.immmutable.List`。
 List为**不可变对象**，可以使用for循环进行遍历。
 构建一个列表：
@@ -855,7 +849,7 @@ str 2.0
 str 2.0 num
 str 2.0 new
 
-##集合(Set)
+###集合(Set)
 `Set[T]`完整包路径为`scala.collection.immutable.Set`。
 集合同样允许任意类型的元素，但集合中不能包含重复的元素。
 在使用`Set`类的`apply()`方法构建集合时，重复的元素会被忽略，如下所示：
@@ -915,7 +909,7 @@ res8: Option[Any] = None					//没有匹配则返回None
 `scala.collection.mutable.LinkedHashSet`链式哈希集，依照插入的顺序排列
 `scala.collection.immutable.SortedSet`红黑树实现的排序集
 
-##映射(Map)
+###映射(Map)
 `Map[A, B]`类型的完整包路径为`scala.collection.immutable.Map`。
 映射中的每一个元素都是一组`对偶(Tuple2)`，分别为key和value，key不可重复，通过`->`操作符可以将两个值组成一组对偶，如下所示：
 
@@ -953,15 +947,14 @@ res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 与`Set``ListBuffer`等类似，`Map`也支持`+=``-=`操作符。
 `Map`使用`+=`向自身添加对偶，使用`-=`从自身移除指定key对应的对偶。
 
----
 
 
-#包(Package)与导入(Import)
+##包(Package)与导入(Import)
 Scala中的包用法基本与Java类似，但在Java的基础上扩充了更多的功能。
 与Java不同，Scala中使用`_`符号代替`*`，表示导入该路径下的所有包和成员。
 
-##扩展用法
-Scala中可以在一个语句中导入包内的多个类：
+###扩展用法
+Scala中可以在一个语句中导入包内的**多个**指定的类：
 
 ```scala
 import java.awt.{Color, Font}
@@ -987,7 +980,7 @@ import java.lang.Math.abs		//导入Math类中的静态方法abs
 在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。
 在Scala中，`import`语句可以出现在**任意位置**，不必总是放在文件的顶部，`import`语句的作用域直到该语句块结束。
 
-##默认包
+###默认包
 默认情况下，Scala会导入以下几个包路径：
 
 ```scala
@@ -998,7 +991,7 @@ import Predef._
 
 有些Scala包中的类名与Java包中的类名相同，但由于Scala包的引入语句在后，因此，例如`Scala.StringBuiler`类会覆盖`Java.lang.StringBuilder`。
 
-##包对象
+###包对象
 在Scala中，每个包可以带有一个与包名相同的**包对象**，包内的所有类都可以直接访问该包对象的公有成员。
 如下代码所示：
 
