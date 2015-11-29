@@ -137,6 +137,7 @@ java >
 java中不支持多重继承，OOP主要通过class&interface来实现。
 interface中只能包含函数的声明而不能包括函数的实现(JDK1.8之后支持在接口中用default关键字定义有实现内容的函数，也可以以此实现类似多重继承)，且访问权限一定是public，所以用在implements接口时，需要将重写的函数设为public。
 interface没有构造函数，也不能被直接实例化，实例化接口需要使用匿名类(所有接口)或Lambda表达式(仅限函数接口)。
+interface中可以定义变量，但在interface中定义的变量自动带有final和static属性，变量需要在定义的同时初始化。
 java中只声明函数原型而不实现的函数叫做抽象函数，抽像函数的函数声明前加abstract关键字，带有一个以上抽象函数的类叫做抽象类，类前也要加abstract关键字。
 
 ----

@@ -298,11 +298,6 @@ No Value
 ##Scala中的OOP
 Scala是一门同时具有函数式与面向对象特性的多重范式的语言，除了具有函数式特性外，对**OOP**也有着完整的支持。
 
-###类(class)与特质(trait)
-Scala不支持**多重继承**，但可以继承多个`trait`。
-Scala中的`trait`对应Java中的`interface`，但相比Java中的`interface`，Scala中的`trait`除了没有默认构造器之外，拥有绝大部分类的特性。
-Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
-
 ###构造器(Constructor)
 在Scala中构造方法的作用与Java类似，用于在创建类实例的同时对指定的成员进行初始化。
 在语法上，Scala中类可以拥有一个**主构造器(primary constructor)**和任意个**辅助构造器(auxiliary constructor)**。
@@ -354,9 +349,13 @@ class Access(a: Int = 1, var b: Double = 2.0) {
 
 ###字段
 Scala类中的字段不仅仅是定义了一个成员变量，编译器还可能会自动为字段生成与字段同名的`getter`和`setter`方法。
-`var`关键字定义的字段编译器会同时为其生成`setter`和`getter`方法，若对象的的权限为私有/保护，则对应生成的`setter`和`getter`方法同样为**私有/保护**权限。
-`val`关键字定义的字段为**只读**字断，编译器不会为其合成`setter`方法。
-若访问权限为`private[this]`，则编译器不会为其合成`setter`和`getter`方法(`protected[this]`正常生成`setter``getter`方法)。
+
+- `var`关键字定义的字段编译器会同时为其生成`setter`和`getter`方法，若对象的的权限为私有/保护，则对应生成的`setter`和`getter`方法同样为**私有/保护**权限。
+- `val`关键字定义的字段为**只读**字断，编译器不会为其合成`setter`方法。
+- 若访问权限为`private[this]`，则编译器不会为其合成`setter`和`getter`方法(`protected[this]`正常生成`setter``getter`方法)。
+- 若定义了字段没有对其进行初始化，则该字段即为**抽象字段**，带有抽象字段的类前需要加上`abstract`关键字，且不能被直接实例化。
+- 重写抽象字段不需要使用`override`关键字。
+
 如下所示：
 
 ```scala
@@ -394,7 +393,7 @@ class Override {
 此外，由于字段名称可以与方法名称相同，因而即使编译器生成了`setter``getter`方法，编码者依然可以使用字段名称定义其它签名的重载函数。
 
 ###多态
-####重写
+####*重写*
 在Scala中，默认情况下，子类的并不会重写父类的同名方法，而是需要显式地在方法定义前加上`override`关键字才会发生重写行为。
 Scala中的重写遵循以下规则：
 
@@ -402,11 +401,8 @@ Scala中的重写遵循以下规则：
 - var只能重写另一个抽象的var(即只有定义没有实现)。
 - val可以重写另一个val以及不带有参数的def。
 
-####重载
+####*重载*
 Scala支持函数重载，并且可以使用**操作符**作为函数名，使用操作符作为函数名可以达到类似**C++**中**操作符重载**的效果。
-
-###继承
-Scala中的继承采用的是**混入(mixin)**机制，相比传统的单根继承，mixin机制保留了多重继承的大部分优点，同时又避免了多重继承可能可能引入的菱形继承问题。
 
 ###伴生对象
 在Scala中没有`static`关键字，也没有**静态成员**的概念，Scala使用**单例对象**来达到近似静态成员的作用。
@@ -544,6 +540,145 @@ Case Nothing
 abc cde
 abc cde efg
 
+###特质(trait)
+Scala中的`trait`特质对应Java中的`interface`接口，但相比Java中的接口，Scala中的特质除了没有默认构造器之外，拥有绝大部分类的特性。
+Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
+
+####*混入(mixin)*
+
+- Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
+- Scala中采用的**混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
+- 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
+- 若同时继承类并混入特质，需要将继承的类写在`extends`关键字的后面，`with`只能混入**特质**，不能混入**类**。
+
+如下所示：
+
+```scala
+class BaseA {
+}
+
+class BaseB {
+}
+
+trait TraitA extends BaseA {
+}
+
+trait TraitB extends BaseB {
+}
+
+/* 编译报错，提示：
+ * superclass BaseA
+ * is not a subclass of the superclass BaseB
+ * of the mixin trait TraitB
+ */
+class TestExtend extends TraitA with TraitB {
+}
+
+/* 编译报错，提示：
+ * class BaseA needs to be a trait to be mixed in
+ */
+class ExtendClass extends TraitA with BaseA {
+}
+```
+
+`TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。
+`ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
+
+####*重写冲突的方法与字段*
+与Java8中相同，混入机制同样需要解决富接口带来的成员冲突问题，当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容。
+如下所示：
+
+```scala
+class BaseA {
+	def get = 123
+}
+
+trait TraitA {
+	def get = 456
+}
+
+trait TraitB {
+	def get = 789
+}
+
+class TestExtend extends BaseA with TraitA with TraitB {
+	override def get = 77		//对于冲突的内容，必需显式重写
+}
+```
+
+####*混入顺序*
+对于混入的内容，按照以下顺序进行构造：
+
+- 首先构造父类。
+- 按照特质出现的顺序从左往右依次构造特质。
+- 在一个特质中，若该特质存在父特质，则先构造父特质。若多个特质拥有相同的父特质，该父特质不会被重复构造。
+- 最后构造子类。
+
+Scala的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。
+线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
+如下所示：
+
+```scala
+class BaseA {
+	def get = 123
+}
+
+trait TraitA {
+	def get = 456
+}
+
+trait TraitB {
+	def get = 789
+}
+
+trait TraitC extends TraitA {
+	override def get = 111
+}
+
+class TestExtend extends BaseA with TraitA with TraitC {
+	override def get = super.get				//使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
+	//override def get = super[BaseA].get		//也可以使用继承自其它特质或类的实现
+	//override def get = super[TraitB].get		//错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
+}
+```
+
+###复制类实例
+Scala与Java类似，类实例赋值仅仅是复制了一个引用，实例所指向的内存区域并未被复制。
+若需要真正复制一个对象，需要调用对象的`clone()`方法。
+`clone()`方法定义在`Object`类中，但由于是`protected`成员，不可直接调用，若需要自行实现类的复制功能，则需要实现`Cloneable`接口。
+例如：
+
+```scala
+class Clone extends Cloneable {
+	var nums = Array(1, 2, 3)
+	var str = "TestClone"
+	override def clone = {
+		val clone = super.clone.asInstanceOf[Clone]		//Cloneable接口中clone()返回的是Object型，即Scala中的Any，需要进行强制类型转换
+		clone.nums = nums.clone			//深复制需要对成员中的引用类型调用clone()
+		clone
+	}
+}
+```
+
+与Java中类似，如果需要实现**深复制**，则需要对类成员中的`AnyRef`及其子类调用`clone()`进行复制。
+对于`AnyVal`子类如`Int``Double`等类型，没有提供重载的`clone()`方法，但这些类型默认即为值复制，无需额外的操作。
+Java中的特例`java.lang.String`在Scala中同样有效，对于`String`类型，在重写`clone()`时也可当作基本类型对待。
+在Scala中，还可以直接继承`scala.collection.mutable.Cloneable[T]`特质：
+
+```scala
+import scala.collection.mutable.Cloneable
+
+class Clone extends Cloneable[Clone] {
+	var nums = Array(1, 2, 3)
+	var str = "TestClone"
+	override def clone = {
+		val clone = super.clone			//不必进行强制类型转换，类型已在泛型参数中指定
+		clone.nums = nums.clone
+		clone
+	}
+}
+```
+
 ###使用匿名类初始化
 在Scala中，创建类实例的**同时**可以直接对类的成员变量进行初始化。
 如下代码所示：
@@ -607,8 +742,8 @@ object Color extends Enumeration {
 	*/
 
 	//手动使用Value(id: Int, name: String)方法手动进行id和name的设置
-	var white = Value(100, "white_0")
-	var black = Value(200, "black_0")
+	var white = Value(100, "White")
+	var black = Value(200, "Black")
 	//使用重载有參版本的Value(id: Int, name: String)不能采用自动赋值的方式，会编译报错
 }
 
@@ -621,7 +756,7 @@ object TestEnumeration extends App {
 
 输出结果：
 red:0 green:1 blue:2
-white_0:100 black_0:200
+White:100 Black:200
 
 
 
