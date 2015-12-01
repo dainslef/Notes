@@ -698,7 +698,6 @@ image.setAlphaChannel(temp_image);				//以temp_image为样本设置原图像的
 ##Qt处理命令行参数
 `Qt5.2`之后提供了类`QCommandLineParser`以及`QCommandLineOption`来进行命令行参数的处理。
 
-
 ###获取命令行输入
 Qt中不需要传递`argc`和`**argv`，可以通过静态方法`QStringList QCoreApplication::arguments()`在任意位置获取到用户输入的命令行参数。
 
@@ -773,6 +772,46 @@ QFontMetrics fm(font);
 int pixelsWide = fm.width("What's the width of this text?");
 int pixelsHigh = fm.height();
 ```
+
+
+
+##Qt文件操作
+Qt中的文件和目录相关类主要为`QFile`和`QFileInfo`以及`QDir`。
+其中，`QFile`用于文件操作，而`QFileInfo`用于获取文件信息，`QDir`用于过滤文件。
+
+###QFile
+`QFile`类定义了一系列的静态成员函数，提供了常见的文件操作：
+
+```cpp
+bool QFile::copy(const QString &fileName, const QString &newName));		//复制文件
+bool QFile::exists(const QString &fileName));							//判断文件是否存在
+bool QFile::open(OpenMode mode));										//检测文件的读写状态
+bool QFile::remove(const QString &fileName));							//删除文件
+bool QFile::rename(const QString &oldName, const QString &newName));	//重命名文件
+bool QFile::link(const QString & fileName, const QString & linkName));	//创建文件快捷方式，在Unix系统下为创建符号链接
+```
+
+###QFileInfo
+`QFileInfo`类提供了一系列文件信息的方法：
+
+```cpp
+QString QFileInfo::absoluteFilePath() const;							//获取文件的绝对路径(包含文件名)
+QString QFileInfo::absolutePath() const;								//获取文件的路径(不含文件名)
+QString QFileInfo::baseName() const;									//获取文件的不含后缀的文件名(以第一个"."符号为界)
+QString QFileInfo::completeBaseName() const;							//获取文件的不含最后一个后缀的文件名(以最后一个"."符号为界)
+QString QFileInfo::fileName() const；									//获取文件的完整文件名(不含路径)
+```
+
+###QDir
+`QDir`类能够按指定规则在路径下筛选出符合要求的文件，常用的方法有：
+
+```cpp
+QFileInfoList QDir::entryInfoList(Filters filters = NoFilter, SortFlags sort = NoSort) const;
+QStringList QDir::entryList(Filters filters = NoFilter, SortFlags sort = NoSort) const;
+```
+
+其中过滤规则`Filters`是一个枚举类，定义了一些的过滤条件，如`QDir::Readable`表示文件可读，`QDir::Writable`表示文件可写。
+当不添加任何参数时，方法返回的是路径下的**所有文件**。
 
 
 
