@@ -752,6 +752,72 @@ auto A<T>::get(T, T)
 当`A`类使用`int`型作为模板实例化类型时，就会与原有函数原型发生冲突。
 C++作为编译性语言，模板是在编译期实现的，属于编译时多态的一种。
 
+###模版特化
+C++支持`模版特化`，即对于特定的模版参数类型可以指定其实现。
+如有以下模版类，有两个模版参数`T`和`S`：
+
+```cpp
+template <class T, class S>
+class Template
+{
+	/* code */
+};
+```
+
+可以指定其模版类型为某种类型时的类定义，如需要特化模版皆为参数为`int`型时的类定义可以写成：
+
+```cpp
+template <>
+class Template<int, int>
+{
+	/* code */
+};
+```
+
+特化时显式指定`所有`模版参数的类型被称为`完全特化`，类模版还支持`偏特化`，即只指定一部分的模版类型参数：
+
+```cpp
+template <class T>
+class Template<T, int>
+{
+	/* code */
+};
+```
+
+类`Temp`的后一个模版参数的类型被显式指定为`int`，而模版参数`T`依然由用户指定。
+除了`模版类`之外，C++中模版函数也同样支持**模版特化**。
+如以下模版函数：
+
+```cpp
+template <class T, class S>
+T func(T t, S s)
+{
+	/* code */
+}
+```
+
+假设需要特化其模版参数全为`int`型，则可以写成：
+
+```cpp
+template <>
+int func<int, int>(int t, int s)
+{
+	/* code */
+}
+```
+
+需要注意的是，模版函数**不支持**`偏特化`，即以下的写法是**不能**通过编译的：
+
+```cpp
+template <class T>
+T func<T, int>(T t, int s)		//error
+{
+	/* code */
+}
+```
+
+C++不允许模版函数偏特化，`偏特化`的模版函数在编译时会报错，提示`error: function template partial specialization is not allowed`。
+
 
 
 ##Lambda表达式
