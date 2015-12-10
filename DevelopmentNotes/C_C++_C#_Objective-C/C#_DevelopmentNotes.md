@@ -8,10 +8,11 @@ static int Main();
 static int Main(string[] args);
 C#允许多种入口函数形式，一般采用第二种(默认)。
 与Java不同，C#并不强制要求主类的类名与主类所在文件的文件名相同。
+实际上，C#由于支持`部分类`特性，也不可能要求类名与源码文件名相同。
 
 
 
-##C#的数据类型
+##数据类型
 C#的数据类型分为两类：值类型和引用类型。
 值类型用于存储数据，引用类型用于定义行为。
 
@@ -26,20 +27,20 @@ public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>,
 ```
 
 其它的预定义值类型也是类似的`结构类型(Struct)`的别名：
-`sbyte => System.SByte`
-`short => System.Int16`
-`int => System.Int32`
-`long => System.Int64`
-`byte => System.Byte`
-`ushort => System.UInt16`
-`uint => System.UInt32`
-`ulong => System.UInt64`
-`char => System.Char`
-`float => System.Single`
-`double => System.Double`
-`decimal => System.Decimal`用于财务计算
-`bool => System.Boolean`
-`enum => System.Enum`枚举类型
+`sbyte` => `System.SByte`
+`short` => `System.Int16`
+`int` => `System.Int32`
+`long` => `System.Int64`
+`byte` => `System.Byte`
+`ushort` => `System.UInt16`
+`uint` => `System.UInt32`
+`ulong` => `System.UInt64`
+`char` => `System.Char`
+`float` => `System.Single`
+`double` => `System.Double`
+`decimal` => `System.Decimal`用于财务计算
+`bool` => `System.Boolean`
+`enum` => `System.Enum`枚举类型
 
 用户定义的结构体，从`System.ValueType`类中继承：
 
@@ -78,7 +79,7 @@ using System;
 class A
 {
 	int num = 0;
-	
+
 	public int a
 	{
 		set
@@ -135,8 +136,8 @@ public int a { get; } = "Hello World!";
 
 
 
-##C#中的结构类型(Struct)
-与`C++`完全不同，`C#`中的结构体与类有**很大区别**。
+##结构类型(Struct)
+与`C++`完全不同，`C#`中的`结构体`与`类`有**很大区别**。
 C#中的结构体为值类型，即完全在栈中分配内存，而引用类型则仅在栈中保存引用，类型实体内存分配在堆中。同时由于结构体为值类型，因而复制结构体时是完全复制出一个新的结构体实例，而非引用类型的引用传递。
 在C#中，结构体的默认访问权限是`private`，且结构体成员变量**不能**直接赋初值(需要通过有参构造函数符初值)。
 在C#中，结构类型全部继承自`System.ValueType`类，但结构体是隐式`密封(sealed)`的，不能被继承，但结构体可以用来实现接口。需要注意的是，用来实现接口的结构体虽然本身为值类型，但如果发生向上转型重新变为父类接口对象则值类型的特性也将随之消失。
@@ -149,18 +150,19 @@ C#中的结构体为值类型，即完全在栈中分配内存，而引用类型
 
 
 
-##关于静态构造函数
+##静态构造函数
 静态构造函数是C#中特有的概念，用于在类首次被使用前进行静态成员的初始化。
-静态构造函数与普通构造函数一样在类中定义，但静态构造函数不能带有参数和访问权限，一个类/结构体只能定义一个静态构造函数，静态构造函数与类的无参构造函数虽然参数表相同，但不会冲突。
-静态构造函数只能初始化静态成员(貌似是废话)，如果一个类中有静态成员赋了初值(类内初始化)，则.NET会自动为其创建默认的静态构造函数。
-静态构造函数不需要手动调用，在首次使用创建类实例或是方位类的静态成员时会由.NET自动调用，静态构造函数在全局只会被**调用一次**。
+
+- 静态构造函数与普通构造函数一样在类中定义，但静态构造函数不能带有参数和访问权限，一个类/结构体只能定义一个静态构造函数，静态构造函数与类的无参构造函数虽然参数表相同，但不会冲突。
+- 静态构造函数只能初始化静态成员(貌似是废话)，如果一个类中有静态成员赋了初值(类内初始化)，则.NET会自动为其创建默认的静态构造函数。
+- 静态构造函数不需要手动调用，在首次使用创建类实例或是方位类的静态成员时会由.NET自动调用，静态构造函数在全局只会被**调用一次**。
 
 
 
-##C#中的泛型
+##泛型
 值类型转变为引用类型会经过`装箱(boxing)`操作，而引用类型转变为值类型则要经过`拆箱(unboxing)`操作。
 一个容器需要接收多种类型时，可能就需要将接受参数的类型设置为`Object`型(即所有类型的父类)，值类型在转化到`Object`型时就需要进行装箱操作，频繁地装箱与拆箱会有较高的开销。
-`Object`类型并不安全(可能同时接收到不同的类型)，因而可以使用泛型来显式指定需要接收的类型(编译器会检查接收类型是否符合指定泛型)，对于值类型而言，使用泛型还可以避免重复的装箱与拆箱操作。
+`Object`类型并不安全(可能同时接收到不同的类型)，因而可以使用泛型来**显式指定**需要接收的类型(编译器会检查接收类型是否符合指定泛型)，对于值类型而言，使用泛型还可以避免重复的装箱与拆箱操作。
 C#中泛型还可以使用`where`关键字进行泛型约束，指定接收的类型的继承关系，例如：
 
 ```csharp
@@ -209,7 +211,7 @@ delegate 返回值类型 委托名(参数表);
 ```
 
 需要注意的是，委托与类以及函数类似，委托的定义是不能嵌套在函数中的。委托的定义可以在全局、命名空间或是作为某个类的成员，但委托的定义不能放在函数的函数体内。
-委托前可以使用访问权限关键字(`public``private``protected`等)进行限制，但委托不能使用`static`关键字(委托实例作为一个**类的成员**存在时可以使用`static`关键字)。
+委托前可以使用访问权限关键字(`public``private``protected`等)进行限制，但委托定义不能使用`static`关键字(委托实例作为一个**类的成员**存在时才可以使用`static`关键字)。
 委托可以绑定`static`或是非`static`成员函数，委托同样可以绑定当前类之外的符合签名要求的其它类的可见成员函数(`public``internal`成员)。
 `delegate`关键字还可以用来定义**匿名函数**，实例化委托或是增加委托实例绑定时都可以使用委托匿名函数。
 委托实例化：
@@ -277,7 +279,7 @@ event 委托名 事件名 = delegate(符合委托签名的参数表)		//匿名�
 事件名(符合委托签名的参数表);
 ```
 
-由于事件是一种特殊的委托实例，因此与委托不同，不能在全局区域和命名空间中定义事件，只能将事件作为某个类的成员来进行定义，事件与普通的成员类似，受到类的访问权限控制。
+由于事件是一种特殊的**委托实例**，因此与委托不同，不能在全局区域和命名空间中定义事件，只能将事件作为某个类的成员来进行定义，事件与普通的成员类似，受到类的访问权限控制。
 调用事件与调用委托实例方法是完全相同的。
 事件机制是其他C#高级技术的基础。
 举例：
@@ -326,7 +328,7 @@ This is the Test Text!
 
 
 ##Lambda表达式
-在`C#3.0`之后，引入了`Lambda表达式`的概念，用于实现**函数式编程**。基本语法为：
+在`C#3.0`之后，引入了`Lambda表达式`的概念，开始支持**函数式编程**。基本语法为：
 
 ```csharp
 () => 单一表达式;
@@ -422,6 +424,117 @@ class Test
 
 
 
+##WinFrom开发注记
+`C#`对应的**GUI**库为基于`.NET Framework`的`Windows Form`。
+
+###常见控件类型
+在`Windows Form`中，控件相关的类大多派生于`System.Windows.Forms.Control`。
+控件的名称也与其它的GUI库类似：
+
+- `Form`窗体，类似于Qt中的**QFrame**
+- `Label`标签文本
+- `Button`按钮
+- `RadioButton`单选框
+- `CheckBox`复选框
+- `CheckedListBox`多行复选框
+- `ListBox`列表框，类似于Qt中的**QListWidget**
+- `TextBox`简单文本框，类似于Qt中的**QLineEdit**
+- `RichTextBox`富文本框，类似于Qt中的**QTextEdit**
+- `TreeView`树形控件，类似于Qt中的**QTreeWidget**
+
+###容器
+在`Windows From`中，常见的容器有：
+
+- `Panel`最基本的面板容器
+- `GroupBox`控件组面板，类似与**QGroupBox**
+
+部分容器自带布局，放入其中的控件会按照其布局排列：
+
+- `FlowLayoutPanel`流布局面板
+- `TableLayoutPanel`表格布局面板
+
+###布局与样式
+在`Windows From`中，控件的大小与位置一般是固定的。
+若需要控件大小自动变化，则应使用`AutoSize`属性。
+一般情况下，控件的位置不会随着窗口大小的变化而自动排列位置，需要通过设置`Archor`属性来指定扩展的方向。
+控件还可以通过设置`Dock`属性指定需要停靠的边框。
+
+###控件事件
+一个标准的`Windows Form`控件中定义了多种事件，通过将指定的事件处理函数绑定到事件上，当满足事件触发的条件时，绑定的函数便会被回调。
+一个事件可以绑定多个事件处理函数，一个事件处理函数也可以被多个事件绑定。
+普通的事件签名没有限制，但`.NET Framework`类库中的所有事件均基于`EventHandler`委托，定义如下：
+
+```csharp
+public delegate void EventHandler(object sender, EventArgs e);
+```
+
+`sender`参数指明了事件的发出者，而`e`参数携带了事件的具体信息，`EventArgs`是所有`.NET Framework`类库中事件的基类，实际的事件类型
+只有符合`EventHandler`委托签名的函数才能被绑定到`Windows Form`的控件事件上。
+常用的`Windows Form`控件事件有：
+
+- `Load`载入窗体时触发，一般可用于初始化一些UI设置(`Form`类)
+- `Click`点按控件时触发
+- `MouseDown`鼠标按下时触发
+- `MouseUp`鼠标抬起时触发
+- `KeyDown`按键按下时触发
+- `KeyUp`按键抬起时触发
+- `GotFocus`接收焦点时触发
+
+###接收Windows消息
+在`Windows Form`中，所有从`System.Windows.Forms.Control`派生的类都包含以下方法：
+
+```csharp
+protected override void WndProc(ref Message m);
+```
+
+重写其即可处理**Windows消息**。
+`Message`类完整路径为`System.Windows.Forms.Message`，该类包装了Windows消息，包含以下属性：
+
+- `HWnd`获取或设置消息的窗口句柄
+- `LParam`指定消息的**LParam**字段
+- `Msg`获取或设置消息的**ID**号
+- `Result`指定为响应消息处理而向**Windows**返回的值
+- `WParam`获取或设置消息的**WParam**字段
+
+
+
+##使用C#调用C/C++动态链接库
+C#支持调用使用`C/C++`语言编写的`dll`。
+加载动态链接库需要指定dll的路径以及符号名称：
+
+```csharp
+[DLLImport("DLL Library"), EntryPoint = "Symbol Name"]
+修饰符 extern Type Func (Type args...)
+```
+
+声明方法的名称可以与dll中导出符号名称不同，只需在标注的`EntryPoint`中写明对应的符号名称。
+声明的方法参数表必须与dll中的参数表**完全匹配**。
+C#中的常见类型与C++中类型之间的转换关系：
+| C# | C++ |
+|----|-----|
+| void* | System.IntPtr |
+| void** | ref System.IntPtr |
+| unsigned char | System.Byte |
+| short | System.Int16 |
+| unsigned short | System.UInt16 |
+| int | System.Int32 |
+| int* | System.IntPtr |
+| int** | ref System.IntPtr |
+| unsigned int | System.UInt32 |
+| long | System.Int64 |
+| unsigned long | System.UInt32 |
+| char | System.Char |
+| char* | System.String |
+| wchar_t* | System.String |
+| const char* | System.String |
+| float | System.Single |
+| double | System.Double |
+| byte* | System.Byte[] |
+| unsigned char | System.Byte |
+| unsigned char* | ref System.Byte |
+
+
+
 ##C#的一些特有关键字
 
 ###internal关键字
@@ -438,3 +551,7 @@ class Test
 `const`定义的变量被视为编译时常量，而`readonly`定义的变量被视为运行时常量。
 在C#中`const`只能修饰值类型以及`string`类型和值为`null`的引用类型，被`const`修饰的变量自动带有`static`属性，`const`关键字与`static`关键字不能共同修饰同一个变量。
 `readonly`没有这些限制，可以修饰任意类型，被`readonly`修饰的变量也默认**不带**`static`属性。
+
+###partial关键字
+`partial`关键字用于定义`部分类`(局部类型)，局部类型允许我们将一个类、结构或接口分成几个部分，分别实现在几个不同的源码文件中。
+在`Windows From`中，窗口类代码便使用了部分类特性，对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中，两个文件中的代码本质上属于同一个类，`部分类`特性巧妙地隔离开了**由IDE产生的代码**与**用户自行编写的代码**，使代码结构更清晰。

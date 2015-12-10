@@ -792,7 +792,7 @@ bool QFile::link(const QString & fileName, const QString & linkName));	//创建�
 ```
 
 ###QFileInfo
-`QFileInfo`类提供了一系列文件信息的方法：
+`QFileInfo`类提供了一系列获取文件信息的方法：
 
 ```cpp
 QString QFileInfo::absoluteFilePath() const;							//获取文件的绝对路径(包含文件名)
