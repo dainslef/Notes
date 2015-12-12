@@ -201,6 +201,8 @@ class Program
 
 
 ##委托(delegate)和事件(event)
+**委托**让C#拥有了函数对象的概念，使一个方法可以作为参数被传递。
+**事件**让C#拥有了语言级别的消息通信机制。
 
 ###委托(delegate)
 委托是C#特有的概念，委托的作用类似于C/C++中的函数指针，但委托是类型安全的，在C#中，委托实际上是一个类，因而使用方式与`class`类似。委托支持加减运算符操作，一个委托实例能够绑定多个签名相同的函数。
@@ -327,7 +329,7 @@ This is the Test Text!
 
 
 
-##Lambda表达式
+##`Lambda`表达式
 在`C#3.0`之后，引入了`Lambda表达式`的概念，开始支持**函数式编程**。基本语法为：
 
 ```csharp
@@ -341,7 +343,7 @@ This is the Test Text!
 参数表中可以不显式指定参数类型，在表达式只有一条语句时，该语句如有返回值，则被作为整个`Lambda`的返回值，如果表达式有多条语句(使用花括号)时，需要显式使用`return`关键字指定返回值。
 参数表可以不指定参数类型交由编译器隐式推导，也可以显式指定参数类型，显式指定与隐式指定不可混用，一旦有参数使用了显式指定或隐式指定，其余的参数必须使用相同的指定方式。
 
-###Lambda表达式实现委托(delegate)
+###`Lambda`实现委托(delegate)
 在C#中，`Lambda`概念与委托相通，可以使用`Lambda`以更简洁的方式代替匿名委托实现委托实例。
 例如：
 
@@ -354,7 +356,7 @@ GetDouble getDouble3 = (double num1, double num2) => { return (int)(num1 + num2)
 
 需要注意的是，使用`Lambda`代替匿名委托虽然能够减少代码量，但这并不代表`Lambda`能够完全取代匿名委托，C#的`Lambda`中参数不能带有关键字`ref``out`，如果需要使用**引用参数**则还需要使用匿名委托。
 
-###使用函数对象表示Lambda表达式
+###使用函数对象表示`Lambda`
 使用`Action`表示不带参数和`void`型返回值的`Lambda`，对于无参的返回值为`void`的`Lambda`，不需要也不能画蛇添足地写成`Action<>`形式。
 使用`Action<T1, T2...>`表示带参数的`void`型返回值的`Lambda`。
 使用`Func<T1, T2..., R>`表示返回值类型不为空的`Lambda`(最后一个泛型参数为函数返回值的类型)。
@@ -424,7 +426,7 @@ class Test
 
 
 
-##WinFrom开发注记
+##`WinFrom`开发注记
 `C#`对应的**GUI**库为基于`.NET Framework`的`Windows Form`。
 
 ###常见控件类型
@@ -442,8 +444,8 @@ class Test
 - `RichTextBox`富文本框，类似于Qt中的**QTextEdit**
 - `TreeView`树形控件，类似于Qt中的**QTreeWidget**
 
-###容器
-在`Windows From`中，常见的容器有：
+###容器控件
+在`Windows From`中，常见的容器控件有：
 
 - `Panel`最基本的面板容器
 - `GroupBox`控件组面板，类似与**QGroupBox**
@@ -504,14 +506,15 @@ C#支持调用使用`C/C++`语言编写的`dll`。
 
 ```csharp
 [DLLImport("DLL Library"), EntryPoint = "Symbol Name"]
-修饰符 extern Type Func (Type args...)
+public/protected/private extern Type Func (Type args...)
 ```
 
 声明方法的名称可以与dll中导出符号名称不同，只需在标注的`EntryPoint`中写明对应的符号名称。
 声明的方法参数表必须与dll中的参数表**完全匹配**。
 C#中的常见类型与C++中类型之间的转换关系：
-| C# | C++ |
-|----|-----|
+
+| C++ | C# |
+|:----|:---|
 | void* | System.IntPtr |
 | void** | ref System.IntPtr |
 | unsigned char | System.Byte |
@@ -535,9 +538,9 @@ C#中的常见类型与C++中类型之间的转换关系：
 
 
 
-##C#的一些特有关键字
+##C#特有关键字
 
-###internal关键字
+###`internal`关键字
 类和类成员前可以使用`internal`关键字。
 `internal`关键字用在类、接口前表示只能在当前项目中访问该类、接口。
 拥有`internel`关键字的类不能被`public`类继承。
@@ -545,13 +548,13 @@ C#中的常见类型与C++中类型之间的转换关系：
 `internal`关键字用在类内成员之前表示只能在当前项目中访问该成员。
 在对类内成员使用时，`internal`关键字可以搭配`protected`关键字使用，即定义一个只能被当前项目的子类访问的成员。
 
-###readonly关键字
+###`readonly`关键字
 `readonly`关键字修饰的变量赋值只能在变量定义时或是在该变量所属类的构造函数中。
 与`const`关键字相比，`const`关键字定义的变量必须在定义时就初始化。
 `const`定义的变量被视为编译时常量，而`readonly`定义的变量被视为运行时常量。
 在C#中`const`只能修饰值类型以及`string`类型和值为`null`的引用类型，被`const`修饰的变量自动带有`static`属性，`const`关键字与`static`关键字不能共同修饰同一个变量。
 `readonly`没有这些限制，可以修饰任意类型，被`readonly`修饰的变量也默认**不带**`static`属性。
 
-###partial关键字
+###`partial`关键字
 `partial`关键字用于定义`部分类`(局部类型)，局部类型允许我们将一个类、结构或接口分成几个部分，分别实现在几个不同的源码文件中。
 在`Windows From`中，窗口类代码便使用了部分类特性，对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中，两个文件中的代码本质上属于同一个类，`部分类`特性巧妙地隔离开了**由IDE产生的代码**与**用户自行编写的代码**，使代码结构更清晰。
