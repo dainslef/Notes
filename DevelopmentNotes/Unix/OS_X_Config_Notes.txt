@@ -46,7 +46,8 @@ iTerm2										//OS X下的终端模拟器，比自带的功能更强大
 
 一些特殊目录 >
 ~/Library/Caches/							//缓存目录
-~/Library/Application Support/				//缓存配置目录
+~/Library/Application Support/				//用户程序配置目录
+/Library/Application Support/				//系统程序配置目录
 /System/Library/Fonts/						//系统默认字体目录
 /Library/Fonts/								//系统可选字体目录
 ~/Library/Fonts/							//用户字体目录
@@ -226,3 +227,29 @@ $ nano /Volumes/[启动分区名称]/System/Library/CoreServices/SystemVersion.p
 </plist>
 然后使用OS X系统的启动管理器bless来创建启动项，执行指令：
 # bless --folder=/Volumes/[启动分区名称]/System/Library/CoreServices/ --file=/Volumes/[启动分区名称]/System/Library/CoreServices/boot.efi --setBoot
+
+----
+
+重置Launchpad中的图标 >
+Launchpad中数据保存在~/Library/Application Support/Dock/路径下，如果Launchpad中图标出现异常(比如已删除的软件图标依然存在)，可以尝试清空Launchpad中的数据。
+删除该目录之后，Launchpad会在下次开机之后重置图标布局，恢复成默认的样式(Apple自带的软件占一页，用户自行安装的软件从第二页开始)。
+
+----
+
+设置Xcode路径 >
+Xcode中包含了一系列的命令行工具如clang、git等，Homebrew的安装也依赖于这些命令行工具。
+默认情况下，安装Xcode的同时会自动设置Xcode的对应路径。
+但如果用户改变了Xcode.app的位置，则需要重新设定Xcode的路径，否则会出现找不到命令行工具的情况。
+使用xcode-select可以设定Xcode的安装位置：
+# xcode-select --switch [Your Xcode Path]/Xcode.app/Contents/Developer
+
+----
+
+使用gdb调试器 >
+在新版的OS X系统中，clang作为默认编译器取代了gcc，lldb作为默认编译器取代了gdb。
+默认情况下，使用Homebrew安装的gdb调试器是不能在普通用户下正常调试代码的，需要对其进行签名后才能使其正常调试代码。
+使用KeyChain Access.app创建一个证书(certificate)，证书的Certificate Type要设为Code Signing， KeyChain要设为System，Trust列表中的CodeSigning属性要设置为Always Trust。
+成功创建了证书之后，使用codesign命令对gdb进行签名：
+$ codesign -s [证书名称] [gdb安装路径]
+证书需要在系统重启之后才会生效。
+需要注意的是，每次gdb包升级，都需要重新使用证书对其进行签名，否则不能正常调试代码。

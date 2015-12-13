@@ -455,9 +455,9 @@
 			<li><p>配置OpenGL开发环境时需要安装mesa相关包（通常在安装桌面环境时已经随依赖安装），以及freeglut包。</p>
 			<blockquote># pacman -S freeglut</blockquote></li><br/>
 			<li><p>将需要的开发工具和开发环境一并安装：</p>
-			<blockquote># pacman -S ctags mariadb clang boost freeglut gcc gcc-ada gcc-fortran gcc-go gcc-objc gdb gnustep-core nasm php python js npm mono jdk7-openjdk jdk8-openjdk scala sbcl ruby qtcreator</blockquote></li><br/>
+			<blockquote># pacman -S ctags clang boost freeglut gcc gcc-ada gcc-fortran gcc-go gcc-objc gdb lldb gnustep-core nasm python js npm mono mariadb jdk7-openjdk jdk8-openjdk scala sbcl ruby qtcreator</blockquote></li><br/>
 			<li><p>安装开发环境的对应的文档：</p>
-			<blockquote># pacman -S openjdk8-doc qt5-doc php-docs python-docs scala-docs ruby-docs</blockquote></li><br/>
+			<blockquote># pacman -S openjdk8-doc qt5-doc python-docs scala-docs ruby-docs</blockquote></li><br/>
 			<li><p>最后安装主流的版本控制系统：</p>
 			<blockquote># pacman -S git subversion</blockquote></li>
 			</ul>
@@ -566,6 +566,7 @@
 			<li><p>命令行工具<span class="blue"> grep </span>在<span class="blue"> 2.21 </span>版本之后取消了对环境变量<span class="blue"> GREP_OPTIONS </span>的支持，如果安装了OhMyZsh插件或是有其它脚本创建了此环境变量，则在使用grep时会出现错误提示。要解决此问题，需要修改<span class="blue"> ~/.oh-my-zsh/lib/grep.zsh </span>文件，注释掉其中关于GREP_OPTIONS环境变量值的export。此外，如果需要grep输出内容高亮关键字显示，可以采用alias命令别名的方式，在<span class="blue"> .oh-my-zsh/lib/grep.zsh </span>文件中添加：</p>
 			<blockquote>alias grep="grep --color=auto"</blockquote>
 			<p>需要注意的是，此配置比较诡异，写在<span class="blue"> .xprofile </span>文件中是没有效果的。<span>(OhMyZsh插件的最近分支已经修正了这个问题，新版grep.zsh也采用了alias别名的方式来实现grep彩色输出，故无需再做修改)</span></p></li><br/>
+			<li><p>使用<span class="blue"> lldb </span>调试器的时候，需要注意，如果机器的<span class="blue"> hostname </span>不是默认的，则需要在<span class="blue"> /etc/hosts </span>配置文件中，将当前用户的<span class="blue"> hostname </span>正确地与主机ip<span class="blue"> 127.0.0.1 </span>相关联，否则，使用lldb调试器时会出现无法创建进程的情况：<span class="blue"> error: process launch failed: 'A' packet returned an error: -1</span>。</p></li><br/>
 			<li><p>在<span class="blue"> 2015-1-27 </span>的更新中，<span class="blue"> network-manager-applet </span>包中取消了"网络连接"功能的图标，如果需要连接到DSL网络，需要从终端启动网络连接编辑器。执行指令：</p>
 			<blockquote>$ nm-connetion-editor</blockquote>
 			<p>即可启动网络连接编辑器，并从中添加<span class="blue"> DSL连接 </span>。</p><br/></li>
