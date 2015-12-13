@@ -253,10 +253,15 @@ var num = str.toInt
 在Scala中，所有的基础类型之外的引用类型派生自类`AnyRef`。
 
 ###底类型(Bottom)
-与Java不同，Scala中存在底类型(bottom)。底类型包括Nothing和Null，Nothing是所有类型的子类，Null是所有引用类型(AnyRef)的子类，Nothing类没有值，Null类只有一个值null(类似于Java中null的作用)。
+与Java不同，Scala中存在底类型(bottom)。底类型包括`Nothing`和`Null`。
+
+- `Nothing`是所有类型`Any`的子类型，定义为`final trait Nothing extends Any`。
+- `Nothing`特质没有实例。
+- `Null`是所有引用类型`AnyRef`的子类型，定义为`final trait Null extends AnyRef`。
+- `Null`特质拥有唯一实例`null`(类似于Java中`null`的作用)。
 
 ###可空类型
-在Scala中，使用`Option[T]`表示可空类型，`Option[T]`包含两个子类，`Some[T]`和`None`，分别代表值存在/值为空。
+在Scala中，使用`Option[T]`表示可空类型，`Option[T]`包含两个子类，`Some[T]`和`None`，分别代表值存在/值不存在。
 对`Option[T]`类型使用`getOrElse()`方法来获取存在的值或是当值不存在时使用指定的值，如下所示：
 
 ```scala
@@ -541,7 +546,7 @@ abc cde
 abc cde efg
 
 ###特质(trait)
-Scala中的`trait`特质对应Java中的`interface`接口，但相比Java中的接口，Scala中的特质除了没有默认构造器之外，拥有绝大部分类的特性。
+Scala中的`trait`特质对应Java中的`interface`接口，但相比Java中的接口，Scala中的特质除了没有默认构造器、不能被直接实例化之外，拥有绝大部分类的特性。
 Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
 
 ####*混入(mixin)*
@@ -1145,3 +1150,82 @@ package Package {
 	}
 }
 ```
+
+
+
+##隐式转换与隐式参数
+隐式转换在构建类库时是一个强大的工具。
+
+###隐式转换
+Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。
+如果需要类型之间的自动转换，需要使用`implicit`自定义隐式转换。
+隐式转换可以定义在当前类中或是伴生对象中，只要需要进行转换时能被访问到即可。
+当传入参数的类型与函数需要的类型不同时，编译器便会查找是否有合适的隐式转换，如下所示：
+
+```scala
+class Implicit(val num: Int)
+
+object Implicit {
+	implicit def implToInt(impl: Implicit) = impl.num
+}
+
+object Main extends App {
+
+	implicit def implToStr(impl: Implicit) = impl.num.toString
+
+	def showNum(num: Int) = println(num)
+	def showStr(str: String) = println(str)
+
+	showNum(new Implicit(100))
+	showStr(new Implicit(200))
+}
+```
+
+当访问一个实例不存在的成员时，编译器也会查找是否存在隐式转换，能将其转化为拥有此成员的类型，如下所示：
+
+```scala
+class Implicit(val num: Int) {
+	def show = println(num)
+}
+
+object Implicit {
+	implicit def intToImpl(num: Int) = new Implicit(num)
+}
+
+object Main extends App {
+	import Implicit.intToImpl			//当隐式转换没有定义在当前作用域也不在实例的伴生对象中时需要显式导入
+	100.show							//Int型被隐式转换为Implicit类型
+}
+```
+
+当一个实例自身和方法的参数都能通过隐式转换来满足方法调用时，优先转换方法的参数，如下所示：
+
+```scala
+class Impl1(val str: String = "") {
+	def show(impl: Impl2) = println(100)
+}
+
+object Impl1 {
+	implicit def impl1ToImpl2(impl: Impl1) = new Impl2(impl.str)
+}
+
+class Impl2(val str: String = "") {
+	def show(impl: Impl1) = println(200)
+	def test = println(300)
+}
+
+object Main extends App {
+	var impl1 = new Impl1
+	impl1.test					//实例由Impl1类型隐式转换成了Impl2类型
+	impl1 show (impl1)			//可以通过将实例隐式转换为Impl2类型来满足方法调用，但编译器实际执行的操作是将参数隐式转换成了Impl2类型
+}
+```
+
+输出结果：
+300
+100
+
+Scala类库中大量使用了隐式转换特性，如`String`类型本身没有`toInt/toDouble`之类的成员方法，在调用这些方法时，`String`被隐式转换成定义了这些方法的`StringLike`类型来执行这些操作。
+
+###隐式参数
+待续。
