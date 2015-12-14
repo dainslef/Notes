@@ -1228,4 +1228,26 @@ object Main extends App {
 Scala类库中大量使用了隐式转换特性，如`String`类型本身没有`toInt/toDouble`之类的成员方法，在调用这些方法时，`String`被隐式转换成定义了这些方法的`StringLike`类型来执行这些操作。
 
 ###隐式参数
-待续。
+函数和方法的参数前可以添加关键字`implicit`来将一个参数标记为**隐式参数**，当调用方法时没有对隐式参数赋值，则编译器便会为隐式参数寻找匹配的隐式值。
+变量前可以通过添加`implicit`关键字成为隐式值。
+如下所示：
+
+```scala
+class Implicit(implicit var num1: Int, implicit var num2: Double)
+
+object Implicit {
+	implicit var impl = 200.0	//隐式值可以定义在伴生对象中
+}
+
+object Main extends App {
+	implicit var num = 100		//隐式值需要当前作用域内可见
+	import Implicit._			//不在当前作用域中的隐式值需要显式导入
+	var impl = new Implicit
+	var num1 = impl.num1
+	var num2 = impl.num2
+	println(s"$num1 $num2")
+}
+```
+
+输出结果：
+100 200.0
