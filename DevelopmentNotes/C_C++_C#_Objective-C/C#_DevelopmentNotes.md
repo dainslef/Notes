@@ -2,10 +2,14 @@
 
 ##C#的入口函数
 C#的入口函数允许以下4种形式的入口函数：
+
+```csharp
 static void Main();
 static void Main(string[] args);
 static int Main();
 static int Main(string[] args);
+```
+
 C#允许多种入口函数形式，一般采用第二种(默认)。
 与Java不同，C#并不强制要求主类的类名与主类所在文件的文件名相同。
 实际上，C#由于支持`部分类`特性，也不可能要求类名与源码文件名相同。

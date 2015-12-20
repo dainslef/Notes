@@ -33,7 +33,7 @@
 `QToolButton`工具箱按钮，有按下和弹起状态
 `QListWdget`列表框，可以设置表格模式或图标模式，通过`setCurrentItem(nullptr)`清除当前选中的子目标
 
-###在Qt中使用c++11
+###在Qt中使用C++11
 默认情况下，`Qt`是**没有**开启`C++11`支持的，让`Qt5`支持`C++11`需要在项目的`pro文件`中添加语句`CONFIG += c++11`，让`Qt4`支持`C++11`则需要在项目的`pro文件`中加入`QMAKE_CXXFLAGS += -std=c++11`。
 添加`QMAKE_CXXFLAGS`参数的方法也使用于`Qt5`，只要编译器支持，还可以使用更新的`C++1y`。
 添加`CONFIG`参数的方式只在`Qt5`中有效，且只能支持`C++11`。
@@ -94,10 +94,10 @@ int A::set(int a)
 
 int main(int argc, char *argv[])
 {
-	A *a = new A(10);
+	A* a = new A(10);
 	QObject::connect(a, SIGNAL(send(int)), a, SLOT(get(int)));		//用connect方法将实例指针a的send(int)信号与实例指针a的get(int)槽相连
 	std::cout << a->a << std::endl;
-	a->set(5);		//调用set(int)方法就会发送send(int)信号，使得get(int)槽函数调用，成员变量a的值发生改变
+	a->set(5);			//调用set(int)方法就会发送send(int)信号，使得get(int)槽函数调用，成员变量a的值发生改变
 	std::cout << a->a << std::endl;
 	return 0;
 }
@@ -122,10 +122,10 @@ int main(int argc, char *argv[])
 **发送**事件可以使用以下函数：
 
 ```cpp
-void QCoreApplication::postEvent(QObject * receiver, QEvent * event);
-bool QCoreApplication::sendEvent(QObject * receiver, QEvent * event);
-void QCoreApplication::sendPostedEvents(QObject * receiver, int event_type);
-bool QCoreApplication::notify(QObject * receiver, QEvent * event);
+void QCoreApplication::postEvent(QObject* receiver, QEvent* event);
+bool QCoreApplication::sendEvent(QObject* receiver, QEvent* event);
+void QCoreApplication::sendPostedEvents(QObject* receiver, int event_type);
+bool QCoreApplication::notify(QObject* receiver, QEvent * event);
 ```
 
 `postEvent()`函数将事件放入事件消息队列中，然后立即返回，函数只将事件放入队列的尾端，不保证事件立即得到处理。
@@ -134,9 +134,7 @@ bool QCoreApplication::notify(QObject * receiver, QEvent * event);
 
 ###处理事件
 处理事件可以重写`QWidget::customEvent(QEvent*)`或`QWidget::event(QEvent*)` 函数，区别是前者**不需要**返回值，后者在处理完自定义事件之后需要继续返回对应控件的父类事件处理函数(`event()`是直接的事件处理函数)，返回事件循环的时候要注意当前类的继承关系，只返回最基本的循环`QObject::event()`则会有许多事件**不被处理**。
-
 如果一个类的多个控件都需要相同的事件处理则可以重新实现`QObject::eventFilter(QObject *watched, QEvent *event)` 函数，然后在对应的控件对象上使用`QObject::installEventFilter(QObject *filterObj)` 函数安装过滤器，参数为要安装的过滤器所在的类指针。
-
 在处理键盘事件时需要注意，如果已经接收了某个按键的事件同时进行操作，然后将事件继续返回事件队列时，如果这个键盘事件有系统默认的操作，则系统默认的操作依然会继续执行，则有可能与自己定义的操作产生冲突，正确的做法是对自己要处理的键盘事件返回`true`(这样系统定义的操作将不会触发，能够避免冲突)，只将不处理的键盘事件返回事件循环。
 
 ###事件机制与信号槽的区别
@@ -167,8 +165,8 @@ bool QCoreApplication::notify(QObject * receiver, QEvent * event);
 例如：
 
 ```cpp
-QWidget *widget = new QWidget(table);
-QHBoxLayout *layout = new QHBoxLayout(widget);
+QWidget* widget = new QWidget(table);
+QHBoxLayout* layout = new QHBoxLayout(widget);
 layout->addWidget(new QCheckBox(widget));
 widget->setLayout(layout);
 table->setCellWidget(row, column, widget);
@@ -183,7 +181,7 @@ table->setCellWidget(row, column, widget);
 例如：
 
 ```cpp
-QTableWidget *table = new QTableWidget;
+QTableWidget* table = new QTableWidget;
 table->horizontalHeader()->setStretchLastSection(true);				//最后一行自动扩展
 table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);		//所有行自动扩展
 ```
@@ -197,7 +195,7 @@ table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);		//所有行自�
 举例：
 
 ```cpp
-QTableWidget *table = new QTableWidget;
+QTableWidget* table = new QTableWidget;
 QModeIndex index = table->indexAt(dynamic_cast<QWidget*>(sender())->frameGeometry().center());
 int row = index.row();
 int column = index.column();
@@ -244,7 +242,7 @@ int column = index.column();
 `Qt`中如果包含了`QApplication`或`QCoreApplication`头文件，就可以使用全局变量`qApp`，该变量的作用是返回一个**当前实例**。
 
 ###qApp的宏定义
-在`QApplication`中为`#define qApp (static_cast<QApplication *>(QCoreApplication::instance()))`
+在`QApplication`中为`#define qApp (static_cast<QApplication*>(QCoreApplication::instance()))`
 在`QCoreapplication`中为`#define qApp QCoreApplication::instance()`
 在使用一些`静态槽函数`时，连接信号槽时就需要使用此变量，比如`QApplication::aboutQt()`。
 
@@ -266,7 +264,7 @@ int column = index.column();
 ```cpp
 void QWidget::contextMenuEvent(QContextMenuEvent*)
 {
-	QMenu *contextMenu = new QMenu(this);
+	QMenu* contextMenu = new QMenu(this);
 	contextMenu->addAction(new QAction("Test"));
 	contextMenu->exec(cursor().pos());		//使用cursor()获取当前控件的QCursor鼠标对象，然后使用 QCursor::pos() 获得当前鼠标的位置，这样右键菜单便能在鼠标位置出现
 }
@@ -280,8 +278,8 @@ void QWidget::contextMenuEvent(QContextMenuEvent*)
 Qt中鼠标点按动作会触发下列事件：
 
 ```cpp
-void QWidget::mousePressEvent(QMouseEvent *e);
-void QWidget::mouseReleaseEvent(QMouseEvent *e);
+void QWidget::mousePressEvent(QMouseEvent* e);
+void QWidget::mouseReleaseEvent(QMouseEvent* e);
 ```
 
 **重写**这些事件处理函数即可。
@@ -291,9 +289,9 @@ void QWidget::mouseReleaseEvent(QMouseEvent *e);
 移动鼠标会触发下列事件：
 
 ```cpp
-void QWidget::mouseMoveEvent(QMouseEvent *e);
-void QWidget::leaveEvent(QEvent *event);
-void QWidget::enterEvent(QEvent *event);
+void QWidget::mouseMoveEvent(QMouseEvent* e);
+void QWidget::leaveEvent(QEvent* event);
+void QWidget::enterEvent(QEvent* event);
 ```
 
 当鼠标移入控件时，会触发`enterEvent()`函数，当鼠标移出控件时会触发`leaveEvent()`，触发这些事件并**不需要**控件获得焦点，只需要鼠标进入/退出指定控件区域即会触发。
@@ -302,18 +300,18 @@ void QWidget::enterEvent(QEvent *event);
 
 
 ##自定义控件
-Qt中的控件类一般在构造函数中都有一个`QWidget *parent = 0`的参数用来指定当前类的实例属于哪个**父窗口**(该参数默认为0，即没有父窗口)，当一个控件类实例的父窗口被关闭时，Qt会**自动析构**以此窗口为父窗口的所有控件类。
+Qt中的控件类一般在构造函数中都有一个`QWidget* parent = 0`的参数用来指定当前类的实例属于哪个**父窗口**(该参数默认为0，即没有父窗口)，当一个控件类实例的父窗口被关闭时，Qt会**自动析构**以此窗口为父窗口的所有控件类。
 在给Qt控件定义父窗口时需要注意，布局控件`QLayout`在实例化时参数填写了父窗口则代表将这个实例化的布局应用到作为参数传入父窗口上，很多时候这样做是无效的，会提示父窗口已经拥有布局，因此在实例化布局控件是没必要指定父窗口。
 当我们需要自定义自己的控件时，一般会根据需求继承于QWidget或其子类，在自定义控件类的构造函数中，建议也要添加一个参数用于设定父窗口，推荐如下方式在类内声明构造函数：
 
 ```cpp
-MyWidget(QWidget *parent = 0);
+MyWidget(QWidget* parent = 0);
 ```
 
 类外定义写成：
 
 ```cpp
-MyWidget::MyWidget(QWidget *parent) : QWidget(parent)
+MyWidget::MyWidget(QWidget* parent) : QWidget(parent)
 {
 	/* 函数体 */
 };
@@ -326,8 +324,8 @@ MyWidget::MyWidget(QWidget *parent) : QWidget(parent)
 Qt提供了以下方式来获取子控件的指针：
 
 ```cpp
-template<typename T> T QObject::findChild (const QString &name = QString()) const;		//通过ObjectName来获取需要的控件指针
-template<typename T>  QList<T> QObject::findChildren(const QRegExp &regExp) const;		//通过正则表达式来获取子控件指针
+template<typename T> T QObject::findChild (const QString& name = QString()) const;		//通过ObjectName来获取需要的控件指针
+template<typename T>  QList<T> QObject::findChildren(const QRegExp& regExp) const;		//通过正则表达式来获取子控件指针
 const QObjectList& QObject::children() const;											//直接返回所有子控件
 ```
 
@@ -360,7 +358,7 @@ w.exec();
 还可以通过设置窗口的`Qt::WA_DeleteOnClose`属性来让窗口关闭时自动释放内存：
 
 ```cpp
-QWidget *w = new QWidget;
+QWidget* w = new QWidget;
 w->setAttribute(Qt::WA_DeleteOnClose, true);
 w->show();
 ```
@@ -409,7 +407,7 @@ void QWidget::resize(int w, int h);
 
 前者在设置大小的同时还能设置窗口在屏幕的显示位置，后者用于重新设定窗口大小。
 当窗口采用栅格化布局的时候，使用以上两个函数在设定大小时很可能不会生效，此时可以使用`QWidget::setFixedSize(const QSize &)`来设定固定的窗口大小，这个大小能够覆盖布局定义的大小而强制生效，如果只需要设定宽或是高可以单独使用`QWidget::setFixedWidth(int w)`或是`QWidget::setFixedHeight(int h)`。
-窗口设置了固定的大小如果需要再改动，可以将宏`QWIDGETSIZE_MAX`作为参数传入`QWidget::setFixedSize(const QSize &)`函数中，窗口就会重新变成可调大小。
+窗口设置了固定的大小如果需要再改动，可以将宏`QWIDGETSIZE_MAX`作为参数传入`QWidget::setFixedSize(const QSize&)`函数中，窗口就会重新变成可调大小。
 使用`QWidget::sizeHint()`函数可以获取Qt判断的窗口**最合适**大小。
 
 
@@ -422,31 +420,31 @@ Qt基于`C++`语言，与`Java``C#`不同，没有**自动装箱**和**拆箱**�
 在Qt中，默认字符串与数字用加号拼接然后转换为`QString`类型时，数字会被当作`ASC码`对待，要使数字保持语义转化为字符串则需要使用`QString::number(int/double/long)`函数进行转换。
 `QString`可以通过`QString::toStdString()`来得到传统风格的`C++`字符串类型`std::string`，而`std::string`可以通过`std::string::c_str()`函数转换为c风格的`char*`字符数组指针。
 `QString`可以使用静态方法`QString::fromStdString(const std::string &str)`来直接将`std::string`转换为`QString`。
-对于可能出现的字符串乱码问题，可以使用静态方法`QString QString::fromLocal8Bit(const char *str, int size = -1)`来构建`QString`。
+对于可能出现的字符串乱码问题，可以使用静态方法`QString QString::fromLocal8Bit(const char* str, int size = -1)`来构建`QString`。
 
 ###格式化文本
 `QString`类提供了多样的**格式化文本**功能，类C风格的格式化可以使用其成员函数`QString::sprintf(const char *cformat, ...)`进行。
 需要注意的是，Qt本身并不推荐使用`QString::sprintf()`来进行文本格式化，`QString::sprintf()`在`Qt5.5`中已经被标记为`Obsolete(废弃的)`，可能会在未来版本中移除该函数。
-Qt风格的文本格式化应使用`QString::arg(const QString &a, int fieldWidth = 0, QChar fillChar = QLatin1Char(' '))`来进行。
+Qt风格的文本格式化应使用`QString::arg(const QString& a, int fieldWidth = 0, QChar fillChar = QLatin1Char(' '))`来进行。
 
 ###QLabel多行显示文本
 在默认情况下，`QLabel`控件只会**单行**显示文本，一旦文本内容超过了`QLabel`控件的`Width`，就无法显示。
 如果需要在指定宽度下完整显示文本，就需要将`QLabel`设置为允许多行显示。使用`setWordWrap(true)`方法设置`QLabel`的允许多行显示。
 
 ###限制QLineEdit的输入内容
-很多时候，需要对用户输入的内容加以限制，对于简单的限制，可以使用`QLineEdit::setValidator(const QValidator * v)`限制输入内容。
+很多时候，需要对用户输入的内容加以限制，对于简单的限制，可以使用`QLineEdit::setValidator(const QValidator* v)`限制输入内容。
 
 ####*限制只能输入整数*
 
 ```cpp
-QLineEdit *lineEdit = new QLineEdit();
-lineEdit->setValidator(new QIntValidator(0, 1000, this));		//限制输入0~1000的数值
+QLineEdit* lineEdit = new QLineEdit();
+lineEdit->setValidator(new QIntValidator(0, 1000, this));				//限制输入0~1000的数值
 ```
 
 ####*限制只能输入小数*
 
 ```cpp
-QLineEdit *lineEdit = new QLineEdit();
+QLineEdit* lineEdit = new QLineEdit();
 lineEdit->setValidator(new QDoubleValidator(0.0, 1000.0, 2, this));		//限制输入0.0~1000.0的数值，最大保留小数点后两位
 ```
 
@@ -454,7 +452,7 @@ lineEdit->setValidator(new QDoubleValidator(0.0, 1000.0, 2, this));		//限制输
 对于复杂的输入限制，可以使用正则表达式校验器`QRegExpValidator`。
 
 ```cpp
-QLineEdit *lineEdit = new QLineEdit();
+QLineEdit* lineEdit = new QLineEdit();
 lineEdit->setValidator(new QRegExpValidator(QRegExp("正则表达式内容")), this);
 ```
 
@@ -477,8 +475,8 @@ lineEdit->setValidator(new QRegExpValidator(QRegExp("正则表达式内容")), t
 `QListWidget`中的每一个列表项都是一个`QListWidgetItem`对象，对于`QListWidgetItem`，常用的方法有：
 
 ```cpp
-void QListWidgetItem::setText(const QString &text);						//设置列表项/图标模式下的显示文字
-void QListWidgetItem::setData(int role, const QVariant &value);			//设置item保存的数据内容
+void QListWidgetItem::setText(const QString& text);						//设置列表项/图标模式下的显示文字
+void QListWidgetItem::setData(int role, const QVariant& value);			//设置item保存的数据内容
 ```
 
 需要注意的是`setData()`成员函数中的第一个参数为保存数据的角色`Qt::ItemDataRole`，该值从0~14之间的为Qt自身使用的Role，比如item默认的文本数据就保存在0角色中，即在role为0时，`setText()`和`setData()`只有**一个**能生效(后调用的那个会把先前的数据覆盖)。
@@ -505,9 +503,9 @@ void QListWidgetItem::setData(int role, const QVariant &value);			//设置item�
 可以使用以下方法来对`QTreeWidgetItem`进行设置：
 
 ```cpp
-void QTreeWidgetItem::setText(int column, const QString &text);						//设置指定列的文本内容
+void QTreeWidgetItem::setText(int column, const QString& text);						//设置指定列的文本内容
 void QTreeWidgetItem::setCheckState(int column, Qt::CheckState state);				//设置指定列的勾选状态，使用该方法后指定列会处于可勾选状态
-void QTreeWidgetItem::setData(int column, int role, const QVariant &value);			//item的每一列都可以用来保存数据
+void QTreeWidgetItem::setData(int column, int role, const QVariant& value);			//item的每一列都可以用来保存数据
 void QTreeWidgetItem::setFlags(Qt::ItemFlags flags);								//设置标志，可用来控制item的一些行为。比如：是否可用(Qt::ItemIsEnabled)、是否可编辑(Qt::ItemIsEditable)、是否可选中(Qt::ItemIsSelectable)、是否可由用户点选(Qt::ItemIsUserCheckable)等。
 ```
 
@@ -528,7 +526,7 @@ void QHeaderView::setSectionResizeMode(int logicalIndex, ResizeMode mode);			//�
 
 ```cpp
 void QHeaderView::setSortIndicatorShown(bool show);									//使QTreeWidget的头标签支持点按排序
-void QTreeWidgetItem::setBackgroundColor(int column, const QBrush &brush);			//填充指定列的背景色
+void QTreeWidgetItem::setBackgroundColor(int column, const QBrush& brush);			//填充指定列的背景色
 void QHeaderView::setDefaultSectionSize(int size);									//设置默认列宽
 void QHeaderView::setMinimumSectionSize(int size);									//设置最小列宽
 ```
@@ -559,7 +557,7 @@ QString url = QFileDialog::getOpenFileName(this);
 创建一个QLabel控件：
 
 ```cpp
-QLabel *label = new QLabel(this);
+QLabel* label = new QLabel(this);
 ```
 
 用前面得到的路径变量url创建一个`QPixmap`控件：
@@ -644,7 +642,7 @@ map.loadFromData(byte);
 最后将`QPixmap`对象绑定到`QLabel`控件上：
 
 ```cpp
-QLabel *label = new QLabel;
+QLabel* label = new QLabel;
 label->setPixmap(map);
 ```
 
@@ -666,8 +664,8 @@ label->setPixmap(map);
 使用`QPainter`绘制图像时，需要在构建`QPainter`实例时传入需要绘制的设备的地址作为参数或者使用`begin()`成员函数来确定绘制设备，比如`QPainter painter(this);`就是实例化了一个绘制**当前控件**的`QPainter`。
 一个`painter`只能同时绘制一个设备(一支笔不能同时在两张纸上写字)，当可以在绘制设备之间进行切换，从一个绘制设备切换到另一个绘制设备之前需要使用`end()`成员函数结束上一个被绘制的设备，然后将下一个可绘制设备的地址传入`begin()`成员函数进行绘制。
 `QPainter`不仅能用于绘制图像，还可以用于绘制**文字**(使用`drawText()`方法)。
-`QPainter`使用`QPainter::setPen(const QPen &pen)`可以设置画笔的样式(线形、色彩等)。
-`QPainter`使用`QPainter::setFont(const QFont &font)`可以设置文本的字体。
+`QPainter`使用`QPainter::setPen(const QPen& pen)`可以设置画笔的样式(线形、色彩等)。
+`QPainter`使用`QPainter::setFont(const QFont& font)`可以设置文本的字体。
 
 ###QPixmap
 使用默认的构造函数(无参构造函数)构造`QPixmap`时，会产生一个**空的**`QPixmap`对象，空的`QPixmap`对象是**不能**传入`QPainter`进行绘制操作的(运行时提示`QPainter::begin: Paint device returned engine == 0, type: 2`)，需要重载的`赋值操作符/load()`等成员函数加载数据之后才能绘制，也可以使用带有初始大小的`QPixmap(const QSize& size)``QPixmap(int width, int height)`等构造函数创建一个**初始非空**的`QPixmap`对象。
@@ -680,14 +678,14 @@ label->setPixmap(map);
 
 ###图片透明化
 使用`QImage`处理图片时可以通过设置图片的**Alpha通道**使图片透明化。
-简单的透明处理可以使用`QImage::setAlphaChannel(const QImage & alphaChannel)`以另一个`QImage`对象作为参数使图片透明化。
+简单的透明处理可以使用`QImage::setAlphaChannel(const QImage& alphaChannel)`以另一个`QImage`对象作为参数使图片透明化。
 如果需要手动指定透明度(Alpha值)，则可以创建一个带有Alpha通道的`QImage`对象，如`QImage temp_image(win_size, QImage::Format_ARGB32);`
 使用设置了透明画刷的`QPainter`对其进行色彩填充，然后将此`QImage`作为`QImage::setAlphaChannel()`成员函数的参数。
 例如：
 
 ```cpp
-int alpha = 100;					//定义alpha透明度
-QImage temp_image(100，100)；		//创建空白QImage
+int alpha = 100;								//定义alpha透明度
+QImage temp_image(100, 100);					//创建空白QImage
 QPainter painter(&image);
 painter.fillRect(0, 0, 100, 100, QColor(alpha, alpha, alpha, alpha));		//填充色彩
 image.setAlphaChannel(temp_image);				//以temp_image为样本设置原图像的alpha通道
@@ -703,9 +701,9 @@ Qt中不需要传递`argc`和`**argv`，可以通过静态方法`QStringList QCo
 
 ###解析命令行参数
 `QCommandLineOption`用于表示某一个具体的命令参数，`QCommandLineParser`用于添加用`QCommandLineOption`类表示的命令行参数。
-构造`QCommandLineOption`对象时传入一个`QString`做为参数的名称，通过`QCommandLineOption::setDefaultValue(const QString &defaultValue)`设置参数的默认值。
-`QCommandLineParser`使用`QCommandLineParser::addOption(const QCommandLineOption &option)`添加`QCommandLineOption`命令行参数类。
-通过使用`bool QCommandLineParser::isSet(const QCommandLineOption &option)/isSet(const QString &name)`判断命令行中是否带有指定参数。
+构造`QCommandLineOption`对象时传入一个`QString`做为参数的名称，通过`QCommandLineOption::setDefaultValue(const QString& defaultValue)`设置参数的默认值。
+`QCommandLineParser`使用`QCommandLineParser::addOption(const QCommandLineOption& option)`添加`QCommandLineOption`命令行参数类。
+通过使用`bool QCommandLineParser::isSet(const QCommandLineOption& option)/isSet(const QString& name)`判断命令行中是否带有指定参数。
 
 ###获取系统环境变量
 使用`QStringList QProcess::systemEnvironment()`可以获取系统所有的环境变量。
@@ -717,14 +715,14 @@ Qt中不需要传递`argc`和`**argv`，可以通过静态方法`QStringList QCo
 一般使用`QWidget`的静态成员函数进行截图：
 
 ```cpp
-QPixmap grabWidget(QObject *widget, int x = 0, int y = 0, int w = -1, int h = -1);
+QPixmap grabWidget(QObject* widget, int x = 0, int y = 0, int w = -1, int h = -1);
 ```
 
 也可以使用`QScreen`对象进行截图操作。
 
 ```cpp
-QScreen *screen = QGuiApplication::primaryScreen();
-QPixmap view = screen->grabWindow(this->winId(), 0, 0, size().width(), size().height());
+QScreen* screen = QGuiApplication::primaryScreen();
+QPixmap view = screen->grabWindow(winId(), 0, 0, size().width(), size().height());
 ```
 
 
@@ -739,7 +737,7 @@ Qt提供了基于`WebKit`引擎的`QWebKit`做为**网页解析引擎**。网页
 常见的协议有：`http`(超文本传输协议资源)`https`(用安全套接字层传送的超文本传输协议)`ftp`(文件传输协议)`file`(本地电脑或互联网分享文件)。
 
 ###响应页面点击事件
-在`QWebView`中展示的页面点击链接可以发出信号`QWebView::linkClicked(const QUrl & url)`，捕获该信号进行处理即可。
+在`QWebView`中展示的页面点击链接可以发出信号`QWebView::linkClicked(const QUrl& url)`，捕获该信号进行处理即可。
 需要注意的是，默认情况下，点击链接并不会自动发送该信号，需要使用`QWebView::page()`获取当前页面，然后再使用`void QWebPage::setLinkDelegationPolicy(LinkDelegationPolicy policy)`将获取页面的链接代理设置为`QWebPage::DelegateExternalLinks/QWebPage::DelegateAllLinks`时才会触发连接信号。
 
 
@@ -751,20 +749,20 @@ Qt提供了基于`WebKit`引擎的`QWebKit`做为**网页解析引擎**。网页
 ###打印出当前系统支持的字体
 
 ```cpp
-foreach (const QString &font_name, QFontDatabase().families())
+foreach (const QString& font_name, QFontDatabase().families())
 	std::cout << font_name <<std::endl;
 ```
 
 其中，`QStringList QFontDatabase::families(WritingSystem writingSystem = Any) const`函数的参数可以用于指定文字类型，例如，列出简体中文的字体可以写成：
 
 ```cpp
-foreach (const QString &font_name, QFontDatabase().families(QFontDatabase::SimplifiedChinese))
+foreach (const QString& font_name, QFontDatabase().families(QFontDatabase::SimplifiedChinese))
 	std::cout << font_name <<std::endl;
 ```
 
 ###获取文本的宽高
 `QFontMetrics`类的构造函数可以使用`QFont`做为参数。
-使用`int QFontMetrics::width(const QString &text, int len = -1) const`可以获取指定文本的宽度。
+使用`int QFontMetrics::width(const QString& text, int len = -1) const`可以获取指定文本的宽度。
 
 ```cpp
 QFont font("times", 24);
@@ -783,12 +781,12 @@ Qt中的文件和目录相关类主要为`QFile`和`QFileInfo`以及`QDir`。
 `QFile`类定义了一系列的静态成员函数，提供了常见的文件操作：
 
 ```cpp
-bool QFile::copy(const QString &fileName, const QString &newName));		//复制文件
-bool QFile::exists(const QString &fileName));							//判断文件是否存在
-bool QFile::open(OpenMode mode));										//检测文件的读写状态
-bool QFile::remove(const QString &fileName));							//删除文件
-bool QFile::rename(const QString &oldName, const QString &newName));	//重命名文件
-bool QFile::link(const QString & fileName, const QString & linkName));	//创建文件快捷方式，在Unix系统下为创建符号链接
+bool QFile::copy(const QString& fileName, const QString& newName);		//复制文件
+bool QFile::exists(const QString& fileName);							//判断文件是否存在
+bool QFile::open(OpenMode mode);										//检测文件的读写状态
+bool QFile::remove(const QString& fileName);							//删除文件
+bool QFile::rename(const QString& oldName, const QString& newName);		//重命名文件
+bool QFile::link(const QString& fileName, const QString& linkName);		//创建文件快捷方式，在Unix系统下为创建符号链接
 ```
 
 ###QFileInfo
@@ -799,13 +797,15 @@ QString QFileInfo::absoluteFilePath() const;							//获取文件的绝对路径
 QString QFileInfo::absolutePath() const;								//获取文件的路径(不含文件名)
 QString QFileInfo::baseName() const;									//获取文件的不含后缀的文件名(以第一个"."符号为界)
 QString QFileInfo::completeBaseName() const;							//获取文件的不含最后一个后缀的文件名(以最后一个"."符号为界)
-QString QFileInfo::fileName() const；									//获取文件的完整文件名(不含路径)
+QString QFileInfo::fileName() const;									//获取文件的完整文件名(不含路径)
 ```
 
 ###QDir
 `QDir`类能够按指定规则在路径下筛选出符合要求的文件，常用的方法有：
 
 ```cpp
+QFileInfoList QDir::entryInfoList(const QStringList& nameFilters, Filters filters = NoFilter, SortFlags sort = NoSort) const;
+QStringList QDir::entryList(const QStringList& nameFilters, Filters filters = NoFilter, SortFlags sort = NoSort) const;
 QFileInfoList QDir::entryInfoList(Filters filters = NoFilter, SortFlags sort = NoSort) const;
 QStringList QDir::entryList(Filters filters = NoFilter, SortFlags sort = NoSort) const;
 ```

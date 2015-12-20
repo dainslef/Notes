@@ -232,7 +232,7 @@ Scala为函数式编程语言，在Scala中函数对象可以直接作为参数�
 ```scala
 def func(arg: () => T) = arg
 def func(arg: => T) = arg
-var func: (() => T) => Unit = (arg: () => T) => arg
+var func: (() => T) => T = (arg: () => T) => arg
 ```
 
 在接收参数时，空参函数参数只能接收同样空参的函数，即`() =>`不能被省略，而传名参数则无此限制。
@@ -340,14 +340,14 @@ Scala中的保护成员和私有成员使用关键字`protected``private`，作�
 ```scala
 package TestCode ｛
 
-class Access(a: Int = 1, var b: Double = 2.0) {
-	def showOther1(access: Access) = access.show1			//出错，access非当前类实例，无访问权限
-	def showOther2(access: Access) = access.show2			//正常访问
-	def showOther3(access: Access) = access.show3			//正常访问
-	private[this] def show1 = println(a + " " + b)			//限定当前实例可访问
-	private[Access] def show2 = println(a + " " + b)		//类似Java中的private，当前类的任意实例皆可相互访问私有成员
-	private[TestCode] def show3 = println(a + " " + b)		//作用域为包名，此时的访问权限类似Java中的default访问权限，当前包中类的实例皆可访问到该私有成员
-}
+	class Access(a: Int = 1, var b: Double = 2.0) {
+		def showOther1(access: Access) = access.show1			//出错，access非当前类实例，无访问权限
+		def showOther2(access: Access) = access.show2			//正常访问
+		def showOther3(access: Access) = access.show3			//正常访问
+		private[this] def show1 = println(a + " " + b)			//限定当前实例可访问
+		private[Access] def show2 = println(a + " " + b)		//类似Java中的private，当前类的任意实例皆可相互访问私有成员
+		private[TestCode] def show3 = println(a + " " + b)		//作用域为包名，此时的访问权限类似Java中的default访问权限，当前包中类的实例皆可访问到该私有成员
+	}
 
 }
 ```
@@ -1155,6 +1155,7 @@ package Package {
 
 ##隐式转换与隐式参数
 隐式转换在构建类库时是一个强大的工具。
+使用隐式转换特性需要在编译时添加`-language:implicitConversions`选项。
 
 ###隐式转换
 Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。
@@ -1198,19 +1199,19 @@ object Main extends App {
 }
 ```
 
-当一个实例自身和方法的参数都能通过隐式转换来满足方法调用时，优先转换方法的参数，如下所示：
+当一个实例自身和方法的参数都能通过隐式转换来满足方法调用时，优先转换方法参数而不是实例自身，如下所示：
 
 ```scala
-class Impl1(val str: String = "") {
-	def show(impl: Impl2) = println(100)
+class Impl1(val str: String = "100") {
+	def show(impl: Impl2) = println(impl.str)
 }
 
 object Impl1 {
 	implicit def impl1ToImpl2(impl: Impl1) = new Impl2(impl.str)
 }
 
-class Impl2(val str: String = "") {
-	def show(impl: Impl1) = println(200)
+class Impl2(val str: String = "200") {
+	def show(impl: Impl1) = println(impl.str)
 	def test = println(300)
 }
 
