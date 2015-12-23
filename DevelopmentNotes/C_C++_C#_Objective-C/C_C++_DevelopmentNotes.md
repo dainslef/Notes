@@ -899,7 +899,7 @@ int test(int&& num) = delete;
 
 在VS2015中，直接允许在类中定义特化的模板函数，并允许访问权限不同。如下所示：
 
-```
+```cpp
 class Test
 {
 public:
@@ -943,6 +943,7 @@ std::function<返回类型(参数表)> 函数对象名 = [当前作用域变量�
 - 可以在传递所用变量的基础上分别设定指定变量的传递方式，如`[=, &a]`表示除了`a`之外的变量全部为值传递，`a`为引用传递，而`[&, a]`表示除`a`外的所有变量为引用传递，`a`为值传递。
 - 设置全局传递方式的操作符要放在设置单个变量的操作符之前，如`[&a, =]``[b, &]`这样的写法是不被编译器所允许的。
 - `Lambda`表达式的参数可以是**引用**或是**指针**，作为**返回值**时**不能**为引用传递，但依然可以为指针类型。
+- 对于没有捕获变量的`Lambda`，可以直接转化为原生的函数指针。`Lambda`与普通函数最大的区别在与`Lamdba`可以捕获当前作用域中的变量，而函数不可以，一旦`Lambda`没有捕获当前作用域中的变量，则该`Lambda`便可以转化为一个普通的函数，即可以由原生的函数指针进行表示。
 举例：
 
 ```cpp
@@ -959,18 +960,23 @@ int main(void)
 		= [=, &a](int x, int y) { return a = x + y + b; };			//图省事可以直接使用auto类型推断
 	test(1, 1);
 	cout << a << endl;
+
+	//未捕获变量的Lambda可以转化为函数指针
+	int (*get_num)(int) = [](int num) { return num; };
+	cout << "Run lambda function point:" << get_num(100) << endl;
+
 	return 0;
 }
 ```
 
 输出结果(gcc 5.1.0 && ArchLinux x86_64)：
 4
+Run lambda function point: 100
 
 ###`C++14`中的`Lambda`新特性
 - 在`C++14`中，加入了泛型`Lambda`，并支持在`Lambda`使用**表达式**捕获作用域中的变量，且没有捕获变量的`Lambda`可以与函数指针进行转化(不是函数对象)。
 - 在`C++11`中，`Lambda`中的参数必须显式指定参数的类型，但在`C++14`中，参数的类型可以使用`auto`关键字，编译器会对所有的被使用的该表达式进行参数类型推断，然后根据使用的参数类型编译出对应的`Lambda`实例。
 - 在`C++11`中，对变量的捕获包括值捕获和左值引用捕获两种，而在`C++14`中，`Lambda`中支持使用**表达式**捕获，通过简单的表达式进行一些捕获值初始化`lambda capture initializers`，或是对捕获变量重命名(设置全局传递方式的操作符依然要放在最前面)。
-- 在`C++11`中，`Lambda`只能转化为函数对象`std::function`，但在`C++14`中，对于没有捕获变量的`Lambda`，是可以直接转化为原生的函数指针的，`Lambda`与普通函数最大的区别在与`Lamdba`可以获取当前作用域中的变量作为初始化内容，而函数不可以，一旦`Lambda`没有捕获当前作用域中的变量，则该`Lambda`便可以转化为一个普通的函数，即可以由原生的函数指针进行表示。
 举例：
 
 ```cpp
@@ -991,10 +997,6 @@ int main(void)
 	lambda2();
 	cout << "After run lambda2, the value b is: " << b << endl;
 
-	//未捕获变量的Lambda可以转化为函数指针
-	int (*get_num)(int) = [](int num) { return num; };
-	cout << "Run lambda function point:" << get_num(100) << endl;
-
 	return 0;
 }
 ```
@@ -1003,7 +1005,6 @@ int main(void)
 Use int as args: 100
 Use string as args: string
 After run lambda2, the value b is: 450
-Run lambda function point: 100
 
 
 

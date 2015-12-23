@@ -815,6 +815,25 @@ QStringList QDir::entryList(Filters filters = NoFilter, SortFlags sort = NoSort)
 
 
 
+##Qt国际化
+对Qt工程进行国际化首先需要在项目中创建`ts`翻译文件，并对需要翻译的文本使用`QObject::tr()`方法进行标记。
+`ts`翻译文件本质上是一个**XML文档**，记录了源码中被标记的文本与翻译文本之间的对应关系。
+`ts`翻译文件可以被编译成`qm`格式的二进制翻译文件，用于被程序加载。
+
+###动态切换程序语言
+使用`QTranslator`类可以实现程序语言的动态切换。
+通过`QTranslator::load()`的重载方法加载`qm`文件：
+
+```cpp
+bool QTranslator::load(const QString& filename, const QString& directory = QString(), const QString& search_delimiters = QString(), const QString& suffix = QString());
+bool QTranslator::load(const QLocale& locale, const QString& filename, const QString& prefix = QString(), const QString& directory = QString(), const QString& suffix = QString());
+```
+
+最后使用`bool QCoreApplication::installTranslator(QTranslator* translationFile)`方法将加载好`qm`文件的`QTranslator`对象做为参数传入，界面语言便会立即变化。
+需要注意的是，需要保证加载的`QTranslator`对象不被销毁，翻译才能正常显示，否则界面又会变回默认的语言。
+
+
+
 ##Qt常见错误
 
 ###关于 _undefined reference to vtable for XXX(类名)_ 错误
@@ -823,7 +842,7 @@ QStringList QDir::entryList(Filters filters = NoFilter, SortFlags sort = NoSort)
 此外，Qt在编译项目时默认采用的是`make`编译，会在编译时忽略那些未曾改动的文件，因此有时出现此错误时还可以尝试完全删除已经存在的二进制文件和编译中间文件，然后从头开始重新编译整个项目。
 一般对于此类错误的解决办法是手动运行`qmake`后整个项目重新编译。
 
-###关于 _错误:Warning: File '***' has modification time 3.9e+08 s in the future_
+###关于 _Warning: File '***' has modification time 3.9e+08 s in the future_ 错误
 一般情况下，Qt在`make`项目时连续出现类似错误(并且呈现出死循环状态)，一般是项目中的文件时间混乱，部分文件的时间超过了系统当前的时间造成的。
 解决办法是将项目里的所有文件`touch`一遍即可。
 此外，make出现`make: 警告：检测到时钟错误。您的创建可能是不完整的。`的错误提示一般也是类似原因造成的。
