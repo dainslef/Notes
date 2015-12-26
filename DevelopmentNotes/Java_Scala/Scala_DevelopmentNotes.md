@@ -1089,6 +1089,45 @@ res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 
 
 
+##生成器(Generators)
+Scala中同样提供了`yield`关键字，支持生成器语法。
+使用`yield`可以将循环中每一轮的结果以容器的形式输出，使用`yeild`可以方便生成一系列的特定值。
+如下所示：
+
+```scala
+scala> for (i <- 1 to 5) yield i
+res20: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3, 4, 5)
+
+//使用for语句内置的守卫语法限制输出
+scala> for (i <- 1 to 5 if i > 2) yield i
+res21: scala.collection.immutable.IndexedSeq[Int] = Vector(3, 4, 5)
+
+//生成器的生成结果与被遍历的容器类型相关
+scala> for (i <- 1 :: 2 :: 3 :: 4 :: 5 :: Nil if i > 2) yield i
+res24: List[Int] = List(3, 4, 5)
+
+//生成的结果不是目标容器则可以进行转换
+scala> (for (i <- List(1, 2, 3, 4, 5) if i > 2) yield i) toSet
+res27: scala.collection.immutable.Set[Int] = Set(3, 4, 5)
+```
+
+###使用高阶函数替代生成器
+Scala中可以使用高阶函数，以函数式风格实现类似`yield`的效果。
+
+```scala
+//从1到5的数中找出偶数，并将数值翻倍
+
+//使用命令式编程风格，使用守卫和生成器
+scala> for (i <- 1 to 5 if i % 2 == 0) yield i * 2
+res13: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
+
+//使用函数式编程风格，使用高阶函数
+scala> 1 to 5 filter (_ % 2 == 0) map (_ * 2)
+res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
+```
+
+
+
 ##包(Package)与导入(Import)
 Scala中的包用法基本与Java类似，但在Java的基础上扩充了更多的功能。
 与Java不同，Scala中使用`_`符号代替`*`，表示导入该路径下的所有包和成员。

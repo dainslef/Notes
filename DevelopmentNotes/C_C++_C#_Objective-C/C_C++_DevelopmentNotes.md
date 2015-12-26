@@ -1407,7 +1407,7 @@ This is slot2.
 
 ```cpp
 //头文件 xxx.h
-namesapce A
+namespace A
 {
 	extern int a;
 }
