@@ -61,6 +61,7 @@
 class A : public QObject
 {
 	Q_OBJECT
+
 signals:
 	void send(int);
 public slots:
@@ -109,6 +110,44 @@ int main(int argc, char *argv[])
 
 在实际应用中，需要注意，常见的槽功能(比如打开/关闭窗口之类的)，在`QWidget`之类的父类中已经为你实现了，继承父类自然就获得了这些槽函数，不用画蛇添足地自己重新实现功能类似的函数。
 
+###`QObject::connect()`函数详解
+`QObject::connect()`拥有多种重载：
+
+```cpp
+QMetaObject::Connection QObject::connect(const QObject* sender, const char* signal, const QObject* receiver, const char* method, Qt::ConnectionType type = Qt::AutoConnection);
+```
+
+这是Qt中最常用的信号槽连接方式，`sender`为信号发出者，`receiver`为信号接收者，`signal`为信号，`method`为槽函数。
+使用此中形式的connect时，`signal`和`method`需要分别使用Qt提供的宏`SIGNAL()`和`SLOT()`。
+
+```cpp
+QMetaObject::Connection QObject::connect(const QObject* sender, const char* signal, const char* method, Qt::ConnectionType type = Qt::AutoConnection) const;
+```
+
+当connect连接的是**当前类**的槽函数时，可以省略接收者`receiver`。
+即`connect(object, SIGNAL(signal()), SLOT(slot()))`相当于`connect(object, SIGNAL(signal()), this, SLOT(slot()))`。
+
+```cpp
+QMetaObject::Connection QObject::connect(const QObject* sender, PointerToMemberFunction signal, const QObject* receiver, PointerToMemberFunction method, Qt::ConnectionType type = Qt::AutoConnection);
+```
+
+connect函数同样支持使用成员指针形式的语法，`signal`和`method`可以使用成员指针的形式。
+当一个信号有多个重载版本时，需要通过函数指针的强制类型转换来显式指明需要使用的重载版本。
+
+```cpp
+QMetaObject::Connection QObject::connect(const QObject* sender, PointerToMemberFunction signal, Functor functor)
+```
+
+在Qt5和C++11环境下，connect函数还可以直接连接到一个Lambda表达式上。
+
+###异步信号
+connect函数的最后一个参数枚举类型`Qt::ConnectionType`可以控制槽函数的回调方式。
+无论使用哪种connect函数的重载，该参数都带有默认值`Qt::AutoConnection`。
+使用`Qt::DirectConnection`方式连接slot时，槽函数会以**同步**的方式在**sender所处的线程**中执行。
+使用`Qt::QueuedConnection`方式连接slot时，槽函数会以**异步**的方式在**receiver所处的线程**中执行，信号发出后，slot的执行请求会被加入事件队列，因而slot可能不会立即被执行。
+使用`Qt::BlockingQueuedConnection	`方式连接slot时，槽函数的执行方式类似`Qt::QueuedConnection`，但sender所处的线程会阻塞，直到slot被执行完毕。
+默认情况下，连接信号槽使用的是`Qt::AutoConnection`，使用连接方式时，若sender与receiver处于同一线程下，则使用`Qt::DirectConnection`模式，否则使用`Qt::QueuedConnection`模式。
+
 
 
 ##Qt事件机制
@@ -125,7 +164,7 @@ int main(int argc, char *argv[])
 void QCoreApplication::postEvent(QObject* receiver, QEvent* event);
 bool QCoreApplication::sendEvent(QObject* receiver, QEvent* event);
 void QCoreApplication::sendPostedEvents(QObject* receiver, int event_type);
-bool QCoreApplication::notify(QObject* receiver, QEvent * event);
+bool QCoreApplication::notify(QObject* receiver, QEvent* event);
 ```
 
 `postEvent()`函数将事件放入事件消息队列中，然后立即返回，函数只将事件放入队列的尾端，不保证事件立即得到处理。
@@ -202,7 +241,7 @@ int column = index.column();
 ```
 
 ###使用QTableView
-`QTableView`可以自由搭配不同的**model**，通过`QTableView::setModel(QAbstractItemModel *model)` 来设定使用的model，`QTableView`本身并不存放数据，数据保存在model中，可以通过`QAbstractItemView::model()` 来获取表格中已经组装的model，大量的变更数据可以直接`delete`旧的model，然后设定并组装新的model。
+`QTableView`可以自由搭配不同的**model**，通过`QTableView::setModel(QAbstractItemModel* model)` 来设定使用的model，`QTableView`本身并不存放数据，数据保存在model中，可以通过`QAbstractItemView::model()` 来获取表格中已经组装的model，大量的变更数据可以直接`delete`旧的model，然后设定并组装新的model。
 
 ####*使用QSqlTableMode搭配QTableView实现数据库直接操作*
 先创建出一个`QSqlTableMode`对象，如果已经有数据库连接且不需要从新的数据库中读取数据，则构造函数中的`QSqlDatabase`对象可以取默认值。

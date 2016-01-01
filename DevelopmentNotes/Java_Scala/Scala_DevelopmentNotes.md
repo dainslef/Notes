@@ -179,7 +179,7 @@ using namespace std;
 
 int main(void)
 {
-	([](const string& str) { cout << str << endl; })("Hello World!");
+	[](const string& str) { cout << str << endl; } ("Hello World!");
 }
 ```
 
@@ -559,31 +559,25 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 如下所示：
 
 ```scala
-class BaseA {
-}
+class BaseA
 
-class BaseB {
-}
+class BaseB
 
-trait TraitA extends BaseA {
-}
+trait TraitA extends BaseA
 
-trait TraitB extends BaseB {
-}
+trait TraitB extends BaseB
 
 /* 编译报错，提示：
  * superclass BaseA
  * is not a subclass of the superclass BaseB
  * of the mixin trait TraitB
  */
-class TestExtend extends TraitA with TraitB {
-}
+class TestExtend extends TraitA with TraitB
 
 /* 编译报错，提示：
  * class BaseA needs to be a trait to be mixed in
  */
-class ExtendClass extends TraitA with BaseA {
-}
+class ExtendClass extends TraitA with BaseA
 ```
 
 `TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。
@@ -930,7 +924,6 @@ list2: List[Any] = List(1, 1, str, 2.0)
 ```
 
 只不过，若列表中存储的若是相同的类型，则编译器会将`List[T]`推导为具体的类型，若列表中成员类型各不相同，则编译器会使用所有类型的基类`Any`作为泛型类型及`List[Any]`。
-
 列表支持从已有的列表进行创建：
 
 ```scala
@@ -979,7 +972,7 @@ object TestList extends App {
 	listBuffer += "num"					//添加新值
 	show(listBuffer)
 	println
-	listBuffer update (2, "new")		//改变指定位置的值
+	listBuffer.update(2, "new")			//改变指定位置的值
 	show(listBuffer)
 }
 ```
@@ -1038,9 +1031,9 @@ res2: Boolean = true
 ```scala
 scala> var set = Set(1, 2, 3, 's', "str")
 set: scala.collection.immutable.Set[Any] = Set(s, 1, 2, str, 3)
-scala> set.find(_.isInstanceOf[Int])
+scala> set find { _.isInstanceOf[Int] }
 res7: Option[Any] = Some(1)					//返回第一个匹配到的元素
-scala> set.find(_.isInstanceOf[Double])
+scala> set find { _.isInstanceOf[Double] }
 res8: Option[Any] = None					//没有匹配则返回None
 ```
 
@@ -1074,7 +1067,7 @@ value: 3									//仅遍历map的key
 但这些操作不会改变原本Map保存的内容：
 
 ```scala
-scala> map updated (1, "0")
+scala> map.updated(1, "0")
 res20: scala.collection.immutable.Map[Int,String] = Map(1 -> 0, 2 -> 2, 3 -> 3)
 scala> map + (4 -> "4")
 res21: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4)
@@ -1122,7 +1115,7 @@ scala> for (i <- 1 to 5 if i % 2 == 0) yield i * 2
 res13: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 
 //使用函数式编程风格，使用高阶函数
-scala> 1 to 5 filter (_ % 2 == 0) map (_ * 2)
+scala> 1 to 5 filter { _ % 2 == 0 } map { _ * 2 }
 res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 ```
 
@@ -1136,18 +1129,18 @@ Scala中的包用法基本与Java类似，但在Java的基础上扩充了更多�
 Scala中可以在一个语句中导入包内的**多个**指定的类：
 
 ```scala
-import java.awt.{Color, Font}
+import java.awt.{ Color, Font }
 ```
 在导入一个包的同时可以将包内的类进行重命名：
 
 ```scala
-import java.awt.{Color => JavaColor}
+import java.awt.{ Color => JavaColor }
 ```
 
 如果不希望某个类被导入，则可以用以下方式隐藏某个类：
 
 ```scala
-import java.awt.{Color => _}
+import java.awt.{ Color => _ }
 ```
 
 Scala中的`import`带有类似Java1.6中的`static import`特性：
@@ -1257,7 +1250,7 @@ class Impl2(val str: String = "200") {
 object Main extends App {
 	var impl1 = new Impl1
 	impl1.test					//实例由Impl1类型隐式转换成了Impl2类型
-	impl1 show (impl1)			//可以通过将实例隐式转换为Impl2类型来满足方法调用，但编译器实际执行的操作是将参数隐式转换成了Impl2类型
+	impl1.show(impl1)			//可以通过将实例隐式转换为Impl2类型来满足方法调用，但编译器实际执行的操作是将参数隐式转换成了Impl2类型
 }
 ```
 
