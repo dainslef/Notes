@@ -228,8 +228,8 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 代码自动换行：`File`=>`Settings`=>`Editor`=>`General`=>`Soft Wraps`
 设置空白处的点按逻辑：`File`=>`Settings`=>`Editor`=>`General`=> `Virtual Space`
 设置Java强制类型转换前是否空格：`File`=>`Settings`=>`Editor`=>`Code Style`=>`Java`=>`Spaces`=>`After type cast`
-设置Scala函数是否自动补全空返回类型：`File`=>`Settings`=>`Editor`=>`Code Style`=>`Scala`=>`Other`
-	=>`Enfore procedure syntax for methods with Unit return type`
+设置Scala函数是否自动补全空返回类型：`File`=>`Settings`=>`Editor`=>`Code Style`=>`Scala`=>`Other`=>`Enfore procedure syntax for methods with Unit return type`
+设置光标悬停显示变量/方法信息：`File`=>`Settings`=>`Editor`=>`General`=>`Other`=>`Show quick documentation on mouse move`
 
 
 

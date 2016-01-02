@@ -119,20 +119,8 @@ res2: Int = 200
 ```
 
 同时，无参方法不能与已有字段名称相同(编译报错)，而空参方法允许带有同名的字段。
-在Scala中，方法中参数允许带有**默认值**：
-
-```scala
-scala> var num = 100
-num: Int = 100
-scala> def setNum(p: Int = 0) { num = p }		//方法/函数的参数不能由默认值进行类型推导，即使给参数写明了默认值，也依然需要显式指明类型
-setNum: (p: Int)Unit
-scala> setNum()				//对于有参数的方法，即使参数带有默认值使得参数表可以为空但在调用时依然不能省略括号，否则报错
-scala> println(num)
-0							//输出0
-```
-
 需要注意的是，在Scala中，赋值表达式的值为`Unit`，而不是类似Java/C++中的以被赋值的变量类型为表达式的值。例如：
-pre
+
 ```scala
 scala> var _num = 0
 _num: Int = 0
@@ -144,6 +132,65 @@ required: Int
 									  ^
 ```
 
+####*参数默认值*
+在Scala中，方法中参数允许带有**默认值**：
+
+```scala
+scala> var num = 100
+num: Int = 100
+scala> def setNum(p: Int = 0) { num = p }		//方法的参数不能由默认值进行类型推导，即使给参数写明了默认值，也依然需要显式指明类型
+setNum: (p: Int)Unit
+scala> setNum()				//对于有参数的方法，即使参数带有默认值使得参数表可以为空但在调用时依然不能省略括号，否则报错
+scala> println(num)
+0							//输出0
+```
+
+如果一个方法中包含多个同类型并带有默认值的参数，调用时默认匹配第一个参数：
+
+```scala
+scala> def func(num1: Int = 100, num2: Int = 200) = println(s"$num1 $num2")
+func: (num1: Int, num2: Int)Unit
+scala> func(300)
+300 200
+```
+
+####*带名参数*
+在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为"带名参数"。
+对于方法中包含多个同类型并带有默认值参数的情况下，使用该特性可以显式指定要传入的是哪一个参数：
+
+```scala
+scala> func(num2 = 300)
+100 300
+```
+
+与C++不同，Scala中，方法参数的默认值**不需要**连续，参数的默认值可以交错出现：
+
+```scala
+scala> def func(int: Int, str: String = "String", char: Char, double: Double = 123.0) = println(s"$int $str $char $double")
+func: (int: Int, str: String, char: Char, double: Double)Unit
+scala> func(100, 'c')
+<console>:12: error: not enough arguments for method func: (int: Int, str: String, char: Char, double: Double)Unit.
+Unspecified value parameter char.
+		func(100, 'c')
+			^
+scala> func(int = 100, char = 'c')			//对于默认参数不连续的方法，需要使用"带名参数"
+100 String c 123.0
+```
+
+####*默认参数与方法重载*
+在Scala中，若一个带有默认的参数的方法省略默认参数时签名与一个已经存在的方法相同，编译器并不会报错(C++编译器则会报错)，而是在调用方法时优先使用无默认值的版本(处理逻辑类似于C#)：
+
+```scala
+object Main extends App {
+	def func() = println("No Args")
+	def func(num: Int = 100) = println(num)
+	func()
+}
+```
+
+输出结果：
+No Args
+
 ###函数(Function)
 在Scala中函数使用`var``val`关键字定义，即函数是一个存储了函数对象的字段。
 一个典型的函数定义如下：
@@ -152,6 +199,7 @@ required: Int
 var functionName: FuncType = 符合签名的方法/函数/Lambda
 ```
 
+与方法不同，函数不能够带有默认值。
 需要注意的是，函数**不允许**省略参数，因为函数名做为表达式时的语义为函数名所代表的函数内容而非函数调用。空参函数的括号不可省略，直接使用函数名并不代表调用空参函数，比如：
 
 ```scala
@@ -194,6 +242,29 @@ class Test
 		=> new Action<string>(str => Console.WriteLine(str))("Hello World!");
 }
 ```
+
+###函数组合
+在Scala中，函数允许进行组合。
+函数组合有两种方式，`a compose b`实际调用次序为`a(b())`，`a andThen b`实际调用次序为`b(a())`。
+需要注意的是，方法不能直接进行组合，需要将其转化为函数(方法名之后加`_`符号)。
+
+```scala
+object Main extends App {
+	def add(num: Int) = num + 100
+	def double(num: Int) = num * 2
+
+	//只有函数能进行组合,方法需要加"_"符号转化成函数
+	var compose = add _ compose double
+	var andThen = add _ andThen double
+
+	println(compose(100) == add(double(100)))
+	println(andThen(100) == double(add(100)))
+}
+```
+
+输出结果：
+true
+true
 
 ###传名参数(By-name Parameter)
 当一个方法接收的**参数**为**空**时，该参数即为**传名参数(By-name Parameter)**，如下所示：
@@ -314,7 +385,7 @@ Scala是一门同时具有函数式与面向对象特性的多重范式的语言
 ```scala
 //定义主构造器
 class Constructor(a: Int = 1, var b: Double = 2.0) {		//构造器参数紧跟在类名之后，构造器中的参数可以带有默认值
-	//在构造器中创建了两个字段，如果没有显式使用var/val关键字创建字段，则创建的字段是当前实例私有切不可变的(private[this] val)
+	//在构造器中创建了两个字段，如果没有显式使用var/val关键字创建字段，则默认创建的字段是当前实例私有且不可变的(private[this] val)
 
 	//定义辅助构造器，使用this关键字
 	def this() = this(2, 3.0)		//辅助构造器的函数体中必须最终调用主构造器，辅助构造器即使没有参数也必须也必须带括号
@@ -511,8 +582,7 @@ object Unapply {
 	def unapply(a: Unapply) = Option((a.num1, a.num2))
 }
 
-class Unapply(var num1: Int, var num2: Int) {
-}
+class Unapply(var num1: Int, var num2: Int)
 ```
 
 输出结果：
@@ -545,12 +615,70 @@ Case Nothing
 abc cde
 abc cde efg
 
+###样例类(case class)与模式匹配(pattern matching)
+样例类是一种特殊的类，通常用在模式匹配中。
+在类定义前使用`case`关键字即可定义一个样例类。
+相比普通的类，样例类有以下特性：
+
+- 样例类构造器中的字段默认使用`val`关键字定义(即默认为公有访问权限，而不是普通类默认的`private[this]`)。
+- 样例类默认即实现了`apply()`方法用于构造对象和`unapply()`方法用于模式匹配。
+- 样例类还默认实现了`toString``equals``hashCode``copy`等方法。
+- 如果样例类默认生成的方法不合要求，也可以选择自行定义。
+
+如下代码所示：
+
+```scala
+case class Case(num: Int = 100, str: String)
+
+object Main extends App {
+
+	var ca = Case(str = "S13")
+	println(ca.num + " " + ca.str)
+
+	//使用样例类提供的copy()方法可以复制出一个字段值相同的类
+	var caCopy = ca.copy()
+	println(caCopy.num + " " + caCopy.str)
+
+	//也可以在copy()只复制需要的值甚至不使用原先对象的值
+	var caCopy1 = ca.copy(200)
+	var caCopy2 = ca.copy(str = "Abc")
+	var caCopy3 = ca.copy(50, "ABC")
+	println(caCopy1.num + " " + caCopy1.str)
+	println(caCopy2.num + " " + caCopy2.str)
+	println(caCopy3.num + " " + caCopy3.str)
+
+	//样例类的实例之间可以直接比较,只要构造器中的字段值相同便会返回true
+	println(ca == caCopy)
+
+	//样例类经常用于模式匹配中
+	def show(ca: Case) = ca match {
+		case Case(num, _) if num > 100 => println("Case.num > 100")		//模式匹配中条件可以带有守卫
+		case Case(100, _) => println("Case.num == 100")					//模式匹配可以精确到具体的数值，而对于不需要的值可以忽略(使用"_"符号)
+		case _ => println("Not Matching")
+	}
+
+	show(ca)
+	show(caCopy1)
+	show(caCopy3)
+}
+```
+
+输出结果：
+100 S13
+100 S13
+200 S13
+100 Abc
+50 ABC
+true
+Case.num == 100
+Case.num > 100
+Not Matching
+
 ###特质(trait)
 Scala中的`trait`特质对应Java中的`interface`接口，但相比Java中的接口，Scala中的特质除了没有默认构造器、不能被直接实例化之外，拥有绝大部分类的特性。
 Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
 
 ####*混入(mixin)*
-
 - Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
 - Scala中采用的**混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
 - 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
@@ -759,7 +887,8 @@ White:100 Black:200
 
 
 
-##数组
+##基础数据结构
+Scala常用的基础结构包括**数组**和**元组**。
 Scala中数组的概念与Java中基本类似。
 
 ###定长数组
@@ -783,74 +912,8 @@ java.lang.ArrayIndexOutOfBoundsException: 100
 
 需要注意的是，Scala定长数组与Java中的定长数组仅仅是语法不同，并无本质区别，`new Array[Int](10)`相当于Java中的`new int[10]`。
 
-###变长数组
-在Scala中，变长数组使用`ArrayBuffer[T]`进行表示，`ArrayBuffer`不在默认导入的包路径中，而是位于`scala.collection.mutable.ArrayBuffer`。
-Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素，创建一个`ArrayBuffer`：
-
-```scala
-scala> var arrayBuffer = new ArrayBuffer[Int]
-arrayBuffer: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer()
-var a = ArrayBuffer(100, 200)					//同样可以使用伴生对象的apply()方法创建ArrayBuffer
-a: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(100, 200)
-```
-
-`ArrayBuffer`可以使用`+=`和`-=`进行**增加**与**删除**元素：
-
-```scala
-scala> arrayBuffer += 10
-res10: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10)
-scala> arrayBuffer += 100
-res11: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
-scala> arrayBuffer += 1000
-res12: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100, 1000)
-scala> arrayBuffer -= 1000
-res13: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
-```
-
-需要注意的是，`+=``-=`只是**方法名**并不是**运算符**，因此，以下的写法会**报错**：
-
-```scala
-arrayBuffer = arrayBuffer + 10
-<console>:12: error: type mismatch;
-found : Int(10)
-required: String
-	arrayBuffer = arrayBuffer + 10
-								^
-```
-
-与Java中的`ArrayList`类似，`ArrayBuffer`也允许在**任意位置**进行元素插入：
-
-```scala
-scala> arrayBuffer.insert(1, -100)					//在索引1的位置插入数值-100
-scala> arrayBuffer
-res17: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, -100, 100)
-```
-
-插入多个元素：
-
-```scala
-scala> arrayBuffer.insert(1, 7, 8, 9)				//在索引1的位置插入数值7，8，9
-scala> arrayBuffer
-res19: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 7, 8, 9, -100, 100)
-```
-
-删除操作类似，移除操作可以指定首尾进行**批量移除**：
-
-```scala
-scala> arrayBuffer.remove(1, 4)
-scala> arrayBuffer
-res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)		//删除了索引1到4位之间的元素
-```
-
-需要注意的是，`ArrayBuffer`是**线性结构**，只有在尾部进行插入删除操作才是高效的，在其它位置进行的元素操作都会造成大量的元素移动。
-
-
-
-##容器
-Scala的容器分为`元组(Tuple)``序列(Seq)``集合(Set)`和`映射(Map)`四大类。
-
 ###元组(Tuple)
-元组是最简单的容器，无需额外的类型名称，直接使用`(T1, T2, T3)`就可以构建出一个元祖。如下所示：
+元组是最简单的容器，无需额外的类型名称，直接使用`(value1, value2, value3, ...)`就可以构建出一个元祖。如下所示：
 
 ```scala
 scala> var tuple = (1, 2, 3)
@@ -858,7 +921,7 @@ tuple: (Int, Int, Int) = (1,2,3)
 ```
 
 元组中允许包含**重复**的值，也允许不同类型的值，但元组一经创建，内容便不可改变。
-元组可以通过`元组对象._索引号`的形式访问，不过元组是从**1**开始而非0，如下所示：
+元组可以通过`元组对象._索引号`的形式访问，不过元组下标是从`1`开始而非`0`，如下所示：
 
 ```scala
 scala> println(tuple._1 + " " + tuple._2 + " " + tuple._3)
@@ -899,8 +962,17 @@ object TestTuple extends App {
 
 需要注意的是，元组**不能**够使用for循环进行遍历。
 
+
+
+##容器
+Scala的容器按数据结构分为`序列(Seq)``集合(Set)`和`映射(Map)`三大类。
+`序列(Seq)`为有序容器，按照元素添加的顺序排列，其中，`Seq`的子类`IndexedSeq`允许类似数组的方式按照下标进行访问。
+`集合(Set)`为数学意义上的集合，不包含重复元素，其中，`Set`的子类`SortedSet`中元素以某种顺序排序。
+`映射(Map)`为`键 - 值`对偶的集合，其中，`Map`的子类`SortedMap`中键值以某种顺序排序。
+容器按照是否可变分为**不可变容器**`scala.collection.immmutable._`和**可变容器**`scala.collection.mutable._`。
+
 ###列表(List)与可变列表(ListBuffer)
-在Scala中，`List[T]`类型的完整包路径为`scala.collection.immmutable.List`。
+在Scala中，`List[T]`类型的完整包路径为`scala.collection.immutable.List`，继承于`Seq`。
 List为**不可变对象**，可以使用for循环进行遍历。
 构建一个列表：
 
@@ -959,6 +1031,7 @@ res0: Int = 1
 可变列表`scala.collection.mutable.LinkedList`在现在的版本中(2.11.7)已被标记为废弃的。
 当前版本可以使用`scala.collection.mutable.ListBuffer`为可变列表。
 不可变列表`List`不支持`+=`和`-=`运算，但`ListBuffer`类型支持。
+`ListBuffer`不支持`::`以及`:::`运算符。
 `ListBuffer[T]`类的常规操作如下所示：
 
 ```scala
@@ -981,6 +1054,68 @@ object TestList extends App {
 str 2.0
 str 2.0 num
 str 2.0 new
+
+###变长数组(ArrayBuffer)
+在Scala中，变长数组使用`ArrayBuffer[T]`进行表示，`ArrayBuffer`不在默认导入的包路径中，位于`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。
+Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素，创建一个`ArrayBuffer`：
+
+```scala
+scala> var arrayBuffer = new ArrayBuffer[Int]
+arrayBuffer: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer()
+var a = ArrayBuffer(100, 200)					//同样可以使用伴生对象的apply()方法创建ArrayBuffer
+a: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(100, 200)
+```
+
+`ArrayBuffer`可以使用`+=`和`-=`进行**增加**与**删除**元素：
+
+```scala
+scala> arrayBuffer += 10
+res10: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10)
+scala> arrayBuffer += 100
+res11: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
+scala> arrayBuffer += 1000
+res12: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100, 1000)
+scala> arrayBuffer -= 1000
+res13: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
+```
+
+需要注意的是，`+=``-=`只是**方法名**并不是**运算符**，因此，以下的写法会**报错**：
+
+```scala
+arrayBuffer = arrayBuffer + 10
+<console>:12: error: type mismatch;
+found : Int(10)
+required: String
+	arrayBuffer = arrayBuffer + 10
+								^
+```
+
+与Java中的`ArrayList`类似，`ArrayBuffer`也允许在**任意位置**进行元素插入：
+
+```scala
+scala> arrayBuffer.insert(1, -100)					//在索引1的位置插入数值-100
+scala> arrayBuffer
+res17: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, -100, 100)
+```
+
+插入多个元素：
+
+```scala
+scala> arrayBuffer.insert(1, 7, 8, 9)				//在索引1的位置插入数值7，8，9
+scala> arrayBuffer
+res19: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 7, 8, 9, -100, 100)
+```
+
+删除操作类似，移除操作可以指定首尾进行**批量移除**：
+
+```scala
+scala> arrayBuffer.remove(1, 4)
+scala> arrayBuffer
+res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)		//删除了索引1到4位之间的元素
+```
+
+需要注意的是，`ArrayBuffer`是**线性结构**，只有在尾部进行插入删除操作才是高效的，在其它位置进行的元素操作都会造成大量的元素移动。
+`ArrayBuffer`的不可变版本对应为`scala.collection.immutable.Vector`。
 
 ###集合(Set)
 `Set[T]`完整包路径为`scala.collection.immutable.Set`。
@@ -1079,6 +1214,8 @@ res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 
 与`Set``ListBuffer`等类似，`Map`也支持`+=``-=`操作符。
 `Map`使用`+=`向自身添加对偶，使用`-=`从自身移除指定key对应的对偶。
+除了不可变的`scala.collection.immutable.Map`外，还有可变的`scala.collection.mutable.Map`类型。
+Scala还提供了多种不同结构的`Map`实现，如`HashMap``ListMap``LinkedHashMap`等。
 
 
 

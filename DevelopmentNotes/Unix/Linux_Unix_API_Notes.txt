@@ -71,11 +71,11 @@ int open(const char *pathname, int flags);
 int open(const char *pathname, int flags, mode_t mode);
 int openat(int dirfd, const char *pathname, int flags);
 int openat(int dirfd, const char *pathname, int flags, mode_t mode);
+以上函数在执行成功时返回新的文件描述符，失败时返回-1并置errno。
 crate()函数用于创建文件，open()函数既可用于创建文件(flags取O_CREAT)，也可用于打开文件，打开的对象也可以是目录。
 对于create()和open()函数，参数pathname代表文件所在路径绝对地址的字符数组首地址，参数mode代表创建的文件文件带有的默认权限，可以用逻辑或操作符连接以下参数：S_IRUSR、S_IWUSR、S_IXUSR、S_IRGRP、S_IWGRP、S_IXGRP、S_IROTH、S_IWOTH、S_IXOTH，分别代表拥有者、同组用户、其他用户的读、写、执行权限。
 open()函数的flags参数表示文件打开时的参数，参数可取多个，以逻辑或操作符连接，常用的有O_RDONLY、O_WRONLY、O_RDWR，分别表示以只读、只写、读写的方式打开文件，默认每个文件描述符首次写操作会清除已有的数据，使用O_APPEND标志以追加的方式写入数据；flags参数取"O_CREAT | O_EXECL"时创建一个原先不存在的文件，如果需要被创建的文件已经存在了，则创建失败。
 openat()函数作用与open()函数完全相同，但是openat()函数允许使用多种路径表示方式；dirfd文件描述符表示的路径为父目录，而pathname中包含的字符串为相对路径；或是dirfd取特殊值AT_FDCWD，则父目录为当前路径；也可以像open()函数一样在pathname中写入绝对路径，但此时dirfd的取值会被忽略。
-函数在执行成功时返回新的文件描述符，失败时返回-1并置errno。
 
 ----
 
