@@ -2,7 +2,7 @@
 
 ##Scala开发环境
 在**Linux/Unix**环境下，无需额外的Scala配置，只需从对应发行版的包管理器中直接安装Scala开发包即可。
-在**Windows**环境下，需要新建环境变量`SCALA_HOME`，环境变量的值即为Scala的安装目录，然后将`%SCALA_HOME%\bin`加入**PATH**环境变量中。
+在**Windows**环境下，从**Scala官网**下载`Scala SDK`，解压到指定位置，新建环境变量`SCALA_HOME`，环境变量的值即为Scala的解压位置，然后将`%SCALA_HOME%\bin`加入**PATH**环境变量中。
 
 ###让VIM支持Scala语法高亮
 vim默认不支持Scala的语法高亮，可以使用**Derek Wyatt**开发的`vim-scala`插件，代码托管在**GitHub**上，项目主页是：
@@ -199,6 +199,7 @@ No Args
 var functionName: FuncType = 符合签名的方法/函数/Lambda
 ```
 
+Scala中的函数类型为`Function`，根据参数数目的不同，Scala中提供了`Function0[+R]`(无参数)到`Function22[-T1, ..., -T22, +R]`共23种函数类型，即Scala中的函数，最多可以拥有**22**个参数。
 与方法不同，函数不能够带有默认值。
 需要注意的是，函数**不允许**省略参数，因为函数名做为表达式时的语义为函数名所代表的函数内容而非函数调用。空参函数的括号不可省略，直接使用函数名并不代表调用空参函数，比如：
 
@@ -615,7 +616,7 @@ Case Nothing
 abc cde
 abc cde efg
 
-###样例类(case class)与模式匹配(pattern matching)
+###样例类(Case Class)与模式匹配(Pattern Matching)
 样例类是一种特殊的类，通常用在模式匹配中。
 在类定义前使用`case`关键字即可定义一个样例类。
 相比普通的类，样例类有以下特性：
@@ -674,11 +675,11 @@ Case.num == 100
 Case.num > 100
 Not Matching
 
-###特质(trait)
+###特质(Trait)
 Scala中的`trait`特质对应Java中的`interface`接口，但相比Java中的接口，Scala中的特质除了没有默认构造器、不能被直接实例化之外，拥有绝大部分类的特性。
 Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
 
-####*混入(mixin)*
+####*混入(Mixin)*
 - Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
 - Scala中采用的**混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
 - 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
@@ -1216,6 +1217,13 @@ res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 `Map`使用`+=`向自身添加对偶，使用`-=`从自身移除指定key对应的对偶。
 除了不可变的`scala.collection.immutable.Map`外，还有可变的`scala.collection.mutable.Map`类型。
 Scala还提供了多种不同结构的`Map`实现，如`HashMap``ListMap``LinkedHashMap`等。
+
+
+
+##高阶函数(Higher Order Function)
+**高阶函数**是**函数式编程**中的概念，在数学中，也叫做**算子**(运算符)或**泛函**。
+**接受一个或多个函数作为输入**或者**输出一个函数**的函数被称为高阶函数。
+在Scala中，容器类提供了高阶函数作为容器数据操作的接口，常见的高阶函数有`map``reduce``flatMap``filter``find``fold``foreach`等。
 
 
 
