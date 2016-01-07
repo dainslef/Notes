@@ -378,24 +378,27 @@ Scala是一门同时具有函数式与面向对象特性的多重范式的语言
 ###构造器(Constructor)
 在Scala中构造方法的作用与Java类似，用于在创建类实例的同时对指定的成员进行初始化。
 在语法上，Scala中类可以拥有一个**主构造器(primary constructor)**和任意个**辅助构造器(auxiliary constructor)**。
-主构造器的参数定义紧跟在类名之后，辅助构造器定义在类体中，使用this关键字，在辅助构造器中最终必须调用主构造器。
-调用父类的主构造器必须在主构造器中，写在父类类名之后。
-需要注意的是，主构造器的参数将成为类的成员，而辅助构造器中的参数则与普通函数参数类似，仅在构造器代码段内部生效。
+
+- 主构造器的参数定义紧跟在类名之后，辅助构造器定义在类体中，使用`this`关键字。
+- 在辅助构造器的代码中必须立即调用主构造器或其它辅助构造器，之后才能执行其它代码。
+- 调用父类的构造器必须在主构造器中，写在父类类名之后。
+- 主构造器的参数将成为类的成员，而辅助构造器中的参数则与普通函数参数类似，仅在构造器代码段内部生效。
+
 如下代码所示：
 
 ```scala
 //定义主构造器
-class Constructor(a: Int = 1, var b: Double = 2.0) {		//构造器参数紧跟在类名之后，构造器中的参数可以带有默认值
+class Constructor(a: Int, var b: Double = 2.0) {		//构造器参数紧跟在类名之后，构造器中的参数可以带有默认值
 	//在构造器中创建了两个字段，如果没有显式使用var/val关键字创建字段，则默认创建的字段是当前实例私有且不可变的(private[this] val)
 
 	//定义辅助构造器，使用this关键字
 	def this() = this(2, 3.0)		//辅助构造器的函数体中必须最终调用主构造器，辅助构造器即使没有参数也必须也必须带括号
 }
 
-//只有主构造器能够调用父类构造器
+//只有主构造器能够调用父类构造器，调用的父类构造器可以是主构造器，也可以是辅助构造器
 class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	def this() {
-		//a = 100					//对成员字段进行操作要在主构造器调用之后，放在this()之前会报错
+		//a = 100					//代码要在构造器调用之后，放在this()之前会报错
 		this(2, 4.0)
 		//super(2, 4.0)				//在Scala中没有这种用法，父类的构造函数只能由主构造器调用
 	}
@@ -1040,7 +1043,7 @@ object TestList extends App {
 	import scala.collection.mutable._
 	val show: ListBuffer[Any] => Unit = for (s <- _) print(s"$s ")
 	var listBuffer = ListBuffer(1, "str", 2.0)
-	listBuffer remove 0					//移除指定索引位置的值
+	listBuffer.remove(0)				//移除指定索引位置的值
 	show(listBuffer)
 	println
 	listBuffer += "num"					//添加新值
@@ -1330,11 +1333,11 @@ package Package {
 
 
 
-##隐式转换与隐式参数
+##隐式转换
 隐式转换在构建类库时是一个强大的工具。
 使用隐式转换特性需要在编译时添加`-language:implicitConversions`选项。
 
-###隐式转换
+###定义隐式转换
 Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。
 如果需要类型之间的自动转换，需要使用`implicit`自定义隐式转换。
 隐式转换可以定义在当前类中或是伴生对象中，只要需要进行转换时能被访问到即可。
@@ -1429,3 +1432,35 @@ object Main extends App {
 
 输出结果：
 100 200.0
+
+###隐式类
+类定义前同样可以使用`implicit`成为**隐式类**。
+
+- 隐式类的主构造器**有且只有**一个参数，同时，该参数**不能**为隐式参数。
+- 隐式类的主构造器不能通过参数默认值、隐式参数等形式来模拟成参数表成只有一个参数的情况。
+- 隐式类特性不能与样例类共存，即一个类在定义时不能同时带有`implicit`和`case`关键字。
+- 隐式类**不能**定义在外部区域(包，以及包对象)，隐式类只能定义在类体、函数体、单例对象中。
+
+与**隐式转换**类似，当一个实例调用了**不存在**或**无法访问**的成员方法，编译器变会为之搜索作用域中可访问的隐式类，若隐式类的构造器参数与实例相同且带有实例调用的方法，变会自动调用该隐式类的构造器。
+如下代码所示：
+
+```scala
+object Main extends App {
+
+	case class Source(num: Int) {
+		private def show = print(num)
+	}
+
+	implicit class Impl(source: Source) {
+		def show = println("Implicit Class")
+		def show(num: Int) = println(s"Implicit Class: $num")
+	}
+
+	Source(0).show				//调用无法访问的成员方法可能触发隐式转换
+	Source(0).show(100)			//调用不存在的方法也能触发隐式转换
+}
+```
+
+输出结果：
+Implicit Class
+Implicit Class: 100
