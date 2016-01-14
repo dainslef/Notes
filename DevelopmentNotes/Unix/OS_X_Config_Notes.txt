@@ -120,7 +120,7 @@ $ brew deps [package_name]					//显示指定包的依赖
 ----
 
 安装OS X缺失的一些命令行工具和开发环境 >
-$ brew install aria2 wget python3 gcc screenfetch nmap scala p7zip mariadb boost sbcl go mono pandoc gdb
+$ brew install aria2 wget python3 gcc screenfetch nmap scala p7zip mariadb boost sbcl go mono gdb
 需要注意的是，通过Homebrew安装的包文件全部保存在/usr/local/Cellar目录下。
 与Linux下的常规包管理器不同，Homebrew在安装包和删除包的时候，不会有多余的确认提示，输入指令就会直接执行。
 对于带有头文件的包(如boost、gcc等)，会在/usr/local/include目录下创建符号链接，指向/usr/local/Cellar目录中的具体包内容。
