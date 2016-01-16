@@ -439,9 +439,9 @@ JScrollPane scrollPane = new JScrollPane(textArea);
 与**Qt**一样，Java也提供了弹出MessageBox的静态方法，即`JOptionPane.showMessageDialog()`。
 
 ```java
-static void showMessageDialog(Component parentComponent, Object message) 									//调出标题为 "Message" 的信息消息对话框。
-static void showMessageDialog(Component parentComponent, Object message, String title, int messageType) 				//调出对话框，它显示使用由 messageType 参数确定的默认图标的 message。
-static void showMessageDialog(Component parentComponent, Object message, String title, int messageType, Icon icon) 						//调出一个显示信息的对话框，为其指定了所有参数。
+static void showMessageDialog(Component parentComponent, Object message); 									//调出标题为 "Message" 的信息消息对话框。
+static void showMessageDialog(Component parentComponent, Object message, String title, int messageType); 				//调出对话框，它显示使用由 messageType 参数确定的默认图标的 message。
+static void showMessageDialog(Component parentComponent, Object message, String title, int messageType, Icon icon); 						//调出一个显示信息的对话框，为其指定了所有参数。
 ```
 
 其中，`messageType`可以取`DEFAULT_OPTION``YES_NO_OPTION``YES_NO_CANCEL_OPTION`或`OK_CANCEL_OPTION`等。
@@ -451,8 +451,8 @@ static void showMessageDialog(Component parentComponent, Object message, String 
 构建一个`JTable`主要有两种方式：
 
 ```java
-JTable(Object[][] rowData, Object[] columnNames)
-JTable(TableModel dm)
+JTable(Object[][] rowData, Object[] columnNames);
+JTable(TableModel dm);
 ```
 
 即使用`Object数组`确定表格模型或是使用`TableModel`类构建表格模型。
@@ -467,7 +467,7 @@ JTable(TableModel dm)
 函数的定义为：
 
 ```java
-public String[] split(String regex)
+public String[] split(String regex);
 ```
 
 `String`类中提供的文本切片函数`String.split()`接收的参数是**正则表达式**(Regex)。

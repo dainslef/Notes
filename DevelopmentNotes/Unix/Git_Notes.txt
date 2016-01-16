@@ -1,4 +1,4 @@
-﻿设置Git >>
+设置Git >>
 在使用Git之前，首先要设置用户的全局用户名和邮箱。
 $ git config --global user.name "[你的用户名]"
 $ git config --global user.email "[你的邮箱]"

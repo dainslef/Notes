@@ -1,7 +1,7 @@
 /*
- * ´úÂëÍê³ÉÊ±¼ä£º 2014-12-19 23:51 AM
- * µ¥Êı×é·½Ê½ÊµÏÖ°Ë»ÊºóÎÊÌâ
- * javaÓïÑÔÊµÏÖ
+ * ä»£ç å®Œæˆæ—¶é—´ï¼š 2014-12-19 23:51 AM
+ * å•æ•°ç»„æ–¹å¼å®ç°å…«çš‡åé—®é¢˜
+ * javaè¯­è¨€å®ç°
  */
 
 
@@ -15,7 +15,7 @@ public class Queen {
 	public static void main(String[] args) {
 		GetQueen Q = new GetQueen();
 		Q.Queen(0);
-		System.out.println("¹²ÕÒµ½ÁË" + Q.count + "ÖÖ½â·¨¡£");
+		System.out.println("å…±æ‰¾åˆ°äº†" + Q.count + "ç§è§£æ³•ã€‚");
 	}
 		
 }
@@ -29,7 +29,7 @@ class GetQueen
 	void Queen(int row) {
 		if (row == queen) {
 			count++;
-			System.out.println("ÕÒµ½ÁËµÚ" + count + "ÖÖ·½·¨£º");
+			System.out.println("æ‰¾åˆ°äº†ç¬¬" + count + "ç§æ–¹æ³•ï¼š");
 			show();
 		}
 		else {
