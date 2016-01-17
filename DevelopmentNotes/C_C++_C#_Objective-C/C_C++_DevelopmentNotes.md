@@ -537,7 +537,7 @@ int main(void)
 
 
 
-##默认参数
+##参数默认值
 C++允许在定义函数是给函数的参数设定**默认值**，在调用这个函数时，如果没有给出对应参数的值，就会使用默认的参数值。
 
 - 在调用具有默认参数的函数时，如果使用参数了一个参数的默认值，则其它带有默认值的参数也应该使用默认值，如果不准备使用参数的默认值，则所有带默认值的参数的默认值都不应该被使用。
@@ -963,6 +963,66 @@ private:
 	int test(int&& num);
 };
 ```
+
+
+
+##断言 *assert*
+**断言**是调试中常用的一种宏，常用于**条件检查**。
+
+###C语言中的断言
+**断言**是一种**预处理宏**，其定义位于头文件`assert.h`中，不同平台的实际定义不尽相同，但表达式结构类似，如下所示：
+
+```cpp
+assert(expr);
+```
+
+`assert`接受一个表达式作为条件，表达式为真(非0)时，程序正常执行，表达式为假(值为0)，assert输出信息并终止程序的执行。
+
+###C++11中的静态断言
+C++11中引入了**静态断言**`static_cast`，与普通的断言不同，**静态断言**不是宏，而是一个语言级别的**关键字**。
+静态断言在编译时生效，接受常量表达式，若接收的常量表达式值为假，则在编译阶段直接报错。
+`static_cast`关键字用法如下所示：
+
+```cpp
+static_cast(expr, expr_str);
+```
+
+若常量表达式为假，则**expr_str**则作为错误信息被输出。
+
+###使用静态断言实现范型约束
+**静态断言**搭配标准库中的模版类`std::is_base_of<Base, Der>`能够实现类似`Java``C#`等高级语言中的范型约束效果。
+如下所示：
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Base {};
+
+class Der : public Base {};
+
+class Private : Base {};
+
+class Other {};
+
+int main(void)
+{
+	// Right
+	static_assert(is_base_of<Base, Der>::value, "Need class Base.");
+
+	// Right
+	static_assert(is_base_of<Base, Private>::value, "Need class Base.");
+
+	// error: static_assert failed "Need class Base."
+	static_assert(is_base_of<Base, Other>::value, "Need class Base.");
+	return 0;
+}
+```
+
+通过静态成员`std::is_base_of<Base, Der>::value`来判定作为参数的两个类是否存在继承关系。
+类`Base`与`Der`存在继承关系，因而编译通过，但类`Other`与`Base`不存在继承关系，因而编译报错。
+需要注意的是，**私有继承**虽然不支持转型操作，但继承关系依然存在，能够通过继承关系检测。
 
 
 
