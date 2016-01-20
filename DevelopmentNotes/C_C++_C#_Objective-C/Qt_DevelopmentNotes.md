@@ -522,7 +522,7 @@ void QListWidgetItem::setData(int role, const QVariant& value);			//设置item�
 提供给用户使用的Role从`Qt::UserRole`开始，`Qt::UserRole`之后的数值都可以由用户使用。
 
 ###使QListWidgetItem对齐
-如果给`QListWidgetItem`设定了文本，那么，在文本长度不一致的时候，图标很可能不会保持对齐状态，此时可以使用`QListWidgetItem::setSizeHint(const QSize &size)`来强制设定每个item的大小，使每个item大小完全相同，达到对齐的效果(过长的文本会以省略号显示)。
+如果给`QListWidgetItem`设定了文本，那么，在文本长度不一致的时候，图标很可能不会保持对齐状态，此时可以使用`QListWidgetItem::setSizeHint(const QSize& size)`来强制设定每个item的大小，使每个item大小完全相同，达到对齐的效果(过长的文本会以省略号显示)。
 
 ###查找指定名称的QListWidgetItem
 可以使用`QList<QListWidgetItem*> QListWidget::findItems(const QString& text, Qt::MatchFlags flags) const`来查找指定文本内容的`QListWidgetItem`。
@@ -560,6 +560,29 @@ void QTreeWidgetItem::setFlags(Qt::ItemFlags flags);								//设置标志，可
 void QHeaderView::setStretchLastSection(bool stretch);								//设置最后一列自动扩展
 void QHeaderView::setSectionResizeMode(int logicalIndex, ResizeMode mode);			//设置指定列的列宽扩展模式，有固定大小(Fixed)、扩展列宽到合适大小(Stretch)、根据内容宽度决定列宽(ResizeToContents)等
 ```
+
+###清空、删除、移除节点
+删除QTreeWidget的item可以直接使用`delete`操作符，释放掉指定item的内存，该item便会从树形控件上删除。
+将整个树形控件清空可以使用：
+
+```cpp
+void QTreeWidget::clear();                                             //使用clear()函数会在清空树形控件的同时将所包含item的内存释放
+```
+
+如果仅仅需要解除某个QTreeWidgetItem与树形控件的绑定关系(即只移除控件不释放内存)，可以使用：
+
+```cpp
+QTreeWidgetItem* QTreeWidget::takeTopLevelItem(int index);             //从树形控件上移除指定索引位置的顶层item，不回收item的内存，item在移除后依然可以重新添加
+void QTreeWidgetItem::removeChild(QTreeWidgetItem* child);             //从某个节点上移除其子节点，不释放内存
+```
+
+使用`takeTopLevelItem()`方法移除指定item后会返回被移除item的指针，若参数位置的item不存在，则返回`0`，利用此特性，可以循环移除QTreeWidget的所有item，如下所示：
+
+```cpp
+while (tree->takeTopLevelItem(0));             //循环直到索引0所在的位置item不存在，则说明所有的item都已被移除
+```
+
+需要注意的是，通过`void QTreeWidget::setItemWidget(QTreeWidgetItem* item, int column, QWidget* widget)`方法向某个item中添加的widget时，并没有将item与该widget绑定。使用`taketoplevelitem()`方法移除item再重新填加item后，item原先位置设置的widget不会显示出来，需要重新使用`setItemWidget()`方法进行设定后才会显示。
 
 ###其它常用设置
 
@@ -620,10 +643,10 @@ QPixmap QPixmap::scaled(int width, int height);
 需要注意的是该函数返回的是`QPixmap`类型，变更了大小的新的`QPixmap`在**返回值**中，需要显式的赋值给一个`QPixmap`对象。
 
 ###在QComobox/QListWidget中显示图片
-使用`QComboBox::addItem(const QIcon &icon, const QString &text, const QVariant &userData = QVariant())`向一个组合框添加选项内容时，将需要在组合框中显示的图片转换成`QIcon`类型，填入第一个参数即可。
+使用`QComboBox::addItem(const QIcon& icon, const QString& text, const QVariant& userData = QVariant())`向一个组合框添加选项内容时，将需要在组合框中显示的图片转换成`QIcon`类型，填入第一个参数即可。
 需要注意的是，`QComboBox`在显示图片是是有自身默认的大小的，无论原图片的大小如何，都会被缩放成`QComboBox`中指定的大小。
-指定`QComboBox`中显示图片的大小需要使用`QComboBox::setIconSize(const QSize &size)`来显式指定。
-对于`QListWidget`，操作方式类似，控制显示图片的大小同样需要使用`QListWidget::setIconSize(const QSize &size)`来显式指定。
+指定`QComboBox`中显示图片的大小需要使用`QComboBox::setIconSize(const QSize& size)`来显式指定。
+对于`QListWidget`，操作方式类似，控制显示图片的大小同样需要使用`QListWidget::setIconSize(const QSize& size)`来显式指定。
 
 ###向数据库中写入图片
 首先通过得到的文件路径用`QFile`打开文件：
