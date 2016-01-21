@@ -582,7 +582,7 @@ void QTreeWidgetItem::removeChild(QTreeWidgetItem* child);             //从某�
 while (tree->takeTopLevelItem(0));             //循环直到索引0所在的位置item不存在，则说明所有的item都已被移除
 ```
 
-需要注意的是，通过`void QTreeWidget::setItemWidget(QTreeWidgetItem* item, int column, QWidget* widget)`方法向某个item中添加的widget时，并没有将item与该widget绑定。使用`taketoplevelitem()`方法移除item再重新填加item后，item原先位置设置的widget不会显示出来，需要重新使用`setItemWidget()`方法进行设定后才会显示。
+需要注意的是，通过`void QTreeWidget::setItemWidget(QTreeWidgetItem* item, int column, QWidget* widget)`方法向某个item中添加的widget时，并**没有**将item与该widget绑定。使用`taketoplevelitem()`方法移除item再重新填加item后，item原先位置设置的widget不会显示出来，需要重新使用`setItemWidget()`方法进行设定后才会显示。
 
 ###其它常用设置
 
