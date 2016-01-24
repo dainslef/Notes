@@ -232,7 +232,7 @@ int main(void)
 }
 ```
 
-然而在**C#**中，Lambda需要先创建对象才能使用，同样的语句需要写成：
+然而在**C#**中，Lambda需要创建对象或显式指明类型才能使用，同样的语句需要写成：
 
 ```csharp
 using System;
@@ -241,6 +241,7 @@ class Test
 {
 	static void Main(string[] args)
 		=> new Action<string>(str => Console.WriteLine(str))("Hello World!");
+		//或者写成 => ((Action<string>)(str => Console.WriteLine(str)))("Hello World!");
 }
 ```
 

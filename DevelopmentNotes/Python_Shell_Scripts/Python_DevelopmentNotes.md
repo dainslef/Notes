@@ -9,6 +9,8 @@ list中的数据可以是另一个list，访问方式类似**二维数组**。
 
 ```python
 >>> l = ['first', 'second']
+>>> type(l)
+<class 'list'>
 ```
 
 取出list中指定下标的内容(下标可以为负数，即逆序取出内容)：
@@ -62,11 +64,13 @@ tuple可以像数组一样通过下标访问，但不能对其赋值：
 
 ```python
 >>> t = (1, 2, 3)
+>>> type(t)
+<class 'tuple'>
 >>> t[2]
 3
 >>> t[2] = 10
 Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
+File "<stdin>", line 1, in <module>
 TypeError: 'tuple' object does not support item assignment
 ```
 
@@ -76,7 +80,7 @@ TypeError: 'tuple' object does not support item assignment
 >>> t = (1, )
 ```
 
-逗号**不能省略**，这是为了消歧义(防止与数学括号相混淆)。
+逗号**不能省略**，这是为了**消歧义**(防止与数学括号相混淆)。
 另外，如果tuple的成员是一个list，则list内容依然可变(tuple只保证每一个tuple内成员的引用不变，但成员本身依旧是可变的)。
 
 ###字典 *dict*
@@ -88,6 +92,8 @@ dict根据key的值来计算对应value的位置(hash算法)，因此key是不�
 
 ```python
 >>> d = { 'first': 'one', 'second': 2, 'third': 3 }
+>>> type(d)
+<class 'dict'>
 ```
 
 取出dict中的某个内容：
@@ -198,9 +204,14 @@ True
 相比传统的OOP语言如Java、C++等，Python对于OOP并没有完整的支持，在Python中**不支持**函数重载、**不支持**定义保护对象。
 
 ###定义实例类成员
-在Python中，每个类的实例成员函数的第一个参数必须为当前类的实例(一般命名为`self`)。
-Python中的实例成员变量、实例成员函数也必须通过对象实例来调用。
-需要注意的是，即使是在类的内部，访问类的实例成员依然需要通过对象实例而**不能**直接使用变量名(直接使用变量名相当于是在函数内部创建一个与类成员变量同名的内部变量)。
+在Python中，类作用域内**不包含**隐式的对象引用(即类作用域中没有类似C++中的`this`指针或是Java中的`this`引用)，而是需要在成员函数的参数中传入对象实例。
+
+- 每个类的实例成员函数的第一个参数必须为当前类的实例，通常使用`self`来命名。
+- 通过类实例调用成员函数时，第一个参数(类实例参数)为隐含参数，不用写明。
+- 即使在类内部，实例成员变量、实例成员函数也必须通过对象实例来调用。
+- 在类作用域内，直接使用变量名相当于定义类的静态成员变量。
+- 在成员函数作用域内，直接使用变量名相当于在函数内部创建了一个局部变量。
+
 如下代码所示：
 
 ```python
@@ -222,38 +233,147 @@ test.show()
 
 ###定义静态类成员
 在Python中同样可以定义类的静态成员，与传统的OOP语言类似，访问静态成员使用`类名.静态成员名`即可。
-类的静态成员函数在定义时类似普通函数，**不需要**将第一个参数设定为当前类的实例，只需注意函数的缩进即可(作用域在类中)。
-定义类的静态成员变量有两种方式，可以直接将变量名写在类的**非函数作用域**中(不需要使用类名)，也可以在**构造函数**中定义(格式类似与实例变量，需要写类名，否则就会变成局部变量)。
-需要注意的是，即使在类的内部，访问静态成员同样需要使用类名而不能直接调用。
-Python中同一个类的静态成员函数不能与实例成员函数同名，但静态成员变量可以与实例成员变量同名。
+
+- 类的静态成员函数在定义前需要加装饰器`@staticmethod`。
+- 静态成员函数**没有**隐含参数，因此**不需要也不能**将第一个参数设定为类的实例。
+- 定义类的静态成员变量可以直接将变量名写在类的**非函数作用域**中(不需要也不能使用类名，会报错)。
+- Python为动态语言，因而可以在运行期间创建成员变量，可以在函数作用域或全局作用域使用`类名.静态变量名`创建静态成员变量。
+- 即使在类的内部，访问静态成员同样需要使用类名而不能直接调用。
+- 同一个类的静态成员函数**不能**与实例成员函数同名，但静态成员变量可以与实例成员变量同名。
+- 静态成员同样可以通过类实例调用。
+- 当一个类实例中存在同名的静态成员变量与实例成员变量时，优先调用实例成员变量。
+
 如下代码所示：
 
 ```python
 class Test:
 
 	num1 = 100
-	num2 = 200					#在类作用域中定义静态成员变量num1，num2
+	num2 = 200				#在类作用域中定义静态成员变量num1，num2
 
 	def __init__(self, num1, num2):
 		self.num1 = num2
-		self.num2 = num1		#定义实例成员变量num1，num2
+		self.num2 = num1	#定义实例成员变量num1，num2
 		Test.num3 = num2
-		Test.num4 = num1		#在构造函数中定义静态成员变量num3，num4
+		Test.num4 = num1	#在构造函数中定创建态成员变量num3，num4
 
 	def show(self):
 		print(self.num1, self.num2)
-		Test.static_show()		#即使在类内部，访问自身类的静态成员函数也需要加类名
+		Test.static_show()	#即使在类内部，访问自身类的静态成员函数也需要加类名
 
-	def static_show():			#静态成员函数的定义类似于普通函数，只是作用域不同
+	@staticmethod
+	def static_show():		#静态成员函数的定义前加装饰器@staticmethod
 		print(Test.num1, Test.num2, Test.num3, Test.num4)
 
+#print(Test.num3)			#报错，Test类的__init__()一次都没有被调用，此时Test.num3不存在
 test = Test(1, 2)
 test.show()
+test.static_show()			#静态成员函数也能够被实例访问
+```
+
+###类方法
+类方法在定义时需要添加装饰器`@classmethod`，类方法在其他主流OOP编程语言(Java、C++、C#等)中没有对应的概念。
+
+- 类方法的隐含参数是类的**类型**，而非类的实例，通常使用`cls`来命名。
+- 类方法可以通过类实例或是类名调用。
+- 类方法只能访问静态成员，即使通过实例调用。
+
+如下代码所示：
+
+```python
+class Test:
+
+	num = 100
+
+	def __init__(self, num):
+		self.num = num
+
+	@classmethod
+	def show(cls, str):
+		print(str, cls.num, Test.num)
+
+t = Test(200)
+t.show("Called by t.show()")		#通过实例与通过类名的调用结果完全相同，访问都是静态变量
+Test.show("Called by Test.show()")
 ```
 
 输出结果：
-2 1
-100 200 2 1
+Called by t.show() 100 100
+Called by Test.show() 100 100
+
+###隐含参数
+本质上，Python中对于成员方法的区分实际上是对于隐含参数的处理方式不同。
+对于一个实例方法，如下调用：
+
+```python
+instance.func_name(args...)
+```
+
+实际上等价于：
+
+```python
+class_name.func_name(isinstance, args...)
+```
+
+Python解释器只是将实例本身填充到了实例方法的第一个参数上而已，因而实例方法也可以以静态方法的语法被调用。
+在C#中也存在类似的语法转换，被称为**扩展方法**。
+添加了装饰器`@staticmethod`或`@classmethod`的方法便不再能够进行这种转换，如下代码所示：
+
+```python
+class Test:
+
+	num = 100
+
+	def __init__(self, num):
+		self.num = num
+
+	def call(self):
+		print("instance_method:", self.num)
+
+	@classmethod
+	def cls_call(cls):
+		print("class_method:", cls.num)
+
+	@staticmethod
+	def static_call(self):
+		print("static_method:", self.num)
+
+	def no_arg():
+		print("no_arg_method:", Test.num)
+
+t = Test(200)
+
+t.call()				#调用实例成员方法
+Test.call(t)			#以静态方法的语法调用实例成员方法，调用成功，输出相同
+
+Test.cls_call()			#通过类名调用类方法
+t.cls_call()			#通过调用实例调用类方法，输出与通过类名调用相同
+#Test.cls_call(t)		#报错，提式参数过多
+
+#t.static_call()		#报错，提示缺少参数"slef"
+t.static_call(t)
+Test.static_call(t)
+
+Test.no_arg()
+#t.no_arg()				#报错，提示参数过多
+```
+
+输出结果：
+instance_method: 200
+instance_method: 200
+class_method: 100
+class_method: 100
+static_method: 200
+static_method: 200
+no_arg_method: 100
+
+通过以上结果可以得出：
+
+- 实例方法的调用语法实际是语法糖，普通的实例方法可以通过类名语法进行调用。
+- 通过普通语法调用实例方法时，Python解释器会将实例作为隐含参数。
+- 使用了`@staticmethod`装饰器之后，通过实例调用该静态方法，解释器不再会将实例作为隐含参数。
+- 使用了`@classmethod`装饰器之后，通过实例调用该类方法，解释器依然将实例视为类名处理。
+- 参数为空的成员方法，即使没有添加任何装饰器，也只能通过类名访问。
 
 ###私有成员
 Python的类中默认成员的访问属性为公有，在Python中不能定义保护成员，但可以定义私有成员。
@@ -383,7 +503,7 @@ print(a.__next__())
 0
 1
 Traceback (most recent call last):
-  File "test.py", line 10, in <module>
+File "test.py", line 10, in <module>
 	print(a.__next__())
 StopIteration: 100
 ```
@@ -442,11 +562,46 @@ print(a.send(20))
 
 
 
-##与c/c++的基本语法差异
+##与C/C++的基本语法差异
 - Python**没有**自增自减运算符。
 - Python中**没有**`switch`关键字。
 - Python中的逻辑运算符用直白的英语表示：`and(且)``or(或)``not(非)`，位运算操作符不变。
 - Python比较对象是否相同用`is``is not`。
-- Python比较是否属于用`in``not in`
+- Python比较是否属于用`in``not in`。
 - Python乘方用`**`符号，`2 ** 3`的值是`8`，相当于`2 ^ 3`(数学意义上)。
 - Python**没有**三目运算符，可以用类似的语句替代：`A and B or C`。需要注意的是，该语句与三目运算符并不完全等价，在运算中，空字符串''，数字0，空list[]，空dict{}，空()，None，在逻辑运算中都被当作假来处理。
+
+
+
+## *PEP8* 编码规范总结
+**PEP**是`Python Enhancement Proposal`的缩写，即"Python增强建议"。
+
+###代码编排
+- 以80个字符做为单行界限。
+- 优先使用4个空格做为缩进，但在使用Tab做为缩进的代码中，应保持使用Tab。
+- 代码换行优先在括号内部换行，也可以使用`\`换行符。
+- 在括号内换行时，以其它括号内的元素作为对齐标准，或者使用悬挂式缩进。
+- 在使用悬挂式缩进时，应使用进一步缩进以便于与其它行区分。
+- 类定义和顶层函数定义之间空两行；类中的方法定义之间空一行；函数内逻辑无关段落之间空一行；其他地方尽量不要再空行。
+- 不要将多句语句写在同一行，尽管使用`;`允许。
+
+###空格使用
+总体原则，避免不必要的空格。
+
+- 各种右括号前不要加空格。
+- 逗号、冒号、分号前不要加空格。
+- 函数的左括号前不要加空格。如`Func(1)`。
+- 序列的左括号前不要加空格。如`list[2]`。
+- `if``for``while`语句中，即使执行语句只有一句，也必须另起一行。
+- 函数默认参数使用的赋值符左右省略空格。
+- 赋值操作符(`=``+=`等)、比较操作符(`==``>``<``in``is`等)、布尔操作符(`and``is``not`)左右各加一个空格，不要为了对齐增加空格。
+
+###命名规范
+- 类名使用驼峰命名法。
+- 成员变量和方法使用全小写下划线风格。
+- 常量使用全大写下划线风格。
+- 模块名称使用全小写，除了`__init__`这样的特殊模块，不要在自定义的模块名称中加入下划线。
+- 使用复数形式命名列表，如`members = ['user1','user2']`。
+- 使用显式名称命名字典，如`name_age = {'Peter':18,'Dainslef':24}`。
+- 避免使用通用名称，如`list``tuple``dict`等。
+- 避免使用系统中已经存在的名称，如`os``sys`等。
