@@ -898,25 +898,25 @@ bool QTranslator::load(const QLocale& locale, const QString& filename, const QSt
 
 ##Qt常见错误
 
-###关于 _undefined reference to vtable for XXX(类名)_ 错误
+###关于 *undefined reference to vtable for XXX(类名)* 错误
 在一个类的定义中，如果使用类`Q_OBJECT`宏，则需要将对应的代码使用`moc`工具进行预处理生成`*.moc`文件才能够正常编译，而`qmake`工具在扫描代码中的`Q_OBJECT`时只会从`*.h`命名的文件中查找，如果在编码过程中没有按照编码规范而是将类的定义写在`*.cpp/*.cc`文件中的话，`qmake`工具是不会识别的，生成对应的`Makefile`文件也不会将对应的`*.moc`文件加入编译使得make指令编译报错。
 正确的做法是按照C++标准将类的定义写在`*.h`头文件中。
 此外，Qt在编译项目时默认采用的是`make`编译，会在编译时忽略那些未曾改动的文件，因此有时出现此错误时还可以尝试完全删除已经存在的二进制文件和编译中间文件，然后从头开始重新编译整个项目。
 一般对于此类错误的解决办法是手动运行`qmake`后整个项目重新编译。
 
-###关于 _Warning: File '***' has modification time 3.9e+08 s in the future_ 错误
+###关于 *Warning: File XXX has modification time 3.9e+08 s in the future* 错误
 一般情况下，Qt在`make`项目时连续出现类似错误(并且呈现出死循环状态)，一般是项目中的文件时间混乱，部分文件的时间超过了系统当前的时间造成的。
 解决办法是将项目里的所有文件`touch`一遍即可。
 此外，make出现`make: 警告：检测到时钟错误。您的创建可能是不完整的。`的错误提示一般也是类似原因造成的。
 
-###关于 _qt error: C2001: 常量中有换行符_ 错误
+###关于 *qt error: C2001: 常量中有换行符* 错误
 在`Windows`环境中使用`Qt`+`VC编译器`并且源码为`utf-8`编码时，需要保留`BOM`，使用**无BOM的utf-8编码**会让编译器在遇到中文字符时报编码错误，需要将文件编码的`UTF-8 BOM`选项设置为`如果编码是utf-8则添加`。
 
-###关于 _底层受到操作系统信号而停止_ 错误
+###关于 *底层受到操作系统信号而停止* 错误
 通常情况下，遇到此类问题可能是对空指针进行了操作。
 在Qt中，需要注意指针是否已经被初始化，同时，在编写类的析构函数时也许要慎重，如果一个指针需要传递给其他类使用，则不能在当前类的析构函数中`delete`此指针。
 
-###关于 _Z-order assignment: '***' is not a valid widget._ 警告
+###关于 *Z-order assignment: XXX is not a valid widget.* 警告
 在使用`QtDesigner`拖放控件顺序不当时可能会出现此警告，解决方法是删除对应控件的`<zorder></zorder>`标签。
 
 ###关于Windows专属BUG：中文乱码
@@ -930,12 +930,12 @@ bool QTranslator::load(const QLocale& locale, const QString& filename, const QSt
 
 需要注意的是，该宏需要特定版本的VS支持，对于`VS2010`，需要安装`VS2010SP1`更新。VS2012不支持该宏，VS2013支持。
 
-###关于 _This application failed to start because it could not find or load the Qt platform plugin "windows"._ 运行错误
+###关于 *This application failed to start because it could not find or load the Qt platform plugin "windows".* 运行错误
 在使用非安装版本的Qt或是系统中未安装Qt时启动Qt程序可能会遇到此错误提示，原因是未能加载Qt的运行时动态链接库。
 需要将Qt安装目录下的`...\plugins\platforms`文件夹复制到需要执行的程序所在的目录。
 需要注意的是，直接将`platforms`文件夹中的dll复制出来是没有效果的。
 
-###关于 _找不到Qt5Core.dll_ 运行错误
+###关于 *找不到Qt5Core.dll* 运行错误
 在已经安装了Qt的机器上出现此错误，一般为Qt的**环境变量**未正确配置。
 需要创建环境变量`QTDIR`，绑定的位置为Qt的主要目录(即包含有bin、include、lib等目录的路径)。
 需要将`%QTDIR%\bin`加入`PATH`环境变量中。

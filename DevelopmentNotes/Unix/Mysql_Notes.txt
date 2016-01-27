@@ -90,9 +90,11 @@ create user [用户名@localhost];
 
 删除账户 >
 删除一个远程账户：
-drop user [用户名@'主机地址'];
+drop user [用户名@'主机名/主机地址'];
 删除一个本地账户：
 drop user [用户名@localhost];
+删除一个空用户名的账户：
+drop user [''@'主机名/主机地址'];
 
 ----
 
