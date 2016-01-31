@@ -199,6 +199,256 @@ True
 
 
 
+##装饰器 *decorator*
+装饰器能够为已有的函数附加额外的功能。
+装饰器也是设计模式中的一种，通过组合的方式来复用已有的功能。
+
+###定义装饰器
+在Python中，装饰器本质上就是一个普通的函数，接受一个函数作为输入参数，同时返回一个装饰后的函数。
+装饰器基本的结构如下所示：
+
+```python
+def decorator_name(func_name):
+	def wrapper():		#定义一个局部函数作为包装函数
+		# code before...
+		func_name()		#调用被装饰的函数
+		# code after...
+	return wrapper		#返回装饰后的函数
+```
+
+在函数定义前加上`@装饰器名`即会使用装饰器来包装定义的函数，如下所示：
+
+```python
+@decorator_name
+def func_name():
+	#code...
+```
+
+实际上，Python中使用装饰器只是一个**语法糖**，实际相当于调用装饰器函数产出一个新的函数。
+上述代码等价于：
+
+```python
+def func_name():
+	#code...
+func_name = decorator_name(func_name)
+```
+
+一个基本的装饰器应用如下所示：
+
+```python
+from time import clock
+
+#打印被装饰的函数运行消耗的时间
+def time_cost(func):
+	def wrapper():
+		start = clock()
+		func()
+		end = clock()
+		print("Time used: %f seconds" % (end - start))
+	return wrapper
+
+#将要使用的装饰器的名称写在函数定义前
+@time_cost
+def show():		#装饰器是语法糖，方法show的属性"__name__"返回值为"wrapper"(即装饰器内的包装函数的名字)
+	print("Call method:", show.__name__)
+
+show()
+```
+
+输出结果：
+Call method: wrapper
+Time used: 0.000052 seconds
+
+###装饰有参函数
+对于参数不为空的函数，定义装饰器函数时，需要修改包装函数的参数表，为其添加参数。
+如果能确定被装饰函数的函数原型，可以将包装函数的参数数量设置为与被装饰函数相同，如下所示：
+
+```python
+from time import clock
+
+def time_cost(func):
+	#包装函数的参数表与被装饰的show()函数相同
+	def wrapper(text):
+		start = clock()
+		func(text)
+		end = clock()
+		print("Time used: %f seconds" % (end - start))
+	return wrapper
+
+@time_cost
+def show(text):
+	print("Call show(): ", text)
+
+show("Test arg")
+```
+
+输出结果：
+Call show(): Test arg
+Time used: 0.000052 seconds
+
+若被装饰的函数是未知的，则需要将包装函数的参数表定义为接收可变参数。
+定义一个输出传入参数种类和内容的装饰器，如下所示：
+
+```python
+def decorator(func):
+
+	def wrapper(*args, **kwargs):
+
+		print("Print keyword parameters:")
+		for arg in args:
+			print("Value:", arg)
+
+		print("Print positional parameters:")
+		for key in kwargs:
+			print("Key:", key, "Value:", kwargs[key])
+
+		print()
+		func(*args, **kwargs)	#即使函数的参数表是确定的，依然可以使用可变参数的形式传入参数
+
+	return wrapper
+
+@decorator
+def show(num1, num2, num3, num4):
+	print("Call method:", show.__name__)
+	print("Num1 is: %d" % num1)
+	print("Num2 is: %d" % num2)
+	print("Num3 is: %d" % num3)
+	print("Num4 is: %d" % num4)
+
+show(1, 2, num3 = 3, num4 = 4)
+```
+
+输出结果：
+Print keyword parameters:
+Value: 1
+Value: 2
+Print positional parameters:
+Key: num4 Value: 4
+Key: num3 Value: 3
+
+Call method: wrapper
+Num1 is: 1
+Num2 is: 2
+Num3 is: 3
+Num4 is: 4
+
+###装饰器参数
+装饰器本身也可以带有参数。
+定义带有参数的装饰器需要在包装函数外再封装一层。
+基本样式如下所示：
+
+```python
+def decorator_name(decorator_args):
+	#code...
+	def decorator_wrapper_name(func_name):
+		#code...
+		def wrapper(*arg, **kwargs):
+			#code...
+			func_name(*arg, **kwargs)
+			#code...
+		return wrapper
+	return decorator_wrapper_name
+```
+
+在实际编码中装饰器可以根据传入的参数来提供不同的装饰功能，如下所示：
+
+```python
+from time import clock
+
+#第一层装饰器函数用于包装装饰器本身的参数，返回真正的装饰器函数
+def decorator(decorator_arg = ""):
+
+	#真正的装饰器函数
+	def decorator_wrapper(func):
+
+		#包装函数
+		def wrapper(*args, **kwargs):
+			#判断不同的装饰器参数，实现不同的装饰器功能
+			if (decorator_arg == "Args"):
+				print("Mode: Print Args", end = "\n\n")
+				print("Print keyword parameters:")
+				for arg in args:
+					print("Value:", arg)
+				print("Print positional parameters:")
+				for key in kwargs:
+					print("Key:", key, "Value:", kwargs[key])
+				print()
+				func(*args, **kwargs)
+			elif (decorator_arg == "Time_cost"):
+				print("Mode: Time Cost", end = "\n\n")
+				start = clock()
+				func(*args, **kwargs)
+				end = clock()
+				print("Time used: %f" % (end - start))
+			else:
+				print("Mode: Print Prefix", end = "\n\n")
+				print("Use prefix.")
+				func(*args, **kwargs)
+			print()
+
+		return wrapper
+
+	return decorator_wrapper	#decorator_wrapper才是真正接收函数作为参数的装饰器函数
+
+def show(num1, num2, num3, num4):
+	print("Call method:", show.__name__)
+	print("Num1 is: %d" % num1)
+	print("Num2 is: %d" % num2)
+	print("Num3 is: %d" % num3)
+	print("Num4 is: %d" % num4)
+
+#使用不同的装饰器参数来装饰同一个函数，实现不同的功能
+@decorator()
+def show1(num1, num2, num3, num4):
+	show(num1, num2, num3, num4)
+@decorator("Time_cost")
+def show2(num1, num2, num3, num4):
+	show(num1, num2, num3, num4)
+@decorator("Args")
+def show3(num1, num2, num3, num4):
+	show(num1, num2, num3, num4)
+
+show1(1, 2, num3 = 3, num4 = 4)
+show2(1, 2, num3 = 3, num4 = 4)
+show3(1, 2, num3 = 3, num4 = 4)
+```
+
+输出结果：
+Mode: Print Prefix
+
+Use prefix.
+Call method: show
+Num1 is: 1
+Num2 is: 2
+Num3 is: 3
+Num4 is: 4
+
+Mode: Time Cost
+
+Call method: show
+Num1 is: 1
+Num2 is: 2
+Num3 is: 3
+Num4 is: 4
+Time used: 0.000020
+
+Mode: Print Args
+
+Print keyword parameters:
+Value: 1
+Value: 2
+Print positional parameters:
+Key: num4 Value: 4
+Key: num3 Value: 3
+
+Call method: show
+Num1 is: 1
+Num2 is: 2
+Num3 is: 3
+Num4 is: 4
+
+
+
 ##Python中的OOP
 与传统的OOP语言类似，Python中的class具有**独立**的**变量作用域**。
 相比传统的OOP语言如Java、C++等，Python对于OOP并没有完整的支持，在Python中**不支持**函数重载、**不支持**定义保护对象。
