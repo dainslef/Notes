@@ -453,14 +453,14 @@ Num4 is: 4
 与传统的OOP语言类似，Python中的class具有**独立**的**变量作用域**。
 相比传统的OOP语言如Java、C++等，Python对于OOP并没有完整的支持，在Python中**不支持**函数重载、**不支持**定义保护对象。
 
-###定义实例类成员
+###实例类成员
 在Python中，类作用域内**不包含**隐式的对象引用(即类作用域中没有类似C++中的`this`指针或是Java中的`this`引用)，而是需要在成员函数的参数中传入对象实例。
 
 - 每个类的实例成员函数的第一个参数必须为当前类的实例，通常使用`self`来命名。
 - 通过类实例调用成员函数时，第一个参数(类实例参数)为隐含参数，不用写明。
 - 即使在类内部，实例成员变量、实例成员函数也必须通过对象实例来调用。
-- 在类作用域内，直接使用变量名相当于定义类的静态成员变量。
-- 在成员函数作用域内，直接使用变量名相当于在函数内部创建了一个局部变量。
+- 在类内非函数作用域中，直接使用变量名相当于定义类的静态成员变量。
+- 在成员函数作用域中，直接使用变量名相当于在函数内部创建了一个局部变量。
 
 如下代码所示：
 
@@ -472,7 +472,7 @@ class Test:
 
 	def show(self):						#实例成员函数第一个参数为对象实例
 		print(self.num1, self.num2)		#即使在类内部访问类的实例成员变量也需要通过实例对象
-										#直接访问num1、num2如使用语句 print(num1) 则会得到错误提示 NameError: name 'num1' is not defined
+										#直接访问num1、num2如使用语句 print(num1) 则会得到"num1未定义"的错误提示
 
 test = Test(1, 2)
 test.show()
@@ -481,15 +481,20 @@ test.show()
 输出结果：
 2 1
 
-###定义静态类成员
+###静态类成员
 在Python中同样可以定义类的静态成员，与传统的OOP语言类似，访问静态成员使用`类名.静态成员名`即可。
+定义静态成员函数，需要注意：
 
 - 类的静态成员函数在定义前需要加装饰器`@staticmethod`。
 - 静态成员函数**没有**隐含参数，因此**不需要也不能**将第一个参数设定为类的实例。
-- 定义类的静态成员变量可以直接将变量名写在类的**非函数作用域**中(不需要也不能使用类名，会报错)。
-- Python为动态语言，因而可以在运行期间创建成员变量，可以在函数作用域或全局作用域使用`类名.静态变量名`创建静态成员变量。
+- 同一个类的静态成员函数**不能**与实例成员函数同名。
+
+定义类的静态成员变量，需要注意：
+
+- 定义类的静态成员变量可以直接将变量名写在**类内非函数作用域**中(不需要也不能使用类名，会报错)。
+- Python为动态语言，可以在运行期间创建成员变量，可以在函数作用域或全局作用域使用`类名.静态变量名`创建静态成员变量。
 - 即使在类的内部，访问静态成员同样需要使用类名而不能直接调用。
-- 同一个类的静态成员函数**不能**与实例成员函数同名，但静态成员变量可以与实例成员变量同名。
+- 静态成员变量可以与实例成员变量同名。
 - 静态成员同样可以通过类实例调用。
 - 当一个类实例中存在同名的静态成员变量与实例成员变量时，优先调用实例成员变量。
 
@@ -550,6 +555,86 @@ Test.show("Called by Test.show()")
 输出结果：
 Called by t.show() 100 100
 Called by Test.show() 100 100
+
+###属性
+Python中同样支持`属性`，`属性`的概念与C#中类似。
+Python中的属性实际上是一组特定签名的`getter``setter`方法，用以有限制地存取某个私有变量，`getter``setter`方法被定义为`属性`之后，便能够以类似访问成员变量的语法来调用。
+
+####*使用property()函数定义属性*
+可以使用`property()`函数来绑定属性。
+`property()`函数的基本结构如下：
+
+```python
+property_name = property(fget = None, fset = None, fdel = None, doc = None)
+```
+
+函数依次接收`getter``setter``deleter`和属性描述作为参数，返回值赋值的变量名称即为属性的名称。
+如下代码所示：
+
+```python
+class Num:
+
+	def __init__(self, value):
+		self.__num = value
+
+	#getter函数
+	def get_num(self):
+		return self.__num
+
+	#setter函数
+	def set_num(self, value):
+		self.__num = value
+
+	#deleter函数
+	def del_num(self):
+		del self.__num
+
+	#使用property()函数绑定属性读写函数，返回变量num计委属性名称
+	num = property(get_num, set_num, del_num, doc = None)
+
+n = Num(10)
+print(n.num)		#使用用读属性，实际调用get_num()
+n.num = 100			#使用写属性，实际调用set_num()
+print(n.num)
+del n.num			#删除成员，实际调用del_num()
+```
+
+如果需要定义`只读属性`，则调用`property()`函数时`fset`参数取`None`即可。
+
+####*使用装饰器定义属性*
+在Python2.6之后，支持使用**装饰器**语法定义属性。
+
+- 使用`@property`装饰器装饰`getter`函数，同时该函数的名称即为**属性名**。
+- 使用`@属性名.setter`装饰器装饰`setter`函数。
+- 使用`@属性名.deleter`装饰器装饰`deleter`函数。
+- 使用装饰器语法来定义属性时，`getter``setter``deleter`函数的函数名都需要与属性名**相同**。
+
+如下所示，上例中的代码等价于：
+
+```python
+class Num:
+
+	def __init__(self, value):
+		self.__num = value
+
+	@property
+	def num(self):
+		return self.__num
+
+	@num.setter
+	def num(self, value):
+		self.__num = value
+
+	@num.deleter
+	def num(self):
+		del self.__num
+
+n = Num(10)
+print(n.num)
+n.num = 100
+print(n.num)
+del n.num
+```
 
 ###隐含参数
 本质上，Python中对于成员方法的区分实际上是对于隐含参数的处理方式不同。
