@@ -240,6 +240,7 @@ using namespace std;
 int main(void)
 {
 	[](const string& str) { cout << str << endl; } ("Hello World!");
+	return 0;
 }
 ```
 
@@ -420,14 +421,26 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 ```
 
 ###访问权限
-Scala中的成员默认访问权限即为公有，因而Scala中没有`public`关键字。
-Scala中的保护成员和私有成员使用关键字`protected``private`，作用大体上与Java相同，但Scala在访问权限上支持**更细粒度**的划分。
-在Scala中，访问级别关键字之后可以使用中括号带上更具体的访问区域限制，可以是当前定义的类、当前定义类的外部类(若存在外部类)、包名(某个包内的所有类实例可访问)或是`this`关键字(仅当前实例可访问)。
-访问权限关键字之后若不写明具体的访问限制区域，则默认限制为当前类可访问(与Java行为基本一致，但Java中的保护成员包内可见)。
+Scala中的成员和类、特质的默认访问权限即为公有，因而Scala中没有`public`关键字。
+Scala中的保护成员使用关键字`protected`，私有成员使用关键字`private`，作用大体上与Java相同，但Scala在访问权限上支持**更细粒度**的划分。
+
+- Scala的类定义、特质定义、单例对象定义前可以使用访问权限修饰(与Java相同)。
+- Scala中的顶层类允许使用`protected`权限修饰(与Java不同，Java仅允许内部类使用`protected`修饰)。
+- Scala中的访问权限关键字用于类时，还可以写在类名与主构造器之间(特质、单例对象没有这种用法)。
+- 访问级别关键字之后可以使用`[]`操作符设定更具体的访问区域限制，可以是当前定义的类、当前定义类的外部类(若存在外部类)、包名(某个包内的所有类实例可访问)或是`this`关键字(仅当前实例可访问)。
+- 访问权限关键字之后若不写明具体的访问限制区域，则默认限制为当前类可访问(与Java行为基本一致，但Java中的保护成员包内可见)。
+
 如下代码所示：
 
 ```scala
 package TestCode ｛
+
+	private class A			//类定义前可以使用访问权限修饰
+	protected class B		//类定义的访问权限可以为protected
+
+	case class Num private (num: Int = 200)		//权限修饰符可以用在类名与主构造器之间
+	class Test protected ()						//即使主构造器参数为空，也不能直接以权限关键字结尾
+	//或者写成 class Test protected {}
 
 	class Access(a: Int = 1, var b: Double = 2.0) {
 		def showOther1(access: Access) = access.show1			//出错，access非当前类实例，无访问权限
