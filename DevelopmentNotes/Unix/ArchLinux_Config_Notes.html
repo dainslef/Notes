@@ -448,10 +448,11 @@
 			<blockquote># modprobe vboxdrv</blockquote>
 			<p>如果需要使用桥接网卡，则需要挂载对应网络模块：</p>
 			<blockquote># modprobe vboxnetflt</blockquote>
-			<p>对于使用<span class="blue"> systemd </span>的发行版，将需要开机自启动的内核模块写入 <span class="blue"> /etc/modules-load.d/ </span> 目录的任意文件中。在gnome桌面环境中，默认没有安装qt，而virtualbox是qt程序，だから，需要安装qt4，否则没有图形界面：</p>
+			<p>对于使用<span class="blue"> systemd </span>的发行版，将需要开机自启动的内核模块写入<span class="blue"> /etc/modules-load.d/ </span>目录的任意文件中。在gnome桌面环境中，默认没有安装qt，而virtualbox是qt程序，因此需要安装qt4，否则没有图形界面：</p>
 			<blockquote># pacman -S qt4</blockquote></li><br/>
-			<li><p>ArchLinux源中のNetbeans非常给力，默认中文，だから，可以放弃从官方下载安装的方式：</p>
-			<blockquote># pacman -S netbeans<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装netbeans</span><br/><span class="blue">注意：</span><span>在pacman源中安装的Netbeans无法在普通用户下调用源中安装的tomcat（权限不足，不建议使用root账户进行开发工作！），所以如果进行JavaWeb开发仍需要从<span class="blue">Apache Tomcat官网</span>下载Tomcat的二进制包，在Netbeans得添加服务器选项中添加Tomcat的路径。(不要忘记给相关启动脚本添加可执行权限！)</span></blockquote></li><br/>
+			<li><p>安装ArchLinux源中のNetBeans：</p>
+			<blockquote># pacman -S netbeans<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装netbeans</span><br/><span class="blue">注意：</span><span>在pacman源中安装的NetBeans无法在普通用户下调用源中安装的Tomcat（权限不足，不建议使用root账户进行开发工作！），所以如果进行JavaWeb开发仍需要从<span class="blue">Apache Tomcat官网</span>下载Tomcat的二进制包，在Netbeans得添加服务器选项中添加Tomcat的路径。(不要忘记给相关启动脚本添加可执行权限！)</span></blockquote>
+			<p>也可以从Oracle官网下载NetBeans，推荐使用<b>免安装</b>的<span class="blue">zip</span>格式打包版本。</p></li><br/>
 			<li><p>配置OpenGL开发环境时需要安装mesa相关包（通常在安装桌面环境时已经随依赖安装），以及freeglut包。</p>
 			<blockquote># pacman -S freeglut</blockquote></li><br/>
 			<li><p>将需要的开发工具和开发环境一并安装：</p>
@@ -527,7 +528,7 @@
 			<blockquote># systemctl status bluetooth.service</blockquote>
 			<p>不需要使用蓝牙服务的话，使用以下命令关闭：</p>
 			<blockquote># systemctl disable bluetooth.service</blockquote></li><br/>
-			<li><p>在安装字体时，记住千万不要手贱去装<span class="blue"> wqy-microhei-lite </span>这个字体包，会造成Netbeans中使用文泉驿等宽微米黑字体时空格变成口口(是非もなし)。</p></li><br/>
+			<li><p>在安装字体时，记住千万不要手贱去装<span class="blue"> wqy-microhei-lite </span>这个字体包，会造成Netbeans中使用文泉驿等宽微米黑字体时空格变成口口。</p></li><br/>
 			<li><p>在使用gnome桌面环境时，通常会选择安装libreoffice作为办公套件，在安装时，不推荐完整安装libreoffice包组，会将在gnome桌面环境下完全无用的<span class="blue"> libreoffice-kde4 </span>也一起安装进来，<span class="blue"> libreoffice-kde4 </span>会带来许多无用的KDE依赖。同时，也不推荐安装libreoffice-sdk，这是libreoffice的开发包，对普通用户无用。<span>(最新版本的ArchLinux中，libreoffice已经不再分开打包，可以忽略此条)</span></p></li><br/>
 			<li><p>在使用gnome桌面时，如过你的机器使用的是Intel的核芯显卡，则有可能会出现屏幕亮度无法保存的情况，解决办法是使用Xorg服务中的亮度调节命令，由于gnome桌面环境在登录时会自动执行.xprofile文件，故可在.xprofile文件中写入以下指令：<span>(在Linux 3.17内核之后，不再会出现此问题，因此使用新内核的话可以无视此条)</span></p>
 			<blockquote>xbacklight -set xx<span>&nbsp;&nbsp;&nbsp;&nbsp;//xx代表亮度的百分比，推荐60</span></blockquote></li><br/>

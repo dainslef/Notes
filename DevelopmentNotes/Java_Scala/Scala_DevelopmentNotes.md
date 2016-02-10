@@ -37,7 +37,7 @@ Plugin 'derekwyatt/vim-scala'
 `$javap [类名]`
 使用`javap`可以直接查看生成的字节码：
 `$javap -c [类名]`
-需要注意的是，通过反编译得到的Scala以及Java代码只能看到公有方法的声明，方法实现以及私有、保护成员均不可见。
+需要注意的是，通过反编译得到的Scala以及Java代码只能看到公有方法的声明，方法实现以及私有、保护成员均**不可见**。
 
 ###使用Scala解释器
 在命令行中输入无参数的`scala`指令即可进入交互式的Scala解释器。
@@ -165,8 +165,8 @@ scala> func(300)
 300 200
 ```
 
-####*带名参数*
-在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为"带名参数"。
+####*具名参数*
+在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为"具名参数"。
 对于方法中包含多个同类型并带有默认值参数的情况下，使用该特性可以显式指定要传入的是哪一个参数：
 
 ```scala
@@ -174,7 +174,7 @@ scala> func(num2 = 300)
 100 300
 ```
 
-与C++不同，Scala中，方法参数的默认值**不需要**连续，参数的默认值可以交错出现：
+与C++不同，Scala中，方法参数的默认值**不需要**连续，参数的默认值可以交错出现，甚至是颠倒参数顺序：
 
 ```scala
 scala> def func(int: Int, str: String = "String", char: Char, double: Double = 123.0) = println(s"$int $str $char $double")
@@ -184,7 +184,7 @@ scala> func(100, 'c')
 Unspecified value parameter char.
 		func(100, 'c')
 			^
-scala> func(int = 100, char = 'c')			//对于默认参数不连续的方法，需要使用"带名参数"
+scala> func(int = 100, char = 'c')			//对于默认参数不连续的方法，需要使用"具名参数"
 100 String c 123.0
 ```
 
@@ -253,7 +253,7 @@ class Test
 {
 	static void Main(string[] args)
 		=> new Action<string>(str => Console.WriteLine(str))("Hello World!");
-		//或者写成 => ((Action<string>)(str => Console.WriteLine(str)))("Hello World!");
+		//或者写成 ((Action<string>)(str => Console.WriteLine(str)))("Hello World!");
 }
 ```
 
@@ -880,6 +880,72 @@ Num 100
 
 
 
+##输入/输出(IO)
+Scala终端输出与Java中类似，使用`print()/println()`函数。
+Scala中终端输入需要导入包`scala.io.StdIn`。
+
+###格式化输出
+使用`print()/println()`可以打印`String`类型的文本输出。
+复杂文本可以使用类似Java的字符串拼接方式(使用操作符`+`)。
+在Scala中，字符串依然使用Java中标准的`String`类型，但通过**隐式转换**特性，`String`可以被自动构造为`StringLike`类型。
+`StringLike`类型提供了一系列方便强大的字符操作方法，格式化字符串可以使用其提供的`format()`方法，如下所示：
+
+```scala
+scala> "Test format str:\nString %s\nInt %d\nFloat %f\n".format("Hello World!", 666, 666.666)
+res0: String =
+"Test format str:
+String Hello World!
+Int 666
+Float 666.666
+"
+```
+
+###终端输入
+早期的Scala中`Console`类提供了一系列的终端输入方法，在现在的版本中这些方法已经被**废弃**。
+
+- 当前版本的Scala获取终端输入需要使用包`scala.io.StdIn`中的相关方法。
+- `scala.io.StdIn`中的相关方法签名与先前的`Console`类中完全相同。
+- 使用`readLine()`获取单行文本输入，返回`String`类型。
+- 使用`readInt()/readFloat()/readChar()/readLong()...`等方法获取特定类型的输出，当输入的内容不匹配时，会抛出异常。
+- 使用`readf()/readf1()/readf2()/readf3()`等方法能以`java.text.MessageFormat`语法格式化接收的终端输入。
+
+如下代码所示：
+
+```scala
+scala> val str = scala.io.StdIn.readLine()		//自行脑补终端输入"Test input"
+str: String = Test input
+scala> val int = scala.io.StdIn.readInt()		//自行脑补终端输入"200"
+int: Int = 200
+
+//输入内容不匹配读取类型时会抛出异常
+scala> val double = scala.io.StdIn.readDouble()
+java.lang.NumberFormatException: For input string: "test"
+  at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:2043)
+  at sun.misc.FloatingDecimal.parseDouble(FloatingDecimal.java:110)
+  at java.lang.Double.parseDouble(Double.java:538)
+  at scala.collection.immutable.StringLike$class.toDouble(StringLike.scala:284)
+  at scala.collection.immutable.StringOps.toDouble(StringOps.scala:30)
+  at scala.io.StdIn$class.readDouble(StdIn.scala:155)
+  at scala.io.StdIn$.readDouble(StdIn.scala:229)
+  ... 33 elided
+
+//readf()可以接收任意数量的值，返回值为List[Any]类型
+scala> val list = scala.io.StdIn.readf("{0} + {1}")				//自行脑补终端输入"Test + Input"
+list: List[Any] = List(Test, Input)								//按照格式化字符串提取出了输入内容
+scala> list foreach { println }
+Test
+Input
+
+//readf1()仅能接收一个值，返回接收的值
+scala> val num = scala.io.StdIn.readf1("This is {0}")			//自行脑补终端输入"This is 666"
+num: Any = 666
+//readf2()/readf3()接收两个/三个值，返回值为Tuple类型
+scala> val tuple = scala.io.StdIn.readf3("{0} + {1} + {2}")		//自行脑补终端输入"One + Two + Three"
+tuple: (Any, Any, Any) = (On,Two,Three)
+```
+
+
+
 ##枚举(Enumerate)
 在Scala中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
 
@@ -1491,3 +1557,201 @@ object Main extends App {
 输出结果：
 Implicit Class
 Implicit Class: 100
+
+
+
+## *XML* 解析
+Scala标准库中内置了XML支持，XML相关类在包`scala.xml`中。
+
+###XML节点类型
+`Node`是最基础的XML节点类型(抽象类)。
+`Node`类型是`NodeSeq`的子类，而`NodeSeq`继承自`Seq[Node]`，用于记录节点的序列。
+`Node`类型定义了一系列用于获取节点信息的方法：
+
+- `prefix`成员方法，用于获取**当前节点**的标签**前缀**。
+- `child`成员方法(抽象方法)，用于获取**子节点**的**序列**。
+- `attributes`成员方法，用于获取**当前节点**的**属性**。
+- `label`成员方法(抽象方法)，用于获取**当前节点**的**标签名称**。
+- `text`成员方法，用于获取**当前节点**的**文本内容**。
+
+如下所示：
+
+```scala
+def prefix: String = null
+def child: Seq[Node]
+def attributes: MetaData = Null
+def label: String
+override def text: String = super.text
+```
+
+`Node`类型的伴生对象中定义了**提取器**，可以用于提取节点中的**标签名称**、**属性**、**子节点**等内容：
+
+```scala
+def unapplySeq(n: Node) = Some((n.label, n.attributes, n.child))
+```
+
+`Elem`类型继承于`Node`类型，实现了`Node`类型中的抽象内容。
+有如下测试XML文件：
+
+```xml
+<!-- FileName: Example.xml -->
+<root>
+	<node arg="arg_node">
+		<node1 arg="arg_node1">node1</node1>
+		<node1 argOne="node1_arg_one" argTwo="node1_arg_two">test_node1</node1>
+	</node>
+	<node><node2>node2</node2></node>
+	<node>
+		<node3 arg="arg_node3">node3</node3>
+		<node4 arg="arg_node4">node4</node4>
+	</node>
+</root>
+```
+
+###加载与保存XML文件
+加载和保存XML文件可以使用`XMLLoader`特质以及继承于`XMLLoader[Elem]`的单例对象`XML`。
+
+- `XMLLoader`的实例方法`loadFile()`可以从指定路径加载XML文件进行解析，方法返回由输入XML文件生成的`Elem`节点对象。
+- `XML`对象的方法`save()`和`write()`可用于XML节点(`Node`类型)保存到文件中。
+- `save()`方法接收文件路径(`String`类型)作为参数，大部分参数带有默认值。
+- `write()`接收`java.io.Writer`类型作为参数，参数没有默认值。
+
+###查找节点和节点属性
+`NodeSeq`类提供了`\()``\\()`等方法用于节点的查找，继承于`NodeSeq`类的`Node``Elem`等类型都可以使用这些方法进行节点查找。
+
+####*查找节点*
+`\()`以及`\\()`方法签名类似，接收节点名称作为参数(`String`类型)，返回节点序列(`NodeSeq`类型)。
+
+- `\()`方法返回当前节点**下一级**子节点中指定名称节点的序列。
+- `\\()`方法返回当前节点**所有**子节点中指定名称节点的序列。
+- 使用`loadFile()`方法加载XML文件后，返回的`Elem`类型的当前节点为**根节点**。
+- 节点查找支持使用**模式匹配**的方式。
+- 使用模式匹配方式查找节点时，匹配表达式中的节点标签不能带有属性(不支持)。
+
+####*节点属性*
+节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
+
+- 使用`\()``\\()`方法同样可以进行属性查找，需要在属性名字符串前加上`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名称为`num`的属性内容。
+- 在使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
+- 可以直接使用`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。
+- 还可以使用`attribute()`以及`attributes()`方法从节点中获取属性。
+
+###遍历节点
+`Elem`类型的成员字段`child`保存了子节点的序列(`Seq[Node]`类型)，可以通过`for`循环语句进行遍历：
+
+```scala
+import scala.xml._
+
+object Main extends App {
+
+	val xmlFile = XML.loadFile("Example.xml")
+
+	val getChild: Node => Unit = rootNode => for (node <- rootNode.child)
+		node match {
+
+			//如果只需要节点文本，可以将表达式嵌在匹配语句中
+			case <node1>{ text }</node1> => println("Node1 text: " + text)
+
+			//支持多级标签匹配
+			case <node><node2>{ text }</node2></node> => println("Case node_node2: " + text)
+
+			//如果需要整个节点的内容，需要使用@符号
+			case n @ <node2>{ _ }</node2> => println("Node2 text: " + n.text)
+
+			//使用attribute()或者attributes()方法获取节点的属性
+			case n @ <node3>{ _ }</node3> => println("Node3 attribute: " + n.attribute("arg").get)
+			case n @ <node4>{ _ }</node4> => println("Node4 attribute: " + n.attributes("arg"))
+
+			//匹配其它类型节点，也可以写成 case _ if node.child.length > 0 => ...
+			case _ if node.child != null => getChild(node)
+		}
+
+	getChild(xmlFile)
+}
+```
+
+遍历节点同样可以使用**高阶函数**，以上代码等价于：
+
+```scala
+import scala.xml._
+
+object Main extends App {
+
+	val xmlFile = XML.loadFile("Example.xml")
+
+	val getChild: Node => Unit = rootNode => rootNode.child foreach {
+		node => node match {
+
+			case <node1>{ text }</node1> => println("Node1 text: " + text)
+			case <node><node2>{ text }</node2></node> => println("Case node_node2: " + text)
+			case n @ <node2>{ _ }</node2> => println("Node2 text: " + n.text)
+
+			//若仅需要属性的内容，可以直接在模式匹配表达式中获取属性(n为Node类型)
+			case <node3>{ n @ _ }</node3> => println("Node3 attribute: " + n.text)
+
+			//若需要从模式匹配表达式中获取多个属性，则可以写成(n为Seq[Node]类型)
+			case <node4>{ n @ _* }</node4> => println("Node4 attribute: " + n(0).text)
+
+			//匹配其它类型节点，也可以写成 case _ if node.child.length > 0 => ...
+			case _ if node.child != null => getChild(node)
+		}
+	}
+
+	getChild(xmlFile)
+}
+```
+
+输出结果：
+Node1 text: node1
+Node1 text: test_node1
+Case node_node2: node2
+Node3 attribute: arg_node3
+Node4 attribute: arg_node4
+
+###创建XML
+可以直接将代码嵌入XML语句中：
+
+```scala
+scala> val str = "Test"
+str: String = Test
+scala> val node0 = <li>{ str }</li>				//xml节点内容可以插入变量,使用花括号区分表达式与xml本身内容
+node0: scala.xml.Elem = <li>Test</li>
+scala> val node1 = <li name={ str }>test</li>	//xml属性中插入变量
+node1: scala.xml.Elem = <li name="Test">test</li>
+```
+
+可以将复杂的表达式在XML语句中进行**多重嵌套**：
+
+```scala
+scala> val node3 = <ul>{ for (i <- 1 to 3) yield <li>{ i }</li> }</ul>
+node3: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li></ul>
+```
+
+在Scala中，节点是**不可变**的，拼接节点的正确方式是使用`Elem`类型的`cospy()`方法，并在复制时重新设定`child`参数。
+`copy()`方法的定义如下所示：
+
+```scala
+def copy(
+	prefix: String = this.prefix,
+	label: String = this.label,
+	attributes: MetaData = this.attributes,
+	scope: NamespaceBinding = this.scope,
+	minimizeEmpty: Boolean = this.minimizeEmpty,
+	child: Seq[Node] = this.child.toSeq): Elem = Elem(prefix, label, attributes, scope, minimizeEmpty, child: _*)
+```
+
+使用`copy()`方法拼接节点如下所示：
+
+```scala
+//使用具名参数指定子节点内容
+scala> node3.copy(child = node0 ++ node1)
+res0: scala.xml.Elem = <ul><li>Test</li><li name="Test">test</li></ul>
+
+//保留原节点的内容进行拼接
+scala> node3.copy(child = node3.child ++ node0 ++ node1)
+res1: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li><li>Test</li><li name="Test">test</li></ul>
+
+//创建新节点时也可以设定其它属性，如标签名、标签前缀等
+scala> node3.copy(child = node0 ++ node1, prefix = "Test", label = "test")
+res2: scala.xml.Elem = <Test:test><li>Test</li><li name="Test">test</li></Test:test>
+```

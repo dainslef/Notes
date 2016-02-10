@@ -531,7 +531,7 @@ test.static_show()			#静态成员函数也能够被实例访问
 
 - 类方法的隐含参数是类的**类型**，而非类的实例，通常使用`cls`来命名。
 - 类方法可以通过类实例或是类名调用。
-- 类方法只能访问静态成员，即使通过实例调用。
+- 类方法只能访问静态成员(即使通过**实例**调用)。
 
 如下代码所示：
 
@@ -560,7 +560,7 @@ Called by Test.show() 100 100
 Python中同样支持`属性`，`属性`的概念与C#中类似。
 Python中的属性实际上是一组特定签名的`getter``setter`方法，用以有限制地存取某个私有变量，`getter``setter`方法被定义为`属性`之后，便能够以类似访问成员变量的语法来调用。
 
-####*使用property()函数定义属性*
+####*使用 property() 函数定义属性*
 可以使用`property()`函数来绑定属性。
 `property()`函数的基本结构如下：
 
@@ -905,6 +905,33 @@ print(a.send(20))
 - Python比较是否属于用`in``not in`。
 - Python乘方用`**`符号，`2 ** 3`的值是`8`，相当于`2 ^ 3`(数学意义上)。
 - Python**没有**三目运算符，可以用类似的语句替代：`A and B or C`。需要注意的是，该语句与三目运算符并不完全等价，在运算中，空字符串''，数字0，空list[]，空dict{}，空()，None，在逻辑运算中都被当作假来处理。
+
+
+
+##包管理器 *pip*
+Python提供了包管理器**pip**用于管理模块。
+在部分Linux发行版中，**pip**并没有随Python一并被安装，**pip**可以从发行版的软件源中安装，也可以下载安装脚本：
+
+```sh
+$ wget https://bootstrap.pypa.io/get-pip.py
+$ sudo python3 get-pip.py
+```
+
+在Linux下，安装**pip**需要root权限，pip包以及Python模块被安装在路径`/usr/lib/python[version]/site-packages/`下，没有root权限则不能对该目录进行写入操作。
+**pip**包管理器的使用方式类似于Linux发行版的包管理器，常见操作如下：
+
+```sh
+$ sudo pip install [package_name]				#安装包
+$ sudo pip uninstall [package_name]				#移除包
+$ sudo pip install --upgrade [package_name]		#升级指定包
+$ pip list										#列出已安装的包
+$ pip list --outdated							#列出可以升级的包
+```
+
+在Linux下，一些由发行版自身的包管理器(apt、yum、dnf、pacman等)安装的Python模块也会显示在`pip list`指令的输出中，但这些模块通常被系统的某些组件依赖，尝试删除这些模块时会收到`DEPRECATION`(反对)，提示这些模块是由**distutils**(发行版工具)安装的，一般情况下，除非必要，不要删除这些由发行版包管理器安装的Python模块。
+
+在**OS X**中，使用**homebrew**安装Python时会自动安装pip，无需额外安装，使用pip时也**无需**root权限。
+在**OS X**中，第三方Python包被安装在路径`/usr/local/lib/python[version]/site-packages/`下。
 
 
 

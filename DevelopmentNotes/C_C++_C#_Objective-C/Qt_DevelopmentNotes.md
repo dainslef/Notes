@@ -363,7 +363,7 @@ MyWidget::MyWidget(QWidget* parent) : QWidget(parent)
 Qt提供了以下方式来获取子控件的指针：
 
 ```cpp
-template<typename T> T QObject::findChild (const QString& name = QString()) const;		//通过ObjectName来获取需要的控件指针
+template<typename T> T QObject::findChild(const QString& name = QString()) const;		//通过ObjectName来获取需要的控件指针
 template<typename T>  QList<T> QObject::findChildren(const QRegExp& regExp) const;		//通过正则表达式来获取子控件指针
 const QObjectList& QObject::children() const;											//直接返回所有子控件
 ```
