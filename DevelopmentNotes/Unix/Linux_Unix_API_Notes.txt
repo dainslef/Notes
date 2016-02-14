@@ -57,7 +57,7 @@ int main(void)
 ========
 
 
-Unix文件操作API >>
+Unix文件和IO操作 >>
 Unix环境下基本的文件操作为open、read、write、close、ioctl。
 相关的头文件在 "/usr/include/unistd.h"、"/usr/include/fcntl.h"、"/usr/include/sys/ioctl.h" 之中。
 
@@ -97,6 +97,12 @@ buf为要写入内容的首地址，count指定写入数据的长度，buf指向
 
 对于同一个文件描述符，连续进行读写操作，每一次函数调用都会在上一次结束的位置进行，因此想要重复读取某个文件的内容，需要创建新的文件描述符。
 同一个文件可以同时拥有多个文件描述符，且各个文件描述符之间的文件读取是相互独立的。
+
+----
+
+标准输入/输出 >
+在Unix哲学中，秉承"一切皆文件"思想，因而，在终端中进行输入/输出与读写文件操作类似，使用read()/write()调用即可。
+标准输入对应的文件描述符为0，标准输出对应的文件描述符为1，标准错误输出对应的文件描述符为2，使用read()/write()调用对这些特殊的文件描述符进行读写操作即可实现"终端输入/输出"的效果。
 
 ========
 
@@ -405,19 +411,19 @@ void* thread_func(void* arg)
 			printf("加锁失败！\n");
 		else
 			kill(getpid(), MYMES1);		//一号、二号线程发送自定义信号MYMES1
-		
+
 		printf("%s开始。\n", (char*)arg);
-		
+
 		int num = 0;
 		while (num++ < 3)
 		{
 			sleep(2);
 			printf("%s循环第%d次\n", (char*)arg, num);
 		}
-				
+
 		if (pthread_mutex_unlock(&mutex) == -1)
 			printf("解锁失败！\n");
-		
+
 		sleep(2);			//线程休眠一秒，否则资源会一直被一个线程占有
 	}
 }
@@ -428,13 +434,13 @@ int main(void)
 	char *str2 = "二号线程";
 	char *str3 = "三号线程";
 	char *str4 = "四号线程";
-	
+
 	struct sigaction sig;
 	sig.sa_handler = dealSignal;
 	sig.sa_flags = 0;
 	sigemptyset(&sig.sa_mask);
 	sigaction(SIGQUIT, &sig, 0);		//现代Unix信号捕捉函数
-	
+
 	signal(MYMES1, dealSignal);			//传统Unix信号捕捉函数
 	signal(MYMES2, dealSignal);
 
@@ -445,7 +451,7 @@ int main(void)
 	pthread_create(&thread_fd, NULL, thread_func, str3);		//创建三号线程
 	pthread_create(&thread_fd, NULL, thread_func, str4);		//创建四号线程
 	pthread_join(thread_fd1, NULL);
-	
+
 	return 0;
 }
 
@@ -500,13 +506,13 @@ int main(void)
 
 	pthread_mutexattr_init(&attr);				//初始化权限结构体attr
 	pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
-	
+
 	if (!pthread_mutex_init(mutex, &attr))
 		printf("成功创建了互斥量！\n");			//创建了一个进程互斥的互斥量
 
 	signal(SIGQUIT, dealSignal);
 	printf("父进程启动：\n");
-	
+
 	if (!pthread_mutex_lock((pthread_mutex_t*)shmat(shm_id, NULL, 0)))
 		printf("父进程互斥量加锁成功！");
 
@@ -515,7 +521,7 @@ int main(void)
 		printf("父进程在执行！\n");
 		sleep(2);
 	}
-	
+
 	return 0;
 }
 
@@ -553,22 +559,22 @@ int main(void)
 
 	pthread_mutexattr_init(&attr);				//初始化权限结构体attr
 	pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
-	
+
 	if (!pthread_mutex_init(mutex, &attr))
 		printf("成功创建了互斥量！\n");		//创建了一个进程互斥的互斥量
 
 	signal(SIGQUIT, dealSignal);
 	printf("父进程启动：\n");
-	
+
 	if (!pthread_mutex_lock((pthread_mutex_t*)shmat(shm_id, NULL, 0)))
 		printf("父进程互斥量加锁成功！");
-		
+
 	while (1)
 	{
 		printf("父进程在执行！\n");
 		sleep(2);
 	}
-	
+
 	return 0;
 }
 
@@ -686,7 +692,7 @@ void dealSignal(int sig)
 int main(void)
 {
 	signal(SIGINT, dealSignal);
-	
+
 	sem_id = semget(9999, 1, IPC_CREAT | IPC_EXCL | 0600);
 	if (sem_id == -1)
 	{
@@ -695,7 +701,7 @@ int main(void)
 	}
 	else
 		printf("信号量创建成功！\n");
-	
+
 	sem_wait.sem_num = sem_ok.sem_num = 0;
 	sem_wait.sem_op = -1;		//设置操作数，等待时-1
 	sem_ok.sem_op = 1;			//等待完毕+1
@@ -708,7 +714,7 @@ int main(void)
 		sleep(3);
 		printf("正在执行\n");
 	}
-	
+
 	return 0;
 }
 
@@ -730,7 +736,7 @@ void dealSignal(int sig)
 int main(void)
 {
 	signal(SIGINT, dealSignal);
-	
+
 	sem_id = semget(9999, 1, 0600);		//需要保证进程有读写信号量的权限
 	if (sem_id == -1)
 	{
@@ -739,19 +745,19 @@ int main(void)
 	}
 	else
 		printf("信号量创建成功！\n");
-	
+
 	struct sembuf sem_wait;
 	sem_wait.sem_num = 0;
 	sem_wait.sem_op = -1;
 	sem_wait.sem_flg = SEM_UNDO;
 	semop(sem_id, &sem_wait, 1);
-	
+
 	while (1)
 	{
 		sleep(3);
 		printf("正在执行\n");
 	}
-	
+
 	return 0;
 }
 
