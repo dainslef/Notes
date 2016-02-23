@@ -162,6 +162,92 @@ Test
 
 
 
+##Java注解 *Annotation*
+注解(元数据)是`JDK 1.5`之后引入的机制，可以声明在包、类、字段、方法、局部变量、方法参数等的前面，用来对这些元素进行说明和注释。
+注解的相关内容在包`java.lang.annotation`中。
+注解的基本语法为：
+
+```java
+@注解名称(注解参数...)
+```
+
+其中，注解的参数不是必须的，没有注解参数的注解称为**标记注解**。一个元素可以拥有**多个**注解。
+
+###内置注解
+Java中提供了一系列内置注解，常用的有：
+
+- `@Override`为**标记注解**，用于标记**重写**的方法，若被标记的方法没有发生重写行为，则编译时会得到错误警告。
+- `@Deprecated`为**标记注解**，用于标记**废弃**的内容，作用与JavaDOC提供的`@deprecated`注解类似。
+- `@SuppressWarnings`用于控制编译时的输出警告信息，该注解有多个参数，但都带有默认值。
+
+###元注解
+**元注解**专门用来修饰其它注解，在**自定义注解**时会用到。
+**元注解**有以下4类：
+
+- `@Target`用于限制注解的范围，参数为注解范围的数组(可以同时设定多个注解范围，用花括号包裹)，取值如下所示：
+	0. `ElementType.CONSTRUCTOR`用于描述构造器
+	0. `ElementType.FIELD`用于描述域
+	0. `ElementType.LOCAL_VARIABLE`用于描述局部变量
+	0. `ElementType.METHOD`用于描述方法
+	0. `ElementType.PACKAGE`用于描述包
+	0. `ElementType.PARAMETER`用于描述参数
+	0. `ElementType.TYPE`用于描述类、接口(包括注解类型)或`enum`声明
+- `@Retention`设置注解的**生命周期**，取值如下所示：
+	0. `RetentionPolicy.SOURCE`在编译阶段丢弃。这些注解在编译结束之后就不再有任何意义，所以它们不会写入字节码。`@Override``@SuppressWarnings`都属于这类注解。
+	0. `RetentionPolicy.CLASS`在类加载的时候丢弃。在字节码文件的处理中有用。注解**默认使用**这种方式。
+	0. `RetentionPolicy.RUNTIME`始终不会丢弃，运行期也保留该注解，因此可以使用反射机制读取该注解的信息。**自定义注解**通常使用这种方式。
+- `@Inherited`为**标记注解**，用于设置注解的继承性，被改注解修饰的注解用在类中是**可继承的**，但类不从它所实现的接口继承注解，方法并不从它所重载的方法继承注解。对于设置了`@Inherited`注解的元素，如果同时设置了`@Retention`注解，并且声明周期设为`RetentionPolicy.RUNTIME`，则使用`反射`机制来获取元素注解时，如果检查不到该注解，则会一直沿着继承树向上搜索，直到查找到了该注解或是到达类继承结构的顶层。
+- `Documented`设置在使用`javadoc`生成API时记录注解信息，默认情况下，`javadoc`**不会**记录注解信息。
+
+###自定义注解
+Java中的注解实际上也是**接口**。
+
+- 使用`@interface`自定义注解，使用其定义的注解自动继承了`java.lang.annotation.Annotation`接口。
+- 定义注解时，**不能**继承其他的注解或接口。
+- 定义注解时，每一个方法实际上是定义了一个配置参数。方法的名称就是参数的名称，返回值类型就是参数的类型。可以通过`default`关键字来设置参数**默认值**。
+- 定义注解时，使用`value`做为注解参数名称，则使用注解时参数名称可省略。
+- 定义注解时，参数的访问权限只能为`public`或**默认**权限。
+- 注解参数支持的数据类型：
+	0. 所有基本数据类型(`int``float``boolean``byte``double``char``long``short`)。
+	0. `String`类型。
+	0. `Class`类型。
+	0. `enum`类型。
+	0. `Annotation`类型。
+	0. 上述类型的**一维**数组。
+
+如下代码所示：
+
+```java
+import java.lang.annotation.*;
+
+@Inherited
+@Target({ ElementType.METHOD, ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@interface Test {
+	String value();
+	String test() default "Test";
+	int[] numbers() default { 0, 0, 0 };
+}
+
+@Test(value = "TestValue", test = "Schwarzes marken", numbers = { 6, 6, 6 })
+class A {}
+
+class TestAnnotation extends A {}
+
+public class Main {
+	public static void main(String[] args) {
+		//注解无需实例，可直接通过Class类获得
+		Test test = TestAnnotation.class.getAnnotation(Test.class);
+		System.out.println(test.value() + ": " + test.test() + " " + test.numbers()[0]);
+	}
+}
+```
+
+输出结果：
+TestValue: Schwarzes marken 6
+
+
+
 ##与Access数据库交互
 **JDK1.7**之前，可以使用**JDBC-ODBC**桥接**Access**数据库，但在**JDK1.8**之后，**JDBC-ODBC**桥被移除，只能使用专有的Access驱动来连接Access数据库(驱动名称：`Access_JDBC40.jar`)。
 
@@ -406,7 +492,7 @@ KeyEvent keyEvent = e -> {
 }
 ```
 
-###文本输入监听器DocumentListener
+###文本输入监听器 *DocumentListener*
 包含三个方法：
 `public void changedUpdate(DocumentEvent e)`监听文本属性的变化；
 `public void insertUpdate(DocumentEvent e)`监听文本内容的插入事件；
