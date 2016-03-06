@@ -1,7 +1,7 @@
 [TOC]
 
 ##时间API
-Unix环境下的时间获取相关函数定义在`/usr/include/time.h`头文件之中。
+Unix环境下的时间获取相关函数定义在`time.h`头文件之中。
 
 ###获取当前的系统时间
 使用`time()`函数获取当前系统时间。
@@ -73,10 +73,10 @@ int main(void)
 
 ##文件与基本IO
 Unix环境下基本的文件操作为`open()``read()``write()``close()``ioctl()`。
-相关的头文件在`/usr/include/unistd.h``/usr/include/fcntl.h``/usr/include/sys/ioctl.h`之中。
+相关的头文件在`unistd.h``fcntl.h``sys/ioctl.h`之中。
 
 ###创建/打开一个文件
-创建/打开文件涉及的系统调用定义在文件`/usr/include/fcntl.h`中。
+创建/打开文件涉及的系统调用定义在文件`fcntl.h`中。
 
 ```c
 int creat(const char *pathname, mode_t mode);
@@ -94,7 +94,7 @@ int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 - `openat()`函数作用与`open()`函数完全相同，但是`openat()`函数允许使用多种路径表示方式；`dirfd`文件描述符表示的路径为父目录，而`pathname`中包含的字符串为相对路径；或是`dirfd`取特殊值`AT_FDCWD`，则父目录为**当前路径**；也可以像`open()`函数一样在`pathname`中写入**绝对路径**，但此时`dirfd`的取值会被**忽略**。
 
 ###读取文件中的内容
-使用`read()`函数读取文件，函数定义在`/usr/include/unistd.h`中。
+使用`read()`函数读取文件，函数定义在`unistd.h`中。
 
 ```c
 ssize_t read(int fd, void *buf, size_t count);
@@ -108,7 +108,7 @@ ssize_t read(int fd, void *buf, size_t count);
 失败时返回`-1`。
 
 ###向文件中写入内容
-使用`write()`向文件中写入数据。
+使用`write()`向文件中写入数据，函数定义在`unistd.h`中。
 
 ```c
 ssize_t write(int fd, const void *buf, size_t count);
@@ -131,18 +131,18 @@ ssize_t write(int fd, const void *buf, size_t count);
 
 
 ##Unix进程控制(fork)
-进程相关的几个函数定义在头文件`/usr/include/unistd.h`中：
+进程相关的几个函数定义在头文件`unistd.h`中：
 
 ```c
 pid_t fork(void);								//创建当前进程的一个拷贝
 pid_t getpid(void);								//得到当前进程的pid
 pid_t getppid(void); 							//得到当前进程的ppid
-unsigned int sleep(unsigned in seconds);		//让当前进程睡眠seconds秒
+unsigned int sleep(unsigned in seconds);		//让当前线程睡眠seconds秒
 void _exit(int status)							//终止程序，立即进入内核(不会调用atexit注册的清理函数)，参数status为程序退出码，一般可以设为0，有特殊用途时可以设为其它数值
 ```
 
 ###标准库进程函数
-标准库中的进程相关函数定义在`/usr/include/stdlib.h`中：
+C语言标准库中的进程相关函数定义在`stdlib.h`中：
 
 ```c
 int system(const char *string);					//创建进程
@@ -158,7 +158,7 @@ return语句向函数**提供返回值**，只有main函数中return才会结束
 需要注意的是，在实际的Linux开发中，system()函数往往是很少被使用的，因为使用system()函数必须启动一个shell来执行需要的指令，使得system()函数的效率并不高。
 
 ### *fork()* 调用
-在Unix环境下，`fork()`系统调用是最常见的创建进程方式，函数定义在`/usr/include/unistd.h`中，函数原型为：
+在Unix环境下，`fork()`系统调用是最常见的创建进程方式，函数定义在`unistd.h`中，函数原型为：
 
 ```c
 pid_t fork(void);
@@ -218,8 +218,22 @@ End!
 由结果可知，`fork()`函数之前的`system("whoami")`函数只执行了一遍，因此shell指令`whoami`也只执行一遍。但在`fork()`函数之后的代码都执行了两遍，分别来自父进程和子进程的`printf()`函数向屏幕打印了两次`End!`。
 由`system("ps")`函数中执行的shell指令`ps`向屏幕中输出的结果可以看出，父进程的`ppid`是启动这个进程的shell的`pid`，而**子进程**的`ppid`就是**父进程**的`pid`。
 
+### *vfork()* 系统调用
+`vfork()`作用与`fork()`类似，函数定义在`unistd.h`中，如下所示：
+
+```c
+pid_t vfork(void);
+```
+
+相比`fork()`调用，`vfork()`有以下不同之处：
+
+- `fork()`子进程拷贝父进程中的数据段和代码段，`vfork()`中子进程与父进程共享数据段。
+- `fork()`调用之后父子进程执行顺序是**随机**的，`vfork()`中子进程在调用`exec()`或`exit()`之前与父进程数据共享，而父进程在子进程调用了`exec()`或`exit()`之前会一直**阻塞**。
+
+在Linux中，`fork()`与`vfork()`最终的内部实现都使用`do_fork()`。
+
 ### *exec()* 系统调用
-`exec()`系统调用，由一系列的相关函数组成，函数定义在`/usr/include/unistd.h`中，函数原型为：
+`exec()`系统调用，由一系列的相关函数组成，函数定义在`unistd.h`中，函数原型为：
 
 ```c
 extern char **environ;
@@ -246,8 +260,8 @@ int fexecve(int fd, char *const argv[], char *const envp[]);
 
 int main(void)
 {
-	char *envp[] = { "LC_ALL=zh_CN.UTF-8", NULL };
-	char *argv[] = { "ls", "-l", NULL };		//不要想当然地认为*argv[]的第一个参数是没用的，第一个参数不能为NULL，否则exec()系统调用执行失败，而且exec()执行新指令时如果指令参数不正确时指令在终端上显示的错误信息会将argv[0]作为输入的程序名！
+	char* envp[] = { "LC_ALL=zh_CN.UTF-8", NULL };
+	char* argv[] = { "ls", "-l", NULL };		//不要想当然地认为*argv[]的第一个参数是没用的，第一个参数不能为NULL，否则exec()系统调用执行失败，而且exec()执行新指令时如果指令参数不正确时指令在终端上显示的错误信息会将argv[0]作为输入的程序名！
 	printf("The PID is %d\n", getpid());
 	execve("/usr/bin/ls", argv, envp);		//execve()系统调用的envp如果不需要设置可以填NULL，与system()函数不同，用exec系统调用在执行程序时，如果参数中的envp为NULL，则程序就在无环境变量的状态运行，即系统当前的环境变量不会对exec()系统调用产生影响，但会对依赖shell的system()函数产生影响。在这段代码中，如果用户为中文环境且exec()系统调用没有设置环境变量则ls命令显示的中文目录会为问号，但system()函数执行ls命令则能正常显示。
 	/*
@@ -261,7 +275,7 @@ int main(void)
 ```
 
 ###等待进程
-可以在父进程中调用`wait()`函数让父进程等待子进程结束，还可以使用`waitpid()`函数来等待某个**特定进程**结束，函数定义在 `/usr/include/sys/wait.h`中，函数原型为：
+可以在父进程中调用`wait()`函数让父进程等待子进程结束，还可以使用`waitpid()`函数来等待某个**特定进程**结束，函数定义在 `sys/wait.h`中，函数原型为：
 
 ```c
 pid_t wait(int *status);
@@ -330,21 +344,22 @@ Parent process END!
 
 ##信号(signal)
 信号是Unix系统响应某些条件而产生的的一个事件，进程接收到信号会采取一些相应的行动。
-信号的相关函数定义在头文件`/usr/include/signal.h`中。
+信号的相关函数定义在头文件`signal.h`中。
+使用`fork()`时，子进程会继承父进程注册的信号处理函数。
 常用的信号有`SIGINT`(中断程序，用`CTRL + C`触发)，`SIGQUIT`(退出，用`CTRL + \`触发)。
 
 ### *signal()* 函数
-可以用`signal()`函数处理信号，函数原型为：
+可以用`signal()`函数绑定指定信号的处理函数，函数原型为：
 
 ```c
 void* (*signal(int sig, void (*func)(int)))(int);
 ```
 
 - `sig`参数为要处理的信号。
-- `func()`参数为要绑定的信号处理函数。
+- `func`参数为要绑定的信号处理函数。
 
 `signal()`函数是传统Unix的信号处理方式。
-对于信号处理函数`func(int)`，有两个特殊的值`SIG_INT`和`SIG_DFL`，将其绑定到一个信号上则表示**忽略信号**或是将信号的处理方式恢复为**默认动作**。
+对于信号处理函数`func()`，有两个特殊的值`SIG_INT`和`SIG_DFL`，将其绑定到一个信号上则表示**忽略信号**或是将信号的处理方式恢复为**默认动作**。
 
 ### *sigaction()* 函数
 现代Unix中，使用更加健壮的信号编程接口`sigaction()`函数，函数的原型为：
@@ -363,11 +378,321 @@ int sa_flags;					//设置信号处理选项，没有特别要求可以设为NUL
 
 结构体`sigaction`指针`act`指向包含信号处理函数的结构体，而指针`oact`用于把原先的动作写到指向的位置(可以取`NULL`)。
 
+###发送信号
+使用`kill()`函数可以向**指定进程**发送信号，使用`raise()`可以向**当前进程**发送信号。函数定义在`signal.h`中，如下所示：
+
+```c
+int raise(int sig);
+int kill(pid_t pid, int sig);
+```
+
+- `pid`参数为目标进程的进程id。
+- `sig`为信号值。
+
+使用`kill()``raise()`发送信号，接收信号的是**整个**目标进程。
+在**多线程**环境下，使用`kill()``raise()`发送信号，进程内包含的**所有线程**都会接收到信号。
+如果需要发送信号给**指定线程**，需要使用`pthread_kill()`，函数定义在`signal.h`中：
+
+```c
+int pthread_kill(pthread_t thread, int sig);
+```
+
+- `thread`参数为目标线程的描述符。
+- `sig`参数为信号值。
+
+函数成功返回`0`，失败时返回错误代码。
+
+###信号处理函数的触发
+信号机制类似**软件中断**，信号处理函数**不会**运行在独立的线程，而是**中断**现有的代码运行信号处理函数。
+一个进程触发了信号处理函数，则在信号处理函数结束返回之后才会继续运行先前的代码。
+如下代码所示：
+
+```c
+#include <stdio.h>
+#include <time.h>
+#include <unistd.h>
+#include <signal.h>
+
+void deal_signal(int sig)
+{
+	printf("\nRun deal_signal().\n");
+	sleep(5);
+}
+
+int main(void)
+{
+	signal(SIGINT, deal_signal);
+
+	int count = 0;
+	while (1)
+	{
+		time_t before = time(NULL);
+
+		sleep(1);
+		printf("Loop %d\n", ++count);
+
+		time_t cost = time(NULL) - before;
+		struct tm* t = localtime(&cost);
+		printf("Cost time: %d seconds.\n\n", t->tm_sec);
+	}
+
+	return 0;
+}
+```
+
+通过循环中的打印的耗时可以看出，每次触发信号处理函数`deal_signal()`，循环便会**暂停**，直到`deal_signal()`运行完毕返回。
+在`BSD`和`Linux`中，运行信号处理函数期间再次收到信号会**阻塞**此信号，直到信号处理函数返回。
+在部分Unix中，运行信号处理函数时可能会将此信号**重置**为默认操作，在此类情况下，需要在信号处理函数中重新绑定信号。
+
+###可靠信号与不可靠信号
+可靠信号与不可靠信号是`Linux`中特有的概念，在其它Unix如`OS X``FreeBSD`中没有此概念。
+在`Linux`中，**不可靠**信号范围为`1(SIGHUP) ~ 31(SIGSYS)`，**可靠信号**的范围为`34(SIGRTMIN) ~ 64(SIGRTMAX)`。
+**不可靠**信号**不支持**信号队列，当同类信号在短时间内**多次**触发，不可靠信号只会触发信号处理函数**一次**，其余的同类信号被**忽略**。
+
+###屏蔽信号
+直接在**进程**中屏蔽指定信号可以使用下列函数，函数定义在`signal.h`中：
+
+```c
+int sigsetmask(int mask);		//设定屏蔽信号为mask
+int sigblock(int mask);			//向现有屏蔽信号中添加mask
+```
+
+- `mask`参数为要屏蔽的信号**mask**，由`sigmask(signum)`宏根据输入的信号值生成。
+
+函数返回之前设定的**mask**值。
+实例代码如下：
+
+```c
+//多个信号可以使用逻辑或操作符相连
+int mask = sigmask(SIGINT) | sigmask(QUIT);
+//设置当前的信号屏蔽为SIGINT和SIGQUIT
+sigsetmask(mask);
+//添加屏蔽SIGALRM信号
+sigblock(sigmask(SIGALRM));
+```
+
+也可以使用`sigprocmask()`来完成信号屏蔽/解除屏蔽等操作，函数定义在`signal.h`中：
+
+```c
+int sigprocmask(int how, const sigset_t *restrict set, sigset_t *restrict oset);
+```
+
+- `how`参数定义函数的行为，可以取值：
+	0. `SIG_BLOCK`向已有的屏蔽信号集合中**添加**`set`参数中的信号。
+	0. `SIG_UNBLOCK`向已有的屏蔽信号集合中**移除**`set`参数中的信号。
+	0. `SIG_SETMASK`将当前的屏蔽信号集合**替换**为`set`参数中的信号。
+- `set`参数为输入的信号集合。
+- `oset`参数为输出信号集合，函数运行结束会将新的信号集合写入`oset`参数中，不需要该参数可设为`NULL`。
+
+函数执行成功返回`0`。执行失败返回`-1`，并置`errno`。
+实例代码如下：
+
+```c
+//创建信号集合，置空后添加SIGINT信号
+sigset_t set;
+sigemptyset(&set);
+sigaddset(&set, SIGINT);
+
+//屏蔽SIGINT信号
+sigprocmask(SIG_SETMASK, &set, NULL);
+
+sigaddset(&set, SIGQUIT);
+
+//添加屏蔽SIGUQUIT信号
+sigprocmask(SIG_BLOCK, &set, NULL);
+//取消SIGINT和SIGQUIT的信号屏蔽
+sigprocmask(SIG_UNBLOCK, &set, NULL);
+```
+
+`sigsetmask()``sigprocmask()`等函数设置的屏蔽信号是对于**整个进程**而言的。
+在**多线程**环境下，使用`sigprocmask()`则进程内包含的**所有线程**的屏蔽信号集都会被修改。
+创建新的线程时，新的线程会**继承**原有线程的**屏蔽信号集**。
+需要设置**指定线程**的屏蔽信号集，可以使用`pthread_sigmask()`函数，函数定义在`signal.h`中：
+
+```c
+int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict oset);
+```
+
+`pthread_sigmask()`函数参数与作用与`sigprocmask()`完全相同，唯一的区别在于设置的屏蔽信号集仅对当前线程生效。
+
+### *pause()* 函数
+使用`pause()`可以挂起线程，直到当前进程捕捉到了一个**信号**，函数定义在`unistd.h`中，如下所示：
+
+```c
+int pause(void);
+```
+
+只有进程捕获了信号，执行了信号处理程序并从其返回时，`pause()`函数才返回。
+`pause()`函数**不存在**成功返回值，当进程捕捉到信号并从信号处理函数返回时，`pause()`返回`-1`，并置`errno`为`ENTER`。
+在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，只有**主线程**的`pause()`会在信号处理函数结束后返回，在其它线程中，一旦使用`pause()`即意味着除非**主动结束**该线程(例如使用`pthread_cancel()`)，否则使用了`pause()`线程将一直处于挂起状态。
+
+### *sleep()* 函数
+使用`sleep()`可以**挂起**线程(阻塞)，函数定义在`unistd.h`中，函数原型为：
+
+```c
+unsigned int sleep(unsigned int seconds);
+```
+
+- `seconds`参数为需要休眠的时间，单位为**秒**。
+
+若线程在设定的时间中正常休眠，返回值为`0`。
+若在挂起期间进程捕获到一个**信号**，并从信号处理函数返回，则无论休眠时间是否满足，休眠不再继续，`sleep()`立即函数结束，返回值为**尚未休眠**的时间。
+在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，捕获信号，并从信号处理函数返回，只会结束进程**主线程**中正在运行的`sleep()`函数，对其它线程中的`sleep()`无影响。
+在`Solaris`中`sleep()`内部实现采用`alarm()`，在`BSD`和`Linux`中`sleep()`由`nanosleep()`实现，与信号无关。
+
+### *alarm()* 函数
+使用`alarm()`可以使当前进程在指定时间之后收到`SIGALRM`信号，函数定义在`unistd.h`中，如下所示：
+
+```c
+unsigned alarm(unsigned seconds);
+```
+
+- `seconds`参数为发送信号的延迟时间，取`0`时表示清除原有`alarm()`设置。
+
+一个进程同时只能存在一个`alarm()`，调用`alarm()`时若之前已经设置了`alarm()`且尚未触发，则返回上一个`alarm()`的剩余等待时间，同时以当前`alarm()`的设置**替换**上一个。
+默认情况下，若没有设置`SIGALRM`的信号处理函数，系统收到`SIGALRM`会终止进程。
+
+###多线程信号处理
+在多线程的环境下，信号处理需要考虑更多的情况：
+
+0. 默认情况下，Unix中的信号机制是对于**整个进程**而言的，使用`kill()`发送信号，则**整个进程**都将收到信号。
+0. 使用`signal()`绑定信号处理函数会对**整个进程**生效。
+0. 在多线程的程序中，若不做特殊处理，则发送给进程的信号会由系统选择一个线程来处理信号。
+0. 系统会在**没有**屏蔽此信号的线程中选择`pid`**最小**的那个线程来处理信号。
+0. 在未设置屏蔽信号的情况下，主线程的`pid`最小，因而一般会选择主线程来响应信号。这使得**默认情况**下只有**主线程**的`pause()``sleep()`函数能够被信号中断。
+
+多线程环境下的信号处理一般有两种方式：
+
+#### *在指定线程中处理信号*
+除目标线程外，其它线程全部使用`pthread_sigmask()`在线程中屏蔽指定信号，让信号只能被**指定线程**处理。如下所示：
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+#include <pthread.h>
+
+sigset_t set;
+
+void deal_signal(int sig)
+{
+	printf("Run deal_signal.\n");
+}
+
+void* thread_func(void* arg)
+{
+	printf("Run thread!\n");
+
+	//解除SIGINT的信号屏蔽，让当前线程能够处理SIGINT信号
+	pthread_sigmask(SIG_UNBLOCK, &set, NULL);
+
+	while (1)
+		printf("Pthread sleep surplus time: %d seconds.\n", sleep(3));
+	return NULL;
+}
+
+int main(void)
+{
+	signal(SIGINT, deal_signal);
+
+	//整个进程屏蔽SIGINT信号
+	sigemptyset(&set);
+	sigaddset(&set, SIGINT);
+	sigprocmask(SIG_BLOCK, &set, NULL);
+
+	pthread_t pfd;
+	pthread_create(&pfd, NULL, thread_func, NULL);
+
+	pthread_join(pfd, NULL);
+
+	return 0;
+}
+```
+
+默认情况下，`SIGINT`信号会被主线程处理(不会中断子线程中的`sleep()`)，但通过设置屏蔽信号，让`SIGINT`被主线程屏蔽而由子线程处理，使得`SIGINT`能够中断子线程的`sleep()`函数，让`sleep()`提前结束。
+
+#### *以同步的方式处理异步信号*
+使用`sigwait()`等待指定信号。`sigwait()`函数定义在`signal.h`中：
+
+```c
+int sigwait(const sigset_t *restrict set, int *restrict sig);
+```
+
+- `set`参数为要等待的信号集合。
+- `sig`参数指向等待到的信号值，函数会将等待到的信号值写入传入的地址中。
+
+运行`sigwait()`会阻塞所处线程，直到所处线程接受到`set`信号集中的信号。
+函数执行成功返回`0`，失败时返回错误代码。
+使用`sigwait()`需要保证等待的信号至少被`sigwait()`**所处线程**之外的线程屏蔽。
+对于`sigwait()`所处的线程，在`OS X`和`Linux`等Unix系统上，`sigwait()`的优先级比默认的信号处理行为以及绑定的信号处理函数要高，接受到信号时，优先结束`sigwait()`的阻塞而不是执行设定/默认的信号处理行为。
+在**多个**`sigwait()`共存的情况下，系统会**随机**选取一个线程中的`sigwait()`进行响应。
+实例如下所示：
+
+```c
+#include <stdio.h>
+#include <signal.h>
+#include <pthread.h>
+
+sigset_t set;
+int thread_count = 0;
+
+void deal_signal(int sig)
+{
+	printf("Run deal_signal.\n");
+}
+
+void* thread_func(void* arg)
+{
+	int thread_id = ++thread_count;
+	printf("Run thread %d!\n", thread_id);
+
+	//子线程即便使用pthread_sigmask()解除SIGINT信号屏蔽，依旧会优先响应sigwait()
+	int signum;
+	sigwait(&set, &signum);
+
+	if (signum == SIGINT)
+		printf("\nThread %d receive signal SIGINT.\n", thread_id);
+
+	return NULL;
+}
+
+int main(void)
+{
+	signal(SIGINT, deal_signal);
+
+	/*
+		设置主线程信号屏蔽。
+		若主线程不屏蔽SIGINT信号，则按照信号处理优先级，信号会被主线程处理。
+		信号被主线程处理，子线程没有处理信号的机会，则sigwait()会一直阻塞。
+	*/
+	sigemptyset(&set);
+	sigaddset(&set, SIGINT);
+	sigprocmask(SIG_BLOCK, &set, NULL);
+
+	pthread_t pfd;
+	pthread_create(&pfd, NULL, thread_func, NULL);
+	pthread_create(&pfd, NULL, thread_func, NULL);
+
+	pthread_join(pfd, NULL);
+
+	return 0;
+}
+```
+
+运行结果：(OS X 10.11.3)
+Run thread 1!
+Run thread 2!
+^C
+Thread 2 receive signal SIGINT.
+^C
+Thread 1 receive signal SIGINT.
+
+多个`sigwait()`存在时，选取的处理线程是随机的，运行结果也可能是1号线程先响应信号。
 
 
-##多线程(pthread)
-Linux下线程的实现为`NPTL`，即本地POSIX线程库(Native POSIX Thread Library)。
-在Unix系统中，多线程开发相关函数定义在头文件`/usr/include/pthread.h`中。
+
+##POSIX线程(pthread)
+在Unix系统中，多线程开发相关函数定义在头文件`pthread.h`中。
 在`Linux`中编译使用了线程库的程序时，需要链接`pthread`库，编译指令如下：
 
 ```sh
@@ -375,6 +700,17 @@ $ cc -lpthread [源码文件]
 ```
 
 在`FreeBSD`以及`OS X`中，编译使用了线程库的程序无需链接`pthread`库。
+
+###Linux下的线程实现
+Linux下线程的实现为`NPTL`，即**本地POSIX线程库**`Native POSIX Thread Library`。
+
+- 在Linux内核中，线程和进程都使用`task_struct`结构体表示，线程仅是一类特殊的进程(创建时使用不同的`clone`标识组合)。
+- Linux提供了`clone()`调用，使用`clone()`创建子进程时，可以选择性地共享父进程的资源，这样创建出的子进程被称为**轻量级进程**。
+- 早期的Linux(`Linux Kernel 2.6`之前)使用`Linux Threads`线程库，即通过**轻量级进程**来实现线程。
+- `Linux Threads`库没有实现`POSIX`的线程定义，每个线程在`ps`指令下显示为进程，并且不同线程使用`getpid()`返回的进程`pid`也不相同，在现代Linux(采用`NPTL`之后的Linux)已经**不会**出现此类情况。
+- 在`Linux Kernel 2.6`之后，内核中有了**线程组**的概念，`task_struct`结构中增加了`tgid(thread group id)`字段，如果一个`task_struct`是一个**主线程**, 则它的`tgid`等于`pid`, 否则`tgid`等于进程的`pid`(即主线程的`pid`),此外，每个线程依旧是一个`task_struct`，依然有自己的`pid`。
+- 在`Linux Kernel 2.6`之后，使用`getpid()`获取的是`tgid`，因而进程中的每个线程使用`getpid()`返回值相同(主线程`pid`)。获取线程自身的`pid`需要用到系统调用`gettid()`，`gettid()`是Linux特有的系统调用，在其它Unix中并不存在，`glibc`没有提供`gettid()`的封装，使用`gettid()`需要通过`syscall()`调用。
+- `NPTL`的实现依赖于`Linux Kernel 2.6`内核的`task_struct`改动，因此在`2.4``2.2`等旧版本的内核上无法使用`NPTL`，在采用了`NPTL`的Linux上，线程的行为与其它Unix更为相似。
 
 ###创建线程
 创建线程使用`pthread_create()`函数。
@@ -412,7 +748,8 @@ int pthread_join(pthread_t thread, void **retval);
 int pthread_cancel(pthread_t thread);
 ```
 
-参数为需要取消的线程的**线程描述符**。
+- `thread`参数为需要取消的线程的**线程描述符**。
+
 取消线程成功返回值为`0`，取消线程失败返回一个非`0`的**错误代码**(不一定是-1)。
 
 ###终止线程
@@ -427,7 +764,7 @@ void pthread_exit(void *retval);
 与其它函数一样，线程也可以使用`return`提供返回值。
 
 ###用互斥量进行线程同步
-互斥量相关的函数也定义在头文件`/usr/include/pthread.h`文件中，常用的函数有：
+互斥量相关的函数也定义在头文件`pthread.h`文件中，常用的函数有：
 
 ```c
 int pthread_mutex_init(pthread_mutex_t *restrict mutex, const pthread_mutexattr_t *restrict attr);
@@ -505,10 +842,10 @@ void* thread_func(void* arg)
 
 int main(void)
 {
-	char *str1 = "一号线程";
-	char *str2 = "二号线程";
-	char *str3 = "三号线程";
-	char *str4 = "四号线程";
+	char* str1 = "一号线程";
+	char* str2 = "二号线程";
+	char* str3 = "三号线程";
+	char* str4 = "四号线程";
 
 	struct sigaction sig;
 	sig.sa_handler = deal_signal;
@@ -532,7 +869,7 @@ int main(void)
 ```
 
 ###使用互斥量进行进程同步
-互斥量用于**进程同步**时，会用到下列函数，头文件同样在`/usr/include/pthread.h`中：
+互斥量用于**进程同步**时，会用到下列函数，头文件同样在`pthread.h`中：
 
 ```c
 int pthread_mutex_init(pthread_mutex_t *restrict mutex, const pthread_mutexattr_t *restrict attr);
@@ -675,7 +1012,7 @@ int main(void)
 ##共享内存
 共享内存是Unix系统中常用的**进程间通信**(IPC, Inter-Process Communication)的一种机制，3大主要IPC之一。
 相比信号量等IPC机制，共享内存有着最高的效率，因为共享内存并不涉及复制操作。
-共享内存的相关函数定义在`/usr/include/sys/shm.h`中。
+共享内存的相关函数定义在`sys/shm.h`中。
 
 ###创建/获取共享内存
 使用`shmget()`函数创建共享内存或获取已经存在的**key值**的共享内存。
@@ -737,7 +1074,7 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 ##信号量(semaphore)
 信号量是Unix系统中常用的进程间通信(IPC, Inter-Process Communication)的一种机制。
 信号量用于控制进程对资源的访问，但信号量也可以用于线程。
-在进程开发中，常用的信号量函数定义在`/usr/include/sys/sem.h`文件中。
+在进程开发中，常用的信号量函数定义在`sys/sem.h`文件中。
 
 ###创建/获取信号量
 使用`semget()`函数创建一个新的信号量或获取一个已经存在的信号量。
@@ -912,7 +1249,7 @@ int main(void)
 Linux和BSD还分别提供了增强的IO复用机制，在Linux中为`epoll`，在BSD中为`kqueue`。
 
 ### *select()* 调用
-在Unix环境下，`select()`是常用的IO多路复用机制之一，函数定义在`/usr/include/sys/select.h`中。
+在Unix环境下，`select()`是常用的IO多路复用机制之一，函数定义在`sys/select.h`中。
 `select()`函数定义如下所示：
 
 ```c
@@ -981,3 +1318,153 @@ while(TRUE)
 	}
 }
 ```
+
+### *pselect()* 调用
+`pselect()`函数由**POSIX**定义，是`select()`的完善版本，在早期的Unix中并不存在。
+`pselect()`监听描述符的功能以及使用方式与`select()`相同。
+`pselect()`在`select()`基础上添加了等待期间**阻塞**信号的功能。
+`pselect()`函数定义如下所示：
+
+```c
+int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_set *restrict errorfds, const struct timespec *restrict timeout, const sigset_t *restrict sigmask);
+```
+
+- 前**4个**参数与`select()`中含义完全相同。
+- `sigmask`参数为需要屏蔽信号的集合。
+- `timeout`参数为超时等待的时间，类型为`timespec`，精确到纳秒，与`select()`函数中精确到毫秒的`timeval`不同。
+
+信号集合参数`sigmask`使用前需要两个步骤：
+
+0. 首先使用`sigemptyset()`函数清空信号集合：
+
+```c
+int sigemptyset(sigset_t *set);
+```
+
+0. 之后使用`sigaddset()`向清空后的信号集合中添加信号：
+
+```c
+int sigaddset(sigset_t *set, int signo);
+```
+
+信号集合只需要设置一次，就可以在之后的`pselect()`中一直使用。
+
+- 在`pselect()`处于**阻塞**状态时，会暂时屏蔽信号集中的信号，在`pselect()`阻塞期间若发出了被屏蔽的信号，则信号处理函数会在`pselect()`结束时触发。
+- 在`pselect()`**阻塞**期间多次发出了信号，在`pselect()`结束时**同类信号**只触发信号处理函数**一次**，不会多次触发。
+- 在`pselect()`**阻塞**期间发出的不同种类信号都会在`pselect()`结束时触发(即使信号处理函数是**同一个**)，但**每类信号**只会触发**一次**信号处理函数。
+
+如下代码所示：
+
+```c
+#include <signal.h>
+#include <sys/select.h>
+#include <stdio.h>
+
+int sigint_count = 0;
+int sigquit_count = 0;
+int is_changed = 0;
+
+void deal_signal(int sig)
+{
+	if (sig == SIGINT)
+		printf(is_changed ? "SIGINT: %d\n" : "\nSIGINT: %d\n", ++sigint_count);
+	else if (sig == SIGQUIT)
+		printf(is_changed ? "SIGQUIT: %d\n" : "\nSIGQUIT: %d\n", ++sigquit_count);
+
+	is_changed = 1;
+}
+
+int main(void)
+{
+	//初始化时间结构体timespec，需要注意的是tv_nsec成员为纳秒数
+	struct timespec time;
+	time.tv_sec = 5;
+	time.tv_nsec = 0;
+
+	signal(SIGINT, deal_signal);
+	signal(SIGQUIT, deal_signal);
+
+	//sigmask参数设置一次即可，不需要每次调用pselect前都设置
+	sigset_t set;
+	sigemptyset(&set);
+	sigaddset(&set, SIGINT);
+	sigaddset(&set, SIGQUIT);
+
+	//pselect与select的不同之处在于设置sigmask防止超时等待时被信号打断
+	//信号会在pselect等待后触发
+	while (1)
+	{
+		is_changed = 0;
+		printf("Start pselect!\n");
+		pselect(1, NULL, NULL, NULL, &time, &set);
+		printf("End pselect!\n\n");
+	}
+
+	return 0;
+}
+```
+
+在上述代码中，`timespec`结构设置了**5秒**的超时等待时间，屏蔽信号集中加入了`SIGINT`和`SIGQUIT`两个信号，在`pselect()`启动后的超时等待时间中，发送这两个信号并不会立即得到响应，而是在**5秒**的超时时间过后，`deal_signal`才会触发。
+在等待期间，无论发送多少次`SIGINT`和`SIGQUIT`信号，`SIGINT`和`SIGQUIT`的信号处理函数只会**分别触发**一次。
+
+在**多线程**环境下，只有`pselect()`所处的线程是信号处理线程时，`pselect()`才能起到阻塞信号的效果，在其它线程中，即使使用`pselect()`并设置屏蔽信号，信号处理函数依然会**立即**触发。
+如下代码所示：
+
+```c
+#include <signal.h>
+#include <sys/select.h>
+#include <stdio.h>
+#include <pthread.h>
+
+int sigint_count = 0;
+int sigquit_count = 0;
+int is_changed = 0;
+
+void deal_signal(int sig)
+{
+	if (sig == SIGINT)
+		printf(is_changed ? "SIGINT: %d\n" : "\nSIGINT: %d\n", ++sigint_count);
+	else if (sig == SIGQUIT)
+		printf(is_changed ? "SIGQUIT: %d\n" : "\nSIGQUIT: %d\n", ++sigquit_count);
+
+	is_changed = 1;
+}
+
+void* pthread_func(void* arg)
+{
+	//初始化时间结构体timespec，需要注意的是tv_nsec成员为纳秒数
+	struct timespec time;
+	time.tv_sec = 5;
+	time.tv_nsec = 0;
+
+	signal(SIGINT, deal_signal);
+	signal(SIGQUIT, deal_signal);
+
+	//sigmask参数设置一次即可，不需要每次调用pselect前都设置
+	sigset_t set;
+	sigemptyset(&set);
+	sigaddset(&set, SIGINT);
+	sigaddset(&set, SIGQUIT);
+
+	//在非主线程中的pselect不再具有屏蔽信号的作用
+	while (1)
+	{
+		is_changed = 0;
+		printf("Start pselect!\n");
+		pselect(1, NULL, NULL, NULL, &time, &set);
+		printf("End pselect!\n\n");
+	}
+}
+
+int main(void)
+{
+	pthread_t pfd;
+	pthread_create(&pfd, NULL, pthread_func, NULL);
+
+	pthread_join(pfd, NULL);
+
+	return 0;
+}
+```
+
+在上述代码中，`pselect()`代码块被转移到了主线程之外，尽管依旧设置了`sigmask`，但由于信号由**主线程**而非`pselect()`所处线程处理，因而阻塞信号没有在`pselect()`等待期间阻塞，发送`SIGINT`和`SIGQUIT`等信号会**立即触发**信号处理函数。

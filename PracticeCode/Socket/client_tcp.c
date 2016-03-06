@@ -24,7 +24,9 @@ int sock_fd = 0;
 //线程函数用于处理接收的消息
 void* get_response(void* arg)
 {
-	char message[10] = { 0 };
+	char message[10];
+	memset(message, 0, sizeof(char) * 10);
+
 	if (recv(sock_fd, message, 10, 0) == -1)
 		perror("接收消息失败!\n");
 	else
@@ -66,7 +68,8 @@ int main(int argc, char **argv)
 	pthread_create(&thread_fd, NULL, get_response, NULL);		//开辟一个线程用于接收服务端的关闭通知
 
 	int num = 0;
-	char str[50] = { 0 };
+	char str[50];
+	memset(str, 0, sizeof(char) * 50);
 
 	while (1)			//使用循环连续发送消息
 	{

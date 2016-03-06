@@ -26,7 +26,7 @@ pthread_t thread_fd = 0;
 int sock_fd = 0;
 int num = 0;							//记录接收数据次数
 int user_count = 0;						//用户数量计数
-int client_fd[USER_MAX] = { 0 };		//用一个数组来保存所有用户的连接socket描述符
+int client_fd[USER_MAX];		//用一个数组来保存所有用户的连接socket描述符
 
 void* get_accept(void* arg)
 {
@@ -45,7 +45,7 @@ void* get_accept(void* arg)
 	while (1)		//即使没有循环结构，函数运行到accpet()时会停下等待连接或是请求(阻塞线程)，但只会接收一次请求(即TCP模式下无法接收多个用户发送的数据，只会与第一个用户交互)，之后函数就会结束，要想让服务端一直监听下去则需要一直运行recv()接收数据，循环accpet()尽管能结接收多个请求但会阻塞当前线程导致无法继续执行代码，合理的方式是采用多个线程，每个线程接受一个请求。
 	{
 		char message[50];
-		memset(message, 0, 50);
+		memset(message, 0, sizeof(char) * 50);
 
 		if (recv(client_fd[user_id], message, 50, 0) == -1)
 			perror("接收消息失败：\n");

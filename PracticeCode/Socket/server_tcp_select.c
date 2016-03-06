@@ -25,7 +25,7 @@
 int sock_fd = 0;
 int max_fd = 0;							//设置最大描述符大小
 int user_count = 0;						//用户数量计数
-int client_fd[USER_MAX] = { 0 };		//用一个数组来保存所有用户的连接socket描述符
+int client_fd[USER_MAX];				//用一个数组来保存所有用户的连接socket描述符
 
 void* get_accept(void* arg)
 {
@@ -93,7 +93,8 @@ int main(void)
 			for (int i = 0; i < user_count; i++)
 				if (FD_ISSET(client_fd[i], &read_set))
 				{
-					char message[50] = { 0 };
+					char message[50];
+					memset(message, 0, sizeof(char) * 50);
 
 					if (read(client_fd[i], message, 50) == -1)
 						perror("接收消息失败：\n");
