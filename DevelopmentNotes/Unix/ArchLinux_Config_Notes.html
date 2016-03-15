@@ -165,7 +165,9 @@
 			<blockquote># pacman -S networkmanager</blockquote>
 			<p>在各大桌面环境下拥有不同的图形化前端搭配<span class="blue"> NetworkManager </span>来使用。<br/>gnome桌面环境下，安装：</p>
 			<blockquote># pacman -S network-manager-applet</blockquote>
-			<p>KDE桌面环境下，安装：</p>
+			<p>plasma5桌面环境下，安装：</p>
+			<blockquote># pacman -S plasma-nm</blockquote>
+			<p>KDE4桌面环境下，安装：</p>
 			<blockquote># pacman -S kdeplasma-applets-plasma-nm<span>&nbsp;&nbsp;&nbsp;&nbsp;//旧版本的KDE网络组件在AUR仓库中，包名为：kdeplasma-applets-networkmanagement</span></blockquote>
 			<p>在网络组件完成配置之后，可以激活<span class="blue"> NetworkManager服务 </span>来接管网络连接：</p>
 			<blockquote># systemctl enable NetworkManager<span>&nbsp;&nbsp;&nbsp;&nbsp;//输入命令时注意服务名称的大小写</span></blockquote>
@@ -209,7 +211,7 @@
 					<tr><td>netctl</td><td>包含了一些默认的网络配置文件，不需要</td></tr>
 					<tr><td>dhcpd</td><td>自动分配ip由networkmanager(dhclient)替代</td></tr>
 				</table>
-				<p><span class="blue">base</span> 和 <span class="blue">base-extra</span> 包组中的一些<span class="blue">必选</span>包的功能说明：</p>
+				<p><span class="blue">base </span>和<span class="blue"> base-devel </span>包组中的一些<span class="blue">必选</span>包的功能说明：</p>
 				<table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 					<tr><th style="width: 200px"><span class="blue">包名称</span></th><th style="width: 400px"><span class="blue">包简介</span></th></tr>
 					<tr><td>fakeroot</td><td>用于模拟root权限，构建软件包时需要用到</td></tr>
@@ -224,11 +226,13 @@
 					<tr><td>inetutils</td><td>包含ftp等常用工具</td></tr>
 					<tr><td>usbutils</td><td>包含lsusb等工具</td></tr>
 					<tr><td>which</td><td>包含which工具，用于查找输入命令的绝对路径</td></tr>
+					<tr><td>pacman</td><td>包管理器，被arch-install-scripts和yaourt依赖</td></tr>
 					<tr><td>procps-ng</td><td>包含ps、top等常用进程查看、管理工具，被virtualbox依赖</td></tr>
+					<tr><td>gcc</td><td>GNU核心编译器，被clang依赖</td></tr>
 					<tr><td>make</td><td>项目构件工具，通过makefile文件编译项目，被dkms依赖</td></tr>
 					<tr><td>systemd-sysvcompat</td><td>包含/sbin/init，缺少此包则系统无法初始化</td>
 				</table>
-				<p>大多数 <span class="blue">base</span> 和 <span class="blue">base-devel</span> 包组中的软件包都会被其它包所依赖，不必指定安装，只需手动安装部分即可：</p>
+				<p>大多数<span class="blue"> base </span>和<span class="blue"> base-devel </span>包组中的软件包都会被其它包所依赖，不必指定安装，只需手动安装部分即可：</p>
 				<blockquote># pacstrap -i /mnt linux iputils inetutils usbutils man-db man-pages which nano s-nail systemd-sysvcompat sudo fakeroot</blockquote>
 			</li><br/>
 			<li>
@@ -272,6 +276,41 @@
 			<li>
 				<p>生成grub的配置文件：</p>
 				<blockquote># grub-mkconfig -o /boot/grub/grub.cfg</blockquote>
+				<p>默认生成的grub配置文件未必完全正确，也可采用手动编译grub配置的形式，一个精简的grub配置格式如下：</p>
+				<blockquote>
+					# Windows引导项<br/>
+					menuentry 'Microsoft Windows 10' {<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;insmod part_gpt<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;insmod fat<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;set root='hd0,gpt1'<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;chainloader /EFI/Microsoft/Boot/bootmgfw.efi<br/>
+					}<br/>
+					# ArchLinux引导项，不同Linux发行版可能略有不同<br/>
+					menuentry 'Arch Linux' {<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;load_video<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;set gfxpayload=keep<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;insmod gzio<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;insmod part_gpt<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;insmod ext2<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;set root='hd0,gpt4'<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;echo 'Loading Linux linux ...'<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;# 分区的UUID可以使用 lsblk -f 查看<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;linux /boot/vmlinuz-linux root=UUID=fc6200f9-e3ac-442d-8e9e-0ab5424d79c3 rw quiet<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;# 实际也可以不使用UUID而采用分区号替代<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;# linux /boot/vmlinuz-linux root=/dev/sda4 rw quiet<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;echo 'Loading initial ramdisk ...'<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;initrd /boot/initramfs-linux.img<br/>
+					}<br/>
+					# 关机和重启选项<br/>
+					menuentry 'System shutdown' {<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;echo "System shutting down..."<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;halt<br/>
+					}<br/>
+					menuentry 'System restart' {<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;echo "System rebooting..."<br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;reboot<br/>
+					}<br/>
+				</blockquote>
 			</li><br/>
 			</ul>
 			<p style="text-align: center;font-size: 20px;color: blue;">以上，基本安装结束。</p>
@@ -316,15 +355,37 @@
 				<blockquote># pacman -S kdeplasma-addons-applets-icontasks<span>&nbsp;&nbsp;&nbsp;&nbsp;//图标任务管理器</span><br/># pacman -S kdeplasma-addons-applets-weather<span>&nbsp;&nbsp;&nbsp;&nbsp;//通知区域天气插件</span><br/># pacman -S kdeplasma-addons-applets-lancelot<span>&nbsp;&nbsp;&nbsp;&nbsp;//lancelot启动器</span><br/># pacman -S kdemultimedia-kmix<span>&nbsp;&nbsp;&nbsp;&nbsp;//音频混合控制器</span><br/># pacman -S kdenetwork-kget<span>&nbsp;&nbsp;&nbsp;&nbsp;//kget下载管理器</span><br/># pacman -S kdevelop<span>&nbsp;&nbsp;&nbsp;&nbsp;//KDE集成开发环境</span><br/># pacman -S bluedevil<span>&nbsp;&nbsp;&nbsp;&nbsp;//KDE蓝牙管理器</span></blockquote>
 			</li><br/>
 			<li>
-				<p>需要注意的是，如果你的机器是Intel主板，安装完KDE桌面环境后音频设备工作不正常，则可能需要安装<span class="blue"> pulseaudio </span>才能正常输出声音。特别的，在使用vlc作为后端音频服务的时候，需要安装<span class="blue"> pulseaudio-alsa </span>，否则网页播放Flash会出现没有声音的情况！<br/></p>
-				<blockquote># pacman -S pulseaudio-alsa</blockquote>
+				<p>需要注意的是，如果你的机器是Intel主板，安装完KDE桌面环境后音频设备工作不正常，则可能需要安装<span class="blue"> pulseaudio </span>才能正常输出声音。<br/></p>
+				<blockquote># pacman -S pulseaudio</blockquote>
 				<p>此外，如果遇见开机默认外置喇叭不出声音，只有插上耳机再拔掉喇叭才能出声的情况，需要在<span class="blue"> [系统设置->多媒体->音频和视频设置->音频硬件设置] </span>中将声卡选择为<span class="blue"> 内部音频 </span>，配置选择为<span class="blue"> 模拟立体声双工 </span>，设备设置中的连接器设置为<span class="blue"> Speakers </span>，这样开机就会自动让外置喇叭发声了。<br/>KDE的系统警告音特别大，且不受kmix音量控制，系统的警告通知音量在<span class="blue"> [系统设置->应用程序和系统通知->管理通知->播放器设置->使用KDE声音系统] </span>选项中，将音量调低即可。</p>
 			</li><br/>
 			<li>
 				<p>KDE桌面环境在使用gstreamer作为音频后端时，推荐安装smplayer作为视频播放器(Qt图形界面+Mplayer后端实现)，在使用vlc作为后端时，推荐使用vlc播放器(Qt图形界面+vlc后端)，能够更有效地利用依赖关系。</p>
 			</li><br/>
 			<li>
-				<p>在ArchLinux迁移到<span class="blue"> Plasma5 </span>和<span class="blue"> kf5 </span>之后，上述内容已经过时。<br/>
+				<p>使用KDE桌面环境时，默认是不会在家目录下生成用户文件夹的，故需要安装xdg工具：</p>
+				<blockquote># pacman -S xdg-user-dirs</blockquote>
+				<p>使用以下命令首次生成用户文件夹：</p>
+				<blockquote>$ xdg-user-dirs-update</blockquote>
+				<p>如果不慎删除了某个默认用户文件夹，使用如下命令强制重新生成家目录文件夹：</p>
+				<blockquote>$ xdg-user-dirs-update --force</blockquote>
+			</li><br/>
+			<li>
+				<p>在KDE桌面环境下的默认gtk程序惨不忍睹，安装KDE下的gtk配置以及gtk主题：</p>
+				<blockquote># pacman -S kde-gtk-config oxygen-gtk2 oxygen-gtk3</blockquote>
+			</li><br/>
+			<li>
+				<p>在KDE桌面环境中，推荐从AUR中安装全局菜单组件和bespin界面风格：</p>
+				<blockquote>$ yaourt -S kdeplasma-applets-menubar bespin-svn</blockquote>
+			</li><br/>
+			<li>
+				<p>安装KDE桌面环境的配套音乐播放器Amarok：</p>
+				<blockquote># pacman -S amarok</blockquote>
+				<p>如果后端采用<span class="blue"> gstreamer </span>，必须安装gs解码器才能播放mp3，ape等格式<span>(推荐使用vlc作为后端，可省去安装此解码器的过程。)</span>：</p>
+				<blockquote># pacman -S gst-plugins-good gst-plugins-bad gst-plugins-ugly<span>&nbsp;&nbsp;&nbsp;&nbsp;//使播放器能够播放mp3等格式</span><br/># pacman -S gst-libav<span>&nbsp;&nbsp;&nbsp;&nbsp;//使播放器能够播放ape等格式</span></blockquote>
+			</li><br/>
+			<li>
+				<p>在ArchLinux迁移到<span class="blue"> Plasma5 </span>和<span class="blue"> kf5 </span>之后，上述内容部分已经过时。<br/>
 				最小化安装新版的KDE只需要安装<span class="blue"> plasma-dektop </span>即可：</p>
 				<blockquote># pacman -S plasma-dektop<span>&nbsp;&nbsp;&nbsp;&nbsp;//仅仅安装plasma-workspace是不够的，无法正常启动桌面环境</span></blockquote>
 				<p>kf5之后，KDE团队放弃了自定开发的KDM，现在KDE桌面环境官方建议使用sddm作为登陆管理器：</p>
@@ -368,7 +429,6 @@
 					<tr><td><span class="blue">gnome-system-monitor</span></td><td>gnome资源监视器</td></tr>
 					<tr><td><span class="blue">nautilus</span></td><td>gnome文件管理器</td></tr>
 					<tr><td><span class="blue">gnome-terminal</span></td><td>gnome终端</td></tr>
-					<tr><td><span class="blue">gdm</span></td><td>gnome登陆器</td></tr>
 					<tr><td><span class="blue">eog</span></td><td>gnome之眼</td></tr>
 					<tr><td><span class="blue">evince</span></td><td>pdf文档阅读器</td></tr>
 					<tr><td>yelp</td><td>gnome帮助浏览器</td></tr>
@@ -420,7 +480,7 @@
 					<tr><td>mate-control-center</td><td>MATE桌面环境的控制中心</td></tr>
 					<tr><td>mate-notification-daemon</td><td>MATE桌面环境的通知服务</td></tr>
 				</table></blockquote>
-				<p>仅仅安装<span class="blue"> mate </span>包组是不够的，还要选择安装<span class="blue"> mate-extra </span>包组中的一些组件来构建功能完整的桌面环境：</p>
+				<p>仅仅安装<span class="blue"> mate </span>包组是不够的，还要选择安装一些额外组件来构建功能完整的桌面环境：</p>
 				<blockquote><table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 					<tr><th style="width: 200px"><span class="blue">软件包名称</span></th><th style="width: 400px"><span class="blue">软件包介绍</span></th></tr>
 					<tr><td>mate-media</td><td>MATE桌面环境的音频控制器</td></tr>
@@ -433,6 +493,8 @@
 					<tr><td>engrampa</td><td>MATE桌面环境的归档管理器</td></tr>
 					<tr><td>eom</td><td>MATE之眼</td></tr>
 					<tr><td>pluma</td><td>MATE桌面环境的文本编辑器(不推荐安装，文本编辑bluefish更强大)</td></tr>
+					<tr><td>gnome-disk-utility</td><td>gnome刻盘工具，但没有gnome依赖，同样适合在MATE中使用</td></tr>
+					<tr><td>gnome-themes-standard</td><td>Adwaita的官方gtk2主题</td></tr>
 				</table></blockquote>
 				<p>MATE桌面环境推荐使用<span class="blue"> lightdm </span>作为登陆器：</p>
 				<blockquote># pacman -S lightdm-gtk-greeter<span>&nbsp;&nbsp;&nbsp;&nbsp;//lightdm会作为依赖被安装</span></blockquote>
@@ -482,7 +544,7 @@
 					</li>
 					<li>
 						<p>使用nautilus/thunar/caja等基于gvfs的文件管理器访问一些特殊的文件协议时需要安装额外的包：</p>
-						<blockquote># pacman -S gvfs-mtp<span>&nbsp;&nbsp;&nbsp;&nbsp;//访问内置存储的手机/mp3时会用到</span><br/># pacman -S gvfs-smb<span>&nbsp;&nbsp;&nbsp;&nbsp;//访问smaba文件服务时会用到</span></blockquote>
+						<blockquote># pacman -S gvfs-mtp<span>&nbsp;&nbsp;&nbsp;&nbsp;//访问内置存储的手机/mp3时会用到</span><br/># pacman -S gvfs-smb<span>&nbsp;&nbsp;&nbsp;&nbsp;//访问Windows共享分区和smaba文件服务时会用到</span></blockquote>
 					</li>
 					<li>
 						<p>使用dolphin等基于KDE技术的文件管理器访问mtp需要安装：</p>
@@ -501,30 +563,8 @@
 				<blockquote># systemctl enable kdm.service<span>&nbsp;&nbsp;&nbsp;&nbsp;//如果是KDE桌面环境，使用KDM作为登陆器</span><br/># systemctl enable gdm.service</blockquote>
 			</li><br/>
 			<li>
-				<p>安装完KDE桌面环境后需要安装中文语言包(可能会出现中文汉化不完全的问题)，修改编码：</p>
+				<p>修改环境编码(如<span class="blue"> gnome-terminal </span>在locale设置错误时会闪退)：</p>
 				<blockquote># vim /etc/locale.gen<span>&nbsp;&nbsp;&nbsp;&nbsp;//去掉<span class="blue">/etc/locale.gen</span>文件内中文编码<span class="blue"> zh_CN.UTF-8 </span>前的#号注释，为系统添加中文编码支持</span><br/># echo "LC_ALL=zh_CN.UTF-8" >> /etc/environment<br/># locale-gen<span>&nbsp;&nbsp;&nbsp;&nbsp;//使中文编码生效</span></blockquote>
-			</li><br/>
-			<li>
-				<p>使用KDE桌面环境时，默认是不会在家目录下生成用户文件夹的，故需要安装xdg工具：</p>
-				<blockquote># pacman -S xdg-user-dirs</blockquote>
-				<p>使用以下命令首次生成用户文件夹：</p>
-				<blockquote>$ xdg-user-dirs-update</blockquote>
-				<p>如果不慎删除了某个默认用户文件夹，使用如下命令强制重新生成家目录文件夹：</p>
-				<blockquote>$ xdg-user-dirs-update --force</blockquote>
-			</li><br/>
-			<li>
-				<p>在KDE桌面环境下的默认gtk程序惨不忍睹，安装KDE下的gtk配置以及gtk主题：</p>
-				<blockquote># pacman -S kde-gtk-config oxygen-gtk2 oxygen-gtk3</blockquote>
-			</li><br/>
-			<li>
-				<p>在KDE桌面环境中，推荐从AUR中安装全局菜单组件和bespin界面风格：</p>
-				<blockquote>$ yaourt -S kdeplasma-applets-menubar bespin-svn</blockquote>
-			</li><br/>
-			<li>
-				<p>安装KDE桌面环境的配套音乐播放器Amarok：</p>
-				<blockquote># pacman -S amarok</blockquote>
-				<p>如果后端采用<span class="blue"> gstreamer </span>，必须安装gs解码器才能播放mp3，ape等格式<span>(推荐使用vlc作为后端，可省去安装此解码器的过程。)</span>：</p>
-				<blockquote># pacman -S gst-plugins-good gst-plugins-bad gst-plugins-ugly<span>&nbsp;&nbsp;&nbsp;&nbsp;//使播放器能够播放mp3等格式</span><br/># pacman -S gst-libav<span>&nbsp;&nbsp;&nbsp;&nbsp;//使播放器能够播放ape等格式</span></blockquote>
 			</li><br/>
 			<li>
 				<p>设置完时区之后，有可能需要ntp服务才能同步事件(部分桌面环境不需要)：</p>
@@ -625,8 +665,8 @@
 				<p>安装AUR源里的wps:<br/>安装wps相对于别的平台要麻烦一些，由于wps是32位的程序，在64的ArchLinux中安装wps需要开启multilib源，去掉<span class="blue"> /etc/pacman.conf </span>文件中关于multilib源里的注释。然后用yaourt搜索wps并完成安装。</p>
 			</li><br/>
 			<li>
-				<p>安装虚拟机VirtualBox(在安装virtualbox-host-dkms同时需要安装linux-headers，用于编译vboxdrv等内核模块)：</p>
-				<blockquote># pacman -S virtualbox virtualbox-host-dkms linux-headers</blockquote>
+				<p>安装虚拟机VirtualBox(vritualbox依赖于virtualbox-host-dkms，同时需要安装linux-headers，用于编译vboxdrv等内核模块)：</p>
+				<blockquote># pacman -S virtualbox linux-headers</blockquote>
 				<p>虚拟机安装完成之后，需要启用内核中对应的虚拟机模块才能使虚拟机正常运行：</p>
 				<blockquote># modprobe vboxdrv</blockquote>
 				<p>如果需要使用桥接网卡，则需要挂载对应网络模块：</p>
@@ -902,8 +942,8 @@
 					</li>
 					<li>
 						<p>展示软件包的<span class="blue">依赖树</span>：</p>
-						<blockquote>$ pactree [<span class="blue">package_name</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出完整依赖树</span></blockquote>
-						<blockquote>$ pactree -r [<span class="blue">package_name</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//仅列出至手动安装包的依赖树</span></blockquote>
+						<blockquote>$ pactree [<span class="blue">package_name</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出指定软件包的依赖树</span></blockquote>
+						<blockquote>$ pactree -r [<span class="blue">package_name</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出软件包的反向依赖树(被哪些软件包依赖)</span></blockquote>
 					</li>
 				</ul>
 				<p><span class="blue"> pacman 5.0 </span>版本中加入了一些实用的<span class="blue">新功能</span>：</p>
