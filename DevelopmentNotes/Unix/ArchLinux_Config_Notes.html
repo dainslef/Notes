@@ -723,10 +723,22 @@
 				<p>关于 <span class="blue"> gconf/dconf </span>：</p>
 				<p>gconf/dconf是gnome系列桌面(包括gnome、Xfce、MATE等)下的配置管理机制，多数gtk+软件可通过其调整配置(类Windows下的注册表)。dconf是gnome桌面环境下的新一代配置管理工具，用于取代gnome2时代的gconf，相比之下，原先的gconf采用的是xml的格式明文保存配置，而gnome3之后的dconf采用二进制文件的形式保存配置。</p>
 				<p>使用dconf命令：</p>
-				<blockquote>$ dconf write [<span class="blue">配置路径</span>] [<span class="blue">配置值</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//向指定键值写入新的属性值</span><br/>$ dconf list [<span class="blue">配置路径</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出指定路径的属性值</span></blockquote>
+				<blockquote>
+					$ dconf list [<span class="blue">配置路径</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出指定路径的属性值</span><br/>
+					$ dconf read [<span class="blue">键值完整路径</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//读取指定键值的属性值</span><br/>
+					$ dconf write [<span class="blue">配置路径</span>] [<span class="blue">键值</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//向指定键值写入新的属性值</span><br/>
+				</blockquote>
 				<p>使用dconf设置MATE桌面的文件挂载显示：</p>
 				<blockquote>$ dconf write /org/mate/caja/desktop/volumes-visible false</blockquote>
 				<p><span class="blue"> dconf/gconf </span>对应的图形化前端为 <span class="blue"> dconf-editor/gconf-editor </span>，熟悉命令行操作则没有必要安装。</p>
+			</li><br/>
+			<li>
+				<p><span class="blue">plank </span>是一款不错的轻量级dock，采用<span class="blue"> dconf </span>作为配置，默认情况下，会生成一个名为<span class="blue"> dock1 </span>的配置，配置路径为<span class="blue"> /net/launchpad/plank/docks/dock1/ </span>，查看plank具有的配置选项：</p>
+				<blockquote>$ dconf list /net/launchpad/plank/docks/dock1/</blockquote>
+				<p>默认情况下，plank的配置中隐藏了dock自身的图标，开启plank自身的图标显示：</p>
+				<blockquote>$ dconf write /net/launchpad/plank/docks/dock1/show-dock-item true</blockquote>
+				<p>在plank已启动的情况下，从命令行打开plank的配置面板(配置的是<span class="blue">当前运行</span>实例的选项)：</p>
+				<blockquote>$ plank --preferences</blockquote>
 			</li><br/>
 				<li><p>ArchLinux的DNS配置在<span class="blue"> /etc/resolv.conf </span>文件中，修改DNS可以在该配置文件中加入：</p>
 				<blockquote>nameserver 114.114.114.114</blockquote>
@@ -866,6 +878,9 @@
 				<p>在<span class="blue"> 2015-1-27 </span>的更新中，<span class="blue"> network-manager-applet </span>包中取消了"网络连接"功能的图标，如果需要连接到DSL网络，需要从终端启动网络连接编辑器。执行指令：</p>
 				<blockquote>$ nm-connetion-editor</blockquote>
 				<p>即可启动网络连接编辑器，并从中添加<span class="blue"> DSL连接 </span>。</p>
+			</li><br/>
+			<li>
+				<p>在<span class="blue"> systemd </span><更新到<span class="blue"> 2.29 </span>版本之后，可能会出现关机等待90s才能正常关闭现象，同时关机时出现<span class="blue">"a stop job is running for session..."</span>的提示信息。出现问题的原因是在用户发出关机指令时，后台的某些重要进程依然在执行，systemd默认配置下会等待这些重要进程90s的超时时间，造成关机延迟。解决此问题可以修改systemd服务的配置文件<span class="blue"> /etc/systemd/system.conf </span>，将其中<span class="blue"> DefaultTimeoutStopSec </span>配置项的值设置为一个较短的时间即可。</p>
 			</li><br/>
 			<li>
 				<p>当ArchLinux装在VirtualBox中时(即ArchLinux作为guest)，启用增强功能的方式与其他Linux有所区别，在ArchLinux需要不必采用附加镜像安装增强功能的方式，而是直接安装官方仓库中的virtualbox-guest-utils包即可(该包依赖于virtualbox-guest-dkms)，如过需要增强功能随着内核升级而动态更新则需要安装dkms服务和linux-headers包，执行以下命令完成增强功能的安装：</p>

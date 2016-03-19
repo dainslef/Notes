@@ -162,7 +162,62 @@ Test
 
 
 
-##Java注解 *Annotation*
+##嵌套类 *Nested Classes*
+在Java中，嵌套类(`nested class`)是指定义在一个类内部的类，对应的，包含嵌套类的类被称为**外部类**(`enclosing class`)。
+嵌套类有以下几种类型：
+
+0. `member nested class`(成员嵌套类)：成员嵌套类 作为`enclosing class`的成员定义的，成员嵌套类有`enclosing class`属性。
+0. `local nested class`(局部嵌套类)：局部嵌套类定义在方法里面，局部嵌套类有`enclosing class`属性和`enclosing method`属性。
+0. `anonymous nested class`(匿名嵌套类)：匿名嵌套类没有显示的定义一个类，直接通过`new`操作符构造。
+
+几类嵌套类的特性：
+
+- `member nested class`可以使用访问控制符，也可以用`static``final`关键字修饰。
+- `local nested class`可以使用`final`关键字。
+- `anonymous nested class`不使用任何关键字和访问控制符。
+
+默认情况下，普通嵌套类内部不能定义`static`关键字修饰的成员，只有**静态嵌套类**(`static nested class`)内部才能定义`static`成员。
+静态嵌套类之外的所有嵌套类又被称为**内部类**(`inner class`)。
+静态嵌套类只能访问外部类的静态成员。
+如下代码所示：
+
+```java
+class EnclosingClass {
+
+	//成员嵌套类
+	class MemberNestedClass {
+
+		//static int a;			//错误，只有静态嵌套类才能在内部定义静态成员
+
+	}
+
+	//使用static关键字修饰的成员嵌套类为静态嵌套类
+	static class StaticMemberNestedClass {
+
+		static int a;			//正确，可以正常定义静态成员
+
+	}
+
+	void showLocalNestedClass() {
+
+		//局部嵌套类
+		class LocalNestedClass {
+		}
+
+	}
+
+	//匿名嵌套类
+	XXX xxx = new XXX {
+		@Override
+		...
+	}
+
+}
+```
+
+
+
+##注解 *Annotation*
 注解(元数据)是`JDK 1.5`之后引入的机制，可以声明在包、类、字段、方法、局部变量、方法参数等的前面，用来对这些元素进行说明和注释。
 注解的相关内容在包`java.lang.annotation`中。
 注解的基本语法为：
@@ -245,6 +300,555 @@ public class Main {
 
 输出结果：
 TestValue: Schwarzes marken 6
+
+
+
+##反射 *Reflection*
+在Java中，**反射(Reflection)**提供了一系列**运行时**功能：
+
+- 在运行时判断任意一个对象所属的类。
+- 在运行时构造任意一个类的对象。
+- 在运行时判断任意一个类所具有的成员变量和方法。
+- 在运行时调用任意一个对象的方法。
+- 生成**动态代理**。
+
+反射的相关API主要定义在`Class`类中。
+反射在Java各类框架中都有着大量的应用，如`Spring`中的IOC。
+
+###反射相关的类型
+在Java中，反射相关的类型定义在包`java.lang.reflect`中，主要有以下类型：
+
+- `Class`类型：表示一个类。
+- `Field`类型：表示类的成员变量(也称属性、字段)。
+- `Method`类型：表示类的成员方法。
+- `Constructor`类：表示类的构造方法。
+
+###构建 *Class* 对象
+构建`Class`对象可以通过以下方式：
+
+- `Type.class`，及通过类型的class成员获得。
+- `Class.forName("class_path")`，即通过类型名称获得，传入的类型字符串需要为完整路径。
+- `instance.getClass()`，通过具体实例的`getClass()`方法获得。
+
+###反射获取类成员
+通过反射获取类型**完整路径**：
+
+```java
+public static Class<?> forName(String var0) throws ClassNotFoundException;
+```
+
+获取类型成员的相关API一般分为两个版本，`getXXX()`用于获取**公有成员**，`getDeclaredXXX()`用于获取**所有成员**。
+`getXXX()`获取公有成员包括继承的成员，`getDeclaredXXX()`获取的所有成员只包括Class对应类中定义的成员，**不包括**继承的成员。
+获取类型的成员变量：
+
+```java
+public Field[] getFields() throws SecurityException;
+public Field[] getDeclaredFields() throws SecurityException;
+public Field getField(String var1) throws NoSuchFieldException, SecurityException;
+public Field getDeclaredField(String var1) throws NoSuchFieldException, SecurityException;
+
+```
+
+获取类型的成员方法：
+
+```java
+//无参重载版本用于获取所有定义方法
+public Method[] getMethods() throws SecurityException;
+public Method[] getDeclaredMethods() throws SecurityException;
+
+//有参重载版本用于获取指定的方法，var1参数为方法名，var2参数为变量类型(变长参数)
+public Method getMethod(String var1, Class... var2) throws NoSuchMethodException, SecurityException;
+public Method getDeclaredMethod(String var1, Class... var2) throws NoSuchMethodException, SecurityException;
+```
+
+获取类型的构造方法：
+
+```java
+//构造函数不存在继承关系，因而没有getXXX()和getDeclaredXXX()中的包含是否继承成员之间的区别
+public Constructor<?>[] getConstructors() throws SecurityException;
+public Constructor<?>[] getDeclaredConstructors() throws SecurityException
+public Constructor<T> getConstructor(Class... var1) throws NoSuchMethodException, SecurityException;
+public Constructor<T> getDeclaredConstructor(Class... var1) throws NoSuchMethodException, SecurityException
+
+//由内部类使用，用于获取外部类的构造方法，非内部类使用返回null
+public Constructor<?> getEnclosingConstructor() throws SecurityException
+```
+
+示例代码如下所示：
+
+```java
+package com.dainslef;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+class Base {
+
+	public int num = 666;
+
+	public Base() {}
+
+	public int getNum() {
+		return num;
+	}
+
+}
+
+class Test extends Base {
+
+	public int num0 = 0;
+	protected int num1 = 1;
+	private int num2 = 2;
+
+	public Test() {}
+
+	private Test(int num0, int num1, int num2) {
+		this.num0 = num0;
+		this.num1 = num1;
+		this.num2 = num2;
+	}
+
+	public int getNum0() {
+		return num0;
+	}
+
+	protected int getNum1() {
+		return num1;
+	}
+
+	private int getNum2() {
+		return num2;
+	}
+
+	private void getNum2(int num1, int num2) {
+		System.out.println(num1 + " " + num2);
+	}
+}
+
+public class Main {
+
+	public static void main(String[] args) throws ClassNotFoundException {
+
+		Class classTest = Class.forName("com.dainslef.Test");
+
+		System.out.println("Class Full Name:");
+		System.out.print(classTest.getName());
+
+		System.out.println("\n\nPublic Fileds:");
+		for (Field field : classTest.getFields())
+			System.out.print(field.getName() + " ");
+
+		System.out.println("\n\nAll Fileds: ");
+		for (Field field : classTest.getDeclaredFields())
+			System.out.print(field.getName() + " ");
+
+		//获取到了继承的方法
+		System.out.println("\n\nPublic Methods:");
+		for (Method method : classTest.getMethods())
+			System.out.print(method.getName() + " ");
+
+		//获取内容不包括继承方法，但包含定义的保护/私有方法
+		System.out.println("\n\nAll Methods:");
+		for (Method method : classTest.getDeclaredMethods())
+			System.out.print(method.getName() + " ");
+
+		//构造方法不存在继承的概念，因而只获取到当前类公有构造器
+		System.out.println("\n\nPublic Constructor:");
+		for (Constructor constructor : classTest.getConstructors())
+			System.out.print(constructor.getName() + " ");
+
+		System.out.println("\n\nAll Constructor:");
+		for (Constructor constructor : classTest.getDeclaredConstructors())
+			System.out.print(constructor.getName() + " ");
+
+		//对于非内部类，获取外部类的构造函数返回null
+		System.out.println("\n\nEnclosing Constructor:");
+		System.out.println(classTest.getEnclosingConstructor());
+	}
+}
+```
+
+运行输出结果：
+Class Full Name:
+com.dainslef.Test
+
+Public Fileds:
+num0 num
+
+All Fileds:
+num0 num1 num2
+
+Public Methods:
+getNum0 getNum wait wait wait equals toString hashCode getClass notify notifyAll
+
+All Methods:
+getNum0 getNum1 getNum2 getNum2
+
+Public Constructor:
+com.dainslef.Test
+
+All Constructor:
+com.dainslef.Test com.dainslef.Test
+
+Enclosing Constructor:
+null
+
+###反射构建类实例
+如果一个类定义了空参的构造函数，则可以直接通过`Class`类中的成员方法来构造对象。
+
+```java
+public T newInstance() throws InstantiationException, IllegalAccessException;
+```
+
+`Class`类中没有直接提供通过**有参构造函数**反射构建实例的方式。
+如果需要反射调用类的有参构造方法，则需要先获取其有参构造器(`Constructor`类型)，之后通过`Constructor`类的下列相关方法构造实例。
+通过反射可以实现通过**非公有**构建对象。
+
+```java
+public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
+public Constructor<T> getDeclaredConstructor(Class... var1) throws NoSuchMethodException, SecurityException;
+```
+
+实例如下代码所示：
+
+```java
+package com.dainslef;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+class Test {
+
+	int num = 0;
+
+	public Test() {}
+
+	private Test(int num) {
+		this.num = num;
+	}
+
+	public void showNum() {
+		System.out.println(num);
+	}
+
+}
+
+public class Main {
+
+	public static void main(String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+
+		//直接通过Class类调用无参构造函数
+		Test.class.newInstance().showNum();
+
+		//获取构造器对象
+		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
+		constructor.setAccessible(true);				//对于私有构造器默认是无法访问的，需要设置权限才能正常调用
+		constructor.newInstance(200).showNum();
+	}
+}
+```
+
+输出结果：
+0
+200
+
+###反射调用对象方法
+通过反射可以实现调用类的非公有方法，方式与调用构造函数基本类似。
+首先获取目标方法的`Method`对象，之后通过`Method`类的`invode()`方法执行，第一个参数为类的实例，之后的参数为方法签名中的参数。
+
+```java
+public Object invoke(Object var1, Object... var2) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+```
+
+与`Constructor`类似，如果获取到的`Method`对象代表的是非公有成员方法，则需要使用`setAccessible()`方法设置属性为可访问才能正常调用。
+实例代码如下，访问一个全部成员私有的类：
+
+```java
+package com.dainslef;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+class Test {
+
+	private int num = 0;
+
+	private Test(int num) {
+		this.num = num;
+	}
+
+	private void showNum(int num) {
+		System.out.println(this.num + num);
+	}
+
+}
+
+public class Main {
+
+	public static void main(String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+
+		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
+		constructor.setAccessible(true);			//设置私有构造器可访问
+
+		Test test = constructor.newInstance(200);	//通过私有构造器构造对象，并传入初值
+
+		Method method = Test.class.getDeclaredMethod("showNum", int.class);
+		method.setAccessible(true);					//设置方法的访问权限
+		method.invoke(test, 100);					//调用私有方法showNum()
+	}
+}
+```
+
+输出结果：
+300
+
+###反射修改字段
+通过反射亦可访问、修改类的非公有成员字段，方式类似。
+通过`Field`类的相关的`set()``get()`方法设置、获取字段内容：
+
+```java
+public void set(Object var1, Object var2) throws IllegalArgumentException, IllegalAccessException;
+public Object get(Object var1) throws IllegalArgumentException, IllegalAccessException;
+```
+
+`set()`方法中参数`var1`为要设置字段所属的对象，参数`var2`为设置的内容。
+`get()`方法同名参数作用相同。
+`set()``get()`方法接收的参数为`Object`类型，而对于基本类型，`Field`类中预先定义了一套方法，如`setInt()``getInt()``setBoolean()``getBoolean()`等，基本类型可直接使用这些方法以避免不必要的强制类型转换。
+
+```java
+package com.dainslef;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+
+class Test {
+
+	private int num = 0;
+
+	private Test(int num) {
+		this.num = num;
+	}
+
+	private void showNum(int num) {
+		System.out.println(this.num + num);
+	}
+
+}
+
+public class Main {
+
+	public static void main(String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+
+		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
+		constructor.setAccessible(true);
+		Test test = constructor.newInstance(200);
+
+		Field field = Test.class.getDeclaredField("num");
+		field.setAccessible(true);
+		System.out.println(field.getInt(test));
+		field.set(test, 300);
+		System.out.println(field.getInt(test));
+	}
+}
+```
+
+###类加载器 *ClassLoader*
+在Java中有三种类类加载器。
+
+0. `Bootstrap ClassLoader`引导类加载器，用于加载Java核心类。
+0. `Extension ClassLoader`扩展类加载器，它负责加载JRE的扩展目录(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系统属性指定)类包。
+0. `App ClassLoader`应用类加载器，通常类都由此加载器加载(包括`java.class.path`)。
+
+获取一个类的加载器使用`getClassLoader()`方法。
+展示一般应用类加载器：
+
+```java
+package com.dainslef;
+
+import java.lang.reflect.InvocationTargetException;
+
+class Test {
+}
+
+public class Main {
+
+	public static void main(String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException, ClassNotFoundException {
+
+		System.out.println(Main.class.getClassLoader().getClass().getName());
+		System.out.println(Class.forName("com.dainslef.Test").getClassLoader().getClass().getName());
+
+	}
+}
+```
+
+输出结果：
+sun.misc.Launcher$AppClassLoader
+sun.misc.Launcher$AppClassLoader
+
+
+
+##动态代理
+**动态代理**是Java反射机制的一种应用，能够动态地产生代理实例，避免为每一个接口编写大量的重复代理类代码。
+
+###代理模式
+**代理模式**是常见的设计模式，主要作用是通过创建**代理类**为其他对象提供一种代理，并以控制对这个对象的访问。
+代理模式常见的应用场景有：
+
+0. `RemoteProxy`远程代理，为一个位于不同的地址空间的对象提供一个本地的代理对象。这个不同的地址空间可以是在同一台主机中，也可是在另一台主机中。
+0. `Virtual Proxy`虚拟代理，根据需要创建开销很大的对象。如果需要创建一个资源消耗较大的对象，先创建一个消耗相对较小的对象来表示，真实对象只在需要时才会被真正创建。
+0. `Protection Proxy`保护代理，控制对原始对象的访问。保护代理用于对象应该有不同的访问权限的时候。
+0. `Smart Reference`智能指引，取代了简单的指针，它在访问对象时执行一些附加操作，扩充原有对象的功能。
+0. `Copy-on-Write`写时复制，它是虚拟代理的一种，把复制操作延迟到只有在客户端真正需要时才执行。
+
+在Java中代理模式的典型方式是使用接口定义功能，实现类实现接口功能，而代理类控制/扩充实现类功能。
+代理类与实现类都implements接口，但代理类本身不直接实现具体功能，而是调用被其代理的实现类的方法。
+
+###动态代理实例
+假设有一个文件接口`File`，定义了支持的文件操作：
+
+```java
+interface File {
+	String getName();
+	int getSize();
+}
+```
+
+`FileImpl`类实现文件接口：
+
+```java
+class FileImpl implements File {
+
+	@Override
+	public String getName() {
+		/*
+			Implements code...
+		*/
+	}
+
+	@Override
+	public int getSize() {
+		/*
+			Implements code...
+		*/
+	}
+}
+```
+
+使用静态代理，则应创建一个代理类用于控制之前的实现。
+代理类同样需要实现基础接口，但代理类不同于实现类，代理类使用别的接口实现类的实现而不是自身实现功能。
+代理类在调用实现类功能的同时，也可以加入自身的扩充功能。
+实现类以接口的形式被传入代理类，当一个接口有多种实现的时候，代理类能够针对每一种实现类都添加相同的功能，这就是所谓的AOP(面向切面编程)，代理类可以被视为是一个切面。
+
+```java
+class FileProxy implements File {
+
+	File file = null;
+
+	public FileProxy(File file) {
+		this.file = file;
+	}
+
+	@Override
+	public String getName() {
+		/*
+			do something before...
+		*/
+		String name = file.getName();
+		/*
+			do something after...
+		*/
+		return name;
+	}
+
+	@Override
+	public int getSize() {
+		/*
+			do something before...
+		*/
+		int size = file.getName();
+		/*
+			do something after...
+		*/
+		return size;
+	}
+}
+```
+
+代理类`FileProxy`能够在调用实现具体代码的同时加入扩充的功能。
+随着接口功能的扩充，代理类的代理方法数量也会增加，但代理类中很多方法的扩充代码可能相同的或是根本没有扩充代码，因而没有必要针对每一个方法编写代理方法，此时使用**动态代理**能够很方便地控制代码规模。
+动态代理使用`java.lang.reflect.Proxy`类中的`newProxyInstance`方法构建代理类实例：
+
+```java
+public static Object newProxyInstance(ClassLoader var0, Class<?>[] var1, InvocationHandler var2) throws IllegalArgumentException;
+```
+
+- `var0`参数为动态代理类的类加载器。
+- `var1`参数为代理类实现的接口的数组。
+- `var2`参数为动态代理的具体内容。
+
+var2参数的类型为`InvocationHand`接口，定义如下：
+
+```java
+public interface InvocationHandler {
+    Object invoke(Object var1, Method var2, Object[] var3) throws Throwable;
+}
+```
+
+- `var1`参数为代理类。
+- `var2`参数为调用的方法。
+- `var3`参数为对调用方法传入的参数。
+
+需要自行实现`InvocationHandler`接口，来实现动态代理的具体内容。
+以上文的`FileImpl`类为例，使用动态代理实现如下：
+
+```java
+class InvocationHandlerImpl implements InvocationHandler {
+
+	File file = null;
+
+	public InvocationHandlerImpl(File file) {
+		this.file = file;
+	}
+
+	//多个接口方法的代理扩展代码全部写在一个invoke()方法中
+	@Override
+	public Object invoke(Object var1, Method var2, Object[] var3) throws Throwable {
+		/*
+			do something before...
+		*/
+		Object object = Modifier.isStatic(var2.getModifiers()) ?
+			var2.invoke(var3) : var2.invoke(file, var3);
+		/*
+			do something after...
+		*/
+		return object;
+	}
+}
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		//类实现
+		File fileImpl = new FileImpl();
+
+		//代理规则
+		InvocationHandler invocationHandler = new InvocationHandlerImpl(fileImpl);
+
+		//生成动态代理对象
+		File file = (File)Proxy.newProxyInstance(fileImpl.getClass().getClassLoader(),
+			new Class[] { File.class }, invocationHandler);
+
+		//通过动态代理对象调用方法
+		file.getName();
+		file.getSize();
+	}
+
+}
+```
 
 
 
