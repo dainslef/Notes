@@ -3,6 +3,7 @@
  * Unix Socket通信，采用TCP方式
  * 服务端程序
  * 主要功能：使用IO复用(select)同时接受多个用户请求。
+ * 单线程版本，在一个select中同时处理连接和消息发送。
  * 每登录一个用户，系统会给予提示。
  * 每一个用发送的消息都能够显示在服务端并注明发送者。
  * 当用户发送close消息时关闭服务端和其它所有与服务端相连的客户端。
@@ -16,7 +17,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <netinet/in.h>
@@ -24,33 +24,11 @@
 #define USER_MAX 10						//定义最大用户数量
 #define MSG_SIZE 50						//定义单次发送字符串最大长度
 
-int sock_fd = 0;
-int max_fd = 0;							//设置最大描述符大小
-int user_count = 0;						//用户数量计数
-int client_fd[USER_MAX];				//用一个数组来保存所有用户的连接socket描述符
-
-void* get_accept(void* arg)
-{
-	while (1)
-	{
-		if ((client_fd[user_count] = accept(sock_fd, NULL, NULL)) == -1)
-			break;			//BSD系列在关闭socket时可能会产生新的请求
-		else
-		{
-			//最大文件描述符值为监听文件描述符集合中的最大值加1
-			if (client_fd[user_count] >= max_fd)
-				max_fd = client_fd[user_count] + 1;
-
-			write(client_fd[user_count], &user_count, 4);
-			printf("有用户加入socket！当前用户数量为：%d人。\n", ++user_count);
-		}
-	}
-
-	return NULL;
-}
-
 int main(void)
 {
+	int user_count = 0;						//用户数量计数
+	int client_fd[USER_MAX];				//用一个数组来保存所有用户的连接socket描述符
+
 	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock_fd == -1)
 	{
@@ -77,29 +55,36 @@ int main(void)
 		return 0;
 	}
 
-	//记录接收数据次数
-	int msg_count = 0;
-	//描述符集合
-	fd_set read_set;
-
-	//创建独立线程来接收请求
-	pthread_t thread_fd;
-	pthread_create(&thread_fd, NULL, get_accept, NULL);
+	int msg_count = 0;						//记录接收数据次数
+	int max_fd = sock_fd + 1;
+	fd_set read_set;						//描述符集合
 
 	while (1)
 	{
 		//select()调用每次运行前都需要置空，之后重设需要监听的文件描述符
 		FD_ZERO(&read_set);
+		FD_SET(sock_fd, &read_set);
 		for (int i = 0; i < user_count; i++)
 			FD_SET(client_fd[i], &read_set);
 
-		//设置select()超时时间，全部为0则不阻塞
-		struct timeval time;
-		time.tv_sec = 2;
-		time.tv_usec = 0;
+		//timeout参数取NULL时，会一直阻塞到有描述符准备好
+		if (select(max_fd, &read_set, NULL, NULL, NULL) > 0)
+		{
+			if (FD_ISSET(sock_fd, &read_set))
+			{
+				if ((client_fd[user_count] = accept(sock_fd, NULL, NULL)) == -1)
+					goto END;
+				else
+				{
+					//最大文件描述符值为监听文件描述符集合中的最大值加1
+					if (client_fd[user_count] >= max_fd)
+						max_fd = client_fd[user_count] + 1;
 
-		//select()返回变动的文件描述符数目
-		if (select(max_fd, &read_set, NULL, NULL, &time) > 0)
+					write(client_fd[user_count], &user_count, 4);
+					printf("有用户加入socket！当前用户数量为：%d人。\n", ++user_count);
+				}
+			}
+
 			for (int i = 0; i < user_count; i++)
 				if (FD_ISSET(client_fd[i], &read_set))
 				{
@@ -122,6 +107,7 @@ int main(void)
 						printf("第%d次接收，接收到来自用户[%d]的消息：%s\n", ++msg_count, i, message);
 					}
 				}
+		}
 	}
 
 END:

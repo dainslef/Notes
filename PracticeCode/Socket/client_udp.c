@@ -9,15 +9,20 @@
  * @author dainslef
  */
 
-#include <sys/socket.h>
 #include <stdio.h>
-#include <arpa/inet.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	char* str = NULL;
 	int sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (sock_fd == -1)
+	{
+		perror("初始化socket失败");
+		return 0;
+	}
 
 	if (argc != 2)
 	{
@@ -35,11 +40,11 @@ int main(int argc, char **argv)
 	printf("发送的内容：%s\n", str);
 
 	if (connect(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
-		perror("The wrong is: ");
+		perror("连接失败");
 	else
 	{
 		if (send(sock_fd, str, 50, 0) == -1)
-			perror("发送失败：");
+			perror("发送消息失败");
 	}
 
 	close(sock_fd);

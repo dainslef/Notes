@@ -27,6 +27,14 @@ example.o: example.cc
 	$(cc) -c example.cc
 
 
+makefile中的最终目标也可以是伪目标，如伪目标all代表所有目标的目标。
+一个makefile如果要编译多个不相关程序，则可将这多个程序作为all目标的依赖，如下所示：
+all: app1 app2
+app1: ...
+app2: ...
+可以在编译时分别使用 make app1 以及 make app2 来编译独立的部分。
+
+
 像shell脚本一样使用"$(变量名)"的形式来使用变量的内容($符号后的括号不可省略！)。
 makefile中有一些常用自动变量：
 $@	目标文件

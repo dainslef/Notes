@@ -10,16 +10,23 @@
  * @author dainslef
  */
 
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <stdio.h>
-#include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#define MSG_SIZE 50						//定义单次发送字符串最大长度
 
 int main(void)
 {
-	int sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
+	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock_fd == -1)
+	{
+		perror("初始化socket失败");
+		return 0;
+	}
 
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
@@ -27,16 +34,20 @@ int main(void)
 	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	if (bind(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
-		perror("The wrong is: ");
+	{
+		perror("绑定端口失败");
+		close(sock_fd);
+		return 0;
+	}
 
-	char str[50];
+	char message[MSG_SIZE];
 	while (1)
 	{
-		memset(str, 0, sizeof(char) * 50);
-		if (recv(sock_fd, str, 50, 0) == -1)
-			perror("接收失败：");
+		memset(message, 0, MSG_SIZE);
+		if (recv(sock_fd, message, MSG_SIZE, 0) == -1)
+			perror("接收失败");
 		else
-			printf("接收到消息：%s\n", str);
+			printf("接收到消息：%s\n", message);
 	}
 
 	close(sock_fd);

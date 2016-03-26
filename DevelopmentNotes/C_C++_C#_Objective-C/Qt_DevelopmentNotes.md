@@ -939,3 +939,7 @@ bool QTranslator::load(const QLocale& locale, const QString& filename, const QSt
 在已经安装了Qt的机器上出现此错误，一般为Qt的**环境变量**未正确配置。
 需要创建环境变量`QTDIR`，绑定的位置为Qt的主要目录(即包含有bin、include、lib等目录的路径)。
 需要将`%QTDIR%\bin`加入`PATH`环境变量中。
+
+###关于 *Cannot start the terminal emulator "xterm", change the setting in the Environment options.* 运行错误
+此错误在Linux/Unix环境下可能出现，QtCreator在项目选项中默认勾选了`Run in terminal`，此选项需要一个兼容QtCreator的终端，默认使用的是`xterm`，如果开启此选项需要安装`xterm`或其它QtCreator兼容的终端，没有安装`xterm`或终端运行指令配置不正确则会出现错误。
+可以在`Projects => [Config_name] => Run`选项中取消`Run in terminal`的勾选，则不会出现此错误。

@@ -89,8 +89,8 @@ int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 以上函数在执行成功时返回新的文件描述符，失败时返回**-1**并置**errno**。
 
 - `crate()`函数用于创建文件，`open()`函数既可用于创建文件(**flags**取`O_CREAT`)，也可用于打开文件，打开的对象也可以是**目录**。
-- 对于`create()`和`open()`函数，参数`pathname`代表文件所在路径绝对地址的字符数组首地址，参数`mode`代表创建的文件文件带有的默认权限，可以用逻辑或操作符连接以下参数：`S_IRUSR``S_IWUSR``S_IXUSR``S_IRGRP``S_IWGRP``S_IXGRP``S_IROTH``S_IWOTH``S_IXOTH`，分别代表**拥有者**、**同组用户**、其他用户的**读**、**写**、**执行**权限。
-- `open()`函数的`flags`参数表示文件打开时的参数，参数可取**多个**，以**逻辑或**操作符连接，常用的有`O_RDONLY``O_WRONLY``O_RDWR`，分别表示以**只读**、**只写**、**读写**的方式打开文件，默认每个文件描述符首次写操作会清除已有的数据，使用`O_APPEND`标志以追加的方式写入数据；`flags`参数取`O_CREAT | O_EXECL`时创建一个原先**不存在**的文件，如果需要被创建的文件已经存在了，则创建**失败**。
+- 对于`create()`和`open()`函数，参数`pathname`代表文件所在路径绝对地址的字符数组首地址，参数`mode`代表创建的文件文件带有的默认权限，可以用逻辑或操作符连接以下参数：`S_IRUSR``S_IWUSR``S_IXUSR``S_IRGRP``S_IWGRP``S_IXGRP``S_IROTH``S_IWOTH``S_IXOTH`，分别代表**拥有者**、**同组用户**、**其他用户**的**读**、**写**、**执行**权限。
+- `open()`函数的`flags`参数表示文件打开时的参数，参数可取**多个**，以**逻辑或**操作符连接，常用的有`O_RDONLY``O_WRONLY``O_RDWR`，分别表示以**只读**、**只写**、**读写**的方式打开文件，不设置这些标志将不能够对文件进行读写操作。默认每个文件描述符首次写操作会清除已有的数据，保留原有文件数据需要使用`O_APPEND`标志以追加的方式写入数据；`flags`参数取`O_CREAT | O_EXECL`时创建一个原先**不存在**的文件，如果需要被创建的文件已经存在了，则创建**失败**。
 - `openat()`函数作用与`open()`函数完全相同，但是`openat()`函数允许使用多种路径表示方式；`dirfd`文件描述符表示的路径为父目录，而`pathname`中包含的字符串为相对路径；或是`dirfd`取特殊值`AT_FDCWD`，则父目录为**当前路径**；也可以像`open()`函数一样在`pathname`中写入**绝对路径**，但此时`dirfd`的取值会被**忽略**。
 
 ###读取文件中的内容
@@ -157,7 +157,7 @@ return语句向函数**提供返回值**，只有main函数中return才会结束
 如果无法启动shell来运行这个命令，system()函数将返回错误代码127；其它错误返回-1，否则system()函数将返回该命令的退出码(一般命令都是0)。
 需要注意的是，在实际的Linux开发中，system()函数往往是很少被使用的，因为使用system()函数必须启动一个shell来执行需要的指令，使得system()函数的效率并不高。
 
-### *fork()* 调用
+### *fork()* 函数
 在Unix环境下，`fork()`系统调用是最常见的创建进程方式，函数定义在`unistd.h`中，函数原型为：
 
 ```c
@@ -218,7 +218,7 @@ End!
 由结果可知，`fork()`函数之前的`system("whoami")`函数只执行了一遍，因此shell指令`whoami`也只执行一遍。但在`fork()`函数之后的代码都执行了两遍，分别来自父进程和子进程的`printf()`函数向屏幕打印了两次`End!`。
 由`system("ps")`函数中执行的shell指令`ps`向屏幕中输出的结果可以看出，父进程的`ppid`是启动这个进程的shell的`pid`，而**子进程**的`ppid`就是**父进程**的`pid`。
 
-### *vfork()* 系统调用
+### *vfork()* 函数
 `vfork()`作用与`fork()`类似，函数定义在`unistd.h`中，如下所示：
 
 ```c
@@ -232,7 +232,7 @@ pid_t vfork(void);
 
 在Linux中，`fork()`与`vfork()`最终的内部实现都使用`do_fork()`。
 
-### *exec()* 系统调用
+### *exec()* 函数
 `exec()`系统调用，由一系列的相关函数组成，函数定义在`unistd.h`中，函数原型为：
 
 ```c
@@ -1244,7 +1244,7 @@ int main(void)
 
 
 
-##IO多路复用
+##IO多路复用(POSIX)
 在Unix中，posix定义了一系列IO多路复用机制，如`select()``pselect()``poll()`等调用。
 Linux和BSD还分别提供了增强的IO复用机制，在Linux中为`epoll`，在BSD中为`kqueue`。
 
@@ -1260,7 +1260,7 @@ int select(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_set
 - `readfds`参数为要监视的可读检测文件描述符集合。
 - `writefds`参数为要监视的可写检测文件描述符集合。
 - `errorfds`参数为要监视的错误检测文件描述符集合。
-- `timeout`参数为超时等待的时间，可以精确到**微秒**，取`NULL`时为`select()`为阻塞函数，超时为`0`是为非阻塞轮询。
+- `timeout`参数为超时等待的时间，可以精确到**微秒**，取`NULL`时为`select()`为阻塞函数，超时为`0`时立即返回(非阻塞)。
 
 结构`timeval`的定义为：
 
@@ -1285,28 +1285,38 @@ int FD_ISSET(fd, fd_set *fdset);
 - 使用`FD_CLR`从描述符集合中移除描述符。
 - 使用`FD_ISSET`检测描述符，若`fd`参数在描述符集合参数`fdset`中，返回非零值，否则返回`0`。
 
-每次调用`select()`前都需要重设描述符集合(执行`FD_ZERO`和`FD_SET`宏)。
 函数执行成功返回变化的描述符数量，监视的描述符无变化则返回`0`，调用失败返回`-1`。
-
-基本的`select()`函数代码框架为：
+基本的`select()`函数代码框架为(以检测文件描述符可读为例)：
 
 ```c
 int fd[fdcount];
-struct fd_set fdset;
+fd_set readset;
+struct timeval timeout;
 
-while(TRUE)
+while(1)
 {
 	//初始化并设置描述符集合，每次调用select()前都需要类似操作
-	FD_ZERO(&fdset);
-	FD_SET(fd[0], &fdset);
+	FD_ZERO(&readset);
+	FD_SET(fd[0], &readset);
 	...		//设置需要监视的描述符
 
-	if (select(maxfd, &fdset, NULL, NULL, timeout) > 0)
+	//timeval结构体在每次select()调用会被修改，需要重复设定超时结构体
+	timeout.tv_sec = /* seconds */;
+	timeout.tv_usec = /* microseconds */;
+
+	switch (select(maxfd, &readset, NULL, NULL, timeout))
 	{
+	case -1:
+		/* error... */
+		break;
+	case 0:
+		/* timeout... */
+		break;
+	default:
 		for (int i = 0; i < fdcount; i++)
 		{
 			//使用宏FD_ISSET判断文件描述符是否发生变化
-			if (FD_ISSET(fd[i], &fdset))
+			if (FD_ISSET(fd[i], &readset))
 			{
 				/* do something */
 			}
@@ -1318,6 +1328,12 @@ while(TRUE)
 	}
 }
 ```
+
+####*使用select()的一些注意事项*
+- `select()`处于阻塞状态时会被信号中断(当`select()`所处线程是信号处理线程时)。
+- 每次调用`select()`前都需要重设描述符集合(执行`FD_ZERO`和`FD_SET`宏)。
+- `timeval`结构体会在`select()`运行时被修改，因此，在需要设置超时时间的情况下，循环中每次调用`select()`之前都需要重新设置`timeval`结构体。
+- 对于**普通文件**描述符，无论**读、写、异常状态**，都是**始终准备好**的，因此在监控的描述符中如果存在**普通文件**，无论`timeout`参数取何值，`select()`都将**立即返回**。
 
 ### *pselect()* 调用
 `pselect()`函数由**POSIX**定义，是`select()`的完善版本，在早期的Unix中并不存在。
@@ -1468,3 +1484,192 @@ int main(void)
 ```
 
 在上述代码中，`pselect()`代码块被转移到了主线程之外，尽管依旧设置了`sigmask`，但由于信号由**主线程**而非`pselect()`所处线程处理，因而阻塞信号没有在`pselect()`等待期间阻塞，发送`SIGINT`和`SIGQUIT`等信号会**立即触发**信号处理函数。
+
+
+
+##IO多路复用(Epoll)
+`epoll`是`Linux`环境下**独有**的IO多路复用机制，在`Linux Kernel 2.6`之后被引入。
+传统的`select()`在描述符变化事件产生时需要使用`FD_ISSET`宏遍历测试所有描述符，因此随着监听描述符数量的增加性能会出现线性下降，而使用`epoll`则能直接获取到变化的描述符。
+`epoll`相关API定义在`sys/epoll.h`头文件中。
+
+### *epoll_create()* 函数
+使用`epoll_create()`初始化一个`epoll`描述符：
+
+```c
+int epoll_create(int size);
+```
+
+- `size`参数为支持的最大句柄数，从`Linux Kernel 2.6.8`之后，这个参数不再被要求。
+
+函数执行成功返回`epoll`描述符。执行失败返回`-1`，并置`errno`。
+
+### *epoll_ctl()* 函数
+使用`epoll_ctl()`添加、修改或删除监听描述符：
+
+```c
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+```
+
+- `epfd`参数为`epoll_create()`得到的`epoll`描述符。
+- `op`参数为要执行的操作，可取宏`EPOLL_CTL_ADD`(添加监听描述符)、`EPOLL_CTL_MOD`(修改描述符操作)、`EPOLL_CTL_DEL`(删除监听描述符)。
+- `fd`参数为被操作的描述符。
+- `event`参数为描述符`fd`对应的事件，不能取值`NULL`。
+
+函数执行成功返回`0`，执行失败返回`-1`并置`errno`。
+
+#### *epoll_event* 结构
+`event`参数的类型`epoll_event`结构体定义如下：
+
+```c
+struct epoll_event {
+	uint32_t events;		/* Epoll events */
+	epoll_data_t data;		/* User data variable */
+};
+```
+
+其中，`events`成员为文件描述符触发的条件，是一组标志，使用逻辑或操作符`|`相连，常用的有：
+
+- `EPOLLIN`描述符可读。
+- `EPOLLOUT`描述符可写。
+- `EPOLLPRI`描述符有紧急的数据可读。
+- `EPOLLET`将EPOLL设为`Edge Triggered`(ET，边缘触发)模式。不设置此标志则默认为`Level Triggered`(LT，水平触发)。
+- `EPOLLONESHOT`只监听一次事件。
+
+#### *epoll_data_t* 类型
+`epoll_event`结构体成员`data`的类型`epoll_data_t`联合体定义如下：
+
+```c
+typedef union epoll_data {
+	void *ptr;
+	int fd;
+	uint32_t u32;
+	uint64_t u64;
+} epoll_data_t;
+```
+
+`data`用来存放事件的对应数据。
+
+### *epoll_wait()* 函数
+完整监听描述符的设置之后，使用`epoll_wait()`函数等待事件触发：
+
+```c
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+```
+
+- `epfd`参数为`epoll_create()`得到的`epoll`描述符。
+- `events`参数为产生的事件集合，不能取`NULL`，函数会将产生的事件数据写入该地址中。
+- `maxevents`参数为最大事件数目，这个值不大于监听的描述符的数量。
+- `timeout`参数为超时时间，取`0`时立即返回(非阻塞)，取`-1`时永久阻塞直到事件产生或被信号中断。
+
+函数执行成功返回变化的描述符数量，返回值为`0`则等待超时。执行失败返回`-1`并置`errno`。
+
+###使用epoll的一些注意事项
+- `epoll_create()`创建的`epoll`描述符需要使用`close()`关闭。
+- `epoll`**不能**监听普通文件描述符，对于`read()`、`write()`调用而言，普通文件是**始终准备好**(always ready)的。在`epoll_ctl()`函数中尝试添加一个普通文件描述符则会得到`Operation not permitted`错误。
+- `epoll_create()`中的`size`参数虽然是被忽略的，但不要取`0`和**负值**，会得到`Bad file desriptor`错误。
+
+### *LT* 与 *ET* 模式
+`epoll`拥有两种工作模式，分别为`Level Triggered`(LT，水平触发)和`Edge Triggered`(ET，边缘触发)模式。
+
+- `LT`模式为`epoll`的默认工作模式，在该模式下，只要有数据可读/写，使用`epoll_wait()`都会返回。
+- `ET`模式只有描述符状态变化(从不可读/写变为可读/写)时才会另`epoll_wait()`返回，相比之下，`ET`模式更为高效。
+
+`LT`模式下，由于只要有数据读写就会触发事件，因此不必在一次`epoll`循环中尝试读尽所有的数据，有数据未读会继续触发触发事件，在下次触发的事件中读尽数据即可。`LT`模式下可以使用阻塞式IO也可以使用非阻塞IO。
+`LT`模式下基本的代码框架为：
+
+```c
+int epfd = epoll_create(size);
+
+struct epoll_event event;
+event.events = /* events type */;
+event.data = /* data */;
+
+if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
+	perror("epoll_ctl()出错");
+/*
+	添加其它需要监听的描述符...
+*/
+
+while (1)
+{
+	int count = 0, timeout = /* timeout */, maxevents = /* listen_fd_count */;
+	struct epoll_event events[maxevents];
+	switch (count = epoll_wait(epfd, events, maxevents, timeout))
+	{
+	case -1:
+		perror("epoll_wait()出错");
+		break;
+	case 0:
+		printf("epoll_wait()超时");
+		break;
+	default:
+		//epoll相比select的高效之处就是能直接处理变化的描述符无需遍历整个监听集合
+		for (int i = 0; i < count; i++)
+		{
+			if (events[i].events & EPOLLIN)
+			{
+				read(...);
+			}
+			else if (events[i].events & EPOLLOUT)
+			{
+				write(...);
+			}
+			/*
+				...
+			*/
+		}
+	}
+}
+```
+
+`ET`模式下，只有描述符在可读写状态发生改变时才会触发事件，因此，在`ET`模式下，必须一次读尽所有的数据，否则就会造成数据丢失。`ET`模式下，IO需要放在一个无限循环中进行，直到数据全部读出，IO操作置`ernno`为`EAGAIN`才终止。
+相比`LT`模式，`ET`模式触发`epoll`次数减少，效率更高，但`ET`模式下必须使用非阻塞IO。
+`ET`模式下的基本代码框架为：
+
+```c
+int epfd = epoll_create(size);
+
+struct epoll_event event;
+event.events = EPOLLET | /* events type */;			//默认为LT模式，需要显式使用EPOLLET标志才能设置为ET模式
+event.data = /* data */;
+
+if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
+	perror("epoll_ctl()出错");
+/*
+	添加其它需要监听的描述符...
+*/
+
+while (1)
+{
+	int count = 0, timeout = /* timeout */, maxevents = /* listen_fd_count */;
+	struct epoll_event events[maxevents];
+	switch (count = epoll_wait(epfd, events, maxevents, timeout))
+	{
+	case -1:
+		perror("epoll_wait()出错");
+		break;
+	case 0:
+		printf("epoll_wait()超时");
+		break;
+	default:
+		for (int i = 0; i < count; i++)
+		{
+			while (1)
+			{
+				if (events[i].events & EPOLLIN)
+				{
+					if (read(...) == -1 && ernno == EAGAIN)
+						break;
+				}
+				else if (events[i].events & EPOLLOUT)
+				{
+					if (write(...) == -1 && ernno == EAGAIN)
+						break;
+				}
+			}
+			/*
+				...
+			*/
+		}
+	}
+}

@@ -190,14 +190,14 @@ ssize_t recvmsg(int sockfd, struct msghdr *msg, int flags);
 ###客户端
 
 ```c
-#include <sys/socket.h>
 #include <stdio.h>
-#include <arpa/inet.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-	char *str = NULL;
+	char* str = NULL;
 	int sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
 
 	if (argc != 2)
@@ -216,10 +216,12 @@ int main(int argc, char **argv)
 	printf("发送的内容：%s\n", str);
 
 	if (connect(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
-		perror("The wrong is: ");
+		perror("连接失败");
 	else
+	{
 		if (send(sock_fd, str, 50, 0) == -1)
-			perror("发送失败：");
+			perror("发送消息失败");
+	}
 
 	close(sock_fd);
 	return 0;
@@ -229,12 +231,14 @@ int main(int argc, char **argv)
 ###服务端
 
 ```c
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <stdio.h>
-#include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#define MSG_SIZE 50						//定义单次发送字符串最大长度
 
 int main(void)
 {
@@ -246,16 +250,16 @@ int main(void)
 	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	if (bind(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
-		perror("The wrong is: ");
+		perror("绑定端口失败");
 
-	char str[50];
+	char message[MSG_SIZE];
 	while (1)
 	{
-		memset(str, 0, 50);
-		if (recv(sock_fd, str, 50, 0) == -1)
-			perror("接收失败：");
+		memset(message, 0, MSG_SIZE);
+		if (recv(sock_fd, message, MSG_SIZE, 0) == -1)
+			perror("接收失败");
 		else
-			printf("接收到消息：%s\n", str);
+			printf("接收到消息：%s\n", message);
 	}
 
 	close(sock_fd);
@@ -272,22 +276,26 @@ int main(void)
 ###客户端
 
 ```c
-#include <pthread.h>
 #include <stdio.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>		//inet_addr()函数
+
+#define MSG_SIZE 50						//定义单次发送字符串最大长度
 
 int sock_fd = 0;
 
 //线程函数用于处理接收的消息
 void* get_response(void* arg)
 {
-	char message[10] = { 0 };
-	if (recv(sock_fd, message, 10, 0) == -1)
-		perror("接收消息失败!\n");
+	char message[MSG_SIZE];
+	memset(message, 0, MSG_SIZE);
+
+	if (recv(sock_fd, message, MSG_SIZE, 0) == -1)
+		perror("接收消息失败");
 	else
 		if (!strcmp(message, "close"))
 		{
@@ -301,8 +309,6 @@ void* get_response(void* arg)
 
 int main(int argc, char **argv)
 {
-	int user_id = 0;
-	pthread_t thread_fd = 0;
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = 9999;
@@ -312,39 +318,41 @@ int main(int argc, char **argv)
 
 	if (sock_fd == -1)
 	{
-		perror("初始化socket失败：\n");
+		perror("初始化socket失败");
 		return 0;
 	}
 
 	if (connect(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 	{
-		perror("连接socket失败：\n");
+		perror("连接socket失败");
 		return 0;
 	}
 
-	recv(sock_fd, &user_id, 10, 0);
+	int user_id = 0;
+	recv(sock_fd, &user_id, 4, 0);
 	printf("登录为用户：[%d]\n", user_id);
+
+	pthread_t thread_fd;
 	pthread_create(&thread_fd, NULL, get_response, NULL);		//开辟一个线程用于接收服务端的关闭通知
 
-	int num = 0;
-	char str[50] = { 0 };
-
+	int count = 0;
 	while (1)			//使用循环连续发送消息
 	{
+		char message[MSG_SIZE];
+		memset(message, 0, MSG_SIZE);
+
 		printf("请输入要发送的内容： ");
-		scanf("%s", str);
-		printf("发送第%d次。\n", ++num);
-		if (send(sock_fd, str, 50, 0) == -1)
-			perror("发送失败：\n");
-		else if (!strcmp(str, "close"))
-		{
-			printf("关闭socket发送！\n");
-			break;
-		}
+		fgets(message, MSG_SIZE, stdin);
+
+		char* str = message;
+		while (*str++) if (*str == '\n') *str = 0;
+
+		printf("发送第%d次。\n", ++count);
+
+		if (send(sock_fd, message, MSG_SIZE, 0) == -1)
+			perror("发送消息失败");
 	}
 
-	//等待线程结束
-	pthread_join(thread_fd, NULL);
 	return 0;
 }
 ```
@@ -360,18 +368,19 @@ int main(int argc, char **argv)
 #include <unistd.h>
 
 #define USER_MAX 10						//定义最大用户数量
+#define MSG_SIZE 50						//定义单次发送字符串最大长度
 
-pthread_t thread_fd = 0;
+pthread_t thread_fd;
 int sock_fd = 0;
-int num = 0;							//记录接收数据次数
+int msg_count = 0;						//记录接收数据次数
 int user_count = 0;						//用户数量计数
-int client_fd[USER_MAX] = { 0 };		//用一个数组来保存所有用户的连接socket描述符
+int client_fd[USER_MAX];				//用一个数组来保存所有用户的连接socket描述符
 
 void* get_accept(void* arg)
 {
 	if ((client_fd[user_count] = accept(sock_fd, NULL, NULL)) == -1)
 	{
-		perror("接收请求失败!\n");
+		perror("接收请求失败");
 		return NULL;		//BSD系统上client关闭socket会产生新的请求，创建失败直接退出
 	}
 	else 					//每次成功接受新请求就新开启一个线程，让新线程来阻塞继续等待请求
@@ -379,27 +388,27 @@ void* get_accept(void* arg)
 
 	int user_id = user_count++;			//定义用户id
 	printf("有用户加入socket！当前用户数量为：%d人。\n", user_count);
-	send(client_fd[user_id], &user_id, 10, 0);
+	send(client_fd[user_id], &user_id, sizeof(user_id), 0);
 
 	while (1)
 	{
-		char message[50];
-		memset(message, 0, 50);
+		char message[MSG_SIZE];
+		memset(message, 0, MSG_SIZE);
 
-		if (recv(client_fd[user_id], message, 50, 0) == -1)
-			perror("接收消息失败：\n");
+		if (recv(client_fd[user_id], message, MSG_SIZE, 0) == -1)
+			perror("接收消息失败");
 		else
 		{
 			if (!strcmp(message, "close"))
 			{
 				printf("收到关闭命令！\n关闭socket端口监听！\n");
 				for (int i = 0; i < user_count; i++)		//收到关闭信息之后向所有客户端发送关闭消息
-					send(client_fd[i], message, 10, 0);
+					send(client_fd[i], message, MSG_SIZE, 0);
 				break;
 			}
 			else if (!strcmp(message, ""))					//应对用户关闭socket时可能产生的空消息
 				break;
-			printf("第%d次接收，接收到来自用户[%d]的消息：%s\n", ++num, user_id, message);
+			printf("第%d次接收，接收到来自用户[%d]的消息：%s\n", ++msg_count, user_id, message);
 		}
 	}
 
@@ -417,13 +426,13 @@ int main(void)
 
 	if (bind(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 	{
-		perror("绑定端口失败！\n");
+		perror("绑定端口失败");
 		return 0;
 	}
 
 	if (listen(sock_fd, USER_MAX) == -1)
 	{
-		perror("监听端口失败！\n");
+		perror("监听端口失败");
 		return 0;
 	}
 
@@ -437,19 +446,21 @@ int main(void)
 ###服务端(使用select()轮询)
 
 ```c
-#include <pthread.h>
 #include <stdio.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <netinet/in.h>
 
 #define USER_MAX 10						//定义最大用户数量
+#define MSG_SIZE 50						//定义单次发送字符串最大长度
 
 int sock_fd = 0;
 int max_fd = 0;							//设置最大描述符大小
 int user_count = 0;						//用户数量计数
-int client_fd[USER_MAX] = { 0 };		//用一个数组来保存所有用户的连接socket描述符
+int client_fd[USER_MAX];				//用一个数组来保存所有用户的连接socket描述符
 
 void* get_accept(void* arg)
 {
@@ -463,7 +474,7 @@ void* get_accept(void* arg)
 			if (client_fd[user_count] >= max_fd)
 				max_fd = client_fd[user_count] + 1;
 
-			write(client_fd[user_count], &user_count, 10);
+			write(client_fd[user_count], &user_count, 4);
 			printf("有用户加入socket！当前用户数量为：%d人。\n", ++user_count);
 		}
 	}
@@ -481,25 +492,20 @@ int main(void)
 
 	if (bind(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 	{
-		perror("绑定端口失败！\n");
+		perror("绑定端口失败");
 		return 0;
 	}
 
 	if (listen(sock_fd, USER_MAX) == -1)
 	{
-		perror("监听端口失败！\n");
+		perror("监听端口失败");
 		return 0;
 	}
 
 	//记录接收数据次数
-	int num = 0;
+	int msg_count = 0;
 	//描述符集合
-	struct fd_set read_set;
-
-	//设置select()超时时间，全部为0则不阻塞
-	struct timeval time;
-	time.tv_sec = 0;
-	time.tv_usec = 0;
+	fd_set read_set;
 
 	//创建独立线程来接收请求
 	pthread_t thread_fd = 0;
@@ -512,30 +518,40 @@ int main(void)
 		for (int i = 0; i < user_count; i++)
 			FD_SET(client_fd[i], &read_set);
 
+		//设置select()超时时间，全部为0则不阻塞
+		struct timeval time;
+		time.tv_sec = 2;
+		time.tv_usec = 0;
+
 		//select()返回变动的文件描述符数目
 		if (select(max_fd, &read_set, NULL, NULL, &time) > 0)
 			for (int i = 0; i < user_count; i++)
 				if (FD_ISSET(client_fd[i], &read_set))
 				{
-					char message[50] = { 0 };
+					char message[MSG_SIZE];
+					memset(message, 0, MSG_SIZE);
 
-					if (read(client_fd[i], message, 50) == -1)
-						perror("接收消息失败：\n");
+					if (read(client_fd[i], message, MSG_SIZE) == -1)
+						perror("接收消息失败");
 					else
 					{
+						if (!strcmp(message, ""))
+							continue;
 						if (!strcmp(message, "close"))
 						{
 							printf("收到关闭命令！\n关闭socket端口监听！\n");
 							for (int i = 0; i < user_count; i++)		//收到关闭信息之后向所有客户端发送关闭消息
-								write(client_fd[i], message, 10);
+								write(client_fd[i], message, MSG_SIZE);
 							goto END;
 						}
-						printf("第%d次接收，接收到来自用户[%d]的消息：%s\n", ++num, i, message);
+						printf("第%d次接收，接收到来自用户[%d]的消息：%s\n", ++msg_count, i, message);
 					}
 				}
 	}
 
 END:
+	for (int i = 0; i < user_count; i++)
+		close(client_fd[i]);
 	close(sock_fd);
 	return 0;
 }
