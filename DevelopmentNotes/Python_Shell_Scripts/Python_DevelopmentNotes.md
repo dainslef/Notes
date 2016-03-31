@@ -58,6 +58,16 @@ list中的数据可以是另一个list，访问方式类似**二维数组**。
 [[1, 2, 3], 'second', 'third']
 ```
 
+反转列表：
+
+```python
+>>> l.reverse()
+>>> l
+['third', 'second', [1, 2, 3]]
+```
+
+
+
 ###元组 *tuple*
 tuple与list类似，但tuple中的数据**不可修改**，因此没有`append()``insert()``pop()`之类的方法。
 tuple可以像数组一样通过下标访问，但不能对其赋值：
@@ -165,6 +175,65 @@ set是一组没有value的key的集合，set中的内容是**不可重复**的�
 >>> d = { i: i + 1 for i in range(0, 10) if i % 3 == 0 }
 >>> d
 {0: 1, 9: 10, 3: 4, 6: 7}
+```
+
+###切片
+Python中的`list`、`tuple`支持**切片**操作。
+切片语法：
+
+```python
+var[start:end:step]
+```
+
+`start`为起始下标，`end`为结束下标，`step`为步进数(默认为`1`)。
+范围为`[start, end)`，即获取下标`start`到`end - 1`之间的内容。
+下标`start`和`end`的值可以超过容器界限，等价于一直取值到容器的末尾。
+如下所示：
+
+```python
+>>> t = (1, 2, 3, 4, 5)
+#获取下标1到3范围之间的内容
+>>> t[1:4]
+(2, 3, 4)
+#获取下标1及其之后的内容
+>>> t[1:]
+(2, 3, 4, 5)
+#获取下标4之前的内容
+>>> t[:4]
+(1, 2, 3, 4)
+#索引超过容器的边界则相当于取到容器结束
+>>> t[:100] #等价于 t[:]
+(1, 2, 3, 4, 5)
+#逆序索引切片
+>>> t[-4:-1]
+(2, 3, 4)
+#返回以2为间隔的内容
+>>> t[::2]
+(1, 3, 5)
+#返回以3为间隔的内容
+>>> t[::3]
+(1, 4)
+#返回以-1为间隔的内容(倒序输出)
+>>> t[::-1]
+(5, 4, 3, 2, 1)
+```
+
+Python中变量皆为引用，使用赋值操作符只是复制引用，但使用切片能够实现容器**值复制**：
+
+```python
+>>> l0 = [1, 2, 3]
+>>> l1 = l0
+>>> l1[0] = 100
+>>> l1
+[100, 2, 3]
+>>> l0 #引用复制，l1内容改变，l0也会随之改变
+[100, 2, 3]
+>>> l2 = l0[:] #切片重新生成容器，非引用复制
+>>> l2[0] = 1000
+>>> l2
+[1000, 2, 3]
+>>> l0 #l0的值并未发生变化
+[100, 2, 3]
 ```
 
 
@@ -466,6 +535,7 @@ Num4 is: 4
 
 ```python
 class Test:
+
 	def __init__(self, num1, num2):
 		self.num1 = num2	#实例变量定义无需单独声明，在构造函数中定义即可在整个类中使用
 		self.num2 = num1
@@ -914,24 +984,31 @@ Python提供了包管理器**pip**用于管理模块。
 
 ```sh
 $ wget https://bootstrap.pypa.io/get-pip.py
-$ sudo python3 get-pip.py
+$ sudo python3 get-pip.py						#将pip安装到系统目录(Linux下需要root权限)
+$ python3 get-pip.py --user						#将pip安装到用户目录
 ```
 
-在Linux下，安装**pip**需要root权限，pip包以及Python模块被安装在路径`/usr/lib/python[version]/site-packages/`下，没有root权限则不能对该目录进行写入操作。
+系统目录下的Python包是所有用户共享的，用户目录下的Python包只有所有者可访问。
+在Linux下，安装**pip**到系统目录需要需要root权限， 系统共享Python模块被安装在路径`/usr/lib/python[version]/site-packages`中，没有root权限则不能对该目录进行写入操作。
+安装Python模块到用户目录下则无需root权限，在Linux下，用户个人Python模块被安装在路径`~/.local/lib/python[version]/site-packages`中，同时，还会在`~/.local/bin`路径下生成可执行脚本，将此路径加入`PATH`即可在命令行中直接使用安装的模块。
 **pip**包管理器的使用方式类似于Linux发行版的包管理器，常见操作如下：
 
 ```sh
 $ sudo pip install [package_name]				#安装包
 $ sudo pip uninstall [package_name]				#移除包
 $ sudo pip install --upgrade [package_name]		#升级指定包
+$ pip install --user [package_name]				#安装指定包到用户目录
 $ pip list										#列出已安装的包
 $ pip list --outdated							#列出可以升级的包
+$ pip show [package_name]						#显示包的详细信息
+$ pip show --files [package_name]				#列出包安装的文件列表
 ```
 
 在Linux下，一些由发行版自身的包管理器(apt、yum、dnf、pacman等)安装的Python模块也会显示在`pip list`指令的输出中，但这些模块通常被系统的某些组件依赖，尝试删除这些模块时会收到`DEPRECATION`(反对)，提示这些模块是由**distutils**(发行版工具)安装的，一般情况下，除非必要，不要删除这些由发行版包管理器安装的Python模块。
 
-在**OS X**中，使用**homebrew**安装Python时会自动安装pip，无需额外安装，使用pip时也**无需**root权限。
-在**OS X**中，第三方Python包被安装在路径`/usr/local/lib/python[version]/site-packages/`下。
+在`OS X`中，使用**homebrew**安装Python时会自动安装pip，无需额外安装，使用pip时也**无需**root权限。
+在`OS X`中，共享的Python模块被安装在路径`/usr/local/lib/python[version]/site-packages/`下，个人Python模块被安装在路径`~/Library/Python/[version]/lib/python/site-packages`下。
+在`OS X`中，Python模块安装到系统目录同时会在`/usr/local/bin`路径下生成可执行脚本，安装到用户目录则会在`~/Library/Python/[version]/bin`路径下生成可执行脚本。
 
 
 

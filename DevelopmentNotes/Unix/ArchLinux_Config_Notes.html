@@ -726,10 +726,35 @@
 				<blockquote>
 					$ dconf list [<span class="blue">配置路径</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出指定路径的属性值</span><br/>
 					$ dconf read [<span class="blue">键值完整路径</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//读取指定键值的属性值</span><br/>
-					$ dconf write [<span class="blue">配置路径</span>] [<span class="blue">键值</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//向指定键值写入新的属性值</span><br/>
+					$ dconf write [<span class="blue">配置路径</span>] [<span class="blue">键值</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//向指定键值写入新的属性值</span>
 				</blockquote>
+				<p>用户的<span class="blue">gconf</span>配置位于目录<span class="blue"> ~/.config/gconf </span>中。</p>
+				<p>用户的<span class="blue">dconf</span>配置存储于<span class="blue"> ~/.config/dconf/user </span>文件中，删除此文件即可恢复默认的dconf配置。默认情况下，删除使用了dconf作为配置选项的程序时，对应程序的dconf选项并不会被清除，需要手动删除dconf配置文件才能清除对应的dconf值。</p>
+				<p>使用dconf设置MATE桌面的GTK主题：</p>
+				<blockquote>$ dconf write /org/mate/desktop/interface/gtk-theme [<span class="blue">主题名称</span>]</blockquote>
 				<p>使用dconf设置MATE桌面的文件挂载显示：</p>
 				<blockquote>$ dconf write /org/mate/caja/desktop/volumes-visible false</blockquote>
+				<p>使用dconf设置MATE桌面的字体：</p>
+				<blockquote>
+					$ dconf write /org/mate/desktop/interface/font-name [普通字体名称]<br/>
+					$ dconf write /org/mate/desktop/interface/document-font-name [文档字体名称]<br/>
+					$ dconf write /org/mate/desktop/interface/monospace-font-name [等宽字体名称]
+				</blockquote>
+				<p>使用dconf设置MATE桌面的触摸板选项：<p>
+				<blockquote>
+					$ dconf write /org/mate/desktop/peripherals/touchpad/natural-scroll true<span>&nbsp;&nbsp;&nbsp;&nbsp;//开启触摸板自然滚动</span><br/>
+					$ dconf write /org/mate/desktop/peripherals/touchpad/scroll-method 2<span>&nbsp;&nbsp;&nbsp;&nbsp;//设置滚动方式为双指滚动</span><br/>
+					$ dconf write /org/mate/desktop/peripherals/touchpad/tap-to-click true<span>&nbsp;&nbsp;&nbsp;&nbsp;//开启触摸板轻触点击</span>
+				</blockquote>
+				<p>一些重要的dconf路径：<p>
+				<blockquote>
+					/org/mate/desktop/peripherals/touchpad/<span>&nbsp;&nbsp;&nbsp;&nbsp;//触摸板选项</span><br/>
+					/org/mate/desktop/interface/<span>&nbsp;&nbsp;&nbsp;&nbsp;//界面配置</span><br/>
+					/org/mate/desktop/font-rendering/<span>&nbsp;&nbsp;&nbsp;&nbsp;//字体渲染</span><br/>
+					/org/mate/desktop/power-manager/<span>&nbsp;&nbsp;&nbsp;&nbsp;//电源选项</span>
+					/org/mate/desktop/settings-daemon/plugins/media-keys/<span>&nbsp;&nbsp;&nbsp;&nbsp;//配置多媒体按键</span><br/>
+					/org/mate/desktop/settings-daemon/plugins/xrandr/<span>&nbsp;&nbsp;&nbsp;&nbsp;//配置监视器选项</span><br/>
+				</blockquote>
 				<p><span class="blue"> dconf/gconf </span>对应的图形化前端为 <span class="blue"> dconf-editor/gconf-editor </span>，熟悉命令行操作则没有必要安装。</p>
 			</li><br/>
 			<li>
