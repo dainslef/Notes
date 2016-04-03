@@ -263,7 +263,6 @@ private:
 int main(void)
 {
 	S s = { 1, 2 };
-
 	return 0;
 }
 ```
@@ -271,15 +270,15 @@ int main(void)
 统一初始化特性还可以用在动态分配数组上，并且用于赋值的等号也可以省略，如下所示：
 
 ```cpp
-int a[3]{ 1, 2, 3 };
-int* b = new int[3]{ 1, 2, 3 };
+int a[3] { 1, 2, 3 };
+int* b = new int[3] { 1, 2, 3 };
 ```
 
 STL中多数容器都已支持了列表初始化：
 
 ```cpp
-std::vector<int> v{ 1, 2, 3 };
-std::map<int, int> m{ {1, 6}, {2, 6}, {3, 6} };
+std::vector<int> v { 1, 2, 3 };
+std::map<int, int> m { {1, 6}, {2, 6}, {3, 6} };
 ```
 
 即使是单个变量，也可以使用列表初始化：
@@ -436,7 +435,7 @@ printf("%d %d\n", a, ++a);
 1 1		(gcc 4.9.2 && ArchLinux x86_64)
 0 1		(clang 3.5.1 && ArchLinux x86_64)
 
-在`clang`中会给出警告，`warning: unsequenced modification and access to 'a' `，即无序地修改和存取变量`a`。
+在`clang`中会给出警告，`warning: unsequenced modification and access to 'a'`，即无序地修改和存取变量`a`。
 
 ```c
 int a[5] = { 1, 2, 3, 4, 5 };
@@ -542,7 +541,7 @@ int main(void)
 {
 	A* a = new B;
 	cout << a->get() << endl;		//正确，调用子类实现，输出200
-	cout << B().get() << endl;		//错误，提示 " within this context "
+	cout << B().get() << endl;		//错误，提示"within this context"
 	return 0;
 }
 ```
@@ -809,7 +808,7 @@ int main(void)
 
 ###注意事项
 需要注意的是，无论左值引用或是右值引用本身都是左值，因此虽然不能直接对右值取地址，但是可以对右值引用取地址。
-引用一但绑定就不可更改，因此引用与指针不同，指针分为指向`const`内容的指针`const 类型名 *指针名`和自身保存地址不可变的`const`指针`类型名* const 指针名`，而引用本身一定是不可变的，因此只有绑定`const`值的引用`const 类型名& 引用名`，而没有真正的`const`引用，`类型名& const 引用名`这样的定义是不被编译器允许的。
+引用一但绑定就不可更改，因此引用与指针不同，指针分为指向`const`内容的指针`const 类型名* 指针名`和自身保存地址不可变的`const`指针`类型名* const 指针名`，而引用本身一定是不可变的，因此只有绑定`const`值的引用`const 类型名& 引用名`，而没有真正的`const`引用，`类型名& const 引用名`这样的定义是不被编译器允许的。
 举例：
 
 ```cpp
@@ -1002,14 +1001,14 @@ int main(void)
 - 模版函数如果使用了非类型形参，则在调用该模版函数时必须显式指定模版实参，因为编译器只能推导模版类型，非类型的模版参数需要显式地指定。
 
 ###模版形参默认值
-- `C++11`之前可以为模版类的类型形参提供默认值，但不能为模板函数的类型形参提供默认值。模板函数和模板类都可以为模板的非类型形参提供默认值。
-- `C++11`之后，无论模版函数或是模版类的类型形参和非类型形参都可以拥有默认值(`g++ 4.9.2``vs 2013`测试通过)。
+- `C++11`之前可以为**模版类**的**类型形参**提供默认值，但**不能**为**模板函数**的**类型形参**提供默认值。模板函数和模板类都**可以**为模板的**非类型形参**提供默认值。
+- `C++11`之后，无论模版函数或是模版类的类型形参和非类型形参都可以拥有默认值(`g++ 4.9.2`和`vs 2013`测试通过)。
 - 模版形参默认值的用法类似于函数参数形参默认值，即从第一个有默认值的形参开始，之后的形参都应拥有默认值，并且形参默认值在声明或定义只需要出现一处即可。
 - 即使一个模版类的所有模版形参都拥有默认值，全部采用默认参数来实例化这个模版类时类名之后依然需要有一对空的尖括号`>`来表示实例化的是一个模版类。
 
 ###模板与重载
 C++中模板是在编译时根据实例化时使用的**模版参数**编译成对应的函数，因此，如果一个模板类成员函数(无论是否静态)在确定了类型之后与原有的成员函数原型发生冲突则在编译时就会报错。同样的，即使模板函数在使用某种类型时可能与已有的函数原型发生冲突，但只要没使用该类型，就能通过编译(全局函数不受此限制，即使模板函数原型与某个普通函数完全相同时，依然可以通过编译)。
-举例：(需要`C++1y`支持)
+举例：(需要`C++14`支持)
 
 ```cpp
 template <typename T>
@@ -1106,6 +1105,121 @@ T func<T, int>(T t, int s)		//error
 
 C++不允许模版函数偏特化，`偏特化`的模版函数在编译时会报错，提示`error: function template partial specialization is not allowed`。
 
+###模版递归
+C++中，模版函数与模版类皆可正常进行递归展开，模版递归需要使用**模版特化**作为递归结束标志，防止模版被无限展开。
+使用递归模版函数计算**斐波那契数列**：
+
+```cpp
+#include <iostream>
+
+template <int num>
+int fibonacci()
+{
+	return fibonacci<num - 1>() + fibonacci<num - 2>();
+}
+
+template <>
+int fibonacci<0>()
+{
+	return 0;
+}
+
+template <>
+int fibonacci<1>()
+{
+	return 1;
+}
+
+int main(void)
+{
+	std::cout << fibonacci<10>() << std::endl;
+	return 0;
+}
+```
+
+由于模版展开是在**编译时**进行的，利用模版递归特性可以让一些计算在编译时发生，提升代码效率。
+利用模版在编译时计算**斐波那契数列**：
+
+```cpp
+#include <iostream>
+
+template <int num>
+class Fibonacci
+{
+public:
+	//利用静态变量保存计算结果，静态变量值在编译时计算完成
+	//也可以使用"const static"变量，初始化代码可以直接写在类的内部
+	static int value;
+};
+
+template <int num>
+int Fibonacci<num>::value = Fibonacci<num - 1>::value + Fibonacci<num - 2>::value;
+
+template <>
+class Fibonacci<0>
+{
+public:
+	static int value;
+};
+int Fibonacci<0>::value = 0;
+
+template <>
+class Fibonacci<1>
+{
+public:
+	static int value;
+};
+int Fibonacci<1>::value = 1;
+
+int main(void)
+{
+	//使用g++能正常输出结果：55，但clang++并没有在编译时确定静态变量的值，输出结果：0
+	//静态成员变量value的值在编译时已经确定，不在运行时计算，更高效
+	std::cout << Fibonacci<10>::value << std::endl;
+	return 0;
+}
+```
+
+###变长模版
+`C++11`加入了**变长模版**特性，使用`template <typename... T>`或`template <class... T>`来表示有数目不定的模版参数。
+定义变长模版变量写成`T... arg_name`，调用变长模版变量也要在参数名称后加上引号，写成`arg_name...`。
+使用`sizeof...`操作符可以计算模版参数包的个数(**不是**类型大小)。
+通过模版类型的**自动推导**，变长的模版参数包可以使用**递归**的方式逐一取出参数，如下所示，计算一个变长序列之和：
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+//定义模版函数的推导终止点，防止无限递归
+template <class T>
+T count(const T& t)
+{
+	return t;
+}
+
+template <class T, class... Args>
+T count(const T& t, const Args&... args)
+{
+	return count(args...) + t;
+}
+
+int main(void)
+{
+	cout << count(100) << endl;
+	cout << count(100, 200) << endl;
+	cout << count(100, 200, 300) << endl;
+	cout << count(100, 200, 300, 400) << endl;
+	return 0;
+}
+```
+
+输出结果：
+100
+300
+600
+1000
+
 ###禁止特定类型的模板参数
 `C++11`之后，可以禁止接受某种类型做为模板参数，使用`delete`关键字将模板函数的某种实现标记为**删除**的，如下所示：
 
@@ -1188,13 +1302,13 @@ static_cast(expr, expr_str);
 
 using namespace std;
 
-class Base {};
+class Base { };
 
-class Der : public Base {};
+class Der : public Base { };
 
-class Private : Base {};
+class Private : Base { };
 
-class Other {};
+class Other { };
 
 int main(void)
 {
@@ -1372,7 +1486,7 @@ iterator rend();
 vector<int> vector_int;						//创建容器对象
 vector<int>::iterator iterator_int;			//创建迭代器对象
 iterator_int = vector_int.begin();			//初始化迭代器
-iterator_int = std::begin(vector_int);		//c++11风格的迭代器初始化
+iterator_int = std::begin(vector_int);		//C++11风格的迭代器初始化
 ++iterator_int;								//迭代器向下移动一个位置
 --iterator_int;								//迭代器返回上一个位置
 *iterator_int;								//取出迭代器在当前位置的内容

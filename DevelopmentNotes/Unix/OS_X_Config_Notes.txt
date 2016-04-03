@@ -45,12 +45,15 @@ iTerm2										//OS X下的终端模拟器，比自带的功能更强大
 ----
 
 一些特殊目录 >
-~/Library/Caches/							//缓存目录
-~/Library/Application Support/				//用户程序配置目录
-/Library/Application Support/				//系统程序配置目录
-/System/Library/Fonts/						//系统默认字体目录
-/Library/Fonts/								//系统可选字体目录
-~/Library/Fonts/							//用户字体目录
+~/Library/Fonts								//用户字体目录
+~/Library/Caches							//缓存目录
+~/Library/Application Support				//用户程序配置目录
+~/Library/Preferences						//用户程序配置目录
+~/Library/Saved Application State			//用户程序状态目录
+~/Library/VirtualBox						//VirtualBox的配置文件目录，删除则VirtualBox恢复初始状态，需要重新添加虚拟机
+/Library/Application Support				//系统程序配置目录
+/System/Library/Fonts						//系统默认字体目录
+/Library/Fonts								//系统可选字体目录
 
 ========
 
@@ -190,6 +193,11 @@ OS X的系统默认Bundle应用存放在/Application/目录下，一些pkg形式
 也可以尝试以下指令:
 # languagesetup
 登陆界面的分辨率/语言未发生变化是由于登陆界面的数据未更新，使用root权限执行languagesetup重设语言即会刷新登陆界面信息。
+
+----
+
+更改默认应用程序 >
+使用 Command + i 查看一个文件的详细信息，在"Open With:"条目中可以选择打开此文件使用的默认程序，修改为需要的程序之后，选择 Change All... 即可将所有此类文件全部修改为自定义的程序。
 
 ----
 

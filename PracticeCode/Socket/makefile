@@ -1,7 +1,6 @@
 CC = clang
 CFLAGS = -std=c11
 
-libs = -lpthread
 objects = client_tcp server_tcp server_tcp_select server_tcp_select_single_thread client_udp server_udp
 epoll_objects = server_tcp_epoll server_tcp_epoll_et
 
@@ -9,6 +8,7 @@ epoll_objects = server_tcp_epoll server_tcp_epoll_et
 os := $(shell uname)
 ifeq ($(os), Linux)
 	objects += $(epoll_objects)
+	libs = -lpthread
 endif
 
 
