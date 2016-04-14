@@ -997,11 +997,13 @@ $ python3 get-pip.py --user						#将pip安装到用户目录
 $ sudo pip install [package_name]				#安装包
 $ sudo pip uninstall [package_name]				#移除包
 $ sudo pip install --upgrade [package_name]		#升级指定包
+$ sudo pip install -U [package_name]			#升级指定包，"-U"参数等价于"--upgrade"
 $ pip install --user [package_name]				#安装指定包到用户目录
 $ pip list										#列出已安装的包
 $ pip list --outdated							#列出可以升级的包
 $ pip show [package_name]						#显示包的详细信息
 $ pip show --files [package_name]				#列出包安装的文件列表
+$ pip help [operate]							#查看pip相关操作的帮助信息，如"pip help install"即查看"pip install"指令的所有用法
 ```
 
 在Linux下，一些由发行版自身的包管理器(apt、yum、dnf、pacman等)安装的Python模块也会显示在`pip list`指令的输出中，但这些模块通常被系统的某些组件依赖，尝试删除这些模块时会收到`DEPRECATION`(反对)，提示这些模块是由**distutils**(发行版工具)安装的，一般情况下，除非必要，不要删除这些由发行版包管理器安装的Python模块。

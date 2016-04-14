@@ -528,7 +528,7 @@
 					<tr><td>thunar-archive-plugin</td><td>thunar文件管理器的压缩文档支持</td></tr>
 				</table></blockquote>
 				<p>相对与重量级的gnome、KDE之类的桌面环境，轻量级的Xfce项目并没有提供完整的常用工具组，除了以上的包之外，还需要安装<span class="blue"> zathura-pdf-mupdf </span>作为pdf阅读器，<span class="blue"> gnome-disk-utility </span>作为磁盘刻录工具，<span class="blue"> file-roller </span>作为解压工具，<span class="blue"> slock </span>作为锁屏工具，<span class="blue"> thunderbird </span>作为邮件客户端，<span class="blue"> xfce-polkit-git </span>作为polkit的xfce前端(这个包在<span class="blue">AUR</span>中)。</p>
-				<blockquote># pacman -S zathura-pdf-mupdf gnome-disk-utility file-roller slock thunderbird</blockquote>
+				<blockquote># pacman -S zathura-pdf-mupdf gnome-disk-utility file-roller light-locker thunderbird</blockquote>
 				<p>Xfce桌面环境也推荐使用<span class="blue"> lightdm </span>作为登陆器，配置过程类似与MATE桌面环境。</p>
 			</li><br/>
 			<li>
@@ -680,12 +680,12 @@
 				<p>也可以从Oracle官网下载NetBeans，推荐使用<b>免安装</b>的<span class="blue">zip</span>格式打包版本。</p>
 			</li><br/>
 			<li>
-				<p>配置OpenGL开发环境时需要安装mesa相关包（通常在安装桌面环境时已经随依赖安装），以及freeglut包。</p>
+				<p>配置OpenGL开发环境时需要安装mesa相关包(通常在安装桌面环境时已经随依赖安装)，以及freeglut包。</p>
 				<blockquote># pacman -S freeglut</blockquote>
 			</li><br/>
 			<li>
-				<p>将需要的开发工具和开发环境一并安装：</p>
-				<blockquote># pacman -S boost clang clojure ctags freeglut gcc-objc gdb gnustep-core go lldb mariadb mono nasm npm qtcreator ruby scala sbcl</blockquote>
+				<p>将需要的开发环境和数据库一并安装：</p>
+				<blockquote># pacman -S boost clang clojure ctags freeglut gcc-objc gdb gnustep-core go gradle lldb mariadb maven mongodb mono nasm npm qtcreator ruby scala sbcl</blockquote>
 			</li><br/>
 			<li>
 				<p>安装开发环境的对应的文档(可以不安装)：</p>
@@ -728,8 +728,10 @@
 					$ dconf read [<span class="blue">键值完整路径</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//读取指定键值的属性值</span><br/>
 					$ dconf write [<span class="blue">配置路径</span>] [<span class="blue">键值</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//向指定键值写入新的属性值</span>
 				</blockquote>
-				<p>用户的<span class="blue">gconf</span>配置位于目录<span class="blue"> ~/.config/gconf </span>中。</p>
-				<p>用户的<span class="blue">dconf</span>配置存储于<span class="blue"> ~/.config/dconf/user </span>文件中，删除此文件即可恢复默认的dconf配置。默认情况下，删除使用了dconf作为配置选项的程序时，对应程序的dconf选项并不会被清除，需要手动删除dconf配置文件才能清除对应的dconf值。</p>
+				<p>用户的<span class="blue">gconf</span>配置位于目录<span class="blue"> ~/.config/gconf </span>中。<br/>
+				用户的<span class="blue">dconf</span>配置存储于<span class="blue"> ~/.config/dconf/user </span>文件中。</p>
+				<p>默认情况下，删除使用了dconf作为配置选项的程序时，对应程序的dconf选项并不会被清除，需要使用dconf指令强制清除对应目录的配置(写dconf路径时需要以"/"符号结尾)：</p>
+				<blockquote>$ dconf reset -f [<span class="blue">需要清除配置的路径</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//若dconf路径对应的程序已卸载，则重置配置之后对应dconf路径以及配置会被删除</span></blockquote>
 				<p>使用dconf设置MATE桌面的GTK主题：</p>
 				<blockquote>$ dconf write /org/mate/desktop/interface/gtk-theme [<span class="blue">主题名称</span>]</blockquote>
 				<p>使用dconf设置MATE桌面的文件挂载显示：</p>
@@ -808,6 +810,17 @@
 			</li><br/>
 			<li>
 				<p>在默认情况下，使用gnome桌面环境时，gnome-terminal可能会出现一开始无法启动的情况，需要在系统设置了LC_ALL和locales等语言环境时才能正常启动。</p>
+			</li><br/>
+			<li>
+				<p>使用<span class="blue"> xset </span>工具可以管理屏保超时时间，该工具由包<span class="blue"> xorg-xset </span>提供。<br/>
+				查询屏保超时时间：</p>
+				<blockquote>$ xset q</blockquote>
+				<p>输出结果中的<span class="blue"> timeout </span>参数即为屏幕超时时间，单位为<span class="blue">秒</span>。<br/>
+				设置屏保超时时间：</p>
+				<blockquote>$ xset s [<span class="blue">超时秒数</span>]</blockquote>
+				<p>不需要屏保可以设置关闭：</p>
+				<blockquote>$ xset s off<br/>
+				$ xset s 0<span>&nbsp;&nbsp;&nbsp;&nbsp;//作用相同</span></blockquote>
 			</li><br/>
 			<li>
 				<p>在默认情况下，ArchLinux在源中安装的Tomcat需要root权限才能够启动，所以在使用NetBeans/Eclipse等集成开发环境进行WEB开发时，需要从Tomcat官网下载独立得二进制包放在用户有权限的家目录下以供IDE使用，需要注意的是，默认解压出的Tomcat二进制包中的启动脚本是没有启动权限的，因此不要忘记将<span class="blue"> ~/apache-tomcat-*/bin </span>目录下的启动脚本添加可执行权限：</p>
