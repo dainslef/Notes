@@ -92,6 +92,46 @@ int array[length];
 
 
 
+##运算精度
+在`C/C++`运算中，需要注意精度的转换的时机，如下表达式：
+
+```c
+double num = 1 / 3;
+printf("%f\n", num);
+```
+
+打印结果，输出(gcc 5.3.0 && ArchLinux x86_64)：
+`0.000000`
+
+- 进行除法运算的两个操作数皆为**整型**，`1 / 3`的结果为`0`，运算结束之后转换为**双精度浮点型**，精度提升，但提升是以整型计算的结果`0`作为原始值的，因而提升之后的结果为`0.000000`。
+- 对于结果可能为浮点数的运算，至少需要一个操作数为浮点型才能保证运算结果正确。
+
+
+
+##8进制与16进制
+在`C/C++`中，表示8进制与16进制数值需要在数值前加前缀：
+
+- 表示**8进制**数值，在数值前加`0`。
+如下所示：
+
+```c
+int num0 = 011;		//等于10进制数"9"
+int num1 = 089;		//8进制数中不能出现大于等于"8"的数值
+```
+
+- 表示**16进制**数值，在数值前加`0x`。
+如下所示：
+
+```c
+int num0 = 0x11;		//等于10进制数"17"
+int num1 = 0xab;		//等于10进制数"171"
+int num2 = 0xgh;		//16进制数中不能出现大于等于"f"的数值
+```
+
+- `C/C++`中，**没有**提供表示2进制数值的方式。
+
+
+
 ## *sizeof* 运算符
 `sizeof`运算符并不是函数，因此它在编译时起效而不是运行时。
 在使用`sizeof`时需要小心辨别参数是否为指针！
@@ -1935,6 +1975,129 @@ char* stpcpy(char* restrict s1, const char* restrict s2);
 
 将指针`s2`指向的内容复制到`s1`指向的区域。
 函数返回指针复制内容后的指针`s1`，返回值的作用是使该函数能够更连贯地用于表达式。
+
+### *setjmp()* 与 *longjmp()* 函数
+使用`goto`语句只能在函数内部进行跳转，使用`setjmp()/longjmp()`函数能够实现**跨函数跳转**。
+`setjmp()/longjmp()`常用在**错误处理**中，程序在各个位置的异常都可以跳转回一个统一的位置进行错误处理。
+函数定义如下：
+
+```c
+#include <setjmp.h>
+int setjmp(jmp_buf env);
+void longjmp(jmp_buf env, int val);
+```
+
+- `env`参数保存函数局部栈数据，用于之后的状态恢复。
+- `val`参数用于指定`longjmp()`调用后，从`setjmp()`函数恢复时的返回值。
+
+通过调用`setjmp()`函数设置恢复点，调用`setjmp()`函数之后，会将当前局部环境信息写入`env`变量中用于之后的恢复操作。
+首次调用`setjmp()`函数返回值为`0`，之后调用`longjmp()`函数可跳转到上次调用`setjmp()`的位置，`longjmp()`函数中的参数`val`为`setjmp()`返回值。
+在`setjmp()`调用后，直到从`longjmp()`函数返回期间，信号会一直被**阻塞**。
+实例代码：
+
+```c
+#include <stdio.h>
+#include <setjmp.h>
+
+jmp_buf env;				//env变量用于保存函数栈信息
+
+void func(void)
+{
+	printf("Call func()\n");
+	longjmp(env, 1);		//跳转回setjmp()的位置，setjmp()的返回值为-1
+	printf("After longjmp()\n");	//longjmp()之后的代码没有执行
+}
+
+int main(void)
+{
+	switch(setjmp(env))		//跨函数跳转
+	{
+	case 0:
+		printf("First\n");
+		func();
+		break;
+	case 1:
+		printf("Second\n");
+		break;
+	}
+
+	start();
+
+	return 0;
+}
+```
+
+运行结果(gcc 5.4.0 && ArchLinux x86_64)：
+`First`
+`Call func()`
+`Second`
+
+### *sigsetjmp()* 与 *siglongjmp()* 函数
+`POSIX`对于使用在**信号处理函数**内部使用`longjmp()`跳转回`setjmp()`位置时是否恢复信号状态**未定义**(在不同的Unix中，从`longjmp()`跳转回`setjmp()`位置时可能恢复信号处理和信号屏蔽，也可能**不恢复**，实测在`Linux`中**不会**恢复信号状态)。
+`POSIX`提供了`sigsetjmp()/siglongjmp()`用于在**信号处理函数**内部进行跳转。
+
+```c
+#include <setjmp.h>
+int sigsetjmp(sigjmp_buf env, int savesigs);
+void siglongjmp(sigjmp_buf env, int val);
+```
+
+- `savesigs`参数用于设置是否保存信号状态，取`0`时不保存信号数据，取**非零**保存信号状态。
+
+若**不保存**信号状态，则从信号处理函数内跳转回`setjmp()`位置时，原有的信号处理函数绑定、信号屏蔽字都会恢复默认值。
+如下所示：
+
+```c
+#include <stdio.h>
+#include <setjmp.h>
+#include <signal.h>
+#include <unistd.h>
+
+jmp_buf env;						//env变量用于保存函数栈信息
+
+void deal_signal(int sig_num)
+{
+	printf("Deal signal!\n");
+	siglongjmp(env, 1);
+}
+
+
+int main(void)
+{
+	signal(SIGINT, deal_signal);
+
+	switch(sigsetjmp(env, 0))		//不保存信号数据则跳转回此处时原先注册的信号处理函数失效
+	{
+	case 0:
+		printf("First\n");
+		break;
+	case 1:
+		printf("Second\n");
+		break;
+	}
+
+	sleep(5);
+
+	return 0;
+}
+```
+
+运行结果(gcc 5.3.0 && ArchLinux x86_64)：
+`First`
+`^CDeal signal!`
+`Second`
+`^C^C^C^C`
+
+第一次发送`SIGINT`信号触发了`deal_signal()`函数，从信号处理函数`deal_signal()`内部跳转会`sigsetjmp()`位置时，由于之前**未设置**保存信号数据，因而再次接收到信号`SIGINT`时，`deal_signal()`函数不再触发，直到程序结束。
+若保存信号数据(`setjmp()`的`savesig`参数为`1`时)，函数输出结果为：
+`First`
+`^CDeal signal!`
+`Second`
+`^CDeal signal!`
+`Second`
+......
+
+可以看出，保存信号数据的情况下，`SIGINT`信号无论多少次发送都会正常跳转会`sigsetjmp()`位置。
 
 
 

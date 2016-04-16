@@ -216,16 +216,16 @@ table->setCellWidget(row, column, widget);
 需要注意的是，该不可编辑设置只对`QTableWidgetItem`有效，使用`setCellWidget()`方法设置的控件不会受到影响。
 
 ####*设置表格列自动扩展*
-通过`QTableView::horizontalHeader()`方法可以获取整个表格的`QHeaderView`，然后使用其成员函数`setStretchLastSection(bool stretch)`，参数为`true`时则最后一栏的长度会自动扩展，也可以使用`setResizeMode(QHeaderView::Stretch)`来使所有列自动扩展。
+通过`QTableView::horizontalHeader()`方法可以获取整个表格的`QHeaderView`，然后使用其成员函数`setStretchLastSection(bool stretch)`，参数为`true`时则最后一栏的长度会自动扩展，也可以使用`setSectionResizeMode(QHeaderView::Stretch)`来使所有列自动扩展(`Qt4`时使用`setResizeMode()`设置所有列扩展，`Qt5`后该函数被**废弃**，使用`setSectionResizeMode()`替代)。
 例如：
 
 ```cpp
 QTableWidget* table = new QTableWidget;
-table->horizontalHeader()->setStretchLastSection(true);				//最后一行自动扩展
-table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);		//所有行自动扩展
+table->horizontalHeader()->setStretchLastSection(true);						//最后一行自动扩展
+table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);		//所有行自动扩展
 ```
 
-####*设置表格列自动适配宽度*
+####*设置列宽自动扩展*
 使用`QTableView::resizeColumnsToContents()`可以使**所有列**的列宽自动适配内容宽度。
 使用`QTableView::resizeColumnToContents(int column)`设置**指定列**为自动适配内容宽度。
 
@@ -550,8 +550,8 @@ void QTreeWidgetItem::setFlags(Qt::ItemFlags flags);								//设置标志，可
 
 每一个`QTreeWidgetItem`还可以添加其它`QTreeWidgetItem`，从而形成**树状**。
 
-###设置列宽
-使用`QTreeView::resizeColumnToContents(int column) [slot]`可以设置指定列的**列宽自适应**。
+###设置列宽自动扩展
+与`QTableWidget`类似，`QTreeView/QTreeWidget`也可以使用`QTreeView::resizeColumnToContents(int column) [slot]`可以设置指定列的**列宽自适应**。
 `QTreeWidget`的表头为一个`QHeaderView`对象，更细节的列宽分配可通过`QHeaderView`类的相关方法来进行设置。
 `QTreeWidget`实现了`QHeaderView* QTreeView::header()`方法，因此通过`header()`方法可以直接获得`QHeaderView`对象指针。
 使用以下方法对`QTreeWidget`进行列宽设置：
@@ -812,14 +812,14 @@ Qt提供了基于`WebKit`引擎的`QWebKit`做为**网页解析引擎**。网页
 
 ```cpp
 foreach (const QString& font_name, QFontDatabase().families())
-	std::cout << font_name <<std::endl;
+	std::cout << font_name << std::endl;
 ```
 
 其中，`QStringList QFontDatabase::families(WritingSystem writingSystem = Any) const`函数的参数可以用于指定文字类型，例如，列出简体中文的字体可以写成：
 
 ```cpp
 foreach (const QString& font_name, QFontDatabase().families(QFontDatabase::SimplifiedChinese))
-	std::cout << font_name <<std::endl;
+	std::cout << font_name << std::endl;
 ```
 
 ###获取文本的宽高
