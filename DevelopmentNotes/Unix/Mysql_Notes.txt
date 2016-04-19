@@ -125,7 +125,6 @@ use [数据库名]					//切换正在使用的数据库
 desc [表名];					//查看表格的结构
 truncate table [表名];			//清除指定表格的内容(速度快，但不可恢复)
 delete from [表名];				//删除指定表格的内容(速度慢，但可以恢复)
-show variables like 'character_set_%';									//查看数据库当前配置的默认编码
 
 ----
 
@@ -136,6 +135,18 @@ select count(*)	from [表名];												//查询表中共有多少条记录
 alter table [表名] add column [列名] [字段类型];							//添加列
 alter table [表名] drop column [列名];										//删除列
 delete from [表名] where [限制条件];										//删除满足限制条件的行
+
+----
+
+查询数据库信息 >
+查询当前登录的用户：
+select user();
+查询正在使用的数据库名称：
+select database();
+查询数据库版本信息：
+select version();
+查询数据库编译平台：
+select @@version_compile_os;
 
 ----
 
@@ -188,12 +199,18 @@ ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib
 
 
 中文编码支持 >>
-默认情况下，mysql数据库的编码为latin1，次编码并不支持东亚语系的文字显示，需要修改为支持各国文字的utf8编码。
+默认情况下，旧版的mysql数据库的编码为latin1，此编码不支持东亚语系的文字显示，需要修改为支持各国文字的UTF-8编码。
+对于部分使用MariaDB的发行版(如ArchLinux)，默认的编码为UTF-8，无需额外配置。
+查看数据库的编码信息：
+> show variables like 'character_set_%';
 
 ----
 
 修改数据库编码 >
-如果需要将数据库的默认编码设置为 UTF-8，则需要修改配置文件，在Debian/Ubuntu系中，配置文件为 /etc/mysql/mariadb.conf.d/client.cnf ，在RedHat系中，配置文件为 /etc/my.cnf ，在其中加入配置：
+如果需要将数据库的默认编码设置为UTF-8，则需要修改配置文件。
+在Debian/Ubuntu系中，配置文件为 /etc/mysql/mariadb.conf.d/client.cnf 。 在RedHat系中，配置文件为 /etc/my.cnf 。
+在ArchLinux中，配置文件为 /etc/mysql/my.cnf 。
+在其中加入配置：
 [client]
 # Default is Latin1, if you need UTF-8 set this (also in server section)
 default-character-set = utf8

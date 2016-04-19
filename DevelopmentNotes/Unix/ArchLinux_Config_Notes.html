@@ -139,7 +139,12 @@
 			</li><br/>
 			<li>
 				<p>在<span class="blue"> wifi.conf </span>中写入要连接的无线配置信息：</p>
-				<blockquote>network={<br/><span class="blue">ssid</span>="<font style="color: #4F4F4F">要连接的无线の名字</font>"<br/><span class="blue">psk</span>="<font style="color: 	#4F4F4F">无线の密码</font>"<br/>}</blockquote>
+				<blockquote>
+					network={<br/>
+						<span class="blue">ssid</span>="<font style="color: #4F4F4F">要连接的无线の名字</font>"<br/>
+						<span class="blue">psk</span>="<font style="color: 	#4F4F4F">无线の密码</font>"<br/>
+					}
+				</blockquote>
 			</li><br/>
 			<li>
 				<p>启用配置文件：</p>
@@ -154,7 +159,8 @@
 				<blockquote># ping www.baidu.com</blockquote>
 			</li><br/>
 			<li>
-				<p>如果ping没反应的话尝试以下步骤&gt;&gt;<br/>正常情况下网络应该已经通了，如果网络异常，尝试查看路由信息：</p>
+				<p>如果ping没反应的话尝试以下步骤&gt;&gt;<br/>
+					正常情况下网络应该已经通了，如果网络异常，尝试查看路由信息：</p>
 				<blockquote># route -n</blockquote>
 				<p>尝试添加地址：</p>
 				<blockquote># route add default gw yourIP</blockquote>
@@ -174,7 +180,9 @@
 			<p>不使用<span class="blue"> NetworkManager服务 </span>时，可以禁用该服务：</p>
 			<blockquote># systemctl disable NetworkManager</blockquote></li>
 			</ul>
+
 			<br/><br/><br/>
+
 			<h2 id="second">基本安装教程</h2>
 			<ul>
 			<li>
@@ -210,13 +218,13 @@
 					<tr><td>lvm2</td><td>不使用逻辑卷则用不到此包</td></tr>
 					<tr><td>netctl</td><td>包含了一些默认的网络配置文件，不需要</td></tr>
 					<tr><td>dhcpd</td><td>自动分配ip由networkmanager(dhclient)替代</td></tr>
+					<tr><td>s-nail</td><td>包含mail等传统命令行邮件工具，实际很少用到</td></tr>
 				</table>
 				<p><span class="blue">base </span>和<span class="blue"> base-devel </span>包组中的一些<span class="blue">必选</span>包的功能说明：</p>
 				<table style="text-align: center; font-family: 微软雅黑; font-size: 14px" border="1">
 					<tr><th style="width: 200px"><span class="blue">包名称</span></th><th style="width: 400px"><span class="blue">包简介</span></th></tr>
 					<tr><td>fakeroot</td><td>用于模拟root权限，构建软件包时需要用到</td></tr>
 					<tr><td>sed</td><td>用于文件处理，可进行数据的替换、删除、新增、选取，被fakeroot依赖</td></tr>
-					<tr><td>s-nail</td><td>包含mail等传统邮件工具</td></tr>
 					<tr><td>man-db</td><td>包含man工具</td></tr>
 					<tr><td>man-pages</td><td>包含linux和POSIX库函数的C语言API文档</td></tr>
 					<tr><td>iputils</td><td>网络工具集</td></tr>
@@ -225,7 +233,7 @@
 					<tr><td>findutils</td><td>包含find等常用工具，会被多个其它包依赖</td></tr>
 					<tr><td>inetutils</td><td>包含ftp等常用工具</td></tr>
 					<tr><td>usbutils</td><td>包含lsusb等工具</td></tr>
-					<tr><td>which</td><td>包含which工具，用于查找输入命令的绝对路径</td></tr>
+					<tr><td>which</td><td>用于查找输入命令的绝对路径，java构建工具maven需要用到</td></tr>
 					<tr><td>pacman</td><td>包管理器，被arch-install-scripts和yaourt依赖</td></tr>
 					<tr><td>procps-ng</td><td>包含ps、top等常用进程查看、管理工具，被virtualbox依赖</td></tr>
 					<tr><td>gcc</td><td>GNU核心编译器，被clang依赖</td></tr>
@@ -233,7 +241,7 @@
 					<tr><td>systemd-sysvcompat</td><td>包含/sbin/init，缺少此包则系统无法初始化</td>
 				</table>
 				<p>大多数<span class="blue"> base </span>和<span class="blue"> base-devel </span>包组中的软件包都会被其它包所依赖，不必指定安装，只需手动安装部分即可：</p>
-				<blockquote># pacstrap -i /mnt linux iputils inetutils usbutils man-db man-pages which nano s-nail systemd-sysvcompat sudo fakeroot</blockquote>
+				<blockquote># pacstrap -i /mnt linux iputils inetutils usbutils man-db man-pages which nano systemd-sysvcompat sudo fakeroot</blockquote>
 			</li><br/>
 			<li>
 				<p>安装网络工具，否则安装完成之后无法配置无线网络：</p>
@@ -311,10 +319,13 @@
 						&nbsp;&nbsp;&nbsp;&nbsp;reboot<br/>
 					}<br/>
 				</blockquote>
+				<p>可以将自定义添加的grub配置写入文件<span class="blue"> /etc/grub.d/40_custom </span>中，每次运行<span class="blue"> grub-mkconfig </span>指令时，自定义的grub配置内容会自动添加到最终生成的<span class="blue"> grub.cfg </span>文件中。</p>
 			</li><br/>
 			</ul>
-			<p style="text-align: center;font-size: 20px;color: blue;">以上，基本安装结束。</p>
+			<p style="text-align: center; font-size: 20px; color: blue;">以上，基本安装结束。</p>
+
 			<br/><br/><br/>
+
 			<h2 id="third">安装完成之后の基本配置</h2>
 			<ul>
 			<li>
@@ -333,26 +344,86 @@
 				<p>安装中文字体：</p>
 				<blockquote># pacman -S wqy-microhei<span>&nbsp;&nbsp;&nbsp;&nbsp;//记住不要手贱去装wqy-microhei-lite这个字体包，会造成Netbeans中使用文泉驿等宽微米黑字体时空格变成口口(囧)</span></blockquote>
 				<p>安装等宽字体：</p>
-				<blockquote># pacman -S ttf-dejavu<span>&nbsp;&nbsp;&nbsp;&nbsp;//没有此字体，会使某些符号不够漂亮，建议在安装桌面环境时选择此字体作为桌面环境的默认依赖字体</span><br/># pacman -S adobe-source-code-pro-fonts<span>&nbsp;&nbsp;&nbsp;&nbsp;//adobe出品的一款很适合编程的等宽字体</span></blockquote>
+				<blockquote># pacman -S ttf-dejavu<span>&nbsp;&nbsp;&nbsp;&nbsp;//没有此字体，会使某些符号不够漂亮，建议在安装桌面环境时选择此字体作为桌面环境的默认依赖字体</span><br/>
+					# pacman -S adobe-source-code-pro-fonts<span>&nbsp;&nbsp;&nbsp;&nbsp;//adobe出品的一款很适合编程的等宽字体</span></blockquote>
 				<p>gnome桌面环境下，推荐的字体配置为：</p>
-				<blockquote>[缩放比例] <span>0.9</span><br/>[微调] <span>Slight</span><br/>[抗锯齿] <span>Rgba</span><br/>[窗口标题] <span>文泉驿微米黒 Bold 11</span><br/>[界面/文档] <span>文泉驿微米黒 Regular 11</span><br/>[等宽] <span>Source Code Pro Regular 11</span></blockquote>
+				<blockquote>
+					[缩放比例] <span>0.9</span><br/>
+					[微调] <span>Slight</span><br/>
+					[抗锯齿] <span>Rgba</span><br/>
+					[窗口标题] <span>文泉驿微米黒 Bold 11</span><br/>
+					[界面/文档] <span>文泉驿微米黒 Regular 11</span><br/>
+					[等宽] <span>Source Code Pro Regular 11</span>
+				</blockquote>
 				<p>以上配置在使用qtcreator时可能会造成界面字体偏大(qt5界面不受缩放影响)，如果需要使用qtcreator，可以使用以下配置：</p>
-				<blockquote>[缩放比例] <span>1.0</span><br/>[微调] <span>Slight</span><br/>[抗锯齿] <span>Rgba</span><br/>[窗口标题] <span>文泉驿微米黒 Bold 10</span><br/>[界面/文档] <span>文泉驿微米黒 Regular 10</span><br/>[等宽] <span>Source Code Pro Regular 10</span></blockquote>
+				<blockquote>
+					[缩放比例] <span>1.0</span><br/>
+					[微调] <span>Slight</span><br/>
+					[抗锯齿] <span>Rgba</span><br/>
+					[窗口标题] <span>文泉驿微米黒 Bold 10</span><br/>
+					[界面/文档] <span>文泉驿微米黒 Regular 10</span><br/>
+					[等宽] <span>Source Code Pro Regular 10</span>
+				</blockquote>
 			</li><br/>
 			<li>
 				<p>安装基本的图形环境以及驱动程序：</p>
-				<blockquote># pacman -S xorg-server xorg-xinit<span>&nbsp;&nbsp;&nbsp;&nbsp;//不必完整安装xorg包组，只需安装核心组件即可！</span><br/># pacman -S xf86-video-ati<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装开源AMD显卡驱动，或者安装闭源驱动catalyst</span><br/># pacman -S xf86-video-intel<span>&nbsp;&nbsp;&nbsp;&nbsp;//如果是Intel处理器，则安装Intel核芯显卡驱动</span><br/># pacman -S xf86-input-synaptics<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装触摸板驱动</span></blockquote>
+				<blockquote>
+					# pacman -S xorg-server xorg-xinit<span>&nbsp;&nbsp;&nbsp;&nbsp;//不必完整安装xorg包组，只需安装核心组件即可！</span><br/>
+					# pacman -S xf86-video-ati<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装开源AMD显卡驱动，或者安装闭源驱动catalyst</span><br/>
+					# pacman -S xf86-video-intel<span>&nbsp;&nbsp;&nbsp;&nbsp;//如果是Intel处理器，则安装Intel核芯显卡驱动</span><br/>
+					# pacman -S xf86-input-synaptics<span>&nbsp;&nbsp;&nbsp;&nbsp;//安装触摸板驱动</span>
+				</blockquote>
 			</li><br/>
 			<li>
 				<p>安装KDE桌面环境，推荐采用安装<span class="blue"> 虚包 </span>(meta/包指针)的方式，这样能够及时更新包组中的成员：</p>
-				<blockquote># pacman -S kde-meta<br/><span class="blue">1)</span> kde-meta-kdeaccessibility <span class="blue">2)</span>kde-meta-kdeadmin <span class="blue">3)</span>kde-meta-kdeartwork <span class="blue">4)</span>kde-meta-kdebase <span class="blue">5)</span>kde-meta-kdeedu <span class="blue">6)</span>kde-meta-kdegames <span class="blue">7)</span>kde-meta-kdegraphics <span class="blue">8)</span>kde-meta-kdemultimedia <span class="blue">9)</span>kde-meta-kdenetwork <span class="blue">10)</span>kde-meta-kdepim <span class="blue">11)</span>kde-meta-kdeplasma-addons <span class="blue">12)</span>kde-meta-kdesdk <span class="blue">13)</span>kde-meta-kdetoys <span class="blue">14)</span>kde-meta-kdeutils <span class="blue">15)</span>kde-meta-kdewebdev <span class="blue">16)</span>kde-wallpapers</blockquote>
+				<blockquote># pacman -S kde-meta<br/>
+					<span class="blue">1)</span> kde-meta-kdeaccessibility
+					<span class="blue">2)</span>kde-meta-kdeadmin
+					<span class="blue">3)</span>kde-meta-kdeartwork
+					<span class="blue">4)</span>kde-meta-kdebase
+					<span class="blue">5)</span>kde-meta-kdeedu
+					<span class="blue">6)</span>kde-meta-kdegames
+					<span class="blue">7)</span>kde-meta-kdegraphics
+					<span class="blue">8)</span>kde-meta-kdemultimedia
+					<span class="blue">9)</span>kde-meta-kdenetwork
+					<span class="blue">10)</span>kde-meta-kdepim
+					<span class="blue">11)</span>kde-meta-kdeplasma-addons
+					<span class="blue">12)</span>kde-meta-kdesdk
+					<span class="blue">13)</span>kde-meta-kdetoys
+					<span class="blue">14)</span>kde-meta-kdeutils
+					<span class="blue">15)</span>kde-meta-kdewebdev
+					<span class="blue">16)</span>kde-wallpapers
+				</blockquote>
 				<p>其中有需要装的为<span class="blue"> 2 4 7 10 12 14 </span>。</p>
 				<blockquote># pacman -S kde-meta-kdeadmin kde-meta-kdebase kde-meta-kdegraphics kde-meta-kdepim kde-meta-kdesdk kde-meta-kdeutils</blockquote>
-				<p>2为KDE用户账户管理工具，4为KDE基础组件，7为KDE界面设置(包含锁屏设置等)和截图工具，10为KDE邮件&联系人&笔记本等工具集，12为KDE高级编辑器(Kate)&二进制编辑器(okteta)等重要开发工具，14为KDE壁纸管理器&打印机服务&解压工具&计算器等工具集，以上这些推荐安装。然而，1为KDE残障人士辅助工具，3和16为为KDE额外主题及壁纸，6和13为游戏，8为KDE多媒体输出&音量控制工具&无用的播放器，9为一些用不到的聊天工具(kopete等)，11为桌面附加组件，15为一些不常用的网络开发工具，没有必要完全安装。此外，KDE桌面环境推荐使用<span class="blue"> phonon-qt4/qt5-vlc </span>作为音频后端。</p>
+				<p>
+					2为KDE用户账户管理工具，
+					4为KDE基础组件，
+					7为KDE界面设置(包含锁屏设置等)和截图工具，
+					10为KDE邮件&联系人&笔记本等工具集，
+					12为KDE高级编辑器(Kate)&二进制编辑器(okteta)等重要开发工具，
+					14为KDE壁纸管理器&打印机服务&解压工具&计算器等工具集，以上这些推荐安装。
+					然而，1为KDE残障人士辅助工具，
+					3和16为为KDE额外主题及壁纸，
+					6和13为游戏，
+					8为KDE多媒体输出&音量控制工具&无用的播放器，
+					9为一些用不到的聊天工具(kopete等)，
+					11为桌面附加组件，
+					15为一些不常用的网络开发工具，没有必要完全安装。
+					此外，KDE桌面环境推荐使用<span class="blue"> phonon-qt4/qt5-vlc </span>作为音频后端。
+				</p>
 			</li><br/>
 			<li>
 				<p>KDE中有几个实用组件需要单独指定安装：</p>
-				<blockquote># pacman -S kdeplasma-addons-applets-icontasks<span>&nbsp;&nbsp;&nbsp;&nbsp;//图标任务管理器</span><br/># pacman -S kdeplasma-addons-applets-weather<span>&nbsp;&nbsp;&nbsp;&nbsp;//通知区域天气插件</span><br/># pacman -S kdeplasma-addons-applets-lancelot<span>&nbsp;&nbsp;&nbsp;&nbsp;//lancelot启动器</span><br/># pacman -S kdemultimedia-kmix<span>&nbsp;&nbsp;&nbsp;&nbsp;//音频混合控制器</span><br/># pacman -S kdenetwork-kget<span>&nbsp;&nbsp;&nbsp;&nbsp;//kget下载管理器</span><br/># pacman -S kdevelop<span>&nbsp;&nbsp;&nbsp;&nbsp;//KDE集成开发环境</span><br/># pacman -S bluedevil<span>&nbsp;&nbsp;&nbsp;&nbsp;//KDE蓝牙管理器</span></blockquote>
+				<blockquote>
+					# pacman -S kdeplasma-addons-applets-icontasks<span>&nbsp;&nbsp;&nbsp;&nbsp;//图标任务管理器</span><br/>
+					# pacman -S kdeplasma-addons-applets-weather<span>&nbsp;&nbsp;&nbsp;&nbsp;//通知区域天气插件</span><br/>
+					# pacman -S kdeplasma-addons-applets-lancelot<span>&nbsp;&nbsp;&nbsp;&nbsp;//lancelot启动器</span><br/>
+					# pacman -S kdemultimedia-kmix<span>&nbsp;&nbsp;&nbsp;&nbsp;//音频混合控制器</span><br/>
+					# pacman -S kdenetwork-kget<span>&nbsp;&nbsp;&nbsp;&nbsp;//kget下载管理器</span><br/>
+					# pacman -S kdevelop<span>&nbsp;&nbsp;&nbsp;&nbsp;//KDE集成开发环境</span><br/>
+					# pacman -S bluedevil<span>&nbsp;&nbsp;&nbsp;&nbsp;//KDE蓝牙管理器</span>
+				</blockquote>
 			</li><br/>
 			<li>
 				<p>需要注意的是，如果你的机器是Intel主板，安装完KDE桌面环境后音频设备工作不正常，则可能需要安装<span class="blue"> pulseaudio </span>才能正常输出声音。<br/></p>
@@ -696,7 +767,9 @@
 				<blockquote># pacman -S git subversion</blockquote>
 			</li>
 			</ul>
+
 			<br/><br/><br/>
+
 			<h2 id="fourth">ArchLinux常见问题の记录</h2>
 			<ol>
 			<li>
@@ -721,7 +794,9 @@
 			</li><br/>
 			<li>
 				<p>关于 <span class="blue"> gconf/dconf </span>：</p>
-				<p>gconf/dconf是gnome系列桌面(包括gnome、Xfce、MATE等)下的配置管理机制，多数gtk+软件可通过其调整配置(类Windows下的注册表)。dconf是gnome桌面环境下的新一代配置管理工具，用于取代gnome2时代的gconf，相比之下，原先的gconf采用的是xml的格式明文保存配置，而gnome3之后的dconf采用二进制文件的形式保存配置。</p>
+				<p>gconf/dconf是gnome系列桌面(包括gnome、Xfce、MATE等)下的配置管理机制，多数gtk+软件可通过其调整配置(类Windows下的注册表)。
+				dconf是gnome桌面环境下的新一代配置管理工具，用于取代gnome2时代的gconf，相比之下，
+				原先的gconf采用的是xml的格式明文保存配置，而gnome3之后的dconf采用二进制文件的形式保存配置。</p>
 				<p>使用dconf命令：</p>
 				<blockquote>
 					$ dconf list [<span class="blue">配置路径</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出指定路径的属性值</span><br/>

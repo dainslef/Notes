@@ -1001,6 +1001,7 @@ $ sudo pip install -U [package_name]			#升级指定包，"-U"参数等价于"--
 $ pip install --user [package_name]				#安装指定包到用户目录
 $ pip list										#列出已安装的包
 $ pip list --outdated							#列出可以升级的包
+$ pip list --user								#列出安装在用户目录的包
 $ pip show [package_name]						#显示包的详细信息
 $ pip show --files [package_name]				#列出包安装的文件列表
 $ pip help [operate]							#查看pip相关操作的帮助信息，如"pip help install"即查看"pip install"指令的所有用法

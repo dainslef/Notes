@@ -115,8 +115,8 @@ printf("%f\n", num);
 如下所示：
 
 ```c
-int num0 = 011;		//等于10进制数"9"
-int num1 = 089;		//8进制数中不能出现大于等于"8"的数值
+int num0 = 011;			//等于10进制数"9"
+//int num1 = 089;		//编译报错，8进制数中不能出现大于等于"8"的数值
 ```
 
 - 表示**16进制**数值，在数值前加`0x`。
@@ -125,7 +125,7 @@ int num1 = 089;		//8进制数中不能出现大于等于"8"的数值
 ```c
 int num0 = 0x11;		//等于10进制数"17"
 int num1 = 0xab;		//等于10进制数"171"
-int num2 = 0xgh;		//16进制数中不能出现大于等于"f"的数值
+//int num2 = 0xgh;		//编译报错，16进制数中不能出现大于等于"f"的数值
 ```
 
 - `C/C++`中，**没有**提供表示2进制数值的方式。
@@ -1233,23 +1233,23 @@ using namespace std;
 
 //定义模版函数的推导终止点，防止无限递归
 template <class T>
-T count(const T& t)
+T sum(const T& t)
 {
 	return t;
 }
 
 template <class T, class... Args>
-T count(const T& t, const Args&... args)
+T sum(const T& t, const Args&... args)
 {
-	return count(args...) + t;
+	return sum(args...) + t;
 }
 
 int main(void)
 {
-	cout << count(100) << endl;
-	cout << count(100, 200) << endl;
-	cout << count(100, 200, 300) << endl;
-	cout << count(100, 200, 300, 400) << endl;
+	cout << sum(100) << endl;
+	cout << sum(100, 200) << endl;
+	cout << sum(100, 200, 300) << endl;
+	cout << sum(100, 200, 300, 400) << endl;
 	return 0;
 }
 ```
