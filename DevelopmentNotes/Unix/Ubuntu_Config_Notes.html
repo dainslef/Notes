@@ -115,11 +115,18 @@
 			<ul>
 				<li>
 					<p>Ubuntu默认的是LiveCD安装方式，此种安装方式优点是安装简单，但安装过程中无法定制安装，安装结束后会有许多无用组件。
-						我选择Ubuntu Core版本，Core版本默认只会安装一个基本环境，并不会安装桌面环境及一些无用组件。</p>
+						使用Ubuntu Core版本默认只会安装一个基本环境，并不会安装桌面环境及一些无用组件。</p>
 				</li><br/>
 				<li>
-					<p>解压核心包，通过<span class="red"> chroot </span>的方式进行配置。默认情况下，Core版本是没有安装内核的，首先安装内核以及内核头文件(VirtualBox的DKMS需要用到):</p>
+					<p>解压核心包，通过<span class="red"> chroot </span>的方式进行配置。
+						chroot之前需要复制当前Linux的<span class="red"> /etc/resolv.conf </span>文件到目标环境中，否则apt工具无法解析DNS。
+						chroot之后，默认情况下<span class="red"> PATH </span>没有设置完整，执行以下指令刷新环境变量：</p>
+					<blockquote># source /etc/enviornment</blockquote>
+					<p>之后设置locale(没有正确设置locale则apt工具执行会出错)，修改<span class="red"> /etc/locale.gen </span>文件，去掉<span class="red"> en_US.UTF-8 </span>前的注释，然后执行：</p>
+					<blockquote># locale-gen</blockquote>
+					<p>Ubuntu Core版本没有内置内核，安装内核以及内核头文件(VirtualBox的DKMS需要用到):</p>
 					<blockquote># apt install linux-image-generic linux-headers-generic</blockquote></li><br/>
+					<p>安装内核之前需要挂载<span class="red"> proc </span>分区，否则安装内核会报错(64bit OS需要读取/proc/cpuinfo来判断cpu是否支持所选内核)。</p>
 				<li>
 					<p>Unity桌面环境安装方式：</p>
 					<ol>
@@ -137,7 +144,6 @@
 									<tr><td>ubuntu-settings</td><td>ubuntu默认配置。缺少此包会导致unity桌面环境显示异常(卡死)</td></tr>
 									<tr><td>light-themes</td><td>ubuntu的主题包组，缺少此包组桌面环境会变得无法直视</td></tr>
 									<tr><td>notify-osd</td><td>unity桌面环境的系统通知体系</td></tr>
-									<tr><td>overlay-scrollbar</td><td>unity特色的滚动条隐藏(ubuntu 15.10之后unity使用gtk的标准滚动条隐藏方式，无需安装)</td></tr>
 									<tr><td>xinit</td><td>包含命令行启动x窗口的"startx"指令(安装了启动管理器则无需此包)</td></tr>
 								</table>
 							</blockquote>
@@ -152,13 +158,12 @@
 									<tr><td>fonts-wqy-microhei</td><td>文泉驿微米黑</td></tr>
 									<tr><td>dmz-cursor-theme</td><td>unity鼠标主题</td></tr>
 									<tr><td>gnome-terminal</td><td>gnome终端</td></tr>
-									<tr><td>nautilus</td><td>gnome文件管理器</td></tr>
+									<tr><td>nautilus</td><td>gnome文件管理器(unity依赖，可以不必手动安装)</td></tr>
 									<tr><td>vlc</td><td>vlc播放器</td></tr>
 									<tr><td>gnome-screenshot</td><td>gnome截图工具</td></tr>
 									<tr><td>eog</td><td>gnomeの眼图片浏览器</td></tr>
 									<tr><td>evince</td><td>PDF文档浏览器</td></tr>
 									<tr><td>file-roller</td><td>gnome归档管理器</td></tr>
-									<tr><td>audacious</td><td>音乐播放器</td></tr>
 									<tr><td>thunderbird</td><td>Mozilla邮件客户端</td></tr>
 									<tr><td>firefox</td><td>Mozilla浏览器</td></tr>
 									<tr><td>synaptic</td><td>debian图形化包管理器</td></tr>
@@ -167,7 +172,7 @@
 						</li>
 						<li>
 							<p>执行安装指令：</p>
-							<blockquote># apt install unity ubuntu-session ubuntu-settings light-themes notify-osd fonts-wqy-microhei dmz-cursor-theme gnome-terminal nautilus vlc gnome-screenshot eog evince file-roller audacious thuderbird firefox synaptic</blockquote></li>
+							<blockquote># apt install unity ubuntu-session ubuntu-settings light-themes notify-osd dmz-cursor-theme gnome-terminal vlc gnome-screenshot eog evince file-roller thuderbird synaptic</blockquote></li>
 					</ol>
 				</li><br/>
 				<li>
@@ -552,124 +557,125 @@
 						</li>
 					</ol>
 				</li><br/>
-			<li>
-				<p>
-					在使用Unity桌面环境时，如果遇到fcitx输入法无法自启动的情况，
-					可以将其收到手动添加到<span class="red"> gnome-session-properties(启动应用程序) </span>中。
-					将<span class="red"> fcitx -d </span>添加到自启动指令中
-					(使用其它方法，比如将自启动指令写入<span class="red">.xprofile</span>文件中等方式虽然可以正常使fcitx开机自启，但fcitx的托盘图标不能正常显示)。
-				</p>
-			</li><br/>
-			<li>
-				<p>可以通过<span class="red"> dconf-editor </span>来进行各类桌面配置，常用的有：</p>
-				<blockquote>
-					com.canonical.unity-greeter<span>&nbsp;&nbsp;&nbsp;&nbsp;//登录界面配置</span><br/>
-					org.gnome.desktop.interface<span>&nbsp;&nbsp;&nbsp;&nbsp;//桌面主题、字体配置、鼠标主题</span><br/>
-					com.canonical.Unity<span>&nbsp;&nbsp;&nbsp;&nbsp;//设置全局菜单和侧边栏的显示</span>
-				</blockquote>
-			</li><br/>
-			<li>
-				<p>默认情况下，安装玩qtcreator之后是没有安装mysql数据库驱动的，如果在Qt开发中使用了mysql数据库，
-				则需要安装<span class="red"> libqt5sql-myql </span>数据库驱动，其它的数据库驱动如<span class="red"> odbc </span>也是类似操作。</p>
-			</li><br/>
-			<li>
-				<p>默认情况下，Debian系包管理使用<span class="red"> # apt-get autoremove </span>很多时候是不能清除一些受系统保护的无用依赖的(比如旧版本的内核)，
-				如果需要解除系统对这些包的保护，可以移除<span class="red"> /etc/apt/apt.conf.d/ </span>目录下的一些<span class="red">apt</span>配置文件，执行指令：</p>
-				<blockquote># rm /etc/apt/apt.conf.d/01autoremove /etc/apt/apt.conf.d/01autoremove-kernels</blockquote></li><br/>
-			<li>
-				<p>debian系列的软件源格式说明。<br/>debian系列的软件源由以下几个部分构成：</p>
-				<blockquote>deb/deb-src [软件源地址] [版本号] [仓库类型]</blockquote>
-				<p>
-					第一部分代表软件源是预编译包(deb)还是源码(deb-src)，第二部分是软件源站点地址，第三部分是发行版当前的版本号，
-					比如说<span class="red"> Ubuntu 15.04 <span>的版本号就是<span class="red"> vivid </span>，
-					而一个版本号还会衍生出几个子版本，比如Ubuntu系列的就有<span class="red"> *、*-updates、*-backports、*-security、*-proposed </span>等五种，
-					每一种源还有对应的仓库类型，Ubuntu的仓库类型有<span class="red"> main、restricted、universe、multiverse </span>等，
-					Ubuntu还有不属于其中的"partner"源，保存着一些特殊的分发包，比如flash插件等，
-					<span class="red"> partner </span>源只有一个与版本号名字相同的主版本，而仓库名即为"partner"(这个源只有官方的地址可用)。<br/>
-					以<span class="red"> ubuntu 15.04 vivid </span>和国内的北京大学源为例，可用的源列表为：
-				</p>
-				<blockquote>
-					deb http://mirror.bjtu.edu.cn/ubuntu/ <span class="red">vivid</span> main restricted universe multiverse<br/>
-					deb http://mirror.bjtu.edu.cn/ubuntu/ <span class="red">vivid-security</span> main restricted universe multiverse<br/>
-					deb http://mirror.bjtu.edu.cn/ubuntu/ <span class="red">vivid-updates</span> main restricted universe multiverse<br/>
-					deb http://mirror.bjtu.edu.cn/ubuntu/ <span class="red">vivid-proposed</span> main restricted universe multiverse<br/>
-					deb http://mirror.bjtu.edu.cn/ubuntu/ <span class="red">vivid-backports</span> main restricted universe multiverse<br/><br/>
-					deb http://archive.canonical.com/ubuntu/ <span class="red">vivid</span> partner
-				</blockquote>
-				<p>
-					Debian的源格式与Ubuntu完全相同，但版本号、子版本和仓库类型略有不同，
-					Debian的主版本号有<span class="red"> stable、testing </span>等，也可以直接使用版本代号作为主版本号。
-					Debian的子版本有<span class="red"> *、*-updates、*-backports、*-proposed-updates </span>，
-					仓库类型有<span class="red"> main、contrib、non-free </span>等。
-				</p>
-			</li><br/>
-			<li>
-				<p>chrome浏览器可以直接从goole服务器站点下载：</p>
-				<blockquote>$ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb</blockquote>
-			</li><br/>
-			<li>
-				<p>Debian系的一些高级包管理操作：</p>
-				<p>原先<span class="red"> apt-get mark* </span>系列指令已经被废弃，标记软件包安装原因的指令转移到<span class="red"> apt-mark </span>下：</p>
-				<ul>
-					<li>
-						查看手动安装的包<span class="red">(Manaul)</span>：
-						<blockquote>$ apt-mark showmanual</blockquote>
-					</li>
-					<li>
-						查看自动安装的包<span class="red">(Auto)</span>：
-						<blockquote>$ apt-mark showauto</blockquote>
-					</li>
-					<li>
-						查看指定保留的包<span class="red">(Hold)</span>：
-						<blockquote>$ apt-mark showhold</blockquote></li>
-					<li>
-						指定某个包的安装原因为自动安装<span class="red">(Auto)</span>：
-						<blockquote># apt-mark auto [<span class="red">package_name</span>]</blockquote>
-					</li>
-					<li>
-						记录软件包的安装原因的文件为<span class="red"> /var/lib/apt/extended_states </span>，安装原因为Auto的软件会被记录入文件中，格式如下：
-						<blockquote>
-							Package: [<span class="red">package_name</span>]<br/>
-							Architecture: [<span class="red">arch_flag</span>]<br/>
-							Auto-Installed: 1
-						</blockquote>
-						可以手动修改该配置文件来设定包的安装原因。
-					</li>
-				</ul>
-				<p>较新的debian系统中还可以直接使用<span class="red">apt</span>指令来完成一些操作，比如：</p>
-				<ul>
-					<li>
-						查看一个包的详细信息：
-						<blockquote>$ apt show [<span class="red">package_name</span>]</blockquote>
-					</li>
-					<li>
-						更新源：
-						<blockquote># apt update</blockquote>
-					</li>
-					<li>
-						列出软件包：
-						<blockquote>
-							# apt list<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出所有源中的软件包</span><br/>
-							# apt list --installed<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出已安装的软件包</span>
-						</blockquote>
-					</li>
-					<li>
-						完整更新包：
-						<blockquote># apt full-upgrade</blockquote>
-					</li>
-				</ul>
-				<p>清理无用依赖、删除软件包时可以加上<span class="red"> --purge </span>参数或直接使用<span class="blue"> apt purge </span>指令在删除包的同时清理无用的配置文件：</p>
-				<blockquote>
-					# apt-get autoremove --purge<br/>
-					# apt-get remove --purge [<span class="red">package_name</span>]<br/>
-					# apt purge [<span class="red">package_name</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//指令作用与 apt-get remove --purge 相同</span>
-				</blockquote>
-				<p>可以使用<span class="red"> dpkg </span>工具查看所有已安装的包的状态：</p>
-				<blockquote># dpkg -l</blockquote>
-				<p>其中，第一栏则为包的当前状态，<span class="red"> ii </span>表示包已安装，<span class="red"> rc </span>代表包有残余配置文件，使用如下命令可以查找到所有带有残余配置文件的包：</p>
-				<blockquote># dpkg -l | grep '^rc'</blockquote>
-				<p>可以使用<span class="red"> dpkg </span>查看包的内容：</p>
-				<blockquote># dpkg -L [<span class="red">package_name</span>]</blockquote>
+				<li>
+					<p>
+						在使用Unity桌面环境时，如果遇到fcitx输入法无法自启动的情况，
+						可以将其收到手动添加到<span class="red"> gnome-session-properties(启动应用程序) </span>中。
+						将<span class="red"> fcitx -d </span>添加到自启动指令中
+						(使用其它方法，比如将自启动指令写入<span class="red">.xprofile</span>文件中等方式虽然可以正常使fcitx开机自启，但fcitx的托盘图标不能正常显示)。
+					</p>
+				</li><br/>
+				<li>
+					<p>可以通过<span class="red"> dconf-editor </span>来进行各类桌面配置，常用的有：</p>
+					<blockquote>
+						com.canonical.unity-greeter<span>&nbsp;&nbsp;&nbsp;&nbsp;//登录界面配置</span><br/>
+						org.gnome.desktop.interface<span>&nbsp;&nbsp;&nbsp;&nbsp;//桌面主题、字体配置、鼠标主题</span><br/>
+						com.canonical.Unity<span>&nbsp;&nbsp;&nbsp;&nbsp;//设置全局菜单和侧边栏的显示</span>
+					</blockquote>
+				</li><br/>
+				<li>
+					<p>默认情况下，安装玩qtcreator之后是没有安装mysql数据库驱动的，如果在Qt开发中使用了mysql数据库，
+					则需要安装<span class="red"> libqt5sql-myql </span>数据库驱动，其它的数据库驱动如<span class="red"> odbc </span>也是类似操作。</p>
+				</li><br/>
+				<li>
+					<p>默认情况下，Debian系包管理使用<span class="red"> # apt-get autoremove </span>很多时候是不能清除一些受系统保护的无用依赖的(比如旧版本的内核)，
+					如果需要解除系统对这些包的保护，可以移除<span class="red"> /etc/apt/apt.conf.d/ </span>目录下的一些<span class="red">apt</span>配置文件，执行指令：</p>
+					<blockquote># rm /etc/apt/apt.conf.d/01autoremove /etc/apt/apt.conf.d/01autoremove-kernels</blockquote></li><br/>
+				<li>
+					<p>debian系列的软件源格式说明。<br/>debian系列的软件源由以下几个部分构成：</p>
+					<blockquote>deb/deb-src [软件源地址] [版本号] [仓库类型]</blockquote>
+					<p>
+						第一部分代表软件源为预编译包(deb)或是源码(deb-src)，第二部分为软件源站点地址，第三部分为发行版当前的版本号，
+						例如<span class="red"> Ubuntu 15.04 <span>的版本号为<span class="red"> vivid </span>，
+						而一个版本号还会衍生出几个子版本，比如Ubuntu系列的就有<span class="red"> *、*-updates、*-backports、*-security、*-proposed </span>等五种，
+						每一种源还有对应的仓库类型，Ubuntu的仓库类型有<span class="red"> main、restricted、universe、multiverse </span>等，
+						Ubuntu还有不属于其中的"partner"源，保存着一些特殊的分发包，比如flash插件等，
+						<span class="red"> partner </span>源只有一个与版本号名字相同的主版本，而仓库名即为"partner"(这个源只有官方的地址可用)。<br/>
+						以<span class="red"> Ubuntu 15.04 vivid </span>和国内的北京大学源为例，可用的源列表为：
+					</p>
+					<blockquote>
+						deb http://mirrors.uttc.edu.cn/ubuntu/ <span class="red">vivid</span> main restricted universe multiverse<br/>
+						deb http://mirrors.ustc.edu.cn/ubuntu/ <span class="red">vivid-security</span> main restricted universe multiverse<br/>
+						deb http://mirrors.ustc.edu.cn/ubuntu/ <span class="red">vivid-updates</span> main restricted universe multiverse<br/>
+						deb http://mirrors.ustc.edu.cn/ubuntu/ <span class="red">vivid-proposed</span> main restricted universe multiverse<br/>
+						deb http://mirrors.ustc.edu.cn/ubuntu/ <span class="red">vivid-backports</span> main restricted universe multiverse<br/><br/>
+						deb http://archive.canonical.com/ubuntu/ <span class="red">vivid</span> partner
+					</blockquote>
+					<p>
+						Debian的源格式与Ubuntu完全相同，但版本号、子版本和仓库类型略有不同，
+						Debian的主版本号有<span class="red"> stable、testing </span>等，也可以直接使用版本代号作为主版本号。
+						Debian的子版本有<span class="red"> *、*-updates、*-backports、*-proposed-updates </span>，
+						仓库类型有<span class="red"> main、contrib、non-free </span>等。
+					</p>
+				</li><br/>
+				<li>
+					<p>chrome浏览器可以直接从goole服务器站点下载：</p>
+					<blockquote>$ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb</blockquote>
+				</li><br/>
+				<li>
+					<p>Debian系的一些高级包管理操作：</p>
+					<p>原先<span class="red"> apt-get mark* </span>系列指令已经被废弃，标记软件包安装原因的指令转移到<span class="red"> apt-mark </span>下：</p>
+					<ul>
+						<li>
+							查看手动安装的包<span class="red">(Manaul)</span>：
+							<blockquote>$ apt-mark showmanual</blockquote>
+						</li>
+						<li>
+							查看自动安装的包<span class="red">(Auto)</span>：
+							<blockquote>$ apt-mark showauto</blockquote>
+						</li>
+						<li>
+							查看指定保留的包<span class="red">(Hold)</span>：
+							<blockquote>$ apt-mark showhold</blockquote></li>
+						<li>
+							指定某个包的安装原因为自动安装<span class="red">(Auto)</span>：
+							<blockquote># apt-mark auto [<span class="red">package_name</span>]</blockquote>
+						</li>
+						<li>
+							记录软件包的安装原因的文件为<span class="red"> /var/lib/apt/extended_states </span>，安装原因为Auto的软件会被记录入文件中，格式如下：
+							<blockquote>
+								Package: [<span class="red">package_name</span>]<br/>
+								Architecture: [<span class="red">arch_flag</span>]<br/>
+								Auto-Installed: 1
+							</blockquote>
+							可以手动修改该配置文件来设定包的安装原因。
+						</li>
+					</ul>
+					<p>较新的debian系统中还可以直接使用<span class="red">apt</span>指令来完成一些操作，比如：</p>
+					<ul>
+						<li>
+							查看一个包的详细信息：
+							<blockquote>$ apt show [<span class="red">package_name</span>]</blockquote>
+						</li>
+						<li>
+							更新源：
+							<blockquote># apt update</blockquote>
+						</li>
+						<li>
+							列出软件包：
+							<blockquote>
+								# apt list<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出所有源中的软件包</span><br/>
+								# apt list --installed<span>&nbsp;&nbsp;&nbsp;&nbsp;//列出已安装的软件包</span>
+							</blockquote>
+						</li>
+						<li>
+							完整更新包：
+							<blockquote># apt full-upgrade</blockquote>
+						</li>
+					</ul>
+					<p>清理无用依赖、删除软件包时可以加上<span class="red"> --purge </span>参数或直接使用<span class="blue"> apt purge </span>指令在删除包的同时清理无用的配置文件：</p>
+					<blockquote>
+						# apt-get autoremove --purge<br/>
+						# apt-get remove --purge [<span class="red">package_name</span>]<br/>
+						# apt purge [<span class="red">package_name</span>]<span>&nbsp;&nbsp;&nbsp;&nbsp;//指令作用与 apt-get remove --purge 相同</span>
+					</blockquote>
+					<p>可以使用<span class="red"> dpkg </span>工具查看所有已安装的包的状态：</p>
+					<blockquote># dpkg -l</blockquote>
+					<p>其中，第一栏则为包的当前状态，<span class="red"> ii </span>表示包已安装，<span class="red"> rc </span>代表包有残余配置文件，使用如下命令可以查找到所有带有残余配置文件的包：</p>
+					<blockquote># dpkg -l | grep '^rc'</blockquote>
+					<p>可以使用<span class="red"> dpkg </span>查看包的内容：</p>
+					<blockquote># dpkg -L [<span class="red">package_name</span>]</blockquote>
+				</li><br/>
 			</ol>
 		</div>
 		<div class="bottom">
