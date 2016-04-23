@@ -643,13 +643,27 @@
 			</li><br/>
 			<li>
 				<p>安装yaourt，在<span class="blue"> /etc/pacman.conf </span>中添加软件仓库：</p>
-				<blockquote>[<span class="blue">archlinuxfr</span>]<br/>SigLevel = Optional TrustAll<br/>Server = <span class="blue">http://repo.archlinux.fr/$arch</span></blockquote>
+				<blockquote>
+					[<span class="blue">archlinuxfr</span>]<br/>
+					SigLevel = Optional TrustAll<br/>
+					Server = <span class="blue">http://repo.archlinux.fr/$arch</span>
+				</blockquote>
 				<p>刷新源一遍之后，在命令行中安装：</p>
 				<blockquote># pacman -Sy yaourt</blockquote>
 				<p>使用yaourt来更新所有系统中的包：</p>
 				<blockquote>$ yaourt -Syua</blockquote>
 				<p>还可以使用国内用户打包的archlinuxcn仓库，该仓库中包含有许多常用的官方尚未收录的软件的二进制包(<span class="blue">chrome，wps</span>等)，在<span class="blue"> /etc/pacman.conf </span>文件中添加：</p>
-				<blockquote>[<span class="blue">archlinuxcn</span>]<br/>Server = <span class="blue">http://repo.archLinuxcn.org/$arch</span><span>&nbsp;&nbsp;&nbsp;&nbsp;//实际上由于网络问题，下载archlinuxcn源中的包特别慢，一般情况下还是不要添加此源，直接去AUR中编译安装更快，除非你需要的软件被墙了。</span></blockquote>
+				<blockquote>
+					[<span class="blue">archlinuxcn</span>]<br/>
+					SigLevel = Optional TrustAll<span>&nbsp;&nbsp;&nbsp;&nbsp;//如果开启PGP验证，则需要安装archlinuxcn-keyring包</span><br/>
+					Server = <span class="blue">http://repo.archLinuxcn.org/$arch</span>
+				</blockquote>
+				<p>实际上由于网络问题，下载默认archlinuxcn源中的包特别慢，但中科大源中同样提供了archlinuxcn仓库，使用中科大源的archlinuxcn仓库：</p>
+				<blockquote>
+					[<span class="blue">archlinuxcn</span>]<br/>
+					SigLevel = Optional TrustAll<br/>
+					Server = <span class="blue">https://mirrors.ustc.edu.cn/archlinuxcn/$arch</span>
+				</blockquote>
 			</li><br/>
 			<li>
 				<p>ArchLinux中pacmanの图形化前端：</p>

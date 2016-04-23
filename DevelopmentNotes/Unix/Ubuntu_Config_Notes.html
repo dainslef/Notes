@@ -425,6 +425,13 @@
 					<blockquote># apt install software-properties-common</blockquote>
 				</li><br/>
 				<li>
+					<p>Unity桌面环境可以设置顶栏透明度，使用指令：</p>
+					<blockquote>
+						$ gsettings set org.compiz.unityshell:/org/compiz/profiles/unity/plugins/unityshell/ panel-opacity [<span class="red">value</span>]
+						<span>&nbsp;&nbsp;&nbsp;&nbsp;//透明度取值0~1，0为透明，1为不透明</span>
+					</blockquote>
+				</li><br/>
+				<li>
 					<p>在ubuntu14.04中，可以选择直接用搜狗官网中下载搜狗输入法linux版本。搜狗输入法需要使用fcitx作为输入框架：</p>
 					<blockquote># apt-get install fcitx</blockquote>
 					<p>安装fcitx之后，使用<span class="red"> dpkg -i </span>命令安装下载好的搜狗拼音deb包。
