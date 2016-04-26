@@ -22,7 +22,7 @@ int Partition(int *a, int start, int end) 		//将数列的第一个数作为exam
 			{
 				a[start] = a[i];
 				a[i] = example; 		//交换数字立即赋值，放到最后赋值可能会产生错误
-				start += 1;		//交换数值后，start位置的数值肯定比example小(呵呵，废话)，所以下次比较就从start的下一个位置开始了
+				start += 1;		//交换数值后，start位置的数值肯定比example小，所以下次比较就从start的下一个位置开始了
 				end = i;		//i位置之后的数字肯定比example大，也不用再比较了，所以把i作为end就好了
 				break;
 			}
