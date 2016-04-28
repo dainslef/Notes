@@ -1,21 +1,32 @@
 [TOC]
 
-#Socket通信
+# *Socket* 通信
 `socket`源于**BSD Unix**，是现今网络通信的**事实标准**。
 
 
 
-##使用套接字的主要步骤
-1. 分配套接字接口和初始化
-2. 连接
-3. 发送或接收数据
-4. 关闭套接字
+## *Socket* 函数
+包括`socket()`、`bind()`、`listen()`、`connect()`、`accpet()`、`recv()`、`send()`等函数。
 
-
-
-##涉及的函数
-包括`socket()``bind()``listen()``connect()``accpet()``recv()``send()`等函数。
 相关函数的定义在`/usr/include/sys/socket.h`头文件中。
+
+
+
+## *Scoket* 通信主要步骤
+
+### 服务端
+0. `socket()`初始化套接字描述符。
+0. `bind()`绑定端口和IP地址。
+0. `listen()`监听端口并设置最大同时连接数，`UDP`模式下**无需**此步骤。
+0. `accept()`阻塞，直到接受客户端的连接请求返回通信描述符，`UDP`模式下**无需**此步骤。
+0. `recv()/send()`使用通信描述符与客户端进行交互。
+0. `close()`关闭打开的描述符。
+
+### 客户端
+0. `socket()`初始化套接字描述符。
+0. `connect()`连接指定地址和端口的服务端，`TCP`模式下会进行三次握手，`UDP`模式下不会。
+0. `recv()/send()`使用通信描述符与服务端进行交互。
+0. `close()`关闭打开的描述符。
 
 
 
@@ -26,21 +37,24 @@
 int socket(int domain, int type, int protocol);
 ```
 
-`domain`代表使用的**域**，使用**TCP/IP**协议应取值`AF_INET`。
-`type`代表连接的类型，可取值`SOCK_STREAM`或`SOCK_DGRAM`，前者代表**TCP**可靠连接，后者代表**UDP**连接。
-`protocol`代表使用的协议，一般取**0**。
-成功时函数返回**套接字描述符**，失败时返回**-1**，并置**errno**。
+- `domain`参数表示使用的**域**，使用`TCP/IP`协议应取值`AF_INET`。
+- `type`参数表示连接的类型，可取值`SOCK_STREAM`或`SOCK_DGRAM`，前者代表`TCP`可靠连接，后者代表`UDP`连接。
+- `protocol`参数表示使用的协议，一般取`0`。
+
+成功时函数返回**套接字描述符**，失败时返回`-1`，并置`errno`。
 
 
 
 ## *bind()* 函数
-`bind()`函数将**套接字描述符**与**端口**联系起来，通常用于服务器进程为接入客户连接建立一个套接字接口，函数定义为：
+`bind()`函数将**套接字描述符**与**端口**、**IP地址**联系起来，用于服务进程。客户端使用传入`bind()`的IP地址和端口号来访问服务进程，函数定义为：
 
 ```c
 int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 ```
 
-`sockaddr`用来表示**IP地址**，定义为：
+- `sockfd`参数为`socket()`函数返回的套接字描述符。
+- `addrlen`参数用于设置`addr`结构体中所能容纳的**最大字节数**。
+- `addr`参数表示**IP地址**，结构体`sockaddr`的地址，定义为：
 
 ```c
 struct sockaddr {
@@ -49,7 +63,9 @@ struct sockaddr {
 }
 ```
 
-通常情况下，并不直接创建`sockaddr`结构体，而是将IP地址的信息写入与`sockaddr`大小**相同**的`sockaddr_in`这个结构体中，`sockaddr_in`定义在`/usr/include/netinet/in.h`文件中，定义如下：
+通常情况下，并不直接创建`sockaddr`结构体，而是将IP地址和端口号信息写入与`sockaddr`大小**相同**的`sockaddr_in`这个结构体中，然后在将其强制类型转换为`sockaddr`类型。
+
+`sockaddr_in`定义在`/usr/include/netinet/in.h`文件中，定义如下：
 
 ```c
 struct sockaddr_in {
@@ -68,11 +84,9 @@ struct in_addr {
 };
 ```
 
-`sockfd`参数为`socket()`函数成功时返回的套接字描述符。
-`addr`为结构体`sockaddr`的地址，使用时，一般先将IP地址的信息定义在`sockaddr_in`结构体中，然后在将其强制类型转换为`sockaddr`类型。
-将IP地址赋值给`in_addr`结构体的`s_addr`，需要通过`inet_addr()`函数进行转换，该函数定义在`/usr/include/arpa/inet.h`文件中。
-`addrlen`设置了`addr`结构体中所能容纳的**最大字节数**。
-函数成功返回**0**，失败时返回**-1**，并置**errno**。
+将IP地址赋值给`in_addr`结构体的`s_addr`成员，需要通过`inet_addr()`函数进行转换，该函数定义在`/usr/include/arpa/inet.h`文件中。
+
+函数成功返回**0**，失败时返回`-1`，并置`errno`。
 
 
 
@@ -83,8 +97,10 @@ struct in_addr {
 int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 ```
 
-`sockfd`参数是`socket()`函数返回的套接字描述符。
-`addr`为需要连接的服务器的地址。
+- `sockfd`参数为`socket()`函数返回的套接字描述符。
+- `addr`为需要连接的服务器的地址。
+
+函数执行成功返回`0`，执行失败返回`-1`并置`errno`。
 
 
 
@@ -95,10 +111,13 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 int listen(int sockfd, int backlog);
 ```
 
-`sockfd`参数是`socket()`函数返回的套接字描述符。
-`backlog`参数用于设置接入队列的大小(可同时并发接受的连接数)。
+- `sockfd`参数为`socket()`函数返回的套接字描述符。
+- `backlog`参数用于设置接入队列的大小(可同时并发接受的连接数)。
 成功时返回**0**，失败时返回**-1**，并置**errno**。
+
 `listen()`函数**不是**阻塞的。
+
+函数执行成功返回`0`，执行失败返回`-1`并置`errno`。
 
 
 
@@ -109,9 +128,13 @@ int listen(int sockfd, int backlog);
 int accpet(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 ```
 
-`sockfd`为监听套接字，`addr`用来接收客户的地址(如果对客户的地址不感兴趣，该参数可填**NULL**)，`addrlen`用来接收客户地址的长度(对客户地址不感兴趣则同样可以填**NULL**)。
-返回值为**连接套接字**，通过该套接字描述符进行通信(连接套接字与`socket()`函数生成的监听套接字并不相同！服务端使用`send()`或是`recv()`等函数发送消息时应该使用连接套接字！)。
-`accept()`函数会**阻塞线程**。
+- `sockfd`参数为`socket()`函数返回的套接字描述符。
+- `addr`参数为接收客户的地址(如果对客户的地址不感兴趣，该参数可填**NULL**)。
+- `addrlen`参数为接收客户地址的长度(对客户地址不感兴趣则同样可以填**NULL**)。
+
+`accept()`函数会**阻塞线程**，直到有新的客户加入。
+
+函数执行成功返回值为**连接套接字**，通过该套接字描述符进行**通信**(连接套接字与`socket()`函数生成的监听套接字并不相同！服务端使用`send()`或是`recv()`等函数发送消息时应该使用连接套接字！)。
 
 
 
@@ -147,12 +170,14 @@ struct iovec {					/* Scatter/gather array items */
 };
 ```
 
-对于**UDP**协议而言`sockfd`参数是`socket()`函数返回的套接字描述符。
-对于**TCP**协议而言`sockfd`参数是`accept()`函数返回的连接套接字描述符。
-`buf`参数是接收数据内存`buffer`地址指针。
-参数`len`指明`buffer`的大小，单位**字节**。
-参数`flag`一般为**0**。
+- 对于**UDP**协议而言`sockfd`参数是`socket()`函数返回的套接字描述符。
+- 对于**TCP**协议而言`sockfd`参数是`accept()`函数返回的连接套接字描述符。
+- `buf`参数是接收数据内存`buffer`地址指针。
+- `len`参数指明`buffer`的大小，单位**字节**。
+- `flag`参数一般为**0**。
+
 成功发送数据返回**发送的字节数**，失败时返回**-1**，并置**ernno**。
+
 可以使用系统调用`write()`来向套接字描述符中写入数据，作用与使用`send()`函数发送数据相同。
 
 
@@ -167,27 +192,30 @@ ssize_t recvmsg(int sockfd, struct msghdr *msg, int flags);
 ```
 
 参数的定义类似与`send()`函数。
+
 可以使用系统调用`read()`读取套接字描述符中的数据，作用与使用`recv()`函数接收数据相同。
 
 
 
-##注意事项
-- `accept()`函数是**阻塞**的(阻塞当前线程)，但`listen()``recv()``send()`不会阻塞线程的执行。
+## 注意事项
+- `accept()`函数是**阻塞**的(阻塞当前线程)，但`listen()`、`recv()`、`send()`不会阻塞线程的执行。
 - **UDP**协议是**无连接**的，因此服务端不需要使用`listen()`和`accpet()`函数，也**不需要**使用多线程来接收多个客户请求。
-- 等号赋值`=`的优先级比`==`符号要低，因此不要直接将`socket()``accpet()``send()`等socket相关函数的赋值和比较操作同时进行(不要写成 `if (client_fd = accpet(sockfd, NULL, NULL) == -1)`这样的)，应该注意**运算优先级**(需要给赋值操作加上小括号)。
-- 服务端使用`accept()`函数之后会产生新的连接套接字描述符，所有的服务端的`send()``recv()`应该使用该连接套接字描述符。
+- 等号赋值`=`的优先级比`==`符号要低，因此不要直接将`socket()`、`accpet()`、`send()`等socket相关函数的赋值和比较操作同时进行(不要写成 `if (client_fd = accpet(sockfd, NULL, NULL) == -1)`这样的)，应该注意**运算优先级**(需要给赋值操作加上小括号)。
+- 服务端使用`accept()`函数之后会产生新的连接套接字描述符，所有的服务端的`send()`、`recv()`应该使用该连接套接字描述符。
 - 需要同时多个用户保持通信连接则需要循环`accpet()`函数，只运行一次`accept()`函数则服务端只会与第一个用户通信，后面的用户都会被忽略。
 - `recv()`函数的参数中注意正确填写收到字符串的大小(不要写成`recv(client_fd, str, strlen(str), 0)`这样的)，不能使用`strlen(str)`函数计算接收到字符数组大小，因为`recv()`函数结束后才会改变接收字符数组`str`中的内容。
 - 在`Unix`系统中，一切皆文件，因而使用`send()/recv()`发送/接收数据的场景也可以直接使用系统调用`write()/read()`读写套接字描述符，效果类似。
 
 
 
-##实例代码(UDP)
+## 实例代码(UDP)
 **UDP**协议是**无连接**的，因此服务端**不需要**使用`listen()`和`accpet()`函数，直接使用`socket()`函数生成套接字描述符，然后使用`bind()`函数将套接字描述符绑定一个空闲的端口，然后就可以使用`recv()`函数来接受数据了。
+
 由于**UDP**是无链接的，**不需要**针对不同用户生成不同的通信套接字，**不需要**使用多线程或是`select()`函数来处理不同用户的数据。
+
 需要注意的是，即使是**UDP**连接，客户端依然需要使用`connect()`函数来确定发送数据的地址(服务端地址、端口)，但UDP协议的`connect()`函数**不进行**三次握手操作。
 
-###客户端
+### 客户端
 
 ```c
 #include <stdio.h>
@@ -228,7 +256,7 @@ int main(int argc, char** argv)
 }
 ```
 
-###服务端
+### 服务端
 
 ```c
 #include <stdio.h>
@@ -269,8 +297,9 @@ int main(void)
 
 
 
-##实例代码(TCP)
+## 实例代码(TCP)
 **TCP**协议要求拥有稳定的连接，因此需要使用`listen()`函数来监听套接字端口并设置最大并发数，用`accept()`函数来为每个请求用户的用户生成不同的连接套接字。
+
 同时并行处理多个用户的请求需要使用**多线程**机制或是`select()`轮询。
 
 ###客户端
@@ -357,7 +386,7 @@ int main(int argc, char **argv)
 }
 ```
 
-###服务端(使用多线程)
+### 服务端(使用多线程)
 
 ```c
 #include <pthread.h>
@@ -443,7 +472,7 @@ int main(void)
 }
 ```
 
-###服务端(使用select()轮询)
+### 服务端(使用select()轮询)
 
 ```c
 #include <stdio.h>
