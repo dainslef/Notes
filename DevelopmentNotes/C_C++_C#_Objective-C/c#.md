@@ -52,7 +52,7 @@ public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>,
 
 用户定义的结构体，从`System.ValueType`类中继承：
 
-```chsarp
+```csharp
 public abstract class ValueType;
 ```
 
@@ -158,15 +158,14 @@ public int a { get; } = "Hello World!";
 与`C++`完全不同，`C#`中的`结构体`与`类`有**很大区别**：
 
 - C#中的结构体为**值类型**，在**栈(stack)**中分配内存，而引用类型则仅在栈中保存**引用(reference)**，类型实体内存分配在**堆(heap)**中。同时由于结构体为值类型，因而复制结构体时是完全复制出一个新的结构体实例，而非引用类型的引用传递。
-- C#中结构体的默认访问权限是`private`，且结构体成员变量**不能**直接赋初值(需要通过有参构造函数符初值)。
+- C#中结构体的默认访问权限是`private`，且结构体成员变量**不能**直接赋初值(需要通过有参构造函数赋初值)。
 - C#中结构类型全部继承自`System.ValueType`类，但结构体是隐式**密封(sealed)**的，**不能**被继承。
 - C#中结构体可以用来实现接口。用来实现接口的结构体虽然本身为值类型，但如果发生**向上转型**重新变为父类接口对象则值类型的特性也将随之消失。
 - 由于C#中结构体不能被继承，因此结构体定义时不能使用`sealed`和`abstract`关键字，结构体成员定义时也不能使用`protected`和`internal`等关键字。
 - C#中结构体带有默认的无参构造函数，且该默认构造函数一直存在(无论你是否创建了有参构造函数)，默认的无参构造函数**不能**被自定义(改写)。
 - 创建有参构造函数时，必须在该构造函数中初始化所有的成员变量，否则无法通过编译。
 - 创建结构体时可以不使用`new`操作符，不使用`new`操作符创建的结构体对象中的结构体成员全部处于未初始化状态，需要经过初始化操作(手动访问赋值)之后方可使用。
-- 在`C#6.0`之后，开发者可以**自定义**无参构造函数。
-如果需要使用结构体提供的有参构造函数，则必须使用`new`操作符进行对象创建，语法类似于`class`。
+- 如果需要使用结构体提供的有参构造函数，则必须使用`new`操作符进行对象创建，语法类似于`class`。
 - 在C#中结构体成员可以使用`static`修饰，结构体也可以创建静态构造函数。
 - 在C#中结构体中可以正常使用泛型。
 
@@ -746,13 +745,13 @@ public delegate void EventHandler(object sender, EventArgs e);
 
 常用的`Windows Form`控件事件有：
 
-- `Load`载入窗体时触发，一般可用于初始化一些UI设置(`Form`类)
-- `Click`点按控件时触发
-- `MouseDown`鼠标按下时触发
-- `MouseUp`鼠标抬起时触发
-- `KeyDown`按键按下时触发
-- `KeyUp`按键抬起时触发
-- `GotFocus`接收焦点时触发
+- `Load` 载入窗体时触发，一般可用于初始化一些UI设置(`Form`类)
+- `Click` 点按控件时触发
+- `MouseDown` 鼠标按下时触发
+- `MouseUp` 鼠标抬起时触发
+- `KeyDown` 按键按下时触发
+- `KeyUp` 按键抬起时触发
+- `GotFocus` 接收焦点时触发
 
 ### 接收Windows消息
 在`Windows Form`中，所有从`System.Windows.Forms.Control`派生的类都包含以下方法：
@@ -764,11 +763,11 @@ protected override void WndProc(ref Message m);
 重写其即可处理**Windows消息**。
 `Message`类完整路径为`System.Windows.Forms.Message`，该类包装了Windows消息，包含以下属性：
 
-- `HWnd`获取或设置消息的窗口句柄
-- `LParam`指定消息的**LParam**字段
-- `Msg`获取或设置消息的**ID**号
-- `Result`指定为响应消息处理而向**Windows**返回的值
-- `WParam`获取或设置消息的**WParam**字段
+- `HWnd` 获取或设置消息的窗口句柄
+- `LParam` 指定消息的**LParam**字段
+- `Msg` 获取或设置消息的**ID**号
+- `Result` 指定为响应消息处理而向**Windows**返回的值
+- `WParam` 获取或设置消息的**WParam**字段
 
 
 
