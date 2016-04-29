@@ -232,7 +232,7 @@ No Args
 ```
 
 ### 函数(Function)
-在Scala中函数使用`var``val`关键字定义，即函数是一个存储了函数对象的字段。
+在Scala中函数使用`var/val`关键字定义，即函数是一个存储了函数对象的字段。
 
 一个典型的函数定义如下：
 
@@ -357,6 +357,42 @@ var func: (() => T) => T = (arg: () => T) => arg
 ```
 
 在接收参数时，空参函数参数只能接收同样空参的函数，即`() =>`不能被省略，而传名参数则无此限制。
+
+### *continue* 循环与 *break*
+Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
+
+- `continue`功能可以通过添加`if`判断条件实现或使用**守卫**。
+- `break`功能可以由`scala.util.control.Breaks`类提供。
+	`Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
+	```scala
+	def breakable(op: => Unit): Unit {
+		try { op } catch {
+			//判断异常是否为breakException，是则捕获，其它异常则继续向外传递
+			case ex: BreakControl => if (ex ne breakException) throw ex
+		}
+	}
+	def break(): Nothing = { throw breakException }
+	```
+	由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。
+	`break()`方法产生`breakException`异常。
+
+	将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
+
+	使用`Breaks`如下代码所示：
+	```scala
+	import scala.util.control.Breaks.{ breakable, break }
+
+	object Main extends App {
+
+		breakable {
+			//使用break的代码块作为传名参数传入breakable中
+			for (i <- 1 to 10) {
+				if (i == 8) break		//跳出循环
+			}
+		}
+
+	}
+	```
 
 
 
@@ -1321,7 +1357,7 @@ object TestTuple extends App {
 
 
 ## 容器
-Scala的容器按数据结构分为`序列(Seq)``集合(Set)`和`映射(Map)`三大类。
+Scala的容器按数据结构分为`序列(Seq)`、`集合(Set)`和`映射(Map)`三大类。
 
 - `序列(Seq)`为有序容器，按照元素添加的顺序排列，其中，`Seq`的子类`IndexedSeq`允许类似数组的方式按照下标进行访问。
 - `集合(Set)`为数学意义上的集合，不包含重复元素，其中，`Set`的子类`SortedSet`中元素以某种顺序排序。
@@ -1445,7 +1481,7 @@ scala> arrayBuffer -= 1000
 res13: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
 ```
 
-需要注意的是，`+=``-=`只是**方法名**并不是**运算符**，因此，以下的写法会**报错**：
+需要注意的是，`+=`、`-=`只是**方法名**并不是**运算符**，因此，以下的写法会**报错**：
 
 ```scala
 arrayBuffer = arrayBuffer + 10

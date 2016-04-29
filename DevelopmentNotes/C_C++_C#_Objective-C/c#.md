@@ -35,20 +35,20 @@ public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>,
 
 | 别名 | 实际类型 |
 |:----|:--------|
-| `sbyte` | `System.SByte` |
-| `short` | `System.Int16` |
-| `int` | `System.Int32` |
-| `long` | `System.Int64` |
-| `byte` | `System.Byte` |
-| `ushort` | `System.UInt16` |
-| `uint` | `System.UInt32` |
-| `ulong` | `System.UInt64` |
-| `char` | `System.Char` |
-| `float` | `System.Single` |
-| `double` | `System.Double` |
-| `decimal` | `System.Decimal`一般用于财务计算 |
-| `bool` | `System.Boolean` |
-| `enum` | `System.Enum`枚举类型 |
+| sbyte | System.SByte |
+| short | System.Int16 |
+| int | System.Int32 |
+| long | System.Int64 |
+| byte | System.Byte |
+| ushort | System.UInt16 |
+| uint | System.UInt32 |
+| ulong | System.UInt64 |
+| char | System.Char |
+| float | System.Single |
+| double | System.Double |
+| decimal | System.Decimal(一般用于财务计算) |
+| bool | System.Boolean |
+| enum | System.Enum(枚举类型) |
 
 用户定义的结构体，从`System.ValueType`类中继承：
 
