@@ -1,9 +1,28 @@
 [TOC]
 
-##时间API
+## 系统调用与库函数
+对开发者而言，系统调用与库函数在Unix中都是一组C语言接口，但内部有很大区别。
+
+### 系统调用
+**系统调用**(`System calls`)是操作系统提供的服务入口点，程序由这些服务入口点向内核请求服务。
+Unix系统为大多数的系统调用提供了同名的C函数接口，封装在标准C库(libc)中，在用户进程中调用这些C函数来发起系统调用。
+在Linux和BSD中，部分系统函数没有提供C库的封装(比如Linux中的`gettid()`)，需要使用`syscall()`函数进行调用，`syscall()`最初由BSD引入，Linux在`Linux Kernel 2.6.19`之后引入该函数。
+一般而言，系统调用是系统服务的直接入口点。一些库函数也会用到系统调用，但这些库函数**不是**系统入口点(典型的例子是C语言标准库中的`printf()`函数使用了系统调用`write()`)。
+使用系统调用会在**用户态**与**内核态**之间进行环境切换(内核发现`trap`之后进入内核态)，有较大开销。
+`man`手册卷`2`中的函数皆为系统调用。
+
+### 库函数
+**库函数**(`Library calls`)是编程语言的一部分，与操作系统无关，`Windows`系统中，例如`printf()`、`scanf()`等库函数依然可用，但Unix系统调用如`read()`、`write()`便不再存在。
+一些库函数内部会使用系统调用(如`printf()`)，在不同的操作系统中，库函数会使用对应操作系统的系统调用。
+辅助功能性库函数(如`memcpy()`、`atoi()`之类)是纯粹的用户态函数，不涉及系统调用，不会造成系统在用户态与内核态之间切换。
+`man`手册卷`3`中的函数皆为库函数。
+
+
+
+## 时间API
 Unix环境下的时间获取相关函数定义在`time.h`头文件之中。
 
-###获取当前的系统时间
+### 获取当前的系统时间
 使用`time()`函数获取当前系统时间。
 
 ```c
@@ -14,7 +33,7 @@ time_t time(time_t *t);
 如果只是从返回值获取当前时间，不需要将时间写入传入参数中，则参数可以填`NULL`，函数正常运行。
 需要注意的是`time_t`保存的是`1970-01-01 00:00:00 +0000 (UTC)`开始到**当前时间**的秒数的数值，一般不直接使用。
 
-###将时间转化为可读格式
+### 将时间转化为可读格式
 使用`localtime()`函数输出时间结构体`tm`类型。
 
 ```c
@@ -40,7 +59,7 @@ struct tm {
 
 可以从`tm`结构体的对应成员中读取对应的时间信息。
 
-###将时间转化为标准字符串表示
+### 将时间转化为标准字符串表示
 
 ```c
 char *asctime(const struct tm *tm);
@@ -66,16 +85,19 @@ int main(void)
 ```
 
 运行结果：
+
+```
 当前的时间是：1点15分39秒。
 标准的时间输出：Wed Jul 29 01:15:39 2015
+```
 
 
 
-##文件与基本IO
-Unix环境下基本的文件操作为`open()``read()``write()``close()``ioctl()`。
-相关的头文件在`unistd.h``fcntl.h``sys/ioctl.h`之中。
+## 文件与基本IO
+Unix环境下基本的文件操作为`open()`、`read()`、`write()`、`close()`、`ioctl()`等。
+相关的头文件在`unistd.h`、`fcntl.h`、`sys/ioctl.h`之中。
 
-###创建/打开一个文件
+### 创建/打开一个文件
 创建/打开文件涉及的系统调用定义在文件`fcntl.h`中。
 
 ```c
@@ -86,14 +108,14 @@ int openat(int dirfd, const char *pathname, int flags);
 int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 ```
 
-以上函数在执行成功时返回新的文件描述符，失败时返回**-1**并置**errno**。
+以上函数在执行成功时返回新的文件描述符，失败时返回**-1**并置`errno`。
 
 - `crate()`函数用于创建文件，`open()`函数既可用于创建文件(**flags**取`O_CREAT`)，也可用于打开文件，打开的对象也可以是**目录**。
 - 对于`create()`和`open()`函数，参数`pathname`代表文件所在路径绝对地址的字符数组首地址，参数`mode`代表创建的文件文件带有的默认权限，可以用逻辑或操作符连接以下参数：`S_IRUSR``S_IWUSR``S_IXUSR``S_IRGRP``S_IWGRP``S_IXGRP``S_IROTH``S_IWOTH``S_IXOTH`，分别代表**拥有者**、**同组用户**、**其他用户**的**读**、**写**、**执行**权限。
 - `open()`函数的`flags`参数表示文件打开时的参数，参数可取**多个**，以**逻辑或**操作符连接，常用的有`O_RDONLY``O_WRONLY``O_RDWR`，分别表示以**只读**、**只写**、**读写**的方式打开文件，不设置这些标志将不能够对文件进行读写操作。默认每个文件描述符首次写操作会清除已有的数据，保留原有文件数据需要使用`O_APPEND`标志以追加的方式写入数据；`flags`参数取`O_CREAT | O_EXECL`时创建一个原先**不存在**的文件，如果需要被创建的文件已经存在了，则创建**失败**。
 - `openat()`函数作用与`open()`函数完全相同，但是`openat()`函数允许使用多种路径表示方式；`dirfd`文件描述符表示的路径为父目录，而`pathname`中包含的字符串为相对路径；或是`dirfd`取特殊值`AT_FDCWD`，则父目录为**当前路径**；也可以像`open()`函数一样在`pathname`中写入**绝对路径**，但此时`dirfd`的取值会被**忽略**。
 
-###读取文件中的内容
+### 读取文件中的内容
 使用`read()`函数读取文件，函数定义在`unistd.h`中。
 
 ```c
@@ -107,7 +129,7 @@ ssize_t read(int fd, void *buf, size_t count);
 返回值为实际读取了的字节数。
 失败时返回`-1`。
 
-###向文件中写入内容
+### 向文件中写入内容
 使用`write()`向文件中写入数据，函数定义在`unistd.h`中。
 
 ```c
@@ -124,13 +146,14 @@ ssize_t write(int fd, const void *buf, size_t count);
 对于同一个文件描述符，连续进行读写操作，每一次函数调用都会在上一次结束的位置进行，因此想要重复读取某个文件的内容，需要创建新的文件描述符。
 同一个文件可以同时拥有多个文件描述符，且各个文件描述符之间的文件读取是相互独立的。
 
-###标准输入/输出
+### 标准输入/输出
 在Unix哲学中，秉承**一切皆文件**思想，因而，在终端中进行输入/输出与读写文件操作类似，使用`read()/write()`调用即可。
+
 **标准输入**对应的文件描述符为`0`，**标准输出**对应的文件描述符为`1`，**标准错误输出**对应的文件描述符为`2`，使用`read()/write()`调用对这些特殊的文件描述符进行读写操作即可实现**终端输入/输出**的效果。
 
 
 
-##Unix进程控制(fork)
+## Unix进程控制(fork)
 进程相关的几个函数定义在头文件`unistd.h`中：
 
 ```c
@@ -141,7 +164,7 @@ unsigned int sleep(unsigned in seconds);		//让当前线程睡眠seconds秒
 void _exit(int status)							//终止程序，立即进入内核(不会调用atexit注册的清理函数)，参数status为程序退出码，一般可以设为0，有特殊用途时可以设为其它数值
 ```
 
-###标准库进程函数
+### 标准库进程函数
 C语言标准库中的进程相关函数定义在`stdlib.h`中：
 
 ```c
@@ -151,11 +174,13 @@ void _Exit(int status);							//终止程序，属于C标准库，等价于系�
 int atexit(void (*function)(void));				//用该函数注册终止处理程序function，在exit时将自动调用，成功时返回0，失败返回非0
 ```
 
-return语句向函数**提供返回值**，只有main函数中return才会结束进程，而exit函数在一个进程的**任意函数**中调用都将**终止当前进程**。
+`return`语句向函数**提供返回值**，只有`main()`函数中`return`才会结束进程，而`exit()`函数在一个进程的**任意函数**中调用都将**终止当前进程**。
+
 `system()`函数的作用是，运行以字符串参数的形式传递给它的命令并等待该命令的完成(效果类似于在shell中使用对应命令)。
-与exec()系统调用不同，system()函数会新建一个进程来执行命令。
-如果无法启动shell来运行这个命令，system()函数将返回错误代码127；其它错误返回-1，否则system()函数将返回该命令的退出码(一般命令都是0)。
-需要注意的是，在实际的Linux开发中，system()函数往往是很少被使用的，因为使用system()函数必须启动一个shell来执行需要的指令，使得system()函数的效率并不高。
+与`exec()`函数不同，`system()`函数会新建一个进程来执行命令。
+如果无法启动shell来运行这个命令，`system()`函数将返回错误代码`127`；其它错误返回`-1`，否则`system()`函数将返回该命令的退出码(一般命令都是`0`)。
+
+在实际的Linux开发中，`system()`函数往往是很少被使用的，使用`system()`函数必须启动一个shell来执行需要的指令，使得`system()`函数**效率不高**。
 
 ### *fork()* 函数
 在Unix环境下，`fork()`系统调用是最常见的创建进程方式，函数定义在`unistd.h`中，函数原型为：
@@ -164,8 +189,12 @@ return语句向函数**提供返回值**，只有main函数中return才会结束
 pid_t fork(void);
 ```
 
-`fork()`函数的作用是，为当前进程创建一个相同的**拷贝**，原进程为**父进程**，新进程为**子进程**，原进程的`fork()`函数返回子进程的`pid`，新进程的`fork()`函数返回`0`。新进程与原进程有着相同的**运行状态**和**代码**，即从`fork()`函数开始(包括`fork()`函数本身)接下来的代码原进程和新进程将会各执行一遍，但是，新的进程有**独立**的数据空间、环境、和文件描述符(父进程中已经打开的文件描述符在子进程中依然会存在)，子进程不继承父进程的文件锁，父进程中未处理的信号集在子进程中被置为空集。
-多进程并行执行时，各个进程是**异步乱序**执行的，因此你并不能确定各个进程各段代码的执行先后顺序，所以不要尝试编写依赖于其它进程执行结果的代码。
+`fork()`函数的作用是，为当前进程创建一个相同的**拷贝**，原进程为**父进程**，新进程为**子进程**。
+
+- 原进程的`fork()`函数返回子进程的`pid`，新进程的`fork()`函数返回`0`
+- 新进程与原进程有着相同的**运行状态**和**代码**，即从`fork()`函数开始(包括`fork()`函数本身)接下来的代码原进程和新进程将会各执行一遍
+- 新的进程有**独立**的数据空间、环境、和文件描述符(父进程中已经打开的文件描述符在子进程中依然会存在)，子进程不继承父进程的文件锁，父进程中未处理的信号集在子进程中被置为空集
+- 多进程并行执行时，各个进程是**异步乱序**执行的，因此不能确定各个进程各段代码的执行先后顺序，所以不要尝试编写依赖于其它进程执行结果的代码
 
 实例代码：
 
@@ -199,6 +228,8 @@ int main(void)
 ```
 
 运行结果：
+
+```
 dainslef
 Run the system call successful!
 This is parent process!
@@ -214,6 +245,7 @@ PID TTY          TIME CMD
 13724 pts/0    00:00:00 a.out <defunct>
 13725 pts/0    00:00:00 ps
 End!
+```
 
 由结果可知，`fork()`函数之前的`system("whoami")`函数只执行了一遍，因此shell指令`whoami`也只执行一遍。但在`fork()`函数之后的代码都执行了两遍，分别来自父进程和子进程的`printf()`函数向屏幕打印了两次`End!`。
 由`system("ps")`函数中执行的shell指令`ps`向屏幕中输出的结果可以看出，父进程的`ppid`是启动这个进程的shell的`pid`，而**子进程**的`ppid`就是**父进程**的`pid`。
@@ -246,11 +278,12 @@ int execvp(const char *file, char *const argv[]);
 int fexecve(int fd, char *const argv[], char *const envp[]);
 ```
 
-`exec()`函数为**系统调用**，执行后，会将当前的进程**完全替换**为执行新程序的进程(即这个进程`exec()`调用成功之后的代码都不再运行)，但`PID`不变，`exec()`系统调用比`system()`函数要**高效**，`exec()`与`fork()`搭配是Unix系统中最**常用**的系统进程创建组合。
-一般情况下，exec()系统调用是不会返回的，除非发生了错误。出现错误时，exec()会返回-1，并且设置错误变量errno，同时继续执行余下的代码。
-在exec()函数组中，只有execve()函数是真正的系统调用，其它的几个函数都是execve()封装而成的库函数。
-参数中的path代表绝对路径，file代表命令名称。
-这些函数主要可以归为两类，其中execl、execlp、execle三个函数接收的参数个数是可变的，参数以一个空指针结束((chasqlserver 导出 mysqlr*)0或是NULL)，用多个字符数组*arg来传递要执行的程序的参数，而execv、execp、execve等函数参数个数是固定的，将要传递给要执行的程序的参数放在二维字符数组*argv[]中(对应main函数参数中的*argv[])，而二维字符数组*envp[]中保存exec()函数要运行的程序的环境变量无论是传递给被执行程序的参数字符数组*argv[]或是环境变量字符数组*envp[]都要以一个空指针结尾。
+- `exec()`函数为**系统调用**，执行后，会将当前的进程**完全替换**为执行新程序的进程(即这个进程`exec()`调用成功之后的代码都不再运行)，但`PID`不变，`exec()`系统调用比`system()`函数要**高效**，`exec()`与`fork()`搭配是Unix系统中最**常用**的系统进程创建组合。
+- 一般情况下，`exec()`不会返回，除非发生了错误。出现错误时，`exec()`会返回`-1`，并且设置错误变量`errno`，同时继续执行余下的代码。
+- 在`exec()`函数组中，只有`execve()`函数是真正的系统调用，其它的几个函数都是`execve()`封装而成的库函数。
+- 参数中的`path`代表绝对路径，`file`代表命令名称。
+- `execl()`、`execlp()`、`execle()`三个函数接收的参数个数是可变的，参数以一个空指针结束`((char*)0或是NULL)`，用多个字符数组`*arg`来传递要执行的程序的参数。
+- `execv()`、`execp()`、`execve()`等函数参数个数是固定的，将要传递给要执行的程序的参数放在二维字符数组`*argv[]`中(对应main函数参数中的`*argv[]`)，而二维字符数组`*envp[]`中保存`exec()`函数要运行的程序的环境变量无论是传递给被执行程序的参数字符数组`*argv[]`或是环境变量字符数组`*envp[]`都要以一个空指针结尾。
 
 实例代码：
 
@@ -274,7 +307,7 @@ int main(void)
 }
 ```
 
-###等待进程
+### 等待进程
 可以在父进程中调用`wait()`函数让父进程等待子进程结束，还可以使用`waitpid()`函数来等待某个**特定进程**结束，函数定义在`sys/wait.h`中，函数原型为：
 
 ```c
@@ -328,6 +361,8 @@ int main(void)
 ```
 
 运行结果：
+
+```
 The PID is 9411
 
 This is the child process!
@@ -339,10 +374,11 @@ The PID is 9411
 The child's PID is 9412
 The child process's exit_code is 100
 Parent process END!
+```
 
 
 
-##信号(signal)
+## 信号(signal)
 信号是Unix系统响应某些条件而产生的的一个事件，进程接收到信号会采取一些相应的行动。
 信号的相关函数定义在头文件`signal.h`中。
 使用`fork()`时，子进程会继承父进程注册的信号处理函数。
@@ -378,7 +414,7 @@ int sa_flags;					//设置信号处理选项，没有特别要求可以设为NUL
 
 结构体`sigaction`指针`act`指向包含信号处理函数的结构体，而指针`oact`用于把原先的动作写到指向的位置(可以取`NULL`)。
 
-###发送信号
+### 发送信号
 使用`kill()`函数可以向**指定进程**发送信号，使用`raise()`可以向**当前进程**发送信号。函数定义在`signal.h`中，如下所示：
 
 ```c
@@ -402,9 +438,10 @@ int pthread_kill(pthread_t thread, int sig);
 
 函数成功返回`0`，失败时返回错误代码。
 
-###信号处理函数的触发
+### 信号处理函数的触发
 信号机制类似**软件中断**，信号处理函数**不会**运行在独立的线程，而是**中断**现有的代码运行信号处理函数。
 一个进程触发了信号处理函数，则在信号处理函数结束返回之后才会继续运行先前的代码。
+
 如下代码所示：
 
 ```c
@@ -444,12 +481,13 @@ int main(void)
 在`BSD`和`Linux`中，运行信号处理函数期间再次收到信号会**阻塞**此信号，直到信号处理函数返回。
 在部分Unix中，运行信号处理函数时可能会将此信号**重置**为默认操作，在此类情况下，需要在信号处理函数中重新绑定信号。
 
-###可靠信号与不可靠信号
-可靠信号与不可靠信号是`Linux`中特有的概念，在其它Unix如`OS X``FreeBSD`中没有此概念。
+### 可靠信号与不可靠信号
+可靠信号与不可靠信号是`Linux`中特有的概念，在其它Unix如`OS X`、`FreeBSD`中没有此概念。
+
 在`Linux`中，**不可靠**信号范围为`1(SIGHUP) ~ 31(SIGSYS)`，**可靠信号**的范围为`34(SIGRTMIN) ~ 64(SIGRTMAX)`。
 **不可靠**信号**不支持**信号队列，当同类信号在短时间内**多次**触发，不可靠信号只会触发信号处理函数**一次**，其余的同类信号被**忽略**。
 
-###屏蔽信号
+### 屏蔽信号
 直接在**进程**中屏蔽指定信号可以使用下列函数，函数定义在`signal.h`中：
 
 ```c
@@ -537,7 +575,9 @@ unsigned int sleep(unsigned int seconds);
 
 若线程在设定的时间中正常休眠，返回值为`0`。
 若在挂起期间进程捕获到一个**信号**，并从信号处理函数返回，则无论休眠时间是否满足，休眠不再继续，`sleep()`立即函数结束，返回值为**尚未休眠**的时间。
+
 在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，捕获信号，并从信号处理函数返回，只会结束进程**主线程**中正在运行的`sleep()`函数，对其它线程中的`sleep()`无影响。
+
 在`Solaris`中`sleep()`内部实现采用`alarm()`，在`BSD`和`Linux`中`sleep()`由`nanosleep()`实现，与信号无关。
 
 ### *alarm()* 函数
@@ -550,9 +590,10 @@ unsigned alarm(unsigned seconds);
 - `seconds`参数为发送信号的延迟时间，取`0`时表示清除原有`alarm()`设置。
 
 一个进程同时只能存在一个`alarm()`，调用`alarm()`时若之前已经设置了`alarm()`且尚未触发，则返回上一个`alarm()`的剩余等待时间，同时以当前`alarm()`的设置**替换**上一个。
+
 默认情况下，若没有设置`SIGALRM`的信号处理函数，系统收到`SIGALRM`会终止进程。
 
-###多线程信号处理
+### 多线程信号处理
 在多线程的环境下，信号处理需要考虑更多的情况：
 
 0. 默认情况下，Unix中的信号机制是对于**整个进程**而言的，使用`kill()`发送信号，则**整个进程**都将收到信号。
@@ -624,8 +665,11 @@ int sigwait(const sigset_t *restrict set, int *restrict sig);
 运行`sigwait()`会阻塞所处线程，直到所处线程接受到`set`信号集中的信号。
 函数执行成功返回`0`，失败时返回错误代码。
 使用`sigwait()`需要保证等待的信号至少被`sigwait()`**所处线程**之外的线程屏蔽。
+
 对于`sigwait()`所处的线程，在`OS X`和`Linux`等Unix系统上，`sigwait()`的优先级比默认的信号处理行为以及绑定的信号处理函数要高，接受到信号时，优先结束`sigwait()`的阻塞而不是执行设定/默认的信号处理行为。
+
 在**多个**`sigwait()`共存的情况下，系统会**随机**选取一个线程中的`sigwait()`进行响应。
+
 实例如下所示：
 
 ```c
@@ -635,7 +679,9 @@ int sigwait(const sigset_t *restrict set, int *restrict sig);
 
 sigset_t set;
 int thread_count = 0;
+pthread_mutex_t mutex;
 
+//由于sigwait()优先级更高，deal_signal()函数并未触发
 void deal_signal(int sig)
 {
 	printf("Run deal_signal.\n");
@@ -643,7 +689,10 @@ void deal_signal(int sig)
 
 void* thread_func(void* arg)
 {
+	pthread_mutex_lock(&mutex);
 	int thread_id = ++thread_count;
+	pthread_mutex_unlock(&mutex);
+
 	printf("Run thread %d!\n", thread_id);
 
 	//子线程即便使用pthread_sigmask()解除SIGINT信号屏蔽，依旧会优先响应sigwait()
@@ -669,29 +718,36 @@ int main(void)
 	sigaddset(&set, SIGINT);
 	sigprocmask(SIG_BLOCK, &set, NULL);
 
+	pthread_mutex_init(&mutex, NULL);
+
 	pthread_t pfd;
 	pthread_create(&pfd, NULL, thread_func, NULL);
 	pthread_create(&pfd, NULL, thread_func, NULL);
 
 	pthread_join(pfd, NULL);
 
+	pthread_mutex_destroy(&mutex);
+
 	return 0;
 }
 ```
 
 运行结果：(OS X 10.11.3)
+
+```
 Run thread 1!
 Run thread 2!
 ^C
 Thread 2 receive signal SIGINT.
 ^C
 Thread 1 receive signal SIGINT.
+```
 
 多个`sigwait()`存在时，选取的处理线程是随机的，运行结果也可能是1号线程先响应信号。
 
 
 
-##POSIX线程(pthread)
+## POSIX线程(pthread)
 在Unix系统中，多线程开发相关函数定义在头文件`pthread.h`中。
 在`Linux`中编译使用了线程库的程序时，需要链接`pthread`库，编译指令如下：
 
@@ -701,7 +757,7 @@ $ cc -lpthread [源码文件]
 
 在`FreeBSD`以及`OS X`中，编译使用了线程库的程序无需链接`pthread`库。
 
-###Linux下的线程实现
+### Linux下的线程实现
 Linux下线程的实现为`NPTL`，即**本地POSIX线程库**`Native POSIX Thread Library`。
 
 - 在Linux内核中，线程和进程都使用`task_struct`结构体表示，线程仅是一类特殊的进程(创建时使用不同的`clone`标识组合)。
@@ -710,9 +766,9 @@ Linux下线程的实现为`NPTL`，即**本地POSIX线程库**`Native POSIX Thre
 - `Linux Threads`库没有实现`POSIX`的线程定义，每个线程在`ps`指令下显示为进程，并且不同线程使用`getpid()`返回的进程`pid`也不相同，在现代Linux(采用`NPTL`之后的Linux)已经**不会**出现此类情况。
 - 在`Linux Kernel 2.6`之后，内核中有了**线程组**的概念，`task_struct`结构中增加了`tgid(thread group id)`字段，如果一个`task_struct`是一个**主线程**, 则它的`tgid`等于`pid`, 否则`tgid`等于进程的`pid`(即主线程的`pid`),此外，每个线程依旧是一个`task_struct`，依然有自己的`pid`。
 - 在`Linux Kernel 2.6`之后，使用`getpid()`获取的是`tgid`，因而进程中的每个线程使用`getpid()`返回值相同(主线程`pid`)。获取线程自身的`pid`需要用到系统调用`gettid()`，`gettid()`是Linux特有的系统调用，在其它Unix中并不存在，`glibc`没有提供`gettid()`的封装，使用`gettid()`需要通过`syscall()`调用。
-- `NPTL`的实现依赖于`Linux Kernel 2.6`内核的`task_struct`改动，因此在`2.4``2.2`等旧版本的内核上无法使用`NPTL`，在采用了`NPTL`的Linux上，线程的行为与其它Unix更为相似。
+- `NPTL`的实现依赖于`Linux Kernel 2.6`内核的`task_struct`改动，因此在`2.4`、`2.2`等旧版本的内核上无法使用`NPTL`，在采用了`NPTL`的Linux上，线程的行为与其它Unix更为相似。
 
-###创建线程
+### 创建线程
 创建线程使用`pthread_create()`函数。
 
 ```c
@@ -727,7 +783,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_
 需要注意的是，`thread`参数必须要填入**有效**的地址，填`NULL`会引起程序崩溃。
 创建新线程成功则返回`0`，未创建成功返回**错误代码**(**不一定**是`-1`)，可根据man手册查看错误代码判断错误类型。
 
-###等待线程
+### 等待线程
 等待线程使用`pthread_join()`函数。
 
 ```c
@@ -739,9 +795,10 @@ int pthread_join(pthread_t thread, void **retval);
 
 该函数为**阻塞**函数。
 需要注意的是，`pthread_join()`函数只会等待指定线程标识符对应的线程，对其它线程不会造成影响，依然是并发执行。
+
 默认情况下，主程序是不会等待线程执行的，无论线程是否执行完毕，主程序都会依次执行直到结束。由于线程是共享资源的，一旦主程序结束了，该程序创建的线程无论是否执行完毕都会立即被关闭。如果需要主程序等待某个线程执行完毕，即可以使用`pthread_join()`函数。
 
-###取消线程
+### 取消线程
 取消线程使用`pthread_cacnel()`函数。
 
 ```c
@@ -752,7 +809,7 @@ int pthread_cancel(pthread_t thread);
 
 取消线程成功返回值为`0`，取消线程失败返回一个非`0`的**错误代码**(不一定是-1)。
 
-###终止线程
+### 终止线程
 退出、终止一个线程使用`pthread_exit()`函数。
 
 ```c
@@ -760,10 +817,11 @@ void pthread_exit(void *retval);
 ```
 
 线程调用该函数终止自身，如同进程的`exit(num)`函数一样。
+
 `pthread_exit()`函数的参数为线程的返回内容，需要注意的是，不要将`retval`指向一个**局部变量**，因为调用`pthread_exit()`函数之后线程会结束，线程函数内的局部变量(栈变量)将会被**删除**。
 与其它函数一样，线程也可以使用`return`提供返回值。
 
-###用互斥量进行线程同步
+### 用互斥量进行线程同步
 互斥量相关的函数也定义在头文件`pthread.h`文件中，常用的函数有：
 
 ```c
@@ -868,7 +926,7 @@ int main(void)
 }
 ```
 
-###使用互斥量进行进程同步
+### 使用互斥量进行进程同步
 互斥量用于**进程同步**时，会用到下列函数，头文件同样在`pthread.h`中：
 
 ```c
@@ -922,7 +980,7 @@ void deal_signal(int signal)
 int main(void)
 {
 	shm_id = shmget((key_t)666, sizeof(pthread_mutex_t), IPC_CREAT | 0600);
-	pthread_mutex_t *mutex = (pthread_mutex_t*)shmat(shm_id, NULL, 0);
+	pthread_mutex_t* mutex = (pthread_mutex_t*)shmat(shm_id, NULL, 0);
 
 	pthread_mutexattr_init(&attr);				//初始化权限结构体attr
 	pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
@@ -1002,6 +1060,7 @@ int main(void)
 ```
 
 运行结果：(文字描述)
+
 `Process_Mutex_Parent`先运行，创建互斥量并锁住，然后一直循环。
 `Process_Mutex_Child`后执行，进程阻塞在`pthread_mutex_lock()`函数上。
 在`Process_Mutex_Parent`按下`CTRL + \`键，触发`SIGQUIT`信号，由信号处理函数释放锁，倒数计时后结束进程。
@@ -1009,19 +1068,46 @@ int main(void)
 
 
 
-##共享内存
-共享内存是Unix系统中常用的**进程间通信**(IPC, Inter-Process Communication)的一种机制，3大主要IPC之一。
+## *XSI IPC*
+`XSI IPC`包括**消息队列**、**共享内存**、**信号量**。
+`XSI IPC`来自`SystemV`，三类`XSI IPC`拥有相似的API，包括如下的一组函数：
+
+```c
+int xxxget(key_t key, ...);			//创建/获取IPC文件描述符
+int xxxctl(int ipc_fd, ...);		//添加IPC设定
+...
+```
+
+###IPC标志
+`XSI IPC`都使用类型为`key_t`的`key`值来区分不同的IPC。`key`值可以通过以下函数生成：
+
+```c
+#include <sys/types.h>
+#include <sys/ipc.h>
+key_t ftok(const char *pathname, int proj_id);
+```
+
+- `pathname`参数为约定的路径。
+- `proj_id`参数为约定的项目编号。
+
+通过指定**路径**和**项目编号**能够得到唯一的`key`值。
+函数执行成功返回生成的`key`值，执行失败返回`-1`。
+
+
+
+## 共享内存
+共享内存是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
 相比信号量等IPC机制，共享内存有着最高的效率，因为共享内存并不涉及复制操作。
 共享内存的相关函数定义在`sys/shm.h`中。
 
-###创建/获取共享内存
+### 创建/获取共享内存
 使用`shmget()`函数创建共享内存或获取已经存在的**key值**的共享内存。
 
 ```c
 int shmget(key_t key, size_t size, int shmflg);
 ```
 
-- `key`参数为共享参数的**key值**，为要使用的共享内存**命名**，所有使用这个共享内存的进程都应使用同一个**key值**。
+- `key`参数为`ftok()`函数生成的**共享内存**标志。
 - `size`参数为共享内存的大小。
 - `shmflg`参数为特殊标识，取`0`时获取**key值**对应的共享内存，若传入的**key值**对应的共享内存**未创建**，则调用**失败**。
 
@@ -1032,7 +1118,7 @@ int shmget(key_t key, size_t size, int shmflg);
 `IPC_PRIVATE`标志用于创建一个只属于创建进程的共享内存。
 共享内存创建成功时返回**共享内存描述符**(非负整数)，失败时返回`-1`。
 
-###获得共享内存地址
+### 获得共享内存地址
 使用`shmat()`函数获取共享内存的**地址**。
 
 ```c
@@ -1041,11 +1127,11 @@ void *shmat(int shmid, const void *shmaddr, int shmflg);
 
 - `shmid`参数为目标共享内存描述符。
 - `shmaddr`参数为将共享连接到当前进程中的地址，如果不需要指定共享内存连接到进程中的**指定地址**，则该参数可以为`NULL`(让系统分配可用的地址)。
-- `shmflg`参数为一组标志，如果`shmaddr`参数手动指定了地址，则搭配`shmflg`参数取`SHM_RND`，如果**只读**共享内存则设定`SHM_RDONLY`，不使用此参数可设为`0`。
+- `shmflg`参数为一组标志位，如果`shmaddr`参数手动指定了地址，则搭配`shmflg`参数取`SHM_RND`，如果**只读**共享内存则设定`SHM_RDONLY`，不使用此参数可设为`0`。
 
 函数运行成功返回**共享内存**的**首地址**，运行失败返回数值`-1`。
 
-###分离共享内存
+### 分离共享内存
 使用`shmdt()`函数分离共享内存。
 
 ```c
@@ -1056,7 +1142,7 @@ int shmdt(const void *shmaddr);
 
 调用成功时返回`0`，失败返回`-1`。
 
-###控制共享内存
+### 控制共享内存
 使用`shmctl()`函数设置共享内存的**标识**。
 
 ```c
@@ -1071,29 +1157,29 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 
 
 
-##信号量(semaphore)
-信号量是Unix系统中常用的进程间通信(IPC, Inter-Process Communication)的一种机制。
+## 信号量(Semaphore)
+信号量是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
 信号量用于控制进程对资源的访问，但信号量也可以用于线程。
 在进程开发中，常用的信号量函数定义在`sys/sem.h`文件中。
 
-###创建/获取信号量
+### 创建/获取信号量
 使用`semget()`函数创建一个新的信号量或获取一个已经存在的信号量。
 
 ```c
 int semget(key_t key, int num_sems, int sem_flags);
 ```
 
-- `key`参数为整数值，代表信号量的值，不同进程使用相同的**key值**就可以通过信号量进行通信。
+- `key`参数为`ftok()`函数生成的**信号量**标志。
 - `num_sems`参数为需要的信号量数目，一般为`1`。
-- `sem_flags`参数为信号标识，可接收多个标识，通过逻辑或操作符`|`相连。
+- `sem_flags`参数为信号量标志位，多个标志通过逻辑或操作符`|`相连。
 
 函数调用成功时返回信号量描述符，失败时返回`-1`。
 `sem_flags`参数上常用的信号标识有`IPC_CREAT`，用于**创建**新的信号量，但如果**key值**对应的信号量已被创建，并不会调用失败，而是**忽略**该标志。
 `IPC_CREAT | IPC_EXCL`标识，用于创建一个**新的**、**唯一**的信号量，如果**key值**对应的信号量已被创建，则调用**失败**。
-使用`IPC_CREAT | IPC_EXCL`标识需要注意，`key`的值不能设置太小，较小的`key`值对应的信号量可能**已被系统使用**而导致调用失败。此外，使用此种方式创建信号量在使用完毕后需要调用`semctl()`函数释放，否则下次运行同样的程序会由于信号量已经存在(没被释放)而造成调用失败。
+使用`IPC_CREAT | IPC_EXCL`标识需要注意，使用此种方式创建信号量在使用完毕后需要调用`semctl()`函数释放，否则下次运行同样的程序会由于信号量已经存在(没被释放)而造成调用失败。
 `IPC_CRAET | 0666`标识，用于创建有**读写权限**的信号量。信号量在Unix系统也是文件，默认情况下，创建的信号量没有读写权限，需要搭配权限描述字段才能有读写权限。
 
-###改变信号量的值
+### 改变信号量的值
 使用`semop()`函数修改信号量的值。
 
 ```c
@@ -1116,7 +1202,7 @@ struct sembuf {
 
 函数调用成功返回`0`，调用失败返回`-1`并置**errno**。
 
-###设置信号量信息
+### 设置信号量信息
 使用`semctl()`函数来执行信号量集上的控制操作。
 
 ```c
@@ -1125,7 +1211,7 @@ int semctl(int sem_id, int sem_num, int command, ...);
 
 - `sem_id`参数为信号量描述符。
 - `sem_num`参数为信号量编号，一般没有多个信号量时取`0`。
-- `command`参数为要执行的操作的标识符。
+- `command`参数为要执行的操作的标志位。
 
 `command`参数可以有很多不同的值，常用的有`IPC_RMID`，用于删除一个信号量(如果信号创建方式是`IPC_CREAT | IPC_EXCL` ，则务必要在程序结束时删除信号量)。
 `command`设置为`SETVAL`，则用于**初始化**一个信号量，此时函数需要有第四个参数，联合体`union semun`，通过设置`semun`的`val`成员的值来初始化信号量。
@@ -1139,7 +1225,7 @@ union semun {
 };
 ```
 
-函数失败时返回`-1`，成功是有多种返回值，参数为`SETVAL`或`IPC_RMID`时运行成功返回`0`。
+函数失败时返回`-1`，成功时有多种返回值，参数为`SETVAL`或`IPC_RMID`时运行成功返回`0`。
 
 实例代码：
 
@@ -1237,6 +1323,7 @@ int main(void)
 ```
 
 运行结果：(文字描述)
+
 `Semaphore_Before`先运行，创建信号量成功(一直循环)。
 `Semaphore_After`后运行，获取信号量成功，然后进程阻塞在`semop()`函数上，等待`Semaphore_Before`释放资源。
 向`Semaphore_Before`发送`SIGINT`信号，让其释放资源，结束进程，然后`Semaphore_After`获得资源，`semop()`函数不再阻塞，也开始循环。
@@ -1244,8 +1331,312 @@ int main(void)
 
 
 
-##IO多路复用(POSIX)
-在Unix中，posix定义了一系列IO多路复用机制，如`select()``pselect()``poll()`等调用。
+## 消息队列(Message Queue)
+消息队列是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
+消息队列相关函数定义在`sys/msg.h`中。
+
+### 创建/获取消息队列
+使用`msgget()`函数创建一个新的消息队列/获取一个已经存在的消息队列：
+
+```c
+int msgget(key_t key, int msgflg);
+```
+
+- `key`参数为`ftok()`函数生成的**消息队列**标志。
+- `msgflg`参数为消息队列的标志位，多个标志间使用`|`操作符相连。
+
+函数执行成功返回**消息队列描述符**(非负数)，执行失败返回`-1`并置`errno`。
+
+`key`参数的取值可以为宏`IPC_PRIVATE`(实际值为`0`)，此时该消息队列为**私有**，用于`fork()`调用之后的**父子进程**间通信(打开的消息队列描述符在`fork()`之后依然存在)。
+
+`msgflg`取`IPC_CREAT`创建一个消息队列(消息队列已存在则忽略此标志位)，取`IPC_CREAT | IPC_EXCL`创建一个新的消息队列(消息队列已存在则函数执行失败)。
+创建消息队列时，若需要对消息队列进行**读写操作**需要在`msgflg`参数后追加读写权限如`0600`(等价于`S_IRUSR | S_IWUSR`)，但打开消息队列时不需要设定(打开的消息队列由创建者决定访问权限)。
+
+### 向消息队列中添加消息
+使用`msgsnd()`向消息队列中添加消息：
+
+```c
+int msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg);
+```
+
+- `msqid`参数为`msgget()`函数返回的消息队列文件描述符。
+- `msgp`参数为指向要发送消息的指针。
+- `msgsz`参数为发送消息的大小(不包括消息类型大小)。
+- `msgflg`参数为消息标志位，默认情况下以阻塞方式发送消息(消息队列已满时`msgsnd()`函数会阻塞线程)，取值`IPC_NOWAIT`表示以非阻塞形式发送消息，队列已满则直接返回错误。
+
+函数执行成功返回`0`，执行失败返回`-1`并置`errno`。
+发送的消息样例结构如下：
+
+```c
+struct mymsg {
+	long mtype;       /* Message type. */
+	char mtext[1];    /* Message text. */
+}
+```
+
+消息结构中的首个成员需要为`long`型，用于指示消息的**类型**(之后的`msgrcv()`函数会用到)，之后才为消息的数据区。
+`msgsz`参数传入的消息大小**不包括**消息类型的大小。
+在实际开发中，消息数据不一定是简单的字符数组，可以是**任意类型**(包括**结构体**)。
+
+### 从消息队列中获取消息
+使用`msgrcv()`函数从消息队列中获取消息：
+
+```c
+ssize_t msgrcv(int msqid, void *msgp, size_t msgsz, long msgtyp, int msgflg);
+```
+
+- `msqid`、`msgsz`参数作用与`msgsnd()`函数中类似。
+- `msgp`参数指向用户缓冲区，成功收到消息后会将消息从队列中拷贝到用户缓冲区，之后移除队列中被接收的消息。
+- `msgtyp`参数为目标接受消息的类型。默认情况下，取值`0`表示接受消息队列中的第一个消息(任意类型)；取值为**正数**时表示接受第一个**类型与`msgtyp`相同**的消息；取**负值**表示接受**绝对值**小于等于`msgtyp`的消息。
+- `msgflg`参数为消息标志位，默认以阻塞方式接受消息(若消息队列为空，则`msgrcv()`函数阻塞)，使用`IPC_NOWAIT`标志表示以非阻塞形式接收消息，队列为空则直接返回错误；使用`MSG_EXCEPT`标志时排除接收类型等于`msgtyp`的消息；使用`MSG_NOERROR`标志复制消息时舍弃大于`msgsz`参数值的消息。
+
+函数执行成功返回获取消息的大小，失败时返回`-1`并置`errno`。
+
+### 控制消息队列
+使用`msgctl()`函数控制消息队列：
+
+```c
+int msgctl(int msqid, int cmd, struct msqid_ds *buf);
+```
+
+- `msqid`参数为消息队列描述符。
+- `cmd`参数为具体操作：
+	- `IPC_STAT`: 取此队列的`msqid_ds`结构, 并将它存放在`buf`指向的结构中.
+	- `IPC_SET`: 设置队列的`msqid_ds`为`buf`指向的值。
+	- `IPC_RMID`: 从系统中**删除**该消息队列以及仍在该队列中的所有数据. 执行权限同上.
+-  `buf`参数为指向消息结构体的指针。
+
+函数执行成功返回`0`，执行失败返回`-1`并置`errno`。
+参数`buf`的类型`msqid_ds`结构用于设置消息队列的一些属性，该结构的定义根据具体实现略有不同，在`Linux x64`中的定义如下：
+
+```c
+/* Structure of record for one message inside the kernel.
+   The type `struct msg' is opaque.  */
+struct msqid_ds
+{
+	struct ipc_perm msg_perm;	/* structure describing operation permission */
+	__time_t msg_stime;		/* time of last msgsnd command */
+#ifndef __x86_64__
+	unsigned long int __glibc_reserved1;
+#endif
+	__time_t msg_rtime;		/* time of last msgrcv command */
+#ifndef __x86_64__
+	unsigned long int __glibc_reserved2;
+#endif
+	__time_t msg_ctime;		/* time of last change */
+#ifndef __x86_64__
+	unsigned long int __glibc_reserved3;
+#endif
+	__syscall_ulong_t __msg_cbytes; /* current number of bytes on queue */
+	msgqnum_t msg_qnum;		/* number of messages currently on queue */
+	msglen_t msg_qbytes;	/* max number of bytes allowed on queue */
+	__pid_t msg_lspid;		/* pid of last msgsnd() */
+	__pid_t msg_lrpid;		/* pid of last msgrcv() */
+	__syscall_ulong_t __glibc_reserved4;
+	__syscall_ulong_t __glibc_reserved5;
+};
+```
+
+其中，定义了操作权限的结构`ipc_perm`的定义如下：
+
+```c
+/* Data structure used to pass permission information to IPC operations.  */
+struct ipc_perm
+{
+	__key_t __key;			/* Key.  */
+	__uid_t uid;			/* Owner's user ID.  */
+	__gid_t gid;			/* Owner's group ID.  */
+	__uid_t cuid;			/* Creator's user ID.  */
+	__gid_t cgid;			/* Creator's group ID.  */
+	unsigned short int mode;		/* Read/write permission.  */
+	unsigned short int __pad1;
+	unsigned short int __seq;		/* Sequence number.  */
+	unsigned short int __pad2;
+	__syscall_ulong_t __glibc_reserved1;
+	__syscall_ulong_t __glibc_reserved2;
+};
+```
+
+`msqid_ds`结构中的`msg_perm.uid`、`msg_perm.gid`、`msg_perm.mode`以及`msg_qbytes`成员可以**手动指定**。
+`msgctl`函数的`IPC_SET`操作只有下列两种进程可以执行:
+0. 进程执行用户的用户ID等于`msg_perm.cuid`或`msg_per.uid`。
+0. 具有超级用户特权的进程。
+
+### 实例代码
+定义消息结构头`my_msg.h`：
+
+```c
+struct my_msg
+{
+	long type;
+
+	struct
+	{
+		char text[20];
+		int num;
+	} data;
+};
+```
+
+发送消息进程：
+
+```c
+#define PROJECT_ID 0
+
+#include <stdio.h>
+#include <sys/msg.h>
+#include <fcntl.h>
+#include <string.h>
+
+#include "my_msg.h"
+
+int main(int argc, char** argv)
+{
+	key_t key = ftok(u8"/home/dainslef", PROJECT_ID);
+	struct my_msg msg;
+	int msg_id = 0;
+	int flag = IPC_CREAT | 0600;
+
+	if ((msg_id = msgget(key, flag)) == -1)
+		perror("msgget");
+
+	strcpy(msg.data.text, "Hello");
+	msg.data.num = 1;
+
+	//以非阻塞形式发送消息
+	if (msgsnd(msg_id, &msg, sizeof(msg.data), IPC_NOWAIT) == -1)
+		perror("msgsnd");
+	else
+		printf("Num: %d\nMessage type: %ld\nRecevie: %s\n\n", msg.data.num, msg.type, msg.data.text);
+
+	strcpy(msg.data.text + 5, " World");
+
+	for (int i = 1; i < 5; i++)
+	{
+		msg.type = 100 * i;
+		msg.data.num += 1;
+
+		if (msgsnd(msg_id, &msg, sizeof(msg.data), IPC_NOWAIT) == -1)
+			perror("msgsnd");
+		else
+			printf("Num: %d\nMessage type: %ld\nRecevie: %s\n\n", msg.data.num, msg.type, msg.data.text);
+	}
+
+	//获取进程信息
+	struct msqid_ds buf;
+	if (msgctl(msg_id, IPC_STAT, &buf) == -1)
+		perror("msgctl");
+	else
+	{
+		printf("Message privileges info:\n");
+
+		//打印进程权限信息
+		printf("msg_perm.uid: %u\n", buf.msg_perm.uid);
+		printf("msg_perm.cuid: %u\n", buf.msg_perm.cuid);
+		printf("msg_perm.gid: %u\n", buf.msg_perm.gid);
+		printf("msg_perm.cgid: %u\n", buf.msg_perm.cgid);
+		printf("msg_perm.mode: %o\n", buf.msg_perm.mode);
+	}
+
+	return 0;
+}
+```
+
+接受消息进程：
+
+```c
+#define PROJECT_ID 0
+
+#include <stdio.h>
+#include <sys/msg.h>
+
+#include "my_msg.h"
+
+int main(int argc, char** argv)
+{
+	key_t key = ftok(u8"/home/dainslef", PROJECT_ID);
+	struct my_msg msg;
+	int msg_id = 0;
+
+	if ((msg_id = msgget(key, 0)) == -1)
+		perror("msgget");
+
+	while (1)
+	{
+		int size = 0;
+
+		//接受绝对值小于等于300的数据
+		if ((size = msgrcv(msg_id, &msg, sizeof(msg.data), -300, IPC_NOWAIT)) == -1)
+		{
+			perror("msgrcv");
+			if (msgctl(msg_id, IPC_RMID, NULL) == -1)
+				perror("msgctl");
+			break;
+		}
+		else
+			printf("Num: %d\nMessage type: %ld\nRecevie: %s\n\n", msg.data.num, msg.type, msg.data.text);
+	}
+
+	return 0;
+}
+```
+
+运行结果(ArchLinux x64 && Clang 3.7.1)：
+
+先执行消息发送进程：
+
+```
+Num: 1
+Message type: 4196797
+Recevie: Hello
+
+Num: 2
+Message type: 100
+Recevie: Hello World
+
+Num: 3
+Message type: 200
+Recevie: Hello World
+
+Num: 4
+Message type: 300
+Recevie: Hello World
+
+Num: 5
+Message type: 400
+Recevie: Hello World
+
+
+Message privileges info:
+msg_perm.uid: 1000
+msg_perm.cuid: 1000
+msg_perm.gid: 1000
+msg_perm.cgid: 1000
+msg_perm.mode: 600
+```
+
+之后执行消息接受进程，消息类型绝对值小于等于`300`的数据：
+
+```
+Num: 2
+Message type: 100
+Recevie: Hello World
+
+Num: 3
+Message type: 200
+Recevie: Hello World
+
+Num: 4
+Message type: 300
+Recevie: Hello World
+
+msgrcv: No message of desired type
+```
+
+
+
+## IO多路复用(POSIX)
+在Unix中，POSIX定义了一系列IO多路复用机制，如`select()`、`pselect()`、`poll()`等调用。
 Linux和BSD还分别提供了增强的IO复用机制，在Linux中为`epoll`，在BSD中为`kqueue`。
 
 ### *select()* 调用
@@ -1352,16 +1743,13 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_se
 信号集合参数`sigmask`使用前需要两个步骤：
 
 0. 首先使用`sigemptyset()`函数清空信号集合：
-
-```c
-int sigemptyset(sigset_t *set);
-```
-
+	```c
+	int sigemptyset(sigset_t *set);
+	```
 0. 之后使用`sigaddset()`向清空后的信号集合中添加信号：
-
-```c
-int sigaddset(sigset_t *set, int signo);
-```
+	```c
+	int sigaddset(sigset_t *set, int signo);
+	```
 
 信号集合只需要设置一次，就可以在之后的`pselect()`中一直使用。
 
@@ -1487,7 +1875,7 @@ int main(void)
 
 
 
-##IO多路复用(Epoll)
+## IO多路复用(Epoll)
 `epoll`是`Linux`环境下**独有**的IO多路复用机制，在`Linux Kernel 2.6`之后被引入。
 传统的`select()`在描述符变化事件产生时需要使用`FD_ISSET`宏遍历测试所有描述符，因此随着监听描述符数量的增加性能会出现线性下降，而使用`epoll`则能直接获取到变化的描述符。
 `epoll`相关API定义在`sys/epoll.h`头文件中。
@@ -1563,7 +1951,7 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 
 函数执行成功返回变化的描述符数量，返回值为`0`则等待超时。执行失败返回`-1`并置`errno`。
 
-###使用epoll的一些注意事项
+### 使用epoll的一些注意事项
 - `epoll_create()`创建的`epoll`描述符需要使用`close()`关闭。
 - `epoll`**不能**监听普通文件描述符，对于`read()`、`write()`调用而言，普通文件是**始终准备好**(always ready)的。在`epoll_ctl()`函数中尝试添加一个普通文件描述符则会得到`Operation not permitted`错误。
 - `epoll_create()`中的`size`参数虽然是被忽略的，但不要取`0`和**负值**，会得到`Bad file desriptor`错误。
@@ -1574,7 +1962,7 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 - `LT`模式为`epoll`的默认工作模式，在该模式下，只要有数据可读/写，使用`epoll_wait()`都会返回。
 - `ET`模式只有描述符状态变化(从不可读/写变为可读/写)时才会另`epoll_wait()`返回，相比之下，`ET`模式更为高效。
 
-`LT`模式下，由于只要有数据读写就会触发事件，因此不必在一次`epoll`循环中尝试读尽所有的数据，有数据未读会继续触发触发事件，在下次触发的事件中读尽数据即可。`LT`模式下可以使用阻塞式IO也可以使用非阻塞IO。
+`LT`模式下，由于只要有数据读写就会触发事件，因此**不必**在一次`epoll`循环中尝试读尽所有的数据，有数据未读会继续触发触发事件，在下次触发的事件中读尽数据即可。`LT`模式下可以使用阻塞式IO也可以使用非阻塞IO。
 `LT`模式下基本的代码框架为：
 
 ```c
@@ -1622,8 +2010,10 @@ while (1)
 }
 ```
 
-`ET`模式下，只有描述符在可读写状态发生改变时才会触发事件，因此，在`ET`模式下，必须一次读尽所有的数据，否则就会造成数据丢失。`ET`模式下，IO需要放在一个无限循环中进行，直到数据全部读出，IO操作置`ernno`为`EAGAIN`才终止。
-相比`LT`模式，`ET`模式触发`epoll`次数减少，效率更高，但`ET`模式下必须使用非阻塞IO。
+`ET`模式下，只有描述符在可读写状态发生改变时才会触发事件，因此，在`ET`模式下，必须**一次读尽**所有的数据，否则会造成数据丢失。`ET`模式下，IO需要放在一个无限循环中进行，直到数据全部读出，IO操作置`ernno`为`EAGAIN`才终止。
+
+相比`LT`模式，`ET`模式触发`epoll`次数减少，效率更高，但`ET`模式下必须使用**非阻塞IO**。
+
 `ET`模式下的基本代码框架为：
 
 ```c
