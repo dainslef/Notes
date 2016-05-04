@@ -9,6 +9,9 @@
  * @author dainslef
  */
 
+#define PROJECT_ID 0
+#define PATH "/home/dainslef"
+
 #include <sys/sem.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -16,7 +19,7 @@
 
 int sem_id = 0;
 
-void dealSignal(int sig)
+void deal_signal(int sig)
 {
 	semctl(sem_id, 0, IPC_RMID);		//删除信号量
 	_exit(0);
@@ -24,28 +27,29 @@ void dealSignal(int sig)
 
 int main(void)
 {
-	signal(SIGINT, dealSignal);
-	
-	sem_id = semget(9999, 1, 0600);		//需要保证进程有读写信号量的权限
+	signal(SIGINT, deal_signal);
+
+	sem_id = semget(ftok(PATH, PROJECT_ID), 1, 0600);		//需要保证进程有读写信号量的权限
 	if (sem_id == -1)
 	{
-		printf("打开信号量失败！\n");
+		perror("semget");
 		return 0;
 	}
 	else
-		printf("信号量创建成功！\n");
-	
+		printf("信号量获取成功！\n");
+
 	struct sembuf sem_wait;
 	sem_wait.sem_num = 0;
 	sem_wait.sem_op = -1;
 	sem_wait.sem_flg = SEM_UNDO;
+
 	semop(sem_id, &sem_wait, 1);
-	
+
 	while (1)
 	{
 		sleep(3);
 		printf("正在执行\n");
 	}
-	
+
 	return 0;
 }

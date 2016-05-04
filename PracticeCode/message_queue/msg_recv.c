@@ -1,5 +1,3 @@
-#define PROJECT_ID 0
-
 #include <stdio.h>
 #include <sys/msg.h>
 
@@ -7,7 +5,7 @@
 
 int main(int argc, char** argv)
 {
-	key_t key = ftok(u8"/home/dainslef", PROJECT_ID);
+	key_t key = ftok(PATH, PROJECT_ID);
 	struct my_msg msg;
 	int msg_id = 0;
 

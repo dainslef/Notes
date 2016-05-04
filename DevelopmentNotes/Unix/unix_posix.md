@@ -67,7 +67,9 @@ char *asctime(const struct tm *tm);
 
 对于`localtime()`函数获得的当前时间，可以使用该函数转化为可读的字符串形式，返回值为标准时间字符串的地址。
 需要注意的是，该函数返回的地址指向的字符串内容中已经包含了换行符，不需要再额外添加。
-一个典型的输出如：`Wed Jul 29 01:04:10 2015`
+
+一个典型的时间输出如：`Wed Jul 29 01:04:10 2015`
+
 实例代码：
 
 ```c
@@ -111,8 +113,8 @@ int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 以上函数在执行成功时返回新的文件描述符，失败时返回**-1**并置`errno`。
 
 - `crate()`函数用于创建文件，`open()`函数既可用于创建文件(**flags**取`O_CREAT`)，也可用于打开文件，打开的对象也可以是**目录**。
-- 对于`create()`和`open()`函数，参数`pathname`代表文件所在路径绝对地址的字符数组首地址，参数`mode`代表创建的文件文件带有的默认权限，可以用逻辑或操作符连接以下参数：`S_IRUSR``S_IWUSR``S_IXUSR``S_IRGRP``S_IWGRP``S_IXGRP``S_IROTH``S_IWOTH``S_IXOTH`，分别代表**拥有者**、**同组用户**、**其他用户**的**读**、**写**、**执行**权限。
-- `open()`函数的`flags`参数表示文件打开时的参数，参数可取**多个**，以**逻辑或**操作符连接，常用的有`O_RDONLY``O_WRONLY``O_RDWR`，分别表示以**只读**、**只写**、**读写**的方式打开文件，不设置这些标志将不能够对文件进行读写操作。默认每个文件描述符首次写操作会清除已有的数据，保留原有文件数据需要使用`O_APPEND`标志以追加的方式写入数据；`flags`参数取`O_CREAT | O_EXECL`时创建一个原先**不存在**的文件，如果需要被创建的文件已经存在了，则创建**失败**。
+- 对于`create()`和`open()`函数，参数`pathname`代表文件所在路径绝对地址的字符数组首地址，参数`mode`代表创建的文件文件带有的默认权限，可以用逻辑或操作符连接以下参数：`S_IRUSR`、`S_IWUSR`、`S_IXUSR`、`S_IRGRP`、`S_IWGRP`、`S_IXGRP`、`S_IROTH`、`S_IWOTH`、`S_IXOTH`，分别代表**拥有者**、**同组用户**、**其他用户**的**读**、**写**、**执行**权限。
+- `open()`函数的`flags`参数表示文件打开时的参数，参数可取**多个**，以**逻辑或**操作符连接，常用的有`O_RDONLY`、`O_WRONLY`、`O_RDWR`，分别表示以**只读**、**只写**、**读写**的方式打开文件，不设置这些标志将不能够对文件进行读写操作。默认每个文件描述符首次写操作会清除已有的数据，保留原有文件数据需要使用`O_APPEND`标志以追加的方式写入数据；`flags`参数取`O_CREAT | O_EXECL`时创建一个原先**不存在**的文件，如果需要被创建的文件已经存在了，则创建**失败**。
 - `openat()`函数作用与`open()`函数完全相同，但是`openat()`函数允许使用多种路径表示方式；`dirfd`文件描述符表示的路径为父目录，而`pathname`中包含的字符串为相对路径；或是`dirfd`取特殊值`AT_FDCWD`，则父目录为**当前路径**；也可以像`open()`函数一样在`pathname`中写入**绝对路径**，但此时`dirfd`的取值会被**忽略**。
 
 ### 读取文件中的内容
@@ -523,6 +525,7 @@ int sigprocmask(int how, const sigset_t *restrict set, sigset_t *restrict oset);
 - `oset`参数为输出信号集合，函数运行结束会将新的信号集合写入`oset`参数中，不需要该参数可设为`NULL`。
 
 函数执行成功返回`0`。执行失败返回`-1`，并置`errno`。
+
 实例代码如下：
 
 ```c
@@ -534,24 +537,31 @@ sigaddset(&set, SIGINT);
 //屏蔽SIGINT信号
 sigprocmask(SIG_SETMASK, &set, NULL);
 
+//信号集加入SIGQUIT信号
 sigaddset(&set, SIGQUIT);
 
 //添加屏蔽SIGUQUIT信号
 sigprocmask(SIG_BLOCK, &set, NULL);
+
 //取消SIGINT和SIGQUIT的信号屏蔽
 sigprocmask(SIG_UNBLOCK, &set, NULL);
 ```
 
-`sigsetmask()``sigprocmask()`等函数设置的屏蔽信号是对于**整个进程**而言的。
+`sigsetmask()`和`sigprocmask()`等函数设置的屏蔽信号是对于**整个进程**而言的。
 在**多线程**环境下，使用`sigprocmask()`则进程内包含的**所有线程**的屏蔽信号集都会被修改。
 创建新的线程时，新的线程会**继承**原有线程的**屏蔽信号集**。
+
 需要设置**指定线程**的屏蔽信号集，可以使用`pthread_sigmask()`函数，函数定义在`signal.h`中：
 
 ```c
 int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict oset);
 ```
 
-`pthread_sigmask()`函数参数与作用与`sigprocmask()`完全相同，唯一的区别在于设置的屏蔽信号集仅对当前线程生效。
+`pthread_sigmask()`函数参数与作用与`sigprocmask()`类似，有两点区别：
+
+- 设置的屏蔽信号集仅对**当前线程**生效。
+- 调用失败时直接返回错误代码，而不是像`sigprocmask()`那样返回`-1`并置`errno`。
+
 
 ### *pause()* 函数
 使用`pause()`可以挂起线程，直到当前进程捕捉到了一个**信号**，函数定义在`unistd.h`中，如下所示：
@@ -1063,7 +1073,7 @@ int main(void)
 
 `Process_Mutex_Parent`先运行，创建互斥量并锁住，然后一直循环。
 `Process_Mutex_Child`后执行，进程阻塞在`pthread_mutex_lock()`函数上。
-在`Process_Mutex_Parent`按下`CTRL + \`键，触发`SIGQUIT`信号，由信号处理函数释放锁，倒数计时后结束进程。
+在`Process_Mutex_Parent`中触发`SIGQUIT`信号，由信号处理函数释放锁，倒数计时后结束进程。
 `Process_Mutex_Child`在`Process_Mutex_Parent`释放互斥量锁之后立即加锁成功，开始循环。
 
 
@@ -1078,7 +1088,7 @@ int xxxctl(int ipc_fd, ...);		//添加IPC设定
 ...
 ```
 
-###IPC标志
+### IPC标志
 `XSI IPC`都使用类型为`key_t`的`key`值来区分不同的IPC。`key`值可以通过以下函数生成：
 
 ```c
@@ -1092,6 +1102,19 @@ key_t ftok(const char *pathname, int proj_id);
 
 通过指定**路径**和**项目编号**能够得到唯一的`key`值。
 函数执行成功返回生成的`key`值，执行失败返回`-1`。
+
+### XSI IPC特点
+`XSI IPC`并没有遵循Unix中`一切皆文件`的思想，`XSI IPC`在文件系统中没有名字，不能使用文件描述符进行表示，不能使用`open()`、`write()`等文件操作对其进行控制，亦不能对其使用`select()`、`epoll()`、`kqueue()`等IO复用机制。
+
+`XSI IPC`不能使用传统的shell指令进行管理，不能使用`ls`查看，不能使用`rm`删除。
+
+查看`XSI IPC`使用`ipcs`指令：
+
+`$ ipcs`
+
+删除`XSI IPC`使用`ipcrm`指令：
+
+`$ ipcrm { shm | msg | sem } id`
 
 
 
@@ -1232,6 +1255,9 @@ union semun {
 文件 `Semaphore_Before.c`：
 
 ```c
+#define PROJECT_ID 0
+#define PATH "/home/dainslef"
+
 #include <sys/sem.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -1243,7 +1269,7 @@ struct sembuf sem_ok;
 
 void deal_signal(int sig)
 {
-	semop(sem_id, &sem_ok, 1);		//将信号量+1，释放资源
+	semop(sem_id, &sem_ok, 1);		//将信号量+1,释放资源
 	_exit(0);
 }
 
@@ -1251,10 +1277,10 @@ int main(void)
 {
 	signal(SIGINT, deal_signal);
 
-	sem_id = semget(9999, 1, IPC_CREAT | IPC_EXCL | 0600);
+	sem_id = semget(ftok(PATH, PROJECT_ID), 1, IPC_CREAT | IPC_EXCL | 0600);
 	if (sem_id == -1)
 	{
-		printf("创建信号量失败！\n");
+		perror("semget");
 		return 0;
 	}
 	else
@@ -1264,7 +1290,8 @@ int main(void)
 	sem_wait.sem_op = -1;		//设置操作数，等待时-1
 	sem_ok.sem_op = 1;			//等待完毕+1
 	sem_wait.sem_flg = sem_ok.sem_flg = SEM_UNDO;
-	semctl(sem_id, 0, SETVAL, 1);		//初始化信号量时可以不自定义联合体直接赋值。此外，只有创建信号量的进程才需要初始化信号量，获取信号量的进程不需要
+
+	semctl(sem_id, 0, SETVAL, 1);		//初始化信号量时可以不自定义联合体直接赋值
 	semop(sem_id, &sem_wait, 1);	//信号量-1，锁住资源
 
 	while (1)		//由于信号量被锁，因此A在执行此段代码时，B在等待
@@ -1280,6 +1307,9 @@ int main(void)
 文件 `Semaphore_After.c`：
 
 ```c
+#define PROJECT_ID 0
+#define PATH "/home/dainslef"
+
 #include <sys/sem.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -1297,19 +1327,20 @@ int main(void)
 {
 	signal(SIGINT, deal_signal);
 
-	sem_id = semget(9999, 1, 0600);		//需要保证进程有读写信号量的权限
+	sem_id = semget(ftok(PATH, PROJECT_ID), 1, 0600);		//需要保证进程有读写信号量的权限
 	if (sem_id == -1)
 	{
-		printf("打开信号量失败！\n");
+		perror("semget");
 		return 0;
 	}
 	else
-		printf("信号量创建成功！\n");
+		printf("信号量获取成功！\n");
 
 	struct sembuf sem_wait;
 	sem_wait.sem_num = 0;
 	sem_wait.sem_op = -1;
 	sem_wait.sem_flg = SEM_UNDO;
+
 	semop(sem_id, &sem_wait, 1);
 
 	while (1)
@@ -1331,7 +1362,7 @@ int main(void)
 
 
 
-## 消息队列(Message Queue)
+## SystemV消息队列(XSI Message Queue)
 消息队列是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
 消息队列相关函数定义在`sys/msg.h`中。
 
@@ -1459,6 +1490,7 @@ struct ipc_perm
 
 `msqid_ds`结构中的`msg_perm.uid`、`msg_perm.gid`、`msg_perm.mode`以及`msg_qbytes`成员可以**手动指定**。
 `msgctl`函数的`IPC_SET`操作只有下列两种进程可以执行:
+
 0. 进程执行用户的用户ID等于`msg_perm.cuid`或`msg_per.uid`。
 0. 具有超级用户特权的进程。
 
@@ -1466,6 +1498,9 @@ struct ipc_perm
 定义消息结构头`my_msg.h`：
 
 ```c
+#define PROJECT_ID 0
+#define PATH "/home/dainslef"
+
 struct my_msg
 {
 	long type;
@@ -1481,18 +1516,15 @@ struct my_msg
 发送消息进程：
 
 ```c
-#define PROJECT_ID 0
-
 #include <stdio.h>
-#include <sys/msg.h>
-#include <fcntl.h>
 #include <string.h>
+#include <sys/msg.h>
 
 #include "my_msg.h"
 
 int main(int argc, char** argv)
 {
-	key_t key = ftok(u8"/home/dainslef", PROJECT_ID);
+	key_t key = ftok(PATH, PROJECT_ID);
 	struct my_msg msg;
 	int msg_id = 0;
 	int flag = IPC_CREAT | 0600;
@@ -1545,8 +1577,6 @@ int main(int argc, char** argv)
 接受消息进程：
 
 ```c
-#define PROJECT_ID 0
-
 #include <stdio.h>
 #include <sys/msg.h>
 
@@ -1554,7 +1584,7 @@ int main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-	key_t key = ftok(u8"/home/dainslef", PROJECT_ID);
+	key_t key = ftok(PATH, PROJECT_ID);
 	struct my_msg msg;
 	int msg_id = 0;
 
@@ -1564,8 +1594,6 @@ int main(int argc, char** argv)
 	while (1)
 	{
 		int size = 0;
-
-		//接受绝对值小于等于300的数据
 		if ((size = msgrcv(msg_id, &msg, sizeof(msg.data), -300, IPC_NOWAIT)) == -1)
 		{
 			perror("msgrcv");
