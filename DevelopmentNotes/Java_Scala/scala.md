@@ -610,10 +610,13 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 - 主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。
 
 	构造器参数前使用`var`关键字，如下代码所示：
+
 	```scala
 	class Constructor(var num: Int)
 	```
+
 	编译为Java代码为：
+
 	```java
 	public class Constructor {
 		private int num;
@@ -622,13 +625,17 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 		public Constructor(int);
 	}
 	```
+
 	可以看到，编译器为var字段`num`生成了`setter`、`getter`方法和一个与字段同名的私有变量。
 
 	构造器参数前使用`val`关键字，如下所示：
+
 	```scala
 	class Constructor(val num: Int)
 	```
+
 	编译为Java代码为：
+
 	```java
 	public class Constructor {
 		private final int num;
@@ -636,14 +643,18 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 		public Constructor(int);
 	}
 	```
+
 	可以看到，编译器为val字段`num`生成了`getter`方法和一个与字段同名的final私有变量。
 
 	构造器参数前加上**访问权限修饰符**则生成的方法类似，但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)，如下所示：
+
 	```scala
 	class Constructor0(protected[this] var num: Int)
 	class Constructor1(private val num: Int)
 	```
+
 	编译为Java代码为：
+
 	```java
 	public class Constructor0 {
 		private int num;
@@ -664,11 +675,14 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 	编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
 	如下代码所示：
+
 	```scala
 	class Constructor0(num: Int)
 	class Constructor1(private[this] val num: Int)
 	```
+
 	编译为Java代码为：
+
 	```java
 	public class Constructor0 {
 		public Constructor0(double);
@@ -677,10 +691,12 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 		public Constructor1(double);
 	}
 	```
+
 	编译得到的Java代码完全相同。
 
 	当该参数被其它成员方法引用时，编译器会为其生成对应的私有成员变量(但没有生成`setter/getter`)。
 	如下代码所示：
+
 	```scala
 	class Constructor0(num: Int) {
 		def get = num
@@ -689,7 +705,9 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 		def get = num
 	}
 	```
+
 	编译为Java代码为：
+
 	```java
 	public class Constructor0 {
 		private final int num;
@@ -707,20 +725,26 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 - 一个类如果没有显式写明主构造器参数，则默认生成一个**空参**构造方法。
 
 	对于一个如下的**空类**：
+
 	```scala
 	class Empty
 	```
+
 	实际相当于：
+
 	```scala
 	class Empty() {
 	}
 	```
+
 	编译成Java代码后为：
+
 	```java
 	public class Empty() {
 		public Empty() { ... };
 	}
 	```
+
 	可以采用如下方式实例化：
 
 	```scala
@@ -739,7 +763,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 	编译成Java代码后为：
 
-	```
+	```java
 	public class Default {
 		public Default();
 		public Default(int);
@@ -1836,7 +1860,10 @@ object Main extends App {
 ```
 
 输出结果：
+
+```
 100 200.0
+```
 
 ### 隐式类
 类定义前同样可以使用`implicit`成为**隐式类**。
@@ -2018,11 +2045,14 @@ object Main extends App {
 ```
 
 输出结果：
+
+```
 Node1 text: node1
 Node1 text: test_node1
 Case node_node2: node2
 Node3 attribute: arg_node3
 Node4 attribute: arg_node4
+```
 
 ### 创建XML
 可以直接将代码嵌入XML语句中：
