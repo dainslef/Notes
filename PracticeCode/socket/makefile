@@ -7,23 +7,20 @@ epoll_objects = server_tcp_epoll server_tcp_epoll_et
 
 os = $(shell uname)
 ifeq ($(os), Linux)
+	LDFLAGS = -lpthread
 	objects += $(epoll_objects)
-	libs = -lpthread
 endif
 
 
 all: $(objects)
 
-client_tcp: client_tcp.o
-	$(CC) $(libs) $< -o $@
+client_tcp:
 client_tcp.o:
 
-server_tcp: server_tcp.o
-	$(CC) $(libs) $< -o $@
+server_tcp:
 server_tcp.o:
 
-server_tcp_select: server_tcp_select.o
-	$(CC) $(libs) $< -o $@
+server_tcp_select:
 server_tcp_select.o:
 
 server_tcp_select_single_thread:

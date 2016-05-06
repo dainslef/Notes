@@ -1,15 +1,15 @@
 CC = clang
 CFLAGS = -std=gnu11
 
-objects = Semaphore_Before Semaphore_After
+objects = sysv_sem_before sysv_sem_after
 
 all: $(objects)
 
-Semaphore_Before:
-Semaphore_Before.o:
+sysv_sem_before:
+sysv_sem_before.o:
 
-Semaphore_After:
-Semaphore_After.o:
+sysv_sem_after:
+sysv_sem_after.o:
 
 .PHONY: clean
 clean:

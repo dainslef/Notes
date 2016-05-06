@@ -69,7 +69,7 @@ list中的数据可以是另一个list，访问方式类似**二维数组**。
 
 
 ### 元组 *tuple*
-tuple与list类似，但tuple中的数据**不可修改**，因此没有`append()``insert()``pop()`之类的方法。
+tuple与list类似，但tuple中的数据**不可修改**，因此没有`append()`、`insert()`、`pop()`之类的方法。
 tuple可以像数组一样通过下标访问，但不能对其赋值：
 
 ```python
@@ -695,7 +695,7 @@ del n.num			#删除成员，实际调用del_num()
 - 使用`@property`装饰器装饰`getter`函数，同时该函数的名称即为**属性名**。
 - 使用`@属性名.setter`装饰器装饰`setter`函数。
 - 使用`@属性名.deleter`装饰器装饰`deleter`函数。
-- 使用装饰器语法来定义属性时，`getter``setter``deleter`函数的函数名都需要与属性名**相同**。
+- 使用装饰器语法来定义属性时，`getter`、`setter`、`deleter`函数的函数名都需要与属性名**相同**。
 
 如下所示，上例中的代码等价于：
 

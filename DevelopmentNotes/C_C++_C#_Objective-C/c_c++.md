@@ -100,7 +100,7 @@ double num = 1 / 3;
 printf("%f\n", num);
 ```
 
-打印结果，输出(gcc 5.3.0 && ArchLinux x86\_64)：
+打印结果，输出(gcc 5.3.0 && ArchLinux x64)：
 
 `0.000000`
 
@@ -451,7 +451,7 @@ int main(void)
 }
 ```
 
-输出结果：(VS2013 && Windows 8.1 x64)
+输出结果：(VS 2013 && Windows 8.1 x64)
 
 `9.900000 b 888`
 
@@ -929,7 +929,7 @@ int main(void)
 }
 ```
 
-输出结果：(gcc 5.3.0 && ArchLinux x86)
+输出结果：(gcc 5.3.0 && ArchLinux x64)
 
 ```
 &
@@ -1788,7 +1788,7 @@ int main(void)
 }
 ```
 
-输出结果：(gcc 5.1.0 && ArchLinux x86\_64)
+输出结果：(gcc 5.1.0 && ArchLinux x64)
 
 ```
 100
@@ -1798,7 +1798,7 @@ int main(void)
 1 p4()调用后num的值：1
 ```
 
-可以看到，将类实例作为参数进行绑定的时候，对类实例进行的是值传递，即复制一个类对象，因此调用`bind()`生成之后的函数对象不会对原先的类实例进行修改(但传递类指针、类智能指针的时候，只是复制对象地址，类内存是同一块，因此修改会同步)，如果需要在`bind()`是进行对象引用传递，则可以使用`std::ref()``std::cref()`函数。
+可以看到，将类实例作为参数进行绑定的时候，对类实例进行的是值传递，即复制一个类对象，因此调用`bind()`生成之后的函数对象不会对原先的类实例进行修改(但传递类指针、类智能指针的时候，只是复制对象地址，类内存是同一块，因此修改会同步)，如果需要在`bind()`是进行对象引用传递，则可以使用`std::ref()`、`std::cref()`函数。
 
 
 
@@ -1933,7 +1933,7 @@ This is slot2.
 
 ### 获取时间间隔
 - `boost::posix_time::ptime`类重载了减号，两个`boost::posix_time::ptime`对象可以相减得到类型为`boost::posix_time::time_duration`的时间间隔。
-- `boost::posix_time::time_duration`可以使用`total_microseconds()``total_milliseconds()``total_nanoseconds()``total_seconds()`分别获取时间间隔对应的微秒/毫秒/纳秒/秒等作为单位的时间表示。
+- `boost::posix_time::time_duration`可以使用`total_microseconds()`、`total_milliseconds()`、`total_nanoseconds()`、`total_seconds()`分别获取时间间隔对应的微秒/毫秒/纳秒/秒等作为单位的时间表示。
 
 
 
@@ -2020,6 +2020,17 @@ void* memset(void* s, int c, size_t n);
 
 作用是将指针`s`所指向的区域的前`n`位用`ASC`码值`c`填充。
 注意`c`的取值为`ASC`码值，即如果`c`取`0`，则指针`s`所指向的区域的前`n`为全部用空白填充(相当于全是`\0`)，如果`c`取`49`,则相当于用数字`1`来填充，依此类推。
+
+### *memcpy()* 函数
+拷贝内存常用`memcpy()`函数，函数定义为：
+
+```c
+#include <string.h>
+void *memcpy(void *dest, const void *src, size_t n);
+```
+
+从指针`src`指向的内容中复制`n`个字节到`dest`指针指向的内容。
+函数返回值是一个指向`dest`指向内容的指针。
 
 ### *strcpy()* 函数
 复制字符数组常用`strcpy()`函数，函数定义为：
@@ -2178,7 +2189,7 @@ C++中的关键字`explicit`作用是防止构造函数隐式转换的发生。
 采用`explicit`关键字声明的构造函数只能够被显式地调用。
 
 ### *restrict* 关键字
-`C99`中新引入了关键字`restrict`，`restrict`关键字用在指针的定义中，格式为`变量类型* restrict 指针名`，作用是是告知编译器该指针始终指向首次初始化时的内容，不会发生改变。
+`C99`中新引入了关键字`restrict`，`restrict`关键字用在指针的定义中，格式为`变量类型* restrict 指针名`，作用是是告知编译器该指针是指针所指向区域的**唯一**访问方式，所有修改该指针指向内容的操作都只能通过该指针进行，而**不能**通过其它变量或指针来修改。
 `restrict`关键字不会改变指针的用法，但会让编译器更加安全高效准确地优化代码，使用`restrict`关键字定义的指针的指向不应进行改动。
 `restrict`关键字只在支持`C99`以上的C编译器中使用，C++**没有**引入这个关键字。
 

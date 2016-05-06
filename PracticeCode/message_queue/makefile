@@ -1,15 +1,15 @@
 CC = clang
 CFLAGS = -std=gnu11
 
-objects = msg_send msg_recv
+objects = sysv_msgsnd sysv_msgrcv
 
 all: $(objects)
 
-msg_send:
-msg_send.o: my_msg.h
+sysv_msgsnd:
+sysv_msgsnd.o: my_msg.h
 
-msg_recv:
-msg_recv.o: my_msg.h
+sysv_msgrcv:
+sysv_msgrcv.o: my_msg.h
 
 .PHONY: clean
 clean:

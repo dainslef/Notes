@@ -1,6 +1,4 @@
-#include <stdio.h>
 #include <string.h>
-#include <sys/msg.h>
 
 #include "my_msg.h"
 

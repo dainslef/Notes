@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <sys/msg.h>
-
 #include "my_msg.h"
 
 int main(int argc, char** argv)

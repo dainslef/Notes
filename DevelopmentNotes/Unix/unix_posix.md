@@ -955,13 +955,18 @@ pthread_mutexattr_init(&attr);
 pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);		//第二个参数如果取PTHREAD_PROCESS_PRIVATE则互斥量仅为进程内部所使用，这是默认情况，即pthread_mutex_init()函数的第二个参数取NULL时的情况
 ```
 
-需要注意的是，由于每个进程的地址空间是独立的，每个进程定义的变量无法被其它进程所访问。因此，要想使用互斥量进行进程间的同步，仅仅是设置其共享属性是不够的，需要使用Unix的**共享内存**机制，开辟一块共享内存，将互斥量定义在**共享内存**中，以此来保证一个互斥量能被多个进程访问，实现真正的进程互斥。
+需要注意的是，由于每个进程的地址空间是独立的，每个进程定义的变量无法被其它进程所访问。
+
+若需要使用互斥量进行进程间的同步，不仅需要设置其共享属性，还需要使用Unix的**共享内存**机制，开辟一块共享内存，将互斥量定义在**共享内存**中，以此来保证一个互斥量能被多个进程访问，实现进程互斥。
 
 实例代码：
 
-文件 `Process_Mutex_Parent.c`：
+文件 `process_mutex_parent.c`：
 
 ```c
+#define PROJECT_ID 0
+#define PATH "/home/dainslef"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -971,7 +976,7 @@ pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);		//第二个参数�
 int shm_id;							//共享内存标志，类似于文件标识符
 pthread_mutexattr_t attr;
 
-void deal_signal(int signal)
+void dealSignal(int signal)
 {
 	if (signal == SIGQUIT
 			&& !pthread_mutex_unlock((pthread_mutex_t*)shmat(shm_id, NULL, 0)))
@@ -989,16 +994,16 @@ void deal_signal(int signal)
 
 int main(void)
 {
-	shm_id = shmget((key_t)666, sizeof(pthread_mutex_t), IPC_CREAT | 0600);
-	pthread_mutex_t* mutex = (pthread_mutex_t*)shmat(shm_id, NULL, 0);
+	shm_id = shmget(ftok(PATH, PROJECT_ID), sizeof(pthread_mutex_t), IPC_CREAT | 0600);
+	pthread_mutex_t *mutex = (pthread_mutex_t*)shmat(shm_id, NULL, 0);
 
 	pthread_mutexattr_init(&attr);				//初始化权限结构体attr
 	pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
 
 	if (!pthread_mutex_init(mutex, &attr))
-		printf("成功创建了互斥量！\n");			//创建了一个进程互斥的互斥量
+		printf("成功创建了互斥量！\n");		//创建了一个进程互斥的互斥量
 
-	signal(SIGQUIT, deal_signal);
+	signal(SIGQUIT, dealSignal);
 	printf("父进程启动：\n");
 
 	if (!pthread_mutex_lock((pthread_mutex_t*)shmat(shm_id, NULL, 0)))
@@ -1014,54 +1019,36 @@ int main(void)
 }
 ```
 
-文件 `Process_Mutex_Child.c`：
+文件 `process_mutex_child.c`：
 
 ```c
+#define PROJECT_ID 0
+#define PATH "/home/dainslef"
+
 #include <stdio.h>
 #include <unistd.h>
-#include <signal.h>
 #include <pthread.h>
-#include <sys/shm.h>				//包含共享内存的相关函数
+#include <sys/shm.h>
 
-int shm_id;							//共享内存标志，类似于文件标识符
+int shm_id;
 pthread_mutexattr_t attr;
-
-void deal_signal(int signal)
-{
-	if (signal == SIGQUIT
-			&& !pthread_mutex_unlock((pthread_mutex_t*)shmat(shm_id, NULL, 0)))
-	{
-		printf("解锁互斥量成功！\n父进程即将结束！\n");
-		for (int i = 5; i > 0; i--)
-		{
-			printf("倒数计时：%d\n", i);
-			sleep(1);
-		}
-		printf("父进程结束！\n");
-		_exit(0);
-	}
-}
 
 int main(void)
 {
-	shm_id = shmget((key_t)666, sizeof(pthread_mutex_t), IPC_CREAT | 0600);
+	shm_id = shmget(ftok(PATH, PROJECT_ID), sizeof(pthread_mutex_t), 0);
 	pthread_mutex_t *mutex = (pthread_mutex_t*)shmat(shm_id, NULL, 0);
 
-	pthread_mutexattr_init(&attr);				//初始化权限结构体attr
+	pthread_mutexattr_init(&attr);
 	pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
 
-	if (!pthread_mutex_init(mutex, &attr))
-		printf("成功创建了互斥量！\n");		//创建了一个进程互斥的互斥量
-
-	signal(SIGQUIT, deal_signal);
-	printf("父进程启动：\n");
+	printf("子进程启动：\n");
 
 	if (!pthread_mutex_lock((pthread_mutex_t*)shmat(shm_id, NULL, 0)))
-		printf("父进程互斥量加锁成功！");
+		printf("子进程互斥量加锁成功！");
 
 	while (1)
 	{
-		printf("父进程在执行！\n");
+		printf("子进程在执行！\n");
 		sleep(2);
 	}
 
@@ -1118,9 +1105,11 @@ key_t ftok(const char *pathname, int proj_id);
 
 
 
-## 共享内存
+## SystemV共享内存
 共享内存是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
-相比信号量等IPC机制，共享内存有着最高的效率，因为共享内存并不涉及复制操作。
+
+相比信号量等IPC机制，共享内存有着最高的效率，因为共享内存不涉及复制操作。
+
 共享内存的相关函数定义在`sys/shm.h`中。
 
 ### 创建/获取共享内存
@@ -1180,7 +1169,7 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 
 
 
-## 信号量(Semaphore)
+## SystemV信号量(Semaphore)
 信号量是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
 信号量用于控制进程对资源的访问，但信号量也可以用于线程。
 在进程开发中，常用的信号量函数定义在`sys/sem.h`文件中。
@@ -1200,7 +1189,7 @@ int semget(key_t key, int num_sems, int sem_flags);
 `sem_flags`参数上常用的信号标识有`IPC_CREAT`，用于**创建**新的信号量，但如果**key值**对应的信号量已被创建，并不会调用失败，而是**忽略**该标志。
 `IPC_CREAT | IPC_EXCL`标识，用于创建一个**新的**、**唯一**的信号量，如果**key值**对应的信号量已被创建，则调用**失败**。
 使用`IPC_CREAT | IPC_EXCL`标识需要注意，使用此种方式创建信号量在使用完毕后需要调用`semctl()`函数释放，否则下次运行同样的程序会由于信号量已经存在(没被释放)而造成调用失败。
-`IPC_CRAET | 0666`标识，用于创建有**读写权限**的信号量。信号量在Unix系统也是文件，默认情况下，创建的信号量没有读写权限，需要搭配权限描述字段才能有读写权限。
+`IPC_CRAET | 0666`标识，用于创建有**读写权限**的信号量。
 
 ### 改变信号量的值
 使用`semop()`函数修改信号量的值。
@@ -1236,7 +1225,7 @@ int semctl(int sem_id, int sem_num, int command, ...);
 - `sem_num`参数为信号量编号，一般没有多个信号量时取`0`。
 - `command`参数为要执行的操作的标志位。
 
-`command`参数可以有很多不同的值，常用的有`IPC_RMID`，用于删除一个信号量(如果信号创建方式是`IPC_CREAT | IPC_EXCL` ，则务必要在程序结束时删除信号量)。
+`command`参数可以有很多不同的值，常用的有`IPC_RMID`，用于删除一个信号量(如果信号创建方式是`IPC_CREAT | IPC_EXCL`，则务必要在程序结束时删除信号量)。
 `command`设置为`SETVAL`，则用于**初始化**一个信号量，此时函数需要有第四个参数，联合体`union semun`，通过设置`semun`的`val`成员的值来初始化信号量。
 `semun`联合体的定义为：
 
@@ -1252,7 +1241,7 @@ union semun {
 
 实例代码：
 
-文件 `Semaphore_Before.c`：
+文件 `semaphore_before.c`：
 
 ```c
 #define PROJECT_ID 0
@@ -1304,7 +1293,7 @@ int main(void)
 }
 ```
 
-文件 `Semaphore_After.c`：
+文件 `semaphore_after.c`：
 
 ```c
 #define PROJECT_ID 0
@@ -1364,10 +1353,15 @@ int main(void)
 
 ## SystemV消息队列(XSI Message Queue)
 消息队列是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
+以下描述引用自`<<Unix网络编程 卷2>>`：
+
+消息队列是一个**消息链表**，有足够**写权限**的线程可以向消息队列中添加消息，有足够**读权限**的线程可以从消息队列中获取消息。
+消息队列具有**随内核的持续性**。
+
 消息队列相关函数定义在`sys/msg.h`中。
 
 ### 创建/获取消息队列
-使用`msgget()`函数创建一个新的消息队列/获取一个已经存在的消息队列：
+使用`msgget()`函数创建一个新的消息队列/获取一个已经存在的SystemV消息队列：
 
 ```c
 int msgget(key_t key, int msgflg);
@@ -1438,6 +1432,7 @@ int msgctl(int msqid, int cmd, struct msqid_ds *buf);
 -  `buf`参数为指向消息结构体的指针。
 
 函数执行成功返回`0`，执行失败返回`-1`并置`errno`。
+
 参数`buf`的类型`msqid_ds`结构用于设置消息队列的一些属性，该结构的定义根据具体实现略有不同，在`Linux x64`中的定义如下：
 
 ```c
@@ -1593,8 +1588,7 @@ int main(int argc, char** argv)
 
 	while (1)
 	{
-		int size = 0;
-		if ((size = msgrcv(msg_id, &msg, sizeof(msg.data), -300, IPC_NOWAIT)) == -1)
+		if (msgrcv(msg_id, &msg, sizeof(msg.data), -300, IPC_NOWAIT) == -1)
 		{
 			perror("msgrcv");
 			if (msgctl(msg_id, IPC_RMID, NULL) == -1)
@@ -1609,7 +1603,7 @@ int main(int argc, char** argv)
 }
 ```
 
-运行结果(ArchLinux x64 && Clang 3.7.1)：
+运行结果：(Clang 3.7.1 && ArchLinux x64)
 
 先执行消息发送进程：
 
@@ -1660,6 +1654,169 @@ Recevie: Hello World
 
 msgrcv: No message of desired type
 ```
+
+
+
+## POSIX消息队列
+POSIX消息队列相关函数定义在`mqueue.h`头文件中。
+使用POSIX消息队列，编译时需要链接`librt`库。
+
+POSIX消息队列与SystemV消息队列的差异：
+
+- 读取POSIX消息队列，返回的总是**最高优先级**的**最早**消息。
+- 读取SytemV消息队列，返回的是**任意指定优先级**的消息。
+
+### 创建/获取消息队列
+使用`mq_open()`函数创建一个新的消息队列/获取一个已经存在的POSIX消息队列：
+
+```c
+mqd_t mq_open(const char *name, int oflag);
+mqd_t mq_open(const char *name, int oflag, mode_t mode, struct mq_attr *attr);
+```
+
+- `name`参数为POSIX IPC名称。
+- `oflag`参数为标志位，类似于`open()`调用中的`flags`参数。
+	0. 可取`O_RDONLY`、`O_WRONLY`、`O_RDWR`(三选一)，分别表示以**只读**、**只写**、**读写**的方式打开POSIX消息队列。
+	0. 可取`O_CREAT`，表示不存在消息队列时创建，可追加`O_EXCL`标志，若消息队列已存在函数返回`EEXIST`错误。
+	0. 可取`O_NONBLOCK`，表示以**非阻塞**的形式打开消息队列。
+- `mode`参数仅当`oflag`参数中使用了`O_CREAT`标志时需要使用，参数内容为创建的消息队列的权限，格式与文件权限相同(八进制，如`0600`)。
+- `attr`参数仅当`oflag`参数中使用了`O_CREAT`标志时需要使用，用于设置消息队列的属性，
+
+函数执行成功返回POSIX消息队列的描述符，失败时返回`(mqd_t)-1`，并置`errno`。
+类型`mqd_t`在不同的Unix实现中实际类型可能不同，在Linux中为`int`。
+
+### 关闭/移除消息队列
+使用`mq_close()`关闭消息队列，使用`mq_unlink()`移除消息队列：
+
+```c
+int mq_close(mqd_t mqdes);
+int mq_unlink(const char *name);
+```
+
+- `mqdes`参数为POSIX消息队列描述符。
+- `name`参数为消息队列的IPC名称。
+
+函数执行成功返回`0`，失败时返回`-1`并置`errno`。
+
+使用`mq_close()`关闭消息队列后消息队列不会被删除，删除消息队列需要使用`mq_unlink()`。
+一个进程结束后，所有该进程中打开的消息队列都将被自动关闭。
+调用`mq_unlink()`时若被删除的消息队列已被其它进程打开则不会立即删除，直到最后一个打开该消息队列的进程结束或主动关闭该消息队列时才会被删除。
+
+### 设置获取消息队列的属性
+使用`mq_getattr()`获取消息队列的属性，使用`mq_setattr()`设置消息队列的属性：
+
+```c
+int mq_getattr(mqd_t mqdes, struct mq_attr *attr);
+int mq_setattr(mqd_t mqdes, const struct mq_attr *newattr, struct mq_attr *oldattr);
+```
+
+消息属性结构`mq_attr`在Linux中的定义如下：
+
+```c
+struct mq_attr {
+	long mq_flags;       /* Flags: 0 or O_NONBLOCK */
+	long mq_maxmsg;      /* Max. # of messages on queue (最大允许的消息数量) */
+	long mq_msgsize;     /* Max. message size (bytes) (消息长度最大大小) */
+	long mq_curmsgs;     /* # of messages currently in queue */
+};
+```
+
+函数执行成功返回`0`，失败时返回`-1`并置`errno`。
+
+### 打印消息队列的系统限制
+`mq_attr`结构中的成员`mq_maxmsg`、`mq_msgsize`在不同Unix系统中拥有不同的系统上限，可以使用`sysconf()`函数获取：
+
+```c
+#include <unistd.h>
+long sysconf(int name);
+```
+
+打印消息数目以及消息大小的系统上限：
+
+```c
+printf("MQ_OPEN_MAX: %ld\n", sysconf(_SC_MQ_OPEN_MAX));
+printf("MQ_RPIO_MAX: %ld\n", sysconf(_SC_MQ_PRIO_MAX));
+```
+
+### 向消息队列发送消息
+使用`mq_send()`和`mq_timedsend()`向POSIX消息队列中发送消息：
+
+```c
+int mq_send(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned int msg_prio);
+int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
+	unsigned int msg_prio, const struct timespec *abs_timeout);
+```
+
+- `mqdes`参数为消息队列描述符。
+- `msg_ptr`参数为要加入消息队列的数据。
+- `msg_len`参数为消息数据的大小，该值必须**小于等于**`mq_msgsize`(消息长度最大大小)，否则函数返回`-1`并置`errno`为`EMSGSIZE`。
+- `msg_prio`参数为消息数据的优先级，数值越大优先级越高。
+- `abs_timeout`参数为指向超时时间的指针，`mq_timedsend()`函数等待超时后返回`-1`并置`errno`值为`ETIMEDOUT`。
+
+当消息队列没有设置`O_NONBLOCK`时，`mq_send()`函数会一直阻塞到有消息来到，`mq_timedsend()`函数阻塞到超时时间等待完毕或有消息来到。
+`mq_send()/mq_timedsend()`函数的阻塞状态会被信号处理函数中断，触发信号处理函数时，`mq_send()/mq_timedsend()`函数立即返回`-1`并置`errno`为`EINTR`。
+
+当消息队列设置了`O_NONBLOCK`时，若消息队列中的消息数量已经达到`mq_msgsize`(消息数目上限)，函数返回`-1`并置`errno`值为`EAGAIN`。
+
+### 从消息队列获取消息
+使用`mq_receive()`和`mq_timedreceive()`从POSIX消息队列中获取消息：
+
+```c
+ssize_t mq_receive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned int *msg_prio);
+ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
+	unsigned int *msg_prio, const struct timespec *abs_timeout);
+```
+
+- `mqdes`参数为消息队列描述符。
+- `msg_ptr`参数为要加入消息队列的数据。
+- `msg_len`参数为消息数据的大小，该值必须**大于等于**`mq_msgsize`(消息长度最大大小)，否则函数返回`-1`并置`errno`为`EMSGSIZE`。
+- `msg_prio`参数为指向消息优先级数据的指针，在队列中有多个消息时，优先获取优先级数据相等、相近的消息。
+- `abs_timeout`参数为指向超时时间的指针，`mq_timedreceive()`函数等待超时后返回`-1`并置`errno`值为`ETIMEDOUT`。
+
+当消息队列没有设置`O_NONBLOCK`时，`mq_receive()`函数会一直阻塞到消息能被接收，`mq_timdreceive()`函数阻塞到超时时间等待完毕或消息能被接收。
+`mq_receive()/mq_timedreceive()`函数的阻塞状态会被信号处理函数中断，触发信号处理函数时，`mq_receive()/mq_timedreceive()`函数立即返回`-1`并置`errno`为`EINTR`。
+
+当消息队列设置了`O_NONBLOCK`时，若消息队列中的消息数量为`0`，函数返回`-1`并置`errno`值为`EAGAIN`。
+
+### 消息队列通知
+使用`mq_notify()`为消息队列绑定或删除异步通知：
+
+```c
+int mq_notify(mqd_t mqdes, const struct sigevent *sevp);
+```
+
+- `mqdes`参数为消息队列描述符。
+- `sevp`参数为指向具体的信号通知内容的指针，若取`NULL`，则清除原有的通知注册。
+
+`sigevent`结构的定义如下：
+
+```c
+union sigval {          /* Data passed with notification */
+	int     sival_int;         /* Integer value */
+	void   *sival_ptr;         /* Pointer value */
+};
+
+struct sigevent {
+	int          sigev_notify; /* Notification method */
+	int          sigev_signo;  /* Notification signal */
+	union sigval sigev_value;  /* Data passed with
+									notification */
+	void       (*sigev_notify_function) (union sigval);
+						/* Function used for thread
+						notification (SIGEV_THREAD) */
+	void        *sigev_notify_attributes;
+						/* Attributes for notification thread
+						(SIGEV_THREAD) */
+	pid_t        sigev_notify_thread_id;
+						/* ID of thread to signal (SIGEV_THREAD_ID) */
+};
+```
+
+注意：
+
+0. 消息队列阻塞的优先级比信号通知更高，只有指定消息队列的所有描述符都以`O_NONBLOCK`标志打开时，信号才会发出。
+0. 任何时刻只能有一个进程被注册到指定的消息队列中。
+0. 信号成功发送之后，注册即被取消，在此发出信号需要重新注册。
 
 
 
@@ -1748,7 +1905,7 @@ while(1)
 }
 ```
 
-####*使用select()的一些注意事项*
+#### *使用select()的一些注意事项*
 - `select()`处于阻塞状态时会被信号中断(当`select()`所处线程是信号处理线程时)。
 - 每次调用`select()`前都需要重设描述符集合(执行`FD_ZERO`和`FD_SET`宏)。
 - `timeval`结构体会在`select()`运行时被修改，因此，在需要设置超时时间的情况下，循环中每次调用`select()`之前都需要重新设置`timeval`结构体。
@@ -1758,6 +1915,7 @@ while(1)
 `pselect()`函数由**POSIX**定义，是`select()`的完善版本，在早期的Unix中并不存在。
 `pselect()`监听描述符的功能以及使用方式与`select()`相同。
 `pselect()`在`select()`基础上添加了等待期间**阻塞**信号的功能。
+
 `pselect()`函数定义如下所示：
 
 ```c
@@ -1991,6 +2149,7 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 - `ET`模式只有描述符状态变化(从不可读/写变为可读/写)时才会另`epoll_wait()`返回，相比之下，`ET`模式更为高效。
 
 `LT`模式下，由于只要有数据读写就会触发事件，因此**不必**在一次`epoll`循环中尝试读尽所有的数据，有数据未读会继续触发触发事件，在下次触发的事件中读尽数据即可。`LT`模式下可以使用阻塞式IO也可以使用非阻塞IO。
+
 `LT`模式下基本的代码框架为：
 
 ```c
