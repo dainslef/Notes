@@ -11,17 +11,17 @@ int main(int argc, char** argv)
 
 	while (1)
 	{
-		int size = 0;
-		if ((size = msgrcv(msg_id, &msg, sizeof(msg.data), -300, IPC_NOWAIT)) == -1)
+		if (msgrcv(msg_id, &msg, sizeof(msg.data), -300, IPC_NOWAIT) == -1)
 		{
 			perror("msgrcv");
-			if (msgctl(msg_id, IPC_RMID, NULL) == -1)
-				perror("msgctl");
 			break;
 		}
 		else
 			printf("Num: %d\nMessage type: %ld\nRecevie: %s\n\n", msg.data.num, msg.type, msg.data.text);
 	}
+
+	if (msgctl(msg_id, IPC_RMID, NULL) == -1)
+		perror("msgctl");
 
 	return 0;
 }
