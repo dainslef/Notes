@@ -10,54 +10,58 @@
  * @author dainslef
  */
 
-public class Queen {
+public class queen {
 
 	public static void main(String[] args) {
-		GetQueen Q = new GetQueen();
-		Q.Queen(0);
-		System.out.println("共找到了" + Q.count + "种解法。");
+		GetQueen q = new GetQueen();
+		q.queen(0);
+		System.out.println("\n共找到了" + q.getCount() + "种解法。");
 	}
-		
+
 }
 
 class GetQueen
 {
-	final int queen = 8;
-	int count = 0;
-	int[] Map = new int[queen];
-	
-	void Queen(int row) {
+	private final int queen = 8;
+	private int count = 0;
+	private int[] map = new int[queen];
+
+	int getCount() {
+		return count;
+	}
+
+	void queen(int row) {
 		if (row == queen) {
 			count++;
-			System.out.println("找到了第" + count + "种方法：");
+			System.out.println("\n找到了第" + count + "种方法：");
 			show();
 		}
 		else {
 			for (int i = 0; i < queen; i++)
 				if (find(row, i))
 				{
-					Map[row] = i;
-					Queen(row + 1);
+					map[row] = i;
+					queen(row + 1);
 				}
 		}
 	}
-	
-	boolean find(int row, int line) {
+
+	private boolean find(int row, int line) {
 		for (int i = 0; i < row; i++)
-			if (line == Map[i] || Math.abs(Map[i] - line) == Math.abs(i - row))
+			if (line == map[i] || Math.abs(map[i] - line) == Math.abs(i - row))
 				return false;
 		return true;
 	}
-	
-	void show() {
+
+	private void show() {
 		for (int i = 0; i < queen; i++)
 			for (int p = 0; p < queen; p++) {
-				if (p == Map[i])
+				if (p == map[i])
 					System.out.print("X  ");
 				else
 					System.out.print("_  ");
 				if (p == queen - 1)
 					System.out.println();
 			}
-	}	
+	}
 }

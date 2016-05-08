@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "my_msg.h"
+#include "sysv_msg.h"
 
 int main(int argc, char** argv)
 {

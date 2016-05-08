@@ -1534,7 +1534,7 @@ int main(int argc, char** argv)
 	if (msgsnd(msg_id, &msg, sizeof(msg.data), IPC_NOWAIT) == -1)
 		perror("msgsnd");
 	else
-		printf("Num: %d\nMessage type: %ld\nRecevie: %s\n\n", msg.data.num, msg.type, msg.data.text);
+		printf("Num: %d\nMessage type: %ld\nSend: %s\n\n", msg.data.num, msg.type, msg.data.text);
 
 	strcpy(msg.data.text + 5, " World");
 
@@ -1546,7 +1546,7 @@ int main(int argc, char** argv)
 		if (msgsnd(msg_id, &msg, sizeof(msg.data), IPC_NOWAIT) == -1)
 			perror("msgsnd");
 		else
-			printf("Num: %d\nMessage type: %ld\nRecevie: %s\n\n", msg.data.num, msg.type, msg.data.text);
+			printf("Num: %d\nMessage type: %ld\nSend: %s\n\n", msg.data.num, msg.type, msg.data.text);
 	}
 
 	//获取进程信息
@@ -1610,23 +1610,23 @@ int main(int argc, char** argv)
 ```
 Num: 1
 Message type: 4196797
-Recevie: Hello
+Send: Hello
 
 Num: 2
 Message type: 100
-Recevie: Hello World
+Send: Hello World
 
 Num: 3
 Message type: 200
-Recevie: Hello World
+Send: Hello World
 
 Num: 4
 Message type: 300
-Recevie: Hello World
+Send: Hello World
 
 Num: 5
 Message type: 400
-Recevie: Hello World
+Send: Hello World
 
 
 Message privileges info:
@@ -1770,7 +1770,7 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
 - `mqdes`参数为消息队列描述符。
 - `msg_ptr`参数为要加入消息队列的数据。
 - `msg_len`参数为消息数据的大小，该值必须**大于等于**`mq_msgsize`(消息长度最大大小)，否则函数返回`-1`并置`errno`为`EMSGSIZE`。
-- `msg_prio`参数为指向消息优先级数据的指针，在队列中有多个消息时，优先获取优先级数据相等、相近的消息。
+- `msg_prio`参数为指向消息优先级数据的指针，在队列中有多个消息时，首先获取优先级高的消息。
 - `abs_timeout`参数为指向超时时间的指针，`mq_timedreceive()`函数等待超时后返回`-1`并置`errno`值为`ETIMEDOUT`。
 
 当消息队列没有设置`O_NONBLOCK`时，`mq_receive()`函数会一直阻塞到消息能被接收，`mq_timdreceive()`函数阻塞到超时时间等待完毕或消息能被接收。
@@ -1817,6 +1817,189 @@ struct sigevent {
 0. 消息队列阻塞的优先级比信号通知更高，只有指定消息队列的所有描述符都以`O_NONBLOCK`标志打开时，信号才会发出。
 0. 任何时刻只能有一个进程被注册到指定的消息队列中。
 0. 信号成功发送之后，注册即被取消，在此发出信号需要重新注册。
+
+### 实例代码
+定义消息结构头`posix_mq.h`：
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include <mqueue.h>
+
+#define PATH_NAME "/tmp"
+#define FLAG (O_CREAT | O_RDWR)
+#define MODE (S_IRUSR | S_IWUSR)
+
+struct
+{
+	char text[20];
+	int num;
+} data;
+```
+
+发送消息进程：
+
+```c
+#include <unistd.h>
+
+#include "posix_mq.h"
+
+int main(int argc, char** argv)
+{
+	mqd_t mqdes;
+
+	if ((mqdes = mq_open(PATH_NAME, FLAG, MODE, NULL)) == -1)
+		perror("mq_open");
+
+	struct mq_attr attr;
+
+	if (mq_getattr(mqdes, &attr) == -1)
+		perror("mq_getattr");
+
+	attr.mq_flags = O_NONBLOCK;			//设置消息队列非阻塞
+
+	if (mq_setattr(mqdes, &attr, NULL) == -1)
+		perror("mq_setattr");
+
+	strcpy(data.text, "Hello");
+	data.num = 1;
+
+	unsigned prio = 1000;
+
+	if (mq_send(mqdes, (char*)&data, sizeof(data), prio) == -1)
+		perror("mq_send");
+	else
+		printf("Num: %d\nMessage type: %u\nRecevie: %s\n\n", data.num, prio, data.text);
+
+	strcpy(data.text + 5, " World");
+
+	for (int i = 1; i < 5; i++)
+	{
+		prio = 100 * i;
+		data.num += 1;
+
+		if (mq_send(mqdes, (char*)&data, sizeof(data), prio) == -1)
+			perror("msgsnd");
+		else
+			printf("Num: %d\nMessage type: %u\nSend: %s\n\n", data.num, prio, data.text);
+	}
+
+	printf("\nMessage type info:\n");
+	printf("Maxmsg: %ld\n", attr.mq_maxmsg);
+	printf("Msgsize: %ld\n", attr.mq_msgsize);
+
+	printf("MQ_OPEN_MAX: %ld\n", sysconf(_SC_MQ_OPEN_MAX));
+	printf("MQ_RPIO_MAX: %ld\n", sysconf(_SC_MQ_PRIO_MAX));
+
+	//进程结束。消息队列描述符自动关闭
+	mq_close(mqdes);
+
+	return 0;
+}
+```
+
+接收消息进程：
+
+```c
+#include "posix_mq.h"
+
+int main(int argc, char** argv)
+{
+	mqd_t mqdes;
+
+	if ((mqdes = mq_open(PATH_NAME, FLAG, MODE, NULL)) == -1)
+		perror("mq_open");
+
+	struct mq_attr attr;
+
+	if (mq_getattr(mqdes, &attr) == -1)
+		perror("mq_getattr");
+
+	attr.mq_flags = O_NONBLOCK;			//设置消息队列非阻塞
+
+	if (mq_setattr(mqdes, &attr, NULL) == -1)
+		perror("mq_setattr");
+
+	unsigned prio;
+
+	//循环取出队列中所有消息
+	while (1)
+	{
+		memset(&data, 0, sizeof(data));
+
+		if (mq_receive(mqdes, (char*)&data, attr.mq_msgsize, &prio) == -1)
+		{
+			perror("mq_receive");
+			break;
+		}
+		else
+			printf("Num: %d\nMessage type: %u\nReceive: %s\n\n", data.num, prio, data.text);
+	}
+
+	mq_unlink(PATH_NAME);
+
+	return 0;
+}
+```
+
+运行结果：(Clang 3.7.1 && ArchLinux x64)
+
+先执行消息发送进程：
+
+```
+Num: 1
+Message type: 1000
+Recevie: Hello
+
+Num: 2
+Message type: 100
+Send: Hello World
+
+Num: 3
+Message type: 200
+Send: Hello World
+
+Num: 4
+Message type: 300
+Send: Hello World
+
+Num: 5
+Message type: 400
+Send: Hello World
+
+
+Message type info:
+Maxmsg: 10
+Msgsize: 8192
+MQ_OPEN_MAX: -1
+MQ_RPIO_MAX: 32768
+```
+
+之后运行消息接受进程，优先级(type)高的消息先被接收：
+
+```
+Num: 1
+Message type: 1000
+Receive: Hello
+
+Num: 5
+Message type: 400
+Receive: Hello World
+
+Num: 4
+Message type: 300
+Receive: Hello World
+
+Num: 3
+Message type: 200
+Receive: Hello World
+
+Num: 2
+Message type: 100
+Receive: Hello World
+
+mq_receive: Resource temporarily unavailable
+```
 
 
 
