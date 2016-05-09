@@ -1,6 +1,6 @@
 /*
  * 代码完成时间： 2015-4-14 15：09 PM
- * Unix IPC Semaphore 信号量
+ * XSI IPC Semaphore 信号量
  * 创建信号量，将信号量加锁后执行循环，直到接收到SIGINT信号后释放锁比并结束进程
  */
 
@@ -9,26 +9,21 @@
  * @author dainslef
  */
 
-#define PROJECT_ID 0
-#define PATH "/home/dainslef"
-
-#include <sys/sem.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
-
-int sem_id = 0;
-struct sembuf sem_wait;
-struct sembuf sem_ok;
+#include "sysv_sem.h"
 
 void deal_signal(int sig)
 {
-	semop(sem_id, &sem_ok, 1);		//将信号量+1,释放资源
+	if (semop(sem_id, &sem_ok, 1) == -1)		//将信号量+1,释放资源
+		perror("semop");
+	else
+		printf("信号量解锁成功！\n");
+
 	_exit(0);
 }
 
 int main(void)
 {
+	sem_init();
 	signal(SIGINT, deal_signal);
 
 	sem_id = semget(ftok(PATH, PROJECT_ID), 1, IPC_CREAT | IPC_EXCL | 0600);
@@ -40,13 +35,13 @@ int main(void)
 	else
 		printf("信号量创建成功！\n");
 
-	sem_wait.sem_num = sem_ok.sem_num = 0;
-	sem_wait.sem_op = -1;		//设置操作数，等待时-1
-	sem_ok.sem_op = 1;			//等待完毕+1
-	sem_wait.sem_flg = sem_ok.sem_flg = SEM_UNDO;
+	if (semctl(sem_id, 0, SETVAL, 1) == -1)		//初始化信号量时可以不自定义联合体直接赋值
+		perror("semctl");
 
-	semctl(sem_id, 0, SETVAL, 1);		//初始化信号量时可以不自定义联合体直接赋值
-	semop(sem_id, &sem_wait, 1);	//信号量-1，锁住资源
+	if (semop(sem_id, &sem_wait, 1) == -1)		//信号量-1，锁住资源
+		perror("semop");
+	else
+		printf("信号量加锁成功！\n");
 
 	while (1)		//由于信号量被锁，因此A在执行此段代码时，B在等待
 	{
