@@ -1014,7 +1014,7 @@ const int* const&& x = std::move(g);	//对于指向const变量的const指针的�
 
 
 
-## 泛型(模版)
+## C++泛型(模版)
 `泛型`在C++中的实现叫做**模版**`template`。
 C++的模版可以用在类和函数中。当模版用在函数中时，调用模版函数时可以不显式指定模版类型，编译器会根据调用函数的参数类型进行自动推导。此外，不能给一个模版类型指定两种不同的类型。
 当模板函数在接收特定参数时如果与已有的普通函数的原型相同，则会优先调用普通函数的实现。
@@ -1248,6 +1248,7 @@ int main(void)
 ```
 
 由于模版展开是在**编译时**进行的，利用模版递归特性可以让一些计算在编译时发生，提升代码效率。
+
 利用模版在编译时计算**斐波那契数列**：
 
 ```cpp
@@ -1385,6 +1386,105 @@ private:
 
 
 
+## C11 *_Generic*
+在`C11`中，引入了新关键字`_Generic`，使用`_Generic`可以一定程度上实现**泛型**功能(不过功能上远远不能与C++的模板机制相比)。
+
+`_Generic`语法如下：
+
+```c
+_Generic(expr, type_1: expr_1, type_2: expr_2, ..., default: expr_default)
+```
+
+- `expr`为一个表达式。
+- `type_1`、`type_2`为类型。
+- `expr_1`、`expr_2`为对应类型的返回表达式。
+
+若`expr`表达式的类型与之后类型列表中的某种类型匹配时，`_Generic()`语句会将匹配的类型的表达式作为语句结果，若`expr`表达式与类型列表中所有类型都不匹配，则使用`defalut`对应的表达式作为语句结果。
+
+基本用法如下所示：
+
+```c
+#define G(x) _Generic(x, int: 100, double: 200.0)
+
+int a = 0;
+double b = 0.0;
+
+printf("%d\n", G(a));			//打印 100
+printf("%f\n", G(b));			//打印 200.000000
+```
+
+`default`可以不设定，但编译时若`expr`没有匹配的类型则会**报错**。
+
+```c
+#define G(x) _Generic(x, int: 100, double: 200.0)
+
+float s = 0;
+
+printf("%d\n", G(s));			//报错 error: ‘_Generic’ selector of type ‘float’ is not compatible with any association
+```
+
+使用`_Generic`可以一定程度上实现泛型函数：
+
+```c
+#include <stdio.h>
+
+struct T
+{
+	int data;
+};
+
+_Bool max_int(const int num_1, const int num_2)
+{
+	printf("call max_int\n");
+	return num_1 > num_2;
+}
+
+_Bool max_double(const double num_1, const double num_2)
+{
+	printf("call max_double\n");
+	return num_1 > num_2;
+}
+
+_Bool max_T(const struct T t_1, const struct T t_2)
+{
+	printf("call max_T\n");
+	return t_1.data > t_2.data;
+}
+
+//若x大于y，返回1，否则返回0
+#define MAX(x, y) \
+	_Generic(x, int: max_int, double: max_double, struct T: max_T)(x, y)
+
+int main(int argc, char** argv)
+{
+	//MAX宏根据不同的具体参数类型选择不同的实现
+	if (MAX(200, 100))
+		printf("True\n");
+
+	if (MAX(200.0, 100.0))
+		printf("True\n");
+
+	//传统的宏能够实现基础类型的比较，但对于自定义结构类型无能为力
+	if (MAX((struct T){ 200 }, (struct T){ 100 }))
+		printf("True\n");
+
+	return 0;
+}
+```
+
+输出结果：(gcc 6.1.1 && ArchLinux x64)
+
+```
+call max_int
+True
+call max_double
+True
+call max_T
+True
+```
+
+
+
 ## 断言 *assert*
 **断言**是调试中常用的一种宏，常用于**条件检查**。
 
@@ -1412,7 +1512,8 @@ _Static_assert(expr, error_str);
 C++11中同样引入了**静态断言**关键字`static_assert`，用法与C11中的`_Static_assert`相同。
 
 ### 使用静态断言实现范型约束
-**静态断言**搭配标准库中的模版类`std::is_base_of<Base, Der>`能够实现类似`Java``C#`等高级语言中的范型约束效果。
+**静态断言**搭配标准库中的模版类`std::is_base_of<Base, Der>`能够实现类似`Java`、`C#`等高级语言中的范型约束效果。
+
 如下所示：
 
 ```cpp
@@ -1500,6 +1601,7 @@ std::function<返回类型(参数表)> 函数对象名 = [当前作用域变量�
 - 设置全局传递方式的操作符要放在设置单个变量的操作符之前，如`[&a, =]``[b, &]`这样的写法是不被编译器所允许的。
 - `Lambda`表达式的参数可以是**引用**或是**指针**，作为**返回值**时**不能**为引用传递，但依然可以为指针类型。
 - 对于没有捕获变量的`Lambda`，可以直接转化为原生的函数指针。`Lambda`与普通函数最大的区别在与`Lamdba`可以捕获当前作用域中的变量，而函数不可以，一旦`Lambda`没有捕获当前作用域中的变量，则该`Lambda`便可以转化为一个普通的函数，即可以由原生的函数指针进行表示。
+
 举例：
 
 ```cpp
@@ -2015,7 +2117,8 @@ case 0:
 
 无法通过编译，C语言编译器会提示`crosses initialization of 'int b'`。
 以上语句在C++编译器中也会给出同样的错误。
-但是C++中允许另一种写法：
+
+但C++中允许另一种写法：
 
 ```cpp
 int a = 0;
@@ -2206,6 +2309,7 @@ Second
 ```
 
 第一次发送`SIGINT`信号触发了`deal_signal()`函数，从信号处理函数`deal_signal()`内部跳转会`sigsetjmp()`位置时，由于之前**未设置**保存信号数据，因而再次接收到信号`SIGINT`时，`deal_signal()`函数不再触发，直到程序结束。
+
 若保存信号数据(`setjmp()`的`savesig`参数为`1`时)，函数输出结果为：
 
 ```
@@ -2230,6 +2334,7 @@ C++中的关键字`explicit`作用是防止构造函数隐式转换的发生。
 
 ### *restrict* 关键字
 `C99`中新引入了关键字`restrict`，`restrict`关键字用在指针的定义中，格式为`变量类型* restrict 指针名`，作用是是告知编译器该指针是指针所指向区域的**唯一**访问方式，所有修改该指针指向内容的操作都只能通过该指针进行，而**不能**通过其它变量或指针来修改。
+
 `restrict`关键字不会改变指针的用法，但会让编译器更加安全高效准确地优化代码，使用`restrict`关键字定义的指针的指向不应进行改动。
 `restrict`关键字只在支持`C99`以上的C编译器中使用，C++**没有**引入这个关键字。
 
