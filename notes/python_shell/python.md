@@ -7,7 +7,7 @@
 list中的数据可以是另一个list，访问方式类似**二维数组**。
 定义一个list：
 
-```python
+```py
 >>> l = ['first', 'second']
 >>> type(l)
 <class 'list'>
@@ -15,21 +15,21 @@ list中的数据可以是另一个list，访问方式类似**二维数组**。
 
 取出list中指定下标的内容(下标可以为负数，即逆序取出内容)：
 
-```python
+```py
 >>> l[0]
 'first'
 ```
 
 计算list的长度：
 
-```python
+```py
 >>> len(l)
 2
 ```
 
 向list尾部添加内容：
 
-```python
+```py
 >>> l.append('third')
 >>> l
 ['first', 'second', 'third']
@@ -37,14 +37,14 @@ list中的数据可以是另一个list，访问方式类似**二维数组**。
 
 向指定位置添加内容：
 
-```python
+```py
 >>> l.insert(0, 'one')		#在list表首添加字符串"one"
 ['one', 'first', 'second', 'third']
 ```
 
 删除指定位置的数据：
 
-```python
+```py
 >>> l.pop(0)					#删除list表首的数据，不写参数时默认删除list最后一个数据
 >>> l
 ['first', 'second', 'third']
@@ -52,7 +52,7 @@ list中的数据可以是另一个list，访问方式类似**二维数组**。
 
 替换指定位置的数据：
 
-```python
+```py
 >>> l[0] = [1, 2, 3]			#将list表首的数据替换为另一个list：[1, 2, 3]
 >>> l
 [[1, 2, 3], 'second', 'third']
@@ -60,7 +60,7 @@ list中的数据可以是另一个list，访问方式类似**二维数组**。
 
 反转列表：
 
-```python
+```py
 >>> l.reverse()
 >>> l
 ['third', 'second', [1, 2, 3]]
@@ -72,7 +72,7 @@ list中的数据可以是另一个list，访问方式类似**二维数组**。
 tuple与list类似，但tuple中的数据**不可修改**，因此没有`append()`、`insert()`、`pop()`之类的方法。
 tuple可以像数组一样通过下标访问，但不能对其赋值：
 
-```python
+```py
 >>> t = (1, 2, 3)
 >>> type(t)
 <class 'tuple'>
@@ -86,7 +86,7 @@ TypeError: 'tuple' object does not support item assignment
 
 定义一一个至少有一个元素的tuple时，需要写成：
 
-```python
+```py
 >>> t = (1, )
 ```
 
@@ -100,7 +100,7 @@ dict使用`键-值`(key-value)存储，类似于java中的`Map`，拥有很快�
 dict根据key的值来计算对应value的位置(hash算法)，因此key是不能改变的，而可变对象list不能作为key。
 定义dict使用大括号：
 
-```python
+```py
 >>> d = { 'first': 'one', 'second': 2, 'third': 3 }
 >>> type(d)
 <class 'dict'>
@@ -108,14 +108,14 @@ dict根据key的值来计算对应value的位置(hash算法)，因此key是不�
 
 取出dict中的某个内容：
 
-```python
+```py
 >>> d['first']
 'one'
 ```
 
 改变指定key的value：
 
-```python
+```py
 >>> d['first'] = 1
 >>> d
 {'first': 1, 'second': 2, 'third': 3}
@@ -123,14 +123,14 @@ dict根据key的值来计算对应value的位置(hash算法)，因此key是不�
 
 可以判断一个list中是否存在某个key：
 
-```python
+```py
 >>> 'first' in dict
 True
 ```
 
 向dict中添加数据类似于操作数组：
 
-```python
+```py
 >>> d['new'] = 4
 >>> d
 {'first': 1, 'second': 2, 'third': 3, 'new': 4}
@@ -138,7 +138,7 @@ True
 
 删除dict中的内容使用`pop(key)`方法，删除了某个dict中的某个key，则该key的value也会随之被删除：
 
-```python
+```py
 >>> d.pop('new')
 >>> d
 {'first': 1, 'second': 2, 'third': 3}
@@ -148,7 +148,7 @@ True
 set是一组没有value的key的集合，set中的内容是**不可重复**的。
 定义一个set：
 
-```python
+```py
 >>> s = { 1, 2, 3, 3 }		#即使你在定义时输入重复的元素，解释器也会将其自动忽略
 >>> s
 {1, 2, 3}
@@ -156,7 +156,7 @@ set是一组没有value的key的集合，set中的内容是**不可重复**的�
 
 可以使用`add(key)`函数对给set添加key：
 
-```python
+```py
 >>> s.add('test')
 >>> s
 {1, 2, 3, 'test'}
@@ -165,7 +165,7 @@ set是一组没有value的key的集合，set中的内容是**不可重复**的�
 ### 生成容器
 在定义容器的表达式中，可以直接加入`for``if`语句等作为条件生成容器内容。
 
-```python
+```py
 >>> l = [i for i in range(0, 10) if i > 5]
 >>> l
 [6, 7, 8, 9]
@@ -181,7 +181,7 @@ set是一组没有value的key的集合，set中的内容是**不可重复**的�
 Python中的`list`、`tuple`支持**切片**操作。
 切片语法：
 
-```python
+```py
 var[start:end:step]
 ```
 
@@ -190,7 +190,7 @@ var[start:end:step]
 下标`start`和`end`的值可以超过容器界限，等价于一直取值到容器的末尾。
 如下所示：
 
-```python
+```py
 >>> t = (1, 2, 3, 4, 5)
 #获取下标1到3范围之间的内容
 >>> t[1:4]
@@ -220,7 +220,7 @@ var[start:end:step]
 
 Python中变量皆为引用，使用赋值操作符只是复制引用，但使用切片能够实现容器**值复制**：
 
-```python
+```py
 >>> l0 = [1, 2, 3]
 >>> l1 = l0
 >>> l1[0] = 100
@@ -243,7 +243,7 @@ Python中变量皆为引用，使用赋值操作符只是复制引用，但使�
 ### 查看变量类型
 使用`type()`函数可以查看变量类型：
 
-```python
+```py
 >>> a = lambda x: x + 2
 >>> type(a)
 <class 'function'>
@@ -255,7 +255,7 @@ Python中变量皆为引用，使用赋值操作符只是复制引用，但使�
 ### 判断变量是否属于某种类型
 使用`isinstance()`函数可以判断某个变量是否是某种类型：
 
-```python
+```py
 >>> isinstance(100, int)
 True
 >>> class List(object): pass
@@ -276,7 +276,7 @@ True
 在Python中，装饰器本质上就是一个普通的函数，接受一个函数作为输入参数，同时返回一个装饰后的函数。
 装饰器基本的结构如下所示：
 
-```python
+```py
 def decorator_name(func_name):
 	def wrapper():		#定义一个局部函数作为包装函数
 		# code before...
@@ -287,7 +287,7 @@ def decorator_name(func_name):
 
 在函数定义前加上`@装饰器名`即会使用装饰器来包装定义的函数，如下所示：
 
-```python
+```py
 @decorator_name
 def func_name():
 	#code...
@@ -296,7 +296,7 @@ def func_name():
 实际上，Python中使用装饰器只是一个**语法糖**，实际相当于调用装饰器函数产出一个新的函数。
 上述代码等价于：
 
-```python
+```py
 def func_name():
 	#code...
 func_name = decorator_name(func_name)
@@ -304,7 +304,7 @@ func_name = decorator_name(func_name)
 
 一个基本的装饰器应用如下所示：
 
-```python
+```py
 from time import clock
 
 #打印被装饰的函数运行消耗的时间
@@ -335,7 +335,7 @@ Time used: 0.000052 seconds
 对于参数不为空的函数，定义装饰器函数时，需要修改包装函数的参数表，为其添加参数。
 如果能确定被装饰函数的函数原型，可以将包装函数的参数数量设置为与被装饰函数相同，如下所示：
 
-```python
+```py
 from time import clock
 
 def time_cost(func):
@@ -364,7 +364,7 @@ Time used: 0.000052 seconds
 若被装饰的函数是未知的，则需要将包装函数的参数表定义为接收可变参数。
 定义一个输出传入参数种类和内容的装饰器，如下所示：
 
-```python
+```py
 def decorator(func):
 
 	def wrapper(*args, **kwargs):
@@ -415,7 +415,7 @@ Num4 is: 4
 定义带有参数的装饰器需要在包装函数外再封装一层。
 基本样式如下所示：
 
-```python
+```py
 def decorator_name(decorator_args):
 	#code...
 	def decorator_wrapper_name(func_name):
@@ -430,7 +430,7 @@ def decorator_name(decorator_args):
 
 在实际编码中装饰器可以根据传入的参数来提供不同的装饰功能，如下所示：
 
-```python
+```py
 from time import clock
 
 #第一层装饰器函数用于包装装饰器本身的参数，返回真正的装饰器函数
@@ -545,7 +545,7 @@ Num4 is: 4
 
 如下代码所示：
 
-```python
+```py
 class Test:
 
 	def __init__(self, num1, num2):
@@ -585,7 +585,7 @@ test.show()
 
 如下代码所示：
 
-```python
+```py
 class Test:
 
 	num1 = 100
@@ -620,7 +620,7 @@ test.static_show()			#静态成员函数也能够被实例访问
 
 如下代码所示：
 
-```python
+```py
 class Test:
 
 	num = 100
@@ -652,14 +652,14 @@ Python中的属性实际上是一组特定签名的`getter``setter`方法，用�
 可以使用`property()`函数来绑定属性。
 `property()`函数的基本结构如下：
 
-```python
+```py
 property_name = property(fget = None, fset = None, fdel = None, doc = None)
 ```
 
 函数依次接收`getter``setter``deleter`和属性描述作为参数，返回值赋值的变量名称即为属性的名称。
 如下代码所示：
 
-```python
+```py
 class Num:
 
 	def __init__(self, value):
@@ -699,7 +699,7 @@ del n.num			#删除成员，实际调用del_num()
 
 如下所示，上例中的代码等价于：
 
-```python
+```py
 class Num:
 
 	def __init__(self, value):
@@ -728,13 +728,13 @@ del n.num
 本质上，Python中对于成员方法的区分实际上是对于隐含参数的处理方式不同。
 对于一个实例方法，如下调用：
 
-```python
+```py
 instance.func_name(args...)
 ```
 
 实际上等价于：
 
-```python
+```py
 class_name.func_name(isinstance, args...)
 ```
 
@@ -742,7 +742,7 @@ Python解释器只是将实例本身填充到了实例方法的第一个参数�
 在C#中也存在类似的语法转换，被称为**扩展方法**。
 添加了装饰器`@staticmethod`或`@classmethod`的方法便不再能够进行这种转换，如下代码所示：
 
-```python
+```py
 class Test:
 
 	num = 100
@@ -807,7 +807,7 @@ Python的类中默认成员的访问属性为公有，在Python中不能定义�
 
 如下代码所示：
 
-```python
+```py
 class Test:
 
 	__num = 100
@@ -828,7 +828,7 @@ print(test.__num, Test.__num)		#直接输出私有成员内容报错，错误提
 以`__xxx`为名的私有成员的实际名称被改成了`_类名__xxx`，只要使用改动后的名称，就可以访问私有成员变量了。
 上个例子稍作修改即可访问到私有变量：
 
-```python
+```py
 class Test:
 
 	__num = 100
@@ -852,11 +852,36 @@ print(test._Test__num, Test._Test__num)			#需要注意的是，不同的Python�
 1 1					#正常获得了私有成员变量的内容
 ```
 
+### 继承
+继承一个类时，若自定义构造函数`__init__()`，则需要在构造函数中调用父类构造函数。
+
+调用父类构造函数时，可以使用以下方式：
+
+- `Parent_name.__init__(self, args...)`
+- `super(Parent_name, self).__init__(args...)`
+- `super().__init__(self, args...)`
+
+如下所示：
+
+```py
+class Parent:
+	def __init__(self, a, b):
+		self.a = a
+		self.b = b
+
+class Child(Parent):
+	def __init__(self, a, b):
+		# 以下三种方式皆可
+		# Parent.__init__(self, a, b)
+		# super(Parent, self).__init__(a, b)
+		super().__init__(a, b)
+```
+
 ### 一些特殊的内置成员
 在Python中，有一类特殊的类成员，命名以`__`开始也以`__`结束，这一类成员并**不是**私有成员，可以直接被访问。
 系统定义的属性与方法：
 
-```python
+```py
 Class.__doc__ 				# 类型帮助信息 'Class Doc.'
 Class.__name__ 				# 类型名称 'Class'
 Class.__module__ 			# 类型所在模块 '__main__'
@@ -869,7 +894,7 @@ Class().__dict__ 			# 对象字典，存储所有实例成员信息。 { 'i': 12
 
 一些常用的特殊方法：
 
-```python
+```py
 t = T() # 实际调用 t.__init__() 构造函数
 del t # 实际调用 t.__del__() 析构函数
 repr(t) # 实际调用 t.__repr__() 将对象转成字符串显示(适合解释器阅读)
@@ -886,7 +911,7 @@ t() # 实际调用 t.__call__() 类提供与函数类似的行为
 在Python3中，`range()`返回的是迭代值，如果想得到list需要用list()显式地进行强制类型转换。
 `range()`函数一般用于for循环遍历，例如：
 
-```python
+```py
 for a in range(0, 5):
 	print(a, end = ' ')
 ```
@@ -917,7 +942,7 @@ for a in range(0, 5):
 
 如下代码所示：
 
-```python
+```py
 def get():
 	for i in range(0, 3):
 		yield i
@@ -932,7 +957,7 @@ print(a.__next__())
 
 输出结果：
 
-```python
+```py
 <class 'generator'>
 0
 1
@@ -948,7 +973,7 @@ StopIteration: 100
 
 如下代码所示：
 
-```python
+```py
 def get():
 	for i in range(0, 3):
 		yield i
@@ -979,7 +1004,7 @@ The return value is: 100
 首次启动生成器必须使用`next()`，因为第一次迭代没有yield表达式参与，以后的每一次迭代都可以使用`send()`代替`next()`
 如下代码所示：
 
-```python
+```py
 def get():
 	m = 0
 	for i in range(0, 3):
@@ -1048,6 +1073,18 @@ $ pip help [operate]							#查看pip相关操作的帮助信息，如"pip help 
 在`OS X`中，使用**homebrew**安装Python时会自动安装pip，无需额外安装，使用pip时也**无需**root权限。
 在`OS X`中，共享的Python模块被安装在路径`/usr/local/lib/python[version]/site-packages/`下，个人Python模块被安装在路径`~/Library/Python/[version]/lib/python/site-packages`下。
 在`OS X`中，Python模块安装到系统目录同时会在`/usr/local/bin`路径下生成可执行脚本，安装到用户目录则会在`~/Library/Python/[version]/bin`路径下生成可执行脚本。
+
+
+
+## 文档浏览
+Python提供了文档工具`pydoc`。
+
+使用`pydoc`可以方便地查看Python标准库以及从pip安装的模块的对应文档：
+
+`$ pydoc -p [port]`
+
+指定端口号即可使用浏览器浏览Python文档。
+`port`值取`0`时任意选择一个可以使用的端口。
 
 
 
