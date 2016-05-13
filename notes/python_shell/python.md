@@ -1043,7 +1043,7 @@ print(a.send(20))
 Python提供了包管理器**pip**用于管理模块。
 在部分Linux发行版中，**pip**并没有随Python一并被安装，**pip**可以从发行版的软件源中安装，也可以下载安装脚本：
 
-```sh
+```
 $ wget https://bootstrap.pypa.io/get-pip.py
 $ sudo python3 get-pip.py						#将pip安装到系统目录(Linux下需要root权限)
 $ python3 get-pip.py --user						#将pip安装到用户目录
@@ -1054,7 +1054,7 @@ $ python3 get-pip.py --user						#将pip安装到用户目录
 安装Python模块到用户目录下则无需root权限，在Linux下，用户个人Python模块被安装在路径`~/.local/lib/python[version]/site-packages`中，同时，还会在`~/.local/bin`路径下生成可执行脚本，将此路径加入`PATH`即可在命令行中直接使用安装的模块。
 **pip**包管理器的使用方式类似于Linux发行版的包管理器，常见操作如下：
 
-```sh
+```
 $ sudo pip install [package_name]				#安装包
 $ sudo pip uninstall [package_name]				#移除包
 $ sudo pip install --upgrade [package_name]		#升级指定包

@@ -203,7 +203,7 @@ gcc和clang都有`O1`、`O2`、`O3`三个代码优化级别，`O1`最低，`O3`�
 ### 编译参数
 编译`Objective-C`的源码相对编译C/C++源码而言要更复杂，需要使用更多的编译器参数。
 
-使用`gnustep-config --objc-flags`指令会自动生成编译`Objective-C`源码需要的编译器参数，并用`\`\``符号将指令的结果插入`gcc`编译指令的参数中。
+使用`gnustep-config --objc-flags`指令会自动生成编译`Objective-C`源码需要的编译器参数，将指令的结果插入`gcc`编译指令的参数中。
 
 一般情况下，需要链接`libgnustep-base`、`libobjc`这两个库，如果源码使用了GUI库还需要链接`libgnustep-gui`库。
 

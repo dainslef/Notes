@@ -229,7 +229,10 @@ bool QObject::event(QEvent *e);
 ## Qt中的数据库连接
 `Qt`中数据库连接主要是使用`QSqlDatabase`类，在使用这个类时需要注意，此类的构造函数是`protected`的，因此不能在类外使用，一般使用该类的静态成员函数`QSqlDatabase::addDatabase()`来创建`QSqlDataBase`对象。
 
-在`Linux/Unix`系统中，连接本地数据库时`QSqlDatabase::setHostName()` 的参数因该填`localhost`，而不是环境变量中的`$hostname`。
+注意事项：
+
+- 在`Linux/Unix`系统中，连接本地数据库时`QSqlDatabase::setHostName()` 的参数因该填`localhost`，而不是环境变量中的`$hostname`。
+- 完成`QSqlDatabase`类实例创建与数据库相关连接信息设置后，不要忘记调用`QSqlDatabase::open()`打开数据库，否则无法读取数据库中的数据。
 
 
 
