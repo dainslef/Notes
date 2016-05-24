@@ -1,3 +1,16 @@
+mysql初始化 >>
+在mysql 5.7之后，windows下首次使用mysql数据库之前需要使用命令初始化(mysql 5.6版本之前不需要)：
+> mysqld --initialize
+
+初始化之后会创建随机密码的本地root用户，并且初始化不会再创建空用户。
+创建的用户密码可以从 xxx.err 文件中查看，日志内容大致为：
+[Note] A temporary password is generated for root@localhost: [password]
+
+使用如下指令初始化可以创建不带有密码的root账户：
+>  mysqld --initialize-insecure
+
+----
+
 mysql的服务管理 >>
 mysql的服务管理根据发行版的不同，操作方式也不尽相同。
 
@@ -41,6 +54,10 @@ mysql服务的名字为mysqld，可以将mysql服务设置为开机自启动：
 在Windows中使用mysql需要将mysql的安装目录下的bin文件夹加入环境变量PATH中。
 > mysqld							//开启服务
 > mysqladmin -u [具有管理员权限的用户名] -p		//使用管理员账户关闭服务
+安装mysqld为windows系统服务：
+> mysqld --install
+使用windows服务管理启动mysql：
+> net start mysql
 
 ----
 

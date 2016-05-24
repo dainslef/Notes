@@ -78,12 +78,12 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 
 
 ## Scala基本语言特性
-相比`Java``C++`等语言，`Scala`融合了`OOP``FP`等编程范式，同时语法上更**灵活**。
+相比`Java`、`C++`等语言，`Scala`融合了`OOP`、`FP`等编程范式，同时语法上更**灵活**。
 
 ### 语法基础(概览)
 - Scala语言中不强制要求分号，可以依行断句，只有一行带有多个语句时才要求分号隔开。
-- 使用`var``val`定义`变量``常量`，类型可以由编译器推导，也可以显式指定。定义变量时甚至可以省略`var``val`关键字，无关键字时定义的变量默认即为`val`，在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
-- 使用`def`关键字定义**方法**，`var``val`定义**函数**，需要注意的是使用`var`定义的函数是可以更改实现的，但`def`定义的方法一经定义实现就**不可改变**。
+- 使用`var`、`val`定义`变量``常量`，类型可以由编译器推导，也可以显式指定。定义变量时甚至可以省略`var`、`val`关键字，无关键字时定义的变量默认即为`val`，在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
+- 使用`def`关键字定义**方法**，`var`、`val`定义**函数**，需要注意的是使用`var`定义的函数是可以更改实现的，但`def`定义的方法一经定义实现就**不可改变**。
 - 没有**自增/自减**操作符，没有`break`、`continue`关键字。
 - 所有类型皆为对象，基础类型如`Int``Double`等都是类，函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
 - 没有原生enum类型，应继承枚举助手类`Enumeration`。
@@ -502,8 +502,8 @@ package TestCode ｛
 ### 字段
 Scala类中的字段不仅仅是定义了一个成员变量，编译器生成字节码时可能会自动为字段生成与字段同名的`getter`和`setter`方法。
 
-`var`关键字定义的字段编译器会同时为其生成`setter`和`getter`方法。
-`val`关键字定义的字段编译器会为其生成`getter`方法。
+- `var`关键字定义的字段编译器会同时为其生成`setter`和`getter`方法。
+- `val`关键字定义的字段编译器会为其生成`getter`方法。
 
 如下所示：
 
@@ -1192,16 +1192,17 @@ Num 100
 
 
 
-## 输入/输出(IO)
-Scala终端输出与Java中类似，使用`print()/println()`函数。
-Scala中终端输入需要导入包`scala.io.StdIn`。
-
-### 格式化输出
+## 格式化输出
 使用`print()/println()`可以打印`String`类型的文本输出。
 复杂文本可以使用类似Java的字符串拼接方式(使用操作符`+`)。
 
+- `StringLike.format()`方法。
+- `StringContext`类中的`s()`、`f()`、`raw()`方法用于以指定的方式输出字符串。
+
+### *StringLike.format()* 格式化输出
 在Scala中，字符串依然使用Java中标准的`String`类型，但通过**隐式转换**特性，`String`可以被自动构造为`StringLike`类型。
-`StringLike`类型提供了一系列方便强大的字符操作方法，格式化字符串可以使用其提供的`format()`方法，如下所示：
+
+`StringLike`类型提供了一系列方便强大的字符操作方法，格式化字符串可以使用其提供的`format()`方法(使用方式类似于静态方法`String.format()`，但使用方法调用者作为格式化内容而非方法的首个参数)，如下所示：
 
 ```scala
 scala> "Test format str:\nString %s\nInt %d\nFloat %f\n".format("Hello World!", 666, 666.666)
@@ -1213,7 +1214,63 @@ Float 666.666
 "
 ```
 
-### 终端输入
+### s字符串插值器
+在Scala 2.10之后，还可以使用字符串插值器`s""`，基本用法如下所示：
+
+```scala
+scala> var str = "Hello World"
+str: String = Hello World
+
+//使用插值器后，在变量前使用"$"符号即可将变量值作为文本插入
+scala> s"The str is $str"
+res0: String = The str is Hello World
+
+scala> var num = 200
+num: Int = 200
+scala> s"The num is $num"
+res1: String = The num is 200
+```
+
+使用`${ expr }`的方式可以在插值器中引用复杂表达式：
+
+```scala
+scala> var (a, b, c) = (1, "Test", 2.0)
+a: Int = 1
+b: String = Test
+c: Double = 2.0
+
+scala> s"${ "%d %s %f".format(a, b, c) } ${ a + c }"
+res2: String = 1 Test 2.000000 3.0
+```
+
+`s""`字符串插值器实际上相当于调用`StringContext.s()`，`r""`、`raw""`插值器类似。
+
+### f字符串插值器
+除了`s""`字符串插值器，还有带有格式化功能的`f""`插值器。
+
+相比s插值器，f插值器可以带有格式化参数，在不使用格式化参数的情况下，f插值器作用与s插值器相同。如下所示：
+
+```scala
+scala> var (a, b) = (1.0, 2.5)
+a: Double = 1.0
+b: Double = 2.5
+
+//引用变量之后紧跟格式化字符
+scala> f"$a%6.3f $b%10.5f"
+res3: String = " 1.000    2.50000"
+```
+
+### raw字符串插值器
+`raw""`插值器用法与`s""`类似，但不会转义反斜杠。如下所示：
+
+```scala
+scala> raw"\n\s\\b\\%''^#@ $num"
+res15: String = \n\s\\b\\%''^#@ 3.0
+```
+
+
+
+## 终端输入
 早期的Scala中`Console`类提供了一系列的终端输入方法，在现在的版本中这些方法已经被**废弃**。
 
 - 当前版本的Scala获取终端输入需要使用包`scala.io.StdIn`中的相关方法。

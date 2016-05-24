@@ -1785,10 +1785,10 @@ vector(input_iterator start, input_iterator end);		//使用某个已存在的vec
 
 
 ## 智能指针 *smart pointer*
-C++中除了手动使用`new``delete`操作符来进行动态内存管理之外，还可以使用智能指针管理动态内存，使用智能指针管理的动态内存会在不被需要时自动释放。
-`Boost`库中提供了六种智能指针用来管理动态内存，分别是`shared_ptr``shared_array``scoped_ptr``scoped_array``weak_ptr``intrusive_ptr`，定义在`/usr/include/boost/smart_ptr/`路径下对应名称的头文件中。
-在`C++11`中，`boost`库中的`shared_ptr``weak_ptr`被纳入了标准库，定义在`/usr/include/c++/版本号/memory`头文件中。
-`C++11`之前，标准库中可以使用`auto_ptr`智能指针，在`C++11`之后，标准库中增添了`shared_ptr``unique_ptr``weak_ptr`等智能指针。原先的`auto_ptr`已经不推荐使用。
+C++中除了手动使用`new`、`delete`操作符来进行动态内存管理之外，还可以使用智能指针管理动态内存，使用智能指针管理的动态内存会在不被需要时自动释放。
+`Boost`库中提供了六种智能指针用来管理动态内存，分别是`shared_ptr`、`shared_array`、`scoped_ptr`、`scoped_array`、`weak_ptr`、`intrusive_ptr`，定义在`/usr/include/boost/smart_ptr/`路径下对应名称的头文件中。
+在`C++11`中，`boost`库中的`shared_ptr`、`weak_ptr`被纳入了标准库，定义在`/usr/include/c++/版本号/memory`头文件中。
+`C++11`之前，标准库中可以使用`auto_ptr`智能指针，在`C++11`之后，标准库中增添了`shared_ptr`、`unique_ptr`、`weak_ptr`等智能指针。原先的`auto_ptr`已经不推荐使用。
 需要注意的是，`Boost`库与标准库中的同名类是不能相互转换的(即`std::shared_ptr`不能转换为`boost::shared_ptr`)。
 
 ### 智能指针的一般性用法
