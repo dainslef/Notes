@@ -987,6 +987,44 @@
 				<p>如果遇到缩略图无法正常预览的情况，则可以尝试重建缩略图图标缓存，即删除对应的normal文件夹，即可回复缩略图的正常显示。</p>
 			</li><br/>
 			<li>
+				<p>在<span class="blue"> GNOME 3.20.2 </span>版本之后，触摸板驱动<span class="blue"> xf86-input-evdev/xf86-input-synaptics </span>不再被支持，继续使用该驱动会导致触摸板控制面板不能正常显示。
+				要使触摸板配置面板正常工作，需要使用新的触摸板驱动<span class="blue"> xf86-input-libinput </span>，新的驱动不需要<span class="blue"> xf86-input-synaptics </span>即可单独工作。
+				在gnome之外的桌面环境中使用<span class="blue"> xf86-input-libinput </span>目前需要在<span class="blue"> /etc/X11/xorg.conf.d </span>路径下创建配置文件，一些常见的配置内容如下：</p>
+				<blockquote>
+					Section "InputClass"<br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;Identifier "libinput touchpad catchall"<br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;MatchIsTouchpad "on"<br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;Driver "libinput"<br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;Option "Tapping" "True" <span># 允许触摸板单击产生点按动作</span><br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;Option "NaturalScrolling" "True" <span># 使用自然滚动</span><br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;Option "HorizontalScrolling" "True" <span># 开启水平滚动</span><br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;Option "DisableWhileTyping" "True" <span># 键盘输入时禁止触摸板响应(Ctrl Win等组合键除外)</span><br/>
+					EndSection
+				</blockquote>
+				<p>可以使用<span class="blue"> libinput-list-devices </span>工具查看电脑的输入设备：</p>
+				<blockquote># libinput-list-devices</blockquote>
+				<p>触摸板的设备信息显示如下：</p>
+				<blockquote>
+					Device:           ETPS/2 Elantech Touchpad<br/>
+					Kernel:           /dev/input/event12<br/>
+					Group:            7<br/>
+					Seat:             seat0, default<br/>
+					Size:             101.88x66.22mm<br/>
+					Capabilities:     pointer<br/>
+					Tap-to-click:     disabled<br/>
+					Tap-and-drag:     enabled<br/>
+					Tap drag lock:    disabled<br/>
+					Left-handed:      disabled<br/>
+					Nat.scrolling:    disabled<br/>
+					Middle emulation: n/a<br/>
+					Calibration:      n/a<br/>
+					Scroll methods:   *two-finger edge<br/>
+					Click methods:    *button-areas clickfinger<br/>
+					Disable-w-typing: enabled<br/>
+					Accel profiles:   none
+				</blockquote>
+			</li><br/>
+			<li>
 				<p>默认情况下，在ArchLinux中，pacman包管理器默认是没有开启彩色的终端输出的，需要开启彩色输出需要修改<span class="blue"> /etc/pacman.conf </span>文件，去掉选项<span class="blue"> Color </span>前面的<span class="blue"> # </span>注释。<br/>pacman包管理器中还隐藏了一个有趣的彩蛋，在配置文件中加入<span class="blue"> ILoveCandy </span>，安装包的进度条会变成吃豆人的风格。</p>
 			</li><br/>
 			<li>
