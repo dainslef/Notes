@@ -9,7 +9,40 @@ mysql初始化 >>
 使用如下指令初始化可以创建不带有密码的root账户：
 >  mysqld --initialize-insecure
 
-----
+
+在Linux下手动安装mysql >>
+在Linux下使用非发行版包管理安装的Linux需要执行类似的操作，下在mysql的tar.gz包，解压之后在mysql安装路径下，创建data目录，之后进入bin目录，执行初始化操作(创建了空密码的本地root用户)：
+$ ./mysqld --initialize-insecure --basedir=.. --datadir=../data
+之后使用一个路径作为锁(路径可以不存在)，以普通用户权限启动服务：
+$ ./mysqld --basedir=.. --datadir=../data --socket=../lock
+登陆数据库时同样需要指定锁文件：
+$ mysql --socket=../lock -u root
+
+也可以将配置写入 安装路径/support-files/my.cnf 文件，写入如下配置指定启动路径：
+
+[mysqld]
+basedir = ..
+datadir = ../data
+# port = .....
+# server_id = .....
+socket = ../support-files/sock_lock
+
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+
+[server]
+character_set_server = gbk
+
+[client]
+default-character-set = gbk
+socket = ../support-files/sock_lock
+
+每次启动服务添加--defaults-file='配置文件路径'参数使用指定配置启动：
+$ ./mysqld --defaults-file=../support-files/my.cnf
+登陆操作类似
+$ ./mysql --defaults-file=../support-files/my.cnf -u [用户名] -p
+
+========
+
 
 mysql的服务管理 >>
 mysql的服务管理根据发行版的不同，操作方式也不尽相同。
@@ -73,6 +106,10 @@ $ mysqladmin -u root password '015'
 当设置了密码之后再次使用mysqladmin命令修改密码时需要添加-p参数，并需要输入先前的密码：
 $ mysqladmin -u root -p password '015'
 
+远程登陆 >
+远程登陆使用指令与本地登陆类似，但需要服务端创建了允许远程登陆的账户，登陆时需要使用-h参数指明需要登陆的主机地址：
+$ mysql -h [主机ip] -u [用户名] -p
+
 ----
 
 mysql的驱动配置 >
@@ -99,7 +136,7 @@ select * from mysql.user;
 在mysql中创建用户分为创建本地账户和创建远程账户两种，默认创建的是远程账户：
 create user [用户名];					//创建一个不允许本地登录的远程账户
 相当于：
-create user [用户名%'%'];
+create user [用户名@'%'];
 创建本地账户：
 create user [用户名@localhost];
 
@@ -121,6 +158,20 @@ drop user [''@'主机名/主机地址'];
 grant select,update on [数据库名].* to [用户名]@[登录方式];
 授权某个账户所有权限：
 grant all privileges on *.* to [用户名]@[登录方式];
+被授权的用户默认不能将所拥有的权限授权给其它用户，如果需要使授权能够被传播则使用(一般不推荐这样使用，数据库权限应由DBA统一管理)：
+grant all privileges on *.* to [用户名]@[登录方式] with grant option;
+非root用户可能没有授权其它账户的权限，可以通过修改mysql.user表来赋予权限：
+update user set Host='[主机名称]',select_priv='y', insert_priv='y',update_priv='y', Alter_priv='y',delete_priv='y',create_priv='y',drop_priv='y',reload_priv='y',shutdown_priv='y',Process_priv='y',file_priv='y',grant_priv='y',References_priv='y',index_priv='y',create_user_priv='y',show_db_priv='y',super_priv='y',create_tmp_table_priv='y',Lock_tables_priv='y',execute_priv='y',repl_slave_priv='y',repl_client_priv='y',create_view_priv='y',show_view_priv='y',create_routine_priv='y',alter_routine_priv='y',create_user_priv='y' where user='[用户名]';
+更新完用户权限表之后，刷新权限信息：
+flush privileges;
+
+----
+
+查看权限 >
+显示当前用户的权限信息：
+show grants;
+显示其它用户的权限：
+show grants for [用户名]@[主机地址];
 
 ========
 
@@ -191,6 +242,8 @@ $ mysqldump -u [数据库用户名] [要备份的数据库名称] -p > [备份�
 例子：mysqldump -u root -p test > d:\test.sql (注意：此备份只备份数据和数据结构，没有备份存储过程和触发器)
 只导出数据不导出数据结构：输入：mysqldump -u [数据库用户名] -t [要备份的数据库名称] -p > [备份文件的保存路径]
 还原数据库时需要先登陆mysql用户，选择数据库后执行：source [备份文件的保存路径]
+导入数据库时需要注意，登陆数据库使用的连接编码需要与导入的数据库编码相同，否则可能乱码。
+导出数据库时需要注意，导出的sql文件的文本编码与数据库自身的编码需要相同，否则使用source导入时可能会出现乱码问题。
 
 ----
 
@@ -218,8 +271,30 @@ ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib
 中文编码支持 >>
 默认情况下，旧版的mysql数据库的编码为latin1，此编码不支持东亚语系的文字显示，需要修改为支持各国文字的UTF-8编码。
 对于部分使用MariaDB的发行版(如ArchLinux)，默认的编码为UTF-8，无需额外配置。
-查看数据库的编码信息：
-> show variables like 'character_set_%';
+查看数据库的默认的所有编码信息：
+show variables like 'character_set_%';
+
+典型的结果如下所示：
++--------------------------+------------------------------------------------------------+
+| Variable_name            | Value                                                      |
++--------------------------+------------------------------------------------------------+
+| character_set_client     | gbk                                                        |
+| character_set_connection | gbk                                                        |
+| character_set_database   | gbk                                                        |
+| character_set_filesystem | binary                                                     |
+| character_set_results    | gbk                                                        |
+| character_set_server     | gbk                                                        |
+| character_set_system     | utf8                                                       |
+| character_sets_dir       | D:\ProtableApplication\mysql-5.6.21-winx64\share\charsets\ |
++--------------------------+------------------------------------------------------------+
+
+其中character_set_client、character_set_connection、character_set_database、character_set_results、character_set_server可以通过修改配置文件中的[server]、[client]段进行修改。
+
+需要注意的是，每个数据库可以拥有不同的编码信息，查看指定数据库的编码：
+use [数据库名称];
+show variables like 'character_set_database';
+修改指定数据库的编码：
+alter database [数据库名称] CHARACTER SET [编码类型(gbk/utf8)];
 
 ----
 
@@ -234,14 +309,29 @@ default-character-set = utf8
 [server]
 default-character-set = utf8
 
+在Windows系统下，配置文件在mysql安装路径的根目录下，名称为 my.ini ，默认情况下不会创建此配置文件，可以复制同路径下的默认配置 my-default.ini 中的内容。
+在其中加入以下配置：
+[server]
+# mysql5.5版本之后[server]配置段不再使用default-character-set=utf8，该配置已被废弃
+character_set_server = utf8
+[client]
+# 客户端配置不变
+default-character-set = utf8
+
+[client]段的配置影响character_set_client、character_set_connection、character_set_results的编码。
+[server]段的配置影响character_set_database、character_set_server的编码。
+
 ----
 
 JDBC连接编码设置 >
 使用JDBC往mysql中写入中文数据时需要注意mysql的编码问题，编码问题体现在以下几个方面：
+
 1.数据库表的编码，ENGINE=InnoDB DEFAULT CHARSET=utf8;
 2.数据库连接的编码，jdbc:mysql://localhost:3306/xxx?useUnicode=true&characterEncoding=UTF-8
 3.页面提交内容的编码, request.setCharacterEncoding("UTF-8");response.setCharacterEncoding("UTF-8");
-只有三者编码相同且支持中文(utf8)时，才不会出现中文编码问题。
+
+数据库表的内容真实编码需要与数据库的编码设置(character_set_database)相同，而数据库使用的连接编码也需要与数据库的真实编码相同。
+JSP的页面显示编码可以自行指定，只要保证从数据库中以正确的编码格式读取出了正确的数据即可。
 
 ========
 
