@@ -253,5 +253,5 @@ import sys
 app = QApplication(sys.argv)
 dialog = Dialog()
 dialog.show()
-app.exec_()
+app.exec_()		# 在Python中，exec为关键字，因此启动事件循环的函数为exec_()
 ```

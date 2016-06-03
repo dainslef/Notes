@@ -232,6 +232,7 @@ True
 
 ### 在 *Scala* 中模拟扩展方法
 在`Scala`中，可以利用**隐式类**特性来获得与C#中扩展方法类似的效果。
+
 上个例子中代码在Scala中可以写成：
 
 ```scala
@@ -272,7 +273,8 @@ class A<T> where T : B
 
 ### 泛型类的静态成员
 在C#中，同一个泛型类的不同泛型类型的静态成员是相互独立的，静态成员共享只在同一种泛型类型的泛型类之间。
-例如：
+
+如下代码所示：
 
 ```csharp
 struct Test<T>
@@ -308,6 +310,7 @@ class Program
 
 在C#中，委托实际上是一个类，因而使用方式与`class`类似。
 委托支持加减运算符操作，一个委托实例能够通过加法运算绑定多个**签名相同**的函数。
+
 定义委托：
 
 ```csharp
@@ -669,6 +672,7 @@ The thread status is: False
 `Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。
 两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。
 `Thread`类在构造时还可以接收一个`int`型参数用于指定线程的最大堆栈大小。
+
 使用`Thread.Start()`方法可以启动线程，如下代码所示：
 
 ```csharp
@@ -688,8 +692,11 @@ class Program
 ```
 
 运行结果：
+
+```
 This is thread!
 The arg is: test args.
+```
 
 #### *等待线程结束*
 使用成员方法`Thread.Join()`能够等待指定线程结束，在等待的线程结束前，该方法会一直阻塞**当前**线程。
