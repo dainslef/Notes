@@ -1034,17 +1034,17 @@ print(a.send(20))
 ## 与C/C++的基本语法差异
 - Python**没有**自增自减运算符。
 - Python中**没有**`switch`关键字。
-- Python中的逻辑运算符用直白的英语表示：`and(且)``or(或)``not(非)`，位运算操作符不变。
-- Python比较对象是否相同用`is``is not`。
-- Python比较是否属于用`in``not in`。
+- Python中的逻辑运算符用直白的英语表示：`and(且)`、`or(或)`、`not(非)`，位运算操作符不变。
+- Python比较对象是否相同用`is`、`is not`。
+- Python比较是否属于用`in`、`not in`。
 - Python乘方用`**`符号，`2 ** 3`的值是`8`，相当于`2 ^ 3`(数学意义上)。
-- Python**没有**三目运算符，可以用类似的语句替代：`A and B or C`。需要注意的是，该语句与三目运算符并不完全等价，在运算中，空字符串''，数字0，空list[]，空dict{}，空()，None，在逻辑运算中都被当作假来处理。
+- Python**没有**三目运算符，可以用类似的语句替代：`A and B or C`。需要注意的是，该语句与三目运算符并不完全等价，在运算中，空字符串`''`，数字`0`，空list`[]`，空dict`{}`，空tuple`()`，`None`，在逻辑运算中都被当作假来处理。
 
 
 
 ## 包管理器 *pip*
-Python提供了包管理器**pip**用于管理模块。
-在部分Linux发行版中，**pip**并没有随Python一并被安装，**pip**可以从发行版的软件源中安装，也可以下载安装脚本：
+Python提供了包管理器`pip`用于管理模块。
+在部分Linux发行版中，`pip`并没有随Python一并被安装，`pip`可以从发行版的软件源中安装，也可以下载安装脚本：
 
 ```
 $ wget https://bootstrap.pypa.io/get-pip.py
@@ -1055,7 +1055,7 @@ $ python3 get-pip.py --user						//将pip安装到用户目录
 系统目录下的Python包是所有用户共享的，用户目录下的Python包只有所有者可访问。
 在Linux下，安装**pip**到系统目录需要需要root权限， 系统共享Python包被安装在路径`/usr/lib/python[version]/site-packages`中，没有root权限则不能对该目录进行写入操作。
 安装Python包到用户目录下则无需root权限，在Linux下，用户个人Python模块被安装在路径`~/.local/lib/python[version]/site-packages`中，同时，还会在`~/.local/bin`路径下生成可执行脚本，将此路径加入`PATH`即可在命令行中直接使用安装的模块。
-**pip**包管理器的使用方式类似于Linux发行版的包管理器，常见操作如下：
+`pip`包管理器的使用方式类似于Linux发行版的包管理器，常见操作如下：
 
 ```
 # pip install [package_name]				//安装包
