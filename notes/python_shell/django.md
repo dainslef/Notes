@@ -234,6 +234,37 @@ HttpResponse(status=404)
 - `HttpResponseForbidden` 状态码`403`
 - `HttpResponseServerError` 状态码`500`
 
+### 限制HTTP请求
+视图函数前可以使用`django.views.decorators.http`包中的装饰器`require_http_methods`来限制视图响应的HTTP请求类型。
+
+定义一个仅接受`GET`、`POST`请求的视图，如下所示：
+
+```py
+from django.views.decorators.http import require_http_methods
+
+@require_http_methods(["GET", "POST"])
+def my_view(request):
+	pass
+```
+
+`django.views.decorators.http`包中还预定义了几种限制HTTP请求的装饰器：
+
+- `require_GET` 仅接受`GET`请求
+- `require_POST` 仅接受`POST`请求
+- `require_safe` 仅接受`GET`、`HEAD`请求
+
+### 使用 *Http404* 异常
+`django.http.response`包中定义了`Http404`异常，抛出`Http404`异常能够进入预置的错误输出页面。
+
+如下所示：
+
+```py
+from django.http.response import Http404
+
+def my_view(request):
+	raise Http404("Error!")
+```
+
 ### URL配置
 URL配置写在项目目录中的`urls.py`文件中，通过指定`urlpatterns`列表的内容来设定URL对应的视图。
 `urlpatterns`列表中的值类型是`RegexURLPattern`，使用`url()`函数将一个描述URL的正则表达式与视图函数组合而成。

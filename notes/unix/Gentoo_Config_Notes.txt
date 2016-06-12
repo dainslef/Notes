@@ -104,7 +104,7 @@ Processor type and features  ——>
 	[ ] kexec system call
 	[ ] Build a relocatable kernel
 	[*] EFI runtime service support						//EFI主板开启
-	[ ] EFI stub support								//用不到 
+	[ ] EFI stub support								//用不到
 	Preemption Model --->
 		(X) Preemptible Kernel (Low-Latency Desktop)	//低延时模式
 
@@ -154,7 +154,7 @@ Power management and ACPI options  --->
 		Default CPUFreq governor (ondemand)  --->
 			(X) ondemand
 		< > 'userspace' governor for userspace frequency scaling		//关闭userspace调度器
-		x86 CPU frequency scaling drivers  ---> 
+		x86 CPU frequency scaling drivers  --->
 			[*] Intel P state control
 
 文件系统(记得开启vfat、NTFS支持，另文件系统不建议编译成模块):
@@ -179,7 +179,7 @@ Executable file formats / Emulations  --->
 	<*> Kernel-based Virtual Machine (KVM) support
 		<*> KVM for Intel processors support			//VirtualBox会用到
 
-内核安全与内核调试：		
+内核安全与内核调试：
 Kernel hacking  --->
 Security options  --->				//除了默认必选的全关了，不是内核开发者不凑热闹
 
@@ -351,7 +351,7 @@ $ eselect help
 # layman -a XXX 	//添加XXX overlay
 # layman -d XXX 	//删除XXX overlay
 # layman -s XXX 	//更新XXX overlay
-# layman -S 		//更新所有overlay
+# layman -S 		//更新所有 overlay
 
 ----
 

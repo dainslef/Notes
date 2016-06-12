@@ -512,7 +512,7 @@ class Test
 }
 ```
 
-输出结果：(Mono 4.0.2 && ArchLinux x86\_64)
+输出结果：(Mono 4.0.2 && ArchLinux x64)
 
 ```
 100
