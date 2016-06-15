@@ -1004,7 +1004,8 @@ The return value is: 100
 当使用`next()`生成器启动后，便可以使用`生成器对象.send(内容)`向生成器传递内容，`send()`传递的内容将作为yield表达式的**返回值**。
 `next()`就相当于`send(None)`，即`None`为yield表达式的默认返回值。
 执行了`send()`函数相当于先执行一次`next()`，然后将`send()`中的参数作为yield的返回值。
-首次启动生成器必须使用`next()`，因为第一次迭代没有yield表达式参与，以后的每一次迭代都可以使用`send()`代替`next()`
+首次启动生成器必须使用`next()`，因为第一次迭代没有yield表达式参与，以后的每一次迭代都可以使用`send()`代替`next()`。
+
 如下代码所示：
 
 ```py
@@ -1038,7 +1039,7 @@ print(a.send(20))
 - Python比较对象是否相同用`is`、`is not`。
 - Python比较是否属于用`in`、`not in`。
 - Python乘方用`**`符号，`2 ** 3`的值是`8`，相当于`2 ^ 3`(数学意义上)。
-- Python**没有**三目运算符，可以用类似的语句替代：`A and B or C`。需要注意的是，该语句与三目运算符并不完全等价，在运算中，空字符串`''`，数字`0`，空list`[]`，空dict`{}`，空tuple`()`，`None`，在逻辑运算中都被当作假来处理。
+- Python**没有**三目运算符，但可以用类似的语句替代。在C语言中的语句`A ? B : C`，在Python中可写成`A and B or C`或`B if A else C`。需要注意的是，该语句与三目运算符并不完全等价，在运算中，空字符串`''`，数字`0`，空list`[]`，空dict`{}`，空tuple`()`，`None`，在逻辑运算中都被当作假来处理。
 
 
 
@@ -1053,8 +1054,7 @@ $ python3 get-pip.py --user						//将pip安装到用户目录
 ```
 
 系统目录下的Python包是所有用户共享的，用户目录下的Python包只有所有者可访问。
-在Linux下，安装**pip**到系统目录需要需要root权限， 系统共享Python包被安装在路径`/usr/lib/python[version]/site-packages`中，没有root权限则不能对该目录进行写入操作。
-安装Python包到用户目录下则无需root权限，在Linux下，用户个人Python模块被安装在路径`~/.local/lib/python[version]/site-packages`中，同时，还会在`~/.local/bin`路径下生成可执行脚本，将此路径加入`PATH`即可在命令行中直接使用安装的模块。
+
 `pip`包管理器的使用方式类似于Linux发行版的包管理器，常见操作如下：
 
 ```
@@ -1071,11 +1071,36 @@ $ pip show --files [package_name]			//列出包安装的文件列表
 $ pip help [operate]						//查看pip相关操作的帮助信息，如"pip help install"即查看"pip install"指令的所有用法
 ```
 
-在Linux下，一些由发行版自身的包管理器(`apt`、`yum`、`dnf`、`pacman`等)安装的Python包也会显示在`pip list`指令的输出中，但这些包通常被系统的某些组件依赖，尝试删除这些包时会收到`DEPRECATION`(反对)，提示这些包是由`distutils`(发行版工具)安装的，一般情况下，除非必要，不要删除这些由发行版包管理器安装的Python包。
+`Linux`下pip的包路径：
 
-在`OS X`中，使用**homebrew**安装Python时会自动安装pip，无需额外安装，使用pip时也**无需**root权限。
-在`OS X`中，共享的Python模块被安装在路径`/usr/local/lib/python[version]/site-packages/`下，个人Python模块被安装在路径`~/Library/Python/[version]/lib/python/site-packages`下。
-在`OS X`中，Python模块安装到系统目录同时会在`/usr/local/bin`路径下生成可执行脚本，安装到用户目录则会在`~/Library/Python/[version]/bin`路径下生成可执行脚本。
+- 在Linux下，安装**pip**到系统目录需要root权限， 系统共享Python包被安装在路径`/usr/lib/python[version]/site-packages`中，没有root权限则不能对该目录进行写入操作。
+- 安装Python包到用户目录下则无需root权限，在Linux下，用户个人Python模块被安装在路径`~/.local/lib/python[version]/site-packages`中，同时，还会在`~/.local/bin`路径下生成可执行脚本，将此路径加入`PATH`即可在命令行中直接使用安装的模块。
+- 在Linux下，一些由发行版自身的包管理器(`apt`、`yum`、`dnf`、`pacman`等)安装的Python包也会显示在`pip list`指令的输出中，但这些包通常被系统的某些组件依赖，尝试删除这些包时会收到`DEPRECATION`(反对)，提示这些包是由`distutils`(发行版工具)安装的，一般情况下，除非必要，不要删除这些由发行版包管理器安装的Python包。
+
+`macOS`下pip的包路径：
+
+- 在`macOS`中，使用**homebrew**安装Python时会自动安装pip，无需额外安装，使用pip时也**无需**root权限。
+- 在`macOS`中，共享的Python模块被安装在路径`/usr/local/lib/python[version]/site-packages/`下，个人Python模块被安装在路径`~/Library/Python/[version]/lib/python/site-packages`下。
+- 在`macOS`中，Python模块安装到系统目录同时会在`/usr/local/bin`路径下生成可执行脚本，安装到用户目录则会在`~/Library/Python/[version]/bin`路径下生成可执行脚本。
+
+### 包依赖检查与清理
+相比Linux各大发行版的包管理器。`pip`是一个非常**原始**、**简陋**的包管理器工具。
+
+`pip`的主要缺陷如下：
+
+- 没有一次性升级所有包的指令。
+- 没有依赖清理功能，卸载一个包时不会清理无用依赖。
+
+清理无用的`pip`包可以安装工具`pip-autoremove`：
+
+`$ pip install pip-autoremove`
+
+`pip-autoremove`的常见操作如下：
+
+```
+$ pip-autoremove -l							//列出未被使用的依赖(可以被清理的依赖)
+$ pip-autoremove -L							//列出不被其它包依赖的包(主动安装的包)
+```
 
 
 

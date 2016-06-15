@@ -1698,7 +1698,7 @@ scala> map									//更改的结果作为返回值输出，原本的Map值没�
 res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 ```
 
-与`Set`、`ListBuffer`等类似，`Map`也支持`+=``-=`操作符。
+与`Set`、`ListBuffer`等类似，`Map`也支持`+=`、`-=`操作符。
 `Map`使用`+=`向自身添加对偶，使用`-=`从自身移除指定key对应的对偶。
 除了不可变的`scala.collection.immutable.Map`外，还有可变的`scala.collection.mutable.Map`类型。
 Scala还提供了多种不同结构的`Map`实现，如`HashMap`、`ListMap`、`LinkedHashMap`等。
@@ -1708,6 +1708,7 @@ Scala还提供了多种不同结构的`Map`实现，如`HashMap`、`ListMap`、`
 ## 高阶函数(Higher Order Function)
 **高阶函数**是**函数式编程**中的概念，在数学中，也叫做**算子**(运算符)或**泛函**。
 **接受一个或多个函数作为输入**或者**输出一个函数**的函数被称为高阶函数。
+
 在Scala中，容器类提供了高阶函数作为容器数据操作的接口，常见的高阶函数有`map`、`reduce`、`flatMap`、`filter`、`find`、`fold`、`foreach`等。
 
 
@@ -1831,6 +1832,7 @@ class Implicit(val num: Int)
 
 object Implicit {
 	implicit def implToInt(impl: Implicit) = impl.num
+	def apply(num: Int) = new Implicit(num)
 }
 
 object Main extends App {
@@ -1840,8 +1842,8 @@ object Main extends App {
 	def showNum(num: Int) = println(num)
 	def showStr(str: String) = println(str)
 
-	showNum(new Implicit(100))
-	showStr(new Implicit(200))
+	showNum(Implicit(100))
+	showStr(Implicit(200))
 }
 ```
 

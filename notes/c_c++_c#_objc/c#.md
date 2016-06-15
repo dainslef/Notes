@@ -75,6 +75,26 @@ public struct Nullable<T> where T : struct;
 - 引用类型复制是传递引用，值类型复制是拷贝整个对象。
 - 值类型分配内存在线程栈上，出栈自动释放；引用类型分配内存在托管堆上，由`GC`负责内存回收。
 
+### 类型别名(Type alias)
+C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++11`中添加的新`using`语法相似。如下所示：
+
+```csharp
+namespace Np
+{
+	using Fvoid = Action;			//普通类型别名
+	using FInt = Func<int>;			//泛型类型需要指定具体类型
+
+	//C#不支持泛型类型别名
+	using FInInt<In> = Func<In, int>;	//错误
+	using Ft<R> = Func<R>;				//错误
+}
+```
+
+C#中的类型别名有较多**限制**：
+
+- 不支持定义泛型或是部分泛型别名，C++11中的`using`支持此功能。
+- 不能在命名空间之外的区域定义类型别名(全局区域、类体、函数体内皆不可定义别名)，C++11的`using`无此限制。
+
 
 
 ## 成员属性
