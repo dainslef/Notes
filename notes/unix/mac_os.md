@@ -1,13 +1,13 @@
 [TOC]
 
-## *OS X* 层次结构
-`OS X`基于`Darwin`(对应`GNU/Linux`)。
+## *macOS* 层次结构
+`macOS`基于`Darwin`(对应`GNU/Linux`)。
 
 - `Darwin`包含内核`XNU`(对应`Linux Kernel`)以及shell环境(对应`GNU Tools`)。
 - `XNU`内核由微内核`Mach`和`BSD`层以及一些其它组件(主要为驱动层`IoKit`)构成。
 - `Mach`微内核提供了基本的硬件抽象，提供了一套独有的`Mach Trap`(`Mach`系统调用)。
 - `BSD`层提供了文件系统抽象以及`POSIX`调用。
-- `OS X`在文件布局以及配置方式上与传统的Linux发行版**有较大不同**。
+- `macOS`在文件布局以及配置方式上与传统的Linux发行版**有较大不同**。
 
 
 
@@ -73,12 +73,12 @@
 - `/Volumes` 系统默认挂载目录
 
 ### 文件系统
-`OS X`默认文件系统为`HFS+`，此类文件系统同时支持区分大小写(Case-Sensitive)和忽略大小写两种类型，在格式化时可以进行选择。
+`macOS`默认文件系统为`HFS+`，此类文件系统同时支持区分大小写(Case-Sensitive)和忽略大小写两种类型，在格式化时可以进行选择。
 需要注意的是，如果选择了区分大小写形式的HFS+文件系统，则部分软件将无法安装(比如PhotoShop等)。
-文件系统类型在安装了OS X之后除了重装系统之外无法更改，需要**慎重选择**。
+文件系统类型在安装了macOS之后除了重装系统之外无法更改，需要**慎重选择**。
 
 ### 挂载 *NTFS* 读写
-默认情况下，`OS X`对于`NTFS`文件系统只等读取，但`OS X`本身实现了对`NTFS`文件系统的写入功能，创建`/etc/fstab`文件，在其中添加：
+默认情况下，`macOS`对于`NTFS`文件系统只等读取，但`macOS`本身实现了对`NTFS`文件系统的写入功能，创建`/etc/fstab`文件，在其中添加：
 
 `LABEL=[label_name] none ntfs rw,auto,nobrowse`
 
@@ -103,63 +103,51 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 0. Finder少一些常用的功能。
 	- Finder右键菜单中没有创建文件的选项，甚至新建文本都需要使用Terminal中的`touch`指令。
 	- Finder右键菜单没有剪切功能，通过组合键能实现类似效果。
-0. Windows/Linux中以`Control`作为组合键触发的一些快捷操作在OS X中全部使用`Command`键进行触发。
+0. Windows/Linux中以`Control`作为组合键触发的一些快捷操作在macOS中全部使用`Command`键进行触发。
 
 ### *Darwin* 与 *GNU/Linux* 的差异
 0. `Darwin`为混合内核架构，`Linux`为宏内核架构。
-0. `Linux`中普通用户UID从`1000`开始，`OS X`中UID从`500`开始。
-0. 家目录与Linux/BSD中不同，OS X中的`/home`目录默认为**空**，用户家目录的位置为`/Users`。
+0. `Linux`中普通用户UID从`1000`开始，`macOS`中UID从`500`开始。
+0. 家目录与Linux/BSD中不同，macOS中的`/home`目录默认为**空**，用户家目录的位置为`/Users`。
 0. `root`用户家目录与Linux中不同，位于`/var/root`。
 0. `Darwin`没有默认的包管理器。
 0. `Darwin`的`PATH`环境变量记录在文件`/etc/paths`中。
 0. `Darwin`的微内核`Mach`使用`Mach-O`作为二进制格式，而传统的`Linux/Unix`使用`EFL`作为二进制格式。
 0. `Darwin`中动态链接库后缀名为`dylib`，传统`Unix`中一般为`so`，静态库后缀名与传统`Unix`相同，皆为`a`。
-0. `OS X`采用`Aqua`作为GUI实现，传统`Unix`使用`X11`。
+0. `macOS`采用`Aqua`作为GUI实现，传统`Unix`使用`X11`。
 
 
 
 ## 包管理
-`OS X`中当下最流行、最主流的包管理器为`Homebrew`。另外，`MacPorts`也是不错的选择。
+`macOS`中当下最流行、最主流的包管理器为`Homebrew`。另外，`MacPorts`也是不错的选择。
 
 ### *Homebrew* 与 *MacPorts* 区别
 - `Homebrew`基于`Git`，是比较轻量级的一个包管理器，倾向于最大化利用现有的依赖关系。
-- `MacPorts`是`FreeBSD`中`Ports`系统的移植，使用源码编译软件，不依赖原有`OS X`中的软件包，而是独立构建出一套环境。
+- `MacPorts`是`FreeBSD`中`Ports`系统的移植，使用源码编译软件，不依赖原有`macOS`中的软件包，而是独立构建出一套环境。
 - `Homebrew`中软件包一般以二进制形式提供。
 - `MacPorts`编译的软件包一般安装在`/opt`目录下。
 
 ### *Homebrew* 基本特性
 - `Homebrew`使用`Ruby`语言编写。
-- 与传统的包管理器不同，使用Homebrew并不需要使用root用户，只需要一个普通的`OS X`管理员用户即可。
-- `Homebrew`将软件包安装在`/usr/local/`目录下，在`OS X`中该目录默认情况下为**空**，因此当用户不再需要使用Homebrew时，只需完整删除`/usr/local/`目录下的所有内容即可。(需要注意的是，有些非Bundle形式安装的软件也是会将一些内容安装在`/usr/local`目录下的，比如VirtualBox。如果安装了此类软件，清理`/usr/local`目录时需要仔细辨别)
-- 默认情况下，在OS X中，`/usr/local`的所有者为`root`，用户组为`wheel`，而安装了Homebrew之后，该目录所有者会被更改为**当前管理员用户**，用户组被改为`admin`。
+- 与传统的包管理器不同，使用Homebrew并不需要使用root用户，只需要一个普通的`macOS`管理员用户即可。
+- `Homebrew`将软件包安装在`/usr/local/`目录下，在`macOS`中该目录默认情况下为**空**，因此当用户不再需要使用Homebrew时，只需完整删除`/usr/local/`目录下的所有内容即可。(需要注意的是，有些非Bundle形式安装的软件也是会将一些内容安装在`/usr/local`目录下的，比如VirtualBox。如果安装了此类软件，清理`/usr/local`目录时需要仔细辨别)
+- 默认情况下，在macOS中，`/usr/local`的所有者为`root`，用户组为`wheel`，而安装了Homebrew之后，该目录所有者会被更改为**当前管理员用户**，用户组被改为`admin`。
 
 ### *Homebrew* 安装
-Homebrew采用Ruby语言开发，OS X中已经带有ruby开发环境。
+Homebrew采用Ruby语言开发，macOS中已经带有ruby开发环境。
 Homebrew需要用到Git等工具，在安装Homebrew之前需要先安装Xcode命令行工具(或者直接完整安装Xcode)。
 之后在Terminal中执行：
 
 `$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 
 ### *Homebrew* 基本指令
-- 更新源
+Homebrew的基本操作与其它包管理器类似：
 
-	`$ brew update`
-
-- 升级包
-
-	`$ brew ugrade`
-
-- 安装包
-
-	`$ brew install [package_name]`
-
-- 查看没有被其它包依赖的包
-
-	`$ brew leaves`
-
-- 显示指定包的依赖
-
-	`$ brew deps [package_name]`
+- `$ brew update` 更新源
+- `$ brew ugrade` 升级包
+- `$ brew install [package_name]` 安装包
+- `$ brew leaves` 查看没有被其它包依赖的包
+- `$ brew deps [package_name]` 显示指定包的依赖
 
 ### 使用 *Homebrew* 安装命令行工具
 执行指令：
@@ -200,11 +188,11 @@ JDK需要自行手工删除，JDK的相关文件位于以下目录：
 
 
 
-## *OS X* 下的软件格式
-在`OS X`中，软件包常以`dmg`格式的镜像封存，而安装软件的方式分为`Bundle`以及`pkg`形式。
+## *macOS* 下的软件格式
+在`macOS`中，软件包常以`dmg`格式的镜像封存，而安装软件的方式分为`Bundle`以及`pkg`形式。
 
 ### *Bundle*
-在`OS X`中最常见的软件包是以`Bundle`的形式存在的，`Bundle`是一个以`.app`为后缀的**目录**，外观为可执行程序的图标，封装了程序执行所需的一些必要资源以及真正的可执行文件。
+在`macOS`中最常见的软件包是以`Bundle`的形式存在的，`Bundle`是一个以`.app`为后缀的**目录**，外观为可执行程序的图标，封装了程序执行所需的一些必要资源以及真正的可执行文件。
 
 `dmg`镜像中若直接包含Bundle，则将其复制到`/Application`或是`~/Application`目录下即可(推荐存放在用户的Application目录下)。
 
@@ -219,7 +207,7 @@ JDK需要自行手工删除，JDK的相关文件位于以下目录：
 
 ### 软件保存路径
 默认情况下，Bundle形式的软件一般存在于`/Application/`目录或是`~/Application/`目录下。
-OS X的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形式或事通过AppStore安装的应用也在该目录下。
+macOS的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形式或事通过AppStore安装的应用也在该目录下。
 默认情况下`~/Application`目录不存在，需要自行创建。
 用户自行安装的Bundle应用推荐存放在`~/Application`目录下，避免与系统程序混淆。
 
@@ -249,7 +237,7 @@ OS X的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形�
 	- `> list disk` 列出所有磁盘
 	- `> select disk [磁盘号]` 指定正在使用的磁盘
 	- `> list partition` 列出所选磁盘中的所有分区
-	- `> select partition [分区号]` 指明OS X所在的分区号
+	- `> select partition [分区号]` 指明macOS所在的分区号
 	- `> set id=48465300-0000-11AA-AA11-00306543ECAC` 设置分区的Type UUID
 0. 也可以使用Linux/Unix中的`parted`工具进行分区类型ID变更，推荐使用parted的图形化前端`gparted`，只需要在分区标志中去掉`msdata`即可使Mac分区正常启动。
 
@@ -280,7 +268,7 @@ OS X的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形�
 </plist>
 ```
 
-然后使用OS X系统的启动管理器`bless`来创建启动项，执行指令：
+然后使用macOS系统的启动管理器`bless`来创建启动项，执行指令：
 
 `# bless --folder=/Volumes/[启动分区名称]/System/Library/CoreServices/ --file=/Volumes/[启动分区名称]/System/Library/CoreServices/boot.efi --setBoot`
 
@@ -300,7 +288,7 @@ Xcode中包含了一系列的命令行工具如`clang`、`git`等，Homebrew的�
 需要注意的是，如果该变了Xcode.app的位置，即使使用了xcode-select重新设定了Xocde.app的路径，一些通过Homebrew安装的编译器(gcc)也依然会出现找不到头文件的情况，此时需要重新编译安装编译器的包。
 
 ### 使用 *GDB* 调试器
-在新版的OS X系统中，`clang`作为默认编译器取代了`gcc`，`lldb`作为默认编译器取代了`gdb`。
+在新版的macOS系统中，`clang`作为默认编译器取代了`gcc`，`lldb`作为默认编译器取代了`gdb`。
 默认情况下，使用Homebrew安装的gdb调试器**不能**在普通用户下正常调试代码，需要对其进行**签名**后才能使其正常调试代码：
 
 0. 使用KeyChain Access.app创建一个证书(certificate)。
