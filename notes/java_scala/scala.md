@@ -2033,7 +2033,7 @@ def unapplySeq(n: Node) = Some((n.label, n.attributes, n.child))
 #### *节点属性*
 节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
 
-- 使用`\()``\\()`方法同样可以进行属性查找，需要在属性名字符串前加上`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名称为`num`的属性内容。
+- 使用`\()`、`\\()`方法同样可以进行属性查找，需要在属性名字符串前加上`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名称为`num`的属性内容。
 - 在使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
 - 可以直接使用`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。
 - 还可以使用`attribute()`以及`attributes()`方法从节点中获取属性。
@@ -2160,3 +2160,129 @@ res1: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li><li>Test</li><li name="
 scala> node3.copy(child = node0 ++ node1, prefix = "Test", label = "test")
 res2: scala.xml.Elem = <Test:test><li>Test</li><li name="Test">test</li></Test:test>
 ```
+
+
+
+## 构建工具 *sbt*
+`sbt`全称`Simple Build Tool`，是Scala项目的标准构建工具，类似于Java下的`Maven`和`Gradle`。
+
+### 安装与配置sbt
+主流Linux发行版的仓库中，一般都包含`sbt`，可以使用发行版的包管理器安装`sbt`，以`ArchLinux`为例：
+
+`# pacman -S sbt`
+
+在Windows环境下，可以从官网`http://www.scala-sbt.org/download.html`中下载，下载完成之后解压并将目录下的`bin`目录加入`PATH`中。
+
+如果已经安装了`Activator`，则无需再安装`sbt`，`Activator`中已经包含了`sbt`。
+
+### 启动与使用sbt
+在任意目录下输入`sbt`指令，即可进入sbt的交互式shell，sbt工具会将当前路径作为sbt项目的根目录。
+能看到以下输出：
+
+```
+[info] Set current project to sbt (in build file:/home/dainslef/Downloads/SBT/)
+>
+```
+
+若路径中包含Scala源码，则在交互式shell中输入`run`指令则会尝试编译执行源码。
+旧版的`sbt`中(`sbt 0.7.x`之前)，在sbt交互shell中输入`run`指令会在路径下创建完整的sbt项目路径结构，但新版的sbt已不提供此功能(但可以使用`Activator`创建完整的sbt项目)。
+
+使用`Activator`则操作类似，在目录下输入`activator shell`指令即可进入sbt交互式shell。
+`Activator`内置了多种项目模版，使用如下指令即可创建一个具有完整路径的sbt项目：
+
+`$ activator new [项目名称] minimal-scala`
+
+sbt的常见指令有：
+
+- `compile` 编译项目
+- `update` 更新依赖
+- `test` 运行测试用例
+- `run` 运行项目
+- `clean` 清理项目缓存
+- `package` 将项目打包
+
+sbt指令可以在直接在sbt的交互式shell内使用，也可以作为参数跟在sbt指令之后直接在命令行中使用。
+
+### sbt项目结构
+sbt项目结构与maven项目类似。一个基本的sbt项目具有以下路径结构：
+
+```
+项目名称
+├── build.sbt							# 项目依赖关系(构建定义)
+├── project
+│   ├── plugins.sbt						# 添加sbt插件
+│   └── build.properties				# 构建规则与参数
+└── src									# 源码目录
+    ├── main
+    │   └── scala
+    │       └── XXX.scala
+    └── test
+        └── scala
+            └── TestXXX.scala
+```
+
+新创建的项目没有`target`目录，但在sbt交互shell中执行了`run`之后还会生成`target`和`project/target`目录。
+`target`目录中包含编译生成的临时文件，将项目目录加入版本控制时需要忽略这些目录。
+
+### 添加项目依赖
+项目依赖主要定义在项目根目录下的`build.sbt`文件中，通过自定义`build.sbt`文件中的`libraryDependencies`配置项即可向项目中添加**托管依赖**。
+`project`目录下也可以添加`*.scala`构建定义。
+
+`build.sbt`文件遵循Scala语法，`libraryDependencies`配置项实际上是一个类型为`sbt.SettingKey[scala.Seq[sbt.ModuleID]]`的**变量**。
+
+每一项依赖由`sbt.ModuleID`类型定义，一个具体的依赖项格式如下所示：
+
+```scala
+// 普通依赖
+groupID % artifactID % revision
+// 在指定配置下的依赖
+groupID % artifactID % revision % configuration
+```
+
+依赖的描述信息与maven类似，实际上sbt可以直接添加maven仓库的依赖，包的具体信息可以在maven中心仓库通过包名进行搜索得到。
+
+`sbt.SettingKey`类型重载了`+=`和`++=`运算符：
+
+- `+=`运算符用于添加单项依赖，如：
+```scala
+libraryDependencies = groupID % artifactID % revision
+```
+- `++=`运算符用于添加多个依赖序列，如：
+```scala
+libraryDependencies ++= Seq(
+  groupID0 % artifactID0 % revision0,
+  groupID1 % artifactID1 % revision1,
+  ...
+)
+```
+
+
+
+## *Lightbend Activator*
+`Activator`提供了成套的Scala开发环境，相当于：
+
+`Scala编译器 + sbt + Play Framework + Akka + 项目模版 + 基于Play的WEB端项目管理`
+
+`Activator`内置了sbt，可以直接使用`Activator`管理、构建sbt项目。
+
+### 安装与配置Activator
+大多数Linux发行版都没有将`Activator`添加到仓库中，因而无论是Linux或是Windows环境下，都需要从官网下载`Activator`。
+
+配置`Activator`方式与`sbt`类似。
+从`http://www.lightbend.com/activator/download`下载完整版的`Activator`，解压后将`bin`目录加入`PATH`环境变量中即可。
+
+### Activator基本操作
+在普通目录中输入`activator`指令会在浏览器中打开Activator的帮助页面。
+在sbt项目目录中输入`activator`指令会进入sbt交互shell。
+
+其它常见的指令：
+
+- `$ activator ui` 进入WEB端的Activator界面。
+- `$ activator shell` 进入sbt交互shell。
+- `$ activator list-templates` 列出模版列表。
+
+`Activator`中带有大量的预定义项目模版，使用模版创建项目：
+
+`$ activator new [项目名称] [模版名称]`
+
+Activator同样支持与sbt的指令。

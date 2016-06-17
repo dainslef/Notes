@@ -5,7 +5,7 @@
 
 `Django`包安装完成之后，会得到`django-admin`工具用于管理django项目。
 
-### 创建项目 *startproject*
+### 创建项目
 使用`django-admin`工具创建一个新的django项目：
 
 `$ django-admin startproject [项目名称]`
@@ -26,7 +26,7 @@
 
 项目的根目录下还会有一个与项目名称**相同**的子目录，该目录下保存项目的一些配置。
 
-### 创建应用 *startapp*
+### 创建应用
 与传统的WEB开发框架不同，`Django`中使用`App`将网站划分为多个功能模块，一个项目由多个`App`组成，而一个`App`可以被多个项目所复用。
 
 同样使用`django-admin`工具在项目目录中创建一个`App`：
