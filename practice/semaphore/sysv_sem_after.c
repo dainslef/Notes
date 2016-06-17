@@ -35,8 +35,6 @@ int main(void)
 	else
 		printf("信号量获取成功！\n等待信号量解锁。。。\n");
 
-
-
 	if (semop(sem_id, &sem_wait, 1) == -1)
 		perror("semop");
 	else

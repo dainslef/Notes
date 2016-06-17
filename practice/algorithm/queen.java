@@ -22,25 +22,25 @@ public class queen {
 
 class GetQueen
 {
-	private final int queen = 8;
+	private final int QUEEN_SIZE = 8;
 	private int count = 0;
-	private int[] map = new int[queen];
+	private int[] chessBoard = new int[QUEEN_SIZE];
 
 	int getCount() {
 		return count;
 	}
 
 	void queen(int row) {
-		if (row == queen) {
+		if (row == QUEEN_SIZE) {
 			count++;
 			System.out.println("\n找到了第" + count + "种方法：");
 			show();
 		}
 		else {
-			for (int i = 0; i < queen; i++)
+			for (int i = 0; i < QUEEN_SIZE; i++)
 				if (find(row, i))
 				{
-					map[row] = i;
+					chessBoard[row] = i;
 					queen(row + 1);
 				}
 		}
@@ -48,19 +48,19 @@ class GetQueen
 
 	private boolean find(int row, int line) {
 		for (int i = 0; i < row; i++)
-			if (line == map[i] || Math.abs(map[i] - line) == Math.abs(i - row))
+			if (line == chessBoard[i] || Math.abs(chessBoard[i] - line) == Math.abs(i - row))
 				return false;
 		return true;
 	}
 
 	private void show() {
-		for (int i = 0; i < queen; i++)
-			for (int p = 0; p < queen; p++) {
-				if (p == map[i])
+		for (int i = 0; i < QUEEN_SIZE; i++)
+			for (int p = 0; p < QUEEN_SIZE; p++) {
+				if (p == chessBoard[i])
 					System.out.print("X  ");
 				else
 					System.out.print("_  ");
-				if (p == queen - 1)
+				if (p == QUEEN_SIZE - 1)
 					System.out.println();
 			}
 	}

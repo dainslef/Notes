@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 
-int Partition(int *a, int start, int end) 		//将数列的第一个数作为example，并以example为中间值划分，example左边的元素都比example小，右边的元素都比example大
+int partition(int* a, int start, int end) 		//将数列的第一个数作为example，并以example为中间值划分，example左边的元素都比example小，右边的元素都比example大
 {
 	int example = a[start];
 	do
@@ -46,28 +46,34 @@ int Partition(int *a, int start, int end) 		//将数列的第一个数作为exam
 	return start;		//将example的位置作为返回值
 }
 
-void QuickSort(int *a, int start, int end)
+void quick_sort(int* a, int start, int end)
 {
 	if (start < end)		//递归退出条件
 	{
-		int mid = Partition(a, start, end);
-		QuickSort(a, start, mid);		//注意参数不能写成mid-1，会使得部分情况下比较不完整(mid与mid-1大小不按顺序时)
-		QuickSort(a, mid + 1, end);
+		int mid = partition(a, start, end);
+		quick_sort(a, start, mid);		//注意参数不能写成mid-1，会使得部分情况下比较不完整(mid与mid-1大小不按顺序时)
+		quick_sort(a, mid + 1, end);
 	}
 }
 
 int main(void)
 {
-	int count;
+	int count = 0;
+
 	printf("请输入数组中元素的个数：\n");
 	scanf("%d", &count);
+
 	int a[count];
-	printf("请依次输入数组的内容：\n");
+	printf("\n请依次输入数组的内容：\n");
 	for (int i = 0; i < count; i++)
 		scanf("%d", a + i);
-	QuickSort(a, 0, count - 1);
+
+	quick_sort(a, 0, count - 1);
+
+	printf("\n排序结果：\n");
 	for (int i = 0; i < count; i++)
 		printf("%d ", a[i]);
 	printf("\n");
+
 	return 0;
 }

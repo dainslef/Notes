@@ -221,7 +221,7 @@ $ ssh-keygen -t rsa -C "GitHub邮箱名称"
 添加完密钥之后，查看已创建的仓库的ssh地址，比如我的笔记仓库地址即为"git@github.com:dainslef/Code_Notes.git"，将这个地址添加到远程仓库中：
 $ git remote add [远程仓库名] [远程仓库地址]
 以GitHub作为远程仓库名，自己的笔记仓库做地址，即输入命令：
-$ git remote add GitHub git@github.com:dainslef/Code_Notes.git
+$ git remote add GitHub git@github.com:dainslef/CodeNotes.git
 即添加好了远程仓库，接下来即可推送本地分支到GitHub上了：
 $ git push [远程仓库名] [分支名称]
 将本地的dev分支推送到GitHub上即为：

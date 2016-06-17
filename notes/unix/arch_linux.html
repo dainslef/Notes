@@ -626,6 +626,8 @@
 						<p>对于使用SSD硬盘的用户，Linux和ext4文件系统支持TRIM，使用TRIM可以降低固态硬盘损耗以及延缓SSD的降速问题。<br/>
 						在Linux下使用<span class="blue"> fstrim </span>工具来主动释放未使用的块。开启TRIM服务可以定期释放(默认为一周一次)：</p>
 						<blockquote># systemctl enable fstrim.timer</blockquote>
+						<p>ext4文件系统在挂载使需要使用<span class="blue">discard</span>参数来支持SSD的TRIM功能，ext4分区的挂载信息可以写成：</p>
+						<blockquote>/dev/sdaXX	ext4	defaults,discard	0	1</blockquote>
 					</li>
 				</ol>
 			</li><br/>

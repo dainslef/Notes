@@ -179,8 +179,8 @@ Unix环境下的链接器为`ld`。
 - `-R` 显示文件的动态重定位入口，用于动态链接库和可执行文件
 - `-s` 以16进制形式查看可执行文件内容
 
-### OS X下的 *otool*
-在`OS X`下，二进制格式为`Mach-O`，`OS X`没有提供`objdump`、`ldd`等工具。
+### macOS下的 *otool*
+在`macOS`下，二进制格式为`Mach-O`，`macOS`没有提供`objdump`、`ldd`等工具。
 
 使用`otool`工具代替`objdump`进行反汇编：
 
@@ -196,6 +196,15 @@ Unix环境下的链接器为`ld`。
 gcc和clang都有`O1`、`O2`、`O3`三个代码优化级别，`O1`最低，`O3`优化最高。
 
 使用优化选项能大幅度提升生成二进制文件的执行效率，但会使得生成的程序难以调试。故一般只在程序完成测试之后进入发布阶段才会启用编译优化选项。
+
+### 其它编译器参数
+其它常用的编译器参数如下：
+
+- `-W` 警告选项，常用的是`-Wall`，开启所有警告。
+- `-M` 将文件依赖关系输出到标准输出，输出的文件依赖可以被构建工具`make`使用。
+	0. `-M` 默认会输出所有的头文件路径，包括`#include<>`和`#include""`。
+	0. `-MM` 仅输出`#include""`的头文件路径。
+	0. `-MD` 将依赖关系输出重定向到依赖关系文件`[文件名].d`，通常与`-M`或`-MM`一同使用。
 
 
 
@@ -224,6 +233,6 @@ gcc编译`Objective-C`源码指令：
 
 由于`gnustep-config`是与`GNU编译器`组配套的，故其生成的编译参数并不完全适用于`clang`编译器，故需要手动指定编译参数以符合`clang`编译器的要求，根据编译器输出的异常信息将gnustep-config指令生成的参数中不符合要求的参数剔除，并加入其他需要的编译器参数。
 
-clang编译`Objective-C`源码指令(以`Archlinux && gcc 4.9.2`为例)：
+clang编译`Objective-C`源码指令(以`Archlinux x64`和`gcc 4.9.2`为例)：
 
 `$ clang -fconstant-string-class=NSConstantString -lgnustep-base -lobjc -I/usr/lib/gcc/x86_64-unknown-linux-gnu/[gcc-version]/include [源码文件]`
