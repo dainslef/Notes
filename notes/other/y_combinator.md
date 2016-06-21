@@ -104,7 +104,7 @@ val Y1 = (f: (Int => Int) => Int => Int) =>
 	((x: ImSelf[Int => Int]) => f(x(x)))((x: ImSelf[Int => Int]) => (y: Int) => f(x(x))(y))
 ```
 
-在隐式类型的语言中，实现Y组合子则无需确定自身调用逻辑的高阶函数的实际类型，使用`Python`表示为：
+在**隐式类型**的语言中，实现Y组合子则无需确定自身调用逻辑的高阶函数的实际类型，如使用`Python`表示为：
 
 ```py
 # λf.(λx.f(x x))(λx.f(λy.x x y))
@@ -114,3 +114,133 @@ Y1 = lambda f: (lambda x: f(x(x)))(lambda x: lambda y: f(x(x))(y))
 ```
 
 使用得到的Y组合子将单步递归函数作为参数即可得到最终的目标函数。
+
+在`C++14`之后，C++可以使用**泛型Lambda**，使用`C++14`实现Y组合子同样无需确定调用自身逻辑的高阶函数具体类型，可以使用`auto`关键字让模版类型自动推断，使用`C++14`表示Y组合子：
+
+```cpp
+// λf.(λx.f(x x))(λx.f(λy.x x y))
+auto Y0 =
+	[](auto f)
+		{ return [&](auto x) { return f(x(x)); }
+			([&](auto x) -> std::function<int(int)>
+				{ return f([&](auto n) { return x(x)(n); }); }); };
+
+// λf.(λx.f(x x))(λx.λy.f(x x)y)
+auto Y1 =
+	[](auto f)
+		{ return [&](auto x) { return f(x(x)); }
+			([&](auto x) -> std::function<int(int)>
+				{ return [&](auto n) { return f(x(x))(n); }; }); };
+```
+
+### 各语言完整源码
+使用`Scala`、`Python`、`C#`、`C++`等语言使用Y组合子计算斐波那契数列和阶乘的结果。
+
+- `Scala`(Scala 2.11.8)
+	```scala
+	object Main extends App {
+
+		implicit class Self(in: Self => Int => Int) {
+			def apply(self: Self) = in(self)
+		}
+
+		val fac = (x: Int => Int) => (n: Int) => if (n < 2) n else n * x(n - 1)
+		val fib = (x: Int => Int) => (n: Int) => if (n < 2) n else x(n - 1) + x(n - 2)
+
+		val Y0 = (f: (Int => Int) => Int => Int) => ((x: Self) => f(x(x)))((x: Self) => f(n => x(x)(n)))
+		val Y1 = (f: (Int => Int) => Int => Int) => ((x: Self) => f(x(x)))((x: Self) => (n: Int) => f(x(x))(n))
+
+		println("Factorial(5): " + Y0(fac)(5))
+		println("Fibonacci(5): " + Y0(fib)(5))
+
+		println("Factorial(10): " + Y1(fac)(10))
+		println("Fibonacci(10): " + Y1(fib)(10))
+	}
+	```
+- `C#`(Mono 4.4.0.0 && ArchLinux x64)
+	```csharp
+	using System;
+
+	delegate Func<int, int> Self(Self self);
+
+	class Y
+	{
+		static void Main(string[] args)
+		{
+			Func<Func<Func<int, int>, Func<int, int>>, Func<int, int>> Y0 = f =>
+				((Self)(x => f(x(x))))((Self)(x => n => f(x(x))(n)));
+			Func<Func<Func<int, int>, Func<int, int>>, Func<int, int>> Y1 = f =>
+				((Self)(x => f(x(x))))((Self)(x => f(n => x(x)(n))));
+
+			Func<Func<int, int>, Func<int, int>> fac = x => n => n < 2 ? n : n * x(n - 1);
+			Func<Func<int, int>, Func<int, int>> fib = x => n => n < 2 ? n : x(n - 1) + x(n - 2);
+
+			Console.WriteLine("Factorial(5): " + Y0(fac)(5));
+			Console.WriteLine("Fibonacci(5): " + Y1(fib)(5));
+
+			Console.WriteLine("Factorial(10): " + Y1(fac)(10));
+			Console.WriteLine("Fibonacci(10): " + Y1(fib)(10));
+		}
+	}
+	```
+- `C++`(GCC 6.1.1 && ArchLinux x64)
+	```cpp
+	#include <iostream>
+	#include <functional>
+
+	int main(void)
+	{
+		auto Y0 =
+			[](auto f)
+				{ return [f](auto x) { return f(x(x)); }
+					([f](auto x) -> std::function<int(int)>
+						{ return [&](auto n) { return f(x(x))(n); }; }); };
+
+		auto Y1 =
+			[](auto f)
+				{ return [f](auto x) { return f(x(x)); }
+					([f](auto x) -> std::function<int(int)>
+						{ return f([x](auto n) { return x(x)(n); }); }); };
+
+		auto fac =
+			[](auto x)
+				{ return [x](auto n)
+					{ return n < 2 ? n : n * x(n - 1); }; };
+
+		auto fib =
+			[](auto x)
+				{ return [x](auto n)
+					{ return n < 2 ? n : x(n - 1) + x(n - 2); }; };
+
+		std::cout << "Factorial(5): " << Y0(fac)(5) << std::endl;
+		std::cout << "Fibonacci(5): " << Y0(fib)(5) << std::endl;
+
+		std::cout << "Factorial(10): " << Y1(fac)(10) << std::endl;
+		std::cout << "Fibonacci(10): " << Y1(fib)(10) << std::endl;
+
+		return 0;
+	}
+	```
+- `Python`(Python 3.5.1)
+	```py
+	Y0 = lambda f: (lambda x: f(x(x)))(lambda x: f(lambda y: x(x)(y)))
+	Y1 = lambda f: (lambda x: f(x(x)))(lambda x: lambda y: f(x(x))(y))
+
+	fac = lambda x: lambda n: n < 2 and n or n * x(n - 1)
+	fib = lambda x: lambda n: n if n < 2 else x(n - 1) + x(n - 2)
+
+	print("Factorial(5): %d" % Y0(fac)(5));
+	print("Fibonacci(5): %d" % Y0(fib)(5));
+
+	print("Factorial(10): %d" % Y1(fac)(10));
+	print("Fibonacci(10): %d" % Y1(fib)(10));
+	```
+
+输出结果：
+
+```
+Factorial(5): 120
+Fibonacci(5): 5
+Factorial(10): 3628800
+Fibonacci(10): 55
+```

@@ -952,7 +952,7 @@ abc cde efg
 
 - 样例类构造器中的字段默认使用`val`关键字定义(即默认为公有访问权限，而不是普通类默认的`private[this]`)。
 - 样例类默认即实现了`apply()`方法用于构造对象和`unapply()`方法用于模式匹配。
-- 样例类还默认实现了`toString``equals``hashCode``copy`等方法。
+- 样例类还默认实现了`toString`、`equals`、`hashCode`、`copy`等方法。
 - 如果样例类默认生成的方法不合要求，也可以选择自行定义。
 
 如下代码所示：
@@ -1316,10 +1316,10 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 
 
 
-##枚举(Enumerate)
+## 枚举(Enumerate)
 在Scala中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
 
-###继承枚举类
+### 继承枚举类
 继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。
 默认的Value方法会按变量名生成枚举名和并从0开始生成枚举ID，若需要手动设定枚举的名称喝枚举ID则可以使用Value方法的重载`Value(id: Int, name: Strig)`。
 如下代码所示：
