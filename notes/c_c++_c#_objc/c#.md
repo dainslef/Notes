@@ -412,7 +412,9 @@ event 委托名 事件名 = delegate(符合委托签名的参数表)		//匿名�
 
 由于事件是一种特殊的**委托实例**，因此与委托不同，不能在全局区域和命名空间中定义事件，只能将事件作为某个类的成员来进行定义，事件与普通的成员类似，受到类的访问权限控制。
 
-调用事件与调用委托实例方法是完全相同的。
+需要注意的是，事件的访问权限不能高于用于定义事件的委托。
+
+调用事件与调用委托实例的方式是完全相同的。
 事件机制是其他C#高级技术的基础。
 
 实例代码：
@@ -420,44 +422,109 @@ event 委托名 事件名 = delegate(符合委托签名的参数表)		//匿名�
 ```csharp
 using System;
 
-namespace ConsoleApplication1
+delegate void Delegate(string str);					//委托可以定义在全局区域或是命名空间
+
+class Program
 {
-	delegate void getMessage(string mes);					//委托可以定义在全局区域或是命名空间
+	static event Delegate Event;					//定义事件
 
-	class Program
+	static void Main(string[] args)
 	{
-		static void Main(string[] args)
-		{
-			Event events = new Event();
-			events.myEvent += Program.eventHandler;
-			events.myEvent += delegate(string str)			//事件绑定到委托匿名方法
-			{
-				Console.WriteLine("This is the {0}!", str);
-			};
-			events.showEvent("Test Text");					//触发事件
-		}
-
-		static void eventHandler(string str)
-		{
-			Console.WriteLine("This is the eventHandler!");
-		}
-	}
-
-	class Event
-	{
-		public event getMessage myEvent;		//定义事件
-		public void showEvent(string str)		//触发事件的函数
-		{
-			myEvent(str);		//调用事件实例，触发事件
-		}
+		Event += (str) => Console.WriteLine(str);	//为事件绑定方法
+		Event("Test Event!");						//触发事件
 	}
 }
 ```
 输出结果：
 
 ```
-This is the eventHandler!
-This is the Test Text!
+Test Event!
+```
+
+### 自定义添加/删除操作的事件
+在定义事件时，可以选择自行实现事件的`+=`、`-=`操作符，语法类似**属性**：
+
+- 使用`add`、`remove`关键字标志代码块来对应`+=`、`-=`操作符的行为。
+- 与**属性**定义中的`set`代码块类似，事件定义中的`add`、`remove`代码块中包含**隐含参数**`value`，`value`代表操作符的参数，即符合事件委托签名的方法。
+- `add`、`remove`代码块不包含其它参数，同时代码块也没有返回值(返回`void`)。
+
+示例代码如下所示：
+
+```csharp
+using System;
+
+delegate void Delegate(string str);
+
+class Program
+{
+	static event Delegate Event						//定义事件
+	{
+		add											//对应事件的"+="操作符
+		{
+			XXXX += value							//隐含参数value表示传入的方法
+			//do something...
+		}
+		remove										//对应事件的"-="操作符
+		{
+			XXXX -= value
+			//do something...
+		}
+	}
+}
+```
+
+自定义`+=`、`-=`运算符行为的事件**不能**像普通事件那样直接以函数的语法调用，调用时编译器会报错：
+
+```
+error CS0079: The event `XXX' can only appear on the left hand side of `+=' or `-=' operator
+```
+
+自定义运算符事件的真正用途是为其它事件提供**包装**，实例如下所示：
+
+```csharp
+using System;
+
+delegate void Delegate(string str);					//委托可以定义在全局区域或是命名空间
+
+class Program
+{
+	private static Delegate _event;					//真正用于绑定方法的事件
+
+	// 自定义事件，在添加、移除方法时在终端输出信息
+	static event Delegate Event
+	{
+		add											//对应事件的"+="操作符
+		{
+			Console.WriteLine("Add Method!");		//在终端打印"Add Method!"
+			_event += value;						//将传入的方法绑定到_event上
+		}
+		remove										//对应事件的"-="操作符
+		{
+			Console.WriteLine("Remove Method!");	//在终端打印"Remove Method!"
+			_event -= value;						//将传入的方法与_event解绑
+		}
+	}
+
+	static void Main(string[] args)
+	{
+		Delegate del = (str) => Console.WriteLine(str);
+
+		Event += del;								//事件绑定委托
+
+		//Event("Test Event!");						//使用Event()触发事件会在编译时报错
+		_event("Test Event!");						//触发事件还是需要使用真正被包装的事件
+
+		Event -= del;								//事件与委托解绑
+	}
+}
+```
+
+输出结果：
+
+```
+Add Method!
+Test Event!
+Remove Method!
 ```
 
 
@@ -788,6 +855,7 @@ protected override void WndProc(ref Message m);
 ```
 
 重写其即可处理**Windows消息**。
+
 `Message`类完整路径为`System.Windows.Forms.Message`，该类包装了Windows消息，包含以下属性：
 
 - `HWnd` 获取或设置消息的窗口句柄

@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -std=gnu11
+CFLAGS = -std=gnu11 -Wall
 
 objects = sysv_msgsnd sysv_msgrcv
 
@@ -11,10 +11,7 @@ endif
 
 all: $(objects)
 
-sysv_msgsnd:
 sysv_msgsnd.o: sysv_msg.h
-
-sysv_msgrcv:
 sysv_msgrcv.o: sysv_msg.h
 
 posix_mq_send: posix_mq_send.o
