@@ -1760,9 +1760,10 @@ vector(input_iterator start, input_iterator end);		//使用某个已存在的vec
 
 ###关联式容器
 关联式容器通过键值`key`来存取元素，元素次序与插入顺序**无关**。
-关联式容器**不提供**`front()``back()``push_front/push_back(const T&)``pop_front/pop_back()`之类的操作。
-关联式容器可以进行比较，需要定义`<`操作符，所有作为关联式容器`key`的类型都必须重载`<`运算符，其它操作符不作要求。
-关联式容器提供`clear()`和`erase()`函数，但返回值为`void`而不是下一个元素的迭代器。
+
+- 关联式容器**不提供**`front()``back()`、`push_front/push_back(const T&)`、`pop_front/pop_back()`之类的操作。
+- 关联式容器可以进行比较，需要定义`<`操作符，所有作为关联式容器`key`的类型都必须重载`<`运算符，其它操作符不作要求。
+- 关联式容器提供`clear()`和`erase()`函数，但返回值为`void`而不是下一个元素的迭代器。
 
 #### *set multiset容器特点*
 - `set/multiset`容器保存键值，对应数学概念中的`集合`。

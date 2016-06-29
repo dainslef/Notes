@@ -155,6 +155,130 @@ ssize_t write(int fd, const void *buf, size_t count);
 
 
 
+## Unix日志
+日志相关的函数定义在头文件`syslog.h`中。
+
+## 日志服务
+在使用`SysVinit`作为init系统的Linux中，日志服务为`rsyslog`或`syslog-ng`，主要日志为`/var/log/syslog`文件。
+`/var/log/syslog`文件为纯文本，可以直接使用编辑器查看。
+
+在现代Linux中，init系统采用`systemd`，日志服务也由`systemd`的子模块`systemd-journald`提供，日志文件位于`/var/log/journal`目录下。
+`systemd-journald`记录的日志为**二进制**格式，使用编辑器查看显示为**乱码**，应使用`journalctl`指令查看：
+
+```
+$ journalctl					//查看所有日志
+$ journalctl -e					//查看近期日志(最近的1000条日志)
+```
+
+使用`journalctl`指令会进入交互式日志查看界面，跳转翻页快捷键等与`vim`编辑器类似。
+
+### 打开日志
+在开始记录日志之前，使用`openlog()`打开一个日志连接。
+
+```c
+void openlog(const char *ident, int option, int facility);
+void closelog(void);
+```
+
+- `ident`参数为日志前缀，使用该连接输出的日志都将以该字符串作为前缀，传入值为`NULL`时，将使用程序名称做为前缀。
+- `option`参数为日志选项，多个选项之间可以使用逻辑或`|`操作符相连接：
+	- `LOG_CONS` 当写入系统日志出错时直接向终端输出错误。
+	- `LOG_NDELAY` 立即打开日志连接(普通情况下，连接将在打印首个日志时被打开)。
+	- `LOG_NOWAIT` 输出日志时不等待子进程创建完毕(`GNU C`库不会创建子进程，这个选项在Linux下无效)。
+	- `LOG_ODELAY` 与LOG_NDELAY相反，日志连接将被延迟到首个`syslog()`被调用(这是默认选项)。
+	- `LOG_PERROR` 同样将日志输出到`stderr`。
+	- `LOG_PID` 输出日志时包含`PID`信息。
+- `facility`参数用于标记日志的类型：
+	- `LOG_AUTH` 安全/权限消息
+	- `LOG_AUTHPRIV` 安全/权限消息(私有)
+	- `LOG_CRON` 时钟服务
+	- `LOG_DAEMON` 不带有facility值的系统服务
+	- `LOG_FTP` ftp文件服务
+	- `LOG_KERN` 内核信息(不能由用户进程生成)
+	- `LOG_LOCAL0 ~ LOG_LOCAL7` 为本地用户预留
+	- `LOG_LPR` 行显示子系统
+	- `LOG_MAIL` 邮件子系统
+	- `LOG_NEWS` USENET新闻子系统
+	- `LOG_SYSLOG` 由syslogd(8)创建的日志消息
+	- `LOG_USER (default)` 普通的用户级别消息
+	- `LOG_UUCP` UUCP子系统
+
+标准的日志格式如下：
+
+`[日志时间] [主机名称/主机ip] [ident] [facility]: [消息内容]`
+
+### 输出日志
+使用`syslog()`函数输出日志：
+
+```c
+void syslog(int priority, const char *format, ...);
+```
+
+- `priority`参数为日志的重要级别，取值如下：
+	- `LOG_EMERG` 系统不可用
+	- `LOG_ALERT` 动作必须立即产生
+	- `LOG_CRIT` 危险状态
+	- `LOG_ERR` 错误状态
+	- `LOG_WARNING` 警告状态
+	- `LOG_NOTICE` 普通但是重要的状态
+	- `LOG_INFO` 信息消息
+	- `LOG_DEBUG` 调试消息
+- `format`参数指向日志的格式化字符数组，格式化语法与`printf()`函数相同。
+
+在使用`systemd`作为init系统的发行版中，使用`journalctl`指令查看日志时，对特定级别的日志会有不同的显示方式，令日志更加醒目：
+
+- `LOG_EMERG`、`LOG_ALERT`、`LOG_CRIT`、`LOG_ERR`级别的日志以**红色**字体显示。
+- `LOG_WARNING`、`LOG_NOTICE`级别的日志以**粗体**字显示。
+
+### 关闭日志连接
+使用`closelog()`函数关闭日志连接：
+
+```
+void closelog(void);
+```
+
+使用`closelog()`会关闭用于写入日志的描述符，`closelog()`是**可选**的操作。
+
+### 实例代码
+打印各个级别的日志，并将日志同步输出到`stderr`，如下所示：
+
+```c
+#include <syslog.h>
+
+int main(void)
+{
+	openlog("Test_log", LOG_PID | LOG_PERROR, LOG_USER);			//打开日志连接
+
+	//输出日志
+	syslog(LOG_EMERG, "The msg is: %s.", "LOG_EMERG");
+	syslog(LOG_ALERT, "The msg is: %s.", "LOG_ALERT");
+	syslog(LOG_CRIT, "The msg is: %s.", "LOG_CRIT");
+	syslog(LOG_ERR, "The msg is: %s.", "LOG_ERR");
+	syslog(LOG_WARNING, "The msg is: %s.", "LOG_WARNING");
+	syslog(LOG_NOTICE, "The msg is: %s.", "LOG_NOTICE");
+	syslog(LOG_INFO, "The msg is: %s.", "LOG_INFO");
+	syslog(LOG_DEBUG, "The msg is: %s.", "LOG_DEBUG");
+
+	closelog();														//关闭日志连接
+	return 0;
+}
+```
+
+运行结果：(GCC 6.1.1 && ArchLinux x64)
+
+```
+Test_log[28381]: The msg is: LOG_EMERG.
+Test_log[28381]: The msg is: LOG_ALERT.
+Test_log[28381]: The msg is: LOG_CRIT.
+Test_log[28381]: The msg is: LOG_ERR.
+Test_log[28381]: The msg is: LOG_WARNING.
+Test_log[28381]: The msg is: LOG_NOTICE.
+Test_log[28381]: The msg is: LOG_INFO.
+Test_log[28381]: The msg is: LOG_DEBUG.
+```
+
+
+
 ## Unix进程控制(fork)
 进程相关的几个函数定义在头文件`unistd.h`中：
 
@@ -207,10 +331,21 @@ pid_t fork(void);
 
 int main(void)
 {
-	if (!system("whoami"))		//system()函数只执行了一次，可知在fork()函数拷贝的是fork()运行此刻运行状态，但fork()函数之前的内容依然只执行一次
+	/*
+		system()函数只执行了一次，
+		可知在fork()函数拷贝的是fork()运行此刻运行状态，
+		但fork()函数之前的内容依然只执行一次。
+	*/
+	if (!system("whoami"))
 		printf("Run the system call successful!\n");
+
+	/*
+		fork()系统调用对于父进程返回子进程的pid，对于子进程返回0，
+		fork()有可能执行失败，失败返回-1，并且不创建子进程。
+	*/
 	pid_t num = fork();
-	if (num)	//fork()系统调用对于父进程返回子进程的pid，对于子进程返回0，fork()有可能执行失败，失败返回-1，并且不创建子进程
+
+	if (num)
 	{
 		printf("This is parent process!\n");
 		printf("The PID is %d\n", getpid());
@@ -296,12 +431,32 @@ int fexecve(int fd, char *const argv[], char *const envp[]);
 int main(void)
 {
 	char* envp[] = { "LC_ALL=zh_CN.UTF-8", NULL };
-	char* argv[] = { "ls", "-l", NULL };		//不要想当然地认为*argv[]的第一个参数是没用的，第一个参数不能为NULL，否则exec()系统调用执行失败，而且exec()执行新指令时如果指令参数不正确时指令在终端上显示的错误信息会将argv[0]作为输入的程序名！
+
+	/*
+		不要想当然地认为*argv[]的第一个参数是没用的，
+		第一个参数不能为NULL，否则exec()系统调用执行失败，
+		而且exec()执行新指令时如果指令参数不正确时，
+		指令在终端上显示的错误信息会将argv[0]作为输入的程序名！
+	*/
+	char* argv[] = { "ls", "-l", NULL };
+
 	printf("The PID is %d\n", getpid());
-	execve("/usr/bin/ls", argv, envp);		//execve()系统调用的envp如果不需要设置可以填NULL，与system()函数不同，用exec系统调用在执行程序时，如果参数中的envp为NULL，则程序就在无环境变量的状态运行，即系统当前的环境变量不会对exec()系统调用产生影响，但会对依赖shell的system()函数产生影响。在这段代码中，如果用户为中文环境且exec()系统调用没有设置环境变量则ls命令显示的中文目录会为问号，但system()函数执行ls命令则能正常显示。
+
+	/*
+		execve()系统调用的envp如果不需要设置可以填NULL。
+
+		与system()函数不同，用exec系统调用在执行程序时，
+		如果参数中的envp为NULL，则程序就在无环境变量的状态运行，
+		即系统当前的环境变量不会对exec()系统调用产生影响，但会对依赖shell的system()函数产生影响。
+
+		在这段代码中，如果用户为中文环境且exec()系统调用没有设置环境变量，
+		则ls命令显示的中文目录会为问号，但system()函数执行ls命令则能正常显示。
+	*/
+	execve("/usr/bin/ls", argv, envp);
 	/*
 		上一句代码等价于
 		execle("/usr/bin/ls", "ls", "-l", NULL, envp);
+
 		如果运行一些不需要环境变量的程序，可以有更简单的方式，比如：
 		execlp("ps", "ps", "-l", NULL);
 	*/
@@ -340,18 +495,24 @@ int main(void)
 {
 	printf("The PID is %d\n\n", getpid());
 	pid_t pid = fork();
+
 	if (pid)
 	{
 		int status;
 		int child_pid = waitpid(pid, &status, 0);	//等效于 int child_pid = wait(&status);
+
 		printf("This is the parent process!\n");
 		printf("The PID is %d\n", getpid());
+
 		if (pid == child_pid)
 			printf("The child's PID is %d\n", child_pid);
-		if (WIFEXITED(status))		//如果等待进程正常结束，WIFEXITED宏返回非0值
-			printf("The child process's exit_code is %d\nParent process END!\n", WEXITSTATUS(status));		//如果WIFEXITED非0，返回等待进程的退出码
+
+		//如果等待进程正常结束，WIFEXITED宏返回非0值
+		if (WIFEXITED(status))
+			printf("The child process's exit_code is %d\nParent process END!\n", WEXITSTATUS(status));		//如果WIFEXITED非0，打印等待进程的退出码
 		_exit(0);
 	}
+
 	if (!pid)
 	{
 		printf("This is the child process!\n");
@@ -1165,6 +1326,7 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 - `command`参数为要对共享内存发出的指令，常用的指令为`IPC_RMID`，用于**删除**共享内存，执行删除操作时- `buf`参数可以取值`NULL`。
 
 函数调用成功返回`0`,失败返回`-1`。
+
 与信号量机制类似，如果`shmget()`函数以`IPC_CREAT | IPC_EXCL`的形式创建**唯一**共享内存的话，如果没有在进程结束前将共享内存删除，则下次程序执行时将**不能**够再以`IPC_CREAT | IPC_EXCL`的形式创建**key值**相同的共享内存！
 
 
@@ -1390,6 +1552,7 @@ int msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg);
 - `msgflg`参数为消息标志位，默认情况下以阻塞方式发送消息(消息队列已满时`msgsnd()`函数会阻塞线程)，取值`IPC_NOWAIT`表示以非阻塞形式发送消息，队列已满则直接返回错误。
 
 函数执行成功返回`0`，执行失败返回`-1`并置`errno`。
+
 发送的消息样例结构如下：
 
 ```c
@@ -2181,6 +2344,7 @@ int main(void)
 在等待期间，无论发送多少次`SIGINT`和`SIGQUIT`信号，`SIGINT`和`SIGQUIT`的信号处理函数只会**分别触发**一次。
 
 在**多线程**环境下，只有`pselect()`所处的线程是信号处理线程时，`pselect()`才能起到阻塞信号的效果，在其它线程中，即使使用`pselect()`并设置屏蔽信号，信号处理函数依然会**立即**触发。
+
 如下代码所示：
 
 ```c
