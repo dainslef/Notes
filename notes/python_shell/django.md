@@ -265,14 +265,13 @@ def my_view(request):
 	raise Http404("Error!")
 ```
 
-### URL配置
-URL配置写在项目目录中的`urls.py`文件中，通过指定`urlpatterns`列表的内容来设定URL对应的视图。
-`urlpatterns`列表中的值类型是`RegexURLPattern`，使用`url()`函数将一个描述URL的正则表达式与视图函数组合而成。
+### URL映射
+URL映射写在项目目录中的`urls.py`文件中，通过编写`urlpatterns`列表的内容来指定URL与视图的映射关系。
 
 默认的`urls.py`文件如下：
 
 ```py
-# file: [应用名称]/urls.py
+# file: [项目名称]/urls.py
 
 from django.conf.urls import url
 from django.contrib import admin
@@ -281,3 +280,89 @@ urlpatterns = [
 	url(r'^admin/', admin.site.urls)
 ]
 ```
+
+`urlpatterns`列表中的值类型是`url()`实例类型的**列表**。
+URL匹配时，位于`urlpatterns`列表前面的正则表达式具有**更高**的优先级。
+
+`url()`函数首参数为匹配URL的**正则表达式**(如果只需要匹配一个字符串，则可**不使用**正则表达式，传入普通字符串即可)，第二参数可以是：
+
+- 视图函数。
+- 使用`include()`函数，以当前模块的其它URL配置列表为参数。
+- 使用`include()`函数，以其它包含有`urlpatterns`列表的模块的**模块路径字符串**为参数。
+
+如下所示：
+
+假设应用的视图文件`views.py`中存在如下视图函数：
+
+```py
+# file: [应用名称]/views.py
+from django.http.response import HttpResponse
+
+# 页面normalUrl
+def normalUrl(request):
+	return HttpResponse(content = normalUrl")
+
+# 页面extraUrl
+def extraUrl(request):
+	return HttpResponse(content = "extraUrl")
+
+# 页面otherUrl
+def otherUrl(request):
+	return HttpResponse(content = "otherUrl")
+```
+
+假设项目的**补充URL配置**存放在**独立的包**中：
+
+```py
+# file: [应用名称]/[URL配置包名]/otherUrl.py
+
+from django.conf.urls import url
+
+import 应用名称.views
+
+# URL配置文件必须包含名称为urlpatterns的列表，否则会得到警告
+urlpatterns = [
+	url('Url', 应用名称.views.otherUrl)
+]
+```
+
+则应用中默认生成的**主URL配置**可以写成：
+
+```py
+# file: [项目名称]/urls.py
+
+from django.conf.urls import url, include
+
+import 应用名称.views
+
+# Python为解释性语言，其它的映射列表应在urlpatterns列表之前，否则会出现变量未定义错误
+extraUrl = [
+	url('Url', 应用名称.views.extraUrl)
+]
+
+# URL映射的三种方式
+urlpatterns = [
+	url('normalUrl', 应用名称.views.normalUrl),						# 直接映射到视图函数
+	url('extra', include(extraUrl)),								# 映射到当前包的其它URL映射列表
+	url('other', include('项目名称.应用名称.URL配置包名.otherUrl'))		# 映射到其它的URL配置模块
+]
+```
+
+需要注意的是，转发到其它URL配置时，URL字符串中已匹配的部分**不会**被发往下一个URL配置，且路径中的空格被忽略。
+因此，上述例子中跳转到`normalUrl`页面的路径只能是`normalUrl`，但页面`extraUrl`和`otherUrl`的路径可以分别是`extraUrl`、`extra Url`、`extra/Url`和`otherUrl`、`other Url`、`other/Url`，路径中的空格和斜杠不会影响匹配。
+
+### URL传参
+视图函数中的首个参数为`request`对象，通过该对象可以访问传递的字段。
+
+`request`对象内定义了属性`GET`、`POST`，保存了通过http协议的GET、POST方法传递的字段的字典。
+可通过如下方式获取传递的参数：
+
+```py
+get_data = request.GET['参数名称']
+post_data = request.POST['参数名称']
+```
+
+在django模版中，通过`POST`方式提交数据时需要在`<form></form>`标签之间添加`{% csrf_token %}`。
+该操作用于产生`token`数据，并内置到表单中成为提交的一个字段，后段在接受`POST`提交时会对`token`数据进行校验，避免`CSRF(Cross-site request forgery)`攻击(跨站请求伪造攻击)。
+
+django对于没有`token`数据的POST请求都视为跨站请求攻击，会在页面中输出错误信息。

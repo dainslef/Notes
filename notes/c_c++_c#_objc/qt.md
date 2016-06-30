@@ -515,7 +515,7 @@ StandardButton QMessageBox::critical(...);		//提示用户危险信息
 ### Qt中窗口按钮、边框设置
 通过使用`void setWindowFlags(Qt::WindowFlags type);`函数可以设置窗口的边框样式以及窗口上具有的按钮。
 
-默认情况下，可以使用Qt预设的窗口边框样式，在枚举类型`enum Qt::WindowType`中，常用的有`Qt::Widget``Qt::Window``Qt::Dialog`等样式。
+默认情况下，可以使用Qt预设的窗口边框样式，在枚举类型`enum Qt::WindowType`中，常用的有`Qt::Widget`、`Qt::Window`、`Qt::Dialog`等样式。
 
 如果预设的窗口样式不能满足需求，则可以使用`Qt::CustomizeWindowHint`搭配自定义按钮组成需要的样式，例如，创建一个仅带有空的标题栏的窗口可以使用代码：
 

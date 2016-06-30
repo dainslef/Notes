@@ -164,13 +164,8 @@ Homebrew的基本操作与其它包管理器类似：
 mariadb与mysql数据库的操作指令相同，因此mariadb与mysql软件包只能选择一个进行安装。
 mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql/`。
 
-启动服务使用指令：
-
-`$ mysql.server start`
-
-停止mysql服务：
-
-`$ mysql.server stop`
+- `$ mysql.server start` 启动mysql服务
+- `$ mysql.server stop` 停止mysql服务
 
 ### 安装Qt
 与常规的Unix程序不同，Qt不推荐使用Homebrew安装，因为通过Homebrew安装的Qt并没有像其他Unix软件包一样创建符号连接到`/usr/local/bin`目录下，同时也不带有QtCreator程序。
@@ -232,6 +227,7 @@ macOS的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形
 发生此种情况的原因是Windows下的一些分区管理工具将Mac分区的分区Type UUID改成了Windows的Type UUID，只需将分区类型ID改回来即可恢复Mac分区。
 
 具体解决方法：
+
 0. 使用Windows的diskpart分区工具更改Type UUID，在CMD下执行以下指令：
 	- `> diskpart` 进入diskpart分区工具
 	- `> list disk` 列出所有磁盘

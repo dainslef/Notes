@@ -98,7 +98,7 @@ Call staticSlot, num: 666, strings: TestSignals
 
 ## 使用 *QtDesigner* 构建UI
 与传统的`C++ Qt`开发相同，使用`PyQt`开发同样可以使用`QtDesigner`进行拖放式的快速UI布局。
-之后，使用Qt提供的`User Interface Compiler`将拖放的到的UI文件编译称对应的编程语言代码。
+UI布局完成之后，使用Qt提供的`User Interface Compiler`将拖放的到的UI文件编译称对应的编程语言代码。
 
 在`PyQt`开发中，使用`pyuic`工具将`QtDesigner`得到的UI文件编译成对应的Python代码：
 
