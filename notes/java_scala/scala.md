@@ -2200,8 +2200,9 @@ sbt的常见指令有：
 - `run` 运行项目
 - `clean` 清理项目缓存
 - `package` 将项目打包
+- `console` 进入Scala REPL
 
-sbt指令可以在直接在sbt的交互式shell内使用，也可以作为参数跟在sbt指令之后直接在命令行中使用。
+sbt指令可以在直接在sbt的交互shell内使用，也可以作为参数跟在sbt指令之后直接在命令行中使用。
 
 ### sbt项目结构
 sbt项目结构与maven项目类似。一个基本的sbt项目具有以下路径结构：
@@ -2222,7 +2223,7 @@ sbt项目结构与maven项目类似。一个基本的sbt项目具有以下路径
 ```
 
 新创建的项目没有`target`目录，但在sbt交互shell中执行了`run`之后还会生成`target`和`project/target`目录。
-`target`目录中包含编译生成的临时文件，将项目目录加入版本控制时需要忽略这些目录。
+`target`目录中包含的所有内容均由编译系统生成，将项目目录加入版本控制时需要忽略这些目录。
 
 ### 添加项目依赖
 项目依赖主要定义在项目根目录下的`build.sbt`文件中，通过自定义`build.sbt`文件中的`libraryDependencies`配置项即可向项目中添加**托管依赖**。
@@ -2237,6 +2238,13 @@ sbt项目结构与maven项目类似。一个基本的sbt项目具有以下路径
 groupID % artifactID % revision
 // 在指定配置下的依赖
 groupID % artifactID % revision % configuration
+
+/*
+	使用%%符号连接groupID和artifactID，
+	则会将当前Scala的大版本号追加到artifactID上，
+	Scala相关项目的artifactID命名上通常会以使用的Scala的大版本号作为结尾
+*/
+groupID %% artifactID % revision
 ```
 
 依赖的描述信息与maven类似，实际上sbt可以直接添加maven仓库的依赖，包的具体信息可以在maven中心仓库通过包名进行搜索得到。
@@ -2255,6 +2263,17 @@ libraryDependencies ++= Seq(
   ...
 )
 ```
+
+### 常用的依赖
+包的信息可以在Maven中心仓库搜索到，地址为`http://search.maven.org/`。
+一些常用包的`GroupId`和`ArtifactId`信息如下：
+
+| 包介绍 | GroupId | ArtifactId |
+|:------|:--------|:-----------|
+| MySQL数据库JDBC驱动 | mysql | mysql-connector-java |
+| Slick | com.typesafe.slick | slick_[Scala主版本号] |
+| Akka | com.typesafe.akka | akka-actor_[Scala主版本号] |
+| Scala Swing | org.scala-lang.modules | scala-swing_[Scala主版本号] |
 
 
 

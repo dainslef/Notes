@@ -1,5 +1,5 @@
 ## 安装和配置 *Django*
-使用`pip`安装`Django`包：
+使用`pip`包管理器安装`Django`包：
 
 `# pip install Django`
 
@@ -37,7 +37,7 @@
 
 `$ ./manage.py startapp [应用名称]`
 
-一个空的django应用基本文件结构如下所示：
+一个新创建的django应用基本文件结构如下所示：
 
 ```
 应用名称
@@ -284,11 +284,15 @@ urlpatterns = [
 `urlpatterns`列表中的值类型是`url()`实例类型的**列表**。
 URL匹配时，位于`urlpatterns`列表前面的正则表达式具有**更高**的优先级。
 
-`url()`函数首参数为匹配URL的**正则表达式**(如果只需要匹配一个字符串，则可**不使用**正则表达式，传入普通字符串即可)，第二参数可以是：
+`url()`函数首参数为匹配URL的**正则表达式**，第二参数可以是：
 
 - 视图函数。
 - 使用`include()`函数，以当前模块的其它URL配置列表为参数。
 - 使用`include()`函数，以其它包含有`urlpatterns`列表的模块的**模块路径字符串**为参数。
+
+需要注意的是，即使`url()`函数的第一个参数没有使用`r`来标记，也同样会被当作正则表达式对待。
+直接传入普通字符串也**同样会**被当作正则表达式对待，在正则表达式语义中，只要传入的URL中带有这些字符串就会被匹配，而无需完全匹配。
+完全匹配URL以正则表达式语法应写成`^xxxx/$`(假设`xxxx`是要精确匹配的路径)。
 
 如下所示：
 
@@ -300,7 +304,7 @@ from django.http.response import HttpResponse
 
 # 页面normalUrl
 def normalUrl(request):
-	return HttpResponse(content = normalUrl")
+	return HttpResponse(content = "normalUrl")
 
 # 页面extraUrl
 def extraUrl(request):
@@ -322,7 +326,7 @@ import 应用名称.views
 
 # URL配置文件必须包含名称为urlpatterns的列表，否则会得到警告
 urlpatterns = [
-	url('Url', 应用名称.views.otherUrl)
+	url(r'^Url/$', 应用名称.views.otherUrl)
 ]
 ```
 
@@ -337,32 +341,106 @@ import 应用名称.views
 
 # Python为解释性语言，其它的映射列表应在urlpatterns列表之前，否则会出现变量未定义错误
 extraUrl = [
-	url('Url', 应用名称.views.extraUrl)
+	url(r'^Url/$', 应用名称.views.extraUrl)
 ]
 
 # URL映射的三种方式
 urlpatterns = [
-	url('normalUrl', 应用名称.views.normalUrl),						# 直接映射到视图函数
-	url('extra', include(extraUrl)),								# 映射到当前包的其它URL映射列表
-	url('other', include('项目名称.应用名称.URL配置包名.otherUrl'))		# 映射到其它的URL配置模块
+	url(r'^normalUrl/$', 应用名称.views.normalUrl),						# 直接映射到视图函数
+	url(r'^extra', include(extraUrl)),									# 映射到当前包的其它URL映射列表
+	url(r'^other', include('项目名称.应用名称.URL配置包名.otherUrl'))		# 映射到其它的URL配置模块
 ]
 ```
 
-需要注意的是，转发到其它URL配置时，URL字符串中已匹配的部分**不会**被发往下一个URL配置，且路径中的空格被忽略。
-因此，上述例子中跳转到`normalUrl`页面的路径只能是`normalUrl`，但页面`extraUrl`和`otherUrl`的路径可以分别是`extraUrl`、`extra Url`、`extra/Url`和`otherUrl`、`other Url`、`other/Url`，路径中的空格和斜杠不会影响匹配。
+上述例子中跳转到`normalUrl`、`extraUrl`和`otherUrl`页面的路径即分别为`normalUrl`、`extraUrl`和`otherUrl`。
 
-### URL传参
+### 字段传递
 视图函数中的首个参数为`request`对象，通过该对象可以访问传递的字段。
 
 `request`对象内定义了属性`GET`、`POST`，保存了通过http协议的GET、POST方法传递的字段的字典。
-可通过如下方式获取传递的参数：
+可通过如下方式获取传递的字段：
 
 ```py
-get_data = request.GET['参数名称']
-post_data = request.POST['参数名称']
+get_data = request.GET['字段名称']
+post_data = request.POST['字段名称']
 ```
 
+获取的字段均为`str`类型。
+
+#### *CSRF*
 在django模版中，通过`POST`方式提交数据时需要在`<form></form>`标签之间添加`{% csrf_token %}`。
-该操作用于产生`token`数据，并内置到表单中成为提交的一个字段，后段在接受`POST`提交时会对`token`数据进行校验，避免`CSRF(Cross-site request forgery)`攻击(跨站请求伪造攻击)。
+
+该操作用于产生`token`数据，并内置到表单中成为提交的一个字段，后端在接受`POST`提交时会对`token`数据进行校验，避免`CSRF(Cross-site request forgery)`攻击(跨站请求伪造攻击)。
 
 django对于没有`token`数据的POST请求都视为跨站请求攻击，会在页面中输出错误信息。
+
+#### *在url()函数中传递字段*
+`url()`函数中可以添加**可选**的额外参数，类型为**列表**，将需要传递的字段添加入列表中。
+
+- `url()`函数中若添加了列表参数，则映射到的视图函数需要带有与列表内字段名称相同的参数。
+- `url()`函数中传递的参数并不属于`GET`、`POST`这样的传递方式，而是直接传递到视图函数的参数中。
+
+如下所示：
+
+假设URL配置如下：
+
+```py
+# file: [项目名称]/urls.py
+
+from django.conf.urls import url
+
+import 应用名称.views
+
+urlpatterns = [
+	# url()函数中传递了两个字段：name和sex
+	url(r'^normalUrl/$', 应用名称.views.normalUrl, { "name": "Dainslef", "sex": "Male" })
+]
+```
+
+则对应的视图函数应该写成：
+
+```py
+# file: [应用名称]/views.py
+from django.http.response import HttpResponse
+
+# 视图函数的参数中应该带有与url()函数中传入字段名称相同的参数：name和sex
+# 字段参数的位置可以交换，但需要保证首参数为request参数
+def normalUrl(request, name, sex):
+	return HttpResponse("Name: %s, Sex: %s" % (name, sex))
+```
+
+#### *使用正则表达式匹配字段*
+在django中，同样支持在`url()`函数支持正则表达式的捕获语法，捕获的字段会以额外参数的形式传入视图函数中。
+
+如下所示：
+
+假设URL配置如下：
+
+```py
+# file: [项目名称]/urls.py
+
+from django.conf.urls import url
+
+import 应用名称.views
+
+urlpatterns = [
+	# url()函数的正则表达式捕获两个字段，对应的视图函数也应接收额外的两个参数
+	# 此正则表达式接受的URL格式为：normalUrl/name=XXXX&sex=XXXX/
+	url(r'^normalUrl/name=(\w+)&sex=(\w+)/$', 应用名称.views.normalUrl)
+]
+```
+
+对应的视图函数写成：
+
+```py
+# file: [应用名称]/views.py
+from django.http.response import HttpResponse
+
+# 与通过列表参数传递字段的方式不同，正则表达式捕获的字段是没有名字的，视图函数只需要参数数量匹配即可
+def normalUrl(request, name, sex):
+	return HttpResponse("Name: %s, Sex: %s" % (name, sex))
+```
+
+
+
+## 模版层
