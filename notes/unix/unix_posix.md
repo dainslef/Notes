@@ -95,6 +95,102 @@ int main(void)
 
 
 
+## 复制文件描述符
+使用`dup()`系列函数进行描述符复制操作，函数定义在头文件`unistd.h`中。
+
+```c
+int dup(int oldfd);
+int dup2(int oldfd, int newfd);
+```
+
+- `oldfd`参数为旧的文件描述符。
+- `newfd`参数为新的文件描述符。
+
+`dup()`接收旧的文件描述符参数，并复制旧描述符到当前最小的未被使用的描述符编号上，返回该描述符。
+`dup2()`接收旧的文件描述符和新文件描述符参数，并将旧的文件描述符复制到新的文件描述符上。
+
+函数执行成功返回新的文件描述符，失败时返回`-1`。
+
+函数执行成功则新旧文件描述符可以交替使用，新文件描述符拥有**相同**的文件偏移量和文件状态标志，当一个文件描述符的偏移量发生改变时，另一个文件描述符也将同步改变。
+
+但是，新旧文件描述符之间**并不**共享`FD_CLOEXEC`描述符标志。
+
+### *dup3()* 函数
+`Linux`下还提供了独有的函数`dup3()`，`dup3()`函数需要定义`_GNU_SOURCE`宏并引用`fcntl.h`头文件才能使用。
+
+```c
+#define _GNU_SOURCE             /* See feature_test_macros(7) */
+#include <fcntl.h>              /* Obtain O_* constant definitions */
+#include <unistd.h>
+
+int dup3(int oldfd, int newfd, int flags);
+```
+
+- `flags`参数可以取`O_CLOEXEC`标志，设置了该标志之后，复制的新描述符将带有`FD_CLOEXEC`标志。
+
+对于新旧文件描述符相同的情况，`dup2()`函数正常执行完毕并返回`newfd`，`dup3()`函数执行失败并置error为`EINVAL`。
+
+### 使用dup()重定向输出
+`dup()`系列函数最常见的用途之一就是重定向标准、错误输出到指定文件。
+如下所示：
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+#define FILE_PATH "out_file"
+
+int main(int argc, char** argv)
+{
+	// 输出"ERROR0"到标准错误输出u
+	write(STDERR_FILENO, "ERROR0\n", 7);
+
+	// 打开输出文件
+	int error_fd = open(FILE_PATH, O_CREAT | O_RDWR, 0600);
+
+	// 备份标准错误输出
+	int stderror_back = dup(STDERR_FILENO);
+
+	// 将输出文件描述符复制到标准错误输出上
+	dup2(error_fd, STDERR_FILENO);
+
+	// 输出"ERROR1"到标准错误输出，此时的标准错误输出实际为先前打开的文件
+	write(STDERR_FILENO, "ERROR1\n", 7);
+
+	// 恢复标准错误输出的功能
+	dup2(stderror_back, STDERR_FILENO);
+
+	// 测试标准错误输出
+	write(STDERR_FILENO, "ERROR2\n", 7);
+
+	// 打印各个描述符的数值
+	printf("The STDERR is %d.\n", STDERR_FILENO);
+	printf("The error_fd is %d.\n", error_fd);
+	printf("The stderror_back is %d.\n", stderror_back);
+
+	return 0;
+}
+```
+
+运行结果：(GCC 6.1.1 && ArchLinux x64)
+
+```
+ERROR0
+ERROR2
+The STDERR is 2.
+The error_fd is 3.
+The stderror_back is 4.
+```
+
+输出文件`out_file`中的内容：
+
+```
+ERROR1
+```
+
+
+
 ## 文件与基本IO
 Unix环境下基本的文件操作为`open()`、`read()`、`write()`、`close()`、`ioctl()`等。
 相关的头文件在`unistd.h`、`fcntl.h`、`sys/ioctl.h`之中。
@@ -186,22 +282,22 @@ void closelog(void);
 	- `LOG_NDELAY` 立即打开日志连接(普通情况下，连接将在打印首个日志时被打开)。
 	- `LOG_NOWAIT` 输出日志时不等待子进程创建完毕(`GNU C`库不会创建子进程，这个选项在Linux下无效)。
 	- `LOG_ODELAY` 与LOG_NDELAY相反，日志连接将被延迟到首个`syslog()`被调用(这是默认选项)。
-	- `LOG_PERROR` 同样将日志输出到`stderr`。
+	- `LOG_PERROR` 同时将日志输出到`stderr`。
 	- `LOG_PID` 输出日志时包含`PID`信息。
 - `facility`参数用于标记日志的类型：
-	- `LOG_AUTH` 安全/权限消息
-	- `LOG_AUTHPRIV` 安全/权限消息(私有)
-	- `LOG_CRON` 时钟服务
-	- `LOG_DAEMON` 不带有facility值的系统服务
-	- `LOG_FTP` ftp文件服务
-	- `LOG_KERN` 内核信息(不能由用户进程生成)
-	- `LOG_LOCAL0 ~ LOG_LOCAL7` 为本地用户预留
-	- `LOG_LPR` 行显示子系统
-	- `LOG_MAIL` 邮件子系统
-	- `LOG_NEWS` USENET新闻子系统
-	- `LOG_SYSLOG` 由syslogd(8)创建的日志消息
-	- `LOG_USER (default)` 普通的用户级别消息
-	- `LOG_UUCP` UUCP子系统
+	- `LOG_AUTH` 安全/权限消息。
+	- `LOG_AUTHPRIV` 安全/权限消息(私有)。
+	- `LOG_CRON` 时钟服务。
+	- `LOG_DAEMON` 不带有facility值的系统服务。
+	- `LOG_FTP` ftp文件服务。
+	- `LOG_KERN` 内核信息(不能由用户进程生成)。
+	- `LOG_LOCAL0 ~ LOG_LOCAL7` 为本地用户预留。
+	- `LOG_LPR` 行显示子系统。
+	- `LOG_MAIL` 邮件子系统。
+	- `LOG_NEWS` USENET新闻子系统。
+	- `LOG_SYSLOG` 由syslogd(8)创建的日志消息。
+	- `LOG_USER (default)` 普通的用户级别消息。
+	- `LOG_UUCP` UUCP子系统。
 
 标准的日志格式如下：
 
@@ -215,14 +311,14 @@ void syslog(int priority, const char *format, ...);
 ```
 
 - `priority`参数为日志的重要级别，取值如下：
-	- `LOG_EMERG` 系统不可用
-	- `LOG_ALERT` 动作必须立即产生
-	- `LOG_CRIT` 危险状态
-	- `LOG_ERR` 错误状态
-	- `LOG_WARNING` 警告状态
-	- `LOG_NOTICE` 普通但是重要的状态
-	- `LOG_INFO` 信息消息
-	- `LOG_DEBUG` 调试消息
+	- `LOG_EMERG` 系统不可用。
+	- `LOG_ALERT` 动作必须立即产生。
+	- `LOG_CRIT` 危险状态。
+	- `LOG_ERR` 错误状态。
+	- `LOG_WARNING` 警告状态。
+	- `LOG_NOTICE` 普通但是重要的状态。
+	- `LOG_INFO` 信息消息。
+	- `LOG_DEBUG` 调试消息。
 - `format`参数指向日志的格式化字符数组，格式化语法与`printf()`函数相同。
 
 在使用`systemd`作为init系统的发行版中，使用`journalctl`指令查看日志时，对特定级别的日志会有不同的显示方式，令日志更加醒目：
