@@ -303,6 +303,8 @@ void closelog(void);
 
 `[日志时间] [主机名称/主机ip] [ident] [facility]: [消息内容]`
 
+在使用纯文本日志的发行版中，默认日志输出到文件`/var/log/syslog`，但一些日志服务如`rsyslog`，可以根据日志的类型(`facility`参数)将日志转储到不同的日志文件中。
+
 ### 输出日志
 使用`syslog()`函数输出日志：
 

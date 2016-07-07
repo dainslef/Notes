@@ -583,7 +583,7 @@ class Test
 	static int num = 100;
 	static Action setNum200 = () => num = 200;
 
-	static void setNum(int newNum) {
+	static void SetNum(int newNum) {
 		new Action<int>(n => num = n)(newNum);		//不能直接执行Lambda，需要创建函数对象或显式类型转换才能执行
 		//或者写成 ((Action<int>)(n => num = n))(newNum);
 	}
@@ -593,7 +593,7 @@ class Test
 		Console.WriteLine(num);
 		setNum200();
 		Console.WriteLine(num);
-		setNum(500);
+		SetNum(500);
 		Console.WriteLine(num);
 	}
 }
@@ -621,7 +621,7 @@ class Test
 	static int num = 100;
 	static Action setNum200 = () => num = 200;
 
-	static void setNum(int newNum)
+	static void SetNum(int newNum)
 		=> new Action<int>(n => num = n)(newNum);		//直接使用Lambda实现成员函数
 
 	static void Main(string[] args)
@@ -629,7 +629,7 @@ class Test
 		Console.WriteLine(num);
 		setNum200();
 		Console.WriteLine(num);
-		setNum(500);
+		SetNum(500);
 		Console.WriteLine(num);
 	}
 }
@@ -638,7 +638,7 @@ class Test
 
 
 ## 并发编程
-在C#中，主要的并发技术有**异步委托**以及常见的**Thread**类。
+在C#中，主要的并发技术有**异步委托**、`async/await`、`Task`类以及常见的`Thread`类等。
 
 ### 异步委托
 默认情况下，执行一个委托实例操作是**同步**的，但委托实例同样可以使用成员函数`BeginInvoke()`进行异步回调。
@@ -753,7 +753,7 @@ The thread status is: False
 可以看到，超时时间设为1000毫秒，此时异步委托尚未执行完毕，因而`IAsyncResult.IsCompleted`属性为`false`。
 
 ### *Thread* 类
-与常规的**OOP**语言类似，C#中也可以使用`Thread`类来进行并发编程。
+与常规的**OOP**语言类似，C#中也可以使用`Thread`类来进行并发编程，`Thread`类完整路径为`System.Threading.Thread`。
 
 #### *创建与启动线程*
 `Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。
@@ -787,6 +787,178 @@ The arg is: test args.
 
 #### *等待线程结束*
 使用成员方法`Thread.Join()`能够等待指定线程结束，在等待的线程结束前，该方法会一直阻塞**当前**线程。
+
+#### *获取线程ID*
+每个线程都有独立的线程ID，`Thread.CurrentThread.ManagedThreadId`属性保存了当前线程的ID，可以通过比较线程ID来判断代码是否在相同的线程执行。
+
+### *Task* 类
+`Task`类是`.NET 4.0`之后提供的异步操作抽象，完整路径为`System.Threading.Tasks.Task`。
+
+`Task`类用于表示无返回值的异步操作，对于带有返回值的异步操作应使用`Task`类的子类`Task<TResult>`。
+`Task`类创建的任务会加入线程池中。
+
+`Task/Task<TResult>`类的主要构造函数如下：
+
+```csharp
+// 接收Action类型作为异步操作的执行内容
+public Task(Action action);
+// 首参数为带有一个参数的Action<Object>类型，第二参数为要传入的内容
+public Task(Action<object> action, object state);
+// TaskCreationOptions类型为枚举，并设定TaskScheduler的执行策略
+public Task(Action action, TaskCreationOptions creationOptions);
+
+// 在Task<TResult>类中接收Func<TResult>类型作为异步执行的内容
+public Task(Func<TResult> function);
+public Task(Func<object, TResult> function, object state);
+```
+
+创建完毕的`Task`可以使用`Start()`方法开始执行：
+
+```csharp
+// 将任务添加到当前的TaskScheduler(任务调度器)中，任务调度器选择合适的时机执行
+public void Start();
+// 将任务添加到特定的TaskScheduler中
+public void Start(TaskScheduler scheduler);
+```
+
+在实际开发中，更多情况下使用`Task`类的静态方法`Run()`或者工厂类`TaskFactory`的成员方法`StartNew()`来创建和启动新的任务。
+
+`Task`类中的一些常用方法：
+
+```csharp
+// 将参数中的异步操作在当前调度器中排队，并返回Task对象
+public static Task Run(Action action);
+public static Task<TResult> Run<TResult>(Func<TResult> function);
+
+// 等待Task完成
+public void Wait();														//等待当前任务完成
+public static void WaitAll(params Task[] tasks);						//等待任务数组中的所有任务完成
+public static bool WaitAll(Task[] tasks, int millisecondsTimeout;)		//等待指定时间
+```
+
+### *async/await* 关键字
+`C# 5.0`之后引入了`async`和`await`关键字，在语言层面给予了并发更好的支持。
+
+0. `async`用于标记**异步方法**：
+	- `async`关键字是**上下文关键字**，只有在修饰方法与Lambda时才会被当作关键字处理，在其它区域将被作为标识符处理。
+	- `async`关键字可以标记静态方法，但不能标记**入口点**(`Main()`方法)。
+	- `async`标记的方法返回值必须为`Task`、`Task<TResult>`、`void`其中之一。
+0. `await`
+	- `await`关键字同样是**上下文关键字**，只有在`async`标记的方法中才被视为关键字。
+	- `await`关键字可以用在`async`方法和`Task`、`Task<TResult>`之前，用于等待异步任务执行结束。
+
+一个简单的`async`方法结构如下：
+
+```csharp
+async Task testAsync()
+{
+	...		//顺序执行的内容
+
+	return await Task.Run(() =>
+	{
+		...		//异步执行的内容
+	});
+}
+```
+
+并不是方法使用`async`关键字标记了就是异步方法，直接出现在`async`方法内部的语句也是同步执行的，**异步执行的内容**需要使用`Task`类执行。
+事实上，一个不包含任何`await`语句的`async`方法将是同步执行的，此时编译器会给出警告。
+
+简单示例，使用`async/await`在屏幕并发输出内容：
+
+```csharp
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+class Program
+{
+	// Task.Run()方法中的Function是真正异步执行的内容
+	static async Task<int> Async()
+		=> await Task.Run<int>(() =>
+			{
+				// 线程ID与Handler()方法不同
+				Console.WriteLine("Async() Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
+
+				for (int i = 0; i < 5; i++)
+				{
+					Thread.Sleep(100);
+					Console.WriteLine("Async: Run{0}", i);
+				}
+
+				Console.WriteLine("Over");
+				return 666;
+			});
+
+	// 返回值为void的async方法AsyncHandler()仅仅是包装器
+	static async void AsyncHandler()
+	{
+		// 方法体中的内容实际为同步执行，与Main()函数线程ID相同
+		Console.WriteLine("Handler() Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
+
+		// 调用异步方法Async()不会阻塞，Async()方法开始异步执行
+		Task<int> task = Async();
+
+		// 每隔0.1s打印输出，此时异步方法Async()也在另一线程中执行，同步打印输出
+		for (int i = 0; i < 3; i++)
+		{
+			Thread.Sleep(100);
+			Console.WriteLine("Handler: Run{0}", i);
+		}
+
+		// 在使用await之前的代码都运行在与Main()函数相同的线程
+		Console.WriteLine("Handler1() Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
+
+		// AsyncHandler()中的循环执行3次，此时异步方法Async()尚未执行完毕，使用await关键字会阻塞函数
+		// 在Main()函数中，从调用await开始，AsyncHandler()就已返回了
+		Console.WriteLine(await task);
+
+		// 使用await之后的代码运行在Async()方法所处的线程
+		Console.WriteLine("Handler2() Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
+
+		// 打印AsyncHandler()函数真正执行完毕信息
+		Console.WriteLine("Handler Really Finished!");
+	}
+
+	// Main方法不能标记为异步
+	static void Main(string[] args)
+	{
+		Console.WriteLine("Main() Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
+		AsyncHandler();
+
+		// 打印AsyncHandler()函数在Main()中已经执行完毕的信息
+		Console.WriteLine("Handler Finished in Main!");
+
+		// AsyncHandler()在实际执行完成之前就返回了，需要阻塞主线程等待AsyncHandler()真正执行完毕
+		Console.ReadLine();
+	}
+}
+```
+
+输出结果：(Mono 4.4.0 && ArchLinux x64)
+
+```
+Main() Thread ID: [1]
+Handler() Thread ID: [1]
+Async() Thread ID: [4]
+Handler: Run0
+Async: Run0
+Handler: Run1
+Async: Run1
+Async: Run2
+Handler: Run2
+Handler1() Thread ID: [1]
+Handler Finished in Main!
+Async: Run3
+Async: Run4
+Over
+666
+Handler2() Thread ID: [4]
+Handler Really Finished!
+
+```
+
+由上述程序中不难看出，在`async`关键字标记的异步方法中，使用`await`之前的代码都是同步执行的，在调用了`await`之后，剩余的代码便异步运行在独立的线程。
 
 
 
@@ -931,3 +1103,25 @@ C#中的常见类型与C++中类型之间的转换关系：
 `partial`关键字用于定义`部分类`(局部类型)，局部类型允许我们将一个类、结构或接口分成几个部分，分别实现在几个不同的源码文件中。
 
 在`Windows From`中，窗口类代码便使用了部分类特性，对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中，两个文件中的代码本质上属于同一个类，`部分类`特性巧妙地隔离开了**由IDE产生的代码**与**用户自行编写的代码**，使代码结构更清晰。
+
+### *params* 关键字
+`params`用在方法的参数之前，用于标记可变参数。一个方法只能拥有一个`params`参数，且被`params`标记的参数必须为最后一个参数，并且是数组类型。
+
+在调用含有`params`参数的方法时，方法末尾可以追加**任意数量**的类型相符的变量。
+如下所示：
+
+```csharp
+using System;
+
+class Program
+{
+	static void Print(params int[] nums)
+	{
+		foreach (int num in nums)
+			Console.WriteLine(num);
+	}
+
+	static void Main(string[] args)
+		=> Print(1, 2, 3, 4, 5);		//多个int型参数都被添加到params关键字标记的数组中
+}
+```
