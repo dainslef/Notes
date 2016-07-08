@@ -903,7 +903,15 @@ del t					# 实际调用 t.__del__() 析构函数
 repr(t)					# 实际调用 t.__repr__() 将对象转成字符串显示(适合解释器阅读)
 str(t)					# 实际调用 t.__str__() 将值转化为字符串形式(适合人阅读)，print()打印会调用对象的__str__()函数
 format(t, format_spec)	# 实际调用 t.__format__(format_spec) 格式化字符串的值
-t()						# 实际调用 t.__call__() 类提供与函数类似的行为
+t()						# 实际调用 t.__call__() 提供与函数类似的行为
+len(t)					# 实际调用 t.__len__()
+t[key]					# 实际调用 t.__getitem__(key) 访问索引值
+t[key] = value			# 实际调用 t.__setitem__(key, value) 索引赋值
+t.member				# 实际调用 t.__getattr__(menber) 访问成员
+t.member = value		# 实际调用 t.__setattr__(member, value) 成员赋值
+t < k					# 实际调用 t.__it__(k) 小于运算符
+t > k					# 实际调用 t.__gt__(k) 大于运算符
+t + k					# 实际调用 t.__add__(k) 加号运算符
 ```
 
 
@@ -1000,6 +1008,24 @@ while True:
 The return value is: 100
 ```
 
+如果需要将生成器生成的内容添加到容器中，可以使用**列表生成式**，如下所示：
+
+```py
+def get():
+	yield 100
+	yield 200
+	yield 300
+
+g = get()
+print([next(g) for i in range(0, 3)])
+```
+
+输出结果：
+
+```
+[100, 200, 300]
+```
+
 ### 使用 *send()* 与生成器进行交互
 当使用`next()`生成器启动后，便可以使用`生成器对象.send(内容)`向生成器传递内容，`send()`传递的内容将作为yield表达式的**返回值**。
 `next()`就相当于`send(None)`，即`None`为yield表达式的默认返回值。
@@ -1010,15 +1036,14 @@ The return value is: 100
 
 ```py
 def get():
-	m = 0
 	for i in range(0, 3):
-		m = yield i
-		print(m)
+		num = yield i
+		print(num)
 
-a= get()
-next(a)
-print(a.send(10))
-print(a.send(20))
+g = get()
+next(g)
+print(g.send(10))
+print(g.send(20))
 ```
 
 输出结果：
