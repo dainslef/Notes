@@ -35,8 +35,7 @@ class GetQueen
 			count++;
 			System.out.println("\n找到了第" + count + "种方法：");
 			show();
-		}
-		else {
+		} else {
 			for (int i = 0; i < QUEEN_SIZE; i++)
 				if (find(row, i))
 				{

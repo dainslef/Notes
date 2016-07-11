@@ -106,8 +106,8 @@ int dup2(int oldfd, int newfd);
 - `oldfd`参数为旧的文件描述符。
 - `newfd`参数为新的文件描述符。
 
-`dup()`接收旧的文件描述符参数，并复制旧描述符到当前最小的未被使用的描述符编号上，返回该描述符。
-`dup2()`接收旧的文件描述符和新文件描述符参数，并将旧的文件描述符复制到新的文件描述符上。
+`dup()`接收旧的文件描述符参数，并复制旧描述符到当前未被使用的最小描述符编号上，返回该描述符。
+`dup2()`接收旧的文件描述符和新文件描述符参数，并将旧文件描述符复制到新文件描述符上。
 
 函数执行成功返回新的文件描述符，失败时返回`-1`。
 
@@ -143,7 +143,7 @@ int dup3(int oldfd, int newfd, int flags);
 
 int main(int argc, char** argv)
 {
-	// 输出"ERROR0"到标准错误输出u
+	// 输出"ERROR0"到标准错误输出
 	write(STDERR_FILENO, "ERROR0\n", 7);
 
 	// 打开输出文件
@@ -278,26 +278,26 @@ void closelog(void);
 
 - `ident`参数为日志前缀，使用该连接输出的日志都将以该字符串作为前缀，传入值为`NULL`时，将使用程序名称做为前缀。
 - `option`参数为日志选项，多个选项之间可以使用逻辑或`|`操作符相连接：
-	- `LOG_CONS` 当写入系统日志出错时直接向终端输出错误。
-	- `LOG_NDELAY` 立即打开日志连接(普通情况下，连接将在打印首个日志时被打开)。
-	- `LOG_NOWAIT` 输出日志时不等待子进程创建完毕(`GNU C`库不会创建子进程，这个选项在Linux下无效)。
-	- `LOG_ODELAY` 与LOG_NDELAY相反，日志连接将被延迟到首个`syslog()`被调用(这是默认选项)。
-	- `LOG_PERROR` 同时将日志输出到`stderr`。
-	- `LOG_PID` 输出日志时包含`PID`信息。
+	- `LOG_CONS` 当写入系统日志出错时直接向终端输出错误
+	- `LOG_NDELAY` 立即打开日志连接(普通情况下，连接将在打印首个日志时被打开)
+	- `LOG_NOWAIT` 输出日志时不等待子进程创建完毕(`GNU C`库不会创建子进程，这个选项在Linux下无效)
+	- `LOG_ODELAY` 与LOG_NDELAY相反，日志连接将被延迟到首个`syslog()`被调用(默认)
+	- `LOG_PERROR` 同时将日志输出到`stderr`，实际开发中，可将输出到`stderr`的日志**重定向**到指定文件来实现日志文件转储
+	- `LOG_PID` 输出日志时包含`PID`信息
 - `facility`参数用于标记日志的类型：
-	- `LOG_AUTH` 安全/权限消息。
-	- `LOG_AUTHPRIV` 安全/权限消息(私有)。
-	- `LOG_CRON` 时钟服务。
-	- `LOG_DAEMON` 不带有facility值的系统服务。
-	- `LOG_FTP` ftp文件服务。
-	- `LOG_KERN` 内核信息(不能由用户进程生成)。
-	- `LOG_LOCAL0 ~ LOG_LOCAL7` 为本地用户预留。
-	- `LOG_LPR` 行显示子系统。
-	- `LOG_MAIL` 邮件子系统。
-	- `LOG_NEWS` USENET新闻子系统。
-	- `LOG_SYSLOG` 由syslogd(8)创建的日志消息。
-	- `LOG_USER (default)` 普通的用户级别消息。
-	- `LOG_UUCP` UUCP子系统。
+	- `LOG_AUTH` 安全/权限消息
+	- `LOG_AUTHPRIV` 安全/权限消息(私有)
+	- `LOG_CRON` 时钟服务
+	- `LOG_DAEMON` 不带有facility值的系统服务
+	- `LOG_FTP` ftp文件服务
+	- `LOG_KERN` 内核信息(不能由用户进程生成)
+	- `LOG_LOCAL0 ~ LOG_LOCAL7` 为本地用户预留
+	- `LOG_LPR` 行显示子系统
+	- `LOG_MAIL` 邮件子系统
+	- `LOG_NEWS` USENET新闻子系统
+	- `LOG_SYSLOG` 由syslogd(8)创建的日志消息
+	- `LOG_USER (default)` 普通的用户级别消息
+	- `LOG_UUCP` UUCP子系统
 
 标准的日志格式如下：
 
@@ -313,14 +313,14 @@ void syslog(int priority, const char *format, ...);
 ```
 
 - `priority`参数为日志的重要级别，取值如下：
-	- `LOG_EMERG` 系统不可用。
-	- `LOG_ALERT` 动作必须立即产生。
-	- `LOG_CRIT` 危险状态。
-	- `LOG_ERR` 错误状态。
-	- `LOG_WARNING` 警告状态。
-	- `LOG_NOTICE` 普通但是重要的状态。
-	- `LOG_INFO` 信息消息。
-	- `LOG_DEBUG` 调试消息。
+	- `LOG_EMERG` 系统不可用
+	- `LOG_ALERT` 动作必须立即产生
+	- `LOG_CRIT` 危险状态
+	- `LOG_ERR` 错误状态
+	- `LOG_WARNING` 警告状态
+	- `LOG_NOTICE` 普通但是重要的状态
+	- `LOG_INFO` 信息消息
+	- `LOG_DEBUG` 调试消息
 - `format`参数指向日志的格式化字符数组，格式化语法与`printf()`函数相同。
 
 在使用`systemd`作为init系统的发行版中，使用`journalctl`指令查看日志时，对特定级别的日志会有不同的显示方式，令日志更加醒目：
@@ -338,14 +338,21 @@ void closelog(void);
 使用`closelog()`会关闭用于写入日志的描述符，`closelog()`是**可选**的操作。
 
 ### 实例代码
-打印各个级别的日志，并将日志同步输出到`stderr`，如下所示：
+打印各个级别的日志，并将日志转储到日志文件`test.log`中，如下所示：
 
 ```c
 #include <syslog.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 int main(void)
 {
 	openlog("Test_log", LOG_PID | LOG_PERROR, LOG_USER);			//打开日志连接
+
+	int log_fd = open("test.log", O_CREAT | O_APPEND | O_RDWR, 0600);
+
+	//使用dup2()调用，重定向标准错误输出到打开的文件
+	dup2(log_fd, STDERR_FILENO);
 
 	//输出日志
 	syslog(LOG_EMERG, "The msg is: %s.", "LOG_EMERG");
@@ -362,7 +369,7 @@ int main(void)
 }
 ```
 
-运行结果：(GCC 6.1.1 && ArchLinux x64)
+运行结果，在日志文件`test.log`中：(GCC 6.1.1 && ArchLinux x64)
 
 ```
 Test_log[28381]: The msg is: LOG_EMERG.
@@ -777,9 +784,9 @@ int sigprocmask(int how, const sigset_t *restrict set, sigset_t *restrict oset);
 ```
 
 - `how`参数定义函数的行为，可以取值：
-	0. `SIG_BLOCK`向已有的屏蔽信号集合中**添加**`set`参数中的信号。
-	0. `SIG_UNBLOCK`向已有的屏蔽信号集合中**移除**`set`参数中的信号。
-	0. `SIG_SETMASK`将当前的屏蔽信号集合**替换**为`set`参数中的信号。
+	0. `SIG_BLOCK` 向已有的屏蔽信号集合中**添加**`set`参数中的信号
+	0. `SIG_UNBLOCK` 向已有的屏蔽信号集合中**移除**`set`参数中的信号
+	0. `SIG_SETMASK` 将当前的屏蔽信号集合**替换**为`set`参数中的信号
 - `set`参数为输入的信号集合。
 - `oset`参数为输出信号集合，函数运行结束会将新的信号集合写入`oset`参数中，不需要该参数可设为`NULL`。
 
@@ -806,6 +813,7 @@ sigprocmask(SIG_BLOCK, &set, NULL);
 sigprocmask(SIG_UNBLOCK, &set, NULL);
 ```
 
+### 屏蔽线程信号
 `sigsetmask()`和`sigprocmask()`等函数设置的屏蔽信号是对于**整个进程**而言的。
 在**多线程**环境下，使用`sigprocmask()`则进程内包含的**所有线程**的屏蔽信号集都会被修改。
 创建新的线程时，新的线程会**继承**原有线程的**屏蔽信号集**。
@@ -1687,9 +1695,9 @@ int msgctl(int msqid, int cmd, struct msqid_ds *buf);
 
 - `msqid`参数为消息队列描述符。
 - `cmd`参数为具体操作：
-	- `IPC_STAT`: 取此队列的`msqid_ds`结构, 并将它存放在`buf`指向的结构中.
-	- `IPC_SET`: 设置队列的`msqid_ds`为`buf`指向的值。
-	- `IPC_RMID`: 从系统中**删除**该消息队列以及仍在该队列中的所有数据. 执行权限同上.
+	- `IPC_STAT` 取此队列的`msqid_ds`结构, 并将它存放在`buf`指向的结构中
+	- `IPC_SET` 设置队列的`msqid_ds`为`buf`指向的值
+	- `IPC_RMID` 从系统中**删除**该消息队列以及仍在该队列中的所有数据，执行权限同上
 -  `buf`参数为指向消息结构体的指针。
 
 函数执行成功返回`0`，执行失败返回`-1`并置`errno`。
@@ -2548,11 +2556,11 @@ struct epoll_event {
 
 其中，`events`成员为文件描述符触发的条件，是一组标志，使用逻辑或操作符`|`相连，常用的有：
 
-- `EPOLLIN`描述符可读。
-- `EPOLLOUT`描述符可写。
-- `EPOLLPRI`描述符有紧急的数据可读。
-- `EPOLLET`将EPOLL设为`Edge Triggered`(ET，边缘触发)模式。不设置此标志则默认为`Level Triggered`(LT，水平触发)。
-- `EPOLLONESHOT`只监听一次事件。
+- `EPOLLIN` 描述符**可读**
+- `EPOLLOUT` 描述符**可写**
+- `EPOLLPRI` 描述符有紧急的数据可读。
+- `EPOLLET` `Edge Triggered`(ET，边缘触发)模式，不设置此标志时默认为`Level Triggered`(LT，水平触发)
+- `EPOLLONESHOT` 只监听**一次**事件
 
 #### *epoll_data_t* 类型
 `epoll_event`结构体成员`data`的类型`epoll_data_t`联合体定义如下：

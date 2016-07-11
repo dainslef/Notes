@@ -82,15 +82,18 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 
 ### 语法基础(概览)
 - Scala语言中不强制要求分号，可以依行断句，只有一行带有多个语句时才要求分号隔开。
-- 使用`var`、`val`定义`变量``常量`，类型可以由编译器推导，也可以显式指定。定义变量时甚至可以省略`var`、`val`关键字，无关键字时定义的变量默认即为`val`，在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
-- 使用`def`关键字定义**方法**，`var`、`val`定义**函数**，需要注意的是使用`var`定义的函数是可以更改实现的，但`def`定义的方法一经定义实现就**不可改变**。
-- 没有**自增/自减**操作符，没有`break`、`continue`关键字。
-- 所有类型皆为对象，基础类型如`Int``Double`等都是类，函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
-- 没有原生enum类型，应继承枚举助手类`Enumeration`。
-- 不提供类似Java/C++中的**三目运算符**，但`if`语句表达式带有**返回值**，可以实现类似效果。
-- 访问类成员权限默认为`public`，因而没有`public`关键字，但有`private`和`protected`关键字，作用与Java大致相同，但支持**更细粒度**的权限控制。
+- 使用`var/val`定义`变量/常量`，类型可以由编译器推导，也可以显式指定。定义变量时甚至可以省略`var`、`val`关键字，无关键字时定义的变量默认即为`val`，在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
+- 使用`def`关键字定义**方法**，`var/val`定义**函数**。需要注意的是使用`var`定义的函数是可以更改实现的，但`def`定义的方法一经定义实现就**不可改变**。
+- 所有类型皆为对象，基础类型如`Int`、`Double`等都是类，函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
 - 可以使用操作符作为函数名，达到类似C++/C#中操作符重载的效果。
 - 类的成员变量可以与方法名称**相同**。
+
+### 与传统语言的差异
+- 没有**自增/自减**操作符。
+- 没有原生enum类型，应继承枚举助手类`Enumeration`。
+- 没有`break`、`continue`关键字，但有相关的`Breaks`包提供类似功能。
+- 没有**三目运算符**，但`if`表达式带有**返回值**，可以实现类似效果。
+- 类成员权限默认共有，没有`public`关键字(有`private`和`protected`关键字)。
 
 ### Hello World
 创建文件`Test.scala`，输入以下代码：
@@ -399,8 +402,8 @@ Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程
 ## 类型系统
 在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
 
-在Scala中，基础类型如`Int``Float``Double``Unit`等全部从`AnyVal`类中派生，因而可以直接在泛型中直接使用这些类作为类型参数。
-同时，Scala中提供了`隐式转换(ImplicitConversion)`来保证`Int``Float``Double`等类型之间可以**自动进行转换**。
+在Scala中，基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生，因而可以直接在泛型中直接使用这些类作为类型参数。
+同时，Scala中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
 
 基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行，如将数值与字符串相互转换可以使用如下代码：
 
@@ -1192,6 +1195,48 @@ Num 100
 
 
 
+## *sealed* 和 *final* 关键字
+`sealed`和`final`都是Scala语言的关键字。
+
+- `final`关键字作用与Java中相同。用在类之前，表示类不可继承；用在方法之前，表示方法不可被重写。
+- `sealed`关键字作用与C#中的`sealed`不同，在Scala中，被`sealed`修饰的类的子类只能定义在该类的定义文件之内。`sealed`的作用是防止继承被滥用。
+
+### *sealed* 用于模式匹配
+使用`sealed`关键字修饰的类型在用于模式匹配时，编译器会对匹配条件进行检查，如果匹配路径没有被完全覆盖，则会给出警告。
+如下代码所示：
+
+```scala
+sealed abstract class Lang(name: String)
+
+case class C(name: String = "C") extends Lang(name)
+case class CPP(name: String = "C++") extends Lang(name)
+case class CSharp(name: String = "C#") extends Lang(name)
+
+object Main extends App {
+	def getLangName(lang: Lang) =
+		lang match {
+			case C(name) => name
+			case CPP(name) => name
+		}
+}
+```
+
+编译时会得到警告：
+
+```
+Main.scala:10: warning: match may not be exhaustive.
+It would fail on the following input: CSharp(_)
+    lang match {
+    ^
+one warning found
+```
+
+编译器提示**匹配可能会有遗漏**。
+
+若代码中去掉基类定义前的`sealed`关键字，则编译器不再输出警告。
+
+
+
 ## 格式化输出
 使用`print()/println()`可以打印`String`类型的文本输出。
 复杂文本可以使用类似Java的字符串拼接方式(使用操作符`+`)。
@@ -1817,7 +1862,7 @@ package Package {
 
 
 
-## 隐式转换
+## 隐式转换(Implicit Conversions)
 隐式转换在构建类库时是一个强大的工具。
 使用隐式转换特性需要在编译时添加`-language:implicitConversions`选项。
 
@@ -2238,6 +2283,8 @@ sbt项目结构与maven项目类似。一个基本的sbt项目具有以下路径
 groupID % artifactID % revision
 // 在指定配置下的依赖
 groupID % artifactID % revision % configuration
+// 对于开放源码的库，可以指定在添加依赖时同时下载库源码和Java DOC
+groupID % artifactID % revision % withSource() withJavadoc()
 
 /*
 	使用%%符号连接groupID和artifactID，
@@ -2258,9 +2305,9 @@ libraryDependencies = groupID % artifactID % revision
 - `++=`运算符用于添加多个依赖序列，如：
 ```scala
 libraryDependencies ++= Seq(
-  groupID0 % artifactID0 % revision0,
-  groupID1 % artifactID1 % revision1,
-  ...
+	groupID0 % artifactID0 % revision0,
+	groupID1 % artifactID1 % revision1,
+	...
 )
 ```
 
