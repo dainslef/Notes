@@ -108,10 +108,10 @@ DATABASES = {
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.mysql',
-		'NAME': '[连接的数据库名称]',
-		'USER': '[数据库账户名称]',
-		'PASSWORD': '[数据库账户对应密码]',
-		'host': '[主机地址]',
+		'NAME': '连接的数据库名称',
+		'USER': '数据库账户名称',
+		'PASSWORD': '数据库账户对应密码',
+		'host': '主机地址',
 		'port': 3306	# mysql数据库默认端口为3306
 	}
 }
@@ -256,6 +256,10 @@ HttpResponse(status=404)
 - `HttpResponseForbidden` 状态码`403`
 - `HttpResponseServerError` 状态码`500`
 
+在实际的开发中，展示复杂的页面并不直接调用`HttpResponse()`函数返回请求，而是在视图函数中调用`render()`函数引用模版进行渲染。
+
+在django中，视图函数也承担了逻辑控制的作用，判断条件，在视图函数内调用`redirect()`进行路径跳转。
+
 ### 限制HTTP请求
 视图函数前可以使用`django.views.decorators.http`包中的装饰器`require_http_methods`来限制视图响应的HTTP请求类型。
 
@@ -390,7 +394,7 @@ post_data = request.POST['字段名称']
 获取的字段均为`str`类型。
 
 #### *CSRF*
-在django模版中，通过`POST`方式提交数据时需要在`<form></form>`标签之间添加`{% csrf_token %}`。
+在django模版中，通过`POST`方式提交数据时需要在`<form></form>`标签之间添加标签`{% csrf_token %}`。
 
 该操作用于产生`token`数据，并内置到表单中成为提交的一个字段，后端在接受`POST`提交时会对`token`数据进行校验，避免`CSRF(Cross-site request forgery)`攻击(跨站请求伪造攻击)。
 
@@ -466,3 +470,124 @@ def normalUrl(request, name, sex):
 
 
 ## 模版层
+`Django`框架内置完善的模版引擎(`DTL`)。
+
+### 模版配置
+在`Django 1.8`之后，开始支持自定义模版引擎，在配置文件`settings.py`中修改`TEMPLATES`列表中的内容进行模版引擎配置。
+
+默认配置项如下所示：
+
+```py
+TEMPLATES = [
+	{
+		'BACKEND': 'django.template.backends.django.DjangoTemplates',
+		'DIRS': [os.path.join(BASE_DIR), '应用名称1/模版文件夹', '应用名称2/模版文件夹', ...],
+		'APP_DIRS': True,
+		'OPTIONS': {
+			'context_processors': [
+				'django.template.context_processors.debug',
+				'django.template.context_processors.request',
+				'django.contrib.auth.context_processors.auth',
+				'django.contrib.messages.context_processors.messages',
+			],
+		},
+	},
+]
+```
+
+- `BACKEND` 模版引擎路径，django自带的模版引擎有：
+	0. `django.template.backends.django.DjangoTemplates` 默认模版引擎(`DTL`)
+	0. `django.template.backends.jinja2.Jinja2` Jinja模版引擎
+- `DIRS` 模版文件路径，django默认情况下会在这些路径下查找模版文件
+- `APP_DIRS` 是否查找应用内模版，每种模版引擎都有一个惯用名称，应用内模版应存放在这些路径下(django默认模版引擎路径名为`templates`，Jinja模版引擎为`jinja2`)
+- `OPTIONS` 包含引擎相关的具体配置
+
+### 模版语法
+与多数模版引擎类似，django中的模版文件也是纯文本，由`HTML`中嵌入模版语法构成。
+在运行时，模版文件和元数据一起由模版引擎渲染生成最终的显示页面。
+
+- 变量
+
+	变量的语法是`{{ 变量名 }}`，在模版引擎渲染页面时，会被变量的值替换。
+	变量使用符号`.`访问成员。
+
+- 过滤器
+
+	过滤器是一类特定格式的函数，可以多个串联，上个过滤器的结果作为下个过滤器的输入数据，语法是`{{ 变量名 | 过滤器1 | 过滤器2 | ... }}`，在django默认模版引擎中内置了几十种过滤器，常见的有：
+
+	0. `default` 判断变量是否为空，为空则使用默认值替代，语法`{{ value | defalut: "XXX" }}`
+	0. `length` 获取变量的长度，变量可以是**字符串**或**列表**
+
+- 标签
+
+	标签用于在模版中提供特定的功能，如逻辑控制、输出内容等。
+	常见的标签有：
+
+	0. `for` 循环逻辑
+		```py
+		# 遍历容器
+		{% for var in vars %}
+			xxxx
+		{% endfor %}
+		# 遍历字典
+		{% for key, value in item %}
+			{{ key }}: {{ value }}
+		{% endfor %}
+		# 遍历容器，同时处理容器为空时的情况
+		{% for var in vars %}
+			xxxx
+		{% empty %}
+			xxxx
+		{% endfor %}
+		```
+	0. `if` 判断逻辑
+		```py
+		{% if var0 %}
+			xxxx
+		{% elif var1 %}
+			xxxx
+		{% else %}
+			xxxx
+		{% endif %}
+		```
+	0. `comment` 注释
+		```py
+		{% comment "注释原因。。。" %}
+			XXXX
+			XXXX
+			...
+		{% endcomment %}
+		```
+	0. `cycle` 迭代输出
+		```py
+		# cycle标签通常用在循环中
+		# 首次访问返回第一个元素，之后返回第二个，以此类推，全部元素都被访问之后从头开始
+		{% for var in vars %}
+			<tr class="{% cycle 'xxx1' 'xxx2' 'xxx3' '...' %}">
+				...
+			</tr>
+		{% endfor %}
+		```
+	0. `firstof` 输出不为`False`的参数
+		```py
+		# 全为False无输出
+		{% firstof var1 var2 var3 %}
+		# 等价于
+		{% if var1 %}
+			{{ var1 }}
+		{% elif var2 %}
+			{{ var2 }}
+		{% elif var3 %}
+			{{ var3 }}
+		{% endif %}
+		```
+	0. `ifchanged` 用在循环中，检测迭代值是否改变
+		```py
+		{% for var in vars %}
+			{% ifchanged var %}
+				xxxx
+			{% else %}
+				xxxx
+			{% endifchanged %}
+		{% endfor %}
+		```
