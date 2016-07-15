@@ -62,7 +62,7 @@ $ make
 `Qt`中，使用`QObject`类中的静态函数`QObject::connect()`将信号与槽相连，`connect`的函数原型是：
 
 ```cpp
-bool connect(sender, SIGNAL(signals()), receiver, SLOT(slots()))
+bool connect(sender, SIGNAL(signals()), receiver, SLOT(slots()));
 ```
 
 - `sender`和`receiver`分别表示信号发送者与信号接收者，可以传递**实例指针**或者**实例引用**作为参数。
@@ -141,28 +141,31 @@ int main(int argc, char *argv[])
 `QObject::connect()`拥有多种重载：
 
 ```cpp
-QMetaObject::Connection QObject::connect(const QObject* sender, const char* signal, const QObject* receiver, const char* method, Qt::ConnectionType type = Qt::AutoConnection);
+QMetaObject::Connection QObject::connect(const QObject* sender, const char* signal,
+	const QObject* receiver, const char* method, Qt::ConnectionType type = Qt::AutoConnection);
 ```
 
 这是Qt中最常用的信号槽连接方式，`sender`为信号发出者，`receiver`为信号接收者，`signal`为信号，`method`为槽函数。
 使用此中形式的connect时，`signal`和`method`需要分别使用Qt提供的宏`SIGNAL()`和`SLOT()`。
 
 ```cpp
-QMetaObject::Connection QObject::connect(const QObject* sender, const char* signal, const char* method, Qt::ConnectionType type = Qt::AutoConnection) const;
+QMetaObject::Connection QObject::connect(const QObject* sender,
+	const char* signal, const char* method, Qt::ConnectionType type = Qt::AutoConnection) const;
 ```
 
 当connect连接的是**当前类**的槽函数时，可以省略接收者`receiver`。
 即`connect(object, SIGNAL(signal()), SLOT(slot()))`相当于`connect(object, SIGNAL(signal()), this, SLOT(slot()))`。
 
 ```cpp
-QMetaObject::Connection QObject::connect(const QObject* sender, PointerToMemberFunction signal, const QObject* receiver, PointerToMemberFunction method, Qt::ConnectionType type = Qt::AutoConnection);
+QMetaObject::Connection QObject::connect(const QObject* sender, PointerToMemberFunction signal,
+	const QObject* receiver, PointerToMemberFunction method, Qt::ConnectionType type = Qt::AutoConnection);
 ```
 
 connect函数同样支持使用成员指针形式的语法，`signal`和`method`可以使用成员指针的形式。
 当一个信号有多个重载版本时，需要通过函数指针的强制类型转换来显式指明需要使用的重载版本。
 
 ```cpp
-QMetaObject::Connection QObject::connect(const QObject* sender, PointerToMemberFunction signal, Functor functor)
+QMetaObject::Connection QObject::connect(const QObject* sender, PointerToMemberFunction signal, Functor functor);
 ```
 
 在Qt5和C++11环境下，connect函数还可以直接连接到一个Lambda表达式上。
