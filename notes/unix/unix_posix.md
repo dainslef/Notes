@@ -130,7 +130,7 @@ int dup3(int oldfd, int newfd, int flags);
 
 对于新旧文件描述符相同的情况，`dup2()`函数正常执行完毕并返回`newfd`，`dup3()`函数执行失败并置error为`EINVAL`。
 
-### 使用dup()重定向输出
+### 使用 *dup()* 重定向输出
 `dup()`系列函数最常见的用途之一就是重定向标准、错误输出到指定文件。
 如下所示：
 
@@ -249,6 +249,15 @@ ssize_t write(int fd, const void *buf, size_t count);
 
 **标准输入**对应的文件描述符为`0`，**标准输出**对应的文件描述符为`1`，**标准错误输出**对应的文件描述符为`2`，使用`read()/write()`调用对这些特殊的文件描述符进行读写操作即可实现**终端输入/输出**的效果。
 
+在头文件`unistd.h`中，分别为这3个特殊的文件描述符创建了宏定义：
+
+```c
+/* Standard file descriptors.  */
+#define	STDIN_FILENO	0	/* Standard input.  */
+#define	STDOUT_FILENO	1	/* Standard output.  */
+#define	STDERR_FILENO	2	/* Standard error output.  */
+```
+
 
 
 ## Unix日志
@@ -305,6 +314,9 @@ void closelog(void);
 
 在使用纯文本日志的发行版中，默认日志输出到文件`/var/log/syslog`，但一些日志服务如`rsyslog`，可以根据日志的类型(`facility`参数)将日志转储到不同的日志文件中。
 
+`openlog()`函数是**可选**的，即使不调用`openlog()`函数，在首次调用`syslog()`函数打印日志时也会**自动**打开日志连接。
+不使用`openlog()`直接使用`syslog()`函数输出日志时自动创建的日志连接会使用默认配置，如果需要**自定义日志前缀**、**输出日志到stderr**等额外功能，则仍然需要**手动**打开日志连接并配置参数。
+
 ### 输出日志
 使用`syslog()`函数输出日志：
 
@@ -329,13 +341,13 @@ void syslog(int priority, const char *format, ...);
 - `LOG_WARNING`、`LOG_NOTICE`级别的日志以**粗体**字显示。
 
 ### 关闭日志连接
-使用`closelog()`函数关闭日志连接：
+使用`closelog()`函数立即关闭日志连接：
 
 ```
 void closelog(void);
 ```
 
-使用`closelog()`会关闭用于写入日志的描述符，`closelog()`是**可选**的操作。
+使用`closelog()`会关闭用于写入日志的描述符，`closelog()`同样是**可选**的操作。
 
 ### 实例代码
 打印各个级别的日志，并将日志转储到日志文件`test.log`中，如下所示：
@@ -384,190 +396,286 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 
 
 
-## Unix进程控制(fork)
-进程相关的几个函数定义在头文件`unistd.h`中：
+## Unix进程
+进程是资源调度与分配的基本单位。
+在Unix中，进程具有以下概念：
+
+`PID`(进程ID)
+>	PID是一个用于标志进程的非负整数，具有唯一性，且无法被用户修改。
+>	PID为`1`的进程为`init`进程。
+>	获取进程ID使用`getpid()`函数：
+
+>	```c
+>	pid_t getpid(void);
+>	```
+
+`PPID`(父进程ID)
+>	除了`init`进程外，其它进程都由先前存在的进程创建。
+>	创建进程的进程称为**父进程**，被创建的进程称为**子进程**。
+>	获取父进程ID使用`getppid()`函数：
+
+>	```c
+>	pid_t getppid(void);
+>	```
+
+`PGID`(进程组ID)
+>	**进程组**是一个或多个进程的集合，PGID等于组长进程的PID。
+>	进程组相关函数：
+
+>	```c
+>	/*
+>		设置指定PID进程的PGID。
+>		pid参数取0时，设置当前进程的PGID。
+>		pgid参数取0时，指定进程的PGID会被设置为与PID相同。
+>		被设置进程组的进程原有PGID与新设置的PGID需要位于同一个会话(Session)中。
+>	*/
+>	int setpgid(pid_t pid, pid_t pgid);
+
+>	// 得到指定PID进程的PGID，pid参数取0时获取当前进程PGID
+>	pid_t getpgid(pid_t pid);
+>	```
+
+`SID`(会话ID)
+>	**会话**(`Session`)是一个或多个进程组的集合。
+>	获取SID使用`getsid()`函数：
+
+>	```c
+>	// 获取指定PID进程的SID，pid参数取0时获取当前进程的SID
+>	pid_t getsid(pid_t pid);
+>	```
+
+>	创建会话使用`setsid()`函数：
+
+>	```c
+>	pid_t setsid(void);
+>	```
+
+>	关于`setsid()`函数，需要注意：
+
+>>	- 如果调用进程不是进程组的组长，则创建新的会话。
+>>	- 调用进程将成为新会话中的会话首进程(Session Leader)。
+>>	- 调用进程将成为新会话的新进程组中的组长进程。
+>>	- 新的会话ID、进程组ID都将等于调用进程的PID。
+>>	- 新创建的会话将没有控制终端，无论原有会话是否有控制终端。
+
+`Control Terminal`(控制终端)
+>	控制终端用于与系统交互，在用户登陆时系统会自动为用户分配控制终端。
+>	控制终端相关函数：
+
+>	```c
+>	// 返回指定文件描述符的控制终端的前台进程组ID
+>	pid_t tcgetpgrp(int fd);
+>	// 设置指定文件描述符的控制终端的前台进程组ID
+>	int tcsetpgrp(int fd, pid_t pgrp);
+>	```
+
+>	控制终端与进程组、会话是密切相关的概念：
+
+>>	- 会话可以拥有控制终端。
+>>	- 建立与控制终端连接的会话首进程被称为控制进程。
+>>	- 带有控制终端的会话拥有前台进程组，其余进程组为后台进程组。
+>>	- 在控制终端中输入的中断键(`Ctrl + C`)、退出键会将中断信号(`SIGINT`)、退出信号(`SIGQUIT`)发送给前台进程组中的所有进程。
+
+### 进程控制函数
+常见的进程控制函数如下：
 
 ```c
-pid_t fork(void);								//创建当前进程的一个拷贝
-pid_t getpid(void);								//得到当前进程的pid
-pid_t getppid(void); 							//得到当前进程的ppid
-unsigned int sleep(unsigned in seconds);		//让当前线程睡眠seconds秒
-void _exit(int status)							//终止程序，立即进入内核(不会调用atexit注册的清理函数)，参数status为程序退出码，一般可以设为0，有特殊用途时可以设为其它数值
-```
-
-### 标准库进程函数
-C语言标准库中的进程相关函数定义在`stdlib.h`中：
-
-```c
-int system(const char *string);					//创建进程
-void exit(int status);							//终止程序，属于C标准库，先执行一些清理处理(调用atexit注册的清理函数，并刷新输出流，关闭已打开的流，删除通过标注I/O函数tmpfile创建的临时文件)，再返回内核
-void _Exit(int status);							//终止程序，属于C标准库，等价于系统调用中的_exit，立即进入内核
-int atexit(void (*function)(void));				//用该函数注册终止处理程序function，在exit时将自动调用，成功时返回0，失败返回非0
-```
-
-`return`语句向函数**提供返回值**，只有`main()`函数中`return`才会结束进程，而`exit()`函数在一个进程的**任意函数**中调用都将**终止当前进程**。
-
-`system()`函数的作用是，运行以字符串参数的形式传递给它的命令并等待该命令的完成(效果类似于在shell中使用对应命令)。
-与`exec()`函数不同，`system()`函数会新建一个进程来执行命令。
-如果无法启动shell来运行这个命令，`system()`函数将返回错误代码`127`；其它错误返回`-1`，否则`system()`函数将返回该命令的退出码(一般命令都是`0`)。
-
-在实际的Linux开发中，`system()`函数往往是很少被使用的，使用`system()`函数必须启动一个shell来执行需要的指令，使得`system()`函数**效率不高**。
-
-### *fork()* 函数
-在Unix环境下，`fork()`系统调用是最常见的创建进程方式，函数定义在`unistd.h`中，函数原型为：
-
-```c
-pid_t fork(void);
-```
-
-`fork()`函数的作用是，为当前进程创建一个相同的**拷贝**，原进程为**父进程**，新进程为**子进程**。
-
-- 原进程的`fork()`函数返回子进程的`pid`，新进程的`fork()`函数返回`0`
-- 新进程与原进程有着相同的**运行状态**和**代码**，即从`fork()`函数开始(包括`fork()`函数本身)接下来的代码原进程和新进程将会各执行一遍
-- 新的进程有**独立**的数据空间、环境、和文件描述符(父进程中已经打开的文件描述符在子进程中依然会存在)，子进程不继承父进程的文件锁，父进程中未处理的信号集在子进程中被置为空集
-- 多进程并行执行时，各个进程是**异步乱序**执行的，因此不能确定各个进程各段代码的执行先后顺序，所以不要尝试编写依赖于其它进程执行结果的代码
-
-实例代码：
-
-```c
-#include <stdlib.h>		//包含system()系统调用
-#include <stdio.h>
-#include <unistd.h>		//包含fork()、sleep()系统调用
-
-int main(void)
-{
-	/*
-		system()函数只执行了一次，
-		可知在fork()函数拷贝的是fork()运行此刻运行状态，
-		但fork()函数之前的内容依然只执行一次。
-	*/
-	if (!system("whoami"))
-		printf("Run the system call successful!\n");
-
-	/*
-		fork()系统调用对于父进程返回子进程的pid，对于子进程返回0，
-		fork()有可能执行失败，失败返回-1，并且不创建子进程。
-	*/
-	pid_t num = fork();
-
-	if (num)
-	{
-		printf("This is parent process!\n");
-		printf("The PID is %d\n", getpid());
-		printf("The PPID is %d\n", getppid());
-		sleep(2);		//程序运行到此暂停2秒
-		system("ps");
-	}
-	else
-	{
-		printf("This is child process!\n");
-		printf("The PID is %d\n", getpid());
-		printf("Ths PPID is %d\n", getppid());
-	}
-	printf("End!\n");	//fork()之后的内容父进程子进程各执行一次
-	return 0;
-}
-```
-
-运行结果：
-
-```
-dainslef
-Run the system call successful!
-This is parent process!
-The PID is 13722
-The PPID is 10480
-This is child process!
-The PID is 13724
-Ths PPID is 13722
-End!
-PID TTY          TIME CMD
-10480 pts/0    00:00:00 zsh
-13722 pts/0    00:00:00 a.out
-13724 pts/0    00:00:00 a.out <defunct>
-13725 pts/0    00:00:00 ps
-End!
-```
-
-由结果可知，`fork()`函数之前的`system("whoami")`函数只执行了一遍，因此shell指令`whoami`也只执行一遍。但在`fork()`函数之后的代码都执行了两遍，分别来自父进程和子进程的`printf()`函数向屏幕打印了两次`End!`。
-由`system("ps")`函数中执行的shell指令`ps`向屏幕中输出的结果可以看出，父进程的`ppid`是启动这个进程的shell的`pid`，而**子进程**的`ppid`就是**父进程**的`pid`。
-
-### *vfork()* 函数
-`vfork()`作用与`fork()`类似，函数定义在`unistd.h`中，如下所示：
-
-```c
-pid_t vfork(void);
-```
-
-相比`fork()`调用，`vfork()`有以下不同之处：
-
-- `fork()`子进程拷贝父进程中的数据段和代码段，`vfork()`中子进程与父进程共享数据段。
-- `fork()`调用之后父子进程执行顺序是**随机**的，`vfork()`中子进程在调用`exec()`或`exit()`之前与父进程数据共享，而父进程在子进程调用了`exec()`或`exit()`之前会一直**阻塞**。
-
-在Linux中，`fork()`与`vfork()`最终的内部实现都使用`do_fork()`。
-
-### *exec()* 函数
-`exec()`系统调用，由一系列的相关函数组成，函数定义在`unistd.h`中，函数原型为：
-
-```c
-extern char **environ;
-int execl(const char *path, const char *arg0, ... /*, (char *)0 */);
-int execle(const char *path, const char *arg0, ... /*, (char *)0, char *const envp[]*/);
-int execlp(const char *file, const char *arg0, ... /*, (char *)0 */);
-int execv(const char *path, char *const argv[]);
-int execve(const char *path, char *const argv[], char *const envp[]);
-int execvp(const char *file, char *const argv[]);
-int fexecve(int fd, char *const argv[], char *const envp[]);
-```
-
-- `exec()`函数为**系统调用**，执行后，会将当前的进程**完全替换**为执行新程序的进程(即这个进程`exec()`调用成功之后的代码都不再运行)，但`PID`不变，`exec()`系统调用比`system()`函数要**高效**，`exec()`与`fork()`搭配是Unix系统中最**常用**的系统进程创建组合。
-- 一般情况下，`exec()`不会返回，除非发生了错误。出现错误时，`exec()`会返回`-1`，并且设置错误变量`errno`，同时继续执行余下的代码。
-- 在`exec()`函数组中，只有`execve()`函数是真正的系统调用，其它的几个函数都是`execve()`封装而成的库函数。
-- 参数中的`path`代表绝对路径，`file`代表命令名称。
-- `execl()`、`execlp()`、`execle()`三个函数接收的参数个数是可变的，参数以一个空指针结束`((char*)0或是NULL)`，用多个字符数组`*arg`来传递要执行的程序的参数。
-- `execv()`、`execp()`、`execve()`等函数参数个数是固定的，将要传递给要执行的程序的参数放在二维字符数组`*argv[]`中(对应main函数参数中的`*argv[]`)，而二维字符数组`*envp[]`中保存`exec()`函数要运行的程序的环境变量无论是传递给被执行程序的参数字符数组`*argv[]`或是环境变量字符数组`*envp[]`都要以一个空指针结尾。
-
-实例代码：
-
-```c
-#include <stdio.h>
 #include <unistd.h>
 
-int main(void)
-{
-	char* envp[] = { "LC_ALL=zh_CN.UTF-8", NULL };
+// 让当前线程睡眠seconds秒
+unsigned int sleep(unsigned in seconds);
 
-	/*
-		不要想当然地认为*argv[]的第一个参数是没用的，
-		第一个参数不能为NULL，否则exec()系统调用执行失败，
-		而且exec()执行新指令时如果指令参数不正确时，
-		指令在终端上显示的错误信息会将argv[0]作为输入的程序名！
-	*/
-	char* argv[] = { "ls", "-l", NULL };
+/*
+	终止程序，立即进入内核(不会调用atexit注册的清理函数)。
+	参数status为程序退出码，一般可以设为0，有特殊用途时可以设为其它数值。
+*/
+void _exit(int status);
 
-	printf("The PID is %d\n", getpid());
 
-	/*
-		execve()系统调用的envp如果不需要设置可以填NULL。
+#include <stdio.h>
 
-		与system()函数不同，用exec系统调用在执行程序时，
-		如果参数中的envp为NULL，则程序就在无环境变量的状态运行，
-		即系统当前的环境变量不会对exec()系统调用产生影响，但会对依赖shell的system()函数产生影响。
+// 创建进程
+int system(const char *string);
 
-		在这段代码中，如果用户为中文环境且exec()系统调用没有设置环境变量，
-		则ls命令显示的中文目录会为问号，但system()函数执行ls命令则能正常显示。
-	*/
-	execve("/usr/bin/ls", argv, envp);
-	/*
-		上一句代码等价于
-		execle("/usr/bin/ls", "ls", "-l", NULL, envp);
+/*
+	终止程序，属于C标准库。
+	关闭程序前会执行一些清理处理：
+		调用atexit注册的清理函数；
+		并刷新输出流，关闭已打开的流；
+		删除通过标准I/O函数tmpfile创建的临时文件。
+*/
+void exit(int status);
 
-		如果运行一些不需要环境变量的程序，可以有更简单的方式，比如：
-		execlp("ps", "ps", "-l", NULL);
-	*/
-	return 0;
-}
+// 终止程序，属于C标准库。等价于系统调用中的_exit()，立即进入内核
+void _Exit(int status);
+
+// 注册终止处理程序function，在exit()时将自动调用，成功时返回0，失败返回非0
+int atexit(void (*function)(void));
 ```
+
+标准库中`system()`函数的特点：
+
+- `system()`函数运行以字符串参数的形式传递给它的命令，并等待该命令的完成(效果类似于在Shell中使用对应命令)。
+- 与`exec()`函数不同，`system()`函数会新建一个Shell来执行命令。
+- 如果无法启动Shell来运行这个命令，`system()`函数将返回错误代码`127`；其它错误返回`-1`，否则`system()`函数将返回该命令的退出码(一般命令都是`0`)。
+- 在实际的Linux开发中，`system()`函数往往是很少被使用的，使用`system()`函数必须启动一个shell来执行需要的指令，**效率不高**。
+
+在Unix环境下的实际开发中，`fork() + exec()`是最常用的进程创建方式。
+
+*fork()* 函数
+>	在Unix环境下，`fork()`系统调用是最常见的创建进程方式，函数定义在`unistd.h`中，函数原型为：
+
+>	```c
+>	pid_t fork(void);
+>	```
+
+>>	- `fork()`函数的作用是，为当前进程创建一个相同的**拷贝**，原进程为**父进程**，新进程为**子进程**。
+>>	- 原进程的`fork()`函数返回子进程的`pid`，新进程的`fork()`函数返回`0`。
+>>	- 新进程与原进程有着相同的**运行状态**和**代码**，即从`fork()`函数开始(包括`fork()`函数本身)接下来的代码原进程和新进程将会各执行一遍。
+>>	- 新的进程有**独立**的数据空间、环境、和文件描述符(父进程中已经打开的文件描述符在子进程中依然会存在)，子进程不继承父进程的文件锁，父进程中未处理的信号集在子进程中被置为空集。
+>>	- 多进程并行执行时，各个进程是**异步乱序**执行的，因此不能确定各个进程各段代码的执行先后顺序，所以**不要**尝试编写依赖于其它进程执行结果的代码。
+
+>	实例代码：
+
+>	```c
+>	#include <stdlib.h>		//包含system()系统调用
+>	#include <stdio.h>
+>	#include <unistd.h>		//包含fork()、sleep()系统调用
+
+>	int main(void)
+>	{
+>		/*
+>			system()函数只执行了一次，
+>			可知在fork()函数拷贝的是fork()运行此刻运行状态，
+>			但fork()函数之前的内容依然只执行一次。
+>		*/
+>		if (!system("whoami"))
+>			printf("Run the system call successful!\n");
+
+>		/*
+>			fork()系统调用对于父进程返回子进程的pid，对于子进程返回0，
+>			fork()有可能执行失败，失败返回-1，并且不创建子进程。
+>		*/
+>		pid_t num = fork();
+
+>		if (num)
+>		{
+>			printf("This is parent process!\n");
+>			printf("The PID is %d\n", getpid());
+>			printf("The PPID is %d\n", getppid());
+>			sleep(2);		//程序运行到此暂停2秒
+>			system("ps");
+>		}
+>		else
+>		{
+>			printf("This is child process!\n");
+>			printf("The PID is %d\n", getpid());
+>			printf("Ths PPID is %d\n", getppid());
+>		}
+>		printf("End!\n");	//fork()之后的内容父进程子进程各执行一次
+>		return 0;
+>	}
+>	```
+
+>	运行结果：
+
+>	```
+>	dainslef
+>	Run the system call successful!
+>	This is parent process!
+>	The PID is 13722
+>	The PPID is 10480
+>	This is child process!
+>	The PID is 13724
+>	Ths PPID is 13722
+>	End!
+>	PID TTY          TIME CMD
+>	10480 pts/0    00:00:00 zsh
+>	13722 pts/0    00:00:00 a.out
+>	13724 pts/0    00:00:00 a.out <defunct>
+>	13725 pts/0    00:00:00 ps
+>	End!
+>	```
+
+>	由结果可知，`fork()`函数之前的`system("whoami")`函数只执行了一遍，因此shell指令`whoami`也只执行一遍。但在`fork()`函数之后的代码都执行了两遍，分别来自父进程和子进程的`printf()`函数向屏幕打印了两次`End!`。
+>	由`system("ps")`函数中执行的shell指令`ps`向屏幕中输出的结果可以看出，父进程的`ppid`是启动这个进程的shell的`pid`，而**子进程**的`ppid`就是**父进程**的`pid`。
+
+*vfork()* 函数
+>	`vfork()`作用与`fork()`类似，函数定义在`unistd.h`中，如下所示：
+
+>	```c
+>	pid_t vfork(void);
+>	```
+
+>	相比`fork()`调用，`vfork()`有以下不同之处：
+
+>	- `fork()`子进程拷贝父进程中的数据段和代码段，`vfork()`中子进程与父进程共享数据段。
+>	- `fork()`调用之后父子进程执行顺序是**随机**的，`vfork()`中子进程在调用`exec()`或`exit()`之前与父进程数据共享，而父进程在子进程调用了`exec()`或`exit()`之前会一直**阻塞**。
+
+> 在Linux中，`fork()`与`vfork()`最终的内部实现都使用`do_fork()`。
+
+*exec()* 函数
+>	`exec()`系统调用，由一系列的相关函数组成，函数定义在`unistd.h`中，函数原型为：
+
+>	```c
+>	extern char **environ;
+>	int execl(const char *path, const char *arg0, ... /*, (char *)0 */);
+>	int execle(const char *path, const char *arg0, ... /*, (char *)0, char *const envp[]*/);
+>	int execlp(const char *file, const char *arg0, ... /*, (char *)0 */);
+>	int execv(const char *path, char *const argv[]);
+>	int execve(const char *path, char *const argv[], char *const envp[]);
+>	int execvp(const char *file, char *const argv[]);
+>	int fexecve(int fd, char *const argv[], char *const envp[]);
+>	```
+
+>>	- `exec()`函数为**系统调用**，执行后，会将当前的进程**完全替换**为执行新程序的进程(即这个进程`exec()`调用成功之后的代码都不再运行)，但`PID`不变，`exec()`系统调用比`system()`函数要**高效**，`exec()`与`fork()`搭配是Unix系统中最**常用**的系统进程创建组合。
+>>	- 通常`exec()`不会返回，除非发生了错误。出错时，`exec()`返回`-1`并且置`errno`，同时继续执行余下的代码。
+>>	- 在`exec()`函数组中，只有`execve()`函数是真正的系统调用，其它的几个函数都是`execve()`封装而成的库函数。
+>>	- 参数`path`为绝对路径，`file`为命令名称。
+>>	- `execl()`、`execlp()`、`execle()`三个函数接收的参数个数是可变的，参数以一个空指针结束(`(char*)0`或`NULL`)，用多个字符数组`*arg`来传递要执行的程序的参数。
+>>	- `execv()`、`execp()`、`execve()`等函数参数个数是固定的，将要传递给要执行的程序的参数放在二维字符数组`*argv[]`中(对应main函数参数中的`*argv[]`)，而二维字符数组`*envp[]`中保存`exec()`函数要运行的程序的环境变量无论是传递给被执行程序的参数字符数组`*argv[]`或是环境变量字符数组`*envp[]`都要以一个空指针结尾。
+
+>	实例代码：
+
+>	```c
+>	#include <stdio.h>
+>	#include <unistd.h>
+
+>	int main(void)
+>	{
+>		char* envp[] = { "LC_ALL=zh_CN.UTF-8", NULL };
+
+>		/*
+>			不要想当然地认为*argv[]的第一个参数是没用的，
+>			第一个参数不能为NULL，否则exec()系统调用执行失败，
+>			而且exec()执行新指令时如果指令参数不正确时，
+>			指令在终端上显示的错误信息会将argv[0]作为输入的程序名！
+>		*/
+>		char* argv[] = { "ls", "-l", NULL };
+
+>		printf("The PID is %d\n", getpid());
+
+>		/*
+>			execve()系统调用的envp如果不需要设置可以填NULL。
+
+>			与system()函数不同，用exec系统调用在执行程序时，
+>			如果参数中的envp为NULL，则程序就在无环境变量的状态运行，
+>			即系统当前的环境变量不会对exec()系统调用产生影响，但会对依赖shell的system()函数产生影响。
+
+>			在这段代码中，如果用户为中文环境且exec()系统调用没有设置环境变量，
+>			则ls命令显示的中文目录会为问号，但system()函数执行ls命令则能正常显示。
+>		*/
+>		execve("/usr/bin/ls", argv, envp);
+>		/*
+>			上一句代码等价于
+>			execle("/usr/bin/ls", "ls", "-l", NULL, envp);
+
+>			如果运行一些不需要环境变量的程序，可以有更简单的方式，比如：
+>			execlp("ps", "ps", "-l", NULL);
+>		*/
+>		return 0;
+>	}
+>	```
 
 ### 等待进程
 可以在父进程中调用`wait()`函数让父进程等待子进程结束，还可以使用`waitpid()`函数来等待某个**特定进程**结束，函数定义在`sys/wait.h`中，函数原型为：
@@ -577,14 +685,44 @@ pid_t wait(int *status);
 pid_t waitpid(pid_t pid, int *status, int options);
 ```
 
-`wait()/waitpid()`函数都将状态信息写到`status`所指向的内容。`wait()`函数返回子进程的`pid`，`waitpid()`运行成功返回等待进程的`pid`，失败返回`-1`并置`errno`。`waitpid()`函数第一个参数为要等待的进程的`pid`，如果该参数为`-1`，则返回任一子进程的信息，第三个参数`options`可用来改变函数的行为。
+- `status`参数为指向进程状态信息的指针，`wait()/waitpid()`函数都将状态信息写到`status`所指向的内容。
+- `pid`参数为要等待的进程的`pid`，如果该参数为`-1`，则返回任一子进程的信息。
+- `options`参数可用来改变函数的行为。
+
+`wait()`函数返回子进程的`pid`。
+`waitpid()`运行成功返回等待进程的`pid`，失败返回`-1`并置`errno`。
+
 `/sys/wait.h`头文件中定义了宏来解释状态信息：
 
 ```c
-WIFEXITED(status);		//returns true if the child terminated normally, that is, by calling exit(3) or _exit(2), or by returning from main().
-WEXITSTATUS(status);	//returns  the  exit  status  of  the  child.  This consists of the least significant 8 bits of the status argument that the child specified in a call to exit(3) or _exit(2) or as the argument for a return statement in main().  This macro should be employed only if WIFEXITED returned true.
-WIFSIGNALED(status);	//returns true if the child process was terminated by a signal.
-WTERMSIG(status);		//returns the number of the signal that caused the child process to terminate.  This macro should be employed only if WIFSIGNALED returned true.
+/*
+	Returns true if the child terminated normally,
+	that is, by calling exit(3) or _exit(2),
+	or by returning from main().
+*/
+WIFEXITED(status);
+
+/*
+	Returns  the  exit  status  of  the  child.
+
+	This consists of the least significant 8 bits of the status argument
+	that the child specified in a call to exit(3) or _exit(2)
+	or as the argument for a return statement in main().
+
+	This macro should be employed only if WIFEXITED returned true.
+*/
+WEXITSTATUS(status);
+
+/*
+	Returns true if the child process was terminated by a signal.
+*/
+WIFSIGNALED(status);
+
+/*
+	Returns the number of the signal that caused the child process to terminate.
+	This macro should be employed only if WIFSIGNALED returned true.
+*/
+WTERMSIG(status);
 ```
 
 ...还有很多相关宏在手册中。
@@ -644,13 +782,92 @@ The child process's exit_code is 100
 Parent process END!
 ```
 
+### 守护进程(Daemon)
+**守护进程**是一类具有较长生存周期的进程，守护进程在后台运行，并且没有控制终端。
+
+编写守护进程一般有如下几个步骤：
+
+0. 调用`fork()`函数，同时退出**父进程**。
+>	使用了`fork()`函数之后父进程退出，则子进程成为孤儿进程，由`init系统`接管。
+>	子进程虽然脱离了父进程，但仍然处于父进程的进程组中和会话中，与控制终端的联系依然存在。
+0. 调用`setsid()`函数，为子进程创建新的会话。
+>	使用了`setsid()`函数，子进程脱离了原先父进程的进程组与会话，并且不再与原先的控制终端相关联。
+>	子进程在创建了会话之后成为了会话和新进程组的首进程，依然有可能被系统分配控制终端。
+0. 再次调用`fork()`函数，再次退出**父进程**。
+>	再次`fork()`退出父进程之后，新的子进程不再是进程组和会话的首进程，不再有被分配控制终端的可能。
+
+实例代码：
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <unistd.h>
+
+// 打印进程的PID、PPID、SID、PGID、控制终端等信息
+void print_process_info()
+{
+	char cmd[50] = { 0 };
+	sprintf(cmd, "ps --pid %d -o cmd,stat,pid,ppid,pgid,sid,tpgid,tty", getpid());
+	system(cmd);
+	printf("\n");
+}
+
+void create_daemon()
+{
+	print_process_info();
+
+	// fork()并退出父进程
+	if (fork())
+		_exit(0);
+
+	print_process_info();
+
+	// 若正常fork()，则此时父进程已退出，子进程由init系统接管
+	// 使用setsid()创建新的会话(New Session)，同时使当前进程为新会话的进程组组长
+	setsid();
+
+	print_process_info();
+
+	// fork()并退出子进程
+	if (fork())
+		_exit(0);
+
+	print_process_info();
+
+	pause();
+}
+
+int main(int argc, char *argv[])
+{
+	create_daemon();
+	return 0;
+}
+```
+
+运行结果：(GCC 6.1.1 && ArchLinux x64)
+
+```
+CMD                         STAT   PID  PPID  PGID   SID TPGID TT
+./a.out                     S+   10488 11796 10488 11796 10488 pts/4
+
+CMD                         STAT   PID  PPID  PGID   SID TPGID TT
+./a.out                     S    10490   614 10488 11796 11796 pts/4
+
+CMD                         STAT   PID  PPID  PGID   SID TPGID TT
+./a.out                     Ss   10490   614 10490 10490    -1 ?
+
+CMD                         STAT   PID  PPID  PGID   SID TPGID TT
+./a.out                     S    10500   614 10490 10490    -1 ?
+```
+
 
 
 ## 信号(signal)
 信号是Unix系统响应某些条件而产生的的一个事件，进程接收到信号会采取一些相应的行动。
 信号的相关函数定义在头文件`signal.h`中。
 使用`fork()`时，子进程会继承父进程注册的信号处理函数。
-常用的信号有`SIGINT`(中断程序，用`CTRL + C`触发)，`SIGQUIT`(退出，用`CTRL + \`触发)。
+常用的信号有`SIGINT`(中断信号，用`CTRL + C`触发)，`SIGQUIT`(退出信号)。
 
 ### *signal()* 函数
 可以用`signal()`函数绑定指定信号的处理函数，函数原型为：
@@ -693,8 +910,9 @@ int kill(pid_t pid, int sig);
 - `pid`参数为目标进程的进程id。
 - `sig`为信号值。
 
-使用`kill()``raise()`发送信号，接收信号的是**整个**目标进程。
-在**多线程**环境下，使用`kill()``raise()`发送信号，进程内包含的**所有线程**都会接收到信号。
+使用`kill()`、`raise()`发送信号，接收信号的是**整个**目标进程。
+
+在**多线程**环境下，使用`kill()`、`raise()`发送信号，进程内包含的**所有线程**都会接收到信号。
 如果需要发送信号给**指定线程**，需要使用`pthread_kill()`，函数定义在`signal.h`中：
 
 ```c
@@ -750,7 +968,7 @@ int main(void)
 在部分Unix中，运行信号处理函数时可能会将此信号**重置**为默认操作，在此类情况下，需要在信号处理函数中重新绑定信号。
 
 ### 可靠信号与不可靠信号
-可靠信号与不可靠信号是`Linux`中特有的概念，在其它Unix如`OS X`、`FreeBSD`中没有此概念。
+可靠信号机制最初来自于`BSD`。
 
 在`Linux`中，**不可靠**信号范围为`1(SIGHUP) ~ 31(SIGSYS)`，**可靠信号**的范围为`34(SIGRTMIN) ~ 64(SIGRTMAX)`。
 **不可靠**信号**不支持**信号队列，当同类信号在短时间内**多次**触发，不可靠信号只会触发信号处理函数**一次**，其余的同类信号被**忽略**。
@@ -829,198 +1047,202 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 - 设置的屏蔽信号集仅对**当前线程**生效。
 - 调用失败时直接返回错误代码，而不是像`sigprocmask()`那样返回`-1`并置`errno`。
 
+### 信号相关的进程控制函数
+`pause()`、`sleep()`等函数在多线程情况下的触发机制。
 
-### *pause()* 函数
-使用`pause()`可以挂起线程，直到当前进程捕捉到了一个**信号**，函数定义在`unistd.h`中，如下所示：
+*pause()* 函数
+>	使用`pause()`可以挂起线程，直到当前进程捕捉到了一个**信号**，函数定义在`unistd.h`中，如下所示：
 
-```c
-int pause(void);
-```
+>	```c
+>	int pause(void);
+>	```
 
-只有进程捕获了信号，执行了信号处理程序并从其返回时，`pause()`函数才返回。
-`pause()`函数**不存在**成功返回值，当进程捕捉到信号并从信号处理函数返回时，`pause()`返回`-1`，并置`errno`为`ENTER`。
-在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，只有**主线程**的`pause()`会在信号处理函数结束后返回，在其它线程中，一旦使用`pause()`即意味着除非**主动结束**该线程(例如使用`pthread_cancel()`)，否则使用了`pause()`线程将一直处于挂起状态。
+>	只有进程捕获了信号，执行了信号处理程序并从其返回时，`pause()`函数才返回。
+>	`pause()`函数**不存在**成功返回值，当进程捕捉到信号并从信号处理函数返回时，`pause()`返回`-1`，并置`errno`为`ENTER`。
 
-### *sleep()* 函数
-使用`sleep()`可以**挂起**线程(阻塞)，函数定义在`unistd.h`中，函数原型为：
+>	在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，只有**主线程**的`pause()`会在信号处理函数结束后返回，在其它线程中，一旦使用`pause()`即意味着除非**主动结束**该线程(例如使用`pthread_cancel()`)，否则使用了`pause()`线程将一直处于挂起状态。
 
-```c
-unsigned int sleep(unsigned int seconds);
-```
+*sleep()* 函数
+>	使用`sleep()`可以**挂起**线程(阻塞)，函数定义在`unistd.h`中，函数原型为：
 
-- `seconds`参数为需要休眠的时间，单位为**秒**。
+>	```c
+>	unsigned int sleep(unsigned int seconds);
+>	```
 
-若线程在设定的时间中正常休眠，返回值为`0`。
-若在挂起期间进程捕获到一个**信号**，并从信号处理函数返回，则无论休眠时间是否满足，休眠不再继续，`sleep()`立即函数结束，返回值为**尚未休眠**的时间。
+>>	- `seconds`参数为需要休眠的时间，单位为**秒**。
 
-在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，捕获信号，并从信号处理函数返回，只会结束进程**主线程**中正在运行的`sleep()`函数，对其它线程中的`sleep()`无影响。
+>	若线程在设定的时间中正常休眠，返回值为`0`。
+>	若在挂起期间进程捕获到一个**信号**，并从信号处理函数返回，则无论休眠时间是否满足，休眠不再继续，`sleep()`立即函数结束，返回值为**尚未休眠**的时间。
 
-在`Solaris`中`sleep()`内部实现采用`alarm()`，在`BSD`和`Linux`中`sleep()`由`nanosleep()`实现，与信号无关。
+>	在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，捕获信号，并从信号处理函数返回，只会结束进程**主线程**中正在运行的`sleep()`函数，对其它线程中的`sleep()`无影响。
 
-### *alarm()* 函数
-使用`alarm()`可以使当前进程在指定时间之后收到`SIGALRM`信号，函数定义在`unistd.h`中，如下所示：
+>	在`Solaris`中`sleep()`内部实现采用`alarm()`，在`BSD`和`Linux`中`sleep()`由`nanosleep()`实现，与信号无关。
 
-```c
-unsigned alarm(unsigned seconds);
-```
+*alarm()* 函数
 
-- `seconds`参数为发送信号的延迟时间，取`0`时表示清除原有`alarm()`设置。
+>	使用`alarm()`可以使当前进程在指定时间之后收到`SIGALRM`信号，函数定义在`unistd.h`中，如下所示：
 
-一个进程同时只能存在一个`alarm()`，调用`alarm()`时若之前已经设置了`alarm()`且尚未触发，则返回上一个`alarm()`的剩余等待时间，同时以当前`alarm()`的设置**替换**上一个。
+>	```c
+>	unsigned alarm(unsigned seconds);
+>	```
 
-默认情况下，若没有设置`SIGALRM`的信号处理函数，系统收到`SIGALRM`会终止进程。
+>>	- `seconds`参数为发送信号的延迟时间，取`0`时表示清除原有`alarm()`设置。
+
+>	一个进程同时只能存在一个`alarm()`，调用`alarm()`时若之前已经设置了`alarm()`且尚未触发，则返回上一个`alarm()`的剩余等待时间，同时以当前`alarm()`的设置**替换**上一个。
+
+>	默认情况下，若没有设置`SIGALRM`的信号处理函数，系统收到`SIGALRM`会终止进程。
 
 ### 多线程信号处理
 在多线程的环境下，信号处理需要考虑更多的情况：
 
-0. 默认情况下，Unix中的信号机制是对于**整个进程**而言的，使用`kill()`发送信号，则**整个进程**都将收到信号。
-0. 使用`signal()`绑定信号处理函数会对**整个进程**生效。
-0. 在多线程的程序中，若不做特殊处理，则发送给进程的信号会由系统选择一个线程来处理信号。
-0. 系统会在**没有**屏蔽此信号的线程中选择`pid`**最小**的那个线程来处理信号。
-0. 在未设置屏蔽信号的情况下，主线程的`pid`最小，因而一般会选择主线程来响应信号。这使得**默认情况**下只有**主线程**的`pause()``sleep()`函数能够被信号中断。
+- 默认情况下，Unix中的信号机制是对于**整个进程**而言的，使用`kill()`发送信号，则**整个进程**都将收到信号。
+- 使用`signal()`绑定信号处理函数会对**整个进程**生效。
+- 在多线程的程序中，若不做特殊处理，则发送给进程的信号会由系统选择一个线程来处理信号。
+- 系统会在**没有**屏蔽此信号的线程中选择`pid`**最小**的那个线程来处理信号。
+- 在未设置屏蔽信号的情况下，主线程的`pid`最小，因而一般会选择**主线程**来响应信号。这使得**默认情况**下只有**主线程**的`pause()`、`sleep()`函数能够被信号中断。
 
 多线程环境下的信号处理一般有两种方式：
 
-#### *在指定线程中处理信号*
-除目标线程外，其它线程全部使用`pthread_sigmask()`在线程中屏蔽指定信号，让信号只能被**指定线程**处理。如下所示：
+在指定线程中处理信号
+>	除目标线程外，其它线程全部使用`pthread_sigmask()`在线程中屏蔽指定信号，让信号只能被**指定线程**处理。如下所示：
 
-```c
-#include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
-#include <pthread.h>
+>	```c
+>	#include <stdio.h>
+>	#include <unistd.h>
+>	#include <signal.h>
+>	#include <pthread.h>
 
-sigset_t set;
+>	sigset_t set;
 
-void deal_signal(int sig)
-{
-	printf("Run deal_signal.\n");
-}
+>	void deal_signal(int sig)
+>	{
+>		printf("Run deal_signal.\n");
+>	}
 
-void* thread_func(void* arg)
-{
-	printf("Run thread!\n");
+>	void* thread_func(void* arg)
+>	{
+>		printf("Run thread!\n");
 
-	//解除SIGINT的信号屏蔽，让当前线程能够处理SIGINT信号
-	pthread_sigmask(SIG_UNBLOCK, &set, NULL);
+>		//解除SIGINT的信号屏蔽，让当前线程能够处理SIGINT信号
+>		pthread_sigmask(SIG_UNBLOCK, &set, NULL);
 
-	while (1)
-		printf("Pthread sleep surplus time: %d seconds.\n", sleep(3));
-	return NULL;
-}
+>		while (1)
+>			printf("Pthread sleep surplus time: %d seconds.\n", sleep(3));
+>		return NULL;
+>	}
 
-int main(void)
-{
-	signal(SIGINT, deal_signal);
+>	int main(void)
+>	{
+>		signal(SIGINT, deal_signal);
 
-	//整个进程屏蔽SIGINT信号
-	sigemptyset(&set);
-	sigaddset(&set, SIGINT);
-	sigprocmask(SIG_BLOCK, &set, NULL);
+>		//整个进程屏蔽SIGINT信号
+>		sigemptyset(&set);
+>		sigaddset(&set, SIGINT);
+>		sigprocmask(SIG_BLOCK, &set, NULL);
 
-	pthread_t pfd;
-	pthread_create(&pfd, NULL, thread_func, NULL);
+>		pthread_t pfd;
+>		pthread_create(&pfd, NULL, thread_func, NULL);
 
-	pthread_join(pfd, NULL);
+>		pthread_join(pfd, NULL);
 
-	return 0;
-}
-```
+>		return 0;
+>	}
+>	```
 
-默认情况下，`SIGINT`信号会被主线程处理(不会中断子线程中的`sleep()`)，但通过设置屏蔽信号，让`SIGINT`被主线程屏蔽而由子线程处理，使得`SIGINT`能够中断子线程的`sleep()`函数，让`sleep()`提前结束。
+> 默认情况下，`SIGINT`信号会被主线程处理(不会中断子线程中的`sleep()`)，但通过设置屏蔽信号，让`SIGINT`被主线程屏蔽而由子线程处理，使得`SIGINT`能够中断子线程的`sleep()`函数，让`sleep()`提前结束。
 
-#### *以同步的方式处理异步信号*
-使用`sigwait()`等待指定信号。`sigwait()`函数定义在`signal.h`中：
+以同步的方式处理异步信号
+>	使用`sigwait()`函数等待指定信号。`sigwait()`函数定义在`signal.h`中：
 
-```c
-int sigwait(const sigset_t *restrict set, int *restrict sig);
-```
+>	```c
+>	int sigwait(const sigset_t *restrict set, int *restrict sig);
+>	```
 
-- `set`参数为要等待的信号集合。
-- `sig`参数指向等待到的信号值，函数会将等待到的信号值写入传入的地址中。
+>>	- `set`参数为要等待的信号集合。
+>>	- `sig`参数指向等待到的信号值，函数会将等待到的信号值写入传入的地址中。
 
-运行`sigwait()`会阻塞所处线程，直到所处线程接受到`set`信号集中的信号。
-函数执行成功返回`0`，失败时返回错误代码。
-使用`sigwait()`需要保证等待的信号至少被`sigwait()`**所处线程**之外的线程屏蔽。
+>	运行`sigwait()`会阻塞所处线程，直到所处线程接受到`set`信号集中的信号。
+>	函数执行成功返回`0`，失败时返回错误代码。
+>	使用`sigwait()`需要保证等待的信号至少被`sigwait()`**所处线程**之外的线程屏蔽。
 
-对于`sigwait()`所处的线程，在`OS X`和`Linux`等Unix系统上，`sigwait()`的优先级比默认的信号处理行为以及绑定的信号处理函数要高，接受到信号时，优先结束`sigwait()`的阻塞而不是执行设定/默认的信号处理行为。
+>	对于`sigwait()`所处的线程，在`OS X`和`Linux`等Unix系统上，`sigwait()`的优先级比默认的信号处理行为以及绑定的信号处理函数要高，接受到信号时，优先结束`sigwait()`的阻塞而不是执行设定/默认的信号处理行为。
 
-在**多个**`sigwait()`共存的情况下，系统会**随机**选取一个线程中的`sigwait()`进行响应。
+>	在**多个**`sigwait()`共存的情况下，系统会**随机**选取一个线程中的`sigwait()`进行响应。
 
-实例如下所示：
+>	实例如下所示：
 
-```c
-#include <stdio.h>
-#include <signal.h>
-#include <pthread.h>
+>	```c
+>	#include <stdio.h>
+>	#include <signal.h>
+>	#include <pthread.h>
 
-sigset_t set;
-int thread_count = 0;
-pthread_mutex_t mutex;
+>	sigset_t set;
+>	int thread_count = 0;
+>	pthread_mutex_t mutex;
 
-//由于sigwait()优先级更高，deal_signal()函数并未触发
-void deal_signal(int sig)
-{
-	printf("Run deal_signal.\n");
-}
+>	//由于sigwait()优先级更高，deal_signal()函数并未触发
+>	void deal_signal(int sig)
+>	{
+>		printf("Run deal_signal.\n");
+>	}
 
-void* thread_func(void* arg)
-{
-	pthread_mutex_lock(&mutex);
-	int thread_id = ++thread_count;
-	pthread_mutex_unlock(&mutex);
+>	void* thread_func(void* arg)
+>	{
+>		pthread_mutex_lock(&mutex);
+>		int thread_id = ++thread_count;
+>		pthread_mutex_unlock(&mutex);
 
-	printf("Run thread %d!\n", thread_id);
+>		printf("Run thread %d!\n", thread_id);
 
-	//子线程即便使用pthread_sigmask()解除SIGINT信号屏蔽，依旧会优先响应sigwait()
-	int signum;
-	sigwait(&set, &signum);
+>		//子线程即便使用pthread_sigmask()解除SIGINT信号屏蔽，依旧会优先响应sigwait()
+>		int signum;
+>		sigwait(&set, &signum);
 
-	if (signum == SIGINT)
-		printf("\nThread %d receive signal SIGINT.\n", thread_id);
+>		if (signum == SIGINT)
+>			printf("\nThread %d receive signal SIGINT.\n", thread_id);
 
-	return NULL;
-}
+>		return NULL;
+>	}
 
-int main(void)
-{
-	signal(SIGINT, deal_signal);
+>	int main(void)
+>	{
+>		signal(SIGINT, deal_signal);
 
-	/*
-		设置主线程信号屏蔽。
-		若主线程不屏蔽SIGINT信号，则按照信号处理优先级，信号会被主线程处理。
-		信号被主线程处理，子线程没有处理信号的机会，则sigwait()会一直阻塞。
-	*/
-	sigemptyset(&set);
-	sigaddset(&set, SIGINT);
-	sigprocmask(SIG_BLOCK, &set, NULL);
+>		/*
+>			设置主线程信号屏蔽。
+>			若主线程不屏蔽SIGINT信号，则按照信号处理优先级，信号会被主线程处理。
+>			信号被主线程处理，子线程没有处理信号的机会，则sigwait()会一直阻塞。
+>		*/
+>		sigemptyset(&set);
+>		sigaddset(&set, SIGINT);
+>		sigprocmask(SIG_BLOCK, &set, NULL);
 
-	pthread_mutex_init(&mutex, NULL);
+>		pthread_mutex_init(&mutex, NULL);
 
-	pthread_t pfd;
-	pthread_create(&pfd, NULL, thread_func, NULL);
-	pthread_create(&pfd, NULL, thread_func, NULL);
+>		pthread_t pfd;
+>		pthread_create(&pfd, NULL, thread_func, NULL);
+>		pthread_create(&pfd, NULL, thread_func, NULL);
 
-	pthread_join(pfd, NULL);
+>		pthread_join(pfd, NULL);
 
-	pthread_mutex_destroy(&mutex);
+>		pthread_mutex_destroy(&mutex);
 
-	return 0;
-}
-```
+>		return 0;
+>	}
+>	```
 
-运行结果：(OS X 10.11.3)
+>	运行结果：(OS X 10.11.3)
 
-```
-Run thread 1!
-Run thread 2!
-^C
-Thread 2 receive signal SIGINT.
-^C
-Thread 1 receive signal SIGINT.
-```
+>	```
+>	Run thread 1!
+>	Run thread 2!
+>	^C
+>	Thread 2 receive signal SIGINT.
+>	^C
+>	Thread 1 receive signal SIGINT.
+>	```
 
-多个`sigwait()`存在时，选取的处理线程是随机的，运行结果也可能是1号线程先响应信号。
+>	多个`sigwait()`存在时，选取的处理线程是随机的，运行结果也可能是1号线程先响应信号。
 
 
 
@@ -1038,7 +1260,7 @@ $ cc -lpthread [源码文件]
 Linux下线程的实现为`NPTL`，即**本地POSIX线程库**`Native POSIX Thread Library`。
 
 - 在Linux内核中，线程和进程都使用`task_struct`结构体表示，线程仅是一类特殊的进程(创建时使用不同的`clone`标识组合)。
-- Linux提供了`clone()`调用，使用`clone()`创建子进程时，可以选择性地共享父进程的资源，这样创建出的子进程被称为**轻量级进程**。
+- Linux提供了`clone()`调用，使用`clone()`创建子进程时，可以选择性地共享父进程的资源，这样创建出的子进程被称为**轻量级进程**(`LWP, Low Weight Process`)。
 - 早期的Linux(`Linux Kernel 2.6`之前)使用`Linux Threads`线程库，即通过**轻量级进程**来实现线程。
 - `Linux Threads`库没有实现`POSIX`的线程定义，每个线程在`ps`指令下显示为进程，并且不同线程使用`getpid()`返回的进程`pid`也不相同，在现代Linux(采用`NPTL`之后的Linux)已经**不会**出现此类情况。
 - 在`Linux Kernel 2.6`之后，内核中有了**线程组**的概念，`task_struct`结构中增加了`tgid(thread group id)`字段，如果一个`task_struct`是一个**主线程**, 则它的`tgid`等于`pid`, 否则`tgid`等于进程的`pid`(即主线程的`pid`),此外，每个线程依旧是一个`task_struct`，依然有自己的`pid`。
@@ -2357,11 +2579,11 @@ while(1)
 }
 ```
 
-#### *使用select()的一些注意事项*
-- `select()`处于阻塞状态时会被信号中断(当`select()`所处线程是信号处理线程时)。
-- 每次调用`select()`前都需要重设描述符集合(执行`FD_ZERO`和`FD_SET`宏)。
-- `timeval`结构体会在`select()`运行时被修改，因此，在需要设置超时时间的情况下，循环中每次调用`select()`之前都需要重新设置`timeval`结构体。
-- 对于**普通文件**描述符，无论**读、写、异常状态**，都是**始终准备好**的，因此在监控的描述符中如果存在**普通文件**，无论`timeout`参数取何值，`select()`都将**立即返回**。
+使用 *select()* 的一些注意事项
+>	- `select()`处于阻塞状态时会被信号中断(当`select()`所处线程是信号处理线程时)。
+>	- 每次调用`select()`前都需要重设描述符集合(执行`FD_ZERO`和`FD_SET`宏)。
+>	- `timeval`结构体会在`select()`运行时被修改，因此，在需要设置超时时间的情况下，循环中每次调用`select()`之前都需要重新设置`timeval`结构体。
+>	- 对于**普通文件**描述符，无论**读、写、异常状态**，都是**始终准备好**的，因此在监控的描述符中如果存在**普通文件**，无论`timeout`参数取何值，`select()`都将**立即返回**。
 
 ### *pselect()* 调用
 `pselect()`函数由**POSIX**定义，是`select()`的完善版本，在早期的Unix中并不存在。
@@ -2544,37 +2766,37 @@ int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 
 函数执行成功返回`0`，执行失败返回`-1`并置`errno`。
 
-#### *epoll_event* 结构
-`event`参数的类型`epoll_event`结构体定义如下：
+*epoll_event* 结构
+>	`event`参数的类型`epoll_event`结构体定义如下：
 
-```c
-struct epoll_event {
-	uint32_t events;		/* Epoll events */
-	epoll_data_t data;		/* User data variable */
-};
-```
+>	```c
+>	struct epoll_event {
+>		uint32_t events;		/* Epoll events */
+>		epoll_data_t data;		/* User data variable */
+>	};
+>	```
 
-其中，`events`成员为文件描述符触发的条件，是一组标志，使用逻辑或操作符`|`相连，常用的有：
+>	其中，`events`成员为文件描述符触发的条件，是一组标志，使用逻辑或操作符`|`相连，常用的有：
 
-- `EPOLLIN` 描述符**可读**
-- `EPOLLOUT` 描述符**可写**
-- `EPOLLPRI` 描述符有紧急的数据可读。
-- `EPOLLET` `Edge Triggered`(ET，边缘触发)模式，不设置此标志时默认为`Level Triggered`(LT，水平触发)
-- `EPOLLONESHOT` 只监听**一次**事件
+>>	- `EPOLLIN` 描述符**可读**
+>>	- `EPOLLOUT` 描述符**可写**
+>>	- `EPOLLPRI` 描述符有紧急的数据可读。
+>>	- `EPOLLET` `Edge Triggered`(ET，边缘触发)模式，不设置此标志时默认为`Level Triggered`(LT，水平触发)
+>>	- `EPOLLONESHOT` 只监听**一次**事件
 
-#### *epoll_data_t* 类型
-`epoll_event`结构体成员`data`的类型`epoll_data_t`联合体定义如下：
+*epoll_data_t* 类型
+>	`epoll_event`结构体成员`data`的类型`epoll_data_t`联合体定义如下：
 
-```c
-typedef union epoll_data {
-	void *ptr;
-	int fd;
-	uint32_t u32;
-	uint64_t u64;
-} epoll_data_t;
-```
+>	```c
+>	typedef union epoll_data {
+>		void *ptr;
+>		int fd;
+>		uint32_t u32;
+>		uint64_t u64;
+>	} epoll_data_t;
+>	```
 
-`data`用来存放事件的对应数据。
+>	`data`用来存放事件的对应数据。
 
 ### *epoll_wait()* 函数
 完整监听描述符的设置之后，使用`epoll_wait()`函数等待事件触发：
