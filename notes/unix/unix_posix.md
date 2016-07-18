@@ -5,17 +5,23 @@
 
 ### 系统调用
 **系统调用**(`System calls`)是操作系统提供的服务入口点，程序由这些服务入口点向内核请求服务。
+
 Unix系统为大多数的系统调用提供了同名的C函数接口，封装在标准C库(libc)中，在用户进程中调用这些C函数来发起系统调用。
-在Linux和BSD中，部分系统函数没有提供C库的封装(比如Linux中的`gettid()`)，需要使用`syscall()`函数进行调用，`syscall()`最初由BSD引入，Linux在`Linux Kernel 2.6.19`之后引入该函数。
-一般而言，系统调用是系统服务的直接入口点。一些库函数也会用到系统调用，但这些库函数**不是**系统入口点(典型的例子是C语言标准库中的`printf()`函数使用了系统调用`write()`)。
 使用系统调用会在**用户态**与**内核态**之间进行环境切换(内核发现`trap`之后进入内核态)，有较大开销。
+
+在Linux和BSD中，部分系统函数没有提供C库的封装(比如Linux中的`gettid()`)，需要使用`syscall()`函数进行调用，`syscall()`最初由BSD引入，Linux在`Linux Kernel 2.6.19`之后引入该函数。
+
+一般而言，系统调用是系统服务的直接入口点。一些库函数也会用到系统调用，但这些库函数**不是**系统入口点(典型的例子是C语言标准库中的`printf()`函数使用了系统调用`write()`)。
+
 `man`手册卷`2`中的函数皆为系统调用。
 
 ### 库函数
 **库函数**(`Library calls`)是编程语言的一部分，与操作系统无关，`Windows`系统中，例如`printf()`、`scanf()`等库函数依然可用，但Unix系统调用如`read()`、`write()`便不再存在。
+
 一些库函数内部会使用系统调用(如`printf()`)，在不同的操作系统中，库函数会使用对应操作系统的系统调用。
 辅助功能性库函数(如`memcpy()`、`atoi()`之类)是纯粹的用户态函数，不涉及系统调用，不会造成系统在用户态与内核态之间切换。
-`man`手册卷`3`中的函数皆为库函数。
+
+C标准库函数可在`man`手册卷`3`中查阅。
 
 
 
@@ -91,6 +97,92 @@ int main(void)
 ```
 当前的时间是：1点15分39秒。
 标准的时间输出：Wed Jul 29 01:15:39 2015
+```
+
+
+
+## 文件与基本IO
+Unix环境下基本的文件操作为`open()`、`read()`、`write()`、`close()`、`ioctl()`等。
+相关的头文件在`unistd.h`、`fcntl.h`、`sys/ioctl.h`之中。
+
+### 创建/打开一个文件
+创建/打开文件涉及的系统调用定义在文件`fcntl.h`中。
+
+```c
+int creat(const char *pathname, mode_t mode);
+int open(const char *pathname, int flags);
+int open(const char *pathname, int flags, mode_t mode);
+int openat(int dirfd, const char *pathname, int flags);
+int openat(int dirfd, const char *pathname, int flags, mode_t mode);
+```
+
+- `crate()`函数用于创建文件，`open()`函数既可用于创建文件(**flags**取`O_CREAT`)，也可用于打开文件，打开的对象也可以是**目录**。
+- 对于`create()`和`open()`函数，参数`pathname`代表文件所在路径绝对地址的字符数组首地址，参数`mode`代表创建的文件文件带有的默认权限，可以用逻辑或操作符连接以下参数：
+	- `S_IRUSR` 拥有者读权限
+	- `S_IWUSR` 拥有者写权限
+	- `S_IXUSR` 拥有者执行权限
+	- `S_IRGRP` 同组用户读权限
+	- `S_IWGRP` 同组用户写权限
+	- `S_IXGRP` 同组用户执行权限
+	- `S_IROTH` 其它用户读权限
+	- `S_IWOTH` 其它用户写权限
+	- `S_IXOTH` 其它用户执行权限
+- `open()`函数的`flags`参数表示文件打开时的参数，参数可取**多个**，以**逻辑或**操作符连接，常用的有：
+	- `O_RDONLY` 只读打开文件
+	- `O_WRONLY` 只写打开文件
+	- `O_RDWR` 读写打开文件
+	- `O_APPEND` 写入数据时在原文件的末尾追加数据，而不是清楚原有数据
+	- `O_CREAT | O_EXECL` 创建原先**不存在**的文件，若文件已经存在了，则调用**失败**
+- `openat()`函数作用与`open()`函数完全相同，但是`openat()`函数允许使用多种路径表示方式：
+	- `dirfd`文件描述符表示的路径为父目录，而`pathname`中包含的字符串为相对路径。
+	- `dirfd`取特殊值`AT_FDCWD`，则父目录为**当前路径**。
+	- `dirfd`取值**忽略**，`pathname`参数为**绝对路径**。
+
+以上函数在执行成功时返回新的文件描述符，失败时返回**-1**并置`errno`。
+
+### 读取文件中的内容
+使用`read()`函数读取文件，函数定义在`unistd.h`中。
+
+```c
+ssize_t read(int fd, void *buf, size_t count);
+```
+
+- `fd`参数为要读取的文件描述符。
+- `buf`参数为读取的内容的首地址。
+- `count`参数为设定读取的字节数。
+
+返回值为实际读取了的字节数。
+失败时返回`-1`。
+
+### 向文件中写入内容
+使用`write()`向文件中写入数据，函数定义在`unistd.h`中。
+
+```c
+ssize_t write(int fd, const void *buf, size_t count);
+```
+
+- `fd`参数为要写入的文件描述符。
+- `buf`参数为要写入内容的首地址。
+- `count`参数指定写入数据的长度。
+
+`buf`指向的内容中超过`count`长度的内容**不会**被写入。
+返回值为**实际写入内容的大小**。
+
+对于同一个文件描述符，连续进行读写操作，每一次函数调用都会在上一次结束的位置进行，因此想要重复读取某个文件的内容，需要创建新的文件描述符。
+同一个文件可以同时拥有多个文件描述符，且各个文件描述符之间的文件读取是相互独立的。
+
+### 标准输入/输出
+在Unix哲学中，秉承**一切皆文件**思想，因而，在终端中进行输入/输出与读写文件操作类似，使用`read()/write()`调用即可。
+
+**标准输入**对应的文件描述符为`0`，**标准输出**对应的文件描述符为`1`，**标准错误输出**对应的文件描述符为`2`，使用`read()/write()`调用对这些特殊的文件描述符进行读写操作即可实现**终端输入/输出**的效果。
+
+在头文件`unistd.h`中，分别为这3个特殊的文件描述符创建了宏定义：
+
+```c
+/* Standard file descriptors.  */
+#define	STDIN_FILENO	0	/* Standard input.  */
+#define	STDOUT_FILENO	1	/* Standard output.  */
+#define	STDERR_FILENO	2	/* Standard error output.  */
 ```
 
 
@@ -187,75 +279,6 @@ The stderror_back is 4.
 
 ```
 ERROR1
-```
-
-
-
-## 文件与基本IO
-Unix环境下基本的文件操作为`open()`、`read()`、`write()`、`close()`、`ioctl()`等。
-相关的头文件在`unistd.h`、`fcntl.h`、`sys/ioctl.h`之中。
-
-### 创建/打开一个文件
-创建/打开文件涉及的系统调用定义在文件`fcntl.h`中。
-
-```c
-int creat(const char *pathname, mode_t mode);
-int open(const char *pathname, int flags);
-int open(const char *pathname, int flags, mode_t mode);
-int openat(int dirfd, const char *pathname, int flags);
-int openat(int dirfd, const char *pathname, int flags, mode_t mode);
-```
-
-以上函数在执行成功时返回新的文件描述符，失败时返回**-1**并置`errno`。
-
-- `crate()`函数用于创建文件，`open()`函数既可用于创建文件(**flags**取`O_CREAT`)，也可用于打开文件，打开的对象也可以是**目录**。
-- 对于`create()`和`open()`函数，参数`pathname`代表文件所在路径绝对地址的字符数组首地址，参数`mode`代表创建的文件文件带有的默认权限，可以用逻辑或操作符连接以下参数：`S_IRUSR`、`S_IWUSR`、`S_IXUSR`、`S_IRGRP`、`S_IWGRP`、`S_IXGRP`、`S_IROTH`、`S_IWOTH`、`S_IXOTH`，分别代表**拥有者**、**同组用户**、**其他用户**的**读**、**写**、**执行**权限。
-- `open()`函数的`flags`参数表示文件打开时的参数，参数可取**多个**，以**逻辑或**操作符连接，常用的有`O_RDONLY`、`O_WRONLY`、`O_RDWR`，分别表示以**只读**、**只写**、**读写**的方式打开文件，不设置这些标志将不能够对文件进行读写操作。默认每个文件描述符首次写操作会清除已有的数据，保留原有文件数据需要使用`O_APPEND`标志以追加的方式写入数据；`flags`参数取`O_CREAT | O_EXECL`时创建一个原先**不存在**的文件，如果需要被创建的文件已经存在了，则创建**失败**。
-- `openat()`函数作用与`open()`函数完全相同，但是`openat()`函数允许使用多种路径表示方式；`dirfd`文件描述符表示的路径为父目录，而`pathname`中包含的字符串为相对路径；或是`dirfd`取特殊值`AT_FDCWD`，则父目录为**当前路径**；也可以像`open()`函数一样在`pathname`中写入**绝对路径**，但此时`dirfd`的取值会被**忽略**。
-
-### 读取文件中的内容
-使用`read()`函数读取文件，函数定义在`unistd.h`中。
-
-```c
-ssize_t read(int fd, void *buf, size_t count);
-```
-
-- `fd`参数为要读取的文件描述符。
-- `buf`参数为读取的内容的首地址。
-- `count`参数为设定读取的字节数。
-
-返回值为实际读取了的字节数。
-失败时返回`-1`。
-
-### 向文件中写入内容
-使用`write()`向文件中写入数据，函数定义在`unistd.h`中。
-
-```c
-ssize_t write(int fd, const void *buf, size_t count);
-```
-
-- `fd`参数为要写入的文件描述符。
-- `buf`参数为要写入内容的首地址。
-- `count`参数指定写入数据的长度。
-
-`buf`指向的内容中超过`count`长度的内容**不会**被写入。
-返回值为**实际写入内容的大小**。
-
-对于同一个文件描述符，连续进行读写操作，每一次函数调用都会在上一次结束的位置进行，因此想要重复读取某个文件的内容，需要创建新的文件描述符。
-同一个文件可以同时拥有多个文件描述符，且各个文件描述符之间的文件读取是相互独立的。
-
-### 标准输入/输出
-在Unix哲学中，秉承**一切皆文件**思想，因而，在终端中进行输入/输出与读写文件操作类似，使用`read()/write()`调用即可。
-
-**标准输入**对应的文件描述符为`0`，**标准输出**对应的文件描述符为`1`，**标准错误输出**对应的文件描述符为`2`，使用`read()/write()`调用对这些特殊的文件描述符进行读写操作即可实现**终端输入/输出**的效果。
-
-在头文件`unistd.h`中，分别为这3个特殊的文件描述符创建了宏定义：
-
-```c
-/* Standard file descriptors.  */
-#define	STDIN_FILENO	0	/* Standard input.  */
-#define	STDOUT_FILENO	1	/* Standard output.  */
-#define	STDERR_FILENO	2	/* Standard error output.  */
 ```
 
 
@@ -401,26 +424,26 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 在Unix中，进程具有以下概念：
 
 `PID`(进程ID)
->	PID是一个用于标志进程的非负整数，具有唯一性，且无法被用户修改。
->	PID为`1`的进程为`init`进程。
->	获取进程ID使用`getpid()`函数：
+> PID是一个用于标志进程的非负整数，具有唯一性，且无法被用户修改。
+> PID为`1`的进程为`init`进程。
+> 获取进程ID使用`getpid()`函数：
 
 >	```c
 >	pid_t getpid(void);
 >	```
 
 `PPID`(父进程ID)
->	除了`init`进程外，其它进程都由先前存在的进程创建。
->	创建进程的进程称为**父进程**，被创建的进程称为**子进程**。
->	获取父进程ID使用`getppid()`函数：
+> 除了`init`进程外，其它进程都由先前存在的进程创建。
+> 创建进程的进程称为**父进程**，被创建的进程称为**子进程**。
+> 获取父进程ID使用`getppid()`函数：
 
 >	```c
 >	pid_t getppid(void);
 >	```
 
 `PGID`(进程组ID)
->	**进程组**是一个或多个进程的集合，PGID等于组长进程的PID。
->	进程组相关函数：
+> **进程组**是一个或多个进程的集合，PGID等于组长进程的PID。
+> 进程组相关函数：
 
 >	```c
 >	/*
@@ -436,31 +459,31 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 >	```
 
 `SID`(会话ID)
->	**会话**(`Session`)是一个或多个进程组的集合。
->	获取SID使用`getsid()`函数：
+> **会话**(`Session`)是一个或多个进程组的集合。
+> 获取SID使用`getsid()`函数：
 
 >	```c
 >	// 获取指定PID进程的SID，pid参数取0时获取当前进程的SID
 >	pid_t getsid(pid_t pid);
 >	```
 
->	创建会话使用`setsid()`函数：
+> 创建会话使用`setsid()`函数：
 
 >	```c
 >	pid_t setsid(void);
 >	```
 
->	关于`setsid()`函数，需要注意：
+> 关于`setsid()`函数，需要注意：
 
->>	- 如果调用进程不是进程组的组长，则创建新的会话。
->>	- 调用进程将成为新会话中的会话首进程(Session Leader)。
->>	- 调用进程将成为新会话的新进程组中的组长进程。
->>	- 新的会话ID、进程组ID都将等于调用进程的PID。
->>	- 新创建的会话将没有控制终端，无论原有会话是否有控制终端。
+>	- 如果调用进程不是进程组的组长，则创建新的会话。
+>	- 调用进程将成为新会话中的会话首进程(Session Leader)。
+>	- 调用进程将成为新会话的新进程组中的组长进程。
+>	- 新的会话ID、进程组ID都将等于调用进程的PID。
+>	- 新创建的会话将没有控制终端，无论原有会话是否有控制终端。
 
 `Control Terminal`(控制终端)
->	控制终端用于与系统交互，在用户登陆时系统会自动为用户分配控制终端。
->	控制终端相关函数：
+> 控制终端用于与系统交互，在用户登陆时系统会自动为用户分配控制终端。
+> 控制终端相关函数：
 
 >	```c
 >	// 返回指定文件描述符的控制终端的前台进程组ID
@@ -469,73 +492,65 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 >	int tcsetpgrp(int fd, pid_t pgrp);
 >	```
 
->	控制终端与进程组、会话是密切相关的概念：
+> 控制终端与进程组、会话是密切相关的概念：
 
->>	- 会话可以拥有控制终端。
->>	- 建立与控制终端连接的会话首进程被称为控制进程。
->>	- 带有控制终端的会话拥有前台进程组，其余进程组为后台进程组。
->>	- 在控制终端中输入的中断键(`Ctrl + C`)、退出键会将中断信号(`SIGINT`)、退出信号(`SIGQUIT`)发送给前台进程组中的所有进程。
+>	- 会话可以拥有控制终端。
+>	- 建立与控制终端连接的会话首进程被称为控制进程。
+>	- 带有控制终端的会话拥有前台进程组，其余进程组为后台进程组。
+>	- 在控制终端中输入的中断键(`Ctrl + C`)、退出键会将中断信号(`SIGINT`)、退出信号(`SIGQUIT`)发送给前台进程组中的所有进程。
 
 ### 进程控制函数
 常见的进程控制函数如下：
 
-```c
-#include <unistd.h>
+终止进程
+> 使用`exit()`系列函数退出进程：
 
-// 让当前线程睡眠seconds秒
-unsigned int sleep(unsigned in seconds);
+>	```c
+>	void exit(int status);
+>	void _exit(int status);
+>	void _Exit(int status);
+>	int atexit(void (*function)(void));
+>	```
 
-/*
-	终止程序，立即进入内核(不会调用atexit注册的清理函数)。
-	参数status为程序退出码，一般可以设为0，有特殊用途时可以设为其它数值。
-*/
-void _exit(int status);
+> `exit()/_exit()/_Exit()`之间的区别：
 
+>	- `exit()`为C标准库函数，是最常见进程退出函数，进程结束前会进行一些清理操作：
+>		0. 调用`atexit()`注册的清理函数。
+>		0. 刷新输出流，关闭已打开的流。
+>		0. 删除通过标准I/O函数`tmpfile()`创建的临时文件。
+>	- `_exit()`为系统调用，函数定义在`unistd.h`中，使用`_exit()`会立即结束进程，并且不会执行清理操作。
+>	- `_Exit()`为C标准库函数，定义在`stdlib.h`中，作用等价于系统调用`_exit()`。
 
-#include <stdio.h>
+创建进程
+> C语言标准库中提供了`system()`函数用于创建进程：
 
-// 创建进程
-int system(const char *string);
+>	```c
+>	int system(const char *string);
+>	```
 
-/*
-	终止程序，属于C标准库。
-	关闭程序前会执行一些清理处理：
-		调用atexit注册的清理函数；
-		并刷新输出流，关闭已打开的流；
-		删除通过标准I/O函数tmpfile创建的临时文件。
-*/
-void exit(int status);
+> `system()`函数的特点：
 
-// 终止程序，属于C标准库。等价于系统调用中的_exit()，立即进入内核
-void _Exit(int status);
-
-// 注册终止处理程序function，在exit()时将自动调用，成功时返回0，失败返回非0
-int atexit(void (*function)(void));
-```
-
-标准库中`system()`函数的特点：
-
-- `system()`函数运行以字符串参数的形式传递给它的命令，并等待该命令的完成(效果类似于在Shell中使用对应命令)。
-- 与`exec()`函数不同，`system()`函数会新建一个Shell来执行命令。
-- 如果无法启动Shell来运行这个命令，`system()`函数将返回错误代码`127`；其它错误返回`-1`，否则`system()`函数将返回该命令的退出码(一般命令都是`0`)。
-- 在实际的Linux开发中，`system()`函数往往是很少被使用的，使用`system()`函数必须启动一个shell来执行需要的指令，**效率不高**。
+>	- `system()`函数运行以字符串参数的形式传递给它的命令，并等待该命令的完成(效果类似于在Shell中使用对应命令)。
+>	- 与`exec()`函数不同，`system()`函数会新建一个Shell来执行命令。
+>	- 如果无法启动Shell来运行这个命令，`system()`函数将返回错误代码`127`；其它错误返回`-1`，否则`system()`函数将返回该命令的退出码(一般命令都是`0`)。
+>	- 在实际的Linux开发中，`system()`函数往往是很少被使用的，使用`system()`函数必须启动一个shell来执行需要的指令，**效率不高**。
 
 在Unix环境下的实际开发中，`fork() + exec()`是最常用的进程创建方式。
 
 *fork()* 函数
->	在Unix环境下，`fork()`系统调用是最常见的创建进程方式，函数定义在`unistd.h`中，函数原型为：
+> 在Unix环境下，`fork()`系统调用是最常见的创建进程方式，函数定义在`unistd.h`中，函数原型为：
 
 >	```c
 >	pid_t fork(void);
 >	```
 
->>	- `fork()`函数的作用是，为当前进程创建一个相同的**拷贝**，原进程为**父进程**，新进程为**子进程**。
->>	- 原进程的`fork()`函数返回子进程的`pid`，新进程的`fork()`函数返回`0`。
->>	- 新进程与原进程有着相同的**运行状态**和**代码**，即从`fork()`函数开始(包括`fork()`函数本身)接下来的代码原进程和新进程将会各执行一遍。
->>	- 新的进程有**独立**的数据空间、环境、和文件描述符(父进程中已经打开的文件描述符在子进程中依然会存在)，子进程不继承父进程的文件锁，父进程中未处理的信号集在子进程中被置为空集。
->>	- 多进程并行执行时，各个进程是**异步乱序**执行的，因此不能确定各个进程各段代码的执行先后顺序，所以**不要**尝试编写依赖于其它进程执行结果的代码。
+>	- `fork()`函数的作用是，为当前进程创建一个相同的**拷贝**，原进程为**父进程**，新进程为**子进程**。
+>	- 原进程的`fork()`函数返回子进程的`pid`，新进程的`fork()`函数返回`0`。
+>	- 新进程与原进程有着相同的**运行状态**和**代码**，即从`fork()`函数开始(包括`fork()`函数本身)接下来的代码原进程和新进程将会各执行一遍。
+>	- 新的进程有**独立**的数据空间、环境、和文件描述符(父进程中已经打开的文件描述符在子进程中依然会存在)，子进程不继承父进程的文件锁，父进程中未处理的信号集在子进程中被置为空集。
+>	- 多进程并行执行时，各个进程是**异步乱序**执行的，因此不能确定各个进程各段代码的执行先后顺序，所以**不要**尝试编写依赖于其它进程执行结果的代码。
 
->	实例代码：
+> 实例代码：
 
 >	```c
 >	#include <stdlib.h>		//包含system()系统调用
@@ -577,7 +592,7 @@ int atexit(void (*function)(void));
 >	}
 >	```
 
->	运行结果：
+> 运行结果：
 
 >	```
 >	dainslef
@@ -597,17 +612,17 @@ int atexit(void (*function)(void));
 >	End!
 >	```
 
->	由结果可知，`fork()`函数之前的`system("whoami")`函数只执行了一遍，因此shell指令`whoami`也只执行一遍。但在`fork()`函数之后的代码都执行了两遍，分别来自父进程和子进程的`printf()`函数向屏幕打印了两次`End!`。
->	由`system("ps")`函数中执行的shell指令`ps`向屏幕中输出的结果可以看出，父进程的`ppid`是启动这个进程的shell的`pid`，而**子进程**的`ppid`就是**父进程**的`pid`。
+> 由结果可知，`fork()`函数之前的`system("whoami")`函数只执行了一遍，因此shell指令`whoami`也只执行一遍。但在`fork()`函数之后的代码都执行了两遍，分别来自父进程和子进程的`printf()`函数向屏幕打印了两次`End!`。
+> 由`system("ps")`函数中执行的shell指令`ps`向屏幕中输出的结果可以看出，父进程的`ppid`是启动这个进程的shell的`pid`，而**子进程**的`ppid`就是**父进程**的`pid`。
 
 *vfork()* 函数
->	`vfork()`作用与`fork()`类似，函数定义在`unistd.h`中，如下所示：
+> `vfork()`作用与`fork()`类似，函数定义在`unistd.h`中，如下所示：
 
 >	```c
 >	pid_t vfork(void);
 >	```
 
->	相比`fork()`调用，`vfork()`有以下不同之处：
+> 相比`fork()`调用，`vfork()`有以下不同之处：
 
 >	- `fork()`子进程拷贝父进程中的数据段和代码段，`vfork()`中子进程与父进程共享数据段。
 >	- `fork()`调用之后父子进程执行顺序是**随机**的，`vfork()`中子进程在调用`exec()`或`exit()`之前与父进程数据共享，而父进程在子进程调用了`exec()`或`exit()`之前会一直**阻塞**。
@@ -615,7 +630,7 @@ int atexit(void (*function)(void));
 > 在Linux中，`fork()`与`vfork()`最终的内部实现都使用`do_fork()`。
 
 *exec()* 函数
->	`exec()`系统调用，由一系列的相关函数组成，函数定义在`unistd.h`中，函数原型为：
+> `exec()`系统调用，由一系列的相关函数组成，函数定义在`unistd.h`中，函数原型为：
 
 >	```c
 >	extern char **environ;
@@ -628,14 +643,15 @@ int atexit(void (*function)(void));
 >	int fexecve(int fd, char *const argv[], char *const envp[]);
 >	```
 
->>	- `exec()`函数为**系统调用**，执行后，会将当前的进程**完全替换**为执行新程序的进程(即这个进程`exec()`调用成功之后的代码都不再运行)，但`PID`不变，`exec()`系统调用比`system()`函数要**高效**，`exec()`与`fork()`搭配是Unix系统中最**常用**的系统进程创建组合。
->>	- 通常`exec()`不会返回，除非发生了错误。出错时，`exec()`返回`-1`并且置`errno`，同时继续执行余下的代码。
->>	- 在`exec()`函数组中，只有`execve()`函数是真正的系统调用，其它的几个函数都是`execve()`封装而成的库函数。
->>	- 参数`path`为绝对路径，`file`为命令名称。
->>	- `execl()`、`execlp()`、`execle()`三个函数接收的参数个数是可变的，参数以一个空指针结束(`(char*)0`或`NULL`)，用多个字符数组`*arg`来传递要执行的程序的参数。
->>	- `execv()`、`execp()`、`execve()`等函数参数个数是固定的，将要传递给要执行的程序的参数放在二维字符数组`*argv[]`中(对应main函数参数中的`*argv[]`)，而二维字符数组`*envp[]`中保存`exec()`函数要运行的程序的环境变量无论是传递给被执行程序的参数字符数组`*argv[]`或是环境变量字符数组`*envp[]`都要以一个空指针结尾。
+>	- `exec()`函数为**系统调用**，执行后，会将当前的进程**完全替换**为执行新程序的进程(即这个进程`exec()`调用成功之后的代码都不再运行)，但`PID`不变。
+>	- `exec()`系统调用比`system()`函数要**高效**，`exec()`与`fork()`搭配是Unix系统中最**常用**的系统进程创建组合。
+>	- 通常`exec()`不会返回，除非发生了错误。出错时，`exec()`返回`-1`并且置`errno`，同时继续执行余下的代码。
+>	- 在`exec()`函数组中，只有`execve()`函数是真正的系统调用，其它的几个函数都是`execve()`封装而成的库函数。
+>	- 参数`path`为绝对路径，`file`为命令名称。
+>	- `execl()`、`execlp()`、`execle()`三个函数接收的参数个数是可变的，参数以一个空指针结束(`(char*)0`或`NULL`)，用多个字符数组`*arg`来传递要执行的程序的参数。
+>	- `execv()`、`execp()`、`execve()`等函数参数个数是固定的，将要传递给要执行的程序的参数放在二维字符数组`*argv[]`中(对应main函数参数中的`*argv[]`)，而二维字符数组`*envp[]`中保存`exec()`函数要运行的程序的环境变量无论是传递给被执行程序的参数字符数组`*argv[]`或是环境变量字符数组`*envp[]`都要以一个空指针结尾。
 
->	实例代码：
+> 实例代码：
 
 >	```c
 >	#include <stdio.h>
@@ -697,8 +713,7 @@ pid_t waitpid(pid_t pid, int *status, int options);
 ```c
 /*
 	Returns true if the child terminated normally,
-	that is, by calling exit(3) or _exit(2),
-	or by returning from main().
+	that is, by calling exit(3) or _exit(2), or by returning from main().
 */
 WIFEXITED(status);
 
@@ -723,9 +738,8 @@ WIFSIGNALED(status);
 	This macro should be employed only if WIFSIGNALED returned true.
 */
 WTERMSIG(status);
+...
 ```
-
-...还有很多相关宏在手册中。
 
 实例代码：
 
@@ -792,7 +806,7 @@ Parent process END!
 >	子进程虽然脱离了父进程，但仍然处于父进程的进程组中和会话中，与控制终端的联系依然存在。
 0. 调用`setsid()`函数，为子进程创建新的会话。
 >	使用了`setsid()`函数，子进程脱离了原先父进程的进程组与会话，并且不再与原先的控制终端相关联。
->	子进程在创建了会话之后成为了会话和新进程组的首进程，依然有可能被系统分配控制终端。
+>	子进程在创建了会话之后成为了会话和新进程组的**首进程**，依然有可能被系统分配控制终端。
 0. 再次调用`fork()`函数，再次退出**父进程**。
 >	再次`fork()`退出父进程之后，新的子进程不再是进程组和会话的首进程，不再有被分配控制终端的可能。
 
@@ -805,35 +819,34 @@ Parent process END!
 #include <unistd.h>
 
 // 打印进程的PID、PPID、SID、PGID、控制终端等信息
-void print_process_info()
+void print_process_info(char* msg)
 {
 	char cmd[50] = { 0 };
 	sprintf(cmd, "ps --pid %d -o cmd,stat,pid,ppid,pgid,sid,tpgid,tty", getpid());
+
+	printf("%s:\n", msg);
 	system(cmd);
 	printf("\n");
 }
 
 void create_daemon()
 {
-	print_process_info();
+	print_process_info("Before fork");
 
 	// fork()并退出父进程
 	if (fork())
 		_exit(0);
-
-	print_process_info();
+	print_process_info("After fork once");
 
 	// 若正常fork()，则此时父进程已退出，子进程由init系统接管
 	// 使用setsid()创建新的会话(New Session)，同时使当前进程为新会话的进程组组长
 	setsid();
-
-	print_process_info();
+	print_process_info("After setsid");
 
 	// fork()并退出子进程
 	if (fork())
 		_exit(0);
-
-	print_process_info();
+	print_process_info("After fork twice");
 
 	pause();
 }
@@ -848,17 +861,21 @@ int main(int argc, char *argv[])
 运行结果：(GCC 6.1.1 && ArchLinux x64)
 
 ```
+Before fork:
 CMD                         STAT   PID  PPID  PGID   SID TPGID TT
-./a.out                     S+   10488 11796 10488 11796 10488 pts/4
+./a.out                     S+   10091  1918 10091  1918 10091 pts/1
 
+After fork once:
 CMD                         STAT   PID  PPID  PGID   SID TPGID TT
-./a.out                     S    10490   614 10488 11796 11796 pts/4
+./a.out                     S    10093   613 10091  1918  1918 pts/1
 
+After setsid:
 CMD                         STAT   PID  PPID  PGID   SID TPGID TT
-./a.out                     Ss   10490   614 10490 10490    -1 ?
+./a.out                     Ss   10093   613 10093 10093    -1 ?
 
+After fork twice:
 CMD                         STAT   PID  PPID  PGID   SID TPGID TT
-./a.out                     S    10500   614 10490 10490    -1 ?
+./a.out                     S    10103   613 10093 10093    -1 ?
 ```
 
 
@@ -869,35 +886,38 @@ CMD                         STAT   PID  PPID  PGID   SID TPGID TT
 使用`fork()`时，子进程会继承父进程注册的信号处理函数。
 常用的信号有`SIGINT`(中断信号，用`CTRL + C`触发)，`SIGQUIT`(退出信号)。
 
-### *signal()* 函数
-可以用`signal()`函数绑定指定信号的处理函数，函数原型为：
+### 处理信号
+使用`signal()`或`sigaction()`函数将需要处理的信号与信号处理函数的函数指针绑定。
 
-```c
-void* (*signal(int sig, void (*func)(int)))(int);
-```
+*signal()* 函数
+> `signal()`函数是传统Unix的信号处理方式。函数原型为：
 
-- `sig`参数为要处理的信号。
-- `func`参数为要绑定的信号处理函数。
+>	```c
+>	void* (*signal(int sig, void (*func)(int)))(int);
+>	```
 
-`signal()`函数是传统Unix的信号处理方式。
-对于信号处理函数`func()`，有两个特殊的值`SIG_INT`和`SIG_DFL`，将其绑定到一个信号上则表示**忽略信号**或是将信号的处理方式恢复为**默认动作**。
+>	- `sig`参数为要处理的信号。
+>	- `func`参数为要绑定的信号处理函数。
 
-### *sigaction()* 函数
-现代Unix中，使用更加健壮的信号编程接口`sigaction()`函数，函数的原型为：
+> 对于信号处理函数`func()`，有两个特殊的值`SIG_INT`和`SIG_DFL`，将其绑定到一个信号上则表示**忽略信号**或是将信号的处理方式恢复为**默认动作**。
 
-```c
-int sigaction(int sig, const struct sigaction *act, struct sigaction *oact);
-```
+*sigaction()* 函数
+> 现代Unix中，使用更加健壮的信号编程接口`sigaction()`函数，函数的原型为：
 
-其中，结构体`sigaction`至少包含这几个成员：
+>	```c
+>	int sigaction(int sig, const struct sigaction *act, struct sigaction *oact);
+>	```
 
-```c
-void (*)(int) sa_handler;		//指向信号处理函数的函数指针
-sigset_t sa_mask;				//屏蔽信号字，可以使用sigemptyset(*sigset_t)函数将信号集置空
-int sa_flags;					//设置信号处理选项，没有特别要求可以设为NULL
-```
+>	- 参数`act`指向包含信号处理函数的结构体。
+>	- 参数`oact`会被写入原先的信号处理结构体(可以取`NULL`)。
 
-结构体`sigaction`指针`act`指向包含信号处理函数的结构体，而指针`oact`用于把原先的动作写到指向的位置(可以取`NULL`)。
+> 其中，结构体`sigaction`至少包含这几个成员：
+
+>	```c
+>	void (*)(int) sa_handler;		//指向信号处理函数的函数指针
+>	sigset_t sa_mask;				//屏蔽信号字，可以使用sigemptyset(*sigset_t)函数将信号集置空
+>	int sa_flags;					//设置信号处理选项，没有特别要求可以设为NULL
+>	```
 
 ### 发送信号
 使用`kill()`函数可以向**指定进程**发送信号，使用`raise()`可以向**当前进程**发送信号。函数定义在`signal.h`中，如下所示：
@@ -925,7 +945,7 @@ int pthread_kill(pthread_t thread, int sig);
 函数成功返回`0`，失败时返回错误代码。
 
 ### 信号处理函数的触发
-信号机制类似**软件中断**，信号处理函数**不会**运行在独立的线程，而是**中断**现有的代码运行信号处理函数。
+信号机制实质上是**软件中断**，信号处理函数**不会**运行在独立的线程，而是**中断**现有的代码运行信号处理函数。
 一个进程触发了信号处理函数，则在信号处理函数结束返回之后才会继续运行先前的代码。
 
 如下代码所示：
@@ -1051,46 +1071,46 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 `pause()`、`sleep()`等函数在多线程情况下的触发机制。
 
 *pause()* 函数
->	使用`pause()`可以挂起线程，直到当前进程捕捉到了一个**信号**，函数定义在`unistd.h`中，如下所示：
+> 使用`pause()`可以挂起线程，直到当前进程捕捉到了一个**信号**，函数定义在`unistd.h`中，如下所示：
 
 >	```c
 >	int pause(void);
 >	```
 
->	只有进程捕获了信号，执行了信号处理程序并从其返回时，`pause()`函数才返回。
->	`pause()`函数**不存在**成功返回值，当进程捕捉到信号并从信号处理函数返回时，`pause()`返回`-1`，并置`errno`为`ENTER`。
+> 只有进程捕获了信号，执行了信号处理程序并从其返回时，`pause()`函数才返回。
+> `pause()`函数**不存在**成功返回值，当进程捕捉到信号并从信号处理函数返回时，`pause()`返回`-1`，并置`errno`为`ENTER`。
 
->	在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，只有**主线程**的`pause()`会在信号处理函数结束后返回，在其它线程中，一旦使用`pause()`即意味着除非**主动结束**该线程(例如使用`pthread_cancel()`)，否则使用了`pause()`线程将一直处于挂起状态。
+> 在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，由于信号优先级的问题，只有**主线程**的`pause()`会在信号处理函数结束后返回。在主线程以外的线程中，除非使用`pthread_kill()`发送消息到指定线程，否则无法触发`pause()`函数。
 
 *sleep()* 函数
->	使用`sleep()`可以**挂起**线程(阻塞)，函数定义在`unistd.h`中，函数原型为：
+> 使用`sleep()`可以**挂起**线程(阻塞)，函数定义在`unistd.h`中，函数原型为：
 
 >	```c
 >	unsigned int sleep(unsigned int seconds);
 >	```
 
->>	- `seconds`参数为需要休眠的时间，单位为**秒**。
+>	- `seconds`参数为需要休眠的时间，单位为**秒**。
 
->	若线程在设定的时间中正常休眠，返回值为`0`。
->	若在挂起期间进程捕获到一个**信号**，并从信号处理函数返回，则无论休眠时间是否满足，休眠不再继续，`sleep()`立即函数结束，返回值为**尚未休眠**的时间。
+> 若线程在设定的时间中正常休眠，返回值为`0`。
+> 若在挂起期间进程捕获到一个**信号**，并从信号处理函数返回，则无论休眠时间是否满足，休眠不再继续，`sleep()`立即函数结束，返回值为**尚未休眠**的时间。
 
->	在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，捕获信号，并从信号处理函数返回，只会结束进程**主线程**中正在运行的`sleep()`函数，对其它线程中的`sleep()`无影响。
+> 在**多线程**环境中，在未设置`pthread_sigmask()`的情况下，捕获信号，并从信号处理函数返回，只会结束进程**主线程**中正在运行的`sleep()`函数，对其它线程中的`sleep()`无影响。
 
->	在`Solaris`中`sleep()`内部实现采用`alarm()`，在`BSD`和`Linux`中`sleep()`由`nanosleep()`实现，与信号无关。
+> 在`Solaris`中`sleep()`内部实现采用`alarm()`，在`BSD`和`Linux`中`sleep()`由`nanosleep()`实现，与信号无关。
 
 *alarm()* 函数
 
->	使用`alarm()`可以使当前进程在指定时间之后收到`SIGALRM`信号，函数定义在`unistd.h`中，如下所示：
+> 使用`alarm()`可以使当前进程在指定时间之后收到`SIGALRM`信号，函数定义在`unistd.h`中，如下所示：
 
 >	```c
 >	unsigned alarm(unsigned seconds);
 >	```
 
->>	- `seconds`参数为发送信号的延迟时间，取`0`时表示清除原有`alarm()`设置。
+>	- `seconds`参数为发送信号的延迟时间，取`0`时表示清除原有`alarm()`设置。
 
->	一个进程同时只能存在一个`alarm()`，调用`alarm()`时若之前已经设置了`alarm()`且尚未触发，则返回上一个`alarm()`的剩余等待时间，同时以当前`alarm()`的设置**替换**上一个。
+> 一个进程同时只能存在一个`alarm()`，调用`alarm()`时若之前已经设置了`alarm()`且尚未触发，则返回上一个`alarm()`的剩余等待时间，同时以当前`alarm()`的设置**替换**上一个。
 
->	默认情况下，若没有设置`SIGALRM`的信号处理函数，系统收到`SIGALRM`会终止进程。
+> 默认情况下，若没有设置`SIGALRM`的信号处理函数，系统收到`SIGALRM`会终止进程。
 
 ### 多线程信号处理
 在多线程的环境下，信号处理需要考虑更多的情况：
@@ -1104,7 +1124,7 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 多线程环境下的信号处理一般有两种方式：
 
 在指定线程中处理信号
->	除目标线程外，其它线程全部使用`pthread_sigmask()`在线程中屏蔽指定信号，让信号只能被**指定线程**处理。如下所示：
+> 除目标线程外，其它线程全部使用`pthread_sigmask()`在线程中屏蔽指定信号，让信号只能被**指定线程**处理。如下所示：
 
 >	```c
 >	#include <stdio.h>
@@ -1152,24 +1172,24 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 > 默认情况下，`SIGINT`信号会被主线程处理(不会中断子线程中的`sleep()`)，但通过设置屏蔽信号，让`SIGINT`被主线程屏蔽而由子线程处理，使得`SIGINT`能够中断子线程的`sleep()`函数，让`sleep()`提前结束。
 
 以同步的方式处理异步信号
->	使用`sigwait()`函数等待指定信号。`sigwait()`函数定义在`signal.h`中：
+> 使用`sigwait()`函数等待指定信号。`sigwait()`函数定义在`signal.h`中：
 
 >	```c
 >	int sigwait(const sigset_t *restrict set, int *restrict sig);
 >	```
 
->>	- `set`参数为要等待的信号集合。
->>	- `sig`参数指向等待到的信号值，函数会将等待到的信号值写入传入的地址中。
+>	- `set`参数为要等待的信号集合。
+>	- `sig`参数指向等待到的信号值，函数会将等待到的信号值写入传入的地址中。
 
->	运行`sigwait()`会阻塞所处线程，直到所处线程接受到`set`信号集中的信号。
->	函数执行成功返回`0`，失败时返回错误代码。
->	使用`sigwait()`需要保证等待的信号至少被`sigwait()`**所处线程**之外的线程屏蔽。
+> 运行`sigwait()`会阻塞所处线程，直到所处线程接受到`set`信号集中的信号。
+> 函数执行成功返回`0`，失败时返回错误代码。
+> 使用`sigwait()`需要保证等待的信号至少被`sigwait()`**所处线程**之外的线程屏蔽。
 
->	对于`sigwait()`所处的线程，在`OS X`和`Linux`等Unix系统上，`sigwait()`的优先级比默认的信号处理行为以及绑定的信号处理函数要高，接受到信号时，优先结束`sigwait()`的阻塞而不是执行设定/默认的信号处理行为。
+> 对于`sigwait()`所处的线程，在`OS X`和`Linux`等Unix系统上，`sigwait()`的优先级比默认的信号处理行为以及绑定的信号处理函数要高，接受到信号时，优先结束`sigwait()`的阻塞而不是执行设定/默认的信号处理行为。
 
->	在**多个**`sigwait()`共存的情况下，系统会**随机**选取一个线程中的`sigwait()`进行响应。
+> 在**多个**`sigwait()`共存的情况下，系统会**随机**选取一个线程中的`sigwait()`进行响应。
 
->	实例如下所示：
+> 实例如下所示：
 
 >	```c
 >	#include <stdio.h>
@@ -1231,7 +1251,7 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 >	}
 >	```
 
->	运行结果：(OS X 10.11.3)
+> 运行结果：(OS X 10.11.3)
 
 >	```
 >	Run thread 1!
@@ -1242,11 +1262,11 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 >	Thread 1 receive signal SIGINT.
 >	```
 
->	多个`sigwait()`存在时，选取的处理线程是随机的，运行结果也可能是1号线程先响应信号。
+> 多个`sigwait()`存在时，选取的处理线程是随机的，运行结果也可能是1号线程先响应信号。
 
 
 
-## POSIX线程(pthread)
+## POSIX 线程(pthread)
 在Unix系统中，多线程开发相关函数定义在头文件`pthread.h`中。
 在`Linux`中编译使用了线程库的程序时，需要链接`pthread`库，编译指令如下：
 
@@ -1594,7 +1614,7 @@ key_t ftok(const char *pathname, int proj_id);
 
 
 
-## SystemV共享内存
+## SystemV 共享内存
 共享内存是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
 
 相比信号量等IPC机制，共享内存有着最高的效率，因为共享内存不涉及复制操作。
@@ -1659,7 +1679,7 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 
 
 
-## SystemV信号量(Semaphore)
+## SystemV 信号量(Semaphore)
 信号量是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
 信号量用于控制进程对资源的访问，但信号量也可以用于线程。
 在进程开发中，常用的信号量函数定义在`sys/sem.h`文件中。
@@ -1841,7 +1861,7 @@ int main(void)
 
 
 
-## SystemV消息队列(XSI Message Queue)
+## SystemV 消息队列(XSI Message Queue)
 消息队列是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
 以下描述引用自`<<Unix网络编程 卷2>>`：
 
@@ -2148,7 +2168,7 @@ msgrcv: No message of desired type
 
 
 
-## POSIX消息队列
+## POSIX 消息队列
 POSIX消息队列相关函数定义在`mqueue.h`头文件中。
 使用POSIX消息队列，编译时需要链接`librt`库。
 
@@ -2536,6 +2556,7 @@ int FD_ISSET(fd, fd_set *fdset);
 - 使用`FD_ISSET`检测描述符，若`fd`参数在描述符集合参数`fdset`中，返回非零值，否则返回`0`。
 
 函数执行成功返回变化的描述符数量，监视的描述符无变化则返回`0`，调用失败返回`-1`。
+
 基本的`select()`函数代码框架为(以检测文件描述符可读为例)：
 
 ```c
@@ -2579,11 +2600,12 @@ while(1)
 }
 ```
 
-使用 *select()* 的一些注意事项
->	- `select()`处于阻塞状态时会被信号中断(当`select()`所处线程是信号处理线程时)。
->	- 每次调用`select()`前都需要重设描述符集合(执行`FD_ZERO`和`FD_SET`宏)。
->	- `timeval`结构体会在`select()`运行时被修改，因此，在需要设置超时时间的情况下，循环中每次调用`select()`之前都需要重新设置`timeval`结构体。
->	- 对于**普通文件**描述符，无论**读、写、异常状态**，都是**始终准备好**的，因此在监控的描述符中如果存在**普通文件**，无论`timeout`参数取何值，`select()`都将**立即返回**。
+使用 *select()* 的一些注意事项：
+
+- `select()`处于阻塞状态时会被信号中断(当`select()`所处线程是信号处理线程时)。
+- 每次调用`select()`前都需要重设描述符集合(执行`FD_ZERO`和`FD_SET`宏)。
+- `timeval`结构体会在`select()`运行时被修改，因此，在需要设置超时时间的情况下，循环中每次调用`select()`之前都需要重新设置`timeval`结构体。
+- 对于**普通文件**描述符，无论**读、写、异常状态**，都是**始终准备好**的，因此在监控的描述符中如果存在**普通文件**，无论`timeout`参数取何值，`select()`都将**立即返回**。
 
 ### *pselect()* 调用
 `pselect()`函数由**POSIX**定义，是`select()`的完善版本，在早期的Unix中并不存在。
@@ -2603,13 +2625,13 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_se
 信号集合参数`sigmask`使用前需要两个步骤：
 
 0. 首先使用`sigemptyset()`函数清空信号集合：
-	```c
-	int sigemptyset(sigset_t *set);
-	```
+```c
+int sigemptyset(sigset_t *set);
+```
 0. 之后使用`sigaddset()`向清空后的信号集合中添加信号：
-	```c
-	int sigaddset(sigset_t *set, int signo);
-	```
+```c
+int sigaddset(sigset_t *set, int signo);
+```
 
 信号集合只需要设置一次，就可以在之后的`pselect()`中一直使用。
 
@@ -2767,7 +2789,7 @@ int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 函数执行成功返回`0`，执行失败返回`-1`并置`errno`。
 
 *epoll_event* 结构
->	`event`参数的类型`epoll_event`结构体定义如下：
+> `event`参数的类型`epoll_event`结构体定义如下：
 
 >	```c
 >	struct epoll_event {
@@ -2776,16 +2798,16 @@ int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 >	};
 >	```
 
->	其中，`events`成员为文件描述符触发的条件，是一组标志，使用逻辑或操作符`|`相连，常用的有：
+> 其中，`events`成员为文件描述符触发的条件，是一组标志，使用逻辑或操作符`|`相连，常用的有：
 
->>	- `EPOLLIN` 描述符**可读**
->>	- `EPOLLOUT` 描述符**可写**
->>	- `EPOLLPRI` 描述符有紧急的数据可读。
->>	- `EPOLLET` `Edge Triggered`(ET，边缘触发)模式，不设置此标志时默认为`Level Triggered`(LT，水平触发)
->>	- `EPOLLONESHOT` 只监听**一次**事件
+>	- `EPOLLIN` 描述符**可读**
+>	- `EPOLLOUT` 描述符**可写**
+>	- `EPOLLPRI` 描述符有紧急的数据可读
+>	- `EPOLLET` `Edge Triggered`(ET，边缘触发)模式，不设置此标志时默认为`Level Triggered`(LT，水平触发)
+>	- `EPOLLONESHOT` 只监听**一次**事件
 
 *epoll_data_t* 类型
->	`epoll_event`结构体成员`data`的类型`epoll_data_t`联合体定义如下：
+> `epoll_event`结构体成员`data`的类型`epoll_data_t`联合体定义如下：
 
 >	```c
 >	typedef union epoll_data {
@@ -2796,7 +2818,7 @@ int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 >	} epoll_data_t;
 >	```
 
->	`data`用来存放事件的对应数据。
+> `data`用来存放事件的对应数据。
 
 ### *epoll_wait()* 函数
 完整监听描述符的设置之后，使用`epoll_wait()`函数等待事件触发：
