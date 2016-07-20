@@ -1,21 +1,24 @@
 [TOC]
 
-##Java中的集合类型
-与常见的编程语言相同，Java中的常见的**集合类型**为`List``Set``Map`。
-`List`特点：元素**有序**，元素**可重复**。
-`Map`特点：元素按键值对存储，**无序**。
-`Set`特点：元素**无序**，元素**不可重复**(注意：元素虽然无放入顺序，但是元素在`Set`中的位置是有该元素的**HashCode**决定的，其位置其实是固定的)。
+## Java中的容器
+与常见的编程语言相同，Java中的常见的**容器类型**为`List`、`Set`、`Map`。
+
+- `List`特点：元素**有序**，元素**可重复**。
+- `Map`特点：元素按键值对存储，**无序**。
+- `Set`特点：元素**无序**，元素**不可重复**(注意：元素虽然无放入顺序，但是元素在`Set`中的位置是有该元素的**HashCode**决定的，其位置其实是固定的)。
 
 在Java中，这三种集合类型都是以接口形式存在的，不能直接使用，要使用这三种类型可以使用其实现类：
-`List`的实现类为`LinkedList``ArrayList``Vector`；
-`Set`接口有两个实现类`HashSet``LinkedHashSet`；
-`Map`接口有三个实现类`HashMap``HashTable``LinkeHashMap`；
+
+- `List`的实现类为`LinkedList`、`ArrayList`、`Vector`；。
+- `Set`接口有两个实现类`HashSet`、`LinkedHashSet`。
+- `Map`接口有三个实现类`HashMap`、`HashTable`、`LinkeHashMap`。
 
 这些实现类各有优缺点：
-`ArrayList`是**非线程安全**的，效率**高**；
-`Vector`是基于**线程安全**的，效率**低**。
-`HashMap`**非线程安全**，高效，**支持**null；
-`HashTable`**线程安全**，低效，**不支持**null 。
+
+- `ArrayList`是**非线程安全**的，效率**高**。
+- `Vector`是基于**线程安全**的，效率**低**。
+- `HashMap`**非线程安全**，高效，**支持**null。
+- `HashTable`**线程安全**，低效，**不支持**null 。
 
 语法：
 
@@ -59,11 +62,12 @@ Iterator iteratorSet = set.iterator();
 
 
 
-##浅复制与深复制
-在Java中，**基础类型**如`int``double`等在复制时是拷贝了**整个值**，而对于**引用类型**，则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
+## 浅复制与深复制
+在Java中，**基础类型**如`int`、`double`等在复制时是拷贝了**整个值**，而对于**引用类型**，则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
 
-###浅复制
+### 浅复制
 要想让一个类能够被复制，则类需要实现`Cloneable`接口，并重写`clone()`方法。
+
 如下代码所示：
 
 ```java
@@ -86,6 +90,7 @@ class TestClone implements Cloneable {
 ```
 
 虽然`clone()`方法来自于根类`Object`，但如果不实现`Cloneable`接口，则在调用`clone()`方法的时候会抛出`CloneNotSupportedException`异常。
+
 编写代码测试：
 
 ```java
@@ -100,12 +105,15 @@ public class Main {
 ```
 
 输出结果：
+
+```
 strNew
+```
 
 可以发现调用`clone()`方法复制出的对象**testClone**在原对象**test**被修改后也发生了变化，并未真正的达到**复制**的效果。
 原因是**TestClone**类完成的仅仅是**浅复制**的过程，类中的引用类型`StringBuffer`并未被真正复制。
 
-###深复制
+### 深复制
 深复制一个对象，则需要将类中的每一个引用成员都进行**复制**，因此，**TestCode**的代码需要改成：
 
 ```java
@@ -132,10 +140,11 @@ class TestClone implements Cloneable {
 
 
 
-##泛型方法
-Java中的泛型同样支持独立于类的泛型方法，与**C++/C#**等语言不同，Java在泛型方法中的类型声明放在方法的修饰符(`public``static``final``abstract`等)之后，返回值声明之前。
+## 泛型方法
+Java中的泛型同样支持独立于类的泛型方法，与**C++/C#**等语言不同，Java在泛型方法中的类型声明放在方法的修饰符(`public`、`static`、`final`、`abstract`等)之后，返回值声明之前。
 Java中的泛型**不需要**也**不支持**使用`<>`符号显式指定泛型类型，在泛型方法中输入内容JVM会自动进行类型推倒。
-例如：
+
+如下代码所示：
 
 ```java
 public class Test {
@@ -155,20 +164,26 @@ class Func {
 ```
 
 输出结果：(Windows 10 && JDK 1.8)
+
+```
 java
 123
 Test
 25.672
+```
 
 
 
-##嵌套类 *Nested Classes*
+## 嵌套类 *Nested Classes*
 在Java中，嵌套类(`nested class`)是指定义在一个类内部的类，对应的，包含嵌套类的类被称为**外部类**(`enclosing class`)。
 嵌套类有以下几种类型：
 
-0. `member nested class`(成员嵌套类)：成员嵌套类 作为`enclosing class`的成员定义的，成员嵌套类有`enclosing class`属性。
-0. `local nested class`(局部嵌套类)：局部嵌套类定义在方法里面，局部嵌套类有`enclosing class`属性和`enclosing method`属性。
-0. `anonymous nested class`(匿名嵌套类)：匿名嵌套类没有显示的定义一个类，直接通过`new`操作符构造。
+0. `member nested class`(成员嵌套类)：
+> 成员嵌套类是作为`enclosing class`的成员定义的，成员嵌套类有`enclosing class`属性。
+0. `local nested class`(局部嵌套类)：
+> 局部嵌套类定义在方法里面，局部嵌套类有`enclosing class`属性和`enclosing method`属性。
+0. `anonymous nested class`(匿名嵌套类)：
+> 匿名嵌套类没有显示的定义一个类，直接通过`new`操作符构造。
 
 几类嵌套类的特性：
 
@@ -179,6 +194,7 @@ Test
 默认情况下，普通嵌套类内部不能定义`static`关键字修饰的成员，只有**静态嵌套类**(`static nested class`)内部才能定义`static`成员。
 静态嵌套类之外的所有嵌套类又被称为**内部类**(`inner class`)。
 静态嵌套类只能访问外部类的静态成员。
+
 如下代码所示：
 
 ```java
@@ -217,9 +233,197 @@ class EnclosingClass {
 
 
 
-##注解 *Annotation*
-注解(元数据)是`JDK 1.5`之后引入的机制，可以声明在包、类、字段、方法、局部变量、方法参数等的前面，用来对这些元素进行说明和注释。
+## 并发编程
+在Java，常见的并发技术有基本的`Thread`类，以及线程池`Executor`框架。
+
+### *Thread* 和 *Runnable*
+使用`Thread`创建线程的两种方式：
+
+0. `Runnable`接口定义了`run()`方法，实现该接口，将需要并发执行的内容写在`run()`方法中。将实现`Runnable`的实例作为参数构造`Thread`实例。
+0. `Thread`类实现了`Runnable`接口，因此也可以直接继承`Thread`类重写其`run()`方法。
+
+完成`Thread`对象的构建后，再调用其成员函数`start()`便会开启线程执行`run()`中的代码。
+
+注意事项：
+
+- 启动线程需要使用`start()`成员方法，调用`run()`无效，代码依然同步执行。
+- `Thread`类只是**一个**线程的抽象，因此在线程启动后不能再次调用`start()`启动新线程，启动新线程需要构建新的`Thread`对象。
+
+如下代码所示：
+
+```java
+class TestThread extends Thread {
+	@Override
+	public void run() {
+		/* do something */
+	}
+}
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		Runnable runnable = () -> {
+			/* do something */
+		}
+
+		//使用继承的线程类启动线程
+		new TestThread().start();
+
+		//使用Runnable实例构造Thread类启动线程
+		new Thread(runnable).start();
+	}
+
+}
+```
+
+`Thread`类的常用方法：
+
+```java
+// 使用指定名称创建线程
+public Thread(Runnable runable, String name);
+// 获取线程对象
+public static native Thread currentThread();
+// 获取线程名称
+public final String getName();
+// 线程休眠指定毫秒
+public static native void sleep(long millis) throws InterruptedException;
+```
+
+### *synchronized* 关键字
+在多线程环境下，多个线程同时访问一个变量时，会产生线程同步问题，变量可能会被其它线程意外地修改。典型的解决方式是对共享变量进行**加锁**。
+
+`Java 5`之后提供了`synchronized`关键字用于解决线程同步问题。
+`synchronized`关键字有两种用法：
+
+`synchronized`块
+> `synchronized`块的基本语法如下：
+
+>	```java
+>	synchronized (object) {
+>		/* do something */
+>	}
+>	```
+
+> 其中，同步变量`object`可以是实例、`this`引用或是类型(`XXX.class`)。
+
+>> 以相同`object`为同步对象的多个`synchronized`块在同一时刻只能有一个`synchronized`块被一个线程执行，在该线程离开`synchronized`块之前，其余线程都会处于等待状态。
+
+>> `object`为实例时：
+
+>>	- 同步变量需要为**引用类型**(基础类型如`int`、`float`等不能使用`synchronized`关键字进行同步)。
+>>	- 同步变量**不能**为`null`。
+>>	- 同步变量为类的实例成员时，需要注意同一个类的不同实例的相同实例成员是不同的。
+>>	- 同步变量为类的静态成员时，一个类的所有实例共享静态成员，此时效果类似于同步类型(`XXX.class`)。
+
+>> `object`为`this`引用时：
+
+>>	- 同一实例中以`this`为同步变量的代码块同时只能被一个线程执行。
+>>	- 不同实例之间以`this`为同步对象的代码块无影响。
+
+>> `object`为类型时，所有以此为同步变量的代码块都只能被一个线程执行。
+
+`synchronized`方法
+> `synchronized`关键字用于修饰方法，语法如下：
+
+>	```java
+>	synchronized Type methodName(Type args...) {
+>		/* do something */
+>	}
+>	```
+
+> 被`synchronized`修饰的方法同时只能被**一个**线程访问：
+
+>	- 当被修饰的方法为实例方法时，同一实例的`synchronized`方法同时只能有一个被执行。类似于将整个方法体的内容写在`synchronized (this) { ... }`中。不同实例间不受影响。
+>	- 当被修饰的方法为静态方法时，则所有该类中的静态`synchronized`方法同时只能有一个被执行。类似于将整个方法体的内容写在`synchronized (类名.class) { ... }`中。
+>	- 一个类中被`synchronized`修饰的实例方法和被`synchronized`修饰的静态方法的同步变量不同，因而不会相互同步。
+
+> 如下代码所示：
+
+>	```java
+>	import static java.lang.Thread.sleep;
+
+>	class Example {
+
+>		public synchronized void showOne() {
+>			for (int i = 0; i < 5; i++) {
+>				String threadName = Thread.currentThread().getName();
+>				System.out.println(threadName + " showOne()");
+>				try {
+>					sleep(100);
+>				} catch (InterruptedException e) {
+>					e.printStackTrace();
+>				}
+>			}
+>		}
+
+>		public synchronized void showTwo() {
+>			for (int i = 0; i < 5; i++) {
+>				String threadName = Thread.currentThread().getName();
+>				System.out.println(threadName + " showTwo()");
+>				try {
+>					sleep(100);
+>				} catch (InterruptedException e) {
+>					e.printStackTrace();
+>				}
+>			}
+
+>		}
+
+>		public static synchronized void showStatic() {
+>			for (int i = 0; i < 5; i++) {
+>				String threadName = Thread.currentThread().getName();
+>				System.out.println(threadName + " showStatic()");
+>				try {
+>					sleep(100);
+>				} catch (InterruptedException e) {
+>					e.printStackTrace();
+>				}
+>			}
+>		}
+>	}
+
+>	public class Main {
+
+>		public static void main(String[] args) {
+
+>			Example example = new Example();
+
+>			new Thread(() -> example.showOne(), "Thread One").start();
+>			new Thread(() -> example.showTwo(), "Thread Two").start();
+>			new Thread(() -> example.showStatic(), "Thread Three").start();
+>		}
+>	}
+>	```
+
+> 输出结果：
+
+>	```
+>	Thread One showOne()
+>	Thread Three showStatic()
+>	Thread One showOne()
+>	Thread Three showStatic()
+>	Thread One showOne()
+>	Thread Three showStatic()
+>	Thread One showOne()
+>	Thread Three showStatic()
+>	Thread One showOne()
+>	Thread Three showStatic()
+>	Thread Two showTwo()
+>	Thread Two showTwo()
+>	Thread Two showTwo()
+>	Thread Two showTwo()
+>	Thread Two showTwo()
+>	```
+
+> 从输出结果中可以看到，`Example`类中的三个成员方法都使用了`synchronized`关键字进行修饰，`showOne()`、`showTwo()`为实例方法，`showStatic()`为静态方法，来自同一个实例在不同线程中的两个实例方法**没有**并发执行(`showTwo()`一直等到`showOne()`结束才开始执行)，而静态方法并发执行了(`showOne()`与`showStatic()`交错打印输出)。
+
+
+
+## 注解 *Annotation*
+注解(元数据)是`JDK 1.5`之后引入的机制，可以声明在**包**、**类**、**字段**、**方法**、**局部变量**、**方法参数**等的前面，用来对这些元素进行说明和注释。
 注解的相关内容在包`java.lang.annotation`中。
+
 注解的基本语法为：
 
 ```java
@@ -228,34 +432,35 @@ class EnclosingClass {
 
 其中，注解的参数不是必须的，没有注解参数的注解称为**标记注解**。一个元素可以拥有**多个**注解。
 
-###内置注解
-Java中提供了一系列内置注解，常用的有：
+### 内置注解
+Java中提供了一系列**内置注解**，常用的有：
 
 - `@Override`为**标记注解**，用于标记**重写**的方法，若被标记的方法没有发生重写行为，则编译时会得到错误警告。
 - `@Deprecated`为**标记注解**，用于标记**废弃**的内容，作用与JavaDOC提供的`@deprecated`注解类似。
 - `@SuppressWarnings`用于控制编译时的输出警告信息，该注解有多个参数，但都带有默认值。
 
-###元注解
+### 元注解
 **元注解**专门用来修饰其它注解，在**自定义注解**时会用到。
+
 **元注解**有以下4类：
 
 - `@Target`用于限制注解的范围，参数为注解范围的数组(可以同时设定多个注解范围，用花括号包裹)，取值如下所示：
-	0. `ElementType.CONSTRUCTOR`用于描述构造器
-	0. `ElementType.FIELD`用于描述域
-	0. `ElementType.LOCAL_VARIABLE`用于描述局部变量
-	0. `ElementType.METHOD`用于描述方法
-	0. `ElementType.PACKAGE`用于描述包
-	0. `ElementType.PARAMETER`用于描述参数
-	0. `ElementType.TYPE`用于描述类、接口(包括注解类型)或`enum`声明
+	0. `ElementType.CONSTRUCTOR` 描述构造器
+	0. `ElementType.FIELD` 描述域
+	0. `ElementType.LOCAL_VARIABLE` 描述局部变量
+	0. `ElementType.METHOD` 描述方法
+	0. `ElementType.PACKAGE` 描述包
+	0. `ElementType.PARAMETER` 描述参数
+	0. `ElementType.TYPE` 描述类、接口(包括注解类型)或`enum`声明
 - `@Retention`设置注解的**生命周期**，取值如下所示：
-	0. `RetentionPolicy.SOURCE`在编译阶段丢弃。这些注解在编译结束之后就不再有任何意义，所以它们不会写入字节码。`@Override``@SuppressWarnings`都属于这类注解。
-	0. `RetentionPolicy.CLASS`在类加载的时候丢弃。在字节码文件的处理中有用。注解**默认使用**这种方式。
-	0. `RetentionPolicy.RUNTIME`始终不会丢弃，运行期也保留该注解，因此可以使用反射机制读取该注解的信息。**自定义注解**通常使用这种方式。
+	0. `RetentionPolicy.SOURCE` 编译阶段丢弃。这些注解在编译结束之后就不再有任何意义，所以它们不会写入字节码。`@Override`、`@SuppressWarnings`都属于这类注解。
+	0. `RetentionPolicy.CLASS` 类加载的时候丢弃。在字节码文件的处理中有用。注解**默认使用**这种方式。
+	0. `RetentionPolicy.RUNTIME` 不丢弃，运行期也保留该注解，可以使用反射机制读取该注解的信息。**自定义注解**通常使用这种方式。
 - `@Inherited`为**标记注解**，用于设置注解的继承性，被改注解修饰的注解用在类中是**可继承的**，但类不从它所实现的接口继承注解，方法并不从它所重载的方法继承注解。对于设置了`@Inherited`注解的元素，如果同时设置了`@Retention`注解，并且声明周期设为`RetentionPolicy.RUNTIME`，则使用`反射`机制来获取元素注解时，如果检查不到该注解，则会一直沿着继承树向上搜索，直到查找到了该注解或是到达类继承结构的顶层。
 - `Documented`设置在使用`javadoc`生成API时记录注解信息，默认情况下，`javadoc`**不会**记录注解信息。
 
-###自定义注解
-Java中的注解实际上也是**接口**。
+### 自定义注解
+Java中的注解实际上也是**接口**(`interface`)。
 
 - 使用`@interface`自定义注解，使用其定义的注解自动继承了`java.lang.annotation.Annotation`接口。
 - 定义注解时，**不能**继承其他的注解或接口。
@@ -263,7 +468,7 @@ Java中的注解实际上也是**接口**。
 - 定义注解时，使用`value`做为注解参数名称，则使用注解时参数名称可省略。
 - 定义注解时，参数的访问权限只能为`public`或**默认**权限。
 - 注解参数支持的数据类型：
-	0. 所有基本数据类型(`int``float``boolean``byte``double``char``long``short`)。
+	0. 所有基本数据类型(`int`、`float`、`boolean`、`byte`、`double`、`char`、`long`、`short`)。
 	0. `String`类型。
 	0. `Class`类型。
 	0. `enum`类型。
@@ -299,11 +504,14 @@ public class Main {
 ```
 
 输出结果：
+
+```
 TestValue: Schwarzes marken 6
+```
 
 
 
-##反射 *Reflection*
+## 反射 *Reflection*
 在Java中，**反射(Reflection)**提供了一系列**运行时**功能：
 
 - 在运行时判断任意一个对象所属的类。
@@ -313,9 +521,9 @@ TestValue: Schwarzes marken 6
 - 生成**动态代理**。
 
 反射的相关API主要定义在`Class`类中。
-反射在Java各类框架中都有着大量的应用，如`Spring`中的IOC。
+反射在Java各类框架中都有着大量的应用，如`Spring`中的`IOC`。
 
-###反射相关的类型
+### 反射相关的类型
 在Java中，反射相关的类型定义在包`java.lang.reflect`中，主要有以下类型：
 
 - `Class`类型：表示一个类。
@@ -323,14 +531,14 @@ TestValue: Schwarzes marken 6
 - `Method`类型：表示类的成员方法。
 - `Constructor`类：表示类的构造方法。
 
-###构建 *Class* 对象
+### 构建 *Class* 对象
 构建`Class`对象可以通过以下方式：
 
 - `Type.class`，及通过类型的class成员获得。
 - `Class.forName("class_path")`，即通过类型名称获得，传入的类型字符串需要为完整路径。
 - `instance.getClass()`，通过具体实例的`getClass()`方法获得。
 
-###反射获取类成员
+### 反射获取类成员
 通过反射获取类型**完整路径**：
 
 ```java
@@ -346,7 +554,6 @@ public Field[] getFields() throws SecurityException;
 public Field[] getDeclaredFields() throws SecurityException;
 public Field getField(String var1) throws NoSuchFieldException, SecurityException;
 public Field getDeclaredField(String var1) throws NoSuchFieldException, SecurityException;
-
 ```
 
 获取类型的成员方法：
@@ -470,6 +677,8 @@ public class Main {
 ```
 
 运行输出结果：
+
+```
 Class Full Name:
 com.dainslef.Test
 
@@ -493,8 +702,9 @@ com.dainslef.Test com.dainslef.Test
 
 Enclosing Constructor:
 null
+```
 
-###反射构建类实例
+### 反射构建类实例
 如果一个类定义了空参的构造函数，则可以直接通过`Class`类中的成员方法来构造对象。
 
 ```java
@@ -503,7 +713,8 @@ public T newInstance() throws InstantiationException, IllegalAccessException;
 
 `Class`类中没有直接提供通过**有参构造函数**反射构建实例的方式。
 如果需要反射调用类的有参构造方法，则需要先获取其有参构造器(`Constructor`类型)，之后通过`Constructor`类的下列相关方法构造实例。
-通过反射可以实现通过**非公有**构建对象。
+
+通过反射可以实现使用**非公有构造函数**构建对象。
 
 ```java
 public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
@@ -536,7 +747,11 @@ class Test {
 
 public class Main {
 
-	public static void main(String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+	public static void main(String[] args) throws
+			IllegalAccessException,
+			InstantiationException,
+			NoSuchMethodException,
+			InvocationTargetException {
 
 		//直接通过Class类调用无参构造函数
 		Test.class.newInstance().showNum();
@@ -550,19 +765,24 @@ public class Main {
 ```
 
 输出结果：
+
+```
 0
 200
+```
 
-###反射调用对象方法
-通过反射可以实现调用类的非公有方法，方式与调用构造函数基本类似。
-首先获取目标方法的`Method`对象，之后通过`Method`类的`invode()`方法执行，第一个参数为类的实例，之后的参数为方法签名中的参数。
+### 反射调用对象方法
+通过反射可以实现调用任意方法(包括**私有方法**)，方式与调用构造函数基本类似。
+首先获取目标方法的`Method`对象，之后通过`Method`类的`invoke()`方法执行，第一个参数为类的实例，之后的参数为方法签名中的参数。
 
 ```java
-public Object invoke(Object var1, Object... var2) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+public Object invoke(Object var1, Object... var2) throws
+	IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 ```
 
 与`Constructor`类似，如果获取到的`Method`对象代表的是非公有成员方法，则需要使用`setAccessible()`方法设置属性为可访问才能正常调用。
-实例代码如下，访问一个全部成员私有的类：
+
+实例代码如下，访问一个全部成员**私有**的类：
 
 ```java
 package com.dainslef;
@@ -587,7 +807,11 @@ class Test {
 
 public class Main {
 
-	public static void main(String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+	public static void main(String[] args) throws
+			IllegalAccessException,
+			InstantiationException,
+			NoSuchMethodException,
+			InvocationTargetException {
 
 		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
 		constructor.setAccessible(true);			//设置私有构造器可访问
@@ -602,11 +826,14 @@ public class Main {
 ```
 
 输出结果：
-300
 
-###反射修改字段
+```
+300
+```
+
+### 反射修改字段
 通过反射亦可访问、修改类的非公有成员字段，方式类似。
-通过`Field`类的相关的`set()``get()`方法设置、获取字段内容：
+通过`Field`类的相关的`set()`、`get()`方法设置、获取字段内容：
 
 ```java
 public void set(Object var1, Object var2) throws IllegalArgumentException, IllegalAccessException;
@@ -615,7 +842,7 @@ public Object get(Object var1) throws IllegalArgumentException, IllegalAccessExc
 
 `set()`方法中参数`var1`为要设置字段所属的对象，参数`var2`为设置的内容。
 `get()`方法同名参数作用相同。
-`set()``get()`方法接收的参数为`Object`类型，而对于基本类型，`Field`类中预先定义了一套方法，如`setInt()``getInt()``setBoolean()``getBoolean()`等，基本类型可直接使用这些方法以避免不必要的强制类型转换。
+`set()/get()`方法接收的参数为`Object`类型，而对于基本类型，`Field`类中预先定义了一套方法，如`setInt()/getInt()/setBoolean()/getBoolean()`等，基本类型可直接使用这些方法以避免不必要的强制类型转换。
 
 ```java
 package com.dainslef;
@@ -640,7 +867,12 @@ class Test {
 
 public class Main {
 
-	public static void main(String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+	public static void main(String[] args) throws
+			IllegalAccessException,
+			InstantiationException,
+			NoSuchMethodException,
+			InvocationTargetException,
+			NoSuchFieldException {
 
 		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
 		constructor.setAccessible(true);
@@ -655,14 +887,15 @@ public class Main {
 }
 ```
 
-###类加载器 *ClassLoader*
-在Java中有三种类类加载器。
+### 类加载器 *ClassLoader*
+在Java中有三种类加载器。
 
 0. `Bootstrap ClassLoader`引导类加载器，用于加载Java核心类。
 0. `Extension ClassLoader`扩展类加载器，它负责加载JRE的扩展目录(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系统属性指定)类包。
 0. `App ClassLoader`应用类加载器，通常类都由此加载器加载(包括`java.class.path`)。
 
 获取一个类的加载器使用`getClassLoader()`方法。
+
 展示一般应用类加载器：
 
 ```java
@@ -675,7 +908,13 @@ class Test {
 
 public class Main {
 
-	public static void main(String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException, ClassNotFoundException {
+	public static void main(String[] args) throws
+			IllegalAccessException,
+			InstantiationException,
+			NoSuchMethodException,
+			InvocationTargetException,
+			NoSuchFieldException,
+			ClassNotFoundException {
 
 		System.out.println(Main.class.getClassLoader().getClass().getName());
 		System.out.println(Class.forName("com.dainslef.Test").getClassLoader().getClass().getName());
@@ -685,15 +924,18 @@ public class Main {
 ```
 
 输出结果：
+
+```
 sun.misc.Launcher$AppClassLoader
 sun.misc.Launcher$AppClassLoader
+```
 
 
 
-##动态代理
+## 动态代理
 **动态代理**是Java反射机制的一种应用，能够动态地产生代理实例，避免为每一个接口编写大量的重复代理类代码。
 
-###代理模式
+### 代理模式
 **代理模式**是常见的设计模式，主要作用是通过创建**代理类**为其他对象提供一种代理，并以控制对这个对象的访问。
 代理模式常见的应用场景有：
 
@@ -706,7 +948,7 @@ sun.misc.Launcher$AppClassLoader
 在Java中代理模式的典型方式是使用接口定义功能，实现类实现接口功能，而代理类控制/扩充实现类功能。
 代理类与实现类都implements接口，但代理类本身不直接实现具体功能，而是调用被其代理的实现类的方法。
 
-###动态代理实例
+### 动态代理实例
 假设有一个文件接口`File`，定义了支持的文件操作：
 
 ```java
@@ -737,10 +979,11 @@ class FileImpl implements File {
 }
 ```
 
-使用静态代理，则应创建一个代理类用于控制之前的实现。
+使用静态代理，则应创建一个**代理类**用于控制之前的实现。
 代理类同样需要实现基础接口，但代理类不同于实现类，代理类使用别的接口实现类的实现而不是自身实现功能。
 代理类在调用实现类功能的同时，也可以加入自身的扩充功能。
-实现类以接口的形式被传入代理类，当一个接口有多种实现的时候，代理类能够针对每一种实现类都添加相同的功能，这就是所谓的AOP(面向切面编程)，代理类可以被视为是一个切面。
+
+实现类以接口的形式被传入代理类，当一个接口有多种实现的时候，代理类能够针对每一种实现类都添加相同的功能，这就是所谓的`AOP`(面向切面编程)，代理类可以被视为是一个切面。
 
 ```java
 class FileProxy implements File {
@@ -778,28 +1021,30 @@ class FileProxy implements File {
 ```
 
 代理类`FileProxy`能够在调用实现具体代码的同时加入扩充的功能。
+
 随着接口功能的扩充，代理类的代理方法数量也会增加，但代理类中很多方法的扩充代码可能相同的或是根本没有扩充代码，因而没有必要针对每一个方法编写代理方法，此时使用**动态代理**能够很方便地控制代码规模。
 动态代理使用`java.lang.reflect.Proxy`类中的`newProxyInstance`方法构建代理类实例：
 
 ```java
-public static Object newProxyInstance(ClassLoader var0, Class<?>[] var1, InvocationHandler var2) throws IllegalArgumentException;
+public static Object newProxyInstance(ClassLoader loader,
+	Class<?>[] interfaces, InvocationHandler h) throws IllegalArgumentException;
 ```
 
-- `var0`参数为动态代理类的类加载器。
-- `var1`参数为代理类实现的接口的数组。
-- `var2`参数为动态代理的具体内容。
+- `loader`参数为动态代理类的类加载器。
+- `interfaces`参数为代理类实现的接口的数组。
+- `h`参数为动态代理的具体内容。
 
-var2参数的类型为`InvocationHand`接口，定义如下：
+`h`参数的类型为`InvocationHand`接口，定义如下：
 
 ```java
 public interface InvocationHandler {
-    Object invoke(Object var1, Method var2, Object[] var3) throws Throwable;
+    Object invoke(Object proxy, Method method, Object[] args) throws Throwable;
 }
 ```
 
-- `var1`参数为代理类。
-- `var2`参数为调用的方法。
-- `var3`参数为对调用方法传入的参数。
+- `proxy`参数为代理类。
+- `method`参数为调用的方法。
+- `args`参数为对调用方法传入的参数。
 
 需要自行实现`InvocationHandler`接口，来实现动态代理的具体内容。
 以上文的`FileImpl`类为例，使用动态代理实现如下：
@@ -815,12 +1060,12 @@ class InvocationHandlerImpl implements InvocationHandler {
 
 	//多个接口方法的代理扩展代码全部写在一个invoke()方法中
 	@Override
-	public Object invoke(Object var1, Method var2, Object[] var3) throws Throwable {
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		/*
 			do something before...
 		*/
-		Object object = Modifier.isStatic(var2.getModifiers()) ?
-			var2.invoke(var3) : var2.invoke(file, var3);
+		Object object = Modifier.isStatic(method.getModifiers()) ?
+			method.invoke(args) : method.invoke(file, args);
 		/*
 			do something after...
 		*/
@@ -852,10 +1097,10 @@ public class Main {
 
 
 
-##与Access数据库交互
+## 与Access数据库交互
 **JDK1.7**之前，可以使用**JDBC-ODBC**桥接**Access**数据库，但在**JDK1.8**之后，**JDBC-ODBC**桥被移除，只能使用专有的Access驱动来连接Access数据库(驱动名称：`Access_JDBC40.jar`)。
 
-###连接Access数据库的一般步骤
+### 连接Access数据库
 ```java
 //这样写是相对路径
 String connectUrl = "jdbc:Access:///***.accdb";
@@ -874,7 +1119,7 @@ Statement statement = connection
 		//后两个参数是为了得到resultSet集能够进行last()操作
 ```
 
-###Access数据库的一些小常识
+### Access数据库的一些小常识
 0. 表单的高级字段设置在`开始 - 视图 - 设计视图`中。
 0. 配置自增属性需要将字段类型设为`自动编号`。
 0. 默认情况下，创建的数据类型`数字`的字段大小为`长整型`，这是不支持**小数输入**的，小数输入会自动被去尾，需要将字段大小设置为`单精度浮点型/双精度浮点型`才能支持小数位。
@@ -882,26 +1127,29 @@ Statement statement = connection
 
 
 
-##Eclipse使用注记
+## Eclipse使用注记
 **Eclipse**是Java开发中最常用的IDE，Eclipse通过插件扩展可以进行多种语言的开发。
 
-###在Eclipse中查看JDK类源码
+### 在Eclipse中查看JDK类源码
 与**NetBeans**不同，在Eclipse中默认是无法直接查看JDK中类库的源码的，需要手动指定源码的位置。
 一般情况下，JDK源码位于JDK的安装目录下的`src.zip`文件中。
+
 在Eclipse中按以下步骤添加源码路径：
+
 `Window`=>`Preferences`=>`Java`=>`Installed JREs`=>选中使用的`JRE` =>`Edit`=>选中`../xxx/rt.jar`=>`Source Attachment Configuration`=>`Exernal location`=>选中`src.zip`=>`OK`=>`Finish`
 
-###设置Eclipse编辑器自动换行
+### 设置Eclipse编辑器自动换行
 Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方插件进行实现。
 在Eclipse中按以下步骤安装`Word Wrap`插件使编辑器能够自动换行：
+
 `Help`=>`Install New Software`=>`Add Repository`=>输入仓库地址`http://ahtik.com/eclipse-update`=>安装`WordWrap`插件=>安装完成之后重启IDE=>编辑器中点右键，激活`Word Warp`选项=>`Finish`
 
 
 
-##IntelliJ IDEA使用注记
+## IntelliJ IDEA使用注记
 **IntelliJ IDEA**相比Eclipse而言，有着更精美的UI，且对`Scala``Golang`等冷门语言有着更好的支持。
 
-###破解IDEA
+### 破解IDEA
 访问站点`http://idea.lanyus.com/`，下载破解补丁`JetbrainsCrack.jar`。
 破解步骤：
 
@@ -911,34 +1159,39 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 	- `Linux`环境下，32位版为`idea.vmoptions`文件，64位版为`idea64.vmoptions`文件。
 0. 在配置文件末尾添加：`-javaagent:[补丁绝对路径]`
 
-###设置显示行号和不可见空白
+### 设置显示行号和不可见空白
+选择选项：
+
 `File`=>`Settings`=>`Editor`=>`General`=>`Appearance`=> ...
+
 勾选`Show whitespaces(显示空白)`和`Show line numbers(显示行号)`选项。
 勾选`Show menthod separators`则会在方法定义之间出现横线做为分隔符。
 
-###设置缩进
+### 设置缩进
 默认情况下，IDEA使用的是**空格**做为缩进，如果需要使用**tab缩进**，则按以下路径设置：
+
 `File`=>`Settings`=>`Editor`=>`Code Style`=>`[目标语言]`=>`Tabs and Indents`
-选中`Use tab charactor`。
-勾选`Smart tabs`则会在**行尾**使用tab键时使用**空格**代替tab。
-勾选`Keep indents on empyt lines`则会在**空行**中**保持缩进**。
 
-###其它常用选项
-代码折叠：`File`=>`Settings`=>`Editor`=>`General`=>`Code Folding`
-代码自动换行：`File`=>`Settings`=>`Editor`=>`General`=>`Soft Wraps`
-设置空白处的点按逻辑：`File`=>`Settings`=>`Editor`=>`General`=> `Virtual Space`
-设置Java强制类型转换前是否空格：`File`=>`Settings`=>`Editor`=>`Code Style`=>`Java`=>`Spaces`=>`After type cast`
-设置Scala函数是否自动补全空返回类型：`File`=>`Settings`=>`Editor`=>`Code Style`=>`Scala`=>`Other`=>`Enfore procedure syntax for methods with Unit return type`
-设置光标悬停显示变量/方法信息：`File`=>`Settings`=>`Editor`=>`General`=>`Other`=>`Show quick documentation on mouse move`
+- 选中`Use tab charactor`。
+- 勾选`Smart tabs`则会在**行尾**使用tab键时使用**空格**代替tab。
+- 勾选`Keep indents on empyt lines`则会在**空行**中**保持缩进**。
+
+### 其它常用选项
+- 代码折叠： `File`=>`Settings`=>`Editor`=>`General`=>`Code Folding`
+- 代码自动换行： `File`=>`Settings`=>`Editor`=>`General`=>`Soft Wraps`
+- 设置空白处的点按逻辑： `File`=>`Settings`=>`Editor`=>`General`=> `Virtual Space`
+- 设置Java强制类型转换前是否空格： `File`=>`Settings`=>`Editor`=>`Code Style`=>`Java`=>`Spaces`=>`After type cast`
+- 设置Scala函数是否自动补全空返回类型： `File`=>`Settings`=>`Editor`=>`Code Style`=>`Scala`=>`Other`=>`Enfore procedure syntax for methods with Unit return type`
+- 设置光标悬停显示变量/方法信息： `File`=>`Settings`=>`Editor`=>`General`=>`Other`=>`Show quick documentation on mouse move`
 
 
 
-##关于Java中package
+## Java中 *Package*
 在Java中，没有使用package的话，在javac编译java文件生成class字节码时，需要将所有用到的源码文件写在参数中，不在当前目录下的源码文件要写清路径。
 如果源码文件过多，则可以使用`package`关键字将其打包归类，然后在主类所在的文件中使用`import`关键字来将包导入使用。
 如果没有使用package关键字，则所有的内容被视为在一个包中。
 
-###import的基本用法
+### *import* 的基本用法
 `import`的格式是：
 
 ```java
@@ -954,7 +1207,7 @@ import [包名].[类名].[类名]....;
 需要注意的是，import与代码文件的路径**无关**(但运行class文件时需要将class文件放在与其源码中package名称相同的对应目录下，否则会在执行时出错)。
 另外，包名也可以是`*.*.*`的形式。
 
-###使用静态导入
+### 使用静态导入
 `Java1.5`中新加入了`import static`关键字，相比传统的`import`，`import static`关键字的包含目标是类中的静态方法，格式如下：
 
 ```java
@@ -963,15 +1216,18 @@ import static [包名].[类名].[类名]....[静态方法名]
 
 这样能够在使用对应类的静态方法时不必写出类名而是直接写出函数名即可。
 
-###package使用实例
+### *package* 使用实例
 有两个文件**A.java**和**B.java**。
+
 文件B中的类被A中引用,则将B打包,代码中添加`package b`，并放在b目录下。
-而文件A中引用B中的类。
+文件A中引用B中的类。
 按照要求，两文件的位置：
-**文件A**路径为`~/A.java`。
-**文件B**路径为`~/b/B.java`。
+
+- **文件A**路径为`~/A.java`。
+- **文件B**路径为`~/b/B.java`。
 
 实例代码(普通import)：
+
 A.java:
 
 ```java
@@ -997,6 +1253,7 @@ public class B {
 ```
 
 实例代码(import static)：
+
 A.java:
 
 ```java
@@ -1025,53 +1282,65 @@ public class B {
 一个java文件只能有**一个public类**，java文件的名称应该与那个public类的类名**一致**。
 需要注意的是，package打包的文件最好放在与包名相同的文件夹中，这样生成的字节码class文件才会在对应目录生成。如果源码是放在一处的，则编译之后产生的字节码文件需要按照package关系放在与包名相同的目录下，否则执行class文件时会报错，显示找不到对应的class文件！
 
-###使用第三方包时的编译/运行方式
+### 使用第三方包时的编译/运行方式
 很多时候，我们需要使用java官方库之外的第三方库(jar文件)，编译时需要添加额外的参数。
 假设代码中引用了一个第三方库，则编译时应使用`-cp`参数，如下：
+
 `$ javac -cp [第三方库的路径] [源码文件]`
+
 编译生成的class文件是无法直接被`java`指令执行的，因为该class文件使用了第三方库，而这个库的位置并不在系统的环境变量之中，因此运行也需要显式地指定所需库的位置：
+
 `$ java -Djava.ext.dirs=[第三方库所在的目录] [编译生成的class文件]`
 
 
 
-##Swing开发注记
+## *Swing* 开发注记
 **Swing**是Java下的GUI开发库，Swing中的控件样式与平台无关，完全由Java绘制。
 
 ###常用控件
 容器：
-`JFrame`(窗体框架)
-`JDialog`(对话框，比JFrame消耗资源少)
-`JPanel`(面板)
-`JScrollPane`(滚动面板)
-`JFrame`一般做为顶层容器，可以独立做为对话框显示，但JPanel不能独立做为对话框。
+
+`JFrame` 窗体框架
+`JDialog` 对话框，比JFrame消耗资源少
+`JPanel` 面板
+`JScrollPane` 滚动面板
+`JFrame` 一般做为顶层容器，可以独立做为对话框显示，但JPanel不能独立做为对话框。
+
 文本组件：
-`JLabel`(显示文本)
-`JTextField`(单行编辑框)
-`JPasswordField`(密码编辑框)
-`JTextArea`(多行编辑区域)
+
+`JLabel` 显示文本
+`JTextField` 单行编辑框
+`JPasswordField` 密码编辑框
+`JTextArea` 多行编辑区域
+
 表单组件：
-`JButton`
-`JCheckBox`(复选框，方框里打勾)
-`JRadioButton和ButtonGroup`(单选框，圆点)
-`JComboBox`(组合框，俗称下拉列表框)
+
+`JButton` 普通按钮
+`JCheckBox` 复选框，方框里打勾
+`JRadioButton和ButtonGroup` 单选框，圆点
+`JComboBox` 组合框，俗称**下拉列表框**
+
 菜单栏：
-`JMenubar`(菜单栏)
-`JMenu`(菜单栏上的按钮)
-`JMenuItem`(点击菜单按钮弹出的菜单项)
-常用的表单组件都有对应的菜单版本，比如`JRadioButtonMenuItem``JCheckBoxMenuItem`等。
+
+`JMenubar` 菜单栏
+`JMenu` 菜单栏上的按钮
+`JMenuItem` 点击菜单按钮弹出的菜单项
+
+常用的表单组件都有对应的菜单版本，比如`JRadioButtonMenuItem`、`JCheckBoxMenuItem`等。
 向`JMenu`中`add()`菜单项时，虽然可以选择普通组件，但普通组件不能触发菜单效果(点按之后菜单不收回)。
 
-###设置边框
-一般的**GUI容器**类如`JFrame``JPanel`等都可以通过`setBorder()`方法来设置边框。
+### 设置边框
+一般的**GUI容器**类如`JFrame`、`JPanel`等都可以通过`setBorder()`方法来设置边框。
 特别的，通过使用透明边框，可以实现控制界面边界空隙的效果(类似于**CSS**中的`Margin`属性)。
-例如：
+
+如下代码所示：
 
 ```java
 //界面上下左右空出10个像素
 setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 ```
 
-###利用Map的Key来作为ComoBox的下拉选项
+### 利用Map的Key来作为ComoBox的下拉选项
 先得到`Map`的`Key`集合：
 
 ```java
@@ -1090,13 +1359,19 @@ Object[] object = set.toArray();
 JComboBox comboBox = new JComboBox(new DefaultComboBoxModel(object));
 ```
 
-###Java事件机制
-Java的事件机制是通过**监听器**实现的。
-要处理**GUI事件**，先要根据需求实现事件接口，比如点按事件的`ActionListener`，处理键盘的`KeyListener`，处理鼠标的`MouseListener`等等。
-然后在要被监听的的GUI控件上调用对应的`addXXXListener()`方法将接口实例化的对象作为参数传入即可。
+### Swing事件机制
+Java没有像C#那样在语言级别提供事件机制，事件机制仅仅在Java中仅仅是一套接口：
 
-###在键盘事件中屏蔽指定按键
+- 事件处理需要重写监听器的接口方法。
+> Swing根据事件类型定义了一系列的事件接口，如鼠标点按事件的`ActionListener`，处理键盘的`KeyListener`，处理鼠标的`MouseListener`等等。
+> 不同的事件接口拥有不同数目的接口方法，根据需求重写对应的接口方法。
+- 将控件绑定监听器实例。
+> GUI控件类有一套与监听器接口对应的方法`addXXXListener()`用于添加不同类型的监听器实例，将对应的监听器实例作为参数传入，则当控件操作触发时，便会运行绑定监听器中的代码。
+> 控件类也可以使用`removeXXXListener()`用于移除已绑定的监听器。
+
+### 在键盘事件中屏蔽指定按键
 实现`KeyListener`接口，重写`keyTyped(KeyEvent)`方法，通过`getKeyChar()`方法获取输入的字符，然后对其进行判断，如果是想要屏蔽的按键则使用`setKeyChar('\0')`将其转化为空输入。
+
 举例：(只接受数字输入)
 
 ```java
@@ -1106,15 +1381,17 @@ KeyEvent keyEvent = e -> {
 }
 ```
 
-###文本输入监听器 *DocumentListener*
+### 文本输入监听器 *DocumentListener*
 包含三个方法：
-`public void changedUpdate(DocumentEvent e)`监听文本属性的变化；
-`public void insertUpdate(DocumentEvent e)`监听文本内容的插入事件；
-`public void removeUpdate(DocumentEvent e)`监听文本内容的删除事件。
-需要注意的是`JTextField`控件本身没有`addDocumentListener()`方法，需要先使用`getDocument()`方法获取`Document`对象才能调用`addDocumentListener()`。
-在事件处理方法中，对JTextField对象调用getText()方法即可获得输入文本的内容。
 
-###显示多行文本
+- `public void changedUpdate(DocumentEvent e)` 监听文本属性的变化。
+- `public void insertUpdate(DocumentEvent e)` 监听文本内容的插入事件。
+- `public void removeUpdate(DocumentEvent e)` 监听文本内容的删除事件。
+
+`JTextField`控件本身没有`addDocumentListener()`方法，需要先使用`getDocument()`方法获取`Document`对象才能调用`addDocumentListener()`。
+在事件处理方法中，对`JTextField`对象调用`getText()`方法即可获得输入文本的内容。
+
+### 显示多行文本
 `JTextField`只能用来显示简单的**单行文本**，涉及到**多行文本**的复杂情况，需要使用到`JTextArea`控件：
 
 ```java
@@ -1135,7 +1412,7 @@ JScrollPane scrollPane = new JScrollPane(textArea);
 
 这样当文本无法全部显示时会出现**滚动条**。
 
-###静态MessageBox方法
+### 静态MessageBox方法
 与**Qt**一样，Java也提供了弹出MessageBox的静态方法，即`JOptionPane.showMessageDialog()`。
 
 ```java
@@ -1144,10 +1421,10 @@ static void showMessageDialog(Component parentComponent, Object message, String 
 static void showMessageDialog(Component parentComponent, Object message, String title, int messageType, Icon icon); 						//调出一个显示信息的对话框，为其指定了所有参数。
 ```
 
-其中，`messageType`可以取`DEFAULT_OPTION``YES_NO_OPTION``YES_NO_CANCEL_OPTION`或`OK_CANCEL_OPTION`等。
-此外，还有`showInputDialog()``showConfirmDialog()`等方法可以用于显示其他用途的窗口。
+其中，`messageType`可以取`DEFAULT_OPTION`、`YES_NO_OPTION`、`YES_NO_CANCEL_OPTION`或`OK_CANCEL_OPTION`等。
+此外，还有`showInputDialog()`、`showConfirmDialog()`等方法可以用于显示其他用途的窗口。
 
-###使用JTable显示数据库
+### 使用JTable显示数据库
 构建一个`JTable`主要有两种方式：
 
 ```java
@@ -1161,9 +1438,9 @@ JTable(TableModel dm);
 
 
 
-##常见问题记录
+## 常见问题记录
 
-###String.split()方法
+### String.split()方法
 函数的定义为：
 
 ```java
@@ -1176,3 +1453,22 @@ public String[] split(String regex);
 ```java
 String[] nums = "123.456.789".split("\\.");
 ```
+
+### String.format() 方法
+函数的定义为：
+
+```java
+public static String format(String var0, Object... var1);
+public static String format(Locale var0, String var1, Object... var2)
+```
+
+`String`类的`format()`方法提供类似C语言中`sprintf()`函数类似的文本格式化方式，格式化字段的语法类似。
+
+### 查询OS信息
+使用`System`类中的`getProperty()`方法可以获取**操作系统**以及**Java虚拟机**的各类状态信息：
+
+```java
+public static String getProperty(String key);
+```
+
+其中，参数`key`为需要获取信息的类型。
