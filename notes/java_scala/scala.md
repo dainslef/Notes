@@ -610,194 +610,192 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 构造器的一些特性：
 
-- 主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。
+主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。
+> 构造器参数前使用`var`关键字，如下代码所示：
 
-	构造器参数前使用`var`关键字，如下代码所示：
+>	```scala
+>	class Constructor(var num: Int)
+>	```
 
-	```scala
-	class Constructor(var num: Int)
-	```
+>	编译为Java代码为：
 
-	编译为Java代码为：
+>	```java
+>	public class Constructor {
+>		private int num;
+>		public int num();
+>		public void num_$eq(int);
+>		public Constructor(int);
+>	}
+>	```
 
-	```java
-	public class Constructor {
-		private int num;
-		public int num();
-		public void num_$eq(int);
-		public Constructor(int);
-	}
-	```
+> 可以看到，编译器为var字段`num`生成了`setter`、`getter`方法和一个与字段同名的私有变量。
 
-	可以看到，编译器为var字段`num`生成了`setter`、`getter`方法和一个与字段同名的私有变量。
+> 构造器参数前使用`val`关键字，如下所示：
 
-	构造器参数前使用`val`关键字，如下所示：
+>	```scala
+>	class Constructor(val num: Int)
+>	```
 
-	```scala
-	class Constructor(val num: Int)
-	```
+> 编译为Java代码为：
 
-	编译为Java代码为：
+>	```java
+>	public class Constructor {
+>		private final int num;
+>		public int num();
+>		public Constructor(int);
+>	}
+>	```
 
-	```java
-	public class Constructor {
-		private final int num;
-		public int num();
-		public Constructor(int);
-	}
-	```
+> 可以看到，编译器为val字段`num`生成了`getter`方法和一个与字段同名的final私有变量。
 
-	可以看到，编译器为val字段`num`生成了`getter`方法和一个与字段同名的final私有变量。
+> 构造器参数前加上**访问权限修饰符**则生成的方法类似，但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)，如下所示：
 
-	构造器参数前加上**访问权限修饰符**则生成的方法类似，但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)，如下所示：
+>	```scala
+>	class Constructor0(protected[this] var num: Int)
+>	class Constructor1(private val num: Int)
+>	```
 
-	```scala
-	class Constructor0(protected[this] var num: Int)
-	class Constructor1(private val num: Int)
-	```
+> 编译为Java代码为：
 
-	编译为Java代码为：
+>	```java
+>	public class Constructor0 {
+>		private int num;
+>		public int num();
+>		public void num_$eq(int);
+>		public Constructor0(int);
+>	}
+>	public class Constructor1 {
+>		private final int num;
+>		private int num();
+>		public Constructor1(int);
+>	}
+>	```
 
-	```java
-	public class Constructor0 {
-		private int num;
-		public int num();
-		public void num_$eq(int);
-		public Constructor0(int);
-	}
-	public class Constructor1 {
-		private final int num;
-		private int num();
-		public Constructor1(int);
-	}
-	```
+> 只有访问权限为`private[this]`时，编译器才不会为引用的字段生成`setter/getter`，而仅仅生成一个私有成员变量。
 
-	只有访问权限为`private[this]`时，编译器才不会为引用的字段生成`setter/getter`，而仅仅生成一个私有成员变量。
+主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。
+> 编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
+> 如下代码所示：
 
-- 主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。
+>	```scala
+>	class Constructor0(num: Int)
+>	class Constructor1(private[this] val num: Int)
+>	```
 
-	编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
-	如下代码所示：
+> 编译为Java代码为：
 
-	```scala
-	class Constructor0(num: Int)
-	class Constructor1(private[this] val num: Int)
-	```
+>	```java
+>	public class Constructor0 {
+>		public Constructor0(double);
+>	}
+>	public class Constructor1 {
+>		public Constructor1(double);
+>	}
+>	```
 
-	编译为Java代码为：
+> 编译得到的Java代码完全相同。
 
-	```java
-	public class Constructor0 {
-		public Constructor0(double);
-	}
-	public class Constructor1 {
-		public Constructor1(double);
-	}
-	```
+> 当该参数被其它成员方法引用时，编译器会为其生成对应的私有成员变量(但没有生成`setter/getter`)。
+> 如下代码所示：
 
-	编译得到的Java代码完全相同。
+>	```scala
+>	class Constructor0(num: Int) {
+>		def get = num
+>	}
+>	class Constructor1(private[this] val num: Int) {
+>		def get = num
+>	}
+>	```
 
-	当该参数被其它成员方法引用时，编译器会为其生成对应的私有成员变量(但没有生成`setter/getter`)。
-	如下代码所示：
+> 编译为Java代码为：
 
-	```scala
-	class Constructor0(num: Int) {
-		def get = num
-	}
-	class Constructor1(private[this] val num: Int) {
-		def get = num
-	}
-	```
+>	```java
+>	public class Constructor0 {
+>		private final int num;
+>		public int get();
+>		public Constructor0(int);
+>	}
+>	public class Constructor1 {
+>		private final int num;
+>		public int get();
+>		public Constructor1(int);
+>	}
+>	```
 
-	编译为Java代码为：
+> 辅助构造器中的参数与普通函数参数类似，仅在构造器代码段内部生效(不作为字段存在)，辅助构造器的参数前不能添加`var/val`关键字。
 
-	```java
-	public class Constructor0 {
-		private final int num;
-		public int get();
-		public Constructor0(int);
-	}
-	public class Constructor1 {
-		private final int num;
-		public int get();
-		public Constructor1(int);
-	}
-	```
+一个类如果没有显式写明主构造器参数，则默认生成一个**空参**构造方法。
+> 对于一个如下的**空类**：
 
-- 辅助构造器中的参数与普通函数参数类似，仅在构造器代码段内部生效(不作为字段存在)，辅助构造器的参数前不能添加`var/val`关键字。
-- 一个类如果没有显式写明主构造器参数，则默认生成一个**空参**构造方法。
+>	```scala
+>	class Empty
+>	```
 
-	对于一个如下的**空类**：
+> 实际相当于：
 
-	```scala
-	class Empty
-	```
+>	```scala
+>	class Empty() {
+>	}
+>	```
 
-	实际相当于：
+> 编译成Java代码后为：
 
-	```scala
-	class Empty() {
-	}
-	```
+>	```java
+>	public class Empty() {
+>		public Empty() { ... };
+>	}
+>	```
 
-	编译成Java代码后为：
+> 可以采用如下方式实例化：
 
-	```java
-	public class Empty() {
-		public Empty() { ... };
-	}
-	```
+>	```scala
+>	new Empty()
+>	new Empty			//空参函数括号可省略
+>	```
 
-	可以采用如下方式实例化：
+> 与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。
+> 如下代码所示：
 
-	```scala
-	new Empty()
-	new Empty			//空参函数括号可省略
-	```
+>	```scala
+>	class Default {
+>		def this(num: Int) = this
+>	}
+>	```
 
-	与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。
-	如下代码所示：
+> 编译成Java代码后为：
 
-	```scala
-	class Default {
-		def this(num: Int) = this
-	}
-	```
+>	```java
+>	public class Default {
+>		public Default();
+>		public Default(int);
+>	}
+>	```
 
-	编译成Java代码后为：
+> 可以看到，默认的空参构造方法依然存在。
 
-	```java
-	public class Default {
-		public Default();
-		public Default(int);
-	}
-	```
+> 主构造器不能在类体中重新定义，如下所示：
 
-	可以看到，默认的空参构造方法依然存在。
-
-	主构造器不能在类体中重新定义，如下所示：
-
-	```scala
-	class Default {
-		//编译报错，主构造器已为空参，不能重复定义
-		def this() { ... }
-	}
-	```
+>	```scala
+>	class Default {
+>		//编译报错，主构造器已为空参，不能重复定义
+>		def this() { ... }
+>	}
+>	```
 
 ### 多态
 Scala作为OOP语言，支持多态。
 
-#### *重写*
-在Scala中，默认情况下，子类的并不会重写父类的同名方法，而是需要显式地在方法定义前加上`override`关键字才会发生重写行为。
+重写
+> 在Scala中，默认情况下，子类的并不会重写父类的同名方法，而是需要显式地在方法定义前加上`override`关键字才会发生重写行为。
 
-Scala中的重写遵循以下规则：
+> Scala中的重写遵循以下规则：
 
-- def只能重写另一个def。
-- var只能重写另一个抽象的var(即只有定义没有实现)。
-- val可以重写另一个val以及不带有参数的def。
+>	- def只能重写另一个def。
+>	- var只能重写另一个抽象的var(即只有定义没有实现)。
+>	- val可以重写另一个val以及不带有参数的def。
 
-#### *重载*
-Scala支持函数重载，并且可以使用**操作符**作为函数名，使用操作符作为函数名可以达到类似**C++**中**操作符重载**的效果。
+重载
+> Scala支持函数重载，并且可以使用**操作符**作为函数名，使用操作符作为函数名可以达到类似**C++**中**操作符重载**的效果。
 
 ### 伴生对象
 在Scala中没有`static`关键字，也没有**静态成员**的概念，Scala使用**单例对象**来达到近似静态成员的作用。
@@ -875,9 +873,9 @@ object Apply {
 ### 提取器
 在Scala中，还提供了被称为**提取器**的`unapply()`方法。
 
-`unapply()`方法则与`apply()`方法相反，可以从对象中提取出需要的数据(在实际使用过程中，可以从任意的目标里提取数据)。
-`unapply()`方法返回值必须为`Option`及其子类，单一返回值使用`Option[T]`，多个返回值可以包含在元组中`Option[(T1, T2, T3, ...)]`。
-`unapply()`方法虽然也可以定义在类中，但一般定义在**伴生对象**中(在类中定义没有合适的语法使用)。
+- `unapply()`方法则与`apply()`方法相反，可以从对象中提取出需要的数据(在实际使用过程中，可以从任意的目标里提取数据)。
+- `unapply()`方法返回值必须为`Option`及其子类，单一返回值使用`Option[T]`，多个返回值可以包含在元组中`Option[(T1, T2, T3, ...)]`。
+- `unapply()`方法虽然也可以定义在类中，但一般定义在**伴生对象**中(在类中定义没有合适的语法使用)。
 
 假设有伴生对象名为`Unapply`，则：
 
@@ -1015,98 +1013,99 @@ Scala中的`trait`特质对应Java中的`interface`接口，但相比Java中的�
 
 Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
 
-#### *混入(Mixin)*
-- Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
-- Scala中采用的**混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
-- 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
-- 若同时继承类并混入特质，需要将继承的类写在`extends`关键字的后面，`with`只能混入**特质**，不能混入**类**。
+混入(Mixin)
+> Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
 
-如下所示：
+>	- Scala中采用的**混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
+>	- 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
+>	- 若同时继承类并混入特质，需要将继承的类写在`extends`关键字的后面，`with`只能混入**特质**，不能混入**类**。
 
-```scala
-class BaseA
+> 如下所示：
 
-class BaseB
+>	```scala
+>	class BaseA
 
-trait TraitA extends BaseA
+>	class BaseB
 
-trait TraitB extends BaseB
+>	trait TraitA extends BaseA
 
-/* 编译报错，提示：
- * superclass BaseA
- * is not a subclass of the superclass BaseB
- * of the mixin trait TraitB
- */
-class TestExtend extends TraitA with TraitB
+>	trait TraitB extends BaseB
 
-/* 编译报错，提示：
- * class BaseA needs to be a trait to be mixed in
- */
-class ExtendClass extends TraitA with BaseA
-```
+>	/* 编译报错，提示：
+>	 * superclass BaseA
+>	 * is not a subclass of the superclass BaseB
+>	 * of the mixin trait TraitB
+>	 */
+>	class TestExtend extends TraitA with TraitB
 
-`TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。
-`ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
+>	/* 编译报错，提示：
+>	 * class BaseA needs to be a trait to be mixed in
+>	 */
+>	class ExtendClass extends TraitA with BaseA
+>	```
 
-#### *重写冲突的方法与字段*
-与Java8中相同，混入机制同样需要解决**富接口**带来的成员冲突问题，当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
+> `TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。
+> `ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
 
-如下所示：
+重写冲突的方法与字段
+> 与Java8中相同，混入机制同样需要解决**富接口**带来的成员冲突问题，当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
 
-```scala
-class BaseA {
-	def get = 123
-}
+> 如下所示：
 
-trait TraitA {
-	def get = 456
-}
+>	```scala
+>	class BaseA {
+>		def get = 123
+>	}
 
-trait TraitB {
-	def get = 789
-}
+>	trait TraitA {
+>		def get = 456
+>	}
 
-class TestExtend extends BaseA with TraitA with TraitB {
-	override def get = 77		//对于冲突的内容，必需显式重写
-}
-```
+>	trait TraitB {
+>		def get = 789
+>	}
 
-#### *混入顺序*
-对于混入的内容，按照以下顺序进行构造：
+>	class TestExtend extends BaseA with TraitA with TraitB {
+>		override def get = 77		//对于冲突的内容，必需显式重写
+>	}
+>	```
 
-- 首先构造父类。
-- 按照特质出现的顺序从左往右依次构造特质。
-- 在一个特质中，若该特质存在父特质，则先构造父特质。若多个特质拥有相同的父特质，该父特质不会被重复构造。
-- 最后构造子类。
+混入顺序
+> 对于混入的内容，按照以下顺序进行构造：
 
-Scala的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。
-线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
+>	- 首先构造父类。
+>	- 按照特质出现的顺序从左往右依次构造特质。
+>	- 在一个特质中，若该特质存在父特质，则先构造父特质。若多个特质拥有相同的父特质，该父特质不会被重复构造。
+>	- 最后构造子类。
 
-如下所示：
+> Scala的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。
+> 线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
 
-```scala
-class BaseA {
-	def get = 123
-}
+> 如下所示：
 
-trait TraitA {
-	def get = 456
-}
+>	```scala
+>	class BaseA {
+>		def get = 123
+>	}
 
-trait TraitB {
-	def get = 789
-}
+>	trait TraitA {
+>		def get = 456
+>	}
 
-trait TraitC extends TraitA {
-	override def get = 111
-}
+>	trait TraitB {
+>		def get = 789
+>	}
 
-class TestExtend extends BaseA with TraitA with TraitC {
-	override def get = super.get				//使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
-	//override def get = super[BaseA].get		//也可以使用继承自其它特质或类的实现
-	//override def get = super[TraitB].get		//错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
-}
-```
+>	trait TraitC extends TraitA {
+>		override def get = 111
+>	}
+
+>	class TestExtend extends BaseA with TraitA with TraitC {
+>		override def get = super.get				//使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
+>		//override def get = super[BaseA].get		//也可以使用继承自其它特质或类的实现
+>		//override def get = super[TraitB].get		//错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
+>	}
+>	```
 
 ### 复制类实例
 Scala与Java类似，类实例赋值仅仅是复制了一个引用，实例所指向的内存区域并未被复制。
@@ -2066,22 +2065,22 @@ def unapplySeq(n: Node) = Some((n.label, n.attributes, n.child))
 ### 查找节点和节点属性
 `NodeSeq`类提供了`\()`、`\\()`等方法用于节点的查找，继承于`NodeSeq`类的`Node`、`Elem`等类型都可以使用这些方法进行节点查找。
 
-#### *查找节点*
-`\()`以及`\\()`方法签名类似，接收节点名称作为参数(`String`类型)，返回节点序列(`NodeSeq`类型)。
+查找节点
+> `\()`以及`\\()`方法签名类似，接收节点名称作为参数(`String`类型)，返回节点序列(`NodeSeq`类型)。
 
-- `\()`方法返回当前节点**下一级**子节点中指定名称节点的序列。
-- `\\()`方法返回当前节点**所有**子节点中指定名称节点的序列。
-- 使用`loadFile()`方法加载XML文件后，返回的`Elem`类型的当前节点为**根节点**。
-- 节点查找支持使用**模式匹配**的方式。
-- 使用模式匹配方式查找节点时，匹配表达式中的节点标签不能带有属性(不支持)。
+>	- `\()`方法返回当前节点**下一级**子节点中指定名称节点的序列。
+>	- `\\()`方法返回当前节点**所有**子节点中指定名称节点的序列。
+>	- 使用`loadFile()`方法加载XML文件后，返回的`Elem`类型的当前节点为**根节点**。
+>	- 节点查找支持使用**模式匹配**的方式。
+>	- 使用模式匹配方式查找节点时，匹配表达式中的节点标签不能带有属性(不支持)。
 
-#### *节点属性*
-节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
+节点属性
+> 节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
 
-- 使用`\()`、`\\()`方法同样可以进行属性查找，需要在属性名字符串前加上`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名称为`num`的属性内容。
-- 在使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
-- 可以直接使用`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。
-- 还可以使用`attribute()`以及`attributes()`方法从节点中获取属性。
+>	- 使用`\()`、`\\()`方法同样可以进行属性查找，需要在属性名字符串前加上`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名称为`num`的属性内容。
+>	- 在使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
+>	- 可以直接使用`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。
+>	- 还可以使用`attribute()`以及`attributes()`方法从节点中获取属性。
 
 ### 遍历节点
 `Elem`类型的成员字段`child`保存了子节点的序列(`Seq[Node]`类型)，可以通过`for`循环语句进行遍历：

@@ -35,7 +35,8 @@ Y组合子的数学定义为`Y = λf.(λx.f(x x))(λx.f(x x))`。
 或者直接使用`Z组合子`。
 
 ### 调用自身
-不动点组合子`Y`的数学表示为`Y = λf.(λx.f(x x))(λx.f(x x))`，其中`x`和`λx.f(x x)`的类型是一个具备调用自身逻辑的高阶函数。在**显式类型**的编程语言中，需要首先确定这个高阶函数的实际类型。
+不动点组合子`Y`的数学表示为`Y = λf.(λx.f(x x))(λx.f(x x))`，其中`x`和`λx.f(x x)`的类型是一个具备调用自身逻辑的高阶函数。
+在**显式类型**的编程语言中，需要首先确定这个高阶函数的实际类型。
 
 在`C#`中，可以简单地使用一个**泛型委托**来表示：
 
@@ -137,105 +138,112 @@ auto Y1 =
 ### 各语言完整源码
 使用`Scala`、`Python`、`C#`、`C++`等语言使用Y组合子计算斐波那契数列和阶乘的结果。
 
-- `Scala`(Scala 2.11.8)
-	```scala
-	object Main extends App {
+`Scala`(Scala 2.11.8)
 
-		implicit class Self(in: Self => Int => Int) {
-			def apply(self: Self) = in(self)
-		}
+```scala
+object Main extends App {
 
-		val fac = (x: Int => Int) => (n: Int) => if (n < 2) n else n * x(n - 1)
-		val fib = (x: Int => Int) => (n: Int) => if (n < 2) n else x(n - 1) + x(n - 2)
-
-		val Y0 = (f: (Int => Int) => Int => Int) => ((x: Self) => f(x(x)))((x: Self) => f(n => x(x)(n)))
-		val Y1 = (f: (Int => Int) => Int => Int) => ((x: Self) => f(x(x)))((x: Self) => (n: Int) => f(x(x))(n))
-
-		println("Factorial(5): " + Y0(fac)(5))
-		println("Fibonacci(5): " + Y0(fib)(5))
-
-		println("Factorial(10): " + Y1(fac)(10))
-		println("Fibonacci(10): " + Y1(fib)(10))
+	implicit class Self(in: Self => Int => Int) {
+		def apply(self: Self) = in(self)
 	}
-	```
-- `C#`(Mono 4.4.0.0 && ArchLinux x64)
-	```csharp
-	using System;
 
-	delegate Func<int, int> Self(Self self);
+	val fac = (x: Int => Int) => (n: Int) => if (n < 2) n else n * x(n - 1)
+	val fib = (x: Int => Int) => (n: Int) => if (n < 2) n else x(n - 1) + x(n - 2)
 
-	class Y
+	val Y0 = (f: (Int => Int) => Int => Int) => ((x: Self) => f(x(x)))((x: Self) => f(n => x(x)(n)))
+	val Y1 = (f: (Int => Int) => Int => Int) => ((x: Self) => f(x(x)))((x: Self) => (n: Int) => f(x(x))(n))
+
+	println("Factorial(5): " + Y0(fac)(5))
+	println("Fibonacci(5): " + Y0(fib)(5))
+
+	println("Factorial(10): " + Y1(fac)(10))
+	println("Fibonacci(10): " + Y1(fib)(10))
+}
+```
+
+`C#`(Mono 4.4.0.0 && ArchLinux x64)
+
+```csharp
+using System;
+
+delegate Func<int, int> Self(Self self);
+
+class Y
+{
+	static void Main(string[] args)
 	{
-		static void Main(string[] args)
-		{
-			Func<Func<Func<int, int>, Func<int, int>>, Func<int, int>> Y0 = f =>
-				((Self)(x => f(x(x))))((Self)(x => n => f(x(x))(n)));
-			Func<Func<Func<int, int>, Func<int, int>>, Func<int, int>> Y1 = f =>
-				((Self)(x => f(x(x))))((Self)(x => f(n => x(x)(n))));
+		Func<Func<Func<int, int>, Func<int, int>>, Func<int, int>> Y0 = f =>
+			((Self)(x => f(x(x))))((Self)(x => n => f(x(x))(n)));
+		Func<Func<Func<int, int>, Func<int, int>>, Func<int, int>> Y1 = f =>
+			((Self)(x => f(x(x))))((Self)(x => f(n => x(x)(n))));
 
-			Func<Func<int, int>, Func<int, int>> fac = x => n => n < 2 ? n : n * x(n - 1);
-			Func<Func<int, int>, Func<int, int>> fib = x => n => n < 2 ? n : x(n - 1) + x(n - 2);
+		Func<Func<int, int>, Func<int, int>> fac = x => n => n < 2 ? n : n * x(n - 1);
+		Func<Func<int, int>, Func<int, int>> fib = x => n => n < 2 ? n : x(n - 1) + x(n - 2);
 
-			Console.WriteLine("Factorial(5): " + Y0(fac)(5));
-			Console.WriteLine("Fibonacci(5): " + Y1(fib)(5));
+		Console.WriteLine("Factorial(5): " + Y0(fac)(5));
+		Console.WriteLine("Fibonacci(5): " + Y1(fib)(5));
 
-			Console.WriteLine("Factorial(10): " + Y1(fac)(10));
-			Console.WriteLine("Fibonacci(10): " + Y1(fib)(10));
-		}
+		Console.WriteLine("Factorial(10): " + Y1(fac)(10));
+		Console.WriteLine("Fibonacci(10): " + Y1(fib)(10));
 	}
-	```
-- `C++`(GCC 6.1.1 && ArchLinux x64)
-	```cpp
-	#include <iostream>
-	#include <functional>
+}
+```
 
-	int main(void)
-	{
-		auto Y0 =
-			[](auto f)
-				{ return [f](auto x) { return f(x(x)); }
-					([f](auto x) -> std::function<int(int)>
-						{ return [&](auto n) { return f(x(x))(n); }; }); };
+`C++`(GCC 6.1.1 && ArchLinux x64)
 
-		auto Y1 =
-			[](auto f)
-				{ return [f](auto x) { return f(x(x)); }
-					([f](auto x) -> std::function<int(int)>
-						{ return f([x](auto n) { return x(x)(n); }); }); };
+```cpp
+#include <iostream>
+#include <functional>
 
-		auto fac =
-			[](auto x)
-				{ return [x](auto n)
-					{ return n < 2 ? n : n * x(n - 1); }; };
+int main(void)
+{
+	auto Y0 =
+		[](auto f)
+			{ return [f](auto x) { return f(x(x)); }
+				([f](auto x) -> std::function<int(int)>
+					{ return [&](auto n) { return f(x(x))(n); }; }); };
 
-		auto fib =
-			[](auto x)
-				{ return [x](auto n)
-					{ return n < 2 ? n : x(n - 1) + x(n - 2); }; };
+	auto Y1 =
+		[](auto f)
+			{ return [f](auto x) { return f(x(x)); }
+				([f](auto x) -> std::function<int(int)>
+					{ return f([x](auto n) { return x(x)(n); }); }); };
 
-		std::cout << "Factorial(5): " << Y0(fac)(5) << std::endl;
-		std::cout << "Fibonacci(5): " << Y0(fib)(5) << std::endl;
+	auto fac =
+		[](auto x)
+			{ return [x](auto n)
+				{ return n < 2 ? n : n * x(n - 1); }; };
 
-		std::cout << "Factorial(10): " << Y1(fac)(10) << std::endl;
-		std::cout << "Fibonacci(10): " << Y1(fib)(10) << std::endl;
+	auto fib =
+		[](auto x)
+			{ return [x](auto n)
+				{ return n < 2 ? n : x(n - 1) + x(n - 2); }; };
 
-		return 0;
-	}
-	```
-- `Python`(Python 3.5.1)
-	```py
-	Y0 = lambda f: (lambda x: f(x(x)))(lambda x: f(lambda y: x(x)(y)))
-	Y1 = lambda f: (lambda x: f(x(x)))(lambda x: lambda y: f(x(x))(y))
+	std::cout << "Factorial(5): " << Y0(fac)(5) << std::endl;
+	std::cout << "Fibonacci(5): " << Y0(fib)(5) << std::endl;
 
-	fac = lambda x: lambda n: n < 2 and n or n * x(n - 1)
-	fib = lambda x: lambda n: n if n < 2 else x(n - 1) + x(n - 2)
+	std::cout << "Factorial(10): " << Y1(fac)(10) << std::endl;
+	std::cout << "Fibonacci(10): " << Y1(fib)(10) << std::endl;
 
-	print("Factorial(5): %d" % Y0(fac)(5));
-	print("Fibonacci(5): %d" % Y0(fib)(5));
+	return 0;
+}
+```
 
-	print("Factorial(10): %d" % Y1(fac)(10));
-	print("Fibonacci(10): %d" % Y1(fib)(10));
-	```
+`Python`(Python 3.5.1)
+
+```py
+Y0 = lambda f: (lambda x: f(x(x)))(lambda x: f(lambda y: x(x)(y)))
+Y1 = lambda f: (lambda x: f(x(x)))(lambda x: lambda y: f(x(x))(y))
+
+fac = lambda x: lambda n: n < 2 and n or n * x(n - 1)
+fib = lambda x: lambda n: n if n < 2 else x(n - 1) + x(n - 2)
+
+print("Factorial(5): %d" % Y0(fac)(5));
+print("Fibonacci(5): %d" % Y0(fib)(5));
+
+print("Factorial(10): %d" % Y1(fac)(10));
+print("Fibonacci(10): %d" % Y1(fib)(10));
+```
 
 输出结果：
 
