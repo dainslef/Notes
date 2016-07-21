@@ -31,7 +31,7 @@ $ make
 - `QLineEdit` 单行文本编辑框
 - `QTextEdit` 多行文本编辑框
 - `QRadioButton` 单选框
-- `QCheckButton` 复选框
+- `QCheckBox` 复选框
 - `QComboBox` 组合框(下拉列表框)，使用`setMaxVisibleItems(int maxItems)`能设置同时显示的最大数目，但该选项在`gtk+/mac`风格下无效
 - `QToolBox` 工具箱，可以用来实现抽屉效果
 - `QToolButton` 工具箱按钮，有按下和弹起状态
@@ -252,57 +252,61 @@ bool QObject::event(QEvent *e);
 
 `QTableWidget`中，每一个单元格的对象生命周期与整张表格相同，使用`setItem()`成员函数向原先有内容的单元格中设置新对象时原先的对象不会自动被销毁，一般使用`setItem()`之后不再替换该单元格上的对象，而是直接修改对象存储的内容。
 
-#### *向QTableWidget中添加控件*
-`QTableWidget`还可以使用`QTableWidget::setCellWidget(int row, int column, QWidget * widget)`来向指定单元格中添加控件。
+向QTableWidget中添加控件
+> `QTableWidget`还可以使用`QTableWidget::setCellWidget(int row, int column, QWidget * widget)`来向指定单元格中添加控件。
 
-当使用了`setCellWidget()`添加控件之后，该单元格便不能使用`QTableWidget::item(int row, int column)` 方法来获取指定单元格的内容(会报空指针错误)，因为该单元格中没有`QTableWidgetItem`，正确的访问方式是使用`QTableWidget::cellWidget(int row, int column)`来获取指定单元格的**对象指针**。
+> 当使用了`setCellWidget()`添加控件之后，该单元格便不能使用`QTableWidget::item(int row, int column)` 方法来获取指定单元格的内容(会报空指针错误)，因为该单元格中没有`QTableWidgetItem`，正确的访问方式是使用`QTableWidget::cellWidget(int row, int column)`来获取指定单元格的**对象指针**。
 
-需要注意的是，向表格直接使用`setCellWidget()`设置的控件是不受`setTextAlign()`影响的，会自动挤到单元格的一边，需要控件居中显示则需要新建`QWidget`并设置**Layout**作为容器，在向设置好布局的Widget中添加需要的控件，然后再将Widget设置到表格中。
+> 需要注意的是，向表格直接使用`setCellWidget()`设置的控件是不受`setTextAlign()`影响的，会自动挤到单元格的一边，需要控件居中显示则需要新建`QWidget`并设置**Layout**作为容器，在向设置好布局的Widget中添加需要的控件，然后再将Widget设置到表格中。
 
-例如：
+> 例如：
 
-```cpp
-QWidget* widget = new QWidget(table);
-QHBoxLayout* layout = new QHBoxLayout(widget);
-layout->addWidget(new QCheckBox(widget));
-widget->setLayout(layout);
-table->setCellWidget(row, column, widget);
-```
+>	```cpp
+>	QWidget* widget = new QWidget(table);
+>	QHBoxLayout* layout = new QHBoxLayout(widget);
+>	layout->addWidget(new QCheckBox(widget));
+>	widget->setLayout(layout);
+>	table->setCellWidget(row, column, widget);
+>	```
 
-#### *设置QTableWidget不可编辑*
-使用`setEditTriggers(QAbstractItemView::NoEditTriggers)`可以将整个表格设为不可编辑。
-需要注意的是，该不可编辑设置只对`QTableWidgetItem`有效，使用`setCellWidget()`方法设置的控件不会受到影响。
+设置QTableWidget不可编辑
+> 使用`setEditTriggers(QAbstractItemView::NoEditTriggers)`可以将整个表格设为不可编辑。
+> 需要注意的是，该不可编辑设置只对`QTableWidgetItem`有效，使用`setCellWidget()`方法设置的控件不会受到影响。
 
-#### *设置表格列自动扩展*
-通过`QTableView::horizontalHeader()`方法可以获取整个表格的`QHeaderView`，然后使用其成员函数`setStretchLastSection(bool stretch)`，参数为`true`时则最后一栏的长度会自动扩展，也可以使用`setSectionResizeMode(QHeaderView::Stretch)`来使所有列自动扩展(`Qt4`时使用`setResizeMode()`设置所有列扩展，`Qt5`后该函数被**废弃**，使用`setSectionResizeMode()`替代)。
+表格扩展
+> 设置表格大小自动扩展：
+>	0. 通过`QTableView::horizontalHeader()`方法获取整个表格的`QHeaderView`。
+>	0. 然后使用其成员函数`setStretchLastSection(bool stretch)`，参数为`true`时则最后一栏的长度会自动扩展。
+>	0. 也可以使用`setSectionResizeMode(QHeaderView::Stretch)`来使所有列自动扩展(`Qt4`时使用`setResizeMode()`设置所有列扩展，`Qt5`后该函数被**废弃**，使用`setSectionResizeMode()`替代)。
 
-例如：
+> 例如：
 
-```cpp
-QTableWidget* table = new QTableWidget;
-table->horizontalHeader()->setStretchLastSection(true);						//最后一行自动扩展
-table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);		//所有行自动扩展
-```
+>	```cpp
+>	QTableWidget* table = new QTableWidget;
+>	table->horizontalHeader()->setStretchLastSection(true);						//最后一行自动扩展
+>	table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);		//所有行自动扩展
+>	```
 
-#### *设置列宽自动扩展*
-- 使用`QTableView::resizeColumnsToContents()`可以使**所有列**的列宽自动适配内容宽度。
-- 使用`QTableView::resizeColumnToContents(int column)`设置**指定列**为自动适配内容宽度。
+> 设定列宽匹配单元格内容
+>	- 使用`QTableView::resizeColumnsToContents()`可以使**所有列**的列宽自动适配内容宽度。
+>	- 使用`QTableView::resizeColumnToContents(int column)`设置**指定列**为自动适配内容宽度。
 
-#### *获取QTableWidget中发生变化的位置*
-0. 通过`QObject::sender()`获取信号的发出源对象
-0. 使用`dynamic_cast`宏转换为`QWidget`
-0. 再使用`QWidget::frameGeometry()`得到一个`QRect`型返回值表示该控件在其**parent窗口**中的位置
-0. 再通过`QTableView::indexAt(const QPoint& pos)`得到包含有单元格位置信息的`QModelIndex`返回值
-0. 使用`QModelIndex::row()/QModelIndex::column()`获取源对象的行列值。
+获取变化的单元格
+> 获取QTableWidget中发生变化的位置：
+>	0. 通过`QObject::sender()`获取信号的发出源对象
+>	0. 使用`dynamic_cast`宏转换为`QWidget`
+>	0. 再使用`QWidget::frameGeometry()`得到一个`QRect`型返回值表示该控件在其**parent窗口**中的位置
+>	0. 再通过`QTableView::indexAt(const QPoint& pos)`得到包含有单元格位置信息的`QModelIndex`返回值
+>	0. 使用`QModelIndex::row()/QModelIndex::column()`获取源对象的行列值。
 
-举例：
+> 举例：
 
-```cpp
-QTableWidget* table = new QTableWidget;
-QModeIndex index = table->indexAt(dynamic_cast<QWidget*>(sender())->frameGeometry().center());
-int row = index.row();
-int column = index.column();
-```
+>	```cpp
+>	QTableWidget* table = new QTableWidget;
+>	QModeIndex index = table->indexAt(dynamic_cast<QWidget*>(sender())->frameGeometry().center());
+>	int row = index.row();
+>	int column = index.column();
+>	```
 
 ### 使用QTableView
 `QTableView`可以自由搭配不同的**model**：
@@ -313,18 +317,18 @@ void QTableView::setModel(QAbstractItemModel *model)
 
 `QTableView`本身并不存放数据，数据保存在`model`中，可以通过`QAbstractItemView::model()` 来获取表格中已经组装的model，大量的变更数据可以直接`delete`旧的`model`，然后设定并组装新的`model`。
 
-#### *使用QSqlTableMode搭配QTableView实现数据库直接操作*
-0. 创建出一个`QSqlTableMode`对象，如果已经有数据库连接且不需要从新的数据库中读取数据，则构造函数中的`QSqlDatabase`对象可以取默认值。
-0. 调用`QSqlTableMode::setTable()`设置要显示的表名，用`QSqlTableMode::setHeaderData()`设置每一列显示的数据。
-0. 设置完`QSqlTableMode`之后，调用其成员函数`select()`将数据表格配置提交生效。
-0. 创建`QTableView`对象，使用其成员函数`setModel()`将先前建立的`QSqlTableMode`对象作为参数传入即可。
+使用QSqlTableMode搭配QTableView实现数据库直接操作
+>	0. 创建出一个`QSqlTableMode`对象，如果已经有数据库连接且不需要从新的数据库中读取数据，则构造函数中的`QSqlDatabase`对象可以取默认值。
+>	0. 调用`QSqlTableMode::setTable()`设置要显示的表名，用`QSqlTableMode::setHeaderData()`设置每一列显示的数据。
+>	0. 设置完`QSqlTableMode`之后，调用其成员函数`select()`将数据表格配置提交生效。
+>	0. 创建`QTableView`对象，使用其成员函数`setModel()`将先前建立的`QSqlTableMode`对象作为参数传入即可。
 
-`QSqlTableMode`可以直接在表上进行修改操作，使用其成员函数`insertRow()`和`removeRow()`可分别实现**插入行**与**删除行**操作，需要注意的是，删除行时需要手动调用`select()`成员函数进行**提交**，否则被删除的行将依然占位置(虽然内容已被清除)。
+> `QSqlTableMode`可以直接在表上进行修改操作，使用其成员函数`insertRow()`和`removeRow()`可分别实现**插入行**与**删除行**操作，需要注意的是，删除行时需要手动调用`select()`成员函数进行**提交**，否则被删除的行将依然占位置(虽然内容已被清除)。
 
-在Qt中，数据库记录行数是从**0**开始计数的，而`QSqlTableMode`在显示数据库数据时，表格是从`1`开始计数的，使用`rowCount()`函数得到的返回值比表格上显示的行数**小**1。
+> 在Qt中，数据库记录行数是从**0**开始计数的，而`QSqlTableMode`在显示数据库数据时，表格是从`1`开始计数的，使用`rowCount()`函数得到的返回值比表格上显示的行数**小**1。
 
-#### *刷新QTableView*
-默认情况下，数据库的数据发生了变化，`QTableView`是不会**实时更新**的(model未发生变化)，需要调用`QSqlTableModel::select()`函数更新`QSqlTableMode`内的数据，然后`QTableView`才会将这些数据显示出来。
+刷新QTableView
+> 默认情况下，数据库的数据发生了变化，`QTableView`是不会**实时更新**的(model未发生变化)，需要调用`QSqlTableModel::select()`函数更新`QSqlTableMode`内的数据，然后`QTableView`才会将这些数据显示出来。
 
 
 
@@ -570,23 +574,17 @@ Qt风格的文本格式化应使用`QString::arg(const QString& a, int fieldWidt
 ### 限制QLineEdit的输入内容
 很多时候，需要对用户输入的内容加以限制，对于简单的限制，可以使用`QLineEdit::setValidator(const QValidator* v)`限制输入内容。
 
-#### *限制只能输入整数*
-
+- 限制只能输入整数
 ```cpp
 QLineEdit* lineEdit = new QLineEdit();
 lineEdit->setValidator(new QIntValidator(0, 1000, this));				//限制输入0~1000的数值
 ```
-
-#### *限制只能输入小数*
-
+- 限制只能输入小数
 ```cpp
 QLineEdit* lineEdit = new QLineEdit();
 lineEdit->setValidator(new QDoubleValidator(0.0, 1000.0, 2, this));		//限制输入0.0~1000.0的数值，最大保留小数点后两位
 ```
-
-#### *复杂的输入限制*
-对于复杂的输入限制，可以使用正则表达式校验器`QRegExpValidator`。
-
+- 复杂的输入限制(使用正则表达式校验器`QRegExpValidator`)
 ```cpp
 QLineEdit* lineEdit = new QLineEdit();
 lineEdit->setValidator(new QRegExpValidator(QRegExp("正则表达式内容")), this);
@@ -629,7 +627,7 @@ void QListWidgetItem::setData(int role, const QVariant& value);			//设置item�
 - `Qt::MatchStartsWith` 查找名称最前部分匹配text的item
 - `Qt::MatchEndsWith` 查找名称最后部分匹配text的item
 - `Qt::MatchContains` 查找名称包含text的item
-- `Qt::MatchFixedString` 查找完全匹配text的item，默认情况下是忽略大小写的，通过设置`Qt::MatchCaseSensitive`可设置匹配为大小写敏感
+- `Qt::MatchFixedString` 查找完全匹配text的item，默认忽略大小写的，通过枚举`Qt::MatchCaseSensitive`设置大小写敏感
 
 
 
@@ -811,30 +809,40 @@ label->setPixmap(map);
 
 ## Qt绘图系统
 `Qt`的**绘图系统**包括`QPainter``QPaintDevice``QPaintEngine`三个类。
+
 `QPainter`用于执行绘图的操作，`QPaintDevice`则是一个二维空间的抽象，给`QPainter`提供绘制图形的空间，而`QPaintEngine`通常对于开发人员透明，用于`QPainter`和`QPaintDevice`之间的**通讯**。
+
 `QPaintDevice`相当于画板，`QPainter`相当于画笔，`QPaintDevice`有多种子类如`QPixmap``QImage`等。
 
 ### paintEvent()
 一般而言，自行绘制图形可以自定义一个类继承于`QWidget`，然后重写`QWidget::paintEvent(QPiantEvent*)`事件处理函数，将绘制图形的操作放在`paintEvent()`事件处理函数中。
+
 在`Qt4`之后，绘图操作可以不必放在`paintEvent()`事件处理函数中运行，但对于从`QWidget`继承过来的类而言，必须将绘制操作放在`paintEvent()`中，可以封装一个类用于管理paint操作，然后将该类放在`paintEvent()`中实例化。
+
 `paintEvent()`是一个会被频繁触发的事件，每次窗口有刷新行为都会触发该事件函数进行重绘。
 `paintEvent()`事件函数也可以被手动触发，`QWidget`的子类使用`repaint()`、`update()`成员函数就能主动触发重绘事件。
 
 ### QPainter
 `QPainter`相当于画笔，用于控制线的**样式**、**颜色**、**粗细**等。
+
 使用`QPainter`绘制图像时，需要在构建`QPainter`实例时传入需要绘制的设备的地址作为参数或者使用`begin()`成员函数来确定绘制设备，比如`QPainter painter(this);`就是实例化了一个绘制**当前控件**的`QPainter`。
 一个`painter`只能同时绘制一个设备(一支笔不能同时在两张纸上写字)，当可以在绘制设备之间进行切换，从一个绘制设备切换到另一个绘制设备之前需要使用`end()`成员函数结束上一个被绘制的设备，然后将下一个可绘制设备的地址传入`begin()`成员函数进行绘制。
+
 `QPainter`不仅能用于绘制图像，还可以用于绘制**文字**(使用`drawText()`方法)。
+
 `QPainter`使用`QPainter::setPen(const QPen& pen)`可以设置画笔的样式(线形、色彩等)。
 `QPainter`使用`QPainter::setFont(const QFont& font)`可以设置文本的字体。
 
 ### QPixmap
-使用默认的构造函数(无参构造函数)构造`QPixmap`时，会产生一个**空的**`QPixmap`对象，空的`QPixmap`对象是**不能**传入`QPainter`进行绘制操作的(运行时提示`QPainter::begin: Paint device returned engine == 0, type: 2`)，需要重载的`赋值操作符/load()`等成员函数加载数据之后才能绘制，也可以使用带有初始大小的`QPixmap(const QSize& size)``QPixmap(int width, int height)`等构造函数创建一个**初始非空**的`QPixmap`对象。
+使用默认的构造函数(无参构造函数)构造`QPixmap`时，会产生一个**空的**`QPixmap`对象，空的`QPixmap`对象是**不能**传入`QPainter`进行绘制操作的(运行时提示`QPainter::begin: Paint device returned engine == 0, type: 2`)，需要重载的`赋值操作符/load()`等成员函数加载数据之后才能绘制，也可以使用带有初始大小的`QPixmap(const QSize& size)`、`QPixmap(int width, int height)`等构造函数创建一个**初始非空**的`QPixmap`对象。
+
 相比直接在控件上进行绘制，使用`QPixmap`最大的不同是像`QPixmap`中绘制的数据是可以被保存下来的，而直接在控件上绘制则每次刷新会丢失先前绘制的内容。
+
 `QPixmap`可以使用`QImage QPixmap::toImage() const`转换为`QImage`。
 
 ### QImage
 与`QPixmap`类似，使用无参构造函数创建的`QImage`同样是空的，没有分配内存不能直接用于`QPainter`绘制，使用`QPainter`绘制需要使用有参构造函数构建**非空**的`QImage`对象。
+
 相比`QPixmap`，`QImage`支持进行**像素级别**的操作，`QPixmap`的实现依赖于硬件，`QImage`不依赖于硬件，`QPixmap`主要用于绘图,针对屏幕显示而最佳化设计，`QImage`主要是为图像I/O、图片访问和像素修改而设计。
 
 ### 图片透明化
@@ -911,7 +919,7 @@ Qt提供了基于`WebKit`引擎的`QWebKit`做为**网页解析引擎**。网页
 通过使用`QFontDataBase`对象可以获取当前系统的字体数据。
 通过使用`QFontMetrics`对象可以获取指定样式字体的宽度、高度。
 
-###打印出当前系统支持的字体
+### 打印出当前系统支持的字体
 
 ```cpp
 foreach (const QString& font_name, QFontDatabase().families())
@@ -982,11 +990,13 @@ QStringList QDir::entryList(Filters filters = NoFilter, SortFlags sort = NoSort)
 
 ## Qt国际化
 对Qt工程进行国际化首先需要在项目中创建`ts`翻译文件，并对需要翻译的文本使用`QObject::tr()`方法进行标记。
+
 `ts`翻译文件本质上是一个**XML文档**，记录了源码中被标记的文本与翻译文本之间的对应关系。
 `ts`翻译文件可以被编译成`qm`格式的二进制翻译文件，用于被程序加载。
 
 ### 动态切换程序语言
 使用`QTranslator`类可以实现程序语言的动态切换。
+
 通过`QTranslator::load()`的重载方法加载`qm`文件：
 
 ```cpp
@@ -1004,6 +1014,7 @@ bool QTranslator::load(const QLocale& locale, const QString& filename, const QSt
 ### 关于 *undefined reference to vtable for XXX(类名)* 错误
 在一个类的定义中，如果使用类`Q_OBJECT`宏，则需要将对应的代码使用`moc`工具进行预处理生成`*.moc`文件才能够正常编译，而`qmake`工具在扫描代码中的`Q_OBJECT`时只会从`*.h`命名的文件中查找，如果在编码过程中没有按照编码规范而是将类的定义写在`*.cpp/*.cc`文件中的话，`qmake`工具是不会识别的，生成对应的`Makefile`文件也不会将对应的`*.moc`文件加入编译使得make指令编译报错。
 正确的做法是按照C++标准将类的定义写在`*.h`头文件中。
+
 此外，Qt在编译项目时默认采用的是`make`编译，会在编译时忽略那些未曾改动的文件，因此有时出现此错误时还可以尝试完全删除已经存在的二进制文件和编译中间文件，然后从头开始重新编译整个项目。
 一般对于此类错误的解决办法是手动运行`qmake`后整个项目重新编译。
 
@@ -1024,6 +1035,7 @@ bool QTranslator::load(const QLocale& locale, const QString& filename, const QSt
 
 ### 关于Windows专属BUG：中文乱码
 在Windows系统下，使用VS开发Qt程序时，即使代码文件的编码设置为`UTF-8`，并且通过`QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));`显式设定编码为`UTF-8`，依然会出现中文乱码的问题。
+
 对于少量的中文内容，可以使用`QString::fromLocal8bit(const char*);`函数让中文内容正常显示。
 对于大量的中文内容，每次出现中文都使用QString的成员函数转换非常麻烦，可以使用如下宏解决中文编码问题：
 
@@ -1031,7 +1043,7 @@ bool QTranslator::load(const QLocale& locale, const QString& filename, const QSt
 #pragma execution_character_set("utf-8")
 ```
 
-需要注意的是，该宏需要特定版本的VS支持，对于`VS2010`，需要安装`VS2010SP1`更新。VS2012不支持该宏，VS2013支持。
+需要注意的是，该宏需要特定版本的VS支持，对于`VS2010`，需要安装`VS2010SP1`更新。`VS2012`不支持该宏，`VS2013`支持。
 
 ### 关于 *This application failed to start because it could not find or load the Qt platform plugin "windows".* 运行错误
 在使用非安装版本的Qt或是系统中未安装Qt时启动Qt程序可能会遇到此错误提示，原因是未能加载Qt的运行时动态链接库。

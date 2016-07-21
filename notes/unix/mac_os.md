@@ -25,7 +25,7 @@
 - 复制/粘贴文件: `Command + C/V`
 - 剪切文件: `Option + Command + V`
 - 切换程序: `Command + Tab`
-- 切换当前程序的窗口: `Command + \``
+- 切换当前程序的窗口: `Command + \`
 - 退出程序: `Command + Q`
 - 关闭当前窗口: `Command + W`
 - 最小化窗口: `Command + M`
@@ -44,7 +44,7 @@
 
 	`$ defaults write com.apple.finder AppleShowAllFiles YES/NO			//需要重新登陆账户才会生效`
 
-- 制通知中心点的通知停留时间：
+- 设置通知中心点的通知停留时间：
 
 	`$ defaults write com.apple.notificationcenterui bannerTime [数值]		//控单位为秒`
 
@@ -61,20 +61,21 @@
 - `iTerm2` 终端模拟器，相比自带终端拥有更多高级特性
 
 ### 特殊目录
-- `~/Library/Fonts` 用户字体目录
-- `~/Library/Caches` 缓存目录
-- `~/Library/Application Support` 用户程序配置目录
-- `~/Library/Preferences` 用户程序配置目录
-- `~/Library/Saved Application State` 用户程序状态目录
-- `~/Library/VirtualBox` VirtualBox的配置文件目录，删除则VirtualBox恢复初始状态，需要重新添加虚拟机
-- `/Library/Application Support` 系统程序配置目录
 - `/System/Library/Fonts` 系统默认字体目录
 - `/Library/Fonts` 系统可选字体目录
 - `/Volumes` 系统默认挂载目录
+- `~/Library/Fonts` 用户字体目录
+- `~/Library/Caches` 缓存目录
+- `~/Library/Application Support` 用户程序配置目录
+- `/Library/Application Support` 系统程序配置目录
+- `~/Library/Preferences` 用户程序配置目录
+- `~/Library/Saved Application State` 用户程序状态目录
+- `~/Library/VirtualBox` VirtualBox的配置文件目录，删除则VirtualBox恢复初始状态，需要重新添加虚拟机
 
 ### 文件系统
 `macOS`默认文件系统为`HFS+`，此类文件系统同时支持区分大小写(Case-Sensitive)和忽略大小写两种类型，在格式化时可以进行选择。
 需要注意的是，如果选择了区分大小写形式的HFS+文件系统，则部分软件将无法安装(比如PhotoShop等)。
+
 文件系统类型在安装了macOS之后除了重装系统之外无法更改，需要**慎重选择**。
 
 ### 挂载 *NTFS* 读写
@@ -110,6 +111,7 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 0. `Linux`中普通用户UID从`1000`开始，`macOS`中UID从`500`开始。
 0. 家目录与Linux/BSD中不同，macOS中的`/home`目录默认为**空**，用户家目录的位置为`/Users`。
 0. `root`用户家目录与Linux中不同，位于`/var/root`。
+0. `Darwin`没有用于展示系统运行状态的`/proc`目录。
 0. `Darwin`没有默认的包管理器。
 0. `Darwin`的`PATH`环境变量记录在文件`/etc/paths`中。
 0. `Darwin`的微内核`Mach`使用`Mach-O`作为二进制格式，而传统的`Linux/Unix`使用`EFL`作为二进制格式。
@@ -130,11 +132,11 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 ### *Homebrew* 基本特性
 - `Homebrew`使用`Ruby`语言编写。
 - 与传统的包管理器不同，使用Homebrew并不需要使用root用户，只需要一个普通的`macOS`管理员用户即可。
-- `Homebrew`将软件包安装在`/usr/local/`目录下，在`macOS`中该目录默认情况下为**空**，因此当用户不再需要使用Homebrew时，只需完整删除`/usr/local/`目录下的所有内容即可。(需要注意的是，有些非Bundle形式安装的软件也是会将一些内容安装在`/usr/local`目录下的，比如VirtualBox。如果安装了此类软件，清理`/usr/local`目录时需要仔细辨别)
+- `Homebrew`将软件包安装在`/usr/local`目录下，在`macOS`中该目录默认情况下为**空**，因此当用户不再需要使用Homebrew时，只需完整删除`/usr/local`目录下的所有内容即可。(需要注意的是，有些非Bundle形式安装的软件也是会将一些内容安装在`/usr/local`目录下的，比如VirtualBox。如果安装了此类软件，清理`/usr/local`目录时需要仔细辨别)
 - 默认情况下，在macOS中，`/usr/local`的所有者为`root`，用户组为`wheel`，而安装了Homebrew之后，该目录所有者会被更改为**当前管理员用户**，用户组被改为`admin`。
 
 ### *Homebrew* 安装
-Homebrew采用Ruby语言开发，macOS中已经带有ruby开发环境。
+Homebrew采用Ruby语言开发，macOS中默认已经集成了Ruby开发环境。
 Homebrew需要用到Git等工具，在安装Homebrew之前需要先安装Xcode命令行工具(或者直接完整安装Xcode)。
 之后在Terminal中执行：
 

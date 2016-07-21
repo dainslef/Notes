@@ -640,6 +640,45 @@ class Test
 ## 并发编程
 在C#中，主要的并发技术有**异步委托**、`async/await`、`Task`类以及常见的`Thread`类等。
 
+### *Thread* 类
+与常规的**OOP**语言类似，C#中也可以使用`Thread`类来进行并发编程，`Thread`类完整路径为`System.Threading.Thread`。
+
+创建与启动线程
+> `Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。
+> 两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。
+> `Thread`类在构造时还可以接收一个`int`型参数用于指定线程的最大堆栈大小。
+
+> 使用`Thread.Start()`方法可以启动线程，如下代码所示：
+
+>	```csharp
+>	using System;
+>	using System.Threading;
+
+>	class Program
+>	{
+>		static void Main(string[] args)
+>		{
+>			Thread thread = new Thread(() => Console.WriteLine("This is thread!"));
+>			thread.Start();
+>			thread = new Thread(arg => Console.WriteLine("The arg is: " + arg));
+>			thread.Start("test args.");
+>		}
+>	}
+>	```
+
+> 运行结果：
+
+>	```
+>	This is thread!
+>	The arg is: test args.
+>	```
+
+等待线程结束
+> 使用成员方法`Thread.Join()`能够等待指定线程结束，在等待的线程结束前，该方法会一直阻塞**当前**线程。
+
+获取线程ID
+> 每个线程都有独立的线程ID，`Thread.CurrentThread.ManagedThreadId`属性保存了当前线程的ID，可以通过比较线程ID来判断代码是否在相同的线程执行。
+
 ### 异步委托
 默认情况下，执行一个委托实例操作是**同步**的，但委托实例同样可以使用成员函数`BeginInvoke()`进行异步回调。
 
@@ -647,149 +686,112 @@ class Test
 - `AsyncCallback`委托在回调委托运行结束之后触发，`AsyncCallback`委托接收一个`IAsyncResult`类型的参数。
 - `object`类型用于传递一些参数给`AsyncCallback`委托。
 - `BeginInvoke()`的最后两个参数可以为`null`。
-- `BeginInvoke()`返回`IAsyncResult`类型，使用`IAsyncResult.IsCompleted`属性可以判断回调委托的执行状态，使用`IAsyncResult.AsyncState`属性获取`BeginInvoke()`参数表中的最后一个`object`类型的传入参数。
+- `BeginInvoke()`返回`IAsyncResult`类型：
+	0. 使用`IAsyncResult.IsCompleted`属性可以判断回调委托的执行状态。
+	0. 使用`IAsyncResult.AsyncState`属性获取`BeginInvoke()`参数表中的最后一个`object`类型的传入参数。
 
-#### *使用`EndInvoke()`等待异步委托返回*
-如果需要等待异步执行的委托结束，可以使用`EndInvoke()`成员函数。
+使用`EndInvoke()`等待异步委托返回
+> 如果需要等待异步执行的委托结束，可以使用`EndInvoke()`成员函数。
 
-- `EndInvoke()`接受一个`IAsyncResult`类型的参数(即`BeginInvoke()`的返回值)。
-- `EndInvoke()`的返回值即为异步委托的返回值。
-- 在异步委托执行完毕之前，`EndInvoke()`会一直阻塞当前线程，直到异步委托结束。
+>	- `EndInvoke()`接受一个`IAsyncResult`类型的参数(即`BeginInvoke()`的返回值)。
+>	- `EndInvoke()`的返回值即为异步委托的返回值。
+>	- 在异步委托执行完毕之前，`EndInvoke()`会一直阻塞当前线程，直到异步委托结束。
 
-如下代码所示：
+> 如下代码所示：
 
-```csharp
-using System;
-using System.Threading;
+>	```csharp
+>	using System;
+>	using System.Threading;
 
-delegate int Delegate();
+>	delegate int Delegate();
 
-class Program
-{
-	static void Main(string[] args)
-	{
-		//用于回调的委托
-		Delegate del = () =>
-		{
-			Thread.Sleep(1000);
-			Console.WriteLine("Thread is running!");
-			return 100;
-		};
+>	class Program
+>	{
+>		static void Main(string[] args)
+>		{
+>			//用于回调的委托
+>			Delegate del = () =>
+>			{
+>				Thread.Sleep(1000);
+>				Console.WriteLine("Thread is running!");
+>				return 100;
+>			};
 
-		//使用BeginInvoke()进行异步委托回调
-		IAsyncResult result = del.BeginInvoke(ar =>
-		{
-			//异步委托结束时执行该Lambda，打印传入参数
-			Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState);
-		}, 200);
+>			//使用BeginInvoke()进行异步委托回调
+>			IAsyncResult result = del.BeginInvoke(ar =>
+>			{
+>				//异步委托结束时执行该Lambda，打印传入参数
+>				Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState);
+>			}, 200);
 
-		Console.WriteLine("Program start...");
-		Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
+>			Console.WriteLine("Program start...");
+>			Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
 
-		//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
-		Console.WriteLine("The thread status is: {0}", result.IsCompleted);
-	}
-}
-```
+>			//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
+>			Console.WriteLine("The thread status is: {0}", result.IsCompleted);
+>		}
+>	}
+>	```
 
-运行结果：
+> 运行结果：
 
-```
-Program start...
-Thread is running!
-The return value is: 100
-The thread status is: True
-The object arg is: 200
-```
+>	```
+>	Program start...
+>	Thread is running!
+>	The return value is: 100
+>	The thread status is: True
+>	The object arg is: 200
+>	```
 
-委托实例`del`虽然先被调用，但由于是异步调用，`Sleep()`了1000毫秒之后再输出的字符位于主线程之后。
+> 委托实例`del`虽然先被调用，但由于是异步调用，`Sleep()`了1000毫秒之后再输出的字符位于主线程之后。
 
-#### *使用`WaitOne()`等待异步委托返回*
-`BeginInvoke()`的返回值`IAsyncResult`类型的`AsyncWaitHandle`属性会返回一个`WaitHandle`类型的等待句柄。
-该句柄的成员方法`WaitHandle.WaitOne()`接受`int`型参数作为超时时间，使用此方法可以实现等待指定时间(单位为**毫秒**)的效果。
-`WaitHandle.WaitOne()`的返回值为`bool`类型，用于表示异步委托是否结束。
+使用`WaitOne()`等待异步委托返回
+> `BeginInvoke()`的返回值`IAsyncResult`类型的`AsyncWaitHandle`属性会返回一个`WaitHandle`类型的等待句柄：
+>	- 该句柄的成员方法`WaitHandle.WaitOne()`接受`int`型参数作为超时时间，使用此方法可以实现等待指定时间(单位为**毫秒**)的效果。
+>	- `WaitHandle.WaitOne()`的返回值为`bool`类型，用于表示异步委托是否结束。
 
-如下代码所示：
+> 如下代码所示：
 
-```csharp
-using System;
-using System.Threading;
+>	```csharp
+>	using System;
+>	using System.Threading;
 
-delegate int Delegate();
+>	delegate int Delegate();
 
-class Program
-{
-	static void Main(string[] args)
-	{
-		//用于回调的委托
-		Delegate del = () =>
-		{
-			Thread.Sleep(1000);
-			Console.WriteLine("Thread is running!");
-			return 100;
-		};
+>	class Program
+>	{
+>		static void Main(string[] args)
+>		{
+>			//用于回调的委托
+>			Delegate del = () =>
+>			{
+>				Thread.Sleep(1000);
+>				Console.WriteLine("Thread is running!");
+>				return 100;
+>			};
 
-		//使用BeginInvoke()进行异步委托回调
-		IAsyncResult result = del.BeginInvoke(ar =>
-			Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState), 200);
+>			//使用BeginInvoke()进行异步委托回调
+>			IAsyncResult result = del.BeginInvoke(ar =>
+>				Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState), 200);
 
-		Console.WriteLine("Program start...");
-		if (result.AsyncWaitHandle.WaitOne(1000))
-			Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
+>			Console.WriteLine("Program start...");
+>			if (result.AsyncWaitHandle.WaitOne(1000))
+>				Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
 
-		//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
-		Console.WriteLine("The thread status is: {0}", result.IsCompleted);
-	}
-}
-```
+>			//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
+>			Console.WriteLine("The thread status is: {0}", result.IsCompleted);
+>		}
+>	}
+>	```
 
-执行结果：
+> 执行结果：
 
-```
-Program start...
-The thread status is: False
-```
+>	```
+>	Program start...
+>	The thread status is: False
+>	```
 
-可以看到，超时时间设为1000毫秒，此时异步委托尚未执行完毕，因而`IAsyncResult.IsCompleted`属性为`false`。
-
-### *Thread* 类
-与常规的**OOP**语言类似，C#中也可以使用`Thread`类来进行并发编程，`Thread`类完整路径为`System.Threading.Thread`。
-
-#### *创建与启动线程*
-`Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。
-两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。
-`Thread`类在构造时还可以接收一个`int`型参数用于指定线程的最大堆栈大小。
-
-使用`Thread.Start()`方法可以启动线程，如下代码所示：
-
-```csharp
-using System;
-using System.Threading;
-
-class Program
-{
-	static void Main(string[] args)
-	{
-		Thread thread = new Thread(() => Console.WriteLine("This is thread!"));
-		thread.Start();
-		thread = new Thread(arg => Console.WriteLine("The arg is: " + arg));
-		thread.Start("test args.");
-	}
-}
-```
-
-运行结果：
-
-```
-This is thread!
-The arg is: test args.
-```
-
-#### *等待线程结束*
-使用成员方法`Thread.Join()`能够等待指定线程结束，在等待的线程结束前，该方法会一直阻塞**当前**线程。
-
-#### *获取线程ID*
-每个线程都有独立的线程ID，`Thread.CurrentThread.ManagedThreadId`属性保存了当前线程的ID，可以通过比较线程ID来判断代码是否在相同的线程执行。
+> 可以看到，超时时间设为1000毫秒，此时异步委托尚未执行完毕，因而`IAsyncResult.IsCompleted`属性为`false`。
 
 ### *Task* 类
 `Task`类是`.NET 4.0`之后提供的异步操作抽象，完整路径为`System.Threading.Tasks.Task`。
@@ -843,7 +845,7 @@ public static bool WaitAll(Task[] tasks, int millisecondsTimeout;)		//等待指�
 	- `async`关键字是**上下文关键字**，只有在修饰方法与Lambda时才会被当作关键字处理，在其它区域将被作为标识符处理。
 	- `async`关键字可以标记静态方法，但不能标记**入口点**(`Main()`方法)。
 	- `async`标记的方法返回值必须为`Task`、`Task<TResult>`、`void`其中之一。
-0. `await`
+0. `await`用于等待异步方法的结果：
 	- `await`关键字同样是**上下文关键字**，只有在`async`标记的方法中才被视为关键字。
 	- `await`关键字可以用在`async`方法和`Task`、`Task<TResult>`之前，用于等待异步任务执行结束。
 
@@ -960,6 +962,236 @@ Handler Really Finished!
 
 由上述程序中不难看出，在`async`关键字标记的异步方法中，使用`await`之前的代码都是同步执行的，在调用了`await`之后，剩余的代码便异步运行在独立的线程。
 
+### *lock* 关键字
+`C#`语言提供了与`Java`中`synchronized`类似的`lock`关键字，基本语法如下：
+
+```csharp
+lock (object)
+{
+	/* do something */
+}
+```
+
+`lock`块开始时锁定`object`，在lock代码块结束后释放锁。
+锁定相同`object`的lock代码块同一时刻只能被一个线程执行。
+
+基本用法
+> `lock`关键字用法基本与`Java`中`synchronized`关键字类似：
+
+>	- 被锁定的`object`可以是引用类型实例、`this`引用、以及类型(`typeof(XXX)`)。
+>	- `lock`关键字**不能**用于修饰方法。
+>	- lock块中不能使用`await`关键字。
+
+> `Java`笔记中的例子使用`C#`可以改写为：
+
+>	```csharp
+>	using System;
+>	using System.Threading;
+
+>	class Example
+>	{
+>		public void ShowOne()
+>		{
+>			lock (this)
+>			{
+>				for (int i = 0; i < 5; i++)
+>				{
+>					Console.WriteLine(Thread.CurrentThread.Name + " ShowOne()");
+>					Thread.Sleep(100);
+>				}
+>			}
+>		}
+
+>		public void ShowTwo()
+>		{
+>			lock (this)
+>			{
+>				for (int i = 0; i < 5; i++)
+>				{
+>					Console.WriteLine(Thread.CurrentThread.Name + " ShowTwo()");
+>					Thread.Sleep(100);
+>				}
+>			}
+>		}
+>	}
+
+>	class Program
+>	{
+>		static void Main(string[] args)
+>		{
+>			Example example = new Example();
+
+>			Thread threadOne = new Thread(() => example.ShowOne());
+>			Thread threadTwo = new Thread(() => example.ShowTwo());
+>			threadOne.Name = "Thread One";
+>			threadTwo.Name = "Thread Two";
+>			threadOne.Start();
+>			threadTwo.Start();
+>		}
+>	}
+>	```
+
+> 输出结果：(`Mono 4.4.1 && ArchLinux x64`)
+
+>	```
+>	Thread One ShowOne()
+>	Thread One ShowOne()
+>	Thread One ShowOne()
+>	Thread One ShowOne()
+>	Thread One ShowOne()
+>	Thread Two ShowTwo()
+>	Thread Two ShowTwo()
+>	Thread Two ShowTwo()
+>	Thread Two ShowTwo()
+>	Thread Two ShowTwo()
+>	```
+
+lock实现
+> `lock`块在实现上使用了`Monitor`类。
+> `lock (object) { ... }`实际像相当于：
+
+>	```
+>	Monitor.Enter(object);
+>	...
+>	Monitor.Exit(object);
+>	```
+
+> 在进入lock块时调用`Monitor.Enter()`，离开时调用`Monitor.Exit()`。
+
+死锁问题
+> 在`MSDN`中提到了应避免锁定`public`访问权限的内容，在实际编码中，常见的三类lock行为都可能引发死锁：
+
+>	- 若实例可被公共访问，则`lock(this)`可能死锁。
+>	- 若类型`XXX`可被公共访问，则`lock(typeof(XXX))`可能死锁。
+>	- 使用`lock("XXX")`时，同一进程中使用锁定相同字符串的代码块都将共享同一个锁。
+
+> 定义示例类`Example`：
+
+>	```csharp
+>	class Example
+>	{
+>		public void Lock()
+>		{
+>			// 锁定this
+>			lock (this)
+>			{
+>				Console.WriteLine("Lock!");
+>			}
+>		}
+
+>		public static void StaticLock()
+>		{
+>			// 锁定类型
+>			lock (typeof(Example))
+>			{
+>				Console.WriteLine("StaticLock!");
+>			}
+>		}
+
+>		public void StringLock()
+>		{
+>			// 锁定字符串
+>			lock ("Lock")
+>			{
+>				Console.WriteLine("StringLock!");
+>			}
+>		}
+>	}
+>	```
+
+> 分别针对三种情况编写主函数测试。
+
+> 锁定`this`：
+
+>	```csharp
+>	class Program
+>	{
+>		static void Main(string[] args)
+>		{
+>			Example example = new Example();
+
+>			lock (example)
+>			{
+>				Thread thread = new Thread(() => example.Lock());
+>				thread.Start();
+>				thread.Join();
+>			}
+>		}
+>	}
+>	```
+
+> 锁定类型：
+
+>	```csharp
+>	class Program
+>	{
+>		static void Main(string[] args)
+>		{
+>			lock (typeof(Example))
+>			{
+>				Thread thread = new Thread(() => Example.StaticLock());
+>				thread.Start();
+>				thread.Join();
+>			}
+>		}
+>	}
+>	```
+
+> 锁定相同字符串：
+
+>	```csharp
+>	class Program
+>	{
+>		static void Main(string[] args)
+>		{
+>			Example example = new Example();
+
+>			lock ("Lock")
+>			{
+>				Thread thread = new Thread(() => example.StringLock());
+>				thread.Start();
+>				thread.Join();
+>			}
+>		}
+>	}
+>	```
+
+> 三段代码执行后均无输出，且程序不退出，均死锁。
+
+>> 需要注意的是，`lock`锁定对象是基于**线程**的，在同一线程内的代码不受影响，如下所示的代码**不会**发生死锁：
+
+>>	```csharp
+>>	using System;
+>>	using System.Threading;
+
+>>	class Example
+>>	{
+>>		public void Lock()
+>>		{
+>>			lock (this)
+>>			{
+>>				Console.WriteLine("Lock!");
+>>			}
+>>		}
+>>	}
+
+>>	class Program
+>>	{
+>>		static void Main(string[] args)
+>>		{
+>>			Example example = new Example();
+
+>>			lock (example)
+>>			{
+>>				// 虽然实例example与Lock()方法内部锁定的this相同，但代码运行在同一线程，不会死锁。
+>>				example.Lock();
+>>			}
+>>		}
+>>	}
+>>	```
+
+>> 锁定类型、字符串时类似。
+
 
 
 ## *WinFrom* 开发注记
@@ -970,10 +1202,10 @@ Handler Really Finished!
 控件的名称也与其它的GUI库类似：
 
 - `Form` 窗体，类似于Qt中的**QFrame**
-- `Label` 标签文本
-- `Button` 按钮
-- `RadioButton` 单选框
-- `CheckBox` 复选框
+- `Label` 标签文本，类似于Qt中的**QLabel**
+- `Button` 按钮，类似于Qt中的**QPushButton**
+- `RadioButton` 单选框，类似于Qt中的**QRadioButton**
+- `CheckBox` 复选框，类似于Qt中的**QCheckBox**
 - `CheckedListBox` 多行复选框
 - `ListBox` 列表框，类似于Qt中的**QListWidget**
 - `TextBox` 简单文本框，类似于Qt中的**QLineEdit**
