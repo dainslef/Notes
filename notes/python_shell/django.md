@@ -76,6 +76,11 @@ INSTALLED_APPS = [
 
 `$ ./manager.py runserver [端口号]`
 
+默认情况下，使用django自带的应用服务器启动的项目只能供本机进行访问(与`Tomcat`、`Jetty`不同)。
+若需要使项目能够被内网的其它机器访问，则在启动时使用`0.0.0.0`作为ip：
+
+`$ ./manager.py runserver 0.0.0.0:[端口号]`
+
 
 
 ## ORM
@@ -137,11 +142,15 @@ $ pip install mysqlclient			//for Python3
 
 项目管理脚本`manager.py`中提供了一系列指令用于数据库操作：
 
-- `syncdb` 同步模型与数据库，模型中定义的表若在数据库中不存在，则会自动创建
 - `flush` 清理来自数据库的数据
 - `dumpdata` 以指定的格式输出数据库中的内容
 - `dbshell` 登陆到配置中指定数据库的命令行界面上(如果该数据库支持)
 - `inspectdb` 扫描配置的数据库，将数据库中的表导出为django模型代码
+- `migrate` 执行迁移操作，真正将makemigrations指令提交的改动实施到数据库中
+- `makemigrations` 提交模型改动，创建一个迁移操作，但不会同步到数据库中
+
+对一个新创建的django项目，配置完数据库之后应该使用管理脚本`manager.py`的`migrate`指令来进行数据迁移。
+首次执行`migrate`指令会在配置的数据库中创建一系列django项目需要的表，没有这些表则django的一些功能(`Session`、站点管理等)将无法正常运行。
 
 ### 定义模型
 在`Django`中，模型定义一般写在App目录下的`models.py`文件中:
@@ -512,6 +521,7 @@ TEMPLATES = [
 
 过滤器
 > 过滤器是一类特定格式的函数，可以多个串联，多个过滤器的结果作为下个过滤器的输入数据。
+
 > 过滤器语法是`{{ 变量名 | 过滤器1 | 过滤器2 | ... }}`，在django默认模版引擎中内置了几十种过滤器，常见的有：
 
 >	0. `default` 判断变量是否为空，为空则使用默认值替代，语法`{{ value | defalut: "XXX" }}`
@@ -589,3 +599,45 @@ TEMPLATES = [
 >			{% endifchanged %}
 >		{% endfor %}
 >		```
+
+
+
+## *Session*
+`Session`用于保存会话中的信息，使得用户在同一站点的多个页面间的信息能够得到共享。
+
+一般情况下，`Session`会话的生命周期从用户打开站点开始，到关闭浏览器结束。
+根据应用服务器的配置，也可能清除长时间无活动页面的`Session`数据。
+开启新的浏览器实例会产生新的`Session`，但在支持多标签的现代浏览器中，在新标签中打开页面已然使用原先存在的`Session`。
+
+`Session`实现上基于`Cookie`，需要浏览器支持并开启了`Cookie`功能。
+
+### 配置Session
+`Django`框架内置了对`Session`的支持，使用`Session`之前需要保证在项目配置文件`settings.py`中正确写入了以下配置：
+
+- `MIDDLEWARE_CLASSES`中包含了`django.contrib.sessions.middleware.SessionMiddleware`。
+- `INSTALLED_APPS`中包含了`django.contrib.sessions`。
+
+默认生成的配置文件**已经**包含了这些配置。
+
+使用`Session`功能之前除了正确设置配置参数，还需要在连接的数据库中正确生成了`django_session`表(使用管理脚本`manager.py`的`migrate`指令执行迁移操作)，django会将用户会话的`Session`数据保存在该表中。
+
+数据库中缺失`django_session`表，会得到下列错误提示：
+
+`1146, "Table '数据库名.django_session' doesn't exist"`
+
+### 使用Session
+使用`Session`的语法与`POST`、`GET`类似，通过`request`对象的`session`属性来访问保存了Session数据的字典：
+
+```py
+# 获取指定字段名称的Session数据
+xxx = request.session['字段名称']
+# 设置指定字段名称的Session数据
+request.session['字段名称'] = value
+```
+
+利用Python中的字典特性，可以多级嵌套字典来分类存储Session数据：
+
+```py
+request.session['命名空间'] = {}
+request.session['命名空间']['字段名称'] = value
+```
