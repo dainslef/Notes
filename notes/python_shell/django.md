@@ -625,6 +625,12 @@ TEMPLATES = [
 
 `1146, "Table '数据库名.django_session' doesn't exist"`
 
+`settings.py`中还有一些重要的Session配置参数：
+
+- `SESSION_SAVE_EVERY_REQUEST` 设定是否每次request都保存Session，默认为`False`
+- `SESSION_EXPIRE_AT_BROWSER_CLOSE` 设定是否关闭浏览器立刻使Session过期，默认为`False`
+- `SESSION_COOKIE_AGE` 设置Cookie过期时间，单位为秒，默认为两周
+
 ### 使用Session
 使用`Session`的语法与`POST`、`GET`类似，通过`request`对象的`session`属性来访问保存了Session数据的字典：
 

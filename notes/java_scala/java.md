@@ -334,8 +334,8 @@ public static native void sleep(long millis) throws InterruptedException;
 
 > 被`synchronized`修饰的方法同时只能被**一个**线程访问：
 
->	- 当被修饰的方法为实例方法时，同一实例的`synchronized`方法同时只能有一个被执行。类似于将整个方法体的内容写在`synchronized (this) { ... }`中。不同实例间不受影响。
->	- 当被修饰的方法为静态方法时，则所有该类中的静态`synchronized`方法同时只能有一个被执行。类似于将整个方法体的内容写在`synchronized (类名.class) { ... }`中。
+>	- 当被修饰的方法为实例方法时，同一实例的`synchronized`方法同时只能有一个被执行。等价于将整个方法体的内容写在`synchronized (this) { ... }`中。不同实例间不受影响。
+>	- 当被修饰的方法为静态方法时，则所有该类中的静态`synchronized`方法同时只能有一个被执行。等价于将整个方法体的内容写在`synchronized (类名.class) { ... }`中。
 >	- 一个类中被`synchronized`修饰的实例方法和被`synchronized`修饰的静态方法的同步变量不同，因而不会相互同步。
 
 > 如下代码所示：
@@ -1300,31 +1300,31 @@ public class B {
 ###常用控件
 容器：
 
-`JFrame` 窗体框架
-`JDialog` 对话框，比JFrame消耗资源少
-`JPanel` 面板
-`JScrollPane` 滚动面板
-`JFrame` 一般做为顶层容器，可以独立做为对话框显示，但JPanel不能独立做为对话框。
+- `JFrame` 窗体框架
+- `JDialog` 对话框，比JFrame消耗资源少
+- `JPanel` 面板
+- `JScrollPane` 滚动面板
+- `JFrame` 一般做为顶层容器，可以独立做为对话框显示，但JPanel不能独立做为对话框。
 
 文本组件：
 
-`JLabel` 显示文本
-`JTextField` 单行编辑框
-`JPasswordField` 密码编辑框
-`JTextArea` 多行编辑区域
+- `JLabel` 显示文本
+- `JTextField` 单行编辑框
+- `JPasswordField` 密码编辑框
+- `JTextArea` 多行编辑区域
 
 表单组件：
 
-`JButton` 普通按钮
-`JCheckBox` 复选框，方框里打勾
-`JRadioButton和ButtonGroup` 单选框，圆点
-`JComboBox` 组合框，俗称**下拉列表框**
+- `JButton` 普通按钮
+- `JCheckBox` 复选框，方框里打勾
+- `JRadioButton和ButtonGroup` 单选框，圆点
+- `JComboBox` 组合框，俗称**下拉列表框**
 
 菜单栏：
 
-`JMenubar` 菜单栏
-`JMenu` 菜单栏上的按钮
-`JMenuItem` 点击菜单按钮弹出的菜单项
+- `JMenubar` 菜单栏
+- `JMenu` 菜单栏上的按钮
+- `JMenuItem` 点击菜单按钮弹出的菜单项
 
 常用的表单组件都有对应的菜单版本，比如`JRadioButtonMenuItem`、`JCheckBoxMenuItem`等。
 向`JMenu`中`add()`菜单项时，虽然可以选择普通组件，但普通组件不能触发菜单效果(点按之后菜单不收回)。
@@ -1416,9 +1416,14 @@ JScrollPane scrollPane = new JScrollPane(textArea);
 与**Qt**一样，Java也提供了弹出MessageBox的静态方法，即`JOptionPane.showMessageDialog()`。
 
 ```java
-static void showMessageDialog(Component parentComponent, Object message); 									//调出标题为 "Message" 的信息消息对话框。
-static void showMessageDialog(Component parentComponent, Object message, String title, int messageType); 				//调出对话框，它显示使用由 messageType 参数确定的默认图标的 message。
-static void showMessageDialog(Component parentComponent, Object message, String title, int messageType, Icon icon); 						//调出一个显示信息的对话框，为其指定了所有参数。
+// 调出标题为"Message"的信息消息对话框
+static void showMessageDialog(Component parentComponent, Object message);
+// 调出对话框，显示使用由messageType参数确定的默认图标的message
+static void showMessageDialog(Component parentComponent,
+	Object message, String title, int messageType);
+// 调出一个显示信息的对话框，指定了所有参数
+static void showMessageDialog(Component parentComponent,
+	Object message, String title, int messageType, Icon icon);
 ```
 
 其中，`messageType`可以取`DEFAULT_OPTION`、`YES_NO_OPTION`、`YES_NO_CANCEL_OPTION`或`OK_CANCEL_OPTION`等。
@@ -1434,7 +1439,12 @@ JTable(TableModel dm);
 
 即使用`Object数组`确定表格模型或是使用`TableModel`类构建表格模型。
 使用对象数组构建表格模型可以先从数组库中读取对应数据，然后将数据存储在对象数组中。
-使用`TableModel`类可以先构建`TableMode`对象，然后使用`TableMode`类的成员方法`setValueAt(Object aValue, int rowIndex, int columnIndex)`设定表格模型每个位置的数据，最后在JTable使用构造函数或在已有的`JTable`对象调用`setModel(TableModel dataModel)`成员方法创建表格。
+
+使用`TableModel`类的基本步骤：
+
+0. 先构建`TableMode`对象。
+0. 使用`TableMode`类的成员方法`setValueAt(Object aValue, int rowIndex, int columnIndex)`设定表格模型每个位置的数据。
+0. 在`JTable`使用构造函数或在已有的`JTable`实例调用`setModel(TableModel dataModel)`成员方法创建表格。
 
 
 
@@ -1472,3 +1482,15 @@ public static String getProperty(String key);
 ```
 
 其中，参数`key`为需要获取信息的类型。
+
+常用系统信息的`key`如下：
+
+| key | 信息内容 |
+|:----|:--------|
+| line.separator | 行分隔符(UNIX中是`/n`，Win中是`/r/n`) |
+| os.name | 操作系统的名称 |
+| os.arch | 操作系统的架构 |
+| os.version | 操作系统的版本 |
+| user.name | 用户的账户名称 |
+| user.home | 用户的主目录 |
+| user.dir | 用户的当前工作目录 |

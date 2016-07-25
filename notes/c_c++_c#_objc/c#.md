@@ -638,7 +638,7 @@ class Test
 
 
 ## 并发编程
-在C#中，主要的并发技术有**异步委托**、`async/await`、`Task`类以及常见的`Thread`类等。
+在C#中，除了常见的`Thread`类，主要的并发技术有**异步委托**、`Task`类、`async/await`等。
 
 ### *Thread* 类
 与常规的**OOP**语言类似，C#中也可以使用`Thread`类来进行并发编程，`Thread`类完整路径为`System.Threading.Thread`。
