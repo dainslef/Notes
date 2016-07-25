@@ -39,7 +39,7 @@ Plugin 'derekwyatt/vim-scala'
 需要注意的是，虽然Scala是基于`JVM`的语言，但`scalac`编译得到的字节码直接由java命令执行会出现一些错误。
 此外，虽然Scala并不强制要求类名要与文件名相同，但在部分IDE中，如果类名与文件名不同，构建项目会出现错误。
 
-###反编译Scala代码
+### 反编译Scala代码
 使用`scalap`可以反编译字节码得到Scala代码：
 
 `$ scalap [*.class]`
@@ -132,6 +132,7 @@ Scala中方法体**不需要**显式使用`return`关键字来给出方法返回
 对于有返回值的方法，必须要在方法定义中加入**等号**，否则编译器**不会**推导返回值。
 即使方法的返回值为`Unit`，只要显式指定了返回值类型，则必须在方法体中加入等号。
 方法和函数的形参**不需要**也**不能**使用`val``var`关键字声明，只需写明类型即可。
+
 在Scala中，方法允许省略参数，空的参数表可以直接**省略**，如：
 
 ```scala
@@ -364,38 +365,43 @@ var func: (() => T) => T = (arg: () => T) => arg
 ### *continue* 循环与 *break*
 Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
 
-- `continue`功能可以通过添加`if`判断条件实现或使用**守卫**。
-- `break`功能可以由`scala.util.control.Breaks`类提供。
-	`Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
-	```scala
-	def breakable(op: => Unit): Unit {
-		try { op } catch {
-			//判断异常是否为breakException，是则捕获，其它异常则继续向外传递
-			case ex: BreakControl => if (ex ne breakException) throw ex
-		}
-	}
-	def break(): Nothing = { throw breakException }
-	```
-	由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。
-	`break()`方法产生`breakException`异常。
+`continue`功能可以通过添加`if`判断条件实现或使用**守卫**。
 
-	将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
+`break`功能可以由`scala.util.control.Breaks`类提供。
 
-	使用`Breaks`如下代码所示：
-	```scala
-	import scala.util.control.Breaks.{ breakable, break }
+> `Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
 
-	object Main extends App {
+>	```scala
+>	def breakable(op: => Unit): Unit {
+>		try { op } catch {
+>			//判断异常是否为breakException，是则捕获，其它异常则继续向外传递
+>			case ex: BreakControl => if (ex ne breakException) throw ex
+>		}
+>	}
+>	def break(): Nothing = { throw breakException }
+>	```
 
-		breakable {
-			//使用break的代码块作为传名参数传入breakable中
-			for (i <- 1 to 10) {
-				if (i == 8) break		//跳出循环
-			}
-		}
+> 由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。
+> `break()`方法产生`breakException`异常。
 
-	}
-	```
+> 将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
+
+> 使用`Breaks`如下代码所示：
+
+>	```scala
+>	import scala.util.control.Breaks.{ breakable, break }
+
+>	object Main extends App {
+
+>		breakable {
+>			//使用break的代码块作为传名参数传入breakable中
+>			for (i <- 1 to 10) {
+>				if (i == 8) break		//跳出循环
+>			}
+>		}
+
+>	}
+>	```
 
 
 
@@ -575,7 +581,8 @@ class Override {
 - 默认情况下，合成的`setter`、`getter`方法就与字段同名，手动在代码中创建与`setter`、`getter`签名相同的方法会导致编译错误。
 - 访问权限为`private[this]`时编译器不合成默认的`getter`、`setter`方法时可以手动定义`setter`、`getter`方法。
 - 在实际编码过程中，虽然给`private[this]`的字段定义同名的`setter`、`getter`方法不会报错，但调用过程中会提示错误(如上例子中给num字段赋值回得到错误`reassignment to val`，因此不要手动给字段定义同名的`setter``getter`方法)。
-此外，由于字段名称可以与方法名称相同，因而即使编译器生成了`setter``getter`方法，编码者依然可以使用字段名称定义其它签名的重载函数。
+
+此外，由于字段名称可以与方法名称相同，因而即使编译器生成了`setter`、`getter`方法，编码者依然可以使用字段名称定义其它签名的重载函数。
 
 ### 构造器(Constructor)
 在Scala中构造方法的作用与Java类似，用于在创建类实例的同时对指定的成员进行初始化。
@@ -2002,6 +2009,147 @@ object Main extends App {
 Implicit Class
 Implicit Class: 100
 ```
+
+
+
+## 并发编程
+作为JVM平台的编程语言，Scala可以直接使用Java的并发API。
+并发编程是Scala的擅长领域，除了Java标准库提供的并发API，Scala还拥有下列并发技术：
+
+- Scala标准库中提供了`Future/Promise/Async`库来进行异步编程。
+- 基于Scala的`Akka`完整实现了`Actor`模型。
+
+### *Scala Future*
+`Future`是一组异步操作的抽象，完整包路径为`scala.concurrent.Future`。
+
+构建与启动`Future`
+> `Future`为**特质**，没有构造函数，无法直接构建实例。
+> 创建一个`Future`实例需要使用伴生对象中重写的`apply()`方法，声明如下：
+
+>	```scala
+>	def apply[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T]
+>	```
+
+>	- `body`参数为**传名参数**，包含了需要异步执行的代码块。
+>	- `T`参数为泛型参数，表示异步执行的代码块最终的返回值类型。
+>	- `executor`参数为隐式参数，用于指定异步代码的执行器。`scala.concurrent.ExecutionContext.Implicits.global`提供了默认的执行器。
+
+> 构建一个`Future`，基本代码如下：
+
+>	```scala
+>	import scala.concurrent.Future
+>	import scala.concurrent.ExecutionContext.Implicits.global
+
+>	val future = Future[XXX] {
+>		/* Code you want to excute... */
+>	}
+>	```
+
+> 与传统的并发库设计不同，`Future`并没有提供诸如`start()/run()`之类的方法用于显式开始异步代码块的执行，在完成`Future`实例构建的同时，作为参数的代码块就自动开始异步执行了。
+
+异步回调(`Callbacks`)
+> 与传统的并发库设计类似，`Future`采用回调的方式来处理异步操作完成的结果。
+> `Future`实例提供了`onComplete()`成员方法来绑定回调函数，声明如下：
+
+>	```scala
+>	def onComplete[U](@deprecatedName('func) f: Try[T] => U)(implicit executor: ExecutionContext): Unit
+>	```
+
+>	- `f`参数为被回调的高阶函数。
+>	- `executor`参数作用与上述`apply()`方法中类似。
+
+> 被回调的高阶函数类型为`Try[T] => U`，其中抽象类`Try[T]`类似于`Option[T]`，拥有两个样例类子类`Success[T]`和`Failure[T]`，定义如下：
+
+>	```scala
+>	final case class Success[+T](value: T) extends Try[T] { ... }
+>	final case class Failure[+T](exception: Throwable) extends Try[T] { ... }
+>	```
+
+> 在编写回调函数时，可使用模式匹配语法：
+
+>	- 对于**成功**的异步操作，匹配内容是异步操作的返回值。
+>	- 对于**失败**的异步操作，匹配内容是导致异步操作失败的异常。
+
+> `Future`也提供了`onSuccess()/onFailure()`方法接收偏函数分别处理异步操作成功/失败时的情况，当只需要处理某一类情况时，可以直接使用对应方法。
+
+> 一个`Future`实例可以**多次**调用`onComplete()/onSuccess()/onFailure()`来添加多个回调操作，这些回调操作都会被执行，但执行的先后顺序**不确定**。
+
+> 回调处理异步操作结果的基本代码如下：
+
+>	```scala
+>	import scala.util.{Failure, Success}
+
+>	future onComplete {
+>		case Success(xxx) => ...
+>		case Failure(xxx) => ...
+>	}
+
+>	future onSuccess {
+>		re: T => ...
+>	}
+
+>	future onFailure {
+>		case ex => ...
+>	}
+>	```
+
+> 同步等待
+> 在个别情况下，可能需要等待异步操作执行完毕。
+> 等待`Future`纸型完毕可以使用`Await`单例，完整包路径为`scala.concurrent.Await`。
+
+> `Await`单例提供了`result()`方法用于同步等待`Future`执行完毕，定义如下：
+
+>	```scala
+>	def result[T](awaitable: Awaitable[T], atMost: Duration): T
+>	```
+
+>	- `awaitable`参数为`Awaitable`类型，用于表示一个可等待的操作，`Future`特质为其子类，可支持传入`Future`实例作为参数。
+>	- `atMost`参数为同步等待的时间。
+
+> 基本用法如下：
+
+>	```scala
+>	import scala.concurrent.Await
+>	import scala.concurrent.duration.Duration
+
+>	val result = Await.result(future, Duration.Inf)
+>	println(result)
+>	...
+>	```
+
+> `Duration`类型
+>> 时间参数类型为`Duration`，为抽象类，完整路径为`scala.concurrent.duration.Duration`。
+
+>> `Duration`的伴生对象内定义了`apply()`方法，声明如下：
+
+>>	```scala
+>>	def apply(length: Long, unit: TimeUnit): FiniteDuration
+>>	```
+
+>>	- `length`参数为时间数值。
+>>	- `unit`参数为时间单位。
+
+>> 构建的时间对象为`Duration`的子类，有限时间`FiniteDuration`。
+>> `Duration`中有两个成员`Inf`、`MinusInf`分别用来表示**无限大/无限小**的时间。
+
+>> `TimeUnit`类型完整包路径为`java.util.concurrent.TimeUnit`，为枚举类型，包含以下枚举成员：
+
+>>	- `java.util.concurrent.TimeUnit.DAYS` 天
+>>	- `java.util.concurrent.TimeUnit.HOURS` 小时
+>>	- `java.util.concurrent.TimeUnit.MICROSECONDS` 微秒
+>>	- `java.util.concurrent.TimeUnit.MILLISECONDS` 毫秒
+>>	- `java.util.concurrent.TimeUnit.MINUTES` 分钟
+>>	- `java.util.concurrent.TimeUnit.NANOSECONDS` 纳秒
+>>	- `java.util.concurrent.TimeUnit.SECONDS` 秒
+
+>> 在`import scala.concurrent.duration`包中定义了一系列隐式类`DurationInt/DurationLong/DurationDouble`，引用对应隐式类即可使用对应的DSL语法来构建时间对象`FiniteDuration`，如：
+
+>>	- `1000 days`被转换为`Duration(1000, java.util.concurrent.TimeUnit.DAYS)`
+>>	- `1000 minutes`被转换为`Duration(1000, java.util.concurrent.TimeUnit.SECONDS)`
+>>	- ...
+
+>> 诸如此类。。。
+>> 在`scala.concurrent.duration.DurationConversions`特质中定义了完整的转化语法。
 
 
 
