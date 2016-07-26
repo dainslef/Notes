@@ -62,6 +62,72 @@ Iterator iteratorSet = set.iterator();
 
 
 
+## 枚举
+Java中使用`enum`关键字来定义一个枚举类。
+
+基本的枚举与`C`语言中的语法类似：
+
+```
+enum Enum {
+	ENUM_MEMBER_1,
+	ENUM_MEMBER_2,
+	ENUM_MEMBER_3,
+	ENUM_MEMBER_4,
+	...
+}
+```
+
+枚举是Java中少数比C++更复杂的语法之一：
+
+- Java枚举类中的**枚举成员**(类内普通成员除外)每一个都是枚举类的实例。
+- 在枚举类与普通类相似，也可以在类内定义成员方法和成员变量。
+- 要在枚举类内定义成员方法/变量，需要在最后一个枚举成员成员后添加**分号**以标志枚举成员列表结束。
+- 在枚举类内定义的方法/变量每一个枚举成员都拥有。
+- 在枚举类内自定义构造函数则枚举成员需要通过自定义的构造函数来构建，参数需要符合构造函数的参数表。
+- 枚举类内的构造函数默认为`private`访问权限，且不可更改。
+- 枚举类为抽象类`java.lang.Enum`的子类，而Java为单继承语言，因而枚举类不能再继承其它类，只能实现接口。
+
+简单的自定义枚举类示例如下：
+
+```java
+enum Enum {
+
+	// 定义枚举成员
+	ENUM_MEMBER_1("member1") {
+		// 枚举类成员内可以重写枚举类内定义的方法
+		@Override
+		int index() { return 1; }
+	},
+	ENUM_MEMBER_2("member2") {
+		@Override
+		int index() { return 2; }
+	},
+	ENUM_MEMBER_3("member3") {
+		@Override
+		int index() { return 3; }
+	},
+	ENUM_MEMBER_4("member4") {
+
+		@Override
+		int index() { return 4; }
+
+		// 枚举类内可以定义新的方法，但该方法无法被访问，因而没有意义
+		public int size() { return 4; }
+	};
+
+	// 自定义枚举类的构造函数
+	Enum(String name) { this.name = name; }
+
+	String getName() { return name; }
+
+	int index() { return 0; }
+
+	private String name;
+}
+```
+
+
+
 ## 浅复制与深复制
 在Java中，**基础类型**如`int`、`double`等在复制时是拷贝了**整个值**，而对于**引用类型**，则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
 
