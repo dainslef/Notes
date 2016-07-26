@@ -1372,7 +1372,7 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 
 ### 继承枚举类
 继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。
-默认的Value方法会按变量名生成枚举名和并从0开始生成枚举ID，若需要手动设定枚举的名称喝枚举ID则可以使用Value方法的重载`Value(id: Int, name: Strig)`。
+默认的`Value`方法会按**变量名**生成**枚举名**和并自动从`0`开始生成**枚举ID**，若需要手动设定枚举名称和枚举ID则可以使用`Value`方法的重载`Value(id: Int, name: Strig)`。
 如下代码所示：
 
 ```scala
@@ -2150,6 +2150,45 @@ Implicit Class: 100
 
 >> 诸如此类。。。
 >> 在`scala.concurrent.duration.DurationConversions`特质中定义了完整的转化语法。
+
+### *Scala Promise*
+`Promise`为特质，完整包路径为`scala.concurrent.Promise`。
+
+- `Future`提供了带有**只读占位符**(`read-only placeholder`)的返回值，只有一个异步操作完全结束才能获取其返回值。
+- `Promise`则提供了可写的、单一指派(`writable、single-assignment`)的分配容器。
+
+使用`Promise`：
+
+0. `Promise`特质的伴生对象中提供了空参的`apply()`方法用于构建默认的`Promise`实例(`DefaultPromise`类型)。
+0. `Promise`实例提供了无参的`future`方法用于获取自身的`Future`实例。
+0. `Promise`实例可以通过`success()/failure()`方法标记自身`Future`实例的执行结果，使用`isCompleted`方法判断`Future`实例的执行状态。
+0. `Promise`实例的`success()/failure()`方法只能选其一，且只能调用一次。`success()/failure()`方法一旦被调用，自身`Future`实例的执行结果便已确定，不可更改。
+0. 多个`Future`可通过`Promise`共享数据。
+0. `Promise`能使用`completeWith()`绑定一个其它的`Future`，让自身同被绑定的`Future`拥有相同的执行状态和**执行结果**。
+
+实例，一个`Future`通过使用`Promise`获取另一个`Future`中的执行状态(**不是**执行结束的返回内容)，基本代码如下：
+
+```scala
+import scala.concurrent.{ Future, Promise, Await }
+import scala.concurrent.duration.Duration
+
+val promise = Promise[XXX]()
+val future = promise.future
+
+println(future.isCompleted)
+
+Future {
+	/* do something... */
+	promise.success(xxx)
+	/* do something... */
+}
+
+Future {
+	/* do something... */
+	val result = Await.result(future, Duration.Inf)
+	/* use result... */
+}
+```
 
 
 
