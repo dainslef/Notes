@@ -64,12 +64,27 @@ implicit class ImSelf[T](in: ImSelf[T] => T) {
 定义的样例类和隐式类内部实现了`apply()`方法，使得该类实例可以像函数一样调用。
 对应到阶乘函数，则泛型参数为`Int => Int`。
 
+在`Java`语言中，可以参考`Scala`中的实现方式，实现`Function`接口：
+
+```java
+class Self<T> implements Function<Self<T>, T> {
+
+	private Function<Self<T>, T> in;
+
+	public Self(Function<Self<T>, T> in) { this.in = in; }
+
+	public T apply(Self<T> self) { return in.apply(self); }
+}
+```
+
+对应到阶乘和斐波那契数列，则泛型参数应为`Function<Integer, Integer>`。
+
 ### 单步递归函数
 阶乘和斐波那契运算使用递归方式的单步函数，使用`C#`可以写成：
 
 ```csharp
 // 阶乘
-Func<Func<int, int>, Func<int, int>> far = x => n => n < 2 ? 1 : n * x(n - 1);
+Func<Func<int, int>, Func<int, int>> fac = x => n => n < 2 ? 1 : n * x(n - 1);
 // 斐波那契数列
 Func<Func<int, int>, Func<int, int>> fib = x => n => n < 2 ? n : x(n - 1) + x(n - 2);
 ```
@@ -78,9 +93,20 @@ Func<Func<int, int>, Func<int, int>> fib = x => n => n < 2 ? n : x(n - 1) + x(n 
 
 ```scala
 // 阶乘
-val far = (x: Int => Int) => (n: Int) => if (n < 2) 1 else n * x(n - 1)
+val fac = (x: Int => Int) => (n: Int) => if (n < 2) 1 else n * x(n - 1)
 // 斐波那契数列
 val fib = (x: Int => Int) => (n: Int) => if (n < 2) n else x(n - 1) + x(n - 2)
+```
+
+`Java`中的函数接口不能真正地使用函数语法调用，使用Java语言需要写成：
+
+```java
+// 阶乘
+Function<Function<Integer, Integer>, Function<Integer, Integer>> fac =
+	x -> n -> n < 2 ? 1 : n * x.apply(n - 1);
+// 斐波那契数列
+Function<Function<Integer, Integer>, Function<Integer, Integer>> fib =
+	x -> n -> n < 2 ? n : x.apply(n - 1) + x.apply(n - 2);
 ```
 
 ### 实现Y组合子
@@ -89,10 +115,10 @@ Y组合子的两种展开形式，用`C#`可以表示为：
 ```csharp
 // λf.(λx.f(x x))(λx.f(λy.x x y))
 Func<Func<Func<int, int>, Func<int, int>>, Func<int, int>> Y0 =
-	f => ((Self<Func<int, int>)(x => f(x(x))))((Self<Func<int, int>>)(x => f(y => x(x)(y))));
+	f => ((Self<Func<int, int>>)(x => f(x(x))))((Self<Func<int, int>>)(x => f(y => x(x)(y))));
 // λf.(λx.f(x x))(λx.λy.f(x x)y)
 Func<Func<Func<int, int>, Func<int, int>>, Func<int, int>> Y1 =
-	f => ((Self<Func<int, int>)(x => f(x(x))))((Self<Func<int, int>>)(x => y => f(x(x))(y)));
+	f => ((Self<Func<int, int>>)(x => f(x(x))))((Self<Func<int, int>>)(x => y => f(x(x))(y)));
 ```
 
 使用`Scala`可以表示为：
@@ -104,6 +130,19 @@ val Y0 = (f: (Int => Int) => Int => Int) =>
 // λf.(λx.f(x x))(λx.λy.f(x x)y) 使用隐式类
 val Y1 = (f: (Int => Int) => Int => Int) =>
 	((x: ImSelf[Int => Int]) => f(x(x)))((x: ImSelf[Int => Int]) => (y: Int) => f(x(x))(y))
+```
+
+使用`Java`可以表示为：
+
+```java
+// λf.(λx.f(x x))(λx.f(λy.x x y))
+Function<Function<Function<Integer, Integer>, Function<Integer, Integer>>, Function<Integer, Integer>> Y0 =
+	f -> (new Self<Function<Integer, Integer>>(x -> x.apply(x)))
+		.apply(new Self<Function<Integer, Integer>>(x -> f.apply(y -> x.apply(x).apply(y))));
+// λf.(λx.f(x x))(λx.λy.f(x x)y)
+Function<Function<Function<Integer, Integer>, Function<Integer, Integer>>, Function<Integer, Integer>> Y1 =
+	f -> (new Self<Function<Integer, Integer>>(x -> x.apply(x)))
+		.apply(new Self<Function<Integer, Integer>>(x -> y -> f.apply(x.apply(x)).apply(y)));
 ```
 
 在**隐式类型**的语言中，实现Y组合子则无需确定自身调用逻辑的高阶函数的实际类型，如使用`Python`表示为：
@@ -189,6 +228,43 @@ class Y
 }
 ```
 
+`Java`(OpenJDK 1.8.0_92 && ArchLinux x64)
+
+```java
+import java.util.function.Function;
+
+class Self implements Function<Self, Function<Integer, Integer>> {
+
+	private Function<Self, Function<Integer, Integer>> in;
+
+	public Self(Function<Self, Function<Integer, Integer>> in) { this.in = in; }
+
+	public Function<Integer, Integer> apply(Self self) { return in.apply(self); }
+}
+
+class Main {
+
+	public static void main(String[] args) {
+
+		Function<Function<Integer, Integer>, Function<Integer, Integer>> fac =
+			x -> n -> n < 2 ? 1 : n * x.apply(n - 1);
+		Function<Function<Integer, Integer>, Function<Integer, Integer>> fib =
+			x -> n -> n < 2 ? n : x.apply(n - 1) + x.apply(n - 2);
+
+		Function<Function<Function<Integer, Integer>, Function<Integer, Integer>>, Function<Integer, Integer>> Y0 =
+			f -> (new Self(x -> x.apply(x))).apply(new Self(x -> f.apply(n -> x.apply(x).apply(n))));
+		Function<Function<Function<Integer, Integer>, Function<Integer, Integer>>, Function<Integer, Integer>> Y1 =
+			f -> (new Self(x -> x.apply(x))).apply(new Self(x -> n -> f.apply(x.apply(x)).apply(n)));
+
+		System.out.println("Factorial(5): " + Y0.apply(fac).apply(5));
+		System.out.println("Fibonacci(5): " + Y0.apply(fib).apply(5));
+
+		System.out.println("Factorial(10): " + Y1.apply(fac).apply(10));
+		System.out.println("Fibonacci(10): " + Y1.apply(fib).apply(10));
+	}
+}
+```
+
 `C++`(GCC 6.1.1 && ArchLinux x64)
 
 ```cpp
@@ -202,7 +278,6 @@ int main(void)
 			{ return [f](auto x) { return f(x(x)); }
 				([f](auto x) -> std::function<int(int)>
 					{ return [&](auto n) { return f(x(x))(n); }; }); };
-
 	auto Y1 =
 		[](auto f)
 			{ return [f](auto x) { return f(x(x)); }
@@ -213,7 +288,6 @@ int main(void)
 		[](auto x)
 			{ return [x](auto n)
 				{ return n < 2 ? n : n * x(n - 1); }; };
-
 	auto fib =
 		[](auto x)
 			{ return [x](auto n)
