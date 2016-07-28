@@ -117,6 +117,47 @@ object Test extends App {
 
 单例对象的名称可以与源码文件的文件名不同。
 
+### *continue* 循环与 *break*
+Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
+
+`continue`功能可以通过添加`if`判断条件实现或使用**守卫**。
+
+`break`功能可以由`scala.util.control.Breaks`类提供。
+
+> `Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
+
+>	```scala
+>	def breakable(op: => Unit): Unit {
+>		try { op } catch {
+>			//判断异常是否为breakException，是则捕获，其它异常则继续向外传递
+>			case ex: BreakControl => if (ex ne breakException) throw ex
+>		}
+>	}
+>	def break(): Nothing = { throw breakException }
+>	```
+
+> 由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。
+> `break()`方法产生`breakException`异常。
+
+> 将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
+
+> 使用`Breaks`如下代码所示：
+
+>	```scala
+>	import scala.util.control.Breaks.{ breakable, break }
+
+>	object Main extends App {
+
+>		breakable {
+>			//使用break的代码块作为传名参数传入breakable中
+>			for (i <- 1 to 10) {
+>				if (i == 8) break		//跳出循环
+>			}
+>		}
+
+>	}
+>	```
+
 ### 方法(Method)
 与Java不同，Scala中同时支持**函数**与**方法**(Java只有方法而没有真正意义上的**函数**，只有与函数类似的**静态方法**)。
 
@@ -140,7 +181,12 @@ def getNum: Int = 100
 def getNum(): Int = 100					//以上两个定义作用相同，但只能存在一个
 ```
 
-无参方法与空参方法只能存在一个，但二者在使用方式上略有不同，无参方法在调用时只能直接使用方法名，在方法名后加上括号调用就会出错；但空参方法既可以使用带有括号的方法调用方式，也可以省略括号，例如：
+无参方法与空参方法只能存在一个，但二者在使用方式上略有不同：
+
+- 无参方法在调用时只能直接使用方法名，在方法名后加上括号调用就会出错。
+- 空参方法既可以使用带有括号的方法调用方式，也可以省略括号。
+
+如下所示：
 
 ```scala
 scala> def getNum: Int = 100			//定义了方法 getNum: Int
@@ -173,67 +219,100 @@ required: Int
 									  ^
 ```
 
-#### *参数默认值*
-在Scala中，方法中参数允许带有**默认值**：
+参数默认值
+> 在Scala中，方法中参数允许带有**默认值**：
 
-```scala
-scala> var num = 100
-num: Int = 100
-scala> def setNum(p: Int = 0) { num = p }		//方法的参数不能由默认值进行类型推导，即使给参数写明了默认值，也依然需要显式指明类型
-setNum: (p: Int)Unit
-scala> setNum()				//对于有参数的方法，即使参数带有默认值使得参数表可以为空但在调用时依然不能省略括号，否则报错
-scala> println(num)
-0							//输出0
-```
+>	```scala
+>	scala> var num = 100
+>	num: Int = 100
+>	scala> def setNum(p: Int = 0) { num = p }		//方法的参数不能由默认值进行类型推导，即使给参数写明了默认值，也依然需要显式指明类型
+>	setNum: (p: Int)Unit
+>	scala> setNum()				//对于有参数的方法，即使参数带有默认值使得参数表可以为空但在调用时依然不能省略括号，否则报错
+>	scala> println(num)
+>	0							//输出0
+>	```
 
-如果一个方法中包含多个同类型并带有默认值的参数，调用时默认匹配第一个参数：
+> 如果一个方法中包含多个同类型并带有默认值的参数，调用时默认匹配第一个参数：
 
-```scala
-scala> def func(num1: Int = 100, num2: Int = 200) = println(s"$num1 $num2")
-func: (num1: Int, num2: Int)Unit
-scala> func(300)
-300 200
-```
+>	```scala
+>	scala> def func(num1: Int = 100, num2: Int = 200) = println(s"$num1 $num2")
+>	func: (num1: Int, num2: Int)Unit
+>	scala> func(300)
+>	300 200
+>	```
 
-#### *具名参数*
-在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为"具名参数"。
-对于方法中包含多个同类型并带有默认值参数的情况下，使用该特性可以显式指定要传入的是哪一个参数：
+默认参数与方法重载
+> 在Scala中，若一个带有默认的参数的方法省略默认参数时签名与一个已经存在的方法相同，编译器并不会报错(C++编译器则会报错)，而是在调用方法时优先使用**无默认值**的版本(处理逻辑类似于C#)：
 
-```scala
-scala> func(num2 = 300)
-100 300
-```
+>	```scala
+>	object Main extends App {
+>		def func() = println("No Args")
+>		def func(num: Int = 100) = println(num)
+>		func()
+>	}
+>	```
 
-与C++不同，Scala中，方法参数的默认值**不需要**连续，参数的默认值可以交错出现，甚至是颠倒参数顺序：
+> 输出结果：
 
-```scala
-scala> def func(int: Int, str: String = "String", char: Char, double: Double = 123.0) = println(s"$int $str $char $double")
-func: (int: Int, str: String, char: Char, double: Double)Unit
-scala> func(100, 'c')
-<console>:12: error: not enough arguments for method func: (int: Int, str: String, char: Char, double: Double)Unit.
-Unspecified value parameter char.
-		func(100, 'c')
-			^
-scala> func(int = 100, char = 'c')			//对于默认参数不连续的方法，需要使用"具名参数"
-100 String c 123.0
-```
+>	```
+>	No Args
+>	```
 
-#### *默认参数与方法重载*
-在Scala中，若一个带有默认的参数的方法省略默认参数时签名与一个已经存在的方法相同，编译器并不会报错(C++编译器则会报错)，而是在调用方法时优先使用**无默认值**的版本(处理逻辑类似于C#)：
+具名参数
+> 在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为"具名参数"。
+> 对于方法中包含多个同类型并带有默认值参数的情况下，使用该特性可以显式指定要传入的是哪一个参数：
 
-```scala
-object Main extends App {
-	def func() = println("No Args")
-	def func(num: Int = 100) = println(num)
-	func()
-}
-```
+>	```scala
+>	scala> func(num2 = 300)
+>	100 300
+>	```
 
-输出结果：
+> 与C++不同，Scala中，方法参数的默认值**不需要**连续，参数的默认值可以交错出现，甚至是颠倒参数顺序：
 
-```
-No Args
-```
+>	```scala
+>	scala> def func(int: Int, str: String = "String", char: Char, double: Double = 123.0) = println(s"$int $str $char $double")
+>	func: (int: Int, str: String, char: Char, double: Double)Unit
+>	scala> func(100, 'c')
+>	<console>:12: error: not enough arguments for method func: (int: Int, str: String, char: Char, double: Double)Unit.
+>	Unspecified value parameter char.
+>			func(100, 'c')
+>				^
+>	scala> func(int = 100, char = 'c')			//对于默认参数不连续的方法，需要使用"具名参数"
+>	100 String c 123.0
+>	```
+
+传名参数(By-name Parameter)
+> 当一个方法接收的**参数**为**空**时，该参数即为**传名参数(By-name Parameter)**，如下所示：
+
+>	```scala
+>	def func(arg: => T) ...
+>	```
+
+> 可以使用传名参数可以接收任意数量的代码，如下所示：
+
+>	```scala
+>	object Main extends App {
+
+>		def show(args: => Unit) = args
+
+>		//单行语句可直接作为参数
+>		show(println("123"))
+
+>		//多行语句可放在大括号中
+>		show {
+>			println("456")
+>			println("789")
+>		}
+>	}
+>	```
+
+> 运行结果：
+
+>	```
+>	123
+>	456
+>	789
+>	```
 
 ### 函数(Function)
 在Scala中函数使用`var/val`关键字定义，即函数是一个存储了函数对象的字段。
@@ -291,117 +370,150 @@ class Test
 }
 ```
 
-### 函数组合
-在Scala中，函数允许进行组合。
-函数组合有两种方式，`a compose b`实际调用次序为`a(b())`，`a andThen b`实际调用次序为`b(a())`。
-需要注意的是，方法不能直接进行组合，需要将其转化为函数(方法名之后加`_`符号)。
-
-```scala
-object Main extends App {
-	def add(num: Int) = num + 100
-	def double(num: Int) = num * 2
-
-	//只有函数能进行组合,方法需要加"_"符号转化成函数
-	var compose = add _ compose double
-	var andThen = add _ andThen double
-
-	println(compose(100) == add(double(100)))
-	println(andThen(100) == double(add(100)))
-}
-```
-
-输出结果：
-
-```
-true
-true
-```
-
-### 传名参数(By-name Parameter)
-当一个方法接收的**参数**为**空**时，该参数即为**传名参数(By-name Parameter)**，如下所示：
-
-```scala
-def func(arg: => T) ...
-```
-
-可以使用传名参数可以接收任意数量的代码，如下所示：
-
-```scala
-object Main extends App {
-
-	def show(args: => Unit) = args
-
-	//单行语句可直接作为参数
-	show(println("123"))
-
-	//多行语句可放在大括号中
-	show {
-		println("456")
-		println("789")
-	}
-}
-```
-
-运行结果：
-
-```
-123
-456
-789
-```
-
-### 函数作为参数
-Scala为函数式编程语言，在Scala中函数对象可以直接作为参数传递。
-当函数作为参数存在时，传名参数与普通的空参函数参数定义**不能**同时存在，如下定义只能存在一个：
-
-```scala
-def func(arg: () => T) = arg
-def func(arg: => T) = arg
-var func: (() => T) => T = (arg: () => T) => arg
-```
-
-在接收参数时，空参函数参数只能接收同样空参的函数，即`() =>`不能被省略，而传名参数则无此限制。
-
-### *continue* 循环与 *break*
-Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
-
-`continue`功能可以通过添加`if`判断条件实现或使用**守卫**。
-
-`break`功能可以由`scala.util.control.Breaks`类提供。
-
-> `Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
+函数作为参数
+> Scala为函数式编程语言，在Scala中函数对象可以直接作为参数传递。
+> 当函数作为参数存在时，传名参数与普通的空参函数参数定义**不能**同时存在，如下定义只能存在一个：
 
 >	```scala
->	def breakable(op: => Unit): Unit {
->		try { op } catch {
->			//判断异常是否为breakException，是则捕获，其它异常则继续向外传递
->			case ex: BreakControl => if (ex ne breakException) throw ex
->		}
->	}
->	def break(): Nothing = { throw breakException }
+>	def func(arg: () => T) = arg
+>	def func(arg: => T) = arg
+>	var func: (() => T) => T = (arg: () => T) => arg
 >	```
 
-> 由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。
-> `break()`方法产生`breakException`异常。
+> 在接收参数时，空参函数参数只能接收同样空参的函数，即`() =>`不能被省略，而传名参数则可以直接将代码块作为参数传入。
 
-> 将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
-
-> 使用`Breaks`如下代码所示：
+函数组合
+> 在Scala中，函数允许进行组合。
+> 函数组合有两种方式，`a compose b`实际调用次序为`a(b())`，`a andThen b`实际调用次序为`b(a())`。
+> 需要注意的是，方法不能直接进行组合，需要将其转化为函数(方法名之后加`_`符号)。
 
 >	```scala
->	import scala.util.control.Breaks.{ breakable, break }
-
 >	object Main extends App {
+>		def add(num: Int) = num + 100
+>		def double(num: Int) = num * 2
 
->		breakable {
->			//使用break的代码块作为传名参数传入breakable中
->			for (i <- 1 to 10) {
->				if (i == 8) break		//跳出循环
->			}
->		}
+>		//只有函数能进行组合,方法需要加"_"符号转化成函数
+>		var compose = add _ compose double
+>		var andThen = add _ andThen double
 
+>		println(compose(100) == add(double(100)))
+>		println(andThen(100) == double(add(100)))
 >	}
 >	```
+
+> 输出结果：
+
+>	```
+>	true
+>	true
+>	```
+
+偏函数(Partial Function)
+> 偏函数是一个定义域有限的函数，在Scala中使用类型`PartialFunction[-A, +B]`来表示偏函数。
+> 偏函数类似数学意义上的函数，只能接收**一个**参数，同时偏函数只对**有限**的输入值返回结果。
+
+> 在Scala中，使用**模式匹配**语法中的`case`关键字来实现偏函数，一个最简单的偏函数如下所示：
+
+>	```scala
+>	scala> val func: PartialFunction[Int, Int] = { case 0 => 0 }
+>	func: PartialFunction[Int,Int] = <function1>
+>	```
+
+> 这个偏函数只在输入值为`0`时有意义：
+
+>	```scala
+>	scala> func(0)
+>	res1: Int = 0
+
+>	scala> func(1)
+>	scala.MatchError: 1 (of class java.lang.Integer)
+>		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+>		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+>		at $anonfun$1.applyOrElse(<console>:11)
+>		at $anonfun$1.applyOrElse(<console>:11)
+>		at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+>		... 32 elided
+
+>	scala> func(-1)
+>	scala.MatchError: -1 (of class java.lang.Integer)
+>		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+>		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+>		at $anonfun$1.applyOrElse(<console>:11)
+>		at $anonfun$1.applyOrElse(<console>:11)
+>		at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+>		... 32 elided
+>	```
+
+> 一个偏函数可以通过添加多个`case`语句块来添加多个定义域的返回结果：
+
+>	```scala
+>	scala> val func1: PartialFunction[Int, Int] = { case n if n > 0 => 1; case n if n < 0 => -1 }
+>	func1: PartialFunction[Int,Int] = <function1>
+
+>	scala> func1(-11111)
+>	res3: Int = -1
+
+>	scala> func1(11111)
+>	res4: Int = 1
+
+>	scala> func1(0)
+>	scala.MatchError: 0 (of class java.lang.Integer)
+>		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+>		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+>		at $anonfun$1.applyOrElse(<console>:11)
+>		at $anonfun$1.applyOrElse(<console>:11)
+>		at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+>		... 32 elided
+>	```
+
+> 偏函数`func1()`对于定义域`(-∞，0)`返回`-1`，对于定义域`(0, +∞)`返回`1`。
+
+> 偏函数可以使用`isDefinedAt()`方法来检验在给定的参数在偏函数中是否有定义：
+
+>	```scala
+>	scala> func1.isDefinedAt(10000)
+>	res7: Boolean = true
+
+>	scala> func1.isDefinedAt(-10000)
+>	res8: Boolean = true
+
+>	scala> func1.isDefinedAt(0)
+>	res9: Boolean = false
+>	```
+
+> 使用`orElse()()`方法在一个偏函数没有定义的时候尝试调用另一个偏函数：
+
+>	```scala
+>	scala> func1.orElse(func)(0)
+>	res10: Int = 0
+>	```
+
+> 函数`func1()`对于`0`没有定义，而函数`func()`对于`0`有定义，则在参数取`0`时调用`func()`函数的返回值。
+
+部分应用函数(Partial Applied Function)
+> 部分应用函数是逻辑上的概念，表示一个已经指定了部分参数的函数。
+> 将一个拥有多个参数的函数指定部分参数的值构成一个参数较少的新函数，新的函数即为**部分应用函数**。
+
+> Python中的偏函数与Scala中的偏函数是完全不同的概念，Python中偏函数的概念类似于Scala中的部分应用函数。
+
+> 定义一个拥有2个参数的`sum()`函数，返回两个参数的和：
+
+>	```scala
+>	scala> def sum(num1: Int, num2: Int) = num1 + num2
+>	sum: (num1: Int, num2: Int)Int
+>	```
+
+> 指定第二个参数始终为`100`，创建一个部分应用函数：
+
+>	```scala
+>	scala> def sum100 = sum(_: Int, 100)
+>	sum100: Int => Int
+
+>	scala> sum100(100)
+>	res11: Int = 200
+>	```
+
+> `sum100()`便是`sum()`指定了第二参数的部分应用函数。
 
 
 
@@ -428,7 +540,7 @@ var num = str.toInt
 - `Null`是所有引用类型`AnyRef`的子类型，定义为`final trait Null extends AnyRef`。
 - `Null`特质拥有唯一实例`null`(类似于Java中`null`的作用)。
 
-###可空类型
+### 可空类型
 在Scala中，使用`Option[T]`表示可空类型，`Option[T]`包含两个子类，`Some[T]`和`None`，分别代表值存在/值不存在。
 对`Option[T]`类型使用`getOrElse()`方法来获取存在的值或是当值不存在时使用指定的值，如下所示：
 
@@ -806,9 +918,9 @@ Scala作为OOP语言，支持多态。
 
 ### 伴生对象
 在Scala中没有`static`关键字，也没有**静态成员**的概念，Scala使用**单例对象**来达到近似静态成员的作用。
-每一个类可以拥有一个同名的**伴生对象**(单例)，伴生对象使用object关键字定义，且一个类和其伴生对象的定义必须写在同一个文件中。
+每一个类可以拥有一个同名的**伴生对象**(单例)，伴生对象使用`object`关键字定义，且一个类和其伴生对象的定义必须写在同一个文件中。
 
-### apply()/update()方法
+### apply()/update() 方法
 在Scala中，允许使用函数风格进行一些对象操作。
 
 假设有一个**类实例a**，使用：
@@ -877,7 +989,7 @@ object Apply {
 1000 180
 ```
 
-### 提取器
+### unapply()/unapplySeq() 方法
 在Scala中，还提供了被称为**提取器**的`unapply()`方法。
 
 - `unapply()`方法则与`apply()`方法相反，可以从对象中提取出需要的数据(在实际使用过程中，可以从任意的目标里提取数据)。
@@ -1209,6 +1321,7 @@ Num 100
 
 ### *sealed* 用于模式匹配
 使用`sealed`关键字修饰的类型在用于模式匹配时，编译器会对匹配条件进行检查，如果匹配路径没有被完全覆盖，则会给出警告。
+
 如下代码所示：
 
 ```scala
@@ -1662,8 +1775,8 @@ scala> var set = Set(1, 1, 's', "str")
 set: scala.collection.immutable.Set[Any] = Set(1, s, str)		//重复的元素"1"被忽略了
 ```
 
-`Set`可以使用`+``-`操作符来增加或是减少元素并返回新的集合。
-使用`+``-`操作符会返回新的集合，但原集合内的值不会发生改变，如下所示：
+`Set`可以使用`+`、`-`操作符来增加或是减少元素并返回新的集合。
+使用`+`、`-`操作符会返回新的集合，但原集合内的值不会发生改变，如下所示：
 
 ```scala
 scala> var set1 = set + 3
@@ -1676,7 +1789,7 @@ scala> set
 res1: scala.collection.immutable.Set[Any] = Set(1, s, str)
 ```
 
-与动态数组`ArrayBuffer`类似，集合可以使用`+=``-=`来增加或减少内部的元素：
+与动态数组`ArrayBuffer`类似，集合可以使用`+=`、`-=`来增加或减少内部的元素：
 
 ```scala
 scala> var set = Set(1, 2, 3)

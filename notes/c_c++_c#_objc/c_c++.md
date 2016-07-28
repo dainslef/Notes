@@ -1857,7 +1857,7 @@ int main(void)
 
 
 ## 使用 *std::bind()*
-`C++11`中引入该函数，来源于`boost::bind()`，作用是通过设定原有函数的某些参数值为固定值来生成具有新参数表的函数(类似python中的偏函数)，`bind()`本质上是一个`call_adapter`。
+`C++11`中引入该函数，来源于`boost::bind()`，作用是通过设定原有函数的某些参数值为固定值来生成具有新参数表的函数(类似`Python`中的部分应用函数)，`bind()`本质上是一个`call_adapter`。
 `bind()`既可以绑定当前类的成员函数，也可以绑定全局函数/静态函数或是其他类的具有访问权限的成员函数。
 
 ### *bind()* 绑定普通函数
@@ -1992,7 +1992,8 @@ void disconnect_all_slots();
 ### 获取信号返回值
 信号的返回值是由合并器`combiner`管理的，在定义信号对象时，会调用`boost`默认的合并器类管理返回值，如果需要使用自定义合成器类，则定义需要写成`boost::signals2::signal<func(type), combiner<type>>`。
 定义完信号之后，可以像调用普通函数一样调用信号对象，所有被信号连接的槽函数都将会被触发(重载`()`操作符)，同时返回的一个合并器类的对象。默认的合并器类只保存最后一次被触发的槽函数的返回值，使用`*`操作符或是`value()`成员函数可以获得合并器中保存的值。
-实例代码
+
+实例代码：
 
 ```cpp
 #include <boost/signals2.hpp>
@@ -2036,13 +2037,17 @@ int main(void)
 {
 	A a;
 	B b;
+
 	a.sig.connect(1, boost::bind(&B::slot1, b, _1, 'a'));
 	boost::signals2::connection link =
 		a.sig.connect(1, boost::bind(&B::slot1, b, _1, 1, 2), boost::signals2::at_front);
 	a.sig.connect(2, boost::bind(&B::slot2, b, 1.0, _1));
+
 	cout << *a.sig(0) << endl;
 	cout << "\nDisconnect slot1(int, int, int)." << endl;
+
 	link.disconnect();						//取消槽函数slot1(int, int, int)的连接
+
 	cout << a.sig(1).value() << endl;		//调用value()成员函数获取合并器返回值
 	return 0;
 }
@@ -2234,8 +2239,6 @@ int main(void)
 		break;
 	}
 
-	start();
-
 	return 0;
 }
 ```
@@ -2278,7 +2281,6 @@ void deal_signal(int sig_num)
 	printf("Deal signal!\n");
 	siglongjmp(env, 1);
 }
-
 
 int main(void)
 {
