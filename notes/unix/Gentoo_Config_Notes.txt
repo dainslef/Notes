@@ -320,7 +320,7 @@ equery包查询工具 >
 $ equery list [包名]						//列出对应包名的包安装了哪些版本
 $ equery files [包名]						//查看包里有哪些文件
 $ equery belongs [文件路径]					//查看文件属于哪个包
-$ equery depends [包名]						//查看某个包的依赖
+$ equery depends [包名]					//查看某个包的依赖
 $ equery uses [包名]						//查看一个已经安装的包使用了哪些USE
 
 ----

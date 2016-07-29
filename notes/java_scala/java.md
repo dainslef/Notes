@@ -484,6 +484,160 @@ public static native void sleep(long millis) throws InterruptedException;
 
 > 从输出结果中可以看到，`Example`类中的三个成员方法都使用了`synchronized`关键字进行修饰，`showOne()`、`showTwo()`为实例方法，`showStatic()`为静态方法，来自同一个实例在不同线程中的两个实例方法**没有**并发执行(`showTwo()`一直等到`showOne()`结束才开始执行)，而静态方法并发执行了(`showOne()`与`showStatic()`交错打印输出)。
 
+### *Executor* 框架
+`Thread`类功能简单，仅仅提供了原始的线程抽象，在实际的开发中，往往会使用更高层次的API。
+
+`Java 1.5`之后提供了`Executor`框架，用于创建、管理与执行线程。
+`Executor`框架主要包含`Executor`、`Executors`、`ExecutorService`、`CompletionService`、`Future`、`Callable`等类型。
+
+`Runnable`、`Callable`、`Future`接口是Java中对于异步操作的抽象。
+
+`Runnbale`接口用于表示没有返回值的异步操作，定义如下：
+
+```java
+public interface Runnable {
+	void run();
+}
+```
+
+除了`Runnable`接口是Java早期版本就已包含的之外，其余的接口/类定义都在`java.util.concurrent`包中。
+
+`Callable`接口用于表示带有返回值的异步操作，定义如下：
+
+```java
+public interface Callable<V> {
+	V call() throws Exception;
+}
+```
+
+`Future`接口用于表示一个异步操作的结果。
+定义如下：
+
+```java
+public interface Future<V> {
+
+	// 尝试取消任务的执行，参数mayInterruptIfRunning表示是否允许中断，返回是否取消了任务
+	boolean cancel(boolean mayInterruptIfRunning);
+
+	// 获取任务的取消/执行状态
+	boolean isCancelled();
+	boolean isDone();
+
+	// 获取结果
+	V get() throws InterruptedException, ExecutionException;
+	V get(long timeout, TimeUnit unit)
+		throws InterruptedException, ExecutionException, TimeoutException;
+}
+```
+
+`Executor`接口是框架中最基础的部分，仅包含一个执行`Runnable`的`execute()`的抽象方法。
+定义如下：
+
+```java
+public interface Executor {
+	void execute(Runnable command);
+}
+```
+
+`Executor`接口没有直接子类，但拥有子接口`ExecutorService`。
+`ExecutorService`接口定义了一系列终止、提交、跟踪任务状态的抽象方法，是整个库的核心接口。
+定义如下：
+
+```java
+public interface ExecutorService extends Executor {
+
+	// 关闭ExecutorService，调用后之前已接收的任务继续执行，但不再接收新的任务
+	// 线程池使用完毕需要调用该方法关闭线程池
+	void shutdown();
+
+	// 尝试终止所有正在执行的任务，并终止等待执行的任务并返回这些任务的列表
+	List<Runnable> shutdownNow();
+
+	// 返回是否showdown
+	boolean isShutdown();
+
+	// 返回shutdown()后所有剩余任务是否执行完毕
+	boolean isTerminated();
+
+	// shutdown()后等待剩余任务执行一定时间，在指定时间结束后返回所有任务是否执行完毕
+	boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
+
+	// 提交任务
+	<T> Future<T> submit(Callable<T> task);
+	<T> Future<T> submit(Runnable task, T result);
+	Future<?> submit(Runnable task);
+
+	// 执行给定的任务集合，并返回这些任务的Future
+	<T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException;
+	// 执行给定的任务集合，等待指定时间，返回这些任务的Future，若在等待时间内所有任务都已完成，则方法提前返回
+	<T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
+		long timeout, TimeUnit unit) throws InterruptedException;
+
+	// 执行给定的任务集合，当有任意任务完成时，方法返回该任务的执行结果
+	<T> T invokeAny(Collection<? extends Callable<T>> tasks)
+		throws InterruptedException, ExecutionException;
+	/*
+		执行给定的任务集合，等待指定时间。
+		在指定时间内有任意任务完成，则返回该任务的执行结果，若没有任何任务完成则抛出TimeoutException异常。
+	*/
+	<T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+		throws InterruptedException, ExecutionException, TimeoutException;
+}
+```
+
+`ExecutorService`接口的实例可以使用工厂类`Executors`中的静态方法进行创建，常用的一些方法如下：
+
+```java
+// 创建固定线程数目的ExecutorService，线程数目决定了同时并发执行的任务数目
+public static ExecutorService newFixedThreadPool(int nThreads);
+
+// 创建一个可根据需要创建新线程的ExecutorService，会重用以前可用的线程
+public static ExecutorService newCachedThreadPool()；
+
+// 创建一个使用单一工作线程的ExecutorService
+public static ExecutorService newSingleThreadExecutor()；
+
+// 创建周期性执行任务的ScheduledExecutorService
+public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize);
+```
+
+使用`Executor`框架的基本代码如下：
+
+```java
+public class Main {
+
+	public static void main(String[] args) {
+
+		// 创建并发任务
+		Callable<XXX> callable1 = () -> {
+			/* do something... */
+			return xxx;
+		};
+		Callable<XXX> callable2 = () -> {
+			/* do something... */
+			return xxx;
+		};
+		// create more tasks...
+
+		// 创建线程池
+		ExecutorService service = Executors.newCachedThreadPool();
+
+		// 添加任务到容器
+		List tasks = new LinkedList<Callable<String>>();
+		tasks.add(callable1);
+		tasks.add(callable2);
+		// add more tasks...
+
+		// 执行任务
+		service.invokeAll(tasks);
+
+		// 关闭线程池
+		service.shutdown();
+	}
+
+}
+```
+
 
 
 ## 注解 *Annotation*
