@@ -1345,8 +1345,8 @@ object Main extends App {
 ```
 Main.scala:10: warning: match may not be exhaustive.
 It would fail on the following input: CSharp(_)
-    lang match {
-    ^
+	lang match {
+	^
 one warning found
 ```
 
@@ -2302,6 +2302,42 @@ Future {
 	/* use result... */
 }
 ```
+
+### *async/await*
+Scala也提供了`Async`库用于简化`Future`的使用。
+
+`Async`完整包路径为`scala.async.Async`。当前版本(`Scala 2.11.8`)中，`Async`库尚未进入Scala标准库，若使用`SBT`，则需要在`build.sbt`配置文件中添加依赖：
+
+```scala
+libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.5"
+```
+
+单例`Async`的定义如下：
+
+```scala
+object Async {
+	/**
+	* Run the block of code `body` asynchronously. `body` may contain calls to `await` when the results of
+	* a `Future` are needed; this is translated into non-blocking code.
+	*/
+	def async[T](body: T)(implicit execContext: ExecutionContext): Future[T] = macro internal.ScalaConcurrentAsync.asyncImpl[T]
+
+	/**
+	* Non-blocking await the on result of `awaitable`. This may only be used directly within an enclosing `async` block.
+	*
+	* Internally, this will register the remainder of the code in enclosing `async` block as a callback
+	* in the `onComplete` handler of `awaitable`, and will *not* block a thread.
+	*/
+	@compileTimeOnly("`await` must be enclosed in an `async` block")
+	def await[T](awaitable: Future[T]): T = ??? // No implementation here, as calls to this are translated to `onComplete` by the macro.
+}
+```
+
+- `async`用法类似`Future`的`apply()`方法，接收传名参数`body`作为异步执行的内容，接收隐式参数`execContext`作为执行器。
+- `await`只能用在`async`代码块中，作用类似`Await.result()`方法。
+
+`async`利用了Scala的宏机制，`await`本质上是`async`代码块中的一个关键字。
+由于宏机制的一些限制，不能将`await`用在循环、异常捕捉代码块以及闭包中。
 
 
 
