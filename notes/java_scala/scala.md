@@ -2206,7 +2206,7 @@ Implicit Class: 100
 >	}
 >	```
 
-> 同步等待
+同步等待
 > 在个别情况下，可能需要等待异步操作执行完毕。
 > 等待`Future`纸型完毕可以使用`Await`单例，完整包路径为`scala.concurrent.Await`。
 
@@ -2263,6 +2263,205 @@ Implicit Class: 100
 
 >> 诸如此类。。。
 >> 在`scala.concurrent.duration.DurationConversions`特质中定义了完整的转化语法。
+
+*blocking* 块
+`Future`是异步执行的，不会阻塞基础的执行线程。但在某些情况下，阻塞是必要的，需要区别两种形式的执行线程阻塞：
+
+- 从`Future`内部调用任意代码阻塞线程。
+- 在`Future`外部等待一个`Future`完成。
+
+在`Future`外部主动阻塞等待应使用`Await`类，在`Future`内部阻塞则应使用`blocking`方法。
+
+`blocking`定义在包对象`scala.concurrent`中，是一个接收**传名参数**的泛型方法，定义如下所示：
+
+```scala
+def future[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T] = Future[T](body)
+```
+
+`blocking`块的作用是向执行器(`ExecutionContext`)标记可能造成阻塞的代码，并调整执行器的行为。
+对于默认的执行器`scala.concurrent.ExecutionContext.Implicits.global`，在`Future`中包含`blocking`块时，会新建线程来执行`Future`而不是等待复用已有的线程。
+
+如下代码所示：
+
+```scala
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+object Main extends App {
+
+	for (n <- 0 to 30)
+		Future {
+			println(s"Index: $n Thread Name: ${Thread.currentThread.getName}")
+			Thread.sleep(3000)
+		}
+
+	scala.io.StdIn.readLine
+}
+```
+
+输出结果：(Scala 2.11.8 && ArchLinux x64)
+
+```
+Index: 4 Thread Name: ForkJoinPool-1-worker-5
+Index: 2 Thread Name: ForkJoinPool-1-worker-9
+Index: 0 Thread Name: ForkJoinPool-1-worker-13
+Index: 7 Thread Name: ForkJoinPool-1-worker-15
+Index: 3 Thread Name: ForkJoinPool-1-worker-7
+Index: 1 Thread Name: ForkJoinPool-1-worker-11
+Index: 6 Thread Name: ForkJoinPool-1-worker-3
+Index: 5 Thread Name: ForkJoinPool-1-worker-1
+Index: 8 Thread Name: ForkJoinPool-1-worker-11
+Index: 14 Thread Name: ForkJoinPool-1-worker-15
+Index: 10 Thread Name: ForkJoinPool-1-worker-9
+Index: 13 Thread Name: ForkJoinPool-1-worker-13
+Index: 12 Thread Name: ForkJoinPool-1-worker-1
+Index: 11 Thread Name: ForkJoinPool-1-worker-3
+Index: 9 Thread Name: ForkJoinPool-1-worker-7
+Index: 15 Thread Name: ForkJoinPool-1-worker-5
+Index: 16 Thread Name: ForkJoinPool-1-worker-11
+Index: 17 Thread Name: ForkJoinPool-1-worker-15
+Index: 19 Thread Name: ForkJoinPool-1-worker-13
+Index: 18 Thread Name: ForkJoinPool-1-worker-9
+Index: 22 Thread Name: ForkJoinPool-1-worker-7
+Index: 21 Thread Name: ForkJoinPool-1-worker-1
+Index: 20 Thread Name: ForkJoinPool-1-worker-3
+Index: 23 Thread Name: ForkJoinPool-1-worker-5
+Index: 24 Thread Name: ForkJoinPool-1-worker-11
+Index: 25 Thread Name: ForkJoinPool-1-worker-15
+Index: 26 Thread Name: ForkJoinPool-1-worker-13
+Index: 27 Thread Name: ForkJoinPool-1-worker-9
+Index: 28 Thread Name: ForkJoinPool-1-worker-7
+Index: 29 Thread Name: ForkJoinPool-1-worker-1
+Index: 30 Thread Name: ForkJoinPool-1-worker-3
+```
+
+打印执行结果的过程中，输出流出现了几次3秒的停顿。
+从结果中不难看出，执行器只开辟了`15`个处理线程，在所有处理线程都处于`sleep`状态时，输出流便停止。
+
+尝试将`sleep()`函数写在`blocking`中：
+
+```scala
+import scala.concurrent.{ Future, blocking }
+import scala.concurrent.ExecutionContext.Implicits.global
+
+object Main extends App {
+	for (n <- 0 to 30)
+		Future {
+			println(s"Index: $n Thread before blocking: ${Thread.currentThread.getName}")
+			blocking {
+				println(s"Index: $n Blocking: ${Thread.currentThread.getName}")
+				Thread.sleep(3000)
+			}
+			println(s"Index: $n Thread after blocking: ${Thread.currentThread.getName}")
+		}
+
+	scala.io.StdIn.readLine()
+}
+```
+
+输出结果：(Scala 2.11.8 && ArchLinux x64)
+
+```
+Index: 6 Thread before blocking: ForkJoinPool-1-worker-1
+Index: 2 Thread before blocking: ForkJoinPool-1-worker-9
+Index: 3 Thread before blocking: ForkJoinPool-1-worker-7
+Index: 1 Thread before blocking: ForkJoinPool-1-worker-11
+Index: 5 Thread before blocking: ForkJoinPool-1-worker-3
+Index: 7 Thread before blocking: ForkJoinPool-1-worker-15
+Index: 0 Thread before blocking: ForkJoinPool-1-worker-13
+Index: 4 Thread before blocking: ForkJoinPool-1-worker-5
+Index: 4 Blocking: ForkJoinPool-1-worker-5
+Index: 7 Blocking: ForkJoinPool-1-worker-15
+Index: 5 Blocking: ForkJoinPool-1-worker-3
+Index: 2 Blocking: ForkJoinPool-1-worker-9
+Index: 8 Thread before blocking: ForkJoinPool-1-worker-23
+Index: 8 Blocking: ForkJoinPool-1-worker-23
+Index: 9 Thread before blocking: ForkJoinPool-1-worker-27
+Index: 1 Blocking: ForkJoinPool-1-worker-11
+Index: 3 Blocking: ForkJoinPool-1-worker-7
+Index: 10 Thread before blocking: ForkJoinPool-1-worker-31
+Index: 9 Blocking: ForkJoinPool-1-worker-27
+Index: 6 Blocking: ForkJoinPool-1-worker-1
+Index: 10 Blocking: ForkJoinPool-1-worker-31
+Index: 0 Blocking: ForkJoinPool-1-worker-13
+Index: 11 Thread before blocking: ForkJoinPool-1-worker-17
+Index: 11 Blocking: ForkJoinPool-1-worker-17
+Index: 12 Thread before blocking: ForkJoinPool-1-worker-21
+Index: 12 Blocking: ForkJoinPool-1-worker-21
+Index: 13 Thread before blocking: ForkJoinPool-1-worker-19
+Index: 13 Blocking: ForkJoinPool-1-worker-19
+Index: 14 Thread before blocking: ForkJoinPool-1-worker-25
+Index: 14 Blocking: ForkJoinPool-1-worker-25
+Index: 15 Thread before blocking: ForkJoinPool-1-worker-29
+Index: 15 Blocking: ForkJoinPool-1-worker-29
+Index: 16 Thread before blocking: ForkJoinPool-1-worker-47
+Index: 16 Blocking: ForkJoinPool-1-worker-47
+Index: 17 Thread before blocking: ForkJoinPool-1-worker-45
+Index: 17 Blocking: ForkJoinPool-1-worker-45
+Index: 18 Thread before blocking: ForkJoinPool-1-worker-59
+Index: 18 Blocking: ForkJoinPool-1-worker-59
+Index: 19 Thread before blocking: ForkJoinPool-1-worker-39
+Index: 19 Blocking: ForkJoinPool-1-worker-39
+Index: 20 Thread before blocking: ForkJoinPool-1-worker-53
+Index: 20 Blocking: ForkJoinPool-1-worker-53
+Index: 21 Thread before blocking: ForkJoinPool-1-worker-37
+Index: 21 Blocking: ForkJoinPool-1-worker-37
+Index: 22 Thread before blocking: ForkJoinPool-1-worker-51
+Index: 22 Blocking: ForkJoinPool-1-worker-51
+Index: 23 Thread before blocking: ForkJoinPool-1-worker-35
+Index: 23 Blocking: ForkJoinPool-1-worker-35
+Index: 24 Thread before blocking: ForkJoinPool-1-worker-49
+Index: 24 Blocking: ForkJoinPool-1-worker-49
+Index: 25 Thread before blocking: ForkJoinPool-1-worker-63
+Index: 25 Blocking: ForkJoinPool-1-worker-63
+Index: 26 Thread before blocking: ForkJoinPool-1-worker-43
+Index: 26 Blocking: ForkJoinPool-1-worker-43
+Index: 27 Thread before blocking: ForkJoinPool-1-worker-57
+Index: 27 Blocking: ForkJoinPool-1-worker-57
+Index: 28 Thread before blocking: ForkJoinPool-1-worker-41
+Index: 28 Blocking: ForkJoinPool-1-worker-41
+Index: 29 Thread before blocking: ForkJoinPool-1-worker-55
+Index: 29 Blocking: ForkJoinPool-1-worker-55
+Index: 30 Thread before blocking: ForkJoinPool-1-worker-33
+Index: 30 Blocking: ForkJoinPool-1-worker-33
+Index: 4 Thread after blocking: ForkJoinPool-1-worker-5
+Index: 7 Thread after blocking: ForkJoinPool-1-worker-15
+Index: 5 Thread after blocking: ForkJoinPool-1-worker-3
+Index: 2 Thread after blocking: ForkJoinPool-1-worker-9
+Index: 8 Thread after blocking: ForkJoinPool-1-worker-23
+Index: 1 Thread after blocking: ForkJoinPool-1-worker-11
+Index: 3 Thread after blocking: ForkJoinPool-1-worker-7
+Index: 9 Thread after blocking: ForkJoinPool-1-worker-27
+Index: 6 Thread after blocking: ForkJoinPool-1-worker-1
+Index: 10 Thread after blocking: ForkJoinPool-1-worker-31
+Index: 0 Thread after blocking: ForkJoinPool-1-worker-13
+Index: 11 Thread after blocking: ForkJoinPool-1-worker-17
+Index: 12 Thread after blocking: ForkJoinPool-1-worker-21
+Index: 13 Thread after blocking: ForkJoinPool-1-worker-19
+Index: 14 Thread after blocking: ForkJoinPool-1-worker-25
+Index: 15 Thread after blocking: ForkJoinPool-1-worker-29
+Index: 16 Thread after blocking: ForkJoinPool-1-worker-47
+Index: 17 Thread after blocking: ForkJoinPool-1-worker-45
+Index: 18 Thread after blocking: ForkJoinPool-1-worker-59
+Index: 19 Thread after blocking: ForkJoinPool-1-worker-39
+Index: 20 Thread after blocking: ForkJoinPool-1-worker-53
+Index: 21 Thread after blocking: ForkJoinPool-1-worker-37
+Index: 22 Thread after blocking: ForkJoinPool-1-worker-51
+Index: 23 Thread after blocking: ForkJoinPool-1-worker-35
+Index: 24 Thread after blocking: ForkJoinPool-1-worker-49
+Index: 25 Thread after blocking: ForkJoinPool-1-worker-63
+Index: 26 Thread after blocking: ForkJoinPool-1-worker-43
+Index: 27 Thread after blocking: ForkJoinPool-1-worker-57
+Index: 28 Thread after blocking: ForkJoinPool-1-worker-41
+Index: 29 Thread after blocking: ForkJoinPool-1-worker-55
+Index: 30 Thread after blocking: ForkJoinPool-1-worker-33
+```
+
+整个输出过程中，仅有**一次**3秒的停顿。
+分析输出结果，可以得知：
+
+0. 执行器开辟的工作线程的数量明显大于没有`blocking`时的数量(线程数目`> 50`)。即使用`blocking`改变了执行器的线程创建策略。
+0. 相同`Index`输出的线程名称相同，`blocking`包含的代码、之后的代码并没有运行在独立的线程。即一个独立的`Future`运行在一个线程，**没有**像`C#`中的`async`方法那样被切分到不同的线程执行。
 
 ### *Scala Promise*
 `Promise`为特质，完整包路径为`scala.concurrent.Promise`。
