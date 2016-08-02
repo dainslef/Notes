@@ -67,20 +67,34 @@ class Test<T> implements Test1<T>, Test2<T> {
 **Java8**中加入的另一个重要的特性即为**Lambda表达式**。
 
 ### 使用Lambda表达式表示函数接口
-**Lambda表达式**用于实现**函数接口**，**函数接口**是有且只有一个抽象方法的接口。
+**Lambda表达式**用于实现**函数接口**，函数接口是**有且只有一个**抽象方法的接口。
+
+函数接口可以使用`@FunctionalInterface`注解，被其标注的接口中若含有**多个**抽象方法则无法通过编译。
 例如：
 
 ```java
+// 编译报错
+@FunctionalInterface
 interface Test<T> {
 	T getT(T a);
+	T getT1();
 }
+```
+
+编译报错，提示：
+
+```
+Error: java: Unexpected @FunctionalInterface annotation
+	Test is not a functional interface
+		multiple non-overriding abstract methods found in interface Test
 ```
 
 对于**函数接口**，只能带有一个**抽象方法**，但可以带有任意数量的**默认方法**。
 例如：
 
 ```java
-//以下接口定义符合函数接口要求
+// 以下接口定义符合函数接口要求
+@FunctionalInterface
 interface Test<T> {
 	T getT(T a);
 	default T abc(T a) {
@@ -96,6 +110,7 @@ interface Test<T> {
 例如：
 
 ```java
+@FunctionalInterface
 interface Test<T> {
 	T getT(T a);
 }
@@ -120,7 +135,7 @@ Test<Integer> t = (Integer a) -> a;
 
 ```java
 int function(参数列表) {
-	//函数内容
+	// 函数内容
 	return 返回值;
 }
 ```
@@ -129,7 +144,7 @@ int function(参数列表) {
 
 ```java
 (参数列表) -> {
-	//函数内容
+	// 函数内容
 	return 返回值;
 }
 ```
@@ -170,6 +185,7 @@ Lambda表达式能够**访问**外部作用域中的变量。
 例如：
 
 ```java
+@FunctionalInterface
 interface A {
 	void get();
 }
@@ -208,7 +224,8 @@ import java.util.function.*;
 
 public class Main {
 	public static void main(String[] args) {
-		//实例化函数接口对象
+
+		// 实例化函数接口对象
 		Function<Integer, Integer> function = in -> 2 * in;
 		IntFunction<Integer> intFunction = in -> 2 * in;
 		Consumer<Integer> consumer = in -> System.out.println(in);
