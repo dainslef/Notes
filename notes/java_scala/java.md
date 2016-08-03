@@ -502,7 +502,8 @@ public interface Runnable {
 
 除了`Runnable`接口是Java早期版本就已包含的之外，其余的接口/类定义都在`java.util.concurrent`包中。
 
-`Callable`接口用于表示带有返回值的异步操作，定义如下：
+`Callable`接口用于表示带有返回值的异步操作。
+定义如下：
 
 ```java
 public interface Callable<V> {
@@ -562,23 +563,27 @@ public interface ExecutorService extends Executor {
 	// shutdown()后等待剩余任务执行一定时间，在指定时间结束后返回所有任务是否执行完毕
 	boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
 
-	// 提交任务
+	// 提交任务，返回该任务的Future，非阻塞
 	<T> Future<T> submit(Callable<T> task);
 	<T> Future<T> submit(Runnable task, T result);
 	Future<?> submit(Runnable task);
 
-	// 执行给定的任务集合，并返回这些任务的Future
+	// 执行给定的任务集合，同步等待集合中所有的任务完成，并返回这些任务的Future
 	<T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException;
-	// 执行给定的任务集合，等待指定时间，返回这些任务的Future，若在等待时间内所有任务都已完成，则方法提前返回
+	/*
+		执行给定的任务集合，等待指定时间，超过等待时间则终止尚未完成的任务。
+		返回给定时间内已完成的任务的Future，若在等待时间结束前所有任务都已完成，则方法提前返回。
+	*/
 	<T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
 		long timeout, TimeUnit unit) throws InterruptedException;
 
-	// 执行给定的任务集合，当有任意任务完成时，方法返回该任务的执行结果
+	// 执行给定的任务集合，同步等待，直到有任意任务完成时，方法返回该任务的执行结果，同时停止执行其它仍在执行的任务
 	<T> T invokeAny(Collection<? extends Callable<T>> tasks)
 		throws InterruptedException, ExecutionException;
 	/*
 		执行给定的任务集合，等待指定时间。
-		在指定时间内有任意任务完成，则返回该任务的执行结果，若没有任何任务完成则抛出TimeoutException异常。
+		在指定时间内有任意任务完成，则返回该任务的执行结果，同时停止其它正在执行的任务。
+		若没有任何任务完成则抛出TimeoutException异常。
 	*/
 	<T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
 		throws InterruptedException, ExecutionException, TimeoutException;
@@ -601,7 +606,7 @@ public static ExecutorService newSingleThreadExecutor()；
 public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize);
 ```
 
-使用`Executor`框架的基本代码如下：
+使用`ExecutorService`的基本代码如下：
 
 ```java
 public class Main {
@@ -622,16 +627,99 @@ public class Main {
 		// 创建线程池
 		ExecutorService service = Executors.newCachedThreadPool();
 
-		// 添加任务到容器
-		List tasks = new LinkedList<Callable<String>>();
-		tasks.add(callable1);
-		tasks.add(callable2);
+		// 提交任务，获取结果Future
+		List<Future<XXX>> results = new ArrayList();
+		results.add(service.submit(callable1));
+		results.add(service.submit(callable2));
 		// add more tasks...
 
-		// 执行任务
-		service.invokeAll(tasks);
+		// 处理任务结果
+		for (Future<XXX> result : results) {
+			XXX xxx = result.get();
+			/* do something... */
+		}
 
-		// 关闭线程池
+		// 关闭线程池，没有关闭线程池的操作main函数会一直不返回，程序也不会退出
+		service.shutdown();
+	}
+
+}
+```
+
+使用`ExecutorService`在处理任务返回结果时，有以下缺陷：
+
+- 直接使用`get()`从`Future`中同步获取返回值需要对任务的执行时间有大致的估算，否则可能造成在某一个执行耗时高的任务中阻塞较长时间。
+- 使用`get(long timeout, TimeUnit unit)`限定了等待时间，但任务未必会在限定时间内完成，可能需要多次轮询才能获取到所有`Future`的结果。
+
+处理多个任务返回结果应该使用`CompletionService`接口。
+
+`CompletionService`接口定义了将已完成的任务与新提交的任务分离的方法。
+定义如下：
+
+```java
+public interface CompletionService<V> {
+
+	// 提交任务
+	Future<V> submit(Callable<V> task);
+	Future<V> submit(Runnable task, V result);
+
+	// 获取下一个完成的任务的结果Future，若没有任务完成，则会同步等待直至有任务完成
+	Future<V> take() throws InterruptedException;
+
+	// 获取下一个完成的任务的结果Future，若没有任务完成，则返回null
+	Future<V> poll();
+
+	// 获取下一个完成的任务的结果Future，若没有任务，则等待指定时间，指定时间结束后仍没有任务完成则返回null
+	Future<V> poll(long timeout, TimeUnit unit) throws InterruptedException;
+}
+```
+
+`CompletionService`接口常用的实现类是`ExecutorCompletionService`，可以使用`Executor`实例构建：
+
+```java
+public ExecutorCompletionService(Executor executor);
+```
+
+使用`ExecutorCompletionService`的基本代码如下：
+
+```java
+public class Main {
+
+	public static void main(String[] args) {
+
+		// 创建并发任务
+		Callable<XXX> callable1 = () -> {
+			/* do something... */
+			return xxx;
+		};
+		Callable<XXX> callable2 = () -> {
+			/* do something... */
+			return xxx;
+		};
+		// create more tasks...
+
+		// 创建线程池
+		ExecutorService service = Executors.newCachedThreadPool();
+
+		// 使用ExecutorService构建CompletionService实例
+		ExecutorCompletionService<XXX> completionService = new ExecutorCompletionService(service);
+
+		// 提交任务
+		completionService.submit(callable1);
+		completionService.submit(callable2);
+		// add more tasks...
+
+		// 处理任务结果
+		for (int i = 0; i < 任务数量; i++) {
+			/*
+				使用take()/pull()等方法获取下一个执行完毕任务结果。
+				使用take()方法获取结果时只要服务中提交的任意任务完成方法就会返回，不必担心在某一个任务上等待时间过长。
+			*/
+			XXX xxx = completionService.take().get();
+			/* do something... */
+		}
+
+		// 关闭线程池，CompletionService一样需要通过ExecutorService关闭线程池
 		service.shutdown();
 	}
 
