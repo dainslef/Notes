@@ -172,7 +172,7 @@ $ pip install mysqlclient			//for Python3
 | BLOB | BinaryField |
 | TEXT | TextField |
 
-假设有以下结构的mysql表：
+假设有以下结构的MySQL表：
 
 ```sql
 CREATE TABLE `TestTable` (
@@ -205,27 +205,72 @@ class TestTable(models.Model):
 - 对于**表名**，通过自定义`Meta`类，指定`Meta`类成员`db_table`来设定模型类关联的数据库表名。
 - 对于**字段名**，通过在创建字段时指定`db_column`参数内容来指定类成员关联的数据库字段名。
 
-### 模型查询
-对于模型中的数据，可以通过模型中的**管理器**来获取**查询集**，从查询集中获取数据库中的数据。
+### 数据库操作
+每一个模型都至少有一个管理器，通过管理器来访问、操作数据。
+默认管理器名称为`objects`，需要通过模型类访问，并且**不能**通过模型类实例访问。
 
-每一个模型都至少有一个管理器，默认管理器名称为`objects`，需要通过模型类访问，并且**不能**通过模型类实例访问。
-查询的基本语法如下：
+查询
+> 对于模型中的数据，可以通过模型中的**管理器**来获取**查询集**，从查询集中获取数据库中的数据。
 
-```py
-模型类名.objects.all()					# 获取包含所有对象的查询集
-模型类名.objects.filter(**kwargs)		# 获取一个满足参数的查询集
-模型类名.objects.exclude(**kwargs)		# 获取一个不满足参数的查询集
-模型类名.objects.order_by(*field_names)	# 获取以指定字段为参数排序的结果集
-模型类名.objects.get(**kwargs)			# 获取一个单一的查询对象(单行记录)
-```
+> 查询的基本语法如下：
 
-查询集的类型为`QuerySet`，支持索引访问，并可以对其执行切片操作。
+>	```py
+>	模型类名.objects.all()					# 获取包含所有对象的查询集
+>	模型类名.objects.filter(**kwargs)		# 获取一个满足参数的查询集
+>	模型类名.objects.exclude(**kwargs)		# 获取一个不满足参数的查询集
+>	模型类名.objects.order_by(*field_names)	# 获取以指定字段为参数排序的结果集
+>	模型类名.objects.get(**kwargs)			# 获取一个单一的查询对象(单行记录)
+>	```
 
-django中的模型查询操作(`filter()`等)具有以下特性：
+> 查询集的类型为`QuerySet`，支持索引访问，并可以对其执行**切片**操作。
 
-- 查询函数返回的结果依然是查询集，因此可以连续调用查询函数，进行**链式过滤**。
-- 每次调用查询函数得到的查询集都是**独立**的，与之前的查询集**无关**。
-- 查询集是**惰性执行**的，只有在需要求值时，查询才会被真正的执行。
+> django中的模型查询操作(`filter()、exclude()`等)具有以下特性：
+
+>	- 查询函数返回的结果依然是查询集，因此可以连续调用查询函数，进行**链式过滤**。
+>	- 每次调用查询函数得到的查询集都是**独立**的，与之前的查询集**无关**。
+>	- 查询集是**惰性执行**的，只有在需要求值时，查询才会被真正的执行。
+
+> 对于查询集，可以进行遍历操作，以前面的`TestTable`表为例，打印出表中的所有数据：
+
+>	```py
+>	for object in TestTable.objects.all():
+>		print("Index: " + object.index + " Name: " + object.name)
+>	```
+
+插入
+> 向数据库中插入数据，主要有两种方式：
+
+>	- 使用管理器/查询集中的`create()`成员方法。
+>	- 构建带有新数据的模型类实例，之后调用`save()`成员方法。
+
+> 以前面的`TestTable`表为例，添加记录：
+
+>	```py
+>	# 使用create()方法
+>	# 添加一行字段index为100，字段name为"TestInsert1"的记录
+>	TestTable.objects.create(index = 100, name = 'TestInsert1')
+
+>	# 使用save()方法
+>	# 添加一行字段index为200，字段name为"TestInsert2"的记录
+>	insertItem = TestTable(index = 200, name = 'TestInsert2')
+>	insertItem.save()
+>	```
+
+修改
+> 修改已有的字段需要以下步骤：
+
+>	0. 通过管理器的`get()`成员方法获取一行记录。
+>	0. 再访问成员字段修改为需要的内容。
+>	0. 执行`save()`方法保存修改。
+
+> 以前面的`TestTable`表为例，修改已有记录：
+
+>	```py
+>	# 修改index为100的记录，将其name字段修改为"TestAlter"
+>	alterItem = TestTable.objects.get(index = 0)
+>	alterItem.name = 'TestAlter'
+>	alterItem.save()
+>	```
 
 
 
@@ -402,79 +447,79 @@ post_data = request.POST['字段名称']
 
 获取的字段均为`str`类型。
 
-#### *CSRF*
-在django模版中，通过`POST`方式提交数据时需要在`<form></form>`标签之间添加标签`{% csrf_token %}`。
+CSRF
+> 在django模版中，通过`POST`方式提交数据时需要在`<form></form>`标签之间添加标签`{% csrf_token %}`。
 
-该操作用于产生`token`数据，并内置到表单中成为提交的一个字段，后端在接受`POST`提交时会对`token`数据进行校验，避免`CSRF(Cross-site request forgery)`攻击(跨站请求伪造攻击)。
+> 该操作用于产生`token`数据，并内置到表单中成为提交的一个字段，后端在接受`POST`提交时会对`token`数据进行校验，避免`CSRF(Cross-site request forgery)`攻击(跨站请求伪造攻击)。
 
-django对于没有`token`数据的POST请求都视为跨站请求攻击，会在页面中输出错误信息。
+> django对于没有`token`数据的POST请求都视为跨站请求攻击，会在页面中输出错误信息。
 
-#### *在url()函数中传递字段*
-`url()`函数中可以添加**可选**的额外参数，类型为**列表**，将需要传递的字段添加入列表中。
+在url()函数中传递字段
+> `url()`函数中可以添加**可选**的额外参数，类型为**列表**，将需要传递的字段添加入列表中。
 
-- `url()`函数中若添加了列表参数，则映射到的视图函数需要带有与列表内字段名称相同的参数。
-- `url()`函数中传递的参数并不属于`GET`、`POST`这样的传递方式，而是直接传递到视图函数的参数中。
+>	- `url()`函数中若添加了列表参数，则映射到的视图函数需要带有与列表内字段名称相同的参数。
+>	- `url()`函数中传递的参数并不属于`GET`、`POST`这样的传递方式，而是直接传递到视图函数的参数中。
 
-如下所示：
+> 如下所示：
 
-假设URL配置如下：
+> 假设URL配置如下：
 
-```py
-# file: [项目名称]/urls.py
+>	```py
+>	# file: [项目名称]/urls.py
 
-from django.conf.urls import url
+>	from django.conf.urls import url
 
-import 应用名称.views
+>	import 应用名称.views
 
-urlpatterns = [
-	# url()函数中传递了两个字段：name和sex
-	url(r'^normalUrl/$', 应用名称.views.normalUrl, { "name": "Dainslef", "sex": "Male" })
+>	urlpatterns = [
+>		# url()函数中传递了两个字段：name和sex
+>		url(r'^normalUrl/$', 应用名称.views.normalUrl, { "name": "Dainslef", "sex": "Male" })
+>	]
+>	```
+
+> 则对应的视图函数应该写成：
+
+>	```py
+>	# file: [应用名称]/views.py
+>	from django.http.response import HttpResponse
+
+>	# 视图函数的参数中应该带有与url()函数中传入字段名称相同的参数：name和sex
+>	# 字段参数的位置可以交换，但需要保证首参数为request参数
+>	def normalUrl(request, name, sex):
+>		return HttpResponse("Name: %s, Sex: %s" % (name, sex))
+>	```
+
+使用正则表达式匹配字段
+> 在django中，同样支持在`url()`函数支持正则表达式的捕获语法，捕获的字段会以额外参数的形式传入视图函数中。
+
+> 如下所示：
+
+> 假设URL配置如下：
+
+>	```py
+>	# file: [项目名称]/urls.py
+
+>	from django.conf.urls import url
+
+>	import 应用名称.views
+
+>	urlpatterns = [
+>		# url()函数的正则表达式捕获两个字段，对应的视图函数也应接收额外的两个参数
+>		# 此正则表达式接受的URL格式为：normalUrl/name=XXXX&sex=XXXX/
+>		url(r'^normalUrl/name=(\w+)&sex=(\w+)/$', 应用名称.views.normalUrl)
 ]
-```
+>	```
 
-则对应的视图函数应该写成：
+> 对应的视图函数写成：
 
-```py
-# file: [应用名称]/views.py
-from django.http.response import HttpResponse
+>	```py
+>	# file: [应用名称]/views.py
+>	from django.http.response import HttpResponse
 
-# 视图函数的参数中应该带有与url()函数中传入字段名称相同的参数：name和sex
-# 字段参数的位置可以交换，但需要保证首参数为request参数
-def normalUrl(request, name, sex):
-	return HttpResponse("Name: %s, Sex: %s" % (name, sex))
-```
-
-#### *使用正则表达式匹配字段*
-在django中，同样支持在`url()`函数支持正则表达式的捕获语法，捕获的字段会以额外参数的形式传入视图函数中。
-
-如下所示：
-
-假设URL配置如下：
-
-```py
-# file: [项目名称]/urls.py
-
-from django.conf.urls import url
-
-import 应用名称.views
-
-urlpatterns = [
-	# url()函数的正则表达式捕获两个字段，对应的视图函数也应接收额外的两个参数
-	# 此正则表达式接受的URL格式为：normalUrl/name=XXXX&sex=XXXX/
-	url(r'^normalUrl/name=(\w+)&sex=(\w+)/$', 应用名称.views.normalUrl)
-]
-```
-
-对应的视图函数写成：
-
-```py
-# file: [应用名称]/views.py
-from django.http.response import HttpResponse
-
-# 与通过列表参数传递字段的方式不同，正则表达式捕获的字段是没有名字的，视图函数只需要参数数量匹配即可
-def normalUrl(request, name, sex):
-	return HttpResponse("Name: %s, Sex: %s" % (name, sex))
-```
+>	# 与通过列表参数传递字段的方式不同，正则表达式捕获的字段是没有名字的，视图函数只需要参数数量匹配即可
+>	def normalUrl(request, name, sex):
+>		return HttpResponse("Name: %s, Sex: %s" % (name, sex))
+>	```
 
 
 
