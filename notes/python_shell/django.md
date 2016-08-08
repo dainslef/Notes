@@ -576,74 +576,85 @@ TEMPLATES = [
 > 标签用于在模版中提供特定的功能，如逻辑控制、输出内容等。
 > 常见的标签有：
 
->	0. `for` 循环逻辑
->		```py
->		# 遍历容器
->		{% for var in vars %}
->			xxxx
->		{% endfor %}
->		# 遍历字典
->		{% for key, value in item %}
->			{{ key }}: {{ value }}
->		{% endfor %}
->		# 遍历容器，同时处理容器为空时的情况
->		{% for var in vars %}
->			xxxx
->		{% empty %}
->			xxxx
->		{% endfor %}
->		```
->	0. `if` 判断逻辑
->		```py
->		{% if var0 %}
->			xxxx
->		{% elif var1 %}
+> `for` 循环逻辑
+
+>	```py
+>	# 遍历容器
+>	{% for var in vars %}
+>		xxxx
+>	{% endfor %}
+>	# 遍历字典
+>	{% for key, value in item %}
+>		{{ key }}: {{ value }}
+>	{% endfor %}
+>	# 遍历容器，同时处理容器为空时的情况
+>	{% for var in vars %}
+>		xxxx
+>	{% empty %}
+>		xxxx
+>	{% endfor %}
+>	```
+
+> `if` 判断逻辑
+
+>	```py
+>	{% if var0 %}
+>		xxxx
+>	{% elif var1 %}
+>		xxxx
+>	{% else %}
+>		xxxx
+>	{% endif %}
+>	```
+
+> `comment` 注释
+
+>	```py
+>	{% comment "注释原因。。。" %}
+>		XXXX
+>		XXXX
+>		...
+>	{% endcomment %}
+>	```
+
+> `cycle` 迭代输出
+
+>	```py
+>	# cycle标签通常用在循环中
+>	# 首次访问返回第一个元素，之后返回第二个，以此类推，全部元素都被访问之后从头开始
+>	{% for var in vars %}
+>		<tr class="{% cycle 'xxx1' 'xxx2' 'xxx3' '...' %}">
+>			...
+>		</tr>
+>	{% endfor %}
+>	```
+
+> `firstof` 输出不为`False`的参数
+
+>	```py
+>	# 全为False无输出
+>	{% firstof var1 var2 var3 %}
+>	# 等价于
+>	{% if var1 %}
+>		{{ var1 }}
+>	{% elif var2 %}
+>		{{ var2 }}
+>	{% elif var3 %}
+>		{{ var3 }}
+>	{% endif %}
+>	```
+
+> `ifchanged` 用在循环中，检测迭代值是否改变
+
+>	```py
+>	{% for var in vars %}
+>		{% ifchanged var %}
 >			xxxx
 >		{% else %}
 >			xxxx
->		{% endif %}
->		```
->	0. `comment` 注释
->		```py
->		{% comment "注释原因。。。" %}
->			XXXX
->			XXXX
->			...
->		{% endcomment %}
->		```
->	0. `cycle` 迭代输出
->		```py
->		# cycle标签通常用在循环中
->		# 首次访问返回第一个元素，之后返回第二个，以此类推，全部元素都被访问之后从头开始
->		{% for var in vars %}
->			<tr class="{% cycle 'xxx1' 'xxx2' 'xxx3' '...' %}">
->				...
->			</tr>
->		{% endfor %}
->		```
->	0. `firstof` 输出不为`False`的参数
->		```py
->		# 全为False无输出
->		{% firstof var1 var2 var3 %}
->		# 等价于
->		{% if var1 %}
->			{{ var1 }}
->		{% elif var2 %}
->			{{ var2 }}
->		{% elif var3 %}
->			{{ var3 }}
->		{% endif %}
->		```
->	0. `ifchanged` 用在循环中，检测迭代值是否改变
->		```py
->		{% for var in vars %}
->			{% ifchanged var %}
->				xxxx
->			{% else %}
->				xxxx
->			{% endifchanged %}
->		{% endfor %}
->		```
+>		{% endifchanged %}
+>	{% endfor %}
+>	```
 
 
 
