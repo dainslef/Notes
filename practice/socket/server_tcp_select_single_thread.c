@@ -38,7 +38,7 @@ int main(void)
 
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
-	addr.sin_port = 9999;					//当主机端与客户端数据类型兼容时，端口号可以不做转换
+	addr.sin_port = htons(9999);			//当主机端与客户端数据类型兼容时，端口号可以不做转换
 	addr.sin_addr.s_addr = INADDR_ANY;		//代表接收任意地址的数据
 
 	if (bind(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)

@@ -25,19 +25,19 @@ int main(void)
 	if (sock_fd == -1)
 	{
 		perror("初始化socket失败");
-		return 0;
+		return -1;
 	}
 
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
-	addr.sin_port = 8888;
-	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	addr.sin_port = htons(8888);
+	addr.sin_addr.s_addr = INADDR_ANY;
 
 	if (bind(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 	{
 		perror("绑定端口失败");
 		close(sock_fd);
-		return 0;
+		return -1;
 	}
 
 	char message[MSG_SIZE];
@@ -45,9 +45,20 @@ int main(void)
 	{
 		memset(message, 0, MSG_SIZE);
 		if (recv(sock_fd, message, MSG_SIZE, 0) == -1)
+		{
 			perror("接收失败");
+			close(sock_fd);
+			return -1;
+		}
 		else
+		{
 			printf("接收到消息：%s\n", message);
+			if (!strcmp(message, "close"))
+			{
+				printf("收到关闭指令！\n");
+				break;
+			}
+		}
 	}
 
 	close(sock_fd);

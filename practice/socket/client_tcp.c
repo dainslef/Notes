@@ -17,7 +17,7 @@
 #include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>		//inet_addr()函数
+#include <arpa/inet.h>					//inet_addr()函数
 
 #define MSG_SIZE 50						//定义单次发送字符串最大长度
 
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 {
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
-	addr.sin_port = 9999;
+	addr.sin_port = htons(9999);
 	addr.sin_addr.s_addr = inet_addr("127.0.0.1");		//向本机发送数据
 
 	sock_fd = socket(AF_INET, SOCK_STREAM, 0);

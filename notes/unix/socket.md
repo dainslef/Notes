@@ -75,7 +75,16 @@ struct sockaddr_in {
 };
 ```
 
-其中，成员结构体`in_addr`的定义为：
+需要注意的是，结构成员`sin_port`伏值端口号时需要使用`htons()`函数进行转换：
+
+- `sin_port`成员接收的端口号应为`网络字节顺序`(**大尾顺序**，`big-endian`，地址的低位存储值的高位
+)。
+- 在`x86/x64`体系的计算机上，存储顺序为**小尾顺序**(`little-endian`，地址的低位存储值的低位
+)。
+- 直接将端口号赋值到`sin_port`上并不会直接产生错误，当客户端/服务端都没有使用`htons()`函数进行端口转换时，通信能够正常执行，但实际通信使用的端口并不是赋值的数值。
+- 当端口号没有使用`htons()`函数转换时，使用其它编程语言的以正确的端口号进行访问时会出现连接被拒绝的情况，因为实际的通信端口并不是传入的数值。
+
+`sockaddr_in`成员结构体`in_addr`的定义为：
 
 ```c
 typedef uint32_t in_addr_t;
@@ -278,14 +287,22 @@ int main(void)
 	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	if (bind(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
+	{
 		perror("绑定端口失败");
+		close(sock_fd);
+		return -1;
+	}
 
 	char message[MSG_SIZE];
 	while (1)
 	{
 		memset(message, 0, MSG_SIZE);
 		if (recv(sock_fd, message, MSG_SIZE, 0) == -1)
+		{
 			perror("接收失败");
+			close(sock_fd);
+			return -1;
+		}
 		else
 			printf("接收到消息：%s\n", message);
 	}
