@@ -171,6 +171,48 @@ ssize_t write(int fd, const void *buf, size_t count);
 对于同一个文件描述符，连续进行读写操作，每一次函数调用都会在上一次结束的位置进行，因此想要重复读取某个文件的内容，需要创建新的文件描述符。
 同一个文件可以同时拥有多个文件描述符，且各个文件描述符之间的文件读取是相互独立的。
 
+### 获取文件信息
+使用`stat()`获取文件的信息，函数定义在`sys/stat.h`中。
+
+```c
+int stat(const char *pathname, struct stat *buf);
+```
+
+- `pathname`参数为要获取文件的路径。
+- `buf`参数为指向文件属性结构体的指针。
+
+函数执行成功返回`0`，失败时返回`-1`并置`errno`。
+
+文件属性结构体`stat`定义如下：
+
+```c
+struct stat {
+	dev_t     st_dev;         /* ID of device containing file */
+	ino_t     st_ino;         /* inode number */
+	mode_t    st_mode;        /* file type and mode */
+	nlink_t   st_nlink;       /* number of hard links */
+	uid_t     st_uid;         /* user ID of owner */
+	gid_t     st_gid;         /* group ID of owner */
+	dev_t     st_rdev;        /* device ID (if special file) */
+	off_t     st_size;        /* total size, in bytes */
+	blksize_t st_blksize;     /* blocksize for filesystem I/O */
+	blkcnt_t  st_blocks;      /* number of 512B blocks allocated */
+
+	/* Since Linux 2.6, the kernel supports nanosecond
+		precision for the following timestamp fields.
+		For the details before Linux 2.6, see NOTES. */
+	struct timespec st_atim;  /* time of last access */
+	struct timespec st_mtim;  /* time of last modification */
+	struct timespec st_ctim;  /* time of last status change */
+
+	#define st_atime st_atim.tv_sec      /* Backward compatibility */
+	#define st_mtime st_mtim.tv_sec
+	#define st_ctime st_ctim.tv_sec
+};
+```
+
+在`stat`结构中，定义了文件的文件的**大小**、**文件种类**、**所属用户/用户组**、**文件的访问/修改时间**等信息。
+
 ### 标准输入/输出
 在Unix哲学中，秉承**一切皆文件**思想，因而，在终端中进行输入/输出与读写文件操作类似，使用`read()/write()`调用即可。
 
@@ -643,7 +685,7 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 >	int fexecve(int fd, char *const argv[], char *const envp[]);
 >	```
 
->	- `exec()`函数为**系统调用**，执行后，会将当前的进程**完全替换**为执行新程序的进程(即这个进程`exec()`调用成功之后的代码都不再运行)，但`PID`不变。
+>	- `exec()`系列函数为**系统调用**，执行后，会将当前的进程**完全替换**为执行新程序的进程(即这个进程`exec()`调用成功之后的代码都不再运行)，但`PID`不变。
 >	- `exec()`系统调用比`system()`函数要**高效**，`exec()`与`fork()`搭配是Unix系统中最**常用**的系统进程创建组合。
 >	- 通常`exec()`不会返回，除非发生了错误。出错时，`exec()`返回`-1`并且置`errno`，同时继续执行余下的代码。
 >	- 在`exec()`函数组中，只有`execve()`函数是真正的系统调用，其它的几个函数都是`execve()`封装而成的库函数。
