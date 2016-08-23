@@ -1457,16 +1457,6 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 ## IntelliJ IDEA使用注记
 **IntelliJ IDEA**相比Eclipse而言，有着更精美的UI，且对`Scala``Golang`等冷门语言有着更好的支持。
 
-### 破解IDEA
-访问站点`http://idea.lanyus.com/`，下载破解补丁`JetbrainsCrack.jar`。
-破解步骤：
-
-0. 将破解补丁放入IDEA文件夹下的`bin`目录中。
-0. 修改`bin`目录下的配置文件：
-	- `Windows`环境下，32位版为`idea.exe.vmoptions`文件，64位版为`idea64.exe.vmoptions`文件。
-	- `Linux`环境下，32位版为`idea.vmoptions`文件，64位版为`idea64.vmoptions`文件。
-0. 在配置文件末尾添加：`-javaagent:[补丁绝对路径]`
-
 ### 设置显示行号和不可见空白
 选择选项：
 
