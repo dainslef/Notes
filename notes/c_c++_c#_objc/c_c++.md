@@ -56,7 +56,9 @@ int main()
 静态成员变量初始化的格式为：
 
 ```cpp
-数据类型 类名::静态成员变量名 = 值;		//静态成员变量的初始化需要在全局区域，不能在函数体内
+数据类型 类名::静态成员变量名;			// 使用默认构造器
+数据类型 类名::静态成员变量名(参数...);	// 显式使用构造函数初始化静态变量
+数据类型 类名::静态成员变量名 = 值;		// 静态成员变量的初始化需要在全局区域，不能在函数体/类内
 ```
 
 类的静态成员变量有两种访问形式：
@@ -66,7 +68,92 @@ int main()
 类名::静态成员变量名;
 ```
 
-需要注意的是，类的静态成员变量在逻辑上依然受到类的访问权限的制约，`private``protected`的静态成员变量依然无法在类外访问，但可以在类外赋初值。
+需要注意的是，类的静态成员变量在逻辑上依然受到类的访问权限的制约，`private`、`protected`的静态成员变量依然无法在类外访问，但可以在类外赋初值。
+
+注意事项：
+- 普通类的静态成员变量在类内仅仅是**声明**了该变量，要使用该成员变量还需要在全局区域进行定义，而定义**不能**写在头文件中，否则一旦该头文件被**多个**源码文件包含，就会出现`multiple definition of ***`(**多重定义**)错误。
+- **静态成员变量定义不能写在头文件中**的规则仅仅对于普通类有效，对于**模板类**则不再适用，模板类的静态成员定义同样需要写在头文件内。模板类的编译模型与常规代码不同，在定义时并不实际生成代码，只有在被其它代码引用时编译器才会为其生成对应的模板代码，因而模板类在头文件中定义静态成员不存在多重定义问题，同时大多数编译器**不支持**`export`分离模板定义模型(如`g++`、`clang++`等)，因此模板类的定义**必须**写在头文件内(**模板特化**情形除外)。
+
+如下代码所示：
+
+文件 "test.h"：
+
+```cpp
+#pragma once
+
+class A
+{
+public:
+	static int a;
+	static int b;
+};
+
+int A::a = 1;			// 错误，普通类头文件内进行静态成员定义造成多重定义错误
+
+template <class T>
+class B
+{
+public:
+	static int a;
+	static int b;
+	static int c;
+	static int d;
+};
+
+template <class T>
+int B<T>::a;		// 正确，在头文件中定义模板类的静态成员
+```
+
+文件 "test.cc"：
+
+```cpp
+#include "test.h"
+
+int A::b = 2;			// 正确，普通类的静态成员在代码文件中定义，而非头文件
+
+template <class T>
+int B<T>::b = 2;		// 错误，模板类的静态成员在代码文件中定义由于模板编译模型无法找到，提示"未定义的引用"
+
+template <>
+int B<int>::c = 3;		// 正确，模板特化定义可以写在源码文件中
+
+template <>
+int B<int>::d;			// 错误，模板特化定义必须使用显式定义(使用赋值操作符/构造函数等)
+```
+
+文件 "main.cc"：
+
+```cpp
+#include "test.h"
+
+#include <iostream>
+
+using namespace std;
+
+int main(void)
+{
+	cout << A::a << endl;
+	cout << A::b << endl;
+
+	cout << B<int>::a << endl;
+	cout << B<int>::b << endl;
+	cout << B<int>::c << endl;
+	cout << B<int>::d << endl;
+
+	return 0;
+}
+```
+
+编译输出(G++ 6.1.1 && ArchLinux x64)：
+
+```
+/tmp/ccSLIJuT.o:(.data+0x0): multiple definition of `A::a'
+/tmp/ccAkJrHZ.o:(.data+0x0): first defined here
+/tmp/ccAkJrHZ.o: In function `main':
+main.cc:(.text+0x63): undefined reference to `B<int>::b'
+main.cc:(.text+0xa1): undefined reference to `B<int>::d'
+collect2: error: ld returned 1 exit status
+```
 
 
 
@@ -1617,13 +1704,31 @@ cout << &a << " " << &c << endl;	//打印输出结果相同，c和a为同一块�
 与Java/C#等语言不同，C++中的`Lambda`**不能**省略参数类型，也不能在函数体只有一句的时候省略函数体外的花括号。
 
 ### 重复使用一个 *Lambda*
-如果需要重复使用一个`Lambda`，可将其定义为函数对象`std::function`：
+如果需要重复使用一个`Lambda`，可将其构造为函数对象`std::function`：
 
 ```cpp
 std::function<返回类型(参数表)> 函数对象名 = [当前作用域变量引用方式](参数表) { 函数体; };
 ```
 
-需要注意的是，函数对象是一个类实例，不是函数指针，但如果一个`Lambda`没有捕获任何变量，则可以与函数指针进行转化。
+需要注意的是，函数对象是一个**类实例**，不是函数指针，但如果一个`Lambda`没有捕获任何变量，则可以与函数指针进行转化。
+
+`std::function`重载了`bool`运算符，可用于判断函数对象是否有效：
+
+```cpp
+#include <iostream>
+#include <functional>
+
+using namespace std;
+
+int main(void)
+{
+	function<void()> func;
+	cout << (func ? "true" : "false") << endl;		// 输出"false"
+	func = [] {};
+	cout << (func ? "true" : "false") << endl;		// 输出"true"
+	return 0;
+}
+```
 
 ### 在 *Lambda* 中捕获当前作用域的变量
 - `Lambda`可以捕获当前作用域中的变量，`[=]`表示当前作用域的变量全部取值传递，`[&]`表示当前作用域的变量全部取引用传递。
@@ -2119,9 +2224,9 @@ This is slot2.
 ## C/C++中一些编码中遇到的错误
 
 ### *multiple definition of* 错误
-在一个头文件中定义一个全局变量，如果这个头文件被多次包含，就会出现**多重定义**错误，即使你在头文件的定义中正确地使用了`ifndef`、`define`、`endif`宏。
+在一个头文件中定义一个全局变量，如果这个头文件被多次包含，就会出现**多重定义**错误，即使你在头文件的定义中正确地使用了`#ifndef #define #endif`或是`#pragma once`宏。
 正确的定义全局变量的方法是将定义写在代码文件中，然后在头文件里用`extern`关键字添加声明即可。
-`ifndef define endif`宏只能保证**编译阶段**代码段不被重复包含，然而变量定义是对每个源文件都有效的，这些源文件编译得到的目标文件里每一个都含有该变量的定义，编译时不会报错，但当这些目标文件连接时，多个目标文件的定义就会产生多重定义冲突。
+`#ifndef #define #endif`宏只能保证**编译阶段**代码段不被重复包含，然而变量定义是对每个源文件都有效的，这些源文件编译得到的目标文件里每一个都含有该变量的定义，编译时不会报错，但当这些目标文件连接时，多个目标文件的定义就会产生多重定义冲突。
 在C++中，如果全局变量是定义在某个命名空间中的，则在代码文件中的定义和头文件中的带`extern`关键字的声明都要写在名字相同的命名空间中(命名空间不能加`extern`关键字！)。
 举例：
 
