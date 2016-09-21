@@ -21,7 +21,7 @@
 
 int main(void)
 {
-	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+	int sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sock_fd == -1)
 	{
 		perror("初始化socket失败");

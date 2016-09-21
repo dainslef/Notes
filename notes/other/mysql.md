@@ -118,7 +118,7 @@ socket = #客户端启动socket文件位置
 `$ mysql -h [目标主机ip] -u [用户名] -p`
 
 远程登陆要求本机的ip已被添加到mysql服务端配置中的`bind-address`配置项中，或者不启用`bind-address`配置。
-在发行版`Ubuntu`中，mysql的默认配置中`bind-address`配置项是启用的。
+在发行版`Ubuntu`中，mysql的默认配置中`bind-address`配置项是**启用**的。
 
 ### 修改用户密码
 登陆数据库之后，在数据库命令行中输入：
