@@ -1618,6 +1618,7 @@ assert(expr);
 ### C11中的静态断言
 C11中引入了**静态断言**关键字`_Static_assert`，与普通的断言不同，**静态断言**不是宏，而是一个语言级别的**关键字**。
 静态断言在编译时生效，接受常量表达式，若接收的常量表达式值为假，则在编译阶段直接报错。
+
 `_Static_assert`关键字用法如下所示：
 
 ```cpp
@@ -2114,6 +2115,7 @@ connection connect(const group_type& group, const slot_type& slot, connect_posit
 
 #### *连接槽函数时改变签名*
 被连接的槽函数必须要符合信号定义时的模板参数中的函数原型，必须函数原型参数个数完全相同且类型兼容(由于绑定槽函数时是传递槽函数的地址，因此函数默认参数被忽略，因而参数个数必须完全相同)，如果需要绑定的函数参数表与信号定义的参数表数目不同，可以采用`std::bind()`生成具有新参数表的函数进行连接。
+
 如果需要连接的槽函数为一个类的非静态成员函数，则也需要通过`std::bind()`将非静态成员函数绑定一个类实例之后再进行连接，否则会连接失败(没有实例无法访问非静态成员函数)。
 如果被连接的槽函数有多个重载，则需要进行强制类型转换来转换为无歧义函数指针才能进行连接。
 
@@ -2141,7 +2143,10 @@ void disconnect_all_slots();
 
 ### 获取信号返回值
 信号的返回值是由合并器`combiner`管理的，在定义信号对象时，会调用`boost`默认的合并器类管理返回值，如果需要使用自定义合成器类，则定义需要写成`boost::signals2::signal<func(type), combiner<type>>`。
-定义完信号之后，可以像调用普通函数一样调用信号对象，所有被信号连接的槽函数都将会被触发(重载`()`操作符)，同时返回的一个合并器类的对象。默认的合并器类只保存最后一次被触发的槽函数的返回值，使用`*`操作符或是`value()`成员函数可以获得合并器中保存的值。
+
+定义完信号之后，可以像调用普通函数一样调用信号对象，所有被信号连接的槽函数都将会被触发(重载`()`操作符)，同时返回的一个合并器类的对象。
+
+默认的合并器类只保存最后一次被触发的槽函数的返回值，使用`*`操作符或是`value()`成员函数可以获得合并器中保存的值。
 
 实例代码：
 
@@ -2235,13 +2240,202 @@ This is slot2.
 
 
 
+## 标准时间库 *std::chrono*
+`std::chrono`是`C++11`中引入的标准时间库，来自于`boost::chrono`。
+
+`std::chrono`中主要包含以下内容：
+
+- `std::chrono::duration`用于表示一段**时间间隔**。
+- `std::chrono::time_point`用于表示某一个**时间点**。
+- `std::chrono::system_clock`用于表示系统时钟。
+- `std::chrono::steady_clock`递增时钟(不会因为时钟修改而减少值)。
+
+### *std::chrono::duration*
+`std::chrono::duration`在`GCC 6.2.1`的定义如下：
+
+```cpp
+template<typename _Rep, typename _Period = ratio<1>>
+struct duration;
+```
+
+- `_Rep`为时间的数值类型，可以为`int`、`double`等常见的数值类型。
+- `_Period`为时间的**单位**，以**秒**作为换算基准，使用`std::ratio`类型表示。
+
+类型`std::radio`
+> `std::ratio`类型用于描述换算比，基本定义如下：
+
+>	```cpp
+>	template<intmax_t _Num, intmax_t _Den = 1>
+>	struct ratio
+>	{
+>		...
+>	};
+>	```
+
+> 模板参数均为数值，`_Num`为分子，`_Den`为分母。
+> `std::ratio<1, 1>`表示`1/1`即`1`，`std::ratio<200, -1>`表示`200/-1`即`-200`。
+
+时间单位
+> 标准库时间以秒为换算基础(即将**秒**定义为`std::radio<1, 1>`)，定义了其它标准时间单位：
+
+>	```cpp
+>	/// nanoseconds
+>	typedef duration<int64_t, nano> nanoseconds;
+>	/// microseconds
+>	typedef duration<int64_t, micro> microseconds;
+>	/// milliseconds
+>	typedef duration<int64_t, milli> milliseconds;
+>	/// seconds
+>	typedef duration<int64_t> seconds;
+>	/// minutes
+>	typedef duration<int64_t, ratio<60>> minutes;
+>	/// hours
+>	typedef duration<int64_t, ratio<3600>> hours;
+>	```
+
+> 其中，`nano`、`micro`、`milli`的定义在`radio`头文件中：
+
+>	```cpp
+>	typedef ratio<1, 1000000000> nano;
+>	typedef ratio<1, 1000000> micro;
+>	typedef ratio<1, 1000> milli;
+>	```
+
+时间转换
+> 不同的时间单位之间相互转换使用`std::chrono::duration_cast()`函数，该函数定义如下：
+
+>	```cpp
+>	/// duration_cast
+>	template<typename _ToDur, typename _Rep, typename _Period>
+>	constexpr typename enable_if<__is_duration<_ToDur>::value, _ToDur>::type
+>	duration_cast(const duration<_Rep, _Period>& __d)
+>	{
+>		...
+>	}
+>	```
+
+> 模板参数`_ToDur`表示需要转换成的目标时间单位，`_Rep`、`_Period`用于表示被转换时间的单位。
+> 简单的用法如下所示：
+
+>	```cpp
+>	#include <iostream>
+>	#include <chrono>
+
+>	int main(void)
+>	{
+>		std::chrono::hours hour(1);			// 一个小时的时间间隔
+>		std::chrono::minutes mintue = std::chrono::duration_cast<std::chrono::minutes>(hour);	// 转换为分钟
+>		std::cout << "Hour: " << hour.count() << std::endl;
+>		std::cout << "Mintue: " << mintue.count() << std::endl;
+
+>		return 0;
+>	}
+>	```
+
+> 输出结果：(GCC 6.2.1 && ArchLinux x64)
+
+>	```
+>	Hour: 1
+>	Mintue: 60
+>	```
+
+### *std::time_point*
+`std::chrono::time_point`的基本定义如下：
+
+```cpp
+template<typename _Clock, typename _Dur>
+struct time_point
+{
+	...
+};
+```
+
+泛型参数`_Dur`为时间的单位(带有泛型参数的具体`std::chrono::duration`)，`_Clock`定义了时间点使用的**时钟类型**。
+
+- `std::chrono::time_point`可以与时间间隔`std::chrono::duration`进行加减运算，得到新的时间点。
+- 时间点同样拥有`time_point_cast()`用于在不同单位的时间点之间进行转换，模板参数、使用方法与`std::chrono::duration`的对应函数类似。
+
+### 时钟类型
+时钟类型中定义了时间的相关单位，不同的时钟类型有着不同的精确度。
+
+- 时钟类型有`std::chrono::system_clock`、`std::chrono::steady_clock`、`std::chrono::high_resolution_clock`等。
+- 在Linux下，`std::chrono::system_clock`的`std::chrono::duration`为`std::chrono::nanoseconds`，即系统时间精确到**纳秒**。
+- `std::chrono::high_resolution_clock`代表当前系统中最高精确度的时钟，在Linux下，该类型为`std::chrono::system_clock`的别名。
+
+标准时钟`std::chrono::system_clock`具有以下常用方法：
+
+- `std::chrono::system_clock::now()`可以获得当前时间的时间点(`std::chrono::time_point`类型)。
+- `std::chrono::system_clock::to_time_t()`/`std::chrono::system_clock::from_time_t()`函数将`std::chrono::time_point`与`POSIX`中定义的时间类型`time_t`相互转换(`time_t`类型可进一步使用`localtime()/asctime()/ctime()`等函数进一步转换得到可读的时间)。
+
+### 基本用法示例
+以指定格式输出系统时间，并进行简单的时间运算。
+
+```cpp
+#include <iostream>
+#include <chrono>
+
+using namespace std;
+
+int main(void)
+{
+	// 获取当前系统时间
+	chrono::time_point<chrono::system_clock, chrono::nanoseconds> now = chrono::system_clock::now();
+
+	// 转换为POSIX标准单位
+	time_t time_now = chrono::system_clock::to_time_t(now);
+
+	// 输出时间内容
+	tm* st_tm = localtime(&time_now);
+	cout << "Year: " << st_tm->tm_year << endl;
+	cout << "Month: " << st_tm->tm_mon << endl;
+	cout << "Hour: " << st_tm->tm_hour << endl;
+	cout << "Minute: " << st_tm->tm_min << endl;
+
+	// 以标准格式打印当前时间
+	cout << "\nAsctime: " << std::ctime(&time_now) << endl;
+
+	// 当前时间添加一小时时间间隔
+	chrono::time_point<chrono::system_clock, chrono::nanoseconds> now_after_hour = now + chrono::hours(1);
+	time_t time_after_hour = chrono::system_clock::to_time_t(now_after_hour);
+
+	// 输出添加间隔后的时间
+	cout << "After one hour: " << ctime(&time_after_hour) << endl;
+
+	// 反向计算间隔，并以分钟为单位输出
+	cout << "Minutes: " << chrono::duration_cast<chrono::minutes>(now_after_hour - now).count() << endl;
+
+	return 0;
+}
+```
+
+输出结果：
+
+```
+Year: 116
+Month: 8
+Hour: 17
+Minute: 57
+
+Asctime: Thu Sep 22 17:57:05 2016
+
+After one hour: Thu Sep 22 18:57:05 2016
+
+Minutes: 60
+```
+
+
+
 ## C/C++中一些编码中遇到的错误
 
 ### *multiple definition of* 错误
 在一个头文件中定义一个全局变量，如果这个头文件被多次包含，就会出现**多重定义**错误，即使你在头文件的定义中正确地使用了`#ifndef #define #endif`或是`#pragma once`宏。
+
 正确的定义全局变量的方法是将定义写在代码文件中，然后在头文件里用`extern`关键字添加声明即可。
+
 `#ifndef #define #endif`宏只能保证**编译阶段**代码段不被重复包含，然而变量定义是对每个源文件都有效的，这些源文件编译得到的目标文件里每一个都含有该变量的定义，编译时不会报错，但当这些目标文件连接时，多个目标文件的定义就会产生多重定义冲突。
+
 在C++中，如果全局变量是定义在某个命名空间中的，则在代码文件中的定义和头文件中的带`extern`关键字的声明都要写在名字相同的命名空间中(命名空间不能加`extern`关键字！)。
+
 举例：
 
 ```cpp
