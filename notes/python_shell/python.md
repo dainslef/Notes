@@ -74,6 +74,61 @@ True
 '0x41'
 ```
 
+### 2进制数据流
+在Python中，Socket中发送2进制流需要使用`bytes`或`bytearray`格式进行包装。
+
+- `bytes`和`bytearray`使用列表(`list`)或数值构造。
+	- 使用数值构造时，表示创建一个字节数为指定数值的空二进制流。
+	- 使用列表构造时，用于构造`bytes/bytearray`的列表中每一个成员必须为`0 ~ 255`之间的数值。
+- `bytes/bytearray`都支持通过索引读取。
+- `bytes/bytearray`区别在于`bytes`内容不可变，`bytearray`内容可被修改。
+
+如下代码所示：
+
+```py
+# 以数值创建指定字节数的bytes/bytearray
+>>> a = bytes(5)
+>>> a
+b'\x00\x00\x00\x00\x00'
+>>> b = bytearray(5)
+>>> b
+bytearray(b'\x00\x00\x00\x00\x00')
+
+# 以列表初始化bytes/bytearray
+>>> c = bytes([0x41, 0x61])
+>>> c
+b'Aa'
+>>> d = bytearray([0x41, 0x61])
+>>> d
+bytearray(b'Aa')
+
+# 索引获取
+>>> c[0]
+65
+>>> d[0]
+65
+
+# 索引赋值
+>>> c[0] = 0x63
+Traceback (most recent call last):
+	File "<stdin>", line 1, in <module>
+TypeError: 'bytes' object does not support item assignment
+>>> c
+b'Aa'
+>>> d[0] = 0x65
+>>> d
+bytearray(b'ea')
+```
+
+`bytes/bytearray`类型可以通过`decode()`成员方法解码成普通字符串：
+
+```py
+>>> c.decode()
+'Aa'
+>>> c.decode()
+'Aa'
+```
+
 
 
 ## 容器类型
