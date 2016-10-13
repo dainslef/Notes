@@ -36,6 +36,8 @@ $ make
 - `QToolBox` 工具箱，可以用来实现抽屉效果
 - `QToolButton` 工具箱按钮，有按下和弹起状态
 - `QListWdget` 列表框，可以设置表格模式或图标模式，通过`setCurrentItem(nullptr)`清除当前选中的子目标
+- `QDateEdit` 日期选择器
+- `QTimeEdit` 时间选择器
 
 ###在Qt中使用C++11
 默认情况下，`Qt`是**没有**开启`C++11`支持的，让`Qt5`支持`C++11`需要在项目的`pro文件`中添加语句`CONFIG += c++11`，让`Qt4`支持`C++11`则需要在项目的`pro文件`中加入`QMAKE_CXXFLAGS += -std=c++11`。
@@ -43,6 +45,24 @@ $ make
 添加`QMAKE_CXXFLAGS`参数的方法也使用于`Qt5`，只要编译器支持，还可以使用更新的`C++14`、`C++17`。
 
 添加`CONFIG`参数的方式只在`Qt5`中有效，且只能支持`C++11`。
+
+
+
+## 基础控件
+Qt中，常见的UI类的的继承关系为：
+
+```
+QObject +  QPaintDevice => QWidget
+QWidget => QFrame, QMainWindow, QDialog
+QObject + QSurface => QWindow
+QWindow + QPaintDevice => QPaintDeviceWindow
+```
+
+- `QWindow`是对底层窗口系统的抽象，与宿主OS相关，开发中*不应该*直接使用此类。
+- `QWidget`是所有UI控件的基类，是最基本的UI对象。
+- `QFrame`定义了控件的边框样式，从`QFrame`继承的控件可以定义边框样式(`QFrame::setFrameStyle(int style)`)。
+- `QMainWindow`提供了程序主窗口的框架，可对其设置**Menu Bar、Tool Bars、Dock Widgets、Central Widget、Status Bars**等区域，快速构建出程序的主窗口。
+- `QDilog`定义了基本的对话框样式。
 
 
 
