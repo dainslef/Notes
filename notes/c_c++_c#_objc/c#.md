@@ -283,6 +283,13 @@ object Test extends App {
 true
 ```
 
+### 扩展方法的应用场景
+扩展方法主要用于向一些不方便改动的类型添加额外的方法，并让添加的方法能够以常规语法调用。
+
+在C#标准库中，典型的扩展案例为`System.Linq.Enumerable`类，该类中为`System.Collections.Generic.IEnumerable<T>`类型添加了大量`SQL`风格的扩展方法定义。
+
+使用扩展方法时需要节制，滥用扩展方法会造成代码难以理解。
+
 
 
 ## 泛型
@@ -657,13 +664,13 @@ class Test
 > `Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。
 > 两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。
 > `Thread`类在构造时还可以接收一个`int`型参数用于指定线程的最大堆栈大小。
-
+>
 > 使用`Thread.Start()`方法可以启动线程，如下代码所示：
-
+>
 >	```csharp
 >	using System;
 >	using System.Threading;
-
+>
 >	class Program
 >	{
 >		static void Main(string[] args)
@@ -675,9 +682,9 @@ class Test
 >		}
 >	}
 >	```
-
+>
 > 运行结果：
-
+>
 >	```
 >	This is thread!
 >	The arg is: test args.
@@ -702,19 +709,19 @@ class Test
 
 使用`EndInvoke()`等待异步委托返回
 > 如果需要等待异步执行的委托结束，可以使用`EndInvoke()`成员函数。
-
+>
 >	- `EndInvoke()`接受一个`IAsyncResult`类型的参数(即`BeginInvoke()`的返回值)。
 >	- `EndInvoke()`的返回值即为异步委托的返回值。
 >	- 在异步委托执行完毕之前，`EndInvoke()`会一直阻塞当前线程，直到异步委托结束。
-
+>
 > 如下代码所示：
-
+>
 >	```csharp
 >	using System;
 >	using System.Threading;
-
+>
 >	delegate int Delegate();
-
+>
 >	class Program
 >	{
 >		static void Main(string[] args)
@@ -726,25 +733,25 @@ class Test
 >				Console.WriteLine("Thread is running!");
 >				return 100;
 >			};
-
+>
 >			//使用BeginInvoke()进行异步委托回调
 >			IAsyncResult result = del.BeginInvoke(ar =>
 >			{
 >				//异步委托结束时执行该Lambda，打印传入参数
 >				Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState);
 >			}, 200);
-
+>
 >			Console.WriteLine("Program start...");
 >			Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
-
+>
 >			//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
 >			Console.WriteLine("The thread status is: {0}", result.IsCompleted);
 >		}
 >	}
 >	```
-
+>
 > 运行结果：
-
+>
 >	```
 >	Program start...
 >	Thread is running!
@@ -752,22 +759,23 @@ class Test
 >	The thread status is: True
 >	The object arg is: 200
 >	```
-
+>
 > 委托实例`del`虽然先被调用，但由于是异步调用，`Sleep()`了1000毫秒之后再输出的字符位于主线程之后。
 
 使用`WaitOne()`等待异步委托返回
 > `BeginInvoke()`的返回值`IAsyncResult`类型的`AsyncWaitHandle`属性会返回一个`WaitHandle`类型的等待句柄：
+>
 >	- 该句柄的成员方法`WaitHandle.WaitOne()`接受`int`型参数作为超时时间，使用此方法可以实现等待指定时间(单位为**毫秒**)的效果。
 >	- `WaitHandle.WaitOne()`的返回值为`bool`类型，用于表示异步委托是否结束。
-
+>
 > 如下代码所示：
-
+>
 >	```csharp
 >	using System;
 >	using System.Threading;
-
+>
 >	delegate int Delegate();
-
+>
 >	class Program
 >	{
 >		static void Main(string[] args)
@@ -779,28 +787,28 @@ class Test
 >				Console.WriteLine("Thread is running!");
 >				return 100;
 >			};
-
+>
 >			//使用BeginInvoke()进行异步委托回调
 >			IAsyncResult result = del.BeginInvoke(ar =>
 >				Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState), 200);
-
+>
 >			Console.WriteLine("Program start...");
 >			if (result.AsyncWaitHandle.WaitOne(1000))
 >				Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
-
+>
 >			//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
 >			Console.WriteLine("The thread status is: {0}", result.IsCompleted);
 >		}
 >	}
 >	```
-
+>
 > 执行结果：
-
+>
 >	```
 >	Program start...
 >	The thread status is: False
 >	```
-
+>
 > 可以看到，超时时间设为1000毫秒，此时异步委托尚未执行完毕，因而`IAsyncResult.IsCompleted`属性为`false`。
 
 ### *Task* 类
@@ -987,17 +995,17 @@ lock (object)
 
 基本用法
 > `lock`关键字用法基本与`Java`中`synchronized`关键字类似：
-
+>
 >	- 被锁定的`object`可以是引用类型实例、`this`引用、以及类型(`typeof(XXX)`)。
 >	- `lock`关键字**不能**用于修饰方法。
 >	- lock块中不能使用`await`关键字。
-
+>
 > `Java`笔记中的例子使用`C#`可以改写为：
-
+>
 >	```csharp
 >	using System;
 >	using System.Threading;
-
+>
 >	class Example
 >	{
 >		public void ShowOne()
@@ -1011,7 +1019,7 @@ lock (object)
 >				}
 >			}
 >		}
-
+>
 >		public void ShowTwo()
 >		{
 >			lock (this)
@@ -1024,13 +1032,13 @@ lock (object)
 >			}
 >		}
 >	}
-
+>
 >	class Program
 >	{
 >		static void Main(string[] args)
 >		{
 >			Example example = new Example();
-
+>
 >			Thread threadOne = new Thread(() => example.ShowOne());
 >			Thread threadTwo = new Thread(() => example.ShowTwo());
 >			threadOne.Name = "Thread One";
@@ -1040,9 +1048,9 @@ lock (object)
 >		}
 >	}
 >	```
-
+>
 > 输出结果：(`Mono 4.4.1 && ArchLinux x64`)
-
+>
 >	```
 >	Thread One ShowOne()
 >	Thread One ShowOne()
@@ -1059,24 +1067,24 @@ lock (object)
 lock实现
 > `lock`块在实现上使用了`Monitor`类。
 > `lock (object) { ... }`实际像相当于：
-
+>
 >	```
 >	Monitor.Enter(object);
 >	...
 >	Monitor.Exit(object);
 >	```
-
+>
 > 在进入lock块时调用`Monitor.Enter()`，离开时调用`Monitor.Exit()`。
 
 死锁问题
 > 在`MSDN`中提到了应避免锁定`public`访问权限的内容，在实际编码中，常见的三类lock行为都可能引发死锁：
-
+>
 >	- 若实例可被公共访问，则`lock(this)`可能死锁。
 >	- 若类型`XXX`可被公共访问，则`lock(typeof(XXX))`可能死锁。
 >	- 使用`lock("XXX")`时，同一进程中使用锁定相同字符串的代码块都将共享同一个锁。
-
+>
 > 定义示例类`Example`：
-
+>
 >	```csharp
 >	class Example
 >	{
@@ -1088,7 +1096,7 @@ lock实现
 >				Console.WriteLine("Lock!");
 >			}
 >		}
-
+>
 >		public static void StaticLock()
 >		{
 >			// 锁定类型
@@ -1097,7 +1105,7 @@ lock实现
 >				Console.WriteLine("StaticLock!");
 >			}
 >		}
-
+>
 >		public void StringLock()
 >		{
 >			// 锁定字符串
@@ -1108,18 +1116,18 @@ lock实现
 >		}
 >	}
 >	```
-
+>
 > 分别针对三种情况编写主函数测试。
-
+>
 > 锁定`this`：
-
+>
 >	```csharp
 >	class Program
 >	{
 >		static void Main(string[] args)
 >		{
 >			Example example = new Example();
-
+>
 >			lock (example)
 >			{
 >				Thread thread = new Thread(() => example.Lock());
@@ -1129,9 +1137,9 @@ lock实现
 >		}
 >	}
 >	```
-
+>
 > 锁定类型：
-
+>
 >	```csharp
 >	class Program
 >	{
@@ -1146,16 +1154,16 @@ lock实现
 >		}
 >	}
 >	```
-
+>
 > 锁定相同字符串：
-
+>
 >	```csharp
 >	class Program
 >	{
 >		static void Main(string[] args)
 >		{
 >			Example example = new Example();
-
+>
 >			lock ("Lock")
 >			{
 >				Thread thread = new Thread(() => example.StringLock());
@@ -1165,15 +1173,15 @@ lock实现
 >		}
 >	}
 >	```
-
+>
 > 三段代码执行后均无输出，且程序不退出，均死锁。
-
+>
 >> 需要注意的是，`lock`锁定对象是基于**线程**的，在同一线程内的代码不受影响，如下所示的代码**不会**发生死锁：
-
+>>
 >>	```csharp
 >>	using System;
 >>	using System.Threading;
-
+>>
 >>	class Example
 >>	{
 >>		public void Lock()
@@ -1184,13 +1192,13 @@ lock实现
 >>			}
 >>		}
 >>	}
-
+>>
 >>	class Program
 >>	{
 >>		static void Main(string[] args)
 >>		{
 >>			Example example = new Example();
-
+>>
 >>			lock (example)
 >>			{
 >>				// 虽然实例example与Lock()方法内部锁定的this相同，但代码运行在同一线程，不会死锁。
@@ -1199,7 +1207,7 @@ lock实现
 >>		}
 >>	}
 >>	```
-
+>>
 >> 锁定类型、字符串时类似。
 
 
@@ -1331,6 +1339,8 @@ C#中的常见类型与C++中类型之间的转换关系：
 `internal`关键字用在类内成员之前表示只能在当前项目中访问该成员。
 在对类内成员使用时，`internal`关键字可以搭配`protected`关键字使用，即定义一个只能被当前项目的子类访问的成员。
 
+需要注意的是，`internal`修饰的类实例**不能**作为`public`成员出现在其它类中。
+
 ### *readonly* 关键字
 `readonly`关键字修饰的变量赋值只能在变量定义时或是在该变量所属类的构造函数中。
 
@@ -1338,13 +1348,18 @@ C#中的常见类型与C++中类型之间的转换关系：
 - `const`定义的变量被视为**编译时常量**，而`readonly`定义的变量被视为**运行时常量**。
 - 在C#中`const`只能修饰值类型以及`string`类型和值为`null`的引用类型，被`const`修饰的变量自动带有`static`特性，`const`关键字与`static`关键字不能共同修饰同一个变量。
 
-`const`变量由于是**静态**的，因而可以被定义在静态类中。
+`const`变量是**静态**的，**可以**被定义在静态类中。
 `readonly`没有这些限制，可以修饰任意类型，被`readonly`修饰的变量也默认**不带**`static`属性。
+
+对于引用类型，不能使用`const`关键字修饰，要限制其修改只能使用`readonly`关键字。
+`readonly`与`static`关键字可一同使用表示**静态只读**变量。
 
 ### *partial* 关键字
 `partial`关键字用于定义`部分类`(局部类型)，局部类型允许我们将一个类、结构或接口分成几个部分，分别实现在几个不同的源码文件中。
 
-在`Windows From`中，窗口类代码便使用了部分类特性，对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中，两个文件中的代码本质上属于同一个类，`部分类`特性巧妙地隔离开了**由IDE产生的代码**与**用户自行编写的代码**，使代码结构更清晰。
+在`Windows From`中，窗口类代码便使用了部分类特性。
+对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中。
+两个文件中的代码本质上属于同一个类，`部分类`特性巧妙地隔离开了**由IDE产生的代码**与**用户自行编写的代码**，使代码结构更清晰。
 
 ### *params* 关键字
 `params`用在方法的参数之前，用于标记可变参数。一个方法只能拥有一个`params`参数，且被`params`标记的参数必须为最后一个参数，并且是数组类型。
@@ -1380,4 +1395,44 @@ string test = "aaa\0\0\0";
 Console.WriteLine(test);						// 输出 "aaa口口口"
 string testNew = test.Replace("\0", "");		// 将 \0 替换为空
 Console.WriteLine(testNew);						// 输出 "aaa"
+```
+
+### *DEBUG* 模式
+在C#中，可使用类似C/C++的宏针对`DEBUG/RELEASE`模式下进行额外的操作，语法如下：
+
+```csharp
+#if DEBUG
+// do something...
+#else
+// do something...
+#endif
+```
+
+### 输出代码文件名、行号
+在输出日志时，常常需要输出打印日志的代码位置以便跟踪查看。
+
+使用`StackStrace`类通过反射可以得到函数调用者的栈信息，并从中获取代码信息，但`StackStrace`有时并不可靠。
+
+在`.Net 4.5`中引入了三种`Attribute`用于获取方法的调用成员名称、调用文件、调用代码行号：
+
+- `System.Runtime.CompilerServices.CallerMemberNameAttribute` 成员名称
+- `System.Runtime.CompilerServices.CallerFilePathAttribute` 调用文件
+- `System.Runtime.CompilerServices.CallerLineNumberAttribute` 调用行号
+
+三种特性用于修饰日志函数的参数(参数需要有默认值)，编译器会自动为参数补充对应的调用信息，如下所示：
+
+```
+using System.Runtime.CompilerServices;
+
+void PrintLog(string log,
+		[CallerMemberName] string member = "",
+		[CallerFilePath] string file = "",
+		[CallerLineNumber] int line = 0)
+{
+	Console.WriteLine("Log: {0}", log);
+
+	Console.WriteLine("MemberName: {0}", member);
+	Console.WriteLine("FilePath: {0}", file);
+	Console.WriteLine("LineNumber: {0}", line);
+}
 ```
