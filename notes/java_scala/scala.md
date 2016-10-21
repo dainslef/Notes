@@ -125,7 +125,7 @@ Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程
 `break`功能可以由`scala.util.control.Breaks`类提供。
 
 > `Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
-
+>
 >	```scala
 >	def breakable(op: => Unit): Unit {
 >		try { op } catch {
@@ -135,26 +135,26 @@ Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程
 >	}
 >	def break(): Nothing = { throw breakException }
 >	```
-
+>
 > 由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。
 > `break()`方法产生`breakException`异常。
-
+>
 > 将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
-
+>
 > 使用`Breaks`如下代码所示：
-
+>
 >	```scala
 >	import scala.util.control.Breaks.{ breakable, break }
-
+>
 >	object Main extends App {
-
+>
 >		breakable {
 >			//使用break的代码块作为传名参数传入breakable中
 >			for (i <- 1 to 10) {
 >				if (i == 8) break		//跳出循环
 >			}
 >		}
-
+>
 >	}
 >	```
 
@@ -221,7 +221,7 @@ required: Int
 
 参数默认值
 > 在Scala中，方法中参数允许带有**默认值**：
-
+>
 >	```scala
 >	scala> var num = 100
 >	num: Int = 100
@@ -231,9 +231,9 @@ required: Int
 >	scala> println(num)
 >	0							//输出0
 >	```
-
+>
 > 如果一个方法中包含多个同类型并带有默认值的参数，调用时默认匹配第一个参数：
-
+>
 >	```scala
 >	scala> def func(num1: Int = 100, num2: Int = 200) = println(s"$num1 $num2")
 >	func: (num1: Int, num2: Int)Unit
@@ -243,7 +243,7 @@ required: Int
 
 默认参数与方法重载
 > 在Scala中，若一个带有默认的参数的方法省略默认参数时签名与一个已经存在的方法相同，编译器并不会报错(C++编译器则会报错)，而是在调用方法时优先使用**无默认值**的版本(处理逻辑类似于C#)：
-
+>
 >	```scala
 >	object Main extends App {
 >		def func() = println("No Args")
@@ -251,9 +251,9 @@ required: Int
 >		func()
 >	}
 >	```
-
+>
 > 输出结果：
-
+>
 >	```
 >	No Args
 >	```
@@ -261,14 +261,14 @@ required: Int
 具名参数
 > 在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为"具名参数"。
 > 对于方法中包含多个同类型并带有默认值参数的情况下，使用该特性可以显式指定要传入的是哪一个参数：
-
+>
 >	```scala
 >	scala> func(num2 = 300)
 >	100 300
 >	```
-
+>
 > 与C++不同，Scala中，方法参数的默认值**不需要**连续，参数的默认值可以交错出现，甚至是颠倒参数顺序：
-
+>
 >	```scala
 >	scala> def func(int: Int, str: String = "String", char: Char, double: Double = 123.0) = println(s"$int $str $char $double")
 >	func: (int: Int, str: String, char: Char, double: Double)Unit
@@ -283,21 +283,21 @@ required: Int
 
 传名参数(By-name Parameter)
 > 当一个方法接收的**参数**为**空**时，该参数即为**传名参数(By-name Parameter)**，如下所示：
-
+>
 >	```scala
 >	def func(arg: => T) ...
 >	```
-
+>
 > 可以使用传名参数可以接收任意数量的代码，如下所示：
-
+>
 >	```scala
 >	object Main extends App {
-
+>
 >		def show(args: => Unit) = args
-
+>
 >		//单行语句可直接作为参数
 >		show(println("123"))
-
+>
 >		//多行语句可放在大括号中
 >		show {
 >			println("456")
@@ -305,9 +305,9 @@ required: Int
 >		}
 >	}
 >	```
-
+>
 > 运行结果：
-
+>
 >	```
 >	123
 >	456
@@ -373,36 +373,36 @@ class Test
 函数作为参数
 > Scala为函数式编程语言，在Scala中函数对象可以直接作为参数传递。
 > 当函数作为参数存在时，传名参数与普通的空参函数参数定义**不能**同时存在，如下定义只能存在一个：
-
+>
 >	```scala
 >	def func(arg: () => T) = arg
 >	def func(arg: => T) = arg
 >	var func: (() => T) => T = (arg: () => T) => arg
 >	```
-
+>
 > 在接收参数时，空参函数参数只能接收同样空参的函数，即`() =>`不能被省略，而传名参数则可以直接将代码块作为参数传入。
 
 函数组合
 > 在Scala中，函数允许进行组合。
 > 函数组合有两种方式，`a compose b`实际调用次序为`a(b())`，`a andThen b`实际调用次序为`b(a())`。
 > 需要注意的是，方法不能直接进行组合，需要将其转化为函数(方法名之后加`_`符号)。
-
+>
 >	```scala
 >	object Main extends App {
 >		def add(num: Int) = num + 100
 >		def double(num: Int) = num * 2
-
+>
 >		//只有函数能进行组合,方法需要加"_"符号转化成函数
 >		var compose = add _ compose double
 >		var andThen = add _ andThen double
-
+>
 >		println(compose(100) == add(double(100)))
 >		println(andThen(100) == double(add(100)))
 >	}
 >	```
-
+>
 > 输出结果：
-
+>
 >	```
 >	true
 >	true
@@ -411,20 +411,20 @@ class Test
 偏函数(Partial Function)
 > 偏函数是一个定义域有限的函数，在Scala中使用类型`PartialFunction[-A, +B]`来表示偏函数。
 > 偏函数类似数学意义上的函数，只能接收**一个**参数，同时偏函数只对**有限**的输入值返回结果。
-
+>
 > 在Scala中，使用**模式匹配**语法中的`case`关键字来实现偏函数，一个最简单的偏函数如下所示：
-
+>
 >	```scala
 >	scala> val func: PartialFunction[Int, Int] = { case 0 => 0 }
 >	func: PartialFunction[Int,Int] = <function1>
 >	```
-
+>
 > 这个偏函数只在输入值为`0`时有意义：
-
+>
 >	```scala
 >	scala> func(0)
 >	res1: Int = 0
-
+>
 >	scala> func(1)
 >	scala.MatchError: 1 (of class java.lang.Integer)
 >		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
@@ -433,7 +433,7 @@ class Test
 >		at $anonfun$1.applyOrElse(<console>:11)
 >		at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
 >		... 32 elided
-
+>
 >	scala> func(-1)
 >	scala.MatchError: -1 (of class java.lang.Integer)
 >		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
@@ -443,19 +443,19 @@ class Test
 >		at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
 >		... 32 elided
 >	```
-
+>
 > 一个偏函数可以通过添加多个`case`语句块来添加多个定义域的返回结果：
-
+>
 >	```scala
 >	scala> val func1: PartialFunction[Int, Int] = { case n if n > 0 => 1; case n if n < 0 => -1 }
 >	func1: PartialFunction[Int,Int] = <function1>
-
+>
 >	scala> func1(-11111)
 >	res3: Int = -1
-
+>
 >	scala> func1(11111)
 >	res4: Int = 1
-
+>
 >	scala> func1(0)
 >	scala.MatchError: 0 (of class java.lang.Integer)
 >		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
@@ -465,54 +465,54 @@ class Test
 >		at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
 >		... 32 elided
 >	```
-
+>
 > 偏函数`func1()`对于定义域`(-∞，0)`返回`-1`，对于定义域`(0, +∞)`返回`1`。
-
+>
 > 偏函数可以使用`isDefinedAt()`方法来检验在给定的参数在偏函数中是否有定义：
-
+>
 >	```scala
 >	scala> func1.isDefinedAt(10000)
 >	res7: Boolean = true
-
+>
 >	scala> func1.isDefinedAt(-10000)
 >	res8: Boolean = true
-
+>
 >	scala> func1.isDefinedAt(0)
 >	res9: Boolean = false
 >	```
-
+>
 > 使用`orElse()()`方法在一个偏函数没有定义的时候尝试调用另一个偏函数：
-
+>
 >	```scala
 >	scala> func1.orElse(func)(0)
 >	res10: Int = 0
 >	```
-
+>
 > 函数`func1()`对于`0`没有定义，而函数`func()`对于`0`有定义，则在参数取`0`时调用`func()`函数的返回值。
 
 部分应用函数(Partial Applied Function)
 > 部分应用函数是逻辑上的概念，表示一个已经指定了部分参数的函数。
 > 将一个拥有多个参数的函数指定部分参数的值构成一个参数较少的新函数，新的函数即为**部分应用函数**。
-
+>
 > Python中的偏函数与Scala中的偏函数是完全不同的概念，Python中偏函数的概念类似于Scala中的部分应用函数。
-
+>
 > 定义一个拥有2个参数的`sum()`函数，返回两个参数的和：
-
+>
 >	```scala
 >	scala> def sum(num1: Int, num2: Int) = num1 + num2
 >	sum: (num1: Int, num2: Int)Int
 >	```
-
+>
 > 指定第二个参数始终为`100`，创建一个部分应用函数：
-
+>
 >	```scala
 >	scala> def sum100 = sum(_: Int, 100)
 >	sum100: Int => Int
-
+>
 >	scala> sum100(100)
 >	res11: Int = 200
 >	```
-
+>
 > `sum100()`便是`sum()`指定了第二参数的部分应用函数。
 
 
@@ -731,13 +731,13 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。
 > 构造器参数前使用`var`关键字，如下代码所示：
-
+>
 >	```scala
 >	class Constructor(var num: Int)
 >	```
-
+>
 >	编译为Java代码为：
-
+>
 >	```java
 >	public class Constructor {
 >		private int num;
@@ -746,17 +746,17 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >		public Constructor(int);
 >	}
 >	```
-
+>
 > 可以看到，编译器为var字段`num`生成了`setter`、`getter`方法和一个与字段同名的私有变量。
-
+>
 > 构造器参数前使用`val`关键字，如下所示：
-
+>
 >	```scala
 >	class Constructor(val num: Int)
 >	```
-
+>
 > 编译为Java代码为：
-
+>
 >	```java
 >	public class Constructor {
 >		private final int num;
@@ -764,18 +764,18 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >		public Constructor(int);
 >	}
 >	```
-
+>
 > 可以看到，编译器为val字段`num`生成了`getter`方法和一个与字段同名的final私有变量。
-
+>
 > 构造器参数前加上**访问权限修饰符**则生成的方法类似，但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)，如下所示：
-
+>
 >	```scala
 >	class Constructor0(protected[this] var num: Int)
 >	class Constructor1(private val num: Int)
 >	```
-
+>
 > 编译为Java代码为：
-
+>
 >	```java
 >	public class Constructor0 {
 >		private int num;
@@ -789,20 +789,20 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >		public Constructor1(int);
 >	}
 >	```
-
+>
 > 只有访问权限为`private[this]`时，编译器才不会为引用的字段生成`setter/getter`，而仅仅生成一个私有成员变量。
 
 主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。
 > 编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
 > 如下代码所示：
-
+>
 >	```scala
 >	class Constructor0(num: Int)
 >	class Constructor1(private[this] val num: Int)
 >	```
-
+>
 > 编译为Java代码为：
-
+>
 >	```java
 >	public class Constructor0 {
 >		public Constructor0(double);
@@ -811,12 +811,12 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >		public Constructor1(double);
 >	}
 >	```
-
+>
 > 编译得到的Java代码完全相同。
-
+>
 > 当该参数被其它成员方法引用时，编译器会为其生成对应的私有成员变量(但没有生成`setter/getter`)。
 > 如下代码所示：
-
+>
 >	```scala
 >	class Constructor0(num: Int) {
 >		def get = num
@@ -825,9 +825,9 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >		def get = num
 >	}
 >	```
-
+>
 > 编译为Java代码为：
-
+>
 >	```java
 >	public class Constructor0 {
 >		private final int num;
@@ -840,60 +840,60 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >		public Constructor1(int);
 >	}
 >	```
-
+>
 > 辅助构造器中的参数与普通函数参数类似，仅在构造器代码段内部生效(不作为字段存在)，辅助构造器的参数前不能添加`var/val`关键字。
 
 一个类如果没有显式写明主构造器参数，则默认生成一个**空参**构造方法。
 > 对于一个如下的**空类**：
-
+>
 >	```scala
 >	class Empty
 >	```
-
+>
 > 实际相当于：
-
+>
 >	```scala
 >	class Empty() {
 >	}
 >	```
-
+>
 > 编译成Java代码后为：
-
+>
 >	```java
 >	public class Empty() {
 >		public Empty() { ... };
 >	}
 >	```
-
+>
 > 可以采用如下方式实例化：
-
+>
 >	```scala
 >	new Empty()
 >	new Empty			//空参函数括号可省略
 >	```
-
+>
 > 与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。
 > 如下代码所示：
-
+>
 >	```scala
 >	class Default {
 >		def this(num: Int) = this
 >	}
 >	```
-
+>
 > 编译成Java代码后为：
-
+>
 >	```java
 >	public class Default {
 >		public Default();
 >		public Default(int);
 >	}
 >	```
-
+>
 > 可以看到，默认的空参构造方法依然存在。
-
+>
 > 主构造器不能在类体中重新定义，如下所示：
-
+>
 >	```scala
 >	class Default {
 >		//编译报错，主构造器已为空参，不能重复定义
@@ -906,9 +906,9 @@ Scala作为OOP语言，支持多态。
 
 重写
 > 在Scala中，默认情况下，子类的并不会重写父类的同名方法，而是需要显式地在方法定义前加上`override`关键字才会发生重写行为。
-
+>
 > Scala中的重写遵循以下规则：
-
+>
 >	- def只能重写另一个def。
 >	- var只能重写另一个抽象的var(即只有定义没有实现)。
 >	- val可以重写另一个val以及不带有参数的def。
@@ -1134,56 +1134,56 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 
 混入(Mixin)
 > Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
-
+>
 >	- Scala中采用的**混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
 >	- 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
 >	- 若同时继承类并混入特质，需要将继承的类写在`extends`关键字的后面，`with`只能混入**特质**，不能混入**类**。
-
+>
 > 如下所示：
-
+>
 >	```scala
 >	class BaseA
-
+>
 >	class BaseB
-
+>
 >	trait TraitA extends BaseA
-
+>
 >	trait TraitB extends BaseB
-
+>
 >	/* 编译报错，提示：
 >	 * superclass BaseA
 >	 * is not a subclass of the superclass BaseB
 >	 * of the mixin trait TraitB
 >	 */
 >	class TestExtend extends TraitA with TraitB
-
+>
 >	/* 编译报错，提示：
 >	 * class BaseA needs to be a trait to be mixed in
 >	 */
 >	class ExtendClass extends TraitA with BaseA
 >	```
-
+>
 > `TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。
 > `ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
 
 重写冲突的方法与字段
 > 与Java8中相同，混入机制同样需要解决**富接口**带来的成员冲突问题，当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
-
+>
 > 如下所示：
-
+>
 >	```scala
 >	class BaseA {
 >		def get = 123
 >	}
-
+>
 >	trait TraitA {
 >		def get = 456
 >	}
-
+>
 >	trait TraitB {
 >		def get = 789
 >	}
-
+>
 >	class TestExtend extends BaseA with TraitA with TraitB {
 >		override def get = 77		//对于冲突的内容，必需显式重写
 >	}
@@ -1191,34 +1191,34 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 
 混入顺序
 > 对于混入的内容，按照以下顺序进行构造：
-
+>
 >	- 首先构造父类。
 >	- 按照特质出现的顺序从左往右依次构造特质。
 >	- 在一个特质中，若该特质存在父特质，则先构造父特质。若多个特质拥有相同的父特质，该父特质不会被重复构造。
 >	- 最后构造子类。
-
+>
 > Scala的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。
 > 线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
-
+>
 > 如下所示：
-
+>
 >	```scala
 >	class BaseA {
 >		def get = 123
 >	}
-
+>
 >	trait TraitA {
 >		def get = 456
 >	}
-
+>
 >	trait TraitB {
 >		def get = 789
 >	}
-
+>
 >	trait TraitC extends TraitA {
 >		override def get = 111
 >	}
-
+>
 >	class TestExtend extends BaseA with TraitA with TraitC {
 >		override def get = super.get				//使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
 >		//override def get = super[BaseA].get		//也可以使用继承自其它特质或类的实现
@@ -1671,10 +1671,10 @@ res0: Int = 1
 
 在Scala中，同样支持可变列表类型。
 
-可变列表`scala.collection.mutable.LinkedList`在现在的版本中(2.11.7)已被标记为废弃的。
-当前版本可以使用`scala.collection.mutable.ListBuffer`为可变列表。
-不可变列表`List`不支持`+=`和`-=`运算，但`ListBuffer`类型支持。
-`ListBuffer`不支持`::`以及`:::`运算符。
+- 可变列表`scala.collection.mutable.LinkedList`在现在的版本中(2.11.7)已被标记为废弃的。
+- 当前版本可以使用`scala.collection.mutable.ListBuffer`为可变列表。
+- 不可变列表`List`不支持`+=`和`-=`运算，但`ListBuffer`类型支持。
+- `ListBuffer`不支持`::`以及`:::`运算符。
 
 `ListBuffer[T]`类的常规操作如下所示：
 
@@ -2138,69 +2138,69 @@ Implicit Class: 100
 构建与启动`Future`
 > `Future`为**特质**，没有构造函数，无法直接构建实例。
 > 创建一个`Future`实例需要使用伴生对象中重写的`apply()`方法，声明如下：
-
+>
 >	```scala
 >	def apply[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T]
 >	```
-
+>
 >	- `body`参数为**传名参数**，包含了需要异步执行的代码块。
 >	- `T`参数为泛型参数，表示异步执行的代码块最终的返回值类型。
 >	- `executor`参数为隐式参数，用于指定异步代码的执行器。`scala.concurrent.ExecutionContext.Implicits.global`提供了默认的执行器。
-
+>
 > 构建一个`Future`，基本代码如下：
-
+>
 >	```scala
 >	import scala.concurrent.Future
 >	import scala.concurrent.ExecutionContext.Implicits.global
-
+>
 >	val future = Future[XXX] {
 >		/* Code you want to excute... */
 >	}
 >	```
-
+>
 > 与传统的并发库设计不同，`Future`并没有提供诸如`start()/run()`之类的方法用于显式开始异步代码块的执行，在完成`Future`实例构建的同时，作为参数的代码块就自动开始异步执行了。
 
 异步回调(`Callbacks`)
 > 与传统的并发库设计类似，`Future`采用回调的方式来处理异步操作完成的结果。
 > `Future`实例提供了`onComplete()`成员方法来绑定回调函数，声明如下：
-
+>
 >	```scala
 >	def onComplete[U](@deprecatedName('func) f: Try[T] => U)(implicit executor: ExecutionContext): Unit
 >	```
-
+>
 >	- `f`参数为被回调的高阶函数。
 >	- `executor`参数作用与上述`apply()`方法中类似。
-
+>
 > 被回调的高阶函数类型为`Try[T] => U`，其中抽象类`Try[T]`类似于`Option[T]`，拥有两个样例类子类`Success[T]`和`Failure[T]`，定义如下：
-
+>
 >	```scala
 >	final case class Success[+T](value: T) extends Try[T] { ... }
 >	final case class Failure[+T](exception: Throwable) extends Try[T] { ... }
 >	```
-
+>
 > 在编写回调函数时，可使用模式匹配语法：
-
+>
 >	- 对于**成功**的异步操作，匹配内容是异步操作的返回值。
 >	- 对于**失败**的异步操作，匹配内容是导致异步操作失败的异常。
-
+>
 > `Future`也提供了`onSuccess()/onFailure()`方法接收偏函数分别处理异步操作成功/失败时的情况，当只需要处理某一类情况时，可以直接使用对应方法。
-
+>
 > 一个`Future`实例可以**多次**调用`onComplete()/onSuccess()/onFailure()`来添加多个回调操作，这些回调操作都会被执行，但执行的先后顺序**不确定**。
-
+>
 > 回调处理异步操作结果的基本代码如下：
-
+>
 >	```scala
 >	import scala.util.{Failure, Success}
-
+>
 >	future onComplete {
 >		case Success(xxx) => ...
 >		case Failure(xxx) => ...
 >	}
-
+>
 >	future onSuccess {
 >		re: T => ...
 >	}
-
+>
 >	future onFailure {
 >		case ex => ...
 >	}
@@ -2209,44 +2209,44 @@ Implicit Class: 100
 同步等待
 > 在个别情况下，可能需要等待异步操作执行完毕。
 > 等待`Future`纸型完毕可以使用`Await`单例，完整包路径为`scala.concurrent.Await`。
-
+>
 > `Await`单例提供了`result()`方法用于同步等待`Future`执行完毕，定义如下：
-
+>
 >	```scala
 >	def result[T](awaitable: Awaitable[T], atMost: Duration): T
 >	```
-
+>
 >	- `awaitable`参数为`Awaitable`类型，用于表示一个可等待的操作，`Future`特质为其子类，可支持传入`Future`实例作为参数。
 >	- `atMost`参数为同步等待的时间。
-
+>
 > 基本用法如下：
-
+>
 >	```scala
 >	import scala.concurrent.Await
 >	import scala.concurrent.duration.Duration
-
+>
 >	val result = Await.result(future, Duration.Inf)
 >	println(result)
 >	...
 >	```
-
+>
 > `Duration`类型
 >> 时间参数类型为`Duration`，为抽象类，完整路径为`scala.concurrent.duration.Duration`。
-
+>>
 >> `Duration`的伴生对象内定义了`apply()`方法，声明如下：
-
+>>
 >>	```scala
 >>	def apply(length: Long, unit: TimeUnit): FiniteDuration
 >>	```
-
+>>
 >>	- `length`参数为时间数值。
 >>	- `unit`参数为时间单位。
-
+>>
 >> 构建的时间对象为`Duration`的子类，有限时间`FiniteDuration`。
 >> `Duration`中有两个成员`Inf`、`MinusInf`分别用来表示**无限大/无限小**的时间。
-
+>>
 >> `TimeUnit`类型完整包路径为`java.util.concurrent.TimeUnit`，为枚举类型，包含以下枚举成员：
-
+>>
 >>	- `java.util.concurrent.TimeUnit.DAYS` 天
 >>	- `java.util.concurrent.TimeUnit.HOURS` 小时
 >>	- `java.util.concurrent.TimeUnit.MICROSECONDS` 微秒
@@ -2254,53 +2254,53 @@ Implicit Class: 100
 >>	- `java.util.concurrent.TimeUnit.MINUTES` 分钟
 >>	- `java.util.concurrent.TimeUnit.NANOSECONDS` 纳秒
 >>	- `java.util.concurrent.TimeUnit.SECONDS` 秒
-
+>>
 >> 在`import scala.concurrent.duration`包中定义了一系列隐式类`DurationInt/DurationLong/DurationDouble`，引用对应隐式类即可使用对应的DSL语法来构建时间对象`FiniteDuration`，如：
-
+>>
 >>	- `1000 days`被转换为`Duration(1000, java.util.concurrent.TimeUnit.DAYS)`
 >>	- `1000 minutes`被转换为`Duration(1000, java.util.concurrent.TimeUnit.SECONDS)`
 >>	- ...
-
+>>
 >> 诸如此类。。。
 >> 在`scala.concurrent.duration.DurationConversions`特质中定义了完整的转化语法。
 
 *blocking* 块
 > `Future`是异步执行的，不会阻塞基础的执行线程。但在某些情况下，阻塞是必要的，需要区别两种形式的执行线程阻塞：
-
+>
 >	- 从`Future`内部调用任意代码阻塞线程。
 >	- 在`Future`外部等待一个`Future`完成。
-
+>
 > 在`Future`外部主动阻塞等待应使用`Await`类，在`Future`内部阻塞则应使用`blocking`方法。
-
+>
 > `blocking`定义在包对象`scala.concurrent`中，是一个接收**传名参数**的泛型方法，定义如下所示：
-
+>
 >	```scala
 >	def future[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T] = Future[T](body)
 >	```
-
+>
 > `blocking`块的作用是向执行器(`ExecutionContext`)标记可能造成阻塞的代码，并调整执行器的行为。
 > 对于默认的执行器`scala.concurrent.ExecutionContext.Implicits.global`，在`Future`中包含`blocking`块时，会新建线程来执行`Future`而不是等待复用已有的线程。
-
+>
 > 如下代码所示：
-
+>
 >	```scala
 >	import scala.concurrent.Future
 >	import scala.concurrent.ExecutionContext.Implicits.global
-
+>
 >	object Main extends App {
-
+>
 >		for (n <- 0 to 30)
 >			Future {
 >				println(s"Index: $n Thread Name: ${Thread.currentThread.getName}")
 >				Thread.sleep(3000)
 >			}
-
+>
 >		scala.io.StdIn.readLine
 >	}
 >	```
-
+>
 > 输出结果：(Scala 2.11.8 && ArchLinux x64)
-
+>
 >	```
 >	Index: 4 Thread Name: ForkJoinPool-1-worker-5
 >	Index: 2 Thread Name: ForkJoinPool-1-worker-9
@@ -2334,16 +2334,16 @@ Implicit Class: 100
 >	Index: 29 Thread Name: ForkJoinPool-1-worker-1
 >	Index: 30 Thread Name: ForkJoinPool-1-worker-3
 >	```
-
+>
 > 打印执行结果的过程中，输出流出现了几次3秒的停顿。
 > 从结果中不难看出，执行器只开辟了`15`个处理线程，在所有处理线程都处于`sleep`状态时，输出流便停止。
-
+>
 > 尝试将`sleep()`函数写在`blocking`中：
-
+>
 >	```scala
 >	import scala.concurrent.{ Future, blocking }
 >	import scala.concurrent.ExecutionContext.Implicits.global
-
+>
 >	object Main extends App {
 >		for (n <- 0 to 30)
 >			Future {
@@ -2354,13 +2354,13 @@ Implicit Class: 100
 >				}
 >				println(s"Index: $n Thread after blocking: ${Thread.currentThread.getName}")
 >			}
-
+>
 >		scala.io.StdIn.readLine()
 >	}
 >	```
-
+>
 > 输出结果：(Scala 2.11.8 && ArchLinux x64)
-
+>
 >	```
 >	Index: 6 Thread before blocking: ForkJoinPool-1-worker-1
 >	Index: 2 Thread before blocking: ForkJoinPool-1-worker-9
@@ -2456,10 +2456,10 @@ Implicit Class: 100
 >	Index: 29 Thread after blocking: ForkJoinPool-1-worker-55
 >	Index: 30 Thread after blocking: ForkJoinPool-1-worker-33
 >	```
-
+>
 > 整个输出过程中，仅有**一次**3秒的停顿。
 > 分析输出结果，可以得知：
-
+>
 >	0. 执行器开辟的工作线程的数量明显大于没有`blocking`时的数量(线程数目`> 50`)。即使用`blocking`改变了执行器的线程创建策略。
 >	0. 相同`Index`输出的线程名称相同，`blocking`包含的代码、之后的代码并没有运行在独立的线程。即一个独立的`Future`运行在一个线程，**没有**像`C#`中的`async`方法那样被切分到不同的线程执行。
 
@@ -2602,7 +2602,7 @@ def unapplySeq(n: Node) = Some((n.label, n.attributes, n.child))
 
 查找节点
 > `\()`以及`\\()`方法签名类似，接收节点名称作为参数(`String`类型)，返回节点序列(`NodeSeq`类型)。
-
+>
 >	- `\()`方法返回当前节点**下一级**子节点中指定名称节点的序列。
 >	- `\\()`方法返回当前节点**所有**子节点中指定名称节点的序列。
 >	- 使用`loadFile()`方法加载XML文件后，返回的`Elem`类型的当前节点为**根节点**。
@@ -2611,7 +2611,7 @@ def unapplySeq(n: Node) = Some((n.label, n.attributes, n.child))
 
 节点属性
 > 节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
-
+>
 >	- 使用`\()`、`\\()`方法同样可以进行属性查找，需要在属性名字符串前加上`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名称为`num`的属性内容。
 >	- 在使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
 >	- 可以直接使用`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。
@@ -2832,18 +2832,21 @@ groupID %% artifactID % revision
 
 `sbt.SettingKey`类型重载了`+=`和`++=`运算符：
 
-- `+=`运算符用于添加单项依赖，如：
-```scala
-libraryDependencies = groupID % artifactID % revision
-```
-- `++=`运算符用于添加多个依赖序列，如：
-```scala
-libraryDependencies ++= Seq(
-	groupID0 % artifactID0 % revision0,
-	groupID1 % artifactID1 % revision1,
-	...
-)
-```
+> `+=`运算符用于添加单项依赖，如：
+>
+>	```scala
+>	libraryDependencies = groupID % artifactID % revision
+>	```
+>
+> `++=`运算符用于添加多个依赖序列，如：
+>
+>	```scala
+>	libraryDependencies ++= Seq(
+>		groupID0 % artifactID0 % revision0,
+>		groupID1 % artifactID1 % revision1,
+>		...
+>	)
+>	```
 
 ### 常用的依赖
 包的信息可以在Maven中心仓库搜索到，地址为`http://search.maven.org/`。
