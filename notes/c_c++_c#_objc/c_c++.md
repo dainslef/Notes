@@ -1774,7 +1774,7 @@ int main(void)
 	int a = 1;
 	int b = 2;
 	function<int(int, int)> test
-		= [=, &a](int x, int y) { return a = x + y + b; };			//图省事可以直接使用auto类型推断
+			= [=, &a](int x, int y) { return a = x + y + b; };		//图省事可以直接使用auto类型推断
 	test(1, 1);
 	cout << a << endl;
 
@@ -1821,7 +1821,7 @@ int main(void)
 	//捕获变量名称可以与原始变量相同(局部变量掩盖原则)
 	//捕获表达式中可以使用C++11中引入的同一初始化语法
 	//lambda2与lambda3等价
-	auto lambda3 = [=, a{ a + 50 }, &b = b] { b = a + c; };
+	auto lambda3 = [=, a { a + 50 }, &b = b] { b = a + c; };
 	lambda3();
 	cout << "After run lambda3, the value b is: " << b << endl;
 
@@ -2548,7 +2548,18 @@ case 0:
 
 
 
-##常用的C标准库函数
+## 常用的C标准库函数
+在C++中，为标准C库头文件提供了对应的C++版本，如下所示：
+
+| C标准库头文件 | C++标准库头文件 | 主要功能 |
+|:-----------:|:-------------:|:-------:|
+| stdio.h | cstdio | IO函数，如`printf()`、`scanf()`等 |
+| string.h | cstring | 字符处理函数，如`strcmp()`、`strlen()`等 |
+| stddef.h | cstddef | 基础类型定义 |
+| stdlib.h | cstdlib | 数值转换(`atoi()`等)、内存分配(`malloc()`、`free()`等)，系统功能(`exit()`、`system()`等) |
+| stdint.h | cstdint | 扩展的整形定义，如`uint8_t`、`uint64_t/`等 |
+| time.h | ctime | 时间函数，如`ctime()`、`asctime()`、`localtime()`等 |
+| math.h | cmath | 数学函数，如`abs()`、`sin()`、`cos()`等 |
 
 ### *memset()* 函数
 初始化内存块常使用`memset()`函数，函数定义为：

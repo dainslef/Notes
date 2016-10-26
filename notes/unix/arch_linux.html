@@ -1052,7 +1052,7 @@
 				<p>即可启动网络连接编辑器，并从中添加<span class="blue"> DSL连接 </span>。</p>
 			</li><br/>
 			<li>
-				<p>在<span class="blue"> systemd </span><更新到<span class="blue"> 2.29 </span>版本之后，可能会出现关机等待90s才能正常关闭现象，同时关机时出现<span class="blue">"a stop job is running for session..."</span>的提示信息。出现问题的原因是在用户发出关机指令时，后台的某些重要进程依然在执行，systemd默认配置下会等待这些重要进程90s的超时时间，造成关机延迟。解决此问题可以修改systemd服务的配置文件<span class="blue"> /etc/systemd/system.conf </span>，将其中<span class="blue"> DefaultTimeoutStopSec </span>配置项的值设置为一个较短的时间即可。</p>
+				<p>在<span class="blue"> systemd </span>更新到<span class="blue"> 2.29 </span>版本之后，可能会出现关机等待90s才能正常关闭现象，同时关机时出现<span class="blue">"a stop job is running for session..."</span>的提示信息。出现问题的原因是在用户发出关机指令时，后台的某些重要进程依然在执行，systemd默认配置下会等待这些重要进程90s的超时时间，造成关机延迟。解决此问题可以修改systemd服务的配置文件<span class="blue"> /etc/systemd/system.conf </span>，将其中<span class="blue"> DefaultTimeoutStopSec </span>配置项的值设置为一个较短的时间即可。</p>
 			</li><br/>
 			<li>
 				<p>当ArchLinux装在VirtualBox中时(即ArchLinux作为guest)，启用增强功能的方式与其他Linux有所区别，在ArchLinux需要不必采用附加镜像安装增强功能的方式，而是直接安装官方仓库中的virtualbox-guest-utils包即可(该包依赖于virtualbox-guest-dkms)，如过需要增强功能随着内核升级而动态更新则需要安装dkms服务和linux-headers包，执行以下命令完成增强功能的安装：</p>
@@ -1110,6 +1110,10 @@
 					<li>
 						<p>安装包时指定包的安装原因为<span class="blue"> 作为依赖安装 </span></p>
 						<blockquote># pacman -S --asdeps [<span class="blue">package_name</span>]</blockquote>
+					</li>
+					<li>
+						<p>默认情况下，在本地包数据库文件新于配置的源站点时，pacman执行更新操作时会忽略配置中源站点的包数据库文件，强制同步包数据库文件到配置的源站点可以使用：</p>
+						<blockquote># pacman -Syy</blockquote>
 					</li>
 					<li>
 						<p>默认情况下，在本地包版本高于源中的版本时，pacman会忽略源中的版本，强制更新包到源中的版本(降级)可以使用：</p>
