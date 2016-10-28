@@ -169,6 +169,12 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql/`。
 - `$ mysql.server start` 启动mysql服务
 - `$ mysql.server stop` 停止mysql服务
 
+### 配置 *Homebrew* 国内源
+默认情况下，Homebrew访问`GitHub`来更新包数据，速度较慢，可使用国内源替代，推荐使用中科大源`USTC`源。
+
+- 替换更新数据源，在`/usr/local/Homebrew`路径下执行`git remote set-url origin git://mirrors.ustc.edu.cn/brew.git`。
+- 替换二进制包数据源，在Bash/Zsh**配置文件**中添加`export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles`。
+
 ### 安装Qt
 与常规的Unix程序不同，Qt不推荐使用Homebrew安装，因为通过Homebrew安装的Qt并没有像其他Unix软件包一样创建符号连接到`/usr/local/bin`目录下，同时也不带有QtCreator程序。
 从Qt官网下载Qt的dmg安装镜像，按步骤安装到自定义路径之后，创建符号链接到`~/Application`目录下，即可在Launchpad中看到Qt的相关应用。
