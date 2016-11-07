@@ -1199,6 +1199,72 @@ print(g.send(20))
 
 
 
+## *Socket API*
+`Python`中的`sokcet`模块对`BSD`的`Socket API`做了基本的封装，函数调用名称与`BSD Socket`相同，但在参数上有所简化，使之更加易于使用。
+
+### 创建 *Socket*
+`socket`类的构造函数定义为：
+
+```py
+__init__(self, family=<AddressFamily.AF_INET: 2>, type=<SocketKind.SOCK_STREAM: 1>, proto=0, fileno=None)
+```
+
+- `family`参数为协议类型，常见的取值有`AF_INET`(`IPv4`)、`AF_INET6`(`IPv6`)。
+- `type`参数为socket类型，常见的取值有`SOCK_DGRAM`(`UDP`)、`SOCK_STREAM`(`TCP`)。
+
+在`Python`中，`socket()`创建的是`Socket`对象而非文件描述符。
+
+常见用法如下：
+
+```py
+# 创建 UDP Socket 对象
+udpSock = socket(AF_INET, SOCK_DGRAM)
+# 创建 TCP Socket 对象
+tcpSock = socket(AF_INET, SOCK_STREAM)
+```
+
+### TCP 服务端
+对于`TCP`而言，接收数据前需要绑定并监听端口：
+
+```py
+# 绑定端口
+tcpSock.bind(("ip地址", 端口号))
+# 监听端口
+tcpSock.listen(最大连接数)
+```
+
+`TCP`需要使用`accept()`方法显式接受连接：
+
+```py
+# 使用accept()方法等待客户端连接建立
+clientSock, clientAddr = tcpSock.accept()
+```
+
+在有用户建立连接之前，`accept()`方法会一直阻塞。
+当成功建立连接后，`accept()`方法返回客户端socket对象以及客户端地址。
+
+使用`accept()`方法返回的客户端socket对象即可接收与发送消息。
+
+### UDP 服务端
+`UDP`是无连接的，只需`bind()`绑定端口与主机地址，无需监听与等待连接，如下所示：
+
+```py
+udpSock.bind(("ip地址", 端口号))
+```
+
+`UDP`直接使用自身对象发送与接收消息。
+
+### 客户端
+客户端在socket对象创建完成后，使用`connect()`方法与服务端连接后即可发送与接收消息：
+
+```py
+clientSock.connect(("ip地址", 端口))
+```
+
+对于无连接的`UDP`通信方式而言，调用`connect()`方法不是必须的，`UDP`下的`connect()`方法并未真正执行连接操作，仅仅设置了默认的发送目标端口和目标IP而已。
+
+
+
 ## 包管理器 *pip*
 Python提供了包管理器`pip`用于管理模块。
 在部分Linux发行版中，`pip`并没有随Python一并被安装，`pip`可以从发行版的软件源中安装，也可以下载安装脚本：
