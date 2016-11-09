@@ -28,7 +28,7 @@ C#的数据类型分为两类：值类型和引用类型。
 `System.Int32`结构的定义为：
 
 ```csharp
-public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>, IEquatable<int>;
+public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>, IEquatable<int> {}
 ```
 
 其它的预定义值类型也是类似的`结构类型(Struct)`的别名：
@@ -53,13 +53,13 @@ public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>,
 用户定义的结构体，从`System.ValueType`类中继承：
 
 ```csharp
-public abstract class ValueType;
+public abstract class ValueType {};
 ```
 
 可空类型对应`System.Nullable<T>`结构体：
 
 ```csharp
-public struct Nullable<T> where T : struct;
+public struct Nullable<T> where T : struct {};
 ```
 
 值类型实例通常分配在线程的**栈(stack)**上，并且不包含任何指向实例数据的指针，因为变量本身就包含了其实例数据。
@@ -393,7 +393,7 @@ delegate 返回值类型 委托名(参数表);
 ```
 
 调用委托会把委托绑定的所有函数按照绑定的先后次序**依次执行**，如果绑定的函数拥有返回值，则将**最后一个**绑定函数的返回值作为整个委托实例的返回值。
-委托类型作为函数的形参时，传入实参时可以直接使用符合委托签名的函数名，无需手动使用new操作符构建委托对象。
+委托类型作为函数的形参时，传入实参时可以直接使用符合委托签名的函数名，无需手动使用`new`操作符构建委托对象。
 
 ### 事件(event)
 事件是委托的扩展概念，事件本质上是一类特殊的委托实例(不是委托类型)，创建事件前需要先定义一个委托，然后才能将事件与委托绑定。
@@ -447,7 +447,7 @@ class Program
 
 	static void Main(string[] args)
 	{
-		Event += (str) => Console.WriteLine(str);	//为事件绑定方法
+		Event += str => Console.WriteLine(str);	//为事件绑定方法
 		Event("Test Event!");						//触发事件
 	}
 }
@@ -651,6 +651,8 @@ class Test
 	}
 }
 ```
+
+需要注意的是，**构造函数**不支持此写法。
 
 
 
@@ -1411,28 +1413,35 @@ Console.WriteLine(testNew);						// 输出 "aaa"
 ### 输出代码文件名、行号
 在输出日志时，常常需要输出打印日志的代码位置以便跟踪查看。
 
-使用`StackStrace`类通过反射可以得到函数调用者的栈信息，并从中获取代码信息，但`StackStrace`有时并不可靠。
+使用`StackStrace`获取调试信息
+> 使用`StackStrace`类通过反射可以得到函数调用者的栈信息，并从中获取代码信息。
+> 使用`StackTrace`的`GetFrame(int index)`成员方法获取指定的堆栈帧(`StackFrame`类型)。
+>
+>	- 索引`0`为当前函数堆栈的信息。
+>	- 索引`1`为函数调用者的堆栈信息，以此类推，可获取多级调用者信息。
+>	- 使用`StackFrame`类可以获得堆栈所在的方法名称、源码文件名称，代码行号等，还可进一步获得类型信息。
 
-在`.Net 4.5`中引入了三种`Attribute`用于获取方法的调用成员名称、调用文件、调用代码行号：
-
-- `System.Runtime.CompilerServices.CallerMemberNameAttribute` 成员名称
-- `System.Runtime.CompilerServices.CallerFilePathAttribute` 调用文件
-- `System.Runtime.CompilerServices.CallerLineNumberAttribute` 调用行号
-
-三种特性用于修饰日志函数的参数(参数需要有默认值)，编译器会自动为参数补充对应的调用信息，如下所示：
-
-```
-using System.Runtime.CompilerServices;
-
-void PrintLog(string log,
-		[CallerMemberName] string member = "",
-		[CallerFilePath] string file = "",
-		[CallerLineNumber] int line = 0)
-{
-	Console.WriteLine("Log: {0}", log);
-
-	Console.WriteLine("MemberName: {0}", member);
-	Console.WriteLine("FilePath: {0}", file);
-	Console.WriteLine("LineNumber: {0}", line);
-}
-```
+`.Net 4.5`新增特性
+> 在`.Net 4.5`中引入了三种`Attribute`用于获取方法的调用成员名称、调用文件、调用代码行号：
+>
+>	- `System.Runtime.CompilerServices.CallerMemberNameAttribute` 成员名称
+>	- `System.Runtime.CompilerServices.CallerFilePathAttribute` 调用文件
+>	- `System.Runtime.CompilerServices.CallerLineNumberAttribute` 调用行号
+>
+> 三种特性用于修饰日志函数的参数(参数需要有默认值)，编译器会自动为参数补充对应的调用信息，如下所示：
+>
+> ```csharp
+>	using System.Runtime.CompilerServices;
+>
+>	void PrintLog(string log,
+>			[CallerMemberName] string member = "",
+>			[CallerFilePath] string file = "",
+>			[CallerLineNumber] int line = 0)
+>	{
+>		Console.WriteLine("Log: {0}", log);
+>
+>		Console.WriteLine("MemberName: {0}", member);
+>		Console.WriteLine("FilePath: {0}", file);
+>		Console.WriteLine("LineNumber: {0}", line);
+>	}
+> ```

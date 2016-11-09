@@ -828,11 +828,13 @@ label->setPixmap(map);
 
 
 ## Qt绘图系统
-`Qt`的**绘图系统**包括`QPainter``QPaintDevice``QPaintEngine`三个类。
+`Qt`的**绘图系统**主要包括：
 
-`QPainter`用于执行绘图的操作，`QPaintDevice`则是一个二维空间的抽象，给`QPainter`提供绘制图形的空间，而`QPaintEngine`通常对于开发人员透明，用于`QPainter`和`QPaintDevice`之间的**通讯**。
+- `QPainter` 用于执行绘图的操作。
+- `QPaintDevice` 提供一个二维空间的抽象，给`QPainter`提供绘制图形的空间。
+- `QPaintEngine` 对于开发人员透明，用于`QPainter`和`QPaintDevice`之间的**通讯**。
 
-`QPaintDevice`相当于画板，`QPainter`相当于画笔，`QPaintDevice`有多种子类如`QPixmap``QImage`等。
+`QPaintDevice`相当于画板，`QPainter`相当于画笔，`QPaintDevice`有多种子类如`QPixmap`、`QImage`等。
 
 ### paintEvent()
 一般而言，自行绘制图形可以自定义一个类继承于`QWidget`，然后重写`QWidget::paintEvent(QPiantEvent*)`事件处理函数，将绘制图形的操作放在`paintEvent()`事件处理函数中。
