@@ -292,7 +292,7 @@ class EnclosingClass {
 	XXX xxx = new XXX {
 		@Override
 		...
-	}
+	};
 
 }
 ```
@@ -1438,6 +1438,13 @@ Statement statement = connection
 ## Eclipse使用注记
 **Eclipse**是Java开发中最常用的IDE，Eclipse通过插件扩展可以进行多种语言的开发。
 
+### 添加Marketplace
+`Eclipse Marketplace`是`Eclipse`新增的应用商店，可以从中直接安装`GoClipse`、`ScalaIDE`、`PyDev`等由第三方社区维护的插件。
+
+在部分`Eclipse`版本中，`Marketplace`没有默认安装，手动添加：
+
+`Help`=>`Install New Software`=>`General Purpose Tools`=>`Marketplace Client`
+
 ### 在Eclipse中查看JDK类源码
 与**NetBeans**不同，在Eclipse中默认是无法直接查看JDK中类库的源码的，需要手动指定源码的位置。
 一般情况下，JDK源码位于JDK的安装目录下的`src.zip`文件中。
@@ -1455,7 +1462,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 
 ## IntelliJ IDEA使用注记
-**IntelliJ IDEA**相比Eclipse而言，有着更精美的UI，且对`Scala``Golang`等冷门语言有着更好的支持。
+**IntelliJ IDEA**相比Eclipse而言，有着更精美的UI，且对`Scala`、`Golang`等冷门语言有着更好的支持。
 
 ### 设置显示行号和不可见空白
 选择选项：
