@@ -24,6 +24,8 @@
 - `Label` 标签控件，类似于Qt中的`QLabel`
 - `TextBlock` 基本文本显示控件(不可编辑)
 - `TextBox` 简单文本输入控件，类似于Qt中的`QLineEdit`
+- `RadioButton` 单选框，类似于Qt中的`QRadioButton`
+- `CheckBox` 复选框，类似于Qt中的`QCheckBox`
 - `PasswordBox` 密码文本控件，类似于Qt中`QLineEdit`设置了`QLineEdit::EchoMode`属性为`QLineEdit::Password`
 - `GroupBox` 控件组，类似于Qt中的`QGroupBox`，设置标题使用属性`Header`
 
@@ -69,3 +71,140 @@
 对齐属性取值`Stretch`则代表**拉伸元素填充父元素的整个布局槽**。
 
 对于`TreeView`、`ListView`等控件，默认情况下其子控件`TreeViewItem`、`ListViewItem`不会填满整个父控件，设置`HorizontalContentAlignment`属性为`Stretch`则能够令子控件水平方向填充满父控件。
+
+
+
+## 数据绑定
+`WPF`作为数据驱动的UI框架，与`Qt`、`MFC`等传统消息式驱动的UI框架最显著的区别便是**数据绑定**。
+
+在`WPF`中，典型的设计模式为`MVVM`。
+对于一个`View`，会创建对应的`ViewModel`来描述其数据结构，并通过控件绑定`ViewModel`中的属性来实现多控件同步数据变化。
+
+对于一个属性，要实现改变属性值时通知外部，需要满足以下要求：
+
+- 属性所在的Model实现`INotifyPropertyChanged`接口。
+- 属性的`set`方法中触发接口中定义的`PropertyChanged`事件。
+- 触发`PropertyChanged`事件的参数使用发生变化的属性名称构造。
+
+如下所示：
+
+```csharp
+class XXX : INotifyPropertyChanged
+{
+	// 实现接口事件
+	public event PropertyChangedEventHandler PropertyChanged;
+
+	// 属性私有变量
+	private int _xxx = 0;
+
+	// 属性包装器
+	public int Xxx
+	{
+		get { return _xxx; }
+		set
+		{
+			_xxx = value;
+			// 属性变量变化时调用PropertyChanged事件，参数为属性名称(不是存储包装器值的私有变量名称)
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Xxx"));
+		}
+	}
+}
+```
+
+只有需要自行修改数据源内数据并**通知外界**时才需要实现`INotifyPropertyChanged`接口，如果数据源仅仅作为**数据获取**使用则无必要。
+
+### 绑定语法
+进行绑定操作需要明确目标对象的路径，`WPF`提供了`ElementName、Source、RelativeSource`三种绑定对象。
+
+默认绑定
+> 在不显式指定绑定对象的情况下，默认将`DataContent`作为绑定对象。
+>
+>	```xml
+>	XXX="{Binding xxx}"
+>	<!-- 等价于 -->
+>	XXX="{Binding Path=xxx}"
+>	<!-- 对于需要显示转换的内容，指定转换器 -->
+>	XXX="{Binding Path=xxx, Converter={StaticResource xxx}}"
+>	```
+
+绑定`ElementName`
+> `ElementName`是控件拥有的属性，将绑定对象设置为当前XAML文件内的某一个控件。
+>
+>	```xml
+>	XXX="{Binding ElementName=xxx, Path=xxx}}"
+>	```
+
+绑定`Source`
+> `Source`属性用于指定对象绑定路径的引用。
+>
+>	```xml
+>	XXX="{Binding Source={StaticResource xxx}}"
+>	```
+
+绑定`RelativeSource`
+> `RelativeSource`属性支持以一定的规则来确定绑定对象。
+>
+>	```xml
+>	<!-- 绑定到自身 -->
+>	XXX="{Binding xxx, RelativeSource={RelativeSource Self}}"
+>	<!-- 绑定到指定类型属性 -->
+>	XXX="{Binding xxx, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type xxx}}}"
+>	```
+
+### 绑定模式
+控件自身的属性被称为**目标属性**，绑定的数据源对象称为**源属性**，源属性与目标属性之前有四类同步方式：
+
+- `OneWay` 源属性发生变化通知目标属性。只读型控件的默认绑定方式(`Label`等)
+- `OneWayToSource` 目标属性发生变化通知源属性
+- `TwoWay` 源属性与目标属性相互同步改动，开销比单向同步更高。可编辑型控件的默认绑定方式(`TextBox`、`ComboBox`等)
+- `OneTime` 仅在初始化源属性时读取目标属性一次，开销最低
+
+### 数据更新触发器
+在使用`OneWay/OneWayToSource`绑定时，绑定同时可以设置数据更新触发器(`UpdateSourceTrigger`)，配置何时更新绑定源数据：
+
+```xml
+XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
+```
+
+- `Default` 默认方式，对于不同的控件有不同的定义
+- `PropertyChanged` 当绑定目标属性更改时，立即更新绑定源
+- `LostFocus` 当绑定目标元素失去焦点时，更新绑定源
+- `Explicit` 仅在调用`System.Windows.Data.BindingExpression.UpdateSource`方法时更新绑定源
+
+### 绑定源/目标更新触发事件
+对于`FrameworkElement`类的子控件，会包含`SourceUpdated/TargetUpdated`两个事件。
+
+- 控件上任何设置了`NotifyOnTargetUpdated=True`的绑定在目标属性更新时都会触发`TargetUpdated`事件。
+- 控件上任何设置了`NotifyOnSourceUpdated=True`的绑定在源属性更新时都会触发`SourceUpdated`事件。
+
+绑定的`NotifyOnTargetUpdated/NotifyOnSourceUpdated`属性默认为`False`，需要在建立绑定时显式设置其值为`True`，如下所示：
+
+```xml
+<!-- 控件的事件触发回调函数可以直接设置 -->
+<XXX SourceUpdated="xxx" TargetUpdated="xxx"
+		XXX="{Binding xxx, NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True}"/>
+```
+
+### 多重绑定
+当一个控件的目标属性依赖于**多个**数据源时，可以使用**多重绑定**。
+
+以常见的`Label`控件为例，多重绑定语法如下：
+
+```xml
+<Label>
+	<Label.Content>
+		<MultiBinding Converter="{StaticResource xxx}">
+			<Binding Path="xxx1"/>
+			<Binding Path="xxx2"/>
+			...
+		</MultiBinding>
+	</Label.Content>
+</Label>
+```
+
+使用多重绑定时，必须要指定转换器来处理多个数据源，转换器需要实现`IMultiValueConverter`接口。
+
+与单一绑定使用的接口`IValueConverter`相比，`IMultiValueConverter`的接口方法`Convert()`首个参数类型由`object`变为`object[]`，数组中保存了多个绑定数据源的值，顺序按照绑定次序排列。
+
+### 无效依赖属性
+在实现数值转换接口时，需要对未设定值进行检验，数值转换异常时，首个参数会传入代表未设定值的`DependencyProperty.UnsetValue`。
