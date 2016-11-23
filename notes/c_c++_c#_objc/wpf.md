@@ -233,10 +233,57 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 
 在使用`Page`做为`StartupUri`时，`WPF`会自动为该`Page`创建一个`NavigationWindow`。
 
-### 窗体加载
-在窗体首次初始化、加载过程中，在不同阶段会按照顺序触发以下事件：
+### 窗体加载与关闭
+在窗体首次初始化、加载过程中，在不同阶段会依次触发以下事件：
 
 0. `FrameworkElement.Initialized`事件，在所有子元素已被设置完毕时触发。
 0. `Window.Activated`事件，在窗口被激活时触发。
 0. `FrameworkElement.Loaded`事件，在控件布局结束、数据绑定完成时触发。
 0. `Window.ContentRendered`事件，在控件渲染完毕时触发。
+
+在窗体关闭时，会依次触发以下事件：
+
+0. `Window.Closing`事件，在窗口即将被关闭前触发，在此阶段可以取消窗口关闭。
+0. `Window.Deactivated`事件，窗口变为后台窗口时触发。
+0. `FrameworkElement.Unloaded`事件，窗口移除子元素完成时触发。
+0. `Window.Closed`事件，窗口完全关闭时触发。
+
+从`Window`类继承时，可以通过重写相关事件对应方法来实现更精细的阶段控制，以`FrameworkElement.Initialized`事件为例，重写`OnInitialized()`方法，如下所示：
+
+```csharp
+protected override void OnInitialized(EventArgs e)
+{
+	// do something before initialized...
+	base.OnInitialized(e);
+	// do something after initialized...
+}
+```
+
+重写`On*()`方法时不调用基类实现可以禁用匹配的事件。
+
+### 页面跳转
+页面之间相互跳转在前端可以使用`<Hyperlink/>`标签实现：
+
+```xml
+<Label>
+	<Hyperlink NavigateUri="XXX.xaml">xxx</Hyperlink>
+</Label>
+```
+
+也可以在后端设置页面`Content`属性内容来实现页面跳转：
+
+```csharp
+// 直接设置页面Content字段到新页面的Uri实例实现跳转
+Page.Content = new Uri("XXX.xaml", UriKind.Relative);
+```
+
+也可以通过使用`NavigationService`类控制页面跳转：
+
+```csharp
+// 使用NavigationService跳转到页面路径
+NavigationService.GetNavigationService(source).Navigate(new Uri("XXX.xaml", UriKind.Relative));
+// 跳转到下一页面
+NavigationService.GetNavigationService(source).GoForward();
+// 跳转到下一页面
+NavigationService.GetNavigationService(source).GoBack();
+```
