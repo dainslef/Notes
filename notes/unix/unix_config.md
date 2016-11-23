@@ -1,8 +1,8 @@
 ## *fdisk*
 `fdisk`是Linux命令行下常用的交互式分区工具。
 
-早期的`fdisk`不能识别`GPT`分区表，划分`GPT`分区需要使用`parted`工具。
-新版的`fdisk`已经能够正常识别、显示与创建`GPT`分区。
+- 早期的`fdisk`不能识别`GPT`分区表，划分`GPT`分区需要使用`parted`工具。
+- 新版的`fdisk`已经能够正常识别、显示与创建`GPT`分区。
 
 使用`fdisk`显示分区信息：
 

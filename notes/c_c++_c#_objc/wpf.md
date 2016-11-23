@@ -207,4 +207,36 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 与单一绑定使用的接口`IValueConverter`相比，`IMultiValueConverter`的接口方法`Convert()`首个参数类型由`object`变为`object[]`，数组中保存了多个绑定数据源的值，顺序按照绑定次序排列。
 
 ### 无效依赖属性
-在实现数值转换接口时，需要对未设定值进行检验，数值转换异常时，首个参数会传入代表未设定值的`DependencyProperty.UnsetValue`。
+在实现数值转换接口时，需要对未设定值进行检验，数值转换异常时，首个参数会传入代表**未设定值**的特殊变量`DependencyProperty.UnsetValue`。
+
+
+
+## `Window`(窗口)与`Page`(页面)
+在`WPF`中，**窗口**的类型为`System.Windows.Window`，所有的其它窗口均从此类派生。
+
+**页面**的类型为`System.Windows.Controls.Page`，`Page`不能够单独使用，需要搭配`NavigationWindow`或`Frame`才能显示页面。
+
+### 启动窗口/页面
+在`WPF`项目默认生成的`App`类的视图`App.xaml`中，`<Application/>`标签的属性`StartupUri`指明了应用的启动路径。
+
+默认生成的`App.xaml`如下所示：
+
+```xml
+<Application x:Class="XXX.App"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		StartupUri="XXXX.xaml">
+</Application>
+```
+
+启动路径中指定的xaml文件可以是`Window`，也可以是`Page`。
+
+在使用`Page`做为`StartupUri`时，`WPF`会自动为该`Page`创建一个`NavigationWindow`。
+
+### 窗体加载
+在窗体首次初始化、加载过程中，在不同阶段会按照顺序触发以下事件：
+
+0. `FrameworkElement.Initialized`事件，在所有子元素已被设置完毕时触发。
+0. `Window.Activated`事件，在窗口被激活时触发。
+0. `FrameworkElement.Loaded`事件，在控件布局结束、数据绑定完成时触发。
+0. `Window.ContentRendered`事件，在控件渲染完毕时触发。
