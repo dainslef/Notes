@@ -181,7 +181,7 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 
 ```xml
 <!-- 控件的事件触发回调函数可以直接设置 -->
-<XXX SourceUpdated="xxx" TargetUpdated="xxx"
+<XXX SourceUpdated="源属性更新回调方法" TargetUpdated="目标属性更新回调方法"
 		XXX="{Binding xxx, NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True}"/>
 ```
 
@@ -287,3 +287,98 @@ NavigationService.GetNavigationService(source).GoForward();
 // 跳转到下一页面
 NavigationService.GetNavigationService(source).GoBack();
 ```
+
+
+
+## `Grid`容器
+`Grid`容器提供了常见的**网格布局**。
+
+- `Grid`布局的行定义写在子标签`<Grid.RowDefinitions/>`中，列定义写在子标签`<Grid.ColumnDefinitions/>`中。
+	- 每一行由`<RowDefinition/>`标签定义，属性`Height`决定行高。
+	- 每一列由`<ColumnDefinition/>`标签定义，属性`Width`决定列宽。
+- `Grid`布局的行高、列宽取值遵循以下规则：
+	- 取值`*`为自动填满剩余大小。
+	- 取值`auto`由系统分配最合适的控件大小。
+	- `*`前可以添加数值，在有多个控件取值`*`是，默认由这些控件均分剩余的大小，`*`前添加数值则设定剩余大小分配的**权重**。
+- `Grid`布局的位置定义：
+	- `Grid`布局的序号从`0`开始。
+	- 在控件属性中使用`Grid.Row`/`Grid.Cloumn`确定控件的行列位置。
+	- 在控件属性中使用`Grid.RowSpan`/`Grid.CloumnSpan`能让控件占据多行、多列。
+
+一个简单的`Grid`容器使用示例如下：
+
+```xml
+<!-- 定义一个带有1行4列的Grid -->
+<Grid>
+	<!--定义行-->
+	<Grid.RowDefinitions>
+		<RowDefinition/>
+	</Grid.RowDefinitions>
+	<!--定义列-->
+	<Grid.ColumnDefinitions>
+		<ColumnDefinition Width="100"/> <!-- 第1列，固定宽度100 -->
+		<ColumnDefinition Width="*"/> <!-- 第2列，均分剩余宽度，权重1 -->
+		<ColumnDefinition Width="0.5*"/> <!-- 第3列，均分剩余宽度，权重0.5 -->
+		<ColumnDefinition Width="auto"/> <!-- 第4列，根据该网格包含的控件自动适配宽度 -->
+	</Grid.ColumnDefinitions>
+
+	<!-- 定义Grid网格内的填充内容 -->
+	<Label Content="xxx" Grid.Row="0" Grid.Cloumn="0"/> <!-- Label控件位置，第1行，第1列 -->
+	<TextBox Grid.Row="0" Grid.Cloumn="1"/> <!-- TextBox控件位置，第1行，第2列 -->
+	<!-- 添加其它控件，操作类似... -->
+
+</Grid>
+```
+
+
+
+## 日期控件`DatePicker`
+`WPF`提供了日期选择控件`DatePicker`。
+
+### 设置默认显示日期
+设置控件的`SelectedDate`属性为指定时间即可。
+
+> 设置`DatePicker`默认显示当前日期：
+>
+> 方法一，在后台设置。
+>> 在后台代码中设置`SelectedDate`为当前时间：
+>>
+>>	```csharp
+>>	datePicker.SelectedDate = System.DateTime.Now;
+>>	```
+>
+> 方法二，在前台定义。
+>> 在`XAML`中添加命名空间定义：
+>>
+>>	```
+>>	xmlns:sys="clr-namespace:System;assembly=mscorlib"
+>>	```
+>>
+>> 之后设置控件属性：
+>>
+>>	```
+>>	SelectedDate="{x:Static sys:DateTime.Now}"
+>>	```
+
+### 禁止日期文本编辑
+默认情况下，`DatePicker`控件的文本日期显示框支持直接编辑文本来设定日期，需要禁止此特性可以使用以下方式：
+
+> 将`Focusable`属性设置为`False`。
+>
+>	```
+>	<DatePicker Focusable="False"/>
+>	```
+
+设置`Focusable`属性通过禁用焦点获取来限制编辑功能，文本框状态显示正常。
+
+> 设置子控件`DatePickerTextBox`的`IsReadOnly`属性为`False`。
+>
+>	```
+>	<DatePicker.Resources>
+>		<Style TargetType="DatePickerTextBox">
+>			<Setter Property="IsReadOnly" Value="True"/>
+>		</Style>
+>	</DatePicker.Resources>
+>	```
+
+`IsReadOnly`直接禁用了文本框的编辑属性，文本框直接显示为无法编辑。
