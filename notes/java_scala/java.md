@@ -29,7 +29,7 @@ Map<Key, Type>  map = new HashMap<Key, Type>();
 map.put(key, type);
 ```
 
-Java支持泛型`<>`**菱形推断**，实例化时类型可以省略(Java1.7新特性)，上面的语句实例化可以简写为：
+Java支持泛型`<>`**菱形推断**，实例化时类型可以省略(`Java 1.7`新特性)，上面的语句实例化可以简写为：
 
 ```java
 List<Type> list = new ArrayList<>();
@@ -77,7 +77,7 @@ enum Enum {
 }
 ```
 
-枚举是Java中少数比C++更复杂的语法之一：
+枚举是Java中少数比C++更**复杂**的语法之一：
 
 - Java枚举类中的**枚举成员**(类内普通成员除外)每一个都是枚举类的实例。
 - 在枚举类与普通类相似，也可以在类内定义成员方法和成员变量。
@@ -842,7 +842,7 @@ TestValue: Schwarzes marken 6
 ### 构建 *Class* 对象
 构建`Class`对象可以通过以下方式：
 
-- `Type.class`，及通过类型的class成员获得。
+- `Type.class`，及通过类型的`class`成员获得。
 - `Class.forName("class_path")`，即通过类型名称获得，传入的类型字符串需要为完整路径。
 - `instance.getClass()`，通过具体实例的`getClass()`方法获得。
 
@@ -855,6 +855,7 @@ public static Class<?> forName(String var0) throws ClassNotFoundException;
 
 获取类型成员的相关API一般分为两个版本，`getXXX()`用于获取**公有成员**，`getDeclaredXXX()`用于获取**所有成员**。
 `getXXX()`获取公有成员包括继承的成员，`getDeclaredXXX()`获取的所有成员只包括Class对应类中定义的成员，**不包括**继承的成员。
+
 获取类型的成员变量：
 
 ```java
@@ -1410,15 +1411,15 @@ public class Main {
 
 ### 连接Access数据库
 ```java
-//这样写是相对路径
+// 这样写是相对路径
 String connectUrl = "jdbc:Access:///***.accdb";
 
-//这样写是绝对路径
+// 这样写是绝对路径
 //String connectUrl = "jdbc:Access:///c:/a/b/***.accdb";
 
-//注册驱动
+// 注册驱动
 Class.forName("com.hxtt.sql.access.AccessDriver");
-//创建连接
+// 创建连接
 Connection connection = DriverManager.getConnection(connectUrl);
 Statement statement = connection
 	.createStatement(
@@ -1602,11 +1603,11 @@ public class B {
 ## *Swing* 开发注记
 **Swing**是Java下的GUI开发库，Swing中的控件样式与平台无关，完全由Java绘制。
 
-###常用控件
+### 常用控件
 容器：
 
 - `JFrame` 窗体框架
-- `JDialog` 对话框，比JFrame消耗资源少
+- `JDialog` 对话框
 - `JPanel` 面板
 - `JScrollPane` 滚动面板
 - `JFrame` 一般做为顶层容器，可以独立做为对话框显示，但JPanel不能独立做为对话框。

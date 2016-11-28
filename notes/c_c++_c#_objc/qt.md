@@ -1051,6 +1051,7 @@ bool QTranslator::load(const QLocale& locale, const QString& filename, const QSt
 
 ### 关于 *底层受到操作系统信号而停止* 错误
 通常情况下，遇到此类问题可能是对空指针进行了操作。
+
 在Qt中，需要注意指针是否已经被初始化，同时，在编写类的析构函数时也许要慎重，如果一个指针需要传递给其他类使用，则不能在当前类的析构函数中`delete`此指针。
 
 ### 关于 *Z-order assignment: XXX is not a valid widget.* 警告
