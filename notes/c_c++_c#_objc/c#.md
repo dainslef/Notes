@@ -24,7 +24,7 @@ C#的数据类型分为两类：值类型和引用类型。
 值类型具体包括**预定义值类型**、**自定义值类型**和**枚举类型**。
 
 所有值类型隐式派生于`System.ValueType`类。
-系统预定义的值类型`int`是`System`命名空间中`Sytem.Int32`结构体的别名。
+系统预定义的值类型`int`是`System`命名空间中`System.Int32`结构体的别名。
 `System.Int32`结构的定义为：
 
 ```csharp
@@ -183,7 +183,7 @@ public int a { get; } = "Hello World!";
 
 
 
-## 结构类型(struct)
+## *struct* 结构类型
 与`C++`完全不同，`C#`中的`结构体`与`类`有**很大区别**：
 
 - C#中的结构体为**值类型**，在**栈(stack)**中分配内存，而引用类型则仅在栈中保存**引用(reference)**，类型实体内存分配在**堆(heap)**中。
@@ -223,7 +223,7 @@ public int a { get; } = "Hello World!";
 
 
 
-## 扩展方法(Extension Methods)
+## *Extension Methods* 扩展方法
 扩展方法能够在不改变现有类结构的前提下，向已存在的类型添加方法，并让这些方法像普通成员方法一样地被调用。
 
 - 扩展方法本质上是一种特殊的**静态方法**，且必须定义在**静态类**中。
@@ -364,7 +364,7 @@ class Program
 **委托**让C#拥有了函数对象的概念，使一个方法可以作为参数被传递。
 **事件**让C#拥有了语言级别的消息通信机制。
 
-### 委托(delegate)
+### *delegate* 委托
 委托是C#特有的概念，委托的作用类似于C/C++中的函数指针，但委托是类型安全的。
 
 在C#中，委托实际上是一个类，因而使用方式与`class`类似。
@@ -417,7 +417,7 @@ delegate 返回值类型 委托名(参数表);
 调用委托会把委托绑定的所有函数按照绑定的先后次序**依次执行**，如果绑定的函数拥有返回值，则将**最后一个**绑定函数的返回值作为整个委托实例的返回值。
 委托类型作为函数的形参时，传入实参时可以直接使用符合委托签名的函数名，无需手动使用`new`操作符构建委托对象。
 
-### 事件(event)
+### *event* 事件
 事件是委托的扩展概念，事件本质上是一类特殊的委托实例(不是委托类型)，创建事件前需要先定义一个委托，然后才能将事件与委托绑定。
 
 定义事件：
@@ -515,7 +515,7 @@ class Program
 自定义`+=`、`-=`运算符行为的事件**不能**像普通事件那样直接以函数的语法调用，调用时编译器会报错：
 
 ```
-error CS0079: The event `XXX' can only appear on the left hand side of `+=' or `-=' operator
+error CS0079: The event XXX can only appear on the left hand side of += or -= operator
 ```
 
 自定义运算符事件的真正用途是为其它事件提供**包装**，实例如下所示：
@@ -814,7 +814,7 @@ class Test
 >
 >			//使用BeginInvoke()进行异步委托回调
 >			IAsyncResult result = del.BeginInvoke(ar =>
->				Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState), 200);
+>					Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState), 200);
 >
 >			Console.WriteLine("Program start...");
 >			if (result.AsyncWaitHandle.WaitOne(1000))
@@ -979,7 +979,7 @@ class Program
 }
 ```
 
-输出结果：(Mono 4.4.0 && ArchLinux x64)
+输出结果：(`Mono 4.4.0 && ArchLinux x64`)
 
 ```
 Main() Thread ID: [1]
@@ -1236,6 +1236,199 @@ lock实现
 
 
 
+## *Attribute* 特性
+`.Net`平台中的**特性**类似于`JVM`平台中的**注解**，作用都是向特定的元素添加元数据。
+
+`MSDN`中关于**特性**的介绍：
+
+```
+特性提供功能强大的方法，用以将元数据或声明信息与代码（程序集、类型、方法、属性等）相关联。 特性与程序实体关联后，即可在运行时使用名为“反射”的技术查询特性。
+```
+
+在`Java`中，注解是**接口**，在`C#`中，特性是**类**。
+
+### 使用特性
+特性的基本语法为：
+
+```csharp
+[特性名称(特性参数...)] 被修饰的元素
+```
+
+特性参数可以是定位参数、未命名参数或命名参数，定位参数部分需要匹配特性的构造器，命名参数是可选的，由特性类的公有属性和公有字段决定。
+
+使用**多个**特性
+> 被多个特性修饰时，可以使用以下语法：
+>
+>	```csharp
+>	[特性名称1(特性1参数...)]
+>	[特性名称2(特性2参数...)]
+>	被修饰的元素
+>	```
+>
+> 或将多个特性合并在一行中：
+>
+>	```csharp
+>	[特性名称1(特性1参数...), 特性名称2(特性2参数...)]
+>	被修饰的元素
+>	```
+
+### 自定义特性
+在`C#`中，所有特性都从基类`System.Attribute`中继承。
+
+特性名称
+> 根据约定，所有特性类名称都以单词`Attribute`结束，以便将它们与`.NET Framework`中的其他项区分。
+> 使用特性时，不需要追加`Attribute`后缀(使用带有`Attribute`后缀的全称也不会报错)。
+
+定位参数与命名参数
+> 属性类可以具有定位参数和命名参数。
+> 属性类的每个公共实例构造函数为该属性类定义一个有效的定位参数序列。
+> 属性类的每个非静态公共读写字段和属性为该属性类定义一个命名参数。
+
+构造函数
+> 特性类的构造函数决定了在使用特性时应传入怎样的特性参数(特性的定位参数需要与构造函数参数表相匹配)。
+> 一个特性类可以拥有多个构造函数，使用特性时特性的定位参数只需与其中任意一个构造函数匹配即可。
+> 定义了空参构造函数的特性在使用时只需要写出特性名称即可(特性参数的小括号省略)。
+
+配置自定义特性
+> 使用`System.AttributeUsage`特性可以指定其它特性的使用方式。
+>
+> `AttributeUsage`类的定义如下所示：
+>
+>	```csharp
+>	using System.Reflection;
+>	using System.Runtime.InteropServices;
+>	using System.Security;
+>
+>	namespace System
+>	{
+>		[AttributeUsage(AttributeTargets.Class, Inherited = true)]
+>		[ComVisible(true)]
+>		public sealed class AttributeUsageAttribute : Attribute
+>		{
+>			public AttributeUsageAttribute(AttributeTargets validOn);
+>			public bool AllowMultiple { get; set; }
+>			public bool Inherited { get; set; }
+>			public AttributeTargets ValidOn { get; }
+>		}
+>	}
+>	```
+>
+> 其中：
+>
+> - `AllowMultiple`属性用于设置一个特性可否被多次添加到一个元素上。
+> - `Inherited`属性用于设定特性是否可被继承。
+> - `ValidOn`属性用于设定特性的可作用对象(类型为`AttributeTargets`枚举，多个标识位使用逻辑或操作符`|`连接)。
+>
+> `AttributeTargets`枚举定义如下：
+>
+>	```csharp
+>	using System.Runtime.InteropServices;
+>
+>	namespace System
+>	{
+>		[ComVisible(true)]
+>		[Flags]
+>		public enum AttributeTargets
+>		{
+>			Assembly = 1,				//可以对程序集应用特性
+>			Module = 2,					//可以对模块应用特性
+>			Class = 4,					//可以对类应用特性
+>			Struct = 8,					//可以对结构应用属性
+>			Enum = 16,					//可以对枚举应用特性
+>			Constructor = 32,			//可以对构造函数应用特性
+>			Method = 64,				//可以对方法应用特性
+>			Property = 128,				//可以对属性应用特性
+>			Field = 256,				//可以对字段应用特性
+>			Event = 512,				//可以对事件应用特性
+>			Interface = 1024,			//可以对接口应用特性
+>			Parameter = 2048,			//可以对参数应用特性
+>			Delegate = 4096,			//可以对委托应用特性
+>			ReturnValue = 8192,			//可以对返回值应用特性
+>			GenericParameter = 16384,	//可以对泛型参数应用特性
+>			All = 32767					//可以对任何应用程序元素应用特性
+>		}
+>	}
+>	```
+
+获取特性
+> 使用**反射**机制可以从指定元素提取特性。
+> 例如`Attribute.GetCustomAttribute()`、`MemberInfo.GetCustomAttributes()`等相关方法可获取元素中的特性信息。
+
+自定义特性示例：
+
+```csharp
+using System;
+
+[AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
+class Test1Attribute : Attribute
+{
+	public string Info = "";
+	public int Id = 0;
+
+	public Test1Attribute(int id) { Id = id; }
+
+	public void ShowAttribute() => Console.WriteLine("Id: {0}, Info: {1}", Id, Info);
+}
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field,
+		AllowMultiple = true, Inherited = false)]
+class Test2Attribute : Attribute
+{
+	public string Name { get; set; } = "Null";
+
+	public void ShowAttribute() => Console.WriteLine("Name: {0}", Name);
+}
+
+[Test1(1, Info = "Test1")]			//使用特性时，可简化名称，Attribute后缀可省略
+[Test2, Test2(Name = "Test2")]		//AllowMultiple为true的特性可多次修饰一个元素，且多个特性可合并在一个语句中
+class Test
+{
+	[Test1Attribute(2, Info = "Test1Attribute")]	//使用特性也可以不省略Attribute后缀
+	public string Property { get; set; } = "";
+}
+
+class Program
+{
+
+	static void Main(string[] args)
+	{
+		Console.WriteLine("Find attribute at class Test:");
+		// 获取Test类上的特性
+		foreach (var attr in typeof(Test).GetCustomAttributes(false))
+		{
+			if (attr as Test1Attribute != null)
+				(attr as Test1Attribute).ShowAttribute();
+			else if (attr as Test2Attribute != null)
+				(attr as Test2Attribute).ShowAttribute();
+		}
+
+		Console.WriteLine();
+
+		Console.WriteLine("Find attribute at property Test.Property:");
+		// 获取Test类Name属性的特性
+		foreach (var attr in typeof(Test).GetProperty("Property").GetCustomAttributes(false))
+		{
+			if (attr as Test1Attribute != null)
+				(attr as Test1Attribute).ShowAttribute();
+		}
+	}
+}
+```
+
+输出结果：
+
+```
+Find attribute at class Test:
+Id: 1, Info: Test1
+Name: Null
+Name: Test2
+
+Find attribute at property Test.Property:
+Id: 2, Info: Test1Attribute
+```
+
+
+
 ## *WinFrom* 开发注记
 `C#`对应的**GUI**库为基于`.NET Framework`的`Windows Form`。
 
@@ -1356,12 +1549,14 @@ C#中的常见类型与C++中类型之间的转换关系：
 ### *internal* 关键字
 类和类成员前可以使用`internal`关键字。
 
-`internal`关键字用在类、接口前表示只能在当前项目中访问该类、接口。
-拥有`internel`关键字的类不能被`public`类继承。
-默认不添加关键字的情况下，类和接口的访问属性即为`internal`。
+`internal`关键字修饰类
+> `internal`关键字用在类、接口前表示只能在当前项目中访问该类、接口。
+> `internel`关键字修饰的类不能被`public`类继承。
+> 默认不添加关键字的情况下，类和接口的访问属性即为`internal`。
 
-`internal`关键字用在类内成员之前表示只能在当前项目中访问该成员。
-在对类内成员使用时，`internal`关键字可以搭配`protected`关键字使用，即定义一个只能被当前项目的子类访问的成员。
+`internal`关键字修饰成员
+> `internal`关键字用在类内成员之前表示只能在当前项目中访问该成员。
+> 在对类内成员使用时，`internal`关键字可以搭配`protected`关键字使用，即定义一个只能被当前项目的子类访问的成员。
 
 需要注意的是，`internal`修饰的类实例**不能**作为`public`成员出现在其它类中。
 
