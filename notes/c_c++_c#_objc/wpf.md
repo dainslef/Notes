@@ -1,13 +1,13 @@
 [TOC]
 
-## `WPF` 简介
+## *WPF* 简介
 `WPF`全称为`Windows Presentation Foundation`，是微软在`Windows Vsita`时代引入的用户界面框架。
 
 `WPF`向开发人员提供了一个统一的编程模型，用于在`Windows`上构建现代业务线桌面应用程序。
 
 
 
-## `XAML`
+## *XAML*
 `XAML`是一种声明性标记语言，语法类似`xhtml`，`WPF`使用其创建`UI`。
 
 在`Windows Form`中，一个`GUI`窗体的布局代码在文件**GUI类名.Designer.cs**中；
@@ -80,6 +80,7 @@
 在`WPF`中，典型的设计模式为`MVVM`。
 对于一个`View`，会创建对应的`ViewModel`来描述其数据结构，并通过控件绑定`ViewModel`中的属性来实现多控件同步数据变化。
 
+### 属性变更通知
 对于一个属性，要实现改变属性值时通知外部，需要满足以下要求：
 
 - 属性所在的Model实现`INotifyPropertyChanged`接口。
@@ -88,7 +89,7 @@
 
 如下所示：
 
-```csharp
+```cs
 class XXX : INotifyPropertyChanged
 {
 	// 实现接口事件
@@ -112,6 +113,85 @@ class XXX : INotifyPropertyChanged
 ```
 
 只有需要自行修改数据源内数据并**通知外界**时才需要实现`INotifyPropertyChanged`接口，如果数据源仅仅作为**数据获取**使用则无必要。
+
+封装`INotifyPropertyChanged`接口
+> 在实际开发中，一般会对`INotifyPropertyChanged`接口做一个简单的封装，如下所示：
+>
+>	```cs
+>	public class NotifyObject : INotifyPropertyChanged
+>	{
+>		public event PropertyChangedEventHandler PropertyChanged;
+>
+>		/// <summary>
+>		/// 属性发生改变时调用该方法发出通知
+>		/// </summary>
+>		/// <param name="propertyName">属性名称</param>
+>		public void RaisePropertyChanged(string propertyName)
+>			=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+>	}
+>	```
+>
+> 使用：
+>
+>	```cs
+>	class XXX : NotifyObject
+>	{
+>		private int _xxx = 0;
+>
+>		// 属性包装器
+>		public int Xxx
+>		{
+>			get { return _xxx; }
+>			set
+>			{
+>				_xxx = value;
+>				RaisePropertyChanged("Xxx");
+>			}
+>		}
+>	}
+>	```
+
+使用`CallerMemberNameAttribute`特性简化属性通知方法
+> 在`.Net 4.5`中引入的`System.Runtime.CompilerServices.CallerMemberNameAttribute`可用于获取调用者的名称，利用该特性可简化属性通知方法的参数。
+>
+> 如下所示：
+>
+>	```cs
+>	public class NotifyObject : INotifyPropertyChanged
+>	{
+>		public event PropertyChangedEventHandler PropertyChanged;
+>
+>		// propertyName参数使用CallerMemberName特性修饰，方法被调用时propertyName会自动填入调用者信息(属性名)
+>		public void RaisePropertyChanged([CallerMemberName] string propertyName = "")
+>			=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+>	}
+>	```
+>
+> 使用：
+>
+>	```cs
+>	class XXX : NotifyObject
+>	{
+>		private int _xxx = 0;
+>
+>		public int Xxx
+>		{
+>			get { return _xxx; }
+>			set
+>			{
+>				_xxx = value;
+>
+>				// 方法调用无需参数，参数由编译器生成
+>				RaisePropertyChanged();
+>			}
+>		}
+>	}
+>	```
+>
+> 被`[CallerMemberName]`特性修饰的方法参数在编译时会自动填入调用者的名称。
+> 在属性中的`set`、`get`块中调用方法，则填入的参数为属性的名称。
+>
+> 使用`[CallerMemberName]`特性能够使属性在重构名称时避免手动修改传入属性通知方法的属性名称参数。
 
 ### 绑定语法
 进行绑定操作需要明确目标对象的路径，`WPF`提供了`ElementName、Source、RelativeSource`三种绑定对象。
@@ -211,7 +291,7 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 
 
 
-## `Window`(窗口)与`Page`(页面)
+## *Window* (窗口) 与 *Page* (页面)
 在`WPF`中，**窗口**的类型为`System.Windows.Window`，所有的其它窗口均从此类派生。
 
 **页面**的类型为`System.Windows.Controls.Page`，`Page`不能够单独使用，需要搭配`NavigationWindow`或`Frame`才能显示页面。
@@ -250,7 +330,7 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 
 从`Window`类继承时，可以通过重写相关事件对应方法来实现更精细的阶段控制，以`FrameworkElement.Initialized`事件为例，重写`OnInitialized()`方法，如下所示：
 
-```csharp
+```cs
 protected override void OnInitialized(EventArgs e)
 {
 	// do something before initialized...
@@ -272,14 +352,14 @@ protected override void OnInitialized(EventArgs e)
 
 也可以在后端设置页面`Content`属性内容来实现页面跳转：
 
-```csharp
+```cs
 // 直接设置页面Content字段到新页面的Uri实例实现跳转
 Page.Content = new Uri("XXX.xaml", UriKind.Relative);
 ```
 
 也可以通过使用`NavigationService`类控制页面跳转：
 
-```csharp
+```cs
 // 使用NavigationService跳转到页面路径
 NavigationService.GetNavigationService(source).Navigate(new Uri("XXX.xaml", UriKind.Relative));
 // 跳转到下一页面
@@ -290,7 +370,7 @@ NavigationService.GetNavigationService(source).GoBack();
 
 
 
-## `Grid`容器
+## *Grid* (网格容器)
 `Grid`容器提供了常见的**网格布局**。
 
 - `Grid`布局的行定义写在子标签`<Grid.RowDefinitions/>`中，列定义写在子标签`<Grid.ColumnDefinitions/>`中。
@@ -332,7 +412,61 @@ NavigationService.GetNavigationService(source).GoBack();
 
 
 
-## 日期控件`DatePicker`
+## *DataGrid* (数据网格)
+使用`DataGrid`控件能够方便地展示数据库中的表。
+
+`DataGrid`基本语法类似于`Grid`控件，但`DataGrid`可绑定数据源，展示数据源中的内容。
+与`Grid`相比，`DataGrid`只需设置列属性，每一行填充的内容由数据源决定。
+
+`<DataGrid/>`标签常用属性：
+
+- `ItemsSource`属性，用于设置控件的数据集，绑定的对象需要为集合类型。
+- `SelectedItem`属性，用于设置控件的当前焦点数据，绑定的对象类型为数据集的模板参数。
+- `AutoGenerateColumns`属性，用于设置是否自动将数据集中的列显示到控件上，若需要自定义数据显示逻辑，则应设置该属性为`false`。
+- `Columns`属性，用于设置列样式和显示内容。
+	- `<DataGridTextColumn/>`为普通文本列，最常用。
+		- 属性`Binding`绑定指定列
+		- 属性`IsReadOnly`设置不可修改
+		- 属性`Width`设置宽度，规则类似
+
+基本代码模板：
+
+```xml
+<DataGrid Name="XXX" AutoGenerateColumns="False" ItemsSource="{Binding XXX}" SelectedItem="{Binding XXX}">
+	<DataGrid.Columns>
+		<DataGridTextColumn Header="XXX" Binding="{Binding XXX}" IsReadOnly="True"/>
+		<DataGridTextColumn Header="XXX" Binding="{Binding XXX}" Width="*"/>
+		...
+	</DataGrid.Columns>
+</DataGrid>
+```
+
+### 绑定数据库
+`DataGrid`控件的属性`ItemsSource`既可以绑定自行创建的集合类型，也可以直接绑定数据库。
+
+绑定数据库时，数据源为`DataView`类型，以`MySql`数据库为例：
+
+```cs
+MySqlConnection connection = new MySqlConnection("server = localhost; userid = XXX; password = XXX; database = XXX");
+MySqlCommand command = new MySqlCommand("select * from 表名", connection);
+MySqlDataAdapter dataAdapter = new MySqlDataAdapter(command);		//执行查询指令
+DataSet dataSet = new DataSet();									//创建空数据源
+dataAdapter.Fill(dataSet);											//填充数据源
+dataGrid.ItemsSource = dataSet.Tables[0].DefaultView;				//绑定数据源中的表视图
+```
+
+绑定到数据库数据源时，数据库中的改动会自动同步到控件上。
+
+### 数据源类型
+`DataGrid`同样支持使用自定义数据集合做为数据源。
+在绑定数据源到自行创建的数据集合时，需要注意集合的类型。
+
+- 常见的集合类型如`List`在数据发生增添、删除等操作时，**不会**通知控件刷新。将数据源绑定到此类集合上，会造成数据集发生变动，但控件上并未同步发生改动。
+- 要实现控件随着数据源增删而同步刷新需要使用特定集合类型`ObservableCollection`，此类型实现了`INotifyCollectionChanged`、`INotifyPropertyChanged`接口，能够在集合发生变化时发出通知。
+
+
+
+## *DatePicker* (日期控件)
 `WPF`提供了日期选择控件`DatePicker`。
 
 ### 设置默认显示日期
@@ -343,7 +477,7 @@ NavigationService.GetNavigationService(source).GoBack();
 > 方法一，在后台设置。
 >> 在后台代码中设置`SelectedDate`为当前时间：
 >>
->>	```csharp
+>>	```cs
 >>	datePicker.SelectedDate = System.DateTime.Now;
 >>	```
 >
@@ -363,15 +497,15 @@ NavigationService.GetNavigationService(source).GoBack();
 ### 禁止日期文本编辑
 默认情况下，`DatePicker`控件的文本日期显示框支持直接编辑文本来设定日期，需要禁止此特性可以使用以下方式：
 
-> 将`Focusable`属性设置为`False`。
+将`Focusable`属性设置为`False`。
+> 设置`Focusable`属性通过禁用焦点获取来限制编辑功能，文本框状态显示正常。
 >
 >	```
 >	<DatePicker Focusable="False"/>
 >	```
 
-设置`Focusable`属性通过禁用焦点获取来限制编辑功能，文本框状态显示正常。
-
-> 设置子控件`DatePickerTextBox`的`IsReadOnly`属性为`False`。
+设置子控件`DatePickerTextBox`的`IsReadOnly`属性为`False`。
+> `IsReadOnly`直接禁用了文本框的编辑属性，文本框直接显示为无法编辑。
 >
 >	```
 >	<DatePicker.Resources>
@@ -380,5 +514,3 @@ NavigationService.GetNavigationService(source).GoBack();
 >		</Style>
 >	</DatePicker.Resources>
 >	```
-
-`IsReadOnly`直接禁用了文本框的编辑属性，文本框直接显示为无法编辑。
