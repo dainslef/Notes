@@ -90,6 +90,8 @@
 如下所示：
 
 ```cs
+using System.ComponentModel;
+
 class XXX : INotifyPropertyChanged
 {
 	// 实现接口事件
@@ -118,6 +120,9 @@ class XXX : INotifyPropertyChanged
 > 在实际开发中，一般会对`INotifyPropertyChanged`接口做一个简单的封装，如下所示：
 >
 >	```cs
+>	using System.ComponentModel;
+>	using System.Runtime.CompilerServices;
+>
 >	public class NotifyObject : INotifyPropertyChanged
 >	{
 >		public event PropertyChangedEventHandler PropertyChanged;
@@ -157,6 +162,9 @@ class XXX : INotifyPropertyChanged
 > 如下所示：
 >
 >	```cs
+>	using System.ComponentModel;
+>	using System.Runtime.CompilerServices;
+>
 >	public class NotifyObject : INotifyPropertyChanged
 >	{
 >		public event PropertyChangedEventHandler PropertyChanged;

@@ -98,7 +98,7 @@ $ git config --global user.email [邮箱]
 
 `$ git status -s`
 
-`??`符号代表的即是未跟踪的文件。
+`??`符号代表未跟踪的文件。
 
 ### 查看/比较版本库
 查看当前暂存区的状态：
@@ -116,9 +116,9 @@ $ git config --global user.email [邮箱]
 比较不同版本/分支：
 
 ```
-$ git diff [commit_id] 						//将当前版本与指定commit进行比较
-$ git diff [commit_id1] [commit_id2] 		//将两个commit版本进行比较
-$ git diff [分支名1] [分支名2] 				//将两个分支进行比较
+$ git diff [commit_id]						//将当前版本与指定commit进行比较
+$ git diff [commit_id1] [commit_id2]		//将两个commit版本进行比较
+$ git diff [分支名1] [分支名2]				//将两个分支进行比较
 ```
 
 ### 版本管理
@@ -227,7 +227,7 @@ $ git diff [分支名1] [分支名2] 				//将两个分支进行比较
 
 `$ git remote add [远程仓库名] [远程仓库地址]`
 
-如：`git remote add NetRepo ssh://root@192.168.1.199/root/Notes`即创建了一个目标主机地址为`192.168.1.199`、用户为`root`、仓库地址为目标主机的`/root/CodeNotes`目录的远程仓库。
+例如：`git remote add NetRepo ssh://root@192.168.1.199/root/Notes`即创建了一个目标主机地址为`192.168.1.199`、用户为`root`、仓库地址为目标主机的`/root/CodeNotes`目录的远程仓库。
 
 重命名远程仓库：
 
@@ -331,9 +331,11 @@ $ git push [远程仓库名] [本地分支名称]:[远程分支名称] --force
 
 `$ git push [远程仓库名] [分支名称]`
 
-将本地的dev分支推送到GitHub上即为：
+将本地的dev分支推送到GitHub上的dev分支即为：
 
 `$ git push GitHub dev`
+
+若在`push`操作时添加`--force`参数，则会用本地分支的内容覆盖GitHub上的对应分支。
 
 若GitHub上创建的仓库非空(比如创建仓库的同时加入了许可证文件)，则可能推送失败(文件冲突)，此时可以先将本地版本库拉到GitHub上对应分支的版本：
 

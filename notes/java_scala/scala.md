@@ -129,7 +129,7 @@ Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程
 >	```scala
 >	def breakable(op: => Unit): Unit {
 >		try { op } catch {
->			//判断异常是否为breakException，是则捕获，其它异常则继续向外传递
+>			// 判断异常是否为breakException，是则捕获，其它异常则继续向外传递
 >			case ex: BreakControl => if (ex ne breakException) throw ex
 >		}
 >	}
@@ -359,7 +359,7 @@ int main(void)
 
 然而在**C#**中，Lambda需要创建对象或显式指明类型才能使用，同样的语句需要写成：
 
-```csharp
+```cs
 using System;
 
 class Test
@@ -1361,7 +1361,7 @@ one warning found
 复杂文本可以使用类似Java的字符串拼接方式(使用操作符`+`)。
 
 - `StringLike.format()`方法。
-- `StringContext`类中的`s()`、`f()`、`raw()`方法用于以指定的方式输出字符串。
+- `StringContext`类中的`s()`、`f()`、`raw()`等插值器方法用于以指定的方式输出字符串。
 
 ### *StringLike.format()* 格式化输出
 在Scala中，字符串依然使用Java中标准的`String`类型，但通过**隐式转换**特性，`String`可以被自动构造为`StringLike`类型。
@@ -1988,7 +1988,8 @@ package Package {
 ### 定义隐式转换
 Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。
 如果需要类型之间的自动转换，需要使用`implicit`自定义隐式转换。
-隐式转换可以定义在当前类中或是伴生对象中，只要需要进行转换时能被访问到即可。
+隐式转换可以定义在**当前类**中或是**伴生对象**中，只要需要进行转换时能被访问到即可。
+
 当传入参数的类型与函数需要的类型不同时，编译器便会查找是否有合适的隐式转换，如下所示：
 
 ```scala
@@ -2505,7 +2506,8 @@ Future {
 ### *async/await*
 Scala也提供了`Async`库用于简化`Future`的使用。
 
-`Async`完整包路径为`scala.async.Async`。当前版本(`Scala 2.11.8`)中，`Async`库尚未进入Scala标准库，若使用`SBT`，则需要在`build.sbt`配置文件中添加依赖：
+`Async`完整包路径为`scala.async.Async`。
+当前版本(`Scala 2.11.8`)中，`Async`库尚未进入Scala标准库，若使用`SBT`，则需要在`build.sbt`配置文件中添加依赖：
 
 ```scala
 libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.5"
@@ -2880,9 +2882,9 @@ groupID %% artifactID % revision
 
 其它常见的指令：
 
-- `$ activator ui` 进入WEB端的Activator界面。
-- `$ activator shell` 进入sbt交互shell。
-- `$ activator list-templates` 列出模版列表。
+- `$ activator ui` 进入WEB端的Activator界面
+- `$ activator shell` 进入sbt交互shell
+- `$ activator list-templates` 列出模版列表
 
 `Activator`中带有大量的预定义项目模版，使用模版创建项目：
 

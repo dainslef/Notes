@@ -63,8 +63,8 @@ class Test<T> implements Test1<T>, Test2<T> {
 
 
 
-## Lambda表达式
-**Java8**中加入的另一个重要的特性即为**Lambda表达式**。
+## *Lambda*
+**Java 8**中加入的另一个重要的特性即为**Lambda表达式**。
 
 ### 使用Lambda表达式表示函数接口
 **Lambda表达式**用于实现**函数接口**，函数接口是**有且只有一个**抽象方法的接口。
@@ -206,7 +206,7 @@ class B {
 只要**方法签名**相同(返回值类型可以不同)，你甚至可以使用抽象方法来作为引用来实现一个函数接口。
 
 ### 使用类库中的函数接口
-在**Java8**中，`java.util.function`包中预定义了一系列的泛型函数接口。
+在**Java 8**中，`java.util.function`包中预定义了一系列的泛型函数接口。
 
 - `Function<T, R>`可以接收两个泛型类型，`T`表示参数类型，`R`表示返回值类型，类似于**C#**中的Function类。
 - 由于Java泛型的限制，`Function<T, R>`不能接受基础类型如`int`和`double`等作为泛型参数，如果需要使用基础类型作为参数，可以使用`IntFunction<R>`，该接口返回泛型类型`R`，参数类型则为`int`。

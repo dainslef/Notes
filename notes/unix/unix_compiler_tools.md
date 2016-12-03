@@ -35,6 +35,8 @@ Unix环境下的汇编器为`as`。
 链接程序运行需要的目标文件，以及所依赖的其它库文件，最后生成可执行文件。
 Unix环境下的链接器为`ld`。
 
+
+
 ## 编译器
 在Unix环境下，常用的编译环境为`gcc/clang`。二者的命令格式类似。
 
@@ -110,11 +112,11 @@ Unix环境下的链接器为`ld`。
 
 如果库的位置不在环境变量中，则需要用-L参数手动指定库所在的目录：
 
-`$ cc [源码文件] -L[库の目录] -l[库名]`
+`$ cc [源码文件] -L[库目录] -l[库名]`
 
 如果源码中引用的头文件位置不在环境变量中，则需要用`-I`参数手动指定头文件所在的目录：
 
-`$ cc [源码文件] -I[头文件の目录]`
+`$ cc [源码文件] -I[头文件目录]`
 
 默认情况下，编译器在链接库时优先使用的是动态链接库，如果在某些特别情况下需要使用静态链接库的话，使用`-static`参数强制编译器使用静态库：
 
@@ -227,12 +229,12 @@ gcc和clang都有`O1`、`O2`、`O3`三个代码优化级别，`O1`最低，`O3`�
 
 一般情况下，需要链接`libgnustep-base`、`libobjc`这两个库，如果源码使用了GUI库还需要链接`libgnustep-gui`库。
 
-gcc编译`Objective-C`源码指令：
+`gcc`编译`Objective-C`源码指令：
 
 `$ gcc $(gnustep-config --objc-flags) -lobjc -lgnustep-base [源码文件]`
 
-由于`gnustep-config`是与`GNU编译器`组配套的，故其生成的编译参数并不完全适用于`clang`编译器，故需要手动指定编译参数以符合`clang`编译器的要求，根据编译器输出的异常信息将gnustep-config指令生成的参数中不符合要求的参数剔除，并加入其他需要的编译器参数。
+由于`gnustep-config`是与`GNU编译器`组配套的，故其生成的编译参数并不完全适用于`clang`编译器，故需要手动指定编译参数以符合`clang`编译器的要求，根据编译器输出的异常信息将`gnustep-config`指令生成的参数中不符合要求的参数剔除，并加入其他需要的编译器参数。
 
-clang编译`Objective-C`源码指令(以`Archlinux x64`和`gcc 4.9.2`为例)：
+`clang`编译`Objective-C`源码指令(以`Archlinux x64`和`gcc 4.9.2`为例)：
 
 `$ clang -fconstant-string-class=NSConstantString -lgnustep-base -lobjc -I/usr/lib/gcc/x86_64-unknown-linux-gnu/[gcc-version]/include [源码文件]`

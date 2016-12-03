@@ -870,8 +870,11 @@ label->setPixmap(map);
 
 ### 图片透明化
 使用`QImage`处理图片时可以通过设置图片的**Alpha通道**使图片透明化。
+
 简单的透明处理可以使用`QImage::setAlphaChannel(const QImage& alphaChannel)`以另一个`QImage`对象作为参数使图片透明化。
-如果需要手动指定透明度(Alpha值)，则可以创建一个带有Alpha通道的`QImage`对象，如`QImage temp_image(win_size, QImage::Format_ARGB32);`
+
+若需要手动指定透明度(Alpha值)，则可以创建一个带有Alpha通道的`QImage`对象，如`QImage temp_image(win_size, QImage::Format_ARGB32);`
+
 使用设置了透明画刷的`QPainter`对其进行色彩填充，然后将此`QImage`作为`QImage::setAlphaChannel()`成员函数的参数。
 
 例如：
