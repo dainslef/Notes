@@ -43,34 +43,42 @@ False
 True
 ```
 
-### 2进制与16进制表示
-在`Python`中2进制与16进制的表示方式与`C/C++`相同，如下所示：
+### n进制表示
+在`Python`中2进制/8进制/16进制的表示方式：
 
 ```py
->>> 0b11
-3
+# 2进制，0b做前缀
+>>> 0b1000001
+65
+# 8进制，0o做前缀
+>>> 0o101
+65
+# 16进制，0x做前缀
 >>> 0x41
 65
 ```
 
-使用`chr()`转换时可以直接使用2进制/16进制：
+使用`chr()`将数值视为`ASCII`码转换为字符，使用`ord()`将字符转换为`ASCII`码：
 
 ```py
->>> chr(0x41)
-'A'
-```
 
-获取单个字符的`ASCII`码可以使用`ord()`函数：
-
-```py
 >>> c = chr(0x41)
 >>> c
 'A'
 >>> ord(c)
 65
+```
 
-# 使用hex()输出字符的ASCII码字符串
->>> hex(ord(c))
+使用`bin()`、`oct()`、`str()`、`hex()`可以分别获取数值对应的2进制、8进制、10进制、16进制文本：
+
+```py
+>>> bin(65)
+'0b1000001'
+>>> oct(65)
+'0o101'
+>>> str(65)
+'65'
+>>> hex(65)
 '0x41'
 ```
 
@@ -132,11 +140,17 @@ bytearray(b'ea')
 
 
 ## 容器类型
+`Python`中的常见容器类型有：
 
-### 列表 *list*
-**list**是一个**有序集合**，可以容纳各类数据，并能随意添加和删除。
-list中的数据可以是另一个list，访问方式类似**二维数组**。
-定义一个list：
+- `tuple` 元组，不可变有序集合
+- `list` 列表，可变有序集合
+- `set` 集合，不可变
+
+### *list* (列表)
+`list`是一个**有序集合**，可以容纳各类数据，并能随意添加和删除。
+`list`中的数据可以是另一个`list`，访问方式类似**二维数组**。
+
+定义一个`list`：
 
 ```py
 >>> l = ['first', 'second']
@@ -144,14 +158,14 @@ list中的数据可以是另一个list，访问方式类似**二维数组**。
 <class 'list'>
 ```
 
-取出list中指定下标的内容(下标可以为负数，即逆序取出内容)：
+取出`list`中指定下标的内容(下标可以为负数，即逆序取出内容)：
 
 ```py
 >>> l[0]
 'first'
 ```
 
-计算list的长度：
+计算`list`的长度：
 
 ```py
 >>> len(l)
@@ -197,11 +211,9 @@ list中的数据可以是另一个list，访问方式类似**二维数组**。
 ['third', 'second', [1, 2, 3]]
 ```
 
-
-
-### 元组 *tuple*
-tuple与list类似，但tuple中的数据**不可修改**，因此没有`append()`、`insert()`、`pop()`之类的方法。
-tuple可以像数组一样通过下标访问，但不能对其赋值：
+### *tuple* (元组)
+`tuple`与`list`类似，但`tuple`中的数据**不可修改**，因此没有`append()`、`insert()`、`pop()`之类的方法。
+`tuple`可以像数组一样通过下标访问，但不能对其赋值：
 
 ```py
 >>> t = (1, 2, 3)
@@ -215,21 +227,23 @@ File "<stdin>", line 1, in <module>
 TypeError: 'tuple' object does not support item assignment
 ```
 
-定义一一个至少有一个元素的tuple时，需要写成：
+定义一个至少有一个元素的`tuple`时，需要写成：
 
 ```py
 >>> t = (1, )
 ```
 
 逗号**不能省略**，这是为了**消歧义**(防止与数学括号相混淆)。
-另外，如果tuple的成员是一个list，则list内容依然可变(tuple只保证每一个tuple内成员的引用不变，但成员本身依旧是可变的)。
 
-### 字典 *dict*
-dict使用`键-值`(key-value)存储，类似于java中的`Map`，拥有很快的查找速度。
-相对于list，dict拥有更快的查找删除速度，而且不会随着dict内容的增加而减慢查找删除速度，但dict内存开销更大(空间换时间)。
-在dict中，key是**唯一、不能改变**的，value则没有此限制。
-dict根据key的值来计算对应value的位置(hash算法)，因此key是不能改变的，而可变对象list不能作为key。
-定义dict使用大括号：
+若`tuple`的成员是一个`list`，则`list`内容依然**可变**(`tuple`只保证对元组成员的引用不变，但成员本身的内容是否可变由成员自身的类型决定)。
+
+### *dict* (字典)
+`dict`使用`键-值`(key-value)存储，类似于`Java`中的`Map`，拥有很快的查找速度。
+相对于`list`，`dict`拥有更快的查找删除速度，而且不会随着`dict`内容的增加而减慢查找删除速度，但`dict`内存开销更大(空间换时间)。
+在`dict`中，`key`是**唯一、不能改变**的，`value`则没有此限制。
+`dict`根据`key`的值来计算对应`value`的位置(hash算法)，因此`key`是不能改变的，而可变对象`list`不能作为`key`。
+
+定义`dict`使用大括号：
 
 ```py
 >>> d = { 'first': 'one', 'second': 2, 'third': 3 }
@@ -267,7 +281,7 @@ True
 {'first': 1, 'second': 2, 'third': 3, 'new': 4}
 ```
 
-删除dict中的内容使用`pop(key)`方法，删除了某个dict中的某个key，则该key的value也会随之被删除：
+删除`dict`中的内容使用`pop(key)`成员方法，删除了某个`dict`中的某个`key`，则该`key`的`value`也会随之被删除：
 
 ```py
 >>> d.pop('new')
@@ -275,9 +289,9 @@ True
 {'first': 1, 'second': 2, 'third': 3}
 ```
 
-### 集合 *set*
-set是一组没有value的key的集合，set中的内容是**不可重复**的。
-定义一个set：
+### *set* (集合)
+`set`是一组**没有**`value`的`key`的集合，`set`中的内容是**不可重复**的。
+定义一个`set`：
 
 ```py
 >>> s = { 1, 2, 3, 3 }		#即使你在定义时输入重复的元素，解释器也会将其自动忽略
@@ -285,7 +299,7 @@ set是一组没有value的key的集合，set中的内容是**不可重复**的�
 {1, 2, 3}
 ```
 
-可以使用`add(key)`函数对给set添加key：
+使用`add(key)`成员函数对给`set`添加`key`：
 
 ```py
 >>> s.add('test')
@@ -309,16 +323,17 @@ set是一组没有value的key的集合，set中的内容是**不可重复**的�
 ```
 
 ### 切片
-Python中的`list`、`tuple`支持**切片**操作。
+Python中的`list`、`tuple`、`str`等类型支持**切片**操作。
 切片语法：
 
 ```py
 var[start:end:step]
 ```
 
-`start`为起始下标，`end`为结束下标，`step`为步进数(默认为`1`)。
-范围为`[start, end)`，即获取下标`start`到`end - 1`之间的内容。
-下标`start`和`end`的值可以超过容器界限，等价于一直取值到容器的末尾。
+- `start`为起始下标，`end`为结束下标，`step`为步进数(默认为`1`)。
+- 范围为`[start, end)`，即获取下标`start`到`end - 1`之间的内容。
+- 下标`start`和`end`的值可以超过容器界限，等价于一直取值到容器的边界。
+
 如下所示：
 
 ```py
@@ -349,7 +364,7 @@ var[start:end:step]
 (5, 4, 3, 2, 1)
 ```
 
-Python中变量皆为引用，使用赋值操作符只是复制引用，但使用切片能够实现容器**值复制**：
+`Python`中变量皆为**引用**，使用赋值操作符只是复制引用，但使用切片能够实现容器**值复制**：
 
 ```py
 >>> l0 = [1, 2, 3]
@@ -389,17 +404,41 @@ Python中变量皆为引用，使用赋值操作符只是复制引用，但使�
 ```py
 >>> isinstance(100, int)
 True
->>> class List(object): pass
->>> list = List()
->>> isinstance(list, List)
+```
+
+也可以使用`is`操作符判断类型：
+
+```py
+>>> type(100) is int
 True
 ```
 
-如果比较的是类实例，只要这个实例对应的类是从比较的类型中派生出来的，返回值都为**True**。
+比较类实例时，`is`操作符与`isinstance()`函数逻辑不同：
+
+- `isinstance()`只要实例类型是从比较类型中派生出的，返回`True`。
+- `is`只有实例类型与比较类型完全匹配才返回`True`。
+
+```py
+>>> class A: pass
+>>> class B(A): pass
+>>> b = B()
+>>> type(b) is B
+True
+>>> type(b) is A
+False
+>>> type(b) is object
+False
+>>> isinstance(b, B)
+True
+>>> isinstance(b, A)
+True
+>>> isinstance(b, object)
+True
+```
 
 
 
-## 装饰器 *decorator*
+## *decorator* (装饰器)
 装饰器能够为已有的函数附加额外的功能。
 装饰器也是设计模式中的一种，通过组合的方式来复用已有的功能。
 
@@ -661,7 +700,7 @@ Num4 is: 4
 
 
 
-## Python中的OOP
+## *OOP*
 与传统的OOP语言类似，Python中的class具有**独立**的**变量作用域**。
 相比传统的OOP语言如Java、C++等，Python对于OOP并没有完整的支持，在Python中**不支持**函数重载、**不支持**定义保护对象。
 
@@ -824,7 +863,7 @@ del n.num			# 删除成员，实际调用del_num()
 如果需要定义`只读属性`，则调用`property()`函数时`fset`参数取`None`即可。
 
 #### *使用装饰器定义属性*
-在Python2.6之后，支持使用**装饰器**语法定义属性。
+在`Python 2.6`之后，支持使用**装饰器**语法定义属性。
 
 - 使用`@property`装饰器装饰`getter`函数，同时该函数的名称即为**属性名**。
 - 使用`@属性名.setter`装饰器装饰`setter`函数。
@@ -859,7 +898,7 @@ del n.num
 ```
 
 ### 隐含参数
-本质上，Python中对于成员方法的区分实际上是对于隐含参数的处理方式不同。
+本质上，`Python`对于成员方法的区分实际上是对于隐含参数的处理方式不同。
 对于一个实例方法，如下调用：
 
 ```py
@@ -872,8 +911,9 @@ instance.func_name(args...)
 class_name.func_name(isinstance, args...)
 ```
 
-Python解释器只是将实例本身填充到了实例方法的第一个参数上而已，因而实例方法也可以以静态方法的语法被调用。
-在C#中也存在类似的语法转换，被称为**扩展方法**。
+`Python`解释器只是将实例本身填充到了实例方法的第一个参数上而已，因而实例方法也可以以静态方法的语法被调用。
+在`C#`中也存在类似的语法转换，被称为**扩展方法**。
+
 添加了装饰器`@staticmethod`或`@classmethod`的方法便不再能够进行这种转换，如下代码所示：
 
 ```py
@@ -930,15 +970,15 @@ no_arg_method: 100
 通过以上结果可以得出：
 
 - 实例方法的调用语法实际是语法糖，普通的实例方法可以通过类名语法进行调用。
-- 通过普通语法调用实例方法时，Python解释器会将实例作为隐含参数。
+- 通过普通语法调用实例方法时，解释器会将实例作为隐含参数。
 - 使用了`@staticmethod`装饰器之后，通过实例调用该静态方法，解释器不再会将实例作为隐含参数。
 - 使用了`@classmethod`装饰器之后，通过实例调用该类方法，解释器依然将实例视为类名处理。
 - 参数为空的成员方法，即使没有添加任何装饰器，也只能通过类名访问。
 
 ### 私有成员
-Python的类中默认成员的访问属性为公有，在Python中不能定义保护成员，但可以定义私有成员。
-在命名类的成员时，以`__`开头的成员都是**私有成员**，不能在类的外部被访问。
+`Python`类中默认成员的访问属性为公有，在`Python`中不能定义保护成员，但可以定义私有成员。
 
+在命名类的成员时，以`__`开头的成员即为**私有成员**，不能在类的外部被访问。
 如下代码所示：
 
 ```py
@@ -958,8 +998,9 @@ test.show()							# 调用show()成员函数正确打印私有成员内容
 print(test.__num, Test.__num)		# 直接输出私有成员内容报错，错误提示 " 'Test'对象没有属性__num "
 ```
 
-实际上，Python中的隐藏变量并不是真的把变量隐藏了，仅仅是Python解释器对私有变量的名称做了一些改动使得外界无法访问。
+实际上，私有变量并不是真的被隐藏了，仅仅是解释器对私有变量的名称做了一些改动使得外界无法访问。
 以`__xxx`为名的私有成员的实际名称被改成了`_类名__xxx`，只要使用改动后的名称，就可以访问私有成员变量了。
+
 上个例子稍作修改即可访问到私有变量：
 
 ```py
@@ -976,7 +1017,7 @@ class Test:
 
 test = Test(1)
 test.show()
-print(test._Test__num, Test._Test__num)			# 需要注意的是，不同的Python解释器重命名的方式可能略有不同
+print(test._Test__num, Test._Test__num)		# 需要注意的是，不同的Python解释器重命名的方式可能略有不同
 ```
 
 输出结果：
@@ -1016,14 +1057,14 @@ class Child(Parent):
 系统定义的属性与方法：
 
 ```py
-Class.__doc__ 				# 类型帮助信息 'Class Doc.'
-Class.__name__ 				# 类型名称 'Class'
-Class.__module__ 			# 类型所在模块 '__main__'
-Class.__bases__ 			# 类型所继承的基类 (<type 'object'>,)
-Class.__dict__ 				# 类型字典，存储所有类型成员信息。 <dictproxy object at 0x00D3AD70>
-Class().__class__ 			# 类型 <class '__main__.Class'>
-Class().__module__ 			# 实例类型所在模块 '__main__'
-Class().__dict__ 			# 对象字典，存储所有实例成员信息。 { 'i': 1234 }
+Class.__doc__				# 类型帮助信息 'Class Doc.'
+Class.__name__				# 类型名称 'Class'
+Class.__module__			# 类型所在模块 '__main__'
+Class.__bases__				# 类型所继承的基类 (<type 'object'>,)
+Class.__dict__				# 类型字典，存储所有类型成员信息。 <dictproxy object at 0x00D3AD70>
+Class().__class__			# 类型 <class '__main__.Class'>
+Class().__module__			# 实例类型所在模块 '__main__'
+Class().__dict__			# 对象字典，存储所有实例成员信息。 { 'i': 1234 }
 ```
 
 一些常用的特殊方法：
@@ -1047,14 +1088,17 @@ t + k					# 实际调用 t.__add__(k) 加号运算符
 
 
 ## *range()* 函数
-`range(start, stop, step)`函数接收三个参数，产生`[start, end)`范围的数字，以`step`为间隔。
-默认值start为**0**，step为**1**。
-在Python2中，`range()`的返回类型是一个list。
-在Python3中，`range()`返回的是迭代值，如果想得到list需要用list()显式地进行强制类型转换。
-`range()`函数一般用于for循环遍历，例如：
+`range(start, stop, step)`函数接收三个参数，产生`[start, end)`范围的数字，以`step`为步进。
+
+其中`start`、`step`参数参数带有默认值，默认情况下`start`为**0**，`step`为**1**。
+
+在`Python 2`中，`range()`返回类型是`list`。
+在`Python 3`中，`range()`返回类型是`range`，得到`list`需要使用`list(xxx)`显式地进行强制类型转换。
+
+`range()`函数一般用于`for`循环遍历，例如：
 
 ```py
-for a in range(0, 5):
+for a in range(5):
 	print(a, end = ' ')
 ```
 
@@ -1066,21 +1110,113 @@ for a in range(0, 5):
 
 
 
-## *global* 关键字
-在Python中变量是无类型的，因此在语法上定义变量与赋值变量语句相同。
-在函数中，可以引用全局变量，但直接对全局变量赋值，解释器会认为你创建了一个与全局变量同名的局部变量，该变量在函数结束之后是会被释放的。
-如果想要在函数中对全局变量进行值修改需要使用`global`关键字声明使用全局变量而不是创建新的变量。
+## *global* 和 *nonlocal*
+在`Python`中，定义变量与赋值变量语法相同，这一设计导致局部作用域下访问外部变量时会有语义冲突。
+
+### *global* 关键字
+在局部作用域下，直接对全局变量赋值，解释器会认为你创建了一个与全局变量同名的**局部变量**，该变量在函数结束之后会被释放。
+在局部作用域下，访问全局变量需要使用`global`关键字，声明使用全局变量而不是创建新的变量。
+
+如下所示：
+
+```py
+num = 0
+
+def set_num():
+	num = 1
+
+def set_global_num():
+	global num
+	num = 1
+
+print("num:", num)
+set_num()
+print("num after set_num():", num)
+set_global_num()
+print("num after set_global_num():", num)
+```
+
+输出结果：
+
+```
+num: 0
+num after set_num(): 0
+num after set_global_num(): 1
+```
+
+### *nonlocal* 关键字
+`global`关键字解决了局部作用域访问全局变量的问题，但不能解决闭包函数访问外部局部变量的问题。
+
+在`Python 3`中，引入了`nonlocal`关键字用于访问外部非全局作用域的变量。
+
+如下所示：
+
+```py
+def func():
+
+	num = 0
+
+	def set_num():
+		num = 1
+
+	def set_nonlocal_num():
+		nonlocal num	# 声明使用外部局部作用域的变量num，而不是创建新的局部变量num
+		num = 1
+
+	print("num:", num)
+	set_num()
+	print("num after set_num():", num)
+	set_nonlocal_num()
+	print("num after set_nonlocal_num():", num)
+
+func()
+```
+
+输出结果：
+
+```
+num: 0
+num after set_num(): 0
+num after set_nonlocal_num(): 1
+```
+
+`nonlocal`关键字在上一级局部作用域中未找到变量时会向更外层的局部作用域中查找，如下所示：
+
+```py
+def func():
+
+	num = 0
+
+	def set_nonlocal_num():
+		def set_num():
+			nonlocal num	# 会一直查找外部局部作用域中名为num的变量，不仅仅在上一层作用域
+			num = 1
+		set_num()
+
+	print("num:", num)
+	set_nonlocal_num()
+	print("num after set_nonlocal_num():", num)
+
+func()
+```
+
+输出结果：
+
+```
+num: 0
+num after set_nonlocal_num(): 1
+```
 
 
 
-## 生成器 *generator*
+## *generator* (生成器)
 使用生成器可以方便的生成一串特定的值。
 
 - 在函数定义中使用关键字`yield`则该函数变成为一个**生成器**。
 - 执行生成器函数**不会**得到该函数的返回值，而是得到一个生成器对象。
 - 对生成器对象使用`next(生成器对象)`函数便会执行一次生成器，执行到yield关键字时便会停下来，返回yield语句的返回值，再次调用`next()`便会从上次yield结束的语句继续开始执行，直到一个新的yield语句。
 
-在Python3之前，可以使用`生成器对象.next()`的方式进行生成器迭代，在Python3中变成了`生成器对象.__next()__`，作用与`next(生成器对象)`相同。
+在`Python 3`之前，可以使用`生成器对象.next()`的方式进行生成器迭代，在`Python 3`中变成了`生成器对象.__next()__`，作用与`next(生成器对象)`相同。
 
 如下代码所示：
 
@@ -1111,7 +1247,7 @@ StopIteration: 100
 
 ### 遍历生成器与获取生成器的返回值
 除了使用`next()`函数来进行生成器迭代外，还可以采用**for循环**的形式。
-正常情况下，是不能获得生成器函数中的返回值的，如果需要返回值，则可以捕获**StopIteration**异常，通过异常对象获取生成器函数的返回值。
+正常情况下，是不能获得生成器函数中的返回值的，若需要返回值，则可以捕获**StopIteration**异常，通过异常对象获取生成器函数的返回值。
 
 如下代码所示：
 
@@ -1159,9 +1295,9 @@ print([next(g) for i in range(0, 3)])
 
 ### 使用 *send()* 与生成器进行交互
 当使用`next()`生成器启动后，便可以使用`生成器对象.send(内容)`向生成器传递内容，`send()`传递的内容将作为yield表达式的**返回值**。
-`next()`就相当于`send(None)`，即`None`为yield表达式的默认返回值。
-执行了`send()`函数相当于先执行一次`next()`，然后将`send()`中的参数作为yield的返回值。
-首次启动生成器必须使用`next()`，因为第一次迭代没有yield表达式参与，以后的每一次迭代都可以使用`send()`代替`next()`。
+`next()`就相当于`send(None)`，即`None`为`yield`表达式的默认返回值。
+执行了`send()`函数相当于先执行一次`next()`，然后将`send()`中的参数作为`yield`的返回值。
+首次启动生成器必须使用`next()`，因为第一次迭代没有`yield`表达式参与，以后的每一次迭代都可以使用`send()`代替`next()`。
 
 如下代码所示：
 
@@ -1202,7 +1338,7 @@ print(g.send(20))
 ## *Socket API*
 `Python`中的`sokcet`模块对`BSD`的`Socket API`做了基本的封装，函数调用名称与`BSD Socket`相同，但在参数上有所简化，使之更加易于使用。
 
-### 创建 *Socket*
+### *Socket* 创建
 `socket`类的构造函数定义为：
 
 ```py
@@ -1293,16 +1429,16 @@ $ pip show --files [package_name]			//列出包安装的文件列表
 $ pip help [operate]						//查看pip相关操作的帮助信息，如"pip help install"即查看"pip install"指令的所有用法
 ```
 
-`Linux`下pip的包路径：
+`Linux`下`pip`的包路径：
 
-- 在Linux下，安装**pip**到系统目录需要root权限， 系统共享Python包被安装在路径`/usr/lib/python[version]/site-packages`中，没有root权限则不能对该目录进行写入操作。
-- 安装Python包到用户目录下则无需root权限，在Linux下，用户个人Python模块被安装在路径`~/.local/lib/python[version]/site-packages`中，同时，还会在`~/.local/bin`路径下生成可执行脚本，将此路径加入`PATH`即可在命令行中直接使用安装的模块。
+- 在`Linux`下，安装**pip**到系统目录需要`root`权限， 系统共享`Python`包被安装在路径`/usr/lib/python[version]/site-packages`中，没有`root`权限则不能对该目录进行写入操作。
+- 安装Python包到用户目录下则无需`root`权限，在Linux下，用户个人Python模块被安装在路径`~/.local/lib/python[version]/site-packages`中，同时，还会在`~/.local/bin`路径下生成可执行脚本，将此路径加入`PATH`即可在命令行中直接使用安装的模块。
 - 在Linux下，一些由发行版自身的包管理器(`apt`、`yum`、`dnf`、`pacman`等)安装的Python包也会显示在`pip list`指令的输出中，但这些包通常被系统的某些组件依赖，尝试删除这些包时会收到`DEPRECATION`(反对)，提示这些包是由`distutils`(发行版工具)安装的，一般情况下，除非必要，不要删除这些由发行版包管理器安装的Python包。
 
-`macOS`下pip的包路径：
+`macOS`下`pip`的包路径：
 
-- 在`macOS`中，使用**homebrew**安装Python时会自动安装pip，无需额外安装，使用pip时也**无需**root权限。
-- 在`macOS`中，共享的Python模块被安装在路径`/usr/local/lib/python[version]/site-packages/`下，个人Python模块被安装在路径`~/Library/Python/[version]/lib/python/site-packages`下。
+- 在`macOS`中，使用**homebrew**安装`Python`时会自动安装`pip`，无需额外安装，使用`pip`时也**无需**`root`权限。
+- 在`macOS`中，共享的`Python`模块被安装在路径`/usr/local/lib/python[version]/site-packages/`下，个人Python模块被安装在路径`~/Library/Python/[version]/lib/python/site-packages`下。
 - 在`macOS`中，Python模块安装到系统目录同时会在`/usr/local/bin`路径下生成可执行脚本，安装到用户目录则会在`~/Library/Python/[version]/bin`路径下生成可执行脚本。
 
 ### 包依赖检查与清理
@@ -1339,7 +1475,7 @@ Python提供了文档工具`pydoc`。
 
 
 ## *PEP8* 编码规范总结
-**PEP**是`Python Enhancement Proposal`的缩写，即"Python增强建议"。
+**PEP**是`Python Enhancement Proposal`的缩写，即`Python增强建议`。
 
 ### 代码编排
 - 以80个字符做为单行界限。
