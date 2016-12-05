@@ -198,3 +198,34 @@ $ curl ftp://[用户名]:[密码]@[ip/域名] -T [本地文件路径]					//上�
 
 - `Suspend`中译**休眠**，休眠状态下，系统将关闭大部分硬件的工作，系统状态将会被保存在`RAM`中。处于休眠状态下的计算机将以极低的功耗运转，但系统仍需要供电。现代计算机**进入休眠状态/从休眠状态唤醒**仅仅需要几秒时间。
 - `Hibernate`中译**睡眠**，睡眠即`Suspend to disk`，系统将完全关闭所有硬件，系统状态将被保存在`SWAP`中，处于睡眠状态下的计算机不需要供电，但系统分区时必须分配并挂载了`SWAP`交换区。**睡眠**从硬盘中加载系统状态，对于使用`HDD`的计算机，**进入休眠状态/从休眠状态唤醒**需要几十秒甚至更久。
+
+
+
+## *systemd*
+`systemd`是`Linux`下新式的`init`系统，在各大发行版中逐渐替代了原先`Unix System V`风格的`init`系统。
+
+传统的`Unix System V`风格`init`系统需要一次一个串行地启动服务进程。
+`systemd`则根据服务进程的依赖关系并行地启动服务，极大地减少了系统的启动耗时。
+
+`systemd`的设计理念来自于`Apple`公司`macOS`中的`launchd`。
+
+### 服务配置
+`systemd`提供了统一、完整的服务配置功能：
+
+- `# systemctl status [服务名称]` 查看指定服务状态
+- `# systemctl start [服务名称]` 启动指定服务
+- `# systemctl stop [服务名称]` 停止指定服务
+- `# systemctl enable [服务名称]` 设置指定服务开机自启动
+- `# systemctl disable [服务名称]` 取消指定服务开机自启动
+
+### 服务分析
+`systemd`提供了一系列工具用于查看查看、分析各类服务状态。
+
+使用`pstree`指令可以列出本机完整的`systemd`服务进程树。
+
+使用`systemctl list`系列指令查看服务状态：
+
+- `$ systemctl list-units` 列出已加载的服务单元信息
+- `$ systemctl list-dependencies` 列出已加载服务单元的依赖关系
+- `$ systemctl list-unit-files` 列出已安装服务单元(所有服务单元)的自启状态
+- `$ systemctl list-units -t [服务类型]` 查看指定类型的服务信息
