@@ -1,18 +1,19 @@
 [TOC]
 
 ## 入口函数
-C#中允许以下4种形式的入口函数：
+`C#`中允许以下4种形式的入口函数：
 
-```csharp
+```cs
 static void Main();
 static void Main(string[] args);
 static int Main();
 static int Main(string[] args);
 ```
 
-C#允许多种入口函数形式，一般采用第二种(默认)。
-与Java不同，C#并不强制要求主类的类名与主类所在文件的文件名相同。
-实际上，C#由于支持`部分类`特性，也不可能要求类名与源码文件名相同。
+`C#`允许多种入口函数形式，一般采用第二种(默认)。
+
+与`Java`不同，`C#`并不强制要求主类的类名与主类所在文件的文件名相同。
+实际上，`C#`由于支持`部分类`特性，也不可能要求类名与源码文件名相同。
 
 
 
@@ -20,14 +21,14 @@ C#允许多种入口函数形式，一般采用第二种(默认)。
 C#的数据类型分为两类：值类型和引用类型。
 一般而言，值类型用于**存储数据**，引用类型用于**定义行为**。
 
-### 值类型(Value Type)
+### *Value Type* (值类型)
 值类型具体包括**预定义值类型**、**自定义值类型**和**枚举类型**。
 
 所有值类型隐式派生于`System.ValueType`类。
 系统预定义的值类型`int`是`System`命名空间中`System.Int32`结构体的别名。
 `System.Int32`结构的定义为：
 
-```csharp
+```cs
 public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>, IEquatable<int> {}
 ```
 
@@ -52,20 +53,20 @@ public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>,
 
 用户定义的结构体，从`System.ValueType`类中继承：
 
-```csharp
+```cs
 public abstract class ValueType {};
 ```
 
 可空类型对应`System.Nullable<T>`结构体：
 
-```csharp
+```cs
 public struct Nullable<T> where T : struct {};
 ```
 
 值类型实例通常分配在线程的**栈(stack)**上，并且不包含任何指向实例数据的指针，因为变量本身就包含了其实例数据。
 值类型在复制时是**值传递(pass by value)**，会复制当前值类型变量包含的内容。
 
-### 引用类型(Reference Type)
+### *Reference Type* (引用类型)
 引用类型包括数组(派生于`System.Array`)，字符串`string`(`System.String`类的别名)，自定义类(派生于`System.Object`)，委托类型(派生于`System.Delegate`)，`object`类型(`System.Object`)的别名。
 
 引用类型与值类型比较：
@@ -75,10 +76,10 @@ public struct Nullable<T> where T : struct {};
 - 引用类型复制是传递引用，值类型复制是拷贝整个对象。
 - 值类型分配内存在线程栈上，出栈自动释放；引用类型分配内存在托管堆上，由`GC`负责内存回收。
 
-### 类型别名(Type alias)
+### *Type alias* (类型别名)
 C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++11`中添加的新`using`语法相似。如下所示：
 
-```csharp
+```cs
 namespace Np
 {
 	using Fvoid = Action;			//普通类型别名
@@ -92,8 +93,8 @@ namespace Np
 
 C#中的类型别名有较多**限制**：
 
-- 不支持定义泛型或是部分泛型别名，C++11中的`using`支持此功能。
-- 不能在命名空间之外的区域定义类型别名(全局区域、类体、函数体内皆不可定义别名)，C++11的`using`无此限制。
+- 不支持定义泛型或是部分泛型别名，`C++11`中的`using`支持此功能。
+- 不能在命名空间之外的区域定义类型别名(全局区域、类体、函数体内皆不可定义别名)，`C++11`的`using`无此限制。
 
 
 
@@ -117,12 +118,12 @@ C#类中成员有一种被称为`属性`。
 
 如下代码所示：
 
-```csharp
+```cs
 using System;
 
 class A
 {
-	int num = 0;
+	private int num = 0;
 
 	public int a
 	{
@@ -159,31 +160,31 @@ class Program
 可知，对类A中属性a的赋值通过a的set块中的value传给了A类私有成员num，通过a的get块获取了私有成员num的值。
 
 ### 自动成员属性
-在`C#3.0`之后，可以使用更为简便的自动属性，只需使用`set`、`get`关键字，而**不必**定义一个与属性相关的变量并编写`set`、`get`块代码，编译器会**自动生成**一个**私有变量**保存属性的内容。
+在`C# 3.0`之后，可以使用更为简便的自动属性，只需使用`set`、`get`关键字，而**不必**定义一个与属性相关的变量并编写`set`、`get`块代码，编译器会**自动生成**一个**私有变量**保存属性的内容。
 如上个例子中的成员属性a可以简写成：
 
-```csharp
+```cs
 public int a { get; set; }
 ```
 
 同时，不用定义私有变量`num`来存储属性的内容，编译器会自动生成一个变量。
 
 ### 成员属性初始化
-在`C#6.0`中，开始支持对自动成员属性进行**类内初始化**，可以直接在类中对自动成员属性**赋初值**：
+在`C# 6.0`中，开始支持对自动成员属性进行**类内初始化**，可以直接在类中对自动成员属性**赋初值**：
 
-```csharp
+```cs
 public int a { get; set; } = "Hello World!";
 ```
 
 该特性也同样支持**只读属性**：
 
-```csharp
+```cs
 public int a { get; } = "Hello World!";
 ```
 
 
 
-## *struct* 结构类型
+## *struct* (结构类型)
 与`C++`完全不同，`C#`中的`结构体`与`类`有**很大区别**：
 
 - C#中的结构体为**值类型**，在**栈(stack)**中分配内存，而引用类型则仅在栈中保存**引用(reference)**，类型实体内存分配在**堆(heap)**中。
@@ -201,19 +202,28 @@ public int a { get; } = "Hello World!";
 
 
 
-## 静态构造函数
-静态构造函数是C#中特有的概念，用于在类首次被使用前进行静态成员的初始化。
+## *static* 关键字
+在`C#`中，`static`关键字用于定义**静态类**、**静态方法**。
+
+### 静态方法
+静态方法与实例无关，直接通过类名进行访问。
+
+在传统的`OOP`语言如`C++`、`Java`中，并不限制通过实例访问静态方法，作用与通过类名访问静态方法相同。
+
+在`C#`中，**不允许**通过实例访问静态方法，调用静态方法只能通过**类名**。
+尝试通过实例访问静态方法会在编译时得到错误：`error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; qualify it with a type name instead`。
+
+### 静态构造函数
+静态构造函数是`C#`中特有的概念，用于在类首次被使用前进行静态成员的初始化。
 
 - 静态构造函数与普通构造函数一样在类中定义，但静态构造函数不能带有参数和访问权限，一个类/结构体只能定义一个静态构造函数，静态构造函数与类的无参构造函数虽然参数表相同，但不会冲突。
 - 静态构造函数只能初始化静态成员(貌似是废话)，如果一个类中有静态成员赋了初值(类内初始化)，则.NET会自动为其创建默认的静态构造函数。
 - 静态构造函数不需要手动调用，在首次使用创建类实例或是方位类的静态成员时会由.NET自动调用，静态构造函数在全局只会被**调用一次**。
 
+### 静态类
+在`C#`中，类定义前可以使用`static`关键字表示定义一个**静态类**。
 
-
-## 静态类
-在C#中，类定义前可以使用`static`关键字表示定义一个**静态类**。
-
-- 静态类只能包含静态成员，且是密封(sealed)的，不能被实例化和继承。
+- 静态类只能包含静态成员，且是密封(`sealed`)的，不能被实例化和继承。
 - 静态类不能从普通类中派生，而静态类本身不可被继承，因而实际上所有静态类都从`object`中派生。
 - 静态类不能定义普通构造函数，但能够定义静态构造函数。
 - 静态类在首次被引用前加载，初始化其成员字段并调用该类的静态构造函数。
@@ -223,7 +233,7 @@ public int a { get; } = "Hello World!";
 
 
 
-## *Extension Methods* 扩展方法
+## *Extension Methods* (扩展方法)
 扩展方法能够在不改变现有类结构的前提下，向已存在的类型添加方法，并让这些方法像普通成员方法一样地被调用。
 
 - 扩展方法本质上是一种特殊的**静态方法**，且必须定义在**静态类**中。
@@ -234,7 +244,7 @@ public int a { get; } = "Hello World!";
 
 如下代码所示：
 
-```csharp
+```cs
 using System;
 
 static class ExtensionMethod
@@ -286,7 +296,7 @@ true
 ### 扩展方法的应用场景
 扩展方法主要用于向一些不方便改动的类型添加额外的方法，并让添加的方法能够以常规语法调用。
 
-在C#标准库中，典型的扩展案例为`System.Linq.Enumerable`类，该类中为`System.Collections.Generic.IEnumerable<T>`类型添加了大量`SQL`风格的扩展方法定义。
+在`C#`标准库中，典型的扩展案例为`System.Linq.Enumerable`类，该类中为`System.Collections.Generic.IEnumerable<T>`类型添加了大量`SQL`风格的扩展方法定义。
 
 使用扩展方法时需要节制，滥用扩展方法会造成代码难以理解。
 
@@ -294,13 +304,15 @@ true
 
 ## 泛型
 值类型转变为引用类型会经过`装箱(boxing)`操作，而引用类型转变为值类型则要经过`拆箱(unboxing)`操作。
+
 一个容器需要接收多种类型时，可能就需要将接受参数的类型设置为`object`型(即所有类型的父类)，值类型在转化到`object`型时就需要进行装箱操作，频繁地装箱与拆箱会有较高的开销。
+
 `object`类型并不安全(可能同时接收到不同的类型)，因而可以使用**泛型**来**显式指定**需要接收的类型(编译器会检查接收类型是否符合指定泛型)，对于值类型而言，使用泛型还可以避免重复的装箱与拆箱操作。
 
 ### 泛型约束
 C#中泛型可以使用`where`关键字进行泛型约束，例如：
 
-```csharp
+```cs
 class A<T> where T : XXX
 {
 	S Get<S>() where S : XXXX { }
@@ -309,7 +321,7 @@ class A<T> where T : XXX
 
 拥有多个泛型参数时，使用多个`where`语句限制多个泛型参数：
 
-```csharp
+```cs
 // 泛型参数T必须从XXX类型派生，泛型参数V必须从XXXX类型派生
 class B<T, V> where T : XXX where V : XXXX { }
 ```
@@ -325,7 +337,7 @@ class B<T, V> where T : XXX where V : XXXX { }
 
 一个泛型参数可以使用多个条件进行约束，例如：
 
-```csharp
+```cs
 // 泛型参数T必须为引用类型，同时从类型V派生
 class C<T, V> where T : class, T : V { }
 ```
@@ -335,7 +347,7 @@ class C<T, V> where T : class, T : V { }
 
 如下代码所示：
 
-```csharp
+```cs
 struct Test<T>
 {
 	static public int a;
@@ -360,11 +372,11 @@ class Program
 
 
 
-## 委托(delegate)和事件(event)
+## *delegate* (委托) 和 *event* (事件)
 **委托**让C#拥有了函数对象的概念，使一个方法可以作为参数被传递。
 **事件**让C#拥有了语言级别的消息通信机制。
 
-### *delegate* 委托
+### *delegate* (委托)
 委托是C#特有的概念，委托的作用类似于C/C++中的函数指针，但委托是类型安全的。
 
 在C#中，委托实际上是一个类，因而使用方式与`class`类似。
@@ -372,7 +384,7 @@ class Program
 
 定义委托：
 
-```csharp
+```cs
 delegate 返回值类型 委托名(参数表);
 ```
 
@@ -385,7 +397,7 @@ delegate 返回值类型 委托名(参数表);
 
 委托实例化：
 
-```csharp
+```cs
 委托名 委托实例名;											//与事件相同，委托也可以只定义不初始化
 委托名 委托实例名 = new 委托名(符合委托签名的函数名);
 委托名 委托实例名 = 符合委托签名的当前类成员函数名;			//可以省略使用构造函数
@@ -398,7 +410,7 @@ delegate 返回值类型 委托名(参数表);
 
 增加/删除委托绑定函数：
 
-```csharp
+```cs
 委托实例名 += 符合委托签名的函数名;
 委托实例名 -= 已绑定到委托的函数名;
 委托实例名 += delegate(符合委托签名的参数表)
@@ -410,19 +422,19 @@ delegate 返回值类型 委托名(参数表);
 一个委托可以同加减运算符动态地更改绑定的函数个数。
 委托在使用时类似一个普通的函数，调用委托：
 
-```csharp
+```cs
 委托实例名(符合委托签名的参数表);
 ```
 
 调用委托会把委托绑定的所有函数按照绑定的先后次序**依次执行**，如果绑定的函数拥有返回值，则将**最后一个**绑定函数的返回值作为整个委托实例的返回值。
 委托类型作为函数的形参时，传入实参时可以直接使用符合委托签名的函数名，无需手动使用`new`操作符构建委托对象。
 
-### *event* 事件
+### *event* (事件)
 事件是委托的扩展概念，事件本质上是一类特殊的委托实例(不是委托类型)，创建事件前需要先定义一个委托，然后才能将事件与委托绑定。
 
 定义事件：
 
-```csharp
+```cs
 event 委托名 事件名;
 event 委托名 事件名 = new 委托名(符合委托签名的函数名);		//事件也可以在定义时就初始化
 event 委托名 事件名 = 符合委托函数签名的函数名;				//可以省略使用构造函数
@@ -434,7 +446,7 @@ event 委托名 事件名 = delegate(符合委托签名的参数表)		//匿名�
 
 给事件添加/删除处理函数：
 
-```csharp
+```cs
 事件名 += 符合委托签名的函数名;
 事件名 -= 已绑定到事件的函数名;
 事件名 += delegate(符合委托签名的参数表)
@@ -445,7 +457,7 @@ event 委托名 事件名 = delegate(符合委托签名的参数表)		//匿名�
 
 触发事件：
 
-```csharp
+```cs
 事件名(符合委托签名的参数表);
 ```
 
@@ -454,11 +466,11 @@ event 委托名 事件名 = delegate(符合委托签名的参数表)		//匿名�
 需要注意的是，事件的访问权限不能高于用于定义事件的委托。
 
 调用事件与调用委托实例的方式是完全相同的。
-事件机制是其他C#高级技术的基础。
+事件机制是其他`C#`高级技术的基础。
 
 实例代码：
 
-```csharp
+```cs
 using System;
 
 delegate void Delegate(string str);					//委托可以定义在全局区域或是命名空间
@@ -474,6 +486,7 @@ class Program
 	}
 }
 ```
+
 输出结果：
 
 ```
@@ -489,7 +502,7 @@ Test Event!
 
 示例代码如下所示：
 
-```csharp
+```cs
 using System;
 
 delegate void Delegate(string str);
@@ -520,7 +533,7 @@ error CS0079: The event XXX can only appear on the left hand side of += or -= op
 
 自定义运算符事件的真正用途是为其它事件提供**包装**，实例如下所示：
 
-```csharp
+```cs
 using System;
 
 delegate void Delegate(string str);					//委托可以定义在全局区域或是命名空间
@@ -568,10 +581,10 @@ Remove Method!
 
 
 
-## *Lambda* 表达式
+## *Lambda*
 在`C#3.0`之后，引入了`Lambda表达式`的概念，开始支持**函数式编程**。基本语法为：
 
-```csharp
+```cs
 () => 单一表达式;
 (参数表) => 单一表达式;
 单个参数 => 单一表达式;
@@ -588,7 +601,7 @@ Remove Method!
 
 例如：
 
-```csharp
+```cs
 delegate int GetDouble(double num1, double num2);
 GetDouble getDouble1 = delegate(double num1, double num2) { return (int)(num1 + num2); };
 GetDouble getDouble2 = (num1, num2) => (int)(num1 + num2);
@@ -608,13 +621,13 @@ C#中定义了一系列类型用来表示委托和Lambda对象。
 - 与Java的残废`Lambda`不同，C#的`Lambda`可以捕获并**修改**外部变量，而Java中的外部变量在`Lambda`中带有`final`属性，只能读取不能更改。
 
 ### *Lambda* 作用域
-在C#中，`Lambda`能够访问到在`Lambda`被定义的作用域中的所有成员。
+在`C#`中，`Lambda`能够访问到在`Lambda`被定义的作用域中的所有成员。
 如果`Lambda`表达式在类中被定义，则`Lambda`表达式能够访问到类的成员。
-如同函数一样，`Lambda`有自己的作用域，`Lambda`内部定义的变量是**不能**在外部访问到的。
+如同函数一样，`Lambda`有自己的作用域，`Lambda`内部定义的变量在外部作用域**不可访问**。
 
 示例代码-1：
 
-```csharp
+```cs
 using System;
 
 class Test
@@ -647,12 +660,12 @@ class Test
 ```
 
 ### 使用 *Lambda* 定义成员函数
-在`C#6.0`中，开始支持使用`Lambda`直接定义成员函数。
+在`C# 6.0`中，开始支持使用`Lambda`直接定义成员函数。
 **示例代码-1**使用新的语法可以使用如下格式书写。
 
 示例代码-2：
 
-```csharp
+```cs
 using System;
 
 class Test
@@ -679,7 +692,7 @@ class Test
 
 
 ## 并发编程
-在C#中，除了常见的`Thread`类，主要的并发技术有**异步委托**、`Task`类、`async/await`等。
+在`C#`中，除了常见的`Thread`类，主要的并发技术有**异步委托**、`Task`类、`async/await`等。
 
 ### *Thread* 类
 与常规的**OOP**语言类似，C#中也可以使用`Thread`类来进行并发编程，`Thread`类完整路径为`System.Threading.Thread`。
@@ -691,7 +704,7 @@ class Test
 >
 > 使用`Thread.Start()`方法可以启动线程，如下代码所示：
 >
->	```csharp
+>	```cs
 >	using System;
 >	using System.Threading;
 >
@@ -740,7 +753,7 @@ class Test
 >
 > 如下代码所示：
 >
->	```csharp
+>	```cs
 >	using System;
 >	using System.Threading;
 >
@@ -794,7 +807,7 @@ class Test
 >
 > 如下代码所示：
 >
->	```csharp
+>	```cs
 >	using System;
 >	using System.Threading;
 >
@@ -843,7 +856,7 @@ class Test
 
 `Task/Task<TResult>`类的主要构造函数如下：
 
-```csharp
+```cs
 // 接收Action类型作为异步操作的执行内容
 public Task(Action action);
 // 首参数为带有一个参数的Action<Object>类型，第二参数为要传入的内容
@@ -858,7 +871,7 @@ public Task(Func<object, TResult> function, object state);
 
 创建完毕的`Task`可以使用`Start()`方法开始执行：
 
-```csharp
+```cs
 // 将任务添加到当前的TaskScheduler(任务调度器)中，任务调度器选择合适的时机执行
 public void Start();
 // 将任务添加到特定的TaskScheduler中
@@ -869,7 +882,7 @@ public void Start(TaskScheduler scheduler);
 
 `Task`类中的一些常用方法：
 
-```csharp
+```cs
 // 将参数中的异步操作在当前调度器中排队，并返回Task对象
 public static Task Run(Action action);
 public static Task<TResult> Run<TResult>(Func<TResult> function);
@@ -893,7 +906,7 @@ public static bool WaitAll(Task[] tasks, int millisecondsTimeout;)		//等待指�
 
 一个简单的`async`方法结构如下：
 
-```csharp
+```cs
 async Task testAsync()
 {
 	...		//顺序执行的内容
@@ -910,7 +923,7 @@ async Task testAsync()
 
 简单示例，使用`async/await`在屏幕并发输出内容：
 
-```csharp
+```cs
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1007,7 +1020,7 @@ Handler Really Finished!
 ### *lock* 关键字
 `C#`语言提供了与`Java`中`synchronized`类似的`lock`关键字，基本语法如下：
 
-```csharp
+```cs
 lock (object)
 {
 	/* do something */
@@ -1026,7 +1039,7 @@ lock (object)
 >
 > `Java`笔记中的例子使用`C#`可以改写为：
 >
->	```csharp
+>	```cs
 >	using System;
 >	using System.Threading;
 >
@@ -1109,7 +1122,7 @@ lock实现
 >
 > 定义示例类`Example`：
 >
->	```csharp
+>	```cs
 >	class Example
 >	{
 >		public void Lock()
@@ -1145,7 +1158,7 @@ lock实现
 >
 > 锁定`this`：
 >
->	```csharp
+>	```cs
 >	class Program
 >	{
 >		static void Main(string[] args)
@@ -1164,7 +1177,7 @@ lock实现
 >
 > 锁定类型：
 >
->	```csharp
+>	```cs
 >	class Program
 >	{
 >		static void Main(string[] args)
@@ -1181,7 +1194,7 @@ lock实现
 >
 > 锁定相同字符串：
 >
->	```csharp
+>	```cs
 >	class Program
 >	{
 >		static void Main(string[] args)
@@ -1202,7 +1215,7 @@ lock实现
 >
 >> 需要注意的是，`lock`锁定对象是基于**线程**的，在同一线程内的代码不受影响，如下所示的代码**不会**发生死锁：
 >>
->>	```csharp
+>>	```cs
 >>	using System;
 >>	using System.Threading;
 >>
@@ -1250,7 +1263,7 @@ lock实现
 ### 使用特性
 特性的基本语法为：
 
-```csharp
+```cs
 [特性名称(特性参数...)] 被修饰的元素
 ```
 
@@ -1259,7 +1272,7 @@ lock实现
 使用**多个**特性
 > 被多个特性修饰时，可以使用以下语法：
 >
->	```csharp
+>	```cs
 >	[特性名称1(特性1参数...)]
 >	[特性名称2(特性2参数...)]
 >	被修饰的元素
@@ -1267,7 +1280,7 @@ lock实现
 >
 > 或将多个特性合并在一行中：
 >
->	```csharp
+>	```cs
 >	[特性名称1(特性1参数...), 特性名称2(特性2参数...)]
 >	被修饰的元素
 >	```
@@ -1294,7 +1307,7 @@ lock实现
 >
 > `AttributeUsage`类的定义如下所示：
 >
->	```csharp
+>	```cs
 >	using System.Reflection;
 >	using System.Runtime.InteropServices;
 >	using System.Security;
@@ -1321,7 +1334,7 @@ lock实现
 >
 > `AttributeTargets`枚举定义如下：
 >
->	```csharp
+>	```cs
 >	using System.Runtime.InteropServices;
 >
 >	namespace System
@@ -1356,9 +1369,10 @@ lock实现
 
 自定义特性示例：
 
-```csharp
+```cs
 using System;
 
+// 特性Test1可作用于所有元素，不允许多次应用到一个元素，不可被继承
 [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
 class Test1Attribute : Attribute
 {
@@ -1370,6 +1384,7 @@ class Test1Attribute : Attribute
 	public void ShowAttribute() => Console.WriteLine("Id: {0}, Info: {1}", Id, Info);
 }
 
+// 特性Test2可作用于类、属性、字段等元素，允许多次应用到一个元素，不可被继承
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field,
 		AllowMultiple = true, Inherited = false)]
 class Test2Attribute : Attribute
@@ -1429,6 +1444,66 @@ Id: 2, Info: Test1Attribute
 
 
 
+## 动态代理
+在`C#`中，提供了类似`Java`中的**动态代理**机制。
+
+`C#`中实现动态代理需要以下内容：
+
+- 代理规则类需要从基类`System.Runtime.Remoting.Proxies.RealProxy`中派生。
+- 被代理的类需要从基类`System.MarshalByRefObject`中派生。
+
+与`Java`不同，在`C#`中，要使一个类能被代理需要该类从抽象基类`System.MarshalByRefObject`中继承。
+
+如下所示：
+
+```cs
+using System;
+
+class Xxx : MarshalByRefObject
+{
+	...
+}
+```
+
+编写代理规则需要继承抽象基类`System.Runtime.Remoting.Proxies.RealProxy`，并实现其中的`Invoke()`抽象方法。
+
+一个基本的`RealProxy`泛型封装如下所示：
+
+```cs
+// 限定泛型参数为MarshalByRefObject子类
+class Proxy<T> : RealProxy where T : MarshalByRefObject
+{
+	// 保存被代理类的实例
+	private T t { get; set; } = null;
+
+	// 使用代理类Type做为基类MarshalByRefObject的构造方法参数
+	public Proxy(T t) : base(typeof(T)) { this.t = t; }
+
+	// 编写代理规则
+	public override IMessage Invoke(IMessage msg)
+	{
+		// 将消息接口转换为方法调用消息接口
+		IMethodCallMessage method = msg as IMethodCallMessage;
+
+		/*
+			do something before method called ...
+		*/
+
+		// 执行真正的方法体
+		object result = method.MethodBase.Invoke(t, method.Args);
+
+		/*
+			do something after method called ...
+		*/
+
+		// 构建方法返回信息
+		return new ReturnMessage(result, null, 0, method.LogicalCallContext, method);
+	}
+}
+```
+
+
+
 ## *WinFrom* 开发注记
 `C#`对应的**GUI**库为基于`.NET Framework`的`Windows Form`。
 
@@ -1470,7 +1545,7 @@ Id: 2, Info: Test1Attribute
 
 普通的事件签名没有限制，但`.NET Framework`类库中的所有事件均基于`EventHandler`委托，定义如下：
 
-```csharp
+```cs
 public delegate void EventHandler(object sender, EventArgs e);
 ```
 
@@ -1489,7 +1564,7 @@ public delegate void EventHandler(object sender, EventArgs e);
 ### 接收Windows消息
 在`Windows Form`中，所有从`System.Windows.Forms.Control`派生的类都包含以下方法：
 
-```csharp
+```cs
 protected override void WndProc(ref Message m);
 ```
 
@@ -1505,13 +1580,15 @@ protected override void WndProc(ref Message m);
 
 
 
-## 调用C/C++动态链接库
+## 调用 *C/C++* 动态链接库
 C#支持调用使用`C/C++`语言编写的`dll`。
+
+使用`DLLImport`特性修饰一个方法。
 加载动态链接库需要指定dll的路径以及符号名称：
 
-```csharp
-[DLLImport("DLL Library"), EntryPoint = "Symbol Name"]
-public/protected/private extern Type Func (Type args...)
+```cs
+[DLLImport("DLL Library", EntryPoint = "Symbol Name")]
+public/protected/private extern Type Func(Type args...);
 ```
 
 声明方法的名称可以与dll中导出符号名称不同，只需在标注的`EntryPoint`中写明对应的符号名称。
@@ -1585,7 +1662,7 @@ C#中的常见类型与C++中类型之间的转换关系：
 
 在调用含有`params`参数的方法时，方法末尾可以追加**任意数量**的类型相符的变量，例如：
 
-```csharp
+```cs
 using System;
 
 class Program
@@ -1608,14 +1685,14 @@ class Program
 ### 处理`\0`结尾字符串
 在C#中，以`\0`结尾的`string`类型尾部的`\0`并不会被自动忽略，在输出是，中文环境下会显示`口口...`，删除字符串中的`\0`可以使用`string`类的`Replace()`成员方法进行字符串替换：
 
-```csharp
+```cs
 string test = "aaa\0\0\0";
 Console.WriteLine(test);						// 输出 "aaa口口口"
 string testNew = test.Replace("\0", "");		// 将 \0 替换为空
 Console.WriteLine(testNew);						// 输出 "aaa"
 ```
 
-### MySQL中`TINYINT`类型
+### MySQL中 *TINYINT* 类型
 在`MySQL`中没有内置的`bool`类型，`bool`类型常常使用最小的整型数据类型`TINYINT`表示。
 
 在C#中，会将`TINYINT(1)`视为`bool`类型处理，对于类型为`TINYINT(1)`的列，使用`ToString()`方法转换得到的是文本`true/false`而非字面意义数值。
@@ -1625,7 +1702,7 @@ Console.WriteLine(testNew);						// 输出 "aaa"
 ### *DEBUG* 模式
 在C#中，可使用类似C/C++的宏针对`DEBUG/RELEASE`模式下进行额外的操作，语法如下：
 
-```csharp
+```cs
 #if DEBUG
 // do something...
 #else
@@ -1653,7 +1730,7 @@ Console.WriteLine(testNew);						// 输出 "aaa"
 >
 > 三种特性用于修饰日志函数的参数(参数需要有默认值)，编译器会自动为参数补充对应的调用信息，如下所示：
 >
-> ```csharp
+>	```cs
 >	using System.Runtime.CompilerServices;
 >
 >	void PrintLog(string log,
@@ -1667,4 +1744,4 @@ Console.WriteLine(testNew);						// 输出 "aaa"
 >		Console.WriteLine("FilePath: {0}", file);
 >		Console.WriteLine("LineNumber: {0}", line);
 >	}
-> ```
+>	```
