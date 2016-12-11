@@ -1473,11 +1473,18 @@ class Xxx : MarshalByRefObject
 // 限定泛型参数为MarshalByRefObject子类
 class Proxy<T> : RealProxy where T : MarshalByRefObject
 {
-	// 保存被代理类的实例
-	private T t { get; set; } = null;
+	// 保存被代理类的实例以及代理方法执行前后的操作
+	private T t = null;
+	private Action beforeAction = null;
+	private Action afterAction = null;
 
 	// 使用代理类Type做为基类MarshalByRefObject的构造方法参数
-	public Proxy(T t) : base(typeof(T)) { this.t = t; }
+	public Proxy(T t, Action before = null, Action after = null) : base(typeof(T))
+	{
+		this.t = t;
+		beforeAction = before;
+		afterAction = after;
+	}
 
 	// 编写代理规则
 	public override IMessage Invoke(IMessage msg)
@@ -1485,22 +1492,98 @@ class Proxy<T> : RealProxy where T : MarshalByRefObject
 		// 将消息接口转换为方法调用消息接口
 		IMethodCallMessage method = msg as IMethodCallMessage;
 
-		/*
-			do something before method called ...
-		*/
+		// 执行实例方法调用前的代理操作
+		beforeAction?.Invoke();
 
-		// 执行真正的方法体
+		// 通过方法消息执行真正的方法体
 		object result = method.MethodBase.Invoke(t, method.Args);
 
-		/*
-			do something after method called ...
-		*/
+		// 执行实例方法调用后的代理操作
+		afterAction?.Invoke();
 
 		// 构建方法返回信息
 		return new ReturnMessage(result, null, 0, method.LogicalCallContext, method);
 	}
+
+	// 封装获取代理的接口
+	public T GetProxy() => GetTransparentProxy() as T;
 }
 ```
+
+- `RealProxy`类中定义了`GetTransparentProxy()`方法，使用该方法可获取应用了代理规则之后的实例。
+- 需要使用被代理类的`Type`类型做为基类`RealProxy`的构造函数参数，否则获取的代理实例为空指针。
+
+简单的动态代理完整实例如下所示：
+
+```cs
+using System;
+using System.Runtime.Remoting.Messaging;
+using System.Runtime.Remoting.Proxies;
+
+// 被代理的类，需要继承自基类MarshalByRefObject
+class Example : MarshalByRefObject
+{
+	public string GetName() => "Example";
+
+	public void Print(string str) => Console.WriteLine(str);
+}
+
+// 代理规则类，需要继承自基类RealProxy
+class ExampleProxy : RealProxy
+{
+	private Example example = null;
+
+	// 使用被代理类的Type类型做为基类构造器参数
+	public ExampleProxy(Example example) : base(typeof(Example)) { this.example = example; }
+
+	// 实现代理规则
+	public override IMessage Invoke(IMessage msg)
+	{
+		IMethodCallMessage callMsg = msg as IMethodCallMessage;
+
+		// 打印调用方法的名称
+		Console.WriteLine("Call method: {0}", callMsg.MethodName);
+
+		object result = callMsg.MethodBase.Invoke(example, callMsg.Args);
+
+		// 打印调用方法的结果
+		Console.WriteLine("Method result: {0}\n", result);
+
+		return new ReturnMessage(result, null, 0, callMsg.LogicalCallContext, callMsg);
+	}
+}
+
+class Program
+{
+	static void Main(string[] args)
+	{
+		// 构建原始实例
+		Example example = new Example();
+		// 获取应用了代理规则后的实例
+		Example exampleProxy = new ExampleProxy(example).GetTransparentProxy() as Example;
+
+		// 调用方法
+		exampleProxy.GetName();
+		exampleProxy.Print("Test Proxy!");
+
+		Console.ReadLine();
+	}
+}
+```
+
+输出结果：
+
+```
+Call method: GetName
+Method result: Example
+
+Call method: Print
+Test Proxy!
+Method result:
+
+```
+
+由输出结果可知，在访问被代理实例的成员方法时触发了定义的代理操作。
 
 
 
