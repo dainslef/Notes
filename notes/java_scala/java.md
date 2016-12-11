@@ -77,9 +77,9 @@ enum Enum {
 }
 ```
 
-枚举是Java中少数比C++更**复杂**的语法之一：
+枚举是`Java`中少数比`C++`更**复杂**的语法之一：
 
-- Java枚举类中的**枚举成员**(类内普通成员除外)每一个都是枚举类的实例。
+- `Java`枚举类中的**枚举成员**(类内普通成员除外)每一个都是枚举类的实例。
 - 在枚举类与普通类相似，也可以在类内定义成员方法和成员变量。
 - 要在枚举类内定义成员方法/变量，需要在最后一个枚举成员成员后添加**分号**以标志枚举成员列表结束。
 - 在枚举类内定义的方法/变量每一个枚举成员都拥有。
@@ -92,7 +92,7 @@ enum Enum {
 ```java
 enum Enum {
 
-	// 定义枚举成员
+	// 定义枚举成员，以分号做为结束标志
 	ENUM_MEMBER_1("member1") {
 		// 枚举类成员内可以重写枚举类内定义的方法
 		@Override
@@ -240,15 +240,15 @@ Test
 
 
 
-## 嵌套类 *Nested Classes*
+## *Nested Classes* (嵌套类)
 在Java中，嵌套类(`nested class`)是指定义在一个类内部的类，对应的，包含嵌套类的类被称为**外部类**(`enclosing class`)。
 嵌套类有以下几种类型：
 
-0. `member nested class`(成员嵌套类)：
+1. `member nested class`(成员嵌套类)：
 > 成员嵌套类是作为`enclosing class`的成员定义的，成员嵌套类有`enclosing class`属性。
-0. `local nested class`(局部嵌套类)：
+1. `local nested class`(局部嵌套类)：
 > 局部嵌套类定义在方法里面，局部嵌套类有`enclosing class`属性和`enclosing method`属性。
-0. `anonymous nested class`(匿名嵌套类)：
+1. `anonymous nested class`(匿名嵌套类)：
 > 匿名嵌套类没有显示的定义一个类，直接通过`new`操作符构造。
 
 几类嵌套类的特性：
@@ -266,14 +266,14 @@ Test
 ```java
 class EnclosingClass {
 
-	//成员嵌套类
+	// 成员嵌套类
 	class MemberNestedClass {
 
 		//static int a;			//错误，只有静态嵌套类才能在内部定义静态成员
 
 	}
 
-	//使用static关键字修饰的成员嵌套类为静态嵌套类
+	// 使用static关键字修饰的成员嵌套类为静态嵌套类
 	static class StaticMemberNestedClass {
 
 		static int a;			//正确，可以正常定义静态成员
@@ -282,13 +282,13 @@ class EnclosingClass {
 
 	void showLocalNestedClass() {
 
-		//局部嵌套类
+		// 局部嵌套类
 		class LocalNestedClass {
 		}
 
 	}
 
-	//匿名嵌套类
+	// 匿名嵌套类
 	XXX xxx = new XXX {
 		@Override
 		...
@@ -305,8 +305,8 @@ class EnclosingClass {
 ### *Thread* 和 *Runnable*
 使用`Thread`创建线程的两种方式：
 
-0. `Runnable`接口定义了`run()`方法，实现该接口，将需要并发执行的内容写在`run()`方法中。将实现`Runnable`的实例作为参数构造`Thread`实例。
-0. `Thread`类实现了`Runnable`接口，因此也可以直接继承`Thread`类重写其`run()`方法。
+1. `Runnable`接口定义了`run()`方法，实现该接口，将需要并发执行的内容写在`run()`方法中。将实现`Runnable`的实例作为参数构造`Thread`实例。
+1. `Thread`类实现了`Runnable`接口，因此也可以直接继承`Thread`类重写其`run()`方法。
 
 完成`Thread`对象的构建后，再调用其成员函数`start()`便会开启线程执行`run()`中的代码。
 
@@ -364,53 +364,53 @@ public static native void sleep(long millis) throws InterruptedException;
 
 `synchronized`块
 > `synchronized`块的基本语法如下：
-
+>
 >	```java
 >	synchronized (object) {
 >		/* do something */
 >	}
 >	```
-
+>
 > 其中，同步变量`object`可以是实例、`this`引用或是类型(`XXX.class`)。
-
+>
 >> 以相同`object`为同步对象的多个`synchronized`块在同一时刻只能有一个`synchronized`块被一个线程执行，在该线程离开`synchronized`块之前，其余线程都会处于等待状态。
-
+>
 >> `object`为实例时：
-
+>>
 >>	- 同步变量需要为**引用类型**(基础类型如`int`、`float`等不能使用`synchronized`关键字进行同步)。
 >>	- 同步变量**不能**为`null`。
 >>	- 同步变量为类的实例成员时，需要注意同一个类的不同实例的相同实例成员是不同的。
 >>	- 同步变量为类的静态成员时，一个类的所有实例共享静态成员，此时效果类似于同步类型(`XXX.class`)。
-
+>>
 >> `object`为`this`引用时：
-
+>>
 >>	- 同一实例中以`this`为同步变量的代码块同时只能被一个线程执行。
 >>	- 不同实例之间以`this`为同步对象的代码块无影响。
-
+>>
 >> `object`为类型时，所有以此为同步变量的代码块都只能被一个线程执行。
 
 `synchronized`方法
 > `synchronized`关键字用于修饰方法，语法如下：
-
+>
 >	```java
 >	synchronized Type methodName(Type args...) {
 >		/* do something */
 >	}
 >	```
-
+>
 > 被`synchronized`修饰的方法同时只能被**一个**线程访问：
-
+>
 >	- 当被修饰的方法为实例方法时，同一实例的`synchronized`方法同时只能有一个被执行。等价于将整个方法体的内容写在`synchronized (this) { ... }`中。不同实例间不受影响。
 >	- 当被修饰的方法为静态方法时，则所有该类中的静态`synchronized`方法同时只能有一个被执行。等价于将整个方法体的内容写在`synchronized (类名.class) { ... }`中。
 >	- 一个类中被`synchronized`修饰的实例方法和被`synchronized`修饰的静态方法的同步变量不同，因而不会相互同步。
-
+>
 > 如下代码所示：
-
+>
 >	```java
 >	import static java.lang.Thread.sleep;
-
+>
 >	class Example {
-
+>
 >		public synchronized void showOne() {
 >			for (int i = 0; i < 5; i++) {
 >				String threadName = Thread.currentThread().getName();
@@ -422,7 +422,7 @@ public static native void sleep(long millis) throws InterruptedException;
 >				}
 >			}
 >		}
-
+>
 >		public synchronized void showTwo() {
 >			for (int i = 0; i < 5; i++) {
 >				String threadName = Thread.currentThread().getName();
@@ -433,9 +433,9 @@ public static native void sleep(long millis) throws InterruptedException;
 >					e.printStackTrace();
 >				}
 >			}
-
+>
 >		}
-
+>
 >		public static synchronized void showStatic() {
 >			for (int i = 0; i < 5; i++) {
 >				String threadName = Thread.currentThread().getName();
@@ -448,22 +448,22 @@ public static native void sleep(long millis) throws InterruptedException;
 >			}
 >		}
 >	}
-
+>
 >	public class Main {
-
+>
 >		public static void main(String[] args) {
-
+>
 >			Example example = new Example();
-
+>
 >			new Thread(() -> example.showOne(), "Thread One").start();
 >			new Thread(() -> example.showTwo(), "Thread Two").start();
 >			new Thread(() -> example.showStatic(), "Thread Three").start();
 >		}
 >	}
 >	```
-
+>
 > 输出结果：
-
+>
 >	```
 >	Thread One showOne()
 >	Thread Three showStatic()
@@ -481,13 +481,13 @@ public static native void sleep(long millis) throws InterruptedException;
 >	Thread Two showTwo()
 >	Thread Two showTwo()
 >	```
-
+>
 > 从输出结果中可以看到，`Example`类中的三个成员方法都使用了`synchronized`关键字进行修饰，`showOne()`、`showTwo()`为实例方法，`showStatic()`为静态方法，来自同一个实例在不同线程中的两个实例方法**没有**并发执行(`showTwo()`一直等到`showOne()`结束才开始执行)，而静态方法并发执行了(`showOne()`与`showStatic()`交错打印输出)。
 
 ### *Executor* 框架
 `Thread`类功能简单，仅仅提供了原始的线程抽象，在实际的开发中，往往会使用更高层次的API。
 
-`Java 1.5`之后提供了`Executor`框架，用于创建、管理与执行线程。
+`Java 5`之后提供了`Executor`框架，用于创建、管理与执行线程。
 `Executor`框架主要包含`Executor`、`Executors`、`ExecutorService`、`CompletionService`、`Future`、`Callable`等类型。
 
 `Runnable`、`Callable`、`Future`接口是Java中对于异步操作的抽象。
@@ -728,7 +728,7 @@ public class Main {
 
 
 
-## 注解 *Annotation*
+## *Annotation* 注解
 注解(元数据)是`JDK 1.5`之后引入的机制，可以声明在**包**、**类**、**字段**、**方法**、**局部变量**、**方法参数**等的前面，用来对这些元素进行说明和注释。
 注解的相关内容在包`java.lang.annotation`中。
 
@@ -749,23 +749,22 @@ Java中提供了一系列**内置注解**，常用的有：
 
 ### 元注解
 **元注解**专门用来修饰其它注解，在**自定义注解**时会用到。
-
 **元注解**有以下4类：
 
-- `@Target`用于限制注解的范围，参数为注解范围的数组(可以同时设定多个注解范围，用花括号包裹)，取值如下所示：
-	0. `ElementType.CONSTRUCTOR` 描述构造器
-	0. `ElementType.FIELD` 描述域
-	0. `ElementType.LOCAL_VARIABLE` 描述局部变量
-	0. `ElementType.METHOD` 描述方法
-	0. `ElementType.PACKAGE` 描述包
-	0. `ElementType.PARAMETER` 描述参数
-	0. `ElementType.TYPE` 描述类、接口(包括注解类型)或`enum`声明
-- `@Retention`设置注解的**生命周期**，取值如下所示：
-	0. `RetentionPolicy.SOURCE` 编译阶段丢弃。这些注解在编译结束之后就不再有任何意义，所以它们不会写入字节码。`@Override`、`@SuppressWarnings`都属于这类注解。
-	0. `RetentionPolicy.CLASS` 类加载的时候丢弃。在字节码文件的处理中有用。注解**默认使用**这种方式。
-	0. `RetentionPolicy.RUNTIME` 不丢弃，运行期也保留该注解，可以使用反射机制读取该注解的信息。**自定义注解**通常使用这种方式。
-- `@Inherited`为**标记注解**，用于设置注解的继承性，被改注解修饰的注解用在类中是**可继承的**，但类不从它所实现的接口继承注解，方法并不从它所重载的方法继承注解。对于设置了`@Inherited`注解的元素，如果同时设置了`@Retention`注解，并且声明周期设为`RetentionPolicy.RUNTIME`，则使用`反射`机制来获取元素注解时，如果检查不到该注解，则会一直沿着继承树向上搜索，直到查找到了该注解或是到达类继承结构的顶层。
-- `Documented`设置在使用`javadoc`生成API时记录注解信息，默认情况下，`javadoc`**不会**记录注解信息。
+1. `@Target`用于限制注解的范围，参数为注解范围的数组(可以同时设定多个注解范围，用花括号包裹)，取值如下所示：
+	1. `ElementType.CONSTRUCTOR` 描述构造器
+	1. `ElementType.FIELD` 描述域
+	1. `ElementType.LOCAL_VARIABLE` 描述局部变量
+	1. `ElementType.METHOD` 描述方法
+	1. `ElementType.PACKAGE` 描述包
+	1. `ElementType.PARAMETER` 描述参数
+	1. `ElementType.TYPE` 描述类、接口(包括注解类型)或`enum`声明
+1. `@Retention`设置注解的**生命周期**，取值如下所示：
+	1. `RetentionPolicy.SOURCE` 编译阶段丢弃。这些注解在编译结束之后就不再有任何意义，所以它们不会写入字节码。`@Override`、`@SuppressWarnings`都属于这类注解。
+	1. `RetentionPolicy.CLASS` 类加载的时候丢弃。在字节码文件的处理中有用。注解**默认使用**这种方式。
+	1. `RetentionPolicy.RUNTIME` 不丢弃，运行期也保留该注解，可以使用反射机制读取该注解的信息。**自定义注解**通常使用这种方式。
+1. `@Inherited`为**标记注解**，用于设置注解的继承性，被改注解修饰的注解用在类中是**可继承的**，但类不从它所实现的接口继承注解，方法并不从它所重载的方法继承注解。对于设置了`@Inherited`注解的元素，如果同时设置了`@Retention`注解，并且声明周期设为`RetentionPolicy.RUNTIME`，则使用`反射`机制来获取元素注解时，如果检查不到该注解，则会一直沿着继承树向上搜索，直到查找到了该注解或是到达类继承结构的顶层。
+1. `@Documented`设置在使用`javadoc`生成API时记录注解信息，默认情况下，`javadoc`**不会**记录注解信息。
 
 ### 自定义注解
 Java中的注解实际上也是**接口**(`interface`)。
@@ -776,12 +775,12 @@ Java中的注解实际上也是**接口**(`interface`)。
 - 定义注解时，使用`value`做为注解参数名称，则使用注解时参数名称可省略。
 - 定义注解时，参数的访问权限只能为`public`或**默认**权限。
 - 注解参数支持的数据类型：
-	0. 所有基本数据类型(`int`、`float`、`boolean`、`byte`、`double`、`char`、`long`、`short`)。
-	0. `String`类型。
-	0. `Class`类型。
-	0. `enum`类型。
-	0. `Annotation`类型。
-	0. 上述类型的**一维**数组。
+	1. 所有基本数据类型(`int`、`float`、`boolean`、`byte`、`double`、`char`、`long`、`short`)。
+	1. `String`类型。
+	1. `Class`类型。
+	1. `enum`类型。
+	1. `Annotation`类型。
+	1. 上述类型的**一维**数组。
 
 如下代码所示：
 
@@ -819,7 +818,7 @@ TestValue: Schwarzes marken 6
 
 
 
-## 反射 *Reflection*
+## *Reflection* (反射)
 在Java中，**反射(Reflection)**提供了一系列**运行时**功能：
 
 - 在运行时判断任意一个对象所属的类。
@@ -959,17 +958,17 @@ public class Main {
 		for (Field field : classTest.getDeclaredFields())
 			System.out.print(field.getName() + " ");
 
-		//获取到了继承的方法
+		// 获取到了继承的方法
 		System.out.println("\n\nPublic Methods:");
 		for (Method method : classTest.getMethods())
 			System.out.print(method.getName() + " ");
 
-		//获取内容不包括继承方法，但包含定义的保护/私有方法
+		// 获取内容不包括继承方法，但包含定义的保护/私有方法
 		System.out.println("\n\nAll Methods:");
 		for (Method method : classTest.getDeclaredMethods())
 			System.out.print(method.getName() + " ");
 
-		//构造方法不存在继承的概念，因而只获取到当前类公有构造器
+		// 构造方法不存在继承的概念，因而只获取到当前类公有构造器
 		System.out.println("\n\nPublic Constructor:");
 		for (Constructor constructor : classTest.getConstructors())
 			System.out.print(constructor.getName() + " ");
@@ -978,7 +977,7 @@ public class Main {
 		for (Constructor constructor : classTest.getDeclaredConstructors())
 			System.out.print(constructor.getName() + " ");
 
-		//对于非内部类，获取外部类的构造函数返回null
+		// 对于非内部类，获取外部类的构造函数返回null
 		System.out.println("\n\nEnclosing Constructor:");
 		System.out.println(classTest.getEnclosingConstructor());
 	}
@@ -1062,12 +1061,12 @@ public class Main {
 			NoSuchMethodException,
 			InvocationTargetException {
 
-		//直接通过Class类调用无参构造函数
+		// 直接通过Class类调用无参构造函数
 		Test.class.newInstance().showNum();
 
-		//获取构造器对象
+		// 获取构造器对象
 		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
-		constructor.setAccessible(true);				//对于私有构造器默认是无法访问的，需要设置权限才能正常调用
+		constructor.setAccessible(true);	//对于私有构造器默认是无法访问的，需要设置权限才能正常调用
 		constructor.newInstance(200).showNum();
 	}
 }
@@ -1086,7 +1085,9 @@ public class Main {
 
 ```java
 public Object invoke(Object var1, Object... var2) throws
-	IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+		IllegalAccessException,
+		IllegalArgumentException,
+		InvocationTargetException;
 ```
 
 与`Constructor`类似，如果获取到的`Method`对象代表的是非公有成员方法，则需要使用`setAccessible()`方法设置属性为可访问才能正常调用。
@@ -1196,7 +1197,7 @@ public class Main {
 }
 ```
 
-### 类加载器 *ClassLoader*
+### *ClassLoader* (类加载器)
 在Java中有三种类加载器。
 
 0. `Bootstrap ClassLoader`引导类加载器，用于加载Java核心类。
@@ -1242,20 +1243,20 @@ sun.misc.Launcher$AppClassLoader
 
 
 ## 动态代理
-**动态代理**是Java反射机制的一种应用，能够动态地产生代理实例，避免为每一个接口编写大量的重复代理类代码。
+**动态代理**是反射机制的一种应用，能够动态地产生代理实例，避免为每一个接口方法编写大量的重复代理代码。
 
 ### 代理模式
 **代理模式**是常见的设计模式，主要作用是通过创建**代理类**为其他对象提供一种代理，并以控制对这个对象的访问。
 代理模式常见的应用场景有：
 
-0. `RemoteProxy`远程代理，为一个位于不同的地址空间的对象提供一个本地的代理对象。这个不同的地址空间可以是在同一台主机中，也可是在另一台主机中。
-0. `Virtual Proxy`虚拟代理，根据需要创建开销很大的对象。如果需要创建一个资源消耗较大的对象，先创建一个消耗相对较小的对象来表示，真实对象只在需要时才会被真正创建。
-0. `Protection Proxy`保护代理，控制对原始对象的访问。保护代理用于对象应该有不同的访问权限的时候。
-0. `Smart Reference`智能指引，取代了简单的指针，它在访问对象时执行一些附加操作，扩充原有对象的功能。
-0. `Copy-on-Write`写时复制，它是虚拟代理的一种，把复制操作延迟到只有在客户端真正需要时才执行。
+1. `Remote Proxy`远程代理，为一个位于不同的地址空间的对象提供一个本地的代理对象。这个不同的地址空间可以是在同一台主机中，也可是在另一台主机中。
+1. `Virtual Proxy`虚拟代理，根据需要创建开销很大的对象。如果需要创建一个资源消耗较大的对象，先创建一个消耗相对较小的对象来表示，真实对象只在需要时才会被真正创建。
+1. `Protection Proxy`保护代理，控制对原始对象的访问。保护代理用于对象应该有不同的访问权限的时候。
+1. `Smart Reference`智能指引，取代了简单的指针，它在访问对象时执行一些附加操作，扩充原有对象的功能。
+1. `Copy-on-Write`写时复制，它是虚拟代理的一种，把复制操作延迟到只有在客户端真正需要时才执行。
 
-在Java中代理模式的典型方式是使用接口定义功能，实现类实现接口功能，而代理类控制/扩充实现类功能。
-代理类与实现类都implements接口，但代理类本身不直接实现具体功能，而是调用被其代理的实现类的方法。
+在`Java`中代理模式的典型方式是使用接口定义功能，实现类实现接口功能，而代理类控制/扩充实现类功能。
+代理类与实现类都`implements`接口，但代理类本身不直接实现具体功能，而是调用被其代理的实现类的方法。
 
 ### 动态代理实例
 假设有一个文件接口`File`，定义了支持的文件操作：
@@ -1336,7 +1337,7 @@ class FileProxy implements File {
 
 ```java
 public static Object newProxyInstance(ClassLoader loader,
-	Class<?>[] interfaces, InvocationHandler h) throws IllegalArgumentException;
+		Class<?>[] interfaces, InvocationHandler h) throws IllegalArgumentException;
 ```
 
 - `loader`参数为动态代理类的类加载器。
@@ -1347,7 +1348,7 @@ public static Object newProxyInstance(ClassLoader loader,
 
 ```java
 public interface InvocationHandler {
-    Object invoke(Object proxy, Method method, Object[] args) throws Throwable;
+	Object invoke(Object proxy, Method method, Object[] args) throws Throwable;
 }
 ```
 
@@ -1367,17 +1368,22 @@ class InvocationHandlerImpl implements InvocationHandler {
 		this.file = file;
 	}
 
-	//多个接口方法的代理扩展代码全部写在一个invoke()方法中
+	// 多个接口方法的代理扩展代码全部写在一个invoke()方法中
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
 		/*
 			do something before...
 		*/
+
+		// 判断是否为静态方法，并使用不同的调用方式
 		Object object = Modifier.isStatic(method.getModifiers()) ?
-			method.invoke(args) : method.invoke(file, args);
+				method.invoke(args) : method.invoke(file, args);
+
 		/*
 			do something after...
 		*/
+
 		return object;
 	}
 }
@@ -1406,8 +1412,8 @@ public class Main {
 
 
 
-## 与Access数据库交互
-**JDK1.7**之前，可以使用**JDBC-ODBC**桥接**Access**数据库，但在**JDK1.8**之后，**JDBC-ODBC**桥被移除，只能使用专有的Access驱动来连接Access数据库(驱动名称：`Access_JDBC40.jar`)。
+## 与 *Access* 数据库交互
+`JDK 1.7`之前，可以使用`JDBC-ODBC`桥接`Access`数据库，但在`JDK 1.8`之后，`JDBC-ODBC`桥被移除，只能使用专有的`Access`驱动来连接`Access`数据库(驱动名称：`Access_JDBC40.jar`)。
 
 ### 连接Access数据库
 ```java
@@ -1436,11 +1442,11 @@ Statement statement = connection
 
 
 
-## Eclipse使用注记
-**Eclipse**是Java开发中最常用的IDE，Eclipse通过插件扩展可以进行多种语言的开发。
+## *Eclipse* 使用注记
+`Eclipse`是Java开发中最常用的IDE，`Eclipse`通过插件扩展可以进行多种语言的开发。
 
-### 添加Marketplace
-`Eclipse Marketplace`是`Eclipse`新增的应用商店，可以从中直接安装`GoClipse`、`ScalaIDE`、`PyDev`等由第三方社区维护的插件。
+### 添加 *Marketplace*
+`Eclipse Marketplace`是`Eclipse`新增的应用商店，可以从中直接安装`e(fx)clipse`、`GoClipse`、`ScalaIDE`、`PyDev`等由第三方社区维护的插件。
 
 在部分`Eclipse`版本中，`Marketplace`没有默认安装，手动添加：
 
@@ -1462,7 +1468,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 
 
-## IntelliJ IDEA使用注记
+## *IntelliJ IDEA* 使用注记
 **IntelliJ IDEA**相比Eclipse而言，有着更精美的UI，且对`Scala`、`Golang`等冷门语言有着更好的支持。
 
 ### 设置显示行号和不可见空白
@@ -1492,7 +1498,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 
 
-## Java中 *Package*
+## *Package*
 在Java中，没有使用package的话，在javac编译java文件生成class字节码时，需要将所有用到的源码文件写在参数中，不在当前目录下的源码文件要写清路径。
 如果源码文件过多，则可以使用`package`关键字将其打包归类，然后在主类所在的文件中使用`import`关键字来将包导入使用。
 如果没有使用package关键字，则所有的内容被视为在一个包中。
@@ -1514,7 +1520,7 @@ import [包名].[类名].[类名]....;
 另外，包名也可以是`*.*.*`的形式。
 
 ### 使用静态导入
-`Java1.5`中新加入了`import static`关键字，相比传统的`import`，`import static`关键字的包含目标是类中的静态方法，格式如下：
+`Java 5`中新加入了`import static`关键字，相比传统的`import`，`import static`关键字的包含目标是类中的静态方法，格式如下：
 
 ```java
 import static [包名].[类名].[类名]....[静态方法名]
@@ -1601,7 +1607,7 @@ public class B {
 
 
 ## *Swing* 开发注记
-**Swing**是Java下的GUI开发库，Swing中的控件样式与平台无关，完全由Java绘制。
+**Swing**是Java下的GUI开发库，`Swing`中的控件样式与平台无关，完全由`Java`绘制。
 
 ### 常用控件
 容器：
@@ -1610,7 +1616,8 @@ public class B {
 - `JDialog` 对话框
 - `JPanel` 面板
 - `JScrollPane` 滚动面板
-- `JFrame` 一般做为顶层容器，可以独立做为对话框显示，但JPanel不能独立做为对话框。
+
+`JFrame`一般做为顶层容器，可以独立做为对话框显示，但`JPanel`不能独立做为对话框。
 
 文本组件：
 
@@ -1665,11 +1672,11 @@ Object[] object = set.toArray();
 JComboBox comboBox = new JComboBox(new DefaultComboBoxModel(object));
 ```
 
-### Swing事件机制
-Java没有像C#那样在语言级别提供事件机制，事件机制仅仅在Java中仅仅是一套接口：
+### 事件机制
+`Java`没有像`C#`那样在语言级别提供事件机制，事件机制仅仅在`Java`中仅仅是一套接口：
 
 - 事件处理需要重写监听器的接口方法。
-> Swing根据事件类型定义了一系列的事件接口，如鼠标点按事件的`ActionListener`，处理键盘的`KeyListener`，处理鼠标的`MouseListener`等等。
+> `Swing`根据事件类型定义了一系列的事件监听器接口，如鼠标点按事件的`ActionListener`，处理键盘的`KeyListener`，处理鼠标的`MouseListener`等等。
 > 不同的事件接口拥有不同数目的接口方法，根据需求重写对应的接口方法。
 - 将控件绑定监听器实例。
 > GUI控件类有一套与监听器接口对应的方法`addXXXListener()`用于添加不同类型的监听器实例，将对应的监听器实例作为参数传入，则当控件操作触发时，便会运行绑定监听器中的代码。
@@ -1678,21 +1685,21 @@ Java没有像C#那样在语言级别提供事件机制，事件机制仅仅在Ja
 ### 在键盘事件中屏蔽指定按键
 实现`KeyListener`接口，重写`keyTyped(KeyEvent)`方法，通过`getKeyChar()`方法获取输入的字符，然后对其进行判断，如果是想要屏蔽的按键则使用`setKeyChar('\0')`将其转化为空输入。
 
-举例：(只接受数字输入)
+如下所示：(只接受数字输入)
 
 ```java
 KeyEvent keyEvent = e -> {
-	if ((e.getKeyChar() < '0' || e.getKeyChar() > '9'))
+	if (e.getKeyChar() < '0' || e.getKeyChar() > '9')
 		e.setKeyChar('\0');
 }
 ```
 
-### 文本输入监听器 *DocumentListener*
+### *DocumentListener* (文本输入监听器)
 包含三个方法：
 
-- `public void changedUpdate(DocumentEvent e)` 监听文本属性的变化。
-- `public void insertUpdate(DocumentEvent e)` 监听文本内容的插入事件。
-- `public void removeUpdate(DocumentEvent e)` 监听文本内容的删除事件。
+- `public void changedUpdate(DocumentEvent e)` 监听文本属性的变化
+- `public void insertUpdate(DocumentEvent e)` 监听文本内容的插入事件
+- `public void removeUpdate(DocumentEvent e)` 监听文本内容的删除事件
 
 `JTextField`控件本身没有`addDocumentListener()`方法，需要先使用`getDocument()`方法获取`Document`对象才能调用`addDocumentListener()`。
 在事件处理方法中，对`JTextField`对象调用`getText()`方法即可获得输入文本的内容。
@@ -1718,7 +1725,7 @@ JScrollPane scrollPane = new JScrollPane(textArea);
 
 这样当文本无法全部显示时会出现**滚动条**。
 
-### 静态MessageBox方法
+### 静态 *MessageBox* 方法
 与**Qt**一样，Java也提供了弹出MessageBox的静态方法，即`JOptionPane.showMessageDialog()`。
 
 ```java
@@ -1726,16 +1733,16 @@ JScrollPane scrollPane = new JScrollPane(textArea);
 static void showMessageDialog(Component parentComponent, Object message);
 // 调出对话框，显示使用由messageType参数确定的默认图标的message
 static void showMessageDialog(Component parentComponent,
-	Object message, String title, int messageType);
+		Object message, String title, int messageType);
 // 调出一个显示信息的对话框，指定了所有参数
 static void showMessageDialog(Component parentComponent,
-	Object message, String title, int messageType, Icon icon);
+		Object message, String title, int messageType, Icon icon);
 ```
 
 其中，`messageType`可以取`DEFAULT_OPTION`、`YES_NO_OPTION`、`YES_NO_CANCEL_OPTION`或`OK_CANCEL_OPTION`等。
 此外，还有`showInputDialog()`、`showConfirmDialog()`等方法可以用于显示其他用途的窗口。
 
-### 使用JTable显示数据库
+### 使用 *JTable* 显示数据库
 构建一个`JTable`主要有两种方式：
 
 ```java
@@ -1756,7 +1763,7 @@ JTable(TableModel dm);
 
 ## 常见问题记录
 
-### String.split()方法
+### *String.split()* 方法
 函数的定义为：
 
 ```java
@@ -1764,13 +1771,13 @@ public String[] split(String regex);
 ```
 
 `String`类中提供的文本切片函数`String.split()`接收的参数是**正则表达式**(Regex)。
-因此，以一些**特殊符号**(`.``+`等)作为分隔符时，不能直接使用符号本身，而是需要使用转义符号，如以**小数点**作为分隔符切片需要写成：
+因此，以一些**特殊符号**(`.`、`+`等)作为分隔符时，不能直接使用符号本身，而是需要使用转义符号，如以**小数点**作为分隔符切片需要写成：
 
 ```java
 String[] nums = "123.456.789".split("\\.");
 ```
 
-### String.format() 方法
+### *String.format()* 方法
 函数的定义为：
 
 ```java

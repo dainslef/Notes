@@ -202,7 +202,7 @@ class XXX : INotifyPropertyChanged
 > 使用`[CallerMemberName]`特性能够使属性在重构名称时避免手动修改传入属性通知方法的属性名称参数。
 
 ### 绑定语法
-进行绑定操作需要明确目标对象的路径，`WPF`提供了`ElementName、Source、RelativeSource`三种绑定对象。
+进行绑定操作需要明确目标对象的路径，`WPF`提供了`ElementName`、`Source`、`RelativeSource`三种绑定对象。
 
 默认绑定
 > 在不显式指定绑定对象的情况下，默认将`DataContent`作为绑定对象。

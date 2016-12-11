@@ -181,55 +181,55 @@ class TestTable(tag: Tag) extends Table[TestTableMember](tag, "TestTable") {
 
 使用`play.api.db.slick.DatabaseConfigProvider`获取数据库对象
 > `DatabaseConfigProvider`来自于`play-slick`插件，仅仅依赖`Slick`是不够的。
-
+>
 > 使用`DatabaseConfigProvider`特质提供的无参`get`方法来获取写在`conf/application.conf`文件中的特定数据库配置：
-
-```scala
-trait DatabaseConfigProvider {
-	def get[P <: BasicProfile]: DatabaseConfig[P]
-}
-```
-
+>
+>	```scala
+>	trait DatabaseConfigProvider {
+>		def get[P <: BasicProfile]: DatabaseConfig[P]
+>	}
+>	```
+>
 > 配置类型`DatabaseConfig`定义如下：
-
+>
 >	```scala
 >	trait DatabaseConfig[P <: BasicProfile] {
 >		/** Get the configured Database. It is instantiated lazily when this method is called for the
 >			* first time, and must be closed after use. */
 >		def db: P#Backend#Database
-
+>
 >		/** The configured driver. */
 >		val driver: P
-
+>
 >		/** The raw configuration. */
 >		def config: Config
-
+>
 >		/** The name of the driver class or object (without a trailing "$"). */
 >		def driverName: String
-
+>
 >		/** Whether the `driverName` represents an object instead of a class. */
 >		def driverIsObject: Boolean
 >	}
 >	```
-
+>
 > 使用无参方法`db`即可获得可供操作的数据库对象。
-
+>
 > 在`Play 2.4`及之前的版本，直接通过单例对象获取：
-
+>
 >	```scala
 >	val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
 >	val database = dbConfig.db
 >	```
-
+>
 > 在最新的`Play 2.5`中，`Play`框架的设计发生了变化，不再拥有全局的`Play.current`对象，`DatabaseConfigProvider`也需要通过`DI`(`Dependcy Inject`，即**依赖注入**)的方式来获取，一个注入了`DatabaseConfigProvider`的控制器如下所示：
-
+>
 >	```scala
 >	import javax.inject.Inject
-
+>
 >	import play.api.mvc._
 >	import slick.driver.JdbcProfile
 >	import play.api.db.slick.DatabaseConfigProvider
-
+>
 >	@Singleton
 >	class TestController @Inject()(dbConfig: DatabaseConfigProvider) extends Controller {
 >		def testPage = Action {
@@ -239,23 +239,23 @@ trait DatabaseConfigProvider {
 >		}
 >	}
 >	```
-
+>
 > 默认情况下，使用的是配置文件`conf/application.conf`中`slick.dbs.default`配置项内写入的配置，如果需要使用自定义配置，则需要使用`@NamedDatabase`注解，如下所示：
-
+>
 >	```scala
 >	import play.api.db.NamedDatabase
-
+>
 >	@Singleton
 >	class TestController @Inject()(@NamedDatabase("配置名称") dbConfig: DatabaseConfigProvider) extends Controller {
 >		...
 >	}
 >	```
-
+>
 > 其中，**配置名称**填写的**不是**完整路径，如`slick.dbs.XXX`的配置名称仅需填写`XXX`即可。
 
 使用`slick.driver.MySQLDriver.api.Database`获取数据库对象
 > 在**不使用**`play-slick`插件或是单独使用`Slick`框架的情况下，可以使用`Database`类来直接构建数据库对象：
-
+>
 >	```scala
 >	val database = Database.forDriver(
 >		new com.mysql.jdbc.Driver(),

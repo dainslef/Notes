@@ -3,22 +3,46 @@
 ## 接口默认方法
 在**Java8**中，接口允许拥有带有方法实现的默认方法，在方法前使用关键字`default`来区别于普通的抽象方法。
 
-一个接口可以有多个默认方法，也可以只有默认方法而不含有传统的抽象方法，同时，默认方法不强制子类重写，并且可以像类的成员方法一样被继承。
+- 一个接口可以定义**多个**默认方法。
+- 一个接口也可以只包含**默认方法**而不含有抽象方法。
+- 默认方法**不是**静态方法，可被重写，不可通过接口名称直接访问。
+- 默认方法不会强制子类重写，并且可以像类的成员方法一样被继承。
+
 例如：
 
 ```java
-interface Test<T> {
-	default T abcd(T a) {
-		return a;
-	}
-	default T abc(T a) {
-		return a;
+interface A {
+	default void show() { System.out.println("A"); }
+	default void showA() { System.out.println("showA"); }
+}
+
+class B implements A {
+	@Override
+	public void show() { System.out.println("B"); }
+}
+
+class Main {
+	public static void main(String[] args) {
+		// A.show();			//编译错误
+		B b = new B();
+		b.show();
+		A a = b;
+		a.show();
 	}
 }
 ```
 
+输出结果：
+
+```
+B
+B
+```
+
+由输出可知，向上转型后的实例对象调用的是被重写之后的方法。
+
 当一个类实现了多个带有相同函数签名的默认方法的接口，需要重写引发冲突的默认方法。
-例如：
+如下所示：
 
 ```java
 //接口Test1中含有默认方法"T abc(T a)"
@@ -53,20 +77,20 @@ class Test<T> implements Test1<T>, Test2<T> {
 class Test<T> implements Test1<T>, Test2<T> {
 	@Override
 	public T abc(T a) {
-		//如果重写的是返回值为void的函数，则直接使用"test1.super.abc(a);"，作用是执行test1的对应默认方法。
+		//如果重写的是返回值为void的函数，则直接使用"Test1.super.abc(a);"，作用是执行test1的对应默认方法。
 		return Test1.super.abc(a);
 	}
 }
 ```
 
-一个类实现多个带有默认方法的接口，在一定程度上类似于C++中的**多重继承**。
+一个类实现多个带有默认方法的接口，在一定程度上类似于`C++`中的**多重继承**。
 
 
 
 ## *Lambda*
 **Java 8**中加入的另一个重要的特性即为**Lambda表达式**。
 
-### 使用Lambda表达式表示函数接口
+### 使用 *Lambda* 表示函数接口
 **Lambda表达式**用于实现**函数接口**，函数接口是**有且只有一个**抽象方法的接口。
 
 函数接口可以使用`@FunctionalInterface`注解，被其标注的接口中若含有**多个**抽象方法则无法通过编译。
@@ -106,7 +130,7 @@ interface Test<T> {
 }
 ```
 
-在Java8之前，要实例化一个接口，一般使用**匿名类**。
+在`Java 8`之前，要实例化一个接口，一般使用**匿名类**。
 例如：
 
 ```java
@@ -123,7 +147,7 @@ Test<Integer> t = new Test<Integer>() {
 };
 ```
 
-在**Java8**之后，即可以使用新特性**Lambda表达式**来表示**函数接口**。
+在**Java 8**之后，即可以使用新特性**Lambda表达式**来表示**函数接口**。
 例如：
 
 ```java
