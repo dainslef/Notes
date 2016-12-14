@@ -1055,6 +1055,9 @@
 				<p>在<span class="blue"> systemd </span>更新到<span class="blue"> 2.29 </span>版本之后，可能会出现关机等待90s才能正常关闭现象，同时关机时出现<span class="blue">"a stop job is running for session..."</span>的提示信息。出现问题的原因是在用户发出关机指令时，后台的某些重要进程依然在执行，systemd默认配置下会等待这些重要进程90s的超时时间，造成关机延迟。解决此问题可以修改systemd服务的配置文件<span class="blue"> /etc/systemd/system.conf </span>，将其中<span class="blue"> DefaultTimeoutStopSec </span>配置项的值设置为一个较短的时间即可。</p>
 			</li><br/>
 			<li>
+				<p><在使用zsh时，若<span class="blue">vim</span>使用tab键补全出现<span class="blue"> _arguments:451: _vim_files: function definition file not found </span>的错误提示时，可以尝试删除zsh的错误转储文件<span> ～/.zcompdump </span>，之后重新进入zsh。
+			</li><br/>
+			<li>
 				<p>当ArchLinux装在VirtualBox中时(即ArchLinux作为guest)，启用增强功能的方式与其他Linux有所区别，在ArchLinux需要不必采用附加镜像安装增强功能的方式，而是直接安装官方仓库中的virtualbox-guest-utils包即可(该包依赖于virtualbox-guest-dkms)，如过需要增强功能随着内核升级而动态更新则需要安装dkms服务和linux-headers包，执行以下命令完成增强功能的安装：</p>
 				<blockquote># pacman -S virtualbox-guest-utils </blockquote>
 				<p>当增强功能安装完成后，需要启动对应的内核模块：</p>
