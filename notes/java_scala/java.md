@@ -728,7 +728,7 @@ public class Main {
 
 
 
-## *Annotation* 注解
+## *Annotation* (注解)
 注解(元数据)是`JDK 1.5`之后引入的机制，可以声明在**包**、**类**、**字段**、**方法**、**局部变量**、**方法参数**等的前面，用来对这些元素进行说明和注释。
 注解的相关内容在包`java.lang.annotation`中。
 
@@ -819,31 +819,33 @@ TestValue: Schwarzes marken 6
 
 
 ## *Reflection* (反射)
-在Java中，**反射(Reflection)**提供了一系列**运行时**功能：
+在`Java`中，**反射**机制提供了一系列**运行时**功能：
 
-- 在运行时判断任意一个对象所属的类。
-- 在运行时构造任意一个类的对象。
-- 在运行时判断任意一个类所具有的成员变量和方法。
-- 在运行时调用任意一个对象的方法。
+- 判断任意一个对象所属的类。
+- 构造任意一个类的对象。
+- 判断任意一个类所具有的成员变量和方法。
+- 调用任意一个对象的方法。
+- 获取目标的注解信息。
 - 生成**动态代理**。
 
-反射的相关API主要定义在`Class`类中。
 反射在Java各类框架中都有着大量的应用，如`Spring`中的`IOC`。
 
-### 反射相关的类型
-在Java中，反射相关的类型定义在包`java.lang.reflect`中，主要有以下类型：
+### 反射机制的相关类型
+在`Java`中，反射相关的类型定义在包`java.lang.reflect`中，主要有以下类型：
 
-- `Class`类型：表示一个类。
-- `Field`类型：表示类的成员变量(也称属性、字段)。
-- `Method`类型：表示类的成员方法。
-- `Constructor`类：表示类的构造方法。
+- `Class` 表示一个类、接口
+- `Field` 表示类的成员变量(字段)
+- `Method` 表示类的成员方法
+- `Constructor` 表示类的构造方法
 
-### 构建 *Class* 对象
-构建`Class`对象可以通过以下方式：
+### *Class* 类型
+`Class`类定义了类型的反射操作，获取目标类型的`Class`实例是使用反射功能的起始步骤。
 
-- `Type.class`，及通过类型的`class`成员获得。
-- `Class.forName("class_path")`，即通过类型名称获得，传入的类型字符串需要为完整路径。
-- `instance.getClass()`，通过具体实例的`getClass()`方法获得。
+获取`Class`实例可以通过以下方式：
+
+- `Type.class` 通过类型的`class`成员获得
+- `Class.forName("class_path")` 通过类型名称获得(传入的类型字符串需要为完整路径)
+- `instance.getClass()` 通过目标实例的`getClass()`方法获得
 
 ### 反射获取类成员
 通过反射获取类型**完整路径**：
@@ -867,11 +869,11 @@ public Field getDeclaredField(String var1) throws NoSuchFieldException, Security
 获取类型的成员方法：
 
 ```java
-//无参重载版本用于获取所有定义方法
+// 无参重载版本用于获取所有定义方法
 public Method[] getMethods() throws SecurityException;
 public Method[] getDeclaredMethods() throws SecurityException;
 
-//有参重载版本用于获取指定的方法，var1参数为方法名，var2参数为变量类型(变长参数)
+// 有参重载版本用于获取指定的方法，var1参数为方法名，var2参数为变量类型(变长参数)
 public Method getMethod(String var1, Class... var2) throws NoSuchMethodException, SecurityException;
 public Method getDeclaredMethod(String var1, Class... var2) throws NoSuchMethodException, SecurityException;
 ```
@@ -879,13 +881,13 @@ public Method getDeclaredMethod(String var1, Class... var2) throws NoSuchMethodE
 获取类型的构造方法：
 
 ```java
-//构造函数不存在继承关系，因而没有getXXX()和getDeclaredXXX()中的包含是否继承成员之间的区别
+// 构造函数不存在继承关系，因而没有getXXX()和getDeclaredXXX()中的包含是否继承成员之间的区别
 public Constructor<?>[] getConstructors() throws SecurityException;
 public Constructor<?>[] getDeclaredConstructors() throws SecurityException
 public Constructor<T> getConstructor(Class... var1) throws NoSuchMethodException, SecurityException;
 public Constructor<T> getDeclaredConstructor(Class... var1) throws NoSuchMethodException, SecurityException
 
-//由内部类使用，用于获取外部类的构造方法，非内部类使用返回null
+// 由内部类使用，用于获取外部类的构造方法，非内部类使用返回null
 public Constructor<?> getEnclosingConstructor() throws SecurityException
 ```
 
@@ -1197,10 +1199,43 @@ public class Main {
 }
 ```
 
+### 反射判定继承关系
+使用`Class`类中的`isAssignableFrom()`成员方法可以判定当前类型是否可以由目标类型转换得到：
+
+```java
+public native boolean isAssignableFrom(Class<?> cls);
+```
+
+`isAssignableFrom()`方法对于接口和类都有效，只要类型满足转换关系即可，如下所示：
+
+```java
+interface A { }
+
+class B implements A { }
+
+class C extends B { }
+
+class Main {
+	public static void main(String[] args) {
+		System.out.println(A.class.isAssignableFrom(B.class));
+		System.out.println(A.class.isAssignableFrom(C.class));
+		System.out.println(B.class.isAssignableFrom(C.class));
+	}
+}
+```
+
+输出结果：
+
+```
+true
+true
+true
+```
+
 ### *ClassLoader* (类加载器)
 在Java中有三种类加载器。
 
-0. `Bootstrap ClassLoader`引导类加载器，用于加载Java核心类。
+0. `Bootstrap ClassLoader`引导类加载器，用于加载`Java`核心类。
 0. `Extension ClassLoader`扩展类加载器，它负责加载JRE的扩展目录(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系统属性指定)类包。
 0. `App ClassLoader`应用类加载器，通常类都由此加载器加载(包括`java.class.path`)。
 
