@@ -592,7 +592,7 @@ Scala中的保护成员使用关键字`protected`，私有成员使用关键字`
 
 - Scala的类定义、特质定义、单例对象定义前可以使用访问权限修饰，`private`和`protected`权限的类等仅限同一个包内访问。
 - Scala中的顶层类允许使用`protected`权限修饰(与Java不同，Java仅允许内部类使用`protected`修饰)。
-- Scala中的访问权限关键字用于类时，还可以写在类名与主构造器之间(特质、单例对象没有这种用法)。
+- Scala中的访问权限关键字用于类时，还可以写在类名与主构造器之间(特质、单例对象没有这种用法)，用于指定主构造器的访问权限。
 - 访问级别关键字之后可以使用`[]`操作符设定更具体的访问区域限制，可以是当前定义的类、当前定义类的外部类(若存在外部类)、包名(某个包内的所有类实例可访问)或是`this`关键字(仅当前实例可访问)。
 - 访问权限关键字之后若不写明具体的访问限制区域，则默认限制为当前类可访问(与Java行为基本一致，但Java中的保护成员包内可见)。
 
@@ -604,7 +604,7 @@ package TestCode ｛
 	private class A			//类定义前可以使用访问权限修饰
 	protected class B		//类定义的访问权限可以为protected
 
-	case class Num private (num: Int = 200)		//权限修饰符可以用在类名与主构造器之间
+	case class Num private(num: Int = 200)		//权限修饰符可以用在类名与主构造器之间，代表构造器私有
 	class Test protected ()						//即使主构造器参数为空，也不能直接以权限关键字结尾
 	//或者写成 class Test protected {}
 
@@ -696,7 +696,7 @@ class Override {
 
 此外，由于字段名称可以与方法名称相同，因而即使编译器生成了`setter`、`getter`方法，编码者依然可以使用字段名称定义其它签名的重载函数。
 
-### 构造器(Constructor)
+### *Constructor* (构造器)
 在Scala中构造方法的作用与Java类似，用于在创建类实例的同时对指定的成员进行初始化。
 在语法上，Scala中类可以拥有一个**主构造器(primary constructor)**和任意个**辅助构造器(auxiliary constructor)**。
 
@@ -727,7 +727,67 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 }
 ```
 
-构造器的一些特性：
+主构造器作用域
+> 在`Scala`中，主构造器的实际作用范围为整个类内作用域。
+> 即在类作用域内，不仅可以像`Java`、`C#`、`C++`等传统`OOP`语言一样定义成员字段和成员方法，更可以直接在类内添加普通代码语句。
+>
+> 如下所示：
+>
+>	```scala
+>	class Test(str: String) {
+>		println(str)
+>	}
+>	```
+>
+> 类体中直接包含了普通的语句代码，而非成员定义。
+>
+> 在类内作用域中直接添加普通代码时，需要考虑变量初始化顺序，如下所示：
+>
+>	```scala
+>	class Test0 {
+>		println(str)
+>		val str = "abc"
+>	}
+>
+>	class Test1 {
+>		val str = "abc"
+>		println(str)
+>	}
+>
+>	object Main extends App {
+>		new Test0()
+>		new Test1()
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	null
+>	abc
+>	```
+>
+> 类作用域中的普通语句可以直接引用类内定义的成员字段(即使成员字段定义在语句之后)，但若成员字段的定义语句在执行语句之后，则成员字段在被引用时**未初始化**。
+
+主构造器访问权限
+> 在**类名**之后，**主构造器参数**之前可以添加访问权限修饰符，用于限定主构造器的访问权限。
+> 如下所示：
+>
+>	```scala
+>	class Test private(num: Int) {
+>		def show() = println(num)
+>	}
+>
+>	object Test {
+>		lazy val instance = Test()
+>		private def apply() = new Test(100)		//正确，伴生对象中可以访问类的私有成员，包括私有主构造器
+>	}
+>
+>	object Main extends App {
+>		Test.instance.show()					//正确
+>		new Test(100).show()					//错误，无法直接访问私有构造器
+>	}
+>	```
 
 主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。
 > 构造器参数前使用`var`关键字，如下代码所示：
@@ -747,7 +807,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >	}
 >	```
 >
-> 可以看到，编译器为var字段`num`生成了`setter`、`getter`方法和一个与字段同名的私有变量。
+> 可以看到，编译器为`var`字段`num`生成了`setter`、`getter`方法和一个与字段同名的私有变量。
 >
 > 构造器参数前使用`val`关键字，如下所示：
 >
@@ -765,7 +825,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >	}
 >	```
 >
-> 可以看到，编译器为val字段`num`生成了`getter`方法和一个与字段同名的final私有变量。
+> 可以看到，编译器为val字段`num`生成了`getter`方法和一个与字段同名的`final`私有变量。
 >
 > 构造器参数前加上**访问权限修饰符**则生成的方法类似，但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)，如下所示：
 >
@@ -814,7 +874,8 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >
 > 编译得到的Java代码完全相同。
 >
-> 当该参数被其它成员方法引用时，编译器会为其生成对应的私有成员变量(但没有生成`setter/getter`)。
+> 当该参数被其它成员方法引用时，编译器会为其生成对应的`final`私有成员变量(但没有生成`setter/getter`)。
+> 只要构造器参数没有使用`var`关键字标记，则生成的成员变量就带有`final`属性。
 > 如下代码所示：
 >
 >	```scala
@@ -923,28 +984,28 @@ Scala作为OOP语言，支持多态。
 ### apply()/update() 方法
 在Scala中，允许使用函数风格进行一些对象操作。
 
-假设有一个**类实例a**，使用：
+假设有一个**实例**`instance`，使用：
 
 ```scala
-a(arg1, arg2, arg3, ...)
+instance(arg1, arg2, arg3, ...)
 ```
 
 此表达式等价于：
 
 ```scala
-a.apply(arg1, arg2, arg3, ...)
+instance.apply(arg1, arg2, arg3, ...)
 ```
 
 同样的，使用：
 
 ```scala
-a(arg1, arg2, arg3, ...) = value
+instance(arg1, arg2, arg3, ...) = value
 ```
 
 等价于：
 
 ```scala
-a.update(arg1, arg2, arg3, ..., value)
+instance.update(arg1, arg2, arg3, ..., value)
 ```
 
 如下代码所示：
@@ -989,7 +1050,7 @@ object Apply {
 1000 180
 ```
 
-### unapply()/unapplySeq() 方法
+### *unapply()/unapplySeq()* 方法
 在Scala中，还提供了被称为**提取器**的`unapply()`方法。
 
 - `unapply()`方法则与`apply()`方法相反，可以从对象中提取出需要的数据(在实际使用过程中，可以从任意的目标里提取数据)。
@@ -1064,7 +1125,7 @@ abc cde
 abc cde efg
 ```
 
-### 样例类(Case Class)与模式匹配(Pattern Matching)
+### *Case Class* (样例类) 与 *Pattern Matching* (模式匹配)
 样例类是一种特殊的类，通常用在**模式匹配**中。
 在类定义前使用`case`关键字即可定义一个样例类。
 
@@ -1127,12 +1188,12 @@ Case.num > 100
 Not Matching
 ```
 
-### 特质(Trait)
+### *Trait* (特质)
 Scala中的`trait`特质对应Java中的`interface`接口，但相比Java中的接口，Scala中的特质除了没有默认构造器、不能被直接实例化之外，拥有绝大部分类的特性。
 
 Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
 
-混入(Mixin)
+`Mixin`(混入)
 > Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
 >
 >	- Scala中采用的**混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
@@ -1480,7 +1541,7 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 
 
 
-## 枚举(Enumerate)
+## *Enumerate* (枚举)
 在Scala中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
 
 ### 继承枚举类
@@ -1546,7 +1607,7 @@ java.lang.ArrayIndexOutOfBoundsException: 100
 
 需要注意的是，Scala定长数组与Java中的定长数组仅仅是语法不同，并无本质区别，`new Array[Int](10)`相当于Java中的`new int[10]`。
 
-### 元组(Tuple)
+### *Tuple* (元组)
 元组是最简单的容器，无需额外的类型名称，直接使用`(value1, value2, value3, ...)`就可以构建出一个元祖。如下所示：
 
 ```scala
@@ -1702,7 +1763,7 @@ str 2.0 num
 str 2.0 new
 ```
 
-### 变长数组(ArrayBuffer)
+### *ArrayBuffer* (变长数组)
 在Scala中，变长数组使用`ArrayBuffer[T]`进行表示，`ArrayBuffer`不在默认导入的包路径中，位于`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。
 Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素，创建一个`ArrayBuffer`：
 
@@ -1764,8 +1825,9 @@ res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)		//删�
 需要注意的是，`ArrayBuffer`是**线性结构**，只有在尾部进行插入删除操作才是高效的，在其它位置进行的元素操作都会造成大量的元素移动。
 `ArrayBuffer`的不可变版本对应为`scala.collection.immutable.Vector`。
 
-### 集合(Set)
-`Set[T]`完整包路径为`scala.collection.immutable.Set`。
+### *Set* 集合
+`Set[T]`类型为数学意义上的集合，集合内不允许重复元素。
+`Set`完整包路径为`scala.collection.immutable.Set`。
 集合同样允许任意类型的元素，但集合中不能包含重复的元素。
 
 在使用`Set`类的`apply()`方法构建集合时，重复的元素会被忽略，如下所示：
@@ -1827,7 +1889,7 @@ res8: Option[Any] = None					//没有匹配则返回None
 - `scala.collection.mutable.LinkedHashSet` 链式哈希集，依照插入的顺序排列
 - `scala.collection.immutable.SortedSet` 红黑树实现的排序集
 
-### 映射(Map)
+### *Map* (映射)
 `Map[A, B]`类型的完整包路径为`scala.collection.immutable.Map`。
 映射中的每一个元素都是一组`对偶(Tuple2)`，分别为key和value，key不可重复，通过`->`操作符可以将两个值组成一组对偶，如下所示：
 
@@ -1869,16 +1931,16 @@ Scala还提供了多种不同结构的`Map`实现，如`HashMap`、`ListMap`、`
 
 
 
-## 高阶函数(Higher Order Function)
+##  *Higher Order Function* (高阶函数)
 **高阶函数**是**函数式编程**中的概念，在数学中，也叫做**算子**(运算符)或**泛函**。
 **接受一个或多个函数作为输入**或者**输出一个函数**的函数被称为高阶函数。
 
-在Scala中，容器类提供了高阶函数作为容器数据操作的接口，常见的高阶函数有`map`、`reduce`、`flatMap`、`filter`、`find`、`fold`、`foreach`等。
+在`Scala`中，容器类提供了高阶函数作为容器数据操作的接口，常见的高阶函数有`map`、`reduce`、`flatMap`、`filter`、`find`、`fold`、`foreach`等。
 
 
 
-## 生成器(Generators)
-Scala中同样提供了`yield`关键字，支持生成器语法。
+## *Generators* (生成器)
+`Scala`中同样提供了`yield`关键字，支持生成器语法。
 使用`yield`可以将循环中每一轮的结果以容器的形式输出，使用`yeild`可以方便生成一系列的特定值。
 
 如下所示：
@@ -1981,7 +2043,7 @@ package Package {
 
 
 
-## 隐式转换(Implicit Conversions)
+## *Implicit Conversions* (隐式转换)
 隐式转换在构建类库时是一个强大的工具。
 使用隐式转换特性需要在编译时添加`-language:implicitConversions`选项。
 
@@ -2127,11 +2189,11 @@ Implicit Class: 100
 
 
 ## 并发编程
-作为JVM平台的编程语言，Scala可以直接使用Java的并发API。
-并发编程是Scala的擅长领域，除了Java标准库提供的并发API，Scala还拥有下列并发技术：
+作为`JVM`平台的编程语言，`Scala`可以直接调用`Java`的并发`API`。
+并发编程是`Scala`的擅长领域，除了Java标准库提供的并发API，`Scala`还提供下列并发技术：
 
-- Scala标准库中提供了`Future/Promise/Async`库来进行异步编程。
-- 基于Scala的`Akka`完整实现了`Actor`模型。
+- `Scala`标准库中提供了`Future/Promise/Async`库来进行异步编程。
+- 基于`Scala`的`Akka`完整实现了`Actor`模型。
 
 ### *Scala Future*
 `Future`是一组异步操作的抽象，完整包路径为`scala.concurrent.Future`。
@@ -2504,13 +2566,13 @@ Future {
 ```
 
 ### *async/await*
-Scala也提供了`Async`库用于简化`Future`的使用。
+`Scala`也提供了`Async`库用于简化`Future`的使用。
 
 `Async`完整包路径为`scala.async.Async`。
-当前版本(`Scala 2.11.8`)中，`Async`库尚未进入Scala标准库，若使用`SBT`，则需要在`build.sbt`配置文件中添加依赖：
+当前版本(`Scala 2.11.8`)中，`Async`库尚未进入`Scala`标准库，若使用`SBT`，则需要在`build.sbt`配置文件中添加依赖：
 
 ```scala
-libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.5"
+libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "版本号"
 ```
 
 单例`Async`的定义如下：
@@ -2808,6 +2870,7 @@ sbt项目结构与maven项目类似。一个基本的sbt项目具有以下路径
 
 ### 添加项目依赖
 项目依赖主要定义在项目根目录下的`build.sbt`文件中，通过自定义`build.sbt`文件中的`libraryDependencies`配置项即可向项目中添加**托管依赖**。
+
 `project`目录下也可以添加`*.scala`构建定义。
 
 `build.sbt`文件遵循Scala语法，`libraryDependencies`配置项实际上是一个类型为`sbt.SettingKey[scala.Seq[sbt.ModuleID]]`的**变量**。
@@ -2815,7 +2878,7 @@ sbt项目结构与maven项目类似。一个基本的sbt项目具有以下路径
 每一项依赖由`sbt.ModuleID`类型定义，一个具体的依赖项格式如下所示：
 
 ```scala
-// 普通依赖
+// 普通依赖，通常适用于Java依赖包
 groupID % artifactID % revision
 // 在指定配置下的依赖
 groupID % artifactID % revision % configuration
@@ -2890,4 +2953,4 @@ groupID %% artifactID % revision
 
 `$ activator new [项目名称] [模版名称]`
 
-Activator同样支持与sbt的指令。
+`Activator`同样支持与`sbt`相同的指令。
