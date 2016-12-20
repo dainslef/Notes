@@ -1,6 +1,6 @@
 [TOC]
 
-## Scala开发环境
+## *Scala* 开发环境
 在**Linux/Unix**环境下，无需额外的Scala配置，只需从对应发行版的包管理器中直接安装Scala开发包即可。
 
 在**Windows**环境下，从**Scala官网**下载`Scala SDK`，解压到指定位置，新建环境变量`SCALA_HOME`，环境变量的值即为Scala的解压位置，然后将`%SCALA_HOME%\bin`加入**PATH**环境变量中。
@@ -39,7 +39,7 @@ Plugin 'derekwyatt/vim-scala'
 需要注意的是，虽然Scala是基于`JVM`的语言，但`scalac`编译得到的字节码直接由java命令执行会出现一些错误。
 此外，虽然Scala并不强制要求类名要与文件名相同，但在部分IDE中，如果类名与文件名不同，构建项目会出现错误。
 
-### 反编译Scala代码
+### 反编译
 使用`scalap`可以反编译字节码得到Scala代码：
 
 `$ scalap [*.class]`
@@ -343,7 +343,7 @@ scala> ((str: String) => println(str))("Hello World!")
 Hello World!
 ```
 
-与**C++**中的Lambda用法类似：
+与`C++`中的`Lambda`用法类似：
 
 ```cpp
 #include <iostream>
@@ -357,7 +357,7 @@ int main(void)
 }
 ```
 
-然而在**C#**中，Lambda需要创建对象或显式指明类型才能使用，同样的语句需要写成：
+然而在`C#`中，`Lambda`需要创建对象或显式指明类型才能使用，同样的语句需要写成：
 
 ```cs
 using System;
@@ -520,9 +520,13 @@ class Test
 ## 类型系统
 在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
 
+### 基础类型
 在Scala中，基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生，因而可以直接在泛型中直接使用这些类作为类型参数。
 同时，Scala中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
 
+在Scala中，所有的基础类型之外的引用类型派生自类`AnyRef`。
+
+基础类型转换
 基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行，如将数值与字符串相互转换可以使用如下代码：
 
 ```scala
@@ -530,9 +534,7 @@ var str = 100.toString
 var num = str.toInt
 ```
 
-在Scala中，所有的基础类型之外的引用类型派生自类`AnyRef`。
-
-### 底类型(Bottom)
+### *Bottom* (底类型)
 与Java不同，Scala中存在底类型(bottom)。底类型包括`Nothing`和`Null`。
 
 - `Nothing`是所有类型`Any`的子类型，定义为`final trait Nothing extends Any`。
@@ -1658,7 +1660,7 @@ object TestTuple extends App {
 1 2 3
 ```
 
-需要注意的是，元组**不能**够使用for循环进行遍历。
+需要注意的是，元组**不能**够使用`for`循环进行遍历。
 
 
 
@@ -2049,7 +2051,7 @@ package Package {
 
 ### 定义隐式转换
 Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。
-如果需要类型之间的自动转换，需要使用`implicit`自定义隐式转换。
+若需要提供类型之间的自动转换功能，需要显式使用`implicit`关键字自定义隐式转换。
 隐式转换可以定义在**当前类**中或是**伴生对象**中，只要需要进行转换时能被访问到即可。
 
 当传入参数的类型与函数需要的类型不同时，编译器便会查找是否有合适的隐式转换，如下所示：
@@ -2125,30 +2127,46 @@ Scala类库中大量使用了隐式转换特性，如`String`类型本身没有`
 
 ### 隐式参数
 函数和方法的参数前可以添加关键字`implicit`来将一个参数标记为**隐式参数**，当调用方法时没有对隐式参数赋值，则编译器会为隐式参数寻找匹配的隐式值。
+
 变量前可以通过添加`implicit`关键字成为隐式值。
+
 如下所示：
 
 ```scala
-class Implicit(implicit var num1: Int, implicit var num2: Double)
-
 object Implicit {
-	implicit var impl = 200.0	//隐式值可以定义在伴生对象中
+	implicit val impl = 200.0	//隐式值可以定义在伴生对象中
+	def testImplicit(implicit num: Double) {
+		println(num)
+	}
 }
 
 object Main extends App {
-	implicit var num = 100		//隐式值需要当前作用域内可见
-	import Implicit._			//不在当前作用域中的隐式值需要显式导入
-	var impl = new Implicit
-	var num1 = impl.num1
-	var num2 = impl.num2
-	println(s"$num1 $num2")
+	import Implicit.impl		//不在当前作用域中的隐式参数需要显式引入
+	Implicit.testImplicit
 }
 ```
 
 输出结果：
 
 ```
-100 200.0
+200.0
+```
+
+隐式参数的限制：
+
+- 用于声明隐式参数的`implicit`关键字只能出现在参数表的最前端，隐式参数的声明对当前参数表内的**所有参数**有效。
+- 使用柯里化定义多个参数表时，同时只能声明一个参数表内的参数为隐式参数。
+- 一个隐式参数在被调用的作用域内存在多个匹配的同类型隐式值时，编译报错。
+
+如下所示：
+
+```scala
+def testImplicit(implicit num0: Int, num1: Int) {}				//正确。num0、num1，皆为隐式参数
+def testImplicit(implicit num0: Int, implicit num1: Int) {}		//错误。只能在参数表的首个参数前添加implicit关键字修饰
+def testImplicit(num0: Int, implicit num1: Int) {}				//错误。只能在参数表的首个参数前添加implicit关键字修饰
+
+def testImplicit(num: Int)(implicit num0: Int, num1: Int) {}	//正确。对于柯里化函数，隐式参数可以为其中任意一个参数表
+def testImplicit(implicit num0: Int)(implicit num1: Double) {}	//错误。一个方法不允许拥有多个隐式参数表
 ```
 
 ### 隐式类
@@ -2156,7 +2174,7 @@ object Main extends App {
 
 - 隐式类的主构造器**有且只有**一个参数，同时，该参数**不能**为隐式参数。
 - 隐式类的主构造器不能通过参数默认值、隐式参数等形式来模拟成参数表成只有一个参数的情况。
-- 隐式类特性不能与样例类共存，即一个类在定义时不能同时带有`implicit`和`case`关键字。
+- 隐式类特性**不能**与样例类共存，即一个类在定义时不能同时带有`implicit`和`case`关键字。
 - 隐式类**不能**定义在外部区域(包，以及包对象)，隐式类只能定义在类体、函数体、单例对象中。
 
 与**隐式转换**类似，当一个实例调用了**不存在**或**无法访问**的成员方法，编译器会为之搜索作用域中可访问的隐式类，若隐式类的构造器参数与实例相同且带有实例调用的方法，则自动调用该隐式类的构造器。
