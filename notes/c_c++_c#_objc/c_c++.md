@@ -651,6 +651,35 @@ public:
 };
 ```
 
+### 控制默认生成的成员函数
+在`C++11`中，引入了`delete`、`default`关键字，用于控制默认成员函数的生成。
+
+`delete`用于禁止合成某类默认成员函数：
+
+```cpp
+class Test
+{
+public:
+	Test() = delete;					//禁止默认的构造函数
+	Test(const Test&) = delete;			//禁止默认的复制构造函数
+	... 其它类似
+};
+```
+
+在类定义时，若手动定义了有参构造函数，则编译器不会再为之合成默认的无参构造函数。
+若需要保留默认的无参构造函数，则使用`default`关键字，如下所示：
+
+```cpp
+class Test
+{
+public:
+	Test(int) {};
+	Test() = default;					//使用default关键字合成默认无参构造函数
+};
+```
+
+在某些情况下，由编译器生成的空参构造函数相比编码者手动编写的更加高效。
+
 
 
 ## 继承
@@ -974,7 +1003,7 @@ int main(void)
 ## 函数定义嵌套
 在C/C++标准中，函数定义必须完全平行、相互独立，函数定义的内部不能嵌套另一个函数的定义。
 
-`GCC`扩充了C的语法，在`GCC`中嵌套函数定义是**允许**的行为(只有`GCC`！`Clang`、`Clang++`、`g++`并不允许嵌套函数定义！)
+`gcc`扩充了C的语法，在`gcc`中嵌套函数定义是**允许**的行为(只有`gcc`！`clang`、`clang++`、`g++`并不允许嵌套函数定义！)
 
 以下的代码在`GCC`中可以顺利编译并得到执行结果：
 
@@ -1007,7 +1036,7 @@ int main(void)
 
 
 
-## 左值引用 *lvalue reference* 和右值引用 *rvalue reference*
+## *lvalue reference* (左值引用) 和 *rvalue reference* (右值引用)
 在C++中，`左值(lvalue)`代表**持久性**的对象，`右值(rvalue)`代表**短暂**的对象，左值可以被**取地址**，右值不能被取地址。
 
 在`C++11`中加入了**右值引用**的概念。
@@ -1136,7 +1165,7 @@ const int* const&& x = std::move(g);	//对于指向const变量的const指针的�
 
 
 
-## C++泛型(模版)
+## *template* (模板)
 `泛型`在C++中的实现被称为**模版**`template`，模版可以用在类和函数中。
 
 - 当模版用在函数中时，调用模版函数时可以不显式指定模版类型，编译器会根据调用函数的参数类型进行自动推导。此外，不能给一个模版类型指定两种不同的类型。
@@ -1444,8 +1473,8 @@ template <int num>
 class Fibonacci
 {
 public:
-	//利用静态变量保存计算结果，静态变量值在编译时计算完成
-	//也可以使用"const static"变量，初始化代码可以直接写在类的内部
+	// 利用静态变量保存计算结果，静态变量值在编译时计算完成
+	// 也可以使用"const static"变量，初始化代码可以直接写在类的内部
 	static int value;
 };
 
@@ -1470,8 +1499,8 @@ int Fibonacci<1>::value = 1;
 
 int main(void)
 {
-	//使用g++能正常输出结果：55，但clang++并没有在编译时确定静态变量的值，输出结果：0
-	//静态成员变量value的值在编译时已经确定，不在运行时计算，更高效
+	// 使用g++能正常输出结果：55，但clang++并没有在编译时确定静态变量的值，输出结果：0
+	// 静态成员变量value的值在编译时已经确定，不在运行时计算，更高效
 	std::cout << Fibonacci<10>::value << std::endl;
 	return 0;
 }
@@ -1553,7 +1582,7 @@ _Generic(expr, type_1: expr_1, type_2: expr_2, ..., default: expr_default)
 - `type_1`、`type_2`为类型。
 - `expr_1`、`expr_2`为对应类型的返回表达式。
 
-若`expr`表达式的类型与之后类型列表中的某种类型匹配时，`_Generic()`语句会将匹配的类型的表达式作为语句结果，若`expr`表达式与类型列表中所有类型都不匹配，则使用`defalut`对应的表达式作为语句结果。
+若`expr`表达式的类型与之后类型列表中的某种类型匹配时，`_Generic()`语句会将匹配的类型的表达式作为语句结果，若`expr`表达式与类型列表中所有类型都不匹配，则使用`default`对应的表达式作为语句结果。
 
 基本用法如下所示：
 
@@ -1639,7 +1668,7 @@ True
 
 
 
-## 断言 *assert*
+## *assert* (断言)
 **断言**是调试中常用的一种宏，常用于**条件检查**。
 
 ### C语言中的断言
@@ -1651,7 +1680,7 @@ assert(expr);
 
 `assert`接受一个表达式作为条件，表达式为真(非0)时，程序正常执行，表达式为假(值为0)，assert输出信息并终止程序的执行。
 
-### C11中的静态断言
+### *C11* 中的静态断言
 C11中引入了**静态断言**关键字`_Static_assert`，与普通的断言不同，**静态断言**不是宏，而是一个语言级别的**关键字**。
 静态断言在编译时生效，接受常量表达式，若接收的常量表达式值为假，则在编译阶段直接报错。
 
@@ -1663,7 +1692,7 @@ _Static_assert(expr, error_str);
 
 若`expr`表达式为假，则`error_str`则作为编译错误信息被输出。
 
-### C++11中的静态断言
+### *C++11* 中的静态断言
 C++11中同样引入了**静态断言**关键字`static_assert`，用法与C11中的`_Static_assert`相同。
 
 ### 使用静态断言实现范型约束
@@ -1694,6 +1723,7 @@ int main(void)
 
 	// error: static_assert failed "Need class Base."
 	static_assert(is_base_of<Base, Other>::value, "Need class Base.");
+
 	return 0;
 }
 ```
@@ -1728,7 +1758,7 @@ cout << &a << " " << &c << endl;	//打印输出结果相同，c和a为同一块�
 
 
 
-## *Lambda* 表达式
+## *Lambda*
 在`C++11`中引入了`Lambda`表达式，语法格式为：
 
 ```cpp
@@ -1821,20 +1851,20 @@ using namespace std;
 
 int main(void)
 {
-	//泛型Lambda表达式
+	// 泛型Lambda表达式
 	auto lambda1 = [](auto num) { return num; };
 	cout << "Use int as args: " << lambda1(100) << endl;
 	cout << "Use string as args: " << lambda1("string") << endl;
 
-	//Lambda表达式支持表达式捕获
+	// Lambda表达式支持表达式捕获
 	int a = 100, b = 200, c = 300;
 	auto lambda2 = [=, num1 = a + 50, &num2 = b]() { num2 = num1 + c; };	//以捕获值的方式捕获变量a，并用a的值加上50并命名为num1，然后将b的引用命名为num2
 	lambda2();
 	cout << "After run lambda2, the value b is: " << b << endl;
 
-	//捕获变量名称可以与原始变量相同(局部变量掩盖原则)
-	//捕获表达式中可以使用C++11中引入的同一初始化语法
-	//lambda2与lambda3等价
+	// 捕获变量名称可以与原始变量相同(局部变量掩盖原则)
+	// 捕获表达式中可以使用C++11中引入的统一初始化语法
+	// lambda2与lambda3等价
 	auto lambda3 = [=, a { a + 50 }, &b = b] { b = a + c; };
 	lambda3();
 	cout << "After run lambda3, the value b is: " << b << endl;
@@ -1857,9 +1887,8 @@ After run lambda2, the value b is: 450
 ## *STL* 容器
 容器`Containers`是用来存储和管理数据的数据结构。容器一般分为序列式容器`Sequence Containers`和关联式容器`Associative Containers`。
 
-`STL`中常用的**序列式容器**有`vector(向量)`、`list`(双向链表)、`deque`(双向队列)。
-
-`STL`中常用的**关联式容器**有`set`(集合)、`map`(映射)、`multiset`(多重集合)、`multimap`(多重映射)。
+- `STL`中常用的**序列式容器**有`vector(向量)`、`list`(双向链表)、`deque`(双向队列)。
+- `STL`中常用的**关联式容器**有`set`(集合)、`map`(映射)、`multiset`(多重集合)、`multimap`(多重映射)。
 
 以上的7中容器对象都有以下成员方法：
 
@@ -1923,34 +1952,34 @@ vector(const vector& from);
 vector(input_iterator start, input_iterator end);		//使用某个已存在的vector的[start, end)来构建一个新的vector
 ```
 
-vector容器特点
+*vector* 容器特点
 > `vector`容器是数组式的容器类型，`vector`容器中存储的数据元素被放在一块连续的内存中，`vector`容器支持**随机存取**，可以通过数组式的下标(即`[]`操作符)进行元素访问、修改。
 >
 > `vector`容器虽然支持`insert()`等函数来进行插入操作，但由于内部采用线性结构，因而`insert()`函数在头部或是中间插入元素时需要进行大量复制操作，插入效率很低，在执行头部、中部删除元素操作时也同样效率低。
 
-list容器特点
+*list* 容器特点
 >`list`容器采用**双向链表**实现，`list`容器存储的元素所处的内存空间不连续，由于链表的特性，元素之间是通过指针相连的，因而`list`容器在任意位置插入和删除元素时效率都很高，但`list`容器并**不支持**随机存取，不能使用`[]`操作符访问元素，同时相比`vector`容器消耗的内存更多。
 >
 > `list`容器有着一些`vector`没有的方法，比如`pop_front()``push_front(const T &x)``remove(const T &value)`等，使用`remove()`方法可以移除容器中所有值为`value`的元素。
 
-deque容器特点
+*deque* 容器特点
 > `deque`容器为双向队列，兼顾了`list`和`vector`的优点，能够方便地增加、删除元素，也能够使用`[]`操作符随机存取元素，但缺点是需要消耗较高的内存。
 
 ###关联式容器
 关联式容器通过键值`key`来存取元素，元素次序与插入顺序**无关**。
 
-- 关联式容器**不提供**`front()``back()`、`push_front/push_back(const T&)`、`pop_front/pop_back()`之类的操作。
+- 关联式容器**不提供**`front()`、`back()`、`push_front/push_back(const T&)`、`pop_front/pop_back()`之类的操作。
 - 关联式容器可以进行比较，需要定义`<`操作符，所有作为关联式容器`key`的类型都必须重载`<`运算符，其它操作符不作要求。
 - 关联式容器提供`clear()`和`erase()`函数，但返回值为`void`而不是下一个元素的迭代器。
 
-`set`、`multiset`容器特点
+*set*、*multiset* 容器特点
 > `set/multiset`容器保存键值，对应数学概念中的`集合`。
 >
 > `set/multiset`的实现采用的平衡二叉搜索树，插入、查询、删除等操作时间复杂度均为`O(lgN)`。
 >
 > `set`不允许重复值，但`multiset`允许重复值。
 
-`map`、`multimap`容器特点*
+*map*、*multimap* 容器特点
 > `map/multimap`容器同时保存键值和实际值，每一个元素都是一个`pair<key, value>`类型。
 >
 > `map`容器不允许相同键值`key`的元素，但`multimap`允许。`map`容器可以使用数组下标形式(`[]`操作符)来获取指定键值的元素中的实际值，`multimap`由于键值可以重复，一个键值可以对应多个实际值，因而不能采用下标的形式获取实际值。
@@ -1971,7 +2000,7 @@ deque容器特点
 
 
 
-## 智能指针 *smart pointer*
+## *smart pointer* (智能指针)
 C++中除了手动使用`new`、`delete`操作符来进行动态内存管理之外，还可以使用智能指针管理动态内存，使用智能指针管理的动态内存会在不被需要时自动释放。
 
 `Boost`库中提供了六种智能指针用来管理动态内存，分别是`shared_ptr`、`shared_array`、`scoped_ptr`、`scoped_array`、`weak_ptr`、`intrusive_ptr`，定义在`/usr/include/boost/smart_ptr/`路径下对应名称的头文件中。
@@ -2009,7 +2038,7 @@ ptr0 == nullptr ? true : false;		// false
 ```
 
 ### 标准库中的各类智能指针特性
-- `std::auto_ptr`(过时)中一块动态内存只能绑定一个`auto_ptr`，如果将一个绑定了动态内存的`auto_ptr`复制给另一个`auto_ptr`则动态内存的所有权会被转移到新的auto_ptr上，旧的auto_ptr不再指向原先的动态内存。
+- `std::auto_ptr`(已过时)中一块动态内存只能绑定一个`auto_ptr`，如果将一个绑定了动态内存的`auto_ptr`复制给另一个`auto_ptr`则动态内存的所有权会被转移到新的auto_ptr上，旧的auto_ptr不再指向原先的动态内存。
 - `std::unique_ptr`来自于`boost::scoped_ptr`，类似于`auto_ptr`，但`unique_ptr`的限制更多，一块动态内存只能绑定一个`unique_ptr`，同时`unique_ptr`不能进行复制。
 - `std::shared_ptr`来自于`boost::shared_ptr`，基于**引用计数**的共享智能指针。一块动态内存可以被多个`shared_ptr`绑定，每增加一个智能指针的绑定，则引用计数加1，当引用计数为0时释放指向的动态内存，shared_ptr的内存管理完全交由编译器完成，不能手动释放`shared_ptr`管理的动态内存(没有`release()`成员函数)。
 - `shared_ptr`可以使用`make_shared<T>(args)`函数进行构造。使用`reset()`成员函数会将当前智能指针管理的动态内存引用计数减1，如果引用计数为0则释放动态内存。`shared_ptr`的`reset()`成员函数可以带有参数，参数可以是`new`构造函数或是对象指针，作用是将原先的托管对象引用计数减1然后管理新的对象(新对象引用计数加1)。
