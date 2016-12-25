@@ -211,9 +211,9 @@ class TestTable(models.Model):
 
 查询
 > 对于模型中的数据，可以通过模型中的**管理器**来获取**查询集**，从查询集中获取数据库中的数据。
-
+>
 > 查询的基本语法如下：
-
+>
 >	```py
 >	模型类名.objects.all()					# 获取包含所有对象的查询集
 >	模型类名.objects.filter(**kwargs)		# 获取一个满足参数的查询集
@@ -221,17 +221,17 @@ class TestTable(models.Model):
 >	模型类名.objects.order_by(*field_names)	# 获取以指定字段为参数排序的结果集
 >	模型类名.objects.get(**kwargs)			# 获取一个单一的查询对象(单行记录)
 >	```
-
+>
 > 查询集的类型为`QuerySet`，支持索引访问，并可以对其执行**切片**操作。
-
+>
 > django中的模型查询操作(`filter()、exclude()`等)具有以下特性：
-
+>
 >	- 查询函数返回的结果依然是查询集，因此可以连续调用查询函数，进行**链式过滤**。
 >	- 每次调用查询函数得到的查询集都是**独立**的，与之前的查询集**无关**。
 >	- 查询集是**惰性执行**的，只有在需要求值时，查询才会被真正的执行。
-
+>
 > 对于查询集，可以进行遍历操作，以前面的`TestTable`表为例，打印出表中的所有数据：
-
+>
 >	```py
 >	for object in TestTable.objects.all():
 >		print("Index: " + object.index + " Name: " + object.name)
@@ -239,17 +239,17 @@ class TestTable(models.Model):
 
 插入
 > 向数据库中插入数据，主要有两种方式：
-
+>
 >	- 使用管理器/查询集中的`create()`成员方法。
 >	- 构建带有新数据的模型类实例，之后调用`save()`成员方法。
-
+>
 > 以前面的`TestTable`表为例，添加记录：
-
+>
 >	```py
 >	# 使用create()方法
 >	# 添加一行字段index为100，字段name为"TestInsert1"的记录
 >	TestTable.objects.create(index = 100, name = 'TestInsert1')
-
+>
 >	# 使用save()方法
 >	# 添加一行字段index为200，字段name为"TestInsert2"的记录
 >	insertItem = TestTable(index = 200, name = 'TestInsert2')
@@ -258,13 +258,13 @@ class TestTable(models.Model):
 
 修改
 > 修改已有的字段需要以下步骤：
-
+>
 >	0. 通过管理器的`get()`成员方法获取一行记录。
 >	0. 再访问成员字段修改为需要的内容。
 >	0. 执行`save()`方法保存修改。
-
+>
 > 以前面的`TestTable`表为例，修改已有记录：
-
+>
 >	```py
 >	# 修改index为100的记录，将其name字段修改为"TestAlter"
 >	alterItem = TestTable.objects.get(index = 0)
@@ -449,40 +449,40 @@ post_data = request.POST['字段名称']
 
 CSRF
 > 在django模版中，通过`POST`方式提交数据时需要在`<form></form>`标签之间添加标签`{% csrf_token %}`。
-
+>
 > 该操作用于产生`token`数据，并内置到表单中成为提交的一个字段，后端在接受`POST`提交时会对`token`数据进行校验，避免`CSRF(Cross-site request forgery)`攻击(跨站请求伪造攻击)。
-
+>
 > django对于没有`token`数据的POST请求都视为跨站请求攻击，会在页面中输出错误信息。
 
 在url()函数中传递字段
 > `url()`函数中可以添加**可选**的额外参数，类型为**列表**，将需要传递的字段添加入列表中。
-
+>
 >	- `url()`函数中若添加了列表参数，则映射到的视图函数需要带有与列表内字段名称相同的参数。
 >	- `url()`函数中传递的参数并不属于`GET`、`POST`这样的传递方式，而是直接传递到视图函数的参数中。
-
+>
 > 如下所示：
-
+>
 > 假设URL配置如下：
-
+>
 >	```py
 >	# file: [项目名称]/urls.py
-
+>
 >	from django.conf.urls import url
-
+>
 >	import 应用名称.views
-
+>
 >	urlpatterns = [
 >		# url()函数中传递了两个字段：name和sex
 >		url(r'^normalUrl/$', 应用名称.views.normalUrl, { "name": "Dainslef", "sex": "Male" })
 >	]
 >	```
-
+>
 > 则对应的视图函数应该写成：
-
+>
 >	```py
 >	# file: [应用名称]/views.py
 >	from django.http.response import HttpResponse
-
+>
 >	# 视图函数的参数中应该带有与url()函数中传入字段名称相同的参数：name和sex
 >	# 字段参数的位置可以交换，但需要保证首参数为request参数
 >	def normalUrl(request, name, sex):
@@ -491,31 +491,31 @@ CSRF
 
 使用正则表达式匹配字段
 > 在django中，同样支持在`url()`函数支持正则表达式的捕获语法，捕获的字段会以额外参数的形式传入视图函数中。
-
+>
 > 如下所示：
-
+>
 > 假设URL配置如下：
-
+>
 >	```py
 >	# file: [项目名称]/urls.py
-
+>
 >	from django.conf.urls import url
-
+>
 >	import 应用名称.views
-
+>
 >	urlpatterns = [
 >		# url()函数的正则表达式捕获两个字段，对应的视图函数也应接收额外的两个参数
 >		# 此正则表达式接受的URL格式为：normalUrl/name=XXXX&sex=XXXX/
 >		url(r'^normalUrl/name=(\w+)&sex=(\w+)/$', 应用名称.views.normalUrl)
-]
+>	]
 >	```
-
+>
 > 对应的视图函数写成：
-
+>
 >	```py
 >	# file: [应用名称]/views.py
 >	from django.http.response import HttpResponse
-
+>
 >	# 与通过列表参数传递字段的方式不同，正则表达式捕获的字段是没有名字的，视图函数只需要参数数量匹配即可
 >	def normalUrl(request, name, sex):
 >		return HttpResponse("Name: %s, Sex: %s" % (name, sex))
@@ -566,18 +566,18 @@ TEMPLATES = [
 
 过滤器
 > 过滤器是一类特定格式的函数，可以多个串联，多个过滤器的结果作为下个过滤器的输入数据。
-
+>
 > 过滤器语法是`{{ 变量名 | 过滤器1 | 过滤器2 | ... }}`，在django默认模版引擎中内置了几十种过滤器，常见的有：
-
+>
 >	0. `default` 判断变量是否为空，为空则使用默认值替代，语法`{{ value | defalut: "XXX" }}`
 >	0. `length` 获取变量的长度，变量可以是**字符串**或**列表**
 
 标签
 > 标签用于在模版中提供特定的功能，如逻辑控制、输出内容等。
 > 常见的标签有：
-
+>
 > `for` 循环逻辑
-
+>
 >	```py
 >	# 遍历容器
 >	{% for var in vars %}
@@ -594,9 +594,9 @@ TEMPLATES = [
 >		xxxx
 >	{% endfor %}
 >	```
-
+>
 > `if` 判断逻辑
-
+>
 >	```py
 >	{% if var0 %}
 >		xxxx
@@ -606,9 +606,9 @@ TEMPLATES = [
 >		xxxx
 >	{% endif %}
 >	```
-
+>
 > `comment` 注释
-
+>
 >	```py
 >	{% comment "注释原因。。。" %}
 >		XXXX
@@ -616,9 +616,9 @@ TEMPLATES = [
 >		...
 >	{% endcomment %}
 >	```
-
+>
 > `cycle` 迭代输出
-
+>
 >	```py
 >	# cycle标签通常用在循环中
 >	# 首次访问返回第一个元素，之后返回第二个，以此类推，全部元素都被访问之后从头开始
@@ -628,9 +628,9 @@ TEMPLATES = [
 >		</tr>
 >	{% endfor %}
 >	```
-
+>
 > `firstof` 输出不为`False`的参数
-
+>
 >	```py
 >	# 全为False无输出
 >	{% firstof var1 var2 var3 %}
@@ -643,9 +643,9 @@ TEMPLATES = [
 >		{{ var3 }}
 >	{% endif %}
 >	```
-
+>
 > `ifchanged` 用在循环中，检测迭代值是否改变
-
+>
 >	```py
 >	{% for var in vars %}
 >		{% ifchanged var %}
@@ -667,7 +667,7 @@ TEMPLATES = [
 
 `Session`实现上基于`Cookie`，需要浏览器支持并开启了`Cookie`功能。
 
-### 配置Session
+### 配置 *Session*
 `Django`框架内置了对`Session`的支持，使用`Session`之前需要保证在项目配置文件`settings.py`中正确写入了以下配置：
 
 - `MIDDLEWARE_CLASSES`中包含了`django.contrib.sessions.middleware.SessionMiddleware`。
@@ -687,7 +687,7 @@ TEMPLATES = [
 - `SESSION_EXPIRE_AT_BROWSER_CLOSE` 设定是否关闭浏览器立刻使Session过期，默认为`False`
 - `SESSION_COOKIE_AGE` 设置Cookie过期时间，单位为秒，默认为两周
 
-### 使用Session
+### 使用 *Session*
 使用`Session`的语法与`POST`、`GET`类似，通过`request`对象的`session`属性来访问保存了Session数据的字典：
 
 ```py
