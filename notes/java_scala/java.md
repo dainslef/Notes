@@ -144,6 +144,35 @@ public class Main {
 | `%(d` | 格式化负数时采用括号标记负值(对正值无效) | `(99)` |
 | `%#`/`%#x` | 格式化8/16进制数值时添加前缀`0`/`0x` | `0x63` |
 
+### 有符号数转换无符号数
+在`Java`中，没有内置的无符号类型，则在表示大于`2 ^ 位宽 - 1`的数值时，需要使用更高位宽的数值来表示。
+
+以`byte`类型为例，有符号的`byte`类型范围在`-128 ~ 127`之间，当数值大于`127`时，则需要使用更高位宽的类型表示(如`short`)。
+`byte`类型为单字节，则将原始有符号数值转换位更高位宽的类型，再与`0xFF`进行`&`(逻辑与)操作(保留原始数值位，擦除其它内容)，得到对应的无符号值。
+
+以`byte`类型负数`-11`为例，运算过程如下：
+> `byte`类型数值`-11`，原码为：
+>
+> `10001011`
+>
+> 在计算机中以反码存储，反码表示为：
+>
+> `11110101`(对应无符号数值`245`(首位不视为符号位))
+>
+> `byte`类型数值`-11`提升到`short`型，编译器会保留数值含义(数值`-11`)不变，原码为：
+>
+> `1000000000000001`
+>
+> 在计算机中存储的反码为：
+>
+> `1111111110001011`
+>
+> 若保留原先的无符号值含义(数值`245`)，则原码/反码均应为：
+>
+> `0000000010001011`
+>
+> 对比可知低8位对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行逻辑或操作可达到此效果。
+
 
 
 ## 容器类型
@@ -348,13 +377,16 @@ class TestClone implements Cloneable {
 ```
 
 在重写`clone()`方法的过程中，要实现**深复制**，就需要类中的每一个引用类型重新构建，重新构建对象优先使用该引用类型的`clone()`方法(如果该类型实现了`Cloneable`接口)，如果需要复制的引用类型没有实现`Cloneable`接口，则直接使用构造函数创建一个与当前实例中保存内容相同的对象。
+
 需要注意的是，`String`类型是个**特例**，虽然其为**引用类型**，但`String`内部重新实现了自身的`clone()`，在重写当前类的`clone()`方法的时候可以将其视为基本类型(即不必显式构建)。
 
 
 
 ## 泛型方法
-Java中的泛型同样支持独立于类的泛型方法，与**C++/C#**等语言不同，Java在泛型方法中的类型声明放在方法的修饰符(`public`、`static`、`final`、`abstract`等)之后，返回值声明之前。
-Java中的泛型**不需要**也**不支持**使用`<>`符号显式指定泛型类型，在泛型方法中输入内容JVM会自动进行类型推倒。
+Java中的泛型同样支持独立于类的泛型方法，与`C++`、`C#`等语言不同，Java在泛型方法中的类型声明放在方法的修饰符(`public`、`static`、`final`、`abstract`等)之后，返回值声明之前。
+
+Java中的泛型方法支持自动类型推导。
+也可手动显式指定泛型类型，手动指定泛型类型时，与`C++`、`C#`等语言不同，类型参数写在方法名称**之前**。
 
 如下代码所示：
 
@@ -364,7 +396,7 @@ public class Test {
 		Func t = new Func();
 		System.out.println(t.getType(123));
 		System.out.println(t.getType("Test"));
-		System.out.println(t.getType(25.672));
+		System.out.println(t.<Double>getType(25.672));		//类型参数写在方法名称之前
 	}
 }
 
@@ -390,16 +422,18 @@ Test
 在Java中，嵌套类(`nested class`)是指定义在一个类内部的类，对应的，包含嵌套类的类被称为**外部类**(`enclosing class`)。
 嵌套类有以下几种类型：
 
-1. `member nested class`(成员嵌套类)：
+`member nested class`(成员嵌套类)：
 > 成员嵌套类是作为`enclosing class`的成员定义的，成员嵌套类有`enclosing class`属性。
-1. `local nested class`(局部嵌套类)：
+
+`local nested class`(局部嵌套类)：
 > 局部嵌套类定义在方法里面，局部嵌套类有`enclosing class`属性和`enclosing method`属性。
-1. `anonymous nested class`(匿名嵌套类)：
+
+`anonymous nested class`(匿名嵌套类)：
 > 匿名嵌套类没有显示的定义一个类，直接通过`new`操作符构造。
 
 几类嵌套类的特性：
 
-- `member nested class`可以使用访问控制符，也可以用`static``final`关键字修饰。
+- `member nested class`可以使用访问控制符，也可以用`static`、`final`关键字修饰。
 - `local nested class`可以使用`final`关键字。
 - `anonymous nested class`不使用任何关键字和访问控制符。
 
@@ -520,7 +554,7 @@ public static native void sleep(long millis) throws InterruptedException;
 > 其中，同步变量`object`可以是实例、`this`引用或是类型(`XXX.class`)。
 >
 >> 以相同`object`为同步对象的多个`synchronized`块在同一时刻只能有一个`synchronized`块被一个线程执行，在该线程离开`synchronized`块之前，其余线程都会处于等待状态。
->
+>>
 >> `object`为实例时：
 >>
 >>	- 同步变量需要为**引用类型**(基础类型如`int`、`float`等不能使用`synchronized`关键字进行同步)。
