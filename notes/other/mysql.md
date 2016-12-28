@@ -333,7 +333,7 @@ default-character-set = utf8
 ```
 
 ### JSP编码设置
-在JSP开发中，编码问题主要体现在以下几个方面：
+在`JSP`开发中，编码问题主要体现在以下几个方面：
 
 - 数据库表的编码：`ENGINE=InnoDB DEFAULT CHARSET=utf8`。
 - 数据库连接编码：`jdbc:mysql://localhost:3306/xxx?useUnicode=true&characterEncoding=UTF-8`。
@@ -397,12 +397,14 @@ MYSQL_RES* mysql_use_result(MYSQL *mysql);
 unsigned int mysql_field_count(MYSQL *mysql);
 unsigned int mysql_num_fields(MYSQL_RES *res);
 MYSQL_ROW mysql_fetch_row(MYSQL_RES *result);
+void mysql_data_seek(MYSQL_RES *result, my_ulonglong offset);
 ```
 
 - `mysql_store_result()`和`mysql_use_result()`用于获取查询语句之后的结果集内容，二者的区别是前者会将结果集拷贝到本地，开销大，后者直接读取服务器中的数据，每次只拷贝一行，开销小，但是后者需要在下一次SQL语句执行之前将结果集中的数据全部读出，但前者就不需要。
 - `mysql_field_count()`用于获取最近查询的列数。
 - `mysql_num_fields()`用于获取指定查询结果的列数。
 - `mysql_fetch_row()`用于按行读取结果集中的内容，每次执行`mysql_fetch_row()`会返回下一行结果集的指针。返回值类型`MYSQL_ROW`的实际类型为二维指针`char**`，保存了每一列的字符数组指针。
+- `mysql_data_seek()`用于设置结果集读取位置到指定的偏移量，`offset`参数取值为`0`时，则重置结果集的读取位置。
 
 ### 切换当前数据库
 使用`mysql_select_db()`函数切换数据库：

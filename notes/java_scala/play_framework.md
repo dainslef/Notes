@@ -72,7 +72,7 @@
 ## ORM
 与`Django`不同，与`SpringMVC`类似，`Play Framework`需要搭配额外的ORM框架。
 
-`Play Framework`支持多种ORM框架，推荐使用`Slick`，`Slick`时`LightBend`官方开发的函数式风格的ORM框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。
+`Play Framework`支持多种ORM框架，推荐使用`Slick`，`Slick`是`LightBend`官方开发的函数式风格的ORM框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。
 除了`Slcik`，`Play Framework`还支持`Anorm`、`EBean`等ORM框架。
 
 ### 配置 *Slick*

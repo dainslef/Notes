@@ -5,7 +5,7 @@
 
 在**Windows**环境下，从**Scala官网**下载`Scala SDK`，解压到指定位置，新建环境变量`SCALA_HOME`，环境变量的值即为Scala的解压位置，然后将`%SCALA_HOME%\bin`加入**PATH**环境变量中。
 
-### 让VIM支持Scala语法高亮
+### 使用 *Vim*
 vim默认不支持Scala的语法高亮，可以使用**Derek Wyatt**开发的`vim-scala`插件，代码托管在**GitHub**上，项目主页是：
 
 `https://github.com/derekwyatt/vim-scala`
@@ -16,10 +16,10 @@ vim默认不支持Scala的语法高亮，可以使用**Derek Wyatt**开发的`vi
 Plugin 'derekwyatt/vim-scala'
 ```
 
-### 在Eclipse中开发Scala项目
+### 使用 *Eclipse*
 安装`Scala IDE`插件即可。
 
-### 编译/执行Scala代码
+### *Scala* 编译工具
 与编译Java代码类似，编译Scala代码使用`scalac`命令：
 
 `$ scalac [*.scala]`
@@ -117,10 +117,10 @@ object Test extends App {
 
 单例对象的名称可以与源码文件的文件名不同。
 
-### *continue* 循环与 *break*
-Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
+### *continue* 与 *break*
+`Scala`**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
 
-`continue`功能可以通过添加`if`判断条件实现或使用**守卫**。
+其它语言中的`continue`功能可以通过`for`语句条件后添加`if`判断条件实现或使用**守卫**。
 
 `break`功能可以由`scala.util.control.Breaks`类提供。
 
@@ -158,7 +158,7 @@ Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程
 >	}
 >	```
 
-### 方法(Method)
+### *Method* (方法)
 与Java不同，Scala中同时支持**函数**与**方法**(Java只有方法而没有真正意义上的**函数**，只有与函数类似的**静态方法**)。
 
 方法由`def`关键字定义，可以被def方法、val函数重写。一个典型的方法格式如下：
@@ -281,7 +281,7 @@ required: Int
 >	100 String c 123.0
 >	```
 
-传名参数(By-name Parameter)
+*By-name Parameter* (传名参数)
 > 当一个方法接收的**参数**为**空**时，该参数即为**传名参数(By-name Parameter)**，如下所示：
 >
 >	```scala
@@ -314,7 +314,7 @@ required: Int
 >	789
 >	```
 
-### 函数(Function)
+### *Function* (函数)
 在Scala中函数使用`var/val`关键字定义，即函数是一个存储了函数对象的字段。
 
 一个典型的函数定义如下：
@@ -2625,7 +2625,7 @@ object Async {
 ## *XML* 解析
 Scala标准库中内置了XML支持，XML相关类在包`scala.xml`中。
 
-### XML节点类型
+### 节点类型
 `Node`是最基础的XML节点类型(抽象类)。
 `Node`类型是`NodeSeq`的子类，而`NodeSeq`继承自`Seq[Node]`，用于记录节点的序列。
 
