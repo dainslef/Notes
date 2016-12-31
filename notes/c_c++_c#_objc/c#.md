@@ -23,13 +23,16 @@ C#的数据类型分为两类：值类型和引用类型。
 
 ### *Value Type* (值类型)
 值类型具体包括**预定义值类型**、**自定义值类型**和**枚举类型**。
-
 所有值类型隐式派生于`System.ValueType`类。
-系统预定义的值类型`int`是`System`命名空间中`System.Int32`结构体的别名。
+
+例如，系统预定义的值类型`int`是`System`命名空间中`System.Int32`结构体的别名。
 `System.Int32`结构的定义为：
 
 ```cs
-public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>, IEquatable<int> {}
+public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>, IEquatable<int>
+{
+	...
+}
 ```
 
 其它的预定义值类型也是类似的`结构类型(Struct)`的别名：
@@ -57,12 +60,6 @@ public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>,
 public abstract class ValueType {};
 ```
 
-可空类型对应`System.Nullable<T>`结构体：
-
-```cs
-public struct Nullable<T> where T : struct {};
-```
-
 值类型实例通常分配在线程的**栈(stack)**上，并且不包含任何指向实例数据的指针，因为变量本身就包含了其实例数据。
 值类型在复制时是**值传递(pass by value)**，会复制当前值类型变量包含的内容。
 
@@ -76,6 +73,88 @@ public struct Nullable<T> where T : struct {};
 - 引用类型复制是传递引用，值类型复制是拷贝整个对象。
 - 值类型分配内存在线程栈上，出栈自动释放；引用类型分配内存在托管堆上，由`GC`负责内存回收。
 
+### 可空类型与 *?*、*??* 操作符
+在`C#`中，值类型不能为`null`，对值类型赋值`null`会得到错误，如下所示：
+
+```cs
+int num = null;			//错误信息："Cannot convert null to 'int' because it is a non-nullable value type"
+```
+
+在传统的值类型后添加`?`符号，即成为对应的**可空类型**。
+可空类型的实际类型为`System.Nullable<T>`结构体：
+
+```cs
+public struct Nullable<T> where T : struct
+{
+	...
+};
+```
+
+假设有值类型`T`，对应的可空类型声明可以为：
+
+```cs
+T? variable;
+System.Nullable<T> variable;
+```
+
+可空类型提供以下**只读属性**用于检查/获取保存的实际值：
+
+- `HasValue` 属性类型为`bool`类型，当变量包含非`null`值时，返回`true`。
+- `Value` 属性类型为可空类型对应的值类型，当可空类型保存的值**不为**`null`时，返回保存的值，否则抛出` InvalidOperationException`异常。
+
+`??`操作符
+> `??`运算符用于在可空类型/引用类型值为`null`时返回默认值，如下所示：
+>
+>	```cs
+>	int? num0 = null;
+>	num0 ?? 1;			//可空变量为null时返回指定的默认值1
+>	int? num1 = 0;
+>	num1 ?? 1;			//可空变量不为null时返回保存的值0
+>	string str = null;
+>	str ?? "test"		//??操作符同样可以用在普通引用类型上
+>	```
+
+`?`操作符
+> `?`操作符可用于在访问引用类型/可空类型前对目标对象进行检查，访问的实例为`null`则不执行操作。
+> 如下所示：
+>
+>	```cs
+>	using System;
+>
+>	class Test
+>	{
+>		public void Show() => Console.WriteLine("Called Show()");
+>		public int GetNum() => 1;
+>	}
+>
+>	class Program
+>	{
+>		static void Main(string[] args)
+>		{
+>			Test test = null;
+>			Console.WriteLine("First Call:");
+>			test?.Show();						//实例为null，不调用方法
+>			int? num = test?.GetNum();			//返回可空类型，实例为null时返回值为null
+>			Console.WriteLine(num);				//打印结果为空(null)
+>			Console.WriteLine("Second Call:");
+>			test = new Test();
+>			test?.Show();						//实例不为null，正常调用方法
+>			num = test?.GetNum();
+>			Console.WriteLine(num);				//打印结果为1
+>		}
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	First Call:
+>
+>	Second Call:
+>	Called Show()
+>	1
+>	```
+
 ### *Type alias* (类型别名)
 C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++11`中添加的新`using`语法相似。如下所示：
 
@@ -85,7 +164,7 @@ namespace Np
 	using Fvoid = Action;			//普通类型别名
 	using FInt = Func<int>;			//泛型类型需要指定具体类型
 
-	//C#不支持泛型类型别名
+	// C#不支持泛型类型别名
 	using FInInt<In> = Func<In, int>;	//错误
 	using Ft<R> = Func<R>;				//错误
 }
@@ -164,7 +243,7 @@ class Program
 如上个例子中的成员属性a可以简写成：
 
 ```cs
-public int a { get; set; }
+public int Num { get; set; }
 ```
 
 同时，不用定义私有变量`num`来存储属性的内容，编译器会自动生成一个变量。
@@ -173,13 +252,13 @@ public int a { get; set; }
 在`C# 6.0`中，开始支持对自动成员属性进行**类内初始化**，可以直接在类中对自动成员属性**赋初值**：
 
 ```cs
-public int a { get; set; } = "Hello World!";
+public int Num { get; set; } = 0;
 ```
 
 该特性也同样支持**只读属性**：
 
 ```cs
-public int a { get; } = "Hello World!";
+public int Num { get; } = 0;
 ```
 
 
@@ -582,7 +661,7 @@ Remove Method!
 
 
 ## *Lambda*
-在`C#3.0`之后，引入了`Lambda表达式`的概念，开始支持**函数式编程**。基本语法为：
+在`C#3.0`之后，引入了`Lambda表达式`的概念，基本语法为：
 
 ```cs
 () => 单一表达式;
@@ -616,9 +695,9 @@ C#中定义了一系列类型用来表示委托和Lambda对象。
 - 使用`Action`表示不带参数且返回值为`void`类型的`Lambda`，注意，不需要也**不能**画蛇添足地写成`Action<>`形式。
 - 使用`Action<T1, T2...>`表示带参数的`void`型返回值的`Lambda`。
 - 使用`Func<T1, T2..., R>`表示返回值类型不为空的`Lambda`(**最后一个**泛型参数为函数返回值的类型)。
-- `Action<>`、`Func<>`等泛型类型至多接收8个参数。
-- C#中的`Lambda`**不能**直接加括号执行，而是需要创建一个函数对象或显式指明类型才能执行(即不能直接`(() => {})();`来执行`Lambda`)。
-- 与Java的残废`Lambda`不同，C#的`Lambda`可以捕获并**修改**外部变量，而Java中的外部变量在`Lambda`中带有`final`属性，只能读取不能更改。
+- `Action<>`、`Func<>`等泛型类型至多接收`8`个参数。
+- `C#`中的`Lambda`**不能**直接加括号执行，而是需要创建一个函数对象或显式指明类型才能执行(即不能直接`(() => {})();`来执行`Lambda`)。
+- 与`Java`的**残废**`Lambda`不同，`C#`的`Lambda`可以捕获并**修改**外部作用域变量，而`Java`中外部作用域变量在`Lambda`中带有`final`属性，只能读取不能更改。
 
 ### *Lambda* 作用域
 在`C#`中，`Lambda`能够访问到在`Lambda`被定义的作用域中的所有成员。
@@ -896,11 +975,11 @@ public static bool WaitAll(Task[] tasks, int millisecondsTimeout;)		//等待指�
 ### *async/await* 关键字
 `C# 5.0`之后引入了`async`和`await`关键字，在语言层面给予了并发更好的支持。
 
-0. `async`用于标记**异步方法**：
+1. `async`用于标记**异步方法**：
 	- `async`关键字是**上下文关键字**，只有在修饰方法与Lambda时才会被当作关键字处理，在其它区域将被作为标识符处理。
 	- `async`关键字可以标记静态方法，但不能标记**入口点**(`Main()`方法)。
 	- `async`标记的方法返回值必须为`Task`、`Task<TResult>`、`void`其中之一。
-0. `await`用于等待异步方法的结果：
+1. `await`用于等待异步方法的结果：
 	- `await`关键字同样是**上下文关键字**，只有在`async`标记的方法中才被视为关键字。
 	- `await`关键字可以用在`async`方法和`Task`、`Task<TResult>`之前，用于等待异步任务执行结束。
 
@@ -1249,7 +1328,7 @@ lock实现
 
 
 
-## *Attribute* 特性
+## *Attribute* (特性)
 `.Net`平台中的**特性**类似于`JVM`平台中的**注解**，作用都是向特定的元素添加元数据。
 
 `MSDN`中关于**特性**的介绍：
