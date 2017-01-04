@@ -522,3 +522,78 @@ dataGrid.ItemsSource = dataSet.Tables[0].DefaultView;				//绑定数据源中的
 >		</Style>
 >	</DatePicker.Resources>
 >	```
+
+
+
+## DevExpress
+`DevExpress`是一套商业UI库，相比原生控件更加精美、控件功能更加强大。
+
+### 常用控件
+`DevExpress`为几乎所有WPF官方控件提供了功能更强大的版本。
+
+常用的控件命名空间如下：
+
+```xml
+xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
+xmlns:dxd="http://schemas.devexpress.com/winfx/2008/xaml/docking"
+xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
+xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid"
+xmlns:dxnb="http://schemas.devexpress.com/winfx/2008/xaml/navbar"
+```
+
+### 布局层级
+`DevExpress`扩展了常用的布局容器，在`DevExpress`中，常用的多文档式窗口布局(`MDI`)层级：
+
+`DockLayoutManager` => `LayoutGroup`/`TabbedGroup`/`DocumentGroup` => `LayoutPanel`
+
+`LayoutGroup`、`TabbedGroup`、`DocumentGroup`需要`DockLayoutManager`做为直接**父容器**，将`XXXGroup`直接添加在`LayoutPanel`中能通过编译，但在运行时出错。
+
+`LayoutGroup`可通过`Orientation`属性设置内部控件的对齐方向。
+
+默认情况下，`LayoutPanel`会均分`LayoutGroup`的剩余空间，要令`LayoutPanel`大小随着内部控件大小改变则设置属性`ItemHeight/ItemWidth`为`auto`。
+
+默认情况下，`DockLayoutManager`内的子控件会直接显示在布局中，要使某些子控件自动隐藏，可以使用`AutoHideGroup`，如下所示：
+
+```xml
+<dxd:DockLayoutManager.AutoHideGroups>
+	<dxd:AutoHideGroup DockType="停靠方向">
+		...
+	</dxd:AutoHideGroup>
+</dxd:DockLayoutManager.AutoHideGroups>
+```
+
+### 主界面
+通常使用`DXDockPanel`进行主界面的布局，`DXDockPanel`的子控件可设置属性`DockPanel.Dock`，取值`Top/Buttom/Left/Right`，最后一个控件会作为中央控件填满剩余空间。
+
+### 汉化控件
+默认情况下，`DevExpress`提供的控件包含的默认文本均为**英文**，需要使用官方提供的语言资源包才能使对应控件展示文本替换为中文。
+
+以`DevExpress 13.2`为例，需要下载中文资源包：`DevExpressLocalizedResources_2013.2_zh-CN.zip`。
+
+在项目的输出目录(生成可执行文件的目录)中创建`zh-CN`文件夹，将解压出的资源文件放置于该路径下，同时在`App`类中添加`UI`资源加载代码：
+
+```cs
+public partial class App : Application
+{
+	// 加载UI资源相关代码也可放置于App类的StartUp阶段
+	static App()
+	{
+		// 加载DevExpress中文UI资源
+		Thread.CurrentThread.CurrentUICulture = new CultureInfo("zh-CN");
+		Thread.CurrentThread.CurrentCulture = new CultureInfo("zh-CN");
+	}
+
+	public App()
+	{
+		...
+	}
+}
+```
+
+### 常见问题
+
+*DocumentGroup* 标签不可拖动、关闭
+> `DocumentGroup`需要在`DockLayoutManager`中才能实现关闭标签、拖动标签等功能。
+
+*DocumentGroup* 关闭标签后标签依旧保留到`ClosedPanels`列表中
+> 设置`DocumentPanel`的`ClosingBehavior`属性为`ImmediatelyRemove`。
