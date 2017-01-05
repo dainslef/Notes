@@ -19,7 +19,8 @@ array=(1 2 3)
 array+=(4 5 6)				#zsh扩展语法(bash不支持)，数组通过"+="操作符拼接，此时array为"1 2 3 4 5 6"
 ${#array[@]}				#数组的长度
 ${#array[*]}				#同样表示数组的长度
-$array						#直接使用数组名等价于取数组的第一个元素即 $((array[0])) 或者 $[array[0]]
+$array						#直接使用数组名等价于取数组的第一个元素(bash中，即$((array[0]))或者$[array[0]])或整个数组内容(zsh中)
+${arrary[*]}				#返回数组的所有内容，bash/zsh通用语法
 $[array[index]]				#指定数组指定下标的内容
 $((array[index]))			#作用同上
 ${array[index]}				#作用同上

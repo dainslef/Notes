@@ -2123,7 +2123,7 @@ object Main extends App {
 100
 ```
 
-Scala类库中大量使用了隐式转换特性，如`String`类型本身没有`toInt/toDouble`之类的成员方法，在调用这些方法时，`String`被隐式转换成定义了这些方法的`StringLike`类型来执行这些操作。
+`Scala`标准类库中大量使用了隐式转换特性，如`String`类型本身并未定义`toInt/toDouble`等成员方法，在调用这些方法时，`String`实际上被隐式转换成定义了这些方法的`StringLike`类型来执行这些操作。
 
 ### 隐式参数
 函数和方法的参数前可以添加关键字`implicit`来将一个参数标记为**隐式参数**，当调用方法时没有对隐式参数赋值，则编译器会为隐式参数寻找匹配的隐式值。
@@ -2168,6 +2168,86 @@ def testImplicit(num0: Int, implicit num1: Int) {}				//错误。只能在参数
 def testImplicit(num: Int)(implicit num0: Int, num1: Int) {}	//正确。对于柯里化函数，隐式参数可以为其中任意一个参数表
 def testImplicit(implicit num0: Int)(implicit num1: Double) {}	//错误。一个方法不允许拥有多个隐式参数表
 ```
+
+隐式参数与参数默认值
+> 隐式参数与参数默认值特性**可以**共存。
+>
+> 当一个方法的所有隐式参数均带有默认值时，可以直接调用，如下所示：
+>
+>	```scala
+>	object Main extends App {
+>
+>		// 方法带有默认参数以及参数默认值
+>		def testImplicit(implicit num0: Int = 0, num1: Double = 0) = println(s"$num0 $num1")
+>
+>		// 直接调用，无需隐式参数
+>		testImplicit
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	0 0.0
+>	```
+>
+> 当一个方法的隐式参数带有部分默认值时，隐式调用时只需提供没有默认值的部分参数。
+> 当一个隐式参数既有默认值又有隐式值时，会优先使用隐式值。
+>
+> 如下所示：
+>
+>	```scala
+>	object Main extends App {
+>
+>		def testImplicit(implicit num0: Int = 0, num1: Double) = println(s"$num0 $num1")
+>
+>		// 只需为没有默认值的参数提供隐式值
+>		implicit val num1 = 2.0
+>		testImplicit
+>
+>		// 此时num0既有隐式值，也有参数默认值
+>		implicit val num0 = 1
+>		testImplicit
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	0 2.0
+>	1 2.0
+>	```
+>
+> 输出结果说明第二次调用`testImplicit()`方法时，优先采用了隐式值而非参数默认值。
+>
+> 隐式值与参数默认值在方法调用时区别如下：
+>
+>	- 采用参数默认值时，即使参数全部拥有默认值，参数表不可省略(`()`操作符必须存在)。
+>	- 采用隐式值时，隐式参数全部具有隐式值或默认值时，参数表直接省略。
+>
+> 当一个隐式参数表的所有参数均带有默认值且作用域内也拥有满足条件的隐式值时，调用方法时带有`()`操作符为使用默认值，省略参数表为使用隐式值。
+>
+> 如下所示：
+>
+>	```scala
+>	object Test extends App {
+>
+>		def testImplicit(implicit num0: Int = 0, num1: Double = 0) = println(s"$num0 $num1")
+>
+>		implicit val num0 = 1
+>		implicit val num1 = 1.0
+>
+>		testImplicit			//全部采用隐式值
+>		testImplicit()			//全部采用默认值
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	1 1.0
+>	0 0.0
+>	```
 
 ### 隐式类
 类定义前同样可以使用`implicit`成为**隐式类**。
@@ -2617,7 +2697,7 @@ object Async {
 - `async`用法类似`Future`的`apply()`方法，接收传名参数`body`作为异步执行的内容，接收隐式参数`execContext`作为执行器。
 - `await`只能用在`async`代码块中，作用类似`Await.result()`方法。
 
-`async`利用了Scala的宏机制，`await`本质上是`async`代码块中的一个关键字。
+`async`利用了`Scala`的宏机制，`await`本质上是`async`代码块中的一个关键字。
 由于宏机制的一些限制，不能将`await`用在循环、异常捕捉代码块以及闭包中。
 
 
