@@ -67,6 +67,22 @@
     └── IntegrationSpec.scala
 ```
 
+### 设置 *Play* 版本
+`Play Framework`项目基于`sbt`构建，框架本身是以`sbt`插件的形式定义在项目中的。
+在`[项目名称]/project/plugins.sbt`中，定义了所使用`Play Framework`的版本。
+
+以`Play Framework 2.5.10`版本为例，默认生成的`plugins.sbt`文件如下所示：
+
+```scala
+logLevel := Level.Warn
+
+resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.10")		//play框架信息
+```
+
+将最后的版本号替换为需要的目标版本号即可。
+
 
 
 ## ORM
@@ -82,8 +98,9 @@
 
 ```scala
 libraryDependencies ++= Seq(
-	"com.typesafe.slick" %% "slick" % "版本号",		//Slick ORM框架
-	"mysql" % "mysql-connector-java" % "版本号"		//JDBC 连接驱动包
+	"com.typesafe.slick" %% "slick" % "版本号",			//Slick ORM框架
+	"com.typesafe.slick" %% "slick-hikaricp" % "版本号"	//Slick 数据库连接池
+	"mysql" % "mysql-connector-java" % "版本号"			//JDBC 连接驱动包
 )
 ```
 
@@ -93,7 +110,7 @@ libraryDependencies ++= Seq(
 "com.typesafe.play" %% "play-slick" % "版本号"
 ```
 
-`play-slick`依赖于`slick`，`SBT`依赖中添加了`play-slick`则无需再添加`slick`。
+`play-slick`依赖于`slick`和`slick-hikaricp`，`SBT`依赖中添加了`play-slick`则无需再添加`slick`以及`slick-hikaricp`。
 
 添加框架依赖之后，需要在项目配置文件`conf/application.conf`中添加数据库的具体连接配置。
 
@@ -102,9 +119,9 @@ slick.dbs.default {											//"default"为默认的配置名称，可以自行
 	driver = "slick.driver.MySQLDriver$"					//Slick对应数据库的驱动，注意"$"符号不能少
 	db {
 		driver = "com.mysql.jdbc.Driver"					//JDBC驱动
-		url = "jdbc:mysql://localhost:3306/db_name"			//数据库连接字符串
-		user= "dainslef"									//数据库用户名
-		password = "XXX"									//数据库密码
+		url = "jdbc:mysql://IP地址:端口号/数据库名称"			//数据库连接字符串
+		user= "MySQL用户名"									//数据库用户名
+		password = "MySQL密码"									//数据库密码
 	}
 }
 ```
@@ -112,11 +129,11 @@ slick.dbs.default {											//"default"为默认的配置名称，可以自行
 `Play Framework`的配置文件语法灵活，上述配置也可以写成：
 
 ```scala
-slick.dbs.default.driver = "slick.driver.MySQLDriver"
+slick.dbs.default.driver = "slick.driver.MySQLDriver$"
 slick.dbs.default.db.driver = "com.mysql.jdbc.Driver"
-slick.dbs.default.db.url = "jdbc:mysql://localhost:3306/db_name"
-slick.dbs.default.db.user = "dainslef"
-slick.dbs.default.db.password = "XXX"
+slick.dbs.default.db.url = "jdbc:mysql://IP地址:端口号/数据库名称"
+slick.dbs.default.db.user = "MySQL用户名"
+slick.dbs.default.db.password = "MySQL密码"
 ```
 
 ### 定义 *Slick* 对象模型
@@ -126,7 +143,7 @@ slick.dbs.default.db.password = "XXX"
 - `PostgresSQL`数据库驱动名称为`PostgresDriver`，完整路径为`slick.driver.PostgresDriver.api.Table[T]`。
 
 泛型参数`T`具体可以是**元组**(`Tuple`)类型或是**样例类**，内容为表中包含的字段类型。
-与django不同，Slick**不使用**专门的类型来映射SQL字段类型，而是直接使用语言内置类型(`Int`、`String`等)映射SQL中的字段类型。
+与`Django`不同，`Slick`**不使用**专门的类型来映射SQL字段类型，而是直接使用语言内置类型(`Int`、`String`等)映射SQL中的字段类型。
 
 假设有以下结构的MySQL表：
 
@@ -221,13 +238,13 @@ class TestTable(tag: Tag) extends Table[TestTableMember](tag, "TestTable") {
 >	val database = dbConfig.db
 >	```
 >
-> 在最新的`Play 2.5`中，`Play`框架的设计发生了变化，不再拥有全局的`Play.current`对象，`DatabaseConfigProvider`也需要通过`DI`(`Dependcy Inject`，即**依赖注入**)的方式来获取，一个注入了`DatabaseConfigProvider`的控制器如下所示：
+> 在最新的`Play 2.5`中，`Play Framework`的设计发生了变化，不再拥有全局的`Play.current`对象，`DatabaseConfigProvider`也需要通过`DI`(`Dependcy Inject`，即**依赖注入**)的方式来获取，一个注入了`DatabaseConfigProvider`的控制器如下所示：
 >
 >	```scala
 >	import javax.inject.Inject
 >
->	import play.api.mvc._
 >	import slick.driver.JdbcProfile
+>	import play.api.mvc._
 >	import play.api.db.slick.DatabaseConfigProvider
 >
 >	@Singleton
@@ -252,6 +269,31 @@ class TestTable(tag: Tag) extends Table[TestTableMember](tag, "TestTable") {
 >	```
 >
 > 其中，**配置名称**填写的**不是**完整路径，如`slick.dbs.XXX`的配置名称仅需填写`XXX`即可。
+>
+> `DatabaseConfigProvider`也可以通过`set`注入，如下所示：
+>
+>	```scala
+>	import javax.inject.Inject
+>
+>	import slick.driver.JdbcProfile
+>	import play.api.mvc._
+>	import play.api.db.NamedDatabase
+>	import play.api.db.slick.DatabaseConfigProvider
+>
+>	@Singleton
+>	class TestController extends Controller {
+>
+>		@Inject
+>		@NamedDatabase("配置名称")
+>		private var dbConfig: DatabaseConfigProvider = null
+>
+>		def testPage = Action {
+>			val database = dbConfig.get[JdbcProfile].db
+>			...
+>			Ok(...)
+>		}
+>	}
+>	```
 
 使用`slick.driver.MySQLDriver.api.Database`获取数据库对象
 > 在**不使用**`play-slick`插件或是单独使用`Slick`框架的情况下，可以使用`Database`类来直接构建数据库对象：
@@ -262,4 +304,21 @@ class TestTable(tag: Tag) extends Table[TestTableMember](tag, "TestTable") {
 >		"jdbc:mysql://localhost:端口号/数据库名称",
 >		"MySQL用户名",
 >		"MySQL密码")
+>	```
+>
+> `Database`类同样支持从项目配置文件`conf/application.conf`中读取数据库配置：
+>
+>	```scala
+>	val config = Database.forConfig("配置名称")
+>	```
+>
+> `Database`类需要的配置无需`slick.dbs.xxx`的前缀，仅需`slick.dbs.xxx.db`部分的内容：
+>
+>	```scala
+>	配置名称 = {
+>		driver = com.mysql.jdbc.Driver
+>		url = "jdbc:mysql://IP地址:端口号/数据库名称"
+>		user = "MySQL用户名"
+>		password = "MySQL密码"
+>	}
 >	```
