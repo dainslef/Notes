@@ -922,11 +922,14 @@ CMD                         STAT   PID  PPID  PGID   SID TPGID TT
 
 
 
-## 信号(signal)
+## *signal* (信号)
 信号是Unix系统响应某些条件而产生的的一个事件，进程接收到信号会采取一些相应的行动。
 信号的相关函数定义在头文件`signal.h`中。
+
 使用`fork()`时，子进程会继承父进程注册的信号处理函数。
+
 常用的信号有`SIGINT`(中断信号，用`CTRL + C`触发)，`SIGQUIT`(退出信号)。
+使用`kill`指令发送信号，默认发送信号为`SIGTERM`。
 
 ### 处理信号
 使用`signal()`或`sigaction()`函数将需要处理的信号与信号处理函数的函数指针绑定。
@@ -1655,7 +1658,7 @@ key_t ftok(const char *pathname, int proj_id);
 
 
 
-## SystemV 共享内存
+## *SystemV* 共享内存
 共享内存是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
 
 相比信号量等IPC机制，共享内存有着最高的效率，因为共享内存不涉及复制操作。

@@ -131,7 +131,7 @@ ImportError: No module named 'MySQLdb'
 缺少`MySQLdb`模块不能连接到`MySQL`数据库。
 
 使用`Python2`可以安装`mysql-python`包。
-`mysql-python`包没有移植到`Python3`，对于`Python3`，文档中建议安装`mysqlclient`包作为mysql数据库驱动。
+`mysql-python`包没有移植到`Python3`，对于`Python3`，文档中建议安装`mysqlclient`包作为`MySQL`数据库驱动。
 
 使用`pip`包管理器安装mysql数据库驱动：
 
@@ -158,7 +158,7 @@ $ pip install mysqlclient			//for Python3
 - **模型**应继承自`django.db.models.Model`类，一个模型类一般对应数据库中的一张表。
 - **字段**为`django.db.models.Field`的子类，为模型类的**类成员**，对应数据库表中的字段(列)。
 
-根据数据表的字段为模型类中的字段选择正确的字段类型，以`MySQL`为例，mysql中的常见字段与django中的字段对应关系为：
+根据数据表的字段为模型类中的字段选择正确的字段类型，以`MySQL`为例，常见字段与django类型的对应关系为：
 
 | MySQL | Django |
 |:------|:-------|
@@ -259,9 +259,9 @@ class TestTable(models.Model):
 修改
 > 修改已有的字段需要以下步骤：
 >
->	0. 通过管理器的`get()`成员方法获取一行记录。
->	0. 再访问成员字段修改为需要的内容。
->	0. 执行`save()`方法保存修改。
+>	1. 通过管理器的`get()`成员方法获取一行记录。
+>	1. 再访问成员字段修改为需要的内容。
+>	1. 执行`save()`方法保存修改。
 >
 > 以前面的`TestTable`表为例，修改已有记录：
 >
@@ -314,7 +314,7 @@ HttpResponse(status=404)
 
 在django中，视图函数也承担了逻辑控制的作用，判断条件，在视图函数内调用`redirect()`进行路径跳转。
 
-### 限制HTTP请求
+### 限制 *HTTP* 请求
 视图函数前可以使用`django.views.decorators.http`包中的装饰器`require_http_methods`来限制视图响应的HTTP请求类型。
 
 定义一个仅接受`GET`、`POST`请求的视图，如下所示：
@@ -447,14 +447,14 @@ post_data = request.POST['字段名称']
 
 获取的字段均为`str`类型。
 
-CSRF
+`CSRF`
 > 在django模版中，通过`POST`方式提交数据时需要在`<form></form>`标签之间添加标签`{% csrf_token %}`。
 >
 > 该操作用于产生`token`数据，并内置到表单中成为提交的一个字段，后端在接受`POST`提交时会对`token`数据进行校验，避免`CSRF(Cross-site request forgery)`攻击(跨站请求伪造攻击)。
 >
 > django对于没有`token`数据的POST请求都视为跨站请求攻击，会在页面中输出错误信息。
 
-在url()函数中传递字段
+在`url()`函数中传递字段
 > `url()`函数中可以添加**可选**的额外参数，类型为**列表**，将需要传递的字段添加入列表中。
 >
 >	- `url()`函数中若添加了列表参数，则映射到的视图函数需要带有与列表内字段名称相同的参数。
@@ -489,7 +489,7 @@ CSRF
 >		return HttpResponse("Name: %s, Sex: %s" % (name, sex))
 >	```
 
-使用正则表达式匹配字段
+使用**正则表达式**匹配字段
 > 在django中，同样支持在`url()`函数支持正则表达式的捕获语法，捕获的字段会以额外参数的形式传入视图函数中。
 >
 > 如下所示：
@@ -569,8 +569,8 @@ TEMPLATES = [
 >
 > 过滤器语法是`{{ 变量名 | 过滤器1 | 过滤器2 | ... }}`，在django默认模版引擎中内置了几十种过滤器，常见的有：
 >
->	0. `default` 判断变量是否为空，为空则使用默认值替代，语法`{{ value | defalut: "XXX" }}`
->	0. `length` 获取变量的长度，变量可以是**字符串**或**列表**
+>	1. `default` 判断变量是否为空，为空则使用默认值替代，语法`{{ value | defalut: "XXX" }}`
+>	1. `length` 获取变量的长度，变量可以是**字符串**或**列表**
 
 标签
 > 标签用于在模版中提供特定的功能，如逻辑控制、输出内容等。
