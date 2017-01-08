@@ -392,13 +392,54 @@ val query = TableQuery[TestTable]
 
 query...								//执行各类查询过滤操作
 
-val result = query.result				//获取查询操作，返回类型为DriverAction[T]
-val future = db.run(result)				//使用Database实例执行操作，返回类型为Future[T]
+val action = query.result				//获取查询操作，返回类型为DriverAction[T]
+val future = db.run(action)				//使用Database实例执行操作，返回类型为Future[T]
 ```
 
-`run()`方法为异步执行，调用方法时不会阻塞，返回`Future`类型。
-若需要同步等待数据操作结束，可以使用`Await.result()`方法：
+对于所有返回`DriverAction`类型的操作都需要使用`Database.run()`方法执行才能生效。
+如下所示：
 
 ```scala
-Await.result(future, Duration.Inf)
+val db = Database.forConfig("xxx")
+val query = TableQuery[TestTable]
+
+query.delete							//删除、插入等操作返回类型皆为DriverAction
+query += TestModel(111, "XXXX")			//未生效
+
+val action = query.result
+val future = db.run(action)				//获取的结果未改变
+```
+
+正确的做法是：
+
+```scala
+val db = Database.forConfig("xxx")
+val query = TableQuery[TestTable]
+
+db.run(query.delete)
+db.run(query += TestModel(111, "XXXX"))			//使用Database.run()方法使操作生效
+
+val action = query.result
+val future = db.run(action)
+```
+
+多个返回`DriverAction`的操作不必每次都调用`Database.run()`方法执行，可以将多个操作添加到`DBIO`序列中一并执行，如下所示：
+
+```scala
+val db = Database.forConfig("xxx")
+val query = TableQuery[TestTable]
+
+val actions = DBIO.seq(
+	query.delete,
+	query += TestModel(111, "XXXX")
+)
+
+db.run(actions)			//执行多个操作
+```
+
+`Database.run()`方法为异步执行，调用方法时不会阻塞，返回`Future`类型。
+若需要同步等待数据操作结束，可以使用`Await.result()`方法，该方法同时返回`Future`的执行结果：
+
+```scala
+val result = Await.result(future, Duration.Inf)
 ```
