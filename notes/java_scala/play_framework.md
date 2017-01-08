@@ -104,6 +104,8 @@ libraryDependencies ++= Seq(
 )
 ```
 
+默认配置下，`Slick`会使用连接池缓存数据库连接，因此需要`slick-hikaricp`。
+
 对于在`Play`框架中使用`Slick`，则推荐使用`play-slick`库，该库提供了`Play`框架的`Slick`集成，添加`SBT`依赖：
 
 ```scala
@@ -121,7 +123,8 @@ slick.dbs.default {											//"default"为默认的配置名称，可以自行
 		driver = "com.mysql.jdbc.Driver"					//JDBC驱动
 		url = "jdbc:mysql://IP地址:端口号/数据库名称"			//数据库连接字符串
 		user= "MySQL用户名"									//数据库用户名
-		password = "MySQL密码"									//数据库密码
+		password = "MySQL密码"								//数据库密码
+		connectionPool = disabled/enabled					//是否使用连接池，使用连接池则需要slick-hikaricp插件支持
 	}
 }
 ```
@@ -179,21 +182,21 @@ class TestTable(tag: Tag) extends Table[(Int, String)](tag, "TestTable") {
 import slick.driver.MySQLDriver.api._
 
 // 使用样例类来表示表格的结构
-case class TestTableMember(index: Int, name: String)
+case class TestModel(index: Int, name: String)
 
 // 元组参数类型为表中字段的类型，参数中可以指定对应表在数据库中的名称
-class TestTable(tag: Tag) extends Table[TestTableMember](tag, "TestTable") {
+class TestTable(tag: Tag) extends Table[TestModel](tag, "TestTable") {
 
 	// 具体类型可以省略
 	def index = cloumn[Int]("Index", O.PrimaryKey)
 	def name = column[String]("Name")
 
 	// 需要使用<>()方法将元组与样例类绑定
-	def * = (index, name) <> (TestTableMember.tupled, TestTableMember.unapply)
+	def * = (index, name) <> (TestModel.tupled, TestModel.unapply)
 }
 ```
 
-### 使用 *Slick* 访问数据库
+### 获取 *DataBase* 实例
 正确配置了`Slick`之后，需要获取数据库对象来进行具体的增删改查操作。
 
 使用`play.api.db.slick.DatabaseConfigProvider`获取数据库对象
@@ -235,7 +238,7 @@ class TestTable(tag: Tag) extends Table[TestTableMember](tag, "TestTable") {
 >
 >	```scala
 >	val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
->	val database = dbConfig.db
+>	val db = dbConfig.db
 >	```
 >
 > 在最新的`Play 2.5`中，`Play Framework`的设计发生了变化，不再拥有全局的`Play.current`对象，`DatabaseConfigProvider`也需要通过`DI`(`Dependcy Inject`，即**依赖注入**)的方式来获取，一个注入了`DatabaseConfigProvider`的控制器如下所示：
@@ -250,7 +253,7 @@ class TestTable(tag: Tag) extends Table[TestTableMember](tag, "TestTable") {
 >	@Singleton
 >	class TestController @Inject()(dbConfig: DatabaseConfigProvider) extends Controller {
 >		def testPage = Action {
->			val database = dbConfig.get[JdbcProfile].db
+>			val db = dbConfig.get[JdbcProfile].db
 >			...
 >			Ok(...)
 >		}
@@ -299,7 +302,7 @@ class TestTable(tag: Tag) extends Table[TestTableMember](tag, "TestTable") {
 > 在**不使用**`play-slick`插件或是单独使用`Slick`框架的情况下，可以使用`Database`类来直接构建数据库对象：
 >
 >	```scala
->	val database = Database.forDriver(
+>	val db = Database.forDriver(
 >		new com.mysql.jdbc.Driver(),
 >		"jdbc:mysql://localhost:端口号/数据库名称",
 >		"MySQL用户名",
@@ -309,7 +312,7 @@ class TestTable(tag: Tag) extends Table[TestTableMember](tag, "TestTable") {
 > `Database`类同样支持从项目配置文件`conf/application.conf`中读取数据库配置：
 >
 >	```scala
->	val config = Database.forConfig("配置名称")
+>	val db = Database.forConfig("配置名称")
 >	```
 >
 > `Database`类需要的配置无需`slick.dbs.xxx`的前缀，仅需`slick.dbs.xxx.db`部分的内容：
@@ -320,5 +323,82 @@ class TestTable(tag: Tag) extends Table[TestTableMember](tag, "TestTable") {
 >		url = "jdbc:mysql://IP地址:端口号/数据库名称"
 >		user = "MySQL用户名"
 >		password = "MySQL密码"
+>		connectionPool = disabled
 >	}
 >	```
+
+### 查询集操作
+以`slick.driver.数据库驱动名称.api.Table`的子类做为为泛型参数，构建`slick.lifted.TableQurey[T]`查询集实例，该实例提供各类数据操作方法。
+
+`TableQurey`类型的单例对象中提供了无参的`apply`方法，以`TestTable`表为例，直接使用`TableQurey[TestTable]`即可构建实例。
+
+查询
+> 查询操作类似于使用`Scala`集合库中的**高阶函数**，常见操作如下：
+>
+>	```scala
+>	val query = TableQuery[TestTable]
+>	query.filter(_.name === "abc")				//筛选出符合条件的数据
+>	query.drop(10)								//丢弃前10条数据
+>	query.take(5)								//截取前5条数据
+>	query.sortBy(_.index)						//按index字段排序数据(增序)
+>	query.sortBy(_.index.desc)					//按index字段排序数据(减序)
+>	```
+>
+> 高阶函数内的数据表列实际类型均为`slick.lifted.Rep[T]`。
+>
+> 在使用`filter()`方法筛选数据时，`Rep`类型重载了基本运算符，可直接使用`>`、`<`、`>=`、`<=`等运算符进行比较。
+> 但在表示`==`、`!=`操作时，需要使用`===`、`=!=`操作符代替，原因是基类`Any`已经定义了`==`、`!=`操作符，不能通过隐式转换调用。
+
+插入
+> `TableQurey`类型重载了`+=`运算符，使用其插入新行：
+>
+>	```scala
+>	val query = TableQuery[TestTable]
+>	query += TestModel(666, "dainslef")
+>	```
+>
+> 对于`PrimaryKey`或是`Unique`的列，不能插入重复的内容，否则会触发`java.sql.SQLIntegrityConstraintViolationException`异常。
+> 使用`TableQurey`类型的`insertOrUpdate()`在插入重复字段时更新该行内容而非产生异常。
+>
+>	```scala
+>	val query = TableQuery[TestTable]
+>	query.insertOrUpdate(TestModel(666, "SSR"))		//若主键为666的行已存在，则更新行的内容
+>	```
+
+修改
+> 使用查询操作筛选出目标数据集后使用`update()`方法更新行：
+>
+>	```scala
+>	val query = TableQuery[TestTable]
+>	query.filter(_.name === "dainslef")			//筛选出name为dainslef的行
+>		.map(_.name)							//将筛选出的行中的name字段映射成新的查询集
+>		.update("Dainslef")						//更新筛选出的行中指定字段的内容
+>	```
+
+删除
+> 删除操作与修改操作类似，使用查询操作筛选出目标数据集之后使用`delete`方法删除行：
+>
+>	```scala
+>	val query = TableQuery[TestTable]
+>	query.filter(_.name === "dainslef").delete		//删除所有name为dainslef的行
+>	```
+
+### 应用查询集操作
+查询集`TableQurey`类型执行的操作需要通过`Database`实例才能真正执行，如下所示：
+
+```scala
+val db = Database.forConfig("xxx")
+val query = TableQuery[TestTable]
+
+query...								//执行各类查询过滤操作
+
+val result = query.result				//获取查询操作，返回类型为DriverAction[T]
+val future = db.run(result)				//使用Database实例执行操作，返回类型为Future[T]
+```
+
+`run()`方法为异步执行，调用方法时不会阻塞，返回`Future`类型。
+若需要同步等待数据操作结束，可以使用`Await.result()`方法：
+
+```scala
+Await.result(future, Duration.Inf)
+```
