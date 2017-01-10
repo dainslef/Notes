@@ -221,6 +221,8 @@ mysql> show grants for [用户名]@[主机地址];			//显示指定用户的权�
 - `update [表名] set [列名] = '[内容]' where [列名] = '[内容]';` 改
 - `select [列名] from [表名] where [限制条件];` 查
 - `select count([统计内容]) from [表名];` 统计表中的指定记录数
+- `select [列名] from [表名] limit [数量] offset [起始行];` 从指定行开始查询指定数量的记录
+- `select [列名] from [表名] limit [起始行], [数量];` 从指定行开始查询指定数量的记录
 
 ### 内置函数
 使用**内置函数**可以查询一些特殊的信息：
@@ -340,6 +342,19 @@ default-character-set = utf8
 - 页面提交内容的编码：`request.setCharacterEncoding("UTF-8");response.setCharacterEncoding("UTF-8");`。
 
 数据表的编码需要与连接的编码相同，否则读取数据会出现中文乱码，而JSP页面中的内容编码可以单独指定。
+
+### 时区问题
+`MySQL`连接出现如下所示错误：
+
+```
+The server time zone value 'XXX' is unrecognized or represents more than one time zone. You must configure either the server or JDBC driver (via the serverTimezone configuration property) to use a more specifc time zone value if you want to utilize time zone support.
+```
+
+原因是服务端的时区信息未能正常获取，需要在连接中显式指明时区信息，如下所示：
+
+```
+jdbc:mysql://localhost:3306/xxx?serverTimezone=UTC		//服务端时区信息不为UTC时，需要改为与服务端相匹配的时区
+```
 
 ### 存储二进制数据
 如果需要向数据库中存储二进制信息(比如**图片**)，则字段应选择`BLOB`类型(`binary large object`)。
