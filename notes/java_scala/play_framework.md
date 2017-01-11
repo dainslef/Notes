@@ -85,11 +85,90 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.10")		//play框架信息
 
 
 
+## *Controller* (控制器)
+在`Play Framework`中，使用`Controller`(控制器)内定义的`Action`实例来响应、处理`HTTP`请求。
+
+### *Action*
+`Action`单例是处理`HTTP`请求的基本单位，完整路径为`play.api.mvc.Action`。
+
+`Action`单例继承自`ActionBuilder[Request]`特质，在`ActionBuilder`特质中定义了如下的`apply()`方法(源码摘自`Play 2.5.10`)用于构建`Action`：
+
+```scala
+trait ActionBuilder[+R[_]] extends ActionFunction[Request, R] {
+	...
+	final def apply(block: R[AnyContent] => Result): Action[AnyContent] = apply(BodyParsers.parse.default)(block)
+	final def apply(block: => Result): Action[AnyContent] =
+		apply(BodyParsers.parse.ignore(AnyContentAsEmpty: AnyContent))(_ => block)
+	...
+}
+```
+
+基本的`Action`使用方法：
+
+```scala
+def index = Action {
+	Ok("xxxx")		//返回xxxx做为HTTP请求的回应
+}	//调用继承的apply(block: => Result)方法，方法参数为返回Result类型的传名参数
+
+def echo = Action {
+	request => Ok(s"Request is: [$request]")
+}	//调用继承的apply(block: R[AnyContent] => Result)方法，方法参数为接收Request类型，返回Result类型的Function
+```
+
+做为`Action`参数的方法返回类型为`play.api.mvc.Result`，包含了`HTTP`响应状态码以及返回的请求内容。
+
+`HTTP`响应状态在`Play Framework`中使用`play.api.mvc.Results`特质中定义的内部类`Status`表示。
+`Results`特质中定义了一系列字段用于表示常用的`HTTP`状态码(源码摘自`Play 2.5.10`)：
+
+```scala
+trait Results {
+	...
+
+	class Status(status: Int) extends Result(header = ResponseHeader(status), body = HttpEntity.NoEntity) {
+		...
+		def apply[C](content: C)(implicit writeable: Writeable[C]): Result = {
+			Result(header, writeable.toEntity(content))
+		}
+		...
+	}
+
+	/** Generates a ‘200 OK’ result. */
+	val Ok = new Status(OK)
+
+	/** Generates a ‘201 CREATED’ result. */
+	val Created = new Status(CREATED)
+
+	/** Generates a ‘202 ACCEPTED’ result. */
+	val Accepted = new Status(ACCEPTED)
+
+	/** Generates a ‘203 NON_AUTHORITATIVE_INFORMATION’ result. */
+	val NonAuthoritativeInformation = new Status(NON_AUTHORITATIVE_INFORMATION)
+
+	/** Generates a ‘204 NO_CONTENT’ result. */
+	val NoContent = Result(header = ResponseHeader(NO_CONTENT), body = HttpEntity.NoEntity)
+
+	/** Generates a ‘205 RESET_CONTENT’ result. */
+	val ResetContent = Result(header = ResponseHeader(RESET_CONTENT), body = HttpEntity.NoEntity)
+
+	/** Generates a ‘206 PARTIAL_CONTENT’ result. */
+	val PartialContent = new Status(PARTIAL_CONTENT)
+
+	/** Generates a ‘207 MULTI_STATUS’ result. */
+	val MultiStatus = new Status(MULTI_STATUS)
+	...
+}
+```
+
+使用`Ok()`、`Created()`等方法本质上是调用`Status`类的`apply()`方法，以页面返回内容为参数，生成`Result`对象。
+在实际开发过程中，并不会直接在控制器中写入页面内容，而是调用视图层中的模板做为页面的呈现内容。
+
+
+
 ## ORM
 与`Django`不同，与`SpringMVC`类似，`Play Framework`需要搭配额外的ORM框架。
 
 `Play Framework`支持多种ORM框架，推荐使用`Slick`，`Slick`是`LightBend`官方开发的函数式风格的ORM框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。
-除了`Slcik`，`Play Framework`还支持`Anorm`、`EBean`等ORM框架。
+除了`Slick`，`Play Framework`还支持`Anorm`、`EBean`等ORM框架。
 
 ### 配置 *Slick*
 `Slick`搭配不同数据库时需要对应的数据库驱动支持。
@@ -286,6 +365,7 @@ class TestTable(tag: Tag) extends Table[TestModel](tag, "TestTable") {
 >	@Singleton
 >	class TestController extends Controller {
 >
+>		// 成员字段需要为可变对象var才能注入，val字段不能注入
 >		@Inject
 >		@NamedDatabase("配置名称")
 >		private var dbConfig: DatabaseConfigProvider = null
