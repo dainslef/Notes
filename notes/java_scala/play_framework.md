@@ -88,6 +88,25 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.10")		//play框架信息
 ## *Controller* (控制器)
 在`Play Framework`中，使用`Controller`(控制器)内定义的`Action`实例来响应、处理`HTTP`请求。
 
+`Controller`是特质，完整路径为`play.api.mvc.Controller`。
+常见的编码方式为继承`Controller`特质，在`Controller`特质的子类中定义`Action`处理`HTTP`请求。
+
+如下所示：
+
+```scala
+package controllers
+
+import play.api.mvc._
+
+class CustomController extends Controller {
+	...
+	def xxx = Action {
+		...
+	}
+	...
+}
+```
+
 ### *Action*
 `Action`单例是处理`HTTP`请求的基本单位，完整路径为`play.api.mvc.Action`。
 
@@ -115,7 +134,8 @@ def echo = Action {
 }	//调用继承的apply(block: R[AnyContent] => Result)方法，方法参数为接收Request类型，返回Result类型的Function
 ```
 
-做为`Action`参数的方法返回类型为`play.api.mvc.Result`，包含了`HTTP`响应状态码以及返回的请求内容。
+### *Result*
+`Action`参数方法的返回类型为`play.api.mvc.Result`，包含了`HTTP`响应状态码以及返回的请求内容。
 
 `HTTP`响应状态在`Play Framework`中使用`play.api.mvc.Results`特质中定义的内部类`Status`表示。
 `Results`特质中定义了一系列字段用于表示常用的`HTTP`状态码(源码摘自`Play 2.5.10`)：
@@ -161,6 +181,42 @@ trait Results {
 
 使用`Ok()`、`Created()`等方法本质上是调用`Status`类的`apply()`方法，以页面返回内容为参数，生成`Result`对象。
 在实际开发过程中，并不会直接在控制器中写入页面内容，而是调用视图层中的模板做为页面的呈现内容。
+
+`Result`对象也可以自行指定状态码和页面内容创建：
+
+```scala
+import play.api.http.HttpEntity
+
+def index = Action {
+	Result(
+		header = ResponseHeader(200, Map.empty),
+		body = HttpEntity.Strict(ByteString("Hello world!"), Some("text/plain"))
+	)
+}
+```
+
+还可以使用从`Controller`特质继承的`TODO`字段表示页面尚未完成：
+
+```scala
+def todo = TODO
+```
+
+### *Redirect*
+`Action`内可以不直接返回页面结果，而是重定向到其它路径。如下所示：
+
+```scala
+def index = Action {
+	Redirect("/other")	//重定向到路径other
+}
+```
+
+重定向操作会以`303 SEE_OTHER`做为默认的返回状态码，如果需要手动指定状态码，可以在`Redirect()`同时添加状态码参数：
+
+```scala
+def index = Action {
+	Redirect("/other", MOVED_PERMANENTLY)
+}
+```
 
 
 
