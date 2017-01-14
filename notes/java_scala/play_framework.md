@@ -220,8 +220,119 @@ def index = Action {
 
 
 
+## 路由映射
+在`Play Framework`中，路由映射写在项目的`/conf/routes`文件内。
+
+路由映射定义了`HTTP`请求路径与控制器的对应关系。
+
+### 路由语法
+一条路由映射由`HTTP方法`、`HTTP路径`、`控制器Action`三部分组成。
+
+默认的`routes`文件内容如下：
+
+```
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET         /                    controllers.Application.index
+
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file        controllers.Assets.at(path="/public", file)
+```
+
+### 匹配规则
+假设控制器定义如下：
+
+```scala
+package controllers
+
+import play.api.mvc._
+
+class Application extends Controller {
+
+	def index0 = Action { Ok("Index0") }
+	def index1 = Action { Ok("Index1") }
+
+	def name(name: String) = Action {
+		Ok(s"Name $name")
+	}
+
+	def name(nameId: Int) = Action {
+		Ok(s"NameId $nameId")
+	}
+
+	def num(num: Int) = Action {
+		Ok(s"Num: $num")
+	}
+
+}
+```
+
+匹配路径的控制器有多个时，优先匹配位置靠前的控制器：
+
+```
+GET         /                    controllers.Application.index0
+GET         /                    controllers.Application.index1		# 实际会跳转到index0
+```
+
+若控制器方法带有参数，则可以使用请求路径的一部分做为参数匹配控制器方法：
+
+```
+GET        /test/:name              controllers.Application.num(name)
+```
+
+将会匹配所有`/test/*`形式的路径，`*`代表的内容会做为参数`name`传入控制器方法中。
+
+匹配控制器方法时可以限定类型：
+
+```
+GET        /test/:num               controllers.Application.num(num: Int)
+```
+
+路由语法中的控制器方法不支持重载，不要在多个匹配规则中调用一个控制器的重载方法：
+
+```
+GET        /test/:name              controllers.Application.name(name: Int)
+GET        /test/:name              controllers.Application.name(name: String)
+```
+
+报错`method name is defined twice`。
+
+当需要对有参控制器方法传入固定内容的参数时，参数名称不可省略：
+
+```
+GET        /test                    controllers.Application.name(name = "default")
+```
+
+正则表达式匹配
+> 路由路径支持使用正则表达式来进行更精确的匹配，基本语法如下所示：
+>
+> ```
+> GET        /路径/$变量名称<正则表达式>  controllers.Xxx.xxx(变量名称)
+> ```
+>
+> 以下两种表达方式等价：
+>
+> ```
+> GET        /test/:name              controllers.Application.num(name)
+> GET        /test/$name<.+>          controllers.Application.num(name)
+> ```
+
+### 配置多个路由文件
+除了`/conf/routes`文件，在项目路径`/conf`下的所有`*.routes`文件都会被视作路由配置文件。
+
+路由配置文件会被编译成`Routes`类，该类包含了由路由配置转换成的代码。
+生成的`Routes`类会继承自`play.core.routing.GeneratedRouter`抽象类。
+
+路由配置文件在生成`Routes`类时会以**文件名称**做为**包名**，如`test.routes`文件会对应生成`test.Routes`类。
+默认的`routes`文件会生成`router.Routes`类。
+
+
+
 ## ORM
-与`Django`不同，与`SpringMVC`类似，`Play Framework`需要搭配额外的ORM框架。
+与`Django`不同，与`Spring MVC`类似，`Play Framework`需要搭配额外的ORM框架。
 
 `Play Framework`支持多种ORM框架，推荐使用`Slick`，`Slick`是`LightBend`官方开发的函数式风格的ORM框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。
 除了`Slick`，`Play Framework`还支持`Anorm`、`EBean`等ORM框架。
