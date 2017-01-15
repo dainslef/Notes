@@ -40,9 +40,6 @@
 │   └── views							//页面模版
 │       ├── index.scala.html
 │       └── main.scala.html
-├── bin
-│   ├── activator
-│   └── activator.bat
 ├── build.sbt							//sbt构建脚本(定义项目依赖等配置)
 ├── conf								//存放配置文件和非编译资源
 │   ├── application.conf				//Play项目的主要配置文件
@@ -328,6 +325,56 @@ GET        /test                    controllers.Application.name(name = "default
 
 路由配置文件在生成`Routes`类时会以**文件名称**做为**包名**，如`test.routes`文件会对应生成`test.Routes`类。
 默认的`routes`文件会生成`router.Routes`类。
+
+`/conf/routes`为主要的路由匹配文件，默认配置下，只有该文件内设置的路由规则生效。
+可以通过`/conf/routes`跳转到其它路由文件，以`test.routes`为例，语法如下：
+
+```
+->          /xxxx                   test.Routes
+```
+
+该配置会匹配所有一级路径为`xxxx`的路径，并跳转到`test.routes`路由配置文件中查找匹配的路由规则。
+需要注意的是，跳转到其它路由文件时，传入的路径内容不包含已经匹配的部分，如路径`xxxx/abc`在传到`test.routes`文件中时，路径为`abc`。
+
+### 自定义 *HTTP* 请求处理
+可以通过继承`play.api.http.DefaultHttpRequestHandler`类，重写`routeRequest()`方法自定义`HTTP`请求处理逻辑。
+
+如下所示：
+
+```scala
+import javax.inject.Inject
+
+import play.api.http._
+import play.api.mvc.RequestHeader
+
+class CustomRequestHandler @Inject()(
+	routes: router.Routes,				# 传入主构造器的路由配置实例为主要路由配置
+	errorHandler: HttpErrorHandler,
+	configuration: HttpConfiguration,
+	filters: HttpFilters)
+	extends DefaultHttpRequestHandler(routes, errorHandler, configuration, filters) {
+
+	// 注入test.routes文件生成的路由规则类
+	@Inject
+	private var testRoutes: test.Routes = null
+
+	// 重写默认的请求处理逻辑
+	override def routeRequest(request: RequestHeader) = request.host match {
+		case ... => super.routeRequest(request)			# 满足xxx条件使用默认路由配置
+		case ... => testRoutes.routes.lift(request)		# 满足xxx条件使用test路由配置
+		case _ => ...
+	}
+
+}
+```
+
+自定义的`HTTP`请求处理类需要在配置文件中启用，在`/conf/application.conf`文件中添加：
+
+```
+play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类的类名做为配置参数
+```
+
+`routeRequest()`方法参数为`play.api.mvc.RequestHeader`类型，包含了完整的请求信息，可以用于`URL`过滤、验证`Session`等诸多用途。
 
 
 
