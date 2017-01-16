@@ -81,6 +81,26 @@ INSTALLED_APPS = [
 
 `$ ./manager.py runserver 0.0.0.0:[端口号]`
 
+### 在 *IntelliJ IDEA* 中开发 *Django* 项目
+`IntelliJ IDEA`中安装了`Python`插件即可进行`Django`项目的开发。
+
+创建项目
+> 在`IntelliJ IDEA`中支持直接创建`Django`项目，创建`Python`项目时勾选`Django`支持即可。
+
+导入项目
+> 选择`Project from Existing Sources...`选项，选择已创建的`Djangp`项目的根目录。
+>
+> 执行项目导入步骤后会将`Django`项目转化为标准的`IDEA`项目。
+> 完成导入的`Django`项目并不能立即执行，需要在以下路径配置`Django`项目的信息：
+>
+> `File` => `Project Structure` => `Project Settings` => `Facets` => `Django`
+>
+>	- `Django project root` 项目根路径
+>	- `Settings` 项目的配置文件(`项目名称\settings.py`)
+>	- `Manage script` 管理脚本(`manage.py`)
+>
+> 之后创建项目的运行配置(`Django server`)，即可执行项目。
+
 
 
 ## ORM
@@ -345,8 +365,8 @@ def my_view(request):
 	raise Http404("Error!")
 ```
 
-### URL映射
-URL映射写在项目目录中的`urls.py`文件中，通过编写`urlpatterns`列表的内容来指定URL与视图的映射关系。
+### 路由映射
+路由映射写在项目目录中的`urls.py`文件中，通过编写`urlpatterns`列表的内容来指定URL与视图的映射关系。
 
 默认的`urls.py`文件如下：
 
@@ -437,7 +457,7 @@ urlpatterns = [
 ### 字段传递
 视图函数中的首个参数为`request`对象，通过该对象可以访问传递的字段。
 
-`request`对象内定义了属性`GET`、`POST`，保存了通过http协议的GET、POST方法传递的字段的字典。
+`request`对象内定义了属性`GET`、`POST`，保存了通过`HTTP`协议的`GET`、`POST`方法传递的字段的字典。
 可通过如下方式获取传递的字段：
 
 ```py
@@ -663,7 +683,7 @@ TEMPLATES = [
 
 一般情况下，`Session`会话的生命周期从用户打开站点开始，到关闭浏览器结束。
 根据应用服务器的配置，也可能清除长时间无活动页面的`Session`数据。
-开启新的浏览器实例会产生新的`Session`，但在支持多标签的现代浏览器中，在新标签中打开页面已然使用原先存在的`Session`。
+开启新的浏览器实例会产生新的`Session`，但在支持多标签的现代浏览器中，在新标签中打开页面依然使用原先存在的`Session`。
 
 `Session`实现上基于`Cookie`，需要浏览器支持并开启了`Cookie`功能。
 
