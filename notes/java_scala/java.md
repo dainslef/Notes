@@ -1697,26 +1697,29 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 ### 设置缩进
 默认情况下，IDEA使用的是**空格**做为缩进，如果需要使用**tab缩进**，则按以下菜单路径设置：
 
-`File`=>`Settings`=>`Editor`=>`Code Style`=>`[目标语言]`=>`Tabs and Indents`
+`File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Tabs and Indents`
 
 - 选中`Use tab charactor`。
-- 勾选`Smart tabs`则会在**行尾**使用tab键时使用**空格**代替tab。
+- 勾选`Smart tabs`则会在**行尾**使用tab键时使用**空格**代替`Tab`。
 - 勾选`Keep indents on empyt lines`则会在**空行**中**保持缩进**。
 
 ### 其它常用选项
-- 代码折叠： `File`=>`Settings`=>`Editor`=>`General`=>`Code Folding`
-- 代码自动换行： `File`=>`Settings`=>`Editor`=>`General`=>`Soft Wraps`
-- 设置空白处的点按逻辑： `File`=>`Settings`=>`Editor`=>`General`=> `Virtual Space`
-- 设置Java强制类型转换前是否空格： `File`=>`Settings`=>`Editor`=>`Code Style`=>`Java`=>`Spaces`=>`After type cast`
-- 设置Scala函数是否自动补全空返回类型： `File`=>`Settings`=>`Editor`=>`Code Style`=>`Scala`=>`Other`=>`Enfore procedure syntax for methods with Unit return type`
-- 设置光标悬停显示变量/方法信息： `File`=>`Settings`=>`Editor`=>`General`=>`Other`=>`Show quick documentation on mouse move`
+- 代码折叠： `File` => `Settings` => `Editor` => `General` => `Code Folding`
+- 代码自动换行： `File` => `Settings` => `Editor` => `General` => `Soft Wraps`
+- 设置空白处的点按逻辑： `File` => `Settings` => `Editor` => `General` => `Virtual Space`
+- 设置是否开启拼写检查： `File` => `Settings` => `Project` => `Inspections` => `Spelling`
+- 设置Java强制类型转换前是否空格： `File` => `Settings` => `Editor` => `Code Style` => `Java` => `Spaces` => `After type cast`
+- 设置Scala函数是否自动补全空返回类型： `File` => `Settings` => `Editor` => `Code Style` => `Scala` => `Other` => `Enfore procedure syntax for methods with Unit return type`
+- 设置光标悬停显示变量/方法信息： `File` => `Settings` => `Editor` => `General` => `Other` => `Show quick documentation on mouse move`
+- 设置函数多行参数是否自动对齐到函数名： `File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Wrappings and Braces` => `Method parenttheses` => `Align when multiline`
+- 设置方法、字段前空行数量： `File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Blank Lines` => `Minimum Blank Lines`
 
 ### 项目打包
 将`Java`项目打包成`jar`、`war`等分发格式，按以下菜单路径设置：
 
-`File`=>`Project Structure`=>`Project Settings`=>`Artifacts`
+`File` => `Project Structure` => `Project Settings` => `Artifacts`
 
-选择界面中的`+`符号添加打包配置，根据项目类型打包成不同格式。
+选择界面中的`+`符号添加打包配置，根据项目类型打包成不同的目标格式。
 
 
 
