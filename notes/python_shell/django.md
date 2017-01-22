@@ -81,6 +81,26 @@ INSTALLED_APPS = [
 
 `$ ./manager.py runserver 0.0.0.0:[端口号]`
 
+同时在项目配置文件`settings.py`中的`ALLOWED_HOSTS`列表内添加允许的主机IP，允许所有主机访问配置如下：
+
+```py
+# file: [项目名称]/settings.py
+
+ALLOWED_HOSTS = [
+	'*'
+]
+```
+
+关于`Couldn't import Django...`错误
+> 在执行`./manager.py runserver`指令时，输出`Couldn't import Django...`错误，若已经正确安装了`Django`模块依然得到错误提示，则需要检查系统默认的`Python`版本。
+> 若系统默认使用的`Python`与安装`Django`的`Python`版本不同，则应显式使用指定版本的`Python`解释器来执行`manager.py`脚本。
+>
+> 以`Python 3.6`版本为例，执行命令如下所示：
+>
+>	```sh
+>	python3.6 manager.py runserver
+>	```
+
 ### 在 *IntelliJ IDEA* 中开发 *Django* 项目
 `IntelliJ IDEA`中安装了`Python`插件即可进行`Django`项目的开发。
 
@@ -570,8 +590,8 @@ TEMPLATES = [
 ```
 
 - `BACKEND` 模版引擎路径，django自带的模版引擎有：
-	0. `django.template.backends.django.DjangoTemplates` 默认模版引擎(`DTL`)
-	0. `django.template.backends.jinja2.Jinja2` Jinja模版引擎
+	1. `django.template.backends.django.DjangoTemplates` 默认模版引擎(`DTL`)
+	1. `django.template.backends.jinja2.Jinja2` Jinja模版引擎
 - `DIRS` 模版文件路径，django默认情况下会在这些路径下查找模版文件
 - `APP_DIRS` 是否查找应用内模版，每种模版引擎都有一个惯用名称，应用内模版应存放在这些路径下(django默认模版引擎路径名为`templates`，Jinja模版引擎为`jinja2`)
 - `OPTIONS` 包含引擎相关的具体配置
@@ -675,6 +695,18 @@ TEMPLATES = [
 >		{% endifchanged %}
 >	{% endfor %}
 >	```
+
+### 模板传值
+模板中访问的变量应存放在`dict`类型中，通过模板渲染函数`django.shortcuts.render()`传入模板。
+
+模板渲染函数`render()`的定义为：
+
+```py
+def render(request, template_name, context = None, content_type = None, status = None, using = None):
+	...
+```
+
+第三参数`content`即为传入模板的参数(可以为空)，用于向模板传值的`dict`应以`str`类型为**Key**，**Key**的值即为模板中要访问的变量的名称。
 
 
 
