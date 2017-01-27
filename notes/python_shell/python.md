@@ -826,7 +826,7 @@ Python中的属性实际上是一组特定签名的`getter`、`setter`方法，�
 `property()`函数的基本结构如下：
 
 ```py
-property_name = property(fget=None, fset=None, fdel=None, doc=None)
+property_name = property(fget = None, fset = None, fdel = None, doc = None)
 ```
 
 函数依次接收`getter`、`setter`、`deleter`和属性描述作为参数，返回值赋值的变量名称即为属性的名称。

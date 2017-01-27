@@ -612,7 +612,7 @@ lineEdit->setValidator(new QRegExpValidator(QRegExp("正则表达式内容")), t
 
 
 
-## 使用QListWidget
+## *QListWidget*
 `QListWidget`是一个自带了**model**的`QListView`实现，使用`QListWidget`可以方便的构建列表框。
 `QListWdget`的索引号从**0**开始。
 
@@ -651,7 +651,7 @@ void QListWidgetItem::setData(int role, const QVariant& value);			//设置item�
 
 
 
-## 使用 *QTreeWidget*
+## *QTreeWidget*
 `QTreeWidget`是`QTreeView`的自带model实现。`QTreeWidget`不仅可以用于展示**树状列表**，也可以一定程度上代替`QTable`来**构建表格**。
 
 ### 添加行
@@ -850,6 +850,8 @@ label->setPixmap(map);
 使用`QPainter`绘制图像时，需要在构建`QPainter`实例时传入需要绘制的设备的地址作为参数或者使用`begin()`成员函数来确定绘制设备，比如`QPainter painter(this);`就是实例化了一个绘制**当前控件**的`QPainter`。
 
 一个`painter`只能同时绘制一个设备(一支笔不能同时在两张纸上写字)，但可以在绘制设备之间进行切换，从一个绘制设备切换到另一个绘制设备之前需要使用`end()`成员函数结束上一个被绘制的设备，然后将下一个可绘制设备的地址传入`begin()`成员函数进行绘制。
+
+`QPainter`提供了一系列的API用于绘制各类图形，如`QPainter::drawPoint/drawLine()/drawPath()/drawRect()`等。
 
 `QPainter`不仅能用于绘制图像，还可以用于绘制**文字**(使用`drawText()`方法)。
 

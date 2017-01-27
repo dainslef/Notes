@@ -1696,43 +1696,43 @@ _Static_assert(expr, error_str);
 ### *C++11* 中的静态断言
 C++11中同样引入了**静态断言**关键字`static_assert`，用法与C11中的`_Static_assert`相同。
 
-### 使用静态断言实现范型约束
-**静态断言**搭配标准库中的模版类`std::is_base_of<Base, Der>`能够实现类似`Java`、`C#`等高级语言中的范型约束效果。
-
-如下所示：
-
-```cpp
-#include <iostream>
-
-using namespace std;
-
-class Base { };
-
-class Der : public Base { };
-
-class Private : Base { };
-
-class Other { };
-
-int main(void)
-{
-	// Right
-	static_assert(is_base_of<Base, Der>::value, "Need class Base.");
-
-	// Right
-	static_assert(is_base_of<Base, Private>::value, "Need class Base.");
-
-	// error: static_assert failed "Need class Base."
-	static_assert(is_base_of<Base, Other>::value, "Need class Base.");
-
-	return 0;
-}
-```
-
-通过静态成员`std::is_base_of<Base, Der>::value`来判定作为参数的两个类是否存在继承关系。
-类`Base`与`Der`存在继承关系，因而编译通过，但类`Other`与`Base`不存在继承关系，因而编译报错。
-
-需要注意的是，**私有继承**虽然不支持转型操作，但继承关系依然存在，能够通过继承关系检测。
+使用静态断言实现范型约束
+> **静态断言**搭配标准库中的模版类`std::is_base_of<Base, Der>`能够实现类似`Java`、`C#`等高级语言中的范型约束效果。
+>
+> 如下所示：
+>
+>	```cpp
+>	#include <iostream>
+>
+>	using namespace std;
+>
+>	class Base { };
+>
+>	class Der : public Base { };
+>
+>	class Private : Base { };
+>
+>	class Other { };
+>
+>	int main(void)
+>	{
+>		// Right
+>		static_assert(is_base_of<Base, Der>::value, "Need class Base.");
+>
+>		// Right
+>		static_assert(is_base_of<Base, Private>::value, "Need class Base.");
+>
+>		// error: static_assert failed "Need class Base."
+>		static_assert(is_base_of<Base, Other>::value, "Need class Base.");
+>
+>		return 0;
+>	}
+>	```
+>
+> 通过静态成员`std::is_base_of<Base, Der>::value`来判定作为参数的两个类是否存在继承关系。
+> 类`Base`与`Der`存在继承关系，因而编译通过，但类`Other`与`Base`不存在继承关系，因而编译报错。
+>
+> 需要注意的是，**私有继承**虽然不支持转型操作，但继承关系依然存在，能够通过继承关系检测。
 
 
 
@@ -2092,7 +2092,7 @@ int main(void)
 
 
 
-## 使用 *std::bind()*
+## *std::bind()*
 `C++11`中引入该函数，来源于`boost::bind()`，作用是通过设定原有函数的某些参数值为固定值来生成具有新参数表的函数(类似`Python`中的部分应用函数)，`bind()`本质上是一个`call_adapter`。
 `bind()`既可以绑定当前类的成员函数，也可以绑定全局函数/静态函数或是其他类的具有访问权限的成员函数。
 
@@ -2182,7 +2182,7 @@ int main(void)
 
 
 
-## 使用 *boost::signals2*
+## *boost::signals2*
 使用`Boost`库中的`signals2`可以实现近似C#中**委托**的效果，使用`signals2`需要包含头文件`/usr/include/boost/signals2.hpp`。
 `Boost`库中的`boost::signals2`相比原先的`boost::signals`而言是**线程安全**的，原先的`boost::signals`现在已被废弃。
 
