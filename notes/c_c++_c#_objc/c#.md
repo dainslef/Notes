@@ -1328,6 +1328,60 @@ lock实现
 
 
 
+## *Reflection* (反射)
+`C#`中的**反射**机制与`Java`等高级语言类似，反射机制的主要作用：
+
+- 获取类型的成员信息，包括私有成员。
+- 通过成员信息访问/修改字段、属性，调用成员方法。
+- 动态生成类型实例。
+- 获取类型特性(`Attribute`)信息。
+
+在`C#`中，反射相关API在命名空间`System.Reflection`中。
+
+### 反射机制的相关类型
+`C#`语言相比`Java`，类内的成员种类更多，用于描述成员信息反射类型结构也与`Java`不尽相同：
+
+- `System.Type` 表示一个类型(类、结构体、接口)
+- `System.Reflection.XxxInfo` 表示类内的成员信息，主要包含：
+	1. `ConstructorInfo` 构造器信息
+	1. `FieldInfo` 成员变量(字段)信息
+	1. `EventInfo` 事件信息
+	1. `MethodInfo` 方法信息
+	1. `PropertyInfo` 属性信息
+	1. `TypeInfo` 类型信息
+
+`XxxInfo` 继承关系
+> `PropertyInfo`、`MethodInfo`等描述类成员信息的类型均直接或间接从抽象基类`MemberInfo`中继承，继承树如下所示：
+>
+>	```
+>	MemberInfo
+>	├─Type
+>	│	└─TypeInfo
+>	├─MethodBase
+>	│	├─MethodInfo
+>	│	├─EventInfo
+>	│	└─ConstructorInfo
+>	├─FieldInfo
+>	└─PropertyInfo
+>	```
+
+### *Type*/*TypeInfo* 类型
+`C#`中的`Type`类型作用近似于`Java`反射机制中的`Class`类型，`Type`类定义了类型的反射操作。
+获取目标类型的`Type`实例是使用反射功能的起始步骤。
+
+获取`Type`实例可以通过以下方式：
+
+- `typeof(T)` 通过`typeof`操作符直接由类型获取
+- `instance.GetType()` 通过目标实例的`GetType()`方法获取
+- `Type.GetType("Xxx")` 通过`Type`类型的静态方法`Type.GetType(string)`以类型名称字符串获取
+
+`TypeInfo`类型为`Type`类型的子类，在`Type`类型的基础上额外提供了以下内容：
+
+- 用于访问各类成员信息集合的**属性**(`DeclaredMethods`、`DeclaredFields`等)。
+- 用于获取由该类型定义的成员信息的**方法**(`GetDeclaredMethod()`、`GetDeclaredField()`等)。
+
+
+
 ## *Attribute* (特性)
 `.Net`平台中的**特性**类似于`JVM`平台中的**注解**，作用都是向特定的元素添加元数据。
 

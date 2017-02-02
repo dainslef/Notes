@@ -34,10 +34,10 @@ object Queen extends App {
           if (line == QUEEN_SIZE - 1) println
         }
       } else
-        for (line <- 0 until QUEEN_SIZE if
-            ((0 until row filter
-            (i => chessBoard(i) == line || abs(chessBoard(i) - line) == abs(i - row))
-            size) == 0)) {
+        for (line <- 0 until QUEEN_SIZE if (
+            (0 until row)
+            .filter(i => chessBoard(i) == line || abs(chessBoard(i) - line) == abs(i - row))
+            .size == 0)) {
           chessBoard(row) = line
           queen(queen)(row + 1)
         }
