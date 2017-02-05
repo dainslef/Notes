@@ -1023,53 +1023,80 @@ TestValue: Schwarzes marken 6
 
 获取`Class`实例可以通过以下方式：
 
-- `Type.class` 通过类型的`class`成员获得
+- `Xxx.class` 通过类型的`class`成员获得
 - `Class.forName("class_path")` 通过类型名称获得(传入的类型字符串需要为完整路径)
 - `instance.getClass()` 通过目标实例的`getClass()`方法获得
 
-### 反射获取类成员
-通过反射获取类型**完整路径**：
+### 反射获取成员信息
+`Java`中反射获取类型成员信息的相关`API`遵循以下命名规则：
 
-```java
-public static Class<?> forName(String var0) throws ClassNotFoundException;
-```
+- `getXxx()`用于获取**指定成员**，搜索范围为**公有成员**，包括继承的成员。
+- `getDeclaredXxx()`用于获取**指定成员**，搜索范围为**所有访问权限成员**，不包括继承的成员。
+- `getXxxs()`用于获取**所有成员**，搜索范围为**公有成员**，包括继承的成员。
+- `getDeclaredXxxs()`用于获取**所有成员**，搜索范围为**所有访问权限成员**，不包括继承的成员。
 
-获取类型成员的相关API一般分为两个版本，`getXXX()`用于获取**公有成员**，`getDeclaredXXX()`用于获取**所有成员**。
-`getXXX()`获取公有成员包括继承的成员，`getDeclaredXXX()`获取的所有成员只包括Class对应类中定义的成员，**不包括**继承的成员。
+反射获取类型**完整路径**
+> `Class`类型的`getName()`方法返回类型的完整路径：
+>
+>	```java
+>	Xxx.class.getName();
+>	```
 
-获取类型的成员变量：
+获取类型的**成员变量**
+> 获取所有成员字段信息：
+>
+>	```java
+>	public Field[] getFields() throws SecurityException;
+>	public Field[] getDeclaredFields() throws SecurityException;
+>	```
+>
+> 通过字段名称获取指定字段的成员信息：
+>
+>	```java
+>	public Field getField(String name) throws NoSuchFieldException, SecurityException;
+>	public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException;
+>	```
 
-```java
-public Field[] getFields() throws SecurityException;
-public Field[] getDeclaredFields() throws SecurityException;
-public Field getField(String var1) throws NoSuchFieldException, SecurityException;
-public Field getDeclaredField(String var1) throws NoSuchFieldException, SecurityException;
-```
+获取类型的**成员方法**
+> 获取所有成员方法信息：
+>
+>	```java
+>	public Method[] getMethods() throws SecurityException;
+>	public Method[] getDeclaredMethods() throws SecurityException;
+>	```
+>
+> 获取指定参数的方法信息，`name`参数为方法名称，`parameterTypes`参数为方法参数类型(变长参数)：
+>
+>	```java
+>	public Method getMethod(String name, Class<?>... parameterTypes)
+>			throws NoSuchMethodException, SecurityException;
+>	public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
+>			throws NoSuchMethodException, SecurityException;
+>	```
 
-获取类型的成员方法：
-
-```java
-// 无参重载版本用于获取所有定义方法
-public Method[] getMethods() throws SecurityException;
-public Method[] getDeclaredMethods() throws SecurityException;
-
-// 有参重载版本用于获取指定的方法，var1参数为方法名，var2参数为变量类型(变长参数)
-public Method getMethod(String var1, Class... var2) throws NoSuchMethodException, SecurityException;
-public Method getDeclaredMethod(String var1, Class... var2) throws NoSuchMethodException, SecurityException;
-```
-
-获取类型的构造方法：
-
-```java
-// 构造函数不存在继承关系，因而没有getXXX()和getDeclaredXXX()中的包含是否继承成员之间的区别
-public Constructor<?>[] getConstructors() throws SecurityException;
-public Constructor<?>[] getDeclaredConstructors() throws SecurityException
-public Constructor<T> getConstructor(Class... var1) throws NoSuchMethodException, SecurityException;
-public Constructor<T> getDeclaredConstructor(Class... var1) throws NoSuchMethodException, SecurityException
-
-// 由内部类使用，用于获取外部类的构造方法，非内部类使用返回null
-public Constructor<?> getEnclosingConstructor() throws SecurityException
-```
+获取类型的**构造方法**
+> 获取所有的构造方法信息：
+>
+>	```java
+>	// 构造方法不存在继承关系，getConstructors()/getgetDeclaredConstructors()区别仅在于获取构造方法的访问权限不同
+>	public Constructor<?>[] getConstructors() throws SecurityException;
+>	public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
+>	```
+>
+> 获取指定参数的构造方法信息，`parameterTypes`参数为方法参数类型(变长参数)：
+>
+>	```java
+>	public Constructor<T> getConstructor(Class<?>... parameterTypes)
+>			throws NoSuchMethodException, SecurityException;
+>	public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
+>			throws NoSuchMethodException, SecurityException;
+>	```
+>
+> 内部类获取外部类的构造方法(非内部类返回`null`)：
+>
+>	```java
+>	public Constructor<?> getEnclosingConstructor() throws SecurityException;
+>	```
 
 示例代码如下所示：
 
@@ -1208,7 +1235,8 @@ public T newInstance() throws InstantiationException, IllegalAccessException;
 
 ```java
 public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
-public Constructor<T> getDeclaredConstructor(Class... var1) throws NoSuchMethodException, SecurityException;
+public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
+		throws NoSuchMethodException, SecurityException;
 ```
 
 实例如下代码所示：
@@ -1266,10 +1294,8 @@ public class Main {
 首先获取目标方法的`Method`对象，之后通过`Method`类的`invoke()`方法执行，第一个参数为类的实例，之后的参数为方法签名中的参数。
 
 ```java
-public Object invoke(Object var1, Object... var2) throws
-		IllegalAccessException,
-		IllegalArgumentException,
-		InvocationTargetException;
+public Object invoke(Object var1, Object... var2)
+		throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 ```
 
 与`Constructor`类似，如果获取到的`Method`对象代表的是非公有成员方法，则需要使用`setAccessible()`方法设置属性为可访问才能正常调用。
@@ -1416,7 +1442,7 @@ true
 在Java中有三种类加载器。
 
 0. `Bootstrap ClassLoader`引导类加载器，用于加载`Java`核心类。
-0. `Extension ClassLoader`扩展类加载器，它负责加载JRE的扩展目录(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系统属性指定)类包。
+0. `Extension ClassLoader`扩展类加载器，它负责加载`JRE`的扩展目录(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系统属性指定)类包。
 0. `App ClassLoader`应用类加载器，通常类都由此加载器加载(包括`java.class.path`)。
 
 获取一个类的加载器使用`getClassLoader()`方法。
