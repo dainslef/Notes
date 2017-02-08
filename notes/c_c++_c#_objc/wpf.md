@@ -74,6 +74,105 @@
 
 
 
+## *ResourceDictionary* (资源字典)
+资源字典是一个以`<ResourceDictionary/>`为根标签，包含资源定义的`XAML`文件。
+
+在`WPF`中，对于多个`XAML`重复引用的资源(样式、转换器类等)，可以将重复的资源定义写在**资源字典**中，在外部进行引用，避免编写重复代码。
+
+资源字典作用类似于WEB开发中`HTML`引用的`CSS`文件。
+
+### 创建资源字典
+在需要创建资源字典的路径下单击右键，选择以下菜单添加资源字典：
+
+```
+添加 => 资源字典
+```
+
+典型的资源字典内容如下：
+
+```xml
+<ResourceDictionary
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:local="clr-namespace:Xxx.Xxxx">
+
+	<!-- 资源字典内可以定义任意的资源内容 -->
+	<Style TargetType="Xxx">
+		...
+	</Style>
+
+	...
+
+	<DataTemplate x:Key="XxxTemplate">
+		...
+	</DataTemplate>
+
+	...
+
+	<local:Xxx x:Key="Xxxxx"/>
+
+	...
+
+</ResourceDictionary>
+```
+
+### 引用资源字典
+在常见标签的`<Resources/>`子标签中可以引用资源字典，以`<Application/>`标签为例：
+
+```xml
+<Application x:Class="Xxx.App"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:local="Xxx.Xxxx..."
+		StartupUri="Xxx...">
+
+	<Application.Resources>
+		<!-- 引用资源字典 -->
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="/Xxx/资源字典文件1.xaml"/>
+				<ResourceDictionary Source="/Xxx/资源字典文件2.xaml"/>
+				...
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
+
+</Application>
+```
+
+在`<Application/>`标签中引用的资源字典在**整个应用**中有效，在其它标签中引用的的资源字典仅在标签内部有效。
+
+若资源字典使用`x:Key`属性命名，则需要通过资源字典的`x:Key`显式引用才能生效：
+
+```xml
+<Window x:Class="Xxx.XxxWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:local="Xxx.Xxxx...">
+
+	<Window.Resources>
+		<!-- 引用资源字典，使用x:Key属性 -->
+		<ResourceDictionary x:Key="RefResources">
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="/Xxx/资源字典文件1.xaml"/>
+				<ResourceDictionary Source="/Xxx/资源字典文件2.xaml"/>
+				...
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Window.Resources>
+
+	<!-- 显式通过x:Key属性使用资源字典，该资源字典仅在Grid标签内部生效 -->
+	<Grid Resources="{StaticResource RefResources}">
+		...
+	</Grid>
+
+</Window>
+```
+
+
+
 ## 数据绑定
 `WPF`作为数据驱动的UI框架，与`Qt`、`MFC`等传统消息式驱动的UI框架最显著的区别便是**数据绑定**。
 
@@ -547,6 +646,8 @@ xmlns:dxnb="http://schemas.devexpress.com/winfx/2008/xaml/navbar"
 `DockLayoutManager` => `LayoutGroup`/`TabbedGroup`/`DocumentGroup` => `LayoutPanel`
 
 `LayoutGroup`、`TabbedGroup`、`DocumentGroup`需要`DockLayoutManager`做为直接**父容器**，将`XXXGroup`直接添加在`LayoutPanel`中能通过编译，但在运行时出错。
+
+`LayoutPanel`不能直接添加到`DockLayoutManager`中，会出现错误：`属性LayoutRoot不支持类型LayoutPanel的值`。
 
 `LayoutGroup`可通过`Orientation`属性设置内部控件的对齐方向。
 
