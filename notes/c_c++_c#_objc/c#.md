@@ -1182,7 +1182,7 @@ lock (object)
 
 lock实现
 > `lock`块在实现上使用了`Monitor`类。
-> `lock (object) { ... }`实际像相当于：
+> `lock (object) { ... }`实际相当于：
 >
 >	```
 >	Monitor.Enter(object);
@@ -1379,6 +1379,142 @@ lock实现
 
 - 用于访问各类成员信息集合的**属性**(`DeclaredMethods`、`DeclaredFields`等)。
 - 用于获取由该类型定义的成员信息的**方法**(`GetDeclaredMethod()`、`GetDeclaredField()`等)。
+
+### 反射获取成员信息
+`C#`中反射获取类型成员信息的相关`API`遵循以下命名规则：
+
+- `GetXxx(string)` 获取**指定公有成员**
+- `GetXxxs()` 获取**所有公有成员**
+- `GetXxx(string, BindingFlags)` 获取满足`BindingFlags`的**指定成员**
+- `GetXxxs(BindingFlags)` 获取满足`BindingFlags`的**所有成员**
+
+在`C#`中，`GetXxx()/GetXxxs()`方法包含多个重载版本。
+
+- 默认的的无参`GetXxx()/GetXxxs()`方法只能获取公有成员。
+- 通过`BindingFlags`枚举可设定反射的搜索范围(**是否搜索非公有成员**/**是否搜索继承而来的成员**/...)，多个`BindingFlags`可使用逻辑或操作相连。
+
+`BindingFlags`枚举完整路径为`System.Reflection.BindingFlags`，定义如下：
+
+```csharp
+namespace System.Reflection
+{
+	// 指定控制绑定和由反射执行的成员和类型搜索方法的标志。
+	[ComVisible(true)]
+	[Flags]
+	public enum BindingFlags
+	{
+		// 不指定绑定标志。
+		Default = 0,
+		// 指定当绑定时不应考虑成员名的大小写。
+		IgnoreCase = 1,
+		// 指定只应考虑在所提供类型的层次结构级别上声明的成员。不考虑继承成员。
+		DeclaredOnly = 2,
+		// 指定实例成员将包括在搜索中。
+		Instance = 4,
+		// 指定静态成员将包括在搜索中。
+		Static = 8,
+		// 指定公共成员将包括在搜索中。
+		Public = 16,
+		// 指定非公共成员将包括在搜索中。
+		NonPublic = 32,
+		// 指定应返回层次结构上的公共静态成员和受保护的静态成员。不返回继承类中的私有静态成员。静态成员包括字段、方法、事件和属性。不返回嵌套类型。
+		FlattenHierarchy = 64,
+		// 指定要调用一个方法。它不能是构造函数或类型初始值设定项。
+		InvokeMethod = 256,
+		// 指定“反射”应该创建指定类型的实例。调用与给定参数匹配的构造函数。忽略提供的成员名。如果未指定查找类型，将应用 (Instance |Public)。调用类型初始值设定项是不可能的。
+		CreateInstance = 512,
+		// 指定应返回指定字段的值。
+		GetField = 1024,
+		// 指定应设置指定字段的值。
+		SetField = 2048,
+		// 指定应返回指定属性的值。
+		GetProperty = 4096,
+		// 指定应设置指定属性的值。对于 COM 属性，指定此绑定标志与指定 PutDispProperty 和 PutRefDispProperty 是等效的。
+		SetProperty = 8192,
+		// 指定应调用 COM 对象的 PROPPUT 成员。PROPPUT 指定使用值的属性设置函数。如果属性同时具有 PROPPUT 和 PROPPUTREF，而且需要区分调用哪一个，请使用 PutDispProperty。
+		PutDispProperty = 16384,
+		// 指定应调用 COM 对象的 PROPPUTREF 成员。PROPPUTREF 指定使用引用而不是值的属性设置函数。如果属性同时具有 PROPPUT 和 PROPPUTREF，而且需要区分调用哪一个，请使用 PutRefDispProperty。
+		PutRefDispProperty = 32768,
+		// 指定提供参数的类型必须与对应形参的类型完全匹配。如果调用方提供一个非空 Binder 对象，则“反射”将引发异常，因为这意味着调用方正在提供的 BindToXXX 实现将选取适当的方法。
+		ExactBinding = 65536,
+		// 未实现。
+		SuppressChangeType = 131072,
+		// 返回其参数计数与提供参数的数目匹配的成员集。此绑定标志用于所带参数具有默认值的方法和带变量参数 (varargs) 的方法。此标志应只与 System.Type.InvokeMember(System.String,System.Reflection.BindingFlags,System.Reflection.Binder,System.Object,System.Object[],System.Reflection.ParameterModifier[],System.Globalization.CultureInfo,System.String[]) 一起使用。
+		OptionalParamBinding = 262144,
+		// 在 COM 互操作中用于指定可以忽略成员的返回值。
+		IgnoreReturn = 16777216
+	}
+}
+```
+
+反射获取类型的**完整路径**
+> `Type`类型的`FullName`成员属性保存了类型的**完整路径**：
+>
+>	```csharp
+>	typeof(Xxx).FullName;
+>	```
+
+反射获取类型的**成员变量**/**成员属性**
+> 获取所有成员字段/属性信息：
+>
+>	```csharp
+>	// 获取所有公有成员字段
+>	public FieldInfo[] GetFields();
+>	// 获取bindingAttr范围内的所有成员字段
+>	public abstract FieldInfo[] GetFields(BindingFlags bindingAttr);
+>	// 获取成员属性的API类似
+>	public PropertyInfo[] GetProperties();
+>	public abstract PropertyInfo[] GetProperties(BindingFlags bindingAttr);
+>	```
+>
+> 获取指定成员字段/属性信息：
+>
+>	```csharp
+>	// 获取指定名称的字段
+>	public FieldInfo GetField(string name);
+>	// 以bindingAttr为搜索标志，获取指定名称的字段
+>	public abstract FieldInfo GetField(string name, BindingFlags bindingAttr);
+>	// 获取指定名称的属性
+>	public PropertyInfo GetProperty(string name);
+>	// 通过名称与返回值类型获取属性
+>	public PropertyInfo GetProperty(string name, Type returnType);
+>	// 通过名称与参数类型获取属性(索引属性)
+>	public PropertyInfo GetProperty(string name, Type[] types);
+>	// 以bindingAttr为搜索标志，获取指定名称的属性
+>	public PropertyInfo GetProperty(string name, BindingFlags bindingAttr);
+>	public PropertyInfo GetProperty(string name, Type returnType, Type[] types);
+>	public PropertyInfo GetProperty(string name, Type returnType,
+>			Type[] types, ParameterModifier[] modifiers);
+>	public PropertyInfo GetProperty(string name, BindingFlags bindingAttr,
+>			Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers);
+>	```
+
+反射获取类型的**成员方法**/**构造方法**
+> 获取所有成员方法/构造方法：
+>
+>	```csharp
+>	public MethodInfo[] GetMethods();
+>	public abstract MethodInfo[] GetMethods(BindingFlags bindingAttr);
+>	public ConstructorInfo[] GetConstructors();
+>	public abstract ConstructorInfo[] GetConstructors(BindingFlags bindingAttr);
+>	```
+>
+> 获取指定签名的成员方法：
+>
+>	```csharp
+>	// 查找指定名称的成员方法(适用于不存在方法重载的情形，若查找到多个方法会抛出异常)
+>	public MethodInfo GetMethod(string name);
+>	// 查找指定名称的成员方法，使用签名参数获取方法
+>	public MethodInfo GetMethod(string name, BindingFlags bindingAttr,
+>			Binder binder, Type[] types, ParameterModifier[] modifiers);
+>	// 构造方法与类名相同，不存在使用名称获取的方式，应使用签名参数类型获取指定构造方法
+>	public ConstructorInfo GetConstructor(BindingFlags bindingAttr,
+>			Binder binder, Type[] types, ParameterModifier[] modifiers);
+>	...
+>	```
+>
+>	- `binder`参数用于设定绑定相关信息，一般使用默认默认绑定`Type.DefaultBinder`。
+>	- `modifiers`参数用于设定签名参数的附加修饰符，一般可置为`null`，默认的联编程序不处理此参数。
 
 
 
@@ -1797,7 +1933,7 @@ protected override void WndProc(ref Message m);
 
 
 ## 调用 *C/C++* 动态链接库
-C#支持调用使用`C/C++`语言编写的`dll`。
+C#支持调用`C/C++`语言编写的`dll`。
 
 使用`DLLImport`特性修饰一个方法。
 加载动态链接库需要指定dll的路径以及符号名称：
