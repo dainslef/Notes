@@ -21,13 +21,13 @@ public:
 	String& operator=(const String&);
 	String& operator=(const char*);
 	~String();
-	char* const& operator*();
+	char* const operator*();
 
 private:
 	char *str;			//用于保存字符数据
 };
 
-String::String(const char *str)
+String::String(const char* str)
 {
 	cout << "使用构造函数：String(const char*)" << endl;
 	this->str = new char[strlen(str)];
@@ -35,7 +35,7 @@ String::String(const char *str)
 		this->str[i] = str[i];
 }
 
-String::String(const String &str)
+String::String(const String& str)
 {
 	cout << "使用构造函数：String(const String&)" << endl;
 	this->str = new char[strlen(str.str)];		//私有成员能在所属类内被访问，即使不是同一实例。
@@ -49,7 +49,7 @@ String::~String()
 	delete[] str;
 }
 
-String& String::operator=(const String &str)
+String& String::operator=(const String& str)
 {
 	delete[] this->str;		//给str分配新的内存之前删除旧的，避免内存泄漏。
 	this->str = new char[strlen(str.str)];
@@ -58,7 +58,7 @@ String& String::operator=(const String &str)
 	return *this;
 }
 
-String& String::operator=(const char *str)
+String& String::operator=(const char* str)
 {
 	delete[] this->str;		//删除数组指针要用delete[]操作符而不是delete
 	this->str = new char[strlen(str)];
@@ -67,7 +67,7 @@ String& String::operator=(const char *str)
 	return *this;
 }
 
-char* const& String::operator*()
+char* const String::operator*()
 {
 	return str;
 }
@@ -86,7 +86,7 @@ int main(void)
 	cout << "str1 = \"test1\";\nstr内容：" << *str1 << endl;
 	str1 = "test2";
 	cout << "str1 = \"test2\";\nstr1内容：" << *str1 << endl;
-	
+
 	string sys_str("test");
 	string sys_str1;
 	string sys_str2 = sys_str;
