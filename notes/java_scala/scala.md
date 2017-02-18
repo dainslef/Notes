@@ -1382,7 +1382,7 @@ Num 100
 `sealed`和`final`都是Scala语言的关键字。
 
 - `final`关键字作用与Java中相同。用在类之前，表示类不可继承；用在方法之前，表示方法不可被重写。
-- `sealed`关键字作用与C#中的`sealed`不同，在Scala中，被`sealed`修饰的类的子类只能定义在该类的定义文件之内。`sealed`的作用是防止继承被滥用。
+- `sealed`关键字作用与C#中的`sealed`不同，在Scala中，`sealed`修饰的类其子类定义需要与该类在统一文件中。`sealed`的作用是防止继承被滥用。
 
 ### *sealed* 用于模式匹配
 使用`sealed`关键字修饰的类型在用于模式匹配时，编译器会对匹配条件进行检查，如果匹配路径没有被完全覆盖，则会给出警告。
@@ -1397,11 +1397,10 @@ case class CPP(name: String = "C++") extends Lang(name)
 case class CSharp(name: String = "C#") extends Lang(name)
 
 object Main extends App {
-	def getLangName(lang: Lang) =
-		lang match {
-			case C(name) => name
-			case CPP(name) => name
-		}
+	def getLangName(lang: Lang) = lang match {
+		case C(name) => name
+		case CPP(name) => name
+	}
 }
 ```
 
@@ -1555,19 +1554,21 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 
 ```scala
 object Color extends Enumeration {
-	var red, green, blue = Value
+
+	// 自动赋值枚举成员
+	val red, green, blue = Value
 
 	/*
 	* 相当于分别初始化：
-	* var red = Value
-	* var green = Value
-	* var blue = Value
+	* val red = Value
+	* val green = Value
+	* val blue = Value
 	*/
 
-	//手动使用Value(id: Int, name: String)方法手动进行id和name的设置
-	var white = Value(100, "White")
-	var black = Value(200, "Black")
-	//使用重载有參版本的Value(id: Int, name: String)不能采用自动赋值的方式，会编译报错
+	// 手动使用Value(id: Int, name: String)方法手动进行id和name的设置
+	val white = Value(100, "White")
+	val black = Value(200, "Black")
+	// 使用重载有參版本的Value(id: Int, name: String)不能采用自动赋值的方式，会编译报错
 }
 
 object TestEnumeration extends App {
@@ -1582,6 +1583,34 @@ object TestEnumeration extends App {
 ```
 red:0 green:1 blue:2
 White:100 Black:200
+```
+
+### 调用枚举类型
+继承了枚举类的单例对象名并不能直接用于表示枚举类型，对应的枚举类型应使用对象内部定义的抽象类型`Value`来表示，即`单例对象名称.Value`。
+
+以前文中的`Color`单例对象为例，对应的枚举类型应使用`Color.Value`表示。
+将枚举做为参数传递：
+
+```scala
+object Color extends Enumeration {
+	val red, green, blue = Value
+	val white = Value(100, "White")
+	val black = Value(200, "Black")
+}
+
+object Main extends App {
+	// Xxx.Value才是真正的枚举类型
+	def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: ${color.toString}")
+	showEnum(Color.blue)
+	showEnum(Color.white)
+}
+```
+
+输出结果：
+
+```
+ID: 2, Str: blue
+ID: 100, Str: White
 ```
 
 
