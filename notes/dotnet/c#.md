@@ -87,7 +87,7 @@ int num = null;			//错误信息："Cannot convert null to 'int' because it is a
 public struct Nullable<T> where T : struct
 {
 	...
-};
+}
 ```
 
 假设有值类型`T`，对应的可空类型声明可以为：
@@ -186,7 +186,7 @@ C#中的类型别名有较多**限制**：
 
 
 
-## 成员属性
+## *Property* (属性)
 C#类中成员有一种被称为`属性`。
 
 - 属性的访问方式与成员变量类似；通过定义`set`和`get`块的内容，能够通过属性给成员变量赋值或是获取成员变量的值。
@@ -407,9 +407,9 @@ class B<T, V> where T : XXX where V : XXXX { }
 
 在C#中，泛型约束支持以下形式：
 
-- `T : struct` 限制类型参数为结构类型
-- `T : class` 限制类型参数为引用类型
-- `T : new()` 类型参数必须具有可访问的无参构造函数
+- `T : struct` 限制类型参数为结构类型，存在多个泛型约束条件时，该条件需要置于首位
+- `T : class` 限制类型参数为引用类型，存在多个泛型约束条件时，该条件需要置于首位
+- `T : new()` 类型参数必须具有可访问的无参构造函数，存在多个泛型约束条件时，该条件需要置于末尾
 - `T : 接口名称` 类型参数必须实现了指定接口
 - `T : 类名称` 类型参数必须为指定类型或其子类
 - `T : V` 类型参数`T`必须为类型参数`V`的派生类型(裸类型约束)
@@ -429,7 +429,7 @@ class C<T, V> where T : class, T : V { }
 ```cs
 struct Test<T>
 {
-	static public int a;
+	public static int a;
 }
 
 class Program
@@ -1856,6 +1856,147 @@ Method result:
 
 
 
+## *FTP*
+在`.Net`平台中，标准库内置了对`FTP`协议的支持。
+
+`FTP`相关的类均位于`System.Net`命名空间，常见的有：
+
+- `WebRequest` 表示对`URI`(统一资源标识符)的请求，是未实现的抽象类
+- `WebResponse` 表示对`URI`(统一资源标识符)的回应，是未实现的抽象类
+- `FtpWebRequest` 表示`FTP`协议的客户端请求，是`WebRequest`的子类实现
+- `FtpWebResponse` 表示`FTP`协议的服务端回应，是`WebResponse`的子类实现
+- `WebRequestMethods` 定义了各类协议的具体请求方法字符串，`FTP`协议的方法定义位于其内部类`WebRequestMethods.Ftp`中
+
+### 创建 *FTP* 请求
+`WebRequest`类的静态成员方法`WebRequest.Create(string)`，以`FTP`路径字符串为参数即可构建一个未设定操作的`FTP`请求：
+
+```csharp
+string ftpUri = $"ftp://ip地址/路径...";
+FtpWebRequest ftpRequest = WebRequest.Create(ftpUri) as FtpWebRequest;
+```
+
+对于需要账户的`FTP`服务端，需要在请求中设定账户和密码：
+
+```csharp
+string ftpUserName = "...", ftpUserPassword = "...";
+ftpRequest.Credentials = new NetworkCredential(ftpUserName, ftpUserPassword);
+```
+
+### 下载
+在一个未设定操作的`FTP`请求创建完毕后，设置请求对象的`Method`属性为`RETR`(`FTP`协议中规定的下载指令)。
+
+```csharp
+ftpRequest.Method = "RETR";
+```
+
+`WebRequestMethods.Ftp`中定义了各类`FTP`操作的指令文本，下载操作可以使用：
+
+```csharp
+ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
+```
+
+下载请求设定完毕后，执行以下操作：
+
+- 使用`WebRequest`类成员方法`WebRequest.GetResponse()`获取服务端回应，并向下转型为`FtpWebResponse`回应。
+- 使用`FtpWebResponse`类成员方法`FtpWebResponse.GetResponseStream()`获取回应中包含的文件流(`Stream`类)，并将其写入本地文件。
+
+完整实例代码：
+
+```csharp
+/// <summary>
+/// 下载文件，保存到指定路径
+/// </summary>
+/// <param name="ftpUri">FTP目标路径</param>
+/// <param name="savePath">保存到本地的路径</param>
+/// <param name="ftpUserName">FTP用户名</param>
+/// <param name="ftpUserPassword">FTP用户密码</param>
+/// <returns>下载是否成功</returns>
+public bool DownloadFile(string ftpUri, string savePath, string ftpUserName, string ftpUserPassword)
+{
+	bool result = false;
+
+	try
+	{
+		FtpWebRequest request = WebRequest.Create(ftpUri) as FtpWebRequest;
+
+		// 设定下载请求，填充FTP用户名/密码
+		request.Method = WebRequestMethods.Ftp.DownloadFile;
+		request.Credentials = new NetworkCredential(ftpUserName, ftpUserPassword);
+
+		// 对于请求回应、文件流等资源，需要使用using语句或显式关闭资源
+		using (FtpWebResponse response = request.GetResponse() as FtpWebResponse)
+		{
+			// 复制回应数据流到文件流中
+			using (FileStream file = new FileStream(savePath, FileMode.Create))
+				response.GetResponseStream().CopyTo(file);
+
+			// 验证操作状态，打印操作结果
+			Console.WriteLine($"Operate status: {response.StatusDescription}");
+			if (response.StatusCode == FtpStatusCode.ClosingData) result = true;
+		}
+	} catch (Exception ex) { Console.WriteLine(ex.StackTrace); }
+
+	return result;
+}
+```
+
+### 上传
+上传操作与下载略有不同，首先对未设定操作的`FTP`请求设置操作：
+
+```csharp
+ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
+```
+
+之后执行以下操作：
+
+- 设定请求的`ContentLength`属性，表示上传文件的大小。
+- 使用`FtpWebRequest`类成员方法`FtpWebRequest.GetRequestStream()`获取请求文件流。
+- 将本地待上传文件复制到请求文件流中。
+- 使用`FtpWebResponse`类成员方法`FtpWebResponse.GetResponse()`获取操作回应。
+
+完整实例代码：
+
+```csharp
+/// <summary>
+/// 上传文件到指定FTP路径
+/// </summary>
+/// <param name="ftpUri">FTP目标路径</param>
+/// <param name="localPath">待上传的本地文件路径</param>
+/// <param name="ftpUserName">FTP用户名</param>
+/// <param name="ftpUserPassword">FTP用户密码</param>
+/// <returns>上传是否成功</returns>
+public bool UploadFile(string ftpUri, string localPath, string ftpUserName, string ftpUserPassword)
+{
+	bool result = false;
+
+	try
+	{
+		FtpWebRequest request = WebRequest.Create(ftpUri) as FtpWebRequest;
+
+		// 设定下载请求，填充FTP用户名/密码
+		request.Method = WebRequestMethods.Ftp.UploadFile;
+		request.Credentials = new NetworkCredential(ftpUserName, ftpUserPassword);
+
+		using (FileStream file = new FileStream(localPath, FileMode.Open))
+		{
+			// 设定待上传的文件大小，复制文件数据流到请求文件流中
+			request.ContentLength = file.Length;
+			using (Stream upStream = request.GetRequestStream()) file.CopyTo(upStream);
+		}
+		using (FtpWebResponse response = request.GetResponse() as FtpWebResponse)
+		{
+			// 验证操作状态，打印操作结果
+			Console.WriteLine($"Operate status: {response.StatusDescription}");
+			if (response.StatusCode == FtpStatusCode.ClosingData) result = true;
+		}
+	} catch (Exception ex) { Console.WriteLine(ex.StackTrace); }
+
+	return result;
+}
+```
+
+
+
 ## *WinFrom* 开发注记
 `C#`对应的**GUI**库为基于`.NET Framework`的`Windows Form`。
 
@@ -1987,7 +2128,7 @@ C#中的常见类型与C++中类型之间的转换关系：
 > `internal`关键字用在类内成员之前表示只能在当前项目中访问该成员。
 > 在对类内成员使用时，`internal`关键字可以搭配`protected`关键字使用，即定义一个只能被当前项目的子类访问的成员。
 
-需要注意的是，`internal`修饰的类实例**不能**作为`public`成员出现在其它类中。
+需要注意的是，`internal`修饰的类的**实例**不能作为`public`成员出现在其它类中。
 
 ### *readonly* 关键字
 `readonly`关键字修饰的变量赋值只能在变量定义时或是在该变量所属类的构造函数中。
