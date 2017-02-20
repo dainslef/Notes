@@ -1550,6 +1550,7 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 ### 继承枚举类
 继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。
 默认的`Value`方法会按**变量名**生成**枚举名**和并自动从`0`开始生成**枚举ID**，若需要手动设定枚举名称和枚举ID则可以使用`Value`方法的重载`Value(id: Int, name: Strig)`。
+
 如下代码所示：
 
 ```scala
@@ -1589,7 +1590,8 @@ White:100 Black:200
 继承了枚举类的单例对象名并不能直接用于表示枚举类型，对应的枚举类型应使用对象内部定义的抽象类型`Value`来表示，即`单例对象名称.Value`。
 
 以前文中的`Color`单例对象为例，对应的枚举类型应使用`Color.Value`表示。
-将枚举做为参数传递：
+
+将枚举做为参数传递，如下代码所示：
 
 ```scala
 object Color extends Enumeration {
@@ -1611,6 +1613,62 @@ object Main extends App {
 ```
 ID: 2, Str: blue
 ID: 100, Str: White
+```
+
+### 访问枚举内容
+枚举单例支持以多种形式访问：
+
+- 通过枚举成员访问，类似于其它常见编程语言(`Enum.member`)
+- 通过枚举ID进行访问，语法类似数组(`Enum(id)`)
+- 通过枚举名称进行访问，使用`withName`成员方法(`Enum withName "xxx"`)
+
+枚举内部的成员全部保存在一个`Set`容器中，可使用`values`成员方法访问。
+
+以前文中的`Color`单例对象为例，使用多种方式访问枚举内容，如下代码所示：
+
+```scala
+object Color extends Enumeration {
+  val red, green, blue = Value
+  val white = Value(100, "White")
+  val black = Value(200, "Black")
+}
+
+object Main extends App {
+
+	def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: ${color.toString}")
+
+	// 通过枚举ID访问枚举
+	showEnum(Color(0))
+	showEnum(Color(100))
+
+	println()
+
+	// 通过枚举名称访问枚举
+	showEnum(Color withName "green")
+	showEnum(Color withName "Black")
+
+	println()
+
+	// 遍历枚举内容
+	for (color <- Color.values)
+		showEnum(color)
+}
+```
+
+输出结果：
+
+```
+ID: 0, Str: red
+ID: 100, Str: White
+
+ID: 1, Str: green
+ID: 200, Str: Black
+
+ID: 0, Str: red
+ID: 1, Str: green
+ID: 2, Str: blue
+ID: 100, Str: White
+ID: 200, Str: Black
 ```
 
 
