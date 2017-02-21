@@ -105,58 +105,16 @@ object Test {
 }
 ```
 
-与Java类似，Scala也是从主方法`main`中开始执行整个程序，不过main方法并不定义在类中，而是定义在**单例对象**中(使用object关键字创建单例对象)。
-将主方法写在class中能够通过编译，但生成的字节码文件在执行时会出错。
-也可以不手动定义main方法而去让伴生对象继承`App`特质，即可直接执行代码语句，例如：
+与Java类似，Scala也是从主方法`main`中开始执行整个程序，不过`main`方法并不定义在类中，而是定义在**单例对象**中(使用`object`关键字创建单例对象)。
+将主方法写在`class`中能够通过编译，但生成的字节码文件在执行时会出错。
+
+可以不手动定义`main`方法而让单例对象继承`App`特质，即可直接执行代码语句，例如：
 
 ```scala
 object Test extends App {
 	println("Hello World!")
 }
 ```
-
-单例对象的名称可以与源码文件的文件名不同。
-
-### *continue* 与 *break*
-`Scala`**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
-
-其它语言中的`continue`功能可以通过`for`语句条件后添加`if`判断条件实现或使用**守卫**。
-
-`break`功能可以由`scala.util.control.Breaks`类提供。
-
-> `Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
->
->	```scala
->	def breakable(op: => Unit): Unit {
->		try { op } catch {
->			// 判断异常是否为breakException，是则捕获，其它异常则继续向外传递
->			case ex: BreakControl => if (ex ne breakException) throw ex
->		}
->	}
->	def break(): Nothing = { throw breakException }
->	```
->
-> 由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。
-> `break()`方法产生`breakException`异常。
->
-> 将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
->
-> 使用`Breaks`如下代码所示：
->
->	```scala
->	import scala.util.control.Breaks.{ breakable, break }
->
->	object Main extends App {
->
->		breakable {
->			//使用break的代码块作为传名参数传入breakable中
->			for (i <- 1 to 10) {
->				if (i == 8) break		//跳出循环
->			}
->		}
->
->	}
->	```
 
 ### *Method* (方法)
 与Java不同，Scala中同时支持**函数**与**方法**(Java只有方法而没有真正意义上的**函数**，只有与函数类似的**静态方法**)。
@@ -408,7 +366,7 @@ class Test
 >	true
 >	```
 
-偏函数(Partial Function)
+*Partial Function* (偏函数)
 > 偏函数是一个定义域有限的函数，在Scala中使用类型`PartialFunction[-A, +B]`来表示偏函数。
 > 偏函数类似数学意义上的函数，只能接收**一个**参数，同时偏函数只对**有限**的输入值返回结果。
 >
@@ -490,7 +448,7 @@ class Test
 >
 > 函数`func1()`对于`0`没有定义，而函数`func()`对于`0`有定义，则在参数取`0`时调用`func()`函数的返回值。
 
-部分应用函数(Partial Applied Function)
+*Partial Applied Function* (部分应用函数)
 > 部分应用函数是逻辑上的概念，表示一个已经指定了部分参数的函数。
 > 将一个拥有多个参数的函数指定部分参数的值构成一个参数较少的新函数，新的函数即为**部分应用函数**。
 >
@@ -514,6 +472,47 @@ class Test
 >	```
 >
 > `sum100()`便是`sum()`指定了第二参数的部分应用函数。
+
+### *continue* 与 *break*
+`Scala`**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
+
+其它语言中的`continue`功能可以通过`for`语句条件后添加`if`判断条件实现或使用**守卫**。
+
+`break`功能可以由`scala.util.control.Breaks`类提供。
+
+> `Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
+>
+>	```scala
+>	def breakable(op: => Unit): Unit {
+>		try { op } catch {
+>			// 判断异常是否为breakException，是则捕获，其它异常则继续向外传递
+>			case ex: BreakControl => if (ex ne breakException) throw ex
+>		}
+>	}
+>	def break(): Nothing = { throw breakException }
+>	```
+>
+> 由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。
+> `break()`方法产生`breakException`异常。
+>
+> 将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
+>
+> 使用`Breaks`如下代码所示：
+>
+>	```scala
+>	import scala.util.control.Breaks.{ breakable, break }
+>
+>	object Main extends App {
+>
+>		breakable {
+>			//使用break的代码块作为传名参数传入breakable中
+>			for (i <- 1 to 10) {
+>				if (i == 8) break		//跳出循环
+>			}
+>		}
+>
+>	}
+>	```
 
 
 
@@ -588,8 +587,11 @@ No Value
 ## *OOP*
 Scala是一门同时具有函数式与面向对象特性的**多重范式语言**，除了具有函数式特性外，对**OOP**也有着完整的支持。
 
+与`Java`不同，`Scala`中公有类的名称不强制要求与源码文件相同，同时一个文件中可以包含多个公有类的定义。
+
 ### 访问权限
-Scala中的成员和类、特质的默认访问权限即为公有，因而Scala中没有`public`关键字。
+Scala中的成员和类、特质的默认访问权限即为**公有**，因而Scala中没有`public`关键字。
+
 Scala中的保护成员使用关键字`protected`，私有成员使用关键字`private`，作用大体上与Java相同，但Scala在访问权限上支持**更细粒度**的划分。
 
 - Scala的类定义、特质定义、单例对象定义前可以使用访问权限修饰，`private`和`protected`权限的类等仅限同一个包内访问。
@@ -694,7 +696,7 @@ class Override {
 
 - 默认情况下，合成的`setter`、`getter`方法就与字段同名，手动在代码中创建与`setter`、`getter`签名相同的方法会导致编译错误。
 - 访问权限为`private[this]`时编译器不合成默认的`getter`、`setter`方法时可以手动定义`setter`、`getter`方法。
-- 在实际编码过程中，虽然给`private[this]`的字段定义同名的`setter`、`getter`方法不会报错，但调用过程中会提示错误(如上例子中给num字段赋值回得到错误`reassignment to val`，因此不要手动给字段定义同名的`setter``getter`方法)。
+- 在实际编码过程中，虽然给`private[this]`的字段定义同名的`setter`、`getter`方法不会报错，但调用过程中会提示错误(如上例子中给num字段赋值回得到错误`reassignment to val`，因此不要手动给字段定义同名的`setter`、`getter`方法)。
 
 此外，由于字段名称可以与方法名称相同，因而即使编译器生成了`setter`、`getter`方法，编码者依然可以使用字段名称定义其它签名的重载函数。
 
@@ -2070,12 +2072,114 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 
 
 
-## 包(Package)与导入(Import)
-Scala中的包用法基本与Java类似，但在Java的基础上扩充了更多的功能。
-与Java不同，Scala中使用`_`符号代替`*`，表示导入该路径下的所有包和成员。
+## *Package* (包)
+`Scala`中的包用法基本与`Java`类似：
+
+- 使用`package`关键字定义包路径。
+- 使用`import`关键字导入包路径。
+
+### 包与路径
+在`Scala`中，包路径是**逻辑概念**，源码文件**不必**按照包路径存放到对应的目录下。
+
+`Scala`中使用`_`符号表示导入该路径下的所有包和成员：
+
+```scala
+import java.awt._	//等价于java中的 import java.awt.*
+```
+
+导入路径规则与`Java`中的类似，处于同一级包路径下的类可以直接使用不必导入。
+
+导入策略
+> 在导入包时，`Scala`默认采用**相对路径**，在外层路径的包使用内层路径的包时，可省略共同的路径部分直接以当前路径为起点访问内层路径包。
+>
+> 如下代码所示：
+>
+>	```scala
+>	// file1
+>	package com.dainslef
+>
+>	class Test
+>
+>
+>	// file2
+>	package com
+>
+>	// 导入路径时以当前包为起点，不必从最外层路径开始导入
+>	import dainslef.Test
+>
+>	object Main extends App {
+>		println(classOf[Test].getName)
+>	}
+>	```
+>
+> 而在`Java`中，无论包的层次关系如何，都需要通过绝对路径进行导入。
+>
+> 上例对应`Java`版本如下代码所示：
+>
+>	```java
+>	// file1
+>	package com.dainslef;
+>
+>	class Test {
+>	};
+>
+>
+>	// file2
+>	package com;
+>
+>	// 导入路径时从时需要从最外层路径开始导入，不能写成 import dainslef.Test
+>	import com.dainslef.Test;
+>
+>	public class Main {
+>
+>		public static void main(String[] args) {
+>			System.out.println(Test.class.getName());
+>		}
+>
+>	}
+>	```
+
+默认包与绝对路径导入
+> 在`Java`和`Scala`中，不使用`package`关键字打包的代码即位于默认包下，没有对应的包名。
+> 在`Scala`中使用`_root_`指代默认包。
+>
+> `Scala`中默认的`import`操作是基于相对路径的，但`Scala`同样支持以**绝对路径**进行`import`操作：
+>
+>	- 以`_root_`为导入起始路径，即代表以绝对路径的形式导入内容。
+>	- 使用绝对路径访问内容能避免一些命名冲突。
+>
+> 上例中的代码中的`Test`类以绝对路径导入，导入语句可写成：
+>
+>	```scala
+>	import _root_.com.dainslef.Test
+>	```
+
+默认包的限制
+> 默认包没有名称，其内容只能被同在默认包下的其它内容访问，内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
+>
+> 如下代码所示：
+>
+>	```scala
+>	// file1
+>	// 定义单例在默认包中
+>	object Test {
+>		val test = "Test string..."
+>	}
+>
+>	// file2
+>	package com
+>
+>	object Main extends App {
+>		// 在内层包中访问外部默认包的内容
+>		println(Test.test)				//错误，提示 "not found: value Test"
+>		println(_root_.Test.test)		//错误，提示 "object Test is not a member of package <root>"
+>	}
+>	```
 
 ### 扩展用法
-Scala中可以在一个语句中导入包内的**多个**指定的类：
+`Scala`包机制在Java的基础上扩充了更多的功能。
+
+在一个语句中导入包内的**多个**指定的类：
 
 ```scala
 import java.awt.{Color, Font}
@@ -2092,7 +2196,7 @@ import java.awt.{Color => JavaColor}
 import java.awt.{Color => _}
 ```
 
-Scala中的`import`带有类似Java1.6中的`static import`特性：
+`Scala`中的`import`带有类似`Java 1.6`中的`static import`特性：
 
 ```scala
 import java.lang.Math.abs		//导入Math类中的静态方法abs
@@ -2101,7 +2205,7 @@ import java.lang.Math.abs		//导入Math类中的静态方法abs
 在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。
 在Scala中，`import`语句可以出现在**任意位置**，不必总是放在文件的顶部，`import`语句的作用域直到该语句块结束。
 
-### 默认包
+### 默认导入
 默认情况下，Scala会导入以下几个包路径：
 
 ```scala
