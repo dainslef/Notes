@@ -1653,6 +1653,95 @@ public class Main {
 
 
 
+## *JDBC*
+`JDBC`为`Java`定义了一套公用的数据库`API`，`JDBC`屏蔽了不同数据库之间的差异。
+对于支持`JDBC`的数据库，只要导入对应的`JDBC Driver`即可使用相同的`JDBC API`进行操作。
+
+### 连接数据库
+`JDBC API`相关类型位于`java.sql`包中：
+
+- `DriverManager` JDBC驱动集合
+- `Connection` 数据库连接
+- `Statement` 数据库交互对象，用于执行各类SQL语句
+- `PreparedStatement/CallableStatement` 包含扩展功能的数据库交互对象
+- `ResultSet` 包含查询结果的集合
+
+基本的访问数据库流程：
+
+```java
+String connectUrl = "jdbc:数据库类型://连接地址...";
+
+try {
+	Connection connection = DriverManager.getConnection(connectUrl);		//获取数据库连接
+	Statement statement = connection.createStatement()
+} catch (SQLException ex) {
+	...
+}
+```
+
+### 数据库操作
+`Statement`类性提供了执行SQL语句的方法：
+
+```java
+// 执行查询语句并返回查询结果集
+ResultSet executeQuery(String sql) throws SQLException;
+// 执行更新语句并返回更新的数目
+int executeUpdate(String sql) throws SQLException;
+```
+
+查询结果返回的结果集`ResultSet`，常用方法：
+
+```java
+// 将光标移动到正好位于第一行之前
+public void beforeFirst() throws SQLException;
+// 将光标移动到刚刚结束的最后一行
+public void afterLast() throws SQLException;
+// 将光标移动到第一行
+public boolean first() throws SQLException;
+// 将光标移动到最后一行
+public void last() throws SQLException;
+// 将光标移动到指定的行
+public boolean absolute(int row) throws SQLException;
+// 从它目前所指向向前或向后移动光标行的给定数量
+public boolean relative(int row) throws SQLException;
+// 将光标移动到上一行，上一行关闭的结果集此方法返回false
+public boolean previous() throws SQLException;
+// 将光标移动到下一行，如果没有更多的行结果集中的此方法返回false
+public boolean next() throws SQLException;
+// 返回的行号，该光标指向的行
+public int getRow() throws SQLException;
+// 将光标移动到一个特殊的行，可以用来插入新行插入到数据库中的结果集，当前光标位置被记住
+public void moveToInsertRow() throws SQLException;
+// 移动光标返回到当前行，如果光标在当前插入行，否则，这个方法不执行任何操作
+public void moveToCurrentRow() throws SQLException;
+```
+
+基本操作如下所示：
+
+```java
+ResultSet resultSet = statement.executeQuery("SQL查询语句...");
+while (resultSet.next()) {		// 使用 next() 方法将当前游标移动到下一行
+	resultSet.getInt(...);		// 获取数据，支持使用列号/列名进行获取
+	resultSet.getString(...);
+}
+```
+
+### 获取时间
+`ResultSet`类型提供了以下方法用于获取时间类型(如`MySQL`中的`DateTime`)信息：
+
+- `getDate()` 获取日期信息
+- `getTime()` 获取时间信息
+- `getTimestamp()` 获取完整时间信息
+
+对于时间类型的数据，使用`getDate()`、`getTime()`等方法获取到的时间信息不完整：
+
+- `getDate()`获取到的仅为日期信息，小时、分钟、秒等信息被置为默认(`00:00:00`)。
+- `getTime()`获取到的时间信息不包含日期，日期部分被置为默认(`1970-1-1`)
+
+使用`getTimestamp()`方法才能获取到完整的时间信息。
+
+
+
 ## 与 *Access* 数据库交互
 `JDK 1.7`之前，可以使用`JDBC-ODBC`桥接`Access`数据库，但在`JDK 1.8`之后，`JDBC-ODBC`桥被移除，只能使用专有的`Access`驱动来连接`Access`数据库(驱动名称：`Access_JDBC40.jar`)。
 
@@ -1857,161 +1946,6 @@ public class B {
 
 
 
-## *Swing* 开发注记
-**Swing**是Java下的GUI开发库，`Swing`中的控件样式与平台无关，完全由`Java`绘制。
-
-### 常用控件
-容器：
-
-- `JFrame` 窗体框架
-- `JDialog` 对话框
-- `JPanel` 面板
-- `JScrollPane` 滚动面板
-
-`JFrame`一般做为顶层容器，可以独立做为对话框显示，但`JPanel`不能独立做为对话框。
-
-文本组件：
-
-- `JLabel` 显示文本
-- `JTextField` 单行编辑框
-- `JPasswordField` 密码编辑框
-- `JTextArea` 多行编辑区域
-
-表单组件：
-
-- `JButton` 普通按钮
-- `JCheckBox` 复选框，方框里打勾
-- `JRadioButton和ButtonGroup` 单选框，圆点
-- `JComboBox` 组合框，俗称**下拉列表框**
-
-菜单栏：
-
-- `JMenubar` 菜单栏
-- `JMenu` 菜单栏上的按钮
-- `JMenuItem` 点击菜单按钮弹出的菜单项
-
-常用的表单组件都有对应的菜单版本，比如`JRadioButtonMenuItem`、`JCheckBoxMenuItem`等。
-向`JMenu`中`add()`菜单项时，虽然可以选择普通组件，但普通组件不能触发菜单效果(点按之后菜单不收回)。
-
-### 设置边框
-一般的**GUI容器**类如`JFrame`、`JPanel`等都可以通过`setBorder()`方法来设置边框。
-特别的，通过使用透明边框，可以实现控制界面边界空隙的效果(类似于**CSS**中的`Margin`属性)。
-
-如下代码所示：
-
-```java
-//界面上下左右空出10个像素
-setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-```
-
-### 使用 *Model* 组装 *ComboBox*
-先得到`Map`的`Key`集合：
-
-```java
-Set set = map.keySet();
-```
-
-接着将集合转化为对象数组：
-
-```java
-Object[] object = set.toArray();
-```
-
-接着构造一个用对象数组初始化的`DefaultComboBoxModel`对象，并以此构建`JComoBox`对象：
-
-```java
-JComboBox comboBox = new JComboBox(new DefaultComboBoxModel(object));
-```
-
-### 事件机制
-`Java`没有像`C#`那样在语言级别提供事件机制，事件机制仅仅在`Java`中仅仅是一套接口：
-
-- 事件处理需要重写监听器的接口方法。
-> `Swing`根据事件类型定义了一系列的事件监听器接口，如鼠标点按事件的`ActionListener`，处理键盘的`KeyListener`，处理鼠标的`MouseListener`等等。
-> 不同的事件接口拥有不同数目的接口方法，根据需求重写对应的接口方法。
-- 将控件绑定监听器实例。
-> GUI控件类有一套与监听器接口对应的方法`addXXXListener()`用于添加不同类型的监听器实例，将对应的监听器实例作为参数传入，则当控件操作触发时，便会运行绑定监听器中的代码。
-> 控件类也可以使用`removeXXXListener()`用于移除已绑定的监听器。
-
-### 在键盘事件中屏蔽指定按键
-实现`KeyListener`接口，重写`keyTyped(KeyEvent)`方法，通过`getKeyChar()`方法获取输入的字符，然后对其进行判断，如果是想要屏蔽的按键则使用`setKeyChar('\0')`将其转化为空输入。
-
-如下所示：(只接受数字输入)
-
-```java
-KeyEvent keyEvent = e -> {
-	if (e.getKeyChar() < '0' || e.getKeyChar() > '9')
-		e.setKeyChar('\0');
-}
-```
-
-### *DocumentListener* (文本输入监听器)
-包含三个方法：
-
-- `public void changedUpdate(DocumentEvent e)` 监听文本属性的变化
-- `public void insertUpdate(DocumentEvent e)` 监听文本内容的插入事件
-- `public void removeUpdate(DocumentEvent e)` 监听文本内容的删除事件
-
-`JTextField`控件本身没有`addDocumentListener()`方法，需要先使用`getDocument()`方法获取`Document`对象才能调用`addDocumentListener()`。
-在事件处理方法中，对`JTextField`对象调用`getText()`方法即可获得输入文本的内容。
-
-### 显示多行文本
-`JTextField`只能用来显示简单的**单行文本**，涉及到**多行文本**的复杂情况，需要使用到`JTextArea`控件：
-
-```java
-JTextArea textArea = new JTextArea();
-```
-
-可以设置文本域**自动换行**：
-
-```java
-textArea.setLineWrap(true);
-```
-
-当文本域内容太多无法全部显示时，可以使用`JScrollPane`控件，将文本域添加到其中：
-
-```java
-JScrollPane scrollPane = new JScrollPane(textArea);
-```
-
-这样当文本无法全部显示时会出现**滚动条**。
-
-### 静态 *MessageBox* 方法
-与**Qt**一样，Java也提供了弹出MessageBox的静态方法，即`JOptionPane.showMessageDialog()`。
-
-```java
-// 调出标题为"Message"的信息消息对话框
-static void showMessageDialog(Component parentComponent, Object message);
-// 调出对话框，显示使用由messageType参数确定的默认图标的message
-static void showMessageDialog(Component parentComponent,
-		Object message, String title, int messageType);
-// 调出一个显示信息的对话框，指定了所有参数
-static void showMessageDialog(Component parentComponent,
-		Object message, String title, int messageType, Icon icon);
-```
-
-其中，`messageType`可以取`DEFAULT_OPTION`、`YES_NO_OPTION`、`YES_NO_CANCEL_OPTION`或`OK_CANCEL_OPTION`等。
-此外，还有`showInputDialog()`、`showConfirmDialog()`等方法可以用于显示其他用途的窗口。
-
-### 使用 *JTable* 显示数据库
-构建一个`JTable`主要有两种方式：
-
-```java
-JTable(Object[][] rowData, Object[] columnNames);
-JTable(TableModel dm);
-```
-
-即使用`Object数组`确定表格模型或是使用`TableModel`类构建表格模型。
-使用对象数组构建表格模型可以先从数组库中读取对应数据，然后将数据存储在对象数组中。
-
-使用`TableModel`类的基本步骤：
-
-0. 先构建`TableMode`对象。
-0. 使用`TableMode`类的成员方法`setValueAt(Object aValue, int rowIndex, int columnIndex)`设定表格模型每个位置的数据。
-0. 在`JTable`使用构造函数或在已有的`JTable`实例调用`setModel(TableModel dataModel)`成员方法创建表格。
-
-
-
 ## 常见问题记录
 
 ### *String.split()* 方法
@@ -2027,6 +1961,8 @@ public String[] split(String regex);
 ```java
 String[] nums = "123.456.789".split("\\.");
 ```
+
+其它文本处理方法如`String.replace()`等匹配参数也为正则表达式，使用方式类似。
 
 ### *String.format()* 方法
 函数的定义为：
