@@ -3099,7 +3099,7 @@ res2: scala.xml.Elem = <Test:test><li>Test</li><li name="Test">test</li></Test:t
 
 
 ## 构建工具 *sbt*
-`sbt`全称`Simple Build Tool`，是Scala项目的标准构建工具，类似于Java下的`Maven`和`Gradle`。
+`sbt`全称`Simple Build Tool`，是Scala项目的标准构建工具，类似于`Java`下的`Maven`/`Groovy`中的`Gradle`。
 
 ### 安装与配置sbt
 主流Linux发行版的仓库中，一般都包含`sbt`，可以使用发行版的包管理器安装`sbt`，以`ArchLinux`为例：
@@ -3150,15 +3150,35 @@ sbt项目结构与maven项目类似。一个基本的sbt项目具有以下路径
 │   └── build.properties				# 构建规则与参数
 └── src									# 源码目录
     ├── main
+    │   ├── resources
     │   └── scala
     │       └── XXX.scala
     └── test
+        ├── resources
         └── scala
             └── TestXXX.scala
 ```
 
 新创建的项目没有`target`目录，但在sbt交互shell中执行了`run`之后还会生成`target`和`project/target`目录。
 `target`目录中包含的所有内容均由编译系统生成，将项目目录加入版本控制时需要忽略这些目录。
+
+### 访问资源目录
+`sbt`项目中的`src/main`与`src/test`下都存在`resources`目录，获取该路径下的文件可以使用`Class`类型的`getResource()`方法：
+
+```java
+public java.net.URL getResource(String name);
+```
+
+假设`src/main/resources`路径下存在文件`temp.txt`，则打印该文件内容：
+
+```scala
+import scala.reflect.io.File
+
+object Main extends App {
+	// 使用相对路径 "temp.txt" 亦可
+	File(getClass.getResource("/temp.txt").getFile).lines.foreach(println)
+}
+```
 
 ### 添加项目依赖
 项目依赖主要定义在项目根目录下的`build.sbt`文件中，通过自定义`build.sbt`文件中的`libraryDependencies`配置项即可向项目中添加**托管依赖**。
