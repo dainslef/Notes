@@ -3163,11 +3163,14 @@ sbt项目结构与maven项目类似。一个基本的sbt项目具有以下路径
 `target`目录中包含的所有内容均由编译系统生成，将项目目录加入版本控制时需要忽略这些目录。
 
 ### 访问资源目录
-`sbt`项目中的`src/main`与`src/test`下都存在`resources`目录，获取该路径下的文件可以使用`Class`类型的`getResource()`方法：
+`sbt`项目中的`src/main`与`src/test`下都存在`resources`目录。
+获取该路径下的文件可以使用`Class`类型的`getResource()`方法：
 
 ```java
 public java.net.URL getResource(String name);
 ```
+
+`getResource()`方法返回的路径为`URL`类型，可以使用`getFile()`方法将其转换为文件路径字符串。
 
 假设`src/main/resources`路径下存在文件`temp.txt`，则打印该文件内容：
 
@@ -3175,7 +3178,7 @@ public java.net.URL getResource(String name);
 import scala.reflect.io.File
 
 object Main extends App {
-	// 使用相对路径 "temp.txt" 亦可
+	// 直接使用相对路径 "temp.txt" 亦可
 	File(getClass.getResource("/temp.txt").getFile).lines.foreach(println)
 }
 ```
@@ -3196,23 +3199,34 @@ groupID % artifactID % revision
 groupID % artifactID % revision % configuration
 // 对于开放源码的库，可以指定在添加依赖时同时下载库源码和Java DOC
 groupID % artifactID % revision % withSource() withJavadoc()
+```
 
-/*
-	使用%%符号连接groupID和artifactID，
-	则会将当前Scala的大版本号追加到artifactID上，
-	Scala相关项目的artifactID命名上通常会以使用的Scala的大版本号作为结尾
-*/
+对于多数使用Scala开发的项目，项目的`artifactID`命名上通常会以使用Scala版本号作为结尾(`Scala`编译器相关模块除外，如`scala-reflect`、`scala-compiler`等)。
+在添加Scala项目依赖时，使用`%%`操作符连接`groupID`和`artifactID`，则会将当前Scala版本号追加到`artifactID`上：
+
+```scala
 groupID %% artifactID % revision
 ```
 
-依赖的描述信息与maven类似，实际上sbt可以直接添加maven仓库的依赖，包的具体信息可以在maven中心仓库通过包名进行搜索得到。
+等价于：
+
+```scala
+groupID % artifactID_[Scala版本] % revision
+```
+
+以`Scala 2.12`的`Akka 2.4.17`为例，依赖信息为：
+
+```
+com.typesafe.akka %% akka-actor % 2.4.17			//省略Scala版本信息
+com.typesafe.akka % akka-actor_2.12 % 2.4.17		//两种表示方式等价
+```
 
 `sbt.SettingKey`类型重载了`+=`和`++=`运算符：
 
 > `+=`运算符用于添加单项依赖，如：
 >
 >	```scala
->	libraryDependencies = groupID % artifactID % revision
+>	libraryDependencies += groupID % artifactID % revision
 >	```
 >
 > `++=`运算符用于添加多个依赖序列，如：
@@ -3226,15 +3240,18 @@ groupID %% artifactID % revision
 >	```
 
 ### 常用的依赖
-包的信息可以在Maven中心仓库搜索到，地址为`http://search.maven.org/`。
+`sbt`依赖的描述信息与`Maven`相同，`sbt`允许直接添加Maven仓库的依赖，包的信息可以在**Maven中心仓库**搜索到，地址为`http://search.maven.org/`。
+
 一些常用包的`GroupId`和`ArtifactId`信息如下：
 
 | 包介绍 | GroupId | ArtifactId |
 |:------|:--------|:-----------|
 | MySQL数据库JDBC驱动 | mysql | mysql-connector-java |
-| Slick | com.typesafe.slick | slick_[Scala主版本号] |
-| Akka | com.typesafe.akka | akka-actor_[Scala主版本号] |
-| Scala Swing | org.scala-lang.modules | scala-swing_[Scala主版本号] |
+| Scala Reflect | org.scala-lang | scala-reflect |
+| Scala Swing | org.scala-lang.modules | scala-swing_[Scala版本号] |
+| ScalaFx | org.scalafx | scalafx_[Scala版本号]
+| Slick | com.typesafe.slick | slick_[Scala版本号] |
+| Akka | com.typesafe.akka | akka-actor_[Scala版本号] |
 
 
 

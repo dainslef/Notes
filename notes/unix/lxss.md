@@ -15,10 +15,11 @@
 在`Linux Subsystem`中，`Windows`下的分区会被挂载到`/mnt`路径下。
 
 `Linux Subsystem`使用`lxrun`工具进行管理：
-	- `lxrun /install` 安装子系统
-	- `lxrun /uninstall` 移除子系统，默认情况下保留`/home`和`/root`目录，指令搭配`/full`参数则执行完全卸载
-	- `lxrun /update` 更新子系统的包索引
-	- `lxrun /setdefaultuser` 配置子系统用户
+
+- `lxrun /install` 安装子系统
+- `lxrun /uninstall` 移除子系统，默认情况下保留`/home`和`/root`目录，指令搭配`/full`参数则执行完全卸载
+- `lxrun /update` 更新子系统的包索引
+- `lxrun /setdefaultuser` 配置子系统用户
 
 ### 与 *Cygwin/Msys* 比较
 `Linux Subsystem`与`Msys`等有着本质区别：
