@@ -178,7 +178,7 @@ required: Int
 ```
 
 参数默认值
-> 在Scala中，方法中参数允许带有**默认值**：
+> 在Scala中，方法中的参数允许带有**默认值**：
 >
 >	```scala
 >	scala> var num = 100
@@ -197,6 +197,36 @@ required: Int
 >	func: (num1: Int, num2: Int)Unit
 >	scala> func(300)
 >	300 200
+>	```
+>
+> 在常见的支持方法参数默认值的编程语言中，参数默认值会有一些限制：
+>
+>	- `C#`中的参数默认值只能是编译时常量。
+>	- `C++`中的参数默认值可以是成员变量、全局变量，但不能是函数结果。
+>	- `C++`中使用非静态成员变量做为参数默认值时，类实例必须设定默认值在之前创建，不能在设定默认值的表达式中创建实例获取成员变量。
+>
+> 在`Scala`中方法的参数默认值可以是变量，类内字段，甚至是另一个方法的返回结果。
+>
+> 如下代码所示：
+>
+>	```scala
+>	class Test {
+>		var num = 23333
+>	}
+>
+>	object Main extends App {
+>
+>		def get(num: Int = (new Test).num) = num	//Scala支持使用new操作符创建实例获取成员字段做为默认值
+>		def show(num: Int = get()) = println(num)
+>
+>		show()
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	23333
 >	```
 
 默认参数与方法重载
@@ -924,7 +954,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 > 编译成Java代码后为：
 >
 >	```java
->	public class Empty() {
+>	public class Empty {
 >		public Empty() { ... };
 >	}
 >	```
@@ -974,8 +1004,8 @@ Scala作为OOP语言，支持多态。
 > Scala中的重写遵循以下规则：
 >
 >	- def只能重写另一个def。
->	- var只能重写另一个抽象的var(即只有定义没有实现)。
 >	- val可以重写另一个val以及不带有参数的def。
+>	- var只能重写另一个抽象的var(即只有定义没有实现)。
 
 重载
 > Scala支持函数重载，并且可以使用**操作符**作为函数名，使用操作符作为函数名可以达到类似**C++**中**操作符重载**的效果。
