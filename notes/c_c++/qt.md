@@ -643,10 +643,11 @@ void QListWidgetItem::setData(int role, const QVariant& value);			//设置item�
 
 提供给用户使用的Role从`Qt::UserRole`开始，`Qt::UserRole`之后的数值都可以由用户使用。
 
-### 使QListWidgetItem对齐
-如果给`QListWidgetItem`设定了文本，那么，在文本长度不一致的时候，图标很可能不会保持对齐状态，此时可以使用`QListWidgetItem::setSizeHint(const QSize& size)`来强制设定每个item的大小，使每个item大小完全相同，达到对齐的效果(过长的文本会以省略号显示)。
+### 对齐 *QListWidgetItem*
+如果给`QListWidgetItem`设定了文本，那么，在文本长度不一致的时候，图标很可能不会保持对齐状态。
+此时可以使用`QListWidgetItem::setSizeHint(const QSize& size)`来强制设定每个item的大小，使每个item大小完全相同，达到对齐的效果(过长的文本会以省略号显示)。
 
-### 查找指定名称的QListWidgetItem
+### 查找 *QListWidgetItem*
 可以使用`QList<QListWidgetItem*> QListWidget::findItems(const QString& text, Qt::MatchFlags flags) const`来查找指定文本内容的`QListWidgetItem`。
 其中，可以通过设定`flags`来设定一些简单的匹配规则，常用的匹配规则有：
 
@@ -677,6 +678,7 @@ void QTreeWidgetItem::setFlags(Qt::ItemFlags flags);								//设置标志，可
 与`QTableWidget`类似，`QTreeView/QTreeWidget`也可以使用`QTreeView::resizeColumnToContents(int column) [slot]`可以设置指定列的**列宽自适应**。
 `QTreeWidget`的表头为一个`QHeaderView`对象，更细节的列宽分配可通过`QHeaderView`类的相关方法来进行设置。
 `QTreeWidget`实现了`QHeaderView* QTreeView::header()`方法，因此通过`header()`方法可以直接获得`QHeaderView`对象指针。
+
 使用以下方法对`QTreeWidget`进行列宽设置：
 
 ```cpp
@@ -686,6 +688,7 @@ void QHeaderView::setSectionResizeMode(int logicalIndex, ResizeMode mode);			//�
 
 ### 清空、删除、移除节点
 删除QTreeWidget的item可以直接使用`delete`操作符，释放掉指定item的内存，该item便会从树形控件上删除。
+
 将整个树形控件清空可以使用：
 
 ```cpp
@@ -767,7 +770,9 @@ QPixmap QPixmap::scaled(int width, int height);
 
 ### 在 *QComobox/QListWidget* 中显示图片
 使用`QComboBox::addItem(const QIcon& icon, const QString& text, const QVariant& userData = QVariant())`向一个组合框添加选项内容时，将需要在组合框中显示的图片转换成`QIcon`类型，填入第一个参数即可。
-需要注意的是，`QComboBox`在显示图片是是有自身默认的大小的，无论原图片的大小如何，都会被缩放成`QComboBox`中指定的大小。
+
+`QComboBox`在显示图片具有自身默认大小，无论原图片的大小如何，都会被缩放成`QComboBox`中指定的大小。
+
 指定`QComboBox`中显示图片的大小需要使用`QComboBox::setIconSize(const QSize& size)`来显式指定。
 对于`QListWidget`，操作方式类似，控制显示图片的大小同样需要使用`QListWidget::setIconSize(const QSize& size)`来显式指定。
 
@@ -940,12 +945,23 @@ Qt提供了基于`WebKit`引擎的`QWebKit`做为**网页解析引擎**。网页
 
 ### 加载页面
 使用`QWebView::load(const QUrl& url)`将连接地址做为参数可以让`QWebView`载入一个页面。
-需要注意的是，连接地址需要符合`URL`(统一资源定位符)的规范，格式应写成`协议://路径1/路径2/路径xxx?参数1=参数值1&参数2=参数值2&参数xxx=参数值xxx`。
-常见的协议有：`http`(超文本传输协议资源)`https`(用安全套接字层传送的超文本传输协议)`ftp`(文件传输协议)`file`(本地电脑或互联网分享文件)。
+连接地址需要符合`URL`(统一资源定位符)的规范，格式应写成`协议://路径1/路径2/路径xxx?参数1=参数值1&参数2=参数值2&参数xxx=参数值xxx`。
+
+常见的协议有：
+
+- `http` 超文本传输协议
+- `https` 用安全套接字层传送的超文本传输协议
+- `ftp` 文件传输协议
+- `file` 本地或互联网分享文件路径
 
 ### 响应页面点击事件
 在`QWebView`中展示的页面点击链接可以发出信号`QWebView::linkClicked(const QUrl& url)`，捕获该信号进行处理即可。
-需要注意的是，默认情况下，点击链接并不会自动发送该信号，需要使用`QWebView::page()`获取当前页面，然后再使用`void QWebPage::setLinkDelegationPolicy(LinkDelegationPolicy policy)`将获取页面的链接代理设置为`QWebPage::DelegateExternalLinks/QWebPage::DelegateAllLinks`时才会触发连接信号。
+
+默认情况下，点击链接**不会**自动发送该信号，发送点击信号需要以下步骤：
+
+1. 使用`QWebView::page()`获取当前页面。
+1. 使用`void QWebPage::setLinkDelegationPolicy(LinkDelegationPolicy policy)`将获取页面的链接代理设置为`QWebPage::DelegateExternalLinks/QWebPage::DelegateAllLinks`。
+1. 进行点击操作产生点击信号。
 
 
 
