@@ -14,39 +14,59 @@
 - `AWT`使用原生控件，执行效率高。
 - `Swing`使用自绘控件，执行效率低下(在现代版本的`Java`中已有较大改善)。
 
+### *Scala Swing*
+`Scala`标准库中提供了`Java Swing`对应的`Scala API`封装。
+
+在`sbt`项目中添加`Scala Swing`库：
+
+```scala
+libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "版本号"
+```
+
 
 
 ## 常用控件
-`Swing`提供的控件位于`javax.swing`包路径下，命名均以字母`J`起始。
+`Java Swing`提供的控件位于`javax.swing`包路径下，命名均以字母`J`起始。
 
-容器：
+`Scala Swing`对`Java Swing`提供的多数控件进行了浅层的封装，使之更符合`Scala`的`API`风格。
+`Scala Swing`控件位于`scala.swing`路径下，名称为对应的`Java Swing`控件去掉首字母`J`。
 
-- `JFrame` 窗体框架
-- `JDialog` 对话框
-- `JPanel` 面板
-- `JScrollPane` 滚动面板
+容器类控件：
 
-`JFrame`一般做为顶层容器，可以独立做为对话框显示，但`JPanel`不能独立做为对话框。
+| Java Swing 控件名称 | Scala Swing 控件名称 | 控件简介 |
+|:-------------------|:-------------------|:--------|
+| JFrame | Frame | 顶层窗体控件 |
+| JDialog | Dialog | 对话框窗体 |
+| JPanel | Panel | 面板 |
+| JScrollPane | ScrollPane | 滚动面板 |
 
-文本组件：
+`JFrame/Frame`一般做为顶层容器，可以独立做为对话框显示，但`JPanel/Panel`不能独立做为对话框。
 
-- `JLabel` 显示文本
-- `JTextField` 单行编辑框
-- `JPasswordField` 密码编辑框
-- `JTextArea` 多行编辑区域
+文本控件：
 
-按钮组件：
+| Java Swing 控件名称 | Scala Swing 控件名称 | 控件简介 |
+|:-------------------|:-------------------|:--------|
+| JLabel | Label | 文本标签 |
+| JTextField | TextField | 单行文本框 |
+| JTextArea | TextArea | 多行文本框 |
+| JPasswordField | PasswordField | 密码文本框(可设定回显字符) |
 
-- `JButton` 普通按钮
-- `JCheckBox` 复选框
-- `JRadioButton和ButtonGroup` 单选框
-- `JComboBox` 组合框(下拉列表框)
+按钮控件：
+
+| Java Swing 控件名称 | Scala Swing 控件名称 | 控件简介 |
+|:-------------------|:-------------------|:--------|
+| JButton | Button | 普通按钮 |
+| JCheckBox | CheckBox | 复选框 |
+| JRadioButton | RadioButton | 单选框 |
+| JComboBox | ComboBox | 组合框(下拉列表框) |
 
 菜单栏：
 
-- `JMenubar` 菜单栏
-- `JMenu` 菜单栏上的按钮
-- `JMenuItem` 点击菜单按钮弹出的菜单项
+| Java Swing 控件名称 | Scala Swing 控件名称 | 控件简介 |
+|:-------------------|:-------------------|:--------|
+| JMenubar | Menubar | 菜单栏 |
+| JMenu | Menu | 菜单栏上的按钮 |
+| JMenuItem | MenuItem | 点击菜单按钮弹出的菜单项 |
 
 常用的表单组件都有对应的菜单版本，比如`JRadioButtonMenuItem`、`JCheckBoxMenuItem`等。
 向`JMenu`中`add()`菜单项时，虽然可以选择普通组件，但普通组件不能触发菜单效果(点按之后菜单不收回)。
