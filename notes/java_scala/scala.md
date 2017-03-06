@@ -77,7 +77,7 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 
 
 
-## Scala基本语言特性
+## 基本语言特性
 相比`Java`、`C++`等语言，`Scala`融合了`OOP`、`FP`等编程范式，同时语法上更**灵活**。
 
 ### 语法基础(概览)
@@ -553,12 +553,12 @@ class Test
 在Scala中，所有的基础类型之外的引用类型派生自类`AnyRef`。
 
 基础类型转换
-基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行，如将数值与字符串相互转换可以使用如下代码：
-
-```scala
-var str = 100.toString
-var num = str.toInt
-```
+> 基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行，如将数值与字符串相互转换可以使用如下代码：
+>
+>	```scala
+>	var str = 100.toString
+>	var num = str.toInt
+>	```
 
 ### *Bottom* (底类型)
 与Java不同，Scala中存在底类型(bottom)。底类型包括`Nothing`和`Null`。
@@ -803,6 +803,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 主构造器访问权限
 > 在**类名**之后，**主构造器参数**之前可以添加访问权限修饰符，用于限定主构造器的访问权限。
+>
 > 如下所示：
 >
 >	```scala
@@ -821,7 +822,8 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >	}
 >	```
 
-主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。
+主构造器参数做为成员字段
+> 主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。
 > 构造器参数前使用`var`关键字，如下代码所示：
 >
 >	```scala
@@ -884,7 +886,8 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >
 > 只有访问权限为`private[this]`时，编译器才不会为引用的字段生成`setter/getter`，而仅仅生成一个私有成员变量。
 
-主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。
+主构造器参数的默认字段生成规则
+> 主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。
 > 编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
 >
 > 如下代码所示：
@@ -909,6 +912,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >
 > 当该参数被其它成员方法引用时，编译器会为其生成对应的`final`私有成员变量(但没有生成`setter/getter`)。
 > 只要构造器参数没有使用`var`关键字标记，则生成的成员变量就带有`final`属性。
+>
 > 如下代码所示：
 >
 >	```scala
@@ -937,7 +941,9 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >
 > 辅助构造器中的参数与普通函数参数类似，仅在构造器代码段内部生效(不作为字段存在)，辅助构造器的参数前不能添加`var/val`关键字。
 
-一个类如果没有显式写明主构造器参数，则默认生成一个**空参**构造方法。
+默认构造方法
+> 一个类如果没有显式写明主构造器参数，则默认生成一个**空参**构造方法。
+>
 > 对于一个如下的**空类**：
 >
 >	```scala
@@ -2932,7 +2938,26 @@ Scala标准库中内置了XML支持，XML相关类在包`scala.xml`中。
 
 ### 节点类型
 `Node`是最基础的XML节点类型(抽象类)。
-`Node`类型是`NodeSeq`的子类，而`NodeSeq`继承自`Seq[Node]`，用于记录节点的序列。
+`NodeSeq`继承自`Seq[Node]`，用于记录节点的序列。
+
+相关类型继承关系图如下所示：
+
+```
+Seq[Node]
+│ 
+NodeSeq
+├── Document
+└── Node
+	 ├── Elem
+	 └── SpecialNode
+	 		 ├── EnityRef
+			 ├── ProcInstr
+			 ├── Conment
+			 └── Atom
+			 	 ├── Text
+				 ├── PCData
+				 └── Unparsed
+```
 
 `Node`类型定义了一系列用于获取节点信息的方法：
 
@@ -2959,128 +2984,154 @@ def unapplySeq(n: Node) = Some((n.label, n.attributes, n.child))
 ```
 
 `Elem`类型继承于`Node`类型，实现了`Node`类型中的抽象内容。
+
+### 读写 XML 文件
+读写XML文件可以使用`XMLLoader`特质以及继承于`XMLLoader[Elem]`的单例对象`XML`。
+
+- `XMLLoader`的实例方法`loadFile()`可以从指定路径加载XML文件进行解析，方法返回由输入XML文件生成的`Elem`节点对象。
+- `XML`对象的方法`save()`和`write()`可用于将节点(`Node`类型)写入到文件中。
+- `save()`方法接收文件路径(`String`类型)作为参数，大部分参数带有默认值。
+- `write()`接收`java.io.Writer`类型作为参数，参数没有默认值。
+
+### 查找节点
+`NodeSeq`类提供了`\()`、`\\()`等方法用于节点的查找，继承于`NodeSeq`类的`Node`、`Elem`等类型都可以使用这些方法进行节点查找。
+
+`\()`以及`\\()`方法签名类似，接收节点名称作为参数(`String`类型)，返回节点序列(`NodeSeq`类型)。
+
+如下所示：
+
+```scala
+// 返回当前节点下一级子节点中指定名称节点的序列
+def \(that: String): NodeSeq
+// 返回当前节点所有子节点中指定名称节点的序列
+def \\(that: String): NodeSeq
+```
+
+- 使用`loadFile()`方法加载XML文件后，返回的`Elem`类型的当前节点为**根节点**。
+- 节点查找支持使用**模式匹配**的方式。
+- 使用模式匹配方式查找节点时，匹配表达式中的节点标签不能带有属性(不支持此语法)。
+
+### 节点属性
+节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
+
+使用`\()`、`\\()`方法同样可以进行属性查找，需要在属性名字符串前加上`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名称为`num`的属性内容。
+在使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
+
+`NodeSeq`类型提供了`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符，如下所示：
+
+```scala
+// 参数为属性名称
+def \@(attributeName: String): String
+```
+
+`Node`类型提供了`attribute()`以及`attributes`方法从节点中获取属性，如下所示：
+
+```scala
+// 获取带有指定属性的节点
+final def attribute(key: String): Option[Seq[Node]]
+// 获取所有属性
+def attributes: MetaData
+```
+
+`attributes`方法返回的类型为`MetaData`。
+`MetaData`类型支持遍历操作，定义了`key`、`value`方法用于获取属性的键值，如下所示：
+
+```scala
+// 获取指定属性的值
+def apply(key: String): Seq[Node]
+// 获取当前属性名称
+def key: String
+// 获取当前属性名称对应的属性值
+def value: Seq[Node]
+```
+
+### 遍历节点
+`Elem`类型的成员字段`child`保存了子节点的序列(`Seq[Node]`类型)，可以通过`for`循环语句或高阶函数进行遍历。
+
 有如下测试XML文件：
 
 ```xml
 <!-- FileName: Example.xml -->
-<root>
-	<node arg="arg_node">
-		<node1 arg="arg_node1">node1</node1>
-		<node1 argOne="node1_arg_one" argTwo="node1_arg_two">test_node1</node1>
-	</node>
-	<node><node2>node2</node2></node>
-	<node>
-		<node3 arg="arg_node3">node3</node3>
-		<node4 arg="arg_node4">node4</node4>
-	</node>
-</root>
+<Root>
+	<Node arg="arg_node1">
+		<One>node1</One>
+	</Node>
+	<Node arg="arg_node2"><Two arg="arg_2">node2</Two></Node>
+	<Node arg="arg_node4">
+		<Three arg="arg_3">node3</Three>
+	</Node>
+	<Node arg="arg_node4">
+		<Four arg="arg_4">node4_1</Four>
+		<Four arg_one="arg_4_1" arg_two="arg_4_2">node4_2</Four>
+	</Node>
+</Root>
 ```
 
-### 加载与保存XML文件
-加载和保存XML文件可以使用`XMLLoader`特质以及继承于`XMLLoader[Elem]`的单例对象`XML`。
-
-- `XMLLoader`的实例方法`loadFile()`可以从指定路径加载XML文件进行解析，方法返回由输入XML文件生成的`Elem`节点对象。
-- `XML`对象的方法`save()`和`write()`可用于XML节点(`Node`类型)保存到文件中。
-- `save()`方法接收文件路径(`String`类型)作为参数，大部分参数带有默认值。
-- `write()`接收`java.io.Writer`类型作为参数，参数没有默认值。
-
-### 查找节点和节点属性
-`NodeSeq`类提供了`\()`、`\\()`等方法用于节点的查找，继承于`NodeSeq`类的`Node`、`Elem`等类型都可以使用这些方法进行节点查找。
-
-查找节点
-> `\()`以及`\\()`方法签名类似，接收节点名称作为参数(`String`类型)，返回节点序列(`NodeSeq`类型)。
->
->	- `\()`方法返回当前节点**下一级**子节点中指定名称节点的序列。
->	- `\\()`方法返回当前节点**所有**子节点中指定名称节点的序列。
->	- 使用`loadFile()`方法加载XML文件后，返回的`Elem`类型的当前节点为**根节点**。
->	- 节点查找支持使用**模式匹配**的方式。
->	- 使用模式匹配方式查找节点时，匹配表达式中的节点标签不能带有属性(不支持)。
-
-节点属性
-> 节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
->
->	- 使用`\()`、`\\()`方法同样可以进行属性查找，需要在属性名字符串前加上`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名称为`num`的属性内容。
->	- 在使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
->	- 可以直接使用`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。
->	- 还可以使用`attribute()`以及`attributes()`方法从节点中获取属性。
-
-### 遍历节点
-`Elem`类型的成员字段`child`保存了子节点的序列(`Seq[Node]`类型)，可以通过`for`循环语句进行遍历：
+代码如下所示：
 
 ```scala
 import scala.xml._
 
 object Main extends App {
 
-	val xmlFile = XML.loadFile("Example.xml")
+	val xmlFile = XML.loadFile(getClass.getResource("Example.xml").getPath)
 
-	val getChild: Node => Unit = rootNode => for (node <- rootNode.child)
-		node match {
+	val showChild: Node => Unit = _.child foreach { node => node match {
 
-			//如果只需要节点文本，可以将表达式嵌在匹配语句中
-			case <node1>{ text }</node1> => println("Node1 text: " + text)
+			// 使用标签匹配，可以将表达式嵌在匹配语句中
+			case <One>{text}</One> => println(s"case <One>{text}</One>: $text")
 
-			//支持多级标签匹配
-			case <node><node2>{ text }</node2></node> => println("Case node_node2: " + text)
+			// 标签匹配支持多级嵌套标签，不支持在标签中直接添加属性
+			case <Node><Two>{text}</Two></Node> =>
+				println(s"case <Node><Two>{text}</Two></Node>: $text")
 
-			//如果需要整个节点的内容，需要使用@符号
-			case n @ <node2>{ _ }</node2> => println("Node2 text: " + n.text)
+			// 匹配多级标签需要节点内部不换行
+			case <Node><Three>{text}</Three></Node> =>
+				println(s"case <Node><Three>{text}</Three></Node>: $text")
 
-			//使用attribute()或者attributes()方法获取节点的属性
-			case n @ <node3>{ _ }</node3> => println("Node3 attribute: " + n.attribute("arg").get)
-			case n @ <node4>{ _ }</node4> => println("Node4 attribute: " + n.attributes("arg"))
+			// 使用 @ 操作符给匹配的节点标记变量名称(n 为 Node 类型)
+			case n @ <Three>{_}</Three> =>
+				println(s"case n @ <Three>{_}</Three>, n text: ${n.text}, n type: ${n.getClass}")
 
-			//匹配其它类型节点，也可以写成 case _ if node.child.length > 0 => ...
-			case _ if node.child != null => getChild(node)
-		}
+			// 遍历属性
+			case n @ <Four>{_}</Four> if n \@ "arg_one" == "arg_4_1" =>
+				println(s"case n @ <Four>{_}</Four>, n text: ${n.text}, n type: ${n.getClass}, n.attributes: ")
+				n.attributes foreach { attr =>
+					println(s"attribute name: ${attr.key} attribute value: ${attr.value.text}")
+				}
 
-	getChild(xmlFile)
-}
-```
+			// 使用 @ 操作符给节点内容标记变量名称(n 为 Text 类型)
+			case <Four>{n @ _}</Four> =>
+				println(s"case <Four>{n @ _}</Four>, n text: ${n.text}, n type: ${n.getClass}")
 
-遍历节点同样可以使用**高阶函数**，以上代码等价于：
+			/*
+			匹配其它类型节点，注意不能写成：
+				case _ if node.child.length > 0 => ... 或 case _ if node.child.nonEmpty => ...
+				(空指针不能调用方法)
+			*/
+			case _ if node.child != null => showChild(node)
 
-```scala
-import scala.xml._
-
-object Main extends App {
-
-	val xmlFile = XML.loadFile("Example.xml")
-
-	val getChild: Node => Unit = rootNode => rootNode.child foreach {
-		node => node match {
-
-			case <node1>{ text }</node1> => println("Node1 text: " + text)
-			case <node><node2>{ text }</node2></node> => println("Case node_node2: " + text)
-			case n @ <node2>{ _ }</node2> => println("Node2 text: " + n.text)
-
-			//若仅需要属性的内容，可以直接在模式匹配表达式中获取属性(n为Node类型)
-			case <node3>{ n @ _ }</node3> => println("Node3 attribute: " + n.text)
-
-			//若需要从模式匹配表达式中获取多个属性，则可以写成(n为Seq[Node]类型)
-			case <node4>{ n @ _* }</node4> => println("Node4 attribute: " + n(0).text)
-
-			//匹配其它类型节点，也可以写成 case _ if node.child.length > 0 => ...
-			case _ if node.child != null => getChild(node)
 		}
 	}
 
-	getChild(xmlFile)
+	showChild(xmlFile)
 }
 ```
 
 输出结果：
 
 ```
-Node1 text: node1
-Node1 text: test_node1
-Case node_node2: node2
-Node3 attribute: arg_node3
-Node4 attribute: arg_node4
+case <One>{text}</One>: node1
+case <Node><Two>{text}</Two></Node>: node2
+case n @ <Three>{_}</Three>, n text: node3, n type: class scala.xml.Elem
+case <Four>{n @ _}</Four>, n text: node4_1, n type: class scala.xml.Text
+case n @ <Four>{_}</Four>, n text: node4_2, n type: class scala.xml.Elem, n.attributes:
+attribute name: arg_two attribute value: arg_4_2
+attribute name: arg_one attribute value: arg_4_1
 ```
 
-### 创建XML
-可以直接将代码嵌入XML语句中：
+### 创建 XML
+可以直接将代码嵌入`XML`语句中：
 
 ```scala
 scala> val str = "Test"
@@ -3099,6 +3150,7 @@ node3: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li></ul>
 ```
 
 在Scala中，节点是**不可变**的，拼接节点的正确方式是使用`Elem`类型的`cospy()`方法，并在复制时重新设定`child`参数。
+
 `copy()`方法的定义如下所示：
 
 ```scala
@@ -3271,7 +3323,7 @@ com.typesafe.akka % akka-actor_2.12 % 2.4.17		//两种表示方式等价
 >	```
 
 ### 常用的依赖
-`sbt`依赖的描述信息与`Maven`相同，`sbt`允许直接添加Maven仓库的依赖，包的信息可以在**Maven中心仓库**搜索到，地址为`http://search.maven.org/`。
+`sbt`依赖的描述信息与`Maven`相同，`sbt`允许直接添加`Maven`仓库的依赖，包的信息可以在**Maven中心仓库**搜索到，地址为`http://search.maven.org/`。
 
 一些常用包的`GroupId`和`ArtifactId`信息如下：
 
