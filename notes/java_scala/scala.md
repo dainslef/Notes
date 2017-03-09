@@ -1603,7 +1603,7 @@ object Color extends Enumeration {
 	* val blue = Value
 	*/
 
-	// 手动使用Value(id: Int, name: String)方法手动进行id和name的设置
+	// 手动使用 Value(id: Int, name: String) 方法手动进行id和name的设置
 	val white = Value(100, "White")
 	val black = Value(200, "Black")
 	// 使用重载有參版本的Value(id: Int, name: String)不能采用自动赋值的方式，会编译报错
@@ -1712,10 +1712,10 @@ ID: 200, Str: Black
 
 ## 基础数据结构
 Scala常用的基础结构包括**数组**和**元组**。
-Scala中数组的概念与Java中基本类似。
 
 ### 定长数组
 在Scala中定长数组使用`Array[T]`进行表示，定长数组与Java中概念类似。
+
 构建一个固定长度的数组如下所示：
 
 ```scala
@@ -1744,7 +1744,8 @@ tuple: (Int, Int, Int) = (1,2,3)
 ```
 
 元组中允许包含**重复**的值，也允许不同类型的值，但元组一经创建，内容便不可改变。
-元组可以通过`元组对象._索引号`的形式访问，不过元组下标是从`1`开始而非`0`，如下所示：
+
+元组可以通过`元组对象._索引号`的形式访问。元组下标从`1`开始而非`0`，如下所示：
 
 ```scala
 scala> println(tuple._1 + " " + tuple._2 + " " + tuple._3)
@@ -1786,7 +1787,7 @@ object TestTuple extends App {
 1 2 3
 ```
 
-需要注意的是，元组**不能**够使用`for`循环进行遍历。
+需要注意的是，元组**不支持**使用`for`循环进行遍历。
 
 
 
@@ -2175,7 +2176,7 @@ import java.awt._	//等价于java中的 import java.awt.*
 >	```
 
 默认包与绝对路径导入
-> 在`Java`和`Scala`中，不使用`package`关键字打包的代码即位于**默认包**下，没有对应的包名。
+> 在`Java`和`Scala`中，不使用`package`关键字打包的代码即位于**默认包**下，没有对应的包名。  
 > 在`Scala`中使用`_root_`指代默认包。
 >
 > `Scala`中默认的`import`操作是基于相对路径的，但`Scala`同样支持以**绝对路径**进行`import`操作：
@@ -2190,7 +2191,8 @@ import java.awt._	//等价于java中的 import java.awt.*
 >	```
 
 默认包的限制
-> 默认包没有名称，其内容只能被同在默认包下的其它内容访问，内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
+> 默认包没有名称，其内容只能被同在默认包下的其它内容访问。  
+> 内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
 >
 > 如下代码所示：
 >
@@ -2237,7 +2239,7 @@ import java.awt.{Color => _}
 import java.lang.Math.abs		//导入Math类中的静态方法abs
 ```
 
-在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。
+在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。  
 在Scala中，`import`语句可以出现在**任意位置**，不必总是放在文件的顶部，`import`语句的作用域直到该语句块结束。
 
 ### 默认导入
@@ -2252,7 +2254,7 @@ import Predef._
 有些Scala包中的类名与Java包中的类名相同，但由于Scala包的引入语句在后，因此，例如`Scala.StringBuiler`类会覆盖`Java.lang.StringBuilder`。
 
 ### 包对象
-在Scala中，每个包可以带有一个与包名相同的**包对象**，包内的所有类都可以直接访问该包对象的公有成员。
+在Scala中，每个包可以带有一个与包名相同的**包对象**，包内的所有类都可以直接访问该包对象的公有成员。  
 如下代码所示：
 
 ```scala
@@ -2274,13 +2276,13 @@ package Package {
 
 
 ## *Implicit Conversions* (隐式转换)
-隐式转换在构建类库时是一个强大的工具。
+隐式转换在构建类库时是一个强大的工具。  
 使用隐式转换特性需要在编译时添加`-language:implicitConversions`选项。
 
 ### 定义隐式转换
-Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。
-若需要提供类型之间的自动转换功能，需要显式使用`implicit`关键字自定义隐式转换。
-隐式转换可以定义在**当前类**中或是**伴生对象**中，只要需要进行转换时能被访问到即可。
+Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。  
+若需要提供类型之间的自动转换功能，需要显式使用`implicit`关键字自定义隐式转换。  
+隐式转换可以定义在**当前类**中或是**伴生对象**中，只要需要进行转换时能被访问到即可。  
 
 当传入参数的类型与函数需要的类型不同时，编译器便会查找是否有合适的隐式转换，如下所示：
 
@@ -2351,13 +2353,14 @@ object Main extends App {
 100
 ```
 
-`Scala`标准类库中大量使用了隐式转换特性，如`String`类型本身并未定义`toInt/toDouble`等成员方法，在调用这些方法时，`String`实际上被隐式转换成定义了这些方法的`StringLike`类型来执行这些操作。
+`Scala`标准类库中大量使用了隐式转换特性。
+以`String`类型为例，源自`Java`标准库的`String`类型自身并未定义`toInt/toDouble`等成员方法，在调用这些方法时，`String`被**隐式转换**成定义了这些方法的`StringLike`类型来执行这些操作。
 
 ### 隐式参数
-函数和方法的参数前可以添加关键字`implicit`来将一个参数标记为**隐式参数**，当调用方法时没有对隐式参数赋值，则编译器会为隐式参数寻找匹配的隐式值。
+函数和方法的参数前可以添加关键字`implicit`来将一个参数标记为**隐式参数**。  
+当调用方法时没有对隐式参数赋值，则编译器会尝试为隐式参数寻找匹配的隐式值。
 
-变量前可以通过添加`implicit`关键字成为隐式值。
-
+变量前可以通过添加`implicit`关键字成为隐式值。  
 如下所示：
 
 ```scala
@@ -2488,7 +2491,7 @@ def testImplicit(implicit num0: Int)(num1: Double) {}			//错误。只有最后�
 - 隐式类特性**不能**与样例类共存，即一个类在定义时不能同时带有`implicit`和`case`关键字。
 - 隐式类**不能**定义在外部区域(包，以及包对象)，隐式类只能定义在类体、函数体、单例对象中。
 
-与**隐式转换**类似，当一个实例调用了**不存在**或**无法访问**的成员方法，编译器会为之搜索作用域中可访问的隐式类，若隐式类的构造器参数与实例相同且带有实例调用的方法，则自动调用该隐式类的构造器。
+与**隐式转换**类似，当一个实例调用了**不存在**或**无法访问**的成员方法，编译器会为之搜索作用域中可访问的隐式类，若隐式类的构造器参数与实例相同且带有实例调用的方法，则自动调用该隐式类的构造器。  
 如下代码所示：
 
 ```scala
@@ -2518,8 +2521,8 @@ Implicit Class: 100
 
 
 ## 并发编程
-作为`JVM`平台的编程语言，`Scala`可以直接调用`Java`的并发`API`。
-并发编程是`Scala`的擅长领域，除了Java标准库提供的并发API，`Scala`还提供下列并发技术：
+作为`JVM`平台的编程语言，`Scala`可以直接调用`Java`的并发`API`。  
+并发编程是`Scala`的擅长领域，除了`Java`标准库提供的并发API，`Scala`还提供下列并发技术：
 
 - `Scala`标准库中提供了`Future/Promise/Async`库来进行异步编程。
 - 基于`Scala`的`Akka`完整实现了`Actor`模型。
@@ -2528,7 +2531,7 @@ Implicit Class: 100
 `Future`是一组异步操作的抽象，完整包路径为`scala.concurrent.Future`。
 
 构建与启动`Future`
-> `Future`为**特质**，没有构造函数，无法直接构建实例。
+> `Future`为**特质**，没有构造函数，无法直接构建实例。  
 > 创建一个`Future`实例需要使用伴生对象中重写的`apply()`方法，声明如下：
 >
 >	```scala
@@ -2553,7 +2556,7 @@ Implicit Class: 100
 > 与传统的并发库设计不同，`Future`并没有提供诸如`start()/run()`之类的方法用于显式开始异步代码块的执行，在完成`Future`实例构建的同时，作为参数的代码块就自动开始异步执行了。
 
 *Callbacks* (异步回调)
-> 与传统的并发库设计类似，`Future`采用回调的方式来处理异步操作完成的结果。
+> 与传统的并发库设计类似，`Future`采用回调的方式来处理异步操作完成的结果。  
 > `Future`实例提供了`onComplete()`成员方法来绑定回调函数，声明如下：
 >
 >	```scala
@@ -2634,7 +2637,7 @@ Implicit Class: 100
 >>	- `length`参数为时间数值。
 >>	- `unit`参数为时间单位。
 >>
->> 构建的时间对象为`Duration`的子类，有限时间`FiniteDuration`。
+>> 构建的时间对象为`Duration`的子类，有限时间`FiniteDuration`。  
 >> `Duration`中有两个成员`Inf`、`MinusInf`分别用来表示**无限大/无限小**的时间。
 >>
 >> `TimeUnit`类型完整包路径为`java.util.concurrent.TimeUnit`，为枚举类型，包含以下枚举成员：
@@ -2647,13 +2650,14 @@ Implicit Class: 100
 >>	- `java.util.concurrent.TimeUnit.NANOSECONDS` 纳秒
 >>	- `java.util.concurrent.TimeUnit.SECONDS` 秒
 >>
->> 在`import scala.concurrent.duration`包中定义了一系列隐式类`DurationInt/DurationLong/DurationDouble`，引用对应隐式类即可使用对应的DSL语法来构建时间对象`FiniteDuration`，如：
+>> 在`import scala.concurrent.duration`包中定义了一系列隐式类`DurationInt/DurationLong/DurationDouble`。  
+>> 引用对应隐式类即可使用对应的DSL语法来构建时间对象`FiniteDuration`，如：
 >>
 >>	- `1000 days`被转换为`Duration(1000, java.util.concurrent.TimeUnit.DAYS)`
 >>	- `1000 minutes`被转换为`Duration(1000, java.util.concurrent.TimeUnit.SECONDS)`
 >>	- ...
 >>
->> 诸如此类...
+>> 诸如此类...  
 >> 在`scala.concurrent.duration.DurationConversions`特质中定义了完整的转化语法。
 
 *blocking* (阻塞块)
@@ -2662,15 +2666,14 @@ Implicit Class: 100
 >	- 从`Future`内部调用任意代码阻塞线程。
 >	- 在`Future`外部等待一个`Future`完成。
 >
-> 在`Future`外部主动阻塞等待应使用`Await`类，在`Future`内部阻塞则应使用`blocking`方法。
->
+> 在`Future`外部主动阻塞等待应使用`Await`类，在`Future`内部阻塞则应使用`blocking`方法。  
 > `blocking`定义在包对象`scala.concurrent`中，是一个接收**传名参数**的泛型方法，定义如下所示：
 >
 >	```scala
 >	def future[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T] = Future[T](body)
 >	```
 >
-> `blocking`块的作用是向执行器(`ExecutionContext`)标记可能造成阻塞的代码，并调整执行器的行为。
+> `blocking`块的作用是向执行器(`ExecutionContext`)标记可能造成阻塞的代码，并调整执行器的行为。  
 > 对于默认的执行器`scala.concurrent.ExecutionContext.Implicits.global`，在`Future`中包含`blocking`块时，会新建线程来执行`Future`而不是等待复用已有的线程。
 >
 > 如下代码所示：
@@ -2727,7 +2730,7 @@ Implicit Class: 100
 >	Index: 30 Thread Name: ForkJoinPool-1-worker-3
 >	```
 >
-> 打印执行结果的过程中，输出流出现了几次3秒的停顿。
+> 打印执行结果的过程中，输出流出现了几次3秒的停顿。  
 > 从结果中不难看出，执行器只开辟了`15`个处理线程，在所有处理线程都处于`sleep`状态时，输出流便停止。
 >
 > 尝试将`sleep()`函数写在`blocking`中：
@@ -2849,7 +2852,7 @@ Implicit Class: 100
 >	Index: 30 Thread after blocking: ForkJoinPool-1-worker-33
 >	```
 >
-> 整个输出过程中，仅有**一次**3秒的停顿。
+> 整个输出过程中，仅有**一次**3秒的停顿。  
 > 分析输出结果，可以得知：
 >
 >	0. 执行器开辟的工作线程的数量明显大于没有`blocking`时的数量(线程数目`> 50`)。即使用`blocking`改变了执行器的线程创建策略。
@@ -2897,8 +2900,9 @@ Future {
 ### *async/await*
 `Scala`也提供了`Async`库用于简化`Future`的使用。
 
-`Async`完整包路径为`scala.async.Async`。
-当前版本(`Scala 2.11.8`)中，`Async`库尚未进入`Scala`标准库，若使用`SBT`，则需要在`build.sbt`配置文件中添加依赖：
+`Async`完整包路径为`scala.async.Async`。  
+当前版本(`Scala 2.11.8`)中，`Async`库尚未进入`Scala`标准库。  
+对于使用`sbt`的工程，则需要在`build.sbt`配置文件中添加依赖：
 
 ```scala
 libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "版本号"
@@ -2937,8 +2941,8 @@ object Async {
 Scala标准库中内置了XML支持，XML相关类在包`scala.xml`中。
 
 ### 节点类型
-`Node`是最基础的XML节点类型(抽象类)。
-`NodeSeq`继承自`Seq[Node]`，用于记录节点的序列。
+`Node`是最基础的XML节点类型(抽象类)。  
+`NodeSeq`用于记录节点的序列，继承自`Seq[Node]`。
 
 相关类型继承关系图如下所示：
 
@@ -3178,191 +3182,3 @@ res1: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li><li>Test</li><li name="
 scala> node3.copy(child = node0 ++ node1, prefix = "Test", label = "test")
 res2: scala.xml.Elem = <Test:test><li>Test</li><li name="Test">test</li></Test:test>
 ```
-
-
-
-## 构建工具 *sbt*
-`sbt`全称`Simple Build Tool`，是Scala项目的标准构建工具，类似于`Java`下的`Maven`/`Groovy`中的`Gradle`。
-
-### 安装与配置sbt
-主流Linux发行版的仓库中，一般都包含`sbt`，可以使用发行版的包管理器安装`sbt`，以`ArchLinux`为例：
-
-`# pacman -S sbt`
-
-在Windows环境下，可以从官网`http://www.scala-sbt.org/download.html`中下载，下载完成之后解压并将目录下的`bin`目录加入`PATH`中。
-
-如果已经安装了`Activator`，则无需再安装`sbt`，`Activator`中已经包含了`sbt`。
-
-### 启动与使用sbt
-在任意目录下输入`sbt`指令，即可进入sbt的交互式shell，sbt工具会将当前路径作为sbt项目的根目录。
-能看到以下输出：
-
-```
-[info] Set current project to sbt (in build file:/home/dainslef/Downloads/SBT/)
->
-```
-
-若路径中包含Scala源码，则在交互式shell中输入`run`指令则会尝试编译执行源码。
-旧版的`sbt`中(`sbt 0.7.x`之前)，在sbt交互shell中输入`run`指令会在路径下创建完整的sbt项目路径结构，但新版的sbt已不提供此功能(但可以使用`Activator`创建完整的sbt项目)。
-
-使用`Activator`则操作类似，在目录下输入`activator shell`指令即可进入sbt交互式shell。
-`Activator`内置了多种项目模版，使用如下指令即可创建一个具有完整路径的sbt项目：
-
-`$ activator new [项目名称] minimal-scala`
-
-sbt的常见指令有：
-
-- `compile` 编译项目
-- `update` 更新依赖
-- `test` 运行测试用例
-- `run` 运行项目
-- `clean` 清理项目缓存
-- `package` 将项目打包
-- `console` 进入Scala REPL
-
-sbt指令可以在直接在sbt的交互shell内使用，也可以作为参数跟在sbt指令之后直接在命令行中使用。
-
-### sbt项目结构
-sbt项目结构与maven项目类似。一个基本的sbt项目具有以下路径结构：
-
-```
-项目名称
-├── build.sbt							# 项目依赖关系(构建定义)
-├── project
-│   ├── plugins.sbt						# 添加sbt插件
-│   └── build.properties				# 构建规则与参数
-└── src									# 源码目录
-    ├── main
-    │   ├── resources
-    │   └── scala
-    │       └── XXX.scala
-    └── test
-        ├── resources
-        └── scala
-            └── TestXXX.scala
-```
-
-新创建的项目没有`target`目录，但在sbt交互shell中执行了`run`之后还会生成`target`和`project/target`目录。
-`target`目录中包含的所有内容均由编译系统生成，将项目目录加入版本控制时需要忽略这些目录。
-
-### 访问资源目录
-`sbt`项目中的`src/main`与`src/test`下都存在`resources`目录。
-获取该路径下的文件可以使用`Class`类型的`getResource()`方法：
-
-```java
-public java.net.URL getResource(String name);
-```
-
-`getResource()`方法返回的路径为`URL`类型，可以使用`getFile()`方法将其转换为文件路径字符串。
-
-假设`src/main/resources`路径下存在文件`temp.txt`，则打印该文件内容：
-
-```scala
-import scala.reflect.io.File
-
-object Main extends App {
-	// 直接使用相对路径 "temp.txt" 亦可
-	File(getClass.getResource("/temp.txt").getFile).lines.foreach(println)
-}
-```
-
-### 添加项目依赖
-项目依赖主要定义在项目根目录下的`build.sbt`文件中，通过自定义`build.sbt`文件中的`libraryDependencies`配置项即可向项目中添加**托管依赖**。
-
-`project`目录下也可以添加`*.scala`构建定义。
-
-`build.sbt`文件遵循Scala语法，`libraryDependencies`配置项实际上是一个类型为`sbt.SettingKey[scala.Seq[sbt.ModuleID]]`的**变量**。
-
-每一项依赖由`sbt.ModuleID`类型定义，一个具体的依赖项格式如下所示：
-
-```scala
-// 普通依赖，通常适用于Java依赖包
-groupID % artifactID % revision
-// 在指定配置下的依赖
-groupID % artifactID % revision % configuration
-// 对于开放源码的库，可以指定在添加依赖时同时下载库源码和Java DOC
-groupID % artifactID % revision % withSource() withJavadoc()
-```
-
-对于多数使用Scala开发的项目，项目的`artifactID`命名上通常会以使用Scala版本号作为结尾(`Scala`编译器相关模块除外，如`scala-reflect`、`scala-compiler`等)。
-在添加Scala项目依赖时，使用`%%`操作符连接`groupID`和`artifactID`，则会将当前Scala版本号追加到`artifactID`上：
-
-```scala
-groupID %% artifactID % revision
-```
-
-等价于：
-
-```scala
-groupID % artifactID_[Scala版本] % revision
-```
-
-以`Scala 2.12`的`Akka 2.4.17`为例，依赖信息为：
-
-```
-com.typesafe.akka %% akka-actor % 2.4.17			//省略Scala版本信息
-com.typesafe.akka % akka-actor_2.12 % 2.4.17		//两种表示方式等价
-```
-
-`sbt.SettingKey`类型重载了`+=`和`++=`运算符：
-
-> `+=`运算符用于添加单项依赖，如：
->
->	```scala
->	libraryDependencies += groupID % artifactID % revision
->	```
->
-> `++=`运算符用于添加多个依赖序列，如：
->
->	```scala
->	libraryDependencies ++= Seq(
->		groupID0 % artifactID0 % revision0,
->		groupID1 % artifactID1 % revision1,
->		...
->	)
->	```
-
-### 常用的依赖
-`sbt`依赖的描述信息与`Maven`相同，`sbt`允许直接添加`Maven`仓库的依赖，包的信息可以在**Maven中心仓库**搜索到，地址为`http://search.maven.org/`。
-
-一些常用包的`GroupId`和`ArtifactId`信息如下：
-
-| 包介绍 | GroupId | ArtifactId |
-|:------|:--------|:-----------|
-| MySQL数据库JDBC驱动 | mysql | mysql-connector-java |
-| Scala Reflect | org.scala-lang | scala-reflect |
-| Scala Swing | org.scala-lang.modules | scala-swing_[Scala版本号] |
-| ScalaFx | org.scalafx | scalafx_[Scala版本号]
-| Slick | com.typesafe.slick | slick_[Scala版本号] |
-| Akka | com.typesafe.akka | akka-actor_[Scala版本号] |
-
-
-
-## *Lightbend Activator*
-`Activator`提供了成套的Scala开发环境，相当于：
-
-`Scala编译器 + sbt + Play Framework + Akka + 项目模版 + 基于Play的WEB端项目管理`
-
-`Activator`内置了sbt，可以直接使用`Activator`管理、构建sbt项目。
-
-### 安装与配置Activator
-大多数Linux发行版都没有将`Activator`添加到仓库中，因而无论是Linux或是Windows环境下，都需要从官网下载`Activator`。
-
-配置`Activator`方式与`sbt`类似。
-从`http://www.lightbend.com/activator/download`下载完整版的`Activator`，解压后将`bin`目录加入`PATH`环境变量中即可。
-
-### Activator基本操作
-在普通目录中输入`activator`指令会在浏览器中打开Activator的帮助页面。
-在sbt项目目录中输入`activator`指令会进入sbt交互shell。
-
-其它常见的指令：
-
-- `$ activator ui` 进入WEB端的Activator界面
-- `$ activator shell` 进入sbt交互shell
-- `$ activator list-templates` 列出模版列表
-
-`Activator`中带有大量的预定义项目模版，使用模版创建项目：
-
-`$ activator new [项目名称] [模版名称]`
-
-`Activator`同样支持与`sbt`相同的指令。
