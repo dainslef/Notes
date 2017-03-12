@@ -1,8 +1,7 @@
 [TOC]
 
 ## *Swing* 简介
-`Swing`是`Java`平台下的传统`GUI`库。
-
+`Swing`是`Java`平台下的传统`GUI`库。  
 `Swing`是`Java`标准库的一部分，包含于`Java SE`中。
 
 与上代图形技术`AWT`的比较：
@@ -28,7 +27,7 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "版本号"
 ## 常用控件
 `Java Swing`提供的控件位于`javax.swing`包路径下，命名均以字母`J`起始。
 
-`Scala Swing`对`Java Swing`提供的多数控件进行了浅层的封装，使之更符合`Scala`的`API`风格。
+`Scala Swing`对`Java Swing`提供的多数控件进行了浅层的封装，使之更符合`Scala`的`API`风格。  
 `Scala Swing`控件位于`scala.swing`路径下，名称为对应的`Java Swing`控件去掉首字母`J`。
 
 容器类控件：
@@ -60,6 +59,8 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "版本号"
 | JRadioButton | RadioButton | 单选框 |
 | JComboBox | ComboBox | 组合框(下拉列表框) |
 
+多个`JRadioButton/RadioButton`需要添加到同一个`ButtonGroup`中才能实现**单选**效果。
+
 菜单栏：
 
 | Java Swing 控件名称 | Scala Swing 控件名称 | 控件简介 |
@@ -87,8 +88,7 @@ public void setBorder(Border border);
 工厂类`BorderFactory`提供了一系列创建各类常见样式边框的静态方法。
 
 *EmptyBorder*
-> `EmptyBorder`为仅占据面板空间的透明边框。
->
+> `EmptyBorder`为仅占据面板空间的透明边框。  
 > 通过使用`EmptyBorder`，可以实现控制控件边界空隙的效果(类似于**CSS**中的`Margin`属性)。
 >
 > 创建`EmptyBorder`的静态方法：
@@ -101,8 +101,7 @@ public void setBorder(Border border);
 >	```
 
 *TitledBorder*
-> `TitledBorder`为框线上带有标题的边框。
->
+> `TitledBorder`为框线上带有标题的边框。  
 > `Swing`中并未提供默认的`GroupBox`控件，但可以对`JPanel`等控件设定`TitledBorder`来实现类似效果。
 >
 > 创建`EmptyBorder`的静态方法：
@@ -133,7 +132,7 @@ textArea.setLineWrap(true);
 JScrollPane scrollPane = new JScrollPane(textArea);
 ```
 
-这样当文本无法全部显示时会出现**滚动条**。
+当文本无法全部显示时会出现**滚动条**。
 
 
 
@@ -152,45 +151,87 @@ static void showMessageDialog(Component parentComponent,
 ```
 
 - `parentComponent`参数为父对话框。
-- `messageType`参数为对话框类型，可取值`DEFAULT_OPTION`、`YES_NO_OPTION`、`YES_NO_CANCEL_OPTION`、`OK_CANCEL_OPTION`等。
+- `messageType`参数控制对话框的内置按钮，可取值`DEFAULT_OPTION`、`YES_NO_OPTION`等。
 - `message`参数为在对话框中显示的消息内容。
 
-使用`showInputDialog()`、`showConfirmDialog()`等方法可以用于显示其他用途的窗口。
+使用`showInputDialog()`、`showConfirmDialog()`等方法可以用于显示其他用途的窗口，参数类似。
 
 
 
 ## 事件机制
-`Java`没有像`C#`那样在语言级别提供事件机制，事件机制仅仅在`Java`中仅仅是一套接口。
+`Java`**没有**类似`C#`的语言级别事件机制。
 
-事件处理需要重写监听器的接口方法。
-> `Swing`根据事件类型定义了一系列的事件监听器接口，如鼠标点按事件的`ActionListener`，处理键盘的`KeyListener`，处理鼠标的`MouseListener`等等。
-> 不同的事件接口拥有不同数目的接口方法，根据需求重写对应的接口方法。
+`Java Swing`的事件机制采用`Observer`模式。  
+`Scala Swing`在事件处理上采用了`Reactor`模式，与`Java Swing`风格不同。
 
-将控件绑定监听器实例。
-> GUI控件类有一套与监听器接口对应的方法`addXXXListener()`用于添加不同类型的监听器实例，将对应的监听器实例作为参数传入，则当控件操作触发时，便会运行绑定监听器中的代码。
-> 控件类也可以使用`removeXXXListener()`用于移除已绑定的监听器。
+### *Java Swing* 事件机制
+`Java Swing`的事件机制主要包括以下部分：
 
-### 屏蔽指定按键输入
-实现`KeyListener`接口，重写`keyTyped(KeyEvent)`方法，通过`getKeyChar()`方法获取输入的字符，然后对其进行判断，如果是想要屏蔽的按键则使用`setKeyChar('\0')`将其转化为空输入。
+- 监听器，包含对事件的处理逻辑。
+- 事件源，即触发事件的控件。
+- 事件，包含特定的事件信息。
 
-如下所示：(只接受数字输入)
+监听器
+> 所有的的监听源都实现了`java.util.EventListener`接口。  
+> `EventListener`接口是空接口，`Java Swing`根据不同的事件类型定义了一系列继承于`EventListener`的子接口。
+>
+> 不同的监听器接口定义了不同的抽象方法，当对应的监听事件触发时，对应方法会被调用。  
+> 通过重写监听器接口的抽象方法来实现事件处理逻辑。
+
+事件源
+> 事件源是某个具体的控件对象。  
+> 控件对象通过绑定监听器对象在事件触发时调用对应监听器对象的重写方法。
+>
+> `Java Swing`中的控件都提供了命名类似的方法用于与监听器交互：
+>
+>	```java
+>	// 绑定到指定监听器实例
+>	public synchronized void addXxxListener(XxxListener listener);
+>	// 移除到指定监听器实例的绑定
+>	public synchronized void removeXxxListener(XxxListener listener);
+>	// 获取当前控件已绑定的所有监听器实例
+>	public synchronized XxxListener[] getXxxListeners();
+>	```
+>
+> 不同的控件类型根据其控件职能会拥有不同类型监听器的交互方法。
+
+事件
+> 所有的事件都继承自`java.util.EventObject`。
+>
+> 事件保存了具体的某一次事件发生时的事件信息。
+> 事件做为监听器抽象方法的参数，当事件触发时，对应的事件信息做为参数传入。
+
+以按钮点按事件为例，实现按钮点按事件的处理需要以下步骤：
+
+1. 构建点按事件的监听器，监听器实现`ActionListener`接口，重写抽象方法`actionPerformed()`。
+2. 按钮控件对象调用`addActionListener()`方法，将控件绑定监听器。
+
+如下代码所示：
 
 ```java
-KeyEvent keyEvent = e -> {
-	if (e.getKeyChar() < '0' || e.getKeyChar() > '9')
-		e.setKeyChar('\0');
-}
+// 构建监听器，ActionListener只有单个抽象方法，为函数式接口
+ActionListener act = e -> ...;
+
+JButton btn = new JButton();
+
+// 将控件绑定监听器
+btn.addActionListener(act);
 ```
 
-### *DocumentListener* (文本输入监听器)
-包含三个方法：
-
-- `public void changedUpdate(DocumentEvent e)` 监听文本属性的变化
-- `public void insertUpdate(DocumentEvent e)` 监听文本内容的插入事件
-- `public void removeUpdate(DocumentEvent e)` 监听文本内容的删除事件
-
-`JTextField`控件本身没有`addDocumentListener()`方法，需要先使用`getDocument()`方法获取`Document`对象才能调用`addDocumentListener()`。
-在事件处理方法中，对`JTextField`对象调用`getText()`方法即可获得输入文本的内容。
+常见监听器类型应用
+> *KeyListener* (键盘按键监听器)  
+> 通过键盘监听器可屏蔽指定按键输入。
+>
+> 实现`KeyListener`接口，重写`keyTyped(KeyEvent)`方法。  
+> 通过`KeyEvent`类型的`getKeyChar()`方法获取输入的字符，判断输入内容，对需要屏蔽的输入使用`setKeyChar('\0')`转化为空输入。
+>
+> 如下所示：(只接受数字输入)
+>
+>	```java
+>	KeyListener keyListener = e -> {
+>		if (e.getKeyChar() < '0' || e.getKeyChar() > '9') e.setKeyChar('\0');
+>	}
+>	```
 
 
 
@@ -224,11 +265,11 @@ JTable(Object[][] rowData, Object[] columnNames);
 JTable(TableModel dm);
 ```
 
-即使用`Object数组`确定表格模型或是使用`TableModel`类构建表格模型。
+即使用`Object数组`确定表格模型或是使用`TableModel`类构建表格模型。  
 使用对象数组构建表格模型可以先从数组库中读取对应数据，然后将数据存储在对象数组中。
 
 使用`TableModel`类的基本步骤：
 
-0. 构建`TableMode`对象。
-0. 使用`TableMode`类的成员方法`setValueAt(Object aValue, int rowIndex, int columnIndex)`设定表格模型每个位置的数据。
-0. 在`JTable`使用构造函数或在已有的`JTable`实例调用`setModel(TableModel dataModel)`成员方法创建表格。
+1. 构建`TableMode`对象。
+1. 使用`TableMode`类的成员方法`setValueAt(Object aValue, int rowIndex, int columnIndex)`设定表格模型每个位置的数据。
+1. 在`JTable`使用构造函数或在已有的`JTable`实例调用`setModel(TableModel dataModel)`成员方法创建表格。
