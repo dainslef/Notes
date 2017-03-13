@@ -69,8 +69,43 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "版本号"
 | JMenu | Menu | 菜单栏上的按钮 |
 | JMenuItem | MenuItem | 点击菜单按钮弹出的菜单项 |
 
-常用的表单组件都有对应的菜单版本，比如`JRadioButtonMenuItem`、`JCheckBoxMenuItem`等。
+常用的表单组件都有对应的菜单版本，比如`JRadioButtonMenuItem`、`JCheckBoxMenuItem`等。  
 向`JMenu`中`add()`菜单项时，虽然可以选择普通组件，但普通组件不能触发菜单效果(点按之后菜单不收回)。
+
+### 代码风格
+在`Java Swing`中，常见的创建控件、配置控件的方式为先构建对象实例，之后调用实例的成员方法设置控件属性。  
+
+使用`Java Swing`创建窗口，在窗口中添加控件：
+
+```java
+JFrame frame = new JFrame();
+JLabel label = new JLabel();
+
+label.setText("Test");
+label.setMinimumSize(new Dimension(80, 40));
+
+frame.add(label);
+frame.setSize(new Dimension(200, 100));
+frame.setVisible(true);
+```
+
+在`Scala Swing`中，创建控件、配置控件通常同步进行，使用`匿名类`特性，在创建控件时直接在构造方法中设定控件的各类属性。  
+
+`Scala Swing`的`API`更贴近`Scala`的语言风格。  
+使用`Scala Swing`构建配置控件语法更加类似`DSL`，可读性更高。
+
+上述`Java Swing`例子使用`Scala Swing`代码如下：
+
+```scala
+val frame = new Frame {
+	contents = new Label {
+		text = "Test"
+		minimumSize = new Dimension(80, 40)
+	}
+	size = new Dimension(200, 100)
+	visible = true
+}
+```
 
 
 
@@ -198,32 +233,33 @@ static void showMessageDialog(Component parentComponent,
 事件
 > 所有的事件都继承自`java.util.EventObject`。
 >
-> 事件保存了具体的某一次事件发生时的事件信息。
+> 事件保存了具体的某一次事件发生时的事件信息。  
 > 事件做为监听器抽象方法的参数，当事件触发时，对应的事件信息做为参数传入。
 
-以按钮点按事件为例，实现按钮点按事件的处理需要以下步骤：
+以按钮控件的`ActionEvent`为例，实现`ActionEvent`的处理需要以下步骤：
 
-1. 构建点按事件的监听器，监听器实现`ActionListener`接口，重写抽象方法`actionPerformed()`。
-2. 按钮控件对象调用`addActionListener()`方法，将控件绑定监听器。
+1. 构建`ActionEvent`监听器，监听器实现`ActionListener`接口，重写抽象方法`actionPerformed()`。
+1. 按钮控件对象调用`addActionListener()`方法，将控件绑定监听器。
 
 如下代码所示：
 
 ```java
 // 构建监听器，ActionListener只有单个抽象方法，为函数式接口
-ActionListener act = e -> ...;
+ActionListener action = e -> ...;
 
-JButton btn = new JButton();
+JButton button = new JButton();
 
 // 将控件绑定监听器
-btn.addActionListener(act);
+button.addActionListener(action);
 ```
 
 常见监听器类型应用
 > *KeyListener* (键盘按键监听器)  
 > 通过键盘监听器可屏蔽指定按键输入。
 >
-> 实现`KeyListener`接口，重写`keyTyped(KeyEvent)`方法。  
-> 通过`KeyEvent`类型的`getKeyChar()`方法获取输入的字符，判断输入内容，对需要屏蔽的输入使用`setKeyChar('\0')`转化为空输入。
+> 实现`KeyListener`接口，重写`keyTyped()`方法。  
+> 对`KeyEvent`类型的事件参数调用`getKeyChar()`方法获取输入的字符，判断输入内容。  
+> 对需要屏蔽的输入使用`setKeyChar('\0')`转化为空输入。
 >
 > 如下所示：(只接受数字输入)
 >
