@@ -269,6 +269,87 @@ button.addActionListener(action);
 >	}
 >	```
 
+### *Scala Swing* 事件机制
+`Scala Swing`中，事件采用集中式处理，所有被监听的控件发出的各类事件会被汇总统一处理。
+
+`Scala Swing`所有控件的基类`scala.swing.UIElement`都间接混入了事件发布者特质`scala.swing.Publisher`。  
+`Publisher`特质定义了用于发布事件的`publish()`方法：
+
+```scala
+trait UIElement extends Proxy with LazyPublisher {
+	...
+}
+
+private[swing] trait LazyPublisher extends Publisher {
+	...
+}
+
+trait Publisher extends Reactor {
+	...
+	def publish(e: Event) { ... }
+	...
+}
+```
+
+`Publisher`特质继承于反应器特质`scala.swing.Reactor`：
+
+```scala
+trait Publisher extends Reactor {
+	...
+}
+```
+
+`Reactor`特质定义了与订阅者的交互方法，使用`listenTo()`添加订阅者，`deafTo()`移除订阅者。  
+`Reactor`特质定义了字段`reactions`，类型为`scala.swing.Reactions`：
+
+```scala
+trait Reactor {
+	...
+	val reactions: Reactions = ...
+	def listenTo(ps: Publisher*) = ...
+	def deafTo(ps: Publisher*) = ...
+	...
+}
+```
+
+`Reactions`为抽象类，继承于自身单例对象中定义的类型别名`Reactions.Reaction`(实际类型为偏函数`PartialFunction[Event, Unit]`)。  
+`Reactions`抽象类定义了用于增减偏函数的方法`+-()`、`-=()`：
+
+```scala
+object Reactions {
+	...
+	type Reaction = PartialFunction[Event, Unit]
+	...
+}
+
+abstract class Reactions extends Reactions.Reaction {
+	...
+	def += (r: Reactions.Reaction): this.type
+	def -= (r: Reactions.Reaction): this.type
+	...
+}
+```
+
+向`reactions`字段添加自定义的事件处理偏函数来处理UI事件。  
+`reactions`字段添加的偏函数参数为`scala.swing.event.Event`，返回值类型为`Unit`。
+
+`Event`特质是所有`Scala Swing`事件类型的基类。  
+事件类型与`Java Swing`中类似，但使用了`Scala`的样例类特性，便于在事件处理偏函数中使用。
+
+以`ActionEvent`为例，在`Scala Swing`中实现`ActionEvent`事件的处理：
+
+```scala
+val button = new Button
+
+// 监听控件
+listenTo(button)
+
+// 偏函数添加 ActionEvent 事件处理逻辑
+reactions += {
+	case ActionEvent(source) => ...
+}
+```
+
 
 
 ## *MVC*
