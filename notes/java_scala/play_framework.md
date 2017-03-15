@@ -3,13 +3,13 @@
 
 早期的`Play Framework 1.x`是使用`Java`实现的框架，之后`Play Framework 2.x`则成为`Lightbend`公司官方支持的框架。
 
-`Play Framework 2.x`框架本身采用`Scala`实现，拥有全新的代码基础，对外同时提供`Scala`和`Java`的API。
+`Play Framework 2.x`框架本身采用`Scala`实现，拥有全新的代码基础，对外同时提供`Scala`和`Java`的API。  
 `Play Framework 2.x`发布后，原先的`Play Framework 1.x`不再有实质性的功能更新，更新只提供BUG修复。
 
 
 
-## 安装和配置 *Play Framework*
-开发`Play Framework`需要安装`Lightbend Activator`。
+## 安装和配置
+开发`Play Framework`需要安装`Lightbend Activator`。  
 `Activator`包含了完整的Scala开发环境，使用方法在Scala笔记中已有记录。
 
 ### 创建项目
@@ -65,7 +65,7 @@
 ```
 
 ### 设置 *Play* 版本
-`Play Framework`项目基于`sbt`构建，框架本身是以`sbt`插件的形式定义在项目中的。
+`Play Framework`项目基于`sbt`构建，框架本身是以`sbt`插件的形式定义在项目中的。  
 在`[项目名称]/project/plugins.sbt`中，定义了所使用`Play Framework`的版本。
 
 以`Play Framework 2.5.10`版本为例，默认生成的`plugins.sbt`文件如下所示：
@@ -176,7 +176,7 @@ trait Results {
 }
 ```
 
-使用`Ok()`、`Created()`等方法本质上是调用`Status`类的`apply()`方法，以页面返回内容为参数，生成`Result`对象。
+使用`Ok()`、`Created()`等方法本质上是调用`Status`类的`apply()`方法，以页面返回内容为参数，生成`Result`对象。  
 在实际开发过程中，并不会直接在控制器中写入页面内容，而是调用视图层中的模板做为页面的呈现内容。
 
 `Result`对象也可以自行指定状态码和页面内容创建：
@@ -320,20 +320,20 @@ GET        /test                    controllers.Application.name(name = "default
 ### 配置多个路由文件
 除了`/conf/routes`文件，在项目路径`/conf`下的所有`*.routes`文件都会被视作路由配置文件。
 
-路由配置文件会被编译成`Routes`类，该类包含了由路由配置转换成的代码。
+路由配置文件会被编译成`Routes`类，该类包含了由路由配置转换成的代码。  
 生成的`Routes`类会继承自`play.core.routing.GeneratedRouter`抽象类。
 
-路由配置文件在生成`Routes`类时会以**文件名称**做为**包名**，如`test.routes`文件会对应生成`test.Routes`类。
+路由配置文件在生成`Routes`类时会以**文件名称**做为**包名**，如`test.routes`文件会对应生成`test.Routes`类。  
 默认的`routes`文件会生成`router.Routes`类。
 
-`/conf/routes`为主要的路由匹配文件，默认配置下，只有该文件内设置的路由规则生效。
+`/conf/routes`为主要的路由匹配文件，默认配置下，只有该文件内设置的路由规则生效。  
 可以通过`/conf/routes`跳转到其它路由文件，以`test.routes`为例，语法如下：
 
 ```
 ->          /xxxx                   test.Routes
 ```
 
-该配置会匹配所有一级路径为`xxxx`的路径，并跳转到`test.routes`路由配置文件中查找匹配的路由规则。
+该配置会匹配所有一级路径为`xxxx`的路径，并跳转到`test.routes`路由配置文件中查找匹配的路由规则。  
 需要注意的是，跳转到其它路由文件时，传入的路径内容不包含已经匹配的部分，如路径`xxxx/abc`在传到`test.routes`文件中时，路径为`abc`。
 
 ### 自定义 *HTTP* 请求处理
@@ -348,7 +348,7 @@ import play.api.http._
 import play.api.mvc.RequestHeader
 
 class CustomRequestHandler @Inject()(
-	routes: router.Routes,				# 传入主构造器的路由配置实例为主要路由配置
+	routes: router.Routes,				// 传入主构造器的路由配置实例为主要路由配置
 	errorHandler: HttpErrorHandler,
 	configuration: HttpConfiguration,
 	filters: HttpFilters)
@@ -360,8 +360,8 @@ class CustomRequestHandler @Inject()(
 
 	// 重写默认的请求处理逻辑
 	override def routeRequest(request: RequestHeader) = request.host match {
-		case ... => super.routeRequest(request)			# 满足xxx条件使用默认路由配置
-		case ... => testRoutes.routes.lift(request)		# 满足xxx条件使用test路由配置
+		case ... => super.routeRequest(request)			// 满足xxx条件使用默认路由配置
+		case ... => testRoutes.routes.lift(request)		// 满足xxx条件使用test路由配置
 		case _ => ...
 	}
 
@@ -378,10 +378,122 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 
 
 
+## *Template* (模板)
+`Play Framework 2.x`内置了`Twirl`模板引擎。
+
+### 模板引擎简介
+`Twirl`模板引擎采用`Scala`实现，使用类`Scala`语法，是**类型安全**的模板引擎。
+
+模板文件为纯文本，后缀为`*.scala.html`。  
+在项目编译时，模板文件会被编译为`Scala`类，模板文件名会做为类名，模板文件所处的路径会做为模板类的包路径。
+
+### *@* 关键字
+`Twirl`模板引擎使用`@`做为引用模板语法的关键字，`@`关键字的主要用法：
+
+直接引用模板参数
+>
+>	```scala
+>	<p>Name: @name</p>
+>	```
+
+调用模板参数的方法
+>
+>	```scala
+>	<p>Name Length: @name.length</p>
+>	```
+
+执行代码块
+>
+>	```scala
+>	<p>@(name1.length + name2.length)</p>
+>	<p>@{
+>		val name = s"$name1 $name2"
+>		name
+>	}</p>
+>	```
+>
+> 在使用`@{ ... }`执行代码块时，代码块的最后一个变量会做为整个代码块的**返回值**。
+
+添加注释
+>
+>	```scala
+>	@* 注释内容 *@
+>	```
+>
+> 使用`@* *@`插入的注释内容在编译期间会被清除，不会保留到最后生成的`html`文件中。
+
+若需要在模板中输出普通的`@`字符，则应使用`@@`。
+
+### 模板传参
+`Twirl`模板引擎需要**显式**定义模板接收的参数。  
+传入模板的参数需要写在模板文件的最顶端。
+
+模板参数表前需要使用`@`关键字修饰，语法与`Scala`方法参数语法类似：
+
+```scala
+@(title: String)
+
+<html>
+	...
+</html>
+```
+
+模板参数表支持`Scala`的高级语法特性，如**参数默认值**、**柯里化**、**隐式参数**等：
+
+```scala
+@(title: String)(content: Html = Html(""))(implicit css: String = null)
+
+<html>
+	...
+</html>
+```
+
+模板的参数表在编译为`Scala`类时，会做为生成类的`apply()`方法的参数表。
+
+### 结构语法
+`Twirl`模板引擎支持**循环**、**分支**等控制结构语法。
+
+**循环**语法：
+
+```scala
+<ul>
+@for(product <- products) {
+	<li>@product.name ($@product.price)</li>
+}
+</ul>
+```
+
+**分支**语法：
+
+```scala
+@if(items.isEmpty()) {
+	<h1>Nothing to display</h1>
+} else {
+	<h1>@items.size items!</h1>
+}
+```
+
+`Twirl`模板引擎还支持`Scala`的模式匹配特性：
+
+```scala
+@(op: Option[String])
+
+@op match {
+	case Some(str) => {
+		<p>@str</p>
+	}
+	case None => {
+		<p>empty</p>
+	}
+}
+```
+
+
+
 ## ORM
 与`Django`不同，与`Spring MVC`类似，`Play Framework`需要搭配额外的ORM框架。
 
-`Play Framework`支持多种ORM框架，推荐使用`Slick`，`Slick`是`LightBend`官方开发的函数式风格的ORM框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。
+`Play Framework`支持多种ORM框架，推荐使用`Slick`，`Slick`是`LightBend`官方开发的函数式风格的ORM框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。  
 除了`Slick`，`Play Framework`还支持`Anorm`、`EBean`等ORM框架。
 
 ### 配置 *Slick*
@@ -438,7 +550,7 @@ slick.dbs.default.db.password = "MySQL密码"
 - `MySQL`数据库驱动名称为`MySQLDriver`，完整路径则为`slick.driver.MySQLDriver.api.Table[T]`。
 - `PostgresSQL`数据库驱动名称为`PostgresDriver`，完整路径为`slick.driver.PostgresDriver.api.Table[T]`。
 
-泛型参数`T`具体可以是**元组**(`Tuple`)类型或是**样例类**，内容为表中包含的字段类型。
+泛型参数`T`具体可以是**元组**(`Tuple`)类型或是**样例类**，内容为表中包含的字段类型。  
 与`Django`不同，`Slick`**不使用**专门的类型来映射SQL字段类型，而是直接使用语言内置类型(`Int`、`String`等)映射SQL中的字段类型。
 
 假设有以下结构的MySQL表：
@@ -534,7 +646,9 @@ class TestTable(tag: Tag) extends Table[TestModel](tag, "TestTable") {
 >	val db = dbConfig.db
 >	```
 >
-> 在最新的`Play 2.5`中，`Play Framework`的设计发生了变化，不再拥有全局的`Play.current`对象，`DatabaseConfigProvider`也需要通过`DI`(`Dependcy Inject`，即**依赖注入**)的方式来获取，一个注入了`DatabaseConfigProvider`的控制器如下所示：
+> 在最新的`Play 2.5`中，`Play Framework`的设计发生了变化，不再拥有全局的`Play.current`对象。  
+> `DatabaseConfigProvider`也需要通过`DI`(`Dependcy Inject`，即**依赖注入**)的方式来获取。  
+> 一个注入了`DatabaseConfigProvider`的控制器如下所示：
 >
 >	```scala
 >	import javax.inject.Inject
@@ -553,7 +667,8 @@ class TestTable(tag: Tag) extends Table[TestModel](tag, "TestTable") {
 >	}
 >	```
 >
-> 默认情况下，使用的是配置文件`conf/application.conf`中`slick.dbs.default`配置项内写入的配置，如果需要使用自定义配置，则需要使用`@NamedDatabase`注解，如下所示：
+> 默认情况下，使用的是配置文件`conf/application.conf`中`slick.dbs.default`配置项内写入的配置。  
+> 若需要使用自定义配置，则需要使用`@NamedDatabase`注解，如下所示：
 >
 >	```scala
 >	import play.api.db.NamedDatabase
@@ -731,7 +846,7 @@ val actions = DBIO.seq(
 db.run(actions)			//执行多个操作
 ```
 
-`Database.run()`方法为异步执行，调用方法时不会阻塞，返回`Future`类型。
+`Database.run()`方法为异步执行，调用方法时不会阻塞，返回`Future`类型。  
 若需要同步等待数据操作结束，可以使用`Await.result()`方法，该方法同时返回`Future`的执行结果：
 
 ```scala
