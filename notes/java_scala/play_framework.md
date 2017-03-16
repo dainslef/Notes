@@ -488,6 +488,57 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 }
 ```
 
+### 定义可复用的代码块
+在模板中，对于多次使用的内容，可以定义可复用的代码块。
+
+将代码块赋值到模板变量上：
+
+- 使用`@xxx = { ... }`语法将普通的`html`文本赋值到模板变量上，模板变量为`play.twirl.api.HtmlFormat.Appendable`类型。
+- 使用`@xxx = @{ ... }`语法将`Scala`代码的执行结果赋值到模板变量上，模板变量类型由`Scala`代码块的**返回值**决定。
+
+```scala
+@* 模板变量保存普通html *@
+@header = {
+	<script type="text/javascript"> ... </script>
+	<script type="text/javascript"> ... </script>
+}
+
+@* 模板变量存储执行Scala代码执行结果 *@
+@content = @{
+	val xxx = ...
+	xxx		@* content 变量类型由返回值 xxx 的类型决定 *@
+}
+
+<html>
+
+	<head>
+		@header
+	<head>
+
+	<body>
+		@content
+	</body>
+
+</html>
+```
+
+可复用代码块支持带有参数：
+
+```scala
+@display(product: models.Product) = {
+	@product.name ($@product.price)
+}
+
+<ul>
+@for(product <- products) {
+	@display(product)
+}
+</ul>
+```
+
+在一个模板中调用其它模板，方法类似。  
+一个模板文件本身可视为一个可复用的代码块。
+
 
 
 ## ORM
