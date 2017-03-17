@@ -539,6 +539,29 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 在一个模板中调用其它模板，方法类似。  
 一个模板文件本身可视为一个可复用的代码块。
 
+### 单独使用模板引擎
+`Twirl`模板引擎支持在`sbt`项目中单独使用，不依赖于完整的`Play Framework`框架。
+
+在普通`sbt`项目中的`project/plugins.sbt`文件中添加模板引擎的`sbt`插件：
+
+```scala
+// 添加模板引擎插件
+addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "版本号")
+```
+
+在项目构建配置文件`build.sbt`中启用模板引擎并配置模板编译扫描路径：
+
+```scala
+// 启用模板引擎插件
+enablePlugins(SbtTwirl)
+
+// 使模板编译器扫描源码下的模板目录
+sourceDirectories in (Compile, TwirlKeys.compileTemplates) := (unmanagedSourceDirectories in Compile).value
+```
+
+启动了路径设置后，执行编译操作时，模板引擎编译器会扫描`src/main/scala`、`src/main/java`路径下的所有模板文件，根据模板生成`Scala`代码。  
+生成的模板类会以子路径名做为**包名**。
+
 
 
 ## ORM
