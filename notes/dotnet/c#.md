@@ -12,7 +12,7 @@ static int Main(string[] args);
 
 `C#`允许多种入口函数形式，一般采用第二种(默认)。
 
-与`Java`不同，`C#`并不强制要求主类的类名与主类所在文件的文件名相同。
+与`Java`不同，`C#`并不强制要求主类的类名与主类所在文件的文件名相同。  
 实际上，`C#`由于支持`部分类`特性，也不可能要求类名与源码文件名相同。
 
 
@@ -340,7 +340,7 @@ public int Num
 
 在传统的`OOP`语言如`C++`、`Java`中，并不限制通过实例访问静态方法，作用与通过类名访问静态方法相同。
 
-在`C#`中，**不允许**通过实例访问静态方法，调用静态方法只能通过**类名**。
+在`C#`中，**不允许**通过实例访问静态方法，调用静态方法只能通过**类名**。  
 尝试通过实例访问静态方法会在编译时得到错误：`error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; qualify it with a type name instead`。
 
 ### 静态构造函数
@@ -403,17 +403,17 @@ True
 ### 在 *Scala* 中模拟扩展方法
 在`Scala`中，可以利用**隐式类**特性来获得与C#中扩展方法类似的效果。
 
-上个例子中代码在Scala中可以写成：
+上述例子在`Scala`中可以写成：
 
 ```scala
 object Test extends App {
 
-  implicit class ExtensionMethod(obj: Any) {
-    def isNull = if (obj == null) true else false
-  }
+	implicit class ExtensionMethod(obj: Any) {
+		def isNull = if (obj == null) true else false
+	}
 
-  var obj: Any = null
-  println(obj.isNull)
+	var obj: Any = null
+	println(obj.isNull)
 }
 ```
 
@@ -426,7 +426,8 @@ true
 ### 扩展方法的应用场景
 扩展方法主要用于向一些不方便改动的类型添加额外的方法，并让添加的方法能够以常规语法调用。
 
-在`C#`标准库中，典型的扩展案例为`System.Linq.Enumerable`类，该类中为`System.Collections.Generic.IEnumerable<T>`类型添加了大量`SQL`风格的扩展方法定义。
+在`C#`标准库中，典型的扩展案例为`System.Linq.Enumerable`类。  
+该类为`System.Collections.Generic.IEnumerable<T>`类型添加了大量`LINQ`风格的扩展方法定义。
 
 使用扩展方法时需要节制，滥用扩展方法会造成代码难以理解。
 
@@ -509,7 +510,7 @@ class Program
 ### *delegate* (委托)
 委托是C#特有的概念，委托的作用类似于C/C++中的函数指针，但委托是类型安全的。
 
-在C#中，委托实际上是一个类，因而使用方式与`class`类似。
+在`C#`中，委托实际上是一个类，因而使用方式与`class`类似。  
 委托支持加减运算符操作，一个委托实例能够通过加法运算绑定多个**签名相同**的函数。
 
 定义委托：
@@ -520,7 +521,7 @@ delegate 返回值类型 委托名(参数表);
 
 需要注意的是，委托与类以及函数类似，委托的定义是不能嵌套在函数中的。委托的定义可以在全局、命名空间或是作为某个类的成员，但委托的定义不能放在函数的函数体内。
 
-委托前可以使用访问权限关键字(`public`、`private`、`protected`等)进行限制，但委托定义不能使用`static`关键字(委托实例作为一个**类的成员**存在时才可以使用`static`关键字)。
+委托前可以使用访问权限关键字(`public`、`private`、`protected`等)进行限制，但委托定义不能使用`static`关键字(委托实例作为一个**类的成员**存在时才可以使用`static`关键字)。  
 委托可以绑定`static`或是非`static`成员函数，委托同样可以绑定当前类之外的符合签名要求的其它类的可见成员函数(`public`、`internal`成员)。
 
 `delegate`关键字还可以用来定义**匿名函数**，实例化委托或是增加委托实例绑定时都可以使用委托匿名函数。
@@ -549,14 +550,14 @@ delegate 返回值类型 委托名(参数表);
 };
 ```
 
-一个委托可以同加减运算符动态地更改绑定的函数个数。
+一个委托可以同加减运算符动态地更改绑定的函数个数。  
 委托在使用时类似一个普通的函数，调用委托：
 
 ```cs
 委托实例名(符合委托签名的参数表);
 ```
 
-调用委托会把委托绑定的所有函数按照绑定的先后次序**依次执行**，如果绑定的函数拥有返回值，则将**最后一个**绑定函数的返回值作为整个委托实例的返回值。
+调用委托会把委托绑定的所有函数按照绑定的先后次序**依次执行**，如果绑定的函数拥有返回值，则将**最后一个**绑定函数的返回值作为整个委托实例的返回值。  
 委托类型作为函数的形参时，传入实参时可以直接使用符合委托签名的函数名，无需手动使用`new`操作符构建委托对象。
 
 ### *event* (事件)
@@ -595,7 +596,7 @@ event 委托名 事件名 = delegate(符合委托签名的参数表)		//匿名�
 
 需要注意的是，事件的访问权限不能高于用于定义事件的委托。
 
-调用事件与调用委托实例的方式是完全相同的。
+调用事件与调用委托实例的方式是完全相同的。  
 事件机制是其他`C#`高级技术的基础。
 
 实例代码：
@@ -738,7 +739,8 @@ GetDouble getDouble2 = (num1, num2) => (int)(num1 + num2);
 GetDouble getDouble3 = (double num1, double num2) => { return (int)(num1 + num2); };		//三种形式效果完全相同
 ```
 
-需要注意的是，使用`Lambda`代替匿名委托虽然能够减少代码量，但这并不代表`Lambda`能够完全取代匿名委托，C#的`Lambda`中参数不能带有关键字`ref``out`，如果需要使用**引用参数**则还需要使用匿名委托。
+需要注意的是，使用`Lambda`代替匿名委托虽然能够减少代码量，但这并不代表`Lambda`能够完全取代匿名委托。  
+`Lambda`中参数不能带有关键字`ref`、`out`，如果需要使用**引用参数**则依然需要使用匿名委托。
 
 ### 使用函数对象表示 *Lambda*
 C#中定义了一系列类型用来表示委托和Lambda对象。
@@ -751,8 +753,8 @@ C#中定义了一系列类型用来表示委托和Lambda对象。
 - 与`Java`的**残废**`Lambda`不同，`C#`的`Lambda`可以捕获并**修改**外部作用域变量，而`Java`中外部作用域变量在`Lambda`中带有`final`属性，只能读取不能更改。
 
 ### *Lambda* 作用域
-在`C#`中，`Lambda`能够访问到在`Lambda`被定义的作用域中的所有成员。
-如果`Lambda`表达式在类中被定义，则`Lambda`表达式能够访问到类的成员。
+在`C#`中，`Lambda`能够访问到在`Lambda`被定义的作用域中的所有成员。  
+如果`Lambda`表达式在类中被定义，则`Lambda`表达式能够访问到类的成员。  
 如同函数一样，`Lambda`有自己的作用域，`Lambda`内部定义的变量在外部作用域**不可访问**。
 
 示例代码-1：
@@ -826,6 +828,96 @@ class Test
 
 
 
+## *Pattern Matching* (模式匹配)
+`C# 7.0`中加入了**模式匹配**特性，支持根据对象类型提供不同的行为。
+
+在`C# 7.0`中，支持模式匹配的新特性包括：
+
+- `is`表达式。
+- `switch`声明更新。
+
+### *is* 表达式
+`is`表达式具有比较对象类型的功能，在早期版本的`C#`中，比较变量类型并进行转换：
+
+```csharp
+object obj = 100;
+
+int num;
+if (obj is int)
+	num = (int)obj;
+```
+
+在`C# 7.0`中，可以在比较对象类型相同时直接创建变量：
+
+```csharp
+object obj = 100;
+
+int num;
+if (obj is int i)
+	num = i;
+```
+
+### *switch* 模式匹配
+在`C# 7.0`中，`switch`表达式的`case`标签中支持根据对象类型进行跳转：
+
+```csharp
+object xxx = ...;
+
+switch (xxx)
+{
+	// 匹配 int 类型
+	case int num:
+		...
+		break;
+	// 匹配 double 类型
+	case double num:
+		...
+		break;
+	default:
+		...
+		break;
+}
+```
+
+若不需要在匹配类型后使用变量，则可使用下划线`_`代替变量名称：
+
+```csharp
+object xxx = ...;
+
+switch (xxx)
+{
+	case string _:
+		...
+		break;
+	default:
+		...
+		break;
+}
+```
+
+`case`标签可以带有`when`子句，用于添加额外的匹配条件：
+
+```csharp
+object xxx = ...;
+
+switch (xxx)
+{
+	// 匹配 int 类型，且需要匹配的数值大于100
+	case int num when num > 100:
+		...
+		break;
+	// 匹配 string 类型，且需要匹配的字符串长度大于5
+	case string str when str.Length > 5:
+		...
+		break;
+	default:
+		...
+		break;
+}
+```
+
+
+
 ## 并发编程
 在`C#`中，除了常见的`Thread`类，主要的并发技术有**异步委托**、`Task`类、`async/await`等。
 
@@ -833,8 +925,8 @@ class Test
 与常规的**OOP**语言类似，C#中也可以使用`Thread`类来进行并发编程，`Thread`类完整路径为`System.Threading.Thread`。
 
 创建与启动线程
-> `Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。
-> 两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。
+> `Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。  
+> 两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。  
 > `Thread`类在构造时还可以接收一个`int`型参数用于指定线程的最大堆栈大小。
 >
 > 使用`Thread.Start()`方法可以启动线程，如下代码所示：
@@ -986,7 +1078,7 @@ class Test
 ### *Task* 类
 `Task`类是`.NET 4.0`之后提供的异步操作抽象，完整路径为`System.Threading.Tasks.Task`。
 
-`Task`类用于表示无返回值的异步操作，对于带有返回值的异步操作应使用`Task`类的子类`Task<TResult>`。
+`Task`类用于表示无返回值的异步操作，对于带有返回值的异步操作应使用`Task`类的子类`Task<TResult>`。  
 `Task`类创建的任务会加入线程池中。
 
 `Task/Task<TResult>`类的主要构造函数如下：
@@ -1053,7 +1145,7 @@ async Task testAsync()
 }
 ```
 
-并不是方法使用`async`关键字标记了就是异步方法，直接出现在`async`方法内部的语句也是同步执行的，**异步执行的内容**需要使用`Task`类执行。
+并不是方法使用`async`关键字标记了就是异步方法，直接出现在`async`方法内部的语句也是同步执行的，**异步执行的内容**需要使用`Task`类执行。  
 事实上，一个不包含任何`await`语句的`async`方法将是同步执行的，此时编译器会给出警告。
 
 简单示例，使用`async/await`在屏幕并发输出内容：
@@ -1162,8 +1254,8 @@ lock (object)
 }
 ```
 
-`lock`块开始时锁定`object`，在lock代码块结束后释放锁。
-锁定相同`object`的lock代码块同一时刻只能被一个线程执行。
+`lock`块开始时锁定`object`，在lock代码块结束后释放锁。  
+锁定相同`object`的`lock`代码块同一时刻只能被一个线程执行。
 
 基本用法
 > `lock`关键字用法基本与`Java`中`synchronized`关键字类似：
