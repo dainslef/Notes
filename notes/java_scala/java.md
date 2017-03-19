@@ -232,7 +232,7 @@ Set set = map.keySet();
 Iterator iteratorSet = set.iterator();
 ```
 
-`Map`使用`get(key)`可以得到对应的键值，但是这个键值是`Object`型的，需要通过向下转型来恢复键值类型。
+`Map`使用`get(key)`可以得到对应的键值，但是这个键值是`Object`型的，需要通过向下转型来恢复键值类型。  
 `HashMap`之类的容器只能一个键对应**一个**键值，如果需要一个键绑定多个键值可以使用`IdentityHashMap`。
 
 
@@ -351,7 +351,7 @@ public class Main {
 strNew
 ```
 
-可以发现调用`clone()`方法复制出的对象**testClone**在原对象**test**被修改后也发生了变化，并未真正的达到**复制**的效果。
+可以发现调用`clone()`方法复制出的对象**testClone**在原对象**test**被修改后也发生了变化，并未真正的达到**复制**的效果。  
 原因是**TestClone**类完成的仅仅是**浅复制**的过程，类中的引用类型`StringBuffer`并未被真正复制。
 
 ### 深复制
@@ -376,16 +376,19 @@ class TestClone implements Cloneable {
 }
 ```
 
-在重写`clone()`方法的过程中，要实现**深复制**，就需要类中的每一个引用类型重新构建，重新构建对象优先使用该引用类型的`clone()`方法(如果该类型实现了`Cloneable`接口)，如果需要复制的引用类型没有实现`Cloneable`接口，则直接使用构造函数创建一个与当前实例中保存内容相同的对象。
+在重写`clone()`方法的过程中，要实现**深复制**，就需要类中的每一个引用类型重新构建。  
+重新构建对象优先使用该引用类型的`clone()`方法(如果该类型实现了`Cloneable`接口)  。
+如果需要复制的引用类型没有实现`Cloneable`接口，则直接使用构造函数创建一个与当前实例中保存内容相同的对象。
 
 需要注意的是，`String`类型是个**特例**，虽然其为**引用类型**，但`String`内部重新实现了自身的`clone()`，在重写当前类的`clone()`方法的时候可以将其视为基本类型(即不必显式构建)。
 
 
 
 ## 泛型方法
-Java中的泛型同样支持独立于类的泛型方法，与`C++`、`C#`等语言不同，Java在泛型方法中的类型声明放在方法的修饰符(`public`、`static`、`final`、`abstract`等)之后，返回值声明之前。
+Java中的泛型同样支持独立于类的泛型方法。  
+与`C++`、`C#`等语言不同，Java在泛型方法中的类型声明放在方法的修饰符(`public`、`static`、`final`、`abstract`等)之后，返回值声明之前。
 
-Java中的泛型方法支持自动类型推导。
+Java中的泛型方法支持自动类型推导。  
 也可手动显式指定泛型类型，手动指定泛型类型时，与`C++`、`C#`等语言不同，类型参数写在方法名称**之前**。
 
 如下代码所示：
@@ -420,6 +423,7 @@ Test
 
 ## *Nested Classes* (嵌套类)
 在Java中，嵌套类(`nested class`)是指定义在一个类内部的类，对应的，包含嵌套类的类被称为**外部类**(`enclosing class`)。
+
 嵌套类有以下几种类型：
 
 `member nested class`(成员嵌套类)：
@@ -437,8 +441,8 @@ Test
 - `local nested class`可以使用`final`关键字。
 - `anonymous nested class`不使用任何关键字和访问控制符。
 
-默认情况下，普通嵌套类内部不能定义`static`关键字修饰的成员，只有**静态嵌套类**(`static nested class`)内部才能定义`static`成员。
-静态嵌套类之外的所有嵌套类又被称为**内部类**(`inner class`)。
+默认情况下，普通嵌套类内部不能定义`static`关键字修饰的成员，只有**静态嵌套类**(`static nested class`)内部才能定义`static`成员。  
+静态嵌套类之外的所有嵌套类又被称为**内部类**(`inner class`)。  
 静态嵌套类只能访问外部类的静态成员。
 
 如下代码所示：
@@ -682,7 +686,7 @@ public interface Runnable {
 
 除了`Runnable`接口是Java早期版本就已包含的之外，其余的接口/类定义都在`java.util.concurrent`包中。
 
-`Callable`接口用于表示带有返回值的异步操作。
+`Callable`接口用于表示带有返回值的异步操作。  
 定义如下：
 
 ```java
@@ -691,7 +695,7 @@ public interface Callable<V> {
 }
 ```
 
-`Future`接口用于表示一个异步操作的结果。
+`Future`接口用于表示一个异步操作的结果。  
 定义如下：
 
 ```java
@@ -711,7 +715,7 @@ public interface Future<V> {
 }
 ```
 
-`Executor`接口是框架中最基础的部分，仅包含一个执行`Runnable`的`execute()`的抽象方法。
+`Executor`接口是框架中最基础的部分，仅包含一个执行`Runnable`的`execute()`的抽象方法。  
 定义如下：
 
 ```java
@@ -720,8 +724,8 @@ public interface Executor {
 }
 ```
 
-`Executor`接口没有直接子类，但拥有子接口`ExecutorService`。
-`ExecutorService`接口定义了一系列终止、提交、跟踪任务状态的抽象方法，是整个库的核心接口。
+`Executor`接口没有直接子类，但拥有子接口`ExecutorService`。  
+`ExecutorService`接口定义了一系列终止、提交、跟踪任务状态的抽象方法，是整个库的核心接口。  
 定义如下：
 
 ```java
@@ -909,7 +913,7 @@ public class Main {
 
 
 ## *Annotation* (注解)
-注解(元数据)是`JDK 1.5`之后引入的机制，可以声明在**包**、**类**、**字段**、**方法**、**局部变量**、**方法参数**等的前面，用来对这些元素进行说明和注释。
+注解(元数据)是`JDK 1.5`之后引入的机制，可以声明在**包**、**类**、**字段**、**方法**、**局部变量**、**方法参数**等的前面，用来对这些元素进行说明和注释。  
 注解的相关内容在包`java.lang.annotation`中。
 
 注解的基本语法为：
@@ -929,6 +933,7 @@ Java中提供了一系列**内置注解**，常用的有：
 
 ### 元注解
 **元注解**专门用来修饰其它注解，在**自定义注解**时会用到。
+
 **元注解**有以下4类：
 
 1. `@Target`用于限制注解的范围，参数为注解范围的数组(可以同时设定多个注解范围，用花括号包裹)，取值如下所示：
@@ -947,7 +952,7 @@ Java中提供了一系列**内置注解**，常用的有：
 1. `@Documented`设置在使用`javadoc`生成API时记录注解信息，默认情况下，`javadoc`**不会**记录注解信息。
 
 ### 自定义注解
-Java中的注解实际上也是**接口**(`interface`)。
+`Java`中的注解实际上是**接口**(`interface`)。
 
 - 使用`@interface`自定义注解，使用其定义的注解自动继承了`java.lang.annotation.Annotation`接口。
 - 定义注解时，**不能**继承其他的注解或接口。
@@ -1228,8 +1233,8 @@ null
 public T newInstance() throws InstantiationException, IllegalAccessException;
 ```
 
-`Class`类中没有直接提供通过**有参构造函数**反射构建实例的方式。
-如果需要反射调用类的有参构造方法，则需要先获取其有参构造器(`Constructor`类型)，之后通过`Constructor`类的下列相关方法构造实例。
+`Class`类中没有直接提供通过**有参构造函数**反射构建实例的方式。  
+若需要反射调用类的有参构造方法，则需要先获取其有参构造器(`Constructor`类型)，之后通过`Constructor`类的相关方法构造实例。
 
 通过反射可以实现使用**非公有构造函数**构建对象。
 
@@ -1291,6 +1296,7 @@ public class Main {
 
 ### 反射调用对象方法
 通过反射可以实现调用任意方法(包括**私有方法**)，方式与调用构造函数基本类似。
+
 首先获取目标方法的`Method`对象，之后通过`Method`类的`invoke()`方法执行，第一个参数为类的实例，之后的参数为方法签名中的参数。
 
 ```java
@@ -1351,6 +1357,7 @@ public class Main {
 
 ### 反射修改字段
 通过反射亦可访问、修改类的非公有成员字段，方式类似。
+
 通过`Field`类的相关的`set()`、`get()`方法设置、获取字段内容：
 
 ```java
@@ -1358,9 +1365,10 @@ public void set(Object var1, Object var2) throws IllegalArgumentException, Illeg
 public Object get(Object var1) throws IllegalArgumentException, IllegalAccessException;
 ```
 
-`set()`方法中参数`var1`为要设置字段所属的对象，参数`var2`为设置的内容。
-`get()`方法同名参数作用相同。
-`set()/get()`方法接收的参数为`Object`类型，而对于基本类型，`Field`类中预先定义了一套方法，如`setInt()/getInt()/setBoolean()/getBoolean()`等，基本类型可直接使用这些方法以避免不必要的强制类型转换。
+`set()`方法中参数`var1`为要设置字段所属的对象，参数`var2`为设置的内容。  
+`get()`方法同名参数作用相同。  
+`set()/get()`方法接收的参数为`Object`类型。
+对于基本类型，`Field`类中预先定义了一套方法，如`setInt()/getInt()/setBoolean()/getBoolean()`等，基本类型可直接使用这些方法以避免不必要的强制类型转换。
 
 ```java
 package com.dainslef;
@@ -1488,6 +1496,7 @@ sun.misc.Launcher$AppClassLoader
 
 ### 代理模式
 **代理模式**是常见的设计模式，主要作用是通过创建**代理类**为其他对象提供一种代理，并以控制对这个对象的访问。
+
 代理模式常见的应用场景有：
 
 1. `Remote Proxy`远程代理，为一个位于不同的地址空间的对象提供一个本地的代理对象。这个不同的地址空间可以是在同一台主机中，也可是在另一台主机中。
@@ -1496,7 +1505,7 @@ sun.misc.Launcher$AppClassLoader
 1. `Smart Reference`智能指引，取代了简单的指针，它在访问对象时执行一些附加操作，扩充原有对象的功能。
 1. `Copy-on-Write`写时复制，它是虚拟代理的一种，把复制操作延迟到只有在客户端真正需要时才执行。
 
-在`Java`中代理模式的典型方式是使用接口定义功能，实现类实现接口功能，而代理类控制/扩充实现类功能。
+在`Java`中代理模式的典型方式是使用接口定义功能，实现类实现接口功能，而代理类控制/扩充实现类功能。  
 代理类与实现类都`implements`接口，但代理类本身不直接实现具体功能，而是调用被其代理的实现类的方法。
 
 ### 动态代理实例
@@ -1530,8 +1539,8 @@ class FileImpl implements File {
 }
 ```
 
-使用静态代理，则应创建一个**代理类**用于控制之前的实现。
-代理类同样需要实现基础接口，但代理类不同于实现类，代理类使用别的接口实现类的实现而不是自身实现功能。
+使用静态代理，则应创建一个**代理类**用于控制之前的实现。  
+代理类同样需要实现基础接口，但代理类不同于实现类，代理类使用别的接口实现类的实现而不是自身实现功能。  
 代理类在调用实现类功能的同时，也可以加入自身的扩充功能。
 
 实现类以接口的形式被传入代理类，当一个接口有多种实现的时候，代理类能够针对每一种实现类都添加相同的功能，这就是所谓的`AOP`(面向切面编程)，代理类可以被视为是一个切面。
@@ -1740,12 +1749,12 @@ while (resultSet.next()) {		// 使用 next() 方法将当前游标移动到下�
 
 使用`getTimestamp()`方法才能获取到完整的时间信息。
 
+### 与 *Access* 数据库交互
+`JDK 1.7`之前，可以使用`JDBC-ODBC`桥接`Access`数据库。  
+在`JDK 1.8`之后，`JDBC-ODBC`桥被移除，只能使用专有的`Access`驱动来连接`Access`数据库(驱动名称：`Access_JDBC40.jar`)。
 
+连接Access数据库：
 
-## 与 *Access* 数据库交互
-`JDK 1.7`之前，可以使用`JDBC-ODBC`桥接`Access`数据库，但在`JDK 1.8`之后，`JDBC-ODBC`桥被移除，只能使用专有的`Access`驱动来连接`Access`数据库(驱动名称：`Access_JDBC40.jar`)。
-
-### 连接Access数据库
 ```java
 // 这样写是相对路径
 String connectUrl = "jdbc:Access:///***.accdb";
@@ -1764,11 +1773,11 @@ Statement statement = connection
 		//后两个参数是为了得到resultSet集能够进行last()操作
 ```
 
-### Access数据库的一些小常识
-0. 表单的高级字段设置在`开始 - 视图 - 设计视图`中。
-0. 配置自增属性需要将字段类型设为`自动编号`。
-0. 默认情况下，创建的数据类型`数字`的字段大小为`长整型`，这是不支持**小数输入**的，小数输入会自动被去尾，需要将字段大小设置为`单精度浮点型/双精度浮点型`才能支持小数位。
-0. 如果需要某个字段的内容唯一不可重复，可以将改字段的索引设置为`有(无重复)`即可。
+Access数据库的一些小常识
+>	- 表单的高级字段设置在`开始 - 视图 - 设计视图`中。
+>	- 配置自增属性需要将字段类型设为`自动编号`。
+>	- 默认情况下，创建的数据类型`数字`的字段大小为`长整型`，这是不支持**小数输入**的，小数输入会自动被去尾，需要将字段大小设置为`单精度浮点型/双精度浮点型`才能支持小数位。
+>	- 如果需要某个字段的内容唯一不可重复，可以将改字段的索引设置为`有(无重复)`即可。
 
 
 
@@ -1780,21 +1789,42 @@ Statement statement = connection
 
 在部分`Eclipse`版本中，`Marketplace`没有默认安装，手动添加：
 
-`Help`=>`Install New Software`=>`General Purpose Tools`=>`Marketplace Client`
+`Help` =>
+`Install New Software` =>
+`General Purpose Tools` =>
+`Marketplace Client`
 
 ### 在Eclipse中查看JDK类源码
-与**NetBeans**不同，在Eclipse中默认是无法直接查看JDK中类库的源码的，需要手动指定源码的位置。
+与**NetBeans**不同，在Eclipse中默认是无法直接查看JDK中类库的源码的，需要手动指定源码的位置。  
 一般情况下，JDK源码位于JDK的安装目录下的`src.zip`文件中。
 
 在Eclipse中按以下步骤添加源码路径：
 
-`Window`=>`Preferences`=>`Java`=>`Installed JREs`=>选中使用的`JRE` =>`Edit`=>选中`../xxx/rt.jar`=>`Source Attachment Configuration`=>`Exernal location`=>选中`src.zip`=>`OK`=>`Finish`
+`Window` =>
+`Preferences` =>
+`Java` =>
+`Installed JREs` =>
+选中使用的`JRE` =>
+`Edit` =>
+选中`../xxx/rt.jar` =>
+`Source Attachment Configuration` =>
+`Exernal location` =>
+选中`src.zip` =>
+`OK` =>
+`Finish`
 
 ### 设置Eclipse编辑器自动换行
-Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方插件进行实现。
+Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方插件进行实现。  
 在Eclipse中按以下步骤安装`Word Wrap`插件使编辑器能够自动换行：
 
-`Help`=>`Install New Software`=>`Add Repository`=>输入仓库地址`http://ahtik.com/eclipse-update`=>安装`WordWrap`插件=>安装完成之后重启IDE=>编辑器中点右键，激活`Word Warp`选项=>`Finish`
+`Help` => 
+`Install New Software` => 
+`Add Repository` =>
+输入仓库地址`http://ahtik.com/eclipse-update` =>
+安装`WordWrap`插件 =>
+安装完成之后重启IDE =>
+编辑器中点右键，激活`Word Warp`选项 =>
+`Finish`
 
 
 
@@ -1806,7 +1836,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 `File`=>`Settings`=>`Editor`=>`General`=>`Appearance`=> ...
 
-勾选`Show whitespaces(显示空白)`和`Show line numbers(显示行号)`选项。
+勾选`Show whitespaces(显示空白)`和`Show line numbers(显示行号)`选项。  
 勾选`Show menthod separators`则会在方法定义之间出现横线做为分隔符。
 
 ### 设置缩进
@@ -1821,6 +1851,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 ### 其它常用选项
 - 代码折叠： `File` => `Settings` => `Editor` => `General` => `Code Folding`
 - 代码自动换行： `File` => `Settings` => `Editor` => `General` => `Soft Wraps`
+- 设置代码边界指示线： `File` => `Settings` => `Editor` => `General` => `Appearance` => `Show right margin`
 - 设置空白处的点按逻辑： `File` => `Settings` => `Editor` => `General` => `Virtual Space`
 - 设置是否开启拼写检查： `File` => `Settings` => `Project` => `Inspections` => `Spelling`
 - 设置Java强制类型转换前是否空格： `File` => `Settings` => `Editor` => `Code Style` => `Java` => `Spaces` => `After type cast`
@@ -1828,6 +1859,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 - 设置光标悬停显示变量/方法信息： `File` => `Settings` => `Editor` => `General` => `Other` => `Show quick documentation on mouse move`
 - 设置函数多行参数是否自动对齐到函数名： `File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Wrappings and Braces` => `Method parenttheses` => `Align when multiline`
 - 设置方法、字段前空行数量： `File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Blank Lines` => `Minimum Blank Lines`
+- 设置`JavaScript`支持`ECMAScript 6`语法： `File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
 
 ### 项目打包
 将`Java`项目打包成`jar`、`war`等分发格式，按以下菜单路径设置：
@@ -1839,21 +1871,22 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 
 ## *Package*
-在Java中，没有使用package的话，在javac编译java文件生成class字节码时，需要将所有用到的源码文件写在参数中，不在当前目录下的源码文件要写清路径。
-如果源码文件过多，则可以使用`package`关键字将其打包归类，然后在主类所在的文件中使用`import`关键字来将包导入使用。
-如果没有使用package关键字，则所有的内容被视为在一个包中。
+在`Java`中，没有使用`package`的话，在`javac`编译`java`文件生成`class`字节码时，需要将所有用到的源码文件写在参数中，不在当前目录下的源码文件要写清路径。
+
+若源码文件过多，则可以使用`package`关键字将其打包归类，然后在主类所在的文件中使用`import`关键字来将包导入使用。  
+如果没有使用`package`关键字，则所有的内容被视为在一个包中。
 
 ### *import* 的基本用法
 `import`的格式是：
 
 ```java
-import [包名].[类名];
+import [包路径].[类名];
 ```
 
 如果需要包含内部类，则可以使用多级import，如：
 
 ```java
-import [包名].[类名].[类名]....;
+import [包路径].[类名]...[类名];
 ```
 
 需要注意的是，import与代码文件的路径**无关**(但运行class文件时需要将class文件放在与其源码中package名称相同的对应目录下，否则会在执行时出错)。
@@ -1863,7 +1896,7 @@ import [包名].[类名].[类名]....;
 `Java 5`中新加入了`import static`关键字，相比传统的`import`，`import static`关键字的包含目标是类中的静态方法，格式如下：
 
 ```java
-import static [包名].[类名].[类名]....[静态方法名]
+import static [包路径].[类名].[静态方法名];
 ```
 
 这样能够在使用对应类的静态方法时不必写出类名而是直接写出函数名即可。
@@ -1871,9 +1904,10 @@ import static [包名].[类名].[类名]....[静态方法名]
 ### *package* 使用实例
 有两个文件**A.java**和**B.java**。
 
-文件B中的类被A中引用,则将B打包,代码中添加`package b`，并放在b目录下。
-文件A中引用B中的类。
-按照要求，两文件的位置：
+文件B中的类被A中引用,则将B打包,代码中添加`package b`，并放在b目录下。  
+文件A中引用B中的类。  
+
+按照描述，两文件的位置：
 
 - **文件A**路径为`~/A.java`。
 - **文件B**路径为`~/b/B.java`。
@@ -1931,8 +1965,11 @@ public class B {
 ```
 
 其中**A.java**文件能够正常调用类B的方法`getNow()`。
-一个java文件只能有**一个public类**，java文件的名称应该与那个public类的类名**一致**。
-需要注意的是，package打包的文件最好放在与包名相同的文件夹中，这样生成的字节码class文件才会在对应目录生成。如果源码是放在一处的，则编译之后产生的字节码文件需要按照package关系放在与包名相同的目录下，否则执行class文件时会报错，显示找不到对应的class文件！
+
+一个`java`源码文件只能包含一个**公有类**，且源码文件的名称应该与包含的公有类的类名**一致**。
+
+`package`打包的源码应当放在与包名相同的目录中，这样生成的字节码class文件才会在对应目录生成。  
+若源码均置于同一级目录，则编译之后产生的`class`文件需要按照`package`关系放在与包名相同的目录下，否则执行`class`文件时会报错(找不到对应的class文件)。
 
 ### 使用第三方包时的编译/运行方式
 很多时候，我们需要使用java官方库之外的第三方库(jar文件)，编译时需要添加额外的参数。
@@ -1955,21 +1992,21 @@ public class B {
 public String[] split(String regex);
 ```
 
-`String`类中提供的文本切片函数`String.split()`接收的参数是**正则表达式**(Regex)。
-因此，以一些**特殊符号**(`.`、`+`等)作为分隔符时，不能直接使用符号本身，而是需要使用转义符号，如以**小数点**作为分隔符切片需要写成：
+`String`类中提供的文本切片函数`String.split()`接收的参数是**正则表达式**(Regex)。  
+以一些**特殊符号**(`.`、`+`等)作为分隔符时，不能直接使用符号本身，而是需要使用转义符号，如以**小数点**作为分隔符切片需要写成：
 
 ```java
 String[] nums = "123.456.789".split("\\.");
 ```
 
-其它文本处理方法如`String.replace()`等匹配参数也为正则表达式，使用方式类似。
+其它文本处理方法如`String.replace()`、`String.join()`等也有以正则表达式为匹配参数的重载版本，使用方式类似。
 
 ### *String.format()* 方法
 函数的定义为：
 
 ```java
 public static String format(String var0, Object... var1);
-public static String format(Locale var0, String var1, Object... var2)
+public static String format(Locale var0, String var1, Object... var2);
 ```
 
 `String`类的`format()`方法提供类似C语言中`sprintf()`函数类似的文本格式化方式，格式化字段的语法类似。
