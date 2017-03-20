@@ -547,8 +547,8 @@ class Test
 在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
 
 ### 基础类型
-在Scala中，基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生，因而可以直接在泛型中直接使用这些类作为类型参数。
-同时，Scala中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
+在`Scala`中，基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生，因而可以直接在泛型中直接使用这些类作为类型参数。  
+同时，`Scala`中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
 
 在Scala中，所有的基础类型之外的引用类型派生自类`AnyRef`。
 
@@ -556,8 +556,8 @@ class Test
 > 基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行，如将数值与字符串相互转换可以使用如下代码：
 >
 >	```scala
->	var str = 100.toString
->	var num = str.toInt
+>	val str = 100.toString
+>	val num = str.toInt
 >	```
 
 ### *Bottom* (底类型)
@@ -568,37 +568,76 @@ class Test
 - `Null`是所有引用类型`AnyRef`的子类型，定义为`final trait Null extends AnyRef`。
 - `Null`特质拥有唯一实例`null`(类似于Java中`null`的作用)。
 
-### 可空类型
-在Scala中，使用`Option[T]`表示可空类型，`Option[T]`包含两个子类，`Some[T]`和`None`，分别代表值存在/值不存在。
-对`Option[T]`类型使用`getOrElse()`方法来获取存在的值或是当值不存在时使用指定的值，如下所示：
+### *Option* (可空类型)
+`Option[T]`表示可空类型，`Option[T]`包含两个子类：
+
+- `Some[T]`，代表包含有效值。
+- `None`，代表值不存在。
+
+`Optionp[T]`类型的伴生对象中提供了`apply()`方法用于构建实例：
+
+- 任意的非`null`值会得到`Some[T]`返回值。  
+- `null`值会得到`None`返回值。
+
+如下所示：
 
 ```scala
-scala> var str1: Option[String] = "test"
-<console>:10: error: type mismatch;			//赋值失败，Option[T]只能接收Option及其子类
-found   : String("test")
-required: Option[String]
-	var str1: Option[String] = "test"
-							   ^
-scala> var str1: Option[String] = Option("test")
+scala> Option(123)
+res10: Option[Int] = Some(123)
+
+scala> Option(null)
+res11: Option[Null] = None
+```
+
+`Option[T]`类型常用方法如下所示：
+
+```scala
+sealed abstract class Option[+A] extends Product with Serializable {
+	...
+	def isEmpty: Boolean
+	def isDefined: Boolean
+	def get: A
+	final def getOrElse[B >: A](default: => B): B
+	final def foreach[U](f: A => U)
+	...
+}
+```
+
+使用`get`方法获取值，目标值不存在时会触发异常。  
+使用`getOrElse()`方法获取值，参数中需要传入备用的默认值，目标值不存在时使用默认值做为返回结果，如下所示：
+
+```scala
+scala> val str1: Option[String] = Option("test")
 str1: Option[String] = Some(test)
-scala> var str2: Option[String] = None
+
+scala> val str2: Option[String] = None
 str2: Option[String] = None
+
 scala> println(str1 getOrElse "Get Value Failed!")
 test
+
 scala> println(str2 getOrElse "Get Value Failed!")
 Get Value Failed!							//输出getOrElse()方法中设定的值
+```
+
+`foreach()`高阶函数会在值存在时应用操作：
+
+```scala
+scala> Option(123) foreach println
+123											//有值时打印输出
+
+scala> Option(null) foreach println			//无值时无输出
 ```
 
 可空类型也可以用于**模式匹配**中，如下代码所示：
 
 ```scala
 object TestOption extends App {
-	var s  = List(Some(123), None)
-	for (num <- s)
-		num match {
-			case Some(x) => println(x)
-			case None => println("No Value")
-		}
+	val l = Option(123) :: Option(null) :: Nil
+	for (num <- l) num match {
+		case Some(x) => println(x)
+		case None => println("No Value")
+	}
 }
 ```
 
@@ -636,7 +675,7 @@ package TestCode ｛
 	protected class B		//类定义的访问权限可以为protected
 
 	case class Num private(num: Int = 200)		//权限修饰符可以用在类名与主构造器之间，代表构造器私有
-	class Test protected ()						//即使主构造器参数为空，也不能直接以权限关键字结尾
+	class Test protected()						//即使主构造器参数为空，也不能直接以权限关键字结尾
 	//或者写成 class Test protected {}
 
 	class Access(a: Int = 1, var b: Double = 2.0) {
@@ -972,7 +1011,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >	new Empty			//空参方法括号可省略
 >	```
 >
-> 与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。
+> 与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。  
 > 如下代码所示：
 >
 >	```scala
