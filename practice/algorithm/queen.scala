@@ -24,24 +24,30 @@ object Queen extends App {
   import java.lang.Math.abs
 
   // 使用Lambda内部自递归
-  ((x: Self) => x(x))((queen: Self) =>
+  ((x: Self) => x(x)) ((queen: Self) =>
     (row: Int) =>
       if (row == QUEEN_SIZE) {
         count += 1
         println(s"\n找到了第 $count 种方法：")
-        for (row <- 0 until QUEEN_SIZE; line <- 0 until QUEEN_SIZE) {
-          if (line == chessBoard(row)) print("X ") else print("_ ")
+        for {
+          row <- 0 until QUEEN_SIZE
+          line <- 0 until QUEEN_SIZE
+        } {
+          print(s"${if (line == chessBoard(row)) 'X' else '_'} ")
           if (line == QUEEN_SIZE - 1) println
         }
       } else
-        for (line <- 0 until QUEEN_SIZE if (
-            (0 until row)
-            .filter(i => chessBoard(i) == line || abs(chessBoard(i) - line) == abs(i - row))
-            .size == 0)) {
+        for {
+          line <- 0 until QUEEN_SIZE
+          if 0 until row filter { i =>
+            chessBoard(i) == line || abs(chessBoard(i) - line) == abs(i - row)
+          } isEmpty
+        } {
           chessBoard(row) = line
           queen(queen)(row + 1)
         }
   )(0)
 
   println(s"\n共找到了 $count 种解法。")
+
 }
