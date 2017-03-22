@@ -163,7 +163,7 @@ scala> getNum()							//正确，返回 200
 res2: Int = 200
 ```
 
-同时，无参方法不能与已有字段名称相同(编译报错)，而空参方法允许带有同名的字段。
+同时，无参方法不能与已有字段名称相同(编译报错)，而空参方法允许带有同名的字段。  
 需要注意的是，在Scala中，赋值表达式的值为`Unit`，而不是类似Java/C++中的以被赋值的变量类型为表达式的值。例如：
 
 ```scala
@@ -511,7 +511,7 @@ class Test
 >
 >	```scala
 >	def breakable(op: => Unit): Unit {
->		try { op } catch {
+>		try op catch {
 >			// 判断异常是否为breakException，是则捕获，其它异常则继续向外传递
 >			case ex: BreakControl => if (ex ne breakException) throw ex
 >		}
@@ -543,7 +543,7 @@ class Test
 
 
 
-## 类型系统
+## 类型
 在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
 
 ### 基础类型
@@ -926,7 +926,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 > 只有访问权限为`private[this]`时，编译器才不会为引用的字段生成`setter/getter`，而仅仅生成一个私有成员变量。
 
 主构造器参数的默认字段生成规则
-> 主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。
+> 主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。  
 > 编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
 >
 > 如下代码所示：
@@ -1044,19 +1044,20 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 Scala作为OOP语言，支持多态。
 
 重写
-> 在Scala中，默认情况下，子类的并不会重写父类的同名方法，而是需要显式地在方法定义前加上`override`关键字才会发生重写行为。
+> 子类重写父类的非抽象方法时，需要显式地在方法定义前加上`override`关键字，否则无法通过编译。  
+> 实现抽象方法则不需要。
 >
-> Scala中的重写遵循以下规则：
+> 重写遵循以下规则：
 >
->	- def只能重写另一个def。
->	- val可以重写另一个val以及不带有参数的def。
->	- var只能重写另一个抽象的var(即只有定义没有实现)。
+>	- `def`只能重写另一个`def`。
+>	- `val`可以重写另一个`val`以及不带有参数的`def`。
+>	- `var`只能重写另一个抽象的`var`(即只有定义没有实现)。
 
 重载
 > Scala支持函数重载，并且可以使用**操作符**作为函数名，使用操作符作为函数名可以达到类似**C++**中**操作符重载**的效果。
 
 ### 伴生对象
-在Scala中没有`static`关键字，也没有**静态成员**的概念，Scala使用**单例对象**来达到近似静态成员的作用。
+`Scala`中没有`static`关键字，也没有**静态成员**的概念，`Scala`使用**单例对象**来达到近似静态成员的作用。
 
 - 每一个类可以拥有一个同名的**伴生对象**(单例)，伴生对象使用`object`关键字定义，且一个类和其伴生对象的定义必须写在同一个文件中。
 - 伴生对象与同名类之间可以相互访问私有、保护成员。
@@ -1175,7 +1176,7 @@ class Unapply(var num1: Int, var num2: Int)
 100 200
 ```
 
-若需要提取**任意长度**的值的序列，则可以使用`unapplySeq()`方法，该方法返回值类型为`Option[Seq[T]]`。
+若需要提取**任意长度**的值的序列，则可以使用`unapplySeq()`方法，该方法返回值类型为`Option[Seq[T]]`。  
 **不要**同时定义`unapplySeq()`方法和`unapply()`方法，会产生冲突。
 
 如下代码所示：
@@ -1206,7 +1207,7 @@ abc cde efg
 ```
 
 ### *Case Class* (样例类) 与 *Pattern Matching* (模式匹配)
-样例类是一种特殊的类，通常用在**模式匹配**中。
+样例类是一种特殊的类，通常用在**模式匹配**中。  
 在类定义前使用`case`关键字即可定义一个样例类。
 
 相比普通的类，样例类有以下特性：
@@ -1273,10 +1274,10 @@ Scala中的`trait`特质对应Java中的`interface`接口，但相比Java中的�
 
 Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
 
-`Mixin`(混入)
+`Mixin` (混入)
 > Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
 >
->	- Scala中采用的**混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
+>	- **混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
 >	- 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
 >	- 若同时继承类并混入特质，需要将继承的类写在`extends`关键字的后面，`with`只能混入**特质**，不能混入**类**。
 >
@@ -1304,11 +1305,11 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 >	class ExtendClass extends TraitA with BaseA
 >	```
 >
-> `TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。
+> `TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。  
 > `ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
 
 重写冲突的方法与字段
-> 与Java8中相同，混入机制同样需要解决**富接口**带来的成员冲突问题，当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
+> 混入机制需要解决**富接口**带来的成员冲突问题，当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
 >
 > 如下所示：
 >
@@ -1338,7 +1339,7 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 >	- 在一个特质中，若该特质存在父特质，则先构造父特质。若多个特质拥有相同的父特质，该父特质不会被重复构造。
 >	- 最后构造子类。
 >
-> Scala的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。
+> `Scala`的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。  
 > 线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
 >
 > 如下所示：
@@ -1370,7 +1371,7 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 ### 复制类实例
 Scala与Java类似，类实例赋值仅仅是复制了一个引用，实例所指向的内存区域并未被复制。
 
-若需要真正复制一个对象，需要调用对象的`clone()`方法。
+若需要真正复制一个对象，需要调用对象的`clone()`方法。  
 `clone()`方法定义在`Object`类中，但由于是`protected`成员，不可直接调用，若需要自行实现类的复制功能，则需要实现`Cloneable`接口。
 
 如下所示：
@@ -1490,14 +1491,13 @@ It would fail on the following input: CSharp(_)
 one warning found
 ```
 
-编译器提示**匹配可能会有遗漏**。
-
+编译器提示**匹配可能会有遗漏**。  
 若代码中去掉基类定义前的`sealed`关键字，则编译器不再输出警告。
 
 
 
 ## 格式化输出
-使用`print()/println()`可以打印`String`类型的文本输出。
+使用`print()/println()`可以打印`String`类型的文本输出。  
 复杂文本可以使用类似Java的字符串拼接方式(使用操作符`+`)。
 
 - `StringLike.format()`方法。
@@ -1519,7 +1519,7 @@ Float 666.666
 ```
 
 ### s字符串插值器
-在Scala 2.10之后，还可以使用字符串插值器`s""`，基本用法如下所示：
+在`Scala 2.10`之后，还可以使用字符串插值器`s""`，基本用法如下所示：
 
 ```scala
 scala> var str = "Hello World"
@@ -1606,7 +1606,7 @@ java.lang.NumberFormatException: For input string: "test"
 //readf()可以接收任意数量的值，返回值为List[Any]类型
 scala> val list = scala.io.StdIn.readf("{0} + {1}")				//自行脑补终端输入"Test + Input"
 list: List[Any] = List(Test, Input)								//按照格式化字符串提取出了输入内容
-scala> list foreach { println }
+scala> list foreach println
 Test
 Input
 
@@ -1624,7 +1624,7 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 在Scala中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
 
 ### 继承枚举类
-继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。
+继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。  
 默认的`Value`方法会按**变量名**生成**枚举名**和并自动从`0`开始生成**枚举ID**，若需要手动设定枚举名称和枚举ID则可以使用`Value`方法的重载`Value(id: Int, name: Strig)`。
 
 如下代码所示：
@@ -1758,9 +1758,9 @@ Scala常用的基础结构包括**数组**和**元组**。
 构建一个固定长度的数组如下所示：
 
 ```scala
-scala> var array = new Array[Int](10)			//构建一个长度为10的Int型数组
+scala> val array = new Array[Int](10)			//构建一个长度为10的Int型数组
 array: Array[Int] = Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-scala> var a = Array(100, 200)					//使用伴生对象的apply()方法创建数组
+scala> val a = Array(100, 200)					//使用伴生对象的apply()方法创建数组
 a: Array[Int] = Array(100, 200)
 scala> array(5)									//获取数组中指定位置的值(使用小括号中加偏移量)
 res1: Int = 0
@@ -1778,7 +1778,7 @@ java.lang.ArrayIndexOutOfBoundsException: 100
 元组是最简单的容器，无需额外的类型名称，直接使用`(value1, value2, value3, ...)`就可以构建出一个元祖。如下所示：
 
 ```scala
-scala> var tuple = (1, 2, 3)
+scala> val tuple = (1, 2, 3)
 tuple: (Int, Int, Int) = (1,2,3)
 ```
 
@@ -1794,7 +1794,7 @@ scala> println(tuple._1 + " " + tuple._2 + " " + tuple._3)
 元组可以用来一次性初始化多个变量：
 
 ```scala
-scala> var (a, b, c) = tuple			//等价于 var (a, b, c) = (1, 2, 3)
+scala> val (a, b, c) = tuple			//等价于 val (a, b, c) = (1, 2, 3)
 a: Int = 1
 b: Int = 2
 c: Int = 3
@@ -1805,7 +1805,7 @@ scala> println(s"$a $b $c")
 元组可以包含**不同**的类型：
 
 ```scala
-scala> var (num, str) = (123, "456")
+scala> val (num, str) = (123, "456")
 num: Int = 123
 str: String = 456
 ```
@@ -1815,7 +1815,7 @@ str: String = 456
 ```scala
 object TestTuple extends App {
 	def getNum(num1: Int, num2: Int, num3: Int) = (num1, num2, num3)
-	var (num1, num2, num3) = getNum(1, 2, 3)
+	val (num1, num2, num3) = getNum(1, 2, 3)
 	println(s"$num1 $num2 $num3")
 }
 ```
@@ -1833,59 +1833,95 @@ object TestTuple extends App {
 ## 容器
 Scala的容器按数据结构分为`序列(Seq)`、`集合(Set)`和`映射(Map)`三大类。
 
-- `序列(Seq)`为有序容器，按照元素添加的顺序排列，其中，`Seq`的子类`IndexedSeq`允许类似数组的方式按照下标进行访问。
-- `集合(Set)`为数学意义上的集合，不包含重复元素，其中，`Set`的子类`SortedSet`中元素以某种顺序排序。
-- `映射(Map)`为`键 - 值`对偶的集合，其中，`Map`的子类`SortedMap`中键值以某种顺序排序。
+- `序列(Seq)`
 
-容器按照是否可变分为**不可变容器**`scala.collection.immmutable._`和**可变容器**`scala.collection.mutable._`。
+	有序容器，按照元素添加的顺序排列。  
+	`Seq`的子类`IndexedSeq`允许类似数组的方式按照下标进行访问。
 
-### *List* (列表) 与 *ListBuffer* (可变列表)
-在Scala中，`List[T]`类型的完整包路径为`scala.collection.immutable.List`，继承于`Seq`。
+- `集合(Set)`
+
+	数学意义上的集合，不包含重复元素。  
+	`Set`的子类`SortedSet`中元素以某种顺序排序。
+
+- `映射(Map)`
+
+	`键 - 值`对偶的集合。  
+	`Map`的子类`SortedMap`中键值以某种顺序排序。
+
+基本的集合类型继承树如下所示：
+
+```
+Traversable
+│
+Iterable
+├── Seq
+│	 ├── IndexedSeq
+│	 └── LinearSeq
+├── Set
+│	 ├── SortedSet
+│	 └── BitSet
+└── Map
+	 └── SortedMap
+```
+
+### 容器可变性
+容器按照是否**可变**分为：
+
+- **不可变容器**`scala.collection.immmutable._`
+- **可变容器**`scala.collection.mutable._`。
+
+`Scala`为函数式语言，默认的容器类型使用**不可变**实现。
+
+### *List* (列表)
+在Scala中，`List[T]`类型的完整包路径为`scala.collection.immutable.List`，继承于`Seq`。  
 List为**不可变对象**，可以使用`for`操作符进行遍历。
 
 构建一个列表：
 
 ```scala
-scala> var list0 = List(1, 2, 3)
+scala> val list0 = List(1, 2, 3)
 list0: List[Int] = List(1, 2, 3)
 ```
 
-除了直接使用List类型提供的`apply()`方法构建列表对象之外，还可以使用`::`操作符来将多个值构成列表，使用操作符构成列表时需要注意，列表的最后一个值必须为`Nil`，如下所示：
+除了直接使用`List`单例提供的`apply()`方法构建列表对象之外，还可以使用`::`操作符来将多个值构成列表。  
+`::`操作符为**右结合性**运算符。  
+使用`::`操作符构成列表时，列表的最后一个值必须为`Nil`，如下所示：
 
 ```scala
-scala> var list1 = 0 :: 1 :: 2 :: 3 :: Nil
+scala> val list1 = 0 :: 1 :: 2 :: 3 :: Nil
 list1: List[Int] = List(0, 1, 2, 3)
 ```
 
 列表同样允许不同类型的值，也允许重复的值，如下所示：
 
 ```scala
-scala> var list2 = 1 :: 1 :: "str" :: 2.0 :: Nil
+scala> val list2 = 1 :: 1 :: "str" :: 2.0 :: Nil
 list2: List[Any] = List(1, 1, str, 2.0)
 ```
 
-若列表中存储的若是相同的类型，则编译器会将`List[T]`推导为具体的类型，若列表中成员类型各不相同，则编译器会使用所有类型的基类`Any`作为泛型类型及`List[Any]`。
+若列表中存储的若是相同的类型，则编译器会将`List[T]`推导为具体的类型。  
+若列表中成员类型各不相同，则编译器会使用所有类型的基类`Any`作为泛型类型即`List[Any]`。
 
 列表支持从已有的列表进行创建：
 
 ```scala
-scala> var list0 = 1 :: 2 :: 3 :: Nil
+scala> val list0 = 1 :: 2 :: 3 :: Nil
 list0: List[Int] = List(1, 2, 3)
-scala> var list1 = 0 :: list0				//向列表头部增加元素
+scala> val list1 = 0 :: list0				//向列表头部增加元素
 list1: List[Int] = List(0, 1, 2, 3)
-scala> var list2 = list0 :: 4				//列表是不能从尾部创建(List以Nil结尾)
+scala> val list2 = list0 :: 4				//列表是不能从尾部创建(List以Nil结尾)
 <console>:11: error: value :: is not a member of Int
-	var list2 = list0 :: 4
+	val list2 = list0 :: 4
 					  ^
 ```
 
 使用`:::`运算符可以叠加两个列表：
 
 ```scala
-scala> var list2 = list0 ::: list1
+scala> val list2 = list0 ::: list1
 list2: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
 也可以使用"++"运算符连接两个列表：
-scala> var list3 = list0 ++ list1
+scala> val list3 = list0 ++ list1
 list3: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
 ```
 
@@ -1898,7 +1934,7 @@ scala> list0(0)
 res0: Int = 1
 ```
 
-在Scala中，同样支持可变列表类型(`ListBuffer`)。
+可变列表类型为`ListBuffer`。
 
 - 可变列表`scala.collection.mutable.LinkedList`在现在的版本中(2.11.7)已被标记为废弃的。
 - 当前版本可以使用`scala.collection.mutable.ListBuffer`为可变列表。
@@ -1911,7 +1947,7 @@ res0: Int = 1
 object TestList extends App {
 	import scala.collection.mutable._
 	val show: ListBuffer[Any] => Unit = for (s <- _) print(s"$s ")
-	var listBuffer = ListBuffer(1, "str", 2.0)
+	val listBuffer = ListBuffer(1, "str", 2.0)
 	listBuffer.remove(0)				//移除指定索引位置的值
 	show(listBuffer)
 	println
@@ -1932,7 +1968,7 @@ str 2.0 new
 ```
 
 ### *ArrayBuffer* (变长数组)
-在Scala中，变长数组使用`ArrayBuffer[T]`进行表示，`ArrayBuffer`不在默认导入的包路径中，位于`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。
+在Scala中，变长数组使用`ArrayBuffer[T]`进行表示，`ArrayBuffer`不在默认导入的包路径中，位于`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。  
 Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素，创建一个`ArrayBuffer`：
 
 ```scala
@@ -1955,7 +1991,8 @@ scala> arrayBuffer -= 1000
 res13: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
 ```
 
-需要注意的是，`+=`、`-=`只是**方法名**并不是**运算符**，因此，以下的写法会**报错**：
+需要注意的是，`+=`、`-=`只是**方法名**并不是**运算符**。  
+`ArrayBuffer`没有提供`+`、`-`方法，以下的写法会**报错**：
 
 ```scala
 arrayBuffer = arrayBuffer + 10
@@ -1990,11 +2027,11 @@ scala> arrayBuffer
 res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)		//删除了索引1到4位之间的元素
 ```
 
-需要注意的是，`ArrayBuffer`是**线性结构**，只有在尾部进行插入删除操作才是高效的，在其它位置进行的元素操作都会造成大量的元素移动。
+需要注意的是，`ArrayBuffer`是**线性结构**，只有在尾部进行插入删除操作才是高效的，在其它位置进行的元素操作都会造成大量的元素移动。  
 `ArrayBuffer`的不可变版本对应为`scala.collection.immutable.Vector`。
 
 ### *Set* (集合)
-`Set[T]`类型为数学意义上的集合，集合内不允许重复元素。
+`Set[T]`类型为数学意义上的集合，集合内不允许重复元素。  
 `Set`完整包路径为`scala.collection.immutable.Set`。
 集合同样允许任意类型的元素，但集合中不能包含重复的元素。
 
@@ -2005,31 +2042,74 @@ scala> var set = Set(1, 1, 's', "str")
 set: scala.collection.immutable.Set[Any] = Set(1, s, str)		//重复的元素"1"被忽略了
 ```
 
-`Set`可以使用`+`、`-`操作符来增加或是减少元素并返回新的集合。
+`Set`可以使用`+`、`-`操作符来增加或是减少元素并返回新的集合。  
 使用`+`、`-`操作符会返回新的集合，但原集合内的值不会发生改变，如下所示：
 
 ```scala
-scala> var set1 = set + 3
+scala> val set1 = set + 3
 set1: scala.collection.immutable.Set[Any] = Set(1, s, str, 3)	//原集合添加元素输出新的集合
 scala> set
 res0: scala.collection.immutable.Set[Any] = Set(1, s, str)		//原集合本身没有变化
-scala> var set2 = set - 's'
+scala> val set2 = set - 's'
 set2: scala.collection.immutable.Set[Any] = Set(1, str)			//从集合中移除一个元素
 scala> set
 res1: scala.collection.immutable.Set[Any] = Set(1, s, str)
 ```
 
-与动态数组`ArrayBuffer`类似，集合可以使用`+=`、`-=`来增加或减少内部的元素：
+当引用为变量时，`Set`可以使用`+=`、`-=`来增加或减少内部的元素：
 
 ```scala
 scala> var set = Set(1, 2, 3)
 set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+
 scala> set += 4					//增加元素"4"
+
 scala> set
 res14: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 4)
+
 scala> set -= 4					//移除元素"4"
+
 scala> set
 res16: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+```
+
+需要注意的是，`Set`的`+=`、`-=`操作并非定义的方法，只是类似常规语言的操作符简写，如：
+
+```scala
+var set = Set(1, 2, 3)
+set += 4
+```
+
+实际等价于：
+
+```scala
+var set = Set(1, 2, 3)
+set = set + 4
+```
+
+对不可变类型的变量使用`+=`、`-=`操作，实际上改变了变量的实例指向。  
+当不可变类型实例为常量时，便不能使用`+=`、`-=`操作，因为常量的实例指向不可变，如下所示：
+
+```scala
+scala> val set = Set(1, 2, 3)
+set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+
+scala> set += 4
+<console>:13: error: value += is not a member of scala.collection.immutable.Set[Int]
+       set += 4
+           ^
+```
+
+实际相当于：
+
+```scala
+scala> val set = Set(1, 2, 3)
+set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+
+scala> set = set + 4
+<console>:12: error: reassignment to val
+       set = set + 4
+           ^
 ```
 
 使用`contains()`方法可以判断某个元素是否在集合中：
@@ -2039,7 +2119,8 @@ scala> set.contains('s')
 res2: Boolean = true
 ```
 
-使用`find()`方法可以传入一个高阶函数`T => Boolean`自定义规则进行查找，`find()`方法返回`Option[T]`，如下所示：
+使用`find()`方法可以传入一个高阶函数`T => Boolean`自定义规则进行查找。  
+`find()`方法返回`Option[T]`，如下所示：
 
 ```scala
 scala> var set = Set(1, 2, 3, 's', "str")
@@ -2058,8 +2139,9 @@ res8: Option[Any] = None					//没有匹配则返回None
 - `scala.collection.immutable.SortedSet` 红黑树实现的排序集
 
 ### *Map* (映射)
-`Map[A, B]`类型的完整包路径为`scala.collection.immutable.Map`。
-映射中的每一个元素都是一组`对偶(Tuple2)`，分别为key和value，key不可重复，通过`->`操作符可以将两个值组成一组对偶，如下所示：
+`Map[A, B]`类型的完整包路径为`scala.collection.immutable.Map`。  
+映射中的每一个元素都是一组`对偶(Tuple2)`，分别为key和value，key不可重复。  
+通过`->`操作符可以将两个值组成一组对偶，如下所示：
 
 ```scala
 scala> var map = Map(1 -> "1", 2 -> "2", 3 -> "3")
@@ -2078,7 +2160,7 @@ value: 2
 value: 3									//仅遍历map的key
 ```
 
-使用`updated()`方法可以更新指定key对应的value之后输出，通过`+`方法添加对偶后输出，也可以通过`-`移除指定key的对偶后输出。
+使用`updated()`方法可以更新指定key对应的value之后输出，通过`+`方法添加对偶后输出，也可以通过`-`移除指定key的对偶后输出。  
 但这些操作不会改变原本映射的内容：
 
 ```scala
@@ -2092,23 +2174,24 @@ scala> map									//更改的结果作为返回值输出，原本的Map值没�
 res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 ```
 
-与`Set`、`ListBuffer`等类似，`Map`也支持`+=`、`-=`操作符。
-`Map`使用`+=`向自身添加对偶，使用`-=`从自身移除指定key对应的对偶。
-除了不可变的`scala.collection.immutable.Map`外，还有可变的`scala.collection.mutable.Map`类型。
+与`Set`类似，当实例字段为可变量时，`Map`也支持`+=`、`-=`操作。  
+
+除了不可变的`scala.collection.immutable.Map`外，还有可变的`scala.collection.mutable.Map`类型。  
 Scala还提供了多种不同结构的`Map`实现，如`HashMap`、`ListMap`、`LinkedHashMap`等。
 
 
 
 ##  *Higher Order Function* (高阶函数)
-**高阶函数**是**函数式编程**中的概念，在数学中，也叫做**算子**(运算符)或**泛函**。
+**高阶函数**是**函数式编程**中的概念，在数学中，也叫做**算子**(运算符)或**泛函**。  
 **接受一个或多个函数作为输入**或者**输出一个函数**的函数被称为高阶函数。
 
-在`Scala`中，容器类提供了高阶函数作为容器数据操作的接口，常见的高阶函数有`map`、`reduce`、`flatMap`、`filter`、`find`、`fold`、`foreach`等。
+在`Scala`中，容器类提供了高阶函数作为容器数据操作的接口。  
+常见的高阶函数有`map`、`reduce`、`flatMap`、`filter`、`find`、`fold`、`foreach`等。
 
 
 
 ## *Generators* (生成器)
-`Scala`中同样提供了`yield`关键字，支持生成器语法。
+`Scala`中同样提供了`yield`关键字，支持生成器语法。  
 使用`yield`可以将循环中每一轮的结果以容器的形式输出，使用`yeild`可以方便生成一系列的特定值。
 
 如下所示：
@@ -2117,15 +2200,15 @@ Scala还提供了多种不同结构的`Map`实现，如`HashMap`、`ListMap`、`
 scala> for (i <- 1 to 5) yield i
 res20: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3, 4, 5)
 
-//使用for语句内置的守卫语法限制输出
+// 使用for语句内置的守卫语法限制输出
 scala> for (i <- 1 to 5 if i > 2) yield i
 res21: scala.collection.immutable.IndexedSeq[Int] = Vector(3, 4, 5)
 
-//生成器的生成结果与被遍历的容器类型相关
+// 生成器的生成结果与被遍历的容器类型相关
 scala> for (i <- 1 :: 2 :: 3 :: 4 :: 5 :: Nil if i > 2) yield i
 res24: List[Int] = List(3, 4, 5)
 
-//生成的结果不是目标容器则可以进行转换
+// 生成的结果不是目标容器则可以进行转换
 scala> (for (i <- List(1, 2, 3, 4, 5) if i > 2) yield i) toSet
 res27: scala.collection.immutable.Set[Int] = Set(3, 4, 5)
 ```
@@ -2134,13 +2217,13 @@ res27: scala.collection.immutable.Set[Int] = Set(3, 4, 5)
 Scala中可以使用高阶函数，以函数式风格实现类似`yield`的效果。
 
 ```scala
-//从1到5的数中找出偶数，并将数值翻倍
+// 从1到5的数中找出偶数，并将数值翻倍
 
-//使用命令式编程风格，使用守卫和生成器
+// 使用命令式编程风格，使用守卫和生成器
 scala> for (i <- 1 to 5 if i % 2 == 0) yield i * 2
 res13: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 
-//使用函数式编程风格，使用高阶函数
+// 使用函数式编程风格，使用高阶函数
 scala> 1 to 5 filter { _ % 2 == 0 } map { _ * 2 }
 res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 ```
@@ -2392,7 +2475,7 @@ object Main extends App {
 100
 ```
 
-`Scala`标准类库中大量使用了隐式转换特性。
+`Scala`标准类库中大量使用了隐式转换特性。  
 以`String`类型为例，源自`Java`标准库的`String`类型自身并未定义`toInt/toDouble`等成员方法，在调用这些方法时，`String`被**隐式转换**成定义了这些方法的`StringLike`类型来执行这些操作。
 
 ### 隐式参数
