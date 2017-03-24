@@ -53,7 +53,7 @@ sbt的常见指令有：
 - `package` 将项目打包
 - `console` 进入Scala REPL
 
-sbt指令可以在直接在sbt的交互shell内使用，也可以作为参数跟在sbt指令之后直接在命令行中使用。
+`sbt`指令可以在直接在`sbt shell`内使用，也可以作为参数跟在`sbt`指令之后直接在命令行中使用。
 
 
 
@@ -67,14 +67,14 @@ sbt指令可以在直接在sbt的交互shell内使用，也可以作为参数跟
 │   ├── plugins.sbt						# 添加sbt插件
 │   └── build.properties				# 构建规则与参数
 └── src									# 源码目录
-    ├── main
-    │   ├── resources
-    │   └── scala
-    │       └── XXX.scala
-    └── test
-        ├── resources
-        └── scala
-            └── TestXXX.scala
+	├── main
+	│	├── resources
+	│	└── scala
+	│		└── XXX.scala
+	└── test
+		├── resources
+		└── scala
+			└── TestXXX.scala
 ```
 
 新创建的项目没有`target`目录，但在`sbt shell`中执行了`run`之后还会生成`target`和`project/target`目录。  
@@ -130,13 +130,13 @@ object Main extends App {
 
 
 ## 依赖管理
-项目依赖主要定义在项目根目录下的`build.sbt`文件中。
+项目依赖定义在项目根目录下的`build.sbt`文件中。
 
-通过自定义`build.sbt`文件中的`libraryDependencies`配置项即可向项目中添加**托管依赖**。
+通过设定`build.sbt`文件中的`libraryDependencies`变量即可向项目中添加**托管依赖**。
 
 `project`目录下也可以添加`*.scala`构建定义。
 
-`build.sbt`文件遵循Scala语法，`libraryDependencies`配置项实际上是一个类型为`sbt.SettingKey[scala.Seq[sbt.ModuleID]]`的**变量**。
+`build.sbt`文件遵循`Scala`语法，`libraryDependencies`配置项实际上是一个类型为`sbt.SettingKey[scala.Seq[sbt.ModuleID]]`的**变量**。
 
 每一项依赖由`sbt.ModuleID`类型定义，一个具体的依赖项格式如下所示：
 
@@ -201,6 +201,27 @@ com.typesafe.akka % akka-actor_2.12 % 2.4.17		//两种表示方式等价
 | ScalaFx | org.scalafx | scalafx_[Scala版本号]
 | Slick | com.typesafe.slick | slick_[Scala版本号] |
 | Akka | com.typesafe.akka | akka-actor_[Scala版本号] |
+
+
+
+## 编译参数
+通过设定`build.sbt`文件中的`scalacOptions`变量可以控制`scalac`编译器的编译参数。  
+设定了编译参数后，执行`compile`指令时会采用设定的编译参数进行编译。
+
+所有`scalac`支持的命令行参数都可添加，如下所示：
+
+```scala
+scalacOptions ++= Seq(
+	"-feature",
+	"-language:implicitConversions"
+	"..."
+)
+```
+
+`Scala`中的部分语言特性需要使用参数`-language:xxx`来开启：
+
+- 使用`-language:help`参数显示所有可使用的语言特性参数。
+- 使用`-language:_`参数可以开启所有的语言特性。
 
 
 
