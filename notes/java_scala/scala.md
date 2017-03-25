@@ -81,7 +81,7 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 相比`Java`、`C++`等语言，`Scala`融合了`OOP`、`FP`等编程范式，同时语法上更**灵活**。
 
 ### 语法基础(概览)
-- Scala语言中不强制要求分号，可以依行断句，只有一行带有多个语句时才要求分号隔开。
+- Scala代码不强制要求分号，可以依行断句，只有一行带有多个语句时才要求分号隔开。
 - 使用`var/val`定义`变量/常量`，类型可以由编译器推导，也可以显式指定。定义变量时甚至可以省略`var`、`val`关键字，无关键字时定义的变量默认即为`val`，在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
 - 使用`def`关键字定义**方法**，`var/val`定义**函数**。需要注意的是使用`var`定义的函数是可以更改实现的，但`def`定义的方法一经定义实现就**不可改变**。
 - 所有类型皆为对象，基础类型如`Int`、`Double`等都是类，函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
@@ -105,8 +105,9 @@ object Test {
 }
 ```
 
-与Java类似，Scala也是从主方法`main`中开始执行整个程序，不过`main`方法并不定义在类中，而是定义在**单例对象**中(使用`object`关键字创建单例对象)。
-将主方法写在`class`中能够通过编译，但生成的字节码文件在执行时会出错。
+与Java类似，Scala也是从主方法`main`中开始执行整个程序。  
+Scala中的`main`方法并不定义在类中，而是定义在**单例对象**中(使用`object`关键字创建单例对象)。  
+将`main`方法写在`class`中能够通过编译，但生成的字节码文件在执行时会出错。
 
 可以不手动定义`main`方法而让单例对象继承`App`特质，即可直接执行代码语句，例如：
 
@@ -116,10 +117,13 @@ object Test extends App {
 }
 ```
 
-### *Method* (方法)
+
+
+## *Method* (方法)
 与Java不同，Scala中同时支持**函数**与**方法**(Java只有方法而没有真正意义上的**函数**，只有与函数类似的**静态方法**)。
 
-方法由`def`关键字定义，可以被def方法、val函数重写。一个典型的方法格式如下：
+方法由`def`关键字定义，可以被`def`方法、`val`函数重写。  
+一个典型的方法格式如下：
 
 ```scala
 def methodName(args: Type)：Type = {
@@ -127,19 +131,54 @@ def methodName(args: Type)：Type = {
 }
 ```
 
-Scala中方法体**不需要**显式使用`return`关键字来给出方法返回值，编译器会将函数体的最后一句代码推导出类型做为整个函数的返回值。
-对于有返回值的方法，必须要在方法定义中加入**等号**，否则编译器**不会**推导返回值。
-即使方法的返回值为`Unit`，只要显式指定了返回值类型，则必须在方法体中加入等号。
-方法和函数的形参**不需要**也**不能**使用`val``var`关键字声明，只需写明类型即可。
+### 方法返回值
+大部分情况下，对于拥有返回值的方法，方法的返回值类型可**省略**，如下所示：
 
-在Scala中，方法允许省略参数，空的参数表可以直接**省略**，如：
+```scala
+def methodName(args: Type) = {
+	/* function_body */
+}
+```
+
+但出于代码的可读性考虑，对于公有方法，**不建议**省略返回值类型。
+
+大部分情况下，方法体**不需要**显式使用`return`关键字来给出方法返回值，编译器会将方法体内部最后一句代码的返回值类型做为整个函数的返回值，如下所示：
+
+```scala
+def num = {
+	200		//编译器推断出返回值为 Int 类型
+}
+```
+
+在方法具有多个返回点或需要提前返回时，需要显式使用`return`表示方法结束，如下所示：
+
+```scala
+// 不使用 return 时，方法永远返回 50
+def num(num: Int): Int = {
+	if (num < 0) return 20
+	if (num == 0) return 30
+	50
+}
+```
+
+方法体内部使用了`return`关键字，则返回值不再由编译器推导，需要手动写明返回值类型。
+
+方法体前的**等号**代表方法体有返回值，编译器会推断方法体的返回值：
+
+- 在显式指定方法返回类型的情况下，方法体前的等号必须写出，即使返回类型为代表无返回值的`Unit`类型。
+- 若方法无返回值且未写出返回类型，方法体前的等号可以省略。
+ 
+方法和函数的形参**不需要**也**不能**使用`val`、`var`关键字修饰，只需写明类型即可。
+
+### 空参数方法与无参数方法
+方法允许省略参数，空的参数表可以直接**省略**，如：
 
 ```scala
 def getNum: Int = 100
 def getNum(): Int = 100					//以上两个定义作用相同，但只能存在一个
 ```
 
-无参方法与空参方法只能存在一个，但二者在使用方式上略有不同：
+无参数方法与空参数方法只能存在一个，但二者在使用方式上略有不同：
 
 - 无参方法在调用时只能直接使用方法名，在方法名后加上括号调用就会出错。
 - 空参方法既可以使用带有括号的方法调用方式，也可以省略括号。
@@ -177,57 +216,56 @@ required: Int
 									  ^
 ```
 
-参数默认值
-> 在Scala中，方法中的参数允许带有**默认值**：
->
->	```scala
->	scala> var num = 100
->	num: Int = 100
->	scala> def setNum(p: Int = 0) { num = p }		//方法的参数不能由默认值进行类型推导，即使给参数写明了默认值，也依然需要显式指明类型
->	setNum: (p: Int)Unit
->	scala> setNum()				//对于有参数的方法，即使参数带有默认值使得参数表可以为空但在调用时依然不能省略括号，否则报错
->	scala> println(num)
->	0							//输出0
->	```
->
-> 如果一个方法中包含多个同类型并带有默认值的参数，调用时默认匹配第一个参数：
->
->	```scala
->	scala> def func(num1: Int = 100, num2: Int = 200) = println(s"$num1 $num2")
->	func: (num1: Int, num2: Int)Unit
->	scala> func(300)
->	300 200
->	```
->
-> 在常见的支持方法参数默认值的编程语言中，参数默认值会有一些限制：
->
->	- `C#`中的参数默认值只能是编译时常量。
->	- `C++`中的参数默认值可以是成员变量、全局变量，但不能是函数结果。
->	- `C++`中使用非静态成员变量做为参数默认值时，类实例必须设定默认值在之前创建，不能在设定默认值的表达式中创建实例获取成员变量。
->
-> 在`Scala`中方法的参数默认值可以是变量，类内字段，甚至是另一个方法的返回结果。
->
-> 如下代码所示：
->
->	```scala
->	class Test {
->		var num = 23333
->	}
->
->	object Main extends App {
->
->		def get(num: Int = (new Test).num) = num	//Scala支持使用new操作符创建实例获取成员字段做为默认值
->		def show(num: Int = get()) = println(num)
->
->		show()
->	}
->	```
->
-> 输出结果：
->
->	```
->	23333
->	```
+### 参数默认值
+在Scala中，方法中的参数允许带有**默认值**：
+
+```scala
+scala> var num = 100
+num: Int = 100
+scala> def setNum(p: Int = 0) { num = p }		//方法的参数不能由默认值进行类型推导，即使给参数写明了默认值，也依然需要显式指明类型
+setNum: (p: Int)Unit
+scala> setNum()				//对于有参数的方法，即使参数带有默认值使得参数表可以为空但在调用时依然不能省略括号，否则报错
+scala> println(num)
+0							//输出0
+```
+
+若方法中包含多个同类型并带有默认值的参数，调用时默认匹配第一个参数：
+
+```scala
+scala> def func(num1: Int = 100, num2: Int = 200) = println(s"$num1 $num2")
+func: (num1: Int, num2: Int)Unit
+scala> func(300)
+300 200
+```
+
+在常见的支持方法参数默认值的编程语言中，参数默认值会有一些限制：
+
+- `C#`中的参数默认值只能是编译时常量。
+- `C++`中的参数默认值可以是成员变量、全局变量，但不能是函数结果。
+- `C++`中使用非静态成员变量做为参数默认值时，类实例必须设定默认值在之前创建，不能在设定默认值的表达式中创建实例获取成员变量。
+
+在`Scala`中方法的参数默认值可以是变量，类内字段，甚至是另一个方法的返回结果。  
+如下代码所示：
+
+```scala
+class Test {
+	var num = 23333
+}
+
+object Main extends App {
+
+	def get(num: Int = (new Test).num) = num	//Scala支持使用new操作符创建实例获取成员字段做为默认值
+	def show(num: Int = get()) = println(num)
+
+	show()
+}
+```
+
+输出结果：
+
+```
+23333
+```
 
 默认参数与方法重载
 > 在Scala中，若一个带有默认的参数的方法省略默认参数时签名与一个已经存在的方法相同，编译器并不会报错(C++编译器则会报错)，而是在调用方法时优先使用**无默认值**的版本(处理逻辑类似于C#)：
@@ -247,7 +285,7 @@ required: Int
 >	```
 
 具名参数
-> 在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为"具名参数"。
+> 在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为**具名参数**。  
 > 对于方法中包含多个同类型并带有默认值参数的情况下，使用该特性可以显式指定要传入的是哪一个参数：
 >
 >	```scala
@@ -269,40 +307,9 @@ required: Int
 >	100 String c 123.0
 >	```
 
-*By-name Parameter* (传名参数)
-> 当一个方法接收的**参数**为**空**时，该参数即为**传名参数(By-name Parameter)**，如下所示：
->
->	```scala
->	def func(arg: => T) ...
->	```
->
-> 可以使用传名参数可以接收任意数量的代码，如下所示：
->
->	```scala
->	object Main extends App {
->
->		def show(args: => Unit) = args
->
->		//单行语句可直接作为参数
->		show(println("123"))
->
->		//多行语句可放在大括号中
->		show {
->			println("456")
->			println("789")
->		}
->	}
->	```
->
-> 运行结果：
->
->	```
->	123
->	456
->	789
->	```
 
-### *Function* (函数)
+
+## *Function* (函数)
 在Scala中函数使用`var/val`关键字定义，即函数是一个存储了函数对象的字段。
 
 一个典型的函数定义如下：
@@ -368,12 +375,17 @@ class Test
 ```
 
 函数组合
-> 在Scala中，函数允许进行组合。
-> 函数组合有两种方式，`a compose b`实际调用次序为`a(b())`，`a andThen b`实际调用次序为`b(a())`。
-> 需要注意的是，方法不能直接进行组合，需要将其转化为函数(方法名之后加`_`符号)。
+> 在Scala中，函数允许进行组合。  
+> 函数组合有两种方式：
+>
+>	1. `a compose b`实际调用次序为`a(b())`。
+>	1. `a andThen b`实际调用次序为`b(a())`。
+>	
+> 方法不能直接进行组合，需要将其转化为函数(方法名之后加`_`符号)。
 >
 >	```scala
 >	object Main extends App {
+>	
 >		def add(num: Int) = num + 100
 >		def double(num: Int) = num * 2
 >
@@ -543,113 +555,6 @@ class Test
 
 
 
-## 类型
-在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
-
-### 基础类型
-在`Scala`中，基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生，因而可以直接在泛型中直接使用这些类作为类型参数。  
-同时，`Scala`中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
-
-在Scala中，所有的基础类型之外的引用类型派生自类`AnyRef`。
-
-基础类型转换
-> 基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行，如将数值与字符串相互转换可以使用如下代码：
->
->	```scala
->	val str = 100.toString
->	val num = str.toInt
->	```
-
-### *Bottom* (底类型)
-与Java不同，Scala中存在底类型(bottom)。底类型包括`Nothing`和`Null`。
-
-- `Nothing`是所有类型`Any`的子类型，定义为`final trait Nothing extends Any`。
-- `Nothing`特质没有实例。
-- `Null`是所有引用类型`AnyRef`的子类型，定义为`final trait Null extends AnyRef`。
-- `Null`特质拥有唯一实例`null`(类似于Java中`null`的作用)。
-
-### *Option* (可空类型)
-`Option[T]`表示可空类型，`Option[T]`包含两个子类：
-
-- `Some[T]`，代表包含有效值。
-- `None`，代表值不存在。
-
-`Optionp[T]`类型的伴生对象中提供了`apply()`方法用于构建实例：
-
-- 任意的非`null`值会得到`Some[T]`返回值。  
-- `null`值会得到`None`返回值。
-
-如下所示：
-
-```scala
-scala> Option(123)
-res10: Option[Int] = Some(123)
-
-scala> Option(null)
-res11: Option[Null] = None
-```
-
-`Option[T]`类型常用方法如下所示：
-
-```scala
-sealed abstract class Option[+A] extends Product with Serializable {
-	...
-	def isEmpty: Boolean
-	def isDefined: Boolean
-	def get: A
-	final def getOrElse[B >: A](default: => B): B
-	final def foreach[U](f: A => U)
-	...
-}
-```
-
-使用`get`方法获取值，目标值不存在时会触发异常。  
-使用`getOrElse()`方法获取值，参数中需要传入备用的默认值，目标值不存在时使用默认值做为返回结果，如下所示：
-
-```scala
-scala> val str1: Option[String] = Option("test")
-str1: Option[String] = Some(test)
-
-scala> val str2: Option[String] = None
-str2: Option[String] = None
-
-scala> println(str1 getOrElse "Get Value Failed!")
-test
-
-scala> println(str2 getOrElse "Get Value Failed!")
-Get Value Failed!							//输出getOrElse()方法中设定的值
-```
-
-`foreach()`高阶函数会在值存在时应用操作：
-
-```scala
-scala> Option(123) foreach println
-123											//有值时打印输出
-
-scala> Option(null) foreach println			//无值时无输出
-```
-
-可空类型也可以用于**模式匹配**中，如下代码所示：
-
-```scala
-object TestOption extends App {
-	val l = Option(123) :: Option(null) :: Nil
-	for (num <- l) num match {
-		case Some(x) => println(x)
-		case None => println("No Value")
-	}
-}
-```
-
-运行结果：
-
-```
-123
-No Value
-```
-
-
-
 ## *OOP*
 Scala是一门同时具有函数式与面向对象特性的**多重范式语言**，除了具有函数式特性外，对**OOP**也有着完整的支持。
 
@@ -799,8 +704,9 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 ```
 
 主构造器作用域
-> 在`Scala`中，主构造器的实际作用范围为整个类内作用域。
-> 即在类作用域内，不仅可以像`Java`、`C#`、`C++`等传统`OOP`语言一样定义成员字段和成员方法，更可以直接在类内添加普通代码语句。
+> 在`Scala`中，主构造器的实际范围为整个类内作用域。  
+> 即在类作用域内，不仅可以像`Java`、`C#`、`C++`等传统`OOP`语言一样定义成员字段和成员方法，更可以直接在类内添加普通代码语句。  
+> 类内的普通代码语句即为构造方法的内容，再类实例构造时即被调用。
 >
 > 如下所示：
 >
@@ -838,7 +744,8 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >	abc
 >	```
 >
-> 类作用域中的普通语句可以直接引用类内定义的成员字段(即使成员字段定义在语句之后)，但若成员字段的定义语句在执行语句之后，则成员字段在被引用时**未初始化**。
+> 类作用域中的普通语句可以直接引用类内定义的成员字段(即使成员字段定义在语句之后)。  
+> 但若成员字段的定义语句在执行语句之后，则成员字段在被引用时**未初始化**。
 
 主构造器访问权限
 > 在**类名**之后，**主构造器参数**之前可以添加访问权限修饰符，用于限定主构造器的访问权限。
@@ -862,7 +769,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >	```
 
 主构造器参数做为成员字段
-> 主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。
+> 主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。  
 > 构造器参数前使用`var`关键字，如下代码所示：
 >
 >	```scala
@@ -898,7 +805,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >	}
 >	```
 >
-> 可以看到，编译器为val字段`num`生成了`getter`方法和一个与字段同名的`final`私有变量。
+> 可以看到，编译器为`val`字段`num`生成了`getter`方法和一个与字段同名的`final`私有变量。
 >
 > 构造器参数前加上**访问权限修饰符**则生成的方法类似，但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)，如下所示：
 >
@@ -1309,7 +1216,8 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 > `ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
 
 重写冲突的方法与字段
-> 混入机制需要解决**富接口**带来的成员冲突问题，当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
+> 混入机制需要解决**富接口**带来的成员冲突问题。  
+> 当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
 >
 > 如下所示：
 >
@@ -1388,8 +1296,8 @@ class Clone extends Cloneable {
 }
 ```
 
-与Java中类似，如果需要实现**深复制**，则需要对类成员中的`AnyRef`及其子类调用`clone()`进行复制。
-对于`AnyVal`子类如`Int`、`Double`等类型，没有提供重载的`clone()`方法，但这些类型默认即为值复制，无需额外的操作。
+与Java中类似，如果需要实现**深复制**，则需要对类成员中的`AnyRef`及其子类调用`clone()`进行复制。  
+对于`AnyVal`子类如`Int`、`Double`等类型，没有提供重载的`clone()`方法，但这些类型默认即为值复制，无需额外的操作。  
 Java中的特例`java.lang.String`在Scala中同样有效，对于`String`类型，在重写`clone()`时也可当作基本类型对待。
 
 在Scala中，还可以直接继承`scala.collection.mutable.Cloneable[T]`特质：
@@ -1451,6 +1359,147 @@ class Num {
 
 ```
 Num 100
+```
+
+
+
+## 类型
+在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
+
+### 基础类型
+在`Scala`中，基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生，因而可以直接在泛型中直接使用这些类作为类型参数。  
+同时，`Scala`中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
+
+在Scala中，所有的基础类型之外的引用类型派生自类`AnyRef`。
+
+基础类型转换
+> 基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行，如将数值与字符串相互转换可以使用如下代码：
+>
+>	```scala
+>	val str = 100.toString
+>	val num = str.toInt
+>	```
+
+### *Bottom* (底类型)
+与Java不同，Scala中存在底类型(bottom)。底类型包括`Nothing`和`Null`。
+
+- `Nothing`是所有类型`Any`的子类型，定义为`final trait Nothing extends Any`。
+- `Nothing`特质没有实例。
+- `Null`是所有引用类型`AnyRef`的子类型，定义为`final trait Null extends AnyRef`。
+- `Null`特质拥有唯一实例`null`(类似于Java中`null`的作用)。
+
+### *Option* (可空类型)
+`Option[T]`表示可空类型，`Option[T]`包含两个子类：
+
+- `Some[T]`，代表包含有效值。
+- `None`，代表值不存在。
+
+`Optionp[T]`类型的伴生对象中提供了`apply()`方法用于构建实例：
+
+- 任意的非`null`值会得到`Some[T]`返回值。  
+- `null`值会得到`None`返回值。
+
+如下所示：
+
+```scala
+scala> Option(123)
+res10: Option[Int] = Some(123)
+
+scala> Option(null)
+res11: Option[Null] = None
+```
+
+`Option[T]`类型常用方法如下所示：
+
+```scala
+sealed abstract class Option[+A] extends Product with Serializable {
+	...
+	def isEmpty: Boolean
+	def isDefined: Boolean
+	def get: A
+	final def getOrElse[B >: A](default: => B): B
+	final def foreach[U](f: A => U)
+	...
+}
+```
+
+使用`get`方法获取值，目标值不存在时会触发异常。  
+使用`getOrElse()`方法获取值，参数中需要传入备用的默认值，目标值不存在时使用默认值做为返回结果，如下所示：
+
+```scala
+scala> val str1: Option[String] = Option("test")
+str1: Option[String] = Some(test)
+
+scala> val str2: Option[String] = None
+str2: Option[String] = None
+
+scala> println(str1 getOrElse "Get Value Failed!")
+test
+
+scala> println(str2 getOrElse "Get Value Failed!")
+Get Value Failed!							//输出getOrElse()方法中设定的值
+```
+
+`foreach()`高阶函数会在值存在时应用操作：
+
+```scala
+scala> Option(123) foreach println
+123											//有值时打印输出
+
+scala> Option(null) foreach println			//无值时无输出
+```
+
+可空类型也可以用于**模式匹配**中，如下代码所示：
+
+```scala
+object TestOption extends App {
+	val l = Option(123) :: Option(null) :: Nil
+	for (num <- l) num match {
+		case Some(x) => println(x)
+		case None => println("No Value")
+	}
+}
+```
+
+运行结果：
+
+```
+123
+No Value
+```
+
+
+
+## 块表达式
+在`Scala`中，花括号`{ }`中可以包含一个或多个语句序列，称为块表达式。  
+块表达式的**最后一条语句**会做为块表达式的结果。如下所示：
+
+```scala
+scala> { println("Block Expr!"); 23333 }
+Block Expr!
+res3: Int = 23333
+```
+
+方法、函数的参数可由对应返回类型的块表达式替代，如下所示：
+
+```scala
+def test(num: Int) = println(num)
+
+test({
+	println("Block Expr!")
+	23333
+})
+```
+
+当方法、函数仅接收**单一参数**时，小括号可省略：
+
+```scala
+def test(num: Int) = println(num)
+
+test {
+	println("Block Expr!")
+	23333
+}
 ```
 
 
@@ -1934,41 +1983,8 @@ scala> list0(0)
 res0: Int = 1
 ```
 
-可变列表类型为`ListBuffer`。
-
-- 可变列表`scala.collection.mutable.LinkedList`在现在的版本中(2.11.7)已被标记为废弃的。
-- 当前版本可以使用`scala.collection.mutable.ListBuffer`为可变列表。
-- 不可变列表`List`不支持`+=`和`-=`运算，但`ListBuffer`类型支持。
-- `ListBuffer`不支持`::`以及`:::`运算符。
-
-`ListBuffer[T]`类的常规操作如下所示：
-
-```scala
-object TestList extends App {
-	import scala.collection.mutable._
-	val show: ListBuffer[Any] => Unit = for (s <- _) print(s"$s ")
-	val listBuffer = ListBuffer(1, "str", 2.0)
-	listBuffer.remove(0)				//移除指定索引位置的值
-	show(listBuffer)
-	println
-	listBuffer += "num"					//添加新值
-	show(listBuffer)
-	println
-	listBuffer.update(2, "new")			//改变指定位置的值
-	show(listBuffer)
-}
-```
-
-输出结果：
-
-```
-str 2.0
-str 2.0 num
-str 2.0 new
-```
-
 ### *ArrayBuffer* (变长数组)
-在Scala中，变长数组使用`ArrayBuffer[T]`进行表示，`ArrayBuffer`不在默认导入的包路径中，位于`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。  
+在Scala中，变长数组使用`ArrayBuffer[T]`，完整路径`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。  
 Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素，创建一个`ArrayBuffer`：
 
 ```scala
@@ -1978,7 +1994,7 @@ var a = ArrayBuffer(100, 200)					//同样可以使用伴生对象的apply()方�
 a: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(100, 200)
 ```
 
-`ArrayBuffer`可以使用`+=`和`-=`进行**增加**与**删除**元素：
+`ArrayBuffer`定义了方法`+=`和`-=`用于**增加**和**删除**元素：
 
 ```scala
 scala> arrayBuffer += 10
@@ -2087,8 +2103,8 @@ var set = Set(1, 2, 3)
 set = set + 4
 ```
 
-对不可变类型的变量使用`+=`、`-=`操作，实际上改变了变量的实例指向。  
-当不可变类型实例为常量时，便不能使用`+=`、`-=`操作，因为常量的实例指向不可变，如下所示：
+对不可变类型的变量使用`+=`、`-=`操作，实际上改变了变量指向的实例。  
+当不可变类型实例为**常量**时，则不能使用`+=`、`-=`操作，因为常量的实例指向不可变，如下所示：
 
 ```scala
 scala> val set = Set(1, 2, 3)
