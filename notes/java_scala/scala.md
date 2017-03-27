@@ -1471,7 +1471,7 @@ No Value
 
 
 ## 块表达式
-在`Scala`中，花括号`{ }`中可以包含一个或多个语句序列，称为块表达式。  
+在`Scala`中，花括号`{ }`中可以包含一个或多个语句序列，称为**块表达式**。  
 块表达式的**最后一条语句**会做为块表达式的结果。如下所示：
 
 ```scala
@@ -1577,16 +1577,16 @@ num: 23333
 ```scala
 object Main extends App {
 
-	// 参数 num 为传名参数
-	def show(num: => Int) {
-		println("Run show()!")
-		println(s"num: $num")
-	}
+  // 参数 num 为传名参数
+  def show(num: => Int) {
+    println("Run show()!")
+    println(s"num: $num")
+  }
 
-	show {
-		println("Call show()!")
-		23333
-	}
+  show {
+    println("Call show()!")
+    23333
+  }
 
 }
 ```
@@ -1600,6 +1600,158 @@ num: 23333
 ```
 
 做为传名参数的代码块在传入方法时并未执行，在参数被访问时才真正执行。
+
+### **&&**、**||** 运算符
+在传统编程语言中，双目运算符`&&`、`||`具有`Call by Name`特性：
+
+- 若`&&`运算符左侧表达式值为`false`，则右侧表达式不被执行。
+- 若`||`运算符左侧表达式值为`true`，则右侧表达式不被执行。
+
+如下代码所示：
+
+```scala
+object Main extends App {
+
+  {
+    println("expr1_1")
+    false
+  } && {
+    println("expr1_2")
+    false
+  }
+
+  {
+    println("expr2_1")
+    true
+  } || {
+    println("expr2_2")
+    false
+  }
+
+}
+```
+
+在`C++`中，代码**近似**于：
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main(void)
+{
+	[] {
+		cout << "expr1_1" << endl;
+		return false;
+	} () && [] {
+		cout << "expr1_2" << endl;
+		return false;
+	} ();
+
+	[] {
+		cout << "expr2_1" << endl;
+		return true;
+	} () || [] {
+		cout << "expr2_2" << endl;
+		return false;
+	} ();
+
+	return 0;
+}
+```
+
+输出结果：
+
+```
+expr1_1
+expr2_1
+```
+
+输出结果中没有`&&`、`||`运算符右侧表达式的输出，表达式并未被执行。
+
+使用`Call by Name`模拟`&&`、`||`运算符
+> 编写自定义方法`and()`、`or()`在不使用内建`&&`、`||`的情况下模拟`&&`、`||`运算符。
+>
+> 若使用`Call by Value`，如下代码所示：
+>
+>	```scala
+>	object Main extends App {
+>
+>	  // 使用隐式类为 Boolean 类型提供额外操作
+>	  implicit class Operate(bool: Boolean) {
+>	    def and(bool: Boolean) = if (!this.bool) false else bool
+>	    def or(bool: Boolean) = if (this.bool) true else bool
+>	  }
+>
+>	  {
+>	    println("expr1_1")
+>	    false
+>	  } and {
+>	    println("expr1_2")
+>	    false
+>	  }
+>
+>	  {
+>	    println("expr2_1")
+>	    true
+>	  } or {
+>	    println("expr2_2")
+>	    false
+>	  }
+>
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	expr1_1
+>	expr1_2
+>	expr2_1
+>	expr2_2
+>	```
+>
+> 输出结果中`and()`、`or()`方法右侧的表达式已被执行。  
+> 在`Call by Value`的求值策略下，参数一经传入便已被求值，不符合`&&`、`||`运算符逻辑。
+>
+> 将源码修改为`Call by Name`：
+>
+>	```scala
+>	object Main extends App {
+>
+>	  // 方法参数采用传名参数特性
+>	  implicit class Operate(bool: Boolean) {
+>	    def and(bool: => Boolean) = if (!this.bool) false else bool
+>	    def or(bool: => Boolean) = if (this.bool) true else bool
+>	  }
+>
+>	  {
+>	    println("expr1_1")
+>	    false
+>	  } and {
+>	    println("expr1_2")
+>	    false
+>	  }
+>
+>	  {
+>	    println("expr2_1")
+>	    true
+>	  } or {
+>	    println("expr2_2")
+>	    false
+>	  }
+>
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	expr1_1
+>	expr2_1
+>	```
+>
+> 使用`Call by Name`求值策略下，右侧表达式并未执行，符合`&&`、`||`运算符逻辑。
 
 
 
