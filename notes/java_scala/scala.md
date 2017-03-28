@@ -424,21 +424,21 @@ class Test
 >
 >	scala> func(1)
 >	scala.MatchError: 1 (of class java.lang.Integer)
->		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
->		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
->		at $anonfun$1.applyOrElse(<console>:11)
->		at $anonfun$1.applyOrElse(<console>:11)
->		at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
->		... 32 elided
+>	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+>	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+>	  at $anonfun$1.applyOrElse(<console>:11)
+>	  at $anonfun$1.applyOrElse(<console>:11)
+>	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+>	  ... 32 elided
 >
 >	scala> func(-1)
 >	scala.MatchError: -1 (of class java.lang.Integer)
->		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
->		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
->		at $anonfun$1.applyOrElse(<console>:11)
->		at $anonfun$1.applyOrElse(<console>:11)
->		at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
->		... 32 elided
+>	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+>	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+>	  at $anonfun$1.applyOrElse(<console>:11)
+>	  at $anonfun$1.applyOrElse(<console>:11)
+>	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+>	  ... 32 elided
 >	```
 >
 > 一个偏函数可以通过添加多个`case`语句块来添加多个定义域的返回结果：
@@ -455,12 +455,12 @@ class Test
 >
 >	scala> func1(0)
 >	scala.MatchError: 0 (of class java.lang.Integer)
->		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
->		at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
->		at $anonfun$1.applyOrElse(<console>:11)
->		at $anonfun$1.applyOrElse(<console>:11)
->		at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
->		... 32 elided
+>	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+>	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+>	  at $anonfun$1.applyOrElse(<console>:11)
+>	  at $anonfun$1.applyOrElse(<console>:11)
+>	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+>	  ... 32 elided
 >	```
 >
 > 偏函数`func1()`对于定义域`(-∞，0)`返回`-1`，对于定义域`(0, +∞)`返回`1`。
@@ -523,10 +523,10 @@ class Test
 >
 >	```scala
 >	def breakable(op: => Unit): Unit {
->		try op catch {
->			// 判断异常是否为breakException，是则捕获，其它异常则继续向外传递
->			case ex: BreakControl => if (ex ne breakException) throw ex
->		}
+>	  try op catch {
+>	    // 判断异常是否为breakException，是则捕获，其它异常则继续向外传递
+>	    case ex: BreakControl => if (ex ne breakException) throw ex
+>	  }
 >	}
 >	def break(): Nothing = { throw breakException }
 >	```
@@ -539,19 +539,53 @@ class Test
 > 使用`Breaks`如下代码所示：
 >
 >	```scala
->	import scala.util.control.Breaks.{ breakable, break }
+>	import scala.util.control.Breaks.{breakable, break}
 >
 >	object Main extends App {
 >
->		breakable {
->			//使用break的代码块作为传名参数传入breakable中
->			for (i <- 1 to 10) {
->				if (i == 8) break		//跳出循环
->			}
->		}
+>	  breakable {
+>	    //使用break的代码块作为传名参数传入breakable中
+>	    for (i <- 1 to 10) {
+>	      if (i == 8) break		//跳出循环
+>	    }
+>	  }
 >
 >	}
 >	```
+
+
+
+## 块表达式
+在`Scala`中，花括号`{ }`中可以包含一个或多个语句序列，称为**块表达式**。  
+块表达式的**最后一条语句**会做为块表达式的结果。如下所示：
+
+```scala
+scala> { println("Block Expr!"); 23333 }
+Block Expr!
+res3: Int = 23333
+```
+
+方法、函数的参数可由对应返回类型的块表达式替代，如下所示：
+
+```scala
+def test(num: Int) = println(num)
+
+test({
+  println("Block Expr!")
+  23333
+})
+```
+
+当方法、函数仅接收**单一参数**时，小括号可省略：
+
+```scala
+def test(num: Int) = println(num)
+
+test {
+  println("Block Expr!")
+  23333
+}
+```
 
 
 
@@ -574,23 +608,23 @@ Scala中的保护成员使用关键字`protected`，私有成员使用关键字`
 如下代码所示：
 
 ```scala
-package TestCode ｛
+package TestCode {
 
-	private class A			//类定义前可以使用访问权限修饰
-	protected class B		//类定义的访问权限可以为protected
+  private class A //类定义前可以使用访问权限修饰
+  protected class B //类定义的访问权限可以为protected
 
-	case class Num private(num: Int = 200)		//权限修饰符可以用在类名与主构造器之间，代表构造器私有
-	class Test protected()						//即使主构造器参数为空，也不能直接以权限关键字结尾
-	//或者写成 class Test protected {}
+  case class Num private(num: Int = 200) //权限修饰符可以用在类名与主构造器之间，代表构造器私有
+  class Test protected() //即使主构造器参数为空，也不能直接以权限关键字结尾
+  //或者写成 class Test protected {}
 
-	class Access(a: Int = 1, var b: Double = 2.0) {
-		def showOther1(access: Access) = access.show1			//出错，access非当前类实例，无访问权限
-		def showOther2(access: Access) = access.show2			//正常访问
-		def showOther3(access: Access) = access.show3			//正常访问
-		private[this] def show1 = println(a + " " + b)			//限定当前实例可访问
-		private[Access] def show2 = println(a + " " + b)		//类似Java中的private，当前类的任意实例皆可相互访问私有成员
-		private[TestCode] def show3 = println(a + " " + b)		//作用域为包名，此时的访问权限类似Java中的default访问权限，当前包中类的实例皆可访问到该私有成员
-	}
+  class Access(a: Int = 1, var b: Double = 2.0) {
+    def showOther1(access: Access) = access.show1 //出错，access非当前类实例，无访问权限
+    def showOther2(access: Access) = access.show2 //正常访问
+    def showOther3(access: Access) = access.show3 //正常访问
+    private[this] def show1 = println(a + " " + b) //限定当前实例可访问
+    private[Access] def show2 = println(a + " " + b) //类似Java中的private，当前类的任意实例皆可相互访问私有成员
+    private[TestCode] def show3 = println(a + " " + b) //作用域为包名，此时的访问权限类似Java中的default访问权限，当前包中类的实例皆可访问到该私有成员
+  }
 
 }
 ```
@@ -605,8 +639,8 @@ Scala类中的字段不仅仅是定义了一个成员变量，编译器生成字
 
 ```scala
 class Test {
-	var num: Int = { ... }
-	val str: String = { ... }
+  var num: Int = { ... }
+  val str: String = { ... }
 }
 ```
 
@@ -637,30 +671,32 @@ public class Test {
 ```scala
 class Override {
 
-	var m = 100									//普通成员字段会自动合成setter/getter方法
-	/*
-	def m(): Int = m							//错误，提示重复定义
-	def m_=(m: Int) { this.m = m }				//错误，提示重复定义
-	*/
-	def m(m: Int) {}							//正常，签名未冲突
+  var m = 100 //普通成员字段会自动合成setter/getter方法
+  /*
+  def m(): Int = m //错误，提示重复定义
+  def m_=(m: Int) { this.m = m } //错误，提示重复定义
+  */
+  def m(m: Int) {} //正常，签名未冲突
 
-	private[this] var num = 100					//私有this字段不会合成setter/getter方法，但自行手动定义同名的setter/getter方法时有许多限制(getter方法需要空参且写明返回值)，且没有实用价值(setter方法使用报错)
-	def num(): Int = num						//正常
-	def num_=(num: Int) { this.num = num }		//正常，虽然定义时不报错，但赋值时报错
-	/*
-	def num = this.num							//报错
-	def num: Int = num							//报错
-	def num: Int = this.num						//报错
-	*/
+  private[this] var num = 100 //私有this字段不会合成setter/getter方法，但自行手动定义同名的setter/getter方法时有许多限制(getter方法需要空参且写明返回值)，且没有实用价值(setter方法使用报错)
+  def num(): Int = num //正常
+  def num_=(num: Int) {
+    this.num = num
+  } //正常，虽然定义时不报错，但赋值时报错
+  /*
+  def num = this.num //报错
+  def num: Int = num //报错
+  def num: Int = this.num //报错
+  */
 
-	//常用的私有变量自定义setter/getter风格是私有字段名前加上下划线
-	private[this] var _abc = 0
-	def abc = _abc
-	def abc_=(abc: Int): Unit = _abc = abc
-	/*
-		也可以写成：
-		def abc_=(abc: Int) { _abc = abc }
-	*/
+  //常用的私有变量自定义setter/getter风格是私有字段名前加上下划线
+  private[this] var _abc = 0
+  def abc = _abc
+  def abc_=(abc: Int): Unit = _abc = abc
+  /*
+    也可以写成：
+    def abc_=(abc: Int) { _abc = abc }
+  */
 }
 ```
 
@@ -685,21 +721,20 @@ class Override {
 如下代码所示：
 
 ```scala
-//定义主构造器
-class Constructor(a: Int, var b: Double = 2.0) {		//构造器参数紧跟在类名之后，构造器中的参数可以带有默认值
-	//在构造器中创建了字段b，a变量没有显式使用var/val关键字，同时也没有被其它方法引用，因而仅仅作为临时变量存在
+class Constructor(a: Int, var b: Double = 2.0) { //构造器参数紧跟在类名之后，构造器中的参数可以带有默认值
+  //在构造器中创建了字段b，a变量没有显式使用var/val关键字，同时也没有被其它方法引用，因而仅仅作为临时变量存在
 
-	//定义辅助构造器，使用this关键字
-	def this() = this(2, 3.0)		//辅助构造器的函数体中必须最终调用主构造器，辅助构造器即使没有参数也必须也必须带括号
+  //定义辅助构造器，使用this关键字
+  def this() = this(2, 3.0) //辅助构造器的函数体中必须最终调用主构造器，辅助构造器即使没有参数也必须也必须带括号
 }
 
 //只有主构造器能够调用父类构造器，调用的父类构造器可以是主构造器，也可以是辅助构造器
 class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
-	def this() {
-		//a = 100					//代码要在构造器调用之后，放在this()之前会报错
-		this(2, 4.0)
-		//super(2, 4.0)				//在Scala中没有这种用法，父类的构造函数只能由主构造器调用
-	}
+  def this() {
+    //a = 100 //代码要在构造器调用之后，放在this()之前会报错
+    this(2, 4.0)
+    //super(2, 4.0) //在Scala中没有这种用法，父类的构造函数只能由主构造器调用
+  }
 }
 ```
 
@@ -712,7 +747,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >
 >	```scala
 >	class Test(str: String) {
->		println(str)
+>	  println(str)
 >	}
 >	```
 >
@@ -722,18 +757,18 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >
 >	```scala
 >	class Test0 {
->		println(str)
->		val str = "abc"
+>	  println(str)
+>	  val str = "abc"
 >	}
 >
 >	class Test1 {
->		val str = "abc"
->		println(str)
+>	  val str = "abc"
+>	  println(str)
 >	}
 >
 >	object Main extends App {
->		new Test0()
->		new Test1()
+>	  new Test0()
+>	  new Test1()
 >	}
 >	```
 >
@@ -754,17 +789,17 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >
 >	```scala
 >	class Test private(num: Int) {
->		def show() = println(num)
+>	  def show() = println(num)
 >	}
 >
 >	object Test {
->		lazy val instance = Test()
->		private def apply() = new Test(100)		//正确，伴生对象中可以访问类的私有成员，包括私有主构造器
+>	  lazy val instance = Test()
+>	  private def apply() = new Test(100)		//正确，伴生对象中可以访问类的私有成员，包括私有主构造器
 >	}
 >
 >	object Main extends App {
->		Test.instance.show()					//正确，获取单例
->		new Test(100).show()					//错误，无法直接访问私有构造器
+>	  Test.instance.show()					//正确，获取单例
+>	  new Test(100).show()					//错误，无法直接访问私有构造器
 >	}
 >	```
 
@@ -863,10 +898,10 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >
 >	```scala
 >	class Constructor0(num: Int) {
->		def get = num
+>	  def get = num
 >	}
 >	class Constructor1(private[this] val num: Int) {
->		def get = num
+>	  def get = num
 >	}
 >	```
 >
@@ -923,7 +958,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >
 >	```scala
 >	class Default {
->		def this(num: Int) = this
+>	  def this(num: Int) = this
 >	}
 >	```
 >
@@ -942,8 +977,8 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 >
 >	```scala
 >	class Default {
->		//编译报错，主构造器已为空参，不能重复定义
->		def this() { ... }
+>	  //编译报错，主构造器已为空参，不能重复定义
+>	  def this() { ... }
 >	}
 >	```
 
@@ -1000,33 +1035,33 @@ instance.update(arg1, arg2, arg3, ..., value)
 
 ```scala
 object Main extends App {
-	var a = new Apply(0, 0)
-	val show = () => println(a.num1 + " " + a.num2)
-	a(1)								//相当于调用 a.apply(1)
-	show()								//输出 1 2
-	a(100, 200) = Apply(10, 20)			//相当于调用 a.update(100, 200, new Apply(10, 20))
-	show()								//输出 90 180
-	Apply(1000, 2000) = a
-	show()								//输出 1000 2000
+  var a = new Apply(0, 0)
+  val show = () => println(a.num1 + " " + a.num2)
+  a(1) //相当于调用 a.apply(1)
+  show() //输出 1 2
+  a(100, 200) = Apply(10, 20) //相当于调用 a.update(100, 200, new Apply(10, 20))
+  show() //输出 90 180
+  Apply(1000, 2000) = a
+  show() //输出 1000 2000
 }
 
 class Apply(var num1: Int, var num2: Int) {
-	def apply(num: Int) {
-		this.num1 = num
-		this.num2 = num + 1
-	}
-	def update(num1: Int, num2: Int, test: Apply) {
-		this.num1 = num1 - test.num1
-		this.num2 = num2 - test.num2
-	}
+  def apply(num: Int) {
+    this.num1 = num
+    this.num2 = num + 1
+  }
+  def update(num1: Int, num2: Int, test: Apply) {
+    this.num1 = num1 - test.num1
+    this.num2 = num2 - test.num2
+  }
 }
 
 object Apply {
-	def apply(num1: Int, num2: Int) = new Apply(num1, num2)
-	def update(num1: Int, num2: Int, test: Apply) {
-		test.num1 = num1
-		test.num2 = num2
-	}			//伴生对象同样可以拥有apply()/update()方法
+  def apply(num1: Int, num2: Int) = new Apply(num1, num2)
+  def update(num1: Int, num2: Int, test: Apply) {
+    test.num1 = num1
+    test.num2 = num2
+  } //伴生对象同样可以拥有apply()/update()方法
 }
 ```
 
@@ -1048,29 +1083,29 @@ object Apply {
 假设有伴生对象名为`Unapply`，则：
 
 ```scala
-var Unapply(arg1, arg2, arg3, ...) = value
+val Unapply(arg1, arg2, arg3, ...) = value
 ```
 
 等价于：
 
 ```scala
-var (arg1, arg2, arg3, ...) = Unapply.unapply(value)
+val (arg1, arg2, arg3, ...) = Unapply.unapply(value)
 ```
 
 如下代码所示：
 
 ```scala
 object TestUnapply extends App {
-	var Unapply(num1) = 1							//提取一个值
-	println(num1)
-	var Unapply(num2, num3) = Unapply(100, 200)		//提取多个值
-	println(num2 + " " + num3)
+  val Unapply(num1) = 1 //提取一个值
+  println(num1)
+  val Unapply(num2, num3) = Unapply(100, 200) //提取多个值
+  println(num2 + " " + num3)
 }
 
 object Unapply {
-	def apply(num1: Int, num2: Int) = new Unapply(num1, num2)
-	def unapply(num: Int) = Option(num)
-	def unapply(a: Unapply) = Option((a.num1, a.num2))
+  def apply(num1: Int, num2: Int) = new Unapply(num1, num2)
+  def unapply(num: Int) = Option(num)
+  def unapply(a: Unapply) = Option((a.num1, a.num2))
 }
 
 class Unapply(var num1: Int, var num2: Int)
@@ -1090,18 +1125,18 @@ class Unapply(var num1: Int, var num2: Int)
 
 ```scala
 object TestUnapply extends App {
-	def showSplit(str: String) = str match {
-		case Unapply(str1, str2) => println(s"$str1 $str2")
-		case Unapply(str1, str2, str3) => println(s"$str1 $str2 $str3")
-		case _ => println("Case Nothing")
-	}
-	showSplit("abc")
-	showSplit("abc.cde")
-	showSplit("abc.cde.efg")
+  def showSplit(str: String) = str match {
+    case Unapply(str1, str2) => println(s"$str1 $str2")
+    case Unapply(str1, str2, str3) => println(s"$str1 $str2 $str3")
+    case _ => println("Case Nothing")
+  }
+  showSplit("abc")
+  showSplit("abc.cde")
+  showSplit("abc.cde.efg")
 }
 
 object Unapply {
-	def unapplySeq(str: String) = Option(str split "\\.")		//split()方法接收的是正则表达式，小数点、加减乘除之类的符号需要转义
+  def unapplySeq(str: String) = Option(str split "\\.") //split()方法接收的是正则表达式，小数点、加减乘除之类的符号需要转义
 }
 ```
 
@@ -1131,34 +1166,34 @@ case class Case(num: Int = 100, str: String)
 
 object Main extends App {
 
-	var ca = Case(str = "S13")
-	println(ca.num + " " + ca.str)
+  var ca = Case(str = "S13")
+  println(ca.num + " " + ca.str)
 
-	//使用样例类提供的copy()方法可以复制出一个字段值相同的类
-	var caCopy = ca.copy()
-	println(caCopy.num + " " + caCopy.str)
+  //使用样例类提供的copy()方法可以复制出一个字段值相同的类
+  var caCopy = ca.copy()
+  println(caCopy.num + " " + caCopy.str)
 
-	//也可以在copy()只复制需要的值甚至不使用原先对象的值
-	var caCopy1 = ca.copy(200)
-	var caCopy2 = ca.copy(str = "Abc")
-	var caCopy3 = ca.copy(50, "ABC")
-	println(caCopy1.num + " " + caCopy1.str)
-	println(caCopy2.num + " " + caCopy2.str)
-	println(caCopy3.num + " " + caCopy3.str)
+  //也可以在copy()只复制需要的值甚至不使用原先对象的值
+  var caCopy1 = ca.copy(200)
+  var caCopy2 = ca.copy(str = "Abc")
+  var caCopy3 = ca.copy(50, "ABC")
+  println(caCopy1.num + " " + caCopy1.str)
+  println(caCopy2.num + " " + caCopy2.str)
+  println(caCopy3.num + " " + caCopy3.str)
 
-	//样例类的实例之间可以直接比较,只要构造器中的字段值相同便会返回true
-	println(ca == caCopy)
+  //样例类的实例之间可以直接比较,只要构造器中的字段值相同便会返回true
+  println(ca == caCopy)
 
 	//样例类经常用于模式匹配中
-	def show(ca: Case) = ca match {
-		case Case(num, _) if num > 100 => println("Case.num > 100")		//模式匹配中条件可以带有守卫
-		case Case(100, _) => println("Case.num == 100")					//模式匹配可以精确到具体的数值，而对于不需要的值可以忽略(使用"_"符号)
-		case _ => println("Not Matching")
-	}
+  def show(ca: Case) = ca match {
+    case Case(num, _) if num > 100 => println("Case.num > 100") //模式匹配中条件可以带有守卫
+    case Case(100, _) => println("Case.num == 100") //模式匹配可以精确到具体的数值，而对于不需要的值可以忽略(使用"_"符号)
+    case _ => println("Not Matching")
+  }
 
-	show(ca)
-	show(caCopy1)
-	show(caCopy3)
+  show(ca)
+  show(caCopy1)
+  show(caCopy3)
 }
 ```
 
@@ -1223,19 +1258,19 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 >
 >	```scala
 >	class BaseA {
->		def get = 123
+>	  def get = 123
 >	}
 >
 >	trait TraitA {
->		def get = 456
+>	  def get = 456
 >	}
 >
 >	trait TraitB {
->		def get = 789
+>	  def get = 789
 >	}
 >
 >	class TestExtend extends BaseA with TraitA with TraitB {
->		override def get = 77		//对于冲突的内容，必需显式重写
+>	  override def get = 77 //对于冲突的内容，必需显式重写
 >	}
 >	```
 
@@ -1254,25 +1289,25 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 >
 >	```scala
 >	class BaseA {
->		def get = 123
+>	  def get = 123
 >	}
 >
 >	trait TraitA {
->		def get = 456
+>	  def get = 456
 >	}
 >
 >	trait TraitB {
->		def get = 789
+>	  def get = 789
 >	}
 >
 >	trait TraitC extends TraitA {
->		override def get = 111
+>	  override def get = 111
 >	}
 >
 >	class TestExtend extends BaseA with TraitA with TraitC {
->		override def get = super.get				//使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
->		//override def get = super[BaseA].get		//也可以使用继承自其它特质或类的实现
->		//override def get = super[TraitB].get		//错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
+>	  override def get = super.get //使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
+>	  //override def get = super[BaseA].get //也可以使用继承自其它特质或类的实现
+>	  //override def get = super[TraitB].get //错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
 >	}
 >	```
 
@@ -1286,13 +1321,14 @@ Scala与Java类似，类实例赋值仅仅是复制了一个引用，实例所�
 
 ```scala
 class Clone extends Cloneable {
-	var nums = Array(1, 2, 3)
-	var str = "TestClone"
-	override def clone = {
-		val clone = super.clone.asInstanceOf[Clone]		//Cloneable接口中clone()返回的是Object型，即Scala中的Any，需要进行强制类型转换
-		clone.nums = nums.clone			//深复制需要对成员中的引用类型调用clone()
-		clone
-	}
+  var nums = Array(1, 2, 3)
+  var str = "TestClone"
+  override def clone = {
+    // Cloneable接口中clone()返回的是Object型，即Scala中的Any，需要进行强制类型转换
+    val clone = super.clone.asInstanceOf[Clone]
+    clone.nums = nums.clone //深复制需要对成员中的引用类型调用clone()
+    clone
+  }
 }
 ```
 
@@ -1306,13 +1342,13 @@ Java中的特例`java.lang.String`在Scala中同样有效，对于`String`类型
 import scala.collection.mutable.Cloneable
 
 class Clone extends Cloneable[Clone] {
-	var nums = Array(1, 2, 3)
-	var str = "TestClone"
-	override def clone = {
-		val clone = super.clone			//不必进行强制类型转换，类型已在泛型参数中指定
-		clone.nums = nums.clone
-		clone
-	}
+  var nums = Array(1, 2, 3)
+  var str = "TestClone"
+  override def clone = {
+    val clone = super.clone //不必进行强制类型转换，类型已在泛型参数中指定
+    clone.nums = nums.clone
+    clone
+  }
 }
 ```
 
@@ -1323,11 +1359,11 @@ class Clone extends Cloneable[Clone] {
 
 ```scala
 object Init extends App {
-	var num = new Num {
-		num = 100
-		name = "Num"
-	}		//相当于创建了一个匿名类，然后向上转型到类Num上
-	println(s"${num.name} ${num.num}")		//正常输出了初始化的值
+  var num = new Num {
+    num = 100
+    name = "Num"
+  } //相当于创建了一个匿名类，然后向上转型到类Num上
+  println(s"${num.name} ${num.num}") //正常输出了初始化的值
 }
 
 class Num {
@@ -1413,13 +1449,13 @@ res11: Option[Null] = None
 
 ```scala
 sealed abstract class Option[+A] extends Product with Serializable {
-	...
-	def isEmpty: Boolean
-	def isDefined: Boolean
-	def get: A
-	final def getOrElse[B >: A](default: => B): B
-	final def foreach[U](f: A => U)
-	...
+  ...
+  def isEmpty: Boolean
+  def isDefined: Boolean
+  def get: A
+  final def getOrElse[B >: A](default: => B): B
+  final def foreach[U](f: A => U)
+  ...
 }
 ```
 
@@ -1437,27 +1473,27 @@ scala> println(str1 getOrElse "Get Value Failed!")
 test
 
 scala> println(str2 getOrElse "Get Value Failed!")
-Get Value Failed!							//输出getOrElse()方法中设定的值
+Get Value Failed!                    //输出getOrElse()方法中设定的值
 ```
 
 `foreach()`高阶函数会在值存在时应用操作：
 
 ```scala
 scala> Option(123) foreach println
-123											//有值时打印输出
+123                                  //有值时打印输出
 
-scala> Option(null) foreach println			//无值时无输出
+scala> Option(null) foreach println  //无值时无输出
 ```
 
 可空类型也可以用于**模式匹配**中，如下代码所示：
 
 ```scala
 object TestOption extends App {
-	val l = Option(123) :: Option(null) :: Nil
-	for (num <- l) num match {
-		case Some(x) => println(x)
-		case None => println("No Value")
-	}
+  val l = Option(123) :: Option(null) :: Nil
+  for (num <- l) num match {
+    case Some(x) => println(x)
+    case None => println("No Value")
+  }
 }
 ```
 
@@ -1470,36 +1506,1162 @@ No Value
 
 
 
-## 块表达式
-在`Scala`中，花括号`{ }`中可以包含一个或多个语句序列，称为**块表达式**。  
-块表达式的**最后一条语句**会做为块表达式的结果。如下所示：
+## *sealed* 和 *final* 关键字
+`sealed`和`final`都是Scala语言的关键字。
+
+- `final`关键字作用与Java中相同：
+
+	`final`用在类之前，表示类不可继承；  
+	`final`用在方法之前，表示方法不可被重写。
+
+- `sealed`关键字作用与C#中的`sealed`不同：
+
+	在Scala中，`sealed`的作用是防止继承被滥用，`sealed`修饰的类其子类定义需要与该类在统一文件中。
+
+### *sealed* 用于模式匹配
+使用`sealed`关键字修饰的类型用于模式匹配时，编译器会对匹配条件进行检查。  
+若匹配路径没有被完全覆盖，则会给出警告。
+
+如下代码所示：
 
 ```scala
-scala> { println("Block Expr!"); 23333 }
-Block Expr!
-res3: Int = 23333
-```
+sealed abstract class Lang(name: String)
 
-方法、函数的参数可由对应返回类型的块表达式替代，如下所示：
+case class C(name: String = "C") extends Lang(name)
+case class CPP(name: String = "C++") extends Lang(name)
+case class CSharp(name: String = "C#") extends Lang(name)
 
-```scala
-def test(num: Int) = println(num)
-
-test({
-	println("Block Expr!")
-	23333
-})
-```
-
-当方法、函数仅接收**单一参数**时，小括号可省略：
-
-```scala
-def test(num: Int) = println(num)
-
-test {
-	println("Block Expr!")
-	23333
+object Main extends App {
+  def getLangName(lang: Lang) = lang match {
+    case C(name) => name
+    case CPP(name) => name
+  }
 }
+```
+
+编译时会得到警告：
+
+```
+Main.scala:10: warning: match may not be exhaustive.
+It would fail on the following input: CSharp(_)
+  lang match {
+  ^
+one warning found
+```
+
+编译器提示**匹配可能会有遗漏**。  
+若代码中去掉基类定义前的`sealed`关键字，则编译器不再输出警告。
+
+
+
+## 格式化输出
+使用`print()/println()`可以打印`String`类型的文本输出。  
+复杂文本可以使用类似Java的字符串拼接方式(使用操作符`+`)。
+
+- `StringLike.format()`方法。
+- `StringContext`类中的`s()`、`f()`、`raw()`等插值器方法用于以指定的方式输出字符串。
+
+### *StringLike.format()* 格式化输出
+在Scala中，字符串依然使用Java中标准的`String`类型，但通过**隐式转换**特性，`String`可以被自动构造为`StringLike`类型。
+
+`StringLike`类型提供了一系列方便强大的字符操作方法，格式化字符串可以使用其提供的`format()`方法(使用方式类似于静态方法`String.format()`，但使用方法调用者作为格式化内容而非方法的首个参数)，如下所示：
+
+```scala
+scala> "Test format str:\nString %s\nInt %d\nFloat %f\n".format("Hello World!", 666, 666.666)
+res0: String =
+"Test format str:
+String Hello World!
+Int 666
+Float 666.666
+"
+```
+
+### s字符串插值器
+在`Scala 2.10`之后，还可以使用字符串插值器`s""`，基本用法如下所示：
+
+```scala
+scala> var str = "Hello World"
+str: String = Hello World
+
+//使用插值器后，在变量前使用"$"符号即可将变量值作为文本插入
+scala> s"The str is $str"
+res0: String = The str is Hello World
+
+scala> var num = 200
+num: Int = 200
+scala> s"The num is $num"
+res1: String = The num is 200
+```
+
+使用`${expr}`的方式可以在插值器中引用复杂表达式：
+
+```scala
+scala> var (a, b, c) = (1, "Test", 2.0)
+a: Int = 1
+b: String = Test
+c: Double = 2.0
+
+scala> s"${"%d %s %f".format(a, b, c)} ${a + c}"
+res2: String = 1 Test 2.000000 3.0
+```
+
+`s""`字符串插值器实际上相当于调用`StringContext.s()`，`r""`、`raw""`插值器类似。
+
+### f字符串插值器
+除了`s""`字符串插值器，还有带有格式化功能的`f""`插值器。
+
+相比s插值器，f插值器可以带有格式化参数，在不使用格式化参数的情况下，f插值器作用与s插值器相同。如下所示：
+
+```scala
+scala> var (a, b) = (1.0, 2.5)
+a: Double = 1.0
+b: Double = 2.5
+
+//引用变量之后紧跟格式化字符
+scala> f"$a%6.3f $b%10.5f"
+res3: String = " 1.000    2.50000"
+```
+
+### raw字符串插值器
+`raw""`插值器用法与`s""`类似，但不会转义反斜杠。如下所示：
+
+```scala
+scala> raw"\n\s\\b\\%''^#@ $num"
+res15: String = \n\s\\b\\%''^#@ 3.0
+```
+
+
+
+## 终端输入
+早期的Scala中`Console`类提供了一系列的终端输入方法，在现在的版本中这些方法已经被**废弃**。
+
+- 当前版本的Scala获取终端输入需要使用包`scala.io.StdIn`中的相关方法。
+- `scala.io.StdIn`中的相关方法签名与先前的`Console`类中完全相同。
+- 使用`readLine()`获取单行文本输入，返回`String`类型。
+- 使用`readInt()/readFloat()/readChar()/readLong()...`等方法获取特定类型的输出，当输入的内容不匹配时，会抛出异常。
+- 使用`readf()/readf1()/readf2()/readf3()`等方法能以`java.text.MessageFormat`语法格式化接收的终端输入。
+
+如下代码所示：
+
+```scala
+scala> val str = scala.io.StdIn.readLine()		//自行脑补终端输入"Test input"
+str: String = Test input
+scala> val int = scala.io.StdIn.readInt()		//自行脑补终端输入"200"
+int: Int = 200
+
+//输入内容不匹配读取类型时会抛出异常
+scala> val double = scala.io.StdIn.readDouble()
+java.lang.NumberFormatException: For input string: "test"
+  at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:2043)
+  at sun.misc.FloatingDecimal.parseDouble(FloatingDecimal.java:110)
+  at java.lang.Double.parseDouble(Double.java:538)
+  at scala.collection.immutable.StringLike$class.toDouble(StringLike.scala:284)
+  at scala.collection.immutable.StringOps.toDouble(StringOps.scala:30)
+  at scala.io.StdIn$class.readDouble(StdIn.scala:155)
+  at scala.io.StdIn$.readDouble(StdIn.scala:229)
+  ... 33 elided
+
+//readf()可以接收任意数量的值，返回值为List[Any]类型
+scala> val list = scala.io.StdIn.readf("{0} + {1}")				//自行脑补终端输入"Test + Input"
+list: List[Any] = List(Test, Input)								//按照格式化字符串提取出了输入内容
+scala> list foreach println
+Test
+Input
+
+//readf1()仅能接收一个值，返回接收的值
+scala> val num = scala.io.StdIn.readf1("This is {0}")			//自行脑补终端输入"This is 666"
+num: Any = 666
+//readf2()/readf3()接收两个/三个值，返回值为Tuple类型
+scala> val tuple = scala.io.StdIn.readf3("{0} + {1} + {2}")		//自行脑补终端输入"One + Two + Three"
+tuple: (Any, Any, Any) = (On,Two,Three)
+```
+
+
+
+## *Enumerate* (枚举)
+在Scala中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
+
+### 继承枚举类
+继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。  
+默认的`Value`方法会按**变量名**生成**枚举名**和并自动从`0`开始生成**枚举ID**，若需要手动设定枚举名称和枚举ID则可以使用`Value`方法的重载`Value(id: Int, name: Strig)`。
+
+如下代码所示：
+
+```scala
+object Color extends Enumeration {
+
+  // 自动赋值枚举成员
+  val red, green, blue = Value
+
+  /*
+  * 相当于分别初始化：
+  * val red = Value
+  * val green = Value
+  * val blue = Value
+  */
+
+  // 手动使用 Value(id: Int, name: String) 方法手动进行id和name的设置
+  val white = Value(100, "White")
+  val black = Value(200, "Black")
+  // 使用重载有參版本的Value(id: Int, name: String)不能采用自动赋值的方式，会编译报错
+}
+
+object TestEnumeration extends App {
+  println(Color.red.toString + ":" + Color.red.id + " " + Color.green + ":"
+    + Color.green.id + " " + Color.blue + ":" + Color.blue.id)
+  println(Color.white + ":" + Color.white.id + " " + Color.black + ":" + Color.black.id)
+}
+```
+
+输出结果：
+
+```
+red:0 green:1 blue:2
+White:100 Black:200
+```
+
+### 调用枚举类型
+继承了枚举类的单例对象名并不能直接用于表示枚举类型，对应的枚举类型应使用对象内部定义的抽象类型`Value`来表示，即`单例对象名称.Value`。
+
+以前文中的`Color`单例对象为例，对应的枚举类型应使用`Color.Value`表示。
+
+将枚举做为参数传递，如下代码所示：
+
+```scala
+object Color extends Enumeration {
+  val red, green, blue = Value
+  val white = Value(100, "White")
+  val black = Value(200, "Black")
+}
+
+object Main extends App {
+  // Xxx.Value才是真正的枚举类型
+  def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: ${color.toString}")
+  showEnum(Color.blue)
+  showEnum(Color.white)
+}
+```
+
+输出结果：
+
+```
+ID: 2, Str: blue
+ID: 100, Str: White
+```
+
+### 访问枚举内容
+枚举单例支持以多种形式访问：
+
+- 通过枚举成员访问，类似于其它常见编程语言(`Enum.member`)
+- 通过枚举ID进行访问，语法类似数组(`Enum(id)`)
+- 通过枚举名称进行访问，使用`withName`成员方法(`Enum withName "xxx"`)
+
+枚举内部的成员全部保存在一个`Set`容器中，可使用`values`成员方法访问。
+
+以前文中的`Color`单例对象为例，使用多种方式访问枚举内容，如下代码所示：
+
+```scala
+object Color extends Enumeration {
+  val red, green, blue = Value
+  val white = Value(100, "White")
+  val black = Value(200, "Black")
+}
+
+object Main extends App {
+
+  def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: ${color.toString}")
+
+  // 通过枚举ID访问枚举
+  showEnum(Color(0))
+  showEnum(Color(100))
+
+  println()
+
+  // 通过枚举名称访问枚举
+  showEnum(Color withName "green")
+  showEnum(Color withName "Black")
+
+  println()
+
+  // 遍历枚举内容
+  Color.values foreach showEnum
+}
+```
+
+输出结果：
+
+```
+ID: 0, Str: red
+ID: 100, Str: White
+
+ID: 1, Str: green
+ID: 200, Str: Black
+
+ID: 0, Str: red
+ID: 1, Str: green
+ID: 2, Str: blue
+ID: 100, Str: White
+ID: 200, Str: Black
+```
+
+
+
+## 基础数据结构
+Scala常用的基础结构包括**数组**和**元组**。
+
+### 定长数组
+在Scala中定长数组使用`Array[T]`进行表示，定长数组与Java中概念类似。
+
+构建一个固定长度的数组如下所示：
+
+```scala
+scala> val array = new Array[Int](10)  //构建一个长度为10的Int型数组
+array: Array[Int] = Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+scala> val a = Array(100, 200)         //使用伴生对象的apply()方法创建数组
+a: Array[Int] = Array(100, 200)
+scala> array(5)                        //获取数组中指定位置的值(使用小括号中加偏移量)
+res1: Int = 0
+scala> array(5) = 10                   //给指定位置的元素赋值
+scala> array                           //查看赋值结果
+res2: Array[Int] = Array(0, 0, 0, 0, 0, 10, 0, 0, 0, 0)
+scala> array(100)                      //数组访问越界会抛出异常
+java.lang.ArrayIndexOutOfBoundsException: 100
+  ... 33 elided
+```
+
+需要注意的是，Scala定长数组与Java中的定长数组仅仅是语法不同，并无本质区别，`new Array[Int](10)`相当于Java中的`new int[10]`。
+
+### *Tuple* (元组)
+元组是最简单的容器，无需额外的类型名称，直接使用`(value1, value2, value3, ...)`就可以构建出一个元祖。如下所示：
+
+```scala
+scala> val tuple = (1, 2, 3)
+tuple: (Int, Int, Int) = (1,2,3)
+```
+
+元组中允许包含**重复**的值，也允许不同类型的值，但元组一经创建，内容便不可改变。
+
+元组可以通过`元组对象._索引号`的形式访问。元组下标从`1`开始而非`0`，如下所示：
+
+```scala
+scala> println(tuple._1 + " " + tuple._2 + " " + tuple._3)
+1 2 3
+```
+
+元组可以用来一次性初始化多个变量：
+
+```scala
+scala> val (a, b, c) = tuple  //等价于 val (a, b, c) = (1, 2, 3)
+a: Int = 1
+b: Int = 2
+c: Int = 3
+scala> println(s"$a $b $c")
+1 2 3
+```
+
+元组可以包含**不同**的类型：
+
+```scala
+scala> val (num, str) = (123, "456")
+num: Int = 123
+str: String = 456
+```
+
+元组用作函数返回类型时，即可让一个函数拥有多个返回值，如下所示：
+
+```scala
+object TestTuple extends App {
+	def getNum(num1: Int, num2: Int, num3: Int) = (num1, num2, num3)
+	val (num1, num2, num3) = getNum(1, 2, 3)
+	println(s"$num1 $num2 $num3")
+}
+```
+
+输出结果：
+
+```
+1 2 3
+```
+
+需要注意的是，元组**不支持**使用`for`循环进行遍历。
+
+
+
+## 容器
+Scala的容器按数据结构分为`序列(Seq)`、`集合(Set)`和`映射(Map)`三大类。
+
+- `序列(Seq)`
+
+	有序容器，按照元素添加的顺序排列。  
+	`Seq`的子类`IndexedSeq`允许类似数组的方式按照下标进行访问。
+
+- `集合(Set)`
+
+	数学意义上的集合，不包含重复元素。  
+	`Set`的子类`SortedSet`中元素以某种顺序排序。
+
+- `映射(Map)`
+
+	`键 - 值`对偶的集合。  
+	`Map`的子类`SortedMap`中键值以某种顺序排序。
+
+基本的集合类型继承树如下所示：
+
+```
+Traversable
+│
+Iterable
+├── Seq
+│	 ├── IndexedSeq
+│	 └── LinearSeq
+├── Set
+│	 ├── SortedSet
+│	 └── BitSet
+└── Map
+	 └── SortedMap
+```
+
+### 容器可变性
+容器按照是否**可变**分为：
+
+- **不可变容器**`scala.collection.immmutable._`
+- **可变容器**`scala.collection.mutable._`。
+
+`Scala`为函数式语言，默认的容器类型使用**不可变**实现。
+
+### *List* (列表)
+在Scala中，`List[T]`类型的完整包路径为`scala.collection.immutable.List`，继承于`Seq`。  
+List为**不可变对象**，可以使用`for`操作符进行遍历。
+
+构建一个列表：
+
+```scala
+scala> val list0 = List(1, 2, 3)
+list0: List[Int] = List(1, 2, 3)
+```
+
+除了直接使用`List`单例提供的`apply()`方法构建列表对象之外，还可以使用`::`操作符来将多个值构成列表。  
+`::`操作符为**右结合性**运算符。  
+使用`::`操作符构成列表时，列表的最后一个值必须为`Nil`，如下所示：
+
+```scala
+scala> val list1 = 0 :: 1 :: 2 :: 3 :: Nil
+list1: List[Int] = List(0, 1, 2, 3)
+```
+
+列表同样允许不同类型的值，也允许重复的值，如下所示：
+
+```scala
+scala> val list2 = 1 :: 1 :: "str" :: 2.0 :: Nil
+list2: List[Any] = List(1, 1, str, 2.0)
+```
+
+若列表中存储的若是相同的类型，则编译器会将`List[T]`推导为具体的类型。  
+若列表中成员类型各不相同，则编译器会使用所有类型的基类`Any`作为泛型类型即`List[Any]`。
+
+列表支持从已有的列表进行创建：
+
+```scala
+scala> val list0 = 1 :: 2 :: 3 :: Nil
+list0: List[Int] = List(1, 2, 3)
+scala> val list1 = 0 :: list0  //向列表头部增加元素
+list1: List[Int] = List(0, 1, 2, 3)
+scala> val list2 = list0 :: 4  //列表是不能从尾部创建(List以Nil结尾)
+<console>:11: error: value :: is not a member of Int
+	val list2 = list0 :: 4
+					  ^
+```
+
+使用`:::`运算符可以叠加两个列表：
+
+```scala
+scala> val list2 = list0 ::: list1
+list2: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
+也可以使用"++"运算符连接两个列表：
+scala> val list3 = list0 ++ list1
+list3: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
+```
+
+`:::`与`++`对于列表而言，作用完全相同，只不过`:::`是`List`类型特有的运算符，而`++`继承于特质`TraversableLike`，也可用于一些其它的集合类型。
+
+列表同样支持通过索引进行访问，语法与`Array[T]`类型类似：
+
+```scala
+scala> list0(0)
+res0: Int = 1
+```
+
+### *ArrayBuffer* (变长数组)
+在Scala中，变长数组使用`ArrayBuffer[T]`，完整路径`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。  
+Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素，创建一个`ArrayBuffer`：
+
+```scala
+scala> var arrayBuffer = new ArrayBuffer[Int]
+arrayBuffer: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer()
+var a = ArrayBuffer(100, 200)  //同样可以使用伴生对象的apply()方法创建ArrayBuffer
+a: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(100, 200)
+```
+
+`ArrayBuffer`定义了方法`+=`和`-=`用于**增加**和**删除**元素：
+
+```scala
+scala> arrayBuffer += 10
+res10: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10)
+scala> arrayBuffer += 100
+res11: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
+scala> arrayBuffer += 1000
+res12: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100, 1000)
+scala> arrayBuffer -= 1000
+res13: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
+```
+
+需要注意的是，`+=`、`-=`只是**方法名**并不是**运算符**。  
+`ArrayBuffer`没有提供`+`、`-`方法，以下的写法会**报错**：
+
+```scala
+arrayBuffer = arrayBuffer + 10
+<console>:12: error: type mismatch;
+found : Int(10)
+required: String
+  arrayBuffer = arrayBuffer + 10
+                            ^
+```
+
+与Java中的`ArrayList`类似，`ArrayBuffer`也允许在**任意位置**进行元素插入：
+
+```scala
+scala> arrayBuffer.insert(1, -100)     //在索引1的位置插入数值-100
+scala> arrayBuffer
+res17: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, -100, 100)
+```
+
+插入多个元素：
+
+```scala
+scala> arrayBuffer.insert(1, 7, 8, 9)  //在索引1的位置插入数值7，8，9
+scala> arrayBuffer
+res19: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 7, 8, 9, -100, 100)
+```
+
+删除操作类似，移除操作可以指定首尾进行**批量移除**：
+
+```scala
+scala> arrayBuffer.remove(1, 4)
+scala> arrayBuffer
+res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)  //删除了索引1到4位之间的元素
+```
+
+需要注意的是，`ArrayBuffer`是**线性结构**，只有在尾部进行插入删除操作才是高效的，在其它位置进行的元素操作都会造成大量的元素移动。  
+`ArrayBuffer`的不可变版本对应为`scala.collection.immutable.Vector`。
+
+### *Set* (集合)
+`Set[T]`类型为数学意义上的集合，集合内不允许重复元素。  
+`Set`完整包路径为`scala.collection.immutable.Set`。
+集合同样允许任意类型的元素，但集合中不能包含重复的元素。
+
+在使用`Set`类的`apply()`方法构建集合时，重复的元素会被忽略，如下所示：
+
+```scala
+scala> var set = Set(1, 1, 's', "str")
+set: scala.collection.immutable.Set[Any] = Set(1, s, str)      //重复的元素"1"被忽略了
+```
+
+`Set`可以使用`+`、`-`操作符来增加或是减少元素并返回新的集合。  
+使用`+`、`-`操作符会返回新的集合，但原集合内的值不会发生改变，如下所示：
+
+```scala
+scala> val set1 = set + 3
+set1: scala.collection.immutable.Set[Any] = Set(1, s, str, 3)  //原集合添加元素输出新的集合
+scala> set
+res0: scala.collection.immutable.Set[Any] = Set(1, s, str)     //原集合本身没有变化
+scala> val set2 = set - 's'
+set2: scala.collection.immutable.Set[Any] = Set(1, str)        //从集合中移除一个元素
+scala> set
+res1: scala.collection.immutable.Set[Any] = Set(1, s, str)
+```
+
+当引用为变量时，`Set`可以使用`+=`、`-=`来增加或减少内部的元素：
+
+```scala
+scala> var set = Set(1, 2, 3)
+set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+
+scala> set += 4  //增加元素"4"
+
+scala> set
+res14: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 4)
+
+scala> set -= 4  //移除元素"4"
+
+scala> set
+res16: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+```
+
+需要注意的是，`Set`的`+=`、`-=`操作并非定义的方法，只是类似常规语言的操作符简写，如：
+
+```scala
+var set = Set(1, 2, 3)
+set += 4
+```
+
+实际等价于：
+
+```scala
+var set = Set(1, 2, 3)
+set = set + 4
+```
+
+对不可变类型的变量使用`+=`、`-=`操作，实际上改变了变量指向的实例。  
+当不可变类型实例为**常量**时，则不能使用`+=`、`-=`操作，因为常量的实例指向不可变，如下所示：
+
+```scala
+scala> val set = Set(1, 2, 3)
+set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+
+scala> set += 4
+<console>:13: error: value += is not a member of scala.collection.immutable.Set[Int]
+       set += 4
+           ^
+```
+
+实际相当于：
+
+```scala
+scala> val set = Set(1, 2, 3)
+set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+
+scala> set = set + 4
+<console>:12: error: reassignment to val
+       set = set + 4
+           ^
+```
+
+使用`contains()`方法可以判断某个元素是否在集合中：
+
+```scala
+scala> set.contains('s')
+res2: Boolean = true
+```
+
+使用`find()`方法可以传入一个高阶函数`T => Boolean`自定义规则进行查找。  
+`find()`方法返回`Option[T]`，如下所示：
+
+```scala
+scala> var set = Set(1, 2, 3, 's', "str")
+set: scala.collection.immutable.Set[Any] = Set(s, 1, 2, str, 3)
+scala> set.find(_.isInstanceOf[Int])
+res7: Option[Any] = Some(1)  //返回第一个匹配到的元素
+scala> set.find(_.isInstanceOf[Double])
+res8: Option[Any] = None     //没有匹配则返回None
+```
+
+`scala.collection.immutable.Set`以哈希集实现，元素依据HashCode进行组织。
+
+`Set`的相关类型还有：
+
+- `scala.collection.mutable.LinkedHashSet` 链式哈希集，依照插入的顺序排列
+- `scala.collection.immutable.SortedSet` 红黑树实现的排序集
+
+### *Map* (映射)
+`Map[A, B]`类型的完整包路径为`scala.collection.immutable.Map`。  
+映射中的每一个元素都是一组`对偶(Tuple2)`，分别为key和value，key不可重复。  
+通过`->`操作符可以将两个值组成一组对偶，如下所示：
+
+```scala
+scala> var map = Map(1 -> "1", 2 -> "2", 3 -> "3")
+map: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
+scala> for ((key, value) <- map) println(s"key: $key value: $value")
+key: 1 value: 1
+key: 2 value: 2
+key: 3 value: 3  //使用for循环遍历map
+scala> for (value <- map.values) println(s"value: $value")
+value: 1
+value: 2
+value: 3         //仅遍历map的value
+scala> for (key <- map.keys) println(s"value: $key")
+value: 1
+value: 2
+value: 3         //仅遍历map的key
+```
+
+使用`updated()`方法可以更新指定key对应的value之后输出，通过`+`方法添加对偶后输出，也可以通过`-`移除指定key的对偶后输出。  
+但这些操作不会改变原本映射的内容：
+
+```scala
+scala> map.updated(1, "0")
+res20: scala.collection.immutable.Map[Int,String] = Map(1 -> 0, 2 -> 2, 3 -> 3)
+scala> map + (4 -> "4")
+res21: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4)
+scala> map - 1
+res22: scala.collection.immutable.Map[Int,String] = Map(2 -> 2, 3 -> 3)
+scala> map  //更改的结果作为返回值输出，原本的Map值没有任何改变
+res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
+```
+
+与`Set`类似，当实例字段为可变量时，`Map`也支持`+=`、`-=`操作。  
+
+除了不可变的`scala.collection.immutable.Map`外，还有可变的`scala.collection.mutable.Map`类型。  
+Scala还提供了多种不同结构的`Map`实现，如`HashMap`、`ListMap`、`LinkedHashMap`等。
+
+
+
+##  *Higher Order Function* (高阶函数)
+**高阶函数**是**函数式编程**中的概念，在数学中，也叫做**算子**(运算符)或**泛函**。  
+**接受一个或多个函数作为输入**或者**输出一个函数**的函数被称为高阶函数。
+
+在`Scala`中，容器类提供了高阶函数作为容器数据操作的接口。  
+常见的高阶函数有`map`、`reduce`、`flatMap`、`filter`、`find`、`fold`、`foreach`等。
+
+
+
+## *Generators* (生成器)
+`Scala`中同样提供了`yield`关键字，支持生成器语法。  
+使用`yield`可以将循环中每一轮的结果以容器的形式输出，使用`yeild`可以方便生成一系列的特定值。
+
+如下所示：
+
+```scala
+scala> for (i <- 1 to 5) yield i
+res20: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3, 4, 5)
+
+// 使用for语句内置的守卫语法限制输出
+scala> for (i <- 1 to 5 if i > 2) yield i
+res21: scala.collection.immutable.IndexedSeq[Int] = Vector(3, 4, 5)
+
+// 生成器的生成结果与被遍历的容器类型相关
+scala> for (i <- 1 :: 2 :: 3 :: 4 :: 5 :: Nil if i > 2) yield i
+res24: List[Int] = List(3, 4, 5)
+
+// 生成的结果不是目标容器则可以进行转换
+scala> (for (i <- List(1, 2, 3, 4, 5) if i > 2) yield i) toSet
+res27: scala.collection.immutable.Set[Int] = Set(3, 4, 5)
+```
+
+### 使用高阶函数替代生成器
+Scala中可以使用高阶函数，以函数式风格实现类似`yield`的效果。
+
+```scala
+// 从1到5的数中找出偶数，并将数值翻倍
+
+// 使用命令式编程风格，使用守卫和生成器
+scala> for (i <- 1 to 5 if i % 2 == 0) yield i * 2
+res13: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
+
+// 使用函数式编程风格，使用高阶函数
+scala> 1 to 5 filter { _ % 2 == 0 } map { _ * 2 }
+res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
+```
+
+
+
+## *Package* (包)
+`Scala`中的包用法基本与`Java`类似：
+
+- 使用`package`关键字定义包路径。
+- 使用`import`关键字导入包路径。
+
+### 包与路径
+在`Scala`中，包路径是**逻辑概念**，源码文件**不必**按照包路径存放到对应的目录下。
+
+`Scala`中使用`_`符号表示导入该路径下的所有包和成员：
+
+```scala
+import java.awt._	//等价于java中的 import java.awt.*
+```
+
+导入路径规则与`Java`中的类似，处于同一级包路径下的类可以直接使用不必导入。
+
+导入策略
+> 在导入包时，`Scala`默认采用**相对路径**。  
+> 在外层路径的包使用内层路径的包时，可省略共同的路径部分直接以当前路径为起点访问内层路径包。
+>
+> 如下代码所示：
+>
+>	```scala
+>	// file1
+>	package com.dainslef
+>
+>	class Test
+>
+>
+>	// file2
+>	package com
+>
+>	// 导入路径时以当前包为起点，不必从最外层路径开始导入
+>	import dainslef.Test
+>
+>	object Main extends App {
+>	  println(classOf[Test].getName)
+>	}
+>	```
+>
+> 而在`Java`中，无论包的层次关系如何，都需要通过绝对路径进行导入。
+>
+> 上例对应`Java`版本如下代码所示：
+>
+>	```java
+>	// file1
+>	package com.dainslef;
+>
+>	class Test {
+>	};
+>
+>
+>	// file2
+>	package com;
+>
+>	// 导入路径时从时需要从最外层路径开始导入，不能写成 import dainslef.Test
+>	import com.dainslef.Test;
+>
+>	public class Main {
+>
+>		public static void main(String[] args) {
+>			System.out.println(Test.class.getName());
+>		}
+>
+>	}
+>	```
+
+默认包与绝对路径导入
+> 在`Java`和`Scala`中，不使用`package`关键字打包的代码即位于**默认包**下，没有对应的包名。  
+> 在`Scala`中使用`_root_`指代默认包。
+>
+> `Scala`中默认的`import`操作是基于相对路径的，但`Scala`同样支持以**绝对路径**进行`import`操作：
+>
+>	- 以`_root_`为导入起始路径，即代表以绝对路径的形式导入内容。
+>	- 使用绝对路径访问内容能避免一些命名冲突。
+>
+> 上例中的代码中的`Test`类以绝对路径导入，导入语句可写成：
+>
+>	```scala
+>	import _root_.com.dainslef.Test
+>	```
+
+默认包的限制
+> 默认包没有名称，其内容只能被同在默认包下的其它内容访问。  
+> 内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
+>
+> 如下代码所示：
+>
+>	```scala
+>	// file1
+>	// 定义单例在默认包中
+>	object Test {
+>	  val test = "Test string..."
+>	}
+>
+>	// file2
+>	package com
+>
+>	object Main extends App {
+>	  // 在内层包中访问外部默认包的内容
+>	  println(Test.test)         //错误，提示 "not found: value Test"
+>	  println(_root_.Test.test)  //错误，提示 "object Test is not a member of package <root>"
+>	}
+>	```
+
+### 扩展用法
+`Scala`包机制在Java的基础上扩充了更多的功能。
+
+在一个语句中导入包内的**多个**指定的类：
+
+```scala
+import java.awt.{Color, Font}
+```
+在导入一个包的同时可以将包内的类进行重命名：
+
+```scala
+import java.awt.{Color => JavaColor}
+```
+
+如果不希望某个类被导入，则可以用以下方式隐藏某个类：
+
+```scala
+import java.awt.{Color => _}
+```
+
+`Scala`中的`import`带有类似`Java 1.6`中的`static import`特性：
+
+```scala
+import java.lang.Math.abs		//导入Math类中的静态方法abs
+```
+
+在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。  
+在Scala中，`import`语句可以出现在**任意位置**，不必总是放在文件的顶部，`import`语句的作用域直到该语句块结束。
+
+### 默认导入
+默认情况下，Scala会导入以下几个包路径：
+
+```scala
+import java.lang._
+import scala._
+import Predef._
+```
+
+有些Scala包中的类名与Java包中的类名相同，但由于Scala包的引入语句在后，因此，例如`Scala.StringBuiler`类会覆盖`Java.lang.StringBuilder`。
+
+### 包对象
+在Scala中，每个包可以带有一个与包名相同的**包对象**，包内的所有类都可以直接访问该包对象的公有成员。  
+如下代码所示：
+
+```scala
+package object Package {
+  var num0 = 0
+  protected var num1 = 1
+  private var num2 = 2
+}
+
+package Package {
+  object Test extends App {
+    println(num0)  //正确，可以直接访问包对象的公有成员，不用使用前缀
+    println(num1)  //错误，不能访问包对象的保护成员
+    println(num2)  //错误，不能访问包对象的私有成员
+  }
+}
+```
+
+
+
+## *Implicit Conversions* (隐式转换)
+隐式转换在构建类库时是一个强大的工具。  
+使用隐式转换特性需要在编译时添加`-language:implicitConversions`选项。
+
+### 定义隐式转换
+Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。  
+若需要提供类型之间的自动转换功能，需要显式使用`implicit`关键字自定义隐式转换。  
+隐式转换可以定义在**当前类**中或是**伴生对象**中，只要需要进行转换时能被访问到即可。  
+
+当传入参数的类型与函数需要的类型不同时，编译器便会查找是否有合适的隐式转换，如下所示：
+
+```scala
+class Implicit(val num: Int)
+
+object Implicit {
+  implicit def implToInt(impl: Implicit) = impl.num
+  def apply(num: Int) = new Implicit(num)
+}
+
+object Main extends App {
+
+  implicit def implToStr(impl: Implicit) = impl.num.toString
+
+  def showNum(num: Int) = println(num)
+  def showStr(str: String) = println(str)
+
+  showNum(Implicit(100))
+  showStr(Implicit(200))
+}
+```
+
+当访问一个实例不存在的成员时，编译器也会查找是否存在隐式转换，能将其转化为拥有此成员的类型，如下所示：
+
+```scala
+class Implicit(val num: Int) {
+  def show = println(num)
+}
+
+object Implicit {
+  implicit def intToImpl(num: Int) = new Implicit(num)
+}
+
+object Main extends App {
+  import Implicit.intToImpl			//当隐式转换没有定义在当前作用域也不在实例的伴生对象中时需要显式导入
+  100.show							//Int型被隐式转换为Implicit类型
+}
+```
+
+当一个实例自身和方法的参数都能通过隐式转换来满足方法调用时，优先转换方法参数而不是实例自身，如下所示：
+
+```scala
+class Impl1(val str: String = "100") {
+  def show(impl: Impl2) = println(impl.str)
+}
+
+object Impl1 {
+  implicit def impl1ToImpl2(impl: Impl1) = new Impl2(impl.str)
+}
+
+class Impl2(val str: String = "200") {
+  def show(impl: Impl1) = println(impl.str)
+  def test = println(300)
+}
+
+object Main extends App {
+  val impl1 = new Impl1
+  impl1.test					//实例由Impl1类型隐式转换成了Impl2类型
+  impl1.show(impl1)			//可以通过将实例隐式转换为Impl2类型来满足方法调用，但编译器实际执行的操作是将参数隐式转换成了Impl2类型
+}
+```
+
+输出结果：
+
+```
+300
+100
+```
+
+`Scala`标准类库中大量使用了隐式转换特性。  
+以`String`类型为例，源自`Java`标准库的`String`类型自身并未定义`toInt/toDouble`等成员方法，在调用这些方法时，`String`被**隐式转换**成定义了这些方法的`StringLike`类型来执行这些操作。
+
+### 隐式参数
+函数和方法的参数前可以添加关键字`implicit`来将一个参数标记为**隐式参数**。  
+当调用方法时没有对隐式参数赋值，则编译器会尝试为隐式参数寻找匹配的隐式值。
+
+变量前可以通过添加`implicit`关键字成为隐式值。  
+如下所示：
+
+```scala
+object Implicit {
+  implicit val impl = 200.0  //隐式值可以定义在伴生对象中
+  def testImplicit(implicit num: Double) = println(num)
+}
+
+object Main extends App {
+  import Implicit.impl       //不在当前作用域中的隐式参数需要显式引入
+  Implicit.testImplicit
+}
+```
+
+输出结果：
+
+```
+200.0
+```
+
+隐式参数的限制：
+
+- 用于声明隐式参数的`implicit`关键字只能出现在参数表的最前端，隐式参数的声明对当前参数表内的**所有参数**有效。
+- 使用柯里化定义多个参数表时，只能声明**最后一个**参数表内的参数为隐式参数。
+- 一个隐式参数在被调用的作用域内存在多个匹配的同类型隐式值时，编译报错。
+
+如下所示：
+
+```scala
+def testImplicit(implicit num0: Int, num1: Int) {}              //正确。num0、num1，皆为隐式参数
+def testImplicit(implicit num0: Int, implicit num1: Int) {}     //错误。只能在参数表的首个参数前添加implicit关键字修饰
+def testImplicit(num0: Int, implicit num1: Int) {}              //错误。只能在参数表的首个参数前添加implicit关键字修饰
+
+def testImplicit(num: Int)(implicit num0: Int, num1: Int) {}    //正确。对于柯里化函数，最后一个参数表可以设为隐式参数
+def testImplicit(implicit num0: Int)(implicit num1: Double) {}  //错误。一个方法不允许拥有多个隐式参数表
+def testImplicit(implicit num0: Int)(num1: Double) {}           //错误。只有最后一个参数表可以设为隐式参数表
+```
+
+隐式参数与参数默认值
+> 隐式参数与参数默认值特性**可以**共存。
+>
+> 当一个方法的所有隐式参数均带有默认值时，可以直接调用，如下所示：
+>
+>	```scala
+>	object Main extends App {
+>
+>	  // 方法带有默认参数以及参数默认值
+>	  def testImplicit(implicit num0: Int = 0, num1: Double = 0) = println(s"$num0 $num1")
+>
+>	  // 直接调用，无需隐式参数
+>	  testImplicit
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	0 0.0
+>	```
+>
+> 隐式参数与默认值的优先级
+>
+>	- 当一个方法的隐式参数带有部分默认值时，隐式调用时只需提供没有默认值的部分参数。
+>	- 当一个隐式参数既有默认值又有隐式值时，会优先使用隐式值。
+>
+> 如下所示：
+>
+>	```scala
+>	object Main extends App {
+>
+>	  def testImplicit(implicit num0: Int = 0, num1: Double) = println(s"$num0 $num1")
+>
+>	  // 只需为没有默认值的参数提供隐式值
+>	  implicit val num1 = 2.0
+>	  testImplicit
+>
+>	  // 此时num0既有隐式值，也有参数默认值
+>	  implicit val num0 = 1
+>	  testImplicit
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	0 2.0
+>	1 2.0
+>	```
+>
+> 输出结果说明第二次调用`testImplicit()`方法时，优先采用了隐式值而非参数默认值。
+>
+> 隐式值与参数默认值在方法调用时区别如下：
+>
+>	- 采用参数默认值时，即使参数全部拥有默认值，参数表不可省略(`()`操作符必须存在)。
+>	- 采用隐式值时，隐式参数全部具有隐式值或默认值时，参数表直接省略。
+>
+> 当一个隐式参数表的所有参数均带有默认值且作用域内也拥有满足条件的隐式值时，调用方法时带有`()`操作符为使用默认值，省略参数表为使用隐式值。
+>
+> 如下所示：
+>
+>	```scala
+>	object Test extends App {
+>
+>	  def testImplicit(implicit num0: Int = 0, num1: Double = 0) = println(s"$num0 $num1")
+>
+>	  implicit val num0 = 1
+>	  implicit val num1 = 1.0
+>
+>	  testImplicit			//全部采用隐式值
+>	  testImplicit()			//全部采用默认值
+>	}
+>	```
+>
+> 输出结果：
+>
+>	```
+>	1 1.0
+>	0 0.0
+>	```
+
+### 隐式类
+类定义前同样可以使用`implicit`成为**隐式类**。
+
+- 隐式类的主构造器**有且只有**一个参数，同时，该参数**不能**为隐式参数。
+- 隐式类的主构造器不能通过参数默认值、隐式参数等形式来模拟成参数表成只有一个参数的情况。
+- 隐式类特性**不能**与样例类共存，即一个类在定义时不能同时带有`implicit`和`case`关键字。
+- 隐式类**不能**定义在外部区域(包，以及包对象)，隐式类只能定义在类体、函数体、单例对象中。
+
+与**隐式转换**类似，当一个实例调用了**不存在**或**无法访问**的成员方法，编译器会为之搜索作用域中可访问的隐式类。  
+若隐式类的构造器参数与实例相同且带有实例调用的方法，则自动调用该隐式类的构造器。  
+如下代码所示：
+
+```scala
+object Main extends App {
+
+  case class Source(num: Int) {
+    private def show = print(num)
+  }
+
+  implicit class Impl(source: Source) {
+    def show = println("Implicit Class")
+    def show(num: Int) = println(s"Implicit Class: $num")
+  }
+
+  Source(0).show				//调用无法访问的成员方法可能触发隐式转换
+  Source(0).show(100)			//调用不存在的方法也能触发隐式转换
+}
+```
+
+输出结果：
+
+```
+Implicit Class
+Implicit Class: 100
 ```
 
 
@@ -1517,17 +2679,17 @@ test {
 ```scala
 object Main extends App {
 
-	var num = 23333
+  var num = 23333
 
-	// 立即求值，test0 值为 23333
-	val test0 = num
+  // 立即求值，test0 值为 23333
+  val test0 = num
 
-	// 惰性求值，在调用表达式时才会进行求值
-	def test1 = num
+  // 惰性求值，在调用表达式时才会进行求值
+  def test1 = num
 
-	println(s"test0: $test0, test1: $test1")
-	num = 44444
-	println(s"test0: $test0, test1: $test1")
+  println(s"test0: $test0, test1: $test1")
+  num = 44444
+  println(s"test0: $test0, test1: $test1")
 
 }
 ```
@@ -1548,15 +2710,15 @@ test0: 23333, test1: 44444
 ```scala
 object Main extends App {
 
-	def show(num: Int) {
-		println("Run show()!")
-		println(s"num: $num")
-	}
+  def show(num: Int) {
+    println("Run show()!")
+    println(s"num: $num")
+  }
 
-	show {
-		println("Call show()!")
-		23333
-	}
+  show {
+    println("Call show()!")
+    23333
+  }
 
 }
 ```
@@ -1755,1168 +2917,6 @@ expr2_1
 
 
 
-## *sealed* 和 *final* 关键字
-`sealed`和`final`都是Scala语言的关键字。
-
-- `final`关键字作用与Java中相同：
-
-	`final`用在类之前，表示类不可继承；  
-	`final`用在方法之前，表示方法不可被重写。
-
-- `sealed`关键字作用与C#中的`sealed`不同：
-
-	在Scala中，`sealed`的作用是防止继承被滥用，`sealed`修饰的类其子类定义需要与该类在统一文件中。
-
-### *sealed* 用于模式匹配
-使用`sealed`关键字修饰的类型用于模式匹配时，编译器会对匹配条件进行检查。  
-若匹配路径没有被完全覆盖，则会给出警告。
-
-如下代码所示：
-
-```scala
-sealed abstract class Lang(name: String)
-
-case class C(name: String = "C") extends Lang(name)
-case class CPP(name: String = "C++") extends Lang(name)
-case class CSharp(name: String = "C#") extends Lang(name)
-
-object Main extends App {
-	def getLangName(lang: Lang) = lang match {
-		case C(name) => name
-		case CPP(name) => name
-	}
-}
-```
-
-编译时会得到警告：
-
-```
-Main.scala:10: warning: match may not be exhaustive.
-It would fail on the following input: CSharp(_)
-	lang match {
-	^
-one warning found
-```
-
-编译器提示**匹配可能会有遗漏**。  
-若代码中去掉基类定义前的`sealed`关键字，则编译器不再输出警告。
-
-
-
-## 格式化输出
-使用`print()/println()`可以打印`String`类型的文本输出。  
-复杂文本可以使用类似Java的字符串拼接方式(使用操作符`+`)。
-
-- `StringLike.format()`方法。
-- `StringContext`类中的`s()`、`f()`、`raw()`等插值器方法用于以指定的方式输出字符串。
-
-### *StringLike.format()* 格式化输出
-在Scala中，字符串依然使用Java中标准的`String`类型，但通过**隐式转换**特性，`String`可以被自动构造为`StringLike`类型。
-
-`StringLike`类型提供了一系列方便强大的字符操作方法，格式化字符串可以使用其提供的`format()`方法(使用方式类似于静态方法`String.format()`，但使用方法调用者作为格式化内容而非方法的首个参数)，如下所示：
-
-```scala
-scala> "Test format str:\nString %s\nInt %d\nFloat %f\n".format("Hello World!", 666, 666.666)
-res0: String =
-"Test format str:
-String Hello World!
-Int 666
-Float 666.666
-"
-```
-
-### s字符串插值器
-在`Scala 2.10`之后，还可以使用字符串插值器`s""`，基本用法如下所示：
-
-```scala
-scala> var str = "Hello World"
-str: String = Hello World
-
-//使用插值器后，在变量前使用"$"符号即可将变量值作为文本插入
-scala> s"The str is $str"
-res0: String = The str is Hello World
-
-scala> var num = 200
-num: Int = 200
-scala> s"The num is $num"
-res1: String = The num is 200
-```
-
-使用`${expr}`的方式可以在插值器中引用复杂表达式：
-
-```scala
-scala> var (a, b, c) = (1, "Test", 2.0)
-a: Int = 1
-b: String = Test
-c: Double = 2.0
-
-scala> s"${"%d %s %f".format(a, b, c)} ${a + c}"
-res2: String = 1 Test 2.000000 3.0
-```
-
-`s""`字符串插值器实际上相当于调用`StringContext.s()`，`r""`、`raw""`插值器类似。
-
-### f字符串插值器
-除了`s""`字符串插值器，还有带有格式化功能的`f""`插值器。
-
-相比s插值器，f插值器可以带有格式化参数，在不使用格式化参数的情况下，f插值器作用与s插值器相同。如下所示：
-
-```scala
-scala> var (a, b) = (1.0, 2.5)
-a: Double = 1.0
-b: Double = 2.5
-
-//引用变量之后紧跟格式化字符
-scala> f"$a%6.3f $b%10.5f"
-res3: String = " 1.000    2.50000"
-```
-
-### raw字符串插值器
-`raw""`插值器用法与`s""`类似，但不会转义反斜杠。如下所示：
-
-```scala
-scala> raw"\n\s\\b\\%''^#@ $num"
-res15: String = \n\s\\b\\%''^#@ 3.0
-```
-
-
-
-## 终端输入
-早期的Scala中`Console`类提供了一系列的终端输入方法，在现在的版本中这些方法已经被**废弃**。
-
-- 当前版本的Scala获取终端输入需要使用包`scala.io.StdIn`中的相关方法。
-- `scala.io.StdIn`中的相关方法签名与先前的`Console`类中完全相同。
-- 使用`readLine()`获取单行文本输入，返回`String`类型。
-- 使用`readInt()/readFloat()/readChar()/readLong()...`等方法获取特定类型的输出，当输入的内容不匹配时，会抛出异常。
-- 使用`readf()/readf1()/readf2()/readf3()`等方法能以`java.text.MessageFormat`语法格式化接收的终端输入。
-
-如下代码所示：
-
-```scala
-scala> val str = scala.io.StdIn.readLine()		//自行脑补终端输入"Test input"
-str: String = Test input
-scala> val int = scala.io.StdIn.readInt()		//自行脑补终端输入"200"
-int: Int = 200
-
-//输入内容不匹配读取类型时会抛出异常
-scala> val double = scala.io.StdIn.readDouble()
-java.lang.NumberFormatException: For input string: "test"
-  at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:2043)
-  at sun.misc.FloatingDecimal.parseDouble(FloatingDecimal.java:110)
-  at java.lang.Double.parseDouble(Double.java:538)
-  at scala.collection.immutable.StringLike$class.toDouble(StringLike.scala:284)
-  at scala.collection.immutable.StringOps.toDouble(StringOps.scala:30)
-  at scala.io.StdIn$class.readDouble(StdIn.scala:155)
-  at scala.io.StdIn$.readDouble(StdIn.scala:229)
-  ... 33 elided
-
-//readf()可以接收任意数量的值，返回值为List[Any]类型
-scala> val list = scala.io.StdIn.readf("{0} + {1}")				//自行脑补终端输入"Test + Input"
-list: List[Any] = List(Test, Input)								//按照格式化字符串提取出了输入内容
-scala> list foreach println
-Test
-Input
-
-//readf1()仅能接收一个值，返回接收的值
-scala> val num = scala.io.StdIn.readf1("This is {0}")			//自行脑补终端输入"This is 666"
-num: Any = 666
-//readf2()/readf3()接收两个/三个值，返回值为Tuple类型
-scala> val tuple = scala.io.StdIn.readf3("{0} + {1} + {2}")		//自行脑补终端输入"One + Two + Three"
-tuple: (Any, Any, Any) = (On,Two,Three)
-```
-
-
-
-## *Enumerate* (枚举)
-在Scala中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
-
-### 继承枚举类
-继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。  
-默认的`Value`方法会按**变量名**生成**枚举名**和并自动从`0`开始生成**枚举ID**，若需要手动设定枚举名称和枚举ID则可以使用`Value`方法的重载`Value(id: Int, name: Strig)`。
-
-如下代码所示：
-
-```scala
-object Color extends Enumeration {
-
-	// 自动赋值枚举成员
-	val red, green, blue = Value
-
-	/*
-	* 相当于分别初始化：
-	* val red = Value
-	* val green = Value
-	* val blue = Value
-	*/
-
-	// 手动使用 Value(id: Int, name: String) 方法手动进行id和name的设置
-	val white = Value(100, "White")
-	val black = Value(200, "Black")
-	// 使用重载有參版本的Value(id: Int, name: String)不能采用自动赋值的方式，会编译报错
-}
-
-object TestEnumeration extends App {
-	println(Color.red.toString + ":" + Color.red.id + " " + Color.green + ":"
-		+ Color.green.id + " " + Color.blue + ":" + Color.blue.id)
-	println(Color.white + ":" + Color.white.id + " " + Color.black + ":" + Color.black.id)
-}
-```
-
-输出结果：
-
-```
-red:0 green:1 blue:2
-White:100 Black:200
-```
-
-### 调用枚举类型
-继承了枚举类的单例对象名并不能直接用于表示枚举类型，对应的枚举类型应使用对象内部定义的抽象类型`Value`来表示，即`单例对象名称.Value`。
-
-以前文中的`Color`单例对象为例，对应的枚举类型应使用`Color.Value`表示。
-
-将枚举做为参数传递，如下代码所示：
-
-```scala
-object Color extends Enumeration {
-	val red, green, blue = Value
-	val white = Value(100, "White")
-	val black = Value(200, "Black")
-}
-
-object Main extends App {
-	// Xxx.Value才是真正的枚举类型
-	def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: ${color.toString}")
-	showEnum(Color.blue)
-	showEnum(Color.white)
-}
-```
-
-输出结果：
-
-```
-ID: 2, Str: blue
-ID: 100, Str: White
-```
-
-### 访问枚举内容
-枚举单例支持以多种形式访问：
-
-- 通过枚举成员访问，类似于其它常见编程语言(`Enum.member`)
-- 通过枚举ID进行访问，语法类似数组(`Enum(id)`)
-- 通过枚举名称进行访问，使用`withName`成员方法(`Enum withName "xxx"`)
-
-枚举内部的成员全部保存在一个`Set`容器中，可使用`values`成员方法访问。
-
-以前文中的`Color`单例对象为例，使用多种方式访问枚举内容，如下代码所示：
-
-```scala
-object Color extends Enumeration {
-  val red, green, blue = Value
-  val white = Value(100, "White")
-  val black = Value(200, "Black")
-}
-
-object Main extends App {
-
-	def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: ${color.toString}")
-
-	// 通过枚举ID访问枚举
-	showEnum(Color(0))
-	showEnum(Color(100))
-
-	println()
-
-	// 通过枚举名称访问枚举
-	showEnum(Color withName "green")
-	showEnum(Color withName "Black")
-
-	println()
-
-	// 遍历枚举内容
-	for (color <- Color.values)
-		showEnum(color)
-}
-```
-
-输出结果：
-
-```
-ID: 0, Str: red
-ID: 100, Str: White
-
-ID: 1, Str: green
-ID: 200, Str: Black
-
-ID: 0, Str: red
-ID: 1, Str: green
-ID: 2, Str: blue
-ID: 100, Str: White
-ID: 200, Str: Black
-```
-
-
-
-## 基础数据结构
-Scala常用的基础结构包括**数组**和**元组**。
-
-### 定长数组
-在Scala中定长数组使用`Array[T]`进行表示，定长数组与Java中概念类似。
-
-构建一个固定长度的数组如下所示：
-
-```scala
-scala> val array = new Array[Int](10)			//构建一个长度为10的Int型数组
-array: Array[Int] = Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-scala> val a = Array(100, 200)					//使用伴生对象的apply()方法创建数组
-a: Array[Int] = Array(100, 200)
-scala> array(5)									//获取数组中指定位置的值(使用小括号中加偏移量)
-res1: Int = 0
-scala> array(5) = 10							//给指定位置的元素赋值
-scala> array									//查看赋值结果
-res2: Array[Int] = Array(0, 0, 0, 0, 0, 10, 0, 0, 0, 0)
-scala> array(100)								//数组访问越界会抛出异常
-java.lang.ArrayIndexOutOfBoundsException: 100
-  ... 33 elided
-```
-
-需要注意的是，Scala定长数组与Java中的定长数组仅仅是语法不同，并无本质区别，`new Array[Int](10)`相当于Java中的`new int[10]`。
-
-### *Tuple* (元组)
-元组是最简单的容器，无需额外的类型名称，直接使用`(value1, value2, value3, ...)`就可以构建出一个元祖。如下所示：
-
-```scala
-scala> val tuple = (1, 2, 3)
-tuple: (Int, Int, Int) = (1,2,3)
-```
-
-元组中允许包含**重复**的值，也允许不同类型的值，但元组一经创建，内容便不可改变。
-
-元组可以通过`元组对象._索引号`的形式访问。元组下标从`1`开始而非`0`，如下所示：
-
-```scala
-scala> println(tuple._1 + " " + tuple._2 + " " + tuple._3)
-1 2 3
-```
-
-元组可以用来一次性初始化多个变量：
-
-```scala
-scala> val (a, b, c) = tuple			//等价于 val (a, b, c) = (1, 2, 3)
-a: Int = 1
-b: Int = 2
-c: Int = 3
-scala> println(s"$a $b $c")
-1 2 3
-```
-
-元组可以包含**不同**的类型：
-
-```scala
-scala> val (num, str) = (123, "456")
-num: Int = 123
-str: String = 456
-```
-
-元组用作函数返回类型时，即可让一个函数拥有多个返回值，如下所示：
-
-```scala
-object TestTuple extends App {
-	def getNum(num1: Int, num2: Int, num3: Int) = (num1, num2, num3)
-	val (num1, num2, num3) = getNum(1, 2, 3)
-	println(s"$num1 $num2 $num3")
-}
-```
-
-输出结果：
-
-```
-1 2 3
-```
-
-需要注意的是，元组**不支持**使用`for`循环进行遍历。
-
-
-
-## 容器
-Scala的容器按数据结构分为`序列(Seq)`、`集合(Set)`和`映射(Map)`三大类。
-
-- `序列(Seq)`
-
-	有序容器，按照元素添加的顺序排列。  
-	`Seq`的子类`IndexedSeq`允许类似数组的方式按照下标进行访问。
-
-- `集合(Set)`
-
-	数学意义上的集合，不包含重复元素。  
-	`Set`的子类`SortedSet`中元素以某种顺序排序。
-
-- `映射(Map)`
-
-	`键 - 值`对偶的集合。  
-	`Map`的子类`SortedMap`中键值以某种顺序排序。
-
-基本的集合类型继承树如下所示：
-
-```
-Traversable
-│
-Iterable
-├── Seq
-│	 ├── IndexedSeq
-│	 └── LinearSeq
-├── Set
-│	 ├── SortedSet
-│	 └── BitSet
-└── Map
-	 └── SortedMap
-```
-
-### 容器可变性
-容器按照是否**可变**分为：
-
-- **不可变容器**`scala.collection.immmutable._`
-- **可变容器**`scala.collection.mutable._`。
-
-`Scala`为函数式语言，默认的容器类型使用**不可变**实现。
-
-### *List* (列表)
-在Scala中，`List[T]`类型的完整包路径为`scala.collection.immutable.List`，继承于`Seq`。  
-List为**不可变对象**，可以使用`for`操作符进行遍历。
-
-构建一个列表：
-
-```scala
-scala> val list0 = List(1, 2, 3)
-list0: List[Int] = List(1, 2, 3)
-```
-
-除了直接使用`List`单例提供的`apply()`方法构建列表对象之外，还可以使用`::`操作符来将多个值构成列表。  
-`::`操作符为**右结合性**运算符。  
-使用`::`操作符构成列表时，列表的最后一个值必须为`Nil`，如下所示：
-
-```scala
-scala> val list1 = 0 :: 1 :: 2 :: 3 :: Nil
-list1: List[Int] = List(0, 1, 2, 3)
-```
-
-列表同样允许不同类型的值，也允许重复的值，如下所示：
-
-```scala
-scala> val list2 = 1 :: 1 :: "str" :: 2.0 :: Nil
-list2: List[Any] = List(1, 1, str, 2.0)
-```
-
-若列表中存储的若是相同的类型，则编译器会将`List[T]`推导为具体的类型。  
-若列表中成员类型各不相同，则编译器会使用所有类型的基类`Any`作为泛型类型即`List[Any]`。
-
-列表支持从已有的列表进行创建：
-
-```scala
-scala> val list0 = 1 :: 2 :: 3 :: Nil
-list0: List[Int] = List(1, 2, 3)
-scala> val list1 = 0 :: list0				//向列表头部增加元素
-list1: List[Int] = List(0, 1, 2, 3)
-scala> val list2 = list0 :: 4				//列表是不能从尾部创建(List以Nil结尾)
-<console>:11: error: value :: is not a member of Int
-	val list2 = list0 :: 4
-					  ^
-```
-
-使用`:::`运算符可以叠加两个列表：
-
-```scala
-scala> val list2 = list0 ::: list1
-list2: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
-也可以使用"++"运算符连接两个列表：
-scala> val list3 = list0 ++ list1
-list3: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
-```
-
-`:::`与`++`对于列表而言，作用完全相同，只不过`:::`是`List`类型特有的运算符，而`++`继承于特质`TraversableLike`，也可用于一些其它的集合类型。
-
-列表同样支持通过索引进行访问，语法与`Array[T]`类型类似：
-
-```scala
-scala> list0(0)
-res0: Int = 1
-```
-
-### *ArrayBuffer* (变长数组)
-在Scala中，变长数组使用`ArrayBuffer[T]`，完整路径`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。  
-Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素，创建一个`ArrayBuffer`：
-
-```scala
-scala> var arrayBuffer = new ArrayBuffer[Int]
-arrayBuffer: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer()
-var a = ArrayBuffer(100, 200)					//同样可以使用伴生对象的apply()方法创建ArrayBuffer
-a: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(100, 200)
-```
-
-`ArrayBuffer`定义了方法`+=`和`-=`用于**增加**和**删除**元素：
-
-```scala
-scala> arrayBuffer += 10
-res10: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10)
-scala> arrayBuffer += 100
-res11: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
-scala> arrayBuffer += 1000
-res12: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100, 1000)
-scala> arrayBuffer -= 1000
-res13: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
-```
-
-需要注意的是，`+=`、`-=`只是**方法名**并不是**运算符**。  
-`ArrayBuffer`没有提供`+`、`-`方法，以下的写法会**报错**：
-
-```scala
-arrayBuffer = arrayBuffer + 10
-<console>:12: error: type mismatch;
-found : Int(10)
-required: String
-	arrayBuffer = arrayBuffer + 10
-								^
-```
-
-与Java中的`ArrayList`类似，`ArrayBuffer`也允许在**任意位置**进行元素插入：
-
-```scala
-scala> arrayBuffer.insert(1, -100)					//在索引1的位置插入数值-100
-scala> arrayBuffer
-res17: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, -100, 100)
-```
-
-插入多个元素：
-
-```scala
-scala> arrayBuffer.insert(1, 7, 8, 9)				//在索引1的位置插入数值7，8，9
-scala> arrayBuffer
-res19: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 7, 8, 9, -100, 100)
-```
-
-删除操作类似，移除操作可以指定首尾进行**批量移除**：
-
-```scala
-scala> arrayBuffer.remove(1, 4)
-scala> arrayBuffer
-res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)		//删除了索引1到4位之间的元素
-```
-
-需要注意的是，`ArrayBuffer`是**线性结构**，只有在尾部进行插入删除操作才是高效的，在其它位置进行的元素操作都会造成大量的元素移动。  
-`ArrayBuffer`的不可变版本对应为`scala.collection.immutable.Vector`。
-
-### *Set* (集合)
-`Set[T]`类型为数学意义上的集合，集合内不允许重复元素。  
-`Set`完整包路径为`scala.collection.immutable.Set`。
-集合同样允许任意类型的元素，但集合中不能包含重复的元素。
-
-在使用`Set`类的`apply()`方法构建集合时，重复的元素会被忽略，如下所示：
-
-```scala
-scala> var set = Set(1, 1, 's', "str")
-set: scala.collection.immutable.Set[Any] = Set(1, s, str)		//重复的元素"1"被忽略了
-```
-
-`Set`可以使用`+`、`-`操作符来增加或是减少元素并返回新的集合。  
-使用`+`、`-`操作符会返回新的集合，但原集合内的值不会发生改变，如下所示：
-
-```scala
-scala> val set1 = set + 3
-set1: scala.collection.immutable.Set[Any] = Set(1, s, str, 3)	//原集合添加元素输出新的集合
-scala> set
-res0: scala.collection.immutable.Set[Any] = Set(1, s, str)		//原集合本身没有变化
-scala> val set2 = set - 's'
-set2: scala.collection.immutable.Set[Any] = Set(1, str)			//从集合中移除一个元素
-scala> set
-res1: scala.collection.immutable.Set[Any] = Set(1, s, str)
-```
-
-当引用为变量时，`Set`可以使用`+=`、`-=`来增加或减少内部的元素：
-
-```scala
-scala> var set = Set(1, 2, 3)
-set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
-
-scala> set += 4					//增加元素"4"
-
-scala> set
-res14: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 4)
-
-scala> set -= 4					//移除元素"4"
-
-scala> set
-res16: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
-```
-
-需要注意的是，`Set`的`+=`、`-=`操作并非定义的方法，只是类似常规语言的操作符简写，如：
-
-```scala
-var set = Set(1, 2, 3)
-set += 4
-```
-
-实际等价于：
-
-```scala
-var set = Set(1, 2, 3)
-set = set + 4
-```
-
-对不可变类型的变量使用`+=`、`-=`操作，实际上改变了变量指向的实例。  
-当不可变类型实例为**常量**时，则不能使用`+=`、`-=`操作，因为常量的实例指向不可变，如下所示：
-
-```scala
-scala> val set = Set(1, 2, 3)
-set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
-
-scala> set += 4
-<console>:13: error: value += is not a member of scala.collection.immutable.Set[Int]
-       set += 4
-           ^
-```
-
-实际相当于：
-
-```scala
-scala> val set = Set(1, 2, 3)
-set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
-
-scala> set = set + 4
-<console>:12: error: reassignment to val
-       set = set + 4
-           ^
-```
-
-使用`contains()`方法可以判断某个元素是否在集合中：
-
-```scala
-scala> set.contains('s')
-res2: Boolean = true
-```
-
-使用`find()`方法可以传入一个高阶函数`T => Boolean`自定义规则进行查找。  
-`find()`方法返回`Option[T]`，如下所示：
-
-```scala
-scala> var set = Set(1, 2, 3, 's', "str")
-set: scala.collection.immutable.Set[Any] = Set(s, 1, 2, str, 3)
-scala> set.find(_.isInstanceOf[Int])
-res7: Option[Any] = Some(1)					//返回第一个匹配到的元素
-scala> set.find(_.isInstanceOf[Double])
-res8: Option[Any] = None					//没有匹配则返回None
-```
-
-`scala.collection.immutable.Set`以哈希集实现，元素依据HashCode进行组织。
-
-`Set`的相关类型还有：
-
-- `scala.collection.mutable.LinkedHashSet` 链式哈希集，依照插入的顺序排列
-- `scala.collection.immutable.SortedSet` 红黑树实现的排序集
-
-### *Map* (映射)
-`Map[A, B]`类型的完整包路径为`scala.collection.immutable.Map`。  
-映射中的每一个元素都是一组`对偶(Tuple2)`，分别为key和value，key不可重复。  
-通过`->`操作符可以将两个值组成一组对偶，如下所示：
-
-```scala
-scala> var map = Map(1 -> "1", 2 -> "2", 3 -> "3")
-map: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
-scala> for ((key, value) <- map) println(s"key: $key value: $value")
-key: 1 value: 1
-key: 2 value: 2
-key: 3 value: 3								//使用for循环遍历map
-scala> for (value <- map.values) println(s"value: $value")
-value: 1
-value: 2
-value: 3									//仅遍历map的value
-scala> for (key <- map.keys) println(s"value: $key")
-value: 1
-value: 2
-value: 3									//仅遍历map的key
-```
-
-使用`updated()`方法可以更新指定key对应的value之后输出，通过`+`方法添加对偶后输出，也可以通过`-`移除指定key的对偶后输出。  
-但这些操作不会改变原本映射的内容：
-
-```scala
-scala> map.updated(1, "0")
-res20: scala.collection.immutable.Map[Int,String] = Map(1 -> 0, 2 -> 2, 3 -> 3)
-scala> map + (4 -> "4")
-res21: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4)
-scala> map - 1
-res22: scala.collection.immutable.Map[Int,String] = Map(2 -> 2, 3 -> 3)
-scala> map									//更改的结果作为返回值输出，原本的Map值没有任何改变
-res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
-```
-
-与`Set`类似，当实例字段为可变量时，`Map`也支持`+=`、`-=`操作。  
-
-除了不可变的`scala.collection.immutable.Map`外，还有可变的`scala.collection.mutable.Map`类型。  
-Scala还提供了多种不同结构的`Map`实现，如`HashMap`、`ListMap`、`LinkedHashMap`等。
-
-
-
-##  *Higher Order Function* (高阶函数)
-**高阶函数**是**函数式编程**中的概念，在数学中，也叫做**算子**(运算符)或**泛函**。  
-**接受一个或多个函数作为输入**或者**输出一个函数**的函数被称为高阶函数。
-
-在`Scala`中，容器类提供了高阶函数作为容器数据操作的接口。  
-常见的高阶函数有`map`、`reduce`、`flatMap`、`filter`、`find`、`fold`、`foreach`等。
-
-
-
-## *Generators* (生成器)
-`Scala`中同样提供了`yield`关键字，支持生成器语法。  
-使用`yield`可以将循环中每一轮的结果以容器的形式输出，使用`yeild`可以方便生成一系列的特定值。
-
-如下所示：
-
-```scala
-scala> for (i <- 1 to 5) yield i
-res20: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3, 4, 5)
-
-// 使用for语句内置的守卫语法限制输出
-scala> for (i <- 1 to 5 if i > 2) yield i
-res21: scala.collection.immutable.IndexedSeq[Int] = Vector(3, 4, 5)
-
-// 生成器的生成结果与被遍历的容器类型相关
-scala> for (i <- 1 :: 2 :: 3 :: 4 :: 5 :: Nil if i > 2) yield i
-res24: List[Int] = List(3, 4, 5)
-
-// 生成的结果不是目标容器则可以进行转换
-scala> (for (i <- List(1, 2, 3, 4, 5) if i > 2) yield i) toSet
-res27: scala.collection.immutable.Set[Int] = Set(3, 4, 5)
-```
-
-### 使用高阶函数替代生成器
-Scala中可以使用高阶函数，以函数式风格实现类似`yield`的效果。
-
-```scala
-// 从1到5的数中找出偶数，并将数值翻倍
-
-// 使用命令式编程风格，使用守卫和生成器
-scala> for (i <- 1 to 5 if i % 2 == 0) yield i * 2
-res13: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
-
-// 使用函数式编程风格，使用高阶函数
-scala> 1 to 5 filter { _ % 2 == 0 } map { _ * 2 }
-res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
-```
-
-
-
-## *Package* (包)
-`Scala`中的包用法基本与`Java`类似：
-
-- 使用`package`关键字定义包路径。
-- 使用`import`关键字导入包路径。
-
-### 包与路径
-在`Scala`中，包路径是**逻辑概念**，源码文件**不必**按照包路径存放到对应的目录下。
-
-`Scala`中使用`_`符号表示导入该路径下的所有包和成员：
-
-```scala
-import java.awt._	//等价于java中的 import java.awt.*
-```
-
-导入路径规则与`Java`中的类似，处于同一级包路径下的类可以直接使用不必导入。
-
-导入策略
-> 在导入包时，`Scala`默认采用**相对路径**，在外层路径的包使用内层路径的包时，可省略共同的路径部分直接以当前路径为起点访问内层路径包。
->
-> 如下代码所示：
->
->	```scala
->	// file1
->	package com.dainslef
->
->	class Test
->
->
->	// file2
->	package com
->
->	// 导入路径时以当前包为起点，不必从最外层路径开始导入
->	import dainslef.Test
->
->	object Main extends App {
->		println(classOf[Test].getName)
->	}
->	```
->
-> 而在`Java`中，无论包的层次关系如何，都需要通过绝对路径进行导入。
->
-> 上例对应`Java`版本如下代码所示：
->
->	```java
->	// file1
->	package com.dainslef;
->
->	class Test {
->	};
->
->
->	// file2
->	package com;
->
->	// 导入路径时从时需要从最外层路径开始导入，不能写成 import dainslef.Test
->	import com.dainslef.Test;
->
->	public class Main {
->
->		public static void main(String[] args) {
->			System.out.println(Test.class.getName());
->		}
->
->	}
->	```
-
-默认包与绝对路径导入
-> 在`Java`和`Scala`中，不使用`package`关键字打包的代码即位于**默认包**下，没有对应的包名。  
-> 在`Scala`中使用`_root_`指代默认包。
->
-> `Scala`中默认的`import`操作是基于相对路径的，但`Scala`同样支持以**绝对路径**进行`import`操作：
->
->	- 以`_root_`为导入起始路径，即代表以绝对路径的形式导入内容。
->	- 使用绝对路径访问内容能避免一些命名冲突。
->
-> 上例中的代码中的`Test`类以绝对路径导入，导入语句可写成：
->
->	```scala
->	import _root_.com.dainslef.Test
->	```
-
-默认包的限制
-> 默认包没有名称，其内容只能被同在默认包下的其它内容访问。  
-> 内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
->
-> 如下代码所示：
->
->	```scala
->	// file1
->	// 定义单例在默认包中
->	object Test {
->		val test = "Test string..."
->	}
->
->	// file2
->	package com
->
->	object Main extends App {
->		// 在内层包中访问外部默认包的内容
->		println(Test.test)				//错误，提示 "not found: value Test"
->		println(_root_.Test.test)		//错误，提示 "object Test is not a member of package <root>"
->	}
->	```
-
-### 扩展用法
-`Scala`包机制在Java的基础上扩充了更多的功能。
-
-在一个语句中导入包内的**多个**指定的类：
-
-```scala
-import java.awt.{Color, Font}
-```
-在导入一个包的同时可以将包内的类进行重命名：
-
-```scala
-import java.awt.{Color => JavaColor}
-```
-
-如果不希望某个类被导入，则可以用以下方式隐藏某个类：
-
-```scala
-import java.awt.{Color => _}
-```
-
-`Scala`中的`import`带有类似`Java 1.6`中的`static import`特性：
-
-```scala
-import java.lang.Math.abs		//导入Math类中的静态方法abs
-```
-
-在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。  
-在Scala中，`import`语句可以出现在**任意位置**，不必总是放在文件的顶部，`import`语句的作用域直到该语句块结束。
-
-### 默认导入
-默认情况下，Scala会导入以下几个包路径：
-
-```scala
-import java.lang._
-import scala._
-import Predef._
-```
-
-有些Scala包中的类名与Java包中的类名相同，但由于Scala包的引入语句在后，因此，例如`Scala.StringBuiler`类会覆盖`Java.lang.StringBuilder`。
-
-### 包对象
-在Scala中，每个包可以带有一个与包名相同的**包对象**，包内的所有类都可以直接访问该包对象的公有成员。  
-如下代码所示：
-
-```scala
-package object Package {
-	var num0 = 0
-	protected var num1 = 1
-	private var num2 = 2
-}
-
-package Package {
-	object Test extends App {
-		println(num0)		//正确，可以直接访问包对象的公有成员，不用使用前缀
-		println(num1)		//错误，不能访问包对象的保护成员
-		println(num2)		//错误，不能访问包对象的私有成员
-	}
-}
-```
-
-
-
-## *Implicit Conversions* (隐式转换)
-隐式转换在构建类库时是一个强大的工具。  
-使用隐式转换特性需要在编译时添加`-language:implicitConversions`选项。
-
-### 定义隐式转换
-Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。  
-若需要提供类型之间的自动转换功能，需要显式使用`implicit`关键字自定义隐式转换。  
-隐式转换可以定义在**当前类**中或是**伴生对象**中，只要需要进行转换时能被访问到即可。  
-
-当传入参数的类型与函数需要的类型不同时，编译器便会查找是否有合适的隐式转换，如下所示：
-
-```scala
-class Implicit(val num: Int)
-
-object Implicit {
-	implicit def implToInt(impl: Implicit) = impl.num
-	def apply(num: Int) = new Implicit(num)
-}
-
-object Main extends App {
-
-	implicit def implToStr(impl: Implicit) = impl.num.toString
-
-	def showNum(num: Int) = println(num)
-	def showStr(str: String) = println(str)
-
-	showNum(Implicit(100))
-	showStr(Implicit(200))
-}
-```
-
-当访问一个实例不存在的成员时，编译器也会查找是否存在隐式转换，能将其转化为拥有此成员的类型，如下所示：
-
-```scala
-class Implicit(val num: Int) {
-	def show = println(num)
-}
-
-object Implicit {
-	implicit def intToImpl(num: Int) = new Implicit(num)
-}
-
-object Main extends App {
-	import Implicit.intToImpl			//当隐式转换没有定义在当前作用域也不在实例的伴生对象中时需要显式导入
-	100.show							//Int型被隐式转换为Implicit类型
-}
-```
-
-当一个实例自身和方法的参数都能通过隐式转换来满足方法调用时，优先转换方法参数而不是实例自身，如下所示：
-
-```scala
-class Impl1(val str: String = "100") {
-	def show(impl: Impl2) = println(impl.str)
-}
-
-object Impl1 {
-	implicit def impl1ToImpl2(impl: Impl1) = new Impl2(impl.str)
-}
-
-class Impl2(val str: String = "200") {
-	def show(impl: Impl1) = println(impl.str)
-	def test = println(300)
-}
-
-object Main extends App {
-	var impl1 = new Impl1
-	impl1.test					//实例由Impl1类型隐式转换成了Impl2类型
-	impl1.show(impl1)			//可以通过将实例隐式转换为Impl2类型来满足方法调用，但编译器实际执行的操作是将参数隐式转换成了Impl2类型
-}
-```
-
-输出结果：
-
-```
-300
-100
-```
-
-`Scala`标准类库中大量使用了隐式转换特性。  
-以`String`类型为例，源自`Java`标准库的`String`类型自身并未定义`toInt/toDouble`等成员方法，在调用这些方法时，`String`被**隐式转换**成定义了这些方法的`StringLike`类型来执行这些操作。
-
-### 隐式参数
-函数和方法的参数前可以添加关键字`implicit`来将一个参数标记为**隐式参数**。  
-当调用方法时没有对隐式参数赋值，则编译器会尝试为隐式参数寻找匹配的隐式值。
-
-变量前可以通过添加`implicit`关键字成为隐式值。  
-如下所示：
-
-```scala
-object Implicit {
-	implicit val impl = 200.0	//隐式值可以定义在伴生对象中
-	def testImplicit(implicit num: Double) {
-		println(num)
-	}
-}
-
-object Main extends App {
-	import Implicit.impl		//不在当前作用域中的隐式参数需要显式引入
-	Implicit.testImplicit
-}
-```
-
-输出结果：
-
-```
-200.0
-```
-
-隐式参数的限制：
-
-- 用于声明隐式参数的`implicit`关键字只能出现在参数表的最前端，隐式参数的声明对当前参数表内的**所有参数**有效。
-- 使用柯里化定义多个参数表时，只能声明**最后一个**参数表内的参数为隐式参数。
-- 一个隐式参数在被调用的作用域内存在多个匹配的同类型隐式值时，编译报错。
-
-如下所示：
-
-```scala
-def testImplicit(implicit num0: Int, num1: Int) {}				//正确。num0、num1，皆为隐式参数
-def testImplicit(implicit num0: Int, implicit num1: Int) {}		//错误。只能在参数表的首个参数前添加implicit关键字修饰
-def testImplicit(num0: Int, implicit num1: Int) {}				//错误。只能在参数表的首个参数前添加implicit关键字修饰
-
-def testImplicit(num: Int)(implicit num0: Int, num1: Int) {}	//正确。对于柯里化函数，最后一个参数表可以设为隐式参数
-def testImplicit(implicit num0: Int)(implicit num1: Double) {}	//错误。一个方法不允许拥有多个隐式参数表
-def testImplicit(implicit num0: Int)(num1: Double) {}			//错误。只有最后一个参数表可以设为隐式参数表
-```
-
-隐式参数与参数默认值
-> 隐式参数与参数默认值特性**可以**共存。
->
-> 当一个方法的所有隐式参数均带有默认值时，可以直接调用，如下所示：
->
->	```scala
->	object Main extends App {
->
->		// 方法带有默认参数以及参数默认值
->		def testImplicit(implicit num0: Int = 0, num1: Double = 0) = println(s"$num0 $num1")
->
->		// 直接调用，无需隐式参数
->		testImplicit
->	}
->	```
->
-> 输出结果：
->
->	```
->	0 0.0
->	```
->
-> 隐式参数与默认值的优先级
->
->	- 当一个方法的隐式参数带有部分默认值时，隐式调用时只需提供没有默认值的部分参数。
->	- 当一个隐式参数既有默认值又有隐式值时，会优先使用隐式值。
->
-> 如下所示：
->
->	```scala
->	object Main extends App {
->
->		def testImplicit(implicit num0: Int = 0, num1: Double) = println(s"$num0 $num1")
->
->		// 只需为没有默认值的参数提供隐式值
->		implicit val num1 = 2.0
->		testImplicit
->
->		// 此时num0既有隐式值，也有参数默认值
->		implicit val num0 = 1
->		testImplicit
->	}
->	```
->
-> 输出结果：
->
->	```
->	0 2.0
->	1 2.0
->	```
->
-> 输出结果说明第二次调用`testImplicit()`方法时，优先采用了隐式值而非参数默认值。
->
-> 隐式值与参数默认值在方法调用时区别如下：
->
->	- 采用参数默认值时，即使参数全部拥有默认值，参数表不可省略(`()`操作符必须存在)。
->	- 采用隐式值时，隐式参数全部具有隐式值或默认值时，参数表直接省略。
->
-> 当一个隐式参数表的所有参数均带有默认值且作用域内也拥有满足条件的隐式值时，调用方法时带有`()`操作符为使用默认值，省略参数表为使用隐式值。
->
-> 如下所示：
->
->	```scala
->	object Test extends App {
->
->		def testImplicit(implicit num0: Int = 0, num1: Double = 0) = println(s"$num0 $num1")
->
->		implicit val num0 = 1
->		implicit val num1 = 1.0
->
->		testImplicit			//全部采用隐式值
->		testImplicit()			//全部采用默认值
->	}
->	```
->
-> 输出结果：
->
->	```
->	1 1.0
->	0 0.0
->	```
-
-### 隐式类
-类定义前同样可以使用`implicit`成为**隐式类**。
-
-- 隐式类的主构造器**有且只有**一个参数，同时，该参数**不能**为隐式参数。
-- 隐式类的主构造器不能通过参数默认值、隐式参数等形式来模拟成参数表成只有一个参数的情况。
-- 隐式类特性**不能**与样例类共存，即一个类在定义时不能同时带有`implicit`和`case`关键字。
-- 隐式类**不能**定义在外部区域(包，以及包对象)，隐式类只能定义在类体、函数体、单例对象中。
-
-与**隐式转换**类似，当一个实例调用了**不存在**或**无法访问**的成员方法，编译器会为之搜索作用域中可访问的隐式类。  
-若隐式类的构造器参数与实例相同且带有实例调用的方法，则自动调用该隐式类的构造器。  
-如下代码所示：
-
-```scala
-object Main extends App {
-
-	case class Source(num: Int) {
-		private def show = print(num)
-	}
-
-	implicit class Impl(source: Source) {
-		def show = println("Implicit Class")
-		def show(num: Int) = println(s"Implicit Class: $num")
-	}
-
-	Source(0).show				//调用无法访问的成员方法可能触发隐式转换
-	Source(0).show(100)			//调用不存在的方法也能触发隐式转换
-}
-```
-
-输出结果：
-
-```
-Implicit Class
-Implicit Class: 100
-```
-
-
-
 ## 并发编程
 作为`JVM`平台的编程语言，`Scala`可以直接调用`Java`的并发`API`。  
 并发编程是`Scala`的擅长领域，除了`Java`标准库提供的并发API，`Scala`还提供下列并发技术：
@@ -2946,7 +2946,7 @@ Implicit Class: 100
 >	import scala.concurrent.ExecutionContext.Implicits.global
 >
 >	val future = Future[XXX] {
->		/* Code you want to excute... */
+>	  /* Code you want to excute... */
 >	}
 >	```
 >
@@ -2985,16 +2985,16 @@ Implicit Class: 100
 >	import scala.util.{Failure, Success}
 >
 >	future onComplete {
->		case Success(xxx) => ...
->		case Failure(xxx) => ...
+>	  case Success(xxx) => ...
+>	  case Failure(xxx) => ...
 >	}
 >
 >	future onSuccess {
->		re: T => ...
+>	  re: T => ...
 >	}
 >
 >	future onFailure {
->		case ex => ...
+>	  case ex => ...
 >	}
 >	```
 
@@ -3081,13 +3081,13 @@ Implicit Class: 100
 >
 >	object Main extends App {
 >
->		for (n <- 0 to 30)
->			Future {
->				println(s"Index: $n Thread Name: ${Thread.currentThread.getName}")
->				Thread.sleep(3000)
->			}
+>	  for (n <- 0 to 30)
+>	    Future {
+>	      println(s"Index: $n Thread Name: ${Thread.currentThread.getName}")
+>	      Thread.sleep(3000)
+>	    }
 >
->		scala.io.StdIn.readLine()
+>	  scala.io.StdIn.readLine()
 >	}
 >	```
 >
@@ -3137,17 +3137,17 @@ Implicit Class: 100
 >	import scala.concurrent.ExecutionContext.Implicits.global
 >
 >	object Main extends App {
->		for (n <- 0 to 30)
->			Future {
->				println(s"Index: $n Thread before blocking: ${Thread.currentThread.getName}")
->				blocking {
->					println(s"Index: $n Blocking: ${Thread.currentThread.getName}")
->					Thread.sleep(3000)
->				}
->				println(s"Index: $n Thread after blocking: ${Thread.currentThread.getName}")
->			}
+>	  for (n <- 0 to 30)
+>	    Future {
+>	      println(s"Index: $n Thread before blocking: ${Thread.currentThread.getName}")
+>	      blocking {
+>	        println(s"Index: $n Blocking: ${Thread.currentThread.getName}")
+>	        Thread.sleep(3000)
+>	      }
+>	      println(s"Index: $n Thread after blocking: ${Thread.currentThread.getName}")
+>	    }
 >
->		scala.io.StdIn.readLine()
+>	  scala.io.StdIn.readLine()
 >	}
 >	```
 >
@@ -3273,7 +3273,7 @@ Implicit Class: 100
 实例，一个`Future`通过使用`Promise`获取另一个`Future`中的执行状态(**不是**执行结束的返回内容)，基本代码如下：
 
 ```scala
-import scala.concurrent.{ Future, Promise, Await }
+import scala.concurrent.{Future, Promise, Await}
 import scala.concurrent.duration.Duration
 
 val promise = Promise[XXX]()
@@ -3282,15 +3282,15 @@ val future = promise.future
 println(future.isCompleted)
 
 Future {
-	/* do something... */
-	promise.success(xxx)
-	/* do something... */
+  /* do something... */
+  promise.success(xxx)
+  /* do something... */
 }
 
 Future {
-	/* do something... */
-	val result = Await.result(future, Duration.Inf)
-	/* use result... */
+  /* do something... */
+  val result = Await.result(future, Duration.Inf)
+  /* use result... */
 }
 ```
 
@@ -3309,20 +3309,20 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "版本号"
 
 ```scala
 object Async {
-	/**
-	* Run the block of code `body` asynchronously. `body` may contain calls to `await` when the results of
-	* a `Future` are needed; this is translated into non-blocking code.
-	*/
-	def async[T](body: T)(implicit execContext: ExecutionContext): Future[T] = macro internal.ScalaConcurrentAsync.asyncImpl[T]
+  /**
+  * Run the block of code `body` asynchronously. `body` may contain calls to `await` when the results of
+  * a `Future` are needed; this is translated into non-blocking code.
+  */
+  def async[T](body: T)(implicit execContext: ExecutionContext): Future[T] = macro internal.ScalaConcurrentAsync.asyncImpl[T]
 
-	/**
-	* Non-blocking await the on result of `awaitable`. This may only be used directly within an enclosing `async` block.
-	*
-	* Internally, this will register the remainder of the code in enclosing `async` block as a callback
-	* in the `onComplete` handler of `awaitable`, and will *not* block a thread.
-	*/
-	@compileTimeOnly("`await` must be enclosed in an `async` block")
-	def await[T](awaitable: Future[T]): T = ??? // No implementation here, as calls to this are translated to `onComplete` by the macro.
+  /**
+  * Non-blocking await the on result of `awaitable`. This may only be used directly within an enclosing `async` block.
+  *
+  * Internally, this will register the remainder of the code in enclosing `async` block as a callback
+  * in the `onComplete` handler of `awaitable`, and will *not* block a thread.
+  */
+  @compileTimeOnly("`await` must be enclosed in an `async` block")
+  def await[T](awaitable: Future[T]): T = ??? // No implementation here, as calls to this are translated to `onComplete` by the macro.
 }
 ```
 
@@ -3471,51 +3471,48 @@ def value: Seq[Node]
 代码如下所示：
 
 ```scala
-import scala.xml._
+object Xml extends App {
 
-object Main extends App {
+  val xmlFile = XML.loadFile(getClass.getResource("Example.xml").getPath)
 
-	val xmlFile = XML.loadFile(getClass.getResource("Example.xml").getPath)
+  val showChild: Node => Unit = _.child foreach {
 
-	val showChild: Node => Unit = _.child foreach { node => node match {
+    // 使用标签匹配，可以将表达式嵌在匹配语句中
+    case <One>{text}</One> => println(s"case <One>{text}</One>: $text")
 
-			// 使用标签匹配，可以将表达式嵌在匹配语句中
-			case <One>{text}</One> => println(s"case <One>{text}</One>: $text")
+    // 标签匹配支持多级嵌套标签，不支持在标签中直接添加属性
+    case <Node><Two>{text}</Two></Node> =>
+      println(s"case <Node><Two>{text}</Two></Node>: $text")
 
-			// 标签匹配支持多级嵌套标签，不支持在标签中直接添加属性
-			case <Node><Two>{text}</Two></Node> =>
-				println(s"case <Node><Two>{text}</Two></Node>: $text")
+    // 匹配多级标签需要节点内部不换行
+    case <Node><Three>{text}</Three></Node> =>
+      println(s"case <Node><Three>{text}</Three></Node>: $text")
 
-			// 匹配多级标签需要节点内部不换行
-			case <Node><Three>{text}</Three></Node> =>
-				println(s"case <Node><Three>{text}</Three></Node>: $text")
+    // 使用 @ 操作符给匹配的节点标记变量名称(n 为 Node 类型)
+    case n @ <Three>{_}</Three> =>
+      println(s"case n @ <Three>{_}</Three>, n text: ${n.text}, n type: ${n.getClass}")
 
-			// 使用 @ 操作符给匹配的节点标记变量名称(n 为 Node 类型)
-			case n @ <Three>{_}</Three> =>
-				println(s"case n @ <Three>{_}</Three>, n text: ${n.text}, n type: ${n.getClass}")
+    // 遍历属性
+    case n @ <Four>{_}</Four> if n \@ "arg_one" == "arg_4_1" =>
+      println(s"case n @ <Four>{_}</Four>, n text: ${n.text}, n type: ${n.getClass}, n.attributes: ")
+      n.attributes foreach { attr =>
+        println(s"attribute name: ${attr.key} attribute value: ${attr.value.text}")
+      }
 
-			// 遍历属性
-			case n @ <Four>{_}</Four> if n \@ "arg_one" == "arg_4_1" =>
-				println(s"case n @ <Four>{_}</Four>, n text: ${n.text}, n type: ${n.getClass}, n.attributes: ")
-				n.attributes foreach { attr =>
-					println(s"attribute name: ${attr.key} attribute value: ${attr.value.text}")
-				}
+    // 使用 @ 操作符给节点内容标记变量名称(n 为 Text 类型)
+    case <Four>{n @ _}</Four> =>
+      println(s"case <Four>{n @ _}</Four>, n text: ${n.text}, n type: ${n.getClass}")
 
-			// 使用 @ 操作符给节点内容标记变量名称(n 为 Text 类型)
-			case <Four>{n @ _}</Four> =>
-				println(s"case <Four>{n @ _}</Four>, n text: ${n.text}, n type: ${n.getClass}")
+    /*
+      匹配其它类型节点，注意不能写成：
+      case _ if node.child.length > 0 => ... 或 case _ if node.child.nonEmpty => ...
+      (空指针不能调用方法)
+    */
+    case node if node.child != null => showChild(node)
 
-			/*
-			匹配其它类型节点，注意不能写成：
-				case _ if node.child.length > 0 => ... 或 case _ if node.child.nonEmpty => ...
-				(空指针不能调用方法)
-			*/
-			case _ if node.child != null => showChild(node)
+  }
 
-		}
-	}
-
-	showChild(xmlFile)
+  showChild(xmlFile)
 }
 ```
 
@@ -3556,12 +3553,12 @@ node3: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li></ul>
 
 ```scala
 def copy(
-	prefix: String = this.prefix,
-	label: String = this.label,
-	attributes: MetaData = this.attributes,
-	scope: NamespaceBinding = this.scope,
-	minimizeEmpty: Boolean = this.minimizeEmpty,
-	child: Seq[Node] = this.child.toSeq): Elem = Elem(prefix, label, attributes, scope, minimizeEmpty, child: _*)
+  prefix: String = this.prefix,
+  label: String = this.label,
+  attributes: MetaData = this.attributes,
+  scope: NamespaceBinding = this.scope,
+  minimizeEmpty: Boolean = this.minimizeEmpty,
+  child: Seq[Node] = this.child.toSeq): Elem = Elem(prefix, label, attributes, scope, minimizeEmpty, child: _*)
 ```
 
 使用`copy()`方法拼接节点如下所示：
