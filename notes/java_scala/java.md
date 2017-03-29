@@ -175,6 +175,122 @@ public class Main {
 
 
 
+## *Package*
+在`Java`中，没有使用`package`的话，在`javac`编译`java`文件生成`class`字节码时，需要将所有用到的源码文件写在参数中，不在当前目录下的源码文件要写清路径。
+
+若源码文件过多，则可以使用`package`关键字将其打包归类，然后在主类所在的文件中使用`import`关键字来将包导入使用。  
+如果没有使用`package`关键字，则所有的内容被视为在一个包中。
+
+### *import* 的基本用法
+`import`的格式是：
+
+```java
+import [包路径].[类名];
+```
+
+如果需要包含内部类，则可以使用多级import，如：
+
+```java
+import [包路径].[类名]...[类名];
+```
+
+需要注意的是，import与代码文件的路径**无关**(但运行class文件时需要将class文件放在与其源码中package名称相同的对应目录下，否则会在执行时出错)。
+另外，包名也可以是`*.*.*`的形式。
+
+### 使用静态导入
+`Java 5`中新加入了`import static`关键字，相比传统的`import`，`import static`关键字的包含目标是类中的静态方法，格式如下：
+
+```java
+import static [包路径].[类名].[静态方法名];
+```
+
+这样能够在使用对应类的静态方法时不必写出类名而是直接写出函数名即可。
+
+### *package* 使用实例
+有两个文件**A.java**和**B.java**。
+
+文件B中的类被A中引用,则将B打包,代码中添加`package b`，并放在b目录下。  
+文件A中引用B中的类。  
+
+按照描述，两文件的位置：
+
+- **文件A**路径为`~/A.java`。
+- **文件B**路径为`~/b/B.java`。
+
+实例代码(普通import)：
+
+A.java:
+
+```java
+import b.B;
+
+public class A {
+	public static void main(String[] args) {
+		B.getNow();
+	}
+}
+```
+
+B.java:
+
+```java
+package b;
+
+public class B {
+	public static void getNow() {
+		System.out.println("Success!");
+	}
+}
+```
+
+实例代码(import static)：
+
+A.java:
+
+```java
+import static b.B.getNow;
+
+public class A {
+	public static void main(String[] args) {
+		getNow();
+	}
+}
+```
+
+B.java:
+
+```java
+package b;
+
+public class B {
+	public static void getNow() {
+		System.out.println("Success!");
+	}
+}
+```
+
+其中**A.java**文件能够正常调用类B的方法`getNow()`。
+
+一个`java`源码文件只能包含一个**公有类**，且源码文件的名称应该与包含的公有类的类名**一致**。
+
+`package`打包的源码应当放在与包名相同的目录中，这样生成的字节码class文件才会在对应目录生成。  
+若源码均置于同一级目录，则编译之后产生的`class`文件需要按照`package`关系放在与包名相同的目录下，否则执行`class`文件时会报错(找不到对应的class文件)。
+
+### 引用自定义依赖
+引用第三方的`jar`文件，则编译时应使用`-cp`参数，如下：
+
+```
+$ javac -cp [第三方库的路径] [源码文件]
+```
+
+编译生成的class文件无法直接被`java`指令执行(class文件使用了第三方库，库的位置不在系统环境变量内)，运行时需要显式地指定引用库的位置：
+
+```
+$ java -Djava.ext.dirs=[第三方库所在的目录] [编译生成的class文件]
+```
+
+
+
 ## 容器类型
 与常见的编程语言相同，Java中的常见的**容器类型**为`List`、`Set`、`Map`。
 
@@ -584,8 +700,16 @@ public static native void sleep(long millis) throws InterruptedException;
 >
 > 被`synchronized`修饰的方法同时只能被**一个**线程访问：
 >
->	- 当被修饰的方法为实例方法时，同一实例的`synchronized`方法同时只能有一个被执行。等价于将整个方法体的内容写在`synchronized (this) { ... }`中。不同实例间不受影响。
->	- 当被修饰的方法为静态方法时，则所有该类中的静态`synchronized`方法同时只能有一个被执行。等价于将整个方法体的内容写在`synchronized (类名.class) { ... }`中。
+>	- 修饰的方法为**实例方法**时：
+>
+>		同一实例的`synchronized`方法同时只能有一个被执行。  
+>		等价于将整个方法体的内容写在`synchronized (this) { ... }`中。不同实例间不受影响。
+>
+>	- 修饰的方法为**静态方法**时：
+>
+>		所有该类中的静态`synchronized`方法同时只能有一个被执行。  
+>		等价于将整个方法体的内容写在`synchronized (类名.class) { ... }`中。
+>
 >	- 一个类中被`synchronized`修饰的实例方法和被`synchronized`修饰的静态方法的同步变量不同，因而不会相互同步。
 >
 > 如下代码所示：
@@ -666,7 +790,15 @@ public static native void sleep(long millis) throws InterruptedException;
 >	Thread Two showTwo()
 >	```
 >
-> 从输出结果中可以看到，`Example`类中的三个成员方法都使用了`synchronized`关键字进行修饰，`showOne()`、`showTwo()`为实例方法，`showStatic()`为静态方法，来自同一个实例在不同线程中的两个实例方法**没有**并发执行(`showTwo()`一直等到`showOne()`结束才开始执行)，而静态方法并发执行了(`showOne()`与`showStatic()`交错打印输出)。
+> 输出结果分析
+>> `Example`类中的三个成员方法都使用了`synchronized`关键字进行修饰。  
+>> `showOne()`、`showTwo()`为实例方法，`showStatic()`为静态方法。  
+>>
+>> 来自同一个实例在不同线程中的两个实例方法**没有**并发执行：  
+>> `showTwo()`一直等到`showOne()`结束才开始执行。
+>>
+>> 静态方法并发执行了：  
+>> `showOne()`与`showStatic()`交错打印输出。
 
 ### *Executor* 框架
 `Thread`类功能简单，仅仅提供了原始的线程抽象，在实际的开发中，往往会使用更高层次的API。
@@ -835,8 +967,7 @@ public class Main {
 - 直接使用`get()`从`Future`中同步获取返回值需要对任务的执行时间有大致的估算，否则可能造成在某一个执行耗时高的任务中阻塞较长时间。
 - 使用`get(long timeout, TimeUnit unit)`限定了等待时间，但任务未必会在限定时间内完成，可能需要多次轮询才能获取到所有`Future`的结果。
 
-处理多个任务返回结果应该使用`CompletionService`接口。
-
+处理多个任务返回结果应该使用`CompletionService`接口。  
 `CompletionService`接口定义了将已完成的任务与新提交的任务分离的方法。
 定义如下：
 
@@ -937,6 +1068,7 @@ Java中提供了一系列**内置注解**，常用的有：
 **元注解**有以下4类：
 
 1. `@Target`用于限制注解的范围，参数为注解范围的数组(可以同时设定多个注解范围，用花括号包裹)，取值如下所示：
+
 	1. `ElementType.CONSTRUCTOR` 描述构造器
 	1. `ElementType.FIELD` 描述域
 	1. `ElementType.LOCAL_VARIABLE` 描述局部变量
@@ -944,19 +1076,41 @@ Java中提供了一系列**内置注解**，常用的有：
 	1. `ElementType.PACKAGE` 描述包
 	1. `ElementType.PARAMETER` 描述参数
 	1. `ElementType.TYPE` 描述类、接口(包括注解类型)或`enum`声明
+
 1. `@Retention`设置注解的**生命周期**，取值如下所示：
-	1. `RetentionPolicy.SOURCE` 编译阶段丢弃。这些注解在编译结束之后就不再有任何意义，所以它们不会写入字节码。`@Override`、`@SuppressWarnings`都属于这类注解。
-	1. `RetentionPolicy.CLASS` 类加载的时候丢弃。在字节码文件的处理中有用。注解**默认使用**这种方式。
-	1. `RetentionPolicy.RUNTIME` 不丢弃，运行期也保留该注解，可以使用反射机制读取该注解的信息。**自定义注解**通常使用这种方式。
-1. `@Inherited`为**标记注解**，用于设置注解的继承性，被改注解修饰的注解用在类中是**可继承的**，但类不从它所实现的接口继承注解，方法并不从它所重载的方法继承注解。对于设置了`@Inherited`注解的元素，如果同时设置了`@Retention`注解，并且声明周期设为`RetentionPolicy.RUNTIME`，则使用`反射`机制来获取元素注解时，如果检查不到该注解，则会一直沿着继承树向上搜索，直到查找到了该注解或是到达类继承结构的顶层。
-1. `@Documented`设置在使用`javadoc`生成API时记录注解信息，默认情况下，`javadoc`**不会**记录注解信息。
+
+	- `RetentionPolicy.SOURCE`
+
+		注解在编译阶段丢弃。  
+		被修饰的注解在编译结束之后就不再有任何意义，不会写入字节码。  
+		`@Override`、`@SuppressWarnings`属于此类注解。
+
+	- `RetentionPolicy.CLASS`
+
+		在类加载的时候丢弃注解信息。  
+		在字节码文件的处理中有用。注解**默认使用**这种方式。
+
+	- `RetentionPolicy.RUNTIME`
+	
+		不丢弃注解信息。  
+		运行期也保留该注解，可以使用反射机制读取该注解的信息。  
+		**自定义注解**通常使用这种方式。
+
+1. `@Inherited`为**标记注解**，用于设置注解的继承性：
+
+	被改注解修饰的注解用在类中是**可继承的**，但类不从它所实现的接口继承注解，方法并不从它所重载的方法继承注解。  
+	对于设置了`@Inherited`和`@Retention`元注解的注解，并且声明周期设为`RetentionPolicy.RUNTIME`时，则使用`反射`机制来获取元素注解，且检查不到该注解时，会一直沿着继承树向上搜索，直到查找到了该注解或到达类继承结构的顶层。
+
+1. `@Documented`设置在使用`javadoc`生成API时记录注解信息。  
+	默认情况下，`javadoc`**不会**记录注解信息。
 
 ### 自定义注解
 `Java`中的注解实际上是**接口**(`interface`)。
 
-- 使用`@interface`自定义注解，使用其定义的注解自动继承了`java.lang.annotation.Annotation`接口。
+- 使用`@interface`自定义注解，自定义注解继承了`java.lang.annotation.Annotation`接口。
 - 定义注解时，**不能**继承其他的注解或接口。
-- 定义注解时，每一个方法实际上是定义了一个配置参数。方法的名称就是参数的名称，返回值类型就是参数的类型。可以通过`default`关键字来设置参数**默认值**。
+- 定义注解时，每一个方法实际上是定义了一个配置参数。  
+方法的名称就是参数的名称，返回值类型就是参数的类型。可以通过`default`关键字来设置参数**默认值**。
 - 定义注解时，使用`value`做为注解参数名称，则使用注解时参数名称可省略。
 - 定义注解时，参数的访问权限只能为`public`或**默认**权限。
 - 注解参数支持的数据类型：
@@ -1365,10 +1519,11 @@ public void set(Object var1, Object var2) throws IllegalArgumentException, Illeg
 public Object get(Object var1) throws IllegalArgumentException, IllegalAccessException;
 ```
 
-`set()`方法中参数`var1`为要设置字段所属的对象，参数`var2`为设置的内容。  
-`get()`方法同名参数作用相同。  
-`set()/get()`方法接收的参数为`Object`类型。
-对于基本类型，`Field`类中预先定义了一套方法，如`setInt()/getInt()/setBoolean()/getBoolean()`等，基本类型可直接使用这些方法以避免不必要的强制类型转换。
+- `set()`方法中参数`var1`为要设置字段所属的对象，参数`var2`为设置的内容。  
+- `get()`方法同名参数作用相同。  
+- `set()/get()`方法接收的参数为`Object`类型。
+
+对于基本类型，`Field`类中预先定义了一套方法(`setInt()/getInt()/setBoolean()/getBoolean()`等)，基本类型可直接使用这些方法以避免不必要的强制类型转换。
 
 ```java
 package com.dainslef;
@@ -1449,9 +1604,9 @@ true
 ### *ClassLoader* (类加载器)
 在Java中有三种类加载器。
 
-0. `Bootstrap ClassLoader`引导类加载器，用于加载`Java`核心类。
-0. `Extension ClassLoader`扩展类加载器，它负责加载`JRE`的扩展目录(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系统属性指定)类包。
-0. `App ClassLoader`应用类加载器，通常类都由此加载器加载(包括`java.class.path`)。
+1. `Bootstrap ClassLoader`引导类加载器，用于加载`Java`核心类。
+1. `Extension ClassLoader`扩展类加载器，它负责加载`JRE`的扩展目录(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系统属性指定)类包。
+1. `App ClassLoader`应用类加载器，通常类都由此加载器加载(包括`java.class.path`)。
 
 获取一个类的加载器使用`getClassLoader()`方法。
 
@@ -1583,6 +1738,7 @@ class FileProxy implements File {
 代理类`FileProxy`能够在调用实现具体代码的同时加入扩充的功能。
 
 随着接口功能的扩充，代理类的代理方法数量也会增加，但代理类中很多方法的扩充代码可能相同的或是根本没有扩充代码，因而没有必要针对每一个方法编写代理方法，此时使用**动态代理**能够很方便地控制代码规模。
+
 动态代理使用`java.lang.reflect.Proxy`类中的`newProxyInstance`方法构建代理类实例：
 
 ```java
@@ -1663,7 +1819,7 @@ public class Main {
 
 
 ## *JDBC*
-`JDBC`为`Java`定义了一套公用的数据库`API`，`JDBC`屏蔽了不同数据库之间的差异。
+`JDBC`为`Java`定义了一套公用的数据库`API`，`JDBC`屏蔽了不同数据库之间的差异。  
 对于支持`JDBC`的数据库，只要导入对应的`JDBC Driver`即可使用相同的`JDBC API`进行操作。
 
 ### 连接数据库
@@ -1773,11 +1929,13 @@ Statement statement = connection
 		//后两个参数是为了得到resultSet集能够进行last()操作
 ```
 
-Access数据库的一些小常识
->	- 表单的高级字段设置在`开始 - 视图 - 设计视图`中。
->	- 配置自增属性需要将字段类型设为`自动编号`。
->	- 默认情况下，创建的数据类型`数字`的字段大小为`长整型`，这是不支持**小数输入**的，小数输入会自动被去尾，需要将字段大小设置为`单精度浮点型/双精度浮点型`才能支持小数位。
->	- 如果需要某个字段的内容唯一不可重复，可以将改字段的索引设置为`有(无重复)`即可。
+Access数据库的一些小常识：
+- 表单的高级字段设置在`开始 - 视图 - 设计视图`中。
+- 配置自增属性需要将字段类型设为`自动编号`。
+- 默认情况下，创建的数据类型`数字`的字段大小为`长整型`。  
+长整型不支持**小数输入**，小数输入会自动被去尾。  
+需要将字段大小设置为`单精度浮点型/双精度浮点型`才能支持小数位。
+- 如果需要某个字段的内容唯一不可重复，可以将改字段的索引设置为`有(无重复)`即可。
 
 
 
@@ -1849,17 +2007,49 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 - 勾选`Keep indents on empyt lines`则会在**空行**中**保持缩进**。
 
 ### 其它常用选项
-- 代码折叠： `File` => `Settings` => `Editor` => `General` => `Code Folding`
-- 代码自动换行： `File` => `Settings` => `Editor` => `General` => `Soft Wraps`
-- 设置代码边界指示线： `File` => `Settings` => `Editor` => `General` => `Appearance` => `Show right margin`
-- 设置空白处的点按逻辑： `File` => `Settings` => `Editor` => `General` => `Virtual Space`
-- 设置是否开启拼写检查： `File` => `Settings` => `Project` => `Inspections` => `Spelling`
-- 设置Java强制类型转换前是否空格： `File` => `Settings` => `Editor` => `Code Style` => `Java` => `Spaces` => `After type cast`
-- 设置Scala函数是否自动补全空返回类型： `File` => `Settings` => `Editor` => `Code Style` => `Scala` => `Other` => `Enfore procedure syntax for methods with Unit return type`
-- 设置光标悬停显示变量/方法信息： `File` => `Settings` => `Editor` => `General` => `Other` => `Show quick documentation on mouse move`
-- 设置函数多行参数是否自动对齐到函数名： `File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Wrappings and Braces` => `Method parenttheses` => `Align when multiline`
-- 设置方法、字段前空行数量： `File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Blank Lines` => `Minimum Blank Lines`
-- 设置`JavaScript`支持`ECMAScript 6`语法： `File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
+- 代码折叠：
+
+	`File` => `Settings` => `Editor` => `General` => `Code Folding`
+
+- 代码自动换行：
+
+	`File` => `Settings` => `Editor` => `General` => `Soft Wraps`
+
+- 设置代码边界指示线：
+
+	`File` => `Settings` => `Editor` => `General` => `Appearance` => `Show right margin`
+
+- 设置空白处的点按逻辑：
+
+	`File` => `Settings` => `Editor` => `General` => `Virtual Space`
+
+- 设置是否开启拼写检查：
+
+	`File` => `Settings` => `Project` => `Inspections` => `Spelling`
+
+- 设置Java强制类型转换前是否空格：
+
+	`File` => `Settings` => `Editor` => `Code Style` => `Java` => `Spaces` => `After type cast`
+
+- 设置Scala函数是否自动补全空返回类型：
+
+	`File` => `Settings` => `Editor` => `Code Style` => `Scala` => `Other` => `Enfore procedure syntax for methods with Unit return type`
+
+- 设置光标悬停显示变量/方法信息：
+
+	`File` => `Settings` => `Editor` => `General` => `Other` => `Show quick documentation on mouse move`
+
+- 设置函数多行参数是否自动对齐到函数名：
+
+	`File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Wrappings and Braces` => `Method parenttheses` => `Align when multiline`
+
+- 设置方法、字段前空行数量：
+
+	`File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Blank Lines` => `Minimum Blank Lines`
+
+- 设置`JavaScript`支持`ECMAScript 6`语法：
+
+	`File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
 
 ### 项目打包
 将`Java`项目打包成`jar`、`war`等分发格式，按以下菜单路径设置：
@@ -1867,119 +2057,6 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 `File` => `Project Structure` => `Project Settings` => `Artifacts`
 
 选择界面中的`+`符号添加打包配置，根据项目类型打包成不同的目标格式。
-
-
-
-## *Package*
-在`Java`中，没有使用`package`的话，在`javac`编译`java`文件生成`class`字节码时，需要将所有用到的源码文件写在参数中，不在当前目录下的源码文件要写清路径。
-
-若源码文件过多，则可以使用`package`关键字将其打包归类，然后在主类所在的文件中使用`import`关键字来将包导入使用。  
-如果没有使用`package`关键字，则所有的内容被视为在一个包中。
-
-### *import* 的基本用法
-`import`的格式是：
-
-```java
-import [包路径].[类名];
-```
-
-如果需要包含内部类，则可以使用多级import，如：
-
-```java
-import [包路径].[类名]...[类名];
-```
-
-需要注意的是，import与代码文件的路径**无关**(但运行class文件时需要将class文件放在与其源码中package名称相同的对应目录下，否则会在执行时出错)。
-另外，包名也可以是`*.*.*`的形式。
-
-### 使用静态导入
-`Java 5`中新加入了`import static`关键字，相比传统的`import`，`import static`关键字的包含目标是类中的静态方法，格式如下：
-
-```java
-import static [包路径].[类名].[静态方法名];
-```
-
-这样能够在使用对应类的静态方法时不必写出类名而是直接写出函数名即可。
-
-### *package* 使用实例
-有两个文件**A.java**和**B.java**。
-
-文件B中的类被A中引用,则将B打包,代码中添加`package b`，并放在b目录下。  
-文件A中引用B中的类。  
-
-按照描述，两文件的位置：
-
-- **文件A**路径为`~/A.java`。
-- **文件B**路径为`~/b/B.java`。
-
-实例代码(普通import)：
-
-A.java:
-
-```java
-import b.B;
-
-public class A {
-	public static void main(String[] args) {
-		B.getNow();
-	}
-}
-```
-
-B.java:
-
-```java
-package b;
-
-public class B {
-	public static void getNow() {
-		System.out.println("Success!");
-	}
-}
-```
-
-实例代码(import static)：
-
-A.java:
-
-```java
-import static b.B.getNow;
-
-public class A {
-	public static void main(String[] args) {
-		getNow();
-	}
-}
-```
-
-B.java:
-
-```java
-package b;
-
-public class B {
-	public static void getNow() {
-		System.out.println("Success!");
-	}
-}
-```
-
-其中**A.java**文件能够正常调用类B的方法`getNow()`。
-
-一个`java`源码文件只能包含一个**公有类**，且源码文件的名称应该与包含的公有类的类名**一致**。
-
-`package`打包的源码应当放在与包名相同的目录中，这样生成的字节码class文件才会在对应目录生成。  
-若源码均置于同一级目录，则编译之后产生的`class`文件需要按照`package`关系放在与包名相同的目录下，否则执行`class`文件时会报错(找不到对应的class文件)。
-
-### 使用第三方包时的编译/运行方式
-很多时候，我们需要使用java官方库之外的第三方库(jar文件)，编译时需要添加额外的参数。
-假设代码中引用了一个第三方库，则编译时应使用`-cp`参数，如下：
-
-`$ javac -cp [第三方库的路径] [源码文件]`
-
-编译生成的class文件是无法直接被`java`指令执行的，因为该class文件使用了第三方库，而这个库的位置并不在系统的环境变量之中，因此运行也需要显式地指定所需库的位置：
-
-`$ java -Djava.ext.dirs=[第三方库所在的目录] [编译生成的class文件]`
 
 
 
