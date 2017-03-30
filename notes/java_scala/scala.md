@@ -22,39 +22,53 @@ Plugin 'derekwyatt/vim-scala'
 ### *Scala* 编译工具
 与编译Java代码类似，编译Scala代码使用`scalac`命令：
 
-`$ scalac [*.scala]`
+```
+$ scalac [*.scala]
+```
 
 编译后即可得到字节码文件*.class。
 
 执行字节码可以使用`scala`指令：
 
-`$ scala [主类名]`
+```
+$ scala [主类名]
+```
 
 对于使用了`包(package)`的源码，在用`scalac`指令进行编译时，编译器会自动根据包路径创建对应的目录，然后在对应的包路径下生成对应的class文件。
 
 运行带有包路径的字节码需要在包路径的相对根目录下，执行：
 
-`$ scala [包路径].[主类名]`
+```
+$ scala [包路径].[主类名]
+```
 
-需要注意的是，虽然Scala是基于`JVM`的语言，但`scalac`编译得到的字节码直接由java命令执行会出现一些错误。
-此外，虽然Scala并不强制要求类名要与文件名相同，但在部分IDE中，如果类名与文件名不同，构建项目会出现错误。
+虽然Scala是基于`JVM`的语言，但`scalac`编译得到的字节码直接由java命令执行会出现错误。  
+虽然Scala并不强制要求类名要与文件名相同，但在部分IDE中，如果类名与文件名不同，构建项目会出现错误。
 
 ### 反编译
 使用`scalap`可以反编译字节码得到Scala代码：
 
-`$ scalap [*.class]`
+```
+$ scalap [*.class]
+```
 
 或者
 
-`$ scalap [类名]`
+```
+$ scalap [类名]
+```
 
 如果需要查看字节码的对应生成的Java代码，可以使用`javap`工具：
 
-`$ javap [类名]`
+```
+$ javap [类名]
+```
 
 使用`javap`可以直接查看生成的字节码：
 
-`$ javap -c [类名]`
+```
+$ javap -c [类名]
+```
 
 默认情况下，通过反编译得到的Scala以及Java代码只能看到公有方法的声明，方法实现以及私有、保护成员均**不可见**。
 查看所有成员需要添加`-private`参数：
@@ -65,12 +79,12 @@ $ scalap -private [类名]
 ```
 
 ### 使用Scala解释器
-在命令行中输入无参数的`scala`指令即可进入交互式的Scala解释器。
+在命令行中输入无参数的`scala`指令即可进入交互式的Scala解释器。  
 常用的Scala解释器**指令**：
 
 ```scala
-scala> :quit				//退出解释器
-scala> :reset				//重置解释器的状态，会清空已保存的变量、类、方法等所有内容
+scala> :quit //退出解释器
+scala> :reset //重置解释器的状态，会清空已保存的变量、类、方法等所有内容
 ```
 
 Scala解释器与Python解释器类似，可以直接将代码一行行地输入解释器，解释器会执行代码并给出反馈，对初学者而言是一个练习的好方法。
@@ -81,12 +95,17 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 相比`Java`、`C++`等语言，`Scala`融合了`OOP`、`FP`等编程范式，同时语法上更**灵活**。
 
 ### 语法基础(概览)
-- Scala代码不强制要求分号，可以依行断句，只有一行带有多个语句时才要求分号隔开。
-- 使用`var/val`定义`变量/常量`，类型可以由编译器推导，也可以显式指定。定义变量时甚至可以省略`var`、`val`关键字，无关键字时定义的变量默认即为`val`，在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
-- 使用`def`关键字定义**方法**，`var/val`定义**函数**。需要注意的是使用`var`定义的函数是可以更改实现的，但`def`定义的方法一经定义实现就**不可改变**。
-- 所有类型皆为对象，基础类型如`Int`、`Double`等都是类，函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
+- 代码不强制要求分号，只有一行带有多个语句时才要求分号隔开。
+- 使用`var/val`定义`变量/常量`。  
+类型可以由编译器推导，也可以显式指定。  
+在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
+- 使用`def`关键字定义**方法**，`var/val`定义**函数**。  
+使用`var`定义的函数可以更改实现，但`def`定义的方法一经定义实现就**不可改变**。
+- 所有类型皆为对象。  
+基础类型如`Int`、`Double`等都是类。  
+函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
 - 可以使用操作符作为函数名，达到类似C++/C#中操作符重载的效果。
-- 类的成员变量可以与方法名称**相同**。
+- 类的成员字段可以与方法名称**相同**。
 
 ### 与传统语言的差异
 - 没有**自增/自减**操作符。
@@ -100,8 +119,8 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 
 ```scala
 object Test {
-	def main(args: Array[String]): Unit		//带有等号的方法可以省略返回值类型由编译器进行推导
-		= println("Hello World!")
+  def main(args: Array[String]): Unit		//带有等号的方法可以省略返回值类型由编译器进行推导
+    = println("Hello World!")
 }
 ```
 
@@ -113,7 +132,7 @@ Scala中的`main`方法并不定义在类中，而是定义在**单例对象**�
 
 ```scala
 object Test extends App {
-	println("Hello World!")
+  println("Hello World!")
 }
 ```
 
@@ -127,7 +146,7 @@ object Test extends App {
 
 ```scala
 def methodName(args: Type)：Type = {
-	/* function_body */
+  /* function_body */
 }
 ```
 
@@ -136,7 +155,7 @@ def methodName(args: Type)：Type = {
 
 ```scala
 def methodName(args: Type) = {
-	/* function_body */
+  /* function_body */
 }
 ```
 
@@ -146,7 +165,7 @@ def methodName(args: Type) = {
 
 ```scala
 def num = {
-	200		//编译器推断出返回值为 Int 类型
+  200 //编译器推断出返回值为 Int 类型
 }
 ```
 
@@ -155,9 +174,9 @@ def num = {
 ```scala
 // 不使用 return 时，方法永远返回 50
 def num(num: Int): Int = {
-	if (num < 0) return 20
-	if (num == 0) return 30
-	50
+  if (num < 0) return 20
+  if (num == 0) return 30
+  50
 }
 ```
 
@@ -175,7 +194,7 @@ def num(num: Int): Int = {
 
 ```scala
 def getNum: Int = 100
-def getNum(): Int = 100					//以上两个定义作用相同，但只能存在一个
+def getNum(): Int = 100 //以上两个定义作用相同，但只能存在一个
 ```
 
 无参数方法与空参数方法只能存在一个，但二者在使用方式上略有不同：
@@ -186,19 +205,19 @@ def getNum(): Int = 100					//以上两个定义作用相同，但只能存在�
 如下所示：
 
 ```scala
-scala> def getNum: Int = 100			//定义了方法 getNum: Int
+scala> def getNum: Int = 100 //定义了方法 getNum: Int
 getNum: Int
-scala> getNum							//正确，返回 100
+scala> getNum //正确，返回 100
 res0: Int = 100
-scala> getNum()							//错误，提示 error: Int does not take parameters
+scala> getNum() //错误，提示 error: Int does not take parameters
 <console>:12: error: Int does not take parameters
-	getNum()
-		  ^
-scala> def getNum(): Int = 200			//定义了方法 getNum(): Int
+  getNum()
+        ^
+scala> def getNum(): Int = 200 //定义了方法 getNum(): Int
 getNum: ()Int
-scala> getNum							//正确，返回 200
+scala> getNum //正确，返回 200
 res1: Int = 200
-scala> getNum()							//正确，返回 200
+scala> getNum() //正确，返回 200
 res2: Int = 200
 ```
 
@@ -212,8 +231,8 @@ scala> def testNum(num: Int): Int = _num = num		//由编译器推断出的返回
 <console>:12: error: type mismatch;
 found   : Unit
 required: Int
-	def testNum(num: Int): Int = _num = num
-									  ^
+  def testNum(num: Int): Int = _num = num
+                                      ^
 ```
 
 ### 参数默认值
@@ -222,11 +241,11 @@ required: Int
 ```scala
 scala> var num = 100
 num: Int = 100
-scala> def setNum(p: Int = 0) { num = p }		//方法的参数不能由默认值进行类型推导，即使给参数写明了默认值，也依然需要显式指明类型
+scala> def setNum(p: Int = 0) { num = p } //方法的参数不能由默认值进行类型推导，即使给参数写明了默认值，也依然需要显式指明类型
 setNum: (p: Int)Unit
-scala> setNum()				//对于有参数的方法，即使参数带有默认值使得参数表可以为空但在调用时依然不能省略括号，否则报错
+scala> setNum() //对于有参数的方法，即使参数带有默认值使得参数表可以为空但在调用时依然不能省略括号，否则报错
 scala> println(num)
-0							//输出0
+0 //输出0
 ```
 
 若方法中包含多个同类型并带有默认值的参数，调用时默认匹配第一个参数：
@@ -249,15 +268,13 @@ scala> func(300)
 
 ```scala
 class Test {
-	var num = 23333
+  var num = 23333
 }
 
 object Main extends App {
-
-	def get(num: Int = (new Test).num) = num	//Scala支持使用new操作符创建实例获取成员字段做为默认值
-	def show(num: Int = get()) = println(num)
-
-	show()
+  def get(num: Int = (new Test).num) = num //Scala支持使用new操作符创建实例获取成员字段做为默认值
+  def show(num: Int = get()) = println(num)
+  show()
 }
 ```
 
@@ -272,9 +289,9 @@ object Main extends App {
 >
 >	```scala
 >	object Main extends App {
->		def func() = println("No Args")
->		def func(num: Int = 100) = println(num)
->		func()
+>	  def func() = println("No Args")
+>	  def func(num: Int = 100) = println(num)
+>	  func()
 >	}
 >	```
 >
@@ -301,9 +318,9 @@ object Main extends App {
 >	scala> func(100, 'c')
 >	<console>:12: error: not enough arguments for method func: (int: Int, str: String, char: Char, double: Double)Unit.
 >	Unspecified value parameter char.
->			func(100, 'c')
->				^
->	scala> func(int = 100, char = 'c')			//对于默认参数不连续的方法，需要使用"具名参数"
+>	    func(100, 'c')
+>	        ^
+>	scala> func(int = 100, char = 'c') //对于默认参数不连续的方法，需要使用"具名参数"特性
 >	100 String c 123.0
 >	```
 
@@ -334,7 +351,7 @@ Scala中的函数类型为`Function`，根据参数数目的不同，Scala中提
 ```scala
 scala> var show100: () => Int = () => 100
 show100: () => Int = <function0>
-scala> show100				//直接使用函数名得到的是函数对象而非调用函数
+scala> show100 //直接使用函数名得到的是函数对象而非调用函数
 res0: () => Int = <function0>
 scala> show100()
 res1: Int = 100
@@ -386,15 +403,15 @@ class Test
 >	```scala
 >	object Main extends App {
 >	
->		def add(num: Int) = num + 100
->		def double(num: Int) = num * 2
+>	  def add(num: Int) = num + 100
+>	  def double(num: Int) = num * 2
 >
->		//只有函数能进行组合,方法需要加"_"符号转化成函数
->		val compose = add _ compose double
->		val andThen = add _ andThen double
+>	  //只有函数能进行组合,方法需要加"_"符号转化成函数
+>	  val compose = add _ compose double
+>	  val andThen = add _ andThen double
 >
->		println(compose(100) == add(double(100)))
->		println(andThen(100) == double(add(100)))
+>	  println(compose(100) == add(double(100)))
+>	  println(andThen(100) == double(add(100)))
 >	}
 >	```
 >
@@ -1184,7 +1201,7 @@ object Main extends App {
   //样例类的实例之间可以直接比较,只要构造器中的字段值相同便会返回true
   println(ca == caCopy)
 
-	//样例类经常用于模式匹配中
+  //样例类经常用于模式匹配中
   def show(ca: Case) = ca match {
     case Case(num, _) if num > 100 => println("Case.num > 100") //模式匹配中条件可以带有守卫
     case Case(100, _) => println("Case.num == 100") //模式匹配可以精确到具体的数值，而对于不需要的值可以忽略(使用"_"符号)
@@ -1216,100 +1233,103 @@ Scala中的`trait`特质对应Java中的`interface`接口，但相比Java中的�
 
 Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
 
-`Mixin` (混入)
-> Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
->
->	- **混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
->	- 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
->	- 若同时继承类并混入特质，需要将继承的类写在`extends`关键字的后面，`with`只能混入**特质**，不能混入**类**。
->
-> 如下所示：
->
->	```scala
->	class BaseA
->
->	class BaseB
->
->	trait TraitA extends BaseA
->
->	trait TraitB extends BaseB
->
->	/* 编译报错，提示：
->	 * superclass BaseA
->	 * is not a subclass of the superclass BaseB
->	 * of the mixin trait TraitB
->	 */
->	class TestExtend extends TraitA with TraitB
->
->	/* 编译报错，提示：
->	 * class BaseA needs to be a trait to be mixed in
->	 */
->	class ExtendClass extends TraitA with BaseA
->	```
->
-> `TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。  
-> `ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
+- `Mixin` (混入)
 
-重写冲突的方法与字段
-> 混入机制需要解决**富接口**带来的成员冲突问题。  
-> 当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
->
-> 如下所示：
->
->	```scala
->	class BaseA {
->	  def get = 123
->	}
->
->	trait TraitA {
->	  def get = 456
->	}
->
->	trait TraitB {
->	  def get = 789
->	}
->
->	class TestExtend extends BaseA with TraitA with TraitB {
->	  override def get = 77 //对于冲突的内容，必需显式重写
->	}
->	```
+	Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
 
-混入顺序
-> 对于混入的内容，按照以下顺序进行构造：
->
->	- 首先构造父类。
->	- 按照特质出现的顺序从左往右依次构造特质。
->	- 在一个特质中，若该特质存在父特质，则先构造父特质。若多个特质拥有相同的父特质，该父特质不会被重复构造。
->	- 最后构造子类。
->
-> `Scala`的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。  
-> 线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
->
-> 如下所示：
->
->	```scala
->	class BaseA {
->	  def get = 123
->	}
->
->	trait TraitA {
->	  def get = 456
->	}
->
->	trait TraitB {
->	  def get = 789
->	}
->
->	trait TraitC extends TraitA {
->	  override def get = 111
->	}
->
->	class TestExtend extends BaseA with TraitA with TraitC {
->	  override def get = super.get //使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
->	  //override def get = super[BaseA].get //也可以使用继承自其它特质或类的实现
->	  //override def get = super[TraitB].get //错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
->	}
->	```
+	- **混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
+	- 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
+	- 若同时继承类并混入特质，需要将继承的类写在`extends`关键字的后面，`with`只能混入**特质**，不能混入**类**。
+
+	如下所示：
+
+	```scala
+	class BaseA
+
+	class BaseB
+
+	trait TraitA extends BaseA
+
+	trait TraitB extends BaseB
+
+	/* 编译报错，提示：
+	 * superclass BaseA
+	 * is not a subclass of the superclass BaseB
+	 * of the mixin trait TraitB
+	 */
+	class TestExtend extends TraitA with TraitB
+
+	/* 编译报错，提示：
+	 * class BaseA needs to be a trait to be mixed in
+	 */
+	class ExtendClass extends TraitA with BaseA
+	```
+
+	`TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。  
+	`ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
+
+- 重写冲突的方法与字段
+
+	混入机制需要解决**富接口**带来的成员冲突问题。  
+	当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
+
+	如下所示：
+
+	```scala
+	class BaseA {
+	  def get = 123
+	}
+
+	trait TraitA {
+	  def get = 456
+	}
+
+	trait TraitB {
+	  def get = 789
+	}
+
+	class TestExtend extends BaseA with TraitA with TraitB {
+	  override def get = 77 //对于冲突的内容，必需显式重写
+	}
+	```
+
+- 混入顺序
+
+	对于混入的内容，按照以下顺序进行构造：
+
+	- 首先构造父类。
+	- 按照特质出现的顺序从左往右依次构造特质。
+	- 在一个特质中，若该特质存在父特质，则先构造父特质。若多个特质拥有相同的父特质，该父特质不会被重复构造。
+	- 最后构造子类。
+
+	`Scala`的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。  
+	线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
+
+	如下所示：
+
+	```scala
+	class BaseA {
+	  def get = 123
+	}
+
+	trait TraitA {
+	  def get = 456
+	}
+
+	trait TraitB {
+	  def get = 789
+	}
+
+	trait TraitC extends TraitA {
+	  override def get = 111
+	}
+
+	class TestExtend extends BaseA with TraitA with TraitC {
+	  override def get = super.get //使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
+	  //override def get = super[BaseA].get //也可以使用继承自其它特质或类的实现
+	  //override def get = super[TraitB].get //错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
+	}
+	```
 
 ### 复制类实例
 Scala与Java类似，类实例赋值仅仅是复制了一个引用，实例所指向的内存区域并未被复制。
@@ -1367,8 +1387,8 @@ object Init extends App {
 }
 
 class Num {
-	var num: Int = 0
-	var name: String = ""
+  var num: Int = 0
+  var name: String = ""
 }
 ```
 
@@ -1403,18 +1423,20 @@ Num 100
 在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
 
 ### 基础类型
-在`Scala`中，基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生，因而可以直接在泛型中直接使用这些类作为类型参数。  
+在`Scala`中，基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生，可以直接在泛型中直接使用这些类作为类型参数。  
 同时，`Scala`中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
 
 在Scala中，所有的基础类型之外的引用类型派生自类`AnyRef`。
 
-基础类型转换
-> 基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行，如将数值与字符串相互转换可以使用如下代码：
->
->	```scala
->	val str = 100.toString
->	val num = str.toInt
->	```
+- 基础类型转换
+
+	基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行。  
+	如将数值与字符串相互转换可以使用如下代码：
+
+	```scala
+	val str = 100.toString
+	val num = str.toInt
+	```
 
 ### *Bottom* (底类型)
 与Java不同，Scala中存在底类型(bottom)。底类型包括`Nothing`和`Null`。
@@ -1912,13 +1934,13 @@ Traversable
 │
 Iterable
 ├── Seq
-│	 ├── IndexedSeq
-│	 └── LinearSeq
+│    ├── IndexedSeq
+│    └── LinearSeq
 ├── Set
-│	 ├── SortedSet
-│	 └── BitSet
+│    ├── SortedSet
+│    └── BitSet
 └── Map
-	 └── SortedMap
+     └── SortedMap
 ```
 
 ### 容器可变性
@@ -1964,12 +1986,12 @@ list2: List[Any] = List(1, 1, str, 2.0)
 ```scala
 scala> val list0 = 1 :: 2 :: 3 :: Nil
 list0: List[Int] = List(1, 2, 3)
-scala> val list1 = 0 :: list0  //向列表头部增加元素
+scala> val list1 = 0 :: list0 //向列表头部增加元素
 list1: List[Int] = List(0, 1, 2, 3)
-scala> val list2 = list0 :: 4  //列表是不能从尾部创建(List以Nil结尾)
+scala> val list2 = list0 :: 4 //列表是不能从尾部创建(List以Nil结尾)
 <console>:11: error: value :: is not a member of Int
-	val list2 = list0 :: 4
-					  ^
+  val list2 = list0 :: 4
+                    ^
 ```
 
 使用`:::`运算符可以叠加两个列表：
@@ -2150,9 +2172,9 @@ res2: Boolean = true
 scala> var set = Set(1, 2, 3, 's', "str")
 set: scala.collection.immutable.Set[Any] = Set(s, 1, 2, str, 3)
 scala> set.find(_.isInstanceOf[Int])
-res7: Option[Any] = Some(1)  //返回第一个匹配到的元素
+res7: Option[Any] = Some(1) //返回第一个匹配到的元素
 scala> set.find(_.isInstanceOf[Double])
-res8: Option[Any] = None     //没有匹配则返回None
+res8: Option[Any] = None //没有匹配则返回None
 ```
 
 `scala.collection.immutable.Set`以哈希集实现，元素依据HashCode进行组织。
@@ -2271,94 +2293,97 @@ import java.awt._	//等价于java中的 import java.awt.*
 
 导入路径规则与`Java`中的类似，处于同一级包路径下的类可以直接使用不必导入。
 
-导入策略
-> 在导入包时，`Scala`默认采用**相对路径**。  
-> 在外层路径的包使用内层路径的包时，可省略共同的路径部分直接以当前路径为起点访问内层路径包。
->
-> 如下代码所示：
->
->	```scala
->	// file1
->	package com.dainslef
->
->	class Test
->
->
->	// file2
->	package com
->
->	// 导入路径时以当前包为起点，不必从最外层路径开始导入
->	import dainslef.Test
->
->	object Main extends App {
->	  println(classOf[Test].getName)
->	}
->	```
->
-> 而在`Java`中，无论包的层次关系如何，都需要通过绝对路径进行导入。
->
-> 上例对应`Java`版本如下代码所示：
->
->	```java
->	// file1
->	package com.dainslef;
->
->	class Test {
->	};
->
->
->	// file2
->	package com;
->
->	// 导入路径时从时需要从最外层路径开始导入，不能写成 import dainslef.Test
->	import com.dainslef.Test;
->
->	public class Main {
->
->		public static void main(String[] args) {
->			System.out.println(Test.class.getName());
->		}
->
->	}
->	```
+- 导入策略
 
-默认包与绝对路径导入
-> 在`Java`和`Scala`中，不使用`package`关键字打包的代码即位于**默认包**下，没有对应的包名。  
-> 在`Scala`中使用`_root_`指代默认包。
->
-> `Scala`中默认的`import`操作是基于相对路径的，但`Scala`同样支持以**绝对路径**进行`import`操作：
->
->	- 以`_root_`为导入起始路径，即代表以绝对路径的形式导入内容。
->	- 使用绝对路径访问内容能避免一些命名冲突。
->
-> 上例中的代码中的`Test`类以绝对路径导入，导入语句可写成：
->
->	```scala
->	import _root_.com.dainslef.Test
->	```
+	在导入包时，`Scala`默认采用**相对路径**。  
+	在外层路径的包使用内层路径的包时，可省略共同的路径部分直接以当前路径为起点访问内层路径包。
 
-默认包的限制
-> 默认包没有名称，其内容只能被同在默认包下的其它内容访问。  
-> 内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
->
-> 如下代码所示：
->
->	```scala
->	// file1
->	// 定义单例在默认包中
->	object Test {
->	  val test = "Test string..."
->	}
->
->	// file2
->	package com
->
->	object Main extends App {
->	  // 在内层包中访问外部默认包的内容
->	  println(Test.test)         //错误，提示 "not found: value Test"
->	  println(_root_.Test.test)  //错误，提示 "object Test is not a member of package <root>"
->	}
->	```
+	如下代码所示：
+
+	```scala
+	// file1
+	package com.dainslef
+
+	class Test
+
+
+	// file2
+	package com
+
+	// 导入路径时以当前包为起点，不必从最外层路径开始导入
+	import dainslef.Test
+
+	object Main extends App {
+	  println(classOf[Test].getName)
+	}
+	```
+
+	而在`Java`中，无论包的层次关系如何，都需要通过绝对路径进行导入。
+
+	上例对应`Java`版本如下代码所示：
+
+	```java
+	// file1
+	package com.dainslef;
+
+	class Test {
+	};
+
+
+	// file2
+	package com;
+
+	// 导入路径时从时需要从最外层路径开始导入，不能写成 import dainslef.Test
+	import com.dainslef.Test;
+
+	public class Main {
+	
+		public static void main(String[] args) {
+			System.out.println(Test.class.getName());
+		}
+	
+	}
+	```
+
+- 默认包与绝对路径导入
+
+	在`Java`和`Scala`中，不使用`package`关键字打包的代码即位于**默认包**下，没有对应的包名。  
+	在`Scala`中使用`_root_`指代默认包。
+
+	`Scala`中默认的`import`操作是基于相对路径的，但`Scala`同样支持以**绝对路径**进行`import`操作：
+
+	- 以`_root_`为导入起始路径，即代表以绝对路径的形式导入内容。
+	- 使用绝对路径访问内容能避免一些命名冲突。
+
+	上例中的代码中的`Test`类以绝对路径导入，导入语句可写成：
+
+	```scala
+	import _root_.com.dainslef.Test
+	```
+
+- 默认包的限制
+
+	默认包没有名称，其内容只能被同在默认包下的其它内容访问。  
+	内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
+
+	如下代码所示：
+
+	```scala
+	// file1
+	// 定义单例在默认包中
+	object Test {
+	  val test = "Test string..."
+	}
+
+	// file2
+	package com
+
+	object Main extends App {
+	  // 在内层包中访问外部默认包的内容
+	  println(Test.test)        //错误，提示 "not found: value Test"
+	  println(_root_.Test.test) //错误，提示 "object Test is not a member of package <root>"
+	}
+	```
 
 ### 扩展用法
 `Scala`包机制在Java的基础上扩充了更多的功能。
@@ -2413,9 +2438,9 @@ package object Package {
 
 package Package {
   object Test extends App {
-    println(num0)  //正确，可以直接访问包对象的公有成员，不用使用前缀
-    println(num1)  //错误，不能访问包对象的保护成员
-    println(num2)  //错误，不能访问包对象的私有成员
+    println(num0) //正确，可以直接访问包对象的公有成员，不用使用前缀
+    println(num1) //错误，不能访问包对象的保护成员
+    println(num2) //错误，不能访问包对象的私有成员
   }
 }
 ```
@@ -2465,8 +2490,8 @@ object Implicit {
 }
 
 object Main extends App {
-  import Implicit.intToImpl			//当隐式转换没有定义在当前作用域也不在实例的伴生对象中时需要显式导入
-  100.show							//Int型被隐式转换为Implicit类型
+  import Implicit.intToImpl //当隐式转换没有定义在当前作用域也不在实例的伴生对象中时需要显式导入
+  100.show //Int型被隐式转换为Implicit类型
 }
 ```
 
@@ -2488,8 +2513,8 @@ class Impl2(val str: String = "200") {
 
 object Main extends App {
   val impl1 = new Impl1
-  impl1.test					//实例由Impl1类型隐式转换成了Impl2类型
-  impl1.show(impl1)			//可以通过将实例隐式转换为Impl2类型来满足方法调用，但编译器实际执行的操作是将参数隐式转换成了Impl2类型
+  impl1.test //实例由Impl1类型隐式转换成了Impl2类型
+  impl1.show(impl1) //可以通过将实例隐式转换为Impl2类型来满足方法调用，但编译器实际执行的操作是将参数隐式转换成了Impl2类型
 }
 ```
 
@@ -2546,87 +2571,88 @@ def testImplicit(implicit num0: Int)(implicit num1: Double) {}  //错误。一�
 def testImplicit(implicit num0: Int)(num1: Double) {}           //错误。只有最后一个参数表可以设为隐式参数表
 ```
 
-隐式参数与参数默认值
-> 隐式参数与参数默认值特性**可以**共存。
->
-> 当一个方法的所有隐式参数均带有默认值时，可以直接调用，如下所示：
->
->	```scala
->	object Main extends App {
->
->	  // 方法带有默认参数以及参数默认值
->	  def testImplicit(implicit num0: Int = 0, num1: Double = 0) = println(s"$num0 $num1")
->
->	  // 直接调用，无需隐式参数
->	  testImplicit
->	}
->	```
->
-> 输出结果：
->
->	```
->	0 0.0
->	```
->
-> 隐式参数与默认值的优先级
->
->	- 当一个方法的隐式参数带有部分默认值时，隐式调用时只需提供没有默认值的部分参数。
->	- 当一个隐式参数既有默认值又有隐式值时，会优先使用隐式值。
->
-> 如下所示：
->
->	```scala
->	object Main extends App {
->
->	  def testImplicit(implicit num0: Int = 0, num1: Double) = println(s"$num0 $num1")
->
->	  // 只需为没有默认值的参数提供隐式值
->	  implicit val num1 = 2.0
->	  testImplicit
->
->	  // 此时num0既有隐式值，也有参数默认值
->	  implicit val num0 = 1
->	  testImplicit
->	}
->	```
->
-> 输出结果：
->
->	```
->	0 2.0
->	1 2.0
->	```
->
-> 输出结果说明第二次调用`testImplicit()`方法时，优先采用了隐式值而非参数默认值。
->
-> 隐式值与参数默认值在方法调用时区别如下：
->
->	- 采用参数默认值时，即使参数全部拥有默认值，参数表不可省略(`()`操作符必须存在)。
->	- 采用隐式值时，隐式参数全部具有隐式值或默认值时，参数表直接省略。
->
-> 当一个隐式参数表的所有参数均带有默认值且作用域内也拥有满足条件的隐式值时，调用方法时带有`()`操作符为使用默认值，省略参数表为使用隐式值。
->
-> 如下所示：
->
->	```scala
->	object Test extends App {
->
->	  def testImplicit(implicit num0: Int = 0, num1: Double = 0) = println(s"$num0 $num1")
->
->	  implicit val num0 = 1
->	  implicit val num1 = 1.0
->
->	  testImplicit			//全部采用隐式值
->	  testImplicit()			//全部采用默认值
->	}
->	```
->
-> 输出结果：
->
->	```
->	1 1.0
->	0 0.0
->	```
+- 隐式参数与参数默认值
+
+	隐式参数与参数默认值特性**可以**共存。
+
+	当一个方法的所有隐式参数均带有默认值时，可以直接调用，如下所示：
+
+	```scala
+	object Main extends App {
+
+	  // 方法带有默认参数以及参数默认值
+	  def testImplicit(implicit num0: Int = 0, num1: Double = 0) = println(s"$num0 $num1")
+
+	  // 直接调用，无需隐式参数
+	  testImplicit
+	}
+	```
+
+	输出结果：
+
+	```
+	0 0.0
+	```
+
+- 隐式参数与默认值的优先级
+
+	- 当一个方法的隐式参数带有部分默认值时，隐式调用时只需提供没有默认值的部分参数。
+	- 当一个隐式参数既有默认值又有隐式值时，会优先使用隐式值。
+
+	如下所示：
+
+	```scala
+	object Main extends App {
+
+	  def testImplicit(implicit num0: Int = 0, num1: Double) = println(s"$num0 $num1")
+
+	  // 只需为没有默认值的参数提供隐式值
+	  implicit val num1 = 2.0
+	  testImplicit
+
+	  // 此时num0既有隐式值，也有参数默认值
+	  implicit val num0 = 1
+	  testImplicit
+	}
+	```
+
+	输出结果：
+
+	```
+	0 2.0
+	1 2.0
+	```
+
+	输出结果说明第二次调用`testImplicit()`方法时，优先采用了隐式值而非参数默认值。
+
+	隐式值与参数默认值在方法调用时区别如下：
+
+	- 采用参数默认值时，即使参数全部拥有默认值，参数表不可省略(`()`操作符必须存在)。
+	- 采用隐式值时，隐式参数全部具有隐式值或默认值时，参数表直接省略。
+
+	当一个隐式参数表的所有参数均带有默认值且作用域内也拥有满足条件的隐式值时，调用方法时带有`()`操作符为使用默认值，省略参数表为使用隐式值。
+
+	如下所示：
+
+	```scala
+	object Test extends App {
+
+	  def testImplicit(implicit num0: Int = 0, num1: Double = 0) = println(s"$num0 $num1")
+
+	  implicit val num0 = 1
+	  implicit val num1 = 1.0
+
+	  testImplicit			//全部采用隐式值
+	  testImplicit()			//全部采用默认值
+	}
+	```
+
+	输出结果：
+
+	```
+	1 1.0
+	0 0.0
+	```
 
 ### 隐式类
 类定义前同样可以使用`implicit`成为**隐式类**。
@@ -2831,89 +2857,90 @@ expr2_1
 
 输出结果中没有`&&`、`||`运算符右侧表达式的输出，表达式并未被执行。
 
-使用`Call by Name`模拟`&&`、`||`运算符
-> 编写自定义方法`and()`、`or()`在不使用内建`&&`、`||`的情况下模拟`&&`、`||`运算符。
->
-> 若使用`Call by Value`，如下代码所示：
->
->	```scala
->	object Main extends App {
->
->	  // 使用隐式类为 Boolean 类型提供额外操作
->	  implicit class Operate(bool: Boolean) {
->	    def and(bool: Boolean) = if (!this.bool) false else bool
->	    def or(bool: Boolean) = if (this.bool) true else bool
->	  }
->
->	  {
->	    println("expr1_1")
->	    false
->	  } and {
->	    println("expr1_2")
->	    false
->	  }
->
->	  {
->	    println("expr2_1")
->	    true
->	  } or {
->	    println("expr2_2")
->	    false
->	  }
->
->	}
->	```
->
-> 输出结果：
->
->	```
->	expr1_1
->	expr1_2
->	expr2_1
->	expr2_2
->	```
->
-> 输出结果中`and()`、`or()`方法右侧的表达式已被执行。  
-> 在`Call by Value`的求值策略下，参数一经传入便已被求值，不符合`&&`、`||`运算符逻辑。
->
-> 将源码修改为`Call by Name`：
->
->	```scala
->	object Main extends App {
->
->	  // 方法参数采用传名参数特性
->	  implicit class Operate(bool: Boolean) {
->	    def and(bool: => Boolean) = if (!this.bool) false else bool
->	    def or(bool: => Boolean) = if (this.bool) true else bool
->	  }
->
->	  {
->	    println("expr1_1")
->	    false
->	  } and {
->	    println("expr1_2")
->	    false
->	  }
->
->	  {
->	    println("expr2_1")
->	    true
->	  } or {
->	    println("expr2_2")
->	    false
->	  }
->
->	}
->	```
->
-> 输出结果：
->
->	```
->	expr1_1
->	expr2_1
->	```
->
-> 使用`Call by Name`求值策略下，右侧表达式并未执行，符合`&&`、`||`运算符逻辑。
+- 模拟`&&`、`||`运算符
+
+	编写自定义方法`and()`、`or()`在不使用内建`&&`、`||`的情况下模拟`&&`、`||`运算符。
+
+	若使用`Call by Value`，如下代码所示：
+
+	```scala
+	object Main extends App {
+
+	  // 使用隐式类为 Boolean 类型提供额外操作
+	  implicit class Operate(bool: Boolean) {
+	    def and(bool: Boolean) = if (!this.bool) false else bool
+	    def or(bool: Boolean) = if (this.bool) true else bool
+	  }
+
+	  {
+	    println("expr1_1")
+	    false
+	  } and {
+	    println("expr1_2")
+	    false
+	  }
+
+	  {
+	    println("expr2_1")
+	    true
+	  } or {
+	    println("expr2_2")
+	    false
+	  }
+
+	}
+	```
+
+	输出结果：
+
+	```
+	expr1_1
+	expr1_2
+	expr2_1
+	expr2_2
+	```
+
+	输出结果中`and()`、`or()`方法右侧的表达式已被执行。  
+	在`Call by Value`的求值策略下，参数一经传入便已被求值，不符合`&&`、`||`运算符逻辑。
+
+	将源码修改为`Call by Name`：
+
+	```scala
+	object Main extends App {
+
+	  // 方法参数采用传名参数特性
+	  implicit class Operate(bool: Boolean) {
+	    def and(bool: => Boolean) = if (!this.bool) false else bool
+	    def or(bool: => Boolean) = if (this.bool) true else bool
+	  }
+
+	  {
+	    println("expr1_1")
+	    false
+	  } and {
+	    println("expr1_2")
+	    false
+	  }
+
+	  {
+	    println("expr2_1")
+	    true
+	  } or {
+	    println("expr2_2")
+	    false
+	  }
+
+	}
+	```
+
+	输出结果：
+
+	```
+	expr1_1
+	expr2_1
+	```
+
+	使用`Call by Name`求值策略下，右侧表达式并未执行，符合`&&`、`||`运算符逻辑。
 
 
 
@@ -2927,333 +2954,345 @@ expr2_1
 ### *Scala Future*
 `Future`是一组异步操作的抽象，完整包路径为`scala.concurrent.Future`。
 
-构建与启动`Future`
-> `Future`为**特质**，没有构造函数，无法直接构建实例。  
-> 创建一个`Future`实例需要使用伴生对象中重写的`apply()`方法，声明如下：
->
->	```scala
->	def apply[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T]
->	```
->
->	- `body`参数为**传名参数**，包含了需要异步执行的代码块。
->	- `T`参数为泛型参数，表示异步执行的代码块最终的返回值类型。
->	- `executor`参数为隐式参数，用于指定异步代码的执行器。`scala.concurrent.ExecutionContext.Implicits.global`提供了默认的执行器。
->
-> 构建一个`Future`，基本代码如下：
->
->	```scala
->	import scala.concurrent.Future
->	import scala.concurrent.ExecutionContext.Implicits.global
->
->	val future = Future[XXX] {
->	  /* Code you want to excute... */
->	}
->	```
->
-> 与传统的并发库设计不同，`Future`并没有提供诸如`start()/run()`之类的方法用于显式开始异步代码块的执行，在完成`Future`实例构建的同时，作为参数的代码块就自动开始异步执行了。
+- 构建与启动`Future`
 
-*Callbacks* (异步回调)
-> 与传统的并发库设计类似，`Future`采用回调的方式来处理异步操作完成的结果。  
-> `Future`实例提供了`onComplete()`成员方法来绑定回调函数，声明如下：
->
->	```scala
->	def onComplete[U](@deprecatedName('func) f: Try[T] => U)(implicit executor: ExecutionContext): Unit
->	```
->
->	- `f`参数为被回调的高阶函数。
->	- `executor`参数作用与上述`apply()`方法中类似。
->
-> 被回调的高阶函数类型为`Try[T] => U`，其中抽象类`Try[T]`类似于`Option[T]`，拥有两个样例类子类`Success[T]`和`Failure[T]`，定义如下：
->
->	```scala
->	final case class Success[+T](value: T) extends Try[T] { ... }
->	final case class Failure[+T](exception: Throwable) extends Try[T] { ... }
->	```
->
-> 在编写回调函数时，可使用模式匹配语法：
->
->	- 对于**成功**的异步操作，匹配内容是异步操作的返回值。
->	- 对于**失败**的异步操作，匹配内容是导致异步操作失败的异常。
->
-> `Future`也提供了`onSuccess()/onFailure()`方法接收偏函数分别处理异步操作成功/失败时的情况，当只需要处理某一类情况时，可以直接使用对应方法。
->
-> 一个`Future`实例可以**多次**调用`onComplete()/onSuccess()/onFailure()`来添加多个回调操作，这些回调操作都会被执行，但执行的先后顺序**不确定**。
->
-> 回调处理异步操作结果的基本代码如下：
->
->	```scala
->	import scala.util.{Failure, Success}
->
->	future onComplete {
->	  case Success(xxx) => ...
->	  case Failure(xxx) => ...
->	}
->
->	future onSuccess {
->	  re: T => ...
->	}
->
->	future onFailure {
->	  case ex => ...
->	}
->	```
+	`Future`为**特质**，没有构造函数，无法直接构建实例。  
+	创建一个`Future`实例需要使用伴生对象中重写的`apply()`方法，声明如下：
 
-同步等待
-> 在个别情况下，可能需要等待异步操作执行完毕。
-> 等待`Future`纸型完毕可以使用`Await`单例，完整包路径为`scala.concurrent.Await`。
->
-> `Await`单例提供了`result()`方法用于同步等待`Future`执行完毕，定义如下：
->
->	```scala
->	def result[T](awaitable: Awaitable[T], atMost: Duration): T
->	```
->
->	- `awaitable`参数为`Awaitable`类型，用于表示一个可等待的操作，`Future`特质为其子类，可支持传入`Future`实例作为参数。
->	- `atMost`参数为同步等待的时间。
->
-> 基本用法如下：
->
->	```scala
->	import scala.concurrent.Await
->	import scala.concurrent.duration.Duration
->
->	val result = Await.result(future, Duration.Inf)
->	println(result)
->	...
->	```
->
-> `Duration` (时间类型)
->> 时间参数类型为`Duration`，为抽象类，完整路径为`scala.concurrent.duration.Duration`。
->>
->> `Duration`的伴生对象内定义了`apply()`方法，声明如下：
->>
->>	```scala
->>	def apply(length: Long, unit: TimeUnit): FiniteDuration
->>	```
->>
->>	- `length`参数为时间数值。
->>	- `unit`参数为时间单位。
->>
->> 构建的时间对象为`Duration`的子类，有限时间`FiniteDuration`。  
->> `Duration`中有两个成员`Inf`、`MinusInf`分别用来表示**无限大/无限小**的时间。
->>
->> `TimeUnit`类型完整包路径为`java.util.concurrent.TimeUnit`，为枚举类型，包含以下枚举成员：
->>
->>	- `java.util.concurrent.TimeUnit.DAYS` 天
->>	- `java.util.concurrent.TimeUnit.HOURS` 小时
->>	- `java.util.concurrent.TimeUnit.MICROSECONDS` 微秒
->>	- `java.util.concurrent.TimeUnit.MILLISECONDS` 毫秒
->>	- `java.util.concurrent.TimeUnit.MINUTES` 分钟
->>	- `java.util.concurrent.TimeUnit.NANOSECONDS` 纳秒
->>	- `java.util.concurrent.TimeUnit.SECONDS` 秒
->>
->> 在`import scala.concurrent.duration`包中定义了一系列隐式类`DurationInt/DurationLong/DurationDouble`。  
->> 引用对应隐式类即可使用对应的DSL语法来构建时间对象`FiniteDuration`，如：
->>
->>	- `1000 days`被转换为`Duration(1000, java.util.concurrent.TimeUnit.DAYS)`
->>	- `1000 minutes`被转换为`Duration(1000, java.util.concurrent.TimeUnit.SECONDS)`
->>	- ...
->>
->> 诸如此类...  
->> 在`scala.concurrent.duration.DurationConversions`特质中定义了完整的转化语法。
+	```scala
+	def apply[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T]
+	```
 
-*blocking* (阻塞块)
-> `Future`是异步执行的，不会阻塞基础的执行线程。但在某些情况下，阻塞是必要的，需要区别两种形式的执行线程阻塞：
->
->	- 从`Future`内部调用任意代码阻塞线程。
->	- 在`Future`外部等待一个`Future`完成。
->
-> 在`Future`外部主动阻塞等待应使用`Await`类，在`Future`内部阻塞则应使用`blocking`方法。  
-> `blocking`定义在包对象`scala.concurrent`中，是一个接收**传名参数**的泛型方法，定义如下所示：
->
->	```scala
->	def future[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T] = Future[T](body)
->	```
->
-> `blocking`块的作用是向执行器(`ExecutionContext`)标记可能造成阻塞的代码，并调整执行器的行为。  
-> 对于默认的执行器`scala.concurrent.ExecutionContext.Implicits.global`，在`Future`中包含`blocking`块时，会新建线程来执行`Future`而不是等待复用已有的线程。
->
-> 如下代码所示：
->
->	```scala
->	import scala.concurrent.Future
->	import scala.concurrent.ExecutionContext.Implicits.global
->
->	object Main extends App {
->
->	  for (n <- 0 to 30)
->	    Future {
->	      println(s"Index: $n Thread Name: ${Thread.currentThread.getName}")
->	      Thread.sleep(3000)
->	    }
->
->	  scala.io.StdIn.readLine()
->	}
->	```
->
-> 输出结果：(Scala 2.11.8 && ArchLinux x64)
->
->	```
->	Index: 4 Thread Name: ForkJoinPool-1-worker-5
->	Index: 2 Thread Name: ForkJoinPool-1-worker-9
->	Index: 0 Thread Name: ForkJoinPool-1-worker-13
->	Index: 7 Thread Name: ForkJoinPool-1-worker-15
->	Index: 3 Thread Name: ForkJoinPool-1-worker-7
->	Index: 1 Thread Name: ForkJoinPool-1-worker-11
->	Index: 6 Thread Name: ForkJoinPool-1-worker-3
->	Index: 5 Thread Name: ForkJoinPool-1-worker-1
->	Index: 8 Thread Name: ForkJoinPool-1-worker-11
->	Index: 14 Thread Name: ForkJoinPool-1-worker-15
->	Index: 10 Thread Name: ForkJoinPool-1-worker-9
->	Index: 13 Thread Name: ForkJoinPool-1-worker-13
->	Index: 12 Thread Name: ForkJoinPool-1-worker-1
->	Index: 11 Thread Name: ForkJoinPool-1-worker-3
->	Index: 9 Thread Name: ForkJoinPool-1-worker-7
->	Index: 15 Thread Name: ForkJoinPool-1-worker-5
->	Index: 16 Thread Name: ForkJoinPool-1-worker-11
->	Index: 17 Thread Name: ForkJoinPool-1-worker-15
->	Index: 19 Thread Name: ForkJoinPool-1-worker-13
->	Index: 18 Thread Name: ForkJoinPool-1-worker-9
->	Index: 22 Thread Name: ForkJoinPool-1-worker-7
->	Index: 21 Thread Name: ForkJoinPool-1-worker-1
->	Index: 20 Thread Name: ForkJoinPool-1-worker-3
->	Index: 23 Thread Name: ForkJoinPool-1-worker-5
->	Index: 24 Thread Name: ForkJoinPool-1-worker-11
->	Index: 25 Thread Name: ForkJoinPool-1-worker-15
->	Index: 26 Thread Name: ForkJoinPool-1-worker-13
->	Index: 27 Thread Name: ForkJoinPool-1-worker-9
->	Index: 28 Thread Name: ForkJoinPool-1-worker-7
->	Index: 29 Thread Name: ForkJoinPool-1-worker-1
->	Index: 30 Thread Name: ForkJoinPool-1-worker-3
->	```
->
-> 打印执行结果的过程中，输出流出现了几次3秒的停顿。  
-> 从结果中不难看出，执行器只开辟了`15`个处理线程，在所有处理线程都处于`sleep`状态时，输出流便停止。
->
-> 尝试将`sleep()`函数写在`blocking`中：
->
->	```scala
->	import scala.concurrent.{Future, blocking}
->	import scala.concurrent.ExecutionContext.Implicits.global
->
->	object Main extends App {
->	  for (n <- 0 to 30)
->	    Future {
->	      println(s"Index: $n Thread before blocking: ${Thread.currentThread.getName}")
->	      blocking {
->	        println(s"Index: $n Blocking: ${Thread.currentThread.getName}")
->	        Thread.sleep(3000)
->	      }
->	      println(s"Index: $n Thread after blocking: ${Thread.currentThread.getName}")
->	    }
->
->	  scala.io.StdIn.readLine()
->	}
->	```
->
-> 输出结果：(Scala 2.11.8 && ArchLinux x64)
->
->	```
->	Index: 6 Thread before blocking: ForkJoinPool-1-worker-1
->	Index: 2 Thread before blocking: ForkJoinPool-1-worker-9
->	Index: 3 Thread before blocking: ForkJoinPool-1-worker-7
->	Index: 1 Thread before blocking: ForkJoinPool-1-worker-11
->	Index: 5 Thread before blocking: ForkJoinPool-1-worker-3
->	Index: 7 Thread before blocking: ForkJoinPool-1-worker-15
->	Index: 0 Thread before blocking: ForkJoinPool-1-worker-13
->	Index: 4 Thread before blocking: ForkJoinPool-1-worker-5
->	Index: 4 Blocking: ForkJoinPool-1-worker-5
->	Index: 7 Blocking: ForkJoinPool-1-worker-15
->	Index: 5 Blocking: ForkJoinPool-1-worker-3
->	Index: 2 Blocking: ForkJoinPool-1-worker-9
->	Index: 8 Thread before blocking: ForkJoinPool-1-worker-23
->	Index: 8 Blocking: ForkJoinPool-1-worker-23
->	Index: 9 Thread before blocking: ForkJoinPool-1-worker-27
->	Index: 1 Blocking: ForkJoinPool-1-worker-11
->	Index: 3 Blocking: ForkJoinPool-1-worker-7
->	Index: 10 Thread before blocking: ForkJoinPool-1-worker-31
->	Index: 9 Blocking: ForkJoinPool-1-worker-27
->	Index: 6 Blocking: ForkJoinPool-1-worker-1
->	Index: 10 Blocking: ForkJoinPool-1-worker-31
->	Index: 0 Blocking: ForkJoinPool-1-worker-13
->	Index: 11 Thread before blocking: ForkJoinPool-1-worker-17
->	Index: 11 Blocking: ForkJoinPool-1-worker-17
->	Index: 12 Thread before blocking: ForkJoinPool-1-worker-21
->	Index: 12 Blocking: ForkJoinPool-1-worker-21
->	Index: 13 Thread before blocking: ForkJoinPool-1-worker-19
->	Index: 13 Blocking: ForkJoinPool-1-worker-19
->	Index: 14 Thread before blocking: ForkJoinPool-1-worker-25
->	Index: 14 Blocking: ForkJoinPool-1-worker-25
->	Index: 15 Thread before blocking: ForkJoinPool-1-worker-29
->	Index: 15 Blocking: ForkJoinPool-1-worker-29
->	Index: 16 Thread before blocking: ForkJoinPool-1-worker-47
->	Index: 16 Blocking: ForkJoinPool-1-worker-47
->	Index: 17 Thread before blocking: ForkJoinPool-1-worker-45
->	Index: 17 Blocking: ForkJoinPool-1-worker-45
->	Index: 18 Thread before blocking: ForkJoinPool-1-worker-59
->	Index: 18 Blocking: ForkJoinPool-1-worker-59
->	Index: 19 Thread before blocking: ForkJoinPool-1-worker-39
->	Index: 19 Blocking: ForkJoinPool-1-worker-39
->	Index: 20 Thread before blocking: ForkJoinPool-1-worker-53
->	Index: 20 Blocking: ForkJoinPool-1-worker-53
->	Index: 21 Thread before blocking: ForkJoinPool-1-worker-37
->	Index: 21 Blocking: ForkJoinPool-1-worker-37
->	Index: 22 Thread before blocking: ForkJoinPool-1-worker-51
->	Index: 22 Blocking: ForkJoinPool-1-worker-51
->	Index: 23 Thread before blocking: ForkJoinPool-1-worker-35
->	Index: 23 Blocking: ForkJoinPool-1-worker-35
->	Index: 24 Thread before blocking: ForkJoinPool-1-worker-49
->	Index: 24 Blocking: ForkJoinPool-1-worker-49
->	Index: 25 Thread before blocking: ForkJoinPool-1-worker-63
->	Index: 25 Blocking: ForkJoinPool-1-worker-63
->	Index: 26 Thread before blocking: ForkJoinPool-1-worker-43
->	Index: 26 Blocking: ForkJoinPool-1-worker-43
->	Index: 27 Thread before blocking: ForkJoinPool-1-worker-57
->	Index: 27 Blocking: ForkJoinPool-1-worker-57
->	Index: 28 Thread before blocking: ForkJoinPool-1-worker-41
->	Index: 28 Blocking: ForkJoinPool-1-worker-41
->	Index: 29 Thread before blocking: ForkJoinPool-1-worker-55
->	Index: 29 Blocking: ForkJoinPool-1-worker-55
->	Index: 30 Thread before blocking: ForkJoinPool-1-worker-33
->	Index: 30 Blocking: ForkJoinPool-1-worker-33
->	Index: 4 Thread after blocking: ForkJoinPool-1-worker-5
->	Index: 7 Thread after blocking: ForkJoinPool-1-worker-15
->	Index: 5 Thread after blocking: ForkJoinPool-1-worker-3
->	Index: 2 Thread after blocking: ForkJoinPool-1-worker-9
->	Index: 8 Thread after blocking: ForkJoinPool-1-worker-23
->	Index: 1 Thread after blocking: ForkJoinPool-1-worker-11
->	Index: 3 Thread after blocking: ForkJoinPool-1-worker-7
->	Index: 9 Thread after blocking: ForkJoinPool-1-worker-27
->	Index: 6 Thread after blocking: ForkJoinPool-1-worker-1
->	Index: 10 Thread after blocking: ForkJoinPool-1-worker-31
->	Index: 0 Thread after blocking: ForkJoinPool-1-worker-13
->	Index: 11 Thread after blocking: ForkJoinPool-1-worker-17
->	Index: 12 Thread after blocking: ForkJoinPool-1-worker-21
->	Index: 13 Thread after blocking: ForkJoinPool-1-worker-19
->	Index: 14 Thread after blocking: ForkJoinPool-1-worker-25
->	Index: 15 Thread after blocking: ForkJoinPool-1-worker-29
->	Index: 16 Thread after blocking: ForkJoinPool-1-worker-47
->	Index: 17 Thread after blocking: ForkJoinPool-1-worker-45
->	Index: 18 Thread after blocking: ForkJoinPool-1-worker-59
->	Index: 19 Thread after blocking: ForkJoinPool-1-worker-39
->	Index: 20 Thread after blocking: ForkJoinPool-1-worker-53
->	Index: 21 Thread after blocking: ForkJoinPool-1-worker-37
->	Index: 22 Thread after blocking: ForkJoinPool-1-worker-51
->	Index: 23 Thread after blocking: ForkJoinPool-1-worker-35
->	Index: 24 Thread after blocking: ForkJoinPool-1-worker-49
->	Index: 25 Thread after blocking: ForkJoinPool-1-worker-63
->	Index: 26 Thread after blocking: ForkJoinPool-1-worker-43
->	Index: 27 Thread after blocking: ForkJoinPool-1-worker-57
->	Index: 28 Thread after blocking: ForkJoinPool-1-worker-41
->	Index: 29 Thread after blocking: ForkJoinPool-1-worker-55
->	Index: 30 Thread after blocking: ForkJoinPool-1-worker-33
->	```
->
-> 整个输出过程中，仅有**一次**3秒的停顿。  
-> 分析输出结果，可以得知：
->
->	0. 执行器开辟的工作线程的数量明显大于没有`blocking`时的数量(线程数目`> 50`)。即使用`blocking`改变了执行器的线程创建策略。
->	0. 相同`Index`输出的线程名称相同，`blocking`包含的代码、之后的代码并没有运行在独立的线程。即一个独立的`Future`运行在一个线程，**没有**像`C#`中的`async`方法那样被切分到不同的线程执行。
+	- `body`参数为**传名参数**，包含了需要异步执行的代码块。
+	- `T`参数为泛型参数，表示异步执行的代码块最终的返回值类型。
+	- `executor`参数为隐式参数，用于指定异步代码的执行器。
+
+		`scala.concurrent.ExecutionContext.Implicits.global`提供了默认的执行器。
+
+	构建一个`Future`，基本代码如下：
+
+	```scala
+	import scala.concurrent.Future
+	import scala.concurrent.ExecutionContext.Implicits.global
+
+	val future = Future[XXX] {
+	  /* Code you want to excute... */
+	}
+	```
+
+	与传统的并发库设计不同，`Future`并没有提供诸如`start()/run()`之类的方法用于显式开始异步代码块的执行。  
+	在完成`Future`实例构建的同时，作为参数传入的代码块就已自动开始异步执行。
+
+- *Callbacks* (异步回调)
+
+	与传统的并发库设计类似，`Future`采用回调的方式来处理异步操作完成的结果。  
+	`Future`实例提供了`onComplete()`成员方法来绑定回调函数，声明如下：
+
+	```scala
+	def onComplete[U](@deprecatedName('func) f: Try[T] => U)(implicit executor: ExecutionContext): Unit
+	```
+
+	- `f`参数为被回调的高阶函数。
+	- `executor`参数作用与上述`apply()`方法中类似。
+
+	被回调的高阶函数类型为`Try[T] => U`。  
+	抽象类`Try[T]`类似于`Option[T]`，拥有两个样例类子类`Success[T]`和`Failure[T]`，定义如下：
+
+	```scala
+	final case class Success[+T](value: T) extends Try[T] { ... }
+	final case class Failure[+T](exception: Throwable) extends Try[T] { ... }
+	```
+
+	在编写回调函数时，可使用模式匹配语法：
+
+	- 对于**成功**的异步操作，匹配内容是异步操作的返回值。
+	- 对于**失败**的异步操作，匹配内容是导致异步操作失败的异常。
+
+	`Future`也提供了`onSuccess()/onFailure()`方法接收偏函数分别处理异步操作成功/失败时的情况。  
+	当只需要处理某一类情况时，可以直接使用对应方法。
+
+	一个`Future`实例可以**多次**调用`onComplete()/onSuccess()/onFailure()`来添加多个回调操作。  
+	多个回调操作都会被执行，但执行的先后顺序**不确定**。
+
+	回调处理异步操作结果的基本代码如下：
+
+	```scala
+	import scala.util.{Failure, Success}
+
+	future onComplete {
+	  case Success(xxx) => ...
+	  case Failure(xxx) => ...
+	}
+
+	future onSuccess {
+	  re: T => ...
+	}
+
+	future onFailure {
+	  case ex => ...
+	}
+	```
+
+- 同步等待
+
+	在个别情况下，可能需要等待异步操作执行完毕。
+	等待`Future`纸型完毕可以使用`Await`单例，完整包路径为`scala.concurrent.Await`。
+
+	`Await`单例提供了`result()`方法用于同步等待`Future`执行完毕，定义如下：
+
+	```scala
+	def result[T](awaitable: Awaitable[T], atMost: Duration): T
+	```
+
+	- `awaitable`参数为`Awaitable`类型，用于表示一个可等待的操作，`Future`特质为其子类，可支持传入`Future`实例作为参数。
+	- `atMost`参数为同步等待的时间。
+
+	基本用法如下：
+
+	```scala
+	import scala.concurrent.Await
+	import scala.concurrent.duration.Duration
+
+	val result = Await.result(future, Duration.Inf)
+	println(result)
+	...
+	```
+
+ 	- `Duration` (时间类型)
+
+		时间参数类型为`Duration`，为抽象类，完整路径为`scala.concurrent.duration.Duration`。  
+		`Duration`的伴生对象内定义了`apply()`方法，声明如下：
+
+		```scala
+		def apply(length: Long, unit: TimeUnit): FiniteDuration
+		```
+
+		- `length`参数为时间数值。
+		- `unit`参数为时间单位。
+
+		构建的时间对象为`Duration`的子类，有限时间`FiniteDuration`。  
+		`Duration`中有两个成员`Inf`、`MinusInf`分别用来表示**无限大/无限小**的时间。
+
+		`TimeUnit`类型完整包路径为`java.util.concurrent.TimeUnit`，为枚举类型，包含以下枚举成员：
+
+		- `java.util.concurrent.TimeUnit.DAYS` 天
+		- `java.util.concurrent.TimeUnit.HOURS` 小时
+		- `java.util.concurrent.TimeUnit.MICROSECONDS` 微秒
+		- `java.util.concurrent.TimeUnit.MILLISECONDS` 毫秒
+		- `java.util.concurrent.TimeUnit.MINUTES` 分钟
+		- `java.util.concurrent.TimeUnit.NANOSECONDS` 纳秒
+		- `java.util.concurrent.TimeUnit.SECONDS` 秒
+
+		在`import scala.concurrent.duration`包中定义了一系列隐式类`DurationInt/DurationLong/DurationDouble`。  
+		引用对应隐式类即可使用对应的DSL语法来构建时间对象`FiniteDuration`，如：
+
+		- `1000 days`被转换为`Duration(1000, java.util.concurrent.TimeUnit.DAYS)`
+		- `1000 minutes`被转换为`Duration(1000, java.util.concurrent.TimeUnit.SECONDS)`
+		- ...
+
+		诸如此类...  
+		在`scala.concurrent.duration.DurationConversions`特质中定义了完整的转化语法。
+
+- *blocking* (阻塞块)
+
+	`Future`是异步执行的，不会阻塞基础的执行线程。但在某些情况下，阻塞是必要的，需要区别两种形式的执行线程阻塞：
+
+	- 从`Future`内部调用任意代码阻塞线程。
+	- 在`Future`外部等待一个`Future`完成。
+
+	在`Future`外部主动阻塞等待应使用`Await`类，在`Future`内部阻塞则应使用`blocking`方法。  
+	`blocking`定义在包对象`scala.concurrent`中，是一个接收**传名参数**的泛型方法，定义如下所示：
+
+	```scala
+	def future[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T] = Future[T](body)
+	```
+
+	`blocking`块的作用是向执行器(`ExecutionContext`)标记可能造成阻塞的代码，并调整执行器的行为。  
+	对于默认的执行器`scala.concurrent.ExecutionContext.Implicits.global`，在`Future`中包含`blocking`块时，会新建线程来执行`Future`而不是等待复用已有的线程。
+
+	如下代码所示：
+
+	```scala
+	import scala.concurrent.Future
+	import scala.concurrent.ExecutionContext.Implicits.global
+
+	object Main extends App {
+
+	  for (n <- 0 to 30)
+	    Future {
+	      println(s"Index: $n Thread Name: ${Thread.currentThread.getName}")
+	      Thread.sleep(3000)
+	    }
+
+	  scala.io.StdIn.readLine()
+	}
+	```
+
+	输出结果：(Scala 2.11.8 && ArchLinux x64)
+
+	```
+	Index: 4 Thread Name: ForkJoinPool-1-worker-5
+	Index: 2 Thread Name: ForkJoinPool-1-worker-9
+	Index: 0 Thread Name: ForkJoinPool-1-worker-13
+	Index: 7 Thread Name: ForkJoinPool-1-worker-15
+	Index: 3 Thread Name: ForkJoinPool-1-worker-7
+	Index: 1 Thread Name: ForkJoinPool-1-worker-11
+	Index: 6 Thread Name: ForkJoinPool-1-worker-3
+	Index: 5 Thread Name: ForkJoinPool-1-worker-1
+	Index: 8 Thread Name: ForkJoinPool-1-worker-11
+	Index: 14 Thread Name: ForkJoinPool-1-worker-15
+	Index: 10 Thread Name: ForkJoinPool-1-worker-9
+	Index: 13 Thread Name: ForkJoinPool-1-worker-13
+	Index: 12 Thread Name: ForkJoinPool-1-worker-1
+	Index: 11 Thread Name: ForkJoinPool-1-worker-3
+	Index: 9 Thread Name: ForkJoinPool-1-worker-7
+	Index: 15 Thread Name: ForkJoinPool-1-worker-5
+	Index: 16 Thread Name: ForkJoinPool-1-worker-11
+	Index: 17 Thread Name: ForkJoinPool-1-worker-15
+	Index: 19 Thread Name: ForkJoinPool-1-worker-13
+	Index: 18 Thread Name: ForkJoinPool-1-worker-9
+	Index: 22 Thread Name: ForkJoinPool-1-worker-7
+	Index: 21 Thread Name: ForkJoinPool-1-worker-1
+	Index: 20 Thread Name: ForkJoinPool-1-worker-3
+	Index: 23 Thread Name: ForkJoinPool-1-worker-5
+	Index: 24 Thread Name: ForkJoinPool-1-worker-11
+	Index: 25 Thread Name: ForkJoinPool-1-worker-15
+	Index: 26 Thread Name: ForkJoinPool-1-worker-13
+	Index: 27 Thread Name: ForkJoinPool-1-worker-9
+	Index: 28 Thread Name: ForkJoinPool-1-worker-7
+	Index: 29 Thread Name: ForkJoinPool-1-worker-1
+	Index: 30 Thread Name: ForkJoinPool-1-worker-3
+	```
+
+	打印执行结果的过程中，输出流出现了几次3秒的停顿。  
+	从结果中不难看出，执行器只开辟了`15`个处理线程，在所有处理线程都处于`sleep`状态时，输出流便停止。
+
+	尝试将`sleep()`函数写在`blocking`中：
+
+	```scala
+	import scala.concurrent.{Future, blocking}
+	import scala.concurrent.ExecutionContext.Implicits.global
+
+	object Main extends App {
+	  for (n <- 0 to 30)
+	    Future {
+	      println(s"Index: $n Thread before blocking: ${Thread.currentThread.getName}")
+	      blocking {
+	        println(s"Index: $n Blocking: ${Thread.currentThread.getName}")
+	        Thread.sleep(3000)
+	      }
+	      println(s"Index: $n Thread after blocking: ${Thread.currentThread.getName}")
+	    }
+
+	  scala.io.StdIn.readLine()
+	}
+	```
+
+	输出结果：(Scala 2.11.8 && ArchLinux x64)
+
+	```
+	Index: 6 Thread before blocking: ForkJoinPool-1-worker-1
+	Index: 2 Thread before blocking: ForkJoinPool-1-worker-9
+	Index: 3 Thread before blocking: ForkJoinPool-1-worker-7
+	Index: 1 Thread before blocking: ForkJoinPool-1-worker-11
+	Index: 5 Thread before blocking: ForkJoinPool-1-worker-3
+	Index: 7 Thread before blocking: ForkJoinPool-1-worker-15
+	Index: 0 Thread before blocking: ForkJoinPool-1-worker-13
+	Index: 4 Thread before blocking: ForkJoinPool-1-worker-5
+	Index: 4 Blocking: ForkJoinPool-1-worker-5
+	Index: 7 Blocking: ForkJoinPool-1-worker-15
+	Index: 5 Blocking: ForkJoinPool-1-worker-3
+	Index: 2 Blocking: ForkJoinPool-1-worker-9
+	Index: 8 Thread before blocking: ForkJoinPool-1-worker-23
+	Index: 8 Blocking: ForkJoinPool-1-worker-23
+	Index: 9 Thread before blocking: ForkJoinPool-1-worker-27
+	Index: 1 Blocking: ForkJoinPool-1-worker-11
+	Index: 3 Blocking: ForkJoinPool-1-worker-7
+	Index: 10 Thread before blocking: ForkJoinPool-1-worker-31
+	Index: 9 Blocking: ForkJoinPool-1-worker-27
+	Index: 6 Blocking: ForkJoinPool-1-worker-1
+	Index: 10 Blocking: ForkJoinPool-1-worker-31
+	Index: 0 Blocking: ForkJoinPool-1-worker-13
+	Index: 11 Thread before blocking: ForkJoinPool-1-worker-17
+	Index: 11 Blocking: ForkJoinPool-1-worker-17
+	Index: 12 Thread before blocking: ForkJoinPool-1-worker-21
+	Index: 12 Blocking: ForkJoinPool-1-worker-21
+	Index: 13 Thread before blocking: ForkJoinPool-1-worker-19
+	Index: 13 Blocking: ForkJoinPool-1-worker-19
+	Index: 14 Thread before blocking: ForkJoinPool-1-worker-25
+	Index: 14 Blocking: ForkJoinPool-1-worker-25
+	Index: 15 Thread before blocking: ForkJoinPool-1-worker-29
+	Index: 15 Blocking: ForkJoinPool-1-worker-29
+	Index: 16 Thread before blocking: ForkJoinPool-1-worker-47
+	Index: 16 Blocking: ForkJoinPool-1-worker-47
+	Index: 17 Thread before blocking: ForkJoinPool-1-worker-45
+	Index: 17 Blocking: ForkJoinPool-1-worker-45
+	Index: 18 Thread before blocking: ForkJoinPool-1-worker-59
+	Index: 18 Blocking: ForkJoinPool-1-worker-59
+	Index: 19 Thread before blocking: ForkJoinPool-1-worker-39
+	Index: 19 Blocking: ForkJoinPool-1-worker-39
+	Index: 20 Thread before blocking: ForkJoinPool-1-worker-53
+	Index: 20 Blocking: ForkJoinPool-1-worker-53
+	Index: 21 Thread before blocking: ForkJoinPool-1-worker-37
+	Index: 21 Blocking: ForkJoinPool-1-worker-37
+	Index: 22 Thread before blocking: ForkJoinPool-1-worker-51
+	Index: 22 Blocking: ForkJoinPool-1-worker-51
+	Index: 23 Thread before blocking: ForkJoinPool-1-worker-35
+	Index: 23 Blocking: ForkJoinPool-1-worker-35
+	Index: 24 Thread before blocking: ForkJoinPool-1-worker-49
+	Index: 24 Blocking: ForkJoinPool-1-worker-49
+	Index: 25 Thread before blocking: ForkJoinPool-1-worker-63
+	Index: 25 Blocking: ForkJoinPool-1-worker-63
+	Index: 26 Thread before blocking: ForkJoinPool-1-worker-43
+	Index: 26 Blocking: ForkJoinPool-1-worker-43
+	Index: 27 Thread before blocking: ForkJoinPool-1-worker-57
+	Index: 27 Blocking: ForkJoinPool-1-worker-57
+	Index: 28 Thread before blocking: ForkJoinPool-1-worker-41
+	Index: 28 Blocking: ForkJoinPool-1-worker-41
+	Index: 29 Thread before blocking: ForkJoinPool-1-worker-55
+	Index: 29 Blocking: ForkJoinPool-1-worker-55
+	Index: 30 Thread before blocking: ForkJoinPool-1-worker-33
+	Index: 30 Blocking: ForkJoinPool-1-worker-33
+	Index: 4 Thread after blocking: ForkJoinPool-1-worker-5
+	Index: 7 Thread after blocking: ForkJoinPool-1-worker-15
+	Index: 5 Thread after blocking: ForkJoinPool-1-worker-3
+	Index: 2 Thread after blocking: ForkJoinPool-1-worker-9
+	Index: 8 Thread after blocking: ForkJoinPool-1-worker-23
+	Index: 1 Thread after blocking: ForkJoinPool-1-worker-11
+	Index: 3 Thread after blocking: ForkJoinPool-1-worker-7
+	Index: 9 Thread after blocking: ForkJoinPool-1-worker-27
+	Index: 6 Thread after blocking: ForkJoinPool-1-worker-1
+	Index: 10 Thread after blocking: ForkJoinPool-1-worker-31
+	Index: 0 Thread after blocking: ForkJoinPool-1-worker-13
+	Index: 11 Thread after blocking: ForkJoinPool-1-worker-17
+	Index: 12 Thread after blocking: ForkJoinPool-1-worker-21
+	Index: 13 Thread after blocking: ForkJoinPool-1-worker-19
+	Index: 14 Thread after blocking: ForkJoinPool-1-worker-25
+	Index: 15 Thread after blocking: ForkJoinPool-1-worker-29
+	Index: 16 Thread after blocking: ForkJoinPool-1-worker-47
+	Index: 17 Thread after blocking: ForkJoinPool-1-worker-45
+	Index: 18 Thread after blocking: ForkJoinPool-1-worker-59
+	Index: 19 Thread after blocking: ForkJoinPool-1-worker-39
+	Index: 20 Thread after blocking: ForkJoinPool-1-worker-53
+	Index: 21 Thread after blocking: ForkJoinPool-1-worker-37
+	Index: 22 Thread after blocking: ForkJoinPool-1-worker-51
+	Index: 23 Thread after blocking: ForkJoinPool-1-worker-35
+	Index: 24 Thread after blocking: ForkJoinPool-1-worker-49
+	Index: 25 Thread after blocking: ForkJoinPool-1-worker-63
+	Index: 26 Thread after blocking: ForkJoinPool-1-worker-43
+	Index: 27 Thread after blocking: ForkJoinPool-1-worker-57
+	Index: 28 Thread after blocking: ForkJoinPool-1-worker-41
+	Index: 29 Thread after blocking: ForkJoinPool-1-worker-55
+	Index: 30 Thread after blocking: ForkJoinPool-1-worker-33
+	```
+
+	整个输出过程中，仅有**一次**3秒的停顿。  
+	分析输出结果，可以得知：
+
+	1. 执行器开辟的工作线程的数量明显大于没有`blocking`时的数量(线程数目`> 50`)。  
+	即使用`blocking`改变了执行器的线程创建策略。
+	1. 相同`Index`输出的线程名称相同，`blocking`包含的代码、之后的代码并没有运行在独立的线程。  
+	即一个独立的`Future`运行在一个线程，**没有**像`C#`中的`async`方法那样被切分到不同的线程执行。
 
 ### *Scala Promise*
 `Promise`为特质，完整包路径为`scala.concurrent.Promise`。
@@ -3263,12 +3302,12 @@ expr2_1
 
 使用`Promise`：
 
-0. `Promise`特质的伴生对象中提供了空参的`apply()`方法用于构建默认的`Promise`实例(`DefaultPromise`类型)。
-0. `Promise`实例提供了无参的`future`方法用于获取自身的`Future`实例。
-0. `Promise`实例可以通过`success()/failure()`方法标记自身`Future`实例的执行结果，使用`isCompleted`方法判断`Future`实例的执行状态。
-0. `Promise`实例的`success()/failure()`方法只能选其一，且只能调用一次。`success()/failure()`方法一旦被调用，自身`Future`实例的执行结果便已确定，不可更改。
-0. 多个`Future`可通过`Promise`共享数据。
-0. `Promise`能使用`completeWith()`绑定一个其它的`Future`，让自身同被绑定的`Future`拥有相同的执行状态和**执行结果**。
+1. `Promise`特质的伴生对象中提供了空参的`apply()`方法用于构建默认的`Promise`实例(`DefaultPromise`类型)。
+1. `Promise`实例提供了无参的`future`方法用于获取自身的`Future`实例。
+1. `Promise`实例可以通过`success()/failure()`方法标记自身`Future`实例的执行结果，使用`isCompleted`方法判断`Future`实例的执行状态。
+1. `Promise`实例的`success()/failure()`方法只能选其一，且只能调用一次。`success()/failure()`方法一旦被调用，自身`Future`实例的执行结果便已确定，不可更改。
+1. 多个`Future`可通过`Promise`共享数据。
+1. `Promise`能使用`completeWith()`绑定一个其它的`Future`，让自身同被绑定的`Future`拥有相同的执行状态和**执行结果**。
 
 实例，一个`Future`通过使用`Promise`获取另一个`Future`中的执行状态(**不是**执行结束的返回内容)，基本代码如下：
 
@@ -3349,15 +3388,15 @@ Seq[Node]
 NodeSeq
 ├── Document
 └── Node
-	 ├── Elem
-	 └── SpecialNode
-	 		 ├── EnityRef
-			 ├── ProcInstr
-			 ├── Conment
-			 └── Atom
-			 	 ├── Text
-				 ├── PCData
-				 └── Unparsed
+     ├── Elem
+     └── SpecialNode
+          ├── EnityRef
+          ├── ProcInstr
+          ├── Conment
+          └── Atom
+               ├── Text
+               ├── PCData
+               └── Unparsed
 ```
 
 `Node`类型定义了一系列用于获取节点信息的方法：
