@@ -70,7 +70,7 @@ $ javap [类名]
 $ javap -c [类名]
 ```
 
-默认情况下，通过反编译得到的Scala以及Java代码只能看到公有方法的声明，方法实现以及私有、保护成员均**不可见**。
+默认情况下，通过反编译得到的Scala以及Java代码只能看到公有方法的声明，方法实现以及私有、保护成员均**不可见**。  
 查看所有成员需要添加`-private`参数：
 
 ```
@@ -78,7 +78,7 @@ $ javap -private [类名]
 $ scalap -private [类名]
 ```
 
-### 使用Scala解释器
+### *Scala REPL*
 在命令行中输入无参数的`scala`指令即可进入交互式的Scala解释器。  
 常用的Scala解释器**指令**：
 
@@ -135,6 +135,47 @@ object Test extends App {
   println("Hello World!")
 }
 ```
+
+### *continue* 与 *break*
+`Scala`**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
+
+其它语言中的`continue`功能可以通过`for`语句条件后添加`if`判断条件实现或使用**守卫**。
+
+`break`功能可以由`scala.util.control.Breaks`类提供。
+
+- `Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
+
+	```scala
+	def breakable(op: => Unit): Unit {
+	  try op catch {
+	    // 判断异常是否为breakException，是则捕获，其它异常则继续向外传递
+	    case ex: BreakControl => if (ex ne breakException) throw ex
+	  }
+	}
+	def break(): Nothing = { throw breakException }
+	```
+
+	由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。  
+	`break()`方法产生`breakException`异常。
+
+	将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
+
+	使用`Breaks`如下代码所示：
+
+	```scala
+	import scala.util.control.Breaks.{breakable, break}
+
+	object Main extends App {
+
+	  breakable {
+	    //使用break的代码块作为传名参数传入breakable中
+	    for (i <- 1 to 10) {
+	      if (i == 8) break		//跳出循环
+	    }
+	  }
+
+	}
+	```
 
 
 
@@ -221,8 +262,10 @@ scala> getNum() //正确，返回 200
 res2: Int = 200
 ```
 
-同时，无参方法不能与已有字段名称相同(编译报错)，而空参方法允许带有同名的字段。  
-需要注意的是，在Scala中，赋值表达式的值为`Unit`，而不是类似Java/C++中的以被赋值的变量类型为表达式的值。例如：
+同时，无参方法不能与已有字段名称相同(编译报错)，而空参方法允许带有同名的字段。
+
+在Scala中，赋值表达式的值返回值为`Unit`，而不是类似Java/C++中的以被赋值的变量做为表达式结果。  
+例如：
 
 ```scala
 scala> var _num = 0
@@ -391,184 +434,146 @@ class Test
 }
 ```
 
-函数组合
-> 在Scala中，函数允许进行组合。  
-> 函数组合有两种方式：
->
->	1. `a compose b`实际调用次序为`a(b())`。
->	1. `a andThen b`实际调用次序为`b(a())`。
->	
-> 方法不能直接进行组合，需要将其转化为函数(方法名之后加`_`符号)。
->
->	```scala
->	object Main extends App {
->	
->	  def add(num: Int) = num + 100
->	  def double(num: Int) = num * 2
->
->	  //只有函数能进行组合,方法需要加"_"符号转化成函数
->	  val compose = add _ compose double
->	  val andThen = add _ andThen double
->
->	  println(compose(100) == add(double(100)))
->	  println(andThen(100) == double(add(100)))
->	}
->	```
->
-> 输出结果：
->
->	```
->	true
->	true
->	```
+- 函数组合
 
-*Partial Function* (偏函数)
-> 偏函数是一个定义域有限的函数，在Scala中使用类型`PartialFunction[-A, +B]`来表示偏函数。
-> 偏函数类似数学意义上的函数，只能接收**一个**参数，同时偏函数只对**有限**的输入值返回结果。
->
-> 在Scala中，使用**模式匹配**语法中的`case`关键字来实现偏函数，一个最简单的偏函数如下所示：
->
->	```scala
->	scala> val func: PartialFunction[Int, Int] = { case 0 => 0 }
->	func: PartialFunction[Int,Int] = <function1>
->	```
->
-> 这个偏函数只在输入值为`0`时有意义：
->
->	```scala
->	scala> func(0)
->	res1: Int = 0
->
->	scala> func(1)
->	scala.MatchError: 1 (of class java.lang.Integer)
->	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
->	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
->	  at $anonfun$1.applyOrElse(<console>:11)
->	  at $anonfun$1.applyOrElse(<console>:11)
->	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
->	  ... 32 elided
->
->	scala> func(-1)
->	scala.MatchError: -1 (of class java.lang.Integer)
->	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
->	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
->	  at $anonfun$1.applyOrElse(<console>:11)
->	  at $anonfun$1.applyOrElse(<console>:11)
->	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
->	  ... 32 elided
->	```
->
-> 一个偏函数可以通过添加多个`case`语句块来添加多个定义域的返回结果：
->
->	```scala
->	scala> val func1: PartialFunction[Int, Int] = { case n if n > 0 => 1; case n if n < 0 => -1 }
->	func1: PartialFunction[Int,Int] = <function1>
->
->	scala> func1(-11111)
->	res3: Int = -1
->
->	scala> func1(11111)
->	res4: Int = 1
->
->	scala> func1(0)
->	scala.MatchError: 0 (of class java.lang.Integer)
->	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
->	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
->	  at $anonfun$1.applyOrElse(<console>:11)
->	  at $anonfun$1.applyOrElse(<console>:11)
->	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
->	  ... 32 elided
->	```
->
-> 偏函数`func1()`对于定义域`(-∞，0)`返回`-1`，对于定义域`(0, +∞)`返回`1`。
->
-> 偏函数可以使用`isDefinedAt()`方法来检验在给定的参数在偏函数中是否有定义：
->
->	```scala
->	scala> func1.isDefinedAt(10000)
->	res7: Boolean = true
->
->	scala> func1.isDefinedAt(-10000)
->	res8: Boolean = true
->
->	scala> func1.isDefinedAt(0)
->	res9: Boolean = false
->	```
->
-> 使用`orElse()()`方法在一个偏函数没有定义的时候尝试调用另一个偏函数：
->
->	```scala
->	scala> func1.orElse(func)(0)
->	res10: Int = 0
->	```
->
-> 函数`func1()`对于`0`没有定义，而函数`func()`对于`0`有定义，则在参数取`0`时调用`func()`函数的返回值。
+	在Scala中，函数允许进行组合。  
+	函数组合有两种方式：
 
-*Partial Applied Function* (部分应用函数)
-> 部分应用函数是逻辑上的概念，表示一个已经指定了部分参数的函数。
-> 将一个拥有多个参数的函数指定部分参数的值构成一个参数较少的新函数，新的函数即为**部分应用函数**。
->
-> Python中的偏函数与Scala中的偏函数是完全不同的概念，Python中偏函数的概念类似于Scala中的部分应用函数。
->
-> 定义一个拥有2个参数的`sum()`函数，返回两个参数的和：
->
->	```scala
->	scala> def sum(num1: Int, num2: Int) = num1 + num2
->	sum: (num1: Int, num2: Int)Int
->	```
->
-> 指定第二个参数始终为`100`，创建一个部分应用函数：
->
->	```scala
->	scala> def sum100 = sum(_: Int, 100)
->	sum100: Int => Int
->
->	scala> sum100(100)
->	res11: Int = 200
->	```
->
-> `sum100()`便是`sum()`指定了第二参数的部分应用函数。
+	1. `a compose b`实际调用次序为`a(b())`。
+	1. `a andThen b`实际调用次序为`b(a())`。
+	
+	方法不能直接进行组合，需要将其转化为函数(方法名之后加`_`符号)。
 
-### *continue* 与 *break*
-`Scala`**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
+	```scala
+	object Main extends App {
+	
+	  def add(num: Int) = num + 100
+	  def double(num: Int) = num * 2
 
-其它语言中的`continue`功能可以通过`for`语句条件后添加`if`判断条件实现或使用**守卫**。
+	  //只有函数能进行组合,方法需要加"_"符号转化成函数
+	  val compose = add _ compose double
+	  val andThen = add _ andThen double
 
-`break`功能可以由`scala.util.control.Breaks`类提供。
+	  println(compose(100) == add(double(100)))
+	  println(andThen(100) == double(add(100)))
+	}
+	```
 
-> `Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
->
->	```scala
->	def breakable(op: => Unit): Unit {
->	  try op catch {
->	    // 判断异常是否为breakException，是则捕获，其它异常则继续向外传递
->	    case ex: BreakControl => if (ex ne breakException) throw ex
->	  }
->	}
->	def break(): Nothing = { throw breakException }
->	```
->
-> 由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。
-> `break()`方法产生`breakException`异常。
->
-> 将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
->
-> 使用`Breaks`如下代码所示：
->
->	```scala
->	import scala.util.control.Breaks.{breakable, break}
->
->	object Main extends App {
->
->	  breakable {
->	    //使用break的代码块作为传名参数传入breakable中
->	    for (i <- 1 to 10) {
->	      if (i == 8) break		//跳出循环
->	    }
->	  }
->
->	}
->	```
+	输出结果：
+
+	```
+	true
+	true
+	```
+
+- *Partial Function* (偏函数)
+
+	偏函数是一个定义域有限的函数，在Scala中使用类型`PartialFunction[-A, +B]`来表示偏函数。  
+	偏函数类似数学意义上的函数，只能接收**一个**参数，同时偏函数只对**有限**的输入值返回结果。
+
+	在Scala中，使用**模式匹配**语法中的`case`关键字来实现偏函数，一个最简单的偏函数如下所示：
+
+	```scala
+	scala> val func: PartialFunction[Int, Int] = { case 0 => 0 }
+	func: PartialFunction[Int,Int] = <function1>
+	```
+
+	这个偏函数只在输入值为`0`时有意义：
+
+	```scala
+	scala> func(0)
+	res1: Int = 0
+
+	scala> func(1)
+	scala.MatchError: 1 (of class java.lang.Integer)
+	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+	  at $anonfun$1.applyOrElse(<console>:11)
+	  at $anonfun$1.applyOrElse(<console>:11)
+	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+	  ... 32 elided
+
+	scala> func(-1)
+	scala.MatchError: -1 (of class java.lang.Integer)
+	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+	  at $anonfun$1.applyOrElse(<console>:11)
+	  at $anonfun$1.applyOrElse(<console>:11)
+	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+	  ... 32 elided
+	```
+
+	一个偏函数可以通过添加多个`case`语句块来添加多个定义域的返回结果：
+
+	```scala
+	scala> val func1: PartialFunction[Int, Int] = { case n if n > 0 => 1; case n if n < 0 => -1 }
+	func1: PartialFunction[Int,Int] = <function1>
+
+	scala> func1(-11111)
+	res3: Int = -1
+
+	scala> func1(11111)
+	res4: Int = 1
+
+	scala> func1(0)
+	scala.MatchError: 0 (of class java.lang.Integer)
+	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+	  at $anonfun$1.applyOrElse(<console>:11)
+	  at $anonfun$1.applyOrElse(<console>:11)
+	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+	  ... 32 elided
+	```
+
+	偏函数`func1()`对于定义域`(-∞，0)`返回`-1`，对于定义域`(0, +∞)`返回`1`。
+
+	偏函数可以使用`isDefinedAt()`方法来检验在给定的参数在偏函数中是否有定义：
+
+	```scala
+	scala> func1.isDefinedAt(10000)
+	res7: Boolean = true
+
+	scala> func1.isDefinedAt(-10000)
+	res8: Boolean = true
+
+	scala> func1.isDefinedAt(0)
+	res9: Boolean = false
+	```
+
+	使用`orElse()()`方法在一个偏函数没有定义的时候尝试调用另一个偏函数：
+
+	```scala
+	scala> func1.orElse(func)(0)
+	res10: Int = 0
+	```
+
+	函数`func1()`对于`0`没有定义，而函数`func()`对于`0`有定义，则在参数取`0`时调用`func()`函数的返回值。
+
+- *Partial Applied Function* (部分应用函数)
+
+	部分应用函数是逻辑上的概念，表示一个已经指定了部分参数的函数。
+	将一个拥有多个参数的函数指定部分参数的值构成一个参数较少的新函数，新的函数即为**部分应用函数**。
+
+	Python中的偏函数与Scala中的偏函数是完全不同的概念，Python中偏函数的概念类似于Scala中的部分应用函数。
+
+	定义一个拥有2个参数的`sum()`函数，返回两个参数的和：
+
+	```scala
+	scala> def sum(num1: Int, num2: Int) = num1 + num2
+	sum: (num1: Int, num2: Int)Int
+	```
+
+	指定第二个参数始终为`100`，创建一个部分应用函数：
+
+	```scala
+	scala> def sum100 = sum(_: Int, 100)
+	sum100: Int => Int
+
+	scala> sum100(100)
+	res11: Int = 200
+	```
+
+	`sum100()`便是`sum()`指定了第二参数的部分应用函数。
 
 
 
@@ -619,7 +624,8 @@ Scala中的保护成员使用关键字`protected`，私有成员使用关键字`
 - Scala的类定义、特质定义、单例对象定义前可以使用访问权限修饰，`private`和`protected`权限的类等仅限同一个包内访问。
 - Scala中的顶层类允许使用`protected`权限修饰(与Java不同，Java仅允许内部类使用`protected`修饰)。
 - Scala中的访问权限关键字用于类时，还可以写在类名与主构造器之间(特质、单例对象没有这种用法)，用于指定主构造器的访问权限。
-- 访问级别关键字之后可以使用`[]`操作符设定更具体的访问区域限制，可以是当前定义的类、当前定义类的外部类(若存在外部类)、包名(某个包内的所有类实例可访问)或是`this`关键字(仅当前实例可访问)。
+- 访问级别关键字之后可以使用`[]`操作符设定更具体的访问区域限制。  
+访问区域限制可以是当前定义的类、当前定义类的外部类(若存在外部类)、包名(某个包内的所有类实例可访问)或是`this`关键字(仅当前实例可访问)。
 - 访问权限关键字之后若不写明具体的访问限制区域，则默认限制为当前类可访问(与Java行为基本一致，但Java中的保护成员包内可见)。
 
 如下代码所示：
@@ -668,8 +674,8 @@ public class Test {
 	private int num;
 	private final java.lang.String str;
 	public int num();
-	public void num_$eq(int);			//var字段生成了setter/getter
-	public java.lang.String str();		//val字段生成了getter
+	public void num_$eq(int);	//var字段生成了setter/getter
+	public java.lang.String str();	//val字段生成了getter
 	public Test();
 }
 ```
@@ -695,7 +701,12 @@ class Override {
   */
   def m(m: Int) {} //正常，签名未冲突
 
-  private[this] var num = 100 //私有this字段不会合成setter/getter方法，但自行手动定义同名的setter/getter方法时有许多限制(getter方法需要空参且写明返回值)，且没有实用价值(setter方法使用报错)
+  /*
+    私有this字段不会合成setter/getter方法，
+    但自行手动定义同名的setter/getter方法时有许多限制(getter方法需要空参且写明返回值)，
+    且没有实用价值(setter方法使用报错)	
+  */
+  private[this] var num = 100
   def num(): Int = num //正常
   def num_=(num: Int) {
     this.num = num
@@ -706,7 +717,7 @@ class Override {
   def num: Int = this.num //报错
   */
 
-  //常用的私有变量自定义setter/getter风格是私有字段名前加上下划线
+  // 常用的私有变量自定义setter/getter风格是私有字段名前加上下划线
   private[this] var _abc = 0
   def abc = _abc
   def abc_=(abc: Int): Unit = _abc = abc
@@ -719,15 +730,15 @@ class Override {
 
 在Scala中，字段名称可以与方法名称**相同**。
 
-- 默认情况下，合成的`setter`、`getter`方法就与字段同名，手动在代码中创建与`setter`、`getter`签名相同的方法会导致编译错误。
+- 默认情况下，生成的`setter`、`getter`方法就与字段同名，手动在代码中创建与`setter`、`getter`签名相同的方法会导致编译错误。
 - 访问权限为`private[this]`时编译器不合成默认的`getter`、`setter`方法时可以手动定义`setter`、`getter`方法。
-- 在实际编码过程中，虽然给`private[this]`的字段定义同名的`setter`、`getter`方法不会报错，但调用过程中会提示错误(如上例子中给num字段赋值回得到错误`reassignment to val`，因此不要手动给字段定义同名的`setter`、`getter`方法)。
+- 在实际编码过程中，虽然给`private[this]`的字段定义同名的`setter`、`getter`方法不会报错，但调用过程中会提示错误(如上例子中给num字段赋值会得到错误`reassignment to val`，因此不要手动给字段定义同名的`setter`、`getter`方法)。
 
 此外，由于字段名称可以与方法名称相同，因而即使编译器生成了`setter`、`getter`方法，编码者依然可以使用字段名称定义其它签名的重载函数。
 
 ### *Constructor* (构造器)
-在Scala中构造方法的作用与Java类似，用于在创建类实例的同时对指定的成员进行初始化。
-在语法上，Scala中类可以拥有一个**主构造器(primary constructor)**和任意个**辅助构造器(auxiliary constructor)**。
+在Scala中构造方法的作用与Java类似，用于在创建类实例的同时对指定的成员进行初始化。  
+Scala中类可以拥有一个**主构造器(primary constructor)**和任意个**辅助构造器(auxiliary constructor)**。
 
 构造器的基本使用方法：
 
@@ -755,265 +766,272 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 }
 ```
 
-主构造器作用域
-> 在`Scala`中，主构造器的实际范围为整个类内作用域。  
-> 即在类作用域内，不仅可以像`Java`、`C#`、`C++`等传统`OOP`语言一样定义成员字段和成员方法，更可以直接在类内添加普通代码语句。  
-> 类内的普通代码语句即为构造方法的内容，再类实例构造时即被调用。
->
-> 如下所示：
->
->	```scala
->	class Test(str: String) {
->	  println(str)
->	}
->	```
->
-> 类体中直接包含了普通的语句代码，而非成员定义。
->
-> 在类内作用域中直接添加普通代码时，需要考虑变量初始化顺序，如下所示：
->
->	```scala
->	class Test0 {
->	  println(str)
->	  val str = "abc"
->	}
->
->	class Test1 {
->	  val str = "abc"
->	  println(str)
->	}
->
->	object Main extends App {
->	  new Test0()
->	  new Test1()
->	}
->	```
->
-> 输出结果：
->
->	```
->	null
->	abc
->	```
->
-> 类作用域中的普通语句可以直接引用类内定义的成员字段(即使成员字段定义在语句之后)。  
-> 但若成员字段的定义语句在执行语句之后，则成员字段在被引用时**未初始化**。
+- 主构造器作用域
 
-主构造器访问权限
-> 在**类名**之后，**主构造器参数**之前可以添加访问权限修饰符，用于限定主构造器的访问权限。
->
-> 如下所示：
->
->	```scala
->	class Test private(num: Int) {
->	  def show() = println(num)
->	}
->
->	object Test {
->	  lazy val instance = Test()
->	  private def apply() = new Test(100)		//正确，伴生对象中可以访问类的私有成员，包括私有主构造器
->	}
->
->	object Main extends App {
->	  Test.instance.show()					//正确，获取单例
->	  new Test(100).show()					//错误，无法直接访问私有构造器
->	}
->	```
+	在`Scala`中，主构造器的实际范围为整个类内作用域。  
+	即在类作用域内，不仅可以像`Java`、`C#`、`C++`等传统`OOP`语言一样定义成员字段和成员方法，更可以直接在类内添加普通代码语句。  
+	类内的普通代码语句即为构造方法的内容，在类实例构造时即被调用。
 
-主构造器参数做为成员字段
-> 主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。  
-> 构造器参数前使用`var`关键字，如下代码所示：
->
->	```scala
->	class Constructor(var num: Int)
->	```
->
->	编译为Java代码为：
->
->	```java
->	public class Constructor {
->		private int num;
->		public int num();
->		public void num_$eq(int);
->		public Constructor(int);
->	}
->	```
->
-> 可以看到，编译器为`var`字段`num`生成了`setter`、`getter`方法和一个与字段同名的私有变量。
->
-> 构造器参数前使用`val`关键字，如下所示：
->
->	```scala
->	class Constructor(val num: Int)
->	```
->
-> 编译为Java代码为：
->
->	```java
->	public class Constructor {
->		private final int num;
->		public int num();
->		public Constructor(int);
->	}
->	```
->
-> 可以看到，编译器为`val`字段`num`生成了`getter`方法和一个与字段同名的`final`私有变量。
->
-> 构造器参数前加上**访问权限修饰符**则生成的方法类似，但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)，如下所示：
->
->	```scala
->	class Constructor0(protected[this] var num: Int)
->	class Constructor1(private val num: Int)
->	```
->
-> 编译为Java代码为：
->
->	```java
->	public class Constructor0 {
->		private int num;
->		public int num();
->		public void num_$eq(int);
->		public Constructor0(int);
->	}
->	public class Constructor1 {
->		private final int num;
->		private int num();
->		public Constructor1(int);
->	}
->	```
->
-> 只有访问权限为`private[this]`时，编译器才不会为引用的字段生成`setter/getter`，而仅仅生成一个私有成员变量。
+	如下所示：
 
-主构造器参数的默认字段生成规则
-> 主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。  
-> 编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
->
-> 如下代码所示：
->
->	```scala
->	class Constructor0(num: Int)
->	class Constructor1(private[this] val num: Int)
->	```
->
-> 编译为Java代码为：
->
->	```java
->	public class Constructor0 {
->		public Constructor0(double);
->	}
->	public class Constructor1 {
->		public Constructor1(double);
->	}
->	```
->
-> 编译得到的Java代码完全相同。
->
-> 当该参数被其它成员方法引用时，编译器会为其生成对应的`final`私有成员变量(但没有生成`setter/getter`)。
-> 只要构造器参数没有使用`var`关键字标记，则生成的成员变量就带有`final`属性。
->
-> 如下代码所示：
->
->	```scala
->	class Constructor0(num: Int) {
->	  def get = num
->	}
->	class Constructor1(private[this] val num: Int) {
->	  def get = num
->	}
->	```
->
-> 编译为Java代码为：
->
->	```java
->	public class Constructor0 {
->		private final int num;
->		public int get();
->		public Constructor0(int);
->	}
->	public class Constructor1 {
->		private final int num;
->		public int get();
->		public Constructor1(int);
->	}
->	```
->
-> 辅助构造器中的参数与普通函数参数类似，仅在构造器代码段内部生效(不作为字段存在)，辅助构造器的参数前不能添加`var/val`关键字。
+	```scala
+	class Test(str: String) {
+	  println(str)
+	}
+	```
 
-默认构造方法
-> 一个类如果没有显式写明主构造器参数，则默认生成一个**空参**构造方法。
->
-> 对于一个如下的**空类**：
->
->	```scala
->	class Empty
->	```
->
-> 实际相当于：
->
->	```scala
->	class Empty() {
->	}
->	```
->
-> 编译成Java代码后为：
->
->	```java
->	public class Empty {
->		public Empty() { ... };
->	}
->	```
->
-> 可以采用如下方式实例化：
->
->	```scala
->	new Empty()
->	new Empty			//空参方法括号可省略
->	```
->
-> 与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。  
-> 如下代码所示：
->
->	```scala
->	class Default {
->	  def this(num: Int) = this
->	}
->	```
->
-> 编译成Java代码后为：
->
->	```java
->	public class Default {
->		public Default();
->		public Default(int);
->	}
->	```
->
-> 可以看到，默认的空参构造方法依然存在。
->
-> 主构造器不能在类体中重新定义，如下所示：
->
->	```scala
->	class Default {
->	  //编译报错，主构造器已为空参，不能重复定义
->	  def this() { ... }
->	}
->	```
+	类体中直接包含了普通的语句代码，而非成员定义。
+
+	在类内作用域中直接添加普通代码时，需要考虑变量初始化顺序，如下所示：
+
+	```scala
+	class Test0 {
+	  println(str)
+	  val str = "abc"
+	}
+
+	class Test1 {
+	  val str = "abc"
+	  println(str)
+	}
+
+	object Main extends App {
+	  new Test0()
+	  new Test1()
+	}
+	```
+
+	输出结果：
+
+	```
+	null
+	abc
+	```
+
+	类作用域中的普通语句可以直接引用类内定义的成员字段(即使成员字段定义在语句之后)。  
+	但若成员字段的定义语句在执行语句之后，则成员字段在被引用时**未初始化**。
+
+- 主构造器访问权限
+
+	在**类名**之后，**主构造器参数**之前可以添加访问权限修饰符，用于限定主构造器的访问权限。  
+	如下所示：
+
+	```scala
+	class Test private(num: Int) {
+	  def show() = println(num)
+	}
+
+	// Scala中单例模式的写法
+	object Test {
+	  lazy val instance = Test()
+	  private def apply() = new Test(100) //正确，伴生对象中可以访问类的私有成员，包括私有主构造器
+	}
+
+	object Main extends App {
+	  Test.instance.show() //正确，获取单例
+	  new Test(100).show() //错误，无法直接访问私有构造器
+	}
+	```
+
+- 主构造器参数做为成员字段
+
+	主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。  
+	构造器参数前使用`var`关键字，如下代码所示：
+
+	```scala
+	class Constructor(var num: Int)
+	```
+
+	编译为Java代码为：
+
+	```java
+	public class Constructor {
+		private int num;
+		public int num();
+		public void num_$eq(int);
+		public Constructor(int);
+	}
+	```
+
+	可以看到，编译器为`var`字段`num`生成了`setter`、`getter`方法和一个与字段同名的私有变量。
+
+	构造器参数前使用`val`关键字，如下所示：
+
+	```scala
+	class Constructor(val num: Int)
+	```
+
+	编译为Java代码为：
+
+	```java
+	public class Constructor {
+		private final int num;
+		public int num();
+		public Constructor(int);
+	}
+	```
+
+	可以看到，编译器为`val`字段`num`生成了`getter`方法和一个与字段同名的`final`私有变量。
+
+	构造器参数前加上**访问权限修饰符**则生成的方法类似，但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)，如下所示：
+
+	```scala
+	class Constructor0(protected[this] var num: Int)
+	class Constructor1(private val num: Int)
+	```
+
+	编译为Java代码为：
+
+	```java
+	public class Constructor0 {
+		private int num;
+		public int num();
+		public void num_$eq(int);
+		public Constructor0(int);
+	}
+	public class Constructor1 {
+		private final int num;
+		private int num();
+		public Constructor1(int);
+	}
+	```
+
+	只有访问权限为`private[this]`时，编译器才不会为引用的字段生成`setter/getter`，而仅仅生成一个私有成员变量。
+
+- 主构造器参数的默认字段生成规则
+
+	主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。  
+	编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
+
+	如下代码所示：
+
+	```scala
+	class Constructor0(num: Int)
+	class Constructor1(private[this] val num: Int)
+	```
+
+	编译为Java代码为：
+
+	```java
+	public class Constructor0 {
+		public Constructor0(double);
+	}
+	public class Constructor1 {
+		public Constructor1(double);
+	}
+	```
+
+	编译得到的Java代码完全相同。
+
+	当该参数被其它成员方法引用时，编译器会为其生成对应的`final`私有成员变量(但没有生成`setter/getter`)。  
+	只要构造器参数没有使用`var`关键字标记，则生成的成员变量就带有`final`属性。
+
+	如下代码所示：
+
+	```scala
+	class Constructor0(num: Int) {
+	  def get = num
+	}
+	class Constructor1(private[this] val num: Int) {
+	  def get = num
+	}
+	```
+
+	编译为Java代码为：
+
+	```java
+	public class Constructor0 {
+		private final int num;
+		public int get();
+		public Constructor0(int);
+	}
+	public class Constructor1 {
+		private final int num;
+		public int get();
+		public Constructor1(int);
+	}
+	```
+
+	辅助构造器中的参数与普通函数参数类似，仅在构造器代码段内部生效(不作为字段存在)，辅助构造器的参数前不能添加`var/val`关键字。
+
+- 默认构造方法
+
+	一个类如果没有显式写明主构造器参数，则默认生成一个**空参**构造方法。
+
+	对于一个如下的**空类**：
+
+	```scala
+	class Empty
+	```
+
+	实际相当于：
+
+	```scala
+	class Empty() {
+	}
+	```
+
+	编译成Java代码后为：
+
+	```java
+	public class Empty {
+		public Empty() { ... };
+	}
+	```
+
+	可以采用如下方式实例化：
+
+	```scala
+	new Empty()
+	new Empty			//空参方法括号可省略
+	```
+
+	与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。  
+	如下代码所示：
+
+	```scala
+	class Default {
+	  def this(num: Int) = this
+	}
+	```
+
+	编译成Java代码后为：
+
+	```java
+	public class Default {
+		public Default();
+		public Default(int);
+	}
+	```
+
+	可以看到，默认的空参构造方法依然存在。
+
+	主构造器不能在类体中重新定义，如下所示：
+
+	```scala
+	class Default {
+	  //编译报错，主构造器已为空参，不能重复定义
+	  def this() { ... }
+	}
+	```
 
 ### 多态
 Scala作为OOP语言，支持多态。
 
-重写
-> 子类重写父类的非抽象方法时，需要显式地在方法定义前加上`override`关键字，否则无法通过编译。  
-> 实现抽象方法则不需要。
->
-> 重写遵循以下规则：
->
->	- `def`只能重写另一个`def`。
->	- `val`可以重写另一个`val`以及不带有参数的`def`。
->	- `var`只能重写另一个抽象的`var`(即只有定义没有实现)。
+- 重写
 
-重载
-> Scala支持函数重载，并且可以使用**操作符**作为函数名，使用操作符作为函数名可以达到类似**C++**中**操作符重载**的效果。
+	子类重写父类的非抽象方法时，需要显式地在方法定义前加上`override`关键字，否则无法通过编译。  
+	实现抽象方法则不需要。
+
+	重写遵循以下规则：
+
+	- `def`只能重写另一个`def`。
+	- `val`可以重写另一个`val`以及不带有参数的`def`。
+	- `var`只能重写另一个抽象的`var`(即只有定义没有实现)。
+
+- 重载
+
+	Scala支持函数重载，并且可以使用**操作符**作为函数名，使用操作符作为函数名可以达到类似**C++**中**操作符重载**的效果。
 
 ### 伴生对象
 `Scala`中没有`static`关键字，也没有**静态成员**的概念，`Scala`使用**单例对象**来达到近似静态成员的作用。
@@ -1237,7 +1255,7 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 
 	Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
 
-	- **混入(mixin)**机制相比传统的单根继承，保留了多重继承的大部分优点。
+	- **Mixin**机制相比传统的单根继承，保留了多重继承的大部分优点。
 	- 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
 	- 若同时继承类并混入特质，需要将继承的类写在`extends`关键字的后面，`with`只能混入**特质**，不能混入**类**。
 
@@ -1268,7 +1286,7 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 	`TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。  
 	`ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
 
-- 重写冲突的方法与字段
+- 重写冲突方法、字段
 
 	混入机制需要解决**富接口**带来的成员冲突问题。  
 	当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
@@ -1297,10 +1315,11 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 
 	对于混入的内容，按照以下顺序进行构造：
 
-	- 首先构造父类。
-	- 按照特质出现的顺序从左往右依次构造特质。
-	- 在一个特质中，若该特质存在父特质，则先构造父特质。若多个特质拥有相同的父特质，该父特质不会被重复构造。
-	- 最后构造子类。
+	1. 首先构造父类。
+	1. 按照特质出现的顺序从左往右依次构造特质。
+	1. 在一个特质中，若该特质存在父特质，则先构造父特质。  
+	若多个特质拥有相同的父特质，该父特质不会被重复构造。
+	1. 最后构造子类。
 
 	`Scala`的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。  
 	线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
@@ -1482,7 +1501,7 @@ sealed abstract class Option[+A] extends Product with Serializable {
 ```
 
 使用`get`方法获取值，目标值不存在时会触发异常。  
-使用`getOrElse()`方法获取值，参数中需要传入备用的默认值，目标值不存在时使用默认值做为返回结果，如下所示：
+使用`getOrElse()`方法获取值，参数中需要传入备用的默认值，目标值不存在时将使用默认值做为返回结果，如下所示：
 
 ```scala
 scala> val str1: Option[String] = Option("test")
@@ -2951,7 +2970,7 @@ expr2_1
 - `Scala`标准库中提供了`Future/Promise/Async`库来进行异步编程。
 - 基于`Scala`的`Akka`完整实现了`Actor`模型。
 
-### *Scala Future*
+### *Future*
 `Future`是一组异步操作的抽象，完整包路径为`scala.concurrent.Future`。
 
 - 构建与启动`Future`
@@ -2965,9 +2984,8 @@ expr2_1
 
 	- `body`参数为**传名参数**，包含了需要异步执行的代码块。
 	- `T`参数为泛型参数，表示异步执行的代码块最终的返回值类型。
-	- `executor`参数为隐式参数，用于指定异步代码的执行器。
-
-		`scala.concurrent.ExecutionContext.Implicits.global`提供了默认的执行器。
+	- `executor`参数为隐式参数，用于指定异步代码的执行器。  
+	`scala.concurrent.ExecutionContext.Implicits.global`提供了默认的执行器。
 
 	构建一个`Future`，基本代码如下：
 
@@ -3294,7 +3312,7 @@ expr2_1
 	1. 相同`Index`输出的线程名称相同，`blocking`包含的代码、之后的代码并没有运行在独立的线程。  
 	即一个独立的`Future`运行在一个线程，**没有**像`C#`中的`async`方法那样被切分到不同的线程执行。
 
-### *Scala Promise*
+### *Promise*
 `Promise`为特质，完整包路径为`scala.concurrent.Promise`。
 
 - `Future`提供了带有**只读占位符**(`read-only placeholder`)的返回值，只有一个异步操作完全结束才能获取其返回值。
@@ -3334,9 +3352,9 @@ Future {
 ```
 
 ### *async/await*
-`Scala`也提供了`Async`库用于简化`Future`的使用。
+`Scala`也提供了`Async`库用于简化`Future`的使用。  
+`Async`完整包路径为`scala.async.Async`。
 
-`Async`完整包路径为`scala.async.Async`。  
 当前版本(`Scala 2.11.8`)中，`Async`库尚未进入`Scala`标准库。  
 对于使用`sbt`的工程，则需要在`build.sbt`配置文件中添加依赖：
 
@@ -3368,8 +3386,62 @@ object Async {
 - `async`用法类似`Future`的`apply()`方法，接收传名参数`body`作为异步执行的内容，接收隐式参数`execContext`作为执行器。
 - `await`只能用在`async`代码块中，作用类似`Await.result()`方法。
 
-`async`利用了`Scala`的宏机制，`await`本质上是`async`代码块中的一个关键字。
+`async`利用了`Scala`的宏机制，`await`本质上是`async`代码块中的一个关键字。  
 由于宏机制的一些限制，不能将`await`用在循环、异常捕捉代码块以及闭包中。
+
+### *synchronized*
+`Java`中提供了`synchronized`关键字用于多线程环境下的变量同步。  
+`Scala`中提供了类似的机制，但语法略有不同。
+
+`Scala`中的`synchronized`不是语言级别的关键字，仅仅做为**成员方法**存在，方法签名为：
+
+```scala
+def synchronized[T](t: T): T
+```
+
+所有类型都包含此方法。
+
+调用语法为：
+
+```scala
+变量名.synchronized(语句)
+```
+
+使用中缀表达式和块语法：
+
+```scala
+变量名 synchronized {
+  语句1
+  语句2
+  ...
+}
+```
+
+在类中直接调用`synchronized()`方法，锁定变量为当前类实例。  
+在单例对象/伴生对象中直接调用`synchronized()`方法，锁定变量为单例对象、伴生对象实例。
+
+`Scala`中的`synchronized`没有`Java`中修饰方法的功能，但可以模拟出类似效果。  
+如下所示：
+
+`Java`代码：
+
+```java
+class TestSync {
+	synchronized public void test() { ... }
+	synchronized public static void staticTest() { ... }
+}
+```
+
+等价`Scala`代码：
+
+```scala
+class TestSync {
+  def test() = synchronized[Unit] { ... }
+}
+object TestSync {
+  def staticTest() = synchronized[Unit] { ... }
+}
+```
 
 
 
@@ -3454,17 +3526,20 @@ def \\(that: String): NodeSeq
 ### 节点属性
 节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
 
-使用`\()`、`\\()`方法同样可以进行属性查找，需要在属性名字符串前加上`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名称为`num`的属性内容。
-在使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
+使用`\()`、`\\()`方法同样可以进行属性查找。  
+在参数字符串前加`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名为`num`的属性内容。  
+使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
 
-`NodeSeq`类型提供了`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符，如下所示：
+`NodeSeq`类型提供了`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。  
+如下所示：
 
 ```scala
 // 参数为属性名称
 def \@(attributeName: String): String
 ```
 
-`Node`类型提供了`attribute()`以及`attributes`方法从节点中获取属性，如下所示：
+`Node`类型提供了`attribute()`以及`attributes`方法从节点中获取属性。  
+如下所示：
 
 ```scala
 // 获取带有指定属性的节点
@@ -3474,7 +3549,8 @@ def attributes: MetaData
 ```
 
 `attributes`方法返回的类型为`MetaData`。
-`MetaData`类型支持遍历操作，定义了`key`、`value`方法用于获取属性的键值，如下所示：
+`MetaData`类型支持遍历操作，定义了`key`、`value`方法用于获取属性的键值。  
+如下所示：
 
 ```scala
 // 获取指定属性的值
@@ -3528,19 +3604,19 @@ object Xml extends App {
       println(s"case <Node><Three>{text}</Three></Node>: $text")
 
     // 使用 @ 操作符给匹配的节点标记变量名称(n 为 Node 类型)
-    case n @ <Three>{_}</Three> =>
-      println(s"case n @ <Three>{_}</Three>, n text: ${n.text}, n type: ${n.getClass}")
+    case n@<Three>{_}</Three> =>
+      println(s"case n@<Three>{_}</Three>, n text: ${n.text}, n type: ${n.getClass}")
 
     // 遍历属性
-    case n @ <Four>{_}</Four> if n \@ "arg_one" == "arg_4_1" =>
-      println(s"case n @ <Four>{_}</Four>, n text: ${n.text}, n type: ${n.getClass}, n.attributes: ")
+    case n@<Four>{_}</Four> if n \@ "arg_one" == "arg_4_1" =>
+      println(s"case n@<Four>{_}</Four>, n text: ${n.text}, n type: ${n.getClass}, n.attributes: ")
       n.attributes foreach { attr =>
         println(s"attribute name: ${attr.key} attribute value: ${attr.value.text}")
       }
 
     // 使用 @ 操作符给节点内容标记变量名称(n 为 Text 类型)
-    case <Four>{n @ _}</Four> =>
-      println(s"case <Four>{n @ _}</Four>, n text: ${n.text}, n type: ${n.getClass}")
+    case <Four>{n@_}</Four> =>
+      println(s"case <Four>{n@_}</Four>, n text: ${n.text}, n type: ${n.getClass}")
 
     /*
       匹配其它类型节点，注意不能写成：
@@ -3560,9 +3636,9 @@ object Xml extends App {
 ```
 case <One>{text}</One>: node1
 case <Node><Two>{text}</Two></Node>: node2
-case n @ <Three>{_}</Three>, n text: node3, n type: class scala.xml.Elem
-case <Four>{n @ _}</Four>, n text: node4_1, n type: class scala.xml.Text
-case n @ <Four>{_}</Four>, n text: node4_2, n type: class scala.xml.Elem, n.attributes:
+case n@<Three>{_}</Three>, n text: node3, n type: class scala.xml.Elem
+case <Four>{n@_}</Four>, n text: node4_1, n type: class scala.xml.Text
+case n@<Four>{_}</Four>, n text: node4_2, n type: class scala.xml.Elem, n.attributes:
 attribute name: arg_two attribute value: arg_4_2
 attribute name: arg_one attribute value: arg_4_1
 ```
