@@ -62,19 +62,23 @@ sbt的常见指令有：
 
 ```
 项目名称
-├── build.sbt							# 项目依赖关系(构建定义)
+├── build.sbt # 项目依赖关系(构建定义)
 ├── project
-│   ├── plugins.sbt						# 添加sbt插件
-│   └── build.properties				# 构建规则与参数
-└── src									# 源码目录
-	├── main
-	│	├── resources
-	│	└── scala
-	│		└── XXX.scala
-	└── test
-		├── resources
-		└── scala
-			└── TestXXX.scala
+│    ├── plugins.sbt # 添加sbt插件
+│    └── build.properties # 构建规则与参数
+└── src # 源码目录
+     ├── main
+     │    ├── resources
+     │    └── scala
+     │         ├── Xxx.scala
+     │         ├── Xxx.scala
+     │         └── ...
+     └── test
+          ├── resources
+          └── scala
+               ├── Xxx.scala
+               ├── Xxx.scala
+               └── ...
 ```
 
 新创建的项目没有`target`目录，但在`sbt shell`中执行了`run`之后还会生成`target`和`project/target`目录。  
@@ -94,50 +98,65 @@ object Main extends App {
 }
 ```
 
-访问资源目录
-> `sbt`项目中的`src/main`与`src/test`下都存在`resources`目录。
->
-> 获取该路径下的文件可以使用`Class`类型的`getResource()`方法：
->
->	```java
->	public java.net.URL getResource(String name);
->	```
->
-> `getResource()`方法接收的路径参数以`resources`目录为起点，返回的路径为`URL`类型，可以使用`getFile()`方法将其转换为文件路径字符串。
->
-> 假设`src/main/resources`路径下存在文件`temp.txt`，则打印该文件内容：
->
->	```scala
->	import scala.reflect.io.File
->
->	object Main extends App {
->		// 直接使用资源相对路径 "temp.txt" 亦可
->		File(getClass.getResource("/temp.txt").getFile).lines foreach println
->	}
->	```
->
-> `resources`路径也同样可以使用项目的相对路径来访问，上述代码等价于：
->
->	```scala
->	import scala.reflect.io.File
->
->	object Main extends App {
->		// 使用项目相对路径
->		File("src/main/resources/temp.txt").lines foreach println
->	}
->	```
+- 访问资源目录
+
+ 	`sbt`项目中的`src/main`与`src/test`下都存在`resources`目录。
+
+	获取该路径下的文件可以使用`Class`类型的`getResource()`方法：
+
+	```java
+	public java.net.URL getResource(String name);
+	```
+
+	`getResource()`方法接收的路径参数以`resources`目录为起点，返回的路径为`URL`类型，可以使用`getFile()`方法将其转换为文件路径字符串。
+
+	假设`src/main/resources`路径下存在文件`temp.txt`，则打印该文件内容：
+
+	```scala
+	import scala.reflect.io.File
+
+	object Main extends App {
+	  // 直接使用资源相对路径 "temp.txt" 亦可
+	  File(getClass.getResource("/temp.txt").getFile).lines foreach println
+	}
+	```
+
+	`resources`路径也同样可以使用项目的相对路径来访问，上述代码等价于：
+
+	```scala
+	import scala.reflect.io.File
+
+	object Main extends App {
+	  // 使用项目相对路径
+	  File("src/main/resources/temp.txt").lines foreach println
+	}
+	```
+
+- `jar`包资源目录
+
+	将项目打包为`jar`包后，`resources`目录下的文件通常会被移至`jar`包的**根目录**，此时项目的相对路径会发生变化。  
+	**不能**通过`src/main/resources/***`相对路径访问资源目录下的文件。
+
+	`jar`包内部文件应使用`getResource()`方法来获取路径。
+
+
+
+## 构建配置
+`sbt`项目根目录下的`build.sbt`定义了项目的构建配置。  
+`project`目录下也可以添加`*.scala`构建定义。
+
+可以在`build.sbt`文件中设定项目的名称、版本信息、构建规则、依赖等配置。  
+`build.sbt`文件遵循`Scala`语法。
+
+### 重新加载配置
+`sbt shell`只在**启动时**读取一遍构建配置，若在`sbt shell`开启之后`build.sbt`文件发生了修改，则已经开启的`sbt shell`依旧使用之前的构建配置。  
+若需要已开启的`sbt shell`使用新的构建配置，则应在`sbt shell`中使用`reload`指令重新加载构建配置。
 
 
 
 ## 依赖管理
-项目依赖定义在项目根目录下的`build.sbt`文件中。
-
-通过设定`build.sbt`文件中的`libraryDependencies`变量即可向项目中添加**托管依赖**。
-
-`project`目录下也可以添加`*.scala`构建定义。
-
-`build.sbt`文件遵循`Scala`语法，`libraryDependencies`配置项实际上是一个类型为`sbt.SettingKey[scala.Seq[sbt.ModuleID]]`的**变量**。
-
+通过设定`build.sbt`文件中的`libraryDependencies`变量即可向项目中添加**托管依赖**。  
+`libraryDependencies`配置项实际上是一个类型为`sbt.SettingKey[scala.Seq[sbt.ModuleID]]`的**变量**。  
 每一项依赖由`sbt.ModuleID`类型定义，一个具体的依赖项格式如下所示：
 
 ```scala
@@ -165,30 +184,30 @@ groupID % artifactID_[Scala版本] % revision
 
 以`Scala 2.12`的`Akka 2.4.17`为例，依赖信息为：
 
-```
-com.typesafe.akka %% akka-actor % 2.4.17			//省略Scala版本信息
-com.typesafe.akka % akka-actor_2.12 % 2.4.17		//两种表示方式等价
+```scala
+"com.typesafe.akka" %% "akka-actor" % "2.4.17" //省略Scala版本信息
+"com.typesafe.akka" % "akka-actor_2.12" % "2.4.17" //两种表示方式等价
 ```
 
 `sbt.SettingKey`类型重载了`+=`和`++=`运算符：
 
-> `+=`运算符用于添加单项依赖，如：
->
->	```scala
->	libraryDependencies += groupID % artifactID % revision
->	```
->
-> `++=`运算符用于添加多个依赖序列，如：
->
->	```scala
->	libraryDependencies ++= Seq(
->		groupID0 % artifactID0 % revision0,
->		groupID1 % artifactID1 % revision1,
->		...
->	)
->	```
+- `+=`运算符用于添加单项依赖，如：
 
-### 常用的依赖
+	```scala
+	libraryDependencies += groupID % artifactID % revision
+	```
+
+- `++=`运算符用于添加多个依赖序列，如：
+
+	```scala
+	libraryDependencies ++= Seq(
+	  groupID0 % artifactID0 % revision0,
+	  groupID1 % artifactID1 % revision1,
+	  ...
+	)
+	```
+
+### 常用依赖
 `sbt`依赖的描述信息与`Maven`相同，`sbt`允许直接添加`Maven`仓库的依赖，包的信息可以在**Maven中心仓库**搜索到，地址为`http://search.maven.org/`。
 
 一些常用包的`GroupId`和`ArtifactId`信息如下：
@@ -235,7 +254,7 @@ Scala编译器 + sbt + Play Framework + Akka + 项目模版 + 基于Play的WEB�
 `Activator`内置了sbt，可以直接使用`Activator`管理、构建sbt项目。
 
 ### 安装与配置
-大多数Linux发行版都没有将`Activator`添加到仓库中，因而无论是Linux或是Windows环境下，都需要从官网下载`Activator`。
+多数Linux发行版**没有**将`Activator`添加到仓库中，因而无论是`Linux/Windows`环境下，都需要从官网下载`Activator`。
 
 配置`Activator`方式与`sbt`类似。
 
