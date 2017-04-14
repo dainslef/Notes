@@ -98,12 +98,12 @@ frame.setVisible(true);
 
 ```scala
 val frame = new Frame {
-	contents = new Label {
-		text = "Test"
-		minimumSize = new Dimension(80, 40)
-	}
-	size = new Dimension(200, 100)
-	visible = true
+  contents = new Label {
+    text = "Test"
+    minimumSize = new Dimension(80, 40)
+  }
+  size = new Dimension(200, 100)
+  visible = true
 }
 ```
 
@@ -122,29 +122,31 @@ public void setBorder(Border border);
 ### *BorderFactory*
 工厂类`BorderFactory`提供了一系列创建各类常见样式边框的静态方法。
 
-*EmptyBorder*
-> `EmptyBorder`为仅占据面板空间的透明边框。  
-> 通过使用`EmptyBorder`，可以实现控制控件边界空隙的效果(类似于**CSS**中的`Margin`属性)。
->
-> 创建`EmptyBorder`的静态方法：
->
->	```java
->	// 创建默认样式的 EmptyBorder
->	public static Border createEmptyBorder();
->	// 创建指定边距的 EmptyBorder
->	public static Border createEmptyBorder(int top, int left, int bottom, int right);
->	```
+- *EmptyBorder*
 
-*TitledBorder*
-> `TitledBorder`为框线上带有标题的边框。  
-> `Swing`中并未提供默认的`GroupBox`控件，但可以对`JPanel`等控件设定`TitledBorder`来实现类似效果。
->
-> 创建`EmptyBorder`的静态方法：
->
->	```java
->	public static TitledBorder createTitledBorder(Border border, String title,
->			int titleJustification, int titlePosition, Font titleFont, Color titleColor);
->	```
+	`EmptyBorder`为仅占据面板空间的透明边框。  
+	通过使用`EmptyBorder`，可以实现控制控件边界空隙的效果(类似于**CSS**中的`Margin`属性)。
+
+	创建`EmptyBorder`的静态方法：
+
+	```java
+	// 创建默认样式的 EmptyBorder
+	public static Border createEmptyBorder();
+	// 创建指定边距的 EmptyBorder
+	public static Border createEmptyBorder(int top, int left, int bottom, int right);
+	```
+
+- *TitledBorder*
+
+	`TitledBorder`为框线上带有标题的边框。  
+	`Swing`中并未提供默认的`GroupBox`控件，但可以对`JPanel`等控件设定`TitledBorder`来实现类似效果。
+
+	创建`EmptyBorder`的静态方法：
+
+	```java
+	public static TitledBorder createTitledBorder(Border border, String title,
+			int titleJustification, int titlePosition, Font titleFont, Color titleColor);
+	```
 
 
 
@@ -202,100 +204,100 @@ static void showMessageDialog(Component parentComponent,
 ### *Java Swing* 事件机制
 `Java Swing`的事件机制主要包括以下部分：
 
-- 监听器，包含对事件的处理逻辑。
-- 事件源，即触发事件的控件。
-- 事件，包含特定的事件信息。
+1. 监听器，包含对事件的处理逻辑。
+1. 事件源，即触发事件的控件。
+1. 事件，包含特定的事件信息。
 
-监听器
-> 所有的的监听源都实现了`java.util.EventListener`接口。  
-> `EventListener`接口是空接口，`Java Swing`根据不同的事件类型定义了一系列继承于`EventListener`的子接口。
->
-> 不同的监听器接口定义了不同的抽象方法，当对应的监听事件触发时，对应方法会被调用。  
-> 通过重写监听器接口的抽象方法来实现事件处理逻辑。
+- 监听器
 
-事件源
-> 事件源是某个具体的控件对象。  
-> 控件对象通过绑定监听器对象在事件触发时调用对应监听器对象的重写方法。
->
-> `Java Swing`中的控件都提供了命名类似的方法用于与监听器交互：
->
->	```java
->	// 绑定到指定监听器实例
->	public synchronized void addXxxListener(XxxListener listener);
->	// 移除到指定监听器实例的绑定
->	public synchronized void removeXxxListener(XxxListener listener);
->	// 获取当前控件已绑定的所有监听器实例
->	public synchronized XxxListener[] getXxxListeners();
->	```
->
-> 不同的控件类型根据其控件职能会拥有不同类型监听器的交互方法。
+	所有的的监听源都实现了`java.util.EventListener`接口。  
+	`EventListener`接口是空接口，`Java Swing`根据不同的事件类型定义了一系列继承于`EventListener`的子接口。
 
-事件
-> 所有的事件都继承自`java.util.EventObject`。
->
-> 事件保存了具体的某一次事件发生时的事件信息。  
-> 事件做为监听器抽象方法的参数，当事件触发时，对应的事件信息做为参数传入。
+	不同的监听器接口定义了不同的抽象方法，当对应的监听事件触发时，对应方法会被调用。  
+	通过重写监听器接口的抽象方法来实现事件处理逻辑。
 
-以按钮控件的`ActionEvent`为例，实现`ActionEvent`的处理需要以下步骤：
+- 事件源
 
-1. 构建`ActionEvent`监听器，监听器实现`ActionListener`接口，重写抽象方法`actionPerformed()`。
-1. 按钮控件对象调用`addActionListener()`方法，将控件绑定监听器。
+	事件源是某个具体的控件对象。  
+	控件对象通过绑定监听器对象在事件触发时调用对应监听器对象的重写方法。
 
-如下代码所示：
+	`Java Swing`中的控件都提供了命名类似的方法用于与监听器交互：
 
-```java
-// 构建监听器，ActionListener只有单个抽象方法，为函数式接口
-ActionListener action = e -> ...;
+	```java
+	// 绑定到指定监听器实例
+	public synchronized void addXxxListener(XxxListener listener);
+	// 移除到指定监听器实例的绑定
+	public synchronized void removeXxxListener(XxxListener listener);
+	// 获取当前控件已绑定的所有监听器实例
+	public synchronized XxxListener[] getXxxListeners();
+	```
 
-JButton button = new JButton();
+	不同的控件类型根据其控件职能会拥有不同类型监听器的交互方法。
 
-// 将控件绑定监听器
-button.addActionListener(action);
-```
+- 事件
 
-常见监听器类型应用
-> *KeyListener* (键盘按键监听器)  
-> 通过键盘监听器可屏蔽指定按键输入。
->
-> 实现`KeyListener`接口，重写`keyTyped()`方法。  
-> 对`KeyEvent`类型的事件参数调用`getKeyChar()`方法获取输入的字符，判断输入内容。  
-> 对需要屏蔽的输入使用`setKeyChar('\0')`转化为空输入。
->
-> 如下所示：(只接受数字输入)
->
->	```java
->	KeyListener keyListener = e -> {
->		if (e.getKeyChar() < '0' || e.getKeyChar() > '9') e.setKeyChar('\0');
->	}
->	```
+	所有的事件都继承自`java.util.EventObject`。
+
+	事件保存了具体的某一次事件发生时的事件信息。  
+	事件做为监听器抽象方法的参数，当事件触发时，对应的事件信息做为参数传入。
+
+	以按钮控件的`ActionEvent`为例，实现`ActionEvent`的处理需要以下步骤：
+
+	1. 构建`ActionEvent`监听器，监听器实现`ActionListener`接口，重写抽象方法`actionPerformed()`。
+	1. 按钮控件对象调用`addActionListener()`方法，将控件绑定监听器。
+
+	如下代码所示：
+
+	```java
+	// 构建监听器，ActionListener只有单个抽象方法，为函数式接口
+	ActionListener action = e -> ...;
+
+	JButton button = new JButton();
+
+	// 将控件绑定监听器
+	button.addActionListener(action);
+	```
+
+- 常见监听器类型应用
+
+	1. *KeyListener* (键盘按键监听器)
+
+ 		通过键盘监听器可屏蔽指定按键输入。
+
+		实现`KeyListener`接口，重写`keyTyped()`方法。  
+		对`KeyEvent`类型的事件参数调用`getKeyChar()`方法获取输入的字符，判断输入内容。  
+		对需要屏蔽的输入使用`setKeyChar('\0')`转化为空输入。
+
+		如下所示：(只接受数字输入)
+
+		```java
+		KeyListener keyListener = e -> {
+			if (e.getKeyChar() < '0' || e.getKeyChar() > '9') e.setKeyChar('\0');
+		}
+		```
 
 ### *Scala Swing* 事件机制
 `Scala Swing`中，事件采用集中式处理，所有被监听的控件发出的各类事件会被汇总统一处理。
 
-`Scala Swing`所有控件的基类`scala.swing.UIElement`都间接混入了事件发布者特质`scala.swing.Publisher`。  
-`Publisher`特质定义了用于发布事件的`publish()`方法：
+`Scala Swing`所有控件的基类`scala.swing.UIElement`都间接混入了事件发布者特质`scala.swing.Publisher`：
 
 ```scala
 trait UIElement extends Proxy with LazyPublisher {
-	...
+  ...
 }
 
 private[swing] trait LazyPublisher extends Publisher {
-	...
-}
-
-trait Publisher extends Reactor {
-	...
-	def publish(e: Event) { ... }
-	...
+  ...
 }
 ```
 
-`Publisher`特质继承于反应器特质`scala.swing.Reactor`：
+`Publisher`特质继承于反应器特质`scala.swing.Reactor`，该特质定义了用于发布事件的`publish()`方法：
 
 ```scala
 trait Publisher extends Reactor {
-	...
+  ...
+  def publish(e: Event) { ... }
+  ...
 }
 ```
 
@@ -304,11 +306,11 @@ trait Publisher extends Reactor {
 
 ```scala
 trait Reactor {
-	...
-	val reactions: Reactions = ...
-	def listenTo(ps: Publisher*) = ...
-	def deafTo(ps: Publisher*) = ...
-	...
+  ...
+  val reactions: Reactions = ...
+  def listenTo(ps: Publisher*) = ...
+  def deafTo(ps: Publisher*) = ...
+  ...
 }
 ```
 
@@ -317,16 +319,16 @@ trait Reactor {
 
 ```scala
 object Reactions {
-	...
-	type Reaction = PartialFunction[Event, Unit]
-	...
+  ...
+  type Reaction = PartialFunction[Event, Unit]
+  ...
 }
 
 abstract class Reactions extends Reactions.Reaction {
-	...
-	def += (r: Reactions.Reaction): this.type
-	def -= (r: Reactions.Reaction): this.type
-	...
+  ...
+  def += (r: Reactions.Reaction): this.type
+  def -= (r: Reactions.Reaction): this.type
+  ...
 }
 ```
 
@@ -346,7 +348,7 @@ listenTo(button)
 
 // 偏函数添加 ActionEvent 事件处理逻辑
 reactions += {
-	case ActionEvent(source) => ...
+  case ActionEvent(source) => ...
 }
 ```
 
