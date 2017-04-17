@@ -239,14 +239,33 @@
 
 `systemd`的设计理念来自于`Apple`公司`macOS`中的`launchd`。
 
-### 服务配置
-`systemd`提供了统一、完整的服务配置功能：
+`systemd`的全局配置文件为`/etc/systemd/system.conf`。  
+`systemd`的用户配置文件为`/etc/systemd/user.conf`。
+
+### 服务管理
+`systemd`提供了统一、完整的服务管理功能：
 
 - `# systemctl status [服务名称]` 查看指定服务状态
 - `# systemctl start [服务名称]` 启动指定服务
 - `# systemctl stop [服务名称]` 停止指定服务
 - `# systemctl enable [服务名称]` 设置指定服务开机自启动
 - `# systemctl disable [服务名称]` 取消指定服务开机自启动
+
+`systemd`服务文件通常以`*.service`为后缀名。
+
+- 系统服务：
+
+	系统服务文件位于路径`/usr/lib/systemd/system`下。  
+	启用、禁用系统服务需要使用`root`权限(查看服务状态不需要)。
+
+- 用户服务：
+
+	用户服务文件位于路径`/usr/lib/systemd/user`下。  
+	管理用户服务不需要以`root`权限执行`systemctl`指令，但需要在指令中添加`--user`参数，如下所示：
+
+	```
+	$ systemctl --user status/start/stop/enable/disable [用户服务名称]
+	```
 
 ### 服务分析
 `systemd`提供了一系列工具用于查看查看、分析各类服务状态。
