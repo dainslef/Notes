@@ -378,9 +378,18 @@ object Main extends App {
 var functionName: FuncType = 符合签名的方法/函数/Lambda
 ```
 
-Scala中的函数类型为`Function`，根据参数数目的不同，Scala中提供了`Function0[+R]`(无参数)到`Function22[-T1, ..., -T22, +R]`共23种函数类型，即Scala中的函数，最多可以拥有**22**个参数。
+Scala中的函数类型为`Function`，根据参数数目的不同，
+Scala中提供了`Function0[+R]`(无参数)到`Function22[-T1, ..., -T22, +R]`共**23**种函数类型，
+即Scala中的函数，最多可以拥有**22**个参数。
 
-函数本质上是一个`Function`类型的实例，方法中的一些特性不能用在函数中：
+Scala中的函数类型`(A, B, C, ...) => D`形式的语法实际是`Function`类型的语法糖，例如：
+
+- 类型`() => String`实际类型为`Function0[String]`。
+- 类型`Int => String`实际类型为`Function1[Int, String]`。
+- 类型`(Int, Int) => String`实际类型为`Function2[Int, Int, String]`。
+- 依此类推...
+
+函数是一个`Function`类型的实例，方法中的一些特性不能用在函数中：
 
 - 函数**不存在**重载，作用域内的一个函数实例只能有一个实现。
 - 函数**不允许**带有默认值。
@@ -434,146 +443,159 @@ class Test
 }
 ```
 
-- 函数组合
+### 函数组合
+在Scala中，函数允许进行组合。  
+函数组合有两种方式：
 
-	在Scala中，函数允许进行组合。  
-	函数组合有两种方式：
+1. `a compose b`实际调用次序为`a(b())`。
+1. `a andThen b`实际调用次序为`b(a())`。
 
-	1. `a compose b`实际调用次序为`a(b())`。
-	1. `a andThen b`实际调用次序为`b(a())`。
-	
-	方法不能直接进行组合，需要将其转化为函数(方法名之后加`_`符号)。
+方法不能直接进行组合，需要将其转化为函数(方法名之后加`_`符号)。
 
-	```scala
-	object Main extends App {
-	
-	  def add(num: Int) = num + 100
-	  def double(num: Int) = num * 2
+```scala
+object Main extends App {
 
-	  //只有函数能进行组合,方法需要加"_"符号转化成函数
-	  val compose = add _ compose double
-	  val andThen = add _ andThen double
+  def add(num: Int) = num + 100
+  def double(num: Int) = num * 2
 
-	  println(compose(100) == add(double(100)))
-	  println(andThen(100) == double(add(100)))
-	}
-	```
+  //只有函数能进行组合,方法需要加"_"符号转化成函数
+  val compose = add _ compose double
+  val andThen = add _ andThen double
 
-	输出结果：
+  println(compose(100) == add(double(100)))
+  println(andThen(100) == double(add(100)))
+}
+```
 
-	```
-	true
-	true
-	```
+输出结果：
 
-- *Partial Function* (偏函数)
+```
+true
+true
+```
 
-	偏函数是一个定义域有限的函数，在Scala中使用类型`PartialFunction[-A, +B]`来表示偏函数。  
-	偏函数类似数学意义上的函数，只能接收**一个**参数，同时偏函数只对**有限**的输入值返回结果。
+### *Partial Function* (偏函数)
+偏函数是一个定义域有限的函数，偏函数类似数学意义上的函数，只能接收**一个**参数，只对**有限**的输入值返回结果。
 
-	在Scala中，使用**模式匹配**语法中的`case`关键字来实现偏函数，一个最简单的偏函数如下所示：
+在Scala中使用类型`PartialFunction[-A, +B]`来表示偏函数。  
+`PartialFunction[-A, +B]`继承于`A => B`类型，即偏函数具有普通函数的功能，是普通函数的一类特例。
 
-	```scala
-	scala> val func: PartialFunction[Int, Int] = { case 0 => 0 }
-	func: PartialFunction[Int,Int] = <function1>
-	```
+可以使用**模式匹配**中的`case`语法来定义有限定义域的偏函数，一个最简单的偏函数如下所示：
 
-	这个偏函数只在输入值为`0`时有意义：
+```scala
+scala> val func: PartialFunction[Int, Int] = { case 0 => 0 }
+func: PartialFunction[Int,Int] = <function1>
+```
 
-	```scala
-	scala> func(0)
-	res1: Int = 0
+这个偏函数只在输入值为`0`时有意义：
 
-	scala> func(1)
-	scala.MatchError: 1 (of class java.lang.Integer)
-	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
-	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
-	  at $anonfun$1.applyOrElse(<console>:11)
-	  at $anonfun$1.applyOrElse(<console>:11)
-	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
-	  ... 32 elided
+```scala
+scala> func(0)
+res1: Int = 0
 
-	scala> func(-1)
-	scala.MatchError: -1 (of class java.lang.Integer)
-	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
-	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
-	  at $anonfun$1.applyOrElse(<console>:11)
-	  at $anonfun$1.applyOrElse(<console>:11)
-	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
-	  ... 32 elided
-	```
+scala> func(1)
+scala.MatchError: 1 (of class java.lang.Integer)
+  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+  at $anonfun$1.applyOrElse(<console>:11)
+  at $anonfun$1.applyOrElse(<console>:11)
+  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+  ... 32 elided
 
-	一个偏函数可以通过添加多个`case`语句块来添加多个定义域的返回结果：
+scala> func(-1)
+scala.MatchError: -1 (of class java.lang.Integer)
+  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+  at $anonfun$1.applyOrElse(<console>:11)
+  at $anonfun$1.applyOrElse(<console>:11)
+  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+  ... 32 elided
+```
 
-	```scala
-	scala> val func1: PartialFunction[Int, Int] = { case n if n > 0 => 1; case n if n < 0 => -1 }
-	func1: PartialFunction[Int,Int] = <function1>
+一个偏函数可以通过添加多个`case`语句块来添加多个定义域的返回结果：
 
-	scala> func1(-11111)
-	res3: Int = -1
+```scala
+scala> val func1: PartialFunction[Int, Int] = { case n if n > 0 => 1; case n if n < 0 => -1 }
+func1: PartialFunction[Int,Int] = <function1>
 
-	scala> func1(11111)
-	res4: Int = 1
+scala> func1(-11111)
+res3: Int = -1
 
-	scala> func1(0)
-	scala.MatchError: 0 (of class java.lang.Integer)
-	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
-	  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
-	  at $anonfun$1.applyOrElse(<console>:11)
-	  at $anonfun$1.applyOrElse(<console>:11)
-	  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
-	  ... 32 elided
-	```
+scala> func1(11111)
+res4: Int = 1
 
-	偏函数`func1()`对于定义域`(-∞，0)`返回`-1`，对于定义域`(0, +∞)`返回`1`。
+scala> func1(0)
+scala.MatchError: 0 (of class java.lang.Integer)
+  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:253)
+  at scala.PartialFunction$$anon$1.apply(PartialFunction.scala:251)
+  at $anonfun$1.applyOrElse(<console>:11)
+  at $anonfun$1.applyOrElse(<console>:11)
+  at scala.runtime.AbstractPartialFunction$mcII$sp.apply$mcII$sp(AbstractPartialFunction.scala:36)
+  ... 32 elided
+```
 
-	偏函数可以使用`isDefinedAt()`方法来检验在给定的参数在偏函数中是否有定义：
+偏函数`func1()`对于定义域`(-∞，0)`返回`-1`，对于定义域`(0, +∞)`返回`1`。
 
-	```scala
-	scala> func1.isDefinedAt(10000)
-	res7: Boolean = true
+偏函数可以使用`isDefinedAt()`方法来检验在给定的参数在偏函数中是否有定义：
 
-	scala> func1.isDefinedAt(-10000)
-	res8: Boolean = true
+```scala
+scala> func1.isDefinedAt(10000)
+res7: Boolean = true
 
-	scala> func1.isDefinedAt(0)
-	res9: Boolean = false
-	```
+scala> func1.isDefinedAt(-10000)
+res8: Boolean = true
 
-	使用`orElse()()`方法在一个偏函数没有定义的时候尝试调用另一个偏函数：
+scala> func1.isDefinedAt(0)
+res9: Boolean = false
+```
 
-	```scala
-	scala> func1.orElse(func)(0)
-	res10: Int = 0
-	```
+使用`orElse()()`方法在一个偏函数没有定义的时候尝试调用另一个偏函数：
 
-	函数`func1()`对于`0`没有定义，而函数`func()`对于`0`有定义，则在参数取`0`时调用`func()`函数的返回值。
+```scala
+scala> func1.orElse(func)(0)
+res10: Int = 0
+```
 
-- *Partial Applied Function* (部分应用函数)
+函数`func1()`对于`0`没有定义，而函数`func()`对于`0`有定义，则在参数取`0`时调用`func()`函数的返回值。
 
-	部分应用函数是逻辑上的概念，表示一个已经指定了部分参数的函数。
-	将一个拥有多个参数的函数指定部分参数的值构成一个参数较少的新函数，新的函数即为**部分应用函数**。
+使用`case`语法编写的代码块为`Anonymous Function`(匿名函数)，在上下文语义不明确的情况下，需要显式指定类型。  
+如下所示：
 
-	Python中的偏函数与Scala中的偏函数是完全不同的概念，Python中偏函数的概念类似于Scala中的部分应用函数。
+```scala
+scala> val func = { case 0 => 0 }
+<console>:11: error: missing parameter type for expanded function
+The argument types of an anonymous function must be fully known. (SLS 8.5)
+Expected type was: ?
+       val func = { case 0 => 0 }
+                  ^
+```
 
-	定义一个拥有2个参数的`sum()`函数，返回两个参数的和：
+`case`函数语法还可以用在高阶函数中。
 
-	```scala
-	scala> def sum(num1: Int, num2: Int) = num1 + num2
-	sum: (num1: Int, num2: Int)Int
-	```
+### *Partial Applied Function* (部分应用函数)
+部分应用函数是逻辑上的概念，表示一个已经指定了部分参数的函数。  
+将一个拥有多个参数的函数指定部分参数的值构成一个参数较少的新函数，新的函数即为**部分应用函数**。
 
-	指定第二个参数始终为`100`，创建一个部分应用函数：
+Python中的偏函数与Scala中的偏函数是完全不同的概念，Python中偏函数的概念类似于Scala中的部分应用函数。
 
-	```scala
-	scala> def sum100 = sum(_: Int, 100)
-	sum100: Int => Int
+定义一个拥有2个参数的`sum()`函数，返回两个参数的和：
 
-	scala> sum100(100)
-	res11: Int = 200
-	```
+```scala
+scala> def sum(num1: Int, num2: Int) = num1 + num2
+sum: (num1: Int, num2: Int)Int
+```
 
-	`sum100()`便是`sum()`指定了第二参数的部分应用函数。
+指定第二个参数始终为`100`，创建一个部分应用函数：
+
+```scala
+scala> def sum100 = sum(_: Int, 100)
+sum100: Int => Int
+
+scala> sum100(100)
+res11: Int = 200
+```
+
+`sum100()`即为`sum()`指定了第二参数的部分应用函数。
 
 
 
@@ -769,7 +791,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 - 主构造器作用域
 
 	在`Scala`中，主构造器的实际范围为整个类内作用域。  
-	即在类作用域内，不仅可以像`Java`、`C#`、`C++`等传统`OOP`语言一样定义成员字段和成员方法，更可以直接在类内添加普通代码语句。  
+	即在类作用域内，可以直接在类内添加普通代码语句。  
 	类内的普通代码语句即为构造方法的内容，在类实例构造时即被调用。
 
 	如下所示：
@@ -983,7 +1005,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 	```scala
 	new Empty()
-	new Empty			//空参方法括号可省略
+	new Empty //空参方法括号可省略
 	```
 
 	与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。  
@@ -1247,9 +1269,12 @@ Not Matching
 ```
 
 ### *Trait* (特质)
-Scala中的`trait`特质对应Java中的`interface`接口，但相比Java中的接口，Scala中的特质除了没有默认构造器、不能被直接实例化之外，拥有绝大部分类的特性。
+Scala中的`trait`特质对应Java中的`interface`接口。  
+相比Java中的接口，Scala中的特质除了不能自定义有参构造器、不能被直接实例化之外，拥有绝大部分类的特性。
 
-Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方法，成员方法也可以带有方法的实现，并且`trait`中的成员同样可以设置访问权限。
+`trait`内可以添加普通代码语句(默认构造器)、定义成员变量以及成员方法。  
+`trait`内的成员方法可以为抽象方法，也可以带有方法的实现。  
+`trait`中的成员同样可以设置访问权限。
 
 - `Mixin` (混入)
 
@@ -1311,15 +1336,17 @@ Scala中的`trait`可以拥有构造器(非默认)，成员变量以及成员方
 	}
 	```
 
-- 混入顺序
+- 构造顺序
 
 	对于混入的内容，按照以下顺序进行构造：
 
 	1. 首先构造父类。
 	1. 按照特质出现的顺序从左往右依次构造特质。
 	1. 在一个特质中，若该特质存在父特质，则先构造父特质。  
-	若多个特质拥有相同的父特质，该父特质不会被重复构造。
+		若多个特质拥有相同的父特质，该父特质不会被重复构造。
 	1. 最后构造子类。
+
+- 线性化顺序
 
 	`Scala`的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。  
 	线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
@@ -1880,7 +1907,8 @@ scala> val tuple = (1, 2, 3)
 tuple: (Int, Int, Int) = (1,2,3)
 ```
 
-元组中允许包含**重复**的值，也允许不同类型的值，但元组一经创建，内容便不可改变。
+元组中允许包含**重复**的值，也允许不同类型的值，但元组一经创建，内容便不可改变。  
+元组**不支持**使用`for`循环进行遍历。
 
 元组可以通过`元组对象._索引号`的形式访问。元组下标从`1`开始而非`0`，如下所示：
 
@@ -1924,7 +1952,12 @@ object TestTuple extends App {
 1 2 3
 ```
 
-需要注意的是，元组**不支持**使用`for`循环进行遍历。
+当一个方法的参数表中仅包含**单个元组**时，调用方法时可省略元组外部括号，在**柯里化**情形下同样有效，如下所示：
+
+```scala
+def add(n1: (Int, Int, Int))(n2: (Int, Int)) = n1._1 + n1._2 + n1._3 + n2._1 + n2._2
+add(1, 2, 3)(4, 5) //参数直接传入，无需外部括号
+```
 
 
 
@@ -2071,7 +2104,7 @@ required: String
 与Java中的`ArrayList`类似，`ArrayBuffer`也允许在**任意位置**进行元素插入：
 
 ```scala
-scala> arrayBuffer.insert(1, -100)     //在索引1的位置插入数值-100
+scala> arrayBuffer.insert(1, -100) //在索引1的位置插入数值-100
 scala> arrayBuffer
 res17: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, -100, 100)
 ```
@@ -2079,7 +2112,7 @@ res17: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, -100, 100)
 插入多个元素：
 
 ```scala
-scala> arrayBuffer.insert(1, 7, 8, 9)  //在索引1的位置插入数值7，8，9
+scala> arrayBuffer.insert(1, 7, 8, 9) //在索引1的位置插入数值7，8，9
 scala> arrayBuffer
 res19: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 7, 8, 9, -100, 100)
 ```
@@ -2104,7 +2137,7 @@ res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)  //删�
 
 ```scala
 scala> var set = Set(1, 1, 's', "str")
-set: scala.collection.immutable.Set[Any] = Set(1, s, str)      //重复的元素"1"被忽略了
+set: scala.collection.immutable.Set[Any] = Set(1, s, str) //重复的元素"1"被忽略了
 ```
 
 `Set`可以使用`+`、`-`操作符来增加或是减少元素并返回新的集合。  
@@ -2112,11 +2145,11 @@ set: scala.collection.immutable.Set[Any] = Set(1, s, str)      //重复的元素
 
 ```scala
 scala> val set1 = set + 3
-set1: scala.collection.immutable.Set[Any] = Set(1, s, str, 3)  //原集合添加元素输出新的集合
+set1: scala.collection.immutable.Set[Any] = Set(1, s, str, 3) //原集合添加元素输出新的集合
 scala> set
-res0: scala.collection.immutable.Set[Any] = Set(1, s, str)     //原集合本身没有变化
+res0: scala.collection.immutable.Set[Any] = Set(1, s, str) //原集合本身没有变化
 scala> val set2 = set - 's'
-set2: scala.collection.immutable.Set[Any] = Set(1, str)        //从集合中移除一个元素
+set2: scala.collection.immutable.Set[Any] = Set(1, str) //从集合中移除一个元素
 scala> set
 res1: scala.collection.immutable.Set[Any] = Set(1, s, str)
 ```
@@ -2127,12 +2160,12 @@ res1: scala.collection.immutable.Set[Any] = Set(1, s, str)
 scala> var set = Set(1, 2, 3)
 set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
 
-scala> set += 4  //增加元素"4"
+scala> set += 4 //增加元素"4"
 
 scala> set
 res14: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 4)
 
-scala> set -= 4  //移除元素"4"
+scala> set -= 4 //移除元素"4"
 
 scala> set
 res16: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
@@ -2214,15 +2247,15 @@ map: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 scala> for ((key, value) <- map) println(s"key: $key value: $value")
 key: 1 value: 1
 key: 2 value: 2
-key: 3 value: 3  //使用for循环遍历map
+key: 3 value: 3 //使用for循环遍历map
 scala> for (value <- map.values) println(s"value: $value")
 value: 1
 value: 2
-value: 3         //仅遍历map的value
+value: 3 //仅遍历map的value
 scala> for (key <- map.keys) println(s"value: $key")
 value: 1
 value: 2
-value: 3         //仅遍历map的key
+value: 3 //仅遍历map的key
 ```
 
 使用`updated()`方法可以更新指定key对应的value之后输出，通过`+`方法添加对偶后输出，也可以通过`-`移除指定key的对偶后输出。  
@@ -2244,9 +2277,27 @@ res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 除了不可变的`scala.collection.immutable.Map`外，还有可变的`scala.collection.mutable.Map`类型。  
 Scala还提供了多种不同结构的`Map`实现，如`HashMap`、`ListMap`、`LinkedHashMap`等。
 
+### *GenTraversableLike*
+`GenTraversableLike`特质定义了访问容器内头尾元素的方法：
+
+```scala
+trait GenTraversableLike[+A, +Repr] extends Any with GenTraversableOnce[A] with Parallelizable[A, parallel.ParIterable[A]] {
+  ...
+  def head: A //获取第一个元素，元素不存在时抛出NoSuchElementException
+  def headOption: Option[A] //获取第一个元素的Option，元素不存在时为None值
+  def tail: Repr //获取除了第一个元素之外的其余所有元素
+  def last: A //获取最后一个元素，元素不存在时抛出异常
+  def lastOption: Option[A] //获取最后一个元素的Option
+  ...
+}
+```
+
+多数容器都间接混入了`GenTraversableLike`特质，如`List`、`Seq`、`Vector`、`Map`等。  
+对于混入了`GenTraversableLike`的类型且支持索引访问的类型，使用`xxx.head`比`xxx(0)`更符合Scala风格。
 
 
-##  *Higher Order Function* (高阶函数)
+
+## *Higher Order Function* (高阶函数)
 **高阶函数**是**函数式编程**中的概念，在数学中，也叫做**算子**(运算符)或**泛函**。  
 **接受一个或多个函数作为输入**或者**输出一个函数**的函数被称为高阶函数。
 
@@ -2399,7 +2450,7 @@ import java.awt._	//等价于java中的 import java.awt.*
 
 	object Main extends App {
 	  // 在内层包中访问外部默认包的内容
-	  println(Test.test)        //错误，提示 "not found: value Test"
+	  println(Test.test) //错误，提示 "not found: value Test"
 	  println(_root_.Test.test) //错误，提示 "object Test is not a member of package <root>"
 	}
 	```
