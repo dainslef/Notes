@@ -98,30 +98,11 @@ object Main extends App {
 }
 ```
 
-- 访问资源目录
+- 使用**项目相对路径**访问资源目录
 
- 	`sbt`项目中的`src/main`与`src/test`下都存在`resources`目录。
-
-	获取该路径下的文件可以使用`Class`类型的`getResource()`方法：
-
-	```java
-	public java.net.URL getResource(String name);
-	```
-
-	`getResource()`方法接收的路径参数以`resources`目录为起点，返回的路径为`URL`类型，可以使用`getFile()`方法将其转换为文件路径字符串。
-
-	假设`src/main/resources`路径下存在文件`temp.txt`，则打印该文件内容：
-
-	```scala
-	import scala.reflect.io.File
-
-	object Main extends App {
-	  // 直接使用资源相对路径 "temp.txt" 亦可
-	  File(getClass.getResource("/temp.txt").getFile).lines foreach println
-	}
-	```
-
-	`resources`路径也同样可以使用项目的相对路径来访问，上述代码等价于：
+	`sbt`项目中的`src/main`与`src/test`下都存在`resources`目录。  
+	`resources`路径下的文件可以根据项目的相对路径来访问。  
+	假设`src/main/resources`路径下存在文件`temp.txt`，打印文件内容：
 
 	```scala
 	import scala.reflect.io.File
@@ -132,12 +113,38 @@ object Main extends App {
 	}
 	```
 
-- `jar`包资源目录
+- 访问输出路径下的资源文件
 
-	将项目打包为`jar`包后，`resources`目录下的文件通常会被移至`jar`包的**根目录**，此时项目的相对路径会发生变化。  
-	**不能**通过`src/main/resources/***`相对路径访问资源目录下的文件。
+	在项目构建时，`resources`目录下的文件会被复制到输出路径下，并保留子目录结构。  
+	从输出目录获取资源文件可以使用`Class`类型的`getResource()`方法：
 
-	`jar`包内部文件应使用`getResource()`方法来获取路径。
+	```java
+	public java.net.URL getResource(String name);
+	```
+
+	`getResource()`方法返回的路径为`URL`类型，可以使用`getFile()`方法将其转换为文件路径字符串。  
+	`getResource()`方法接收的路径参数可以为**相对路径**或**绝对路径**。
+
+	当参数为**绝对路径**时，参数路径会以输出路径为起点。  
+	假设`src/main/resources`路径下存在文件`temp.txt`，则打印该文件内容：
+
+	```scala
+	import scala.reflect.io.File
+
+	object Main extends App {
+	  File(getClass.getResource("/temp.txt").getFile).lines foreach println
+	}
+	```
+
+	当参数为**相对路径**时，参数路径会以**当前类所属包**的输出路径为起点。
+
+- `jar`包资源文件
+
+	与项目构建时类似，将项目打包为`jar`包后，`resources`目录下的文件会被复制到`jar`包内部的**根目录**。  
+	运行`jar`包时，起始相对目录的位置为`jar`所处的路径，**不能**通过`src/main/resources/***`相对路径访问资源目录下的文件。
+
+	`jar`包内部文件应使用`getResource()`方法来获取路径，且应使用`URL`的形式表示，直接使用文本路径不能被正确识别。  
+	`jar`包内部的`URL`路径格式为`jar:file:...`。
 
 
 
