@@ -10,10 +10,11 @@
 ## *XAML*
 `XAML`是一种声明性标记语言，语法类似`xhtml`，`WPF`使用其创建`UI`。
 
-在`Windows Form`中，一个`GUI`窗体的布局代码在文件**GUI类名.Designer.cs**中；
-而在`WPF`中，`GUI`窗体不再**直接**使用`C#`代码创建，而使用**GUI类名.xaml**文件描述窗体布局。
+在`Windows Form`中，一个`GUI`窗体的布局代码在文件**GUI类名.Designer.cs**中；  
+在`WPF`中，`GUI`窗体不再**直接**使用`C#`代码创建，而使用**GUI类名.xaml**文件描述窗体布局。
 
-`XAML`文件实际上是后缀名为`.xaml`的`XML`文件，默认编码为`UTF-8`。
+`XAML`文件实际上是后缀名为`.xaml`的`XML`文件，默认编码为`UTF-8`。  
+在项目编译时，`XAML`描述的`GUI`窗体会被转换为等价的`C#`代码。
 
 
 
@@ -29,10 +30,10 @@
 - `PasswordBox` 密码文本控件，类似于Qt中`QLineEdit`设置了`QLineEdit::EchoMode`属性为`QLineEdit::Password`
 - `GroupBox` 控件组，类似于Qt中的`QGroupBox`，设置标题使用属性`Header`
 
-按钮/标签设置文本使用属性`Content`，文本控件设置文本使用属性`Text`。
+按钮/标签设置文本使用属性`Content`，文本控件设置文本使用属性`Text`。  
 `Content`属性中可添加其它控件，`Text`属性只能接收文本。
 
-`TextBox`可以有焦点，可编辑，`TextBlock`不可。
+`TextBox`可以有焦点，可编辑，`TextBlock`不可。  
 `PasswordBox`拥有属性`PasswordChar`用于设置密码回显字符。
 
 ### 控件样式
@@ -67,7 +68,7 @@
 - `VerticalAlignment`/`HorizontalAlignment` 设置控件自身的对齐方向
 - `VerticalContentAlignment`/`HorizontalContentAlignment` 设置控件内部内容的对齐方向
 
-水平对齐属性可取值`Left`、`Right`，垂直对齐属性可取值`Top`、`Buttom`，代表向某个方向对齐。
+水平对齐属性可取值`Left`、`Right`，垂直对齐属性可取值`Top`、`Buttom`  
 对齐属性取值`Stretch`则代表**拉伸元素填充父元素的整个布局槽**。
 
 对于`TreeView`、`ListView`等控件，默认情况下其子控件`TreeViewItem`、`ListViewItem`不会填满整个父控件，设置`HorizontalContentAlignment`属性为`Stretch`则能够令子控件水平方向填充满父控件。
@@ -202,7 +203,7 @@ class XXX : INotifyPropertyChanged
 	// 属性包装器
 	public int Xxx
 	{
-		get { return _xxx; }
+		get => _xxx;
 		set
 		{
 			_xxx = value;
@@ -245,7 +246,7 @@ class XXX : INotifyPropertyChanged
 >		// 属性包装器
 >		public int Xxx
 >		{
->			get { return _xxx; }
+>			get => _xxx;
 >			set
 >			{
 >				_xxx = value;
@@ -255,8 +256,33 @@ class XXX : INotifyPropertyChanged
 >	}
 >	```
 
+使用`nameof`获取属性字段名称
+> 在`C# 6.0`中新增了`nameof`关键字，作用是获取字段的**当前名称**(不是完整路径名称)。  
+> 可利用该特性获取属性名称，上述例子中的`Xxx`属性可以改写为：
+>
+>	```cs
+>	class XXX : NotifyObject
+>	{
+>		private int _xxx = 0;
+>
+>		// 属性包装器
+>		public int Xxx
+>		{
+>			get => _xxx;
+>			set
+>			{
+>				_xxx = value;
+>				RaisePropertyChanged(nameof(Xxx));
+>			}
+>		}
+>	}
+>	```
+>
+> 使用`nameof`获取属性名称，能使属性在重构名称时避免手动修改传入属性通知方法的名称字符串。
+
 使用`CallerMemberNameAttribute`特性简化属性通知方法
-> 在`.Net 4.5`中引入的`System.Runtime.CompilerServices.CallerMemberNameAttribute`可用于获取调用者的名称，利用该特性可简化属性通知方法的参数。
+> 在`.Net 4.5`中引入的`System.Runtime.CompilerServices.CallerMemberNameAttribute`可用于获取调用者的名称。  
+> 利用该特性可简化属性通知方法的参数。
 >
 > 如下所示：
 >
@@ -283,7 +309,7 @@ class XXX : INotifyPropertyChanged
 >
 >		public int Xxx
 >		{
->			get { return _xxx; }
+>			get => _xxx;
 >			set
 >			{
 >				_xxx = value;
@@ -295,10 +321,10 @@ class XXX : INotifyPropertyChanged
 >	}
 >	```
 >
-> 被`[CallerMemberName]`特性修饰的方法参数在编译时会自动填入调用者的名称。
+> 被`[CallerMemberName]`特性修饰的方法参数在编译时会自动填入调用者的名称。  
 > 在属性中的`set`、`get`块中调用方法，则填入的参数为属性的名称。
 >
-> 使用`[CallerMemberName]`特性能够使属性在重构名称时避免手动修改传入属性通知方法的属性名称参数。
+> 使用`[CallerMemberName]`特性，能使属性在重构名称时避免手动修改传入属性通知方法的名称字符串。
 
 ### 绑定语法
 进行绑定操作需要明确目标对象的路径，`WPF`提供了`ElementName`、`Source`、`RelativeSource`三种绑定对象。
@@ -310,9 +336,31 @@ class XXX : INotifyPropertyChanged
 >	XXX="{Binding xxx}"
 >	<!-- 等价于 -->
 >	XXX="{Binding Path=xxx}"
->	<!-- 对于需要显示转换的内容，指定转换器 -->
+>	<!-- 对于需要自定义显示逻辑的内容，指定转换器 -->
 >	XXX="{Binding Path=xxx, Converter={StaticResource xxx}}"
+>	<!-- 指定转换器同时可以传入一个自定义参数，用于传递某些附加信息 -->
+>	XXX="{Binding Path=xxx, Converter={StaticResource xxx}, ConverterParameter=xxx}"
 >	```
+>
+> 绑定的转换器需要实现`System.Windows.Data.IValueConverter`接口，接口定义如下：
+>
+>	```csharp
+>	//
+>	// 摘要:
+>	//     提供一种将自定义逻辑应用于绑定的方式。
+>	public interface IValueConverter
+>	{
+>		object Convert(object value, Type targetType, object parameter, CultureInfo culture);
+>		object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
+>	}
+>	```
+>
+> - `Convert`方法的`value`参数为待转换的源数据。
+> - `ConvertBack`方法的`value`参数为转换后的数据。
+> - `parameter`参数为数据绑定中传入的自定义转换参数。
+>
+> 绑定中的`ConverterParameter`通常用于传递一些编译时就已确定的数据。  
+> 若需要传递多个动态变化的数据并同步更新，则应使用**多重绑定**。
 
 绑定`ElementName`
 > `ElementName`是控件拥有的属性，将绑定对象设置为当前XAML文件内的某一个控件。
@@ -344,7 +392,7 @@ class XXX : INotifyPropertyChanged
 - `OneWay` 源属性发生变化通知目标属性。只读型控件的默认绑定方式(`Label`等)
 - `OneWayToSource` 目标属性发生变化通知源属性
 - `TwoWay` 源属性与目标属性相互同步改动，开销比单向同步更高。可编辑型控件的默认绑定方式(`TextBox`、`ComboBox`等)
-- `OneTime` 仅在初始化源属性时读取目标属性一次，开销最低
+- `OneTime` 仅在初始化目标属性时读取源属性一次，开销最低
 
 ### 数据更新触发器
 在使用`OneWay/OneWayToSource`绑定时，绑定同时可以设置数据更新触发器(`UpdateSourceTrigger`)，配置何时更新绑定源数据：
@@ -423,17 +471,17 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 ### 窗体加载与关闭
 在窗体首次初始化、加载过程中，在不同阶段会依次触发以下事件：
 
-0. `FrameworkElement.Initialized`事件，在所有子元素已被设置完毕时触发。
-0. `Window.Activated`事件，在窗口被激活时触发。
-0. `FrameworkElement.Loaded`事件，在控件布局结束、数据绑定完成时触发。
-0. `Window.ContentRendered`事件，在控件渲染完毕时触发。
+1. `FrameworkElement.Initialized`事件，在所有子元素已被设置完毕时触发。
+1. `Window.Activated`事件，在窗口被激活时触发。
+1. `FrameworkElement.Loaded`事件，在控件布局结束、数据绑定完成时触发。
+1. `Window.ContentRendered`事件，在控件渲染完毕时触发。
 
 在窗体关闭时，会依次触发以下事件：
 
-0. `Window.Closing`事件，在窗口即将被关闭前触发，在此阶段可以取消窗口关闭。
-0. `Window.Deactivated`事件，窗口变为后台窗口时触发。
-0. `FrameworkElement.Unloaded`事件，窗口移除子元素完成时触发。
-0. `Window.Closed`事件，窗口完全关闭时触发。
+1. `Window.Closing`事件，在窗口即将被关闭前触发，在此阶段可以取消窗口关闭。
+1. `Window.Deactivated`事件，窗口变为后台窗口时触发。
+1. `FrameworkElement.Unloaded`事件，窗口移除子元素完成时触发。
+1. `Window.Closed`事件，窗口完全关闭时触发。
 
 从`Window`类继承时，可以通过重写相关事件对应方法来实现更精细的阶段控制，以`FrameworkElement.Initialized`事件为例，重写`OnInitialized()`方法，如下所示：
 
@@ -527,14 +575,26 @@ NavigationService.GetNavigationService(source).GoBack();
 
 `<DataGrid/>`标签常用属性：
 
-- `ItemsSource`属性，用于设置控件的数据集，绑定的对象需要为集合类型。
-- `SelectedItem`属性，用于设置控件的当前焦点数据，绑定的对象类型为数据集的模板参数。
-- `AutoGenerateColumns`属性，用于设置是否自动将数据集中的列显示到控件上，若需要自定义数据显示逻辑，则应设置该属性为`false`。
-- `Columns`属性，用于设置列样式和显示内容。
+- `ItemsSource`属性：
+
+	用于设置控件的数据集，绑定的对象需要为集合类型。
+
+- `SelectedItem`属性：
+
+	用于设置控件的当前焦点数据，绑定的对象类型为数据集的模板参数。
+
+- `AutoGenerateColumns`属性：
+
+	用于设置是否自动将数据集中的列显示到控件上，若需要自定义数据显示逻辑，则应设置该属性为`false`。
+
+- `Columns`属性：
+
+	用于设置列样式和显示内容，可嵌套标签：
+
 	- `<DataGridTextColumn/>`为普通文本列，最常用。
-		- 属性`Binding`绑定指定列
-		- 属性`IsReadOnly`设置不可修改
-		- 属性`Width`设置宽度，规则类似
+		- `Binding`属性，绑定指定列
+		- `IsReadOnly`属性，设置内容是否只读
+		- `Width`属性，设置宽度
 
 基本代码模板：
 
@@ -565,7 +625,7 @@ dataGrid.ItemsSource = dataSet.Tables[0].DefaultView;				//绑定数据源中的
 绑定到数据库数据源时，数据库中的改动会自动同步到控件上。
 
 ### 数据源类型
-`DataGrid`同样支持使用自定义数据集合做为数据源。
+`DataGrid`同样支持使用自定义数据集合做为数据源。  
 在绑定数据源到自行创建的数据集合时，需要注意集合的类型。
 
 - 常见的集合类型如`List`在数据发生增添、删除等操作时，**不会**通知控件刷新。将数据源绑定到此类集合上，会造成数据集发生变动，但控件上并未同步发生改动。
@@ -645,10 +705,8 @@ xmlns:dxnb="http://schemas.devexpress.com/winfx/2008/xaml/navbar"
 
 `DockLayoutManager` => `LayoutGroup`/`TabbedGroup`/`DocumentGroup` => `LayoutPanel`
 
-`LayoutGroup`、`TabbedGroup`、`DocumentGroup`需要`DockLayoutManager`做为直接**父容器**，将`XXXGroup`直接添加在`LayoutPanel`中能通过编译，但在运行时出错。
-
-`LayoutPanel`不能直接添加到`DockLayoutManager`中，会出现错误：`属性LayoutRoot不支持类型LayoutPanel的值`。
-
+`LayoutGroup`、`TabbedGroup`、`DocumentGroup`需要`DockLayoutManager`做为直接**父容器**，将`XXXGroup`直接添加在`LayoutPanel`中能通过编译，但在运行时出错。  
+`LayoutPanel`不能直接添加到`DockLayoutManager`中，会出现错误：`属性LayoutRoot不支持类型LayoutPanel的值`。  
 `LayoutGroup`可通过`Orientation`属性设置内部控件的对齐方向。
 
 默认情况下，`LayoutPanel`会均分`LayoutGroup`的剩余空间，要令`LayoutPanel`大小随着内部控件大小改变则设置属性`ItemHeight/ItemWidth`为`auto`。
@@ -664,14 +722,15 @@ xmlns:dxnb="http://schemas.devexpress.com/winfx/2008/xaml/navbar"
 ```
 
 ### 主界面
-通常使用`DXDockPanel`进行主界面的布局，`DXDockPanel`的子控件可设置属性`DockPanel.Dock`，取值`Top/Buttom/Left/Right`，最后一个控件会作为中央控件填满剩余空间。
+通常使用`DXDockPanel`进行主界面的布局。  
+`DXDockPanel`的子控件可设置属性`DockPanel.Dock`，取值`Top/Buttom/Left/Right`，最后一个控件会作为中央控件填满剩余空间。
 
 ### 汉化控件
 默认情况下，`DevExpress`提供的控件包含的默认文本均为**英文**，需要使用官方提供的语言资源包才能使对应控件展示文本替换为中文。
 
-以`DevExpress 13.2`为例，需要下载中文资源包：`DevExpressLocalizedResources_2013.2_zh-CN.zip`。
-
-在项目的输出目录(生成可执行文件的目录)中创建`zh-CN`文件夹，将解压出的资源文件放置于该路径下，同时在`App`类中添加`UI`资源加载代码：
+以`DevExpress 13.2`为例，需要下载中文资源包：`DevExpressLocalizedResources_2013.2_zh-CN.zip`。  
+在项目的输出目录(生成可执行文件的目录)中创建`zh-CN`文件夹，将解压出的资源文件放置于该路径下。  
+同时在`App`类中添加`UI`资源加载代码：
 
 ```cs
 public partial class App : Application
