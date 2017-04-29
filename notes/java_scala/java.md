@@ -147,7 +147,7 @@ public class Main {
 ### 有符号数转换无符号数
 在`Java`中，没有内置的无符号类型，则在表示大于`2 ^ 位宽 - 1`的数值时，需要使用更高位宽的数值来表示。
 
-以`byte`类型为例，有符号的`byte`类型范围在`-128 ~ 127`之间，当数值大于`127`时，则需要使用更高位宽的类型表示(如`short`)。
+以`byte`类型为例，有符号的`byte`类型范围在`-128 ~ 127`之间，当数值大于`127`时，则需要使用更高位宽的类型表示(如`short`)。  
 `byte`类型为单字节，则将原始有符号数值转换位更高位宽的类型，再与`0xFF`进行`&`(逻辑与)操作(保留原始数值位，擦除其它内容)，得到对应的无符号值。
 
 以`byte`类型负数`-11`为例，运算过程如下：
@@ -171,7 +171,7 @@ public class Main {
 >
 > `0000000010001011`
 >
-> 对比可知低8位对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行逻辑或操作可达到此效果。
+> 对比可知**低8位**对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行**逻辑或**操作可达到此效果。
 
 
 
@@ -492,11 +492,11 @@ class TestClone implements Cloneable {
 }
 ```
 
-在重写`clone()`方法的过程中，要实现**深复制**，就需要类中的每一个引用类型重新构建。  
-重新构建对象优先使用该引用类型的`clone()`方法(如果该类型实现了`Cloneable`接口)  。
+在重写`clone()`方法的过程中，要实现**深复制**，就需要重新构造类中的每一个引用类型。  
+重新构造对象优先使用该引用类型的`clone()`方法(如果该类型实现了`Cloneable`接口)。  
 如果需要复制的引用类型没有实现`Cloneable`接口，则直接使用构造函数创建一个与当前实例中保存内容相同的对象。
 
-需要注意的是，`String`类型是个**特例**，虽然其为**引用类型**，但`String`内部重新实现了自身的`clone()`，在重写当前类的`clone()`方法的时候可以将其视为基本类型(即不必显式构建)。
+需要注意的是，`String`类型是**特例**，虽然其为**引用类型**，但`String`内部重新实现了自身的`clone()`，在重写当前类的`clone()`方法的时候可以将其视为基本类型(即不必显式构建)。
 
 
 
@@ -538,26 +538,26 @@ Test
 
 
 ## *Nested Classes* (嵌套类)
-在Java中，嵌套类(`nested class`)是指定义在一个类内部的类，对应的，包含嵌套类的类被称为**外部类**(`enclosing class`)。
+嵌套类(`nested class`)是指定义在一个类内部的类，对应的，包含嵌套类的类被称为**外部类**(`enclosing class`)。
 
 嵌套类有以下几种类型：
 
-`member nested class`(成员嵌套类)：
-> 成员嵌套类是作为`enclosing class`的成员定义的，成员嵌套类有`enclosing class`属性。
+1. `member nested class`(成员嵌套类)：
 
-`local nested class`(局部嵌套类)：
-> 局部嵌套类定义在方法里面，局部嵌套类有`enclosing class`属性和`enclosing method`属性。
+	成员嵌套类是作为`enclosing class`的成员定义的，成员嵌套类有`enclosing class`属性。  
+	成员嵌套类可以使用访问控制符，也可以用`static`、`final`关键字修饰。
 
-`anonymous nested class`(匿名嵌套类)：
-> 匿名嵌套类没有显示的定义一个类，直接通过`new`操作符构造。
+1. `local nested class`(局部嵌套类)：
 
-几类嵌套类的特性：
+	局部嵌套类定义在方法里面，局部嵌套类有`enclosing class`属性和`enclosing method`。  
+	局部嵌套类可以使用`final`关键字。
 
-- `member nested class`可以使用访问控制符，也可以用`static`、`final`关键字修饰。
-- `local nested class`可以使用`final`关键字。
-- `anonymous nested class`不使用任何关键字和访问控制符。
+1. `anonymous nested class`(匿名嵌套类)：
 
-默认情况下，普通嵌套类内部不能定义`static`关键字修饰的成员，只有**静态嵌套类**(`static nested class`)内部才能定义`static`成员。  
+	匿名嵌套类没有显示的定义一个类，直接通过`new`操作符构造。  
+	匿名嵌套类不使用任何关键字和访问控制符。
+
+普通嵌套类内部不能定义`static`关键字修饰的成员，只有**静态嵌套类**(`static nested class`)内部才能定义`static`成员。  
 静态嵌套类之外的所有嵌套类又被称为**内部类**(`inner class`)。  
 静态嵌套类只能访问外部类的静态成员。
 
@@ -605,7 +605,8 @@ class EnclosingClass {
 ### *Thread* 和 *Runnable*
 使用`Thread`创建线程的两种方式：
 
-1. `Runnable`接口定义了`run()`方法，实现该接口，将需要并发执行的内容写在`run()`方法中。将实现`Runnable`的实例作为参数构造`Thread`实例。
+1. `Runnable`接口定义了`run()`方法，实现该接口，将需要并发执行的内容写在`run()`方法中。  
+	将实现`Runnable`的实例作为参数构造`Thread`实例。
 1. `Thread`类实现了`Runnable`接口，因此也可以直接继承`Thread`类重写其`run()`方法。
 
 完成`Thread`对象的构建后，再调用其成员函数`start()`便会开启线程执行`run()`中的代码。
@@ -662,148 +663,152 @@ public static native void sleep(long millis) throws InterruptedException;
 `Java 5`之后提供了`synchronized`关键字用于解决线程同步问题。
 `synchronized`关键字有两种用法：
 
-`synchronized`块
-> `synchronized`块的基本语法如下：
->
->	```java
->	synchronized (object) {
->		/* do something */
->	}
->	```
->
-> 其中，同步变量`object`可以是实例、`this`引用或是类型(`XXX.class`)。
->
->> 以相同`object`为同步对象的多个`synchronized`块在同一时刻只能有一个`synchronized`块被一个线程执行，在该线程离开`synchronized`块之前，其余线程都会处于等待状态。
->>
->> `object`为实例时：
->>
->>	- 同步变量需要为**引用类型**(基础类型如`int`、`float`等不能使用`synchronized`关键字进行同步)。
->>	- 同步变量**不能**为`null`。
->>	- 同步变量为类的实例成员时，需要注意同一个类的不同实例的相同实例成员是不同的。
->>	- 同步变量为类的静态成员时，一个类的所有实例共享静态成员，此时效果类似于同步类型(`XXX.class`)。
->>
->> `object`为`this`引用时：
->>
->>	- 同一实例中以`this`为同步变量的代码块同时只能被一个线程执行。
->>	- 不同实例之间以`this`为同步对象的代码块无影响。
->>
->> `object`为类型时，所有以此为同步变量的代码块都只能被一个线程执行。
+1. `synchronized`块
 
-`synchronized`方法
-> `synchronized`关键字用于修饰方法，语法如下：
->
->	```java
->	synchronized Type methodName(Type args...) {
->		/* do something */
->	}
->	```
->
-> 被`synchronized`修饰的方法同时只能被**一个**线程访问：
->
->	- 修饰的方法为**实例方法**时：
->
->		同一实例的`synchronized`方法同时只能有一个被执行。  
->		等价于将整个方法体的内容写在`synchronized (this) { ... }`中。不同实例间不受影响。
->
->	- 修饰的方法为**静态方法**时：
->
->		所有该类中的静态`synchronized`方法同时只能有一个被执行。  
->		等价于将整个方法体的内容写在`synchronized (类名.class) { ... }`中。
->
->	- 一个类中被`synchronized`修饰的实例方法和被`synchronized`修饰的静态方法的同步变量不同，因而不会相互同步。
->
-> 如下代码所示：
->
->	```java
->	import static java.lang.Thread.sleep;
->
->	class Example {
->
->		public synchronized void showOne() {
->			for (int i = 0; i < 5; i++) {
->				String threadName = Thread.currentThread().getName();
->				System.out.println(threadName + " showOne()");
->				try {
->					sleep(100);
->				} catch (InterruptedException e) {
->					e.printStackTrace();
->				}
->			}
->		}
->
->		public synchronized void showTwo() {
->			for (int i = 0; i < 5; i++) {
->				String threadName = Thread.currentThread().getName();
->				System.out.println(threadName + " showTwo()");
->				try {
->					sleep(100);
->				} catch (InterruptedException e) {
->					e.printStackTrace();
->				}
->			}
->
->		}
->
->		public static synchronized void showStatic() {
->			for (int i = 0; i < 5; i++) {
->				String threadName = Thread.currentThread().getName();
->				System.out.println(threadName + " showStatic()");
->				try {
->					sleep(100);
->				} catch (InterruptedException e) {
->					e.printStackTrace();
->				}
->			}
->		}
->	}
->
->	public class Main {
->
->		public static void main(String[] args) {
->
->			Example example = new Example();
->
->			new Thread(() -> example.showOne(), "Thread One").start();
->			new Thread(() -> example.showTwo(), "Thread Two").start();
->			new Thread(() -> example.showStatic(), "Thread Three").start();
->		}
->	}
->	```
->
-> 输出结果：
->
->	```
->	Thread One showOne()
->	Thread Three showStatic()
->	Thread One showOne()
->	Thread Three showStatic()
->	Thread One showOne()
->	Thread Three showStatic()
->	Thread One showOne()
->	Thread Three showStatic()
->	Thread One showOne()
->	Thread Three showStatic()
->	Thread Two showTwo()
->	Thread Two showTwo()
->	Thread Two showTwo()
->	Thread Two showTwo()
->	Thread Two showTwo()
->	```
->
-> 输出结果分析
->> `Example`类中的三个成员方法都使用了`synchronized`关键字进行修饰。  
->> `showOne()`、`showTwo()`为实例方法，`showStatic()`为静态方法。  
->>
->> 来自同一个实例在不同线程中的两个实例方法**没有**并发执行：  
->> `showTwo()`一直等到`showOne()`结束才开始执行。
->>
->> 静态方法并发执行了：  
->> `showOne()`与`showStatic()`交错打印输出。
+	基本语法如下：
+
+	```java
+	synchronized (object) {
+		/* do something */
+	}
+	```
+
+	其中，同步变量`object`可以是实例、`this`引用或是类型(`XXX.class`)。
+
+	以相同`object`为同步对象的多个`synchronized`块在同一时刻只能有一个`synchronized`块被一个线程执行。  
+	在该线程离开`synchronized`块之前，其余线程都会处于等待状态。
+
+	- `object`为实例时：
+
+		同步变量需要为**引用类型**(基础类型如`int`、`float`等不能使用`synchronized`关键字进行同步)。  
+		同步变量**不能**为`null`。  
+		同步变量为类的实例成员时，需要注意同一个类的不同实例的相同实例成员是不同的。  
+		同步变量为类的静态成员时，一个类的所有实例共享静态成员，此时效果类似于同步类型(`XXX.class`)。
+
+	- `object`为`this`引用时：
+
+		同一实例中以`this`为同步变量的代码块同时只能被一个线程执行。  
+		不同实例之间以`this`为同步对象的代码块无影响。
+
+	- `object`为类型时，所有以此为同步变量的代码块都只能被一个线程执行。
+
+1. `synchronized`方法
+
+	`synchronized`关键字用于修饰方法，语法如下：
+
+	```java
+	synchronized Type methodName(Type args...) {
+		/* do something */
+	}
+	```
+
+	被`synchronized`修饰的方法同时只能被**一个**线程访问：
+
+	- 修饰的方法为**实例方法**时：
+
+		同一实例的`synchronized`方法同时只能有一个被执行。  
+		等价于将整个方法体的内容写在`synchronized (this) { ... }`中。不同实例间不受影响。
+
+	- 修饰的方法为**静态方法**时：
+
+		所有该类中的静态`synchronized`方法同时只能有一个被执行。  
+		等价于将整个方法体的内容写在`synchronized (类名.class) { ... }`中。
+
+	一个类中被`synchronized`修饰的实例方法和被`synchronized`修饰的静态方法的同步变量不同，因而不会相互同步。
+
+	如下代码所示：
+
+	```java
+	import static java.lang.Thread.sleep;
+
+	class Example {
+
+		public synchronized void showOne() {
+			for (int i = 0; i < 5; i++) {
+				String threadName = Thread.currentThread().getName();
+				System.out.println(threadName + " showOne()");
+				try {
+					sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		public synchronized void showTwo() {
+			for (int i = 0; i < 5; i++) {
+				String threadName = Thread.currentThread().getName();
+				System.out.println(threadName + " showTwo()");
+				try {
+					sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
+
+		public static synchronized void showStatic() {
+			for (int i = 0; i < 5; i++) {
+				String threadName = Thread.currentThread().getName();
+				System.out.println(threadName + " showStatic()");
+				try {
+					sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public class Main {
+
+		public static void main(String[] args) {
+
+			Example example = new Example();
+
+			new Thread(() -> example.showOne(), "Thread One").start();
+			new Thread(() -> example.showTwo(), "Thread Two").start();
+			new Thread(() -> example.showStatic(), "Thread Three").start();
+		}
+	}
+	```
+
+	输出结果：
+
+	```
+	Thread One showOne()
+	Thread Three showStatic()
+	Thread One showOne()
+	Thread Three showStatic()
+	Thread One showOne()
+	Thread Three showStatic()
+	Thread One showOne()
+	Thread Three showStatic()
+	Thread One showOne()
+	Thread Three showStatic()
+	Thread Two showTwo()
+	Thread Two showTwo()
+	Thread Two showTwo()
+	Thread Two showTwo()
+	Thread Two showTwo()
+	```
+
+	输出结果分析：
+
+	`Example`类中的三个成员方法都使用了`synchronized`关键字进行修饰。  
+	`showOne()`、`showTwo()`为实例方法，`showStatic()`为静态方法。
+
+	来自同一个实例在不同线程中的两个实例方法**没有**并发执行：  
+	`showTwo()`一直等到`showOne()`结束才开始执行。
+
+	静态方法并发执行了：  
+	`showOne()`与`showStatic()`交错打印输出。
 
 ### *Executor* 框架
 `Thread`类功能简单，仅仅提供了原始的线程抽象，在实际的开发中，往往会使用更高层次的API。
 
-`Java 5`之后提供了`Executor`框架，用于创建、管理与执行线程。
+`Java 5`之后提供了`Executor`框架，用于创建、管理与执行线程。  
 `Executor`框架主要包含`Executor`、`Executors`、`ExecutorService`、`CompletionService`、`Future`、`Callable`等类型。
 
 `Runnable`、`Callable`、`Future`接口是Java中对于异步操作的抽象。
@@ -968,7 +973,7 @@ public class Main {
 - 使用`get(long timeout, TimeUnit unit)`限定了等待时间，但任务未必会在限定时间内完成，可能需要多次轮询才能获取到所有`Future`的结果。
 
 处理多个任务返回结果应该使用`CompletionService`接口。  
-`CompletionService`接口定义了将已完成的任务与新提交的任务分离的方法。
+`CompletionService`接口定义了将已完成的任务与新提交的任务分离的方法。  
 定义如下：
 
 ```java
@@ -1069,13 +1074,13 @@ Java中提供了一系列**内置注解**，常用的有：
 
 1. `@Target`用于限制注解的范围，参数为注解范围的数组(可以同时设定多个注解范围，用花括号包裹)，取值如下所示：
 
-	1. `ElementType.CONSTRUCTOR` 描述构造器
-	1. `ElementType.FIELD` 描述域
-	1. `ElementType.LOCAL_VARIABLE` 描述局部变量
-	1. `ElementType.METHOD` 描述方法
-	1. `ElementType.PACKAGE` 描述包
-	1. `ElementType.PARAMETER` 描述参数
-	1. `ElementType.TYPE` 描述类、接口(包括注解类型)或`enum`声明
+	- `ElementType.CONSTRUCTOR` 描述构造器
+	- `ElementType.FIELD` 描述域
+	- `ElementType.LOCAL_VARIABLE` 描述局部变量
+	- `ElementType.METHOD` 描述方法
+	- `ElementType.PACKAGE` 描述包
+	- `ElementType.PARAMETER` 描述参数
+	- `ElementType.TYPE` 描述类、接口(包括注解类型)或`enum`声明
 
 1. `@Retention`设置注解的**生命周期**，取值如下所示：
 
@@ -1194,68 +1199,72 @@ TestValue: Schwarzes marken 6
 - `getXxxs()`用于获取**所有成员**，搜索范围为**公有成员**，包括继承的成员。
 - `getDeclaredXxxs()`用于获取**所有成员**，搜索范围为**所有访问权限成员**，不包括继承的成员。
 
-反射获取类型**完整路径**
-> `Class`类型的`getName()`方法返回类型的完整路径：
->
->	```java
->	Xxx.class.getName();
->	```
+1. 获取类型**完整路径**：
 
-获取类型的**成员变量**
-> 获取所有成员字段信息：
->
->	```java
->	public Field[] getFields() throws SecurityException;
->	public Field[] getDeclaredFields() throws SecurityException;
->	```
->
-> 通过字段名称获取指定字段的成员信息：
->
->	```java
->	public Field getField(String name) throws NoSuchFieldException, SecurityException;
->	public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException;
->	```
+	`Class`类型的`getName()`方法返回类型的完整路径：
 
-获取类型的**成员方法**
-> 获取所有成员方法信息：
->
->	```java
->	public Method[] getMethods() throws SecurityException;
->	public Method[] getDeclaredMethods() throws SecurityException;
->	```
->
-> 获取指定参数的方法信息，`name`参数为方法名称，`parameterTypes`参数为方法参数类型(变长参数)：
->
->	```java
->	public Method getMethod(String name, Class<?>... parameterTypes)
->			throws NoSuchMethodException, SecurityException;
->	public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
->			throws NoSuchMethodException, SecurityException;
->	```
+	```java
+	Xxx.class.getName();
+	```
 
-获取类型的**构造方法**
-> 获取所有的构造方法信息：
->
->	```java
->	// 构造方法不存在继承关系，getConstructors()/getgetDeclaredConstructors()区别仅在于获取构造方法的访问权限不同
->	public Constructor<?>[] getConstructors() throws SecurityException;
->	public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
->	```
->
-> 获取指定参数的构造方法信息，`parameterTypes`参数为方法参数类型(变长参数)：
->
->	```java
->	public Constructor<T> getConstructor(Class<?>... parameterTypes)
->			throws NoSuchMethodException, SecurityException;
->	public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
->			throws NoSuchMethodException, SecurityException;
->	```
->
-> 内部类获取外部类的构造方法(非内部类返回`null`)：
->
->	```java
->	public Constructor<?> getEnclosingConstructor() throws SecurityException;
->	```
+1. 获取类型的**成员变量**：
+
+	获取所有成员字段信息：
+
+	```java
+	public Field[] getFields() throws SecurityException;
+	public Field[] getDeclaredFields() throws SecurityException;
+	```
+
+	通过字段名称获取指定字段的成员信息：
+
+	```java
+	public Field getField(String name) throws NoSuchFieldException, SecurityException;
+	public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException;
+	```
+
+1. 获取类型的**成员方法**：
+
+	获取所有成员方法信息：
+
+	```java
+	public Method[] getMethods() throws SecurityException;
+	public Method[] getDeclaredMethods() throws SecurityException;
+	```
+
+	获取指定参数的方法信息，`name`参数为方法名称，`parameterTypes`参数为方法参数类型(变长参数)：
+
+	```java
+	public Method getMethod(String name, Class<?>... parameterTypes)
+			throws NoSuchMethodException, SecurityException;
+	public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
+			throws NoSuchMethodException, SecurityException;
+	```
+
+1. 获取类型的**构造方法**
+
+	获取所有的构造方法信息：
+
+	```java
+	// 构造方法不存在继承关系，getConstructors()/getgetDeclaredConstructors()区别仅在于获取构造方法的访问权限不同
+	public Constructor<?>[] getConstructors() throws SecurityException;
+	public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
+	```
+
+	获取指定参数的构造方法信息，`parameterTypes`参数为方法参数类型(变长参数)：
+
+	```java
+	public Constructor<T> getConstructor(Class<?>... parameterTypes)
+			throws NoSuchMethodException, SecurityException;
+	public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
+			throws NoSuchMethodException, SecurityException;
+	```
+
+	内部类获取外部类的构造方法(非内部类返回`null`)：
+
+	```java
+	public Constructor<?> getEnclosingConstructor() throws SecurityException;
+	```
 
 示例代码如下所示：
 
@@ -1492,13 +1501,13 @@ public class Main {
 			InvocationTargetException {
 
 		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
-		constructor.setAccessible(true);			//设置私有构造器可访问
+		constructor.setAccessible(true); //设置私有构造器可访问
 
-		Test test = constructor.newInstance(200);	//通过私有构造器构造对象，并传入初值
+		Test test = constructor.newInstance(200); //通过私有构造器构造对象，并传入初值
 
 		Method method = Test.class.getDeclaredMethod("showNum", int.class);
-		method.setAccessible(true);					//设置方法的访问权限
-		method.invoke(test, 100);					//调用私有方法showNum()
+		method.setAccessible(true); //设置方法的访问权限
+		method.invoke(test, 100); //调用私有方法showNum()
 	}
 }
 ```
@@ -1698,7 +1707,8 @@ class FileImpl implements File {
 代理类同样需要实现基础接口，但代理类不同于实现类，代理类使用别的接口实现类的实现而不是自身实现功能。  
 代理类在调用实现类功能的同时，也可以加入自身的扩充功能。
 
-实现类以接口的形式被传入代理类，当一个接口有多种实现的时候，代理类能够针对每一种实现类都添加相同的功能，这就是所谓的`AOP`(面向切面编程)，代理类可以被视为是一个切面。
+实现类以接口的形式被传入代理类，当一个接口有多种实现的时候，代理类能够针对每一种实现类都添加相同的功能。  
+这就是所谓的`AOP`(面向切面编程)，代理类可以被视为是一个切面。
 
 ```java
 class FileProxy implements File {
@@ -1762,7 +1772,7 @@ public interface InvocationHandler {
 - `method`参数为调用的方法。
 - `args`参数为对调用方法传入的参数。
 
-需要自行实现`InvocationHandler`接口，来实现动态代理的具体内容。
+需要自行实现`InvocationHandler`接口，来实现动态代理的具体内容。  
 以上文的`FileImpl`类为例，使用动态代理实现如下：
 
 ```java
@@ -1933,8 +1943,8 @@ Access数据库的一些小常识：
 - 表单的高级字段设置在`开始 - 视图 - 设计视图`中。
 - 配置自增属性需要将字段类型设为`自动编号`。
 - 默认情况下，创建的数据类型`数字`的字段大小为`长整型`。  
-长整型不支持**小数输入**，小数输入会自动被去尾。  
-需要将字段大小设置为`单精度浮点型/双精度浮点型`才能支持小数位。
+	长整型不支持**小数输入**，小数输入会自动被去尾。  
+	需要将字段大小设置为`单精度浮点型/双精度浮点型`才能支持小数位。
 - 如果需要某个字段的内容唯一不可重复，可以将改字段的索引设置为`有(无重复)`即可。
 
 
@@ -1994,8 +2004,8 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 `File`=>`Settings`=>`Editor`=>`General`=>`Appearance`=> ...
 
-勾选`Show whitespaces(显示空白)`和`Show line numbers(显示行号)`选项。  
-勾选`Show menthod separators`则会在方法定义之间出现横线做为分隔符。
+- 勾选`Show whitespaces(显示空白)`和`Show line numbers(显示行号)`选项。
+- 勾选`Show menthod separators`则会在方法定义之间出现横线做为分隔符。
 
 ### 设置缩进
 默认情况下，IDEA使用的是**空格**做为缩进，如果需要使用**tab缩进**，则按以下菜单路径设置：
@@ -2007,49 +2017,29 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 - 勾选`Keep indents on empyt lines`则会在**空行**中**保持缩进**。
 
 ### 其它常用选项
-- 代码折叠：
+`File` => `Settings` => `Editor` => `General`：
 
-	`File` => `Settings` => `Editor` => `General` => `Code Folding`
+- `Code Folding` 代码折叠
+- `Soft Wraps` 代码自动换行
+- `Appearance` => `Show right margin` 设置代码边界指示线
+- `Virtual Space` 虚空格(空白处的点按逻辑)
+- `Other` => `Show quick documentation on mouse move` 光标悬停显示变量/方法信息
 
-- 代码自动换行：
+`File` => `Settings` => `Editor` => `Code Style`：
 
-	`File` => `Settings` => `Editor` => `General` => `Soft Wraps`
+- `Java` => `Spaces` => `After type cast` Java强制类型转换前是否空格
+- `Scala` => `Other` => `Enfore procedure syntax for methods with Unit return type`  
+	Scala函数是否自动补全空返回类型
+- `Scala` => `Wrappings and Braces` => `Class definition` => `Place self type on new line`  
+	Scala自身类型参数在类定义中是否另起一行
+- `[目标语言]` => `Wrappings and Braces` => `Method parenttheses` => `Align when multiline`  
+	函数多行参数是否自动对齐到函数名
+- `[目标语言]` => `Blank Lines` => `Minimum Blank Lines` 方法、字段前空行数量
 
-- 设置代码边界指示线：
+`File` => `Settings` => `Project` => `Inspections` => `Spelling` 设置是否开启拼写检查
 
-	`File` => `Settings` => `Editor` => `General` => `Appearance` => `Show right margin`
-
-- 设置空白处的点按逻辑：
-
-	`File` => `Settings` => `Editor` => `General` => `Virtual Space`
-
-- 设置是否开启拼写检查：
-
-	`File` => `Settings` => `Project` => `Inspections` => `Spelling`
-
-- 设置Java强制类型转换前是否空格：
-
-	`File` => `Settings` => `Editor` => `Code Style` => `Java` => `Spaces` => `After type cast`
-
-- 设置Scala函数是否自动补全空返回类型：
-
-	`File` => `Settings` => `Editor` => `Code Style` => `Scala` => `Other` => `Enfore procedure syntax for methods with Unit return type`
-
-- 设置光标悬停显示变量/方法信息：
-
-	`File` => `Settings` => `Editor` => `General` => `Other` => `Show quick documentation on mouse move`
-
-- 设置函数多行参数是否自动对齐到函数名：
-
-	`File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Wrappings and Braces` => `Method parenttheses` => `Align when multiline`
-
-- 设置方法、字段前空行数量：
-
-	`File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Blank Lines` => `Minimum Blank Lines`
-
-- 设置`JavaScript`支持`ECMAScript 6`语法：
-
-	`File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
+`File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`  
+设置`JavaScript`支持`ECMAScript 6`语法
 
 ### 项目打包
 将`Java`项目打包成`jar`、`war`等分发格式，按以下菜单路径设置：
