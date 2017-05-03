@@ -6,7 +6,9 @@
 ### Windows下初始化 *MySQL*
 `MySQL`在`5.5`版本之后变更了初始化的方式，原先使用的`mysql_install_db`指令已被废弃，现在应该使用`--initialize`系列参数进行数据库初始化，如下所示：
 
-`> mysqld --initialize`
+```
+> mysqld --initialize
+```
 
 使用`--initialize`参数初始化会默认创建带有密码的`root`账户，密码会记录在`[主机名].err`文件中，日至内容大致为：
 
@@ -14,34 +16,46 @@
 
 可以使用`--initialize-insecure`参数初始化并创建不带密码的`root`账户，如下所示：
 
-`>  mysqld --initialize-insecure`
+```
+>  mysqld --initialize-insecure
+```
 
 ### Linux下初始化 *MariaDB*
 `MariaDB`在`MySQL`被`Oracle`收购之后，被各大Linux发行版作为默认的`MySQL`版本。
 
 作为`MySQL`的分支，并没有采用`MySQL 5.5`之后的新初始化方式，依旧使用`mysql_install_db`指令进行数据库初始化，以`ArchLinux`为例，初始化指令为：
 
-`# mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql`
+```
+# mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+```
 
 ### 在Linux下手动配置 *MySQL*
 几乎所有的主流Linux发行版都将仓库中默认的`MySQL`数据库迁移到了`MariaDB`分支，因而在Linux下使用`Oracle MySQL`需要从官网下载二进制包手动进行配置。
 
 与Windows下不同，在Linux下启动mysql服务需要显式使用`--basedir`、`--datadir`等参数指定数据库的相关路径，在`MySQL`的`bin`目录下执行如下所示指令：
 
-`$ ./mysqld --initialize-insecure --basedir=[软件路径] --datadir=[数据路径]`
+```
+$ ./mysqld --initialize-insecure --basedir=[软件路径] --datadir=[数据路径]
+```
 
 启动数据库服务需要指定一个拥有权限的路径/文件作为socket路径，在启动时会创建该文件(使用默认参数启动数据库服务会尝试使用`/run/mysqld/mysqld.sock`文件作为锁文件，但普通用户不具有该路径的权限，因而需要显式指定`--socket`参数)：
 
-`$ ./mysql --socket=[socket文件路径] -u root`
+```
+$ ./mysql --socket=[socket文件路径] -u root
+```
 
 ### 使用指定配置启动 *MySQL*
 可以将`MySQL`的启动参数写入配置文件中，启动时指定配置文件的路径即可：
 
-`$ ./mysqld --defaults-file=[配置文件路径]`
+```
+$ ./mysqld --defaults-file=[配置文件路径]
+```
 
 启动操作类似：
 
-`$ ./mysqld --defaults-file=[配置文件路径]`
+```
+$ ./mysqld --defaults-file=[配置文件路径]
+```
 
 一个精简的配置文件大致结构如下：
 
@@ -71,15 +85,21 @@ socket = #客户端启动socket文件位置
 ### 在Windows下启动服务
 在Windows系统下，可以使用`--install`参数将`MySQL`注册到系统服务上：
 
-`> mysqld --install`
+```
+> mysqld --install
+```
 
 之后可以使用Windows自带的服务管理工具`net`启动`MySQL`服务：
 
-`> net start mysql`
+```
+> net start mysql
+```
 
 如果不再需要`MySQL`服务，则使用`--remove`参数移除服务：
 
-`> mysqld --remove`
+```
+> mysqld --remove
+```
 
 ### 在使用 *systemd* 的Linux发行版中启动服务
 采用`systemd`的发行版中可以使用`systemctl`指令管理`MySQL`服务：
@@ -106,65 +126,91 @@ socket = #客户端启动socket文件位置
 ## 用户登陆与管理
 在成功启动了`MySQL`服务之后，使用`mysql`指令登陆：
 
-`$ mysql -u [用户名]`
+```
+$ mysql -u [用户名]
+```
 
 对于有密码的用户，需要使用`-p`参数登陆：
 
-`$ mysql -u [用户名] -p`
+```
+$ mysql -u [用户名] -p
+```
 
 ### 远程登陆
 默认情况下为登陆本机的数据库，如果需要**远程登陆**到其它主机上的数据库，应该使用`-h`参数：
 
-`$ mysql -h [目标主机ip] -u [用户名] -p`
+```
+$ mysql -h [目标主机ip] -u [用户名] -p
+```
 
-远程登陆要求本机的ip已被添加到mysql服务端配置中的`bind-address`配置项中，或者不启用`bind-address`配置。
+远程登陆要求本机的ip已被添加到mysql服务端配置中的`bind-address`配置项中，或者不启用`bind-address`配置。  
 在发行版`Ubuntu`中，mysql的默认配置中`bind-address`配置项是**启用**的。
 
 ### 修改用户密码
 登陆数据库之后，在数据库命令行中输入：
 
-`mysql> set password = password('[密码内容]')`
+```
+mysql> set password = password('[密码内容]')
+```
 
 也可以使用`mysqladmin`工具进行密码修改操作：
 
-`$ mysqladmin -u [用户名] password '[密码内容]'`
+```
+$ mysqladmin -u [用户名] password '[密码内容]'
+```
 
 ### 查看用户信息
 在`MySQL`数据库中，用户的信息记录在`mysql`库中的`user`表中，查询该表即可得到**用户信息**：
 
-`mysql> select * from mysql.user;`
+```
+mysql> select * from mysql.user;
+```
 
 ### 创建/删除用户
 在数据库命令行中使用`create user`指令即可创建用户：
 
-`mysql> create user [用户名];`
+```
+mysql> create user [用户名];
+```
 
 默认情况下创建的是不允许本地登录的远程用户，以上指令相当于：
 
-`mysql> create user [用户名@'%'];`
+```
+mysql> create user [用户名@'%'];
+```
 
 创建本地用户：
 
-`mysql> create user [用户名@localhost];`
+```
+mysql> create user [用户名@localhost];
+```
 
 删除用户操作类似，使用`drop user`指令：
 
-`mysql> drop user [用户名@主机名/主机地址];`
+```
+mysql> drop user [用户名@主机名/主机地址];
+```
 
 ### 授权用户
 新创建的用户不具有权限，需要使用管理员账户(一般为`root`)对其进行授权。
 
 授予某个用户指定数据库的查询与更新权限：
 
-`mysql> grant select, update on [数据库名].* to [用户名]@[登录方式];`
+```sql
+mysql> grant select, update on [数据库名].* to [用户名]@[登录方式];
+```
 
 授予某个用户所有权限：
 
-`mysql> grant all privileges on *.* to [用户名]@[登录方式];`
+```sql
+mysql> grant all privileges on *.* to [用户名]@[登录方式];
+```
 
 被授权的用户默认不能将所拥有的权限授权给其它用户，如果需要使授权能够被传播则使用(一般不推荐这样使用，数据库权限应由DBA统一管理)：
 
-`mysql> grant all privileges on *.* to [用户名]@[登录方式] with grant option;`
+```sql
+mysql> grant all privileges on *.* to [用户名]@[登录方式] with grant option;
+```
 
 也可以通过修改`mysql.user`表来赋予权限：
 
@@ -174,11 +220,13 @@ mysql> update user set Host='[主机名称]',select_priv='y', insert_priv='y',up
 
 更新完用户权限表之后，刷新权限信息：
 
-`mysql> flush privileges;`
+```sql
+mysql> flush privileges;
+```
 
 查看一个用户的权限可以在数据库命令行中使用`show grants`指令：
 
-```
+```sql
 mysql> show grants;									//显示当前用户的权限信息
 mysql> show grants for [用户名]@[主机地址];			//显示指定用户的权限信息
 ```
@@ -186,10 +234,10 @@ mysql> show grants for [用户名]@[主机地址];			//显示指定用户的权�
 
 
 ## 驱动配置
-在`Java`语言中与`MySQL`交互一般使用通用的`JDBC`接口，加载mysql对应的JDBC驱动即可。
+在`Java`语言中与`MySQL`交互一般使用通用的`JDBC`接口，加载mysql对应的JDBC驱动即可。  
 使用`Java`语言编写的IDE如`NetBeans`、`Eclipse`、`IntelliJ IDEA`等提供的`MySQL`数据库管理功能也需要添加mysql的JDBC驱动。
 
-在`ArchLinux`中使用试用Qt5操作mysql数据无需安装额外的包(驱动已被集成至`Qt5`包组中)。
+在`ArchLinux`中使用使用Qt5操作mysql数据无需安装额外的包(驱动已被集成至`Qt5`包组中)。  
 在`Debian`系发行版中使用Qt5操作mysql数据库需要安装`libqt5sql-mysql`包。
 
 在`Debian/RedHat`系发行版中使用`C API`连接mysql数据库时需要安装额外的开发头文件包：
@@ -375,7 +423,9 @@ jdbc:mysql://localhost:3306/xxx?serverTimezone=UTC		//服务端时区信息不�
 ### 存储二进制数据
 如果需要向数据库中存储二进制信息(比如**图片**)，则字段应选择`BLOB`类型(`binary large object`)。
 
-在`MySQL`中，与`BLOB`相关的类型有四种，分别为：`TinyBlob`、`Blob`、`MediumBlum`、`LongBlum`，这四种类型之间的区别在于存储文件大小上限不同，`TinyBlob`最大`255B`，`Blob`最大`65KB`，`MediumBlob`最大`16MB`，`LongBlob`最大`4GB`。
+在`MySQL`中，与`BLOB`相关的类型有四种，分别为：`TinyBlob`、`Blob`、`MediumBlum`、`LongBlum`。  
+这四种类型之间的区别在于存储文件大小上限不同。  
+`TinyBlob`最大`255B`，`Blob`最大`65KB`，`MediumBlob`最大`16MB`，`LongBlob`最大`4GB`。
 
 
 
