@@ -25,7 +25,7 @@
 
 ```
 项目名称
-├── app									//程序资源
+├── app //程序资源
 │   ├── controllers
 │   │   ├── AsyncController.scala
 │   │   ├── CountController.scala
@@ -37,21 +37,21 @@
 │   ├── services
 │   │   ├── ApplicationTimer.scala
 │   │   └── Counter.scala
-│   └── views							//页面模版
+│   └── views //页面模版
 │       ├── index.scala.html
 │       └── main.scala.html
-├── build.sbt							//sbt构建脚本(定义项目依赖等配置)
-├── conf								//存放配置文件和非编译资源
-│   ├── application.conf				//Play项目的主要配置文件
+├── build.sbt //sbt构建脚本(定义项目依赖等配置)
+├── conf //存放配置文件和非编译资源
+│   ├── application.conf //Play项目的主要配置文件
 │   ├── logback.xml
-│   └── routes							//路由定义
+│   └── routes //路由定义
 ├── libexec
 │   └── activator-launch-1.3.10.jar
 ├── LICENSE
 ├── project
-│   ├── build.properties				//sbt项目构建参数
-│   └── plugins.sbt						//sbt插件
-├── public								//公共资源
+│   ├── build.properties //sbt项目构建参数
+│   └── plugins.sbt //sbt插件
+├── public //公共资源
 │   ├── images
 │   │   └── favicon.png
 │   ├── javascripts
@@ -85,7 +85,7 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.10")		//play框架信息
 ## *Controller* (控制器)
 在`Play Framework`中，使用`Controller`(控制器)内定义的`Action`实例来响应、处理`HTTP`请求。
 
-`Controller`是特质，完整路径为`play.api.mvc.Controller`。
+`Controller`是特质，完整路径为`play.api.mvc.Controller`。  
 常见的编码方式为继承`Controller`特质，在`Controller`特质的子类中定义`Action`处理`HTTP`请求。
 
 如下所示：
@@ -96,11 +96,11 @@ package controllers
 import play.api.mvc._
 
 class CustomController extends Controller {
-	...
-	def xxx = Action {
-		...
-	}
-	...
+  ...
+  def xxx = Action {
+    ...
+  }
+  ...
 }
 ```
 
@@ -111,11 +111,11 @@ class CustomController extends Controller {
 
 ```scala
 trait ActionBuilder[+R[_]] extends ActionFunction[Request, R] {
-	...
-	final def apply(block: R[AnyContent] => Result): Action[AnyContent] = apply(BodyParsers.parse.default)(block)
-	final def apply(block: => Result): Action[AnyContent] =
-		apply(BodyParsers.parse.ignore(AnyContentAsEmpty: AnyContent))(_ => block)
-	...
+  ...
+  final def apply(block: R[AnyContent] => Result): Action[AnyContent] = apply(BodyParsers.parse.default)(block)
+  final def apply(block: => Result): Action[AnyContent] =
+    apply(BodyParsers.parse.ignore(AnyContentAsEmpty: AnyContent))(_ => block)
+  ...
 }
 ```
 
@@ -123,56 +123,56 @@ trait ActionBuilder[+R[_]] extends ActionFunction[Request, R] {
 
 ```scala
 def index = Action {
-	Ok("xxxx")		//返回xxxx做为HTTP请求的回应
-}	//调用继承的apply(block: => Result)方法，方法参数为返回Result类型的传名参数
+  Ok("xxxx") //返回xxxx做为HTTP请求的回应
+} //调用继承的apply(block: => Result)方法，方法参数为返回Result类型的传名参数
 
 def echo = Action {
-	request => Ok(s"Request is: [$request]")
-}	//调用继承的apply(block: R[AnyContent] => Result)方法，方法参数为接收Request类型，返回Result类型的Function
+  request => Ok(s"Request is: [$request]")
+} //调用继承的apply(block: R[AnyContent] => Result)方法，方法参数为接收Request类型，返回Result类型的Function
 ```
 
 ### *Result*
 `Action`参数方法的返回类型为`play.api.mvc.Result`，包含了`HTTP`响应状态码以及返回的请求内容。
 
-`HTTP`响应状态在`Play Framework`中使用`play.api.mvc.Results`特质中定义的内部类`Status`表示。
+`HTTP`响应状态在`Play Framework`中使用`play.api.mvc.Results`特质中定义的内部类`Status`表示。  
 `Results`特质中定义了一系列字段用于表示常用的`HTTP`状态码(源码摘自`Play 2.5.10`)：
 
 ```scala
 trait Results {
-	...
+  ...
 
-	class Status(status: Int) extends Result(header = ResponseHeader(status), body = HttpEntity.NoEntity) {
-		...
-		def apply[C](content: C)(implicit writeable: Writeable[C]): Result = {
-			Result(header, writeable.toEntity(content))
-		}
-		...
-	}
+  class Status(status: Int) extends Result(header = ResponseHeader(status), body = HttpEntity.NoEntity) {
+    ...
+    def apply[C](content: C)(implicit writeable: Writeable[C]): Result = {
+      Result(header, writeable.toEntity(content))
+    }
+    ...
+  }
 
-	/** Generates a ‘200 OK’ result. */
-	val Ok = new Status(OK)
+  /** Generates a ‘200 OK’ result. */
+  val Ok = new Status(OK)
 
-	/** Generates a ‘201 CREATED’ result. */
-	val Created = new Status(CREATED)
+  /** Generates a ‘201 CREATED’ result. */
+  val Created = new Status(CREATED)
 
-	/** Generates a ‘202 ACCEPTED’ result. */
-	val Accepted = new Status(ACCEPTED)
+  /** Generates a ‘202 ACCEPTED’ result. */
+  val Accepted = new Status(ACCEPTED)
 
-	/** Generates a ‘203 NON_AUTHORITATIVE_INFORMATION’ result. */
-	val NonAuthoritativeInformation = new Status(NON_AUTHORITATIVE_INFORMATION)
+  /** Generates a ‘203 NON_AUTHORITATIVE_INFORMATION’ result. */
+  val NonAuthoritativeInformation = new Status(NON_AUTHORITATIVE_INFORMATION)
 
-	/** Generates a ‘204 NO_CONTENT’ result. */
-	val NoContent = Result(header = ResponseHeader(NO_CONTENT), body = HttpEntity.NoEntity)
+  /** Generates a ‘204 NO_CONTENT’ result. */
+  val NoContent = Result(header = ResponseHeader(NO_CONTENT), body = HttpEntity.NoEntity)
 
-	/** Generates a ‘205 RESET_CONTENT’ result. */
-	val ResetContent = Result(header = ResponseHeader(RESET_CONTENT), body = HttpEntity.NoEntity)
+  /** Generates a ‘205 RESET_CONTENT’ result. */
+  val ResetContent = Result(header = ResponseHeader(RESET_CONTENT), body = HttpEntity.NoEntity)
 
-	/** Generates a ‘206 PARTIAL_CONTENT’ result. */
-	val PartialContent = new Status(PARTIAL_CONTENT)
+  /** Generates a ‘206 PARTIAL_CONTENT’ result. */
+  val PartialContent = new Status(PARTIAL_CONTENT)
 
-	/** Generates a ‘207 MULTI_STATUS’ result. */
-	val MultiStatus = new Status(MULTI_STATUS)
-	...
+  /** Generates a ‘207 MULTI_STATUS’ result. */
+  val MultiStatus = new Status(MULTI_STATUS)
+  ...
 }
 ```
 
@@ -185,10 +185,10 @@ trait Results {
 import play.api.http.HttpEntity
 
 def index = Action {
-	Result(
-		header = ResponseHeader(200, Map.empty),
-		body = HttpEntity.Strict(ByteString("Hello world!"), Some("text/plain"))
-	)
+  Result(
+    header = ResponseHeader(200, Map.empty),
+    body = HttpEntity.Strict(ByteString("Hello world!"), Some("text/plain"))
+  )
 }
 ```
 
@@ -203,7 +203,7 @@ def todo = TODO
 
 ```scala
 def index = Action {
-	Redirect("/other")	//重定向到路径other
+  Redirect("/other")	//重定向到路径other
 }
 ```
 
@@ -211,7 +211,7 @@ def index = Action {
 
 ```scala
 def index = Action {
-	Redirect("/other", MOVED_PERMANENTLY)
+  Redirect("/other", MOVED_PERMANENTLY)
 }
 ```
 
@@ -249,20 +249,20 @@ import play.api.mvc._
 
 class Application extends Controller {
 
-	def index0 = Action { Ok("Index0") }
-	def index1 = Action { Ok("Index1") }
+  def index0 = Action { Ok("Index0") }
+  def index1 = Action { Ok("Index1") }
 
-	def name(name: String) = Action {
-		Ok(s"Name $name")
-	}
+  def name(name: String) = Action {
+    Ok(s"Name $name")
+  }
 
-	def name(nameId: Int) = Action {
-		Ok(s"NameId $nameId")
-	}
+  def name(nameId: Int) = Action {
+    Ok(s"NameId $nameId")
+  }
 
-	def num(num: Int) = Action {
-		Ok(s"Num: $num")
-	}
+  def num(num: Int) = Action {
+    Ok(s"Num: $num")
+  }
 
 }
 ```
@@ -274,48 +274,51 @@ GET         /                    controllers.Application.index0
 GET         /                    controllers.Application.index1		# 实际会跳转到index0
 ```
 
-若控制器方法带有参数，则可以使用请求路径的一部分做为参数匹配控制器方法：
+- 参数匹配
 
-```
-GET        /test/:name              controllers.Application.num(name)
-```
+	若控制器方法带有参数，则可以使用请求路径的一部分做为参数匹配控制器方法：
 
-将会匹配所有`/test/*`形式的路径，`*`代表的内容会做为参数`name`传入控制器方法中。
+	```
+	GET        /test/:name              controllers.Application.num(name)
+	```
 
-匹配控制器方法时可以限定类型：
+	将会匹配所有`/test/*`形式的路径，`*`代表的内容会做为参数`name`传入控制器方法中。
 
-```
-GET        /test/:num               controllers.Application.num(num: Int)
-```
+	匹配控制器方法时可以限定类型：
 
-路由语法中的控制器方法不支持重载，不要在多个匹配规则中调用一个控制器的重载方法：
+	```
+	GET        /test/:num               controllers.Application.num(num: Int)
+	```
 
-```
-GET        /test/:name              controllers.Application.name(name: Int)
-GET        /test/:name              controllers.Application.name(name: String)
-```
+	路由语法中的控制器方法不支持重载，不要在多个匹配规则中调用一个控制器的重载方法：
 
-报错`method name is defined twice`。
+	```
+	GET        /test/:name              controllers.Application.name(name: Int)
+	GET        /test/:name              controllers.Application.name(name: String)
+	```
 
-当需要对有参控制器方法传入固定内容的参数时，参数名称不可省略：
+	报错`method name is defined twice`。
 
-```
-GET        /test                    controllers.Application.name(name = "default")
-```
+	当需要对有参控制器方法传入固定内容的参数时，参数名称不可省略：
 
-正则表达式匹配
-> 路由路径支持使用正则表达式来进行更精确的匹配，基本语法如下所示：
->
-> ```
-> GET        /路径/$变量名称<正则表达式>  controllers.Xxx.xxx(变量名称)
-> ```
->
-> 以下两种表达方式等价：
->
-> ```
-> GET        /test/:name              controllers.Application.num(name)
-> GET        /test/$name<.+>          controllers.Application.num(name)
-> ```
+	```
+	GET        /test                    controllers.Application.name(name = "default")
+	```
+
+- 正则表达式匹配
+
+	路由路径支持使用正则表达式来进行更精确的匹配，基本语法如下所示：
+
+	```
+	GET        /路径/$变量名称<正则表达式>  controllers.Xxx.xxx(变量名称)
+	```
+
+	以下两种表达方式等价：
+
+	```
+	GET        /test/:name              controllers.Application.num(name)
+	GET        /test/$name<.+>          controllers.Application.num(name)
+	```
 
 ### 配置多个路由文件
 除了`/conf/routes`文件，在项目路径`/conf`下的所有`*.routes`文件都会被视作路由配置文件。
@@ -348,22 +351,22 @@ import play.api.http._
 import play.api.mvc.RequestHeader
 
 class CustomRequestHandler @Inject()(
-	routes: router.Routes,				// 传入主构造器的路由配置实例为主要路由配置
-	errorHandler: HttpErrorHandler,
-	configuration: HttpConfiguration,
-	filters: HttpFilters)
-	extends DefaultHttpRequestHandler(routes, errorHandler, configuration, filters) {
+  routes: router.Routes, // 传入主构造器的路由配置实例为主要路由配置
+  errorHandler: HttpErrorHandler,
+  configuration: HttpConfiguration,
+  filters: HttpFilters)
+  extends DefaultHttpRequestHandler(routes, errorHandler, configuration, filters) {
 
-	// 注入test.routes文件生成的路由规则类
-	@Inject
-	private var testRoutes: test.Routes = null
+  // 注入test.routes文件生成的路由规则类
+  @Inject
+  private var testRoutes: test.Routes = null
 
-	// 重写默认的请求处理逻辑
-	override def routeRequest(request: RequestHeader) = request.host match {
-		case ... => super.routeRequest(request)			// 满足xxx条件使用默认路由配置
-		case ... => testRoutes.routes.lift(request)		// 满足xxx条件使用test路由配置
-		case _ => ...
-	}
+  // 重写默认的请求处理逻辑
+  override def routeRequest(request: RequestHeader) = request.host match {
+    case ... => super.routeRequest(request) // 满足xxx条件使用默认路由配置
+    case ... => testRoutes.routes.lift(request) // 满足xxx条件使用test路由配置
+    case _ => ...
+  }
 
 }
 ```
@@ -390,37 +393,37 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 ### *@* 关键字
 `Twirl`模板引擎使用`@`做为引用模板语法的关键字，`@`关键字的主要用法：
 
-直接引用模板参数
->
->	```scala
->	<p>Name: @name</p>
->	```
+- 直接引用模板参数
 
-调用模板参数的方法
->
->	```scala
->	<p>Name Length: @name.length</p>
->	```
+	```scala
+	<p>Name: @name</p>
+	```
 
-执行代码块
->
->	```scala
->	<p>@(name1.length + name2.length)</p>
->	<p>@{
->		val name = s"$name1 $name2"
->		name
->	}</p>
->	```
->
-> 在使用`@{ ... }`执行代码块时，代码块的最后一个变量会做为整个代码块的**返回值**。
+- 调用模板参数的方法
 
-添加注释
->
->	```scala
->	@* 注释内容 *@
->	```
->
-> 使用`@* *@`插入的注释内容在编译期间会被清除，不会保留到最后生成的`html`文件中。
+	```scala
+	<p>Name Length: @name.length</p>
+	```
+
+- 执行代码块
+
+	```scala
+	<p>@(name1.length + name2.length)</p>
+	<p>@{
+		val name = s"$name1 $name2"
+		name
+	}</p>
+	```
+
+	在使用`@{ ... }`执行代码块时，代码块的最后一个变量会做为整个代码块的**返回值**。
+
+- 添加注释
+
+	```scala
+	@* 注释内容 *@
+	```
+
+	使用`@* *@`插入的注释内容在编译期间会被清除，不会保留到最后生成的`html`文件中。
 
 若需要在模板中输出普通的`@`字符，则应使用`@@`。
 
@@ -562,12 +565,31 @@ sourceDirectories in (Compile, TwirlKeys.compileTemplates) := (unmanagedSourceDi
 启动了路径设置后，执行编译操作时，模板引擎编译器会扫描`src/main/scala`、`src/main/java`路径下的所有模板文件，根据模板生成`Scala`代码。  
 生成的模板类会以子路径名做为**包名**。
 
+### 自定义模板类型
+`Twirl`模板引擎默认支持`html`、`js```xml`、`txt`四种后缀的模板类型。
+
+若需要扩展支持的模板文件类型，则需要在项目构建配置`build.sbt`中设定`TwirlKeys.templateFormats`配置项。  
+`TwirlKeys.templateFormats`配置项应添加`Map[String, String]`类型的配置：
+
+- 配置key为需要扩展的文件类型。
+- 配置value为文件类型对应采用的模板规则类的路径字符串，若无需自定义规则，可以使用预置的`play.twirl.api.XxxFormat`类型。
+
+以常见的`json`格式为例，在`build.sbt`文件中添加：
+
+```
+// 将json后缀的模板应用预定义的js模板生成规则
+TwirlKeys.templateFormats += "json" -> "play.twirl.api.JavaScriptFormat"
+```
+
+若现有的模板生成规则不能满足需要，则可以自行扩展`play.twirl.api.Format[A]`特质，重写`raw()`、`escape()`等方法实现自定义的模板生成规则。
+
 
 
 ## ORM
 与`Django`不同，与`Spring MVC`类似，`Play Framework`需要搭配额外的ORM框架。
 
-`Play Framework`支持多种ORM框架，推荐使用`Slick`，`Slick`是`LightBend`官方开发的函数式风格的ORM框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。  
+`Play Framework`支持多种ORM框架，推荐使用`Slick`。  
+`Slick`是`LightBend`官方支持的函数式风格的ORM框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。  
 除了`Slick`，`Play Framework`还支持`Anorm`、`EBean`等ORM框架。
 
 ### 配置 *Slick*
@@ -577,9 +599,9 @@ sourceDirectories in (Compile, TwirlKeys.compileTemplates) := (unmanagedSourceDi
 
 ```scala
 libraryDependencies ++= Seq(
-	"com.typesafe.slick" %% "slick" % "版本号",			//Slick ORM框架
-	"com.typesafe.slick" %% "slick-hikaricp" % "版本号"	//Slick 数据库连接池
-	"mysql" % "mysql-connector-java" % "版本号"			//JDBC 连接驱动包
+  "com.typesafe.slick" %% "slick" % "版本号", //Slick ORM框架
+  "com.typesafe.slick" %% "slick-hikaricp" % "版本号" //Slick 数据库连接池
+  "mysql" % "mysql-connector-java" % "版本号" //JDBC 连接驱动包
 )
 ```
 
@@ -596,14 +618,14 @@ libraryDependencies ++= Seq(
 添加框架依赖之后，需要在项目配置文件`conf/application.conf`中添加数据库的具体连接配置。
 
 ```scala
-slick.dbs.default {											//"default"为默认的配置名称，可以自行修改
-	driver = "slick.driver.MySQLDriver$"					//Slick对应数据库的驱动，注意"$"符号不能少
+slick.dbs.default { //"default"为默认的配置名称，可以自行修改
+	driver = "slick.driver.MySQLDriver$" //Slick对应数据库的驱动，注意"$"符号不能少
 	db {
-		driver = "com.mysql.jdbc.Driver"					//JDBC驱动
-		url = "jdbc:mysql://IP地址:端口号/数据库名称"			//数据库连接字符串
-		user= "MySQL用户名"									//数据库用户名
-		password = "MySQL密码"								//数据库密码
-		connectionPool = disabled/enabled					//是否使用连接池，使用连接池则需要slick-hikaricp插件支持
+		driver = "com.mysql.jdbc.Driver" //JDBC驱动
+		url = "jdbc:mysql://IP地址:端口号/数据库名称" //数据库连接字符串
+		user= "MySQL用户名" //数据库用户名
+		password = "MySQL密码" //数据库密码
+		connectionPool = disabled/enabled //是否使用连接池，使用连接池则需要slick-hikaricp插件支持
 	}
 }
 ```
@@ -863,7 +885,7 @@ class TestTable(tag: Tag) extends Table[TestModel](tag, "TestTable") {
 >
 >	```scala
 >	val query = TableQuery[TestTable]
->	query.filter(_.name === "dainslef").delete		//删除所有name为dainslef的行
+>	query.filter(_.name === "dainslef").delete //删除所有name为dainslef的行
 >	```
 
 ### 应用查询集操作
@@ -873,13 +895,22 @@ class TestTable(tag: Tag) extends Table[TestModel](tag, "TestTable") {
 val db = Database.forConfig("xxx")
 val query = TableQuery[TestTable]
 
-query...								//执行各类查询过滤操作
+query... //执行各类查询过滤操作
 
-val action = query.result				//获取查询操作，返回类型为DriverAction[T]
-val future = db.run(action)				//使用Database实例执行操作，返回类型为Future[T]
+val action = query.result //获取查询操作，返回类型为DriverAction[T]
+val future = db.run(action)
 ```
 
-对于所有返回`DriverAction`类型的操作都需要使用`Database.run()`方法执行才能生效。
+`Database.run()`方法为异步执行，调用方法时不会阻塞，返回类型为`Future[Seq[XxxModel]]`。  
+若需要同步等待数据操作结束，可以使用`Await.result()`方法，该方法同时返回`Future`的执行结果：
+
+```scala
+val result = Await.result(future, Duration.Inf)
+```
+
+若查询的内容不存在，`Future`内包含的查询结果序列`Seq[XxxModel]`大小为`0`(不是`null`)。
+
+对于所有返回`DriverAction`类型的操作都需要使用`Database.run()`方法执行才能生效。  
 如下所示：
 
 ```scala
@@ -918,11 +949,4 @@ val actions = DBIO.seq(
 )
 
 db.run(actions)			//执行多个操作
-```
-
-`Database.run()`方法为异步执行，调用方法时不会阻塞，返回`Future`类型。  
-若需要同步等待数据操作结束，可以使用`Await.result()`方法，该方法同时返回`Future`的执行结果：
-
-```scala
-val result = Await.result(future, Duration.Inf)
 ```
