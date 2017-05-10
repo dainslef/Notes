@@ -327,45 +327,50 @@ object Main extends App {
 23333
 ```
 
-默认参数与方法重载
-> 在Scala中，若一个带有默认的参数的方法省略默认参数时签名与一个已经存在的方法相同，编译器并不会报错(C++编译器则会报错)，而是在调用方法时优先使用**无默认值**的版本(处理逻辑类似于C#)：
->
->	```scala
->	object Main extends App {
->	  def func() = println("No Args")
->	  def func(num: Int = 100) = println(num)
->	  func()
->	}
->	```
->
-> 输出结果：
->
->	```
->	No Args
->	```
+- 默认参数与方法重载
 
-具名参数
-> 在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为**具名参数**。  
-> 对于方法中包含多个同类型并带有默认值参数的情况下，使用该特性可以显式指定要传入的是哪一个参数：
->
->	```scala
->	scala> func(num2 = 300)
->	100 300
->	```
->
-> 与C++不同，Scala中，方法参数的默认值**不需要**连续，参数的默认值可以交错出现，甚至是颠倒参数顺序：
->
->	```scala
->	scala> def func(int: Int, str: String = "String", char: Char, double: Double = 123.0) = println(s"$int $str $char $double")
->	func: (int: Int, str: String, char: Char, double: Double)Unit
->	scala> func(100, 'c')
->	<console>:12: error: not enough arguments for method func: (int: Int, str: String, char: Char, double: Double)Unit.
->	Unspecified value parameter char.
->	    func(100, 'c')
->	        ^
->	scala> func(int = 100, char = 'c') //对于默认参数不连续的方法，需要使用"具名参数"特性
->	100 String c 123.0
->	```
+	在Scala中，若一个带有默认的参数的方法省略默认参数时签名与一个已经存在的方法相同，编译器并不会报错(C++编译器则会报错)。  
+	在调用方法时优先使用**无默认值**的版本(处理逻辑类似于C#)：
+
+	```scala
+	object Main extends App {
+	  def func() = println("No Args")
+	  def func(num: Int = 100) = println(num)
+	  func()
+	}
+	```
+
+	输出结果：
+
+	```
+	No Args
+	```
+
+- 具名参数
+
+	在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为**具名参数**。  
+	对于方法中包含多个同类型并带有默认值参数的情况下，使用该特性可以显式指定要传入的是哪一个参数：
+
+	```scala
+	scala> func(num2 = 300)
+	100 300
+	```
+
+- 默认参数顺序
+
+	与C++不同，在Scala中，方法参数的默认值**不需要**从尾部开始连续出现，参数的默认值可以交错出现：
+
+	```scala
+	scala> def func(int: Int, str: String = "String", char: Char, double: Double = 123.0) = println(s"$int $str $char $double")
+	func: (int: Int, str: String, char: Char, double: Double)Unit
+	scala> func(100, 'c')
+	<console>:12: error: not enough arguments for method func: (int: Int, str: String, char: Char, double: Double)Unit.
+	Unspecified value parameter char.
+	    func(100, 'c')
+	        ^
+	scala> func(int = 100, char = 'c') //对于默认参数不连续的方法，需要使用"具名参数"特性
+	100 String c 123.0
+	```
 
 
 
@@ -659,8 +664,9 @@ package TestCode {
   protected class B //类定义的访问权限可以为protected
 
   case class Num private(num: Int = 200) //权限修饰符可以用在类名与主构造器之间，代表构造器私有
-  class Test protected() //即使主构造器参数为空，也不能直接以权限关键字结尾
-  //或者写成 class Test protected {}
+
+  // 即使主构造器参数为空，也不能直接以权限关键字结尾
+  class Test protected() //或者写成 class Test protected {}
 
   class Access(a: Int = 1, var b: Double = 2.0) {
     def showOther1(access: Access) = access.show1 //出错，access非当前类实例，无访问权限
@@ -1058,7 +1064,8 @@ Scala作为OOP语言，支持多态。
 ### 伴生对象
 `Scala`中没有`static`关键字，也没有**静态成员**的概念，`Scala`使用**单例对象**来达到近似静态成员的作用。
 
-- 每一个类可以拥有一个同名的**伴生对象**(单例)，伴生对象使用`object`关键字定义，且一个类和其伴生对象的定义必须写在同一个文件中。
+- 每一个类可以拥有一个同名的**伴生对象**(单例)，伴生对象使用`object`关键字定义。
+- 一个类和其伴生对象的定义必须写在同一个文件中。
 - 伴生对象与同名类之间可以相互访问私有、保护成员。
 
 ### *apply()/update()* 方法
@@ -1205,7 +1212,7 @@ abc cde
 abc cde efg
 ```
 
-### *Case Class* (样例类) 与 *Pattern Matching* (模式匹配)
+### *Case Class* (样例类)
 样例类是一种特殊的类，通常用在**模式匹配**中。  
 在类定义前使用`case`关键字即可定义一个样例类。
 
@@ -1213,8 +1220,7 @@ abc cde efg
 
 - 样例类构造器中的字段默认使用`val`关键字定义(即默认为公有访问权限，而不是普通类默认的`private[this]`)。
 - 样例类默认即实现了`apply()`方法用于构造对象和`unapply()`方法用于模式匹配。
-- 样例类还默认实现了`toString`、`equals`、`hashCode`、`copy`等方法。
-- 如果样例类默认生成的方法不合要求，也可以选择自行定义。
+- 样例类默认实现了`toString`、`equals`、`hashCode`、`copy`等其它方法。
 
 如下代码所示：
 
@@ -1241,10 +1247,10 @@ object Main extends App {
   //样例类的实例之间可以直接比较,只要构造器中的字段值相同便会返回true
   println(ca == caCopy)
 
-  //样例类经常用于模式匹配中
+  //样例类经常用于模式匹配中(unapply()方法的应用)
   def show(ca: Case) = ca match {
-    case Case(num, _) if num > 100 => println("Case.num > 100") //模式匹配中条件可以带有守卫
-    case Case(100, _) => println("Case.num == 100") //模式匹配可以精确到具体的数值，而对于不需要的值可以忽略(使用"_"符号)
+    case Case(num, _) if num > 100 => println("Case.num > 100")
+    case Case(100, _) => println("Case.num == 100")
     case _ => println("Not Matching")
   }
 
@@ -1574,6 +1580,11 @@ No Value
 
 
 
+## *Pattern Matching* (模式匹配)
+待续。。。
+
+
+
 ## *sealed* 和 *final* 关键字
 `sealed`和`final`都是Scala语言的关键字。
 
@@ -1883,16 +1894,16 @@ Scala常用的基础结构包括**数组**和**元组**。
 构建一个固定长度的数组如下所示：
 
 ```scala
-scala> val array = new Array[Int](10)  //构建一个长度为10的Int型数组
+scala> val array = new Array[Int](10) //构建一个长度为10的Int型数组
 array: Array[Int] = Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-scala> val a = Array(100, 200)         //使用伴生对象的apply()方法创建数组
+scala> val a = Array(100, 200) //使用伴生对象的apply()方法创建数组
 a: Array[Int] = Array(100, 200)
-scala> array(5)                        //获取数组中指定位置的值(使用小括号中加偏移量)
+scala> array(5) //获取数组中指定位置的值(使用小括号中加偏移量)
 res1: Int = 0
-scala> array(5) = 10                   //给指定位置的元素赋值
-scala> array                           //查看赋值结果
+scala> array(5) = 10 //给指定位置的元素赋值
+scala> array //查看赋值结果
 res2: Array[Int] = Array(0, 0, 0, 0, 0, 10, 0, 0, 0, 0)
-scala> array(100)                      //数组访问越界会抛出异常
+scala> array(100) //数组访问越界会抛出异常
 java.lang.ArrayIndexOutOfBoundsException: 100
   ... 33 elided
 ```
@@ -1907,8 +1918,16 @@ scala> val tuple = (1, 2, 3)
 tuple: (Int, Int, Int) = (1,2,3)
 ```
 
-元组中允许包含**重复**的值，也允许不同类型的值，但元组一经创建，内容便不可改变。  
-元组**不支持**使用`for`循环进行遍历。
+元组中允许包含**重复**的值，也允许不同类型的值，但元组一经创建，内容便不可改变。
+
+元组**不支持**直接使用`for`循环进行遍历。  
+`Tuple`类型混入了`scala.Product`特质，可以使用无参方法`productIterator`获取可迭代的对象用于遍历。  
+如下代码所示：
+
+```scala
+for (t <- tuple.productIterator) println(t) //命令式遍历
+tuple.productIterator foreach println //函数式遍历
+```
 
 元组可以通过`元组对象._索引号`的形式访问。元组下标从`1`开始而非`0`，如下所示：
 
@@ -1920,7 +1939,7 @@ scala> println(tuple._1 + " " + tuple._2 + " " + tuple._3)
 元组可以用来一次性初始化多个变量：
 
 ```scala
-scala> val (a, b, c) = tuple  //等价于 val (a, b, c) = (1, 2, 3)
+scala> val (a, b, c) = tuple //等价于 val (a, b, c) = (1, 2, 3)
 a: Int = 1
 b: Int = 2
 c: Int = 3
@@ -1940,9 +1959,9 @@ str: String = 456
 
 ```scala
 object TestTuple extends App {
-	def getNum(num1: Int, num2: Int, num3: Int) = (num1, num2, num3)
-	val (num1, num2, num3) = getNum(1, 2, 3)
-	println(s"$num1 $num2 $num3")
+  def getNum(num1: Int, num2: Int, num3: Int) = (num1, num2, num3)
+  val (num1, num2, num3) = getNum(1, 2, 3)
+  println(s"$num1 $num2 $num3")
 }
 ```
 
@@ -2056,7 +2075,8 @@ scala> val list3 = list0 ++ list1
 list3: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
 ```
 
-`:::`与`++`对于列表而言，作用完全相同，只不过`:::`是`List`类型特有的运算符，而`++`继承于特质`TraversableLike`，也可用于一些其它的集合类型。
+`:::`与`++`对于列表而言，作用完全相同。  
+`:::`是`List`类型特有的运算符，`++`继承于特质`TraversableLike`，也可用于一些其它的集合类型。
 
 列表同样支持通过索引进行访问，语法与`Array[T]`类型类似：
 
@@ -2712,8 +2732,8 @@ def testImplicit(implicit num0: Int)(num1: Double) {}           //错误。只�
 	  implicit val num0 = 1
 	  implicit val num1 = 1.0
 
-	  testImplicit			//全部采用隐式值
-	  testImplicit()			//全部采用默认值
+	  testImplicit //全部采用隐式值
+	  testImplicit() //全部采用默认值
 	}
 	```
 
