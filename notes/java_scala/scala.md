@@ -1274,6 +1274,53 @@ Case.num > 100
 Not Matching
 ```
 
+- 避免重定义样例类自动生成的方法
+
+	手动创建样例类的伴生对象时，应避免定义与样例类自动生成方法签名相同的方法(`apply()/unapply()`等)，否则编译报错。  
+	如下所示：
+
+	```scala
+	object Main extends App {
+
+	  case class Case(num: Int)
+
+	  object Case {
+	    def apply(num: Int) = new Case(num) //编译报错
+	    def unapply(arg: Case) = Option(arg.num) //编译报错
+	  }
+
+	}
+	```
+
+	错误提示：
+
+	```
+	error: method apply is defined twice;
+	  the conflicting method apply was defined at line 6:9
+	  case class Case(num: Int)
+	             ^
+	error: method unapply is defined twice;
+	  the conflicting method unapply was defined at line 7:9
+	  case class Case(num: Int)
+	             ^
+	```
+
+	若伴生对象中的自定义方法与默认生成的方法签名不同，则正常编译。  
+	如下所示：
+
+	```scala
+	object Main extends App {
+
+	  case class Case(num: Int)
+
+	  object Case {
+	    def apply(num1: Int, num2: Int) = new Case(num1 + num2) //正常编译
+	    def unapply(arg: (Case, Case)) = Option(arg._1.num, arg._2.num) //正常编译
+	  }
+
+	}
+	```
+
 ### *Trait* (特质)
 Scala中的`trait`特质对应Java中的`interface`接口。  
 相比Java中的接口，Scala中的特质除了不能自定义有参构造器、不能被直接实例化之外，拥有绝大部分类的特性。
