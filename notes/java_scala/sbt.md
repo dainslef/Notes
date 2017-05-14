@@ -34,14 +34,9 @@
 >
 ```
 
-若路径中包含Scala源码，则在`sbt shell`中输入`run`指令则会尝试编译执行源码。
+若路径为有效的`sbt`项目路径，则在`sbt shell`中输入`run`指令会尝试编译源码执行项目。
 
-旧版的`sbt`中(`sbt 0.7.x`之前)，在`sbt shell`中输入`run`指令会在路径下创建完整的sbt项目路径结构，但新版的sbt已不提供此功能(但可以使用`Activator`创建完整的sbt项目)。
-
-使用`Activator`则操作类似，在目录下输入`activator shell`指令即可进入sbt交互式shell。  
-`Activator`内置了多种项目模版，使用如下指令即可创建一个具有完整路径的sbt项目：
-
-`$ activator new [项目名称] minimal-scala`
+旧版的`sbt`中(`sbt 0.7.x`之前)，在`sbt shell`中输入`run`指令会在路径下生成完整的sbt项目结构，但新版的sbt已**不提供**此特性(可使用`sbt new`指令创建项目)。
 
 sbt的常见指令有：
 
@@ -93,8 +88,8 @@ sbt的常见指令有：
 import scala.reflect.io.File
 
 object Main extends App {
-	// 文件生成在根目录下，路径为 [项目名称]/temp.txt
-	File("temp.txt").createFile(false)
+  // 文件生成在根目录下，路径为 [项目名称]/temp.txt
+  File("temp.txt").createFile(false)
 }
 ```
 
@@ -238,9 +233,9 @@ groupID % artifactID_[Scala版本] % revision
 
 ```scala
 scalacOptions ++= Seq(
-	"-feature",
-	"-language:implicitConversions"
-	"..."
+  "-feature",
+  "-language:implicitConversions"
+  "..."
 )
 ```
 
@@ -251,7 +246,7 @@ scalacOptions ++= Seq(
 
 
 
-## *Lightbend Activator*
+## *Lightbend Activator* (已废弃)
 `Activator`提供了成套的`Scala`开发环境，相当于：
 
 ```
@@ -283,3 +278,21 @@ Scala编译器 + sbt + Play Framework + Akka + 项目模版 + 基于Play的WEB�
 `$ activator new [项目名称] [模版名称]`
 
 `Activator`同样支持与`sbt`相同的指令。
+
+### 后记
+在`2017-4-24`的`Lightbend`官方新闻(`https://www.lightbend.com/blog/introducing-a-new-way-to-get-started-with-lightbend-technologies-and-saying-goodbye-to-activator`)中，宣布在`2017-5-24`停止对`Activator`的支持。  
+新闻中指出了`Activator`在以下的情形存在缺陷：
+
+- 将`Activator`良好地运行在多样的机器类型上。
+- 将`Activator`可靠地运行在多样的网络环境上。
+- 处理双重要求：`保持更新`与`从不更新`。
+
+鉴于`Activator`无法良好地实现以上要求，`Lightbend`停止了对`Activator`的支持并提供了以下替代方案：
+
+- 基于`Web`技术的`Project Starter`：
+
+	在页面`http://developer.lightbend.com/start/`中直接创建项目模版并将其下载到本地。
+
+- 使用新增的`sbt new`指令：
+
+	`Giter8`项目提供了`Lightbend`各类技术对应的项目模版，使用`sbt new [Giter8模版名称]`创建对应的项目模版。
