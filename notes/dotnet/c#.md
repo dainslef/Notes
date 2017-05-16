@@ -108,58 +108,60 @@ System.Nullable<T> variable;
 - `HasValue`属性类型为`bool`类型，当变量包含非`null`值时，返回`true`。
 - `Value`属性类型为可空类型对应的值类型，当可空类型保存的值**不为**`null`时，返回保存的值，否则抛出`InvalidOperationException`异常。
 
-`??`操作符
-> `??`运算符用于在可空类型/引用类型值为`null`时返回默认值，如下所示：
->
->	```cs
->	int? num0 = null;
->	num0 ?? 1;			//可空变量为null时返回指定的默认值1
->	int? num1 = 0;
->	num1 ?? 1;			//可空变量不为null时返回保存的值0
->	string str = null;
->	str ?? "test"		//??操作符同样可以用在普通引用类型上
->	```
+- `??`操作符
 
-`?`操作符
-> `?`操作符可用于在访问引用类型/可空类型前对目标对象进行检查，访问的实例为`null`则不执行操作。  
-> 如下所示：
->
->	```cs
->	using System;
->
->	class Test
->	{
->		public void Show() => Console.WriteLine("Called Show()");
->		public int GetNum() => 1;
->	}
->
->	class Program
->	{
->		static void Main(string[] args)
->		{
->			Test test = null;
->			Console.WriteLine("First Call:");
->			test?.Show();						//实例为null，不调用方法
->			int? num = test?.GetNum();			//返回可空类型，实例为null时返回值为null
->			Console.WriteLine(num);				//打印结果为空(null)
->			Console.WriteLine("Second Call:");
->			test = new Test();
->			test?.Show();						//实例不为null，正常调用方法
->			num = test?.GetNum();
->			Console.WriteLine(num);				//打印结果为1
->		}
->	}
->	```
->
-> 输出结果：
->
->	```
->	First Call:
->
->	Second Call:
->	Called Show()
->	1
->	```
+	`??`运算符用于在可空类型/引用类型值为`null`时返回默认值，如下所示：
+
+	```cs
+	int? num0 = null;
+	num0 ?? 1;			//可空变量为null时返回指定的默认值1
+	int? num1 = 0;
+	num1 ?? 1;			//可空变量不为null时返回保存的值0
+	string str = null;
+	str ?? "test"		//??操作符同样可以用在普通引用类型上
+	```
+
+- `?`操作符
+
+	`?`操作符可用于在访问引用类型/可空类型前对目标对象进行检查，访问的实例为`null`则不执行操作。  
+	如下所示：
+
+	```cs
+	using System;
+
+	class Test
+	{
+		public void Show() => Console.WriteLine("Called Show()");
+		public int GetNum() => 1;
+	}
+
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			Test test = null;
+			Console.WriteLine("First Call:");
+			test?.Show();						//实例为null，不调用方法
+			int? num = test?.GetNum();			//返回可空类型，实例为null时返回值为null
+			Console.WriteLine(num);				//打印结果为空(null)
+			Console.WriteLine("Second Call:");
+			test = new Test();
+			test?.Show();						//实例不为null，正常调用方法
+			num = test?.GetNum();
+			Console.WriteLine(num);				//打印结果为1
+		}
+	}
+	```
+
+	输出结果：
+
+	```
+	First Call:
+
+	Second Call:
+	Called Show()
+	1
+	```
 
 ### *Type alias* (类型别名)
 C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++11`中添加的新`using`语法相似。如下所示：
@@ -342,21 +344,61 @@ public int Num
 
 
 ## *static* 关键字
-在`C#`中，`static`关键字用于定义**静态类**、**静态方法**。
+在`C#`中，`static`关键字用于定义**静态类**、**静态方法**、**静态属性**、**静态字段**。
 
 ### 静态方法
-静态方法与实例无关，直接通过类名进行访问。
+静态方法与实例无关，只能直接通过类名进行访问：
 
-在传统的`OOP`语言如`C++`、`Java`中，并不限制通过实例访问静态方法，作用与通过类名访问静态方法相同。
+- 在传统的`OOP`语言如`C++`、`Java`中，并不限制通过实例访问静态方法，作用与通过类名访问静态方法相同。
+- 在`C#`中，**不允许**通过实例访问静态方法，调用静态方法只能通过**类名**。
 
-在`C#`中，**不允许**通过实例访问静态方法，调用静态方法只能通过**类名**。  
-尝试通过实例访问静态方法会在编译时得到错误：`error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; qualify it with a type name instead`。
+通过实例访问静态方法会在编译时得到错误：
+
+```
+error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; qualify it with a type name instead`
+```
+
+### 静态字段
+静态字段的概念与其它传统`OOP`语言如`C++`、`Java`类似，一个类的静态字段全局唯一。  
+与静态方法类似，使用实例访问静态字段会在编译时报错，在`C#`中，只能通过类名访问静态字段。
+
+- 字段初始化
+
+	在`C#`中，成员字段初始化时不能引用非静态成员。  
+	如下代码所示：
+
+	```csharp
+	class Test
+	{
+		int num = 0;
+		int num1 = num; //编译报错
+	}
+	```
+
+	在`Java`、`C++`、`Scala`中，则允许成员字段初始化时引用其它字段。
+
+- 静态字段初始化
+
+	在`C#`中，静态字段初始化时能够引用其它静态成员，但需要注意成员定义的**先后顺序**。  
+	若引用的静态字段定义在当前静态字段之后，则当前静态不会被初始化。  
+	如下所示：
+
+	```csharp
+	class Test
+	{
+		static int num = num1; //字段num1定义在num之后，num不会被初始化，值为0(默认值)
+		static int num1 = 100;
+	}
+	```
 
 ### 静态构造函数
 静态构造函数是`C#`中特有的概念，用于在类首次被使用前进行静态成员的初始化。
 
-- 静态构造函数与普通构造函数一样在类中定义，但静态构造函数不能带有参数和访问权限，一个类/结构体只能定义一个静态构造函数，静态构造函数与类的无参构造函数虽然参数表相同，但不会冲突。
-- 静态构造函数只能初始化静态成员(貌似是废话)，如果一个类中有静态成员赋了初值(类内初始化)，则.NET会自动为其创建默认的静态构造函数。
+- 静态构造函数与普通构造函数一样在类中定义。
+- 静态构造函数不能带有参数和访问权限。
+- 一个类/结构体只能定义一个静态构造函数。
+- 静态构造函数与类的无参构造函数虽然参数表相同，但不会冲突。
+- 静态构造函数只能初始化静态成员，若类中有静态成员赋了初值(类内初始化)，则.NET会自动为其创建默认的静态构造函数。
 - 静态构造函数不需要手动调用，在首次使用创建类实例或是方位类的静态成员时会由.NET自动调用，静态构造函数在全局只会被**调用一次**。
 
 ### 静态类
@@ -1269,222 +1311,225 @@ lock (object)
 `lock`块开始时锁定`object`，在lock代码块结束后释放锁。  
 锁定相同`object`的`lock`代码块同一时刻只能被一个线程执行。
 
-基本用法
-> `lock`关键字用法基本与`Java`中`synchronized`关键字类似：
->
->	- 被锁定的`object`可以是引用类型实例、`this`引用、以及类型(`typeof(XXX)`)。
->	- `lock`关键字**不能**用于修饰方法。
->	- lock块中不能使用`await`关键字。
->
-> `Java`笔记中的例子使用`C#`可以改写为：
->
->	```cs
->	using System;
->	using System.Threading;
->
->	class Example
->	{
->		public void ShowOne()
->		{
->			lock (this)
->			{
->				for (int i = 0; i < 5; i++)
->				{
->					Console.WriteLine(Thread.CurrentThread.Name + " ShowOne()");
->					Thread.Sleep(100);
->				}
->			}
->		}
->
->		public void ShowTwo()
->		{
->			lock (this)
->			{
->				for (int i = 0; i < 5; i++)
->				{
->					Console.WriteLine(Thread.CurrentThread.Name + " ShowTwo()");
->					Thread.Sleep(100);
->				}
->			}
->		}
->	}
->
->	class Program
->	{
->		static void Main(string[] args)
->		{
->			Example example = new Example();
->
->			Thread threadOne = new Thread(() => example.ShowOne());
->			Thread threadTwo = new Thread(() => example.ShowTwo());
->			threadOne.Name = "Thread One";
->			threadTwo.Name = "Thread Two";
->			threadOne.Start();
->			threadTwo.Start();
->		}
->	}
->	```
->
-> 输出结果：(`Mono 4.4.1 && ArchLinux x64`)
->
->	```
->	Thread One ShowOne()
->	Thread One ShowOne()
->	Thread One ShowOne()
->	Thread One ShowOne()
->	Thread One ShowOne()
->	Thread Two ShowTwo()
->	Thread Two ShowTwo()
->	Thread Two ShowTwo()
->	Thread Two ShowTwo()
->	Thread Two ShowTwo()
->	```
+- 基本用法
 
-lock实现
-> `lock`块在实现上使用了`Monitor`类。
-> `lock (object) { ... }`实际相当于：
->
->	```
->	Monitor.Enter(object);
->	...
->	Monitor.Exit(object);
->	```
->
-> 在进入lock块时调用`Monitor.Enter()`，离开时调用`Monitor.Exit()`。
+	`lock`关键字用法基本与`Java`中`synchronized`关键字类似：
 
-死锁问题
-> 在`MSDN`中提到了应避免锁定`public`访问权限的内容，在实际编码中，常见的三类lock行为都可能引发死锁：
->
->	- 若实例可被公共访问，则`lock(this)`可能死锁。
->	- 若类型`XXX`可被公共访问，则`lock(typeof(XXX))`可能死锁。
->	- 使用`lock("XXX")`时，同一进程中使用锁定相同字符串的代码块都将共享同一个锁。
->
-> 定义示例类`Example`：
->
->	```cs
->	class Example
->	{
->		public void Lock()
->		{
->			// 锁定this
->			lock (this)
->			{
->				Console.WriteLine("Lock!");
->			}
->		}
->
->		public static void StaticLock()
->		{
->			// 锁定类型
->			lock (typeof(Example))
->			{
->				Console.WriteLine("StaticLock!");
->			}
->		}
->
->		public void StringLock()
->		{
->			// 锁定字符串
->			lock ("Lock")
->			{
->				Console.WriteLine("StringLock!");
->			}
->		}
->	}
->	```
->
-> 分别针对三种情况编写主函数测试。
->
-> 锁定`this`：
->
->	```cs
->	class Program
->	{
->		static void Main(string[] args)
->		{
->			Example example = new Example();
->
->			lock (example)
->			{
->				Thread thread = new Thread(() => example.Lock());
->				thread.Start();
->				thread.Join();
->			}
->		}
->	}
->	```
->
-> 锁定类型：
->
->	```cs
->	class Program
->	{
->		static void Main(string[] args)
->		{
->			lock (typeof(Example))
->			{
->				Thread thread = new Thread(() => Example.StaticLock());
->				thread.Start();
->				thread.Join();
->			}
->		}
->	}
->	```
->
-> 锁定相同字符串：
->
->	```cs
->	class Program
->	{
->		static void Main(string[] args)
->		{
->			Example example = new Example();
->
->			lock ("Lock")
->			{
->				Thread thread = new Thread(() => example.StringLock());
->				thread.Start();
->				thread.Join();
->			}
->		}
->	}
->	```
->
-> 三段代码执行后均无输出，且程序不退出，均死锁。
->
->> 需要注意的是，`lock`锁定对象是基于**线程**的，在同一线程内的代码不受影响，如下所示的代码**不会**发生死锁：
->>
->>	```cs
->>	using System;
->>	using System.Threading;
->>
->>	class Example
->>	{
->>		public void Lock()
->>		{
->>			lock (this)
->>			{
->>				Console.WriteLine("Lock!");
->>			}
->>		}
->>	}
->>
->>	class Program
->>	{
->>		static void Main(string[] args)
->>		{
->>			Example example = new Example();
->>
->>			lock (example)
->>			{
->>				// 虽然实例example与Lock()方法内部锁定的this相同，但代码运行在同一线程，不会死锁。
->>				example.Lock();
->>			}
->>		}
->>	}
->>	```
->>
->> 锁定类型、字符串时类似。
+	- 被锁定的`object`可以是引用类型实例、`this`引用、以及类型(`typeof(XXX)`)。
+	- `lock`关键字**不能**用于修饰方法。
+	- lock块中不能使用`await`关键字。
+
+	`Java`笔记中的例子使用`C#`可以改写为：
+
+	```cs
+	using System;
+	using System.Threading;
+
+	class Example
+	{
+		public void ShowOne()
+		{
+			lock (this)
+			{
+				for (int i = 0; i < 5; i++)
+				{
+					Console.WriteLine(Thread.CurrentThread.Name + " ShowOne()");
+					Thread.Sleep(100);
+				}
+			}
+		}
+
+		public void ShowTwo()
+		{
+			lock (this)
+			{
+				for (int i = 0; i < 5; i++)
+				{
+					Console.WriteLine(Thread.CurrentThread.Name + " ShowTwo()");
+					Thread.Sleep(100);
+				}
+			}
+		}
+	}
+
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			Example example = new Example();
+
+			Thread threadOne = new Thread(() => example.ShowOne());
+			Thread threadTwo = new Thread(() => example.ShowTwo());
+			threadOne.Name = "Thread One";
+			threadTwo.Name = "Thread Two";
+			threadOne.Start();
+			threadTwo.Start();
+		}
+	}
+	```
+
+	输出结果：(`Mono 4.4.1 && ArchLinux x64`)
+
+	```
+	Thread One ShowOne()
+	Thread One ShowOne()
+	Thread One ShowOne()
+	Thread One ShowOne()
+	Thread One ShowOne()
+	Thread Two ShowTwo()
+	Thread Two ShowTwo()
+	Thread Two ShowTwo()
+	Thread Two ShowTwo()
+	Thread Two ShowTwo()
+	```
+
+- lock实现
+
+ `lock`块在实现上使用了`Monitor`类。  
+ `lock (object) { ... }`实际相当于：
+
+	```
+	Monitor.Enter(object);
+	...
+	Monitor.Exit(object);
+	```
+
+ 在进入lock块时调用`Monitor.Enter()`，离开时调用`Monitor.Exit()`。
+
+- 死锁问题
+
+	在`MSDN`中提到了应避免锁定`public`访问权限的内容，在实际编码中，常见的三类lock行为都可能引发死锁：
+
+	- 若实例可被公共访问，则`lock(this)`可能死锁。
+	- 若类型`XXX`可被公共访问，则`lock(typeof(XXX))`可能死锁。
+	- 使用`lock("XXX")`时，同一进程中使用锁定相同字符串的代码块都将共享同一个锁。
+
+	定义示例类`Example`：
+
+	```cs
+	class Example
+	{
+		public void Lock()
+		{
+			// 锁定this
+			lock (this)
+			{
+				Console.WriteLine("Lock!");
+			}
+		}
+
+		public static void StaticLock()
+		{
+			// 锁定类型
+			lock (typeof(Example))
+			{
+				Console.WriteLine("StaticLock!");
+			}
+		}
+
+		public void StringLock()
+		{
+			// 锁定字符串
+			lock ("Lock")
+			{
+				Console.WriteLine("StringLock!");
+			}
+		}
+	}
+	```
+
+	分别针对三种情况编写主函数测试。
+
+	锁定`this`：
+
+	```cs
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			Example example = new Example();
+
+			lock (example)
+			{
+				Thread thread = new Thread(() => example.Lock());
+				thread.Start();
+				thread.Join();
+			}
+		}
+	}
+	```
+
+	锁定类型：
+
+	```cs
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			lock (typeof(Example))
+			{
+				Thread thread = new Thread(() => Example.StaticLock());
+				thread.Start();
+				thread.Join();
+			}
+		}
+	}
+	```
+
+	锁定相同字符串：
+
+	```cs
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			Example example = new Example();
+
+			lock ("Lock")
+			{
+				Thread thread = new Thread(() => example.StringLock());
+				thread.Start();
+				thread.Join();
+			}
+		}
+	}
+	```
+
+	三段代码执行后均无输出，且程序不退出，均死锁。
+
+	需要注意的是，`lock`锁定对象是基于**线程**的，在同一线程内的代码不受影响，如下所示的代码**不会**发生死锁：
+
+	```cs
+	using System;
+	using System.Threading;
+
+	class Example
+	{
+		public void Lock()
+		{
+			lock (this)
+			{
+				Console.WriteLine("Lock!");
+			}
+		}
+	}
+
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			Example example = new Example();
+
+			lock (example)
+			{
+				// 虽然实例example与Lock()方法内部锁定的this相同，但代码运行在同一线程，不会死锁。
+				example.Lock();
+			}
+		}
+	}
+	```
+
+	锁定类型、字符串时类似。
 
 
 
@@ -1499,10 +1544,16 @@ lock实现
 在`C#`中，反射相关API在命名空间`System.Reflection`中。
 
 ### 反射机制的相关类型
-`C#`语言相比`Java`，类内的成员种类更多，用于描述成员信息反射类型结构也与`Java`不尽相同：
+`C#`语言相比`Java`，类内的成员种类更多，用于描述成员信息反射类型结构也与`Java`不尽相同。
 
-- `System.Type` 表示一个类型(类、结构体、接口)
-- `System.Reflection.XxxInfo` 表示类内的成员信息，主要包含：
+- `System.Type`
+
+	表示一个类型(类、结构体、接口)。
+
+- `System.Reflection.XxxInfo`
+
+	表示类内的成员信息，主要包含：
+
 	1. `ConstructorInfo` 构造器信息
 	1. `FieldInfo` 成员变量(字段)信息
 	1. `EventInfo` 事件信息
@@ -1510,20 +1561,21 @@ lock实现
 	1. `PropertyInfo` 属性信息
 	1. `TypeInfo` 类型信息
 
-`XxxInfo` 继承关系
-> `PropertyInfo`、`MethodInfo`等描述类成员信息的类型均直接或间接从抽象基类`MemberInfo`中继承，继承树如下所示：
->
->	```
->	MemberInfo
->	├─Type
->	│	└─TypeInfo
->	├─MethodBase
->	│	├─MethodInfo
->	│	├─EventInfo
->	│	└─ConstructorInfo
->	├─FieldInfo
->	└─PropertyInfo
->	```
+	继承树如下所示：
+
+	```
+	MemberInfo
+	├─Type
+	│	└─TypeInfo
+	├─MethodBase
+	│	├─MethodInfo
+	│	├─EventInfo
+	│	└─ConstructorInfo
+	├─FieldInfo
+	└─PropertyInfo
+	```
+
+	`PropertyInfo`、`MethodInfo`等描述类成员信息的类型均直接或间接从抽象基类`MemberInfo`中继承。
 
 ### *Type*/*TypeInfo* 类型
 `C#`中的`Type`类型作用近似于`Java`反射机制中的`Class`类型，`Type`类定义了类型的反射操作。  
@@ -1551,7 +1603,7 @@ lock实现
 在`C#`中，`GetXxx()/GetXxxs()`方法包含多个重载版本。
 
 - 默认的的无参`GetXxx()/GetXxxs()`方法只能获取公有成员。
-- 通过`BindingFlags`枚举可设定反射的搜索范围(**是否搜索非公有成员**/**是否搜索继承而来的成员**/...)，多个`BindingFlags`可使用逻辑或操作相连。
+- 通过`BindingFlags`枚举可设定反射的搜索范围(**是否搜索非公有成员**/**是否搜索继承而来的成员**/...)，多个`BindingFlags`可使用**逻辑或**操作符相连。
 
 `BindingFlags`枚举完整路径为`System.Reflection.BindingFlags`，定义如下：
 
@@ -1607,74 +1659,77 @@ namespace System.Reflection
 }
 ```
 
-反射获取类型的**完整路径**
-> `Type`类型的`FullName`成员属性保存了类型的**完整路径**：
->
->	```csharp
->	typeof(Xxx).FullName;
->	```
+- 反射获取类型的**完整路径**
 
-反射获取类型的**成员变量**/**成员属性**
-> 获取所有成员字段/属性信息：
->
->	```csharp
->	// 获取所有公有成员字段
->	public FieldInfo[] GetFields();
->	// 获取bindingAttr范围内的所有成员字段
->	public abstract FieldInfo[] GetFields(BindingFlags bindingAttr);
->	// 获取成员属性的API类似
->	public PropertyInfo[] GetProperties();
->	public abstract PropertyInfo[] GetProperties(BindingFlags bindingAttr);
->	```
->
-> 获取指定成员字段/属性信息：
->
->	```csharp
->	// 获取指定名称的字段
->	public FieldInfo GetField(string name);
->	// 以bindingAttr为搜索标志，获取指定名称的字段
->	public abstract FieldInfo GetField(string name, BindingFlags bindingAttr);
->	// 获取指定名称的属性
->	public PropertyInfo GetProperty(string name);
->	// 通过名称与返回值类型获取属性
->	public PropertyInfo GetProperty(string name, Type returnType);
->	// 通过名称与参数类型获取属性(索引属性)
->	public PropertyInfo GetProperty(string name, Type[] types);
->	// 以bindingAttr为搜索标志，获取指定名称的属性
->	public PropertyInfo GetProperty(string name, BindingFlags bindingAttr);
->	public PropertyInfo GetProperty(string name, Type returnType, Type[] types);
->	public PropertyInfo GetProperty(string name, Type returnType,
->			Type[] types, ParameterModifier[] modifiers);
->	public PropertyInfo GetProperty(string name, BindingFlags bindingAttr,
->			Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers);
->	```
+	`Type`类型的`FullName`成员属性保存了类型的**完整路径**：
 
-反射获取类型的**成员方法**/**构造方法**
-> 获取所有成员方法/构造方法：
->
->	```csharp
->	public MethodInfo[] GetMethods();
->	public abstract MethodInfo[] GetMethods(BindingFlags bindingAttr);
->	public ConstructorInfo[] GetConstructors();
->	public abstract ConstructorInfo[] GetConstructors(BindingFlags bindingAttr);
->	```
->
-> 获取指定签名的成员方法：
->
->	```csharp
->	// 查找指定名称的成员方法(适用于不存在方法重载的情形，若查找到多个方法会抛出异常)
->	public MethodInfo GetMethod(string name);
->	// 查找指定名称的成员方法，使用签名参数获取方法
->	public MethodInfo GetMethod(string name, BindingFlags bindingAttr,
->			Binder binder, Type[] types, ParameterModifier[] modifiers);
->	// 构造方法与类名相同，不存在使用名称获取的方式，应使用签名参数类型获取指定构造方法
->	public ConstructorInfo GetConstructor(BindingFlags bindingAttr,
->			Binder binder, Type[] types, ParameterModifier[] modifiers);
->	...
->	```
->
->	- `binder`参数用于设定绑定相关信息，一般使用默认默认绑定`Type.DefaultBinder`。
->	- `modifiers`参数用于设定签名参数的附加修饰符，一般可置为`null`，默认的联编程序不处理此参数。
+	```csharp
+	typeof(Xxx).FullName;
+	```
+
+- 反射获取类型的**成员变量**/**成员属性**
+
+	获取所有成员字段/属性信息：
+
+	```csharp
+	// 获取所有公有成员字段
+	public FieldInfo[] GetFields();
+	// 获取bindingAttr范围内的所有成员字段
+	public abstract FieldInfo[] GetFields(BindingFlags bindingAttr);
+	// 获取成员属性的API类似
+	public PropertyInfo[] GetProperties();
+	public abstract PropertyInfo[] GetProperties(BindingFlags bindingAttr);
+	```
+
+	获取指定成员字段/属性信息：
+
+	```csharp
+	// 获取指定名称的字段
+	public FieldInfo GetField(string name);
+	// 以bindingAttr为搜索标志，获取指定名称的字段
+	public abstract FieldInfo GetField(string name, BindingFlags bindingAttr);
+	// 获取指定名称的属性
+	public PropertyInfo GetProperty(string name);
+	// 通过名称与返回值类型获取属性
+	public PropertyInfo GetProperty(string name, Type returnType);
+	// 通过名称与参数类型获取属性(索引属性)
+	public PropertyInfo GetProperty(string name, Type[] types);
+	// 以bindingAttr为搜索标志，获取指定名称的属性
+	public PropertyInfo GetProperty(string name, BindingFlags bindingAttr);
+	public PropertyInfo GetProperty(string name, Type returnType, Type[] types);
+	public PropertyInfo GetProperty(string name, Type returnType,
+			Type[] types, ParameterModifier[] modifiers);
+	public PropertyInfo GetProperty(string name, BindingFlags bindingAttr,
+			Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers);
+	```
+
+- 反射获取类型的**成员方法**/**构造方法**
+
+	获取所有成员方法/构造方法：
+
+	```csharp
+	public MethodInfo[] GetMethods();
+	public abstract MethodInfo[] GetMethods(BindingFlags bindingAttr);
+	public ConstructorInfo[] GetConstructors();
+	public abstract ConstructorInfo[] GetConstructors(BindingFlags bindingAttr);
+	```
+
+	获取指定签名的成员方法：
+
+	```csharp
+	// 查找指定名称的成员方法(适用于不存在方法重载的情形，若查找到多个方法会抛出异常)
+	public MethodInfo GetMethod(string name);
+	// 查找指定名称的成员方法，使用签名参数获取方法
+	public MethodInfo GetMethod(string name, BindingFlags bindingAttr,
+			Binder binder, Type[] types, ParameterModifier[] modifiers);
+	// 构造方法与类名相同，不存在使用名称获取的方式，应使用签名参数类型获取指定构造方法
+	public ConstructorInfo GetConstructor(BindingFlags bindingAttr,
+			Binder binder, Type[] types, ParameterModifier[] modifiers);
+	...
+	```
+
+	- `binder`参数用于设定绑定相关信息，一般使用默认默认绑定`Type.DefaultBinder`。
+	- `modifiers`参数用于设定签名参数的附加修饰符，一般可置为`null`，默认的联编程序不处理此参数。
 
 
 
@@ -1698,108 +1753,114 @@ namespace System.Reflection
 
 特性参数可以是定位参数、未命名参数或命名参数，定位参数部分需要匹配特性的构造器，命名参数是可选的，由特性类的公有属性和公有字段决定。
 
-使用**多个**特性
-> 被多个特性修饰时，可以使用以下语法：
->
->	```cs
->	[特性名称1(特性1参数...)]
->	[特性名称2(特性2参数...)]
->	被修饰的元素
->	```
->
-> 或将多个特性合并在一行中：
->
->	```cs
->	[特性名称1(特性1参数...), 特性名称2(特性2参数...)]
->	被修饰的元素
->	```
+- 使用**多个**特性
+
+	被多个特性修饰时，可以使用以下语法：
+
+	```cs
+	[特性名称1(特性1参数...)]
+	[特性名称2(特性2参数...)]
+	被修饰的元素
+	```
+
+	或将多个特性合并在一行中：
+
+	```cs
+	[特性名称1(特性1参数...), 特性名称2(特性2参数...)]
+	被修饰的元素
+	```
 
 ### 自定义特性
 在`C#`中，所有特性都从基类`System.Attribute`中继承。
 
-特性名称
-> 根据约定，所有特性类名称都以单词`Attribute`结束，以便将它们与`.NET Framework`中的其他项区分。
-> 使用特性时，不需要追加`Attribute`后缀(使用带有`Attribute`后缀的全称也不会报错)。
+- 特性名称
 
-特性类字段类型
-> 特性类可以提供一些字段和属性，不应提供公共方法，事件等。  
-> 在定义特性类的构造方法，字段和属性时，对数据类型有严格的要求。  
-> 类型只能为：`Boolean, Char, Byte, Sbyte, Int16, UInt16, Int32, Int64, Single, Double, String, Type, Object, Enum`，可以使用这些类型对应的数组类型。
+	根据约定，所有特性类名称都以单词`Attribute`结束，以便将它们与`.NET Framework`中的其他项区分。  
+	使用特性时，不需要追加`Attribute`后缀(使用带有`Attribute`后缀的全称也不会报错)。
 
-定位参数与命名参数
-> 特性类可以具有定位参数和命名参数。
-> 特性类的每个公共实例构造函数为该属性类定义一个有效的定位参数序列。
-> 特性类的每个非静态公共读写字段和属性为该属性类定义一个命名参数。
+- 特性类字段类型
 
-构造函数
-> 特性类的构造函数决定了在使用特性时应传入怎样的特性参数(特性的定位参数需要与构造函数参数表相匹配)。
-> 一个特性类可以拥有多个构造函数，使用特性时特性的定位参数只需与其中任意一个构造函数匹配即可。
-> 定义了空参构造函数的特性在使用时只需要写出特性名称即可(特性参数的小括号省略)。
+	特性类可以提供一些字段和属性，不应提供公共方法，事件等。  
+	在定义特性类的构造方法，字段和属性时，对数据类型有严格的要求。  
+	类型只能为：`Boolean, Char, Byte, Sbyte, Int16, UInt16, Int32, Int64, Single, Double, String, Type, Object, Enum`，可以使用这些类型对应的数组类型。
 
-配置自定义特性
-> 使用`System.AttributeUsage`特性可以指定其它特性的使用方式。
->
-> `AttributeUsage`类的定义如下所示：
->
->	```cs
->	using System.Reflection;
->	using System.Runtime.InteropServices;
->	using System.Security;
->
->	namespace System
->	{
->		[AttributeUsage(AttributeTargets.Class, Inherited = true)]
->		[ComVisible(true)]
->		public sealed class AttributeUsageAttribute : Attribute
->		{
->			public AttributeUsageAttribute(AttributeTargets validOn);
->			public bool AllowMultiple { get; set; }
->			public bool Inherited { get; set; }
->			public AttributeTargets ValidOn { get; }
->		}
->	}
->	```
->
-> 其中：
->
-> - `AllowMultiple`属性用于设置一个特性可否被多次添加到一个元素上。
-> - `Inherited`属性用于设定特性是否可被继承。
-> - `ValidOn`属性用于设定特性的可作用对象(类型为`AttributeTargets`枚举，多个标识位使用逻辑或操作符`|`连接)。
->
-> `AttributeTargets`枚举定义如下：
->
->	```cs
->	using System.Runtime.InteropServices;
->
->	namespace System
->	{
->		[ComVisible(true)]
->		[Flags]
->		public enum AttributeTargets
->		{
->			Assembly = 1,				//可以对程序集应用特性
->			Module = 2,					//可以对模块应用特性
->			Class = 4,					//可以对类应用特性
->			Struct = 8,					//可以对结构应用属性
->			Enum = 16,					//可以对枚举应用特性
->			Constructor = 32,			//可以对构造函数应用特性
->			Method = 64,				//可以对方法应用特性
->			Property = 128,				//可以对属性应用特性
->			Field = 256,				//可以对字段应用特性
->			Event = 512,				//可以对事件应用特性
->			Interface = 1024,			//可以对接口应用特性
->			Parameter = 2048,			//可以对参数应用特性
->			Delegate = 4096,			//可以对委托应用特性
->			ReturnValue = 8192,			//可以对返回值应用特性
->			GenericParameter = 16384,	//可以对泛型参数应用特性
->			All = 32767					//可以对任何应用程序元素应用特性
->		}
->	}
->	```
+- 定位参数与命名参数
 
-获取特性
-> 使用**反射**机制可以从指定元素提取特性。
-> 例如`Attribute.GetCustomAttribute()`、`MemberInfo.GetCustomAttributes()`等相关方法可获取元素中的特性信息。
+	特性类可以具有定位参数和命名参数。  
+	特性类的每个公共实例构造函数为该属性类定义一个有效的定位参数序列。  
+	特性类的每个非静态公共读写字段和属性为该属性类定义一个命名参数。
+
+- 构造函数
+
+	特性类的构造函数决定了在使用特性时应传入怎样的特性参数(特性的定位参数需要与构造函数参数表相匹配)。  
+	一个特性类可以拥有多个构造函数，使用特性时特性的定位参数只需与其中任意一个构造函数匹配即可。  
+	定义了空参构造函数的特性在使用时只需要写出特性名称即可(特性参数的小括号省略)。
+
+- 配置自定义特性
+
+	使用`System.AttributeUsage`特性可以指定其它特性的使用方式。  
+	`AttributeUsage`类的定义如下所示：
+
+	```cs
+	using System.Reflection;
+	using System.Runtime.InteropServices;
+	using System.Security;
+
+	namespace System
+	{
+		[AttributeUsage(AttributeTargets.Class, Inherited = true)]
+		[ComVisible(true)]
+		public sealed class AttributeUsageAttribute : Attribute
+		{
+			public AttributeUsageAttribute(AttributeTargets validOn);
+			public bool AllowMultiple { get; set; }
+			public bool Inherited { get; set; }
+			public AttributeTargets ValidOn { get; }
+		}
+	}
+	```
+
+	其中：
+
+	- `AllowMultiple`属性用于设置一个特性可否被多次添加到一个元素上。
+	- `Inherited`属性用于设定特性是否可被继承。
+	- `ValidOn`属性用于设定特性的可作用对象(类型为`AttributeTargets`枚举，多个标识位使用逻辑或操作符`|`连接)。
+
+	`AttributeTargets`枚举定义如下：
+
+	```cs
+	using System.Runtime.InteropServices;
+
+	namespace System
+	{
+		[ComVisible(true)]
+		[Flags]
+		public enum AttributeTargets
+		{
+			Assembly = 1,				//可以对程序集应用特性
+			Module = 2,					//可以对模块应用特性
+			Class = 4,					//可以对类应用特性
+			Struct = 8,					//可以对结构应用属性
+			Enum = 16,					//可以对枚举应用特性
+			Constructor = 32,			//可以对构造函数应用特性
+			Method = 64,				//可以对方法应用特性
+			Property = 128,				//可以对属性应用特性
+			Field = 256,				//可以对字段应用特性
+			Event = 512,				//可以对事件应用特性
+			Interface = 1024,			//可以对接口应用特性
+			Parameter = 2048,			//可以对参数应用特性
+			Delegate = 4096,			//可以对委托应用特性
+			ReturnValue = 8192,			//可以对返回值应用特性
+			GenericParameter = 16384,	//可以对泛型参数应用特性
+			All = 32767					//可以对任何应用程序元素应用特性
+		}
+	}
+	```
+
+- 获取特性
+
+	使用**反射**机制可以从指定元素提取特性。  
+	例如`Attribute.GetCustomAttribute()`、`MemberInfo.GetCustomAttributes()`等相关方法可获取元素中的特性信息。
 
 自定义特性示例：
 
@@ -2062,8 +2123,8 @@ ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
 
 下载请求设定完毕后，执行以下操作：
 
-- 使用`WebRequest`类成员方法`WebRequest.GetResponse()`获取服务端回应，并向下转型为`FtpWebResponse`回应。
-- 使用`FtpWebResponse`类成员方法`FtpWebResponse.GetResponseStream()`获取回应中包含的文件流(`Stream`类)，并将其写入本地文件。
+1. 使用`WebRequest`类成员方法`WebRequest.GetResponse()`获取服务端回应，并向下转型为`FtpWebResponse`回应。
+1. 使用`FtpWebResponse`类成员方法`FtpWebResponse.GetResponseStream()`获取回应中包含的文件流(`Stream`类)，并将其写入本地文件。
 
 完整实例代码：
 
@@ -2099,7 +2160,8 @@ public bool DownloadFile(string ftpUri, string savePath, string ftpUserName, str
 			Console.WriteLine($"Operate status: {response.StatusDescription}");
 			if (response.StatusCode == FtpStatusCode.ClosingData) result = true;
 		}
-	} catch (Exception ex) { Console.WriteLine(ex.StackTrace); }
+	}
+	catch (Exception ex) { Console.WriteLine(ex.StackTrace); }
 
 	return result;
 }
@@ -2114,10 +2176,10 @@ ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
 
 之后执行以下操作：
 
-- 设定请求的`ContentLength`属性，表示上传文件的大小。
-- 使用`FtpWebRequest`类成员方法`FtpWebRequest.GetRequestStream()`获取请求文件流。
-- 将本地待上传文件复制到请求文件流中。
-- 使用`FtpWebResponse`类成员方法`FtpWebResponse.GetResponse()`获取操作回应。
+1. 设定请求的`ContentLength`属性，表示上传文件的大小。
+1. 使用`FtpWebRequest`类成员方法`FtpWebRequest.GetRequestStream()`获取请求文件流。
+1. 将本地待上传文件复制到请求文件流中。
+1. 使用`FtpWebResponse`类成员方法`FtpWebResponse.GetResponse()`获取操作回应。
 
 完整实例代码：
 
@@ -2154,7 +2216,8 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 			Console.WriteLine($"Operate status: {response.StatusDescription}");
 			if (response.StatusCode == FtpStatusCode.ClosingData) result = true;
 		}
-	} catch (Exception ex) { Console.WriteLine(ex.StackTrace); }
+	}
+	catch (Exception ex) { Console.WriteLine(ex.StackTrace); }
 
 	return result;
 }
@@ -2166,7 +2229,7 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 `C#`对应的**GUI**库为基于`.NET Framework`的`Windows Form`。
 
 ### 常见控件类型
-在`Windows Form`中，控件相关的类大多派生于`System.Windows.Forms.Control`。
+在`Windows Form`中，控件相关的类大多派生于`System.Windows.Forms.Control`。  
 控件的名称也与其它的GUI库类似：
 
 - `Form` 窗体，类似于Qt中的**QFrame**
@@ -2198,7 +2261,7 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 控件还可以通过设置`Dock`属性指定需要停靠的边框。
 
 ### 控件事件
-一个标准的`Windows Form`控件中定义了多种事件，通过将指定的事件处理函数绑定到事件上，当满足事件触发的条件时，绑定的函数便会被回调。
+一个标准的`Windows Form`控件中定义了多种事件，通过将指定的事件处理函数绑定到事件上，当满足事件触发的条件时，绑定的函数便会被回调。  
 一个事件可以绑定多个事件处理函数，一个事件处理函数也可以被多个事件绑定。
 
 普通的事件签名没有限制，但`.NET Framework`类库中的所有事件均基于`EventHandler`委托，定义如下：
@@ -2284,16 +2347,18 @@ C#中的常见类型与C++中类型之间的转换关系：
 ### *internal* 关键字
 类和类成员前可以使用`internal`关键字。
 
-`internal`关键字修饰类
-> `internal`关键字用在类、接口前表示只能在当前项目中访问该类、接口。
-> `internel`关键字修饰的类不能被`public`类继承。
-> 默认不添加关键字的情况下，类和接口的访问属性即为`internal`。
+- `internal`关键字修饰类
 
-`internal`关键字修饰成员
-> `internal`关键字用在类内成员之前表示只能在当前项目中访问该成员。
-> 在对类内成员使用时，`internal`关键字可以搭配`protected`关键字使用，即定义一个只能被当前项目的子类访问的成员。
+	`internal`关键字用在类、接口前表示只能在当前项目中访问该类、接口。  
+	`internel`关键字修饰的类不能被`public`类继承。  
+	默认不添加关键字的情况下，类和接口的访问属性即为`internal`。  
 
-需要注意的是，`internal`修饰的类的**实例**不能作为`public`成员出现在其它类中。
+- `internal`关键字修饰成员
+
+	`internal`关键字用在类内成员之前表示只能在当前项目中访问该成员。  
+	在对类内成员使用时，`internal`关键字可以搭配`protected`关键字使用，即定义一个只能被当前项目的子类访问的成员。
+
+需要注意的是，`internal`修饰的类不能作为`public`成员出现在其它类中。
 
 ### *readonly* 关键字
 `readonly`关键字修饰的变量赋值只能在变量定义时或是在该变量所属类的构造函数中。
@@ -2350,7 +2415,7 @@ string testNew = test.Replace("\0", "");		// 将 \0 替换为空
 Console.WriteLine(testNew);						// 输出 "aaa"
 ```
 
-### MySQL中 *TINYINT* 类型
+### MySQL 中 *TINYINT* 类型
 在`MySQL`中没有内置的`bool`类型，`bool`类型常常使用最小的整型数据类型`TINYINT`表示。
 
 在C#中，会将`TINYINT(1)`视为`bool`类型处理，对于类型为`TINYINT(1)`的列，使用`ToString()`方法转换得到的是文本`true/false`而非字面意义数值。
@@ -2371,35 +2436,37 @@ Console.WriteLine(testNew);						// 输出 "aaa"
 ### 输出代码文件名、行号
 在输出日志时，常常需要输出打印日志的代码位置以便跟踪查看。
 
-使用`StackStrace`获取调试信息
-> 使用`StackStrace`类通过反射可以得到函数调用者的栈信息，并从中获取代码信息。
-> 使用`StackTrace`的`GetFrame(int index)`成员方法获取指定的堆栈帧(`StackFrame`类型)。
->
->	- 索引`0`为当前函数堆栈的信息。
->	- 索引`1`为函数调用者的堆栈信息，以此类推，可获取多级调用者信息。
->	- 使用`StackFrame`类可以获得堆栈所在的方法名称、源码文件名称，代码行号等，还可进一步获得类型信息。
+- 使用`StackStrace`获取调试信息
 
-`.Net 4.5`新增特性
-> 在`.Net 4.5`中引入了三种`Attribute`用于获取方法的调用成员名称、调用文件、调用代码行号：
->
->	- `System.Runtime.CompilerServices.CallerMemberNameAttribute` 成员名称
->	- `System.Runtime.CompilerServices.CallerFilePathAttribute` 调用文件
->	- `System.Runtime.CompilerServices.CallerLineNumberAttribute` 调用行号
->
-> 三种特性用于修饰日志函数的参数(参数需要有默认值)，编译器会自动为参数补充对应的调用信息，如下所示：
->
->	```cs
->	using System.Runtime.CompilerServices;
->
->	void PrintLog(string log,
->			[CallerMemberName] string member = "",
->			[CallerFilePath] string file = "",
->			[CallerLineNumber] int line = 0)
->	{
->		Console.WriteLine("Log: {0}", log);
->
->		Console.WriteLine("MemberName: {0}", member);
->		Console.WriteLine("FilePath: {0}", file);
->		Console.WriteLine("LineNumber: {0}", line);
->	}
->	```
+	使用`StackStrace`类通过反射可以得到函数调用者的栈信息，并从中获取代码信息。  
+	使用`StackTrace`的`GetFrame(int index)`成员方法获取指定的堆栈帧(`StackFrame`类型)。
+
+	- 索引`0`为当前函数堆栈的信息。
+	- 索引`1`为函数调用者的堆栈信息，以此类推，可获取多级调用者信息。
+	- 使用`StackFrame`类可以获得堆栈所在的方法名称、源码文件名称，代码行号等，还可进一步获得类型信息。
+
+- `.Net 4.5`新增特性
+
+	在`.Net 4.5`中引入了三种`Attribute`用于获取方法的调用成员名称、调用文件、调用代码行号：
+
+	- `System.Runtime.CompilerServices.CallerMemberNameAttribute` 成员名称
+	- `System.Runtime.CompilerServices.CallerFilePathAttribute` 调用文件
+	- `System.Runtime.CompilerServices.CallerLineNumberAttribute` 调用行号
+
+	三种特性用于修饰日志函数的参数(参数需要有默认值)，编译器会自动为参数补充对应的调用信息，如下所示：
+
+	```cs
+	using System.Runtime.CompilerServices;
+
+	void PrintLog(string log,
+			[CallerMemberName] string member = "",
+			[CallerFilePath] string file = "",
+			[CallerLineNumber] int line = 0)
+	{
+		Console.WriteLine("Log: {0}", log);
+
+		Console.WriteLine("MemberName: {0}", member);
+		Console.WriteLine("FilePath: {0}", file);
+		Console.WriteLine("LineNumber: {0}", line);
+	}
+	```
