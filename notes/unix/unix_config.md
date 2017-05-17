@@ -1,3 +1,5 @@
+[TOC]
+
 ## *ulimit*
 使用`ulimit`指令查看和设定存储限制。指令格式：
 
@@ -325,4 +327,106 @@
 $ vte -W -P never -g 120x40 -f "Monaco 10" -n 5000 --reverse
 ```
 
-执行结果为打开大小为`120`列`40`行的终端，终端回滚`5000`行，不显示滚动条，反转配色。
+执行结果为打开大小为`120`列`40`行的`VTE2`终端，终端回滚`5000`行，不显示滚动条，反转配色。
+
+
+
+## *apt*
+`apt`是`Debian`系列发行版的前端包管理工具。
+
+`apt`主要功能：
+
+- 在镜像源中搜索、查找需要的软件包。
+- 计算软件包的依赖。
+- 安装、卸载软件包。
+- 查看指定软件包的状态。
+- 变更已安装软件包的状态。
+- 系统更新。
+
+### 源配置
+使用`apt`工具需要正确配置镜像源地址，配置文件为`/etc/apt/sources.list`。
+
+`Debian`系列发行版软件源格式为：
+
+```
+# 二进制包
+deb [软件源地址] [版本号] [仓库类型]
+
+# 源码包
+deb-src [软件源地址] [版本号] [仓库类型]
+```
+
+其中：
+
+- `软件源地址` 为有效的`URL`，可以是某个提供镜像源服务的站点地址，也可以是本地源路径
+- `版本号` 为发行版的版本代号，一行只能填写一个版本号
+- `仓库类型` 为按照授权类型划分的仓库类别，可以一行同时添加多个仓库类型
+
+`Ubuntu`与`Debian`的版本号、仓库类型分类完全不同。
+
+### Debian 源
+`Debian`版本号有两类：
+
+1. 固定版本号，按照稳定程度分为`stable`、`testing`、`unstable`、`experimental`。
+1. 版本代号。
+
+两类作用相同，固定版本号会指向某个版本代号。  
+随着开发进度的变化，实际指向的版本代号会发生变化。
+
+当前(`2017-5-11`)`Debian`的最新稳定版为`Debian 8`，版本代号为`jessie`，则使用固定版本号`stable`指向的实际版本号即为`jessie`。  
+当前处于开发状态的版本为`Debian 9`，版本代号为`stretch`，使用固定版本号`testing`则实际指向处于开发状态的版本代号`stretch`。
+
+版本代号后可以追加版本仓库，`Debian`的版本仓库有：
+
+- `[版本号]-updates` 提供常规更新
+- `[版本号]-proposed-updates` 提供处于测试阶段的更新(不建议启用)
+- `[版本号]-backports` 提供软件的`testing`功能性更新
+
+版本仓库后需要指定启用的仓库类型，`Debian`仓库类型主要有三类：
+
+- `main` 主要仓库，符合`DFSG`的开源软件
+- `contrib` 包含依赖于非自由软件的开源软件
+- `non-free` 非自由软件
+
+以**中科大镜像源**为例，`Debian Stable`的`sources.list`配置：
+
+```
+deb https://mirrors.ustc.edu.cn/debian/ stable main contrib non-free
+deb https://mirrors.ustc.edu.cn/debian/ stable-updates main contrib non-free
+deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free
+```
+
+### Ubuntu 源
+`Ubuntu`没有固定版本号，需要使用发行版本号，主要的`LTS`版本的版本代号：
+
+| 版本 | 版本代号 |
+|:----:|:------:|
+| `12.04 LTS` | `precise` |
+| `14.04 LTS` | `trusty` |
+| `16.04 LTS` | `xenial` |
+
+`Ubuntu`的版本仓库有：
+
+- `[版本号]-security` 提供重要的安全性更新(漏洞修复)
+- `[版本号]-updates` 提供建议的更新
+- `[版本号]-backports` 提供功能性更新
+- `[版本号]-proposed` 提供处于测试阶段的`updates`更新(不建议启用)
+
+`Ubuntu`仓库类别有：
+
+- `main` 主要仓库，完全的开源软件
+- `restricted` 不完全的开源软件
+- `universe` 社区支持、维护的软件
+- `muitiverse` 非开源软件
+- `partner` 闭源商业软件，该仓库仅有官方源可用
+
+以**中科大镜像源**为例，`Ubuntu 16.04 LTS`的`sources.list`配置：
+
+```
+deb https://mirrors.ustc.edu.cn/ubuntu/ xenial main restricted universe muitiverse
+deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-securitys main restricted universe muitiverse
+deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-updates main restricted universe muitiverse
+deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted universe muitiverse
+
+deb http://archive.canonical.com/ubuntu/ xenial partner
+```
