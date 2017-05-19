@@ -430,3 +430,38 @@ deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted univers
 
 deb http://archive.canonical.com/ubuntu/ xenial partner
 ```
+
+
+
+## *apt-mirror*
+`apt-mirror`是`Debian`系列发行版中用于制作**本地源**的工具。
+
+### 配置
+`apt-mirror`的配置文件为`/etc/apt/mirror.list`。  
+若无特殊需求可直接使用默认配置。
+
+默认配置下，镜像会被同步到本地的`/var/spool/apt-mirror`路径下。  
+修改`base_path`配置项可以指定本地镜像的存储位置。  
+修改源地址可执行用于同步的远程镜像源。
+
+以**中科大镜像源**为例，同步到本地的`~/Public/Mirrors`路径下，配置：
+
+```
+set base_path /home/Xxx/Public/Mirrors
+
+deb http://mirrors.ustc.edu.cn/ubuntu xenial main restricted universe multiverse
+deb http://mirrors.ustc.edu.cn/ubuntu xenial-security main restricted universe multiverse
+deb http://mirrors.ustc.edu.cn/ubuntu xenial-updates main restricted universe multiverse
+deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted universe muitiverse
+```
+
+### 使用本地源
+若仅需要本机使用本地源，可以直接使用`file:///...`访问本机的源路径。  
+`sources.list`配置：
+
+```
+deb file:///home/Xxx/Public/Mirrors/mirror xenial main restricted universe multiverse
+deb file:///home/Xxx/Public/Mirrors/mirror xenial-security main restricted universe multiverse
+deb file:///home/Xxx/Public/Mirrors/mirror xenial-updates main restricted universe multiverse
+deb file:///home/Xxx/Public/Mirrors/mirror xenial-backports main restricted universe muitiverse
+```
