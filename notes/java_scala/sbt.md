@@ -50,9 +50,23 @@ sbt的常见指令有：
 
 `sbt`指令可以在直接在`sbt shell`内使用，也可以作为参数跟在`sbt`指令之后直接在命令行中使用。
 
+### 使用 *Giter8* 模版
+`Giter8`是由`Nathan Hamblen`在`2010`年开始发起的模版项目，目前由`foundweekends`项目维护。  
+在`sbt 0.13.13`版本后，可使用`sbt new`指令创建基于`Giter8`模版的项目：
+
+```
+$ sbt new [Giter8模版名称]
+```
+
+`Lightbend`系列的各项技术均提供了基于`Giter8`的官方项目模版，模版名称如下：
+
+- `scala/scala-seed.g8` 普通Scala项目模版
+- `akka/akka-scala-seed.g8` Akka项目模版
+- `playframework/play-scala-seed.g8` PlayFramework项目模版
 
 
-## 项目结构
+
+## 项目基本结构
 `sbt`项目结构与`Maven`项目类似。一个基本的sbt项目具有以下路径结构：
 
 ```
