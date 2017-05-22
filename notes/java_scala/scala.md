@@ -2362,6 +2362,99 @@ trait GenTraversableLike[+A, +Repr] extends Any with GenTraversableOnce[A] with 
 多数容器都间接混入了`GenTraversableLike`特质，如`List`、`Seq`、`Vector`、`Map`等。  
 对于混入了`GenTraversableLike`的类型且支持索引访问的类型，使用`xxx.head`比`xxx(0)`更符合Scala风格。
 
+### 集合有序性
+`Scala`默认`Set/Map`无论`mutable/immutable`均为**无序**。  
+如下代码所示：
+
+```scala
+object Main extends App {
+
+  val imSet = Set(1, 2, 3, 4, 5)
+  val imMap = Map(
+    1 -> 1,
+    2 -> 2,
+    3 -> 3,
+    4 -> 4,
+    5 -> 5
+  )
+
+  val muSet = collection.mutable.Set(1, 2, 3, 4, 5)
+  val muMap = collection.mutable.Map(
+    1 -> 1,
+    2 -> 2,
+    3 -> 3,
+    4 -> 4,
+    5 -> 5
+  )
+
+  println(s"Immutable Set: ${imSet.toString}")
+  println(s"Immutable Map: ${imMap.toString}")
+  println(s"Mutable Set: ${muSet.toString}")
+  println(s"Mutable Map: ${muMap.toString}")
+
+}
+```
+
+输出结果：(`Scala 2.12.2 && macOS 10.12.4`)
+
+```
+Immutable Set: Set(5, 1, 2, 3, 4)
+Immutable Map: Map(5 -> 5, 1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4)
+Mutable Set: Set(1, 5, 2, 3, 4)
+Mutable Map: Map(2 -> 2, 5 -> 5, 4 -> 4, 1 -> 1, 3 -> 3)
+```
+
+`Set/Map`存在特定规则的有序版本`SortedSet/SortedMap`。  
+`SortedSet/SortedMap`在构造时需要提供`scala.math.Ordering[T]`特质用于决定内部成员的排序规则。  
+`Scala`已实现了常见类型(`Int`、`String`等)的`Ordering`特质，使用常见类型时不必显式传入。
+
+`immutable`容器存在有序类型`ListSet/ListMap`。  
+`mutable`容器存在有序类型`LinkedHashSet/LinkedHashMap`，按照元素添加的顺序排列。  
+如下代码所示：
+
+```scala
+object Main extends App {
+
+  val imSet = collection.immutable.ListSet(1 to 10: _*)
+  val imMap = collection.immutable.ListMap(
+    1 -> 1,
+    2 -> 2,
+    3 -> 3,
+    4 -> 4,
+    5 -> 5
+  )
+
+  val muSet = collection.mutable.LinkedHashSet(1 to 10: _*)
+  val muMap = collection.mutable.LinkedHashMap(
+    1 -> 1,
+    2 -> 2,
+    3 -> 3,
+    4 -> 4,
+    5 -> 5
+  )
+
+  println(s"Immutable ListSet: ${imSet.toString}")
+  println(s"Immutable ListMap: ${imMap.toString}")
+  println(s"Mutable LinkedHashSet: ${muSet.toString}")
+  println(s"Mutable LinkedHashMap: ${muMap.toString}")
+
+}
+```
+
+输出结果：(`Scala 2.12.2 && macOS 10.12.4`)
+
+```
+Immutable ListSet: ListSet(10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+Immutable ListMap: ListMap(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5)
+Mutable LinkedHashSet: Set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+Mutable LinkedHashMap: Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5)
+```
+
+`immutable`容器不存在`LinkedHashSet/LinkedHashMap`类型。  
+`mutable`容器不存在`ListSet`类型，存在`ListMap`类型，但无序。
+
+有序容器向无序容器转换，内部成员会重新变为**无序**。
+
 
 
 ## *Higher Order Function* (高阶函数)
