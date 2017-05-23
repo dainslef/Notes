@@ -12,17 +12,18 @@ C/C++中，内存分为5个区，分别是**堆区**，**栈区**，**静态区*
 举例：
 
 ```c
-int a = 0;		//全局初始化区
-char* p1;		//全局未初始化区
+int a = 0; //全局初始化区
+char* p1; //全局未初始化区
+
 int main()
 {
-	int b; 						//栈区
-	char s[] = "abc"; 			//栈区
-	char* p2; 					//栈区
-	char* p3 = "123456"; 		//"123456"在常量区，p3在栈区
-	static int c = 0； 			//全局/静态已初始化区
-	p2 = (char*)malloc(10);		//malloc分配得来得10字节的区域就在堆区
-	strcpy(p1, "123456"); 		//"123456"放在常量区，编译器可能会将它与p3所指向的"123456"优化成一个地方
+	int b; //栈区
+	char s[] = "abc"; //栈区
+	char* p2; //栈区
+	char* p3 = "123456"; //"123456"在常量区，p3在栈区
+	static int c = 0; //全局/静态已初始化区
+	p2 = (char*)malloc(10); //malloc分配得来得10字节的区域就在堆区
+	strcpy(p1, "123456"); //"123456"放在常量区，编译器可能会将它与p3所指向的"123456"优化成一个地方
 	return 0;
 }
 ```
@@ -46,19 +47,20 @@ int main()
 ### C++中的 *static*
 在C++中，除了C语言中的用法之外，还可以用在类的成员前，表示`静态成员`，静态成员只能初始化一次，全局仅有一个实体。
 
-- 静态成员不依赖于类的实例而存在，无需进行类实例化即可直接通过类名进行访问，同时一个类的无论有多少个实例，这些实例的静态成员都指向同一块内存区域(即同一个类的静态成员变量只要有一个变化，其他的也会变化，因为这些类的静态成员变量实际上是同一个)。
+- 静态成员不依赖于类的实例而存在，无需进行类实例化即可直接通过类名进行访问。
+	同时一个类的无论有多少个实例，这些实例的静态成员都指向同一块内存区域(即同一个类的静态成员变量只要有一个变化，其他的也会变化，因为这些类的静态成员变量实际上是同一个)。
 - 静态成员之间能够相互访问，没有`this`指针，静态成员函数不能访问非静态成员函数和非静态数据成员。
 - 由于没有`this`指针的额外开销，因此静态成员函数与类的普通成员函数相比速度上会有少许的增长。
 - 静态成员函数在类内声明时使用`static`关键字，在类外定义时不再使用`static`关键字。
-- 静态成员变量必须在类外初始化，在类中的静态成员变量定义仅等同于声明，如果静态成员变量没有在类外进行初始化，引用时会出现`未定义引用`错误。
+- 静态成员变量必须在类外初始化，在类中的静态成员变量定义仅等同于声明，若静态成员变量没有在类外进行初始化，引用时会出现`未定义引用`错误。
 - 普通静态成员变量不能进行类内初始化，只有**常静态成员变量**(`const static`)才能进行类内初始化。
 
 静态成员变量初始化的格式为：
 
 ```cpp
-数据类型 类名::静态成员变量名;			// 使用默认构造器
-数据类型 类名::静态成员变量名(参数...);	// 显式使用构造函数初始化静态变量
-数据类型 类名::静态成员变量名 = 值;		// 静态成员变量的初始化需要在全局区域，不能在函数体/类内
+数据类型 类名::静态成员变量名; // 使用默认构造器
+数据类型 类名::静态成员变量名(参数...); // 显式使用构造函数初始化静态变量
+数据类型 类名::静态成员变量名 = 值; // 静态成员变量的初始化需要在全局区域，不能在函数体/类内
 ```
 
 类的静态成员变量有两种访问形式：
@@ -71,8 +73,12 @@ int main()
 需要注意的是，类的静态成员变量在逻辑上依然受到类的访问权限的制约，`private`、`protected`的静态成员变量依然无法在类外访问，但可以在类外赋初值。
 
 注意事项：
-- 普通类的静态成员变量在类内仅仅是**声明**了该变量，要使用该成员变量还需要在全局区域进行定义，而定义**不能**写在头文件中，否则一旦该头文件被**多个**源码文件包含，就会出现`multiple definition of ***`(**多重定义**)错误。
-- **静态成员变量定义不能写在头文件中**的规则仅仅对于普通类有效，对于**模板类**则不再适用，模板类的静态成员定义同样需要写在头文件内。模板类的编译模型与常规代码不同，在定义时并不实际生成代码，只有在被其它代码引用时编译器才会为其生成对应的模板代码，因而模板类在头文件中定义静态成员不存在多重定义问题，同时大多数编译器**不支持**`export`分离模板定义模型(如`g++`、`clang++`等)，因此模板类的定义**必须**写在头文件内(**模板特化**情形除外)。
+- 普通类的静态成员变量在类内仅仅是**声明**了该变量，要使用该成员变量还需要在全局区域进行定义。  
+	该定义**不能**写在头文件中，否则一旦该头文件被**多个**源码文件包含，连接时会出现`multiple definition of ***`(**多重定义**)错误。
+- **静态成员变量定义不能写在头文件中**的规则仅仅对于普通类有效，对于**模板类**则不再适用。  
+	模板类的静态成员定义同样需要写在头文件内。
+	模板类的编译模型与常规代码不同，在定义时并不实际生成代码，只有在被其它代码引用时编译器才会为其生成对应的模板代码，因而模板类在头文件中定义静态成员不存在多重定义问题。  
+	同时大多数编译器**不支持**`export`分离模板定义模型(如`g++`、`clang++`等)，因此模板类的定义**必须**写在头文件内(**模板特化**情形除外)。
 
 如下代码所示：
 
@@ -88,7 +94,7 @@ public:
 	static int b;
 };
 
-int A::a = 1;			// 错误，普通类头文件内进行静态成员定义造成多重定义错误
+int A::a = 1; //错误，普通类头文件内进行静态成员定义造成多重定义错误
 
 template <class T>
 class B
@@ -101,7 +107,7 @@ public:
 };
 
 template <class T>
-int B<T>::a;		// 正确，在头文件中定义模板类的静态成员
+int B<T>::a; //正确，在头文件中定义模板类的静态成员
 ```
 
 文件 "test.cc"：
@@ -109,16 +115,16 @@ int B<T>::a;		// 正确，在头文件中定义模板类的静态成员
 ```cpp
 #include "test.h"
 
-int A::b = 2;			// 正确，普通类的静态成员在代码文件中定义，而非头文件
+int A::b = 2; //正确，普通类的静态成员在代码文件中定义，而非头文件
 
 template <class T>
-int B<T>::b = 2;		// 错误，模板类的静态成员在代码文件中定义由于模板编译模型无法找到，提示"未定义的引用"
+int B<T>::b = 2; //错误，模板类的静态成员在代码文件中定义由于模板编译模型无法找到，提示"未定义的引用"
 
 template <>
-int B<int>::c = 3;		// 正确，模板特化定义可以写在源码文件中
+int B<int>::c = 3; //正确，模板特化定义可以写在源码文件中
 
 template <>
-int B<int>::d;			// 错误，模板特化定义必须使用显式定义(使用赋值操作符/构造函数等)
+int B<int>::d; //错误，模板特化定义必须使用显式定义(使用赋值操作符/构造函数等)
 ```
 
 文件 "main.cc"：
@@ -160,10 +166,10 @@ collect2: error: ld returned 1 exit status
 ## C/C++中 *const* 关键字的区别
 
 ### *const* 变量初始化
-在C语言中，`const`变量在定义时可以不初始化，编译器会自动为其初始化为一个默认值。
+在C语言中，`const`变量在定义时可以不初始化，编译器会自动为其初始化为一个默认值。  
 在C++中，`const`变量在定义的同时必须显式地初始化，定义没有初始化的`const`变量将无法通过编译。
 
-在`C++98`中，`const`变量在类中定义时，则初始化需要放在构造函数的初始化列表中。
+在`C++98`中，`const`变量在类中定义时，则初始化需要放在构造函数的初始化列表中。  
 在`C++11`中，成员变量初始化可以直接在类中进行，`const`成员变量也一样可以在类中初始化。
 
 ### *const* 变量作为数组长度
@@ -174,8 +180,8 @@ const int length = 10;
 int array[length];
 ```
 
-在部分C语言编译器中会报错，但在C++中正确。
-`C99`开始支持变量作为数组长度定义，但不是所有编译器都支持这个特性(`GCC`能够支持)
+在部分C语言编译器中会报错，但在C++中正确。  
+`C99`开始支持变量作为数组长度定义，但不是所有编译器都支持这个特性(`GCC`能够支持)。  
 `ANSI C`中，数组的长度只能由常量定义，即使`const`变量的值不会发生变化，但仍然**不是**常量。
 
 
@@ -200,30 +206,31 @@ printf("%f\n", num);
 ## 8进制与16进制
 在`C/C++`中，表示8进制与16进制数值需要在数值前加前缀：
 
-表示**8进制**数值，在数值前加`0`。
-> 如下所示：
->
->	```c
->	int num0 = 011;			//等于10进制数"9"
->	//int num1 = 089;		//编译报错，8进制数中不能出现大于等于"8"的数值
->	```
+- 表示**8进制**数值，在数值前加`0`：
 
-表示**16进制**数值，在数值前加`0x`。
-> 如下所示：
->
->	```c
->	int num0 = 0x11;		//等于10进制数"17"
->	int num1 = 0xab;		//等于10进制数"171"
->	//int num2 = 0xgh;		//编译报错，16进制数中不能出现大于等于"f"的数值
->	```
+	如下所示：
+
+	```c
+	int num0 = 011;			//等于10进制数"9"
+	//int num1 = 089;		//编译报错，8进制数中不能出现大于等于"8"的数值
+	```
+
+- 表示**16进制**数值，在数值前加`0x`：
+
+	如下所示：
+
+	```c
+	int num0 = 0x11;		//等于10进制数"17"
+	int num1 = 0xab;		//等于10进制数"171"
+	//int num2 = 0xgh;		//编译报错，16进制数中不能出现大于等于"f"的数值
+	```
 
 `C/C++`中，**没有**提供表示2进制数值的方式。
 
 
 
 ## *sizeof* 运算符
-`sizeof`运算符**不是**函数，因此它在**编译时起效**而不是运行时。
-在使用`sizeof`时需要小心辨别参数是否为指针！
+`sizeof`运算符**不是**函数，在**编译时起效**而不是运行时。  
 指针与数组的区别之一就是使用`sizeof`返回的大小不同：
 
 - 对于数组而言，虽然数组名可以代表数组的首地址，`sizeof`对于指针返回的大小总是`8`(64bit OS)或是`4`(32bit OS)。
@@ -244,7 +251,10 @@ int main(void)
 ```
 
 输出结果：(GCC 4.9.1 && ArchLinux x64)
-`8 5`
+
+```
+8 5
+```
 
 由结果可知，`str`的类型为`char*`，是指针，大小为`8`，`chars`类型为`char[]`，大小为`5 * 1 = 5`。
 
@@ -435,7 +445,8 @@ func({ 100.0 });			//编译报错，提示"error: narrowing conversion of ‘1.0
 
 在`GCC/Clang`等编译器中，结构体是按照结构体内的**最大**的成员变量的长度来进行对齐的。
 
-即使结构体内的变量长度没达到最大成员的长度，也会占有该大小的空间。多个小长度的成员能够进行在同一片对齐区域内。但如果出现了最大长度的成员变量，则下一个变量就重新对齐。
+即使结构体内的变量长度没达到最大成员的长度，也会占有该大小的空间。  
+多个小长度的成员能够进行在同一片对齐区域内。但如果出现了最大长度的成员变量，则下一个变量就重新对齐。
 
 例如：
 
@@ -470,7 +481,7 @@ struct
 
 
 ## 变长参数函数
-C语言不支持**函数重载**，但是依然可以定义变长参数函数，使用`...`符号代表可变参数表。
+C语言不支持**函数重载**，但是依然可以定义变长参数函数，使用`...`符号代表可变参数表。  
 需要注意的是，不能定义一个参数仅为`...`的函数，一个函数如果接受变长参数，则至少需要有一个确定参数。
 典型的变长参数函数定义：
 
@@ -1286,75 +1297,76 @@ int main(void)
 - 即使一个模版类的所有模版形参都拥有默认值，全部采用默认参数来实例化这个模版类时类名之后依然需要有一对空的尖括号`>`来表示实例化的是一个模版类。
 
 ### 模板与重载
-C++中模板是在编译时根据实例化时使用的**模版参数**编译成对应的函数。
+C++中模板是在编译时根据实例化时使用的**模版参数**编译成对应的函数。  
 C++作为编译性语言，模板是在编译期实现的，属于编译时多态的一种。
 
-类模板与重载
-> 对于模板类而言，如果一个模板类成员函数(无论是否静态)在确定了类型之后与原有的成员函数原型发生冲突则在编译时就会报错。
-> 若模板类成员函数在使用某种类型时**可能**与已有的函数原型发生冲突，但只要没使用该类型，就能通过编译。
->
-> 举例：
->
-> 文件`test.h`
->
->	```cpp
->	template <class T>
->	class Test
->	{
->	public:
->		T get(T t1, T t2) { return t1 + t2; }
->		int get(int num1, int num2) { return num1 + num2 + 1; }
->	};
->	```
->
-> 文件`test.cc`
->
->	```cpp
->	#include "test.h"
->
->	int main(void)
->	{
->		Test<int> t;	// 编译报错，提示"error: ‘int Test<T>::get(int, int) [with T = int]’ cannot be overloaded"
->	}
->	```
->
-> 当`Test`类使用`int`型作为模板实例化类型时，与原有函数原型发生冲突。
+- 类模板与重载
 
-成员函数模板与重载
-> 对于成员函数模板而言，**允许**成员模板函数与原有的类内成员函数具有**完全相同**的函数原型。
-> 调用时，默认优先调用普通成员函数，但可以通过显式写明模板参数的形式调用成员模板函数。
-> 如下所示：
->
-> 文件`test.h`
->
->	```cpp
->	class Test
->	{
->	public:
->		template <class T>
->		T get(T t1, T t2) { return t1 + t2; }
->		int get(int num1, int num2) { return num1 + num2 + 1; }
->	};
->	```
->
-> 文件`test.cc`
->
->	```cpp
->	#include "test.h"
->	#include <iostream>
->
->	using namesapce std;
->
->	int main(void)
->	{
->		Test t;		// 带有成员模板函数的类实例化方式与普通类完全相同
->		cout << t.get(100, 100) << endl;	// 输出201，默认调用非模板函数
->		cout << t.get<int>(100, 100) << endl;		// 输出200，显式指定模板参数时调用模板函数
->	}
->	```
+	对于模板类而言，如果一个模板类成员函数(无论是否静态)在确定了类型之后与原有的成员函数原型发生冲突则在编译时就会报错。
+	若模板类成员函数在使用某种类型时**可能**与已有的函数原型发生冲突，但只要没使用该类型，就能通过编译。
+	如下代码所示：
+
+	文件`test.h`
+
+	```cpp
+	template <class T>
+	class Test
+	{
+	public:
+		T get(T t1, T t2) { return t1 + t2; }
+		int get(int num1, int num2) { return num1 + num2 + 1; }
+	};
+	```
+
+	文件`test.cc`
+
+	```cpp
+	#include "test.h"
+
+	int main(void)
+	{
+		Test<int> t;	// 编译报错，提示"error: ‘int Test<T>::get(int, int) [with T = int]’ cannot be overloaded"
+	}
+	```
+
+	当`Test`类使用`int`型作为模板实例化类型时，与原有函数原型发生冲突。
+
+- 成员函数模板与重载
+
+	对于成员函数模板而言，**允许**成员模板函数与原有的类内成员函数具有**完全相同**的函数原型。  
+	调用时，默认优先调用普通成员函数，但可以通过显式写明模板参数的形式调用成员模板函数。  
+	如下所示：
+
+	文件`test.h`
+
+	```cpp
+	class Test
+	{
+	public:
+		template <class T>
+		T get(T t1, T t2) { return t1 + t2; }
+		int get(int num1, int num2) { return num1 + num2 + 1; }
+	};
+	```
+
+	文件`test.cc`
+
+	```cpp
+	#include "test.h"
+	#include <iostream>
+
+	using namesapce std;
+
+	int main(void)
+	{
+		Test t;		// 带有成员模板函数的类实例化方式与普通类完全相同
+		cout << t.get(100, 100) << endl;	// 输出201，默认调用非模板函数
+		cout << t.get<int>(100, 100) << endl;		// 输出200，显式指定模板参数时调用模板函数
+	}
+	```
 
 ### 模版特化
-C++支持`模版特化`，即对于特定的模版参数类型可以指定其实现。
+C++支持`模版特化`，即对于特定的模版参数类型可以指定其实现。  
 如有以下模版类，有两个模版参数`T`和`S`：
 
 ```cpp
@@ -1398,7 +1410,7 @@ T func(T t, S s)
 }
 ```
 
-假设需要特化其模版参数全为`int`型，则可以写成：
+若需要特化其模版参数全为`int`型，则可以写成：
 
 ```cpp
 template <>
@@ -1509,8 +1521,8 @@ int main(void)
 
 ### C++11 变长模版
 `C++11`加入了**变长模版**特性，使用`template <typename... T>`或`template <class... T>`来表示有数目不定的模版参数。
-定义变长模版变量写成`T... arg_name`，调用变长模版变量也要在参数名称后加上引号，写成`arg_name...`。
-使用`sizeof...`操作符可以计算模版参数包的个数(**不是**类型大小)。
+定义变长模版变量写成`T... arg_name`，调用变长模版变量也要在参数名称后加上引号，写成`arg_name...`。  
+使用`sizeof...`操作符可以计算模版参数包的个数(**不是**类型大小)。  
 通过模版类型的**自动推导**，变长的模版参数包可以使用**递归**的方式逐一取出参数。
 
 如下所示，计算一个变长序列之和：
@@ -1635,20 +1647,20 @@ _Bool max_T(const struct T t_1, const struct T t_2)
 	return t_1.data > t_2.data;
 }
 
-//若x大于y，返回1，否则返回0
+// 若x大于y，返回1，否则返回0
 #define MAX(x, y) \
 	_Generic(x, int: max_int, double: max_double, struct T: max_T)(x, y)
 
 int main(int argc, char** argv)
 {
-	//MAX宏根据不同的具体参数类型选择不同的实现
+	// MAX宏根据不同的具体参数类型选择不同的实现
 	if (MAX(200, 100))
 		printf("True\n");
 
 	if (MAX(200.0, 100.0))
 		printf("True\n");
 
-	//传统的宏能够实现基础类型的比较，但对于自定义结构类型无能为力
+	// 传统的宏能够实现基础类型的比较，但对于自定义结构类型无能为力
 	if (MAX((struct T){ 200 }, (struct T){ 100 }))
 		printf("True\n");
 
@@ -1696,43 +1708,44 @@ _Static_assert(expr, error_str);
 ### *C++11* 中的静态断言
 C++11中同样引入了**静态断言**关键字`static_assert`，用法与C11中的`_Static_assert`相同。
 
-使用静态断言实现范型约束
-> **静态断言**搭配标准库中的模版类`std::is_base_of<Base, Der>`能够实现类似`Java`、`C#`等高级语言中的范型约束效果。
->
-> 如下所示：
->
->	```cpp
->	#include <iostream>
->
->	using namespace std;
->
->	class Base { };
->
->	class Der : public Base { };
->
->	class Private : Base { };
->
->	class Other { };
->
->	int main(void)
->	{
->		// Right
->		static_assert(is_base_of<Base, Der>::value, "Need class Base.");
->
->		// Right
->		static_assert(is_base_of<Base, Private>::value, "Need class Base.");
->
->		// error: static_assert failed "Need class Base."
->		static_assert(is_base_of<Base, Other>::value, "Need class Base.");
->
->		return 0;
->	}
->	```
->
-> 通过静态成员`std::is_base_of<Base, Der>::value`来判定作为参数的两个类是否存在继承关系。
-> 类`Base`与`Der`存在继承关系，因而编译通过，但类`Other`与`Base`不存在继承关系，因而编译报错。
->
-> 需要注意的是，**私有继承**虽然不支持转型操作，但继承关系依然存在，能够通过继承关系检测。
+- 使用静态断言实现范型约束
+
+	**静态断言**搭配标准库中的模版类`std::is_base_of<Base, Der>`，
+	能够实现类似`Java`、`C#`等高级语言中的范型约束效果。  
+	如下所示：
+
+	```cpp
+	#include <iostream>
+
+	using namespace std;
+
+	class Base { };
+
+	class Der : public Base { };
+
+	class Private : Base { };
+
+	class Other { };
+
+	int main(void)
+	{
+		// Right
+		static_assert(is_base_of<Base, Der>::value, "Need class Base.");
+
+		// Right
+		static_assert(is_base_of<Base, Private>::value, "Need class Base.");
+
+		// error: static_assert failed "Need class Base."
+		static_assert(is_base_of<Base, Other>::value, "Need class Base.");
+
+		return 0;
+	}
+	```
+
+	通过静态成员`std::is_base_of<Base, Der>::value`来判定作为参数的两个类是否存在继承关系。  
+	类`Base`与`Der`存在继承关系，因而编译通过，但类`Other`与`Base`不存在继承关系，因而编译报错。
+
+	需要注意的是，**私有继承**虽然不支持转型操作，但继承关系依然存在，能够通过继承关系检测。
 
 
 
@@ -1839,9 +1852,16 @@ Run lambda function point: 100
 ```
 
 ### C++14中的 *Lambda* 新特性
-- 在`C++14`中，加入了泛型`Lambda`，并支持在`Lambda`使用**表达式**捕获作用域中的变量，且没有捕获变量的`Lambda`可以与函数指针进行转化(不是函数对象)。
-- 在`C++11`中，`Lambda`中的参数必须显式指定参数的类型，但在`C++14`中，参数的类型可以使用`auto`关键字，编译器会对所有的被使用的该表达式进行参数类型推断，然后根据使用的参数类型编译出对应的`Lambda`实例。
-- 在`C++11`中，对变量的捕获包括值捕获和左值引用捕获两种，而在`C++14`中，`Lambda`中支持使用**表达式**捕获，通过简单的表达式进行一些捕获值初始化`lambda capture initializers`，或是对捕获变量重命名(设置全局传递方式的操作符依然要放在最前面)。
+- 在`C++14`中，加入了泛型`Lambda`，
+	并支持在`Lambda`使用**表达式**捕获作用域中的变量，
+	且没有捕获变量的`Lambda`可以与函数指针进行转化(不是函数对象)。
+- 在`C++11`中，`Lambda`中的参数必须显式指定参数的类型，
+	但在`C++14`中，参数的类型可以使用`auto`关键字，
+	编译器会对所有的被使用的该表达式进行参数类型推断，然后根据使用的参数类型编译出对应的`Lambda`实例。
+- 在`C++11`中，对变量的捕获包括值捕获和左值引用捕获两种，
+	而在`C++14`中，`Lambda`中支持使用**表达式**捕获，
+	通过简单的表达式进行一些捕获值初始化`lambda capture initializers`，
+	或是对捕获变量重命名(设置全局传递方式的操作符依然要放在最前面)。
 
 举例：
 
@@ -1953,51 +1973,67 @@ vector(const vector& from);
 vector(input_iterator start, input_iterator end);		//使用某个已存在的vector的[start, end)来构建一个新的vector
 ```
 
-*vector* 容器特点
-> `vector`容器是数组式的容器类型，`vector`容器中存储的数据元素被放在一块连续的内存中，`vector`容器支持**随机存取**，可以通过数组式的下标(即`[]`操作符)进行元素访问、修改。
->
-> `vector`容器虽然支持`insert()`等函数来进行插入操作，但由于内部采用线性结构，因而`insert()`函数在头部或是中间插入元素时需要进行大量复制操作，插入效率很低，在执行头部、中部删除元素操作时也同样效率低。
+- *vector* 容器特点
 
-*list* 容器特点
->`list`容器采用**双向链表**实现，`list`容器存储的元素所处的内存空间不连续，由于链表的特性，元素之间是通过指针相连的，因而`list`容器在任意位置插入和删除元素时效率都很高，但`list`容器并**不支持**随机存取，不能使用`[]`操作符访问元素，同时相比`vector`容器消耗的内存更多。
->
-> `list`容器有着一些`vector`没有的方法，比如`pop_front()``push_front(const T &x)``remove(const T &value)`等，使用`remove()`方法可以移除容器中所有值为`value`的元素。
+	`vector`容器是数组式的容器类型。  
+	`vector`容器中存储的数据元素被放在一块连续的内存中。  
+	`vector`容器支持**随机存取**，可以通过数组式的下标(即`[]`操作符)进行元素访问、修改。  
+	`vector`容器虽支持`insert()`等函数来进行插入操作，
+	但由于内部采用线性结构，因而`insert()`函数在头部或是中间插入元素时需要进行大量复制操作，插入效率很低，
+	在执行头部、中部删除元素操作时也同样效率低。
 
-*deque* 容器特点
-> `deque`容器为双向队列，兼顾了`list`和`vector`的优点，能够方便地增加、删除元素，也能够使用`[]`操作符随机存取元素，但缺点是需要消耗较高的内存。
+- *list* 容器特点
 
-###关联式容器
+	`list`容器采用**双向链表**实现。  
+	`list`容器存储的元素所处的内存空间不连续。
+	由于链表的特性，元素之间是通过指针相连的，因而`list`容器在任意位置插入和删除元素时效率都很高。  
+	但`list`容器并**不支持**随机存取，如不支持使用`[]`操作符访问元素，同时相比`vector`容器消耗的内存更多。  
+	`list`容器有着一些`vector`没有的方法，比如`pop_front()``push_front(const T &x)``remove(const T &value)`等。  
+	使用`remove()`方法可以移除容器中所有值为`value`的元素。
+
+- *deque* 容器特点
+
+	`deque`容器为**双向队列**。
+	`deque`兼顾了`list`和`vector`的优点，能够方便地增加、删除元素，也能够使用`[]`操作符随机存取元素。  
+	`deque`的缺点是需要消耗较高的内存。
+
+### 关联式容器
 关联式容器通过键值`key`来存取元素，元素次序与插入顺序**无关**。
 
 - 关联式容器**不提供**`front()`、`back()`、`push_front/push_back(const T&)`、`pop_front/pop_back()`之类的操作。
 - 关联式容器可以进行比较，需要定义`<`操作符，所有作为关联式容器`key`的类型都必须重载`<`运算符，其它操作符不作要求。
 - 关联式容器提供`clear()`和`erase()`函数，但返回值为`void`而不是下一个元素的迭代器。
 
-*set*、*multiset* 容器特点
-> `set/multiset`容器保存键值，对应数学概念中的`集合`。
->
-> `set/multiset`的实现采用的平衡二叉搜索树，插入、查询、删除等操作时间复杂度均为`O(lgN)`。
->
-> `set`不允许重复值，但`multiset`允许重复值。
+常见的关联式容器特点：
 
-*map*、*multimap* 容器特点
-> `map/multimap`容器同时保存键值和实际值，每一个元素都是一个`pair<key, value>`类型。
->
-> `map`容器不允许相同键值`key`的元素，但`multimap`允许。`map`容器可以使用数组下标形式(`[]`操作符)来获取指定键值的元素中的实际值，`multimap`由于键值可以重复，一个键值可以对应多个实际值，因而不能采用下标的形式获取实际值。
-> `pair`类型中有两个成员，`first`和`second`，分别保存键值和实际数据，通过访问`first`和`second`两个成员可以获取键值和实际数据。
->
-> 使用`find()`函数可以查找某个键值，返回一个迭代器，通过遍历该迭代器可以获取某个键值的所有对应值。
->
-> 通过`lower_bound()`、`upper_bound()`等函数获取迭代器，用于遍历元素，与`STL`的迭代器相同，`lower_bound()`返回指向参数键值的第一个元素位置的迭代器，而`upper_bound()`返回指向参数键值最后一个元素的下一个元素位置的迭代器。
+- *set*、*multiset* 容器特点
 
-注意事项
-> 对于`map`等关联式容器来说，键值如果为指针类型，则将指针的值(指针包含的地址)作为键值，而非指针所指向的内容。因而两个内容相同的不同数组对`map`而言就是两个不同的键值。
->
-> 不是所有的类型都可以作为键值，能够作为键值的类型必须重载了`<`运算符，否则会出现编译错误：
-`二进制“<”: 没有找到接受“xxx”类型的左操作数的运算符(或没有可接受的转换)`
-> 一些类型已经默认重载了`<`运算符如`std::string`、`QString`等，可以直接作为`key`使用。
->
-> 在C++中，当访问容器的索引越界时，**不会**像其它高级语言如C#、Java一样抛出异常，而是返回对应类型的零值。
+	`set/multiset`容器保存键值，对应数学概念中的`集合`。  
+	`set/multiset`的实现采用的平衡二叉搜索树，插入、查询、删除等操作时间复杂度均为`O(lgN)`。  
+	`set`不允许重复值，但`multiset`允许重复值。
+
+- *map*、*multimap* 容器特点
+
+	`map/multimap`容器同时保存键值和实际值，每一个元素都是一个`pair<key, value>`类型。  
+	`map`容器不允许相同键值`key`的元素，但`multimap`允许。  
+	`map`容器可以使用数组下标形式(`[]`操作符)来获取指定键值的元素中的实际值。  
+	`multimap`由于键值可以重复，一个键值可以对应多个实际值，因而不能采用下标的形式获取实际值。
+
+	`pair`类型中有两个成员，`first`和`second`，分别保存键值和实际数据。  
+	通过访问`first`和`second`两个成员可以获取键值和实际数据。  
+	使用`find()`函数可以查找某个键值，返回一个迭代器，通过遍历该迭代器可以获取某个键值的所有对应值。
+
+	可以通过`lower_bound()`、`upper_bound()`等函数获取迭代器，用于遍历元素，与`STL`的迭代器相同，`lower_bound()`返回指向参数键值的第一个元素位置的迭代器，而`upper_bound()`返回指向参数键值最后一个元素的下一个元素位置的迭代器。
+
+使用注意事项：
+
+- 对于`map`等关联式容器来说，键值如果为指针类型，则将指针的值(指针包含的地址)作为键值，而非指针所指向的内容。
+	因而两个内容相同的不同数组对`map`而言就是两个不同的键值。
+- 不是所有的类型都可以作为键值，能够作为键值的类型必须重载了`<`运算符，否则会出现编译错误：
+	`二进制“<”: 没有找到接受“xxx”类型的左操作数的运算符(或没有可接受的转换)`
+- 一些类型已经默认重载了`<`运算符如`std::string`、`QString`等，可以直接作为`key`使用。
+
+在C++中，当访问容器的索引越界时，**不会**像其它高级语言如C#、Java一样抛出异常，而是返回对应类型的零值。
 
 
 
@@ -2038,17 +2074,38 @@ ptr0 == nullptr ? true : false;		// true
 ptr0 == nullptr ? true : false;		// false
 ```
 
-### 标准库中的各类智能指针特性
-- `std::auto_ptr`(已过时)中一块动态内存只能绑定一个`auto_ptr`，如果将一个绑定了动态内存的`auto_ptr`复制给另一个`auto_ptr`则动态内存的所有权会被转移到新的auto_ptr上，旧的auto_ptr不再指向原先的动态内存。
-- `std::unique_ptr`来自于`boost::scoped_ptr`，类似于`auto_ptr`，但`unique_ptr`的限制更多，一块动态内存只能绑定一个`unique_ptr`，同时`unique_ptr`不能进行复制。
-- `std::shared_ptr`来自于`boost::shared_ptr`，基于**引用计数**的共享智能指针。一块动态内存可以被多个`shared_ptr`绑定，每增加一个智能指针的绑定，则引用计数加1，当引用计数为0时释放指向的动态内存，shared_ptr的内存管理完全交由编译器完成，不能手动释放`shared_ptr`管理的动态内存(没有`release()`成员函数)。
-- `shared_ptr`可以使用`make_shared<T>(args)`函数进行构造。使用`reset()`成员函数会将当前智能指针管理的动态内存引用计数减1，如果引用计数为0则释放动态内存。`shared_ptr`的`reset()`成员函数可以带有参数，参数可以是`new`构造函数或是对象指针，作用是将原先的托管对象引用计数减1然后管理新的对象(新对象引用计数加1)。
-- `std::weak_ptr`来自于`boost::weak_ptr`，为了解决`shared_ptr`中的**循环引用**问题而引入的**弱引用**智能指针，`weak_ptr`不能单独绑定一块动态内存(即不能新建动态内存初始化`weak_ptr`)，而是由`shared_ptr`转化而来。
+标准库中的各类智能指针特性：
+
+- `std::auto_ptr`(已过时)
+
+	一块动态内存只能绑定一个`auto_ptr`，若将一个绑定了动态内存的`auto_ptr`复制给另一个`auto_ptr`则动态内存的所有权会被转移到新的auto_ptr上，旧的auto_ptr不再指向原先的动态内存。
+
+- `std::unique_ptr`
+
+	来自于`boost::scoped_ptr`，类似于`auto_ptr`，但`unique_ptr`的限制更多，一块动态内存只能绑定一个`unique_ptr`，同时`unique_ptr`不能进行复制。
+
+- `std::shared_ptr`
+
+	来自于`boost::shared_ptr`，基于**引用计数**的共享智能指针。  
+	一块动态内存可以被多个`shared_ptr`绑定。  
+	每增加一个智能指针的绑定，则引用计数加1，当引用计数为0时释放指向的动态内存。  
+	shared_ptr的内存管理完全交由编译器完成，不能手动释放`shared_ptr`管理的动态内存(没有`release()`成员函数)。
+
+	`shared_ptr`使用`make_shared<T>(args)`函数进行构造。  
+	使用`reset()`成员函数会将当前智能指针管理的动态内存引用计数减1，如果引用计数为0则释放动态内存。  `shared_ptr`的`reset()`成员函数可以带有参数，参数可以是`new`构造函数或是对象指针，作用是将原先的托管对象引用计数减1然后管理新的对象(新对象引用计数加1)。
+
+- `std::weak_ptr`
+
+	来自于`boost::weak_ptr`，为了解决`shared_ptr`中的**循环引用**问题而引入的**弱引用**智能指针。  
+	`weak_ptr`不能单独绑定一块动态内存(即不能新建动态内存初始化`weak_ptr`)，而是由`shared_ptr`转化而来。
+
+`shared_ptr/weak_ptr`使用：
+
 - `weak_ptr`可以使用构造函数与`shared_ptr`相互转换(即以已有的`shared_ptr`对象为参数构造`weak_ptr`对象)，一块动态内存被`weak_ptr`智能指针绑定或是绑定该动态内存的`weak_ptr`被销毁不会增加/减少原有的`shared_ptr`的引用计数。
 - `shared_ptr`和`weak_ptr`都没有`release()`成员函数，即不能手动释放动态内存。`weak_ptr`不能直接调用指向对象的成员函数，调用指向对象的成员函数之前需要先使用`weak_ptr`自身的`lock()`方法将自身转变为`shared_ptr`，然后再调用指向对象的成员函数。
 
 ### 智能指针的转型
-C++的类型转换函数`dynamic_cast<>()`、`static_cast<>()`、`const_cast<>()`**不能**用于智能指针对象的转换，智能指针实际是一个包含了指针的容器对象，并不能简单地转换为普通指针类型。
+C++的类型转换函数`dynamic_cast<>()`、`static_cast<>()`、`const_cast<>()`**不能**用于智能指针对象的转换，智能指针实际是一个包含了指针的容器对象，并不能简单地转换为普通指针类型。  
 将智能指针对象进行转型需要使用`dynamic_pointer_cast<>()`、`static_pointer_cast<>()`、`const_pointer_cast<>()`，其中的模版参数为目标对象的类型(不是指针类型)。
 
 ### 改变做为形参传入的智能指针所指向的内容
@@ -2067,7 +2124,7 @@ C++的类型转换函数`dynamic_cast<>()`、`static_cast<>()`、`const_cast<>()
 
 using namespace std;
 
-void init(shared_ptr<int> temp)		//如果需要函数改变传入的未初始化的智能指针，正确的方法是传入引用或是传入智能指针的地址(指针)
+void init(shared_ptr<int> temp) //如果需要函数改变传入的未初始化的智能指针，正确的方法是传入引用或是传入智能指针的地址(指针)
 {
 	shared_ptr<int> num(new int);
 	*num = 100;
@@ -2078,7 +2135,7 @@ int main(void)
 {
 	shared_ptr<int> temp;
 	init(temp);
-	cout << *temp << endl;			//错误，运行init()函数之后，外部的智能指针temp实际上并未发生变化，依然处于未初始化状态，试图访问其内容会报错
+	cout << *temp << endl; //错误，运行init()函数之后，外部的智能指针temp实际上并未发生变化，依然处于未初始化状态，试图访问其内容会报错
 	system("pause");
 	return 0;
 }
@@ -2202,18 +2259,22 @@ connection connect(const slot_type& slot, connect_position position = at_back);
 connection connect(const group_type& group, const slot_type& slot, connect_position position = at_back);
 ```
 
-连接槽函数时改变签名
-> 被连接的槽函数必须要符合信号定义时的模板参数中的函数原型，必须函数原型参数个数完全相同且类型兼容(由于绑定槽函数时是传递槽函数的地址，因此函数默认参数被忽略，因而参数个数必须完全相同)，如果需要绑定的函数参数表与信号定义的参数表数目不同，可以采用`std::bind()`生成具有新参数表的函数进行连接。
->
-> 如果需要连接的槽函数为一个类的非静态成员函数，则也需要通过`std::bind()`将非静态成员函数绑定一个类实例之后再进行连接，否则会连接失败(没有实例无法访问非静态成员函数)。
->
-> 如果被连接的槽函数有多个重载，则需要进行强制类型转换来转换为无歧义函数指针才能进行连接。
+- 连接槽函数时改变签名
 
-`connect()`组别
-> 使用`connect()`函数的第二个重载进行槽函数连接时，可以在第一个参数的位置设置槽函数的组别，组别可以是一个整型数值(可以为负数)，不同组别之间的槽函数按照组号由小到大的顺序执行。
+	被连接的槽函数必须要符合信号定义时的模板参数中的函数原型，必须函数原型参数个数完全相同且类型兼容(由于绑定槽函数时是传递槽函数的地址，因此函数默认参数被忽略，因而参数个数必须完全相同)。  
+	若需要绑定的函数参数表与信号定义的参数表数目不同，可以采用`std::bind()`生成具有新参数表的函数进行连接。
 
-`connect()`优先级
-> `connect()`成员函数的最后一个参数用于设定槽函数的组内优先级，默认情况下取值为`boost::signals2::at_back`，多个槽函数连接时返回值为最后一个连接的槽函数的返回值，需要优先执行的槽函数可以设定为`boost::signals2::at_front`。
+	若需要连接的槽函数为一个类的非静态成员函数，则也需要通过`std::bind()`将非静态成员函数绑定一个类实例之后再进行连接，否则会连接失败(没有实例无法访问非静态成员函数)。
+
+	若被连接的槽函数有多个重载，则需要进行强制类型转换来转换为无歧义函数指针才能进行连接。
+
+- `connect()`组别
+
+	使用`connect()`函数的第二个重载进行槽函数连接时，可以在第一个参数的位置设置槽函数的组别，组别可以是一个整型数值(可以为负数)，不同组别之间的槽函数按照组号由小到大的顺序执行。
+
+- `connect()`优先级
+
+	`connect()`成员函数的最后一个参数用于设定槽函数的组内优先级，默认情况下取值为`boost::signals2::at_back`，多个槽函数连接时返回值为最后一个连接的槽函数的返回值，需要优先执行的槽函数可以设定为`boost::signals2::at_front`。
 
 ### 取消连接
 取消连接使用`disconnect()`成员函数，该函数有两个重载，定义如下：
@@ -2285,7 +2346,8 @@ int main(void)
 
 	a.sig.connect(1, boost::bind(&B::slot1, b, _1, 'a'));
 	boost::signals2::connection link =
-		a.sig.connect(1, boost::bind(&B::slot1, b, _1, 1, 2), boost::signals2::at_front);
+		a.sig.connect(1, boost::bind(&B::slot1, b, _1, 1, 2),
+		boost::signals2::at_front);
 	a.sig.connect(2, boost::bind(&B::slot2, b, 1.0, _1));
 
 	cout << *a.sig(0) << endl;
@@ -2351,83 +2413,88 @@ struct duration;
 - `_Rep`为时间的数值类型，可以为`int`、`double`等常见的数值类型。
 - `_Period`为时间的**单位**，以**秒**作为换算基准，使用`std::ratio`类型表示。
 
-类型`std::radio`
-> `std::ratio`类型用于描述换算比，基本定义如下：
->
->	```cpp
->	template<intmax_t _Num, intmax_t _Den = 1>
->	struct ratio
->	{
->		...
->	};
->	```
->
-> 模板参数均为数值，`_Num`为分子，`_Den`为分母。
-> `std::ratio<1, 1>`表示`1/1`即`1`，`std::ratio<200, -1>`表示`200/-1`即`-200`。
+时间间隔相关类型定义：
 
-时间单位
-> 标准库时间以秒为换算基础(即将**秒**定义为`std::radio<1, 1>`)，定义了其它标准时间单位：
->
->	```cpp
->	/// nanoseconds
->	typedef duration<int64_t, nano> nanoseconds;
->	/// microseconds
->	typedef duration<int64_t, micro> microseconds;
->	/// milliseconds
->	typedef duration<int64_t, milli> milliseconds;
->	/// seconds
->	typedef duration<int64_t> seconds;
->	/// minutes
->	typedef duration<int64_t, ratio<60>> minutes;
->	/// hours
->	typedef duration<int64_t, ratio<3600>> hours;
->	```
->
-> 其中，`nano`、`micro`、`milli`的定义在`radio`头文件中：
->
->	```cpp
->	typedef ratio<1, 1000000000> nano;
->	typedef ratio<1, 1000000> micro;
->	typedef ratio<1, 1000> milli;
->	```
+- 类型`std::radio`
 
-时间转换
-> 不同的时间单位之间相互转换使用`std::chrono::duration_cast()`函数，该函数定义如下：
->
->	```cpp
->	/// duration_cast
->	template<typename _ToDur, typename _Rep, typename _Period>
->	constexpr typename enable_if<__is_duration<_ToDur>::value, _ToDur>::type
->	duration_cast(const duration<_Rep, _Period>& __d)
->	{
->		...
->	}
->	```
->
-> 模板参数`_ToDur`表示需要转换成的目标时间单位，`_Rep`、`_Period`用于表示被转换时间的单位。
-> 简单的用法如下所示：
->
->	```cpp
->	#include <iostream>
->	#include <chrono>
->
->	int main(void)
->	{
->		std::chrono::hours hour(1);			// 一个小时的时间间隔
->		std::chrono::minutes mintue = std::chrono::duration_cast<std::chrono::minutes>(hour);	// 转换为分钟
->		std::cout << "Hour: " << hour.count() << std::endl;
->		std::cout << "Mintue: " << mintue.count() << std::endl;
->
->		return 0;
->	}
->	```
->
-> 输出结果：(GCC 6.2.1 && ArchLinux x64)
->
->	```
->	Hour: 1
->	Mintue: 60
->	```
+	`std::ratio`类型用于描述换算比，基本定义如下：
+
+	```cpp
+	template<intmax_t _Num, intmax_t _Den = 1>
+	struct ratio
+	{
+		...
+	};
+	```
+
+	模板参数均为数值，`_Num`为分子，`_Den`为分母。
+	`std::ratio<1, 1>`表示`1/1`即`1`，`std::ratio<200, -1>`表示`200/-1`即`-200`。
+
+- 时间单位
+
+	标准库时间以秒为换算基础(即将**秒**定义为`std::radio<1, 1>`)，定义了其它标准时间单位：
+
+	```cpp
+	/// nanoseconds
+	typedef duration<int64_t, nano> nanoseconds;
+	/// microseconds
+	typedef duration<int64_t, micro> microseconds;
+	/// milliseconds
+	typedef duration<int64_t, milli> milliseconds;
+	/// seconds
+	typedef duration<int64_t> seconds;
+	/// minutes
+	typedef duration<int64_t, ratio<60>> minutes;
+	/// hours
+	typedef duration<int64_t, ratio<3600>> hours;
+	```
+
+	其中，`nano`、`micro`、`milli`的定义在`radio`头文件中：
+
+	```cpp
+	typedef ratio<1, 1000000000> nano;
+	typedef ratio<1, 1000000> micro;
+	typedef ratio<1, 1000> milli;
+	```
+
+- 时间转换
+
+	不同的时间单位之间相互转换使用`std::chrono::duration_cast()`函数，该函数定义如下：
+
+	```cpp
+	/// duration_cast
+	template<typename _ToDur, typename _Rep, typename _Period>
+	constexpr typename enable_if<__is_duration<_ToDur>::value, _ToDur>::type
+	duration_cast(const duration<_Rep, _Period>& __d)
+	{
+		...
+	}
+	```
+
+	模板参数`_ToDur`表示需要转换成的目标时间单位，`_Rep`、`_Period`用于表示被转换时间的单位。
+	简单的用法如下所示：
+
+	```cpp
+	#include <iostream>
+	#include <chrono>
+
+	int main(void)
+	{
+		std::chrono::hours hour(1);			// 一个小时的时间间隔
+		std::chrono::minutes mintue = std::chrono::duration_cast<std::chrono::minutes>(hour);	// 转换为分钟
+		std::cout << "Hour: " << hour.count() << std::endl;
+		std::cout << "Mintue: " << mintue.count() << std::endl;
+
+		return 0;
+	}
+	```
+
+	输出结果：(GCC 6.2.1 && ArchLinux x64)
+
+	```
+	Hour: 1
+	Mintue: 60
+	```
 
 ### *std::time_point*
 `std::chrono::time_point`表示某一个时间点，基本定义如下：
@@ -2529,13 +2596,13 @@ Minutes: 60
 举例：
 
 ```cpp
-//头文件 xxx.h
+// 头文件 xxx.h
 namespace A
 {
 	extern int a;
 }
 
-//代码文件 xxx.cc
+// 代码文件 xxx.cc
 namespace A
 {
 	int a = 0;
@@ -2571,10 +2638,10 @@ case 0:
 }
 ```
 
-将定义与赋值拆开可以通过C++编译器，但依旧会在C编译器中报错。
-出现此种情况是因为在C/C++中，`case`标签不具有独立的作用域，同时在不使用`break`语句的情况下，`case`标签中的变量定义语句根据传入值的不同不一定会被执行，变量不一定会被定义，因而在C/C++中不允许这样的行为。
-
-正确的做法是在需要在`case`标签内容中定义变量时使用`{}`来构建一个独立作用域，使变量定义对其它`case`标签不可见，如下所示：
+将定义与赋值拆开可以通过C++编译器，但依旧会在C编译器中报错。  
+出现此种情况是因为在C/C++中，`case`标签不具有独立的作用域，同时在不使用`break`语句的情况下，`case`标签中的变量定义语句根据传入值的不同不一定会被执行，变量不一定会被定义，因而在C/C++中不允许这样的行为。  
+正确的做法是在需要在`case`标签内容中定义变量时使用`{}`来构建一个独立作用域，使变量定义对其它`case`标签不可见。  
+如下所示：
 
 ```cpp
 int a = 0;
@@ -2653,8 +2720,8 @@ void longjmp(jmp_buf env, int val);
 - `env`参数保存函数局部栈数据，用于之后的状态恢复。
 - `val`参数用于指定`longjmp()`调用后，从`setjmp()`函数恢复时的返回值。
 
-通过调用`setjmp()`函数设置恢复点，调用`setjmp()`函数之后，会将当前局部环境信息写入`env`变量中用于之后的恢复操作。
-首次调用`setjmp()`函数返回值为`0`，之后调用`longjmp()`函数可跳转到上次调用`setjmp()`的位置，`longjmp()`函数中的参数`val`为`setjmp()`返回值。
+通过调用`setjmp()`函数设置恢复点，调用`setjmp()`函数之后，会将当前局部环境信息写入`env`变量中用于之后的恢复操作。  
+首次调用`setjmp()`函数返回值为`0`，之后调用`longjmp()`函数可跳转到上次调用`setjmp()`的位置，`longjmp()`函数中的参数`val`为`setjmp()`返回值。  
 在`setjmp()`调用后，直到从`longjmp()`函数返回期间，信号会一直被**阻塞**。
 
 实例代码：
@@ -2698,7 +2765,9 @@ Second
 ```
 
 ### *sigsetjmp()* 与 *siglongjmp()* 函数
-`POSIX`对于使用在**信号处理函数**内部使用`longjmp()`跳转回`setjmp()`位置时是否恢复信号状态**未定义**(在不同的Unix中，从`longjmp()`跳转回`setjmp()`位置时可能恢复信号处理和信号屏蔽，也可能**不恢复**，实测在`Linux`中**不会**恢复信号状态)。
+`POSIX`对于使用在**信号处理函数**内部使用`longjmp()`跳转回`setjmp()`位置时是否恢复信号状态**未定义**。  
+在不同的Unix中，从`longjmp()`跳转回`setjmp()`位置时可能恢复信号处理和信号屏蔽，也可能**不恢复**。  
+实测在`Linux`中**不会**恢复信号状态。
 
 `POSIX`提供了`sigsetjmp()/siglongjmp()`用于在**信号处理函数**内部进行跳转。
 
