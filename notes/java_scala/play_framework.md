@@ -509,7 +509,7 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 @* 模板变量存储执行Scala代码执行结果 *@
 @content = @{
 	val xxx = ...
-	xxx		@* content 变量类型由返回值 xxx 的类型决定 *@
+	xxx @* content 变量类型由返回值 xxx 的类型决定 *@
 }
 
 <html>
@@ -529,7 +529,7 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 
 ```scala
 @display(product: models.Product) = {
-	@product.name ($@product.price)
+	@product.name ($@product.price)		@* 输出内容： 产品名称 ($产品价格) *@
 }
 
 <ul>
@@ -541,6 +541,49 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 
 在一个模板中调用其它模板，方法类似。  
 一个模板文件本身可视为一个可复用的代码块。
+
+### 模板类型
+`Twirl`模板引擎默认支持`html`、`js`、`xml`、`txt`四种后缀的模板类型。
+四种模板类型在API中已有默认定义，完整类型路径为：
+
+```scala
+play.twirl.api.Html
+play.twirl.api.JavaScript
+play.twirl.api.Xml
+play.twirl.api.Txt
+```
+
+四种模板类型均继承于`play.twirl.api.BufferedContent`，而`BufferedContent`继承于`play.twirl.api.Appendable`和`play.twirl.api.Content`。  
+
+`BufferedContent`抽象类中定义了`buildString()`方法用于控制文本生成、转义规则。
+
+`Html`类型重写了的`buildString()`方法，对于`Html`类型的模板，以下字符将被转换：
+
+| 转义前字符 | 转义后字符 |
+|:--------:|:---------:|
+| `<` | `&lt` |
+| `>` | `&gt` |
+| `"` | `&quot` |
+| `\` | `$#x27` |
+| `&` | `&amp` |
+
+若需要避免文本转义，则应使用`Html`类型伴生对象中提供的`apply()`方法将无需转换的文本直接构造为`Html`类型。
+
+### 自定义模板类型
+若需要扩展支持的模板文件类型，则需要在项目构建配置`build.sbt`中设定`TwirlKeys.templateFormats`配置项。  
+`TwirlKeys.templateFormats`配置项应添加`Map[String, String]`类型的配置：
+
+- 配置**key**为需要扩展的文件类型。
+- 配置**value**为文件类型对应采用的模板规则类的路径字符串，若无需自定义规则，可以使用预置的`play.twirl.api.XxxFormat`类型。
+
+以常见的`json`格式为例，在`build.sbt`文件中添加：
+
+```
+// 将json后缀的模板应用预定义的js模板生成规则
+TwirlKeys.templateFormats += "json" -> "play.twirl.api.JavaScriptFormat"
+```
+
+若现有的模板生成规则不能满足需要，则可以自行扩展`play.twirl.api.Format[T <: Appendable[T]]`特质，重写`raw()`、`escape()`等方法实现自定义的模板生成规则。
 
 ### 单独使用模板引擎
 `Twirl`模板引擎支持在`sbt`项目中单独使用，不依赖于完整的`Play Framework`框架。
@@ -564,24 +607,6 @@ sourceDirectories in (Compile, TwirlKeys.compileTemplates) := (unmanagedSourceDi
 
 启动了路径设置后，执行编译操作时，模板引擎编译器会扫描`src/main/scala`、`src/main/java`路径下的所有模板文件，根据模板生成`Scala`代码。  
 生成的模板类会以子路径名做为**包名**。
-
-### 自定义模板类型
-`Twirl`模板引擎默认支持`html`、`js```xml`、`txt`四种后缀的模板类型。
-
-若需要扩展支持的模板文件类型，则需要在项目构建配置`build.sbt`中设定`TwirlKeys.templateFormats`配置项。  
-`TwirlKeys.templateFormats`配置项应添加`Map[String, String]`类型的配置：
-
-- 配置key为需要扩展的文件类型。
-- 配置value为文件类型对应采用的模板规则类的路径字符串，若无需自定义规则，可以使用预置的`play.twirl.api.XxxFormat`类型。
-
-以常见的`json`格式为例，在`build.sbt`文件中添加：
-
-```
-// 将json后缀的模板应用预定义的js模板生成规则
-TwirlKeys.templateFormats += "json" -> "play.twirl.api.JavaScriptFormat"
-```
-
-若现有的模板生成规则不能满足需要，则可以自行扩展`play.twirl.api.Format[A]`特质，重写`raw()`、`escape()`等方法实现自定义的模板生成规则。
 
 
 
@@ -668,12 +693,12 @@ import slick.lifted.ProvenShape
 // 元组参数类型为表中字段的类型，参数中可以指定对应表在数据库中的名称
 class TestTable(tag: Tag) extends Table[(Int, String)](tag, "TestTable") {
 
-	// 列的类型为Rep，使用cloumn方法生成，参数中可以指定列对象对应的SQL字段的名称
-	def index: Rep[Int] = cloumn[Int]("Index", O.PrimaryKey)
-	def name: Rep[String] = column[String]("Name")
+  // 列的类型为Rep，使用cloumn方法生成，参数中可以指定列对象对应的SQL字段的名称
+  def index: Rep[Int] = cloumn[Int]("Index", O.PrimaryKey)
+  def name: Rep[String] = column[String]("Name")
 
-	// ProvenShape类型由隐式转换得到，重写无参*方法确定字段的排列顺序
-	def * : ProvenShape[(Int, String)] = (index, name)
+  // ProvenShape类型由隐式转换得到，重写无参*方法确定字段的排列顺序
+  def * : ProvenShape[(Int, String)] = (index, name)
 }
 ```
 
@@ -688,205 +713,214 @@ case class TestModel(index: Int, name: String)
 // 元组参数类型为表中字段的类型，参数中可以指定对应表在数据库中的名称
 class TestTable(tag: Tag) extends Table[TestModel](tag, "TestTable") {
 
-	// 具体类型可以省略
-	def index = cloumn[Int]("Index", O.PrimaryKey)
-	def name = column[String]("Name")
+  // 具体类型可以省略
+  def index = cloumn[Int]("Index", O.PrimaryKey)
+  def name = column[String]("Name")
 
-	// 需要使用<>()方法将元组与样例类绑定
-	def * = (index, name) <> (TestModel.tupled, TestModel.unapply)
+  // 需要使用<>()方法将元组与样例类绑定
+  def * = (index, name) <> (TestModel.tupled, TestModel.unapply)
 }
 ```
+
+对于时间类型(`MySQL`中的`DateTime`类型)，`Slick`可以将其映射到`Java`中的以下类型：
+
+- `java.sql.Date`
+- `java.sql.Time`
+- `java.sql.Timestamp`
+
+对于二进制类型(`MySQL`中的`Blob`类型)，`Slick`可以将其映射到`Java`中的以下类型：
+
+- `java.sql.Blob`
+- `java.sql.Clob`
+- `Array[Byte]`
 
 ### 获取 *DataBase* 实例
 正确配置了`Slick`之后，需要获取数据库对象来进行具体的增删改查操作。
 
-使用`play.api.db.slick.DatabaseConfigProvider`获取数据库对象
-> `DatabaseConfigProvider`来自于`play-slick`插件，仅仅依赖`Slick`是不够的。
->
-> 使用`DatabaseConfigProvider`特质提供的无参`get`方法来获取写在`conf/application.conf`文件中的特定数据库配置：
->
->	```scala
->	trait DatabaseConfigProvider {
->		def get[P <: BasicProfile]: DatabaseConfig[P]
->	}
->	```
->
-> 配置类型`DatabaseConfig`定义如下：
->
->	```scala
->	trait DatabaseConfig[P <: BasicProfile] {
->		/** Get the configured Database. It is instantiated lazily when this method is called for the
->			* first time, and must be closed after use. */
->		def db: P#Backend#Database
->
->		/** The configured driver. */
->		val driver: P
->
->		/** The raw configuration. */
->		def config: Config
->
->		/** The name of the driver class or object (without a trailing "$"). */
->		def driverName: String
->
->		/** Whether the `driverName` represents an object instead of a class. */
->		def driverIsObject: Boolean
->	}
->	```
->
-> 使用无参方法`db`即可获得可供操作的数据库对象。
->
-> 在`Play 2.4`及之前的版本，直接通过单例对象获取：
->
->	```scala
->	val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
->	val db = dbConfig.db
->	```
->
-> 在最新的`Play 2.5`中，`Play Framework`的设计发生了变化，不再拥有全局的`Play.current`对象。  
-> `DatabaseConfigProvider`也需要通过`DI`(`Dependcy Inject`，即**依赖注入**)的方式来获取。  
-> 一个注入了`DatabaseConfigProvider`的控制器如下所示：
->
->	```scala
->	import javax.inject.Inject
->
->	import slick.driver.JdbcProfile
->	import play.api.mvc._
->	import play.api.db.slick.DatabaseConfigProvider
->
->	@Singleton
->	class TestController @Inject()(dbConfig: DatabaseConfigProvider) extends Controller {
->		def testPage = Action {
->			val db = dbConfig.get[JdbcProfile].db
->			...
->			Ok(...)
->		}
->	}
->	```
->
-> 默认情况下，使用的是配置文件`conf/application.conf`中`slick.dbs.default`配置项内写入的配置。  
-> 若需要使用自定义配置，则需要使用`@NamedDatabase`注解，如下所示：
->
->	```scala
->	import play.api.db.NamedDatabase
->
->	@Singleton
->	class TestController @Inject()(@NamedDatabase("配置名称") dbConfig: DatabaseConfigProvider) extends Controller {
->		...
->	}
->	```
->
-> 其中，**配置名称**填写的**不是**完整路径，如`slick.dbs.XXX`的配置名称仅需填写`XXX`即可。
->
-> `DatabaseConfigProvider`也可以通过`set`注入，如下所示：
->
->	```scala
->	import javax.inject.Inject
->
->	import slick.driver.JdbcProfile
->	import play.api.mvc._
->	import play.api.db.NamedDatabase
->	import play.api.db.slick.DatabaseConfigProvider
->
->	@Singleton
->	class TestController extends Controller {
->
->		// 成员字段需要为可变对象var才能注入，val字段不能注入
->		@Inject
->		@NamedDatabase("配置名称")
->		private var dbConfig: DatabaseConfigProvider = null
->
->		def testPage = Action {
->			val database = dbConfig.get[JdbcProfile].db
->			...
->			Ok(...)
->		}
->	}
->	```
+- 使用`play.api.db.slick.DatabaseConfigProvider`获取数据库对象：
 
-使用`slick.driver.MySQLDriver.api.Database`获取数据库对象
-> 在**不使用**`play-slick`插件或是单独使用`Slick`框架的情况下，可以使用`Database`类来直接构建数据库对象：
->
->	```scala
->	val db = Database.forDriver(
->		new com.mysql.jdbc.Driver(),
->		"jdbc:mysql://localhost:端口号/数据库名称",
->		"MySQL用户名",
->		"MySQL密码")
->	```
->
-> `Database`类同样支持从项目配置文件`conf/application.conf`中读取数据库配置：
->
->	```scala
->	val db = Database.forConfig("配置名称")
->	```
->
-> `Database`类需要的配置无需`slick.dbs.xxx`的前缀，仅需`slick.dbs.xxx.db`部分的内容：
->
->	```scala
->	配置名称 = {
->		driver = com.mysql.jdbc.Driver
->		url = "jdbc:mysql://IP地址:端口号/数据库名称"
->		user = "MySQL用户名"
->		password = "MySQL密码"
->		connectionPool = disabled
->	}
->	```
+	`DatabaseConfigProvider`需要在sbt中添加`play-slick`插件。
+
+	使用`DatabaseConfigProvider`特质提供的无参`get`方法来获取写在`conf/application.conf`文件中的特定数据库配置：
+
+	```scala
+	trait DatabaseConfigProvider {
+	  def get[P <: BasicProfile]: DatabaseConfig[P]
+	}
+	```
+
+	配置类型`DatabaseConfig`定义如下：
+
+	```scala
+	trait DatabaseConfig[P <: BasicProfile] {
+	  val driver: P
+	  def db: P#Backend#Database
+	  def config: Config
+	  def driverName: String
+	  def driverIsObject: Boolean
+	}
+	```
+
+	使用无参方法`db`即可获得可供操作的数据库对象。  
+	`Database`对象在使用完毕后需要关闭。
+
+	在`Play 2.4`及之前的版本，直接通过单例对象获取：
+
+	```scala
+	val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
+	val db = dbConfig.db
+	```
+
+	在最新的`Play 2.5`中，`Play Framework`的设计发生了变化，不再拥有全局的`Play.current`对象。  
+	`DatabaseConfigProvider`需要通过`DI`(`Dependcy Inject`，即**依赖注入**)的方式来获取。  
+	一个注入了`DatabaseConfigProvider`的控制器如下所示：
+
+	```scala
+	import javax.inject.Inject
+
+	import slick.driver.JdbcProfile
+	import play.api.mvc._
+	import play.api.db.slick.DatabaseConfigProvider
+
+	@Singleton
+	class TestController @Inject()(dbConfig: DatabaseConfigProvider) extends Controller {
+	  def testPage = Action {
+	    val db = dbConfig.get[JdbcProfile].db
+	    ...
+	    Ok(...)
+	  }
+	}
+	```
+
+	默认情况下，使用的是配置文件`conf/application.conf`中`slick.dbs.default`配置项内写入的配置。  
+	若需要使用自定义配置，则需要使用`@NamedDatabase`注解，如下所示：
+
+	```scala
+	import play.api.db.NamedDatabase
+
+	@Singleton
+	class TestController @Inject()(@NamedDatabase("配置名称") dbConfig: DatabaseConfigProvider) extends Controller {
+	  ...
+	}
+	```
+
+	其中，**配置名称**填写的**不是**完整路径，如`slick.dbs.XXX`的配置名称仅需填写`XXX`即可。
+
+	`DatabaseConfigProvider`也可以通过`set`注入，如下所示：
+
+	```scala
+	import javax.inject.Inject
+
+	import slick.driver.JdbcProfile
+	import play.api.mvc._
+	import play.api.db.NamedDatabase
+	import play.api.db.slick.DatabaseConfigProvider
+
+	@Singleton
+	class TestController extends Controller {
+
+	  // 成员字段需要为可变对象var才能注入，val字段不能注入
+	  @Inject
+	  @NamedDatabase("配置名称")
+	  private var dbConfig: DatabaseConfigProvider = null
+
+	  def testPage = Action {
+	    val database = dbConfig.get[JdbcProfile].db
+	    ...
+	    Ok(...)
+	  }
+	}
+	```
+
+- 使用`slick.driver.MySQLDriver.api.Database`获取数据库对象：
+
+	在**不使用**`play-slick`插件或是单独使用`Slick`框架的情况下，可以使用`Database`类来直接构建数据库对象：
+
+	```scala
+	val db = Database.forDriver(
+	  new com.mysql.jdbc.Driver(),
+	  "jdbc:mysql://localhost:端口号/数据库名称",
+	  "MySQL用户名",
+	  "MySQL密码")
+	```
+
+	`Database`类同样支持从项目配置文件`conf/application.conf`中读取数据库配置：
+
+	```scala
+	val db = Database.forConfig("配置名称")
+	```
+
+	`Database`类需要的配置无需`slick.dbs.xxx`的前缀，仅需`slick.dbs.xxx.db`部分的内容：
+
+	```scala
+	配置名称 = {
+		driver = com.mysql.jdbc.Driver
+		url = "jdbc:mysql://IP地址:端口号/数据库名称"
+		user = "MySQL用户名"
+		password = "MySQL密码"
+		connectionPool = disabled
+	}
+	```
 
 ### 查询集操作
 以`slick.driver.数据库驱动名称.api.Table`的子类做为为泛型参数，构建`slick.lifted.TableQurey[T]`查询集实例，该实例提供各类数据操作方法。
 
 `TableQurey`类型的单例对象中提供了无参的`apply`方法，以`TestTable`表为例，直接使用`TableQurey[TestTable]`即可构建实例。
 
-查询
-> 查询操作类似于使用`Scala`集合库中的**高阶函数**，常见操作如下：
->
->	```scala
->	val query = TableQuery[TestTable]
->	query.filter(_.name === "abc")				//筛选出符合条件的数据
->	query.drop(10)								//丢弃前10条数据
->	query.take(5)								//截取前5条数据
->	query.sortBy(_.index)						//按index字段排序数据(增序)
->	query.sortBy(_.index.desc)					//按index字段排序数据(减序)
->	```
->
-> 高阶函数内的数据表列实际类型均为`slick.lifted.Rep[T]`。
->
-> 在使用`filter()`方法筛选数据时，`Rep`类型重载了基本运算符，可直接使用`>`、`<`、`>=`、`<=`等运算符进行比较。
-> 但在表示`==`、`!=`操作时，需要使用`===`、`=!=`操作符代替，原因是基类`Any`已经定义了`==`、`!=`操作符，不能通过隐式转换调用。
+- 查询
 
-插入
-> `TableQurey`类型重载了`+=`运算符，使用其插入新行：
->
->	```scala
->	val query = TableQuery[TestTable]
->	query += TestModel(666, "dainslef")
->	```
->
-> 对于`PrimaryKey`或是`Unique`的列，不能插入重复的内容，否则会触发`java.sql.SQLIntegrityConstraintViolationException`异常。
-> 使用`TableQurey`类型的`insertOrUpdate()`在插入重复字段时更新该行内容而非产生异常。
->
->	```scala
->	val query = TableQuery[TestTable]
->	query.insertOrUpdate(TestModel(666, "SSR"))		//若主键为666的行已存在，则更新行的内容
->	```
+	查询操作类似于使用`Scala`集合库中的**高阶函数**，常见操作如下：
 
-修改
-> 使用查询操作筛选出目标数据集后使用`update()`方法更新行：
->
->	```scala
->	val query = TableQuery[TestTable]
->	query.filter(_.name === "dainslef")			//筛选出name为dainslef的行
->		.map(_.name)							//将筛选出的行中的name字段映射成新的查询集
->		.update("Dainslef")						//更新筛选出的行中指定字段的内容
->	```
+	```scala
+	val query = TableQuery[TestTable]
+	query.filter(_.name === "abc") //筛选出符合条件的数据
+	query.drop(10) //丢弃前10条数据
+	query.take(5) //截取前5条数据
+	query.sortBy(_.index) //按index字段排序数据(增序)
+	query.sortBy(_.index.desc) //按index字段排序数据(减序)
+	```
 
-删除
-> 删除操作与修改操作类似，使用查询操作筛选出目标数据集之后使用`delete`方法删除行：
->
->	```scala
->	val query = TableQuery[TestTable]
->	query.filter(_.name === "dainslef").delete //删除所有name为dainslef的行
->	```
+	高阶函数内的数据表列实际类型均为`slick.lifted.Rep[T]`。
+
+	在使用`filter()`方法筛选数据时，`Rep`类型重载了基本运算符，可直接使用`>`、`<`、`>=`、`<=`等运算符进行比较。  
+	但在表示`==`、`!=`操作时，需要使用`===`、`=!=`操作符代替，原因是基类`Any`已经定义了`==`、`!=`操作符，不能通过隐式转换调用。
+
+- 插入
+
+	`TableQurey`类型重载了`+=`运算符，使用其插入新行：
+
+	```scala
+	val query = TableQuery[TestTable]
+	query += TestModel(666, "dainslef")
+	```
+
+	对于`PrimaryKey`或是`Unique`的列，不能插入重复的内容，否则会触发`java.sql.SQLIntegrityConstraintViolationException`异常。
+	使用`TableQurey`类型的`insertOrUpdate()`在插入重复字段时更新该行内容而非产生异常。
+
+	```scala
+	val query = TableQuery[TestTable]
+	query.insertOrUpdate(TestModel(666, "SSR"))		//若主键为666的行已存在，则更新行的内容
+	```
+
+- 修改
+
+	使用查询操作筛选出目标数据集后使用`update()`方法更新行：
+
+	```scala
+	val query = TableQuery[TestTable]
+	query.filter(_.name === "dainslef") //筛选出name为dainslef的行
+	  .map(_.name) //将筛选出的行中的name字段映射成新的查询集
+	  .update("Dainslef") //更新筛选出的行中指定字段的内容
+	```
+
+- 删除
+
+	删除操作与修改操作类似，使用查询操作筛选出目标数据集之后使用`delete`方法删除行：
+
+	```scala
+	val query = TableQuery[TestTable]
+	query.filter(_.name === "dainslef").delete //删除所有name为dainslef的行
+	```
 
 ### 应用查询集操作
 查询集`TableQurey`类型执行的操作需要通过`Database`实例才能真正执行，如下所示：
@@ -917,11 +951,11 @@ val result = Await.result(future, Duration.Inf)
 val db = Database.forConfig("xxx")
 val query = TableQuery[TestTable]
 
-query.delete							//删除、插入等操作返回类型皆为DriverAction
-query += TestModel(111, "XXXX")			//未生效
+query.delete //删除、插入等操作返回类型皆为DriverAction
+query += TestModel(111, "XXXX") //未生效
 
 val action = query.result
-val future = db.run(action)				//获取的结果未改变
+val future = db.run(action) //获取的结果未改变
 ```
 
 正确的做法是：
@@ -931,7 +965,7 @@ val db = Database.forConfig("xxx")
 val query = TableQuery[TestTable]
 
 db.run(query.delete)
-db.run(query += TestModel(111, "XXXX"))			//使用Database.run()方法使操作生效
+db.run(query += TestModel(111, "XXXX")) //使用Database.run()方法使操作生效
 
 val action = query.result
 val future = db.run(action)
@@ -944,9 +978,9 @@ val db = Database.forConfig("xxx")
 val query = TableQuery[TestTable]
 
 val actions = DBIO.seq(
-	query.delete,
-	query += TestModel(111, "XXXX")
+  query.delete,
+  query += TestModel(111, "XXXX")
 )
 
-db.run(actions)			//执行多个操作
+db.run(actions) //执行多个操作
 ```
