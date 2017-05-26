@@ -97,26 +97,30 @@
 Mac机与常规的PC有较大的差异，需要一个适应过程。
 
 ### 基本操作差异
-0. 缺少一些常用按键，且**按键逻辑不统一**。
+1. 缺少一些常用按键，且**按键逻辑不统一**：
+
 	- 没有`Home`、`End`、`PageDown`、`PageUp`等按键，需要通过`Fn`搭配**方向键**等组合键才能实现行首、行尾、翻页等操作。
 	- 在部分编辑器以及终端中，行首/行尾操作需要通过Control加A/E等按键完成。
 	- 在部分开发环境中，行首行尾的快捷键不使用系统方案，而是有程序自身定义，比如在Eclipse中，行首/行尾为`Command + 方向键左/右`。
-0. Finder少一些常用的功能。
+
+1. Finder少一些常用的功能：
+
 	- Finder右键菜单中没有创建文件的选项，甚至新建文本都需要使用Terminal中的`touch`指令。
 	- Finder右键菜单没有剪切功能，通过组合键能实现类似效果。
-0. Windows/Linux中以`Control`作为组合键触发的一些快捷操作在macOS中全部使用`Command`键进行触发。
+
+1. Windows/Linux中以`Control`作为组合键触发的一些快捷操作在macOS中全部使用`Command`键进行触发。
 
 ### *Darwin* 与 *GNU/Linux* 的差异
-0. `Darwin`为混合内核架构，`Linux`为宏内核架构。
-0. `Linux`中普通用户UID从`1000`开始，`macOS`中UID从`500`开始。
-0. 家目录与Linux/BSD中不同，macOS中的`/home`目录默认为**空**，用户家目录的位置为`/Users`。
-0. `root`用户家目录与Linux中不同，位于`/var/root`。
-0. `Darwin`没有用于展示系统运行状态的`/proc`目录。
-0. `Darwin`没有默认的包管理器。
-0. `Darwin`的`PATH`环境变量记录在文件`/etc/paths`中。
-0. `Darwin`的微内核`Mach`使用`Mach-O`作为二进制格式，而传统的`Linux/Unix`使用`EFL`作为二进制格式。
-0. `Darwin`中动态链接库后缀名为`dylib`，传统`Unix`中一般为`so`，静态库后缀名与传统`Unix`相同，皆为`a`。
-0. `macOS`采用`Aqua`作为GUI实现，传统`Unix`使用`X11`。
+1. `Darwin`为混合内核架构，`Linux`为宏内核架构。
+1. `Linux`中普通用户UID从`1000`开始，`macOS`中UID从`500`开始。
+1. 家目录与Linux/BSD中不同，macOS中的`/home`目录默认为**空**，用户家目录的位置为`/Users`。
+1. `root`用户家目录与Linux中不同，位于`/var/root`。
+1. `Darwin`没有用于展示系统运行状态的`/proc`目录。
+1. `Darwin`没有默认的包管理器。
+1. `Darwin`的`PATH`环境变量记录在文件`/etc/paths`中。
+1. `Darwin`的微内核`Mach`使用`Mach-O`作为二进制格式，而传统的`Linux/Unix`使用`EFL`作为二进制格式。
+1. `Darwin`中动态链接库后缀名为`dylib`，传统`Unix`中一般为`so`，静态库后缀名与传统`Unix`相同，皆为`a`。
+1. `macOS`采用`Aqua`作为GUI实现，传统`Unix`使用`X11`。
 
 
 
@@ -136,9 +140,10 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 - 默认情况下，在macOS中，`/usr/local`的所有者为`root`，用户组为`wheel`，而安装了Homebrew之后，该目录所有者会被更改为**当前管理员用户**，用户组被改为`admin`。
 
 ### *Homebrew* 安装
-Homebrew采用Ruby语言开发，macOS中默认已经集成了Ruby开发环境。
-Homebrew需要用到Git等工具，在安装Homebrew之前需要先安装Xcode命令行工具(或者直接完整安装Xcode)。
-之后在Terminal中执行：
+`Homebrew`采用`Ruby`语言开发，`macOS`中默认已经集成了`Ruby`开发环境。  
+`Homebrew`需要用到`Git`等工具，在安装`Homebrew`之前需要先安装**Xcode命令行**工具(或者直接完整安装Xcode)。
+
+之后在`Terminal.app`中执行：
 
 `$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 
@@ -154,11 +159,42 @@ Homebrew的基本操作与其它包管理器类似：
 ### 使用 *Homebrew* 安装命令行工具
 执行指令：
 
-`$ brew install aria2 wget python3 gcc screenfetch nmap scala p7zip mariadb boost sbcl go mono mongodb gdb gradle maven`
+`$ brew install aria2 python3 gcc screenfetch nmap scala p7zip mariadb boost go mono mongodb gdb gradle sbt`
 
 - 通过Homebrew安装的包文件全部保存在`/usr/local/Cellar`目录下。
 - 与Linux下的常规包管理器不同，Homebrew在安装包和删除包的时候，不会有多余的确认提示，输入指令就会直接执行。
 - 对于带有头文件的包(如boost、gcc等)，会在`/usr/local/include`目录下创建符号链接，指向`/usr/local/Cellar`目录中的具体包内容。
+
+### 使用 *Homebrew* 管理 Bundle 应用
+使用`brew cask`指令可以安装`macOS`专属的`Bundle`封装应用。  
+基本指令如下：
+
+- `$ brew cask install [app_name]` 安装应用
+- `$ brew cask uninstall [app_name]` 移除某个应用
+- `$ brew cask reinstall [app_name]` 重新安装应用(重新安装时会安装应用最新版本，用于升级应用)
+- `$ brew cask outdated` 显示具有新版本的应用
+- `$ brew cask list` 列出已在本地安装的应用
+- `$ brew cask search [app_name]` 搜索应用
+- `$ brew cask info [app_name]` 查看某个应用的详细信息
+
+使用`brew cask`安装的应用位于`/Application`路径下。
+
+`brew cask`没有提供升级所有应用的指令，可以组合使用以下指令达到类似效果：
+
+```
+$ brew cask outdated | xargs brew cask reinstall
+```
+
+### 使用 *Homebrew* 管理服务
+对于使用`Homebrew`安装的包，若包提供了服务，则可以使用`brew services`指令进行服务状态管理。  
+基本指令如下：
+
+- `$ brew services list` 列出可用服务
+- `$ brew services run [service_name]` 启动服务
+- `$ brew services start [service_name]` 开启服务自启
+- `$ brew services stop [service_name]` 停止服务自启
+- `$ brew services restart [service_name]` 重启服务
+- `$ brew services cleanup` 清理未被使用的服务
 
 ### 使用 *Homebrew* 安装的mysql/mariadb
 通过Homebrew安装的mysql/mariadb使用时不需要root权限。
@@ -176,7 +212,7 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql/`。
 - 替换二进制包数据源，在Bash/Zsh**配置文件**中添加`export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles`。
 
 ### 安装Qt
-与常规的Unix程序不同，Qt不推荐使用Homebrew安装，因为通过Homebrew安装的Qt并没有像其他Unix软件包一样创建符号连接到`/usr/local/bin`目录下，同时也不带有QtCreator程序。
+与常规的Unix程序不同，Qt不推荐使用Homebrew安装，因为通过Homebrew安装的Qt并没有像其他Unix软件包一样创建符号连接到`/usr/local/bin`目录下，同时也不带有QtCreator程序。  
 从Qt官网下载Qt的dmg安装镜像，按步骤安装到自定义路径之后，创建符号链接到`~/Application`目录下，即可在Launchpad中看到Qt的相关应用。
 
 ### 删除JDK
@@ -186,7 +222,7 @@ JDK需要自行手工删除，JDK的相关文件位于以下目录：
 0. `/System/Library/Java/Support/CoreDeploy.bundle/Contents/JavaAppletPlugin.plugin`
 0. `/Library/Java/JavaVirtualMachines/*`
 
-删除JDK时需要移除这些目录。
+删除JDK时需要移除这些目录。  
 当安装了新版本的JDK时，旧版本的JDK不会自动卸载，其包文件依然位于`/Library/Java/JavaVirtualMachines`路径下，文件夹名称即为对应的JDK版本，手动删除不需要的版本即可。
 
 
@@ -209,9 +245,9 @@ JDK需要自行手工删除，JDK的相关文件位于以下目录：
 通过pkg安装的软件所有者一般为`root`，不能随意移动到`~/Application/`路径下。
 
 ### 软件保存路径
-默认情况下，Bundle形式的软件一般存在于`/Application/`目录或是`~/Application/`目录下。
-macOS的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形式或事通过AppStore安装的应用也在该目录下。
-默认情况下`~/Application`目录不存在，需要自行创建。
+默认情况下，Bundle形式的软件一般存在于`/Application/`目录或是`~/Application/`目录下。  
+macOS的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形式或事通过AppStore安装的应用也在该目录下。  
+默认情况下`~/Application`目录不存在，需要自行创建。  
 用户自行安装的Bundle应用推荐存放在`~/Application`目录下，避免与系统程序混淆。
 
 
@@ -219,7 +255,7 @@ macOS的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形
 ## 一些问题的处理方案
 
 ### 切换分辨率/语言时，登陆界面的分辨率/语言依然不变
-可以尝试更改登录界面的选项。
+可以尝试更改登录界面的选项。  
 也可以尝试以下指令:
 
 `# languagesetup`
