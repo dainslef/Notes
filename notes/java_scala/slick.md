@@ -3,7 +3,7 @@
 ## 简介
 `Slick`是`LightBend`官方支持的函数式风格的`ORM`框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。  
 
-## 配置 *Slick*
+### 配置 *Slick*
 `Slick`搭配不同数据库时需要对应的数据库驱动支持。
 
 以`MySQL`为例，需要在`build.sbt`文件中添加以下依赖：
@@ -16,8 +16,9 @@ libraryDependencies ++= Seq(
 )
 ```
 
-默认配置下，`Slick`会使用连接池缓存数据库连接，因此需要`slick-hikaricp`。
+默认配置下，`Slick`会使用连接池缓存数据库连接，需要搭配插件`slick-hikaricp`。
 
+### *Play Framework* 中集成 *Slick* 
 对于在`Play Framework`中使用`Slick`，则推荐使用`play-slick`库，该库提供了`Play`框架的`Slick`集成，添加`sbt`依赖：
 
 ```scala
@@ -25,31 +26,6 @@ libraryDependencies ++= Seq(
 ```
 
 `play-slick`依赖于`slick`和`slick-hikaricp`，`SBT`依赖中添加了`play-slick`则无需再添加`slick`以及`slick-hikaricp`。
-
-添加框架依赖之后，需要在项目配置文件`conf/application.conf`中添加数据库的具体连接配置。
-
-```scala
-slick.dbs.default { //"default"为默认的配置名称，可以自行修改
-	driver = "slick.driver.MySQLDriver$" //Slick对应数据库的驱动，注意"$"符号不能少
-	db {
-		driver = "com.mysql.jdbc.Driver" //JDBC驱动
-		url = "jdbc:mysql://IP地址:端口号/数据库名称" //数据库连接字符串
-		user= "MySQL用户名" //数据库用户名
-		password = "MySQL密码" //数据库密码
-		connectionPool = disabled/enabled //是否使用连接池，使用连接池则需要slick-hikaricp插件支持
-	}
-}
-```
-
-`Play Framework`的配置文件语法灵活，上述配置也可以写成：
-
-```scala
-slick.dbs.default.driver = "slick.driver.MySQLDriver$"
-slick.dbs.default.db.driver = "com.mysql.jdbc.Driver"
-slick.dbs.default.db.url = "jdbc:mysql://IP地址:端口号/数据库名称"
-slick.dbs.default.db.user = "MySQL用户名"
-slick.dbs.default.db.password = "MySQL密码"
-```
 
 
 
@@ -147,7 +123,7 @@ val db = Database.forDriver(
   "MySQL密码")
 ```
 
-从项目配置文件`conf/application.conf`中读取数据库配置构建实例：
+或者从项目配置文件`conf/application.conf`中读取数据库配置构建实例：
 
 ```scala
 val db = Database.forConfig("配置名称")
@@ -156,7 +132,7 @@ val db = Database.forConfig("配置名称")
 配置格式如下所示：
 
 ```scala
-配置名称 = {
+配置名称 {
 	driver = com.mysql.jdbc.Driver
 	url = "jdbc:mysql://IP地址:端口号/数据库名称"
 	user = "MySQL用户名"
@@ -167,9 +143,35 @@ val db = Database.forConfig("配置名称")
 
 ### 使用 *Play Frameowrk* 注入实例
 对于在`Play Framework`框架中使用`Slick`，可以使用`play-sick`插件。  
-使用`play.api.db.slick.DatabaseConfigProvider`获取数据库对象。
 
-使用`DatabaseConfigProvider`特质提供的无参`get`方法来获取写在`conf/application.conf`文件中的特定数据库配置：
+在项目配置文件`conf/application.conf`中添加数据库的具体连接配置。  
+使用`play-sick`时，配置中需要使用特定前缀`slick.dbs.XXX`，`XXX`需要替换为需要的配置名称。  
+默认配置名称为`default`，配置结构如下所示：
+
+```scala
+slick.dbs.default { //"default"为默认的配置名称，可以自行修改
+	driver = "slick.driver.MySQLDriver$" //Slick对应数据库的驱动，注意"$"符号不能少
+	db {
+		driver = "com.mysql.jdbc.Driver" //JDBC驱动
+		url = "jdbc:mysql://IP地址:端口号/数据库名称" //数据库连接字符串
+		user= "MySQL用户名" //数据库用户名
+		password = "MySQL密码" //数据库密码
+		connectionPool = disabled/enabled //是否使用连接池，使用连接池则需要slick-hikaricp插件支持
+	}
+}
+```
+
+配置文件语法灵活，上述配置也可以写成：
+
+```scala
+slick.dbs.default.driver = "slick.driver.MySQLDriver$"
+slick.dbs.default.db.driver = "com.mysql.jdbc.Driver"
+slick.dbs.default.db.url = "jdbc:mysql://IP地址:端口号/数据库名称"
+slick.dbs.default.db.user = "MySQL用户名"
+slick.dbs.default.db.password = "MySQL密码"
+```
+
+使用`play.api.db.slick.DatabaseConfigProvider`获取数据库对象，定义如下所示：
 
 ```scala
 trait DatabaseConfigProvider {
@@ -177,6 +179,7 @@ trait DatabaseConfigProvider {
 }
 ```
 
+使用`DatabaseConfigProvider`特质提供的无参`get`方法来获取配置。  
 配置类型`DatabaseConfig`定义如下：
 
 ```scala
@@ -221,7 +224,7 @@ class TestController @Inject()(dbConfig: DatabaseConfigProvider) extends Control
 ```
 
 默认情况下，使用配置文件`conf/application.conf`中`slick.dbs.default`配置项内写入的配置。  
-若需要使用自定义配置，则需要使用`@NamedDatabase`注解，如下所示：
+若需要使用自定义名称的配置，则需要使用`@NamedDatabase`注解，如下所示：
 
 ```scala
 import play.api.db.NamedDatabase
