@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
 默认配置下，`Slick`会使用连接池缓存数据库连接，需要搭配插件`slick-hikaricp`。
 
 ### *Play Framework* 中集成 *Slick* 
-对于在`Play Framework`中使用`Slick`，则推荐使用`play-slick`库，该库提供了`Play`框架的`Slick`集成，添加`sbt`依赖：
+对于在`Play Framework`中使用`Slick`，则推荐使用`play-slick`库，该库提供了`Play Framework`的`Slick`集成，添加`sbt`依赖：
 
 ```scala
 "com.typesafe.play" %% "play-slick" % "版本号"
@@ -27,14 +27,21 @@ libraryDependencies ++= Seq(
 
 `play-slick`依赖于`slick`和`slick-hikaricp`，`SBT`依赖中添加了`play-slick`则无需再添加`slick`以及`slick-hikaricp`。
 
+### 接口包路径
+`Slick`相关用户接口在包路径`slick.jdbc.数据库类型.api`下(`Slick 3.2.0`版本之后)。  
+在`Slick 3.1.1`版本之前，相关接口位于包路径`slick.driver.数据库驱动.api`下。
+
+常见的数据库对应的包路径：
+
+| 数据库名称 | 包路径 |
+|:--------:|:-----:|
+| MySQL | slick.jdbc.MySQLProfile.api |
+| PostgresSQL | slick.jdbc.PostgresProfile.api |
+
 
 
 ## 定义 *Model*
-自定义模型类需要从`slick.driver.数据库驱动名称.api.Table[T]`类型中继承，对于不同的数据库，需要使用不同的数据库驱动名称，例如：
-
-- `MySQL`数据库驱动名称为`MySQLDriver`，完整路径则为`slick.driver.MySQLDriver.api.Table[T]`。
-- `PostgresSQL`数据库驱动名称为`PostgresDriver`，完整路径为`slick.driver.PostgresDriver.api.Table[T]`。
-
+自定义模型类需要从`slick.jdbc.数据库类型.api.Table[T]`类型中继承。  
 泛型参数`T`具体可以是**元组**(`Tuple`)类型或是**样例类**，内容为表中包含的字段类型。  
 与`Django`不同，`Slick`**不使用**专门的类型来映射SQL字段类型，而是直接使用语言内置类型(`Int`、`String`等)映射SQL中的字段类型。
 
@@ -48,10 +55,10 @@ CREATE TABLE `TestTable` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 ```
 
-在Play框架中，该表对应的模型类可以写成：
+在`Slick`中，该表对应的模型类可以写成：
 
 ```scala
-import slick.driver.MySQLDriver.api._
+import slick.jdbc.MySQLProfile.api._
 import slick.lifted.ProvenShape
 
 // 元组参数类型为表中字段的类型，参数中可以指定对应表在数据库中的名称
@@ -69,7 +76,7 @@ class TestTable(tag: Tag) extends Table[(Int, String)](tag, "TestTable") {
 对于简单的表格直接使用**元组**表示代码更为简洁，但若表格结构较为复杂则应为表格结构定义单独的**样例类**，上表采用样例类可以改写为：
 
 ```scala
-import slick.driver.MySQLDriver.api._
+import slick.jdbc.MySQLProfile.api._
 
 // 使用样例类来表示表格的结构
 case class TestModel(index: Int, name: String)
@@ -86,6 +93,20 @@ class TestTable(tag: Tag) extends Table[TestModel](tag, "TestTable") {
 }
 ```
 
+若映射的表名不确定，则可保留构造方法中的表名参数，在运行时传入。  
+模型定义如下所示：
+
+```scala
+import slick.jdbc.MySQLProfile.api._
+import slick.lifted.ProvenShape
+
+// 保留表名参数，通过主构造方法传入
+class NoNameTable(tag: Tag, tableName: String) extends Table[(Int, String)](tag, tableName) {
+	...
+}
+```
+
+### 特殊类型映射
 对于时间类型(`MySQL`中的`DateTime`类型)，`Slick`可以将其映射到`Java`中的以下类型：
 
 - `java.sql.Date`
@@ -270,7 +291,8 @@ class TestController extends Controller {
 泛型参数类型需要为`slick.driver.数据库驱动名称.api.Table`的子类。
 
 ### 构建 
-`TableQurey`类型的单例对象中提供了无参的`apply`方法用于构建实例。  
+`TableQurey`类型的单例对象中提供了无参的`apply`方法。  
+对于映射表名已确定的`Table`子类，可直接构建实例。  
 以`TestTable`表为例，直接使用`TableQurey[TestTable]`即可构建实例。  
 如下所示：
 
