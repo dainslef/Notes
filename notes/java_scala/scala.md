@@ -71,7 +71,7 @@ $ javap -c [类名]
 ```
 
 默认情况下，通过反编译得到的Scala以及Java代码只能看到公有方法的声明，方法实现以及私有、保护成员均**不可见**。  
-查看所有成员需要添加`-private`参数：
+查看所有成员需要添加`-p/-private`参数：
 
 ```
 $ javap -private [类名]
@@ -97,13 +97,13 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 ### 语法基础(概览)
 - 代码不强制要求分号，只有一行带有多个语句时才要求分号隔开。
 - 使用`var/val`定义`变量/常量`。  
-类型可以由编译器推导，也可以显式指定。  
-在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
+	类型可以由编译器推导，也可以显式指定。  
+	在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
 - 使用`def`关键字定义**方法**，`var/val`定义**函数**。  
-使用`var`定义的函数可以更改实现，但`def`定义的方法一经定义实现就**不可改变**。
+	使用`var`定义的函数可以更改实现，但`def`定义的方法一经定义实现就**不可改变**。
 - 所有类型皆为对象。  
-基础类型如`Int`、`Double`等都是类。  
-函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
+	基础类型如`Int`、`Double`等都是类。  
+	函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
 - 可以使用操作符作为函数名，达到类似C++/C#中操作符重载的效果。
 - 类的成员字段可以与方法名称**相同**。
 
@@ -119,7 +119,7 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 
 ```scala
 object Test {
-  def main(args: Array[String]): Unit		//带有等号的方法可以省略返回值类型由编译器进行推导
+  def main(args: Array[String]): Unit //带有等号的方法可以省略返回值类型由编译器进行推导
     = println("Hello World!")
 }
 ```
@@ -201,6 +201,12 @@ def methodName(args: Type) = {
 ```
 
 但出于代码的可读性考虑，对于公有方法，**不建议**省略返回值类型。
+
+对于方法体只有单行代码的情形，可直接省略方法体外部的花括号：
+
+```scala
+def methodName(args: Type) = /* function_body */
+```
 
 大部分情况下，方法体**不需要**显式使用`return`关键字来给出方法返回值，编译器会将方法体内部最后一句代码的返回值类型做为整个函数的返回值，如下所示：
 
@@ -593,8 +599,8 @@ sum: (num1: Int, num2: Int)Int
 指定第二个参数始终为`100`，创建一个部分应用函数：
 
 ```scala
-scala> def sum100 = sum(_: Int, 100)
-sum100: Int => Int
+scala> val sum100 = sum(_: Int, 100)
+sum100: Int => Int = $$Lambda$1539/1030946825@62e49cf9
 
 scala> sum100(100)
 res11: Int = 200
@@ -1576,6 +1582,7 @@ sealed abstract class Option[+A] extends Product with Serializable {
   def get: A
   final def getOrElse[B >: A](default: => B): B
   final def foreach[U](f: A => U)
+  final def fold[B](ifEmpty: => B)(f: A => B): B
   ...
 }
 ```
@@ -1594,16 +1601,25 @@ scala> println(str1 getOrElse "Get Value Failed!")
 test
 
 scala> println(str2 getOrElse "Get Value Failed!")
-Get Value Failed!                    //输出getOrElse()方法中设定的值
+Get Value Failed! //输出getOrElse()方法中设定的值
 ```
 
 `foreach()`高阶函数会在值存在时应用操作：
 
 ```scala
 scala> Option(123) foreach println
-123                                  //有值时打印输出
+123 //有值时打印输出
 
 scala> Option(null) foreach println  //无值时无输出
+```
+
+`fold()`高阶函数用于使用目标值执行表达式并输出返回结果，在目标值不存在时使用提供的值做为返回结果，提供的值需要与表达式返回结果类型相同，如下所示：
+
+```scala
+scala> Option[String]("abc").fold(0)(_.length)
+res8: Int = 3 //目标值存在时输出表达式结果
+scala> Option[String](null).fold(0)(_.length)
+res9: Int = 0 //目标值不存在时使用提供的值做为返回结果
 ```
 
 可空类型也可以用于**模式匹配**中，如下代码所示：
@@ -2674,6 +2690,8 @@ package Package {
   }
 }
 ```
+
+通常情况下，包对象的定义应放置在包路径下的`package.scala`文件中。
 
 
 
