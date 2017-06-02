@@ -44,13 +44,90 @@
 
 
 
-## XWPF
+## *XWPF*
 `XWPF`提供了对`Word 2007`(*docx*)格式的文档读写功能。
 
 主要包含以下类型，位于`org.apache.poi.xwpf.usermodel`包路径下：
 
 - `XWPFDocument` 代表整个`Word`文档
 - `XWPFParagraph` 代表段落
+- `XWPFRun` 代表文本
 - `XWPFTable` 代表文档内嵌表格
 	1. `XWPFTableRow` 代表内嵌表格行
 	1. `XWPFTableCell` 代表内嵌表格内的单元格
+
+### *XWPFDocument*
+`XWPFDocument`是对整个`Word`文档的抽象。
+
+使用默认的空参构造方法即可创建新的空白文档。  
+使用父类提供的`write()`方法可将文档写入输出流中。  
+相关方法定义如下所示：
+
+```java
+package org.apache.poi;
+
+public class XWPFDocument extends POIXMLDocument implements Document, IBody {
+	...
+	public XWPFDocument();
+	...
+}
+
+public abstract class POIXMLDocument extends POIXMLDocumentPart implements Closeable {
+	...
+	public final void write(OutputStream stream) throws IOException;
+	...
+}
+```
+
+创建文档并保存：
+
+```scala
+import org.apache.poi.xwpf.usermodel._
+import scala.reflect.io.File
+
+object Main extends App {
+
+  val doc = new XWPFDocument
+  val out = File("xxx").outputStream()
+  doc.write(out)
+  out.close()
+
+}
+```
+
+### *XWPFParagraph* / *XWPFRun*
+`XWPFParagraph`是对文档中段落的抽象。  
+`XWPFRun`是对文档中文本的抽象。
+
+`XWPFParagraph`可由`XWPFDocument`创建。  
+`XWPFRun`可由`XWPFParagraph`创建。  
+相关方法定义如下所示：
+
+```java
+public class XWPFDocument extends POIXMLDocument implements Document, IBody {
+	...
+	public XWPFParagraph createParagraph();
+	...
+}
+
+public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Paragraph {
+	...
+	public XWPFRun createRun();
+	...
+}
+```
+
+`XWPFRun`提供了多种方法用于设置文本：
+
+```java
+public class XWPFRun implements ISDTContents, IRunElement, CharacterRun {
+	...
+	public void setText(String value); //文本内容
+	public void setColor(String rgbStr); //文本色彩，RGB形式16进制数值格式
+	public void setBold(boolean value); //文本加粗
+	public void setFontFamily(String fontFamily); //文本字体
+	public void setFontSize(int size); //文本字体大小
+	public void setCapitalized(boolean value); //文本大写
+	...
+}
+```
