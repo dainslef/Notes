@@ -1644,6 +1644,81 @@ No Value
 
 
 ## *Pattern Matching* (模式匹配)
+**模式匹配**是`Scala`的核心功能之一。  
+`Scala`的**模式匹配**提供了诸多强大的特性，主要功能如下：
+
+- 跳转表(类似与主流语言中的`switch`语句)
+- 类型匹配
+- 条件执行
+- 解构(`destructuring`)
+
+### 简单匹配
+**模式匹配**能够提供与其他语言中`switch`类似的简单匹配功能。
+
+使用`match`关键字开始一个模式匹配语句。  
+使用`case`关键字添加一个匹配值。
+
+基本语法如下所示：
+
+```scala
+变量 match {
+  case 条件1 => ...
+  case 条件2 => ...
+  ...
+  case _ => ...
+}
+```
+
+`Scala`中的`match`语句具有返回值，可为变量赋值。  
+`Scala`中没有`break`关键字，`match`语句中的`case`条件不会被穿越。
+某些需要穿越`case`条件的情形，应使用`|`操作符连接多个条件。
+
+实例：
+
+```scala
+object Main extends App {
+
+  val (str0, str1, str2, str3) = ("str0", "str1", "str2", "")
+
+  def switch(str: String) = str match {
+    case "str0" => println("Match case str0"); 0
+    case "str1" | "str2" => println("Match case str1 | str2"); 1 //使用"|"操作符连接多个模式匹配条件
+    case _ => println("No match"); -1
+  }
+
+  val re0 = switch(str0) //case语句后的最后一句做会做为整个match表达式的返回值
+  val re1 = switch(str1)
+  val re2 = switch(str2)
+  val re3 = switch(str3)
+
+  println()
+
+  print(
+    s"""|str0 return $re0
+        |str1 return $re1
+        |str2 return $re2
+        |str3 return $re3
+        |""".stripMargin
+  )
+
+}
+```
+
+输出结果：
+
+```
+Match case str0
+Match case str1 | str2
+Match case str1 | str2
+No match
+
+str0 return 0
+str1 return 1
+str2 return 1
+str3 return -1
+```
+
+### 类型匹配
 待续。。。
 
 
