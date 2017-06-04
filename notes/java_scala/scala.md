@@ -1653,7 +1653,7 @@ No Value
 - 解构(`destructuring`)
 
 ### 简单匹配
-**模式匹配**能够提供与其他语言中`switch`类似的简单匹配功能。
+**模式匹配**能够提供与其他语言中`switch`语句类似的简单匹配功能。
 
 使用`match`关键字开始一个模式匹配语句。  
 使用`case`关键字添加一个匹配值。
@@ -1671,25 +1671,33 @@ No Value
 
 `Scala`中的`match`语句具有返回值，可为变量赋值。  
 `Scala`中没有`break`关键字，`match`语句中的`case`条件不会被穿越。
-某些需要穿越`case`条件的情形，应使用`|`操作符连接多个条件。
+某些需要穿越`case`条件的情形，应使用`|`操作符连接多个条件。  
+每个`case`条件语句可以使用`@`操作符绑定一个变量名。  
+每个`case`条件之后可以添加**守卫**(`if 条件语句...`)，用于添加额外的匹配条件。
 
 实例：
 
 ```scala
 object Main extends App {
 
-  val (str0, str1, str2, str3) = ("str0", "str1", "str2", "")
+  val (str0, str1, str2, str3, str4) = ("str0", "str1", "str2", "xxxx", "")
 
-  def switch(str: String) = str match {
-    case "str0" => println("Match case str0"); 0
-    case "str1" | "str2" => println("Match case str1 | str2"); 1 //使用"|"操作符连接多个模式匹配条件
-    case _ => println("No match"); -1
+  def switch(str: String) = {
+    print(s"String: $str => ")
+    str match {
+      case "str0" => println("Match case str0"); 0
+      case "str1" | "str2" => println("Match case str1 | str2"); 1 //使用"|"操作符连接多个模式匹配条件
+      case s@_ if s.length > 3 => // 使用"@"符号指代整个匹配条件，使用"if"添加守卫
+        println("Match case which string's length is larger then 3"); s.length
+      case _ => println("No match"); -1
+    }
   }
 
   val re0 = switch(str0) //case语句后的最后一句做会做为整个match表达式的返回值
   val re1 = switch(str1)
   val re2 = switch(str2)
   val re3 = switch(str3)
+  val re4 = switch(str4)
 
   println()
 
@@ -1698,6 +1706,7 @@ object Main extends App {
         |str1 return $re1
         |str2 return $re2
         |str3 return $re3
+        |str4 return $re4
         |""".stripMargin
   )
 
@@ -1707,31 +1716,68 @@ object Main extends App {
 输出结果：
 
 ```
-Match case str0
-Match case str1 | str2
-Match case str1 | str2
-No match
+String: str0 => Match case str0
+String: str1 => Match case str1 | str2
+String: str2 => Match case str1 | str2
+String: xxxx => Match case which string's length is larger then 3
+String:  => No match
 
 str0 return 0
 str1 return 1
 str2 return 1
-str3 return -1
+str3 return 4
+str4 return -1
 ```
 
 ### 类型匹配
-待续。。。
+**模式匹配**可用于匹配对象的实际类型。
+
+对于以基类传入的对象实例，使用模式匹配可以匹配其真实类型。
+如下所示：
+
+```scala
+object Main extends App {
+
+  class Language(val name: String)
+
+  class Cpp extends Language("C++")
+  class Scala(val scala: String = "Scala is best!") extends Language("Scala")
+  class Java extends Language("Java")
+
+  def typeMatch(lang: Any) = lang match {
+    case s: Scala => println(s.scala)
+    case l: Language => println(s"Other language: ${l.name}")
+    case _ => println("No match!")
+  }
+
+  typeMatch(new Scala)
+  typeMatch(new Java)
+  typeMatch(new Cpp)
+  typeMatch(null)
+
+}
+```
+
+输出结果：
+
+```
+Scala is best!
+Other language: Java
+Other language: C++
+No match!
+```
 
 
 
 ## *sealed* 和 *final* 关键字
-`sealed`和`final`都是Scala语言的关键字。
+`sealed`和`final`都是`Scala`语言的**关键字**。
 
-- `final`关键字作用与Java中相同：
+- `final`关键字作用与`Java`中相同：
 
 	`final`用在类之前，表示类不可继承；  
 	`final`用在方法之前，表示方法不可被重写。
 
-- `sealed`关键字作用与C#中的`sealed`不同：
+- `sealed`关键字作用与`C#`中的`sealed`不同：
 
 	在Scala中，`sealed`的作用是防止继承被滥用，`sealed`修饰的类其子类定义需要与该类在统一文件中。
 
