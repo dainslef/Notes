@@ -119,8 +119,8 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 
 ```scala
 object Test {
-  def main(args: Array[String]): Unit //带有等号的方法可以省略返回值类型由编译器进行推导
-    = println("Hello World!")
+  def main(args: Array[String]) =
+    println("Hello World!")
 }
 ```
 
@@ -160,7 +160,7 @@ object Test extends App {
 
 	将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
 
-	使用`Breaks`如下代码所示：
+	使用`Breaks`，如下所示：
 
 	```scala
 	import scala.util.control.Breaks.{breakable, break}
@@ -313,7 +313,7 @@ scala> func(300)
 - `C++`中使用非静态成员变量做为参数默认值时，类实例必须设定默认值在之前创建，不能在设定默认值的表达式中创建实例获取成员变量。
 
 在`Scala`中方法的参数默认值可以是变量，类内字段，甚至是另一个方法的返回结果。  
-如下代码所示：
+如下所示：
 
 ```scala
 class Test {
@@ -661,7 +661,7 @@ Scala中的保护成员使用关键字`protected`，私有成员使用关键字`
 访问区域限制可以是当前定义的类、当前定义类的外部类(若存在外部类)、包名(某个包内的所有类实例可访问)或是`this`关键字(仅当前实例可访问)。
 - 访问权限关键字之后若不写明具体的访问限制区域，则默认限制为当前类可访问(与Java行为基本一致，但Java中的保护成员包内可见)。
 
-如下代码所示：
+如下所示：
 
 ```scala
 package TestCode {
@@ -780,7 +780,7 @@ Scala中类可以拥有一个**主构造器(primary constructor)**和任意个**
 - 在辅助构造器的代码中必须立即调用主构造器或其它辅助构造器，之后才能执行其它代码。
 - 调用父类的构造器必须在主构造器中，写在父类类名之后。
 
-如下代码所示：
+如下所示：
 
 ```scala
 class Constructor(a: Int, var b: Double = 2.0) { //构造器参数紧跟在类名之后，构造器中的参数可以带有默认值
@@ -870,7 +870,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 - 主构造器参数做为成员字段
 
 	主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。  
-	构造器参数前使用`var`关键字，如下代码所示：
+	构造器参数前使用`var`关键字，如下所示：
 
 	```scala
 	class Constructor(var num: Int)
@@ -937,7 +937,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。  
 	编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
 
-	如下代码所示：
+	如下所示：
 
 	```scala
 	class Constructor0(num: Int)
@@ -960,7 +960,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	当该参数被其它成员方法引用时，编译器会为其生成对应的`final`私有成员变量(但没有生成`setter/getter`)。  
 	只要构造器参数没有使用`var`关键字标记，则生成的成员变量就带有`final`属性。
 
-	如下代码所示：
+	如下所示：
 
 	```scala
 	class Constructor0(num: Int) {
@@ -1021,7 +1021,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	```
 
 	与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。  
-	如下代码所示：
+	如下所示：
 
 	```scala
 	class Default {
@@ -1101,7 +1101,7 @@ instance(arg1, arg2, arg3, ...) = value
 instance.update(arg1, arg2, arg3, ..., value)
 ```
 
-如下代码所示：
+如下所示：
 
 ```scala
 object Main extends App {
@@ -1162,7 +1162,7 @@ val Unapply(arg1, arg2, arg3, ...) = value
 val (arg1, arg2, arg3, ...) = Unapply.unapply(value)
 ```
 
-如下代码所示：
+如下所示：
 
 ```scala
 object TestUnapply extends App {
@@ -1191,7 +1191,7 @@ class Unapply(var num1: Int, var num2: Int)
 若需要提取**任意长度**的值的序列，则可以使用`unapplySeq()`方法，该方法返回值类型为`Option[Seq[T]]`。  
 **不要**同时定义`unapplySeq()`方法和`unapply()`方法，会产生冲突。
 
-如下代码所示：
+如下所示：
 
 ```scala
 object TestUnapply extends App {
@@ -1228,7 +1228,7 @@ abc cde efg
 - 样例类默认即实现了`apply()`方法用于构造对象和`unapply()`方法用于模式匹配。
 - 样例类默认实现了`toString`、`equals`、`hashCode`、`copy`等其它方法。
 
-如下代码所示：
+如下所示：
 
 ```scala
 case class Case(num: Int = 100, str: String)
@@ -1480,7 +1480,7 @@ class Clone extends Cloneable[Clone] {
 ### 匿名类初始化
 在Scala中，创建类实例的**同时**可以直接对类的成员变量进行初始化。
 
-如下代码所示：
+如下所示：
 
 ```scala
 object Init extends App {
@@ -1536,7 +1536,7 @@ Num 100
 - 基础类型转换
 
 	基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行。  
-	如将数值与字符串相互转换可以使用如下代码：
+	将数值与字符串相互转换，如下所示：
 
 	```scala
 	val str = 100.toString
@@ -1588,7 +1588,8 @@ sealed abstract class Option[+A] extends Product with Serializable {
 ```
 
 使用`get`方法获取值，目标值不存在时会触发异常。  
-使用`getOrElse()`方法获取值，参数中需要传入备用的默认值，目标值不存在时将使用默认值做为返回结果，如下所示：
+使用`getOrElse()`方法获取值，参数中需要传入备用的默认值，目标值不存在时将使用默认值做为返回结果。  
+如下所示：
 
 ```scala
 scala> val str1: Option[String] = Option("test")
@@ -1613,7 +1614,8 @@ scala> Option(123) foreach println
 scala> Option(null) foreach println  //无值时无输出
 ```
 
-`fold()`高阶函数用于使用目标值执行表达式并输出返回结果，在目标值不存在时使用提供的值做为返回结果，提供的值需要与表达式返回结果类型相同，如下所示：
+`fold()`高阶函数用于使用目标值执行表达式并输出返回结果，在目标值不存在时使用提供的值做为返回结果，提供的值需要与表达式返回结果类型相同。  
+如下所示：
 
 ```scala
 scala> Option[String]("abc").fold(0)(_.length)
@@ -1622,7 +1624,8 @@ scala> Option[String](null).fold(0)(_.length)
 res9: Int = 0 //目标值不存在时使用提供的值做为返回结果
 ```
 
-可空类型也可以用于**模式匹配**中，如下代码所示：
+可空类型也可以用于**模式匹配**中。  
+如下所示：
 
 ```scala
 object TestOption extends App {
@@ -1670,12 +1673,13 @@ No Value
 ```
 
 `Scala`中的`match`语句具有返回值，可为变量赋值。  
-`Scala`中没有`break`关键字，`match`语句中的`case`条件不会被穿越。
+`Scala`中没有`break`关键字，`match`语句中的`case`条件不会被穿越。  
 某些需要穿越`case`条件的情形，应使用`|`操作符连接多个条件。  
+
 每个`case`条件语句可以使用`@`操作符绑定一个变量名。  
 每个`case`条件之后可以添加**守卫**(`if 条件语句...`)，用于添加额外的匹配条件。
 
-实例：
+如下所示：
 
 ```scala
 object Main extends App {
@@ -1732,7 +1736,7 @@ str4 return -1
 ### 类型匹配
 **模式匹配**可用于匹配对象的实际类型。
 
-对于以基类传入的对象实例，使用模式匹配可以匹配其真实类型。
+对于以基类传入的对象实例，使用模式匹配可以匹配其真实类型。  
 如下所示：
 
 ```scala
@@ -1767,6 +1771,32 @@ Other language: C++
 No match!
 ```
 
+当模式匹配匹配泛型类型时，由于`JVM`采用`Type Erasure`的方式实现泛型，因而泛型类型的泛型参数无法准确匹配。  
+如下所示：
+
+```scala
+object Main extends App {
+
+  val list = 1 :: 2 :: 3 :: Nil // list实际类型为List[Int]
+
+  list match {
+    case _: List[String] => println("Match type: List[String]")
+    case _: List[Int] => println("Match type: List[Int]")
+    case _ => println("No match!")
+  }
+
+}
+```
+
+输出结果：
+
+```
+Match type: List[String]
+```
+
+由输出结果可知，模式匹配并未正确匹配类型的泛型参数。  
+对于此类情况，`Scala`编译器在编译时会对代码做出警告。
+
 
 
 ## *sealed* 和 *final* 关键字
@@ -1783,9 +1813,8 @@ No match!
 
 ### *sealed* 用于模式匹配
 使用`sealed`关键字修饰的类型用于模式匹配时，编译器会对匹配条件进行检查。  
-若匹配路径没有被完全覆盖，则会给出警告。
-
-如下代码所示：
+若匹配路径没有被完全覆盖，则会给出警告。  
+如下所示：
 
 ```scala
 sealed abstract class Lang(name: String)
@@ -1827,7 +1856,8 @@ one warning found
 ### *StringLike.format()* 格式化输出
 在Scala中，字符串依然使用Java中标准的`String`类型，但通过**隐式转换**特性，`String`可以被自动构造为`StringLike`类型。
 
-`StringLike`类型提供了一系列方便强大的字符操作方法，格式化字符串可以使用其提供的`format()`方法(使用方式类似于静态方法`String.format()`，但使用方法调用者作为格式化内容而非方法的首个参数)，如下所示：
+`StringLike`类型提供了一系列方便强大的字符操作方法，格式化字符串可以使用其提供的`format()`方法(使用方式类似于静态方法`String.format()`，但使用方法调用者作为格式化内容而非方法的首个参数)。  
+如下所示：
 
 ```scala
 scala> "Test format str:\nString %s\nInt %d\nFloat %f\n".format("Hello World!", 666, 666.666)
@@ -1904,7 +1934,7 @@ res15: String = \n\s\\b\\%''^#@ 3.0
 - 使用`readInt()/readFloat()/readChar()/readLong()...`等方法获取特定类型的输出，当输入的内容不匹配时，会抛出异常。
 - 使用`readf()/readf1()/readf2()/readf3()`等方法能以`java.text.MessageFormat`语法格式化接收的终端输入。
 
-如下代码所示：
+如下所示：
 
 ```scala
 scala> val str = scala.io.StdIn.readLine()		//自行脑补终端输入"Test input"
@@ -1948,7 +1978,7 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。  
 默认的`Value`方法会按**变量名**生成**枚举名**和并自动从`0`开始生成**枚举ID**，若需要手动设定枚举名称和枚举ID则可以使用`Value`方法的重载`Value(id: Int, name: Strig)`。
 
-如下代码所示：
+如下所示：
 
 ```scala
 object Color extends Enumeration {
@@ -1984,11 +2014,11 @@ White:100 Black:200
 ```
 
 ### 调用枚举类型
-继承了枚举类的单例对象名并不能直接用于表示枚举类型，对应的枚举类型应使用对象内部定义的抽象类型`Value`来表示，即`单例对象名称.Value`。
+继承了枚举类的单例对象名并**不能**直接用于表示枚举类型。  
+对应的枚举类型应使用对象内部定义的抽象类型`Value`来表示，即`单例对象名称.Value`。
 
-以前文中的`Color`单例对象为例，对应的枚举类型应使用`Color.Value`表示。
-
-将枚举做为参数传递，如下代码所示：
+以前文中的`Color`单例对象为例，对应的枚举类型应使用`Color.Value`表示。  
+将枚举做为参数传递，如下所示：
 
 ```scala
 object Color extends Enumeration {
@@ -2021,7 +2051,7 @@ ID: 100, Str: White
 
 枚举内部的成员全部保存在一个`Set`容器中，可使用`values`成员方法访问。
 
-以前文中的`Color`单例对象为例，使用多种方式访问枚举内容，如下代码所示：
+以前文中的`Color`单例对象为例，使用多种方式访问枚举内容，如下所示：
 
 ```scala
 object Color extends Enumeration {
@@ -2106,7 +2136,7 @@ tuple: (Int, Int, Int) = (1,2,3)
 
 元组**不支持**直接使用`for`循环进行遍历。  
 `Tuple`类型混入了`scala.Product`特质，可以使用无参方法`productIterator`获取可迭代的对象用于遍历。  
-如下代码所示：
+如下所示：
 
 ```scala
 for (t <- tuple.productIterator) println(t) //命令式遍历
@@ -2501,7 +2531,7 @@ trait GenTraversableLike[+A, +Repr] extends Any with GenTraversableOnce[A] with 
 
 ### 集合有序性
 `Scala`默认`Set/Map`无论`mutable/immutable`均为**无序**。  
-如下代码所示：
+如下所示：
 
 ```scala
 object Main extends App {
@@ -2547,7 +2577,7 @@ Mutable Map: Map(2 -> 2, 5 -> 5, 4 -> 4, 1 -> 1, 3 -> 3)
 
 `immutable`容器存在有序类型`ListSet/ListMap`。  
 `mutable`容器存在有序类型`LinkedHashSet/LinkedHashMap`，按照元素添加的顺序排列。  
-如下代码所示：
+如下所示：
 
 ```scala
 object Main extends App {
@@ -2665,7 +2695,7 @@ import java.awt._	//等价于java中的 import java.awt.*
 	在导入包时，`Scala`默认采用**相对路径**。  
 	在外层路径的包使用内层路径的包时，可省略共同的路径部分直接以当前路径为起点访问内层路径包。
 
-	如下代码所示：
+	如下所示：
 
 	```scala
 	// file1
@@ -2687,7 +2717,7 @@ import java.awt._	//等价于java中的 import java.awt.*
 
 	而在`Java`中，无论包的层次关系如何，都需要通过绝对路径进行导入。
 
-	上例对应`Java`版本如下代码所示：
+	上例对应`Java`版本如下所示：
 
 	```java
 	// file1
@@ -2733,7 +2763,7 @@ import java.awt._	//等价于java中的 import java.awt.*
 	默认包没有名称，其内容只能被同在默认包下的其它内容访问。  
 	内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
 
-	如下代码所示：
+	如下所示：
 
 	```scala
 	// file1
@@ -2794,7 +2824,7 @@ import Predef._
 
 ### 包对象
 在Scala中，每个包可以带有一个与包名相同的**包对象**，包内的所有类都可以直接访问该包对象的公有成员。  
-如下代码所示：
+如下所示：
 
 ```scala
 package object Package {
@@ -3033,7 +3063,7 @@ def testImplicit(implicit num0: Int)(num1: Double) {}           //错误。只�
 
 与**隐式转换**类似，当一个实例调用了**不存在**或**无法访问**的成员方法，编译器会为之搜索作用域中可访问的隐式类。  
 若隐式类的构造器参数与实例相同且带有实例调用的方法，则自动调用该隐式类的构造器。  
-如下代码所示：
+如下所示：
 
 ```scala
 object Main extends App {
@@ -3164,7 +3194,7 @@ num: 23333
 - 若`&&`运算符左侧表达式值为`false`，则右侧表达式不被执行。
 - 若`||`运算符左侧表达式值为`true`，则右侧表达式不被执行。
 
-如下代码所示：
+如下所示：
 
 ```scala
 object Main extends App {
@@ -3230,7 +3260,7 @@ expr2_1
 
 	编写自定义方法`and()`、`or()`在不使用内建`&&`、`||`的情况下模拟`&&`、`||`运算符。
 
-	若使用`Call by Value`，如下代码所示：
+	若使用`Call by Value`，如下所示：
 
 	```scala
 	object Main extends App {
@@ -3478,7 +3508,7 @@ expr2_1
 	`blocking`块的作用是向执行器(`ExecutionContext`)标记可能造成阻塞的代码，并调整执行器的行为。  
 	对于默认的执行器`scala.concurrent.ExecutionContext.Implicits.global`，在`Future`中包含`blocking`块时，会新建线程来执行`Future`而不是等待复用已有的线程。
 
-	如下代码所示：
+	如下所示：
 
 	```scala
 	import scala.concurrent.Future
