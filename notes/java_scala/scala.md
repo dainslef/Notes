@@ -42,7 +42,7 @@ $ scala [主类名]
 $ scala [包路径].[主类名]
 ```
 
-虽然Scala是基于`JVM`的语言，但`scalac`编译得到的字节码直接由java命令执行会出现错误。  
+虽然Scala是基于`JVM`的语言，但`scalac`编译得到的字节码直接由`java`命令执行会出现错误。  
 虽然Scala并不强制要求类名要与文件名相同，但在部分IDE中，如果类名与文件名不同，构建项目会出现错误。
 
 ### 反编译
@@ -79,15 +79,15 @@ $ scalap -private [类名]
 ```
 
 ### *Scala REPL*
-在命令行中输入无参数的`scala`指令即可进入交互式的Scala解释器。  
-常用的Scala解释器**指令**：
+在命令行中输入无参数的`scala`指令即可进入交互式的`Scala REPL`。  
+常用的`Scala REPL`指令：
 
 ```scala
 scala> :quit //退出解释器
 scala> :reset //重置解释器的状态，会清空已保存的变量、类、方法等所有内容
 ```
 
-Scala解释器与Python解释器类似，可以直接将代码一行行地输入解释器，解释器会执行代码并给出反馈，对初学者而言是一个练习的好方法。
+`Scala REPL`与`Python REPL`类似，可以直接将代码一行行地输入解释器，解释器会执行代码并给出反馈，对初学者而言是一个练习的好方法。
 
 
 
@@ -95,17 +95,16 @@ Scala解释器与Python解释器类似，可以直接将代码一行行地输入
 相比`Java`、`C++`等语言，`Scala`融合了`OOP`、`FP`等编程范式，同时语法上更**灵活**。
 
 ### 语法基础(概览)
-- 代码不强制要求分号，只有一行带有多个语句时才要求分号隔开。
+- 代码不强制要求分号，只有一行带有多个语句时才要求分号做为分隔符。
 - 使用`var/val`定义`变量/常量`。  
 	类型可以由编译器推导，也可以显式指定。  
 	在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
-- 使用`def`关键字定义**方法**，`var/val`定义**函数**。  
-	使用`var`定义的函数可以更改实现，但`def`定义的方法一经定义实现就**不可改变**。
+- 使用`def`关键字定义**方法**，`var/val`定义**函数**。
 - 所有类型皆为对象。  
-	基础类型如`Int`、`Double`等都是类。  
+	基础类型如`Int`、`Double`等都是**类**。  
 	函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
 - 可以使用操作符作为函数名，达到类似C++/C#中操作符重载的效果。
-- 类的成员字段可以与方法名称**相同**。
+- 类的成员字段可以与方法名称**相同**(无参、空参方法除外)。
 
 ### 与传统语言的差异
 - 没有**自增/自减**操作符。
@@ -135,47 +134,6 @@ object Test extends App {
   println("Hello World!")
 }
 ```
-
-### *continue* 与 *break*
-`Scala`**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
-
-其它语言中的`continue`功能可以通过`for`语句条件后添加`if`判断条件实现或使用**守卫**。
-
-`break`功能可以由`scala.util.control.Breaks`类提供。
-
-- `Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
-
-	```scala
-	def breakable(op: => Unit): Unit {
-	  try op catch {
-	    // 判断异常是否为breakException，是则捕获，其它异常则继续向外传递
-	    case ex: BreakControl => if (ex ne breakException) throw ex
-	  }
-	}
-	def break(): Nothing = { throw breakException }
-	```
-
-	由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。  
-	`break()`方法产生`breakException`异常。
-
-	将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
-
-	使用`Breaks`，如下所示：
-
-	```scala
-	import scala.util.control.Breaks.{breakable, break}
-
-	object Main extends App {
-
-	  breakable {
-	    //使用break的代码块作为传名参数传入breakable中
-	    for (i <- 1 to 10) {
-	      if (i == 8) break		//跳出循环
-	    }
-	  }
-
-	}
-	```
 
 
 
@@ -1646,6 +1604,48 @@ No Value
 
 
 
+## *continue* 与 *break*
+`Scala`**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
+
+其它语言中的`continue`功能可以通过`for`语句条件后添加`if`判断条件实现或使用**守卫**。  
+`break`功能可以由`scala.util.control.Breaks`类提供。
+
+- `Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
+
+	```scala
+	def breakable(op: => Unit): Unit {
+	  try op catch {
+	    // 判断异常是否为breakException，是则捕获，其它异常则继续向外传递
+	    case ex: BreakControl => if (ex ne breakException) throw ex
+	  }
+	}
+	def break(): Nothing = { throw breakException }
+	```
+
+	由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。  
+	`break()`方法产生`breakException`异常。
+
+	将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产生`breakException`异常被捕获，中断函数，达到跳出循环的目的。
+
+	使用`Breaks`，如下所示：
+
+	```scala
+	import scala.util.control.Breaks.{breakable, break}
+
+	object Main extends App {
+
+	  breakable {
+	    //使用break的代码块作为传名参数传入breakable中
+	    for (i <- 1 to 10) {
+	      if (i == 8) break		//跳出循环
+	    }
+	  }
+
+	}
+	```
+
+
+
 ## *Pattern Matching* (模式匹配)
 **模式匹配**是`Scala`的核心功能之一。  
 `Scala`的**模式匹配**提供了诸多强大的特性，主要功能如下：
@@ -1972,7 +1972,7 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 
 
 ## *Enumerate* (枚举)
-在Scala中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
+在`Scala`中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
 
 ### 继承枚举类
 继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。  
@@ -1984,33 +1984,64 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 object Color extends Enumeration {
 
   // 自动赋值枚举成员
-  val red, green, blue = Value
-
+  val Red, Green, Blue = Value
   /*
   * 相当于分别初始化：
-  * val red = Value
-  * val green = Value
-  * val blue = Value
+  * val Red = Value
+  * val Green = Value
+  * val Blue = Value
   */
 
   // 手动使用 Value(id: Int, name: String) 方法手动进行id和name的设置
-  val white = Value(100, "White")
-  val black = Value(200, "Black")
-  // 使用重载有參版本的Value(id: Int, name: String)不能采用自动赋值的方式，会编译报错
+  // 使用重载有參版本的Value(id: Int, name: String)不能一次性给多个枚举成员赋值，会编译报错(id冲突)
+  val White = Value(100, "white")
+  val Black = Value(200, "black")
+
 }
 
 object TestEnumeration extends App {
-  println(Color.red.toString + ":" + Color.red.id + " " + Color.green + ":"
-    + Color.green.id + " " + Color.blue + ":" + Color.blue.id)
-  println(Color.white + ":" + Color.white.id + " " + Color.black + ":" + Color.black.id)
+
+  Color.values foreach { color => 
+    println(s"ID: ${color.id}, Str: $color")
+  }
+
 }
 ```
 
 输出结果：
 
 ```
-red:0 green:1 blue:2
-White:100 Black:200
+ID: 0, Str: Red
+ID: 1, Str: Green
+ID: 2, Str: Blue
+ID: 100, Str: white
+ID: 200, Str: black
+```
+
+`Enumeration`类的默认构造方法带有一个`Int`类型参数，用于指定枚举ID的**起始大小**，如下所示：
+
+```scala
+object Color extends Enumeration(100) {
+  val Red, Green, Blue, White, Black = Value //枚举Id将从100开始
+}
+
+object Main extends App {
+
+  Color.values foreach { color =>
+    println(s"ID: ${color.id}, Str: $color")
+  }
+
+}
+```
+
+输出结果：
+
+```
+ID: 100, Str: Red
+ID: 101, Str: Green
+ID: 102, Str: Blue
+ID: 103, Str: White
+ID: 104, Str: Black
 ```
 
 ### 调用枚举类型
@@ -2022,14 +2053,14 @@ White:100 Black:200
 
 ```scala
 object Color extends Enumeration {
-  val red, green, blue = Value
-  val white = Value(100, "White")
-  val black = Value(200, "Black")
+  val Red, Green, Blue = Value
+  val White = Value(100, "white")
+  val Black = Value(200, "black")
 }
 
 object Main extends App {
   // Xxx.Value才是真正的枚举类型
-  def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: ${color.toString}")
+  def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: $color")
   showEnum(Color.blue)
   showEnum(Color.white)
 }
@@ -2038,8 +2069,8 @@ object Main extends App {
 输出结果：
 
 ```
-ID: 2, Str: blue
-ID: 100, Str: White
+ID: 2, Str: Blue
+ID: 100, Str: white
 ```
 
 ### 访问枚举内容
@@ -2055,14 +2086,14 @@ ID: 100, Str: White
 
 ```scala
 object Color extends Enumeration {
-  val red, green, blue = Value
-  val white = Value(100, "White")
-  val black = Value(200, "Black")
+  val Red, Green, Blue = Value
+  val White = Value(100, "white")
+  val Black = Value(200, "black")
 }
 
 object Main extends App {
 
-  def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: ${color.toString}")
+  def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: $color")
 
   // 通过枚举ID访问枚举
   showEnum(Color(0))
@@ -2071,8 +2102,8 @@ object Main extends App {
   println()
 
   // 通过枚举名称访问枚举
-  showEnum(Color withName "green")
-  showEnum(Color withName "Black")
+  showEnum(Color withName "Green")
+  showEnum(Color withName "black")
 
   println()
 
@@ -2084,17 +2115,17 @@ object Main extends App {
 输出结果：
 
 ```
-ID: 0, Str: red
-ID: 100, Str: White
+ID: 0, Str: Red
+ID: 100, Str: white
 
-ID: 1, Str: green
-ID: 200, Str: Black
+ID: 1, Str: Green
+ID: 200, Str: black
 
-ID: 0, Str: red
-ID: 1, Str: green
-ID: 2, Str: blue
-ID: 100, Str: White
-ID: 200, Str: Black
+ID: 0, Str: Red
+ID: 1, Str: Green
+ID: 2, Str: Blue
+ID: 100, Str: white
+ID: 200, Str: black
 ```
 
 
@@ -2121,8 +2152,6 @@ scala> array(100) //数组访问越界会抛出异常
 java.lang.ArrayIndexOutOfBoundsException: 100
   ... 33 elided
 ```
-
-需要注意的是，Scala定长数组与Java中的定长数组仅仅是语法不同，并无本质区别，`new Array[Int](10)`相当于Java中的`new int[10]`。
 
 ### *Tuple* (元组)
 元组是最简单的容器，无需额外的类型名称，直接使用`(value1, value2, value3, ...)`就可以构建出一个元祖。如下所示：
@@ -2273,7 +2302,7 @@ scala> val list0 = 1 :: 2 :: 3 :: Nil
 list0: List[Int] = List(1, 2, 3)
 scala> val list1 = 0 :: list0 //向列表头部增加元素
 list1: List[Int] = List(0, 1, 2, 3)
-scala> val list2 = list0 :: 4 //列表是不能从尾部创建(List以Nil结尾)
+scala> val list2 = list0 :: 4 //列表不能从尾部添加元素(List以Nil结尾)
 <console>:11: error: value :: is not a member of Int
   val list2 = list0 :: 4
                     ^
@@ -2304,9 +2333,9 @@ res0: Int = 1
 Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素，创建一个`ArrayBuffer`：
 
 ```scala
-scala> var arrayBuffer = new ArrayBuffer[Int]
+scala> val arrayBuffer = new ArrayBuffer[Int]
 arrayBuffer: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer()
-var a = ArrayBuffer(100, 200)  //同样可以使用伴生对象的apply()方法创建ArrayBuffer
+val a = ArrayBuffer(100, 200)  //同样可以使用伴生对象的apply()方法创建ArrayBuffer
 a: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(100, 200)
 ```
 
@@ -2364,13 +2393,13 @@ res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)  //删�
 
 ### *Set* (集合)
 `Set[T]`类型为数学意义上的集合，集合内不允许重复元素。  
-`Set`完整包路径为`scala.collection.immutable.Set`。
+`Set`完整包路径为`scala.collection.immutable.Set`。  
 集合同样允许任意类型的元素，但集合中不能包含重复的元素。
 
 在使用`Set`类的`apply()`方法构建集合时，重复的元素会被忽略，如下所示：
 
 ```scala
-scala> var set = Set(1, 1, 's', "str")
+scala> val set = Set(1, 1, 's', "str")
 set: scala.collection.immutable.Set[Any] = Set(1, s, str) //重复的元素"1"被忽略了
 ```
 
@@ -2620,7 +2649,7 @@ Mutable LinkedHashMap: Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5)
 `immutable`容器不存在`LinkedHashSet/LinkedHashMap`类型。  
 `mutable`容器不存在`ListSet`类型，存在`ListMap`类型，但无序。
 
-有序容器向无序容器转换，内部成员会重新变为**无序**。
+有序容器使用`toSet/toMap`等方法向无序容器转换，内部成员会重新变为**无序**。
 
 
 
