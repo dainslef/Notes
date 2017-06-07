@@ -40,7 +40,7 @@
 
 `Word/Visio`文档之间无通用接口。
 
-`POI`的用户`API`一般位于`org.apache.poi.[文档类型].usermodel`路径下。
+`POI`的用户`API`一般位于`org.apache.poi.文档类型.usermodel`路径下。
 
 
 
@@ -52,15 +52,15 @@
 - `XWPFDocument` 代表整个`Word`文档
 - `XWPFParagraph` 代表段落
 - `XWPFRun` 代表文本
-- `XWPFTable` 代表文档内嵌表格
-	1. `XWPFTableRow` 代表内嵌表格行
-	1. `XWPFTableCell` 代表内嵌表格内的单元格
+- `XWPFTable` 代表文档表格
+	1. `XWPFTableRow` 代表表格行
+	1. `XWPFTableCell` 代表表格内的单元格
 
 ### *XWPFDocument*
 `XWPFDocument`是对整个`Word`文档的抽象。
 
 使用默认的空参构造方法即可创建新的空白文档。  
-使用父类提供的`write()`方法可将文档写入输出流中。  
+使用其父类`POIXMLDocument`提供的`write()`方法可将文档写入输出流中。  
 相关方法定义如下所示：
 
 ```java
@@ -79,7 +79,7 @@ public abstract class POIXMLDocument extends POIXMLDocumentPart implements Close
 }
 ```
 
-创建文档并保存：
+创建文档并保存，如下所示：
 
 ```scala
 import org.apache.poi.xwpf.usermodel._
@@ -96,8 +96,8 @@ object Main extends App {
 ```
 
 ### *XWPFParagraph* / *XWPFRun*
-`XWPFParagraph`是对文档中段落的抽象。  
-`XWPFRun`是对文档中文本的抽象。
+`XWPFParagraph`是对文档中**段落**的抽象。  
+`XWPFRun`是对文档中**文本**的抽象。
 
 `XWPFParagraph`可由`XWPFDocument`创建。  
 `XWPFRun`可由`XWPFParagraph`创建。  
@@ -117,6 +117,20 @@ public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Para
 }
 ```
 
+`XWPFParagraph`提供了设置段落样式的方法：
+
+```java
+public class XWPFParagraph implements IBodyElement, IRunBody, ISDTContents, Paragraph {
+	...
+	public void setAlignment(ParagraphAlignment align); //设置段落对齐方式
+	public void setIndentationLeft(int indentation); //段落左间距
+	public void setSpacingBetween(double spacing); //设置段落内行间距
+	public void setSpacingBefore(int spaces); //设置段落前空行数
+	public void setSpacingAfter(int spaces); //设置段落后空行数
+	...
+}
+```
+
 `XWPFRun`提供了多种方法用于设置文本：
 
 ```java
@@ -128,6 +142,65 @@ public class XWPFRun implements ISDTContents, IRunElement, CharacterRun {
 	public void setFontFamily(String fontFamily); //文本字体
 	public void setFontSize(int size); //文本字体大小
 	public void setCapitalized(boolean value); //文本大写
+	...
+}
+```
+
+### *XWPFTable* / *XWPFTableRow* / *XWPFTableCell*
+`XWPFTable`是对文档中**表格**的抽象。  
+`XWPFTableRow`是对表格中**行**的抽象。  
+`XWPFTableCell`是对表格中**单元格**的抽象。
+
+`XWPFTable`可由`XWPFDocument`创建。  
+相关方法定义如下所示：
+
+```java
+public class XWPFDocument extends POIXMLDocument implements Document, IBody {
+	...
+	public XWPFTable createTable(); //创建空表格
+	public XWPFTable createTable(int rows, int cols); //创建指定行列大小的表格
+	...
+}
+```
+
+使用空参数的`createTable()`方法创建的表格具有`1`行`1`列的默认大小。
+
+`XWPFTable`类型的常用方法如下所示：
+
+```java
+public class XWPFTable implements IBodyElement, ISDTContents {
+	...
+	public void addNewCol(); //添加一列
+	public XWPFTableRow createRow(); //添加一行
+	public XWPFTableRow getRow(int pos); //获取指定行
+	public void setCellMargins(int top, int left, int bottom, int right); //设置单元格内间距
+	...
+}
+```
+
+`XWPFTableRow`可由`XWPFTable`的`createRow()/getRow()`等方法创建/获取。  
+`XWPFTableRow`类型的常用方法如下所示：
+
+```java
+public class XWPFTableRow {
+	...
+	public XWPFTableCell createCell(); //创建新的单元格
+	public XWPFTableCell getCell(int pos); //获取指定单元格
+	public void removeCell(int pos); //移除指定单元格
+	...
+}
+```
+
+`XWPFTableCell`可由``XWPFTableRow`的`createCell()/getCell()`等方法获取。  
+`XWPFTableCell`类型的常用方法如下所示：
+
+```java
+public class XWPFTableCell implements IBody, ICell {
+	...
+	public void setColor(String rgbStr); //设置单元格文本色彩
+	public void setVerticalAlignment(XWPFVertAlign vAlign); //设置单元格对齐方式
+	public void setText(String text); //设置单元格文本
+	public String getText(); //获取单元格文本
 	...
 }
 ```
