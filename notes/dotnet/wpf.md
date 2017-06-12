@@ -216,175 +216,182 @@ class XXX : INotifyPropertyChanged
 
 只有需要自行修改数据源内数据并**通知外界**时才需要实现`INotifyPropertyChanged`接口，如果数据源仅仅作为**数据获取**使用则无必要。
 
-封装`INotifyPropertyChanged`接口
-> 在实际开发中，一般会对`INotifyPropertyChanged`接口做一个简单的封装，如下所示：
->
->	```cs
->	using System.ComponentModel;
->	using System.Runtime.CompilerServices;
->
->	public class NotifyObject : INotifyPropertyChanged
->	{
->		public event PropertyChangedEventHandler PropertyChanged;
->
->		/// <summary>
->		/// 属性发生改变时调用该方法发出通知
->		/// </summary>
->		/// <param name="propertyName">属性名称</param>
->		public void RaisePropertyChanged(string propertyName)
->			=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
->	}
->	```
->
-> 使用：
->
->	```cs
->	class XXX : NotifyObject
->	{
->		private int _xxx = 0;
->
->		// 属性包装器
->		public int Xxx
->		{
->			get => _xxx;
->			set
->			{
->				_xxx = value;
->				RaisePropertyChanged("Xxx");
->			}
->		}
->	}
->	```
+- 封装`INotifyPropertyChanged`接口
 
-使用`nameof`获取属性字段名称
-> 在`C# 6.0`中新增了`nameof`关键字，作用是获取字段的**当前名称**(不是完整路径名称)。  
-> 可利用该特性获取属性名称，上述例子中的`Xxx`属性可以改写为：
->
->	```cs
->	class XXX : NotifyObject
->	{
->		private int _xxx = 0;
->
->		// 属性包装器
->		public int Xxx
->		{
->			get => _xxx;
->			set
->			{
->				_xxx = value;
->				RaisePropertyChanged(nameof(Xxx));
->			}
->		}
->	}
->	```
->
-> 使用`nameof`获取属性名称，能使属性在重构名称时避免手动修改传入属性通知方法的名称字符串。
+	在实际开发中，一般会对`INotifyPropertyChanged`接口做一个简单的封装，如下所示：
 
-使用`CallerMemberNameAttribute`特性简化属性通知方法
-> 在`.Net 4.5`中引入的`System.Runtime.CompilerServices.CallerMemberNameAttribute`可用于获取调用者的名称。  
-> 利用该特性可简化属性通知方法的参数。
->
-> 如下所示：
->
->	```cs
->	using System.ComponentModel;
->	using System.Runtime.CompilerServices;
->
->	public class NotifyObject : INotifyPropertyChanged
->	{
->		public event PropertyChangedEventHandler PropertyChanged;
->
->		// propertyName参数使用CallerMemberName特性修饰，方法被调用时propertyName会自动填入调用者信息(属性名)
->		public void RaisePropertyChanged([CallerMemberName] string propertyName = "")
->			=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
->	}
->	```
->
-> 使用：
->
->	```cs
->	class XXX : NotifyObject
->	{
->		private int _xxx = 0;
->
->		public int Xxx
->		{
->			get => _xxx;
->			set
->			{
->				_xxx = value;
->
->				// 方法调用无需参数，参数由编译器生成
->				RaisePropertyChanged();
->			}
->		}
->	}
->	```
->
-> 被`[CallerMemberName]`特性修饰的方法参数在编译时会自动填入调用者的名称。  
-> 在属性中的`set`、`get`块中调用方法，则填入的参数为属性的名称。
->
-> 使用`[CallerMemberName]`特性，能使属性在重构名称时避免手动修改传入属性通知方法的名称字符串。
+	```cs
+	using System.ComponentModel;
+	using System.Runtime.CompilerServices;
+
+	public class NotifyObject : INotifyPropertyChanged
+	{
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		/// <summary>
+		/// 属性发生改变时调用该方法发出通知
+		/// </summary>
+		/// <param name="propertyName">属性名称</param>
+		public void RaisePropertyChanged(string propertyName)
+			=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	}
+	```
+
+	使用：
+
+	```cs
+	class XXX : NotifyObject
+	{
+		private int _xxx = 0;
+
+		// 属性包装器
+		public int Xxx
+		{
+			get => _xxx;
+			set
+			{
+				_xxx = value;
+				RaisePropertyChanged("Xxx");
+			}
+		}
+	}
+	```
+
+- 使用`nameof`获取属性字段名称
+
+	在`C# 6.0`中新增了`nameof`关键字，作用是获取字段的**当前名称**(不是完整路径名称)。  
+	可利用该特性获取属性名称，上述例子中的`Xxx`属性可以改写为：
+
+	```cs
+	class XXX : NotifyObject
+	{
+		private int _xxx = 0;
+
+		// 属性包装器
+		public int Xxx
+		{
+			get => _xxx;
+			set
+			{
+				_xxx = value;
+				RaisePropertyChanged(nameof(Xxx));
+			}
+		}
+	}
+	```
+
+	使用`nameof`获取属性名称，能使属性在重构名称时避免手动修改传入属性通知方法的名称字符串。
+
+- 使用`CallerMemberNameAttribute`特性简化属性通知方法
+
+	在`.Net 4.5`中引入的`System.Runtime.CompilerServices.CallerMemberNameAttribute`可用于获取调用者的名称。  
+	利用该特性可简化属性通知方法的参数。
+
+	如下所示：
+
+	```cs
+	using System.ComponentModel;
+	using System.Runtime.CompilerServices;
+
+	public class NotifyObject : INotifyPropertyChanged
+	{
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		// propertyName参数使用CallerMemberName特性修饰，方法被调用时propertyName会自动填入调用者信息(属性名)
+		public void RaisePropertyChanged([CallerMemberName] string propertyName = "")
+			=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	}
+	```
+
+	使用：
+
+	```cs
+	class XXX : NotifyObject
+	{
+		private int _xxx = 0;
+
+		public int Xxx
+		{
+			get => _xxx;
+			set
+			{
+				_xxx = value;
+
+				// 方法调用无需参数，参数由编译器生成
+				RaisePropertyChanged();
+			}
+		}
+	}
+	```
+
+	被`[CallerMemberName]`特性修饰的方法参数在编译时会自动填入调用者的名称。  
+	在属性中的`set`、`get`块中调用方法，则填入的参数为属性的名称。
+
+	使用`[CallerMemberName]`特性，能使属性在重构名称时避免手动修改传入属性通知方法的名称字符串。
 
 ### 绑定语法
 进行绑定操作需要明确目标对象的路径，`WPF`提供了`ElementName`、`Source`、`RelativeSource`三种绑定对象。
 
-默认绑定
-> 在不显式指定绑定对象的情况下，默认将`DataContent`作为绑定对象。
->
->	```xml
->	XXX="{Binding xxx}"
->	<!-- 等价于 -->
->	XXX="{Binding Path=xxx}"
->	<!-- 对于需要自定义显示逻辑的内容，指定转换器 -->
->	XXX="{Binding Path=xxx, Converter={StaticResource xxx}}"
->	<!-- 指定转换器同时可以传入一个自定义参数，用于传递某些附加信息 -->
->	XXX="{Binding Path=xxx, Converter={StaticResource xxx}, ConverterParameter=xxx}"
->	```
->
-> 绑定的转换器需要实现`System.Windows.Data.IValueConverter`接口，接口定义如下：
->
->	```csharp
->	//
->	// 摘要:
->	//     提供一种将自定义逻辑应用于绑定的方式。
->	public interface IValueConverter
->	{
->		object Convert(object value, Type targetType, object parameter, CultureInfo culture);
->		object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
->	}
->	```
->
-> - `Convert`方法的`value`参数为待转换的源数据。
-> - `ConvertBack`方法的`value`参数为转换后的数据。
-> - `parameter`参数为数据绑定中传入的自定义转换参数。
->
-> 绑定中的`ConverterParameter`通常用于传递一些编译时就已确定的数据。  
-> 若需要传递多个动态变化的数据并同步更新，则应使用**多重绑定**。
+- 默认绑定
 
-绑定`ElementName`
-> `ElementName`是控件拥有的属性，将绑定对象设置为当前XAML文件内的某一个控件。
->
->	```xml
->	XXX="{Binding ElementName=xxx, Path=xxx}}"
->	```
+	在不显式指定绑定对象的情况下，默认将`DataContent`作为绑定对象。
 
-绑定`Source`
-> `Source`属性用于指定对象绑定路径的引用。
->
->	```xml
->	XXX="{Binding Source={StaticResource xxx}}"
->	```
+	```xml
+	XXX="{Binding xxx}"
+	<!-- 等价于 -->
+	XXX="{Binding Path=xxx}"
+	<!-- 对于需要自定义显示逻辑的内容，指定转换器 -->
+	XXX="{Binding Path=xxx, Converter={StaticResource xxx}}"
+	<!-- 指定转换器同时可以传入一个自定义参数，用于传递某些附加信息 -->
+	XXX="{Binding Path=xxx, Converter={StaticResource xxx}, ConverterParameter=xxx}"
+	```
 
-绑定`RelativeSource`
-> `RelativeSource`属性支持以一定的规则来确定绑定对象。
->
->	```xml
->	<!-- 绑定到自身 -->
->	XXX="{Binding xxx, RelativeSource={RelativeSource Self}}"
->	<!-- 绑定到指定类型属性 -->
->	XXX="{Binding xxx, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type xxx}}}"
->	```
+	绑定的转换器需要实现`System.Windows.Data.IValueConverter`接口，接口定义如下：
+
+	```csharp
+	//
+	// 摘要:
+	//     提供一种将自定义逻辑应用于绑定的方式。
+	public interface IValueConverter
+	{
+		object Convert(object value, Type targetType, object parameter, CultureInfo culture);
+		object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
+	}
+	```
+
+	- `Convert`方法的`value`参数为待转换的源数据。
+	- `ConvertBack`方法的`value`参数为转换后的数据。
+	- `parameter`参数为数据绑定中传入的自定义转换参数。
+
+	绑定中的`ConverterParameter`通常用于传递一些编译时就已确定的数据。  
+	若需要传递多个动态变化的数据并同步更新，则应使用**多重绑定**。
+
+- 绑定`ElementName`
+
+	`ElementName`是控件拥有的属性，将绑定对象设置为当前XAML文件内的某一个控件。
+
+	```xml
+	XXX="{Binding ElementName=xxx, Path=xxx}}"
+	```
+
+- 绑定`Source`
+
+	`Source`属性用于指定对象绑定路径的引用。
+
+	```xml
+	XXX="{Binding Source={StaticResource xxx}}"
+	```
+
+- 绑定`RelativeSource`
+
+	`RelativeSource`属性支持以一定的规则来确定绑定对象。
+
+	```xml
+	<!-- 绑定到自身 -->
+	XXX="{Binding xxx, RelativeSource={RelativeSource Self}}"
+	<!-- 绑定到指定类型属性 -->
+	XXX="{Binding xxx, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type xxx}}}"
+	```
 
 ### 绑定模式
 控件自身的属性被称为**目标属性**，绑定的数据源对象称为**源属性**，源属性与目标属性之前有四类同步方式：
@@ -529,13 +536,18 @@ NavigationService.GetNavigationService(source).GoBack();
 `Grid`容器提供了常见的**网格布局**。
 
 - `Grid`布局的行定义写在子标签`<Grid.RowDefinitions/>`中，列定义写在子标签`<Grid.ColumnDefinitions/>`中。
+
 	- 每一行由`<RowDefinition/>`标签定义，属性`Height`决定行高。
 	- 每一列由`<ColumnDefinition/>`标签定义，属性`Width`决定列宽。
+
 - `Grid`布局的行高、列宽取值遵循以下规则：
+
 	- 取值`*`为自动填满剩余大小。
 	- 取值`auto`由系统分配最合适的控件大小。
 	- `*`前可以添加数值，在有多个控件取值`*`是，默认由这些控件均分剩余的大小，`*`前添加数值则设定剩余大小分配的**权重**。
+
 - `Grid`布局的位置定义：
+
 	- `Grid`布局的序号从`0`开始。
 	- 在控件属性中使用`Grid.Row`/`Grid.Cloumn`确定控件的行列位置。
 	- 在控件属性中使用`Grid.RowSpan`/`Grid.CloumnSpan`能让控件占据多行、多列。
@@ -639,48 +651,52 @@ dataGrid.ItemsSource = dataSet.Tables[0].DefaultView;				//绑定数据源中的
 ### 设置默认显示日期
 设置控件的`SelectedDate`属性为指定时间即可。
 
-> 设置`DatePicker`默认显示当前日期：
->
-> 方法一，在后台设置。
->> 在后台代码中设置`SelectedDate`为当前时间：
->>
->>	```cs
->>	datePicker.SelectedDate = System.DateTime.Now;
->>	```
->
-> 方法二，在前台定义。
->> 在`XAML`中添加命名空间定义：
->>
->>	```
->>	xmlns:sys="clr-namespace:System;assembly=mscorlib"
->>	```
->>
->> 之后设置控件属性：
->>
->>	```
->>	SelectedDate="{x:Static sys:DateTime.Now}"
->>	```
+设置`DatePicker`默认显示当前日期：
+
+- 方法一，在后台设置。
+
+	在后台代码中设置`SelectedDate`为当前时间：
+
+	```cs
+	datePicker.SelectedDate = System.DateTime.Now;
+	```
+
+- 方法二，在前台定义。
+
+	在`XAML`中添加命名空间定义：
+
+	```
+	xmlns:sys="clr-namespace:System;assembly=mscorlib"
+	```
+
+	之后设置控件属性：
+
+	```
+	SelectedDate="{x:Static sys:DateTime.Now}"
+	```
 
 ### 禁止日期文本编辑
 默认情况下，`DatePicker`控件的文本日期显示框支持直接编辑文本来设定日期，需要禁止此特性可以使用以下方式：
 
-将`Focusable`属性设置为`False`。
-> 设置`Focusable`属性通过禁用焦点获取来限制编辑功能，文本框状态显示正常。
->
->	```
->	<DatePicker Focusable="False"/>
->	```
+- 将`Focusable`属性设置为`False`。
 
-设置子控件`DatePickerTextBox`的`IsReadOnly`属性为`False`。
-> `IsReadOnly`直接禁用了文本框的编辑属性，文本框直接显示为无法编辑。
->
->	```
->	<DatePicker.Resources>
->		<Style TargetType="DatePickerTextBox">
->			<Setter Property="IsReadOnly" Value="True"/>
->		</Style>
->	</DatePicker.Resources>
->	```
+	设置`Focusable`属性通过禁用焦点获取来限制编辑功能，文本框状态显示正常。
+
+	```xml
+	<DatePicker Focusable="False"/>
+	```
+
+- 设置子控件`DatePickerTextBox`的`IsReadOnly`属性为`False`。
+
+	`IsReadOnly`直接禁用了文本框的编辑属性，文本框直接显示为无法编辑。
+
+	```xml
+	<DatePicker.Resources>
+		<Style TargetType="DatePickerTextBox">
+			<Setter Property="IsReadOnly" Value="True"/>
+		</Style>
+	</DatePicker.Resources>
+	```
 
 
 
@@ -752,8 +768,10 @@ public partial class App : Application
 
 ### 常见问题
 
-*DocumentGroup* 标签不可拖动、关闭
-> `DocumentGroup`需要在`DockLayoutManager`中才能实现关闭标签、拖动标签等功能。
+- *DocumentGroup* 标签不可拖动、关闭
 
-*DocumentGroup* 关闭标签后标签依旧保留到`ClosedPanels`列表中
-> 设置`DocumentPanel`的`ClosingBehavior`属性为`ImmediatelyRemove`。
+	`DocumentGroup`需要在`DockLayoutManager`中才能实现关闭标签、拖动标签等功能。
+
+- *DocumentGroup* 关闭标签后标签依旧保留到`ClosedPanels`列表中
+
+	设置`DocumentPanel`的`ClosingBehavior`属性为`ImmediatelyRemove`。
