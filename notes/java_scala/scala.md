@@ -2640,7 +2640,7 @@ object Main extends App {
 输出结果：(`Scala 2.12.2 && macOS 10.12.4`)
 
 ```
-Immutable ListSet: ListSet(10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+Immutable ListSet: ListSet(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 Immutable ListMap: ListMap(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5)
 Mutable LinkedHashSet: Set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 Mutable LinkedHashMap: Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5)
@@ -2686,7 +2686,7 @@ res27: scala.collection.immutable.Set[Int] = Set(3, 4, 5)
 ```
 
 ### 使用高阶函数替代生成器
-Scala中可以使用高阶函数，以函数式风格实现类似`yield`的效果。
+`Scala`中的`yield`的语句实际是高阶函数的语法糖，`yeild`语句可以还原为高阶函数的形式：
 
 ```scala
 // 从1到5的数中找出偶数，并将数值翻倍
@@ -2702,6 +2702,99 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 
 
 
+## *Exception* (异常)
+`Scala`沿用了`Java`的异常机制，但相关语法略有不同。
+
+- 抛出异常
+
+	`Scala`同样使用`throw`语句抛出异常，与`Java`语法类似。如下所示：
+
+	```scala
+	throw new XxxException
+	```
+
+	`Java`中要求将方法内可能抛出的异常明确地在方法签名中列出，但在`Scala`中不需要。  
+	
+	对于需要被`Java`调用的`Scala`方法，可以使用`@throw`注解来标明方法中可能抛出的异常，使方法在`Java`端生成正确的签名：
+
+	```scala
+	@throw(classOf[XxxException])
+	def testSException {
+		throw new XxxExeption
+	}
+	```
+
+	对应的`Java`代码：
+
+	```java
+	void testException() throw XxxException {
+		throw new XxxExeption
+	}
+	```
+
+- 捕获异常
+
+	`Scala`中同样使用`try ... catch ... finally ...`语句进行异常捕获，但语法略有不同：
+
+	1. 在`Scala`中，`catch`子句没有参数，直接在语句内部使用**模式匹配**进行异常捕获。  
+		如下所示：
+
+		```scala
+		try {
+			...
+		} catch {
+			case ex: Exception1 => ...
+			case ex: Exception2 => ...
+			... 
+		}
+		```
+
+		对应`Java`代码：
+
+		```java
+		try {
+			...
+		} catch (Exception1 ex) {
+			...
+		} catch (Exception2 ex) {
+			...
+		}
+		```
+
+	1. 单条`try`语句可省略花括号，`try`语句可不带有`case`、`finally`单独存在。
+
+		如下所示：
+
+		```scala
+		scala> try 2333
+		<console>:12: warning: A try without a catch or finally is equivalent to putting its body in a block; no exceptions are handled.
+		       try 2333
+		       ^
+		res9: Int = 2333 //有警告，但正常执行
+		```
+
+	1. `Scala`中的`try ... catch ... finally ...`语句具有返回值。
+
+		使用返回值时，需要保证`try`语句以及`catch`子句中的每一个`case`拥有相同的返回值类型。  
+		`finally`子句不做为返回值，也不影响返回值类型的推导。  
+		如下所示：
+
+		```scala
+		scala> try 2333
+		res9: Int = 2333 //try语句返回值
+
+		scala> try 2333 catch { case _ => 666 }
+		res10: Int = 2333 //try与case返回值类型相同时，正确推导出整条语句的返回值类型
+
+		scala> try 2333 catch { case _ => "666" }
+		res11: Any = 2333 //try与case返回值类型不同时，结果类型推导为Any
+
+		scala> try 2333 catch { case _ => 666 } finally "666"
+		res12: Int = 2333 //finally语句不影响try表达式结果类型
+		```
+
+
+
 ## *Package* (包)
 `Scala`中的包用法基本与`Java`类似：
 
@@ -2714,7 +2807,7 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 `Scala`中使用`_`符号表示导入该路径下的所有包和成员：
 
 ```scala
-import java.awt._	//等价于java中的 import java.awt.*
+import java.awt._ //等价于java中的 import java.awt.*
 ```
 
 导入路径规则与`Java`中的类似，处于同一级包路径下的类可以直接使用不必导入。
