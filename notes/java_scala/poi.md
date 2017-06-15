@@ -187,6 +187,7 @@ public class XWPFTableRow {
 	public XWPFTableCell createCell(); //创建新的单元格
 	public XWPFTableCell getCell(int pos); //获取指定单元格
 	public void removeCell(int pos); //移除指定单元格
+	public List<XWPFTableCell> getTableCells(); //获取所有单元格
 	...
 }
 ```
@@ -202,5 +203,116 @@ public class XWPFTableCell implements IBody, ICell {
 	public void setText(String text); //设置单元格文本
 	public String getText(); //获取单元格文本
 	...
+}
+```
+
+从`XWPFTable`中通过索引获取行列时需要注意，行列序号均为从`0`开始(类似**数组下标**)。
+
+### 向文档中插入图片
+到目前版本为止(`POI 3.16`)，向`Word 2007`文档中插入图片的功能实现存在`BUG`。  
+使用`XWPFRun`提供的`addPicture()`方法插入图片时，并未在文档中正确地生成图片的相关`XML`。
+
+要使图片插入功能正常使用，需要自行实现图片插入相关逻辑。
+以`Implicit Class`形式扩展`XWPFDocument`类，添加图片插入功能，如下所示：
+
+```scala
+import org.apache.xmlbeans.XmlToken
+import org.apache.poi.xwpf.usermodel.{ParagraphAlignment, XWPFDocument}
+
+/**
+  * 为 XWPFDocument 类提供额外的功能：向文档中添加图片
+  *
+  * @param doc 需要被隐式转换的 XWPFDocument 实例
+  */
+implicit class XwpfDocumentUtils(doc: XWPFDocument) {
+
+  private[this] val Emu = 9525
+
+  /**
+    * 向文档中添加图片
+    *
+    * @param pictureId  资源Id
+    * @param pictureNum 图片编号
+    * @param width      图片宽
+    * @param height     图片高
+    */
+  def addPicture(pictureId: String, pictureNum: Int, width: Int, height: Int) {
+
+    val (w, h) = (width * Emu, height * Emu)
+    val paragraph = doc.createParagraph()
+    paragraph.setAlignment(ParagraphAlignment.CENTER)
+
+    val inline = paragraph.createRun().getCTR.addNewDrawing().addNewInline()
+    val pictureXml =
+      s"""|<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+          |  <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+          |    <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+          |       <pic:nvPicPr>
+          |         <pic:cNvPr id="$pictureNum" name="Generated"/><pic:cNvPicPr/>
+          |       </pic:nvPicPr>
+          |       <pic:blipFill>
+          |         <a:blip r:embed="$pictureId" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
+          |         <a:stretch><a:fillRect/></a:stretch>
+          |       </pic:blipFill>
+          |       <pic:spPr>
+          |         <a:xfrm>
+          |           <a:off x="0" y="0"/>
+          |           <a:ext cx="$w" cy="$h"/>
+          |         </a:xfrm>
+          |         <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+          |       </pic:spPr>
+          |     </pic:pic>
+          |  </a:graphicData>
+          |</a:graphic>
+          |""".stripMargin
+
+    inline.set(XmlToken.Factory.parse(pictureXml))
+    inline.setDistT(0)
+    inline.setDistB(0)
+    inline.setDistL(0)
+    inline.setDistR(0)
+
+    val extent = inline.addNewExtent()
+    extent.setCx(w)
+    extent.setCy(h)
+
+    val docPr = inline.addNewDocPr()
+    docPr.setId(pictureNum)
+    docPr.setName(s"Picture $pictureNum")
+    docPr.setDescr("Generated")
+
+  }
+
+}
+```
+
+调用图片插入功能的完整代码，如下所示：
+
+```scala
+import org.apache.poi.sl.usermodel.PictureData.PictureType
+
+import javax.imageio.ImageIO
+import scala.reflect.io.File
+
+object Main extends App {
+
+  val doc = new XWPFDocument
+  val picture = File("测试图片.png")
+
+  // 调用隐式方法，添加图片数据，获取图片资源id
+  val id = doc.addPictureData(picture.inputStream, PictureType.PNG.nativeId) 
+  // 获取图片信息
+  val imageIO = ImageIO.read(picture.inputStream)
+
+  // 生成图片XML
+  doc.addPicture(id,
+    doc.getNextPicNameNumber(PictureType.PNG.nativeId),
+    imageIO.getWidth, imageIO.getHeight) //通过ImageIO类型获取图片大小
+
+  // 文档写入硬盘
+  val out = File("测试输出文档.docx").outputStream()
+  doc.write(out)
+  out.close()
+
 }
 ```
