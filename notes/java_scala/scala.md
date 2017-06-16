@@ -1745,19 +1745,26 @@ object Main extends App {
   class Language(val name: String)
 
   class Cpp extends Language("C++")
+  class CSharp extends Language("C#")
+  class Haskell extends Language("Haskell")
   class Scala(val scala: String = "Scala is best!") extends Language("Scala")
   class Java extends Language("Java")
 
   def typeMatch(lang: Any) = lang match {
     case s: Scala => println(s.scala)
+    case _: CSharp | _: Cpp => println("Match C# or CPP!") //匹配多种类型
     case l: Language => println(s"Other language: ${l.name}")
     case _ => println("No match!")
   }
 
   typeMatch(new Scala)
-  typeMatch(new Java)
   typeMatch(new Cpp)
+  typeMatch(new CSharp)
+  typeMatch(new Haskell)
+  typeMatch(new Java)
   typeMatch(null)
+
+  }
 
 }
 ```
@@ -1766,8 +1773,10 @@ object Main extends App {
 
 ```
 Scala is best!
+Match C# or CPP!
+Match C# or CPP!
+Other language: Haskell
 Other language: Java
-Other language: C++
 No match!
 ```
 
@@ -2330,7 +2339,8 @@ res0: Int = 1
 
 ### *ArrayBuffer* (变长数组)
 在Scala中，变长数组使用`ArrayBuffer[T]`，完整路径`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。  
-Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素，创建一个`ArrayBuffer`：
+Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素。  
+创建`ArrayBuffer`：
 
 ```scala
 scala> val arrayBuffer = new ArrayBuffer[Int]
@@ -2471,25 +2481,6 @@ scala> set = set + 4
 <console>:12: error: reassignment to val
        set = set + 4
            ^
-```
-
-使用`contains()`方法可以判断某个元素是否在集合中：
-
-```scala
-scala> set.contains('s')
-res2: Boolean = true
-```
-
-使用`find()`方法可以传入一个高阶函数`T => Boolean`自定义规则进行查找。  
-`find()`方法返回`Option[T]`，如下所示：
-
-```scala
-scala> var set = Set(1, 2, 3, 's', "str")
-set: scala.collection.immutable.Set[Any] = Set(s, 1, 2, str, 3)
-scala> set.find(_.isInstanceOf[Int])
-res7: Option[Any] = Some(1) //返回第一个匹配到的元素
-scala> set.find(_.isInstanceOf[Double])
-res8: Option[Any] = None //没有匹配则返回None
 ```
 
 `scala.collection.immutable.Set`以哈希集实现，元素依据HashCode进行组织。
@@ -2792,6 +2783,101 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 		scala> try 2333 catch { case _ => 666 } finally "666"
 		res12: Int = 2333 //finally语句不影响try表达式结果类型
 		```
+
+### *scala.util.Try[T]*
+从`Scala 2.10`开始，标准库中提供了`scala.util.Try[T]`类型对异常处理操作的抽象。  
+`Try`类型的伴生对象中提供了接收传名参数的`apply()`方法，用于构建`Try`类型实例：
+
+```scala
+object Try {
+  def apply[T](r: => T): Try[T] = ...
+}
+```
+
+使用`Try`与普通的异常处理类似，将可能触发异常的语句包含在`Try`代码块中：
+
+```scala
+Try {
+  ... //可能抛出异常的代码
+}
+```
+
+泛型参数`T`即为代码块的返回值类型。
+
+与`Option`类型的设计类似，`Try`类型拥有子类：
+
+- `scala.util.Success[T]` 表示代码正常执行完毕，包含正常执行的结果
+- `scala.util.Failure[T]` 表示代码执行中触发了异常，包含异常信息
+
+`Try`类型也提供了与`Option`类型相似的高阶函数，常用方法定义如下：
+
+```scala
+sealed abstract class Try[+T] extends Product with Serializable {
+  ...
+  def get: T //获取语句块的执行结果
+  def getOrElse[U >: T](default: => U): U //语句执行失败时使用给定的默认值做为返回结果
+  def foreach[U](f: T => U): Unit //语句执行成功时执行函数f，否则不进行操作
+  def map[U](f: T => U): Try[U] //以上一个操作的执行结果为入参执行下一个操作，同样返回Try类型
+  def fold[U](fa: Throwable => U, fb: T => U): U
+  ...
+}
+```
+
+使用`get`方法获取`Try`语句块的执行结果：
+
+```scala
+scala> Try { 123 } get
+res5: Int = 123
+```
+
+若`Try`语句块触发了异常，则使用`get`方法获取执行结果同样抛出异常：
+
+```scala
+scala> Try { "Dainslef".toInt } get
+java.lang.NumberFormatException: For input string: "Dainslef"
+  at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
+  at java.lang.Integer.parseInt(Integer.java:580)
+  at java.lang.Integer.parseInt(Integer.java:615)
+  at scala.collection.immutable.StringLike.toInt(StringLike.scala:301)
+  at scala.collection.immutable.StringLike.toInt$(StringLike.scala:301)
+  at scala.collection.immutable.StringOps.toInt(StringOps.scala:29)
+  at .$anonfun$res6$1(<console>:13)
+  at scala.runtime.java8.JFunction0$mcI$sp.apply(JFunction0$mcI$sp.java:12)
+  at scala.util.Try$.apply(Try.scala:209)
+  ... 29 elided
+```
+
+可以使用`getOrElse()`方法在触发异常时提供默认值：
+
+```scala
+scala> Try { "Dainslef".toInt } getOrElse 233
+res3: Int = 233
+```
+
+使用`foreach()`高阶函数在`Try`语句块执行成功时执行操作：
+
+```scala
+scala> Try { 123 } foreach println
+123
+```
+
+在`Try`语句块执行失败时`foreach()`高阶函数不执行：
+
+```scala
+scala> Try { "Dainslef".toInt } foreach println //无输出
+
+```
+
+`fold()`高阶函数用法与`Option`类型类似，在`Try`语句块成功是执行成功表达式并输出返回结果，在`Try`语句块失败时执行失败表达式并返回结果，两类表达式返回结果类型需要相同。  
+如下所示：
+
+```scala
+scala> Try { "Dainslef".toInt } fold (_ => "Failed", _ => "Success")
+res10: String = Failed //执行失败
+
+scala> Try { "Dainslef" } fold (_ => "Failed", _ => "Success")
+res11: String = Success //执行成功
+```
 
 
 
