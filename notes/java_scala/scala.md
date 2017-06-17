@@ -647,9 +647,6 @@ package TestCode {
 ### 字段
 Scala类中的字段不仅仅是定义了一个成员变量，编译器生成字节码时可能会自动为字段生成与字段同名的`getter`和`setter`方法。
 
-- `var`关键字定义的字段编译器会同时为其生成`setter`和`getter`方法。
-- `val`关键字定义的字段编译器会为其生成`getter`方法。
-
 如下所示：
 
 ```scala
@@ -677,8 +674,10 @@ public class Test {
 生成`setter/getter`方法遵循以下规则：
 
 - `val`关键字定义的字段为**只读**字断，编译器只生成`getter`方法，不生成`setter`方法。
-- 若访问权限为`private[this]`，则编译器不会为其合成`setter`和`getter`方法(`protected[this]`和`private`访问权限正常生成`setter/getter`方法)。
-- 若定义了字段没有对其进行初始化，则该字段即为**抽象字段**，带有抽象字段的类前需要加上`abstract`关键字，且不能被直接实例化。
+- 若访问权限为`private[this]`，则编译器不会为其合成`setter`和`getter`方法，  
+	但`protected[this]`和`private`访问权限正常生成`setter/getter`方法。
+- 若定义了字段没有对其进行初始化，则该字段即为**抽象字段**。  
+	带有抽象字段的类前需要加上`abstract`关键字，且不能被直接实例化。
 - 重写抽象字段不需要使用`override`关键字。
 
 如下所示：
@@ -712,7 +711,7 @@ class Override {
   // 常用的私有变量自定义setter/getter风格是私有字段名前加上下划线
   private[this] var _abc = 0
   def abc = _abc
-  def abc_=(abc: Int): Unit = _abc = abc
+  def abc_=(abc: Int) = _abc = abc
   /*
     也可以写成：
     def abc_=(abc: Int) { _abc = abc }
@@ -722,8 +721,9 @@ class Override {
 
 在Scala中，字段名称可以与方法名称**相同**。
 
-- 默认情况下，生成的`setter`、`getter`方法就与字段同名，手动在代码中创建与`setter`、`getter`签名相同的方法会导致编译错误。
-- 访问权限为`private[this]`时编译器不合成默认的`getter`、`setter`方法时可以手动定义`setter`、`getter`方法。
+- 默认情况下，生成的`setter/getter`方法就与字段同名。  
+	手动在代码中创建与`setter/getter`签名相同的方法会导致编译错误。
+- 访问权限为`private[this]`的字段可以手动定义该字段的`setter/getter`方法(编译器不自动合成)。
 - 在实际编码过程中，虽然给`private[this]`的字段定义同名的`setter`、`getter`方法不会报错，但调用过程中会提示错误(如上例子中给num字段赋值会得到错误`reassignment to val`，因此不要手动给字段定义同名的`setter`、`getter`方法)。
 
 此外，由于字段名称可以与方法名称相同，因而即使编译器生成了`setter`、`getter`方法，编码者依然可以使用字段名称定义其它签名的重载函数。
@@ -1012,9 +1012,8 @@ Scala作为OOP语言，支持多态。
 
 - 重写
 
-	子类重写父类的非抽象方法时，需要显式地在方法定义前加上`override`关键字，否则无法通过编译。  
-	实现抽象方法则不需要。
-
+	子类重写父类的非抽象方法、字段时，需要显式地在方法定义前加上`override`关键字，否则无法通过编译。  
+	实现抽象方法则不需要。  
 	重写遵循以下规则：
 
 	- `def`只能重写另一个`def`。
@@ -1023,7 +1022,8 @@ Scala作为OOP语言，支持多态。
 
 - 重载
 
-	Scala支持函数重载，并且可以使用**操作符**作为函数名，使用操作符作为函数名可以达到类似**C++**中**操作符重载**的效果。
+	`Scala`支持方法重载，签名不同名称相同的方法可以共存。
+	`Scala`可以使用**操作符**作为方法名称，可以实现类似**C++/C#**中**操作符重载**的效果。
 
 ### 伴生对象
 `Scala`中没有`static`关键字，也没有**静态成员**的概念，`Scala`使用**单例对象**来达到近似静态成员的作用。
@@ -1383,7 +1383,7 @@ Scala中的`trait`特质对应Java中的`interface`接口。
 	  def get = 789
 	}
 
-	trait TraitC extends TraitA {
+	trait TraitC extends TraitB {
 	  override def get = 111
 	}
 
@@ -1486,10 +1486,11 @@ Num 100
 在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
 
 ### 基础类型
-在`Scala`中，基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生，可以直接在泛型中直接使用这些类作为类型参数。  
+基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生。  
+可以直接在泛型中直接使用这些类作为类型参数。  
 同时，`Scala`中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
 
-在Scala中，所有的基础类型之外的引用类型派生自类`AnyRef`。
+所有的基础类型之外的引用类型派生自类`AnyRef`。
 
 - 基础类型转换
 
@@ -1502,12 +1503,34 @@ Num 100
 	```
 
 ### *Bottom* (底类型)
-与Java不同，Scala中存在底类型(bottom)。底类型包括`Nothing`和`Null`。
+`Scala`中存在底类型(`Bottom Type`)。底类型包括`Nothing`和`Null`。
 
-- `Nothing`是所有类型`Any`的子类型，定义为`final trait Nothing extends Any`。
-- `Nothing`特质没有实例。
-- `Null`是所有引用类型`AnyRef`的子类型，定义为`final trait Null extends AnyRef`。
-- `Null`特质拥有唯一实例`null`(类似于Java中`null`的作用)。
+- `Nothing`
+
+	`Nothing`是所有类型的子类型，定义为`final trait Nothing extends Any`。  
+	`Nothing`特质没有实例。
+
+	一些特殊的操作返回类型为`Nothing`，如抛出异常：
+
+	```scala
+	scala> def e = throw new Exception
+	e: Nothing
+	```
+	
+	`Nothing`做为返回类型能协助更精确地进行类型推导。  
+	例如，在`if`语句中抛出异常：
+
+	```scala
+	scala> def num(n: Int) = if (n > 0) n else throw new Exception
+	num: (n: Int)Int
+	```
+
+	抛出异常的语句返回值类型为`Nothing`，是任意类型的子类(也是`Int`的子类)，整条语句返回值类型被推导为`Int`。
+
+- `Null`
+
+	`Null`是所有引用类型`AnyRef`的子类型。  
+	`Null`特质拥有唯一实例`null`(类似于`Java`中`null`的作用)。
 
 ### *Option* (可空类型)
 `Option[T]`表示可空类型，`Option[T]`包含两个子类：
