@@ -1,37 +1,62 @@
 [TOC]
 
 ## *Scala* 开发环境
-在**Linux/Unix**环境下，无需额外的Scala配置，只需从对应发行版的包管理器中直接安装Scala开发包即可。
+`Scala`是基于`JVM`的编程语言，配置`Scala`开发环境前需要正确安装与配置`JDK`。
 
-在**Windows**环境下，从**Scala官网**下载`Scala SDK`，解压到指定位置，新建环境变量`SCALA_HOME`，环境变量的值即为Scala的解压位置，然后将`%SCALA_HOME%\bin`加入**PATH**环境变量中。
+- **Linux/Unix**系统：
+
+	使用发行版自带的包管理器安装`Scala`。
+
+	`Debian`系发行版
+
+	```
+	# apt install scala
+	```
+
+	`Arch`系发行版
+
+	```
+	# pacman -S scala
+	```
+
+- **Windows**系统：
+
+	1. 安装`Oracle JDK`。
+	1. 从`http://www.scala-lang.org/files/archive/`下载`Scala SDK`。
+	1. 设置环境变量`SCALA_HOME`。
+	1. 将`%SCALA_HOME%\bin`加入`PATH`环境变量中。
 
 ### 使用 *Vim*
-vim默认不支持Scala的语法高亮，可以使用**Derek Wyatt**开发的`vim-scala`插件，代码托管在**GitHub**上，项目主页是：
+`Vim`默认不支持`Scala`语法高亮，可以使用`Derek Wyatt`开发的`vim-scala`插件，代码托管在`GitHub`上，项目主页是：
 
-`https://github.com/derekwyatt/vim-scala`
+```
+https://github.com/derekwyatt/vim-scala
+```
 
-可以使用**Vundle**来安装此插件，在配置文件`.vimrc`中添加：
+使用**Vundle**安装此插件，在配置文件`.vimrc`中添加：
 
 ```vim
 Plugin 'derekwyatt/vim-scala'
 ```
 
 ### 使用 *Eclipse*
-安装`Scala IDE`插件即可。
+安装`Scala IDE`插件。
+
+### 使用 *IDEA*
+安装`JetBrains`官方提供的`Scala`插件。
 
 ### *Scala* 编译工具
 与编译Java代码类似，编译Scala代码使用`scalac`命令：
 
 ```
-$ scalac [*.scala]
+$ scalac *.scala
 ```
 
-编译后即可得到字节码文件*.class。
-
+编译后即可得到字节码文件`*.class`。  
 执行字节码可以使用`scala`指令：
 
 ```
-$ scala [主类名]
+$ scala 主类类名
 ```
 
 对于使用了`包(package)`的源码，在用`scalac`指令进行编译时，编译器会自动根据包路径创建对应的目录，然后在对应的包路径下生成对应的class文件。
@@ -39,7 +64,7 @@ $ scala [主类名]
 运行带有包路径的字节码需要在包路径的相对根目录下，执行：
 
 ```
-$ scala [包路径].[主类名]
+$ scala 包路径.主类名
 ```
 
 虽然Scala是基于`JVM`的语言，但`scalac`编译得到的字节码直接由`java`命令执行会出现错误。  
@@ -49,33 +74,33 @@ $ scala [包路径].[主类名]
 使用`scalap`可以反编译字节码得到Scala代码：
 
 ```
-$ scalap [*.class]
+$ scalap *.class
 ```
 
 或者
 
 ```
-$ scalap [类名]
+$ scalap 类名
 ```
 
 如果需要查看字节码的对应生成的Java代码，可以使用`javap`工具：
 
 ```
-$ javap [类名]
+$ javap 类名
 ```
 
 使用`javap`可以直接查看生成的字节码：
 
 ```
-$ javap -c [类名]
+$ javap -c 类名
 ```
 
 默认情况下，通过反编译得到的Scala以及Java代码只能看到公有方法的声明，方法实现以及私有、保护成员均**不可见**。  
 查看所有成员需要添加`-p/-private`参数：
 
 ```
-$ javap -private [类名]
-$ scalap -private [类名]
+$ javap -private 类名
+$ scalap -private 类名
 ```
 
 ### *Scala REPL*
@@ -347,11 +372,11 @@ object Main extends App {
 var functionName: FuncType = 符合签名的方法/函数/Lambda
 ```
 
-Scala中的函数类型为`Function`，根据参数数目的不同，
+Scala中的函数类型为`Function*`，根据参数数目的不同，
 Scala中提供了`Function0[+R]`(无参数)到`Function22[-T1, ..., -T22, +R]`共**23**种函数类型，
-即Scala中的函数，最多可以拥有**22**个参数。
+即函数最多可以拥有**22**个参数。
 
-Scala中的函数类型`(A, B, C, ...) => D`形式的语法实际是`Function`类型的语法糖，例如：
+函数类型`(A, B, C, ...) => D`形式的语法实际是`Function`类型的语法糖，例如：
 
 - 类型`() => String`实际类型为`Function0[String]`。
 - 类型`Int => String`实际类型为`Function1[Int, String]`。
@@ -1357,11 +1382,52 @@ Scala中的`trait`特质对应Java中的`interface`接口。
 
 	对于混入的内容，按照以下顺序进行构造：
 
-	1. 首先构造父类。
+	1. 按继承树依次从最外层的父类开始构造。
 	1. 按照特质出现的顺序从左往右依次构造特质。
 	1. 在一个特质中，若该特质存在父特质，则先构造父特质。  
 		若多个特质拥有相同的父特质，该父特质不会被重复构造。
-	1. 最后构造子类。
+	1. 最后构造当前类。
+
+	如下所示：
+
+	```scala
+	class ClassBase {
+	  println("ClassBase")
+	}
+
+	class ClassChild extends ClassBase {
+	  println("ClassChild")
+	}
+
+	trait TraitBase {
+	  println("TraitBase")
+	}
+
+	trait TraitA extends TraitBase {
+	  println("TraitA")
+	}
+
+	trait TraitB extends TraitA {
+	  println("TraitB")
+	}
+
+	class Main extends App {
+	  new ClassChild with TraitA with TraitB {
+	    println("Now") //当前特质最后进行构造
+	  }
+	}
+	``
+
+	输出结果：
+
+	```
+	ClassBase
+	ClassChild
+	TraitBase
+	TraitA
+	TraitB
+	Now
+	```
 
 - 线性化顺序
 
@@ -1391,6 +1457,75 @@ Scala中的`trait`特质对应Java中的`interface`接口。
 	  override def get = super.get //使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
 	  //override def get = super[BaseA].get //也可以使用继承自其它特质或类的实现
 	  //override def get = super[TraitB].get //错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
+	}
+	```
+
+- 线性化与`override`
+
+	在重写抽象字段时，是否使用`override`关键字在混入时行为存在差异。  
+	如下所示：
+
+	```scala
+	trait Name {
+	  def name: String
+	}
+
+	trait NameA extends Name {
+	  def name = "A"
+	}
+
+	trait NameB extends Name {
+	  def name = "B"
+	}
+
+	object Main extends App {
+	  new NameA extends NameB //编译出错
+	}
+	```
+
+	混入两个重写了同一个抽象方法/字段的特质时，若未使用`override`关键字，则混入时编译出错，需要显式重写冲突内容。
+	
+	若特质使用了`override`关键字进行重写，则混入时依据线性化顺序决定最终的实现(保留最后混入的实现)。
+	如下所示：
+
+	```scala
+	trait Name {
+	  def name: String
+	}
+
+	trait NameA extends Name {
+	  override def name = "A"
+	}
+
+	trait NameB extends Name {
+	  override def name = "B"
+	}
+
+	object Main extends App {
+	  (new NameA extends NameB).name //返回 "B"
+	  (new NameB extends NameA).name //返回 "A"
+	}
+	```
+
+	混入多个存在冲突内容的特质时，不需要所有的特质都使用`override`关键字进行重写，仅需要最后一个混入的特质使用`override`重写冲突内容。  
+	如下所示：
+
+	```scala
+	trait Name {
+	  def name: String
+	}
+
+	trait NameA extends Name {
+	  def name = "A"
+	}
+
+	trait NameB extends Name {
+	  override def name = "B"
+	}
+
+	object Main extends App {
+	  (new NameA extends NameB).name //返回 "B"
+	  (new NameB extends NameA).name //编译出错
 	}
 	```
 
