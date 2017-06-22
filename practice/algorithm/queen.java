@@ -1,18 +1,12 @@
-/*
- * 代码完成时间： 2014-12-19 23:51 AM
- * 单数组方式实现八皇后问题
- * java语言实现
- */
-
-
 /**
- *
+ * 单数组方式实现八皇后问题
+ * Java语言实现
  * @author dainslef
  */
 
 public class queen {
 
-	static class Queen
+	class Queen
 	{
 		private final int QUEEN_SIZE = 8;
 		private int count = 0;

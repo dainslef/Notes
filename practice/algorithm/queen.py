@@ -1,7 +1,6 @@
 '''
-	代码完成时间： 2014-12-19 01:38 AM
 	单数组方式实现八皇后问题
-	采用python3语言实现
+	Python3实现
 	@author dainslef
 '''
 
@@ -10,7 +9,7 @@
 QUEEN_SIZE = 8
 
 count = 0
-chessBoard = list(range(QUEEN_SIZE))        # Python3中range()函数返回的是迭代对象，需要显式地进行类型转换才能得到列表
+chessBoard = list(range(QUEEN_SIZE)) # Python3中range()函数返回的是迭代对象，需要显式地进行类型转换才能得到列表
 
 def show():
     for i in range(QUEEN_SIZE):
@@ -27,7 +26,7 @@ def find(row, line):
 
 def queen(row):
     if row == QUEEN_SIZE:
-        global count        # 使用global关键字声明全局变量
+        global count # 使用global关键字声明全局变量
         count += 1
         print("\n找到了第" + str(count) + "种解法：")
         show()

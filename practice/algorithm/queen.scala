@@ -1,12 +1,6 @@
-/*
- * 代码完成时间： 2016-6-17 17:29
- * 单数组方式实现八皇后问题
- * Scala语言版本，单数组Lambda内部递归实现
- */
-
-
 /**
- *
+ * 单数组方式实现八皇后问题
+ * Scala版本，单数组Lambda内部递归实现
  * @author dainslef
  */
 
@@ -24,7 +18,7 @@ object Queen extends App {
   import java.lang.Math.abs
 
   // 使用Lambda内部自递归
-  ((x: Self) => x(x)) ((queen: Self) =>
+  ((x: Self) => x(x))((queen: Self) =>
     (row: Int) =>
       if (row == QUEEN_SIZE) {
         count += 1
