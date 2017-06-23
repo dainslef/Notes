@@ -286,10 +286,11 @@ implicit class XwpfDocumentUtils(doc: XWPFDocument) {
 }
 ```
 
-调用图片插入功能的完整代码，如下所示：
+调用图片插入功能的完整示例代码，如下所示：
 
 ```scala
 import org.apache.poi.sl.usermodel.PictureData.PictureType
+import org.apache.poi.xwpf.usermodel.XWPFDocument
 
 import javax.imageio.ImageIO
 import scala.reflect.io.File
@@ -316,3 +317,78 @@ object Main extends App {
 
 }
 ```
+
+### 设置表格单元格的对齐方式
+`POI`没有提供设置`XWPFTableCell`内部对齐方式的用户层接口。  
+实现单元格居中功能需要使用`Schemas`相关底层接口。  
+涉及的`Schemas`相关类型包路径为`org.openxmlformats.schemas.wordprocessingml.x2006.main`。
+
+以`Implicit Class`形式扩展`XWPFTable`类，添加单元格对齐功能，如下所示：
+
+```scala
+import org.apache.poi.xwpf.usermodel.XWPFTable
+import org.openxmlformats.schemas.wordprocessingml.x2006.main._
+
+/**
+  * 为 XWPFTable 类提供额外的功能：
+  * 1. 设置单元格水平对齐方式
+  * 2. 设置单元格垂直对齐方式
+  *
+  * @param table 需要被隐式转换的 XWPFTable 实例
+  */
+implicit class XWPFTableUtils(table: XWPFTable) {
+
+  /**
+    * 设置所有单元格内部文本的水平方向对齐方式
+    *
+    * @param align 对齐方式
+    */
+  def setCellsHorizontalAlign(align: STJc.Enum) = for {
+    row <- 0 until table.getRows.size
+    cell <- 0 until table.getRow(row).getTableCells.size
+  } table.getRow(row).getCell(cell).getCTTc.getPList().forEach {
+    _.addNewPPr().addNewJc().setVal(align)
+  }
+
+  /**
+    * 设置所有单元格内部的垂直方向对齐方式
+    *
+    * @param align 对齐方式
+    */
+  def setCellsVerticalAlign(align: STVerticalJc.Enum) = for {
+    row <- 0 until table.getRows.size
+    cell <- 0 until table.getRow(row).getTableCells.size
+  } table.getRow(row).getCell(cell).getCTTc.addNewTcPr().addNewVAlign().setVal(align)
+
+}
+```
+
+默认情况下，`CTTc`实例调用`getPList()`方法会可能会抛出异常：
+
+```
+java.lang.NoClassDefFoundError: org/openxmlformats/schemas/wordprocessingml/x2006/main/impl/CTTcImpl$1PList
+```
+
+需要添加`ooxml-schemas`依赖。
+
+
+
+## 常见问题
+包含`POI`使用中的一些问题的解决方案。
+
+### *Schemas* 类型缺失
+在使用部分`Schemas`相关类型、方法时出现异常：
+
+```
+java.lang.NoClassDefFoundError: org/openxmlformats/schemas/...
+```
+
+该异常是由于缺少`Schemas`相关类型的`JAR`包造成的，需要在`build.sbt`中添加：
+
+```scala
+"org.apache.poi" % "ooxml-schemas" % "版本号"
+```
+
+对于多数此类型的异常，都是由于`Schemas`相关类型缺失造成的。  
+默认依赖的`poi-ooxml-schemas`体积较小，并不包含完整的`Schemas`类型，
+需要使用完整的`Schemas`相关类型时，需要依赖体积较大的`ooxml-schemas`包。
