@@ -318,12 +318,59 @@ object Main extends App {
 }
 ```
 
+### 设置表格宽度
+`XWPFTable`类型提供了用于设置表格宽度的`setWidth()`方法，但该方法无效。  
+`POI 3.16`中`XWPFTable`类型的`setWidth()`方法源码如下所示：
+
+```java
+public class XWPFTable implements IBodyElement, ISDTContents {
+	...
+	public void setWidth(int width) {
+		CTTblPr tblPr = getTrPr();
+		CTTblWidth tblWidth = tblPr.isSetTblW() ? tblPr.getTblW() : tblPr.addNewTblW();
+		tblWidth.setW(new BigInteger("" + width));
+	}
+	...
+}
+```
+
+原因是`CTTblWidth`实例需要使用`setType()`将宽度样式设置为`STTblWidth.DXA`才能使设置的宽度值生效。
+
+以`Implicit Class`形式扩展`XWPFTable`类，自行实现设置表格宽度功能，如下所示：
+
+```scala
+import java.math.BigInteger
+
+import org.apache.poi.xwpf.usermodel.XWPFTable
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth
+
+/**
+  * 为 XWPFTable 类提供额外的功能： 设置表格宽度
+  *
+  * @param table 需要被隐式转换的 XWPFTable 实例
+  */
+implicit class XWPFTableUtils(table: XWPFTable) {
+
+  /**
+    * 设置表格宽度
+    *
+    * @param width 宽度
+    */
+  def setTableWidth(width: Int) {
+    val cTTblWidth = table.getCTTbl.getTblPr.addNewTblW()
+    cTTblWidth.setW(BigInteger.valueOf(width))
+    cTTblWidth.setType(STTblWidth.DXA) //宽度类型
+  }
+
+}
+```
+
 ### 设置表格单元格的对齐方式
 `POI`没有提供设置`XWPFTableCell`内部对齐方式的用户层接口。  
 实现单元格居中功能需要使用`Schemas`相关底层接口。  
 涉及的`Schemas`相关类型包路径为`org.openxmlformats.schemas.wordprocessingml.x2006.main`。
 
-以`Implicit Class`形式扩展`XWPFTable`类，添加单元格对齐功能，如下所示：
+以`Implicit Class`形式扩展`XWPFTable`类，自行实现单元格对齐功能，如下所示：
 
 ```scala
 import org.apache.poi.xwpf.usermodel.XWPFTable
