@@ -1,4 +1,99 @@
-[TOC]
+<!-- TOC -->
+
+- [*Scala* 开发环境](#scala-开发环境)
+	- [使用 *Vim*](#使用-vim)
+	- [使用 *Eclipse*](#使用-eclipse)
+	- [使用 *IDEA*](#使用-idea)
+	- [*Scala* 编译工具](#scala-编译工具)
+	- [反编译](#反编译)
+	- [*Scala REPL*](#scala-repl)
+- [Hello World](#hello-world)
+- [*Method* (方法)](#method-方法)
+	- [方法返回值](#方法返回值)
+	- [空参数方法与无参数方法](#空参数方法与无参数方法)
+	- [参数默认值](#参数默认值)
+- [*Function* (函数)](#function-函数)
+	- [函数组合](#函数组合)
+	- [*Partial Function* (偏函数)](#partial-function-偏函数)
+	- [*Partial Applied Function* (部分应用函数)](#partial-applied-function-部分应用函数)
+- [块表达式](#块表达式)
+	- [赋值表达式](#赋值表达式)
+- [*OOP*](#oop)
+	- [访问权限](#访问权限)
+	- [字段](#字段)
+	- [*Constructor* (构造器)](#constructor-构造器)
+	- [多态](#多态)
+	- [伴生对象](#伴生对象)
+	- [*apply()/update()* 方法](#applyupdate-方法)
+	- [*unapply()/unapplySeq()* 方法](#unapplyunapplyseq-方法)
+	- [*Case Class* (样例类)](#case-class-样例类)
+	- [*Trait* (特质)](#trait-特质)
+	- [复制类实例](#复制类实例)
+	- [匿名类初始化](#匿名类初始化)
+- [类型](#类型)
+	- [基础类型](#基础类型)
+	- [*Bottom* (底类型)](#bottom-底类型)
+	- [*Option* (可空类型)](#option-可空类型)
+- [*continue* 与 *break*](#continue-与-break)
+- [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
+	- [简单匹配](#简单匹配)
+	- [类型匹配](#类型匹配)
+- [*sealed* 和 *final* 关键字](#sealed-和-final-关键字)
+	- [*sealed* 用于模式匹配](#sealed-用于模式匹配)
+- [格式化输出](#格式化输出)
+	- [*StringLike.format()* 格式化输出](#stringlikeformat-格式化输出)
+	- [s字符串插值器](#s字符串插值器)
+	- [f字符串插值器](#f字符串插值器)
+	- [raw字符串插值器](#raw字符串插值器)
+- [终端输入](#终端输入)
+- [*Enumerate* (枚举)](#enumerate-枚举)
+	- [继承枚举类](#继承枚举类)
+	- [调用枚举类型](#调用枚举类型)
+	- [访问枚举内容](#访问枚举内容)
+- [基础数据结构](#基础数据结构)
+	- [定长数组](#定长数组)
+	- [*Tuple* (元组)](#tuple-元组)
+- [容器](#容器)
+	- [容器可变性](#容器可变性)
+	- [*List* (列表)](#list-列表)
+	- [*ArrayBuffer* (变长数组)](#arraybuffer-变长数组)
+	- [*Set* (集合)](#set-集合)
+	- [*Map* (映射)](#map-映射)
+	- [*GenTraversableLike*](#gentraversablelike)
+	- [集合有序性](#集合有序性)
+- [*Higher Order Function* (高阶函数)](#higher-order-function-高阶函数)
+- [*Generators* (生成器)](#generators-生成器)
+	- [使用高阶函数替代生成器](#使用高阶函数替代生成器)
+- [*Exception* (异常)](#exception-异常)
+	- [*scala.util.Try[T]*](#scalautiltryt)
+- [*Package* (包)](#package-包)
+	- [包与路径](#包与路径)
+	- [扩展用法](#扩展用法)
+	- [默认导入](#默认导入)
+	- [包对象](#包对象)
+- [*Implicit Conversions* (隐式转换)](#implicit-conversions-隐式转换)
+	- [定义隐式转换](#定义隐式转换)
+	- [隐式参数](#隐式参数)
+	- [隐式类](#隐式类)
+- [求值策略](#求值策略)
+	- [参数的求值策略](#参数的求值策略)
+	- [**&&**、**||** 运算符](#-运算符)
+- [并发编程](#并发编程)
+	- [*Future*](#future)
+	- [*Promise*](#promise)
+	- [*async/await*](#asyncawait)
+	- [*synchronized*](#synchronized)
+- [*XML* 解析](#xml-解析)
+	- [节点类型](#节点类型)
+	- [读写 XML 文件](#读写-xml-文件)
+	- [查找节点](#查找节点)
+	- [节点属性](#节点属性)
+	- [遍历节点](#遍历节点)
+	- [创建 XML](#创建-xml)
+
+<!-- /TOC -->
+
+
 
 ## *Scala* 开发环境
 `Scala`是基于`JVM`的编程语言，配置`Scala`开发环境前需要正确安装与配置`JDK`。
@@ -19,6 +114,12 @@
 	# pacman -S scala
 	```
 
+	`macOS`
+
+	```
+	$ brew install scala
+	```
+
 - **Windows**系统：
 
 	1. 安装`Oracle JDK`。
@@ -27,12 +128,7 @@
 	1. 将`%SCALA_HOME%\bin`加入`PATH`环境变量中。
 
 ### 使用 *Vim*
-`Vim`默认不支持`Scala`语法高亮，可以使用`Derek Wyatt`开发的`vim-scala`插件，代码托管在`GitHub`上，项目主页是：
-
-```
-https://github.com/derekwyatt/vim-scala
-```
-
+`Vim`默认不支持`Scala`语言，需要安装`vim-scala`插件提供`Scala`支持。  
 使用**Vundle**安装此插件，在配置文件`.vimrc`中添加：
 
 ```vim
@@ -66,9 +162,6 @@ $ scala 主类类名
 ```
 $ scala 包路径.主类名
 ```
-
-虽然Scala是基于`JVM`的语言，但`scalac`编译得到的字节码直接由`java`命令执行会出现错误。  
-虽然Scala并不强制要求类名要与文件名相同，但在部分IDE中，如果类名与文件名不同，构建项目会出现错误。
 
 ### 反编译
 使用`scalap`可以反编译字节码得到Scala代码：
@@ -112,50 +205,28 @@ scala> :quit //退出解释器
 scala> :reset //重置解释器的状态，会清空已保存的变量、类、方法等所有内容
 ```
 
-`Scala REPL`与`Python REPL`类似，可以直接将代码一行行地输入解释器，解释器会执行代码并给出反馈，对初学者而言是一个练习的好方法。
+`Scala REPL`与`Python REPL`类似，可以直接输入代码并立即获得反馈。
 
 
 
-## 基本语言特性
-相比`Java`、`C++`等语言，`Scala`融合了`OOP`、`FP`等编程范式，同时语法上更**灵活**。
-
-### 语法基础(概览)
-- 代码不强制要求分号，只有一行带有多个语句时才要求分号做为分隔符。
-- 使用`var/val`定义`变量/常量`。  
-	类型可以由编译器推导，也可以显式指定。  
-	在定义变量的同时就需要初始化变量，否则报错(抽象类中除外)。
-- 使用`def`关键字定义**方法**，`var/val`定义**函数**。
-- 所有类型皆为对象。  
-	基础类型如`Int`、`Double`等都是**类**。  
-	函数/方法返回值的空类型为`Unit`，相当于Java/C++中的`void`。
-- 可以使用操作符作为函数名，达到类似C++/C#中操作符重载的效果。
-- 类的成员字段可以与方法名称**相同**(无参、空参方法除外)。
-
-### 与传统语言的差异
-- 没有**自增/自减**操作符。
-- 没有原生enum类型，应继承枚举助手类`Enumeration`。
-- 没有`break`、`continue`关键字，但有相关的`Breaks`包提供类似功能。
-- 没有**三目运算符**，但`if`表达式带有**返回值**，可以实现类似效果。
-- 类成员权限默认共有，没有`public`关键字(有`private`和`protected`关键字)。
-
-### Hello World
-创建文件`Test.scala`，输入以下代码：
+## Hello World
+创建文件`Main.scala`，输入以下代码：
 
 ```scala
-object Test {
+object Main {
   def main(args: Array[String]) =
     println("Hello World!")
 }
 ```
 
-与Java类似，Scala也是从主方法`main`中开始执行整个程序。  
-Scala中的`main`方法并不定义在类中，而是定义在**单例对象**中(使用`object`关键字创建单例对象)。  
+与`Java`类似，`Scala`也是从主方法`main`中开始执行整个程序。  
+`Scala`中的`main`方法并不定义在类中，而是定义在**单例对象**中(使用`object`关键字创建单例对象)。  
 将`main`方法写在`class`中能够通过编译，但生成的字节码文件在执行时会出错。
 
 可以不手动定义`main`方法而让单例对象继承`App`特质，即可直接执行代码语句，例如：
 
 ```scala
-object Test extends App {
+object Main extends App {
   println("Hello World!")
 }
 ```
@@ -224,10 +295,10 @@ def num(num: Int): Int = {
 
 ```scala
 def getNum: Int = 100
-def getNum(): Int = 100 //以上两个定义作用相同，但只能存在一个
+def getNum(): Int = 100 //以上两个定义只能存在一个
 ```
 
-无参数方法与空参数方法只能存在一个，但二者在使用方式上略有不同：
+无参数方法与空参数方法只能存在一个，二者在使用方式上略有不同：
 
 - 无参方法在调用时只能直接使用方法名，在方法名后加上括号调用就会出错。
 - 空参方法既可以使用带有括号的方法调用方式，也可以省略括号。
@@ -252,20 +323,6 @@ res2: Int = 200
 ```
 
 同时，无参方法不能与已有字段名称相同(编译报错)，而空参方法允许带有同名的字段。
-
-在Scala中，赋值表达式的值返回值为`Unit`，而不是类似Java/C++中的以被赋值的变量做为表达式结果。  
-例如：
-
-```scala
-scala> var _num = 0
-_num: Int = 0
-scala> def testNum(num: Int): Int = _num = num		//由编译器推断出的返回值类型为Unit
-<console>:12: error: type mismatch;
-found   : Unit
-required: Int
-  def testNum(num: Int): Int = _num = num
-                                      ^
-```
 
 ### 参数默认值
 在Scala中，方法中的参数允许带有**默认值**：
@@ -625,23 +682,41 @@ test {
 }
 ```
 
+### 赋值表达式
+赋值表达式的值返回值为`Unit`(无返回值)。  
+如下所示：
+
+```scala
+scala> var _num = 0
+_num: Int = 0
+scala> def testNum(num: Int): Int = _num = num		//由编译器推断出的返回值类型为Unit
+<console>:12: error: type mismatch;
+found   : Unit
+required: Int
+  def testNum(num: Int): Int = _num = num
+                                      ^
+```
+
 
 
 ## *OOP*
 Scala是一门同时具有函数式与面向对象特性的**多重范式语言**，除了具有函数式特性外，对**OOP**也有着完整的支持。
 
-与`Java`不同，`Scala`中公有类的名称不强制要求与源码文件相同，同时一个文件中可以包含多个公有类的定义。
-
 ### 访问权限
-Scala中的成员和类、特质的默认访问权限即为**公有**，因而Scala中没有`public`关键字。
+`Scala`中没有`public`关键字，成员和类、特质的默认访问权限即为**公有**。  
+`Scala`中公有类的名称不强制要求与源码文件相同，同时一个文件中可以包含多个公有类的定义。
 
-Scala中的保护成员使用关键字`protected`，私有成员使用关键字`private`，作用大体上与Java相同，但Scala在访问权限上支持**更细粒度**的划分。
+保护成员使用关键字`protected`，私有成员使用关键字`private`，作用大体上与`Java`相同，但在访问权限上支持**更细粒度**的划分。
 
-- Scala的类定义、特质定义、单例对象定义前可以使用访问权限修饰，`private`和`protected`权限的类等仅限同一个包内访问。
-- Scala中的顶层类允许使用`protected`权限修饰(与Java不同，Java仅允许内部类使用`protected`修饰)。
-- Scala中的访问权限关键字用于类时，还可以写在类名与主构造器之间(特质、单例对象没有这种用法)，用于指定主构造器的访问权限。
+- **类、特质、单例对象**定义前可以使用访问权限修饰，`private`和`protected`权限的**类、单例、特质**等仅限同包内访问。
+- 顶层类允许使用`protected`权限修饰(与Java不同，Java仅允许内部类使用`protected`修饰)。
+- 访问权限关键字用于类时，还可以写在类名与主构造器之间(特质、单例对象没有这种用法)，用于指定主构造器的访问权限。
 - 访问级别关键字之后可以使用`[]`操作符设定更具体的访问区域限制。  
-访问区域限制可以是当前定义的类、当前定义类的外部类(若存在外部类)、包名(某个包内的所有类实例可访问)或是`this`关键字(仅当前实例可访问)。
+	访问区域限制可以是：
+	1. 当前类
+	1. 当前定义类的外部类(若存在外部类)
+	1. 当前类所属包名(包内的所有类实例可访问)
+	1. `this`关键字(仅当前实例可访问)
 - 访问权限关键字之后若不写明具体的访问限制区域，则默认限制为当前类可访问(与Java行为基本一致，但Java中的保护成员包内可见)。
 
 如下所示：
@@ -2812,7 +2887,7 @@ Mutable LinkedHashMap: Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5)
 
 
 ## *Generators* (生成器)
-`Scala`中同样提供了`yield`关键字，支持生成器语法。  
+`Scala`中同样提供了`yield`关键字，支持生成器语法(但不是惰性生成)。  
 使用`yield`可以将循环中每一轮的结果以容器的形式输出，使用`yeild`可以方便生成一系列的特定值。
 
 如下所示：

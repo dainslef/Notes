@@ -1,4 +1,24 @@
-[TOC]
+<!-- TOC -->
+
+- [*Swing* 简介](#swing-简介)
+	- [*Scala Swing*](#scala-swing)
+- [常用控件](#常用控件)
+	- [代码风格](#代码风格)
+- [*Border*](#border)
+	- [设置边框](#设置边框)
+	- [*BorderFactory*](#borderfactory)
+- [*JTextArea*](#jtextarea)
+- [*MessageBox*](#messagebox)
+- [事件机制](#事件机制)
+	- [*Java Swing* 事件机制](#java-swing-事件机制)
+	- [*Scala Swing* 事件机制](#scala-swing-事件机制)
+- [*MVC*](#mvc)
+	- [*ComboBox*](#combobox)
+	- [*JTable*](#jtable)
+
+<!-- /TOC -->
+
+
 
 ## *Swing* 简介
 `Swing`是`Java`平台下的传统`GUI`库。  
@@ -151,7 +171,7 @@ public void setBorder(Border border);
 
 
 ## *JTextArea*
-`JTextField`只能用来显示简单的**单行文本**，涉及到**多行文本**的复杂情况，需要使用到`JTextArea`控件：
+`JTextField`仅适用于显示简单的**单行文本**，涉及到**多行文本**时，应使用`JTextArea`控件：
 
 ```java
 JTextArea textArea = new JTextArea();
