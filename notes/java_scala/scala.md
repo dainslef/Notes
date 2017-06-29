@@ -48,8 +48,9 @@
 - [终端输入](#终端输入)
 - [*Enumerate* (枚举)](#enumerate-枚举)
 	- [继承枚举类](#继承枚举类)
-	- [调用枚举类型](#调用枚举类型)
 	- [访问枚举内容](#访问枚举内容)
+	- [调用枚举类型](#调用枚举类型)
+	- [限定枚举类型](#限定枚举类型)
 - [基础数据结构](#基础数据结构)
 	- [定长数组](#定长数组)
 	- [*Tuple* (元组)](#tuple-元组)
@@ -2286,35 +2287,6 @@ ID: 103, Str: White
 ID: 104, Str: Black
 ```
 
-### 调用枚举类型
-继承了枚举类的单例对象名并**不能**直接用于表示枚举类型。  
-对应的枚举类型应使用对象内部定义的抽象类型`Value`来表示，即`单例对象名称.Value`。
-
-以前文中的`Color`单例对象为例，对应的枚举类型应使用`Color.Value`表示。  
-将枚举做为参数传递，如下所示：
-
-```scala
-object Color extends Enumeration {
-  val Red, Green, Blue = Value
-  val White = Value(100, "white")
-  val Black = Value(200, "black")
-}
-
-object Main extends App {
-  // Xxx.Value才是真正的枚举类型
-  def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: $color")
-  showEnum(Color.blue)
-  showEnum(Color.white)
-}
-```
-
-输出结果：
-
-```
-ID: 2, Str: Blue
-ID: 100, Str: white
-```
-
 ### 访问枚举内容
 枚举单例支持以多种形式访问：
 
@@ -2368,6 +2340,99 @@ ID: 1, Str: Green
 ID: 2, Str: Blue
 ID: 100, Str: white
 ID: 200, Str: black
+```
+
+### 调用枚举类型
+继承了枚举类的单例对象名并**不能**直接用于表示枚举类型。  
+对应的枚举类型应使用对象内部定义的抽象类型`Value`来表示，即`单例对象名称.Value`。
+
+以前文中的`Color`单例对象为例，对应的枚举类型应使用`Color.Value`表示。  
+将枚举做为参数传递，如下所示：
+
+```scala
+object Color extends Enumeration {
+  val Red, Green, Blue = Value
+  val White = Value(100, "white")
+  val Black = Value(200, "black")
+}
+
+object Main extends App {
+  // Xxx.Value才是真正的枚举类型
+  def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: $color")
+  showEnum(Color.blue)
+  showEnum(Color.white)
+}
+```
+
+输出结果：
+
+```
+ID: 2, Str: Blue
+ID: 100, Str: white
+```
+
+### 限定枚举类型
+`Scala`通过使用单例继承`Enumeration`类来提供枚举功能，**枚举值**的类型实际为`单例.Value`。  
+由于`Scala`中每个实例的内部类的类型均**不相同**，需要使用**类型投影**来表示通用的枚举类型。  
+**枚举值**的类型投影为`Enumeration#Value`。  
+在泛型方法中，可以使用泛型约束`T <: Enumeration#Value`来限定泛型参数为枚举类型。  
+如下所示：
+
+```scala
+scala> def testEnum[T <: Enumeration#Value](enum: T) = println(enum) //打印枚举参数名称
+testEnum: [T <: Enumeration#Value](enum: T)Unit
+
+scala> object Enum extends Enumeration { val enum0, enum1  = Value }
+defined object Enum
+
+scala> testEnum(Enum.enum0) //传入枚举类型参数
+enum0
+
+scala> testEnum(Enum.enum1)
+enum1
+
+scala> testEnum(123) //使用其它类型不满足泛型约束，报错
+<console>:13: error: inferred type arguments [Int] do not conform to method testEnum's type parameter bounds [T <: Enumeration#Value]
+       testEnum(123)
+       ^
+<console>:13: error: type mismatch;
+ found   : Int(123)
+ required: T
+       testEnum(123)
+                ^
+```
+
+通过构建特定的枚举基类，可以实现限定**指定类别**的枚举。  
+如下所示：
+
+```scala
+scala> class MyEnumeration extends Enumeration //自定义枚举基类
+defined class MyEnumeration
+
+scala> def testMyEnum[T <: MyEnumeration#Value](enum: T) = println(enum) //限定枚举从自定义基类MyEnumeration中继承
+testMyEnum: [T <: MyEnumeration#Value](enum: T)Unit
+
+scala> object Enum extends Enumeration { val enum0, enum1  = Value } //普通枚举
+defined object Enum
+
+scala> object MyEnum extends MyEnumeration { val enum0, enum1  = Value } //从自定义基类MyEnumeration继承的枚举
+defined object MyEnum
+
+scala> testMyEnum(MyEnum.enum0) //参数为从自定义枚举基类MyEnumeration继承的枚举单例的枚举值，正常
+enum0
+
+scala> testMyEnum(MyEnum.enum1)
+enum1
+
+scala> testMyEnum(Enum.enum1) //参数为普通枚举单例的枚举值，错误
+<console>:14: error: inferred type arguments [Enum.Value] do not conform to method testMyEnum's type parameter bounds [T <: MyEnumeration#Value]
+       testMyEnum(Enum.enum1)
+       ^
+<console>:14: error: type mismatch;
+ found   : Enum.Value
+ required: T
+       testMyEnum(Enum.enum1)
+                       ^
 ```
 
 
