@@ -1,4 +1,13 @@
-[TOC]
+<!-- TOC -->
+
+- [*Stack* 简介](#stack-简介)
+- [安装与配置 *Stack*](#安装与配置-stack)
+	- [配置 *Mirrors*](#配置-mirrors)
+	- [配置 *GHC*](#配置-ghc)
+
+<!-- /TOC -->
+
+
 
 ## *Stack* 简介
 `Stack`是新一代的`Haskell`构建工具。
@@ -64,4 +73,21 @@ package-indices:
   - name: Tsinghua
     download-prefix: http://mirrors.tuna.tsinghua.edu.cn/hackage/package/
     http: http://mirrors.tuna.tsinghua.edu.cn/hackage/00-index.tar.gz
+```
+
+### 配置 *GHC*
+通过`Stack`可以简便地安装`GHC`编译器。  
+使用`stack setup`指令，`Stack`会自动下载配置最新稳定版本的`GHC`编译器。
+
+```
+$ stack setup
+```
+
+在`Windows`系统下，`GHC`编译器需要依赖`MSYS2`。  
+使用`stack setup`安装`GHC`时会自动附带安装`MSYS2`环境。  
+若已经配置了`MSYS2`环境，则执行指令时使用`--skip-msys`则可跳过安装`MSYS2`环境的步骤。  
+如下所示：
+
+```
+> stack setup --skip-msys
 ```
