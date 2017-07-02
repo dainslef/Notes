@@ -86,6 +86,7 @@
 	- [*synchronized*](#synchronized)
 - [*Annotation* (注解)](#annotation-注解)
 	- [自定义注解](#自定义注解)
+	- [解析注解](#解析注解)
 - [*XML* 解析](#xml-解析)
 	- [节点类型](#节点类型)
 	- [读写 XML 文件](#读写-xml-文件)
@@ -4383,6 +4384,160 @@ class CustomClassfileAnnotation(name: String) extends ClassfileAnnotation
 @CustomClassfileAnnotation("2333") //错误，Java注解需要以具名参数形式进行传入
 @CustomClassfileAnnotation(name = "2333") //正确
 class Test
+```
+
+### 解析注解
+通过反射机制获取注解信息，相关`API`位于`scala.reflect.runtime.universe`包路径下。
+
+获取注解：
+
+- 获取类的注解：
+
+	1. 使用`typeOf()`方法，获取`Type`类型的类信息。
+	1. 通过`Type.typeSymbol`获取`Symbol`。
+	1. 通过`Symbol.annotations`获取`List[Annotation]`(注解列表)。
+
+- 获取成员的注解：
+
+	1. 使用`typeOf()`方法，获取`Type`类型的类信息。
+	1. 通过`decls/decl()`方法筛选出目标成员的`Symbol`。
+	1. 通过`Symbol.annotations`获取`List[Annotation]`(注解列表)。
+
+`Scala`注解类型为`scala.reflect.runtime.universe.Annotation`。  
+在`Scala 2.11`之前，`Annotation`类型提供了`scalaArgs/javaArgs`等无参方法用于获取注解信息，但在`Scala 2.11`版本中，这些方法已被标记为`deprecated`。  
+应使用`Annotation.tree`方法获取注解语法树，类型为`scala.reflect.runtime.universe.Tree`。
+
+如下所示：
+
+```scala
+import scala.annotation.StaticAnnotation
+import scala.reflect.runtime.universe._
+
+class CustomAnnotation(name: String, num: Int) extends StaticAnnotation
+
+@CustomAnnotation("Annotation for Class", 2333)
+class Test {
+  @CustomAnnotation("Annotation for Class", 6666)
+  val ff = ""
+}
+
+object Main extends App {
+
+  {
+    // 获取类型注解
+    val tpe: Type = typeOf[Test]
+    val symbol: Symbol = tpe.typeSymbol //获取类型符号信息
+    val annotation: Annotation = symbol.annotations.head
+    val tree: Tree = annotation.tree //获取语法树
+
+    // 解析注解语法树...
+  }
+
+  {
+    // 获取成员字段注解
+    val tpe: Type = typeOf[Test]
+    val symbol: Symbol = tpe.decl(TermName("ff ")) //获取字段符号信息
+    val annotation: Annotation = symbol.annotations.head
+    val tree: Tree = annotation.tree
+
+    // 解析注解语法树...
+  }
+
+}
+```
+
+通过`scala.reflect.api.Printer.showRaw()`方法可以获取语法树的文本。  
+注解语法树中包含了注解参数信息，可以通过模式匹配提取。
+
+如下所示：
+
+```scala
+import scala.annotation.StaticAnnotation
+import scala.reflect.runtime.universe._
+
+class CustomAnnotation(name: String, num: Int) extends StaticAnnotation
+
+@CustomAnnotation("Annotation for Class", 2333)
+class Test
+
+object Main extends App {
+
+  // 获取类型注解
+  val tpe: Type = typeOf[Test]
+  val symbol: Symbol = tpe.typeSymbol //获取类型符号信息
+  val annotation: Annotation = symbol.annotations.head
+  val tree: Tree = annotation.tree //获取语法树
+
+  println(showRaw(tree)) //打印语法树
+  val Apply(_, Literal(Constant(name: String)) :: Literal(Constant(num: Int)) :: Nil) = tree
+  println(s"Annotation args: name -> $name, num -> $num")
+
+}
+```
+
+输出结果：(`Scala 2.12.2 && macOS 10.12.5`)
+
+```
+Apply(Select(New(TypeTree()), termNames.CONSTRUCTOR), List(Literal(Constant("Annotation for Class")), Literal(Constant(2333))))
+Annotation args: name -> Annotation for Class, num -> 2333
+```
+
+注意事项：
+
+- 解析注解参数需要基于语法树结构，不要使用**参数默认值**特性，使用默认参数的注解生成的语法树不包含注解信息的默认值。
+- 类内字段会有多个`TermSymbol`，对应不同的`TermName`，包含注解信息的`TermName`为`字段名称 + 空格`。
+- `Symbol`类型的成员方法`name`返回类型为`NameType`，不要直接与文本比较，应使用`toString`方法转换为文本进行比较。
+
+完整的注解解析实例，如下所示：
+
+```scala
+import scala.annotation.StaticAnnotation
+import scala.reflect.runtime.universe._
+
+class CustomAnnotation(name: String, num: Int) extends StaticAnnotation {
+  override def toString = s"Annotation args: name -> $name, num -> $num"
+}
+
+@CustomAnnotation("Annotation for Class", 2333)
+class Test {
+  @CustomAnnotation("Annotation for Member", 6666)
+  val ff = ""
+}
+
+object Main extends App {
+
+  // 通过注解名称获取指定类型的注解信息，注意注解类型名称的比较
+  def getClassAnnotation[T](name: String)(implicit ttag: TypeTag[T]) =
+    typeOf[T].typeSymbol.annotations.find(_.tree.tpe.typeSymbol.name.toString == name)
+
+  // 通过字段名称和注解名称获取指定类型的注解信息，注意字段名称添加空格
+  def getMemberAnnotation[T](memberName: String)(annotationName: String)(implicit ttag: TypeTag[T]) =
+    typeOf[T].decl(TermName(s"$memberName ")).annotations.find(_.tree.tpe.typeSymbol.name.toString == annotationName)
+
+  // 解析语法树，获取注解数据
+  def getCustomAnnotationData(tree: Tree) = {
+    val Apply(_, Literal(Constant(name: String)) :: Literal(Constant(num: Int)) :: Nil) = tree
+    new CustomAnnotation(name, num)
+  }
+
+  getClassAnnotation[Test]("CustomAnnotation").map(_.tree) foreach { classAnnotationTree =>
+    val classAnnotation = getCustomAnnotationData(classAnnotationTree)
+    println(classAnnotation)
+  }
+
+  getMemberAnnotation[Test]("ff")("CustomAnnotation").map(_.tree) foreach { memberAnnotationTree =>
+    val memberAnnotation = getCustomAnnotationData(memberAnnotationTree)
+    println(memberAnnotation)
+  }
+
+}
+```
+
+输出结果：(`Scala 2.12.2 && macOS 10.12.5`)
+
+```
+Annotation args: name -> Annotation for Class, num -> 2333
+Annotation args: name -> Annotation for Member, num -> 6666
 ```
 
 
