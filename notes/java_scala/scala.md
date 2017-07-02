@@ -84,6 +84,8 @@
 	- [*Promise*](#promise)
 	- [*async/await*](#asyncawait)
 	- [*synchronized*](#synchronized)
+- [*Annotation* (注解)](#annotation-注解)
+	- [自定义注解](#自定义注解)
 - [*XML* 解析](#xml-解析)
 	- [节点类型](#节点类型)
 	- [读写 XML 文件](#读写-xml-文件)
@@ -4327,6 +4329,60 @@ class TestSync {
 object TestSync {
   def staticTest() = synchronized[Unit] { ... }
 }
+```
+
+
+
+## *Annotation* (注解)
+`Scala`中的注解语法与`Java`中类似。  
+标准库定义的注解相关内容在包`scala.annotation`中。
+
+注解的基本语法为：
+
+```scala
+@注解名称(注解参数...)
+```
+
+与`Java`注解的用法类似，注解参数不是必须的，一个元素允许拥有多个注解。
+
+### 自定义注解
+`Scala 2.10`之前，`Scala`并未提供自定义注解功能，自定义注解需要在`Java`源码中进行。  
+`Scala 2.10`开始，作为`Reflect`功能的一部分，`Scala`提供了自定义注解支持。
+
+需要注意的是，到目前版本(`Scala 2.12`)为止，注解相关功能依然是`Expermental`(**实验性**)的，注解相关`API`一直处于变化中。
+
+`Scala`中的自定义注解不是**接口/特质**，而是**类**。  
+自定义注解需要从注解特质中继承，`Scala`中提供了两类注解特质：
+
+- `scala.annotation.ClassfileAnnotation` 由`Java`编译器生成注解
+- `scala.annotation.StaticAnnotation` 由`Scala`编译器生成注解
+
+两类注解特质都继承自基类`scala.annotation.Annotation`。  
+定义注解类语法与普通类相同：
+
+```scala
+// 标记注解
+class 注解名称 extends StaticAnnotation/ClassfileAnnotation
+
+// 有参注解
+class 注解名称(参数表...) extends StaticAnnotation/ClassfileAnnotation
+```
+
+两类注解特质的基类相同，因此自定义注解类时**允许**同时混入两类注解特质。  
+继承自`ClassfileAnnotation`基类的注解在使用时参数应以`具名参数(named arguments)`形式传入。  
+继承自`StaticAnnotation`基类的注解无此限制。  
+如下所示：
+
+```scala
+import scala.annotation.{ClassfileAnnotation, StaticAnnotation}
+
+class CustomStaticAnnotation(name: String) extends StaticAnnotation
+class CustomClassfileAnnotation(name: String) extends ClassfileAnnotation
+
+@CustomStaticAnnotation("2333") //正确
+@CustomClassfileAnnotation("2333") //错误，Java注解需要以具名参数形式进行传入
+@CustomClassfileAnnotation(name = "2333") //正确
+class Test
 ```
 
 
