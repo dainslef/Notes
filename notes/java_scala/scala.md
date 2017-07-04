@@ -1656,7 +1656,7 @@ class Clone extends Cloneable[Clone] {
 
 ```scala
 object Init extends App {
-  var num = new Num {
+  val num = new Num {
     num = 100
     name = "Num"
   } //相当于创建了一个匿名类，然后向上转型到类Num上
@@ -4487,6 +4487,7 @@ Annotation args: name -> Annotation for Class, num -> 2333
 - 解析注解参数需要基于语法树结构，不要使用**参数默认值**特性，使用默认参数的注解生成的语法树不包含注解信息的默认值。
 - 类内字段会有多个`TermSymbol`，对应不同的`TermName`，包含注解信息的`TermName`为`字段名称 + 空格`。
 - `Symbol`类型的成员方法`name`返回类型为`NameType`，不要直接与文本比较，应使用`toString`方法转换为文本进行比较。
+- 使用`Annotation.tree`方法获取注解语法树(`Tree`类型)，再使用`Tree.tpe`方法获取注解语法树类型信息(`Type`类型)，与直接使用`typeOf[注解类型]`获取的注解类型信息相同，可以用于比较筛选注解类型。
 
 完整的注解解析实例，如下所示：
 
@@ -4506,13 +4507,13 @@ class Test {
 
 object Main extends App {
 
-  // 通过注解名称获取指定类型的注解信息，注意注解类型名称的比较
-  def getClassAnnotation[T](name: String)(implicit ttag: TypeTag[T]) =
-    typeOf[T].typeSymbol.annotations.find(_.tree.tpe.typeSymbol.name.toString == name)
+  // 获取指定类型的注解信息，通过 Annotation.tree.tpe 获取注解的 Type 类型，以此进行筛选
+  def getClassAnnotation[T, U](implicit ttagT: TypeTag[T], ttagU: TypeTag[U]) =
+    typeOf[T].typeSymbol.annotations.find(_.tree.tpe == typeOf[U])
 
-  // 通过字段名称和注解名称获取指定类型的注解信息，注意字段名称添加空格
-  def getMemberAnnotation[T](memberName: String)(annotationName: String)(implicit ttag: TypeTag[T]) =
-    typeOf[T].decl(TermName(s"$memberName ")).annotations.find(_.tree.tpe.typeSymbol.name.toString == annotationName)
+  // 通过字段名称获取指定类型的注解信息，注意查找字段名称时添加空格
+  def getMemberAnnotation[T, U](memberName: String)(implicit ttagT: TypeTag[T], ttagU: TypeTag[U]) =
+    typeOf[T].decl(TermName(s"$memberName ")).annotations.find(_.tree.tpe == typeOf[U])
 
   // 解析语法树，获取注解数据
   def getCustomAnnotationData(tree: Tree) = {
@@ -4520,12 +4521,12 @@ object Main extends App {
     new CustomAnnotation(name, num)
   }
 
-  getClassAnnotation[Test]("CustomAnnotation").map(_.tree) foreach { classAnnotationTree =>
+  getClassAnnotation[Test, CustomAnnotation].map(_.tree) foreach { classAnnotationTree =>
     val classAnnotation = getCustomAnnotationData(classAnnotationTree)
     println(classAnnotation)
   }
 
-  getMemberAnnotation[Test]("ff")("CustomAnnotation").map(_.tree) foreach { memberAnnotationTree =>
+  getMemberAnnotation[Test, CustomAnnotation]("ff").map(_.tree) foreach { memberAnnotationTree =>
     val memberAnnotation = getCustomAnnotationData(memberAnnotationTree)
     println(memberAnnotation)
   }
@@ -4557,15 +4558,15 @@ Seq[Node]
 NodeSeq
 ├── Document
 └── Node
-     ├── Elem
-     └── SpecialNode
-          ├── EnityRef
-          ├── ProcInstr
-          ├── Conment
-          └── Atom
-               ├── Text
-               ├── PCData
-               └── Unparsed
+    ├── Elem
+    └── SpecialNode
+        ├── EnityRef
+        ├── ProcInstr
+        ├── Conment
+        └── Atom
+            ├── Text
+            ├── PCData
+            └── Unparsed
 ```
 
 `Node`类型定义了一系列用于获取节点信息的方法：
