@@ -4397,10 +4397,17 @@ class Test
 	1. 通过`Type.typeSymbol`获取`Symbol`。
 	1. 通过`Symbol.annotations`获取`List[Annotation]`(注解列表)。
 
-- 获取成员的注解：
+- 获取方法/成员字段的注解：
 
 	1. 使用`typeOf()`方法，获取`Type`类型的类信息。
 	1. 通过`decls/decl()`方法筛选出目标成员的`Symbol`。
+	1. 通过`Symbol.annotations`获取`List[Annotation]`(注解列表)。
+
+- 获取方法参数的注解：
+
+	1. 使用`typeOf()`方法，获取`Type`类型的类信息。
+	1. 通过`decls/decl()`方法筛选出目标方法的`MethodSymbol`。
+	1. 通过`MethodSymbol.paramLists`方法获取目标方法的参数表(`List[List[Symbol]]`类型，方法柯里化可能会有多个参数表)。
 	1. 通过`Symbol.annotations`获取`List[Annotation]`(注解列表)。
 
 `Scala`注解类型为`scala.reflect.runtime.universe.Annotation`。  
@@ -4486,7 +4493,12 @@ Annotation args: name -> Annotation for Class, num -> 2333
 
 - 解析注解参数需要基于语法树结构，不要使用**参数默认值**特性，使用默认参数的注解生成的语法树不包含注解信息的默认值。
 - 类内字段会有多个`TermSymbol`，对应不同的`TermName`，包含注解信息的`TermName`为`字段名称 + 空格`。
-- `Symbol`类型的成员方法`name`返回类型为`NameType`，不要直接与文本比较，应使用`toString`方法转换为文本进行比较。
+- 类内方法的`MethodSymbol`对应的`TermName`与方法名称相同，一个方法的多个重载`TermName`相同。
+- `Symbol`类型的成员方法`name`返回类型为`NameType`。  
+	`NameType`不要直接与文本比较，应使用`toString`方法转换为文本进行比较。  
+	或者将`NameType`与`TermName`类型进行比较。
+- 样例类的构造器参数作为类的成员存在，但若在参数上添加注解，注解信息并未附加在字段信息中。  
+	提取样例类构造器成员的注解信息需要以获取方法参数注·解的方式进行。
 - 使用`Annotation.tree`方法获取注解语法树(`Tree`类型)，再使用`Tree.tpe`方法获取注解语法树类型信息(`Type`类型)，与直接使用`typeOf[注解类型]`获取的注解类型信息相同，可以用于比较筛选注解类型。
 
 完整的注解解析实例，如下所示：
@@ -4503,17 +4515,24 @@ class CustomAnnotation(name: String, num: Int) extends StaticAnnotation {
 class Test {
   @CustomAnnotation("Annotation for Member", 6666)
   val ff = ""
+  def mm(ss: String, @CustomAnnotation("Annotation for Arg", 9999) arg: Int) = ""
 }
 
 object Main extends App {
 
   // 获取指定类型的注解信息，通过 Annotation.tree.tpe 获取注解的 Type 类型，以此进行筛选
   def getClassAnnotation[T, U](implicit ttagT: TypeTag[T], ttagU: TypeTag[U]) =
-    typeOf[T].typeSymbol.annotations.find(_.tree.tpe == typeOf[U])
+    typeOf[T].typeSymbol.annotations.find(_.tree.tpe =:= typeOf[U])
 
   // 通过字段名称获取指定类型的注解信息，注意查找字段名称时添加空格
   def getMemberAnnotation[T, U](memberName: String)(implicit ttagT: TypeTag[T], ttagU: TypeTag[U]) =
-    typeOf[T].decl(TermName(s"$memberName ")).annotations.find(_.tree.tpe == typeOf[U])
+    typeOf[T].decl(TermName(s"$memberName ")).annotations.find(_.tree.tpe =:= typeOf[U])
+
+  // 通过方法名称和参数名称获取指定类型的注解信息
+  def getArgAnnotation[T, U](methodName: String, argName: String)(implicit ttag: TypeTag[T], ttagU: TypeTag[U]) =
+    typeOf[T].decl(TermName(methodName)).asMethod.paramLists.collect {
+      case symbols => symbols.find(_.name == TermName(argName))
+    }.headOption.fold(Option[Annotation](null))(_.get.annotations.find(_.tree.tpe == typeOf[U]))
 
   // 解析语法树，获取注解数据
   def getCustomAnnotationData(tree: Tree) = {
@@ -4531,6 +4550,11 @@ object Main extends App {
     println(memberAnnotation)
   }
 
+  getArgAnnotation[Test, CustomAnnotation]("mm", "arg").map(_.tree) foreach { argAnnotationTree =>
+    val argAnnotation = getCustomAnnotationData(argAnnotationTree)
+    println(argAnnotation)
+  }
+
 }
 ```
 
@@ -4539,6 +4563,7 @@ object Main extends App {
 ```
 Annotation args: name -> Annotation for Class, num -> 2333
 Annotation args: name -> Annotation for Member, num -> 6666
+Annotation args: name -> Annotation for Arg, num -> 9999
 ```
 
 
