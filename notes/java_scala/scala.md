@@ -84,6 +84,8 @@
 	- [*Promise*](#promise)
 	- [*async/await*](#asyncawait)
 	- [*synchronized*](#synchronized)
+- [*Reflect* (反射)](#reflect-反射)
+	- [反射机制的相关类型](#反射机制的相关类型)
 - [*Annotation* (注解)](#annotation-注解)
 	- [自定义注解](#自定义注解)
 	- [解析注解](#解析注解)
@@ -4334,6 +4336,58 @@ object TestSync {
 
 
 
+## *Reflect* (反射)
+`Scala 2.10`之后提供了自身的反射相关`API`。  
+`Java`标准库中的反射`API`无法获取`Scala`中部分特殊成员的运行时信息。
+
+### 反射机制的相关类型
+反射`API`相关的类型定义在包路径`scala.reflect.runtime.universe`中。
+
+- `Type`
+
+	包含所有的成员、类型信息。  
+	`Type`类型类似于`Java`反射机制中的`Class`类型，获取`Type`实例是整个反射流程的起始步骤。  
+	通过`typeOf[T]`方法可以获取指定类型的`Type`实例。
+
+	通过`Type.decls/members`方法获取用户定义/所有的成员`Symbol`。  
+	通过`Type.decl()/member()`方法获取指定`TermName`的成员`Symbol`。
+
+	`Type`类型通过操作符`=:=`比较是否相等，通过操作符`<:<`比较是否子类。
+
+- `Symbol`
+
+	包含实例或成员的信息。  
+	根据包含信息类型的种类，`Symbol`类型存在以下子类：
+
+	- `TypeSymbol`
+
+		包含类型信息，存在以下子类：
+
+		- `ClassSymbol` 类信息，提供`isFinal/isAbstractClass`等`Class`专有特性
+
+		构建`TypeSymbol`：
+		
+		- 通过`Type.typeSymbol`获取类的`TypeSymbol`。
+		- 通过`symbolOf[T]`方法获取类的`TypeSymbol`。
+
+	- `TermSymbol`
+
+		字段信息，存在以下子类：
+
+		- `MethodSymbol` 方法信息
+		- `ModuleSymbol` 单例对象信息
+
+- `Mirror`
+
+	提供获取反射信息的方式。  
+	使用`runtimeMirror()`方法以`ClassLoader`做为参数构建`Mirror`实例。
+
+	通过`Mirror.reflect()`获取`InstanceMirror`，获取实例信息，用于反射访问/修改字段，调用方法。  
+	通过`Mirror.reflectClass()`获取`ClassMirror`，获取类型信息，可获取类型构造器反射构建实例。  
+	通过`Mirror.reflectModule()`获取`ModuleMirror`，获取单例信息，可获取单例对象实例。。
+
+
+
 ## *Annotation* (注解)
 `Scala`中的注解语法与`Java`中类似。  
 标准库定义的注解相关内容在包`scala.annotation`中。
@@ -4400,13 +4454,13 @@ class Test
 - 获取方法/成员字段的注解：
 
 	1. 使用`typeOf()`方法，获取`Type`类型的类信息。
-	1. 通过`decls/decl()`方法筛选出目标成员的`Symbol`。
+	1. 通过`Type.decls/decl()`方法筛选出目标成员的`Symbol`。
 	1. 通过`Symbol.annotations`获取`List[Annotation]`(注解列表)。
 
 - 获取方法参数的注解：
 
 	1. 使用`typeOf()`方法，获取`Type`类型的类信息。
-	1. 通过`decls/decl()`方法筛选出目标方法的`MethodSymbol`。
+	1. 通过`Type.decls/decl()`方法筛选出目标方法的`MethodSymbol`。
 	1. 通过`MethodSymbol.paramLists`方法获取目标方法的参数表(`List[List[Symbol]]`类型，方法柯里化可能会有多个参数表)。
 	1. 通过`Symbol.annotations`获取`List[Annotation]`(注解列表)。
 
@@ -4529,10 +4583,10 @@ object Main extends App {
     typeOf[T].decl(TermName(s"$memberName ")).annotations.find(_.tree.tpe =:= typeOf[U])
 
   // 通过方法名称和参数名称获取指定类型的注解信息
-  def getArgAnnotation[T, U](methodName: String, argName: String)(implicit ttag: TypeTag[T], ttagU: TypeTag[U]) =
+  def getArgAnnotation[T, U](methodName: String, argName: String)(implicit ttagT: TypeTag[T], ttagU: TypeTag[U]) =
     typeOf[T].decl(TermName(methodName)).asMethod.paramLists.collect {
       case symbols => symbols.find(_.name == TermName(argName))
-    }.headOption.fold(Option[Annotation](null))(_.get.annotations.find(_.tree.tpe == typeOf[U]))
+    }.headOption.fold(Option[Annotation](null))(_.get.annotations.find(_.tree.tpe =:= typeOf[U]))
 
   // 解析语法树，获取注解数据
   def getCustomAnnotationData(tree: Tree) = {
