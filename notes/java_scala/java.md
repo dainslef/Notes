@@ -1,4 +1,65 @@
-[TOC]
+<!-- TOC -->
+
+- [基础类型](#基础类型)
+	- [*Literal number* (字面值)](#literal-number-字面值)
+	- [*char* (字符类型)](#char-字符类型)
+	- [格式化](#格式化)
+	- [有符号数转换无符号数](#有符号数转换无符号数)
+	- [字符串、数值转换](#字符串数值转换)
+- [*Package*](#package)
+	- [*import* 用法](#import-用法)
+	- [静态导入](#静态导入)
+	- [*package* 使用实例](#package-使用实例)
+	- [引用自定义依赖](#引用自定义依赖)
+- [容器类型](#容器类型)
+- [枚举](#枚举)
+- [浅复制与深复制](#浅复制与深复制)
+	- [浅复制](#浅复制)
+	- [深复制](#深复制)
+- [泛型方法](#泛型方法)
+- [*Nested Classes* (嵌套类)](#nested-classes-嵌套类)
+- [并发编程](#并发编程)
+	- [*Thread* 和 *Runnable*](#thread-和-runnable)
+	- [*synchronized* 关键字](#synchronized-关键字)
+	- [*Executor* 框架](#executor-框架)
+- [*Annotation* (注解)](#annotation-注解)
+	- [内置注解](#内置注解)
+	- [元注解](#元注解)
+	- [自定义注解](#自定义注解)
+- [*Reflection* (反射)](#reflection-反射)
+	- [反射机制的相关类型](#反射机制的相关类型)
+	- [*Class* 类型](#class-类型)
+	- [反射获取成员信息](#反射获取成员信息)
+	- [反射构建类实例](#反射构建类实例)
+	- [反射调用对象方法](#反射调用对象方法)
+	- [反射修改字段](#反射修改字段)
+	- [反射判定继承关系](#反射判定继承关系)
+	- [*ClassLoader* (类加载器)](#classloader-类加载器)
+- [动态代理](#动态代理)
+	- [代理模式](#代理模式)
+	- [动态代理实例](#动态代理实例)
+- [*JDBC*](#jdbc)
+	- [连接数据库](#连接数据库)
+	- [数据库操作](#数据库操作)
+	- [获取时间](#获取时间)
+	- [与 *Access* 数据库交互](#与-access-数据库交互)
+- [*Eclipse* 使用注记](#eclipse-使用注记)
+	- [添加 *Marketplace*](#添加-marketplace)
+	- [查看 *JDK* 源码](#查看-jdk-源码)
+	- [设置编辑器自动换行](#设置编辑器自动换行)
+- [*IntelliJ IDEA* 使用注记](#intellij-idea-使用注记)
+	- [设置显示行号和不可见空白](#设置显示行号和不可见空白)
+	- [设置缩进](#设置缩进)
+	- [其它常用选项](#其它常用选项)
+	- [项目打包](#项目打包)
+- [常见问题记录](#常见问题记录)
+	- [*String.split()* 方法](#stringsplit-方法)
+	- [*String.format()* 方法](#stringformat-方法)
+	- [查询 *OS* 信息](#查询-os-信息)
+
+<!-- /TOC -->
+
+
 
 ## 基础类型
 与主流语言不同，`Java`中仅仅提供了**有符号**数值类型，**没有**提供无符号的数值类型。
@@ -21,21 +82,21 @@
 字面值数值在进行赋值操作时数值的大小不能超过目标类型的上限，如下所示：
 
 ```java
-byte num0 = 1;			//正确
-byte num1 = 1000;		//错误，提示"从int转换到byte可能会有损失"
+byte num0 = 1; //正确
+byte num1 = 1000; //错误，提示"从int转换到byte可能会有损失"
 ```
 
 整型字面值默认为`int`型，即默认字面值范围应在`-2147483648 ~ 2147483647`之间，当整型字面值超出这个范围时，即使目标类型能够容纳数值，赋值操作时依然会报错，如下所示：
 
 ```java
-long num = 6666666666;	//错误，提示"过大的整数: 6666666666"
+long num = 6666666666; //错误，提示"过大的整数: 6666666666"
 ```
 
 此时，需要显式使用后缀指定字面值类型，如下所示：
 
 ```java
-long num0 = 6666666666L;	//正确
-long num1 = 6666666666l;	//正确
+long num0 = 6666666666L; //正确
+long num1 = 6666666666l; //正确
 ```
 
 常用的字面值后缀：
@@ -60,9 +121,9 @@ long num1 = 6666666666l;	//正确
 `char`类型无符号，范围为`0 ~ 65535`，字面值表示方式为`'\u0000' ~ '\uFFFF'`，如下所示：
 
 ```java
-char c0 = \u0000;		//错误，字符需要加单引号
-char c1 = '\U0000';		//错误，字符只能使用小写`\u`转义，大写`\U`无效
-char c2 = '\u0000';		//正确
+char c0 = \u0000; //错误，字符需要加单引号
+char c1 = '\U0000'; //错误，字符只能使用小写`\u`转义，大写`\U`无效
+char c2 = '\u0000'; //正确
 ```
 
 ### 格式化
@@ -151,6 +212,7 @@ public class Main {
 `byte`类型为单字节，则将原始有符号数值转换位更高位宽的类型，再与`0xFF`进行`&`(逻辑与)操作(保留原始数值位，擦除其它内容)，得到对应的无符号值。
 
 以`byte`类型负数`-11`为例，运算过程如下：
+
 > `byte`类型数值`-11`，原码为：
 >
 > `10001011`
@@ -173,38 +235,88 @@ public class Main {
 >
 > 对比可知**低8位**对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行**逻辑或**操作可达到此效果。
 
+### 字符串、数值转换
+基础数值类型存在`OOP`的封装，用于在泛型中使用。  
+如下所示：
+
+| 基础数值类型 | 封装数值类型 |
+|:----------:|:----------:|
+| byte | Byte |
+| short | Short |
+| int | Integer |
+| long | Long |
+| float | Float |
+| double | Double |
+
+引用数值类型提供了一系列的静态方法用于字符串到数值之间的转换。  
+以`Integer`类型为例，将字符串形式的数值转换为基础数值类型：
+
+```scala
+scala> Integer.parseInt("2333") //默认文本数值视为10进制
+res1: Int = 2333
+```
+
+使用无进制参数版本的转换方法时，默认将文本数值视为十进制。  
+对于非十进制的数值，需要使用带有进制参数的重载版本：
+
+```scala
+scala> Integer.parseInt("d9") //16进制数值文本会抛出异常
+java.lang.NumberFormatException: For input string: "d9"
+  at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
+  at java.lang.Integer.parseInt(Integer.java:580)
+  at java.lang.Integer.parseInt(Integer.java:615)
+  ... 27 elided
+
+scala> Integer.parseInt("d9", 16) //使用进制参数后正常转换
+res2: Int = 217
+
+scala> Integer.parseInt("2333", 8) //文本数值设为8进制
+res3: Int = 1243
+```
+
+`String`类型则提供了`valueOf()`方法用于将数值转为字符串形式：
+
+```scala
+scala> String.valueOf(2333) //转换10进制数值
+res4: String = 2333
+
+scala> String.valueOf(0xd9) //转换16进制数值
+res5: String = 217
+```
+
 
 
 ## *Package*
-在`Java`中，没有使用`package`的话，在`javac`编译`java`文件生成`class`字节码时，需要将所有用到的源码文件写在参数中，不在当前目录下的源码文件要写清路径。
+`Package`是`Java`的命名空间隔离机制。  
+使用`package`关键字将类层次化区分，使用`import`关键字来导入使用。  
+未使用`package`关键字的类则位于**默认包**中。
 
-若源码文件过多，则可以使用`package`关键字将其打包归类，然后在主类所在的文件中使用`import`关键字来将包导入使用。  
-如果没有使用`package`关键字，则所有的内容被视为在一个包中。
-
-### *import* 的基本用法
-`import`的格式是：
-
-```java
-import [包路径].[类名];
-```
-
-如果需要包含内部类，则可以使用多级import，如：
+### *import* 用法
+`import`语法：
 
 ```java
-import [包路径].[类名]...[类名];
+import 包路径.类名;
 ```
 
-需要注意的是，import与代码文件的路径**无关**(但运行class文件时需要将class文件放在与其源码中package名称相同的对应目录下，否则会在执行时出错)。
+引入**内部类**，语法类似：
+
+```java
+import 包路径.类名.内部类名称;
+```
+
+`import`与源码的路径**无关**。  
+执行字节码时需要将**class文件**放在与其源码中`package`路径的对应目录下，否则会在执行时出错。
 另外，包名也可以是`*.*.*`的形式。
 
-### 使用静态导入
-`Java 5`中新加入了`import static`关键字，相比传统的`import`，`import static`关键字的包含目标是类中的静态方法，格式如下：
+### 静态导入
+`Java 5`中新加入了`import static`用法。  
+`import static`可以包含目标类中的静态方法，如下所示：
 
 ```java
 import static [包路径].[类名].[静态方法名];
 ```
 
-这样能够在使用对应类的静态方法时不必写出类名而是直接写出函数名即可。
+使用静态导入的静态方法使用时不必写出类名，直接使用方法名称即可。
 
 ### *package* 使用实例
 有两个文件**A.java**和**B.java**。
@@ -217,7 +329,7 @@ import static [包路径].[类名].[静态方法名];
 - **文件A**路径为`~/A.java`。
 - **文件B**路径为`~/b/B.java`。
 
-实例代码(普通import)：
+实例代码(`import`)：
 
 A.java:
 
@@ -243,7 +355,7 @@ public class B {
 }
 ```
 
-实例代码(import static)：
+实例代码(`import static`)：
 
 A.java:
 
@@ -420,7 +532,7 @@ enum Enum {
 
 
 ## 浅复制与深复制
-在Java中，**基础类型**如`int`、`double`等在复制时是拷贝了**整个值**，而对于**引用类型**，则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
+`Java`中**基础类型**如`int`、`double`等在复制时进行**值拷贝**，而对于**引用类型**，则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
 
 ### 浅复制
 要想让一个类能够被复制，则类需要实现`Cloneable`接口，并重写`clone()`方法。
@@ -483,7 +595,7 @@ class TestClone implements Cloneable {
 		TestClone clone = null;
 		try {
 			clone = (TestClone)super.clone();
-			clone.str = new StringBuffer(str);		//构建新的StringBuffer对象
+			clone.str = new StringBuffer(str); //构建新的StringBuffer对象
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -515,7 +627,7 @@ public class Test {
 		Func t = new Func();
 		System.out.println(t.getType(123));
 		System.out.println(t.getType("Test"));
-		System.out.println(t.<Double>getType(25.672));		//类型参数写在方法名称之前
+		System.out.println(t.<Double>getType(25.672)); //类型参数写在方法名称之前
 	}
 }
 
@@ -569,14 +681,14 @@ class EnclosingClass {
 	// 成员嵌套类
 	class MemberNestedClass {
 
-		//static int a;			//错误，只有静态嵌套类才能在内部定义静态成员
+		//static int a; //错误，只有静态嵌套类才能在内部定义静态成员
 
 	}
 
 	// 使用static关键字修饰的成员嵌套类为静态嵌套类
 	static class StaticMemberNestedClass {
 
-		static int a;			//正确，可以正常定义静态成员
+		static int a; //正确，可以正常定义静态成员
 
 	}
 
@@ -1115,7 +1227,7 @@ Java中提供了一系列**内置注解**，常用的有：
 - 使用`@interface`自定义注解，自定义注解继承了`java.lang.annotation.Annotation`接口。
 - 定义注解时，**不能**继承其他的注解或接口。
 - 定义注解时，每一个方法实际上是定义了一个配置参数。  
-方法的名称就是参数的名称，返回值类型就是参数的类型。可以通过`default`关键字来设置参数**默认值**。
+	方法的名称就是参数的名称，返回值类型就是参数的类型。可以通过`default`关键字来设置参数**默认值**。
 - 定义注解时，使用`value`做为注解参数名称，则使用注解时参数名称可省略。
 - 定义注解时，参数的访问权限只能为`public`或**默认**权限。
 - 注解参数支持的数据类型：
@@ -1126,7 +1238,7 @@ Java中提供了一系列**内置注解**，常用的有：
 	1. `Annotation`类型。
 	1. 上述类型的**一维**数组。
 
-如下代码所示：
+如下所示：
 
 ```java
 import java.lang.annotation.*;
@@ -1266,7 +1378,7 @@ TestValue: Schwarzes marken 6
 	public Constructor<?> getEnclosingConstructor() throws SecurityException;
 	```
 
-示例代码如下所示：
+如下所示：
 
 ```java
 package com.dainslef;
@@ -1390,7 +1502,7 @@ null
 ```
 
 ### 反射构建类实例
-如果一个类定义了空参的构造函数，则可以直接通过`Class`类中的成员方法来构造对象。
+若一个类定义了空参的构造函数，则可以直接通过`Class`类中的成员方法来构造对象。
 
 ```java
 public T newInstance() throws InstantiationException, IllegalAccessException;
@@ -1444,7 +1556,7 @@ public class Main {
 
 		// 获取构造器对象
 		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
-		constructor.setAccessible(true);	//对于私有构造器默认是无法访问的，需要设置权限才能正常调用
+		constructor.setAccessible(true); //对于私有构造器默认是无法访问的，需要设置权限才能正常调用
 		constructor.newInstance(200).showNum();
 	}
 }
@@ -1922,10 +2034,10 @@ while (resultSet.next()) {		// 使用 next() 方法将当前游标移动到下�
 连接Access数据库：
 
 ```java
-// 这样写是相对路径
+// 使用相对路径
 String connectUrl = "jdbc:Access:///***.accdb";
 
-// 这样写是绝对路径
+// 使用绝对路径
 //String connectUrl = "jdbc:Access:///c:/a/b/***.accdb";
 
 // 注册驱动
@@ -1940,6 +2052,7 @@ Statement statement = connection
 ```
 
 Access数据库的一些小常识：
+
 - 表单的高级字段设置在`开始 - 视图 - 设计视图`中。
 - 配置自增属性需要将字段类型设为`自动编号`。
 - 默认情况下，创建的数据类型`数字`的字段大小为`长整型`。  
@@ -1962,7 +2075,7 @@ Access数据库的一些小常识：
 `General Purpose Tools` =>
 `Marketplace Client`
 
-### 在Eclipse中查看JDK类源码
+### 查看 *JDK* 源码
 与**NetBeans**不同，在Eclipse中默认是无法直接查看JDK中类库的源码的，需要手动指定源码的位置。  
 一般情况下，JDK源码位于JDK的安装目录下的`src.zip`文件中。
 
@@ -1981,7 +2094,7 @@ Access数据库的一些小常识：
 `OK` =>
 `Finish`
 
-### 设置Eclipse编辑器自动换行
+### 设置编辑器自动换行
 Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方插件进行实现。  
 在Eclipse中按以下步骤安装`Word Wrap`插件使编辑器能够自动换行：
 
@@ -2098,3 +2211,4 @@ public static String getProperty(String key);
 | user.name | 用户的账户名称 |
 | user.home | 用户的主目录 |
 | user.dir | 用户的当前工作目录 |
+| java.io.tmpdir | 操作系统的TEMP目录 |
