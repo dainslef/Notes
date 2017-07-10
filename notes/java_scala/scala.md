@@ -4340,6 +4340,8 @@ object TestSync {
 `Scala 2.10`之后提供了自身的反射相关`API`。  
 `Java`标准库中的反射`API`无法获取`Scala`中部分特殊成员的运行时信息。
 
+到目前版本(`Scala 2.12`)为止，反射相关功能依然是`Expermental`(**实验性**)的，相关`API`在后续版本中可能会有较大改动。
+
 ### 反射机制的相关类型
 反射`API`相关的类型定义在包路径`scala.reflect.runtime.universe`中。
 
@@ -4383,8 +4385,51 @@ object TestSync {
 	使用`runtimeMirror()`方法以`ClassLoader`做为参数构建`Mirror`实例。
 
 	通过`Mirror.reflect()`获取`InstanceMirror`，获取实例信息，用于反射访问/修改字段，调用方法。  
-	通过`Mirror.reflectClass()`获取`ClassMirror`，获取类型信息，可获取类型构造器反射构建实例。  
-	通过`Mirror.reflectModule()`获取`ModuleMirror`，获取单例信息，可获取单例对象实例。。
+	通过`Mirror.reflectClass()`获取`ClassMirror`，获取类型信息，可获取类型构造方法反射构建实例。  
+	通过`Mirror.reflectModule()`获取`ModuleMirror`，获取单例信息，可获取单例对象实例。
+
+如下所示：
+
+```scala
+import scala.reflect.runtime.universe._
+
+object Main extends App {
+
+  class TestReflect(init: Int) {
+    val field = init
+    def showField = {
+      println("Call method 'showField'")
+      2333
+    }
+  }
+
+  val run = runtimeMirror(getClass.getClassLoader)
+
+  // 反射获取构造器MethodSymbol，构造器名称为 <init>
+  val constructor = typeOf[TestReflect].decl(TermName("<init>")).asMethod
+  val instance = run //通过构造器的MethodSymbol反射构建实例
+    .reflectClass(symbolOf[TestReflect].asClass)
+    .reflectConstructor(constructor).apply(2333)
+
+  // 遍历筛选特定成员
+  typeOf[TestReflect].decls foreach {
+    case term: TermSymbol if term.name == TermName("field") =>
+      println(s"Field name: ${term.name}, value: ${run.reflect(instance).reflectField(term).get}")
+    case method: MethodSymbol if method.name == TermName("showField") =>
+      println(s"Method name: ${method.name}, value: ${run.reflect(instance).reflectMethod(method).apply()}")
+    case _ =>
+  }
+
+}
+```
+
+输出结果：
+
+```
+Field name: field, value: 2333
+Call method 'showField'
+Method name: showField, value: 2333
+```
 
 
 
@@ -4404,7 +4449,7 @@ object TestSync {
 `Scala 2.10`之前，`Scala`并未提供自定义注解功能，自定义注解需要在`Java`源码中进行。  
 `Scala 2.10`开始，作为`Reflect`功能的一部分，`Scala`提供了自定义注解支持。
 
-需要注意的是，到目前版本(`Scala 2.12`)为止，注解相关功能依然是`Expermental`(**实验性**)的，注解相关`API`一直处于变化中。
+与反射相关功能类似，到目前版本(`Scala 2.12`)为止，注解相关功能依然是`Expermental`(**实验性**)的，注解相关`API`一直处于变化中。
 
 `Scala`中的自定义注解不是**接口/特质**，而是**类**。  
 自定义注解需要从注解特质中继承，`Scala`中提供了两类注解特质：
