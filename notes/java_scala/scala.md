@@ -4431,6 +4431,15 @@ Call method 'showField'
 Method name: showField, value: 2333
 ```
 
+注意事项：
+
+- `Symbol`类型的成员方法`name`返回类型为`NameType`。  
+	`NameType`不要直接与文本比较，应使用`toString`方法转换为文本进行比较。  
+	或者将`NameType`与`TermName`类型进行比较。
+- 类内方法的`MethodSymbol`对应的`TermName`与方法名称相同，一个方法的多个重载`TermName`相同。
+- 对于无重载的方法，使用`Type.decl()/member()`根据名称查找到的`Symbol`可直接使用`Symbol.asSymbol`方法转化为`MethodSymbol`。
+- 对于拥有重载的方法，使用`Type.decl()/member()`方法根据名称查找获取到的是包含重载信息的`TermSymbol`，使用`Symbol.alternatives`方法可获取包含所有同名重载方法的`List[Symbol]`。
+
 
 
 ## *Annotation* (注解)
@@ -4592,10 +4601,6 @@ Annotation args: name -> Annotation for Class, num -> 2333
 
 - 解析注解参数需要基于语法树结构，不要使用**参数默认值**特性，使用默认参数的注解生成的语法树不包含注解信息的默认值。
 - 类内字段会有多个`TermSymbol`，对应不同的`TermName`，包含注解信息的`TermName`为`字段名称 + 空格`。
-- 类内方法的`MethodSymbol`对应的`TermName`与方法名称相同，一个方法的多个重载`TermName`相同。
-- `Symbol`类型的成员方法`name`返回类型为`NameType`。  
-	`NameType`不要直接与文本比较，应使用`toString`方法转换为文本进行比较。  
-	或者将`NameType`与`TermName`类型进行比较。
 - 样例类的构造器参数作为类的成员存在，但若在参数上添加注解，注解信息并未附加在字段信息中。  
 	提取样例类构造器成员的注解信息需要以获取方法参数注·解的方式进行。
 - 使用`Annotation.tree`方法获取注解语法树(`Tree`类型)，再使用`Tree.tpe`方法获取注解语法树类型信息(`Type`类型)，与直接使用`typeOf[注解类型]`获取的注解类型信息相同，可以用于比较筛选注解类型。
