@@ -3316,7 +3316,7 @@ import java.awt.{Color => _}
 `Scala`中的`import`带有类似`Java 1.6`中的`static import`特性：
 
 ```scala
-import java.lang.Math.abs		//导入Math类中的静态方法abs
+import java.lang.Math.abs //导入Math类中的静态方法abs
 ```
 
 在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。  
@@ -3447,12 +3447,12 @@ object Main extends App {
 
 ```scala
 object Implicit {
-  implicit val impl = 200.0  //隐式值可以定义在伴生对象中
+  implicit val impl = 200.0 //隐式值可以定义在伴生对象中
   def testImplicit(implicit num: Double) = println(num)
 }
 
 object Main extends App {
-  import Implicit.impl       //不在当前作用域中的隐式参数需要显式引入
+  import Implicit.impl //不在当前作用域中的隐式参数需要显式引入
   Implicit.testImplicit
 }
 ```
@@ -3472,13 +3472,13 @@ object Main extends App {
 如下所示：
 
 ```scala
-def testImplicit(implicit num0: Int, num1: Int) {}              //正确。num0、num1，皆为隐式参数
-def testImplicit(implicit num0: Int, implicit num1: Int) {}     //错误。只能在参数表的首个参数前添加implicit关键字修饰
-def testImplicit(num0: Int, implicit num1: Int) {}              //错误。只能在参数表的首个参数前添加implicit关键字修饰
+def testImplicit(implicit num0: Int, num1: Int) {} //正确。num0、num1，皆为隐式参数
+def testImplicit(implicit num0: Int, implicit num1: Int) {} //错误。只能在参数表的首个参数前添加implicit关键字修饰
+def testImplicit(num0: Int, implicit num1: Int) {} //错误。只能在参数表的首个参数前添加implicit关键字修饰
 
-def testImplicit(num: Int)(implicit num0: Int, num1: Int) {}    //正确。对于柯里化函数，最后一个参数表可以设为隐式参数
-def testImplicit(implicit num0: Int)(implicit num1: Double) {}  //错误。一个方法不允许拥有多个隐式参数表
-def testImplicit(implicit num0: Int)(num1: Double) {}           //错误。只有最后一个参数表可以设为隐式参数表
+def testImplicit(num: Int)(implicit num0: Int, num1: Int) {} //正确。对于柯里化函数，最后一个参数表可以设为隐式参数
+def testImplicit(implicit num0: Int)(implicit num1: Double) {} //错误。一个方法不允许拥有多个隐式参数表
+def testImplicit(implicit num0: Int)(num1: Double) {} //错误。只有最后一个参数表可以设为隐式参数表
 ```
 
 - 隐式参数与参数默认值
@@ -4337,8 +4337,10 @@ object TestSync {
 
 
 ## *Reflect* (反射)
-`Scala 2.10`之后提供了自身的反射相关`API`。  
-`Java`标准库中的反射`API`无法获取`Scala`中部分特殊成员的运行时信息。
+`Scala 2.10`之后提供了自身的反射相关`API`。
+
+`Java`标准库中的反射`API`不支持`Scala`的专属特性。  
+`Scala`自身提供的反射`API`则能完整地支持所有`Scala`语言特性。
 
 到目前版本(`Scala 2.12`)为止，反射相关功能依然是`Expermental`(**实验性**)的，相关`API`在后续版本中可能会有较大改动。
 
@@ -4347,46 +4349,70 @@ object TestSync {
 
 - `Type`
 
-	包含所有的成员、类型信息。  
+	包含类型内的成员信息(定义的字段`fields`、方法`methods`、类型别名`type aliases`等)、类型继承关系、基类信息等。
+
 	`Type`类型类似于`Java`反射机制中的`Class`类型，获取`Type`实例是整个反射流程的起始步骤。  
 	通过`typeOf[T]`方法可以获取指定类型的`Type`实例。
 
-	通过`Type.decls/members`方法获取用户定义/所有的成员`Symbol`。  
-	通过`Type.decl()/member()`方法获取指定`TermName`的成员`Symbol`。
+	`Type`类型可用于筛选出需要反射的成员的符号信息：
 
-	`Type`类型通过操作符`=:=`比较是否相等，通过操作符`<:<`比较是否子类。
+	- `Type.decls` 获取用户定义的成员的`Symbol`
+	- `Type.members` 获取类内所有成员的`Symbol`
+	- `Type.decl()/member()` 获取指定`TermName`的成员`Symbol`
+
+	`Type`类型可用于比较：
+
+	- 通过操作符`=:=`比较是否相等
+	- 通过操作符`<:<`比较是否子类
 
 - `Symbol`
 
-	包含实例或成员的信息。  
-	根据包含信息类型的种类，`Symbol`类型存在以下子类：
+	包含实例或成员的完整信息。
+
+	`Symbol`建立了名称与所指向的类型的绑定(`establish bindings between a name and the entity it refers to`)。  
+	`Symbol`包含了类型(`class/trait/object`等)或成员(`val/var/def`等)的所有可用信息(`contain all available information about the declaration of an entity or a member`)。
+
+	根据包含信息的类别差异，`Symbol`类型存在以下子类：
 
 	- `TypeSymbol`
 
-		包含类型信息，存在以下子类：
+		`TypeSymbol`表示类型、类、特质的定义，以及类型参数(`TypeSymbol represents type, class, and trait declarations, as well as type parameters`)。
 
-		- `ClassSymbol` 类信息，提供`isFinal/isAbstractClass`等`Class`专有特性
+		存在以下子类：
+
+		- `ClassSymbol`
+
+			提供对包含在类、特质中所有信息的访问(`Provides access to all information contained in a class or trait declaration`)。
 
 		构建`TypeSymbol`：
 		
-		- 通过`Type.typeSymbol`获取类的`TypeSymbol`。
-		- 通过`symbolOf[T]`方法获取类的`TypeSymbol`。
+		- `Type.typeSymbol` 通过`Type`实例获取类型对应的`TypeSymbol`
+		- `symbolOf[T]` 直接通过泛型参数构建`TypeSymbol`
 
 	- `TermSymbol`
 
-		字段信息，存在以下子类：
+		`TermSymbol`表示字段、方法、单例的定义，以及包、参数(`The type of term symbols representing val, var, def, and object declarations as well as packages and value parameters`)。
 
-		- `MethodSymbol` 方法信息
-		- `ModuleSymbol` 单例对象信息
+		存在以下子类：
+
+		- `MethodSymbol`
+
+			表示方法定义(`method symbols representing def declarations`)。  
+			支持查询方法是否为(主)构造器，或方法是否支持可变参数等(`It supports queries like checking whether a method is a (primary) constructor, or whether a method supports variable-length argument lists`)。
+
+		- `ModuleSymbol`
+
+			表示单例定义(`module symbols representing object declarations`)。
 
 - `Mirror`
 
-	提供获取反射信息的方式。  
-	使用`runtimeMirror()`方法以`ClassLoader`做为参数构建`Mirror`实例。
+	所有反射提供的信息需要通过`Mirror`来获取(`All information provided by reflection is made accessible through mirrors`)。
 
-	通过`Mirror.reflect()`获取`InstanceMirror`，获取实例信息，用于反射访问/修改字段，调用方法。  
-	通过`Mirror.reflectClass()`获取`ClassMirror`，获取类型信息，可获取类型构造方法反射构建实例。  
-	通过`Mirror.reflectModule()`获取`ModuleMirror`，获取单例信息，可获取单例对象实例。
+	使用`runtimeMirror()`方法以`ClassLoader`为参数构建`Mirror`实例。
+
+	通过`Mirror.reflect()`获取`InstanceMirror`，用于反射访问/修改字段，调用方法。  
+	通过`Mirror.reflectClass()`获取`ClassMirror`，可获取类型构造方法反射构建实例。  
+	通过`Mirror.reflectModule()`获取`ModuleMirror`，可获取单例对象实例。
 
 如下所示：
 
@@ -4625,15 +4651,15 @@ class Test {
 object Main extends App {
 
   // 获取指定类型的注解信息，通过 Annotation.tree.tpe 获取注解的 Type 类型，以此进行筛选
-  def getClassAnnotation[T, U](implicit ttagT: TypeTag[T], ttagU: TypeTag[U]) =
-    typeOf[T].typeSymbol.annotations.find(_.tree.tpe =:= typeOf[U])
+  def getClassAnnotation[T: TypeTag, U: TypeTag] =
+    symbolOf[T].annotations.find(_.tree.tpe =:= typeOf[U])
 
   // 通过字段名称获取指定类型的注解信息，注意查找字段名称时添加空格
-  def getMemberAnnotation[T, U](memberName: String)(implicit ttagT: TypeTag[T], ttagU: TypeTag[U]) =
+  def getMemberAnnotation[T: TypeTag, U: TypeTag](memberName: String) =
     typeOf[T].decl(TermName(s"$memberName ")).annotations.find(_.tree.tpe =:= typeOf[U])
 
   // 通过方法名称和参数名称获取指定类型的注解信息
-  def getArgAnnotation[T, U](methodName: String, argName: String)(implicit ttagT: TypeTag[T], ttagU: TypeTag[U]) =
+  def getArgAnnotation[T: TypeTag, U: TypeTag](methodName: String, argName: String) =
     typeOf[T].decl(TermName(methodName)).asMethod.paramLists.collect {
       case symbols => symbols.find(_.name == TermName(argName))
     }.headOption.fold(Option[Annotation](null))(_.get.annotations.find(_.tree.tpe =:= typeOf[U]))
