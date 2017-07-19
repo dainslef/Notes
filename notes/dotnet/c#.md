@@ -1,4 +1,80 @@
-[TOC]
+<!-- TOC -->
+
+- [入口函数](#入口函数)
+- [数据类型](#数据类型)
+	- [*Value Type* (值类型)](#value-type-值类型)
+	- [*Reference Type* (引用类型)](#reference-type-引用类型)
+	- [可空类型与 *?*、*??* 操作符](#可空类型与--操作符)
+	- [*Type alias* (类型别名)](#type-alias-类型别名)
+- [字符转换](#字符转换)
+	- [*byte[]* 与 *string* 转换](#byte-与-string-转换)
+- [*Property* (属性)](#property-属性)
+	- [自动成员属性](#自动成员属性)
+	- [成员属性初始化](#成员属性初始化)
+	- [属性表达式](#属性表达式)
+- [*struct* (结构类型)](#struct-结构类型)
+- [*static* 关键字](#static-关键字)
+	- [静态方法](#静态方法)
+	- [静态字段](#静态字段)
+	- [静态构造函数](#静态构造函数)
+	- [静态类](#静态类)
+- [*Extension Methods* (扩展方法)](#extension-methods-扩展方法)
+	- [在 *Scala* 中模拟扩展方法](#在-scala-中模拟扩展方法)
+	- [扩展方法的应用场景](#扩展方法的应用场景)
+- [泛型](#泛型)
+	- [泛型约束](#泛型约束)
+	- [泛型类的静态成员](#泛型类的静态成员)
+- [*delegate* (委托) 和 *event* (事件)](#delegate-委托-和-event-事件)
+	- [*delegate* (委托)](#delegate-委托)
+	- [*event* (事件)](#event-事件)
+	- [自定义添加/删除操作的事件](#自定义添加删除操作的事件)
+- [*Lambda*](#lambda)
+	- [*Lambda* 实现委托(delegate)](#lambda-实现委托delegate)
+	- [使用函数对象表示 *Lambda*](#使用函数对象表示-lambda)
+	- [*Lambda* 作用域](#lambda-作用域)
+	- [使用 *Lambda* 语法定义成员函数](#使用-lambda-语法定义成员函数)
+- [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
+	- [*is* 表达式](#is-表达式)
+	- [*switch* 模式匹配](#switch-模式匹配)
+- [并发编程](#并发编程)
+	- [*Thread* 类](#thread-类)
+	- [异步委托](#异步委托)
+	- [*Task* 类](#task-类)
+	- [*async/await* 关键字](#asyncawait-关键字)
+	- [*lock* 关键字](#lock-关键字)
+- [*Reflection* (反射)](#reflection-反射)
+	- [反射机制的相关类型](#反射机制的相关类型)
+	- [*Type*/*TypeInfo* 类型](#typetypeinfo-类型)
+	- [反射获取成员信息](#反射获取成员信息)
+- [*Attribute* (特性)](#attribute-特性)
+	- [使用特性](#使用特性)
+	- [自定义特性](#自定义特性)
+- [动态代理](#动态代理)
+- [*FTP*](#ftp)
+	- [创建 *FTP* 请求](#创建-ftp-请求)
+	- [下载](#下载)
+	- [上传](#上传)
+- [*WinFrom* 开发注记](#winfrom-开发注记)
+	- [常见控件类型](#常见控件类型)
+	- [容器控件](#容器控件)
+	- [布局与样式](#布局与样式)
+	- [控件事件](#控件事件)
+	- [接收Windows消息](#接收windows消息)
+- [调用 *C/C++* 动态链接库](#调用-cc-动态链接库)
+- [特殊关键字](#特殊关键字)
+	- [*internal* 关键字](#internal-关键字)
+	- [*readonly* 关键字](#readonly-关键字)
+	- [*partial* 关键字](#partial-关键字)
+	- [*params* 关键字](#params-关键字)
+- [常见问题](#常见问题)
+	- [处理`\0`结尾字符串](#处理\0结尾字符串)
+	- [MySQL 中 *TINYINT* 类型](#mysql-中-tinyint-类型)
+	- [*DEBUG* 模式](#debug-模式)
+	- [输出代码文件名、行号](#输出代码文件名行号)
+
+<!-- /TOC -->
+
+
 
 ## 入口函数
 `C#`中允许以下4种形式的入口函数：
@@ -83,7 +159,7 @@ public abstract class ValueType {};
 在`C#`中，值类型不能为`null`，对值类型赋值`null`会得到错误，如下所示：
 
 ```cs
-int num = null;			//错误信息："Cannot convert null to 'int' because it is a non-nullable value type"
+int num = null; //错误信息："Cannot convert null to 'int' because it is a non-nullable value type"
 ```
 
 在传统的值类型后添加`?`符号，即成为对应的**可空类型**。  
@@ -114,11 +190,11 @@ System.Nullable<T> variable;
 
 	```cs
 	int? num0 = null;
-	num0 ?? 1;			//可空变量为null时返回指定的默认值1
+	num0 ?? 1; //可空变量为null时返回指定的默认值1
 	int? num1 = 0;
-	num1 ?? 1;			//可空变量不为null时返回保存的值0
+	num1 ?? 1; //可空变量不为null时返回保存的值0
 	string str = null;
-	str ?? "test"		//??操作符同样可以用在普通引用类型上
+	str ?? "test" //??操作符同样可以用在普通引用类型上
 	```
 
 - `?`操作符
@@ -141,14 +217,14 @@ System.Nullable<T> variable;
 		{
 			Test test = null;
 			Console.WriteLine("First Call:");
-			test?.Show();						//实例为null，不调用方法
-			int? num = test?.GetNum();			//返回可空类型，实例为null时返回值为null
-			Console.WriteLine(num);				//打印结果为空(null)
+			test?.Show(); //实例为null，不调用方法
+			int? num = test?.GetNum(); //返回可空类型，实例为null时返回值为null
+			Console.WriteLine(num); //打印结果为空(null)
 			Console.WriteLine("Second Call:");
 			test = new Test();
-			test?.Show();						//实例不为null，正常调用方法
+			test?.Show(); //实例不为null，正常调用方法
 			num = test?.GetNum();
-			Console.WriteLine(num);				//打印结果为1
+			Console.WriteLine(num); //打印结果为1
 		}
 	}
 	```
@@ -169,18 +245,18 @@ C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++
 ```cs
 namespace Np
 {
-	using Fvoid = Action;			//普通类型别名
-	using FInt = Func<int>;			//泛型类型需要指定具体类型
+	using Fvoid = Action; //普通类型别名
+	using FInt = Func<int>; //泛型类型需要指定具体类型
 
-	// C#不支持泛型类型别名
-	using FInInt<In> = Func<In, int>;	//错误
-	using Ft<R> = Func<R>;				//错误
+	// C#不支持高阶类型
+	using FInInt<In> = Func<In, int>; //错误
+	using Ft<R> = Func<R>; //错误
 }
 ```
 
-C#中的类型别名有较多**限制**：
+`C#`中的类型别名有较多**限制**：
 
-- 不支持定义泛型或是部分泛型别名，`C++11`中的`using`支持此功能。
+- 不支持定义**高阶类型**，`C++11`中的`using`支持此功能。
 - 不能在命名空间之外的区域定义类型别名(全局区域、类体、函数体内皆不可定义别名)，`C++11`的`using`无此限制。
 
 
@@ -195,7 +271,7 @@ C#中的类型别名有较多**限制**：
 
 
 ## *Property* (属性)
-C#类中成员有一种被称为`属性`。
+`C#`类中成员有一种被称为`属性`。
 
 - 属性的访问方式与成员变量类似；通过定义`set`和`get`块的内容，能够通过属性给成员变量赋值或是获取成员变量的值。
 - `set`和`get`可以分别设置**访问权限**，不加关键字时访问权限与所在的属性相同。
@@ -1593,7 +1669,8 @@ lock (object)
 - 用于获取由该类型定义的成员信息的**方法**(`GetDeclaredMethod()`、`GetDeclaredField()`等)。
 
 ### 反射获取成员信息
-`C#`中反射获取类型成员信息的相关`API`遵循以下命名规则：
+`Type`类型提供了与Java中`Class`类型类似的接口。  
+反射获取类型成员信息的相关`API`遵循以下命名规则：
 
 - `GetXxx(string)` 获取**指定公有成员**
 - `GetXxxs()` 获取**所有公有成员**
@@ -2361,23 +2438,33 @@ C#中的常见类型与C++中类型之间的转换关系：
 需要注意的是，`internal`修饰的类不能作为`public`成员出现在其它类中。
 
 ### *readonly* 关键字
-`readonly`关键字修饰的变量赋值只能在变量定义时或是在该变量所属类的构造函数中。
+`readonly`关键字用于修饰**运行时只读**变量。  
+`readonly`变量的赋值操作只能发生在以下情形：
 
-- 与`const`关键字相比，`const`关键字定义的变量必须在**定义时**就初始化。
-- `const`定义的变量被视为**编译时常量**，而`readonly`定义的变量被视为**运行时常量**。
-- 在C#中`const`只能修饰值类型以及`string`类型和值为`null`的引用类型，被`const`修饰的变量自动带有`static`特性，`const`关键字与`static`关键字不能共同修饰同一个变量。
+- 在变量定义时。
+- 在变量所属类的构造函数中。
 
-`const`变量是**静态**的，**可以**被定义在静态类中。
-`readonly`没有这些限制，可以修饰任意类型，被`readonly`修饰的变量也默认**不带**`static`属性。
+与`const`关键字的异同：
+
+- `const`修饰的变量被视为**编译时常量**，`readonly`修饰的变量被视为**运行时常量**。
+- `const`关键字修饰的变量须在**定义时**立即初始化。
+- `const`仅能修饰**值类型**/`string`类型/`null`，`readonly`可以修饰任意类型，
+- `const`修饰的变量自动带有`static`特性：
+
+	`const`关键字与`static`关键字不能共同修饰相同变量。  
+	`const`修饰的变量**可以**被定义在静态类中。
+
+- `readonly`修饰的变量默认**不带有**`static`属性：
+
+	`readonly`与`static`关键字可一同使用表示**静态只读**变量。
 
 对于引用类型，不能使用`const`关键字修饰，要限制其修改只能使用`readonly`关键字。
-`readonly`与`static`关键字可一同使用表示**静态只读**变量。
 
 ### *partial* 关键字
 `partial`关键字用于定义`部分类`(局部类型)，局部类型允许我们将一个类、结构或接口分成几个部分，分别实现在几个不同的源码文件中。
 
-在`Windows From`中，窗口类代码便使用了部分类特性。
-对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中。
+在`Windows From`中，窗口类代码便使用了部分类特性。  
+对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中。  
 两个文件中的代码本质上属于同一个类，`部分类`特性巧妙地隔离开了**由IDE产生的代码**与**用户自行编写的代码**，使代码结构更清晰。
 
 ### *params* 关键字
