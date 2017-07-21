@@ -1,4 +1,25 @@
-[TOC]
+<!-- TOC -->
+
+- [简介](#简介)
+	- [配置 *Slick*](#配置-slick)
+	- [*Play Framework* 中集成 *Slick*](#play-framework-中集成-slick)
+	- [接口包路径](#接口包路径)
+- [定义 *Model*](#定义-model)
+	- [特殊类型映射](#特殊类型映射)
+- [获取 *DataBase* 实例](#获取-database-实例)
+	- [使用 *Database* 类构建实例](#使用-database-类构建实例)
+	- [使用 *Play Frameowrk* 注入实例](#使用-play-frameowrk-注入实例)
+- [查询集操作](#查询集操作)
+	- [构建](#构建)
+	- [查询](#查询)
+	- [插入](#插入)
+	- [修改](#修改)
+	- [删除](#删除)
+	- [应用查询集操作](#应用查询集操作)
+
+<!-- /TOC -->
+
+
 
 ## 简介
 `Slick`是`LightBend`官方支持的函数式风格的`ORM`框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。  
@@ -127,10 +148,10 @@ class NoNameTable(tag: Tag, tableName: String) extends Table[(Int, String)](tag,
 `Slick`根据数据库类型提供了不同的`Database`类型，格式如下：
 
 ```scala
-slick.driver.数据库驱动名称.api.Database
+slick.jdbc.数据库类别.api.Database
 ```
 
-以`MySQL`数据库为例，应使用`slick.driver.MySQLDriver.api.Database`类型。  
+以`MySQL`数据库为例，应使用`slick.jdbc.MySQLProfile.api.Database`类型。  
 `Database`对象在使用完毕后需要关闭以释放资源。
 
 ### 使用 *Database* 类构建实例
@@ -291,14 +312,34 @@ class TestController extends Controller {
 泛型参数类型需要为`slick.driver.数据库驱动名称.api.Table`的子类。
 
 ### 构建 
-`TableQurey`类型的单例对象中提供了无参的`apply`方法。  
-对于映射表名已确定的`Table`子类，可直接构建实例。  
+`TableQurey`类型的单例对象中提供了用于构建类型的`apply`方法，如下所示：
+
+```scala
+object TableQuery {
+
+  /** Create a TableQuery for a table row class using an arbitrary constructor function. */
+  def apply[E <: AbstractTable[_]](cons: Tag => E): TableQuery[E] = ...
+
+  /** Create a TableQuery for a table row class which has a constructor of type (Tag). */
+  def apply[E <: AbstractTable[_]]: TableQuery[E] = ...
+
+}
+```
+
+对于映射表名已确定的`Table`子类，可使用无参`apply`方法直接构建实例。  
 以`TestTable`表为例，直接使用`TableQurey[TestTable]`即可构建实例。  
 如下所示：
 
 ```scala
 val query = TableQuery[TestTable]
 ...
+```
+
+对于构造方法传入表名称的`Table`子类，应使用接收高阶类型参数的`apply(Tag => E)`方法。  
+以`NoNameTable`为例，如下所示：
+
+```scala
+val query = TableQuery[NoNameTable](new NoNameTable(_, "数据库中表的名称"))
 ```
 
 ### 查询
