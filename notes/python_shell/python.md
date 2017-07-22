@@ -148,7 +148,7 @@ bytearray(b'ea')
 - `dict` 字典，保存键值对的集合
 
 ### *list* (列表)
-`list`是一个**有序集合**，可以容纳各类数据，并能随意添加和删除。
+`list`是一个**有序集合**，可以容纳各类数据，并能随意添加和删除。  
 `list`中的数据可以是另一个`list`，访问方式类似**二维数组**。
 
 定义一个`list`：
@@ -212,8 +212,36 @@ bytearray(b'ea')
 ['third', 'second', [1, 2, 3]]
 ```
 
+列表可使用`+=`运算符追加新的列表，如下所示：
+
+```py
+>>> l = [1, 2, 3]
+>>> l += [4]
+>>> l
+[1, 2, 3, 4]
+```
+
+列表不能使用`+=`操作符添加单个元素，会抛出异常：
+
+```py
+>>> l = [1, 2, 3]
+>>> l += 4
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 'int' object is not iterable
+```
+
+使用`+=`添加`str`类型时，`str`会被拆解为包含多个`char`的列表进行插入，如下所示：
+
+```py
+>>> s = []
+>>> s += "abc"
+>>> s
+['a', 'b', 'c']
+```
+
 ### *tuple* (元组)
-`tuple`与`list`类似，但`tuple`中的数据**不可修改**，因此没有`append()`、`insert()`、`pop()`之类的方法。
+`tuple`与`list`类似，但`tuple`中的数据**不可修改**，因此没有`append()`、`insert()`、`pop()`之类的方法。  
 `tuple`可以像数组一样通过下标访问，但不能对其赋值：
 
 ```py
@@ -239,9 +267,9 @@ TypeError: 'tuple' object does not support item assignment
 若`tuple`的成员是一个`list`，则`list`内容依然**可变**(`tuple`只保证对元组成员的引用不变，但成员本身的内容是否可变由成员自身的类型决定)。
 
 ### *dict* (字典)
-`dict`使用`键-值`(key-value)存储，类似于`Java`中的`Map`，拥有很快的查找速度。
-相对于`list`，`dict`拥有更快的查找删除速度，而且不会随着`dict`内容的增加而减慢查找删除速度，但`dict`内存开销更大(空间换时间)。
-在`dict`中，`key`是**唯一、不能改变**的，`value`则没有此限制。
+`dict`使用`键-值`(key-value)存储，类似于`Java`中的`Map`，拥有很快的查找速度。  
+相对于`list`，`dict`拥有更快的查找删除速度，而且不会随着`dict`内容的增加而减慢查找删除速度，但`dict`内存开销更大(空间换时间)。  
+在`dict`中，`key`是**唯一、不能改变**的，`value`则没有此限制。  
 `dict`根据`key`的值来计算对应`value`的位置(hash算法)，因此`key`是不能改变的，而可变对象`list`不能作为`key`。
 
 定义`dict`使用大括号：
@@ -295,7 +323,7 @@ True
 定义一个`set`：
 
 ```py
->>> s = { 1, 2, 3, 3 }		#即使你在定义时输入重复的元素，解释器也会将其自动忽略
+>>> s = { 1, 2, 3, 3 } #即使在定义时输入重复的元素，解释器也会将其自动忽略
 >>> s
 {1, 2, 3}
 ```
@@ -373,13 +401,13 @@ var[start:end:step]
 >>> l1[0] = 100
 >>> l1
 [100, 2, 3]
->>> l0			# 引用复制，l1内容改变，l0也会随之改变
+>>> l0 # 引用复制，l1内容改变，l0也会随之改变
 [100, 2, 3]
->>> l2 = l0[:]	# 切片重新生成容器，非引用复制
+>>> l2 = l0[:] # 切片重新生成容器，非引用复制
 >>> l2[0] = 1000
 >>> l2
 [1000, 2, 3]
->>> l0 			# l0的值并未发生变化
+>>> l0 # l0的值并未发生变化
 [100, 2, 3]
 ```
 
@@ -440,7 +468,7 @@ True
 
 
 ## *decorator* (装饰器)
-装饰器能够为已有的函数附加额外的功能。
+装饰器能够为已有的函数附加额外的功能。  
 装饰器也是设计模式中的一种，通过组合的方式来复用已有的功能。
 
 ### 定义装饰器
@@ -449,11 +477,11 @@ True
 
 ```py
 def decorator_name(func_name):
-	def wrapper():		# 定义一个局部函数作为包装函数
+	def wrapper(): # 定义一个局部函数作为包装函数
 		# code before...
-		func_name()		# 调用被装饰的函数
+		func_name() # 调用被装饰的函数
 		# code after...
-	return wrapper		# 返回装饰后的函数
+	return wrapper # 返回装饰后的函数
 ```
 
 在函数定义前加上`@装饰器名`即会使用装饰器来包装定义的函数，如下所示：
@@ -637,7 +665,7 @@ def decorator(decorator_arg = ""):
 
 		return wrapper
 
-	return decorator_wrapper	# decorator_wrapper才是真正接收函数作为参数的装饰器函数
+	return decorator_wrapper # decorator_wrapper才是真正接收函数作为参数的装饰器函数
 
 def show(num1, num2, num3, num4):
 	print("Call method:", show.__name__)
@@ -702,7 +730,7 @@ Num4 is: 4
 
 
 ## *OOP*
-与传统的OOP语言类似，Python中的class具有**独立**的**变量作用域**。
+与传统的OOP语言类似，Python中的class具有**独立**的**变量作用域**。  
 相比传统的OOP语言如Java、C++等，Python对于OOP并没有完整的支持，在Python中**不支持**函数重载、**不支持**定义保护对象。
 
 ### 实例类成员
@@ -720,12 +748,12 @@ Num4 is: 4
 class Test:
 
 	def __init__(self, num1, num2):
-		self.num1 = num2	# 实例变量定义无需单独声明，在构造函数中定义即可在整个类中使用
+		self.num1 = num2 # 实例变量定义无需单独声明，在构造函数中定义即可在整个类中使用
 		self.num2 = num1
 
-	def show(self):						# 实例成员函数第一个参数为对象实例
-		print(self.num1, self.num2)		# 即使在类内部访问类的实例成员变量也需要通过实例对象
-										# 直接访问num1、num2如使用语句 print(num1) 则会得到"num1未定义"的错误提示
+	def show(self): # 实例成员函数第一个参数为对象实例
+		print(self.num1, self.num2) # 即使在类内部访问类的实例成员变量也需要通过实例对象
+		# 直接访问num1、num2如使用语句 print(num1) 则会得到"num1未定义"的错误提示
 
 test = Test(1, 2)
 test.show()
@@ -760,26 +788,26 @@ test.show()
 class Test:
 
 	num1 = 100
-	num2 = 200				# 在类作用域中定义静态成员变量num1，num2
+	num2 = 200 # 在类作用域中定义静态成员变量num1，num2
 
 	def __init__(self, num1, num2):
 		self.num1 = num2
-		self.num2 = num1	# 定义实例成员变量num1，num2
+		self.num2 = num1 # 定义实例成员变量num1，num2
 		Test.num3 = num2
-		Test.num4 = num1	# 在构造函数中定创建态成员变量num3，num4
+		Test.num4 = num1 # 在构造函数中定创建态成员变量num3，num4
 
 	def show(self):
 		print(self.num1, self.num2)
 		Test.static_show()	# 即使在类内部，访问自身类的静态成员函数也需要加类名
 
 	@staticmethod
-	def static_show():		# 静态成员函数的定义前加装饰器@staticmethod
+	def static_show(): # 静态成员函数的定义前加装饰器@staticmethod
 		print(Test.num1, Test.num2, Test.num3, Test.num4)
 
-# print(Test.num3)			# 报错，Test类的__init__()一次都没有被调用，此时Test.num3不存在
+# print(Test.num3) # 报错，Test类的__init__()一次都没有被调用，此时Test.num3不存在
 test = Test(1, 2)
 test.show()
-test.static_show()			# 静态成员函数也能够被实例访问
+test.static_show() # 静态成员函数也能够被实例访问
 ```
 
 ### 类方法
@@ -804,7 +832,7 @@ class Test:
 		print(str, cls.num, Test.num)
 
 t = Test(200)
-t.show("Called by t.show()")		# 通过实例与通过类名的调用结果完全相同，访问都是静态变量
+t.show("Called by t.show()") # 通过实例与通过类名的调用结果完全相同，访问都是静态变量
 Test.show("Called by Test.show()")
 ```
 
@@ -855,10 +883,10 @@ class Num:
 	num = property(get_num, set_num, del_num, doc = None)
 
 n = Num(10)
-print(n.num)		# 使用用读属性，实际调用get_num()
-n.num = 100			# 使用写属性，实际调用set_num()
+print(n.num) # 使用用读属性，实际调用get_num()
+n.num = 100 # 使用写属性，实际调用set_num()
 print(n.num)
-del n.num			# 删除成员，实际调用del_num()
+del n.num # 删除成员，实际调用del_num()
 ```
 
 如果需要定义`只读属性`，则调用`property()`函数时`fset`参数取`None`即可。
@@ -941,19 +969,19 @@ class Test:
 
 t = Test(200)
 
-t.call()				# 调用实例成员方法
-Test.call(t)			# 以静态方法的语法调用实例成员方法，调用成功，输出相同
+t.call() # 调用实例成员方法
+Test.call(t) # 以静态方法的语法调用实例成员方法，调用成功，输出相同
 
-Test.cls_call()			# 通过类名调用类方法
-t.cls_call()			# 通过调用实例调用类方法，输出与通过类名调用相同
-# Test.cls_call(t)		# 报错，提式参数过多
+Test.cls_call() # 通过类名调用类方法
+t.cls_call() # 通过调用实例调用类方法，输出与通过类名调用相同
+# Test.cls_call(t) # 报错，提式参数过多
 
-# t.static_call()		# 报错，提示缺少参数"slef"
+# t.static_call() # 报错，提示缺少参数"slef"
 t.static_call(t)
 Test.static_call(t)
 
 Test.no_arg()
-# t.no_arg()			# 报错，提示参数过多
+# t.no_arg() # 报错，提示参数过多
 ```
 
 输出结果：
@@ -995,8 +1023,8 @@ class Test:
 		print(self.__num, Test.__num)
 
 test = Test(1)
-test.show()							# 调用show()成员函数正确打印私有成员内容
-print(test.__num, Test.__num)		# 直接输出私有成员内容报错，错误提示 " 'Test'对象没有属性__num "
+test.show() # 调用show()成员函数正确打印私有成员内容
+print(test.__num, Test.__num) # 直接输出私有成员内容报错，错误提示 " 'Test'对象没有属性__num "
 ```
 
 实际上，私有变量并不是真的被隐藏了，仅仅是解释器对私有变量的名称做了一些改动使得外界无法访问。
@@ -1018,7 +1046,7 @@ class Test:
 
 test = Test(1)
 test.show()
-print(test._Test__num, Test._Test__num)		# 需要注意的是，不同的Python解释器重命名的方式可能略有不同
+print(test._Test__num, Test._Test__num) # 需要注意的是，不同的Python解释器重命名的方式可能略有不同
 ```
 
 输出结果：
@@ -1058,33 +1086,33 @@ class Child(Parent):
 系统定义的属性与方法：
 
 ```py
-Class.__doc__				# 类型帮助信息 'Class Doc.'
-Class.__name__				# 类型名称 'Class'
-Class.__module__			# 类型所在模块 '__main__'
-Class.__bases__				# 类型所继承的基类 (<type 'object'>,)
-Class.__dict__				# 类型字典，存储所有类型成员信息。 <dictproxy object at 0x00D3AD70>
-Class().__class__			# 类型 <class '__main__.Class'>
-Class().__module__			# 实例类型所在模块 '__main__'
-Class().__dict__			# 对象字典，存储所有实例成员信息。 { 'i': 1234 }
+Class.__doc__ # 类型帮助信息 'Class Doc.'
+Class.__name__ # 类型名称 'Class'
+Class.__module__ # 类型所在模块 '__main__'
+Class.__bases__ # 类型所继承的基类 (<type 'object'>,)
+Class.__dict__ # 类型字典，存储所有类型成员信息。 <dictproxy object at 0x00D3AD70>
+Class().__class__ # 类型 <class '__main__.Class'>
+Class().__module__ # 实例类型所在模块 '__main__'
+Class().__dict__ # 对象字典，存储所有实例成员信息。 { 'i': 1234 }
 ```
 
 一些常用的特殊方法：
 
 ```py
-t = T()					# 实际调用 t.__init__() 构造函数
-del t					# 实际调用 t.__del__() 析构函数
-repr(t)					# 实际调用 t.__repr__() 将对象转成字符串显示(适合解释器阅读)
-str(t)					# 实际调用 t.__str__() 将值转化为字符串形式(适合人阅读)，print()打印会调用对象的__str__()函数
-format(t, format_spec)	# 实际调用 t.__format__(format_spec) 格式化字符串的值
-t()						# 实际调用 t.__call__() 提供与函数类似的行为
-len(t)					# 实际调用 t.__len__()
-t[key]					# 实际调用 t.__getitem__(key) 访问索引值
-t[key] = value			# 实际调用 t.__setitem__(key, value) 索引赋值
-t.member				# 实际调用 t.__getattr__(menber) 访问成员
-t.member = value		# 实际调用 t.__setattr__(member, value) 成员赋值
-t < k					# 实际调用 t.__it__(k) 小于运算符
-t > k					# 实际调用 t.__gt__(k) 大于运算符
-t + k					# 实际调用 t.__add__(k) 加号运算符
+t = T() # 实际调用 t.__init__() 构造函数
+del t # 实际调用 t.__del__() 析构函数
+repr(t) # 实际调用 t.__repr__() 将对象转成字符串显示(适合解释器阅读)
+str(t) # 实际调用 t.__str__() 将值转化为字符串形式(适合人阅读)，print()打印会调用对象的__str__()函数
+format(t, format_spec) # 实际调用 t.__format__(format_spec) 格式化字符串的值
+t() # 实际调用 t.__call__() 提供与函数类似的行为
+len(t) # 实际调用 t.__len__()
+t[key] # 实际调用 t.__getitem__(key) 访问索引值
+t[key] = value # 实际调用 t.__setitem__(key, value) 索引赋值
+t.member # 实际调用 t.__getattr__(menber) 访问成员
+t.member = value # 实际调用 t.__setattr__(member, value) 成员赋值
+t < k # 实际调用 t.__it__(k) 小于运算符
+t > k # 实际调用 t.__gt__(k) 大于运算符
+t + k # 实际调用 t.__add__(k) 加号运算符
 ```
 
 
@@ -1215,7 +1243,8 @@ num after set_nonlocal_num(): 1
 
 - 在函数定义中使用关键字`yield`则该函数变成为一个**生成器**。
 - 执行生成器函数**不会**得到该函数的返回值，而是得到一个生成器对象。
-- 对生成器对象使用`next(生成器对象)`函数便会执行一次生成器，执行到yield关键字时便会停下来，返回yield语句的返回值，再次调用`next()`便会从上次yield结束的语句继续开始执行，直到一个新的yield语句。
+- 对生成器对象使用`next(生成器对象)`方法会执行一次生成器，执行到`yield`关键字时，方法暂停，并返回`yield`语句的返回值。  
+	再次调用`next()`方法会从上次`yield`结束的语句继续开始执行，直到再次运行到`yield`语句。
 
 在`Python 3`之前，可以使用`生成器对象.next()`的方式进行生成器迭代，在`Python 3`中变成了`生成器对象.__next()__`，作用与`next(生成器对象)`相同。
 
@@ -1247,7 +1276,7 @@ StopIteration: 100
 ```
 
 ### 遍历生成器与获取生成器的返回值
-除了使用`next()`函数来进行生成器迭代外，还可以采用**for循环**的形式。
+除了使用`next()`函数来进行生成器迭代外，还可以采用**for循环**的形式。  
 正常情况下，是不能获得生成器函数中的返回值的，若需要返回值，则可以捕获**StopIteration**异常，通过异常对象获取生成器函数的返回值。
 
 如下代码所示：
@@ -1295,9 +1324,9 @@ print([next(g) for i in range(0, 3)])
 ```
 
 ### 使用 *send()* 与生成器进行交互
-当使用`next()`生成器启动后，便可以使用`生成器对象.send(内容)`向生成器传递内容，`send()`传递的内容将作为yield表达式的**返回值**。
-`next()`就相当于`send(None)`，即`None`为`yield`表达式的默认返回值。
-执行了`send()`函数相当于先执行一次`next()`，然后将`send()`中的参数作为`yield`的返回值。
+当使用`next()`生成器启动后，便可以使用`生成器对象.send(内容)`向生成器传递内容，`send()`传递的内容将作为yield表达式的**返回值**。  
+`next()`就相当于`send(None)`，即`None`为`yield`表达式的默认返回值。  
+执行了`send()`函数相当于先执行一次`next()`，然后将`send()`中的参数作为`yield`的返回值。  
 首次启动生成器必须使用`next()`，因为第一次迭代没有`yield`表达式参与，以后的每一次迭代都可以使用`send()`代替`next()`。
 
 如下代码所示：
@@ -1408,8 +1437,8 @@ Python提供了包管理器`pip`用于管理模块。
 
 ```
 $ wget https://bootstrap.pypa.io/get-pip.py
-$ sudo python3 get-pip.py						//将pip安装到系统目录(Linux下需要root权限)
-$ python3 get-pip.py --user						//将pip安装到用户目录
+$ sudo python3 get-pip.py //将pip安装到系统目录(Linux下需要root权限)
+$ python3 get-pip.py --user //将pip安装到用户目录
 ```
 
 系统目录下的Python包是所有用户共享的，用户目录下的Python包只有所有者可访问。
@@ -1417,17 +1446,17 @@ $ python3 get-pip.py --user						//将pip安装到用户目录
 `pip`包管理器的使用方式类似于Linux发行版的包管理器，常见操作如下：
 
 ```
-# pip install [package_name]				//安装包
-# pip uninstall [package_name]				//移除包
-# pip install --upgrade [package_name]		//升级指定包
-# pip install -U [package_name]				//升级指定包，"-U"参数等价于"--upgrade"
-$ pip install --user [package_name]			//安装指定包到用户目录
-$ pip list									//列出已安装的包
-$ pip list --outdated						//列出可以升级的包
-$ pip list --user							//列出安装在用户目录的包
-$ pip show [package_name]					//显示包的详细信息
-$ pip show --files [package_name]			//列出包安装的文件列表
-$ pip help [operate]						//查看pip相关操作的帮助信息，如"pip help install"即查看"pip install"指令的所有用法
+# pip install [package_name] //安装包
+# pip uninstall [package_name] //移除包
+# pip install --upgrade [package_name] //升级指定包
+# pip install -U [package_name] //升级指定包，"-U"参数等价于"--upgrade"
+$ pip install --user [package_name] //安装指定包到用户目录
+$ pip list //列出已安装的包
+$ pip list --outdated //列出可以升级的包
+$ pip list --user //列出安装在用户目录的包
+$ pip show [package_name] //显示包的详细信息
+$ pip show --files [package_name] //列出包安装的文件列表
+$ pip help [operate] //查看pip相关操作的帮助信息，如"pip help install"即查看"pip install"指令的所有用法
 ```
 
 `Linux`下`pip`的包路径：
@@ -1457,8 +1486,8 @@ $ pip help [operate]						//查看pip相关操作的帮助信息，如"pip help 
 `pip-autoremove`的常见操作如下：
 
 ```
-$ pip-autoremove -l							//列出未被使用的依赖(可以被清理的依赖)
-$ pip-autoremove -L							//列出不被其它包依赖的包(主动安装的包)
+$ pip-autoremove -l //列出未被使用的依赖(可以被清理的依赖)
+$ pip-autoremove -L //列出不被其它包依赖的包(主动安装的包)
 ```
 
 
