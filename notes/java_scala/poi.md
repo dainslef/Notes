@@ -1,4 +1,24 @@
-[TOC]
+<!-- TOC -->
+
+- [概述](#概述)
+	- [接口结构](#接口结构)
+- [*XWPF*](#xwpf)
+	- [*XWPFDocument*](#xwpfdocument)
+	- [*XWPFParagraph* / *XWPFRun*](#xwpfparagraph--xwpfrun)
+	- [*XWPFTable* / *XWPFTableRow* / *XWPFTableCell*](#xwpftable--xwpftablerow--xwpftablecell)
+	- [向文档中插入图片](#向文档中插入图片)
+	- [设置表格宽度](#设置表格宽度)
+	- [设置表格单元格的对齐方式](#设置表格单元格的对齐方式)
+- [*XSSF*](#xssf)
+	- [*XSSFWorkbook*](#xssfworkbook)
+	- [*XSSFSheet* / *XSSFTable*](#xssfsheet--xssftable)
+- [*XSSFRow* / *XSSFCell*](#xssfrow--xssfcell)
+- [常见问题](#常见问题)
+	- [*Schemas* 类型缺失](#schemas-类型缺失)
+
+<!-- /TOC -->
+
+
 
 ## 概述
 `POI`是`Apache`基金会下的项目之一，提供了对微软`Office`系列各类文档的读写支持。  
@@ -64,8 +84,6 @@
 相关方法定义如下所示：
 
 ```java
-package org.apache.poi;
-
 public class XWPFDocument extends POIXMLDocument implements Document, IBody {
 	...
 	public XWPFDocument();
@@ -393,7 +411,7 @@ implicit class XWPFTableUtils(table: XWPFTable) {
   def setCellsHorizontalAlign(align: STJc.Enum) = for {
     row <- 0 until table.getRows.size
     cell <- 0 until table.getRow(row).getTableCells.size
-  } table.getRow(row).getCell(cell).getCTTc.getPList().forEach {
+  } table.getRow(row).getCell(cell).getCTTc.getPList.forEach {
     _.addNewPPr().addNewJc().setVal(align)
   }
 
@@ -417,6 +435,75 @@ java.lang.NoClassDefFoundError: org/openxmlformats/schemas/wordprocessingml/x200
 ```
 
 需要添加`ooxml-schemas`依赖。
+
+
+
+## *XSSF*
+`XSSF`提供了对`Excel 2007`(*xlsx*)格式的文档读写功能。
+
+主要包含以下类型，位于`org.apache.poi.xssf.usermodel`包路径下：
+
+- `XSSFWorkbook` 代表整个`Excel`文档
+- `XSSFSheet` 代表一个工作表
+- `XSSFRow` 代表表格内的行
+- `XSSFCell` 代表表格内的单元格
+- `XSSFCellStyle` 代表单元格的样式
+
+与`XWPF`相比，`Excel`相关的`HSSF/XSSF`是`POI`的主打功能，接口完善、功能强大。
+
+### *XSSFWorkbook*
+`XSSFWorkbook`是对整个`Excel`文档的抽象，与`XWPF`中的`XWPFDocument`类似。
+
+使用默认的空参构造方法即可创建新的空白文档。  
+使用其父类`POIXMLDocument`提供的`write()`方法可将文档写入输出流中。  
+相关方法定义如下所示：
+
+```java
+public class XSSFWorkbook extends POIXMLDocument implements Workbook {
+	...
+	public XSSFWorkbook();
+	...
+}
+
+public abstract class POIXMLDocument extends POIXMLDocumentPart implements Closeable {
+	...
+	public final void write(OutputStream stream) throws IOException;
+	...
+}
+```
+
+### *XSSFSheet* / *XSSFTable*
+`XSSFSheet`代表`Excel`文档中的**工作表**，一个`Excel`文档中可以包含多张工作表。  
+使用`XSSFWorkbook`的`createSheet()/getSheet()/getSheetAt()`等方法可以创建/获取文档中的工作表(`XSSFSheet`实例)。  
+相关方法定义如下所示：
+
+```java
+public class XSSFWorkbook extends POIXMLDocument implements Workbook {
+	...
+	public XSSFSheet createSheet(String sheetname); //创建指定名称的工作表
+	public XSSFSheet getSheet(String name); //获取指定名称的工作表
+	public XSSFSheet getSheetAt(int index); //获取指定索引的工作表
+	...
+}
+```
+
+工作表本身可以包含子表格，使用`XSSFWorkbook`的`createTable()/getTables()`方法创建/获取表格。  
+相关方法定义如下所示：
+
+```java
+public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
+	...
+	public XSSFTable createTable();
+	public List<XSSFTable> getTables();
+	...
+}
+```
+
+## *XSSFRow* / *XSSFCell*
+`XSSFRow/XSSFCell`代表表格中的行、列。
+
+通过`XSSFSheet`的`createRow()`方法向工作表中添加行。  
+通过`XSSFCell`的`createCell()`方法向行中添加单元格。
 
 
 
