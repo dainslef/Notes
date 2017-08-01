@@ -1,4 +1,33 @@
-[TOC]
+<!-- TOC -->
+
+- [*ulimit*](#ulimit)
+	- [*Core Dump* (核心转储)](#core-dump-核心转储)
+- [*fdisk*](#fdisk)
+- [*parted*](#parted)
+- [*LVM*](#lvm)
+	- [配置LVM](#配置lvm)
+	- [物理卷 *PV*](#物理卷-pv)
+	- [卷组 *VG*](#卷组-vg)
+	- [逻辑卷 *LV*](#逻辑卷-lv)
+- [*curl*](#curl)
+	- [*FTP* 操作](#ftp-操作)
+- [*Suspend* 和 *Hibernate*](#suspend-和-hibernate)
+- [*systemd*](#systemd)
+	- [服务管理](#服务管理)
+	- [服务分析](#服务分析)
+	- [系统配置](#系统配置)
+- [*VTE*](#vte)
+- [*apt*](#apt)
+	- [源配置](#源配置)
+	- [Debian 源](#debian-源)
+	- [Ubuntu 源](#ubuntu-源)
+- [*apt-mirror*](#apt-mirror)
+	- [配置](#配置)
+	- [使用本地源](#使用本地源)
+
+<!-- /TOC -->
+
+
 
 ## *ulimit*
 使用`ulimit`指令查看和设定存储限制。指令格式：
@@ -94,7 +123,8 @@
 	正确使用带有参数的`mkpart`指令可直接创建分区。  
 	使用不带参数的`mkpart`指令则会以会话的形式引导输入创建分区所需的参数。
 - `rm [分区号]` 删除指定分区
-- `set [分区号] [分区标志] on/off` 添加/删除指定分区的分区标志
+- `set [分区号] [分区标识] on/off` 添加/删除指定分区的分区标志
+- `toggle [分区号] [分区标识]`
 - `name [分区号] [分区名称]` 命名指定分区
 - `print` 显示分区信息
 - `print free` 显示分区信息，包括磁盘中未被使用的空间
@@ -113,14 +143,15 @@
 ### 配置LVM
 配置`LVM`的**基本步骤**：
 
-0. 创建硬盘分区
-0. 创建物理卷：`# pvcreate [硬盘路径/分区路径]`(物理卷可以是整个硬盘或是硬盘中的某个分区)
-0. 创建卷组：`# vgcreaate [卷组名称] [需要加入卷组的物理卷分区路径]`
-0. 创建逻辑卷：`# lvcreate -L [分区大小(xxGB/xxMB/...)] -n [逻辑分区名称] [卷组名称]`
-0. 格式化逻辑分区，挂载使用
+1. 创建硬盘分区
+1. 创建物理卷：`# pvcreate [硬盘路径/分区路径]`(物理卷可以是整个硬盘或是硬盘中的某个分区)
+1. 创建卷组：`# vgcreaate [卷组名称] [需要加入卷组的物理卷分区路径]`
+1. 创建逻辑卷：`# lvcreate -L [分区大小(xxGB/xxMB/...)] -n [逻辑分区名称] [卷组名称]`
+1. 格式化逻辑分区，挂载使用
 
 ### 物理卷 *PV*
-物理卷`Physical Volume`是在磁盘上**实际存在**的物理分区。
+物理卷`Physical Volume`是在磁盘上**实际存在**的物理分区。  
+被添加到`LVM`的物理分区需要拥有`lvm`标识(flag)。
 
 物理卷相关的操作为`pvXXX`系列指令：
 
@@ -137,7 +168,7 @@
 
 卷组相关的操作为`vgXXX`系列指令：
 
-- `# vgcreate [卷组名称] [物理卷路径]` 一个卷组至少需要包含一个物理卷
+- `# vgcreate [卷组名称] [物理卷路径]` 一个卷组至少需要包含一个物理卷，物理卷路径可为多个
 - `# vgreduce [卷组名称] [物理卷路径]` 从一个卷组中删除指定的物理卷
 - `# vgremove [卷组名称]` 移除指定卷组
 - `# vgdisplay` 显示所有卷组
@@ -148,11 +179,11 @@
 
 逻辑卷相关的操作为`lvXXX`系列指令：
 
-- `# lvcreate -L [分区大小(xxGB/xxMB/...)] -n [逻辑分区] [卷组名称]` 创建逻辑卷
-- `# lvresize -L +/-[分区大小(xxGB/xxMB/...)] [逻辑分区]` 在原先逻辑卷大小的基础上扩充/缩减指定大小
-- `# lvextend -L [分区大小(xxGB/xxMB/...)] [逻辑分区]` 增加逻辑卷到指定大小(分区大小的数值需要大于原先该逻辑分区的大小)
-- `# lvreduce -L [分区大小(xxGB/xxMB/...)] [逻辑分区]` 减小逻辑卷到指定大小(分区大小的数值需要小于原先该逻辑分区的大小)
-- `# lvremove [逻辑分区]` 移除指定逻辑卷
+- `# lvcreate -L [分区大小(xxGB/xxMB/...)] -n [逻辑分区名称] [卷组名称]` 创建逻辑卷
+- `# lvresize -L +/-[分区大小(xxGB/xxMB/...)] [逻辑分区名称]` 在原先逻辑卷大小的基础上扩充/缩减指定大小
+- `# lvextend -L [分区大小(xxGB/xxMB/...)] [逻辑分区名称]` 增加逻辑卷到指定大小(分区大小的数值需要大于原先该逻辑分区的大小)
+- `# lvreduce -L [分区大小(xxGB/xxMB/...)] [逻辑分区名称]` 减小逻辑卷到指定大小(分区大小的数值需要小于原先该逻辑分区的大小)
+- `# lvremove [逻辑分区名称]` 移除指定逻辑卷
 - `# lvdisplay` 显示所有逻辑卷
 
 扩展逻辑卷大小无需卸载、重新挂载文件系统。  
@@ -165,12 +196,16 @@
 
 基本指令为：
 
-`$ curl [目标文件路径]`
+```
+$ curl [目标文件路径]
+```
 
 `curl`对于获取的文件会直接以文本的形式输出在终端上，可以使用`-o`参数导出到文件。
 对于一些可能需要验证用户权限的协议(如`ftp`)，可以使用`-u`参数添加用户信息，指令格式如下：
 
-`$ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]`
+```
+$ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
+```
 
 ### *FTP* 操作
 使用`curl`工具进行`FTP`操作：
@@ -348,7 +383,7 @@ $ vte -W -P never -g 120x40 -f "Monaco 10" -n 5000 --reverse
 
 `Debian`系列发行版软件源格式为：
 
-```
+```sh
 # 二进制包
 deb [软件源地址] [版本号] [仓库类型]
 
@@ -390,7 +425,7 @@ deb-src [软件源地址] [版本号] [仓库类型]
 
 以**中科大镜像源**为例，`Debian Stable`的`sources.list`配置：
 
-```
+```sh
 deb https://mirrors.ustc.edu.cn/debian/ stable main contrib non-free
 deb https://mirrors.ustc.edu.cn/debian/ stable-updates main contrib non-free
 deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free
@@ -446,7 +481,7 @@ deb http://archive.canonical.com/ubuntu/ xenial partner
 
 以**中科大镜像源**为例，同步到本地的`~/Public/Mirrors`路径下，配置：
 
-```
+```sh
 set base_path /home/Xxx/Public/Mirrors
 
 deb http://mirrors.ustc.edu.cn/ubuntu xenial main restricted universe multiverse
@@ -459,7 +494,7 @@ deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted univers
 若仅需要本机使用本地源，可以直接使用`file:///...`访问本机的源路径。  
 `sources.list`配置：
 
-```
+```sh
 deb file:///home/Xxx/Public/Mirrors/mirror xenial main restricted universe multiverse
 deb file:///home/Xxx/Public/Mirrors/mirror xenial-security main restricted universe multiverse
 deb file:///home/Xxx/Public/Mirrors/mirror xenial-updates main restricted universe multiverse
