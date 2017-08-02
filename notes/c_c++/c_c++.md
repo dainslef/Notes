@@ -13,10 +13,11 @@
 - [*sizeof* 运算符](#sizeof-运算符)
 - [列表初始化](#列表初始化)
 	- [数组初始化](#数组初始化)
-	- [C99 *designated initializers*](#c99-designated-initializers)
+	- [*designated initializers* (C99)](#designated-initializers-c99)
 	- [二维数组初始化](#二维数组初始化)
-	- [C++98类/结构体列表初始化](#c98类结构体列表初始化)
-	- [C++11统一初始化](#c11统一初始化)
+	- [类/结构体列表初始化 (C++98)](#类结构体列表初始化-c98)
+	- [统一初始化 (C++11)](#统一初始化-c11)
+	- [*std::initializer_list<T>* (C++11)](#stdinitializer_listt-c11)
 - [结构体对齐](#结构体对齐)
 	- [指定结构体对齐大小](#指定结构体对齐大小)
 - [变长参数](#变长参数)
@@ -35,9 +36,9 @@
 	- [虚函数](#虚函数)
 - [参数默认值](#参数默认值)
 - [函数定义嵌套](#函数定义嵌套)
-- [*lvalue reference* (左值引用) 和 *rvalue reference* (右值引用)](#lvalue-reference-左值引用-和-rvalue-reference-右值引用)
+- [*lvalue reference* (左值引用) / *rvalue reference* (右值引用)](#lvalue-reference-左值引用--rvalue-reference-右值引用)
 	- [引用绑定规则](#引用绑定规则)
-	- [移动语义 *move semantics*](#移动语义-move-semantics)
+	- [*move semantics* (移动语义)](#move-semantics-移动语义)
 	- [注意事项](#注意事项)
 	- [成员函数的引用限定](#成员函数的引用限定)
 - [绑定指针的引用](#绑定指针的引用)
@@ -49,13 +50,13 @@
 	- [模板与重载](#模板与重载)
 	- [模版特化](#模版特化)
 	- [模版递归](#模版递归)
-	- [C++11 变长模版](#c11-变长模版)
+	- [变长模版 (C++11)](#变长模版-c11)
 	- [禁止特定类型的模板参数](#禁止特定类型的模板参数)
-- [C11 *_Generic*](#c11-_generic)
+- [*_Generic* (C11)](#_generic-c11)
 - [*assert* (断言)](#assert-断言)
-	- [C语言中的断言](#c语言中的断言)
-	- [*C11* 中的静态断言](#c11-中的静态断言)
-	- [*C++11* 中的静态断言](#c11-中的静态断言)
+	- [断言宏](#断言宏)
+	- [静态断言 (C11)](#静态断言-c11)
+	- [静态断言 (C++11)](#静态断言-c11)
 - [*auto* 类型推导](#auto-类型推导)
 - [*Lambda*](#lambda)
 	- [重复使用一个 *Lambda*](#重复使用一个-lambda)
@@ -382,7 +383,7 @@ type array_name[] = { value0, value1, ... };			//由初始化内容决定数组�
 type array_name[size] = { value0, value1, ... };		//指定数组长度
 ```
 
-### C99 *designated initializers*
+### *designated initializers* (C99)
 在`C99`中，扩充了花括号初始化数组的功能，允许指定范围进行初始化(`designated initializers`)，但`C++`中没有引入此特性，以下代码**只能在C编译器**下编译通过：
 
 ```c
@@ -434,7 +435,7 @@ char s2[2][3] = { {'a', 'b', 'c'}, "def" };				//按行初始化
 char s3[2][3] = { '1', '2', '3', '4', '5', '6' };		//顺序初始化
 ```
 
-### C++98类/结构体列表初始化
+### 类/结构体列表初始化 (C++98)
 对于`class`和`struct`而言，在`C++98`中，如果成员变量皆为**公有成员**且**未手动定义**构造函数时，可以使用列表进行初始化，如下所示：
 
 ```cpp
@@ -495,7 +496,7 @@ int main(void)
 }
 ```
 
-### C++11统一初始化
+### 统一初始化 (C++11)
 在`C++11`中，新增了**统一初始化**特性，带有非公有成员和自定义构造函数的类同样可以使用列表初始化，只需要列表参数与构造函数相匹配即可。如下所示：
 
 ```cpp
@@ -547,6 +548,43 @@ int a { 100 };
 auto func = [](int a) {};
 func(100.0); //正常
 func({ 100.0 }); //编译报错，提示"error: narrowing conversion of ‘1.0e+2’ from ‘double’ to ‘int’ inside { } [-Wnarrowing]"
+```
+
+### *std::initializer_list<T>* (C++11)
+自定义类型可以通过使用`std::initializer_list<T>`类型做为构造方法参数来支持变长的统一初始化参数表。  
+如下所示：
+
+```cpp
+#include <iostream>
+#include <initializer_list>
+
+template <class T>
+class Init
+{
+public:
+	Init(const std::initializer_list<T>& l)
+	{
+		for (const T& i : l)
+			std::cout << i << " ";
+		std::cout << std::endl;
+	}
+};
+
+int main(void)
+{
+	Init<int> { 1 };
+	Init<int> { 1, 2, 3 };
+	Init<std::string> { "One", "Two", "Three" };
+	return 0;
+}
+```
+
+输出结果：
+
+```
+1
+1 2 3
+One Two Three
 ```
 
 
@@ -759,7 +797,7 @@ printf("%f %c %d\n", a, *(char*)((long*)&a + 1), *((long*)&a + 2));
 以标准库中的`printf()`函数为例，为`printf()`函数定义具有可变参数的宏，如下所示：
 
 ```c
-#define PRINTF(str, ...) printf(str, __VA_ARGS__) 
+#define PRINTF(str, ...) printf(str, __VA_ARGS__) //MSVC中允许空的可变参数表，GCC中不允许
 ```
 
 对于`GCC/Clang`等编译器，支持如下扩展语法：
@@ -775,8 +813,8 @@ printf("%f %c %d\n", a, *(char*)((long*)&a + 1), *((long*)&a + 2));
 
 ```c
 // 支持可空可变参数表
-#define PRINTF(str, args...) printf(str, ##args)
-#define PRINTF(str, ...) printf(str, ##__VA_ARGS__)
+#define PRINTF(str, args...) printf(str, ##args) //GCC/Clang
+#define PRINTF(str, ...) printf(str, ##__VA_ARGS__) //MSVC/GCC/Clang
 ```
 
 
@@ -857,14 +895,14 @@ class Empty { };
 class Empty
 {
 public:
-	Empty();							//默认的空构造函数
-	Empty(const Empty&);				//复制构造函数
-	Empty(Empty&&);						//C++11，移动构造函数
-	~Empty();							//默认的析构函数
-	Empty* operator&();					//重载取地址运算符
-	const Empty* operator&() const;		//带const的取址运算符
-	Empty& operator=(const Empty&);		//重载等号为对象内容复制
-	Empty& operator=(Empty&&);			//C++11，重载等号为移动对象
+	Empty(); //默认的空构造函数
+	Empty(const Empty&); //复制构造函数
+	Empty(Empty&&); //C++11，移动构造函数
+	~Empty(); //默认的析构函数
+	Empty* operator&(); //重载取地址运算符
+	const Empty* operator&() const; //带const的取址运算符
+	Empty& operator=(const Empty&); //重载等号为对象内容复制
+	Empty& operator=(Empty&&); //C++11，重载等号为移动对象
 };
 ```
 
@@ -877,8 +915,8 @@ public:
 class Test
 {
 public:
-	Test() = delete;					//禁止默认的构造函数
-	Test(const Test&) = delete;			//禁止默认的复制构造函数
+	Test() = delete; //禁止默认的构造函数
+	Test(const Test&) = delete; //禁止默认的复制构造函数
 	... 其它类似
 };
 ```
@@ -891,7 +929,7 @@ class Test
 {
 public:
 	Test(int) {};
-	Test() = default;					//使用default关键字合成默认无参构造函数
+	Test() = default; //使用default关键字合成默认无参构造函数
 };
 ```
 
@@ -929,7 +967,7 @@ private:
 
 int main(void)
 {
-	A* a = new B;		//报错，提示 " 'A' is an inaccessible base of 'B' "
+	A* a = new B; //报错，提示 " 'A' is an inaccessible base of 'B' "
 	return 0;
 }
 
@@ -953,8 +991,8 @@ private:
 int main(void)
 {
 	A* a = new B;
-	cout << a->get() << endl;		//正确，调用子类实现，输出200
-	cout << B().get() << endl;		//错误，提示"within this context"
+	cout << a->get() << endl; //正确，调用子类实现，输出200
+	cout << B().get() << endl; //错误，提示"within this context"
 	return 0;
 }
 ```
@@ -1170,7 +1208,7 @@ int main(void)
 >
 > `E`类继承与`A`，只有一张虚表，通过向上转型得到的实例`a`中，`E`的`get()`重写了父类`A`的虚函数`get()`，`(long*)*(long*)&*a`是虚函数表的首地址，存放是`A`类的第一个成员虚函数`get(int)`，`(long*)*(long*)&*a + 1`是虚函数表中的第二个内容的地址，地址中存放的原本是类A的第二个虚函数`get()`，但在向上转型的实例中，被替换成了子类`E`的`get()`函数的地址。
 
-需要注意的是，在多重继承时，如果继承的多个父类中都有符合子类函数签名的虚函数，则子类会将所有符合条件的虚表中的父类虚函数指针替换成子类的函数指针。
+在多重继承时，如果继承的多个父类中都有符合子类函数签名的虚函数，则子类会将所有符合条件的虚表中的父类虚函数指针替换成子类的函数指针。  
 在`VS`中运行此段代码，只会输出前两个结果，因为在`VS`中，多个虚表之间不是直接相连的，在类成员结束之后并未直接开始下一个虚表，而是隔着一些特殊的字段并用0进行填充，不能通过直接加减类实例地址来得到下一个虚表地址。
 
 
@@ -1189,11 +1227,11 @@ C++允许在定义函数是给函数的参数设定**默认值**，在调用这�
 
 ```cpp
 int got(int a = 3);
-int got(int a = 3)		//编译报错，默认参数只能出现在定义或是声明中的其中一处
+int got(int a = 3) //编译报错，默认参数只能出现在定义或是声明中的其中一处
 {
 	return a;
 }
-int get(int b = 3, int a)		//编译报错，一旦有一个参数带有默认值，后面的参数都应拥有默认值
+int get(int b = 3, int a) //编译报错，一旦有一个参数带有默认值，后面的参数都应拥有默认值
 {
 	return b;
 }
@@ -1220,8 +1258,7 @@ int main(void)
 ## 函数定义嵌套
 在C/C++标准中，函数定义必须完全平行、相互独立，函数定义的内部不能嵌套另一个函数的定义。
 
-`gcc`扩充了C的语法，在`gcc`中嵌套函数定义是**允许**的行为(只有`gcc`！`clang`、`clang++`、`g++`并不允许嵌套函数定义！)
-
+`GNU C`扩充了C的语法，在`GCC`中嵌套函数定义是**允许**的行为(只有`gcc`！`clang`、`clang++`、`g++`并不允许嵌套函数定义！)  
 以下的代码在`GCC`中可以顺利编译并得到执行结果：
 
 ```c
@@ -1249,11 +1286,9 @@ int main(void)
 100
 ```
 
-给神一样的`GCC`给跪了。。。。
 
 
-
-## *lvalue reference* (左值引用) 和 *rvalue reference* (右值引用)
+## *lvalue reference* (左值引用) / *rvalue reference* (右值引用)
 在C++中，`左值(lvalue)`代表**持久性**的对象，`右值(rvalue)`代表**短暂**的对象，左值可以被**取地址**，右值不能被取地址。
 
 在`C++11`中加入了**右值引用**的概念。
@@ -1264,7 +1299,7 @@ int main(void)
 - 非`const`右值引用可以绑定到非`const`右值。
 - `const`右值引用可以绑定到任意右值(无论是否`const`)。
 
-### 移动语义 *move semantics*
+### *move semantics* (移动语义)
 在C++11中，加入了`std::move()`函数来获取一个左值对应的右值。
 
 一个类可以定义移动构造函数来定义以对象右值来构建新对象的方式。
@@ -1342,7 +1377,7 @@ int main(void)
 
 
 ## 绑定指针的引用
-C++中，引用同样可以绑定在指针类型上。
+C++中，引用同样可以绑定在指针类型上。  
 语法格式如下：
 
 ```cpp
@@ -1362,22 +1397,22 @@ C++中，引用同样可以绑定在指针类型上。
 int a = 0;
 const int b = 0;
 int* c = &a;
-//int* d = &b;				//错误，const变量的地址应该有指向const变量的指针保存
+//int* d = &b; //错误，const变量的地址应该有指向const变量的指针保存
 const int* d = &b;
-const int* e = &a;			//正确，非const变量的地址也可以由指向const变量的指针保存
-int* const f = &a;			//正确，const指针
-//int* g = f;				//错误，const指针不能传递给非const指针
-const int* const g = f;		//正确，const指针可以传递给指向const变量的const指针
+const int* e = &a; //正确，非const变量的地址也可以由指向const变量的指针保存
+int* const f = &a; //正确，const指针
+//int* g = f; //错误，const指针不能传递给非const指针
+const int* const g = f; //正确，const指针可以传递给指向const变量的const指针
 
-int*& x = c;							//非const左值引用绑定非const指针变量(非const左值)
-int*&& x = &a;							//右值引用直接绑定到非const地址(非const右值)
-int* const& x = &a;						//const左值引用绑定到非const地址(非const右值)
-const int* const& x = std::move(d);		//const左值引用绑定到指向const值的指针的右值，第一个const代表引用绑定的指针所指向的值是带有const的
-const int* const&& x = std::move(e);	//const右值引用绑定到指向const值的指针的右值
-int* const&& x = std::move(f);			//const右值引用绑定到const指针的右值
-const int*&& x = std::move(d);			//非const右值引用绑定到指向const值的指针的右值
+int*& x = c; //非const左值引用绑定非const指针变量(非const左值)
+int*&& x = &a; //右值引用直接绑定到非const地址(非const右值)
+int* const& x = &a; //const左值引用绑定到非const地址(非const右值)
+const int* const& x = std::move(d); //const左值引用绑定到指向const值的指针的右值，第一个const代表引用绑定的指针所指向的值是带有const的
+const int* const&& x = std::move(e); //const右值引用绑定到指向const值的指针的右值
+int* const&& x = std::move(f); //const右值引用绑定到const指针的右值
+const int*&& x = std::move(d); //非const右值引用绑定到指向const值的指针的右值
 const int* const& x = std::move(g);
-const int* const&& x = std::move(g);	//对于指向const变量的const指针的右值可以使用const左值引用或const右值引用来绑定，第一个const不能省略！
+const int* const&& x = std::move(g); //对于指向const变量的const指针的右值可以使用const左值引用或const右值引用来绑定，第一个const不能省略！
 ```
 
 
@@ -1385,7 +1420,8 @@ const int* const&& x = std::move(g);	//对于指向const变量的const指针的�
 ## *template* (模板)
 `泛型`在C++中的实现被称为**模版**`template`，模版可以用在类和函数中。
 
-- 当模版用在函数中时，调用模版函数时可以不显式指定模版类型，编译器会根据调用函数的参数类型进行自动推导。此外，不能给一个模版类型指定两种不同的类型。
+- 当模版用在函数中时，调用模版函数时可以不显式指定模版类型，编译器会根据调用函数的参数类型进行自动推导。
+	此外，不能给一个模版类型指定两种不同的类型。
 - 当模板函数在接收特定参数时如果与已有的普通函数的原型相同，则会优先调用普通函数的实现。
 
 举例：
@@ -1412,6 +1448,7 @@ int main(void)
 ```
 
 模板可以应用于整个类或类内的某个函数：
+
 - 当模版用在类中时，则该类在实例化时必须显式指定模版的类型。
 - 当模版用在类内部的某个成员函数中时，带有模版函数的类实例化方式与普通类无异，而该类的成员模版函数使用方式类似于普通模版函数，可以不显式地指定模版类型而让编译器来推导。
 
@@ -1423,9 +1460,9 @@ C++模版属于**编译时多态**，模版代码在编译时即生成完毕。
 - 模版类成员函数/模版函数的定义与声明需要在**同一个**文件中，**默认情况下**，模版函数/模版成员函数**不支持**定义与声明拆分在**不同**的文件中。
 
 ### 模版定义与声明分离
-默认情况下，C++中的模版类成员函数/模版函数不能拆分到不同文件中。
+受限于模板机制的实现，C++中的模版类成员函数/模版函数**不能**拆分到不同文件中。
 
-如果预先知道模版会使用哪些具体的模板参数并以此进行实例化，则可以在源码文件中**显式实例化特定类型的模版**，则该类型的模版函数便会在编译到该源码文件时生成，以此来实现模版定义与声明分离。
+若预先知道模版会使用哪些具体的模板参数并以此进行实例化，则可以在源码文件中**显式实例化特定类型的模版**，则该类型的模版函数便会在编译到该源码文件时生成，以此来实现模版定义与声明分离。
 
 如下所示：
 
@@ -1477,11 +1514,11 @@ using namespace std;
 
 int main(void)
 {
-	cout << Test<int>().get() << endl;			//正确
-	cout << Test<double>().get() << endl;		//编译报错，提示 undefined reference to `Test<double>::get()'
-	cout << Test<int>().get(100) << endl;		//正确
-	cout << Test<int>().get(100.0) << endl;		//编译报错，提示 undefined reference to `double Test<int>::get<double>(double)'
-	cout << Test<double>().get(100) << endl;	//编译报错，提示 undefined reference to `int Test<double>::get<int>(int)'
+	cout << Test<int>().get() << endl; //正确
+	cout << Test<double>().get() << endl; //编译报错，提示 undefined reference to `Test<double>::get()'
+	cout << Test<int>().get(100) << endl; //正确
+	cout << Test<int>().get(100.0) << endl; //编译报错，提示 undefined reference to `double Test<int>::get<double>(double)'
+	cout << Test<double>().get(100) << endl; //编译报错，提示 undefined reference to `int Test<double>::get<int>(int)'
 	return 0;
 }
 ```
@@ -1603,7 +1640,7 @@ class Template<T, int>
 };
 ```
 
-类`Temp`的后一个模版参数的类型被显式指定为`int`，而模版参数`T`依然由用户指定。
+类`Temp`的后一个模版参数的类型被显式指定为`int`，而模版参数`T`依然由用户指定。  
 除了`模版类`之外，C++中模版函数也同样支持**模版特化**。
 
 如以下模版函数：
@@ -1636,11 +1673,11 @@ int func(int t, int s)
 }
 ```
 
-需要注意的是，模版函数**不支持**`偏特化`，即以下的写法是**不能**通过编译的：
+需要注意，模版函数**不支持**`偏特化`，即以下的写法**不能**通过编译：
 
 ```cpp
 template <class T>
-T func<T, int>(T t, int s)		//error
+T func<T, int>(T t, int s) //error
 {
 	/* code */
 }
@@ -1725,8 +1762,8 @@ int main(void)
 }
 ```
 
-### C++11 变长模版
-`C++11`加入了**变长模版**特性，使用`template <typename... T>`或`template <class... T>`来表示有数目不定的模版参数。
+### 变长模版 (C++11)
+`C++11`加入了**变长模版**特性，使用`template <typename... T>`或`template <class... T>`来表示有数目不定的模版参数。  
 定义变长模版变量写成`T... arg_name`，调用变长模版变量也要在参数名称后加上引号，写成`arg_name...`。  
 使用`sizeof...`操作符可以计算模版参数包的个数(**不是**类型大小)。  
 通过模版类型的**自动推导**，变长的模版参数包可以使用**递归**的方式逐一取出参数。
@@ -1783,12 +1820,12 @@ T test(T&& t)
 template <>
 int test(int&& num) = delete;
 
-test<int>(100);				//错误，提示"无法引用，函数xxx是已删除的函数"
+test<int>(100); //错误，提示"无法引用，函数xxx是已删除的函数"
 ```
 
 
 
-## C11 *_Generic*
+## *_Generic* (C11)
 在`C11`中，引入了新关键字`_Generic`，使用`_Generic`可以一定程度上实现**泛型**功能(不过功能上远远不能与C++的模板机制相比)。
 
 `_Generic`语法如下：
@@ -1890,7 +1927,7 @@ True
 ## *assert* (断言)
 **断言**是调试中常用的一种宏，常用于**条件检查**。
 
-### C语言中的断言
+### 断言宏
 **断言**是一种**预处理宏**，其定义位于头文件`assert.h`中，不同平台的实际定义不尽相同，但表达式结构类似，如下所示：
 
 ```cpp
@@ -1899,7 +1936,7 @@ assert(expr);
 
 `assert`接受一个表达式作为条件，表达式为真(非0)时，程序正常执行，表达式为假(值为0)，assert输出信息并终止程序的执行。
 
-### *C11* 中的静态断言
+### 静态断言 (C11)
 C11中引入了**静态断言**关键字`_Static_assert`，与普通的断言不同，**静态断言**不是宏，而是一个语言级别的**关键字**。
 静态断言在编译时生效，接受常量表达式，若接收的常量表达式值为假，则在编译阶段直接报错。
 
@@ -1911,7 +1948,7 @@ _Static_assert(expr, error_str);
 
 若`expr`表达式为假，则`error_str`则作为编译错误信息被输出。
 
-### *C++11* 中的静态断言
+### 静态断言 (C++11)
 C++11中同样引入了**静态断言**关键字`static_assert`，用法与C11中的`_Static_assert`相同。
 
 - 使用静态断言实现范型约束
