@@ -1,4 +1,24 @@
-[TOC]
+<!-- TOC -->
+
+- [*sbt* 概述](#sbt-概述)
+- [安装与配置](#安装与配置)
+- [启动与使用](#启动与使用)
+	- [使用 *Giter8* 模版](#使用-giter8-模版)
+- [项目基本结构](#项目基本结构)
+	- [默认路径](#默认路径)
+- [构建配置](#构建配置)
+	- [重新加载配置](#重新加载配置)
+- [依赖管理](#依赖管理)
+	- [常用依赖](#常用依赖)
+- [编译参数](#编译参数)
+- [*Lightbend Activator* (已废弃)](#lightbend-activator-已废弃)
+	- [安装与配置](#安装与配置-1)
+	- [基本操作](#基本操作)
+	- [后记](#后记)
+
+<!-- /TOC -->
+
+
 
 ## *sbt* 概述
 `sbt`全称`Simple Build Tool`，是`Scala`项目的标准构建工具，类似于`Java`下的`Maven`/`Groovy`中的`Gradle`。
@@ -47,8 +67,9 @@ sbt的常见指令有：
 - `clean` 清理项目缓存
 - `package` 将项目打包
 - `console` 进入Scala REPL
+- `reload` 重新加载项目的`build.sbt`构建配置
 
-`sbt`指令可以在直接在`sbt shell`内使用，也可以作为参数跟在`sbt`指令之后直接在命令行中使用。
+`sbt`指令在`sbt shell`内使用，部分指令也可作为参数跟在`sbt`指令之后直接在命令行中使用。
 
 ### 使用 *Giter8* 模版
 `Giter8`是由`Nathan Hamblen`在`2010`年开始发起的模版项目，目前由`foundweekends`项目维护。  
@@ -58,7 +79,10 @@ sbt的常见指令有：
 $ sbt new [Giter8模版名称]
 ```
 
-`Lightbend`系列的各项技术均提供了基于`Giter8`的官方项目模版，模版名称如下：
+使用`sbt new`指令新建模板项目，根据模板类型，会交互式地要求输入一些项目信息。  
+之后会在`当前目录/项目名称`路径下生成指定模板的目录结构。
+
+`Lightbend`系列的各项技术均提供了基于`Giter8`的官方项目模版，常用模版名称如下：
 
 - `scala/scala-seed.g8` 普通Scala项目模版
 - `akka/akka-scala-seed.g8` Akka项目模版
@@ -164,8 +188,31 @@ object Main extends App {
 可以在`build.sbt`文件中设定项目的名称、版本信息、构建规则、依赖等配置。  
 `build.sbt`文件遵循`Scala`语法。
 
+一个简单的`build.sbt`文件内容如下所示：
+
+```scala
+name := "项目名称"
+version := "项目版本号"
+scalaVersion := "Scala编译器版本号"
+
+libraryDependencies ++= Seq(
+  "xx" % "xx" % "xx", //项目Java依赖
+  ...
+   "xx" % "xx" %% "xx", //项目Scala依赖
+  ...
+)
+
+scalacOptions ++= Seq(
+  "-xxx", //编译器选项
+  ...
+)
+
+enablePlugins(Xxx) //启用插件
+```
+
 ### 重新加载配置
-`sbt shell`只在**启动时**读取一遍构建配置，若在`sbt shell`开启之后`build.sbt`文件发生了修改，则已经开启的`sbt shell`依旧使用之前的构建配置。  
+`sbt shell`只在**启动时**读取一遍构建配置。  
+若在`sbt shell`开启之后`build.sbt`文件发生了修改，则已经开启的`sbt shell`依旧使用之前的构建配置。  
 若需要已开启的`sbt shell`使用新的构建配置，则应在`sbt shell`中使用`reload`指令重新加载构建配置。
 
 
@@ -230,9 +277,10 @@ groupID % artifactID_[Scala版本] % revision
 
 | 包介绍 | GroupId | ArtifactId |
 |:------|:--------|:-----------|
-| MySQL数据库JDBC驱动 | mysql | mysql-connector-java |
+| MySQL JDBC Driver | mysql | mysql-connector-java |
 | Scala Reflect | org.scala-lang | scala-reflect |
 | Scala Swing | org.scala-lang.modules | scala-swing_[Scala版本号] |
+| Scala Test | org.scalatest | scalatest_[Scala版本号] |
 | ScalaFx | org.scalafx | scalafx_[Scala版本号]
 | Slick | com.typesafe.slick | slick_[Scala版本号] |
 | Akka | com.typesafe.akka | akka-actor_[Scala版本号] |
