@@ -551,7 +551,7 @@ func({ 100.0 }); //编译报错，提示"error: narrowing conversion of ‘1.0e+
 ```
 
 ### *std::initializer_list<T>* (C++11)
-自定义类型可以通过使用`std::initializer_list<T>`类型做为构造方法参数来支持变长的统一初始化参数表。  
+自定义类型可以通过使用`std::initializer_list<T>`类型做为构造方法参数来支持**变长**的统一初始化参数表。  
 如下所示：
 
 ```cpp
@@ -585,6 +585,51 @@ int main(void)
 1
 1 2 3
 One Two Three
+```
+
+当存在多个符合初始化列表签名的构造方法时，优先调用使用`std::initializer_list<T>`类型做为参数的构造方法。  
+如下所示：
+
+```cpp
+#include <iostream>
+#include <initializer_list>
+
+class Init0
+{
+public:
+	Init0(int num0, int num1)
+	{
+		std::cout << "Init0: Call for normal..." << std::endl;
+	}
+};
+
+class Init1
+{
+public:
+	Init1(const std::initializer_list<int>& l)
+	{
+		std::cout << "Init1: Call for initializer_list..." << std::endl;
+	}
+	Init1(int num0, int num1)
+	{
+		std::cout << "Init1: Call for normal..." << std::endl;
+	}
+};
+
+int main(void)
+{
+	Init0 { 1, 2 }; //可用统一初始化语法调用普通构造方法
+	Init1 { 1, 2 }; //当存在接收std::initializer_list<T>参数的构造方法时，统一初始化语法优先调用该构造方法
+
+	return 0;
+}
+```
+
+输出结果：
+
+```
+Init0: Call for normal...
+Init1: Call for initializer_list...
 ```
 
 
