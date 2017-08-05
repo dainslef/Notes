@@ -90,11 +90,12 @@
 	- [*multiple definition of* 错误](#multiple-definition-of-错误)
 	- [在 *switch* 的 *case* 语句中定义局部变量](#在-switch-的-case-语句中定义局部变量)
 - [常用的C标准库函数](#常用的c标准库函数)
-	- [*memset()* 函数](#memset-函数)
+	- [*memset()*](#memset)
 	- [*memcpy()* 函数](#memcpy-函数)
 	- [*strcpy()* 函数](#strcpy-函数)
-	- [*setjmp()* 与 *longjmp()* 函数](#setjmp-与-longjmp-函数)
-	- [*sigsetjmp()* 与 *siglongjmp()* 函数](#sigsetjmp-与-siglongjmp-函数)
+	- [*setjmp()* / *longjmp()*](#setjmp--longjmp)
+	- [*sigsetjmp()* / *siglongjmp()*](#sigsetjmp--siglongjmp)
+	- [*getopt()* / *getopt_long()*](#getopt--getopt_long)
 - [一些关键字、特殊值的含义/用法](#一些关键字特殊值的含义用法)
 	- [*explicit* 关键字](#explicit-关键字)
 	- [*restrict* 关键字](#restrict-关键字)
@@ -2911,7 +2912,7 @@ case 0:
 }
 ```
 
-无法通过编译，C语言编译器会提示`crosses initialization of 'int b'`。
+无法通过编译，C语言编译器会提示`crosses initialization of 'int b'`。  
 以上语句在C++编译器中也会给出同样的错误。
 
 但C++中允许另一种写法：
@@ -2961,7 +2962,7 @@ case 0:
 | time.h | ctime | 时间函数，如`ctime()`、`asctime()`、`localtime()`等 |
 | math.h | cmath | 数学函数，如`abs()`、`sin()`、`cos()`等 |
 
-### *memset()* 函数
+### *memset()*
 初始化内存块常使用`memset()`函数，函数定义为：
 
 ```c
@@ -2994,7 +2995,7 @@ char* stpcpy(char* restrict s1, const char* restrict s2);
 将指针`s2`指向的内容复制到`s1`指向的区域。
 函数返回指针复制内容后的指针`s1`，返回值的作用是使该函数能够更连贯地用于表达式。
 
-### *setjmp()* 与 *longjmp()* 函数
+### *setjmp()* / *longjmp()*
 使用`goto`语句只能在函数内部进行跳转，使用`setjmp()/longjmp()`函数能够实现**跨函数跳转**。
 `setjmp()/longjmp()`常用在**错误处理**中，程序在各个位置的异常都可以跳转回一个统一的位置进行错误处理。
 
@@ -3053,7 +3054,7 @@ Call func()
 Second
 ```
 
-### *sigsetjmp()* 与 *siglongjmp()* 函数
+### *sigsetjmp()* / *siglongjmp()*
 `POSIX`对于使用在**信号处理函数**内部使用`longjmp()`跳转回`setjmp()`位置时是否恢复信号状态**未定义**。  
 在不同的Unix中，从`longjmp()`跳转回`setjmp()`位置时可能恢复信号处理和信号屏蔽，也可能**不恢复**。  
 实测在`Linux`中**不会**恢复信号状态。
@@ -3078,7 +3079,7 @@ void siglongjmp(sigjmp_buf env, int val);
 #include <signal.h>
 #include <unistd.h>
 
-jmp_buf env;						//env变量用于保存函数栈信息
+jmp_buf env; //env变量用于保存函数栈信息
 
 void deal_signal(int sig_num)
 {
@@ -3090,7 +3091,7 @@ int main(void)
 {
 	signal(SIGINT, deal_signal);
 
-	switch(sigsetjmp(env, 0))		//不保存信号数据则跳转回此处时原先注册的信号处理函数失效
+	switch(sigsetjmp(env, 0)) //不保存信号数据则跳转回此处时原先注册的信号处理函数失效
 	{
 	case 0:
 		printf("First\n");
@@ -3130,6 +3131,125 @@ Second
 
 可以看出，保存信号数据的情况下，`SIGINT`信号无论多少次发送都会正常跳转会`sigsetjmp()`位置。
 
+### *getopt()* / *getopt_long()*
+`getopt()/getopt_long()`用于处理命令行参数。  
+定义如下：
+
+```c
+#include <unistd.h>
+int getopt(int argc, char* const argv[], const char* optstring);
+
+extern char* optarg;
+extern int optind, opterr, optopt;
+
+#include <getopt.h>
+int getopt_long(int argc, char* const argv[],
+		const char* optstring, const struct option* longopts, int* longindex);
+int getopt_long_only(int argc, char* const argv[], const char* optstring,
+		const struct option* longopts, int* longindex);
+```
+
+使用`getopt()`函数处理单字符参数，如`-v/-x/-h`等：
+
+- `argc/argv`参数为从`main()`函数中传入的命令行参数信息。
+- `optstring`参数为接收参数的字符数组。
+
+`optstring`参数按以下规则解析：
+
+- 一个字符表示接收一个对应参数，如`"vxh"`表示接收参数格式`-v -x -h`。
+- 字符后添加单冒号表示参数带有内容，如`"h:"`表示接收参数格式`-h xxx`、`-hxxx`，若参数未添加内容则不被识别(如`-h`)。
+- 字符后添加双冒号表示参数带有可选的参数内容，如`"h::"`表示接收参数格式`-h xxx`、`-hxxx`或`-h`，不强制要求参数带有内容。
+
+若参数带有内容，参数的内容会被写入全局变量`optarg`中(变量声明在头文件`getopt.h`中)。  
+每次执行`getopt()`函数仅会获取一个参数，获取多个参数需要循环执行`getopt()`函数。  
+通过全局变量`optind`决定获取参数的位置，`getopt()`函数内部会修改`optind`的值。
+
+执行成功时，`getopt()`函数返回匹配到的参数字符(`ASCII`值)，失败时返回`-1`。
+
+实例代码如下：
+
+```c
+#include <getopt.h>
+#include <stdio.h>
+
+int main(int argc, char* argv[])
+{
+	char arg = 0;
+	while ((arg = getopt(argc, argv, "ab:c::")) > 0)
+	{
+		switch (arg)
+		{
+		case 'a':
+			printf("Receive arg: -a\n");
+			break;
+		case 'b':
+			printf("Receive arg: -b, content: %s\n", optarg);
+			break;
+		case 'c':
+			printf("Receive arg: -c, content: %s\n", optarg);
+			break;
+		}
+	}
+
+	return 0;
+}
+```
+
+编译测试：
+
+```
+$ cc test.c -o test_arg
+
+$ test_arg -a
+Receive arg: -a
+
+$ test_arg -b
+test_arg: option requires an argument -- b
+
+$ test_arg -bssss
+Receive arg: -b, content: ssss
+
+$ test_arg -b ssss
+Receive arg: -b, content: ssss
+
+$ test_arg -c
+Receive arg: -c, content: (null)
+
+$ test_arg -cssss
+Receive arg: -c, content: ssss
+
+$ test_arg -a -bbbbb -ccccc
+Receive arg: -a
+Receive arg: -b, content: bbbb
+Receive arg: -c, content: cccc
+```
+
+`getopt()`仅支持单字符参数，`getopt_long()`支持长参数，如`--version --help`等：
+
+- `argc/argv/optstring`等参数与`getopt()`函数中功能类似。
+- `longopts`参数为长指令的描述结构数组。
+- `longindex`参数为匹配到的指令在`longopts`数组中位置(传入地址，匹配到长指令时索引值写入该地址，如匹配到短指令或未匹配到指令，则不设置该参数)。
+
+`longopts`参数的类型为`struct option`，定义在`getopt.h`文件中：
+
+```c
+struct option
+{
+	const char* name;
+	int has_arg;
+	int* flag;
+	int val;
+};
+```
+
+- `name`成员为长参数的名称，不包含`--`部分。
+- `has_arg`成员标识参数是否带有参数内容，`getopt.h`头文件中定义了以下行为：
+	- `no_argument` 不包含参数
+	- `required_argument` 要求参数内容
+	- `optional_argument` 可选参数内容
+- `flag`成员用于决定函数的返回行为，取值`nullptr`时函数返回`val`成员的值，否则函数返回`0`，并将`val`内容写入该地址。
+- `val`成员在`flag`为`nullptr`时做为函数的返回值。
+
 
 
 ## 一些关键字、特殊值的含义/用法
@@ -3137,15 +3257,16 @@ Second
 ### *explicit* 关键字
 C++中的关键字`explicit`作用是防止构造函数隐式转换的发生。
 
-默认情况下，在C++中，使用`类名 实例名 = 参数`的形式创建一个类的实例，当`参数`刚好符合类的构造函数参数要求，此时编译器会隐式的调用这个类的构造函数来创建类的实例。但有些情况下，我们需要避免这种隐式转换的发生，这时，在类的构造函数声明时，在在构造函数名之前加上`explicit`关键字即可避免隐式转换发生。
+默认情况下，在C++中，使用`类名 实例名 = 参数`的形式创建一个类的实例。  
+当`参数`刚好符合类的构造函数参数要求，此时编译器会隐式的调用这个类的构造函数来创建类的实例。  
+但有些情况下，需要避免这种隐式转换的发生，这时，在类的构造函数声明时，在在构造函数名之前加上`explicit`关键字即可避免隐式转换发生。
 
 采用`explicit`关键字声明的构造函数只能够被显式地调用。
 
 ### *restrict* 关键字
 `C99`中新引入了关键字`restrict`，`restrict`关键字用在指针的定义中，格式为`变量类型* restrict 指针名`，作用是是告知编译器该指针是指针所指向区域的**唯一**访问方式，所有修改该指针指向内容的操作都只能通过该指针进行，而**不能**通过其它变量或指针来修改。
 
-`restrict`关键字不会改变指针的用法，但会让编译器更加安全高效准确地优化代码，使用`restrict`关键字定义的指针的指向不应进行改动。
-
+`restrict`关键字不会改变指针的用法，但会让编译器更加安全高效准确地优化代码，使用`restrict`关键字定义的指针的指向不应进行改动。  
 `restrict`关键字只在支持`C99`以上的C编译器中使用，C++**没有**引入这个关键字。
 
 ### *mutable* 关键字
