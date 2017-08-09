@@ -38,6 +38,7 @@
 - [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
 	- [简单匹配](#简单匹配)
 	- [类型匹配](#类型匹配)
+	- [解构](#解构)
 - [*sealed* 和 *final* 关键字](#sealed-和-final-关键字)
 	- [*sealed* 用于模式匹配](#sealed-用于模式匹配)
 - [格式化输出](#格式化输出)
@@ -63,7 +64,7 @@
 	- [*GenTraversableLike*](#gentraversablelike)
 	- [集合有序性](#集合有序性)
 - [*Higher Order Function* (高阶函数)](#higher-order-function-高阶函数)
-- [*Generators* (生成器)](#generators-生成器)
+- [*yeild*](#yeild)
 	- [使用高阶函数替代生成器](#使用高阶函数替代生成器)
 - [*Exception* (异常)](#exception-异常)
 	- [*scala.util.Try[T]*](#scalautiltryt)
@@ -85,7 +86,7 @@
 	- [*async/await*](#asyncawait)
 	- [*synchronized*](#synchronized)
 - [*Reflect* (反射)](#reflect-反射)
-	- [反射机制的相关类型](#反射机制的相关类型)
+	- [反射机制相关类型](#反射机制相关类型)
 - [*Annotation* (注解)](#annotation-注解)
 	- [自定义注解](#自定义注解)
 	- [解析注解](#解析注解)
@@ -1913,7 +1914,7 @@ No Value
 
 `Scala`中的`match`语句具有返回值，可为变量赋值。  
 `Scala`中没有`break`关键字，`match`语句中的`case`条件不会被穿越。  
-某些需要穿越`case`条件的情形，应使用`|`操作符连接多个条件。  
+某些需要穿越`case`条件的情形，应使用`|`操作符连接多个条件。
 
 每个`case`条件语句可以使用`@`操作符绑定一个变量名。  
 每个`case`条件之后可以添加**守卫**(`if 条件语句...`)，用于添加额外的匹配条件。
@@ -2003,8 +2004,6 @@ object Main extends App {
   typeMatch(new Java)
   typeMatch(null)
 
-  }
-
 }
 ```
 
@@ -2044,6 +2043,49 @@ Match type: List[String]
 
 由输出结果可知，模式匹配并未正确匹配类型的泛型参数。  
 对于此类情况，`Scala`编译器在编译时会对代码做出警告。
+
+### 解构
+**模式匹配**可用于解构任意定义了`unapply()`方法的类型。  
+常见的数据结构如**元组**、`List[T]`等均支持解构操作，也可以使用`Case Class`(样例类)特性定义为模式匹配优化的类。
+
+解构元组、`List[T]`：
+
+```scala
+scala> def destruct(obj: Any) =
+     | obj match {
+     |   case first :: second :: _ => println(s"Match list: $first, $second, ...")
+     |   case (first, second) => println(s"Match tuple: $first, $second")
+     | }
+destruct: (obj: Any)Unit
+
+scala> destruct { 1 :: 2 :: 3 :: Nil }
+Match list: 1, 2, ...
+
+scala> destruct (1, 2)
+Match tuple: 1, 2
+
+scala> destruct (1, 2, 3)
+scala.MatchError: (1,2,3) (of class scala.Tuple3) //元组数目不匹配，出错
+  at .destruct(<console>:14)
+  ... 27 elided
+```
+
+解构样例类：
+
+```scala
+scala> def destruct(obj: Any) =
+     | obj match {
+     |   case User(name, age) => println(s"User name: $name, age: $age")
+     |   case Manager(name, right) => println(s"Manager name: $name, right: $right")
+     | }
+destruct: (obj: Any)Unit
+
+scala> destruct(User("Dainslef", 25))
+User name: Dainslef, age: 25
+
+scala> destruct(Manager("Dainslef", 2333))
+Manager name: Dainslef, right: 2333
+```
 
 
 
@@ -2956,8 +2998,8 @@ Mutable LinkedHashMap: Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5)
 
 
 
-## *Generators* (生成器)
-`Scala`中同样提供了`yield`关键字，支持生成器语法(但不是惰性生成)。  
+## *yeild*
+`Scala`中同样提供了`yield`关键字，用于构建集合(不是惰性生成，与传统语言的**生成器**概念不同)。  
 使用`yield`可以将循环中每一轮的结果以容器的形式输出，使用`yeild`可以方便生成一系列的特定值。
 
 如下所示：
@@ -4340,11 +4382,11 @@ object TestSync {
 `Scala 2.10`之后提供了自身的反射相关`API`。
 
 `Java`标准库中的反射`API`不支持`Scala`的专属特性。  
-`Scala`自身提供的反射`API`则能完整地支持所有`Scala`语言特性。
+`Scala`自身提供的反射`API`能完整地支持所有`Scala`语言特性。
 
 到目前版本(`Scala 2.12`)为止，反射相关功能依然是`Expermental`(**实验性**)的，相关`API`在后续版本中可能会有较大改动。
 
-### 反射机制的相关类型
+### 反射机制相关类型
 反射`API`相关的类型定义在包路径`scala.reflect.runtime.universe`中。
 
 - `Type`
@@ -4628,7 +4670,7 @@ Annotation args: name -> Annotation for Class, num -> 2333
 - 解析注解参数需要基于语法树结构，不要使用**参数默认值**特性，使用默认参数的注解生成的语法树不包含注解信息的默认值。
 - 类内字段会有多个`TermSymbol`，对应不同的`TermName`，包含注解信息的`TermName`为`字段名称 + 空格`。
 - 样例类的构造器参数作为类的成员存在，但若在参数上添加注解，注解信息并未附加在字段信息中。  
-	提取样例类构造器成员的注解信息需要以获取方法参数注·解的方式进行。
+	提取样例类构造器成员的注解信息需要以获取方法参数注解的方式进行，查找构造器方法(`TermName("<init>")`)，获取参数成员(`Method.paramLists`)。
 - 使用`Annotation.tree`方法获取注解语法树(`Tree`类型)，再使用`Tree.tpe`方法获取注解语法树类型信息(`Type`类型)，与直接使用`typeOf[注解类型]`获取的注解类型信息相同，可以用于比较筛选注解类型。
 
 完整的注解解析实例，如下所示：
@@ -4902,9 +4944,9 @@ attribute name: arg_one attribute value: arg_4_1
 ```scala
 scala> val str = "Test"
 str: String = Test
-scala> val node0 = <li>{ str }</li>				//xml节点内容可以插入变量,使用花括号区分表达式与xml本身内容
+scala> val node0 = <li>{ str }</li> //xml节点内容可以插入变量,使用花括号区分表达式与xml本身内容
 node0: scala.xml.Elem = <li>Test</li>
-scala> val node1 = <li name={ str }>test</li>	//xml属性中插入变量
+scala> val node1 = <li name={ str }>test</li> //xml属性中插入变量
 node1: scala.xml.Elem = <li name="Test">test</li>
 ```
 
