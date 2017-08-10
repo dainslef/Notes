@@ -17,6 +17,8 @@
 	- [绑定源/目标更新触发事件](#绑定源目标更新触发事件)
 	- [多重绑定](#多重绑定)
 	- [无效依赖属性](#无效依赖属性)
+- [触发器](#触发器)
+	- [属性触发器](#属性触发器)
 - [*Window* (窗口) 与 *Page* (页面)](#window-窗口-与-page-页面)
 	- [启动窗口/页面](#启动窗口页面)
 	- [窗体加载与关闭](#窗体加载与关闭)
@@ -489,6 +491,79 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 
 ### 无效依赖属性
 在实现数值转换接口时，需要对未设定值进行检验，数值转换异常时，首个参数会传入代表**未设定值**的特殊变量`DependencyProperty.UnsetValue`。
+
+
+
+## 触发器
+触发器能够在满足某种条件时触发操作。  
+触发器包括以下三类：
+
+- `Trigger` 属性触发器
+- `DataTrigger` 数据触发器
+- `EventTrigger` 事件触发器
+
+`Style`、`DataTemplate`、`ControlTemplate`等类型可用于定义触发器。  
+以`Style`为例，定义触发器语法如下：
+
+```xml
+<Style TargetType="目标控件类型">
+	<Style.Triggers>
+		<Trigger>
+			...
+		</Trigger>
+		<EventTrigger>
+			...
+		</EventTrigger>
+		<DataTrigger>
+			...
+		</DataTrigger>
+		...
+	</Style.Triggers>
+</Style>
+```
+
+### 属性触发器
+属性触发器可用于监视任意可绑定的属性，当被监视的属性满足条件时则执行触发器。
+
+以`Style`为例，监视`Image`控件的`IsEnabled`属性，如下所示：
+
+```xml
+<Style TargetType="Image">
+	<Style.Triggers>
+		<!-- 图片 IsEnabled 属性为 True 时，设置 Opacity 属性为 1.0 -->
+		<Trigger Property="IsEnabled" Value="True">
+			<Setter Property="Opacity" Value="1.0"/>
+		</Trigger>
+		<!-- 图片 IsEnabled 属性为 False 时，设置 Opacity 属性为 0.5 -->
+		<Trigger Property="IsEnabled" Value="False">
+			<Setter Property="Opacity" Value="0.5"/>
+		</Trigger>
+	</Style.Triggers>
+</Style>
+```
+
+需要同时监视多个属性时，可以使用`MultiTrigger`(多条件触发器)，如下所示：
+
+```xml
+<Style TargetType="Image">
+	<Style.Triggers>
+		<MultiTrigger>
+			<MultiTrigger.Conditions>
+				<Condition Property="IsFocused" Value="True"/>
+				<Condition Property="IsEnabled" Value="True"/>
+			</MultiTrigger.Conditions>
+			<Setter Property="Opacity" Value="1.0"/>
+		</MultiTrigger>
+		<MultiTrigger>
+			<MultiTrigger.Conditions>
+				<Condition Property="IsFocused" Value="False"/>
+				<Condition Property="IsEnabled" Value="False"/>
+			</MultiTrigger.Conditions>
+			<Setter Property="Opacity" Value="0.5"/>
+		</MultiTrigger>
+	</Style.Triggers>
+</Style>
+```
 
 
 
