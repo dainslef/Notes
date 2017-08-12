@@ -37,7 +37,8 @@
 - [参数默认值](#参数默认值)
 - [函数定义嵌套](#函数定义嵌套)
 - [*lvalue reference* (左值引用) / *rvalue reference* (右值引用)](#lvalue-reference-左值引用--rvalue-reference-右值引用)
-	- [引用绑定规则](#引用绑定规则)
+	- [右值引用](#右值引用)
+	- [右值构造函数](#右值构造函数)
 	- [*move semantics* (移动语义)](#move-semantics-移动语义)
 	- [注意事项](#注意事项)
 	- [成员函数的引用限定](#成员函数的引用限定)
@@ -1291,10 +1292,10 @@ int get()
 }
 int main(void)
 {
-	get();		//编译报错，有两个函数都符合要求。
+	get(); //编译报错，有两个函数都符合要求。
 	int (*p)(int) = got;
-	p();		//编译报错，参数过少。
-	p(100);		//正常。
+	p(); //编译报错，参数过少。
+	p(100); //正常。
 	return 0;
 }
 ```
@@ -1335,29 +1336,131 @@ int main(void)
 
 
 ## *lvalue reference* (左值引用) / *rvalue reference* (右值引用)
-在C++中，`左值(lvalue)`代表**持久性**的对象，`右值(rvalue)`代表**短暂**的对象，左值可以被**取地址**，右值不能被取地址。
+在C++中，`左值(lvalue)`代表**持久性**的对象，`右值(rvalue)`代表**短暂**的对象。  
+左值可以被**取地址**，右值不能被取地址。  
+右值在语句结束前没有绑定一个引用，则会被丢弃。
 
-在`C++11`中加入了**右值引用**的概念。
+引用绑定规则：
 
-### 引用绑定规则
-- 非`const`左值引用可以绑定到非`const`左值。
-- `const`左值引用可以绑定到任意左值和任意右值(无论是否`const`)。
-- 非`const`右值引用可以绑定到非`const`右值。
-- `const`右值引用可以绑定到任意右值(无论是否`const`)。
+- **非const左值引用**(`T&`)可以绑定到非`const`左值。
+- **const左值引用**(`const T&`)可以绑定到任意左值和任意右值(无论是否`const`)。
+- **非const右值引用**(`T&&`)可以绑定到非`const`右值。
+- **const右值引用**(`const T&&`)可以绑定到任意右值(无论是否`const`)。
+
+### 右值引用
+在`C++11`中加入了**右值引用**的概念。  
+使用`类型&&`表示引用绑定一个来自**右值**的引用，如下所示：
+
+```cpp
+int&& = 23333;
+```
+
+右值引用仅能绑定右值，而右值在语句结束前没有绑定引用会被销毁，因而右值可以被安全地**转移**。
+
+### 右值构造函数
+在`C++11`之前，通过原有对象构造新对象仅有一种方式，即**复制构造函数**，如下所示：
+
+```cpp
+class T
+{
+	T(const T&);
+}
+```
+
+复制构造函数中传入参数为**const左值引用**(`const T&`)，const左值引用绑定的对象可能为右值，也可能为左值，因而无法确定参数对象的生命周期。  
+在复制构造函数中，为了实现真正的对象拷贝(深复制)，若原对象中存在指针成员，需要重新申请内存，并拷贝原对象的指针成员所指向的堆内存。
+
+在`C++11`之后，可以定义**移动构造函数**，用于使用**右值**构造对象的场景，如下所示：
+
+```cpp
+class T
+{
+	T(T&&);
+}
+```
+
+移动构造函数中传入参数为**右值引用**(`T&&`)，右值引用绑定的参数一定为右值，因而参数的生命周期仅到语句结束，可以被安全地**移动**。  
+在移动构造函数中，原对象中的所有内容皆可被安全地**转移**，不必深拷贝，原对象中的指针成员直接复制地址即可。
+
+`C++11`之前缺少表示右值的方法，无法区分原对象来自左值或是右值，进而无法确定原对象的生命周期。  
+对于所有原对象，出于安全考虑，都需要**深复制**整个对象，在原对象为**右值**时，会带来不必要的开销。  
+`C++11`之后引入了右值引用，以右值构建对象时，若对象类型同时定义了复制构造函数和移动构造函数，会**优先匹配**该类型的移动构造函数，避免复制整个对象带来的不必要的开销。
 
 ### *move semantics* (移动语义)
-在C++11中，加入了`std::move()`函数来获取一个左值对应的右值。
+右值引用自身为**左值**，将右值引用直接作为参数传递时会被作为左值对待，如下所示：
 
-一个类可以定义移动构造函数来定义以对象右值来构建新对象的方式。
+```cpp
+#include <iostream>
 
-在传统C++中，通过原有对象构建新对象只有一种方式，即**复制构造函数**，复制构造函数的参数为`const Type&`类型，即`const`左值引用，可以绑定任意左值和任意右值，对于左值对象，为了实现真正的对象复制(深复制)，目标对象中的指针是不能直接拷贝的，而是需要重新分配内存，并复制目标对象的指针指向的内容；而对于右值对象，由于右值对象不可改动，理论上可以直接移动目标对象的内容无需重新分配内存，但传统C++没有对这两种情况进行区分，导致对象为右值时，往往也要进行不必要的拷贝行为。
+using namespace std;
 
-在C++11中，可以自行定义移动构造函数，参数类型为`Type&&`，即移动构造函数接收到的都是右值，目标对象的成员可以安全地进行语义移动操作，指针也可以直接拷贝。
+void ref(int&)
+{
+	cout << "Left reference." << endl;
+}
 
-以右值构建一个同时定义了复制构造函数和移动构造函数的类型，会**优先匹配**该类型的移动构造函数。
+void ref(int&&)
+{
+	cout << "Right reference." << endl;
+}
+
+int main(void)
+{
+	int&& r_ref = 2333;
+	ref(r_ref);
+
+	return 0;
+}
+```
+
+输出结果：(clang-802.0.42 && macOS 10.12.6)
+
+```
+Left reference.
+```
+
+在传递右值引用时需要将其还原为`右值`才能真正触发移动构造函数。
+`C++11`提供了`std::move()`函数用于将右值引用转换为右值，定义如下：
+
+```cpp
+template <class T>
+typename remove_reference<T>::type&& move (T&& arg) noexcept;
+```
+
+上述实例使用`std::move()`转移右值引用，即可被真正被视为右值，如下所示：
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void ref(int&)
+{
+	cout << "Left reference." << endl;
+}
+
+void ref(int&&)
+{
+	cout << "Right reference." << endl;
+}
+
+int main(void)
+{
+	int&& r_ref = 2333;
+	ref(std::move(r_ref));
+
+	return 0;
+}
+```
+
+输出结果：(clang-802.0.42 && macOS 10.12.6)
+
+```
+Right reference.
+```
 
 ### 注意事项
-需要注意的是，无论左值引用或是右值引用本身都是左值，因此虽然不能直接对右值取地址，但是可以对右值引用取地址。
+无论左值引用或是右值引用本身都是左值，因此虽然不能直接对右值取地址，但是可以对右值引用取地址。
 
 引用一但绑定就不可更改，因此引用与指针不同，指针分为指向`const`内容的指针`const 类型名* 指针名`和自身保存地址不可变的`const`指针`类型名* const 指针名`，而引用本身一定是不可变的，因此只有绑定`const`值的引用`const 类型名& 引用名`，而没有真正的`const`引用，`类型名& const 引用名`这样的定义是不被编译器允许的。
 
@@ -1399,16 +1502,16 @@ class Test
 public:
 	void show() & { cout << "&" << endl; }
 	void show() && { cout << "&&" << endl; }
-	//void show() { /* code */ }				//错误，定义了带有引用限定符的成员函数，则不能再定义该函数的无引用限定符版本
-	//static void show() & { /* code */ }		//错误，静态成员函数不能带有引用限定符
-	virtual test() const & final {}				//当引用限定符与后置const、final等关键字一同使用时需要注意位置
+	//void show() { /* code */ } //错误，定义了带有引用限定符的成员函数，则不能再定义该函数的无引用限定符版本
+	//static void show() & { /* code */ } //错误，静态成员函数不能带有引用限定符
+	virtual test() const & final {} //当引用限定符与后置const、final等关键字一同使用时需要注意位置
 };
 
 int main(void)
 {
 	Test t;
-	t.show();									//左值对象调用的函数为"void show() &"
-	Test().show();								//右值对象调用的函数为"void show() &&"
+	t.show(); //左值对象调用的函数为"void show() &"
+	Test().show(); //右值对象调用的函数为"void show() &&"
 	return 0;
 }
 ```
@@ -1591,8 +1694,8 @@ C++作为编译性语言，模板是在编译期实现的，属于编译时多�
 
 - 类模板与重载
 
-	对于模板类而言，如果一个模板类成员函数(无论是否静态)在确定了类型之后与原有的成员函数原型发生冲突则在编译时就会报错。
-	若模板类成员函数在使用某种类型时**可能**与已有的函数原型发生冲突，但只要没使用该类型，就能通过编译。
+	对于模板类而言，如果一个模板类成员函数(无论是否静态)在确定了类型之后与原有的成员函数原型发生冲突则在编译时就会报错。  
+	若模板类成员函数在使用某种类型时**可能**与已有的函数原型发生冲突，但只要没使用该类型，就能通过编译。  
 	如下代码所示：
 
 	文件`test.h`
@@ -1614,7 +1717,7 @@ C++作为编译性语言，模板是在编译期实现的，属于编译时多�
 
 	int main(void)
 	{
-		Test<int> t;	// 编译报错，提示"error: ‘int Test<T>::get(int, int) [with T = int]’ cannot be overloaded"
+		Test<int> t; // 编译报错，提示"error: ‘int Test<T>::get(int, int) [with T = int]’ cannot be overloaded"
 	}
 	```
 
@@ -1648,9 +1751,9 @@ C++作为编译性语言，模板是在编译期实现的，属于编译时多�
 
 	int main(void)
 	{
-		Test t;		// 带有成员模板函数的类实例化方式与普通类完全相同
-		cout << t.get(100, 100) << endl;	// 输出201，默认调用非模板函数
-		cout << t.get<int>(100, 100) << endl;		// 输出200，显式指定模板参数时调用模板函数
+		Test t; // 带有成员模板函数的类实例化方式与普通类完全相同
+		cout << t.get(100, 100) << endl; // 输出201，默认调用非模板函数
+		cout << t.get<int>(100, 100) << endl; // 输出200，显式指定模板参数时调用模板函数
 	}
 	```
 
@@ -2204,26 +2307,26 @@ After run lambda2, the value b is: 450
 以上的7中容器对象都有以下成员方法：
 
 ```cpp
-bool empty() const;									//判断容器是否为空
-size_type max_size();								//返回容器最大能存储的元素个数
-size_type size();									//返回容器中当前已经存储的元素的数量
-void swap(contain_type &container);					//交换当前容器对象与container容器对象中的内容
-void clear();										//清空容器中的内容
-iterator erase(iterator position);					//擦除指定迭代器位置的内容
-iterator erase(iterator first, iterator last);		//擦除[first, end)位置的内容
+bool empty() const; //判断容器是否为空
+size_type max_size(); //返回容器最大能存储的元素个数
+size_type size(); //返回容器中当前已经存储的元素的数量
+void swap(contain_type &container); //交换当前容器对象与container容器对象中的内容
+void clear(); //清空容器中的内容
+iterator erase(iterator position); //擦除指定迭代器位置的内容
+iterator erase(iterator first, iterator last); //擦除[first, end)位置的内容
 ```
 
 ### 迭代器
 各类容器中都内置了迭代器，可通过以下函数创建迭代器：
 
 ```cpp
-iterator begin();			//返回一个指向首元素的迭代器
+iterator begin(); //返回一个指向首元素的迭代器
 iterator end();
-iterator rbegin();			//返回一个指向首元素的迭代器，逆序遍历
+iterator rbegin(); //返回一个指向首元素的迭代器，逆序遍历
 iterator rend();
 ```
 
-在`C++11`之后，可以使用新的`std::begin()`和`std::end()`函数来创建迭代器。
+在`C++11`之后，可以使用新的`std::begin()`和`std::end()`函数来创建迭代器。  
 以`vector`为例，创建和使用迭代器：
 
 ```cpp
@@ -2258,9 +2361,9 @@ void insert(iterator position, InputIterator first, InputIterator last);
 
 ```cpp
 vector();
-vector(size_type num, const TYPE& val);					//使用num个值为val的元素初始化vector
+vector(size_type num, const TYPE& val); //使用num个值为val的元素初始化vector
 vector(const vector& from);
-vector(input_iterator start, input_iterator end);		//使用某个已存在的vector的[start, end)来构建一个新的vector
+vector(input_iterator start, input_iterator end); //使用某个已存在的vector的[start, end)来构建一个新的vector
 ```
 
 - *vector* 容器特点
@@ -2278,12 +2381,12 @@ vector(input_iterator start, input_iterator end);		//使用某个已存在的vec
 	`list`容器存储的元素所处的内存空间不连续。
 	由于链表的特性，元素之间是通过指针相连的，因而`list`容器在任意位置插入和删除元素时效率都很高。  
 	但`list`容器并**不支持**随机存取，如不支持使用`[]`操作符访问元素，同时相比`vector`容器消耗的内存更多。  
-	`list`容器有着一些`vector`没有的方法，比如`pop_front()``push_front(const T &x)``remove(const T &value)`等。  
+	`list`容器有着一些`vector`没有的方法，比如`pop_front()`、`push_front(const T &x)`、`remove(const T &value)`等。  
 	使用`remove()`方法可以移除容器中所有值为`value`的元素。
 
 - *deque* 容器特点
 
-	`deque`容器为**双向队列**。
+	`deque`容器为**双向队列**。  
 	`deque`兼顾了`list`和`vector`的优点，能够方便地增加、删除元素，也能够使用`[]`操作符随机存取元素。  
 	`deque`的缺点是需要消耗较高的内存。
 
@@ -2319,7 +2422,7 @@ vector(input_iterator start, input_iterator end);		//使用某个已存在的vec
 
 - 对于`map`等关联式容器来说，键值如果为指针类型，则将指针的值(指针包含的地址)作为键值，而非指针所指向的内容。
 	因而两个内容相同的不同数组对`map`而言就是两个不同的键值。
-- 不是所有的类型都可以作为键值，能够作为键值的类型必须重载了`<`运算符，否则会出现编译错误：
+- 并非所欲类型均可作为键值，作为键值的类型必须重载了`<`运算符，否则会出现编译错误：
 	`二进制“<”: 没有找到接受“xxx”类型的左操作数的运算符(或没有可接受的转换)`
 - 一些类型已经默认重载了`<`运算符如`std::string`、`QString`等，可以直接作为`key`使用。
 
@@ -2332,43 +2435,42 @@ C++中除了手动使用`new`、`delete`操作符来进行动态内存管理之�
 
 `Boost`库中提供了六种智能指针用来管理动态内存，分别是`shared_ptr`、`shared_array`、`scoped_ptr`、`scoped_array`、`weak_ptr`、`intrusive_ptr`，定义在`/usr/include/boost/smart_ptr/`路径下对应名称的头文件中。
 
-在`C++11`中，`boost`库中的`shared_ptr`、`weak_ptr`被纳入了标准库，定义在`/usr/include/c++/版本号/memory`头文件中。
+在`C++11`中，`boost`库中的`shared_ptr`、`weak_ptr`被纳入了标准库，定义在`/usr/include/c++/版本号/memory`头文件中。  
 `C++11`之前，标准库中可以使用`auto_ptr`智能指针，在`C++11`之后，标准库中增添了`shared_ptr`、`unique_ptr`、`weak_ptr`等智能指针。原先的`auto_ptr`已经不推荐使用。
 
 需要注意的是，`Boost`库与标准库中的同名类是不能相互转换的(即`std::shared_ptr`不能转换为`boost::shared_ptr`)。
 
 ### 智能指针的一般性用法
 智能指针重载了`->`操作符，使开发者可以使用此操作符访问智能指针保存的对象的公有成员，对于智能指针自身的成员，依然使用`.`操作符访问。
-以`auto_ptr`为例：
+以`shared_ptr`为例：
 
 ```cpp
-auto_ptr<T> ptr;					//创建一个空的、尚未初始化的动态指针
-auto_ptr<T> ptr(new T(args));		//创建智能指针对象并开辟内存进行初始化，无参数时调用默认的构造函数
-auto_ptr<T> ptr(T* t);				//由指针t所指向的动态内存绑定到智能指针(如果t为空指针，则智能指针绑定空内容)
-ptr->...;							//访问智能指针指向的动态内存对象的公有成员
-ptr.reset();						//重置智能指针
-ptr.release();						//释放掉智能指针指向的动态内存
+shared_ptr<T> ptr; //创建一个空的、尚未初始化的动态指针
+shared_ptr<T> ptr(new T(args)); //创建智能指针对象并开辟内存进行初始化，无参数时调用默认的构造函数
+shared_ptr<T> ptr(T* t); //由指针t所指向的动态内存绑定到智能指针(如果t为空指针，则智能指针绑定空内容)
+ptr->...; //访问智能指针指向的动态内存对象的公有成员
+ptr.reset(); //重置智能指针
 ```
 
-智能指针重载了`operate bool()`支持使用布尔运算形式展示指针是否为空。
+智能指针重载了`operate bool()`支持使用布尔运算形式展示指针是否为空。  
 智能指针重载了`operate ==()`支持与其它智能指针以及`nullptr`进行比较。
 
 如下所示：
 
 ```cpp
-auto_ptr<T> ptr0;
-auto_ptr<T> ptr1(new T(args));
-ptr0 ? true : false;				// false
-ptr1 ? true : false;				// true
-ptr0 == nullptr ? true : false;		// true
-ptr0 == nullptr ? true : false;		// false
+shared_ptr<T> ptr0;
+shared_ptr<T> ptr1(new T(args));
+ptr0 ? true : false; // false
+ptr1 ? true : false; // true
+ptr0 == nullptr ? true : false; // true
+ptr0 == nullptr ? true : false; // false
 ```
 
 标准库中的各类智能指针特性：
 
 - `std::auto_ptr`(已过时)
 
-	一块动态内存只能绑定一个`auto_ptr`，若将一个绑定了动态内存的`auto_ptr`复制给另一个`auto_ptr`则动态内存的所有权会被转移到新的auto_ptr上，旧的auto_ptr不再指向原先的动态内存。
+	一块动态内存只能绑定一个`auto_ptr`，若将一个绑定了动态内存的`auto_ptr`复制给另一个`auto_ptr`则动态内存的所有权会被转移到新的`auto_ptr`上，旧的`auto_ptr`不再指向原先的动态内存。
 
 - `std::unique_ptr`
 
@@ -2379,10 +2481,11 @@ ptr0 == nullptr ? true : false;		// false
 	来自于`boost::shared_ptr`，基于**引用计数**的共享智能指针。  
 	一块动态内存可以被多个`shared_ptr`绑定。  
 	每增加一个智能指针的绑定，则引用计数加1，当引用计数为0时释放指向的动态内存。  
-	shared_ptr的内存管理完全交由编译器完成，不能手动释放`shared_ptr`管理的动态内存(没有`release()`成员函数)。
+	`shared_ptr`的内存管理完全交由编译器完成，不能手动释放`shared_ptr`管理的动态内存(没有`release()`成员函数)。
 
 	`shared_ptr`使用`make_shared<T>(args)`函数进行构造。  
-	使用`reset()`成员函数会将当前智能指针管理的动态内存引用计数减1，如果引用计数为0则释放动态内存。  `shared_ptr`的`reset()`成员函数可以带有参数，参数可以是`new`构造函数或是对象指针，作用是将原先的托管对象引用计数减1然后管理新的对象(新对象引用计数加1)。
+	使用`reset()`成员函数会将当前智能指针管理的动态内存引用计数减1，如果引用计数为0则释放动态内存。  
+	`shared_ptr`的`reset()`成员函数可以带有参数，参数可以是`new`构造函数或是对象指针，作用是将原先的托管对象引用计数减1然后管理新的对象(新对象引用计数加1)。
 
 - `std::weak_ptr`
 
@@ -2403,7 +2506,7 @@ C++的类型转换操作符`dynamic_cast<>()`、`static_cast<>()`、`const_cast<
 
 如果智能指针是`shared_ptr`，则还需要考虑到智能指针保存内容的生命周期。
 
-如果传入的是一个尚未初始化的智能指针，需要在函数内对其进行赋值，而还要保证外部能使用这个指针，此时则需要传递智能指针的引用或地址，保证函数内部能访问到原始的智能指针，否则进行的操作都是对形参复制的智能指针进行的，不会改变外部的智能指针未被初始化的状态。
+若传入尚未初始化的智能指针，需要在函数内对其进行初始化，且还要保证外部能使用这个指针，此时需要传递智能指针的引用或地址，保证函数内部能访问到原始的智能指针，否则进行的操作都是对形参复制的智能指针进行的，不会改变外部的智能指针未被初始化的状态。
 
 例如：
 
@@ -2440,7 +2543,7 @@ int main(void)
 
 
 ## *std::bind()*
-`C++11`中引入该函数，来源于`boost::bind()`，作用是通过设定原有函数的某些参数值为固定值来生成具有新参数表的函数(类似`Python`中的部分应用函数)，`bind()`本质上是一个`call_adapter`。
+`C++11`中引入该函数，来源于`boost::bind()`，作用是通过设定原有函数的某些参数值为固定值来生成具有新参数表的函数(类似`Python`中的部分应用函数)，`bind()`本质上是一个`call_adapter`。  
 `bind()`既可以绑定当前类的成员函数，也可以绑定全局函数/静态函数或是其他类的具有访问权限的成员函数。
 
 ### *bind()* 绑定普通函数
@@ -2525,19 +2628,18 @@ int main(void)
 1 p4()调用后num的值：1
 ```
 
-可以看到，将类实例作为参数进行绑定的时候，对类实例进行的是值传递，即复制一个类对象，因此调用`bind()`生成之后的函数对象不会对原先的类实例进行修改(但传递类指针、类智能指针的时候，只是复制对象地址，类内存是同一块，因此修改会同步)，如果需要在`bind()`是进行对象引用传递，则可以使用`std::ref()`、`std::cref()`函数。
+将类实例作为参数进行绑定的时候，对类实例进行的是值传递，即复制一个类对象，因此调用`bind()`生成之后的函数对象不会对原先的类实例进行修改(但传递类指针、类智能指针的时候，只是复制对象地址，类内存是同一块，因此修改会同步)。  
+若需要在`bind()`是进行对象引用传递，则可以使用`std::ref()`、`std::cref()`函数。
 
 
 
 ## *boost::signals2*
-使用`Boost`库中的`signals2`可以实现近似C#中**委托**的效果，使用`signals2`需要包含头文件`/usr/include/boost/signals2.hpp`。
+使用`Boost`库中的`signals2`可以实现近似C#中**委托**的效果，使用`signals2`需要包含头文件`/usr/include/boost/signals2.hpp`。  
 `Boost`库中的`boost::signals2`相比原先的`boost::signals`而言是**线程安全**的，原先的`boost::signals`现在已被废弃。
 
 ### 定义信号
-定义信号使用`boost::signals2::signal<>`，该类是一个模板类，模板参数为需要连接的函数的函数原型。
-
-例如：
-需要连接的函数的原型为`void func(int, int)`，则定义信号时应该写成`boost::signals2::signal<void(int, int)>`。
+定义信号使用`boost::signals2::signal<>`，模板参数为需要连接的函数的函数原型。  
+若需要连接的函数的原型为`void func(int, int)`，则定义信号时应该写成`boost::signals2::signal<void(int, int)>`。
 
 需要注意的是`boost::signals2::signal`是不可复制的类型。
 
@@ -2643,9 +2745,9 @@ int main(void)
 	cout << *a.sig(0) << endl;
 	cout << "\nDisconnect slot1(int, int, int)." << endl;
 
-	link.disconnect();						//取消槽函数slot1(int, int, int)的连接
+	link.disconnect(); //取消槽函数slot1(int, int, int)的连接
 
-	cout << a.sig(1).value() << endl;		//调用value()成员函数获取合并器返回值
+	cout << a.sig(1).value() << endl; //调用value()成员函数获取合并器返回值
 	return 0;
 }
 ```
@@ -3116,7 +3218,7 @@ Second
 ^C^C^C^C
 ```
 
-第一次发送`SIGINT`信号触发了`deal_signal()`函数，从信号处理函数`deal_signal()`内部跳转会`sigsetjmp()`位置时，由于之前**未设置**保存信号数据，因而再次接收到信号`SIGINT`时，`deal_signal()`函数不再触发，直到程序结束。
+第一次发送`SIGINT`信号触发了`deal_signal()`函数，从信号处理函数`deal_signal()`内部跳转回`sigsetjmp()`位置时，由于之前**未设置**保存信号数据，因而再次接收到信号`SIGINT`时，`deal_signal()`函数不再触发，直到程序结束。
 
 若保存信号数据(`setjmp()`的`savesig`参数为`1`时)，函数输出结果为：
 
@@ -3248,7 +3350,75 @@ struct option
 	- `required_argument` 要求参数内容
 	- `optional_argument` 可选参数内容
 - `flag`成员用于决定函数的返回行为，取值`nullptr`时函数返回`val`成员的值，否则函数返回`0`，并将`val`内容写入该地址。
-- `val`成员在`flag`为`nullptr`时做为函数的返回值。
+- `val`成员在`flag`取值`nullptr`时做为函数的返回值。
+
+实例如下所示：
+
+```c
+#include <getopt.h>
+#include <stdio.h>
+
+int main(int argc, char* argv[])
+{
+	int arg, index, flag = -1;
+
+	struct option opts[] =
+	{
+		{ "aaa", no_argument, NULL, 'a' },
+		{ "bbb", required_argument, NULL, 'b' },
+		{ "ccc", optional_argument, NULL, 'c' },
+		{ "23", no_argument, &flag, 2333 }
+	};
+
+	while ((arg = getopt_long(argc, argv, "ab:c::", (struct option*)&opts, &index)) >= 0)
+	{
+		switch (arg)
+		{
+		case 'a':
+			printf("Receive arg: -a, index: %d\n", index);
+			break;
+		case 'b':
+			printf("Receive arg: -b, content: %s, index: %d\n", optarg, index);
+			break;
+		case 'c':
+			printf("Receive arg: -c, content: %s, index: %d\n", optarg, index);
+			break;
+		case 0:
+			printf("Receive arg: --23, index: %d, flag: %d\n", index, flag);
+			break;
+		}
+	}
+
+	return 0;
+}
+```
+
+编译测试：
+
+```
+$ cc test.c -o test_arg
+
+$ test_arg -b
+test_arg: option requires an argument -- b
+
+$ test_arg -b=2333
+Receive arg: -b, content: =2333, index: -1
+
+$ test_arg -b 2333
+Receive arg: -b, content: 2333, index: -1
+
+$ test_arg --bbb
+test_arg: option requires an argument -- bbb
+
+$ test_arg --bbb=2333
+Receive arg: -b, content: 2333, index: 1
+
+$ test_arg --bbb 2333
+Receive arg: -b, content: 2333, index: 1
+
+$ test_arg --23
+Receive arg: --23, index: 3, flag: 2333
+```
 
 
 
@@ -3270,7 +3440,7 @@ C++中的关键字`explicit`作用是防止构造函数隐式转换的发生。
 `restrict`关键字只在支持`C99`以上的C编译器中使用，C++**没有**引入这个关键字。
 
 ### *mutable* 关键字
-`mutable`关键字用于定义一个易变的变量，只能用于修饰类的非静态数据成员，语法格式上与`const`类似。
+`mutable`关键字用于定义一个易变的变量，只能用于修饰类的非静态数据成员，语法格式上与`const`类似。  
 一般成员变量在`const`修饰的成员函数中是不可被更改的，但使用了`mutable`关键字定义的变量，即使是在`const`成员函数中，依然可以被修改。
 
 C语言**没有**这个关键字。
@@ -3288,7 +3458,7 @@ using 命名空间名称::类型名称/变量名称;
 `using`用于定义类型的别名(类似于`typedef`)。如：
 
 ```cpp
-using List = std::list<int>;			//等价于 typedef class std::list<int> List;
+using List = std::list<int>; //等价于 typedef class std::list<int> List;
 using point = int (*a)(int, int);
 ```
 
@@ -3310,11 +3480,11 @@ using 父类类名::被隐藏函数的函数名;
 
 ```cpp
 int a = 1;
-int b = a << 10;			//b = 1024
-int c = b >> 5;				//c = 32
+int b = a << 10; //b = 1024
+int c = b >> 5; //c = 32
 ```
 
-`a`的二进制值也是1，将十进制的1的二进制值左移10位则结果为`1 * 2 ^ 10`，即1024。
+`a`的二进制值也是1，将十进制的1的二进制值左移10位则结果为`1 * 2 ^ 10`，即1024。  
 1024的二进制值右移5位结果为`1 * 2 ^ 5`，即32。
 
 ### *npos* 成员
