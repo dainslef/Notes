@@ -37,9 +37,10 @@
 - [参数默认值](#参数默认值)
 - [函数定义嵌套](#函数定义嵌套)
 - [*lvalue reference* (左值引用) / *rvalue reference* (右值引用)](#lvalue-reference-左值引用--rvalue-reference-右值引用)
-	- [右值引用](#右值引用)
-	- [右值构造函数](#右值构造函数)
+	- [*rvalue reference* (右值引用)](#rvalue-reference-右值引用)
+	- [*universal reference* (通用引用)](#universal-reference-通用引用)
 	- [*move semantics* (移动语义)](#move-semantics-移动语义)
+	- [*std::move()*](#stdmove)
 	- [注意事项](#注意事项)
 	- [成员函数的引用限定](#成员函数的引用限定)
 - [绑定指针的引用](#绑定指针的引用)
@@ -1347,7 +1348,7 @@ int main(void)
 - **非const右值引用**(`T&&`)可以绑定到非`const`右值。
 - **const右值引用**(`const T&&`)可以绑定到任意右值(无论是否`const`)。
 
-### 右值引用
+### *rvalue reference* (右值引用)
 在`C++11`中加入了**右值引用**的概念。  
 使用`类型&&`表示引用绑定一个来自**右值**的引用，如下所示：
 
@@ -1357,25 +1358,132 @@ int&& = 23333;
 
 右值引用仅能绑定右值，而右值在语句结束前没有绑定引用会被销毁，因而右值可以被安全地**转移**。
 
-### 右值构造函数
+### *universal reference* (通用引用)
+`类型&&`并不总是表示一个**右值引用**，在类型由推断得到时，表示**通用引用**。  
+**通用引用**能绑定到任意左值/右值，编译器根据实际传入的值类型决定引用类型。
+
+常见的通用引用有如下情形：
+
+- *auto declaration* (auto声明)
+
+	`auto&&`能绑定任意左值/右值，如下所示：
+
+	```cpp
+	auto&& num0 = 2333; //绑定右值，推断为 int&&
+	auto&& num1 = num0; //绑定左值，推断为 int&
+	```
+
+- *function template parameters* (模版函数参数)
+
+	模版函数的参数为`T&&`形式时，会根据实际传入参数推断引用类型，如下所示：
+
+	```cpp	
+	template <class T>
+	void ref(T&&) { } //模版参数表为 T&& 形式时，为通用引用
+	
+	int main(void)
+	{
+		const int& r_ref = 2333;
+		int&& l_ref = 2333;
+	
+		ref(r_ref); //右值引用 => 左值 => 模版参数类型 T&
+		ref(l_ref); //const左值引用 => 左值 => 模版参数类型 T&
+		ref(2333); //右值 => 模版参数类型 T&&
+	
+		return 0;
+	}
+	```
+
+	模版函数的返回值为`T&&`形式并不构成通用引用，如下所示：
+
+	```cpp	
+	template <class T>
+	T&& ref(T&& t)
+	{
+		return t;
+	}
+	
+	int main(void)
+	{
+		ref(2333);
+		return 0;
+	}
+	```
+
+	编译出错，提示：(clang-802.0.42 && macOS 10.12.6)
+
+	```
+	ref.cc:4:9: error: rvalue reference to type 'int' cannot bind to lvalue of 	type 'int'
+	        return t;
+	               ^
+	ref.cc:9:2: note: in instantiation of function template specialization 	'ref<int>' requested here
+	        ref(2333);
+	        ^
+	1 error generated.
+	```
+
+	模版类的成员函数参数表中带有`T&&`形式的模版参数时，并不是通用引用。  
+	模版类在构造时模版参数已经确定，并不由推导得到，如下所示：
+
+	```cpp
+	template <class T>
+	class Ref
+	{
+	public:
+		void ref(T&&) { } //使用 int 作为模版参数时，参数表已被确定为 void ref(int&&) 故仅能接受右值参数
+	};
+	
+	int main(void)
+	{
+		const int& r_ref = 2333;
+		int&& l_ref = 2333;
+	
+		Ref<int>().ref(r_ref); //编译报错，参数类型不匹配(需要右值)
+		Ref<int>().ref(l_ref); //编译报错，参数类型不匹配(需要右值)
+		Ref<int>().ref(2333); //编译通过
+	
+		return 0;
+	}
+	```
+
+	编译出错，提示：(clang-802.0.42 && macOS 10.12.6)
+
+	```
+	ref.cc:13:17: error: binding value of type 'const int' to reference to type 'int' drops 'const' qualifier
+	        Ref<int>().ref(r_ref);
+	                       ^~~~~
+	ref.cc:5:14: note: passing argument to parameter here
+	        void ref(T&&) { }
+	                    ^
+	ref.cc:14:17: error: rvalue reference to type 'int' cannot bind to lvalue of 	type 'int'
+	        Ref<int>().ref(l_ref);
+	                       ^~~~~
+	ref.cc:5:14: note: passing argument to parameter here
+	        void ref(T&&) { }
+	                    ^
+	2 errors generated.
+	```
+
+### *move semantics* (移动语义)
 在`C++11`之前，通过原有对象构造新对象仅有一种方式，即**复制构造函数**，如下所示：
 
 ```cpp
-class T
+class Type
 {
-	T(const T&);
+	Type(const Type&);
 }
 ```
 
-复制构造函数中传入参数为**const左值引用**(`const T&`)，const左值引用绑定的对象可能为右值，也可能为左值，因而无法确定参数对象的生命周期。  
+复制构造函数中传入参数为**const左值引用**(`const 类型&`)，const左值引用绑定的对象可能为右值，也可能为左值，因而无法确定参数对象的生命周期。  
 在复制构造函数中，为了实现真正的对象拷贝(深复制)，若原对象中存在指针成员，需要重新申请内存，并拷贝原对象的指针成员所指向的堆内存。
 
-在`C++11`之后，可以定义**移动构造函数**，用于使用**右值**构造对象的场景，如下所示：
+在`C++11`之后，新增了**移动语义**。  
+对于使用**右值**构造对象的场景，可以定义**移动构造函数**，如下所示：
 
 ```cpp
-class T
+class Type
 {
-	T(T&&);
+	Type(T&&);
 }
 ```
 
@@ -1384,9 +1492,9 @@ class T
 
 `C++11`之前缺少表示右值的方法，无法区分原对象来自左值或是右值，进而无法确定原对象的生命周期。  
 对于所有原对象，出于安全考虑，都需要**深复制**整个对象，在原对象为**右值**时，会带来不必要的开销。  
-`C++11`之后引入了右值引用，以右值构建对象时，若对象类型同时定义了复制构造函数和移动构造函数，会**优先匹配**该类型的移动构造函数，避免复制整个对象带来的不必要的开销。
+`C++11`之后引入了右值引用和移动语义，以右值构建对象时，若对象类型同时定义了复制构造函数和移动构造函数，会**优先匹配**该类型的移动构造函数，避免复制整个对象带来的不必要的开销。
 
-### *move semantics* (移动语义)
+### *std::move()*
 右值引用自身为**左值**，将右值引用直接作为参数传递时会被作为左值对待，如下所示：
 
 ```cpp
@@ -1419,12 +1527,19 @@ int main(void)
 Left reference.
 ```
 
-在传递右值引用时需要将其还原为`右值`才能真正触发移动构造函数。
-`C++11`提供了`std::move()`函数用于将右值引用转换为右值，定义如下：
+在传递右值引用时需要将其还原为`右值`才能真正触发移动构造函数。  
+`C++11`提供了`std::move()`函数用于将右值引用转换为右值，以`GCC 7.1`为例，实现如下：
 
 ```cpp
-template <class T>
-typename remove_reference<T>::type&& move (T&& arg) noexcept;
+  /**
+   *  @brief  Convert a value to an rvalue.
+   *  @param  __t  A thing of arbitrary type.
+   *  @return The parameter cast to an rvalue-reference to allow moving it.
+  */
+  template<typename _Tp>
+    constexpr typename std::remove_reference<_Tp>::type&&
+    move(_Tp&& __t) noexcept
+    { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
 ```
 
 上述实例使用`std::move()`转移右值引用，即可被真正被视为右值，如下所示：
