@@ -41,6 +41,7 @@
 	- [*universal reference* (通用引用)](#universal-reference-通用引用)
 	- [*move semantics* (移动语义)](#move-semantics-移动语义)
 	- [*std::move()*](#stdmove)
+	- [*std::forward*](#stdforward)
 	- [注意事项](#注意事项)
 	- [成员函数的引用限定](#成员函数的引用限定)
 - [绑定指针的引用](#绑定指针的引用)
@@ -63,7 +64,7 @@
 - [*Lambda*](#lambda)
 	- [重复使用一个 *Lambda*](#重复使用一个-lambda)
 	- [在 *Lambda* 中捕获当前作用域的变量](#在-lambda-中捕获当前作用域的变量)
-	- [C++14中的 *Lambda* 新特性](#c14中的-lambda-新特性)
+	- [C++14 中的 *Lambda* 新特性](#c14-中的-lambda-新特性)
 - [*STL* 容器](#stl-容器)
 	- [迭代器](#迭代器)
 	- [序列式容器](#序列式容器)
@@ -1531,15 +1532,15 @@ Left reference.
 `C++11`提供了`std::move()`函数用于将右值引用转换为右值，以`GCC 7.1`为例，实现如下：
 
 ```cpp
-  /**
-   *  @brief  Convert a value to an rvalue.
-   *  @param  __t  A thing of arbitrary type.
-   *  @return The parameter cast to an rvalue-reference to allow moving it.
-  */
-  template<typename _Tp>
-    constexpr typename std::remove_reference<_Tp>::type&&
-    move(_Tp&& __t) noexcept
-    { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
+/**
+ *  @brief  Convert a value to an rvalue.
+ *  @param  __t  A thing of arbitrary type.
+ *  @return The parameter cast to an rvalue-reference to allow moving it.
+*/
+template<typename _Tp>
+  constexpr typename std::remove_reference<_Tp>::type&&
+  move(_Tp&& __t) noexcept
+  { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
 ```
 
 上述实例使用`std::move()`转移右值引用，即可被真正被视为右值，如下所示：
@@ -1574,8 +1575,108 @@ int main(void)
 Right reference.
 ```
 
+### *std::forward*
+`std::move()`会无视传入值的左右值类型统一转换为右值。  
+对于需要保留参数左右值类型的场景，应使用`std::forward()`。以`GCC 7.1`为例，实现如下：
+
+```cpp
+template<typename _Tp>  
+  inline _Tp&&  
+  forward(typename std::remove_reference<_Tp>::type& __t)   
+  { return static_cast<_Tp&&>(__t); }  
+  
+template<typename _Tp>  
+  inline _Tp&&  
+  forward(typename std::remove_reference<_Tp>::type&& __t)   
+  {  
+    static_assert(!std::is_lvalue_reference<_Tp>::value, "template argument"  
+    " substituting _Tp is an lvalue reference type");  
+    return static_cast<_Tp&&>(__t);  
+  }  
+```
+
+`std::forward()`传入左值时返回左值引用类型，传入右值时返回右值引用类型。
+使用`std::forward()`，如下所示：
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void ref(int&)
+{
+	cout << "Left reference." << endl;
+}
+
+void ref(int&&)
+{
+	cout << "Right reference." << endl;
+}
+
+int main(void)
+{
+	int n = 2333;
+	int& l_ref = n;
+	ref(std::forward<int&>(l_ref));
+	ref(std::forward<int&&>(2333));
+
+	return 0;
+}
+```
+
+输出结果：
+
+```
+Left reference.
+Right reference.
+```
+
+`std::forward()`在调用时需要写明模板参数类型，否则无法通过编译。  
+可以借助**通用引用**规则编写模板函数进行封装：
+
+```
+#include <iostream>
+
+using namespace std;
+
+void ref(int&)
+{
+	cout << "Left reference." << endl;
+}
+
+void ref(int&&)
+{
+	cout << "Right reference." << endl;
+}
+
+template <class T>
+void call_ref(T&& t)
+{
+	ref(std::forward<T>(t));
+}
+
+int main(void)
+{
+	int n = 2333;
+	int& l_ref = n;
+	call_ref(l_ref);
+	call_ref(2333);
+
+	return 0;
+}
+```
+
+输出结果：
+
+```
+Left reference.
+Right reference.
+```
+
+`std::forward()`能够根据参数左右值类型智能地转化出合适的引用类型，这个特性被称为`perfect forwarding`(完美转发)。
+
 ### 注意事项
-无论左值引用或是右值引用本身都是左值，因此虽然不能直接对右值取地址，但是可以对右值引用取地址。
+无论左值引用或是右值引用本身都是左值，因此虽然不能直接对右值取地址，但可以对右值引用取地址。
 
 引用一但绑定就不可更改，因此引用与指针不同，指针分为指向`const`内容的指针`const 类型名* 指针名`和自身保存地址不可变的`const`指针`类型名* const 指针名`，而引用本身一定是不可变的，因此只有绑定`const`值的引用`const 类型名& 引用名`，而没有真正的`const`引用，`类型名& const 引用名`这样的定义是不被编译器允许的。
 
@@ -2270,11 +2371,11 @@ C++11中同样引入了**静态断言**关键字`static_assert`，用法与C11�
 
 ```cpp
 int a = 0;
-auto&& b = 0;				//绑定右值
-auto&& c = a;				//绑定左值
+auto&& b = 0; //绑定右值
+auto&& c = a; //绑定左值
 c = 1;
-cout << a << endl;			//打印输出："1"，c为a的引用，而不是值复制
-cout << &a << " " << &c << endl;	//打印输出结果相同，c和a为同一块地址，即同一个变量
+cout << a << endl; //打印输出："1"，c为a的引用，而不是值复制
+cout << &a << " " << &c << endl; //打印输出结果相同，c和a为同一块地址，即同一个变量
 ```
 
 
@@ -2311,9 +2412,9 @@ using namespace std;
 int main(void)
 {
 	function<void()> func;
-	cout << (func ? "true" : "false") << endl;		// 输出"false"
+	cout << (func ? "true" : "false") << endl; //输出"false"
 	func = [] {};
-	cout << (func ? "true" : "false") << endl;		// 输出"true"
+	cout << (func ? "true" : "false") << endl; //输出"true"
 	return 0;
 }
 ```
@@ -2359,7 +2460,7 @@ int main(void)
 Run lambda function point: 100
 ```
 
-### C++14中的 *Lambda* 新特性
+### C++14 中的 *Lambda* 新特性
 - 在`C++14`中，加入了泛型`Lambda`，
 	并支持在`Lambda`使用**表达式**捕获作用域中的变量，
 	且没有捕获变量的`Lambda`可以与函数指针进行转化(不是函数对象)。
@@ -2485,7 +2586,8 @@ vector(input_iterator start, input_iterator end); //使用某个已存在的vect
 
 	`vector`容器是数组式的容器类型。  
 	`vector`容器中存储的数据元素被放在一块连续的内存中。  
-	`vector`容器支持**随机存取**，可以通过数组式的下标(即`[]`操作符)进行元素访问、修改。  
+	`vector`容器支持**随机存取**，可以通过数组式的下标(即`[]`操作符)进行元素访问、修改。
+
 	`vector`容器虽支持`insert()`等函数来进行插入操作，
 	但由于内部采用线性结构，因而`insert()`函数在头部或是中间插入元素时需要进行大量复制操作，
 	插入效率很低，在执行头部、中部删除元素操作时也同样效率低。
@@ -2495,7 +2597,8 @@ vector(input_iterator start, input_iterator end); //使用某个已存在的vect
 	`list`容器采用**双向链表**实现。  
 	`list`容器存储的元素所处的内存空间不连续。
 	由于链表的特性，元素之间是通过指针相连的，因而`list`容器在任意位置插入和删除元素时效率都很高。  
-	但`list`容器并**不支持**随机存取，如不支持使用`[]`操作符访问元素，同时相比`vector`容器消耗的内存更多。  
+
+	`list`容器**不支持**随机存取，不可使用`[]`操作符访问元素，同时相比`vector`容器消耗的内存更多。  
 	`list`容器有着一些`vector`没有的方法，比如`pop_front()`、`push_front(const T &x)`、`remove(const T &value)`等。  
 	使用`remove()`方法可以移除容器中所有值为`value`的元素。
 
@@ -2531,7 +2634,8 @@ vector(input_iterator start, input_iterator end); //使用某个已存在的vect
 	通过访问`first`和`second`两个成员可以获取键值和实际数据。  
 	使用`find()`函数可以查找某个键值，返回一个迭代器，通过遍历该迭代器可以获取某个键值的所有对应值。
 
-	可以通过`lower_bound()`、`upper_bound()`等函数获取迭代器，用于遍历元素，与`STL`的迭代器相同，`lower_bound()`返回指向参数键值的第一个元素位置的迭代器，而`upper_bound()`返回指向参数键值最后一个元素的下一个元素位置的迭代器。
+	可以通过`lower_bound()`、`upper_bound()`等函数获取迭代器，用于遍历元素。  
+	与`STL`的迭代器相同，`lower_bound()`返回指向参数键值的第一个元素位置的迭代器，而`upper_bound()`返回指向参数键值最后一个元素的下一个元素位置的迭代器。
 
 使用注意事项：
 
@@ -2756,7 +2860,7 @@ int main(void)
 定义信号使用`boost::signals2::signal<>`，模板参数为需要连接的函数的函数原型。  
 若需要连接的函数的原型为`void func(int, int)`，则定义信号时应该写成`boost::signals2::signal<void(int, int)>`。
 
-需要注意的是`boost::signals2::signal`是不可复制的类型。
+`boost::signals2::signal`是**不可复制**的类型。
 
 ### 连接槽函数
 连接槽函数使用`connect()`成员函数，该函数有两个重载，定义如下：
@@ -2787,8 +2891,8 @@ connection connect(const group_type& group, const slot_type& slot, connect_posit
 取消连接使用`disconnect()`成员函数，该函数有两个重载，定义如下：
 
 ```cpp
-void disconnect(const group_type& group);		//断开指定组别的所有槽的连接
-void disconnect(const T& slot);					//断开指定槽
+void disconnect(const group_type& group); //断开指定组别的所有槽的连接
+void disconnect(const T& slot); //断开指定槽
 ```
 
 还可以一次性断开所有槽：
@@ -2987,7 +3091,7 @@ struct duration;
 
 	int main(void)
 	{
-		std::chrono::hours hour(1);			// 一个小时的时间间隔
+		std::chrono::hours hour(1); // 一个小时的时间间隔
 		std::chrono::minutes mintue = std::chrono::duration_cast<std::chrono::minutes>(hour);	// 转换为分钟
 		std::cout << "Hour: " << hour.count() << std::endl;
 		std::cout << "Mintue: " << mintue.count() << std::endl;
