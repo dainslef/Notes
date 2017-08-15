@@ -39,6 +39,7 @@
 - [*lvalue reference* (左值引用) / *rvalue reference* (右值引用)](#lvalue-reference-左值引用--rvalue-reference-右值引用)
 	- [*rvalue reference* (右值引用)](#rvalue-reference-右值引用)
 	- [*universal reference* (通用引用)](#universal-reference-通用引用)
+	- [*reference collapsing* (引用折叠)](#reference-collapsing-引用折叠)
 	- [*move semantics* (移动语义)](#move-semantics-移动语义)
 	- [*std::move()*](#stdmove)
 	- [*std::forward*](#stdforward)
@@ -1464,6 +1465,65 @@ int&& = 23333;
 	                    ^
 	2 errors generated.
 	```
+
+### *reference collapsing* (引用折叠)
+对于参数即为引用类型的模版函数，若传入模版参数时使用引用形式的模版参数，则会产生**引用折叠**。  
+如下所示：
+
+```cpp
+template <class T>
+void test(T& t) { }
+
+test<int&>(...);
+```
+
+调用函数时使用`int&`作为模版参数参数，则理论上参数类型为`int& + &`，即`int`类型引用的引用(`Reference to Reference`)。  
+而`C++`不允许`Reference to Reference`，编译器会将引用进行叠加。  
+引用叠加遵循以下规则：
+
+```cpp
+T& + T => T&
+T& + T& => T&
+T& + T&& => T&
+T&& + T => T&&
+T&& + T& => T&
+T&& + T&& => T&&
+```
+
+实例代码：
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+template <class T>
+void test_(T& t)
+{
+	cout << "T&" << endl;
+}
+
+template <class T>
+void test__(T&& t)
+{
+	cout << "T&&" << endl;
+}
+
+int main(void)
+{
+	int num = 2333;
+
+	test_<int>(num); // T& + T => T& 接收左值
+	test_<int&>(num); // T& + T& => T& 接收左值
+	test_<int&&>(num); // T& + T&& => T& 接收左值
+
+	test__<int>(2333); // T&& + T => T&& 接收右值
+	test__<int&>(num); // T&& + T& => T& 接收左值
+	test__<int&&>(2333); // T&& + T&& => T&& 接收右值
+
+	return 0;
+}
+```
 
 ### *move semantics* (移动语义)
 在`C++11`之前，通过原有对象构造新对象仅有一种方式，即**复制构造函数**，如下所示：
