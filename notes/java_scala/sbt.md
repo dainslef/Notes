@@ -8,6 +8,7 @@
 	- [默认路径](#默认路径)
 - [构建配置](#构建配置)
 	- [重新加载配置](#重新加载配置)
+	- [访问构建信息](#访问构建信息)
 - [依赖管理](#依赖管理)
 	- [常用依赖](#常用依赖)
 - [编译参数](#编译参数)
@@ -215,6 +216,64 @@ enablePlugins(Xxx) //启用插件
 若在`sbt shell`开启之后`build.sbt`文件发生了修改，则已经开启的`sbt shell`依旧使用之前的构建配置。  
 若需要已开启的`sbt shell`使用新的构建配置，则应在`sbt shell`中使用`reload`指令重新加载构建配置。
 
+### 访问构建信息
+`sbt`没有提供访问`build.sbt`中项目构建信息的接口，使用`sbt`插件`sbt-buildinfo`可以让项目访问`sbt`的构建信息。  
+在`sbt`项目中的`project/plugins.sbt`文件中引入该插件：
+
+```scala
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "版本号")
+```
+
+在项目构建配置文件`build.sbt`中启用`sbt-buildinfo`插件：
+
+```scala
+enablePlugins(BuildInfoPlugin)
+```
+
+`sbt-buildinfo`插件的原理是利用`build.sbt`中的项目构建信息在项目构建时生成额外的源码，
+并以**单例对象**的形式将构建信息提供给项目源码进行访问。
+
+启用`sbt-buildinfo`插件后会增加插件相关的配置项。  
+将`build.sbt`中的`name、version、scalaVersion、sbtVersion`等配置项传入`sbt-buildinfo`插件的`buildInfoKeys`配置项，
+通过`buildInfoPackage`配置项设定生成单例的包路径。
+
+在`build.sbt`文件中配置`sbt-buildinfo`插件，实例如下：
+
+```scala
+// sbt项目构建信息
+name := "xxx"
+version := "xxx"
+scalaVersion := "2.12.3"
+sbtVersion := "0.13.16"
+
+// 启用 sbt-buildinfo 插件
+enablePlugins(BuildInfoPlugin)
+
+// 设定构建信息
+buildInfoKeys := Seq(name, version, scalaVersion, sbtVersion)
+buildInfoPackage := "xxx.yyy.zzz" //将构建信息生成到 xxx.yyy.zzz 包路径中
+```
+
+`sbt-buildinfo`插件生成的单例对象结构如下所示：
+
+```scala
+case object BuildInfo {
+  /** The value is "xxx". */
+  val name: String = "xxx"
+  /** The value is "xxx". */
+  val version: String = "xxx"
+  /** The value is "2.12.2". */
+  val scalaVersion: String = "2.12.2"
+  /** The value is "0.13.15". */
+  val sbtVersion: String = "0.13.15"
+  override val toString: String = {
+    "name: %s, version: %s, scalaVersion: %s, sbtVersion: %s" format (
+      name, version, scalaVersion, sbtVersion
+    )
+  }
+}
+```
+
 
 
 ## 依赖管理
@@ -320,8 +379,7 @@ Scala编译器 + sbt + Play Framework + Akka + 项目模版 + 基于Play的WEB�
 ### 安装与配置
 多数Linux发行版**没有**将`Activator`添加到仓库中，因而无论是`Linux/Windows`环境下，都需要从官网下载`Activator`。
 
-配置`Activator`方式与`sbt`类似。
-
+配置`Activator`方式与`sbt`类似。  
 从`http://www.lightbend.com/activator/download`下载完整版的`Activator`，解压后将`bin`目录加入`PATH`环境变量中即可。
 
 ### 基本操作
