@@ -19,6 +19,7 @@
 	- [无效依赖属性](#无效依赖属性)
 - [触发器](#触发器)
 	- [属性触发器](#属性触发器)
+	- [数据触发器](#数据触发器)
 - [*Window* (窗口) 与 *Page* (页面)](#window-窗口-与-page-页面)
 	- [启动窗口/页面](#启动窗口页面)
 	- [窗体加载与关闭](#窗体加载与关闭)
@@ -561,6 +562,34 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 			</MultiTrigger.Conditions>
 			<Setter Property="Opacity" Value="0.5"/>
 		</MultiTrigger>
+	</Style.Triggers>
+</Style>
+```
+
+### 数据触发器
+数据触发器用于监视绑定路径的数据变化，当绑定的路径数据满足条件时则执行触发器。
+
+与属性触发器类似，数据触发器也包括监视单一数据的`DataTrigger`与监视多数据的`MultiDataTrigger`。
+
+```xml
+<Style TargetType="Image">
+	<Style.Triggers>
+		
+		<!-- 绑定路径为 Xxx 的目标数据值为 xxx 时，设置 Opacity 属性为 1.0 -->
+		<DataTrigger Binding="{Binding Path=Xxx}" Value="xxx">
+			<Setter Property="Opacity" Value="1.0"/>
+		</DataTrigger>
+
+		<!-- 多条件数据触发器 -->
+		<MultiDataTrigger>
+			<!-- 绑定路径为 XxxA 的目标数据值为 xxxA 时，绑定路径为 XxxB 的目标数据值为 xxxB 时，设置 Opacity 属性为 0.5 -->
+			<MultiDataTrigger.Conditions>
+				<Condition Binding="{Binding Path=XxxA}" Value="xxxA" />
+				<Condition Binding="{Binding Path=XxxB}" Value="xxxB" />
+			</MultiDataTrigger.Conditions>
+			<Setter Property="Opacity" Value="0.5"/>
+		</MultiDataTrigger>
+
 	</Style.Triggers>
 </Style>
 ```
