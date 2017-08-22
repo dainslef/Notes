@@ -1,4 +1,56 @@
-[TOC]
+<!-- TOC -->
+
+- [基础类型](#基础类型)
+	- [n进制表示](#n进制表示)
+	- [2进制数据流](#2进制数据流)
+- [容器类型](#容器类型)
+	- [*list* (列表)](#list-列表)
+	- [*tuple* (元组)](#tuple-元组)
+	- [*dict* (字典)](#dict-字典)
+	- [*set* (集合)](#set-集合)
+	- [生成容器](#生成容器)
+	- [切片](#切片)
+- [变量类型](#变量类型)
+	- [查看变量类型](#查看变量类型)
+	- [判断变量是否属于某种类型](#判断变量是否属于某种类型)
+- [*decorator* (装饰器)](#decorator-装饰器)
+	- [定义装饰器](#定义装饰器)
+	- [装饰有参函数](#装饰有参函数)
+	- [装饰器参数](#装饰器参数)
+- [*OOP*](#oop)
+	- [实例类成员](#实例类成员)
+	- [静态类成员](#静态类成员)
+	- [类方法](#类方法)
+	- [属性](#属性)
+	- [隐含参数](#隐含参数)
+	- [私有成员](#私有成员)
+	- [继承](#继承)
+	- [一些特殊的内置成员](#一些特殊的内置成员)
+- [*range()* 函数](#range-函数)
+- [变量作用域](#变量作用域)
+	- [*global* 关键字](#global-关键字)
+	- [*nonlocal* 关键字](#nonlocal-关键字)
+- [*generator* (生成器)](#generator-生成器)
+	- [遍历生成器与获取生成器的返回值](#遍历生成器与获取生成器的返回值)
+	- [使用 *send()* 与生成器进行交互](#使用-send-与生成器进行交互)
+- [与C/C++的基本语法差异](#与cc的基本语法差异)
+- [*Socket API*](#socket-api)
+	- [*Socket* 创建](#socket-创建)
+	- [TCP 服务端](#tcp-服务端)
+	- [UDP 服务端](#udp-服务端)
+	- [客户端](#客户端)
+- [包管理器 *pip*](#包管理器-pip)
+	- [包依赖检查与清理](#包依赖检查与清理)
+- [文档浏览](#文档浏览)
+- [*PEP8* 编码规范总结](#pep8-编码规范总结)
+	- [代码编排](#代码编排)
+	- [空格使用](#空格使用)
+	- [命名规范](#命名规范)
+	- [注释规范](#注释规范)
+
+<!-- /TOC -->
+
+
 
 ## 基础类型
 `Python`为**强类型**语言，不同数据类型之间需要显式转换。
@@ -9,7 +61,7 @@
 - `chr、str` 字符、字符串
 - `bool` 布尔类型，取值`True/False`
 
-进行强制类型转换的语法类似`C++`，以函数的语法调用类型即可，如下所示：
+进行强制类型转换的语法类似`C++`，以函数的语法调用类型即可。
 
 转化数字到字符串：
 
@@ -184,14 +236,14 @@ bytearray(b'ea')
 向指定位置添加内容：
 
 ```py
->>> l.insert(0, 'one')			# 在list表首添加字符串"one"
+>>> l.insert(0, 'one') # 在list表首添加字符串"one"
 ['one', 'first', 'second', 'third']
 ```
 
 删除指定位置的数据：
 
 ```py
->>> l.pop(0)					# 删除list表首的数据，不写参数时默认删除list最后一个数据
+>>> l.pop(0) # 删除list表首的数据，不写参数时默认删除list最后一个数据
 >>> l
 ['first', 'second', 'third']
 ```
@@ -199,7 +251,7 @@ bytearray(b'ea')
 替换指定位置的数据：
 
 ```py
->>> l[0] = [1, 2, 3]			# 将list表首的数据替换为另一个list：[1, 2, 3]
+>>> l[0] = [1, 2, 3] # 将list表首的数据替换为另一个list：[1, 2, 3]
 >>> l
 [[1, 2, 3], 'second', 'third']
 ```
@@ -472,7 +524,7 @@ True
 装饰器也是设计模式中的一种，通过组合的方式来复用已有的功能。
 
 ### 定义装饰器
-在Python中，装饰器本质上就是一个普通的函数，接受一个函数作为输入参数，同时返回一个装饰后的函数。
+在Python中，装饰器本质上就是一个普通的函数，接受一个函数作为输入参数，同时返回一个装饰后的函数。  
 装饰器基本的结构如下所示：
 
 ```py
@@ -492,7 +544,7 @@ def func_name():
 	# code...
 ```
 
-实际上，Python中使用装饰器只是一个**语法糖**，实际相当于调用装饰器函数产出一个新的函数。
+实际上，Python中使用装饰器只是一个**语法糖**，实际相当于调用装饰器函数产出一个新的函数。  
 上述代码等价于：
 
 ```py
@@ -517,7 +569,7 @@ def time_cost(func):
 
 # 将要使用的装饰器的名称写在函数定义前
 @time_cost
-def show():		# 装饰器是语法糖，方法show的属性"__name__"返回值为"wrapper"(即装饰器内的包装函数的名字)
+def show(): # 装饰器是语法糖，方法show的属性"__name__"返回值为"wrapper"(即装饰器内的包装函数的名字)
 	print("Call method:", show.__name__)
 
 show()
@@ -531,7 +583,7 @@ Time used: 0.000052 seconds
 ```
 
 ### 装饰有参函数
-对于参数不为空的函数，定义装饰器函数时，需要修改包装函数的参数表，为其添加参数。
+对于参数不为空的函数，定义装饰器函数时，需要修改包装函数的参数表，为其添加参数。  
 如果能确定被装饰函数的函数原型，可以将包装函数的参数数量设置为与被装饰函数相同，如下所示：
 
 ```py
@@ -560,7 +612,7 @@ Call show(): Test arg
 Time used: 0.000052 seconds
 ```
 
-若被装饰的函数是未知的，则需要将包装函数的参数表定义为接收可变参数。
+若被装饰的函数是未知的，则需要将包装函数的参数表定义为接收可变参数。  
 定义一个输出传入参数种类和内容的装饰器，如下所示：
 
 ```py
@@ -577,7 +629,7 @@ def decorator(func):
 			print("Key:", key, "Value:", kwargs[key])
 
 		print()
-		func(*args, **kwargs)	# 即使函数的参数表是确定的，依然可以使用可变参数的形式传入参数
+		func(*args, **kwargs) # 即使函数的参数表是确定的，依然可以使用可变参数的形式传入参数
 
 	return wrapper
 
@@ -610,8 +662,8 @@ Num4 is: 4
 ```
 
 ### 装饰器参数
-装饰器本身也可以带有参数。
-定义带有参数的装饰器需要在包装函数外再封装一层。
+装饰器本身也可以带有参数。  
+定义带有参数的装饰器需要在包装函数外再封装一层。  
 基本样式如下所示：
 
 ```py
@@ -767,6 +819,7 @@ test.show()
 
 ### 静态类成员
 在Python中同样可以定义类的静态成员，与传统的OOP语言类似，访问静态成员使用`类名.静态成员名`即可。
+
 定义静态成员函数，需要注意：
 
 - 类的静态成员函数在定义前需要加装饰器`@staticmethod`。
@@ -844,87 +897,86 @@ Called by Test.show() 100 100
 ```
 
 ### 属性
-Python中同样支持`属性`，`属性`的概念与C#中类似。
-
+Python中同样支持`属性`，`属性`的概念与C#中类似。  
 Python中的属性实际上是一组特定签名的`getter`、`setter`方法，用以有限制地存取某个私有变量，`getter`、`setter`方法被定义为`属性`之后，便能够以类似访问成员变量的语法来调用。
 
-#### *使用 property() 函数定义属性*
-可以使用`property()`函数来绑定属性。
+- 使用 *property()* 函数定义属性
 
-`property()`函数的基本结构如下：
+	可以使用`property()`函数来绑定属性。  
+	`property()`函数的基本结构如下：
 
-```py
-property_name = property(fget = None, fset = None, fdel = None, doc = None)
-```
+	```py
+	property_name = property(fget = None, fset = None, fdel = None, doc = None)
+	```
 
-函数依次接收`getter`、`setter`、`deleter`和属性描述作为参数，返回值赋值的变量名称即为属性的名称。
+	函数依次接收`getter`、`setter`、`deleter`和属性描述作为参数，返回值赋值的变量名称即为属性的名称。  
+	如下所示：
 
-如下代码所示：
+	```py
+	class Num:
 
-```py
-class Num:
+		def __init__(self, value):
+			self.__num = value
 
-	def __init__(self, value):
-		self.__num = value
+		# getter函数
+		def get_num(self):
+			return self.__num
 
-	# getter函数
-	def get_num(self):
-		return self.__num
+		# setter函数
+		def set_num(self, value):
+			self.__num = value
 
-	# setter函数
-	def set_num(self, value):
-		self.__num = value
+		# deleter函数
+		def del_num(self):
+			del self.__num
 
-	# deleter函数
-	def del_num(self):
-		del self.__num
+		# 使用property()函数绑定属性读写函数，返回变量num计委属性名称
+		num = property(get_num, set_num, del_num, doc = None)
 
-	# 使用property()函数绑定属性读写函数，返回变量num计委属性名称
-	num = property(get_num, set_num, del_num, doc = None)
+	n = Num(10)
+	print(n.num) # 使用用读属性，实际调用get_num()
+	n.num = 100 # 使用写属性，实际调用set_num()
+	print(n.num)
+	del n.num # 删除成员，实际调用del_num()
+	```
 
-n = Num(10)
-print(n.num) # 使用用读属性，实际调用get_num()
-n.num = 100 # 使用写属性，实际调用set_num()
-print(n.num)
-del n.num # 删除成员，实际调用del_num()
-```
+	若需定义`只读属性`，则调用`property()`函数时`fset`参数取`None`即可。
 
-如果需要定义`只读属性`，则调用`property()`函数时`fset`参数取`None`即可。
+- 使用**装饰器**定义属性
 
-#### *使用装饰器定义属性*
-在`Python 2.6`之后，支持使用**装饰器**语法定义属性。
-
-- 使用`@property`装饰器装饰`getter`函数，同时该函数的名称即为**属性名**。
-- 使用`@属性名.setter`装饰器装饰`setter`函数。
-- 使用`@属性名.deleter`装饰器装饰`deleter`函数。
-- 使用装饰器语法来定义属性时，`getter`、`setter`、`deleter`函数的函数名都需要与属性名**相同**。
-
-如下所示，上例中的代码等价于：
-
-```py
-class Num:
-
-	def __init__(self, value):
-		self.__num = value
-
-	@property
-	def num(self):
-		return self.__num
-
-	@num.setter
-	def num(self, value):
-		self.__num = value
-
-	@num.deleter
-	def num(self):
-		del self.__num
-
-n = Num(10)
-print(n.num)
-n.num = 100
-print(n.num)
-del n.num
-```
+	在`Python 2.6`之后，支持使用**装饰器**语法定义属性。
+	
+	- 使用`@property`装饰器装饰`getter`函数，同时该函数的名称即为**属性名**。
+	- 使用`@属性名.setter`装饰器装饰`setter`函数。
+	- 使用`@属性名.deleter`装饰器装饰`deleter`函数。
+	- 使用装饰器语法来定义属性时，`getter`、`setter`、`deleter`函数的函数名都需要与属性名**相同**。
+	
+	如下所示，上例中的代码等价于：
+	
+	```py
+	class Num:
+	
+		def __init__(self, value):
+			self.__num = value
+	
+		@property
+		def num(self):
+			return self.__num
+	
+		@num.setter
+		def num(self, value):
+			self.__num = value
+	
+		@num.deleter
+		def num(self):
+			del self.__num
+	
+	n = Num(10)
+	print(n.num)
+	n.num = 100
+	print(n.num)
+	del n.num
+	```
 
 ### 隐含参数
 本质上，`Python`对于成员方法的区分实际上是对于隐含参数的处理方式不同。
@@ -940,7 +992,7 @@ instance.func_name(args...)
 class_name.func_name(isinstance, args...)
 ```
 
-`Python`解释器只是将实例本身填充到了实例方法的第一个参数上而已，因而实例方法也可以以静态方法的语法被调用。
+`Python`解释器只是将实例本身填充到了实例方法的第一个参数上而已，因而实例方法也可以以静态方法的语法被调用。  
 在`C#`中也存在类似的语法转换，被称为**扩展方法**。
 
 添加了装饰器`@staticmethod`或`@classmethod`的方法便不再能够进行这种转换，如下代码所示：
@@ -1007,7 +1059,7 @@ no_arg_method: 100
 ### 私有成员
 `Python`类中默认成员的访问属性为公有，在`Python`中不能定义保护成员，但可以定义私有成员。
 
-在命名类的成员时，以`__`开头的成员即为**私有成员**，不能在类的外部被访问。
+在命名类的成员时，以`__`开头的成员即为**私有成员**，不能在类的外部被访问。  
 如下代码所示：
 
 ```py
@@ -1027,8 +1079,8 @@ test.show() # 调用show()成员函数正确打印私有成员内容
 print(test.__num, Test.__num) # 直接输出私有成员内容报错，错误提示 " 'Test'对象没有属性__num "
 ```
 
-实际上，私有变量并不是真的被隐藏了，仅仅是解释器对私有变量的名称做了一些改动使得外界无法访问。
-以`__xxx`为名的私有成员的实际名称被改成了`_类名__xxx`，只要使用改动后的名称，就可以访问私有成员变量了。
+在`CPython`的实现中，私有变量并非真正被隐藏，仅仅是解释器对私有变量的名称做了一些改动使得外界无法访问。  
+以`__xxx`为名的私有成员的实际名称被修改为`_类名__xxx`，使用改动后的名称可以正常访问私有成员。
 
 上个例子稍作修改即可访问到私有变量：
 
@@ -1053,7 +1105,7 @@ print(test._Test__num, Test._Test__num) # 需要注意的是，不同的Python�
 
 ```
 1 1
-1 1					#正常获得了私有成员变量的内容
+1 1 # 正常获得了私有成员变量的内容
 ```
 
 ### 继承
@@ -1121,8 +1173,8 @@ t + k # 实际调用 t.__add__(k) 加号运算符
 
 其中`start`、`step`参数参数带有默认值，默认情况下`start`为**0**，`step`为**1**。
 
-在`Python 2`中，`range()`返回类型是`list`。
-在`Python 3`中，`range()`返回类型是`range`，得到`list`需要使用`list(xxx)`显式地进行强制类型转换。
+`Python 2`中，`range()`返回类型是`list`。  
+`Python 3`中，`range()`返回类型是`range`，得到`list`需要使用`list(xxx)`显式地进行强制类型转换。
 
 `range()`函数一般用于`for`循环遍历，例如：
 
@@ -1139,7 +1191,7 @@ for a in range(5):
 
 
 
-## *global* 和 *nonlocal*
+## 变量作用域
 在`Python`中，定义变量与赋值变量语法相同，这一设计导致局部作用域下访问外部变量时会有语义冲突。
 
 ### *global* 关键字
@@ -1174,8 +1226,7 @@ num after set_global_num(): 1
 ```
 
 ### *nonlocal* 关键字
-`global`关键字解决了局部作用域访问全局变量的问题，但不能解决闭包函数访问外部局部变量的问题。
-
+`global`关键字解决了局部作用域访问全局变量的问题，但不能解决闭包函数访问外部局部变量的问题。  
 在`Python 3`中，引入了`nonlocal`关键字用于访问外部非全局作用域的变量。
 
 如下所示：
@@ -1218,7 +1269,7 @@ def func():
 
 	def set_nonlocal_num():
 		def set_num():
-			nonlocal num	# 会一直查找外部局部作用域中名为num的变量，不仅仅在上一层作用域
+			nonlocal num # 会一直查找外部局部作用域中名为num的变量，不仅仅在上一层作用域
 			num = 1
 		set_num()
 
@@ -1277,7 +1328,7 @@ StopIteration: 100
 
 ### 遍历生成器与获取生成器的返回值
 除了使用`next()`函数来进行生成器迭代外，还可以采用**for循环**的形式。  
-正常情况下，是不能获得生成器函数中的返回值的，若需要返回值，则可以捕获**StopIteration**异常，通过异常对象获取生成器函数的返回值。
+正常情况下，无法获得生成器函数的返回值，若需要返回值，则可以捕获**StopIteration**异常，通过异常对象获取生成器函数的返回值。
 
 如下代码所示：
 
@@ -1324,8 +1375,8 @@ print([next(g) for i in range(0, 3)])
 ```
 
 ### 使用 *send()* 与生成器进行交互
-当使用`next()`生成器启动后，便可以使用`生成器对象.send(内容)`向生成器传递内容，`send()`传递的内容将作为yield表达式的**返回值**。  
-`next()`就相当于`send(None)`，即`None`为`yield`表达式的默认返回值。  
+当使用`next()`生成器启动后，便可以使用`生成器对象.send(内容)`向生成器传递内容，`send()`传递的内容将作为`yield`表达式的**返回值**。  
+`next()`相当于`send(None)`，即`None`为`yield`表达式的默认返回值。  
 执行了`send()`函数相当于先执行一次`next()`，然后将`send()`中的参数作为`yield`的返回值。  
 首次启动生成器必须使用`next()`，因为第一次迭代没有`yield`表达式参与，以后的每一次迭代都可以使用`send()`代替`next()`。
 
@@ -1406,7 +1457,7 @@ tcpSock.listen(最大连接数)
 clientSock, clientAddr = tcpSock.accept()
 ```
 
-在有用户建立连接之前，`accept()`方法会一直阻塞。
+在有用户建立连接之前，`accept()`方法会一直阻塞。  
 当成功建立连接后，`accept()`方法返回客户端socket对象以及客户端地址。
 
 使用`accept()`方法返回的客户端socket对象即可接收与发送消息。
@@ -1432,7 +1483,7 @@ clientSock.connect(("ip地址", 端口))
 
 
 ## 包管理器 *pip*
-Python提供了包管理器`pip`用于管理模块。
+Python提供了包管理器`pip`用于管理模块。  
 在部分Linux发行版中，`pip`并没有随Python一并被安装，`pip`可以从发行版的软件源中安装，也可以下载安装脚本：
 
 ```
@@ -1481,7 +1532,9 @@ $ pip help [operate] //查看pip相关操作的帮助信息，如"pip help insta
 
 清理无用的`pip`包可以安装工具`pip-autoremove`：
 
-`$ pip install pip-autoremove`
+```
+$ pip install pip-autoremove
+```
 
 `pip-autoremove`的常见操作如下：
 
@@ -1497,9 +1550,11 @@ Python提供了文档工具`pydoc`。
 
 使用`pydoc`可以方便地查看Python标准库以及从pip安装的模块的对应文档：
 
-`$ pydoc -p [port]`
+```
+$ pydoc -p [port]
+```
 
-指定端口号即可使用浏览器浏览Python文档。
+指定端口号即可使用浏览器浏览Python文档。  
 `port`值取`0`时任意选择一个可以使用的端口。
 
 
