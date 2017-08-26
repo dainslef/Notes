@@ -1,4 +1,11 @@
-[TOC]
+<!-- TOC -->
+
+- [*Haskell* 开发环境](#haskell-开发环境)
+	- [*GHC* 常用功能](#ghc-常用功能)
+
+<!-- /TOC -->
+
+
 
 ## *Haskell* 开发环境
 `Haskell`的主流编译器是`GHC`，即`Glasgow Haskell Compiler`。

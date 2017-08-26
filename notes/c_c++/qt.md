@@ -421,8 +421,8 @@ bool QObject::event(QEvent *e);
 
 	```cpp
 	QTableWidget* table = new QTableWidget;
-	table->horizontalHeader()->setStretchLastSection(true);						//最后一行自动扩展
-	table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);		//所有行自动扩展
+	table->horizontalHeader()->setStretchLastSection(true); //最后一行自动扩展
+	table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); //所有行自动扩展
 	```
 
 	设定列宽匹配单元格内容：
@@ -498,7 +498,7 @@ void QTableView::setModel(QAbstractItemModel *model)
 需要注意的是，Qt中的布局的构造方法中同样可以设定父窗口，但如果传入了父类窗口指针，则该布局会尝试成为该窗口的默认布局，但许多控件是拥有默认布局的，在运行时会发出警告。
 
 ### 限制布局的大小
-在Qt中，无法直接地限定一个布局的大小，如果需要一块布局限定在指定的大小下，比较简单的做法是将目标布局放入一个QWidget控件中，然后使用`QWidget::setFixedSize()`成员方法限定QWidget控件的大小即可。
+在Qt中，无法直接限定一个布局的大小，如果需要一块布局限定在指定的大小下，比较简单的做法是将目标布局放入一个QWidget控件中，然后使用`QWidget::setFixedSize()`成员方法限定QWidget控件的大小即可。
 
 ### 栅格化布局
 在使用`QtCreator`设计UI时，默认情况下，界面元素的布局是不会随着窗口大小的变化而变化的，如果需要设计元素布局会随着窗口改变的界面，则需要使用栅格化布局。
@@ -664,29 +664,28 @@ w->show();
 如获取用户输入可以使用`QDialog`子类的成员方法：
 
 ```cpp
-QString QInputDialog::getText(...);				//用于获取字符串
-int QInputDialog::getInt(...);					//用于获取整型数值
-QColor QColorDialog::getColor(...);				//用于提供色彩选择对话框
-QFont QFontDialog::getFont(...);				//用于提供文字选择对话框
-QString QFileDialog::getOpenFileName(...);		//用于获取选择的文件路径(文件原先存在)
-QString QFileDialog::getSaveFileName(...);		//用于获取创建的文件路径(文件原先不存在)
-QString QFileDialog::getExistingDirectory(...);	//用于获取指定目录的路径
+QString QInputDialog::getText(...); //用于获取字符串
+int QInputDialog::getInt(...); //用于获取整型数值
+QColor QColorDialog::getColor(...); //用于提供色彩选择对话框
+QFont QFontDialog::getFont(...); //用于提供文字选择对话框
+QString QFileDialog::getOpenFileName(...); //用于获取选择的文件路径(文件原先存在)
+QString QFileDialog::getSaveFileName(...); //用于获取创建的文件路径(文件原先不存在)
+QString QFileDialog::getExistingDirectory(...); //用于获取指定目录的路径
 ```
 
 提示用户和获取用户判断的对话框为`QMessageBox`：
 
 ```cpp
-StandardButton QMessageBox::question(...);		//询问用户的判断
-StandardButton QMessageBox::information(...);	//提示用户普通信息
-StandardButton QMessageBox::warning(...);		//提示用户警告信息
-StandardButton QMessageBox::critical(...);		//提示用户危险信息
+StandardButton QMessageBox::question(...); //询问用户的判断
+StandardButton QMessageBox::information(...); //提示用户普通信息
+StandardButton QMessageBox::warning(...); //提示用户警告信息
+StandardButton QMessageBox::critical(...); //提示用户危险信息
 ```
 
 ### 窗口按钮、边框设置
 通过使用`void setWindowFlags(Qt::WindowFlags type);`方法可以设置窗口的边框样式以及窗口上具有的按钮。
 
-默认情况下，可以使用Qt预设的窗口边框样式，在枚举类型`enum Qt::WindowType`中，常用的有`Qt::Widget`、`Qt::Window`、`Qt::Dialog`等样式。
-
+默认情况下，可以使用Qt预设的窗口边框样式，在枚举类型`enum Qt::WindowType`中，常用的有`Qt::Widget`、`Qt::Window`、`Qt::Dialog`等样式。  
 如果预设的窗口样式不能满足需求，则可以使用`Qt::CustomizeWindowHint`搭配自定义按钮组成需要的样式，例如，创建一个仅带有空的标题栏的窗口可以使用代码：
 
 ```cpp
@@ -718,8 +717,7 @@ void QWidget::resize(int w, int h);
 ### 字符串转换
 在Qt中，默认字符串与数字用加号拼接然后转换为`QString`类型时，数字会被当作`ASC码`对待，要使数字保持语义转化为字符串则需要使用`QString::number(int/double/long)`方法进行转换。
 
-`QString`可以通过`QString::toStdString()`来得到传统风格的`C++`字符串类型`std::string`，而`std::string`可以通过`std::string::c_str()`方法转换为c风格的`char*`字符数组指针。
-
+`QString`可以通过`QString::toStdString()`来得到传统风格的`C++`字符串类型`std::string`，而`std::string`可以通过`std::string::c_str()`方法转换为c风格的`char*`字符数组指针。  
 `QString`可以使用静态方法`QString::fromStdString(const std::string &str)`来直接将`std::string`转换为`QString`。
 
 对于可能出现的字符串乱码问题，可以使用静态方法`QString QString::fromLocal8Bit(const char* str, int size = -1)`来构建`QString`。
@@ -732,7 +730,7 @@ void QWidget::resize(int w, int h);
 Qt风格的文本格式化应使用`QString::arg(const QString& a, int fieldWidth = 0, QChar fillChar = QLatin1Char(' '))`来进行。
 
 ### *QLabel* 多行显示文本
-在默认情况下，`QLabel`控件只会**单行**显示文本，一旦文本内容超过了`QLabel`控件的`Width`，就无法显示。
+在默认情况下，`QLabel`控件只会**单行**显示文本，一旦文本内容超过了`QLabel`控件的`Width`，就无法显示。  
 如果需要在指定宽度下完整显示文本，就需要将`QLabel`设置为允许多行显示。使用`setWordWrap(true)`方法设置`QLabel`的允许多行显示。
 
 ### 限制 *QLineEdit* 输入内容
@@ -741,12 +739,12 @@ Qt风格的文本格式化应使用`QString::arg(const QString& a, int fieldWidt
 - 限制只能输入整数
 ```cpp
 QLineEdit* lineEdit = new QLineEdit();
-lineEdit->setValidator(new QIntValidator(0, 1000, this));				//限制输入0~1000的数值
+lineEdit->setValidator(new QIntValidator(0, 1000, this)); //限制输入0~1000的数值
 ```
 - 限制只能输入小数
 ```cpp
 QLineEdit* lineEdit = new QLineEdit();
-lineEdit->setValidator(new QDoubleValidator(0.0, 1000.0, 2, this));		//限制输入0.0~1000.0的数值，最大保留小数点后两位
+lineEdit->setValidator(new QDoubleValidator(0.0, 1000.0, 2, this)); //限制输入0.0~1000.0的数值，最大保留小数点后两位
 ```
 - 复杂的输入限制(使用正则表达式校验器`QRegExpValidator`)
 ```cpp
@@ -761,9 +759,9 @@ lineEdit->setValidator(new QRegExpValidator(QRegExp("正则表达式内容")), t
 `QListWdget`的索引号从**0**开始。
 
 ### *QListView::IconMode*
-`QListWdget`默认以列表的模式显示，但`QListWidget`实现了`QListView`中的`setViewModel()`方法，支持**图标模式**。
-使用方法`QListWidget::setViewMode(ViewMode mode)`，参数为`QListView::IconMode`即可将`QListWidget`设置为图标模式。
-使用方法`QListWidget::setMovement(Movement movement)`可以设置图标的移动模式，参数为`QListView::Static`时图标不可移动。
+`QListWdget`默认以列表的模式显示，但`QListWidget`实现了`QListView`中的`setViewModel()`方法，支持**图标模式**。  
+使用方法`QListWidget::setViewMode(ViewMode mode)`，参数为`QListView::IconMode`即可将`QListWidget`设置为图标模式。  
+使用方法`QListWidget::setMovement(Movement movement)`可以设置图标的移动模式，参数为`QListView::Static`时图标不可移动。  
 
 ### 使 *QListWidgetItem* 能被勾选
 `QListWidgetItem`使用`void QListWidgetItem::setCheckState(Qt::CheckState state)`来设置勾选状态，使用此成员方法则item前会出现类似`QCheckBox`样式的复选框。  
@@ -773,8 +771,8 @@ lineEdit->setValidator(new QRegExpValidator(QRegExp("正则表达式内容")), t
 `QListWidget`中的每一个列表项都是一个`QListWidgetItem`对象，对于`QListWidgetItem`，常用的方法有：
 
 ```cpp
-void QListWidgetItem::setText(const QString& text);						//设置列表项/图标模式下的显示文字
-void QListWidgetItem::setData(int role, const QVariant& value);			//设置item保存的数据内容
+void QListWidgetItem::setText(const QString& text); //设置列表项/图标模式下的显示文字
+void QListWidgetItem::setData(int role, const QVariant& value); //设置item保存的数据内容
 ```
 
 `setData()`成员方法中的第一个参数为保存数据的角色`Qt::ItemDataRole`，该值从`0~14`之间为Qt自身使用的Role，比如item默认的文本数据就保存在`0`角色中，即在Role为`0`时，`setText()`和`setData()`只有**一个**能生效(后调用的那个会把先前的数据覆盖)。
@@ -804,10 +802,10 @@ void QListWidgetItem::setData(int role, const QVariant& value);			//设置item�
 可以使用以下方法来对`QTreeWidgetItem`进行设置：
 
 ```cpp
-void QTreeWidgetItem::setText(int column, const QString& text);						//设置指定列的文本内容
-void QTreeWidgetItem::setCheckState(int column, Qt::CheckState state);				//设置指定列的勾选状态，使用该方法后指定列会处于可勾选状态
-void QTreeWidgetItem::setData(int column, int role, const QVariant& value);			//item的每一列都可以用来保存数据
-void QTreeWidgetItem::setFlags(Qt::ItemFlags flags);								//设置标志，可用来控制item的一些行为。比如：是否可用(Qt::ItemIsEnabled)、是否可编辑(Qt::ItemIsEditable)、是否可选中(Qt::ItemIsSelectable)、是否可由用户点选(Qt::ItemIsUserCheckable)等。
+void QTreeWidgetItem::setText(int column, const QString& text); //设置指定列的文本内容
+void QTreeWidgetItem::setCheckState(int column, Qt::CheckState state); //设置指定列的勾选状态，使用该方法后指定列会处于可勾选状态
+void QTreeWidgetItem::setData(int column, int role, const QVariant& value); //item的每一列都可以用来保存数据
+void QTreeWidgetItem::setFlags(Qt::ItemFlags flags); //设置标志，可用来控制item的一些行为。比如：是否可用(Qt::ItemIsEnabled)、是否可编辑(Qt::ItemIsEditable)、是否可选中(Qt::ItemIsSelectable)、是否可由用户点选(Qt::ItemIsUserCheckable)等。
 ```
 
 每一个`QTreeWidgetItem`还可以添加其它`QTreeWidgetItem`，从而形成**树状**。
@@ -820,8 +818,8 @@ void QTreeWidgetItem::setFlags(Qt::ItemFlags flags);								//设置标志，可
 使用以下方法对`QTreeWidget`进行列宽设置：
 
 ```cpp
-void QHeaderView::setStretchLastSection(bool stretch);								//设置最后一列自动扩展
-void QHeaderView::setSectionResizeMode(int logicalIndex, ResizeMode mode);			//设置指定列的列宽扩展模式，有固定大小(Fixed)、扩展列宽到合适大小(Stretch)、根据内容宽度决定列宽(ResizeToContents)等
+void QHeaderView::setStretchLastSection(bool stretch); //设置最后一列自动扩展
+void QHeaderView::setSectionResizeMode(int logicalIndex, ResizeMode mode); //设置指定列的列宽扩展模式，有固定大小(Fixed)、扩展列宽到合适大小(Stretch)、根据内容宽度决定列宽(ResizeToContents)等
 ```
 
 ### 清空、删除、移除节点
@@ -911,7 +909,7 @@ QPixmap QPixmap::scaled(int width, int height);
 
 `QComboBox`在显示图片具有自身默认大小，无论原图片的大小如何，都会被缩放成`QComboBox`中指定的大小。
 
-指定`QComboBox`中显示图片的大小需要使用`QComboBox::setIconSize(const QSize& size)`来显式指定。
+指定`QComboBox`中显示图片的大小需要使用`QComboBox::setIconSize(const QSize& size)`来显式指定。  
 对于`QListWidget`，操作方式类似，控制显示图片的大小同样需要使用`QListWidget::setIconSize(const QSize& size)`来显式指定。
 
 ### 向数据库中写入图片
@@ -990,21 +988,19 @@ label->setPixmap(map);
 
 在`Qt4`之后，绘图操作可以不必放在`paintEvent()`事件处理方法中运行，但对于从`QWidget`继承过来的类而言，必须将绘制操作放在`paintEvent()`中，可以封装一个类用于管理paint操作，然后将该类放在`paintEvent()`中实例化。
 
-`paintEvent()`是一个会被频繁触发的事件，每次窗口有刷新行为都会触发该事件方法进行重绘。
+`paintEvent()`是一个会被频繁触发的事件，每次窗口有刷新行为都会触发该事件方法进行重绘。  
 `paintEvent()`事件方法也可以被手动触发，`QWidget`的子类使用`repaint()`、`update()`成员方法就能主动触发重绘事件。
 
 ### *QPainter*
 `QPainter`相当于画笔，用于控制线的**样式**、**颜色**、**粗细**等。
 
-使用`QPainter`绘制图像时，需要在构建`QPainter`实例时传入需要绘制的设备的地址作为参数或者使用`begin()`成员方法来确定绘制设备，比如`QPainter painter(this);`就是实例化了一个绘制**当前控件**的`QPainter`。
-
+使用`QPainter`绘制图像时，需要在构建`QPainter`实例时传入需要绘制的设备的地址作为参数或者使用`begin()`成员方法来确定绘制设备，比如`QPainter painter(this);`就是实例化了一个绘制**当前控件**的`QPainter`。  
 一个`painter`只能同时绘制一个设备(一支笔不能同时在两张纸上写字)，但可以在绘制设备之间进行切换，从一个绘制设备切换到另一个绘制设备之前需要使用`end()`成员方法结束上一个被绘制的设备，然后将下一个可绘制设备的地址传入`begin()`成员方法进行绘制。
 
-`QPainter`提供了一系列的API用于绘制各类图形，如`QPainter::drawPoint/drawLine()/drawPath()/drawRect()`等。
-
+`QPainter`提供了一系列的API用于绘制各类图形，如`QPainter::drawPoint/drawLine()/drawPath()/drawRect()`等。  
 `QPainter`不仅能用于绘制图像，还可以用于绘制**文字**(使用`drawText()`方法)。
 
-`QPainter`使用`QPainter::setPen(const QPen& pen)`可以设置画笔的样式(线形、色彩等)。
+`QPainter`使用`QPainter::setPen(const QPen& pen)`可以设置画笔的样式(线形、色彩等)。  
 `QPainter`使用`QPainter::setFont(const QFont& font)`可以设置文本的字体。
 
 ### *QPixmap*
@@ -1022,20 +1018,18 @@ label->setPixmap(map);
 ### 图片透明化
 使用`QImage`处理图片时可以通过设置图片的**Alpha通道**使图片透明化。
 
-简单的透明处理可以使用`QImage::setAlphaChannel(const QImage& alphaChannel)`以另一个`QImage`对象作为参数使图片透明化。
-
-若需要手动指定透明度(Alpha值)，则可以创建一个带有Alpha通道的`QImage`对象，如`QImage temp_image(win_size, QImage::Format_ARGB32);`
-
+简单的透明处理可以使用`QImage::setAlphaChannel(const QImage& alphaChannel)`以另一个`QImage`对象作为参数使图片透明化。  
+若需要手动指定透明度(Alpha值)，则可以创建一个带有Alpha通道的`QImage`对象，如`QImage temp_image(win_size, QImage::Format_ARGB32);`  
 使用设置了透明画刷的`QPainter`对其进行色彩填充，然后将此`QImage`作为`QImage::setAlphaChannel()`成员方法的参数。
 
-例如：
+如下所示：
 
 ```cpp
-int alpha = 100;								//定义alpha透明度
-QImage temp_image(100, 100);					//创建空白QImage
+int alpha = 100; //定义alpha透明度
+QImage temp_image(100, 100); //创建空白QImage
 QPainter painter(&image);
-painter.fillRect(0, 0, 100, 100, QColor(alpha, alpha, alpha, alpha));		//填充色彩
-image.setAlphaChannel(temp_image);				//以temp_image为样本设置原图像的alpha通道
+painter.fillRect(0, 0, 100, 100, QColor(alpha, alpha, alpha, alpha)); //填充色彩
+image.setAlphaChannel(temp_image); //以temp_image为样本设置原图像的alpha通道
 ```
 
 
@@ -1047,16 +1041,13 @@ image.setAlphaChannel(temp_image);				//以temp_image为样本设置原图像的
 Qt中不需要传递`argc`和`**argv`，可以通过静态方法`QStringList QCoreApplication::arguments()`在任意位置获取到用户输入的命令行参数。
 
 ### 解析命令行参数
-`QCommandLineOption`用于表示某一个具体的命令参数，`QCommandLineParser`用于添加用`QCommandLineOption`类表示的命令行参数。
-
-构造`QCommandLineOption`对象时传入一个`QString`做为参数的名称，通过`QCommandLineOption::setDefaultValue(const QString& defaultValue)`设置参数的默认值。
-
-`QCommandLineParser`使用`QCommandLineParser::addOption(const QCommandLineOption& option)`添加`QCommandLineOption`命令行参数类。
-
+`QCommandLineOption`用于表示某一个具体的命令参数，`QCommandLineParser`用于添加用`QCommandLineOption`类表示的命令行参数。  
+构造`QCommandLineOption`对象时传入一个`QString`做为参数的名称，通过`QCommandLineOption::setDefaultValue(const QString& defaultValue)`设置参数的默认值。  
+`QCommandLineParser`使用`QCommandLineParser::addOption(const QCommandLineOption& option)`添加`QCommandLineOption`命令行参数类。  
 通过使用`bool QCommandLineParser::isSet(const QCommandLineOption& option)/isSet(const QString& name)`判断命令行中是否带有指定参数。
 
 ### 获取系统环境变量
-使用`QStringList QProcess::systemEnvironment()`可以获取系统所有的环境变量。
+使用`QStringList QProcess::systemEnvironment()`可以获取系统所有的环境变量。  
 将得到的`QStringList`使用`startsWith("xxx=")`即可获取以xxx为名称的环境变量的值。
 
 
