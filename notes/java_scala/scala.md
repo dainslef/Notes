@@ -2763,13 +2763,22 @@ set: scala.collection.immutable.Set[Any] = Set(1, s, str) //重复的元素"1"�
 
 ```scala
 scala> val set1 = set + 3
-set1: scala.collection.immutable.Set[Any] = Set(1, s, str, 3) //原集合添加元素输出新的集合
+set0: scala.collection.immutable.Set[Any] = Set(1, s, str, 3) //原集合添加元素输出新的集合
+
 scala> set
-res0: scala.collection.immutable.Set[Any] = Set(1, s, str) //原集合本身没有变化
+res1: scala.collection.immutable.Set[Any] = Set(1, s, str) //原集合本身没有变化
+
 scala> val set2 = set - 's'
 set2: scala.collection.immutable.Set[Any] = Set(1, str) //从集合中移除一个元素
+
 scala> set
-res1: scala.collection.immutable.Set[Any] = Set(1, s, str)
+res3: scala.collection.immutable.Set[Any] = Set(1, s, str)
+
+scala> set + (1, 2, 3) //可直接添加元组
+res4: scala.collection.immutable.Set[Any] = Set(s, 1, 2, str, 3)
+
+scala> set - (1, 2, 3) //通过元组删除数据
+res5: scala.collection.immutable.Set[Any] = Set(s, str)
 ```
 
 当引用为变量时，`Set`可以使用`+=`、`-=`来增加或减少内部的元素：
@@ -2781,12 +2790,12 @@ set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
 scala> set += 4 //增加元素"4"
 
 scala> set
-res14: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 4)
+res6: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 4)
 
 scala> set -= 4 //移除元素"4"
 
 scala> set
-res16: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
+res7: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
 ```
 
 需要注意的是，`Set`的`+=`、`-=`操作并非定义的方法，只是类似常规语言的操作符简写，如：
@@ -2828,9 +2837,47 @@ scala> set = set + 4
            ^
 ```
 
-`scala.collection.immutable.Set`以哈希集实现，元素依据HashCode进行组织。
+`Set`支持数学意义上的交集、并集、差集等操作：
 
-`Set`的相关类型还有：
+- 交集：
+
+	```scala
+	scala> Set(1, 2, 3) & Set(2, 5)
+	res0: scala.collection.immutable.Set[Int] = Set(2)
+
+	scala> Set(1, 2, 3) intersect Set(2, 5)
+	res1: scala.collection.immutable.Set[Int] = Set(2)
+	```
+
+- 并集：
+
+	```scala
+	scala> Set(1, 2, 3) | Set(2, 5)
+	res2: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 5)
+
+	scala> Set(1, 2, 3) ++ Set(2, 5)
+	res3: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 5)
+
+	scala> Set(1, 2, 3) union Set(2, 5)
+	res4: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 5)
+	```
+
+- 差集：
+
+	```scala
+	scala> Set(1, 2, 3) &~ Set(2, 5)
+	res5: scala.collection.immutable.Set[Int] = Set(1, 3)
+
+	scala> Set(1, 2, 3) -- Set(2, 5)
+	res6: scala.collection.immutable.Set[Int] = Set(1, 3)
+
+	scala> Set(1, 2, 3) diff Set(2, 5)
+	res7: scala.collection.immutable.Set[Int] = Set(1, 3)
+	```
+
+`scala.collection.immutable.Set`以哈希集实现，元素依据**HashCode**进行组织。
+
+`Set`的相关类型有：
 
 - `scala.collection.mutable.LinkedHashSet` 链式哈希集，依照插入的顺序排列
 - `scala.collection.immutable.SortedSet` 红黑树实现的排序集
