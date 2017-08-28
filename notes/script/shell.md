@@ -5,7 +5,9 @@
 - [*Shell* 交互](#shell-交互)
 	- [匹配规则](#匹配规则)
 	- [任务管理](#任务管理)
-- [*bash/zsh* 脚本](#bashzsh-脚本)
+- [*Shell* 语法](#shell-语法)
+	- [变量](#变量)
+	- [数组](#数组)
 
 <!-- /TOC -->
 
@@ -52,7 +54,7 @@
 
 使用`!!`指令可以还原上一条输入的指令(`bash/zsh`中支持该指令，`fish`不支持)：
 
-```
+```sh
 $ ls
 Applications	Documents	Library		Music		Public
 Desktop		Downloads	Movies		Pictures
@@ -72,6 +74,20 @@ drwx------+  3 dainslef  staff   102 Aug 19 22:05 Movies
 drwx------+  5 dainslef  staff   170 Aug 19 23:55 Music
 drwx------+  5 dainslef  staff   170 Aug 26 13:27 Pictures
 drwxr-xr-x+  7 dainslef  staff   238 Aug 22 23:28 Public
+```
+
+使用`$?`可以获取**上一条**指令的**执行结果**：
+
+```sh
+$ ls
+Applications	Documents	Library		Music		Public
+Desktop		Downloads	Movies		Pictures
+$ echo $?
+0 # 指令执行成功，返回 0
+$ abc # 执行一条不存在的指令，执行失败
+bash: abc: command not found
+$ echo $?
+127 # 指令执行失败，返回 127
 ```
 
 ### 匹配规则
@@ -119,8 +135,11 @@ Job	Group	State	Command
 
 
 
-## *bash/zsh* 脚本
-`Unix`中，`Shell`脚本以`sh`作为后缀名，脚本首行需要声明使用的解析器，以`zsh`为例：
+## *Shell* 语法
+`Unix`中，`Shell`脚本通常以`sh`作为后缀名(`bash/zsh`等)。  
+`fish`由于不兼容`bash`语法，通常使用`fish`作为脚本后缀。
+
+脚本首行需要声明使用的解析器，以`zsh`为例：
 
 ```sh
 #! /bin/zsh
@@ -128,3 +147,143 @@ Job	Group	State	Command
 ```
 
 使用`./***.sh`执行脚本时，已指定解析器的脚本会调用指定的解析器进行介些，未指定解析器的脚本会使用默认的`Shell`解析。
+
+### 变量
+`bash/zsh`变量相关语法基本相同，`fish`与其有较大差异。  
+定义、修改变量：
+
+- `变量名=值` 定义变量，`bash/zsh`语法，但等号两边**不能**带有空格
+- `set 变量名 内容` 定义变量，`fish`语法
+- `变量名+=内容` 向变量添加内容，`bash/zsh`语法，`fish`不支持该操作
+
+如下所示：
+
+```sh
+# bash/zsh
+$ num=233 # 定义变量 num
+$ echo $num # 访问变量 num
+233 # 输出变量内容 233
+$ num+=1 # 拼接文本 233 和 1
+$ echo $num
+2331 # 输出 2331
+
+# fish
+$ set num 233
+$ echo $num # 输出 233
+$ num+=1
+$ echo $num
+233 # fish 不支持 += 操作，输出结果未发生改变
+```
+
+获取变量与执行指令：
+
+- `$变量名` 获取变量内容
+- `$(指令)` 执行指令，`bash/zsh`语法
+- `(指令)` 执行指令，`fish`语法
+
+对于算术表达式，`bash/zsh`默认作为文本处理。  
+即`echo 2+3`为输出内容为`2+3`的文本。  
+如下所示：
+
+```sh
+# bash/zsh
+$ num=233
+$ echo $num+1 
+233+1 # 输出文本 233+1
+
+# fish
+$ set num 233
+$ echo $num+1
+233+1
+```
+
+要使计算表达式被作为指令求值，需要使用`$((表达式))`或`$[表达式]`语法：
+
+```sh
+$ num=233
+$ echo $(($num+1)) 
+234 # 输出 234
+$ echo $[$num+1]
+234
+```
+
+查看、删除已定义的变量：
+
+- `set` 列出已定义的变量
+- `unset 变量名` 删除指定名称的变量(`bash/zsh`语法)
+- `set -e 变量名` 删除指定名称的变量(`fish`语法)
+
+### 数组
+`bash/zsh/fish`数组相关语法均存在一定差异。  
+定义数组：
+
+- `数组名=(内容1 内容2 内容3 ...)` 定义数组，多个数组内容间使用**空格**隔开(`bash/zsh`语法)
+- `set 数组名 内容1 内容2 内容3 ...` 定义数组，多个数组内容间使用**空格**隔开(`fish`语法)
+
+如下所示：
+
+```sh
+# bash/zsh
+$ nums=(1 2 3) # 定义数组，包含3个元素： 1 2 3
+
+# fish
+$ set nums 1 2 3
+```
+
+访问数组内容：
+
+- `$数组名` 访问数组名返回数组内**首个**元素(`bash`语法)，或返回**整个**数组(`zsh/fish`语法)
+- `$数组名[索引]` 访问数组指定索引的内容(`zsh/fish`语法)
+- `$((数组名[索引]))`/`$[数组名[索引]]`/`${数组名[索引]}` 访问数组指定索引的内容(`bash/zsh`语法)
+
+`bash`中，数组索引从`0`开始。  
+`zsh/fish`中。数组索引从`1`开始。  
+如下所示：
+
+```sh
+# bash
+$ nums=(1 2 3)
+$ echo $nums
+1 # bash中数组名代表数组内首个元素
+$ echo $((nums[0]))
+1
+$ echo $[nums[1]]
+2
+$ echo ${nums[2]}
+3
+$ echo ${nums[3]}
+ # 无输出内容(数组越界)
+$ echo $nums[2]
+1[2] # bash不支持直接使用数组名后添加索引访问数组内容，"$数组名"被解析为数组首个元素
+
+# zsh
+$ nums=(1 2 3)
+$ echo $nums
+1 2 3 # zsh中数组名代表数组内所有内容
+$ echo $((nums[0]))
+0 # zsh数组下标从1开始，数组越界
+$ echo $[nums[1]]
+1
+$ echo ${nums[2]}
+2
+$ echo $nums[3]
+3
+
+# fish
+$ set nums 1 2 3
+$ echo $nums # fish中数组名代表数组内所有内容
+$ echo $nums[0] # fish数组下标从1开始，数组越界
+fish: Array index out of bounds
+echo $nums[0]
+           ^
+$ echo $nums[1]
+1
+$ echo $[nums[1]] # 报错，fish不支持bash/zsh中的数组访问语法
+fish: $[ is not a valid variable in fish.
+echo $[nums[1]]
+      ^
+$ echo ${nums[1]} # 报错，fish不支持bash/zsh中的数组访问语法
+fish: ${ is not a valid variable in fish.
+echo ${nums[1]}
+      ^
+```
