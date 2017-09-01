@@ -7,7 +7,7 @@
 - [项目基本结构](#项目基本结构)
 	- [默认路径](#默认路径)
 - [构建配置](#构建配置)
-	- [重新加载配置](#重新加载配置)
+	- [自定义源码路径](#自定义源码路径)
 	- [访问构建信息](#访问构建信息)
 - [依赖管理](#依赖管理)
 	- [常用依赖](#常用依赖)
@@ -211,10 +211,24 @@ scalacOptions ++= Seq(
 enablePlugins(Xxx) //启用插件
 ```
 
-### 重新加载配置
 `sbt shell`只在**启动时**读取一遍构建配置。  
 若在`sbt shell`开启之后`build.sbt`文件发生了修改，则已经开启的`sbt shell`依旧使用之前的构建配置。  
 若需要已开启的`sbt shell`使用新的构建配置，则应在`sbt shell`中使用`reload`指令重新加载构建配置。
+
+### 自定义源码路径
+`sbt`项目默认源码路径为`项目根目录/src`，若需要管理默认路径之外的源码，在`build.sbt`中添加：
+
+```scala
+// 获取源码绝对路径，并构建 File 实例
+def sourceDir(dir: String) = file(s"${file(".").getAbsolutePath}/$dir")
+
+// 自定义源码路径需要修改 unmanagedSourceDirectories 配置项
+unmanagedSourceDirectories in Compile ++= Seq(
+  sourceDir("子目录1"),
+  sourceDir("子目录2"),
+  ...
+)
+```
 
 ### 访问构建信息
 `sbt`没有提供访问`build.sbt`中项目构建信息的接口，使用`sbt`插件`sbt-buildinfo`可以让项目访问`sbt`的构建信息。  
