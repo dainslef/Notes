@@ -94,14 +94,14 @@ static int Main(string[] args);
 
 
 ## 数据类型
-C#的数据类型分为两类：值类型和引用类型。
+C#的数据类型分为两类：值类型和引用类型。  
 一般而言，值类型用于**存储数据**，引用类型用于**定义行为**。
 
 ### *Value Type* (值类型)
 值类型具体包括**预定义值类型**、**自定义值类型**和**枚举类型**。  
 所有值类型隐式派生于`System.ValueType`类。
 
-例如，系统预定义的值类型`int`是`System`命名空间中`System.Int32`结构体的别名。
+例如，系统预定义的值类型`int`是`System`命名空间中`System.Int32`结构体的别名。  
 `System.Int32`结构的定义为：
 
 ```cs
@@ -237,6 +237,25 @@ System.Nullable<T> variable;
 	Second Call:
 	Called Show()
 	1
+	```
+
+	使用`?`运算符的语句带有可空类型/引用类型的返回值，当受检对象未通过`null`检查，后续语句不执行，同时整个语句返回`null`。  
+	利用此特性可搭配`??`运算符组合使用：
+
+	```cs
+	int? num = null;
+	Console.WriteLine(num?.ToString() ?? "Empty"); //打印 "Empty"
+	num = 2333;
+	Console.WriteLine(num?.ToString() ?? "Empty"); //打印 "2333"
+	```
+
+	`?`运算符还可结合索引运算符`[]`使用：
+
+	```cs
+	int?[] nums = { null, 2333, null, 666 };
+
+	Console.WriteLine(nums?[0]?.ToString() ?? "Error"); //打印 "Error"
+	Console.WriteLine(nums?[1]?.ToString() ?? "Error"); //打印 "2333"
 	```
 
 ### *Type alias* (类型别名)
@@ -563,7 +582,7 @@ true
 ## 泛型
 值类型转变为引用类型会经过`装箱(boxing)`操作，而引用类型转变为值类型则要经过`拆箱(unboxing)`操作。
 
-一个容器需要接收多种类型时，可能就需要将接受参数的类型设置为`object`型(即所有类型的父类)，值类型在转化到`object`型时就需要进行装箱操作，频繁地装箱与拆箱会有较高的开销。
+一个容器需要接收多种类型时，可能就需要将接受参数的类型设置为`object`型(即所有类型的父类)，值类型在转化到`object`型时就需要进行装箱操作，频繁地装箱与拆箱会有较高的开销。  
 `object`类型并不安全(可能同时接收到不同的类型)，因而可以使用**泛型**来**显式指定**需要接收的类型(编译器会检查接收类型是否符合指定泛型)，对于值类型而言，使用泛型还可以避免重复的装箱与拆箱操作。
 
 ### 泛型约束
@@ -733,16 +752,16 @@ event 委托名 事件名 = delegate(符合委托签名的参数表) //匿名委
 ```cs
 using System;
 
-delegate void Delegate(string str);					//委托可以定义在全局区域或是命名空间
+delegate void Delegate(string str); //委托可以定义在全局区域或是命名空间
 
 class Program
 {
-	static event Delegate Event;					//定义事件
+	static event Delegate Event; //定义事件
 
 	static void Main(string[] args)
 	{
-		Event += str => Console.WriteLine(str);	//为事件绑定方法
-		Event("Test Event!");						//触发事件
+		Event += str => Console.WriteLine(str); //为事件绑定方法
+		Event("Test Event!"); //触发事件
 	}
 }
 ```
@@ -769,14 +788,14 @@ delegate void Delegate(string str);
 
 class Program
 {
-	static event Delegate Event						//定义事件
+	static event Delegate Event //定义事件
 	{
-		add											//对应事件的"+="操作符
+		add //对应事件的"+="操作符
 		{
-			XXXX += value							//隐含参数value表示传入的方法
+			XXXX += value //隐含参数value表示传入的方法
 			//do something...
 		}
-		remove										//对应事件的"-="操作符
+		remove //对应事件的"-="操作符
 		{
 			XXXX -= value
 			//do something...
@@ -796,24 +815,24 @@ error CS0079: The event XXX can only appear on the left hand side of += or -= op
 ```cs
 using System;
 
-delegate void Delegate(string str);					//委托可以定义在全局区域或是命名空间
+delegate void Delegate(string str); //委托可以定义在全局区域或是命名空间
 
 class Program
 {
-	private static Delegate _event;					//真正用于绑定方法的事件
+	private static Delegate _event; //真正用于绑定方法的事件
 
 	// 自定义事件，在添加、移除方法时在终端输出信息
 	static event Delegate Event
 	{
-		add											//对应事件的"+="操作符
+		add //对应事件的"+="操作符
 		{
-			Console.WriteLine("Add Method!");		//在终端打印"Add Method!"
-			_event += value;						//将传入的方法绑定到_event上
+			Console.WriteLine("Add Method!"); //在终端打印"Add Method!"
+			_event += value; //将传入的方法绑定到_event上
 		}
-		remove										//对应事件的"-="操作符
+		remove //对应事件的"-="操作符
 		{
-			Console.WriteLine("Remove Method!");	//在终端打印"Remove Method!"
-			_event -= value;						//将传入的方法与_event解绑
+			Console.WriteLine("Remove Method!"); //在终端打印"Remove Method!"
+			_event -= value; //将传入的方法与_event解绑
 		}
 	}
 
@@ -821,12 +840,12 @@ class Program
 	{
 		Delegate del = (str) => Console.WriteLine(str);
 
-		Event += del;								//事件绑定委托
+		Event += del; //事件绑定委托
 
-		//Event("Test Event!");						//使用Event()触发事件会在编译时报错
-		_event("Test Event!");						//触发事件还是需要使用真正被包装的事件
+		//Event("Test Event!"); //使用Event()触发事件会在编译时报错
+		_event("Test Event!"); //触发事件还是需要使用真正被包装的事件
 
-		Event -= del;								//事件与委托解绑
+		Event -= del; //事件与委托解绑
 	}
 }
 ```
@@ -898,8 +917,11 @@ class Test
 	static Action setNum200 = () => num = 200;
 
 	static void SetNum(int newNum) {
-		new Action<int>(n => num = n)(newNum);		//不能直接执行Lambda，需要创建函数对象或显式类型转换才能执行
-		//或者写成 ((Action<int>)(n => num = n))(newNum);
+		/*
+			不能直接执行Lambda，需要创建函数对象或显式类型转换才能执行。
+			另一种写法： ((Action<int>)(n => num = n))(newNum);
+		*/
+		new Action<int>(n => num = n)(newNum);
 	}
 
 	static void Main(string[] args)
@@ -936,7 +958,7 @@ class Test
 	static Action setNum200 = () => num = 200;
 
 	static void SetNum(int newNum)
-		=> new Action<int>(n => num = n)(newNum);		//直接使用Lambda实现成员函数
+		=> new Action<int>(n => num = n)(newNum); //直接使用Lambda实现成员函数
 
 	static void Main(string[] args)
 	{
@@ -1245,9 +1267,9 @@ public static Task Run(Action action);
 public static Task<TResult> Run<TResult>(Func<TResult> function);
 
 // 等待Task完成
-public void Wait();														//等待当前任务完成
-public static void WaitAll(params Task[] tasks);						//等待任务数组中的所有任务完成
-public static bool WaitAll(Task[] tasks, int millisecondsTimeout;)		//等待指定时间
+public void Wait(); //等待当前任务完成
+public static void WaitAll(params Task[] tasks); //等待任务数组中的所有任务完成
+public static bool WaitAll(Task[] tasks, int millisecondsTimeout;) //等待指定时间
 ```
 
 ### *async/await* 关键字
@@ -1266,11 +1288,11 @@ public static bool WaitAll(Task[] tasks, int millisecondsTimeout;)		//等待指�
 ```cs
 async Task testAsync()
 {
-	...		//顺序执行的内容
+	... //顺序执行的内容
 
 	return await Task.Run(() =>
 	{
-		...		//异步执行的内容
+		... //异步执行的内容
 	});
 }
 ```
@@ -2332,9 +2354,9 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 - `TableLayoutPanel` 表格布局面板
 
 ### 布局与样式
-在`Windows From`中，控件的大小与位置一般是固定的。
-若需要控件大小自动变化，则应使用`AutoSize`属性。
-一般情况下，控件的位置不会随着窗口大小的变化而自动排列位置，需要通过设置`Archor`属性来指定扩展的方向。
+在`Windows From`中，控件的大小与位置一般是固定的。  
+若需要控件大小自动变化，则应使用`AutoSize`属性。  
+一般情况下，控件的位置不会随着窗口大小的变化而自动排列位置，需要通过设置`Archor`属性来指定扩展的方向。  
 控件还可以通过设置`Dock`属性指定需要停靠的边框。
 
 ### 控件事件
@@ -2381,7 +2403,7 @@ protected override void WndProc(ref Message m);
 ## 调用 *C/C++* 动态链接库
 C#支持调用`C/C++`语言编写的`dll`。
 
-使用`DLLImport`特性修饰一个方法。
+使用`DLLImport`特性修饰一个方法。  
 加载动态链接库需要指定dll的路径以及符号名称：
 
 ```cs
@@ -2389,7 +2411,7 @@ C#支持调用`C/C++`语言编写的`dll`。
 public/protected/private extern Type Func(Type args...);
 ```
 
-声明方法的名称可以与dll中导出符号名称不同，只需在标注的`EntryPoint`中写明对应的符号名称。
+声明方法的名称可以与dll中导出符号名称不同，只需在标注的`EntryPoint`中写明对应的符号名称。  
 声明的方法参数表必须与dll中的参数表**完全匹配**。
 
 C#中的常见类型与C++中类型之间的转换关系：
@@ -2497,16 +2519,15 @@ class Program
 
 ```cs
 string test = "aaa\0\0\0";
-Console.WriteLine(test);						// 输出 "aaa口口口"
-string testNew = test.Replace("\0", "");		// 将 \0 替换为空
-Console.WriteLine(testNew);						// 输出 "aaa"
+Console.WriteLine(test); // 输出 "aaa口口口"
+string testNew = test.Replace("\0", ""); // 将 \0 替换为空
+Console.WriteLine(testNew); // 输出 "aaa"
 ```
 
 ### MySQL 中 *TINYINT* 类型
 在`MySQL`中没有内置的`bool`类型，`bool`类型常常使用最小的整型数据类型`TINYINT`表示。
 
-在C#中，会将`TINYINT(1)`视为`bool`类型处理，对于类型为`TINYINT(1)`的列，使用`ToString()`方法转换得到的是文本`true/false`而非字面意义数值。
-
+在C#中，会将`TINYINT(1)`视为`bool`类型处理，对于类型为`TINYINT(1)`的列，使用`ToString()`方法转换得到的是文本`true/false`而非字面意义数值。  
 要使`TINYINT`不被视为`bool`类型，需要调整数据列的显示宽度，即类型设为`TINYINT(2)`或是其它大于`1`的值。
 
 ### *DEBUG* 模式
