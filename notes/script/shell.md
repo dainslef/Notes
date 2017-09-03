@@ -10,7 +10,8 @@
 	- [指令](#指令)
 	- [数组](#数组)
 	- [条件语法](#条件语法)
-	- [*if* / *switch* / *case* 语句](#if--switch--case-语句)
+	- [*if* / *switch* / *case* 语句 (分支语法)](#if--switch--case-语句-分支语法)
+	- [*for* / *while* 语句 (循环语法)](#for--while-语句-循环语法)
 	- [*select* 语句](#select-语句)
 	- [*echo* 函数](#echo-函数)
 
@@ -190,8 +191,8 @@ $ echo $num
 ### 指令
 执行指令，语法如下：
 
-- `$(指令)` 执行指令，`bash/zsh`语法
-- `(指令)` 执行指令，`fish`语法
+- `$(指令)` 执行指令(`bash/zsh`语法)
+- `(指令)` 执行指令(`fish`语法)
 
 对于算术表达式，`bash/zsh`默认作为文本处理。  
 即`echo 2+3`为输出内容为`2+3`的文本。  
@@ -209,14 +210,27 @@ $ echo $num+1
 233+1
 ```
 
-要使计算表达式被作为指令求值，需要使用`$((表达式))`或`$[表达式]`语法：
+求值计算表达式，语法如下：
+
+- `$((表达式))`/`$[表达式]` (`bash/zsh`语法)
+- `math 表达式` (`fish`语法)
 
 ```sh
+# bash/zsh
 $ num=233
-$ echo $(($num+1)) 
+$ echo $(($num+1))
 234 # 输出 234
 $ echo $[$num+1]
 234
+$ echo $[$num*10]
+2330
+
+# fish
+$ set num 233
+$ echo (math $num+1)
+234
+$ echo (math $num\*10) # fish 中乘法运算需要使用反斜杠转义 * 符号
+2330
 ```
 
 ### 数组
@@ -355,17 +369,17 @@ fi
 - `[ 文件1 -nt 文件2 ]` **文件1**比**文件2**更**新**
 - `[ 文件1 -ot 文件2 ]` **文件1**比**文件2**更**老**
 
-### *if* / *switch* / *case* 语句
+### *if* / *switch* / *case* 语句 (分支语法)
 分支语法包括：
 
 - `if`语句(`bash/zsh/fish`语法)
 - `case`语句(`bash/zsh`语法)
 - `switch`语句(`fish`语法)
 
-`bash/zsh`中`if`分支结构语法：
+`if`分支结构语法：
 
 ```sh
-# bash/zsh 分支结构语法相同
+# bash/zsh 分支语法
 if [ 条件1 ]
 then
 	...
@@ -379,11 +393,8 @@ fi
 # 多个条件可以使用逻辑运算符连接
 if [ 条件1 ] && [ 条件2 ] || [ 条件3 ]; then
 fi
-```
 
-`fish`的`if`分支语法更加简洁，关键字使用更近似现代脚本语言：
-
-```fish
+# fish 分支语法更近似现代语言
 if [ 条件1 ]
 	...
 else if [ 条件2 ]
@@ -393,10 +404,11 @@ else
 end
 ```
 
-`bash/zsh`使用`case`进行模式匹配：
+模式匹配语法：
 
 ```sh
-case $xxx in
+# bash/zsh 使用 case 语句进行模式匹配
+case ... in
 	xxx1) # 匹配内容则跳转到指定分支
 		... ;; # 语句块结束使用双分号 ;;
 	xxx1 | xxx2) # 多条件使用 | 操作符连接，满足匹配内容的其中一个即可
@@ -404,18 +416,101 @@ case $xxx in
 	*) # 没有匹配到内容跳转到默认分支
 		... ;;
 esac
-```
 
-`fish`使用类似现代语言的`switch`语法进行模式匹配：
-
-```fish
-switch $xxx
+# fish 使用 switch 语句进行模式匹配
+switch ...
 	case xxx1
 		...
 	case xxx2 xxx3
 		...
 	case '*'
 		...
+end
+```
+
+### *for* / *while* 语句 (循环语法)
+`for/while`用于重复执行某段逻辑。
+
+`bash/zsh`中的`for`语句：
+
+```sh
+# 传统C风格循环
+for ((变量名=数值; 变量名<=数值; 变量名++)); do
+	...
+done
+
+# 基于列表遍历的循环
+for 变量名 in {起始值..结束值}; do
+	...
+done
+
+# zsh 支持列表遍历语法
+# bash 4.0 之后支持设定遍历间隔
+for 变量名 in {起始值..结束值..间隔}; do
+	...
+done
+```
+
+`macOS 10.12.6`默认的`bash`版本为`3.2.57`，使用列表遍历语法时不支持设定间隔(`zsh`支持此语法)。
+
+`fish`中的`for`语句：
+
+```fish
+# fish 仅支持列表遍历循环，使用 seq 函数构建列表
+for 变量 in (seq 起始值 结束值)
+	...
+end
+
+# seq 函数可构建带有间隔的循环
+for 变量 in (seq 起始值 间隔 结束值)
+	...
+end
+```
+
+`while`语句语法：
+
+```sh
+# bash/zsh
+while [ 条件 ]; do
+	...
+done
+
+# fish
+while [ 条件 ]
+	...
+end
+```
+
+实例，打印`1~10`范围的数值，如下所示：
+
+```sh
+# bash/zsh C风格
+for ((i=0; i<=10; i++)); do
+	echo $i
+done
+
+# bash/zsh 列表遍历
+for i in {1..10}; do
+	echo $i
+done
+
+# bash/zsh while语句
+i=1
+while [ i -le 10 ]; do
+	echo $i
+	i=$[$i+1]
+done
+
+# fish for语句
+for i in (seq 1 10)
+	echo $i
+end
+
+# fish while语句
+set i 1
+while [ $i -le 10 ]
+	echo $i
+	set i (math $i+1)
 end
 ```
 
