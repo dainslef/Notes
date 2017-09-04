@@ -19,8 +19,8 @@
 	- [使用 *Homebrew* 管理服务](#使用-homebrew-管理服务)
 	- [安装 *mysql/mariadb*](#安装-mysqlmariadb)
 	- [配置国内源](#配置国内源)
-	- [安装 *Qt*](#安装-qt)
 	- [删除 *JDK*](#删除-jdk)
+	- [删除 *GarageBand*](#删除-garageband)
 - [*macOS* 下的软件格式](#macos-下的软件格式)
 	- [*Bundle*](#bundle)
 	- [*pkg*](#pkg)
@@ -28,7 +28,7 @@
 - [一些问题的处理方案](#一些问题的处理方案)
 	- [切换分辨率/语言时，登陆界面的分辨率/语言依然不变](#切换分辨率语言时登陆界面的分辨率语言依然不变)
 	- [更改默认应用程序](#更改默认应用程序)
-	- [在BootCamp安装的Windows系统中调整了分区，重启后Mac分区在启动页中消失](#在bootcamp安装的windows系统中调整了分区重启后mac分区在启动页中消失)
+	- [在 *BootCamp* 安装的 *Windows* 系统中调整了分区，重启后 *Mac分区* 在启动页中消失](#在-bootcamp-安装的-windows-系统中调整了分区重启后-mac分区-在启动页中消失)
 	- [使用默认 *bootloader* 引导Linux系统](#使用默认-bootloader-引导linux系统)
 	- [重置 *Launchpad* 内图标](#重置-launchpad-内图标)
 	- [设置 *Xcode* 路径](#设置-xcode-路径)
@@ -70,34 +70,40 @@
 - 立即息屏进入睡眠: `Command + Alt + Power`
 
 ### 常用命令行指令
-- 设置主机名称：
+`macOS`中的一些配置项没有提供图形化的配置方式，需要通过命令行进行配置。
+
+- 主机信息相关
+
+	设置主机名称：
 
 	```
 	# scutil --set HostName [主机名]
 	```
 
-- 设置主机共享名称：
+	设置主机共享名称：
 
 	```
 	# scutil --set ComputerName [主机共享名称]
+	```
+
+- 通知中心相关
+
+	设置通知中心点的通知停留时间：
+
+	```
+	$ defaults write com.apple.notificationcenterui bannerTime [数值] //控单位为秒
+	```
+
+	恢复默认的通知停留时间：
+
+	```
+	$ defaults delete com.apple.notificationcenterui bannerTime //默认为一直显示
 	```
 
 - 显示/取消显示隐藏文件：
 
 	```
 	$ defaults write com.apple.finder AppleShowAllFiles YES/NO //重新登陆账户后生效
-	```
-
-- 设置通知中心点的通知停留时间：
-
-	```
-	$ defaults write com.apple.notificationcenterui bannerTime [数值] //控单位为秒
-	```
-
-- 恢复默认的通知停留时间：
-
-	```
-	$ defaults delete com.apple.notificationcenterui bannerTime //默认为一直显示
 	```
 
 ### 常用软件
@@ -168,6 +174,8 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 
 1. `Windows/Linux`中以`Control`作为组合键触发的一些快捷操作在`macOS`中全部使用`Command`键进行触发。
 
+1. `Windows/Linux`中的`Alt`键在`macOS`中名称为`Option`键。
+
 ### *Darwin* 与 *GNU/Linux* 的差异
 `Darwin`提供的`Unix`环境基于`FreeBSD`，与传统`GNU/Linux`有较大差异。
 
@@ -217,6 +225,7 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 - `$ brew ugrade` 升级包
 - `$ brew install [package_name]` 安装包
 - `$ brew leaves` 查看没有被其它包依赖的包
+- `$ brew info [package_name]` 显示指定包的信息
 - `$ brew deps [package_name]` 显示指定包的依赖
 
 使用`Homebrew`安装常用的命令行工具：
@@ -225,9 +234,25 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 $ brew install aria2 python3 gcc nmap scala p7zip mariadb boost go mono gdb gradle sbt
 ```
 
-- 通过Homebrew安装的包文件全部保存在`/usr/local/Cellar`目录下。
-- 与Linux下的常规包管理器不同，Homebrew在安装包和删除包的时候，不会有多余的确认提示，输入指令就会直接执行。
-- 对于带有头文件的包(如boost、gcc等)，会在`/usr/local/include`目录下创建符号链接，指向`/usr/local/Cellar`目录中的具体包内容。
+- 通过`Homebrew`安装的包文件全部保存在`/usr/local/Cellar`目录下。
+- 与`Linux`下的常规包管理器不同，`Homebrew`在安装包和删除包的时候，不会有多余的确认提示，输入指令就会**直接**执行。
+- 对于带有头文件的包(如`boost、gcc`等)，会在`/usr/local/include`目录下创建符号链接，指向`/usr/local/Cellar`目录中的具体包内容。
+
+`Homebrew`使用`brew install`指令安装包时可以附加额外选项，用于定制包的依赖。  
+每个包拥有不同的依赖项，使用`brew info`指令查看。
+
+`Homebrew`对于常用的包如`gcc、gdb、python3、qt`均提供了**预编译包**(`bottled`)，但部分`bottled`的包默认安装时依旧会选择从源码编译(如`gcc`)，可在安装时使用`--force-bottle`强制安装`bottled`版本的包：
+
+```
+$ brew install gcc --force-bottle
+```
+
+需要注意，`bottled`版本的`gcc`在编译时需要手动指定`sys_root`参数，否则会出现找不到头文件的情况。  
+以`GCC 7.2.0`和`XCode 8.3.3`为例：
+
+```
+$ cc-7 源码... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
+```
 
 ### *Homebrew Cask*
 使用`brew cask`指令可以安装`macOS`专属的`Bundle`封装应用。  
@@ -270,7 +295,7 @@ $ brew reinstall [需要更新的应用名称]
 通过Homebrew安装的mysql/mariadb使用时不需要root权限。
 
 mariadb与mysql数据库的操作指令相同，因此mariadb与mysql软件包只能选择一个进行安装。  
-mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql/`。
+mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 
 - `$ mysql.server start` 启动mysql服务
 - `$ mysql.server stop` 停止mysql服务
@@ -294,19 +319,25 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql/`。
 	export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
 	```
 
-### 安装 *Qt*
-与常规的Unix程序不同，Qt不推荐使用Homebrew安装，因为通过Homebrew安装的Qt并没有像其他Unix软件包一样创建符号连接到`/usr/local/bin`目录下，同时也不带有QtCreator程序。  
-从Qt官网下载Qt的dmg安装镜像，按步骤安装到自定义路径之后，创建符号链接到`~/Application`目录下，即可在Launchpad中看到Qt的相关应用。
-
 ### 删除 *JDK*
 `JDK`需要自行手工删除，相关文件位于以下路径：
 
-0. `/Library/Internet Plug-Ins/JavaAppletPlugin.plugin`
-0. `/System/Library/Java/Support/CoreDeploy.bundle/Contents/JavaAppletPlugin.plugin`
-0. `/Library/Java/JavaVirtualMachines/*`
+1. `/Library/Internet Plug-Ins/JavaAppletPlugin.plugin`
+1. `/System/Library/Java/Support/CoreDeploy.bundle/Contents/JavaAppletPlugin.plugin`
+1. `/Library/Java/JavaVirtualMachines/*`
 
 删除`JDK`时需要手动移除这些目录、文件。  
 安装新版本的`JDK`时，旧版本`JDK`不会自动卸载，相关文件依然位于`/Library/Java/JavaVirtualMachines`路径下，文件夹名称即为对应的`JDK`版本，手动删除不需要的版本即可。
+
+### 删除 *GarageBand*
+`macOS`预装了音频编辑软件`GarageBand`，卸载时需要删除以下路径的内容：
+
+1. `/Applications/GarageBand.app`
+1. `/Library/Application Support/GarageBand`
+1. `/Library/Application Support/Logic`
+1. `/Library/Audio/Apple Loops`
+
+仅删除`GarageBand.app`，在`System Information`中的`Music Creation`类别中依旧会显示包含大量空间占用。
 
 
 
@@ -316,7 +347,7 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql/`。
 ### *Bundle*
 在`macOS`中最常见的软件包是以`Bundle`的形式存在的，`Bundle`是一个以`.app`为后缀的**目录**，外观为可执行程序的图标，封装了程序执行所需的一些必要资源以及真正的可执行文件。
 
-`dmg`镜像中若直接包含Bundle，则将其复制到`/Application`或是`~/Application`目录下即可(推荐存放在用户的Application目录下)。
+`dmg`镜像中若直接包含`Bundle`，则将其复制到`/Application`或`~/Application`目录下即可(推荐存放在用户的Application目录下)。
 
 常规的Bundle程序所有者为**当前用户**。
 
@@ -325,12 +356,13 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql/`。
 
 通过pkg安装的软件最终也会在`/Application`目录下创建软件的Bundle，但通过此种方式安装的软件往往会在系统的其它目录创建程序所需的额外文件。
 
-通过pkg安装的软件所有者一般为`root`，不能随意移动到`~/Application/`路径下。
+通过pkg安装的软件所有者一般为`root`，不能随意移动到`~/Application`路径下。
 
 ### 软件路径
-默认情况下，Bundle形式的软件一般存在于`/Application/`目录或是`~/Application/`目录下。  
-macOS的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形式或事通过AppStore安装的应用也在该目录下。  
-默认情况下`~/Application`目录不存在，需要自行创建。  
+默认情况下，`Bundle`形式的软件一般存在于`/Application`目录或`~/Application`目录下。
+`macOS`的系统默认`Bundle`应用存放在`/Application`目录下，一些以`pkg`形式安装或通过`AppStore`安装的应用也在该目录下。
+
+默认情况下`~/Application`目录不存在，需要自行创建。
 用户自行安装的Bundle应用推荐存放在`~/Application`目录下，避免与系统程序混淆。
 
 
@@ -341,21 +373,23 @@ macOS的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形
 可以尝试更改登录界面的选项。  
 也可以尝试以下指令:
 
-`# languagesetup`
+```
+# languagesetup
+```
 
 登陆界面的分辨率/语言未发生变化是由于登陆界面的数据未更新，使用root权限执行`languagesetup`重设语言即会刷新登陆界面信息。
 
 ### 更改默认应用程序
-0. 使用`Command + i`查看一个文件的详细信息。
-0. 在`Open With:`条目中可以选择打开此文件使用的默认程序，修改为需要的程序。
-0. 选择`Change All...`将所有此类文件全部修改为自定义的程序。
+1. 使用`Command + i`查看一个文件的详细信息。
+1. 在`Open With:`条目中可以选择打开此文件使用的默认程序，修改为需要的程序。
+1. 选择`Change All...`将所有此类文件全部修改为自定义的程序。
 
-### 在BootCamp安装的Windows系统中调整了分区，重启后Mac分区在启动页中消失
-发生此种情况的原因是Windows下的一些分区管理工具将Mac分区的分区Type UUID改成了Windows的Type UUID，只需将分区类型ID改回来即可恢复Mac分区。
+### 在 *BootCamp* 安装的 *Windows* 系统中调整了分区，重启后 *Mac分区* 在启动页中消失
+发生此种情况的原因是Windows下的一些分区管理工具将Mac分区的分区`Type UUID`改成了Windows的`Type UUID`，只需将分区类型ID改回来即可恢复Mac分区。
 
 具体解决方法：
 
-0. 使用Windows的diskpart分区工具更改Type UUID。
+- 使用Windows的diskpart分区工具更改Type UUID。
 
 	在CMD下执行以下指令：
 
@@ -366,7 +400,14 @@ macOS的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形
 	- `> select partition [分区号]` 指明macOS所在的分区号
 	- `> set id=48465300-0000-11AA-AA11-00306543ECAC` 设置分区的Type UUID
 
-0. 亦可使用`Linux/Unix`中的`parted`工具进行分区类型ID变更，推荐使用parted的图形化前端`gparted`，只需要在分区标志中去掉`msdata`即可使Mac分区正常启动。
+- 在`Linux/Unix`系统中，亦可使用`parted`工具进行分区类型ID变更。
+
+	在分区标识中去掉`msdata`(Windows分区标志)：
+
+	```
+	# parted [磁盘路径] print all //查看所有磁盘信息，确认分区编号
+	# parted [磁盘路径] set [分区号] msdata on/off //移除msdata分区标志
+	```
 
 ### 使用默认 *bootloader* 引导Linux系统
 需要创建一个`100MB`左右的分区(其实可以更小)，在分区的中创建`System/Library/CoreServices`目录：
@@ -375,7 +416,7 @@ macOS的系统默认Bundle应用存放在`/Application/`目录下，一些pkg形
 $ mkdir -p /Volumes/[启动分区名称]/System/Library/CoreServices
 ```
 
-并在该目录中放入Linux的efi启动文件。  
+并在该目录中放入`Linux`的`efi`启动文件。  
 同时创建系统描述文件：
 
 ```
@@ -398,7 +439,7 @@ $ nano /Volumes/[启动分区名称]/System/Library/CoreServices/SystemVersion.p
 </plist>
 ```
 
-然后使用macOS系统的启动管理器`bless`来创建启动项，执行指令：
+然后使用`macOS`系统的启动管理器`bless`来创建启动项，执行指令：
 
 ```
 # bless --folder=/Volumes/[启动分区名称]/System/Library/CoreServices/ --file=/Volumes/[启动分区名称]/System/Library/CoreServices/boot.efi --setBoot
@@ -409,7 +450,7 @@ $ nano /Volumes/[启动分区名称]/System/Library/CoreServices/SystemVersion.p
 删除该目录之后，`Launchpad`会在下次开机之后重置图标布局，恢复成默认的样式(Apple自带的软件占一页，用户自行安装的软件从第二页开始)。
 
 ### 设置 *Xcode* 路径
-Xcode中包含了一系列的命令行工具如`clang`、`git`等，Homebrew的安装也依赖于这些命令行工具。  
+`Xcode`中包含了一系列命令行工具如`clang`、`git`等，Homebrew的安装也依赖于这些命令行工具。  
 默认情况下，安装`Xcode`同时会自动配置相关路径信息。
 
 查看`Xcode`命令行路径：
@@ -437,9 +478,9 @@ $ xcode-select -p
 新版的`macOS`系统中，`clang`作为默认编译器取代了`gcc`，`lldb`作为默认编译器取代了`gdb`。  
 默认情况下，使用`Homebrew`安装的`gdb`调试器**不能**在普通用户下正常调试代码，需要对其进行**签名**后才能使其正常调试代码：
 
-0. 使用`KeyChain Access.app`创建一个证书(`certificate`)。
-0. 证书的`Certificate Type`要设为`Code Signing`。
-0. 证书的`KeyChain`要设为`System`，`Trust`列表中的`CodeSigning`属性要设置为`Always Trust`。
+1. 使用`KeyChain Access.app`创建一个证书(`certificate`)。
+1. 证书的`Certificate Type`要设为`Code Signing`。
+1. 证书的`KeyChain`要设为`System`，`Trust`列表中的`CodeSigning`属性要设置为`Always Trust`。
 
 成功创建了证书之后，使用`codesign`命令对`gdb`进行签名：
 
