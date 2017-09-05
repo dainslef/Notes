@@ -14,6 +14,7 @@
 	- [*for* / *while* 语句 (循环语法)](#for--while-语句-循环语法)
 	- [*select* 语句](#select-语句)
 	- [*echo* 函数](#echo-函数)
+	- [函数语法](#函数语法)
 
 <!-- /TOC -->
 
@@ -106,7 +107,7 @@ $ echo $?
 如下所示：
 
 ```
-*test* 匹配 xxxxtestxxxx
+*test* 匹配 xxxxtestxxxx 或 xtestxxxx 或 xxxxtestx 或 xtestx 等
 ?test? 匹配 xtestx ，但无法匹配 xxxxtestxxxx
 test[1-9] 匹配 test1, test2 ... test9
 ```
@@ -449,6 +450,11 @@ done
 for 变量名 in {起始值..结束值..间隔}; do
 	...
 done
+
+# 无限循环
+for ((;;)); do
+	...
+done
 ```
 
 `macOS 10.12.6`默认的`bash`版本为`3.2.57`，使用列表遍历语法时不支持设定间隔(`zsh`支持此语法)。
@@ -467,6 +473,7 @@ for 变量 in (seq 起始值 间隔 结束值)
 end
 ```
 
+除了`for`语句，亦可使用`while`构建循环。  
 `while`语句语法：
 
 ```sh
@@ -477,6 +484,11 @@ done
 
 # fish
 while [ 条件 ]
+	...
+end
+
+# fish 无限循环
+while true
 	...
 end
 ```
@@ -576,4 +588,114 @@ abc\n # fish 使用引号，转义字符被视为普通文本输出
 $ echo -e 'abc\n'
 abc
  # 转义字符有效，正常输出换行符
+```
+
+### 函数语法
+函数用于封装一段需要重复调用的逻辑。
+
+定义函数语法：
+
+```sh
+# bash/zsh
+function 函数名() {
+	...
+}
+
+# bash/zsh 定义函数 function 关键字可以省略
+函数名() {
+	...
+}
+
+# fish
+function 函数名
+	...
+end
+```
+
+`bash/zsh/fish`调用函数语法类似：
+
+```sh
+函数名 参数1 参数2 参数3 ... # 调用函数传参不使用括号
+```
+
+`bash/zsh`函数参数处理：
+
+- `$#` 获取参数的数目
+- `$@` 获取参数列表
+- `$1 ~ $9` 获取函数参数内容，最大支持9个参数
+
+实例：
+
+```sh
+show() {
+	echo "Args count: " $#
+	echo "Arg 1:" $1
+	echo "Arg 2:" $2 "\n"
+	echo "All args:"
+	for arg in $@; do
+		echo $arg
+	done
+}
+
+# 调用函数
+show 1 2 3 4 5 6 7 8
+```
+
+输出结果：(`macOS 10.12.6` && `bash 3.2.57` && `zsh 5.2`)
+
+```
+Args count:  8
+Arg 1: 1
+Arg 2: 2 
+
+All args:
+1
+2
+3
+4
+5
+6
+7
+8
+```
+
+`fish`函数参数处理：
+
+- `fish`使用列表`argv`保存传入函数的参数
+- `count argv` 获取参数的数目
+- `$argv[索引]` 获取指定索引的参数
+
+示例：
+
+```fish
+function show
+	echo "Args count: " (count argv)
+	echo "Arg 1:" $argv[1]
+	echo "Arg 2:" $argv[2] \n
+	echo "All args:"
+	for arg in $argv
+		echo $arg
+	end
+end
+
+# 调用函数
+show 1 2 3 4 5 6 7 8
+```
+
+输出结果：(`macOS 10.12.6` && `fish 2.6.0`)
+
+```
+Args count:  8
+Arg 1: 1
+Arg 2: 2 
+
+All args:
+1
+2
+3
+4
+5
+6
+7
+8
 ```
