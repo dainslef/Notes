@@ -582,8 +582,10 @@ true
 ## 泛型
 值类型转变为引用类型会经过`装箱(boxing)`操作，而引用类型转变为值类型则要经过`拆箱(unboxing)`操作。
 
-一个容器需要接收多种类型时，可能就需要将接受参数的类型设置为`object`型(即所有类型的父类)，值类型在转化到`object`型时就需要进行装箱操作，频繁地装箱与拆箱会有较高的开销。  
-`object`类型并不安全(可能同时接收到不同的类型)，因而可以使用**泛型**来**显式指定**需要接收的类型(编译器会检查接收类型是否符合指定泛型)，对于值类型而言，使用泛型还可以避免重复的装箱与拆箱操作。
+一个容器需要接收多种类型时，可能就需要将接受参数的类型设置为`object`型(即所有类型的父类)。  
+值类型在转化到`object`型时就需要进行装箱操作，频繁地装箱与拆箱会有较高的开销。  
+`object`类型并不安全(可能同时接收到不同的类型)，因而可以使用**泛型**来**显式指定**需要接收的类型(编译器会检查接收类型是否符合指定泛型)。  
+对于值类型而言，使用泛型还可以避免重复的装箱与拆箱操作。
 
 ### 泛型约束
 C#中泛型可以使用`where`关键字进行泛型约束，例如：
@@ -1076,156 +1078,167 @@ switch (xxx)
 ### *Thread* 类
 与常规的**OOP**语言类似，C#中也可以使用`Thread`类来进行并发编程，`Thread`类完整路径为`System.Threading.Thread`。
 
-创建与启动线程
-> `Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。  
-> 两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。  
-> `Thread`类在构造时还可以接收一个`int`型参数用于指定线程的最大堆栈大小。
->
-> 使用`Thread.Start()`方法可以启动线程，如下代码所示：
->
->	```cs
->	using System;
->	using System.Threading;
->
->	class Program
->	{
->		static void Main(string[] args)
->		{
->			Thread thread = new Thread(() => Console.WriteLine("This is thread!"));
->			thread.Start();
->			thread = new Thread(arg => Console.WriteLine("The arg is: " + arg));
->			thread.Start("test args.");
->		}
->	}
->	```
->
-> 运行结果：
->
->	```
->	This is thread!
->	The arg is: test args.
->	```
+- 创建与启动线程
 
-等待线程结束
-> 使用成员方法`Thread.Join()`能够等待指定线程结束，在等待的线程结束前，该方法会一直阻塞**当前**线程。
+	`Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。  
+	两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。  
+	`Thread`类在构造时还可以接收一个`int`型参数用于指定线程的最大堆栈大小。
 
-获取线程ID
-> 每个线程都有独立的线程ID，`Thread.CurrentThread.ManagedThreadId`属性保存了当前线程的ID，可以通过比较线程ID来判断代码是否在相同的线程执行。
+	使用`Thread.Start()`方法可以启动线程，如下代码所示：
+
+	```cs
+	using System;
+	using System.Threading;
+
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			Thread thread = new Thread(() => Console.WriteLine("This is thread!"));
+			thread.Start();
+			thread = new Thread(arg => Console.WriteLine("The arg is: " + arg));
+			thread.Start("test args.");
+		}
+	}
+	```
+
+	运行结果：
+
+	```
+	This is thread!
+	The arg is: test args.
+	```
+
+- 等待线程结束
+	
+	使用成员方法`Thread.Join()`能够等待指定线程结束，在等待的线程结束前，该方法会一直阻塞**当前**线程。
+
+- 获取线程ID
+
+	每个线程都有独立的线程ID。  
+	`Thread.CurrentThread.ManagedThreadId`属性保存了当前线程的ID，可以通过比较线程ID来判断代码是否在相同的线程执行。
 
 ### 异步委托
-默认情况下，执行一个委托实例操作是**同步**的，但委托实例同样可以使用成员函数`BeginInvoke()`进行异步回调。
+委托实例执行操作默认**同步**执行，但委托实例同样可以**异步**执行操作。
 
-- `BeginInvoke()`除了接收原有委托签名的参数之外，参数表尾部额外带有两个参数，分别为`AsyncCallback`委托类型和`object`类型。
-- `AsyncCallback`委托在回调委托运行结束之后触发，`AsyncCallback`委托接收一个`IAsyncResult`类型的参数。
-- `object`类型用于传递一些参数给`AsyncCallback`委托。
-- `BeginInvoke()`的最后两个参数可以为`null`。
-- `BeginInvoke()`返回`IAsyncResult`类型：
+- 使用`BeginInvoke()`进行异步回调
+
+	`BeginInvoke()`除了接收原有委托签名的参数之外，参数表尾部额外带有两个参数，分别为`AsyncCallback`委托类型和`object`类型：
+
+	1. `AsyncCallback`委托在回调委托运行结束之后触发，`AsyncCallback`委托接收一个`IAsyncResult`类型的参数。
+	1. `object`类型用于传递一些参数给`AsyncCallback`委托。
+
+	`BeginInvoke()`的最后两个参数可以为`null`。  
+	`BeginInvoke()`返回`IAsyncResult`类型：
+	
 	1. 使用`IAsyncResult.IsCompleted`属性可以判断回调委托的执行状态。
 	1. 使用`IAsyncResult.AsyncState`属性获取`BeginInvoke()`参数表中的最后一个`object`类型的传入参数。
 
-使用`EndInvoke()`等待异步委托返回
-> 如果需要等待异步执行的委托结束，可以使用`EndInvoke()`成员函数。
->
->	- `EndInvoke()`接受一个`IAsyncResult`类型的参数(即`BeginInvoke()`的返回值)。
->	- `EndInvoke()`的返回值即为异步委托的返回值。
->	- 在异步委托执行完毕之前，`EndInvoke()`会一直阻塞当前线程，直到异步委托结束。
->
-> 如下代码所示：
->
->	```cs
->	using System;
->	using System.Threading;
->
->	delegate int Delegate();
->
->	class Program
->	{
->		static void Main(string[] args)
->		{
->			//用于回调的委托
->			Delegate del = () =>
->			{
->				Thread.Sleep(1000);
->				Console.WriteLine("Thread is running!");
->				return 100;
->			};
->
->			//使用BeginInvoke()进行异步委托回调
->			IAsyncResult result = del.BeginInvoke(ar =>
->			{
->				//异步委托结束时执行该Lambda，打印传入参数
->				Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState);
->			}, 200);
->
->			Console.WriteLine("Program start...");
->			Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
->
->			//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
->			Console.WriteLine("The thread status is: {0}", result.IsCompleted);
->		}
->	}
->	```
->
-> 运行结果：
->
->	```
->	Program start...
->	Thread is running!
->	The return value is: 100
->	The thread status is: True
->	The object arg is: 200
->	```
->
-> 委托实例`del`虽然先被调用，但由于是异步调用，`Sleep()`了1000毫秒之后再输出的字符位于主线程之后。
+- 使用`EndInvoke()`等待异步委托返回
 
-使用`WaitOne()`等待异步委托返回
-> `BeginInvoke()`的返回值`IAsyncResult`类型的`AsyncWaitHandle`属性会返回一个`WaitHandle`类型的等待句柄：
->
->	- 该句柄的成员方法`WaitHandle.WaitOne()`接受`int`型参数作为超时时间，使用此方法可以实现等待指定时间(单位为**毫秒**)的效果。
->	- `WaitHandle.WaitOne()`的返回值为`bool`类型，用于表示异步委托是否结束。
->
-> 如下代码所示：
->
->	```cs
->	using System;
->	using System.Threading;
->
->	delegate int Delegate();
->
->	class Program
->	{
->		static void Main(string[] args)
->		{
->			//用于回调的委托
->			Delegate del = () =>
->			{
->				Thread.Sleep(1000);
->				Console.WriteLine("Thread is running!");
->				return 100;
->			};
->
->			//使用BeginInvoke()进行异步委托回调
->			IAsyncResult result = del.BeginInvoke(ar =>
->					Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState), 200);
->
->			Console.WriteLine("Program start...");
->			if (result.AsyncWaitHandle.WaitOne(1000))
->				Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
->
->			//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
->			Console.WriteLine("The thread status is: {0}", result.IsCompleted);
->		}
->	}
->	```
->
-> 执行结果：
->
->	```
->	Program start...
->	The thread status is: False
->	```
->
-> 可以看到，超时时间设为1000毫秒，此时异步委托尚未执行完毕，因而`IAsyncResult.IsCompleted`属性为`false`。
+	若需等待异步执行的委托结束，可以使用`EndInvoke()`成员函数。
+
+	- `EndInvoke()`接受一个`IAsyncResult`类型的参数(即`BeginInvoke()`的返回值)。
+	- `EndInvoke()`的返回值即为异步委托的返回值。
+	- 在异步委托执行完毕之前，`EndInvoke()`会一直阻塞当前线程，直到异步委托结束。
+
+	如下代码所示：
+
+	```cs
+	using System;
+	using System.Threading;
+
+	delegate int Delegate();
+
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			//用于回调的委托
+			Delegate del = () =>
+			{
+				Thread.Sleep(1000);
+				Console.WriteLine("Thread is running!");
+				return 100;
+			};
+
+			//使用BeginInvoke()进行异步委托回调
+			IAsyncResult result = del.BeginInvoke(ar =>
+			{
+				//异步委托结束时执行该Lambda，打印传入参数
+				Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState);
+			}, 200);
+
+			Console.WriteLine("Program start...");
+			Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
+
+			//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
+			Console.WriteLine("The thread status is: {0}", result.IsCompleted);
+		}
+	}
+	```
+
+	运行结果：
+
+	```
+	Program start...
+	Thread is running!
+	The return value is: 100
+	The thread status is: True
+	The object arg is: 200
+	```
+
+	委托实例`del`虽然先被调用，但由于是异步调用，`Sleep()`了1000毫秒之后再输出的字符位于主线程之后。
+
+- 使用`WaitOne()`等待异步委托返回
+
+	`BeginInvoke()`的返回值`IAsyncResult`类型的`AsyncWaitHandle`属性会返回一个`WaitHandle`类型的等待句柄：
+
+	- `WaitHandle.WaitOne()`接受`int`型参数作为超时时间，使用此方法可以实现等待指定时间(单位为**毫秒**)的效果。
+	- `WaitHandle.WaitOne()`的返回值为`bool`类型，用于表示异步委托是否结束。
+
+	如下所示：
+
+	```cs
+	using System;
+	using System.Threading;
+
+	delegate int Delegate();
+
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			//用于回调的委托
+			Delegate del = () =>
+			{
+				Thread.Sleep(1000);
+				Console.WriteLine("Thread is running!");
+				return 100;
+			};
+
+			//使用BeginInvoke()进行异步委托回调
+			IAsyncResult result = del.BeginInvoke(ar =>
+					Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState), 200);
+
+			Console.WriteLine("Program start...");
+			if (result.AsyncWaitHandle.WaitOne(1000))
+				Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
+
+			//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
+			Console.WriteLine("The thread status is: {0}", result.IsCompleted);
+		}
+	}
+	```
+
+	执行结果：
+
+	```
+	Program start...
+	The thread status is: False
+	```
+
+	超时时间设为1000毫秒，由输出结果可知，此时异步委托尚未执行完毕，因而`IAsyncResult.IsCompleted`属性为`false`。
 
 ### *Task* 类
 `Task`类是`.NET 4.0`之后提供的异步操作抽象，完整路径为`System.Threading.Tasks.Task`。
@@ -1276,10 +1289,13 @@ public static bool WaitAll(Task[] tasks, int millisecondsTimeout;) //等待指�
 `C# 5.0`之后引入了`async`和`await`关键字，在语言层面给予了并发更好的支持。
 
 1. `async`用于标记**异步方法**：
+
 	- `async`关键字是**上下文关键字**，只有在修饰方法与Lambda时才会被当作关键字处理，在其它区域将被作为标识符处理。
 	- `async`关键字可以标记静态方法，但不能标记**入口点**(`Main()`方法)。
 	- `async`标记的方法返回值必须为`Task`、`Task<TResult>`、`void`其中之一。
+
 1. `await`用于等待异步方法的结果：
+
 	- `await`关键字同样是**上下文关键字**，只有在`async`标记的方法中才被视为关键字。
 	- `await`关键字可以用在`async`方法和`Task`、`Task<TResult>`之前，用于等待异步任务执行结束。
 
