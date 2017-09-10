@@ -34,6 +34,7 @@
 	- [基础类型](#基础类型)
 	- [*Bottom* (底类型)](#bottom-底类型)
 	- [*Option* (可空类型)](#option-可空类型)
+- [类型系统](#类型系统)
 - [*continue* 与 *break*](#continue-与-break)
 - [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
 	- [简单匹配](#简单匹配)
@@ -64,8 +65,7 @@
 	- [*GenTraversableLike*](#gentraversablelike)
 	- [集合有序性](#集合有序性)
 - [*Higher Order Function* (高阶函数)](#higher-order-function-高阶函数)
-- [*yeild*](#yeild)
-	- [使用高阶函数替代生成器](#使用高阶函数替代生成器)
+	- [*for/yeild* 语句](#foryeild-语句)
 - [*Exception* (异常)](#exception-异常)
 	- [*scala.util.Try[T]*](#scalautiltryt)
 - [*Package* (包)](#package-包)
@@ -1844,6 +1844,11 @@ No Value
 
 
 
+## 类型系统
+待续...
+
+
+
 ## *continue* 与 *break*
 `Scala`**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
 
@@ -3043,12 +3048,9 @@ Mutable LinkedHashMap: Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5)
 在`Scala`中，容器类提供了高阶函数作为容器数据操作的接口。  
 常见的高阶函数有`map`、`reduce`、`flatMap`、`filter`、`find`、`fold`、`foreach`等。
 
-
-
-## *yeild*
-`Scala`中同样提供了`yield`关键字，用于构建集合(不是惰性生成，与传统语言的**生成器**概念不同)。  
-使用`yield`可以将循环中每一轮的结果以容器的形式输出，使用`yeild`可以方便生成一系列的特定值。
-
+### *for/yeild* 语句
+`Scala`中同样提供了`yield`关键字，用于构建集合。  
+`Scala`中的`yield`语句不是惰性生成，与传统语言的**生成器**概念不同。  
 如下所示：
 
 ```scala
@@ -3068,8 +3070,7 @@ scala> (for (i <- List(1, 2, 3, 4, 5) if i > 2) yield i) toSet
 res27: scala.collection.immutable.Set[Int] = Set(3, 4, 5)
 ```
 
-### 使用高阶函数替代生成器
-`Scala`中的`yield`的语句实际是高阶函数的语法糖，`yeild`语句可以还原为高阶函数的形式：
+`Scala`中的`for/yield`语句实际是高阶函数的语法糖，`yeild`语句可以还原为高阶函数的形式：
 
 ```scala
 // 从1到5的数中找出偶数，并将数值翻倍
@@ -3692,13 +3693,15 @@ Implicit Class: 100
 
 
 ## 求值策略
-`Scala`中存在两种求值策略：
+`Scala`中存在三种求值策略：
 
-1. `Call by Value`(**立即求值/直接求值**)，在表达式定义时立即求值，仅在定义时求值**一次**。
-1. `Call by Name`(**惰性求值**)，在表达式调用时求值，每次调用都会对表达式重新求值。
+1. `Call by Value`，在表达式定义时立即求值，仅在定义时求值**一次**。
+1. `Call by Name`，在表达式调用时求值，每次调用都会对表达式重新求值。
+1. `Call bt Need`，在表达式首次调用时求值，仅在首次被访问时求值**一次**。
 
-在`Scala`中，使用`val/var`定义字段时即为即为直接求值，字段值在定义时即被确定；  
-使用`def`定义无参方法时即为惰性求值，方法在调用时才会求值，且每次调用重新求值。  
+使用`val/var`定义字段时即为即为直接求值，字段值在定义时即被确定；  
+使用`val/var`定义字段时若搭配`lazy`关键字，则字段在首次被访问时求值；  
+使用`def`定义无参方法时即为传名调用，方法在调用时才会求值，且每次调用重新求值。  
 如下所示：
 
 ```scala
@@ -3707,14 +3710,28 @@ object Main extends App {
   var num = 23333
 
   // 立即求值，test0 值为 23333
-  val test0 = num
+  val test0 = {
+    println("Call test0")
+    num
+  }
 
-  // 惰性求值，在调用表达式时才会进行求值
-  def test1 = num
+  // 在调用表达式时才会进行求值，每次都求值
+  def test1 = {
+    println("Call test1")
+    num
+  }
+
+  // 首次调用时求值，之后不再求值
+  lazy val test2 = {
+    println("Call test2")
+    num
+  }
 
   println(s"test0: $test0, test1: $test1")
   num = 44444
-  println(s"test0: $test0, test1: $test1")
+  println(s"test0: $test0, test1: $test1, test2: $test2")
+  num = 66666
+  println(s"test0: $test0, test1: $test1, test2: $test2")
 
 }
 ```
@@ -3722,12 +3739,19 @@ object Main extends App {
 输出结果：
 
 ```
+Call test0
+Call test1
 test0: 23333, test1: 23333
-test0: 23333, test1: 44444
+Call test1
+Call test2
+test0: 23333, test1: 44444, test2: 44444
+Call test1
+test0: 23333, test1: 66666, test2: 44444
 ```
 
-`Call by Value`的字段`test0`在定义时值已被确定，仅在定义时求值一次，两次输出结果相同；  
-`Call by Name`的字段`test1`在每次调用时重新求值，两次输出结果不同。
+`Call by Value`的字段`test0`在定义时值已被确定，仅在定义时求值一次，三次输出结果相同；  
+`Call by Name`的字段`test1`在每次调用时重新求值，三次输出结果不同；  
+`Call by Need`的字段`test2`在首次被访问时进行求值，两次输出结果相同。
 
 ### 参数的求值策略
 与大多数编程语言类似，`Scala`中的方法、函数的参数默认即为`Call by Value`，参数在传入时立即求值，如下所示：
