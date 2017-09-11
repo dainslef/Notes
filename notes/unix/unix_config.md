@@ -5,7 +5,7 @@
 - [*fdisk*](#fdisk)
 - [*parted*](#parted)
 - [*LVM*](#lvm)
-	- [配置LVM](#配置lvm)
+	- [配置 *LVM*](#配置-lvm)
 	- [物理卷 *PV*](#物理卷-pv)
 	- [卷组 *VG*](#卷组-vg)
 	- [逻辑卷 *LV*](#逻辑卷-lv)
@@ -140,7 +140,7 @@
 使用`LVM`能够将不同的硬盘上的物理卷(`Physical Volume`，简称`PV`)加入卷组(`Volume Group`，简称`VG`)。  
 在卷组中将其划分为不同的逻辑卷(`Logical Volume`，简称`LV`)，然后在逻辑卷中创建文件系统并进行挂载。
 
-### 配置LVM
+### 配置 *LVM*
 配置`LVM`的**基本步骤**：
 
 1. 创建硬盘分区
@@ -200,7 +200,7 @@
 $ curl [目标文件路径]
 ```
 
-`curl`对于获取的文件会直接以文本的形式输出在终端上，可以使用`-o`参数导出到文件。
+`curl`对于获取的文件会直接以文本的形式输出在终端上，可以使用`-o`参数导出到文件。  
 对于一些可能需要验证用户权限的协议(如`ftp`)，可以使用`-u`参数添加用户信息，指令格式如下：
 
 ```
@@ -217,7 +217,7 @@ $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 
 在上传/下载时，默认情况下会出现进度提示，可添加`-s`参数取消进度提示。
 
-对于一些复杂的FTP功能，需要直接使用FTP**协议指令**来完成。
+对于一些复杂的FTP功能，需要直接使用FTP**协议指令**来完成。  
 在`curl`工具中，使用`-X`参数追加协议指令，命令格式如下：
 
 `$ curl ftp://[用户名]:[密码]@[ip/域名] -X "[FTP协议指令]"`
@@ -495,8 +495,8 @@ deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted univers
 `sources.list`配置：
 
 ```sh
-deb file:///home/Xxx/Public/Mirrors/mirror xenial main restricted universe multiverse
-deb file:///home/Xxx/Public/Mirrors/mirror xenial-security main restricted universe multiverse
-deb file:///home/Xxx/Public/Mirrors/mirror xenial-updates main restricted universe multiverse
-deb file:///home/Xxx/Public/Mirrors/mirror xenial-backports main restricted universe muitiverse
+deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial main restricted universe multiverse
+deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-security main restricted universe multiverse
+deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-updates main restricted universe multiverse
+deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-backports main restricted universe muitiverse
 ```

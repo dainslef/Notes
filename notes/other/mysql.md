@@ -50,7 +50,9 @@
 
 使用`--initialize`参数初始化会默认创建带有密码的`root`账户，密码会记录在`[主机名].err`文件中，日至内容大致为：
 
-`[Note] A temporary password is generated for root@localhost: [password]`
+```
+[Note] A temporary password is generated for root@localhost: [password]
+```
 
 可以使用`--initialize-insecure`参数初始化并创建不带密码的`root`账户，如下所示：
 
@@ -139,17 +141,17 @@ socket = #客户端启动socket文件位置
 > mysqld --remove
 ```
 
-### 在使用 *systemd* 的Linux发行版中启动服务
+### *systemd* Linux发行版中管理服务
 采用`systemd`的发行版中可以使用`systemctl`指令管理`MySQL`服务：
 
 ```
-# systemctl status mysqld			//查看mysql服务状态
-# systemctl start mysqld			//启动mysql服务
-# systemctl stop mysqld				//停止mysql服务
-# systemctl restart mysqld			//重启mysql服务
+# systemctl status mysqld //查看mysql服务状态
+# systemctl start mysqld //启动mysql服务
+# systemctl stop mysqld //停止mysql服务
+# systemctl restart mysqld //重启mysql服务
 ```
 
-### 在使用 *SysV init* 的Linux发行版以及BSD中启动服务
+### *SysV init* Linux发行版以及BSD中管理服务
 旧式的Linux发行版以及`*BSD`中使用`service`指令管理`MySQL`服务：
 
 ```
@@ -265,8 +267,8 @@ mysql> flush privileges;
 查看一个用户的权限可以在数据库命令行中使用`show grants`指令：
 
 ```sql
-mysql> show grants;									//显示当前用户的权限信息
-mysql> show grants for [用户名]@[主机地址];			//显示指定用户的权限信息
+mysql> show grants; //显示当前用户的权限信息
+mysql> show grants for [用户名]@[主机地址]; //显示指定用户的权限信息
 ```
 
 
@@ -281,8 +283,8 @@ mysql> show grants for [用户名]@[主机地址];			//显示指定用户的权�
 在`Debian/RedHat`系发行版中使用`C API`连接mysql数据库时需要安装额外的开发头文件包：
 
 ```
-# apt-get install libmysqlclient-devel			//大便系
-# yum/dnf install mysql-devel					//红帽系
+# apt-get install libmysqlclient-devel //大便系
+# yum/dnf install mysql-devel //红帽系
 ```
 
 在`ArchLinux`中不需要，`ArchLinux`中的数据库包已经包含了开发头文件。
@@ -322,7 +324,7 @@ mysql> show grants for [用户名]@[主机地址];			//显示指定用户的权�
 设置主键自增：
 
 ```
-mysql> alert table [表名] auto_increment=[数字];			//设置自增属性
+mysql> alert table [表名] auto_increment=[数字]; //设置自增属性
 mysql> alter table [表名] change [主键列名] [主键列名] [属性] auto_increment;
 ```
 
@@ -341,15 +343,15 @@ mysql> alter table [表名] change [主键列名] [主键列名] [属性] auto_i
 使用`mysqldump`工具可以导出数据库的内容，基本操作指令如下：
 
 ```
-$ mysqldump -u"[用户名]" -p"[密码]" -A									//导出所有数据库
-$ mysqldump -u"[用户名]" -p"[密码]" [要备份的数据库名称]						//导出指定数据库
-$ mysqldump -u"[用户名]" -p"[密码]" [要备份的数据库名称] [要备份的表名称]		//导出指定数据库中的指定表的内容
+$ mysqldump -u"[用户名]" -p"[密码]" -A //导出所有数据库
+$ mysqldump -u"[用户名]" -p"[密码]" [要备份的数据库名称] //导出指定数据库
+$ mysqldump -u"[用户名]" -p"[密码]" [要备份的数据库名称] [要备份的表名称] //导出指定数据库中的指定表的内容
 ```
 
 默认情况下，`mysqldump`工具会将导出的数据以`SQL`语句的形式输出到终端，可以使用重定向将导出的内容写入文本中：
 
 ```
-$ mysqldump -u"[用户名]" -p"[密码]" -A > xxx.sql				//导出的内容写入 xxx.sql 文件中
+$ mysqldump -u"[用户名]" -p"[密码]" -A > xxx.sql //导出的内容写入 xxx.sql 文件中
 ```
 
 `mysqldump`支持根据条件导出指定的内容(使用`-w`参数)：
