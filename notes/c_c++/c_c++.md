@@ -441,7 +441,7 @@ char s3[2][3] = { '1', '2', '3', '4', '5', '6' };		//顺序初始化
 ```
 
 ### 类/结构体列表初始化 (C++98)
-对于`class`和`struct`而言，在`C++98`中，如果成员变量皆为**公有成员**且**未手动定义**构造函数时，可以使用列表进行初始化，如下所示：
+对于`class`和`struct`而言，在`C++98`中，若成员变量皆为**公有成员**且**未手动定义**构造函数时，可以使用列表进行初始化，如下所示：
 
 ```cpp
 struct S
@@ -554,6 +554,46 @@ auto func = [](int a) {};
 func(100.0); //正常
 func({ 100.0 }); //编译报错，提示"error: narrowing conversion of ‘1.0e+2’ from ‘double’ to ‘int’ inside { } [-Wnarrowing]"
 ```
+
+在`C++11`中，使用了**类内初始化**特性的类若未显式定义有参构造函数，则**不能**使用统一初始化特性。
+如下所示：
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+struct Test
+{
+	int num = 0;
+	string name = "";
+};
+
+int main(void)
+{
+	Test t { 2333, "2333" };
+	return 0;
+}
+```
+
+`GCC 7.2.0`版本下，使用`g++ -std=c++11`编译，得到如下错误输出：
+
+```
+init.cc: In function 'int main()':
+init.cc:13:24: error: no matching function for call to 'Test::Test(<brace-enclosed initializer list>)'
+  Test t { 2333, "2333" };
+                        ^
+init.cc:5:8: note: candidate: constexpr Test::Test()
+ struct Test
+        ^~~~
+init.cc:5:8: note:   candidate expects 0 arguments, 2 provided
+init.cc:5:8: note: candidate: Test::Test(const Test&)
+init.cc:5:8: note:   candidate expects 1 argument, 2 provided
+init.cc:5:8: note: candidate: Test::Test(Test&&)
+init.cc:5:8: note:   candidate expects 1 argument, 2 provided
+```
+
+在`C++ 14`中，无此限制，使用`g++ -std=c++14`编译，正常编译通过。
 
 ### *std::initializer_list<T>* (C++11)
 自定义类型可以通过使用`std::initializer_list<T>`类型做为构造方法参数来支持**变长**的统一初始化参数表。  
