@@ -305,18 +305,36 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 
 - 替换更新数据源：
 
-	在`/usr/local/Homebrew`路径下执行：
+	替换`homebrew/core`更新源，在`$(brew --repo)`路径下执行：
 	
 	```
-	git remote set-url origin git://mirrors.ustc.edu.cn/brew.git
+	git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-core.git
 	```
 
-- 替换二进制包数据源：
+	替换`caskroom/cask`更新源，在`$(brew --repo)/Library/Taps/caskroom/homebrew-cask`路径下执行：
 
-	在使用的`shell`(`bash/zsh/fish`)的**配置文件**中添加：
+	```
+	$ git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-cask.git
+	```
+
+- 替换`Bottles`源：
+
+	`Homebrew`在`Bottles`源中提供了常用包的预编译二进制包。  
+	在默认`Shell`的**配置文件**中设置`HOMEBREW_BOTTLE_DOMAIN`环境变量：
 	
 	```
 	export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
+	```
+
+- 恢复官方源：
+
+	执行以下指令：
+
+	```
+	$ cd "$(brew --repo)"
+	$ git remote set-url origin https://github.com/Homebrew/homebrew-core.git
+	$ cd "$(brew --repo)"/Library/Taps/caskroom/homebrew-cask
+	$ git remote set-url origin https://github.com/caskroom/homebrew-cask
 	```
 
 ### 删除 *JDK*
@@ -359,10 +377,10 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 通过pkg安装的软件所有者一般为`root`，不能随意移动到`~/Application`路径下。
 
 ### 软件路径
-默认情况下，`Bundle`形式的软件一般存在于`/Application`目录或`~/Application`目录下。
+默认情况下，`Bundle`形式的软件一般存在于`/Application`目录或`~/Application`目录下。  
 `macOS`的系统默认`Bundle`应用存放在`/Application`目录下，一些以`pkg`形式安装或通过`AppStore`安装的应用也在该目录下。
 
-默认情况下`~/Application`目录不存在，需要自行创建。
+默认情况下`~/Application`目录不存在，需要自行创建。  
 用户自行安装的Bundle应用推荐存放在`~/Application`目录下，避免与系统程序混淆。
 
 
@@ -371,7 +389,7 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 
 ### 切换分辨率/语言时，登陆界面的分辨率/语言依然不变
 可以尝试更改登录界面的选项。  
-也可以尝试以下指令:
+或尝试以下指令:
 
 ```
 # languagesetup
@@ -398,7 +416,7 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 	- `> select disk [磁盘号]` 指定正在使用的磁盘
 	- `> list partition` 列出所选磁盘中的所有分区
 	- `> select partition [分区号]` 指明macOS所在的分区号
-	- `> set id=48465300-0000-11AA-AA11-00306543ECAC` 设置分区的Type UUID
+	- `> set id=48465300-0000-11AA-AA11-00306543ECAC` 设置分区的`Type UUID`
 
 - 在`Linux/Unix`系统中，亦可使用`parted`工具进行分区类型ID变更。
 
