@@ -8,6 +8,7 @@
 	- [默认路径](#默认路径)
 - [构建配置](#构建配置)
 	- [自定义源码路径](#自定义源码路径)
+	- [多项目构建](#多项目构建)
 	- [访问构建信息](#访问构建信息)
 - [依赖管理](#依赖管理)
 	- [常用依赖](#常用依赖)
@@ -228,6 +229,83 @@ unmanagedSourceDirectories in Compile ++= Seq(
   sourceDir("子目录2"),
   ...
 )
+```
+
+### 多项目构建
+`sbt`支持多项目构建，一个项目中可包含多个子项目。  
+每个子项目均可包含独立、完整的构建配置。
+
+使用`sbt`环境中预定义的`project`方法指定子项目的路径：
+
+```scala
+// 子项目的根路径为当前路径下的 xxx 子路径
+// 子项目名称 ChildProject (变量名称)
+lazy val ChildProject = project in file("xxx")
+```
+
+`project`方法构建的实例类型为`sbt.Project`，代表子项目的构建定义，实例名称会作为子项目的`ID`。  
+若`project in file("xxx")`中的路径信息`xxx`为`.`(项目当前路径)时，获取的实例代表默认项目的构建定义。  
+`sbt.Project`类型定义了一系列控制构建配置的方法：
+
+```scala
+package sbt
+
+sealed trait Project extends AnyRef with ProjectDefinition[ProjectReference] {
+  ...
+  def in(dir : java.io.File): Project = ... //设置构建定义的对应路径
+  def configs(cs: librarymanagement.Configuration*): Project = ...
+  def dependsOn(deps: ClasspathDep[ProjectReference]*): Project = ...   //设置项目依赖
+  def settings(ss: Def.SettingsDefinition*): Project = ...   //设置项目通用配置
+  def enablePlugins(ns: Plugins*): Project = ... //启用SBT插件
+  def disablePlugins(ps: AutoPlugin*) : Project = ... //禁用SBT插件
+  ...
+}
+```
+
+使用`settings()`方法向项目中添加通用定义：
+
+```scala
+childProject
+  .settings(
+    libraryDependencies ++= Seq(
+      ...
+    ),
+    scalacOptions ++= Seq(
+      ...
+    ),
+    ...)
+```
+
+所有能在父级项目中设定的配置都可以添加在子项目的`settings()`方法中。
+
+使用`enablePlugins()/disablePlugins()`方法启用/禁用`sbt`插件。  
+使用`dependsOn()`方法设定依赖项目，子项目能引用依赖项目的代码，并自动引入依赖项目的`libraryDependencies`。
+
+`sbt.Project`类型的主要方法均返回自身实例，支持**链式调用**。  
+常见的配置结构，如下所示：
+
+```scala
+val root = project in file(".") //父项目配置
+  .settings(
+    ...
+  )
+  ...
+
+val child = (project in file("xxx"))  //子项目配置
+  .dependsOn(root) //设定依赖项目
+  .enablePlugins(xxx) //启用插件
+  .settings( //配置相
+    name := "xxx",
+    version := "xxx",
+    scalaVersion := "2.12.x"
+    libraryDependencies ++= Seq(
+      ... //jar包依赖
+    ),
+    scalacOptions ++= Seq(
+      ... //编译器配置
+    ),
+    ...
+  )
 ```
 
 ### 访问构建信息
