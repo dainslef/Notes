@@ -231,7 +231,7 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 使用`Homebrew`安装常用的命令行工具：
 
 ```
-$ brew install aria2 python3 gcc nmap scala p7zip mariadb boost go mono gdb gradle sbt
+$ brew install aria2 python3 gcc nmap scala p7zip mariadb boost go mono rust gdb gradle sbt node postgresql kotlin haskell-stack fish qt
 ```
 
 - 通过`Homebrew`安装的包文件全部保存在`/usr/local/Cellar`目录下。
@@ -251,7 +251,7 @@ $ brew install gcc --force-bottle
 以`GCC 7.2.0`和`XCode 8.3.3`为例：
 
 ```
-$ cc-7 源码... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
+$ cc-7 source_code... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
 ```
 
 ### *Homebrew Cask*
@@ -266,7 +266,12 @@ $ cc-7 源码... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/
 - `$ brew cask search [app_name]` 搜索应用
 - `$ brew cask info [app_name]` 查看某个应用的详细信息
 
-使用`brew cask`安装的应用位于`/Application`路径下。
+使用`brew cask`安装的应用位于`/Application`路径下。  
+安装常用应用：
+
+```
+$ brew install appcleaner filezilla intellij-idea onedrive teamviewer visual-studio-code blender flash-npapi java qq the-unarchiver vlc docker google-chrome lantern qt-creator virtualbox
+```
 
 `brew cask`没有提供升级所有应用的指令，可以组合使用以下指令达到类似效果：
 
@@ -305,10 +310,16 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 
 - 替换更新数据源：
 
-	替换`homebrew/core`更新源，在`$(brew --repo)`路径下执行：
+	替换`Homebrew`源，在`$(brew --repo)`路径下执行：
+
+	```
+	$ git remote set-url origin https://mirrors.ustc.edu.cn/brew.git
+	```
+
+	替换`homebrew/core`更新源，在`$(brew --repo)/Library/Taps/homebrew/homebrew-core`路径下执行：
 	
 	```
-	git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-core.git
+	$ git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-core.git
 	```
 
 	替换`caskroom/cask`更新源，在`$(brew --repo)/Library/Taps/caskroom/homebrew-cask`路径下执行：
@@ -332,9 +343,11 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 
 	```
 	$ cd "$(brew --repo)"
+	$ git remote set-url origin https://github.com/Homebrew/brew.git
+	$ cd "$(brew --repo)"/Library/Taps/homebrew/homebrew-core
 	$ git remote set-url origin https://github.com/Homebrew/homebrew-core.git
 	$ cd "$(brew --repo)"/Library/Taps/caskroom/homebrew-cask
-	$ git remote set-url origin https://github.com/caskroom/homebrew-cask
+	$ git remote set-url origin https://github.com/caskroom/homebrew-cask.git
 	```
 
 ### 删除 *JDK*
@@ -365,9 +378,8 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 ### *Bundle*
 在`macOS`中最常见的软件包是以`Bundle`的形式存在的，`Bundle`是一个以`.app`为后缀的**目录**，外观为可执行程序的图标，封装了程序执行所需的一些必要资源以及真正的可执行文件。
 
-`dmg`镜像中若直接包含`Bundle`，则将其复制到`/Application`或`~/Application`目录下即可(推荐存放在用户的Application目录下)。
-
-常规的Bundle程序所有者为**当前用户**。
+`dmg`镜像中若直接包含`Bundle`，则将其复制到`/Application`或`~/Application`目录下即可(推荐存放在用户的`Application`目录下)。  
+常规的`Bundle`程序所有者为**当前用户**。
 
 ### *pkg*
 一些大型的软件包如Adobe系列、Office系列等的dmg镜像中保存的是pkg格式的安装包，双击进行安装，步骤与Windows系统下的安装流程类似。
