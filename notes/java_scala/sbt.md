@@ -10,6 +10,7 @@
 	- [自定义源码路径](#自定义源码路径)
 	- [多项目构建](#多项目构建)
 	- [访问构建信息](#访问构建信息)
+	- [处理构建冲突](#处理构建冲突)
 - [依赖管理](#依赖管理)
 	- [常用依赖](#常用依赖)
 - [编译参数](#编译参数)
@@ -365,6 +366,26 @@ case object BuildInfo {
   }
 }
 ```
+
+### 处理构建冲突
+`jar`打包时将多个`jar`包依赖引入同一个包时，若依赖的`jar`包包含相对路径相同的目录、文件，则可能产生冲突。
+
+如`com.typesafe.slick:slick`和`com.typesafe.akka:akka-actor`包中的根路径下均包含`reference.conf`配置文件，
+该配置记录了模块运行时必要的默认配置。  
+若打包时同时依赖这两个包，则生成的`jar`包中`reference.conf`文件只会保留一份。  
+运行时`akka-actor`或`slick`可能会因为缺少默认配置异常退出。
+
+使用`sbt-assembly`插件可处理构建流程中的文件冲突。  
+在`build.sbt`中添加：
+
+```scala
+assemblyMergeStrategy in assembly := {
+  case PathList("reference.c·onf") => MergeStrategy.concat //合并冲突文件内容
+}
+```
+
+若使用`IDEA`提供的打包工具，则`sbt-assembly`插件不会生效。  
+解决冲突文件的方案是在项目`resource`路径下手动创建冲突文件，手动合并来自不同包的冲突文件内容。
 
 
 
