@@ -1,12 +1,86 @@
 <!-- TOC -->
 
+- [*MSYS2* 概述](#msys2-概述)
+	- [下载与安装](#下载与安装)
+	- [配置仓库与源](#配置仓库与源)
+	- [包管理](#包管理)
+	- [设置中文 *LC*](#设置中文-lc)
 - [*Linux Subsystem* 概述](#linux-subsystem-概述)
 	- [启用 *Linux Subsystem*](#启用-linux-subsystem)
-- [*Linux Subsystem* 基本介绍](#linux-subsystem-基本介绍)
 	- [管理 *Linux Subsystem*](#管理-linux-subsystem)
-	- [与 *Cygwin/Msys* 比较](#与-cygwinmsys-比较)
+- [*Linux Subsystem* 与 *MSYS2* 比较](#linux-subsystem-与-msys2-比较)
 
 <!-- /TOC -->
+
+
+
+## *MSYS2* 概述
+`MSYS2`基于`Cygwin`，解决了`Cygwin`包升级、管理不便的问题。  
+`MSYS2`采用`ArchLinux`的`pacman`作为包管理器，能够方便、简单地升级、管理已安装的软件包。
+
+### 下载与安装
+从`http://www.msys2.org/`页面下载安装包。  
+官方页面提供了包含安装器的版本，安装完成后即可使用。
+
+`MSYS2`亦提供了免安装版本，从以下地址下载：
+
+```
+https://mirrors.ustc.edu.cn/msys2/distrib/msys2-x86_64-latest.tar.xz
+```
+
+下载完成后解压文件，将`[解压路径]/bin`目录加入`PATH`即可。
+
+### 配置仓库与源
+仓库与源的配置与`ArchLinux`类似。
+
+仓库配置文件为`/etc/pacman.conf`。  
+`MSYS2`共提供了三个仓库：
+
+- 基于`Cygwin`的`msys`仓库
+- 基于`Mingw`的`mingw32`、`mingw64`仓库
+
+软件源配置文件为`/etc/pacman.d/mirrorlist.*`，`*`对应仓库的名称，每个仓库拥有一个源配置。  
+由于`GFW`，官方源不稳定，推荐使用中科大的源，在源配置中添加：
+
+```
+Server = http://mirrors.ustc.edu.cn/msys2/REPOS/MSYS2/$arch //mirrorlist.msys
+Server = http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/i686 //mirrorlist.mingw32
+Server = http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/x86_64 //mirrorlist.mingw64
+```
+
+### 包管理
+`pacman`是移植自`ArchLinux`，操作指令与`ArchLinux`完全相同。
+
+安装一些常用的包：
+
+```
+> pacman -S nano gcc gdb grep gawk make python ruby git diffutils ctags wget whois nasm sqlite tree
+//vim、tar、python2、binutils、openssh 会作为依赖自动安装
+```
+
+安装`man`手册：
+
+```
+> pacman -S man-pages-posix //安装Unix API的文档man手册
+```
+
+删除一些用不到的默认包：
+
+```
+> pacman -Rsnc flex gawk bash-completion catgets bsdtar rebase pkgfile pax-git repman-git pcre tzcode lndir crypt bsdcpio filesystem util-linux mintty
+```
+
+`msys`仓库中的包会被安装在`/usr`目录下。  
+`mingw*`仓库中的包会被安装在`/mingw*`目录下。
+
+### 设置中文 *LC*
+`MSYS2`中默认的语言环境是`C`，需要自行设置正确的`locale`，设置方式类似于`Unix`。  
+在`Windows`的环境变量设置里加入个人环境变量，对应`MSYS2`工具会从`Windows`系统的环境变量中读取信息。
+
+添加如下环境变量：
+
+- 环境变量名称： `LC_ALL`
+- 环境变量值： `zh_CN.UTF-8`
 
 
 
@@ -20,9 +94,6 @@
 1. `启用或关闭Windows功能`中勾选`适用于Linux的Windows子系统`。
 1. 在`CMD`中输入`bash`指令，按照提示即可进入子系统安装步骤。
 
-
-
-## *Linux Subsystem* 基本介绍
 `Linux Subsystem`的安装路径为`[用户目录]/AppData/Local/Lxss`路径下。  
 在`Linux Subsystem`中，`Windows`下的分区会被挂载到`/mnt`路径下。
 
@@ -34,10 +105,12 @@
 - `lxrun /update` 更新子系统的包索引
 - `lxrun /setdefaultuser` 配置子系统用户
 
-### 与 *Cygwin/Msys* 比较
+
+
+## *Linux Subsystem* 与 *MSYS2* 比较
 `Linux Subsystem`与`Msys`等有着本质区别：
 
-- `Msys`是传统的`Unix`工具链的`Windows`版本移植，工具均为`Windows`二进制格式(`PE32/PE32+`)的程序。
+- `MSYS2`是传统的`Unix`工具链的`Windows`版本移植，工具均为`Windows`二进制格式(`PE32/PE32+`)的程序。
 - `Linux Subsystem`是运行在`Windows`内核上的完整`Linux`子系统，软件包均为原生`Linux`二进制格式(`ELF`)程序。
 
 `Linux Subsystem`优劣
@@ -53,13 +126,14 @@
 	`Linux Subsystem`环境与`Windows`环境相互独立存在，几乎与宿主的`Windows`系统不存在任何交互。  
 	`Linux Subsystem`下的`Unix`工具如同`Linux`原生程序一样区分大小写、不支持`Windows`格式的路径。
 
-`Msys`优劣
+`Msys2`优劣
 
 - 优势：
 
-	`Msys`将传统`Unix`工具直接编译为`Windows PE32/PE32+`可执行格式，可直接在`CMD`中调用。  
-	`Cygwin/Msys`移植的`Unix`工具能够直接支持`Windows`格式的路径，与现有的`Windows`环境无缝交互。
+	`MSYS2`将传统`Unix`工具直接编译为`Windows PE32/PE32+`可执行格式，可直接在`CMD`中调用。  
+	`MSYS2`移植的`Unix`工具能够直接支持`Windows`格式的路径，与现有的`Windows`环境无缝交互。  
+	`MSYS2`环境全在一个目录中，可直接拷贝到其它机器中使用，无需重复配置，开箱即用。
 
 - 劣势：
 
-	`Msys/Cygwin`源中移植到`Windows`平台的`Unix`工具数目有限。
+	`MSYS2`源中移植到`Windows`平台的`Unix`工具数目有限。
