@@ -1,3 +1,32 @@
+<!-- TOC -->
+
+- [安装和配置 *Django*](#安装和配置-django)
+	- [创建项目](#创建项目)
+	- [创建应用](#创建应用)
+	- [运行项目](#运行项目)
+	- [在 *IntelliJ IDEA* 中开发 *Django* 项目](#在-intellij-idea-中开发-django-项目)
+- [ORM](#orm)
+	- [配置数据库连接](#配置数据库连接)
+	- [定义模型](#定义模型)
+	- [数据库操作](#数据库操作)
+- [视图层](#视图层)
+	- [编写视图](#编写视图)
+	- [限制 *HTTP* 请求](#限制-http-请求)
+	- [使用 *Http404* 异常](#使用-http404-异常)
+	- [路由映射](#路由映射)
+	- [字段传递](#字段传递)
+- [模版层](#模版层)
+	- [模版配置](#模版配置)
+	- [模版语法](#模版语法)
+	- [模板传值](#模板传值)
+- [*Session*](#session)
+	- [配置 *Session*](#配置-session)
+	- [使用 *Session*](#使用-session)
+
+<!-- /TOC -->
+
+
+
 ## 安装和配置 *Django*
 使用`pip`包管理器安装`Django`包：
 
@@ -249,68 +278,71 @@ class TestTable(models.Model):
 每一个模型都至少有一个管理器，通过管理器来访问、操作数据。
 默认管理器名称为`objects`，需要通过模型类访问，并且**不能**通过模型类实例访问。
 
-查询
-> 对于模型中的数据，可以通过模型中的**管理器**来获取**查询集**，从查询集中获取数据库中的数据。
->
-> 查询的基本语法如下：
->
->	```py
->	模型类名.objects.all()					# 获取包含所有对象的查询集
->	模型类名.objects.filter(**kwargs)		# 获取一个满足参数的查询集
->	模型类名.objects.exclude(**kwargs)		# 获取一个不满足参数的查询集
->	模型类名.objects.order_by(*field_names)	# 获取以指定字段为参数排序的结果集
->	模型类名.objects.get(**kwargs)			# 获取一个单一的查询对象(单行记录)
->	```
->
-> 查询集的类型为`QuerySet`，支持索引访问，并可以对其执行**切片**操作。
->
-> django中的模型查询操作(`filter()、exclude()`等)具有以下特性：
->
->	- 查询函数返回的结果依然是查询集，因此可以连续调用查询函数，进行**链式过滤**。
->	- 每次调用查询函数得到的查询集都是**独立**的，与之前的查询集**无关**。
->	- 查询集是**惰性执行**的，只有在需要求值时，查询才会被真正的执行。
->
-> 对于查询集，可以进行遍历操作，以前面的`TestTable`表为例，打印出表中的所有数据：
->
->	```py
->	for object in TestTable.objects.all():
->		print("Index: " + object.index + " Name: " + object.name)
->	```
+- 查询
 
-插入
-> 向数据库中插入数据，主要有两种方式：
->
->	- 使用管理器/查询集中的`create()`成员方法。
->	- 构建带有新数据的模型类实例，之后调用`save()`成员方法。
->
-> 以前面的`TestTable`表为例，添加记录：
->
->	```py
->	# 使用create()方法
->	# 添加一行字段index为100，字段name为"TestInsert1"的记录
->	TestTable.objects.create(index = 100, name = 'TestInsert1')
->
->	# 使用save()方法
->	# 添加一行字段index为200，字段name为"TestInsert2"的记录
->	insertItem = TestTable(index = 200, name = 'TestInsert2')
->	insertItem.save()
->	```
+	对于模型中的数据，可以通过模型中的**管理器**来获取**查询集**，从查询集中获取数据库中的数据。
 
-修改
-> 修改已有的字段需要以下步骤：
->
->	1. 通过管理器的`get()`成员方法获取一行记录。
->	1. 再访问成员字段修改为需要的内容。
->	1. 执行`save()`方法保存修改。
->
-> 以前面的`TestTable`表为例，修改已有记录：
->
->	```py
->	# 修改index为100的记录，将其name字段修改为"TestAlter"
->	alterItem = TestTable.objects.get(index = 0)
->	alterItem.name = 'TestAlter'
->	alterItem.save()
->	```
+	查询的基本语法如下：
+
+	```py
+	模型类名.objects.all()					# 获取包含所有对象的查询集
+	模型类名.objects.filter(**kwargs)		# 获取一个满足参数的查询集
+	模型类名.objects.exclude(**kwargs)		# 获取一个不满足参数的查询集
+	模型类名.objects.order_by(*field_names)	# 获取以指定字段为参数排序的结果集
+	模型类名.objects.get(**kwargs)			# 获取一个单一的查询对象(单行记录)
+	```
+
+	查询集的类型为`QuerySet`，支持索引访问，并可以对其执行**切片**操作。
+
+	django中的模型查询操作(`filter()、exclude()`等)具有以下特性：
+
+	- 查询函数返回的结果依然是查询集，因此可以连续调用查询函数，进行**链式过滤**。
+	- 每次调用查询函数得到的查询集都是**独立**的，与之前的查询集**无关**。
+	- 查询集是**惰性执行**的，只有在需要求值时，查询才会被真正的执行。
+
+	对于查询集，可以进行遍历操作，以前面的`TestTable`表为例，打印出表中的所有数据：
+
+	```py
+	for object in TestTable.objects.all():
+		print("Index: " + object.index + " Name: " + object.name)
+	```
+
+- 插入
+
+	向数据库中插入数据，主要有两种方式：
+
+	- 使用管理器/查询集中的`create()`成员方法。
+	- 构建带有新数据的模型类实例，之后调用`save()`成员方法。
+
+	以前面的`TestTable`表为例，添加记录：
+
+	```py
+	# 使用create()方法
+	# 添加一行字段index为100，字段name为"TestInsert1"的记录
+	TestTable.objects.create(index = 100, name = 'TestInsert1')
+
+	# 使用save()方法
+	# 添加一行字段index为200，字段name为"TestInsert2"的记录
+	insertItem = TestTable(index = 200, name = 'TestInsert2')
+	insertItem.save()
+	```
+
+- 修改
+
+	修改已有的字段需要以下步骤：
+
+	1. 通过管理器的`get()`成员方法获取一行记录。
+	1. 再访问成员字段修改为需要的内容。
+	1. 执行`save()`方法保存修改。
+
+	以前面的`TestTable`表为例，修改已有记录：
+
+	```py
+	# 修改index为100的记录，将其name字段修改为"TestAlter"
+	alterItem = TestTable.objects.get(index = 0)
+	alterItem.name = 'TestAlter'
+	alterItem.save()
+	```
 
 
 
