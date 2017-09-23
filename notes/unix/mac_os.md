@@ -15,6 +15,7 @@
 	- [*Homebrew* 基本特性](#homebrew-基本特性)
 	- [*Homebrew* 安装](#homebrew-安装)
 	- [*Homebrew* 基本指令](#homebrew-基本指令)
+	- [*Homebrew Taps*](#homebrew-taps)
 	- [*Homebrew Cask*](#homebrew-cask)
 	- [使用 *Homebrew* 管理服务](#使用-homebrew-管理服务)
 	- [安装 *mysql/mariadb*](#安装-mysqlmariadb)
@@ -30,7 +31,7 @@
 	- [更改默认应用程序](#更改默认应用程序)
 	- [在 *BootCamp* 安装的 *Windows* 系统中调整了分区，重启后 *Mac分区* 在启动页中消失](#在-bootcamp-安装的-windows-系统中调整了分区重启后-mac分区-在启动页中消失)
 	- [使用默认 *bootloader* 引导Linux系统](#使用默认-bootloader-引导linux系统)
-	- [重置 *Launchpad* 内图标](#重置-launchpad-内图标)
+	- [重置 *Launchpad* 图标](#重置-launchpad-图标)
 	- [设置 *Xcode* 路径](#设置-xcode-路径)
 	- [使用 *GDB* 调试器](#使用-gdb-调试器)
 
@@ -254,9 +255,19 @@ $ brew install gcc --force-bottle
 $ cc-7 source_code... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
 ```
 
+### *Homebrew Taps*
+使用`brew tap/untap`相关指令管理`Homebrew`启用的仓库。  
+仓库信息位于`$(brew --repo)/Library/Taps`路径下。  
+常用指令：
+
+- `$ brew tap` 列出已启用的仓库
+- `$ brew tap [repo_name]` 启用指定名称的仓库
+- `$ brew tap --list-official` 列出官方提供的仓库
+- `$ brew untap [repo_name]` 禁用指令名称的仓库
+
 ### *Homebrew Cask*
 使用`brew cask`指令可以安装`macOS`专属的`Bundle`封装应用。  
-常用指令如下：
+常用指令：
 
 - `$ brew cask install [app_name]` 安装应用
 - `$ brew cask uninstall [app_name]` 移除某个应用
@@ -287,7 +298,7 @@ $ brew reinstall [需要更新的应用名称]
 
 ### 使用 *Homebrew* 管理服务
 对于使用`Homebrew`安装的包，若包提供了服务，则可以使用`brew services`指令进行服务状态管理。  
-基本指令如下：
+常用指令：
 
 - `$ brew services list` 列出可用服务
 - `$ brew services run [service_name]` 启动服务
@@ -299,7 +310,7 @@ $ brew reinstall [需要更新的应用名称]
 ### 安装 *mysql/mariadb*
 通过Homebrew安装的mysql/mariadb使用时不需要root权限。
 
-mariadb与mysql数据库的操作指令相同，因此mariadb与mysql软件包只能选择一个进行安装。  
+mariadb与mysql数据库的操作指令相同，因此mariadb与mysql软件包相互冲突。  
 mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 
 - `$ mysql.server start` 启动mysql服务
@@ -407,7 +418,7 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 # languagesetup
 ```
 
-登陆界面的分辨率/语言未发生变化是由于登陆界面的数据未更新，使用root权限执行`languagesetup`重设语言即会刷新登陆界面信息。
+登陆界面的分辨率/语言未发生变化是由于登陆界面的数据未更新，使用`root`权限执行`languagesetup`重设语言即会刷新登陆界面信息。
 
 ### 更改默认应用程序
 1. 使用`Command + i`查看一个文件的详细信息。
@@ -419,9 +430,9 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 
 具体解决方法：
 
-- 使用Windows的diskpart分区工具更改Type UUID。
+- 使用`Windows`自带的`diskpart`分区工具更改`Type UUID`。
 
-	在CMD下执行以下指令：
+	在`CMD`下执行以下指令：
 
 	- `> diskpart` 进入diskpart分区工具
 	- `> list disk` 列出所有磁盘
@@ -475,7 +486,7 @@ $ nano /Volumes/[启动分区名称]/System/Library/CoreServices/SystemVersion.p
 # bless --folder=/Volumes/[启动分区名称]/System/Library/CoreServices/ --file=/Volumes/[启动分区名称]/System/Library/CoreServices/boot.efi --setBoot
 ```
 
-### 重置 *Launchpad* 内图标
+### 重置 *Launchpad* 图标
 `Launchpad`中数据保存在`~/Library/Application Support/Dock`路径下，若`Launchpad`图标出现异常(如已删除软件图标依然存在)，可以尝试清空其中的数据。  
 删除该目录之后，`Launchpad`会在下次开机之后重置图标布局，恢复成默认的样式(Apple自带的软件占一页，用户自行安装的软件从第二页开始)。
 
