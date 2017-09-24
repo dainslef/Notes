@@ -22,11 +22,11 @@
 
 
 ## 安装与配置 *Stack*
-`Stack`支持各大主流平台。
+`Stack`支持各大主流平台，根据平台在页面`https://www.stackage.org/stack/`选择下载二进制包。
 
 - **Linux/Unix**系统：
 
-	使用发行版自带的包管理器安装`Stack`。
+	各类`Unix`系统可以使用对应发行版的包管理器安装`Stack`。
 
 	`Debian`系发行版
 
@@ -75,12 +75,26 @@ package-indices:
     http: http://mirrors.tuna.tsinghua.edu.cn/hackage/00-index.tar.gz
 ```
 
+在`Linux/macOS`系统下，`Stack`会将
+
 ### 配置 *GHC*
 通过`Stack`可以简便地安装`GHC`编译器。  
 使用`stack setup`指令，`Stack`会自动下载配置最新稳定版本的`GHC`编译器。
 
 ```
 $ stack setup
+```
+
+在`Linux/macOS`系统下，`GHC`编译器默认安装位置为：
+
+```
+~/.stack/programs/[平台类型]/ghc-[版本号]
+```
+
+在`Windows`系统下，`GHC`编译器默认安装位置为：
+
+```
+~\AppData\Local\Programs\stack\x86_64-windows\ghc-[版本号]
 ```
 
 在`Windows`系统下，`GHC`编译器需要依赖`MSYS2`。  

@@ -205,8 +205,18 @@ int openat(int dirfd, const char *pathname, int flags);
 int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 ```
 
-- `crate()`函数用于创建文件，`open()`函数既可用于创建文件(**flags**取`O_CREAT`)，也可用于打开文件，打开的对象也可以是**目录**。
-- 对于`create()`和`open()`函数，参数`pathname`代表文件所在路径绝对地址的字符数组首地址，参数`mode`代表创建的文件文件带有的默认权限，可以用逻辑或操作符连接以下参数：
+`creat()`函数用于创建文件；  
+`open()`函数既可用于创建文件(**flags**取`O_CREAT`)，也可用于打开文件，打开的对象也可以是**目录**。
+
+- `pathname`参数：
+
+	对于`create()`和`open()`函数，参数`pathname`指向的字符数组为文件所在路径(路径可为绝对路径或相对路径)。  
+	`dirfd`文件描述符表示的路径为**父目录**，参数`pathname`指向的字符数组为相对路径。
+
+- `mode`参数：
+
+	`mode`代表创建的文件文件带有的默认权限，可以用逻辑或操作符连接以下参数：
+
 	- `S_IRUSR` 拥有者读权限
 	- `S_IWUSR` 拥有者写权限
 	- `S_IXUSR` 拥有者执行权限
@@ -216,13 +226,21 @@ int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 	- `S_IROTH` 其它用户读权限
 	- `S_IWOTH` 其它用户写权限
 	- `S_IXOTH` 其它用户执行权限
-- `open()`函数的`flags`参数表示文件打开时的参数，参数可取**多个**，以**逻辑或**操作符连接，常用的有：
+
+- `flag`参数
+
+	`flags`参数表示文件打开时的参数，参数可取**多个**，以**逻辑或**操作符连接，常用的有：
+
 	- `O_RDONLY` 只读打开文件
 	- `O_WRONLY` 只写打开文件
 	- `O_RDWR` 读写打开文件
 	- `O_APPEND` 写入数据时在原文件的末尾追加数据，而不是清楚原有数据
 	- `O_CREAT | O_EXECL` 创建原先**不存在**的文件，若文件已经存在了，则调用**失败**
-- `openat()`函数作用与`open()`函数完全相同，但是`openat()`函数允许使用多种路径表示方式：
+
+- `openat()`函数
+
+	函数作用与`open()`函数类似，`openat()`函数允许使用多种路径表示方式：
+
 	- `dirfd`文件描述符表示的路径为父目录，而`pathname`中包含的字符串为相对路径。
 	- `dirfd`取特殊值`AT_FDCWD`，则父目录为**当前路径**。
 	- `dirfd`取值**忽略**，`pathname`参数为**绝对路径**。
@@ -305,9 +323,9 @@ struct stat {
 ### 标准输入/输出
 在Unix哲学中，秉承**一切皆文件**思想，因而，在终端中进行输入/输出与读写文件操作类似，使用`read()/write()`调用即可。
 
-**标准输入**对应的文件描述符为`0`，
-**标准输出**对应的文件描述符为`1`，
-**标准错误输出**对应的文件描述符为`2`，
+**标准输入**对应的文件描述符为`0`，  
+**标准输出**对应的文件描述符为`1`，  
+**标准错误输出**对应的文件描述符为`2`，  
 使用`read()/write()`调用对这些特殊的文件描述符进行读写操作即可实现**终端输入/输出**的效果。
 
 在头文件`unistd.h`中，分别为这3个特殊的文件描述符创建了宏定义：
@@ -1662,13 +1680,13 @@ int pthread_mutexattr_setpshared(pthread_mutexattr_t *attr, int pshared);
 int pthread_mutexattr_getpshared(const pthread_mutexattr_t *restrict attr, int *restrict pshared);
 ```
 
-通过设置`pthread_mutex_init()`函数的参数`attr`来实现**进程间互斥**。
+通过设置`pthread_mutex_init()`函数的参数`attr`来实现**进程间互斥**。  
 使用以下方式初始化`pthread_mutexattr_t`结构体。
 
 ```c
 pthread_mutexattr_t attr;
 pthread_mutexattr_init(&attr);
-pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);		//第二个参数如果取PTHREAD_PROCESS_PRIVATE则互斥量仅为进程内部所使用，这是默认情况，即pthread_mutex_init()函数的第二个参数取NULL时的情况
+pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED); //第二个参数如果取PTHREAD_PROCESS_PRIVATE则互斥量仅为进程内部所使用，这是默认情况，即pthread_mutex_init()函数的第二个参数取NULL时的情况
 ```
 
 需要注意的是，由于每个进程的地址空间是独立的，每个进程定义的变量无法被其它进程所访问。
@@ -1713,11 +1731,11 @@ int main(void)
 	shm_id = shmget(ftok(PATH, PROJECT_ID), sizeof(pthread_mutex_t), IPC_CREAT | 0600);
 	pthread_mutex_t *mutex = (pthread_mutex_t*)shmat(shm_id, NULL, 0);
 
-	pthread_mutexattr_init(&attr);				//初始化权限结构体attr
+	pthread_mutexattr_init(&attr); //初始化权限结构体attr
 	pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
 
 	if (!pthread_mutex_init(mutex, &attr))
-		printf("成功创建了互斥量！\n");		//创建了一个进程互斥的互斥量
+		printf("成功创建了互斥量！\n"); //创建了一个进程互斥的互斥量
 
 	signal(SIGQUIT, dealSignal);
 	printf("父进程启动：\n");
@@ -1774,9 +1792,9 @@ int main(void)
 
 运行结果：(文字描述)
 
-`Process_Mutex_Parent`先运行，创建互斥量并锁住，然后一直循环。
-`Process_Mutex_Child`后执行，进程阻塞在`pthread_mutex_lock()`函数上。
-在`Process_Mutex_Parent`中触发`SIGQUIT`信号，由信号处理函数释放锁，倒数计时后结束进程。
+`Process_Mutex_Parent`先运行，创建互斥量并锁住，然后一直循环。  
+`Process_Mutex_Child`后执行，进程阻塞在`pthread_mutex_lock()`函数上。  
+在`Process_Mutex_Parent`中触发`SIGQUIT`信号，由信号处理函数释放锁，倒数计时后结束进程。  
 `Process_Mutex_Child`在`Process_Mutex_Parent`释放互斥量锁之后立即加锁成功，开始循环。
 
 
@@ -1803,7 +1821,7 @@ key_t ftok(const char *pathname, int proj_id);
 - `pathname`参数为约定的路径。
 - `proj_id`参数为约定的项目编号。
 
-通过指定**路径**和**项目编号**能够得到唯一的`key`值。
+通过指定**路径**和**项目编号**能够得到唯一的`key`值。  
 函数执行成功返回生成的`key`值，执行失败返回`-1`。
 
 ### XSI IPC特点
@@ -1813,11 +1831,15 @@ key_t ftok(const char *pathname, int proj_id);
 
 查看`XSI IPC`使用`ipcs`指令：
 
-`$ ipcs`
+```
+$ ipcs
+```
 
 删除`XSI IPC`使用`ipcrm`指令：
 
-`$ ipcrm { shm | msg | sem } id`
+```
+$ ipcrm { shm | msg | sem } id
+```
 
 
 
@@ -1887,8 +1909,8 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 
 
 ## SystemV 信号量(Semaphore)
-信号量是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
-信号量用于控制进程对资源的访问，但信号量也可以用于线程。
+信号量是一种进程间通信(`IPC, Inter-Process Communication`)机制，属于三类`XSI IPC`之一。  
+信号量用于控制进程对资源的访问，但信号量也可以用于线程。  
 在进程开发中，常用的信号量函数定义在`sys/sem.h`文件中。
 
 ### 创建/获取信号量
@@ -1902,10 +1924,10 @@ int semget(key_t key, int num_sems, int sem_flags);
 - `num_sems`参数为需要的信号量数目，一般为`1`。
 - `sem_flags`参数为信号量标志位，多个标志通过逻辑或操作符`|`相连。
 
-函数调用成功时返回信号量描述符，失败时返回`-1`。
-`sem_flags`参数上常用的信号标识有`IPC_CREAT`，用于**创建**新的信号量，但如果**key值**对应的信号量已被创建，并不会调用失败，而是**忽略**该标志。
-`IPC_CREAT | IPC_EXCL`标识，用于创建一个**新的**、**唯一**的信号量，如果**key值**对应的信号量已被创建，则调用**失败**。
-使用`IPC_CREAT | IPC_EXCL`标识需要注意，使用此种方式创建信号量在使用完毕后需要调用`semctl()`函数释放，否则下次运行同样的程序会由于信号量已经存在(没被释放)而造成调用失败。
+函数调用成功时返回信号量描述符，失败时返回`-1`。  
+`sem_flags`参数上常用的信号标识有`IPC_CREAT`，用于**创建**新的信号量，但如果**key值**对应的信号量已被创建，并不会调用失败，而是**忽略**该标志。  
+`IPC_CREAT | IPC_EXCL`标识，用于创建一个**新的**、**唯一**的信号量，如果**key值**对应的信号量已被创建，则调用**失败**。  
+使用`IPC_CREAT | IPC_EXCL`标识需要注意，使用此种方式创建信号量在使用完毕后需要调用`semctl()`函数释放，否则下次运行同样的程序会由于信号量已经存在(没被释放)而造成调用失败。  
 `IPC_CRAET | 0666`标识，用于创建有**读写权限**的信号量。
 
 ### 改变信号量的值
@@ -1922,7 +1944,8 @@ int semop(int sem_id, struct sembuf *sem_ops, size_t num_sem_ops);
 `sembuf`结构体的定义为：
 
 ```c
-struct sembuf {
+struct sembuf
+{
 	unsigned short sem_num; //信号量的编号，在没有使用多个信号量的情况下，一般为0
 	short sem_op; //信号量操作，一般可以取-1或是+1，分别对应P(请求)、V(释放)操作
 	short sem_flg; //操作标志符，一般取SEM_UNDO
@@ -1942,16 +1965,17 @@ int semctl(int sem_id, int sem_num, int command, ...);
 - `sem_num`参数为信号量编号，一般没有多个信号量时取`0`。
 - `command`参数为要执行的操作的标志位。
 
-`command`参数可以有很多不同的值，常用的有`IPC_RMID`，用于删除一个信号量(如果信号创建方式是`IPC_CREAT | IPC_EXCL`，则务必要在程序结束时删除信号量)。
+`command`参数可以有很多不同的值，常用的有`IPC_RMID`，用于删除一个信号量(如果信号创建方式是`IPC_CREAT | IPC_EXCL`，则务必要在程序结束时删除信号量)。  
 `command`设置为`SETVAL`，则用于**初始化**一个信号量，此时函数需要有第四个参数，联合体`union semun`，通过设置`semun`的`val`成员的值来初始化信号量。
 
 `semun`联合体的定义为：
 
 ```c
-union semun {
-	int     val;            /* value for SETVAL */
-	struct  semid_ds *buf;  /* buffer for IPC_STAT & IPC_SET */
-	u_short *array;         /* array for GETALL & SETALL */
+union semun
+{
+	int val; /* value for SETVAL */
+	struct  semid_ds *buf; /* buffer for IPC_STAT & IPC_SET */
+	u_short *array; /* array for GETALL & SETALL */
 };
 ```
 
@@ -1976,7 +2000,7 @@ struct sembuf sem_ok;
 
 void deal_signal(int sig)
 {
-	semop(sem_id, &sem_ok, 1);		//将信号量+1,释放资源
+	semop(sem_id, &sem_ok, 1); //将信号量+1,释放资源
 	_exit(0);
 }
 
@@ -2001,7 +2025,7 @@ int main(void)
 	semctl(sem_id, 0, SETVAL, 1); //初始化信号量时可以不自定义联合体直接赋值
 	semop(sem_id, &sem_wait, 1); //信号量-1，锁住资源
 
-	while (1)		//由于信号量被锁，因此A在执行此段代码时，B在等待
+	while (1) //由于信号量被锁，因此A在执行此段代码时，B在等待
 	{
 		sleep(3);
 		printf("正在执行\n");
@@ -2073,7 +2097,7 @@ int main(void)
 消息队列是一种进程间通信(IPC, Inter-Process Communication)机制，属于三类`XSI IPC`之一。
 以下描述引用自`<<Unix网络编程 卷2>>`：
 
-消息队列是一个**消息链表**，有足够**写权限**的线程可以向消息队列中添加消息，有足够**读权限**的线程可以从消息队列中获取消息。
+消息队列是一个**消息链表**，有足够**写权限**的线程可以向消息队列中添加消息，有足够**读权限**的线程可以从消息队列中获取消息。  
 消息队列具有**随内核的持续性**。
 
 消息队列相关函数定义在`sys/msg.h`中。
@@ -2092,7 +2116,7 @@ int msgget(key_t key, int msgflg);
 
 `key`参数的取值可以为宏`IPC_PRIVATE`(实际值为`0`)，此时该消息队列为**私有**，用于`fork()`调用之后的**父子进程**间通信(打开的消息队列描述符在`fork()`之后依然存在)。
 
-`msgflg`取`IPC_CREAT`创建一个消息队列(消息队列已存在则忽略此标志位)，取`IPC_CREAT | IPC_EXCL`创建一个新的消息队列(消息队列已存在则函数执行失败)。
+`msgflg`取`IPC_CREAT`创建一个消息队列(消息队列已存在则忽略此标志位)，取`IPC_CREAT | IPC_EXCL`创建一个新的消息队列(消息队列已存在则函数执行失败)。  
 创建消息队列时，若需要对消息队列进行**读写操作**需要在`msgflg`参数后追加读写权限如`0600`(等价于`S_IRUSR | S_IWUSR`)，但打开消息队列时不需要设定(打开的消息队列由创建者决定访问权限)。
 
 ### 向消息队列中添加消息
@@ -2112,14 +2136,15 @@ int msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg);
 发送的消息样例结构如下：
 
 ```c
-struct mymsg {
-	long mtype;       /* Message type. */
-	char mtext[1];    /* Message text. */
+struct mymsg
+{
+	long mtype; /* Message type. */
+	char mtext[1]; /* Message text. */
 }
 ```
 
-消息结构中的首个成员需要为`long`型，用于指示消息的**类型**(之后的`msgrcv()`函数会用到)，之后才为消息的数据区。
-`msgsz`参数传入的消息大小**不包括**消息类型的大小。
+消息结构中的首个成员需要为`long`型，用于指示消息的**类型**(之后的`msgrcv()`函数会用到)，之后才为消息的数据区。  
+`msgsz`参数传入的消息大小**不包括**消息类型的大小。  
 在实际开发中，消息数据不一定是简单的字符数组，可以是**任意类型**(包括**结构体**)。
 
 ### 从消息队列中获取消息
@@ -2159,24 +2184,24 @@ int msgctl(int msqid, int cmd, struct msqid_ds *buf);
    The type `struct msg' is opaque.  */
 struct msqid_ds
 {
-	struct ipc_perm msg_perm;	/* structure describing operation permission */
-	__time_t msg_stime;		/* time of last msgsnd command */
+	struct ipc_perm msg_perm; /* structure describing operation permission */
+	__time_t msg_stime; /* time of last msgsnd command */
 #ifndef __x86_64__
 	unsigned long int __glibc_reserved1;
 #endif
-	__time_t msg_rtime;		/* time of last msgrcv command */
+	__time_t msg_rtime; /* time of last msgrcv command */
 #ifndef __x86_64__
 	unsigned long int __glibc_reserved2;
 #endif
-	__time_t msg_ctime;		/* time of last change */
+	__time_t msg_ctime; /* time of last change */
 #ifndef __x86_64__
 	unsigned long int __glibc_reserved3;
 #endif
 	__syscall_ulong_t __msg_cbytes; /* current number of bytes on queue */
-	msgqnum_t msg_qnum;		/* number of messages currently on queue */
-	msglen_t msg_qbytes;	/* max number of bytes allowed on queue */
-	__pid_t msg_lspid;		/* pid of last msgsnd() */
-	__pid_t msg_lrpid;		/* pid of last msgrcv() */
+	msgqnum_t msg_qnum; /* number of messages currently on queue */
+	msglen_t msg_qbytes; /* max number of bytes allowed on queue */
+	__pid_t msg_lspid; /* pid of last msgsnd() */
+	__pid_t msg_lrpid; /* pid of last msgrcv() */
 	__syscall_ulong_t __glibc_reserved4;
 	__syscall_ulong_t __glibc_reserved5;
 };
@@ -2188,21 +2213,21 @@ struct msqid_ds
 /* Data structure used to pass permission information to IPC operations.  */
 struct ipc_perm
 {
-	__key_t __key;			/* Key.  */
-	__uid_t uid;			/* Owner's user ID.  */
-	__gid_t gid;			/* Owner's group ID.  */
-	__uid_t cuid;			/* Creator's user ID.  */
-	__gid_t cgid;			/* Creator's group ID.  */
-	unsigned short int mode;		/* Read/write permission.  */
+	__key_t __key; /* Key.  */
+	__uid_t uid; /* Owner's user ID.  */
+	__gid_t gid; /* Owner's group ID.  */
+	__uid_t cuid; /* Creator's user ID.  */
+	__gid_t cgid; /* Creator's group ID.  */
+	unsigned short int mode; /* Read/write permission.  */
 	unsigned short int __pad1;
-	unsigned short int __seq;		/* Sequence number.  */
+	unsigned short int __seq; /* Sequence number.  */
 	unsigned short int __pad2;
 	__syscall_ulong_t __glibc_reserved1;
 	__syscall_ulong_t __glibc_reserved2;
 };
 ```
 
-`msqid_ds`结构中的`msg_perm.uid`、`msg_perm.gid`、`msg_perm.mode`以及`msg_qbytes`成员可以**手动指定**。
+`msqid_ds`结构中的`msg_perm.uid`、`msg_perm.gid`、`msg_perm.mode`以及`msg_qbytes`成员可以**手动指定**。  
 `msgctl`函数的`IPC_SET`操作只有下列两种进程可以执行:
 
 0. 进程执行用户的用户ID等于`msg_perm.cuid`或`msg_per.uid`。
@@ -2377,7 +2402,7 @@ msgrcv: No message of desired type
 
 
 ## POSIX 消息队列
-POSIX消息队列相关函数定义在`mqueue.h`头文件中。
+POSIX消息队列相关函数定义在`mqueue.h`头文件中。  
 使用POSIX消息队列，编译时需要链接`librt`库。
 
 POSIX消息队列与SystemV消息队列的差异：
@@ -2432,11 +2457,12 @@ int mq_setattr(mqd_t mqdes, const struct mq_attr *newattr, struct mq_attr *oldat
 消息属性结构`mq_attr`在Linux中的定义如下：
 
 ```c
-struct mq_attr {
-	long mq_flags;       /* Flags: 0 or O_NONBLOCK */
-	long mq_maxmsg;      /* Max. # of messages on queue (最大允许的消息数量) */
-	long mq_msgsize;     /* Max. message size (bytes) (消息长度最大大小) */
-	long mq_curmsgs;     /* # of messages currently in queue */
+struct mq_attr
+{
+	long mq_flags; /* Flags: 0 or O_NONBLOCK */
+	long mq_maxmsg; /* Max. # of messages on queue (最大允许的消息数量) */
+	long mq_msgsize; /* Max. message size (bytes) (消息长度最大大小) */
+	long mq_curmsgs; /* # of messages currently in queue */
 };
 ```
 
@@ -2463,7 +2489,7 @@ printf("MQ_RPIO_MAX: %ld\n", sysconf(_SC_MQ_PRIO_MAX));
 ```c
 int mq_send(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned int msg_prio);
 int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
-	unsigned int msg_prio, const struct timespec *abs_timeout);
+		unsigned int msg_prio, const struct timespec *abs_timeout);
 ```
 
 - `mqdes`参数为消息队列描述符。
@@ -2575,7 +2601,7 @@ int main(int argc, char** argv)
 	if (mq_getattr(mqdes, &attr) == -1)
 		perror("mq_getattr");
 
-	attr.mq_flags = O_NONBLOCK;			//设置消息队列非阻塞
+	attr.mq_flags = O_NONBLOCK; //设置消息队列非阻塞
 
 	if (mq_setattr(mqdes, &attr, NULL) == -1)
 		perror("mq_setattr");
@@ -2634,7 +2660,7 @@ int main(int argc, char** argv)
 	if (mq_getattr(mqdes, &attr) == -1)
 		perror("mq_getattr");
 
-	attr.mq_flags = O_NONBLOCK;			//设置消息队列非阻塞
+	attr.mq_flags = O_NONBLOCK; //设置消息队列非阻塞
 
 	if (mq_setattr(mqdes, &attr, NULL) == -1)
 		perror("mq_setattr");
@@ -2777,7 +2803,7 @@ while(1)
 	//初始化并设置描述符集合，每次调用select()前都需要类似操作
 	FD_ZERO(&readset);
 	FD_SET(fd[0], &readset);
-	...		//设置需要监视的描述符
+	... //设置需要监视的描述符
 
 	//timeval结构体在每次select()调用会被修改，需要重复设定超时结构体
 	timeout.tv_sec = /* seconds */;
@@ -2816,8 +2842,8 @@ while(1)
 - 对于**普通文件**描述符，无论**读、写、异常状态**，都是**始终准备好**的，因此在监控的描述符中如果存在**普通文件**，无论`timeout`参数取何值，`select()`都将**立即返回**。
 
 ### *pselect()* 调用
-`pselect()`函数由**POSIX**定义，是`select()`的完善版本，在早期的Unix中并不存在。
-`pselect()`监听描述符的功能以及使用方式与`select()`相同。
+`pselect()`函数由**POSIX**定义，是`select()`的完善版本，在早期的Unix中并不存在。  
+`pselect()`监听描述符的功能以及使用方式与`select()`相同。  
 `pselect()`在`select()`基础上添加了等待期间**阻塞**信号的功能。
 
 `pselect()`函数定义如下所示：
@@ -2832,14 +2858,17 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_se
 
 信号集合参数`sigmask`使用前需要两个步骤：
 
-0. 首先使用`sigemptyset()`函数清空信号集合：
-```c
-int sigemptyset(sigset_t *set);
-```
-0. 之后使用`sigaddset()`向清空后的信号集合中添加信号：
-```c
-int sigaddset(sigset_t *set, int signo);
-```
+1. 首先使用`sigemptyset()`函数清空信号集合：
+
+	```c
+	int sigemptyset(sigset_t *set);
+	```
+
+1. 之后使用`sigaddset()`向清空后的信号集合中添加信号：
+
+	```c
+	int sigaddset(sigset_t *set, int signo);
+	```
 
 信号集合只需要设置一次，就可以在之后的`pselect()`中一直使用。
 
@@ -2898,7 +2927,7 @@ int main(void)
 }
 ```
 
-在上述代码中，`timespec`结构设置了**5秒**的超时等待时间，屏蔽信号集中加入了`SIGINT`和`SIGQUIT`两个信号，在`pselect()`启动后的超时等待时间中，发送这两个信号并不会立即得到响应，而是在**5秒**的超时时间过后，`deal_signal`才会触发。
+在上述代码中，`timespec`结构设置了**5秒**的超时等待时间，屏蔽信号集中加入了`SIGINT`和`SIGQUIT`两个信号，在`pselect()`启动后的超时等待时间中，发送这两个信号并不会立即得到响应，而是在**5秒**的超时时间过后，`deal_signal`才会触发。  
 在等待期间，无论发送多少次`SIGINT`和`SIGQUIT`信号，`SIGINT`和`SIGQUIT`的信号处理函数只会**分别触发**一次。
 
 在**多线程**环境下，只有`pselect()`所处的线程是信号处理线程时，`pselect()`才能起到阻塞信号的效果，在其它线程中，即使使用`pselect()`并设置屏蔽信号，信号处理函数依然会**立即**触发。
@@ -3112,7 +3141,7 @@ while (1)
 int epfd = epoll_create(size);
 
 struct epoll_event event;
-event.events = EPOLLET | /* events type */;			//默认为LT模式，需要显式使用EPOLLET标志才能设置为ET模式
+event.events = EPOLLET | /* events type */; //默认为LT模式，需要显式使用EPOLLET标志才能设置为ET模式
 event.data = /* data */;
 
 if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
