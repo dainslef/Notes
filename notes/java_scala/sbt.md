@@ -4,7 +4,8 @@
 - [安装与配置](#安装与配置)
 - [启动与使用](#启动与使用)
 	- [使用 *Giter8* 模版](#使用-giter8-模版)
-- [项目基本结构](#项目基本结构)
+	- [关于 *No Scala version specified or detected* 错误](#关于-no-scala-version-specified-or-detected-错误)
+- [项目结构](#项目结构)
 	- [默认路径](#默认路径)
 - [构建配置](#构建配置)
 	- [自定义源码路径](#自定义源码路径)
@@ -53,7 +54,7 @@
 终端会输入如下信息：
 
 ```
-[info] Set current project to sbt (in build file:/home/dainslef/Downloads/SBT/)
+[info] Set current project to sbt (in build file:xxx...)
 >
 ```
 
@@ -91,9 +92,23 @@ $ sbt new [Giter8模版名称]
 - `akka/akka-scala-seed.g8` Akka项目模版
 - `playframework/play-scala-seed.g8` PlayFramework项目模版
 
+### 关于 *No Scala version specified or detected* 错误
+当`sbt`版本升级后，若`~/.ivy2/cache`路径下存在旧版`sbt`的`jar`包，则在终端执行`sbt`指令时，会出现以下错误输出：
+
+```
+Error during sbt execution: No Scala version specified or detected
+```
+
+出现错误的原因是存在旧版本的`sbt`包缓存，解决方案是移除`~/.sbt`和`~/.ivy2/cache/org.scala-sbt`目录。  
+执行以下指令：
+
+```sh
+$ rm ~/.sbt ~/.ivy2/cache/org.scala-sbt
+```
 
 
-## 项目基本结构
+
+## 项目结构
 `sbt`项目结构与`Maven`项目类似。一个基本的sbt项目具有以下路径结构：
 
 ```
