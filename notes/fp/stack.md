@@ -1,9 +1,12 @@
 <!-- TOC -->
 
 - [*Stack* 简介](#stack-简介)
-- [安装与配置 *Stack*](#安装与配置-stack)
+- [安装与配置](#安装与配置)
 	- [配置 *Mirrors*](#配置-mirrors)
 	- [配置 *GHC*](#配置-ghc)
+- [启动与使用](#启动与使用)
+	- [创建项目](#创建项目)
+- [项目结构](#项目结构)
 
 <!-- /TOC -->
 
@@ -21,7 +24,7 @@
 
 
 
-## 安装与配置 *Stack*
+## 安装与配置
 `Stack`支持各大主流平台，根据平台在页面`https://www.stackage.org/stack/`选择下载二进制包。
 
 - **Linux/Unix**系统：
@@ -105,3 +108,58 @@ $ stack setup
 ```
 > stack setup --skip-msys
 ```
+
+
+
+## 启动与使用
+直接执行`stack`指令会输出帮助信息。  
+`stack`常见指令如下：
+
+- `build` 构建项目
+- `ghci` 进入交互式`GHC`解释器
+- `ghc` 调用`GHC`编译器
+- `list-dependencies` 列出项目依赖
+- `new` 新建模版项目
+- `templates` 查看可用的模版
+- `install` 主动安装包
+- `exec` 执行程序
+- `test` 执行测试
+
+### 创建项目
+使用`stack new`创建项目：
+
+```
+$ stack new [项目名称] [模版名称]
+```
+
+项目名称中**不能**带有**下划线**。  
+可使用`stack templates`指令列出所有可用的模版。  
+**模版名称**可省略，省略模版参数时将使用默认模版`new-template`。
+
+
+
+## 项目结构
+`Stack`项目默认目录结构如下：
+
+```
+项目名称
+
+├── README.md # 项目说明
+├── LICENSE # 项目许可证
+├── 项目名称.cabal # 项目构建定义
+├── Setup.hs
+├── stack.yaml
+├── app # main 模块
+│    ├── Xxx.hs
+│    └── ...
+├── src # 库模块源码
+│    ├── Xxx.hs
+│    └── ...
+└── .stack-work # 项目构建产生的文件
+     ├── dist
+     │    └── ...
+     └── install
+          └── ...
+```
+
+新创建的项目没有`.stack-work`，项目构建时会自动生成该目录。
