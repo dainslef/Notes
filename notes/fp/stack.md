@@ -7,6 +7,8 @@
 - [启动与使用](#启动与使用)
 	- [创建项目](#创建项目)
 - [项目结构](#项目结构)
+- [构建配置](#构建配置)
+	- [模块定义](#模块定义)
 
 <!-- /TOC -->
 
@@ -124,6 +126,7 @@ $ stack setup
 - `install` 主动安装包
 - `exec` 执行程序
 - `test` 执行测试
+- `clean` 清理构建缓存
 
 ### 创建项目
 使用`stack new`创建项目：
@@ -163,3 +166,72 @@ $ stack new [项目名称] [模版名称]
 ```
 
 新创建的项目没有`.stack-work`，项目构建时会自动生成该目录。
+
+
+
+## 构建配置
+`Stack`项目根目录下的`项目名称.cabal`文件定义了项目的构建配置。  
+基本的配置结构如下所示：
+
+```yaml
+name:                项目名称
+version:             版本号
+homepage:            项目主页
+license:             授权协议
+license-file:        LICENSE
+author:              Author name here
+maintainer:          example@example.com
+copyright:           2017 Author name here
+category:            Web
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  ... -- 模块相关定义
+
+executable 可执行文件名称
+  hs-source-dirs:      主模块源码路径
+  main-is:             主模块对应源码文件
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , 依赖项 ...
+  default-language:    Haskell2010
+
+test-suite 测试模块名称
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             测试源码文件
+  build-depends:       base
+                     , 测试依赖 ...
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: 仓库地址
+```
+
+常用配置项如下：
+
+- `hs-source-dirs` 定义`Haskell`的源码路径
+- `build-depends` 定义依赖模块，可使用比较运算符控制依赖模块的版本
+- `default-language` 设定使用的语言标准
+- `ghc-options` 设置`GHC`的编译选项
+
+### 模块定义
+`Haskell`中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。
+
+`library`段定义了导出模块的信息。  
+模块源码路径添加在`hs-source-dirs`配置项中，模块和模块路径需要使用大写字母开头。  
+需要导出的模块写在`exposed-modules`配置项中，未写在改配置项中的模块不能被外部和主模块调用。
+
+如下所示：
+
+```yaml
+library
+  hs-source-dirs:      库源码路径
+  exposed-modules:     导出模块
+  build-depends:       base >= 4.7 && < 5
+  default-language:    Haskell2010
+```
