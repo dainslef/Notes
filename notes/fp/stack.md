@@ -9,6 +9,7 @@
 - [项目结构](#项目结构)
 - [构建配置](#构建配置)
 	- [模块定义](#模块定义)
+	- [可执行文件定义](#可执行文件定义)
 
 <!-- /TOC -->
 
@@ -190,13 +191,8 @@ cabal-version:       >=1.10
 library
   ... -- 模块相关定义
 
-executable 可执行文件名称
-  hs-source-dirs:      主模块源码路径
-  main-is:             主模块对应源码文件
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
-                     , 依赖项 ...
-  default-language:    Haskell2010
+executable ...
+  ... -- 可执行文件相关定义
 
 test-suite 测试模块名称
   type:                exitcode-stdio-1.0
@@ -222,11 +218,11 @@ source-repository head
 ### 模块定义
 `Haskell`中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。
 
-`library`段定义了导出模块的信息。  
+`library`配置段定义了导出模块的信息。  
 模块源码路径添加在`hs-source-dirs`配置项中，模块和模块路径需要使用大写字母开头。  
 需要导出的模块写在`exposed-modules`配置项中，未写在改配置项中的模块不能被外部和主模块调用。
 
-如下所示：
+模块定义示例：
 
 ```yaml
 library
@@ -235,3 +231,25 @@ library
   build-depends:       base >= 4.7 && < 5
   default-language:    Haskell2010
 ```
+
+### 可执行文件定义
+`executable`配置段定义了构建生成的可执行程序。
+
+`executable`后添加生成可执行文件的名称，默认的名称为`[项目名称]-exe`，名称可以自行修改。  
+一个项目可以生成多个可执行文件(定义多个`executable`配置段)。  
+输出的可执行文件需要在`main-is`配置项中指明主模块所处的源码文件。
+
+可执行文件定义示例：
+
+```yaml
+executable 可执行文件名称
+  hs-source-dirs:      主模块源码路径
+  main-is:             主模块对应源码文件
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , 依赖项 ...
+  default-language:    Haskell2010
+```
+
+使用`stack build`指令后，会在`.stack-work/install/...`路径下生成可执行文件。  
+使用`stack exec [执行文件名称]`执行生成的文件。
