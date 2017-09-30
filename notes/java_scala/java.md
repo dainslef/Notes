@@ -49,9 +49,11 @@
 	- [设置编辑器自动换行](#设置编辑器自动换行)
 - [*IntelliJ IDEA* 使用注记](#intellij-idea-使用注记)
 	- [设置显示行号和不可见空白](#设置显示行号和不可见空白)
+	- [设置列边界提示](#设置列边界提示)
 	- [设置缩进](#设置缩进)
 	- [其它常用选项](#其它常用选项)
 	- [项目打包](#项目打包)
+	- [多模块项目](#多模块项目)
 - [常见问题记录](#常见问题记录)
 	- [*String.split()* 方法](#stringsplit-方法)
 	- [*String.format()* 方法](#stringformat-方法)
@@ -1581,7 +1583,7 @@ public Object invoke(Object var1, Object... var2)
 
 与`Constructor`类似，如果获取到的`Method`对象代表的是非公有成员方法，则需要使用`setAccessible()`方法设置属性为可访问才能正常调用。
 
-实例代码如下，访问一个全部成员**私有**的类：
+访问一个全部成员**私有**的类，如下所示：
 
 ```java
 package com.dainslef;
@@ -2110,7 +2112,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 
 ## *IntelliJ IDEA* 使用注记
-`IntelliJ IDEA`相比`Eclipse`而言，有着更精美的UI，且对`Scala`、`Golang`等冷门语言有着更好的支持。
+`IntelliJ IDEA`相比`Eclipse`而言，有着更精美的UI，更智能的代码提示，且对`Scala`、`Golang`等冷门语言有着更好的支持。
 
 ### 设置显示行号和不可见空白
 选择选项：
@@ -2119,6 +2121,14 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 - 勾选`Show whitespaces(显示空白)`和`Show line numbers(显示行号)`选项。
 - 勾选`Show menthod separators`则会在方法定义之间出现横线做为分隔符。
+
+### 设置列边界提示
+列宽边界线用于提示代码单行长度是否超过界限。  
+选择选项：
+
+`File` => `Settings` => `Editor` => `Code Style` => `Default Options` => `Right margin (columns)`
+
+默认列边界线为`120`列，而大部分编码规范要求一行不能超过`80/100`列。
 
 ### 设置缩进
 默认情况下，IDEA使用的是**空格**做为缩进，如果需要使用**tab缩进**，则按以下菜单路径设置：
@@ -2160,6 +2170,55 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 `File` => `Project Structure` => `Project Settings` => `Artifacts`
 
 选择界面中的`+`符号添加打包配置，根据项目类型打包成不同的目标格式。
+
+### 多模块项目
+`Idea`中的`Project`类似于`Eclipse`中的`WorkSpace`，`Idea`中的`Module`类似于`Eclipse`中的`Project`。  
+当一个项目中需要包含多个子项目时，可以创建`Module`。  
+每个`Module`管理独立的源码，`Module`拥有独立的依赖管理，并可以依赖其它`Module`。
+
+创建新的`Module`时，新的源码目录会被默认添加至主模块中，会导致修改子模块的依赖关系时出现错误：
+
+```
+Module "xxx" must not contain source root "xxx". The root already belongs to module "xxx".
+```
+
+解决此错误需要修改项目主模块配置，路径为`项目路径/.idea/modules/项目名称.iml`，如下所示：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id="Xxx" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
+	<component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+
+		<output url="file://$MODULE_DIR$/../../target/scala-2.12/classes" />
+		<output-test url="file://$MODULE_DIR$/../../target/scala-2.12/test-classes" />
+		<exclude-output />
+		<content url="file://$MODULE_DIR$/../..">
+
+		<!-- 子模块源码目录被包含 -->
+		<sourceFolder url="file://$MODULE_DIR$/../../Common/src" isTestSource="false" />
+		<sourceFolder url="file://$MODULE_DIR$/../../ExcelConverter/src" isTestSource="false" />
+		<sourceFolder url="file://$MODULE_DIR$/../../ReportGenerator/src" isTestSource="false" />
+
+		...
+
+		<sourceFolder url="file://$MODULE_DIR$/../../src/main/java" isTestSource="false" />
+		<sourceFolder url="file://$MODULE_DIR$/../../src/main/scala" isTestSource="false" />
+		<sourceFolder url="file://$MODULE_DIR$/../../src/main/scala-2.12" isTestSource="false" />
+		<sourceFolder url="file://$MODULE_DIR$/../../src/test/java" isTestSource="true" />
+		<sourceFolder url="file://$MODULE_DIR$/../../src/test/scala" isTestSource="true" />
+		<sourceFolder url="file://$MODULE_DIR$/../../src/test/scala-2.12" isTestSource="true" />
+
+		...
+
+		</content>
+		<orderEntry type="inheritedJdk" />
+		<orderEntry type="sourceFolder" forTests="false" />
+
+	</component>
+</module>
+```
+
+移除工程配置中子源码被包含的`<sourceFolder/>`标签即可。
 
 
 
