@@ -10,6 +10,7 @@
 - [构建配置](#构建配置)
 	- [模块定义](#模块定义)
 	- [可执行文件定义](#可执行文件定义)
+	- [测试定义](#测试定义)
 
 <!-- /TOC -->
 
@@ -147,7 +148,6 @@ $ stack new [项目名称] [模版名称]
 
 ```
 项目名称
-
 ├── README.md # 项目说明
 ├── LICENSE # 项目许可证
 ├── 项目名称.cabal # 项目构建定义
@@ -194,14 +194,8 @@ library
 executable ...
   ... -- 可执行文件相关定义
 
-test-suite 测试模块名称
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             测试源码文件
-  build-depends:       base
-                     , 测试依赖 ...
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  default-language:    Haskell2010
+test-suite ...
+  .. -- 测试相关定义
 
 source-repository head
   type:     git
@@ -217,8 +211,8 @@ source-repository head
 
 ### 模块定义
 `Haskell`中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。
+`library`配置段定义了导出模块的信息。
 
-`library`配置段定义了导出模块的信息。  
 模块源码路径添加在`hs-source-dirs`配置项中，模块和模块路径需要使用大写字母开头。  
 需要导出的模块写在`exposed-modules`配置项中，未写在改配置项中的模块不能被外部和主模块调用。
 
@@ -233,9 +227,8 @@ library
 ```
 
 ### 可执行文件定义
-`executable`配置段定义了构建生成的可执行程序。
-
-`executable`后添加生成可执行文件的名称，默认的名称为`[项目名称]-exe`，名称可以自行修改。  
+`executable`配置段定义了构建生成的可执行程序。  
+`executable`后添加生成可执行文件的名称，默认的名称为`[项目名称]-exe`，名称可以自定义。  
 一个项目可以生成多个可执行文件(定义多个`executable`配置段)。  
 输出的可执行文件需要在`main-is`配置项中指明主模块所处的源码文件。
 
@@ -253,3 +246,27 @@ executable 可执行文件名称
 
 使用`stack build`指令后，会在`.stack-work/install/...`路径下生成可执行文件。  
 使用`stack exec [执行文件名称]`执行生成的文件。
+
+### 测试定义
+`test-suite`配置段定义了测试相关内容。  
+`test-suite`后添加测试名称，默认名称为`[项目名称]-test`，名称可以自定义。  
+一个项目可定义多组测试(定义多个`test-suite`配置段)。  
+在`main-is`配置项中指定执行测试的源码文件，测试源码文件需要包含`main`方法。
+
+测试定义示例：
+
+```yaml
+test-suite 测试名称
+  type:                测试类型 -- 默认值为 exitcode-stdio-1.0
+  hs-source-dirs:      测试源码路径
+  main-is:             测试源码文件
+  build-depends:       base
+                     , 测试依赖 ...
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+```
+
+使用`stack test :[测试名称]`执行指定测试。  
+测试名称前需要添加**冒号**。
+
+当测试目标为空时，会按定义顺序执行项目中所有的测试。
