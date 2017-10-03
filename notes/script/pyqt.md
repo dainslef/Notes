@@ -1,14 +1,29 @@
-[TOC]
+<!-- TOC -->
+
+- [*PyQt* 简介](#pyqt-简介)
+	- [安装 *PyQt*](#安装-pyqt)
+- [信号槽机制](#信号槽机制)
+	- [连接信号槽](#连接信号槽)
+	- [自定义信号](#自定义信号)
+	- [自定义信号实例](#自定义信号实例)
+- [使用 *QtDesigner* 构建UI](#使用-qtdesigner-构建ui)
+	- [调用UI文件生成的源码](#调用ui文件生成的源码)
+	- [简单实例：使用 *QSqlTableModel* 组装 *QTableView* 浏览 *MaraiDB* 数据库](#简单实例使用-qsqltablemodel-组装-qtableview-浏览-maraidb-数据库)
+
+<!-- /TOC -->
+
+
 
 ## *PyQt* 简介
-`PyQt`为`Qt`库提供了`Python`语言的接口，使用`PyQt`能够快速地完成GUI程序的开发。
-
-本笔记基于`Python3`和`PyQt5`。
+`PyQt`为`Qt`库提供了`Python`语言的接口，使用`PyQt`能够快速地完成GUI程序的开发。  
+本文基于`Python3`和`PyQt5`。
 
 ### 安装 *PyQt*
 在`Linux`、`OS X`等Unix环境下，安装`PyQt`直接使用`pip`包管理器即可，无需额外的配置：
 
-`$ pip install pyqt5`
+```
+$ pip install pyqt5
+```
 
 
 
@@ -20,7 +35,7 @@
 ### 连接信号槽
 信号使用`connect()`方法与槽函数或是其它信号相连。
 
-与`C++ Qt`中的静态成员函数`QObject::connect()`不同，`PyQt5`中的`connect()`函数是作为`class pyqtBoundSignal(builtins.object)`类型的**成员函数**存在的，其接口风格类似于`C#`中的`event`以及`C++`中的`boost::signals`。
+与`C++ Qt`中的静态成员函数`QObject::connect()`不同，`PyQt5`中的`connect()`函数作为`class pyqtBoundSignal(builtins.object)`类型的**成员函数**存在，接口风格类似于`C#`中的`event`以及`C++`中的`boost::signals`。
 
 函数定义如下：
 
@@ -44,10 +59,10 @@ pyqtSignal(*types, name: str = ..., revision: int = ..., arguments: Sequence = .
 ```py
 class TestSignal(QObject):
 
-	signalIntStr = pyqtSignal(int, str)		# 正确，信号作为类成员定义
+	signalIntStr = pyqtSignal(int, str) # 正确，信号作为类成员定义
 
 	def __init__(self):
-		self.signalInt = pyqtSignal(int) 	# 错误，信号作为实例成员定义
+		self.signalInt = pyqtSignal(int) # 错误，信号作为实例成员定义
 ```
 
 ### 自定义信号实例
@@ -58,13 +73,13 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 
 class TestSignals(QObject):
-	signalIntStr = pyqtSignal(int, str)		# 定义一个首参数为int，第二参数为str类型的信号
+	signalIntStr = pyqtSignal(int, str) # 定义一个首参数为int，第二参数为str类型的信号
 
 	def __init__(self, parent = None):
 		super().__init__(parent = parent)
-		self.signalIntStr.connect(self.instanceSlot)		# 信号连接到类的实例成员函数
+		self.signalIntStr.connect(self.instanceSlot) # 信号连接到类的实例成员函数
 
-	def instanceSlot(self, num, strings):					# 被信号连接的槽函数本身并未经过特殊修饰
+	def instanceSlot(self, num, strings): # 被信号连接的槽函数本身并未经过特殊修饰
 		print("Call instanceSlot, num: %d, strings: %s" % (num, strings))
 
 
@@ -80,10 +95,10 @@ def globalSlot(num, strings):
 
 testSignals = TestSignals()
 
-testSignals.signalIntStr.connect(globalSlot)				# 信号连接到全局函数
-testSignals.signalIntStr.connect(Slot.staticSlot)			# 信号连接到静态成员函数
+testSignals.signalIntStr.connect(globalSlot) # 信号连接到全局函数
+testSignals.signalIntStr.connect(Slot.staticSlot) # 信号连接到静态成员函数
 
-testSignals.signalIntStr.emit(666, "TestSignals")			# 触发信号
+testSignals.signalIntStr.emit(666, "TestSignals") # 触发信号
 ```
 
 输出结果：(Python 3.5.1 && PyQt 5.6)
@@ -97,24 +112,28 @@ Call staticSlot, num: 666, strings: TestSignals
 
 
 ## 使用 *QtDesigner* 构建UI
-与传统的`C++ Qt`开发相同，使用`PyQt`开发同样可以使用`QtDesigner`进行拖放式的快速UI布局。
+与传统的`C++ Qt`开发相同，使用`PyQt`开发同样可以使用`QtDesigner`进行拖放式的快速UI布局。  
 UI布局完成之后，使用Qt提供的`User Interface Compiler`将拖放的到的UI文件编译称对应的编程语言代码。
 
 在`PyQt`开发中，使用`pyuic`工具将`QtDesigner`得到的UI文件编译成对应的Python代码：
 
-`$ pyuic5 [source_name].ui -o [code_name].py`
+```
+$ pyuic5 [source_name].ui -o [code_name].py
+```
 
 其步骤类似于`C++ Qt`开发中使用`uic`将UI文件编译成对应C++代码的过程。
 
 ### 调用UI文件生成的源码
-与`C++ Qt`开发类似，`User Interface Compiler`会根据窗口类的名称生成对应的`Ui_xxx`类，引用生成的代码大致分为以下几个步骤：
+与`C++ Qt`开发类似，`User Interface Compiler`会根据窗口类的名称生成对应的`Ui_xxx`类。  
+引用生成的代码大致分为以下几个步骤：
 
-0. 在自己的窗口类中实例化`Ui_xxx`类。
-0. 通过`Ui_xxx`类的实例调用其实例成员方法`setupUi()`，将当前窗口类的`self`引用作为第二个参数传入。
+1. 在自己的窗口类中实例化`Ui_xxx`类。
+1. 通过`Ui_xxx`类的实例调用其实例成员方法`setupUi()`，将当前窗口类的`self`引用作为第二个参数传入。
 
 之后，当前的窗口类便会使用UI文件中定义的布局。
 
-与`C++ Qt`开发类似，使用`PyQt`开发时，如果需要使用`QObject`内存回收机制，则需要重定义构造函数，为构造函数添加`parent`参数，并显式调用父类构造函数，将`parent`参数传入其中。
+与`C++ Qt`开发类似，使用`PyQt`开发时，如果需要使用`QObject`内存回收机制，则需要重定义构造函数。  
+在构造函数中添加`parent`参数，并显式调用父类构造函数，将`parent`参数传入其中。
 
 ### 简单实例：使用 *QSqlTableModel* 组装 *QTableView* 浏览 *MaraiDB* 数据库
 在`MariaDB`数据库中创建创建如下结构的表：
@@ -224,20 +243,20 @@ class Dialog(QWidget):
 
 	def initSql(self):
 
-		db = QSqlDatabase.addDatabase("QMYSQL")		# 创建指定驱动类型的数据库对象
-		db.setHostName("localhost")					# 设置数据库地址
-		db.setDatabaseName("Test")					# 设置使用数据库的名称
+		db = QSqlDatabase.addDatabase("QMYSQL") # 创建指定驱动类型的数据库对象
+		db.setHostName("localhost") # 设置数据库地址
+		db.setDatabaseName("Test") # 设置使用数据库的名称
 
 		# 不要忘记open()数据库，否则无法获得数据，参数为用户名和密码，若已调用成员函数设置用了户名密码，则参数可不填
 		db.open("dainslef", "015")
 
 		# 创建并组装数据库的model
-		self.mode = QSqlTableModel(self, db)		# 可以显式指定数据库，不指定则默认使用当前打开的数据库
-		self.mode.setTable("TestData")				# 设置表名
+		self.mode = QSqlTableModel(self, db) # 可以显式指定数据库，不指定则默认使用当前打开的数据库
+		self.mode.setTable("TestData") # 设置表名
 		self.mode.setHeaderData(0, Qt.Vertical, "Name")
 		self.mode.setHeaderData(1, Qt.Vertical, "Password")
 		self.mode.setHeaderData(2, Qt.Vertical, "ID")
-		self.mode.select()							# 显式提交model，刷新表中数据
+		self.mode.select() # 显式提交model，刷新表中数据
 
 		self.ui.tableView.setModel(self.mode)
 
@@ -253,5 +272,5 @@ import sys
 app = QApplication(sys.argv)
 dialog = Dialog()
 dialog.show()
-app.exec_()		# 在Python中，exec为关键字，因此启动事件循环的函数为exec_()
+app.exec_() # 在Python中，exec为关键字，因此启动事件循环的函数为exec_()
 ```
