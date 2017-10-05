@@ -21,8 +21,8 @@
 #include <netinet/in.h>
 #include <sys/epoll.h>
 
-#define USER_MAX 10						//定义最大用户数量
-#define MSG_SIZE 50						//定义单次发送字符串最大长度
+#define USER_MAX 10 //定义最大用户数量
+#define MSG_SIZE 50 //定义单次发送字符串最大长度
 
 int main(void)
 {
@@ -36,8 +36,8 @@ int main(void)
 
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(9999);			//当主机端与客户端数据类型兼容时，端口号可以不做转换
-	addr.sin_addr.s_addr = INADDR_ANY;		//代表接收任意地址的数据
+	addr.sin_port = htons(9999); //当主机端与客户端数据类型兼容时，端口号可以不做转换
+	addr.sin_addr.s_addr = INADDR_ANY; //代表接收任意地址的数据
 
 	if (bind(sock_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 	{
@@ -53,9 +53,9 @@ int main(void)
 		return 0;
 	}
 
-	int msg_count = 0;						//记录接收数据次数
-	int user_count = 0;						//用户数量计数
-	int client_fd[USER_MAX];				//描述符数组
+	int msg_count = 0; //记录接收数据次数
+	int user_count = 0; //用户数量计数
+	int client_fd[USER_MAX]; //描述符数组
 
 	//创建epoll描述符
 	int epfd = epoll_create(1);
@@ -72,7 +72,7 @@ int main(void)
 
 	while (1)
 	{
-		int re = 0;				//记录epoll_wait()返回值
+		int re = 0; //记录epoll_wait()返回值
 		struct epoll_event events[user_count + 1];
 
 		//maxevents参数为要监听的所有事件数目之和，包括用户描述符数量(user_count)加上一个sock_fd
@@ -93,7 +93,7 @@ int main(void)
 						break; //BSD系列在关闭socket时可能会产生新的请求
 					else
 					{
-						//最大文件描述符值为监听文件描述符集合中的最大值加1
+						// 最大文件描述符值为监听文件描述符集合中的最大值加1
 						struct epoll_event epev;
 						epev.data.fd = client_fd[user_count];
 						epev.events = EPOLLIN;
@@ -123,7 +123,7 @@ int main(void)
 							goto END;
 						}
 
-						//查找用户id
+						// 查找用户id
 						int user_id = 0;
 						for (int j = 0; j < user_count; j++)
 						{

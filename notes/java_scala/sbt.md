@@ -1,6 +1,6 @@
 <!-- TOC -->
 
-- [*sbt* 概述](#sbt-概述)
+- [*sbt* 简介](#sbt-简介)
 - [安装与配置](#安装与配置)
 - [启动与使用](#启动与使用)
 	- [使用 *Giter8* 模版](#使用-giter8-模版)
@@ -24,7 +24,7 @@
 
 
 
-## *sbt* 概述
+## *sbt* 简介
 `sbt`全称`Simple Build Tool`，是`Scala`项目的标准构建工具，类似于`Java`下的`Maven`/`Groovy`中的`Gradle`。
 
 与其它`Java`构建工具类似，`sbt`的核心功能如下：
@@ -39,7 +39,9 @@
 ## 安装与配置
 主流`Linux`发行版的仓库中，一般都包含`sbt`，可以使用发行版的包管理器安装`sbt`，以`ArchLinux`为例：
 
-`# pacman -S sbt`
+```
+# pacman -S sbt
+```
 
 在Windows环境下，可以从官网`http://www.scala-sbt.org/download.html`中下载。  
 下载完成之后解压并将目录下的`bin`目录加入`PATH`中。
@@ -62,7 +64,7 @@
 
 旧版的`sbt`中(`sbt 0.7.x`之前)，在`sbt shell`中输入`run`指令会在路径下生成完整的sbt项目结构，但新版的sbt已**不提供**此特性(可使用`sbt new`指令创建项目)。
 
-sbt的常见指令有：
+常见指令如下：
 
 - `compile` 编译项目
 - `update` 更新依赖
@@ -109,11 +111,11 @@ $ rm ~/.sbt ~/.ivy2/cache/org.scala-sbt
 
 
 ## 项目结构
-`sbt`项目结构与`Maven`项目类似。一个基本的sbt项目具有以下路径结构：
+`sbt`项目结构与`Maven`项目类似。一个基本的`sbt`项目具有以下目录结构：
 
 ```
 项目名称
-├── build.sbt # 项目依赖关系(构建定义)
+├── build.sbt # 构建定义
 ├── project
 │    ├── plugins.sbt # 添加sbt插件
 │    └── build.properties # 构建规则与参数
@@ -132,7 +134,7 @@ $ rm ~/.sbt ~/.ivy2/cache/org.scala-sbt
                └── ...
 ```
 
-新创建的项目没有`target`目录，但在`sbt shell`中执行了`run`之后还会生成`target`和`project/target`目录。  
+新创建的项目没有`target`目录，在`sbt shell`中执行了`run`后会生成`target`和`project/target`目录。  
 `target`目录中包含的所有内容均由编译系统生成，将项目目录加入版本控制时需要忽略这些目录。
 
 ### 默认路径

@@ -371,7 +371,7 @@ public int Num { get; } = 0;
 在`C# 6.0`中，对于**只读属性**，可以使用简化的语法进行定义。  
 有如下只读属性：
 
-```csharp
+```cs
 private int num = 0;
 public int Num 
 {
@@ -384,7 +384,7 @@ public int Num
 
 在`C# 6.0`中可以使用基于表达式的简化语法：
 
-```csharp
+```cs
 private int num = 0;
 public int Num => num;
 ```
@@ -392,7 +392,7 @@ public int Num => num;
 在`C# 7.0`中，对于普通属性也提供了表达式语法。  
 有如下属性：
 
-```csharp
+```cs
 private int num = 0;
 public int Num 
 {
@@ -409,7 +409,7 @@ public int Num
 
 在`C# 7.0`中可以使用简化语法：
 
-```csharp
+```cs
 private int num = 0;
 public int Num 
 {
@@ -462,7 +462,7 @@ error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; 
 	在`C#`中，成员字段初始化时不能引用非静态成员。  
 	如下代码所示：
 
-	```csharp
+	```cs
 	class Test
 	{
 		int num = 0;
@@ -478,7 +478,7 @@ error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; 
 	若引用的静态字段定义在当前静态字段之后，则当前静态不会被初始化。  
 	如下所示：
 
-	```csharp
+	```cs
 	class Test
 	{
 		static int num = num1; //字段num1定义在num之后，num不会被初始化，值为0(默认值)
@@ -993,7 +993,7 @@ class Test
 ### *is* 表达式
 `is`表达式具有比较对象类型的功能，在早期版本的`C#`中，比较变量类型并进行转换：
 
-```csharp
+```cs
 object obj = 100;
 
 int num;
@@ -1003,7 +1003,7 @@ if (obj is int)
 
 在`C# 7.0`中，可以在比较对象类型相同时直接创建变量：
 
-```csharp
+```cs
 object obj = 100;
 
 int num;
@@ -1014,7 +1014,7 @@ if (obj is int i)
 ### *switch* 模式匹配
 在`C# 7.0`中，`switch`表达式的`case`标签中支持根据对象类型进行跳转：
 
-```csharp
+```cs
 object xxx = ...;
 
 switch (xxx)
@@ -1035,7 +1035,7 @@ switch (xxx)
 
 若不需要在匹配类型后使用变量，则可使用下划线`_`代替变量名称：
 
-```csharp
+```cs
 object xxx = ...;
 
 switch (xxx)
@@ -1051,7 +1051,7 @@ switch (xxx)
 
 `case`标签可以带有`when`子句，用于添加额外的匹配条件，类似于`Scala`中的**守卫**语法：
 
-```csharp
+```cs
 object xxx = ...;
 
 switch (xxx)
@@ -1722,7 +1722,7 @@ lock (object)
 
 `BindingFlags`枚举完整路径为`System.Reflection.BindingFlags`，定义如下：
 
-```csharp
+```cs
 namespace System.Reflection
 {
 	// 指定控制绑定和由反射执行的成员和类型搜索方法的标志。
@@ -1778,7 +1778,7 @@ namespace System.Reflection
 
 	`Type`类型的`FullName`成员属性保存了类型的**完整路径**：
 
-	```csharp
+	```cs
 	typeof(Xxx).FullName;
 	```
 
@@ -1786,7 +1786,7 @@ namespace System.Reflection
 
 	获取所有成员字段/属性信息：
 
-	```csharp
+	```cs
 	// 获取所有公有成员字段
 	public FieldInfo[] GetFields();
 	// 获取bindingAttr范围内的所有成员字段
@@ -1798,7 +1798,7 @@ namespace System.Reflection
 
 	获取指定成员字段/属性信息：
 
-	```csharp
+	```cs
 	// 获取指定名称的字段
 	public FieldInfo GetField(string name);
 	// 以bindingAttr为搜索标志，获取指定名称的字段
@@ -1822,7 +1822,7 @@ namespace System.Reflection
 
 	获取所有成员方法/构造方法：
 
-	```csharp
+	```cs
 	public MethodInfo[] GetMethods();
 	public abstract MethodInfo[] GetMethods(BindingFlags bindingAttr);
 	public ConstructorInfo[] GetConstructors();
@@ -1831,7 +1831,7 @@ namespace System.Reflection
 
 	获取指定签名的成员方法：
 
-	```csharp
+	```cs
 	// 查找指定名称的成员方法(适用于不存在方法重载的情形，若查找到多个方法会抛出异常)
 	public MethodInfo GetMethod(string name);
 	// 查找指定名称的成员方法，使用签名参数获取方法
@@ -2211,14 +2211,14 @@ Method result:
 ### 创建 *FTP* 请求
 `WebRequest`类的静态成员方法`WebRequest.Create(string)`，以`FTP`路径字符串为参数即可构建一个未设定操作的`FTP`请求：
 
-```csharp
+```cs
 string ftpUri = $"ftp://ip地址/路径...";
 FtpWebRequest ftpRequest = WebRequest.Create(ftpUri) as FtpWebRequest;
 ```
 
 对于需要账户的`FTP`服务端，需要在请求中设定账户和密码：
 
-```csharp
+```cs
 string ftpUserName = "...", ftpUserPassword = "...";
 ftpRequest.Credentials = new NetworkCredential(ftpUserName, ftpUserPassword);
 ```
@@ -2226,13 +2226,13 @@ ftpRequest.Credentials = new NetworkCredential(ftpUserName, ftpUserPassword);
 ### 下载
 在一个未设定操作的`FTP`请求创建完毕后，设置请求对象的`Method`属性为`RETR`(`FTP`协议中规定的下载指令)。
 
-```csharp
+```cs
 ftpRequest.Method = "RETR";
 ```
 
 `WebRequestMethods.Ftp`中定义了各类`FTP`操作的指令文本，下载操作可以使用：
 
-```csharp
+```cs
 ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
 ```
 
@@ -2243,7 +2243,7 @@ ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
 
 完整实例代码：
 
-```csharp
+```cs
 /// <summary>
 /// 下载文件，保存到指定路径
 /// </summary>
@@ -2285,8 +2285,15 @@ public bool DownloadFile(string ftpUri, string savePath, string ftpUserName, str
 ### 上传
 上传操作与下载略有不同，首先对未设定操作的`FTP`请求设置操作：
 
-```csharp
-ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
+```cs
+ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
+```
+
+若使用了**网络代理**(如翻墙工具等)，则还需要将请求的`Proxy`属性置为`null`，
+否则会产生`用 HTTP 代理时不支持请求的 FTP 命令。`异常。
+
+```cs
+ftpRequest.Proxy = null;
 ```
 
 之后执行以下操作：
@@ -2298,7 +2305,7 @@ ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
 
 完整实例代码：
 
-```csharp
+```cs
 /// <summary>
 /// 上传文件到指定FTP路径
 /// </summary>
@@ -2316,6 +2323,7 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 		FtpWebRequest request = WebRequest.Create(ftpUri) as FtpWebRequest;
 
 		// 设定下载请求，填充FTP用户名/密码
+		request.Proxy = null;
 		request.Method = WebRequestMethods.Ftp.UploadFile;
 		request.Credentials = new NetworkCredential(ftpUserName, ftpUserPassword);
 

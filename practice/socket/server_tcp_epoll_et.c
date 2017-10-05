@@ -23,8 +23,8 @@
 #include <netinet/in.h>
 #include <sys/epoll.h>
 
-#define USER_MAX 10						//定义最大用户数量
-#define MSG_SIZE 10						//定义单次发送字符串最大长度
+#define USER_MAX 10 //定义最大用户数量
+#define MSG_SIZE 10 //定义单次发送字符串最大长度
 
 int main(void)
 {
@@ -54,9 +54,9 @@ int main(void)
 		return 0;
 	}
 
-	int msg_count = 0;						//记录接收数据次数
-	int user_count = 0;						//用户数量计数
-	int client_fd[USER_MAX];				//描述符数组
+	int msg_count = 0; //记录接收数据次数
+	int user_count = 0; //用户数量计数
+	int client_fd[USER_MAX]; //描述符数组
 
 	//创建epoll描述符
 	int epfd = epoll_create(1);
@@ -73,10 +73,10 @@ int main(void)
 
 	while (1)
 	{
-		int re = 0;				//记录epoll_wait()返回值
+		int re = 0; //记录epoll_wait()返回值
 		struct epoll_event events[user_count + 1];
 
-		//maxevents参数为要监听的所有事件数目之和，包括用户描述符数量(user_count)加上一个sock_fd
+		// maxevents参数为要监听的所有事件数目之和，包括用户描述符数量(user_count)加上一个sock_fd
 		switch (re = epoll_wait(epfd, events, user_count + 1, -1))
 		{
 		case -1:
@@ -120,7 +120,7 @@ int main(void)
 				{
 					char message[MSG_SIZE];
 
-					//查找用户id
+					// 查找用户id
 					int user_id = 0;
 					for (int j = 0; j < user_count; j++)
 					{
@@ -128,7 +128,7 @@ int main(void)
 							user_id = j;
 					}
 
-					//重复循环读取数据，直到数据读尽
+					// 重复循环读取数据，直到数据读尽
 					while (1)
 					{
 						memset(message, 0, MSG_SIZE);
@@ -151,7 +151,7 @@ int main(void)
 									write(client_fd[i], message, MSG_SIZE);
 								goto END;
 							}
-							//%s后的空格不能少，否则可能造成输出字符串结尾出现"口"字符
+							// %s后的空格不能少，否则可能造成输出字符串结尾出现"口"字符
 							printf("第%d次接收，接收到来自用户[%d]的消息：%s \n", ++msg_count, user_id, message);
 						}
 					}
