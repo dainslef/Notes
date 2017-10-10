@@ -20,6 +20,8 @@
 - [触发器](#触发器)
 	- [属性触发器](#属性触发器)
 	- [数据触发器](#数据触发器)
+	- [事件触发器](#事件触发器)
+	- [事件绑定到命令](#事件绑定到命令)
 - [*Window* (窗口) 与 *Page* (页面)](#window-窗口-与-page-页面)
 	- [启动窗口/页面](#启动窗口页面)
 	- [窗体加载与关闭](#窗体加载与关闭)
@@ -219,7 +221,7 @@
 ## 数据绑定
 `WPF`作为数据驱动的UI框架，与`Qt`、`MFC`等传统消息式驱动的UI框架最显著的区别便是**数据绑定**。
 
-在`WPF`中，典型的设计模式为`MVVM`。
+在`WPF`中，典型的设计模式为`MVVM`。  
 对于一个`View`，会创建对应的`ViewModel`来描述其数据结构，并通过控件绑定`ViewModel`中的属性来实现多控件同步数据变化。
 
 ### 属性变更通知
@@ -436,7 +438,14 @@ class XXX : INotifyPropertyChanged
 	```
 
 ### 绑定模式
-控件自身的属性被称为**目标属性**，绑定的数据源对象称为**源属性**，源属性与目标属性之前有四类同步方式：
+控件自身的属性被称为**目标属性**，绑定的数据源对象称为**源属性**。  
+数据绑定时可以设置绑定模式(`Mode`)：
+
+```xml
+XXX="{Binding xxx, Mode=xxxx}"
+```
+
+源属性与目标属性之前有四类同步方式：
 
 - `OneWay` 源属性发生变化通知目标属性。只读型控件的默认绑定方式(`Label`等)
 - `OneWayToSource` 目标属性发生变化通知源属性
@@ -503,7 +512,20 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 - `DataTrigger` 数据触发器
 - `EventTrigger` 事件触发器
 
-`Style`、`DataTemplate`、`ControlTemplate`等类型可用于定义触发器。  
+`FrameworkElement`类型中定义了`Triggers`属性，用于设定触发器。  
+继承自`FrameworkElement`类型的控件皆可在控件内部定义触发器，例如：
+
+```xml
+<Window>
+	<Window.Triggers>
+		<Trigger>
+			...
+		</Trigger>
+	</Window.Triggers>
+</Window>
+```
+
+`Style`、`DataTemplate`、`ControlTemplate`等类型可用于定义通用的触发器。  
 以`Style`为例，定义触发器语法如下：
 
 ```xml
@@ -592,6 +614,54 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 
 	</Style.Triggers>
 </Style>
+```
+
+### 事件触发器
+事件触发器用于监视事件的发生，在事件触发时执行触发器。
+
+事件触发器只能绑定到**路由事件**(委托类型为`RoutedEventHandler`)上。
+
+```xml
+<Style TargetType="Image">
+	<Style.Triggers>
+
+		<!-- 绑定到指定的路由事件 -->
+		<EventTrigger RoutedEvent="Image.Loaded">
+			<EventTrigger.Actions>
+				<BeginStoryboard>
+					<Storyboard>
+						...
+					</Storyboard>
+				</BeginStoryboard>
+			</EventTrigger.Actions>
+		</EventTrigger>
+
+	</Style.Triggers>
+</Style>
+```
+
+### 事件绑定到命令
+事件触发器不能实现事件到命令的转发，使用`System.Windows.Interactivity.dll`程序集可实现事件到命令的转发。  
+`System.Windows.Interactivity.dll`**没有**包含在默认的`WPF`中，需要从`NuGet`中下载，并引入该程序集：
+
+```xml
+<!-- 通过命名空间引入 -->
+xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+
+<!-- 或者直接引入dll -->
+xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+```
+
+以`Image`控件为例，将`Image.MouseDown`事件绑定到`XxxCommand`上：
+
+```xml
+<Image>
+	<i:Interaction.Triggers>
+		<i:EventTrigger EventName="MouseDown">
+			<i:InvokeCommandAction Command="{Binding XxxCommand}" CommandParameter="{Binding xxx}"/>
+		</i:EventTrigger>
+	</i:Interaction.Triggers>
+</Image>
 ```
 
 
