@@ -38,6 +38,7 @@
 	- [布局层级](#布局层级)
 	- [主界面](#主界面)
 	- [汉化控件](#汉化控件)
+	- [加载指示器](#加载指示器)
 	- [常见问题](#常见问题)
 
 <!-- /TOC -->
@@ -393,9 +394,6 @@ class XXX : INotifyPropertyChanged
 	绑定的转换器需要实现`System.Windows.Data.IValueConverter`接口，接口定义如下：
 
 	```cs
-	//
-	// 摘要:
-	//     提供一种将自定义逻辑应用于绑定的方式。
 	public interface IValueConverter
 	{
 		object Convert(object value, Type targetType, object parameter, CultureInfo culture);
@@ -978,6 +976,85 @@ public partial class App : Application
 	}
 }
 ```
+
+### 加载指示器
+`DevExpress`提供了多种加载指示控件，用于在加载内容时提示用户，避免UI假死：	
+
+- `WaitIndicator` 等待指示器
+
+	当后台需要执行一个耗时较长的操作时，前台使用`WaitIndicator`告知用户需要等待。  
+	`WaitIndicator`平时处于隐藏状态，通过属性控制其显示状态。  
+	`WaitIndicator`运行在**UI线程**，UI线程被占用会影响`WaitIndicator`的显示和等待动画播放。
+
+	常用属性：
+
+	- `DeferedVisibility` 是否显示
+	- `Content` 设置等待提示文本
+
+	如下所示：
+
+	```xml
+	<dx:WaitIndicator DeferedVisibility="True" Content="Loading..."/>
+	```
+
+	可以通过自定义数据模板更改等待指示器的外观：
+
+	```xml
+	<dx:WaitIndicator DeferedVisibility="True" Content="Loading..."> 
+		<dx:WaitIndicator.ContentTemplate>
+			<DataTemplate>
+				<StackPanel Orientation="Vertical"> 
+					<TextBlock Text="Please Wait" FontSize="20"/> 
+					<TextBlock Text="{Binding xxx}"/> 
+				</StackPanel>
+			</DataTemplate>
+		</dx:WaitIndicator.ContentTemplate> 
+	</dx:WaitIndicator> 
+	```
+
+- `LoadingDecorator` 加载装饰器
+
+	`LoadingDecorator`默认在控件加载完毕前显示，提示用户控件处于准备状态。  
+	将`LoadingDecorator`包裹在目标控件外层，即可在目标控件加载时显示加载指示器。
+	
+	常用属性：
+
+	- `IsSplashScreenShown` 是否显示
+	- `SplashScreenDataContext` 绑定ViewModel
+	- `SplashScreenLocation` 显示位置
+	- `OwnerLock` 加载指示器显示时，目标控件的锁定方式
+	- `BorderEffect` 边框高亮模式
+	- `BorderEffectColor` 边框高亮色彩
+
+	如下所示：
+
+	```xml
+	<dx:LoadingDecorator SplashScreenDataContext="{Binding xxx}" SplashScreenLocation="CenterContainer">
+		<view:XxxView/>
+	</dx:LoadingDecorator>
+	```
+
+	`LoadingDecorator`使用`WaitIndicator`实现。  
+	但不同于`WaitIndicator`，`LoadingDecorator`运行在独立线程，UI线程的操作不会影响`LoadingDecorator`的显示和动画播放。
+
+	未绑定`IsSplashScreenShown`属性时，`LoadingDecorator`会自动在目标控件处于加载状态时显示。  
+	绑定`IsSplashScreenShown`属性时，则由数据源决定指示器的显示与否。
+
+	可以通过自定义数据模板更改加载指示器的外观：
+
+	```xml
+	<dx:LoadingDecorator SplashScreenDataContext="{Binding xxx}" SplashScreenLocation="CenterContainer">
+		<dx:LoadingDecorator.SplashScreenTemplate>
+			<DataTemplate>
+				<StackPanel Orientation="Vertical">
+					<TextBlock Text="Please Wait" FontSize="20"/>
+					<TextBlock Text="{Binding xxx}"/>
+				</StackPanel>
+			</DataTemplate>
+		</dx:LoadingDecorator.SplashScreenTemplate>
+		<view:XxxView/>
+	</dx:LoadingDecorator>
+	```
 
 ### 常见问题
 
