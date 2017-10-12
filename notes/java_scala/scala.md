@@ -35,6 +35,7 @@
 	- [*Bottom* (底类型)](#bottom-底类型)
 	- [*Option* (可空类型)](#option-可空类型)
 - [类型系统](#类型系统)
+	- [类型参数](#类型参数)
 - [*continue* 与 *break*](#continue-与-break)
 - [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
 	- [简单匹配](#简单匹配)
@@ -1845,7 +1846,50 @@ No Value
 
 
 ## 类型系统
-待续...
+`Scala`是静态类型语言，具有强大的类型系统。
+
+### 类型参数
+定义类型时允许带有类型参数。
+
+`Scala`中使用以下方式定义类型参数：
+
+- 使用范型语法，`class Xxx[T]/trait Xxx[T]`
+- 使用`type`关键字定义未绑定到具体类型的**抽象类型**(`Abstract Type`)，`trait Xxx { type T }`
+
+泛型语法类似于`Java/C#`，但在`Scala`中使用中括号`[]`代替尖括号`<>`。  
+构建示例时需要将泛型参数替换为实际类型。  
+如下所示：
+
+```scala
+scala> trait Xxx[T] { val t: T }
+defined trait Xxx //定义带有泛型参数的类型
+
+scala> val x = new Xxx[String] { val t = "t" }
+x: Xxx[String] = $anon$1@7ca16520
+
+scala> x.t
+res1: String = t
+
+scala> :type x
+Xxx[String]
+```
+
+抽象类型与抽象成员类似，需要在构建实例时提供具体实现。  
+如下所示：
+
+```scala
+scala> trait Xxx { type T; val t: T }
+defined trait Xxx //定义带有抽象类型的类型
+
+scala> val x = new Xxx { type T = String; val t = "t" }
+x: Xxx{type T = String} = $anon$1@36acfcff
+
+scala> x.t
+res2: x.T = t
+
+scala> :type x
+Xxx{type T = String}
+```
 
 
 
