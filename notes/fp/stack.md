@@ -12,6 +12,7 @@
 	- [可执行文件定义](#可执行文件定义)
 	- [测试定义](#测试定义)
 	- [数据文件定义](#数据文件定义)
+	- [*Paths_xxx* 模块](#paths_xxx-模块)
 
 <!-- /TOC -->
 
@@ -24,8 +25,8 @@
 
 - 创建标准的`Haksell`项目模板。
 - 获取最新的`GHC`编译器。
-- 管理项目依赖。
-- 构建项目。
+- 管理项目依赖(由`Cabal`实现)。
+- 构建项目(由`Cabal`实现)。
 
 
 
@@ -297,7 +298,7 @@ test-suite 测试名称
 
 	支持使用通配符匹配某一类型的文件，如`*.xml`、`*.json`，**不能**使用`*`通配符匹配所有文件。  
 	默认以**项目根路径**为起始路径，若数据文件位于子路径下，需要完整的相对路径，如`conf1/xxx1.xml`、`conf2/xxx2.json`。  
-	多个数据文件使用`,`作为分隔符。
+	多个数据文件使用`,`符号作为分隔符。
 
 	若设定了`data-dir`配置段，则以`项目根路径/data-dir配置路径`做为起始路径。
 
@@ -332,3 +333,46 @@ data-files: conf/xxx.json, conf/xxx.xml
 ```
 
 构建后会在目标路径下生成`conf`路径，并生成数据文件。
+
+### *Paths_xxx* 模块
+`Stack`构建项目时，会自动生成一个名称为`Paths_[项目名称]`的模块。  
+该模块提供了项目的**版本**与**路径**信息。  
+模块导出接口如下：
+
+```hs
+module Paths_xxx (
+  version,
+  getBinDir,
+  getLibDir,
+  getDynLibDir,
+  getDataDir,
+  getLibexecDir,
+  getDataFileName,
+  getSysconfDir
+) where
+
+version :: Version
+getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath
+getDataFileName :: FilePath -> IO FilePath
+```
+
+- `version` 包含项目版本版本号和版本名称
+- `getBinDir` 项目可执行文件所在的路径
+- `getDataDir` 获取数据文件所在的路径
+- `getDataFileName` 使用相对路径获取指定数据文件的绝对路径
+
+在项目中使用`Paths_[项目名称]`模块需要在`library`配置段中添加`other-modules`配置项：
+
+```yaml
+library
+  hs-source-dirs:      src
+  ...
+  other-modules:       Paths_test_socket
+```
+
+若未添加`other-modules`配置项，则构建项目时会产生未定义符号错误：
+
+```
+Undefined symbols for architecture x86_64:
+...
+```
