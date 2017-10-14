@@ -36,6 +36,7 @@
 	- [*Option* (可空类型)](#option-可空类型)
 - [类型系统](#类型系统)
 	- [类型参数](#类型参数)
+	- [类型约束](#类型约束)
 - [*continue* 与 *break*](#continue-与-break)
 - [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
 	- [简单匹配](#简单匹配)
@@ -1853,7 +1854,7 @@ No Value
 
 `Scala`中使用以下方式定义类型参数：
 
-- 使用范型语法，`class Xxx[T]/trait Xxx[T]`
+- 使用泛型语法，`class Xxx[T]/trait Xxx[T]`
 - 使用`type`关键字定义未绑定到具体类型的**抽象类型**(`Abstract Type`)，`trait Xxx { type T }`
 
 泛型语法类似于`Java/C#`，但在`Scala`中使用中括号`[]`代替尖括号`<>`。  
@@ -1890,6 +1891,46 @@ res2: x.T = t
 scala> :type x
 Xxx{type T = String}
 ```
+
+### 类型约束
+定义类型参数时可以设置类型约束，用于限制传入的类型参数：
+
+- `Upper Type Bounds` 上界(上层类型约束)，语法`T <: Xxx`
+- `Lower Type Bounds` 下界(低级类型约束)，语法`T >: T`
+
+`Upper Type Bounds`用于限定类型参数为指定类型的**子类**。  
+如下所示：
+
+```scala
+abstract class Animal {
+  def name: String
+}
+
+abstract class Pet extends Animal
+
+class Cat extends Pet {
+  override def name: String = "Cat"
+}
+
+class Dog extends Pet {
+  override def name: String = "Dog"
+}
+
+class Lion extends Animal {
+  override def name: String = "Lion"
+}
+
+class PetContainer[P <: Pet](p: P) {
+  def pet: P = p
+}
+
+val dogContainer = new PetContainer[Dog](new Dog)
+val catContainer = new PetContainer[Cat](new Cat)
+//  val lionContainer = new PetContainer[Lion](new Lion)
+//                         ^this would not compile
+```
+
+`Lower Type Bounds`用于限定类型参数为另一类型的**父类**。
 
 
 
