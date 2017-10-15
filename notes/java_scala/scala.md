@@ -1902,35 +1902,37 @@ Xxx{type T = String}
 如下所示：
 
 ```scala
-abstract class Animal {
-  def name: String
-}
+trait Other
 
-abstract class Pet extends Animal
+trait Base
 
-class Cat extends Pet {
-  override def name: String = "Cat"
-}
+trait Child extends Base
 
-class Dog extends Pet {
-  override def name: String = "Dog"
-}
+def test[T <: Base](t: T) = t.toString
 
-class Lion extends Animal {
-  override def name: String = "Lion"
-}
+test[Child](null) //正确
+test[Base](null) //正确
 
-class PetContainer[P <: Pet](p: P) {
-  def pet: P = p
-}
-
-val dogContainer = new PetContainer[Dog](new Dog)
-val catContainer = new PetContainer[Cat](new Cat)
-//  val lionContainer = new PetContainer[Lion](new Lion)
-//                         ^this would not compile
+test[Other](null) //编译错误 Error: type arguments [Other] do not conform to method test's type parameter bounds [T <: Base]
 ```
 
-`Lower Type Bounds`用于限定类型参数为另一类型的**父类**。
+`Lower Type Bounds`用于限定类型参数为另一类型的**父类**。  
+如下所示：
+
+```scala
+trait Other
+
+trait Base
+
+trait Child extends Base
+
+def test[T >: Child](t: T) = t.toString
+
+test[Child](null) //正确
+test[Base](null) //正确
+
+test[Other](null) //编译错误 Error: type arguments [Other] do not conform to method test's type parameter bounds [T >: Child]
+```
 
 
 
