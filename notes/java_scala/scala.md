@@ -37,6 +37,7 @@
 - [类型系统](#类型系统)
 	- [类型参数](#类型参数)
 	- [类型约束](#类型约束)
+	- [*Variances* (型变)](#variances-型变)
 - [*continue* 与 *break*](#continue-与-break)
 - [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
 	- [简单匹配](#简单匹配)
@@ -1896,7 +1897,7 @@ Xxx{type T = String}
 定义类型参数时可以设置类型约束，用于限制传入的类型参数：
 
 - `Upper Type Bounds` 上界(上层类型约束)，语法`T <: Xxx`
-- `Lower Type Bounds` 下界(低级类型约束)，语法`T >: T`
+- `Lower Type Bounds` 下界(低级类型约束)，语法`T >: Xxx`
 
 `Upper Type Bounds`用于限定类型参数为指定类型的**子类**。  
 如下所示：
@@ -1933,6 +1934,74 @@ test[Base](null) //正确
 
 test[Other](null) //编译错误 Error: type arguments [Other] do not conform to method test's type parameter bounds [T >: Child]
 ```
+
+使用`Lower Type Bounds`可以将传入的更细粒度的类型转换为更粗粒度的类型。
+
+### *Variances* (型变)
+带有类型参数的泛型类型在使用不同类型参数时默认**不存在**继承关系。  
+如下所示：
+
+```scala
+scala> import scala.reflect.runtime.universe._
+import scala.reflect.runtime.universe._
+
+scala> class Test[T]
+defined class Test
+
+scala> class Base
+defined class Base
+
+scala> class Child extends Base
+defined class Child
+
+scala> typeOf[Test[Base]] =:= typeOf[Test[Child]]
+res1: Boolean = false //带有不同类型参数的泛型类是不相等的类型
+
+scala> typeOf[Test[Base]] <:< typeOf[Test[Child]]
+res2: Boolean = false //类型参数的继承关系不影响泛型类型自身
+```
+
+使用`variances`特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。  
+`variances`特性分为`covariance`(协变)和`Contravariance`(逆变)。
+型变特性语法如下所示：
+
+```scala
+class Test[T] //invariance，无型变
+class Test[+T] //covariance，协变
+class Test[-T] //contravariance，逆变
+```
+
+- `Covariance` (协变)
+
+	类型参数声明为`covariance`(协变)时，泛型类型的继承关系与类型参数相同。  
+	如下所示：
+
+	```scala
+	scala> class Test[+T]
+	defined class Test
+
+	scala> typeOf[Child] <:< typeOf[Base]
+	res3: Boolean = true
+
+	scala> typeOf[Test[Child]] <:< typeOf[Test[Base]]
+	res4: Boolean = true //泛型类型的继承关系与类型参数相同
+	```
+
+- `Contravariance` (逆变)
+
+	类型参数声明为`contravariance`(逆变)时，泛型类型的继承关系与类型参数相反。  
+	如下所示：
+
+	```scala
+	scala> class Test[-T]
+	defined class Test
+
+	scala> typeOf[Child] <:< typeOf[Base]
+	res5: Boolean = true
+
+	scala> typeOf[Test[Base]] <:< typeOf[Test[Child]]
+	res6: Boolean = true
+	```
 
 
 
