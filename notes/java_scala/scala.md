@@ -1997,11 +1997,43 @@ class Test[-T] //contravariance，逆变
 	defined class Test
 
 	scala> typeOf[Child] <:< typeOf[Base]
-	res5: Boolean = true
+	res6: Boolean = true
 
 	scala> typeOf[Test[Base]] <:< typeOf[Test[Child]]
-	res6: Boolean = true
+	res7: Boolean = true //泛型类型的继承关系与类型参数相反
 	```
+
+协变与逆变的类型参数需要在正确的位置使用，即`covariant position`(协变点)和`contravariant position`(逆变点)。
+
+- `Covariant Position` (协变点)
+
+	协变点指方法的**返回值**位置。  
+	泛型类型的协变应符合**里氏替换原则**，子类的方法返回值应比父类更具体。
+
+- `Contravariant Position` (逆变点)
+
+	逆变点指方法的**参数**位置。  
+	子类的方法功能应强于父类方法，方法参数类型接收范围应比父类更广。
+
+在错误的位置使用型变类型参数会导致编译错误：
+
+```scala
+scala> trait Test[+T] { def test(t: T) } 
+<console>:14: error: covariant type T occurs in contravariant position in type T of value t
+       trait Test[+T] { def test(t: T) }
+                                 ^
+
+scala> trait Test[+T] { def test: T } 
+defined trait Test
+
+scala> trait Test[-T] { def test: T } 
+<console>:14: error: contravariant type T occurs in covariant position in type => T of method test
+       trait Test[-T] { def test: T }
+                            ^
+
+scala> trait Test[-T] { def test(t: T) } 
+defined trait Test
+```
 
 
 
