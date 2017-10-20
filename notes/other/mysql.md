@@ -7,8 +7,8 @@
 	- [使用指定配置启动 *MySQL*](#使用指定配置启动-mysql)
 - [服务管理](#服务管理)
 	- [在Windows下启动服务](#在windows下启动服务)
-	- [在使用 *systemd* 的Linux发行版中启动服务](#在使用-systemd-的linux发行版中启动服务)
-	- [在使用 *SysV init* 的Linux发行版以及BSD中启动服务](#在使用-sysv-init-的linux发行版以及bsd中启动服务)
+	- [*systemd* Linux发行版中管理服务](#systemd-linux发行版中管理服务)
+	- [*SysV init* Linux发行版以及BSD中管理服务](#sysv-init-linux发行版以及bsd中管理服务)
 - [用户登陆与管理](#用户登陆与管理)
 	- [远程登陆](#远程登陆)
 	- [修改用户密码](#修改用户密码)
@@ -24,9 +24,10 @@
 	- [导出数据](#导出数据)
 	- [导入数据](#导入数据)
 	- [设置中文编码](#设置中文编码)
+	- [存储二进制数据](#存储二进制数据)
 	- [JSP编码设置](#jsp编码设置)
 	- [时区问题](#时区问题)
-	- [存储二进制数据](#存储二进制数据)
+	- [禁用 *DNS* 解析](#禁用-dns-解析)
 - [*MySQL* 的 *C API*](#mysql-的-c-api)
 	- [连接数据库](#连接数据库)
 	- [执行SQL语句](#执行sql语句)
@@ -278,8 +279,7 @@ mysql> show grants for [用户名]@[主机地址]; //显示指定用户的权限
 使用`Java`语言编写的IDE如`NetBeans`、`Eclipse`、`IntelliJ IDEA`等提供的`MySQL`数据库管理功能也需要添加mysql的JDBC驱动。
 
 在`ArchLinux`中使用使用Qt5操作mysql数据无需安装额外的包(驱动已被集成至`Qt5`包组中)。  
-在`Debian`系发行版中使用Qt5操作mysql数据库需要安装`libqt5sql-mysql`包。
-
+在`Debian`系发行版中使用Qt5操作mysql数据库需要安装`libqt5sql-mysql`包。  
 在`Debian/RedHat`系发行版中使用`C API`连接mysql数据库时需要安装额外的开发头文件包：
 
 ```
@@ -330,7 +330,9 @@ mysql> alter table [表名] change [主键列名] [主键列名] [属性] auto_i
 
 取消主键自增：
 
-`mysql> alter table [表名] change [列名] [列名] [属性];`
+```sql
+mysql> alter table [表名] change [列名] [列名] [属性];
+```
 
 设置主键自增对于已有数据的列需要清空已有数据才能正常显示。
 必须是**主键**才能设置自增属性。
@@ -365,18 +367,21 @@ $ mysqldump -u"[用户名]" -p"[密码]" -w"[限制条件]" [数据库名] [表�
 ### 导入数据
 导入数据需要在数据库命令行中使用`source`指令：
 
-`mysql> source [数据库备份文件]`
+```
+mysql> source [数据库备份文件]
+```
 
 导入数据库时需要注意编码问题，数据库编码、连接编码、备份文件的编码需要相同才不会产生中文乱码问题。
 
 ### 设置中文编码
-默认情况下，旧版的mysql数据库的编码为`latin1`，此编码不支持东亚语系的文字显示，需要修改为支持各国文字的`UTF-8`编码。
-
+默认情况下，旧版的mysql数据库的编码为`latin1`，此编码不支持东亚语系的文字显示，需要修改为支持各国文字的`UTF-8`编码。  
 对于部分使用`MariaDB`的发行版(如`ArchLinux`)，默认的编码为`UTF-8`，无需额外配置。
 
 查看数据库的默认的所有编码信息：
 
-`mysql> show variables like 'character_set_%';`
+```
+mysql> show variables like 'character_set_%';
+```
 
 典型的结果如下所示：
 
@@ -438,6 +443,13 @@ character_set_server = utf8
 default-character-set = utf8
 ```
 
+### 存储二进制数据
+如果需要向数据库中存储二进制信息(比如**图片**)，则字段应选择`BLOB`类型(`binary large object`)。
+
+在`MySQL`中，与`BLOB`相关的类型有四种，分别为：`TinyBlob`、`Blob`、`MediumBlum`、`LongBlum`。  
+这四种类型之间的区别在于存储文件大小上限不同。  
+`TinyBlob`最大`255B`，`Blob`最大`65KB`，`MediumBlob`最大`16MB`，`LongBlob`最大`4GB`。
+
 ### JSP编码设置
 在`JSP`开发中，编码问题主要体现在以下几个方面：
 
@@ -457,15 +469,23 @@ The server time zone value 'XXX' is unrecognized or represents more than one tim
 原因是服务端的时区信息未能正常获取，需要在连接中显式指明时区信息，如下所示：
 
 ```
-jdbc:mysql://localhost:3306/xxx?serverTimezone=UTC		//服务端时区信息不为UTC时，需要改为与服务端相匹配的时区
+jdbc:mysql://localhost:3306/xxx?serverTimezone=UTC //服务端时区信息不为UTC时，需要改为与服务端相匹配的时区
 ```
 
-### 存储二进制数据
-如果需要向数据库中存储二进制信息(比如**图片**)，则字段应选择`BLOB`类型(`binary large object`)。
+### 禁用 *DNS* 解析
+`MySQL`默认开启了`DNS`解析，但在`DNS`服务器异常时，一次数据库操作会异常缓慢，并在`/var/log/mysql/error.log`中写入类似日志：
 
-在`MySQL`中，与`BLOB`相关的类型有四种，分别为：`TinyBlob`、`Blob`、`MediumBlum`、`LongBlum`。  
-这四种类型之间的区别在于存储文件大小上限不同。  
-`TinyBlob`最大`255B`，`Blob`最大`65KB`，`MediumBlob`最大`16MB`，`LongBlob`最大`4GB`。
+```
+[Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved: Temporary failure in name resolution
+```
+
+解决方法是禁用`MySQL`的`DNS`解析，在配置`my.cnf`中添加以下内容：
+
+```
+[mysqld]
+skip-host-cache
+skip-name-resolve
+```
 
 
 
