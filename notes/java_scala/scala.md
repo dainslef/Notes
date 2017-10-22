@@ -1962,7 +1962,7 @@ res2: Boolean = false //类型参数的继承关系不影响泛型类型自身
 ```
 
 使用`variances`特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。  
-`variances`特性分为`covariance`(协变)和`Contravariance`(逆变)。
+`variances`特性分为`covariance`(协变)和`Contravariance`(逆变)。  
 型变特性语法如下所示：
 
 ```scala
@@ -1977,7 +1977,7 @@ class Test[-T] //contravariance，逆变
 	如下所示：
 
 	```scala
-	scala> class Test[+T]
+	scala> class Test[+T] //定义带有协变类型参数的泛型类型
 	defined class Test
 
 	scala> typeOf[Child] <:< typeOf[Base]
@@ -1987,13 +1987,54 @@ class Test[-T] //contravariance，逆变
 	res4: Boolean = true //泛型类型的继承关系与类型参数相同
 	```
 
+	带有协变类型参数的泛型类型常用于方法参数、返回值中，使方法能接受/返回带有子类类型参数的泛型类型。  
+	如下所示：
+
+	```scala
+	scala> class Test[T]
+	defined class Test
+
+	scala> def test(t: Test[Base]) = t.toString
+	test: (t: Test[Base])String
+
+	scala> test(new Test[Child]) //泛型类型的参数不支持协变，报错
+	<console>:18: error: type mismatch;
+	 found   : Test[Child]
+	 required: Test[Base]
+	Note: Child <: Base, but class Test is invariant in type T.
+	You may wish to define T as +T instead. (SLS 4.5)
+	       test(new Test[Child])
+	            ^
+
+	scala> def test: Test[Base] = new Test[Child]
+	<console>:17: error: type mismatch;
+	 found   : Test[Child]
+	 required: Test[Base]
+	Note: Child <: Base, but class Test is invariant in type T.
+	You may wish to define T as +T instead. (SLS 4.5)
+	       def test: Test[Base] = new Test[Child]
+	                              ^
+
+	scala> class Test[+T]
+	defined class Test
+
+	scala> def test(t: Test[Child]) = t.toString
+	test: (t: Test[Child])String
+
+	scala> test(new Test[Child]) //正常调用方法
+	res5: String = Test@61fbec8a
+
+	scala> def test: Test[Base] = new Test[Child]
+	test: Test[Base]
+	```
+
 - `Contravariance` (逆变)
 
 	类型参数声明为`contravariance`(逆变)时，泛型类型的继承关系与类型参数相反。  
 	如下所示：
 
 	```scala
-	scala> class Test[-T]
+	scala> class Test[-T] //定义带有逆变类型参数的泛型类型
 	defined class Test
 
 	scala> typeOf[Child] <:< typeOf[Base]
