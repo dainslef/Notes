@@ -3,6 +3,8 @@
 - [概述](#概述)
 - [安装与配置](#安装与配置)
 	- [基本使用](#基本使用)
+	- [在 *macOS* 中使用 *docker*](#在-macos-中使用-docker)
+- [镜像与容器](#镜像与容器)
 
 <!-- /TOC -->
 
@@ -57,3 +59,42 @@
 - `docker save/export` 导出镜像到文件
 - `docker import` 从文件导入镜像
 - `docker tag` 为镜像添加／移除标志
+
+### 在 *macOS* 中使用 *docker*
+`docker`使用了诸多`Linux Kernel`专有特性，并非`POSIX`兼容，无法直接移植到`macOS`中。  
+`macOS`中`docker`使用`docker-machine`在`VirtualBox`中创建`Linux`虚拟机，并在虚拟机中运行`docker`。
+
+安装`docker`和`docker-machine`：
+
+```
+$ brew install docker docker-machine
+```
+
+`docker-machine`主要指令：
+
+```
+$ docker-machine create [虚拟机名称] //创建虚拟机
+$ docker-machine rm [虚拟机名称] //移除虚拟机
+$ docker-machine ls //列出已创建的虚拟机
+$ docker-machine start/stop [虚拟机名称] //启动/停止虚拟机
+$ docker-machine env [虚拟机名称] //获取指定已启动的虚拟机的环境变量
+```
+
+启动虚拟机后，直接在命令行中使用`docker`指令，会得到以下错误输出：
+
+```
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+```
+
+`docker`工具不能立即访问虚拟机，需要设置相关环境变量。  
+使用`docker-machine env`指令获取虚拟机相关环境变量，使用`eval`使环境变量生效，之后才能正常使用`docker`相关指令：
+
+```
+$ eval $(docker-machine env [环境变量])
+```
+
+
+
+## 镜像与容器
+镜像与容器是`docker`中的核心概念。  
+待续。
