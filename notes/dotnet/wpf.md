@@ -12,6 +12,7 @@
 - [数据绑定](#数据绑定)
 	- [属性变更通知](#属性变更通知)
 	- [绑定语法](#绑定语法)
+	- [后台绑定](#后台绑定)
 	- [绑定模式](#绑定模式)
 	- [数据更新触发器](#数据更新触发器)
 	- [绑定源/目标更新触发事件](#绑定源目标更新触发事件)
@@ -225,6 +226,10 @@
 在`WPF`中，典型的设计模式为`MVVM`。  
 对于一个`View`，会创建对应的`ViewModel`来描述其数据结构，并通过控件绑定`ViewModel`中的属性来实现多控件同步数据变化。
 
+控件自身的属性被称为**目标属性**，绑定的数据源对象称为**源属性**。  
+通过将目标属性绑定到源属性上，源属性的变化会同步到目标属性上，改变源属性即可改变目标属性。  
+通过数据绑定避免直接操作`GUI`，实现显示层与逻辑层隔离。
+
 ### 属性变更通知
 对于一个属性，要实现改变属性值时通知外部，需要满足以下要求：
 
@@ -435,8 +440,58 @@ class XXX : INotifyPropertyChanged
 	XXX="{Binding xxx, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type xxx}}}"
 	```
 
+### 后台绑定
+除了在`XAML`文件中直接建立数据绑定，也可以调用`API`在后端进行绑定。
+
+所有继承自`FrameworkElement`的类型均包含`SetBinding()`方法：
+
+```cs
+//
+// 摘要:
+//     根据提供的绑定对象，将绑定附加到此元素上。
+//
+// 参数:
+//   dp:
+//     标识应在其中建立绑定的属性。
+//
+//   binding:
+//     表示数据绑定的细节。
+//
+// 返回结果:
+//     记录绑定的情况。此返回值可用于错误检查。
+public BindingExpressionBase SetBinding(DependencyProperty dp, BindingBase binding);
+```
+
+使用`System.Windows.Data.Binding`类型构建绑定实例，并设置绑定相关参数。  
+调用目标控件的`SetBinding()`方法，将`Bingding`类型实例与具体的控件目标属性相关联：
+
+```cs
+Binding binding = new Binding
+{
+	Path = new PropertyPath("xxx"),
+	Source = ...,
+	Converter = ...,
+	Mode = ...,
+	...
+};
+
+目标控件实例.SetBinding(目标控件类型.依赖属性, binding);
+```
+
+对于多数常见的数据绑定，仅需提供绑定路径即可，`Binding`类型提供了以**绑定路径字符串**构造实例的构造方法：
+
+```cs
+//
+// 摘要:
+//     使用初始路径初始化 System.Windows.Data.Binding 类的新实例。
+//
+// 参数:
+//   path:
+//     绑定的初始 System.Windows.Data.Binding.Path。
+public Binding(string path);
+```
+
 ### 绑定模式
-控件自身的属性被称为**目标属性**，绑定的数据源对象称为**源属性**。  
 数据绑定时可以设置绑定模式(`Mode`)：
 
 ```xml
@@ -839,10 +894,10 @@ NavigationService.GetNavigationService(source).GoBack();
 ```cs
 MySqlConnection connection = new MySqlConnection("server = localhost; userid = XXX; password = XXX; database = XXX");
 MySqlCommand command = new MySqlCommand("select * from 表名", connection);
-MySqlDataAdapter dataAdapter = new MySqlDataAdapter(command);		//执行查询指令
-DataSet dataSet = new DataSet();									//创建空数据源
-dataAdapter.Fill(dataSet);											//填充数据源
-dataGrid.ItemsSource = dataSet.Tables[0].DefaultView;				//绑定数据源中的表视图
+MySqlDataAdapter dataAdapter = new MySqlDataAdapter(command); //执行查询指令
+DataSet dataSet = new DataSet(); //创建空数据源
+dataAdapter.Fill(dataSet); //填充数据源
+dataGrid.ItemsSource = dataSet.Tables[0].DefaultView; //绑定数据源中的表视图
 ```
 
 绑定到数据库数据源时，数据库中的改动会自动同步到控件上。
