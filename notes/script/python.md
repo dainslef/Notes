@@ -40,6 +40,9 @@
 	- [UDP 服务端](#udp-服务端)
 	- [客户端](#客户端)
 - [包管理器 *pip*](#包管理器-pip)
+	- [安装和配置 *pip*](#安装和配置-pip)
+	- [镜像源](#镜像源)
+	- [常用操作](#常用操作)
 	- [包依赖检查与清理](#包依赖检查与清理)
 - [文档浏览](#文档浏览)
 - [*PEP8* 编码规范总结](#pep8-编码规范总结)
@@ -1483,8 +1486,11 @@ clientSock.connect(("ip地址", 端口))
 
 
 ## 包管理器 *pip*
-Python提供了包管理器`pip`用于管理模块。  
-在部分Linux发行版中，`pip`并没有随Python一并被安装，`pip`可以从发行版的软件源中安装，也可以下载安装脚本：
+`Python`提供了包管理器`pip`用于安装、管理第三方模块。
+
+### 安装和配置 *pip*
+在部分Linux发行版中，`pip`并没有随`Python`一并被安装。  
+`pip`可以从发行版的软件源中安装，也可以下载安装脚本：
 
 ```
 $ wget https://bootstrap.pypa.io/get-pip.py
@@ -1494,7 +1500,35 @@ $ python3 get-pip.py --user //将pip安装到用户目录
 
 系统目录下的Python包是所有用户共享的，用户目录下的Python包只有所有者可访问。
 
-`pip`包管理器的使用方式类似于Linux发行版的包管理器，常见操作如下：
+- `Linux`下的`pip`相关特性
+
+	安装**pip**到系统目录需要`root`权限，系统`Python`模块安装在路径`/usr/lib/python[version]/site-packages`下，需要`root`权限对其进行写入操作。  
+	安装`Python`模块到用户目录下无需`root`权限，用户`Python`模块在路径`~/.local/lib/python[version]/site-packages`下。  
+	还会在`~/.local/bin`路径下生成可执行脚本。
+
+	由发行版自身的包管理器(`apt`、`yum`、`dnf`、`pacman`等)安装的`Python`模块也会显示在`pip list`指令的输出中。  
+	系统包管理器安装的`Python`模块通常被系统某些组件依赖，尝试删除这些包时会收到`DEPRECATION`(反对)，提示这些包是由`distutils`(发行版工具)安装的，一般情况下，除非必要，不要删除这些由发行版包管理器安装的`Python`模块。
+
+- `macOS`下的`pip`相关特性
+
+	使用**homebrew**安装`Python`时会自动安装`pip`，使用`pip`**无需**`root`权限。  
+	系统`Python`模块安装在路径`/usr/local/lib/python[version]/site-packages/`下。  
+	用户`Python`模块安装在路径`~/Library/Python/[version]/lib/python/site-packages`下。
+	系统`Python`模块会在`/usr/local/bin`路径下生成可执行脚本。  
+	用户`Python`模块会在`~/Library/Python/[version]/bin`路径下生成可执行脚本。
+
+### 镜像源
+由于`GFW`的存在，`pip`官方源可能无法访问。  
+使用国内镜像源替换官方源，推荐使用`USTC`源，在`.pip/pip.conf`文件中添加内容：
+
+```
+[global]
+index-url = https://mirrors.ustc.edu.cn/pypi/web/simple
+format = columns
+```
+
+### 常用操作
+`pip`包管理器使用方式类似`Linux`发行版的包管理器，常见操作如下：
 
 ```
 # pip install [package_name] //安装包
@@ -1509,18 +1543,6 @@ $ pip show [package_name] //显示包的详细信息
 $ pip show --files [package_name] //列出包安装的文件列表
 $ pip help [operate] //查看pip相关操作的帮助信息，如"pip help install"即查看"pip install"指令的所有用法
 ```
-
-`Linux`下`pip`的包路径：
-
-- 在`Linux`下，安装**pip**到系统目录需要`root`权限， 系统共享`Python`包被安装在路径`/usr/lib/python[version]/site-packages`中，没有`root`权限则不能对该目录进行写入操作。
-- 安装Python包到用户目录下则无需`root`权限，在Linux下，用户个人Python模块被安装在路径`~/.local/lib/python[version]/site-packages`中，同时，还会在`~/.local/bin`路径下生成可执行脚本，将此路径加入`PATH`即可在命令行中直接使用安装的模块。
-- 在Linux下，一些由发行版自身的包管理器(`apt`、`yum`、`dnf`、`pacman`等)安装的Python包也会显示在`pip list`指令的输出中，但这些包通常被系统的某些组件依赖，尝试删除这些包时会收到`DEPRECATION`(反对)，提示这些包是由`distutils`(发行版工具)安装的，一般情况下，除非必要，不要删除这些由发行版包管理器安装的Python包。
-
-`macOS`下`pip`的包路径：
-
-- 在`macOS`中，使用**homebrew**安装`Python`时会自动安装`pip`，无需额外安装，使用`pip`时也**无需**`root`权限。
-- 在`macOS`中，共享的`Python`模块被安装在路径`/usr/local/lib/python[version]/site-packages/`下，个人Python模块被安装在路径`~/Library/Python/[version]/lib/python/site-packages`下。
-- 在`macOS`中，Python模块安装到系统目录同时会在`/usr/local/bin`路径下生成可执行脚本，安装到用户目录则会在`~/Library/Python/[version]/bin`路径下生成可执行脚本。
 
 ### 包依赖检查与清理
 相比Linux各大发行版的包管理器。`pip`是一个非常**原始**、**简陋**的包管理器工具。
@@ -1563,8 +1585,8 @@ $ pydoc -p [port]
 **PEP**是`Python Enhancement Proposal`的缩写，即`Python增强建议`。
 
 ### 代码编排
-- 以80个字符做为单行界限。
-- 优先使用4个空格做为缩进，但在使用Tab做为缩进的代码中，应保持使用Tab。
+- 以`80`个字符做为单行界限。
+- 优先使用`4`个**空格**做为缩进，但在使用`Tab`做为缩进的代码中，应保持使用`Tab`。
 - 代码换行优先在括号内部换行，也可以使用`\`换行符。
 - 在括号内换行时，以其它括号内的元素作为对齐标准，或者使用悬挂式缩进。
 - 在使用悬挂式缩进时，应使用进一步缩进以便于与其它行区分。
