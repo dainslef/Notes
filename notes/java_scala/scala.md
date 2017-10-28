@@ -37,6 +37,8 @@
 - [类型系统](#类型系统)
 	- [类型参数](#类型参数)
 	- [类型约束](#类型约束)
+	- [*View Bounds* (视图界定)](#view-bounds-视图界定)
+	- [*Content Bounds*](#content-bounds)
 	- [*Variances* (型变)](#variances-型变)
 - [*continue* 与 *break*](#continue-与-break)
 - [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
@@ -1903,39 +1905,95 @@ Xxx{type T = String}
 如下所示：
 
 ```scala
-trait Other
+scala> trait Other
+defined trait Other
 
-trait Base
+scala> trait Base
+defined trait Base
 
-trait Child extends Base
+scala> trait Child extends Base
+defined trait Child
 
-def test[T <: Base](t: T) = t.toString
+scala> def test[T <: Base](t: T) = t
+test: [T <: Base](t: T)T
 
-test[Child](null) //正确
-test[Base](null) //正确
+scala> test[Base](null)
+res1: Base = null
 
-test[Other](null) //编译错误 Error: type arguments [Other] do not conform to method test's type parameter bounds [T <: Base]
+scala> test[Child](null)
+res2: Child = null
+
+scala> test[Other](null)
+<console>:14: error: type arguments [Other] do not conform to method test's type parameter bounds [T <: Base]
+       test[Other](null)
+           ^
 ```
 
 `Lower Type Bounds`用于限定类型参数为另一类型的**父类**。  
 如下所示：
 
 ```scala
-trait Other
+scala> trait Other
+defined trait Other
 
-trait Base
+scala> trait Base
+defined trait Base
 
-trait Child extends Base
+scala> trait Child extends Base
+defined trait Child
 
-def test[T >: Child](t: T) = t.toString
+scala> def test[T >: Child](t: T) = t
+test: [T >: Child](t: T)T
 
-test[Child](null) //正确
-test[Base](null) //正确
+scala> test[Base](null)
+res1: Base = null
 
-test[Other](null) //编译错误 Error: type arguments [Other] do not conform to method test's type parameter bounds [T >: Child]
+scala> test[Child](null)
+res2: Child = null
+
+scala> test[Other](null)
+<console>:14: error: type arguments [Other] do not conform to method test's type parameter bounds [T >: Child]
+       test[Other](null)
+           ^
 ```
 
 使用`Lower Type Bounds`可以将传入的更细粒度的类型转换为更粗粒度的类型。
+
+### *View Bounds* (视图界定)
+视图界定相比普通类型约束更加**宽松**，类型参数不必自身满足类型约束，仅需类型参数能被**隐式转换**为满足类型约束的类型。  
+
+视图界定语法为`T <% Xxx`，与类型界定不同，**不存在**`T >% Xxx`这样的语法。  
+如下所示：
+
+```scala
+scala> trait Other
+defined trait Other
+
+scala> trait Base
+defined trait Base
+
+scala> trait Child extends Base
+defined trait Child
+
+scala> def test[T <% Base](t: T) = t //使用视图界定会生成隐式参数表
+test: [T](t: T)(implicit evidence$1: T => Base)T
+
+scala> test[Child](null) //与上级类型约束类似，使用子类能够满足约束条件
+res1: Child = null
+
+scala> test[Other](null) //使用无关类型不能满足约束条件
+<console>:14: error: No implicit view available from Other => Base.
+       test[Other](null)
+                  ^
+
+scala> implicit def otherToChild(t: Other) = null: Child //定义隐式转换
+
+scala> test[Other](null) //提供符合要求的隐式转换后能够正常调用方法
+res2: Other = null
+```
+
+### *Content Bounds*
+待续。
 
 ### *Variances* (型变)
 带有类型参数的泛型类型在使用不同类型参数时默认**不存在**继承关系。  
