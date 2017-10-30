@@ -38,7 +38,6 @@
 	- [类型参数](#类型参数)
 	- [类型约束](#类型约束)
 	- [*View Bounds* (视图界定)](#view-bounds-视图界定)
-	- [*Content Bounds*](#content-bounds)
 	- [*Variances* (型变)](#variances-型变)
 - [*continue* 与 *break*](#continue-与-break)
 - [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
@@ -1929,6 +1928,38 @@ scala> test[Other](null)
            ^
 ```
 
+类型约束亦可用于类型定义，`class/trait`均支持该特性：
+
+```scala
+scala> class Test[T <: Base]
+defined class Test
+
+scala> new Test[Child]
+res3: Test[Child] = Test@65b73689
+
+scala> new Test[Other]
+<console>:13: error: type arguments [Other] do not conform to class Test's type parameter bounds [T <: Base]
+       val res1 =
+           ^
+<console>:14: error: type arguments [Other] do not conform to class Test's type parameter bounds [T <: Base]
+       new Test[Other]
+           ^
+
+scala> trait Test[T <: Base]
+defined trait Test
+
+scala> new Test[Child] { }
+res4: Test[Child] = $anon$1@7836c79
+
+scala> new Test[Other] { }
+<console>:13: error: type arguments [Other] do not conform to trait Test's type parameter bounds [T <: Base]
+       val res3 =
+           ^
+<console>:14: error: type arguments [Other] do not conform to trait Test's type parameter bounds [T <: Base]
+       new Test[Other] { }
+           ^
+```
+
 `Lower Type Bounds`用于限定类型参数为另一类型的**父类**。  
 如下所示：
 
@@ -1960,9 +1991,10 @@ scala> test[Other](null)
 使用`Lower Type Bounds`可以将传入的更细粒度的类型转换为更粗粒度的类型。
 
 ### *View Bounds* (视图界定)
-视图界定相比普通类型约束更加**宽松**，类型参数不必自身满足类型约束，仅需类型参数能被**隐式转换**为满足类型约束的类型。  
+`View Bounds`(视图界定)相比普通类型约束更加**宽松**，类型参数不必自身满足类型约束，仅需类型参数能被**隐式转换**为满足类型约束的类型。
 
-视图界定语法为`T <% Xxx`，与类型界定不同，**不存在**`T >% Xxx`这样的语法。  
+视图界定语法为`T <% Xxx`，可用于方法定义与类型定义。  
+与类型界定不同，**不存在**`T >% Xxx`这样的语法。  
 如下所示：
 
 ```scala
@@ -1987,13 +2019,25 @@ scala> test[Other](null) //使用无关类型不能满足约束条件
                   ^
 
 scala> implicit def otherToChild(t: Other) = null: Child //定义隐式转换
+otherToChild: (t: Other)Child
 
 scala> test[Other](null) //提供符合要求的隐式转换后能够正常调用方法
-res2: Other = null
+res3: Other = null
 ```
 
-### *Content Bounds*
-待续。
+实际上视图界定是隐式参数的语法糖，使用视图界定时会生成`implicit xxx: T => Xxx`形式的隐式参数表。  
+不能带有有参构造器的`trait`类型**不能**使用视图界定特性。  
+如下所示：
+
+```scala
+scala> class Test[T <% Base] //定义类型时使用视图界定
+defined class Test
+
+scala> trait Test[T <% Base] //特质无法使用视图界定特性
+<console>:1: error: traits cannot have type parameters with context bounds `: ...' nor view bounds `<% ...'
+       trait Test[T <% Base]
+                            ^
+```
 
 ### *Variances* (型变)
 带有类型参数的泛型类型在使用不同类型参数时默认**不存在**继承关系。  
