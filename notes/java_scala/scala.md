@@ -38,6 +38,7 @@
 	- [类型参数](#类型参数)
 	- [类型约束](#类型约束)
 	- [*View Bounds* (视图界定)](#view-bounds-视图界定)
+	- [*Content Bounds*](#content-bounds)
 	- [*Variances* (型变)](#variances-型变)
 - [*continue* 与 *break*](#continue-与-break)
 - [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
@@ -2037,6 +2038,68 @@ scala> trait Test[T <% Base] //特质无法使用视图界定特性
 <console>:1: error: traits cannot have type parameters with context bounds `: ...' nor view bounds `<% ...'
        trait Test[T <% Base]
                             ^
+```
+
+### *Content Bounds*
+`Content Bounds`(上下文界定)要求上下文中存在类型为`Xxx[T]`的隐式值。
+
+上下文界定语法为`T: Xxx`，可用于方法定义与类型定义。  
+如下所示：
+
+```scala
+scala> class Xxx[T]
+defined class Xxx
+
+scala> def test[T: Xxx] = null //上下文界定用于方法类型参数，生成隐式参数表
+test: [T](implicit evidence$1: Xxx[T])Null
+
+scala> class Test[T: Xxx] //上下文界定用于类型定义
+defined class Test
+
+scala> test[Int] //调用方法出错，缺少符合要求隐式值
+<console>:14: error: could not find implicit value for evidence parameter of type Xxx[Int]
+       test[Int]
+           ^
+
+scala> new Test[Int] //构建实例出错，缺少符合要求隐式值
+<console>:14: error: could not find implicit value for evidence parameter of type Xxx[Int]
+       new Test[Int]
+       ^
+
+scala> implicit object XxxInt extends Xxx[Int] //提供隐式值
+defined object XxxInt
+
+scala> test[Int] //正常调用
+res1: Null = null
+
+scala> new Test[Int] //正常构建实例
+res2: Test[Int] = Test@62640933
+```
+
+与视图界定类似，上下文界定亦是隐式参数的语法糖，使用上下文界定会生成`implicit xxx: Xxx[T]`的隐式参数表。  
+不能带有有参构造器的`trait`类型**不能**使用上下文界定特性。  
+如下所示：
+
+```scala
+scala> trait Test[T: Xxx]
+<console>:1: error: traits cannot have type parameters with context bounds `: ...' nor view bounds `<% ...'
+trait Test[T: Xxx]
+                  ^
+```
+
+上下文界定生成的隐式参数表中的隐式参数名称有编译器合成，无法直接通过参数名称访问该隐式值。  
+获取隐式值需要使用`Predef`包中定义的`implicitly[T]()`方法。  
+如下所示：
+
+```scala
+scala> def test[T: Seq] = println(implicitly[Seq[T]]) //打印获取到的隐式值
+test: [T](implicit evidence$1: Seq[T])Unit
+
+scala> implicit val seq = Seq(6, 6, 6) //提供隐式值
+seq: Seq[Int] = List(6, 6, 6)
+
+scala> test[Int] //调用使用了上下文界定的方法，输出隐式值
+List(6, 6, 6)
 ```
 
 ### *Variances* (型变)
@@ -4783,7 +4846,7 @@ object TestSync {
 ## *Reflect* (反射)
 `Scala 2.10`之后提供了自身的反射相关`API`。
 
-`Java`标准库中的反射`API`不支持`Scala`的专属特性。  
+`Java`标准库中的反射`API`不支持`Scala`的专有语言特性。  
 `Scala`自身提供的反射`API`能完整地支持所有`Scala`语言特性。
 
 到目前版本(`Scala 2.12`)为止，反射相关功能依然是`Expermental`(**实验性**)的，相关`API`在后续版本中可能会有较大改动。
@@ -4908,7 +4971,9 @@ Method name: showField, value: 2333
 	或者将`NameType`与`TermName`类型进行比较。
 - 类内方法的`MethodSymbol`对应的`TermName`与方法名称相同，一个方法的多个重载`TermName`相同。
 - 对于无重载的方法，使用`Type.decl()/member()`根据名称查找到的`Symbol`可直接使用`Symbol.asSymbol`方法转化为`MethodSymbol`。
-- 对于拥有重载的方法，使用`Type.decl()/member()`方法根据名称查找获取到的是包含重载信息的`TermSymbol`，使用`Symbol.alternatives`方法可获取包含所有同名重载方法的`List[Symbol]`。
+- 对于拥有重载的方法，使用`Type.decl()/member()`方法根据名称查找获取到的是包含重载信息的`TermSymbol`。  
+	对该`TermSymbol`实例使用`Symbol.alternatives`方法可获取包含所有同名重载方法信息的`List[MethodSymbol]`。  
+	通过分析每个`MethodSymbol`的信息选取正确的重载。
 
 
 
