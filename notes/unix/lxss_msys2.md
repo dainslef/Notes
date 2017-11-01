@@ -5,6 +5,7 @@
 	- [配置仓库与源](#配置仓库与源)
 	- [包管理](#包管理)
 	- [设置中文 *LC*](#设置中文-lc)
+	- [*pacman-key/msys2-keyring* 更新错误](#pacman-keymsys2-keyring-更新错误)
 - [*Linux Subsystem* 概述](#linux-subsystem-概述)
 	- [启用 *Linux Subsystem*](#启用-linux-subsystem)
 	- [管理 *Linux Subsystem*](#管理-linux-subsystem)
@@ -82,6 +83,32 @@ Server = http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/x86_64 //mirrorlist.mingw6
 - 环境变量名称： `LC_ALL`
 - 环境变量值： `zh_CN.UTF-8`
 
+### *pacman-key/msys2-keyring* 更新错误
+在启用了`Linux Subsystem`的系统中，`Linux Subsystem`提供的`bash`优先级高于`MSYS2`提供的`bash`。  
+在更新`msys2-keyring`时，会调用更新脚本`pacman-key`，该脚本默认使用`bash`执行，若等使用`Linux Subsystem`提供的`bash`会因环境不匹配而导致执行失败。
+
+`pacman`指令会因为密钥库更新失败不能正常地更新仓库信息。  
+解决方案是安装`zsh`，将`pacman-key`脚本的执行`Shell`切换到`zsh`。  
+编辑`[MSYS根路径]/usr/bin/pacman-key`文件，原内容：
+
+```bash
+#!/usr/bin/env bash
+...
+```
+
+修改为：
+
+```bash
+#!/usr/bin/env zsh
+...
+```
+
+之后重新执行`pacman-key`再次初始化密钥库即可正常更新`pacman`仓库数据：
+
+```
+$ pacman-key --init
+```
+
 
 
 ## *Linux Subsystem* 概述
@@ -95,6 +122,8 @@ Server = http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/x86_64 //mirrorlist.mingw6
 1. 在`CMD`中输入`bash`指令，按照提示即可进入子系统安装步骤。
 
 `Linux Subsystem`的安装路径为`[用户目录]/AppData/Local/Lxss`路径下。  
+默认的资源管理器配置下，该目录不可见，需要取消勾选`隐藏受保护的操作系统文件(推荐)`选项才能显示此目录。
+
 在`Linux Subsystem`中，`Windows`下的分区会被挂载到`/mnt`路径下。
 
 ### 管理 *Linux Subsystem*
