@@ -1,5 +1,7 @@
 <!-- TOC -->
 
+- [*GNU GRUB*](#gnu-grub)
+	- [安装与配置](#安装与配置)
 - [*ulimit*](#ulimit)
 	- [*Core Dump* (核心转储)](#core-dump-核心转储)
 - [*fdisk*](#fdisk)
@@ -26,6 +28,53 @@
 	- [使用本地源](#使用本地源)
 
 <!-- /TOC -->
+
+
+
+## *GNU GRUB*
+`GRUB`(`GRand Unified Bootloader`)是现代`Linux`的标准启动管理器，是`LILO`(`Linux Loader`)的替代品。
+
+`GRUB`支持多重引导，除了`Linux`，也能用于引导`Windows`、`FreeBSD`等其它现代操作系统。  
+`GRUB`在较新版本中提供了对`UEFI BIOS`新型固件的支持。
+
+早期版本的`GRUB`(`i.e. version 0.9x`)现在被称为`GRUB Legacy`，已停止开发。  
+`GRUB`现在的主要版本为`GRUB 2`。
+
+### 安装与配置
+`GRUB`作为重要的系统组件，通常已被收录于各大发行版的官方源中，多数发行版会默认安装`GRUB`。  
+使用包管理手动安装`GRUB`：
+
+```
+# pacman -S grub //Arch Linux
+# apt install grub-common //Ubuntu、Debian
+```
+
+`GRUB`的配置文件为`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令根据已安装的`OS`自动生成合适的引导配置：
+
+```
+# grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+默认`grub-mkconfig`生成配置时仅会扫描硬盘中的`Linux`发行版，若需要生成的配置包含其它`OS`的引导菜单，需要额外安装`os-prober`组件：
+
+```
+# pacman -S os-prober //Arch Linux
+# apt install os-prober //Ubuntu、Debian
+```
+
+生成`GRUB`配置后，使用`grub-install`将引导器安装到硬盘中。  
+对于使用`MBR`电脑，应在安装时指明安装设备：
+
+```
+# grub-install /dev/sda //将GRUB引导器安装到硬盘 /dev/sda 中
+```
+
+对于使用`UEFI`固件的新式电脑，需要额外安装`efibootmgr`:
+
+```
+# pacman -S efibootmgr //Arch Linux
+# apt install efibootmgr //Ubuntu、Debian
+```
 
 
 
@@ -111,7 +160,9 @@
 
 与`fdisk`工具类似，执行具体的磁盘分区需要进入`parted`会话：
 
-`# parted [磁盘路径]`
+```
+# parted [磁盘路径]
+```
 
 `parted`会话中的基本指令如下：
 
@@ -128,6 +179,7 @@
 - `name [分区号] [分区名称]` 命名指定分区
 - `print` 显示分区信息
 - `print free` 显示分区信息，包括磁盘中未被使用的空间
+- `print all` 显示所有分区信息
 - `quit` 退出`parted`会话
 
 相比`fdisk`，`parted`会话中的分区操作是立即执行并生效的，因此更需小心谨慎。
