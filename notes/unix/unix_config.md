@@ -2,6 +2,8 @@
 
 - [*GNU GRUB*](#gnu-grub)
 	- [安装与配置](#安装与配置)
+	- [安装引导器](#安装引导器)
+	- [修复引导](#修复引导)
 - [*ulimit*](#ulimit)
 	- [*Core Dump* (核心转储)](#core-dump-核心转储)
 - [*fdisk*](#fdisk)
@@ -52,7 +54,8 @@
 `GRUB`的配置文件为`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令根据已安装的`OS`自动生成合适的引导配置：
 
 ```
-# grub-mkconfig -o /boot/grub/grub.cfg
+# grub-mkconfig -o /boot/grub/grub.cfg //通用
+# update-grub //Debian系专属
 ```
 
 默认`grub-mkconfig`生成配置时仅会扫描硬盘中的`Linux`发行版，若需要生成的配置包含其它`OS`的引导菜单，需要额外安装`os-prober`组件：
@@ -62,19 +65,79 @@
 # apt install os-prober //Ubuntu、Debian
 ```
 
-生成`GRUB`配置后，使用`grub-install`将引导器安装到硬盘中。  
+### 安装引导器
+正确生成`GRUB`配置后，使用`grub-install`将引导器安装到硬盘中。  
 对于使用`MBR`电脑，应在安装时指明安装设备：
 
 ```
 # grub-install /dev/sda //将GRUB引导器安装到硬盘 /dev/sda 中
 ```
 
-对于使用`UEFI`固件的新式电脑，需要额外安装`efibootmgr`:
+对于使用`UEFI`固件的新式电脑，需要将`ESP`分区挂载到`/boot/efi`路径下，并且额外安装`efibootmgr`组件:
 
 ```
 # pacman -S efibootmgr //Arch Linux
 # apt install efibootmgr //Ubuntu、Debian
 ```
+
+将`GRUB`引导器安装到`UEFI`固件的电脑中无需额外参数：
+
+```
+# grub-install
+```
+
+安装完成后会在`ESP`分区中生成对应的`efi`引导文件。
+
+### 修复引导
+当分区结构发生变化时，引导器可能不能正常加载。  
+若开机进入以`grub rescue>`为提示符的救援界面时，可尝试以下步骤恢复：
+
+1. 查看分区结构，确认`Linux`分区位置。
+
+	执行`ls`指令，查看分区列表：
+
+	```
+	grub rescue> ls
+	(hd0) (hd0,gpt1) (hd0,gpt2) (hd0,gpt3) ...
+	```
+
+	确认分区的文件系统：
+
+	```
+	grub rescue> ls (hd0,gpt2)
+	(hd0,gpt2): Filesystem is unknown.
+	grub rescue> ls (hd0,gpt3)
+	(hd0,gpt3): Filesystem is ext2.
+	```
+
+	确认分区的内容：
+
+	```
+	grub rescue> ls (hd0,gpt3)/
+	...
+	```
+
+2. 指定启动分区位置，手动加载启动器。
+
+	确认分区的位置后，设置启动参数：
+
+	```
+	grub rescue> set boot=(hd0,gpt3)
+	grub rescue> set prefix=(hd0,gpt3)/boot/grub
+	grub rescue> insmod normal
+	grub rescue> normal
+	```
+
+	之后即可进入正常的`GRUB`引导界面。
+
+3. 重新安装引导器。
+
+	正常启动系统后，在终端重新安装引导器：
+
+	```
+	# grub-install /dev/sda //MBR
+	# grub-install //UEFI
+	```
 
 
 
