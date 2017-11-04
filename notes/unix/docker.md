@@ -5,6 +5,7 @@
 	- [基本使用](#基本使用)
 	- [在 *macOS* 中使用 *docker*](#在-macos-中使用-docker)
 - [镜像与容器](#镜像与容器)
+	- [获取镜像](#获取镜像)
 
 <!-- /TOC -->
 
@@ -17,17 +18,11 @@
 
 
 ## 安装与配置
-各类`Linux`发行版已经在仓库中内置了`docker`，直接使用发行版内置的包管理器安装即可。
-如，在`Arch Linux`中：
+各类`Linux`发行版的官方仓库中均内置了`docker`，使用发行版内置的包管理器安装即可：
 
 ```
-# pacman -S docker
-```
-
-在`Ubuntu/Debian`中：
-
-```
-# apt install docker.io
+# pacman -S docker //Arch Linux
+# apt install docker.io //Debian系
 ```
 
 `docker`容器使用宿主机的内核，需要宿主机内核版本`3.10+`。
@@ -96,5 +91,29 @@ $ eval $(docker-machine env [环境变量])
 
 
 ## 镜像与容器
-镜像与容器是`docker`中的核心概念。  
-待续。
+镜像与容器是`docker`中的核心概念。
+
+- **容器**(`Container`)是一个/一组在独立环境中执行的应用。
+- **镜像**(`Image`)是用于创建容器的模版。
+
+### 获取镜像
+镜像包含一个定制的`Linux`环境，提供创建容器所需的文件。
+
+`Docker Hub`(`https://hub.docker.com`)提供了镜像托管服务，可在该网站中查找各类定制镜像。  
+各大发行版厂商均在`Docker Hub`中提供了官方镜像，一些社区也提供了用于运行特定软件服务的定制镜像。
+
+使用`docker search`指令搜索镜像：
+
+```
+$ docker search [镜像名称]
+```
+
+完整的镜像名称由`[NAME]:[TAG]`形式构成，一般情况下，镜像`TAG`可省略，省略镜像`TAG`时会使用默认`TAG`。  
+`docker search`指令并未提供依据`TAG`搜索镜像的功能，名称相同`TAG`不同的镜像需要在`Docker Hub`中查找。
+
+从`dcoker pull`指令从`Docker Hub`中拉取镜像到本地：
+
+```
+$ docker pull [镜像名称] //拉取指定名称默认TAG的镜像
+$ docker pull [镜像名称:镜像TAG] //拉取指定名称指定TAG的镜像
+```
