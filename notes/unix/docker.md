@@ -5,7 +5,7 @@
 	- [基本使用](#基本使用)
 	- [在 *macOS* 中使用 *docker*](#在-macos-中使用-docker)
 - [镜像与容器](#镜像与容器)
-	- [获取镜像](#获取镜像)
+	- [管理镜像](#管理镜像)
 
 <!-- /TOC -->
 
@@ -96,24 +96,54 @@ $ eval $(docker-machine env [环境变量])
 - **容器**(`Container`)是一个/一组在独立环境中执行的应用。
 - **镜像**(`Image`)是用于创建容器的模版。
 
-### 获取镜像
+### 管理镜像
 镜像包含一个定制的`Linux`环境，提供创建容器所需的文件。
+
+使用`docker images`指令查看本地存在的镜像：
+
+```
+$ docker images //列出本地包含的镜像
+$ docker image ls //列出本地包含的镜像，同 docker images
+```
+
+输出内容格式如下：
+
+```
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+ubuntu              latest              dd6f76d9cc90        7 hours ago         122MB
+nixos/nix           latest              3513b310c613        5 weeks ago         177MB
+```
+
+- `REPOSITORY`为镜像所属仓库。
+- `TAG`为镜像标签。
+- `IMAGE ID`为镜像ID，是镜像的唯一标志。
 
 `Docker Hub`(`https://hub.docker.com`)提供了镜像托管服务，可在该网站中查找各类定制镜像。  
 各大发行版厂商均在`Docker Hub`中提供了官方镜像，一些社区也提供了用于运行特定软件服务的定制镜像。
 
+镜像名称由`[镜像仓库]:[镜像TAG]`形式构成，一般情况下，镜像`TAG`可省略，省略镜像`TAG`时会使用默认`TAG`。  
+一个镜像仓库可以提供多个标签不同的镜像，如`ubuntu`仓库中使用不同`TAG`提供了不同版本的`ubuntu`镜像(`ubuntu:16.04`、`ubuntu:14.04`等)。
+
 使用`docker search`指令搜索镜像：
 
 ```
-$ docker search [镜像名称]
+$ docker search [查询内容]
 ```
 
-完整的镜像名称由`[NAME]:[TAG]`形式构成，一般情况下，镜像`TAG`可省略，省略镜像`TAG`时会使用默认`TAG`。  
 `docker search`指令并未提供依据`TAG`搜索镜像的功能，名称相同`TAG`不同的镜像需要在`Docker Hub`中查找。
 
 从`dcoker pull`指令从`Docker Hub`中拉取镜像到本地：
 
 ```
-$ docker pull [镜像名称] //拉取指定名称默认TAG的镜像
-$ docker pull [镜像名称:镜像TAG] //拉取指定名称指定TAG的镜像
+$ docker pull [镜像仓库] //拉取指定名称默认TAG的镜像
+$ docker pull [镜像仓库:镜像TAG] //拉取指定名称指定TAG的镜像
+$ docker image pull [镜像仓库] //拉取镜像，与 docker pull 相同
+```
+
+其它镜像管理指令：
+
+```
+$ docker rmi [镜像ID/镜像名称] //删除指定镜像
+$ docker image rm [镜像ID/镜像名称] //删除指定镜像，同 docker rmi
+$ docker image inspect [镜像ID/镜像名称] //显示镜像详情
 ```
