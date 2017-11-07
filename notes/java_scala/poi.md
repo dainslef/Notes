@@ -210,7 +210,7 @@ public class XWPFTableRow {
 }
 ```
 
-`XWPFTableCell`可由``XWPFTableRow`的`createCell()/getCell()`等方法获取。  
+`XWPFTableCell`可由`XWPFTableRow`的`createCell()/getCell()`等方法获取。  
 `XWPFTableCell`类型的常用方法如下所示：
 
 ```java

@@ -1734,7 +1734,7 @@ Right reference.
 `std::forward()`在调用时需要写明模板参数类型，否则无法通过编译。  
 可以借助**通用引用**规则编写模板函数进行封装：
 
-```
+```cpp
 #include <iostream>
 
 using namespace std;
@@ -2128,7 +2128,7 @@ int func<int, int>(int t, int s)
 }
 ```
 
-泛型类型也可以省略，写成：
+模版类型参数也可省略，写成：
 
 ```cpp
 template <>
@@ -2327,7 +2327,7 @@ float s = 0;
 printf("%d\n", G(s));			//报错 error: ‘_Generic’ selector of type ‘float’ is not compatible with any association
 ```
 
-使用`_Generic`可以一定程度上实现泛型函数：
+使用`_Generic`可以一定程度上实现模版函数：
 
 ```c
 #include <stdio.h>
@@ -2561,7 +2561,7 @@ Run lambda function point: 100
 ```
 
 ### C++14 中的 *Lambda* 新特性
-- 在`C++14`中，加入了泛型`Lambda`，
+- 在`C++14`中，加入了模版`Lambda`，
 	并支持在`Lambda`使用**表达式**捕获作用域中的变量，
 	且没有捕获变量的`Lambda`可以与函数指针进行转化(不是函数对象)。
 - 在`C++11`中，`Lambda`中的参数必须显式指定参数的类型，
@@ -2581,7 +2581,7 @@ using namespace std;
 
 int main(void)
 {
-	// 泛型Lambda表达式
+	// 模版Lambda表达式
 	auto lambda1 = [](auto num) { return num; };
 	cout << "Use int as args: " << lambda1(100) << endl;
 	cout << "Use string as args: " << lambda1("string") << endl;
@@ -3218,7 +3218,7 @@ struct time_point
 };
 ```
 
-泛型参数`_Dur`为时间的单位(带有泛型参数的具体`std::chrono::duration`)，`_Clock`定义了时间点使用的**时钟类型**。
+模版参数`_Dur`为时间的单位(带有模版参数的具体`std::chrono::duration`)，`_Clock`定义了时间点使用的**时钟类型**。
 
 - `std::chrono::time_point`可以与时间间隔`std::chrono::duration`进行加减运算，得到新的时间点。
 - 时间点同样拥有`time_point_cast()`用于在不同单位的时间点之间进行转换，模板参数、使用方法与`std::chrono::duration`的对应函数类似。
@@ -3781,7 +3781,7 @@ using List = std::list<int>; //等价于 typedef class std::list<int> List;
 using point = int (*a)(int, int);
 ```
 
-`using`用于定义模板类型的部分有参别名(`typedef`不能定义部分参数化的泛型类型)。如：
+`using`用于定义模板类型的部分有参别名(`typedef`不能定义部分参数化模版类型)。如：
 
 ```cpp
 template <class T>
