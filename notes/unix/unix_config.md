@@ -1,5 +1,8 @@
 <!-- TOC -->
 
+- [*ftp*](#ftp)
+	- [连接服务器](#连接服务器)
+	- [常用指令](#常用指令)
 - [*GNU GRUB*](#gnu-grub)
 	- [安装与配置](#安装与配置)
 	- [安装引导器](#安装引导器)
@@ -31,6 +34,65 @@
 	- [使用本地源](#使用本地源)
 
 <!-- /TOC -->
+
+
+
+## *ftp*
+`Windows`系统下提供了`ftp`命令行工具用于访问`FTP`服务器进行交互。
+
+### 连接服务器
+使用`ftp`指令与服务端建立连接：
+
+```
+$ ftp [服务端IP地址]
+```
+
+成功建立连接后，会提示输入`FTP`用户名/密码，如下所示：
+
+```
+> ftp [服务端IP地址]
+连接到 [服务端IP地址]。
+...
+用户([IP地址]:(none)): Xxx
+331 Password required for Xxx
+密码:
+230 User Xxx logged in
+ftp>
+```
+
+通过服务端用户验证后，会进入`ftp shell`，如下所示：
+
+```
+ftp> ...
+```
+
+亦可不指定服务端`IP`直接进入`ftp shell`，在`ftp`命令行中打开`FTP`连接。  
+在`ftp shell`中使用`open/close`指令建立/关闭连接，如下所示：
+
+```
+ftp> open [服务端IP地址]
+连接到 [服务端IP地址]。
+...
+用户([IP地址]:(none)): Xxx
+331 Password required for Xxx
+密码:
+230 User Xxx logged in
+ftp> 
+```
+
+### 常用指令
+`ftp shell`中常用指令：
+
+- `![指令]` 使用系统`Shell`执行指令
+- `quit` 退出`ftp shell`
+- `lcd/cd` 跳转本地/远程目录
+- `open/close` 打开关闭连接
+- `ls/dir` 查看`FTP`目录
+- `put/send` 向`FTP`发送文件
+- `get/recv` 接收来自`FTP`的文件
+- `mkdir/rmdir` 创建/删除`FTP`目录
+- `delete` 删除`FTP`的文件
+- `rename` 重命名`FTP`的文件
 
 
 
