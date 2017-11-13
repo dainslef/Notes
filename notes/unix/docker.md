@@ -5,7 +5,8 @@
 	- [基本使用](#基本使用)
 	- [在 *macOS* 中使用 *docker*](#在-macos-中使用-docker)
 - [镜像与容器](#镜像与容器)
-	- [管理镜像](#管理镜像)
+	- [镜像管理](#镜像管理)
+	- [容器管理](#容器管理)
 
 <!-- /TOC -->
 
@@ -96,7 +97,7 @@ $ eval $(docker-machine env [环境变量])
 - **容器**(`Container`)是一个/一组在独立环境中执行的应用。
 - **镜像**(`Image`)是用于创建容器的模版。
 
-### 管理镜像
+### 镜像管理
 镜像包含一个定制的`Linux`环境，提供创建容器所需的文件。
 
 使用`docker images`指令查看本地存在的镜像：
@@ -134,16 +135,54 @@ $ docker search [查询内容]
 
 从`dcoker pull`指令从`Docker Hub`中拉取镜像到本地：
 
-```
-$ docker pull [镜像仓库] //拉取指定名称默认TAG的镜像
-$ docker pull [镜像仓库:镜像TAG] //拉取指定名称指定TAG的镜像
-$ docker image pull [镜像仓库] //拉取镜像，与 docker pull 相同
-```
+- `docker pull [镜像仓库]` 拉取指定名称默认TAG的镜像
+- `docker pull [镜像仓库:镜像TAG]` 拉取指定名称指定TAG的镜像
+- `docker image pull [镜像仓库]` 拉取镜像，与 docker pull 相同
 
 其它镜像管理指令：
 
+- `docker rmi [镜像ID/镜像名称]` 删除指定镜像
+- `docker image rm [镜像ID/镜像名称]` 删除指定镜像，同 docker rmi
+- `docker image inspect [镜像ID/镜像名称]` 显示镜像详情
+
+### 容器管理
+容器是镜像的运行实例，容器在独立、隔离的`Linux`环境中运行一个或一组进程。
+
+使用`docker create`指令创建容器，并在创建容器时指定启动的进程：
+
 ```
-$ docker rmi [镜像ID/镜像名称] //删除指定镜像
-$ docker image rm [镜像ID/镜像名称] //删除指定镜像，同 docker rmi
-$ docker image inspect [镜像ID/镜像名称] //显示镜像详情
+$ docker create [选项] IMAGE [启动进程] [进程参数...]
 ```
+
+以`Ubuntu 14.04 LTS`为例，创建以`bash`为启动进程的容器：
+
+```
+$ docker create ubuntu:14.04 bash
+```
+
+容器信息如下所示：
+
+```
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                   PORTS
+     NAMES
+8790b2625abc        ubuntu              "bash"              5 seconds ago       Created
+     wonderful_poitras
+```
+
+创建容器时`docker`会自行为每个容器分配唯一的`CONTAINER ID`，使用`CONTAINER ID`对指定容器进行操作。  
+亦可在创建容器时使用`--name`参数为容器设置名称，设定了名称的容器可使用容器名称替代`CONTAINER ID`。
+
+创建容器时的一些常用参数：
+
+- `-t` 创建容器时，为容器分配伪终端
+- `-i` 保持容器标准输出到终端
+- `--name` 创建容器时为容器指定名称
+
+使用`docker container`相关指令查看、管理容器相关信息。
+
+- `docker ps` 查看正在运行中的容器
+- `docker container ls` 同 docker ps
+- `docker ps -a` 查看所有创建的容器
+- `docker container ls -a` 同 docker ps -a
+- `docker rm [容器ID/容器名称]` 删除指定容器
+- `docker container rm [容器ID/容器名称]` 同 docker rm
