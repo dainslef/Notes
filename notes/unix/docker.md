@@ -7,6 +7,7 @@
 - [镜像与容器](#镜像与容器)
 	- [镜像管理](#镜像管理)
 	- [容器管理](#容器管理)
+	- [*Docker Hub*](#docker-hub)
 - [文件共享](#文件共享)
 	- [文件传输](#文件传输)
 
@@ -124,7 +125,7 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 `Docker Hub`(`https://hub.docker.com`)提供了镜像托管服务，可在该网站中查找各类定制镜像。  
 各大发行版厂商均在`Docker Hub`中提供了官方镜像，一些社区也提供了用于运行特定软件服务的定制镜像。
 
-镜像名称由`[镜像仓库]:[镜像TAG]`形式构成，一般情况下，镜像`TAG`可省略，省略镜像`TAG`时会使用默认`TAG`。  
+官方镜像的镜像名称由`[镜像仓库]:[镜像TAG]`形式构成，一般情况下，镜像`TAG`可省略，省略镜像`TAG`时会使用默认`TAG`。  
 一个镜像仓库可以提供多个标签不同的镜像，如`ubuntu`仓库中使用不同`TAG`提供了不同版本的`ubuntu`镜像(`ubuntu:16.04`、`ubuntu:14.04`等)。
 
 使用`docker search`指令搜索镜像：
@@ -134,6 +135,15 @@ $ docker search [查询内容]
 ```
 
 `docker search`指令并未提供依据`TAG`搜索镜像的功能，名称相同`TAG`不同的镜像需要在`Docker Hub`中查找。
+
+使用`docker tag`指令可设置镜像的名称：
+
+```
+$ docker tag [镜像ID/镜像名称] [镜像新名称]
+```
+
+对于未设置镜像名称的镜像，会为原镜像添加`REPOSITORY`、`TAG`等信息；  
+对于已设置镜像名称的镜像，会创建内容与原镜像相同，使用新`REPOSITORY`、`TAG`等信息的新镜像。
 
 从`dcoker pull`指令从`Docker Hub`中拉取镜像到本地：
 
@@ -205,10 +215,38 @@ $ docker exec -it [容器ID/容器名称] bash
 - `docker rm [容器ID/容器名称]` 删除指定容器
 - `docker container rm [容器ID/容器名称]` 同 docker rm
 
+### *Docker Hub*
+`docker`官方提供了镜像托管服务`Docker Hub`。  
+在`https://hub.docker.com`中注册，在本机使用`docker login`登陆账户后即可使用镜像托管服务。  
+将本地的个人镜像上传到`Docker Hub`：
+
+```
+$ docker push [镜像名称]
+```
+
+个人镜像的镜像名称中`REPOSITORY`部分应以**Docker Hub ID**加**正斜杠**起始，镜像名称格式如下：
+
+```
+[Docker Hub ID]/Xxx:[镜像TAG]
+```
+
+假设个人`Docker ID`为`danslef`，本地测试镜像信息如下：
+
+```
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+dainslef/test_image     2333               9f0a1d72c464        9 minutes ago       538MB
+```
+
+将测试镜像上传到`Docker Hub`：
+
+```
+$ docker push dainslef/test_image:2333
+```
+
 
 
 ## 文件共享
-`docker`存储采用特殊的`Union FIle System`(联合文件系统)机制，容器内的文件不能直接被外部访问。  
+`docker`存储采用特殊的`Union File System`(联合文件系统)机制，容器内的文件不能直接被外部访问。  
 容器与宿主机之间的文件共享可以通过以下方式：
 
 - 使用`docker cp`指令直接在宿主机与容器之间传输文件
