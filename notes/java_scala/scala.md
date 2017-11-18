@@ -40,6 +40,7 @@
 	- [*View Bounds* (视图界定)](#view-bounds-视图界定)
 	- [*Content Bounds*](#content-bounds)
 	- [*Variances* (型变)](#variances-型变)
+	- [*Higer Kinded Type* (高阶类型)](#higer-kinded-type-高阶类型)
 - [*continue* 与 *break*](#continue-与-break)
 - [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
 	- [简单匹配](#简单匹配)
@@ -114,22 +115,10 @@
 
 	使用发行版自带的包管理器安装`Scala`。
 
-	`Debian`系发行版
-
 	```
-	# apt install scala
-	```
-
-	`Arch`系发行版
-
-	```
-	# pacman -S scala
-	```
-
-	`macOS`
-
-	```
-	$ brew install scala
+	# apt install scala //Debian系
+	# pacman -S scala //Arch系
+	$ brew install scala //macOS
 	```
 
 - **Windows**系统：
@@ -2103,7 +2092,7 @@ List(6, 6, 6)
 ```
 
 ### *Variances* (型变)
-带有类型参数的泛型类型在使用不同类型参数时默认**不存在**继承关系。  
+泛型类型在使用不同类型参数时默认**不存在**继承关系。  
 如下所示：
 
 ```scala
@@ -2240,6 +2229,39 @@ scala> trait Test[-T] { def test: T }
 scala> trait Test[-T] { def test(t: T) } 
 defined trait Test
 ```
+
+### *Higer Kinded Type* (高阶类型)
+高阶类型是对类型的高级抽象，是类型参数为类型构造器的泛型类型。  
+如下所示：
+
+```scala
+scala> import scala.language.higherKinds
+import scala.language.higherKinds
+
+scala> class Test[T[_]]
+defined class Test
+```
+
+类型`Test`接收一个类型为`T[_]`的类型参数，仅能使用泛型类型做为类型参数：
+
+```scala
+scala> new Test[Int] //使用普通类型做为类型参数，报错
+<console>:14: error: Int takes no type parameters, expected: one
+       new Test[Int]
+                ^
+
+scala> new Test[Seq] //使用泛型类型为类型参数，正确
+res1: Test[Seq] = Test@11cc9e1e
+```
+
+`Type Theory`(类型理论)中的`Kind`(类型)在`Scala`中的对应概念：
+
+| 类型 | 含义 | Scala中的对应概念 | 实例 |
+|:---:|:----:|:--------------:|:----:|
+| * | 类型 | 普通类型，或带有具体类型参数的泛型类型 | `Int`, `List[Int]` |
+| * -> * | 一阶类型(类型构造器) | 泛型类型 | `List[_]`, `Seq[_]` |
+| * -> ... -> * | 一阶类型(带有多个参数的类型构造器)| 带有多个类型参数的泛型类型 | `Map[_, _]`, `Function2[_, _, _]`, `Tuple4[_, _, _, _]` |
+| (* -> *) -> * | 高阶类型(参数为类型构造器的类型构造器)| 带有泛型类型参数的泛型类型 | `List[T[_]]`, `Seq[T[_]]` |
 
 
 
@@ -4072,8 +4094,8 @@ object Main extends App {
     def show(num: Int) = println(s"Implicit Class: $num")
   }
 
-  Source(0).show				//调用无法访问的成员方法可能触发隐式转换
-  Source(0).show(100)			//调用不存在的方法也能触发隐式转换
+  Source(0).show //调用无法访问的成员方法可能触发隐式转换
+  Source(0).show(100) //调用不存在的方法也能触发隐式转换
 }
 ```
 
