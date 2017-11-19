@@ -7,6 +7,8 @@
 - [镜像与容器](#镜像与容器)
 	- [镜像管理](#镜像管理)
 	- [容器管理](#容器管理)
+	- [容器生成镜像](#容器生成镜像)
+	- [容器导入/导出](#容器导入导出)
 	- [*Docker Hub*](#docker-hub)
 - [文件共享](#文件共享)
 	- [文件传输](#文件传输)
@@ -214,6 +216,30 @@ $ docker exec -it [容器ID/容器名称] bash
 - `docker container ls -a` 同 docker ps -a
 - `docker rm [容器ID/容器名称]` 删除指定容器
 - `docker container rm [容器ID/容器名称]` 同 docker rm
+
+### 容器生成镜像
+使用`docker commit`指令为指定容器生成新的镜像。
+
+```
+$ docker commit [选项] [容器ID/容器名称] [镜像仓库:镜像TAG]
+```
+
+`docker commit`仅会提交相对基础镜像变化的部分。
+
+### 容器导入/导出
+使用`docker save/export`指令将容器的内容导出为`*.tar`格式的压缩文件：
+
+```
+$ docker save/export [容器ID/容器名称] -o [备份.tar]
+```
+
+使用`docker import`指令将`*.tar`形式的容器备份导入为镜像：
+
+```
+$ docker import [备份.tar] [镜像仓库:镜像TAG]
+```
+
+导入镜像时`镜像仓库:镜像TAG`参数可以省略，省略该参数时，导入镜像的`REPOSITORY`与`TAG`均为`<none>`。
 
 ### *Docker Hub*
 `docker`官方提供了镜像托管服务`Docker Hub`。  
