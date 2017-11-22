@@ -4,6 +4,9 @@
 	- [管理 *Android SDK*](#管理-android-sdk)
 	- [项目结构](#项目结构)
 	- [构建定义](#构建定义)
+- [Menu](#menu)
+	- [定义菜单](#定义菜单)
+	- [菜单项属性](#菜单项属性)
 
 <!-- /TOC -->
 
@@ -114,12 +117,89 @@ repositories {
 }
 ```
 
-在`Android`项目中添加`Kotlin`支持，在`app/build.gradle`中追加以下内容：
+在`Android`项目中添加`Kotlin`支持，需要以下步骤：
 
-```groovy
-apply plugin: 'kotlin-android'
+1. 在`build.gradle`中追加以下内容：
 
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-}
+	```groovy
+	buildscript {
+	    ext.kotlin_version = 'Kotlin版本'
+	    dependencies {
+	        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+	    }
+	}
+	```
+
+1. 在`app/build.gradle`中追加以下内容：
+
+	```groovy
+	apply plugin: 'kotlin-android'
+
+	dependencies {
+	    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+	}
+	```
+
+
+
+## Menu
+`Android`系统中包括三类菜单：
+
+- 选项菜单和应用栏
+- 上下文菜单
+- 弹出菜单
+
+从`Android 3.0 (API Level 11)`开始，设备不再拥有独立菜单键，而是使用`Action Bar`提供主菜单。
+
+### 定义菜单
+在`app/res/menu`路径下添加菜单的`XML`定义。  
+菜单对应`XML`文件的名称会做为菜单的资源`ID`，如菜单定义为`app/res/menu_main.xml`，则对应资源为`R.menu.menu_main`。
+
+菜单定义包括以下元素：
+
+- `<menu>`
+
+	菜单的**根节点**。`<menu>`能够包含一个或多个`<item>`和`<group>`子节点。
+
+- `<item>`
+
+	菜单项(`MenuItem`)，可包含`<menu>`子节点(创建子菜单)。
+
+- `<group>`
+
+	菜单组，对菜单进行编组，同组内的菜单共享可选、可见性等属性。
+
+基本的菜单定义示例如下：
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+            android:id="@+id/app_bar_switch"
+            android:title="@string/app_name"/>
+
+    <item
+            android:id="@+id/app_bar_search"
+            android:icon="@drawable/ic_search_black_24dp"
+            app:showAsAction="ifRoom"
+            android:title="@string/search" android:actionViewClass="android.widget.SearchView"/>
+
+    <item
+            android:id="@+id/version"
+            android:title="@string/version"/>
+
+</menu>
 ```
+
+### 菜单项属性
+菜单节点`<item>`的常用属性：
+
+- `android:title` 菜单显示文本
+- `android:icon` 菜单图标
+- `app:showAsAction` 菜单的展示方式，取值如下：
+
+	- `alaways` 总是显示
+	- `never` 从不显示
+	- `ifRoom` 有足够空间时显示
