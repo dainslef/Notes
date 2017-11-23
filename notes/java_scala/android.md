@@ -7,6 +7,8 @@
 - [Menu](#menu)
 	- [定义菜单](#定义菜单)
 	- [菜单项属性](#菜单项属性)
+	- [创建菜单](#创建菜单)
+	- [处理菜单事件](#处理菜单事件)
 
 <!-- /TOC -->
 
@@ -203,3 +205,46 @@ repositories {
 	- `alaways` 总是显示
 	- `never` 从不显示
 	- `ifRoom` 有足够空间时显示
+
+### 创建菜单
+在`Activity`及其子类中通过重写`onCreateOptionsMenu()`方法创建菜单：
+
+```kotlin
+override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    menuInflater.inflate(R.menu.Xxx, menu) //R.menu.Xxx 为菜单对应的资源ID
+    return true
+}
+```
+
+`Fragment`亦可拥有菜单，通过重写`Fragment`类的`onCreateOptionsMenu()`方法创建菜单：
+
+```kotlin
+override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    inflater?.inflate(R.menu.Xxx, menu)
+}
+```
+
+使用`Fragment`创建菜单时，需要在`Fragment`创建时调用`setHasOptionsMenu()`方法，传递`true`参数才能使`Fragment`的`onCreateOptionsMenu()`方法被调用：
+
+```kotlin
+override fun onCreate(savedInstanceState: Bundle?) {
+
+    super.onCreate(savedInstanceState)
+    ...
+
+    // 启用菜单，否则 Fragment 中重写的 onCreateOptionsMenu() 方法不被调用
+    setHasOptionsMenu(true)
+}
+```
+
+### 处理菜单事件
+`Activity/Fragment`处理菜单事件方法类似，通过重写基类的`onOptionsItemSelected()`方法响应菜单选择事件：
+
+```kotlin
+override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+   ....
+
+   return true
+}
+```
