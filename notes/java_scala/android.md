@@ -4,11 +4,12 @@
 	- [管理 *Android SDK*](#管理-android-sdk)
 	- [项目结构](#项目结构)
 	- [构建定义](#构建定义)
-- [Menu](#menu)
+- [*Menu*](#menu)
 	- [定义菜单](#定义菜单)
 	- [菜单项属性](#菜单项属性)
 	- [创建菜单](#创建菜单)
 	- [处理菜单事件](#处理菜单事件)
+	- [*ActionBar*](#actionbar)
 
 <!-- /TOC -->
 
@@ -144,7 +145,7 @@ repositories {
 
 
 
-## Menu
+## *Menu*
 `Android`系统中包括三类菜单：
 
 - 选项菜单和应用栏
@@ -248,3 +249,30 @@ override fun onOptionsItemSelected(item: MenuItem?): Boolean {
    return true
 }
 ```
+
+### *ActionBar*
+从`Android 3.0 (API level 11)`开始，`Activity`带有`ActionBar`做为主菜单栏。
+
+在`Activity`及其子类中获取`ActionBar`：
+
+```kotlin
+val bar = actionBar
+```
+
+在`Fragment`中获取`ActionBar`：
+
+```kotlin
+val bar = activity.actionBar
+```
+
+对于`AppCompatActivity`的子类，应使用`getSupportActionBar()`方法获取`ActionBar`：
+
+```kotlin
+//在 AppCompatActivity 子类中获取 ActionBar
+val bar = supportActionBar
+
+//在 Fragment 中获取 AppCompatActivity 子类的 ActionBar
+val bar = activity.supportActionBar
+```
+
+获取`ActionBar`可用于设定主菜单的显示标题、Logo、返回菜单等。
