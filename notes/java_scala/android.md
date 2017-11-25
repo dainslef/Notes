@@ -253,7 +253,7 @@ override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 ### *ActionBar*
 从`Android 3.0 (API level 11)`开始，`Activity`带有`ActionBar`做为主菜单栏。
 
-在`Activity`及其子类中获取`ActionBar`：
+在`Activity`子类中使用`getActionBar()`获取`ActionBar`：
 
 ```kotlin
 val bar = actionBar
@@ -275,4 +275,36 @@ val bar = supportActionBar
 val bar = activity.supportActionBar
 ```
 
-获取`ActionBar`可用于设定主菜单的显示标题、Logo、返回菜单等。
+在`AppCompatActivity`子类中使用`getActionBar()`会得到`null`。
+
+获取`ActionBar`可用于设定主菜单的显示标题、Logo、返回菜单等。  
+在`Activity/Fragment`子类中使用`setDisplayOptions()`方法设定在`ActionBar`中显示的内容。  
+`setDisplayOptions()`方法具有以下重载：
+
+```java
+public abstract void setDisplayOptions(@DisplayOptions int options);
+public abstract void setDisplayOptions(@DisplayOptions int options, @DisplayOptions int mask);
+```
+
+`options`参数设定启用的内容，`mask`参数设定禁用的内容，多个参数使用逻辑与操作符`|`连接。  
+可使用以下选项：
+
+```
+DISPLAY_USE_LOGO
+DISPLAY_SHOW_HOME
+DISPLAY_HOME_AS_UP
+DISPLAY_SHOW_TITLE
+DISPLAY_SHOW_CUSTOM
+```
+
+亦可使用单独的方法独立地设置显示内容：
+
+```kotlin
+actionBar?.apply {
+    setDisplayHomeAsUpEnabled(true)
+    setDisplayShowCustomEnabled(true)
+    setDisplayShowHomeEnabled(true)
+    setDisplayShowTitleEnabled(true)
+    setDisplayUseLogoEnabled(true)
+}
+```
