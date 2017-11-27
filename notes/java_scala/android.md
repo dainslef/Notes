@@ -4,6 +4,8 @@
 	- [管理 *Android SDK*](#管理-android-sdk)
 	- [项目结构](#项目结构)
 	- [构建定义](#构建定义)
+- [*Activity*](#activity)
+	- [*View* (视图)](#view-视图)
 - [*Menu*](#menu)
 	- [定义菜单](#定义菜单)
 	- [菜单项属性](#菜单项属性)
@@ -142,6 +144,68 @@ repositories {
 	    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 	}
 	```
+
+
+
+## *Activity*
+`Activity`是`Android`中的核心组件，每个`Activity`对应一个独立的应用窗口。  
+`Activity`类似于`Swing`中的`JFrame`、`Qt`中的`QWindow`、`JavaFx`中的`Stage`，做为应用的顶层窗口存在，一个应用可以由一个/多个`Activity`构成。
+
+一个应用的多个`Activity`之间可相互跳转，并传递信息。  
+跳转到新的`Activity`时，旧的`Activity`会停止并驻留在返回栈上，使用返回按钮会销毁新`Activity`，并恢复原`Activity`。
+启动时呈现的`Activity`为主`Activity`，主`Activity`销毁会退出应用。
+
+### *View* (视图)
+`android.view.View`及其子类用于为`Activity`提供用户界面。  
+`View`类型存在子类`ViewGroup`，可做为容器容纳其它`View`。
+
+`Android`支持使用`XML`语法描述视图，在`app/res/layout`路径下添加视图描述文件，在`Activity`的`onCreate()`方法中调用`setContentView()`方法，传入资源ID来设定`Activity`的视图。  
+如下所示：
+
+```kotlin
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.xxx) //通过资源ID设置视图
+    }
+
+    ...
+
+}
+```
+
+使用`setContentView()`将视图资源设置到`Activity`后，视图资源的描述的每一个容器、控件都可以使用`findViewById()`方法通过视图`ID`获取对应的视图实例(需要对应控件在`XML`定义中声明了`android:id`属性)。  
+如下所示，资源文件定义如下：
+
+```
+<TableLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp">
+
+    <ListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+</TableLayout>
+```
+
+获取控件实例：
+
+```kotlin
+class MainActivity : AppCompatActivity() {
+
+    val listView by lazy { findViewById(R.id.listView) as ListView }
+
+    ...
+
+}
+```
 
 
 
