@@ -6,6 +6,8 @@
 	- [构建定义](#构建定义)
 - [*Activity*](#activity)
 	- [*View* (视图)](#view-视图)
+	- [启动指定 *Activity*](#启动指定-activity)
+- [*Intent*](#intent)
 - [*Menu*](#menu)
 	- [定义菜单](#定义菜单)
 	- [菜单项属性](#菜单项属性)
@@ -206,6 +208,40 @@ class MainActivity : AppCompatActivity() {
 
 }
 ```
+
+### 启动指定 *Activity*
+使用`startActivity()`方法启动另一个`Activity`。  
+`startActivity()`方法定义在`Activity`中，定义如下：
+
+```java
+public void startActivity(Intent intent);
+```
+
+`intent`参数使用目标`Activity`的`Class`实例做为参数。  
+如下所示：
+
+```kotlin
+startActivity(Intent(this, OtherActicity::class.java))
+```
+
+
+
+## *Intent*
+`Intent`类型用来描述需要执行的操作。
+`Intent`类型拥有多种构造方法：
+
+```java
+public Intent(Context packageContext, Class<?> cls);
+public Intent(String action, Uri uri);
+public Intent(String action, Uri uri,
+		Context packageContext, Class<?> cls);
+```
+
+`Intent`常用于：
+
+- 启动`Activity`(`startActivity()`方法)
+- 启动`Service`(`startService()`方法)
+- 与后端`Service`通信(`bindService()`方法)
 
 
 
