@@ -8,6 +8,7 @@
 	- [*View* (视图)](#view-视图)
 	- [启动指定 *Activity*](#启动指定-activity)
 - [*Intent*](#intent)
+	- [*Standard Extra Data*](#standard-extra-data)
 - [*Menu*](#menu)
 	- [定义菜单](#定义菜单)
 	- [菜单项属性](#菜单项属性)
@@ -242,6 +243,36 @@ public Intent(String action, Uri uri,
 - 启动`Activity`(`startActivity()`方法)
 - 启动`Service`(`startService()`方法)
 - 与后端`Service`通信(`bindService()`方法)
+
+### *Standard Extra Data*
+`Intent`在通信时可添加附加数据。
+
+使用`putExtra()`方法为`Intent`实例添加附加数据，使用`getXxxExtra()`从`Intent`实例中获取附加数据。
+
+`putExtra()`方法接收字符串和数据内容做为参数，字符串做为数据的名称，数据内容可为多种类型。  
+`putExtra()`方法包含一系列重载，用于传入不同类型的数据：
+
+```java
+public Intent putExtra(String name, int value);
+public Intent putExtra(String name, String value);
+public Intent putExtra(String name, Parcelable value);
+public Intent putExtra(String name, Serializable value);
+...
+```
+
+可直接将实现了`Parcelable/Serializable`接口的实例做为数据内容传入(序列化)。
+
+`getXxxExtra()`系列方法针对不同类型的数据内容提供了获取功能：
+
+```java
+public int getIntExtra(String name, int defaultValue);
+public String getStringExtra(String name);
+public <T extends Parcelable> T getParcelableExtra(String name);
+public Serializable getSerializableExtra(String name);
+...
+```
+
+返回`Object`类型的`getExtra()`方法现在已经废弃，不推荐使用。
 
 
 
