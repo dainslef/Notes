@@ -6,7 +6,8 @@
 	- [构建定义](#构建定义)
 - [*Activity*](#activity)
 	- [*View* (视图)](#view-视图)
-	- [启动指定 *Activity*](#启动指定-activity)
+	- [启动/结束 *Activity*](#启动结束-activity)
+	- [获取 *Activity* 返回结果](#获取-activity-返回结果)
 - [*Intent*](#intent)
 	- [*Standard Extra Data*](#standard-extra-data)
 - [*Menu*](#menu)
@@ -152,7 +153,8 @@ repositories {
 
 ## *Activity*
 `Activity`是`Android`中的核心组件，每个`Activity`对应一个独立的应用窗口。  
-`Activity`类似于`Swing`中的`JFrame`、`Qt`中的`QWindow`、`JavaFx`中的`Stage`，做为应用的顶层窗口存在，一个应用可以由一个/多个`Activity`构成。
+`Activity`类似于`Swing`中的`JFrame`、`Qt`中的`QWindow`、`JavaFx`中的`Stage`，
+做为应用的顶层窗口存在，一个应用可以由一个/多个`Activity`构成。
 
 一个应用的多个`Activity`之间可相互跳转，并传递信息。  
 跳转到新的`Activity`时，旧的`Activity`会停止并驻留在返回栈上，使用返回按钮会销毁新`Activity`，并恢复原`Activity`。
@@ -162,7 +164,8 @@ repositories {
 `android.view.View`及其子类用于为`Activity`提供用户界面。  
 `View`类型存在子类`ViewGroup`，可做为容器容纳其它`View`。
 
-`Android`支持使用`XML`语法描述视图，在`app/res/layout`路径下添加视图描述文件，在`Activity`的`onCreate()`方法中调用`setContentView()`方法，传入资源ID来设定`Activity`的视图。  
+`Android`支持使用`XML`语法描述视图，在`app/res/layout`路径下添加视图描述文件，
+在`Activity`的`onCreate()`方法中调用`setContentView()`方法，传入资源ID来设定`Activity`的视图。  
 如下所示：
 
 ```kotlin
@@ -210,19 +213,52 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-### 启动指定 *Activity*
+### 启动/结束 *Activity*
 使用`startActivity()`方法启动另一个`Activity`。  
-`startActivity()`方法定义在`Activity`中，定义如下：
+相关方法定义在`Activity`类中，具有多个重载：
 
 ```java
 public void startActivity(Intent intent);
+public void startActivity(Intent intent, @Nullable Bundle options)；
 ```
 
-`intent`参数使用目标`Activity`的`Class`实例做为参数。  
+`intent`参数使用目标`Activity`的`Class`实例做为参数，指定需要启动的目标`Activity`类型。  
+`intent`参数亦可传递数据、实例。  
 如下所示：
 
 ```kotlin
 startActivity(Intent(this, OtherActicity::class.java))
+```
+
+结束`Activity`使用`finish()`方法：
+
+```java
+public void finish();
+```
+
+结束一个`Activity`后会回到启动该`Activity`的`Activity`。  
+若结束的是主`Activity`，则会退出应用。
+
+### 获取 *Activity* 返回结果
+对于需要获取返回结果的`Activity`启动任务，应使用`startActivityForResult()`相关方法启动：
+
+```java
+public void startActivityForResult(@RequiresPermission Intent intent, int requestCode);
+public void startActivityForResult(@RequiresPermission Intent intent, int requestCode, @Nullable Bundle options);
+```
+
+同时重写`onActivityResult()`方法，该方法在目标`Activity`返回后会被回调：
+
+```java
+protected void onActivityResult(int requestCode, int resultCode, Intent data);
+```
+
+`requestCode`参数由`startActivityForResult()`时传入，用于区分不同的启动任务。  
+目标的`Activity`在`finish()`调用前应使用`setResult()`方法设定返回值。
+
+```java
+public final void setResult(int resultCode);
+public final void setResult(int resultCode, Intent data);
 ```
 
 
@@ -356,7 +392,8 @@ override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
 }
 ```
 
-使用`Fragment`创建菜单时，需要在`Fragment`创建时调用`setHasOptionsMenu()`方法，传递`true`参数才能使`Fragment`的`onCreateOptionsMenu()`方法被调用：
+使用`Fragment`创建菜单时，需要在`Fragment`创建时调用`setHasOptionsMenu()`方法，
+传递`true`参数才能使`Fragment`的`onCreateOptionsMenu()`方法被调用：
 
 ```kotlin
 override fun onCreate(savedInstanceState: Bundle?) {
