@@ -2,8 +2,11 @@
 
 - [环境搭建](#环境搭建)
 	- [管理 *Android SDK*](#管理-android-sdk)
+	- [*Intel HAXM*](#intel-haxm)
+- [项目构建](#项目构建)
 	- [项目结构](#项目结构)
 	- [构建定义](#构建定义)
+	- [添加 *Korlin* 支持](#添加-korlin-支持)
 - [*Activity*](#activity)
 	- [*View* (视图)](#view-视图)
 	- [启动/结束 *Activity*](#启动结束-activity)
@@ -43,9 +46,32 @@
 
 不应使用与插件不匹配的高版本`Android SDK`(不显示版本信息的版本)，高版本的`Android SDK`搭配低版本的`Android Support`插件可能会造成UI设计器、构建工具等出错。
 
+### *Intel HAXM*
+**Android模拟器**需要`Intel HAXM`技术提供图形加速支持，否则模拟器无法启动。
+
+在`Windows/Linux`平台上，直接使用`Android Studio`安装`Intel HAXM`。
+
+在`macOS`平台上，`Intel HAXM`安装包提供的安装脚本会检测macOS版本，安装脚本可能无法识别最新版macOS。  
+使用`Android Stduio`直接安装`Intel HAXM`时，可能无法通过安装脚本的检测，
+此时应在Intel官网下载安装包，解压得到`dpkg`格式的安装包手动执行安装。
+
+`Intel HAXM`安装完成后，在macOS下直接启动模拟器会出现`/dev/kvm is not found`错误，
+原因是HAXM的APP在macOS的默认安全策略下被禁止启动，
+在`System Preferences => Security & Privacy => General`选项中点击**允许**相关APP执行。
+
+在macOS下移除已安装的`Intel HAXM`，执行指令：
+
+```
+sudo /System/Library/Extensions/intelhaxm.kext/Contents/Resources/uninstall.sh
+```
+
+
+
+## 项目构建
+Anddroid项目使用`Gradle`做为构建工具。
+
 ### 项目结构
-`Anddroid`项目使用`Gradle`构建。  
-一个基本的`Android`项目具有以下目录结构：
+一个基本的Android项目具有以下目录结构：
 
 ```
 项目名称
@@ -126,6 +152,7 @@ repositories {
 }
 ```
 
+### 添加 *Korlin* 支持
 在`Android`项目中添加`Kotlin`支持，需要以下步骤：
 
 1. 在`build.gradle`中追加以下内容：
