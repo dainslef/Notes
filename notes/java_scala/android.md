@@ -11,6 +11,8 @@
 	- [*View* (视图)](#view-视图)
 	- [启动/结束 *Activity*](#启动结束-activity)
 	- [获取 *Activity* 返回结果](#获取-activity-返回结果)
+- [*Fragment*](#fragment)
+	- [管理 *Fragment*](#管理-fragment)
 - [*Intent*](#intent)
 	- [*Standard Extra Data*](#standard-extra-data)
 - [*Menu*](#menu)
@@ -245,11 +247,15 @@ class MainActivity : AppCompatActivity() {
 相关方法定义在`Activity`类中，具有多个重载：
 
 ```java
-public void startActivity(Intent intent);
-public void startActivity(Intent intent, @Nullable Bundle options)；
+public class Activity extends ... {
+	...
+	public void startActivity(Intent intent);
+	public void startActivity(Intent intent, @Nullable Bundle options)；
+	...
+}
 ```
 
-`intent`参数使用目标`Activity`的`Class`实例做为参数，指定需要启动的目标`Activity`类型。  
+`intent`参数使用目标Activity的**Class实例**做为参数，指定需要启动的目标Activity类型。  
 `intent`参数亦可传递数据、实例。  
 如下所示：
 
@@ -260,45 +266,148 @@ startActivity(Intent(this, OtherActicity::class.java))
 结束`Activity`使用`finish()`方法：
 
 ```java
-public void finish();
+public class Activity extends ... {
+	...
+	public void finish();
+	...
+}
 ```
 
-结束一个`Activity`后会回到启动该`Activity`的`Activity`。  
-若结束的是主`Activity`，则会退出应用。
+结束一个Activity后会回到上一个Activity。  
+若结束的是**主Activity**，则会退出应用。
 
 ### 获取 *Activity* 返回结果
 对于需要获取返回结果的`Activity`启动任务，应使用`startActivityForResult()`相关方法启动：
 
 ```java
-public void startActivityForResult(@RequiresPermission Intent intent, int requestCode);
-public void startActivityForResult(@RequiresPermission Intent intent, int requestCode, @Nullable Bundle options);
+public class Activity extends ... {
+	...
+	public void startActivityForResult(@RequiresPermission Intent intent, int requestCode);
+	public void startActivityForResult(@RequiresPermission Intent intent, int requestCode, @Nullable Bundle options);
+	...
+}
 ```
 
 同时重写`onActivityResult()`方法，该方法在目标`Activity`返回后会被回调：
 
 ```java
-protected void onActivityResult(int requestCode, int resultCode, Intent data);
+public class Activity extends ... {
+	...
+	protected void onActivityResult(int requestCode, int resultCode, Intent data);
+	...
+}
 ```
 
 `requestCode`参数由`startActivityForResult()`时传入，用于区分不同的启动任务。  
-目标的`Activity`在`finish()`调用前应使用`setResult()`方法设定返回值。
+目标Activity在`finish()`调用前应使用`setResult()`方法设定返回值。
 
 ```java
-public final void setResult(int resultCode);
-public final void setResult(int resultCode, Intent data);
+public class Activity extends ... {
+	...
+	public final void setResult(int resultCode);
+	public final void setResult(int resultCode, Intent data);
+	...
+}
 ```
+
+
+
+## *Fragment*
+`Fragment`是`Android 3.0 (API Level 11)`开始引入的新UI组件。
+
+Fragment被称为**片段**，用来组成Activity中的UI部分。  
+一个Activity可由一个或多个Fragment组成，多个Activity亦可共享同一个Fragment。
+
+Fragment有独立的事件处理、生命周期。  
+但Fragment必须始终嵌入在Activity中，其生命周期直接受宿主Activity生命周期的影响：
+
+- 宿主Activity暂停时，包含的子Fragment都将暂停。
+- 宿主Activity销毁时，包含的子Fragment都将被销毁。
+
+### 管理 *Fragment*
+Activity可在运行时动态地添加与移除、替换Fragment。
+
+`FragmentManager`类型提供了对Fragment的管理操作。  
+Activity类型提供了`getFragmentManager()`方法，用于获取FragmentManager实例：
+
+```java
+public class Activity extends ... {
+	...
+	public FragmentManager getFragmentManager();
+	...
+}
+```
+
+- 获取 *Fragment*
+
+	FragmentManager类型提供了`findFragmentById()`方法，通过传入资源ID获取指定Fragment实例：
+
+	```java
+	public class Fragment implements ComponentCallbacks2, OnCreateContextMenuListener {
+		...
+		public abstract Fragment findFragmentById(int id);
+		...
+	}
+	```
+
+	当指定的Fragment未被初始化时，`findFragmentById()`方法会返回空指针，因而在获取Fragment时应进行`NullCheck`。  
+	如下所示：
+
+	```kotlin
+	val xxxFragment by lazy {
+	    fragmentManager.findFragmentById(R.id.xxxFragment) ?: XxxFragment()
+	}
+	```
+
+- *Fragment* 事务(添加、移除、替换、显示、隐藏)
+
+	FragmentManager类型提供了`beginTransaction()`方法用于启动事务：
+
+	```java
+	public abstract class FragmentManager {
+		...
+		public abstract FragmentTransaction beginTransaction();
+		...
+	}
+	```
+
+	事务类型`FragmentTransaction`提供对Fragment增加、删除、替换、隐藏、显示等操作，以及对事务的提交：
+
+	```java
+	public abstract class FragmentTransaction {
+		...
+		public abstract FragmentTransaction add(@IdRes int containerViewId, Fragment fragment);
+		public abstract FragmentTransaction remove(Fragment fragment);
+		public abstract FragmentTransaction replace(@IdRes int containerViewId, Fragment fragment);
+		public abstract FragmentTransaction hide(Fragment fragment);
+		public abstract FragmentTransaction show(Fragment fragment);
+		public abstract int commit();
+		...
+	}
+	```
+
+	`containerViewId`参数可以是任意常见容器View的资源ID，如`FrameLayout、LinearLayout`等。  
+	在一个事务中完成各类Fragment操作后提交事务，入下所示：
+
+	```kotlin
+	fragmentManager.beginTransaction().run {
+	    add(R.id.xxx, xxxFragment)
+	    remove(yyyFragment)
+	    ...
+	    commit()
+	}
+	```
 
 
 
 ## *Intent*
-`Intent`类型用来描述需要执行的操作。
+`Intent`类型用来描述需要执行的操作。  
 `Intent`类型拥有多种构造方法：
 
 ```java
 public Intent(Context packageContext, Class<?> cls);
 public Intent(String action, Uri uri);
-public Intent(String action, Uri uri,
-		Context packageContext, Class<?> cls);
+public Intent(String action, Uri uri, Context packageContext, Class<?> cls);
 ```
 
 `Intent`常用于：
@@ -310,7 +419,7 @@ public Intent(String action, Uri uri,
 ### *Standard Extra Data*
 `Intent`在通信时可添加附加数据。
 
-使用`putExtra()`方法为`Intent`实例添加附加数据，使用`getXxxExtra()`从`Intent`实例中获取附加数据。
+使用`putExtra()`方法为Intent实例添加附加数据，使用`getXxxExtra()`从Intent实例中获取附加数据。
 
 `putExtra()`方法接收字符串和数据内容做为参数，字符串做为数据的名称，数据内容可为多种类型。  
 `putExtra()`方法包含一系列重载，用于传入不同类型的数据：
@@ -446,7 +555,7 @@ override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 ```
 
 ### *ActionBar*
-从`Android 3.0 (API level 11)`开始，`Activity`带有`ActionBar`做为主菜单栏。
+从`Android 3.0 (API Level 11)`开始，`Activity`带有`ActionBar`做为主菜单栏。
 
 在`Activity`子类中使用`getActionBar()`获取`ActionBar`：
 
