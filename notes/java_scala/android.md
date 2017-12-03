@@ -7,6 +7,8 @@
 	- [项目结构](#项目结构)
 	- [构建定义](#构建定义)
 	- [添加 *Korlin* 支持](#添加-korlin-支持)
+- [资源](#资源)
+	- [资源ID](#资源id)
 - [*Activity*](#activity)
 	- [*View* (视图)](#view-视图)
 	- [启动/结束 *Activity*](#启动结束-activity)
@@ -91,30 +93,17 @@ Anddroid项目使用`Gradle`做为构建工具。
      │    └── ...
      ├── libs
      │    └── ...
-     └── src # 项目源码目录
+     └── src # 项目源码、资源目录
           ├── androidTest # Android 测试
           │    └── ...
           ├── test # 单元测试
           │    └── ...
-          └── main # APP 核心源码
+          └── main # APP主要目录
                ├── AndroidManifest.xml
-               ├── java
+               ├── java # 源码目录
                │    └── ...
-               └── res
-                    ├── drawable # 矢量图
-                    │    ├── activity_main.xml
-                    │    └── ...
-                    ├── layout # 布局描述 XML
-                    │    └── ...
-                    ├── menu # 菜单描述 XML
-                    │    └── ...
-                    ├── values
-                    │    ├── colors.xml
-                    │    ├── strings.xml
-                    │    ├── styles.xml
-                    │    └── ...
-                    └── mipmap-*dpi # 不同DPI的位图资源
-                         └── ...
+               └── res # 资源目录
+                    └── ...
 ```
 
 ### 构建定义
@@ -178,6 +167,97 @@ repositories {
 	    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 	}
 	```
+
+
+
+## 资源
+资源是非代码形式，如图片、音频、XML文件等。  
+在Andorid项目中，所有的资源均位于`res`路径下。  
+`res`路径下具有以下结构：
+
+```
+res
+ ├── drawable # 矢量图
+ │    ├── activity_main.xml
+ │    └── ...
+ ├── layout # UI布局 XML
+ │    └── ...
+ ├── menu # 菜单布局 XML
+ │    └── ...
+ ├── values
+ │    ├── colors.xml # 色彩
+ │    ├── strings.xml # 字符串资源
+ │    ├── styles.xml # 样式定义
+ │    └── ...
+ └── mipmap-*dpi # 不同DPI的位图资源
+      └── ...
+```
+
+### 资源ID
+在Android项目构建时，`res`路径下各类资源文件会被分配资源ID，在多数`Andorid API`中，均通过资源ID访问资源。  
+资源ID定义在静态类`R`中(`R.java`文件)中：
+
+- 部分路径会直接在`R`类型内生成对应名称的**静态内部类**：
+
+	- `res/mipmap`
+	- `res/drawable`
+	- `res/layout`
+	- `res/menu`
+	
+	路径下的每个文件会在所属路径对应的静态内部类中生成资源ID。
+
+- `res/values`路径下的资源文件直接生成对应**静态内部类**：
+
+	- `res/values/strings.xml`
+	- `res/values/colors.xml`
+	- `res/values/styles.xml`
+
+	文件内的每个资源定义会根据资源类型在对应的静态内部类中生成资源ID。
+
+类型`R`的基本内容如下所示：
+
+```java
+public final class R {
+	...
+	// 对应 res/drawable 路径下的资源文件
+	public static final class drawable {
+		...
+		public static final int xxx = 0x????;
+		...
+	}
+	// 对应 res/layout 路径下的资源文件
+	public static final class layout {
+		...
+		public static final int xxx = 0x????;
+		...
+	}
+	// 对应 res/menu 路径下的资源文件
+	public static final class menu {
+		...
+		public static final int xxx = 0x????;
+		...
+	}
+	// 对应 res/values/strings.xml 文件内的资源定义
+	public static final class string {
+		...
+		public static final int xxx = 0x????;
+		...
+	}
+	// 对应 res/values/colors.xml 文件内的资源定义
+	public static final class color {
+		...
+		public static final int xxx = 0x????;
+		...
+	}
+	// 对应 res/values/styles.xml 文件内的资源定义
+	public static final class style {
+		...
+		public static final int xxx = 0x????;
+		...
+	}
+	...
+}
+```
 
 
 
@@ -391,7 +471,7 @@ public class Activity extends ... {
 	在一个事务中完成各类Fragment操作后提交事务，入下所示：
 
 	```kotlin
-	fragmentManager.beginTransaction().run {
+	fragmentManager.beginTransaction().apply {
 	    add(R.id.xxx, xxxFragment)
 	    remove(yyyFragment)
 	    ...
