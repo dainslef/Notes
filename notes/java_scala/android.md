@@ -13,6 +13,7 @@
 	- [获取 *Activity* 返回结果](#获取-activity-返回结果)
 - [*Fragment*](#fragment)
 	- [管理 *Fragment*](#管理-fragment)
+	- [*Fragment* 数据传递](#fragment-数据传递)
 - [*Intent*](#intent)
 	- [*Standard Extra Data*](#standard-extra-data)
 - [*Menu*](#menu)
@@ -256,7 +257,7 @@ public class Activity extends ... {
 ```
 
 `intent`参数使用目标Activity的**Class实例**做为参数，指定需要启动的目标Activity类型。  
-`intent`参数亦可传递数据、实例。  
+`intent`参数亦可附加传递数据、实例。  
 如下所示：
 
 ```kotlin
@@ -398,6 +399,22 @@ public class Activity extends ... {
 	}
 	```
 
+### *Fragment* 数据传递
+Fragment通过`setArguments()/getArguments()`方法传递`Bundle`类型的数据。  
+相关方法定义如下：
+
+```java
+public class Fragment implements ComponentCallbacks2, OnCreateContextMenuListener {
+	...
+	public void setArguments(Bundle args);
+	final public Bundle getArguments();
+	...
+}
+```
+
+`Bundle`类型拥有一系列`getXxx()/setXxx()`方法用于**获取/设置**指定类型的数据。  
+与`Intent`类型类似，`Bundle`类型传递数据的方法`setXxx()`接收字符串和数据内容做为参数(数据内容由字符串作为`Key`)，获取数据的相关方法`getXxx()`使用字符串标`Key`提取指定的数据。
+
 
 
 ## *Intent*
@@ -405,9 +422,13 @@ public class Activity extends ... {
 `Intent`类型拥有多种构造方法：
 
 ```java
-public Intent(Context packageContext, Class<?> cls);
-public Intent(String action, Uri uri);
-public Intent(String action, Uri uri, Context packageContext, Class<?> cls);
+public class Intent implements Parcelable, Cloneable {
+	...
+	public Intent(Context packageContext, Class<?> cls);
+	public Intent(String action, Uri uri);
+	public Intent(String action, Uri uri, Context packageContext, Class<?> cls);
+	...
+}
 ```
 
 `Intent`常用于：
@@ -425,11 +446,14 @@ public Intent(String action, Uri uri, Context packageContext, Class<?> cls);
 `putExtra()`方法包含一系列重载，用于传入不同类型的数据：
 
 ```java
-public Intent putExtra(String name, int value);
-public Intent putExtra(String name, String value);
-public Intent putExtra(String name, Parcelable value);
-public Intent putExtra(String name, Serializable value);
-...
+public class Intent implements Parcelable, Cloneable {
+	...
+	public Intent putExtra(String name, int value);
+	public Intent putExtra(String name, String value);
+	public Intent putExtra(String name, Parcelable value);
+	public Intent putExtra(String name, Serializable value);
+	...
+}
 ```
 
 可直接将实现了`Parcelable/Serializable`接口的实例做为数据内容传入(序列化)。
@@ -437,11 +461,14 @@ public Intent putExtra(String name, Serializable value);
 `getXxxExtra()`系列方法针对不同类型的数据内容提供了获取功能：
 
 ```java
-public int getIntExtra(String name, int defaultValue);
-public String getStringExtra(String name);
-public <T extends Parcelable> T getParcelableExtra(String name);
-public Serializable getSerializableExtra(String name);
-...
+public class Intent implements Parcelable, Cloneable {
+	...
+	public int getIntExtra(String name, int defaultValue);
+	public String getStringExtra(String name);
+	public <T extends Parcelable> T getParcelableExtra(String name);
+	public Serializable getSerializableExtra(String name);
+	...
+}
 ```
 
 返回`Object`类型的`getExtra()`方法现在已经废弃，不推荐使用。
@@ -605,10 +632,10 @@ DISPLAY_SHOW_CUSTOM
 
 ```kotlin
 actionBar?.apply {
-    setDisplayHomeAsUpEnabled(true)
+    setDisplayHomeAsUpEnabled(true) //显示返回按钮
     setDisplayShowCustomEnabled(true)
     setDisplayShowHomeEnabled(true)
     setDisplayShowTitleEnabled(true)
-    setDisplayUseLogoEnabled(true)
+    setDisplayUseLogoEnabled(true) //显示 APP Logo
 }
 ```
