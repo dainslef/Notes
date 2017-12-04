@@ -14,6 +14,7 @@
 	- [启动/结束 *Activity*](#启动结束-activity)
 	- [获取 *Activity* 返回结果](#获取-activity-返回结果)
 - [*Fragment*](#fragment)
+	- [*Fragment View*](#fragment-view)
 	- [管理 *Fragment*](#管理-fragment)
 	- [*Fragment* 数据传递](#fragment-数据传递)
 - [*Intent*](#intent)
@@ -188,6 +189,7 @@ res
  │    ├── colors.xml # 色彩
  │    ├── strings.xml # 字符串资源
  │    ├── styles.xml # 样式定义
+ │    ├── arrays.xml # 数组资源定义
  │    └── ...
  └── mipmap-*dpi # 不同DPI的位图资源
       └── ...
@@ -204,15 +206,18 @@ res
 	- `res/layout`
 	- `res/menu`
 	
-	路径下的每个文件会在所属路径对应的静态内部类中生成资源ID。
+	路径下的每个文件会在所属路径对应的静态内部类中生成资源ID变量。
 
 - `res/values`路径下的资源文件直接生成对应**静态内部类**：
 
 	- `res/values/strings.xml`
 	- `res/values/colors.xml`
 	- `res/values/styles.xml`
+	- `res/values/arrays.xml`
 
-	文件内的每个资源定义会根据资源类型在对应的静态内部类中生成资源ID。
+	文件内的每个资源定义会根据资源类型在对应的静态内部类中生成资源ID变量。
+
+- 使用`android:id`属性定义的资源ID会在静态内部类`R.id`中生成对应资源ID变量。
 
 类型`R`的基本内容如下所示：
 
@@ -249,8 +254,20 @@ public final class R {
 		public static final int xxx = 0x????;
 		...
 	}
+	// 对应 res/values/arrays.xml 文件内的资源定义
+	public static final class array {
+		...
+		public static final int xxx = 0x????;
+		...
+	}
 	// 对应 res/values/styles.xml 文件内的资源定义
 	public static final class style {
+		...
+		public static final int xxx = 0x????;
+		...
+	}
+	// 对应使用 android:id 属性定义的资源
+	public static final class id {
 		...
 		public static final int xxx = 0x????;
 		...
@@ -262,20 +279,20 @@ public final class R {
 
 
 ## *Activity*
-`Activity`是`Android`中的核心组件，每个`Activity`对应一个独立的应用窗口。  
-`Activity`类似于`Swing`中的`JFrame`、`Qt`中的`QWindow`、`JavaFx`中的`Stage`，
-做为应用的顶层窗口存在，一个应用可以由一个/多个`Activity`构成。
+`Activity`是Android系统中的核心组件，每个Activity对应一个独立的应用窗口。  
+Activity类似于`Swing`中的`JFrame`、`Qt`中的`QWindow`、`JavaFx`中的`Stage`，
+做为应用的顶层窗口存在，一个应用可以由一个/多个Activity构成。
 
-一个应用的多个`Activity`之间可相互跳转，并传递信息。  
-跳转到新的`Activity`时，旧的`Activity`会停止并驻留在返回栈上，使用返回按钮会销毁新`Activity`，并恢复原`Activity`。
-启动时呈现的`Activity`为主`Activity`，主`Activity`销毁会退出应用。
+多个Activity之间可相互跳转，并传递信息。  
+跳转到新的Activity时，旧的Activity会停止并驻留在返回栈上，使用返回按钮会销毁新Activity，并恢复原Activity。  
+启动时呈现的Activity为**主Activity(MainActivity)**，**主Activity**销毁会退出应用。
 
 ### *View* (视图)
 `android.view.View`及其子类用于为`Activity`提供用户界面。  
 `View`类型存在子类`ViewGroup`，可做为容器容纳其它`View`。
 
-`Android`支持使用`XML`语法描述视图，在`app/res/layout`路径下添加视图描述文件，
-在`Activity`的`onCreate()`方法中调用`setContentView()`方法，传入资源ID来设定`Activity`的视图。  
+在Android项目使用`XML`语法描述视图布局，在`app/res/layout`路径下添加视图资源文件，
+重写父类Activity的`onCreate()`方法，在其中调用`setContentView()`，传入资源ID来设定Activity的视图。  
 如下所示：
 
 ```kotlin
@@ -291,7 +308,7 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-使用`setContentView()`将视图资源设置到`Activity`后，视图资源的描述的每一个容器、控件都可以使用`findViewById()`方法通过视图`ID`获取对应的视图实例(需要对应控件在`XML`定义中声明了`android:id`属性)。  
+使用`setContentView()`将视图资源设置到`Activity`后，视图资源的描述的每一个容器、控件皆可由`findViewById()`方法通过视图`ID`获取对应的视图实例(需要对应控件在`XML`定义中声明了`android:id`属性)。  
 如下所示，资源文件定义如下：
 
 ```
@@ -322,6 +339,8 @@ class MainActivity : AppCompatActivity() {
 
 }
 ```
+
+Android项目中亦可如`Swing`一般使用纯Java代码构建视图，但语法过于繁琐，通常不使用。
 
 ### 启动/结束 *Activity*
 使用`startActivity()`方法启动另一个`Activity`。  
@@ -404,6 +423,25 @@ Fragment有独立的事件处理、生命周期。
 
 - 宿主Activity暂停时，包含的子Fragment都将暂停。
 - 宿主Activity销毁时，包含的子Fragment都将被销毁。
+
+### *Fragment View*
+与`Activity`类似，Fragment可以使用XML资源文件描述UI布局，在`app/res/layout`路径下添加视图资源文件，
+重写父类Fragment的`onCreateView()`方法，在其中调用`LayoutInflater`实例的`inflate()`方法，传入资源ID来设定Fragment的视图。  
+如下所示：
+
+```kotlin
+class XxxFragment : Fragment() {
+
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        // 通过视图资源ID设定Fragment的视图
+        return inflater!!.inflate(R.layout.fragment_xxx, container, false)
+    }
+
+    ...
+
+}
+```
 
 ### 管理 *Fragment*
 Activity可在运行时动态地添加与移除、替换Fragment。
