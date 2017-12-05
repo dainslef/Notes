@@ -25,6 +25,7 @@
 	- [创建菜单](#创建菜单)
 	- [处理菜单事件](#处理菜单事件)
 	- [*ActionBar*](#actionbar)
+	- [*ToolBar*](#toolbar)
 
 <!-- /TOC -->
 
@@ -755,5 +756,56 @@ actionBar?.apply {
     setDisplayShowHomeEnabled(true)
     setDisplayShowTitleEnabled(true)
     setDisplayUseLogoEnabled(true) //显示 APP Logo
+}
+```
+
+### *ToolBar*
+原生`ActionBar`具有以下缺陷：
+
+- 仅支持`Android 3.0 (API Level 11)`以上的系统。
+- 在不同的Android系统版本中，ActionBar的行为有差异。
+- ActionBar仅能位于APP中的固定位置，灵活性欠佳，不利于APP设计。
+
+支持库组件`android.support.v7.widget.Toolbar`提供了与原生ActionBar行为、外观类似的菜单工具栏。  
+ToolBar相比原生ActionBar有以下优势：
+
+- 支持`Android 2.1（API Level 7`以上的系统。
+- 在不同版本的系统中具有更好的行为一致性。
+- 可自由定义ToolBar，配合`AppBarLayout`，可实现滚动隐藏等高级特效。
+
+使用ToolBar需要禁用系统布局中的原生ActionBar，使用`NoActionBar`主题：
+
+```xml
+<application
+	android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+	.../>
+```
+
+ToolBar与ActionBar类似，通过`res/menu`下的菜单资源文件来设定菜单内容。  
+在`Activity`子类中重写`onCreateOptionsMenu()`方法设定菜单内容，重写`onCreate()`方法设置ToolBar：
+
+```kotlin
+class XxxActivity : AppCompatActivity() {
+
+    val toolBar by lazy { findViewById(R.id.xxxToolBar) }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_xxx)
+
+        // 设置 ToolBar
+        setSupportActionBar(toolbar)
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+        // 设置菜单内容
+        menuInflater.inflate(R.menu.menu_xxx, menu)
+        return super.onCreateOptionsMenu(menu)
+
+    }
+
 }
 ```
