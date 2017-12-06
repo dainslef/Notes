@@ -26,6 +26,8 @@
 	- [处理菜单事件](#处理菜单事件)
 	- [*ActionBar*](#actionbar)
 	- [*ToolBar*](#toolbar)
+- [*Android Design Support Library*](#android-design-support-library)
+	- [*TabLayout*](#tablayout)
 
 <!-- /TOC -->
 
@@ -781,6 +783,17 @@ ToolBar相比原生ActionBar有以下优势：
 	.../>
 ```
 
+在布局文件中声明ToolBar：
+
+```xml
+<android.support.v7.widget.Toolbar
+   	android:id="@+id/toolBar"
+   	android:layout_width="match_parent"
+   	android:layout_height="?attr/actionBarSize"
+   	android:background="?attr/colorPrimary"
+   	android:elevation="4dp"/>
+```
+
 ToolBar与ActionBar类似，通过`res/menu`下的菜单资源文件来设定菜单内容。  
 在`Activity`子类中重写`onCreateOptionsMenu()`方法设定菜单内容，重写`onCreate()`方法设置ToolBar：
 
@@ -809,3 +822,80 @@ class XxxActivity : AppCompatActivity() {
 
 }
 ```
+
+
+
+## *Android Design Support Library*
+`Android 5.0 (API Level 21)`之后官方发布了`Android Design Support Library`。  
+`Android Design Support Library`提供了更多现代的、符合的`Material Design`设计规范的控件。
+
+使用`Android Design Support Library`，在`app/build.gradle`文件中添加依赖：
+
+```groovy
+dependencies {
+    compile 'com.android.support:design:xx.x.x'
+}
+```
+
+### *TabLayout*
+其中`android.support.design.widget.TabLayout`提供了更加简洁的Tab页实现。  
+在布局资源文件中声明`TabLayout`：
+
+```xml
+<android.support.design.widget.TabLayout
+
+        android:id="@+id/tabLayout"
+
+        android:layout_height="50dp"
+        android:layout_width="match_parent"
+
+        app:tabBackground="@color/colorPrimary"
+        app:tabIndicatorColor="@android:color/white"
+        app:tabTextColor="@android:color/darker_gray"
+        app:tabSelectedTextColor="@android:color/white"
+        app:tabIndicatorHeight="4dp">
+
+    <android.support.design.widget.TabItem
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/xxx"/>
+    <android.support.design.widget.TabItem
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/xxx"/>
+
+</android.support.design.widget.TabLayout>
+```
+
+TabLayout中的常用属性：
+
+- `app:tabBackground` 标签栏背景
+- `app:tabIndicatorColor` 标签指示器色彩
+- `app:tabTextColor` 普通标签文本色彩
+- `app:tabSelectedTextColor` 选中标签的文本色彩
+- `app:tabIndicatorHeight` 标签指示器的高度
+
+`<TabLayout/>`节点内可以使用`<TabItem/>`节点直接添加具体的标签项。  
+通过`addOnTabSelectedListener()`方法设定点击监听器：
+
+```kotlin
+tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+    override fun onTabReselected(tab: TabLayout.Tab?) { ... }
+    override fun onTabUnselected(tab: TabLayout.Tab?) { ... }
+    override fun onTabSelected(tab: TabLayout.Tab?) { ... }
+})
+```
+
+TabLayout可搭配`ViewPager`使用，使用`setupWithViewPager()`方法：
+
+```koltin
+viewPager.adapter = object : FragmentPagerAdapter(supportFragmentManager) {
+    override fun getItem(position: Int) = ...
+    override fun getCount() = ...
+    override fun getPageTitle(position: Int) = ...
+}
+tabLayout.setupWithViewPager(viewPager)
+```
+
+使用`setupWithViewPager()`方法设定ViewPager后，布局文件中声明的`TabItem`不生效，
+Tab标签文本由`FragmentPagerAdapter`适配器的`getPageTitle()`方法决定。
