@@ -8,6 +8,7 @@
 - [项目结构](#项目结构)
 	- [默认路径](#默认路径)
 - [构建配置](#构建配置)
+	- [指定 *sbt* 版本](#指定-sbt-版本)
 	- [自定义源码路径](#自定义源码路径)
 	- [多项目构建](#多项目构建)
 	- [访问构建信息](#访问构建信息)
@@ -29,7 +30,7 @@
 
 与其它`Java`构建工具类似，`sbt`的核心功能如下：
 
-- 项目的构建。
+- 项目的自动化构建、打包。
 - 项目依赖自动化管理。
 - 提供统一的工程结构。
 - 提供交互式的`sbt shell`。
@@ -95,7 +96,7 @@ $ sbt new [Giter8模版名称]
 - `playframework/play-scala-seed.g8` PlayFramework项目模版
 
 ### 关于 *No Scala version specified or detected* 错误
-当`sbt`版本升级后，若`~/.ivy2/cache`路径下存在旧版`sbt`的`jar`包，则在终端执行`sbt`指令时，会出现以下错误输出：
+当sbt版本升级后，若`~/.ivy2/cache`路径下存在旧版sbt的jar包，则在终端执行`sbt`指令时，可能会出现以下错误输出：
 
 ```
 Error during sbt execution: No Scala version specified or detected
@@ -111,7 +112,8 @@ $ rm ~/.sbt ~/.ivy2/cache/org.scala-sbt
 
 
 ## 项目结构
-`sbt`项目结构与`Maven`项目类似。一个基本的`sbt`项目具有以下目录结构：
+sbt项目结构与`Maven`项目类似。  
+一个基本的sbt项目具有以下目录结构：
 
 ```
 项目名称
@@ -138,7 +140,7 @@ $ rm ~/.sbt ~/.ivy2/cache/org.scala-sbt
 `target`目录中包含的所有内容均由编译系统生成，将项目目录加入版本控制时需要忽略这些目录。
 
 ### 默认路径
-在`sbt`项目中，直接使用**相对路径**访问目录/文件，则默认起始路径为项目的**根路径**(即与`build.sbt`文件在统一路径下)。
+在sbt项目中，直接使用**相对路径**访问目录/文件，则默认起始路径为项目的**根路径**(即与`build.sbt`文件在统一路径下)。
 
 在项目**根目录**下创建文件`temp.txt`：
 
@@ -153,7 +155,7 @@ object Main extends App {
 
 - 使用**项目相对路径**访问资源目录
 
-	`sbt`项目中的`src/main`与`src/test`下都存在`resources`目录。  
+	sbt项目中的`src/main`与`src/test`下都存在`resources`目录。  
 	`resources`路径下的文件可以根据项目的相对路径来访问。  
 	假设`src/main/resources`路径下存在文件`temp.txt`，打印文件内容：
 
@@ -230,9 +232,19 @@ scalacOptions ++= Seq(
 enablePlugins(Xxx) //启用插件
 ```
 
-`sbt shell`只在**启动时**读取一遍构建配置。  
+`sbt shell`仅在**启动时**读取构建配置。  
 若在`sbt shell`开启之后`build.sbt`文件发生了修改，则已经开启的`sbt shell`依旧使用之前的构建配置。  
 若需要已开启的`sbt shell`使用新的构建配置，则应在`sbt shell`中使用`reload`指令重新加载构建配置。
+
+### 指定 *sbt* 版本
+sbt允许在项目中指定项目构建所需的sbt版本，而非直接使用启动的sbt launcher中内置的sbt版本。  
+创建`project/build.properties`文件，在其中添加内容：
+
+```scala
+sbt.version = X.X.X //填写 sbt 版本号，如 0.13.16
+```
+
+在启动构建任务时，会查找指定sbt版本的依赖包是否存在，不存在则在下载依赖包后执行构建任务。
 
 ### 自定义源码路径
 `sbt`项目默认源码路径为`项目根目录/src`，若需要管理默认路径之外的源码，在`build.sbt`中添加：
@@ -274,8 +286,8 @@ sealed trait Project extends AnyRef with ProjectDefinition[ProjectReference] {
   def configs(cs: librarymanagement.Configuration*): Project = ...
   def dependsOn(deps: ClasspathDep[ProjectReference]*): Project = ...   //设置项目依赖
   def settings(ss: Def.SettingsDefinition*): Project = ...   //设置项目通用配置
-  def enablePlugins(ns: Plugins*): Project = ... //启用SBT插件
-  def disablePlugins(ps: AutoPlugin*) : Project = ... //禁用SBT插件
+  def enablePlugins(ns: Plugins*): Project = ... //启用指定 sbt 插件
+  def disablePlugins(ps: AutoPlugin*) : Project = ... //禁用指定 sbt 插件
   ...
 }
 ```
@@ -312,7 +324,7 @@ val root = project in file(".") //父项目配置
 val child = (project in file("xxx"))  //子项目配置
   .dependsOn(root) //设定依赖项目
   .enablePlugins(xxx) //启用插件
-  .settings( //配置相
+  .settings( //模块配置项
     name := "xxx",
     version := "xxx",
     scalaVersion := "2.12.x"
