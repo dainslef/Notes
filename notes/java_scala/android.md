@@ -28,6 +28,7 @@
 	- [*ToolBar*](#toolbar)
 - [*Android Design Support Library*](#android-design-support-library)
 	- [*TabLayout*](#tablayout)
+	- [*AppBarLayout*](#appbarlayout)
 
 <!-- /TOC -->
 
@@ -611,17 +612,9 @@ public class Intent implements Parcelable, Cloneable {
 
 菜单定义包括以下元素：
 
-- `<menu>`
-
-	菜单的**根节点**。`<menu>`能够包含一个或多个`<item>`和`<group>`子节点。
-
-- `<item>`
-
-	菜单项(`MenuItem`)，可包含`<menu>`子节点(创建子菜单)。
-
-- `<group>`
-
-	菜单组，对菜单进行编组，同组内的菜单共享可选、可见性等属性。
+- `<menu>` 菜单的**根节点**。`<menu>`能够包含一个或多个`<item>`和`<group>`子节点。
+- `<item>` 菜单项(`MenuItem`)，可包含`<menu>`子节点(创建子菜单)。
+- `<group>` 菜单组，对菜单进行编组，同组内的菜单共享可选、可见性等属性。
 
 基本的菜单定义示例如下：
 
@@ -838,7 +831,7 @@ dependencies {
 ```
 
 ### *TabLayout*
-其中`android.support.design.widget.TabLayout`提供了更加简洁的Tab页实现。  
+`android.support.design.widget.TabLayout`提供了更加简洁的Tab页实现。  
 在布局资源文件中声明`TabLayout`：
 
 ```xml
@@ -886,7 +879,8 @@ tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 })
 ```
 
-TabLayout可搭配`ViewPager`使用，使用`setupWithViewPager()`方法：
+TabLayout可搭配`ViewPager`使用，搭配ViewPager时**无需**使用`addOnTabSelectedListener()`设定监听器。  
+如下所示：
 
 ```koltin
 viewPager.adapter = object : FragmentPagerAdapter(supportFragmentManager) {
@@ -899,3 +893,94 @@ tabLayout.setupWithViewPager(viewPager)
 
 使用`setupWithViewPager()`方法设定ViewPager后，布局文件中声明的`TabItem`不生效，
 Tab标签文本由`FragmentPagerAdapter`适配器的`getPageTitle()`方法决定。
+
+### *AppBarLayout*
+`android.support.design.widget.AppBarLayout`提供了对顶栏菜单的布局支持，搭配`ToolBar`，能实现复杂的顶栏效果。  
+AppBarLayout布局与纵向LinearLayout类似，布局内的组件依次在垂直方向上排列。  
+被AppBarLayout布局包含的内容均作为顶栏存在。  
+在布局文件中声明AppBarLayout：
+
+```xml
+<android.support.design.widget.AppBarLayout
+
+            android:id="@+id/appBarLayout"
+
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+    <!-- ToolBar 放在 AppBarLayout 内部 -->
+    <android.support.v7.widget.Toolbar/>
+
+    ... <!-- 可以将其它内容放在 AppBarLayout中，都将作为顶栏的一部分存在 -->
+
+</android.support.design.widget.AppBarLayout>
+```
+
+AppBarLayout在`android.support.design.widget.CoordinatorLayout`布局下，搭配`android.support.v4.widget.NestedScrollView`控件，可实现滚动隐藏工具栏效果。  
+如下所示：
+
+```xml
+<android.support.design.widget.CoordinatorLayout
+
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <android.support.design.widget.AppBarLayout
+
+            android:id="@+id/appBarLayout"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <android.support.v7.widget.Toolbar
+
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+
+                app:layout_scrollFlags="scroll|snap|enterAlways"
+
+                app:titleTextColor="@android:color/white"
+                app:subtitleTextColor="@android:color/darker_gray"
+                app:title="@string/appName"
+                app:subtitle="@string/subtitle"
+
+                app:theme="@style/tooBarTheme"/>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        ...
+
+    </android.support.v4.widget.NestedScrollView>
+
+</android.support.design.widget.CoordinatorLayout>
+```
+
+确保滑动隐藏工具栏效果能生效，需要注意：
+
+- 根布局为`android.support.design.widget.CoordinatorLayout`，其它布局滑动工具拦效果不生效。
+- AppBarLayout内需要滚动隐藏的组件设置了属性`app:layout_scrollFlags="scroll"`。
+- AppBarLayout的相邻组件需要为支持关联滚动的组件如`android.support.v4.widget.NestedScrollView`。
+- AppBarLayout的相邻的关联滚动组件需要设置属性`app:layout_behavior="@string/appbar_scrolling_view_behavior"`。
+
+`app:layout_scrollFlags`属性取值如下(取多个属性值时用`|`操作符连接)：
+
+- `scroll` 需要响应滚动事件的组件需要设置该属性，是其它滚动属性的前置条件，默认优先滚动关联组件
+- `snap` 弹性滚动效果，下滑/上滑时，组件要么隐藏，要么完全展现，滚动距离未达要求时，当前控件回弹到之前状态
+- `enterAlways` 优先滚动当前控件，发生向下滚动行为时，处于隐藏状态的控件会立即出现，而不是等待关联滚动组件滚动到顶部
+- `enterAlwaysCollapsed` 是enterAlways的附加选项，向下滚动时，当前控件先滚动到最小高度，之后再开始滚动关联组件，关联组件滚动到顶部时再滚动当前组件到最大值
+- `exitUntilCollapsed` 是enterAlways的附加选项，向上滚动时，当前组件缩小到最小高度，但不会完全隐藏
