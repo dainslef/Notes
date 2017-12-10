@@ -4,6 +4,7 @@
 - [安装与配置](#安装与配置)
 	- [配置 *Mirrors*](#配置-mirrors)
 	- [配置 *GHC*](#配置-ghc)
+	- [关于 *Revision Mismatch* 错误](#关于-revision-mismatch-错误)
 - [启动与使用](#启动与使用)
 	- [创建项目](#创建项目)
 - [项目结构](#项目结构)
@@ -114,6 +115,18 @@ $ stack setup
 ```
 > stack setup --skip-msys
 ```
+
+### 关于 *Revision Mismatch* 错误
+当`Stackage`镜像源未完全同步官方源时，部分包可能`MD5`校验未通过，出现`Revision Mismatch`错误。  
+对于`Revision Mismatch`错误，默认行为是直接退出。
+
+在`~/.satck/config.yaml`中添加配置：
+
+```yaml
+ignore-revision-mismatch: true
+```
+
+使用该配置则启动`GHC`时会忽略`Revision Mismatch`错误。
 
 
 
