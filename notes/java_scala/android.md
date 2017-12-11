@@ -768,7 +768,8 @@ ToolBar相比原生ActionBar有以下优势：
 - 在不同版本的系统中具有更好的行为一致性。
 - 可自由定义ToolBar，配合`AppBarLayout`，可实现滚动隐藏等高级特效。
 
-使用ToolBar需要禁用系统布局中的原生ActionBar，使用`NoActionBar`主题：
+使用ToolBar需要禁用系统布局中的原生ActionBar，使用`NoActionBar`主题。  
+在`app/manifests/AndroidManifest.xml`文件中的`<application/>`节点中将`android:theme`属性设置为`@style/Theme.AppCompat.Light.NoActionBar`，如下所示：
 
 ```xml
 <application
@@ -816,6 +817,26 @@ class XxxActivity : AppCompatActivity() {
 }
 ```
 
+默认情况下，ToolBar的菜单按钮为**黑色**，可通过自定义`colorControlNormal`属性手动指定菜单按钮颜色。  
+在`app/res/values/styles.xml`文件中添加：
+
+```xml
+<style name="tooBarTheme">
+    <!-- 定义菜单按钮的色彩-->
+    <item name="colorControlNormal">@android:color/xxx</item>
+</style>
+```
+
+之后在布局文件的ToolBar声明中添加`app:theme`属性引用主题：
+
+```xml
+<android.support.v7.widget.Toolbar
+    ...
+    app:theme="@style/tooBarTheme"/>
+```
+
+注意ToolBar必须以`app:theme`属性引用Style才能使菜单按钮色彩生效，使用`style`属性引用不生效。
+
 
 
 ## *Android Design Support Library*
@@ -848,6 +869,7 @@ dependencies {
         app:tabSelectedTextColor="@android:color/white"
         app:tabIndicatorHeight="4dp">
 
+    <!-- 使用 setupWithViewPager() 绑定 FragmentPagerAdapter 时，直接在节点内添加的 TabItem 不生效 -->
     <android.support.design.widget.TabItem
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -982,5 +1004,5 @@ AppBarLayout在`android.support.design.widget.CoordinatorLayout`布局下，搭�
 - `scroll` 需要响应滚动事件的组件需要设置该属性，是其它滚动属性的前置条件，默认优先滚动关联组件
 - `snap` 弹性滚动效果，下滑/上滑时，组件要么隐藏，要么完全展现，滚动距离未达要求时，当前控件回弹到之前状态
 - `enterAlways` 优先滚动当前控件，发生向下滚动行为时，处于隐藏状态的控件会立即出现，而不是等待关联滚动组件滚动到顶部
-- `enterAlwaysCollapsed` 是enterAlways的附加选项，向下滚动时，当前控件先滚动到最小高度，之后再开始滚动关联组件，关联组件滚动到顶部时再滚动当前组件到最大值
-- `exitUntilCollapsed` 是enterAlways的附加选项，向上滚动时，当前组件缩小到最小高度，但不会完全隐藏
+- `enterAlwaysCollapsed` enterAlways的附加选项，向下滚动时，当前控件先滚动到最小高度，之后再开始滚动关联组件，关联组件滚动到顶部时再滚动当前组件到最大值
+- `exitUntilCollapsed` enterAlways的附加选项，向上滚动时，当前组件缩小到最小高度，但不会完全隐藏
