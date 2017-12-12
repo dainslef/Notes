@@ -26,6 +26,8 @@
 	- [处理菜单事件](#处理菜单事件)
 	- [*ActionBar*](#actionbar)
 	- [*ToolBar*](#toolbar)
+- [*ScrollView*](#scrollview)
+	- [嵌套 *ScrollView* 滑动冲突](#嵌套-scrollview-滑动冲突)
 - [*Android Design Support Library*](#android-design-support-library)
 	- [*TabLayout*](#tablayout)
 	- [*AppBarLayout*](#appbarlayout)
@@ -836,6 +838,71 @@ class XxxActivity : AppCompatActivity() {
 ```
 
 注意ToolBar必须以`app:theme`属性引用Style才能使菜单按钮色彩生效，使用`style`属性引用不生效。
+
+
+
+## *ScrollView*
+`ScrollView`为尺寸过大、无法完全显示的组件提供了滚动条。  
+`Android Design Support Library`中提供了支持**关联滑动**特性的`android.support.v4.widget.NestedScrollView`，与ScrollView拥有相似的基本特性。
+
+将目标控件包含在ScrollView/NestedScrollView中，即可为其提供滚动支持，以`TextView`为例：
+
+```xml
+<ScrollView android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+    <TextView android:layout_width="match_parent"
+              android:layout_height="match_parent"/>
+
+</ScrollView>
+```
+
+当TextView中的文本内容超过显示空间后，会出现滚动条。
+
+在ScrollView/NestedScrollView中的子控件使用`android:layout_height="match_parent"`属性并不能让子控件填满ScrollView的剩余空间，
+若需要子控件完全填充ScrollView剩余空间，则ScrollView自身应使用`android:fillViewport="true"`属性。
+
+### 嵌套 *ScrollView* 滑动冲突
+当多个ScrollView嵌套时，内部的ScrollView**不能**正常为其包含的控件提供滑动支持。  
+造成内部ScrollView滑动失效的原因是父控件处理了触摸事件并为。
+
+如下所示，ScrollView嵌套的布局声明，滑动TextView不会产生正常的滚动文本效果：
+
+```xml
+<ScrollView android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+    <ScrollView android:id="@+id/innerScrollView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true">
+    
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="match_parent"/>
+    
+    </ScrollView>
+
+</ScrollView>
+```
+
+解决方案是在内部ScrollView的触摸事件回调中使用`requestDisallowInterceptTouchEvent()`方法让父ScrollView将事件交由内部ScrollView处理。  
+重写`onStart()`方法，如下所示：
+
+```kotlin
+override fun onStart() {
+
+    // 禁止 Parent View 处理子控件的触摸动作
+    innerScrollView.apply {
+        setOnTouchListener { _, _ ->
+            requestDisallowInterceptTouchEvent(true)
+            false
+        }
+    }
+
+}
+```
 
 
 
