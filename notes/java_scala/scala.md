@@ -447,6 +447,7 @@ Scala中提供了`Function0[+R]`(无参数)到`Function22[-T1, ..., -T22, +R]`�
 - 函数**不允许**带有默认值。
 - 函数**不允许**定义隐式参数。
 - 函数**不允许**柯里化(不能定义多参数表)。
+- 函数不能带有泛型参数。
 - 函数参数类型为**传名参数**时，需要写明函数的完整定义，不能采用推导返回值的语法。
 - 空参函数的括号不可省略，直接使用函数名不代表调用空参函数，而是访问函数实例。
 
@@ -1561,7 +1562,7 @@ Scala中的`trait`特质对应Java中的`interface`接口。
 
 	混入两个重写了同一个抽象方法/字段的特质时，若未使用`override`关键字，则混入时编译出错，需要显式重写冲突内容。
 	
-	若特质使用了`override`关键字进行重写，则混入时依据线性化顺序决定最终的实现(保留最后混入的实现)。
+	若特质使用了`override`关键字进行重写，则混入时依据线性化顺序决定最终的实现(保留最后混入的实现)。  
 	如下所示：
 
 	```scala
@@ -1773,8 +1774,13 @@ sealed abstract class Option[+A] extends Product with Serializable {
   def isDefined: Boolean
   def get: A
   final def getOrElse[B >: A](default: => B): B
+  final def orElse[B >: A](alternative: => Option[B]): Option[B]
   final def foreach[U](f: A => U)
+  final def map[B](f: A => B): Option[B]
   final def fold[B](ifEmpty: => B)(f: A => B): B
+  final def exists(p: A => Boolean): Boolean
+  final def forall(p: A => Boolean): Boolean
+  final def contains[A1 >: A](elem: A1): Boolean
   ...
 }
 ```
@@ -1784,17 +1790,17 @@ sealed abstract class Option[+A] extends Product with Serializable {
 如下所示：
 
 ```scala
-scala> val str1: Option[String] = Option("test")
+scala> val str1 = Option("test")
 str1: Option[String] = Some(test)
 
-scala> val str2: Option[String] = None
+scala> val str2 = Option.empty[String]
 str2: Option[String] = None
 
-scala> println(str1 getOrElse "Get Value Failed!")
-test
+scala> str1 getOrElse "Get Value Failed!"
+res6: String = test
 
-scala> println(str2 getOrElse "Get Value Failed!")
-Get Value Failed! //输出getOrElse()方法中设定的值
+scala> str2 getOrElse "Get Value Failed!"
+res7: String = Get Value Failed!
 ```
 
 `foreach()`高阶函数会在值存在时应用操作：
@@ -1806,13 +1812,21 @@ scala> Option(123) foreach println
 scala> Option(null) foreach println  //无值时无输出
 ```
 
+`map()`高阶函数用于将目标值映射到新的`Option`中。  
 `fold()`高阶函数用于使用目标值执行表达式并输出返回结果，在目标值不存在时使用提供的值做为返回结果，提供的值需要与表达式返回结果类型相同。  
 如下所示：
 
 ```scala
-scala> Option[String]("abc").fold(0)(_.length)
+scala> Option("abc") map (_.length)
+res4: Option[Int] = Some(3)
+
+scala> Option.empty[Int] map (_.length)
+res5: Option[Int] = None
+
+scala> Option("abc").fold(0)(_.length)
 res8: Int = 3 //目标值存在时输出表达式结果
-scala> Option[String](null).fold(0)(_.length)
+
+scala> Option.empty[String].fold(0)(_.length)
 res9: Int = 0 //目标值不存在时使用提供的值做为返回结果
 ```
 
@@ -1821,7 +1835,7 @@ res9: Int = 0 //目标值不存在时使用提供的值做为返回结果
 
 ```scala
 object TestOption extends App {
-  val l = Option(123) :: Option(null) :: Nil
+  val l = Option(123) :: None :: Nil
   for (num <- l) num match {
     case Some(x) => println(x)
     case None => println("No Value")
@@ -2116,7 +2130,7 @@ res2: Boolean = false //类型参数的继承关系不影响泛型类型自身
 ```
 
 使用`variances`特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。  
-`variances`特性分为`covariance`(协变)和`Contravariance`(逆变)。  
+`variances`特性分为`covariance`(协变)和`contravariance`(逆变)。  
 型变特性语法如下所示：
 
 ```scala
@@ -2141,7 +2155,7 @@ class Test[-T] //contravariance，逆变
 	res4: Boolean = true //泛型类型的继承关系与类型参数相同
 	```
 
-	带有协变类型参数的泛型类型常用于方法参数、返回值中，使方法能接受/返回带有子类类型参数的泛型类型。  
+	带有协变类型参数的泛型类型用于方法参数/返回值中，使方法能接受/返回带有子类类型参数的泛型类型。  
 	如下所示：
 
 	```scala
@@ -2203,12 +2217,12 @@ class Test[-T] //contravariance，逆变
 - `Covariant Position` (协变点)
 
 	协变点指方法的**返回值**位置。  
-	泛型类型的协变应符合**里氏替换原则**，子类的方法返回值应比父类更具体。
+	根据**里氏替换原则**，子类的方法返回值应比父类更具体。
 
 - `Contravariant Position` (逆变点)
 
 	逆变点指方法的**参数**位置。  
-	子类的方法功能应强于父类方法，方法参数类型接收范围应比父类更广。
+	根据**里氏替换原则**，能通过父类实例调用的方法一定能通过子类实例调用，因此子类方法参数类型接收范围应比父类更广。
 
 在错误的位置使用型变类型参数会导致编译错误：
 
@@ -2351,9 +2365,10 @@ object Main extends App {
     print(s"String: $str => ")
     str match {
       case "str0" => println("Match case str0"); 0
-      case "str1" | "str2" => println("Match case str1 | str2"); 1 //使用"|"操作符连接多个模式匹配条件
-      case s@_ if s.length > 3 => // 使用"@"符号指代整个匹配条件，使用"if"添加守卫
+      case "str1" | "str2" => println("Match case str1 | str2"); 1 //使用 | 操作符连接多个模式匹配条件
+      case s@_ if s.length > 3 => //使用 @ 操作符指代整个匹配条件，使用 if 添加守卫
         println("Match case which string's length is larger then 3"); s.length
+      case s@("a" | "bb" | "cccc") => s.length //使用 @ 指代多个匹配条件
       case _ => println("No match"); -1
     }
   }
@@ -2466,9 +2481,9 @@ Match type: List[String]
 对于此类情况，`Scala`编译器在编译时会对代码做出警告。
 
 ### 解构
-**模式匹配**可用于解构任意定义了`unapply()`方法的类型。  
-常见的数据结构如**元组**、`List[T]`等均支持解构操作，也可以使用`Case Class`(样例类)特性定义为模式匹配优化的类。
+**模式匹配**可用于解构任意定义了`unapply()`方法的类型。
 
+常见的数据结构如**元组**、`List[T]`等均支持解构操作。  
 解构元组、`List[T]`：
 
 ```scala
@@ -2491,9 +2506,16 @@ scala.MatchError: (1,2,3) (of class scala.Tuple3) //元组数目不匹配，出�
   ... 27 elided
 ```
 
+亦可使用`Case Class`(样例类)特性定义为模式匹配优化的类，样例类会自动生成用于解构的`unapply()`方法。  
 解构样例类：
 
 ```scala
+scala> case class User(name: String, age: Int)
+defined class User
+
+scala> case class Manager(name: String, right: Int)
+defined class Manager
+
 scala> def destruct(obj: Any) =
      | obj match {
      |   case User(name, age) => println(s"User name: $name, age: $age")
@@ -2506,6 +2528,17 @@ User name: Dainslef, age: 25
 
 scala> destruct(Manager("Dainslef", 2333))
 Manager name: Dainslef, right: 2333
+```
+
+解构类型时，亦可使用**值匹配**(多个候选值同样使用`|`操作符连接)，还可使用`@`操作符指代匹配表达式/子表达式。  
+如下所示：
+
+```scala
+scala> def destruct(obj: Any) = obj match {
+     |   case m@Manager("A" | "B", _) => m.toString //解构表达式中匹配多个值，使用 @ 指代整个匹配表达式
+     |   case User(_, age@(10 | 20 | 30)) => s"Age: $age" //使用 @ 指代局部匹配表达式
+     | }
+destruct: (obj: Any)String
 ```
 
 
@@ -3088,7 +3121,11 @@ scala> val list2 = list0 :: 4 //列表不能从尾部添加元素(List以Nil结�
 ```scala
 scala> val list2 = list0 ::: list1
 list2: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
-也可以使用"++"运算符连接两个列表：
+```
+
+也可以使用`++`运算符连接两个列表：
+
+```
 scala> val list3 = list0 ++ list1
 list3: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
 ```
@@ -3628,6 +3665,7 @@ sealed abstract class Try[+T] extends Product with Serializable {
   def foreach[U](f: T => U): Unit //语句执行成功时执行函数f，否则不进行操作
   def map[U](f: T => U): Try[U] //以上一个操作的执行结果为入参执行下一个操作，同样返回Try类型
   def fold[U](fa: Throwable => U, fb: T => U): U
+  def toOption: Option[T] //将语句块的执行结果转换为Option形式
   ...
 }
 ```
@@ -3686,6 +3724,17 @@ res10: String = Failed //执行失败
 
 scala> Try { "Dainslef" } fold (_ => "Failed", _ => "Success")
 res11: String = Success //执行成功
+```
+
+`toOption`方法用于将`Try[T]`语句块的执行结果转换为`Option[T]`类型，语句块执行成功得到`Some[T]`，执行失败得到`None`。  
+如下所示：
+
+```scala
+scala> Try { "Dainslef".toInt } toOption
+res1: Option[Int] = None //执行失败，得到 None
+
+scala> Try { 233.3.toInt } toOption
+res2: Option[Int] = Some(233) //执行成功，得到 Some(233)
 ```
 
 
