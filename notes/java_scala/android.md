@@ -26,6 +26,8 @@
 	- [处理菜单事件](#处理菜单事件)
 	- [*ActionBar*](#actionbar)
 	- [*ToolBar*](#toolbar)
+- [*LinearLayout*](#linearlayout)
+	- [布局比例分配](#布局比例分配)
 - [*ScrollView*](#scrollview)
 	- [嵌套 *ScrollView* 滑动冲突](#嵌套-scrollview-滑动冲突)
 - [*Android Design Support Library*](#android-design-support-library)
@@ -838,6 +840,60 @@ class XxxActivity : AppCompatActivity() {
 ```
 
 注意ToolBar必须以`app:theme`属性引用Style才能使菜单按钮色彩生效，使用`style`属性引用不生效。
+
+
+
+## *LinearLayout*
+`LinearLayout`提供了基本的单向排列布局，布局内的控件按水平/垂直方向排列。  
+在布局文件中声明：
+
+```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingLeft="16dp"
+              android:paddingRight="16dp"
+              android:orientation="horizontal"
+              android:gravity="center">
+
+   <!-- Include other widget or layout tags here. These are considered
+           "child views" or "children" of the linear layout -->
+
+ </LinearLayout>
+```
+
+使用`android:orientation`属性设定控件的排布方向(`horizontal`水平排列控件，`vertical`垂直排列控件)。
+使用`android:gravity`属性设定控件自身的对齐方式。
+
+### 布局比例分配
+`LinearLayout`支持以**百分比**设置布局内部的宽度/高度分配。
+
+如水平布局按比例分配，需要设置内部控件的宽度属性为`android:layout_width="0dp"`；
+通过`android:layout_weight`属性设定每个控件的比例权重；
+每个控件所占宽度比例为**当前控件的android:layout_weight值**/**布局的android:layout_weight值总和**。
+
+实例：在一行中添加两个宽度相同的按钮，如下所示：
+
+```xml
+<LinearLayout
+        android:orientation="horizontal"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <Button android:text="@string/button1"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"/>
+
+    <Button android:text="@string/button2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:layout_height="wrap_content"/>
+
+</LinearLayout>
+```
 
 
 
