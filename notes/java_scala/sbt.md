@@ -16,6 +16,10 @@
 - [依赖管理](#依赖管理)
 	- [常用依赖](#常用依赖)
 - [编译参数](#编译参数)
+- [*sbt-assembly*](#sbt-assembly)
+	- [打包参数](#打包参数)
+	- [合并策略](#合并策略)
+	- [执行构建](#执行构建)
 - [*Lightbend Activator* (已废弃)](#lightbend-activator-已废弃)
 	- [安装与配置](#安装与配置-1)
 	- [基本操作](#基本操作)
@@ -26,7 +30,7 @@
 
 
 ## *sbt* 简介
-`sbt`全称`Simple Build Tool`，是`Scala`项目的标准构建工具，类似于`Java`下的`Maven`/`Groovy`中的`Gradle`。
+`sbt`全称`Simple Build Tool`，是`Scala`项目的标准构建工具，类似于`Java`的`Maven`或`Groovy`的`Gradle`。
 
 与其它`Java`构建工具类似，`sbt`的核心功能如下：
 
@@ -340,7 +344,7 @@ val child = (project in file("xxx"))  //子项目配置
 
 ### 访问构建信息
 `sbt`没有提供访问`build.sbt`中项目构建信息的接口，使用`sbt`插件`sbt-buildinfo`可以让项目访问`sbt`的构建信息。  
-在`sbt`项目中的`project/plugins.sbt`文件中引入该插件：
+在sbt项目中的`project/plugins.sbt`中添加：
 
 ```scala
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "版本号")
@@ -404,23 +408,15 @@ case object BuildInfo {
 若打包时同时依赖这两个包，则生成的`jar`包中`reference.conf`文件只会保留一份。  
 运行时`akka-actor`或`slick`可能会因为缺少默认配置异常退出。
 
-使用`sbt-assembly`插件可处理构建流程中的文件冲突。  
-在`build.sbt`中添加：
-
-```scala
-assemblyMergeStrategy in assembly := {
-  case PathList("reference.c·onf") => MergeStrategy.concat //合并冲突文件内容
-}
-```
-
-若使用`IDEA`提供的打包工具，则`sbt-assembly`插件不会生效。  
-解决冲突文件的方案是在项目`resource`路径下手动创建冲突文件，手动合并来自不同包的冲突文件内容。
+解决冲突文件的简单方案是在项目`resource`路径下手动创建冲突文件，手动合并来自不同包的冲突文件内容。  
+`sbt-assembly`插件提供了更完善的打包机制，支持自定义各类冲突文件的合并策略。
 
 
 
 ## 依赖管理
-通过设定`build.sbt`文件中的`libraryDependencies`变量即可向项目中添加**托管依赖**。  
-`libraryDependencies`配置项实际上是一个类型为`sbt.SettingKey[scala.Seq[sbt.ModuleID]]`的**变量**。  
+通过设定`build.sbt`文件中的`libraryDependencies`变量向项目中添加**托管依赖**。
+
+`libraryDependencies`配置项是类型为`sbt.SettingKey[scala.Seq[sbt.ModuleID]]`的**字段**。  
 每一项依赖由`sbt.ModuleID`类型定义，一个具体的依赖项格式如下所示：
 
 ```scala
@@ -506,6 +502,87 @@ scalacOptions ++= Seq(
 
 - 使用`-language:help`参数显示所有可使用的语言特性参数。
 - 使用`-language:_`参数可以开启所有的语言特性。
+
+
+
+## *sbt-assembly*
+`sbt-assembly`插件用于将项目所有的依赖打包到一个`jar`包中。
+
+在sbt项目的`project/plugins.sbt`中引入插件：
+
+```scala
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "版本号")
+```
+
+### 打包参数
+在bulid.sbt中可设定打包时的主要参数：
+
+- `assemblyJarName in assembly := "xxx.jar"` 设定生成的jar包名称，默认名称为`项目名称-assembly-日期.jar`
+- `test in assembly := {}` 设定要打包的测试内容，默认打包时会包含测试代码，改字段置空则不打包测试代码
+- `mainClass in assembly := Some("xxx.xxx.Main")` 设定jar的主类
+
+### 合并策略
+sbt-assembly提供了完善的机制用于处理打包流程中的文件冲突：
+
+- `MergeStrategy.deduplicate` 默认合并策略
+- `MergeStrategy.first` 保留首个文件
+- `MergeStrategy.last` 保留最后的文件
+- `MergeStrategy.singleOrError` 文件冲突时退出
+- `MergeStrategy.concat` 拼接冲突的文件
+- `MergeStrategy.rename` 根据所属的jar包重命名冲突的文件
+- `MergeStrategy.discard` 丢弃文件
+
+在`build.sbt`中添加文件合并逻辑，常见的合并操作如下所示：
+
+```scala
+// 合并规则
+assemblyMergeStrategy in assembly := {
+  case "reference.conf" => MergeStrategy.concat //匹配指定文件
+  case PathList("aaa", "bbb", _*)  => MergeStrategy.first //匹配局部路径 aaa/bbb/* 下的文件
+  case f if Assembly.isConfigFile(f) => MergeStrategy.concat //匹配配置文件
+  case f if f endsWith ".xsb" => MergeStrategy.last //匹配指定后缀的文件
+  case f => (assemblyMergeStrategy in assembly).value(f) //使用默认合并规则
+}
+```
+
+`sbt-assembly 0.14.6`版本的默认合并规则如下所示：
+
+```scala
+val defaultMergeStrategy: String => MergeStrategy = { 
+  case x if Assembly.isConfigFile(x) =>
+    MergeStrategy.concat
+  case PathList(ps @ _*) if Assembly.isReadme(ps.last) || Assembly.isLicenseFile(ps.last) =>
+    MergeStrategy.rename
+  case PathList("META-INF", xs @ _*) =>
+    (xs map {_.toLowerCase}) match {
+      case ("manifest.mf" :: Nil) | ("index.list" :: Nil) | ("dependencies" :: Nil) =>
+        MergeStrategy.discard
+      case ps @ (x :: xs) if ps.last.endsWith(".sf") || ps.last.endsWith(".dsa") =>
+        MergeStrategy.discard
+      case "plexus" :: xs =>
+        MergeStrategy.discard
+      case "services" :: xs =>
+        MergeStrategy.filterDistinctLines
+      case ("spring.schemas" :: Nil) | ("spring.handlers" :: Nil) =>
+        MergeStrategy.filterDistinctLines
+      case _ => MergeStrategy.deduplicate
+    }
+  case _ => MergeStrategy.deduplicate
+}
+```
+
+### 执行构建
+启用了sbt-assembly插件后，在sbt项目的根路径下使用`sbt assembly`指令(或在`sbt shell`中执行`assembly`指令)可执行打包操作。  
+若包含子项目，需要使用`project 项目名称`切换到对应项目中再执行`assembly`构建指令。
+
+在命令行中直接执行sbt构建指定项目：
+
+```
+$ sbt "project 项目名称"; assembly
+```
+
+sbt-assembly插件提供的冲突合并策略仅在使用`sbt assembly`指令打包时生效。  
+使用`IDEA`提供的打包工具，合并策略不会生效。
 
 
 
