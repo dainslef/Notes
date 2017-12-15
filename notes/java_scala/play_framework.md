@@ -1,3 +1,34 @@
+<!-- TOC -->
+
+- [简介](#简介)
+- [安装和配置](#安装和配置)
+	- [创建项目](#创建项目)
+	- [项目结构](#项目结构)
+	- [设置 *Play* 版本](#设置-play-版本)
+- [*Controller* (控制器)](#controller-控制器)
+	- [*Action*](#action)
+	- [*Result*](#result)
+	- [*Redirect*](#redirect)
+- [路由映射](#路由映射)
+	- [路由语法](#路由语法)
+	- [匹配规则](#匹配规则)
+	- [配置多个路由文件](#配置多个路由文件)
+	- [自定义 *HTTP* 请求处理](#自定义-http-请求处理)
+- [*Template* (模板)](#template-模板)
+	- [模板引擎简介](#模板引擎简介)
+	- [*@* 关键字](#-关键字)
+	- [模板传参](#模板传参)
+	- [结构语法](#结构语法)
+	- [定义可复用的代码块](#定义可复用的代码块)
+	- [模板类型](#模板类型)
+	- [自定义模板类型](#自定义模板类型)
+	- [单独使用模板引擎](#单独使用模板引擎)
+- [ORM](#orm)
+
+<!-- /TOC -->
+
+
+
 ## 简介
 `Play Framework`是一个轻量级的`MVC`框架。
 
@@ -45,8 +76,6 @@
 │   ├── application.conf //Play项目的主要配置文件
 │   ├── logback.xml
 │   └── routes //路由定义
-├── libexec
-│   └── activator-launch-1.3.10.jar
 ├── LICENSE
 ├── project
 │   ├── build.properties //sbt项目构建参数
@@ -387,7 +416,8 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 ### 模板引擎简介
 `Twirl`模板引擎采用`Scala`实现，使用类`Scala`语法，是**类型安全**的模板引擎。
 
-模板文件为纯文本，后缀为`*.scala.html`。  
+模板文件为纯文本，命名规则为`*.scala.模板类型`。  
+默认的`HTML`模板后缀为`*.scala.html`。  
 在项目编译时，模板文件会被编译为`Scala`类，模板文件名会做为类名，模板文件所处的路径会做为模板类的包路径。
 
 ### *@* 关键字
@@ -508,8 +538,8 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 
 @* 模板变量存储执行Scala代码执行结果 *@
 @content = @{
-	val xxx = ...
-	xxx @* content 变量类型由返回值 xxx 的类型决定 *@
+	val xxx = ... // @{ ... } 代码块中可以直接使用Scala语法
+	xxx // content 变量类型由返回值 xxx 的类型决定
 }
 
 <html>
@@ -529,7 +559,7 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 
 ```scala
 @display(product: models.Product) = {
-	@product.name ($@product.price)		@* 输出内容： 产品名称 ($产品价格) *@
+	@product.name ($@product.price) @* 输出内容： 产品名称 ($产品价格) *@
 }
 
 <ul>
@@ -578,7 +608,7 @@ play.twirl.api.Txt
 
 以常见的`json`格式为例，在`build.sbt`文件中添加：
 
-```
+```scala
 // 将json后缀的模板应用预定义的js模板生成规则
 TwirlKeys.templateFormats += "json" -> "play.twirl.api.JavaScriptFormat"
 ```
@@ -586,27 +616,57 @@ TwirlKeys.templateFormats += "json" -> "play.twirl.api.JavaScriptFormat"
 若现有的模板生成规则不能满足需要，则可以自行扩展`play.twirl.api.Format[T <: Appendable[T]]`特质，重写`raw()`、`escape()`等方法实现自定义的模板生成规则。
 
 ### 单独使用模板引擎
-`Twirl`模板引擎支持在`sbt`项目中单独使用，不依赖于完整的`Play Framework`框架。
+`Twirl`模板引擎提供了`sbt-twirl`插件，支持在`sbt`项目中单独使用，不依赖于完整的`Play Framework`框架。
 
-在普通`sbt`项目中的`project/plugins.sbt`文件中添加模板引擎的`sbt`插件：
+在普通`sbt`项目中的`project/plugins.sbt`文件中引入该插件：
 
 ```scala
 // 添加模板引擎插件
 addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "版本号")
 ```
 
-在项目构建配置文件`build.sbt`中启用模板引擎并配置模板编译扫描路径：
+在项目构建配置文件`build.sbt`中启用模板引擎插件：
 
 ```scala
 // 启用模板引擎插件
 enablePlugins(SbtTwirl)
-
-// 使模板编译器扫描源码下的模板目录
-sourceDirectories in (Compile, TwirlKeys.compileTemplates) := (unmanagedSourceDirectories in Compile).value
 ```
 
-启动了路径设置后，执行编译操作时，模板引擎编译器会扫描`src/main/scala`、`src/main/java`路径下的所有模板文件，根据模板生成`Scala`代码。  
-生成的模板类会以子路径名做为**包名**。
+执行编译操作时，模板引擎编译器会扫描`src/main/twirl`和`src/test/twirl`路径下的所有模板文件(以`*.scala.xxx`命名)，根据模板内容生成`Scala`代码。
+
+生成模板类的路径遵顼以下规则：
+
+- 模板文件直接位于模板目录中时，生成类路径为`模板类型.文件名称`
+- 模板文件位于模板目录中的某个子目录时，生成类路径为`子路径.模板类型.文件名称`
+
+举例，假设`sbt`项目存在以下目录结构：
+
+```
+项目名称
+└── src
+    └── main
+        └── twirl
+            ├── test.scala.js
+            └── template
+                ├── test1.scala.html
+                └── test2.scala.xml
+```
+
+生成的`Scala`代码类型路径分别为：
+
+```scala
+js.test //无子路径直接以"模板类型"做为包名
+template.html.test1 //存在子路径时以"子路径.模板类型"做为包名
+template.xml.test2
+```
+
+可设置模版引擎在编译时扫描源码路径(`src/main/scala`、`src/main/java`)。  
+在`build.sbt`中添加目录配置：
+
+```scala
+// 使模板编译器扫描项目源码目录
+sourceDirectories in (Compile, TwirlKeys.compileTemplates) := (unmanagedSourceDirectories in Compile).value
+```
 
 
 
