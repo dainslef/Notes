@@ -11,11 +11,11 @@
 	- [指定 *sbt* 版本](#指定-sbt-版本)
 	- [自定义源码路径](#自定义源码路径)
 	- [多项目构建](#多项目构建)
-	- [访问构建信息](#访问构建信息)
 	- [处理构建冲突](#处理构建冲突)
 - [依赖管理](#依赖管理)
 	- [常用依赖](#常用依赖)
 - [编译参数](#编译参数)
+- [*sbt-buildinfo*](#sbt-buildinfo)
 - [*sbt-assembly*](#sbt-assembly)
 	- [打包参数](#打包参数)
 	- [合并策略](#合并策略)
@@ -77,10 +77,23 @@
 - `run` 运行项目
 - `clean` 清理项目缓存
 - `package` 将项目打包
+- `project` 显示子项目/切换到子项目
 - `console` 进入Scala REPL
 - `reload` 重新加载项目的`build.sbt`构建配置
 
-`sbt`指令在`sbt shell`内使用，部分指令也可作为参数跟在`sbt`指令之后直接在命令行中使用。
+sbt指令在`sbt shell`内使用，部分指令也可作为参数跟在sbt指令之后直接在命令行中使用。  
+在sbt指令直接使用时若带有参数需要用引号包围指令与参数，如`sbt project`：
+
+```
+$ sbt project //显示所有子项目
+$ sbt "project 项目名称" //切换到指定子项目
+```
+
+sbt指令后可直接跟上**多个**指令参数，使用`;`符号分隔指令：
+
+```
+$ sbt "project 项目名称"; clean; compile //先切换到指定子项目，执行清理操作，之后再编译项目
+```
 
 ### 使用 *Giter8* 模版
 `Giter8`是由`Nathan Hamblen`在`2010`年开始发起的模版项目，目前由`foundweekends`项目维护。  
@@ -342,64 +355,6 @@ val child = (project in file("xxx"))  //子项目配置
   )
 ```
 
-### 访问构建信息
-`sbt`没有提供访问`build.sbt`中项目构建信息的接口，使用`sbt`插件`sbt-buildinfo`可以让项目访问`sbt`的构建信息。  
-在sbt项目中的`project/plugins.sbt`中添加：
-
-```scala
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "版本号")
-```
-
-在项目构建配置文件`build.sbt`中启用`sbt-buildinfo`插件：
-
-```scala
-enablePlugins(BuildInfoPlugin)
-```
-
-`sbt-buildinfo`插件的原理是利用`build.sbt`中的项目构建信息在项目构建时生成额外的源码，
-并以**单例对象**的形式将构建信息提供给项目源码进行访问。
-
-启用`sbt-buildinfo`插件后会增加插件相关的配置项。  
-将`build.sbt`中的`name、version、scalaVersion、sbtVersion`等配置项传入`sbt-buildinfo`插件的`buildInfoKeys`配置项，
-通过`buildInfoPackage`配置项设定生成单例的包路径。
-
-在`build.sbt`文件中配置`sbt-buildinfo`插件，实例如下：
-
-```scala
-// sbt项目构建信息
-name := "xxx"
-version := "xxx"
-scalaVersion := "2.12.3"
-sbtVersion := "0.13.16"
-
-// 启用 sbt-buildinfo 插件
-enablePlugins(BuildInfoPlugin)
-
-// 设定构建信息
-buildInfoKeys := Seq(name, version, scalaVersion, sbtVersion)
-buildInfoPackage := "xxx.yyy.zzz" //将构建信息生成到 xxx.yyy.zzz 包路径中
-```
-
-`sbt-buildinfo`插件生成的单例对象结构如下所示：
-
-```scala
-case object BuildInfo {
-  /** The value is "xxx". */
-  val name: String = "xxx"
-  /** The value is "xxx". */
-  val version: String = "xxx"
-  /** The value is "2.12.2". */
-  val scalaVersion: String = "2.12.2"
-  /** The value is "0.13.15". */
-  val sbtVersion: String = "0.13.15"
-  override val toString: String = {
-    "name: %s, version: %s, scalaVersion: %s, sbtVersion: %s" format (
-      name, version, scalaVersion, sbtVersion
-    )
-  }
-}
-```
-
 ### 处理构建冲突
 `jar`打包时将多个`jar`包依赖引入同一个包时，若依赖的`jar`包包含相对路径相同的目录、文件，则可能产生冲突。
 
@@ -505,8 +460,68 @@ scalacOptions ++= Seq(
 
 
 
+## *sbt-buildinfo*
+`sbt`未提供访问`build.sbt`中项目构建信息的接口，使用`sbt-buildinfo`插件可以在项目中访问构建信息。  
+在sbt项目中的`project/plugins.sbt`中添加：
+
+```scala
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "版本号")
+```
+
+在项目构建配置文件`build.sbt`中启用`sbt-buildinfo`插件：
+
+```scala
+enablePlugins(BuildInfoPlugin)
+```
+
+`sbt-buildinfo`插件的原理是利用`build.sbt`中的项目构建信息在项目构建时生成额外的源码，
+并以**单例对象**的形式将构建信息提供给项目源码进行访问。
+
+启用`sbt-buildinfo`插件后会增加插件相关的配置项。  
+将`build.sbt`中的`name、version、scalaVersion、sbtVersion`等配置项传入`sbt-buildinfo`插件的`buildInfoKeys`配置项，
+通过`buildInfoPackage`配置项设定生成单例的包路径。
+
+在`build.sbt`文件中配置`sbt-buildinfo`插件，实例如下：
+
+```scala
+// sbt项目构建信息
+name := "xxx"
+version := "xxx"
+scalaVersion := "2.12.3"
+sbtVersion := "0.13.16"
+
+// 启用 sbt-buildinfo 插件
+enablePlugins(BuildInfoPlugin)
+
+// 设定构建信息
+buildInfoKeys := Seq(name, version, scalaVersion, sbtVersion)
+buildInfoPackage := "xxx.yyy.zzz" //将构建信息生成到 xxx.yyy.zzz 包路径中
+```
+
+`sbt-buildinfo`插件生成的单例对象结构如下所示：
+
+```scala
+case object BuildInfo {
+  /** The value is "xxx". */
+  val name: String = "xxx"
+  /** The value is "xxx". */
+  val version: String = "xxx"
+  /** The value is "2.12.2". */
+  val scalaVersion: String = "2.12.2"
+  /** The value is "0.13.15". */
+  val sbtVersion: String = "0.13.15"
+  override val toString: String = {
+    "name: %s, version: %s, scalaVersion: %s, sbtVersion: %s" format (
+      name, version, scalaVersion, sbtVersion
+    )
+  }
+}
+```
+
+
+
 ## *sbt-assembly*
-`sbt-assembly`插件用于将项目所有的依赖打包到一个`jar`包中。
+`sbt-assembly`插件用于将项目的所有依赖打包到一个`jar`包中。
 
 在sbt项目的`project/plugins.sbt`中引入插件：
 
