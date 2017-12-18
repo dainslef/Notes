@@ -15,6 +15,8 @@
 	- [*Homebrew* 基本特性](#homebrew-基本特性)
 	- [*Homebrew* 安装](#homebrew-安装)
 	- [*Homebrew* 基本指令](#homebrew-基本指令)
+	- [路径信息](#路径信息)
+	- [安装参数](#安装参数)
 	- [*Homebrew Taps*](#homebrew-taps)
 	- [*Homebrew Cask*](#homebrew-cask)
 	- [使用 *Homebrew* 管理服务](#使用-homebrew-管理服务)
@@ -26,7 +28,7 @@
 	- [*Bundle*](#bundle)
 	- [*pkg*](#pkg)
 	- [软件路径](#软件路径)
-- [一些问题的处理方案](#一些问题的处理方案)
+- [部分问题的处理方案](#部分问题的处理方案)
 	- [切换分辨率/语言时，登陆界面的分辨率/语言依然不变](#切换分辨率语言时登陆界面的分辨率语言依然不变)
 	- [更改默认应用程序](#更改默认应用程序)
 	- [在 *BootCamp* 安装的 *Windows* 系统中调整了分区，重启后 *Mac分区* 在启动页中消失](#在-bootcamp-安装的-windows-系统中调整了分区重启后-mac分区-在启动页中消失)
@@ -173,9 +175,10 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 	- `Finder.app`右键菜单中没有创建文件的选项，甚至新建文件都需要使用`touch`指令。
 	- `Finder.app`右键菜单没有剪切功能，通过组合键能实现类似效果。
 
-1. `Windows/Linux`中以`Control`作为组合键触发的一些快捷操作在`macOS`中全部使用`Command`键进行触发。
+1. 主要按键名称与`PC`机不同：
 
-1. `Windows/Linux`中的`Alt`键在`macOS`中名称为`Option`键。
+	- `Windows/Linux`中以`Control`作为组合键触发的一些快捷操作在`macOS`中全部使用`Command`键进行触发。
+	- `Windows/Linux`中的`Alt`键在`macOS`中名称为`Option`键。
 
 ### *Darwin* 与 *GNU/Linux* 的差异
 `Darwin`提供的`Unix`环境基于`FreeBSD`，与传统`GNU/Linux`有较大差异。
@@ -217,7 +220,9 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 
 之后在`Terminal.app`中执行：
 
-`$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+```
+$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
 
 ### *Homebrew* 基本指令
 `Homebrew`基本操作与其它包管理器类似：
@@ -228,19 +233,51 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 - `$ brew leaves` 查看没有被其它包依赖的包
 - `$ brew info [package_name]` 显示指定包的信息
 - `$ brew deps [package_name]` 显示指定包的依赖
+- `$ brew switch [package_name] [version]` 若安装了多个版本的包，切换指定包的使用版本
 
-使用`Homebrew`安装常用的命令行工具：
+与`Linux`下的常规包管理器不同，`Homebrew`在安装、卸载包时，不会有多余的确认提示，输入指令后立即执行。
 
-```
-$ brew install aria2 python3 gcc nmap scala p7zip mariadb boost go mono rust gdb gradle sbt node postgresql kotlin haskell-stack fish qt
-```
+### 路径信息
+`homebrew`仓库中的包安装后文件保存在`/usr/local/Cellar`目录下。  
+`caskroom`仓库中的包安装后文件保存在`/usr/local/Caskroom`目录下。
 
-- 通过`Homebrew`安装的包文件全部保存在`/usr/local/Cellar`目录下。
-- 与`Linux`下的常规包管理器不同，`Homebrew`在安装包和删除包的时候，不会有多余的确认提示，输入指令就会**直接**执行。
-- 对于带有头文件的包(如`boost、gcc`等)，会在`/usr/local/include`目录下创建符号链接，指向`/usr/local/Cellar`目录中的具体包内容。
+`homebrew`仓库默认的包缓存路径为`~/Library/Caches/Homebrew`。  
+`caskroom`仓库默认的包缓存路径为`~/Library/Caches/Homebrew/Cask`
 
+可使用指令查看`Homebrew`的相关路径：
+
+- `$ brew --cache` 查看缓存路径
+- `$ brew --repo` 查看`Hombrew`安装路径
+
+在缓存中的包重复安装无需重新下载。  
+由于国内网络问题，直接通过`brew`指令安装包有时会频繁下载失败。  
+可直接使用其它下载工具从符合要求的源地址下载包文件放置于对应缓存路径下，进行离线安装。
+
+对于带有头文件的包(如`boost、gcc`等)，会在`/usr/local/include`目录下创建符号链接，指向`/usr/local/Cellar`目录中的具体包内容。
+
+### 安装参数
 `Homebrew`使用`brew install`指令安装包时可以附加额外选项，用于定制包的依赖。  
-每个包拥有不同的依赖项，使用`brew info`指令查看。
+每个包拥有不同的依赖项，使用`brew info`指令查看`Options`说明。
+
+以`neofetch`为例，`brew info`输出信息如下：
+
+```
+$ brew info neofetch
+neofetch: ...
+...
+==> Dependencies
+Recommended: screenresolution ✘, imagemagick ✘
+==> Options
+--without-imagemagick
+	Build without imagemagick support
+--without-screenresolution
+	Build without screenresolution support
+--HEAD
+	Install HEAD version
+```
+
+`neofetch`需要两个可选依赖包`screenresolution`、`imagemagick`，默认安装时会同时安装依赖包。  
+使用参数`--without-imagemagick --without-screenresolution`安装可忽略依赖。
 
 `Homebrew`对于常用的包如`gcc、gdb、python3、qt`均提供了**预编译包**(`bottled`)，但部分`bottled`的包默认安装时依旧会选择从源码编译(如`gcc`)，可在安装时使用`--force-bottle`强制安装`bottled`版本的包：
 
@@ -295,6 +332,15 @@ $ brew cask outdated | xargs brew cask reinstall
 ```
 $ brew reinstall [需要更新的应用名称]
 ```
+
+默认的`Homebrew Cask`仓库`caskroom/cask`仅保存最新版的应用，若需要同时安装多个版本(如`Java SDK`)，则需要开启`caskroom/versions`仓库。  
+执行指令：
+
+```
+$ brew tap caskroom/versions
+```
+
+`caskroom/versions`仓库保存了常见应用的长期维护版本，如`Java SDK`的`java6/java8`，`FireFox`的`firefox-beta/firefox-esr`。
 
 ### 使用 *Homebrew* 管理服务
 对于使用`Homebrew`安装的包，若包提供了服务，则可以使用`brew services`指令进行服务状态管理。  
@@ -364,12 +410,18 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 ### 删除 *JDK*
 `JDK`需要自行手工删除，相关文件位于以下路径：
 
-1. `/Library/Internet Plug-Ins/JavaAppletPlugin.plugin`
-1. `/System/Library/Java/Support/CoreDeploy.bundle/Contents/JavaAppletPlugin.plugin`
 1. `/Library/Java/JavaVirtualMachines/*`
+1. `/Library/Internet Plug-Ins/JavaAppletPlugin.plugin`
+1. `/Library/PreferencePanes/JavaControlPanel.prefPane`
 
 删除`JDK`时需要手动移除这些目录、文件。  
 安装新版本的`JDK`时，旧版本`JDK`不会自动卸载，相关文件依然位于`/Library/Java/JavaVirtualMachines`路径下，文件夹名称即为对应的`JDK`版本，手动删除不需要的版本即可。
+
+完整移除`JDK`还需删除以下配置：
+
+1. `/Library/Preferences/com.oracle.java.Helper-Tool.plist`
+1. `/Library/LaunchDaemons/com.oracle.java.Helper-Tool.plist`
+1. `/Library/LaunchAgents/com.oracle.java.Java-Updater.plist`
 
 ### 删除 *GarageBand*
 `macOS`预装了音频编辑软件`GarageBand`，卸载时需要删除以下路径的内容：
@@ -408,7 +460,7 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 
 
 
-## 一些问题的处理方案
+## 部分问题的处理方案
 
 ### 切换分辨率/语言时，登陆界面的分辨率/语言依然不变
 可以尝试更改登录界面的选项。  
