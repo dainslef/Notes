@@ -93,7 +93,7 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "版本号"
 向`JMenu`中`add()`菜单项时，虽然可以选择普通组件，但普通组件不能触发菜单效果(点按之后菜单不收回)。
 
 ### 代码风格
-在`Java Swing`中，常见的创建控件、配置控件的方式为先构建对象实例，之后调用实例的成员方法设置控件属性。  
+在`Java Swing`中，常见的创建控件、配置控件的方式为先构建对象实例，之后调用实例的成员方法设置控件属性。
 
 使用`Java Swing`创建窗口，在窗口中添加控件：
 
@@ -109,7 +109,7 @@ frame.setSize(new Dimension(200, 100));
 frame.setVisible(true);
 ```
 
-在`Scala Swing`中，创建控件、配置控件通常同步进行，使用`匿名类`特性，在创建控件时直接在构造方法中设定控件的各类属性。  
+在`Scala Swing`中，创建控件、配置控件通常同步进行，使用`匿名类`特性，在创建控件时直接在构造方法中设定控件的各类属性。
 
 `Scala Swing`的`API`更贴近`Scala`的语言风格。  
 使用`Scala Swing`构建配置控件语法更加类似`DSL`，可读性更高。

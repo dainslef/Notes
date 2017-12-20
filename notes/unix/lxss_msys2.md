@@ -145,6 +145,7 @@ $ pacman-key --init
 
 `Build 1709`中的`Linux Subsystem`新特性：
 
+- 整个`Linux Subsystem`直接以应用商店APP的形式存在，安装卸载更加方便。
 - 支持在`Bash`中直接执行`*.exe`可执行文件。
 - 环境变量中添加Windows的`PATH`，位于`PATH`中的Windows工具亦可直接调用。
 

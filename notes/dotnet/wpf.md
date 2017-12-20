@@ -705,7 +705,7 @@ xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 ```
 
-以`Image`控件为例，将`Image.MouseDown`事件绑定到`XxxCommand`上：
+以`Image`控件为例，将`Image.MouseDown`事件绑定到`XxxCommand`(`System.Windows.Input.ICommand`的子类)上：
 
 ```xml
 <Image>

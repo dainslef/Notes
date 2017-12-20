@@ -691,7 +691,7 @@ test {
 ```scala
 scala> var _num = 0
 _num: Int = 0
-scala> def testNum(num: Int): Int = _num = num		//由编译器推断出的返回值类型为Unit
+scala> def testNum(num: Int): Int = _num = num //由编译器推断出的返回值类型为Unit
 <console>:12: error: type mismatch;
 found   : Unit
 required: Int
@@ -765,8 +765,8 @@ public class Test {
 	private int num;
 	private final java.lang.String str;
 	public int num();
-	public void num_$eq(int);	//var字段生成了setter/getter
-	public java.lang.String str();	//val字段生成了getter
+	public void num_$eq(int); //var字段生成了setter/getter
+	public java.lang.String str(); //val字段生成了getter
 	public Test();
 }
 ```
@@ -3256,7 +3256,7 @@ scala> set
 res7: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
 ```
 
-需要注意的是，`Set`的`+=`、`-=`操作并非定义的方法，只是类似常规语言的操作符简写，如：
+`Set`的`+=`、`-=`操作并非定义的方法，只是类似常规语言的操作符简写，如：
 
 ```scala
 var set = Set(1, 2, 3)

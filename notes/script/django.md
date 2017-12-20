@@ -30,7 +30,9 @@
 ## 安装和配置 *Django*
 使用`pip`包管理器安装`Django`包：
 
-`# pip install Django`
+```
+# pip install Django
+```
 
 `Django`包安装完成之后，会得到`django-admin`工具用于管理django项目。
 
@@ -45,10 +47,10 @@
 项目名称
 ├── 项目名称
 │   ├── __init__.py
-│   ├── settings.py			# 项目设置
-│   ├── urls.py				# 路由设置
+│   ├── settings.py # 项目设置
+│   ├── urls.py # 路由设置
 │   └── wsgi.py
-└── manage.py				# 项目的管理脚本
+└── manage.py # 项目的管理脚本
 ```
 
 项目的根目录下是项目的管理脚本`manage.py`，可以使用该脚本完成创建应用、运行项目等功能。
@@ -186,7 +188,7 @@ DATABASES = {
 		'USER': '数据库账户名称',
 		'PASSWORD': '数据库账户对应密码',
 		'host': '主机地址',
-		'port': 3306	# mysql数据库默认端口为3306
+		'port': 3306 # mysql数据库默认端口为3306
 	}
 }
 ```
@@ -260,12 +262,12 @@ from django.db import models
 
 class TestTable(models.Model):
 
-	index = models.IntegerField(primary_key = True, db_column = "Index")	# primary_key用于标识主键
-	name = models.CharField(max_length = 48, db_column = 'Name')	# max_length用于设定最大字串长度
+	index = models.IntegerField(primary_key = True, db_column = "Index") # primary_key用于标识主键
+	name = models.CharField(max_length = 48, db_column = 'Name') # max_length用于设定最大字串长度
 
 	class Meta:
 		db_table = "TestTable"
-		managed = False		# managed成员设为False则该模型不由django管理(django不会为其自动生成数据库表)
+		managed = False # managed成员设为False则该模型不由django管理(django不会为其自动生成数据库表)
 ```
 
 默认情况下，模型类中的类名、成员名与数据库表中的表名、字段名的关系为`数据库表名/字段名 = App名 + 下划线 + 模型类名/成员名`。
@@ -285,16 +287,16 @@ class TestTable(models.Model):
 	查询的基本语法如下：
 
 	```py
-	模型类名.objects.all()					# 获取包含所有对象的查询集
-	模型类名.objects.filter(**kwargs)		# 获取一个满足参数的查询集
-	模型类名.objects.exclude(**kwargs)		# 获取一个不满足参数的查询集
-	模型类名.objects.order_by(*field_names)	# 获取以指定字段为参数排序的结果集
-	模型类名.objects.get(**kwargs)			# 获取一个单一的查询对象(单行记录)
+	模型类名.objects.all() # 获取包含所有对象的查询集
+	模型类名.objects.filter(**kwargs) # 获取一个满足参数的查询集
+	模型类名.objects.exclude(**kwargs) # 获取一个不满足参数的查询集
+	模型类名.objects.order_by(*field_names) # 获取以指定字段为参数排序的结果集
+	模型类名.objects.get(**kwargs) # 获取一个单一的查询对象(单行记录)
 	```
 
 	查询集的类型为`QuerySet`，支持索引访问，并可以对其执行**切片**操作。
 
-	django中的模型查询操作(`filter()、exclude()`等)具有以下特性：
+	模型查询操作(`filter()、exclude()`等)具有以下特性：
 
 	- 查询函数返回的结果依然是查询集，因此可以连续调用查询函数，进行**链式过滤**。
 	- 每次调用查询函数得到的查询集都是**独立**的，与之前的查询集**无关**。
@@ -498,9 +500,9 @@ extraUrl = [
 
 # URL映射的三种方式
 urlpatterns = [
-	url(r'^normalUrl/$', 应用名称.views.normalUrl),						# 直接映射到视图函数
-	url(r'^extra', include(extraUrl)),									# 映射到当前包的其它URL映射列表
-	url(r'^other', include('项目名称.应用名称.URL配置包名.otherUrl'))		# 映射到其它的URL配置模块
+	url(r'^normalUrl/$', 应用名称.views.normalUrl), # 直接映射到视图函数
+	url(r'^extra', include(extraUrl)), # 映射到当前包的其它URL映射列表
+	url(r'^other', include('项目名称.应用名称.URL配置包名.otherUrl')) # 映射到其它的URL配置模块
 ]
 ```
 
