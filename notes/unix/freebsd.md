@@ -5,6 +5,12 @@
 - [安装与配置](#安装与配置)
 	- [在 *UEFI* 下引导 *FreeBSD*](#在-uefi-下引导-freebsd)
 	- [使用 *GRUB2* 引导 *FreeBSD*](#使用-grub2-引导-freebsd)
+- [无线网络配置](#无线网络配置)
+- [服务管理](#服务管理)
+- [包管理](#包管理)
+	- [*pkg*](#pkg)
+	- [*Ports*](#ports)
+	- [系统版本升级](#系统版本升级)
 
 <!-- /TOC -->
 
@@ -81,3 +87,123 @@ menuentry 'FreeBSD' {
 ```
 
 使用`boot1.efi`文件引导`FreeBSD`相比直接通过`GRUB2`启动**BSD内核**的方式更加简单，无需复杂的引导配置。
+
+
+
+## 无线网络配置
+命令行环境下配置无线网络推荐使用`wpa_supplicant`工具。  
+`FreeBSD`源内提供的`wpa_supplicant`工具默认未生成配置文件，需要自行在`/etc`路径下创建`wpa_supplicant.conf`。  
+`wpa_supplicant.conf`配置模版如下所示：
+
+```
+network={
+	ssid="无线网ssid"
+	psk="密码"
+}
+```
+
+默认无线网卡名称为`ath0`。将无线配置写入`/etc/rc.conf`中：
+
+```
+wlan_ath0="wlan0"
+ifconfig_wlan="WPA DHCP"
+```
+
+之后启动网络服务：
+
+```
+# service netif start
+```
+
+连接未加密的无线网络，不需要使用`wpa_supplicant.conf`，直接在`/etc/rc.conf`中添加：
+
+```
+wlans_ath0="wlan0"
+ifconfig_wlan0="ssid [无线网ssid] DHCP”
+```
+
+
+
+## 服务管理
+`FreeBSD`采用传统的`BSD`风格的`init`系统，服务项在`/etc/rc.d`目录下。  
+可以使用service命令来管理服务：
+
+```
+# service [服务名称] [start | stop | status]
+```
+
+开机自启动的服务，以及一些系统配置存放在`/etc/rc.conf`文件中。  
+例如，需要开机自启动`ssh`服务则可以将`sshd_enable="YES"`加入`rc.conf`文件中。
+
+常见的一些服务配置：
+
+```
+hostname="MacBook" //主机名称
+ifconfig_em0="DHCP" //网络DHCP
+ifconfig_em0_ipv6="inet6 accept_rtadv" //ipv6
+sshd_enable="YES" //ssh服务
+ntpd_enable="YES" //时间同步服务
+powerd_enable="YES" //电源管理服务
+dumpdev="AUTO" //内核错误转储服务
+```
+
+
+
+## 包管理
+`FreeBSD`同时提供了基于源码编译软件包的`Ports`系统和基于预编译二进制包的`pkg`包管理。
+
+### *pkg*
+`FreeBSD 10`之后引入了新的`pkg`工具用于管理软件包，常用指令类似与`yum/apt/dnf`：
+
+```
+# pkg install [软件包名称]
+# pkg search [软件包名称]
+# pkg remove [软件包名称]
+# pkg autoremove [软件包名称]
+# pkg info //查询所有已安装的软件包
+# pkg info [软件包名称] //查询某个软件包的具体信息(包括软件包的文件组成，依赖关系，来源等)
+```
+
+### *Ports*
+`Ports`系统提供了官方源内所有软件包的**源码树**，编译安装前能够定制编译参数，控制依赖项。  
+`Ports`源码树位于`/usr/ports`目录之，首次使用前需要初始化`Ports`树，执行：
+
+```
+# portsnap fetch extract
+```
+
+之后更新`Ports`树执行：
+
+```
+# portsnap update
+```
+
+编译`Ports`树下某个软件包的源码只需进入对应的源码目录中，执行以下步骤：
+
+1. `make config` 进入交互式界面，配置编译依赖
+1. `make` 执行编译操作
+1. `make install` 编译完成后执行安装操作
+1. `make clean` 安装完成后清理编译生成的临时文件
+
+使用源码编译的软件包安装后同样受到`pkg`包管理器的管理。
+
+### 系统版本升级
+`FreeBSD`并非**滚动发行版**，系统有严格的版本划分。  
+`FreeBSD`升级系统版本需要使用升级工具`freebsd-update`。  
+升级到指定版本，执行指令：
+
+```
+# freebsd-update -r [版本号-发布状态] upgrade
+```
+
+以`FreeBSD 10.1`正式版，执行指令：
+
+```
+# freebsd-update -r 10.1-RELEASE upgrade
+```
+
+之后系统会开始下载升级所需要的补丁，下载完成之后，执行更新指令：
+
+```
+# /usr/sbin/freebsd-update install
+```
