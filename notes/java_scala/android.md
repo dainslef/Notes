@@ -13,6 +13,7 @@
 	- [*View* (视图)](#view-视图)
 	- [启动/结束 *Activity*](#启动结束-activity)
 	- [获取 *Activity* 返回结果](#获取-activity-返回结果)
+	- [保存 *Activity* 状态](#保存-activity-状态)
 - [*Fragment*](#fragment)
 	- [*Fragment View*](#fragment-view)
 	- [管理 *Fragment*](#管理-fragment)
@@ -417,6 +418,38 @@ public class Activity extends ... {
 	...
 }
 ```
+
+### 保存 *Activity* 状态
+Activity在下列事件发生时会重新构造：
+
+- 设备屏幕旋转
+- 系统内存不足时被清理，再度主动打开
+
+重建的Activity状态会被重置(重新构造Activity实例)。  
+若需要保存应用状态，应重写`onSaveInstanceState()`方法，相关定义如下：
+
+```java
+public class Activity extends ... {
+	...
+	protected void onSaveInstanceState(Bundle outState);
+	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState);
+	...
+}
+```
+
+将需要保存状态的字段传入`outState`参数中。  
+当Activity重建时，会调用`onRestoreInstanceState()`方法，相关定义如下：
+
+```java
+public class Activity extends ... {
+	...
+	protected void onRestoreInstanceState(Bundle savedInstanceState);
+	public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState);
+	...
+}
+```
+
+Activity销毁前存入`outState`参数中的字段可从`onRestoreInstanceState()`方法的`savedInstanceState`参数中取出，用于恢复Activity状态。
 
 
 
