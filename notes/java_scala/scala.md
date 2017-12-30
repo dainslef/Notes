@@ -24,12 +24,18 @@
 	- [*Constructor* (构造器)](#constructor-构造器)
 	- [多态](#多态)
 	- [伴生对象](#伴生对象)
-	- [*apply()/update()* 方法](#applyupdate-方法)
-	- [*unapply()/unapplySeq()* 方法](#unapplyunapplyseq-方法)
-	- [*Case Class* (样例类)](#case-class-样例类)
-	- [*Trait* (特质)](#trait-特质)
 	- [复制类实例](#复制类实例)
 	- [匿名类初始化](#匿名类初始化)
+- [*apply()/update()* 方法](#applyupdate-方法)
+- [*unapply()/unapplySeq()* 方法](#unapplyunapplyseq-方法)
+- [*Trait* (特质)](#trait-特质)
+	- [`Mixin` (混入)](#mixin-混入)
+	- [重写冲突方法、字段](#重写冲突方法字段)
+	- [构造顺序](#构造顺序)
+	- [线性化顺序](#线性化顺序)
+	- [线性化与 *override*](#线性化与-override)
+- [*Case Class* (样例类)](#case-class-样例类)
+	- [避免重定义样例类自动生成的方法](#避免重定义样例类自动生成的方法)
 - [类型](#类型)
 	- [基础类型](#基础类型)
 	- [*Bottom* (底类型)](#bottom-底类型)
@@ -1134,9 +1140,96 @@ Scala作为OOP语言，支持多态。
 - 一个类和其伴生对象的定义必须写在同一个文件中。
 - 伴生对象与同名类之间可以相互访问私有、保护成员。
 
-### *apply()/update()* 方法
-在Scala中，允许使用函数风格进行一些对象操作。
+### 复制类实例
+Scala与Java类似，类实例赋值仅仅是复制了一个引用，实例所指向的内存区域并未被复制。
 
+若需要真正复制一个对象，需要调用对象的`clone()`方法。  
+`clone()`方法定义在`Object`类中，但由于是`protected`成员，不可直接调用，若需要自行实现类的复制功能，则需要实现`Cloneable`接口。
+
+如下所示：
+
+```scala
+class Clone extends Cloneable {
+  var nums = Array(1, 2, 3)
+  var str = "TestClone"
+  override def clone = {
+    // Cloneable接口中clone()返回的是Object型，即Scala中的Any，需要进行强制类型转换
+    val clone = super.clone.asInstanceOf[Clone]
+    clone.nums = nums.clone //深复制需要对成员中的引用类型调用clone()
+    clone
+  }
+}
+```
+
+与Java中类似，如果需要实现**深复制**，则需要对类成员中的`AnyRef`及其子类调用`clone()`进行复制。  
+对于`AnyVal`子类如`Int`、`Double`等类型，没有提供重载的`clone()`方法，但这些类型默认即为值复制，无需额外的操作。  
+Java中的特例`java.lang.String`在Scala中同样有效，对于`String`类型，在重写`clone()`时也可当作基本类型对待。
+
+在Scala中，还可以直接继承`scala.collection.mutable.Cloneable[T]`特质：
+
+```scala
+import scala.collection.mutable.Cloneable
+
+class Clone extends Cloneable[Clone] {
+  var nums = Array(1, 2, 3)
+  var str = "TestClone"
+  override def clone = {
+    val clone = super.clone //不必进行强制类型转换，类型已在泛型参数中指定
+    clone.nums = nums.clone
+    clone
+  }
+}
+```
+
+### 匿名类初始化
+在Scala中，创建类实例的**同时**可以直接对类的成员变量进行初始化。
+
+如下所示：
+
+```scala
+object Init extends App {
+  val num = new Num {
+    num = 100
+    name = "Num"
+  } //相当于创建了一个匿名类，然后向上转型到类Num上
+  println(s"${num.name} ${num.num}") //正常输出了初始化的值
+}
+
+class Num {
+  var num: Int = 0
+  var name: String = ""
+}
+```
+
+以上代码用**Java**改写为：
+
+```java
+class Init {
+	public static void main(String[] args) {
+		Num num = new Num() {{
+			num = 100;
+			name = "Num";
+		}}; //匿名类的构造函数的函数名为空，因此可以使用大括号直接嵌套的方式
+		System.out.println(num.name + " " + num.num);
+	}
+}
+
+class Num {
+	int num = 0;
+	String name = "";
+}
+```
+
+输出结果：
+
+```
+Num 100
+```
+
+
+
+## *apply()/update()* 方法
+`apply()/update()`方法是Scala中的**语法糖**。
 假设有一个**实例**`instance`，使用：
 
 ```scala
@@ -1186,12 +1279,13 @@ class Apply(var num1: Int, var num2: Int) {
   }
 }
 
+// 单例对象同样可以定义 apply()/update() 方法
 object Apply {
   def apply(num1: Int, num2: Int) = new Apply(num1, num2)
   def update(num1: Int, num2: Int, test: Apply) {
     test.num1 = num1
     test.num2 = num2
-  } //伴生对象同样可以拥有apply()/update()方法
+  }
 }
 ```
 
@@ -1203,8 +1297,10 @@ object Apply {
 1000 180
 ```
 
-### *unapply()/unapplySeq()* 方法
-在Scala中，还提供了被称为**提取器**的`unapply()`方法。
+
+
+## *unapply()/unapplySeq()* 方法
+**提取器**用于解构对象，通过实现`unapply()`方法定义解构行为。
 
 - `unapply()`方法则与`apply()`方法相反，可以从对象中提取出需要的数据(在实际使用过程中，可以从任意的目标里提取数据)。
 - `unapply()`方法返回值必须为`Option`及其子类，单一返回值使用`Option[T]`，多个返回值可以包含在元组中`Option[(T1, T2, T3, ...)]`。
@@ -1278,7 +1374,225 @@ abc cde
 abc cde efg
 ```
 
-### *Case Class* (样例类)
+
+
+## *Trait* (特质)
+Scala中的`trait`特质对应Java中的`interface`接口。  
+相比Java中的接口，Scala中的特质除了不能自定义有参构造器、不能被直接实例化之外，拥有绝大部分类的特性。
+
+`trait`内可以添加普通代码语句(默认构造器)、定义成员变量以及成员方法。  
+`trait`内的成员方法可以为抽象方法，也可以带有方法的实现。  
+`trait`中的成员同样可以设置访问权限。
+
+### `Mixin` (混入)
+Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
+
+- **Mixin**机制相比传统的单根继承，保留了多重继承的大部分优点。
+- 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
+- 若同时继承类并混入特质，需要将继承的类写在`extends`关键字的后面，`with`只能混入**特质**，不能混入**类**。
+
+如下所示：
+
+```scala
+class BaseA
+
+class BaseB
+
+trait TraitA extends BaseA
+
+trait TraitB extends BaseB
+
+/* 编译报错，提示：
+ * superclass BaseA
+ * is not a subclass of the superclass BaseB
+ * of the mixin trait TraitB
+ */
+class TestExtend extends TraitA with TraitB
+
+/* 编译报错，提示：
+ * class BaseA needs to be a trait to be mixed in
+ */
+class ExtendClass extends TraitA with BaseA
+```
+
+`TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。  
+`ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
+
+### 重写冲突方法、字段
+混入机制需要解决**富接口**带来的成员冲突问题。  
+当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
+
+如下所示：
+
+```scala
+class BaseA {
+  def get = 123
+}
+
+trait TraitA {
+  def get = 456
+}
+
+trait TraitB {
+  def get = 789
+}
+
+class TestExtend extends BaseA with TraitA with TraitB {
+  override def get = 77 //对于冲突的内容，必需显式重写
+}
+```
+
+### 构造顺序
+对于混入的内容，按照以下顺序进行构造：
+
+1. 按继承树依次从最外层的父类开始构造。
+1. 按照特质出现的顺序从左往右依次构造特质。
+1. 在一个特质中，若该特质存在父特质，则先构造父特质。  
+	若多个特质拥有相同的父特质，该父特质不会被重复构造。
+1. 最后构造当前类。
+
+如下所示：
+
+```scala
+class ClassBase {
+  println("ClassBase")
+}
+
+class ClassChild extends ClassBase {
+  println("ClassChild")
+}
+
+trait TraitBase {
+  println("TraitBase")
+}
+
+trait TraitA extends TraitBase {
+  println("TraitA")
+}
+
+trait TraitB extends TraitA {
+  println("TraitB")
+}
+
+class Main extends App {
+  new ClassChild with TraitA with TraitB {
+    println("Now") //当前特质最后进行构造
+  }
+}
+```
+
+输出结果：
+
+```
+ClassBase
+ClassChild
+TraitBase
+TraitA
+TraitB
+Now
+```
+
+### 线性化顺序
+`Scala`的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。  
+线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
+
+如下所示：
+
+```scala
+class BaseA {
+  def get = 123
+}
+
+trait TraitA {
+  def get = 456
+}
+
+trait TraitB {
+  def get = 789
+}
+
+trait TraitC extends TraitB {
+  override def get = 111
+}
+
+class TestExtend extends BaseA with TraitA with TraitC {
+  override def get = super.get //使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
+  //override def get = super[BaseA].get //也可以使用继承自其它特质或类的实现
+  //override def get = super[TraitB].get //错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
+}
+```
+
+### 线性化与 *override*
+在重写抽象字段时，是否使用`override`关键字在混入时行为存在差异。  
+如下所示：
+
+```scala
+trait Name {
+  def name: String
+}
+
+trait NameA extends Name {
+  def name = "A"
+}
+
+trait NameB extends Name {
+  def name = "B"
+}
+
+object Main extends App {
+  new NameA extends NameB //编译出错
+}
+```
+
+混入两个重写了同一个抽象方法/字段的特质时，若未使用`override`关键字，则混入时编译出错，需要显式重写冲突内容。
+
+若特质使用了`override`关键字进行重写，则混入时依据线性化顺序决定最终的实现(保留最后混入的实现)。  
+如下所示：
+
+```scala
+trait Name {
+  def name: String
+}
+
+trait NameA extends Name {
+  override def name = "A"
+}
+
+trait NameB extends Name {
+  override def name = "B"
+}
+
+object Main extends App {
+  (new NameA extends NameB).name //返回 "B"
+  (new NameB extends NameA).name //返回 "A"
+}
+```
+
+混入多个存在冲突内容的特质时，不需要所有的特质都使用`override`关键字进行重写，仅需要最后一个混入的特质使用`override`重写冲突内容。  
+如下所示：
+
+```scala
+trait Name {
+  def name: String
+}
+
+trait NameA extends Name {
+  def name = "A"
+}
+
+trait NameB extends Name {
+  override def name = "B"
+}
+
+object Main extends App {
+  (new NameA extends NameB).name //返回 "B"
+  (new NameB extends NameA).name //编译出错
+}
+```
+
+
+
+## *Case Class* (样例类)
 样例类是一种特殊的类，通常用在**模式匹配**中。  
 在类定义前使用`case`关键字即可定义一个样例类。
 
@@ -1340,356 +1654,50 @@ Case.num > 100
 Not Matching
 ```
 
-- 避免重定义样例类自动生成的方法
-
-	手动创建样例类的伴生对象时，应避免定义与样例类自动生成方法签名相同的方法(`apply()/unapply()`等)，否则编译报错。  
-	如下所示：
-
-	```scala
-	object Main extends App {
-
-	  case class Case(num: Int)
-
-	  object Case {
-	    def apply(num: Int) = new Case(num) //编译报错
-	    def unapply(arg: Case) = Option(arg.num) //编译报错
-	  }
-
-	}
-	```
-
-	错误提示：
-
-	```
-	error: method apply is defined twice;
-	  the conflicting method apply was defined at line 6:9
-	  case class Case(num: Int)
-	             ^
-	error: method unapply is defined twice;
-	  the conflicting method unapply was defined at line 7:9
-	  case class Case(num: Int)
-	             ^
-	```
-
-	若伴生对象中的自定义方法与默认生成的方法签名不同，则正常编译。  
-	如下所示：
-
-	```scala
-	object Main extends App {
-
-	  case class Case(num: Int)
-
-	  object Case {
-	    def apply(num1: Int, num2: Int) = new Case(num1 + num2) //正常编译
-	    def unapply(arg: (Case, Case)) = Option(arg._1.num, arg._2.num) //正常编译
-	  }
-
-	}
-	```
-
-### *Trait* (特质)
-Scala中的`trait`特质对应Java中的`interface`接口。  
-相比Java中的接口，Scala中的特质除了不能自定义有参构造器、不能被直接实例化之外，拥有绝大部分类的特性。
-
-`trait`内可以添加普通代码语句(默认构造器)、定义成员变量以及成员方法。  
-`trait`内的成员方法可以为抽象方法，也可以带有方法的实现。  
-`trait`中的成员同样可以设置访问权限。
-
-- `Mixin` (混入)
-
-	Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
-
-	- **Mixin**机制相比传统的单根继承，保留了多重继承的大部分优点。
-	- 使用`with`关键字混入特质，一个类中混入多个特质时，会将第一个扩展的特质的父类作为自身的父类，同时，后续混入的特质都必须是从该父类派生。
-	- 若同时继承类并混入特质，需要将继承的类写在`extends`关键字的后面，`with`只能混入**特质**，不能混入**类**。
-
-	如下所示：
-
-	```scala
-	class BaseA
-
-	class BaseB
-
-	trait TraitA extends BaseA
-
-	trait TraitB extends BaseB
-
-	/* 编译报错，提示：
-	 * superclass BaseA
-	 * is not a subclass of the superclass BaseB
-	 * of the mixin trait TraitB
-	 */
-	class TestExtend extends TraitA with TraitB
-
-	/* 编译报错，提示：
-	 * class BaseA needs to be a trait to be mixed in
-	 */
-	class ExtendClass extends TraitA with BaseA
-	```
-
-	`TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。  
-	`ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
-
-- 重写冲突方法、字段
-
-	混入机制需要解决**富接口**带来的成员冲突问题。  
-	当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
-
-	如下所示：
-
-	```scala
-	class BaseA {
-	  def get = 123
-	}
-
-	trait TraitA {
-	  def get = 456
-	}
-
-	trait TraitB {
-	  def get = 789
-	}
-
-	class TestExtend extends BaseA with TraitA with TraitB {
-	  override def get = 77 //对于冲突的内容，必需显式重写
-	}
-	```
-
-- 构造顺序
-
-	对于混入的内容，按照以下顺序进行构造：
-
-	1. 按继承树依次从最外层的父类开始构造。
-	1. 按照特质出现的顺序从左往右依次构造特质。
-	1. 在一个特质中，若该特质存在父特质，则先构造父特质。  
-		若多个特质拥有相同的父特质，该父特质不会被重复构造。
-	1. 最后构造当前类。
-
-	如下所示：
-
-	```scala
-	class ClassBase {
-	  println("ClassBase")
-	}
-
-	class ClassChild extends ClassBase {
-	  println("ClassChild")
-	}
-
-	trait TraitBase {
-	  println("TraitBase")
-	}
-
-	trait TraitA extends TraitBase {
-	  println("TraitA")
-	}
-
-	trait TraitB extends TraitA {
-	  println("TraitB")
-	}
-
-	class Main extends App {
-	  new ClassChild with TraitA with TraitB {
-	    println("Now") //当前特质最后进行构造
-	  }
-	}
-	``
-
-	输出结果：
-
-	```
-	ClassBase
-	ClassChild
-	TraitBase
-	TraitA
-	TraitB
-	Now
-	```
-
-- 线性化顺序
-
-	`Scala`的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。  
-	线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
-
-	如下所示：
-
-	```scala
-	class BaseA {
-	  def get = 123
-	}
-
-	trait TraitA {
-	  def get = 456
-	}
-
-	trait TraitB {
-	  def get = 789
-	}
-
-	trait TraitC extends TraitB {
-	  override def get = 111
-	}
-
-	class TestExtend extends BaseA with TraitA with TraitC {
-	  override def get = super.get //使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
-	  //override def get = super[BaseA].get //也可以使用继承自其它特质或类的实现
-	  //override def get = super[TraitB].get //错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
-	}
-	```
-
-- 线性化与`override`
-
-	在重写抽象字段时，是否使用`override`关键字在混入时行为存在差异。  
-	如下所示：
-
-	```scala
-	trait Name {
-	  def name: String
-	}
-
-	trait NameA extends Name {
-	  def name = "A"
-	}
-
-	trait NameB extends Name {
-	  def name = "B"
-	}
-
-	object Main extends App {
-	  new NameA extends NameB //编译出错
-	}
-	```
-
-	混入两个重写了同一个抽象方法/字段的特质时，若未使用`override`关键字，则混入时编译出错，需要显式重写冲突内容。
-	
-	若特质使用了`override`关键字进行重写，则混入时依据线性化顺序决定最终的实现(保留最后混入的实现)。  
-	如下所示：
-
-	```scala
-	trait Name {
-	  def name: String
-	}
-
-	trait NameA extends Name {
-	  override def name = "A"
-	}
-
-	trait NameB extends Name {
-	  override def name = "B"
-	}
-
-	object Main extends App {
-	  (new NameA extends NameB).name //返回 "B"
-	  (new NameB extends NameA).name //返回 "A"
-	}
-	```
-
-	混入多个存在冲突内容的特质时，不需要所有的特质都使用`override`关键字进行重写，仅需要最后一个混入的特质使用`override`重写冲突内容。  
-	如下所示：
-
-	```scala
-	trait Name {
-	  def name: String
-	}
-
-	trait NameA extends Name {
-	  def name = "A"
-	}
-
-	trait NameB extends Name {
-	  override def name = "B"
-	}
-
-	object Main extends App {
-	  (new NameA extends NameB).name //返回 "B"
-	  (new NameB extends NameA).name //编译出错
-	}
-	```
-
-### 复制类实例
-Scala与Java类似，类实例赋值仅仅是复制了一个引用，实例所指向的内存区域并未被复制。
-
-若需要真正复制一个对象，需要调用对象的`clone()`方法。  
-`clone()`方法定义在`Object`类中，但由于是`protected`成员，不可直接调用，若需要自行实现类的复制功能，则需要实现`Cloneable`接口。
-
+### 避免重定义样例类自动生成的方法
+手动创建样例类的伴生对象时，应避免定义与样例类自动生成方法签名相同的方法(`apply()/unapply()`等)，否则编译报错。  
 如下所示：
 
 ```scala
-class Clone extends Cloneable {
-  var nums = Array(1, 2, 3)
-  var str = "TestClone"
-  override def clone = {
-    // Cloneable接口中clone()返回的是Object型，即Scala中的Any，需要进行强制类型转换
-    val clone = super.clone.asInstanceOf[Clone]
-    clone.nums = nums.clone //深复制需要对成员中的引用类型调用clone()
-    clone
+object Main extends App {
+
+  case class Case(num: Int)
+
+  object Case {
+    def apply(num: Int) = new Case(num) //编译报错
+    def unapply(arg: Case) = Option(arg.num) //编译报错
   }
+
 }
 ```
 
-与Java中类似，如果需要实现**深复制**，则需要对类成员中的`AnyRef`及其子类调用`clone()`进行复制。  
-对于`AnyVal`子类如`Int`、`Double`等类型，没有提供重载的`clone()`方法，但这些类型默认即为值复制，无需额外的操作。  
-Java中的特例`java.lang.String`在Scala中同样有效，对于`String`类型，在重写`clone()`时也可当作基本类型对待。
+错误提示：
 
-在Scala中，还可以直接继承`scala.collection.mutable.Cloneable[T]`特质：
-
-```scala
-import scala.collection.mutable.Cloneable
-
-class Clone extends Cloneable[Clone] {
-  var nums = Array(1, 2, 3)
-  var str = "TestClone"
-  override def clone = {
-    val clone = super.clone //不必进行强制类型转换，类型已在泛型参数中指定
-    clone.nums = nums.clone
-    clone
-  }
-}
+```
+error: method apply is defined twice;
+  the conflicting method apply was defined at line 6:9
+  case class Case(num: Int)
+             ^
+error: method unapply is defined twice;
+  the conflicting method unapply was defined at line 7:9
+  case class Case(num: Int)
+             ^
 ```
 
-### 匿名类初始化
-在Scala中，创建类实例的**同时**可以直接对类的成员变量进行初始化。
-
+若伴生对象中的自定义方法与默认生成的方法签名不同，则正常编译。  
 如下所示：
 
 ```scala
-object Init extends App {
-  val num = new Num {
-    num = 100
-    name = "Num"
-  } //相当于创建了一个匿名类，然后向上转型到类Num上
-  println(s"${num.name} ${num.num}") //正常输出了初始化的值
+object Main extends App {
+
+  case class Case(num: Int)
+
+  object Case {
+    def apply(num1: Int, num2: Int) = new Case(num1 + num2) //正常编译
+    def unapply(arg: (Case, Case)) = Option(arg._1.num, arg._2.num) //正常编译
+  }
+
 }
-
-class Num {
-  var num: Int = 0
-  var name: String = ""
-}
-```
-
-以上代码用**Java**改写为：
-
-```java
-class Init {
-	public static void main(String[] args) {
-		Num num = new Num() {{
-			num = 100;
-			name = "Num";
-		}};		//匿名类的构造函数的函数名为空，因此可以使用大括号直接嵌套的方式
-		System.out.println(num.name + " " + num.num);
-	}
-}
-
-class Num {
-	int num = 0;
-	String name = "";
-}
-```
-
-输出结果：
-
-```
-Num 100
 ```
 
 
@@ -4945,7 +4953,7 @@ object TestSync {
 
 - `Symbol`
 
-	包含实例或成员的完整信息。
+	包含实例/成员的完整信息。
 
 	`Symbol`建立了名称与所指向的类型的绑定(`establish bindings between a name and the entity it refers to`)。  
 	`Symbol`包含了类型(`class/trait/object`等)或成员(`val/var/def`等)的所有可用信息(`contain all available information about the declaration of an entity or a member`)。
