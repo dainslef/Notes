@@ -144,3 +144,28 @@ trait ActorRefFactory {
   ...
 }
 ```
+
+除了直接通过ActorSystem创建顶层ActorRef外，亦可在Actor定义内部创建ActorRef。
+
+`Actor`类型内定义了隐式成员`content`，通过content成员可以获取当前Actor的`ActorContent`实例，通过ActorContent实例的`actorOf()`方法可创建新的`ActorRef`。  
+`ActorContent`特质继承了`ActorRefFactory`特质，ActorRefFactory特质中同样定义了`actorOf()`方法用于创建`ActorRef`。  
+相关源码如下：
+
+```scala
+trait Actor {
+  ...
+  implicit val context: ActorContext //通过 context 成员获取 ActorContent 实例
+  ...
+}
+
+trait ActorContext extends ActorRefFactory {
+  ...
+}
+
+trait ActorRefFactory {
+  ...
+  def actorOf(props: Props): ActorRef
+  def actorOf(props: Props, name: String): ActorRef
+  ...
+}
+```
