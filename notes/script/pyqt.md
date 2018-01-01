@@ -28,15 +28,13 @@ $ pip install pyqt5
 
 
 ## 信号槽机制
-信号`signals`和槽`slots`机制是`Qt`的基础。
-
+信号`signals`和槽`slots`机制是`Qt`的基础。  
 在`PyQt`中，信号槽的接口风格与传统的`C++ Qt`略有不同。
 
 ### 连接信号槽
-信号使用`connect()`方法与槽函数或是其它信号相连。
-
-与`C++ Qt`中的静态成员函数`QObject::connect()`不同，`PyQt5`中的`connect()`函数作为`class pyqtBoundSignal(builtins.object)`类型的**成员函数**存在，接口风格类似于`C#`中的`event`以及`C++`中的`boost::signals`。
-
+信号使用`connect()`方法与槽函数或是其它信号相连。  
+与`C++ Qt`中的静态成员函数`QObject::connect()`不同，`PyQt5`中的`connect()`函数作为`class pyqtBoundSignal(builtins.object)`类型的**成员函数**存在，
+接口风格类似于`C#`中的`event`以及`C++`中的`boost::signals`。  
 函数定义如下：
 
 ```py
@@ -73,6 +71,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 
 class TestSignals(QObject):
+
 	signalIntStr = pyqtSignal(int, str) # 定义一个首参数为int，第二参数为str类型的信号
 
 	def __init__(self, parent = None):
@@ -84,6 +83,7 @@ class TestSignals(QObject):
 
 
 class Slot:
+
 	@staticmethod
 	def staticSlot(num, strings):
 		print("Call staticSlot, num: %d, strings: %s" % (num, strings))

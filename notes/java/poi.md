@@ -28,7 +28,7 @@
 `POI`对不同格式的文档支持拆分在不同的包中，如下所示：
 
 | 包路径 | 支持文档类型 | Maven ArtifactId |
-|:----:|:---------:|:----------------:|
+|:-----:|:----------:|:----------------:|
 | org.apache.poi.poifs | OLE2 Filesystem | poi |
 | org.apache.poi.hpsf | OLE2 Property Sets | poi |
 | org.apache.poi.hssf | Excel XLS | poi |

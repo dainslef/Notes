@@ -25,7 +25,7 @@ Actor模型缓解了并发编程中的锁和线程管理等问题，让开发者
 Actor模型最初由`Carl Hewitt`在`1973`年的论文中提出，之后由`Ericsson`开发的`Erlang`实现，在构建高并发、高可靠性的电信系统中有着成功的应用。  
 `Akka Actor`提供了与`Erlang Actor`类似的语法。
 
-Akka Actor现在是`Lightbend`官方推荐的Actor实现，原先标准库中提供的`Scala Actor`在`Scala 2.10`版本后已被废弃。
+`Akka Actor`现在是`Lightbend`官方推荐的Actor实现，原先标准库中提供的`Scala Actor`在`Scala 2.10`版本后已被废弃。
 
 ### 配置 *Akka Actor*
 在sbt项目的`build.sbt`中添加依赖：

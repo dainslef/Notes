@@ -299,12 +299,12 @@ package sbt
 
 sealed trait Project extends AnyRef with ProjectDefinition[ProjectReference] {
   ...
-  def in(dir : java.io.File): Project = ... //设置构建定义的对应路径
-  def configs(cs: librarymanagement.Configuration*): Project = ...
-  def dependsOn(deps: ClasspathDep[ProjectReference]*): Project = ...   //设置项目依赖
-  def settings(ss: Def.SettingsDefinition*): Project = ...   //设置项目通用配置
-  def enablePlugins(ns: Plugins*): Project = ... //启用指定 sbt 插件
-  def disablePlugins(ps: AutoPlugin*) : Project = ... //禁用指定 sbt 插件
+  def in(dir : java.io.File): Project //设置构建定义的对应路径
+  def configs(cs: librarymanagement.Configuration*): Project
+  def dependsOn(deps: ClasspathDep[ProjectReference]*): Project //设置项目依赖
+  def settings(ss: Def.SettingsDefinition*): Project //设置项目通用配置
+  def enablePlugins(ns: Plugins*): Project //启用指定 sbt 插件
+  def disablePlugins(ps: AutoPlugin*) : Project //禁用指定 sbt 插件
   ...
 }
 ```
@@ -379,6 +379,8 @@ val child = (project in file("xxx"))  //子项目配置
 groupID % artifactID % revision
 // 在指定配置下的依赖
 groupID % artifactID % revision % configuration
+// 测试时使用的依赖，在打包时会忽略该依赖项，一般用于测试库如 JUnit/Scala Test 等
+groupID % artifactID % revision % Test
 // 对于开放源码的库，可以指定在添加依赖时同时下载库源码和Java DOC
 groupID % artifactID % revision % withSource() withJavadoc()
 ```
@@ -507,7 +509,7 @@ case object BuildInfo {
   /** The value is "xxx". */
   val version: String = "xxx"
   /** The value is "2.12.2". */
-  val scalaVersion: String = "2.12.2"
+  val scalaVersion: String = "2.12.3"
   /** The value is "0.13.15". */
   val sbtVersion: String = "0.13.15"
   override val toString: String = {

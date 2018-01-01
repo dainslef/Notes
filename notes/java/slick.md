@@ -22,7 +22,7 @@
 
 
 ## 简介
-`Slick`是`LightBend`官方支持的函数式风格的`ORM`框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。  
+`Slick`是`LightBend`官方支持的函数式风格的`ORM`框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。
 
 ### 配置 *Slick*
 `Slick`搭配不同数据库时需要对应的数据库驱动支持。
@@ -162,7 +162,14 @@ val db = Database.forDriver(
   new com.mysql.jdbc.Driver(),
   "jdbc:mysql://localhost:端口号/数据库名称",
   "MySQL用户名",
-  "MySQL密码")
+  "MySQL密码"
+)
+
+val db = Database.forURL(
+  "jdbc:mysql://localhost:端口号/数据库名称",
+  "MySQL用户名",
+  "MySQL密码"
+)
 ```
 
 或者从项目配置文件`conf/application.conf`中读取数据库配置构建实例：
