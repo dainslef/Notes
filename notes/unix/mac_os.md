@@ -19,11 +19,8 @@
 	- [安装参数](#安装参数)
 	- [*Homebrew Taps*](#homebrew-taps)
 	- [*Homebrew Cask*](#homebrew-cask)
-	- [使用 *Homebrew* 管理服务](#使用-homebrew-管理服务)
-	- [安装 *mysql/mariadb*](#安装-mysqlmariadb)
+	- [*Homebrew Services*](#homebrew-services)
 	- [配置国内源](#配置国内源)
-	- [删除 *JDK*](#删除-jdk)
-	- [删除 *GarageBand*](#删除-garageband)
 - [*macOS* 下的软件格式](#macos-下的软件格式)
 	- [*Bundle*](#bundle)
 	- [*pkg*](#pkg)
@@ -36,6 +33,9 @@
 	- [重置 *Launchpad* 图标](#重置-launchpad-图标)
 	- [设置 *Xcode* 路径](#设置-xcode-路径)
 	- [使用 *GDB* 调试器](#使用-gdb-调试器)
+	- [安装 *mysql/mariadb*](#安装-mysqlmariadb)
+	- [删除 *JDK*](#删除-jdk)
+	- [删除 *GarageBand*](#删除-garageband)
 
 <!-- /TOC -->
 
@@ -233,7 +233,10 @@ $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/maste
 - `$ brew leaves` 查看没有被其它包依赖的包
 - `$ brew info [package_name]` 显示指定包的信息
 - `$ brew deps [package_name]` 显示指定包的依赖
+- `$ brew uses [package_name]` 显示指定包被哪些包依赖
 - `$ brew switch [package_name] [version]` 若安装了多个版本的包，切换指定包的使用版本
+- `$ brew dockor` 检测可能存在的问题，并给出修复提示
+- `$ brew prune` 移除无效的符号链接
 
 与`Linux`下的常规包管理器不同，`Homebrew`在安装、卸载包时，不会有多余的确认提示，输入指令后立即执行。
 
@@ -342,7 +345,7 @@ $ brew tap caskroom/versions
 
 `caskroom/versions`仓库保存了常见应用的长期维护版本，如`Java SDK`的`java6/java8`，`FireFox`的`firefox-beta/firefox-esr`。
 
-### 使用 *Homebrew* 管理服务
+### *Homebrew Services*
 对于使用`Homebrew`安装的包，若包提供了服务，则可以使用`brew services`指令进行服务状态管理。  
 常用指令：
 
@@ -352,15 +355,6 @@ $ brew tap caskroom/versions
 - `$ brew services stop [service_name]` 停止服务并移除服务开机自启
 - `$ brew services restart [service_name]` 重启服务
 - `$ brew services cleanup` 清理未被使用的服务
-
-### 安装 *mysql/mariadb*
-通过Homebrew安装的mysql/mariadb使用时不需要root权限。
-
-mariadb与mysql数据库的操作指令相同，因此mariadb与mysql软件包相互冲突。  
-mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
-
-- `$ mysql.server start` 启动mysql服务
-- `$ mysql.server stop` 停止mysql服务
 
 ### 配置国内源
 默认情况下，Homebrew访问`GitHub`来更新包数据，速度较慢，可使用国内源替代，推荐使用中科大源`USTC`源。
@@ -406,32 +400,6 @@ mariadb与mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
 	$ cd "$(brew --repo)"/Library/Taps/caskroom/homebrew-cask
 	$ git remote set-url origin https://github.com/caskroom/homebrew-cask.git
 	```
-
-### 删除 *JDK*
-`JDK`需要自行手工删除，相关文件位于以下路径：
-
-1. `/Library/Java/JavaVirtualMachines/*`
-1. `/Library/Internet Plug-Ins/JavaAppletPlugin.plugin`
-1. `/Library/PreferencePanes/JavaControlPanel.prefPane`
-
-删除`JDK`时需要手动移除这些目录、文件。  
-安装新版本的`JDK`时，旧版本`JDK`不会自动卸载，相关文件依然位于`/Library/Java/JavaVirtualMachines`路径下，文件夹名称即为对应的`JDK`版本，手动删除不需要的版本即可。
-
-完整移除`JDK`还需删除以下配置：
-
-1. `/Library/Preferences/com.oracle.java.Helper-Tool.plist`
-1. `/Library/LaunchDaemons/com.oracle.java.Helper-Tool.plist`
-1. `/Library/LaunchAgents/com.oracle.java.Java-Updater.plist`
-
-### 删除 *GarageBand*
-`macOS`预装了音频编辑软件`GarageBand`，卸载时需要删除以下路径的内容：
-
-1. `/Applications/GarageBand.app`
-1. `/Library/Application Support/GarageBand`
-1. `/Library/Application Support/Logic`
-1. `/Library/Audio/Apple Loops`
-
-仅删除`GarageBand.app`，在`System Information`中的`Music Creation`类别中依旧会显示包含大量空间占用。
 
 
 
@@ -583,3 +551,43 @@ $ codesign -s [证书名称] [gdb安装路径]
 
 证书需要在系统重启之后才会生效。  
 需要注意的是，每次gdb包升级，都需要重新使用证书对其进行签名，否则不能正常调试代码。
+
+### 安装 *mysql/mariadb*
+通过Homebrew安装的mysql/mariadb使用时不需要root权限。
+
+mariadb/mysql数据库的操作指令相同，因此mariadb与mysql软件包相互冲突。  
+mariadb/mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。  
+mariadb/mysql配置文件相同，路径为`/usr/local/etc/my.cnf`。
+
+mariadb/mysql使用`mysql.server`指令管理服务：
+
+- `$ mysql.server start` 启动服务
+- `$ mysql.server stop` 停止服务
+
+亦可通过`brew services`相关指令管理管理服务。
+
+### 删除 *JDK*
+`JDK`需要自行手工删除，相关文件位于以下路径：
+
+1. `/Library/Java/JavaVirtualMachines/*`
+1. `/Library/Internet Plug-Ins/JavaAppletPlugin.plugin`
+1. `/Library/PreferencePanes/JavaControlPanel.prefPane`
+
+删除`JDK`时需要手动移除这些目录、文件。  
+安装新版本的`JDK`时，旧版本`JDK`不会自动卸载，相关文件依然位于`/Library/Java/JavaVirtualMachines`路径下，文件夹名称即为对应的`JDK`版本，手动删除不需要的版本即可。
+
+完整移除`JDK`还需删除以下配置：
+
+1. `/Library/Preferences/com.oracle.java.Helper-Tool.plist`
+1. `/Library/LaunchDaemons/com.oracle.java.Helper-Tool.plist`
+1. `/Library/LaunchAgents/com.oracle.java.Java-Updater.plist`
+
+### 删除 *GarageBand*
+`macOS`预装了音频编辑软件`GarageBand`，卸载时需要删除以下路径的内容：
+
+1. `/Applications/GarageBand.app`
+1. `/Library/Application Support/GarageBand`
+1. `/Library/Application Support/Logic`
+1. `/Library/Audio/Apple Loops`
+
+仅删除`GarageBand.app`，在`System Information`中的`Music Creation`类别中依旧会显示包含大量空间占用。
