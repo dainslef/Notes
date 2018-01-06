@@ -1,9 +1,28 @@
-[TOC]
+<!-- TOC -->
+
+- [交互式使用GDB](#交互式使用gdb)
+- [基本操作](#基本操作)
+	- [*break*](#break)
+	- [*display*](#display)
+	- [*delete*](#delete)
+	- [*info*](#info)
+	- [*until/finish*](#untilfinish)
+	- [*ptype*](#ptype)
+	- [*checkpoint*](#checkpoint)
+- [调试子进程](#调试子进程)
+- [设置源码目录](#设置源码目录)
+- [调试核心转储](#调试核心转储)
+
+<!-- /TOC -->
+
+
 
 ## 交互式使用GDB
 GDB默认情况下是一个纯CLI调试器，可以使用`-tui`参数使gdb提供一个基于CLI的简单的交互式界面：
 
-`$ gdb -tui [需要被调试的可执行文件]`
+```
+$ gdb -tui [需要被调试的可执行文件]
+```
 
 
 
@@ -23,17 +42,21 @@ GDB默认情况下是一个纯CLI调试器，可以使用`-tui`参数使gdb提�
 ### *break*
 `break`用于下断点：
 
-- break [行号]
-- break [函数名]
-- break [地址]
+- `break [行号]`
+- `break [函数名]`
+- `break [地址]`
 
 如果存在多个源码文件，则需要使用源码文件名显式指定要下断点的文件：
 
-`break [源码文件名:行号/函数名/地址]`
+```
+(gdb) break [源码文件名:行号/函数名/地址]
+```
 
 gdb支持条件断点：
 
-`break [行号/函数名/地址] if [条件]`
+```
+(gdb) break [行号/函数名/地址] if [条件]
+```
 
 在判断条件中甚至可以直接调用标准库内的函数。
 
@@ -42,16 +65,22 @@ gdb支持条件断点：
 
 一次显示多个变量的信息：
 
-`display/print {变量1, 变量2, 变量3......}`
+```
+(gdb) display/print {变量1, 变量2, 变量3......}
+```
 
 ### *delete*
 删除已经存在的设置信息。
 
-`delete [数据类型] [号码]`
+```
+(gdb) delete [数据类型] [号码]
+```
 
 举例：
 
-`delete breakpoint 1			//删除1号断点`
+```
+(gdb) delete breakpoint 1 //删除1号断点
+```
 
 ### *info*
 `info`可以用于查看一些信息，常见的有：
@@ -68,35 +97,44 @@ gdb支持条件断点：
 `ptype`用于输出变量类型信息，对于结构类型(类)变量，能够显示出整个结构体/类的定义。
 
 ### *checkpoint*
-使用checkpoint指令可以在调试过程中将当前位置添加为检查点。
-
+使用checkpoint指令可以在调试过程中将当前位置添加为检查点。  
 当需要多次调试同一段代码时，调试器能够从检查点位置恢复运行，而不必重启整个进程。
 
 查看当前检查点信息：
 
-`info checkpoints`
+```
+(gdb) info checkpoints
+```
 
 从指定的检查点恢复运行：
 
-`restart [检查点编号]`
+```
+(gdb) restart [检查点编号]
+```
 
 
 
 ## 调试子进程
 默认情况下，gdb在程序调用fork()之后调试的是父进程，如果需要手动指定调试的进程，使用：
 
-`set follow-fork-mode [parent | child]`
+```
+(gdb) set follow-fork-mode [parent | child]
+```
 
 
 
 ## 设置源码目录
 在调试时使用`dir`指令可以添加临时的源码目录：
 
-`dir [路径]`
+```
+(gdb) dir [路径]
+```
 
 
 
 ## 调试核心转储
 程序崩溃时产生的转储文件亦可使用`gdb`调试：
 
-`$ gdb [可执行文件] [对应错误转储文件]`
+```
+$ gdb [可执行文件] [对应错误转储文件]
+```
