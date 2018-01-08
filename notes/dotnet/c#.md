@@ -23,6 +23,7 @@
 	- [扩展方法的应用场景](#扩展方法的应用场景)
 - [泛型](#泛型)
 	- [泛型约束](#泛型约束)
+	- [*Variance* (变性)](#variance-变性)
 	- [泛型类的静态成员](#泛型类的静态成员)
 - [*delegate* (委托) 和 *event* (事件)](#delegate-委托-和-event-事件)
 	- [*delegate* (委托)](#delegate-委托)
@@ -259,7 +260,8 @@ System.Nullable<T> variable;
 	```
 
 ### *Type alias* (类型别名)
-C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++11`中添加的新`using`语法相似。如下所示：
+C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++11`中添加的新`using`语法相似。  
+如下所示：
 
 ```cs
 namespace Np
@@ -620,8 +622,63 @@ class B<T, V> where T : XXX where V : XXXX { }
 class C<T, V> where T : class, T : V { }
 ```
 
+### *Variance* (变性)
+泛型类型在使用不同类型参数时默认**不存在**继承关系。
+如下所示：
+
+```cs
+csharp> class Child : Base { };
+csharp> List<Base> list = new List<Child>(); //泛型参数的继承关系无法作用于范型自身
+(1,20): error CS0029: Cannot implicitly convert type `System.Collections.Generic.List<Child>' to `System.Collections.Generic.List<Base>'
+csharp> List<Base> list = new List<Child>() as List<Base>; //不可进行强制类型转换
+(1,38): error CS0039: Cannot convert type `System.Collections.Generic.List<Child>' to `System.Collections.Generic.List<Base>' via a built-in conversion
+```
+
+使用`variances`特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。  
+`variances`特性分为`covariance`(协变)和`contravariance`(逆变)。  
+在泛型参数前使用`int/out`关键字表示该泛型参数**变性**，如下所示：
+
+```cs
+csharp> interface ICovariance<in T> {}; //逆变
+csharp> interface IContravariance<out T> {}; //协变
+```
+
+与`Scala`、`Kotlin`不同，在C#中，`variances`仅支持`interface`和`delegate`。  
+`class`和`struct`无法使用`variances`特性，如下所示：
+
+```cs
+csharp> class Test<out T> {}; 
+(1,17): error CS1960: Variant type parameters can only be used with interfaces and delegates
+csharp> struct Test<in T> {};
+(1,17): error CS1960: Variant type parameters can only be used with interfaces and delegates
+```
+
+- `Covariance` (协变)
+
+	类型参数声明为`covariance`(协变)时，泛型类型的继承关系与类型参数相同。  
+	如下所示：
+
+	```cs
+	csharp> interface ICovariance<out T> {};
+	csharp> class Covariance<T> : ICovariance<T> {};
+	csharp> ICovariance<Base> covariance = new Covariance<Child>(); //协变
+	```
+
+- `Contravariance` (逆变)
+
+	类型参数声明为`contravariance`(逆变)时，泛型类型的继承关系与类型参数相反。  
+	如下所示：
+
+	```cs
+	csharp> interface IContravariance<in T> {};
+	csharp> class Contravariance<T> : IContravariance<T> {};
+	csharp> IContravariance<Child> contravariance = new Contravariance<Base>(); //逆变
+	```
+
 ### 泛型类的静态成员
-在C#中，同一个泛型类的不同泛型类型的静态成员是相互独立的，静态成员共享只在同一种泛型类型的泛型类之间。
+不同于Java中`Type Erasure`形式的泛型实现，`.Net`中采用类似C++的实现，同一泛型类使用不同泛型参数时会独立生成代码。  
+C#中，同一泛型类使用不同类型参数时，各自的静态成员是相互独立的。  
+静态成员共享仅在使用相同类型参数的泛型类之间。
 
 如下代码所示：
 
@@ -636,7 +693,7 @@ class Program
 	static void Main(string[] args)
 	{
 		Test<int>.a = 100;
-		Test<uint>.a = 200;				//两个a并不是同一个
+		Test<uint>.a = 200; //两个a并不是同一个
 		Console.WriteLine(Test<int>.a);
 	}
 }
@@ -840,7 +897,7 @@ class Program
 
 	static void Main(string[] args)
 	{
-		Delegate del = (str) => Console.WriteLine(str);
+		Delegate del = str => Console.WriteLine(str);
 
 		Event += del; //事件绑定委托
 
@@ -1326,21 +1383,21 @@ using System.Threading.Tasks;
 class Program
 {
 	// Task.Run()方法中的Function是真正异步执行的内容
-	static async Task<int> Async()
-		=> await Task.Run<int>(() =>
+	static async Task<int> Async() =>
+		await Task.Run<int>(() =>
+		{
+			// 线程ID与Handler()方法不同
+			Console.WriteLine("Async() Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
+
+			for (int i = 0; i < 5; i++)
 			{
-				// 线程ID与Handler()方法不同
-				Console.WriteLine("Async() Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
+				Thread.Sleep(100);
+				Console.WriteLine("Async: Run{0}", i);
+			}
 
-				for (int i = 0; i < 5; i++)
-				{
-					Thread.Sleep(100);
-					Console.WriteLine("Async: Run{0}", i);
-				}
-
-				Console.WriteLine("Over");
-				return 666;
-			});
+			Console.WriteLine("Over");
+			return 666;
+		});
 
 	// 返回值为void的async方法AsyncHandler()仅仅是包装器
 	static async void AsyncHandler()
@@ -1499,8 +1556,8 @@ lock (object)
 
 - lock实现
 
- `lock`块在实现上使用了`Monitor`类。  
- `lock (object) { ... }`实际相当于：
+	`lock`块在实现上使用了`Monitor`类。  
+	`lock (object) { ... }`实际相当于：
 
 	```
 	Monitor.Enter(object);
@@ -1611,7 +1668,8 @@ lock (object)
 
 	三段代码执行后均无输出，且程序不退出，均死锁。
 
-	需要注意的是，`lock`锁定对象是基于**线程**的，在同一线程内的代码不受影响，如下所示的代码**不会**发生死锁：
+	需要注意的是，`lock`锁定对象是基于**线程**的，在同一线程内的代码不受影响。  
+	如下所示的代码**不会**发生死锁：
 
 	```cs
 	using System;
@@ -1652,6 +1710,7 @@ lock (object)
 
 - 获取类型的成员信息，包括私有成员。
 - 通过成员信息访问/修改字段、属性，调用成员方法。
+- 判断类型的继承关系。
 - 动态生成类型实例。
 - 获取类型特性(`Attribute`)信息。
 
@@ -1679,14 +1738,14 @@ lock (object)
 
 	```
 	MemberInfo
-	├─Type
-	│	└─TypeInfo
-	├─MethodBase
-	│	├─MethodInfo
-	│	├─EventInfo
-	│	└─ConstructorInfo
-	├─FieldInfo
-	└─PropertyInfo
+	├─ Type
+	│   └─ TypeInfo
+	├─ MethodBase
+	│   ├─ MethodInfo
+	│   ├─ EventInfo
+	│   └─ ConstructorInfo
+	├─ FieldInfo
+	└─ PropertyInfo
 	```
 
 	`PropertyInfo`、`MethodInfo`等描述类成员信息的类型均直接或间接从抽象基类`MemberInfo`中继承。
@@ -1952,22 +2011,22 @@ namespace System.Reflection
 		[Flags]
 		public enum AttributeTargets
 		{
-			Assembly = 1,				//可以对程序集应用特性
-			Module = 2,					//可以对模块应用特性
-			Class = 4,					//可以对类应用特性
-			Struct = 8,					//可以对结构应用属性
-			Enum = 16,					//可以对枚举应用特性
-			Constructor = 32,			//可以对构造函数应用特性
-			Method = 64,				//可以对方法应用特性
-			Property = 128,				//可以对属性应用特性
-			Field = 256,				//可以对字段应用特性
-			Event = 512,				//可以对事件应用特性
-			Interface = 1024,			//可以对接口应用特性
-			Parameter = 2048,			//可以对参数应用特性
-			Delegate = 4096,			//可以对委托应用特性
-			ReturnValue = 8192,			//可以对返回值应用特性
-			GenericParameter = 16384,	//可以对泛型参数应用特性
-			All = 32767					//可以对任何应用程序元素应用特性
+			Assembly = 1, //可以对程序集应用特性
+			Module = 2, //可以对模块应用特性
+			Class = 4, //可以对类应用特性
+			Struct = 8, //可以对结构应用属性
+			Enum = 16, //可以对枚举应用特性
+			Constructor = 32, //可以对构造函数应用特性
+			Method = 64, //可以对方法应用特性
+			Property = 128, //可以对属性应用特性
+			Field = 256, //可以对字段应用特性
+			Event = 512, //可以对事件应用特性
+			Interface = 1024, //可以对接口应用特性
+			Parameter = 2048, //可以对参数应用特性
+			Delegate = 4096, //可以对委托应用特性
+			ReturnValue = 8192, //可以对返回值应用特性
+			GenericParameter = 16384, //可以对泛型参数应用特性
+			All = 32767 //可以对任何应用程序元素应用特性
 		}
 	}
 	```
@@ -2014,7 +2073,6 @@ class Test
 
 class Program
 {
-
 	static void Main(string[] args)
 	{
 		Console.WriteLine("Find attribute at class Test:");
@@ -2134,7 +2192,6 @@ using System.Runtime.Remoting.Proxies;
 class Example : MarshalByRefObject
 {
 	public string GetName() => "Example";
-
 	public void Print(string str) => Console.WriteLine(str);
 }
 
@@ -2393,7 +2450,8 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 public delegate void EventHandler(object sender, EventArgs e);
 ```
 
-`sender`参数指明了事件的发出者，而`e`参数携带了事件的具体信息，`EventArgs`是所有`.NET Framework`类库中事件的基类，实际的事件类型只有符合`EventHandler`委托签名的函数才能被绑定到`Windows Form`的控件事件上。
+`sender`参数指明了事件的发出者，而`e`参数携带了事件的具体信息，`EventArgs`是所有`.NET Framework`类库中事件的基类，
+实际的事件类型只有符合`EventHandler`委托签名的函数才能被绑定到`Windows Form`的控件事件上。
 
 常用的`Windows Form`控件事件有：
 
@@ -2474,7 +2532,7 @@ C#中的常见类型与C++中类型之间的转换关系：
 
 	`internal`关键字用在类、接口前表示只能在当前项目中访问该类、接口。  
 	`internel`关键字修饰的类不能被`public`类继承。  
-	默认不添加关键字的情况下，类和接口的访问属性即为`internal`。  
+	默认不添加关键字的情况下，类和接口的访问属性即为`internal`。
 
 - `internal`关键字修饰成员
 
@@ -2529,8 +2587,8 @@ class Program
 			Console.WriteLine(num);
 	}
 
-	static void Main(string[] args)
-		=> Print(1, 2, 3, 4, 5);		//多个int型参数都被添加到params关键字标记的数组中
+	static void Main(string[] args) =>
+		Print(1, 2, 3, 4, 5); //多个int型参数都被添加到params关键字标记的数组中
 }
 ```
 
@@ -2543,9 +2601,9 @@ class Program
 
 ```cs
 string test = "aaa\0\0\0";
-Console.WriteLine(test); // 输出 "aaa口口口"
-string testNew = test.Replace("\0", ""); // 将 \0 替换为空
-Console.WriteLine(testNew); // 输出 "aaa"
+Console.WriteLine(test); //输出 "aaa口口口"
+string testNew = test.Replace("\0", ""); //将 \0 替换为空
+Console.WriteLine(testNew); //输出 "aaa"
 ```
 
 ### MySQL 中 *TINYINT* 类型
