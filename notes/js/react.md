@@ -57,6 +57,39 @@ $ npm run build //构建项目的生产版本(Release)，输出到项目根目�
 
 其中，`index.html`为单页应用的主页，`index.js`为React应用的入口。
 
+`index.html`中标记一个元素，使用`ReactDOM.render()`方法渲染该节点。  
+简单的`Hello World`例子如下所示：
+
+(页面)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<link rel="shortcut icon" href="%PUBLIC_URL%/img/xxx.ico">
+	<title>xxx</title>
+</head>
+
+<body>
+	<div id="root"></div>
+</body>
+
+</html>
+```
+
+(代码)
+
+```jsx
+import React, { ReactDOM } from "react"
+
+ReactDOM.render(
+	<h1>Hello, world!</h1>,
+	document.getElementById('root')
+);
+```
+
 
 
 ## 常见错误
