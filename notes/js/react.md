@@ -57,7 +57,7 @@ $ npm run build //构建项目的生产版本(Release)，输出到项目根目�
 
 其中，`index.html`为单页应用的主页，`index.js`为React应用的入口。
 
-`index.html`中标记一个元素，使用`ReactDOM.render()`方法渲染该节点。  
+`index.html`中使用`id`标记一个节点，使用`ReactDOM.render()`方法渲染该节点。  
 简单的`Hello World`例子如下所示：
 
 (页面)
@@ -88,6 +88,59 @@ ReactDOM.render(
 	<h1>Hello, world!</h1>,
 	document.getElementById('root')
 );
+```
+
+
+
+## *JSX*
+React扩展了JavaScript语法，允许在JavaScript代码中直接使用类XML语法，被称为`JSX`。  
+React的`JSX`类似于Scala的`XML Literal`，XML语句可直接作为变量或参数。  
+如下所示：
+
+```jsx
+const element = <h1>xxx</h1>
+```
+
+### 在 *JSX* 中引用表达式
+使用`{}`(**花括号**)在JSX标签中嵌入JavaScript表达式。
+如下所示：
+
+```jsx
+const name = "Dainslef"
+const element = <h1>Hello, my name is {name} !</h1>
+```
+
+### 在 *JSX* 中设置节点属性
+使用具体的字符串作为JSX标签属性：
+
+```jsx
+const element = <div tabIndex="0"></div>
+```
+
+引用JavaScript表达式作为JSX标签属性：
+
+```jsx
+const element1 = <div tabIndex={0}></div>
+
+const src = "/resource/xxx.jpg"
+const element2 = <img src={src}></img>
+```
+
+### 闭合、嵌套标签
+与XML类似，JSX使用`<Xxx/>`语法表示自闭合的标签：
+
+```jsx
+const element = <img src="/resource/xxx.jpg" />
+```
+
+JSX标签可以相互嵌套，如下所示：
+
+```jsx
+const element = 
+	<div>
+		<h1>Hello!</h1>
+		<h2>Good to see you here.</h2>
+	</div>
 ```
 
 
