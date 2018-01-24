@@ -145,6 +145,42 @@ const element =
 
 
 
+## 组件
+**组件**是React的核心。
+
+组件的概念类似于JavaScript中的**函数**。
+组件接收输入的属性(保存在`props`中)，返回React对象，用以描述需要在屏幕中显示的内容。
+
+React使用组件机制将HTML代码块封装为可复用的组件，通过一个个组件组合构成复杂的WEB应用。
+
+### *ES6 Component*
+组件支持使用`ES6`新特性`class`进行定义。  
+自定义组件类从`Component`类型中继承，通过实现`render()`成员方法来描述组件的内容。  
+如下所示：
+
+```jsx
+class MyComponent extends Component {
+	render = () => ...
+}
+
+// 使用定义的组件
+<MyComponent />
+```
+
+组件属性保存在`props`属性中，通过`this.props.属性名`进行访问。  
+如下所示：
+
+```jsx
+class MyComponent extends Component {
+	render = () => <img src={this.props.src} alt={this.props.alt} />
+}
+
+// 使用定义的组件
+<MyComponent src="/resource/xxx.jpg" alt="test"/>
+```
+
+
+
 ## 常见错误
 
 ### *Uncaught ReferenceError: $ is not defined*
