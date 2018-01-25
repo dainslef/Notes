@@ -153,6 +153,27 @@ const element =
 
 React使用组件机制将HTML代码块封装为可复用的组件，通过一个个组件组合构成复杂的WEB应用。
 
+### *Functional Component*
+定义组件最简单的方式是直接使用JavaScript中的函数：
+
+```jsx
+function MyComponent(props) {
+	return <img src={props.src} alt={props.alt} />
+}
+
+// 使用 ES6 语法
+const MyComponent = props => <img src={props.src} alt={props.alt} />
+```
+
+使用定义的组件：
+
+```jsx
+// 使用定义的组件
+<MyComponent src="/resource/xxx.jpg" alt="test"/>
+```
+
+直接使用JavaScript函数定义的组件被称为`Functional Component`(函数式组件)。
+
 ### *ES6 Component*
 组件支持使用`ES6`新特性`class`进行定义。  
 自定义组件类从`Component`类型中继承，通过实现`render()`成员方法来描述组件的内容。  
