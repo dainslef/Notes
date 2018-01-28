@@ -27,6 +27,7 @@
 	- [复制类实例](#复制类实例)
 	- [匿名类初始化](#匿名类初始化)
 - [*apply()/update()* 方法](#applyupdate-方法)
+	- [无参 *apply* 方法](#无参-apply-方法)
 - [*unapply()/unapplySeq()* 方法](#unapplyunapplyseq-方法)
 - [*Trait* (特质)](#trait-特质)
 	- [`Mixin` (混入)](#mixin-混入)
@@ -1297,6 +1298,51 @@ object Apply {
 1000 180
 ```
 
+### 无参 *apply* 方法
+`apply()`方法对应的无参数形式`apply`方法在通常情形下并不生效，
+字段、类会被优先解析为本身的含义(值、类型)。  
+如下所示：
+
+```scala
+scala> object Test { def apply { println("Print test") } }
+defined object Test
+
+scala> Test //直接使用单例对象名称被解析为单例对应类型
+res1: Test.type = Test$@3a5b7d7e
+
+scala> Test.apply //显式调用 apply 方法
+Print test
+
+scala> class Test { def apply { println("Print test") } }
+
+scala> val t = new Test
+t: Test = Test@4c5379f5
+
+scala> t //直接使用字段名称被解析为字段自身
+res8: Test = Test@4c5379f5
+
+scala> t.apply //显式调用 apply 方法
+Print test
+```
+
+在无参`apply`方法带有**泛型参数**时，可以正常使用带有泛型参数的省略形式。  
+如下所示：
+
+```scala
+scala> object Test { def apply[T] { println("Print test") } }
+
+scala> Test[Any] //带有泛型参数，省略 apply 方法，正常执行调用
+Print test
+
+scala> class Test { def apply[T] { println("Print test") } }
+
+scala> val t = new Test
+t: Test = Test@6f88319b
+
+scala> t[Any] //字段名称带有泛型参数，亦被解析为无参泛型 apply 调用
+Print test
+```
+
 
 
 ## *unapply()/unapplySeq()* 方法
@@ -2561,7 +2607,8 @@ destruct: (obj: Any)String
 
 - `sealed`关键字作用与`C#`中的`sealed`不同：
 
-	在Scala中，`sealed`的作用是防止继承被滥用，`sealed`修饰的类其子类定义需要与该类在统一文件中。
+	在Scala中，`sealed`的作用是防止继承被滥用。  
+	`sealed`修饰的类其子类定义需要与该类在统一文件中。
 
 ### *sealed* 用于模式匹配
 使用`sealed`关键字修饰的类型用于模式匹配时，编译器会对匹配条件进行检查。  

@@ -672,7 +672,7 @@ deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free
 
 ```
 deb https://mirrors.ustc.edu.cn/ubuntu/ xenial main restricted universe muitiverse
-deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-securitys main restricted universe muitiverse
+deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-security main restricted universe muitiverse
 deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-updates main restricted universe muitiverse
 deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted universe muitiverse
 
