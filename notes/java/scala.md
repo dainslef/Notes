@@ -35,6 +35,7 @@
 	- [构造顺序](#构造顺序)
 	- [线性化顺序](#线性化顺序)
 	- [线性化与 *override*](#线性化与-override)
+	- [线性化与类型关系](#线性化与类型关系)
 - [*Case Class* (样例类)](#case-class-样例类)
 	- [避免重定义样例类自动生成的方法](#避免重定义样例类自动生成的方法)
 - [类型](#类型)
@@ -1634,6 +1635,69 @@ object Main extends App {
   (new NameA extends NameB).name //返回 "B"
   (new NameB extends NameA).name //编译出错
 }
+```
+
+### 线性化与类型关系
+在混入带有冲突内容的特质时，冲突内容的类型不能为完全无关的类型。  
+如下所示：
+
+```scala
+scala> class A
+defined class A
+
+scala> class B
+defined class B
+
+scala> trait TraitA { val t: A }
+defined trait TraitA
+
+scala> trait TraitB { val t: B }
+defined trait TraitB
+
+scala> trait TestMixin extends TraitA with TraitB
+<console>:13: error: overriding value t in trait TraitA of type A;
+ value t in trait TraitB of type B has incompatible type
+       trait TestMixin extends TraitA with TraitB
+             ^
+```
+
+混入冲突内容时，冲突内容的类型可以不完全相同，但需要满足继承关系，同时子类位于线性化顺序的右端。  
+如下所示：
+
+```scala
+scala> class Base
+defined class Base
+
+scala> class Child extends Base
+defined class Child
+
+scala> trait TraitA { val t: Base }
+defined trait TraitA
+
+scala> trait TraitB { val t: Child }
+defined trait TraitB
+
+scala> trait TestMixin extends TraitA with TraitB
+defined trait TestMixin
+```
+
+线性化过程中，冲突字段使用更具体的子类类型取代了父类类型。  
+调整混入顺序，则出现类型不兼容的提示：
+
+```scala
+scala> trait TestMixin extends TraitB with TraitA
+<console>:13: error: overriding value t in trait TraitB of type Child;
+ value t in trait TraitA of type Base has incompatible type
+       trait TestMixin extends TraitB with TraitA
+             ^
+```
+
+线性化的右端需要为更**具体**的类型。  
+如下所示：
+
+```scala
+scala> trait TestMixin extends TraitB with TraitA { val t: Child }
+defined trait TestMixin
 ```
 
 
@@ -3846,7 +3910,6 @@ import java.awt._ //等价于java中的 import java.awt.*
 
 	class Test {
 	};
-
 
 	// file2
 	package com;
