@@ -36,6 +36,7 @@
 	- [线性化顺序](#线性化顺序)
 	- [线性化与 *override*](#线性化与-override)
 	- [线性化与类型关系](#线性化与类型关系)
+	- [*Mixin* 机制与泛型](#mixin-机制与泛型)
 - [*Case Class* (样例类)](#case-class-样例类)
 	- [避免重定义样例类自动生成的方法](#避免重定义样例类自动生成的方法)
 - [类型](#类型)
@@ -1698,6 +1699,30 @@ scala> trait TestMixin extends TraitB with TraitA
 ```scala
 scala> trait TestMixin extends TraitB with TraitA { val t: Child }
 defined trait TestMixin
+```
+
+### *Mixin* 机制与泛型
+当混入特质带有冲突内容类型为泛型参数时，只要泛型参数满足继承类型约束，并按照子类位于线性化右端的顺序混入，同样可以正常进行类型定义。  
+如下所示：
+
+```scala
+scala> class Test
+defined class Test
+
+scala> trait TraitA { val t: Test }
+defined trait TraitA
+
+scala> trait TraitB[T <: Test] { val t: T }
+defined trait TraitB
+
+scala> trait TestMixin[T <: Test] extends TraitA with TraitB[T]
+defined trait TestMixin //使用类型下界
+
+scala> trait TraitC[T >: Test] { val t: T }
+defined trait TraitC
+
+scala> trait TestMixin[T >: Test] extends TraitC[T] with TraitA
+defined trait TestMixin //使用类型上界
 ```
 
 
