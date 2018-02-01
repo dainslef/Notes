@@ -148,10 +148,16 @@ const element =
 ## 组件
 **组件**是React的核心。
 
-组件的概念类似于JavaScript中的**函数**。
+组件的概念类似于JavaScript中的**函数**。  
 组件接收输入的属性(保存在`props`中)，返回React对象，用以描述需要在屏幕中显示的内容。
 
 React使用组件机制将HTML代码块封装为可复用的组件，通过一个个组件组合构成复杂的WEB应用。
+
+### 组件命名
+在React中，自定义组件名称应以大写字母开始。  
+React将小写字母开始的组件视为`DOM`标签。
+ 
+例如，`<div />`代表`HTML`中的`div`标签，但`<Component />`代表名为`Component`的自定义组件。
 
 ### *Functional Component*
 定义组件最简单的方式是直接使用JavaScript中的函数：
@@ -198,6 +204,47 @@ class MyComponent extends Component {
 
 // 使用定义的组件
 <MyComponent src="/resource/xxx.jpg" alt="test"/>
+```
+
+### 组合组件
+组件标签之间可以相互组合。  
+如下所示：
+
+```jsx
+class Image extends Component {
+	render = () => <img src={this.props.src} alt={this.props.alt} />
+}
+
+class MyComponent extends Component {
+	render = () =>
+		<div>
+			<h1>Name1</h1>
+			<h1>Name2</h1>
+			<Image src="abc.jpg" alt="image1" />
+			<Image src="cde.jpg" alt="image2" />
+			<Image src="efg.jpg" alt="image3" />
+		</div>
+}
+```
+
+对于一些结构类似的组件，可以通过**高阶函数**映射生成，上述代码可简化为：
+
+```jsx
+class Image extends Component {
+	render = () => <img src={this.props.src} alt={this.props.alt} />
+}
+
+const names = [1, 2].map(i => <h1>Name{i}</h2>)
+const images = ["abc", "cde", "efg"]
+	.map((name, index) => <Image src={`${name}.jpg`} alt={`image${index}`}/>)
+
+class MyComponent extends Component {
+	render = () =>
+		<div>
+			{names}
+			{images}
+		</div>
+}
 ```
 
 
