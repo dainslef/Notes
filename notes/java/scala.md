@@ -23,9 +23,11 @@
 	- [字段](#字段)
 	- [*Constructor* (构造器)](#constructor-构造器)
 	- [多态](#多态)
-	- [伴生对象](#伴生对象)
 	- [复制类实例](#复制类实例)
 	- [匿名类初始化](#匿名类初始化)
+- [单例对象](#单例对象)
+	- [单例类型](#单例类型)
+	- [伴生对象](#伴生对象)
 - [*apply()/update()* 方法](#applyupdate-方法)
 	- [无参 *apply* 方法](#无参-apply-方法)
 - [*unapply()/unapplySeq()* 方法](#unapplyunapplyseq-方法)
@@ -1070,8 +1072,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	实际相当于：
 
 	```scala
-	class Empty() {
-	}
+	class Empty() { }
 	```
 
 	编译成Java代码后为：
@@ -1133,15 +1134,8 @@ Scala作为OOP语言，支持多态。
 
 - 重载
 
-	`Scala`支持方法重载，签名不同名称相同的方法可以共存。
+	`Scala`支持方法重载，签名不同名称相同的方法可以共存。  
 	`Scala`可以使用**操作符**作为方法名称，可以实现类似**C++/C#**中**操作符重载**的效果。
-
-### 伴生对象
-`Scala`中没有`static`关键字，也没有**静态成员**的概念，`Scala`使用**单例对象**来达到近似静态成员的作用。
-
-- 每一个类可以拥有一个同名的**伴生对象**(单例)，伴生对象使用`object`关键字定义。
-- 一个类和其伴生对象的定义必须写在同一个文件中。
-- 伴生对象与同名类之间可以相互访问私有、保护成员。
 
 ### 复制类实例
 Scala与Java类似，类实例赋值仅仅是复制了一个引用，实例所指向的内存区域并未被复制。
@@ -1228,6 +1222,77 @@ class Num {
 ```
 Num 100
 ```
+
+
+
+## 单例对象
+使用`object`关键字定义单例对象。  
+单例对象是一个实例，可以在单例对象内部定义常见的内容，如字段、方法等：
+
+```scala
+scala> object Test { val num = 2333; private[this] val msg = "6666"; def show() = println(msg) }
+defined object Test
+
+scala> Test.num
+res1: Int = 2333
+
+scala> Test.msg //单例对象的内部成员支持访问权限控制
+<console>:13: error: value msg is not a member of object Test
+       Test.msg
+            ^
+
+scala> Test.show()
+6666
+```
+
+### 单例类型
+单例对象可以继承其它类型、混入特质：
+
+```scala
+scala> class Base { def showBase() { println("Show Base") } }
+defined class Base
+
+scala> trait Trait { def showTrait() { println("Show Trait") } }
+defined trait Trait
+
+scala> object Test extends Base with Trait
+defined object Test
+
+scala> Test.showBase()
+Show Base
+
+scala> Test.showTrait()
+Show Trait
+```
+
+单例对象的类型使用`单例名称.type`表示单例自身的类型。  
+继承了类、混入了特质的单例的单例类型能够正常通过继承关系的判定。  
+如下所示：
+
+```scala
+scala> import scala.reflect.runtime.universe.typeOf
+import scala.reflect.runtime.universe.typeOf
+
+scala> typeOf[Test.type] //单例自身的类型信息
+res1: reflect.runtime.universe.Type = Test.type
+
+scala> typeOf[Test.type] <:< typeOf[Base]
+res2: Boolean = true
+
+scala> typeOf[Test.type] <:< typeOf[Trait]
+res3: Boolean = true
+```
+
+### 伴生对象
+伴生对象是一类特殊的单例对象。  
+每一个类可以拥有一个同名的**伴生对象**(单例)，伴生对象具有以下特征/限制：
+
+- 一个类和其伴生对象的定义必须写在同一个文件中。
+- 伴生对象与同名类之间可以相互访问私有、保护成员。
+
+Scala相比Java是更加纯粹的面向对象语言，Scala中没有`static`关键字，也没有**静态成员**的概念，
+Scala使用**伴生对象**来达到近似静态成员的作用。  
+对于Java代码中定义的静态字段、静态方法，在Scala中也以单例对象的语法进行访问。
 
 
 
