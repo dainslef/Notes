@@ -25,14 +25,15 @@
 	- [多态](#多态)
 	- [复制类实例](#复制类实例)
 	- [匿名类初始化](#匿名类初始化)
-- [单例对象](#单例对象)
+- [*Singleton Objects* (单例对象)](#singleton-objects-单例对象)
 	- [单例类型](#单例类型)
-	- [伴生对象](#伴生对象)
+	- [初始化](#初始化)
+	- [*Companions* (伴生对象)](#companions-伴生对象)
 - [*apply()/update()* 方法](#applyupdate-方法)
 	- [无参 *apply* 方法](#无参-apply-方法)
 - [*unapply()/unapplySeq()* 方法](#unapplyunapplyseq-方法)
 - [*Trait* (特质)](#trait-特质)
-	- [`Mixin` (混入)](#mixin-混入)
+	- [*Mixin* (混入)](#mixin-混入)
 	- [重写冲突方法、字段](#重写冲突方法字段)
 	- [构造顺序](#构造顺序)
 	- [线性化顺序](#线性化顺序)
@@ -246,10 +247,7 @@ object Main extends App {
 
 
 ## *Method* (方法)
-与Java不同，Scala中同时支持**函数**与**方法**(Java只有方法而没有真正意义上的**函数**，只有与函数类似的**静态方法**)。
-
-方法由`def`关键字定义，可以被`def`方法、`val`函数重写。  
-一个典型的方法格式如下：
+方法使用`def`关键字定义，一个典型的方法格式如下：
 
 ```scala
 def methodName(args: Type)：Type = {
@@ -268,7 +266,7 @@ def methodName(args: Type) = {
 
 但出于代码的可读性考虑，对于公有方法，**不建议**省略返回值类型。
 
-对于方法体只有单行代码的情形，可直接省略方法体外部的花括号：
+对于方法体仅有单行代码的情形，可直接省略方法体外部的花括号：
 
 ```scala
 def methodName(args: Type) = /* function_body */
@@ -326,7 +324,7 @@ scala> getNum() //错误，提示 error: Int does not take parameters
 <console>:12: error: Int does not take parameters
   getNum()
         ^
-scala> def getNum(): Int = 200 //定义了方法 getNum(): Int
+scala> def getNum(): Int = 200 //定义了方法 getNum(): Int，覆盖了之前定义的 getNum: Int
 getNum: ()Int
 scala> getNum //正确，返回 200
 res1: Int = 200
@@ -433,7 +431,7 @@ object Main extends App {
 
 
 ## *Function* (函数)
-在Scala中函数使用`var/val`关键字定义，即函数是一个存储了函数对象的字段。
+函数使用`var/val`关键字定义，即函数是一个存储了函数对象的字段。
 
 一个典型的函数定义如下：
 
@@ -441,7 +439,7 @@ object Main extends App {
 var functionName: FuncType = 符合签名的方法/函数/Lambda
 ```
 
-Scala中的函数类型为`Function*`，根据参数数目的不同，
+函数类型为`Function*`，根据参数数目的不同，
 Scala中提供了`Function0[+R]`(无参数)到`Function22[-T1, ..., -T22, +R]`共**23**种函数类型，
 即函数最多可以拥有**22**个参数。
 
@@ -1225,7 +1223,7 @@ Num 100
 
 
 
-## 单例对象
+## *Singleton Objects* (单例对象)
 使用`object`关键字定义单例对象。  
 单例对象是一个实例，可以在单例对象内部定义常见的内容，如字段、方法等：
 
@@ -1283,14 +1281,33 @@ scala> typeOf[Test.type] <:< typeOf[Trait]
 res3: Boolean = true
 ```
 
-### 伴生对象
-伴生对象是一类特殊的单例对象。  
+### 初始化
+单例对象默认即带有延迟初始化的特性。  
+单例在定义时并未初始化，初始化行为发生在单例首次被访问时。
+
+若在单例构造器中添加带有副作用的语句，则副作用会在首次访问单例时出现。  
+如下所示：
+
+```scala
+scala> object Test { println("Init Singleton Test") }
+defined object Test
+
+scala> Test //首次访问单例，单例进行初始化，触发副作用
+Init Singleton Test
+res0: Test.type = Test$@16ea0f22
+
+scala> Test //再次访问单例，单例已被初始化，不再触发副作用
+res1: Test.type = Test$@16ea0f22
+```
+
+### *Companions* (伴生对象)
+`Companions`(伴生对象)是一类特殊的单例对象。  
 每一个类可以拥有一个同名的**伴生对象**(单例)，伴生对象具有以下特征/限制：
 
 - 一个类和其伴生对象的定义必须写在同一个文件中。
 - 伴生对象与同名类之间可以相互访问私有、保护成员。
 
-Scala相比Java是更加纯粹的面向对象语言，Scala中没有`static`关键字，也没有**静态成员**的概念，
+Scala相比Java是更加纯粹的面向对象语言，Scala中没有`static`关键字和**静态成员**的概念，
 Scala使用**伴生对象**来达到近似静态成员的作用。  
 对于Java代码中定义的静态字段、静态方法，在Scala中也以单例对象的语法进行访问。
 
@@ -1497,7 +1514,7 @@ Scala中的`trait`特质对应Java中的`interface`接口。
 `trait`内的成员方法可以为抽象方法，也可以带有方法的实现。  
 `trait`中的成员同样可以设置访问权限。
 
-### `Mixin` (混入)
+### *Mixin* (混入)
 Scala不支持**多重继承**，一个类只能拥有一个父类，但可以**混入(mixin)**多个特质。
 
 - **Mixin**机制相比传统的单根继承，保留了多重继承的大部分优点。
@@ -3977,7 +3994,6 @@ import java.awt._ //等价于java中的 import java.awt.*
 	package com.dainslef
 
 	class Test
-
 
 	// file2
 	package com
