@@ -87,7 +87,7 @@ import React, { ReactDOM } from "react"
 ReactDOM.render(
 	<h1>Hello, world!</h1>,
 	document.getElementById('root')
-);
+)
 ```
 
 
@@ -102,7 +102,7 @@ const element = <h1>xxx</h1>
 ```
 
 ### 在 *JSX* 中引用表达式
-使用`{}`(**花括号**)在JSX标签中嵌入JavaScript表达式。
+使用`{}`(**花括号**)在JSX标签中嵌入JavaScript表达式。  
 如下所示：
 
 ```jsx
@@ -182,7 +182,7 @@ const MyComponent = props => <img src={props.src} alt={props.alt} />
 
 ### *ES6 Component*
 组件支持使用`ES6`新特性`class`进行定义。  
-自定义组件类从`Component`类型中继承，通过实现`render()`成员方法来描述组件的内容。  
+自定义组件类从`React.Component`类型中继承，通过实现`render()`成员方法来描述组件的内容。  
 如下所示：
 
 ```jsx
@@ -246,6 +246,59 @@ class MyComponent extends Component {
 		</div>
 }
 ```
+
+### *State* (组件状态)
+`state`字段在React组件中具有特殊意义。  
+在组件类中定义`state`字段来保存组件的本地状态(`Local State`)。  
+
+`Functional Component`(函数式组件)自身是无状态的，组件需要保存本地状态应使用`ES6 Component`。
+
+组件的`state`字段可以在构造器中定义：
+
+```jsx
+class MyComponent extends Component {
+
+	constructor(props) {
+		super(props)
+		this.state = {
+			myState1: ... ,
+			myState2: ... ,
+			...
+		}
+	}
+
+	render = () => ...
+
+}
+```
+
+或者直接做为类成员定义：
+
+```jsx
+class MyComponent extends Component {
+
+	state = {
+		myState1: ... ,
+		myState2: ... ,
+		...
+	}
+
+	render = () => ...
+
+}
+```
+
+当需要更新组件状态时，不要直接修改`this.state`成员，应使用`setState()`方法，如下所示：
+
+```jsx
+// 错误示例，直接修改 state 字段DOM不会更新
+this.state.myState1 = xxx
+
+// 正确用法
+this.setState({ myState1: xxx })
+```
+
+使用`setState()`方法更新组件状态，对应组件所属的DOM会重新渲染。
 
 
 
