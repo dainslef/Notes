@@ -149,15 +149,19 @@ $ docker tag [镜像ID/镜像名称] [镜像新名称]
 
 从`dcoker pull`指令从`Docker Hub`中拉取镜像到本地：
 
-- `docker pull [镜像仓库]` 拉取指定名称默认TAG的镜像
-- `docker pull [镜像仓库:镜像TAG]` 拉取指定名称指定TAG的镜像
-- `docker image pull [镜像仓库]` 拉取镜像，与 docker pull 相同
+```
+$ docker pull [镜像仓库] //拉取指定名称默认TAG的镜像
+$ docker pull [镜像仓库:镜像TAG] //拉取指定名称指定TAG的镜像
+$ docker image pull [镜像仓库] //拉取镜像，与 docker pull 相同
+```
 
 其它镜像管理指令：
 
-- `docker rmi [镜像ID/镜像名称]` 删除指定镜像
-- `docker image rm [镜像ID/镜像名称]` 删除指定镜像，同 docker rmi
-- `docker image inspect [镜像ID/镜像名称]` 显示镜像详情
+```
+$ docker rmi [镜像ID/镜像名称] //删除指定镜像
+$ docker image rm [镜像ID/镜像名称] //删除指定镜像，同 docker rmi
+$ docker image inspect [镜像ID/镜像名称] //显示镜像详情
+```
 
 ### 容器管理
 容器是镜像的运行实例，容器在独立、隔离的`Linux`环境中运行一个或一组进程。
@@ -210,12 +214,14 @@ $ docker exec -it [容器ID/容器名称] bash
 
 使用`docker container`相关指令查看、管理容器相关信息。
 
-- `docker ps` 查看正在运行中的容器
-- `docker container ls` 同 docker ps
-- `docker ps -a` 查看所有创建的容器
-- `docker container ls -a` 同 docker ps -a
-- `docker rm [容器ID/容器名称]` 删除指定容器
-- `docker container rm [容器ID/容器名称]` 同 docker rm
+```
+$ docker ps //查看正在运行中的容器
+$ docker container ls //同 docker ps
+$ docker ps -a //查看所有创建的容器
+$ docker container ls -a //同 docker ps -a
+$ docker rm [容器ID/容器名称] //删除指定容器
+$ docker container rm [容器ID/容器名称] //同 docker rm
+```
 
 ### 容器生成镜像
 使用`docker commit`指令为指定容器生成新的镜像。

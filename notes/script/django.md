@@ -207,8 +207,8 @@ ImportError: No module named 'MySQLdb'
 使用`pip`包管理器安装mysql数据库驱动：
 
 ```
-$ pip install mysql-python			//for Python2
-$ pip install mysqlclient			//for Python3
+$ pip install mysql-python //for Python2
+$ pip install mysqlclient //for Python3
 ```
 
 项目管理脚本`manager.py`中提供了一系列指令用于数据库操作：
