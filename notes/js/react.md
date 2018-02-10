@@ -300,6 +300,32 @@ this.setState({ myState1: xxx })
 
 使用`setState()`方法更新组件状态，对应组件所属的DOM会重新渲染。
 
+### *Lifecycle Methods* (生命周期方法)
+在组件的生命周期中，首次被渲染为DOM时，在React中被称为**挂载**(`mounting`)；  
+在组件被从DOM树中移除时，在React中被称为**卸载**(`unmounting`)。
+
+通过在组件类中定义`componentDidMount()`、`componentWillUnmount()`方法可在组件挂载、卸载时添加额外的逻辑。  
+如下所示：
+
+```jsx
+class MyComponent extends Component {
+
+	componentDidMount() {
+		// 组件DOM渲染完毕时，执行该方法中的逻辑
+	}
+
+	componentWillUnmount() {
+		// 组件DOM被移除时，执行该方法中的逻辑
+	}
+
+	render = () => ...
+
+}
+```
+
+- `componentDidMount()`方法通常用于初始化一些依赖于DOM的资源，一般与DOM无关的资源可直接放在构造方法中，componentDidMount()方法执行时保证DOM已被渲染完毕。
+- `componentWillUnmount()`方法用法类似`C++`中的**析构函数**，通常用于在组件卸载时执行一些清理操作(如**定时器**等)。
+
 
 
 ## 常见错误
