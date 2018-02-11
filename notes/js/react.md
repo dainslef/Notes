@@ -300,6 +300,29 @@ this.setState({ myState1: xxx })
 
 使用`setState()`方法更新组件状态，对应组件所属的DOM会重新渲染。
 
+在React中更新组件状态是**异步**(`Asynchronous`)的，出于性能考虑，React可能会将多个状态更新方法(`setState()`)合并到一次更新中。  
+当一个状态依赖于多个之前的状态时，不应简单地直接使用`setState()`更新状态，如下所示：
+
+```jsx
+/*
+	错误，counter 的新状态依赖于之前的 this.state.counter 和 this.props.increment
+	若 setState() 调用时 this.props.increment 也发生更新操作或 this.state.counter 还有其它 setState() 更新方式，则这些可能会被合并到一次更新中，造成状态更新错误
+*/
+this.setState({
+	counter: this.state.counter + this.props.increment
+})
+```
+
+正确的做法是将`setState()`方法中的参数由**JSON对象**替换为**方法**，
+被替换的方法应带有两个参数，前一个参数为之前的`state`，后一个参数为之前的`props`，如下所示：
+
+```jsx
+// 正确，使用方法代替JSON对象，从方法参数中获取之前地状态，保证状态正确更新
+this.setState((prevState, props) => {
+	counter: prevState.counter + props.increment
+})
+```
+
 ### *Lifecycle Methods* (生命周期方法)
 在组件的生命周期中，首次被渲染为DOM时，在React中被称为**挂载**(`mounting`)；  
 在组件被从DOM树中移除时，在React中被称为**卸载**(`unmounting`)。
