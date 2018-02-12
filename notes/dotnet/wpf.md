@@ -426,7 +426,10 @@ class XXX : INotifyPropertyChanged
 	`Source`属性用于指定对象绑定路径的引用。
 
 	```xml
-	XXX="{Binding Source={StaticResource xxx}}"
+	<!-- 绑定到指定静态资源中的某个路径 -->
+	XXX="{Binding xxx, Source={StaticResource xxx}}"
+	<!-- 绑定到静态字段中的某个路径 -->
+	XXX="{Binding xxx, Source={x:static namespace:Xxx.xxx}}"
 	```
 
 - 绑定`RelativeSource`
