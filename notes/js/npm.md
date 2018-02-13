@@ -41,6 +41,100 @@ $ npm install 包名
 
 从`npm 5.2.0`开始，npm包管理器会自带`npx`指令，npx指令可用于执行安装在**全局路径/当前路径**下的工具模块，免去了配置环境变量的步骤。
 
+### 查看已安装模块
+使用`npm ls/list`相关指令查看已安装模块。
+
+直接使用`npm ls/list`指令会以当前路径做为模块根目录，以树状呈现当前模块的依赖。  
+以一个React项目为例，`package.json`中定义的模块依赖信息：
+
+```json
+{
+	...
+	"dependencies": {
+		"react": "^16.2.0",
+		"react-dom": "^16.2.0",
+		"react-redux": "^5.0.6",
+		"react-router": "^4.2.0",
+		"redux": "^3.7.2"
+	},
+	"devDependencies": {
+		"babel-core": "^6.26.0",
+		"babel-loader": "^7.1.2",
+		"babel-preset-es2015": "^6.24.1",
+		"babel-preset-react": "^6.24.1",
+		"webpack": "^3.10.0",
+		"webpack-dev-server": "^2.9.7"
+	},
+	...
+}
+```
+
+使用`npm ls/list`输出依赖信息，如下所示：
+
+```
+$ npm ls
+test-react@0.0.1 /Users/dainslef/Downloads/WorkSpace/test-react
+├─┬ react@16.2.0
+│ ├─┬ fbjs@0.8.16
+│ │ ├── core-js@1.2.7
+│ │ ├─┬ isomorphic-fetch@2.2.1
+│ │ │ ├─┬ node-fetch@1.7.3
+│ │ │ │ ├─┬ encoding@0.1.12
+│ │ │ │ │ └── iconv-lite@0.4.19 deduped
+│ │ │ │ └── is-stream@1.1.0
+│ │ │ └── whatwg-fetch@2.0.3
+│ │ ├── loose-envify@1.3.1 deduped
+│ │ ├── object-assign@4.1.1 deduped
+│ │ ├─┬ promise@7.3.1
+│ │ │ └── asap@2.0.6
+│ │ ├── setimmediate@1.0.5
+│ │ └── ua-parser-js@0.7.17
+│ ├─┬ loose-envify@1.3.1
+│ │ └── js-tokens@3.0.2 deduped
+│ ├── object-assign@4.1.1
+│ └── prop-types@15.6.0 deduped
+├─┬ react-dom@16.2.0
+│ ├── fbjs@0.8.16 deduped
+│ ├── loose-envify@1.3.1 deduped
+│ ├── object-assign@4.1.1 deduped
+│ └── prop-types@15.6.0 deduped
+├─┬ webpack@3.10.0
+│ ├── acorn@5.3.0
+│ ├─┬ acorn-dynamic-import@2.0.2
+│ │ └── acorn@4.0.13
+│ ├─┬ ajv@5.5.2
+│ │ ├── co@4.6.0
+│ │ ├── fast-deep-equal@1.0.0
+│ │ ├── fast-json-stable-stringify@2.0.0
+│ │ └── json-schema-traverse@0.3.1
+│ ├── ajv-keywords@2.1.1
+│ ├─┬ async@2.6.0
+│ │ └── lodash@4.17.4 deduped
+...
+```
+
+直接使用`npm ls`命令会递归计算并输出模块所有的依赖，一些大型模块(如`Webpack`)有复杂的依赖树，
+会在终端输出大量的依赖信息。  
+使用`depth`参数会限制输出依赖的层数，当设置`--depth=0`时仅输出**主动设置**的依赖：
+
+```
+$ npm ls --depth=0
+test-react@0.0.1 /Users/dainslef/Downloads/WorkSpace/test-react
+├── babel-core@6.26.0
+├── babel-loader@7.1.2
+├── babel-preset-es2015@6.24.1
+├── babel-preset-react@6.24.1
+├── react@16.2.0
+├── react-dom@16.2.0
+├── react-redux@5.0.6
+├── react-router@4.2.0
+├── redux@3.7.2
+├── webpack@3.10.0
+└── webpack-dev-server@2.9.7
+```
+
+此时输出的依赖信息即为模块`package.json`中定义的模块依赖(`dependencies + devDependencies`)。
+
 
 
 ## *Serve*
