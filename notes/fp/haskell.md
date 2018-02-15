@@ -2,6 +2,10 @@
 
 - [*Haskell* 开发环境](#haskell-开发环境)
 	- [*GHC* 常用功能](#ghc-常用功能)
+- [高阶函数](#高阶函数)
+	- [*<$>*](#)
+	- [*<*>*](#)
+	- [*foldl/foldr*](#foldlfoldr)
 
 <!-- /TOC -->
 
@@ -60,4 +64,75 @@ Prelude> print "Hello World"
 "Hello World"
 Prelude> :quit
 Leaving GHCi.
+```
+
+
+
+## 高阶函数
+`Haskell`作为函数式语言，标准库中内置了常用的高阶函数。
+
+### *<$>*
+`<$>`，对一个`Functor`执行提供的操作，函数定义：
+
+```hs
+($) ::
+  forall (r :: GHC.Types.RuntimeRep) a (b :: TYPE r).
+  (a -> b) -> a -> b
+  	-- Defined in ‘GHC.Base’
+infixr 0 $
+
+(<$>) :: Functor f => (a -> b) -> f a -> f b
+  	-- Defined in ‘Data.Functor’
+infixl 4 <$>
+```
+
+示例：
+
+```hs
+Prelude> (+1) <$> [1, 2, 3]
+[2,3,4]
+```
+
+### *<*>*
+`<*>`，函数定义：
+
+```hs
+class Functor f => Applicative (f :: * -> *) where
+  ...
+  (<*>) :: f (a -> b) -> f a -> f b
+  ...
+  	-- Defined in ‘GHC.Base’
+infixl 4 <*>
+```
+
+示例：
+
+```hs
+Prelude> [(+1)] <*> [1, 2, 3]
+[2,3,4]
+Prelude> [(+1), (+2)] <*> [1, 2, 3]
+[2,3,4,3,4,5]
+```
+
+### *foldl/foldr*
+`foldl/foldr`用于叠加数据，函数定义：
+
+```hs
+class Foldable (t :: * -> *) where
+  ...
+  foldl :: (b -> a -> b) -> b -> t a -> b
+  foldr :: (a -> b -> b) -> b -> t a -> b
+  ...
+  	-- Defined in ‘Data.Foldable’
+```
+
+示例：
+
+```hs
+Prelude> foldl (+) 0 [1, 2, 3]
+6
+Prelude> foldl (-) 0 [1, 2, 3]
+-6
+Prelude> foldr (-) 0 [1, 2, 3]
+2
 ```
