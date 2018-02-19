@@ -2,6 +2,7 @@
 
 - [简介](#简介)
 	- [*ECMA Script*](#ecma-script)
+- [作用域](#作用域)
 
 <!-- /TOC -->
 
@@ -27,3 +28,54 @@ JavaScript额外包含以下内容：
 
 到目前为止(2018年)，ECMAScript现在的主流标准为`ES5`，最新标准为`ES8, ECMAScript 2017`。  
 一些现代浏览器(`FireFox`、`Chrome`等)已部分实现了最新标准。
+
+
+
+## 作用域
+在`ES6`之前，JavaScript中仅存在函数内作用域与全局作用域。
+
+- 使用`var`关键字声明变量，在全局区域为全局变量，在函数内为局部变量：
+
+	```js
+	var num = 2333
+	
+	test = () => {
+		var num = 6666
+		console.info(`Num in function: ${num}`)
+	}
+
+	console.info(`Num before in global: ${num}`)
+	test()
+	console.info(`Num after in global: ${num}`)
+	```
+
+	输出结果：
+
+	```
+	Num before in global: 2333
+	Num in function: 6666
+	Num after in global: 2333
+	```
+
+	在函数内使用var关键字声明的局部变量不会对外部全局变量造成影响。
+
+- 直接对未声明的变量使用赋值语句，则会自动在全局区域创建该变量：
+
+	```js
+	test = () => {
+		num = 6666
+		console.info(`Num in function: ${num}`)
+	}
+	
+	test()
+	console.info(`Num in global: ${num}`)
+	```
+
+	输出结果：
+
+	```
+	Num in function: 6666
+	Num in global: 6666
+	```
+
+	函数内的赋值语句创建了全局变量，在函数外可访问。
