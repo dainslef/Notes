@@ -3,6 +3,7 @@
 - [简介](#简介)
 - [切换默认 *Shell*](#切换默认-shell)
 - [*Shell* 交互](#shell-交互)
+	- [历史路径](#历史路径)
 	- [匹配规则](#匹配规则)
 	- [任务管理](#任务管理)
 	- [管道](#管道)
@@ -102,6 +103,41 @@ $ abc # 执行一条不存在的指令，执行失败
 bash: abc: command not found
 $ echo $?
 127 # 指令执行失败，返回 127
+```
+
+### 历史路径
+`zsh/fish`中均提供了查看历史路径的快捷指令。
+
+在zsh中，使用`d`指令列出历史路径，使用**路径编号**跳转到编号对应路径：
+
+```sh
+$ cd Downloads
+$ d
+0	~/Downloads
+1	~
+
+$ 1 # 使用编号作为指令跳转到对应路径
+~
+```
+
+在fish中，使用`dirh`指令列出历史路径，
+使用`prevd 编号`跳转到之前的指定路径，使用`nextd 编号`跳转到之后的指定路径：
+
+```sh
+$ cd Downloads
+$ dirh
+ 1) /Users/dainslef
+    /Users/dainslef/Downloads
+
+$ prevd 1 # 跳转到之前的指定路径
+$ dirh
+    /Users/dainslef
+ 1) /Users/dainslef/Downloads
+
+$ nextd 1 # 跳转到之后的指定路径
+$ dirh
+ 1) /Users/dainslef
+    /Users/dainslef/Downloads
 ```
 
 ### 匹配规则
