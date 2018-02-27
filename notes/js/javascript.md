@@ -7,6 +7,8 @@
 - [*for* 语句](#for-语句)
 	- [*for-in*](#for-in)
 	- [*for-of*](#for-of)
+	- [迭代变量作用域](#迭代变量作用域)
+- [*Prototype* (原型)](#prototype-原型)
 
 <!-- /TOC -->
 
@@ -210,3 +212,101 @@ for (v of [5, 6, 7, 8]) console.info(v)
 7
 8
 ```
+
+### 迭代变量作用域
+使用`for-in/for-of`语句中的迭代变量同样遵循作用域规则。
+
+默认情形下，迭代变量定义在**全局作用域**中：
+
+```js
+test = () => {
+	for (i in [5, 6, 7, 8]) console.info(`i: ${i}`)
+}
+
+test()
+console.info(`i in global: ${i}`)
+```
+
+输出结果：
+
+```
+i: 0
+i: 1
+i: 2
+i: 3
+i in global: 3
+```
+
+迭代变量前可使用`var/let/const`关键字做为修饰，分别对应不同的作用域。
+
+- `var`，迭代变量在所属函数作用域内有效
+
+	```js
+	test = () => {
+		for (var i in [5, 6, 7, 8]) console.info(`i: ${i}`)
+		console.info(`i in function: ${i}`)
+	}
+
+	test()
+	console.info(`i in global: ${i}`)
+	```
+
+	输出结果：
+
+	```
+	i: 0
+	i: 1
+	i: 2
+	i: 3
+	i in function: 3
+	C:\Users\dainslef\test.js:7
+	console.info(`i in global: ${i}`)
+	                             ^
+	
+	ReferenceError: i is not defined
+	    at Object.<anonymous> (C:\Users\dainslef\test.js:7:30)
+	    at Module._compile (module.js:662:30)
+	    at Object.Module._extensions..js (module.js:673:10)
+	    at Module.load (module.js:575:32)
+	    at tryModuleLoad (module.js:515:12)
+	    at Function.Module._load (module.js:507:3)
+	    at Function.Module.runMain (module.js:703:10)
+	    at startup (bootstrap_node.js:193:16)
+	    at bootstrap_node.js:665:3
+	```
+
+- `let/const`，迭代变量在所属for语句块内有效
+
+	```js
+	test = () => {
+		for (let i in [5, 6, 7, 8]) console.info(`i: ${i}`)
+		console.info(`i in function: ${i}`)
+	}
+	
+	test()
+	console.info(`i in global: ${i}`)	
+	```
+
+	输出结果：
+
+	```
+	i: 0
+	i: 1
+	i: 2
+	i: 3
+	C:\Users\dainslef\test.js:3
+	        console.info(`i in function: ${i}`)
+	                                       ^
+	
+	ReferenceError: i is not defined
+	    at test (C:\Users\dainslef\test.js:3:33)
+	    at Object.<anonymous> (C:\Users\dainslef\test.js:6:1)
+	    at Module._compile (module.js:662:30)
+	    at Object.Module._extensions..js (module.js:673:10)
+	    at Module.load (module.js:575:32)
+	    at tryModuleLoad (module.js:515:12)
+	    at Function.Module._load (module.js:507:3)
+	    at Function.Module.runMain (module.js:703:10)
+	    at startup (bootstrap_node.js:193:16)
+	    at bootstrap_node.js:665:3
+	```
