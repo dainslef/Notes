@@ -310,3 +310,54 @@ i in global: 3
 	    at startup (bootstrap_node.js:193:16)
 	    at bootstrap_node.js:665:3
 	```
+
+
+
+## *Prototype* (原型)
+在JavaScript中，每个使用`function`关键字定义的函数皆具有`prototype`属性。  
+
+使用`new`操作符调用函数时，函数会做为`constructor`(构造器)使用，  
+除了正常执行函数体外，还会创建对象，并返回所创建对象的引用，  
+创建的对象带有`__proto__`属性，该属性指向创建该对象的函数的prototype属性。  
+如下所示：
+
+```js
+> function Test() {} //定义函数
+undefined
+> Test.prototype
+Test {}
+> t = new Test //使用构造器语法创建对象
+Test {}
+> t.__proto__ == Test.prototype //创建的对象的__proto__属性指向构造器的prototype属性
+true
+```
+
+在访问对象的属性、方法不存在时，JavaScript运行时会继续在对象的prototype中查找，  
+使用同一构造器创建的对象共享相同的prototype对象，  
+可使用prototype属性定义一些对象间共享的字段、方法。  
+如下所示：
+
+```js
+> function Test() {}
+undefined
+> Test.prototype.name = "Test"
+'Test'
+> Test.prototype.show = function() { console.info(`Name: ${this.name}`) }
+[Function]
+> t1 = new Test
+Test {}
+> t2 = new Test
+Test {}
+> t1.name //访问原型中定义的属性
+'Test'
+> t2.name
+'Test'
+> t1.show() //调用原型中定义的方法
+Name: Test
+undefined
+> t2.show()
+Name: Test
+undefined
+> t1.__proto__ == t2.__proto__ //相同构造器创建的对象拥有相同的prototype对象
+true
+```
