@@ -384,3 +384,20 @@ true
 > t.__proto__.__proto__ == Object.prototype //实例t的父原型
 true
 ```
+
+使用`instanceof`关键字可以检测对象的原型链中是否具有某个函数的原型。
+
+```js
+> function Test() {}
+undefined
+> t = new Test
+Test {}
+> t instanceof Test
+true
+> t instanceof Object
+true
+> function Other() {}
+undefined
+> t instanceof Other
+false
+```
