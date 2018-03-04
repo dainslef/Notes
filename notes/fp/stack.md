@@ -7,7 +7,7 @@
 	- [关于 *Revision Mismatch* 错误](#关于-revision-mismatch-错误)
 - [启动与使用](#启动与使用)
 	- [创建项目](#创建项目)
-- [项目结构](#项目结构)
+	- [项目结构](#项目结构)
 - [构建配置](#构建配置)
 	- [模块定义](#模块定义)
 	- [可执行文件定义](#可执行文件定义)
@@ -36,24 +36,12 @@
 
 - **Linux/Unix**系统：
 
-	各类`Unix`系统可以使用对应发行版的包管理器安装`Stack`。
-
-	`Debian`系发行版
+	各类Unix可以使用对应发行版的包管理器安装`Stack`。
 
 	```
-	# apt install stack
-	```
-
-	`Arch`系发行版
-
-	```
-	# pacman -S stack
-	```
-
-	`macOS`
-
-	```
-	$ brew install haskell-stack
+	# apt install stack //Debian
+	# pacman -S stack //Arch Linux
+	$ brew install haskell-stack //macOS
 	```
 
 - **Wdinwos**系统：
@@ -156,9 +144,7 @@ $ stack new [项目名称] [模版名称]
 可使用`stack templates`指令列出所有可用的模版。  
 **模版名称**可省略，省略模版参数时将使用默认模版`new-template`。
 
-
-
-## 项目结构
+### 项目结构
 `Stack`项目默认目录结构如下：
 
 ```
@@ -225,7 +211,7 @@ source-repository head
 - `ghc-options` 设置`GHC`的编译选项
 
 ### 模块定义
-`Haskell`中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。
+`Haskell`中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。  
 `library`配置段定义了导出模块的信息。
 
 模块源码路径添加在`hs-source-dirs`配置项中，模块和模块路径需要使用大写字母开头。  
