@@ -1698,7 +1698,8 @@ object Main extends App {
 }
 ```
 
-混入多个存在冲突内容的特质时，不需要所有的特质都使用`override`关键字进行重写，仅需要最后一个混入的特质使用`override`重写冲突内容。  
+混入多个存在冲突内容的特质时，不需要所有的特质都使用`override`关键字进行重写，
+仅需要最后一个混入的特质使用`override`重写冲突内容。  
 如下所示：
 
 ```scala
@@ -1744,7 +1745,8 @@ scala> trait TestMixin extends TraitA with TraitB
              ^
 ```
 
-混入冲突内容时，冲突内容的类型可以不完全相同，但需要满足继承关系，同时子类位于线性化顺序的右端。  
+混入冲突内容时，冲突内容的类型可以不完全相同，但需要满足继承关系，同时子类位于线性化顺序的**最右端**，
+即满足`最右端类型 <: 冲突字段类型链中最具体的类型`。  
 如下所示：
 
 ```scala
@@ -1775,21 +1777,23 @@ scala> trait TestMixin extends TraitB with TraitA
              ^
 ```
 
-线性化的右端需要为更**具体**的类型。  
+线性化的最右端需要为更**具体**的类型，但混入顺序中间的冲突字段不必都比前一个冲突字段更具体
+(中间字段类型仅需存在父子类关系即可，可为基类)。  
 如下所示：
 
 ```scala
 scala> trait TestMixin extends TraitB with TraitA { val t: Child }
-defined trait TestMixin
+defined trait TestMixin //冲突字段的混入类型链为 Child => Base => Child
 ```
 
 ### *Mixin* 机制与泛型
-当混入特质带有冲突内容类型为泛型参数时，只要泛型参数满足继承类型约束，并按照子类位于线性化右端的顺序混入，同样可以正常进行类型定义。  
+当混入特质带有冲突内容类型为泛型参数时，只要泛型参数满足继承类型约束，并保证子类位于线性化顺序的最右端，
+同样可以正常进行类型定义。  
 如下所示：
 
 ```scala
-scala> class Test
-defined class Test
+scala> trait Test
+defined trait Test
 
 scala> trait TraitA { val t: Test }
 defined trait TraitA
@@ -1800,11 +1804,17 @@ defined trait TraitB
 scala> trait TestMixin[T <: Test] extends TraitA with TraitB[T]
 defined trait TestMixin //使用类型下界
 
+scala> trait TestMixin[T <: Test] extends TraitB[T] with TraitA { val t: T }
+defined trait TestMixin //冲突字段的混入类型链为 T => Test => T
+
 scala> trait TraitC[T >: Test] { val t: T }
 defined trait TraitC
 
 scala> trait TestMixin[T >: Test] extends TraitC[T] with TraitA
 defined trait TestMixin //使用类型上界
+
+scala> trait TestMixin[T >: Test] extends TraitA with TraitC[T] { val t: Test }
+defined trait TestMixin //冲突字段的混入类型链为 Test => T => Test
 ```
 
 
