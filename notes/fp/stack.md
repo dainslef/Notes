@@ -2,8 +2,9 @@
 
 - [*Stack* 简介](#stack-简介)
 - [安装与配置](#安装与配置)
-	- [配置 *Mirrors*](#配置-mirrors)
 	- [配置 *GHC*](#配置-ghc)
+	- [*Stackage*](#stackage)
+	- [配置 *Mirrors*](#配置-mirrors)
 	- [关于 *Revision Mismatch* 错误](#关于-revision-mismatch-错误)
 - [启动与使用](#启动与使用)
 	- [创建项目](#创建项目)
@@ -50,33 +51,8 @@
 	1. 配置`STACK_ROOT`环境变量。
 	1. 将`%STACK_ROOT%`加入`PATH`环境变量中。
 
-### 配置 *Mirrors*
-`Stackage`和`Hackage`默认的镜像源在国内均被**墙**，需要替换源后才能正常使用。  
-国内推荐使用`TUNA`源(清华大学镜像源)。
-
-在`Linux/Unix/macOS`中，编辑`~/.stack/config.yaml`；  
-在`Windows`中，编辑`%STACK_ROOT%\config.yaml`。  
-在`config.yaml`文件中添加：
-
-```yaml
-# Stackage 镜像
-setup-info: "http://mirrors.tuna.tsinghua.edu.cn/stackage/stack-setup.yaml"
-urls:
-  latest-snapshot: http://mirrors.tuna.tsinghua.edu.cn/stackage/snapshots.json
-  lts-build-plans: http://mirrors.tuna.tsinghua.edu.cn/stackage/lts-haskell/
-  nightly-build-plans: http://mirrors.tuna.tsinghua.edu.cn/stackage/stackage-nightly/
-
-# Hackage 镜像
-package-indices:
-  - name: Tsinghua
-    download-prefix: http://mirrors.tuna.tsinghua.edu.cn/hackage/package/
-    http: http://mirrors.tuna.tsinghua.edu.cn/hackage/00-index.tar.gz
-```
-
-在`Linux/macOS`系统下，`Stack`会将
-
 ### 配置 *GHC*
-通过`Stack`可以简便地安装`GHC`编译器。  
+通过Stack可以简便地安装`GHC`编译器。  
 使用`stack setup`指令，`Stack`会自动下载配置最新稳定版本的`GHC`编译器。
 
 ```
@@ -104,6 +80,53 @@ $ stack setup
 > stack setup --skip-msys
 ```
 
+### *Stackage*
+`Stackage`是稳定的Haskell包，官方站点为`https://www.stackage.org`。
+
+Stackage根据不同的GHC版本形成不同的`Stackage LTS`版本，
+stack在构建工程时通过LTS版本确定编译器以及对应依赖包的版本关系。
+
+全局LTS版本由`~/.stack/global-project/stack.yaml`文件指定。  
+项目中使用的LTS版本由项目根路径下的`stack.yaml`文件指定。  
+通过指定`resolver`配置项设定stack使用的LTS版本：
+
+```yaml
+# 支持以下形式的语法：
+# resolver: lts-3.5
+# resolver: nightly-2015-09-21
+# resolver: ghc-7.10.2
+# resolver: ghcjs-0.1.0_ghc-7.10.2
+# resolver:
+#  name: custom-snapshot
+#  location: "./custom-snapshot.yaml"
+resolver: lts-10.7
+```
+
+全局的LTS版本决定了在工程目录外使用`stack ghc`、`stack ghci`等指令时调用的GHC版本。  
+
+### 配置 *Mirrors*
+`Stackage`和`Hackage`默认的镜像源在国内均被**墙**，需要替换源后才能正常使用。  
+国内推荐使用`TUNA`源(清华大学镜像源)。
+
+在`Linux/Unix/macOS`中，编辑`~/.stack/config.yaml`；  
+在`Windows`中，编辑`%STACK_ROOT%\config.yaml`。  
+在`config.yaml`文件中添加：
+
+```yaml
+# Stackage 镜像
+setup-info: "http://mirrors.tuna.tsinghua.edu.cn/stackage/stack-setup.yaml"
+urls:
+  latest-snapshot: http://mirrors.tuna.tsinghua.edu.cn/stackage/snapshots.json
+  lts-build-plans: http://mirrors.tuna.tsinghua.edu.cn/stackage/lts-haskell/
+  nightly-build-plans: http://mirrors.tuna.tsinghua.edu.cn/stackage/stackage-nightly/
+
+# Hackage 镜像
+package-indices:
+  - name: Tsinghua
+    download-prefix: http://mirrors.tuna.tsinghua.edu.cn/hackage/package/
+    http: http://mirrors.tuna.tsinghua.edu.cn/hackage/00-index.tar.gz
+```
+
 ### 关于 *Revision Mismatch* 错误
 当`Stackage`镜像源未完全同步官方源时，部分包可能`MD5`校验未通过，出现`Revision Mismatch`错误。  
 对于`Revision Mismatch`错误，默认行为是直接退出。
@@ -114,7 +137,7 @@ $ stack setup
 ignore-revision-mismatch: true
 ```
 
-使用该配置则启动`GHC`时会忽略`Revision Mismatch`错误。
+使用该配置则启动GHC时会忽略`Revision Mismatch`错误。
 
 
 
