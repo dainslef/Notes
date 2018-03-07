@@ -364,8 +364,9 @@ true
 ```
 
 ### 原型链
-访问对象的属性、方法时，若对应名称的字段不存在，则JavaScript运行时会查找`对象.__proto__`中是否有定义，若`对象.__proto__`中无定义，则查找`对象.__proto__.proto__`中是否有定义，依此类推，直至`__proto__`属性为`null`。  
-递归地从`__prot·o__`属性中查找字段的机制被称为**原型链**。
+访问对象的属性、方法时，若对应名称的字段不存在，则JavaScript运行时会查找`对象.__proto__`中是否有定义，
+若`对象.__proto__`中无定义，则查找`对象.__proto__.proto__`中是否有定义，依此类推，直至`__proto__`属性为`null`。  
+递归地从`__prot·o__`属性中查找字段的机制被称为**原型链**。  
 如下所示：
 
 ```js
@@ -383,6 +384,12 @@ null
 true
 > t.__proto__.__proto__ == Object.prototype //实例t的父原型
 true
+```
+
+函数`Test()`创建的实例`t`的原型链为：
+
+```
+Test.prototype => Object.prototype => null
 ```
 
 使用`instanceof`关键字可以检测对象的原型链中是否具有某个函数的原型。
