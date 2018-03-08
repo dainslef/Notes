@@ -10,6 +10,7 @@
 	- [迭代变量作用域](#迭代变量作用域)
 - [*Prototype* (原型)](#prototype-原型)
 	- [原型链](#原型链)
+	- [原型继承](#原型继承)
 
 <!-- /TOC -->
 
@@ -408,3 +409,39 @@ undefined
 > t instanceof Other
 false
 ```
+
+### 原型继承
+在ES6之前，JavaScript不具有标准的OOP语法，可以使用**原型链**模拟面向对象语言中的继承功能。
+
+继承一个父原型需要以下步骤：
+
+1. 在函数体中调用要作为父类的函数
+
+	使用`函数名.call(this, 参数表...)`或`函数名.apply(this, 参数数组)`的方式调用要作为父类的函数。  
+	使用call()/apply()调用函数并将this引用传入，则所调用函数内的this操作会作用于当前的this引用。  
+	如下所示：
+
+	```js
+	function Base(...) { 
+		...
+	}
+
+	function Child(...) {
+		Base.call(this, ...)
+		...
+	}
+	```
+
+	子类构造函数中使用call()/apply()调用父类构造函数，让子类实例继承父类在this引用中定义的字段。
+
+1. 修改函数prototype属性
+
+	函数prototype属性中指向父原型的`__proto__`引用默认指向`Object.prototype`；  
+	将该引用修改为指向父原型。  
+	如下所示：
+
+	```js
+	Child.prototype.__proto__ = Base.prototype
+	```
+
+	修改子类原型内的父原型引用，使子类实例继承父类在原型中定义的字段。
