@@ -445,3 +445,48 @@ false
 	```
 
 	修改子类原型内的父原型引用，使子类实例继承父类在原型中定义的字段。
+
+完整的继承示例：
+
+```js
+function Base(name) {
+	this.baseName = name
+}
+
+function Child(name, baseName) {
+	Base.call(this, baseName) //调用父原型的构造函数
+	this.childName = name
+}
+
+// 向原型中添加属性
+Base.prototype.showBase = function () {
+	console.info(`Base name: ${this.baseName}`)
+}
+
+Child.prototype.showChild = function () {
+	this.showBase()
+	console.info(`Child name: ${this.childName}`)
+}
+
+// 变更作为子类函数的原型的父原型的指向
+Child.prototype.__proto__ = Base.prototype
+
+// 构建实例
+child = new Child("Test Child", "Test Base")
+
+// 检验原型链
+console.info(`child instanceof Child: ${child instanceof Child}`)
+console.info(`child instanceof Base: ${child instanceof Base}`)
+
+// 调用方法，正常访问原型、父原型中定义的内容
+child.showChild()
+```
+
+输出结果：
+
+```
+child instanceof Child: true
+child instanceof Base: true
+Base name: Test Base
+Child name: Test Child
+```
