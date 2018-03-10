@@ -11,6 +11,7 @@
 - [*Prototype* (原型)](#prototype-原型)
 	- [原型链](#原型链)
 	- [原型继承](#原型继承)
+- [属性访问器](#属性访问器)
 
 <!-- /TOC -->
 
@@ -489,4 +490,48 @@ child instanceof Child: true
 child instanceof Base: true
 Base name: Test Base
 Child name: Test Child
+```
+
+
+
+## 属性访问器
+在JavaScript中，对象可为自身属性定义访问器(`get()/set()`方法)，
+在访问属性时，实际会调用对应的访问器方法。
+
+使用Object对象的内置方法`Object.defineProperty()`定义属性，可为属性定义对应的`get()/set()`方法。  
+如下所示：
+
+```js
+obj = {
+	_name: "2333" //实际保存属性内容的字段
+}
+
+/*
+ * 使用 Object.defineProperty() 方法定义属性：
+ * 第一·参数为被添加属性的对象
+ * 第二参数为属性名称
+ * 第三参数为属性的访问器属性对象，在该对象中添加 get()/set() 方法
+ */
+Object.defineProperty(obj, "name", {
+	get() {
+		console.info("Read property ...")
+		return this._name
+	},
+	set(value) {
+		console.info(`Set property ...`)
+		this._name = value
+	}
+})
+
+console.info(obj.name)
+console.info(obj.name = "6666")
+```
+
+输出结果：
+
+```
+Read property ...
+2333
+Set property ...
+6666
 ```
