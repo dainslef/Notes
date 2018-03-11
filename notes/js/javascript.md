@@ -12,6 +12,7 @@
 	- [原型链](#原型链)
 	- [原型继承](#原型继承)
 - [属性访问器](#属性访问器)
+	- [访问器属性](#访问器属性)
 
 <!-- /TOC -->
 
@@ -41,6 +42,9 @@ JavaScript额外包含以下内容：
 
 
 ## 作用域
+块语义见`ECMAScript 2015`规范`13.2`节`Block`。  
+定义与变量语义见`ECMAScript 2015`规范`13.3`节`Declarations and the Variable Statement`。
+
 在`ES6`之前，JavaScript中仅存在**函数内作用域**与**全局作用域**。
 
 - 使用`var`关键字声明变量，在全局区域为全局变量，在函数内为局部变量：
@@ -156,6 +160,8 @@ ES6之后，常见的语法结构如`if`、`for`、`while`等包含的代码块�
 
 
 ## *for* 语句
+迭代器语义见`ECMAScipt 2015`规范`13.7`节`Iteration Statements`。
+
 JavaScript中使用`for`关键字描述循环语法。
 
 for语句的基本用法与**C语言**中的语法类似：
@@ -317,7 +323,9 @@ i in global: 3
 
 
 ## *Prototype* (原型)
-在JavaScript中，每个使用`function`关键字定义的函数皆具有`prototype`属性。  
+原型相关内容见`ECMAScript 2015`规范`4.2.1`节`Objects`。
+
+在JavaScript中，每个使用`function`关键字定义的函数皆具有`prototype`属性。
 
 使用`new`操作符调用函数时，函数会做为`constructor`(构造器)使用，  
 除了正常执行函数体外，还会创建对象，并返回所创建对象的引用，  
@@ -498,7 +506,10 @@ Child name: Test Child
 在JavaScript中，对象可为自身属性定义访问器(`get()/set()`方法)，
 在访问属性时，实际会调用对应的访问器方法。
 
-使用Object对象的内置方法`Object.defineProperty()`定义属性，可为属性定义对应的`get()/set()`方法。  
+### 访问器属性
+访问器属性相关内容见`ECMAScript 2015`规范`6.1.7`节`The Object Type`。
+
+使用Object对象的内置方法`Object.defineProperty()`定义属性时，可为属性设定属性描述对象(`PropertyDescriptor`)，在该对象中定义对应的`get()/set()`方法。  
 如下所示：
 
 ```js
@@ -508,9 +519,9 @@ obj = {
 
 /*
  * 使用 Object.defineProperty() 方法定义属性：
- * 第一·参数为被添加属性的对象
+ * 第一参数为被添加属性的对象
  * 第二参数为属性名称
- * 第三参数为属性的访问器属性对象，在该对象中添加 get()/set() 方法
+ * 第三参数为属性的属性描述对象，在该对象中添加 get()/set() 方法
  */
 Object.defineProperty(obj, "name", {
 	get() {
