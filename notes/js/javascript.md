@@ -546,3 +546,23 @@ Read property ...
 Set property ...
 6666
 ```
+
+`ES5`开始添加了定义访问器属性的简便语法，在对象的方法中前使用`set/get`关键字修饰，即可使方法成为属性访问器方法。  
+上述例子使用ES5语法可以简写成：
+
+```js
+obj = {
+	_name: "2333",
+	get name() {
+		console.info("Read property ...")
+		return this._name
+	},
+	set name(value) {
+		console.info("Set property name ...")
+		this._name = value
+	}
+}
+
+console.info(obj.name)
+console.info(obj.name = "6666")
+```
