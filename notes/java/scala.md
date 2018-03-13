@@ -39,7 +39,7 @@
 	- [线性化顺序](#线性化顺序)
 	- [线性化与 *override*](#线性化与-override)
 	- [线性化与类型关系](#线性化与类型关系)
-	- [*Mixin* 机制与泛型](#mixin-机制与泛型)
+	- [线性化与泛型](#线性化与泛型)
 - [*Case Class* (样例类)](#case-class-样例类)
 	- [避免重定义样例类自动生成的方法](#避免重定义样例类自动生成的方法)
 - [类型](#类型)
@@ -1786,7 +1786,7 @@ scala> trait TestMixin extends TraitB with TraitA { val t: Child }
 defined trait TestMixin //冲突字段的混入类型链为 Child => Base => Child
 ```
 
-### *Mixin* 机制与泛型
+### 线性化与泛型
 当混入特质带有冲突内容类型为泛型参数时，只要泛型参数满足继承类型约束，并保证子类位于线性化顺序的最右端，
 同样可以正常进行类型定义。  
 如下所示：
@@ -4250,6 +4250,28 @@ object Main extends App {
 
 ```
 200.0
+```
+
+**单例对象**定义时也可添加`implicit`关键字成为隐式值。  
+如下所示：
+
+```scala
+object Main extends App {
+
+  trait Base[T] { val value: T }
+  implicit object Test extends Base[Int] { val value = 2333 } //以单例对象形式定义隐式类
+
+  def testImplicit[T](implicit base: Base[T]) = println(base.value)
+
+  testImplicit //无需参数调用隐式方法
+
+}
+```
+
+输出结果：
+
+```
+2333
 ```
 
 隐式参数的限制：
