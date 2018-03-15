@@ -95,6 +95,7 @@
 	- [定义隐式转换](#定义隐式转换)
 	- [隐式参数](#隐式参数)
 	- [隐式类](#隐式类)
+- [*TypeClass*](#typeclass)
 - [求值策略](#求值策略)
 	- [参数的求值策略](#参数的求值策略)
 	- [**&&**、**||** 运算符](#-运算符)
@@ -4409,6 +4410,77 @@ object Main extends App {
 ```
 Implicit Class
 Implicit Class: 100
+```
+
+
+
+## *TypeClass*
+`Type Class`即**类型类**，是一种通过泛型参数实现多态的方式。  
+根据不同的泛型参数，签名相同的方法会调用不同的实现。
+
+Scala中使用**隐式参数**特性来实现TypeClass。  
+定义一个带有泛型参数的类型(TypeClass)，和使用隐式参数接收该泛型实例的方法：
+
+```scala
+trait TypeClass[T] {
+  def doSomething(): Unit
+}
+
+def testTypeClass[T]()(implicit typeClass: TypeClass[T]) = typeClass.doSomething()
+```
+
+使用隐式单例为TypeClass提供不同的实现：
+
+```scala
+implicit object IntTypeClass extends TypeClass[Int] {
+  def doSomething() = println("Int Type Class")
+}
+
+implicit object StringTypeClass extends TypeClass[String] {
+  def doSomething() = println("String Type Class")
+}
+
+...
+```
+
+调用`testTypeClass()`方法时，使用不同的泛型参数编译器会自动选择合适的隐式对象做为实现：
+
+```scala
+testTypeClass[Int]() //输出 "Int Type Class"
+testTypeClass[String]() //输出 "String Type Class"
+testTypeClass[Double]() //使用未提供隐式单例的泛型参数会编译报错
+```
+
+完整示例：
+
+```scala
+object Main extends App {
+
+  trait TypeClass[T] {
+    def doSomething(): Unit
+  }
+
+  def testTypeClass[T]()(implicit typeClass: TypeClass[T]) = typeClass.doSomething()
+
+  implicit object IntTypeClass extends TypeClass[Int] {
+    def doSomething() = println("Int Type Class")
+  }
+
+  implicit object StringTypeClass extends TypeClass[String] {
+    def doSomething() = println("String Type Class")
+  }
+
+  testTypeClass[Int]()
+  testTypeClass[String]()
+
+}
+```
+
+输出结果：
+
+```
+Int Type Class
+String Type Class
 ```
 
 
