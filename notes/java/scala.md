@@ -4422,33 +4422,42 @@ Scala中使用**隐式参数**特性来实现TypeClass。
 定义一个带有泛型参数的类型(TypeClass)，和使用隐式参数接收该泛型实例的方法：
 
 ```scala
-trait TypeClass[T] {
-  def doSomething(): Unit
-}
+scala> trait TypeClass[T] {
+     |   def doSomething(): Unit
+     | }
+defined trait TypeClass
 
-def testTypeClass[T]()(implicit typeClass: TypeClass[T]) = typeClass.doSomething()
+scala> def testTypeClass[T]()(implicit typeClass: TypeClass[T]) = typeClass.doSomething()
+testTypeClass: [T]()(implicit typeClass: TypeClass[T])Unit
 ```
 
 使用隐式单例为TypeClass提供不同的实现：
 
 ```scala
-implicit object IntTypeClass extends TypeClass[Int] {
-  def doSomething() = println("Int Type Class")
-}
+scala> implicit object IntTypeClass extends TypeClass[Int] {
+     |   def doSomething() = println("Int Type Class")
+     | }
+defined object IntTypeClass
 
-implicit object StringTypeClass extends TypeClass[String] {
-  def doSomething() = println("String Type Class")
-}
-
-...
+scala> implicit object StringTypeClass extends TypeClass[String] {
+     |   def doSomething() = println("String Type Class")
+     | }
+defined object StringTypeClass
 ```
 
 调用`testTypeClass()`方法时，使用不同的泛型参数编译器会自动选择合适的隐式对象做为实现：
 
 ```scala
-testTypeClass[Int]() //输出 "Int Type Class"
-testTypeClass[String]() //输出 "String Type Class"
-testTypeClass[Double]() //使用未提供隐式单例的泛型参数会编译报错
+scala> testTypeClass[Int]()
+Int Type Class
+
+scala> testTypeClass[String]()
+String Type Class
+
+scala> testTypeClass[Double]() //使用未提供隐式实例的泛型参数时，报错
+<console>:16: error: could not find implicit value for parameter typeClass: TypeClass[Double]
+       testTypeClass[Double]()
+                            ^
 ```
 
 完整示例：
@@ -4457,21 +4466,21 @@ testTypeClass[Double]() //使用未提供隐式单例的泛型参数会编译报
 object Main extends App {
 
   trait TypeClass[T] {
-    def doSomething(): Unit
+    def doSomething(t: T): Unit
   }
 
   def testTypeClass[T]()(implicit typeClass: TypeClass[T]) = typeClass.doSomething()
 
   implicit object IntTypeClass extends TypeClass[Int] {
-    def doSomething() = println("Int Type Class")
+    def doSomething(t: T) = println(s"Int Type Class: $t")
   }
 
   implicit object StringTypeClass extends TypeClass[String] {
-    def doSomething() = println("String Type Class")
+    def doSomething(t: T) = println(s"String Type Class: $t")
   }
 
-  testTypeClass[Int]()
-  testTypeClass[String]()
+  testTypeClass(233)
+  testTypeClass("666")
 
 }
 ```
@@ -4482,6 +4491,8 @@ object Main extends App {
 Int Type Class
 String Type Class
 ```
+
+`C++`中的**模板特化**功能上亦与TypeClass类似。
 
 
 
