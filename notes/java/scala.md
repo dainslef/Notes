@@ -4469,14 +4469,14 @@ object Main extends App {
     def doSomething(t: T): Unit
   }
 
-  def testTypeClass[T]()(implicit typeClass: TypeClass[T]) = typeClass.doSomething()
+  def testTypeClass[T](t: T)(implicit typeClass: TypeClass[T]) = typeClass.doSomething(t)
 
   implicit object IntTypeClass extends TypeClass[Int] {
-    def doSomething(t: T) = println(s"Int Type Class: $t")
+    def doSomething(t: Int) = println(s"Int Type Class: $t")
   }
 
   implicit object StringTypeClass extends TypeClass[String] {
-    def doSomething(t: T) = println(s"String Type Class: $t")
+    def doSomething(t: String) = println(s"String Type Class: $t")
   }
 
   testTypeClass(233)
