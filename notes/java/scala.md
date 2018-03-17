@@ -43,16 +43,9 @@
 - [*Case Class* (样例类)](#case-class-样例类)
 	- [避免重定义样例类自动生成的方法](#避免重定义样例类自动生成的方法)
 - [类型](#类型)
-	- [基础类型](#基础类型)
+	- [值类型](#值类型)
 	- [*Bottom* (底类型)](#bottom-底类型)
 	- [*Option* (可空类型)](#option-可空类型)
-- [类型系统](#类型系统)
-	- [类型参数](#类型参数)
-	- [类型约束](#类型约束)
-	- [*View Bounds* (视图界定)](#view-bounds-视图界定)
-	- [*Content Bounds*](#content-bounds)
-	- [*Variances* (型变)](#variances-型变)
-	- [*Higer Kinded Type* (高阶类型)](#higer-kinded-type-高阶类型)
 - [*continue* 与 *break*](#continue-与-break)
 - [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
 	- [简单匹配](#简单匹配)
@@ -71,6 +64,11 @@
 	- [访问枚举内容](#访问枚举内容)
 	- [调用枚举类型](#调用枚举类型)
 	- [限定枚举类型](#限定枚举类型)
+- [*Package* (包)](#package-包)
+	- [包与路径](#包与路径)
+	- [扩展用法](#扩展用法)
+	- [默认导入](#默认导入)
+	- [包对象](#包对象)
 - [基础数据结构](#基础数据结构)
 	- [定长数组](#定长数组)
 	- [*Tuple* (元组)](#tuple-元组)
@@ -86,19 +84,28 @@
 	- [*for/yeild* 语句](#foryeild-语句)
 - [*Exception* (异常)](#exception-异常)
 	- [*scala.util.Try[T]*](#scalautiltryt)
-- [*Package* (包)](#package-包)
-	- [包与路径](#包与路径)
-	- [扩展用法](#扩展用法)
-	- [默认导入](#默认导入)
-	- [包对象](#包对象)
+- [*XML* 解析](#xml-解析)
+	- [节点类型](#节点类型)
+	- [读写 XML 文件](#读写-xml-文件)
+	- [查找节点](#查找节点)
+	- [节点属性](#节点属性)
+	- [遍历节点](#遍历节点)
+	- [创建 XML](#创建-xml)
 - [*Implicit Conversions* (隐式转换)](#implicit-conversions-隐式转换)
 	- [定义隐式转换](#定义隐式转换)
 	- [隐式参数](#隐式参数)
 	- [隐式类](#隐式类)
-- [*TypeClass*](#typeclass)
 - [求值策略](#求值策略)
 	- [参数的求值策略](#参数的求值策略)
 	- [**&&**、**||** 运算符](#-运算符)
+- [类型系统](#类型系统)
+	- [类型参数](#类型参数)
+	- [类型约束](#类型约束)
+	- [*View Bounds* (视图界定)](#view-bounds-视图界定)
+	- [*Content Bounds*](#content-bounds)
+	- [*Variances* (型变)](#variances-型变)
+- [*Higer Kinded Type* (高阶类型)](#higer-kinded-type-高阶类型)
+- [*TypeClass*](#typeclass)
 - [并发编程](#并发编程)
 	- [*Future*](#future)
 	- [*Promise*](#promise)
@@ -109,13 +116,6 @@
 - [*Annotation* (注解)](#annotation-注解)
 	- [自定义注解](#自定义注解)
 	- [解析注解](#解析注解)
-- [*XML* 解析](#xml-解析)
-	- [节点类型](#节点类型)
-	- [读写 XML 文件](#读写-xml-文件)
-	- [查找节点](#查找节点)
-	- [节点属性](#节点属性)
-	- [遍历节点](#遍历节点)
-	- [创建 XML](#创建-xml)
 
 <!-- /TOC -->
 
@@ -1933,7 +1933,7 @@ object Main extends App {
 ## 类型
 在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
 
-### 基础类型
+### 值类型
 基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生。  
 可以直接在泛型中直接使用这些类作为类型参数。  
 同时，`Scala`中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
@@ -2085,433 +2085,6 @@ object TestOption extends App {
 123
 No Value
 ```
-
-
-
-## 类型系统
-`Scala`是静态类型语言，具有强大的类型系统。
-
-### 类型参数
-定义类型时允许带有类型参数。
-
-`Scala`中使用以下方式定义类型参数：
-
-- 使用泛型语法，`class Xxx[T]/trait Xxx[T]`
-- 使用`type`关键字定义未绑定到具体类型的**抽象类型**(`Abstract Type`)，`trait Xxx { type T }`
-
-泛型语法类似于`Java/C#`，但在`Scala`中使用中括号`[]`代替尖括号`<>`。  
-构建示例时需要将泛型参数替换为实际类型。  
-如下所示：
-
-```scala
-scala> trait Xxx[T] { val t: T }
-defined trait Xxx //定义带有泛型参数的类型
-
-scala> val x = new Xxx[String] { val t = "t" }
-x: Xxx[String] = $anon$1@7ca16520
-
-scala> x.t
-res1: String = t
-
-scala> :type x
-Xxx[String]
-```
-
-抽象类型与抽象成员类似，需要在构建实例时提供具体实现。  
-如下所示：
-
-```scala
-scala> trait Xxx { type T; val t: T }
-defined trait Xxx //定义带有抽象类型的类型
-
-scala> val x = new Xxx { type T = String; val t = "t" }
-x: Xxx{type T = String} = $anon$1@36acfcff
-
-scala> x.t
-res2: x.T = t
-
-scala> :type x
-Xxx{type T = String}
-```
-
-### 类型约束
-定义类型参数时可以设置类型约束，用于限制传入的类型参数：
-
-- `Upper Type Bounds` 上界(上层类型约束)，语法`T <: Xxx`
-- `Lower Type Bounds` 下界(低级类型约束)，语法`T >: Xxx`
-
-`Upper Type Bounds`用于限定类型参数为指定类型的**子类**。  
-如下所示：
-
-```scala
-scala> trait Other
-defined trait Other
-
-scala> trait Base
-defined trait Base
-
-scala> trait Child extends Base
-defined trait Child
-
-scala> def test[T <: Base](t: T) = t
-test: [T <: Base](t: T)T
-
-scala> test[Base](null)
-res1: Base = null
-
-scala> test[Child](null)
-res2: Child = null
-
-scala> test[Other](null)
-<console>:14: error: type arguments [Other] do not conform to method test's type parameter bounds [T <: Base]
-       test[Other](null)
-           ^
-```
-
-类型约束亦可用于类型定义，`class/trait`均支持该特性：
-
-```scala
-scala> class Test[T <: Base]
-defined class Test
-
-scala> new Test[Child]
-res3: Test[Child] = Test@65b73689
-
-scala> new Test[Other]
-<console>:13: error: type arguments [Other] do not conform to class Test's type parameter bounds [T <: Base]
-       val res1 =
-           ^
-<console>:14: error: type arguments [Other] do not conform to class Test's type parameter bounds [T <: Base]
-       new Test[Other]
-           ^
-
-scala> trait Test[T <: Base]
-defined trait Test
-
-scala> new Test[Child] { }
-res4: Test[Child] = $anon$1@7836c79
-
-scala> new Test[Other] { }
-<console>:13: error: type arguments [Other] do not conform to trait Test's type parameter bounds [T <: Base]
-       val res3 =
-           ^
-<console>:14: error: type arguments [Other] do not conform to trait Test's type parameter bounds [T <: Base]
-       new Test[Other] { }
-           ^
-```
-
-`Lower Type Bounds`用于限定类型参数为另一类型的**父类**。  
-如下所示：
-
-```scala
-scala> trait Other
-defined trait Other
-
-scala> trait Base
-defined trait Base
-
-scala> trait Child extends Base
-defined trait Child
-
-scala> def test[T >: Child](t: T) = t
-test: [T >: Child](t: T)T
-
-scala> test[Base](null)
-res1: Base = null
-
-scala> test[Child](null)
-res2: Child = null
-
-scala> test[Other](null)
-<console>:14: error: type arguments [Other] do not conform to method test's type parameter bounds [T >: Child]
-       test[Other](null)
-           ^
-```
-
-使用`Lower Type Bounds`可以将传入的更细粒度的类型转换为更粗粒度的类型。
-
-### *View Bounds* (视图界定)
-`View Bounds`(视图界定)相比普通类型约束更加**宽松**，类型参数不必自身满足类型约束，仅需类型参数能被**隐式转换**为满足类型约束的类型。
-
-视图界定语法为`T <% Xxx`，可用于方法定义与类型定义。  
-与类型界定不同，**不存在**`T >% Xxx`这样的语法。  
-如下所示：
-
-```scala
-scala> trait Other
-defined trait Other
-
-scala> trait Base
-defined trait Base
-
-scala> trait Child extends Base
-defined trait Child
-
-scala> def test[T <% Base](t: T) = t //使用视图界定会生成隐式参数表
-test: [T](t: T)(implicit evidence$1: T => Base)T
-
-scala> test[Child](null) //与上级类型约束类似，使用子类能够满足约束条件
-res1: Child = null
-
-scala> test[Other](null) //使用无关类型不能满足约束条件
-<console>:14: error: No implicit view available from Other => Base.
-       test[Other](null)
-                  ^
-
-scala> implicit def otherToChild(t: Other) = null: Child //定义隐式转换
-otherToChild: (t: Other)Child
-
-scala> test[Other](null) //提供符合要求的隐式转换后能够正常调用方法
-res3: Other = null
-```
-
-实际上视图界定是隐式参数的语法糖，使用视图界定时会生成`implicit xxx: T => Xxx`形式的隐式参数表。  
-不能带有有参构造器的`trait`类型**不能**使用视图界定特性。  
-如下所示：
-
-```scala
-scala> class Test[T <% Base] //定义类型时使用视图界定
-defined class Test
-
-scala> trait Test[T <% Base] //特质无法使用视图界定特性
-<console>:1: error: traits cannot have type parameters with context bounds `: ...' nor view bounds `<% ...'
-       trait Test[T <% Base]
-                            ^
-```
-
-### *Content Bounds*
-`Content Bounds`(上下文界定)要求上下文中存在类型为`Xxx[T]`的隐式值。
-
-上下文界定语法为`T: Xxx`，可用于方法定义与类型定义。  
-如下所示：
-
-```scala
-scala> class Xxx[T]
-defined class Xxx
-
-scala> def test[T: Xxx] = null //上下文界定用于方法类型参数，生成隐式参数表
-test: [T](implicit evidence$1: Xxx[T])Null
-
-scala> class Test[T: Xxx] //上下文界定用于类型定义
-defined class Test
-
-scala> test[Int] //调用方法出错，缺少符合要求隐式值
-<console>:14: error: could not find implicit value for evidence parameter of type Xxx[Int]
-       test[Int]
-           ^
-
-scala> new Test[Int] //构建实例出错，缺少符合要求隐式值
-<console>:14: error: could not find implicit value for evidence parameter of type Xxx[Int]
-       new Test[Int]
-       ^
-
-scala> implicit object XxxInt extends Xxx[Int] //提供隐式值
-defined object XxxInt
-
-scala> test[Int] //正常调用
-res1: Null = null
-
-scala> new Test[Int] //正常构建实例
-res2: Test[Int] = Test@62640933
-```
-
-与视图界定类似，上下文界定亦是隐式参数的语法糖，使用上下文界定会生成`implicit xxx: Xxx[T]`的隐式参数表。  
-不能带有有参构造器的`trait`类型**不能**使用上下文界定特性。  
-如下所示：
-
-```scala
-scala> trait Test[T: Xxx]
-<console>:1: error: traits cannot have type parameters with context bounds `: ...' nor view bounds `<% ...'
-trait Test[T: Xxx]
-                  ^
-```
-
-上下文界定生成的隐式参数表中的隐式参数名称有编译器合成，无法直接通过参数名称访问该隐式值。  
-获取隐式值需要使用`Predef`包中定义的`implicitly[T]()`方法。  
-如下所示：
-
-```scala
-scala> def test[T: Seq] = println(implicitly[Seq[T]]) //打印获取到的隐式值
-test: [T](implicit evidence$1: Seq[T])Unit
-
-scala> implicit val seq = Seq(6, 6, 6) //提供隐式值
-seq: Seq[Int] = List(6, 6, 6)
-
-scala> test[Int] //调用使用了上下文界定的方法，输出隐式值
-List(6, 6, 6)
-```
-
-### *Variances* (型变)
-泛型类型在使用不同类型参数时默认**不存在**继承关系。  
-如下所示：
-
-```scala
-scala> import scala.reflect.runtime.universe._
-import scala.reflect.runtime.universe._
-
-scala> class Test[T]
-defined class Test
-
-scala> class Base
-defined class Base
-
-scala> class Child extends Base
-defined class Child
-
-scala> typeOf[Test[Base]] =:= typeOf[Test[Child]]
-res1: Boolean = false //带有不同类型参数的泛型类是不相等的类型
-
-scala> typeOf[Test[Base]] <:< typeOf[Test[Child]]
-res2: Boolean = false //类型参数的继承关系不影响泛型类型自身
-```
-
-使用`variances`特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。  
-`variances`特性分为`covariance`(协变)和`contravariance`(逆变)。  
-型变特性语法如下所示：
-
-```scala
-class Test[T] //invariance，无型变
-class Test[+T] //covariance，协变
-class Test[-T] //contravariance，逆变
-```
-
-- `Covariance` (协变)
-
-	类型参数声明为`covariance`(协变)时，泛型类型的继承关系与类型参数相同。  
-	如下所示：
-
-	```scala
-	scala> class Test[+T] //定义带有协变类型参数的泛型类型
-	defined class Test
-
-	scala> typeOf[Child] <:< typeOf[Base]
-	res3: Boolean = true
-
-	scala> typeOf[Test[Child]] <:< typeOf[Test[Base]]
-	res4: Boolean = true //泛型类型的继承关系与类型参数相同
-	```
-
-	带有协变类型参数的泛型类型用于方法参数/返回值中，使方法能接受/返回带有子类类型参数的泛型类型。  
-	如下所示：
-
-	```scala
-	scala> class Test[T]
-	defined class Test
-
-	scala> def test(t: Test[Base]) = t.toString
-	test: (t: Test[Base])String
-
-	scala> test(new Test[Child]) //泛型类型的参数不支持协变，报错
-	<console>:18: error: type mismatch;
-	 found   : Test[Child]
-	 required: Test[Base]
-	Note: Child <: Base, but class Test is invariant in type T.
-	You may wish to define T as +T instead. (SLS 4.5)
-	       test(new Test[Child])
-	            ^
-
-	scala> def test: Test[Base] = new Test[Child]
-	<console>:17: error: type mismatch;
-	 found   : Test[Child]
-	 required: Test[Base]
-	Note: Child <: Base, but class Test is invariant in type T.
-	You may wish to define T as +T instead. (SLS 4.5)
-	       def test: Test[Base] = new Test[Child]
-	                              ^
-
-	scala> class Test[+T]
-	defined class Test
-
-	scala> def test(t: Test[Child]) = t.toString
-	test: (t: Test[Child])String
-
-	scala> test(new Test[Child]) //正常调用方法
-	res5: String = Test@61fbec8a
-
-	scala> def test: Test[Base] = new Test[Child]
-	test: Test[Base]
-	```
-
-- `Contravariance` (逆变)
-
-	类型参数声明为`contravariance`(逆变)时，泛型类型的继承关系与类型参数相反。  
-	如下所示：
-
-	```scala
-	scala> class Test[-T] //定义带有逆变类型参数的泛型类型
-	defined class Test
-
-	scala> typeOf[Child] <:< typeOf[Base]
-	res6: Boolean = true
-
-	scala> typeOf[Test[Base]] <:< typeOf[Test[Child]]
-	res7: Boolean = true //泛型类型的继承关系与类型参数相反
-	```
-
-协变与逆变的类型参数需要在正确的位置使用，即`covariant position`(协变点)和`contravariant position`(逆变点)。
-
-- `Covariant Position` (协变点)
-
-	协变点指方法的**返回值**位置。  
-	根据**里氏替换原则**，子类的方法返回值应比父类更具体。
-
-- `Contravariant Position` (逆变点)
-
-	逆变点指方法的**参数**位置。  
-	根据**里氏替换原则**，能通过父类实例调用的方法一定能通过子类实例调用，因此子类方法参数类型接收范围应比父类更广。
-
-在错误的位置使用型变类型参数会导致编译错误：
-
-```scala
-scala> trait Test[+T] { def test(t: T) } 
-<console>:14: error: covariant type T occurs in contravariant position in type T of value t
-       trait Test[+T] { def test(t: T) }
-                                 ^
-
-scala> trait Test[+T] { def test: T } 
-defined trait Test
-
-scala> trait Test[-T] { def test: T } 
-<console>:14: error: contravariant type T occurs in covariant position in type => T of method test
-       trait Test[-T] { def test: T }
-                            ^
-
-scala> trait Test[-T] { def test(t: T) } 
-defined trait Test
-```
-
-### *Higer Kinded Type* (高阶类型)
-高阶类型是对类型的高级抽象，是类型参数为类型构造器的泛型类型。  
-如下所示：
-
-```scala
-scala> import scala.language.higherKinds
-import scala.language.higherKinds
-
-scala> class Test[T[_]]
-defined class Test
-```
-
-类型`Test`接收一个类型为`T[_]`的类型参数，仅能使用泛型类型做为类型参数：
-
-```scala
-scala> new Test[Int] //使用普通类型做为类型参数，报错
-<console>:14: error: Int takes no type parameters, expected: one
-       new Test[Int]
-                ^
-
-scala> new Test[Seq] //使用泛型类型为类型参数，正确
-res1: Test[Seq] = Test@11cc9e1e
-```
-
-`Type Theory`(类型理论)中的`Kind`(类型)在`Scala`中的对应概念：
-
-| 类型 | 含义 | Scala中的对应概念 | 实例 |
-|:---:|:----:|:--------------:|:----:|
-| * | 类型 | 普通类型，或带有具体类型参数的泛型类型 | `Int`, `List[Int]` |
-| * -> * | 一阶类型(类型构造器) | 泛型类型 | `List[_]`, `Seq[_]` |
-| * -> ... -> * | 一阶类型(带有多个参数的类型构造器)| 带有多个类型参数的泛型类型 | `Map[_, _]`, `Function2[_, _, _]`, `Tuple4[_, _, _, _]` |
-| (* -> *) -> * | 高阶类型(参数为类型构造器的类型构造器)| 带有泛型类型参数的泛型类型 | `List[T[_]]`, `Seq[T[_]]` |
 
 
 
@@ -3172,6 +2745,177 @@ scala> testMyEnum(Enum.enum1) //参数为普通枚举单例的枚举值，错误
        testMyEnum(Enum.enum1)
                        ^
 ```
+
+
+
+## *Package* (包)
+`Scala`中的包用法基本与`Java`类似：
+
+- 使用`package`关键字定义包路径。
+- 使用`import`关键字导入包路径。
+
+### 包与路径
+在`Scala`中，包路径是**逻辑概念**，源码文件**不必**按照包路径存放到对应的目录下。
+
+`Scala`中使用`_`符号表示导入该路径下的所有包和成员：
+
+```scala
+import java.awt._ //等价于java中的 import java.awt.*
+```
+
+导入路径规则与`Java`中的类似，处于同一级包路径下的类可以直接使用不必导入。
+
+- 导入策略
+
+	在导入包时，`Scala`默认采用**相对路径**。  
+	在外层路径的包使用内层路径的包时，可省略共同的路径部分直接以当前路径为起点访问内层路径包。
+
+	如下所示：
+
+	```scala
+	// file1
+	package com.dainslef
+
+	class Test
+
+	// file2
+	package com
+
+	// 导入路径时以当前包为起点，不必从最外层路径开始导入
+	import dainslef.Test
+
+	object Main extends App {
+	  println(classOf[Test].getName)
+	}
+	```
+
+	而在`Java`中，无论包的层次关系如何，都需要通过绝对路径进行导入。
+
+	上例对应`Java`版本如下所示：
+
+	```java
+	// file1
+	package com.dainslef;
+
+	class Test {
+	};
+
+	// file2
+	package com;
+
+	// 导入路径时从时需要从最外层路径开始导入，不能写成 import dainslef.Test
+	import com.dainslef.Test;
+
+	public class Main {
+	
+		public static void main(String[] args) {
+			System.out.println(Test.class.getName());
+		}
+	
+	}
+	```
+
+- 默认包与绝对路径导入
+
+	在`Java`和`Scala`中，不使用`package`关键字打包的代码即位于**默认包**下，没有对应的包名。  
+	在`Scala`中使用`_root_`指代默认包。
+
+	`Scala`中默认的`import`操作是基于相对路径的，但`Scala`同样支持以**绝对路径**进行`import`操作：
+
+	- 以`_root_`为导入起始路径，即代表以绝对路径的形式导入内容。
+	- 使用绝对路径访问内容能避免一些命名冲突。
+
+	上例中的代码中的`Test`类以绝对路径导入，导入语句可写成：
+
+	```scala
+	import _root_.com.dainslef.Test
+	```
+
+- 默认包的限制
+
+	默认包没有名称，其内容只能被同在默认包下的其它内容访问。  
+	内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
+
+	如下所示：
+
+	```scala
+	// file1
+	// 定义单例在默认包中
+	object Test {
+	  val test = "Test string..."
+	}
+
+	// file2
+	package com
+
+	object Main extends App {
+	  // 在内层包中访问外部默认包的内容
+	  println(Test.test) //错误，提示 "not found: value Test"
+	  println(_root_.Test.test) //错误，提示 "object Test is not a member of package <root>"
+	}
+	```
+
+### 扩展用法
+`Scala`包机制在Java的基础上扩充了更多的功能。
+
+在一个语句中导入包内的**多个**指定的类：
+
+```scala
+import java.awt.{Color, Font}
+```
+在导入一个包的同时可以将包内的类进行重命名：
+
+```scala
+import java.awt.{Color => JavaColor}
+```
+
+如果不希望某个类被导入，则可以用以下方式隐藏某个类：
+
+```scala
+import java.awt.{Color => _}
+```
+
+`Scala`中的`import`带有类似`Java 1.6`中的`static import`特性：
+
+```scala
+import java.lang.Math.abs //导入Math类中的静态方法abs
+```
+
+在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。  
+在Scala中，`import`语句可以出现在**任意位置**，不必总是放在文件的顶部，`import`语句的作用域直到该语句块结束。
+
+### 默认导入
+默认情况下，Scala会导入以下几个包路径：
+
+```scala
+import java.lang._
+import scala._
+import Predef._
+```
+
+有些Scala包中的类名与Java包中的类名相同，但由于Scala包的引入语句在后，因此，例如`Scala.StringBuiler`类会覆盖`Java.lang.StringBuilder`。
+
+### 包对象
+在Scala中，每个包可以带有一个与包名相同的**包对象**，包内的所有类都可以直接访问该包对象的公有成员。  
+如下所示：
+
+```scala
+package object Package {
+  var num0 = 0
+  protected var num1 = 1
+  private var num2 = 2
+}
+
+package Package {
+  object Test extends App {
+    println(num0) //正确，可以直接访问包对象的公有成员，不用使用前缀
+    println(num1) //错误，不能访问包对象的保护成员
+    println(num2) //错误，不能访问包对象的私有成员
+  }
+}
+```
+
+通常情况下，包对象的定义应放置在包路径下的`package.scala`文件中。
 
 
 
@@ -3976,174 +3720,252 @@ res2: Option[Int] = Some(233) //执行成功，得到 Some(233)
 
 
 
-## *Package* (包)
-`Scala`中的包用法基本与`Java`类似：
+## *XML* 解析
+Scala标准库中内置了XML支持，XML相关类在包`scala.xml`中。
 
-- 使用`package`关键字定义包路径。
-- 使用`import`关键字导入包路径。
+### 节点类型
+`Node`是最基础的XML节点类型(抽象类)。  
+`NodeSeq`用于记录节点的序列，继承自`Seq[Node]`。
 
-### 包与路径
-在`Scala`中，包路径是**逻辑概念**，源码文件**不必**按照包路径存放到对应的目录下。
+相关类型继承关系图如下所示：
 
-`Scala`中使用`_`符号表示导入该路径下的所有包和成员：
-
-```scala
-import java.awt._ //等价于java中的 import java.awt.*
+```
+Seq[Node]
+│ 
+NodeSeq
+├── Document
+└── Node
+    ├── Elem
+    └── SpecialNode
+        ├── EnityRef
+        ├── ProcInstr
+        ├── Conment
+        └── Atom
+            ├── Text
+            ├── PCData
+            └── Unparsed
 ```
 
-导入路径规则与`Java`中的类似，处于同一级包路径下的类可以直接使用不必导入。
+`Node`类型定义了一系列用于获取节点信息的方法：
 
-- 导入策略
+- `prefix`成员方法，用于获取**当前节点**的标签**前缀**。
+- `child`成员方法(抽象方法)，用于获取**子节点**的**序列**。
+- `attributes`成员方法，用于获取**当前节点**的**属性**。
+- `label`成员方法(抽象方法)，用于获取**当前节点**的**标签名称**。
+- `text`成员方法，用于获取**当前节点**的**文本内容**。
 
-	在导入包时，`Scala`默认采用**相对路径**。  
-	在外层路径的包使用内层路径的包时，可省略共同的路径部分直接以当前路径为起点访问内层路径包。
-
-	如下所示：
-
-	```scala
-	// file1
-	package com.dainslef
-
-	class Test
-
-	// file2
-	package com
-
-	// 导入路径时以当前包为起点，不必从最外层路径开始导入
-	import dainslef.Test
-
-	object Main extends App {
-	  println(classOf[Test].getName)
-	}
-	```
-
-	而在`Java`中，无论包的层次关系如何，都需要通过绝对路径进行导入。
-
-	上例对应`Java`版本如下所示：
-
-	```java
-	// file1
-	package com.dainslef;
-
-	class Test {
-	};
-
-	// file2
-	package com;
-
-	// 导入路径时从时需要从最外层路径开始导入，不能写成 import dainslef.Test
-	import com.dainslef.Test;
-
-	public class Main {
-	
-		public static void main(String[] args) {
-			System.out.println(Test.class.getName());
-		}
-	
-	}
-	```
-
-- 默认包与绝对路径导入
-
-	在`Java`和`Scala`中，不使用`package`关键字打包的代码即位于**默认包**下，没有对应的包名。  
-	在`Scala`中使用`_root_`指代默认包。
-
-	`Scala`中默认的`import`操作是基于相对路径的，但`Scala`同样支持以**绝对路径**进行`import`操作：
-
-	- 以`_root_`为导入起始路径，即代表以绝对路径的形式导入内容。
-	- 使用绝对路径访问内容能避免一些命名冲突。
-
-	上例中的代码中的`Test`类以绝对路径导入，导入语句可写成：
-
-	```scala
-	import _root_.com.dainslef.Test
-	```
-
-- 默认包的限制
-
-	默认包没有名称，其内容只能被同在默认包下的其它内容访问。  
-	内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
-
-	如下所示：
-
-	```scala
-	// file1
-	// 定义单例在默认包中
-	object Test {
-	  val test = "Test string..."
-	}
-
-	// file2
-	package com
-
-	object Main extends App {
-	  // 在内层包中访问外部默认包的内容
-	  println(Test.test) //错误，提示 "not found: value Test"
-	  println(_root_.Test.test) //错误，提示 "object Test is not a member of package <root>"
-	}
-	```
-
-### 扩展用法
-`Scala`包机制在Java的基础上扩充了更多的功能。
-
-在一个语句中导入包内的**多个**指定的类：
-
-```scala
-import java.awt.{Color, Font}
-```
-在导入一个包的同时可以将包内的类进行重命名：
-
-```scala
-import java.awt.{Color => JavaColor}
-```
-
-如果不希望某个类被导入，则可以用以下方式隐藏某个类：
-
-```scala
-import java.awt.{Color => _}
-```
-
-`Scala`中的`import`带有类似`Java 1.6`中的`static import`特性：
-
-```scala
-import java.lang.Math.abs //导入Math类中的静态方法abs
-```
-
-在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。  
-在Scala中，`import`语句可以出现在**任意位置**，不必总是放在文件的顶部，`import`语句的作用域直到该语句块结束。
-
-### 默认导入
-默认情况下，Scala会导入以下几个包路径：
-
-```scala
-import java.lang._
-import scala._
-import Predef._
-```
-
-有些Scala包中的类名与Java包中的类名相同，但由于Scala包的引入语句在后，因此，例如`Scala.StringBuiler`类会覆盖`Java.lang.StringBuilder`。
-
-### 包对象
-在Scala中，每个包可以带有一个与包名相同的**包对象**，包内的所有类都可以直接访问该包对象的公有成员。  
 如下所示：
 
 ```scala
-package object Package {
-  var num0 = 0
-  protected var num1 = 1
-  private var num2 = 2
-}
+def prefix: String = null
+def child: Seq[Node]
+def attributes: MetaData = Null
+def label: String
+override def text: String = super.text
+```
 
-package Package {
-  object Test extends App {
-    println(num0) //正确，可以直接访问包对象的公有成员，不用使用前缀
-    println(num1) //错误，不能访问包对象的保护成员
-    println(num2) //错误，不能访问包对象的私有成员
+`Node`类型的伴生对象中定义了**提取器**，可以用于提取节点中的**标签名称**、**属性**、**子节点**等内容：
+
+```scala
+def unapplySeq(n: Node) = Some((n.label, n.attributes, n.child))
+```
+
+`Elem`类型继承于`Node`类型，实现了`Node`类型中的抽象内容。
+
+### 读写 XML 文件
+读写XML文件可以使用`XMLLoader`特质以及继承于`XMLLoader[Elem]`的单例对象`XML`。
+
+- `XMLLoader`的实例方法`loadFile()`可以从指定路径加载XML文件进行解析，方法返回由输入XML文件生成的`Elem`节点对象。
+- `XML`对象的方法`save()`和`write()`可用于将节点(`Node`类型)写入到文件中。
+- `save()`方法接收文件路径(`String`类型)作为参数，大部分参数带有默认值。
+- `write()`接收`java.io.Writer`类型作为参数，参数没有默认值。
+
+### 查找节点
+`NodeSeq`类提供了`\()`、`\\()`等方法用于节点的查找，继承于`NodeSeq`类的`Node`、`Elem`等类型都可以使用这些方法进行节点查找。
+
+`\()`以及`\\()`方法签名类似，接收节点名称作为参数(`String`类型)，返回节点序列(`NodeSeq`类型)。
+
+如下所示：
+
+```scala
+// 返回当前节点下一级子节点中指定名称节点的序列
+def \(that: String): NodeSeq
+// 返回当前节点所有子节点中指定名称节点的序列
+def \\(that: String): NodeSeq
+```
+
+- 使用`loadFile()`方法加载XML文件后，返回的`Elem`类型的当前节点为**根节点**。
+- 节点查找支持使用**模式匹配**的方式。
+- 使用模式匹配方式查找节点时，匹配表达式中的节点标签不能带有属性(不支持此语法)。
+
+### 节点属性
+节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
+
+使用`\()`、`\\()`方法同样可以进行属性查找。  
+在参数字符串前加`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名为`num`的属性内容。  
+使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
+
+`NodeSeq`类型提供了`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。  
+如下所示：
+
+```scala
+// 参数为属性名称
+def \@(attributeName: String): String
+```
+
+`Node`类型提供了`attribute()`以及`attributes`方法从节点中获取属性。  
+如下所示：
+
+```scala
+// 获取带有指定属性的节点
+final def attribute(key: String): Option[Seq[Node]]
+// 获取所有属性
+def attributes: MetaData
+```
+
+`attributes`方法返回的类型为`MetaData`。
+`MetaData`类型支持遍历操作，定义了`key`、`value`方法用于获取属性的键值。  
+如下所示：
+
+```scala
+// 获取指定属性的值
+def apply(key: String): Seq[Node]
+// 获取当前属性名称
+def key: String
+// 获取当前属性名称对应的属性值
+def value: Seq[Node]
+```
+
+### 遍历节点
+`Elem`类型的成员字段`child`保存了子节点的序列(`Seq[Node]`类型)，可以通过`for`循环语句或高阶函数进行遍历。
+
+有如下测试XML文件：
+
+```xml
+<!-- FileName: Example.xml -->
+<Root>
+	<Node arg="arg_node1">
+		<One>node1</One>
+	</Node>
+	<Node arg="arg_node2"><Two arg="arg_2">node2</Two></Node>
+	<Node arg="arg_node4">
+		<Three arg="arg_3">node3</Three>
+	</Node>
+	<Node arg="arg_node4">
+		<Four arg="arg_4">node4_1</Four>
+		<Four arg_one="arg_4_1" arg_two="arg_4_2">node4_2</Four>
+	</Node>
+</Root>
+```
+
+代码如下所示：
+
+```scala
+object Xml extends App {
+
+  val xmlFile = XML.loadFile(getClass.getResource("Example.xml").getPath)
+
+  val showChild: Node => Unit = _.child foreach {
+
+    // 使用标签匹配，可以将表达式嵌在匹配语句中
+    case <One>{text}</One> => println(s"case <One>{text}</One>: $text")
+
+    // 标签匹配支持多级嵌套标签，不支持在标签中直接添加属性
+    case <Node><Two>{text}</Two></Node> =>
+      println(s"case <Node><Two>{text}</Two></Node>: $text")
+
+    // 匹配多级标签需要节点内部不换行
+    case <Node><Three>{text}</Three></Node> =>
+      println(s"case <Node><Three>{text}</Three></Node>: $text")
+
+    // 使用 @ 操作符给匹配的节点标记变量名称(n 为 Node 类型)
+    case n@<Three>{_}</Three> =>
+      println(s"case n@<Three>{_}</Three>, n text: ${n.text}, n type: ${n.getClass}")
+
+    // 遍历属性
+    case n@<Four>{_}</Four> if n \@ "arg_one" == "arg_4_1" =>
+      println(s"case n@<Four>{_}</Four>, n text: ${n.text}, n type: ${n.getClass}, n.attributes: ")
+      n.attributes foreach { attr =>
+        println(s"attribute name: ${attr.key} attribute value: ${attr.value.text}")
+      }
+
+    // 使用 @ 操作符给节点内容标记变量名称(n 为 Text 类型)
+    case <Four>{n@_}</Four> =>
+      println(s"case <Four>{n@_}</Four>, n text: ${n.text}, n type: ${n.getClass}")
+
+    /*
+      匹配其它类型节点，注意不能写成：
+      case _ if node.child.length > 0 => ... 或 case _ if node.child.nonEmpty => ...
+      (空指针不能调用方法)
+    */
+    case node if node.child != null => showChild(node)
+
   }
+
+  showChild(xmlFile)
 }
 ```
 
-通常情况下，包对象的定义应放置在包路径下的`package.scala`文件中。
+输出结果：
+
+```
+case <One>{text}</One>: node1
+case <Node><Two>{text}</Two></Node>: node2
+case n@<Three>{_}</Three>, n text: node3, n type: class scala.xml.Elem
+case <Four>{n@_}</Four>, n text: node4_1, n type: class scala.xml.Text
+case n@<Four>{_}</Four>, n text: node4_2, n type: class scala.xml.Elem, n.attributes:
+attribute name: arg_two attribute value: arg_4_2
+attribute name: arg_one attribute value: arg_4_1
+```
+
+### 创建 XML
+可以直接将代码嵌入`XML`语句中：
+
+```scala
+scala> val str = "Test"
+str: String = Test
+scala> val node0 = <li>{ str }</li> //xml节点内容可以插入变量,使用花括号区分表达式与xml本身内容
+node0: scala.xml.Elem = <li>Test</li>
+scala> val node1 = <li name={ str }>test</li> //xml属性中插入变量
+node1: scala.xml.Elem = <li name="Test">test</li>
+```
+
+可以将复杂的表达式在XML语句中进行**多重嵌套**：
+
+```scala
+scala> val node3 = <ul>{ for (i <- 1 to 3) yield <li>{ i }</li> }</ul>
+node3: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li></ul>
+```
+
+在Scala中，节点是**不可变**的，拼接节点的正确方式是使用`Elem`类型的`cospy()`方法，并在复制时重新设定`child`参数。
+
+`copy()`方法的定义如下所示：
+
+```scala
+def copy(
+  prefix: String = this.prefix,
+  label: String = this.label,
+  attributes: MetaData = this.attributes,
+  scope: NamespaceBinding = this.scope,
+  minimizeEmpty: Boolean = this.minimizeEmpty,
+  child: Seq[Node] = this.child.toSeq): Elem = Elem(prefix, label, attributes, scope, minimizeEmpty, child: _*)
+```
+
+使用`copy()`方法拼接节点如下所示：
+
+```scala
+//使用具名参数指定子节点内容
+scala> node3.copy(child = node0 ++ node1)
+res0: scala.xml.Elem = <ul><li>Test</li><li name="Test">test</li></ul>
+
+//保留原节点的内容进行拼接
+scala> node3.copy(child = node3.child ++ node0 ++ node1)
+res1: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li><li>Test</li><li name="Test">test</li></ul>
+
+//创建新节点时也可以设定其它属性，如标签名、标签前缀等
+scala> node3.copy(child = node0 ++ node1, prefix = "Test", label = "test")
+res2: scala.xml.Elem = <Test:test><li>Test</li><li name="Test">test</li></Test:test>
+```
 
 
 
@@ -4411,113 +4233,6 @@ object Main extends App {
 Implicit Class
 Implicit Class: 100
 ```
-
-
-
-## *TypeClass*
-`Type Class`即**类型类**，是一种通过泛型参数实现多态的方式。  
-根据不同的泛型参数，签名相同的方法会调用不同的实现。
-
-Scala中使用**隐式参数**特性来实现TypeClass。  
-定义一个带有泛型参数的类型(TypeClass)，和使用隐式参数接收该泛型实例的方法：
-
-```scala
-scala> trait TypeClass[T] {
-     |   def doSomething(): Unit
-     | }
-defined trait TypeClass
-
-scala> def testTypeClass[T]()(implicit typeClass: TypeClass[T]) = typeClass.doSomething()
-testTypeClass: [T]()(implicit typeClass: TypeClass[T])Unit
-```
-
-使用隐式单例为TypeClass提供不同的实现：
-
-```scala
-scala> implicit object IntTypeClass extends TypeClass[Int] {
-     |   def doSomething() = println("Int Type Class")
-     | }
-defined object IntTypeClass
-
-scala> implicit object StringTypeClass extends TypeClass[String] {
-     |   def doSomething() = println("String Type Class")
-     | }
-defined object StringTypeClass
-```
-
-调用`testTypeClass()`方法时，使用不同的泛型参数编译器会自动选择合适的隐式对象做为实现：
-
-```scala
-scala> testTypeClass[Int]()
-Int Type Class
-
-scala> testTypeClass[String]()
-String Type Class
-
-scala> testTypeClass[Double]() //使用未提供隐式实例的泛型参数时，报错
-<console>:16: error: could not find implicit value for parameter typeClass: TypeClass[Double]
-       testTypeClass[Double]()
-                            ^
-```
-
-完整示例：
-
-```scala
-object Main extends App {
-
-  trait TypeClass[T] {
-    def doSomething(t: T): Unit
-  }
-
-  def testTypeClass[T](t: T)(implicit typeClass: TypeClass[T]) = typeClass.doSomething(t)
-
-  implicit object IntTypeClass extends TypeClass[Int] {
-    def doSomething(t: Int) = println(s"Int Type Class: $t")
-  }
-
-  implicit object StringTypeClass extends TypeClass[String] {
-    def doSomething(t: String) = println(s"String Type Class: $t")
-  }
-
-  testTypeClass(233)
-  testTypeClass("666")
-
-}
-```
-
-TypeClass是`Haskell`等FP语言实现参数化多态的主要方式。  
-在`Haskell`中，上述代码近似于：
-
-```hs
-module Main where
-
-class TypeClass t where
-  doSomething :: t -> IO ()
-
-testTypeClass :: TypeClass t => t -> IO ()
-testTypeClass t = doSomething t
-
-instance TypeClass Int where
-  doSomething t = print $ "Int Type Class: " ++ (show t)
-
--- 使用语言扩展 FlexibleInstances 开启泛型参数特化
-instance TypeClass String where
-  doSomething t = print $ "String Type Class: " ++ t
-
-main :: IO ()
-main = do
-  testTypeClass (233 :: Int)
-  testTypeClass "666"
-```
-
-输出结果：
-
-```
-Int Type Class: 233
-String Type Class: 666
-```
-
-`C++`中的**模板特化**功能上亦与TypeClass类似。
 
 
 
@@ -4793,6 +4508,543 @@ expr2_1
 	```
 
 	使用`Call by Name`求值策略下，右侧表达式并未执行，符合`&&`、`||`运算符逻辑。
+
+
+
+## 类型系统
+`Scala`是静态类型语言，具有强大的类型系统。
+
+### 类型参数
+定义类型时允许带有类型参数。  
+使用以下方式定义类型参数：
+
+- 使用泛型语法，`class Xxx[T]/trait Xxx[T]`
+- 使用`type`关键字定义未绑定到具体类型的**抽象类型**(`Abstract Type`)，`trait Xxx { type T }`
+
+泛型语法类似于`Java/C#`，但在`Scala`中使用中括号`[]`代替尖括号`<>`。  
+构建示例时需要将泛型参数替换为实际类型。  
+如下所示：
+
+```scala
+scala> trait Xxx[T] { val t: T }
+defined trait Xxx //定义带有泛型参数的类型
+
+scala> val x = new Xxx[String] { val t = "t" }
+x: Xxx[String] = $anon$1@7ca16520
+
+scala> x.t
+res1: String = t
+
+scala> :type x
+Xxx[String]
+```
+
+抽象类型与抽象成员类似，需要在构建实例时提供具体实现。  
+如下所示：
+
+```scala
+scala> trait Xxx { type T; val t: T }
+defined trait Xxx //定义带有抽象类型的类型
+
+scala> val x = new Xxx { type T = String; val t = "t" }
+x: Xxx{type T = String} = $anon$1@36acfcff
+
+scala> x.t
+res2: x.T = t
+
+scala> :type x
+Xxx{type T = String}
+```
+
+### 类型约束
+定义类型参数时可以设置类型约束，用于限制传入的类型参数：
+
+- `Upper Type Bounds` 上界(上层类型约束)，语法`T <: Xxx`
+- `Lower Type Bounds` 下界(低级类型约束)，语法`T >: Xxx`
+
+`Upper Type Bounds`用于限定类型参数为指定类型的**子类**。  
+如下所示：
+
+```scala
+scala> trait Other
+defined trait Other
+
+scala> trait Base
+defined trait Base
+
+scala> trait Child extends Base
+defined trait Child
+
+scala> def test[T <: Base](t: T) = t
+test: [T <: Base](t: T)T
+
+scala> test[Base](null)
+res1: Base = null
+
+scala> test[Child](null)
+res2: Child = null
+
+scala> test[Other](null)
+<console>:14: error: type arguments [Other] do not conform to method test's type parameter bounds [T <: Base]
+       test[Other](null)
+           ^
+```
+
+类型约束亦可用于类型定义，`class/trait`均支持该特性：
+
+```scala
+scala> class Test[T <: Base]
+defined class Test
+
+scala> new Test[Child]
+res3: Test[Child] = Test@65b73689
+
+scala> new Test[Other]
+<console>:13: error: type arguments [Other] do not conform to class Test's type parameter bounds [T <: Base]
+       val res1 =
+           ^
+<console>:14: error: type arguments [Other] do not conform to class Test's type parameter bounds [T <: Base]
+       new Test[Other]
+           ^
+
+scala> trait Test[T <: Base]
+defined trait Test
+
+scala> new Test[Child] { }
+res4: Test[Child] = $anon$1@7836c79
+
+scala> new Test[Other] { }
+<console>:13: error: type arguments [Other] do not conform to trait Test's type parameter bounds [T <: Base]
+       val res3 =
+           ^
+<console>:14: error: type arguments [Other] do not conform to trait Test's type parameter bounds [T <: Base]
+       new Test[Other] { }
+           ^
+```
+
+`Lower Type Bounds`用于限定类型参数为另一类型的**父类**。  
+如下所示：
+
+```scala
+scala> trait Other
+defined trait Other
+
+scala> trait Base
+defined trait Base
+
+scala> trait Child extends Base
+defined trait Child
+
+scala> def test[T >: Child](t: T) = t
+test: [T >: Child](t: T)T
+
+scala> test[Base](null)
+res1: Base = null
+
+scala> test[Child](null)
+res2: Child = null
+
+scala> test[Other](null)
+<console>:14: error: type arguments [Other] do not conform to method test's type parameter bounds [T >: Child]
+       test[Other](null)
+           ^
+```
+
+使用`Lower Type Bounds`可以将传入的更细粒度的类型转换为更粗粒度的类型。
+
+### *View Bounds* (视图界定)
+`View Bounds`(视图界定)相比普通类型约束更加**宽松**，类型参数不必自身满足类型约束，仅需类型参数能被**隐式转换**为满足类型约束的类型。
+
+视图界定语法为`T <% Xxx`，可用于方法定义与类型定义。  
+与类型界定不同，**不存在**`T >% Xxx`这样的语法。  
+如下所示：
+
+```scala
+scala> trait Other
+defined trait Other
+
+scala> trait Base
+defined trait Base
+
+scala> trait Child extends Base
+defined trait Child
+
+scala> def test[T <% Base](t: T) = t //使用视图界定会生成隐式参数表
+test: [T](t: T)(implicit evidence$1: T => Base)T
+
+scala> test[Child](null) //与上级类型约束类似，使用子类能够满足约束条件
+res1: Child = null
+
+scala> test[Other](null) //使用无关类型不能满足约束条件
+<console>:14: error: No implicit view available from Other => Base.
+       test[Other](null)
+                  ^
+
+scala> implicit def otherToChild(t: Other) = null: Child //定义隐式转换
+otherToChild: (t: Other)Child
+
+scala> test[Other](null) //提供符合要求的隐式转换后能够正常调用方法
+res3: Other = null
+```
+
+实际上视图界定是隐式参数的语法糖，使用视图界定时会生成`implicit xxx: T => Xxx`形式的隐式参数表。  
+不能带有有参构造器的`trait`类型**不能**使用视图界定特性。  
+如下所示：
+
+```scala
+scala> class Test[T <% Base] //定义类型时使用视图界定
+defined class Test
+
+scala> trait Test[T <% Base] //特质无法使用视图界定特性
+<console>:1: error: traits cannot have type parameters with context bounds `: ...' nor view bounds `<% ...'
+       trait Test[T <% Base]
+                            ^
+```
+
+### *Content Bounds*
+`Content Bounds`(上下文界定)要求上下文中存在类型为`Xxx[T]`的隐式值。
+
+上下文界定语法为`T: Xxx`，可用于方法定义与类型定义。  
+如下所示：
+
+```scala
+scala> class Xxx[T]
+defined class Xxx
+
+scala> def test[T: Xxx] = null //上下文界定用于方法类型参数，生成隐式参数表
+test: [T](implicit evidence$1: Xxx[T])Null
+
+scala> class Test[T: Xxx] //上下文界定用于类型定义
+defined class Test
+
+scala> test[Int] //调用方法出错，缺少符合要求隐式值
+<console>:14: error: could not find implicit value for evidence parameter of type Xxx[Int]
+       test[Int]
+           ^
+
+scala> new Test[Int] //构建实例出错，缺少符合要求隐式值
+<console>:14: error: could not find implicit value for evidence parameter of type Xxx[Int]
+       new Test[Int]
+       ^
+
+scala> implicit object XxxInt extends Xxx[Int] //提供隐式值
+defined object XxxInt
+
+scala> test[Int] //正常调用
+res1: Null = null
+
+scala> new Test[Int] //正常构建实例
+res2: Test[Int] = Test@62640933
+```
+
+与视图界定类似，上下文界定亦是隐式参数的语法糖，使用上下文界定会生成`implicit xxx: Xxx[T]`的隐式参数表。  
+不能带有有参构造器的`trait`类型**不能**使用上下文界定特性。  
+如下所示：
+
+```scala
+scala> trait Test[T: Xxx]
+<console>:1: error: traits cannot have type parameters with context bounds `: ...' nor view bounds `<% ...'
+trait Test[T: Xxx]
+                  ^
+```
+
+上下文界定生成的隐式参数表中的隐式参数名称有编译器合成，无法直接通过参数名称访问该隐式值。  
+获取隐式值需要使用`Predef`包中定义的`implicitly[T]()`方法。  
+如下所示：
+
+```scala
+scala> def test[T: Seq] = println(implicitly[Seq[T]]) //打印获取到的隐式值
+test: [T](implicit evidence$1: Seq[T])Unit
+
+scala> implicit val seq = Seq(6, 6, 6) //提供隐式值
+seq: Seq[Int] = List(6, 6, 6)
+
+scala> test[Int] //调用使用了上下文界定的方法，输出隐式值
+List(6, 6, 6)
+```
+
+### *Variances* (型变)
+泛型类型在使用不同类型参数时默认**不存在**继承关系。  
+如下所示：
+
+```scala
+scala> import scala.reflect.runtime.universe._
+import scala.reflect.runtime.universe._
+
+scala> class Test[T]
+defined class Test
+
+scala> class Base
+defined class Base
+
+scala> class Child extends Base
+defined class Child
+
+scala> typeOf[Test[Base]] =:= typeOf[Test[Child]]
+res1: Boolean = false //带有不同类型参数的泛型类是不相等的类型
+
+scala> typeOf[Test[Base]] <:< typeOf[Test[Child]]
+res2: Boolean = false //类型参数的继承关系不影响泛型类型自身
+```
+
+使用`variances`特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。  
+`variances`特性分为`covariance`(协变)和`contravariance`(逆变)。  
+型变特性语法如下所示：
+
+```scala
+class Test[T] //invariance，无型变
+class Test[+T] //covariance，协变
+class Test[-T] //contravariance，逆变
+```
+
+- `Covariance` (协变)
+
+	类型参数声明为`covariance`(协变)时，泛型类型的继承关系与类型参数相同。  
+	如下所示：
+
+	```scala
+	scala> class Test[+T] //定义带有协变类型参数的泛型类型
+	defined class Test
+
+	scala> typeOf[Child] <:< typeOf[Base]
+	res3: Boolean = true
+
+	scala> typeOf[Test[Child]] <:< typeOf[Test[Base]]
+	res4: Boolean = true //泛型类型的继承关系与类型参数相同
+	```
+
+	带有协变类型参数的泛型类型用于方法参数/返回值中，使方法能接受/返回带有子类类型参数的泛型类型。  
+	如下所示：
+
+	```scala
+	scala> class Test[T]
+	defined class Test
+
+	scala> def test(t: Test[Base]) = t.toString
+	test: (t: Test[Base])String
+
+	scala> test(new Test[Child]) //泛型类型的参数不支持协变，报错
+	<console>:18: error: type mismatch;
+	 found   : Test[Child]
+	 required: Test[Base]
+	Note: Child <: Base, but class Test is invariant in type T.
+	You may wish to define T as +T instead. (SLS 4.5)
+	       test(new Test[Child])
+	            ^
+
+	scala> def test: Test[Base] = new Test[Child]
+	<console>:17: error: type mismatch;
+	 found   : Test[Child]
+	 required: Test[Base]
+	Note: Child <: Base, but class Test is invariant in type T.
+	You may wish to define T as +T instead. (SLS 4.5)
+	       def test: Test[Base] = new Test[Child]
+	                              ^
+
+	scala> class Test[+T]
+	defined class Test
+
+	scala> def test(t: Test[Child]) = t.toString
+	test: (t: Test[Child])String
+
+	scala> test(new Test[Child]) //正常调用方法
+	res5: String = Test@61fbec8a
+
+	scala> def test: Test[Base] = new Test[Child]
+	test: Test[Base]
+	```
+
+- `Contravariance` (逆变)
+
+	类型参数声明为`contravariance`(逆变)时，泛型类型的继承关系与类型参数相反。  
+	如下所示：
+
+	```scala
+	scala> class Test[-T] //定义带有逆变类型参数的泛型类型
+	defined class Test
+
+	scala> typeOf[Child] <:< typeOf[Base]
+	res6: Boolean = true
+
+	scala> typeOf[Test[Base]] <:< typeOf[Test[Child]]
+	res7: Boolean = true //泛型类型的继承关系与类型参数相反
+	```
+
+协变与逆变的类型参数需要在正确的位置使用，即`covariant position`(协变点)和`contravariant position`(逆变点)。
+
+- `Covariant Position` (协变点)
+
+	协变点指方法的**返回值**位置。  
+	根据**里氏替换原则**，子类的方法返回值应比父类更具体。
+
+- `Contravariant Position` (逆变点)
+
+	逆变点指方法的**参数**位置。  
+	根据**里氏替换原则**，能通过父类实例调用的方法一定能通过子类实例调用，因此子类方法参数类型接收范围应比父类更广。
+
+在错误的位置使用型变类型参数会导致编译错误：
+
+```scala
+scala> trait Test[+T] { def test(t: T) } 
+<console>:14: error: covariant type T occurs in contravariant position in type T of value t
+       trait Test[+T] { def test(t: T) }
+                                 ^
+
+scala> trait Test[+T] { def test: T } 
+defined trait Test
+
+scala> trait Test[-T] { def test: T } 
+<console>:14: error: contravariant type T occurs in covariant position in type => T of method test
+       trait Test[-T] { def test: T }
+                            ^
+
+scala> trait Test[-T] { def test(t: T) } 
+defined trait Test
+```
+
+
+
+## *Higer Kinded Type* (高阶类型)
+高阶类型是对类型的高级抽象，是类型参数为类型构造器的泛型类型。  
+如下所示：
+
+```scala
+scala> import scala.language.higherKinds
+import scala.language.higherKinds
+
+scala> class Test[T[_]]
+defined class Test
+```
+
+类型`Test`接收一个类型为`T[_]`的类型参数，仅能使用泛型类型做为类型参数：
+
+```scala
+scala> new Test[Int] //使用普通类型做为类型参数，报错
+<console>:14: error: Int takes no type parameters, expected: one
+       new Test[Int]
+                ^
+
+scala> new Test[Seq] //使用泛型类型为类型参数，正确
+res1: Test[Seq] = Test@11cc9e1e
+```
+
+`Type Theory`(类型理论)中的`Kind`(类型)在`Scala`中的对应概念：
+
+| 类型 | 含义 | Scala中的对应概念 | 实例 |
+|:---:|:----:|:--------------:|:----:|
+| * | 类型 | 普通类型，或带有具体类型参数的泛型类型 | `Int`, `List[Int]` |
+| * -> * | 一阶类型(类型构造器) | 泛型类型 | `List[_]`, `Seq[_]` |
+| * -> ... -> * | 一阶类型(带有多个参数的类型构造器)| 带有多个类型参数的泛型类型 | `Map[_, _]`, `Function2[_, _, _]`, `Tuple4[_, _, _, _]` |
+| (* -> *) -> * | 高阶类型(参数为类型构造器的类型构造器)| 带有泛型类型参数的泛型类型 | `List[T[_]]`, `Seq[T[_]]` |
+
+
+
+## *TypeClass*
+`Type Class`即**类型类**，是一种通过泛型参数实现多态的方式。  
+根据不同的泛型参数，签名相同的方法会调用不同的实现。
+
+Scala中使用**隐式参数**特性来实现TypeClass。  
+定义一个带有泛型参数的类型(TypeClass)，和使用隐式参数接收该泛型实例的方法：
+
+```scala
+scala> trait TypeClass[T] {
+     |   def doSomething(): Unit
+     | }
+defined trait TypeClass
+
+scala> def testTypeClass[T]()(implicit typeClass: TypeClass[T]) = typeClass.doSomething()
+testTypeClass: [T]()(implicit typeClass: TypeClass[T])Unit
+```
+
+使用隐式单例为TypeClass提供不同的实现：
+
+```scala
+scala> implicit object IntTypeClass extends TypeClass[Int] {
+     |   def doSomething() = println("Int Type Class")
+     | }
+defined object IntTypeClass
+
+scala> implicit object StringTypeClass extends TypeClass[String] {
+     |   def doSomething() = println("String Type Class")
+     | }
+defined object StringTypeClass
+```
+
+调用`testTypeClass()`方法时，使用不同的泛型参数编译器会自动选择合适的隐式对象做为实现：
+
+```scala
+scala> testTypeClass[Int]()
+Int Type Class
+
+scala> testTypeClass[String]()
+String Type Class
+
+scala> testTypeClass[Double]() //使用未提供隐式实例的泛型参数时，报错
+<console>:16: error: could not find implicit value for parameter typeClass: TypeClass[Double]
+       testTypeClass[Double]()
+                            ^
+```
+
+完整示例：
+
+```scala
+object Main extends App {
+
+  trait TypeClass[T] {
+    def doSomething(t: T): Unit
+  }
+
+  def testTypeClass[T](t: T)(implicit typeClass: TypeClass[T]) = typeClass.doSomething(t)
+
+  implicit object IntTypeClass extends TypeClass[Int] {
+    def doSomething(t: Int) = println(s"Int Type Class: $t")
+  }
+
+  implicit object StringTypeClass extends TypeClass[String] {
+    def doSomething(t: String) = println(s"String Type Class: $t")
+  }
+
+  testTypeClass(233)
+  testTypeClass("666")
+
+}
+```
+
+TypeClass是`Haskell`等FP语言实现参数化多态的主要方式。  
+在`Haskell`中，上述代码近似于：
+
+```hs
+{-# LANGUAGE FlexibleInstances #-}
+
+module Main where
+
+class TypeClass t where
+  doSomething :: t -> IO ()
+
+testTypeClass :: TypeClass t => t -> IO ()
+testTypeClass t = doSomething t
+
+instance TypeClass Int where
+  doSomething t = print $ "Int Type Class: " ++ (show t)
+
+-- 使用语言扩展 FlexibleInstances 开启泛型参数特化
+instance TypeClass String where
+  doSomething t = print $ "String Type Class: " ++ t
+
+main :: IO ()
+main = do
+  testTypeClass (233 :: Int)
+  testTypeClass "666"
+```
+
+输出结果：
+
+```
+Int Type Class: 233
+String Type Class: 666
+```
+
+`C++`中的**模板特化**功能上亦与TypeClass类似。
 
 
 
@@ -5638,253 +5890,4 @@ object Main extends App {
 Annotation args: name -> Annotation for Class, num -> 2333
 Annotation args: name -> Annotation for Member, num -> 6666
 Annotation args: name -> Annotation for Arg, num -> 9999
-```
-
-
-
-## *XML* 解析
-Scala标准库中内置了XML支持，XML相关类在包`scala.xml`中。
-
-### 节点类型
-`Node`是最基础的XML节点类型(抽象类)。  
-`NodeSeq`用于记录节点的序列，继承自`Seq[Node]`。
-
-相关类型继承关系图如下所示：
-
-```
-Seq[Node]
-│ 
-NodeSeq
-├── Document
-└── Node
-    ├── Elem
-    └── SpecialNode
-        ├── EnityRef
-        ├── ProcInstr
-        ├── Conment
-        └── Atom
-            ├── Text
-            ├── PCData
-            └── Unparsed
-```
-
-`Node`类型定义了一系列用于获取节点信息的方法：
-
-- `prefix`成员方法，用于获取**当前节点**的标签**前缀**。
-- `child`成员方法(抽象方法)，用于获取**子节点**的**序列**。
-- `attributes`成员方法，用于获取**当前节点**的**属性**。
-- `label`成员方法(抽象方法)，用于获取**当前节点**的**标签名称**。
-- `text`成员方法，用于获取**当前节点**的**文本内容**。
-
-如下所示：
-
-```scala
-def prefix: String = null
-def child: Seq[Node]
-def attributes: MetaData = Null
-def label: String
-override def text: String = super.text
-```
-
-`Node`类型的伴生对象中定义了**提取器**，可以用于提取节点中的**标签名称**、**属性**、**子节点**等内容：
-
-```scala
-def unapplySeq(n: Node) = Some((n.label, n.attributes, n.child))
-```
-
-`Elem`类型继承于`Node`类型，实现了`Node`类型中的抽象内容。
-
-### 读写 XML 文件
-读写XML文件可以使用`XMLLoader`特质以及继承于`XMLLoader[Elem]`的单例对象`XML`。
-
-- `XMLLoader`的实例方法`loadFile()`可以从指定路径加载XML文件进行解析，方法返回由输入XML文件生成的`Elem`节点对象。
-- `XML`对象的方法`save()`和`write()`可用于将节点(`Node`类型)写入到文件中。
-- `save()`方法接收文件路径(`String`类型)作为参数，大部分参数带有默认值。
-- `write()`接收`java.io.Writer`类型作为参数，参数没有默认值。
-
-### 查找节点
-`NodeSeq`类提供了`\()`、`\\()`等方法用于节点的查找，继承于`NodeSeq`类的`Node`、`Elem`等类型都可以使用这些方法进行节点查找。
-
-`\()`以及`\\()`方法签名类似，接收节点名称作为参数(`String`类型)，返回节点序列(`NodeSeq`类型)。
-
-如下所示：
-
-```scala
-// 返回当前节点下一级子节点中指定名称节点的序列
-def \(that: String): NodeSeq
-// 返回当前节点所有子节点中指定名称节点的序列
-def \\(that: String): NodeSeq
-```
-
-- 使用`loadFile()`方法加载XML文件后，返回的`Elem`类型的当前节点为**根节点**。
-- 节点查找支持使用**模式匹配**的方式。
-- 使用模式匹配方式查找节点时，匹配表达式中的节点标签不能带有属性(不支持此语法)。
-
-### 节点属性
-节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
-
-使用`\()`、`\\()`方法同样可以进行属性查找。  
-在参数字符串前加`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名为`num`的属性内容。  
-使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
-
-`NodeSeq`类型提供了`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。  
-如下所示：
-
-```scala
-// 参数为属性名称
-def \@(attributeName: String): String
-```
-
-`Node`类型提供了`attribute()`以及`attributes`方法从节点中获取属性。  
-如下所示：
-
-```scala
-// 获取带有指定属性的节点
-final def attribute(key: String): Option[Seq[Node]]
-// 获取所有属性
-def attributes: MetaData
-```
-
-`attributes`方法返回的类型为`MetaData`。
-`MetaData`类型支持遍历操作，定义了`key`、`value`方法用于获取属性的键值。  
-如下所示：
-
-```scala
-// 获取指定属性的值
-def apply(key: String): Seq[Node]
-// 获取当前属性名称
-def key: String
-// 获取当前属性名称对应的属性值
-def value: Seq[Node]
-```
-
-### 遍历节点
-`Elem`类型的成员字段`child`保存了子节点的序列(`Seq[Node]`类型)，可以通过`for`循环语句或高阶函数进行遍历。
-
-有如下测试XML文件：
-
-```xml
-<!-- FileName: Example.xml -->
-<Root>
-	<Node arg="arg_node1">
-		<One>node1</One>
-	</Node>
-	<Node arg="arg_node2"><Two arg="arg_2">node2</Two></Node>
-	<Node arg="arg_node4">
-		<Three arg="arg_3">node3</Three>
-	</Node>
-	<Node arg="arg_node4">
-		<Four arg="arg_4">node4_1</Four>
-		<Four arg_one="arg_4_1" arg_two="arg_4_2">node4_2</Four>
-	</Node>
-</Root>
-```
-
-代码如下所示：
-
-```scala
-object Xml extends App {
-
-  val xmlFile = XML.loadFile(getClass.getResource("Example.xml").getPath)
-
-  val showChild: Node => Unit = _.child foreach {
-
-    // 使用标签匹配，可以将表达式嵌在匹配语句中
-    case <One>{text}</One> => println(s"case <One>{text}</One>: $text")
-
-    // 标签匹配支持多级嵌套标签，不支持在标签中直接添加属性
-    case <Node><Two>{text}</Two></Node> =>
-      println(s"case <Node><Two>{text}</Two></Node>: $text")
-
-    // 匹配多级标签需要节点内部不换行
-    case <Node><Three>{text}</Three></Node> =>
-      println(s"case <Node><Three>{text}</Three></Node>: $text")
-
-    // 使用 @ 操作符给匹配的节点标记变量名称(n 为 Node 类型)
-    case n@<Three>{_}</Three> =>
-      println(s"case n@<Three>{_}</Three>, n text: ${n.text}, n type: ${n.getClass}")
-
-    // 遍历属性
-    case n@<Four>{_}</Four> if n \@ "arg_one" == "arg_4_1" =>
-      println(s"case n@<Four>{_}</Four>, n text: ${n.text}, n type: ${n.getClass}, n.attributes: ")
-      n.attributes foreach { attr =>
-        println(s"attribute name: ${attr.key} attribute value: ${attr.value.text}")
-      }
-
-    // 使用 @ 操作符给节点内容标记变量名称(n 为 Text 类型)
-    case <Four>{n@_}</Four> =>
-      println(s"case <Four>{n@_}</Four>, n text: ${n.text}, n type: ${n.getClass}")
-
-    /*
-      匹配其它类型节点，注意不能写成：
-      case _ if node.child.length > 0 => ... 或 case _ if node.child.nonEmpty => ...
-      (空指针不能调用方法)
-    */
-    case node if node.child != null => showChild(node)
-
-  }
-
-  showChild(xmlFile)
-}
-```
-
-输出结果：
-
-```
-case <One>{text}</One>: node1
-case <Node><Two>{text}</Two></Node>: node2
-case n@<Three>{_}</Three>, n text: node3, n type: class scala.xml.Elem
-case <Four>{n@_}</Four>, n text: node4_1, n type: class scala.xml.Text
-case n@<Four>{_}</Four>, n text: node4_2, n type: class scala.xml.Elem, n.attributes:
-attribute name: arg_two attribute value: arg_4_2
-attribute name: arg_one attribute value: arg_4_1
-```
-
-### 创建 XML
-可以直接将代码嵌入`XML`语句中：
-
-```scala
-scala> val str = "Test"
-str: String = Test
-scala> val node0 = <li>{ str }</li> //xml节点内容可以插入变量,使用花括号区分表达式与xml本身内容
-node0: scala.xml.Elem = <li>Test</li>
-scala> val node1 = <li name={ str }>test</li> //xml属性中插入变量
-node1: scala.xml.Elem = <li name="Test">test</li>
-```
-
-可以将复杂的表达式在XML语句中进行**多重嵌套**：
-
-```scala
-scala> val node3 = <ul>{ for (i <- 1 to 3) yield <li>{ i }</li> }</ul>
-node3: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li></ul>
-```
-
-在Scala中，节点是**不可变**的，拼接节点的正确方式是使用`Elem`类型的`cospy()`方法，并在复制时重新设定`child`参数。
-
-`copy()`方法的定义如下所示：
-
-```scala
-def copy(
-  prefix: String = this.prefix,
-  label: String = this.label,
-  attributes: MetaData = this.attributes,
-  scope: NamespaceBinding = this.scope,
-  minimizeEmpty: Boolean = this.minimizeEmpty,
-  child: Seq[Node] = this.child.toSeq): Elem = Elem(prefix, label, attributes, scope, minimizeEmpty, child: _*)
-```
-
-使用`copy()`方法拼接节点如下所示：
-
-```scala
-//使用具名参数指定子节点内容
-scala> node3.copy(child = node0 ++ node1)
-res0: scala.xml.Elem = <ul><li>Test</li><li name="Test">test</li></ul>
-
-//保留原节点的内容进行拼接
-scala> node3.copy(child = node3.child ++ node0 ++ node1)
-res1: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li><li>Test</li><li name="Test">test</li></ul>
-
-//创建新节点时也可以设定其它属性，如标签名、标签前缀等
-scala> node3.copy(child = node0 ++ node1, prefix = "Test", label = "test")
-res2: scala.xml.Elem = <Test:test><li>Test</li><li name="Test">test</li></Test:test>
 ```
