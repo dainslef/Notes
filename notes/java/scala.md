@@ -4485,11 +4485,36 @@ object Main extends App {
 }
 ```
 
+TypeClass是`Haskell`等FP语言实现参数化多态的主要方式。  
+在`Haskell`中，上述代码近似于：
+
+```hs
+module Main where
+
+class TypeClass t where
+  doSomething :: t -> IO ()
+
+testTypeClass :: TypeClass t => t -> IO ()
+testTypeClass t = doSomething t
+
+instance TypeClass Int where
+  doSomething t = print $ "Int Type Class: " ++ (show t)
+
+-- 使用语言扩展 FlexibleInstances 开启泛型参数特化
+instance TypeClass String where
+  doSomething t = print $ "String Type Class: " ++ t
+
+main :: IO ()
+main = do
+  testTypeClass (233 :: Int)
+  testTypeClass "666"
+```
+
 输出结果：
 
 ```
-Int Type Class
-String Type Class
+Int Type Class: 233
+String Type Class: 666
 ```
 
 `C++`中的**模板特化**功能上亦与TypeClass类似。
