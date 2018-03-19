@@ -105,7 +105,8 @@
 	- [*Content Bounds*](#content-bounds)
 	- [*Variances* (型变)](#variances-型变)
 - [*Higer Kinded Type* (高阶类型)](#higer-kinded-type-高阶类型)
-- [*TypeClass*](#typeclass)
+	- [*Type Lambda*](#type-lambda)
+- [*Type Class*](#type-class)
 - [并发编程](#并发编程)
 	- [*Future*](#future)
 	- [*Promise*](#promise)
@@ -4933,13 +4934,68 @@ res1: Test[Seq] = Test@11cc9e1e
 | 类型 | 含义 | Scala中的对应概念 | 实例 |
 |:---:|:----:|:--------------:|:----:|
 | * | 类型 | 普通类型，或带有具体类型参数的泛型类型 | `Int`, `List[Int]` |
-| * -> * | 一阶类型(类型构造器) | 泛型类型 | `List[_]`, `Seq[_]` |
+| * -> * | 一阶类型(类型构造器) | 泛型类型 | `List[_]`, `Seq[_]`, `Map[_, String]` |
 | * -> ... -> * | 一阶类型(带有多个参数的类型构造器)| 带有多个类型参数的泛型类型 | `Map[_, _]`, `Function2[_, _, _]`, `Tuple4[_, _, _, _]` |
 | (* -> *) -> * | 高阶类型(参数为类型构造器的类型构造器)| 带有泛型类型参数的泛型类型 | `List[T[_]]`, `Seq[T[_]]` |
 
+### *Type Lambda*
+`Type Lambda`是高阶类型的扩展应用，允许在类型参数的位置直接定义新的类型构造器。  
+Scala支持有限的TypeLambda。
+
+定义一个高阶类型，类型参数为接收两个参数的一阶类型：
+
+```
+scala> import scala.language.higherKinds
+import scala.language.higherKinds
+
+scala> class TestTypeLambda[T[_, _]](t: T[_, _])
+defined class TestTypeLambda
+```
+
+以三元组`(_, _, _)`(`Tuple3[_, _, _]`)为例，直接传入实例编译器报错。  
+三元组的类型参数数目与`TestTypeLambda`类型中的类型约束不符，无法通过编译：
+
+```scala
+scala> new TestTypeLambda((1, 2, 3))
+<console>:14: error: no type parameters for constructor TestTypeLambda: (t: T[_, _])TestTypeLambda[T] exist so that it can be applied to arguments ((Int, Int, Int))
+ --- because ---
+argument expression's type is not compatible with formal parameter type;
+ found   : (Int, Int, Int)
+ required: ?T[_$1, _$2] forSome { type _$1; type _$2 }
+       new TestTypeLambda((1, 2, 3))
+       ^
+<console>:14: error: type mismatch;
+ found   : (Int, Int, Int)
+ required: T[_, _]
+       new TestTypeLambda((1, 2, 3))
+                          ^
+```
+
+一阶类型的参数数目不匹配时可通过`Type Alias`定义新的类型构造器，使类型签名符合要求，如下所示：
+
+```scala
+scala> type T[A, B] = (A, B, Int)
+defined type alias 
+
+scala> new TestTypeLambda[T]((1, 2, 3))
+res1: TestTypeLambda[T] = TestTypeLambda@222a7429
+```
+
+新的`Type Alias`可直接使用`Structural Type`语法在类型参数处定义，并使用`#`语法提取：
+
+```scala
+scala> new TestTypeLambda[({ type T[A, B] = (A, B, Int) })#T]((1, 2, 3))
+res2: TestTypeLambda[[A, B](A, B, Int)] = TestTypeLambda@403b7be3
+```
+
+其中，`({ type T[A, B] = (A, B, Int) })#T`即为一个TypeLambda，
+以函数视角而言，使用Lambda语法表示近似于`(A, B) => Tuple3[A, B, Int]`。
+
+普通Lambda提供值之间的变化逻辑，TypeLambda提供类型层面的转换逻辑。
 
 
-## *TypeClass*
+
+## *Type Class*
 `Type Class`即**类型类**，是一种通过泛型参数实现多态的方式。  
 根据不同的泛型参数，签名相同的方法会调用不同的实现。
 
