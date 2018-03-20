@@ -8,6 +8,8 @@
 	- [*for-in*](#for-in)
 	- [*for-of*](#for-of)
 	- [迭代变量作用域](#迭代变量作用域)
+- [*this*](#this)
+	- [*Function's this*](#functions-this)
 - [*Prototype* (原型)](#prototype-原型)
 	- [原型链](#原型链)
 	- [原型继承](#原型继承)
@@ -34,7 +36,7 @@ JavaScript是`ECMA-262`标准的扩展，兼容ECMAScript。
 JavaScript额外包含以下内容：
 
 - 与HTML页面交互的`DOM`(`Document Object Model`，文档对象模型)
-- 与浏览器窗口交互的`BOM`(`Browser Object Model`浏览器对象模型)
+- 与浏览器窗口交互的`BOM`(`Browser Object Model`，浏览器对象模型)
 
 到目前为止(2018年)，ECMAScript现在的主流标准为`ES5`，最新标准为`ES8, ECMAScript 2017`。  
 一些现代浏览器(`FireFox`、`Chrome`等)已部分实现了最新标准。
@@ -322,6 +324,42 @@ i in global: 3
 
 
 
+## *this*
+JavaScript中的`this`关键字与传统的OOP语言有较大差异。  
+在不同的上下文、不同的语法结构中，this具有不同的含义，指向不同的对象。
+
+### *Function's this*
+函数环境记录相关内容见`ECMAScript 2015`规范`8.1.1.3`节`Function Environment Records`。  
+函数执行语义见`ECMAScript 2015`规范`14.1`节`Function Definitions`中`14.1.20`小节`Runtime Semantics: Evaluation`。
+函数具有独立的词法环境，词法环境相关内容见`ECMAScript 2015`规范`8.1`节`Lexical Environmens`。
+
+使用`function`关键字定义的函数中this由调用者决定。  
+普通地调用函数，函数的调用者默认为全局对象，在不同的JavaScript运行时下，全局对象略有不同：
+
+- 在**浏览器**环境中，全局对象为`window`。
+- 在`Node.js`环境中，全局对象为`global`。
+
+如下所示：
+
+```js
+function test() {
+	this.name = "test name"
+	console.info(`this === global: ${this === global}`)
+}
+
+test()
+console.info(`name: ${name}`)
+```
+
+输出结果：(Node.js v9.8.0)
+
+```
+this === global: true
+name: test name
+```
+
+
+
 ## *Prototype* (原型)
 原型相关内容见`ECMAScript 2015`规范`4.2.1`节`Objects`。
 
@@ -503,8 +541,7 @@ Child name: Test Child
 
 
 ## 属性访问器
-在JavaScript中，对象可为自身属性定义访问器(`get()/set()`方法)，
-在访问属性时，实际会调用对应的访问器方法。
+在JavaScript中，对象可为自身属性定义访问器(`get()/set()`方法)，在访问属性时，实际会调用对应的访问器方法。
 
 ### 访问器属性
 访问器属性相关内容见`ECMAScript 2015`规范`6.1.7`节`The Object Type`。
@@ -547,7 +584,7 @@ Set property ...
 6666
 ```
 
-`ES5`开始添加了定义访问器属性的简便语法，在对象的方法中前使用`set/get`关键字修饰，即可使方法成为属性访问器方法。  
+`ES5`开始添加了定义访问器属性的简便语法，在对象的方法前使用`set/get`关键字修饰，即可使方法成为属性访问器方法。  
 上述例子使用ES5语法可以简写成：
 
 ```js
