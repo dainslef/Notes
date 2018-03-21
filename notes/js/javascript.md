@@ -358,6 +358,26 @@ this === global: true
 name: test name
 ```
 
+使用`对象.方法()`的语法调用函数时，this指向调用对象：
+
+```js
+function test(target) {
+	this.name = "test name"
+	console.info(`this === target: ${this === target}`)
+}
+
+obj = { test: test }
+obj.test(obj)
+console.info("obj:", obj)
+```
+
+输出结果：(Node.js v9.8.0)
+
+```
+this === target: true
+obj: { test: [Function: test], name: 'test name' }
+```
+
 
 
 ## *Prototype* (原型)
