@@ -378,6 +378,42 @@ this === target: true
 obj: { test: [Function: test], name: 'test name' }
 ```
 
+作为匿名函数使用时，this同样指向调用对象：
+
+```js
+function testNormal(f) {
+	f(this)
+}
+
+function testMember(f) {
+	obj = { f: f }
+	obj.f(obj)
+}
+
+testNormal(function (target) {
+	console.info("Test Normal Call:")
+	console.info(`this == gobal: ${this === global}`)
+	console.info(`this == target: ${this === target}`)
+})
+
+testMember(function (target) {
+	console.info("Test Member Call:")
+	console.info(`this == gobal: ${this === global}`)
+	console.info(`this == target: ${this === target}`)
+})
+```
+
+输出结果：(Node.js v9.8.0)
+
+```
+Test Normal Call:
+this == target: true
+this == gobal: true
+Test Member Call:
+this == target: true
+this == gobal: false
+```
+
 
 
 ## *Prototype* (原型)
