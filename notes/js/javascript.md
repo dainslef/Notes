@@ -10,6 +10,7 @@
 	- [迭代变量作用域](#迭代变量作用域)
 - [*this*](#this)
 	- [*Function's this*](#functions-this)
+	- [*Arrow Function's this*](#arrow-functions-this)
 - [*Prototype* (原型)](#prototype-原型)
 	- [原型链](#原型链)
 	- [原型继承](#原型继承)
@@ -381,12 +382,14 @@ obj: { test: [Function: test], name: 'test name' }
 作为匿名函数使用时，this同样指向调用对象：
 
 ```js
+obj = {}
+
 function testNormal(f) {
 	f(this)
 }
 
 function testMember(f) {
-	obj = { f: f }
+	obj.f = f
 	obj.f(obj)
 }
 
@@ -401,18 +404,42 @@ testMember(function (target) {
 	console.info(`this == gobal: ${this === global}`)
 	console.info(`this == target: ${this === target}`)
 })
+
+obj.testNormal = testNormal
+obj.testMember = testMember
+
+obj.testNormal(function (target) {
+	console.info("Test Normal Call in obj:")
+	console.info(`this == gobal: ${this === global}`)
+	console.info(`this == target: ${this === target}`)
+})
+
+obj.testMember(function (target) {
+	console.info("Test Member Call in obj:")
+	console.info(`this == gobal: ${this === global}`)
+	console.info(`this == target: ${this === target}`)
+})
 ```
 
 输出结果：(Node.js v9.8.0)
 
 ```
 Test Normal Call:
-this == target: true
 this == gobal: true
-Test Member Call:
 this == target: true
+Test Member Call:
 this == gobal: false
+this == target: true
+Test Normal Call in obj:
+this == gobal: true
+this == target: false
+Test Member Call in obj:
+this == gobal: false
+this == target: true
 ```
+
+### *Arrow Function's this*
+箭头函数的函数环境相关内容见`ECMAScript 2015`规范`14.2`节`Arrow Function Definitions`中`14.2.16`小节`Runtime Semantics: Evaluation`。
 
 
 
