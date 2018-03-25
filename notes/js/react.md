@@ -351,6 +351,47 @@ class MyComponent extends Component {
 
 
 
+## 路由
+React项目提供了官方的路由组件`React Router`。  
+`React Router`当前主流的版本为`3.x`和`4.x`，`4.x`的API相对`3.x`有较大改动，笔记以`4.x`的API为准。
+
+`React Router`拥有两个实现：
+
+- 基于DOM，用于WEB开发的`React Router DOM`
+- 用于移动开发的`React Router Native`
+
+### 安装
+`React Router`并未直接包含在React中，需要使用npm单独安装：
+
+```
+$ npm install react-router-dom //React Router DOM
+$ npm install react-router-native //React Router Native
+```
+
+### *Router* 类别
+根据使用场景的区别，`React Router`提供了以下几类Router：
+
+- `BrowserRouter`
+
+	BrowserRouter使用HTML5提供的`history API`(`pushState()`, `replaceState()`、`popstate`事件)来保持UI和URL的同步。  
+	BrowserRouter常用于支持HTML5的现代浏览器中。
+
+- `HashRouter`
+
+	HashRouter使用URL的`hash`(如：`window.location.hash`)来保持UI和URL的同步。  
+	HashRouter用在不支持HTML5的旧式浏览器中。
+
+- `StaticRouter`
+
+	StaticRouter并不改变地址，常用于服务端渲染的场景下。
+
+- `MemoryRouter`
+
+	MemoryRouter将历史URL保存在内存中(不从地址栏中读取/写入URL)。  
+	MemoryRouter常用于测试环境或非浏览器环境(如`React Native`)。
+
+
+
 ## 常见错误
 
 ### *Uncaught ReferenceError: $ is not defined*
