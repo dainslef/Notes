@@ -438,6 +438,25 @@ this == gobal: false
 this == target: true
 ```
 
+函数搭配`new`关键字作为**构造函数**使用时，会创建新的对象，此时this指向创建的对象：
+
+```js
+function test(args) {
+	this.name = "test name"
+	args.obj = this
+}
+
+args = {}
+obj = new test(args)
+console.info("obj === args.obj:", obj === args.obj)
+```
+
+输出结果：(Node.js v9.9.0)
+
+```
+obj === args.obj: true
+```
+
 ### *Arrow Function's this*
 箭头函数的函数环境相关内容见`ECMAScript 2015`规范`14.2`节`Arrow Function Definitions`中`14.2.16`小节`Runtime Semantics: Evaluation`。
 
