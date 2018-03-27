@@ -56,21 +56,21 @@ B
 如下所示：
 
 ```java
-//接口Test1中含有默认方法"T abc(T a)"
+// 接口Test1中含有默认方法 T abc(T a)
 interface Test1<T> {
 	default T abc(T a) {
 		return a;
 	}
 }
 
-//接口Test2中也含有默认方法"T abc(T a)
+// 接口Test2中也含有默认方法 T abc(T a)
 interface Test2<T> {
 	default T abc(T a) {
 		return a;
 	}
 }
 
-//类Test同时实现接口test1和test2
+// 类Test同时实现接口 Test1 和 Test2
 class Test<T> implements Test1<T>, Test2<T> {
 	@Override
 	public T abc(T a) {
@@ -81,7 +81,7 @@ class Test<T> implements Test1<T>, Test2<T> {
 ```
 
 如果你想在重写的方法中直接使用原先接口中的某个默认方法实现，可以使用`super`关键字。  
-例如：
+如下所示：
 
 ```java
 //类中的"T abc(T a)"方法用Test1接口中的默认方法实现
@@ -105,7 +105,7 @@ class Test<T> implements Test1<T>, Test2<T> {
 **Lambda表达式**用于实现**函数接口**，函数接口是**有且只有一个**抽象方法的接口。
 
 函数接口可以使用`@FunctionalInterface`注解，被其标注的接口中若含有**多个**抽象方法则无法通过编译。  
-例如：
+如下所示：
 
 ```java
 // 编译报错
@@ -125,7 +125,7 @@ Error: java: Unexpected @FunctionalInterface annotation
 ```
 
 对于**函数接口**，只能带有一个**抽象方法**，但可以带有任意数量的**默认方法**。  
-例如：
+如下所示：
 
 ```java
 // 以下接口定义符合函数接口要求
@@ -145,7 +145,7 @@ interface Test<T> {
 ```
 
 在`Java 8`之前，要实例化一个接口，一般使用**匿名类**。  
-例如：
+如下所示：
 
 ```java
 @FunctionalInterface
@@ -161,8 +161,7 @@ Test<Integer> t = new Test<Integer>() {
 };
 ```
 
-在**Java 8**之后，即可以使用新特性**Lambda表达式**来表示**函数接口**。  
-例如：
+在**Java 8**之后，即可以使用新特性**Lambda表达式**来表示**函数接口**：
 
 ```java
 Test<Integer> t = (Integer a) -> a;
@@ -205,7 +204,7 @@ int get2(int a) {
 
 ```java
 (a) -> { return 2 * a; };
-(a) -> 2 * a;		//省略大括号
+(a) -> 2 * a; //省略大括号
 ```
 
 特别的，在参数只有一个时，可以省略括号直接写成：
@@ -249,8 +248,8 @@ class B {
 - `Function<T, R>`可以接收两个泛型类型，`T`表示参数类型，`R`表示返回值类型，类似于**C#**中的Function类。
 - 由于Java泛型的限制，`Function<T, R>`不能接受基础类型如`int`和`double`等作为泛型参数，如果需要使用基础类型作为参数，可以使用`IntFunction<R>`，该接口返回泛型类型`R`，参数类型则为`int`。
 - 如果需要在参数使用中使用其它基础类型，可以使用`java.util.function`包中定义的其它预定义接口如`DoubleFunction<R>`(接收参数`double`型)、`LongFunction<R>`(接收参数`long`型)。
-- 如果需要在函数接口中使用更多数量的参数，`java.util.function`包中还定义了`BiFunction<T, U, R>`(可接收两个参数)，当参数数量大于两个时，需要自行定义。
 - 对于无需返回值的方法，可以使用`Consumer<T>`以及相关接口，`Consumer`相关接口的定义的方法返回类型皆为`void`，类似于**C#**中的`Action`类。
+- 如果需要在函数接口中使用更多数量的参数，`java.util.function`包中还定义了`BiFunction<T, U, R>`(可接收两个参数)，当参数数量大于两个时，需要自行定义。
 
 需要注意的是，`java.util.function`包中预定义的一系列函数接口只是简化了函数接口的定义，而**Java8**中的函数接口并不能做到类似**C#**中的**委托**那样直接以函数的形式进行调用。  
 **Java8**中的Lambda表达式仅仅是简化了实现函数接口的过程。
