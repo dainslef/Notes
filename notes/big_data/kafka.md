@@ -12,8 +12,10 @@
 `Kafka`是高性能的分布式消息队列，在大数据领域有较广泛的应用。
 
 ### 下载
-在`http://kafka.apache.org/downloads`下载`Kafka`。  
-或者在`https://www.confluent.io/download`下载`Confluent Kafka`。
+Kafka主要版本包括：
+
+- [原生版本Kafka](http://kafka.apache.org/downloads)，由`Apache`基金会维护。
+- [Confluent Kafka](https://www.confluent.io/download)，由前`LinkedIn`的Kafka核心开发者创立的商业公司`Confluent`维护，在原生Kafka的基础上提供了一系列的扩展功能。
 
 ### 基础配置
 首先配置环境变量，在`~/.profile`或`/etc/profile`中添加：
@@ -81,3 +83,43 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 	# kakfa服务端使用此配置限制消息大小，部分client端也会通过这个参数限制消息大小。
 	# 示例： max.request.size = 5000000
 	```
+
+主服务启动指令：
+
+```c
+// 启动服务
+$ kafka-server-start -daemon [server.properties配置路径]
+
+// 停止服务
+$ kafka-server-stop
+```
+
+配置Kafka集群需要在集群中每台机器中执行服务启动指令。
+
+话题操作指令：
+
+```c
+// 创建话题
+$ kafka-topics --create --zookeeper [Zookeeper集群IP:端口] --replication-factor 1 --partitions 1 --topic [话题名称]
+
+// 列出话题
+$ kafka-topics --list --zookeeper [Zookeeper集群IP:端口]
+
+// 移除话题，若移除话题失败需要在Kafka服务端配置中添加设定 delete.topic.enble = true
+$ kafka-topics --delete --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
+```
+
+使用的Zookeeper集群IP可以是connect参数中配置的任意IP。
+
+命令行端数据生产/消费相关指令：
+
+```c
+// 消费数据
+// 使用 --from-beginning 参数输出该话题从创建开始后的消息
+// 使用 --consumer.config 参数指定消费端使用的配置文件
+$ kafka-console-consumer --bootstrap-server [listeners IP:端口] --topic [话题名称]
+
+// 生产数据
+// 使用 --producer.config 参数指定生产者端使用的配置文件
+$ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名称]
+```
