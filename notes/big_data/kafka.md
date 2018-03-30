@@ -2,29 +2,37 @@
 
 - [概述](#概述)
 	- [下载](#下载)
-	- [基础配置](#基础配置)
+	- [环境变量配置](#环境变量配置)
+	- [主服务配置](#主服务配置)
+	- [工具指令](#工具指令)
 
 <!-- /TOC -->
 
 
 
-## 概述
+# 概述
 `Kafka`是高性能的分布式消息队列，在大数据领域有较广泛的应用。
 
-### 下载
+Kafka通常用于以下两大类应用：
+
+- 构建实时流式数据管道，在系统与应用间可靠地获取数据。
+- 构建实例流式应用，转换或响应流式数据。
+
+## 下载
 Kafka主要版本包括：
 
 - [原生版本Kafka](http://kafka.apache.org/downloads)，由`Apache`基金会维护。
 - [Confluent Kafka](https://www.confluent.io/download)，由前`LinkedIn`的Kafka核心开发者创立的商业公司`Confluent`维护，在原生Kafka的基础上提供了一系列的扩展功能。
 
-### 基础配置
-首先配置环境变量，在`~/.profile`或`/etc/profile`中添加：
+## 环境变量配置
+配置环境变量，在`~/.profile`或`/etc/profile`中添加：
 
 ```sh
 export KAFKA_HOME=... # 配置Kafka软件包路径
 export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 ```
 
+## 主服务配置
 单机版Kafka使用默认配置即可正常启动。  
 集群版本Kafka需要修改以下配置：
 
@@ -83,6 +91,9 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 	# kakfa服务端使用此配置限制消息大小，部分client端也会通过这个参数限制消息大小。
 	# 示例： max.request.size = 5000000
 	```
+
+## 工具指令
+Kafka相关CLI工具位于`$KAFKA_HOME/bin`路径下。
 
 主服务启动指令：
 
