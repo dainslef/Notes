@@ -5,6 +5,8 @@
 	- [环境变量配置](#环境变量配置)
 	- [主服务配置](#主服务配置)
 	- [工具指令](#工具指令)
+- [*Kafka Connect*](#kafka-connect)
+	- [依赖服务配置](#依赖服务配置)
 
 <!-- /TOC -->
 
@@ -134,3 +136,74 @@ $ kafka-console-consumer --bootstrap-server [listeners IP:端口] --topic [话�
 // 使用 --producer.config 参数指定生产者端使用的配置文件
 $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名称]
 ```
+
+
+
+# *Kafka Connect*
+`Kafka Connect`是一套在`Apache Kafka`和其它数据系统间进行可靠的、可扩展的流式数据传输的框架。  
+`Kafka Connect`使得向Kafka输入、输出数据变得简单。
+
+## 依赖服务配置
+`Kafka Connect`使用前除了启动`Zookeeper`和`Kafka`主进程外，还需要启动以下服务：
+
+- `Schema Registry`
+
+	SchemaRegistry服务提供了对出入Kafka的消息的监控，并对数据进行序列化/反序列化处理。  
+	服务配置文件为`$KAFKA_HOME/etc/schema-registry/schema-registry.properties`，配置说明：
+
+	```sh
+	listeners = http://服务地址:服务端口
+	# 设置 Schema Registry 服务绑定的地址与服务端口，默认端口8081
+	# 示例： listeners = http://spark-master:8081
+
+	kafkastore.connection.url = Zookeeper集群地址:端口
+	# 示例： kafkastore.connection.url = spark-master:2181, spark-slave0:2181, spark-slave1:2181
+
+	kafkastore.bootstrap.servers = Kafka服务监听协议://监听地址:监听端口
+	# 对应 $KAFKA_HOME/etc/kafka/server.properties 中设定的 listeners 配置
+	# 示例： kafkastore.bootstrap.servers = PLAINTEXT://spark-master:9092
+
+	kafkastore.topic = 话题名称
+	# Schema Registry 服务存储内部信息使用的 topic，默认话题名称为 _schemas
+	# 示例： kafkastore.topic = _schemas
+
+	debug = 是否开启调试模式
+	# 示例： debug = false
+	```
+
+	启动服务：
+
+	```
+	$ schema-registry-start -daemon etc/schema-registry/schema-registry.properties
+	```
+
+- `Kafka Rest`
+
+	KafkaRest服务为Kafka提供了`Rest API`支持，使Kafka可以通过HTTP请求进行互操作。  
+	服务配置文件为`$KAFKA_HOME/etc/kafka-rest/kafka-rest.properties`，配置说明：
+
+	```sh
+	id = 服务ID
+	# 示例： id = kafka-rest-server
+
+	listeners = http://服务地址:服务端口
+	# 设置 Kafka Rest 服务绑定的地址与服务端口，默认端口为8082
+	# 示例： listeners = http://spark-master:8082
+	
+	schema.registry.url = SchemaRegistry服务地址:端口
+	# 对应 $KAFKA_HOME/etc/schema-registry/schema-registry.properties 中设定的 listeners 配置
+	# 示例： schema.registry.url = http://spark-master:8081
+	
+	zookeeper.connect = Zookeeper集群地址:端口
+	# 示例： zookeeper.connect = spark-master:2181, spark-slave0:2181, spark-slave1:2181
+	
+	bootstrap.servers = Kafka服务监听协议://监听地址:监听端口
+	# 对应 $KAFKA_HOME/etc/kafka/server.properties 中设定的 listeners 配置
+	# 示例： bootstrap.servers = PLAINTEXT://spark-master:9092
+	```
+
+	启动服务：
+
+	```
+	$ kafka-rest-start -daemon etc/kafka-rest/kafka-rest.properties
+	```
