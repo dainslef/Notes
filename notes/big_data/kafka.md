@@ -7,6 +7,7 @@
 	- [工具指令](#工具指令)
 - [*Kafka Connect*](#kafka-connect)
 	- [依赖服务配置](#依赖服务配置)
+	- [*JDBC Source Connector*](#jdbc-source-connector)
 
 <!-- /TOC -->
 
@@ -206,4 +207,76 @@ $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名�
 
 	```
 	$ kafka-rest-start -daemon etc/kafka-rest/kafka-rest.properties
+	```
+
+## *JDBC Source Connector*
+`JDBC Source Connector`可以实现通过Kafka监控数据库变化，通过Kafka导入、导出数据，[官方文档地址](https://docs.confluent.io/current/connect/connect-jdbc/docs/source_connector.html)(最新版本)。
+
+按下列步骤创建监控MySQL新增数据的服务:
+
+1. 确保所连接数据库的驱动存在。
+
+	连接`MySQL`数据库时，需要提供额外的`JDBC Driver`。  
+	从`https://www.mysql.com/downloads/`或`Maven`下载MySQL对应的JDBC驱动Jar包。  
+	将`mysql-connector-java-x.x.xx.jar`放置在`$KAFKA_HOME/share/java/kafka-connect-jdbc`路径下。
+
+1. 修改连接配置：
+
+	连接配置文件为`$KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties`。  
+	配置项说明：
+
+	```sh
+	bootstrap.servers = Kafka服务监监听地址:监听端口
+	# 对应 $KAFKA_HOME/etc/kafka/server.properties 中设定的 listeners 配置，仅需要服务地址、端口
+	# 示例： bootstrap.servers = spark-master:9092
+
+	kafkastore.connection.url = Zookeeper集群地址:端口
+	# 示例： kafkastore.connection.url = spark-master:2181, spark-slave0:2181, spark-slave1:2181
+
+	rest.host.name = Kafka Rest 服务地址
+	# 示例：
+	# rest.host.name = spark-master
+	# rest.port = 8083
+	```
+
+1. 创建数据源配置。
+
+	创建配置`$KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties`。  
+	配置项说明：
+
+	```sh
+	name = 连接名称
+	# 示例： name = kafka-connector-mysql
+
+	connector.class = 连接驱动类
+	# 示例： connector.class = io.confluent.connect.jdbc.JdbcSourceConnector
+
+	connection.url = 数据库连接的 JDBC URL
+	# 示例： connection.url = jdbc:mysql://xxx.xxx.xxx.xxx:3306/Xxx?user=xxx&password=xxx
+
+	topic.prefix = 生成话题的前缀
+	# 示例： topic.prefix = mysql-
+	
+	mode = 模式
+	# 设置 JDBC Connector 的工作模式，
+	# 示例：
+	# mode = incrementing
+	# mode = timestamp
+	# mode = timestamp+incrementing
+
+	timestamp.column.name = 监控的列名
+	# 根据监控列的变化返回数据，仅在 timestamp/timestamp+incrementing 模式下有效
+	# 示例： timestamp.column.name = id
+
+	incrementing.column.name = 监控的列名
+	# 根据监控列的变化返回数据，仅在 incrementing 模式下有效
+	# incrementing.column.name = id
+	
+	table.whitelist = 需要监控的表格白名单
+	# 默认配置下，JDBC Connector 会尝试监控数据库内所有表格，使用白名单配置需要监控的表格名称
+	# 示例： table.whitelist = testTable1, testTable2
+
+	query = 查询SQL语句
+	# mode 配置项为查询模式时才有效，用于自定义返回数据的查询逻辑
+	# 示例： query = select * from testTable1 order by id desc limit 1
 	```
