@@ -175,7 +175,7 @@ $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名�
 	启动服务：
 
 	```
-	$ schema-registry-start -daemon etc/schema-registry/schema-registry.properties
+	$ schema-registry-start -daemon $KAFKA_HOME/etc/schema-registry/schema-registry.properties
 	```
 
 - `Kafka Rest`
@@ -206,7 +206,7 @@ $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名�
 	启动服务：
 
 	```
-	$ kafka-rest-start -daemon etc/kafka-rest/kafka-rest.properties
+	$ kafka-rest-start -daemon $KAFKA_HOME/etc/kafka-rest/kafka-rest.properties
 	```
 
 ## *JDBC Source Connector*
@@ -280,3 +280,19 @@ $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名�
 	# mode 配置项为查询模式时才有效，用于自定义返回数据的查询逻辑
 	# 示例： query = select * from testTable1 order by id desc limit 1
 	```
+
+1. 启动数据连接服务：
+
+	使用`connect-standalone`工具创建数据连接服务，使用之前修改的连接配置和创建的数据源配置：
+
+	```c
+	$ connect-standalone -daemon $KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties $KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties
+	```
+
+数据监控服务正常启动后，会按照数据源配置项`topic.prefix`以`话题前缀 + 表格名称`的规则创建话题，在话题中以JSON形式输出表格新增的数据。  
+话题中输出的数据以`Apache Avro`做为数据交互格式，直接使用`kafka-console-consumer`获取话题中的数据得到的信息不具备可读性。  
+应使用`kafka-avro-console-consumer`工具消费数据：
+
+```
+$ kafka-avro-console-consumer --bootstrap-server [Kafka主服务IP:端口] --from-beginning --topic [话题名称] --property schema.registry.url=[http://SchemaRegistry服务地址:端口]
+```
