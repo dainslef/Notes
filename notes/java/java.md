@@ -7,21 +7,21 @@
 	- [有符号数转换无符号数](#有符号数转换无符号数)
 	- [字符串、数值转换](#字符串数值转换)
 - [*Package*](#package)
-	- [*import* 用法](#import-用法)
-	- [静态导入](#静态导入)
-	- [*package* 使用实例](#package-使用实例)
-	- [引用自定义依赖](#引用自定义依赖)
-- [容器类型](#容器类型)
-- [枚举](#枚举)
+	- [*import*](#import)
+	- [*import static*](#import-static)
+	- [实例](#实例)
+	- [引用依赖](#引用依赖)
+- [容器](#容器)
+- [*Enum* (枚举)](#enum-枚举)
 - [浅复制与深复制](#浅复制与深复制)
 	- [浅复制](#浅复制)
 	- [深复制](#深复制)
 - [泛型方法](#泛型方法)
 - [*Nested Classes* (嵌套类)](#nested-classes-嵌套类)
 - [并发编程](#并发编程)
-	- [*Thread* 和 *Runnable*](#thread-和-runnable)
-	- [*synchronized* 关键字](#synchronized-关键字)
-	- [*Executor* 框架](#executor-框架)
+	- [*Thread* / *Runnable*](#thread--runnable)
+	- [*synchronized*](#synchronized)
+	- [*Executor*](#executor)
 - [*Annotation* (注解)](#annotation-注解)
 	- [内置注解](#内置注解)
 	- [元注解](#元注解)
@@ -30,28 +30,34 @@
 	- [反射机制的相关类型](#反射机制的相关类型)
 	- [*Class* 类型](#class-类型)
 	- [反射获取成员信息](#反射获取成员信息)
-	- [反射构建类实例](#反射构建类实例)
+	- [反射构建实例](#反射构建实例)
 	- [反射调用对象方法](#反射调用对象方法)
 	- [反射修改字段](#反射修改字段)
 	- [反射判定继承关系](#反射判定继承关系)
 	- [*ClassLoader* (类加载器)](#classloader-类加载器)
 - [动态代理](#动态代理)
 	- [代理模式](#代理模式)
-	- [动态代理实例](#动态代理实例)
+	- [实例](#实例-1)
+- [*Default Method* (接口默认方法)](#default-method-接口默认方法)
+- [*Lambda*](#lambda)
+	- [使用 *Lambda* 实现函数接口](#使用-lambda-实现函数接口)
+		- [Lambda表达式的一般用法](#lambda表达式的一般用法)
+	- [*Method Reference* (方法引用)](#method-reference-方法引用)
+	- [*java.util.function*](#javautilfunction)
 - [*JDBC*](#jdbc)
 	- [连接数据库](#连接数据库)
 	- [数据库操作](#数据库操作)
 	- [获取时间](#获取时间)
-	- [与 *Access* 数据库交互](#与-access-数据库交互)
+		- [与 *Access* 数据库交互](#与-access-数据库交互)
 - [*Eclipse* 使用注记](#eclipse-使用注记)
-	- [添加 *Marketplace*](#添加-marketplace)
+	- [*Marketplace*](#marketplace)
 	- [查看 *JDK* 源码](#查看-jdk-源码)
-	- [设置编辑器自动换行](#设置编辑器自动换行)
+	- [编辑器自动换行](#编辑器自动换行)
 - [*IntelliJ IDEA* 使用注记](#intellij-idea-使用注记)
-	- [设置显示行号和不可见空白](#设置显示行号和不可见空白)
-	- [设置列边界提示](#设置列边界提示)
-	- [设置缩进](#设置缩进)
-	- [设置包路径折叠](#设置包路径折叠)
+	- [显示行号和不可见空白](#显示行号和不可见空白)
+	- [列边界提示](#列边界提示)
+	- [缩进](#缩进)
+	- [包路径折叠](#包路径折叠)
 	- [其它常用选项](#其它常用选项)
 	- [项目打包](#项目打包)
 	- [多模块项目](#多模块项目)
@@ -64,7 +70,7 @@
 
 
 
-## 基础类型
+# 基础类型
 与主流语言不同，`Java`中仅仅提供了**有符号**数值类型，**没有**提供无符号的数值类型。
 
 `Java`中的基础整型数值类型如下所示：
@@ -79,7 +85,7 @@
 - `float`，四字节，范围`-3.4028235E38 ~ 3.4028235E38`
 - `double`，八字节，范围`-1.7976931348623157E308 ~  1.7976931348623157E308`
 
-### *Literal number* (字面值)
+## *Literal number* (字面值)
 在`Java`中，无任何修饰的整型数值字面值默认为`int`类型，无任何修饰的浮点型数值字面值默认为`double`类型。
 
 字面值数值在进行赋值操作时数值的大小不能超过目标类型的上限，如下所示：
@@ -118,7 +124,7 @@ long num1 = 6666666666l; //正确
 | 0 | 八进制数值 |
 | 0X/0x | 十六进制数值 |
 
-### *char* (字符类型)
+## *char* (字符类型)
 与其它语言不同，`Java`中采用`UTF-16`编码，一个字符占用**两个字节**，而非传统语言中的单个字节。
 
 `char`类型无符号，范围为`0 ~ 65535`，字面值表示方式为`'\u0000' ~ '\uFFFF'`，如下所示：
@@ -129,7 +135,7 @@ char c1 = '\U0000'; //错误，字符只能使用小写`\u`转义，大写`\U`�
 char c2 = '\u0000'; //正确
 ```
 
-### 格式化
+## 格式化
 在`Java`中，使用`System.out.printf()`方法进行格式化输出，格式化语法类似`C`语言标准库中的`printf()`函数。
 
 常用的格式化字符：
@@ -208,7 +214,7 @@ public class Main {
 | `%(d` | 格式化负数时采用括号标记负值(对正值无效) | `(99)` |
 | `%#`/`%#x` | 格式化8/16进制数值时添加前缀`0`/`0x` | `0x63` |
 
-### 有符号数转换无符号数
+## 有符号数转换无符号数
 在`Java`中，没有内置的无符号类型，则在表示大于`2 ^ 位宽 - 1`的数值时，需要使用更高位宽的数值来表示。
 
 以`byte`类型为例，有符号的`byte`类型范围在`-128 ~ 127`之间，当数值大于`127`时，则需要使用更高位宽的类型表示(如`short`)。  
@@ -238,7 +244,7 @@ public class Main {
 >
 > 对比可知**低8位**对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行**逻辑或**操作可达到此效果。
 
-### 字符串、数值转换
+## 字符串、数值转换
 基础数值类型存在`OOP`的封装，用于在泛型中使用。  
 如下所示：
 
@@ -289,12 +295,12 @@ res5: String = 217
 
 
 
-## *Package*
+# *Package*
 `Package`是`Java`的命名空间隔离机制。  
 使用`package`关键字将类层次化区分，使用`import`关键字来导入使用。  
 未使用`package`关键字的类则位于**默认包**中。
 
-### *import* 用法
+## *import*
 `import`语法：
 
 ```java
@@ -311,7 +317,7 @@ import 包路径.类名.内部类名称;
 执行字节码时需要将**class文件**放在与其源码中`package`路径的对应目录下，否则会在执行时出错。
 另外，包名也可以是`*.*.*`的形式。
 
-### 静态导入
+## *import static*
 `Java 5`中新加入了`import static`用法。  
 `import static`可以包含目标类中的静态方法，如下所示：
 
@@ -321,7 +327,7 @@ import static [包路径].[类名].[静态方法名];
 
 使用静态导入的静态方法使用时不必写出类名，直接使用方法名称即可。
 
-### *package* 使用实例
+## 实例
 有两个文件**A.java**和**B.java**。
 
 文件B中的类被A中引用,则将B打包,代码中添加`package b`，并放在b目录下。  
@@ -391,7 +397,7 @@ public class B {
 `package`打包的源码应当放在与包名相同的目录中，这样生成的字节码class文件才会在对应目录生成。  
 若源码均置于同一级目录，则编译之后产生的`class`文件需要按照`package`关系放在与包名相同的目录下，否则执行`class`文件时会报错(找不到对应的class文件)。
 
-### 引用自定义依赖
+## 引用依赖
 引用第三方的`jar`文件，则编译时应使用`-cp`参数，如下：
 
 ```
@@ -406,7 +412,7 @@ $ java -Djava.ext.dirs=[第三方库所在的目录] [编译生成的class文件
 
 
 
-## 容器类型
+# 容器
 与常见的编程语言相同，Java中的常见的**容器类型**为`List`、`Set`、`Map`。
 
 - `List`特点：元素**有序**，元素**可重复**。
@@ -468,7 +474,7 @@ Iterator iteratorSet = set.iterator();
 
 
 
-## 枚举
+# *Enum* (枚举)
 Java中使用`enum`关键字来定义一个枚举类。
 
 基本的枚举与`C`语言中的语法类似：
@@ -534,10 +540,10 @@ enum Enum {
 
 
 
-## 浅复制与深复制
+# 浅复制与深复制
 `Java`中**基础类型**如`int`、`double`等在复制时进行**值拷贝**，而对于**引用类型**，则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
 
-### 浅复制
+## 浅复制
 要想让一个类能够被复制，则类需要实现`Cloneable`接口，并重写`clone()`方法。
 
 如下代码所示：
@@ -585,7 +591,7 @@ strNew
 可以发现调用`clone()`方法复制出的对象**testClone**在原对象**test**被修改后也发生了变化，并未真正的达到**复制**的效果。  
 原因是**TestClone**类完成的仅仅是**浅复制**的过程，类中的引用类型`StringBuffer`并未被真正复制。
 
-### 深复制
+## 深复制
 深复制一个对象，则需要将类中的每一个引用成员都进行**复制**，因此，**TestCode**的代码需要改成：
 
 ```java
@@ -615,7 +621,7 @@ class TestClone implements Cloneable {
 
 
 
-## 泛型方法
+# 泛型方法
 Java中的泛型同样支持独立于类的泛型方法。  
 与`C++`、`C#`等语言不同，Java在泛型方法中的类型声明放在方法的修饰符(`public`、`static`、`final`、`abstract`等)之后，返回值声明之前。
 
@@ -652,7 +658,7 @@ Test
 
 
 
-## *Nested Classes* (嵌套类)
+# *Nested Classes* (嵌套类)
 嵌套类(`nested class`)是指定义在一个类内部的类，对应的，包含嵌套类的类被称为**外部类**(`enclosing class`)。
 
 嵌套类有以下几种类型：
@@ -714,10 +720,10 @@ class EnclosingClass {
 
 
 
-## 并发编程
+# 并发编程
 在Java，常见的并发技术有基本的`Thread`类，以及线程池`Executor`框架。
 
-### *Thread* 和 *Runnable*
+## *Thread* / *Runnable*
 使用`Thread`创建线程的两种方式：
 
 1. `Runnable`接口定义了`run()`方法，实现该接口，将需要并发执行的内容写在`run()`方法中。  
@@ -772,10 +778,10 @@ public final String getName();
 public static native void sleep(long millis) throws InterruptedException;
 ```
 
-### *synchronized* 关键字
+## *synchronized*
 在多线程环境下，多个线程同时访问一个变量时，会产生线程同步问题，变量可能会被其它线程意外地修改。典型的解决方式是对共享变量进行**加锁**。
 
-`Java 5`之后提供了`synchronized`关键字用于解决线程同步问题。
+`Java 5`之后提供了`synchronized`关键字用于解决线程同步问题。  
 `synchronized`关键字有两种用法：
 
 1. `synchronized`块
@@ -920,7 +926,7 @@ public static native void sleep(long millis) throws InterruptedException;
 	静态方法并发执行了：  
 	`showOne()`与`showStatic()`交错打印输出。
 
-### *Executor* 框架
+## *Executor*
 `Thread`类功能简单，仅仅提供了原始的线程抽象，在实际的开发中，往往会使用更高层次的API。
 
 `Java 5`之后提供了`Executor`框架，用于创建、管理与执行线程。  
@@ -1163,7 +1169,7 @@ public class Main {
 
 
 
-## *Annotation* (注解)
+# *Annotation* (注解)
 注解(元数据)是`JDK 1.5`之后引入的机制，可以声明在**包**、**类**、**字段**、**方法**、**局部变量**、**方法参数**等的前面，用来对这些元素进行说明和注释。  
 注解的相关内容在包`java.lang.annotation`中。
 
@@ -1175,14 +1181,14 @@ public class Main {
 
 其中，注解的参数不是必须的，没有注解参数的注解称为**标记注解**。一个元素可以拥有**多个**注解。
 
-### 内置注解
+## 内置注解
 Java中提供了一系列**内置注解**，常用的有：
 
 - `@Override`为**标记注解**，用于标记**重写**的方法，若被标记的方法没有发生重写行为，则编译时会得到错误警告。
 - `@Deprecated`为**标记注解**，用于标记**废弃**的内容，作用与JavaDOC提供的`@deprecated`注解类似。
 - `@SuppressWarnings`用于控制编译时的输出警告信息，该注解有多个参数，但都带有默认值。
 
-### 元注解
+## 元注解
 **元注解**专门用来修饰其它注解，在**自定义注解**时会用到。
 
 **元注解**有以下4类：
@@ -1224,7 +1230,7 @@ Java中提供了一系列**内置注解**，常用的有：
 1. `@Documented`设置在使用`javadoc`生成API时记录注解信息。  
 	默认情况下，`javadoc`**不会**记录注解信息。
 
-### 自定义注解
+## 自定义注解
 `Java`中的注解实际上是**接口**(`interface`)。
 
 - 使用`@interface`自定义注解，自定义注解继承了`java.lang.annotation.Annotation`接口。
@@ -1279,7 +1285,7 @@ TestValue: Schwarzes marken 6
 
 
 
-## *Reflection* (反射)
+# *Reflection* (反射)
 在`Java`中，**反射**机制提供了一系列**运行时**功能：
 
 - 判断任意一个对象所属的类。
@@ -1291,7 +1297,7 @@ TestValue: Schwarzes marken 6
 
 反射在Java各类框架中都有着大量的应用，如`Spring`中的`IOC`。
 
-### 反射机制的相关类型
+## 反射机制的相关类型
 在`Java`中，反射相关的类型定义在包`java.lang.reflect`中，主要有以下类型：
 
 - `Class` 表示一个类、接口
@@ -1299,7 +1305,7 @@ TestValue: Schwarzes marken 6
 - `Method` 表示类的成员方法
 - `Constructor` 表示类的构造方法
 
-### *Class* 类型
+## *Class* 类型
 `Class`类定义了类型的反射操作，获取目标类型的`Class`实例是使用反射功能的起始步骤。
 
 获取`Class`实例可以通过以下方式：
@@ -1308,7 +1314,7 @@ TestValue: Schwarzes marken 6
 - `Class.forName("class_path")` 通过类型名称获得(传入的类型字符串需要为完整路径)
 - `instance.getClass()` 通过目标实例的`getClass()`方法获得
 
-### 反射获取成员信息
+## 反射获取成员信息
 `Java`中反射获取类型成员信息的相关`API`遵循以下命名规则：
 
 - `getXxx()`用于获取**指定成员**，搜索范围为**公有成员**，包括继承的成员。
@@ -1506,7 +1512,7 @@ Enclosing Constructor:
 null
 ```
 
-### 反射构建类实例
+## 反射构建实例
 若一个类定义了空参的构造函数，则可以直接通过`Class`类中的成员方法来构造对象。
 
 ```java
@@ -1574,7 +1580,7 @@ public class Main {
 200
 ```
 
-### 反射调用对象方法
+## 反射调用对象方法
 通过反射可以实现调用任意方法(包括**私有方法**)，方式与调用构造函数基本类似。
 
 首先获取目标方法的`Method`对象，之后通过`Method`类的`invoke()`方法执行，第一个参数为类的实例，之后的参数为方法签名中的参数。
@@ -1635,7 +1641,7 @@ public class Main {
 300
 ```
 
-### 反射修改字段
+## 反射修改字段
 通过反射亦可访问、修改类的非公有成员字段，方式类似。
 
 通过`Field`类的相关的`set()`、`get()`方法设置、获取字段内容：
@@ -1695,7 +1701,7 @@ public class Main {
 }
 ```
 
-### 反射判定继承关系
+## 反射判定继承关系
 使用`Class`类中的`isAssignableFrom()`成员方法可以判定当前类型是否可以由目标类型转换得到：
 
 ```java
@@ -1728,7 +1734,7 @@ true
 true
 ```
 
-### *ClassLoader* (类加载器)
+## *ClassLoader* (类加载器)
 在Java中有三种类加载器。
 
 1. `Bootstrap ClassLoader`引导类加载器，用于加载`Java`核心类。
@@ -1773,10 +1779,10 @@ sun.misc.Launcher$AppClassLoader
 
 
 
-## 动态代理
+# 动态代理
 **动态代理**是反射机制的一种应用，能够动态地产生代理实例，避免为每一个接口方法编写大量的重复代理代码。
 
-### 代理模式
+## 代理模式
 **代理模式**是常见的设计模式，主要作用是通过创建**代理类**为其他对象提供一种代理，并以控制对这个对象的访问。
 
 代理模式常见的应用场景有：
@@ -1790,7 +1796,7 @@ sun.misc.Launcher$AppClassLoader
 在`Java`中代理模式的典型方式是使用接口定义功能，实现类实现接口功能，而代理类控制/扩充实现类功能。  
 代理类与实现类都`implements`接口，但代理类本身不直接实现具体功能，而是调用被其代理的实现类的方法。
 
-### 动态代理实例
+## 实例
 假设有一个文件接口`File`，定义了支持的文件操作：
 
 ```java
@@ -1946,11 +1952,281 @@ public class Main {
 
 
 
-## *JDBC*
+# *Default Method* (接口默认方法)
+在**Java8**中，接口允许拥有带有方法实现的默认方法，在方法前使用关键字`default`来区别于普通的抽象方法。
+
+- 一个接口可以定义**多个**默认方法。
+- 一个接口也可以只包含**默认方法**而不含有抽象方法。
+- 默认方法**不是**静态方法，可被重写，不可通过接口名称直接访问。
+- 默认方法不会强制子类重写，并且可以像类的成员方法一样被继承。
+
+例如：
+
+```java
+interface A {
+	default void show() { System.out.println("A"); }
+	default void showA() { System.out.println("showA"); }
+}
+
+class B implements A {
+	@Override
+	public void show() { System.out.println("B"); }
+}
+
+class Main {
+	public static void main(String[] args) {
+		// A.show(); //编译错误
+		B b = new B();
+		b.show();
+		A a = b;
+		a.show();
+	}
+}
+```
+
+输出结果：
+
+```
+B
+B
+```
+
+由输出可知，向上转型后的实例对象调用的是被重写之后的方法。
+
+当一个类实现了多个带有相同函数签名的默认方法的接口，需要重写引发冲突的默认方法。  
+如下所示：
+
+```java
+// 接口Test1中含有默认方法 T abc(T a)
+interface Test1<T> {
+	default T abc(T a) {
+		return a;
+	}
+}
+
+// 接口Test2中也含有默认方法 T abc(T a)
+interface Test2<T> {
+	default T abc(T a) {
+		return a;
+	}
+}
+
+// 类Test同时实现接口 Test1 和 Test2
+class Test<T> implements Test1<T>, Test2<T> {
+	@Override
+	public T abc(T a) {
+		......
+		return ...
+	}
+}
+```
+
+如果你想在重写的方法中直接使用原先接口中的某个默认方法实现，可以使用`super`关键字。  
+如下所示：
+
+```java
+//类中的"T abc(T a)"方法用Test1接口中的默认方法实现
+class Test<T> implements Test1<T>, Test2<T> {
+	@Override
+	public T abc(T a) {
+		//如果重写的是返回值为void的函数，则直接使用"Test1.super.abc(a);"，作用是执行test1的对应默认方法。
+		return Test1.super.abc(a);
+	}
+}
+```
+
+一个类实现多个带有默认方法的接口，在一定程度上类似于`C++`中的**多重继承**。
+
+
+
+# *Lambda*
+**Java 8**中加入的另一个重要的特性即为**Lambda表达式**。
+
+## 使用 *Lambda* 实现函数接口
+**Lambda表达式**用于实现**函数接口**，函数接口是**有且只有一个**抽象方法的接口。
+
+函数接口可以使用`@FunctionalInterface`注解，被其标注的接口中若含有**多个**抽象方法则无法通过编译。  
+如下所示：
+
+```java
+// 编译报错
+@FunctionalInterface
+interface Test<T> {
+	T getT(T a);
+	T getT1();
+}
+```
+
+编译报错，提示：
+
+```
+Error: java: Unexpected @FunctionalInterface annotation
+	Test is not a functional interface
+		multiple non-overriding abstract methods found in interface Test
+```
+
+对于**函数接口**，只能带有一个**抽象方法**，但可以带有任意数量的**默认方法**。  
+如下所示：
+
+```java
+// 以下接口定义符合函数接口要求
+@FunctionalInterface
+interface Test<T> {
+
+	T getT(T a);
+
+	default T abc(T a) {
+		return a;
+	}
+
+	default T abcd(T a) {
+		return a;
+	}
+}
+```
+
+在`Java 8`之前，要实例化一个接口，一般使用**匿名类**。  
+如下所示：
+
+```java
+@FunctionalInterface
+interface Test<T> {
+	T getT(T a);
+}
+
+Test<Integer> t = new Test<Integer>() {
+	@Override
+	public Integer getT(Integer a) {
+		return a;
+	}
+};
+```
+
+在**Java 8**之后，即可以使用新特性**Lambda表达式**来表示**函数接口**：
+
+```java
+Test<Integer> t = (Integer a) -> a;
+```
+
+### Lambda表达式的一般用法
+对于一个如下定义的函数：
+
+```java
+int function(参数列表) {
+	// 函数内容
+	return 返回值;
+}
+```
+
+对应的Lambda表达式格式为：
+
+```java
+(参数列表) -> {
+	// 函数内容
+	return 返回值;
+}
+```
+
+如果函数体只有一句表达式，则可以省略大括号，简写成：
+
+```java
+(参数表) -> 表达式;
+```
+
+比如有以下函数定义：
+
+```java
+int get2(int a) {
+	return 2 * a;
+}
+```
+
+使用Lambda表达式可以写成：
+
+```java
+(a) -> { return 2 * a; };
+(a) -> 2 * a; //省略大括号
+```
+
+特别的，在参数只有一个时，可以省略括号直接写成：
+
+```java
+a -> 2 * a;
+```
+
+Lambda表达式能够**访问**外部作用域中的变量。  
+在Java中，Lambda捕获的外部作用域变量会自动带有`final`属性，因而在Lambda中不能对引用的外部作用域变量进行更改(变量若为类实例，则类内成员**不受**影响)。  
+在其它支持Lambda表达式的主流语言中，`C#`中的Lambda可以修改外部作用域的变量，`C++`可以控制外部变量的捕获方式，对于**引用捕获**的变量，可以修改其值。
+
+## *Method Reference* (方法引用)
+对于函数接口，还可以将当前类的某个符合方法签名的方法作为引用实例化函数接口对象。  
+例如：
+
+```java
+@FunctionalInterface
+interface A {
+	void get();
+}
+
+class B {
+
+	A a = this::test;
+
+	private int test() {
+		System.out.println("Test!");
+		return 0;
+	}
+}
+```
+
+使用操作符`::`将符合签名的方法作为重写内容构造出接口对象。
+接口的成员方法为公有成员，但若使用方法引用实现接口时，不必考虑被引用方法的访问限制，即使是本类的私有成员，一样可以作为引用来实现接口，但如果是重写接口则必须访问权限为`public`(重写权限必须大于等于原有权限)。  
+只要**方法签名**相同(返回值类型可以不同)，可使用抽象方法来作为引用实现函数接口。
+
+## *java.util.function*
+在**Java 8**中，`java.util.function`包中预定义了一系列的泛型函数接口。
+
+- `Function<T, R>`可以接收两个泛型类型，`T`表示参数类型，`R`表示返回值类型，类似于**C#**中的Function类。
+- 由于Java泛型的限制，`Function<T, R>`不能接受基础类型如`int`和`double`等作为泛型参数，如果需要使用基础类型作为参数，可以使用`IntFunction<R>`，该接口返回泛型类型`R`，参数类型则为`int`。
+- 如果需要在参数使用中使用其它基础类型，可以使用`java.util.function`包中定义的其它预定义接口如`DoubleFunction<R>`(接收参数`double`型)、`LongFunction<R>`(接收参数`long`型)。
+- 对于无需返回值的方法，可以使用`Consumer<T>`以及相关接口，`Consumer`相关接口的定义的方法返回类型皆为`void`，类似于**C#**中的`Action`类。
+- 如果需要在函数接口中使用更多数量的参数，`java.util.function`包中还定义了`BiFunction<T, U, R>`(可接收两个参数)，当参数数量大于两个时，需要自行定义。
+
+`java.util.function`包中预定义的一系列函数接口只是简化了函数接口的定义，
+而**Java8**中的函数接口并不能做到类似C#中的**委托**、Scala中`Function*`那样直接以函数的形式进行调用。  
+**Java8**中的Lambda表达式仅仅是简化了实现函数接口的过程。
+
+如下所示：
+
+```java
+import java.util.function.*;
+
+public class Main {
+	public static void main(String[] args) {
+
+		// 实例化函数接口对象
+		Function<Integer, Integer> function = in -> 2 * in;
+		IntFunction<Integer> intFunction = in -> 2 * in;
+		Consumer<Integer> consumer = in -> System.out.println(in);
+
+		/*
+			使用函数接口对象，仍然需要明确调用函数接口中的方法
+			Function系列的有返回值的接口调用方法apply()
+			Consumer系列的无返回值的接口调用方法accept()
+		*/
+		System.out.println(function.apply(100));
+		consumer.accept(200);
+	}
+}
+```
+
+
+
+# *JDBC*
 `JDBC`为`Java`定义了一套公用的数据库`API`，`JDBC`屏蔽了不同数据库之间的差异。  
 对于支持`JDBC`的数据库，只要导入对应的`JDBC Driver`即可使用相同的`JDBC API`进行操作。
 
-### 连接数据库
+## 连接数据库
 `JDBC API`相关类型位于`java.sql`包中：
 
 - `DriverManager` JDBC驱动集合
@@ -1972,7 +2248,7 @@ try {
 }
 ```
 
-### 数据库操作
+## 数据库操作
 `Statement`类性提供了执行SQL语句的方法：
 
 ```java
@@ -2019,7 +2295,7 @@ while (resultSet.next()) {		// 使用 next() 方法将当前游标移动到下�
 }
 ```
 
-### 获取时间
+## 获取时间
 `ResultSet`类型提供了以下方法用于获取时间类型(如`MySQL`中的`DateTime`)信息：
 
 - `getDate()` 获取日期信息
@@ -2068,10 +2344,10 @@ Access数据库的一些小常识：
 
 
 
-## *Eclipse* 使用注记
+# *Eclipse* 使用注记
 `Eclipse`是Java开发中最常用的IDE，`Eclipse`通过插件扩展可以进行多种语言的开发。
 
-### 添加 *Marketplace*
+## *Marketplace*
 `Eclipse Marketplace`是`Eclipse`新增的应用商店，可以从中直接安装`e(fx)clipse`、`GoClipse`、`ScalaIDE`、`PyDev`等由第三方社区维护的插件。
 
 在部分`Eclipse`版本中，`Marketplace`没有默认安装，手动添加：
@@ -2081,7 +2357,7 @@ Access数据库的一些小常识：
 `General Purpose Tools` =>
 `Marketplace Client`
 
-### 查看 *JDK* 源码
+## 查看 *JDK* 源码
 与**NetBeans**不同，在Eclipse中默认是无法直接查看JDK中类库的源码的，需要手动指定源码的位置。  
 一般情况下，JDK源码位于JDK的安装目录下的`src.zip`文件中。
 
@@ -2100,7 +2376,7 @@ Access数据库的一些小常识：
 `OK` =>
 `Finish`
 
-### 设置编辑器自动换行
+## 编辑器自动换行
 Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方插件进行实现。  
 在Eclipse中按以下步骤安装`Word Wrap`插件使编辑器能够自动换行：
 
@@ -2115,10 +2391,10 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 
 
-## *IntelliJ IDEA* 使用注记
+# *IntelliJ IDEA* 使用注记
 `IntelliJ IDEA`相比`Eclipse`而言，有着更精美的UI，更智能的代码提示，且对`Scala`、`Golang`等冷门语言有着更好的支持。
 
-### 设置显示行号和不可见空白
+## 显示行号和不可见空白
 选择选项：
 
 `File`=>`Settings`=>`Editor`=>`General`=>`Appearance`=> ...
@@ -2126,7 +2402,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 - 勾选`Show whitespaces(显示空白)`和`Show line numbers(显示行号)`选项。
 - 勾选`Show menthod separators`则会在方法定义之间出现横线做为分隔符。
 
-### 设置列边界提示
+## 列边界提示
 列宽边界线用于提示代码单行长度是否超过界限。  
 选择选项：
 
@@ -2134,7 +2410,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 
 默认列边界线为`120`列，而大部分编码规范要求一行不能超过`80/100`列。
 
-### 设置缩进
+## 缩进
 默认情况下，IDEA使用的是**空格**做为缩进，如果需要使用**tab缩进**，则按以下菜单路径设置：
 
 `File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Tabs and Indents`
@@ -2143,13 +2419,13 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 - 勾选`Smart tabs`则会在**行尾**使用tab键时使用**空格**代替`Tab`。
 - 勾选`Keep indents on empyt lines`则会在**空行**中**保持缩进**。
 
-### 设置包路径折叠
+## 包路径折叠
 默认侧边栏`Project`导航中的包内无源码且仅包含一个子包时，包路径会折叠显示。  
 折叠显示包路径更加简洁，但不能在包路径中添加其它包。
 
 关闭折叠显示可点击`Project`导航中的设置按钮，取消选中`Flatten Packages`选项。
 
-### 其它常用选项
+## 其它常用选项
 `File` => `Settings` => `Editor` => `General`：
 
 - `Code Folding` 代码折叠
@@ -2174,14 +2450,14 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 `File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`  
 设置`JavaScript`支持`ECMAScript 6`语法
 
-### 项目打包
+## 项目打包
 将`Java`项目打包成`jar`、`war`等分发格式，按以下菜单路径设置：
 
 `File` => `Project Structure` => `Project Settings` => `Artifacts`
 
 选择界面中的`+`符号添加打包配置，根据项目类型打包成不同的目标格式。
 
-### 多模块项目
+## 多模块项目
 `Idea`中的`Project`类似于`Eclipse`中的`WorkSpace`，`Idea`中的`Module`类似于`Eclipse`中的`Project`。  
 当一个项目中需要包含多个子项目时，可以创建`Module`。  
 每个`Module`管理独立的源码，`Module`拥有独立的依赖管理，并可以依赖其它`Module`。
@@ -2232,9 +2508,9 @@ Module "xxx" must not contain source root "xxx". The root already belongs to mod
 
 
 
-## 常见问题记录
+# 常见问题记录
 
-### *String.split()* 方法
+## *String.split()* 方法
 函数的定义为：
 
 ```java
@@ -2250,7 +2526,7 @@ String[] nums = "123.456.789".split("\\.");
 
 其它文本处理方法如`String.replace()`、`String.join()`等也有以正则表达式为匹配参数的重载版本，使用方式类似。
 
-### *String.format()* 方法
+## *String.format()* 方法
 函数的定义为：
 
 ```java
@@ -2260,7 +2536,7 @@ public static String format(Locale var0, String var1, Object... var2);
 
 `String`类的`format()`方法提供类似C语言中`sprintf()`函数类似的文本格式化方式，格式化字段的语法类似。
 
-### 查询 *OS* 信息
+## 查询 *OS* 信息
 使用`System`类中的`getProperty()`方法可以获取**操作系统**以及**Java虚拟机**的各类状态信息：
 
 ```java
