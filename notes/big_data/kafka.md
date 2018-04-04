@@ -56,7 +56,7 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 	# 示例： listeners = PLAINTEXT://spark-master:9092
 	```
 
-	消息大小相关配置：
+	消息大小上限相关配置：
 
 	```sh
 	message.max.bytes = 消息最大字节数
@@ -66,6 +66,25 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 	replica.fetch.max.bytes = 可复制最大字节数
 	# 取值应大于 message.max.bytes ，否则会造成接收到的消息复制失败
 	# 示例： replica.fetch.max.bytes = 5001000
+	```
+
+	Kafka会缓存所有消息，无论消息是否被消费，可通过配置设定消息的缓存清理策略。  
+	消息缓存相关配置：
+
+	```sh
+	log.dirs = 消息存储路径
+	# 默认路径为 /tmp/kafka-logs ，路径可以为多个，多个路径之间使用逗号分隔
+	# 示例： log.dirs = /home/data/kafka/kafka_messages
+
+	log.cleanup.policy = 消息清理策略
+	# 默认值为 delete，可选值为 compact(压缩)、delete(删除)
+
+	log.retention.minutes = 消息保存分钟
+	log.retention.hours = 消息保存小时
+	# 默认保存 168 小时(一周)的消息，超过时间的消息会按照配置的清理策略(压缩、删除)进行处理
+
+	log.retention.bytes	= 一个 topic 中每个 partition 保存消息的最大大小
+	# 默认值为 -1(不清理)，超过大小的消息会按照清理策略被处理
 	```
 
 - `$KAFKA_HOME/etc/kafka/consumer.properties`
@@ -98,7 +117,7 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 ## 工具指令
 Kafka相关CLI工具位于`$KAFKA_HOME/bin`路径下。
 
-主服务启动指令：
+主服务启动、停止相关指令：
 
 ```c
 // 启动服务
@@ -121,6 +140,9 @@ $ kafka-topics --list --zookeeper [Zookeeper集群IP:端口]
 
 // 移除话题，若移除话题失败需要在Kafka服务端配置中添加设定 delete.topic.enble = true
 $ kafka-topics --delete --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
+
+// 查看话题描述(包括话题的 Partition、PartitionCount、ReplicationFactor 等信息)
+$ kafka-topics --describe --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
 ```
 
 使用的Zookeeper集群IP可以是connect参数中配置的任意IP。
@@ -131,6 +153,7 @@ $ kafka-topics --delete --topic [话题名称] --zookeeper [Zookeeper集群IP:�
 // 消费数据
 // 使用 --from-beginning 参数输出该话题从创建开始后的消息
 // 使用 --consumer.config 参数指定消费端使用的配置文件
+// 使用 --offset [偏移量] --partion [分区编号] 参数自定义读取消息时的偏移量
 $ kafka-console-consumer --bootstrap-server [listeners IP:端口] --topic [话题名称]
 
 // 生产数据
@@ -210,7 +233,8 @@ $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名�
 	```
 
 ## *JDBC Source Connector*
-`JDBC Source Connector`可以实现通过Kafka监控数据库变化，通过Kafka导入、导出数据，[官方文档地址](https://docs.confluent.io/current/connect/connect-jdbc/docs/source_connector.html)(最新版本)。
+`JDBC Source Connector`可以实现通过Kafka监控数据库变化，通过Kafka导入、导出数据，
+[官方文档地址](https://docs.confluent.io/current/connect/connect-jdbc/docs/source_connector.html)(最新版本)。
 
 按下列步骤创建监控MySQL新增数据的服务:
 
@@ -258,7 +282,7 @@ $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名�
 	# 示例： topic.prefix = mysql-
 	
 	mode = 模式
-	# 设置 JDBC Connector 的工作模式，
+	# 设置 JDBC Connector 的工作模式，支持 incrementing(自增)、timestamp(时间戳) 等模式
 	# 示例：
 	# mode = incrementing
 	# mode = timestamp
@@ -271,7 +295,7 @@ $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名�
 	incrementing.column.name = 监控的列名
 	# 根据监控列的变化返回数据，仅在 incrementing 模式下有效
 	# incrementing.column.name = id
-	
+
 	table.whitelist = 需要监控的表格白名单
 	# 默认配置下，JDBC Connector 会尝试监控数据库内所有表格，使用白名单配置需要监控的表格名称
 	# 示例： table.whitelist = testTable1, testTable2
