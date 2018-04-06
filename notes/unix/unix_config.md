@@ -9,7 +9,7 @@
 	- [修复引导](#修复引导)
 - [*ulimit*](#ulimit)
 	- [配置文件](#配置文件)
-	- [*Core Dump* (核心转储)](#core-dump-核心转储)
+		- [*Core Dump* (核心转储)](#core-dump-核心转储)
 - [*fdisk*](#fdisk)
 - [*parted*](#parted)
 - [*LVM*](#lvm)
@@ -23,13 +23,13 @@
 - [*systemd*](#systemd)
 	- [服务管理](#服务管理)
 	- [服务分析](#服务分析)
-	- [系统配置](#系统配置)
+		- [系统配置](#系统配置)
 - [*VTE*](#vte)
 - [*apt*](#apt)
 	- [源配置](#源配置)
 	- [Debian 源](#debian-源)
 	- [Ubuntu 源](#ubuntu-源)
-- [*apt-mirror*](#apt-mirror)
+	- [*apt-mirror*](#apt-mirror)
 	- [配置](#配置)
 	- [使用本地源](#使用本地源)
 
@@ -37,10 +37,10 @@
 
 
 
-## *ftp*
+# *ftp*
 `Windows`系统下提供了`ftp`命令行工具用于访问`FTP`服务器进行交互。
 
-### 连接服务器
+## 连接服务器
 使用`ftp`指令与服务端建立连接：
 
 ```
@@ -80,7 +80,7 @@ ftp> open [服务端IP地址]
 ftp> 
 ```
 
-### 常用指令
+## 常用指令
 `ftp shell`中常用指令：
 
 - `![指令]` 使用系统`Shell`执行指令
@@ -96,7 +96,7 @@ ftp>
 
 
 
-## *GNU GRUB*
+# *GNU GRUB*
 `GRUB`(`GRand Unified Bootloader`)是现代`Linux`的标准启动管理器，是`LILO`(`Linux Loader`)的替代品。
 
 `GRUB`支持多重引导，除了`Linux`，也能用于引导`Windows`、`FreeBSD`等其它现代操作系统。  
@@ -105,7 +105,7 @@ ftp>
 早期版本的`GRUB`(`i.e. version 0.9x`)现在被称为`GRUB Legacy`，已停止开发。  
 `GRUB`现在的主要版本为`GRUB 2`。
 
-### 安装与配置
+## 安装与配置
 `GRUB`作为重要的系统组件，通常已被收录于各大发行版的官方源中，多数发行版会默认安装`GRUB`。  
 使用包管理手动安装`GRUB`：
 
@@ -128,7 +128,7 @@ ftp>
 # apt install os-prober //Ubuntu、Debian
 ```
 
-### 安装引导器
+## 安装引导器
 正确生成`GRUB`配置后，使用`grub-install`将引导器安装到硬盘中。  
 对于使用`MBR`电脑，应在安装时指明安装设备：
 
@@ -151,7 +151,7 @@ ftp>
 
 安装完成后会在`ESP`分区中生成对应的`efi`引导文件。
 
-### 修复引导
+## 修复引导
 当分区结构发生变化时，引导器可能不能正常加载。  
 若开机进入以`grub rescue>`为提示符的救援界面时，可尝试以下步骤恢复：
 
@@ -204,7 +204,7 @@ ftp>
 
 
 
-## *ulimit*
+# *ulimit*
 使用`ulimit`指令查看和设定各类限制。  
 指令格式：
 
@@ -231,7 +231,7 @@ $ ulimit [类别] [限制数值]
 - `$ ulimit -c` 查看系统设定的核心转储大小
 - `$ ulimit -c unlimited` 设置核心转储大小为无限
 
-### 配置文件
+## 配置文件
 通过配置文件`/etc/security/limits.conf`配置相关限制。  
 `limits.conf`文件每行为一条配置，依次为`<domain>`、`<type>`、`<item>`、`<value>`。  
 
@@ -268,7 +268,7 @@ $ gdb [进程文件] [进程核心转储]
 
 
 
-## *fdisk*
+# *fdisk*
 `fdisk`是Linux命令行下常用的交互式分区工具。
 
 - 早期的`fdisk`不能识别`GPT`分区表，划分`GPT`分区需要使用`parted`工具。
@@ -313,7 +313,7 @@ $ gdb [进程文件] [进程核心转储]
 
 
 
-## *parted*
+# *parted*
 `parted`是Linux下的另一种交互式分区工具，与`fdisk`相比，`parted`一直支持GPT分区表，并且在功能选项上更加丰富，但在交互上没有`fdisk`简便。
 
 - `# parted [磁盘路径] print` 显示分区信息
@@ -347,13 +347,13 @@ $ gdb [进程文件] [进程核心转储]
 
 
 
-## *LVM*
+# *LVM*
 `LVM`是`Logical Volume Manager`(逻辑卷管理)的简写，是Linux环境下对磁盘分区进行管理的一种机制。
 
 使用`LVM`能够将不同的硬盘上的物理卷(`Physical Volume`，简称`PV`)加入卷组(`Volume Group`，简称`VG`)。  
 在卷组中将其划分为不同的逻辑卷(`Logical Volume`，简称`LV`)，然后在逻辑卷中创建文件系统并进行挂载。
 
-### 配置 *LVM*
+## 配置 *LVM*
 配置`LVM`的**基本步骤**：
 
 1. 创建硬盘分区
@@ -362,7 +362,7 @@ $ gdb [进程文件] [进程核心转储]
 1. 创建逻辑卷：`# lvcreate -L [分区大小(xxGB/xxMB/...)] -n [逻辑分区名称] [卷组名称]`
 1. 格式化逻辑分区，挂载使用
 
-### 物理卷 *PV*
+## 物理卷 *PV*
 物理卷`Physical Volume`是在磁盘上**实际存在**的物理分区。  
 被添加到`LVM`的物理分区需要拥有`lvm`标识(flag)。
 
@@ -376,7 +376,7 @@ $ gdb [进程文件] [进程核心转储]
 移除一个物理卷需要先将该物理卷从所属的卷组中移除。  
 移除物理卷前需要保证没有数据存储在该物理卷中，若**要被移除的物理卷**中已有数据，则需要使用`pvmove`指令将该卷中的数据转移到其它卷。
 
-### 卷组 *VG*
+## 卷组 *VG*
 物理卷需要加入卷组(`Volume Group`)才能被使用。
 
 卷组相关的操作为`vgXXX`系列指令：
@@ -386,7 +386,7 @@ $ gdb [进程文件] [进程核心转储]
 - `# vgremove [卷组名称]` 移除指定卷组
 - `# vgdisplay` 显示所有卷组
 
-### 逻辑卷 *LV*
+## 逻辑卷 *LV*
 逻辑卷(`Logical Volume`)是`LVM`中实际用于创建文件系统、挂载的分区。  
 逻辑卷的磁盘路径为`/dev/[逻辑卷所属卷组名称]/[逻辑卷名称]`，使用该路径可以像操作物理磁盘一样对其进行创建文件系统、挂载等操作。
 
@@ -404,7 +404,7 @@ $ gdb [进程文件] [进程核心转储]
 
 
 
-## *curl*
+# *curl*
 `curl`是一款功能强大的文件传输工具。
 
 基本指令为：
@@ -420,7 +420,7 @@ $ curl [目标文件路径]
 $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 ```
 
-### *FTP* 操作
+## *FTP* 操作
 使用`curl`工具进行`FTP`操作：
 
 - `$ curl ftp://[ip/域名] -u [用户名]:[密码]` 列出FTP下的文件、目录列表
@@ -463,7 +463,7 @@ $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 
 
 
-## *Suspend* 和 *Hibernate*
+# *Suspend* 和 *Hibernate*
 *Suspend*和*Hibernate*是很容易混淆的两个概念。
 
 - `Suspend`(**睡眠**)：
@@ -481,7 +481,7 @@ $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 
 
 
-## *systemd*
+# *systemd*
 `systemd`是`Linux`下新式的`init`系统，在各大发行版中逐渐替代了原先`Unix System V`风格的`init`系统。
 
 传统的`Unix System V`风格`init`系统需要一次一个串行地启动服务进程。  
@@ -492,7 +492,7 @@ $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 `systemd`的全局配置文件为`/etc/systemd/system.conf`。  
 `systemd`的用户配置文件为`/etc/systemd/user.conf`。
 
-### 服务管理
+## 服务管理
 `systemd`提供了统一、完整的服务管理功能：
 
 - `# systemctl status [服务名称]` 查看指定服务状态
@@ -517,7 +517,7 @@ $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 	$ systemctl --user status/start/stop/enable/disable [用户服务名称]
 	```
 
-### 服务分析
+## 服务分析
 `systemd`提供了一系列工具用于查看查看、分析各类服务状态。
 
 使用`pstree`指令可以列出本机完整的`systemd`服务进程树。
@@ -546,7 +546,7 @@ $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 
 
 
-## *VTE*
+# *VTE*
 `VTE`是`Gnome`项目提供的轻量级终端库，许多终端软件使用`VTE`实现，如`gnome-terminal`、`roxterm`等。  
 `VTE`自身亦可做为独立的终端软件使用。
 
@@ -579,7 +579,7 @@ $ vte -W -P never -g 120x40 -f "Monaco 10" -n 5000 --reverse
 
 
 
-## *apt*
+# *apt*
 `apt`是`Debian`系列发行版的前端包管理工具。
 
 `apt`主要功能：
@@ -591,7 +591,7 @@ $ vte -W -P never -g 120x40 -f "Monaco 10" -n 5000 --reverse
 - 变更已安装软件包的状态。
 - 系统更新。
 
-### 源配置
+## 源配置
 使用`apt`工具需要正确配置镜像源地址，配置文件为`/etc/apt/sources.list`。
 
 `Debian`系列发行版软件源格式为：
@@ -612,7 +612,7 @@ deb-src [软件源地址] [版本号] [仓库类型]
 
 `Ubuntu`与`Debian`的版本号、仓库类型分类完全不同。
 
-### Debian 源
+## Debian 源
 `Debian`版本号有两类：
 
 1. 固定版本号，按照稳定程度分为`stable`、`testing`、`unstable`、`experimental`。
@@ -644,7 +644,7 @@ deb https://mirrors.ustc.edu.cn/debian/ stable-updates main contrib non-free
 deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free
 ```
 
-### Ubuntu 源
+## Ubuntu 源
 `Ubuntu`没有固定版本号，需要使用发行版本号，主要的`LTS`版本的版本代号：
 
 | 版本 | 版本代号 |
@@ -684,7 +684,7 @@ deb http://archive.canonical.com/ubuntu/ xenial partner
 ## *apt-mirror*
 `apt-mirror`是`Debian`系列发行版中用于制作**本地源**的工具。
 
-### 配置
+## 配置
 `apt-mirror`的配置文件为`/etc/apt/mirror.list`。  
 若无特殊需求可直接使用默认配置。
 
@@ -703,7 +703,7 @@ deb http://mirrors.ustc.edu.cn/ubuntu xenial-updates main restricted universe mu
 deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted universe muitiverse
 ```
 
-### 使用本地源
+## 使用本地源
 若仅需要本机使用本地源，可以直接使用`file:///...`访问本机的源路径。  
 `sources.list`配置：
 
