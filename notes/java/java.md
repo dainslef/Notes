@@ -41,7 +41,7 @@
 - [*Default Method* (接口默认方法)](#default-method-接口默认方法)
 - [*Lambda*](#lambda)
 	- [使用 *Lambda* 实现函数接口](#使用-lambda-实现函数接口)
-		- [Lambda表达式的一般用法](#lambda表达式的一般用法)
+	- [Lambda的一般用法](#lambda的一般用法)
 	- [*Method Reference* (方法引用)](#method-reference-方法引用)
 	- [*java.util.function*](#javautilfunction)
 - [*JDBC*](#jdbc)
@@ -242,7 +242,7 @@ public class Main {
 >
 > `0000000011110101`
 >
-> 对比可知**低8位**对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行**逻辑或**操作可达到此效果。
+> 对比可知**低8位**对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行**逻辑与**操作可达到此效果。
 
 ## 字符串、数值转换
 基础数值类型存在`OOP`的封装，用于在泛型中使用。  
@@ -1997,21 +1997,21 @@ B
 如下所示：
 
 ```java
-// 接口Test1中含有默认方法 T abc(T a)
+// 接口 Test1 中含有默认方法 T abc(T a)
 interface Test1<T> {
 	default T abc(T a) {
 		return a;
 	}
 }
 
-// 接口Test2中也含有默认方法 T abc(T a)
+// 接口 Test2 中也含有默认方法 T abc(T a)
 interface Test2<T> {
 	default T abc(T a) {
 		return a;
 	}
 }
 
-// 类Test同时实现接口 Test1 和 Test2
+// 类 Test 同时实现接口 Test1 和 Test2
 class Test<T> implements Test1<T>, Test2<T> {
 	@Override
 	public T abc(T a) {
@@ -2025,7 +2025,7 @@ class Test<T> implements Test1<T>, Test2<T> {
 如下所示：
 
 ```java
-//类中的"T abc(T a)"方法用Test1接口中的默认方法实现
+// 类中的"T abc(T a)"方法用Test1接口中的默认方法实现
 class Test<T> implements Test1<T>, Test2<T> {
 	@Override
 	public T abc(T a) {
@@ -2108,7 +2108,7 @@ Test<Integer> t = new Test<Integer>() {
 Test<Integer> t = (Integer a) -> a;
 ```
 
-### Lambda表达式的一般用法
+## Lambda的一般用法
 对于一个如下定义的函数：
 
 ```java
@@ -2186,15 +2186,29 @@ class B {
 ## *java.util.function*
 在**Java 8**中，`java.util.function`包中预定义了一系列的泛型函数接口。
 
-- `Function<T, R>`可以接收两个泛型类型，`T`表示参数类型，`R`表示返回值类型，类似于**C#**中的Function类。
-- 由于Java泛型的限制，`Function<T, R>`不能接受基础类型如`int`和`double`等作为泛型参数，如果需要使用基础类型作为参数，可以使用`IntFunction<R>`，该接口返回泛型类型`R`，参数类型则为`int`。
-- 如果需要在参数使用中使用其它基础类型，可以使用`java.util.function`包中定义的其它预定义接口如`DoubleFunction<R>`(接收参数`double`型)、`LongFunction<R>`(接收参数`long`型)。
-- 对于无需返回值的方法，可以使用`Consumer<T>`以及相关接口，`Consumer`相关接口的定义的方法返回类型皆为`void`，类似于**C#**中的`Action`类。
-- 如果需要在函数接口中使用更多数量的参数，`java.util.function`包中还定义了`BiFunction<T, U, R>`(可接收两个参数)，当参数数量大于两个时，需要自行定义。
+- `*Function`
+
+	Function系列的函数接口表示带有返回值的函数，类似于**C#**中的`Func`类：
+
+	- `Function<T, R>` 接收两个泛型参数，`T`表示参数类型，`R`表示返回值类型
+	- `BiFunction<T, U, R>` 接收三个泛型参数，`T`、`U`表示参数类型，`R`表示返回值类型
+
+- `*Consumer`
+
+	Consumer系列的函数接口表示无返回值(`void`)的函数，类似于**C#**中的`Action`类型：
+
+	- `Consumer<T>` 接收参数类型作为泛型参数
+	- `BiConsumer<T, U>` 接收两个泛型参数，均为参数类型
+
+预定义的函数接口仅包含**单个参数**、**两个参数**的情形，若需要**三个或以上**参数的函数接口则需自行定义。
+
+由于Java泛型的限制，泛型不能接受基础类型(如`int`和`double`等)作为泛型参数(需要使用对应的对象类型`Integer`、`Double`)。  
+未避免基础类型装箱，`java.util.function`包为基础类型作为方法参数的情形提供了对应的预定义接口，如`IntFunction<R>`、`DoubleConsumer`等。
 
 `java.util.function`包中预定义的一系列函数接口只是简化了函数接口的定义，
-而**Java8**中的函数接口并不能做到类似C#中的**委托**、Scala中`Function*`那样直接以函数的形式进行调用。  
-**Java8**中的Lambda表达式仅仅是简化了实现函数接口的过程。
+Java8中的函数接口**不能**做到类似C#中`Delegate/Func/Action`或Scala中`Function*`那样直接以函数的语法进行调用。  
+Java8中的Lambda语法仅仅简化了实现函数接口的过程，
+调用函数接口内的方法时仍然需要显式使用接口中的方法名称。
 
 如下所示：
 
@@ -2202,6 +2216,7 @@ class B {
 import java.util.function.*;
 
 public class Main {
+
 	public static void main(String[] args) {
 
 		// 实例化函数接口对象
@@ -2210,13 +2225,14 @@ public class Main {
 		Consumer<Integer> consumer = in -> System.out.println(in);
 
 		/*
-			使用函数接口对象，仍然需要明确调用函数接口中的方法
+			使用函数接口对象，仍然需要明确调用函数接口中的方法。
 			Function系列的有返回值的接口调用方法apply()
 			Consumer系列的无返回值的接口调用方法accept()
 		*/
 		System.out.println(function.apply(100));
 		consumer.accept(200);
 	}
+
 }
 ```
 
