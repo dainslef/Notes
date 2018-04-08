@@ -27,6 +27,7 @@
 	- [存储二进制数据](#存储二进制数据)
 	- [JSP编码设置](#jsp编码设置)
 	- [时区问题](#时区问题)
+	- [时间转换](#时间转换)
 	- [禁用 *DNS* 解析](#禁用-dns-解析)
 - [*MySQL* 的 *C API*](#mysql-的-c-api)
 	- [连接数据库](#连接数据库)
@@ -471,6 +472,32 @@ The server time zone value 'XXX' is unrecognized or represents more than one tim
 ```
 jdbc:mysql://localhost:3306/xxx?serverTimezone=UTC //服务端时区信息不为UTC时，需要改为与服务端相匹配的时区
 ```
+
+### 时间转换
+MySQL中使用内置函数`unix_timestamp(xxx)`可将时间转换为Unix时间戳(从`1970-1-1`至今的秒数)。
+
+MySQL中的内置时间类型(`datetime`类型)在不同语言中的对应类型：
+
+- Java中的`java.sql.Timestamp`类型：
+
+	使用`Timestamp.getTime()`获取时间对应的Unix时间戳。  
+	在Java中Timestamp类型精确到**微秒**，而MySQL中datetime类型精确到**秒**，  
+	相同时间在Java中获得的时间戳应除以`1000`才能与MySQL中的时间戳相比较。  
+	如下所示：
+
+	```java
+	timestamp.getTime() / 1000; //获取与MySQL中等价的Unix时间戳
+	```
+
+- C#中的`System.DateTime`类型：
+
+	将在C#中获得的`DateTime`实例与表示`1970-1-1`至今的时间相减，得到`System.TimeSpan`类型表示的时间间隔，  
+	访问`TimeSpan.TotalSeconds`属性获得Unix时间戳。  
+	如下所示：
+
+	```cs
+	(dateTime - DateTime.Parse("1970-1-1")).TotalSeconds; //获取时间戳
+	```
 
 ### 禁用 *DNS* 解析
 `MySQL`默认开启了`DNS`解析，但在`DNS`服务器异常时，一次数据库操作会异常缓慢，并在`/var/log/mysql/error.log`中写入类似日志：
