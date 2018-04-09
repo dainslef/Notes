@@ -1,6 +1,9 @@
 <!-- TOC -->
 
 - [概述](#概述)
+	- [下载](#下载)
+	- [环境变量配置](#环境变量配置)
+	- [集群规划](#集群规划)
 
 <!-- /TOC -->
 
@@ -28,3 +31,45 @@ Apache基金会中还包含大量的Hadoop关联项目，如：
 - `Hive™` 提供数据汇总和随机查询的数据仓库基础设施
 - `Spark™` 用于Hadoop数据的快速和通用计算引擎，用于取代MapReduce
 - `ZooKeeper™` 高性能的分布式应用程序协调服务
+
+## 下载
+在[Hadoop官网](`http://hadoop.apache.org/releases.html`)下载Hadoop软件包。
+
+截止到`2018-3-30`，Hadoop主要分为`2.x`和`3.x`两大版本，`3.x`版本在配置上与`2.x`版本有较大差异。  
+`3.x`版本正式发布时间较晚(2017-12-13)、迭代周期较短，稳定性有待考证，本文配置使用`2.7.5`版本。
+
+## 环境变量配置
+配置环境变量，在`~/.profile`或`/etc/profile`中添加：
+
+```sh
+export HADOOP_HOME=... # 配置Hadoop软件包路径
+export PATH+=:$HADOOP_HOME/bin
+export PATH+=:$HADOOP_HOME/sbin # 将Hadoop相关工具加入PATH环境变量
+```
+
+## 集群规划
+使用5台机器构建Hadoop集群，IP与主机映射关系写入`/etc/hosts`文件中：
+
+```
+172.16.0.126 spark-master
+172.16.0.127 spark-slave0
+172.16.0.128 spark-slave1
+172.16.0.129 spark-slave2
+172.16.0.130 spark-slave3
+```
+
+为集群中的每台机器配置SSH免密登陆，保证任意两台机器之间能够免密登陆。
+
+每个节点执行的服务规划如下：
+
+| 主机名称 | 执行服务 |
+|:--------|:-------|
+| spark-master | namenode, journalnode, zkfc, kafka |
+| spark-slave0 | namenode, journalnode, zkfc, kafka, datanode，nodemanager |
+| spark-slave1 | journalnode, zkfc, kafka, datanode，nodemanager |
+| spark-slave2 | secondarynamenode, resourcemanager, datanode，nodemanager |
+| spark-slave3 | resourcemanager, datanode，nodemanager |
+
+- `spark-master/spark-slave0`两台机器配置NameNode，实现HA。
+- `spark-slave0 ~ spark-slave3`作为DataNode。
+- `spark-master/spark-slave0/spark-slave1`三台机器启动Zookeeper，并作为JournalNode，同时运行Kafka。
