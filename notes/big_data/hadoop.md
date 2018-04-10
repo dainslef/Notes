@@ -4,6 +4,8 @@
 	- [下载](#下载)
 	- [环境变量配置](#环境变量配置)
 	- [集群规划](#集群规划)
+	- [路径规划](#路径规划)
+	- [服务配置](#服务配置)
 
 <!-- /TOC -->
 
@@ -73,3 +75,77 @@ export PATH+=:$HADOOP_HOME/sbin # 将Hadoop相关工具加入PATH环境变量
 - `spark-master/spark-slave0`两台机器配置NameNode，实现HA。
 - `spark-slave0 ~ spark-slave3`作为DataNode。
 - `spark-master/spark-slave0/spark-slave1`三台机器启动Zookeeper，并作为JournalNode，同时运行Kafka。
+
+## 路径规划
+Hadoop提供的HDFS等组件需要占用大量的磁盘空间，需要对磁盘分区做出合理规划。  
+以`/home/data/hadoop`路径为例，执行指令，在路径下创建以下子路径：
+
+```c
+// 创建缓存路径
+# mkdir -p /home/data/hadoop/tmp 
+
+// 创建 DataNode 数据存储路径
+# mkdir -p /home/data/hadoop/hdfs/data
+
+// 创建 NameNode 数据存储路径
+# mkdir -p /home/data/hadoop/hdfs/name
+
+// 创建 JournalNode 数据存储路径
+# mkdir -p /home/data/hadoop/hdfs/journal
+```
+
+## 服务配置
+Hadoop服务配置项多而繁杂，[官方文档地址](http://hadoop.apache.org/docs/)，根据Hadoop版本选择匹配的文档进行查阅。  
+集群配置相关文档地址为`http://hadoop.apache.org/docs/{Hadoop版本}/hadoop-project-dist/hadoop-common/ClusterSetup.html`。
+
+Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配置文件如下：
+
+- `core-site.xml`
+
+	Hadoop的核心配置项。
+	配置项说明：
+
+	```xml
+	<configuration>
+
+		<!-- 指定 hdfs 的 nameservice 为 lj-nameservice -->
+		<property>
+			<name>fs.defaultFS</name>
+			<value>hdfs://lj-nameservice/</value>
+		</property>
+
+		<!-- 指定 hadoop 临时文件目录 -->
+		<property>
+			<name>hadoop.tmp.dir</name>
+			<value>/home/data/hadoop/tmp</value>
+		</property>
+
+		<!-- 指定 zookeeper 集群访问地址 -->
+		<property>
+			<name>ha.zookeeper.quorum</name>
+			<value>spark-master:2181,spark-slave0:2181,spark-slave1:2181</value>
+		</property>
+
+		<!-- 配置隔离机制方法，多个机制用换行分割，即每个机制暂用一行-->
+		<property>
+			<name>dfs.ha.fencing.methods</name>
+			<value>
+				sshfence
+				shell(/bin/true)
+			</value>
+		</property>
+
+		<!-- 使用 sshfence 隔离机制时需要 ssh 免登陆 -->
+		<property>
+			<name>dfs.ha.fencing.ssh.private-key-files</name>
+			<value>/root/.ssh/id_rsa</value>
+		</property>
+
+		<!-- 配置 sshfence 隔离机制超时时间 -->
+		<property>
+			<name>dfs.ha.fencing.ssh.connect-timeout</name>
+			<value>30000</value>
+		</property>
+
+	</configuration>
+	```
