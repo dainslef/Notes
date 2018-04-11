@@ -149,3 +149,74 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 
 	</configuration>
 	```
+
+- `hdfs-site.xml`
+
+	包含对NameNode和DataNode的配置项。
+	配置项说明：
+
+	```xml
+	<configuration>
+
+		<!-- 指定副本数 -->
+		<property>
+			<name>dfs.replication</name>
+			<value>2</value>
+		</property>
+	
+		<!-- 指定 nameservice，需要和 core-site.xml 中 fs.defaultFS 配置项保持一致 -->
+		<property>
+			<name>dfs.nameservices</name>
+			<value>lj-nameservice</value>
+		</property>
+
+		<!-- 设置 nameservice 下的 NameNode 名称 -->
+		<property>
+			<name>dfs.ha.namenodes.lj-nameservice</name>
+			<value>namenode1,namenode2</value>
+		</property>
+
+		<!-- namenode1 的 RPC 通信地址 -->
+		<property>
+			<name>dfs.namenode.rpc-address.lj-nameservice.namenode1</name>
+			<value>spark-master:9000</value>
+		</property>
+
+		<!-- namenode1 的 http 通信地址 -->
+		<property>
+			<name>dfs.namenode.http-address.lj-nameservice.namenode1</name>
+			<value>spark-master:50070</value>
+		</property>
+
+		<!-- namenode2 的 RPC 通信地址 -->
+		<property>
+			<name>dfs.namenode.rpc-address.lj-nameservice.namenode2</name>
+			<value>spark-slave0:9000</value>
+		</property>
+
+		<!-- namenode2 的 http 通信地址 -->
+		<property>
+			<name>dfs.namenode.http-address.lj-nameservice.namenode2</name>
+			<value>spark-slave0:50070</value>
+		</property>
+
+		<!-- 指定HA集群中多个 NameNode 之间的共享存储路径 -->
+		<property>
+			<name>dfs.namenode.shared.edits.dir</name>
+			<value>qjournal://spark-master:8485;spark-slave0:8485;spark-slave1:8485/lj-nameservice</value>
+		</property>
+
+		<!-- 指定 JournalNode 在本地磁盘存放数据的位置 -->
+		<property>
+			<name>dfs.journalnode.edits.dir</name>
+			<value>/home/data/hadoop/hdfs/journal</value>
+		</property>
+
+		<!-- 开启 NameNode 失败自动切换 -->
+		<property>
+			<name>dfs.ha.automatic-failover.enabled</name>
+			<value>true</value>
+		</property>
+
+	</configuration>
+	```
