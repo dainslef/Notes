@@ -69,9 +69,13 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 	```
 
 	Kafka会缓存所有消息，无论消息是否被消费，可通过配置设定消息的缓存清理策略。  
-	消息缓存相关配置：
+	消息存储相关配置：
 
 	```sh
+	num.partitions = 分区数量
+	# 决定默认配置下创建的话题拥有的分区数量，多个分区会分布在集群内不同的机器中
+	# 默认值为 1
+
 	log.dirs = 消息存储路径
 	# 默认路径为 /tmp/kafka-logs ，路径可以为多个，多个路径之间使用逗号分隔
 	# 示例： log.dirs = /home/data/kafka/kafka_messages
@@ -85,7 +89,10 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 
 	log.retention.bytes	= 一个 topic 中每个 partition 保存消息的最大大小
 	# 默认值为 -1(不清理)，超过大小的消息会按照清理策略被处理
+	# 消息缓存大小上限： partition数量 x 每个partition的消息大小上限
 	```
+
+	Kafka提供了基于**时间**、**存储大小**两个维度来设定消息日志的清理策略。
 
 - `$KAFKA_HOME/etc/kafka/consumer.properties`
 
@@ -133,7 +140,9 @@ $ kafka-server-stop
 
 ```c
 // 创建话题
-$ kafka-topics --create --zookeeper [Zookeeper集群IP:端口] --replication-factor 1 --partitions 1 --topic [话题名称]
+// 使用 --partitions 参数指定话题的分区数量
+// 使用 --replication-factor 参数指定话题数据备份数量
+$ kafka-topics --create --zookeeper [Zookeeper集群IP:端口] --topic [话题名称]
 
 // 列出话题
 $ kafka-topics --list --zookeeper [Zookeeper集群IP:端口]
@@ -145,7 +154,13 @@ $ kafka-topics --delete --topic [话题名称] --zookeeper [Zookeeper集群IP:�
 $ kafka-topics --describe --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
 ```
 
-使用的Zookeeper集群IP可以是connect参数中配置的任意IP。
+使用的Zookeeper集群IP可以是connect参数中配置的任意IP。  
+在Kafka中，已创建的话题配置可以动态修改：
+
+```c
+// 单独设定话题的某个配置
+$ kafka-topics.sh --alter --config [话题配置xxx=xxx] --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
+```
 
 命令行端数据生产/消费相关指令：
 
