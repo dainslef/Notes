@@ -34,9 +34,9 @@
 - [*unapply()/unapplySeq()* 方法](#unapplyunapplyseq-方法)
 - [*Trait* (特质)](#trait-特质)
 	- [*Mixin* (混入)](#mixin-混入)
-	- [重写冲突方法、字段](#重写冲突方法字段)
+	- [重写冲突方法/字段](#重写冲突方法字段)
 	- [构造顺序](#构造顺序)
-	- [线性化顺序](#线性化顺序)
+	- [线性化与 *super*](#线性化与-super)
 	- [线性化与 *override*](#线性化与-override)
 	- [线性化与类型关系](#线性化与类型关系)
 	- [线性化与泛型](#线性化与泛型)
@@ -1550,7 +1550,7 @@ class ExtendClass extends TraitA with BaseA
 `TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。  
 `ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
 
-### 重写冲突方法、字段
+### 重写冲突方法/字段
 混入机制需要解决**富接口**带来的成员冲突问题。  
 当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
 
@@ -1624,10 +1624,9 @@ TraitB
 Now
 ```
 
-### 线性化顺序
-`Scala`的混入机制是`线性化`的，对于冲突的内容，构造中的后一个实现会顶替前一个。  
-线性化顺序与构造顺序`相反`，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
-
+### 线性化与 *super*
+`Scala`的混入机制是**线性化**的，对于冲突的内容，构造中的后一个实现会顶替前一个。  
+线性化顺序与构造顺序**相反**，对于同名字段的内容，最终保留的是最右端的类或特质的实现。  
 如下所示：
 
 ```scala
@@ -1648,13 +1647,61 @@ trait TraitC extends TraitB {
 }
 
 class TestExtend extends BaseA with TraitA with TraitC {
-  override def get = super.get //使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
-  //override def get = super[BaseA].get //也可以使用继承自其它特质或类的实现
-  //override def get = super[TraitB].get //错误，必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
+  // 使用父类的实现时不需要显式指定到底是哪一个，编译器会自动按照线性化顺序选择最后的实现，即TraitC中的实现，即返回111
+  override def get = super.get
 }
 ```
 
-### 线性化与 *override*
+使用`super`关键字可调用父类、父特质中混入的方法实现，具体调用的实现内容由线性化顺序决定。  
+亦可使用`super[T].xxx`语法显式指定使用某个父类/父特质中的实现。  
+super关键字具有以下限制：
+
+- 仅能引用直接混入的类或特质的方法，不能使用继承层级中更远的类或特质
+
+	```scala
+	class BaseA {
+	  def get = 123
+	}
+	
+	trait TraitA {
+	  def get = 456
+	}
+	
+	trait TraitB {
+	  def get = 789
+	}
+	
+	trait TraitC extends TraitB {
+	  override def get = 111
+	}
+	
+	class TestExtend extends BaseA with TraitA with TraitC {
+
+	  override def get = super[BaseA].get //正确，显式使用父类BaseA中的实现，即返回123
+
+	  /* 错误，super关键字引用父类/父特质的实现时必需使用直接混入的类或特质，不能使用继承层级中更远的类或特质
+	   * 编译报错：error: super may not be used on value get
+	   */
+	  override def getTraitB = super[TraitB].get
+	}
+	```
+
+- 仅能引用混入类或特质的方法，不能引用使用var/val定义的字段
+
+	```scala
+	class Base {
+	  val num = 123
+	}
+
+	class TestExtend extends Base {
+	  /* 错误，super关键字仅能引用父类/父特质的方法，不能引用字段
+	   * 编译报错：error: super may not be used on value num
+	   */
+	  val num = super.num + 1
+	}
+	```
+
+### 线性化与 *override* 
 在重写抽象字段时，是否使用`override`关键字在混入时行为存在差异。  
 如下所示：
 
