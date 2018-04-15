@@ -1,11 +1,26 @@
-## 简介
+<!-- TOC -->
+
+- [简介](#简介)
+- [安装与配置](#安装与配置)
+- [安装模块](#安装模块)
+	- [查看已安装模块](#查看已安装模块)
+- [*Serve*](#serve)
+	- [配置 *SPA*](#配置-spa)
+- [常见错误](#常见错误)
+	- [*npm WARN tar zlib error: unexpected end of file*](#npm-warn-tar-zlib-error-unexpected-end-of-file)
+
+<!-- /TOC -->
+
+
+
+# 简介
 `npm`是`JavaScript`代码的包管理器，类似于`Python`的`pip`，`Ruby`的`gem`。  
 `npm`也是`Node.js`项目的模块管理工具。
 
 
 
-## 安装与配置
-`npm`通常包含在`Node.js`中，安装Node.js时会一同安装npm。
+# 安装与配置
+`npm`通常包含在`Node.js`中，安装Node.js时会一同安装npm。  
 主流的`Linux`发行版中已经包含了`Node.js`，以`ArchLinux`为例：
 
 ```
@@ -21,7 +36,7 @@
 
 
 
-## 安装模块
+# 安装模块
 使用`npm install`指令安装Node.js模块或JavaScript包：
 
 ```
@@ -41,7 +56,7 @@ $ npm install 包名
 
 从`npm 5.2.0`开始，npm包管理器会自带`npx`指令，npx指令可用于执行安装在**全局路径/当前路径**下的工具模块，免去了配置环境变量的步骤。
 
-### 查看已安装模块
+## 查看已安装模块
 使用`npm ls/list`相关指令查看已安装模块。
 
 直接使用`npm ls/list`指令会以当前路径做为模块根目录，以树状呈现当前模块的依赖。  
@@ -137,7 +152,7 @@ test-react@0.0.1 /Users/dainslef/Downloads/WorkSpace/test-react
 
 
 
-## *Serve*
+# *Serve*
 `Serve`是一个简单的基于Node.js的静态WEB服务器。  
 Serve提供了常见的静态服务器参数，并为**单页WEB应用**提供了参数，相比`Apache`、`Nginx`等传统WEB服务器在配置上更加简单。  
 Serve亦是React项目推荐的默认WEB服务器。  
@@ -155,7 +170,7 @@ $ serve //在当前路径下启动WEB服务
 $ serve 目标路径 //在目标路径下启动WEB服务
 ```
 
-### 配置 *SPA*
+## 配置 *SPA*
 `SPA`(**Single Web Page Application，单页WEB应用**)是当今主流的WEB呈现方式，配置SPA需要WEB服务器将路由发往同一个入口页面。  
 Serve为单页应用提供了内置的参数，使用`-s`参数即可在路由没有匹配资源时指向默认的`index.html`页面。  
 如下所示：
@@ -163,3 +178,15 @@ Serve为单页应用提供了内置的参数，使用`-s`参数即可在路由�
 ```
 $ serve -s 目标路径
 ```
+
+
+
+# 常见错误
+常见`npm`相关错误记录。
+
+## *npm WARN tar zlib error: unexpected end of file*
+错误原因：  
+部分包未完全下载，或下载文件校验不通过，安装时使用缓存的错误文件安装导致安装失败。
+
+解决方法：  
+执行`npm clean --force`清理缓存
