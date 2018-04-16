@@ -5,6 +5,7 @@
 	- [环境变量配置](#环境变量配置)
 	- [主服务配置](#主服务配置)
 	- [工具指令](#工具指令)
+- [*Topic* 与 *Partition*](#topic-与-partition)
 - [*Kafka Connect*](#kafka-connect)
 	- [依赖服务配置](#依赖服务配置)
 	- [*JDBC Source Connector*](#jdbc-source-connector)
@@ -87,7 +88,7 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 	log.retention.hours = 消息保存小时
 	# 默认保存 168 小时(一周)的消息，超过时间的消息会按照配置的清理策略(压缩、删除)进行处理
 
-	log.retention.bytes	= 一个 topic 中每个 partition 保存消息的最大大小
+	log.retention.bytes = 一个 topic 中每个 partition 保存消息的最大大小
 	# 默认值为 -1(不清理)，超过大小的消息会按照清理策略被处理
 	# 消息缓存大小上限： partition数量 x 每个partition的消息大小上限
 	```
@@ -175,6 +176,32 @@ $ kafka-console-consumer --bootstrap-server [listeners IP:端口] --topic [话�
 // 使用 --producer.config 参数指定生产者端使用的配置文件
 $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名称]
 ```
+
+
+
+# *Topic* 与 *Partition*
+Kafka为一连串的记录提供了抽象：`Topic`(话题)。  
+Topic作为记录发布时的类别/服务名称，Topic在Kafka中总是`multi-subscriber`(多订阅者)的，
+一个Topic可以拥有任意数量的订阅者(零个或多个)，数据会推送给订阅者。
+
+一个Topic的数据由一个或多个`Partition`组成(可配置)，多个Partition可分布在不同的物理节点中。  
+Producer向Topic写入数据时，数据会记录在不同的Partition中，避免单一节点承载过多的IO请求。
+
+使用`kafka-topics --describe`指令查看某个话题的详情，输出内容如下：
+
+```
+Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     Configs:
+        Topic: spark-streaming-test     Partition: 0    Leader: 2       Replicas: 2     Isr: 2
+        Topic: spark-streaming-test     Partition: 1    Leader: 3       Replicas: 3     Isr: 3
+```
+
+- `PartitionCount` 话题分区数量
+- `ReplicationFactor` 话题备份数量
+- `Configs` 包含每个Partition的详细配置信息
+	- `Partition` 分区编号
+	- `Leader` 负责读写该分区的broker编号
+	- `Replicas` 分区备份的broker编号，ReplicationFactor大于1时会有多个broker编号
+	- `Isr` 当前处于活跃状态的broker编号，是Replicas中分区编号的子集
 
 
 
