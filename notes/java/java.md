@@ -40,7 +40,7 @@
 	- [实例](#实例-1)
 - [*Default Method* (接口默认方法)](#default-method-接口默认方法)
 - [*Lambda*](#lambda)
-	- [使用 *Lambda* 实现函数接口](#使用-lambda-实现函数接口)
+	- [*Lambda* 实现函数接口](#lambda-实现函数接口)
 	- [Lambda的一般用法](#lambda的一般用法)
 	- [*Method Reference* (方法引用)](#method-reference-方法引用)
 	- [*java.util.function*](#javautilfunction)
@@ -71,9 +71,9 @@
 
 
 # 基础类型
-与主流语言不同，`Java`中仅仅提供了**有符号**数值类型，**没有**提供无符号的数值类型。
+与主流语言不同，Java中仅仅提供了**有符号**数值类型，**没有**提供无符号的数值类型。
 
-`Java`中的基础整型数值类型如下所示：
+基础整型数值类型如下所示：
 
 - `byte`，单字节，范围`-128 ~ 127`
 - `short`，双字节，范围`-32768 ~ 32767`
@@ -86,7 +86,7 @@
 - `double`，八字节，范围`-1.7976931348623157E308 ~  1.7976931348623157E308`
 
 ## *Literal number* (字面值)
-在`Java`中，无任何修饰的整型数值字面值默认为`int`类型，无任何修饰的浮点型数值字面值默认为`double`类型。
+在Java中，无任何修饰的整型数值字面值默认为`int`类型，无任何修饰的浮点型数值字面值默认为`double`类型。
 
 字面值数值在进行赋值操作时数值的大小不能超过目标类型的上限，如下所示：
 
@@ -892,6 +892,7 @@ public static native void sleep(long millis) throws InterruptedException;
 			new Thread(() -> example.showTwo(), "Thread Two").start();
 			new Thread(() -> example.showStatic(), "Thread Three").start();
 		}
+
 	}
 	```
 
@@ -1997,24 +1998,24 @@ B
 如下所示：
 
 ```java
-// 接口 Test1 中含有默认方法 T abc(T a)
-interface Test1<T> {
-	default T abc(T a) {
+// 接口 Test1 中含有默认方法 int test(int a)
+interface Test1 {
+	default int test(int a) {
 		return a;
 	}
 }
 
-// 接口 Test2 中也含有默认方法 T abc(T a)
-interface Test2<T> {
-	default T abc(T a) {
+// 接口 Test2 中也含有默认方法 int test(int a)
+interface Test2 {
+	default int test(int a) {
 		return a;
 	}
 }
 
 // 类 Test 同时实现接口 Test1 和 Test2
-class Test<T> implements Test1<T>, Test2<T> {
+class Test implements Test1, Test2 {
 	@Override
-	public T abc(T a) {
+	public int abc(int a) {
 		......
 		return ...
 	}
@@ -2025,13 +2026,14 @@ class Test<T> implements Test1<T>, Test2<T> {
 如下所示：
 
 ```java
-// 类中的"T abc(T a)"方法用Test1接口中的默认方法实现
-class Test<T> implements Test1<T>, Test2<T> {
+// 类中的 int test(int a) 方法采用 Test1 接口中的默认方法实现
+class Test implements Test1, Test2 {
+
 	@Override
-	public T abc(T a) {
-		//如果重写的是返回值为void的函数，则直接使用"Test1.super.abc(a);"，作用是执行test1的对应默认方法。
-		return Test1.super.abc(a);
+	public int test(int a) {
+		return Test1.super.test(a);
 	}
+
 }
 ```
 
@@ -2042,7 +2044,7 @@ class Test<T> implements Test1<T>, Test2<T> {
 # *Lambda*
 **Java 8**中加入的另一个重要的特性即为**Lambda表达式**。
 
-## 使用 *Lambda* 实现函数接口
+## *Lambda* 实现函数接口
 **Lambda表达式**用于实现**函数接口**，函数接口是**有且只有一个**抽象方法的接口。
 
 函数接口可以使用`@FunctionalInterface`注解，被其标注的接口中若含有**多个**抽象方法则无法通过编译。  
@@ -2051,9 +2053,9 @@ class Test<T> implements Test1<T>, Test2<T> {
 ```java
 // 编译报错
 @FunctionalInterface
-interface Test<T> {
-	T getT(T a);
-	T getT1();
+interface Test {
+	void test1();
+	int test2(int a);
 }
 ```
 
@@ -2071,48 +2073,48 @@ Error: java: Unexpected @FunctionalInterface annotation
 ```java
 // 以下接口定义符合函数接口要求
 @FunctionalInterface
-interface Test<T> {
+interface Test {
 
-	T getT(T a);
+	int test1(int a);
 
-	default T abc(T a) {
+	default int test2(int a) {
 		return a;
 	}
 
-	default T abcd(T a) {
+	default int test3(int a) {
 		return a;
 	}
+
 }
 ```
 
-在`Java 8`之前，要实例化一个接口，一般使用**匿名类**。  
-如下所示：
+Java8之前，实现一个接口，通常使用**匿名类**语法：
 
 ```java
 @FunctionalInterface
-interface Test<T> {
-	T getT(T a);
+interface Test {
+	int test(int a);
 }
 
-Test<Integer> t = new Test<Integer>() {
+Test t = new Test() {
 	@Override
-	public Integer getT(Integer a) {
+	public int test(int a) {
 		return a;
 	}
 };
 ```
 
-在**Java 8**之后，即可以使用新特性**Lambda表达式**来表示**函数接口**：
+Java8之后，可使用Lambda实现函数接口：
 
 ```java
-Test<Integer> t = (Integer a) -> a;
+Test t = (int a) -> a;
 ```
 
 ## Lambda的一般用法
 对于一个如下定义的函数：
 
 ```java
-int function(参数列表) {
+返回类型 函数名(参数列表) {
 	// 函数内容
 	return 返回值;
 }
@@ -2136,7 +2138,7 @@ int function(参数列表) {
 比如有以下函数定义：
 
 ```java
-int get2(int a) {
+int test(int a) {
 	return 2 * a;
 }
 ```
@@ -2155,7 +2157,7 @@ a -> 2 * a;
 ```
 
 Lambda表达式能够**访问**外部作用域中的变量。  
-在Java中，Lambda捕获的外部作用域变量会自动带有`final`属性，因而在Lambda中不能对引用的外部作用域变量进行更改(变量若为类实例，则类内成员**不受**影响)。  
+Java中的Lambda捕获外部作用域变量时会自动带有`final`属性，因而在Lambda中不能对引用的外部作用域变量进行更改(变量若为类实例，则类内成员**不受**影响)。  
 在其它支持Lambda表达式的主流语言中，`C#`中的Lambda可以修改外部作用域的变量，`C++`可以控制外部变量的捕获方式，对于**引用捕获**的变量，可以修改其值。
 
 ## *Method Reference* (方法引用)
@@ -2176,11 +2178,14 @@ class B {
 		System.out.println("Test!");
 		return 0;
 	}
+
 }
 ```
 
-使用操作符`::`将符合签名的方法作为重写内容构造出接口对象。
-接口的成员方法为公有成员，但若使用方法引用实现接口时，不必考虑被引用方法的访问限制，即使是本类的私有成员，一样可以作为引用来实现接口，但如果是重写接口则必须访问权限为`public`(重写权限必须大于等于原有权限)。  
+使用操作符`::`将符合签名的方法作为重写内容构造出接口对象。  
+接口的成员方法为公有成员，但若使用方法引用实现接口时，不必考虑被引用方法的访问限制，
+即使是本类的私有成员，一样可以作为引用来实现接口，
+但如果是重写接口则必须访问权限为`public`(重写权限必须大于等于原有权限)。  
 只要**方法签名**相同(返回值类型可以不同)，可使用抽象方法来作为引用实现函数接口。
 
 ## *java.util.function*
