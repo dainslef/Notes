@@ -6,6 +6,8 @@
 	- [集群规划](#集群规划)
 	- [路径规划](#路径规划)
 	- [服务配置](#服务配置)
+- [*HDFS*](#hdfs)
+	- [访问地址](#访问地址)
 
 <!-- /TOC -->
 
@@ -35,7 +37,7 @@ Apache基金会中还包含大量的Hadoop关联项目，如：
 - `ZooKeeper™` 高性能的分布式应用程序协调服务
 
 ## 下载
-在[Hadoop官网](`http://hadoop.apache.org/releases.html`)下载Hadoop软件包。
+在[Hadoop官网](http://hadoop.apache.org/releases.html)下载Hadoop软件包。
 
 截止到`2018-3-30`，Hadoop主要分为`2.x`和`3.x`两大版本，`3.x`版本在配置上与`2.x`版本有较大差异。  
 `3.x`版本正式发布时间较晚(2017-12-13)、迭代周期较短，稳定性有待考证，本文配置使用`2.7.5`版本。
@@ -220,3 +222,27 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 
 	</configuration>
 	```
+
+
+
+# *HDFS*
+`Hadoop Distributed File System (HDFS)`是一个被设计成运行在商用硬件上的分布式文件系统。  
+HDFS与现存的分布式文件系统类似，不同之处在于HDFS是**高容错**(highly fault-tolerant)的，HDFS被设计成能够部署在低成本的硬件上。  
+HDFS提供了对应用数据的高吞吐访问，适用于拥有大量数据集的应用。  
+HDFS放宽了一些POSIX标准的要求，以便实现流式地访问文件系统数据。  
+HDFS最初被设计成`Apache Nutch`(一个Web搜索引擎项目)的基础设施，现在HDFS是`Apache Hadoop`项目的核心部分。
+
+## 访问地址
+HDFS的RPC通信地址规则如下：
+
+```sh
+# 默认端口 9000
+hdfs://主机名或IP:RPC服务端口/HDFS路径
+```
+
+HDFS还提供了WEB管理界面，地址如下：
+
+```sh
+# 默认端口 50070
+http://主机名或IP:WEB服务端口
+```
