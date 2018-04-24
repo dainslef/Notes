@@ -12,6 +12,7 @@
 - [数据绑定](#数据绑定)
 	- [属性变更通知](#属性变更通知)
 	- [绑定语法](#绑定语法)
+	- [绑定静态字段](#绑定静态字段)
 	- [后台绑定](#后台绑定)
 	- [绑定模式](#绑定模式)
 	- [数据更新触发器](#数据更新触发器)
@@ -418,7 +419,7 @@ class XXX : INotifyPropertyChanged
 	`ElementName`是控件拥有的属性，将绑定对象设置为当前XAML文件内的某一个控件。
 
 	```xml
-	XXX="{Binding ElementName=xxx, Path=xxx}}"
+	XXX="{Binding xxx, ElementName=xxx}"
 	```
 
 - 绑定`Source`
@@ -426,10 +427,7 @@ class XXX : INotifyPropertyChanged
 	`Source`属性用于指定对象绑定路径的引用。
 
 	```xml
-	<!-- 绑定到指定静态资源中的某个路径 -->
-	XXX="{Binding xxx, Source={StaticResource xxx}}"
-	<!-- 绑定到静态字段中的某个路径 -->
-	XXX="{Binding xxx, Source={x:static namespace:Xxx.xxx}}"
+	XXX="{Binding xxx, Source=xxx}"
 	```
 
 - 绑定`RelativeSource`
@@ -442,6 +440,41 @@ class XXX : INotifyPropertyChanged
 	<!-- 绑定到指定类型属性 -->
 	XXX="{Binding xxx, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type xxx}}}"
 	```
+
+### 绑定静态字段
+绑定到静态字段时，需要首先使用`xmlns`属性声明静态字段所属类的命名空间：
+
+```XML
+<Window xmlns:xxxNameSpace="clr-namespace:Xxx.Xxx...">
+	...
+</Window>
+```
+
+直接绑定到某个静态字段：
+
+```xml
+XXX="{x:Static xxxNameSpace:Xxx.xxx}}"
+```
+
+绑定到静态字段内部的某个属性：
+
+```xml
+<!-- 绑定到静态字段中的某个路径(xxx) -->
+XXX="{Binding xxx, Source={x:static namespace:Xxx.xxx}}"
+```
+
+亦可将静态类声明为静态资源：
+
+```xml
+<xxxNameSpace:Xxx x:Key="xxx">
+```
+
+绑定到静态资源：
+
+```xml
+XXX="{StaticResource xxx}"
+XXX="{Binding xxx, Source={StaticResource xxx}}"
+```
 
 ### 后台绑定
 除了在`XAML`文件中直接建立数据绑定，也可以调用`API`在后端进行绑定。
@@ -851,7 +884,7 @@ NavigationService.GetNavigationService(source).GoBack();
 ## *DataGrid* (数据网格)
 使用`DataGrid`控件能够方便地展示数据库中的表。
 
-`DataGrid`基本语法类似于`Grid`控件，但`DataGrid`可绑定数据源，展示数据源中的内容。
+`DataGrid`基本语法类似于`Grid`控件，但`DataGrid`可绑定数据源，展示数据源中的内容。  
 与`Grid`相比，`DataGrid`只需设置列属性，每一行填充的内容由数据源决定。
 
 `<DataGrid/>`标签常用属性：
