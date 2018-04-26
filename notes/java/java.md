@@ -65,6 +65,8 @@
 	- [*String.split()* 方法](#stringsplit-方法)
 	- [*String.format()* 方法](#stringformat-方法)
 	- [查询 *OS* 信息](#查询-os-信息)
+	- [*java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXrender.so.1: cannot open shared object file: No such file or directory*](#javalangunsatisfiedlinkerror-jrelibamd64libawt_xawtso-libxrenderso1-cannot-open-shared-object-file-no-such-file-or-directory)
+	- [*java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory*](#javalangunsatisfiedlinkerror-jrelibamd64libawt_xawtso-libxtstso6-cannot-open-shared-object-file-no-such-file-or-directory)
 
 <!-- /TOC -->
 
@@ -1954,7 +1956,7 @@ public class Main {
 
 
 # *Default Method* (接口默认方法)
-在**Java8**中，接口允许拥有带有方法实现的默认方法，在方法前使用关键字`default`来区别于普通的抽象方法。
+从**Java8**开始，接口中允许定义带有方法实现的默认方法，在方法前使用关键字`default`来区别于普通的抽象方法。
 
 - 一个接口可以定义**多个**默认方法。
 - 一个接口也可以只包含**默认方法**而不含有抽象方法。
@@ -2042,7 +2044,7 @@ class Test implements Test1, Test2 {
 
 
 # *Lambda*
-**Java 8**中加入的另一个重要的特性即为**Lambda表达式**。
+**Java 8**中加入的一个重要的特性为**Lambda表达式**。
 
 ## *Lambda* 实现函数接口
 **Lambda表达式**用于实现**函数接口**，函数接口是**有且只有一个**抽象方法的接口。
@@ -2207,8 +2209,8 @@ class B {
 
 预定义的函数接口仅包含**单个参数**、**两个参数**的情形，若需要**三个或以上**参数的函数接口则需自行定义。
 
-由于Java泛型的限制，泛型不能接受基础类型(如`int`和`double`等)作为泛型参数(需要使用对应的对象类型`Integer`、`Double`)。  
-未避免基础类型装箱，`java.util.function`包为基础类型作为方法参数的情形提供了对应的预定义接口，如`IntFunction<R>`、`DoubleConsumer`等。
+由于Java泛型机制的限制，泛型参数不能使用基础类型(如`int`、`double`等，需要使用对应的包装类型`Integer`、`Double`)。  
+为避免基础类型装箱，`java.util.function`包为基础类型作为方法参数的情形提供了对应的预定义接口，如`IntFunction<R>`、`DoubleConsumer`等。
 
 `java.util.function`包中预定义的一系列函数接口只是简化了函数接口的定义，
 Java8中的函数接口**不能**做到类似C#中`Delegate/Func/Action`或Scala中`Function*`那样直接以函数的语法进行调用。  
@@ -2225,9 +2227,13 @@ public class Main {
 	public static void main(String[] args) {
 
 		// 实例化函数接口对象
+		// 使用 IntFunction<Integer> 代替 Function<Integer, Integer>
 		Function<Integer, Integer> function = in -> 2 * in;
 		IntFunction<Integer> intFunction = in -> 2 * in;
+
+		// 使用 IntConsumer 代替 Consumer<Integer>
 		Consumer<Integer> consumer = in -> System.out.println(in);
+		IntConsumer intConsumer = in -> System.out.println(in);
 
 		/*
 			使用函数接口对象，仍然需要明确调用函数接口中的方法。
@@ -2578,3 +2584,18 @@ public static String getProperty(String key);
 | user.home | 用户的主目录 |
 | user.dir | 用户的当前工作目录 |
 | java.io.tmpdir | 操作系统的TEMP目录 |
+
+## *java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXrender.so.1: cannot open shared object file: No such file or directory*
+错误原因：  
+系统缺失动态链接库`libXrender.so`。
+
+解决方法：  
+执行`apt install libxrender-dev`。
+
+
+## *java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory*
+错误原因：  
+系统缺失动态链接库`libXtst.so`。
+
+解决方法：  
+执行`apt install libxtst-dev`。
