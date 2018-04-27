@@ -56,3 +56,31 @@ $ stop-all.sh //停止服务
 
 正常启动Spark服务后，使用JPS查看进程，主节点应有`Master`进程，从节点应有`Worker`进程。  
 默认配置下，Spark在`8080`端口提供集群管理的WEB界面。
+
+
+
+# 常见错误
+Spark开发、使用中常见错误说明。
+
+## *Unable to load native-hadoop library for your platform... using builtin-java classes where applicable*
+错误说明：  
+Spark运行环境中已包含了Scala、Hadoop、Zookeeper等依赖，与Jar包中自带的依赖产生冲突。
+
+解决方式：  
+开发环境中为确保源码正常编译，需要完整引入Spark相关依赖，但在生成Jar时，需要移除Spark以及相关联的Scala、Hadoop、Zookeeper相关依赖。  
+
+## *Operation category READ is not supported in state standby*
+错误说明：  
+配置了NameNode HA的Hadoop集群会存在`active`、`standby`两种状态。  
+SparkStreaming使用HDFS为数据源时URL需要使用active节点的主机名。
+
+解决方式：  
+登陆HDFS的WEB管理界面查看节点状态，设置HDFS的URL时使用active节点的主机名。
+
+## *org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx*
+错误说明：  
+在集群模式下执行Spark应用时，多个JVM实例间持有不同的SparkContent实例，导致Worker节点间通信出错。
+
+解决方式：  
+避免使用单例模式保存SparkContent实例，单例模式在集群中存在多个JVM实例时不可靠。  
+创建SparkContext应在主函数代码中进行，构建SparkContext应使用伴生对象中提供的`SparkContext.getOrCreate()`方法。
