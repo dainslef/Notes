@@ -11,6 +11,9 @@
 	- [挂载 *NTFS* 读写](#挂载-ntfs-读写)
 - [与常规PC的不同之处](#与常规pc的不同之处)
 	- [*Darwin* 与 *GNU/Linux* 的差异](#darwin-与-gnulinux-的差异)
+- [*NVRAM*](#nvram)
+	- [禁用翻盖自启动](#禁用翻盖自启动)
+	- [重置 *NVRAM*](#重置-nvram)
 - [包管理](#包管理)
 	- [*Homebrew* 基本特性](#homebrew-基本特性)
 	- [*Homebrew* 安装](#homebrew-安装)
@@ -193,6 +196,47 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 1. `Darwin`的微内核`Mach`使用`Mach-O`作为二进制格式，而传统的`Linux/Unix`使用`EFL`作为二进制格式。
 1. `Darwin`中动态链接库后缀名为`dylib`，传统`Unix`中一般为`so`，静态库后缀名与传统`Unix`相同，皆为`a`。
 1. `macOS`采用`Aqua`作为GUI实现，传统`Unix`使用`X11`。
+
+
+
+## *NVRAM*
+`NVRAM`全称`Non-volatile random-access memory`(非易失性随机访问存储器)，用于在关机状态下保存信息。  
+Mac使用NVRAM存储音量、显示屏分辨率、启动磁盘选择、时区，内核崩溃转储等信息。
+
+在`macOS`中使用`nvram`指令操作NVRAM相关功能：
+
+```
+nvram: (usage: no such option as -h)
+nvram [-x] [-p] [-f filename] [-d name] [-c] name[=value] ...
+	-x         use XML format for printing or reading variables
+	           (must appear before -p or -f)
+	-p         print all firmware variables
+	-f         set firmware variables from a text file
+	-d         delete the named variable
+	-c         delete all variables
+	name=value set named variable
+	name       print variable
+Note that arguments and options are executed in order.
+```
+
+### 禁用翻盖自启动
+从`New MacBook`和`MacBook Pro 2016`开始，MacBook会在翻盖后自动开机。  
+可通过修改NVRAM参数关闭此特性：
+
+```
+# nvram AutoBoot=%00
+```
+
+恢复翻盖自动开机特性：
+
+```
+# nvram AutoBoot=%03
+```
+
+### 重置 *NVRAM*
+启动配置异常时，可尝试重置NVRAM。  
+开机时按下组合键`Option + Command P + R`，按住组合键20秒后可松开。  
+在此期间Mac可能看似在重新启动。
 
 
 
