@@ -349,6 +349,7 @@ function test() {
 }
 
 test()
+
 console.info(`name: ${name}`)
 ```
 
@@ -369,7 +370,8 @@ function test(target) {
 
 obj = { test: test }
 obj.test(obj)
-console.info("obj:", obj)
+
+console.info(`obj: ${obj}`)
 ```
 
 输出结果：(Node.js v9.8.0)
@@ -448,7 +450,8 @@ function test(args) {
 
 args = {}
 obj = new test(args)
-console.info("obj === args.obj:", obj === args.obj)
+
+console.info(`obj === args.obj: ${obj === args.obj}`)
 ```
 
 输出结果：(Node.js v9.9.0)
@@ -459,6 +462,63 @@ obj === args.obj: true
 
 ### *Arrow Function's this*
 箭头函数的函数环境相关内容见`ECMAScript 2015`规范`14.2`节`Arrow Function Definitions`中`14.2.16`小节`Runtime Semantics: Evaluation`。
+
+箭头函数**没有**独立的词法作用域，箭头函数中的this由箭头函数的父级上下文决定，与调用者**无关**。  
+如下所示：
+
+```js
+/*
+ * 箭头函数 test 此时的父级作用域为模块作用域
+ * 函数内 this 指向模块作用域(即 module.exports，不是 global)
+ */
+test = () => {
+	this.name = "test name"
+	console.info(`this === global: ${this === global}`)
+	console.info(`this === module.epxorts: ${this === module.exports}`)
+}
+
+test()
+console.info(`this.name: ${this.name}`) //直接访问 name 或 global.name 会抛出异常
+console.info(`module.exports.name: ${module.exports.name}`)
+```
+
+输出结果：(Node.js v10.0.0)
+
+```
+this === global: false
+this === module.epxorts: true
+this.name: test name
+module.exports.name: test name
+```
+
+使用`对象.方法()`的语法调用**箭头函数**时，this依旧指向**定义时**的父级上下文：
+
+```js
+test = target => {
+	this.name = "test name" // this 始终指向模块作用域，与外部调用者无关
+	console.info(`this === target: ${this === target}`)
+	console.info(`this === module.epxorts: ${this === module.exports}`)
+}
+
+obj = { test: test }
+obj.test(obj)
+
+console.info(`obj: ${obj}`)
+console.info(`obj.name: ${obj.name}`) // obj 对象中并不存在 name 属性
+console.info(`this.name: ${this.name}`) // name 属性添加到了模块作用域中
+console.info(`module.exports.name: ${module.exports.name}`)
+```
+
+输出结果：(Node.js v10.0.0)
+
+```
+this === target: false
+this === module.epxorts: true
+obj: { test: [Function: test] }
+obj.name: undefined
+this.name: test name
+module.exports.name: test name
+```
 
 
 
