@@ -18,7 +18,6 @@
 	- [数据更新触发器](#数据更新触发器)
 	- [绑定源/目标更新触发事件](#绑定源目标更新触发事件)
 	- [多重绑定](#多重绑定)
-	- [无效依赖属性](#无效依赖属性)
 - [触发器](#触发器)
 	- [属性触发器](#属性触发器)
 	- [数据触发器](#数据触发器)
@@ -35,7 +34,7 @@
 - [*DatePicker* (日期控件)](#datepicker-日期控件)
 	- [设置默认显示日期](#设置默认显示日期)
 	- [禁止日期文本编辑](#禁止日期文本编辑)
-- [DevExpress](#devexpress)
+- [*DevExpress*](#devexpress)
 	- [常用控件](#常用控件)
 	- [布局层级](#布局层级)
 	- [主界面](#主界面)
@@ -47,14 +46,14 @@
 
 
 
-## *WPF* 简介
+# *WPF* 简介
 `WPF`全称为`Windows Presentation Foundation`，是微软在`Windows Vsita`时代引入的用户界面框架。
 
 `WPF`向开发人员提供了一个统一的编程模型，用于在`Windows`上构建现代业务线桌面应用程序。
 
 
 
-## *XAML*
+# *XAML*
 `XAML`是一种声明性标记语言，语法类似`xhtml`，`WPF`使用其创建`UI`。
 
 在`Windows Form`中，一个`GUI`窗体的布局代码在文件**GUI类名.Designer.cs**中；  
@@ -65,7 +64,7 @@
 
 
 
-## 控件与布局
+# 控件与布局
 `WPF`中所有控件位于`System.Windows.Controls`命名空间下，大多数控件从基类`System.Windows.Controls.Control`中继承。
 
 - `Button` 按钮控件，类似于Qt中的`QButton`
@@ -83,7 +82,7 @@
 `TextBox`可以有焦点，可编辑，`TextBlock`不可。  
 `PasswordBox`拥有属性`PasswordChar`用于设置密码回显字符。
 
-### 控件样式
+## 控件样式
 使用`<Style>`标签可以定义统一的控件样式，基本用法如下：
 
 ```xml
@@ -101,7 +100,7 @@
 <XXX Style="{StaticResource key值}"/>
 ```
 
-### 布局
+## 布局
 在`WPF`官方控件中，布局并非可自由设置的属性，应选用具有特定布局的容器控件相互组合构建复杂界面。
 
 - `StackPanel` 水平/垂直容器，属性`Orientation`用于设置内部控件对齐方向
@@ -109,7 +108,7 @@
 - `DockPanel` 停靠面板容器，上下左右四个方向可分别设置不同子控件，最后一个控件做为中央控件填满剩余空间
 - `Grid` 网格容器，可自由分配每个网格的空间(最常用)
 
-### 控件对齐
+## 控件对齐
 大多数控件都具有以下对齐属性：
 
 - `VerticalAlignment`/`HorizontalAlignment` 设置控件自身的对齐方向
@@ -122,14 +121,14 @@
 
 
 
-## *ResourceDictionary* (资源字典)
+# *ResourceDictionary* (资源字典)
 资源字典是一个以`<ResourceDictionary/>`为根标签，包含资源定义的`XAML`文件。
 
 在`WPF`中，对于多个`XAML`重复引用的资源(样式、转换器类等)，可以将重复的资源定义写在**资源字典**中，在外部进行引用，避免编写重复代码。
 
 资源字典作用类似于WEB开发中`HTML`引用的`CSS`文件。
 
-### 创建资源字典
+## 创建资源字典
 在需要创建资源字典的路径下单击右键，选择以下菜单添加资源字典：
 
 ```
@@ -164,7 +163,7 @@
 </ResourceDictionary>
 ```
 
-### 引用资源字典
+## 引用资源字典
 在常见标签的`<Resources/>`子标签中可以引用资源字典，以`<Application/>`标签为例：
 
 ```xml
@@ -221,7 +220,7 @@
 
 
 
-## 数据绑定
+# 数据绑定
 `WPF`作为数据驱动的UI框架，与`Qt`、`MFC`等传统消息式驱动的UI框架最显著的区别便是**数据绑定**。
 
 在`WPF`中，典型的设计模式为`MVVM`。  
@@ -231,7 +230,7 @@
 通过将目标属性绑定到源属性上，源属性的变化会同步到目标属性上，改变源属性即可改变目标属性。  
 通过数据绑定避免直接操作`GUI`，实现显示层与逻辑层隔离。
 
-### 属性变更通知
+## 属性变更通知
 对于一个属性，要实现改变属性值时通知外部，需要满足以下要求：
 
 - 属性所在的Model实现`INotifyPropertyChanged`接口。
@@ -380,7 +379,7 @@ class XXX : INotifyPropertyChanged
 
 	使用`[CallerMemberName]`特性，能使属性在重构名称时避免手动修改传入属性通知方法的名称字符串。
 
-### 绑定语法
+## 绑定语法
 进行绑定操作需要明确目标对象的路径，`WPF`提供了`ElementName`、`Source`、`RelativeSource`三种绑定对象。
 
 - 默认绑定
@@ -441,7 +440,7 @@ class XXX : INotifyPropertyChanged
 	XXX="{Binding xxx, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type xxx}}}"
 	```
 
-### 绑定静态字段
+## 绑定静态字段
 绑定到静态字段时，需要首先使用`xmlns`属性声明静态字段所属类的命名空间：
 
 ```XML
@@ -476,7 +475,7 @@ XXX="{StaticResource xxx}"
 XXX="{Binding xxx, Source={StaticResource xxx}}"
 ```
 
-### 后台绑定
+## 后台绑定
 除了在`XAML`文件中直接建立数据绑定，也可以调用`API`在后端进行绑定。
 
 所有继承自`FrameworkElement`的类型均包含`SetBinding()`方法：
@@ -527,7 +526,7 @@ Binding binding = new Binding
 public Binding(string path);
 ```
 
-### 绑定模式
+## 绑定模式
 数据绑定时可以设置绑定模式(`Mode`)：
 
 ```xml
@@ -541,7 +540,7 @@ XXX="{Binding xxx, Mode=xxxx}"
 - `TwoWay` 源属性与目标属性相互同步改动，开销比单向同步更高。可编辑型控件的默认绑定方式(`TextBox`、`ComboBox`等)
 - `OneTime` 仅在初始化目标属性时读取源属性一次，开销最低
 
-### 数据更新触发器
+## 数据更新触发器
 在使用`OneWay/OneWayToSource`绑定时，绑定同时可以设置数据更新触发器(`UpdateSourceTrigger`)，配置何时更新绑定源数据：
 
 ```xml
@@ -553,7 +552,7 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 - `LostFocus` 当绑定目标元素失去焦点时，更新绑定源
 - `Explicit` 仅在调用`System.Windows.Data.BindingExpression.UpdateSource`方法时更新绑定源
 
-### 绑定源/目标更新触发事件
+## 绑定源/目标更新触发事件
 对于`FrameworkElement`类的子控件，会包含`SourceUpdated/TargetUpdated`两个事件。
 
 - 控件上任何设置了`NotifyOnTargetUpdated=True`的绑定在目标属性更新时都会触发`TargetUpdated`事件。
@@ -567,7 +566,7 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 		XXX="{Binding xxx, NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True}"/>
 ```
 
-### 多重绑定
+## 多重绑定
 当一个控件的目标属性依赖于**多个**数据源时，可以使用**多重绑定**。
 
 以常见的`Label`控件为例，多重绑定语法如下：
@@ -588,12 +587,11 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 
 与单一绑定使用的接口`IValueConverter`相比，`IMultiValueConverter`的接口方法`Convert()`首个参数类型由`object`变为`object[]`，数组中保存了多个绑定数据源的值，顺序按照绑定次序排列。
 
-### 无效依赖属性
 在实现数值转换接口时，需要对未设定值进行检验，数值转换异常时，首个参数会传入代表**未设定值**的特殊变量`DependencyProperty.UnsetValue`。
 
 
 
-## 触发器
+# 触发器
 触发器能够在满足某种条件时触发操作。  
 触发器包括以下三类：
 
@@ -634,7 +632,7 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 </Style>
 ```
 
-### 属性触发器
+## 属性触发器
 属性触发器可用于监视任意可绑定的属性，当被监视的属性满足条件时则执行触发器。
 
 以`Style`为例，监视`Image`控件的`IsEnabled`属性，如下所示：
@@ -677,7 +675,7 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 </Style>
 ```
 
-### 数据触发器
+## 数据触发器
 数据触发器用于监视绑定路径的数据变化，当绑定的路径数据满足条件时则执行触发器。
 
 与属性触发器类似，数据触发器也包括监视单一数据的`DataTrigger`与监视多数据的`MultiDataTrigger`。
@@ -705,7 +703,7 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 </Style>
 ```
 
-### 事件触发器
+## 事件触发器
 事件触发器用于监视事件的发生，在事件触发时执行触发器。
 
 事件触发器只能绑定到**路由事件**(委托类型为`RoutedEventHandler`)上。
@@ -729,7 +727,7 @@ XXX="{Binding xxx, UpdateSourceTrigger=xxxx}"
 </Style>
 ```
 
-### 事件绑定到命令
+## 事件绑定到命令
 事件触发器不能实现事件到命令的转发，使用`System.Windows.Interactivity.dll`程序集可实现事件到命令的转发。  
 `System.Windows.Interactivity.dll`**没有**包含在默认的`WPF`中，需要从`NuGet`中下载，并引入该程序集：
 
@@ -755,12 +753,12 @@ xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Inte
 
 
 
-## *Window* (窗口) 与 *Page* (页面)
+# *Window* (窗口) 与 *Page* (页面)
 在`WPF`中，**窗口**的类型为`System.Windows.Window`，所有的其它窗口均从此类派生。
 
 **页面**的类型为`System.Windows.Controls.Page`，`Page`不能够单独使用，需要搭配`NavigationWindow`或`Frame`才能显示页面。
 
-### 启动窗口/页面
+## 启动窗口/页面
 在`WPF`项目默认生成的`App`类的视图`App.xaml`中，`<Application/>`标签的属性`StartupUri`指明了应用的启动路径。
 
 默认生成的`App.xaml`如下所示：
@@ -777,7 +775,7 @@ xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Inte
 
 在使用`Page`做为`StartupUri`时，`WPF`会自动为该`Page`创建一个`NavigationWindow`。
 
-### 窗体加载与关闭
+## 窗体加载与关闭
 在窗体首次初始化、加载过程中，在不同阶段会依次触发以下事件：
 
 1. `FrameworkElement.Initialized`事件，在所有子元素已被设置完毕时触发。
@@ -805,7 +803,7 @@ protected override void OnInitialized(EventArgs e)
 
 重写`On*()`方法时不调用基类实现可以禁用匹配的事件。
 
-### 页面跳转
+## 页面跳转
 页面之间相互跳转在前端可以使用`<Hyperlink/>`标签实现：
 
 ```xml
@@ -834,7 +832,7 @@ NavigationService.GetNavigationService(source).GoBack();
 
 
 
-## *Grid* (网格容器)
+# *Grid* (网格容器)
 `Grid`容器提供了常见的**网格布局**。
 
 - `Grid`布局的行定义写在子标签`<Grid.RowDefinitions/>`中，列定义写在子标签`<Grid.ColumnDefinitions/>`中。
@@ -881,7 +879,7 @@ NavigationService.GetNavigationService(source).GoBack();
 
 
 
-## *DataGrid* (数据网格)
+# *DataGrid* (数据网格)
 使用`DataGrid`控件能够方便地展示数据库中的表。
 
 `DataGrid`基本语法类似于`Grid`控件，但`DataGrid`可绑定数据源，展示数据源中的内容。  
@@ -922,7 +920,7 @@ NavigationService.GetNavigationService(source).GoBack();
 </DataGrid>
 ```
 
-### 绑定数据库
+## 绑定数据库
 `DataGrid`控件的属性`ItemsSource`既可以绑定自行创建的集合类型，也可以直接绑定数据库。
 
 绑定数据库时，数据源为`DataView`类型，以`MySql`数据库为例：
@@ -938,7 +936,7 @@ dataGrid.ItemsSource = dataSet.Tables[0].DefaultView; //绑定数据源中的表
 
 绑定到数据库数据源时，数据库中的改动会自动同步到控件上。
 
-### 数据源类型
+## 数据源类型
 `DataGrid`同样支持使用自定义数据集合做为数据源。  
 在绑定数据源到自行创建的数据集合时，需要注意集合的类型。
 
@@ -947,10 +945,10 @@ dataGrid.ItemsSource = dataSet.Tables[0].DefaultView; //绑定数据源中的表
 
 
 
-## *DatePicker* (日期控件)
+# *DatePicker* (日期控件)
 `WPF`提供了日期选择控件`DatePicker`。
 
-### 设置默认显示日期
+## 设置默认显示日期
 设置控件的`SelectedDate`属性为指定时间即可。
 
 设置`DatePicker`默认显示当前日期：
@@ -977,7 +975,7 @@ dataGrid.ItemsSource = dataSet.Tables[0].DefaultView; //绑定数据源中的表
 	SelectedDate="{x:Static sys:DateTime.Now}"
 	```
 
-### 禁止日期文本编辑
+## 禁止日期文本编辑
 默认情况下，`DatePicker`控件的文本日期显示框支持直接编辑文本来设定日期，需要禁止此特性可以使用以下方式：
 
 - 将`Focusable`属性设置为`False`。
@@ -1002,10 +1000,10 @@ dataGrid.ItemsSource = dataSet.Tables[0].DefaultView; //绑定数据源中的表
 
 
 
-## DevExpress
+# *DevExpress*
 `DevExpress`是一套商业UI库，相比原生控件更加精美、控件功能更加强大。
 
-### 常用控件
+## 常用控件
 `DevExpress`为几乎所有WPF官方控件提供了功能更强大的版本。
 
 常用的控件命名空间如下：
@@ -1018,7 +1016,7 @@ xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid"
 xmlns:dxnb="http://schemas.devexpress.com/winfx/2008/xaml/navbar"
 ```
 
-### 布局层级
+## 布局层级
 `DevExpress`扩展了常用的布局容器，在`DevExpress`中，常用的多文档式窗口布局(`MDI`)层级：
 
 `DockLayoutManager` => `LayoutGroup`/`TabbedGroup`/`DocumentGroup` => `LayoutPanel`
@@ -1039,11 +1037,11 @@ xmlns:dxnb="http://schemas.devexpress.com/winfx/2008/xaml/navbar"
 </dxd:DockLayoutManager.AutoHideGroups>
 ```
 
-### 主界面
+## 主界面
 通常使用`DXDockPanel`进行主界面的布局。  
 `DXDockPanel`的子控件可设置属性`DockPanel.Dock`，取值`Top/Buttom/Left/Right`，最后一个控件会作为中央控件填满剩余空间。
 
-### 汉化控件
+## 汉化控件
 默认情况下，`DevExpress`提供的控件包含的默认文本均为**英文**，需要使用官方提供的语言资源包才能使对应控件展示文本替换为中文。
 
 以`DevExpress 13.2`为例，需要下载中文资源包：`DevExpressLocalizedResources_2013.2_zh-CN.zip`。  
@@ -1068,7 +1066,7 @@ public partial class App : Application
 }
 ```
 
-### 加载指示器
+## 加载指示器
 `DevExpress`提供了多种加载指示控件，用于在加载内容时提示用户，避免UI假死：	
 
 - `WaitIndicator` 等待指示器
@@ -1147,7 +1145,8 @@ public partial class App : Application
 	</dx:LoadingDecorator>
 	```
 
-### 常见问题
+## 常见问题
+记录`DevExpress`控件在使用中遇到的问题。
 
 - *DocumentGroup* 标签不可拖动、关闭
 
