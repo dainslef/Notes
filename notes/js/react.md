@@ -234,7 +234,7 @@ class Image extends Component {
 	render = () => <img src={this.props.src} alt={this.props.alt} />
 }
 
-const names = [1, 2].map(i => <h1>Name{i}</h2>)
+const names = [1, 2].map(i => <h1>Name{i}</h1>)
 const images = ["abc", "cde", "efg"]
 	.map((name, index) => <Image src={`${name}.jpg`} alt={`image${index}`}/>)
 
@@ -390,9 +390,30 @@ $ npm install react-router-native //React Router Native
 	MemoryRouter将历史URL保存在内存中(不从地址栏中读取/写入URL)。  
 	MemoryRouter常用于测试环境或非浏览器环境(如`React Native`)。
 
+将需要使用路由功能的组件置于`<Router />`标签内部。  
+通常直接将页面的根组件置于`<Router />`标签中：
+
+```jsx
+import React, { Component } from "react"
+import ReactDOM from "react-dom"
+import { BrowserRouter } from "react-router-dom"
+
+class App extends Component {
+	...
+}
+
+ReactDOM.render(
+	<BrowserRouter>
+		<App />
+	</BrowserRouter>,
+	document.getElementById("root")
+)
+```
+
 
 
 ## 常见错误
+React开发中的踩坑记录。
 
 ### *Uncaught ReferenceError: $ is not defined*
 使用`Webpack`打包，不能以常规方式使用JQuery，需要在Webpack配置中使用JQuery插件：
