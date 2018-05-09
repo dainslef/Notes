@@ -11,6 +11,7 @@
 - [*this*](#this)
 	- [*Function's this*](#functions-this)
 	- [*Arrow Function's this*](#arrow-functions-this)
+	- [*Node.js* 环境中的 this](#nodejs-环境中的-this)
 - [*Prototype* (原型)](#prototype-原型)
 	- [原型链](#原型链)
 	- [原型继承](#原型继承)
@@ -505,8 +506,7 @@ obj.test(obj)
 
 console.info(`obj: ${obj}`)
 console.info(`obj.name: ${obj.name}`) // obj 对象中并不存在 name 属性
-console.info(`this.name: ${this.name}`) // name 属性添加到了模块作用域中
-console.info(`module.exports.name: ${module.exports.name}`)
+console.info(`module.exports.name: ${module.exports.name}`) // name 属性添加到了模块作用域中
 ```
 
 输出结果：(Node.js v10.0.0)
@@ -516,9 +516,39 @@ this === target: false
 this === module.epxorts: true
 obj: { test: [Function: test] }
 obj.name: undefined
-this.name: test name
 module.exports.name: test name
 ```
+
+### *Node.js* 环境中的 this
+在`Node.js`环境中，全局this在不同场景下代表不同内容：
+
+- `Node.js REPL`
+
+	在Node.js提供的REPL中，this指向全局对象`global`。  
+	如下所示：(Node.js v10.1.0)
+
+	```js
+	> global === this
+	true
+	```
+
+- `Node.js Module`
+
+	使用Node.js解释器执行JavaScript源码文件时，每个源码文件会作为一个JS模块(`Module`)。  
+	模块中的this指向模块导出对象`module.exports`，而非全局对象`global`。  
+	如下所示：
+
+	```js
+	console.info(`this === global: ${this === global}`)
+	console.info(`this === module.epxorts: ${this === module.exports}`)
+	```
+
+	输出结果：(Node.js v10.1.0)
+
+	```
+	this === global: false
+	this === module.epxorts: true
+	```
 
 
 
