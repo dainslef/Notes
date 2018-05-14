@@ -1697,7 +1697,7 @@ super关键字具有以下限制：
 	  /* 错误，super关键字仅能引用父类/父特质的方法，不能引用字段
 	   * 编译报错：error: super may not be used on value num
 	   */
-	  val num = super.num + 1
+	  override val num = super.num + 1
 	}
 	```
 
@@ -3000,13 +3000,31 @@ tuple: (Int, Int, Int) = (1,2,3)
 
 元组中允许包含**重复**的值，也允许不同类型的值，但元组一经创建，内容便不可改变。
 
-元组**不支持**直接使用`for`循环进行遍历。  
-`Tuple`类型混入了`scala.Product`特质，可以使用无参方法`productIterator`获取可迭代的对象用于遍历。  
+元组**不支持**直接使用`for`语句进行遍历。  
+`Tuple`类型混入了`scala.Product`特质，可以使用无参方法`Product.productIterator`获取可迭代的对象用于遍历。  
 如下所示：
 
 ```scala
 for (t <- tuple.productIterator) println(t) //命令式遍历
 tuple.productIterator foreach println //函数式遍历
+```
+
+由于元组成员可具有**不同**的类型，因而使用`Product.productIterator`遍历时，迭代对象为`Any`类型。  
+对与成员类型相同的元组，可以在遍历时使用模式匹配：
+
+```scala
+scala> val tuple = (1, 2, 3)
+tuple: (Int, Int, Int) = (1,2,3)
+
+scala> tuple.productIterator foreach { i => println(i - 1) } //直接遍历迭代对象为 Any 类型
+<console>:13: error: value - is not a member of Any
+       tuple.productIterator foreach { i => println(i - 1) }
+                                                      ^
+
+scala> tuple.productIterator foreach { case i: Int => println(i - 1) } //使用模式匹配得到真实类型
+0
+1
+2
 ```
 
 元组可以通过`元组对象._索引号`的形式访问。元组下标从`1`开始而非`0`，如下所示：
