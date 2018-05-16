@@ -59,6 +59,34 @@ $ stop-all.sh //停止服务
 
 
 
+# *Spark Streaming*
+`Spark Streaming`是对核心`Spark API`的扩展，包含了对实时数据流(live data streams)的可扩展(scalable)、高吞吐(high-throughput)、容错性(fault-tolerant)的流式处理。  
+数据可从多种数据源中获取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，数据能将复杂的算法使用高阶函数表达，如`map`、`reduce`、`join`、`window`等。  
+最终，处理过后的数据可被发布到文件系统、数据库、实时仪表等。  
+实际上，可以将Spark的`Machine Learning`(机器学习)和`Graph Processing`(图处理)算法应用于数据流。
+
+```
+Kafka
+Flume                         HDFS
+HDFS/S3 => Spark Streaming => Databases
+Kinesis                       Dashboards
+Twitter
+```
+
+SparkStreaming接收实时的输入数据流并将数据划分批次，每个批次的数据将由Spark引擎处理并在批次中生成最终结果集的流。
+
+```
+input                        batches of               batches of
+data stream                  input data               processed data
+-----------> Spark Streaming ==========> Spark Engine ==============>
+```
+
+SparkStreaming为一个连续的数据流提供了高层抽象，叫做`DStream`(`discretized stream`，离散流)。  
+DStreams可以从多种数据源(如`Kafka`、`Flume`等)的输入数据流创建，或者通过其它DStream的高阶运算得到。  
+DStream本质上是一个`RDD`的序列。
+
+
+
 # 常见错误
 Spark开发、使用中常见错误说明。
 
