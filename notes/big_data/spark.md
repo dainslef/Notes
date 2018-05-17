@@ -59,7 +59,7 @@ $ stop-all.sh //停止服务
 
 
 
-# *Spark Streaming*
+# Spark Streaming
 `Spark Streaming`是对核心`Spark API`的扩展，包含了对实时数据流(live data streams)的可扩展(scalable)、高吞吐(high-throughput)、容错性(fault-tolerant)的流式处理。  
 数据可从多种数据源中获取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，数据能将复杂的算法使用高阶函数表达，如`map`、`reduce`、`join`、`window`等。  
 最终，处理过后的数据可被发布到文件系统、数据库、实时仪表等。  
@@ -85,19 +85,63 @@ SparkStreaming为一个连续的数据流提供了高层抽象，叫做`DStream`
 DStreams可以从多种数据源(如`Kafka`、`Flume`等)的输入数据流创建，或者通过其它DStream的高阶运算得到。  
 DStream本质上是一个`RDD`的序列。
 
+## Streaming Context
+`Streaming Context`是所有SparkStreaming功能的主要入口点，通过`SparkConf`或已存在的`SparkContext`构建`StreamingContext`实例：
+
+```scala
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.{SparkConf, SparkContext}
+
+val sparkConf = new SparkConf() {
+  setAppName("应用名称...")
+  setMaster("spark://xxx:xxx...")
+  ...
+}
+
+/* 通过 SparkConf 直接构建 StreamingContext 实例
+ * 第二参数为生成数据批次的间隔
+ */
+new StreamingContext(sparkConf, Seconds(1)) {
+  /* CheckPoint不设置在运行时会产生异常：
+   * java.lang.IllegalArgumentException: requirement failed:
+   * The checkpoint directory has not been set. Please set it by StreamingContext.checkpoint().
+   */
+  checkpoint("hdfs://xxx:xxx...")
+  ...
+}
+
+/* 获取 SparkContent 实例时，使用伴生对象中的 getOrCreate() 方法
+ * 避免分布式场景下多个 SparkContent 实例同时存在发生异常
+ */
+new StreamingContext(SparkContext.getOrCreate(sparkConf), Seconds(10)) {
+  checkpoint("hdfs://xxx:xxx...")
+  ...
+}
+```
+
+通过StreamingContext从不同的数据源构建输入数据的DStream，常见的数据源获取方式如下：
+
+```scala
+// 使用 Socket 做为数据源，返回值类型为 org.apache.spark.streaming.dstream.DStream
+streamingContext.socketTextStream(...)
+
+// 使用 HDFS 做为数据源
+streamingContext.textFileStream(...)
+```
+
 
 
 # 常见错误
 Spark开发、使用中常见错误说明。
 
-## *Unable to load native-hadoop library for your platform... using builtin-java classes where applicable*
+## Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
 错误说明：  
 Spark运行环境中已包含了Scala、Hadoop、Zookeeper等依赖，与Jar包中自带的依赖产生冲突。
 
 解决方式：  
 开发环境中为确保源码正常编译，需要完整引入Spark相关依赖，但在生成Jar时，需要移除Spark以及相关联的Scala、Hadoop、Zookeeper相关依赖。  
 
-## *Operation category READ is not supported in state standby*
+## Operation category READ is not supported in state standby
 错误说明：  
 配置了NameNode HA的Hadoop集群会存在`active`、`standby`两种状态。  
 SparkStreaming使用HDFS为数据源时URL需要使用active节点的主机名。
@@ -105,7 +149,7 @@ SparkStreaming使用HDFS为数据源时URL需要使用active节点的主机名�
 解决方式：  
 登陆HDFS的WEB管理界面查看节点状态，设置HDFS的URL时使用active节点的主机名。
 
-## *org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx*
+## org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx
 错误说明：  
 在集群模式下执行Spark应用时，多个JVM实例间持有不同的SparkContent实例，导致Worker节点间通信出错。
 
