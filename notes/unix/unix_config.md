@@ -1,43 +1,39 @@
-<!-- TOC -->
-
-- [*ftp*](#ftp)
-	- [连接服务器](#连接服务器)
-	- [常用指令](#常用指令)
-- [*GNU GRUB*](#gnu-grub)
-	- [安装与配置](#安装与配置)
-	- [安装引导器](#安装引导器)
-	- [修复引导](#修复引导)
-- [*ulimit*](#ulimit)
-	- [配置文件](#配置文件)
-		- [*Core Dump* (核心转储)](#core-dump-核心转储)
-- [*fdisk*](#fdisk)
+- [ftp](#ftp)
+	- [连接服务器](#)
+	- [常用指令](#)
+- [GNU GRUB](#gnu-grub)
+	- [安装与配置](#)
+	- [安装引导器](#)
+	- [修复引导](#)
+- [ulimit](#ulimit)
+	- [配置文件](#)
+		- [Core Dump (核心转储)](#core-dump)
+- [fdisk](#fdisk)
 - [*parted*](#parted)
-- [*LVM*](#lvm)
-	- [配置 *LVM*](#配置-lvm)
-	- [物理卷 *PV*](#物理卷-pv)
-	- [卷组 *VG*](#卷组-vg)
-	- [逻辑卷 *LV*](#逻辑卷-lv)
-- [*curl*](#curl)
-	- [*FTP* 操作](#ftp-操作)
-- [*Suspend* 和 *Hibernate*](#suspend-和-hibernate)
-- [*systemd*](#systemd)
-	- [服务管理](#服务管理)
-	- [服务分析](#服务分析)
-		- [系统配置](#系统配置)
-- [*VTE*](#vte)
-- [*apt*](#apt)
-	- [源配置](#源配置)
-	- [Debian 源](#debian-源)
-	- [Ubuntu 源](#ubuntu-源)
-	- [*apt-mirror*](#apt-mirror)
-	- [配置](#配置)
-	- [使用本地源](#使用本地源)
-
-<!-- /TOC -->
+- [LVM](#lvm)
+	- [基本操作](#)
+	- [Physical Volume (PV，物理卷)](#physical-volume-pv)
+	- [Volume Group (VG，卷组)](#volume-group-vg)
+	- [Logical Volume (LV，逻辑卷)](#logical-volume-lv)
+- [curl](#curl)
+	- [FTP 操作](#ftp)
+- [Suspend 和 Hibernate](#suspend--hibernate)
+- [systemd](#systemd)
+	- [服务管理](#)
+	- [服务分析](#)
+	- [系统配置](#)
+- [VTE](#vte)
+- [apt](#apt)
+	- [源配置](#)
+	- [Debian 源](#debian)
+	- [Ubuntu 源](#ubuntu)
+	- [apt-mirror](#apt-mirror)
+		- [本地源配置](#)
+		- [使用本地源](#)
 
 
 
-# *ftp*
+# ftp
 `Windows`系统下提供了`ftp`命令行工具用于访问`FTP`服务器进行交互。
 
 ## 连接服务器
@@ -96,7 +92,7 @@ ftp>
 
 
 
-# *GNU GRUB*
+# GNU GRUB
 `GRUB`(`GRand Unified Bootloader`)是现代`Linux`的标准启动管理器，是`LILO`(`Linux Loader`)的替代品。
 
 `GRUB`支持多重引导，除了`Linux`，也能用于引导`Windows`、`FreeBSD`等其它现代操作系统。  
@@ -204,7 +200,7 @@ ftp>
 
 
 
-# *ulimit*
+# ulimit
 使用`ulimit`指令查看和设定各类限制。  
 指令格式：
 
@@ -256,7 +252,7 @@ $ ulimit [类别] [限制数值]
 #@student        -       maxlogins       4
 ```
 
-### *Core Dump* (核心转储)
+### Core Dump (核心转储)
 启用核心转储后，则在进程执行异常退出时，会生成包含异常信息的错误转储文件。  
 使用`gdb`可分析转储文件：
 
@@ -268,7 +264,7 @@ $ gdb [进程文件] [进程核心转储]
 
 
 
-# *fdisk*
+# fdisk
 `fdisk`是Linux命令行下常用的交互式分区工具。
 
 - 早期的`fdisk`不能识别`GPT`分区表，划分`GPT`分区需要使用`parted`工具。
@@ -347,13 +343,13 @@ $ gdb [进程文件] [进程核心转储]
 
 
 
-# *LVM*
+# LVM
 `LVM`是`Logical Volume Manager`(逻辑卷管理)的简写，是Linux环境下对磁盘分区进行管理的一种机制。
 
 使用`LVM`能够将不同的硬盘上的物理卷(`Physical Volume`，简称`PV`)加入卷组(`Volume Group`，简称`VG`)。  
 在卷组中将其划分为不同的逻辑卷(`Logical Volume`，简称`LV`)，然后在逻辑卷中创建文件系统并进行挂载。
 
-## 配置 *LVM*
+## 基本操作
 配置`LVM`的**基本步骤**：
 
 1. 创建硬盘分区
@@ -362,7 +358,7 @@ $ gdb [进程文件] [进程核心转储]
 1. 创建逻辑卷：`# lvcreate -L [分区大小(xxGB/xxMB/...)] -n [逻辑分区名称] [卷组名称]`
 1. 格式化逻辑分区，挂载使用
 
-## 物理卷 *PV*
+## Physical Volume (PV，物理卷)
 物理卷`Physical Volume`是在磁盘上**实际存在**的物理分区。  
 被添加到`LVM`的物理分区需要拥有`lvm`标识(flag)。
 
@@ -376,7 +372,7 @@ $ gdb [进程文件] [进程核心转储]
 移除一个物理卷需要先将该物理卷从所属的卷组中移除。  
 移除物理卷前需要保证没有数据存储在该物理卷中，若**要被移除的物理卷**中已有数据，则需要使用`pvmove`指令将该卷中的数据转移到其它卷。
 
-## 卷组 *VG*
+## Volume Group (VG，卷组)
 物理卷需要加入卷组(`Volume Group`)才能被使用。
 
 卷组相关的操作为`vgXXX`系列指令：
@@ -386,7 +382,7 @@ $ gdb [进程文件] [进程核心转储]
 - `# vgremove [卷组名称]` 移除指定卷组
 - `# vgdisplay` 显示所有卷组
 
-## 逻辑卷 *LV*
+## Logical Volume (LV，逻辑卷)
 逻辑卷(`Logical Volume`)是`LVM`中实际用于创建文件系统、挂载的分区。  
 逻辑卷的磁盘路径为`/dev/[逻辑卷所属卷组名称]/[逻辑卷名称]`，使用该路径可以像操作物理磁盘一样对其进行创建文件系统、挂载等操作。
 
@@ -404,7 +400,7 @@ $ gdb [进程文件] [进程核心转储]
 
 
 
-# *curl*
+# curl
 `curl`是一款功能强大的文件传输工具。
 
 基本指令为：
@@ -420,7 +416,7 @@ $ curl [目标文件路径]
 $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 ```
 
-## *FTP* 操作
+## FTP 操作
 使用`curl`工具进行`FTP`操作：
 
 - `$ curl ftp://[ip/域名] -u [用户名]:[密码]` 列出FTP下的文件、目录列表
@@ -463,7 +459,7 @@ $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 
 
 
-# *Suspend* 和 *Hibernate*
+# Suspend 和 Hibernate
 *Suspend*和*Hibernate*是很容易混淆的两个概念。
 
 - `Suspend`(**睡眠**)：
@@ -481,7 +477,7 @@ $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 
 
 
-# *systemd*
+# systemd
 `systemd`是`Linux`下新式的`init`系统，在各大发行版中逐渐替代了原先`Unix System V`风格的`init`系统。
 
 传统的`Unix System V`风格`init`系统需要一次一个串行地启动服务进程。  
@@ -534,7 +530,7 @@ $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 - `$ systemd-analyze` 显示系统的启动耗时
 - `$ systemd-analyze blame` 列出所有的启动单元，按照启动耗时的高低进行排序
 
-### 系统配置
+## 系统配置
 `systemd`还集成了常用的系统配置工具：
 
 - `hostnamectl` 配置主机名称
@@ -546,7 +542,7 @@ $ curl [目标文件路径] -u [用户名]:[密码] -o [输出文件路径]
 
 
 
-# *VTE*
+# VTE
 `VTE`是`Gnome`项目提供的轻量级终端库，许多终端软件使用`VTE`实现，如`gnome-terminal`、`roxterm`等。  
 `VTE`自身亦可做为独立的终端软件使用。
 
@@ -579,7 +575,7 @@ $ vte -W -P never -g 120x40 -f "Monaco 10" -n 5000 --reverse
 
 
 
-# *apt*
+# apt
 `apt`是`Debian`系列发行版的前端包管理工具。
 
 `apt`主要功能：
@@ -679,12 +675,10 @@ deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted univers
 deb http://archive.canonical.com/ubuntu/ xenial partner
 ```
 
-
-
-## *apt-mirror*
+## apt-mirror
 `apt-mirror`是`Debian`系列发行版中用于制作**本地源**的工具。
 
-## 配置
+### 本地源配置
 `apt-mirror`的配置文件为`/etc/apt/mirror.list`。  
 若无特殊需求可直接使用默认配置。
 
@@ -703,7 +697,7 @@ deb http://mirrors.ustc.edu.cn/ubuntu xenial-updates main restricted universe mu
 deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted universe muitiverse
 ```
 
-## 使用本地源
+### 使用本地源
 若仅需要本机使用本地源，可以直接使用`file:///...`访问本机的源路径。  
 `sources.list`配置：
 
