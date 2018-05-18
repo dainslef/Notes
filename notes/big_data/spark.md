@@ -61,7 +61,7 @@ $ stop-all.sh //停止服务
 
 # Spark Streaming
 `Spark Streaming`是对核心`Spark API`的扩展，包含了对实时数据流(live data streams)的可扩展(scalable)、高吞吐(high-throughput)、容错性(fault-tolerant)的流式处理。  
-数据可从多种数据源中获取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，数据能将复杂的算法使用高阶函数表达，如`map`、`reduce`、`join`、`window`等。  
+数据可从多种数据源中获取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，数据能将复杂的算法使用高阶函数表达，如`map()`、`reduce()`、`join()`、`window()`等。  
 最终，处理过后的数据可被发布到文件系统、数据库、实时仪表等。  
 实际上，可以将Spark的`Machine Learning`(机器学习)和`Graph Processing`(图处理)算法应用于数据流。
 
@@ -128,6 +128,40 @@ streamingContext.socketTextStream(...)
 // 使用 HDFS 做为数据源
 streamingContext.textFileStream(...)
 ```
+
+## DStream
+`DStream`是SparkStreaming提供的基础抽象，表示一串连续的数据流，可以是来自数据源的输入数据流，也可以由其它数据流转换生成。  
+实质上，DStream是一组连续的RDD，每个DStream中的RDD包含者来自某个时间间隔的数据，如下所示：
+
+```
+             RDDs @ time 1       RDDs @ time 2       RDDs @ time 3
+            |-------------|     |-------------|     |-------------|
+DStream --- | data from   | --- | data from   | --- | data from   | --- ... --->
+            | time 0 to 1 |     | time 1 to 2 |     | time 2 to 3 |
+            |-------------|     |-------------|     |-------------|
+```
+
+DStream中执行的操作将会应用到底层的每个RDD中。  
+例如，对DStream1执行`flatMap`操作得到DStream2，DStream1中的每一个RDD均会通过`flatMap`操作生成新的RDD，并构成DStream2，如下所示：
+
+```
+                   time 1                time 2                time 3
+             |---------------|     |---------------|     |---------------|
+DStream1 --- | DStream1 from | --- | DStream1 from | --- | DStream1 from | --- ... --->
+             | time 0 to 1   |     | time 1 to 2   |     | time 2 to 3   |
+             |---------------|     |---------------|     |---------------|
+                     |                     |                     |
+                     |flatMap              |                     |
+                     |operation            |                     |
+                     |                     |                     |
+                    \|/                   \|/                   \|/
+             |---------------|     |---------------|     |---------------|
+DStream2 --- | DStream2 from | --- | DStream2 from | --- | DStream2 from | --- ... --->
+             | time 0 to 1   |     | time 1 to 2   |     | time 2 to 3   |
+             |---------------|     |---------------|     |---------------|
+```
+
+底层的RDD变化由Spark引擎完成计算。DStream操作隐藏了多数的底层细节，给开发者提供了便利的高层次API。
 
 
 
