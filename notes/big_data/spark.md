@@ -59,6 +59,49 @@ $ stop-all.sh //停止服务
 
 
 
+# RDD (弹性分布式数据集)
+`RDD`(`Resilient Distributed Datasets`，弹性分布式数据集)是高容错性(fault-tolerant)、可并行操作的的数据集合。
+RDD是Spark中对数据的抽象，是Spark中的核心概念。
+
+## 创建 RDD
+Spark提供了两种创建RDD的方式：
+
+1. 并行化程序中已存在的普通数据集：
+
+	调用`SparkContext.parallelize()`方法将已存在的普通数据集(`Seq[T]`)转换为`RDD[T]`。
+	方法定义如下(源码取自`Spark 2.3.0`)：
+
+	```scala
+	class SparkContext(config: SparkConf) extends Logging {
+	  ...
+	  def parallelize[T: ClassTag](seq: Seq[T], numSlices: Int = defaultParallelism): RDD[T] = ...
+	  ...
+	}
+	```
+
+	使用示例：
+
+	```scala
+	scala> val normalData = 1 to 10 //构建普通数据集
+	normalData: scala.collection.immutable.Range.Inclusive = Range(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+	scala> val rddData = sc.parallelize(normalData) //并行化数据集，生成RDD
+	rddData: org.apache.spark.rdd.RDD[Int] = ParallelCollectionRDD[0] at parallelize at <console>:26
+	```
+
+1. 引用来自外部存储系统的数据集，如本地文件系统、HDFS、HBase、AmazonS3等：
+
+	以文本文件为例，调用`SparkContext.textFile()`方法使用文本文件创建RDD。
+	该方法传入文件的URI，按行读取文件构建文本数据集。
+	使用示例：
+
+	```scala
+	scala> val textRdd = sc.textFile("test.json")
+	textRdd: org.apache.spark.rdd.RDD[String] = test.json MapPartitionsRDD[3] at textFile at <console>:24
+	```
+
+
+
 # Spark Streaming
 `Spark Streaming`是对核心`Spark API`的扩展，包含了对实时数据流(live data streams)的可扩展(scalable)、高吞吐(high-throughput)、容错性(fault-tolerant)的流式处理。  
 数据可从多种数据源中获取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，数据能将复杂的算法使用高阶函数表达，如`map()`、`reduce()`、`join()`、`window()`等。  
