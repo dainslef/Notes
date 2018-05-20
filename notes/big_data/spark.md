@@ -100,6 +100,24 @@ Spark提供了两种创建RDD的方式：
 	textRdd: org.apache.spark.rdd.RDD[String] = test.json MapPartitionsRDD[3] at textFile at <console>:24
 	```
 
+## RDD 操作
+RDD支持两类操作：
+
+1. `Transformation`
+
+	通过已有的RDD创建出新的RDD，常见的transformation操作有`map()`、`filter()`、`flatMap()`等。
+
+1. `Action`
+
+	对RDD进行计算并返回计算结果，常见的action操作有`reduce()`、`collect()`、`count()`、`first()`等。
+
+所有的transformation操作是延迟执行(lazy)的，transformation操作不会立即计算结果，而仅仅是记录要执行的操作。transformation操作只在action操作要求返回结果时进行计算。
+Spark这样的设计能够保证计算更有效率，例如，当一个数据集先后进行了`map()`和`reduce()`操作，Spark服务端便只会返回reduce之后的结果，而不是更大的map之后的数据集。
+
+默认情况下，每个执行transformation操作之后的RDD会每次执行action操作时重新计算。
+可以使用`persist()/cache()`方法将RDD在内存中持久化，Spark将在集群中保留这些数据，在下次查询时访问会更加快速。
+Spark同样支持将RDD持久化到磁盘中，或是在多个节点之间复制。
+
 
 
 # Spark Streaming
@@ -209,7 +227,7 @@ DStream2 --- | DStream2 from | --- | DStream2 from | --- | DStream2 from | --- .
 
 
 # 常见错误
-Spark开发、使用中常见错误说明。
+记录Spark开发、使用过程中遇到的错误信息以及对应解决方法。
 
 ## Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
 错误说明：  
