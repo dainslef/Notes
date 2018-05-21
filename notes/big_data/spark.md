@@ -250,6 +250,46 @@ object DStream {
 }
 ```
 
+即调用updateStateByKey()方法的DStream需要为`DStream[(K, V)]`类型。
+updateStateByKey()方法包含多个重载，定义如下(源码取自`Spark 2.3.0`)：
+
+```scala
+class PairDStreamFunctions[K, V](self: DStream[(K, V)])
+  (implicit kt: ClassTag[K], vt: ClassTag[V], ord: Ordering[K]) extends Serializable {
+  ...
+  def updateStateByKey[S: ClassTag](
+    updateFunc: (Seq[V], Option[S]) => Option[S]): DStream[(K, S)] = ...
+  def updateStateByKey[S: ClassTag](
+    updateFunc: (Seq[V], Option[S]) => Option[S],
+    partitioner: Partitioner): DStream[(K, S)] = ...
+  def updateStateByKey[S: ClassTag](
+    updateFunc: (Seq[V], Option[S]) => Option[S],
+    partitioner: Partitioner, initialRDD: RDD[(K, S)]): DStream[(K, S)] = ...
+  ...
+}
+```
+
+方法参数`updateFunc`即为真正的数据处理逻辑，参数类型为：
+
+```scala
+(Seq[V], Option[S]) => Option[S]
+```
+
+数据处理函数的输入/输出如下：
+
+1. 第一参数为根据Key值归类的值序列，原DStream中Key相同的Value构成`Seq[V]`做为第一输入参数。
+1. 第二参数为存储的状态，首次调用为空，之后调用为上一次计算返回的状态。
+1. 返回值是更新的状态，下次触发updateStateByKey()方法时相同Key会使用此刻的返回值。
+
+输入数据类型由原DStream的Value类型(`V`)决定，状态类型(`S`)由用户决定。
+经过updateStateByKey()处理，生成新的类型为`DStream[(K, S)]`的DStream。
+
+整个计算流程的类型变化关系：
+
+```scala
+DStream[(K, V)] => PairDStreamFunctions[K, V] => PairDStreamFunctions.updateStateByKey[S]() => DStream[(K, S)]
+```
+
 
 
 # 常见错误
