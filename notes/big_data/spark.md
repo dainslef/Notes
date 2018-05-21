@@ -224,6 +224,32 @@ DStream2 --- | DStream2 from | --- | DStream2 from | --- | DStream2 from | --- .
 
 底层的RDD变化由Spark引擎完成计算。DStream操作隐藏了多数的底层细节，给开发者提供了便利的高层次API。
 
+## 数据变换
+与RDD类似，DStream允许对输入的数据进行变换操作。
+DStream支持多数RDD中可用的变换操作，如`map()`、`flatMap()`、`fliter()`、`reduce()`等，其中较为特殊的是支持存储状态的`updateStateByKey()`和`mapWithState()`操作。
+
+### updateStateByKey()
+`updateStateByKey()`允许保存任意的状态并一直使用数据流中的新数据来更新它。
+使用updateStateByKey()需要以下两个步骤：
+
+1. 定义状态，状态可以任意的数据类型。
+1. 定义状态更新函数，指定如何根据输入数据和之前的状态来更新状态、输出数据。
+
+updateStateByKey()方法并未直接定义在DStream类型中，而是由`PairDStreamFunctions[K, V]`类型提供，
+`PairDStreamFunctions[K, V]`由`DStream[(K, V)]`隐式转换得到，如下所示(源码取自`Spark 2.3.0`)：
+
+```scala
+object DStream {
+
+  implicit def toPairDStreamFunctions[K, V](stream: DStream[(K, V)])
+      (implicit kt: ClassTag[K], vt: ClassTag[V], ord: Ordering[K] = null):
+    PairDStreamFunctions[K, V] = {
+    new PairDStreamFunctions[K, V](stream)
+  }
+  ...
+}
+```
+
 
 
 # 常见错误
