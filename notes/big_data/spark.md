@@ -100,6 +100,11 @@ Spark提供了两种创建RDD的方式：
 	textRdd: org.apache.spark.rdd.RDD[String] = test.json MapPartitionsRDD[3] at textFile at <console>:24
 	```
 
+RDD在创建完毕后可以被并行地操作。  
+一个重要的参数是分区数量(numbers of partions)，分区数量决定了数据集将会被切分成多少个分区。
+Spark执行task时会在集群中的每一个分区进行。典型的分配方式是根据CPU数目每个CPU分配2～4个分区(CPU双核/四核)。
+通常Spark会根据集群自动设置分区大小，但也可以通过设置`SparkContext.parallelize()`方法的第二参数来手动控制分区数量。
+
 ## RDD 操作
 RDD支持两类操作：
 
