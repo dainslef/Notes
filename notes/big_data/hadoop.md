@@ -1,15 +1,16 @@
-<!-- TOC -->
-
 - [概述](#概述)
 	- [下载](#下载)
 	- [环境变量配置](#环境变量配置)
 	- [集群规划](#集群规划)
 	- [路径规划](#路径规划)
 	- [服务配置](#服务配置)
-- [*HDFS*](#hdfs)
+- [HDFS](#hdfs)
 	- [访问地址](#访问地址)
-
-<!-- /TOC -->
+- [常见问题](#常见问题)
+	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0. Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0-expected-transaction-id-was-1)
+	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
+	- [java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx](#javaioioexception-got-error-status-message--ack-with-firstbadlink-as-xxxxxxxxxxxxxxx)
+	- [全部HA节点处于 stand by 状态](#全部ha节点处于-stand-by-状态)
 
 
 
@@ -225,7 +226,7 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 
 
 
-# *HDFS*
+# HDFS
 `Hadoop Distributed File System (HDFS)`是一个被设计成运行在商用硬件上的分布式文件系统。  
 HDFS与现存的分布式文件系统类似，不同之处在于HDFS是**高容错**(highly fault-tolerant)的，HDFS被设计成能够部署在低成本的硬件上。  
 HDFS提供了对应用数据的高吞吐访问，适用于拥有大量数据集的应用。  
@@ -245,4 +246,48 @@ HDFS还提供了WEB管理界面，地址如下：
 ```sh
 # 默认端口 50070
 http://主机名或IP:WEB服务端口
+```
+
+
+
+# 常见问题
+Hadoop配置中遇到问题的说明和解决方案。
+
+## ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1
+错误说明：  
+namenode启动失败，需要重新格式化，保证namenode的ID一致性。
+
+解决方案：  
+格式化失败尝试`hdfs  namenode -format -force`同时格式化namenode和datanode。
+
+## Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;
+错误说明：  
+执行`hdfs namenode -format`指令时，集群未启动，需要在集群已启动的情况下格式化NameNode。
+
+解决方案：  
+启动集群后再格式化NameNode。
+
+## java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx
+错误说明：  
+防火墙服务开启导致HDFS节点之间访问异常。
+
+解决方案：  
+关闭对应节点的防火墙服务：
+
+```c
+# systemctl stop firewalld //关闭防火墙服务
+# systemctl disable firewalld //禁止防火墙服务自启动
+```
+
+## 全部HA节点处于 stand by 状态
+错误说明：  
+NameNode的HA状态异常，没有选举出active的节点，HA节点均为stand by。
+
+解决方案：  
+检查Zookeeper运行状态，NameNode选举依赖Zookeeper提供的服务。  
+若Zookeeper正常，则可尝试重新格式化NameNode。  
+或者使用`haadmin`工具强制指定active节点：
+
+```
+$ hdfs haadmin -transitionToActive --forcemanual [需要激活的NameNode名称]
 ```
