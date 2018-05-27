@@ -1,15 +1,11 @@
-<!-- TOC -->
-
 - [简介](#简介)
 - [安装与配置](#安装与配置)
 - [安装模块](#安装模块)
 	- [查看已安装模块](#查看已安装模块)
-- [*Serve*](#serve)
-	- [配置 *SPA*](#配置-spa)
+- [Serve](#serve)
+	- [配置 SPA](#配置-spa)
 - [常见错误](#常见错误)
-	- [*npm WARN tar zlib error: unexpected end of file*](#npm-warn-tar-zlib-error-unexpected-end-of-file)
-
-<!-- /TOC -->
+	- [npm WARN tar zlib error: unexpected end of file](#npm-warn-tar-zlib-error-unexpected-end-of-file)
 
 
 
@@ -152,7 +148,7 @@ test-react@0.0.1 /Users/dainslef/Downloads/WorkSpace/test-react
 
 
 
-# *Serve*
+# Serve
 `Serve`是一个简单的基于Node.js的静态WEB服务器。  
 Serve提供了常见的静态服务器参数，并为**单页WEB应用**提供了参数，相比`Apache`、`Nginx`等传统WEB服务器在配置上更加简单。  
 Serve亦是React项目推荐的默认WEB服务器。  
@@ -170,7 +166,7 @@ $ serve //在当前路径下启动WEB服务
 $ serve 目标路径 //在目标路径下启动WEB服务
 ```
 
-## 配置 *SPA*
+## 配置 SPA
 `SPA`(**Single Web Page Application，单页WEB应用**)是当今主流的WEB呈现方式，配置SPA需要WEB服务器将路由发往同一个入口页面。  
 Serve为单页应用提供了内置的参数，使用`-s`参数即可在路由没有匹配资源时指向默认的`index.html`页面。  
 如下所示：
@@ -184,7 +180,7 @@ $ serve -s 目标路径
 # 常见错误
 常见`npm`相关错误记录。
 
-## *npm WARN tar zlib error: unexpected end of file*
+## npm WARN tar zlib error: unexpected end of file
 错误原因：  
 部分包未完全下载，或下载文件校验不通过，安装时使用缓存的错误文件安装导致安装失败。
 

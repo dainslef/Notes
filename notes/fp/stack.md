@@ -1,5 +1,3 @@
-<!-- TOC -->
-
 - [*Stack* 简介](#stack-简介)
 - [安装与配置](#安装与配置)
 	- [配置 *GHC*](#配置-ghc)
@@ -11,28 +9,26 @@
 	- [项目结构](#项目结构)
 - [构建配置](#构建配置)
 	- [模块定义](#模块定义)
-	- [可执行文件定义](#可执行文件定义)
+		- [可执行文件定义](#可执行文件定义)
 	- [测试定义](#测试定义)
 	- [数据文件定义](#数据文件定义)
 	- [*Paths_xxx* 模块](#paths_xxx-模块)
 
-<!-- /TOC -->
 
 
-
-## *Stack* 简介
+# *Stack* 简介
 `Stack`是新一代的`Haskell`构建工具。
 
 `Stack`集成了以下功能：
 
 - 创建标准的`Haksell`项目模板。
 - 获取最新的`GHC`编译器。
-- 管理项目依赖(由`Cabal`实现)。
-- 构建项目(由`Cabal`实现)。
+- 管理项目依赖(基于`Cabal`实现)。
+- 构建项目(基于`Cabal`实现)。
 
 
 
-## 安装与配置
+# 安装与配置
 `Stack`支持各大主流平台，根据平台在页面`https://www.stackage.org/stack/`选择下载二进制包。
 
 - **Linux/Unix**系统：
@@ -51,7 +47,7 @@
 	1. 配置`STACK_ROOT`环境变量。
 	1. 将`%STACK_ROOT%`加入`PATH`环境变量中。
 
-### 配置 *GHC*
+## 配置 *GHC*
 通过Stack可以简便地安装`GHC`编译器。  
 使用`stack setup`指令，`Stack`会自动下载配置最新稳定版本的`GHC`编译器。
 
@@ -80,14 +76,15 @@ $ stack setup
 > stack setup --skip-msys
 ```
 
-### *Stackage*
+## *Stackage*
 `Stackage`是稳定的Haskell包，官方站点为`https://www.stackage.org`。
 
 Stackage根据不同的GHC版本形成不同的`Stackage LTS`版本，
 stack在构建工程时通过LTS版本确定编译器以及对应依赖包的版本关系。
 
-全局LTS版本由`~/.stack/global-project/stack.yaml`文件指定。  
-项目中使用的LTS版本由项目根路径下的`stack.yaml`文件指定。  
+**全局**LTS版本由`~/.stack/global-project/stack.yaml`文件指定。  
+项目中使用的LTS版本由项目根路径下的`stack.yaml`文件指定。
+
 通过指定`resolver`配置项设定stack使用的LTS版本：
 
 ```yaml
@@ -104,7 +101,7 @@ resolver: lts-10.7
 
 全局的LTS版本决定了在工程目录外使用`stack ghc`、`stack ghci`等指令时调用的GHC版本。  
 
-### 配置 *Mirrors*
+## 配置 *Mirrors*
 `Stackage`和`Hackage`默认的镜像源在国内均被**墙**，需要替换源后才能正常使用。  
 国内推荐使用`TUNA`源(清华大学镜像源)。
 
@@ -127,7 +124,7 @@ package-indices:
     http: http://mirrors.tuna.tsinghua.edu.cn/hackage/00-index.tar.gz
 ```
 
-### 关于 *Revision Mismatch* 错误
+## 关于 *Revision Mismatch* 错误
 当`Stackage`镜像源未完全同步官方源时，部分包可能`MD5`校验未通过，出现`Revision Mismatch`错误。  
 对于`Revision Mismatch`错误，默认行为是直接退出。
 
@@ -141,7 +138,7 @@ ignore-revision-mismatch: true
 
 
 
-## 启动与使用
+# 启动与使用
 直接执行`stack`指令会输出帮助信息。  
 `stack`常见指令如下：
 
@@ -156,7 +153,7 @@ ignore-revision-mismatch: true
 - `test` 执行测试
 - `clean` 清理构建缓存
 
-### 创建项目
+## 创建项目
 使用`stack new`创建项目：
 
 ```
@@ -167,7 +164,7 @@ $ stack new [项目名称] [模版名称]
 可使用`stack templates`指令列出所有可用的模版。  
 **模版名称**可省略，省略模版参数时将使用默认模版`new-template`。
 
-### 项目结构
+## 项目结构
 `Stack`项目默认目录结构如下：
 
 ```
@@ -194,7 +191,7 @@ $ stack new [项目名称] [模版名称]
 
 
 
-## 构建配置
+# 构建配置
 `Stack`项目根目录下的`项目名称.cabal`文件定义了项目的构建配置。  
 基本的配置结构如下所示：
 
@@ -233,7 +230,7 @@ source-repository head
 - `default-language` 设定使用的语言标准
 - `ghc-options` 设置`GHC`的编译选项
 
-### 模块定义
+## 模块定义
 `Haskell`中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。  
 `library`配置段定义了导出模块的信息。
 
@@ -271,7 +268,7 @@ executable 可执行文件名称
 使用`stack build`指令后，会在`[项目根路径]/.stack-work/install/[CPU架构]-[操作系统]/lts-[LTS版本号]/[GHC版本号]/bin`路径下生成可执行文件。  
 使用`stack exec [执行文件名称]`执行生成的文件。
 
-### 测试定义
+## 测试定义
 `test-suite`配置段定义了测试相关内容。  
 `test-suite`后添加测试名称，默认名称为`[项目名称]-test`，名称可以自定义。  
 一个项目可定义多组测试(定义多个`test-suite`配置段)。  
@@ -290,12 +287,17 @@ test-suite 测试名称
   default-language:    Haskell2010
 ```
 
-使用`stack test :[测试名称]`执行指定测试。  
-测试名称前需要添加**冒号**。
+使用`stack test`指令执行测试：
 
+```c
+$ stack test //执行所有测试
+$ stack test :[测试名称] //执行指定名称的测试
+```
+
+测试名称前需要添加**冒号**。  
 当测试目标为空时，会按定义顺序执行项目中的**所有**测试。
 
-### 数据文件定义
+## 数据文件定义
 在全局的`data-dir/data-files`配置段中添加关于运行时使用的数据、资源、配置文件相关定义。
 
 - `data-dir`
@@ -356,7 +358,7 @@ data-files: conf/xxx.json, conf/xxx.xml
 
 构建后会在目标路径下生成`conf`路径，并生成数据文件。
 
-### *Paths_xxx* 模块
+## *Paths_xxx* 模块
 `Stack`构建项目时，会自动生成一个名称为`Paths_[项目名称]`的模块。  
 该模块提供了项目的**版本**与**路径**信息。  
 模块导出接口如下：
@@ -389,7 +391,7 @@ getDataFileName :: FilePath -> IO FilePath
 library
   hs-source-dirs:      src
   ...
-  other-modules:       Paths_test_socket
+  other-modules:       Paths_xxx
 ```
 
 若未添加`other-modules`配置项，则构建项目时会产生未定义符号错误：

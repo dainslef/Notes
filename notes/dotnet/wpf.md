@@ -1,12 +1,10 @@
-<!-- TOC -->
-
-- [*WPF* 简介](#wpf-简介)
-- [*XAML*](#xaml)
+- [概述](#概述)
+- [XAML](#xaml)
 - [控件与布局](#控件与布局)
 	- [控件样式](#控件样式)
 	- [布局](#布局)
 	- [控件对齐](#控件对齐)
-- [*ResourceDictionary* (资源字典)](#resourcedictionary-资源字典)
+- [ResourceDictionary (资源字典)](#resourcedictionary-资源字典)
 	- [创建资源字典](#创建资源字典)
 	- [引用资源字典](#引用资源字典)
 - [数据绑定](#数据绑定)
@@ -23,18 +21,18 @@
 	- [数据触发器](#数据触发器)
 	- [事件触发器](#事件触发器)
 	- [事件绑定到命令](#事件绑定到命令)
-- [*Window* (窗口) 与 *Page* (页面)](#window-窗口-与-page-页面)
+- [Window (窗口) 与 Page (页面)](#window-窗口-与-page-页面)
 	- [启动窗口/页面](#启动窗口页面)
 	- [窗体加载与关闭](#窗体加载与关闭)
 	- [页面跳转](#页面跳转)
-- [*Grid* (网格容器)](#grid-网格容器)
-- [*DataGrid* (数据网格)](#datagrid-数据网格)
+- [Grid (网格容器)](#grid-网格容器)
+- [DataGrid (数据网格)](#datagrid-数据网格)
 	- [绑定数据库](#绑定数据库)
 	- [数据源类型](#数据源类型)
-- [*DatePicker* (日期控件)](#datepicker-日期控件)
+- [DatePicker (日期控件)](#datepicker-日期控件)
 	- [设置默认显示日期](#设置默认显示日期)
 	- [禁止日期文本编辑](#禁止日期文本编辑)
-- [*DevExpress*](#devexpress)
+- [DevExpress](#devexpress)
 	- [常用控件](#常用控件)
 	- [布局层级](#布局层级)
 	- [主界面](#主界面)
@@ -42,18 +40,16 @@
 	- [加载指示器](#加载指示器)
 	- [常见问题](#常见问题)
 
-<!-- /TOC -->
 
 
-
-# *WPF* 简介
+# 概述
 `WPF`全称为`Windows Presentation Foundation`，是微软在`Windows Vsita`时代引入的用户界面框架。
 
 `WPF`向开发人员提供了一个统一的编程模型，用于在`Windows`上构建现代业务线桌面应用程序。
 
 
 
-# *XAML*
+# XAML
 `XAML`是一种声明性标记语言，语法类似`xhtml`，`WPF`使用其创建`UI`。
 
 在`Windows Form`中，一个`GUI`窗体的布局代码在文件**GUI类名.Designer.cs**中；  
@@ -121,7 +117,7 @@
 
 
 
-# *ResourceDictionary* (资源字典)
+# ResourceDictionary (资源字典)
 资源字典是一个以`<ResourceDictionary/>`为根标签，包含资源定义的`XAML`文件。
 
 在`WPF`中，对于多个`XAML`重复引用的资源(样式、转换器类等)，可以将重复的资源定义写在**资源字典**中，在外部进行引用，避免编写重复代码。
@@ -753,7 +749,7 @@ xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Inte
 
 
 
-# *Window* (窗口) 与 *Page* (页面)
+# Window (窗口) 与 Page (页面)
 在`WPF`中，**窗口**的类型为`System.Windows.Window`，所有的其它窗口均从此类派生。
 
 **页面**的类型为`System.Windows.Controls.Page`，`Page`不能够单独使用，需要搭配`NavigationWindow`或`Frame`才能显示页面。
@@ -832,7 +828,7 @@ NavigationService.GetNavigationService(source).GoBack();
 
 
 
-# *Grid* (网格容器)
+# Grid (网格容器)
 `Grid`容器提供了常见的**网格布局**。
 
 - `Grid`布局的行定义写在子标签`<Grid.RowDefinitions/>`中，列定义写在子标签`<Grid.ColumnDefinitions/>`中。
@@ -879,7 +875,7 @@ NavigationService.GetNavigationService(source).GoBack();
 
 
 
-# *DataGrid* (数据网格)
+# DataGrid (数据网格)
 使用`DataGrid`控件能够方便地展示数据库中的表。
 
 `DataGrid`基本语法类似于`Grid`控件，但`DataGrid`可绑定数据源，展示数据源中的内容。  
@@ -945,7 +941,7 @@ dataGrid.ItemsSource = dataSet.Tables[0].DefaultView; //绑定数据源中的表
 
 
 
-# *DatePicker* (日期控件)
+# DatePicker (日期控件)
 `WPF`提供了日期选择控件`DatePicker`。
 
 ## 设置默认显示日期
@@ -1000,7 +996,7 @@ dataGrid.ItemsSource = dataSet.Tables[0].DefaultView; //绑定数据源中的表
 
 
 
-# *DevExpress*
+# DevExpress
 `DevExpress`是一套商业UI库，相比原生控件更加精美、控件功能更加强大。
 
 ## 常用控件
@@ -1148,10 +1144,10 @@ public partial class App : Application
 ## 常见问题
 记录`DevExpress`控件在使用中遇到的问题。
 
-- *DocumentGroup* 标签不可拖动、关闭
+- `DocumentGroup`中标签不可拖动、关闭：
 
 	`DocumentGroup`需要在`DockLayoutManager`中才能实现关闭标签、拖动标签等功能。
 
-- *DocumentGroup* 关闭标签后标签依旧保留到`ClosedPanels`列表中
+- `DocumentGroup`关闭标签后标签依旧保留到`ClosedPanels`列表中：
 
 	设置`DocumentPanel`的`ClosingBehavior`属性为`ImmediatelyRemove`。
