@@ -68,7 +68,7 @@ Spark提供了两种创建RDD的方式：
 
 1. 并行化程序中已存在的普通数据集：
 
-	调用`SparkContext.parallelize()`方法将已存在的普通数据集(`Seq[T]`)转换为`RDD[T]`。
+	调用`SparkContext.parallelize()`方法将已存在的普通数据集(`Seq[T]`)转换为`RDD[T]`。  
 	方法定义如下(源码取自`Spark 2.3.0`)：
 
 	```scala
@@ -92,7 +92,7 @@ Spark提供了两种创建RDD的方式：
 1. 引用来自外部存储系统的数据集，如本地文件系统、HDFS、HBase、AmazonS3等：
 
 	以文本文件为例，调用`SparkContext.textFile()`方法使用文本文件创建RDD。
-	该方法传入文件的URI，按行读取文件构建文本数据集。
+	该方法传入文件的URI，按行读取文件构建文本数据集。  
 	使用示例：
 
 	```scala
@@ -122,6 +122,38 @@ Spark这样的设计能够保证计算更有效率，例如，当一个数据集
 默认情况下，每个执行transformation操作之后的RDD会每次执行action操作时重新计算。
 可以使用`persist()/cache()`方法将RDD在内存中持久化，Spark将在集群中保留这些数据，在下次查询时访问会更加快速。
 Spark同样支持将RDD持久化到磁盘中，或是在多个节点之间复制。
+
+## Shuffle 操作
+Spark中的某些操作会触发被称为**shuffle**的事件。
+Suffle是Spark中将不同分组、横跨多个分区的数据再分布(re-distributing)的一套机制，通常会包含跨excutor、跨机器的复制数据。这使得shuffle成为一种复杂(complex)、高开销(costly)的操作。
+
+### 背景知识
+以reduceByKey()为例，该操作对类型为`RDD[(Key, Value)]`的RDD执行，将相同Key的所有`(Key, Value)`元组通过执行传入的reduce函数聚合到一个`(Key, Value)`的新元组中，构成新的RDD。一个Key关联的所有`(Key, Value)`元组未必在相同的分区、甚至相同的机器，但计算结果时需要在相同的位置。
+
+在Spark中，数据通常不会跨分区分布到某个特定操作所需要的位置。在计算期间，单个任务将在单个分区中执行。事实上，为执行一个reduceByKey()的reduce task，Spark需要执行所有的操作，必须从所有分区读取所有的Key和Value，并将多个分区中的Value组合，从而为每个Key计算最终结果。  
+这个重新分配数据的过程即被称为shuffle。
+
+新执行shuffle操作之后，元素在每个分区是确定的(deterministic)，分区的排序也是确定的，但元素的排序不是。
+如果需要将元素排序，可以使用下列操作：
+
+- `mapPartitions()` 使用`sorted()`等方法排序每一个分区
+- `repartitionAndSortWithinPartitions()` 在重分区同时高效地排序分区
+- `sortBy()` 生成一个全局已排序的RDD
+
+会引起shuffle的操作包括：
+
+- `repartition`操作，例如`repartition()`、`coalesce()`方法
+- `byKey`操作，例如`groupByKey()`、`reduceByKey()`方法
+- `join`操作，例如`join()`、`cogroup()`方法
+
+### 性能影响
+Shuffle是高开销(expensive)的操作，因为它涉及磁盘IO、网络IO、数据序列化。
+为了shuffle操作组织数据，Spark会生成一系列tasks：
+
+- `map tasks` 组织数据(organize the data)
+- `reduce tasks` 聚合数据(aggregate the data)
+
+这样的命名来自`Hadoop MapReudce`，与Spark中的`map()`、`reduce()`方法不直接相关。
 
 
 
@@ -208,7 +240,7 @@ DStream --- | data from   | --- | data from   | --- | data from   | --- ... --->
 ```
 
 DStream中执行的操作将会应用到底层的每个RDD中。  
-例如，对DStream1执行`flatMap`操作得到DStream2，DStream1中的每一个RDD均会通过`flatMap`操作生成新的RDD，并构成DStream2，如下所示：
+例如，对DStream1执行`flatMap()`操作得到DStream2，DStream1中的每一个RDD均会通过flatMap()生成新的RDD，并构成DStream2，如下所示：
 
 ```
                    time 1                time 2                time 3
