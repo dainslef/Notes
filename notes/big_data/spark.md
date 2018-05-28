@@ -1,3 +1,24 @@
+- [概述](#概述)
+	- [下载](#下载)
+	- [服务配置](#服务配置)
+- [RDD (弹性分布式数据集)](#rdd-弹性分布式数据集)
+	- [创建 RDD](#创建-rdd)
+	- [RDD 操作](#rdd-操作)
+	- [Shuffle 操作](#shuffle-操作)
+		- [背景知识](#背景知识)
+		- [性能影响](#性能影响)
+- [Spark Streaming](#spark-streaming)
+	- [Streaming Context](#streaming-context)
+	- [DStream](#dstream)
+	- [数据变换](#数据变换)
+		- [updateStateByKey()](#updatestatebykey)
+- [常见错误](#常见错误)
+	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
+	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
+	- [org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx](#orgapachesparksparkexception-failed-to-get-broadcast_xxx-of-broadcast_xxx)
+
+
+
 # 概述
 `Apache Spark`是一套**快速**(fast)、**多用途**(general-purpose)的集群计算系统(cluster computing system)。
 
