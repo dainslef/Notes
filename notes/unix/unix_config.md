@@ -1,35 +1,38 @@
 - [ftp](#ftp)
-	- [连接服务器](#)
-	- [常用指令](#)
+	- [连接服务器](#连接服务器)
+	- [常用指令](#常用指令)
 - [GNU GRUB](#gnu-grub)
-	- [安装与配置](#)
-	- [安装引导器](#)
-	- [修复引导](#)
+	- [安装与配置](#安装与配置)
+	- [安装引导器](#安装引导器)
+	- [修复引导](#修复引导)
 - [ulimit](#ulimit)
-	- [配置文件](#)
-		- [Core Dump (核心转储)](#core-dump)
+	- [配置文件](#配置文件)
+		- [Core Dump (核心转储)](#core-dump-核心转储)
 - [fdisk](#fdisk)
 - [*parted*](#parted)
 - [LVM](#lvm)
-	- [基本操作](#)
-	- [Physical Volume (PV，物理卷)](#physical-volume-pv)
-	- [Volume Group (VG，卷组)](#volume-group-vg)
-	- [Logical Volume (LV，逻辑卷)](#logical-volume-lv)
+	- [基本操作](#基本操作)
+	- [Physical Volume (PV，物理卷)](#physical-volume-pv物理卷)
+	- [Volume Group (VG，卷组)](#volume-group-vg卷组)
+	- [Logical Volume (LV，逻辑卷)](#logical-volume-lv逻辑卷)
 - [curl](#curl)
-	- [FTP 操作](#ftp)
-- [Suspend 和 Hibernate](#suspend--hibernate)
+	- [FTP 操作](#ftp-操作)
+- [Suspend 和 Hibernate](#suspend-和-hibernate)
 - [systemd](#systemd)
-	- [服务管理](#)
-	- [服务分析](#)
-	- [系统配置](#)
+	- [服务管理](#服务管理)
+	- [服务分析](#服务分析)
+	- [系统配置](#系统配置)
 - [VTE](#vte)
 - [apt](#apt)
-	- [源配置](#)
-	- [Debian 源](#debian)
-	- [Ubuntu 源](#ubuntu)
+	- [源配置](#源配置)
+	- [Debian 源](#debian-源)
+	- [Ubuntu 源](#ubuntu-源)
 	- [apt-mirror](#apt-mirror)
-		- [本地源配置](#)
-		- [使用本地源](#)
+		- [本地源配置](#本地源配置)
+		- [使用本地源](#使用本地源)
+- [常见问题记录](#常见问题记录)
+	- [Ubuntu](#ubuntu)
+		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
 
 
 
@@ -707,3 +710,32 @@ deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-security main restricte
 deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-updates main restricted universe multiverse
 deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-backports main restricted universe muitiverse
 ```
+
+
+
+# 常见问题记录
+记录各类发行版使用中可能会遇到的问题。
+
+## Ubuntu
+记录`Ubuntu`发行版中遇到的问题。
+
+### invoke-rc.d: initscript Xxxx, action "stop" failed.
+问题描述：  
+卸载部分软件包时出现错误，无法正常卸载：
+
+```
+invoke-rc.d: could not determine current runlevel
+ * ...
+invoke-rc.d: initscript Xxxx, action "stop" failed.
+dpkg: error processing package Xxxx (--remove):
+ installed Xxxx package pre-removal script subprocess returned error exit status 1
+Errors were encountered while processing:
+ Xxxx
+```
+
+问题分析：  
+卸载部分在`/etc/init.d`下注册了服务的软件包时，卸载脚本会尝试执行`invoke-rc.d`指令，调用对应的服务脚本指令关闭服务。  
+在部分特殊的Linux环境下(如`WSL`、`Docker`)，服务脚本可能会执行失败，脚本执行失败导致卸载操作错误退出。
+
+解决方法：  
+修改`/etc/init.d`对应服务的脚本文件，在脚本顶部添加`exit 0`，让脚本文件的实际逻辑不执行直接正常退出。
