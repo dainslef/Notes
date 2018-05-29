@@ -6,6 +6,7 @@
 	- [服务配置](#服务配置)
 - [HDFS](#hdfs)
 	- [访问地址](#访问地址)
+	- [工具链](#工具链)
 - [常见问题](#常见问题)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0. Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0-expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
@@ -246,6 +247,52 @@ HDFS还提供了WEB管理界面，地址如下：
 ```sh
 # 默认端口 50070
 http://主机名或IP:WEB服务端口
+```
+
+## 工具链
+使用`hdfs dfs`指令对HDFS文件系统进行操作。
+
+查看指令帮助信息：
+
+```
+$ hdfs dfs -help [指令名称]
+```
+
+查看文件/目录：
+
+```c
+// 查看目录内容
+$ hdfs dfs -ls [HDFS目录]
+
+// 递归查看目录
+$ hdfs dfs -lsr [HDFS目录]
+
+// 查看文件内容
+$ hdfs dfs -cat [HDFS文件路径]
+$ hdfs dfs -tail [HDFS文件路径]
+
+// 查看目录统计信息(文件数，大小等)
+$ hdfs dfs -count [HDFS文件路径]
+$ hdfs dfs -df [HDFS文件路径]
+$ hdfs dfs -du [HDFS文件路径]
+```
+
+创建/删除文件：
+
+```c
+// 上传本地文件到HDFS
+$ hdfs dfs -put [本地路径] [HDFS路径]
+
+// 从HDFS下载文件
+$ hdfs dfs -get [HDFS路径] [本地路径]
+
+// 创建目录
+// 使用 -p 参数递归创建不存在的路径
+$ hdfs dfs -mkdir [HDFS路径]
+
+// 移除文件、目录
+$ hdfs dfs -rm [HDFS路径]
+$ hdfs dfs -rmdir [HDFS路径]
 ```
 
 
