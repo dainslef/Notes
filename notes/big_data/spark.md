@@ -197,6 +197,249 @@ Shuffle是高开销(expensive)的操作，因为它涉及磁盘IO、网络IO、�
 RDD =========> SparkContext.runJob() => DAGScheduler.runJob() => DAGScheduler.submitJob() => DAGSchedulerEventProcessLoop.post()
 ```
 
+相关源码分析如下(源码取自`Spark 2.3.0`)：
+
+- RDD中的action操作会调用SparkContext的`runJob()`方法提交Job(以count()、collect()、reduce()为例)：
+
+	```scala
+	abstract class RDD[T: ClassTag](
+	    @transient private var _sc: SparkContext,
+	    @transient private var deps: Seq[Dependency[_]]
+	  ) extends Serializable with Logging {
+
+	  ...
+
+	  private def sc: SparkContext = {
+	    if (_sc == null) {
+	      throw new SparkException(
+	        "This RDD lacks a SparkContext. It could happen in the following cases: \n(1) RDD " +
+	        "transformations and actions are NOT invoked by the driver, but inside of other " +
+	        "transformations; for example, rdd1.map(x => rdd2.values.count() * x) is invalid " +
+	        "because the values transformation and count action cannot be performed inside of the " +
+	        "rdd1.map transformation. For more information, see SPARK-5063.\n(2) When a Spark " +
+	        "Streaming job recovers from checkpoint, this exception will be hit if a reference to " +
+	        "an RDD not defined by the streaming job is used in DStream operations. For more " +
+	        "information, See SPARK-13758.")
+	    }
+	    _sc
+	  }
+
+	  ...
+
+	  /**
+	   * Return the number of elements in the RDD.
+	   */
+	  def count(): Long = sc.runJob(this, Utils.getIteratorSize _).sum
+
+	  ...
+
+	  /**
+	   * Return an array that contains all of the elements in this RDD.
+	   *
+	   * @note This method should only be used if the resulting array is expected to be small, as
+	   * all the data is loaded into the driver's memory.
+	   */
+	  def collect(): Array[T] = withScope {
+	    val results = sc.runJob(this, (iter: Iterator[T]) => iter.toArray)
+	    Array.concat(results: _*)
+	  }
+
+	  ...
+
+	  /**
+	   * Reduces the elements of this RDD using the specified commutative and
+	   * associative binary operator.
+	   */
+	  def reduce(f: (T, T) => T): T = withScope {
+	    val cleanF = sc.clean(f)
+	    val reducePartition: Iterator[T] => Option[T] = iter => {
+	      if (iter.hasNext) {
+	        Some(iter.reduceLeft(cleanF))
+	      } else {
+	        None
+	      }
+	    }
+	    var jobResult: Option[T] = None
+	    val mergeResult = (index: Int, taskResult: Option[T]) => {
+	      if (taskResult.isDefined) {
+	        jobResult = jobResult match {
+	          case Some(value) => Some(f(value, taskResult.get))
+	          case None => taskResult
+	        }
+	      }
+	    }
+	    sc.runJob(this, reducePartition, mergeResult)
+	    // Get the final result out of our Option, or throw an exception if the RDD was empty
+	    jobResult.getOrElse(throw new UnsupportedOperationException("empty collection"))
+	  }
+
+	  ...
+
+	}
+	```
+
+- SparkConext的`runJob()`方法会调用自身关联的DAGScheduler中的`runJob()`方法
+(SparkContext中的runJob()方法有多个重载，最终都会转发到调用DAGScheduler的重载)：
+
+	```scala
+	class SparkContext(config: SparkConf) extends Logging {
+
+	  ...
+	
+	  @volatile private var _dagScheduler: DAGScheduler = _
+
+	  ...
+	
+	  private[spark] def dagScheduler: DAGScheduler = _dagScheduler
+	  private[spark] def dagScheduler_=(ds: DAGScheduler): Unit = {
+	    _dagScheduler = ds
+	  }
+
+	  ...
+
+	  _dagScheduler = new DAGScheduler(this)
+
+	  ...
+
+	  /**
+	   * Run a function on a given set of partitions in an RDD and pass the results to the given
+	   * handler function. This is the main entry point for all actions in Spark.
+	   *
+	   * @param rdd target RDD to run tasks on
+	   * @param func a function to run on each partition of the RDD
+	   * @param partitions set of partitions to run on; some jobs may not want to compute on all
+	   * partitions of the target RDD, e.g. for operations like `first()`
+	   * @param resultHandler callback to pass each result to
+	   */
+	  def runJob[T, U: ClassTag](
+	      rdd: RDD[T],
+	      func: (TaskContext, Iterator[T]) => U,
+	      partitions: Seq[Int],
+	      resultHandler: (Int, U) => Unit): Unit = {
+	    if (stopped.get()) {
+	      throw new IllegalStateException("SparkContext has been shutdown")
+	    }
+	    val callSite = getCallSite
+	    val cleanedFunc = clean(func)
+	    logInfo("Starting job: " + callSite.shortForm)
+	    if (conf.getBoolean("spark.logLineage", false)) {
+	      logInfo("RDD's recursive dependencies:\n" + rdd.toDebugString)
+	    }
+	    dagScheduler.runJob(rdd, cleanedFunc, partitions, callSite, resultHandler, localProperties.get)
+	    progressBar.foreach(_.finishAll())
+	    rdd.doCheckpoint()
+	  }
+
+	  ...
+
+	}
+	```
+
+- DAGScheduler中的`runJob()`会调用自身的`submitJob()`方法提交Job，在submitJob()方法中将Job最终post到EventLoop中：
+
+	```scala
+	private[spark]
+	class DAGScheduler(
+	    private[scheduler] val sc: SparkContext,
+	    private[scheduler] val taskScheduler: TaskScheduler,
+	    listenerBus: LiveListenerBus,
+	    mapOutputTracker: MapOutputTrackerMaster,
+	    blockManagerMaster: BlockManagerMaster,
+	    env: SparkEnv,
+	    clock: Clock = new SystemClock())
+	  extends Logging {
+
+	  ...
+
+	  /**
+	   * Submit an action job to the scheduler.
+	   *
+	   * @param rdd target RDD to run tasks on
+	   * @param func a function to run on each partition of the RDD
+	   * @param partitions set of partitions to run on; some jobs may not want to compute on all
+	   *   partitions of the target RDD, e.g. for operations like first()
+	   * @param callSite where in the user program this job was called
+	   * @param resultHandler callback to pass each result to
+	   * @param properties scheduler properties to attach to this job, e.g. fair scheduler pool name
+	   *
+	   * @return a JobWaiter object that can be used to block until the job finishes executing
+	   *         or can be used to cancel the job.
+	   *
+	   * @throws IllegalArgumentException when partitions ids are illegal
+	   */
+	  def submitJob[T, U](
+	      rdd: RDD[T],
+	      func: (TaskContext, Iterator[T]) => U,
+	      partitions: Seq[Int],
+	      callSite: CallSite,
+	      resultHandler: (Int, U) => Unit,
+	      properties: Properties): JobWaiter[U] = {
+	    // Check to make sure we are not launching a task on a partition that does not exist.
+	    val maxPartitions = rdd.partitions.length
+	    partitions.find(p => p >= maxPartitions || p < 0).foreach { p =>
+	      throw new IllegalArgumentException(
+	        "Attempting to access a non-existent partition: " + p + ". " +
+	          "Total number of partitions: " + maxPartitions)
+	    }
+
+	    val jobId = nextJobId.getAndIncrement()
+	    if (partitions.size == 0) {
+	      // Return immediately if the job is running 0 tasks
+	      return new JobWaiter[U](this, jobId, 0, resultHandler)
+	    }
+
+	    assert(partitions.size > 0)
+	    val func2 = func.asInstanceOf[(TaskContext, Iterator[_]) => _]
+	    val waiter = new JobWaiter(this, jobId, partitions.size, resultHandler)
+	    eventProcessLoop.post(JobSubmitted(
+	      jobId, rdd, func2, partitions.toArray, callSite, waiter,
+	      SerializationUtils.clone(properties)))
+	    waiter
+	  }
+
+	  /**
+	   * Run an action job on the given RDD and pass all the results to the resultHandler function as
+	   * they arrive.
+	   *
+	   * @param rdd target RDD to run tasks on
+	   * @param func a function to run on each partition of the RDD
+	   * @param partitions set of partitions to run on; some jobs may not want to compute on all
+	   *   partitions of the target RDD, e.g. for operations like first()
+	   * @param callSite where in the user program this job was called
+	   * @param resultHandler callback to pass each result to
+	   * @param properties scheduler properties to attach to this job, e.g. fair scheduler pool name
+	   *
+	   * @note Throws `Exception` when the job fails
+	   */
+	  def runJob[T, U](
+	      rdd: RDD[T],
+	      func: (TaskContext, Iterator[T]) => U,
+	      partitions: Seq[Int],
+	      callSite: CallSite,
+	      resultHandler: (Int, U) => Unit,
+	      properties: Properties): Unit = {
+	    val start = System.nanoTime
+	    val waiter = submitJob(rdd, func, partitions, callSite, resultHandler, properties)
+	    ThreadUtils.awaitReady(waiter.completionFuture, Duration.Inf)
+	    waiter.completionFuture.value.get match {
+	      case scala.util.Success(_) =>
+	        logInfo("Job %d finished: %s, took %f s".format
+	          (waiter.jobId, callSite.shortForm, (System.nanoTime - start) / 1e9))
+	      case scala.util.Failure(exception) =>
+	        logInfo("Job %d failed: %s, took %f s".format
+	          (waiter.jobId, callSite.shortForm, (System.nanoTime - start) / 1e9))
+	        // SPARK-8644: Include user stack trace in exceptions coming from DAGScheduler.
+	        val callerStackTrace = Thread.currentThread().getStackTrace.tail
+	        exception.setStackTrace(exception.getStackTrace ++ callerStackTrace)
+	        throw exception
+	    }
+	  }
+
+	  ...
+
+	}
+	```
+
 
 
 # Spark Streaming
