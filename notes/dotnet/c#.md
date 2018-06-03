@@ -1,49 +1,47 @@
-<!-- TOC -->
-
 - [入口函数](#入口函数)
 - [数据类型](#数据类型)
-	- [*Value Type* (值类型)](#value-type-值类型)
-	- [*Reference Type* (引用类型)](#reference-type-引用类型)
-	- [可空类型与 *?*、*??* 操作符](#可空类型与--操作符)
-	- [*Type alias* (类型别名)](#type-alias-类型别名)
+	- [Value Type (值类型)](#value-type-值类型)
+	- [Reference Type (引用类型)](#reference-type-引用类型)
+	- [struct (结构类型)](#struct-结构类型)
+	- [可空类型与 ?、?? 操作符](#可空类型与--操作符)
+	- [Type alias (类型别名)](#type-alias-类型别名)
 - [字符转换](#字符转换)
-	- [*byte[]* 与 *string* 转换](#byte-与-string-转换)
-- [*Property* (属性)](#property-属性)
+	- [byte[] 与 string 转换](#byte-与-string-转换)
+- [Property (属性)](#property-属性)
 	- [自动成员属性](#自动成员属性)
 	- [成员属性初始化](#成员属性初始化)
 	- [属性表达式](#属性表达式)
-- [*struct* (结构类型)](#struct-结构类型)
-- [*static* 关键字](#static-关键字)
+- [static 关键字](#static-关键字)
 	- [静态方法](#静态方法)
 	- [静态字段](#静态字段)
 	- [静态构造函数](#静态构造函数)
 	- [静态类](#静态类)
-- [*Extension Methods* (扩展方法)](#extension-methods-扩展方法)
-	- [在 *Scala* 中模拟扩展方法](#在-scala-中模拟扩展方法)
+- [Extension Methods (扩展方法)](#extension-methods-扩展方法)
+	- [在 Scala 中模拟扩展方法](#在-scala-中模拟扩展方法)
 	- [扩展方法的应用场景](#扩展方法的应用场景)
-- [泛型](#泛型)
+- [Generic (泛型)](#generic-泛型)
 	- [泛型约束](#泛型约束)
 	- [*Variance* (变性)](#variance-变性)
 	- [泛型类的静态成员](#泛型类的静态成员)
-- [*delegate* (委托) 和 *event* (事件)](#delegate-委托-和-event-事件)
-	- [*delegate* (委托)](#delegate-委托)
-	- [*event* (事件)](#event-事件)
+- [delegate (委托) 和 event (事件)](#delegate-委托-和-event-事件)
+	- [delegate (委托)](#delegate-委托)
+	- [event (事件)](#event-事件)
 	- [自定义添加/删除操作的事件](#自定义添加删除操作的事件)
-- [*Lambda*](#lambda)
-	- [*Lambda* 实现委托(delegate)](#lambda-实现委托delegate)
-	- [使用函数对象表示 *Lambda*](#使用函数对象表示-lambda)
-	- [*Lambda* 作用域](#lambda-作用域)
-	- [使用 *Lambda* 语法定义成员函数](#使用-lambda-语法定义成员函数)
-- [*Pattern Matching* (模式匹配)](#pattern-matching-模式匹配)
-	- [*is* 表达式](#is-表达式)
-	- [*switch* 模式匹配](#switch-模式匹配)
+- [Lambda](#lambda)
+	- [实现委托](#实现委托)
+	- [函数对象](#函数对象)
+	- [变量捕获](#变量捕获)
+	- [定义成员函数](#定义成员函数)
+- [Pattern Matching (模式匹配)](#pattern-matching-模式匹配)
+	- [is 表达式](#is-表达式)
+	- [switch 模式匹配](#switch-模式匹配)
 - [并发编程](#并发编程)
-	- [*Thread* 类](#thread-类)
-	- [异步委托](#异步委托)
-	- [*Task* 类](#task-类)
-	- [*async/await* 关键字](#asyncawait-关键字)
-	- [*lock* 关键字](#lock-关键字)
-- [*Reflection* (反射)](#reflection-反射)
+	- [Thread](#thread)
+	- [Async Delegate (异步委托)](#async-delegate-异步委托)
+	- [Task](#task)
+	- [async/await 关键字](#asyncawait-关键字)
+	- [lock 关键字](#lock-关键字)
+- [Reflection (反射)](#reflection-反射)
 	- [反射机制的相关类型](#反射机制的相关类型)
 	- [*Type*/*TypeInfo* 类型](#typetypeinfo-类型)
 	- [反射获取成员信息](#反射获取成员信息)
@@ -55,25 +53,23 @@
 	- [创建 *FTP* 请求](#创建-ftp-请求)
 	- [下载](#下载)
 	- [上传](#上传)
-- [*WinFrom* 开发注记](#winfrom-开发注记)
+- [WinForm 开发注记](#winform-开发注记)
 	- [常见控件类型](#常见控件类型)
 	- [容器控件](#容器控件)
 	- [布局与样式](#布局与样式)
 	- [控件事件](#控件事件)
 	- [接收Windows消息](#接收windows消息)
-- [调用 *C/C++* 动态链接库](#调用-cc-动态链接库)
+- [调用 C/C++ 动态链接库](#调用-cc-动态链接库)
 - [特殊关键字](#特殊关键字)
-	- [*internal* 关键字](#internal-关键字)
-	- [*readonly* 关键字](#readonly-关键字)
-	- [*partial* 关键字](#partial-关键字)
-	- [*params* 关键字](#params-关键字)
+	- [internal 关键字](#internal-关键字)
+	- [readonly 关键字](#readonly-关键字)
+	- [partial 关键字](#partial-关键字)
+	- [params 关键字](#params-关键字)
 - [常见问题](#常见问题)
-	- [处理`\0`结尾字符串](#处理\0结尾字符串)
-	- [MySQL 中 *TINYINT* 类型](#mysql-中-tinyint-类型)
-	- [*DEBUG* 模式](#debug-模式)
+	- [处理`\0`结尾字符串](#处理0结尾字符串)
+	- [MySQL 中 TINYINT 类型](#mysql-中-tinyint-类型)
+	- [DEBUG 宏](#debug-宏)
 	- [输出代码文件名、行号](#输出代码文件名行号)
-
-<!-- /TOC -->
 
 
 
@@ -98,7 +94,7 @@ static int Main(string[] args);
 C#的数据类型分为两类：值类型和引用类型。  
 一般而言，值类型用于**存储数据**，引用类型用于**定义行为**。
 
-## *Value Type* (值类型)
+## Value Type (值类型)
 值类型具体包括**预定义值类型**、**自定义值类型**和**枚举类型**。  
 所有值类型隐式派生于`System.ValueType`类。
 
@@ -140,7 +136,7 @@ public abstract class ValueType {};
 值类型实例通常分配在线程的**栈(stack)**上，并且不包含任何指向实例数据的指针，因为变量本身就包含了其实例数据。  
 值类型在复制时是**值传递(pass by value)**，会复制当前值类型变量包含的内容。
 
-## *Reference Type* (引用类型)
+## Reference Type (引用类型)
 引用类型包括：
 
 - 数组(派生于`System.Array`)
@@ -156,7 +152,23 @@ public abstract class ValueType {};
 - 引用类型复制是传递引用，值类型复制是拷贝整个对象。
 - 值类型分配内存在线程栈上，出栈自动释放；引用类型分配内存在托管堆上，由`GC`负责内存回收。
 
-## 可空类型与 *?*、*??* 操作符
+## struct (结构类型)
+与`C++`完全不同，`C#`中的`结构体`与`类`有**很大区别**：
+
+- C#中的结构体为**值类型**，在**栈(stack)**中分配内存，而引用类型则仅在栈中保存**引用(reference)**，类型实体内存分配在**堆(heap)**中。
+- 由于结构体为值类型，复制结构体时是完全复制出一个新的结构体实例，而非引用类型的引用传递。
+- C#中结构体的默认访问权限是`private`，且结构体成员变量**不能**直接赋初值(需要通过有参构造函数赋初值)。
+- C#中结构类型全部继承自`System.ValueType`类，但结构体是隐式**密封(sealed)**的，**不能**被继承。
+- C#中结构体可以用来实现接口。用来实现接口的结构体虽然本身为值类型，但如果发生**向上转型**重新变为父类接口对象则值类型的特性也将随之消失。
+- C#中结构体不能被继承，因而结构体定义时不能使用`sealed`和`abstract`关键字，结构体成员定义时也不能使用`protected`和`internal`等关键字。
+- C#中结构体带有默认的无参构造函数，且该默认构造函数一直存在(无论你是否创建了有参构造函数)，默认的无参构造函数**不能**被自定义(改写)。
+- 创建有参构造函数时，必须在该构造函数中初始化所有的成员变量，否则无法通过编译。
+- 创建结构体时可以不使用`new`操作符，不使用`new`操作符创建的结构体对象中的结构体成员全部处于未初始化状态，需要经过初始化操作(手动访问赋值)之后方可使用。
+- 如果需要使用结构体提供的有参构造函数，则必须使用`new`操作符进行对象创建，语法类似于`class`。
+- 在C#中结构体成员可以使用`static`修饰，结构体也可以创建静态构造函数。
+- 在C#中结构体中可以正常使用泛型。
+
+## 可空类型与 ?、?? 操作符
 在`C#`中，值类型不能为`null`，对值类型赋值`null`会得到错误，如下所示：
 
 ```cs
@@ -259,7 +271,7 @@ System.Nullable<T> variable;
 	Console.WriteLine(nums?[1]?.ToString() ?? "Error"); //打印 "2333"
 	```
 
-## *Type alias* (类型别名)
+## Type alias (类型别名)
 C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++11`中添加的新`using`语法相似。  
 如下所示：
 
@@ -285,13 +297,13 @@ namespace Np
 # 字符转换
 `System.Text.Encoding`抽象类定义了一系列的编码转换方法。
 
-## *byte[]* 与 *string* 转换
+## byte[] 与 string 转换
 - 使用`string System.Text.Encoding.ASCII.GetString(byte[] bytes)`获取byte数组的对应string字符串。
 - 使用`byte[] System.Text.Encoding.ASCII.GetBytes(string s)`获取string字符串对应的byte数组。
 
 
 
-# *Property* (属性)
+# Property (属性)
 `C#`类中成员有一种被称为`属性`。
 
 - 属性的访问方式与成员变量类似；通过定义`set`和`get`块的内容，能够通过属性给成员变量赋值或是获取成员变量的值。
@@ -422,25 +434,7 @@ public int Num
 
 
 
-# *struct* (结构类型)
-与`C++`完全不同，`C#`中的`结构体`与`类`有**很大区别**：
-
-- C#中的结构体为**值类型**，在**栈(stack)**中分配内存，而引用类型则仅在栈中保存**引用(reference)**，类型实体内存分配在**堆(heap)**中。
-- 由于结构体为值类型，复制结构体时是完全复制出一个新的结构体实例，而非引用类型的引用传递。
-- C#中结构体的默认访问权限是`private`，且结构体成员变量**不能**直接赋初值(需要通过有参构造函数赋初值)。
-- C#中结构类型全部继承自`System.ValueType`类，但结构体是隐式**密封(sealed)**的，**不能**被继承。
-- C#中结构体可以用来实现接口。用来实现接口的结构体虽然本身为值类型，但如果发生**向上转型**重新变为父类接口对象则值类型的特性也将随之消失。
-- C#中结构体不能被继承，因而结构体定义时不能使用`sealed`和`abstract`关键字，结构体成员定义时也不能使用`protected`和`internal`等关键字。
-- C#中结构体带有默认的无参构造函数，且该默认构造函数一直存在(无论你是否创建了有参构造函数)，默认的无参构造函数**不能**被自定义(改写)。
-- 创建有参构造函数时，必须在该构造函数中初始化所有的成员变量，否则无法通过编译。
-- 创建结构体时可以不使用`new`操作符，不使用`new`操作符创建的结构体对象中的结构体成员全部处于未初始化状态，需要经过初始化操作(手动访问赋值)之后方可使用。
-- 如果需要使用结构体提供的有参构造函数，则必须使用`new`操作符进行对象创建，语法类似于`class`。
-- 在C#中结构体成员可以使用`static`修饰，结构体也可以创建静态构造函数。
-- 在C#中结构体中可以正常使用泛型。
-
-
-
-# *static* 关键字
+# static 关键字
 在`C#`中，`static`关键字用于定义**静态类**、**静态方法**、**静态属性**、**静态字段**。
 
 ## 静态方法
@@ -511,7 +505,7 @@ error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; 
 
 
 
-# *Extension Methods* (扩展方法)
+# Extension Methods (扩展方法)
 扩展方法能够在不改变现有类结构的前提下，向已存在的类型添加方法，并让这些方法像普通成员方法一样地被调用。
 
 - 扩展方法本质上是一种特殊的**静态方法**，且必须定义在**静态类**中。
@@ -547,7 +541,7 @@ class Test
 True
 ```
 
-## 在 *Scala* 中模拟扩展方法
+## 在 Scala 中模拟扩展方法
 在`Scala`中，可以利用**隐式类**特性来获得与C#中扩展方法类似的效果。
 
 上述例子在`Scala`中可以写成：
@@ -581,7 +575,7 @@ true
 
 
 
-# 泛型
+# Generic (泛型)
 值类型转变为引用类型会经过`装箱(boxing)`操作，而引用类型转变为值类型则要经过`拆箱(unboxing)`操作。
 
 一个容器需要接收多种类型时，可能就需要将接受参数的类型设置为`object`型(即所有类型的父类)。  
@@ -707,11 +701,11 @@ class Program
 
 
 
-# *delegate* (委托) 和 *event* (事件)
+# delegate (委托) 和 event (事件)
 **委托**让C#拥有了函数对象的概念，使一个方法可以作为参数被传递。  
 **事件**让C#拥有了语言级别的消息通信机制。
 
-## *delegate* (委托)
+## delegate (委托)
 委托是C#特有的概念，委托的作用类似于C/C++中的函数指针，但委托是类型安全的。
 
 在`C#`中，委托实际上是一个类，因而使用方式与`class`类似。  
@@ -765,7 +759,7 @@ delegate 返回值类型 委托名(参数表);
 若绑定的方法拥有返回值，则将**最后一个**绑定方法的返回值作为整个委托实例的返回值。  
 委托类型作为函数的形参时，传入实参时可以直接使用符合委托签名的函数名，无需手动使用`new`操作符构建委托对象。
 
-## *event* (事件)
+## event (事件)
 事件是委托的扩展概念，事件本质上是一类特殊的委托实例(不是委托类型)，创建事件前需要先定义一个委托，然后才能将事件与委托绑定。
 
 定义事件：
@@ -919,7 +913,7 @@ Remove Method!
 
 
 
-# *Lambda*
+# Lambda
 在`C#3.0`之后，引入了`Lambda表达式`的概念，基本语法为：
 
 ```cs
@@ -934,10 +928,9 @@ Remove Method!
 - 如果表达式有多条语句(使用花括号)时，需要显式使用`return`关键字指定返回值。
 - 参数表可以不指定参数类型交由编译器隐式推导，也可以显式指定参数类型，显式指定与隐式指定不可混用，一旦有参数使用了显式指定或隐式指定，其余的参数必须使用相同的指定方式。
 
-## *Lambda* 实现委托(delegate)
+## 实现委托
 在C#中，`Lambda`概念与委托相通，可以使用`Lambda`以更简洁的方式代替匿名委托实现委托实例。
-
-例如：
+如下所示：
 
 ```cs
 delegate int GetDouble(double num1, double num2);
@@ -950,7 +943,7 @@ GetDouble getDouble3 = (double num1, double num2) => { return (int)(num1 + num2)
 需要注意的是，使用`Lambda`代替匿名委托虽然能够减少代码量，但这并不代表`Lambda`能够完全取代匿名委托。  
 `Lambda`中参数不能带有关键字`ref`、`out`，如果需要使用**引用参数**则依然需要使用匿名委托。
 
-## 使用函数对象表示 *Lambda*
+## 函数对象
 C#中定义了一系列类型用来表示委托和Lambda对象。
 
 - 使用`Action`表示不带参数且返回值为`void`类型的`Lambda`，注意，不需要也**不能**画蛇添足地写成`Action<>`形式。
@@ -960,7 +953,7 @@ C#中定义了一系列类型用来表示委托和Lambda对象。
 - `C#`中的`Lambda`**不能**直接加括号执行，而是需要创建一个函数对象或显式指明类型才能执行(即不能直接`(() => {})();`来执行`Lambda`)。
 - 与`Java`的**残废**`Lambda`不同，`C#`的`Lambda`可以捕获并**修改**外部作用域变量，而`Java`中外部作用域变量在`Lambda`中带有`final`属性，只能读取不能更改。
 
-## *Lambda* 作用域
+## 变量捕获
 在`C#`中，`Lambda`能够访问到在`Lambda`被定义的作用域中的所有成员。  
 如果`Lambda`表达式在类中被定义，则`Lambda`表达式能够访问到类的成员。  
 如同函数一样，`Lambda`有自己的作用域，`Lambda`内部定义的变量在外部作用域**不可访问**。
@@ -1002,7 +995,7 @@ class Test
 500
 ```
 
-## 使用 *Lambda* 语法定义成员函数
+## 定义成员函数
 在`C# 6.0`中，开始支持使用`Lambda`语法直接定义**单行**的成员函数。  
 **示例代码-1**使用新的语法可以使用如下格式书写：
 
@@ -1016,8 +1009,8 @@ class Test
 	static int num = 100;
 	static Action setNum200 = () => num = 200;
 
-	static void SetNum(int newNum)
-		=> new Action<int>(n => num = n)(newNum); //直接使用Lambda实现成员函数
+	static void SetNum(int newNum) =>
+		new Action<int>(n => num = n)(newNum); //直接使用Lambda实现成员函数
 
 	static void Main(string[] args)
 	{
@@ -1039,15 +1032,14 @@ class Test
 
 
 
-# *Pattern Matching* (模式匹配)
-`C# 7.0`中加入了**模式匹配**特性，支持根据对象类型提供不同的行为。
-
+# Pattern Matching (模式匹配)
+`C# 7.0`中加入了**模式匹配**特性，支持根据对象类型提供不同的行为。  
 在`C# 7.0`中，支持模式匹配的新特性包括：
 
 - `is`表达式。
 - `switch`声明更新。
 
-## *is* 表达式
+## is 表达式
 `is`表达式具有比较对象类型的功能，在早期版本的`C#`中，比较变量类型并进行转换：
 
 ```cs
@@ -1068,7 +1060,7 @@ if (obj is int i)
 	num = i;
 ```
 
-## *switch* 模式匹配
+## switch 模式匹配
 在`C# 7.0`中，`switch`表达式的`case`标签中支持根据对象类型进行跳转：
 
 ```cs
@@ -1132,7 +1124,7 @@ switch (xxx)
 # 并发编程
 在`C#`中，除了常见的`Thread`类，主要的并发技术有**异步委托**、`Task`类、`async/await`等。
 
-## *Thread* 类
+## Thread
 与常规的**OOP**语言类似，C#中也可以使用`Thread`类来进行并发编程，`Thread`类完整路径为`System.Threading.Thread`。
 
 - 创建与启动线程
@@ -1175,7 +1167,7 @@ switch (xxx)
 	每个线程都有独立的线程ID。  
 	`Thread.CurrentThread.ManagedThreadId`属性保存了当前线程的ID，可以通过比较线程ID来判断代码是否在相同的线程执行。
 
-## 异步委托
+## Async Delegate (异步委托)
 委托实例执行操作默认**同步**执行，但委托实例同样可以**异步**执行操作。
 
 - 使用`BeginInvoke()`进行异步回调
@@ -1297,7 +1289,7 @@ switch (xxx)
 
 	超时时间设为1000毫秒，由输出结果可知，此时异步委托尚未执行完毕，因而`IAsyncResult.IsCompleted`属性为`false`。
 
-## *Task* 类
+## Task
 `Task`类是`.NET 4.0`之后提供的异步操作抽象，完整路径为`System.Threading.Tasks.Task`。
 
 `Task`类用于表示无返回值的异步操作，对于带有返回值的异步操作应使用`Task`类的子类`Task<TResult>`。  
@@ -1342,7 +1334,7 @@ public static void WaitAll(params Task[] tasks); //等待任务数组中的所�
 public static bool WaitAll(Task[] tasks, int millisecondsTimeout;) //等待指定时间
 ```
 
-## *async/await* 关键字
+## async/await 关键字
 `C# 5.0`之后引入了`async`和`await`关键字，在语言层面给予了并发更好的支持。
 
 1. `async`用于标记**异步方法**：
@@ -1469,7 +1461,7 @@ Handler Really Finished!
 
 由上述程序中不难看出，在`async`关键字标记的异步方法中，使用`await`之前的代码都是同步执行的，在调用了`await`之后，剩余的代码便异步运行在独立的线程。
 
-## *lock* 关键字
+## lock 关键字
 `C#`语言提供了与`Java`中`synchronized`类似的`lock`关键字，基本语法如下：
 
 ```cs
@@ -1705,7 +1697,7 @@ lock (object)
 
 
 
-# *Reflection* (反射)
+# Reflection (反射)
 `C#`中的**反射**机制与`Java`等高级语言类似，反射机制的主要作用：
 
 - 获取类型的成员信息，包括私有成员。
@@ -2407,7 +2399,7 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 
 
 
-# *WinFrom* 开发注记
+# WinForm 开发注记
 `C#`对应的**GUI**库为基于`.NET Framework`的`Windows Form`。
 
 ## 常见控件类型
@@ -2484,7 +2476,7 @@ protected override void WndProc(ref Message m);
 
 
 
-# 调用 *C/C++* 动态链接库
+# 调用 C/C++ 动态链接库
 C#支持调用`C/C++`语言编写的`dll`。
 
 使用`DLLImport`特性修饰一个方法。  
@@ -2528,7 +2520,7 @@ C#中的常见类型与C++中类型之间的转换关系：
 # 特殊关键字
 介绍一些在其它语言中不常见的关键字。
 
-## *internal* 关键字
+## internal 关键字
 类和类成员前可以使用`internal`关键字。
 
 - `internal`关键字修饰类
@@ -2544,7 +2536,7 @@ C#中的常见类型与C++中类型之间的转换关系：
 
 需要注意的是，`internal`修饰的类不能作为`public`成员出现在其它类中。
 
-## *readonly* 关键字
+## readonly 关键字
 `readonly`关键字用于修饰**运行时只读**变量。  
 `readonly`变量的赋值操作只能发生在以下情形：
 
@@ -2567,14 +2559,14 @@ C#中的常见类型与C++中类型之间的转换关系：
 
 对于引用类型，不能使用`const`关键字修饰，要限制其修改只能使用`readonly`关键字。
 
-## *partial* 关键字
+## partial 关键字
 `partial`关键字用于定义`部分类`(局部类型)，局部类型允许我们将一个类、结构或接口分成几个部分，分别实现在几个不同的源码文件中。
 
 在`Windows From`中，窗口类代码便使用了部分类特性。  
 对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中。  
 两个文件中的代码本质上属于同一个类，`部分类`特性巧妙地隔离开了**由IDE产生的代码**与**用户自行编写的代码**，使代码结构更清晰。
 
-## *params* 关键字
+## params 关键字
 `params`用在方法的参数之前，用于标记可变参数。一个方法只能拥有一个`params`参数，且被`params`标记的参数必须为最后一个参数，并且是数组类型。
 
 在调用含有`params`参数的方法时，方法末尾可以追加**任意数量**的类型相符的变量，例如：
@@ -2609,13 +2601,13 @@ string testNew = test.Replace("\0", ""); //将 \0 替换为空
 Console.WriteLine(testNew); //输出 "aaa"
 ```
 
-## MySQL 中 *TINYINT* 类型
+## MySQL 中 TINYINT 类型
 在`MySQL`中没有内置的`bool`类型，`bool`类型常常使用最小的整型数据类型`TINYINT`表示。
 
 在C#中，会将`TINYINT(1)`视为`bool`类型处理，对于类型为`TINYINT(1)`的列，使用`ToString()`方法转换得到的是文本`true/false`而非字面意义数值。  
 要使`TINYINT`不被视为`bool`类型，需要调整数据列的显示宽度，即类型设为`TINYINT(2)`或是其它大于`1`的值。
 
-## *DEBUG* 模式
+## DEBUG 宏
 在C#中，可使用类似C/C++的宏针对`DEBUG/RELEASE`模式下进行额外的操作，语法如下：
 
 ```cs
