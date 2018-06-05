@@ -3,6 +3,7 @@
 	- [服务配置](#服务配置)
 - [集群模型](#集群模型)
 	- [集群管理器类型](#集群管理器类型)
+	- [术语表](#术语表)
 - [RDD (弹性分布式数据集)](#rdd-弹性分布式数据集)
 	- [创建 RDD](#创建-rdd)
 	- [RDD 操作](#rdd-操作)
@@ -88,7 +89,8 @@ $ stop-all.sh //停止服务
 Spark应用作为独立的进程集在集群中运行，通过`SparkContext`对象在用户主程序(`dirver program`)中与集群组织、交互。
 
 Spark应用在集群中运行时，SparkContext会连接到某种类型的`cluster managers`(集群管理器，如`Mesos`、`YARN`)，
-由集群管理器在多个应用间分配资源。一旦连接建立，Spark会在集群的节点中获取`executors`(执行器)，executors是执行计算操作和存储用户应用数据的进程。
+由集群管理器在多个应用间分配资源。一旦连接建立，Spark会在集群的节点中获取`executors`(执行器)，
+executors是执行计算操作和存储用户应用数据的进程。
 之后，SparkContext将用户的应用代码(在`JAR`中或Python源码文件)发送到executors。
 最终，SparkContext发送`tasks`(任务)到executors中运行。
 
@@ -143,6 +145,22 @@ Spark当前支持以下集群管理器：
 - `Apache Mesos` 通用的资源管理器，也可用于执行Hadoop MapReduce和服务应用
 - `Hadoop YARN` Hadoop2的资源管理器
 - `Kubernetes` 用于自动化部署、容器应用管理的开源系统
+
+## 术语表
+以下列表总结了在集群概念中提及的术语：
+
+术语 | 含义
+:-|:-
+Application | Spark中的用户应用程序，由集群中的driver program和executors组成。
+Application jar | 包含用户应用内容的JAR包。JAR包中应打包用户代码所需要的第三方依赖库，但不应该包含Hadoop或Spark库，这些库会在应用运行时添加。
+Driver program | 执行用户应用中的main()函数并创建SparkContext的进程。
+Cluster manager | 在集群中获取资源的外部服务(如Mesos、YARN)。
+Deploy mode | 区分driver进程的执行位置。`cluster`模式下，在集群内部启动driver；`client`模式下，在集群外部启动driver。
+Worker node | 可以在集群中执行用户应用代码的节点(部署了Spark服务的IP)。
+Executor | 在woker node中启动的用户应用的进程，执行tasks并在内存/磁盘中保存数据。每个用户应用都拥有属于自身的executor。
+Task | 将要发往executor的工作单元(a unit of work)。
+Job | 由多个Spark操作(如`save()`、`collect()`等)的task组成的并行计算。
+Stage | 每个job被拆分成较小的、具有依赖关系的task集合，这些任务集被称为stage。
 
 
 
@@ -203,8 +221,9 @@ RDD支持两类操作：
 
 	对RDD进行计算并返回计算结果，常见的action操作有`reduce()`、`collect()`、`count()`、`first()`等。
 
-所有的transformation操作是延迟执行(lazy)的，transformation操作不会立即计算结果，而仅仅是记录要执行的操作。transformation操作只在action操作要求返回结果时进行计算。
-Spark这样的设计能够保证计算更有效率，例如，当一个数据集先后进行了`map()`和`reduce()`操作，Spark服务端便只会返回reduce之后的结果，而不是更大的map之后的数据集。
+所有的transformation操作是延迟执行(lazy)的，transformation操作不会立即计算结果，而仅仅是记录要执行的操作。
+transformation操作只在action操作要求返回结果时进行计算。Spark这样的设计能够保证计算更有效率，
+例如，当一个数据集先后进行了`map()`和`reduce()`操作，Spark服务端便只会返回reduce之后的结果，而不是更大的map之后的数据集。
 
 默认情况下，每个执行transformation操作之后的RDD会每次执行action操作时重新计算。
 可以使用`persist()/cache()`方法将RDD在内存中持久化，Spark将在集群中保留这些数据，在下次查询时访问会更加快速。
