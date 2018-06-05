@@ -2,6 +2,7 @@
 	- [下载](#下载)
 	- [服务配置](#服务配置)
 - [集群模型](#集群模型)
+	- [集群管理器类型](#集群管理器类型)
 - [RDD (弹性分布式数据集)](#rdd-弹性分布式数据集)
 	- [创建 RDD](#创建-rdd)
 	- [RDD 操作](#rdd-操作)
@@ -87,8 +88,7 @@ $ stop-all.sh //停止服务
 Spark应用作为独立的进程集在集群中运行，通过`SparkContext`对象在用户主程序(`dirver program`)中与集群组织、交互。
 
 Spark应用在集群中运行时，SparkContext会连接到某种类型的`cluster managers`(集群管理器，如`Mesos`、`YARN`)，
-由集群管理器在多个应用间分配资源。一旦连接建立，Spark会在集群的节点中获取`executors`(执行器)，
-executors是执行计算操作和存储用户应用数据的进程。
+由集群管理器在多个应用间分配资源。一旦连接建立，Spark会在集群的节点中获取`executors`(执行器)，executors是执行计算操作和存储用户应用数据的进程。
 之后，SparkContext将用户的应用代码(在`JAR`中或Python源码文件)发送到executors。
 最终，SparkContext发送`tasks`(任务)到executors中运行。
 
@@ -124,6 +124,25 @@ executors是执行计算操作和存储用户应用数据的进程。
                                                          | |-------------------| |
                                                          |-----------------------|
 ```
+
+关于集群架构的一些注意事项：
+
+1. 每个用户应用拥有属于自己的执行器进程(executor processes)，这些进程保持在整个应用期间，并在多个线程中执行tasks。
+这有利于隔离不同的用户应用，包括调度端(每个driver调度自己的tasks)和执行端(来自不同应用的tasks子不同的JVM中执行)。
+1. Spark并不知道底层集的群管理器，仅需要能获取执行器进程并能相互通信。
+相对而言，将Spark运行在支持其它应用的集群管理器上更加简单(如`Mesos`、`YARN`)。
+1. dirver program必须在整个生命周期内监听并接受来自executors的连接。因此，driver program必须能从work nodes寻址。
+1. 由于diriver在集群中调度tasks，因此需要在网络位置上邻近worker nodes，最好在相同的局域网中。
+如果需要向远程集群发送请求，最好为driver开启RPC，在与worker nodes邻近的网络位置启动driver，
+使用RPC提交操作，而不是在与worker nodes较远的网络位置上直接执行driver。
+
+## 集群管理器类型
+Spark当前支持以下集群管理器：
+
+- `Standalone` Spark内置的简单集群管理器
+- `Apache Mesos` 通用的资源管理器，也可用于执行Hadoop MapReduce和服务应用
+- `Hadoop YARN` Hadoop2的资源管理器
+- `Kubernetes` 用于自动化部署、容器应用管理的开源系统
 
 
 
@@ -230,7 +249,7 @@ Shuffle是高开销(expensive)的操作，因为它涉及磁盘IO、网络IO、�
 
 ## 作业调度
 `DAGScheduler`是Spark中作业调度的核心。  
-在SparkContextc初始化过程中会创建DAGScheduler、TaskScheduler实例，用于作业调度、任务调度。
+在SparkContextc初始化过程中会创建DAGScheduler、TaskScheduler、SchedulerBackend实例，用于作业调度、任务调度。
 
 ### Job Sumbit
 在driver program中，每次对RDD调用action操作的相关方法(如count()、reduce()、collect()等)，都会提交Job，
