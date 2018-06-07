@@ -17,6 +17,7 @@
 	- [DStream](#dstream)
 	- [数据变换](#数据变换)
 		- [updateStateByKey()](#updatestatebykey)
+		- [mapWithState()](#mapwithstate)
 - [常见错误](#常见错误)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -88,9 +89,8 @@ $ stop-all.sh //停止服务
 # 集群模型
 Spark应用作为独立的进程集在集群中运行，通过`SparkContext`对象在用户主程序(`dirver program`)中与集群组织、交互。
 
-Spark应用在集群中运行时，SparkContext会连接到某种类型的`cluster managers`(集群管理器，如`Mesos`、`YARN`)，
-由集群管理器在多个应用间分配资源。一旦连接建立，Spark会在集群的节点中获取`executors`(执行器)，
-executors是执行计算操作和存储用户应用数据的进程。
+Spark应用在集群中运行时，SparkContext会连接到某种类型的`cluster managers`(集群管理器，如`Mesos`、`YARN`)，由集群管理器在多个应用间分配资源。
+一旦连接建立，Spark会在集群的节点中获取`executors`(执行器)，executors是执行计算操作和存储用户应用数据的进程。
 之后，SparkContext将用户的应用代码(在`JAR`中或Python源码文件)发送到executors。
 最终，SparkContext发送`tasks`(任务)到executors中运行。
 
@@ -694,6 +694,47 @@ class PairDStreamFunctions[K, V](self: DStream[(K, V)])
 
 ```scala
 DStream[(K, V)] => PairDStreamFunctions[K, V] => PairDStreamFunctions.updateStateByKey[S]() => DStream[(K, S)]
+```
+
+### mapWithState()
+`mapWithState()`直接处理**每一条**数据，通过每一条数据的Key、Value、之前的状态计算出新的数据。
+
+mapWithState()方法同样由`PairDStreamFunctions[K, V]`类型提供，需要原DStream为`DStream[(K, V)]`类型。
+截止到`Spark 2.3.0`版本，mapWithState相关API依然带有`@Experimental`注解(实验性的)，定义如下(源码取自`Spark 2.3.0`)：
+
+```scala
+class PairDStreamFunctions[K, V](self: DStream[(K, V)])
+  (implicit kt: ClassTag[K], vt: ClassTag[V], ord: Ordering[K]) extends Serializable {
+  ...
+  @Experimental
+  def mapWithState[StateType: ClassTag, MappedType: ClassTag](
+    spec: StateSpec[K, V, StateType, MappedType]
+    ): MapWithStateDStream[K, V, StateType, MappedType] = ...
+  ...
+}
+```
+
+mapWithState()方法接收的参数为`StateSpec`类型，可以使用StateSpec伴生对象中提供的`function()`相关方法构建。
+相关方法定义如下(源码取自`Spark 2.3.0`)：
+
+```scala
+@Experimental
+object StateSpec {
+  ...
+  def function[KeyType, ValueType, StateType, MappedType](
+    mappingFunction: (KeyType, Option[ValueType], State[StateType]) => MappedType
+    ): StateSpec[KeyType, ValueType, StateType, MappedType] = ...
+  def function[KeyType, ValueType, StateType, MappedType](
+    mappingFunction: JFunction3[KeyType, Optional[ValueType], State[StateType], MappedType]
+    ): StateSpec[KeyType, ValueType, StateType, MappedType] = ...
+  ...
+}
+```
+
+传入StateSpec.function()的参数`mappingFunction`即为mapWithState()方法真正的处理逻辑，参数类型为：
+
+```scala
+(KeyType, Option[ValueType], State[StateType]) => MappedType
 ```
 
 
