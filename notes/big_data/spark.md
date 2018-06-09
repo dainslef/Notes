@@ -737,6 +737,34 @@ object StateSpec {
 (KeyType, Option[ValueType], State[StateType]) => MappedType
 ```
 
+数据处理函数的输入/输出如下：
+
+1. 第一参数为原DStream中的Key。
+1. 第二参数为原DStream中的Value。
+1. 第三参数为Key对应存储状态。类型为`State[StateType]`，使用`State.update()`添加、更新状态值，使用`State.remove()`移除状态。
+1. 返回值为通过Key、Value、存储状态计算得到的新数据。
+
+KeyType、ValueType实际类型由原DStream决定，存储状态类型StateType、目标数据类型MappedType由用户决定。
+经过mapWithState()处理，生成新的类型为`MapWithStateDStream[K, V, StateType, MappedType]`的DStream。
+
+整个计算流程的类型变化关系：
+
+```scala
+DStream[(K, V)] => PairDStreamFunctions[K, V] => PairDStreamFunctions.mapWithState[K, V, StateType, MappedType]() => MapWithStateDStream[K, V, StateType, MappedType]
+```
+
+`MapWithStateDStream[K, V, StateType, MappedType]`类型继承自`DStream[MappedType]`，
+即mapWithState()操作最终生成的是目标数据类型MappedType的DStream。
+定义如下所示(源码取自`Spark 2.3.0`)：
+
+```scala
+@Experimental
+sealed abstract class MapWithStateDStream[KeyType, ValueType, StateType, MappedType: ClassTag](
+    ssc: StreamingContext) extends DStream[MappedType](ssc) {
+  ...
+}
+```
+
 
 
 # 常见错误
