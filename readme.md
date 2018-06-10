@@ -26,9 +26,9 @@
 
 ## Python相关
 
-- [Python](notes/python/python.md)
-- [Django](notes/python/django.md)
-- [PyQt](notes/python/pyqt.md)
+- [Python](notes/script/python.md)
+- [Django](notes/script/django.md)
+- [PyQt](notes/script/pyqt.md)
 
 ## 大数据相关
 
@@ -39,7 +39,8 @@
 
 ## Unix相关
 
-- [Unix常用工具](notes/unix/unix_config.md)
+- [Unix工具链](notes/unix/unix_config.md)
+- [Shell](notes/script/shell.md)
 - [Docker](notes/unix/docker.md)
 - [GDB](notes/unix/gdb.md)
 - [Git](notes/unix/git.md)
