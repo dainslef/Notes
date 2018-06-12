@@ -1,22 +1,24 @@
-- [*Stack* 简介](#stack-简介)
+- [概述](#概述)
 - [安装与配置](#安装与配置)
-	- [配置 *GHC*](#配置-ghc)
-	- [*Stackage*](#stackage)
-	- [配置 *Mirrors*](#配置-mirrors)
-	- [关于 *Revision Mismatch* 错误](#关于-revision-mismatch-错误)
+	- [Stackage](#stackage)
+	- [Stack Path](#stack-path)
+	- [安装 GHC](#安装-ghc)
+	- [配置 Mirrors](#配置-mirrors)
 - [启动与使用](#启动与使用)
 	- [创建项目](#创建项目)
 	- [项目结构](#项目结构)
 - [构建配置](#构建配置)
 	- [模块定义](#模块定义)
-		- [可执行文件定义](#可执行文件定义)
+	- [可执行文件定义](#可执行文件定义)
 	- [测试定义](#测试定义)
 	- [数据文件定义](#数据文件定义)
-	- [*Paths_xxx* 模块](#paths_xxx-模块)
+	- [Paths_xxx 模块](#paths_xxx-模块)
+- [问题注记](#问题注记)
+	- [Revision Mismatch](#revision-mismatch)
 
 
 
-# *Stack* 简介
+# 概述
 `Stack`是新一代的`Haskell`构建工具。
 
 `Stack`集成了以下功能：
@@ -47,43 +49,16 @@
 	1. 配置`STACK_ROOT`环境变量。
 	1. 将`%STACK_ROOT%`加入`PATH`环境变量中。
 
-## 配置 *GHC*
-通过Stack可以简便地安装`GHC`编译器。  
-使用`stack setup`指令，`Stack`会自动下载配置最新稳定版本的`GHC`编译器。
-
-```
-$ stack setup
-```
-
-在`Linux/macOS`系统下，`GHC`编译器默认安装位置为：
-
-```
-~/.stack/programs/[平台类型]/ghc-[版本号]
-```
-
-在`Windows`系统下，`GHC`编译器默认安装位置为：
-
-```
-~\AppData\Local\Programs\stack\x86_64-windows\ghc-[版本号]
-```
-
-在`Windows`系统下，`GHC`编译器需要依赖`MSYS2`。  
-使用`stack setup`安装`GHC`时会自动附带安装`MSYS2`环境。  
-若已经配置了`MSYS2`环境，则执行指令时使用`--skip-msys`则可跳过安装`MSYS2`环境的步骤。  
-如下所示：
-
-```
-> stack setup --skip-msys
-```
-
-## *Stackage*
+## Stackage
 `Stackage`是稳定的Haskell包，官方站点为`https://www.stackage.org`。
 
 Stackage根据不同的GHC版本形成不同的`Stackage LTS`版本，
 stack在构建工程时通过LTS版本确定编译器以及对应依赖包的版本关系。
 
-**全局**LTS版本由`~/.stack/global-project/stack.yaml`文件指定。  
-项目中使用的LTS版本由项目根路径下的`stack.yaml`文件指定。
+LTS版本配置：
+
+- **全局**LTS版本由`$stack-root/global-project/stack.yaml`文件指定。  
+- 项目中使用的LTS版本由项目根路径下的`stack.yaml`文件指定。
 
 通过指定`resolver`配置项设定stack使用的LTS版本：
 
@@ -96,45 +71,74 @@ stack在构建工程时通过LTS版本确定编译器以及对应依赖包的版
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: lts-10.7
+resolver: lts-11.13
 ```
 
-全局的LTS版本决定了在工程目录外使用`stack ghc`、`stack ghci`等指令时调用的GHC版本。  
+`resolver`配置项可以是LTS版本号、nightly版本日期或GHC编译器版本号。  
+全局的resolver配置决定了在项目目录外使用`stack ghc`、`stack ghci`等指令时调用的GHC版本。  
 
-## 配置 *Mirrors*
+## Stack Path
+使用`stack path`指令可查看stack相关路径信息：
+
+```
+$ stack path
+```
+
+其中：
+
+- `stack-path` stack根路径
+- `programs` GHC、MSYS2等的安装路径
+
+stack默认根路径：
+
+- Windows： `~\AppData\Roaming\stack`
+- Linux/macOS: `~/.stack`
+
+可使用`STACK_ROOT`环境变量设置stack使用的根路径。
+
+## 安装 GHC
+stack可以简便地安装、配置`GHC`编译器。  
+使用`stack setup`指令，stack会自动下载配置最新稳定版本的GHC编译器。
+
+```
+$ stack setup
+```
+
+GHC编译器默认安装位置：
+
+- Windows: `~\AppData\Local\Programs\stack\[平台类型]\ghc-[版本号]`
+- Linux/macOS： `~/.stack/programs/[平台类型]/ghc-[版本号]`
+
+Windows下，GHC编译器需要依赖`MSYS2`，使用`stack setup`安装`GHC`时会自动附带安装MSYS2环境。  
+若已经配置了MSYS2环境，则执行指令时使用`--skip-msys`则可跳过安装MSYS2环境的步骤：
+
+```
+> stack setup --skip-msys
+```
+
+可通过修改`$stack-root\config.yaml`中的`local-programs-path`配置来指定GHC、MSYS2的安装路径。  
+可通过修改`$stack-root/global-project/stack.yaml`中的`resolver`配置来指定全局的GHC版本。
+
+## 配置 Mirrors
 `Stackage`和`Hackage`默认的镜像源在国内均被**墙**，需要替换源后才能正常使用。  
-国内推荐使用`TUNA`源(清华大学镜像源)。
+国内推荐使用`TUNA`源(清华大学镜像源)或`USTC`源(中科大镜像源)。
 
-在`Linux/Unix/macOS`中，编辑`~/.stack/config.yaml`；  
-在`Windows`中，编辑`%STACK_ROOT%\config.yaml`。  
-在`config.yaml`文件中添加：
+以中科大源为例，编辑`$stack-root\config.yaml`，在`config.yaml`文件中添加：
 
 ```yaml
-# Stackage 镜像
-setup-info: "http://mirrors.tuna.tsinghua.edu.cn/stackage/stack-setup.yaml"
-urls:
-  latest-snapshot: http://mirrors.tuna.tsinghua.edu.cn/stackage/snapshots.json
-  lts-build-plans: http://mirrors.tuna.tsinghua.edu.cn/stackage/lts-haskell/
-  nightly-build-plans: http://mirrors.tuna.tsinghua.edu.cn/stackage/stackage-nightly/
-
-# Hackage 镜像
+# Hackage
 package-indices:
-  - name: Tsinghua
-    download-prefix: http://mirrors.tuna.tsinghua.edu.cn/hackage/package/
-    http: http://mirrors.tuna.tsinghua.edu.cn/hackage/00-index.tar.gz
+  - name: USTC
+    download-prefix: https://mirrors.ustc.edu.cn/hackage/package/
+    http: https://mirrors.ustc.edu.cn/hackage/01-index.tar.gz
+
+# Stackage
+setup-info: "http://mirrors.ustc.edu.cn/stackage/stack-setup.yaml"
+urls:
+  latest-snapshot: http://mirrors.ustc.edu.cn/stackage/snapshots.json
+  lts-build-plans: http://mirrors.ustc.edu.cn/stackage/lts-haskell/
+  nightly-build-plans: http://mirrors.ustc.edu.cn/stackage/stackage-nightly/
 ```
-
-## 关于 *Revision Mismatch* 错误
-当`Stackage`镜像源未完全同步官方源时，部分包可能`MD5`校验未通过，出现`Revision Mismatch`错误。  
-对于`Revision Mismatch`错误，默认行为是直接退出。
-
-在`~/.satck/config.yaml`中添加配置：
-
-```yaml
-ignore-revision-mismatch: true
-```
-
-使用该配置则启动GHC时会忽略`Revision Mismatch`错误。
 
 
 
@@ -247,7 +251,7 @@ library
   default-language:    Haskell2010
 ```
 
-### 可执行文件定义
+## 可执行文件定义
 `executable`配置段定义了构建生成的可执行程序。  
 `executable`后添加生成可执行文件的名称，默认的名称为`[项目名称]-exe`，名称可以自定义。  
 一个项目可以生成多个可执行文件(定义多个`executable`配置段)。  
@@ -358,7 +362,7 @@ data-files: conf/xxx.json, conf/xxx.xml
 
 构建后会在目标路径下生成`conf`路径，并生成数据文件。
 
-## *Paths_xxx* 模块
+## Paths_xxx 模块
 `Stack`构建项目时，会自动生成一个名称为`Paths_[项目名称]`的模块。  
 该模块提供了项目的**版本**与**路径**信息。  
 模块导出接口如下：
@@ -400,3 +404,20 @@ library
 Undefined symbols for architecture x86_64:
 ...
 ```
+
+
+
+# 问题注记
+记录使用stack中遇到的问题。
+
+## Revision Mismatch
+当`Stackage`镜像源未完全同步官方源时，部分包可能`MD5`校验未通过，出现`Revision Mismatch`错误。  
+对于`Revision Mismatch`错误，默认行为是直接退出。
+
+在`$stack-root/config.yaml`中添加配置：
+
+```yaml
+ignore-revision-mismatch: true
+```
+
+使用该配置则启动GHC时会忽略`Revision Mismatch`错误。
