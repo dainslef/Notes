@@ -6,12 +6,11 @@
 	- [术语表](#术语表)
 - [RDD (弹性分布式数据集)](#rdd-弹性分布式数据集)
 	- [创建 RDD](#创建-rdd)
-	- [RDD 分区](#rdd-分区)
 	- [RDD 操作](#rdd-操作)
 	- [Shuffle 操作](#shuffle-操作)
 		- [背景知识](#背景知识)
 		- [性能影响](#性能影响)
-	- [作业调度](#作业调度)
+	- [作业调度源码分析](#作业调度源码分析)
 		- [Job Sumbit](#job-sumbit)
 - [Spark Streaming](#spark-streaming)
 	- [Streaming Context](#streaming-context)
@@ -19,7 +18,7 @@
 	- [数据变换](#数据变换)
 		- [updateStateByKey()](#updatestatebykey)
 		- [mapWithState()](#mapwithstate)
-- [常见错误](#常见错误)
+- [错误注记](#错误注记)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
 	- [org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx](#orgapachesparksparkexception-failed-to-get-broadcast_xxx-of-broadcast_xxx)
@@ -82,8 +81,7 @@ $ start-all.sh //启动服务
 $ stop-all.sh //停止服务
 ```
 
-正常启动Spark服务后，使用JPS查看进程，主节点应有`Master`进程，从节点应有`Worker`进程。  
-默认配置下，Spark在`8080`端口提供集群管理的WEB界面。
+正常启动Spark服务后，使用JPS查看进程，主节点应有`Master`进程，从节点应有`Worker`进程。
 
 
 
@@ -97,7 +95,7 @@ Spark应用在集群中运行时，SparkContext会连接到某种类型的`clust
 
 集群结构如下图所示：
 
-![avatar](../../images/spark_cluster_overview.png)
+![Spark Cluster Overview](../../images/spark_cluster_overview.png)
 
 关于集群架构的一些注意事项：
 
@@ -106,7 +104,7 @@ Spark应用在集群中运行时，SparkContext会连接到某种类型的`clust
 1. Spark并不知道底层集的群管理器，仅需要能获取执行器进程并能相互通信。
 相对而言，将Spark运行在支持其它应用的集群管理器上更加简单(如`Mesos`、`YARN`)。
 1. dirver program必须在整个生命周期内监听并接受来自executors的连接。因此，driver program必须能从work nodes寻址。
-1. 由于diriver在集群中调度tasks，因此需要在网络位置上邻近worker nodes，最好在相同的局域网中。
+1. 由于driver在集群中调度tasks，因此需要在网络位置上邻近worker nodes，最好在相同的局域网中。
 如果需要向远程集群发送请求，最好为driver开启RPC，在与worker nodes邻近的网络位置启动driver，
 使用RPC提交操作，而不是在与worker nodes较远的网络位置上直接执行driver。
 
@@ -177,12 +175,6 @@ Spark提供了两种创建RDD的方式：
 	textRdd: org.apache.spark.rdd.RDD[String] = test.json MapPartitionsRDD[3] at textFile at <console>:24
 	```
 
-## RDD 分区
-RDD在创建完毕后可以被并行地操作。  
-一个重要的参数是分区数量(numbers of partions)，分区数量决定了数据集将会被切分成多少个分区。
-Spark执行task时会在集群中的每一个分区进行。典型的分配方式是根据CPU数目每个CPU分配2～4个分区(CPU双核/四核)。
-通常Spark会根据集群自动设置分区大小，但也可以通过设置`SparkContext.parallelize()`方法的第二参数来手动控制分区数量。
-
 ## RDD 操作
 RDD支持两类操作：
 
@@ -203,13 +195,27 @@ transformation操作只在action操作要求返回结果时进行计算。Spark�
 Spark同样支持将RDD持久化到磁盘中，或是在多个节点之间复制。
 
 ## Shuffle 操作
-Spark中的某些操作会触发被称为**shuffle**的事件。  
-Suffle是Spark中将不同分组、横跨多个分区的数据再分布(re-distributing)的一套机制，
+Spark中的宽依赖操作会触发被称为**shuffle**的事件。  
+Shuffle是Spark中将不同分组、横跨多个分区的数据再分布(re-distributing)的一套机制，
 通常会包含跨excutor、跨机器的复制数据。这使得shuffle成为一种复杂(complex)、高开销(costly)的操作。
 
 ### 背景知识
 以`reduceByKey()`操作为例，该操作对类型为`RDD[(Key, Value)]`的RDD执行，
-将相同Key的所有`(Key, Value)`元组通过执行传入的reduce函数聚合到一个`(Key, Value)`的新元组中，构成新的RDD。
+将相同Key的所有`(Key, Value)`元组通过执行传入的reduce函数聚合到一个`(Key, NewValue)`的新元组中，构成新的RDD。
+如下所示：
+
+```
+  原RDD                       新RDD
+(1, Value1)
+(1, Value2)  reduceByKey()  (1, NewValue1)
+(1, Value3) ==============> (2, NewValue2)
+(2, Value4)                 (3, NewValue3)
+(2, Value5)                   ...
+(3, Value6)
+(4, Value7)
+  ...
+```
+
 一个Key关联的所有`(Key, Value)`元组未必在相同的分区、甚至相同的机器，但计算结果时需要在相同的位置。
 
 在Spark中，数据通常不会跨分区分布到某个特定操作所需要的位置。在计算期间，单个任务将在单个分区中执行。
@@ -239,11 +245,11 @@ Shuffle是高开销(expensive)的操作，因为它涉及磁盘IO、网络IO、�
 
 这样的命名来自`Hadoop MapReudce`，与Spark中的`map()`、`reduce()`方法不直接相关。
 
-## 作业调度
+## 作业调度源码分析
 Spark在提交作业时会为RDD相关操作生成DAG(Directed Acyclic Graph，有向无环图)。
 
 `DAGScheduler`类是Spark中作业调度的核心。  
-在SparkContextc初始化过程中会创建DAGScheduler、TaskScheduler、SchedulerBackend实例，用于作业调度、任务调度。
+在SparkContext初始化过程中会创建DAGScheduler、TaskScheduler、SchedulerBackend实例，用于作业调度、任务调度。
 
 ### Job Sumbit
 在driver program中，每次对RDD调用action操作的相关方法(如count()、reduce()、collect()等)，都会提交Job，
@@ -251,8 +257,20 @@ Spark在提交作业时会为RDD相关操作生成DAG(Directed Acyclic Graph，�
 最终调用EventLoop(实现类DAGSchedulerEventProcessLoop)中post()方法发送`JobSubmitted()`消息通知任务提交完成。
 
 ```
-    action操作
-RDD =========> SparkContext.runJob() => DAGScheduler.runJob() => DAGScheduler.submitJob() => DAGSchedulerEventProcessLoop.post()
+RDD
+ |
+ | action操作
+\|/
+SparkContext.runJob()
+ |
+\|/
+DAGScheduler.runJob()
+ |
+\|/
+DAGScheduler.submitJob()
+ |
+\|/
+DAGSchedulerEventProcessLoop.post()
 ```
 
 相关源码分析如下(源码取自`Spark 2.3.0`)：
@@ -506,11 +524,11 @@ RDD =========> SparkContext.runJob() => DAGScheduler.runJob() => DAGScheduler.su
 最终，处理过后的数据可被发布到文件系统、数据库、实时仪表等。  
 实际上，可以将Spark的`Machine Learning`(机器学习)和`Graph Processing`(图处理)算法应用于数据流。
 
-![avatar](../../images/spark_streaming_arch.png)
+![Spark Streaming Arch](../../images/spark_streaming_arch.png)
 
 SparkStreaming接收实时的输入数据流并将数据划分批次，每个批次的数据将由Spark引擎处理并在批次中生成最终结果集的流。
 
-![avatar](../../images/spark_streaming_flow.png)
+![Spark Streaming Flow](../../images/spark_streaming_flow.png)
 
 SparkStreaming为一个连续的数据流提供了高层抽象，叫做`DStream`(`discretized stream`，离散流)。  
 DStreams可以从多种数据源(如`Kafka`、`Flume`等)的输入数据流创建，或者通过其它DStream的高阶运算得到。  
@@ -564,12 +582,12 @@ streamingContext.textFileStream(...)
 `DStream`是SparkStreaming提供的基础抽象，表示一串连续的数据流，可以是来自数据源的输入数据流，也可以由其它数据流转换生成。  
 实质上，DStream是一组连续的RDD，每个DStream中的RDD包含者来自某个时间间隔的数据，如下所示：
 
-![avatar](../../images/spark_streaming_dstream.png)
+![Spark Streaming DStream](../../images/spark_streaming_dstream.png)
 
 DStream中执行的操作将会应用到底层的每个RDD中。  
 例如，对DStream1执行`flatMap()`操作得到DStream2，DStream1中的每一个RDD均会通过flatMap()生成新的RDD，并构成DStream2，如下所示：
 
-![avatar](../../images/spark_streaming_dstream_operate.png)
+![Spark Streaming DStream Operate](../../images/spark_streaming_dstream_operate.png)
 
 底层的RDD变化由Spark引擎完成计算。DStream操作隐藏了多数的底层细节，给开发者提供了便利的高层次API。
 
@@ -711,7 +729,7 @@ sealed abstract class MapWithStateDStream[KeyType, ValueType, StateType, MappedT
 
 
 
-# 常见错误
+# 错误注记
 记录Spark开发、使用过程中遇到的错误信息以及对应解决方法。
 
 ## Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
