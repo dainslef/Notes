@@ -1,29 +1,25 @@
-<!-- TOC -->
-
 - [概述](#概述)
 - [安装与配置](#安装与配置)
 	- [基本使用](#基本使用)
-	- [在 *macOS* 中使用 *docker*](#在-macos-中使用-docker)
+	- [在 macOS 中使用 docker](#在-macos-中使用-docker)
 - [镜像与容器](#镜像与容器)
 	- [镜像管理](#镜像管理)
 	- [容器管理](#容器管理)
 	- [容器生成镜像](#容器生成镜像)
 	- [容器导入/导出](#容器导入导出)
-	- [*Docker Hub*](#docker-hub)
+	- [Docker Hub](#docker-hub)
 - [文件共享](#文件共享)
 	- [文件传输](#文件传输)
 
-<!-- /TOC -->
 
 
-
-## 概述
+# 概述
 `docker`是使用`Go`实现的开源容器引擎。  
 `docker`将应用与依赖项放置在容器中执行，仅仅依赖宿主机的内核，简化了应用的运维与部署。
 
 
 
-## 安装与配置
+# 安装与配置
 各类`Linux`发行版的官方仓库中均内置了`docker`，使用发行版内置的包管理器安装即可：
 
 ```
@@ -33,7 +29,7 @@
 
 `docker`容器使用宿主机的内核，需要宿主机内核版本`3.10+`。
 
-### 基本使用
+## 基本使用
 `docker`在使用前需要开启对应服务。
 
 在基于`SysV init`的发行版上，执行：
@@ -61,7 +57,7 @@
 - `docker import` 从文件导入镜像
 - `docker tag` 为镜像添加／移除标志
 
-### 在 *macOS* 中使用 *docker*
+## 在 macOS 中使用 docker
 `docker`使用了诸多`Linux Kernel`专有特性，并非`POSIX`兼容，无法直接移植到`macOS`中。  
 `macOS`中`docker`使用`docker-machine`在`VirtualBox`中创建`Linux`虚拟机，并在虚拟机中运行`docker`。
 
@@ -96,13 +92,13 @@ $ eval $(docker-machine env [环境变量])
 
 
 
-## 镜像与容器
+# 镜像与容器
 镜像与容器是`docker`中的核心概念。
 
 - **容器**(`Container`)是一个/一组在独立环境中执行的应用。
 - **镜像**(`Image`)是用于创建容器的模版。
 
-### 镜像管理
+## 镜像管理
 镜像包含一个定制的`Linux`环境，提供创建容器所需的文件。
 
 使用`docker images`指令查看本地存在的镜像：
@@ -163,7 +159,7 @@ $ docker image rm [镜像ID/镜像名称] //删除指定镜像，同 docker rmi
 $ docker image inspect [镜像ID/镜像名称] //显示镜像详情
 ```
 
-### 容器管理
+## 容器管理
 容器是镜像的运行实例，容器在独立、隔离的`Linux`环境中运行一个或一组进程。
 
 使用`docker create`指令创建容器，并在创建容器时指定启动的进程：
@@ -223,7 +219,7 @@ $ docker rm [容器ID/容器名称] //删除指定容器
 $ docker container rm [容器ID/容器名称] //同 docker rm
 ```
 
-### 容器生成镜像
+## 容器生成镜像
 使用`docker commit`指令为指定容器生成新的镜像。
 
 ```
@@ -232,7 +228,7 @@ $ docker commit [选项] [容器ID/容器名称] [镜像仓库:镜像TAG]
 
 `docker commit`仅会提交相对基础镜像变化的部分。
 
-### 容器导入/导出
+## 容器导入/导出
 使用`docker save/export`指令将容器的内容导出为`*.tar`格式的压缩文件：
 
 ```
@@ -247,7 +243,7 @@ $ docker import [备份.tar] [镜像仓库:镜像TAG]
 
 导入镜像时`镜像仓库:镜像TAG`参数可以省略，省略该参数时，导入镜像的`REPOSITORY`与`TAG`均为`<none>`。
 
-### *Docker Hub*
+## Docker Hub
 `docker`官方提供了镜像托管服务`Docker Hub`。  
 在`https://hub.docker.com`中注册，在本机使用`docker login`登陆账户后即可使用镜像托管服务。  
 将本地的个人镜像上传到`Docker Hub`：
@@ -265,7 +261,7 @@ $ docker push [镜像名称]
 假设个人`Docker ID`为`danslef`，本地测试镜像信息如下：
 
 ```
-REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+REPOSITORY              TAG                 IMAGE ID            CREATED            SIZE
 dainslef/test_image     2333               9f0a1d72c464        9 minutes ago       538MB
 ```
 
@@ -277,7 +273,7 @@ $ docker push dainslef/test_image:2333
 
 
 
-## 文件共享
+# 文件共享
 `docker`存储采用特殊的`Union File System`(联合文件系统)机制，容器内的文件不能直接被外部访问。  
 容器与宿主机之间的文件共享可以通过以下方式：
 
@@ -285,7 +281,7 @@ $ docker push dainslef/test_image:2333
 - 使用`Bind mounts`(绑定挂载)机制，在容器中的指定路径下挂载外部宿主机的某个目录
 - 使用`Volumes`(卷)机制，由`docker`创建并管理的存储卷，由容器启动时挂载，相比`Bind mounts`具有更好的可管理性和可迁移性
 
-### 文件传输
+## 文件传输
 将宿主机的文件/目录复制到容器中：
 
 ```
@@ -298,4 +294,4 @@ $ docker cp [宿主机文件/目录] [容器ID/容器名称]:[绝对路径]
 $ docker cp [容器ID/容器名称]:[绝对路径] [宿主机文件/目录]
 ```
 
-容器中的文件/目录需要为绝对路径，宿主机中的路径可以为相对路径或绝对路径。
+容器中的文件/目录需要为**绝对路径**，宿主机中的路径可以为相对路径**或**绝对路径。
