@@ -12,6 +12,7 @@
 		- [性能影响](#性能影响)
 	- [作业调度源码分析](#作业调度源码分析)
 		- [Job Sumbit](#job-sumbit)
+		- [Stage Submit](#stage-submit)
 - [Spark Streaming](#spark-streaming)
 	- [Streaming Context](#streaming-context)
 	- [DStream](#dstream)
@@ -55,8 +56,8 @@ Scala版本兼容性：
 
 ```sh
 export SPARK_HOME=... # 配置软件包路径
-export PATH+=:$SPARK_HOME/bin # 将Spark工具加入 PATH 中
-export PATH+=:$SPARK_HOME/sbin # 将Spark工具加入 PATH 中
+PATH+=:$SPARK_HOME/bin # 将Spark工具加入 PATH 中
+PATH+=:$SPARK_HOME/sbin # 将Spark工具加入 PATH 中
 
 # 以下配置也可写入 $SPARK_HOME/conf/spark-env.sh 中
 export SPARK_MASTER_HOST=172.16.0.126 # 集群的 Master 节点
@@ -509,6 +510,226 @@ DAGSchedulerEventProcessLoop.post()
 	        exception.setStackTrace(exception.getStackTrace ++ callerStackTrace)
 	        throw exception
 	    }
+	  }
+
+	  ...
+
+	}
+	```
+
+### Stage Submit
+Job提交完成后，DAGScheduler的EventLoop中接收到Job提交完成的消息，开始根据Job中的finalRDD创建finalStage，
+之后反向根据RDD的依赖关系类型依次划分、创建stage。
+
+```
+DAGSchedulerEventProcessLoop
+ |
+ | 接收到JobSubmitted()消息
+\|/
+DAGScheduler.handleJobSubmitted()
+ |
+\|/
+DAGScheduler.createResultStage()
+ |
+\|/
+DAGScheduler.submitStage()
+ |
+ | 递归调用submitStage()方法
+\|/
+DAGScheduler.getMissingParentStages()
+DAGScheduler.submitStage()
+```
+
+相关源码分析如下(源码取自`Spark 2.3.0`)：
+
+- Job提交完成后，JobDAGSchedulerEventProcessLoop接收到`JobSubmitted()`消息，
+触发DAGScheduler的`handleJobSubmitted()`方法：
+
+	```scala
+	private[scheduler] class DAGSchedulerEventProcessLoop(dagScheduler: DAGScheduler)
+	  extends EventLoop[DAGSchedulerEvent]("dag-scheduler-event-loop") with Logging {
+
+	  ...
+
+	    /**
+	   * The main event loop of the DAG scheduler.
+	   */
+	  override def onReceive(event: DAGSchedulerEvent): Unit = {
+	    val timerContext = timer.time()
+	    try {
+	      doOnReceive(event)
+	    } finally {
+	      timerContext.stop()
+	    }
+	  }
+
+	  private def doOnReceive(event: DAGSchedulerEvent): Unit = event match {
+	    case JobSubmitted(jobId, rdd, func, partitions, callSite, listener, properties) =>
+	      dagScheduler.handleJobSubmitted(jobId, rdd, func, partitions, callSite, listener, properties)
+	    ...
+	  }
+
+	  ...
+
+	}
+	```
+
+- 在handleJobSubmitted()方法中，先调用`createResultStage()`根据finalRDD创建finalStage，
+之后调用`submitStage()`提交finalStage：
+
+	```scala
+	private[spark]
+	class DAGScheduler(
+	    private[scheduler] val sc: SparkContext,
+	    private[scheduler] val taskScheduler: TaskScheduler,
+	    listenerBus: LiveListenerBus,
+	    mapOutputTracker: MapOutputTrackerMaster,
+	    blockManagerMaster: BlockManagerMaster,
+	    env: SparkEnv,
+	    clock: Clock = new SystemClock())
+	  extends Logging {
+
+	  ...
+
+	  private[scheduler] def handleJobSubmitted(jobId: Int,
+	      finalRDD: RDD[_],
+	      func: (TaskContext, Iterator[_]) => _,
+	      partitions: Array[Int],
+	      callSite: CallSite,
+	      listener: JobListener,
+	      properties: Properties) {
+	    var finalStage: ResultStage = null
+	    try {
+	      // New stage creation may throw an exception if, for example, jobs are run on a
+	      // HadoopRDD whose underlying HDFS files have been deleted.
+	      finalStage = createResultStage(finalRDD, func, partitions, jobId, callSite)
+	    } catch {
+	      case e: Exception =>
+	        logWarning("Creating new stage failed due to exception - job: " + jobId, e)
+	        listener.jobFailed(e)
+	        return
+	    }
+
+	    val job = new ActiveJob(jobId, finalStage, callSite, listener, properties)
+	    clearCacheLocs()
+	    logInfo("Got job %s (%s) with %d output partitions".format(
+	      job.jobId, callSite.shortForm, partitions.length))
+	    logInfo("Final stage: " + finalStage + " (" + finalStage.name + ")")
+	    logInfo("Parents of final stage: " + finalStage.parents)
+	    logInfo("Missing parents: " + getMissingParentStages(finalStage))
+
+	    val jobSubmissionTime = clock.getTimeMillis()
+	    jobIdToActiveJob(jobId) = job
+	    activeJobs += job
+	    finalStage.setActiveJob(job)
+	    val stageIds = jobIdToStageIds(jobId).toArray
+	    val stageInfos = stageIds.flatMap(id => stageIdToStage.get(id).map(_.latestInfo))
+	    listenerBus.post(
+	      SparkListenerJobStart(job.jobId, jobSubmissionTime, stageInfos, properties))
+	    submitStage(finalStage)
+	  }
+
+	  ...
+	
+	}
+	```
+
+- 在submitStage()方法中，调用了`getMissingParentStages()`方法根据finalStage计算出缺失的父stage，
+循环遍历提交这些stage，并递归调用submitStage()，直到没有缺失的父stage：
+
+	```scala
+	private[spark]
+	class DAGScheduler(
+	    private[scheduler] val sc: SparkContext,
+	    private[scheduler] val taskScheduler: TaskScheduler,
+	    listenerBus: LiveListenerBus,
+	    mapOutputTracker: MapOutputTrackerMaster,
+	    blockManagerMaster: BlockManagerMaster,
+	    env: SparkEnv,
+	    clock: Clock = new SystemClock())
+	  extends Logging {
+
+	  ...
+
+	  /** Submits stage, but first recursively submits any missing parents. */
+	  private def submitStage(stage: Stage) {
+	    val jobId = activeJobForStage(stage)
+	    if (jobId.isDefined) {
+	      logDebug("submitStage(" + stage + ")")
+	      if (!waitingStages(stage) && !runningStages(stage) && !failedStages(stage)) {
+	        val missing = getMissingParentStages(stage).sortBy(_.id)
+	        logDebug("missing: " + missing)
+	        if (missing.isEmpty) {
+	          logInfo("Submitting " + stage + " (" + stage.rdd + "), which has no missing parents")
+	          submitMissingTasks(stage, jobId.get)
+	        } else {
+	          for (parent <- missing) {
+	            submitStage(parent)
+	          }
+	          waitingStages += stage
+	        }
+	      }
+	    } else {
+	      abortStage(stage, "No active job for stage " + stage.id, None)
+	    }
+	  }
+
+	  ...
+
+	}
+	```
+
+	getMissingParentStages()方法中描述了stage的**划分逻辑**，即根据RDD的依赖类型进行划分：
+
+	- `ShuffleDependency` 该RDD需要shuffle操作才能生成，划分新stage
+	- `NarrowDependency` 普通依赖，加入当前stage
+
+	如下所示：
+
+	```scala
+	private[spark]
+	class DAGScheduler(
+	    private[scheduler] val sc: SparkContext,
+	    private[scheduler] val taskScheduler: TaskScheduler,
+	    listenerBus: LiveListenerBus,
+	    mapOutputTracker: MapOutputTrackerMaster,
+	    blockManagerMaster: BlockManagerMaster,
+	    env: SparkEnv,
+	    clock: Clock = new SystemClock())
+	  extends Logging {
+
+	  ...
+
+	  private def getMissingParentStages(stage: Stage): List[Stage] = {
+	    val missing = new HashSet[Stage]
+	    val visited = new HashSet[RDD[_]]
+	    // We are manually maintaining a stack here to prevent StackOverflowError
+	    // caused by recursively visiting
+	    val waitingForVisit = new ArrayStack[RDD[_]]
+	    def visit(rdd: RDD[_]) {
+	      if (!visited(rdd)) {
+	        visited += rdd
+	        val rddHasUncachedPartitions = getCacheLocs(rdd).contains(Nil)
+	        if (rddHasUncachedPartitions) {
+	          for (dep <- rdd.dependencies) {
+	            dep match {
+	              case shufDep: ShuffleDependency[_, _, _] =>
+	                val mapStage = getOrCreateShuffleMapStage(shufDep, stage.firstJobId)
+	                if (!mapStage.isAvailable) {
+	                  missing += mapStage
+	                }
+	              case narrowDep: NarrowDependency[_] =>
+	                waitingForVisit.push(narrowDep.rdd)
+	            }
+	          }
+	        }
+	      }
+	    }
+	    waitingForVisit.push(stage.rdd)
+	    while (waitingForVisit.nonEmpty) {
+	      visit(waitingForVisit.pop())
+	    }
+	    missing.toList
 	  }
 
 	  ...
