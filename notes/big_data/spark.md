@@ -1,6 +1,7 @@
 - [概述](#概述)
 	- [下载](#下载)
 	- [服务配置](#服务配置)
+	- [Web UI](#web-ui)
 - [集群模型](#集群模型)
 	- [集群管理器类型](#集群管理器类型)
 	- [术语表](#术语表)
@@ -83,6 +84,27 @@ $ stop-all.sh //停止服务
 ```
 
 正常启动Spark服务后，使用JPS查看进程，主节点应有`Master`进程，从节点应有`Worker`进程。
+
+## Web UI
+默认配置下，Spark在`8080`端口提供集群管理的Web界面，可在Web界面中查看集群的工作状态。
+
+Web界面中的提供了以下几类信息：
+
+- `Workers` 展示Worker node(工作节点)的状态。
+- `Running Applications` 展示正在执行的Spark应用的信息。
+- `Completed Applications` 展示已结束的Spark应用的信息。
+
+如下图所示：
+
+![Spark Web UI](../../images/spark_web_ui.png)
+
+对于正在执行的Spark应用，Spark还提供了`Application Detail UI`，用于查看应用的执行信息，如`Event Timeline`、`DAG Visualization`。  
+如下图所示：
+
+![Spark Application Detail UI](../../images/spark_application_detail_ui.png)
+
+这些信息仅在应用执行期间可查看，默认配置下，应用结束后仅能查看文本日志。
+若需要在应用结束后保留应用的执行信息，则修改`spark.eventLog.enabled`配置项为`True`。
 
 
 
