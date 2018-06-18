@@ -14,6 +14,7 @@
 	- [作业调度源码分析](#作业调度源码分析)
 		- [Job Sumbit](#job-sumbit)
 		- [Stage Submit](#stage-submit)
+		- [Task Submit](#task-submit)
 - [Spark Streaming](#spark-streaming)
 	- [Streaming Context](#streaming-context)
 	- [DStream](#dstream)
@@ -752,6 +753,123 @@ DAGScheduler.submitStage()
 	      visit(waitingForVisit.pop())
 	    }
 	    missing.toList
+	  }
+
+	  ...
+
+	}
+	```
+
+### Task Submit
+提交stage会根据分区数量计算需要提交的task，根据stage类型生成对应的task，最终提交task到executor。
+
+```
+DAGScheduler.submitStage()
+ |
+\|/
+DAGScheduler.submitMissingTasks()
+ |
+\|/
+Stage.findMissingPartitions()
+ |
+\|/
+TaskScheduler.submitTasks()
+ |
+\|/
+SchedulableBuilder.addTaskSetManager()
+SchedulerBackend.reviveOffers()
+ |
+ | SchedulerBackend存在多个实现，以CoarseGrainedSchedulerBackend为例
+\|/
+DriverEndpoint.send()
+ |
+\|/
+CoarseGrainedSchedulerBackend.makeOffers()
+ |
+\|/
+CoarseGrainedSchedulerBackend.launchTasks()
+```
+
+相关源码分析如下(源码取自Spark 2.3.0)：
+
+- 在`submitMissingTasks()`中，先通过`Stage.findMissingPartitions()`得到用于计算的分区，
+根据stage类型和分区信息创建了对应的task。
+
+	stage类型和task类型的对应关系：
+
+	- `ShuffleMapStage` 生成`ShuffleMapTask`
+	- `ResultStage` 生成`ShuffleMapStage`
+
+	task创建完成后，调用TaskScheduler的`submitTasks()`方法提交任务：
+
+	```scala
+	private[spark]
+	class DAGScheduler(
+	    private[scheduler] val sc: SparkContext,
+	    private[scheduler] val taskScheduler: TaskScheduler,
+	    listenerBus: LiveListenerBus,
+	    mapOutputTracker: MapOutputTrackerMaster,
+	    blockManagerMaster: BlockManagerMaster,
+	    env: SparkEnv,
+	    clock: Clock = new SystemClock())
+	  extends Logging {
+
+	  ...
+
+	  private def submitMissingTasks(stage: Stage, jobId: Int) {
+
+	    logDebug("submitMissingTasks(" + stage + ")")
+
+	    // First figure out the indexes of partition ids to compute.
+	    val partitionsToCompute: Seq[Int] = stage.findMissingPartitions()
+
+	    // Use the scheduling pool, job group, description, etc. from an ActiveJob associated
+	    // with this Stage
+	    val properties = jobIdToActiveJob(jobId).properties
+
+	    runningStages += stage
+
+	    ...
+
+	    val tasks: Seq[Task[_]] = try {
+	      val serializedTaskMetrics = closureSerializer.serialize(stage.latestInfo.taskMetrics).array()
+	      stage match {
+	        case stage: ShuffleMapStage =>
+	          stage.pendingPartitions.clear()
+	          partitionsToCompute.map { id =>
+	            val locs = taskIdToLocations(id)
+	            val part = partitions(id)
+	            stage.pendingPartitions += id
+	            new ShuffleMapTask(stage.id, stage.latestInfo.attemptNumber,
+	              taskBinary, part, locs, properties, serializedTaskMetrics, Option(jobId),
+	              Option(sc.applicationId), sc.applicationAttemptId)
+	          }
+
+	        case stage: ResultStage =>
+	          partitionsToCompute.map { id =>
+	            val p: Int = stage.partitions(id)
+	            val part = partitions(p)
+	            val locs = taskIdToLocations(id)
+	            new ResultTask(stage.id, stage.latestInfo.attemptNumber,
+	              taskBinary, part, locs, id, properties, serializedTaskMetrics,
+	              Option(jobId), Option(sc.applicationId), sc.applicationAttemptId)
+	          }
+	      }
+	    } catch {
+	      case NonFatal(e) =>
+	        abortStage(stage, s"Task creation failed: $e\n${Utils.exceptionString(e)}", Some(e))
+	        runningStages -= stage
+	        return
+	    }
+
+	    if (tasks.size > 0) {
+	      logInfo(s"Submitting ${tasks.size} missing tasks from $stage (${stage.rdd}) (first 15 " +
+	        s"tasks are for partitions ${tasks.take(15).map(_.partitionId)})")
+	      taskScheduler.submitTasks(new TaskSet(
+	        tasks.toArray, stage.id, stage.latestInfo.attemptNumber, jobId, properties))
+	    } else {
+	      ...
+	    }
 	  }
 
 	  ...
