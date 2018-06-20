@@ -877,6 +877,249 @@ CoarseGrainedSchedulerBackend.launchTasks()
 	}
 	```
 
+- 在TaskScheduler的submitTasks()方法中，通过任务集TaskSet创建了任务管理器TaskSetManager，
+调用`SchedulableBuilder.addTaskSetManager()`将TaskSetManager添加到SchedulableBuilder中，
+之后调用`SchedulerBackend.reviveOffers()`方法，通知对应的SchedulerBackend处理提交信息。
+
+	```scala
+	private[spark] class TaskSchedulerImpl(
+	    val sc: SparkContext,
+	    val maxTaskFailures: Int,
+	    isLocal: Boolean = false)
+	  extends TaskScheduler with Logging {
+
+	  ...
+
+	  override def submitTasks(taskSet: TaskSet) {
+	    val tasks = taskSet.tasks
+	    logInfo("Adding task set " + taskSet.id + " with " + tasks.length + " tasks")
+	    this.synchronized {
+	      val manager = createTaskSetManager(taskSet, maxTaskFailures)
+	      val stage = taskSet.stageId
+	      val stageTaskSets =
+	        taskSetsByStageIdAndAttempt.getOrElseUpdate(stage, new HashMap[Int, TaskSetManager])
+	      stageTaskSets(taskSet.stageAttemptId) = manager
+	      val conflictingTaskSet = stageTaskSets.exists { case (_, ts) =>
+	        ts.taskSet != taskSet && !ts.isZombie
+	      }
+	      if (conflictingTaskSet) {
+	        throw new IllegalStateException(s"more than one active taskSet for stage $stage:" +
+	          s" ${stageTaskSets.toSeq.map{_._2.taskSet.id}.mkString(",")}")
+	      }
+	      schedulableBuilder.addTaskSetManager(manager, manager.taskSet.properties)
+
+	      if (!isLocal && !hasReceivedTask) {
+	        starvationTimer.scheduleAtFixedRate(new TimerTask() {
+	          override def run() {
+	            if (!hasLaunchedTask) {
+	              logWarning("Initial job has not accepted any resources; " +
+	                "check your cluster UI to ensure that workers are registered " +
+	                "and have sufficient resources")
+	            } else {
+	              this.cancel()
+	            }
+	          }
+	        }, STARVATION_TIMEOUT_MS, STARVATION_TIMEOUT_MS)
+	      }
+	      hasReceivedTask = true
+	    }
+	    backend.reviveOffers()
+	  }
+
+	  ...
+
+	}
+	```
+
+- SchedulerBackend根据配置，拥有不同的实现类：
+
+	- `LocalSchedulerBackend` 本地模式使用的实现
+	- `StandaloneSchedulerBackend` 使用Spark自带的集群管理器时采用此实现
+	- `CoarseGrainedSchedulerBackend` 使用外部集群管理器时采用此实现
+
+	以`CoarseGrainedSchedulerBackend`为例，调用`reviveOffers()`方法实际是向DriverEndpoint发送`ReviveOffers`消息。
+
+	```scala
+	class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: RpcEnv)
+	  extends ExecutorAllocationClient with SchedulerBackend with Logging {
+
+	  ...
+
+	  override def reviveOffers() {
+	    driverEndpoint.send(ReviveOffers)
+	  }
+
+	  ...
+
+	}
+	```
+
+	DriverEndpoint在CoarseGrainedSchedulerBackend启动服务时(调用`start()`方法)初始化：
+
+	```scala
+	class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: RpcEnv)
+	  extends ExecutorAllocationClient with SchedulerBackend with Logging {
+
+	  ...
+
+	  var driverEndpoint: RpcEndpointRef = null
+
+	  ...
+
+	  override def start() {
+	    val properties = new ArrayBuffer[(String, String)]
+	    for ((key, value) <- scheduler.sc.conf.getAll) {
+	      if (key.startsWith("spark.")) {
+	        properties += ((key, value))
+	      }
+	    }
+
+	    // TODO (prashant) send conf instead of properties
+	    driverEndpoint = createDriverEndpointRef(properties)
+	  }
+
+	  protected def createDriverEndpointRef(
+	      properties: ArrayBuffer[(String, String)]): RpcEndpointRef = {
+	    rpcEnv.setupEndpoint(ENDPOINT_NAME, createDriverEndpoint(properties))
+	  }
+
+	  protected def createDriverEndpoint(properties: Seq[(String, String)]): DriverEndpoint = {
+	    new DriverEndpoint(rpcEnv, properties)
+	  }
+
+	  ...
+
+	}
+	```
+
+- DriverEndpoint在接收到ReviveOffers消息时调用自身的`makeOffers()`方法，
+makeOffers()方法中通过`TaskSchedulerImpl.resourceOffers()`向集群管理器申请资源，
+之后调用`launchTasks()`启动任务：
+
+	```scala
+	private[spark]
+	class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: RpcEnv)
+	  extends ExecutorAllocationClient with SchedulerBackend with Logging {
+
+	  ...
+
+	  override def receive: PartialFunction[Any, Unit] = {
+	    ...
+	    case ReviveOffers =>
+	      makeOffers()
+	    ...
+	  }
+
+	  ...
+
+	  // Make fake resource offers on all executors
+	  private def makeOffers() {
+	    // Make sure no executor is killed while some task is launching on it
+	    val taskDescs = CoarseGrainedSchedulerBackend.this.synchronized {
+	      // Filter out executors under killing
+	      val activeExecutors = executorDataMap.filterKeys(executorIsAlive)
+	      val workOffers = activeExecutors.map {
+	        case (id, executorData) =>
+	          new WorkerOffer(id, executorData.executorHost, executorData.freeCores)
+	      }.toIndexedSeq
+	      scheduler.resourceOffers(workOffers)
+	    }
+	    if (!taskDescs.isEmpty) {
+	      launchTasks(taskDescs)
+	    }
+	  }
+
+	  ...
+
+	  // Launch tasks returned by a set of resource offers
+	  private def launchTasks(tasks: Seq[Seq[TaskDescription]]) {
+	    for (task <- tasks.flatten) {
+	      val serializedTask = TaskDescription.encode(task)
+	      if (serializedTask.limit() >= maxRpcMessageSize) {
+	        scheduler.taskIdToTaskSetManager.get(task.taskId).foreach { taskSetMgr =>
+	          try {
+	            var msg = "Serialized task %s:%d was %d bytes, which exceeds max allowed: " +
+	              "spark.rpc.message.maxSize (%d bytes). Consider increasing " +
+	              "spark.rpc.message.maxSize or using broadcast variables for large values."
+	            msg = msg.format(task.taskId, task.index, serializedTask.limit(), maxRpcMessageSize)
+	            taskSetMgr.abort(msg)
+	          } catch {
+	            case e: Exception => logError("Exception in error callback", e)
+	          }
+	        }
+	      }
+	      else {
+	        val executorData = executorDataMap(task.executorId)
+	        executorData.freeCores -= scheduler.CPUS_PER_TASK
+
+	        logDebug(s"Launching task ${task.taskId} on executor id: ${task.executorId} hostname: " +
+	          s"${executorData.executorHost}.")
+
+	        executorData.executorEndpoint.send(LaunchTask(new SerializableBuffer(serializedTask)))
+	      }
+	    }
+	  }
+
+	  ...
+
+	}
+	```
+
+- launchTasks()方法中将任务信息通过RPC发送到执行器执行，逻辑转到Spark的网络层。
+
+	发送数据的`executorEndpoint`对象为RpcEndpointRef类型，
+	实际实现类为NettyRpcEndpointRef，调用的`send()`方法实现如下：
+
+	```scala
+	private[netty] class NettyRpcEndpointRef(
+	    @transient private val conf: SparkConf,
+	    private val endpointAddress: RpcEndpointAddress,
+	    @transient @volatile private var nettyEnv: NettyRpcEnv) extends RpcEndpointRef(conf) {
+
+	  ...
+
+	  override def send(message: Any): Unit = {
+	    require(message != null, "Message is null")
+	    nettyEnv.send(new RequestMessage(nettyEnv.address, this, message))
+	  }
+
+	  ...
+
+	}
+	```
+
+	`NettyRpcEndpointRef.send()`内部调用了`NettyRpcEnv.send()`，将消息添加到Dispatcher内部队列中等待发送：
+
+	```scala
+	private[netty] class NettyRpcEnv(
+	    val conf: SparkConf,
+	    javaSerializerInstance: JavaSerializerInstance,
+	    host: String,
+	    securityManager: SecurityManager,
+	    numUsableCores: Int) extends RpcEnv(conf) with Logging {
+
+	  ...
+
+	  private[netty] def send(message: RequestMessage): Unit = {
+	    val remoteAddr = message.receiver.address
+	    if (remoteAddr == address) {
+	      // Message to a local RPC endpoint.
+	      try {
+	        dispatcher.postOneWayMessage(message)
+	      } catch {
+	        case e: RpcEnvStoppedException => logDebug(e.getMessage)
+	      }
+	    } else {
+	      // Message to a remote RPC endpoint.
+	      postToOutbox(message.receiver, OneWayOutboxMessage(message.serialize(this)))
+	    }
+	  }
+
+	  ...
+
+	}
+	```
+
 
 
 # Spark Streaming
@@ -940,13 +1183,13 @@ streamingContext.textFileStream(...)
 ```
 
 ## DStream
-`DStream`是SparkStreaming提供的基础抽象，表示一串连续的数据流，可以是来自数据源的输入数据流，也可以由其它数据流转换生成。  
-实质上，DStream是一组连续的RDD，每个DStream中的RDD包含者来自某个时间间隔的数据，如下所示：
+`DStream`(Discretized Stream)是SparkStreaming提供的基础抽象，表示一串连续的数据流，可以是来自数据源的输入数据流，
+也可以由其它数据流转换生成。实质上，DStream是一组连续的RDD，每个DStream中的RDD包含者来自某个时间间隔的数据，如下所示：
 
 ![Spark Streaming DStream](../../images/spark_streaming_dstream.png)
 
-DStream中执行的操作将会应用到底层的每个RDD中。  
-例如，对DStream1执行`flatMap()`操作得到DStream2，DStream1中的每一个RDD均会通过flatMap()生成新的RDD，并构成DStream2，如下所示：
+DStream中执行的操作将会应用到底层的每个RDD中。例如，对**lines DStream**执行`flatMap()`操作得到**words DStream**，
+lines中的每一个RDD均会通过flatMap()生成新的RDD，并构成words，如下所示：
 
 ![Spark Streaming DStream Operate](../../images/spark_streaming_dstream_operate.png)
 
