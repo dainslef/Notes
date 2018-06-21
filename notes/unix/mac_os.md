@@ -1,50 +1,46 @@
-<!-- TOC -->
-
-- [*macOS* 层次结构](#macos-层次结构)
-- [常用功能](#常用功能)
+- [macOS 层次结构](#macos-层次结构)
+	- [常用功能](#常用功能)
 	- [常用快捷键](#常用快捷键)
 	- [常用命令行指令](#常用命令行指令)
 	- [常用软件](#常用软件)
 	- [托盘图标](#托盘图标)
 	- [特殊目录](#特殊目录)
 	- [文件系统](#文件系统)
-	- [挂载 *NTFS* 读写](#挂载-ntfs-读写)
+		- [挂载 NTFS 读写](#挂载-ntfs-读写)
 - [与常规PC的不同之处](#与常规pc的不同之处)
-	- [*Darwin* 与 *GNU/Linux* 的差异](#darwin-与-gnulinux-的差异)
-- [*NVRAM*](#nvram)
-	- [禁用翻盖自启动](#禁用翻盖自启动)
-	- [重置 *NVRAM*](#重置-nvram)
+	- [Darwin 与 GNU/Linux 的差异](#darwin-与-gnulinux-的差异)
+	- [NVRAM](#nvram)
+	- [重置 NVRAM](#重置-nvram)
+	- [禁用翻盖自启](#禁用翻盖自启)
 - [包管理](#包管理)
-	- [*Homebrew* 基本特性](#homebrew-基本特性)
-	- [*Homebrew* 安装](#homebrew-安装)
-	- [*Homebrew* 基本指令](#homebrew-基本指令)
-	- [路径信息](#路径信息)
-	- [安装参数](#安装参数)
-	- [*Homebrew Taps*](#homebrew-taps)
-	- [*Homebrew Cask*](#homebrew-cask)
-	- [*Homebrew Services*](#homebrew-services)
-	- [配置国内源](#配置国内源)
-- [*macOS* 下的软件格式](#macos-下的软件格式)
-	- [*Bundle*](#bundle)
-	- [*pkg*](#pkg)
+	- [Homebrew](#homebrew)
+		- [配置与安装](#配置与安装)
+		- [基本指令](#基本指令)
+		- [路径信息](#路径信息)
+		- [安装参数](#安装参数)
+		- [Homebrew Taps](#homebrew-taps)
+		- [Homebrew Cask](#homebrew-cask)
+		- [Homebrew Services](#homebrew-services)
+		- [配置国内源](#配置国内源)
+- [macOS下的软件格式](#macos下的软件格式)
+	- [Bundle](#bundle)
+	- [pkg](#pkg)
 	- [软件路径](#软件路径)
-- [部分问题的处理方案](#部分问题的处理方案)
+- [常见问题](#常见问题)
 	- [切换分辨率/语言时，登陆界面的分辨率/语言依然不变](#切换分辨率语言时登陆界面的分辨率语言依然不变)
 	- [更改默认应用程序](#更改默认应用程序)
-	- [在 *BootCamp* 安装的 *Windows* 系统中调整了分区，重启后 *Mac分区* 在启动页中消失](#在-bootcamp-安装的-windows-系统中调整了分区重启后-mac分区-在启动页中消失)
-	- [使用默认 *bootloader* 引导Linux系统](#使用默认-bootloader-引导linux系统)
-	- [重置 *Launchpad* 图标](#重置-launchpad-图标)
-	- [设置 *Xcode* 路径](#设置-xcode-路径)
-	- [使用 *GDB* 调试器](#使用-gdb-调试器)
-	- [安装 *mysql/mariadb*](#安装-mysqlmariadb)
-	- [删除 *JDK*](#删除-jdk)
-	- [删除 *GarageBand*](#删除-garageband)
-
-<!-- /TOC -->
+	- [在BootCamp安装的Windows中调整分区，重启后Mac分区在启动页中消失](#在bootcamp安装的windows中调整分区重启后mac分区在启动页中消失)
+	- [引导 Linux](#引导-linux)
+	- [重置 Launchpad](#重置-launchpad)
+	- [设置 Xcode 路径](#设置-xcode-路径)
+	- [签名 GDB](#签名-gdb)
+	- [安装 mysql/mariadb](#安装-mysqlmariadb)
+	- [完整删除 JDK](#完整删除-jdk)
+	- [删除 GarageBand](#删除-garageband)
 
 
 
-## *macOS* 层次结构
+# macOS 层次结构
 `macOS`基于`Darwin`(对应`GNU/Linux`)。
 
 - `Darwin`包含内核`XNU`(对应`Linux Kernel`)以及shell环境(对应`GNU Tools`)。
@@ -56,8 +52,9 @@
 
 
 ## 常用功能
+记录macOS的常用快捷键、工具指令。
 
-### 常用快捷键
+## 常用快捷键
 - 锁屏: `Control + Shift + Power`
 - 全屏截图: `Shift + Command + 3`
 - 指定位置截图: `Shift + Command + 4`
@@ -75,7 +72,7 @@
 - 最小化窗口: `Command + M`
 - 立即息屏进入睡眠: `Command + Alt + Power`
 
-### 常用命令行指令
+## 常用命令行指令
 `macOS`中的一些配置项没有提供图形化的配置方式，需要通过命令行进行配置。
 
 - 主机信息相关
@@ -112,7 +109,7 @@
 	$ defaults write com.apple.finder AppleShowAllFiles YES/NO //重新登陆账户后生效
 	```
 
-### 常用软件
+## 常用软件
 - `The Unarchiver` 解压软件
 - `VLC` 多媒体播放器
 - `AppCleaner` APP卸载工具
@@ -120,12 +117,12 @@
 - `Xcode` 集成开发环境
 - `iTerm2` 终端模拟器，相比自带终端拥有更多高级特性
 
-### 托盘图标
+## 托盘图标
 `macOS`下托盘图标可以使用`Command + 鼠标左键`点选，拖动进行排序。
 
 锁屏托盘图标无法直接在系统设置中调出，需要打开`Keychain Access.app`，在`Reference`中勾选`Show keychain status in menu bar`选项。
 
-### 特殊目录
+## 特殊目录
 - `/System/Library/Fonts` 系统默认字体目录
 - `/Library/Fonts` 系统可选字体目录
 - `/Volumes` 系统默认挂载目录
@@ -137,13 +134,13 @@
 - `~/Library/Saved Application State` 用户程序状态目录
 - `~/Library/VirtualBox` VirtualBox的配置文件目录，删除则VirtualBox恢复初始状态，需要重新添加虚拟机
 
-### 文件系统
+## 文件系统
 `macOS`默认文件系统为`HFS+`，此类文件系统同时支持区分大小写(`Case-Sensitive`)和忽略大小写两种类型，在格式化时可以进行选择。  
 若选择了区分大小写形式的`HFS+`文件系统，则部分软件将无法安装(如`PhotoShop`等)。
 
 文件系统类型在安装了macOS之后除了重装系统之外无法更改，需要**慎重选择**。
 
-### 挂载 *NTFS* 读写
+### 挂载 NTFS 读写
 默认情况下，`macOS`以**只读**形式挂载`NTFS`文件系统，但`macOS`本身实现了对`NTFS`文件系统的写入功能，创建`/etc/fstab`文件，在其中添加挂载选项：
 
 ```
@@ -162,7 +159,7 @@ $ open /Volumes
 
 
 
-## 与常规PC的不同之处
+# 与常规PC的不同之处
 Mac机与常规的PC有较大的差异，需要一个适应过程。
 
 基本操作差异:
@@ -183,7 +180,7 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 	- `Windows/Linux`中以`Control`作为组合键触发的一些快捷操作在`macOS`中全部使用`Command`键进行触发。
 	- `Windows/Linux`中的`Alt`键在`macOS`中名称为`Option`键。
 
-### *Darwin* 与 *GNU/Linux* 的差异
+## Darwin 与 GNU/Linux 的差异
 `Darwin`提供的`Unix`环境基于`FreeBSD`，与传统`GNU/Linux`有较大差异。
 
 1. `Darwin`为混合内核架构，`Linux`为宏内核架构。
@@ -195,11 +192,12 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 1. `Darwin`的`PATH`环境变量记录在文件`/etc/paths`中。
 1. `Darwin`的微内核`Mach`使用`Mach-O`作为二进制格式，而传统的`Linux/Unix`使用`EFL`作为二进制格式。
 1. `Darwin`中动态链接库后缀名为`dylib`，传统`Unix`中一般为`so`，静态库后缀名与传统`Unix`相同，皆为`a`。
+1. `Darwin`不使用GNU工具链，默认工具链为FreeBSD工具链。
 1. `macOS`采用`Aqua`作为GUI实现，传统`Unix`使用`X11`。
 
 
 
-## *NVRAM*
+## NVRAM
 `NVRAM`全称`Non-volatile random-access memory`(非易失性随机访问存储器)，用于在关机状态下保存信息。  
 Mac使用NVRAM存储音量、显示屏分辨率、启动磁盘选择、时区，内核崩溃转储等信息。
 
@@ -219,7 +217,12 @@ nvram [-x] [-p] [-f filename] [-d name] [-c] name[=value] ...
 Note that arguments and options are executed in order.
 ```
 
-### 禁用翻盖自启动
+## 重置 NVRAM
+启动配置异常时，可尝试重置NVRAM。  
+开机时按下组合键`Option + Command P + R`，按住组合键20秒后可松开。  
+在此期间Mac可能看似在重新启动。
+
+## 禁用翻盖自启
 从`New MacBook`和`MacBook Pro 2016`开始，MacBook会在翻盖后自动开机。  
 可通过修改NVRAM参数关闭此特性：
 
@@ -227,38 +230,36 @@ Note that arguments and options are executed in order.
 # nvram AutoBoot=%00
 ```
 
+禁用翻盖自动开机特性后，翻盖后机器会短暂地在屏幕显示电量信息。
+
 恢复翻盖自动开机特性：
 
 ```
 # nvram AutoBoot=%03
 ```
 
-### 重置 *NVRAM*
-启动配置异常时，可尝试重置NVRAM。  
-开机时按下组合键`Option + Command P + R`，按住组合键20秒后可松开。  
-在此期间Mac可能看似在重新启动。
 
 
-
-## 包管理
+# 包管理
 `Homebrew`是`macOS`当下最流行、最主流的包管理器。  
-`MacPorts`来自于`FreeBSD`，亦是优秀的包管理器。  
+`MacPorts`来自于`FreeBSD`，亦是优秀的包管理器。
+
 二者之间的差异：
 
-- `Homebrew`基于`Git`，是轻量级的包管理器，倾向于最大化利用`macOS`自带的`Unix`组件。
-- `MacPorts`是`FreeBSD`中`Ports`系统的移植，使用源码编译软件，不依赖原有`macOS`中的软件包，而是独立构建出一套环境。
+- `Homebrew`基于Git，是轻量级的包管理器，倾向于最大化利用`macOS`自带的Unix组件。
+- `MacPorts`是`FreeBSD`中`Ports`系统的移植，使用源码编译软件，不依赖原有macOS中的软件包，而是独立构建出一套环境。
 - `Homebrew`中软件包多数以二进制形式提供，默认安装路径为`usr/local`。
 - `MacPorts`编译的软件包一般安装在`/opt`目录下。
 
-### *Homebrew* 基本特性
+## Homebrew
 `Homebrew`使用`Ruby`语言实现。
 
-与传统的包管理器不同，使用`Homebrew`并不需要使用`root`用户，管理员权限用户即可。  
-`Homebrew`将软件包安装在`/usr/local`目录下，在`macOS`中该目录默认情况下为**空**，因此当用户不再需要使用`Homebrew`时，只需完整删除`/usr/local`目录下的所有内容即可。(需要注意，有些非`Bundle`形式安装的软件亦会将一些内容安装在`/usr/local`目录下，如`VirtualBox`。若安装了此类软件，清理`/usr/local`目录时需要仔细辨别)
+与传统的包管理器不同，使用Homebrew并不需要使用`root`用户，管理员权限用户即可。  
+`Homebrew`将软件包安装在`/usr/local`目录下，在macOS中该目录默认情况下为**空**，因此当用户不再需要使用Homebrew时，只需完整删除`/usr/local`目录下的所有内容即可。(需要注意，某些非Bundle形式安装的软件亦会将一些内容安装在`/usr/local`目录下，如`VirtualBox`。若安装了此类软件，清理`/usr/local`目录时需要仔细辨别)
 
-默认情况下，在`macOS`中，`/usr/local`的所有者为`root`，用户组为`wheel`，安装`Homebrew`时，安装脚本会讲该目录所有者会更改为**当前管理员用户**，并将用户组改为`admin`。
+默认情况下，在`macOS`中，`/usr/local`的所有者为`root`，用户组为`wheel`，安装Homebrew时，安装脚本会将该目录所有者会更改为**当前管理员用户**，并将用户组改为`admin`。
 
-### *Homebrew* 安装
+### 配置与安装
 `Homebrew`采用`Ruby`语言开发，`macOS`中默认已经集成了`Ruby`开发环境。  
 `Homebrew`需要用到`Git`等`CLI`工具，在安装`Homebrew`之前需要先安装**Xcode命令行**工具(或者直接完整安装Xcode)。
 
@@ -268,7 +269,7 @@ Note that arguments and options are executed in order.
 $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
-### *Homebrew* 基本指令
+### 基本指令
 `Homebrew`基本操作与其它包管理器类似：
 
 - `$ brew update` 更新源
@@ -339,7 +340,7 @@ $ brew install gcc --force-bottle
 $ cc-7 source_code... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
 ```
 
-### *Homebrew Taps*
+### Homebrew Taps
 使用`brew tap/untap`相关指令管理`Homebrew`启用的仓库。  
 仓库信息位于`$(brew --repo)/Library/Taps`路径下。  
 常用指令：
@@ -349,7 +350,7 @@ $ cc-7 source_code... --sysroot=/Applications/Xcode.app/Contents/Developer/Platf
 - `$ brew tap --list-official` 列出官方提供的仓库
 - `$ brew untap [repo_name]` 禁用指令名称的仓库
 
-### *Homebrew Cask*
+### Homebrew Cask
 使用`brew cask`指令可以安装`macOS`专属的`Bundle`封装应用。  
 常用指令：
 
@@ -389,7 +390,7 @@ $ brew tap caskroom/versions
 
 `caskroom/versions`仓库保存了常见应用的长期维护版本，如`Java SDK`的`java6/java8`，`FireFox`的`firefox-beta/firefox-esr`。
 
-### *Homebrew Services*
+### Homebrew Services
 对于使用`Homebrew`安装的包，若包提供了服务，则可以使用`brew services`指令进行服务状态管理。  
 常用指令：
 
@@ -447,23 +448,24 @@ $ brew tap caskroom/versions
 
 
 
-## *macOS* 下的软件格式
+# macOS下的软件格式
 在`macOS`中，软件包常以`dmg`格式的镜像封存，而安装软件的方式分为`Bundle`以及`pkg`形式。
 
-### *Bundle*
-在`macOS`中最常见的软件包是以`Bundle`的形式存在的，`Bundle`是一个以`.app`为后缀的**目录**，外观为可执行程序的图标，封装了程序执行所需的一些必要资源以及真正的可执行文件。
+## Bundle
+在`macOS`中最常见的软件包是以`Bundle`的形式存在的，`Bundle`是一个以`.app`为后缀的**目录**，
+外观为可执行程序的图标，封装了程序执行所需的一些必要资源以及真正的可执行文件。
 
 `dmg`镜像中若直接包含`Bundle`，则将其复制到`/Application`或`~/Application`目录下即可(推荐存放在用户的`Application`目录下)。  
 常规的`Bundle`程序所有者为**当前用户**。
 
-### *pkg*
+## pkg
 一些大型的软件包如Adobe系列、Office系列等的dmg镜像中保存的是pkg格式的安装包，双击进行安装，步骤与Windows系统下的安装流程类似。
 
 通过pkg安装的软件最终也会在`/Application`目录下创建软件的Bundle，但通过此种方式安装的软件往往会在系统的其它目录创建程序所需的额外文件。
 
 通过pkg安装的软件所有者一般为`root`，不能随意移动到`~/Application`路径下。
 
-### 软件路径
+## 软件路径
 默认情况下，`Bundle`形式的软件一般存在于`/Application`目录或`~/Application`目录下。  
 `macOS`的系统默认`Bundle`应用存放在`/Application`目录下，一些以`pkg`形式安装或通过`AppStore`安装的应用也在该目录下。
 
@@ -472,9 +474,10 @@ $ brew tap caskroom/versions
 
 
 
-## 部分问题的处理方案
+# 常见问题
+记录一些常见问题的解决方案。
 
-### 切换分辨率/语言时，登陆界面的分辨率/语言依然不变
+## 切换分辨率/语言时，登陆界面的分辨率/语言依然不变
 可以尝试更改登录界面的选项。  
 或尝试以下指令:
 
@@ -484,12 +487,12 @@ $ brew tap caskroom/versions
 
 登陆界面的分辨率/语言未发生变化是由于登陆界面的数据未更新，使用`root`权限执行`languagesetup`重设语言即会刷新登陆界面信息。
 
-### 更改默认应用程序
+## 更改默认应用程序
 1. 使用`Command + i`查看一个文件的详细信息。
 1. 在`Open With:`条目中可以选择打开此文件使用的默认程序，修改为需要的程序。
 1. 选择`Change All...`将所有此类文件全部修改为自定义的程序。
 
-### 在 *BootCamp* 安装的 *Windows* 系统中调整了分区，重启后 *Mac分区* 在启动页中消失
+## 在BootCamp安装的Windows中调整分区，重启后Mac分区在启动页中消失
 发生此种情况的原因是Windows下的一些分区管理工具将Mac分区的分区`Type UUID`改成了Windows的`Type UUID`，只需将分区类型ID改回来即可恢复Mac分区。
 
 具体解决方法：
@@ -514,7 +517,8 @@ $ brew tap caskroom/versions
 	# parted [磁盘路径] set [分区号] msdata on/off //移除msdata分区标志
 	```
 
-### 使用默认 *bootloader* 引导Linux系统
+## 引导 Linux
+使用默认的bootloader可以直接引导Linux系统。  
 需要创建一个`100MB`左右的分区(其实可以更小)，在分区的中创建`System/Library/CoreServices`目录：
 
 ```
@@ -550,11 +554,11 @@ $ nano /Volumes/[启动分区名称]/System/Library/CoreServices/SystemVersion.p
 # bless --folder=/Volumes/[启动分区名称]/System/Library/CoreServices/ --file=/Volumes/[启动分区名称]/System/Library/CoreServices/boot.efi --setBoot
 ```
 
-### 重置 *Launchpad* 图标
+## 重置 Launchpad
 `Launchpad`中数据保存在`~/Library/Application Support/Dock`路径下，若`Launchpad`图标出现异常(如已删除软件图标依然存在)，可以尝试清空其中的数据。  
 删除该目录之后，`Launchpad`会在下次开机之后重置图标布局，恢复成默认的样式(Apple自带的软件占一页，用户自行安装的软件从第二页开始)。
 
-### 设置 *Xcode* 路径
+## 设置 Xcode 路径
 `Xcode`中包含了一系列命令行工具如`clang`、`git`等，Homebrew的安装也依赖于这些命令行工具。  
 默认情况下，安装`Xcode`同时会自动配置相关路径信息。
 
@@ -579,7 +583,7 @@ $ xcode-select -p
 
 若该变了`Xcode.app`的位置，即使使用`xcode-select`重新设定`Xocde.app`的路径，通过`Homebrew`安装的编译器(如`gcc`)依然会出现找不到头文件的情况，此时需要重新安装包。
 
-### 使用 *GDB* 调试器
+## 签名 GDB
 新版的`macOS`系统中，`clang`作为默认编译器取代了`gcc`，`lldb`作为默认编译器取代了`gdb`。  
 默认情况下，使用`Homebrew`安装的`gdb`调试器**不能**在普通用户下正常调试代码，需要对其进行**签名**后才能使其正常调试代码：
 
@@ -596,7 +600,7 @@ $ codesign -s [证书名称] [gdb安装路径]
 证书需要在系统重启之后才会生效。  
 需要注意的是，每次gdb包升级，都需要重新使用证书对其进行签名，否则不能正常调试代码。
 
-### 安装 *mysql/mariadb*
+## 安装 mysql/mariadb
 通过Homebrew安装的mysql/mariadb使用时不需要root权限。
 
 mariadb/mysql数据库的操作指令相同，因此mariadb与mysql软件包相互冲突。  
@@ -610,7 +614,7 @@ mariadb/mysql使用`mysql.server`指令管理服务：
 
 亦可通过`brew services`相关指令管理管理服务。
 
-### 删除 *JDK*
+## 完整删除 JDK
 `JDK`需要自行手工删除，相关文件位于以下路径：
 
 1. `/Library/Java/JavaVirtualMachines/*`
@@ -618,7 +622,8 @@ mariadb/mysql使用`mysql.server`指令管理服务：
 1. `/Library/PreferencePanes/JavaControlPanel.prefPane`
 
 删除`JDK`时需要手动移除这些目录、文件。  
-安装新版本的`JDK`时，旧版本`JDK`不会自动卸载，相关文件依然位于`/Library/Java/JavaVirtualMachines`路径下，文件夹名称即为对应的`JDK`版本，手动删除不需要的版本即可。
+安装新版本的`JDK`时，旧版本`JDK`不会自动卸载，相关文件依然位于`/Library/Java/JavaVirtualMachines`路径下，
+文件夹名称即为对应的`JDK`版本，手动删除不需要的版本即可。
 
 完整移除`JDK`还需删除以下配置：
 
@@ -626,7 +631,7 @@ mariadb/mysql使用`mysql.server`指令管理服务：
 1. `/Library/LaunchDaemons/com.oracle.java.Helper-Tool.plist`
 1. `/Library/LaunchAgents/com.oracle.java.Java-Updater.plist`
 
-### 删除 *GarageBand*
+## 删除 GarageBand
 `macOS`预装了音频编辑软件`GarageBand`，卸载时需要删除以下路径的内容：
 
 1. `/Applications/GarageBand.app`
