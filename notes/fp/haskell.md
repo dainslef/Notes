@@ -1,7 +1,6 @@
-<!-- TOC -->
-
 - [Haskell 开发环境](#haskell-开发环境)
 	- [GHC 常用功能](#ghc-常用功能)
+		- [REPL (GHCi)](#repl-ghci)
 - [高阶函数](#高阶函数)
 	- [$ 和 .](#-和-)
 	- [<$>](#)
@@ -9,11 +8,9 @@
 	- [foldl/foldr](#foldlfoldr)
 - [Monad](#monad)
 
-<!-- /TOC -->
 
 
-
-## Haskell 开发环境
+# Haskell 开发环境
 `Haskell`的主流编译器是`GHC`，即`Glasgow Haskell Compiler`。
 
 - **Linux/Unix**系统：
@@ -45,7 +42,7 @@
 
 推荐使用`Stack`来配置`GHC`编译器。
 
-### GHC 常用功能
+## GHC 常用功能
 `Haskell`源码后缀为`*.hs`，使用`ghc`指令编译`Haskell`代码：
 
 ```
@@ -54,9 +51,10 @@ $ ghc *.hs
 
 `GHC`编译器会直接将`Haskell`源码编译为对应平台的二进制文件。
 
-使用`ghci`会进入交互式`REPL`。  
-`ghci`提供了交互式的`GHC`环境，可以直接输入代码并立即获得反馈。  
-如下所示：
+### REPL (GHCi)
+与Scala类似，GHC编译器同样提供了REPL环境，即GHCi。
+
+使用`ghci`指令进入REPL，在REPL环境下直接输入代码可立即获得反馈。如下所示：
 
 ```hs
 $ ghci
@@ -68,12 +66,24 @@ Prelude> :quit
 Leaving GHCi.
 ```
 
+REPL环境下的内部指令均以`:`为前缀，常用指令如下：
+
+指令 | 功能
+:-|:-
+:{\n ..lines.. \n:}\n | 多行指令/代码
+:help, :? | 查看REPL指令帮助信息
+:quit | 退出GHCi环境
+:!\<command\> | 在外部Shell中执行指令
+:info[!] [\<name\> ...] | 显示指定名称的信息
+:type \<expr\> | 显示给定表达式的Type
+:kind[!] \<type\> | 显示指定类型的Kind
 
 
-## 高阶函数
+
+# 高阶函数
 `Haskell`作为函数式语言，标准库中内置了常用的高阶函数。
 
-### $ 和 .
+## $ 和 .
 `$`，常用于消除函数中的括号，函数定义：
 
 ```hs
@@ -91,7 +101,7 @@ infixr 0 $
 infixr 9 .
 ```
 
-### <$>
+## <$>
 `<$>`，对一个`Functor`执行提供的操作，函数定义：
 
 ```hs
@@ -107,7 +117,7 @@ Prelude> (+1) <$> [1, 2, 3]
 [2,3,4]
 ```
 
-### <*>
+## <*>
 `<*>`，函数定义：
 
 ```hs
@@ -128,7 +138,7 @@ Prelude> [(+1), (+2)] <*> [1, 2, 3]
 [2,3,4,3,4,5]
 ```
 
-### foldl/foldr
+## foldl/foldr
 `foldl/foldr`用于叠加数据，函数定义：
 
 ```hs
@@ -153,9 +163,10 @@ Prelude> foldr (-) 0 [1, 2, 3]
 
 
 
-## Monad
-`Monad`是Haskell、Scala等函数式语言中用于构建复杂计算逻辑的抽象。  
-Monad定义：
+# Monad
+`Monad`是Haskell、Scala等函数式语言中用于构建复杂计算逻辑的抽象。
+
+`Monad`定义：
 
 ```hs
 class Applicative m => Monad (m :: * -> *) where
