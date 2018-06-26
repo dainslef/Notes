@@ -1,16 +1,13 @@
-<!-- TOC -->
-
 - [概述](#概述)
 	- [下载](#下载)
 	- [环境变量配置](#环境变量配置)
 	- [主服务配置](#主服务配置)
 	- [工具指令](#工具指令)
-- [*Topic* 与 *Partition*](#topic-与-partition)
-- [*Kafka Connect*](#kafka-connect)
+- [Topic & Partition](#topic--partition)
+	- [存储机制](#存储机制)
+- [Kafka Connect](#kafka-connect)
 	- [依赖服务配置](#依赖服务配置)
-	- [*JDBC Source Connector*](#jdbc-source-connector)
-
-<!-- /TOC -->
+	- [JDBC Source Connector](#jdbc-source-connector)
 
 
 
@@ -129,7 +126,7 @@ Kafka相关CLI工具位于`$KAFKA_HOME/bin`路径下。
 
 ```c
 // 启动服务
-$ kafka-server-start -daemon [server.properties配置路径]
+$ kafka-server-start -daemon $KAFKA_HOME/etc/kafka/server.properties
 
 // 停止服务
 $ kafka-server-stop
@@ -152,6 +149,7 @@ $ kafka-topics --list --zookeeper [Zookeeper集群IP:端口]
 $ kafka-topics --delete --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
 
 // 查看话题描述(包括话题的 Partition、PartitionCount、ReplicationFactor 等信息)
+// 不使用 --topic 参数时展示所有话题的信息
 $ kafka-topics --describe --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
 ```
 
@@ -179,12 +177,12 @@ $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名�
 
 
 
-# *Topic* 与 *Partition*
+# Topic & Partition
 Kafka为一连串的记录提供了抽象：`Topic`(话题)。  
 Topic作为记录发布时的类别/服务名称，Topic在Kafka中总是`multi-subscriber`(多订阅者)的，
 一个Topic可以拥有任意数量的订阅者(零个或多个)，数据会推送给订阅者。
 
-一个Topic的数据由一个或多个`Partition`组成(可配置)，多个Partition可分布在不同的物理节点中。  
+一个Topic的数据由一个或多个`Partition`组成(可配置)，多个Partition会优先分配在不同的物理节点中。  
 Producer向Topic写入数据时，数据会记录在不同的Partition中，避免单一节点承载过多的IO请求。
 
 使用`kafka-topics --describe`指令查看某个话题的详情，输出内容如下：
@@ -203,9 +201,28 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
 	- `Replicas` 分区备份的broker编号，ReplicationFactor大于1时会有多个broker编号
 	- `Isr` 当前处于活跃状态的broker编号，是Replicas中分区编号的子集
 
+多个Consumer之间通过`Group`分组，一条发布到话题中的数据会发往每一个Group，但同一Group中只有**一个**Consumer实例会收到数据。  
+当一个Group中存在多个Consumer时，Topic内的不同Partition会关联到不同的Consumer，当一个Partition中写入数据时，只有与该Partition关联的Consumer会收到数据。
+
+一个Partition在一个Group内仅会关联一个Consumer，因此当同一Group下的Consumer数目**大于**Partition数目时，会有Consumer因为未关联到Partition而收不到数据。
+
+## 存储机制
+Kafka将消息数据存储在`$KAFKA_HOME/etc/kafka/server.properties`文件中的`log.dirs`配置项设定的路径下。  
+Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区编号]`的命名规则创建子路径，记录每个话题的数据。  
+例如，Topic为`test`，Partition为`3`，则会生成以下子路径：
+
+```sh
+# 存在多个 broker 时，分区路径会优先分布在不同的 broker 上
+话题存储根路径
+  ├── test-0
+  ├── test-1
+  ├── test-2
+  ...
+```
 
 
-# *Kafka Connect*
+
+# Kafka Connect
 `Kafka Connect`是一套在`Apache Kafka`和其它数据系统间进行可靠的、可扩展的流式数据传输的框架。  
 `Kafka Connect`使得向Kafka输入、输出数据变得简单。
 
@@ -274,7 +291,7 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
 	$ kafka-rest-start -daemon $KAFKA_HOME/etc/kafka-rest/kafka-rest.properties
 	```
 
-## *JDBC Source Connector*
+## JDBC Source Connector
 `JDBC Source Connector`可以实现通过Kafka监控数据库变化，通过Kafka导入、导出数据，
 [官方文档地址](https://docs.confluent.io/current/connect/connect-jdbc/docs/source_connector.html)(最新版本)。
 
@@ -324,10 +341,11 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
 	# 示例： topic.prefix = mysql-
 	
 	mode = 模式
-	# 设置 JDBC Connector 的工作模式，支持 incrementing(自增)、timestamp(时间戳) 等模式
+	# 设置 JDBC Connector 的工作模式，支持 incrementing(自增)、timestamp(时间戳)、bulk(直接导入) 等模式
 	# 示例：
 	# mode = incrementing
 	# mode = timestamp
+	# mode = bulk
 	# mode = timestamp+incrementing
 
 	timestamp.column.name = 监控的列名
