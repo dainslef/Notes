@@ -6,8 +6,11 @@
 	- [服务配置](#服务配置)
 - [HDFS](#hdfs)
 	- [访问地址](#访问地址)
-	- [工具链](#工具链)
-- [常见问题](#常见问题)
+	- [命令行工具](#命令行工具)
+- [Hbase](#hbase)
+	- [数据模型](#数据模型)
+		- [Conceptual View (概念视图)](#conceptual-view-概念视图)
+- [问题注记](#问题注记)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0. Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0-expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
 	- [java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx](#javaioioexception-got-error-status-message--ack-with-firstbadlink-as-xxxxxxxxxxxxxxx)
@@ -49,8 +52,8 @@ Apache基金会中还包含大量的Hadoop关联项目，如：
 
 ```sh
 export HADOOP_HOME=... # 配置Hadoop软件包路径
-export PATH+=:$HADOOP_HOME/bin
-export PATH+=:$HADOOP_HOME/sbin # 将Hadoop相关工具加入PATH环境变量
+PATH+=:$HADOOP_HOME/bin
+PATH+=:$HADOOP_HOME/sbin # 将Hadoop相关工具加入PATH环境变量
 ```
 
 ## 集群规划
@@ -69,7 +72,7 @@ export PATH+=:$HADOOP_HOME/sbin # 将Hadoop相关工具加入PATH环境变量
 每个节点执行的服务规划如下：
 
 | 主机名称 | 执行服务 |
-|:--------|:-------|
+|:-|:-|
 | spark-master | namenode, journalnode, zkfc, kafka |
 | spark-slave0 | namenode, journalnode, zkfc, kafka, datanode，nodemanager |
 | spark-slave1 | journalnode, zkfc, kafka, datanode，nodemanager |
@@ -249,7 +252,7 @@ HDFS还提供了WEB管理界面，地址如下：
 http://主机名或IP:WEB服务端口
 ```
 
-## 工具链
+## 命令行工具
 使用`hdfs dfs`指令对HDFS文件系统进行操作。
 
 查看指令帮助信息：
@@ -297,25 +300,144 @@ $ hdfs dfs -rmdir [HDFS路径]
 
 
 
-# 常见问题
+# Hbase
+`Apache HBase™`是基于Hadoop的数据库，具有分布式、可扩展、支持海量数据存储等特性。
+
+HBase常用在需要随机、实时读写海量数据的场景下。项目的目标是在商业硬件集群上管理非常巨大的表(上亿行 x 上亿列)。
+HBase是开源(open-source)、分布式(distributed)、版本化(versioned)、非关系型(non-relational)的数据库，参照了Google Bigtable的设计。
+HBase在Hadoop和HDFS之上提供了类似Bigtable的功能。
+
+## 数据模型
+HBase是面向**列**的数据库，数据由行排序，表中仅能定义列族。
+一张表中可以拥有多个列族，一个列族可拥有任意数量的列。表中每个单元格的数据都具有时间戳。
+
+### Conceptual View (概念视图)
+HBase中表的概念结构如下所示：
+
+<table style="text-align:center">
+	<tr>
+		<th rowspan="2">Row Key</th>
+		<th rowspan="2">Time Stamp</th>
+		<th colspan="4">Column Family A</th>
+		<th colspan="4">Column Family B</th>
+		<th rowspan="2">...</th>
+	</tr>
+	<tr>
+		<th>column a</th>
+		<th>column b</th>
+		<th>column c</th>
+		<th>...</th>
+		<th>column e</th>
+		<th>column f</th>
+		<th>column g</th>
+		<th>...</th>
+	</tr>
+	<tr>
+		<td>Row Key 1</td>
+		<td>t1</td>
+		<td>A:a="..."</td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td>B:f="..."</td>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Row Key 2</td>
+		<td>t2</td>
+		<td></td>
+		<td></td>
+		<td>A:c="..."</td>
+		<td></td>
+		<td>B:e="..."</td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Row Key 2</td>
+		<td>t3</td>
+		<td></td>
+		<td>A:b="..."</td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Row Key 3</td>
+		<td>t4</td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td>B:g="..."</td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+
+与传统的数据库不同，空的单元格并不实际占用空间，这是HBase被称为`sparse`(稀疏)存储的原因。
+上述概念结构用JSON表示为近似于：
+
+```json
+{
+	"Row Key 1": {
+		"A": {
+			"t1:A:a": "..."
+		},
+		"B": {
+			"t1:B:f": "..."
+		}
+	},
+	"Row Key 2": {
+		"A": {
+			"t2:A:c": "...",
+			"t3:A:b": "..."
+		},
+		"B": {
+			"t2:B:e": "..."
+		}
+	},
+	"Row Key 3": {
+		"A": {},
+		"B": {
+			"t4:B:g": "..."
+		}
+	}
+}
+```
+
+
+
+# 问题注记
 Hadoop配置中遇到问题的说明和解决方案。
 
 ## ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1
-错误说明：  
+问题说明：  
 namenode启动失败，需要重新格式化，保证namenode的ID一致性。
 
 解决方案：  
 格式化失败尝试`hdfs  namenode -format -force`同时格式化namenode和datanode。
 
 ## Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;
-错误说明：  
+问题说明：  
 执行`hdfs namenode -format`指令时，集群未启动，需要在集群已启动的情况下格式化NameNode。
 
 解决方案：  
 启动集群后再格式化NameNode。
 
 ## java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx
-错误说明：  
+问题说明：  
 防火墙服务开启导致HDFS节点之间访问异常。
 
 解决方案：  
@@ -327,7 +449,7 @@ namenode启动失败，需要重新格式化，保证namenode的ID一致性。
 ```
 
 ## 全部HA节点处于 stand by 状态
-错误说明：  
+问题说明：  
 NameNode的HA状态异常，没有选举出active的节点，HA节点均为stand by。
 
 解决方案：  
