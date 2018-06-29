@@ -10,6 +10,7 @@
 - [Hbase](#hbase)
 	- [数据模型](#数据模型)
 		- [Conceptual View (概念视图)](#conceptual-view-概念视图)
+		- [Physical View (物理视图)](#physical-view-物理视图)
 - [问题注记](#问题注记)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0. Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0-expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
@@ -416,6 +417,32 @@ HBase中表的概念结构如下所示：
 	}
 }
 ```
+
+### Physical View (物理视图)
+在概念上表格可被视为由一组稀疏行组成，但在物理结构上按**列族**分类存储。新的列限定符(列族:列名)可以随时追加到现有的列族中。
+
+上述例子中的表格对应物理结构如下：
+
+- 表 `Column Family A`
+
+	| Row Key | Time Stamp | Column Family (A) |
+	| :-: | :-: | :-: |
+	| Row Key 1 | t1 | A:a="..." |
+	| Row Key 2 | t3 | A:b="..." |
+	| Row Key 2 | t2 | A:c="..." |
+
+- 表 `Column Family B`
+
+	| Row Key | Time Stamp | Column Family (B) |
+	| :-: | :-: | :-: |
+	| Row Key 1 | t2 | B:e="..." |
+	| Row Key 2 | t1 | B:f="..." |
+	| Row Key 3 | t4 | B:g="..." |
+
+概念视图中显示的空单元格实际上并不存储。
+使用时间戳访问数据时，访问时间戳不存在的数据不会得到返回结果。
+当指定的`行:列族:列名`存在多个版本的数据时，不使用时间戳访问数据，得到的是最新(时间戳最靠后)的版本。
+查询**整行数据**时，得到的是该行数据每列各自的最新版本的数据。
 
 
 
