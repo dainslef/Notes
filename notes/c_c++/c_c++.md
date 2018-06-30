@@ -1,5 +1,3 @@
-<!-- TOC -->
-
 - [五大内存区](#五大内存区)
 - [C/C++中函数定义的区别](#cc中函数定义的区别)
 - [C/C++中 *static* 关键字的区别](#cc中-static-关键字的区别)
@@ -110,8 +108,6 @@
 - [常见错误](#常见错误)
 	- [*error: jump to case label*](#error-jump-to-case-label)
 	- [*warning: `...` will be initialized after [-Wreorder] ...*](#warning--will-be-initialized-after--wreorder-)
-
-<!-- /TOC -->
 
 
 

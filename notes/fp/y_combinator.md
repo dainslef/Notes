@@ -1,7 +1,5 @@
-<!-- TOC -->
-
-- [*Fixed-Point* (不动点)](#fixed-point-不动点)
-- [*Fixed-Point Combinator* (不动点组合子)](#fixed-point-combinator-不动点组合子)
+- [Fixed-Point (不动点)](#fixed-point-不动点)
+- [Fixed-Point Combinator (不动点组合子)](#fixed-point-combinator-不动点组合子)
 - [Y组合子实例](#y组合子实例)
 	- [展开Y组合子](#展开y组合子)
 	- [调用自身](#调用自身)
@@ -9,19 +7,17 @@
 	- [实现Y组合子](#实现y组合子)
 	- [各语言完整源码](#各语言完整源码)
 
-<!-- /TOC -->
 
 
-
-## *Fixed-Point* (不动点)
+# Fixed-Point (不动点)
 不动点的定义是`被这个函数映射到其自身一个点`。
 
-函数`f`的不动点是一个值`x`使得`f(x) == x`。
+函数`f`的不动点是一个值`x`使得`f(x) == x`。  
 若`f`为高阶函数，则`f`的不动点是一个函数`g`满足`f(g) == g`。
 
 
 
-## *Fixed-Point Combinator* (不动点组合子)
+# Fixed-Point Combinator (不动点组合子)
 不动点组合子是用于计算一个函数的不动点的高阶函数。  
 对于任意函数`f`，不动点组合子`Fix`满足`f(Fix(f)) == Fix(f)`。  
 不动点组合子有多种，最常见的是`Y组合子`。
@@ -34,10 +30,10 @@ Y组合子的数学定义为`Y = λf.(λx.f(x x))(λx.f(x x))`。
 
 
 
-## Y组合子实例
+# Y组合子实例
 使用Y组合子来实现阶乘和斐波那契数列。
 
-### 展开Y组合子
+## 展开Y组合子
 在Lambda演算中，函数接受另一个函数作为参数，在求值策略为**立即求值**的编程语言中，直接使用Y组合子编写代码能够通过编译，但在运行阶段会无限递归直至栈溢出。
 
 为了正确地适应求值策略，应当对Y组合子进行部分`η-`展开，以下两种展开方式都能正确地在传值调用情况下使用：
@@ -47,7 +43,7 @@ Y组合子的数学定义为`Y = λf.(λx.f(x x))(λx.f(x x))`。
 
 或者直接使用`Z组合子`。
 
-### 调用自身
+## 调用自身
 不动点组合子`Y`的数学表示为`Y = λf.(λx.f(x x))(λx.f(x x))`，其中`x`和`λx.f(x x)`的类型是一个具备调用自身逻辑的高阶函数。  
 在**显式类型**的编程语言中，需要首先确定这个高阶函数的实际类型。
 
@@ -92,7 +88,7 @@ class Self<T> implements Function<Self<T>, T> {
 
 对应到阶乘和斐波那契数列，则泛型参数应为`Function<Integer, Integer>`。
 
-### 单步递归函数
+## 单步递归函数
 阶乘和斐波那契运算使用递归方式的单步函数，使用`C#`可以写成：
 
 ```csharp
@@ -122,7 +118,7 @@ Function<Function<Integer, Integer>, Function<Integer, Integer>> fib =
 	x -> n -> n < 2 ? n : x.apply(n - 1) + x.apply(n - 2);
 ```
 
-### 实现Y组合子
+## 实现Y组合子
 Y组合子的两种展开形式，用`C#`可以表示为：
 
 ```csharp
@@ -187,7 +183,7 @@ auto Y1 =
 				{ return [&](auto n) { return f(x(x))(n); }; }); };
 ```
 
-### 各语言完整源码
+## 各语言完整源码
 使用`Scala`、`Python`、`C#`、`C++`等语言使用Y组合子计算斐波那契数列和阶乘的结果。
 
 `Scala`(Scala 2.11.8)
@@ -215,7 +211,7 @@ object Main extends App {
 
 `C#`(Mono 4.4.0.0 && ArchLinux x64)
 
-```csharp
+```cs
 using System;
 
 delegate Func<int, int> Self(Self self);

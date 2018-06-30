@@ -61,7 +61,8 @@
 
 若路径为有效的`sbt`项目路径，则在`sbt shell`中输入`run`指令会尝试编译源码执行项目。
 
-旧版的`sbt`中(`sbt 0.7.x`之前)，在`sbt shell`中输入`run`指令会在路径下生成完整的sbt项目结构，但新版的sbt已**不提供**此特性(可使用`sbt new`指令创建项目)。
+旧版的`sbt`中(`sbt 0.7.x`之前)，在`sbt shell`中输入`run`指令会在路径下生成完整的sbt项目结构，
+但新版的sbt已**不提供**此特性(可使用`sbt new`指令创建项目)。
 
 常见指令如下：
 
@@ -379,7 +380,8 @@ groupID % artifactID % revision % Test
 groupID % artifactID % revision % withSource() withJavadoc()
 ```
 
-对于多数使用Scala开发的项目，项目的`artifactID`命名上通常会以使用Scala版本号作为结尾(`Scala`编译器相关模块除外，如`scala-reflect`、`scala-compiler`等)。
+对于多数使用Scala开发的项目，项目的`artifactID`命名上通常会以使用Scala版本号作为结尾(`Scala`编译器相关模块除外，
+如`scala-reflect`、`scala-compiler`等)。
 
 在添加`Scala`项目依赖时，使用`%%`操作符连接`groupID`和`artifactID`，则会将当前Scala版本号追加到`artifactID`上：
 
