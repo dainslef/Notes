@@ -18,6 +18,7 @@
 		- [基本指令](#基本指令)
 		- [路径信息](#路径信息)
 		- [安装参数](#安装参数)
+		- [bottled](#bottled)
 		- [Homebrew Taps](#homebrew-taps)
 		- [Homebrew Cask](#homebrew-cask)
 		- [Homebrew Services](#homebrew-services)
@@ -263,7 +264,7 @@ Note that arguments and options are executed in order.
 `Homebrew`采用`Ruby`语言开发，`macOS`中默认已经集成了`Ruby`开发环境。  
 `Homebrew`需要用到`Git`等`CLI`工具，在安装`Homebrew`之前需要先安装**Xcode命令行**工具(或者直接完整安装Xcode)。
 
-之后在`Terminal.app`中执行：
+之后在终端内执行：
 
 ```
 $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -274,20 +275,20 @@ $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/maste
 
 - `$ brew update` 更新源
 - `$ brew ugrade` 升级包
-- `$ brew install [package_name]` 安装包
-- `$ brew leaves` 查看没有被其它包依赖的包
 - `$ brew info [package_name]` 显示指定包的信息
+- `$ brew install [package_name]` 安装指定包
+- `$ brew leaves` 查看没有被其它包依赖的包
 - `$ brew deps [package_name]` 显示指定包的依赖
 - `$ brew uses [package_name]` 显示指定包被哪些包依赖
 - `$ brew switch [package_name] [version]` 若安装了多个版本的包，切换指定包的使用版本
 - `$ brew dockor` 检测可能存在的问题，并给出修复提示
 - `$ brew prune` 移除无效的符号链接
 
-与`Linux`下的常规包管理器不同，`Homebrew`在安装、卸载包时，不会有多余的确认提示，输入指令后立即执行。
+与Linux下的常规包管理器不同，Homebrew在安装、卸载包时，不会有多余的确认提示，输入指令后立即执行。
 
 ### 路径信息
-`homebrew`仓库中的包安装后文件保存在`/usr/local/Cellar`目录下。  
-`caskroom`仓库中的包安装后文件保存在`/usr/local/Caskroom`目录下。
+`homebrew`仓库中的包安装后文件保存在`/usr/local/Cellar`路径下。  
+`caskroom`仓库中的包安装后文件保存在`/usr/local/Caskroom`路径下。
 
 `homebrew`仓库默认的包缓存路径为`~/Library/Caches/Homebrew`。  
 `caskroom`仓库默认的包缓存路径为`~/Library/Caches/Homebrew/Cask`
@@ -327,17 +328,26 @@ Recommended: screenresolution ✘, imagemagick ✘
 `neofetch`需要两个可选依赖包`screenresolution`、`imagemagick`，默认安装时会同时安装依赖包。  
 使用参数`--without-imagemagick --without-screenresolution`安装可忽略依赖。
 
-`Homebrew`对于常用的包如`gcc、gdb、python3、qt`均提供了**预编译包**(`bottled`)，但部分`bottled`的包默认安装时依旧会选择从源码编译(如`gcc`)，可在安装时使用`--force-bottle`强制安装`bottled`版本的包：
+### bottled
+Homebrew对于常用的包如`gcc、gdb、python3、qt`等均提供了**预编译包**(`bottled`)，但部分包默认安装时会优先选择从源码编译(如`gcc`、`python`)，可在安装时使用`--force-bottle`参数强制安装预编译的包：
 
 ```
-$ brew install gcc --force-bottle
+$ brew install [软件包] --force-bottle
+```
+
+--force-bottle参数与其它安装参数不同，不会记录到安装信息中，
+默认使用源码编译的包即使强制安装预编译包在下次升级时依旧会从源码编译。
+要使源码编译包在升级时安装预编译包，则在使用升级指令时也需要添加--force-bottle参数：
+
+```
+$ brew upgrade --force-bottle
 ```
 
 需要注意，`bottled`版本的`gcc`在编译时需要手动指定`sys_root`参数，否则会出现找不到头文件的情况。  
 以`GCC 7.2.0`和`XCode 8.3.3`为例：
 
 ```
-$ cc-7 source_code... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
+$ cc-7 [源码文件]... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
 ```
 
 ### Homebrew Taps
