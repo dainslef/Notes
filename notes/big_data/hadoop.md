@@ -11,6 +11,7 @@
 	- [数据模型](#数据模型)
 		- [Conceptual View (概念视图)](#conceptual-view-概念视图)
 		- [Physical View (物理视图)](#physical-view-物理视图)
+	- [HBase Shell](#hbase-shell)
 - [问题注记](#问题注记)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0. Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0-expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
@@ -443,6 +444,65 @@ HBase中表的概念结构如下所示：
 使用时间戳访问数据时，访问时间戳不存在的数据不会得到返回结果。
 当指定的`行:列族:列名`存在多个版本的数据时，不使用时间戳访问数据，得到的是最新(时间戳最靠后)的版本。
 查询**整行数据**时，得到的是该行数据每列各自的最新版本的数据。
+
+## HBase Shell
+HBase提供了基于`(J)Ruby`语言的交互式Shell(`IRB`)，提供了HBase中常用的功能函数。
+IRB是标准的Ruby Shell，可直接执行Ruby代码。
+
+使用`hbase shell`指令可进入HBase的IRB中：
+
+```ruby
+Version 1.2.6, rUnknown, Mon May 29 02:25:32 CDT 2017
+
+hbase(main):001:0>
+```
+
+使用`help`函数查看基本的帮助信息，使用`help "函数名"`查看具体某个功能函数的详细用法。
+常用指令函数用法：
+
+- 表格操作
+
+	使用`describe/desc`函数查看表信息：
+
+	```ruby
+	hbase> describe "表名"
+	hbase> desc "表名"
+
+	# 查看带有命名空间的表
+	hbase> describe "命名空间:表名"
+	hbase> desc "命名空间:表名"
+	```
+
+	使用`create`函数创建表格：
+
+	```ruby
+	# 首个参数为表名，之后为表中包含的列族
+	hbase> create "表名", "列族1", "列族2", ...
+
+	# HBase中每个列族拥有独立的配置，创建表同时设置每个列族的配置
+	hbase> create "表名", { NAME => "列族1", XXX => xxx, ... }, { NAME => "列族2", XXX => xxx, ... }, ...
+	```
+
+	删除表格首先使用`disable`函数禁用表格，之后使用`drop`函数删除：
+
+	```ruby
+	# 禁用指定表
+	hbase> disable "表名"
+
+	# 删除指定表
+	hbase> drop "表名"
+	```
+
+	使用`alter`函数调整已创建的表格的配置：
+
+	```ruby
+	hbase> alter "表名", Xxx => xxx, ...
+
+	# 可以同时修改多个列族的配置
+	hbase> alter "表名", { NAME => "列族1", Xxx => xxx, ... }, { NAME => "列族2", Xxx => xxx, ... }, ...
+	```
+
+	部分配置(如`VERSIONS`)直接修改无效，需要指定列族名称进行修改。
 
 
 
