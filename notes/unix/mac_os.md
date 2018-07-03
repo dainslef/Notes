@@ -19,6 +19,7 @@
 		- [路径信息](#路径信息)
 		- [安装参数](#安装参数)
 		- [bottled](#bottled)
+		- [依赖查询](#依赖查询)
 		- [Homebrew Taps](#homebrew-taps)
 		- [Homebrew Cask](#homebrew-cask)
 		- [Homebrew Services](#homebrew-services)
@@ -247,39 +248,36 @@ Note that arguments and options are executed in order.
 
 二者之间的差异：
 
-- `Homebrew`基于Git，是轻量级的包管理器，倾向于最大化利用`macOS`自带的Unix组件。
-- `MacPorts`是`FreeBSD`中`Ports`系统的移植，使用源码编译软件，不依赖原有macOS中的软件包，而是独立构建出一套环境。
-- `Homebrew`中软件包多数以二进制形式提供，默认安装路径为`usr/local`。
-- `MacPorts`编译的软件包一般安装在`/opt`目录下。
+- Homebrew基于`Git`，是轻量级的包管理器，倾向于最大化利用macOS自带的Unix组件。
+- MacPorts是FreeBSD中`Ports`系统的移植，使用源码编译软件，不依赖原有macOS中的软件包，而是独立构建出一套环境。
+- Homebrew中软件包多数以二进制形式提供，默认安装路径为`usr/local`。
+- MacPorts编译的软件包一般安装在`/opt`目录下。
 
 ## Homebrew
-`Homebrew`使用`Ruby`语言实现。
+Homebrew使用`Ruby`语言实现。
 
 与传统的包管理器不同，使用Homebrew并不需要使用`root`用户，管理员权限用户即可。  
-`Homebrew`将软件包安装在`/usr/local`目录下，在macOS中该目录默认情况下为**空**，因此当用户不再需要使用Homebrew时，只需完整删除`/usr/local`目录下的所有内容即可。(需要注意，某些非Bundle形式安装的软件亦会将一些内容安装在`/usr/local`目录下，如`VirtualBox`。若安装了此类软件，清理`/usr/local`目录时需要仔细辨别)
+Homebrew将软件包安装在`/usr/local`目录下，在macOS中该目录默认情况下为**空**，因此当用户不再需要使用Homebrew时，只需完整删除`/usr/local`目录下的所有内容即可。(需要注意，某些非Bundle形式安装的软件亦会将一些内容安装在`/usr/local`目录下，如`VirtualBox`。若安装了此类软件，清理`/usr/local`目录时需要仔细辨别)
 
-默认情况下，在`macOS`中，`/usr/local`的所有者为`root`，用户组为`wheel`，安装Homebrew时，安装脚本会将该目录所有者会更改为**当前管理员用户**，并将用户组改为`admin`。
+默认情况下，在macOS中，`/usr/local`的所有者为`root`，用户组为`wheel`，安装Homebrew时，安装脚本会将该目录所有者会更改为**当前管理员用户**，并将用户组改为`admin`。
 
 ### 配置与安装
-`Homebrew`采用`Ruby`语言开发，`macOS`中默认已经集成了`Ruby`开发环境。  
-`Homebrew`需要用到`Git`等`CLI`工具，在安装`Homebrew`之前需要先安装**Xcode命令行**工具(或者直接完整安装Xcode)。
+Homebrew采用`Ruby`语言开发，`macOS`中默认已经集成了Ruby环境。
+Homebrew需要用到Git等工具，在安装Homebrew之前需要先安装**Xcode命令行**工具(或者直接完整安装Xcode)。
 
 之后在终端内执行：
 
-```
+```sh
 $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
 ### 基本指令
-`Homebrew`基本操作与其它包管理器类似：
+Homebrew基本操作与其它包管理器类似：
 
 - `$ brew update` 更新源
 - `$ brew ugrade` 升级包
 - `$ brew info [package_name]` 显示指定包的信息
 - `$ brew install [package_name]` 安装指定包
-- `$ brew leaves` 查看没有被其它包依赖的包
-- `$ brew deps [package_name]` 显示指定包的依赖
-- `$ brew uses [package_name]` 显示指定包被哪些包依赖
 - `$ brew switch [package_name] [version]` 若安装了多个版本的包，切换指定包的使用版本
 - `$ brew dockor` 检测可能存在的问题，并给出修复提示
 - `$ brew prune` 移除无效的符号链接
@@ -305,10 +303,10 @@ $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/maste
 对于带有头文件的包(如`boost、gcc`等)，会在`/usr/local/include`目录下创建符号链接，指向`/usr/local/Cellar`目录中的具体包内容。
 
 ### 安装参数
-`Homebrew`使用`brew install`指令安装包时可以附加额外选项，用于定制包的依赖。  
+Homebrew使用`brew install`指令安装包时可以附加额外选项，用于定制包的依赖。
 每个包拥有不同的依赖项，使用`brew info`指令查看`Options`说明。
 
-以`neofetch`为例，`brew info`输出信息如下：
+以`neofetch`为例，brew info输出信息如下：
 
 ```
 $ brew info neofetch
@@ -325,7 +323,7 @@ Recommended: screenresolution ✘, imagemagick ✘
 	Install HEAD version
 ```
 
-`neofetch`需要两个可选依赖包`screenresolution`、`imagemagick`，默认安装时会同时安装依赖包。  
+neofetch需要两个可选依赖包`screenresolution`、`imagemagick`，默认安装时会同时安装依赖包。
 使用参数`--without-imagemagick --without-screenresolution`安装可忽略依赖。
 
 ### bottled
@@ -343,17 +341,40 @@ $ brew install [软件包] --force-bottle
 $ brew upgrade --force-bottle
 ```
 
-需要注意，`bottled`版本的`gcc`在编译时需要手动指定`sys_root`参数，否则会出现找不到头文件的情况。  
+需要注意，`bottled`版本的gcc在编译时需要手动指定`sys_root`参数，否则会出现找不到头文件的情况。
 以`GCC 7.2.0`和`XCode 8.3.3`为例：
 
 ```
 $ cc-7 [源码文件]... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
 ```
 
+### 依赖查询
+Hombrew在软件包的安装信息中并不记录**安装原因**，即无法区分一个软件包是主动安装还是作为其它软件包的依赖而安装。
+使用brew remove卸载软件包时，不会卸载该软件包的依赖包，即使这些依赖包没有再被其它安装的软件包依赖。
+
+查看所有不被其它已安装软件包依赖的包：
+
+```
+$ brew leaves
+```
+
+通过brew leaves指令的输出结果中筛选出不是主动安装的软件包进行卸载，以此达到清理无用依赖的目的。
+
+其它依赖管理相关指令：
+
+```sh
+# 查看指定软件包的依赖
+$ brew deps [软件包名称]
+
+# 显示指定软件包被哪些软件包依赖
+$ brew uses [软件包名称]
+# 显示指定软件包被哪些已安装的软件包依赖
+$ brew uses --installed [软件包名称]
+```
+
 ### Homebrew Taps
-使用`brew tap/untap`相关指令管理`Homebrew`启用的仓库。  
-仓库信息位于`$(brew --repo)/Library/Taps`路径下。  
-常用指令：
+使用`brew tap/untap`相关指令管理Homebrew启用的仓库。
+仓库信息位于`$(brew --repo)/Library/Taps`路径下，常用指令：
 
 - `$ brew tap` 列出已启用的仓库
 - `$ brew tap [repo_name]` 启用指定名称的仓库
@@ -565,37 +586,40 @@ $ nano /Volumes/[启动分区名称]/System/Library/CoreServices/SystemVersion.p
 ```
 
 ## 重置 Launchpad
-`Launchpad`中数据保存在`~/Library/Application Support/Dock`路径下，若`Launchpad`图标出现异常(如已删除软件图标依然存在)，可以尝试清空其中的数据。  
+`Launchpad`中数据保存在`~/Library/Application Support/Dock`路径下，若Launchpad图标出现异常(如已删除软件图标依然存在)，可以尝试清空其中的数据。
 删除该目录之后，`Launchpad`会在下次开机之后重置图标布局，恢复成默认的样式(Apple自带的软件占一页，用户自行安装的软件从第二页开始)。
 
 ## 设置 Xcode 路径
-`Xcode`中包含了一系列命令行工具如`clang`、`git`等，Homebrew的安装也依赖于这些命令行工具。  
+`Xcode`中包含了一系列命令行工具如`clang`、`git`等，Homebrew的安装也依赖于这些命令行工具。
 默认情况下，安装`Xcode`同时会自动配置相关路径信息。
 
-查看`Xcode`命令行路径：
+查看Xcode命令行路径：
 
 ```
 $ xcode-select -p
 ```
 
-对于从`AppStore`安装`Xcode`的用户，会得到以下输出：
+对于从AppStore安装Xcode的用户，会得到以下输出：
 
 ```
 /Applications/Xcode.app/Contents/Developer
 ```
 
-若用户移动了`Xcode.app`的位置，则需要重新设定`Xcode`的路径，否则会出现找不到命令行工具的情况。  
+若用户移动了`Xcode.app`的位置，则需要重新设定Xcode的路径，否则会出现找不到命令行工具的情况。  
 使用`xcode-select`设定`Xcode`的安装位置：
 
 ```
-# xcode-select --switch [Your Xcode Path]/Xcode.app/Contents/Developer
+# xcode-select --switch [Xcode.app路径]/Contents/Developer
 ```
 
-若该变了`Xcode.app`的位置，即使使用`xcode-select`重新设定`Xocde.app`的路径，通过`Homebrew`安装的编译器(如`gcc`)依然会出现找不到头文件的情况，此时需要重新安装包。
+若该变了Xcode.app的位置，即使使用`xcode-select`重新设定Xocde.app的路径，通过`Homebrew`安装的编译器(如`gcc`)依然会出现找不到头文件的情况，此时需要重新安装包。
 
 ## 签名 GDB
-新版的`macOS`系统中，`clang`作为默认编译器取代了`gcc`，`lldb`作为默认编译器取代了`gdb`。  
-默认情况下，使用`Homebrew`安装的`gdb`调试器**不能**在普通用户下正常调试代码，需要对其进行**签名**后才能使其正常调试代码：
+新版的macOS系统中，`clang`作为默认编译器取代了`gcc`，`lldb`作为默认编译器取代了`gdb`。
+默认配置下，使用`Homebrew`安装的`gdb`调试器**不能**在普通用户下正常调试代码，
+需要对其进行**签名**后才能使其正常调试代码。
+
+签名步骤：
 
 1. 使用`KeyChain Access.app`创建一个证书(`certificate`)。
 1. 证书的`Certificate Type`要设为`Code Signing`。
@@ -613,9 +637,9 @@ $ codesign -s [证书名称] [gdb安装路径]
 ## 安装 mysql/mariadb
 通过Homebrew安装的mysql/mariadb使用时不需要root权限。
 
-mariadb/mysql数据库的操作指令相同，因此mariadb与mysql软件包相互冲突。  
-mariadb/mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。  
-mariadb/mysql配置文件相同，路径为`/usr/local/etc/my.cnf`。
+- mariadb/mysql数据库的操作指令相同，因此mariadb与mysql软件包相互冲突。
+- mariadb/mysql数据库存储位置相同，路径为`/usr/local/var/mysql`。
+- mariadb/mysql配置文件相同，路径为`/usr/local/etc/my.cnf`。
 
 mariadb/mysql使用`mysql.server`指令管理服务：
 
@@ -631,18 +655,18 @@ mariadb/mysql使用`mysql.server`指令管理服务：
 1. `/Library/Internet Plug-Ins/JavaAppletPlugin.plugin`
 1. `/Library/PreferencePanes/JavaControlPanel.prefPane`
 
-删除`JDK`时需要手动移除这些目录、文件。  
-安装新版本的`JDK`时，旧版本`JDK`不会自动卸载，相关文件依然位于`/Library/Java/JavaVirtualMachines`路径下，
-文件夹名称即为对应的`JDK`版本，手动删除不需要的版本即可。
+删除JDK时需要手动移除这些目录、文件。  
+安装新版本的JDK时，旧版本JDK不会自动卸载，相关文件依然位于`/Library/Java/JavaVirtualMachines`路径下，
+文件夹名称即为对应的JDK版本，手动删除不需要的版本即可。
 
-完整移除`JDK`还需删除以下配置：
+完整移除JDK还需删除以下配置：
 
 1. `/Library/Preferences/com.oracle.java.Helper-Tool.plist`
 1. `/Library/LaunchDaemons/com.oracle.java.Helper-Tool.plist`
 1. `/Library/LaunchAgents/com.oracle.java.Java-Updater.plist`
 
 ## 删除 GarageBand
-`macOS`预装了音频编辑软件`GarageBand`，卸载时需要删除以下路径的内容：
+macOS预装了音频编辑软件`GarageBand`，卸载时需要删除以下路径的内容：
 
 1. `/Applications/GarageBand.app`
 1. `/Library/Application Support/GarageBand`
