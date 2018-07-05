@@ -8,6 +8,8 @@
 - [RDD (弹性分布式数据集)](#rdd-弹性分布式数据集)
 	- [创建 RDD](#创建-rdd)
 	- [RDD 操作](#rdd-操作)
+	- [RDD 分区](#rdd-分区)
+	- [RDD 依赖](#rdd-依赖)
 	- [Shuffle 操作](#shuffle-操作)
 		- [背景知识](#背景知识)
 		- [性能影响](#性能影响)
@@ -21,7 +23,7 @@
 	- [数据变换](#数据变换)
 		- [updateStateByKey()](#updatestatebykey)
 		- [mapWithState()](#mapwithstate)
-- [错误注记](#错误注记)
+- [问题注记](#问题注记)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
 	- [org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx](#orgapachesparksparkexception-failed-to-get-broadcast_xxx-of-broadcast_xxx)
@@ -143,18 +145,18 @@ Spark当前支持以下集群管理器：
 ## 术语表
 以下列表总结了在集群概念中提及的术语：
 
-术语 | 含义
-:-|:-
-Application | Spark中的用户应用程序，由集群中的driver program和executors组成。
-Application jar | 包含用户应用内容的JAR包。JAR包中应打包用户代码所需要的第三方依赖库，但不应该包含Hadoop或Spark库，这些库会在应用运行时添加。
-Driver program | 执行用户应用中的main()函数并创建SparkContext的进程。
-Cluster manager | 在集群中获取资源的外部服务(如Mesos、YARN)。
-Deploy mode | 区分driver进程的执行位置。`cluster`模式下，在集群内部启动driver；`client`模式下，在集群外部启动driver。
-Worker node | 可以在集群中执行用户应用代码的节点(部署了Spark服务的IP)。
-Executor | 在woker node中启动的用户应用的进程，执行tasks并在内存/磁盘中保存数据。每个用户应用都拥有属于自身的executor。
-Task | 将要发往executor的工作单元(a unit of work)。
-Job | 由多个Spark操作(如`save()`、`collect()`等)的task组成的并行计算。
-Stage | 每个job被拆分成较小的、具有依赖关系的task集合，这些任务集被称为stage。
+| 术语 | 含义 |
+| :- | :- |
+| Application | Spark中的用户应用程序，由集群中的driver program和executors组成。 |
+| Application jar | 包含用户应用内容的JAR包。JAR包中应打包用户代码所需要的第三方依赖库，但不应该包含Hadoop或Spark库，这些库会在应用运行时添加。 |
+| Driver program | 执行用户应用中的main()函数并创建SparkContext的进程。 |
+| Cluster manager | 在集群中获取资源的外部服务(如Mesos、YARN)。 |
+| Deploy mode | 区分driver进程的执行位置。`cluster`模式下，在集群内部启动driver；`client`模式下，在集群外部启动driver。 |
+| Worker node | 可以在集群中执行用户应用代码的节点(部署了Spark服务的IP)。 |
+| Executor | 在woker node中启动的用户应用的进程，执行tasks并在内存/磁盘中保存数据。每个用户应用都拥有属于自身的executor。 |
+| Task | 将要发往executor的工作单元(a unit of work)。 |
+| Job | 由多个Spark操作(如`save()`、`collect()`等)的task组成的并行计算。 |
+| Stage | 每个job被拆分成较小的、具有依赖关系的task集合，这些任务集被称为stage。 |
 
 
 
@@ -217,6 +219,63 @@ transformation操作只在action操作要求返回结果时进行计算。Spark�
 默认情况下，每个执行transformation操作之后的RDD会每次执行action操作时重新计算。
 可以使用`persist()/cache()`方法将RDD在内存中持久化，Spark将在集群中保留这些数据，在下次查询时访问会更加快速。
 Spark同样支持将RDD持久化到磁盘中，或是在多个节点之间复制。
+
+简单的RDD操作示例：
+
+给定两个数据集：数据集1(1 ~ 10)、数据集2(10 ~ 20)，筛选出数据集1中的偶数，筛选出数据集2中的奇数，并将两个数据集拼接。
+
+```scala
+scala> val dataSet1 = sc.parallelize(Seq(1 to 10: _*))
+dataSet1: org.apache.spark.rdd.RDD[Int] = ParallelCollectionRDD[2] at parallelize at <console>:24
+
+scala> val dataSet2 = sc.parallelize(Seq(10 to 20: _*))
+dataSet2: org.apache.spark.rdd.RDD[Int] = ParallelCollectionRDD[3] at parallelize at <console>:24
+
+scala> val dataSet3 = dataSet1.filter(_ % 2 == 0)
+dataSet3: org.apache.spark.rdd.RDD[Int] = MapPartitionsRDD[7] at filter at <console>:25
+
+scala> val dataSet4 = dataSet2.filter(_ % 2 == 1)
+dataSet4: org.apache.spark.rdd.RDD[Int] = MapPartitionsRDD[10] at filter at <console>:25
+
+scala> val result = dataSet3.union(dataSet4)
+result: org.apache.spark.rdd.RDD[Int] = UnionRDD[11] at union at <console>:27
+
+scala> result foreach println
+6
+2
+10
+11
+4
+8
+17
+15
+19
+13
+```
+
+## RDD 分区
+RDD在创建完毕后可以被并行地操作。  
+RDD中的一个重要的参数是分区数量(numbers of partions)，分区数量决定了数据集将会被切分成多少个部分。
+Spark执行task时会在集群中的每一个分区进行。
+
+典型的分配方式是根据CPU数目每个CPU分配2～4个分区(CPU双核/四核)。
+通常Spark会根据集群配置自动设置分区大小(defaultParallelism)，手动创建RDD时可通过设置`SparkContext.parallelize()`方法的第二参数来显式地设定分区的数量。
+
+## RDD 依赖
+每个RDD操作都会依赖之前的RDD，根据对RDD分区的依赖关系，依赖可分为两类：
+
+- **窄依赖**(Narrow Dependency)，父RDD中的一个分区仅被子RDD的一个分区使用(O(1)，常数级)
+- **宽依赖**(Wide/Shuffle Dependency)，父RDD中的一个分区可能会被子RDD的多个分区使用(O(n)，随分区大小线性增长)
+
+map()、filter()等窄依赖操作中分区之间平行关系，互不影响。每个旧分区可独立地执行操作，因而不必要求RDD中所有分区处于相同的操作阶段，旧分区执行完一个窄依赖操作后可立即执行下一个窄依赖操作。  
+窄依赖操作不会造成跨分区的数据重新排布，Spark将多个窄依赖操作划分到**相同**的stage中。
+
+groupByKey()、reduceByKey()等宽依赖操作中RDD的每个旧分区会被多次使用，每个新分区依赖所有的父分区，因此宽依赖操作需要等待所有父分区之前的操作执行完毕。  
+宽依赖操作会引起跨分区的数据复制、再分布(shuffle操作)，Spark将宽依赖操作划分到**新**的stage中。
+
+如下图所示：
+
+![Spark RDD Dependency](../../images/spark_rdd_dependency.png)
 
 ## Shuffle 操作
 Spark中的宽依赖操作会触发被称为**shuffle**的事件。  
@@ -1333,18 +1392,18 @@ sealed abstract class MapWithStateDStream[KeyType, ValueType, StateType, MappedT
 
 
 
-# 错误注记
+# 问题注记
 记录Spark开发、使用过程中遇到的错误信息以及对应解决方法。
 
 ## Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-错误说明：  
+问题说明：  
 Spark运行环境中已包含了Scala、Hadoop、Zookeeper等依赖，与Jar包中自带的依赖产生冲突。
 
 解决方式：  
 开发环境中为确保源码正常编译，需要完整引入Spark相关依赖，但在生成Jar时，需要移除Spark以及相关联的Scala、Hadoop、Zookeeper相关依赖。  
 
 ## Operation category READ is not supported in state standby
-错误说明：  
+问题说明：  
 配置了NameNode HA的Hadoop集群会存在`active`、`standby`两种状态。  
 SparkStreaming使用HDFS为数据源时URL需要使用active节点的主机名。
 
@@ -1352,7 +1411,7 @@ SparkStreaming使用HDFS为数据源时URL需要使用active节点的主机名�
 登陆HDFS的WEB管理界面查看节点状态，设置HDFS的URL时使用active节点的主机名。
 
 ## org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx
-错误说明：  
+问题说明：  
 在集群模式下执行Spark应用时，多个JVM实例间持有不同的SparkContent实例，导致Worker节点间通信出错。
 
 解决方式：  
