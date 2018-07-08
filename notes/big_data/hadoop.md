@@ -17,6 +17,7 @@
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
 	- [java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx](#javaioioexception-got-error-status-message--ack-with-firstbadlink-as-xxxxxxxxxxxxxxx)
 	- [全部HA节点处于 stand by 状态](#全部ha节点处于-stand-by-状态)
+	- [org.apache.hadoop.hbase.client.RetriesExhaustedException](#orgapachehadoophbaseclientretriesexhaustedexception)
 
 
 
@@ -546,4 +547,22 @@ NameNode的HA状态异常，没有选举出active的节点，HA节点均为stand
 
 ```
 $ hdfs haadmin -transitionToActive --forcemanual [需要激活的NameNode名称]
+```
+
+## org.apache.hadoop.hbase.client.RetriesExhaustedException
+问题说明：  
+HBase建立连接不成功，重试次数过多后产生异常。
+
+解决方案：  
+在日志中打印HBase的连接字符串，检查连接字符串是否有错误。
+HBase连接字符串中多个Zookeeper服务主机名之间用逗号分隔，不能带有空格：
+
+```scala
+val hbaseConfig = HBaseConfiguration.create()
+
+// 错误
+hbaseConfig.set("hbase.zookeeper.quorum", "spark-master, spark-slave0, spark-slave1")
+
+// 正确
+hbaseConfig.set("hbase.zookeeper.quorum", "spark-master,spark-slave0,spark-slave1")
 ```
