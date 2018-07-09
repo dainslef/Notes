@@ -51,13 +51,12 @@
 
 ## Stackage
 `Stackage`是稳定的Haskell包，官方站点为`https://www.stackage.org`。
-
 Stackage根据不同的GHC版本形成不同的`Stackage LTS`版本，
 stack在构建工程时通过LTS版本确定编译器以及对应依赖包的版本关系。
 
 LTS版本配置：
 
-- **全局**LTS版本由`$stack-root/global-project/stack.yaml`文件指定。  
+- **全局**LTS版本由`$stack-root/global-project/stack.yaml`文件指定。
 - 项目中使用的LTS版本由项目根路径下的`stack.yaml`文件指定。
 
 通过指定`resolver`配置项设定stack使用的LTS版本：
@@ -74,8 +73,8 @@ LTS版本配置：
 resolver: lts-11.13
 ```
 
-`resolver`配置项可以是LTS版本号、nightly版本日期或GHC编译器版本号。  
-全局的resolver配置决定了在项目目录外使用`stack ghc`、`stack ghci`等指令时调用的GHC版本。  
+`resolver`配置项可以是LTS版本号、nightly版本日期或GHC编译器版本号。<br>
+全局的resolver配置决定了在项目目录外使用`stack ghc`、`stack ghci`等指令时调用的GHC版本。
 
 ## Stack Path
 使用`stack path`指令可查看stack相关路径信息：
@@ -97,7 +96,8 @@ stack默认根路径：
 可使用`STACK_ROOT`环境变量设置stack使用的根路径。
 
 ## 安装 GHC
-stack可以简便地安装、配置`GHC`编译器。  
+stack可以简便地安装、配置`GHC`编译器。
+
 使用`stack setup`指令，stack会自动下载配置最新稳定版本的GHC编译器。
 
 ```
@@ -109,18 +109,18 @@ GHC编译器默认安装位置：
 - Windows: `~\AppData\Local\Programs\stack\[平台类型]\ghc-[版本号]`
 - Linux/macOS： `~/.stack/programs/[平台类型]/ghc-[版本号]`
 
-Windows下，GHC编译器需要依赖`MSYS2`，使用`stack setup`安装`GHC`时会自动附带安装MSYS2环境。  
+Windows下，GHC编译器需要依赖`MSYS2`，使用`stack setup`安装`GHC`时会自动附带安装MSYS2环境。<br>
 若已经配置了MSYS2环境，则执行指令时使用`--skip-msys`则可跳过安装MSYS2环境的步骤：
 
 ```
 > stack setup --skip-msys
 ```
 
-可通过修改`$stack-root\config.yaml`中的`local-programs-path`配置来指定GHC、MSYS2的安装路径。  
-可通过修改`$stack-root/global-project/stack.yaml`中的`resolver`配置来指定全局的GHC版本。
+可通过修改`$stack-root\config.yaml`中的顶层配置`local-programs-path`来指定GHC、MSYS2的安装路径。<br>
+可通过修改`$stack-root/global-project/stack.yaml`中的顶层配置`resolver`来指定全局的GHC版本。
 
 ## 配置 Mirrors
-`Stackage`和`Hackage`默认的镜像源在国内均被**墙**，需要替换源后才能正常使用。  
+`Stackage`和`Hackage`默认的镜像源在国内均被**墙**，需要替换源后才能正常使用。
 国内推荐使用`TUNA`源(清华大学镜像源)或`USTC`源(中科大镜像源)。
 
 以中科大源为例，编辑`$stack-root\config.yaml`，在`config.yaml`文件中添加：
@@ -143,7 +143,8 @@ urls:
 
 
 # 启动与使用
-直接执行`stack`指令会输出帮助信息。  
+直接执行`stack`指令会输出帮助信息。
+
 `stack`常见指令如下：
 
 - `build` 构建项目
@@ -164,8 +165,7 @@ urls:
 $ stack new [项目名称] [模版名称]
 ```
 
-项目名称中**不能**带有**下划线**。  
-可使用`stack templates`指令列出所有可用的模版。  
+项目名称中**不能**带有**下划线**。可使用`stack templates`指令列出所有可用的模版。
 **模版名称**可省略，省略模版参数时将使用默认模版`new-template`。
 
 ## 项目结构
@@ -196,7 +196,8 @@ $ stack new [项目名称] [模版名称]
 
 
 # 构建配置
-`Stack`项目根目录下的`项目名称.cabal`文件定义了项目的构建配置。  
+`Stack`项目根目录下的`项目名称.cabal`文件定义了项目的构建配置。
+
 基本的配置结构如下所示：
 
 ```yaml
@@ -235,10 +236,10 @@ source-repository head
 - `ghc-options` 设置`GHC`的编译选项
 
 ## 模块定义
-`Haskell`中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。  
-`library`配置段定义了导出模块的信息。
+`Haskell`中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。
 
-模块源码路径添加在`hs-source-dirs`配置项中，模块和模块路径需要使用大写字母开头。  
+`library`配置段定义了导出模块的信息。<br>
+模块源码路径添加在`hs-source-dirs`配置项中，模块和模块路径需要使用大写字母开头。<br>
 需要导出的模块写在`exposed-modules`配置项中，未写在改配置项中的模块不能被外部和主模块调用。
 
 模块定义示例：
@@ -252,9 +253,10 @@ library
 ```
 
 ## 可执行文件定义
-`executable`配置段定义了构建生成的可执行程序。  
-`executable`后添加生成可执行文件的名称，默认的名称为`[项目名称]-exe`，名称可以自定义。  
-一个项目可以生成多个可执行文件(定义多个`executable`配置段)。  
+`executable`配置段定义了构建生成的可执行程序。
+
+`executable`后添加生成可执行文件的名称，默认的名称为`[项目名称]-exe`，名称可以自定义。
+一个项目可以生成多个可执行文件(定义多个`executable`配置段)。
 输出的可执行文件需要在`main-is`配置项中指明主模块所处的源码文件。
 
 可执行文件定义示例：
@@ -269,13 +271,14 @@ executable 可执行文件名称
   default-language:    Haskell2010
 ```
 
-使用`stack build`指令后，会在`[项目根路径]/.stack-work/install/[CPU架构]-[操作系统]/lts-[LTS版本号]/[GHC版本号]/bin`路径下生成可执行文件。  
+使用`stack build`指令后，会在`[项目根路径]/.stack-work/install/[CPU架构]-[操作系统]/lts-[LTS版本号]/[GHC版本号]/bin`路径下生成可执行文件。
 使用`stack exec [执行文件名称]`执行生成的文件。
 
 ## 测试定义
-`test-suite`配置段定义了测试相关内容。  
-`test-suite`后添加测试名称，默认名称为`[项目名称]-test`，名称可以自定义。  
-一个项目可定义多组测试(定义多个`test-suite`配置段)。  
+`test-suite`配置段定义了测试相关内容。
+
+`test-suite`后添加测试名称，默认名称为`[项目名称]-test`，名称可以自定义。
+一个项目可定义多组测试(定义多个`test-suite`配置段)。
 在`main-is`配置项中指定执行测试的源码文件，测试源码文件需要包含`main`方法。
 
 测试定义示例：
@@ -298,7 +301,7 @@ $ stack test //执行所有测试
 $ stack test :[测试名称] //执行指定名称的测试
 ```
 
-测试名称前需要添加**冒号**。  
+测试名称前需要添加**冒号**。
 当测试目标为空时，会按定义顺序执行项目中的**所有**测试。
 
 ## 数据文件定义
@@ -306,16 +309,14 @@ $ stack test :[测试名称] //执行指定名称的测试
 
 - `data-dir`
 
-	`data-dir`配置段定义数据文件所在的路径，仅能设定**单个**路径。  
-	使用`data-dir`配置段，则所有数据文件以`data-dir`配置中的路径为前缀。  
+	`data-dir`配置段定义数据文件所在的路径，仅能设定**单个**路径。
+	使用`data-dir`配置段，则所有数据文件以`data-dir`配置中的路径为前缀。
 	如下所示：
 
-	```
+	```yaml
 	data-dir: xxx
 	-- 正确，从路径 "项目根目录/xxx" 路径下搜索配置文件
-	```
 
-	```
 	data-dir: xxx1, xxx2
 	-- 错误，不支持设置多个路径
 	```
@@ -324,8 +325,8 @@ $ stack test :[测试名称] //执行指定名称的测试
 
 	`data-files`配置段添加指定的数据文件。
 
-	支持使用通配符匹配某一类型的文件，如`*.xml`、`*.json`，**不能**使用`*`通配符匹配所有文件。  
-	默认以**项目根路径**为起始路径，若数据文件位于子路径下，需要完整的相对路径，如`conf1/xxx1.xml`、`conf2/xxx2.json`。  
+	支持使用通配符匹配某一类型的文件，如`*.xml`、`*.json`，**不能**使用`*`通配符匹配所有文件。
+	默认以**项目根路径**为起始路径，若数据文件位于子路径下，需要完整的相对路径，如`conf1/xxx1.xml`、`conf2/xxx2.json`。
 	多个数据文件使用`,`符号作为分隔符。
 
 	若设定了`data-dir`配置段，则以`项目根路径/data-dir配置路径`做为起始路径。
@@ -337,7 +338,7 @@ $ stack test :[测试名称] //执行指定名称的测试
 ```
 项目名称
 ├── ...
-├── app 
+├── app
 ├── src
 ├── conf # 配置文件路径
 │    ├── xxx.json
@@ -363,8 +364,9 @@ data-files: conf/xxx.json, conf/xxx.xml
 构建后会在目标路径下生成`conf`路径，并生成数据文件。
 
 ## Paths_xxx 模块
-`Stack`构建项目时，会自动生成一个名称为`Paths_[项目名称]`的模块。  
-该模块提供了项目的**版本**与**路径**信息。  
+`Stack`构建项目时，会自动生成一个名称为`Paths_[项目名称]`的模块。
+该模块提供了项目的**版本**与**路径**信息。
+
 模块导出接口如下：
 
 ```hs
@@ -411,7 +413,7 @@ Undefined symbols for architecture x86_64:
 记录使用stack中遇到的问题。
 
 ## Revision Mismatch
-当`Stackage`镜像源未完全同步官方源时，部分包可能`MD5`校验未通过，出现`Revision Mismatch`错误。  
+当`Stackage`镜像源未完全同步官方源时，部分包可能`MD5`校验未通过，出现`Revision Mismatch`错误。
 对于`Revision Mismatch`错误，默认行为是直接退出。
 
 在`$stack-root/config.yaml`中添加配置：
