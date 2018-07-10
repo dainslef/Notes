@@ -18,14 +18,15 @@
 	- [java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx](#javaioioexception-got-error-status-message--ack-with-firstbadlink-as-xxxxxxxxxxxxxxx)
 	- [全部HA节点处于 stand by 状态](#全部ha节点处于-stand-by-状态)
 	- [org.apache.hadoop.hbase.client.RetriesExhaustedException](#orgapachehadoophbaseclientretriesexhaustedexception)
+	- [XXX: Error: JAVA_HOME is not set and could not be found.](#xxx-error-java_home-is-not-set-and-could-not-be-found)
 
 
 
 # 概述
 `Apache Hadoop`是一套面向**可靠性**、**可扩展性**、**分布式计算**的开源套件。
 
-Hadoop是一套框架，允许使用简单的编程模型在计算机集群中对大型数据集进行分布式处理。  
-Hadoop被设计成从单个服务器扩展到数千台机器，每台机器都提供本地计算和存储。  
+Hadoop是一套框架，允许使用简单的编程模型在计算机集群中对大型数据集进行分布式处理。
+Hadoop被设计成从单个服务器扩展到数千台机器，每台机器都提供本地计算和存储。
 Hadoop不依靠硬件来提供高可用性，而是被设计成在应用层检测和处理故障，因此能够在一组计算机集群上提供高可用性服务，即便每一台计算机都可能出现故障。
 
 `Apache Hadoop`项目包含以下模块：
@@ -47,7 +48,7 @@ Apache基金会中还包含大量的Hadoop关联项目，如：
 ## 下载
 在[Hadoop官网](http://hadoop.apache.org/releases.html)下载Hadoop软件包。
 
-截止到`2018-3-30`，Hadoop主要分为`2.x`和`3.x`两大版本，`3.x`版本在配置上与`2.x`版本有较大差异。  
+截止到`2018-3-30`，Hadoop主要分为`2.x`和`3.x`两大版本，`3.x`版本在配置上与`2.x`版本有较大差异。
 `3.x`版本正式发布时间较晚(2017-12-13)、迭代周期较短，稳定性有待考证，本文配置使用`2.7.5`版本。
 
 ## 环境变量配置
@@ -87,12 +88,12 @@ PATH+=:$HADOOP_HOME/sbin # 将Hadoop相关工具加入PATH环境变量
 - `spark-master/spark-slave0/spark-slave1`三台机器启动Zookeeper，并作为JournalNode，同时运行Kafka。
 
 ## 路径规划
-Hadoop提供的HDFS等组件需要占用大量的磁盘空间，需要对磁盘分区做出合理规划。  
+Hadoop提供的HDFS等组件需要占用大量的磁盘空间，需要对磁盘分区做出合理规划。
 以`/home/data/hadoop`路径为例，执行指令，在路径下创建以下子路径：
 
 ```c
 // 创建缓存路径
-# mkdir -p /home/data/hadoop/tmp 
+# mkdir -p /home/data/hadoop/tmp
 
 // 创建 DataNode 数据存储路径
 # mkdir -p /home/data/hadoop/hdfs/data
@@ -105,14 +106,14 @@ Hadoop提供的HDFS等组件需要占用大量的磁盘空间，需要对磁盘�
 ```
 
 ## 服务配置
-Hadoop服务配置项多而繁杂，[官方文档地址](http://hadoop.apache.org/docs/)，根据Hadoop版本选择匹配的文档进行查阅。  
+Hadoop服务配置项多而繁杂，[官方文档地址](http://hadoop.apache.org/docs/)，根据Hadoop版本选择匹配的文档进行查阅。
 集群配置相关文档地址为`http://hadoop.apache.org/docs/{Hadoop版本}/hadoop-project-dist/hadoop-common/ClusterSetup.html`。
 
 Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配置文件如下：
 
 - `core-site.xml`
 
-	Hadoop的核心配置项。
+	Hadoop的核心配置项。<br>
 	配置项说明：
 
 	```xml
@@ -162,7 +163,7 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 
 - `hdfs-site.xml`
 
-	包含对NameNode和DataNode的配置项。
+	包含对NameNode和DataNode的配置项。<br>
 	配置项说明：
 
 	```xml
@@ -173,7 +174,7 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 			<name>dfs.replication</name>
 			<value>2</value>
 		</property>
-	
+
 		<!-- 指定 nameservice，需要和 core-site.xml 中 fs.defaultFS 配置项保持一致 -->
 		<property>
 			<name>dfs.nameservices</name>
@@ -192,7 +193,7 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 			<value>spark-master:9000</value>
 		</property>
 
-		<!-- namenode1 的 http 通信地址 -->
+		<!-- namenode1 的 HTTP 通信地址 -->
 		<property>
 			<name>dfs.namenode.http-address.lj-nameservice.namenode1</name>
 			<value>spark-master:50070</value>
@@ -204,7 +205,7 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 			<value>spark-slave0:9000</value>
 		</property>
 
-		<!-- namenode2 的 http 通信地址 -->
+		<!-- namenode2 的 HTTP 通信地址 -->
 		<property>
 			<name>dfs.namenode.http-address.lj-nameservice.namenode2</name>
 			<value>spark-slave0:50070</value>
@@ -216,13 +217,25 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 			<value>qjournal://spark-master:8485;spark-slave0:8485;spark-slave1:8485/lj-nameservice</value>
 		</property>
 
-		<!-- 指定 JournalNode 在本地磁盘存放数据的位置 -->
+		<!-- 指定 NameNode 在本地磁盘存放数据的位置(可选) -->
+		<property>
+			<name>dfs.namenode.name.dir</name>
+			<value>/home/data/hadoop/hdfs/name</value>
+		</property>
+
+		<!-- 指定 DataNode 在本地磁盘存放数据的位置(可选) -->
+		<property>
+			<name>dfs.namenode.data.dir</name>
+			<value>/home/data/hadoop/hdfs/data</value>
+		</property>
+
+		<!-- 指定 JournalNode 在本地磁盘存放数据的位置(可选) -->
 		<property>
 			<name>dfs.journalnode.edits.dir</name>
 			<value>/home/data/hadoop/hdfs/journal</value>
 		</property>
 
-		<!-- 开启 NameNode 失败自动切换 -->
+		<!-- 开启 NameNode 失败自动切换(HA) -->
 		<property>
 			<name>dfs.ha.automatic-failover.enabled</name>
 			<value>true</value>
@@ -234,10 +247,10 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 
 
 # HDFS
-`Hadoop Distributed File System (HDFS)`是一个被设计成运行在商用硬件上的分布式文件系统。  
-HDFS与现存的分布式文件系统类似，不同之处在于HDFS是**高容错**(highly fault-tolerant)的，HDFS被设计成能够部署在低成本的硬件上。  
-HDFS提供了对应用数据的高吞吐访问，适用于拥有大量数据集的应用。  
-HDFS放宽了一些POSIX标准的要求，以便实现流式地访问文件系统数据。  
+`Hadoop Distributed File System (HDFS)`是一个被设计成运行在商用硬件上的分布式文件系统。
+HDFS与现存的分布式文件系统类似，不同之处在于HDFS是**高容错**(highly fault-tolerant)的，HDFS被设计成能够部署在低成本的硬件上。
+HDFS提供了对应用数据的高吞吐访问，适用于拥有大量数据集的应用。
+HDFS放宽了一些POSIX标准的要求，以便实现流式地访问文件系统数据。
 HDFS最初被设计成`Apache Nutch`(一个Web搜索引擎项目)的基础设施，现在HDFS是`Apache Hadoop`项目的核心部分。
 
 ## 访问地址
@@ -389,7 +402,7 @@ HBase中表的概念结构如下所示：
 	</tr>
 </table>
 
-与传统的数据库不同，空的单元格并不实际占用空间，这是HBase被称为`sparse`(稀疏)存储的原因。
+与传统的数据库不同，空的单元格并不实际占用空间，这是HBase被称为`sparse`(稀疏)存储的原因。<br>
 上述概念结构用JSON表示为近似于：
 
 ```json
@@ -459,6 +472,7 @@ hbase(main):001:0>
 ```
 
 使用`help`函数查看基本的帮助信息，使用`help "函数名"`查看具体某个功能函数的详细用法。
+
 常用指令函数用法：
 
 - 表格操作
@@ -511,24 +525,24 @@ hbase(main):001:0>
 Hadoop配置中遇到问题的说明和解决方案。
 
 ## ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1
-问题说明：  
+问题说明：<br>
 namenode启动失败，需要重新格式化，保证namenode的ID一致性。
 
-解决方案：  
+解决方案：<br>
 格式化失败尝试`hdfs  namenode -format -force`同时格式化namenode和datanode。
 
 ## Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;
-问题说明：  
+问题说明：<br>
 执行`hdfs namenode -format`指令时，集群未启动，需要在集群已启动的情况下格式化NameNode。
 
-解决方案：  
+解决方案：<br>
 启动集群后再格式化NameNode。
 
 ## java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx
-问题说明：  
+问题说明：<br>
 防火墙服务开启导致HDFS节点之间访问异常。
 
-解决方案：  
+解决方案：<br>
 关闭对应节点的防火墙服务：
 
 ```c
@@ -537,12 +551,12 @@ namenode启动失败，需要重新格式化，保证namenode的ID一致性。
 ```
 
 ## 全部HA节点处于 stand by 状态
-问题说明：  
+问题说明：<br>
 NameNode的HA状态异常，没有选举出active的节点，HA节点均为stand by。
 
-解决方案：  
-检查Zookeeper运行状态，NameNode选举依赖Zookeeper提供的服务。  
-若Zookeeper正常，则可尝试重新格式化NameNode。  
+解决方案：<br>
+检查Zookeeper运行状态，NameNode选举依赖Zookeeper提供的服务。
+若Zookeeper正常，则可尝试重新格式化NameNode。
 或者使用`haadmin`工具强制指定active节点：
 
 ```
@@ -550,10 +564,10 @@ $ hdfs haadmin -transitionToActive --forcemanual [需要激活的NameNode名称]
 ```
 
 ## org.apache.hadoop.hbase.client.RetriesExhaustedException
-问题说明：  
+问题说明：<br>
 HBase建立连接不成功，重试次数过多后产生异常。
 
-解决方案：  
+解决方案：<br>
 在日志中打印HBase的连接字符串，检查连接字符串是否有错误。
 HBase连接字符串中多个Zookeeper服务主机名之间用逗号分隔，不能带有空格：
 
@@ -566,3 +580,11 @@ hbaseConfig.set("hbase.zookeeper.quorum", "spark-master, spark-slave0, spark-sla
 // 正确
 hbaseConfig.set("hbase.zookeeper.quorum", "spark-master,spark-slave0,spark-slave1")
 ```
+
+## XXX: Error: JAVA_HOME is not set and could not be found.
+问题说明:<br>
+Hadoop启动时提示`JAVA_HOME`环境变量配置未配置，但实际环境变量中已设定JAVA_HOME。
+
+解决方法：<br>
+编辑`$HADOOP_HOME/etc/hadoop/hadoop-env.sh`文件，
+将文件中的`export JAVA_HOME=${JAVA_HOME}`替换为实际的绝对路径。
