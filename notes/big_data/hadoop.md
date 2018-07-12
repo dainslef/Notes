@@ -11,6 +11,7 @@
 	- [数据模型](#数据模型)
 		- [Conceptual View (概念视图)](#conceptual-view-概念视图)
 		- [Physical View (物理视图)](#physical-view-物理视图)
+		- [Namespace (命名空间)](#namespace-命名空间)
 	- [HBase Shell](#hbase-shell)
 - [问题注记](#问题注记)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0. Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0-expected-transaction-id-was-1)
@@ -175,13 +176,13 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 			<value>2</value>
 		</property>
 
-		<!-- 指定 nameservice，需要和 core-site.xml 中 fs.defaultFS 配置项保持一致 -->
+		<!-- 指定 NameService，需要和core-site.xml中fs.defaultFS配置项保持一致 -->
 		<property>
 			<name>dfs.nameservices</name>
 			<value>lj-nameservice</value>
 		</property>
 
-		<!-- 设置 nameservice 下的 NameNode 名称 -->
+		<!-- 设置 NameService 下的 NameNode 名称 -->
 		<property>
 			<name>dfs.ha.namenodes.lj-nameservice</name>
 			<value>namenode1,namenode2</value>
@@ -211,12 +212,6 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 			<value>spark-slave0:50070</value>
 		</property>
 
-		<!-- 指定HA集群中多个 NameNode 之间的共享存储路径 -->
-		<property>
-			<name>dfs.namenode.shared.edits.dir</name>
-			<value>qjournal://spark-master:8485;spark-slave0:8485;spark-slave1:8485/lj-nameservice</value>
-		</property>
-
 		<!-- 指定 NameNode 在本地磁盘存放数据的位置(可选) -->
 		<property>
 			<name>dfs.namenode.name.dir</name>
@@ -235,21 +230,66 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 			<value>/home/data/hadoop/hdfs/journal</value>
 		</property>
 
-		<!-- 开启 NameNode 失败自动切换(HA) -->
+		<!-- 开启 NameNode 失败自动切换(HA，单NameNode时此配置无效) -->
 		<property>
 			<name>dfs.ha.automatic-failover.enabled</name>
 			<value>true</value>
 		</property>
 
+		<!--
+			指定HA集群中多个NameNode之间的共享存储路径(单NameNode时此配置无效)
+			指定URL对应的机器上会启动 JournalNode 服务
+			设定该配置需要启用HA(dfs.ha.automatic-failover.enabled设置为true)
+			JournalNode至少需要配置3个，数量需要为奇数
+			JournalNode配置不正确会造成NameNode启动失败
+		-->
+		<property>
+			<name>dfs.namenode.shared.edits.dir</name>
+			<value>qjournal://spark-master:8485;spark-slave0:8485;spark-slave1:8485/lj-nameservice</value>
+		</property>
+
 	</configuration>
 	```
+
+首次启动NameNode节点前，需要格式化NameNode对应的数据目录，执行指令：
+
+```
+$ hadoop namenode -format
+```
+
+使用`start/stop-dfs.sh`脚本启动/关闭Hadoop相关服务：
+
+```c
+// 启动 NameNode、DataNode、JournalNode 服务
+$ start-dfs.sh
+// 启动 NodeManager、ResourceManager 服务
+$ start-yarn.sh
+
+// 停止服务
+$ stop-dfs.sh && stop-yarn.sh
+```
+
+服务启动日志记录在`$HADOOP_HOME/logs`路径下，主要服务的日志路径：
+
+```c
+// NameNode
+$HADOOP_HOME/logs/hadoop-[用户名]-namenode-[主机名].log
+
+// DataNode
+$HADOOP_HOME/logs/hadoop-[用户名]-datanode-[主机名].log
+
+// JournalNode
+$HADOOP_HOME/logs/hadoop-[用户名]-journalnode-[主机名].log
+```
+
+服务启动失败时，可通过查询对应日志检查失败原因。
 
 
 
 # HDFS
 `Hadoop Distributed File System (HDFS)`是一个被设计成运行在商用硬件上的分布式文件系统。
-HDFS与现存的分布式文件系统类似，不同之处在于HDFS是**高容错**(highly fault-tolerant)的，HDFS被设计成能够部署在低成本的硬件上。
-HDFS提供了对应用数据的高吞吐访问，适用于拥有大量数据集的应用。
+HDFS与现存的分布式文件系统类似，不同之处在于HDFS是**高容错**(highly fault-tolerant)的，
+HDFS被设计成能够部署在低成本的硬件上。HDFS提供了对应用数据的高吞吐访问，适用于拥有大量数据集的应用。
 HDFS放宽了一些POSIX标准的要求，以便实现流式地访问文件系统数据。
 HDFS最初被设计成`Apache Nutch`(一个Web搜索引擎项目)的基础设施，现在HDFS是`Apache Hadoop`项目的核心部分。
 
@@ -458,6 +498,14 @@ HBase中表的概念结构如下所示：
 使用时间戳访问数据时，访问时间戳不存在的数据不会得到返回结果。
 当指定的`行:列族:列名`存在多个版本的数据时，不使用时间戳访问数据，得到的是最新(时间戳最靠后)的版本。
 查询**整行数据**时，得到的是该行数据每列各自的最新版本的数据。
+
+### Namespace (命名空间)
+命名空间是与传统的关系型数据库中的**数据库**概念类似的表格逻辑分组。<br>
+命名空间是多租户(multi-tenancy)相关功能的基础：
+
+- 配额管理(HBASE-8410)
+- 命名空间安全管理(HBASE-9206)
+- 区域服务器组(HBASE-6721)
 
 ## HBase Shell
 HBase提供了基于`(J)Ruby`语言的交互式Shell(`IRB`)，提供了HBase中常用的功能函数。
