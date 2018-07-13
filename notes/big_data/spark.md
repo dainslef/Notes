@@ -2,6 +2,7 @@
 	- [下载](#下载)
 	- [服务配置](#服务配置)
 	- [Web UI](#web-ui)
+	- [History Server](#history-server)
 - [集群模型](#集群模型)
 	- [集群管理器类型](#集群管理器类型)
 	- [术语表](#术语表)
@@ -33,11 +34,11 @@
 # 概述
 `Apache Spark`是一套**快速**(fast)、**多用途**(general-purpose)的集群计算系统(cluster computing system)。
 
-Spark提供了`Scala`、`Java`、`Python`、`R`等语言的上层API和支持通用执行图的优化引擎。  
+Spark提供了`Scala`、`Java`、`Python`、`R`等语言的上层API和支持通用执行图的优化引擎。
 Spark同时提供了一套高级工具集包括`Spark SQL`(针对SQL和结构化数据处理)、`MLib`(针对机器学习)、`GraphX`(针对图处理)、`Spark Streaming`。
 
 ## 下载
-在[Spark官网](http://spark.apache.org/downloads.html)下载Saprk软件包。  
+在[Spark官网](http://spark.apache.org/downloads.html)下载Saprk软件包。
 下载Spark时需要注意Spark版本与Hadoop、Scala版本的对应关系：
 
 - `Spark 2.0`之后官网提供的软件包默认基于`Scala 2.11`构建。
@@ -47,12 +48,12 @@ Scala版本兼容性：
 
 - 大版本兼容性
 
-	Scala编译器编译出的字节码在不同大版本之间**不具有**二进制兼容性，如`2.10`/`2.11`/`2.12`等。  
+	Scala编译器编译出的字节码在不同大版本之间**不具有**二进制兼容性，如`2.10`/`2.11`/`2.12`等。<br>
 	在添加`Spark API`依赖时需要根据集群运行的Spark版本使用正确的Scala编译器版本。
 
 - 小版本兼容性
 
-	Scala编译器在小版本之前二进制兼容，如`2.12.1`/`2.12.2`等。  
+	Scala编译器在小版本之前二进制兼容，如`2.12.1`/`2.12.2`等。<br>
 	在小版本内切换编译器版本无需重新编译生成字节码。
 
 ## 服务配置
@@ -82,8 +83,13 @@ spark-slave2
 保证集群各机器间能够免密登陆，将配置文件分发到集群的其它机器上，执行指令启动/关闭服务：
 
 ```c
-$ start-all.sh //启动服务
-$ stop-all.sh //停止服务
+// 启动 Master 服务
+$ start-master.sh
+// 启动 Worker 服务
+$ start-slaves.sh
+
+// 停止服务
+$ stop-master.sh && stop-slaves.sh
 ```
 
 正常启动Spark服务后，使用JPS查看进程，主节点应有`Master`进程，从节点应有`Worker`进程。
@@ -101,13 +107,43 @@ Web界面中的提供了以下几类信息：
 
 ![Spark Web UI](../../images/spark_web_ui.png)
 
-对于正在执行的Spark应用，Spark还提供了`Application Detail UI`，用于查看应用的执行信息，如`Event Timeline`、`DAG Visualization`。  
-如下图所示：
+对于正在执行的Spark应用，Spark还提供了`Application Detail UI`，用于查看应用的执行信息，如`Event Timeline`、`DAG Visualization`：
 
 ![Spark Application Detail UI](../../images/spark_application_detail_ui.png)
 
-这些信息仅在应用执行期间可查看，默认配置下，应用结束后仅能查看文本日志。
-若需要在应用结束后保留应用的执行信息，则修改`spark.eventLog.enabled`配置项为`True`。
+## History Server
+Application Detail UI中的信息仅在应用执行期间可查看，默认配置下，应用结束后仅能查看文本日志。
+若需要在应用结束后保留应用的执行信息，则需要启动`Spark History Server`。
+
+在HDFS中为Spark创建Spark Event Log路径:
+
+```c
+$ hdfs dfs -mkdir [HDFS路径]
+```
+
+编辑`$SPARK_HOME/conf/spark-defaults.conf`文件，加入以下配置：
+
+```sh
+# 启用 Spark Event Log
+spark.eventLog.enabled           true
+# 设置 Spark Event Log 的写入路径
+spark.eventLog.dir               [HDFS路径]
+
+# 配置 Spark History Server 的服务端口和实现类
+spark.history.provider           org.apache.spark.deploy.history.FsHistoryProvider
+spark.history.ui.port            18081
+# 配置 Spark History Server 访问的日志路径，需要
+spark.history.fs.logDirectory    hdfs://spark-master:9000/spark/event-log
+```
+
+之后启用Spark History Server服务：
+
+```c
+$ start-history-server.sh
+
+// 关闭服务
+$ stop-history-server.sh
+```
 
 
 
@@ -169,7 +205,7 @@ Spark提供了两种创建RDD的方式：
 
 1. 并行化程序中已存在的普通数据集：
 
-	调用`SparkContext.parallelize()`方法将已存在的普通数据集(`Seq[T]`)转换为`RDD[T]`。  
+	调用`SparkContext.parallelize()`方法将已存在的普通数据集(`Seq[T]`)转换为`RDD[T]`。<br>
 	方法定义如下(源码取自`Spark 2.3.0`)：
 
 	```scala
@@ -193,7 +229,7 @@ Spark提供了两种创建RDD的方式：
 1. 引用来自外部存储系统的数据集，如本地文件系统、HDFS、HBase、AmazonS3等：
 
 	以文本文件为例，调用`SparkContext.textFile()`方法使用文本文件创建RDD。
-	该方法传入文件的URI，按行读取文件构建文本数据集。  
+	该方法传入文件的URI，按行读取文件构建文本数据集。<br>
 	使用示例：
 
 	```scala
@@ -254,7 +290,7 @@ scala> result foreach println
 ```
 
 ## RDD 分区
-RDD在创建完毕后可以被并行地操作。  
+RDD在创建完毕后可以被并行地操作。
 RDD中的一个重要的参数是分区数量(numbers of partions)，分区数量决定了数据集将会被切分成多少个部分。
 Spark执行task时会在集群中的每一个分区进行。
 
@@ -267,10 +303,12 @@ Spark执行task时会在集群中的每一个分区进行。
 - **窄依赖**(Narrow Dependency)，父RDD中的一个分区仅被子RDD的一个分区使用(O(1)，常数级)
 - **宽依赖**(Wide/Shuffle Dependency)，父RDD中的一个分区可能会被子RDD的多个分区使用(O(n)，随分区大小线性增长)
 
-map()、filter()等窄依赖操作中分区之间平行关系，互不影响。每个旧分区可独立地执行操作，因而不必要求RDD中所有分区处于相同的操作阶段，旧分区执行完一个窄依赖操作后可立即执行下一个窄依赖操作。  
+map()、filter()等窄依赖操作中分区之间平行关系，互不影响。
+每个旧分区可独立地执行操作，因而不必要求RDD中所有分区处于相同的操作阶段，旧分区执行完一个窄依赖操作后可立即执行下一个窄依赖操作。
 窄依赖操作不会造成跨分区的数据重新排布，Spark将多个窄依赖操作划分到**相同**的stage中。
 
-groupByKey()、reduceByKey()等宽依赖操作中RDD的每个旧分区会被多次使用，每个新分区依赖所有的父分区，因此宽依赖操作需要等待所有父分区之前的操作执行完毕。  
+groupByKey()、reduceByKey()等宽依赖操作中RDD的每个旧分区会被多次使用，
+每个新分区依赖所有的父分区，因此宽依赖操作需要等待所有父分区之前的操作执行完毕。
 宽依赖操作会引起跨分区的数据复制、再分布(shuffle操作)，Spark将宽依赖操作划分到**新**的stage中。
 
 如下图所示：
@@ -278,7 +316,7 @@ groupByKey()、reduceByKey()等宽依赖操作中RDD的每个旧分区会被多�
 ![Spark RDD Dependency](../../images/spark_rdd_dependency.png)
 
 ## Shuffle 操作
-Spark中的宽依赖操作会触发被称为**shuffle**的事件。  
+Spark中的宽依赖操作会触发被称为**shuffle**的事件。
 Shuffle是Spark中将不同分组、横跨多个分区的数据再分布(re-distributing)的一套机制，
 通常会包含跨excutor、跨机器的复制数据。这使得shuffle成为一种复杂(complex)、高开销(costly)的操作。
 
@@ -303,7 +341,7 @@ Shuffle是Spark中将不同分组、横跨多个分区的数据再分布(re-dist
 
 在Spark中，数据通常不会跨分区分布到某个特定操作所需要的位置。在计算期间，单个任务将在单个分区中执行。
 事实上，为执行一个reduceByKey()的reduce task，Spark需要执行所有的操作，
-必须从所有分区读取所有的Key和Value，并将多个分区中的Value组合，从而为每个Key计算最终结果。  
+必须从所有分区读取所有的Key和Value，并将多个分区中的Value组合，从而为每个Key计算最终结果。
 这个重新分配数据的过程即被称为shuffle。
 
 新执行shuffle操作之后，元素在每个分区是确定的(deterministic)，分区的排序也是确定的，但元素的排序不是。
@@ -331,7 +369,7 @@ Shuffle是高开销(expensive)的操作，因为它涉及磁盘IO、网络IO、�
 ## 作业调度源码分析
 Spark在提交作业时会为RDD相关操作生成DAG(Directed Acyclic Graph，有向无环图)。
 
-`DAGScheduler`类是Spark中作业调度的核心。  
+`DAGScheduler`类是Spark中作业调度的核心。
 在SparkContext初始化过程中会创建DAGScheduler、TaskScheduler、SchedulerBackend实例，用于作业调度、任务调度。
 
 ### Job Sumbit
@@ -444,11 +482,11 @@ DAGSchedulerEventProcessLoop.post()
 	class SparkContext(config: SparkConf) extends Logging {
 
 	  ...
-	
+
 	  @volatile private var _dagScheduler: DAGScheduler = _
 
 	  ...
-	
+
 	  private[spark] def dagScheduler: DAGScheduler = _dagScheduler
 	  private[spark] def dagScheduler_=(ds: DAGScheduler): Unit = {
 	    _dagScheduler = ds
@@ -712,7 +750,7 @@ DAGScheduler.submitStage()
 	  }
 
 	  ...
-	
+
 	}
 	```
 
@@ -1182,9 +1220,9 @@ makeOffers()方法中通过`TaskSchedulerImpl.resourceOffers()`向集群管理�
 
 
 # Spark Streaming
-`Spark Streaming`是对核心`Spark API`的扩展，包含了对实时数据流(live data streams)的可扩展(scalable)、高吞吐(high-throughput)、容错性(fault-tolerant)的流式处理。  
-数据可从多种数据源中获取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，数据能将复杂的算法使用高阶函数表达，如`map()`、`reduce()`、`join()`、`window()`等。  
-最终，处理过后的数据可被发布到文件系统、数据库、实时仪表等。  
+`Spark Streaming`是对核心`Spark API`的扩展，包含了对实时数据流(live data streams)的可扩展(scalable)、高吞吐(high-throughput)、容错性(fault-tolerant)的流式处理。
+数据可从多种数据源中获取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，数据能将复杂的算法使用高阶函数表达，如`map()`、`reduce()`、`join()`、`window()`等。
+最终，处理过后的数据可被发布到文件系统、数据库、实时仪表等。
 实际上，可以将Spark的`Machine Learning`(机器学习)和`Graph Processing`(图处理)算法应用于数据流。
 
 ![Spark Streaming Arch](../../images/spark_streaming_arch.png)
@@ -1193,8 +1231,8 @@ SparkStreaming接收实时的输入数据流并将数据划分批次，每个批
 
 ![Spark Streaming Flow](../../images/spark_streaming_flow.png)
 
-SparkStreaming为一个连续的数据流提供了高层抽象，叫做`DStream`(`discretized stream`，离散流)。  
-DStreams可以从多种数据源(如`Kafka`、`Flume`等)的输入数据流创建，或者通过其它DStream的高阶运算得到。  
+SparkStreaming为一个连续的数据流提供了高层抽象，叫做`DStream`(`discretized stream`，离散流)。
+DStreams可以从多种数据源(如`Kafka`、`Flume`等)的输入数据流创建，或者通过其它DStream的高阶运算得到。
 DStream本质上是一个`RDD`的序列。
 
 ## Streaming Context
@@ -1396,24 +1434,24 @@ sealed abstract class MapWithStateDStream[KeyType, ValueType, StateType, MappedT
 记录Spark开发、使用过程中遇到的错误信息以及对应解决方法。
 
 ## Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-问题说明：  
+问题说明：<br>
 Spark运行环境中已包含了Scala、Hadoop、Zookeeper等依赖，与Jar包中自带的依赖产生冲突。
 
-解决方式：  
-开发环境中为确保源码正常编译，需要完整引入Spark相关依赖，但在生成Jar时，需要移除Spark以及相关联的Scala、Hadoop、Zookeeper相关依赖。  
+解决方式：<br>
+开发环境中为确保源码正常编译，需要完整引入Spark相关依赖，但在生成Jar时，需要移除Spark以及相关联的Scala、Hadoop、Zookeeper相关依赖。
 
 ## Operation category READ is not supported in state standby
-问题说明：  
-配置了NameNode HA的Hadoop集群会存在`active`、`standby`两种状态。  
+问题说明：<br>
+配置了NameNode HA的Hadoop集群会存在`active`、`standby`两种状态。
 SparkStreaming使用HDFS为数据源时URL需要使用active节点的主机名。
 
-解决方式：  
+解决方式：<br>
 登陆HDFS的WEB管理界面查看节点状态，设置HDFS的URL时使用active节点的主机名。
 
 ## org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx
-问题说明：  
+问题说明：<br>
 在集群模式下执行Spark应用时，多个JVM实例间持有不同的SparkContent实例，导致Worker节点间通信出错。
 
-解决方式：  
-避免使用单例模式保存SparkContent实例，单例模式在集群中存在多个JVM实例时不可靠。  
+解决方式：<br>
+避免使用单例模式保存SparkContent实例，单例模式在集群中存在多个JVM实例时不可靠。
 创建SparkContext应在主函数代码中进行，构建SparkContext应使用伴生对象中提供的`SparkContext.getOrCreate()`方法。
