@@ -119,7 +119,7 @@
 
 
 # 配置开发环境
-`Scala`是基于`JVM`的编程语言，配置Scala开发环境前需要正确安装与配置`JDK`。
+Scala是基于`JVM`的编程语言，配置Scala开发环境前需要正确安装与配置`JDK`。
 
 - **Linux/Unix**系统：
 
@@ -143,7 +143,7 @@
 
 - `Vim`
 
-	Vim默认不支持`Scala`语言，需要安装`vim-scala`插件提供`Scala`支持。  
+	Vim默认不支持Scala语言，需要安装`vim-scala`插件提供Scala支持。
 	使用**Vundle**安装此插件，在配置文件`.vimrc`中添加：
 
 	```vim
@@ -156,7 +156,7 @@
 
 - `IDEA`
 
-	安装JetBrains官方提供的`Scala`插件。
+	安装JetBrains官方提供的Scala插件。
 
 ## 编译器
 与编译Java代码类似，编译Scala代码使用`scalac`命令：
@@ -165,8 +165,7 @@
 $ scalac *.scala
 ```
 
-编译后即可得到字节码文件`*.class`。  
-执行字节码可以使用`scala`指令：
+编译后即可得到字节码文件`*.class`。执行字节码可以使用Scala指令：
 
 ```
 $ scala 主类类名
@@ -187,34 +186,34 @@ $ scala 包路径.主类名
 $ scalap *.class
 ```
 
-或者
+或者：
 
 ```
-$ scalap 类名
+$ scalap [类名]
 ```
 
 如果需要查看字节码的对应生成的Java代码，可以使用`javap`工具：
 
 ```
-$ javap 类名
+$ javap [类名]
 ```
 
 使用`javap`可以直接查看生成的字节码：
 
 ```
-$ javap -c 类名
+$ javap -c [类名]
 ```
 
-默认情况下，通过反编译得到的Scala以及Java代码只能看到公有方法的声明，方法实现以及私有、保护成员均**不可见**。  
+默认情况下，通过反编译得到的Scala以及Java代码只能看到公有方法的声明，方法实现以及私有、保护成员均**不可见**。
 查看所有成员需要添加`-p/-private`参数：
 
 ```
-$ javap -private 类名
-$ scalap -private 类名
+$ javap -private [类名]
+$ scalap -private [类名]
 ```
 
 ## Scala REPL
-在命令行中输入无参数的`scala`指令即可进入交互式的`Scala REPL`。  
+在命令行中输入无参数的Scala指令即可进入交互式的`Scala REPL`。
 常用的`Scala REPL`指令：
 
 ```scala
@@ -236,8 +235,8 @@ object Main {
 }
 ```
 
-与`Java`类似，`Scala`也是从主方法`main`中开始执行整个程序。  
-`Scala`中的`main`方法并不定义在类中，而是定义在**单例对象**中(使用`object`关键字创建单例对象)。  
+与Java类似，Scala也是从主方法`main`中开始执行整个程序。
+Scala中的`main`方法并不定义在类中，而是定义在**单例对象**中(使用`object`关键字创建单例对象)。
 将`main`方法写在`class`中能够通过编译，但生成的字节码文件在执行时会出错。
 
 可以不手动定义`main`方法而让单例对象继承`App`特质，即可直接执行代码语句，例如：
@@ -260,7 +259,7 @@ def methodName(args: Type)：Type = {
 ```
 
 ## 方法返回值
-大部分情况下，对于拥有返回值的方法，方法的返回值类型可**省略**，如下所示：
+大部分情况下，对于拥有返回值的方法，方法的返回值类型可**省略**：
 
 ```scala
 def methodName(args: Type) = {
@@ -276,7 +275,9 @@ def methodName(args: Type) = {
 def methodName(args: Type) = /* function_body */
 ```
 
-大部分情况下，方法体**不需要**显式使用`return`关键字来给出方法返回值，编译器会将方法体内部最后一句代码的返回值类型做为整个函数的返回值，如下所示：
+大部分情况下，方法体**不需要**显式使用`return`关键字来给出方法返回值，
+编译器会将方法体内部最后一句代码的返回值类型做为整个函数的返回值。
+如下所示：
 
 ```scala
 def num = {
@@ -284,7 +285,7 @@ def num = {
 }
 ```
 
-在方法具有多个返回点或需要提前返回时，需要显式使用`return`表示方法结束，如下所示：
+在方法具有多个返回点或需要提前返回时，需要显式使用`return`表示方法结束：
 
 ```scala
 // 不使用 return 时，方法永远返回 50
@@ -301,7 +302,7 @@ def num(num: Int): Int = {
 
 - 在显式指定方法返回类型的情况下，方法体前的等号必须写出，即使返回类型为代表无返回值的`Unit`类型。
 - 若方法无返回值且未写出返回类型，方法体前的等号可以省略。
- 
+
 方法和函数的形参**不需要**也**不能**使用`val`、`var`关键字修饰，只需写明类型即可。
 
 ## 空参数方法与无参数方法
@@ -366,7 +367,7 @@ scala> func(300)
 - `C++`中的参数默认值可以是成员变量、全局变量，但不能是函数结果。
 - `C++`中使用非静态成员变量做为参数默认值时，类实例必须设定默认值在之前创建，不能在设定默认值的表达式中创建实例获取成员变量。
 
-在`Scala`中方法的参数默认值可以是变量，类内字段，甚至是另一个方法的返回结果。  
+在Scala中方法的参数默认值可以是变量，类内字段，甚至是另一个方法的返回结果。
 如下所示：
 
 ```scala
@@ -389,8 +390,8 @@ object Main extends App {
 
 - 默认参数与方法重载
 
-	在Scala中，若一个带有默认的参数的方法省略默认参数时签名与一个已经存在的方法相同，编译器并不会报错(C++编译器则会报错)。  
-	在调用方法时优先使用**无默认值**的版本(处理逻辑类似于C#)：
+	在Scala中，若一个带有默认的参数的方法省略默认参数时签名与一个已经存在的方法相同，
+	编译器并不会报错(C++编译器则会报错)。在调用方法时优先使用**无默认值**的版本(处理逻辑类似于C#)：
 
 	```scala
 	object Main extends App {
@@ -408,7 +409,7 @@ object Main extends App {
 
 - 具名参数
 
-	在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为**具名参数**。  
+	在Scala中，调用方法时可以在参数表中写明参数的名称，该特性被称为**具名参数**。
 	对于方法中包含多个同类型并带有默认值参数的情况下，使用该特性可以显式指定要传入的是哪一个参数：
 
 	```scala
@@ -510,7 +511,7 @@ class Test
 ```
 
 ## Function Compose (函数组合)
-在Scala中，函数允许进行组合。  
+在Scala中，函数允许进行组合。
 函数组合有两种方式：
 
 1. `a compose b`实际调用次序为`a(b())`。
@@ -543,7 +544,7 @@ true
 ## Partial Function (偏函数)
 偏函数是一个定义域有限的函数，偏函数类似数学意义上的函数，只能接收**一个**参数，只对**有限**的输入值返回结果。
 
-在Scala中使用类型`PartialFunction[-A, +B]`来表示偏函数。  
+在Scala中使用类型`PartialFunction[-A, +B]`来表示偏函数。
 `PartialFunction[-A, +B]`继承于`A => B`类型，即偏函数具有普通函数的功能，是普通函数的一类特例。
 
 可以使用**模式匹配**中的`case`语法来定义有限定义域的偏函数，一个最简单的偏函数如下所示：
@@ -624,7 +625,7 @@ res10: Int = 0
 
 函数`func1()`对于`0`没有定义，而函数`func()`对于`0`有定义，则在参数取`0`时调用`func()`函数的返回值。
 
-使用`case`语法编写的代码块为`Anonymous Function`(匿名函数)，在上下文语义不明确的情况下，需要显式指定类型。  
+使用`case`语法编写的代码块为`Anonymous Function`(匿名函数)，在上下文语义不明确的情况下，需要显式指定类型。
 如下所示：
 
 ```scala
@@ -639,7 +640,7 @@ Expected type was: ?
 `case`函数语法还可以用在高阶函数中。
 
 ## Partial Applied Function (部分应用函数)
-部分应用函数是逻辑上的概念，表示一个已经指定了部分参数的函数。  
+部分应用函数是逻辑上的概念，表示一个已经指定了部分参数的函数。
 将一个拥有多个参数的函数指定部分参数的值构成一个参数较少的新函数，新的函数即为**部分应用函数**。
 
 Python中的偏函数与Scala中的偏函数是完全不同的概念，Python中偏函数的概念类似于Scala中的部分应用函数。
@@ -666,8 +667,8 @@ res11: Int = 200
 
 
 # 块表达式
-在`Scala`中，花括号`{ }`中可以包含一个或多个语句序列，称为**块表达式**。
-块表达式的**最后一条语句**会做为块表达式的结果。如下所示：
+在Scala中，花括号`{ }`中可以包含一个或多个语句序列，称为**块表达式**。
+块表达式的**最后一条语句**会做为块表达式的结果：
 
 ```scala
 scala> { println("Block Expr!"); 23333 }
@@ -675,7 +676,7 @@ Block Expr!
 res3: Int = 23333
 ```
 
-方法、函数的参数可由对应返回类型的块表达式替代，如下所示：
+方法、函数的参数可由对应返回类型的块表达式替代：
 
 ```scala
 def test(num: Int) = println(num)
@@ -698,8 +699,7 @@ test {
 ```
 
 ## 赋值表达式
-赋值表达式的值返回值为`Unit`(无返回值)。  
-如下所示：
+赋值表达式的值返回值为`Unit`(无返回值)：
 
 ```scala
 scala> var _num = 0
@@ -718,7 +718,8 @@ required: Int
 Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程控制。
 
 ## continue
-其它语言中的`continue`功能可以通过`for`语句条件后添加`if`判断条件实现或使用**守卫**。  
+其它语言中的`continue`功能可以通过`for`语句条件后添加`if`判断条件实现或使用**守卫**。
+
 简单的例子如下所示：
 
 - `CPP`
@@ -730,15 +731,15 @@ Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程
 	}
 	```
 
-- `Scala`
+- Scala
 
 	```scala
 	for (i <- 1 to 3 if i > 2) println(i)
 	```
 
 ## break
-`break`功能可以由`scala.util.control.Breaks`类提供。  
-`Breaks`类中定义了`breakable()`和`break()`成员方法如下所示：
+`break`功能可以由`scala.util.control.Breaks`类提供。
+`Breaks`类中定义了`breakable()`和`break()`成员方法：
 
 ```scala
 def breakable(op: => Unit): Unit {
@@ -753,9 +754,10 @@ def break(): Nothing = { throw breakException }
 由代码可知，`breakable()`方法接收传名参数`op`，捕获`breakException`异常。
 `break()`方法产生`breakException`异常。
 
-将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，`op`代码块中调用`break()`产`breakException`异常被捕获，中断函数，达到跳出循环的目的。
+将需要使用break的循环代码块作为传名参数`op`传入`breakable()`方法中，
+`op`代码块中调用`break()`产`breakException`异常被捕获，中断函数，达到跳出循环的目的。
 
-使用`Breaks`，如下所示：
+使用`Breaks`：
 
 ```scala
 import scala.util.control.Breaks.{breakable, break}
@@ -778,16 +780,15 @@ object Main extends App {
 Scala是一门同时具有函数式与面向对象特性的**多重范式语言**，除了具有函数式特性外，对**OOP**也有着完整的支持。
 
 ## 访问权限
-`Scala`中没有`public`关键字，成员和类、特质的默认访问权限即为**公有**。  
-`Scala`中公有类的名称不强制要求与源码文件相同，同时一个文件中可以包含多个公有类的定义。
+Scala中没有`public`关键字，成员和类、特质的默认访问权限即为**公有**。
+Scala中公有类的名称不强制要求与源码文件相同，同时一个文件中可以包含多个公有类的定义。
 
-保护成员使用关键字`protected`，私有成员使用关键字`private`，作用大体上与`Java`相同，但在访问权限上支持**更细粒度**的划分。
+保护成员使用关键字`protected`，私有成员使用关键字`private`，作用大体上与Java相同，但在访问权限上支持**更细粒度**的划分。
 
 - **类、特质、单例对象**定义前可以使用访问权限修饰，`private`和`protected`权限的**类、单例、特质**等仅限同包内访问。
 - 顶层类允许使用`protected`权限修饰(与Java不同，Java仅允许内部类使用`protected`修饰)。
 - 访问权限关键字用于类时，还可以写在类名与主构造器之间(特质、单例对象没有这种用法)，用于指定主构造器的访问权限。
-- 访问级别关键字之后可以使用`[]`操作符设定更具体的访问区域限制。  
-	访问区域限制可以是：
+- 访问级别关键字之后可以使用`[]`操作符设定更具体的访问区域限制。访问区域限制可以是：
 	1. 当前类
 	1. 当前定义类的外部类(若存在外部类)
 	1. 当前类所属包名(包内的所有类实例可访问)
@@ -849,10 +850,10 @@ public class Test {
 生成`setter/getter`方法遵循以下规则：
 
 - `val`关键字定义的字段为**只读**字断，编译器只生成`getter`方法，不生成`setter`方法。
-- 若访问权限为`private[this]`，则编译器不会为其合成`setter`和`getter`方法，  
-	但`protected[this]`和`private`访问权限正常生成`setter/getter`方法。
-- 若定义了字段没有对其进行初始化，则该字段即为**抽象字段**。  
-	带有抽象字段的类前需要加上`abstract`关键字，且不能被直接实例化。
+- 若访问权限为`private[this]`，则编译器不会为其合成`setter`和`getter`方法，
+但`protected[this]`和`private`访问权限正常生成`setter/getter`方法。
+- 若定义了字段没有对其进行初始化，则该字段即为**抽象字段**。
+带有抽象字段的类前需要加上`abstract`关键字，且不能被直接实例化。
 - 重写抽象字段不需要使用`override`关键字。
 
 如下所示：
@@ -870,7 +871,7 @@ class Override {
   /*
     私有this字段不会合成setter/getter方法，
     但自行手动定义同名的setter/getter方法时有许多限制(getter方法需要空参且写明返回值)，
-    且没有实用价值(setter方法使用报错)	
+    且没有实用价值(setter方法使用报错)
   */
   private[this] var num = 100
   def num(): Int = num //正常
@@ -896,7 +897,7 @@ class Override {
 
 在Scala中，字段名称可以与方法名称**相同**。
 
-- 默认情况下，生成的`setter/getter`方法就与字段同名。  
+- 默认情况下，生成的`setter/getter`方法就与字段同名。
 	手动在代码中创建与`setter/getter`签名相同的方法会导致编译错误。
 - 访问权限为`private[this]`的字段可以手动定义该字段的`setter/getter`方法(编译器不自动合成)。
 - 在实际编码过程中，虽然给`private[this]`的字段定义同名的`setter`、`getter`方法不会报错，但调用过程中会提示错误(如上例子中给num字段赋值会得到错误`reassignment to val`，因此不要手动给字段定义同名的`setter`、`getter`方法)。
@@ -904,7 +905,7 @@ class Override {
 此外，由于字段名称可以与方法名称相同，因而即使编译器生成了`setter`、`getter`方法，编码者依然可以使用字段名称定义其它签名的重载函数。
 
 ## Constructor (构造器)
-在Scala中构造方法的作用与Java类似，用于在创建类实例的同时对指定的成员进行初始化。  
+在Scala中构造方法的作用与Java类似，用于在创建类实例的同时对指定的成员进行初始化。
 Scala中类可以拥有一个**主构造器(primary constructor)**和任意个**辅助构造器(auxiliary constructor)**。
 
 构造器的基本使用方法：
@@ -935,11 +936,8 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 - 主构造器作用域
 
-	在`Scala`中，主构造器的实际范围为整个类内作用域。  
-	即在类作用域内，可以直接在类内添加普通代码语句。  
-	类内的普通代码语句即为构造方法的内容，在类实例构造时即被调用。
-
-	如下所示：
+	在Scala中，主构造器的实际范围为整个类内作用域。即在类作用域内，可以直接在类内添加普通代码语句。
+	类内的普通代码语句即为构造方法的内容，在类实例构造时即被调用：
 
 	```scala
 	class Test(str: String) {
@@ -949,7 +947,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 	类体中直接包含了普通的语句代码，而非成员定义。
 
-	在类内作用域中直接添加普通代码时，需要考虑变量初始化顺序，如下所示：
+	在类内作用域中直接添加普通代码时，需要考虑变量初始化顺序：
 
 	```scala
 	class Test0 {
@@ -975,12 +973,12 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	abc
 	```
 
-	类作用域中的普通语句可以直接引用类内定义的成员字段(即使成员字段定义在语句之后)。  
+	类作用域中的普通语句可以直接引用类内定义的成员字段(即使成员字段定义在语句之后)。
 	但若成员字段的定义语句在执行语句之后，则成员字段在被引用时**未初始化**。
 
 - 主构造器访问权限
 
-	在**类名**之后，**主构造器参数**之前可以添加访问权限修饰符，用于限定主构造器的访问权限。  
+	在**类名**之后，**主构造器参数**之前可以添加访问权限修饰符，用于限定主构造器的访问权限。
 	如下所示：
 
 	```scala
@@ -1002,8 +1000,9 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 - 主构造器参数做为成员字段
 
-	主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。  
-	构造器参数前使用`var`关键字，如下所示：
+	主构造器的参数中若添加了`var/val`关键字，则该参数将作为类的成员字段存在。
+
+	构造器参数前使用`var`关键字：
 
 	```scala
 	class Constructor(var num: Int)
@@ -1020,9 +1019,9 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	}
 	```
 
-	可以看到，编译器为`var`字段`num`生成了`setter`、`getter`方法和一个与字段同名的私有变量。
+	可知编译器为`var`字段`num`生成了`setter`、`getter`方法和一个与字段同名的私有变量。
 
-	构造器参数前使用`val`关键字，如下所示：
+	构造器参数前使用`val`关键字：
 
 	```scala
 	class Constructor(val num: Int)
@@ -1038,9 +1037,12 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	}
 	```
 
-	可以看到，编译器为`val`字段`num`生成了`getter`方法和一个与字段同名的`final`私有变量。
+	可知编译器为`val`字段`num`生成了`getter`方法和一个与字段同名的`final`私有变量。
 
-	构造器参数前加上**访问权限修饰符**则生成的方法类似，但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)，如下所示：
+	构造器参数前加上**访问权限修饰符**则生成的方法类似，
+	但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)。
+
+	如下所示：
 
 	```scala
 	class Constructor0(protected[this] var num: Int)
@@ -1067,7 +1069,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 - 主构造器参数的默认字段生成规则
 
-	主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。  
+	主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。
 	编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
 
 	如下所示：
@@ -1090,7 +1092,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 	编译得到的Java代码完全相同。
 
-	当该参数被其它成员方法引用时，编译器会为其生成对应的`final`私有成员变量(但没有生成`setter/getter`)。  
+	当该参数被其它成员方法引用时，编译器会为其生成对应的`final`私有成员变量(但没有生成`setter/getter`)。
 	只要构造器参数没有使用`var`关键字标记，则生成的成员变量就带有`final`属性。
 
 	如下所示：
@@ -1152,7 +1154,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	new Empty //空参方法括号可省略
 	```
 
-	与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。  
+	与主流的OOP语言不同，一个使用默认生成的空参构造函数的作为主构造器的类即使定义了其它构造器，默认生成的主构造器**依然存在**。
 	如下所示：
 
 	```scala
@@ -1172,7 +1174,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 	可以看到，默认的空参构造方法依然存在。
 
-	主构造器不能在类体中重新定义，如下所示：
+	主构造器不能在类体中重新定义：
 
 	```scala
 	class Default {
@@ -1186,8 +1188,9 @@ Scala作为OOP语言，支持多态。
 
 - 重写
 
-	子类重写父类的非抽象方法、字段时，需要显式地在方法定义前加上`override`关键字，否则无法通过编译。  
-	实现抽象方法则不需要。  
+	子类重写父类的非抽象方法、字段时，需要显式地在方法定义前加上`override`关键字，否则无法通过编译。
+	实现抽象方法则不需要。
+
 	重写遵循以下规则：
 
 	- `def`只能重写另一个`def`。
@@ -1196,14 +1199,14 @@ Scala作为OOP语言，支持多态。
 
 - 重载
 
-	`Scala`支持方法重载，签名不同名称相同的方法可以共存。  
-	`Scala`可以使用**操作符**作为方法名称，可以实现类似**C++/C#**中**操作符重载**的效果。
+	Scala支持方法重载，签名不同名称相同的方法可以共存。
+	Scala可以使用**操作符**作为方法名称，可以实现类似**C++/C#**中**操作符重载**的效果。
 
 ## 复制类实例
 Scala与Java类似，类实例赋值仅仅是复制了一个引用，实例所指向的内存区域并未被复制。
 
-若需要真正复制一个对象，需要调用对象的`clone()`方法。  
-`clone()`方法定义在`Object`类中，但由于是`protected`成员，不可直接调用，若需要自行实现类的复制功能，则需要实现`Cloneable`接口。
+若需要真正复制一个对象，需要调用对象的`clone()`方法。`clone()`方法定义在`Object`类中，
+但由于是`protected`成员，不可直接调用，若需要自行实现类的复制功能，则需要实现`Cloneable`接口。
 
 如下所示：
 
@@ -1220,8 +1223,8 @@ class Clone extends Cloneable {
 }
 ```
 
-与Java中类似，如果需要实现**深复制**，则需要对类成员中的`AnyRef`及其子类调用`clone()`进行复制。  
-对于`AnyVal`子类如`Int`、`Double`等类型，没有提供重载的`clone()`方法，但这些类型默认即为值复制，无需额外的操作。  
+与Java中类似，如果需要实现**深复制**，则需要对类成员中的`AnyRef`及其子类调用`clone()`进行复制。
+对于`AnyVal`子类如`Int`、`Double`等类型，没有提供重载的`clone()`方法，但这些类型默认即为值复制，无需额外的操作。
 Java中的特例`java.lang.String`在Scala中同样有效，对于`String`类型，在重写`clone()`时也可当作基本类型对待。
 
 在Scala中，还可以直接继承`scala.collection.mutable.Cloneable[T]`特质：
@@ -1288,7 +1291,7 @@ Num 100
 
 
 # Singleton Objects (单例对象)
-使用`object`关键字定义单例对象。  
+使用`object`关键字定义单例对象。
 单例对象是一个实例，可以在单例对象内部定义常见的内容，如字段、方法等：
 
 ```scala
@@ -1327,8 +1330,8 @@ scala> Test.showTrait()
 Show Trait
 ```
 
-单例对象的类型使用`单例名称.type`表示单例自身的类型。  
-继承了类、混入了特质的单例的单例类型能够正常通过继承关系的判定。  
+单例对象的类型使用`单例名称.type`表示单例自身的类型。
+继承了类、混入了特质的单例的单例类型能够正常通过继承关系的判定。
 如下所示：
 
 ```scala
@@ -1346,10 +1349,10 @@ res3: Boolean = true
 ```
 
 ## 初始化
-单例对象默认即带有延迟初始化的特性。  
+单例对象默认即带有延迟初始化的特性。
 单例在定义时并未初始化，初始化行为发生在单例首次被访问时。
 
-若在单例构造器中添加带有副作用的语句，则副作用会在首次访问单例时出现。  
+若在单例构造器中添加带有副作用的语句，则副作用会在首次访问单例时出现。
 如下所示：
 
 ```scala
@@ -1365,24 +1368,24 @@ res1: Test.type = Test$@16ea0f22
 ```
 
 ## Companions (伴生对象)
-`Companions`(伴生对象)是一类特殊的单例对象。  
+`Companions`(伴生对象)是一类特殊的单例对象。
 每一个类可以拥有一个同名的**伴生对象**(单例)，伴生对象具有以下特征/限制：
 
 - 一个类和其伴生对象的定义必须写在同一个文件中。
 - 伴生对象与同名类之间可以相互访问私有、保护成员。
 
 Scala相比Java是更加纯粹的面向对象语言，Scala中没有`static`关键字和**静态成员**的概念，
-Scala使用**伴生对象**来达到近似静态成员的作用。  
+Scala使用**伴生对象**来达到近似静态成员的作用。
 对于Java代码中定义的静态字段、静态方法，在Scala中也以单例对象的语法进行访问。
 
 
 
 # Trait (特质)
-Scala中的`trait`特质对应Java中的`interface`接口。  
+Scala中的`trait`特质对应Java中的`interface`接口。
 相比Java中的接口，Scala中的特质除了不能自定义有参构造器、不能被直接实例化之外，拥有绝大部分类的特性。
 
-`trait`内可以添加普通代码语句(默认构造器)、定义成员变量以及成员方法。  
-`trait`内的成员方法可以为抽象方法，也可以带有方法的实现。  
+`trait`内可以添加普通代码语句(默认构造器)、定义成员变量以及成员方法。
+`trait`内的成员方法可以为抽象方法，也可以带有方法的实现。
 `trait`中的成员同样可以设置访问权限。
 
 ## Mixin (混入)
@@ -1416,11 +1419,11 @@ class TestExtend extends TraitA with TraitB
 class ExtendClass extends TraitA with BaseA
 ```
 
-`TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。  
+`TestExtend`类中，特质`TraitA`的父类`BaseA`并不是特质`TraitB`父类`BaseB`的父类，而Scala中一个类只能拥有一个父类，因而无法通过编译。
 `ExtendClass`类中，应该继承`BaseA`后混入特质`TraitA`，`with`关键字之后的必需是特质而不能是类名。
 
 ## 重写冲突方法/字段
-混入机制需要解决**富接口**带来的成员冲突问题。  
+混入机制需要解决**富接口**带来的成员冲突问题。
 当一个类的父类与后续混入的特质中带有相同名称的字段或相同签名的方法时，需要在子类重写这些冲突的内容，否则无法通过编译。
 
 如下所示：
@@ -1448,7 +1451,7 @@ class TestExtend extends BaseA with TraitA with TraitB {
 
 1. 按继承树依次从最外层的父类开始构造。
 1. 按照特质出现的顺序从左往右依次构造特质。
-1. 在一个特质中，若该特质存在父特质，则先构造父特质。  
+1. 在一个特质中，若该特质存在父特质，则先构造父特质。
 	若多个特质拥有相同的父特质，该父特质不会被重复构造。
 1. 最后构造当前类。
 
@@ -1494,8 +1497,8 @@ Now
 ```
 
 ## 线性化与 super 关键字
-`Scala`的混入机制是**线性化**的，对于冲突的内容，构造中的后一个实现会顶替前一个。  
-线性化顺序与构造顺序**相反**，对于同名字段的内容，最终保留的是最右端的类或特质的实现。  
+Scala的混入机制是**线性化**的，对于冲突的内容，构造中的后一个实现会顶替前一个。
+线性化顺序与构造顺序**相反**，对于同名字段的内容，最终保留的是最右端的类或特质的实现。
 如下所示：
 
 ```scala
@@ -1521,8 +1524,8 @@ class TestExtend extends BaseA with TraitA with TraitC {
 }
 ```
 
-使用`super`关键字可调用父类、父特质中混入的方法实现，具体调用的实现内容由线性化顺序决定。  
-亦可使用`super[T].xxx`语法显式指定使用某个父类/父特质中的实现。  
+使用`super`关键字可调用父类、父特质中混入的方法实现，具体调用的实现内容由线性化顺序决定。
+亦可使用`super[T].xxx`语法显式指定使用某个父类/父特质中的实现。
 super关键字具有以下限制：
 
 - 仅能引用直接混入的类或特质的方法，不能使用继承层级中更远的类或特质
@@ -1531,19 +1534,19 @@ super关键字具有以下限制：
 	class BaseA {
 	  def get = 123
 	}
-	
+
 	trait TraitA {
 	  def get = 456
 	}
-	
+
 	trait TraitB {
 	  def get = 789
 	}
-	
+
 	trait TraitC extends TraitB {
 	  override def get = 111
 	}
-	
+
 	class TestExtend extends BaseA with TraitA with TraitC {
 
 	  override def get = super[BaseA].get //正确，显式使用父类BaseA中的实现，即返回123
@@ -1571,7 +1574,7 @@ super关键字具有以下限制：
 	```
 
 ## 线性化与 override 关键字
-在重写抽象字段时，是否使用`override`关键字在混入时行为存在差异。  
+在重写抽象字段时，是否使用`override`关键字在混入时行为存在差异。
 如下所示：
 
 ```scala
@@ -1594,7 +1597,7 @@ object Main extends App {
 
 混入两个重写了同一个抽象方法/字段的特质时，若未使用`override`关键字，则混入时编译出错，需要显式重写冲突内容。
 
-若特质使用了`override`关键字进行重写，则混入时依据线性化顺序决定最终的实现(保留最后混入的实现)。  
+若特质使用了`override`关键字进行重写，则混入时依据线性化顺序决定最终的实现(保留最后混入的实现)。
 如下所示：
 
 ```scala
@@ -1617,7 +1620,7 @@ object Main extends App {
 ```
 
 混入多个存在冲突内容的特质时，不需要所有的特质都使用`override`关键字进行重写，
-仅需要最后一个混入的特质使用`override`重写冲突内容。  
+仅需要最后一个混入的特质使用`override`重写冲突内容。
 如下所示：
 
 ```scala
@@ -1640,8 +1643,7 @@ object Main extends App {
 ```
 
 ## 线性化与类型关系
-在混入带有冲突内容的特质时，冲突内容的类型不能为完全无关的类型。  
-如下所示：
+在混入带有冲突内容的特质时，冲突内容的类型不能为完全无关的类型，如下所示：
 
 ```scala
 scala> class A
@@ -1663,9 +1665,8 @@ scala> trait TestMixin extends TraitA with TraitB
              ^
 ```
 
-混入冲突内容时，冲突内容的类型可以不完全相同，但需要满足继承关系，同时子类位于线性化顺序的**最右端**，
-即满足`最右端类型 <: 冲突字段类型链中最具体的类型`。  
-如下所示：
+混入同名字段时，同名字段的类型可以不完全相同，但需要满足继承关系，同时子类位于线性化顺序的**最右端**，
+即满足`最右端类型 <: 同名字段类型链中最具体的类型`，如下所示：
 
 ```scala
 scala> class Base
@@ -1684,7 +1685,7 @@ scala> trait TestMixin extends TraitA with TraitB
 defined trait TestMixin
 ```
 
-线性化过程中，冲突字段使用更具体的子类类型取代了父类类型。  
+线性化过程中，同名字段`t`使用更具体的子类类型取代了父类类型。
 调整混入顺序，则出现类型不兼容的提示：
 
 ```scala
@@ -1695,19 +1696,17 @@ scala> trait TestMixin extends TraitB with TraitA
              ^
 ```
 
-线性化的最右端需要为更**具体**的类型，但混入顺序中间的冲突字段不必都比前一个冲突字段更具体
-(中间字段类型仅需存在父子类关系即可，可为基类)。  
-如下所示：
+线性化的最右端需要为更**具体**的类型，但混入顺序中间的同名字段不必都比前一个同名字段更具体
+(中间字段类型仅需存在父子类关系即可，可为基类)，如下所示：
 
 ```scala
 scala> trait TestMixin extends TraitB with TraitA { val t: Child }
-defined trait TestMixin //冲突字段的混入类型链为 Child => Base => Child
+defined trait TestMixin //同名字段的混入类型链为 Child => Base => Child
 ```
 
 ## 线性化与泛型
-当混入特质带有冲突内容类型为泛型参数时，只要泛型参数满足继承类型约束，并保证子类位于线性化顺序的最右端，
-同样可以正常进行类型定义。  
-如下所示：
+当混入特质带有同名字段类型为泛型参数时，只要泛型参数满足继承类型约束，并保证子类位于线性化顺序的最右端，
+同样可以正常进行类型定义，如下所示：
 
 ```scala
 scala> trait Test
@@ -1723,7 +1722,7 @@ scala> trait TestMixin[T <: Test] extends TraitA with TraitB[T]
 defined trait TestMixin //使用类型下界
 
 scala> trait TestMixin[T <: Test] extends TraitB[T] with TraitA { val t: T }
-defined trait TestMixin //冲突字段的混入类型链为 T => Test => T
+defined trait TestMixin //同名字段的混入类型链为 T => Test => T
 
 scala> trait TraitC[T >: Test] { val t: T }
 defined trait TraitC
@@ -1732,13 +1731,13 @@ scala> trait TestMixin[T >: Test] extends TraitC[T] with TraitA
 defined trait TestMixin //使用类型上界
 
 scala> trait TestMixin[T >: Test] extends TraitA with TraitC[T] { val t: Test }
-defined trait TestMixin //冲突字段的混入类型链为 Test => T => Test
+defined trait TestMixin //同名字段的混入类型链为 Test => T => Test
 ```
 
 
 
 # Case Class (样例类)
-样例类是一种特殊的类，通常用在**模式匹配**中。  
+样例类是一种特殊的类，通常用在**模式匹配**中。
 在类定义前使用`case`关键字即可定义一个样例类。
 
 相比普通的类，样例类有以下特性：
@@ -1800,8 +1799,8 @@ Not Matching
 ```
 
 ## 避免重定义样例类自动生成的方法
-手动创建样例类的伴生对象时，应避免定义与样例类自动生成方法签名相同的方法(`apply()/unapply()`等)，否则编译报错。  
-如下所示：
+手动创建样例类的伴生对象时，应避免定义与样例类自动生成方法签名相同的方法(`apply()/unapply()`等)
+，否则编译报错，如下所示：
 
 ```scala
 object Main extends App {
@@ -1829,8 +1828,7 @@ error: method unapply is defined twice;
              ^
 ```
 
-若伴生对象中的自定义方法与默认生成的方法签名不同，则正常编译。  
-如下所示：
+若伴生对象中的自定义方法与默认生成的方法签名不同，则正常编译，如下所示：
 
 ```scala
 object Main extends App {
@@ -1851,15 +1849,15 @@ object Main extends App {
 在Scala中，所有的类型**皆为对象**，所有类型都从根类`Any`继承，`Any`有`AnyVal`和`AnyRef`两个子类。
 
 ## 值类型
-基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生。  
-可以直接在泛型中直接使用这些类作为类型参数。  
-同时，`Scala`中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
+基础类型如`Int`、`Float`、`Double`、`Unit`等全部从`AnyVal`类中派生。
+可以直接在泛型中直接使用这些类作为类型参数。
+同时，Scala中提供了`隐式转换(ImplicitConversion)`来保证`Int`、`Float`、`Double`等类型之间可以**自动进行转换**。
 
 所有的基础类型之外的引用类型派生自类`AnyRef`。
 
 - 基础类型转换
 
-	基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行。  
+	基础类型与字符串(String)等类型之间的转换也由类提供的成员函数进行。
 	将数值与字符串相互转换，如下所示：
 
 	```scala
@@ -1868,11 +1866,11 @@ object Main extends App {
 	```
 
 ## Bottom (底类型)
-`Scala`中存在底类型(`Bottom Type`)。底类型包括`Nothing`和`Null`。
+Scala中存在底类型(`Bottom Type`)。底类型包括`Nothing`和`Null`。
 
 - `Nothing`
 
-	`Nothing`是所有类型的子类型，定义为`final trait Nothing extends Any`。  
+	`Nothing`是所有类型的子类型，定义为`final trait Nothing extends Any`。
 	`Nothing`特质没有实例。
 
 	一些特殊的操作返回类型为`Nothing`，如抛出异常：
@@ -1881,8 +1879,8 @@ object Main extends App {
 	scala> def e = throw new Exception
 	e: Nothing
 	```
-	
-	`Nothing`做为返回类型能协助更精确地进行类型推导。  
+
+	`Nothing`做为返回类型能协助更精确地进行类型推导。
 	例如，在`if`语句中抛出异常：
 
 	```scala
@@ -1894,8 +1892,8 @@ object Main extends App {
 
 - `Null`
 
-	`Null`是所有引用类型`AnyRef`的子类型。  
-	`Null`特质拥有唯一实例`null`(类似于`Java`中`null`的作用)。
+	`Null`是所有引用类型`AnyRef`的子类型。
+	`Null`特质拥有唯一实例`null`(类似于Java中`null`的作用)。
 
 ## Option (可空类型)
 `Option[T]`表示可空类型，`Option[T]`包含两个子类：
@@ -1905,7 +1903,7 @@ object Main extends App {
 
 `Optionp[T]`类型的伴生对象中提供了`apply()`方法用于构建实例：
 
-- 任意的非`null`值会得到`Some[T]`返回值。  
+- 任意的非`null`值会得到`Some[T]`返回值。
 - `null`值会得到`None`返回值。
 
 如下所示：
@@ -1938,8 +1936,8 @@ sealed abstract class Option[+A] extends Product with Serializable {
 }
 ```
 
-使用`get`方法获取值，目标值不存在时会触发异常。  
-使用`getOrElse()`方法获取值，参数中需要传入备用的默认值，目标值不存在时将使用默认值做为返回结果。  
+使用`get`方法获取值，目标值不存在时会触发异常。
+使用`getOrElse()`方法获取值，参数中需要传入备用的默认值，目标值不存在时将使用默认值做为返回结果。
 如下所示：
 
 ```scala
@@ -1965,8 +1963,8 @@ scala> Option(123) foreach println
 scala> Option(null) foreach println  //无值时无输出
 ```
 
-`map()`高阶函数用于将目标值映射到新的`Option`中。  
-`fold()`高阶函数用于使用目标值执行表达式并输出返回结果，在目标值不存在时使用提供的值做为返回结果，提供的值需要与表达式返回结果类型相同。  
+`map()`高阶函数用于将目标值映射到新的`Option`中。
+`fold()`高阶函数用于使用目标值执行表达式并输出返回结果，在目标值不存在时使用提供的值做为返回结果，提供的值需要与表达式返回结果类型相同。
 如下所示：
 
 ```scala
@@ -1983,8 +1981,7 @@ scala> Option.empty[String].fold(0)(_.length)
 res9: Int = 0 //目标值不存在时使用提供的值做为返回结果
 ```
 
-可空类型也可以用于**模式匹配**中。  
-如下所示：
+可空类型也可以用于**模式匹配**中，如下所示：
 
 ```scala
 object TestOption extends App {
@@ -2007,8 +2004,8 @@ No Value
 
 
 # Pattern Matching (模式匹配)
-**模式匹配**是`Scala`的核心功能之一。  
-`Scala`的**模式匹配**提供了诸多强大的特性，主要功能如下：
+**模式匹配**是Scala的核心功能之一。
+Scala的**模式匹配**提供了诸多强大的特性，主要功能如下：
 
 - 跳转表(类似与主流语言中的`switch`语句)
 - 类型匹配
@@ -2018,7 +2015,7 @@ No Value
 ## 简单匹配
 **模式匹配**能够提供与其他语言中`switch`语句类似的简单匹配功能。
 
-使用`match`关键字开始一个模式匹配语句。  
+使用`match`关键字开始一个模式匹配语句。
 使用`case`关键字添加一个匹配值。
 
 基本语法如下所示：
@@ -2032,11 +2029,11 @@ No Value
 }
 ```
 
-`Scala`中的`match`语句具有返回值，可为变量赋值。  
-`Scala`中没有`break`关键字，`match`语句中的`case`条件不会被穿越。  
+Scala中的`match`语句具有返回值，可为变量赋值。
+Scala中没有`break`关键字，`match`语句中的`case`条件不会被穿越。
 某些需要穿越`case`条件的情形，应使用`|`操作符连接多个条件。
 
-每个`case`条件语句可以使用`@`操作符绑定一个变量名。  
+每个`case`条件语句可以使用`@`操作符绑定一个变量名。
 每个`case`条件之后可以添加**守卫**(`if 条件语句...`)，用于添加额外的匹配条件。
 
 如下所示：
@@ -2097,7 +2094,7 @@ str4 return -1
 ## 类型匹配
 **模式匹配**可用于匹配对象的实际类型。
 
-对于以基类传入的对象实例，使用模式匹配可以匹配其真实类型。  
+对于以基类传入的对象实例，使用模式匹配可以匹配其真实类型。
 如下所示：
 
 ```scala
@@ -2139,8 +2136,7 @@ Other language: Java
 No match!
 ```
 
-当模式匹配匹配泛型类型时，由于`JVM`采用`Type Erasure`的方式实现泛型，因而泛型类型的泛型参数无法准确匹配。  
-如下所示：
+当模式匹配匹配泛型类型时，由于`JVM`采用`Type Erasure`的方式实现泛型，因而泛型类型的泛型参数无法准确匹配，如下所示：
 
 ```scala
 object Main extends App {
@@ -2162,13 +2158,12 @@ object Main extends App {
 Match type: List[String]
 ```
 
-由输出结果可知，模式匹配并未正确匹配类型的泛型参数。  
-对于此类情况，`Scala`编译器在编译时会对代码做出警告。
+由输出结果可知，模式匹配并未正确匹配类型的泛型参数。对于此类情况，Scala编译器在编译时会对代码做出警告。
 
 ## 解构
 **模式匹配**可用于解构任意定义了`unapply()`方法的类型。
 
-常见的数据结构如**元组**、`List[T]`等均支持解构操作。  
+常见的数据结构如**元组**、`List[T]`等均支持解构操作。<br>
 解构元组、`List[T]`：
 
 ```scala
@@ -2191,7 +2186,7 @@ scala.MatchError: (1,2,3) (of class scala.Tuple3) //元组数目不匹配，出�
   ... 27 elided
 ```
 
-亦可使用`Case Class`(样例类)特性定义为模式匹配优化的类，样例类会自动生成用于解构的`unapply()`方法。  
+亦可使用`Case Class`(样例类)特性定义为模式匹配优化的类，样例类会自动生成用于解构的`unapply()`方法。<br>
 解构样例类：
 
 ```scala
@@ -2215,8 +2210,7 @@ scala> destruct(Manager("Dainslef", 2333))
 Manager name: Dainslef, right: 2333
 ```
 
-解构类型时，亦可使用**值匹配**(多个候选值同样使用`|`操作符连接)，还可使用`@`操作符指代匹配表达式/子表达式。  
-如下所示：
+解构类型时，亦可使用**值匹配**(多个候选值同样使用`|`操作符连接)，还可使用`@`操作符指代匹配表达式/子表达式，如下所示：
 
 ```scala
 scala> def destruct(obj: Any) = obj match {
@@ -2230,6 +2224,7 @@ destruct: (obj: Any)String
 
 # apply() 与 update()
 `apply()/update()`方法是Scala中的**语法糖**。
+
 假设有一个**实例**`instance`，使用：
 
 ```scala
@@ -2298,9 +2293,7 @@ object Apply {
 ```
 
 ## 无参 apply 方法
-`apply()`方法对应的无参数形式`apply`方法在通常情形下并不生效，
-字段、类会被优先解析为本身的含义(值、类型)。  
-如下所示：
+`apply()`方法对应的无参数形式`apply`方法在通常情形下并不生效，字段、类会被优先解析为本身的含义(值、类型)，如下所示：
 
 ```scala
 scala> object Test { def apply { println("Print test") } }
@@ -2324,8 +2317,7 @@ scala> t.apply //显式调用 apply 方法
 Print test
 ```
 
-在无参`apply`方法带有**泛型参数**时，可以正常使用带有泛型参数的省略形式。  
-如下所示：
+在无参`apply`方法带有**泛型参数**时，可以正常使用带有泛型参数的省略形式，如下所示：
 
 ```scala
 scala> object Test { def apply[T] { println("Print test") } }
@@ -2389,7 +2381,7 @@ class Unapply(var num1: Int, var num2: Int)
 100 200
 ```
 
-若需要提取**任意长度**的值的序列，则可以使用`unapplySeq()`方法，该方法返回值类型为`Option[Seq[T]]`。  
+若需要提取**任意长度**的值的序列，则可以使用`unapplySeq()`方法，该方法返回值类型为`Option[Seq[T]]`。
 **不要**同时定义`unapplySeq()`方法和`unapply()`方法，会产生冲突。
 
 如下所示：
@@ -2422,22 +2414,21 @@ abc cde efg
 
 
 # sealed 与 final 关键字
-`sealed`和`final`都是`Scala`语言的**关键字**。
+`sealed`和`final`都是Scala语言的**关键字**。
 
-- `final`关键字作用与`Java`中相同：
+- `final`关键字作用与Java中相同：
 
-	`final`用在类之前，表示类不可继承；  
+	`final`用在类之前，表示类不可继承；
 	`final`用在方法之前，表示方法不可被重写。
 
 - `sealed`关键字作用与`C#`中的`sealed`不同：
 
-	在Scala中，`sealed`的作用是防止继承被滥用。  
+	在Scala中，`sealed`的作用是防止继承被滥用。
 	`sealed`修饰的类其子类定义需要与该类在统一文件中。
 
 ## sealed 用于模式匹配
-使用`sealed`关键字修饰的类型用于模式匹配时，编译器会对匹配条件进行检查。  
-若匹配路径没有被完全覆盖，则会给出警告。  
-如下所示：
+使用`sealed`关键字修饰的类型用于模式匹配时，编译器会对匹配条件进行检查。
+若匹配路径没有被完全覆盖，则会给出警告：
 
 ```scala
 sealed abstract class Lang(name: String)
@@ -2464,14 +2455,12 @@ It would fail on the following input: CSharp(_)
 one warning found
 ```
 
-编译器提示**匹配可能会有遗漏**。  
-若代码中去掉基类定义前的`sealed`关键字，则编译器不再输出警告。
+编译器提示**匹配可能会有遗漏**。若代码中去掉基类定义前的`sealed`关键字，则编译器不再输出警告。
 
 
 
 # 格式化输出
-使用`print()/println()`可以打印`String`类型的文本输出。  
-复杂文本可以使用类似Java的字符串拼接方式(使用操作符`+`)。
+使用`print()/println()`可以打印`String`类型的文本输出。复杂文本可以使用类似Java的字符串拼接方式(使用操作符`+`)。
 
 - `StringLike.format()`方法。
 - `StringContext`类中的`s()`、`f()`、`raw()`等插值器方法用于以指定的方式输出字符串。
@@ -2479,8 +2468,8 @@ one warning found
 ## StringLike.format() 格式化输出
 在Scala中，字符串依然使用Java中标准的`String`类型，但通过**隐式转换**特性，`String`可以被自动构造为`StringLike`类型。
 
-`StringLike`类型提供了一系列方便强大的字符操作方法，格式化字符串可以使用其提供的`format()`方法(使用方式类似于静态方法`String.format()`，但使用方法调用者作为格式化内容而非方法的首个参数)。  
-如下所示：
+`StringLike`类型提供了一系列方便强大的字符操作方法，格式化字符串可以使用其提供的`format()`方法
+(使用方式类似于静态方法`String.format()`，但使用方法调用者作为格式化内容而非方法的首个参数)，如下所示：
 
 ```scala
 scala> "Test format str:\nString %s\nInt %d\nFloat %f\n".format("Hello World!", 666, 666.666)
@@ -2526,7 +2515,8 @@ res2: String = 1 Test 2.000000 3.0
 ## f字符串插值器
 除了`s""`字符串插值器，还有带有格式化功能的`f""`插值器。
 
-相比s插值器，f插值器可以带有格式化参数，在不使用格式化参数的情况下，f插值器作用与s插值器相同。如下所示：
+相比s插值器，f插值器可以带有格式化参数，在不使用格式化参数的情况下，f插值器作用与s插值器相同。
+如下所示：
 
 ```scala
 scala> var (a, b) = (1.0, 2.5)
@@ -2539,7 +2529,8 @@ res3: String = " 1.000    2.50000"
 ```
 
 ## raw字符串插值器
-`raw""`插值器用法与`s""`类似，但不会转义反斜杠。如下所示：
+`raw""`插值器用法与`s""`类似，但不会转义反斜杠。
+如下所示：
 
 ```scala
 scala> raw"\n\s\\b\\%''^#@ $num"
@@ -2595,10 +2586,10 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 
 
 # Enumerate (枚举)
-在`Scala`中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
+在Scala中，没有语言级别的枚举类型，枚举的功能可以通过**继承**枚举类`Enumeration`实现。
 
 ## 继承枚举类
-继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。  
+继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。
 默认的`Value`方法会按**变量名**生成**枚举名**和并自动从`0`开始生成**枚举ID**，若需要手动设定枚举名称和枚举ID则可以使用`Value`方法的重载`Value(id: Int, name: Strig)`。
 
 如下所示：
@@ -2624,7 +2615,7 @@ object Color extends Enumeration {
 
 object TestEnumeration extends App {
 
-  Color.values foreach { color => 
+  Color.values foreach { color =>
     println(s"ID: ${color.id}, Str: $color")
   }
 
@@ -2723,10 +2714,10 @@ ID: 200, Str: black
 ```
 
 ## 调用枚举类型
-继承了枚举类的单例对象名并**不能**直接用于表示枚举类型。  
+继承了枚举类的单例对象名并**不能**直接用于表示枚举类型。
 对应的枚举类型应使用对象内部定义的抽象类型`Value`来表示，即`单例对象名称.Value`。
 
-以前文中的`Color`单例对象为例，对应的枚举类型应使用`Color.Value`表示。  
+以前文中的`Color`单例对象为例，对应的枚举类型应使用`Color.Value`表示。
 将枚举做为参数传递，如下所示：
 
 ```scala
@@ -2752,10 +2743,10 @@ ID: 100, Str: white
 ```
 
 ## 限定枚举类型
-`Scala`通过使用单例继承`Enumeration`类来提供枚举功能，**枚举值**的类型实际为`单例.Value`。  
-由于`Scala`中每个实例的内部类的类型均**不相同**，需要使用**类型投影**来表示通用的枚举类型。  
-**枚举值**的类型投影为`Enumeration#Value`。  
-在泛型方法中，可以使用泛型约束`T <: Enumeration#Value`来限定泛型参数为枚举类型。  
+Scala通过使用单例继承`Enumeration`类来提供枚举功能，**枚举值**的类型实际为`单例.Value`。
+由于Scala中每个实例的内部类的类型均**不相同**，需要使用**类型投影**来表示通用的枚举类型。
+**枚举值**的类型投影为`Enumeration#Value`。
+在泛型方法中，可以使用泛型约束`T <: Enumeration#Value`来限定泛型参数为枚举类型。
 如下所示：
 
 ```scala
@@ -2782,7 +2773,7 @@ scala> testEnum(123) //使用其它类型不满足泛型约束，报错
                 ^
 ```
 
-通过构建特定的枚举基类，可以实现限定**指定类别**的枚举。  
+通过构建特定的枚举基类，可以实现限定**指定类别**的枚举。
 如下所示：
 
 ```scala
@@ -2818,25 +2809,25 @@ scala> testMyEnum(Enum.enum1) //参数为普通枚举单例的枚举值，错误
 
 
 # Package (包)
-`Scala`中的包用法基本与`Java`类似：
+Scala中的包用法基本与Java类似：
 
 - 使用`package`关键字定义包路径。
 - 使用`import`关键字导入包路径。
 
 ## 包与路径
-在`Scala`中，包路径是**逻辑概念**，源码文件**不必**按照包路径存放到对应的目录下。
+在Scala中，包路径是**逻辑概念**，源码文件**不必**按照包路径存放到对应的目录下。
 
-`Scala`中使用`_`符号表示导入该路径下的所有包和成员：
+Scala中使用`_`符号表示导入该路径下的所有包和成员：
 
 ```scala
 import java.awt._ //等价于java中的 import java.awt.*
 ```
 
-导入路径规则与`Java`中的类似，处于同一级包路径下的类可以直接使用不必导入。
+导入路径规则与Java中的类似，处于同一级包路径下的类可以直接使用不必导入。
 
 - 导入策略
 
-	在导入包时，`Scala`默认采用**相对路径**。  
+	在导入包时，Scala默认采用**相对路径**。
 	在外层路径的包使用内层路径的包时，可省略共同的路径部分直接以当前路径为起点访问内层路径包。
 
 	如下所示：
@@ -2858,9 +2849,9 @@ import java.awt._ //等价于java中的 import java.awt.*
 	}
 	```
 
-	而在`Java`中，无论包的层次关系如何，都需要通过绝对路径进行导入。
+	而在Java中，无论包的层次关系如何，都需要通过绝对路径进行导入。
 
-	上例对应`Java`版本如下所示：
+	上例对应Java版本如下所示：
 
 	```java
 	// file1
@@ -2876,20 +2867,20 @@ import java.awt._ //等价于java中的 import java.awt.*
 	import com.dainslef.Test;
 
 	public class Main {
-	
+
 		public static void main(String[] args) {
 			System.out.println(Test.class.getName());
 		}
-	
+
 	}
 	```
 
 - 默认包与绝对路径导入
 
-	在`Java`和`Scala`中，不使用`package`关键字打包的代码即位于**默认包**下，没有对应的包名。  
-	在`Scala`中使用`_root_`指代默认包。
+	在Java和Scala中，不使用`package`关键字打包的代码即位于**默认包**下，没有对应的包名。
+	在Scala中使用`_root_`指代默认包。
 
-	`Scala`中默认的`import`操作是基于相对路径的，但`Scala`同样支持以**绝对路径**进行`import`操作：
+	Scala中默认的`import`操作是基于相对路径的，但Scala同样支持以**绝对路径**进行`import`操作：
 
 	- 以`_root_`为导入起始路径，即代表以绝对路径的形式导入内容。
 	- 使用绝对路径访问内容能避免一些命名冲突。
@@ -2902,7 +2893,7 @@ import java.awt._ //等价于java中的 import java.awt.*
 
 - 默认包的限制
 
-	默认包没有名称，其内容只能被同在默认包下的其它内容访问。  
+	默认包没有名称，其内容只能被同在默认包下的其它内容访问。
 	内层包无法访问外部默认包的内容，即使使用`_root_`访问绝对路径依旧无法访问。
 
 	如下所示：
@@ -2925,7 +2916,7 @@ import java.awt._ //等价于java中的 import java.awt.*
 	```
 
 ## 扩展用法
-`Scala`包机制在Java的基础上扩充了更多的功能。
+Scala包机制在Java的基础上扩充了更多的功能。
 
 在一个语句中导入包内的**多个**指定的类：
 
@@ -2944,13 +2935,13 @@ import java.awt.{Color => JavaColor}
 import java.awt.{Color => _}
 ```
 
-`Scala`中的`import`带有类似`Java 1.6`中的`static import`特性：
+Scala中的`import`带有类似`Java 1.6`中的`static import`特性：
 
 ```scala
 import java.lang.Math.abs //导入Math类中的静态方法abs
 ```
 
-在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。  
+在Scala中，包引入了名称相同的类不会发生冲突，而是后引入的类**覆盖**之前引入的类。
 在Scala中，`import`语句可以出现在**任意位置**，不必总是放在文件的顶部，`import`语句的作用域直到该语句块结束。
 
 ### 默认导入
@@ -2965,7 +2956,7 @@ import Predef._
 有些Scala包中的类名与Java包中的类名相同，但由于Scala包的引入语句在后，因此，例如`Scala.StringBuiler`类会覆盖`Java.lang.StringBuilder`。
 
 ### 包对象
-在Scala中，每个包可以带有一个与包名相同的**包对象**，包内的所有类都可以直接访问该包对象的公有成员。  
+在Scala中，每个包可以带有一个与包名相同的**包对象**，包内的所有类都可以直接访问该包对象的公有成员。
 如下所示：
 
 ```scala
@@ -3017,7 +3008,8 @@ java.lang.ArrayIndexOutOfBoundsException: 100
 ```
 
 ## *Tuple* (元组)
-元组是最简单的容器，无需额外的类型名称，直接使用`(value1, value2, value3, ...)`就可以构建出一个元祖。如下所示：
+元组是最简单的容器，无需额外的类型名称，直接使用`(value1, value2, value3, ...)`就可以构建出一个元祖。
+如下所示：
 
 ```scala
 scala> val tuple = (1, 2, 3)
@@ -3026,8 +3018,8 @@ tuple: (Int, Int, Int) = (1,2,3)
 
 元组中允许包含**重复**的值，也允许不同类型的值，但元组一经创建，内容便不可改变。
 
-元组**不支持**直接使用`for`语句进行遍历。  
-`Tuple`类型混入了`scala.Product`特质，可以使用无参方法`Product.productIterator`获取可迭代的对象用于遍历。  
+元组**不支持**直接使用`for`语句进行遍历。
+`Tuple`类型混入了`scala.Product`特质，可以使用无参方法`Product.productIterator`获取可迭代的对象用于遍历。
 如下所示：
 
 ```scala
@@ -3035,7 +3027,7 @@ for (t <- tuple.productIterator) println(t) //命令式遍历
 tuple.productIterator foreach println //函数式遍历
 ```
 
-由于元组成员可具有**不同**的类型，因而使用`Product.productIterator`遍历时，迭代对象为`Any`类型。  
+由于元组成员可具有**不同**的类型，因而使用`Product.productIterator`遍历时，迭代对象为`Any`类型。
 对与成员类型相同的元组，可以在遍历时使用模式匹配：
 
 ```scala
@@ -3109,17 +3101,17 @@ Scala的容器按数据结构分为`序列(Seq)`、`集合(Set)`和`映射(Map)`
 
 - `序列(Seq)`
 
-	有序容器，按照元素添加的顺序排列。  
+	有序容器，按照元素添加的顺序排列。
 	`Seq`的子类`IndexedSeq`允许类似数组的方式按照下标进行访问。
 
 - `集合(Set)`
 
-	数学意义上的集合，不包含重复元素。  
+	数学意义上的集合，不包含重复元素。
 	`Set`的子类`SortedSet`中元素以某种顺序排序。
 
 - `映射(Map)`
 
-	`键 - 值`对偶的集合。  
+	`键 - 值`对偶的集合。
 	`Map`的子类`SortedMap`中键值以某种顺序排序。
 
 基本的集合类型继承树如下所示：
@@ -3144,10 +3136,10 @@ Iterable
 - **不可变容器**`scala.collection.immmutable._`
 - **可变容器**`scala.collection.mutable._`。
 
-`Scala`为函数式语言，默认的容器类型使用**不可变**实现。
+Scala为函数式语言，默认的容器类型使用**不可变**实现。
 
 ## List (列表)
-在Scala中，`List[T]`类型的完整包路径为`scala.collection.immutable.List`，继承于`Seq`。  
+在Scala中，`List[T]`类型的完整包路径为`scala.collection.immutable.List`，继承于`Seq`。
 List为**不可变对象**，可以使用`for`操作符进行遍历。
 
 构建一个列表：
@@ -3157,8 +3149,8 @@ scala> val list0 = List(1, 2, 3)
 list0: List[Int] = List(1, 2, 3)
 ```
 
-除了直接使用`List`单例提供的`apply()`方法构建列表对象之外，还可以使用`::`操作符来将多个值构成列表。  
-`::`操作符为**右结合性**运算符。  
+除了直接使用`List`单例提供的`apply()`方法构建列表对象之外，还可以使用`::`操作符来将多个值构成列表。
+`::`操作符为**右结合性**运算符。
 使用`::`操作符构成列表时，列表的最后一个值必须为`Nil`，如下所示：
 
 ```scala
@@ -3173,7 +3165,7 @@ scala> val list2 = 1 :: 1 :: "str" :: 2.0 :: Nil
 list2: List[Any] = List(1, 1, str, 2.0)
 ```
 
-若列表中存储的若是相同的类型，则编译器会将`List[T]`推导为具体的类型。  
+若列表中存储的若是相同的类型，则编译器会将`List[T]`推导为具体的类型。
 若列表中成员类型各不相同，则编译器会使用所有类型的基类`Any`作为泛型类型即`List[Any]`。
 
 列表支持从已有的列表进行创建：
@@ -3203,7 +3195,7 @@ scala> val list3 = list0 ++ list1
 list3: List[Int] = List(1, 2, 3, 0, 1, 2, 3)
 ```
 
-`:::`与`++`对于列表而言，作用完全相同。  
+`:::`与`++`对于列表而言，作用完全相同。
 `:::`是`List`类型特有的运算符，`++`继承于特质`TraversableLike`，也可用于一些其它的集合类型。
 
 列表同样支持通过索引进行访问，语法与`Array[T]`类型类似：
@@ -3214,8 +3206,8 @@ res0: Int = 1
 ```
 
 ## ArrayBuffer (变长数组)
-在Scala中，变长数组使用`ArrayBuffer[T]`，完整路径`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。  
-Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素。  
+在Scala中，变长数组使用`ArrayBuffer[T]`，完整路径`scala.collection.mutable.ArrayBuffer`，继承于`Seq`。
+Scala中的`ArrayBuffer`相当于Java中的`ArrayList`，可存储任意数量的元素。
 创建`ArrayBuffer`：
 
 ```scala
@@ -3238,7 +3230,7 @@ scala> arrayBuffer -= 1000
 res13: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)
 ```
 
-需要注意的是，`+=`、`-=`只是**方法名**并不是**运算符**。  
+需要注意的是，`+=`、`-=`只是**方法名**并不是**运算符**。
 `ArrayBuffer`没有提供`+`、`-`方法，以下的写法会**报错**：
 
 ```scala
@@ -3274,12 +3266,12 @@ scala> arrayBuffer
 res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)  //删除了索引1到4位之间的元素
 ```
 
-需要注意的是，`ArrayBuffer`是**线性结构**，只有在尾部进行插入删除操作才是高效的，在其它位置进行的元素操作都会造成大量的元素移动。  
+需要注意的是，`ArrayBuffer`是**线性结构**，只有在尾部进行插入删除操作才是高效的，在其它位置进行的元素操作都会造成大量的元素移动。
 `ArrayBuffer`的不可变版本对应为`scala.collection.immutable.Vector`。
 
 ## Set (集合)
-`Set[T]`类型为数学意义上的集合，集合内不允许重复元素。  
-`Set`完整包路径为`scala.collection.immutable.Set`。  
+`Set[T]`类型为数学意义上的集合，集合内不允许重复元素。
+`Set`完整包路径为`scala.collection.immutable.Set`。
 集合同样允许任意类型的元素，但集合中不能包含重复的元素。
 
 在使用`Set`类的`apply()`方法构建集合时，重复的元素会被忽略，如下所示：
@@ -3289,7 +3281,7 @@ scala> val set = Set(1, 1, 's', "str")
 set: scala.collection.immutable.Set[Any] = Set(1, s, str) //重复的元素"1"被忽略了
 ```
 
-`Set`可以使用`+`、`-`操作符来增加或是减少元素并返回新的集合。  
+`Set`可以使用`+`、`-`操作符来增加或是减少元素并返回新的集合。
 使用`+`、`-`操作符会返回新的集合，但原集合内的值不会发生改变，如下所示：
 
 ```scala
@@ -3343,7 +3335,7 @@ var set = Set(1, 2, 3)
 set = set + 4
 ```
 
-对不可变类型的变量使用`+=`、`-=`操作，实际上改变了变量指向的实例。  
+对不可变类型的变量使用`+=`、`-=`操作，实际上改变了变量指向的实例。
 当不可变类型实例为**常量**时，则不能使用`+=`、`-=`操作，因为常量的实例指向不可变，如下所示：
 
 ```scala
@@ -3414,8 +3406,8 @@ scala> set = set + 4
 - `scala.collection.immutable.SortedSet` 红黑树实现的排序集
 
 ## Map (映射)
-`Map[A, B]`类型的完整包路径为`scala.collection.immutable.Map`。  
-映射中的每一个元素都是一组`对偶(Tuple2)`，分别为key和value，key不可重复。  
+`Map[A, B]`类型的完整包路径为`scala.collection.immutable.Map`。
+映射中的每一个元素都是一组`对偶(Tuple2)`，分别为key和value，key不可重复。
 通过`->`操作符可以将两个值组成一组对偶，如下所示：
 
 ```scala
@@ -3435,7 +3427,7 @@ value: 2
 value: 3 //仅遍历map的key
 ```
 
-使用`updated()`方法可以更新指定key对应的value之后输出，通过`+`方法添加对偶后输出，也可以通过`-`移除指定key的对偶后输出。  
+使用`updated()`方法可以更新指定key对应的value之后输出，通过`+`方法添加对偶后输出，也可以通过`-`移除指定key的对偶后输出。
 但这些操作不会改变原本映射的内容：
 
 ```scala
@@ -3449,9 +3441,9 @@ scala> map  //更改的结果作为返回值输出，原本的Map值没有任何
 res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 ```
 
-与`Set`类似，当实例字段为可变量时，`Map`也支持`+=`、`-=`操作。  
+与`Set`类似，当实例字段为可变量时，`Map`也支持`+=`、`-=`操作。
 
-除了不可变的`scala.collection.immutable.Map`外，还有可变的`scala.collection.mutable.Map`类型。  
+除了不可变的`scala.collection.immutable.Map`外，还有可变的`scala.collection.mutable.Map`类型。
 Scala还提供了多种不同结构的`Map`实现，如`HashMap`、`ListMap`、`LinkedHashMap`等。
 
 ## GenTraversableLike
@@ -3469,11 +3461,11 @@ trait GenTraversableLike[+A, +Repr] extends Any with GenTraversableOnce[A] with 
 }
 ```
 
-多数容器都间接混入了`GenTraversableLike`特质，如`List`、`Seq`、`Vector`、`Map`等。  
+多数容器都间接混入了`GenTraversableLike`特质，如`List`、`Seq`、`Vector`、`Map`等。
 对于混入了`GenTraversableLike`的类型且支持索引访问的类型，使用`xxx.head`比`xxx(0)`更符合Scala风格。
 
 ## 集合有序性
-`Scala`默认`Set/Map`无论`mutable/immutable`均为**无序**。  
+Scala默认`Set/Map`无论`mutable/immutable`均为**无序**。
 如下所示：
 
 ```scala
@@ -3514,12 +3506,12 @@ Mutable Set: Set(1, 5, 2, 3, 4)
 Mutable Map: Map(2 -> 2, 5 -> 5, 4 -> 4, 1 -> 1, 3 -> 3)
 ```
 
-`Set/Map`存在特定规则的有序版本`SortedSet/SortedMap`。  
-`SortedSet/SortedMap`在构造时需要提供`scala.math.Ordering[T]`特质用于决定内部成员的排序规则。  
-`Scala`已实现了常见类型(`Int`、`String`等)的`Ordering`特质，使用常见类型时不必显式传入。
+`Set/Map`存在特定规则的有序版本`SortedSet/SortedMap`。
+`SortedSet/SortedMap`在构造时需要提供`scala.math.Ordering[T]`特质用于决定内部成员的排序规则。
+Scala已实现了常见类型(`Int`、`String`等)的`Ordering`特质，使用常见类型时不必显式传入。
 
-`immutable`容器存在有序类型`ListSet/ListMap`。  
-`mutable`容器存在有序类型`LinkedHashSet/LinkedHashMap`，按照元素添加的顺序排列。  
+`immutable`容器存在有序类型`ListSet/ListMap`。
+`mutable`容器存在有序类型`LinkedHashSet/LinkedHashMap`，按照元素添加的顺序排列。
 如下所示：
 
 ```scala
@@ -3560,7 +3552,7 @@ Mutable LinkedHashSet: Set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 Mutable LinkedHashMap: Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5)
 ```
 
-`immutable`容器不存在`LinkedHashSet/LinkedHashMap`类型。  
+`immutable`容器不存在`LinkedHashSet/LinkedHashMap`类型。
 `mutable`容器不存在`ListSet`类型，存在`ListMap`类型，但无序。
 
 有序容器使用`toSet/toMap`等方法向无序容器转换，内部成员会重新变为**无序**。
@@ -3568,15 +3560,15 @@ Mutable LinkedHashMap: Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5)
 
 
 # Higher Order Function (高阶函数)
-**高阶函数**是**函数式编程**中的概念，在数学中，也叫做**算子**(运算符)或**泛函**。  
+**高阶函数**是**函数式编程**中的概念，在数学中，也叫做**算子**(运算符)或**泛函**。
 **接受一个或多个函数作为输入**或者**输出一个函数**的函数被称为高阶函数。
 
-在`Scala`中，容器类提供了高阶函数作为容器数据操作的接口。  
+在Scala中，容器类提供了高阶函数作为容器数据操作的接口。
 常见的高阶函数有`map`、`reduce`、`flatMap`、`filter`、`find`、`fold`、`foreach`等。
 
 ## for/yeild 语句
-`Scala`中同样提供了`yield`关键字，用于构建集合。  
-`Scala`中的`yield`语句不是惰性生成，与传统语言的**生成器**概念不同。  
+Scala中同样提供了`yield`关键字，用于构建集合。
+Scala中的`yield`语句不是惰性生成，与传统语言的**生成器**概念不同。
 如下所示：
 
 ```scala
@@ -3596,7 +3588,7 @@ scala> (for (i <- List(1, 2, 3, 4, 5) if i > 2) yield i) toSet
 res27: scala.collection.immutable.Set[Int] = Set(3, 4, 5)
 ```
 
-`Scala`中的`for/yield`语句实际是高阶函数的语法糖，`yeild`语句可以还原为高阶函数的形式：
+Scala中的`for/yield`语句实际是高阶函数的语法糖，`yeild`语句可以还原为高阶函数的形式：
 
 ```scala
 // 从1到5的数中找出偶数，并将数值翻倍
@@ -3613,19 +3605,19 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 
 
 # Exception (异常)
-`Scala`沿用了`Java`的异常机制，但相关语法略有不同。
+Scala沿用了Java的异常机制，但相关语法略有不同。
 
 - 抛出异常
 
-	`Scala`同样使用`throw`语句抛出异常，与`Java`语法类似。如下所示：
+	Scala同样使用`throw`语句抛出异常，与Java语法类似：
 
 	```scala
 	throw new XxxException
 	```
 
-	`Java`中要求将方法内可能抛出的异常明确地在方法签名中列出，但在`Scala`中不需要。  
-	
-	对于需要被`Java`调用的`Scala`方法，可以使用`@throw`注解来标明方法中可能抛出的异常，使方法在`Java`端生成正确的签名：
+	Java中要求将方法内可能抛出的异常明确地在方法签名中列出，但在Scala中不需要。
+
+	对于需要被Java调用的Scala方法，可以使用`@throw`注解来标明方法中可能抛出的异常，使方法在Java端生成正确的签名：
 
 	```scala
 	@throw(classOf[XxxException])
@@ -3634,7 +3626,7 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 	}
 	```
 
-	对应的`Java`代码：
+	对应的Java代码：
 
 	```java
 	void testException() throw XxxException {
@@ -3644,10 +3636,9 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 
 - 捕获异常
 
-	`Scala`中同样使用`try ... catch ... finally ...`语句进行异常捕获，但语法略有不同：
+	Scala中同样使用`try ... catch ... finally ...`语句进行异常捕获，但语法略有不同：
 
-	1. 在`Scala`中，`catch`子句没有参数，直接在语句内部使用**模式匹配**进行异常捕获。  
-		如下所示：
+	1. 在Scala中，`catch`子句没有参数，直接在语句内部使用**模式匹配**进行异常捕获，如下所示：
 
 		```scala
 		try {
@@ -3655,11 +3646,11 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 		} catch {
 			case ex: Exception1 => ...
 			case ex: Exception2 => ...
-			... 
+			...
 		}
 		```
 
-		对应`Java`代码：
+		对应Java代码：
 
 		```java
 		try {
@@ -3671,9 +3662,7 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 		}
 		```
 
-	1. 单条`try`语句可省略花括号，`try`语句可不带有`case`、`finally`单独存在。
-
-		如下所示：
+	1. 单条`try`语句可省略花括号，`try`语句可不带有`case`、`finally`单独存在，如下所示：
 
 		```scala
 		scala> try 2333
@@ -3683,10 +3672,10 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 		res9: Int = 2333 //有警告，但正常执行
 		```
 
-	1. `Scala`中的`try ... catch ... finally ...`语句具有返回值。
+	1. Scala中的`try ... catch ... finally ...`语句具有返回值。
 
-		使用返回值时，需要保证`try`语句以及`catch`子句中的每一个`case`拥有相同的返回值类型。  
-		`finally`子句不做为返回值，也不影响返回值类型的推导。  
+		使用返回值时，需要保证`try`语句以及`catch`子句中的每一个`case`拥有相同的返回值类型。
+		`finally`子句不做为返回值，也不影响返回值类型的推导。
 		如下所示：
 
 		```scala
@@ -3704,7 +3693,7 @@ res15: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 8)
 		```
 
 ## scala.util.Try[T]
-从`Scala 2.10`开始，标准库中提供了`scala.util.Try[T]`类型对异常处理操作的抽象。  
+从`Scala 2.10`开始，标准库中提供了`scala.util.Try[T]`类型对异常处理操作的抽象。
 `Try`类型的伴生对象中提供了接收传名参数的`apply()`方法，用于构建`Try`类型实例：
 
 ```scala
@@ -3788,7 +3777,7 @@ scala> Try { "Dainslef".toInt } foreach println //无输出
 
 ```
 
-`fold()`高阶函数用法与`Option`类型类似，在`Try`语句块成功是执行成功表达式并输出返回结果，在`Try`语句块失败时执行失败表达式并返回结果，两类表达式返回结果类型需要相同。  
+`fold()`高阶函数用法与`Option`类型类似，在`Try`语句块成功是执行成功表达式并输出返回结果，在`Try`语句块失败时执行失败表达式并返回结果，两类表达式返回结果类型需要相同。
 如下所示：
 
 ```scala
@@ -3799,7 +3788,7 @@ scala> Try { "Dainslef" } fold (_ => "Failed", _ => "Success")
 res11: String = Success //执行成功
 ```
 
-`toOption`方法用于将`Try[T]`语句块的执行结果转换为`Option[T]`类型，语句块执行成功得到`Some[T]`，执行失败得到`None`。  
+`toOption`方法用于将`Try[T]`语句块的执行结果转换为`Option[T]`类型，语句块执行成功得到`Some[T]`，执行失败得到`None`。
 如下所示：
 
 ```scala
@@ -3816,7 +3805,7 @@ res2: Option[Int] = Some(233) //执行成功，得到 Some(233)
 Scala标准库中内置了XML支持，XML相关类在包`scala.xml`中。
 
 ## 节点类型
-`Node`是最基础的XML节点类型(抽象类)。  
+`Node`是最基础的XML节点类型(抽象类)。
 `NodeSeq`用于记录节点的序列，继承自`Seq[Node]`。
 
 相关类型继承关系图如下所示：
@@ -3893,11 +3882,11 @@ def \\(that: String): NodeSeq
 ## 节点属性
 节点属性内容可以直接从节点中获取，也可以通过查找获取属性内容。
 
-使用`\()`、`\\()`方法同样可以进行属性查找。  
-在参数字符串前加`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名为`num`的属性内容。  
+使用`\()`、`\\()`方法同样可以进行属性查找。
+在参数字符串前加`@`字符表示搜索的内容为**属性**，如`\("@num")`表示查找名为`num`的属性内容。
 使用`\()`方法查找属性时，查找的的范围**不是**子节点的属性，而是**当前**节点的属性。
 
-`NodeSeq`类型提供了`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。  
+`NodeSeq`类型提供了`\@()`方法在**当前**子节点中进行属性查找，直接使用属性名作为参数，无需再添加`@`字符。
 如下所示：
 
 ```scala
@@ -3905,7 +3894,7 @@ def \\(that: String): NodeSeq
 def \@(attributeName: String): String
 ```
 
-`Node`类型提供了`attribute()`以及`attributes`方法从节点中获取属性。  
+`Node`类型提供了`attribute()`以及`attributes`方法从节点中获取属性。
 如下所示：
 
 ```scala
@@ -3916,7 +3905,7 @@ def attributes: MetaData
 ```
 
 `attributes`方法返回的类型为`MetaData`。
-`MetaData`类型支持遍历操作，定义了`key`、`value`方法用于获取属性的键值。  
+`MetaData`类型支持遍历操作，定义了`key`、`value`方法用于获取属性的键值。
 如下所示：
 
 ```scala
@@ -4062,13 +4051,13 @@ res2: scala.xml.Elem = <Test:test><li>Test</li><li name="Test">test</li></Test:t
 
 
 # Implicit Conversions (隐式转换)
-隐式转换在构建类库时是一个强大的工具。  
+隐式转换在构建类库时是一个强大的工具。
 使用隐式转换特性需要在编译时添加`-language:implicitConversions`选项。
 
 ## 定义隐式转换
-Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。  
-若需要提供类型之间的自动转换功能，需要显式使用`implicit`关键字自定义隐式转换。  
-隐式转换可以定义在**当前类**中或是**伴生对象**中，只要需要进行转换时能被访问到即可。  
+Scala是**强类型**语言，不同类型之间的变量默认**不会**自动进行转换。
+若需要提供类型之间的自动转换功能，需要显式使用`implicit`关键字自定义隐式转换。
+隐式转换可以定义在**当前类**中或是**伴生对象**中，只要需要进行转换时能被访问到即可。
 
 当传入参数的类型与函数需要的类型不同时，编译器便会查找是否有合适的隐式转换，如下所示：
 
@@ -4139,14 +4128,14 @@ object Main extends App {
 100
 ```
 
-`Scala`标准类库中大量使用了隐式转换特性。  
-以`String`类型为例，源自`Java`标准库的`String`类型自身并未定义`toInt/toDouble`等成员方法，在调用这些方法时，`String`被**隐式转换**成定义了这些方法的`StringLike`类型来执行这些操作。
+Scala标准类库中大量使用了隐式转换特性。
+以`String`类型为例，源自Java标准库的`String`类型自身并未定义`toInt/toDouble`等成员方法，在调用这些方法时，`String`被**隐式转换**成定义了这些方法的`StringLike`类型来执行这些操作。
 
 ## 隐式参数
-函数和方法的参数前可以添加关键字`implicit`来将一个参数标记为**隐式参数**。  
+函数和方法的参数前可以添加关键字`implicit`来将一个参数标记为**隐式参数**。
 当调用方法时没有对隐式参数赋值，则编译器会尝试为隐式参数寻找匹配的隐式值。
 
-变量前可以通过添加`implicit`关键字成为隐式值。  
+变量前可以通过添加`implicit`关键字成为隐式值。
 如下所示：
 
 ```scala
@@ -4167,7 +4156,7 @@ object Main extends App {
 200.0
 ```
 
-**单例对象**定义时也可添加`implicit`关键字成为隐式值。  
+**单例对象**定义时也可添加`implicit`关键字成为隐式值。
 如下所示：
 
 ```scala
@@ -4298,8 +4287,8 @@ def testImplicit(implicit num0: Int)(num1: Double) {} //错误。只有最后一
 - 隐式类特性**不能**与样例类共存，即一个类在定义时不能同时带有`implicit`和`case`关键字。
 - 隐式类**不能**定义在外部区域(包，以及包对象)，隐式类只能定义在类体、函数体、单例对象中。
 
-与**隐式转换**类似，当一个实例调用了**不存在**或**无法访问**的成员方法，编译器会为之搜索作用域中可访问的隐式类。  
-若隐式类的构造器参数与实例相同且带有实例调用的方法，则自动调用该隐式类的构造器。  
+与**隐式转换**类似，当一个实例调用了**不存在**或**无法访问**的成员方法，编译器会为之搜索作用域中可访问的隐式类。
+若隐式类的构造器参数与实例相同且带有实例调用的方法，则自动调用该隐式类的构造器。
 如下所示：
 
 ```scala
@@ -4329,15 +4318,15 @@ Implicit Class: 100
 
 
 # 求值策略
-`Scala`中存在三种求值策略：
+Scala中存在三种求值策略：
 
 1. `Call by Value`，在表达式定义时立即求值，仅在定义时求值**一次**。
 1. `Call by Name`，在表达式调用时求值，每次调用都会对表达式重新求值。
 1. `Call bt Need`，在表达式首次调用时求值，仅在首次被访问时求值**一次**。
 
-使用`val/var`定义字段时即为即为直接求值，字段值在定义时即被确定；  
-使用`val/var`定义字段时若搭配`lazy`关键字，则字段在首次被访问时求值；  
-使用`def`定义无参方法时即为传名调用，方法在调用时才会求值，且每次调用重新求值。  
+使用`val/var`定义字段时即为即为直接求值，字段值在定义时即被确定；
+使用`val/var`定义字段时若搭配`lazy`关键字，则字段在首次被访问时求值；
+使用`def`定义无参方法时即为传名调用，方法在调用时才会求值，且每次调用重新求值。
 如下所示：
 
 ```scala
@@ -4385,12 +4374,12 @@ Call test1
 test0: 23333, test1: 66666, test2: 44444
 ```
 
-`Call by Value`的字段`test0`在定义时值已被确定，仅在定义时求值一次，三次输出结果相同；  
-`Call by Name`的字段`test1`在每次调用时重新求值，三次输出结果不同；  
+`Call by Value`的字段`test0`在定义时值已被确定，仅在定义时求值一次，三次输出结果相同；
+`Call by Name`的字段`test1`在每次调用时重新求值，三次输出结果不同；
 `Call by Need`的字段`test2`在首次被访问时进行求值，两次输出结果相同。
 
 ## 参数的求值策略
-与大多数编程语言类似，`Scala`中的方法、函数的参数默认即为`Call by Value`，参数在传入时立即求值，如下所示：
+与大多数编程语言类似，Scala中的方法、函数的参数默认即为`Call by Value`，参数在传入时立即求值，如下所示：
 
 ```scala
 object Main extends App {
@@ -4418,7 +4407,7 @@ num: 23333
 
 做为参数的代码块在传入方法时便已被执行。
 
-使用`By-name parameter`(**传名参数**)特性可以使方法参数变为`Call by Name`。  
+使用`By-name parameter`(**传名参数**)特性可以使方法参数变为`Call by Name`。
 传名参数语法为在类型前添加`=>`操作符，上述例子改用传名参数，如下所示：
 
 ```scala
@@ -4559,7 +4548,7 @@ expr2_1
 	expr2_2
 	```
 
-	输出结果中`and()`、`or()`方法右侧的表达式已被执行。  
+	输出结果中`and()`、`or()`方法右侧的表达式已被执行。
 	在`Call by Value`的求值策略下，参数一经传入便已被求值，不符合`&&`、`||`运算符逻辑。
 
 	将源码修改为`Call by Name`：
@@ -4604,17 +4593,18 @@ expr2_1
 
 
 # 类型系统
-`Scala`是静态类型语言，具有强大的类型系统。
+Scala是静态类型语言，具有强大的类型系统。
 
 ## 类型参数
-定义类型时允许带有类型参数。  
+定义类型时允许带有类型参数。
+
 使用以下方式定义类型参数：
 
 - 使用泛型语法，`class Xxx[T]/trait Xxx[T]`
 - 使用`type`关键字定义未绑定到具体类型的**抽象类型**(`Abstract Type`)，`trait Xxx { type T }`
 
-泛型语法类似于`Java/C#`，但在`Scala`中使用中括号`[]`代替尖括号`<>`。  
-构建示例时需要将泛型参数替换为实际类型。  
+泛型语法类似于`Java/C#`，但在Scala中使用中括号`[]`代替尖括号`<>`。
+构建示例时需要将泛型参数替换为实际类型。
 如下所示：
 
 ```scala
@@ -4631,7 +4621,7 @@ scala> :type x
 Xxx[String]
 ```
 
-抽象类型与抽象成员类似，需要在构建实例时提供具体实现。  
+抽象类型与抽象成员类似，需要在构建实例时提供具体实现。
 如下所示：
 
 ```scala
@@ -4654,8 +4644,7 @@ Xxx{type T = String}
 - `Upper Type Bounds` 上界(上层类型约束)，语法`T <: Xxx`
 - `Lower Type Bounds` 下界(低级类型约束)，语法`T >: Xxx`
 
-`Upper Type Bounds`用于限定类型参数为指定类型的**子类**。  
-如下所示：
+`Upper Type Bounds`用于限定类型参数为指定类型的**子类**，如下所示：
 
 ```scala
 scala> trait Other
@@ -4714,8 +4703,7 @@ scala> new Test[Other] { }
            ^
 ```
 
-`Lower Type Bounds`用于限定类型参数为另一类型的**父类**。  
-如下所示：
+`Lower Type Bounds`用于限定类型参数为另一类型的**父类**，如下所示：
 
 ```scala
 scala> trait Other
@@ -4747,8 +4735,8 @@ scala> test[Other](null)
 ## View Bounds (视图界定)
 `View Bounds`(视图界定)相比普通类型约束更加**宽松**，类型参数不必自身满足类型约束，仅需类型参数能被**隐式转换**为满足类型约束的类型。
 
-视图界定语法为`T <% Xxx`，可用于方法定义与类型定义。  
-与类型界定不同，**不存在**`T >% Xxx`这样的语法。  
+视图界定语法为`T <% Xxx`，可用于方法定义与类型定义。
+与类型界定不同，**不存在**`T >% Xxx`这样的语法。
 如下所示：
 
 ```scala
@@ -4779,8 +4767,8 @@ scala> test[Other](null) //提供符合要求的隐式转换后能够正常调�
 res3: Other = null
 ```
 
-实际上视图界定是隐式参数的语法糖，使用视图界定时会生成`implicit xxx: T => Xxx`形式的隐式参数表。  
-不能带有有参构造器的`trait`类型**不能**使用视图界定特性。  
+实际上视图界定是隐式参数的语法糖，使用视图界定时会生成`implicit xxx: T => Xxx`形式的隐式参数表。
+不能带有有参构造器的`trait`类型**不能**使用视图界定特性。
 如下所示：
 
 ```scala
@@ -4796,8 +4784,7 @@ scala> trait Test[T <% Base] //特质无法使用视图界定特性
 ## Content Bounds
 `Content Bounds`(上下文界定)要求上下文中存在类型为`Xxx[T]`的隐式值。
 
-上下文界定语法为`T: Xxx`，可用于方法定义与类型定义。  
-如下所示：
+上下文界定语法为`T: Xxx`，可用于方法定义与类型定义，如下所示：
 
 ```scala
 scala> class Xxx[T]
@@ -4829,8 +4816,8 @@ scala> new Test[Int] //正常构建实例
 res2: Test[Int] = Test@62640933
 ```
 
-与视图界定类似，上下文界定亦是隐式参数的语法糖，使用上下文界定会生成`implicit xxx: Xxx[T]`的隐式参数表。  
-不能带有有参构造器的`trait`类型**不能**使用上下文界定特性。  
+与视图界定类似，上下文界定亦是隐式参数的语法糖，使用上下文界定会生成`implicit xxx: Xxx[T]`的隐式参数表。
+不能带有有参构造器的`trait`类型**不能**使用上下文界定特性。
 如下所示：
 
 ```scala
@@ -4840,8 +4827,8 @@ trait Test[T: Xxx]
                   ^
 ```
 
-上下文界定生成的隐式参数表中的隐式参数名称有编译器合成，无法直接通过参数名称访问该隐式值。  
-获取隐式值需要使用`Predef`包中定义的`implicitly[T]()`方法。  
+上下文界定生成的隐式参数表中的隐式参数名称有编译器合成，无法直接通过参数名称访问该隐式值。
+获取隐式值需要使用`Predef`包中定义的`implicitly[T]()`方法。
 如下所示：
 
 ```scala
@@ -4856,8 +4843,7 @@ List(6, 6, 6)
 ```
 
 ## Variances (型变)
-泛型类型在使用不同类型参数时默认**不存在**继承关系。  
-如下所示：
+泛型类型在使用不同类型参数时默认**不存在**继承关系，如下所示：
 
 ```scala
 scala> import scala.reflect.runtime.universe._
@@ -4879,8 +4865,8 @@ scala> typeOf[Test[Base]] <:< typeOf[Test[Child]]
 res2: Boolean = false //类型参数的继承关系不影响泛型类型自身
 ```
 
-使用`variances`特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。  
-`variances`特性分为`covariance`(协变)和`contravariance`(逆变)。  
+使用`variances`特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。
+`variances`特性分为`covariance`(协变)和`contravariance`(逆变)。
 型变特性语法如下所示：
 
 ```scala
@@ -4891,8 +4877,7 @@ class Test[-T] //contravariance，逆变
 
 - `Covariance` (协变)
 
-	类型参数声明为`covariance`(协变)时，泛型类型的继承关系与类型参数相同。  
-	如下所示：
+	类型参数声明为`covariance`(协变)时，泛型类型的继承关系与类型参数相：
 
 	```scala
 	scala> class Test[+T] //定义带有协变类型参数的泛型类型
@@ -4905,8 +4890,7 @@ class Test[-T] //contravariance，逆变
 	res4: Boolean = true //泛型类型的继承关系与类型参数相同
 	```
 
-	带有协变类型参数的泛型类型用于方法参数/返回值中，使方法能接受/返回带有子类类型参数的泛型类型。  
-	如下所示：
+	带有协变类型参数的泛型类型用于方法参数/返回值中，使方法能接受/返回带有子类类型参数的泛型类型：
 
 	```scala
 	scala> class Test[T]
@@ -4948,8 +4932,7 @@ class Test[-T] //contravariance，逆变
 
 - `Contravariance` (逆变)
 
-	类型参数声明为`contravariance`(逆变)时，泛型类型的继承关系与类型参数相反。  
-	如下所示：
+	类型参数声明为`contravariance`(逆变)时，泛型类型的继承关系与类型参数相反：
 
 	```scala
 	scala> class Test[-T] //定义带有逆变类型参数的泛型类型
@@ -4966,38 +4949,38 @@ class Test[-T] //contravariance，逆变
 
 - `Covariant Position` (协变点)
 
-	协变点指方法的**返回值**位置。  
+	协变点指方法的**返回值**位置。
 	根据**里氏替换原则**，子类的方法返回值应比父类更具体。
 
 - `Contravariant Position` (逆变点)
 
-	逆变点指方法的**参数**位置。  
+	逆变点指方法的**参数**位置。
 	根据**里氏替换原则**，能通过父类实例调用的方法一定能通过子类实例调用，因此子类方法参数类型接收范围应比父类更广。
 
 在错误的位置使用型变类型参数会导致编译错误：
 
 ```scala
-scala> trait Test[+T] { def test(t: T) } 
+scala> trait Test[+T] { def test(t: T) }
 <console>:14: error: covariant type T occurs in contravariant position in type T of value t
        trait Test[+T] { def test(t: T) }
                                  ^
 
-scala> trait Test[+T] { def test: T } 
+scala> trait Test[+T] { def test: T }
 defined trait Test
 
-scala> trait Test[-T] { def test: T } 
+scala> trait Test[-T] { def test: T }
 <console>:14: error: contravariant type T occurs in covariant position in type => T of method test
        trait Test[-T] { def test: T }
                             ^
 
-scala> trait Test[-T] { def test(t: T) } 
+scala> trait Test[-T] { def test(t: T) }
 defined trait Test
 ```
 
 
 
 # Higer Kinded Type (高阶类型)
-高阶类型是对类型的高级抽象，是类型参数为类型构造器的泛型类型。  
+高阶类型是对类型的高级抽象，是类型参数为类型构造器的泛型类型。
 如下所示：
 
 ```scala
@@ -5020,18 +5003,17 @@ scala> new Test[Seq] //使用泛型类型为类型参数，正确
 res1: Test[Seq] = Test@11cc9e1e
 ```
 
-`Type Theory`(类型理论)中的`Kind`(类型)在`Scala`中的对应概念：
+`Type Theory`(类型理论)中的`Kind`(类型)在Scala中的对应概念：
 
-类型 | 含义 | Scala中的对应概念 | 实例
-:-|:-|:-|:-
-* | 类型 | 普通类型，或带有具体类型参数的泛型类型 | `Int`, `List[Int]`
-* -> * | 一阶类型(类型构造器) | 泛型类型 | `List[_]`, `Seq[_]`, `Map[_, String]`
-* -> ... -> * | 一阶类型(带有多个参数的类型构造器)| 带有多个类型参数的泛型类型 | `Map[_, _]`, `Function2[_, _, _]`, `Tuple4[_, _, _, _]`
-| (* -> *) -> * | 高阶类型(参数为类型构造器的类型构造器)| 带有泛型类型参数的泛型类型 | `List[T[_]]`, `Seq[T[_]]`
+| 类型 | 含义 | Scala中的对应概念 | 实例 |
+| :- | :- | :- | :- |
+| * | 类型 | 普通类型，或带有具体类型参数的泛型类型 | `Int`, `List[Int]` |
+| * -> * | 一阶类型(类型构造器) | 泛型类型 | `List[_]`, `Seq[_]`, `Map[_, String]` |
+| * -> ... -> * | 一阶类型(带有多个参数的类型构造器)| 带有多个类型参数的泛型类型 | `Map[_, _]`, `Function2[_, _, _]`, `Tuple4[_, _, _, _]` |
+| | (* -> *) -> * | 高阶类型(参数为类型构造器的类型构造器)| 带有泛型类型参数的泛型类型 | `List[T[_]]`, `Seq[T[_]]` |
 
 ## Type Lambda
-`Type Lambda`是高阶类型的扩展应用，允许在类型参数的位置直接定义新的类型构造器。  
-Scala支持有限的TypeLambda。
+`Type Lambda`是高阶类型的扩展应用，允许在类型参数的位置直接定义新的类型构造器。Scala支持有限的TypeLambda。
 
 定义一个高阶类型，类型参数为接收两个参数的一阶类型：
 
@@ -5043,7 +5025,7 @@ scala> class TestTypeLambda[T[_, _]](t: T[_, _])
 defined class TestTypeLambda
 ```
 
-以三元组`(_, _, _)`(`Tuple3[_, _, _]`)为例，直接传入实例编译器报错。  
+以三元组`(_, _, _)`(`Tuple3[_, _, _]`)为例，直接传入实例编译器报错。
 三元组的类型参数数目与`TestTypeLambda`类型中的类型约束不符，无法通过编译：
 
 ```scala
@@ -5062,11 +5044,11 @@ argument expression's type is not compatible with formal parameter type;
                           ^
 ```
 
-一阶类型的参数数目不匹配时可通过`Type Alias`定义新的类型构造器，使类型签名符合要求，如下所示：
+一阶类型的参数数目不匹配时可通过`Type Alias`定义新的类型构造器，使类型签名符合要求：
 
 ```scala
 scala> type T[A, B] = (A, B, Int)
-defined type alias 
+defined type alias
 
 scala> new TestTypeLambda[T]((1, 2, 3))
 res1: TestTypeLambda[T] = TestTypeLambda@222a7429
@@ -5087,10 +5069,10 @@ res2: TestTypeLambda[[A, B](A, B, Int)] = TestTypeLambda@403b7be3
 
 
 # Type Class
-`Type Class`即**类型类**，是一种通过泛型参数实现多态的方式。  
+`Type Class`即**类型类**，是一种通过泛型参数实现多态的方式。
 根据不同的泛型参数，签名相同的方法会调用不同的实现。
 
-Scala中使用**隐式参数**特性来实现TypeClass。  
+Scala中使用**隐式参数**特性来实现TypeClass。
 定义一个带有泛型参数的类型(TypeClass)，和使用隐式参数接收该泛型实例的方法：
 
 ```scala
@@ -5157,7 +5139,7 @@ object Main extends App {
 }
 ```
 
-TypeClass是`Haskell`等FP语言实现参数化多态的主要方式。  
+TypeClass是`Haskell`等FP语言实现参数化多态的主要方式。
 在`Haskell`中，上述代码近似于：
 
 ```hs
@@ -5196,7 +5178,7 @@ String Type Class: 666
 
 
 # 并发编程
-作为JVM平台的编程语言，Scala可以直接调用Java的并发API。  
+作为JVM平台的编程语言，Scala可以直接调用Java的并发API。
 并发编程是Scala的擅长领域，除了Java标准库提供的并发API，Scala还提供下列并发技术：
 
 - Scala标准库中提供了`Future/Promise/Async`库来进行异步编程。
@@ -5207,7 +5189,7 @@ String Type Class: 666
 
 - 构建与启动`Future`
 
-	`Future`为**特质**，没有构造函数，无法直接构建实例。  
+	`Future`为**特质**，没有构造函数，无法直接构建实例。
 	创建一个`Future`实例需要使用伴生对象中重写的`apply()`方法，声明如下：
 
 	```scala
@@ -5216,7 +5198,7 @@ String Type Class: 666
 
 	- `body`参数为**传名参数**，包含了需要异步执行的代码块。
 	- `T`参数为泛型参数，表示异步执行的代码块最终的返回值类型。
-	- `executor`参数为隐式参数，用于指定异步代码的执行器。  
+	- `executor`参数为隐式参数，用于指定异步代码的执行器。
 	`scala.concurrent.ExecutionContext.Implicits.global`提供了默认的执行器。
 
 	构建一个`Future`，基本代码如下：
@@ -5230,12 +5212,12 @@ String Type Class: 666
 	}
 	```
 
-	与传统的并发库设计不同，`Future`并没有提供诸如`start()/run()`之类的方法用于显式开始异步代码块的执行。  
+	与传统的并发库设计不同，`Future`并没有提供诸如`start()/run()`之类的方法用于显式开始异步代码块的执行。
 	在完成`Future`实例构建的同时，作为参数传入的代码块就已自动开始异步执行。
 
 - Callbacks (异步回调)
 
-	与传统的并发库设计类似，`Future`采用回调的方式来处理异步操作完成的结果。  
+	与传统的并发库设计类似，`Future`采用回调的方式来处理异步操作完成的结果。
 	`Future`实例提供了`onComplete()`成员方法来绑定回调函数，声明如下：
 
 	```scala
@@ -5245,7 +5227,7 @@ String Type Class: 666
 	- `f`参数为被回调的高阶函数。
 	- `executor`参数作用与上述`apply()`方法中类似。
 
-	被回调的高阶函数类型为`Try[T] => U`。  
+	被回调的高阶函数类型为`Try[T] => U`。
 	抽象类`Try[T]`类似于`Option[T]`，拥有两个样例类子类`Success[T]`和`Failure[T]`，定义如下：
 
 	```scala
@@ -5258,10 +5240,10 @@ String Type Class: 666
 	- 对于**成功**的异步操作，匹配内容是异步操作的返回值。
 	- 对于**失败**的异步操作，匹配内容是导致异步操作失败的异常。
 
-	`Future`也提供了`onSuccess()/onFailure()`方法接收偏函数分别处理异步操作成功/失败时的情况。  
+	`Future`也提供了`onSuccess()/onFailure()`方法接收偏函数分别处理异步操作成功/失败时的情况。
 	当只需要处理某一类情况时，可以直接使用对应方法。
 
-	一个`Future`实例可以**多次**调用`onComplete()/onSuccess()/onFailure()`来添加多个回调操作。  
+	一个`Future`实例可以**多次**调用`onComplete()/onSuccess()/onFailure()`来添加多个回调操作。
 	多个回调操作都会被执行，但执行的先后顺序**不确定**。
 
 	回调处理异步操作结果的基本代码如下：
@@ -5310,7 +5292,7 @@ String Type Class: 666
 
  	- `Duration` (时间类型)
 
-		时间参数类型为`Duration`，为抽象类，完整路径为`scala.concurrent.duration.Duration`。  
+		时间参数类型为`Duration`，为抽象类，完整路径为`scala.concurrent.duration.Duration`。
 		`Duration`的伴生对象内定义了`apply()`方法，声明如下：
 
 		```scala
@@ -5320,7 +5302,7 @@ String Type Class: 666
 		- `length`参数为时间数值。
 		- `unit`参数为时间单位。
 
-		构建的时间对象为`Duration`的子类，有限时间`FiniteDuration`。  
+		构建的时间对象为`Duration`的子类，有限时间`FiniteDuration`。
 		`Duration`中有两个成员`Inf`、`MinusInf`分别用来表示**无限大/无限小**的时间。
 
 		`TimeUnit`类型完整包路径为`java.util.concurrent.TimeUnit`，为枚举类型，包含以下枚举成员：
@@ -5333,14 +5315,14 @@ String Type Class: 666
 		- `java.util.concurrent.TimeUnit.NANOSECONDS` 纳秒
 		- `java.util.concurrent.TimeUnit.SECONDS` 秒
 
-		在`import scala.concurrent.duration`包中定义了一系列隐式类`DurationInt/DurationLong/DurationDouble`。  
+		在`import scala.concurrent.duration`包中定义了一系列隐式类`DurationInt/DurationLong/DurationDouble`。
 		引用对应隐式类即可使用对应的DSL语法来构建时间对象`FiniteDuration`，如：
 
 		- `1000 days`被转换为`Duration(1000, java.util.concurrent.TimeUnit.DAYS)`
 		- `1000 minutes`被转换为`Duration(1000, java.util.concurrent.TimeUnit.SECONDS)`
 		- ...
 
-		诸如此类...  
+		诸如此类...
 		在`scala.concurrent.duration.DurationConversions`特质中定义了完整的转化语法。
 
 - *blocking* (阻塞块)
@@ -5350,14 +5332,14 @@ String Type Class: 666
 	- 从`Future`内部调用任意代码阻塞线程。
 	- 在`Future`外部等待一个`Future`完成。
 
-	在`Future`外部主动阻塞等待应使用`Await`类，在`Future`内部阻塞则应使用`blocking`方法。  
+	在`Future`外部主动阻塞等待应使用`Await`类，在`Future`内部阻塞则应使用`blocking`方法。
 	`blocking`定义在包对象`scala.concurrent`中，是一个接收**传名参数**的泛型方法，定义如下所示：
 
 	```scala
 	def future[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T] = Future[T](body)
 	```
 
-	`blocking`块的作用是向执行器(`ExecutionContext`)标记可能造成阻塞的代码，并调整执行器的行为。  
+	`blocking`块的作用是向执行器(`ExecutionContext`)标记可能造成阻塞的代码，并调整执行器的行为。
 	对于默认的执行器`scala.concurrent.ExecutionContext.Implicits.global`，在`Future`中包含`blocking`块时，会新建线程来执行`Future`而不是等待复用已有的线程。
 
 	如下所示：
@@ -5414,7 +5396,7 @@ String Type Class: 666
 	Index: 30 Thread Name: ForkJoinPool-1-worker-3
 	```
 
-	打印执行结果的过程中，输出流出现了几次3秒的停顿。  
+	打印执行结果的过程中，输出流出现了几次3秒的停顿。
 	从结果中不难看出，执行器只开辟了`15`个处理线程，在所有处理线程都处于`sleep`状态时，输出流便停止。
 
 	尝试将`sleep()`函数写在`blocking`中：
@@ -5536,12 +5518,12 @@ String Type Class: 666
 	Index: 30 Thread after blocking: ForkJoinPool-1-worker-33
 	```
 
-	整个输出过程中，仅有**一次**3秒的停顿。  
+	整个输出过程中，仅有**一次**3秒的停顿。
 	分析输出结果，可以得知：
 
-	1. 执行器开辟的工作线程的数量明显大于没有`blocking`时的数量(线程数目`> 50`)。  
+	1. 执行器开辟的工作线程的数量明显大于没有`blocking`时的数量(线程数目`> 50`)。
 	即使用`blocking`改变了执行器的线程创建策略。
-	1. 相同`Index`输出的线程名称相同，`blocking`包含的代码、之后的代码并没有运行在独立的线程。  
+	1. 相同`Index`输出的线程名称相同，`blocking`包含的代码、之后的代码并没有运行在独立的线程。
 	即一个独立的`Future`运行在一个线程，**没有**像`C#`中的`async`方法那样被切分到不同的线程执行。
 
 ## Promise
@@ -5584,10 +5566,10 @@ Future {
 ```
 
 ## async/await
-`Scala`也提供了`Async`库用于简化`Future`的使用。  
+Scala也提供了`Async`库用于简化`Future`的使用。
 `Async`完整包路径为`scala.async.Async`。
 
-当前版本(`Scala 2.11.8`)中，`Async`库尚未进入`Scala`标准库。  
+当前版本(`Scala 2.11.8`)中，`Async`库尚未进入Scala标准库。
 对于使用`sbt`的工程，则需要在`build.sbt`配置文件中添加依赖：
 
 ```scala
@@ -5618,14 +5600,14 @@ object Async {
 - `async`用法类似`Future`的`apply()`方法，接收传名参数`body`作为异步执行的内容，接收隐式参数`execContext`作为执行器。
 - `await`只能用在`async`代码块中，作用类似`Await.result()`方法。
 
-`async`利用了`Scala`的宏机制，`await`本质上是`async`代码块中的一个关键字。  
+`async`利用了Scala的宏机制，`await`本质上是`async`代码块中的一个关键字。
 由于宏机制的一些限制，不能将`await`用在循环、异常捕捉代码块以及闭包中。
 
 ## synchronized
-`Java`中提供了`synchronized`关键字用于多线程环境下的变量同步。  
-`Scala`中提供了类似的机制，但语法略有不同。
+Java中提供了`synchronized`关键字用于多线程环境下的变量同步。
+Scala中提供了类似的机制，但语法略有不同。
 
-`Scala`中的`synchronized`不是语言级别的关键字，仅仅做为**成员方法**存在，方法签名为：
+Scala中的`synchronized`不是语言级别的关键字，仅仅做为**成员方法**存在，方法签名为：
 
 ```scala
 def synchronized[T](t: T): T
@@ -5649,13 +5631,13 @@ def synchronized[T](t: T): T
 }
 ```
 
-在类中直接调用`synchronized()`方法，锁定变量为当前类实例。  
+在类中直接调用`synchronized()`方法，锁定变量为当前类实例。
 在单例对象/伴生对象中直接调用`synchronized()`方法，锁定变量为单例对象、伴生对象实例。
 
-`Scala`中的`synchronized`没有`Java`中修饰方法的功能，但可以模拟出类似效果。  
+Scala中的`synchronized`没有Java中修饰方法的功能，但可以模拟出类似效果。
 如下所示：
 
-`Java`代码：
+Java代码：
 
 ```java
 class TestSync {
@@ -5664,7 +5646,7 @@ class TestSync {
 }
 ```
 
-等价`Scala`代码：
+等价Scala代码：
 
 ```scala
 class TestSync {
@@ -5680,8 +5662,8 @@ object TestSync {
 # Reflect (反射)
 `Scala 2.10`之后提供了自身的反射相关`API`。
 
-`Java`标准库中的反射`API`不支持`Scala`的专有语言特性。  
-`Scala`自身提供的反射`API`能完整地支持所有`Scala`语言特性。
+Java标准库中的反射`API`不支持Scala的专有语言特性。
+Scala自身提供的反射`API`能完整地支持所有Scala语言特性。
 
 到目前版本(`Scala 2.12`)为止，反射相关功能依然是`Expermental`(**实验性**)的，相关`API`在后续版本中可能会有较大改动。
 
@@ -5692,7 +5674,7 @@ object TestSync {
 
 	包含类型内的成员信息(定义的字段`fields`、方法`methods`、类型别名`type aliases`等)、类型继承关系、基类信息等。
 
-	`Type`类型类似于`Java`反射机制中的`Class`类型，获取`Type`实例是整个反射流程的起始步骤。  
+	`Type`类型类似于Java反射机制中的`Class`类型，获取`Type`实例是整个反射流程的起始步骤。
 	通过`typeOf[T]`方法可以获取指定类型的`Type`实例。
 
 	`Type`类型可用于筛选出需要反射的成员的符号信息：
@@ -5710,7 +5692,7 @@ object TestSync {
 
 	包含实例/成员的完整信息。
 
-	`Symbol`建立了名称与所指向的类型的绑定(`establish bindings between a name and the entity it refers to`)。  
+	`Symbol`建立了名称与所指向的类型的绑定(`establish bindings between a name and the entity it refers to`)。
 	`Symbol`包含了类型(`class/trait/object`等)或成员(`val/var/def`等)的所有可用信息(`contain all available information about the declaration of an entity or a member`)。
 
 	根据包含信息的类别差异，`Symbol`类型存在以下子类：
@@ -5726,7 +5708,7 @@ object TestSync {
 			提供对包含在类、特质中所有信息的访问(`Provides access to all information contained in a class or trait declaration`)。
 
 		构建`TypeSymbol`：
-		
+
 		- `Type.typeSymbol` 通过`Type`实例获取类型对应的`TypeSymbol`
 		- `symbolOf[T]` 直接通过泛型参数构建`TypeSymbol`
 
@@ -5738,7 +5720,7 @@ object TestSync {
 
 		- `MethodSymbol`
 
-			表示方法定义(`method symbols representing def declarations`)。  
+			表示方法定义(`method symbols representing def declarations`)。
 			支持查询方法是否为(主)构造器，或方法是否支持可变参数等(`It supports queries like checking whether a method is a (primary) constructor, or whether a method supports variable-length argument lists`)。
 
 		- `ModuleSymbol`
@@ -5751,8 +5733,8 @@ object TestSync {
 
 	使用`runtimeMirror()`方法以`ClassLoader`为参数构建`Mirror`实例。
 
-	通过`Mirror.reflect()`获取`InstanceMirror`，用于反射访问/修改字段，调用方法。  
-	通过`Mirror.reflectClass()`获取`ClassMirror`，可获取类型构造方法反射构建实例。  
+	通过`Mirror.reflect()`获取`InstanceMirror`，用于反射访问/修改字段，调用方法。
+	通过`Mirror.reflectClass()`获取`ClassMirror`，可获取类型构造方法反射构建实例。
 	通过`Mirror.reflectModule()`获取`ModuleMirror`，可获取单例对象实例。
 
 如下所示：
@@ -5800,19 +5782,19 @@ Method name: showField, value: 2333
 
 注意事项：
 
-- `Symbol`类型的成员方法`name`返回类型为`NameType`。  
-	`NameType`不要直接与文本比较，应使用`toString`方法转换为文本进行比较。  
+- `Symbol`类型的成员方法`name`返回类型为`NameType`。
+	`NameType`不要直接与文本比较，应使用`toString`方法转换为文本进行比较。
 	或者将`NameType`与`TermName`类型进行比较。
 - 类内方法的`MethodSymbol`对应的`TermName`与方法名称相同，一个方法的多个重载`TermName`相同。
 - 对于无重载的方法，使用`Type.decl()/member()`根据名称查找到的`Symbol`可直接使用`Symbol.asSymbol`方法转化为`MethodSymbol`。
-- 对于拥有重载的方法，使用`Type.decl()/member()`方法根据名称查找获取到的是包含重载信息的`TermSymbol`。  
-	对该`TermSymbol`实例使用`Symbol.alternatives`方法可获取包含所有同名重载方法信息的`List[MethodSymbol]`。  
+- 对于拥有重载的方法，使用`Type.decl()/member()`方法根据名称查找获取到的是包含重载信息的`TermSymbol`。
+	对该`TermSymbol`实例使用`Symbol.alternatives`方法可获取包含所有同名重载方法信息的`List[MethodSymbol]`。
 	通过分析每个`MethodSymbol`的信息选取正确的重载。
 
 
 
 # Annotation (注解)
-`Scala`中的注解语法与`Java`中类似。  
+Scala中的注解语法与Java中类似。
 标准库定义的注解相关内容在包`scala.annotation`中。
 
 注解的基本语法为：
@@ -5821,21 +5803,21 @@ Method name: showField, value: 2333
 @注解名称(注解参数...)
 ```
 
-与`Java`注解的用法类似，注解参数不是必须的，一个元素允许拥有多个注解。
+与Java注解的用法类似，注解参数不是必须的，一个元素允许拥有多个注解。
 
 ## 自定义注解
-`Scala 2.10`之前，`Scala`并未提供自定义注解功能，自定义注解需要在`Java`源码中进行。  
-`Scala 2.10`开始，作为`Reflect`功能的一部分，`Scala`提供了自定义注解支持。
+`Scala 2.10`之前，Scala并未提供自定义注解功能，自定义注解需要在Java源码中进行。
+`Scala 2.10`开始，作为`Reflect`功能的一部分，Scala提供了自定义注解支持。
 
 与反射相关功能类似，到目前版本(`Scala 2.12`)为止，注解相关功能依然是`Expermental`(**实验性**)的，注解相关`API`一直处于变化中。
 
-`Scala`中的自定义注解不是**接口/特质**，而是**类**。  
-自定义注解需要从注解特质中继承，`Scala`中提供了两类注解特质：
+Scala中的自定义注解不是**接口/特质**，而是**类**。
+自定义注解需要从注解特质中继承，Scala中提供了两类注解特质：
 
-- `scala.annotation.ClassfileAnnotation` 由`Java`编译器生成注解
-- `scala.annotation.StaticAnnotation` 由`Scala`编译器生成注解
+- `scala.annotation.ClassfileAnnotation` 由Java编译器生成注解
+- `scala.annotation.StaticAnnotation` 由Scala编译器生成注解
 
-两类注解特质都继承自基类`scala.annotation.Annotation`。  
+两类注解特质都继承自基类`scala.annotation.Annotation`。
 定义注解类语法与普通类相同：
 
 ```scala
@@ -5846,9 +5828,9 @@ class 注解名称 extends StaticAnnotation/ClassfileAnnotation
 class 注解名称(参数表...) extends StaticAnnotation/ClassfileAnnotation
 ```
 
-两类注解特质的基类相同，因此自定义注解类时**允许**同时混入两类注解特质。  
-继承自`ClassfileAnnotation`基类的注解在使用时参数应以`具名参数(named arguments)`形式传入。  
-继承自`StaticAnnotation`基类的注解无此限制。  
+两类注解特质的基类相同，因此自定义注解类时**允许**同时混入两类注解特质。
+继承自`ClassfileAnnotation`基类的注解在使用时参数应以`具名参数(named arguments)`形式传入。
+继承自`StaticAnnotation`基类的注解无此限制。
 如下所示：
 
 ```scala
@@ -5887,8 +5869,8 @@ class Test
 	1. 通过`MethodSymbol.paramLists`方法获取目标方法的参数表(`List[List[Symbol]]`类型，方法柯里化可能会有多个参数表)。
 	1. 通过`Symbol.annotations`获取`List[Annotation]`(注解列表)。
 
-`Scala`注解类型为`scala.reflect.runtime.universe.Annotation`。  
-在`Scala 2.11`之前，`Annotation`类型提供了`scalaArgs/javaArgs`等无参方法用于获取注解信息，但在`Scala 2.11`版本中，这些方法已被标记为`deprecated`。  
+Scala注解类型为`scala.reflect.runtime.universe.Annotation`。
+在`Scala 2.11`之前，`Annotation`类型提供了`scalaArgs/javaArgs`等无参方法用于获取注解信息，但在`Scala 2.11`版本中，这些方法已被标记为`deprecated`。
 应使用`Annotation.tree`方法获取注解语法树，类型为`scala.reflect.runtime.universe.Tree`。
 
 如下所示：
@@ -5930,7 +5912,7 @@ object Main extends App {
 }
 ```
 
-通过`scala.reflect.api.Printer.showRaw()`方法可以获取语法树的文本。  
+通过`scala.reflect.api.Printer.showRaw()`方法可以获取语法树的文本。
 注解语法树中包含了注解参数信息，可以通过模式匹配提取。
 
 如下所示：
@@ -5970,11 +5952,11 @@ Annotation args: name -> Annotation for Class, num -> 2333
 
 - 解析注解参数需要基于语法树结构，不要使用**参数默认值**特性，使用默认参数的注解生成的语法树不包含注解信息的默认值。
 - 类内字段会有多个`TermSymbol`，对应不同的`TermName`，包含注解信息的`TermName`为`字段名称 + 空格`。
-- 样例类的构造器参数作为类的成员存在，但若在参数上添加注解，注解信息并未附加在字段信息中。  
+- 样例类的构造器参数作为类的成员存在，但若在参数上添加注解，注解信息并未附加在字段信息中。
 	提取样例类构造器成员的注解信息需要以获取方法参数注解的方式进行，查找构造器方法(`TermName("<init>")`)，获取参数成员(`Method.paramLists`)。
 - 使用`Annotation.tree`方法获取注解语法树(`Tree`类型)，再使用`Tree.tpe`方法获取注解语法树类型信息(`Type`类型)，与直接使用`typeOf[注解类型]`获取的注解类型信息相同，可以用于比较筛选注解类型。
 
-完整的注解解析实例，如下所示：
+完整的注解解析实例：
 
 ```scala
 import scala.annotation.StaticAnnotation
