@@ -10,11 +10,12 @@
 	- [Docker Hub](#docker-hub)
 - [文件共享](#文件共享)
 	- [文件传输](#文件传输)
+	- [Bind Mounts (绑定挂载)](#bind-mounts-绑定挂载)
 
 
 
 # 概述
-`Docker`是使用`Go`实现的开源容器引擎。  
+`Docker`是使用`Go`实现的开源容器引擎。
 Docker将应用与依赖项放置在容器中执行，仅仅依赖宿主机的内核，简化了应用的运维与部署。
 
 
@@ -44,7 +45,7 @@ Docker在使用前需要开启对应服务。
 # systemctl start docker
 ```
 
-Ddocker提供了对应的命令行工具进行管理操作。  
+Ddocker提供了对应的命令行工具进行管理操作。
 核心指令如下：
 
 - `docker run` 新建容器执行指令
@@ -58,7 +59,7 @@ Ddocker提供了对应的命令行工具进行管理操作。
 - `docker tag` 为镜像添加／移除标志
 
 ## 在 macOS 中使用 docker
-Docker使用了诸多`Linux Kernel`专有特性，并非`POSIX`兼容，无法直接移植到`macOS`中。  
+Docker使用了诸多`Linux Kernel`专有特性，并非`POSIX`兼容，无法直接移植到`macOS`中。
 macOS中Docker使用`docker-machine`在`VirtualBox`中创建`Linux`虚拟机，并在虚拟机中运行Docker。
 
 安装Docker和`docker-machine`：
@@ -83,7 +84,7 @@ $ docker-machine env [虚拟机名称] //获取指定已启动的虚拟机的环
 Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
 ```
 
-`docker`工具不能立即访问虚拟机，需要设置相关环境变量。  
+`docker`工具不能立即访问虚拟机，需要设置相关环境变量。
 使用`docker-machine env`指令获取虚拟机相关环境变量，使用`eval`使环境变量生效，之后才能正常使用Ddocker相关指令：
 
 ```
@@ -259,7 +260,7 @@ $ docker import [备份.tar] [镜像仓库:镜像TAG]
 
 ## Docker Hub
 Docker官方提供了镜像托管服务`Docker Hub`。
-在`https://hub.docker.com`中注册，在本机使用`docker login`登陆账户后即可使用镜像托管服务。  
+在`https://hub.docker.com`中注册，在本机使用`docker login`登陆账户后即可使用镜像托管服务。
 将本地的个人镜像上传到Docker Hub：
 
 ```
@@ -288,7 +289,7 @@ $ docker push dainslef/test_image:2333
 
 
 # 文件共享
-Docker存储采用特殊的`Union File System`(联合文件系统)机制，容器内的文件不能直接被外部访问。  
+Docker存储采用特殊的`Union File System`(联合文件系统)机制，容器内的文件不能直接被外部访问。
 容器与宿主机之间的文件共享可以通过以下方式：
 
 - 使用`docker cp`指令直接在宿主机与容器之间传输文件
@@ -309,3 +310,49 @@ $ docker cp [容器ID/容器名称]:[绝对路径] [宿主机文件/目录]
 ```
 
 容器中的文件/目录需要为**绝对路径**，宿主机中的路径可以为相对路径**或**绝对路径。
+
+## Bind Mounts (绑定挂载)
+`Bind Mounts`(绑定挂载)是Docker早期就具有的功能，相比`Volumes`机制部分功能受限。
+通过绑定挂载机制可以将主机的指定目录直接挂载到容器中。
+
+创建容器时，使用`-v/--volume`或`--mount`参数设定宿主机和容器的路径绑定关系(`宿主机路径:容器路径`)，
+如下所示：
+
+```
+$ docker create -v [宿主机路径:容器内路径] [其它容器参数...] [镜像] [启动进程] [进程参数...]
+$ docker create --mount [宿主机路径:容器内路径] [其它容器参数...] [镜像] [启动进程] [进程参数...]
+```
+
+使用绑定挂载时，宿主机路径、容器内路径需要为**绝对路径**：
+
+- 宿主机路径使用相对路径(不以`/`字符起始)时，指令会被解析为**卷挂载**模式，宿主机的相对路径实际成了卷的名称。
+- 容器路径使用相对路径时，会在创建容器时直接得到错误信息(`Error response from daemon: invalid volume specification: 'xxx...': invalid mount config for type "volume": invalid mount path: 'xxx/xxx...' mount path must be absolute`)。
+
+绑定挂载仅能在容器创建时配置，若需修改已创建容器的挂载配置，
+需要使用`docker save/export`指令导出镜像后重新创建容器，在新创建容器时设定路径挂载配置。
+
+`-v`和`--mount`参数在创建绑定挂载时行为存在细微差异：
+
+- `-v` 容器内路径不存在时会自动创建该路径
+- `--mount` 容器内路径不存在时输出错误信息，指令执行失败
+
+与Unix下传统的mount指令行为类似，当容器内路径已存在且包含其它内容时，该路径下原先存在的内容会被隐藏。
+
+使用`docker inspect`指令查看指定容器信息，`Mounts`区段即为挂载信息：
+
+```json
+{
+    ...
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/Users/dainslef/Downloads/BigData",
+                "Destination": "/mnt/big_data",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+    ...
+}
+```
