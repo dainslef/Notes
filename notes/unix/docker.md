@@ -381,3 +381,58 @@ $ docker create --mount [容器内路径] [其它容器参数...] [镜像] [启�
 $ docker create -v [卷名称:容器内路径] [其它容器参数...] [镜像] [启动进程] [进程参数...]
 $ docker create --mount [卷名称:容器内路径] [其它容器参数...] [镜像] [启动进程] [进程参数...]
 ```
+
+卷的物理路径在宿主机的`/var/lib/docker/volumes/[卷名称]/_data`路径下。
+不指定卷名称则每次都会创建新卷，指定卷名称时若卷已存在则使用已存在的卷，挂载相同卷的容器对应路径数据互通。
+
+使用`docker volume`指令管理已存在的卷：
+
+```c
+// 列出Docker中已存在的卷
+$ docker volume ls
+
+// 通过卷名称/卷ID删除指定卷
+$ docker volume rm [卷名称/卷ID]
+
+// 删除所有未被使用(未跟容器关联)的卷
+$ docker volume prune
+```
+
+`docker volume ls`的典型输出信息示例：
+
+```
+DRIVER              VOLUME NAME
+local               413bfe6e5cf80d99594b379371e90edd5b799122294f8e0230def069af114aa8
+local               TestVolume
+```
+
+使用`docker inspect`指令查看指定容器信息，卷挂载信息示例：
+
+```json
+{
+    ...
+        "Mounts": [
+            {
+                "Type": "volume",
+                "Name": "TestVolume",
+                "Source": "/var/lib/docker/volumes/TestVolume/_data",
+                "Destination": "/root/data1",
+                "Driver": "local",
+                "Mode": "z",
+                "RW": true,
+                "Propagation": ""
+            },
+            {
+                "Type": "volume",
+                "Name": "413bfe6e5cf80d99594b379371e90edd5b799122294f8e0230def069af114aa8",
+                "Source": "/var/lib/docker/volumes/413bfe6e5cf80d99594b379371e90edd5b799122294f8e0230def069af114aa8/_data",
+                "Destination": "/root/data2",
+                "Driver": "local",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            }
+        ],
+    ...
+}
+```
