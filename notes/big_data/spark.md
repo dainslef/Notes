@@ -25,6 +25,7 @@
 		- [updateStateByKey()](#updatestatebykey)
 		- [mapWithState()](#mapwithstate)
 	- [Transform Operation (变换操作)](#transform-operation-变换操作)
+	- [Window Operations (窗口操作)](#window-operations-窗口操作)
 - [问题注记](#问题注记)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -1533,6 +1534,27 @@ val resultDStream = inputDStream transform { (rdd, time) =>
   }
 }
 ```
+
+## Window Operations (窗口操作)
+Spark Streaming也提供了窗口操作(windowed computations)，可以对滑动窗口中的数据(sliding window of data)进行变换。
+如下所示：
+
+![Spark Streaming Stream As A Table](../../images/spark_streaming_dstream_window.png)
+
+如图所示，落入滑动窗口的源RDD通过窗口操作生成新的RDD，这些新的RDD构成了新DStream。
+
+窗口操作至少需要指定以下参数：
+
+- `window length` 窗口大小，窗口的持续时间
+- `sliding interval` 滑动间隔，以多少时间间隔执行窗口操作
+
+| 操作 | 含义 |
+| :- | :- |
+| **window**(windowLength, slideInterval) | 返回根据原窗口批次计算出的新DStream |
+| **countByWindow**(windowLength, slideInterval) | 返回当前滑动窗口内元素的数目 |
+| **reduceByWindow**(func, windowLength, slideInterval) | 返回单元素的新DStream，新DStream由原DStream中的元素执func方法聚合得到 |
+| **reduceByKeyAndWindow**(func, windowLength, slideInterval, [numTasks]) | 对元素为`(Key, Value)`类型的DStream根据Key归类，对Key相同的元素执行func操作进行聚合 |
+| **countByValueAndWindow**(windowLength, slideInterval, [numTasks]) | 统计元素为`(Key, Value)`类型的DStream中每个Key对应的元素数目，构成元素类型为`(Key, Long)`类型的新DStream |
 
 
 
