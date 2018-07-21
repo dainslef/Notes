@@ -107,7 +107,7 @@ Hadoop提供的HDFS等组件需要占用大量的磁盘空间，需要对磁盘�
 ```
 
 ## 服务配置
-Hadoop服务配置项多而繁杂，[官方文档地址](http://hadoop.apache.org/docs/)，根据Hadoop版本选择匹配的文档进行查阅。
+Hadoop服务配置项多而繁杂，根据Hadoop版本选择匹配的[官方文档](http://hadoop.apache.org/docs)进行查阅。
 集群配置相关文档地址为`http://hadoop.apache.org/docs/{Hadoop版本}/hadoop-project-dist/hadoop-common/ClusterSetup.html`。
 
 Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配置文件如下：
@@ -120,19 +120,25 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 	```xml
 	<configuration>
 
-		<!-- 指定 hdfs 的 nameservice 为 lj-nameservice -->
+		<!--
+			指定 HDFS 的 nameservice 为 lj-nameservice
+			亦可直接使用 NameNode 的RPC通信地址，如 hdfs://spark-master:9000
+		-->
 		<property>
 			<name>fs.defaultFS</name>
-			<value>hdfs://lj-nameservice/</value>
+			<value>hdfs://lj-nameservice</value>
 		</property>
 
-		<!-- 指定 hadoop 临时文件目录 -->
+		<!--
+			指定 Hadoop 临时文件目录
+			默认临时文件会生成在 /tmp/hadoop-[用户名] 路径下，机器重启后临时文件会被清空
+		-->
 		<property>
 			<name>hadoop.tmp.dir</name>
 			<value>/home/data/hadoop/tmp</value>
 		</property>
 
-		<!-- 指定 zookeeper 集群访问地址 -->
+		<!-- 指定 Zookeeper 集群访问地址 -->
 		<property>
 			<name>ha.zookeeper.quorum</name>
 			<value>spark-master:2181,spark-slave0:2181,spark-slave1:2181</value>
@@ -176,7 +182,7 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 			<value>2</value>
 		</property>
 
-		<!-- 指定 NameService，需要和core-site.xml中fs.defaultFS配置项保持一致 -->
+		<!-- 指定 NameService，需要和 core-site.xml 中 fs.defaultFS 配置项保持一致 -->
 		<property>
 			<name>dfs.nameservices</name>
 			<value>lj-nameservice</value>
@@ -257,7 +263,7 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 $ hadoop namenode -format
 ```
 
-使用`start/stop-dfs.sh`脚本启动/关闭Hadoop相关服务：
+启动/关闭Hadoop相关服务：
 
 ```c
 // 启动 NameNode、DataNode、JournalNode 服务
@@ -630,9 +636,9 @@ hbaseConfig.set("hbase.zookeeper.quorum", "spark-master,spark-slave0,spark-slave
 ```
 
 ## XXX: Error: JAVA_HOME is not set and could not be found.
-问题说明:<br>
-Hadoop启动时提示`JAVA_HOME`环境变量配置未配置，但实际环境变量中已设定JAVA_HOME。
+问题说明：<br>
+Hadoop、HBase、Spark启动时提示`JAVA_HOME`环境变量配置未配置，但实际环境变量中已设定JAVA_HOME。
 
-解决方法：<br>
+解决方案：<br>
 编辑`$HADOOP_HOME/etc/hadoop/hadoop-env.sh`文件，
 将文件中的`export JAVA_HOME=${JAVA_HOME}`替换为实际的绝对路径。
