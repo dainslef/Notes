@@ -8,6 +8,7 @@
 	- [访问地址](#访问地址)
 	- [命令行工具](#命令行工具)
 - [Hbase](#hbase)
+	- [服务配置](#服务配置-1)
 	- [数据模型](#数据模型)
 		- [Conceptual View (概念视图)](#conceptual-view-概念视图)
 		- [Physical View (物理视图)](#physical-view-物理视图)
@@ -368,6 +369,66 @@ $ hdfs dfs -rmdir [HDFS路径]
 HBase常用在需要随机、实时读写海量数据的场景下。项目的目标是在商业硬件集群上管理非常巨大的表(上亿行 x 上亿列)。
 HBase是开源(open-source)、分布式(distributed)、版本化(versioned)、非关系型(non-relational)的数据库，参照了Google Bigtable的设计。
 HBase在Hadoop和HDFS之上提供了类似Bigtable的功能。
+
+HBase的详细介绍、配置、使用说明等可查阅[官方文档](http://hbase.apache.org/book.html)。
+
+## 服务配置
+从[HBase官网](http://hbase.apache.org/downloads.html)中下载稳定版本的HBase。
+HBase依赖于Hadoop服务，HBase与Hadoop版本的兼容性参考中的`4.1`节。
+
+配置环境变量，在`~/.profile`或`/etc/profile`中添加：
+
+```sh
+export HBASE_HOME=... # 配置软件包路径
+PATH+=:$HBASE_HOME/bin # 将HBase相关工具脚本加入 PATH 中
+```
+
+HBase配置文件位于`$HBASE_HOME/conf`路径下，编辑`$HBASE_HOME/conf/hbase-site.xml`，添加下列配置：
+
+```xml
+<configuration>
+
+	<!--
+		指定 HBase 临时文件目录
+		默认临时文件会生成在 /tmp/hbase-[用户名] 路径下，机器重启后临时文件会被清空
+	-->
+	<property>
+		<name>hbase.tmp.dir</name>
+		<value>/home/data/hadoop/hbase-tmp</value>
+	</property>
+
+	<!-- 指定 HBase 的数据存储路径 -->
+	<property>
+		<name>hbase.rootdir</name>
+		<value>hdfs://spark-master:9000/hbase</value>
+	</property>
+
+	<!-- 设定 HBase 是否以分布式方式执行 -->
+	<property>
+		<name>hbase.cluster.distributed</name>
+		<value>true</value>
+	</property>
+
+	<!-- 指定 Zookeeper 集群访问地址 -->
+	<property>
+		<name>hbase.zookeeper.quorum</name>
+		<value>spark-master:2181,spark-slave0:2181,spark-slave1:2181</value>
+	</property>
+
+</configuration>
+```
+
+启动/关闭HBase服务：
+
+```c
+// 启动 HBase 服务
+$ start-hbase.sh
+
+// 关闭 HBase 服务
+$ stop-hbase.sh
+```
+
+
 
 ## 数据模型
 HBase是面向**列**的数据库，数据由行排序，表中仅能定义列族。
