@@ -112,6 +112,8 @@
 	- [synchronized](#synchronized)
 - [Reflect (反射)](#reflect-反射)
 	- [反射机制相关类型](#反射机制相关类型)
+		- [Type](#type)
+		- [Symbol](#symbol)
 - [Annotation (注解)](#annotation-注解)
 	- [自定义注解](#自定义注解)
 	- [解析注解](#解析注解)
@@ -5670,74 +5672,131 @@ Scala自身提供的反射`API`能完整地支持所有Scala语言特性。
 ## 反射机制相关类型
 反射`API`相关的类型定义在包路径`scala.reflect.runtime.universe`中。
 
-- `Type`
+### Type
+`Type`类型包含类型内的成员信息(定义的字段`fields`、方法`methods`、类型别名`type aliases`等)、类型继承关系、基类信息等。
 
-	包含类型内的成员信息(定义的字段`fields`、方法`methods`、类型别名`type aliases`等)、类型继承关系、基类信息等。
+Type类型类似于Java反射机制中的`Class`类型，获取Type实例是整个反射流程的起始步骤。
+通过`typeOf[T]`方法可以获取指定类型的Type实例。
 
-	`Type`类型类似于Java反射机制中的`Class`类型，获取`Type`实例是整个反射流程的起始步骤。
-	通过`typeOf[T]`方法可以获取指定类型的`Type`实例。
+Type类型可用于筛选出需要反射的成员的符号信息：
 
-	`Type`类型可用于筛选出需要反射的成员的符号信息：
+- `Type.decls` 获取用户定义的成员的Symbol
+- `Type.members` 获取类内所有成员的Symbol
+- `Type.decl()/member()` 获取指定`TermName`的成员Symbol
 
-	- `Type.decls` 获取用户定义的成员的`Symbol`
-	- `Type.members` 获取类内所有成员的`Symbol`
-	- `Type.decl()/member()` 获取指定`TermName`的成员`Symbol`
+Type可用于类型比较：
 
-	`Type`类型可用于比较：
+- 通过操作符`=:=`比较是否相等
+- 通过操作符`<:<`比较是否子类
 
-	- 通过操作符`=:=`比较是否相等
-	- 通过操作符`<:<`比较是否子类
+### Symbol
+`Symbol`类型包含实例/成员的完整信息。
 
-- `Symbol`
+Symbol提供了名称与所指向的类型的绑定(`establish bindings between a name and the entity it refers to`)。
+Symbol包含了类型(`class/trait/object`等)或成员(`val/var/def`等)的所有可用信息(`contain all available information about the declaration of an entity or a member`)。
 
-	包含实例/成员的完整信息。
+根据包含信息的类别差异，Symbol类型存在以下子类：
 
-	`Symbol`建立了名称与所指向的类型的绑定(`establish bindings between a name and the entity it refers to`)。
-	`Symbol`包含了类型(`class/trait/object`等)或成员(`val/var/def`等)的所有可用信息(`contain all available information about the declaration of an entity or a member`)。
+- `TypeSymbol`
 
-	根据包含信息的类别差异，`Symbol`类型存在以下子类：
+	`TypeSymbol`表示类型、类、特质的定义，以及类型参数(`TypeSymbol represents type, class, and trait declarations, as well as type parameters`)。
 
-	- `TypeSymbol`
+	存在以下子类：
 
-		`TypeSymbol`表示类型、类、特质的定义，以及类型参数(`TypeSymbol represents type, class, and trait declarations, as well as type parameters`)。
+	- `ClassSymbol`
 
-		存在以下子类：
+		提供对包含在类、特质中所有信息的访问(`Provides access to all information contained in a class or trait declaration`)。
 
-		- `ClassSymbol`
+	构建TypeSymbol/ClassSymbol：
 
-			提供对包含在类、特质中所有信息的访问(`Provides access to all information contained in a class or trait declaration`)。
+	- `Type.typeSymbol` 通过Type实例获取类型对应的TypeSymbol
+	- `symbolOf[T]` 直接通过泛型参数构建TypeSymbol
+	- `Mirror.staticClass()` 通过类型完整名称得到ClassSymbol
 
-		构建`TypeSymbol`：
+- `TermSymbol`
 
-		- `Type.typeSymbol` 通过`Type`实例获取类型对应的`TypeSymbol`
-		- `symbolOf[T]` 直接通过泛型参数构建`TypeSymbol`
+	`TermSymbol`表示字段、方法、单例的定义，以及包、参数(`The type of term symbols representing val, var, def, and object declarations as well as packages and value parameters`)。
 
-	- `TermSymbol`
+	存在以下子类：
 
-		`TermSymbol`表示字段、方法、单例的定义，以及包、参数(`The type of term symbols representing val, var, def, and object declarations as well as packages and value parameters`)。
+	- `MethodSymbol`
 
-		存在以下子类：
+		表示方法定义(`method symbols representing def declarations`)。
+		支持查询方法是否为(主)构造器，或方法是否支持可变参数等(`It supports queries like checking whether a method is a (primary) constructor, or whether a method supports variable-length argument lists`)。
 
-		- `MethodSymbol`
+	- `ModuleSymbol`
 
-			表示方法定义(`method symbols representing def declarations`)。
-			支持查询方法是否为(主)构造器，或方法是否支持可变参数等(`It supports queries like checking whether a method is a (primary) constructor, or whether a method supports variable-length argument lists`)。
-
-		- `ModuleSymbol`
-
-			表示单例定义(`module symbols representing object declarations`)。
+		表示单例对象定义(`module symbols representing object declarations`)。
 
 - `Mirror`
 
-	所有反射提供的信息需要通过`Mirror`来获取(`All information provided by reflection is made accessible through mirrors`)。
+	所有反射提供的信息需要通过各类Mirror来获取(`All information provided by reflection is made accessible through mirrors`)。
 
-	使用`runtimeMirror()`方法以`ClassLoader`为参数构建`Mirror`实例。
+	Mirror及相关类型的定义为：
 
-	通过`Mirror.reflect()`获取`InstanceMirror`，用于反射访问/修改字段，调用方法。
-	通过`Mirror.reflectClass()`获取`ClassMirror`，可获取类型构造方法反射构建实例。
-	通过`Mirror.reflectModule()`获取`ModuleMirror`，可获取单例对象实例。
+	```scala
+	trait JavaUniverse extends Universe { self =>
+	  ...
+	  override type Mirror >: Null <: JavaMirror
 
-如下所示：
+	  trait JavaMirror extends scala.reflect.api.Mirror[self.type] with RuntimeMirror {
+	    ...
+	  }
+	  ...
+	}
+
+	abstract class Mirror[U <: Universe with Singleton] {
+	  ...
+	  def staticModule(fullName: String): U#ModuleSymbol
+	  ...
+	}
+
+	trait Mirrors { self: Universe =>
+	  ...
+	  trait ReflectiveMirror extends scala.reflect.api.Mirror[Mirrors.this.type] {
+	    def reflect[T: ClassTag](obj: T): InstanceMirror
+	    def reflectClass(cls: ClassSymbol): ClassMirror
+	    def reflectModule(mod: ModuleSymbol): ModuleMirror
+	  }
+
+	  trait RuntimeMirror extends ReflectiveMirror { self =>
+	    ...
+	  }
+	  ...
+	}
+	```
+
+	Mirror类型是JavaMirror的子类，JavaMirror混入了RuntimeMirror特质，RuntimeMirror又继承自ReflectiveMirror。
+	ReflectiveMirror提供了一系列reflect方法用于获取不同的Mirror：
+
+	- `ReflectiveMirror.reflect()` 获取`InstanceMirror`，用于反射访问/修改字段，调用方法
+	- `ReflectiveMirror.reflectClass()` 获取`ClassMirror`，可获取类型构造方法反射构建实例
+	- `ReflectiveMirror.reflectModule()` 获取`ModuleMirror`，可获取单例对象实例
+
+	`scala.reflect.runtime`包对象中提供了`currentMirror`方法用于获取当前环境下的Mirror实例：
+
+	```scala
+	package scala
+	package reflect
+
+	package object runtime {
+	  ...
+	  def currentMirror: universe.Mirror = macro ???
+	  ...
+	}
+	```
+
+	也可使用`runtimeMirror()`方法以`ClassLoader`为参数手动构建Mirror实例：
+
+	```scala
+	trait JavaUniverse extends Universe { self =>
+	  ...
+	  def runtimeMirror(cl: ClassLoader): Mirror
+	  ...
+	}
+	```
+
+使用反射相关API的完整示例：
 
 ```scala
 import scala.reflect.runtime.universe._
@@ -5752,20 +5811,34 @@ object Main extends App {
     }
   }
 
-  val run = runtimeMirror(getClass.getClassLoader)
+  /*
+    获取反射所需的 Mirror 实例，也可以使用 runtimeMirror() 方法自行构建：
+    runtimeMirror(getClass.getClassLoader)
+  */
+  val runtime = scala.reflect.runtime.currentMirror
 
-  // 反射获取构造器MethodSymbol，构造器名称为 <init>
-  val constructor = typeOf[TestReflect].decl(TermName("<init>")).asMethod
-  val instance = run //通过构造器的MethodSymbol反射构建实例
-    .reflectClass(symbolOf[TestReflect].asClass)
+  /*
+    使用 Mirror.staticClass() 方法通过类型完整名称获取 ClassSymbol ，
+    也可以直接使用 symbolOf 方法获取：
+    symbolOf[TestReflect].asClass
+  */
+  val classSymbol = runtime.staticClass("Main$TestReflect")
+
+  /*
+    构造器名称为 <init>，也通过可以查找 TremName 的方式从 Type 类型中获取：
+    typeOf[TestReflect].decl(TermName("<init>")).asMethod
+  */
+  val constructor = classSymbol.primaryConstructor.asMethod //获取类型主构造器的MethodSymbol
+  val instance = runtime //通过构造器的MethodSymbol反射构建实例
+    .reflectClass(classSymbol)
     .reflectConstructor(constructor).apply(2333)
 
   // 遍历筛选特定成员
   typeOf[TestReflect].decls foreach {
     case term: TermSymbol if term.name == TermName("field") =>
-      println(s"Field name: ${term.name}, value: ${run.reflect(instance).reflectField(term).get}")
+      println(s"Field name: ${term.name}, value: ${runtime.reflect(instance).reflectField(term).get}")
     case method: MethodSymbol if method.name == TermName("showField") =>
-      println(s"Method name: ${method.name}, value: ${run.reflect(instance).reflectMethod(method).apply()}")
+      println(s"Method name: ${method.name}, value: ${runtime.reflect(instance).reflectMethod(method).apply()}")
     case _ =>
   }
 
@@ -5782,14 +5855,21 @@ Method name: showField, value: 2333
 
 注意事项：
 
-- `Symbol`类型的成员方法`name`返回类型为`NameType`。
-	`NameType`不要直接与文本比较，应使用`toString`方法转换为文本进行比较。
+- 符号名称
+
+	Symbol类型的成员方法`name`返回类型为`NameType`。
+
+	NameType不要直接与文本比较，应使用`toString`方法转换为文本进行比较。
 	或者将`NameType`与`TermName`类型进行比较。
-- 类内方法的`MethodSymbol`对应的`TermName`与方法名称相同，一个方法的多个重载`TermName`相同。
-- 对于无重载的方法，使用`Type.decl()/member()`根据名称查找到的`Symbol`可直接使用`Symbol.asSymbol`方法转化为`MethodSymbol`。
-- 对于拥有重载的方法，使用`Type.decl()/member()`方法根据名称查找获取到的是包含重载信息的`TermSymbol`。
-	对该`TermSymbol`实例使用`Symbol.alternatives`方法可获取包含所有同名重载方法信息的`List[MethodSymbol]`。
-	通过分析每个`MethodSymbol`的信息选取正确的重载。
+
+- 方法重载
+
+	类内方法的MethodSymbol对应的TermName与方法名称相同，一个方法的多个重载TermName相同。
+
+	对于无重载的方法，使用`Type.decl()/member()`根据名称查找到的Symbol可直接使用`Symbol.asSymbol`方法转化为MethodSymbol；
+	对于拥有重载的方法，使用`Type.decl()/member()`方法根据名称查找获取到的是包含重载信息的TermSymbol，
+	该TermSymbol实例使用`Symbol.alternatives`方法可获取包含所有同名重载方法信息的`List[MethodSymbol]`。
+	通过分析每个MethodSymbol的信息选取正确的重载。
 
 
 
