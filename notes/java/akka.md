@@ -3,6 +3,8 @@
 	- [配置 Akka Actor](#配置-akka-actor)
 	- [定义 Actor](#定义-actor)
 	- [创建 Actor](#创建-actor)
+- [问题注记](#问题注记)
+	- [Akka HTTP 文件缓存问题](#akka-http-文件缓存问题)
 
 
 
@@ -169,3 +171,16 @@ trait ActorRefFactory {
   ...
 }
 ```
+
+
+
+# 问题注记
+记录一些Akka开发中遇到的问题。
+
+## Akka HTTP 文件缓存问题
+问题描述：  
+使用Akka HTTP返回本地文件做为请求响应时，Tomcat会在`/tmp/tomcat...`路径下缓存该文件。
+当本地文件内容更新后，Akka HTTP依旧返回Tomcat缓存路径中的旧文件，请求端依旧得到旧文件。
+
+解决方案：  
+删除Tomcat缓存目录`/tmp/tomcat...`。
