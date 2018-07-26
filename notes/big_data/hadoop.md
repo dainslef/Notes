@@ -21,6 +21,9 @@
 	- [全部HA节点处于 stand by 状态](#全部ha节点处于-stand-by-状态)
 	- [org.apache.hadoop.hbase.client.RetriesExhaustedException](#orgapachehadoophbaseclientretriesexhaustedexception)
 	- [XXX: Error: JAVA_HOME is not set and could not be found.](#xxx-error-java_home-is-not-set-and-could-not-be-found)
+	- [Caused by: java.lang.ClassNotFoundException: com.yammer.metrics.core.Gauge](#caused-by-javalangclassnotfoundexception-comyammermetricscoregauge)
+	- [java.io.IOException: Incompatible clusterIDs in /tmp/hadoop-root/dfs/data: namenode clusterID = CID-...; datanode clusterID = CID-...](#javaioioexception-incompatible-clusterids-in-tmphadoop-rootdfsdata-namenode-clusterid--cid--datanode-clusterid--cid-)
+	- [WARN org.apache.hadoop.hdfs.server.datanode.DataNode: IOException in offerService; java.io.EOFException: End of File Exception between local host is: "xxxs/xx.xx.xx.xx"; destination host is: "xxhostname":xxxx;](#warn-orgapachehadoophdfsserverdatanodedatanode-ioexception-in-offerservice-javaioeofexception-end-of-file-exception-between-local-host-is-xxxsxxxxxxxx-destination-host-is-xxhostnamexxxx)
 
 
 
@@ -703,3 +706,37 @@ Hadoop、HBase、Spark启动时提示`JAVA_HOME`环境变量配置未配置，�
 解决方案：<br>
 编辑`$HADOOP_HOME/etc/hadoop/hadoop-env.sh`文件，
 将文件中的`export JAVA_HOME=${JAVA_HOME}`替换为实际的绝对路径。
+
+## Caused by: java.lang.ClassNotFoundException: com.yammer.metrics.core.Gauge
+问题说明：<br>
+Spark应用使用HBase Client连接HBase数据库，建立连接时提示找不到类。
+
+解决方案：<br>
+打包Spark应用时需要完整包含HBase相关依赖，包括`hbase*`、`metrics*`、`htrace*`。
+
+## java.io.IOException: Incompatible clusterIDs in /tmp/hadoop-root/dfs/data: namenode clusterID = CID-...; datanode clusterID = CID-...
+问题说明：<br>
+启动DataNode失败，提示DataNode的`clusterID`与NameNode不匹配。
+通常是NameNode重新格式化后，DataNode数据路径未清空，仍保留与之前NameNode版本匹配的数据。
+
+解决方案：<br>
+清空DataNode中数据路径下的内容。
+默认DataNode路径为`${hadoop.tmp.dir}/dfs/dfs`，若设定了`hadoop.datanode.data.dir`配置，则路径以该配置项为准。
+
+## WARN org.apache.hadoop.hdfs.server.datanode.DataNode: IOException in offerService; java.io.EOFException: End of File Exception between local host is: "xxxs/xx.xx.xx.xx"; destination host is: "xxhostname":xxxx;
+问题说明：<br>
+启动DataNode时日志中提示目标IP与本地主机IP不符。使用`hadoop fs -xx...`指令访问HDFS文件系统时，
+命令行提示`-ls: java.net.UnknownHostException: [NameService]`错误。
+
+解决方案：<br>
+修改`$HADOOP_HOME/etc/hadoop/core-site.xml`配置中的`fs.defaultFS`配置项，
+不使用NameServices名称作为HDFS路径，而是直接使用HDFS的RPC地址。
+如下所示：
+
+```xml
+<property>
+	<name>fs.defaultFS</name>
+	<value>hdfs://localhost:9000</value>
+	<!-- 不使用 hdfs://XxxNameService 形式的HDFS路径 -->
+</property>
+```
