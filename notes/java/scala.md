@@ -114,6 +114,7 @@
 	- [反射机制相关类型](#反射机制相关类型)
 		- [Type](#type)
 		- [Symbol](#symbol)
+	- [补充说明](#补充说明)
 - [Annotation (注解)](#annotation-注解)
 	- [自定义注解](#自定义注解)
 	- [解析注解](#解析注解)
@@ -5747,7 +5748,9 @@ Symbol包含了类型(`class/trait/object`等)或成员(`val/var/def`等)的所�
 
 	abstract class Mirror[U <: Universe with Singleton] {
 	  ...
+	  def staticClass(fullName: String): U#ClassSymbol
 	  def staticModule(fullName: String): U#ModuleSymbol
+	  def staticPackage(fullName: String): U#ModuleSymbol
 	  ...
 	}
 
@@ -5796,7 +5799,41 @@ Symbol包含了类型(`class/trait/object`等)或成员(`val/var/def`等)的所�
 	}
 	```
 
-使用反射相关API的完整示例：
+## 补充说明
+补充反射API中一些细节的额外说明。
+
+- 符号名称
+
+	Symbol类型的成员方法`Symbol.name`返回类型为`NameType`。
+
+	NameType不要直接与文本比较，应使用`toString`方法转换为文本进行比较。
+	或者将`NameType`与`TermName`类型进行比较。
+
+- 方法重载
+
+	类内方法的MethodSymbol对应的TermName与方法名称相同，一个方法的多个重载TermName相同。
+
+	对于无重载的方法，使用`Type.decl()/member()`根据名称查找到的Symbol可直接使用`Symbol.asMethod`方法转化为MethodSymbol；
+	对于拥有重载的方法，使用`Type.decl()/member()`方法根据名称查找获取到的是包含重载信息的TermSymbol，
+	该TermSymbol实例使用`Symbol.alternatives`方法可获取包含所有同名重载方法信息的`List[MethodSymbol]`。
+	通过分析每个MethodSymbol的信息选取正确的重载。
+
+- 构造器
+
+	获取构造器的MethodSymbol可以通过ClassSymbol提供的`ClassSymbol.primaryConstructor`方法获取主构造器的Symbol，
+	使用`Symbol.asMethod`转换为MethodSymbol。
+
+	在Java字节码中，构造器的方法名称为`<init>`，还可使用`Type.decl()/member()`根据构造器名称查找对应Symbol，
+	使用`Symbol.asMethod`转换为MethodSymbol。
+
+	对于存在多个构造器的类，若需获取主构造器以外的构造器，仅通过构造器名称查找的方式，同时还需要处理方法重载问题。
+
+- 类型
+
+	获取类型Symbol最简单的方式是使用`symbolOf[T]`方法，但symbolOf方法需要目标类型的结构做为泛型参数；
+	获取当前环境下的`scala.reflect.api.Mirror`实例，使用`Mirror.staticClass()`通过类型的完整名称获取类型的ClassSymbol。
+
+反射相关API使用示例：
 
 ```scala
 import scala.reflect.runtime.universe._
@@ -5852,24 +5889,6 @@ Field name: field, value: 2333
 Call method 'showField'
 Method name: showField, value: 2333
 ```
-
-注意事项：
-
-- 符号名称
-
-	Symbol类型的成员方法`name`返回类型为`NameType`。
-
-	NameType不要直接与文本比较，应使用`toString`方法转换为文本进行比较。
-	或者将`NameType`与`TermName`类型进行比较。
-
-- 方法重载
-
-	类内方法的MethodSymbol对应的TermName与方法名称相同，一个方法的多个重载TermName相同。
-
-	对于无重载的方法，使用`Type.decl()/member()`根据名称查找到的Symbol可直接使用`Symbol.asSymbol`方法转化为MethodSymbol；
-	对于拥有重载的方法，使用`Type.decl()/member()`方法根据名称查找获取到的是包含重载信息的TermSymbol，
-	该TermSymbol实例使用`Symbol.alternatives`方法可获取包含所有同名重载方法信息的`List[MethodSymbol]`。
-	通过分析每个MethodSymbol的信息选取正确的重载。
 
 
 
