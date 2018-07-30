@@ -39,6 +39,7 @@
 	- [安装 mysql/mariadb](#安装-mysqlmariadb)
 	- [完整删除 JDK](#完整删除-jdk)
 	- [删除 GarageBand](#删除-garageband)
+	- [MacBook 合盖无法正常休眠](#macbook-合盖无法正常休眠)
 
 
 
@@ -674,3 +675,76 @@ macOS预装了音频编辑软件`GarageBand`，卸载时需要删除以下路径
 1. `/Library/Audio/Apple Loops`
 
 仅删除`GarageBand.app`，在`System Information`中的`Music Creation`类别中依旧会显示包含大量空间占用。
+
+## MacBook 合盖无法正常休眠
+MacBook可能会因为`tcpkeepalive`配置问题导致合盖时WIFI不关闭，进而机器不进入休眠状态，
+导致合盖后电量消耗过大(一晚15%电量左右，正常休眠一晚消耗1% ~ 3%电量)。
+
+使用`pmset`工具查看、管理电源配置：
+
+```c
+// 列出使用的电源配置
+$ pmset -g custom
+Battery Power:
+ lidwake              1
+ autopoweroff         1
+ autopoweroffdelay    28800
+ standbydelay         10800
+ standby              1
+ ttyskeepawake        1
+ hibernatemode        3
+ powernap             0
+ gpuswitch            2
+ hibernatefile        /var/vm/sleepimage
+ displaysleep         2
+ sleep                1
+ tcpkeepalive         1
+ halfdim              1
+ acwake               0
+ lessbright           1
+ disksleep            10
+AC Power:
+ lidwake              1
+ autopoweroff         1
+ autopoweroffdelay    28800
+ standbydelay         10800
+ standby              1
+ ttyskeepawake        1
+ hibernatemode        3
+ powernap             1
+ gpuswitch            2
+ hibernatefile        /var/vm/sleepimage
+ displaysleep         30
+ womp                 1
+ networkoversleep     0
+ sleep                0
+ tcpkeepalive         1
+ halfdim              1
+ acwake               0
+ disksleep            10
+```
+
+输出结果中，`Battery Power`代表电池供电时的电源管理策略；`AC Power`代表电源供电时的电源管理策略。
+
+tcpkeepalive选项值为`1`代表改特性已启用，启用该特性会导致合盖WIFI不关闭，进而休眠失败。
+禁用tcpkeepalive特性：
+
+```c
+// 禁用电池供电时的tcpkeepalive特性
+# pmset -b tcpkeepalive 0
+
+// 禁用电源供电时的tcpkeepalive特性
+# pmset -c tcpkeepalive 0
+
+// 禁用所有电源策略下的tcpkeepalive特性
+# pmset -a tcpkeepalive 0
+```
+
+禁用tcpkeepalive特性需要以root权限执行pmset指令。
+禁用tcpkeepalive特性时终端会输出以下信息，提示部分功能如`Find My Mac`会受到影响：
+
+```
+Warning: This option disables TCP Keep Alive mechanism when sytem is sleeping. This will result in some critical features like 'Find My Mac' not to function properly.
+```
+
+需要注意，在`System Reference`的`Energy Saver`中选择`Restore Defaults`将电源管理策略重置为默认值时，tcpkeepalive配置也会被重置为默认值(`1`)，会重新导致休眠失败。
