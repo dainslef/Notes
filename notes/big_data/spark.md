@@ -26,6 +26,9 @@
 		- [mapWithState()](#mapwithstate)
 	- [Transform Operation (变换操作)](#transform-operation-变换操作)
 	- [Window Operations (窗口操作)](#window-operations-窗口操作)
+- [Spark SQL](#spark-sql)
+	- [SQL](#sql)
+	- [Datasets & DataFrames](#datasets--dataframes)
 - [问题注记](#问题注记)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -1555,6 +1558,29 @@ Spark Streaming也提供了窗口操作(windowed computations)，可以对滑动
 | **reduceByWindow**(func, windowLength, slideInterval) | 返回单元素的新DStream，新DStream由原DStream中的元素执func方法聚合得到 |
 | **reduceByKeyAndWindow**(func, windowLength, slideInterval, [numTasks]) | 对元素为`(Key, Value)`类型的DStream根据Key归类，对Key相同的元素执行func操作进行聚合 |
 | **countByValueAndWindow**(windowLength, slideInterval, [numTasks]) | 统计元素为`(Key, Value)`类型的DStream中每个Key对应的元素数目，构成元素类型为`(Key, Long)`类型的新DStream |
+
+
+
+# Spark SQL
+`Spark SQL`是用于结构化数据(structured data)处理的Spark模块。与基础的Spark RDD API不同，
+Spark SQL提供的接口为Spark提供了更多关于数据结构和正在执行的计算的信息。Spark使用这些额外的信息来进行额外的优化。
+可以使用SQL语句或Dataset API与Spark SQL交互。无论用SQL语句或是Dataset API来表达计算逻辑，计算时都采用相同的执行引擎。
+开发者可以简单地在不同接口上自由切换，从中选择最自然的方式来描述给定的数据变换。
+
+## SQL
+Spark SQL的作用之一是用来执行SQL查询。Spark SQL也可以从已安装的Hive中读取数据。
+当使用API执行SQL时，结果将会以`Dataset/DataFrame`类型返回。还可以通过命令行或JDBC/ODBC来使用SQL接口交互。
+
+## Datasets & DataFrames
+`Dataset`是分布式的数据集合。Dataset是`Spark 1.6`中新引入的接口，结合了RDD的优点(强类型，能够使用Lambda)和Spark SQL优化执行引擎的优点。
+Dataset可由JVM对象构建并且使用高阶函数进行变换(如`map`、`flatMap`等)。Dataset仅提供Scala和Java的API。
+Python不支持Dataset API。但由于Python动态特性，许多Dataset API中的优秀特性已经提供
+(如使用`row.cloumnName`通过字段名称来访问一行数据中的某个字段)。R语言的情况类似。
+
+`DataFrame`由Dataset组织到命名的列中构成，概念上等价于关系型数据库中的表或Python/R中的data frame，但具有更深层次的优化。
+DataFrame可由各种数据源构造，如：结构化的数据文件、Hive中的表、外部数据库、已存在的RDD等。
+DataFrame提供了Scala、Java、Python、R等语言的API，在Scala和Java中，
+DataFrame类型由泛型参数为`Row`的Dataset表示，如`Dataset[Row]`(Scala)和`Dataset<Row>`(Java)。
 
 
 
