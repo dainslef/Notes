@@ -2,6 +2,7 @@
 - [安装与配置](#安装与配置)
 	- [Stackage](#stackage)
 	- [Stack Path](#stack-path)
+	- [包管理](#包管理)
 	- [安装 GHC](#安装-ghc)
 	- [配置 Mirrors](#配置-mirrors)
 - [启动与使用](#启动与使用)
@@ -19,19 +20,19 @@
 
 
 # 概述
-`Stack`是新一代的`Haskell`构建工具。
+`Stack`是新一代的Haskell构建工具。
 
-`Stack`集成了以下功能：
+Stack集成了以下功能：
 
-- 创建标准的`Haksell`项目模板。
-- 获取最新的`GHC`编译器。
-- 管理项目依赖(基于`Cabal`实现)。
-- 构建项目(基于`Cabal`实现)。
+- 创建标准的Haksell项目模板。
+- 获取最新的GHC编译器。
+- 管理项目依赖。
+- 构建项目。
 
 
 
 # 安装与配置
-`Stack`支持各大主流平台，根据平台在页面`https://www.stackage.org/stack/`选择下载二进制包。
+Stack支持各大主流平台，根据平台在页面`https://www.stackage.org/stack/`选择下载二进制包。
 
 - **Linux/Unix**系统：
 
@@ -83,20 +84,30 @@ resolver: lts-11.13
 $ stack path
 ```
 
-其中：
+Stack部分路径说明：
 
-- `stack-path` stack根路径
-- `programs` GHC、MSYS2等的安装路径
+| 名称 | 含义 |
+| :- | :- |
+| stack-path | stack根路径 |
+| programs | GHC、MSYS2等的安装路径 |
+| snapshot-pkg-db | 已安装的Stackage包数据信息路径 |
 
-stack默认根路径：
+Stack默认根路径：
 
 - Windows： `~\AppData\Roaming\stack`
 - Linux/macOS: `~/.stack`
 
 可使用`STACK_ROOT`环境变量设置stack使用的根路径。
 
+## 包管理
+使用`stack install [Stackage包名]`可在全局安装某个Stackage包。
+截止到`stack 1.7.1`，Stack仍未提供卸载指定Stackage包的功能，删除指定包需要手动清理所有相关路径。
+
+Stack判断一个包是否安装是根据本地的`snapshot-pkg-db`中的信息决定的，
+该路径下为每个已安装的Stackage包创建了conf文件记录安装信息，使用`stack path --snapshot-pkg-db`指令查看该路径信息。
+
 ## 安装 GHC
-stack可以简便地安装、配置`GHC`编译器。
+Stack可以简便地安装、配置`GHC`编译器。
 
 使用`stack setup`指令，stack会自动下载配置最新稳定版本的GHC编译器。
 
@@ -109,7 +120,7 @@ GHC编译器默认安装位置：
 - Windows: `~\AppData\Local\Programs\stack\[平台类型]\ghc-[版本号]`
 - Linux/macOS： `~/.stack/programs/[平台类型]/ghc-[版本号]`
 
-Windows下，GHC编译器需要依赖`MSYS2`，使用`stack setup`安装`GHC`时会自动附带安装MSYS2环境。<br>
+Windows下，GHC编译器需要依赖`MSYS2`，使用`stack setup`安装GHC时会自动附带安装MSYS2环境。<br>
 若已经配置了MSYS2环境，则执行指令时使用`--skip-msys`则可跳过安装MSYS2环境的步骤：
 
 ```
@@ -120,7 +131,7 @@ Windows下，GHC编译器需要依赖`MSYS2`，使用`stack setup`安装`GHC`时
 可通过修改`$stack-root/global-project/stack.yaml`中的顶层配置`resolver`来指定全局的GHC版本。
 
 ## 配置 Mirrors
-`Stackage`和`Hackage`默认的镜像源在国内均被**墙**，需要替换源后才能正常使用。
+Stackage和Hackage默认的镜像源在国内均被**墙**，需要替换源后才能正常使用。
 国内推荐使用`TUNA`源(清华大学镜像源)或`USTC`源(中科大镜像源)。
 
 以中科大源为例，编辑`$stack-root\config.yaml`，在`config.yaml`文件中添加：
@@ -169,7 +180,7 @@ $ stack new [项目名称] [模版名称]
 **模版名称**可省略，省略模版参数时将使用默认模版`new-template`。
 
 ## 项目结构
-`Stack`项目默认目录结构如下：
+Stack项目默认目录结构如下：
 
 ```
 项目名称
@@ -196,7 +207,7 @@ $ stack new [项目名称] [模版名称]
 
 
 # 构建配置
-`Stack`项目根目录下的`项目名称.cabal`文件定义了项目的构建配置。
+Stack项目根目录下的`项目名称.cabal`文件定义了项目的构建配置。
 
 基本的配置结构如下所示：
 
@@ -236,7 +247,7 @@ source-repository head
 - `ghc-options` 设置`GHC`的编译选项
 
 ## 模块定义
-`Haskell`中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。
+Haskell中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。
 
 `library`配置段定义了导出模块的信息。<br>
 模块源码路径添加在`hs-source-dirs`配置项中，模块和模块路径需要使用大写字母开头。<br>
@@ -346,9 +357,9 @@ $ stack test :[测试名称] //执行指定名称的测试
 └── .stack-work
 ```
 
-对应`Cabal`配置如下：
+对应Cabal配置如下：
 
-```
+```yaml
 data-dir: conf
 data-files: xxx.json, xxx.xml
 ```
@@ -357,7 +368,7 @@ data-files: xxx.json, xxx.xml
 
 亦可不使用`data-dir`配置段，直接使用完整相对路径，配置定义如下：
 
-```
+```yaml
 data-files: conf/xxx.json, conf/xxx.xml
 ```
 
@@ -413,7 +424,7 @@ Undefined symbols for architecture x86_64:
 记录使用stack中遇到的问题。
 
 ## Revision Mismatch
-当`Stackage`镜像源未完全同步官方源时，部分包可能`MD5`校验未通过，出现`Revision Mismatch`错误。
+当Stackage镜像源未完全同步官方源时，部分包可能MD5校验未通过，出现`Revision Mismatch`错误。
 对于`Revision Mismatch`错误，默认行为是直接退出。
 
 在`$stack-root/config.yaml`中添加配置：
