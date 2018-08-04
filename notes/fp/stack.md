@@ -16,6 +16,7 @@
 	- [Paths_xxx 模块](#paths_xxx-模块)
 - [问题注记](#问题注记)
 	- [Revision Mismatch](#revision-mismatch)
+	- [HDBC-mysql](#hdbc-mysql)
 
 
 
@@ -434,3 +435,33 @@ ignore-revision-mismatch: true
 ```
 
 使用该配置则启动GHC时会忽略`Revision Mismatch`错误。
+
+## HDBC-mysql
+HDBC-mysql包需要依赖部分C库，如`libz`、`libssl`、`libmysqlclient`等。
+直接使用stack安装时会得到错误信息：
+
+```
+setup: Missing dependencies on foreign libraries:
+* Missing C libraries: z, ssl, mysqlclient
+This problem can usually be solved by installing the system packages that
+provide these libraries (you may need the "-dev" versions). If the libraries
+are already installed but in a non-standard location then you can use the
+flags --extra-include-dirs= and --extra-lib-dirs= to specify where they are.
+```
+
+在macOS平台下，使用Homebrew安装对应依赖：
+
+```c
+/*
+	MariaDB 提供了 libmysqlclient 依赖，
+	同时 MariaDB 依赖于 openssl，安装 MariaDB 时会自行安装该依赖
+*/
+$ brew install mariadb
+```
+
+通过Homebrew安装的openssl对应的库文件不在标准路径下，而是位于`/usr/local/opt/openssl/lib`路径下，
+使用Stack安装HDBC-mysql需要额外指定该路径：
+
+```
+$ stack install HDBC-mysql --extra-lib-dirs=/usr/local/opt/openssl/lib
+```
