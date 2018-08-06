@@ -637,6 +637,83 @@ hbase(main):001:0>
 
 	部分配置(如`VERSIONS`)直接修改无效，需要指定列族名称进行修改。
 
+- 插入、更新数据
+
+	使用`put`函数向表中插入、更新数据：
+
+	```ruby
+	hbase> put "命名空间:表名", "RowKey", "列族:列名", "值"
+
+	# 命名空间和列名可以不写，默认为空
+	hbase> put "表名", "RowKey", "列族", "值"
+	hbase> put "表名", "RowKey", "列族", "值", 时间
+	hbase> put "表名", "RowKey", "列族", "值", ATTRIBUTES => { Xxx => xxx, ... }
+	hbase> put "表名", "RowKey", "列族", "值", 时间, ATTRIBUTES => { Xxx => xxx, ... }
+	hbase> put "表名", "RowKey", "列族", "值", 时间, VISIBILITY => "PRIVATE|SECRET"
+	```
+
+	根据列族的VERSIONS配置，每个单元格会保存一定版本的数据，当保存的版本数达到设定的VERSIONS值时会丢弃时间戳最早的数据。
+
+- 删除数据
+
+	使用`delete/deleteall`函数从表中删除数据：
+
+	```ruby
+	# 使用delete函数删除指定单元格、指定时间的数据
+	hbase> delete "命名空间:表名", "RowKey", "列族:列名", 时间
+	hbase> delete "表名", "RowKey", "列族", 时间
+	hbase> delete "表名", "RowKey", "列族", 时间, VISIBILITY => "PRIVATE|SECRET"
+
+	# deleteall函数支持删除整行、所有时间戳的数据
+	hbase> deleteall "命名空间:表名", "RowKey"
+	hbase> deleteall "表名", "RowKey"
+	hbase> deleteall "表名", "RowKey", "列族:列名"
+	hbase> deleteall "表名", "RowKey", "列族", 时间
+	hbase> deleteall "表名", "RowKey", "列族", 时间, VISIBILITY => "PRIVATE|SECRET"
+
+	# delete/deleteall方法也存在于 HBase::Table 对象中，通过get_table函数构建对象
+	hbase> table = get_table "表名"
+	hbase> table.deleteall "RowKey" # 等价于 deleteall "表名", "RowKey"
+	hbase> table.delete "RowKey", "列族", 时间 # 等价于 delete "表名", "RowKey", "列族", 时间
+	```
+
+- 查询数据
+
+	使用`scan`函数查看表格内数据：
+
+	```ruby
+	# 查看整张表内的数据
+	hbase> scan "表名"
+
+	# 表名之后可携带查询参数，如RowKey前缀、列族、列名、返回数目、逆序等
+	hbase> scan "表名", ROWPREFIXFILTER => "RowKey前缀", COLUMNS => ["列族", "列族:列名", ...], REVERSED => 是否逆序, LIMIT => 返回数目, FLITER => "自定义过滤器...", ....
+	```
+
+	使用`get`函数查看指定表中指定行的数据：
+
+	```ruby
+	# 获取指定表中某个RowKey的所有数据
+	hbase> get "表名", "RowKey"
+
+	# get方法也存在于 HBase::Table 对象中，通过get_table函数构建对象
+	hbase> table = get_table "表名"
+	hbase> table.get "RowKey" # 等价于 get "表名", "RowKey"
+
+	# RowKey之后可添加限制条件
+	hbase> get "表名", "RowKey", TIMERANGE => [时间1, 时间2]
+	hbase> get "表名", "RowKey", COLUMN => "列名"
+	hbase> get "表名", "RowKey", COLUMN => ["列名1", "列名2", "列名3", ...]
+	hbase> get "表名", "RowKey", "列名"
+	hbase> get "表名", "RowKey", "列名1", "列名2", ...
+	hbase> get "表名", "RowKey", ["列名1", "列名2", ...]
+	hbase> get "表名", "RowKey", COLUMN => "列名", TIMESTAMP => 时间
+	hbase> get "表名", "RowKey", COLUMN => "列名", TIMERANGE => [时间1, 时间2], VERSIONS => 版本数目
+	hbase> get "表名", "RowKey", COLUMN => "列名", TIMESTAMP => 时间, VERSIONS => 版本数目
+	hbase> get "表名", "RowKey", FILTER => "自定义过滤器..."
+	hbase> get "表名", "RowKey", CONSISTENCY => 'TIMELINE'
+	hbase> get "表名", "RowKey", CONSISTENCY => 'TIMELINE', REGION_REPLICA_ID => 1
+	```
+
 
 
 # 问题注记
