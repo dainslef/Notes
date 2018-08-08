@@ -1,12 +1,15 @@
 - [ftp](#ftp)
 	- [连接服务器](#连接服务器)
 	- [常用指令](#常用指令)
+- [SSH](#ssh)
+	- [远程登录](#远程登录)
+	- [配置文件](#配置文件)
 - [GNU GRUB](#gnu-grub)
 	- [安装与配置](#安装与配置)
 	- [安装引导器](#安装引导器)
 	- [修复引导](#修复引导)
 - [ulimit](#ulimit)
-	- [配置文件](#配置文件)
+	- [配置文件](#配置文件-1)
 	- [Core Dump (核心转储)](#core-dump-核心转储)
 - [fdisk](#fdisk)
 - [*parted*](#parted)
@@ -93,6 +96,54 @@ ftp>
 - `mkdir/rmdir` 创建/删除`FTP`目录
 - `delete` 删除`FTP`的文件
 - `rename` 重命名`FTP`的文件
+
+
+
+# SSH
+`SSH`全称`Secure Shell`，是一种加密的网络传输协议。
+SSH通过在网络中建立`Secure Channel`(安全通道)实现SSH客户端与服务端之间的连接。
+
+SSH常用在Unix系统中，用于传输命令行界面和远程执行指令。
+相比使用明文传输的`Telnet`协议，SSH能够保证网络环境中信息加密完整可靠。
+
+SSH的主流实现是`OpenSSH`(全称`OpenBSD Secure Shell`)。
+
+## 远程登录
+使用`ssh`指令远程登录配置了SSH服务的主机：
+
+```c
+// 使用 -p 参数指定远程登录端口，SSH服务默认端口为22
+$ ssh [用户名]@[主机名/IP]
+```
+
+## 配置文件
+SSH服务相关配置文件位于`/etc/ssh`路径下：
+
+- `/etc/ssh/ssh_config` ssh指令使用的配置
+- `/etc/ssh/sshd_config` SSH服务使用的配置
+
+常用SSH服务配置：
+
+- `PermitRootLogin`
+
+	配置SSH服务是否允许root登陆。
+
+	| 配置项 | 取值含义 |
+	| :- | :- |
+	| yes(默认) | 允许root用户登陆 |
+	| no | 不允许root用户登陆 |
+	| without-password | 可登陆root用户，但不能以密码验证的方式登陆(可用key验证) |
+	| forced-commands-only | 可登陆root用户，但登陆后仅能执行指令后退出，不能交互 |
+
+- `UseDNS`
+
+	配置是否启用DNS PTR。
+	动态IP通常不会有PTR记录，开启DNS PTR有时导致SSH登陆过慢。
+
+	| 配置项 | 取值含义 |
+	| :- | :- |
+	| yes | 开启 |
+	| no | 关闭 |
 
 
 
