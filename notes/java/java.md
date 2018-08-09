@@ -35,7 +35,7 @@
 	- [ClassLoader (类加载器)](#classloader-类加载器)
 - [动态代理](#动态代理)
 	- [代理模式](#代理模式)
-	- [实例](#实例)
+	- [实例](#实例-1)
 - [Default Method (接口默认方法)](#default-method-接口默认方法)
 - [Lambda](#lambda)
 	- [实现函数式接口](#实现函数式接口)
@@ -46,13 +46,14 @@
 	- [连接数据库](#连接数据库)
 	- [数据库操作](#数据库操作)
 	- [获取时间](#获取时间)
-		- [与 *Access* 数据库交互](#与-access-数据库交互)
+	- [与 Access 数据库交互](#与-access-数据库交互)
 - [Eclipse 使用注记](#eclipse-使用注记)
 	- [Marketplace](#marketplace)
 	- [查看源码](#查看源码)
 	- [编辑器自动换行](#编辑器自动换行)
 - [IntelliJ IDEA 使用注记](#intellij-idea-使用注记)
 	- [显示行号和不可见空白](#显示行号和不可见空白)
+	- [字段类型推断、参数名称提示](#字段类型推断参数名称提示)
 	- [列边界提示](#列边界提示)
 	- [缩进](#缩进)
 	- [包路径折叠](#包路径折叠)
@@ -215,7 +216,7 @@ public class Main {
 ## 有符号数转换无符号数
 在`Java`中，没有内置的无符号类型，则在表示大于`2 ^ 位宽 - 1`的数值时，需要使用更高位宽的数值来表示。
 
-以`byte`类型为例，有符号的`byte`类型范围在`-128 ~ 127`之间，当数值大于`127`时，则需要使用更高位宽的类型表示(如`short`)。  
+以`byte`类型为例，有符号的`byte`类型范围在`-128 ~ 127`之间，当数值大于`127`时，则需要使用更高位宽的类型表示(如`short`)。
 `byte`类型为单字节，则将原始有符号数值转换位更高位宽的类型，再与`0xFF`进行`&`(逻辑与)操作(保留原始数值位，擦除其它内容)，得到对应的无符号值。
 
 以`byte`类型负数`-11`为例，运算过程如下：
@@ -243,7 +244,7 @@ public class Main {
 > 对比可知**低8位**对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行**逻辑与**操作可达到此效果。
 
 ## 字符串、数值转换
-基础数值类型存在`OOP`的封装，用于在泛型中使用。  
+基础数值类型存在`OOP`的封装，用于在泛型中使用。
 如下所示：
 
 | 基础数值类型 | 封装数值类型 |
@@ -255,7 +256,7 @@ public class Main {
 | float | Float |
 | double | Double |
 
-引用数值类型提供了一系列的静态方法用于字符串到数值之间的转换。  
+引用数值类型提供了一系列的静态方法用于字符串到数值之间的转换。
 以`Integer`类型为例，将字符串形式的数值转换为基础数值类型：
 
 ```scala
@@ -263,7 +264,7 @@ scala> Integer.parseInt("2333") //默认文本数值视为10进制
 res1: Int = 2333
 ```
 
-使用无进制参数版本的转换方法时，默认将文本数值视为十进制。  
+使用无进制参数版本的转换方法时，默认将文本数值视为十进制。
 对于非十进制的数值，需要使用带有进制参数的重载版本：
 
 ```scala
@@ -294,8 +295,8 @@ res5: String = 217
 
 
 # Package
-`Package`是`Java`的命名空间隔离机制。  
-使用`package`关键字将类层次化区分，使用`import`关键字来导入使用。  
+`Package`是`Java`的命名空间隔离机制。
+使用`package`关键字将类层次化区分，使用`import`关键字来导入使用。
 未使用`package`关键字的类则位于**默认包**中。
 
 ## import 关键字
@@ -311,12 +312,12 @@ import 包路径.类名;
 import 包路径.类名.内部类名称;
 ```
 
-`import`与源码的路径**无关**。  
+`import`与源码的路径**无关**。
 执行字节码时需要将**class文件**放在与其源码中`package`路径的对应目录下，否则会在执行时出错。
 另外，包名也可以是`*.*.*`的形式。
 
 ## import static 语法
-`Java 5`中新加入了`import static`用法。  
+`Java 5`中新加入了`import static`用法。
 `import static`可以包含目标类中的静态方法，如下所示：
 
 ```java
@@ -328,8 +329,8 @@ import static [包路径].[类名].[静态方法名];
 ## 实例
 有两个文件**A.java**和**B.java**。
 
-文件B中的类被A中引用,则将B打包,代码中添加`package b`，并放在b目录下。  
-文件A中引用B中的类。  
+文件B中的类被A中引用,则将B打包,代码中添加`package b`，并放在b目录下。
+文件A中引用B中的类。
 
 按照描述，两文件的位置：
 
@@ -392,7 +393,7 @@ public class B {
 
 一个`java`源码文件只能包含一个**公有类**，且源码文件的名称应该与包含的公有类的类名**一致**。
 
-`package`打包的源码应当放在与包名相同的目录中，这样生成的字节码class文件才会在对应目录生成。  
+`package`打包的源码应当放在与包名相同的目录中，这样生成的字节码class文件才会在对应目录生成。
 若源码均置于同一级目录，则编译之后产生的`class`文件需要按照`package`关系放在与包名相同的目录下，否则执行`class`文件时会报错(找不到对应的class文件)。
 
 ## 引用依赖
@@ -467,7 +468,7 @@ Set set = map.keySet();
 Iterator iteratorSet = set.iterator();
 ```
 
-`Map`使用`get(key)`可以得到对应的键值，但是这个键值是`Object`型的，需要通过向下转型来恢复键值类型。  
+`Map`使用`get(key)`可以得到对应的键值，但是这个键值是`Object`型的，需要通过向下转型来恢复键值类型。
 `HashMap`之类的容器只能一个键对应**一个**键值，如果需要一个键绑定多个键值可以使用`IdentityHashMap`。
 
 
@@ -586,7 +587,7 @@ public class Main {
 strNew
 ```
 
-可以发现调用`clone()`方法复制出的对象**testClone**在原对象**test**被修改后也发生了变化，并未真正的达到**复制**的效果。  
+可以发现调用`clone()`方法复制出的对象**testClone**在原对象**test**被修改后也发生了变化，并未真正的达到**复制**的效果。
 原因是**TestClone**类完成的仅仅是**浅复制**的过程，类中的引用类型`StringBuffer`并未被真正复制。
 
 ## 深复制
@@ -611,8 +612,8 @@ class TestClone implements Cloneable {
 }
 ```
 
-在重写`clone()`方法的过程中，要实现**深复制**，就需要重新构造类中的每一个引用类型。  
-重新构造对象优先使用该引用类型的`clone()`方法(如果该类型实现了`Cloneable`接口)。  
+在重写`clone()`方法的过程中，要实现**深复制**，就需要重新构造类中的每一个引用类型。
+重新构造对象优先使用该引用类型的`clone()`方法(如果该类型实现了`Cloneable`接口)。
 如果需要复制的引用类型没有实现`Cloneable`接口，则直接使用构造函数创建一个与当前实例中保存内容相同的对象。
 
 需要注意的是，`String`类型是**特例**，虽然其为**引用类型**，但`String`内部重新实现了自身的`clone()`，在重写当前类的`clone()`方法的时候可以将其视为基本类型(即不必显式构建)。
@@ -620,10 +621,10 @@ class TestClone implements Cloneable {
 
 
 # 泛型方法
-Java中的泛型同样支持独立于类的泛型方法。  
+Java中的泛型同样支持独立于类的泛型方法。
 与`C++`、`C#`等语言不同，Java在泛型方法中的类型声明放在方法的修饰符(`public`、`static`、`final`、`abstract`等)之后，返回值声明之前。
 
-Java中的泛型方法支持自动类型推导。  
+Java中的泛型方法支持自动类型推导。
 也可手动显式指定泛型类型，手动指定泛型类型时，与`C++`、`C#`等语言不同，类型参数写在方法名称**之前**。
 
 如下代码所示：
@@ -663,21 +664,21 @@ Test
 
 1. `member nested class`(成员嵌套类)：
 
-	成员嵌套类是作为`enclosing class`的成员定义的，成员嵌套类有`enclosing class`属性。  
+	成员嵌套类是作为`enclosing class`的成员定义的，成员嵌套类有`enclosing class`属性。
 	成员嵌套类可以使用访问控制符，也可以用`static`、`final`关键字修饰。
 
 1. `local nested class`(局部嵌套类)：
 
-	局部嵌套类定义在方法里面，局部嵌套类有`enclosing class`属性和`enclosing method`。  
+	局部嵌套类定义在方法里面，局部嵌套类有`enclosing class`属性和`enclosing method`。
 	局部嵌套类可以使用`final`关键字。
 
 1. `anonymous nested class`(匿名嵌套类)：
 
-	匿名嵌套类没有显示的定义一个类，直接通过`new`操作符构造。  
+	匿名嵌套类没有显示的定义一个类，直接通过`new`操作符构造。
 	匿名嵌套类不使用任何关键字和访问控制符。
 
-普通嵌套类内部不能定义`static`关键字修饰的成员，只有**静态嵌套类**(`static nested class`)内部才能定义`static`成员。  
-静态嵌套类之外的所有嵌套类又被称为**内部类**(`inner class`)。  
+普通嵌套类内部不能定义`static`关键字修饰的成员，只有**静态嵌套类**(`static nested class`)内部才能定义`static`成员。
+静态嵌套类之外的所有嵌套类又被称为**内部类**(`inner class`)。
 静态嵌套类只能访问外部类的静态成员。
 
 如下代码所示：
@@ -724,7 +725,7 @@ class EnclosingClass {
 ## Thread / Runnable
 使用`Thread`创建线程的两种方式：
 
-1. `Runnable`接口定义了`run()`方法，实现该接口，将需要并发执行的内容写在`run()`方法中。  
+1. `Runnable`接口定义了`run()`方法，实现该接口，将需要并发执行的内容写在`run()`方法中。
 	将实现`Runnable`的实例作为参数构造`Thread`实例。
 1. `Thread`类实现了`Runnable`接口，因此也可以直接继承`Thread`类重写其`run()`方法。
 
@@ -779,7 +780,7 @@ public static native void sleep(long millis) throws InterruptedException;
 ## synchronized 关键字
 在多线程环境下，多个线程同时访问一个变量时，会产生线程同步问题，变量可能会被其它线程意外地修改。典型的解决方式是对共享变量进行**加锁**。
 
-`Java 5`之后提供了`synchronized`关键字用于解决线程同步问题。  
+`Java 5`之后提供了`synchronized`关键字用于解决线程同步问题。
 `synchronized`关键字有两种用法：
 
 1. `synchronized`块
@@ -794,19 +795,19 @@ public static native void sleep(long millis) throws InterruptedException;
 
 	其中，同步变量`object`可以是实例、`this`引用或是类型(`XXX.class`)。
 
-	以相同`object`为同步对象的多个`synchronized`块在同一时刻只能有一个`synchronized`块被一个线程执行。  
+	以相同`object`为同步对象的多个`synchronized`块在同一时刻只能有一个`synchronized`块被一个线程执行。
 	在该线程离开`synchronized`块之前，其余线程都会处于等待状态。
 
 	- `object`为实例时：
 
-		同步变量需要为**引用类型**(基础类型如`int`、`float`等不能使用`synchronized`关键字进行同步)。  
-		同步变量**不能**为`null`。  
-		同步变量为类的实例成员时，需要注意同一个类的不同实例的相同实例成员是不同的。  
+		同步变量需要为**引用类型**(基础类型如`int`、`float`等不能使用`synchronized`关键字进行同步)。
+		同步变量**不能**为`null`。
+		同步变量为类的实例成员时，需要注意同一个类的不同实例的相同实例成员是不同的。
 		同步变量为类的静态成员时，一个类的所有实例共享静态成员，此时效果类似于同步类型(`XXX.class`)。
 
 	- `object`为`this`引用时：
 
-		同一实例中以`this`为同步变量的代码块同时只能被一个线程执行。  
+		同一实例中以`this`为同步变量的代码块同时只能被一个线程执行。
 		不同实例之间以`this`为同步对象的代码块无影响。
 
 	- `object`为类型时，所有以此为同步变量的代码块都只能被一个线程执行。
@@ -825,12 +826,12 @@ public static native void sleep(long millis) throws InterruptedException;
 
 	- 修饰的方法为**实例方法**时：
 
-		同一实例的`synchronized`方法同时只能有一个被执行。  
+		同一实例的`synchronized`方法同时只能有一个被执行。
 		等价于将整个方法体的内容写在`synchronized (this) { ... }`中。不同实例间不受影响。
 
 	- 修饰的方法为**静态方法**时：
 
-		所有该类中的静态`synchronized`方法同时只能有一个被执行。  
+		所有该类中的静态`synchronized`方法同时只能有一个被执行。
 		等价于将整个方法体的内容写在`synchronized (类名.class) { ... }`中。
 
 	一个类中被`synchronized`修饰的实例方法和被`synchronized`修饰的静态方法的同步变量不同，因而不会相互同步。
@@ -916,19 +917,19 @@ public static native void sleep(long millis) throws InterruptedException;
 
 	输出结果分析：
 
-	`Example`类中的三个成员方法都使用了`synchronized`关键字进行修饰。  
+	`Example`类中的三个成员方法都使用了`synchronized`关键字进行修饰。
 	`showOne()`、`showTwo()`为实例方法，`showStatic()`为静态方法。
 
-	来自同一个实例在不同线程中的两个实例方法**没有**并发执行：  
+	来自同一个实例在不同线程中的两个实例方法**没有**并发执行：
 	`showTwo()`一直等到`showOne()`结束才开始执行。
 
-	静态方法并发执行了：  
+	静态方法并发执行了：
 	`showOne()`与`showStatic()`交错打印输出。
 
 ## Executor 框架
 `Thread`类功能简单，仅仅提供了原始的线程抽象，在实际的开发中，往往会使用更高层次的API。
 
-`Java 5`之后提供了`Executor`框架，用于创建、管理与执行线程。  
+`Java 5`之后提供了`Executor`框架，用于创建、管理与执行线程。
 `Executor`框架主要包含`Executor`、`Executors`、`ExecutorService`、`CompletionService`、`Future`、`Callable`等类型。
 
 `Runnable`、`Callable`、`Future`接口是Java中对于异步操作的抽象。
@@ -943,7 +944,7 @@ public interface Runnable {
 
 除了`Runnable`接口是Java早期版本就已包含的之外，其余的接口/类定义都在`java.util.concurrent`包中。
 
-`Callable`接口用于表示带有返回值的异步操作。  
+`Callable`接口用于表示带有返回值的异步操作。
 定义如下：
 
 ```java
@@ -952,7 +953,7 @@ public interface Callable<V> {
 }
 ```
 
-`Future`接口用于表示一个异步操作的结果。  
+`Future`接口用于表示一个异步操作的结果。
 定义如下：
 
 ```java
@@ -972,7 +973,7 @@ public interface Future<V> {
 }
 ```
 
-`Executor`接口是框架中最基础的部分，仅包含一个执行`Runnable`的`execute()`的抽象方法。  
+`Executor`接口是框架中最基础的部分，仅包含一个执行`Runnable`的`execute()`的抽象方法。
 定义如下：
 
 ```java
@@ -981,8 +982,8 @@ public interface Executor {
 }
 ```
 
-`Executor`接口没有直接子类，但拥有子接口`ExecutorService`。  
-`ExecutorService`接口定义了一系列终止、提交、跟踪任务状态的抽象方法，是整个库的核心接口。  
+`Executor`接口没有直接子类，但拥有子接口`ExecutorService`。
+`ExecutorService`接口定义了一系列终止、提交、跟踪任务状态的抽象方法，是整个库的核心接口。
 定义如下：
 
 ```java
@@ -1092,8 +1093,8 @@ public class Main {
 - 直接使用`get()`从`Future`中同步获取返回值需要对任务的执行时间有大致的估算，否则可能造成在某一个执行耗时高的任务中阻塞较长时间。
 - 使用`get(long timeout, TimeUnit unit)`限定了等待时间，但任务未必会在限定时间内完成，可能需要多次轮询才能获取到所有`Future`的结果。
 
-处理多个任务返回结果应该使用`CompletionService`接口。  
-`CompletionService`接口定义了将已完成的任务与新提交的任务分离的方法。  
+处理多个任务返回结果应该使用`CompletionService`接口。
+`CompletionService`接口定义了将已完成的任务与新提交的任务分离的方法。
 定义如下：
 
 ```java
@@ -1171,7 +1172,7 @@ public class Main {
 # Annotation (注解)
 注解(元数据)是`Java 5`之后引入的机制，从`Java 6`开始支持**自定义注解**。
 
-注解可以声明在**包**、**类**、**字段**、**方法**、**局部变量**、**方法参数**等之前，用来对这些元素进行说明和注释。  
+注解可以声明在**包**、**类**、**字段**、**方法**、**局部变量**、**方法参数**等之前，用来对这些元素进行说明和注释。
 注解的相关内容在包`java.lang.annotation`中。
 
 注解的基本语法为：
@@ -1190,7 +1191,7 @@ Java中提供了一系列**内置注解**，常用的有：
 - `@SuppressWarnings`用于控制编译时的输出警告信息，该注解有多个参数，但都带有默认值。
 
 ## 元注解
-**元注解**专门用来修饰其它注解，用于**自定义注解**。  
+**元注解**专门用来修饰其它注解，用于**自定义注解**。
 **元注解**有以下4类：
 
 1. `@Target`用于限制注解的范围，参数为注解范围的数组(可以同时设定多个注解范围，用花括号包裹)，取值如下所示：
@@ -1207,27 +1208,27 @@ Java中提供了一系列**内置注解**，常用的有：
 
 	- `RetentionPolicy.SOURCE`
 
-		注解在编译阶段丢弃。  
-		被修饰的注解在编译结束之后就不再有任何意义，不会写入字节码。  
+		注解在编译阶段丢弃。
+		被修饰的注解在编译结束之后就不再有任何意义，不会写入字节码。
 		`@Override`、`@SuppressWarnings`属于此类注解。
 
 	- `RetentionPolicy.CLASS`
 
-		在类加载的时候丢弃注解信息。  
+		在类加载的时候丢弃注解信息。
 		在字节码文件的处理中有用。注解**默认使用**这种方式。
 
 	- `RetentionPolicy.RUNTIME`
-	
-		不丢弃注解信息。  
-		运行期也保留该注解，可以使用反射机制读取该注解的信息。  
+
+		不丢弃注解信息。
+		运行期也保留该注解，可以使用反射机制读取该注解的信息。
 		**自定义注解**通常使用这种方式。
 
 1. `@Inherited`为**标记注解**，用于设置注解的继承性：
 
-	被改注解修饰的注解用在类中是**可继承的**，但类不从它所实现的接口继承注解，方法并不从它所重载的方法继承注解。  
+	被改注解修饰的注解用在类中是**可继承的**，但类不从它所实现的接口继承注解，方法并不从它所重载的方法继承注解。
 	对于设置了`@Inherited`和`@Retention`元注解的注解，并且声明周期设为`RetentionPolicy.RUNTIME`时，则使用`反射`机制来获取元素注解，且检查不到该注解时，会一直沿着继承树向上搜索，直到查找到了该注解或到达类继承结构的顶层。
 
-1. `@Documented`设置在使用`javadoc`生成API时记录注解信息。  
+1. `@Documented`设置在使用`javadoc`生成API时记录注解信息。
 	默认情况下，`javadoc`**不会**记录注解信息。
 
 ## 自定义注解
@@ -1235,7 +1236,7 @@ Java中提供了一系列**内置注解**，常用的有：
 
 - 使用`@interface`自定义注解，自定义注解继承了`java.lang.annotation.Annotation`接口。
 - 定义注解时，**不能**继承其他的注解或接口。
-- 定义注解时，每一个方法实际上是定义了一个配置参数。  
+- 定义注解时，每一个方法实际上是定义了一个配置参数。
 	方法的名称就是参数的名称，返回值类型就是参数的类型。可以通过`default`关键字来设置参数**默认值**。
 - 定义注解时，使用`value`做为注解参数名称，则使用注解时参数名称可省略。
 - 定义注解时，参数的访问权限只能为`public`或**默认**权限。
@@ -1519,7 +1520,7 @@ null
 public T newInstance() throws InstantiationException, IllegalAccessException;
 ```
 
-`Class`类中没有直接提供通过**有参构造函数**反射构建实例的方式。  
+`Class`类中没有直接提供通过**有参构造函数**反射构建实例的方式。
 若需要反射调用类的有参构造方法，则需要先获取其有参构造器(`Constructor`类型)，之后通过`Constructor`类的相关方法构造实例。
 
 通过反射可以实现使用**非公有构造函数**构建对象。
@@ -1793,7 +1794,7 @@ sun.misc.Launcher$AppClassLoader
 1. `Smart Reference`智能指引，取代了简单的指针，它在访问对象时执行一些附加操作，扩充原有对象的功能。
 1. `Copy-on-Write`写时复制，它是虚拟代理的一种，把复制操作延迟到只有在客户端真正需要时才执行。
 
-在`Java`中代理模式的典型方式是使用接口定义功能，实现类实现接口功能，而代理类控制/扩充实现类功能。  
+在`Java`中代理模式的典型方式是使用接口定义功能，实现类实现接口功能，而代理类控制/扩充实现类功能。
 代理类与实现类都`implements`接口，但代理类本身不直接实现具体功能，而是调用被其代理的实现类的方法。
 
 ## 实例
@@ -1827,11 +1828,11 @@ class FileImpl implements File {
 }
 ```
 
-使用静态代理，则应创建一个**代理类**用于控制之前的实现。  
-代理类同样需要实现基础接口，但代理类不同于实现类，代理类使用别的接口实现类的实现而不是自身实现功能。  
+使用静态代理，则应创建一个**代理类**用于控制之前的实现。
+代理类同样需要实现基础接口，但代理类不同于实现类，代理类使用别的接口实现类的实现而不是自身实现功能。
 代理类在调用实现类功能的同时，也可以加入自身的扩充功能。
 
-实现类以接口的形式被传入代理类，当一个接口有多种实现的时候，代理类能够针对每一种实现类都添加相同的功能。  
+实现类以接口的形式被传入代理类，当一个接口有多种实现的时候，代理类能够针对每一种实现类都添加相同的功能。
 这就是所谓的`AOP`(面向切面编程)，代理类可以被视为是一个切面。
 
 ```java
@@ -1896,7 +1897,7 @@ public interface InvocationHandler {
 - `method`参数为调用的方法。
 - `args`参数为对调用方法传入的参数。
 
-需要自行实现`InvocationHandler`接口，来实现动态代理的具体内容。  
+需要自行实现`InvocationHandler`接口，来实现动态代理的具体内容。
 以上文的`FileImpl`类为例，使用动态代理实现如下：
 
 ```java
@@ -1993,7 +1994,7 @@ B
 
 由输出可知，向上转型后的实例对象调用的是被重写之后的方法。
 
-当一个类实现了多个带有相同函数签名的默认方法的接口，需要重写引发冲突的默认方法。  
+当一个类实现了多个带有相同函数签名的默认方法的接口，需要重写引发冲突的默认方法。
 如下所示：
 
 ```java
@@ -2021,7 +2022,7 @@ class Test implements Test1, Test2 {
 }
 ```
 
-如果你想在重写的方法中直接使用原先接口中的某个默认方法实现，可以使用`super`关键字。  
+如果你想在重写的方法中直接使用原先接口中的某个默认方法实现，可以使用`super`关键字。
 如下所示：
 
 ```java
@@ -2046,7 +2047,7 @@ class Test implements Test1, Test2 {
 ## 实现函数式接口
 **Lambda表达式**用于实现**函数式接口**，函数接口是**有且只有一个**抽象方法的接口。
 
-函数式接口可以使用`@FunctionalInterface`注解，被其标注的接口中若含有**多个**抽象方法则无法通过编译。  
+函数式接口可以使用`@FunctionalInterface`注解，被其标注的接口中若含有**多个**抽象方法则无法通过编译。
 如下所示：
 
 ```java
@@ -2066,7 +2067,7 @@ Error: java: Unexpected @FunctionalInterface annotation
 		multiple non-overriding abstract methods found in interface Test
 ```
 
-对于**函数接口**，只能带有一个**抽象方法**，但可以带有任意数量的**默认方法**。  
+对于**函数接口**，只能带有一个**抽象方法**，但可以带有任意数量的**默认方法**。
 如下所示：
 
 ```java
@@ -2155,12 +2156,12 @@ int test(int a) {
 a -> 2 * a;
 ```
 
-Lambda表达式能够**访问**外部作用域中的变量。  
-Java中的Lambda捕获外部作用域变量时会自动带有`final`属性，因而在Lambda中不能对引用的外部作用域变量进行更改(变量若为类实例，则类内成员**不受**影响)。  
+Lambda表达式能够**访问**外部作用域中的变量。
+Java中的Lambda捕获外部作用域变量时会自动带有`final`属性，因而在Lambda中不能对引用的外部作用域变量进行更改(变量若为类实例，则类内成员**不受**影响)。
 在其它支持Lambda表达式的主流语言中，`C#`中的Lambda可以修改外部作用域的变量，`C++`可以控制外部变量的捕获方式，对于**引用捕获**的变量，可以修改其值。
 
 ## Method Reference (方法引用)
-对于函数接口，还可以将当前类的某个符合方法签名的方法作为引用实例化函数接口对象。  
+对于函数接口，还可以将当前类的某个符合方法签名的方法作为引用实例化函数接口对象。
 例如：
 
 ```java
@@ -2181,10 +2182,10 @@ class B {
 }
 ```
 
-使用操作符`::`将符合签名的方法作为重写内容构造出接口对象。  
+使用操作符`::`将符合签名的方法作为重写内容构造出接口对象。
 接口的成员方法为公有成员，但若使用方法引用实现接口时，不必考虑被引用方法的访问限制，
 即使是本类的私有成员，一样可以作为引用来实现接口，
-但如果是重写接口则必须访问权限为`public`(重写权限必须大于等于原有权限)。  
+但如果是重写接口则必须访问权限为`public`(重写权限必须大于等于原有权限)。
 只要**方法签名**相同(返回值类型可以不同)，可使用抽象方法来作为引用实现函数接口。
 
 ## 标准库中的函数式接口 (java.util.function)
@@ -2206,11 +2207,11 @@ class B {
 
 预定义的函数接口仅包含**单个参数**、**两个参数**的情形，若需要**三个或以上**参数的函数接口则需自行定义。
 
-由于Java泛型机制的限制，泛型参数不能使用基础类型(如`int`、`double`等，需要使用对应的包装类型`Integer`、`Double`)。  
+由于Java泛型机制的限制，泛型参数不能使用基础类型(如`int`、`double`等，需要使用对应的包装类型`Integer`、`Double`)。
 为避免基础类型装箱，`java.util.function`包为基础类型作为方法参数的情形提供了对应的预定义接口，如`IntFunction<R>`、`DoubleConsumer`等。
 
 `java.util.function`包中预定义的一系列函数接口只是简化了函数接口的定义，
-Java8中的函数接口**不能**做到类似C#中`Delegate/Func/Action`或Scala中`Function*`那样直接以函数的语法进行调用。  
+Java8中的函数接口**不能**做到类似C#中`Delegate/Func/Action`或Scala中`Function*`那样直接以函数的语法进行调用。
 Java8中的Lambda语法仅仅简化了实现函数接口的过程，调用函数接口内的方法时仍然需要显式使用接口中的方法名称。
 
 如下所示：
@@ -2246,7 +2247,7 @@ public class Main {
 
 
 # JDBC
-`JDBC`为`Java`定义了一套公用的数据库`API`，`JDBC`屏蔽了不同数据库之间的差异。  
+`JDBC`为`Java`定义了一套公用的数据库`API`，`JDBC`屏蔽了不同数据库之间的差异。
 对于支持`JDBC`的数据库，只要导入对应的`JDBC Driver`即可使用相同的`JDBC API`进行操作。
 
 ## 连接数据库
@@ -2332,8 +2333,8 @@ while (resultSet.next()) { // 使用 next() 方法将当前游标移动到下一
 
 使用`getTimestamp()`方法才能获取到完整的时间信息。
 
-### 与 *Access* 数据库交互
-`JDK 1.7`之前，可以使用`JDBC-ODBC`桥接`Access`数据库。  
+## 与 Access 数据库交互
+`JDK 1.7`之前，可以使用`JDBC-ODBC`桥接`Access`数据库。
 在`JDK 1.8`之后，`JDBC-ODBC`桥被移除，只能使用专有的`Access`驱动来连接`Access`数据库(驱动名称：`Access_JDBC40.jar`)。
 
 连接Access数据库：
@@ -2360,8 +2361,8 @@ Access数据库的一些小常识：
 
 - 表单的高级字段设置在`开始 - 视图 - 设计视图`中。
 - 配置自增属性需要将字段类型设为`自动编号`。
-- 默认情况下，创建的数据类型`数字`的字段大小为`长整型`。  
-	长整型不支持**小数输入**，小数输入会自动被去尾。  
+- 默认情况下，创建的数据类型`数字`的字段大小为`长整型`。
+	长整型不支持**小数输入**，小数输入会自动被去尾。
 	需要将字段大小设置为`单精度浮点型/双精度浮点型`才能支持小数位。
 - 如果需要某个字段的内容唯一不可重复，可以将改字段的索引设置为`有(无重复)`即可。
 
@@ -2381,8 +2382,8 @@ Access数据库的一些小常识：
 `Marketplace Client`
 
 ## 查看源码
-与**NetBeans**不同，在Eclipse中默认是无法直接查看JDK中类库的源码的，需要手动指定源码的位置。  
-一般情况下，JDK源码位于JDK的安装目录下的`src.zip`文件中。
+与**NetBeans**不同，Eclipse默认无法直接查看JDK中类库源码，需要手动指定源码的位置。
+通常JDK源码位于JDK的安装目录下的`src.zip`文件中。
 
 在Eclipse中按以下步骤添加源码路径：
 
@@ -2400,11 +2401,11 @@ Access数据库的一些小常识：
 `Finish`
 
 ## 编辑器自动换行
-Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方插件进行实现。  
+Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方插件进行实现。
 在Eclipse中按以下步骤安装`Word Wrap`插件使编辑器能够自动换行：
 
-`Help` => 
-`Install New Software` => 
+`Help` =>
+`Install New Software` =>
 `Add Repository` =>
 输入仓库地址`http://ahtik.com/eclipse-update` =>
 安装`WordWrap`插件 =>
@@ -2420,13 +2421,29 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 ## 显示行号和不可见空白
 选择选项：
 
-`File` => `Settings` => `Editor` => `General` => `Appearance` => ...
+`File` => `Settings` => `Editor` => `General` => `Appearance`
 
-- 勾选`Show whitespaces(显示空白)`和`Show line numbers(显示行号)`选项。
-- 勾选`Show menthod separators`则会在方法定义之间出现横线做为分隔符。
+| 选项名称 | 含义 |
+| :- | :- |
+| Show whitespaces | 显示空白 |
+| Show line numbers | 显示行号 |
+| Show method separators | 显示方法分界线 |
+
+## 字段类型推断、参数名称提示
+选择选项：
+
+`File` => `Settings` => `Editor` => `General` => `Appearance`
+
+| 选项名称 | 含义 |
+| :- | :- |
+| Show external annotations inline | 显示Java/Kotlin的参数名称提示 |
+| Show inferred annotations inline | 显示Java/Kotlin的变量类型推断 |
+| Show function return type hints (Scala) | 显示Scala方法返回类型推断 |
+| Show property type hints (Scala) | 显示Scala字段类型推断 |
+| Show local variable type hints (Scala) | 显示Scala本地变量 |
 
 ## 列边界提示
-列宽边界线用于提示代码单行长度是否超过界限。  
+列宽边界线用于提示代码单行长度是否超过界限。
 选择选项：
 
 `File` => `Settings` => `Editor` => `Code Style` => `Default Options` => `Right margin (columns)`
@@ -2443,34 +2460,37 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 - 勾选`Keep indents on empyt lines`则会在**空行**中**保持缩进**。
 
 ## 包路径折叠
-默认侧边栏`Project`导航中的包内无源码且仅包含一个子包时，包路径会折叠显示。  
+默认侧边栏`Project`导航中的包内无源码且仅包含一个子包时，包路径会折叠显示。
 折叠显示包路径更加简洁，但不能在包路径中添加其它包。
 
 关闭折叠显示可点击`Project`导航中的设置按钮，取消选中`Flatten Packages`选项。
 
 ## 其它常用选项
+通用编辑器选项
 `File` => `Settings` => `Editor` => `General`：
 
-- `Code Folding` 代码折叠
-- `Soft Wraps` 代码自动换行
-- `Appearance` => `Show right margin` 设置代码边界指示线
-- `Virtual Space` 虚空格(空白处的点按逻辑)
-- `Other` => `Show quick documentation on mouse move` 光标悬停显示变量/方法信息
+| 选项名称 | 含义 |
+| :- | :- |
+| Code Folding | 代码折叠 |
+| Soft Wraps | 代码自动换行 |
+| Appearance => Show right margin | 设置代码边界指示线 |
+| Virtual Space | 虚空格(空白处的点按逻辑) |
+| Other => Show quick documentation on mouse move | 光标悬停显示变量/方法信息 |
 
+代码风格选项
 `File` => `Settings` => `Editor` => `Code Style`：
 
-- `Java` => `Spaces` => `After type cast` Java强制类型转换前是否空格
-- `Scala` => `Other` => `Enfore procedure syntax for methods with Unit return type`  
-	Scala函数是否自动补全空返回类型
-- `Scala` => `Wrappings and Braces` => `Class definition` => `Place self type on new line`  
-	Scala自身类型参数在类定义中是否另起一行
-- `[目标语言]` => `Wrappings and Braces` => `Method parenttheses` => `Align when multiline`  
-	函数多行参数是否自动对齐到函数名
-- `[目标语言]` => `Blank Lines` => `Minimum Blank Lines` 方法、字段前空行数量
+| 选项名称 | 含义 |
+| :- | :- |
+| Java => Spaces => After type cast | Java强制类型转换前是否空格 |
+| Scala => Other => Enfore procedure syntax for methods with Unit return type | Scala函数是否自动补全空返回类型 |
+| Scala => Wrappings and Braces => Class definition => Place self type on new line | Scala自身类型参数在类定义中是否另起一行 |
+| [目标语言] => Wrappings and Braces => Method parenttheses => Align when multiline | 函数多行参数是否自动对齐到函数名 |
+| [目标语言] => Blank Lines => Minimum Blank Lines | 方法、字段前空行数量 |
 
 `File` => `Settings` => `Project` => `Inspections` => `Spelling` 设置是否开启拼写检查
 
-`File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`  
+`File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
 设置`JavaScript`支持`ECMAScript 6`语法
 
 ## 项目打包
@@ -2481,8 +2501,8 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 选择界面中的`+`符号添加打包配置，根据项目类型打包成不同的目标格式。
 
 ## 多模块项目
-`Idea`中的`Project`类似于`Eclipse`中的`WorkSpace`，`Idea`中的`Module`类似于`Eclipse`中的`Project`。  
-当一个项目中需要包含多个子项目时，可以创建`Module`。  
+`Idea`中的`Project`类似于`Eclipse`中的`WorkSpace`，`Idea`中的`Module`类似于`Eclipse`中的`Project`。
+当一个项目中需要包含多个子项目时，可以创建`Module`。
 每个`Module`管理独立的源码，`Module`拥有独立的依赖管理，并可以依赖其它`Module`。
 
 创建新的`Module`时，新的源码目录会被默认添加至主模块中，会导致修改子模块的依赖关系时出现错误：
@@ -2540,7 +2560,7 @@ Module "xxx" must not contain source root "xxx". The root already belongs to mod
 public String[] split(String regex);
 ```
 
-`String`类中提供的文本切片函数`String.split()`接收的参数是**正则表达式**(Regex)。  
+`String`类中提供的文本切片函数`String.split()`接收的参数是**正则表达式**(Regex)。
 以一些**特殊符号**(`.`、`+`等)作为分隔符时，不能直接使用符号本身，而是需要使用转义符号，如以**小数点**作为分隔符切片需要写成：
 
 ```java
@@ -2582,10 +2602,10 @@ public static String getProperty(String key);
 | java.io.tmpdir | 操作系统的TEMP目录 |
 
 ## java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXrender.so.1: cannot open shared object file: No such file or directory
-错误原因：  
+错误原因：
 Linux环境下，系统缺失动态链接库`libXrender.so`。
 
-解决方法：  
+解决方法：
 使用发行版对应包管理器安装缺失的库。
 以`Debian`、`Ubuntu`为例：
 
@@ -2594,10 +2614,10 @@ Linux环境下，系统缺失动态链接库`libXrender.so`。
 ```
 
 ## java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory
-错误原因：  
+错误原因：
 Linux环境下，系统缺失动态链接库`libXtst.so`。
 
-解决方法：  
+解决方法：
 使用发行版对应包管理器安装缺失的库：
 以`Debian`、`Ubuntu`为例：
 
