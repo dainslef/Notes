@@ -24,7 +24,7 @@
 	- [内置注解](#内置注解)
 	- [元注解](#元注解)
 	- [自定义注解](#自定义注解)
-- [*Reflection* (反射)](#reflection-反射)
+- [Reflection (反射)](#reflection-反射)
 	- [反射机制的相关类型](#反射机制的相关类型)
 	- [Class 类型](#class-类型)
 	- [反射获取成员信息](#反射获取成员信息)
@@ -221,34 +221,34 @@ public class Main {
 
 以`byte`类型负数`-11`为例，运算过程如下：
 
-> `byte`类型数值`-11`，原码为：
->
-> `10001011`
->
-> 在计算机中以反码存储，反码表示为：
->
-> `11110101`(对应无符号数值`245`(首位不视为符号位))
->
-> `byte`类型数值`-11`提升到`short`型，编译器会保留数值含义(数值`-11`)不变，原码为：
->
-> `1000000000001011`
->
-> 在计算机中存储的反码为：
->
-> `1111111111110101`
->
-> 若保留原先的无符号值含义(数值`245`)，则原码/反码均应为：
->
-> `0000000011110101`
->
-> 对比可知**低8位**对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行**逻辑与**操作可达到此效果。
+1. `byte`类型数值`-11`，原码为：
+
+	`10001011`
+
+	计算机内部数值以反码存储，反码表示为：
+
+	`11110101`(对应无符号数值`245`(首位不视为符号位))
+
+1. `byte`类型数值`-11`提升到`short`型，编译器会保留数值含义(数值`-11`)不变，原码为：
+
+	`1000000000001011`
+
+	在计算机中存储的反码为：
+
+	`1111111111110101`
+
+	若保留原先的无符号值含义(数值`245`)，则原码/反码均应为：
+
+	`0000000011110101`
+
+	对比可知**低8位**对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行**逻辑与**操作可达到此效果。
 
 ## 字符串、数值转换
 基础数值类型存在`OOP`的封装，用于在泛型中使用。
 如下所示：
 
 | 基础数值类型 | 封装数值类型 |
-|:----------:|:----------:|
+| :-: | :-: |
 | byte | Byte |
 | short | Short |
 | int | Integer |
@@ -282,7 +282,7 @@ scala> Integer.parseInt("2333", 8) //文本数值设为8进制
 res3: Int = 1243
 ```
 
-`String`类型则提供了`valueOf()`方法用于将数值转为字符串形式：
+String类型则提供了`valueOf()`方法用于将数值转为字符串形式：
 
 ```scala
 scala> String.valueOf(2333) //转换10进制数值
@@ -414,20 +414,24 @@ $ java -Djava.ext.dirs=[第三方库所在的目录] [编译生成的class文件
 # Container (容器)
 与常见的编程语言相同，Java中的常见的**容器类型**为`List`、`Set`、`Map`。
 
-- `List`特点：元素**有序**，元素**可重复**。
-- `Map`特点：元素按键值对存储，**无序**。
-- `Set`特点：元素**无序**，元素**不可重复**(注意：元素虽然无放入顺序，但是元素在`Set`中的位置是有该元素的**HashCode**决定的，其位置其实是固定的)。
+| 容器 | 特点 |
+| :- | :- |
+| List | 元素**有序**，元素**可重复** |
+| Map | 元素按键值对存储，**无序** |
+| Set | 元素**无序**，元素**不可重复**(注意：元素虽然无放入顺序，但是元素在`Set`中的位置是有该元素的**HashCode**决定的，其位置其实是固定的) |
 
 在Java中，这三种集合类型都是以接口形式存在的，不能直接使用，要使用这三种类型可以使用其实现类：
 
-- `List`的实现类为`LinkedList`、`ArrayList`、`Vector`；。
-- `Set`接口有两个实现类`HashSet`、`LinkedHashSet`。
-- `Map`接口有三个实现类`HashMap`、`HashTable`、`LinkeHashMap`。
+| 接口 | 实现类 |
+| :- | :- |
+| List | LinkedList、ArrayList、Vector |
+| Set | HashSet、LinkedHashSet |
+| Map | HashMap、HashTable、LinkeHashMap |
 
 这些实现类各有优缺点：
 
-- `ArrayList`是**非线程安全**的，效率**高**。
-- `Vector`是基于**线程安全**的，效率**低**。
+- `ArrayList`**非线程安全**，效率**高**。
+- `Vector`**线程安全**，效率**低**。
 - `HashMap`**非线程安全**，高效，**支持**null。
 - `HashTable`**线程安全**，低效，**不支持**null 。
 
@@ -540,7 +544,7 @@ enum Enum {
 
 
 # 浅复制与深复制
-`Java`中**基础类型**如`int`、`double`等在复制时进行**值拷贝**，而对于**引用类型**，则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
+Java中**基础类型**如`int`、`double`等在复制时进行**值拷贝**，而对于**引用类型**，则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
 
 ## 浅复制
 要想让一个类能够被复制，则类需要实现`Cloneable`接口，并重写`clone()`方法。
@@ -1286,7 +1290,7 @@ TestValue: Schwarzes marken 6
 
 
 
-# *Reflection* (反射)
+# Reflection (反射)
 在`Java`中，**反射**机制提供了一系列**运行时**功能：
 
 - 判断任意一个对象所属的类。
@@ -1584,7 +1588,7 @@ public class Main {
 ## 反射调用对象方法
 通过反射可以实现调用任意方法(包括**私有方法**)，方式与调用构造函数基本类似。
 
-首先获取目标方法的`Method`对象，之后通过`Method`类的`invoke()`方法执行，第一个参数为类的实例，之后的参数为方法签名中的参数。
+首先获取目标方法的`Method`对象，之后通过Method类的`invoke()`方法执行，第一个参数为类的实例，之后的参数为方法签名中的参数。
 
 ```java
 public Object invoke(Object var1, Object... var2)
@@ -2335,7 +2339,7 @@ while (resultSet.next()) { // 使用 next() 方法将当前游标移动到下一
 
 ## 与 Access 数据库交互
 `JDK 1.7`之前，可以使用`JDBC-ODBC`桥接`Access`数据库。
-在`JDK 1.8`之后，`JDBC-ODBC`桥被移除，只能使用专有的`Access`驱动来连接`Access`数据库(驱动名称：`Access_JDBC40.jar`)。
+在`JDK 1.8`之后，`JDBC-ODBC`桥被移除，只能使用专有的Access驱动来连接Access数据库(驱动名称：`Access_JDBC40.jar`)。
 
 连接Access数据库：
 
@@ -2494,16 +2498,18 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 设置`JavaScript`支持`ECMAScript 6`语法
 
 ## 项目打包
-将`Java`项目打包成`jar`、`war`等分发格式，按以下菜单路径设置：
+将Java项目打包成`jar`、`war`等分发格式，按以下菜单路径设置：
 
 `File` => `Project Structure` => `Project Settings` => `Artifacts`
 
 选择界面中的`+`符号添加打包配置，根据项目类型打包成不同的目标格式。
 
 ## 多模块项目
-`Idea`中的`Project`类似于`Eclipse`中的`WorkSpace`，`Idea`中的`Module`类似于`Eclipse`中的`Project`。
-当一个项目中需要包含多个子项目时，可以创建`Module`。
-每个`Module`管理独立的源码，`Module`拥有独立的依赖管理，并可以依赖其它`Module`。
+Idea中一个项目被称为`Project`，项目中可包含多个子模块(`Module`)。
+当一个项目中需要包含多个子项目时，可以创建多个Module。
+每个Module管理独立的源码，Module拥有独立的依赖关系，并可以依赖其它Module。
+
+Idea中的`Project`类似于Eclipse中的`WorkSpace`，Idea中的`Module`类似于Eclipse中的`Project`。
 
 创建新的`Module`时，新的源码目录会被默认添加至主模块中，会导致修改子模块的依赖关系时出现错误：
 
@@ -2577,18 +2583,16 @@ public static String format(String var0, Object... var1);
 public static String format(Locale var0, String var1, Object... var2);
 ```
 
-`String`类的`format()`方法提供类似C语言中`sprintf()`函数类似的文本格式化方式，格式化字段的语法类似。
+String类的`format()`方法提供类似C语言中`sprintf()`函数类似的文本格式化方式，格式化字段的语法类似。
 
 ## 查询 OS 信息
-使用`System`类中的`getProperty()`方法可以获取**操作系统**以及**Java虚拟机**的各类状态信息：
+使用System类中的`getProperty()`方法可以获取**操作系统**以及**Java虚拟机**的各类状态信息：
 
 ```java
 public static String getProperty(String key);
 ```
 
-其中，参数`key`为需要获取信息的类型。
-
-常用系统信息的`key`如下：
+参数`key`为需要获取信息的类型，常用系统信息的key如下：
 
 | key | 信息内容 |
 |:----|:--------|
@@ -2602,10 +2606,10 @@ public static String getProperty(String key);
 | java.io.tmpdir | 操作系统的TEMP目录 |
 
 ## java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXrender.so.1: cannot open shared object file: No such file or directory
-错误原因：
+错误原因：<br>
 Linux环境下，系统缺失动态链接库`libXrender.so`。
 
-解决方法：
+解决方法：<br>
 使用发行版对应包管理器安装缺失的库。
 以`Debian`、`Ubuntu`为例：
 
@@ -2614,10 +2618,10 @@ Linux环境下，系统缺失动态链接库`libXrender.so`。
 ```
 
 ## java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory
-错误原因：
+错误原因：<br>
 Linux环境下，系统缺失动态链接库`libXtst.so`。
 
-解决方法：
+解决方法：<br>
 使用发行版对应包管理器安装缺失的库：
 以`Debian`、`Ubuntu`为例：
 
