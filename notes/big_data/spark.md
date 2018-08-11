@@ -29,6 +29,7 @@
 - [Spark SQL](#spark-sql)
 	- [SQL](#sql)
 	- [Datasets & DataFrames](#datasets--dataframes)
+	- [SparkSession](#sparksession)
 - [问题注记](#问题注记)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -1581,6 +1582,52 @@ Python不支持Dataset API。但由于Python动态特性，许多Dataset API中�
 DataFrame可由各种数据源构造，如：结构化的数据文件、Hive中的表、外部数据库、已存在的RDD等。
 DataFrame提供了Scala、Java、Python、R等语言的API，在Scala和Java中，
 DataFrame类型由泛型参数为`Row`的Dataset表示，如`Dataset[Row]`(Scala)和`Dataset<Row>`(Java)。
+
+## SparkSession
+自`Spark 2.0`开始，Spark SQL提供的`SparkSession`代替了原先的SparkContext做为Spark功能的主要入口点。
+使用`SparkSession.builder()`构建SparkSession实例：
+
+```scala
+import org.apache.spark.sql.SparkSession
+
+val sparkSession = SparkSession
+  .builder()
+  .appName(...)
+  .master(...)
+  .config(...)
+  .getOrCreate()
+
+// 导入 Spark SQL 相关的隐式转换，如将 RDD 转换到 DataFrame
+import sparkSession.implicits._
+```
+
+可通过SparkSession获取封装的SparkContext和SQLContext：
+
+```scala
+@InterfaceStability.Stable
+class SparkSession private(
+    @transient val sparkContext: SparkContext,
+    @transient private val existingSharedState: Option[SharedState],
+    @transient private val parentSessionState: Option[SessionState],
+    @transient private[sql] val extensions: SparkSessionExtensions)
+  extends Serializable with Closeable with Logging { self =>
+
+  ...
+
+  /**
+   * A wrapped version of this session in the form of a [[SQLContext]], for backward compatibility.
+   *
+   * @since 2.0.0
+   */
+  @transient
+  val sqlContext: SQLContext = new SQLContext(this)
+
+  ...
+
+}
+```
+
+Spark 2.0后的SparkSession提供了内置的Hive特性支持，如使用`HiveQL`、访问`Hive UDFs`、从Hive表中读取数据等。
 
 
 
