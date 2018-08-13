@@ -13,7 +13,7 @@
 	- [配置文件](#配置文件)
 	- [Core Dump (核心转储)](#core-dump-核心转储)
 - [fdisk](#fdisk)
-- [*parted*](#parted)
+- [parted](#parted)
 - [LVM](#lvm)
 	- [基本操作](#基本操作)
 	- [Physical Volume (PV，物理卷)](#physical-volume-pv物理卷)
@@ -87,16 +87,18 @@ ftp>
 ## 常用指令
 `ftp shell`中常用指令：
 
-- `![指令]` 使用系统`Shell`执行指令
-- `quit` 退出`ftp shell`
-- `lcd/cd` 跳转本地/远程目录
-- `open/close` 打开关闭连接
-- `ls/dir` 查看`FTP`目录
-- `put/send` 向`FTP`发送文件
-- `get/recv` 接收来自`FTP`的文件
-- `mkdir/rmdir` 创建/删除`FTP`目录
-- `delete` 删除`FTP`的文件
-- `rename` 重命名`FTP`的文件
+| 指令 | 作用 |
+| :- | :- |
+| ![指令] | 使用系统`Shell`执行指令 |
+| quit | 退出`ftp shell` |
+| lcd/cd | 跳转本地/远程目录 |
+| open/close | 打开关闭连接 |
+| ls/dir | 查看`FTP`目录 |
+| put/send | 向`FTP`发送文件 |
+| get/recv | 接收来自`FTP`的文件 |
+| mkdir/rmdir | 创建/删除`FTP`目录 |
+| delete | 删除`FTP`的文件 |
+| rename | 重命名`FTP`的文件 |
 
 
 
@@ -196,22 +198,22 @@ GRUB在较新版本中提供了对`UEFI BIOS`新型固件的支持。
 GRUB现在的主要版本为`GRUB 2`。
 
 ## 安装与配置
-`GRUB`作为重要的系统组件，通常已被收录于各大发行版的官方源中，多数发行版会默认安装`GRUB`。
-使用包管理手动安装`GRUB`：
+GRUB作为重要的系统组件，通常已被收录于各大发行版的官方源中，多数发行版会默认安装GRUB。
+使用包管理手动安装GRUB：
 
 ```
 # pacman -S grub //Arch Linux
 # apt install grub-common //Ubuntu、Debian
 ```
 
-`GRUB`的配置文件为`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令根据已安装的`OS`自动生成合适的引导配置：
+GRUB的配置文件为`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令根据已安装的`OS`自动生成合适的引导配置：
 
 ```
 # grub-mkconfig -o /boot/grub/grub.cfg //通用
 # update-grub //Debian系专属
 ```
 
-默认`grub-mkconfig`生成配置时仅会扫描硬盘中的`Linux`发行版，若需要生成的配置包含其它`OS`的引导菜单，需要额外安装`os-prober`组件：
+默认`grub-mkconfig`生成配置时仅会扫描硬盘中的Linux发行版，若需要生成的配置包含其它`OS`的引导菜单，需要额外安装`os-prober`组件：
 
 ```
 # pacman -S os-prober //Arch Linux
@@ -219,7 +221,7 @@ GRUB现在的主要版本为`GRUB 2`。
 ```
 
 ## 安装引导器
-正确生成`GRUB`配置后，使用`grub-install`将引导器安装到硬盘中。
+正确生成GRUB配置后，使用`grub-install`将引导器安装到硬盘中。
 对于使用`MBR`电脑，应在安装时指明安装设备：
 
 ```
@@ -233,7 +235,7 @@ GRUB现在的主要版本为`GRUB 2`。
 # apt install efibootmgr //Ubuntu、Debian
 ```
 
-将`GRUB`引导器安装到`UEFI`固件的电脑中无需额外参数：
+将GRUB引导器安装到`UEFI`固件的电脑中无需额外参数：
 
 ```
 # grub-install
@@ -361,8 +363,8 @@ $ gdb [进程文件] [进程核心转储]
 # fdisk
 `fdisk`是Linux命令行下常用的交互式分区工具。
 
-早期的fdisk不能识别`GPT`分区表，划分`GPT`分区需要使用`parted`工具。
-最近版本的fdisk已经能够正常识别、显示与创建`GPT`分区。
+早期的fdisk不能识别`GPT`分区表，划分GPT分区需要使用`parted`工具。
+最近版本的fdisk已经能够正常识别、显示与创建GPT分区。
 
 使用fdisk显示分区信息：
 
@@ -402,19 +404,20 @@ $ gdb [进程文件] [进程核心转储]
 
 
 
-# *parted*
-`parted`是Linux下的另一种交互式分区工具，与`fdisk`相比，`parted`一直支持GPT分区表，并且在功能选项上更加丰富，但在交互上没有`fdisk`简便。
+# parted
+`parted`是Linux下的另一种交互式分区工具，与`fdisk`相比，parted一直支持GPT分区表，
+并且在功能选项上更加丰富，但在交互上没有fdisk便捷。
 
 - `# parted [磁盘路径] print` 显示分区信息
 - `# parted [磁盘路径] print all` 显示所有分区信息
 
-与`fdisk`工具类似，执行具体的磁盘分区需要进入`parted`会话：
+与fdisk工具类似，执行具体的磁盘分区需要进入parted会话：
 
 ```
 # parted [磁盘路径]
 ```
 
-`parted`会话中的基本指令如下：
+parted会话中的基本指令如下：
 
 - `help` 显示指令列表
 - `help [指令名称]` 显示指定指令的用法
@@ -430,20 +433,20 @@ $ gdb [进程文件] [进程核心转储]
 - `print` 显示分区信息
 - `print free` 显示分区信息，包括磁盘中未被使用的空间
 - `print all` 显示所有分区信息
-- `quit` 退出`parted`会话
+- `quit` 退出parted会话
 
-相比`fdisk`，`parted`会话中的分区操作是立即执行并生效的，因此更需小心谨慎。
+相比fdisk，parted会话中的分区操作是立即执行并生效的，因此更需小心谨慎。
 
 
 
 # LVM
 `LVM`是`Logical Volume Manager`(逻辑卷管理)的简写，是Linux环境下对磁盘分区进行管理的一种机制。
 
-使用`LVM`能够将不同的硬盘上的物理卷(`Physical Volume`，简称`PV`)加入卷组(`Volume Group`，简称`VG`)。
+使用LVM能够将不同的硬盘上的物理卷(`Physical Volume`，简称`PV`)加入卷组(`Volume Group`，简称`VG`)。
 在卷组中将其划分为不同的逻辑卷(`Logical Volume`，简称`LV`)，然后在逻辑卷中创建文件系统并进行挂载。
 
 ## 基本操作
-配置`LVM`的**基本步骤**：
+配置LVM的**基本步骤**：
 
 1. 创建硬盘分区
 1. 创建物理卷：`# pvcreate [硬盘路径/分区路径]`(物理卷可以是整个硬盘或是硬盘中的某个分区)
@@ -453,7 +456,7 @@ $ gdb [进程文件] [进程核心转储]
 
 ## Physical Volume (PV，物理卷)
 物理卷`Physical Volume`是在磁盘上**实际存在**的物理分区。
-被添加到`LVM`的物理分区需要拥有`lvm`标识(flag)。
+被添加到LVM的物理分区需要拥有`lvm`标识(flag)。
 
 物理卷相关的操作为`pvXXX`系列指令：
 
@@ -557,13 +560,13 @@ $ curl ftp://[用户名]:[密码]@[ip/域名] -X "[FTP协议指令]"
 # Suspend 和 Hibernate
 *Suspend*和*Hibernate*是很容易混淆的两个概念。
 
-- `Suspend`(**睡眠**)：
+- `Suspend` (**睡眠**)：
 
 	睡眠状态下，系统将关闭大部分硬件的工作，系统状态将会被保存在`RAM`中。
 	处于睡眠状态下的计算机将以极低的功耗运转，但系统仍需要供电，电源指示灯会依旧闪烁。
 	现代计算机**进入睡眠状态/从睡眠状态唤醒**仅仅需要几秒时间。
 
-- `Hibernate`(**休眠**)：
+- `Hibernate` (**休眠**)：
 
 	休眠即`Suspend to disk`，系统将完全关闭所有硬件，系统状态将被保存在`SWAP`中。
 	处于休眠状态下的计算机不需要供电，但系统分区时必须分配并挂载了`SWAP`交换区。
@@ -573,7 +576,7 @@ $ curl ftp://[用户名]:[密码]@[ip/域名] -X "[FTP协议指令]"
 
 
 # systemd
-`systemd`是`Linux`下新式的init系统，在各大发行版中逐渐替代了原先`Unix System V`风格的init系统。
+`systemd`是Linux下新式的init系统，在各大发行版中逐渐替代了原先`Unix System V`风格的init系统。
 
 systemd的设计理念来自于`Apple`公司`macOS`中的`launchd`，
 传统的SystemV风格init系统需要一次一个串行地启动服务进程，
@@ -639,18 +642,18 @@ systemd则根据服务进程的依赖关系并行地启动服务，极大地减�
 
 
 # VTE
-`VTE`是`Gnome`项目提供的轻量级终端库，许多终端软件使用`VTE`实现，如`gnome-terminal`、`roxterm`等。
-`VTE`自身亦可做为独立的终端软件使用。
+`VTE`是`Gnome`项目提供的轻量级终端库，许多终端软件使用VTE实现，如`gnome-terminal`、`roxterm`等。
+VTE自身亦可做为独立的终端软件使用。
 
-相比其它终端模拟器，`VTE`提供了丰富的特性和较少的依赖(仅仅依赖`GTK+`)。
+相比其它终端模拟器，VTE提供了丰富的特性和较少的依赖(仅仅依赖`GTK+`)。
 
-`VTE`当前的主流版本为基于`GTK+ 2`的`VTE2`和基于`GTK+ 3`的`VTE3`。
+VTE当前的主流版本为基于`GTK+ 2`的`VTE2`和基于`GTK+ 3`的`VTE3`。
 在`Arch Linux`的打包中，`VTE2`的指令名称为`vte`，`VTE3`的指令名称为`vte-2.91`。
 
 ## 启动参数
-`VTE`通过在启动时添加命令行参数进行设置。
+VTE通过在启动时添加命令行参数进行设置。
 
-`VTE2`常见参数如下所示：
+VTE2常见参数如下所示：
 
 - `-g` 设定终端初始大小(行列大小)，格式为`mxn`
 - `-f` 设定终端字体，参数后添加字体名称
@@ -663,7 +666,7 @@ systemd则根据服务进程的依赖关系并行地启动服务，极大地减�
 - `-S` 设定终端使用的`shell`
 - `--reverse` 反转终端色彩
 
-以`awesomewm`配置中使用的`VTE`选项为例：
+以`awesomewm`配置中使用的VTE选项为例：
 
 ```
 $ vte -W -P never -g 120x40 -f "Monaco 10" -n 5000 --reverse
@@ -712,21 +715,21 @@ deb-src [软件源地址] [版本号] [仓库类型]
 1. 固定版本号，按照稳定程度分为`stable`、`testing`、`unstable`、`experimental`。
 1. 版本代号。
 
-两类作用相同，固定版本号会指向某个版本代号。
-随着开发进度的变化，实际指向的版本代号会发生变化。
+两类作用相同，固定版本号会指向某个版本代号；
+随着开发进度的变化，固定版本号实际指向的版本代号会发生变化：
 
-当前(`2017-5-11`)`Debian`的最新稳定版为`Debian 8`，版本代号为`jessie`，则使用固定版本号`stable`指向的实际版本号即为`jessie`。
-当前处于开发状态的版本为`Debian 9`，版本代号为`stretch`，使用固定版本号`testing`则实际指向处于开发状态的版本代号`stretch`。
+- 当前(`2017-5-11`)Debian的最新稳定版为`Debian 8`，版本代号为`jessie`，则使用固定版本号`stable`指向的实际版本号即为`jessie`。
+- 当前处于开发状态的版本为`Debian 9`，版本代号为`stretch`，使用固定版本号`testing`则实际指向处于开发状态的版本代号`stretch`。
 
-版本代号后可以追加版本仓库，`Debian`的版本仓库有：
+版本代号后是**版本仓库**，Debian的版本仓库有：
 
 - `[版本号]-updates` 提供常规更新
 - `[版本号]-proposed-updates` 提供处于测试阶段的更新(不建议启用)
 - `[版本号]-backports` 提供软件的`testing`功能性更新
 
-版本仓库后需要指定启用的仓库类型，`Debian`仓库类型主要有三类：
+版本仓库后需要指定启用的仓库类型，Debian仓库类型主要有三类：
 
-- `main` 主要仓库，符合`DFSG`的开源软件
+- `main` 主要仓库，符合`DFSG`定义的开源软件
 - `contrib` 包含依赖于非自由软件的开源软件
 - `non-free` 非自由软件
 
@@ -742,19 +745,19 @@ deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free
 `Ubuntu`没有固定版本号，需要使用发行版本号，主要的`LTS`版本的版本代号：
 
 | 版本 | 版本代号 |
-|:----:|:------:|
+| :-: | :-: |
 | `12.04 LTS` | `precise` |
 | `14.04 LTS` | `trusty` |
 | `16.04 LTS` | `xenial` |
 
-`Ubuntu`的版本仓库有：
+Ubuntu**版本仓库**：
 
 - `[版本号]-security` 提供重要的安全性更新(漏洞修复)
 - `[版本号]-updates` 提供建议的更新
 - `[版本号]-backports` 提供功能性更新
 - `[版本号]-proposed` 提供处于测试阶段的`updates`更新(不建议启用)
 
-`Ubuntu`仓库类别有：
+Ubuntu**仓库类别**：
 
 - `main` 主要仓库，完全的开源软件
 - `restricted` 不完全的开源软件
@@ -774,7 +777,7 @@ deb http://archive.canonical.com/ubuntu/ xenial partner
 ```
 
 ## apt-mirror
-`apt-mirror`是`Debian`系列发行版中用于制作**本地源**的工具。
+`apt-mirror`是Debian系列发行版中用于制作**本地源**的工具。
 
 ### 本地源配置
 `apt-mirror`的配置文件为`/etc/apt/mirror.list`。若无特殊需求可直接使用默认配置。
@@ -811,7 +814,7 @@ deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-backports main restrict
 记录各类发行版使用中可能会遇到的问题。
 
 ## Ubuntu
-记录`Ubuntu`发行版中遇到的问题。
+记录Ubuntu发行版中遇到的问题。
 
 ### invoke-rc.d: initscript Xxxx, action "stop" failed.
 问题描述：<br>
