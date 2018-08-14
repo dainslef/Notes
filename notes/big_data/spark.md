@@ -30,6 +30,7 @@
 	- [SQL](#sql)
 	- [Datasets & DataFrames](#datasets--dataframes)
 	- [SparkSession](#sparksession)
+	- [构建 DataFame](#构建-datafame)
 - [问题注记](#问题注记)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -1628,6 +1629,123 @@ class SparkSession private(
 ```
 
 Spark 2.0后的SparkSession提供了内置的Hive特性支持，如使用`HiveQL`、访问`Hive UDFs`、从Hive表中读取数据等。
+
+## 构建 DataFame
+Spark应用可通过SparkSession从已存在的RDD、Hive表、Spark Data Source中构建`DataFrame`。
+
+SparkSession类中定义了`createDataFrame()`方法，包含多个重载，提供了多种构建DataFrame的方式：
+
+```scala
+class SparkSession private(
+    @transient val sparkContext: SparkContext,
+    @transient private val existingSharedState: Option[SharedState],
+    @transient private val parentSessionState: Option[SessionState],
+    @transient private[sql] val extensions: SparkSessionExtensions)
+  extends Serializable with Closeable with Logging { self =>
+  ...
+  def createDataFrame[A <: Product : TypeTag](rdd: RDD[A]): DataFrame = ...
+  def createDataFrame[A <: Product : TypeTag](data: Seq[A]): DataFrame = ...
+  def createDataFrame(rdd: RDD[_], beanClass: Class[_]): DataFrame = ...
+  def createDataFrame(rdd: JavaRDD[_], beanClass: Class[_]): DataFrame = ...
+  def createDataFrame(data: java.util.List[_], beanClass: Class[_]): DataFrame = ...
+  ...
+}
+```
+
+从Seq、RDD构建DataFrame时，表格的结构取决于做为RDD的泛型参数的结构：
+
+```scala
+// 定义样例类做为表格结构
+case class Lang(name: String, age: Int)
+
+val rdd: RDD[Lang] = ...
+val seq: Seq[Lang] = ...
+
+// 从 Seq、RDD 构建 DataFrame
+val dataFrameFromRdd = sparkSession.createDataFrame(rdd)
+val dataFrameFromSeq = sparkSession.createDataFrame(seq)
+
+// 展示结构
+dataFrameFromRdd.show()
+dataFrameFromSeq.show()
+// +----+---+
+// |name|age|
+// +----+---+
+// | ...|...|
+// +----+---+
+```
+
+SparkSession类中定义了`implicits`单例，提供了常用的隐式转换：
+
+```scala
+class SparkSession private(
+    @transient val sparkContext: SparkContext,
+    @transient private val existingSharedState: Option[SharedState],
+    @transient private val parentSessionState: Option[SessionState],
+    @transient private[sql] val extensions: SparkSessionExtensions)
+  extends Serializable with Closeable with Logging { self =>
+  ...
+  object implicits extends SQLImplicits with Serializable {
+    ...
+  }
+  ...
+}
+```
+
+通过已存在的SparkSession实例导入隐式转换，
+Seq/RDD经过隐式方法`rddToDatasetHolder()/localSeqToDatasetHolder()`被隐式转换为`DatasetHolder[T]`类型。
+DatasetHolder类型提供了`toDF()`方法生成DataFrame：
+
+```scala
+abstract class SQLImplicits extends LowPrioritySQLImplicits {
+  ...
+  implicit def rddToDatasetHolder[T : Encoder](rdd: RDD[T]): DatasetHolder[T] = {
+    DatasetHolder(_sqlContext.createDataset(rdd))
+  }
+  implicit def localSeqToDatasetHolder[T : Encoder](s: Seq[T]): DatasetHolder[T] = {
+    DatasetHolder(_sqlContext.createDataset(s))
+  }
+  ...
+}
+
+case class DatasetHolder[T] private[sql](private val ds: Dataset[T]) {
+  ...
+  def toDF(): DataFrame = ds.toDF()
+  def toDF(colNames: String*): DataFrame = ds.toDF(colNames : _*)
+  ...
+}
+```
+
+使用隐式转换构建DataFrame：
+
+```scala
+val sparkSession: SparkSession = ...
+
+// 定义样例类做为表格结构
+case class Lang(name: String, age: Int)
+
+val rdd: RDD[Lang] = ...
+val seq: Seq[Lang] = ...
+
+// 隐式对象存在于创建的sparkSession实例中
+import sparkSession.implicits._
+
+val dataFrame1 = rdd.toDF() //使用无参的 toDF() 方法构建DataFrame会使用结构字段名称做为列名
+dataFrame1.show()
+// +----+---+
+// |name|age|
+// +----+---+
+// | ...|...|
+// +----+---+
+
+val dataFrame2 = seq.toDF("column_name1", "column_name2") //使用有参的 toDF() 方法构建DataFrame时可自定义列名
+dataFrame2.show()
+// +------------+------------+
+// |column_name1|column_name2|
+// +------------+------------+
+// |         ...|         ...|
+// +------------+------------+
+```
 
 
 
