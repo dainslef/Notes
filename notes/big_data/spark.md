@@ -1602,30 +1602,21 @@ val sparkSession = SparkSession
 import sparkSession.implicits._
 ```
 
+在`Spark Shell`中，直接提供了配置好的SparkSession实例`spark`：
+
+```scala
+scala> spark
+res0: org.apache.spark.sql.SparkSession = org.apache.spark.sql.SparkSession@2e8986b6
+```
+
 可通过SparkSession获取封装的SparkContext和SQLContext：
 
 ```scala
-@InterfaceStability.Stable
-class SparkSession private(
-    @transient val sparkContext: SparkContext,
-    @transient private val existingSharedState: Option[SharedState],
-    @transient private val parentSessionState: Option[SessionState],
-    @transient private[sql] val extensions: SparkSessionExtensions)
-  extends Serializable with Closeable with Logging { self =>
+scala> spark.sparkContext
+res1: org.apache.spark.SparkContext = org.apache.spark.SparkContext@379df603
 
-  ...
-
-  /**
-   * A wrapped version of this session in the form of a [[SQLContext]], for backward compatibility.
-   *
-   * @since 2.0.0
-   */
-  @transient
-  val sqlContext: SQLContext = new SQLContext(this)
-
-  ...
-
-}
+scala> spark.sqlContext
+res2: org.apache.spark.sql.SQLContext = org.apache.spark.sql.SQLContext@53741683
 ```
 
 Spark 2.0后的SparkSession提供了内置的Hive特性支持，如使用`HiveQL`、访问`Hive UDFs`、从Hive表中读取数据等。
@@ -1655,24 +1646,43 @@ class SparkSession private(
 从Seq、RDD构建DataFrame时，表格的结构取决于做为RDD的泛型参数的结构：
 
 ```scala
-// 定义样例类做为表格结构
-case class Lang(name: String, age: Int)
+// 定义数据结构
+scala> case class Test(name: String, age: Int)
+defined class Test
 
-val rdd: RDD[Lang] = ...
-val seq: Seq[Lang] = ...
+scala> val seq = Seq(Test("Haskell", 25), Test("Rust", 6), Test("Scala", 15))
+seq: Seq[Test] = List(Test(Haskell,25), Test(Rust,6), Test(Scala,15))
 
-// 从 Seq、RDD 构建 DataFrame
-val dataFrameFromRdd = sparkSession.createDataFrame(rdd)
-val dataFrameFromSeq = sparkSession.createDataFrame(seq)
+scala> val rdd = sc.parallelize(seq)
+rdd: org.apache.spark.rdd.RDD[Test] = ParallelCollectionRDD[0] at parallelize at <console>:26
 
-// 展示结构
-dataFrameFromRdd.show()
-dataFrameFromSeq.show()
-// +----+---+
-// |name|age|
-// +----+---+
-// | ...|...|
-// +----+---+
+// 从 Seq 中构建 DataFrame
+scala> val dataFrameFromSeq = spark.createDataFrame(seq)
+dataFrameFromSeq: org.apache.spark.sql.DataFrame = [name: string, age: int]
+
+// 打印 DataFrame 内容
+scala> dataFrameFromSeq.show()
++-------+---+
+|   name|age|
++-------+---+
+|Haskell| 25|
+|   Rust|  6|
+|  Scala| 15|
++-------+---+
+
+// 从 RDD 中构建 DataFrame
+scala> val dataFrameFromRdd = spark.createDataFrame(rdd)
+dataFrameFromRdd: org.apache.spark.sql.DataFrame = [name: string, age: int]
+
+// 打印 DataFrame 内容
+scala> dataFrameFromRdd.show()
++-------+---+
+|   name|age|
++-------+---+
+|Haskell| 25|
+|   Rust|  6|
+|  Scala| 15|
++-------+---+
 ```
 
 SparkSession类中定义了`implicits`单例，提供了常用的隐式转换：
@@ -1692,7 +1702,9 @@ class SparkSession private(
 }
 ```
 
-通过已存在的SparkSession实例导入隐式转换，
+编写SparkSQL应用时，需要导入SparkSession实例中提供的隐式转换(导入`SparkSession.implicits`单例内的成员)。
+SparkShell环境下默认已经导入了SparkSQL相关的隐式转换。
+
 Seq/RDD经过隐式方法`rddToDatasetHolder()/localSeqToDatasetHolder()`被隐式转换为`DatasetHolder[T]`类型。
 DatasetHolder类型提供了`toDF()`方法生成DataFrame：
 
@@ -1719,32 +1731,61 @@ case class DatasetHolder[T] private[sql](private val ds: Dataset[T]) {
 使用隐式转换构建DataFrame：
 
 ```scala
+// 使用无参的 toDF() 方法构建DataFrame会使用结构字段名称做为列名
+scala> rdd.toDF().show()
++-------+---+
+|   name|age|
++-------+---+
+|Haskell| 25|
+|   Rust|  6|
+|  Scala| 15|
++-------+---+
+
+// 使用有参的 toDF() 方法构建DataFrame时可自定义列名
+scala> seq.toDF("name1", "age1").show()
++-------+----+
+|  name1|age1|
++-------+----+
+|Haskell|  25|
+|   Rust|   6|
+|  Scala|  15|
++-------+----+
+```
+
+从各类文件中构建DataFrame：
+
+```scala
 val sparkSession: SparkSession = ...
 
-// 定义样例类做为表格结构
-case class Lang(name: String, age: Int)
+// 从JSON文件中创建DataFrame
+val dataFrameJson1 = sparkSession.read.json("xxx/xxx.json")
+val dataFrameJson2 = sparkSession.read.format("json").load("xxx/xxx.json")
 
-val rdd: RDD[Lang] = ...
-val seq: Seq[Lang] = ...
+// 从CSV文件中创建DataFrame
+val dataFrameCsv1 = sparkSession.read.csv("xxx/xxx.csv")
+val dataFrameCsv2 = sparkSession.read
+  .format("csv")
+  .option("sep", ";") //设定CSV文件的分隔符
+  .option("inferSchema", "true") //使用推断Schema结构的方式
+  .option("header", "true") //包含Header
+  .load("xxx/xxx.csv")
+```
 
-// 隐式对象存在于创建的sparkSession实例中
-import sparkSession.implicits._
+从JDBC数据源中构建DataFrame：
 
-val dataFrame1 = rdd.toDF() //使用无参的 toDF() 方法构建DataFrame会使用结构字段名称做为列名
-dataFrame1.show()
-// +----+---+
-// |name|age|
-// +----+---+
-// | ...|...|
-// +----+---+
+```scala
+val sparkSession: SparkSession = ...
 
-val dataFrame2 = seq.toDF("column_name1", "column_name2") //使用有参的 toDF() 方法构建DataFrame时可自定义列名
-dataFrame2.show()
-// +------------+------------+
-// |column_name1|column_name2|
-// +------------+------------+
-// |         ...|         ...|
-// +------------+------------+
+val dataFrameJdbc1 = sparkSession.read.jdbc(
+  "jdbc:mysql://ip:port/db_name?xxx=xxx...", "tablename",
+  new Properties { put("user", "xxx"); put("password", "xxx") })
+val dataFrameJdbc2 = sparkSession.read
+  .format("jdbc")
+  .option("url", "jdbc:mysql://ip:port/db_name?xxx=xxx...")
+  .option("dbtable", "tablename")
+  .option("user", "xxx")
+  .option("password", "xxx")
+  .load()
 ```
 
 
