@@ -11,6 +11,8 @@
 	- [引用依赖](#引用依赖)
 - [Container (容器)](#container-容器)
 - [Enum (枚举)](#enum-枚举)
+- [对象相等性](#对象相等性)
+	- [equals() 方法](#equals-方法)
 - [浅复制与深复制](#浅复制与深复制)
 	- [浅复制](#浅复制)
 	- [深复制](#深复制)
@@ -538,6 +540,42 @@ enum Enum {
 	int index() { return 0; }
 
 	private String name;
+}
+```
+
+
+
+# 对象相等性
+Java**不支持**操作符重载，Java中相等性比较运算符`==`的含义如下：
+
+- 对于**原始类型**、`String`类型，==操作符语义为比较两个原始类型值是否相等。
+- 对于**引用类型**，==操作符用于比较两个引用指向的实例是否相同。
+
+## equals() 方法
+对于引用类型而言，比较两个对象是否相等应使用`equals()`方法。
+equals()方法定义在Object类型中，默认实现默认语义与==操作符相同(引用比较)，需要实现值比较语义的类型应自行重写equals()方法。
+
+以一个包含3个成员的自定义类型为例：
+
+```java
+public class TestEquals {
+
+	public int num;
+	public String str;
+	public Xxx xxx;
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) return true;
+		if (obj |= null && obj instanceof TestEquals {
+			TestEquals o = (TestEquals) obj;
+			return num == o.num &&
+				str == o.str &&
+				xxx.equals(o.xxx);
+		}
+		return false;
+	}
+
 }
 ```
 
