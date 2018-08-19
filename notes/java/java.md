@@ -13,6 +13,7 @@
 - [Enum (枚举)](#enum-枚举)
 - [对象相等性](#对象相等性)
 	- [equals() 方法](#equals-方法)
+	- [hashCode() 方法](#hashcode-方法)
 - [浅复制与深复制](#浅复制与深复制)
 	- [浅复制](#浅复制)
 	- [深复制](#深复制)
@@ -574,6 +575,50 @@ public class TestEquals {
 				xxx.equals(o.xxx);
 		}
 		return false;
+	}
+
+}
+```
+
+## hashCode() 方法
+部分数据结构(如`HashMap`、`HashSet`)处于性能考虑，会使用对象提供的`hashCode()`方法，根据Hash是否相等判断对象的异同。
+对于重写了`equals()`方法重写了比较策略的类型而言，也应重写`hashCode()`方法。
+
+自定义Hash值的生成规则，确保对象内容相同时得到的Hash值也相同：
+
+```java
+public class TestEquals {
+
+	public int num;
+	public String str;
+	public Xxx xxx;
+
+	...
+
+	@Override
+	public int hashCode() {
+		return 31 * num +
+				(str != null ? str.hashCode() : 0) +
+				(xxx != null ? xxx.hashCode() : 0);
+	}
+
+}
+```
+
+在`Java 7`之后，可直接使用`java.util.Objects`工具类中提供的`hash()`方法：
+
+```java
+public class TestEquals {
+
+	public int num;
+	public String str;
+	public Xxx xxx;
+
+	...
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(num, str, xxx);
 	}
 
 }
