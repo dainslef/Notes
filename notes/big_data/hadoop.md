@@ -14,6 +14,7 @@
 		- [Physical View (物理视图)](#physical-view-物理视图)
 		- [Namespace (命名空间)](#namespace-命名空间)
 	- [HBase Shell](#hbase-shell)
+	- [HBase Client API](#hbase-client-api)
 - [问题注记](#问题注记)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0. Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0-expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
@@ -712,6 +713,69 @@ hbase(main):001:0>
 	hbase> get "表名", "RowKey", FILTER => "自定义过滤器..."
 	hbase> get "表名", "RowKey", CONSISTENCY => 'TIMELINE'
 	hbase> get "表名", "RowKey", CONSISTENCY => 'TIMELINE', REGION_REPLICA_ID => 1
+	```
+
+## HBase Client API
+使用HBase的客户端API首先需要引入对应依赖。
+
+- 使用`Maven`则在`pom.xml`中引入：
+
+	```xml
+	<dependency>
+		<groupId>org.apache.hbase</groupId>
+		<artifactId>hbase-client</artifactId>
+		<version>HBase版本</version>
+	</dependency>
+	```
+
+- 使用`SBT`则在`build.sbt`中引入：
+
+	```scala
+	libraryDependencies += "org.apache.hbase" % "hbase-client" % "HBase版本"
+	```
+
+HBase相关API位于`org.apache.hadoop.hbase`包路径下，
+Client相关API主要位于`org.apache.hadoop.hbase.client`包路径下。
+
+主要的API用法：
+
+- 创建数据连接
+
+	通过`org.apache.hadoop.hbase.client.ConnectionFactory`工厂类提供的`ConnectionFactory.createConnection()`静态方法创建数据连接：
+
+	```java
+	public class ConnectionFactory {
+		...
+		public static Connection createConnection() throws IOException;
+		public static Connection createConnection(Configuration conf) throws IOException;
+		public static Connection createConnection(Configuration conf, User user) throws IOException;
+		public static Connection createConnection(Configuration conf, ExecutorService pool, User user) throws IOException;
+		...
+	}
+	```
+
+	`ConnectionFactory.createConnection()`方法提供了多个重载，可在创建连接是设定连接配置、线程池、用户信息等配置。
+
+	连接配置使用`org.apache.hadoop.hbase.HBaseConfiguration`类提供的`HBaseConfiguration.create()`静态方法创建。
+	使用`Configuration.set()`方法向创建的配置实例中添加具体的配置项。
+
+	连接创建完毕后，使用`Connection.getTable()`方法获取指定HBase数据表的实例进行具体的数据操作。
+
+	创建数据连接、获取表格实例，示例代码如下：
+
+	```java
+	// 创建连接配置
+	HBaseConfiguration hbaseConfiguration = HBaseConfiguration.create();
+	// 设定配置项
+	hbaseConfiguration.set("hbase.zookeeper.property.clientPort", "2181");
+	hbaseConfiguration.set("hbase.zookeeper.quorum", "主机名/主机IP");
+	...
+
+	// 通过连接配置构建连接实例
+	Connection hBaseConnection = ConnectionFactory.createConnection(hbaseConfig);
+
+	// 通过连接获取指定表格实例
+	Table table = hBaseConnection.getTable(TableName.valueOf("表名"));
 	```
 
 
