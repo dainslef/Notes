@@ -779,6 +779,103 @@ Client相关API主要位于`org.apache.hadoop.hbase.client`包路径下。
 	```
 
 
+- 表格操作
+
+	`org.apache.hadoop.hbase.client.Table`接口中声明了`Table.getTableDescriptor()`方法，
+	Table实例使用此方法可获取表格的描述实例`HTableDescriptor`，该类中提供了查看、设置各类表格信息的方法：
+
+	```java
+	public class HTableDescriptor implements WritableComparable<HTableDescriptor> {
+
+		...
+
+		// 获取表的配置项
+		public Map<String, String> getConfiguration();
+
+		// 获取列族的描述信息
+		public Collection<HColumnDescriptor> getFamilies();
+		// 获取指定列族的描述信息
+		public HColumnDescriptor getFamily(byte[] column);
+		// 移除指定列族
+		public HColumnDescriptor removeFamily(byte[] column);
+		// 添加列族
+		public HTableDescriptor addFamily(HColumnDescriptor family);
+		// 修改列族
+		public HTableDescriptor modifyFamily(HColumnDescriptor family);
+
+		...
+
+	}
+	```
+
+	`org.apache.hadoop.hbase.client.Connection`接口中声明了`Connection.getAdmin()`方法，
+	Connection实例使用此方法获取表格管理实例`Admin`，该类提供了表格的查看、创建、删除、禁用等功能：
+
+	```java
+	public interface Admin extends Abortable, Closeable {
+
+		...
+
+		// 列出所有表
+		HTableDescriptor[] listTables() throws IOException;
+
+		// 创建、删除表
+		void createTable(HTableDescriptor desc) throws IOException;
+		void deleteTable(TableName tableName) throws IOException;
+
+		// 启用、禁用表
+		void enableTable(TableName tableName) throws IOException;
+		void disableTable(TableName tableName) throws IOException;
+
+		// 添加、删除、更新表中的列
+		void addColumn(TableName tableName, HColumnDescriptor desc) throws IOException;
+		void deleteColumn(TableName tableName, byte[] columnName) throws IOException;
+		void modifyColumn(TableName tableName, HColumnDescriptor desc) throws IOException;
+
+		...
+
+	}
+	```
+
+- 增、删、改、查
+
+	与命令行指令类似，通过创建以下类型实例描述增删改查操作：
+
+	| 类型 | 操作 |
+	| :- | :- |
+	| org.apache.hadoop.hbase.client.Put | 插入、修改 |
+	| org.apache.hadoop.hbase.client.Delete | 删除 |
+	| org.apache.hadoop.hbase.client.Scan | 查询 |
+	| org.apache.hadoop.hbase.client.Get | 指定查询 |
+
+	Table类型中提供了同名方法，用于执行对应的操作：
+
+	```java
+	public interface Table extends Closeable {
+
+		...
+
+		// 查询
+		Result get(Get get) throws IOException;
+		Result[] get(List<Get> gets) throws IOException;
+		ResultScanner getScanner(Scan scan) throws IOException;
+
+		// 插入、修改
+		void put(Put put) throws IOException;
+		void put(List<Put> puts) throws IOException;
+
+		// 删除
+		void delete(Delete delete) throws IOException;
+		void delete(List<Delete> deletes) throws IOException;
+
+		...
+
+	}
+	```
+
+	调用对应方法，将创建操作实例作为参数，执行增删改查操作。
+
+
 
 # 问题注记
 Hadoop配置中遇到问题的说明和解决方案。
