@@ -1,3 +1,4 @@
+- [用户管理](#用户管理)
 - [ftp](#ftp)
 	- [连接服务器](#连接服务器)
 	- [常用指令](#常用指令)
@@ -38,6 +39,50 @@
 - [常见问题记录](#常见问题记录)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
+
+
+
+# 用户管理
+在Linux中，用户信息、用户组信息相关文件均位于`/etc`路径下：
+
+| 文件路径 | 作用 | 所属用户:用户组 | 文件权限 |
+| :- | :- | :- | :- |
+| /etc/passwd | 保存用户信息 | root:root | 644 |
+| /etc/group | 保存用户组信息 | root:root | 644 |
+| /etc/shadow | 保存用户密码的加密信息 | root:shadow | 640 |
+| /etc/gshadow | 保存用户组密码的加密信息 | root:shadow | 640 |
+
+用户管理：
+
+```c
+// 创建用户
+# useradd [用户名]
+// 创建用户，并为该用户创建对应的同名家目录
+# useradd -m [用户名]
+
+// 删除用户
+# userdel [用户名]
+// 删除用户，并同时删除该用户的家目录
+# userdel -r [用户名]
+
+// 修改用户相关信息，如密码、家目录、登录shell、用户组等
+# usermod
+```
+
+用户组管理：
+
+```c
+//创建用户组
+# groupadd [用户组名]
+
+//删除用户组，用户组需要为空
+# groupdel [用户组名]
+
+// 将用户添加到用户组中
+# usermod -a -G [用户组] [用户名]
+// 强制设置用户的用户组，若原先用户加入的组不在给出的组列表中，将被移除原先的组(用户的主组除外)
+# usermod -G [用户组1,用户组2,...] [用户名]
+```
 
 
 
