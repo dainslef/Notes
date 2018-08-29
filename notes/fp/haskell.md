@@ -7,6 +7,7 @@
 	- [<*>](#)
 	- [foldl/foldr](#foldlfoldr)
 - [Monad](#monad)
+	- [do 语法](#do-语法)
 
 
 
@@ -226,3 +227,33 @@ Functor => Applicative => Monad
 	`>>=`操作符需要提供源参数类型生成包含目标参数类型的Monad的变换逻辑。
 	`>>`操作符用于将返回值无关的Monad操作相连。
 	`return`函数提供参数类型到Monad的构造逻辑，由于Monad是Applicative子类，return默认使用pure函数做为实现。
+
+## do 语法
+Haskell中提供了Monad的语法糖，使用do关键字能够以更接近命令式语言的语法操作Monad。
+
+以常见的`IO Monad`为例：
+
+```hs
+name :: IO ()
+name =
+  print "What is your first name? " >>
+  getLine >>= \first ->
+  print "And your last name? " >>
+  getLine >>= \last ->
+  let full = first ++ " " ++ last
+  in print $ "Pleased to meet you, " ++ full ++ "!"
+```
+
+使用do语法糖可以改写为：
+
+```hs
+-- 使用do语法糖更类似C语言的命令式风格，逻辑更易理解
+nameDo :: IO ()
+nameDo = do
+  print "What is your first name? "
+  first <- getLine
+  print "And your last name? "
+  last <- getLine
+  let full = first ++ " " ++ last
+  print $ "Pleased to meet you, " ++ full ++ "!"
+```
