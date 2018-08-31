@@ -11,6 +11,8 @@
 	- [安装与配置](#安装与配置)
 	- [安装引导器](#安装引导器)
 	- [修复引导](#修复引导)
+- [压缩/解压](#压缩解压)
+	- [7z](#7z)
 - [ulimit](#ulimit)
 	- [配置文件](#配置文件)
 	- [Core Dump (核心转储)](#core-dump-核心转储)
@@ -309,21 +311,21 @@ GRUB现在的主要版本为`GRUB 2`。
 GRUB作为重要的系统组件，通常已被收录于各大发行版的官方源中，多数发行版会默认安装GRUB。
 使用包管理手动安装GRUB：
 
-```
+```c
 # pacman -S grub //Arch Linux
 # apt install grub-common //Ubuntu、Debian
 ```
 
 GRUB的配置文件为`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令根据已安装的`OS`自动生成合适的引导配置：
 
-```
+```c
 # grub-mkconfig -o /boot/grub/grub.cfg //通用
 # update-grub //Debian系专属
 ```
 
 默认`grub-mkconfig`生成配置时仅会扫描硬盘中的Linux发行版，若需要生成的配置包含其它`OS`的引导菜单，需要额外安装`os-prober`组件：
 
-```
+```c
 # pacman -S os-prober //Arch Linux
 # apt install os-prober //Ubuntu、Debian
 ```
@@ -332,13 +334,13 @@ GRUB的配置文件为`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令�
 正确生成GRUB配置后，使用`grub-install`将引导器安装到硬盘中。
 对于使用`MBR`电脑，应在安装时指明安装设备：
 
-```
+```c
 # grub-install /dev/sda //将GRUB引导器安装到硬盘 /dev/sda 中
 ```
 
 对于使用`UEFI`固件的新式电脑，需要将`ESP`分区挂载到`/boot/efi`路径下，并且额外安装`efibootmgr`组件:
 
-```
+```c
 # pacman -S efibootmgr //Arch Linux
 # apt install efibootmgr //Ubuntu、Debian
 ```
@@ -401,6 +403,48 @@ GRUB的配置文件为`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令�
 	# grub-install /dev/sda //MBR
 	# grub-install //UEFI
 	```
+
+
+
+# 压缩/解压
+Unix系统中传统的档案文件格式为`tar archives`，可将多个文件、目录下的资源打包到一个tar包中。
+使用tar指令创建tar包，tar包经过压缩后得到tar.gz(gzip)、tar.bz2(bzip2)等格式。
+
+tar指令常见用法：
+
+```c
+// 生成 tar 包
+$ tar cvf [tar文件] [被压缩文件...]
+// 使用 gzip 压缩文件
+$ tar cvzf [tar文件] [被压缩文件...]
+
+// 解压文件
+$ tar xvf [tar文件]
+// 使用 gzip 解压
+$ tar xzvf [tar.gz文件]
+// 使用 bzip2 解压
+$ tar xjvf [tar.bz2文件]
+
+// 解压文件到指定路径
+$ tar xvf [tar文件] -C [输出路径]
+$ tar xzvf [tar.gz文件] -C [输出路径]
+$ tar xjvf [tar.bz2文件] -C [输出路径]
+```
+
+## 7z
+`7z`是开源的压缩工具，支持多种压缩格式，其特有的7z格式具有较高的压缩比。
+
+```c
+// 生成指定类型的压缩文件
+// 类型可以是 7z zip tar bzip2 gzip 等
+$ 7z a -t{类型} [生成文件] [被压缩文件...]
+
+// 解压文件到指定路径
+$ 7z x [待解压文件] -o[输出路径]
+
+// 列出压缩包的内容
+$ 7z l [压缩文件]
+```
 
 
 
