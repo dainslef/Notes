@@ -1,3 +1,4 @@
+- [Windows CMD](#windows-cmd)
 - [用户管理](#用户管理)
 - [UID/GID/Sticky](#uidgidsticky)
 - [ftp](#ftp)
@@ -42,6 +43,86 @@
 - [常见问题记录](#常见问题记录)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
+
+
+
+# Windows CMD
+Windows系统提供的命令行执行DOS系统工具指令。
+
+文件操作相关：
+
+```c
+// 查看DOS指令的使用帮助
+> [指令名称] /help
+
+// 查看目录
+> dir
+
+// 新建目录
+> md
+
+// 删除目录(空目录)
+> rd
+
+// 复制文件
+> copy
+
+// 删除文件
+> del
+
+// 展示目录树
+> tree
+
+// 移除目录树
+> deltree
+```
+
+服务管理：
+
+```c
+// 启动相关配置
+> msconfig
+
+// 启动服务管理面板
+> services.msc
+
+// 创建/删除服务
+> sc create [服务名称] binPath=[做为服务启动的指令]
+> sc delete [服务名称]
+
+// 启动/停止服务
+> net start [服务名称]
+> net stop [服务名称]
+```
+
+电源管理：
+
+```c
+> powercfg
+
+// 开启休眠
+> powercfg /h on
+// 禁用休眠
+> powercfg /h off
+```
+
+其它实用工具：
+
+```c
+// Windows远程桌面工具
+> mstsc
+
+// 显示主机名和用户名
+> whoami
+
+// 查看网络信息
+> ipconfig
+// 查询完整的网络信息
+> ipconfig /all
+
+// 查看内存信息
+> wmic memorychip
+```
 
 
 
