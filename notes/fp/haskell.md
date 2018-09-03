@@ -144,7 +144,7 @@ Prelude> [(+1), (+2)] <*> [1, 2, 3]
 ```
 
 ## foldl/foldr
-`foldl/foldr`用于叠加数据，函数定义：
+`foldl`/`foldr`用于叠加数据，函数定义：
 
 ```hs
 class Foldable (t :: * -> *) where
@@ -225,8 +225,30 @@ Functor => Applicative => Monad
 
 	Monad类型至少需要实现`>>=`操作符。
 	`>>=`操作符需要提供源参数类型生成包含目标参数类型的Monad的变换逻辑。
+	`>>=`操作顺序地组合两个动作，将前一个动作的处理结果做为参数传递给后一个。
+
 	`>>`操作符用于将返回值无关的Monad操作相连。
+	`>>`操作顺序地组合两个动作，但丢弃前一个动作的处理结果，类似于命令式语言(imperative languages)中的分隔符，比如C中的分号。
+
 	`return`函数提供参数类型到Monad的构造逻辑，由于Monad是Applicative子类，return默认使用pure函数做为实现。
+
+Monad实例应遵循下列规则：
+
+- `return a >>= k = k a`
+- `m >>= return = m`
+- `m >>= (\x -> k x >>= h) = (m >>= k) >>= h`
+
+Monad与Applicative操作符应遵循：
+
+- `pure = return`
+- `(<*>) = ap`
+
+这些规则意味着：
+
+- `fmap f xs = xs >>= return . f`
+- `(>>) = (*>)`
+
+Haskell标准库中Monad的实例类型如`[]`、`Maybe`、`IO`等均遵循以上规则。
 
 ## do 语法
 Haskell中提供了Monad的语法糖，使用do关键字能够以更接近命令式语言的语法操作Monad。
