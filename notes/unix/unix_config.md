@@ -33,7 +33,7 @@
 	- [系统配置](#系统配置)
 - [VTE](#vte)
 	- [启动参数](#启动参数)
-- [apt](#apt)
+- [apt/dpkg](#aptdpkg)
 	- [源配置](#源配置)
 	- [Debian 源](#debian-源)
 	- [Ubuntu 源](#ubuntu-源)
@@ -57,22 +57,18 @@ Windows系统提供的命令行执行DOS系统工具指令。
 
 // 查看目录
 > dir
-
 // 新建目录
 > md
-
 // 删除目录(空目录)
 > rd
 
 // 复制文件
 > copy
-
 // 删除文件
 > del
 
 // 展示目录树
 > tree
-
 // 移除目录树
 > deltree
 ```
@@ -924,17 +920,77 @@ $ vte -W -P never -g 120x40 -f "Monaco 10" -n 5000 --reverse
 
 
 
-# apt
-`apt`是`Debian`系列发行版的前端包管理工具。
+# apt/dpkg
+`Debian`系列发行版使用`deb`格式作为软件包的打包、分发格式。
 
-`apt`主要功能：
+`apt`是Debian系列发行版的前端包管理工具，用于deb处理软件包之间的依赖关系。
+主要功能如下：
 
 - 在镜像源中搜索、查找需要的软件包。
 - 计算软件包的依赖。
-- 安装、卸载软件包。
+- 系统更新。
 - 查看指定软件包的状态。
 - 变更已安装软件包的状态。
-- 系统更新。
+- 安装、卸载软件包(通过dpkg)。
+
+apt的常用指令：
+
+```c
+// 更新软件源
+# apt-get update
+// 安装/卸载软件包
+# apt-get install/remove [包名]
+// 卸载软件包时同时删除配置
+# apt-get remove --purge [包名]
+
+// Ubuntu 14.04 之后可使用更简单的命令形式
+# apt update
+# apt install/remove [包名]
+# apt purge [包名]
+
+// 清理无用依赖
+# apt-get autoremove
+# apt-get autoremove --purge
+
+// 查看/搜索指定包
+# apt-cache show/search	[包名]
+
+// 将某个包标记为自动/手动安装
+# apt-mask auto/manual [包名]
+// 显示手动安装/自动安装的包
+$ apt-mask showauto/showmanaul
+```
+
+`dpkg`是与apt前端搭配的后端包管理工具，核心功能是管理deb软件包的资源。
+主要功能如下：
+
+- 安装软件包，将软件包解压，释放资源到系统对应路径。
+- 卸载软件包，移除软件包在系统中安装的文件、配置。
+- 列出、查看、搜索软件包内的资源。
+- 查看指定软件包的状态。
+- 变更已安装软件包的状态。
+
+dpkg的常用指令：
+
+```c
+// 查询文件属于哪个包
+$ dpkg-query -S [文件名]
+
+// 安装一个deb包
+# dpkg -i [包名]
+
+// 列出所有已安装包的状态信息
+$ dpkg -l
+// 列出指定包名的包的状态信息
+$ dpkg -l [包名]
+// 根据包状态筛选出有残余配置文件的包
+$ dpkg -l [包名] | grep '^rc'
+
+// 查看指定包的详细描述信息
+$ dpkg -s [包名]
+// 列出指定包内包含的文件
+$ dpkg -L [包名]
+```
 
 ## 源配置
 使用`apt`工具需要正确配置镜像源地址，配置文件为`/etc/apt/sources.list`。
