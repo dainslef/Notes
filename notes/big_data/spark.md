@@ -31,6 +31,8 @@
 	- [Datasets & DataFrames](#datasets--dataframes)
 	- [SparkSession](#sparksession)
 	- [构建 DataFame](#构建-datafame)
+- [Structured Streaming](#structured-streaming)
+	- [基础概念](#基础概念)
 - [问题注记](#问题注记)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -1574,7 +1576,8 @@ Spark SQL的作用之一是用来执行SQL查询。Spark SQL也可以从已安�
 当使用API执行SQL时，结果将会以`Dataset/DataFrame`类型返回。还可以通过命令行或JDBC/ODBC来使用SQL接口交互。
 
 ## Datasets & DataFrames
-`Dataset`是分布式的数据集合。Dataset是`Spark 1.6`中新引入的接口，结合了RDD的优点(强类型，能够使用Lambda)和Spark SQL优化执行引擎的优点。
+`Dataset`是分布式的数据集合。Dataset是`Spark 1.6`中新引入的接口，
+结合了RDD的优点(强类型，能够使用Lambda)和Spark SQL优化执行引擎的优点。
 Dataset可由JVM对象构建并且使用高阶函数进行变换(如`map`、`flatMap`等)。Dataset仅提供Scala和Java的API。
 Python不支持Dataset API。但由于Python动态特性，许多Dataset API中的优秀特性已经提供
 (如使用`row.cloumnName`通过字段名称来访问一行数据中的某个字段)。R语言的情况类似。
@@ -1787,6 +1790,34 @@ val dataFrameJdbc2 = sparkSession.read
   .option("password", "xxx")
   .load()
 ```
+
+
+
+# Structured Streaming
+`Structured Streaming`是可扩展(scalaable)和高容错(fault-tolerant)的、构建在`Spark SQL Engine`引擎之上的流处理引擎。
+通过Structured Streaming能够使用与批处理静态数据相同的方式表示流式计算。
+
+## 基础概念
+Structured Streaming将输入的数据流视为`Input Table`。每个添加到数据流中的数据对象近似于Input Table中追加的行。
+
+![Spark Structured Streaming Stream As A Table](../../images/spark_structured_streaming_stream_as_a_table.png)
+
+在结果中的查询将会生成`Result Table`。
+每个触发器间隔(通常为1s)之后，新增的行将追加到Input Table中，最终更新到Result Table。
+无论何时结果表获得更新，变化的结果行将会被写入外部输出。
+
+![Spark Structured Streaming Model](../../images/spark_structured_streaming_model.png)
+
+`Output`代表将要被写入的外部存储。输出能够被定义为不同的模式：
+
+- `Complete Mode` 向外部存储中写入整个更新的Result Table，由存储连接器决定如何处理写入的整张表。
+- `Append Mode` 仅向外部存储中写入从上次触发器之后Result Table中新追加的数据行。
+此模式仅适用于Result Table中已存在的行预计不会发生改变的场景下。
+- `Update Mode` 仅向外部存储中写入从上次触发器之后Result Table中更新的数据行(从`Spark 2.1.1`开始添加此模式)。
+如果查询中不包含聚合操作(aggregations)，则此模式等同于Append Mode。
+
+当查询开始时，Spark会从Socket连接中持续地检查新数据。如果存在新数据，Spark将会启动"incremental"(递增式)查询，
+将先前执行的计算结果与新数据结合进行计算并更新结果。
 
 
 
