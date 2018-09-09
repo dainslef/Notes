@@ -8,6 +8,7 @@
 	- [foldl/foldr](#foldlfoldr)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
+	- [ApplicativeDo](#applicativedo)
 
 
 
@@ -278,4 +279,35 @@ nameDo = do
   last <- getLine
   let full = first ++ " " ++ last
   print $ "Pleased to meet you, " ++ full ++ "!"
+```
+
+## ApplicativeDo
+`GHC 8.0.1`后提供了针对Applicative类型的do语法糖语言扩展：
+
+```hs
+{-# LANGUAGE ApplicativeDo #-}
+```
+
+实例：
+
+```hs
+data App a = App {
+  valueA :: a
+} deriving (Eq, Show)
+
+instance Functor App where
+  fmap f fa = App $ f $ valueA fa
+
+instance Applicative App where
+  pure a = App a
+  fab <*> fa = App $ valueA fab $ valueA fa
+
+-- 原始 Applicative 类型运算逻辑
+app1 = (\a b -> App $ a ++ (show b)) <$> App "abc" <*> App 1
+
+-- 使用 ApplicativeDo 扩展后的等价语法糖表示
+app2 = do
+  a <- App "abc"
+  b <- App 2
+  return $ a ++ (show b) -- 亦可使用 pure 函数
 ```
