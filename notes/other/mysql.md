@@ -1,50 +1,46 @@
-<!-- TOC -->
-
 - [初始化与基本配置](#初始化与基本配置)
-	- [Windows下初始化 *MySQL*](#windows下初始化-mysql)
-	- [Linux下初始化 *MariaDB*](#linux下初始化-mariadb)
-	- [在Linux下手动配置 *MySQL*](#在linux下手动配置-mysql)
-	- [使用指定配置启动 *MySQL*](#使用指定配置启动-mysql)
+	- [数据库初始化 (Windows)](#数据库初始化-windows)
+	- [数据库初始化 (Linux)](#数据库初始化-linux)
+	- [手动配置](#手动配置)
+	- [使用指定配置启动](#使用指定配置启动)
 - [服务管理](#服务管理)
-	- [在Windows下启动服务](#在windows下启动服务)
-	- [*systemd* Linux发行版中管理服务](#systemd-linux发行版中管理服务)
-	- [*SysV init* Linux发行版以及BSD中管理服务](#sysv-init-linux发行版以及bsd中管理服务)
+	- [管理数据库服务 (Windows)](#管理数据库服务-windows)
+	- [管理数据库服务 (Linux SystemD)](#管理数据库服务-linux-systemd)
+	- [管理数据库服务 (BSD/Linux SysV)](#管理数据库服务-bsdlinux-sysv)
 - [用户登陆与管理](#用户登陆与管理)
 	- [远程登陆](#远程登陆)
 	- [修改用户密码](#修改用户密码)
 	- [查看用户信息](#查看用户信息)
 	- [创建/删除用户](#创建删除用户)
 	- [授权用户](#授权用户)
-- [驱动配置](#驱动配置)
-- [基本操作](#基本操作)
-	- [常用的SQL语句](#常用的sql语句)
-	- [内置函数](#内置函数)
-	- [复制表格](#复制表格)
-	- [主键自增](#主键自增)
-- [常用设置](#常用设置)
-	- [导出数据](#导出数据)
-	- [导入数据](#导入数据)
-	- [设置中文编码](#设置中文编码)
-	- [存储二进制数据](#存储二进制数据)
+	- [驱动配置](#驱动配置)
+	- [基本操作](#基本操作)
+		- [常用的SQL语句](#常用的sql语句)
+		- [内置函数](#内置函数)
+		- [复制表格](#复制表格)
+		- [主键自增](#主键自增)
+	- [常用设置](#常用设置)
+		- [导出数据](#导出数据)
+		- [导入数据](#导入数据)
+		- [设置中文编码](#设置中文编码)
+	- [二进制数据](#二进制数据)
 	- [JSP编码设置](#jsp编码设置)
 	- [时区问题](#时区问题)
 	- [时间转换](#时间转换)
-	- [禁用 *DNS* 解析](#禁用-dns-解析)
-- [*MySQL* 的 *C API*](#mysql-的-c-api)
+	- [禁用 DNS 解析](#禁用-dns-解析)
+- [MySQL 的 C API](#mysql-的-c-api)
 	- [连接数据库](#连接数据库)
 	- [执行SQL语句](#执行sql语句)
 	- [处理查询结果](#处理查询结果)
 	- [切换当前数据库](#切换当前数据库)
 	- [关闭数据库连接](#关闭数据库连接)
 
-<!-- /TOC -->
 
 
-
-## 初始化与基本配置
+# 初始化与基本配置
 对于`MariaDB`与`MySQL`而言，在初始化操作上有着明显的区别。
 
-### Windows下初始化 *MySQL*
+## 数据库初始化 (Windows)
 `MySQL`在`5.5`版本之后变更了初始化的方式，原先使用的`mysql_install_db`指令已被废弃，现在应该使用`--initialize`系列参数进行数据库初始化，如下所示：
 
 ```
@@ -63,32 +59,37 @@
 >  mysqld --initialize-insecure
 ```
 
-### Linux下初始化 *MariaDB*
-`MariaDB`在`MySQL`被`Oracle`收购之后，被各大Linux发行版作为默认的`MySQL`版本。
+## 数据库初始化 (Linux)
+`MariaDB`在MySQL被`Oracle`收购之后，被各大Linux发行版作为默认的MySQL替代版本。
 
-作为`MySQL`的分支，并没有采用`MySQL 5.5`之后的新初始化方式，依旧使用`mysql_install_db`指令进行数据库初始化，以`ArchLinux`为例，初始化指令为：
+作为MySQL的分支，并没有采用`MySQL 5.5`之后的新初始化方式，依旧使用`mysql_install_db`指令进行数据库初始化，
+以ArchLinux为例，初始化操作为：
 
 ```
 # mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
 ```
 
-### 在Linux下手动配置 *MySQL*
-几乎所有的主流Linux发行版都将仓库中默认的`MySQL`数据库迁移到了`MariaDB`分支，因而在Linux下使用`Oracle MySQL`需要从官网下载二进制包手动进行配置。
+## 手动配置
+几乎所有的主流Linux发行版都将仓库中默认的MySQL数据库迁移到了MariaDB分支，
+因而在Linux下使用`Oracle MySQL`需要从官网下载二进制包手动进行配置。
 
-与Windows下不同，在Linux下启动mysql服务需要显式使用`--basedir`、`--datadir`等参数指定数据库的相关路径，在`MySQL`的`bin`目录下执行如下所示指令：
+与Windows下不同，在Linux下启动mysql服务需要显式使用`--basedir`、`--datadir`等参数指定数据库的相关路径，
+在MySQL的`bin`目录下执行如下所示指令：
 
 ```
 $ ./mysqld --initialize-insecure --basedir=[软件路径] --datadir=[数据路径]
 ```
 
-启动数据库服务需要指定一个拥有权限的路径/文件作为socket路径，在启动时会创建该文件(使用默认参数启动数据库服务会尝试使用`/run/mysqld/mysqld.sock`文件作为锁文件，但普通用户不具有该路径的权限，因而需要显式指定`--socket`参数)：
+启动数据库服务需要指定一个拥有权限的路径/文件作为socket路径，
+在启动时会创建该文件(使用默认参数启动数据库服务会尝试使用`/run/mysqld/mysqld.sock`文件作为锁文件，
+但普通用户不具有该路径的权限，因而需要显式指定`--socket`参数)：
 
 ```
 $ ./mysql --socket=[socket文件路径] -u root
 ```
 
-### 使用指定配置启动 *MySQL*
-可以将`MySQL`的启动参数写入配置文件中，启动时指定配置文件的路径即可：
+## 使用指定配置启动
+可以将MySQL的启动参数写入配置文件中，启动时指定配置文件的路径即可：
 
 ```
 $ ./mysqld --defaults-file=[配置文件路径]
@@ -122,30 +123,30 @@ socket = #客户端启动socket文件位置
 
 
 
-## 服务管理
-除了使用`mysqld`指令启动服务之外，在不同的OS上，可以使用OS自带的服务管理工具启动`MySQL`服务。
+# 服务管理
+除了使用`mysqld`指令启动服务之外，在不同的OS上，可以使用OS自带的服务管理工具启动MySQL服务。
 
-### 在Windows下启动服务
-在Windows系统下，可以使用`--install`参数将`MySQL`注册到系统服务上：
+## 管理数据库服务 (Windows)
+在Windows系统下，可以使用`--install`参数将MySQL注册到系统服务上：
 
 ```
 > mysqld --install
 ```
 
-之后可以使用Windows自带的服务管理工具`net`启动`MySQL`服务：
+之后可以使用Windows自带的服务管理工具`net`启动MySQL服务：
 
 ```
 > net start mysql
 ```
 
-如果不再需要`MySQL`服务，则使用`--remove`参数移除服务：
+如果不再需要MySQL服务，则使用`--remove`参数移除服务：
 
 ```
 > mysqld --remove
 ```
 
-### *systemd* Linux发行版中管理服务
-采用`systemd`的发行版中可以使用`systemctl`指令管理`MySQL`服务：
+## 管理数据库服务 (Linux SystemD)
+采用`systemd`的发行版中可以使用`systemctl`指令管理MySQL服务：
 
 ```
 # systemctl status mysqld //查看mysql服务状态
@@ -154,8 +155,8 @@ socket = #客户端启动socket文件位置
 # systemctl restart mysqld //重启mysql服务
 ```
 
-### *SysV init* Linux发行版以及BSD中管理服务
-旧式的Linux发行版以及`*BSD`中使用`service`指令管理`MySQL`服务：
+## 管理数据库服务 (BSD/Linux SysV)
+旧式的Linux发行版以及`*BSD`中使用`service`指令管理MySQL服务：
 
 ```
 # service mysql status
@@ -166,7 +167,7 @@ socket = #客户端启动socket文件位置
 
 
 
-## 用户登陆与管理
+# 用户登陆与管理
 在成功启动了`MySQL`服务之后，使用`mysql`指令登陆：
 
 ```
@@ -179,17 +180,17 @@ $ mysql -u [用户名]
 $ mysql -u [用户名] -p
 ```
 
-### 远程登陆
+## 远程登陆
 默认情况下为登陆本机的数据库，如果需要**远程登陆**到其它主机上的数据库，应该使用`-h`参数：
 
 ```
 $ mysql -h [目标主机ip] -u [用户名] -p
 ```
 
-远程登陆要求本机的ip已被添加到mysql服务端配置中的`bind-address`配置项中，或者不启用`bind-address`配置。  
-在发行版`Ubuntu`中，mysql的默认配置中`bind-address`配置项是**启用**的。
+远程登陆要求本机的ip已被添加到mysql服务端配置中的`bind-address`配置项中，或者不启用bind-address配置。
+在Ubuntu发行版中，默认配置中bind-address配置项是**启用**的。
 
-### 修改用户密码
+## 修改用户密码
 登陆数据库之后，在数据库命令行中输入：
 
 ```
@@ -202,14 +203,14 @@ mysql> set password = password('[密码内容]')
 $ mysqladmin -u [用户名] password '[密码内容]'
 ```
 
-### 查看用户信息
-在`MySQL`数据库中，用户的信息记录在`mysql`库中的`user`表中，查询该表即可得到**用户信息**：
+## 查看用户信息
+MySQL数据库的用户信息记录在`mysql`库中的`user`表中，查询该表即可得到**用户信息**：
 
 ```
 mysql> select * from mysql.user;
 ```
 
-### 创建/删除用户
+## 创建/删除用户
 在数据库命令行中使用`create user`指令即可创建用户：
 
 ```
@@ -234,7 +235,7 @@ mysql> create user [用户名@localhost];
 mysql> drop user [用户名@主机名/主机地址];
 ```
 
-### 授权用户
+## 授权用户
 新创建的用户不具有权限，需要使用管理员账户(一般为`root`)对其进行授权。
 
 授予某个用户指定数据库的查询与更新权限：
@@ -277,19 +278,29 @@ mysql> show grants for [用户名]@[主机地址]; //显示指定用户的权限
 
 
 ## 驱动配置
-在`Java`语言中与`MySQL`交互一般使用通用的`JDBC`接口，加载mysql对应的JDBC驱动即可。  
-使用`Java`语言编写的IDE如`NetBeans`、`Eclipse`、`IntelliJ IDEA`等提供的`MySQL`数据库管理功能也需要添加mysql的JDBC驱动。
+使用不同的开发语言/库/平台需要配置对应的驱动。
 
-在`ArchLinux`中使用使用Qt5操作mysql数据无需安装额外的包(驱动已被集成至`Qt5`包组中)。  
-在`Debian`系发行版中使用Qt5操作mysql数据库需要安装`libqt5sql-mysql`包。  
-在`Debian/RedHat`系发行版中使用`C API`连接mysql数据库时需要安装额外的开发头文件包：
+- `Java API`
 
-```
-# apt-get install libmysqlclient-devel //大便系
-# yum/dnf install mysql-devel //红帽系
-```
+	Java语言中与MySQL交互一般使用通用的JDBC接口，加载MySQL官方的JDBC驱动即可。
+	Java IDE如`NetBeans`、`Eclipse`、`IntelliJ IDEA`等提供的MySQL数据库管理功能也需要添加MySQL的JDBC驱动。
 
-在`ArchLinux`中不需要，`ArchLinux`中的数据库包已经包含了开发头文件。
+- `Qt API`
+
+	使用Qt官方安装包的Qt环境中无须额外配置(驱动已被集成至安装包中)。
+	`ArchLinux`中使用使用Qt5操作MySQL数据无需安装额外的包(驱动已被集成至`Qt5`包组中)。
+	`Debian`系发行版中使用Qt5操作MySQL数据库需要安装`libqt5sql-mysql`包。
+
+- `C API`
+
+	`Debian/RedHat`系发行版中使用`C API`连接mysql数据库时需要安装额外的开发头文件包：
+
+	```
+	# apt-get install libmysqlclient-devel //大便系
+	# yum/dnf install mysql-devel //红帽系
+	```
+
+	`ArchLinux`中不需要，ArchLinux中的`mysql`包已经包含了开发头文件。
 
 
 
@@ -325,20 +336,20 @@ mysql> show grants for [用户名]@[主机地址]; //显示指定用户的权限
 ### 复制表格
 仅复制表格结构：
 
-```
+```sql
 create table [新表] like [旧表]
 ```
 
 复制表格的结构和数据：
 
-```
+```sql
 create table [新表] select * from [旧表]
 ```
 
 ### 主键自增
 设置主键自增：
 
-```
+```sql
 mysql> alert table [表名] auto_increment=[数字]; //设置自增属性
 mysql> alter table [表名] change [主键列名] [主键列名] [属性] auto_increment;
 ```
@@ -349,7 +360,7 @@ mysql> alter table [表名] change [主键列名] [主键列名] [属性] auto_i
 mysql> alter table [表名] change [列名] [列名] [属性];
 ```
 
-设置主键自增对于已有数据的列需要清空已有数据才能正常显示。  
+设置主键自增对于已有数据的列需要清空已有数据才能正常显示。
 必须是**主键**才能设置自增属性。
 
 
@@ -389,7 +400,7 @@ mysql> source [数据库备份文件]
 导入数据库时需要注意编码问题，数据库编码、连接编码、备份文件的编码需要相同才不会产生中文乱码问题。
 
 ### 设置中文编码
-默认情况下，旧版的mysql数据库的编码为`latin1`，此编码不支持东亚语系的文字显示，需要修改为支持各国文字的`UTF-8`编码。  
+默认情况下，旧版的mysql数据库的编码为`latin1`，此编码不支持东亚语系的文字显示，需要修改为支持各国文字的`UTF-8`编码。
 对于部分使用`MariaDB`的发行版(如`ArchLinux`)，默认的编码为`UTF-8`，无需额外配置。
 
 查看数据库的默认的所有编码信息：
@@ -429,7 +440,9 @@ mysql> show variables like 'character_set_database';
 
 修改指定数据库的编码：
 
-`mysql> alter database [数据库名称] CHARACTER SET [编码类型(gbk/utf8)];`
+```
+mysql> alter database [数据库名称] CHARACTER SET [编码类型(gbk/utf8)];
+```
 
 如果需要修改数据库的默认编码，则需要修改配置文件：
 
@@ -458,14 +471,14 @@ character_set_server = utf8
 default-character-set = utf8
 ```
 
-### 存储二进制数据
+## 二进制数据
 如果需要向数据库中存储二进制信息(比如**图片**)，则字段应选择`BLOB`类型(`binary large object`)。
 
-在`MySQL`中，与`BLOB`相关的类型有四种，分别为：`TinyBlob`、`Blob`、`MediumBlum`、`LongBlum`。  
-这四种类型之间的区别在于存储文件大小上限不同。  
+MySQL中与BLOB相关的类型有四种，分别为：`TinyBlob`、`Blob`、`MediumBlum`、`LongBlum`。
+这四种类型之间的区别在于存储文件大小上限不同。
 `TinyBlob`最大`255B`，`Blob`最大`65KB`，`MediumBlob`最大`16MB`，`LongBlob`最大`4GB`。
 
-### JSP编码设置
+## JSP编码设置
 在`JSP`开发中，编码问题主要体现在以下几个方面：
 
 - 数据库表的编码：`ENGINE=InnoDB DEFAULT CHARSET=utf8`。
@@ -474,8 +487,8 @@ default-character-set = utf8
 
 数据表的编码需要与连接的编码相同，否则读取数据会出现中文乱码，而JSP页面中的内容编码可以单独指定。
 
-### 时区问题
-`MySQL`连接出现如下所示错误：
+## 时区问题
+MySQL连接出现如下所示错误：
 
 ```
 The server time zone value 'XXX' is unrecognized or represents more than one time zone. You must configure either the server or JDBC driver (via the serverTimezone configuration property) to use a more specifc time zone value if you want to utilize time zone support.
@@ -487,16 +500,16 @@ The server time zone value 'XXX' is unrecognized or represents more than one tim
 jdbc:mysql://localhost:3306/xxx?serverTimezone=UTC //服务端时区信息不为UTC时，需要改为与服务端相匹配的时区
 ```
 
-### 时间转换
+## 时间转换
 MySQL中使用内置函数`unix_timestamp(xxx)`可将时间转换为Unix时间戳(从`1970-1-1`至今的秒数)。
 
 MySQL中的内置时间类型(`datetime`类型)在不同语言中的对应类型：
 
 - Java中的`java.sql.Timestamp`类型：
 
-	使用`Timestamp.getTime()`获取时间对应的Unix时间戳。  
-	在Java中Timestamp类型精确到**微秒**，而MySQL中datetime类型精确到**秒**，  
-	相同时间在Java中获得的时间戳应除以`1000`才能与MySQL中的时间戳相比较。  
+	使用`Timestamp.getTime()`获取时间对应的Unix时间戳。
+	在Java中Timestamp类型精确到**微秒**，而MySQL中datetime类型精确到**秒**，
+	相同时间在Java中获得的时间戳应除以`1000`才能与MySQL中的时间戳相比较。
 	如下所示：
 
 	```java
@@ -505,22 +518,22 @@ MySQL中的内置时间类型(`datetime`类型)在不同语言中的对应类型
 
 - C#中的`System.DateTime`类型：
 
-	将在C#中获得的`DateTime`实例与表示`1970-1-1`至今的时间相减，得到`System.TimeSpan`类型表示的时间间隔，  
-	访问`TimeSpan.TotalSeconds`属性获得Unix时间戳。  
+	将在C#中获得的`DateTime`实例与表示`1970-1-1`至今的时间相减，得到`System.TimeSpan`类型表示的时间间隔，
+	访问`TimeSpan.TotalSeconds`属性获得Unix时间戳。
 	如下所示：
 
 	```cs
 	(dateTime - DateTime.Parse("1970-1-1")).TotalSeconds; //获取时间戳
 	```
 
-### 禁用 *DNS* 解析
-`MySQL`默认开启了`DNS`解析，但在`DNS`服务器异常时，一次数据库操作会异常缓慢，并在`/var/log/mysql/error.log`中写入类似日志：
+## 禁用 DNS 解析
+MySQL默认开启了DNS解析，但在DNS服务器异常时，一次数据库操作会异常缓慢，并在`/var/log/mysql/error.log`中写入类似日志：
 
 ```
 [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved: Temporary failure in name resolution
 ```
 
-解决方法是禁用`MySQL`的`DNS`解析，在配置`my.cnf`中添加以下内容：
+解决方法是禁用MySQL的DNS解析，在配置`my.cnf`中添加以下内容：
 
 ```
 [mysqld]
@@ -530,7 +543,7 @@ skip-name-resolve
 
 
 
-## *MySQL* 的 *C API*
+# MySQL 的 C API
 `MySQL`数据库提供了**C语言**接口用于数据库交互，在`*nix`中，头文件为`/usr/include/mysql/mysql.h`。
 
 在使用Unix工具链进行编译时，需要添加参数`-lmysqlclient`用于链接`libmysqlclient.so`动态库。
@@ -540,7 +553,7 @@ mysql的C语言绑定主要涉及以下几种结构体类型：
 - `MYSQL` 存储连接相关信息
 - `MYSQL_RES` 存储查询操作相关返回信息
 
-### 连接数据库
+## 连接数据库
 使用`mysql_init()`初始化连接信息结构体，使用`mysql_real_connect()`连接数据库。
 
 ```c
@@ -555,7 +568,7 @@ MYSQL* mysql_real_connect(MYSQL *mysql, const char *host, const char *user, cons
 
 旧式的连接函数`mysql_connect()`已不再推荐使用，仅仅为兼容而保留。
 
-### 执行SQL语句
+## 执行SQL语句
 使用`mysql_query()`以及`mysql_real_query()`执行SQL语句：
 
 ```c
@@ -570,7 +583,7 @@ int mysql_real_query(MYSQL *mysql, const char *q, unsigned long length);
 
 函数执行成功返回`0`，执行失败时返回错误代码。
 
-### 处理查询结果
+## 处理查询结果
 使用下列函数对结果集进行操作：
 
 ```c
@@ -588,7 +601,7 @@ void mysql_data_seek(MYSQL_RES *result, my_ulonglong offset);
 - `mysql_fetch_row()`用于按行读取结果集中的内容，每次执行`mysql_fetch_row()`会返回下一行结果集的指针。返回值类型`MYSQL_ROW`的实际类型为二维指针`char**`，保存了每一列的字符数组指针。
 - `mysql_data_seek()`用于设置结果集读取位置到指定的偏移量，`offset`参数取值为`0`时，则重置结果集的读取位置。
 
-### 切换当前数据库
+## 切换当前数据库
 使用`mysql_select_db()`函数切换数据库：
 
 ```c
@@ -597,7 +610,7 @@ int mysql_select_db(MYSQL *mysql,const char *db);
 
 相当于mysql指令`use [数据库名]`。
 
-### 关闭数据库连接
+## 关闭数据库连接
 使用`mysql_close()`函数关闭数据库连接：
 
 ```c
