@@ -1,11 +1,9 @@
 - [Haskell 开发环境](#haskell-开发环境)
 	- [GHC 常用功能](#ghc-常用功能)
 	- [REPL (GHCi)](#repl-ghci)
-- [高阶函数](#高阶函数)
-	- [$ 和 .](#-和-)
-	- [<$>](#)
-	- [<*>](#)
-	- [foldl/foldr](#foldlfoldr)
+- [常用函数](#常用函数)
+	- [$](#)
+	- [.](#)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
@@ -85,10 +83,10 @@ REPL环境下的内部指令均以`:`为前缀，常用指令如下：
 
 
 
-# 高阶函数
-Haskell作为函数式语言，标准库中内置了常用的高阶函数。
+# 常用函数
+Haskell中可以使用符号做为函数名。
 
-## $ 和 .
+## $
 `$`常用于消除函数中的括号，函数定义：
 
 ```hs
@@ -99,72 +97,22 @@ Haskell作为函数式语言，标准库中内置了常用的高阶函数。
 infixr 0 $
 ```
 
+`$`函数优先级为0，因而能代替括号操作符改变操作优先级。
+示例：
+
+```hs
+Prelude> print ("abc" ++ "cde") -- 使用括号改变表达式优先级，与传统命令式语言类似
+"abccde"
+Prelude> print $ "abc" ++ "cde" -- 使用 $ 函数改变优先级更符合Haskell代码风格
+"abccde"
+```
+
+## .
 `.`用于组合两个函数，函数定义：
 
 ```hs
 (.) :: (b -> c) -> (a -> b) -> a -> c 	-- Defined in ‘GHC.Base’
 infixr 9 .
-```
-
-## <$>
-`<$>`，对一个`Functor`执行提供的变换操作，将Functor中参数类型变换为另一种类型。
-函数定义：
-
-```hs
-(<$>) :: Functor f => (a -> b) -> f a -> f b
-  	-- Defined in ‘Data.Functor’
-infixl 4 <$>
-```
-
-示例：
-
-```hs
-Prelude> (+1) <$> [1, 2, 3]
-[2,3,4]
-```
-
-## <*>
-`<*>`，函数定义：
-
-```hs
-class Functor f => Applicative (f :: * -> *) where
-  ...
-  (<*>) :: f (a -> b) -> f a -> f b
-  ...
-  	-- Defined in ‘GHC.Base’
-infixl 4 <*>
-```
-
-示例：
-
-```hs
-Prelude> [(+1)] <*> [1, 2, 3]
-[2,3,4]
-Prelude> [(+1), (+2)] <*> [1, 2, 3]
-[2,3,4,3,4,5]
-```
-
-## foldl/foldr
-`foldl`/`foldr`用于叠加数据，函数定义：
-
-```hs
-class Foldable (t :: * -> *) where
-  ...
-  foldl :: (b -> a -> b) -> b -> t a -> b
-  foldr :: (a -> b -> b) -> b -> t a -> b
-  ...
-  	-- Defined in ‘Data.Foldable’
-```
-
-示例：
-
-```hs
-Prelude> foldl (+) 0 [1, 2, 3]
-6
-Prelude> foldl (-) 0 [1, 2, 3]
--6
-Prelude> foldr (-) 0 [1, 2, 3]
-2
 ```
 
 
