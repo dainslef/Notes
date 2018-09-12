@@ -1,4 +1,7 @@
 - [Windows CMD](#windows-cmd)
+- [常用Unix工具指令](#常用unix工具指令)
+	- [grep](#grep)
+	- [进程管理](#进程管理)
 - [用户管理](#用户管理)
 - [UID/GID/Sticky](#uidgidsticky)
 - [ftp](#ftp)
@@ -122,6 +125,51 @@ Windows系统提供的命令行执行DOS系统工具指令。
 
 
 
+# 常用Unix工具指令
+一些Unix常用指令的简介。
+
+## grep
+`grep`用于搜索文本中包含指定内容的行，常用于管道操作中处理其它指令的输出结果。
+
+```c
+// 从给定的内容中查找包含 xxx 的内容
+$ grep xxx
+
+// 从给定的内容中排除包含 xxx 的内容
+$ grep -v xxx
+
+// 查找 xxx (严格匹配)
+$ grep -w xxx
+// 等价于grep -w
+$ grep '\<xxx\>'
+
+// 匹配 xxx 时忽略大小写
+$ grep -i xxx
+```
+
+## 进程管理
+`kill`指令用于杀死进程，`ps`指令用于查看进程状态。
+
+```c
+// 强制杀死进程(发送SIGKILL信号，该信号不可被忽略)
+$ kill -9 [pid]
+// 向指定进程发送指定名称的信号
+$ kill -s [sig_name] [pid]
+// 向指定进程发送指定编号的信号
+$ kill -n [sig_num] [pid]
+// 列出系统支持的信号
+$ kill -l
+
+// 打印指定 pid 进程信息
+$ ps --pid [pid]
+// 打印所有进程信息
+$ ps a
+// 输出指定内容的进程信息
+$ ps -o cmd,user,stat,pid,ppid,pgid,sid,tpgid,tty
+```
+
+
+
 # 用户管理
 在Linux中，用户信息、用户组信息相关文件均位于`/etc`路径下：
 
@@ -175,6 +223,7 @@ $ chown -R [用户名:用户组] [路径]
 // 更改指定文件所属用户组
 $ chgrp [选项] [用户组名] [文件名]
 ```
+
 
 
 # UID/GID/Sticky
@@ -476,7 +525,7 @@ GRUB的配置文件为`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令�
 
 	正常启动系统后，在终端重新安装引导器：
 
-	```
+	```c
 	# grub-install /dev/sda //MBR
 	# grub-install //UEFI
 	```
@@ -938,6 +987,11 @@ apt的常用指令：
 ```c
 // 更新软件源
 # apt-get update
+// 更新无依赖变化的软件包
+# apt-get upgrade
+// 更新所有软件包
+# apt-get dist-upgrade
+
 // 安装/卸载软件包
 # apt-get install/remove [包名]
 // 卸载软件包时同时删除配置
@@ -947,6 +1001,7 @@ apt的常用指令：
 # apt update
 # apt install/remove [包名]
 # apt purge [包名]
+# apt upgrade/dist-upgrade
 
 // 清理无用依赖
 # apt-get autoremove
