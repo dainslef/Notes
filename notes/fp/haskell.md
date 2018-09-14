@@ -2,11 +2,14 @@
 	- [GHC 常用功能](#ghc-常用功能)
 	- [REPL (GHCi)](#repl-ghci)
 - [常用函数](#常用函数)
-	- [$](#)
-	- [.](#)
+	- [`$` 函数](#-函数)
+	- [`.` 函数](#-函数)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
+- [GADTs](#gadts)
+	- [ADT 的限制](#adt-的限制)
+	- [使用 GADT](#使用-gadt)
 
 
 
@@ -86,7 +89,7 @@ REPL环境下的内部指令均以`:`为前缀，常用指令如下：
 # 常用函数
 Haskell中可以使用符号做为函数名。
 
-## $
+## `$` 函数
 `$`常用于消除函数中的括号，函数定义：
 
 ```hs
@@ -107,7 +110,7 @@ Prelude> print $ "abc" ++ "cde" -- 使用 $ 函数改变优先级更符合Haskel
 "abccde"
 ```
 
-## .
+## `.` 函数
 `.`用于组合两个函数，函数定义：
 
 ```hs
@@ -258,4 +261,64 @@ app2 = do
   a <- App "abc"
   b <- App 2
   return $ a ++ (show b) -- 亦可使用 pure 函数
+```
+
+
+
+# GADTs
+`GADTs`(Generalized Algebraic Datatypes，广义代数数据类型)，是ADT的泛化版本，
+允许显式地指定ADT定义中每个构造器的类型。
+
+## ADT 的限制
+普通的ADT类型中，每个构造器的返回值类型不可指定。
+定义一个代表表达式的类型，如下所示：
+
+```hs
+data Expr a =
+  Num a | Bool a |
+  Add (Expr a) (Expr a) |
+  Eq (Expr a) (Expr a) deriving (Show, Eq)
+```
+
+`Expr`类型拥有四个构造器，每个构造器返回类型均为`Expr a`，由于构造器类型相同，在特定组合下会造成语义冲突：
+
+```hs
+-- Num构造器不应使用文本做为参数
+Num "Test"
+-- Bool构造器应该仅接收Bool类型
+Bool 666
+
+-- Bool构造器不应做为Add的参数，但ADT无法做到精确的类型限制
+Add (Bool True) (Bool False)
+```
+
+## 使用 GADT
+使用GADT需要开启对应语言扩展：
+
+```hs
+{-# LANGUAGE GADTs #-}
+```
+
+GADT可以指定每个构造器的签名：
+
+```hs
+data Expr a where
+  Num :: Num a => a -> Expr a -- 限制参数类型必须实现 Type Class Num
+  Bool :: Bool -> Expr Bool -- 指定参数类型为Bool型
+  Add :: Num a => Expr a -> Expr a -> Expr a
+  Eq :: Eq a => Expr a -> Expr a -> Expr Bool
+```
+
+各个构造器都添加对应了类型约束，因此下列语句无法通过编译：
+
+```hs
+-- 参数类型[Char]未实现TypeClass
+Num "Test"
+-- Bool构造器应该仅接收Bool类型
+Bool 666
+
+-- 编译器输出错误信息：
+-- ? No instance for (Num Bool) arising from a use of ‘Add’
+-- ? In the expression: Add (Bool True) (Bool False)
+Add (Bool True) (Bool False)
 ```
