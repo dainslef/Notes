@@ -2,6 +2,7 @@
 - [常用Unix工具指令](#常用unix工具指令)
 	- [grep](#grep)
 	- [进程管理](#进程管理)
+	- [文件系统](#文件系统)
 - [用户管理](#用户管理)
 - [UID/GID/Sticky](#uidgidsticky)
 - [ftp](#ftp)
@@ -166,6 +167,35 @@ $ ps --pid [pid]
 $ ps a
 // 输出指定内容的进程信息
 $ ps -o cmd,user,stat,pid,ppid,pgid,sid,tpgid,tty
+```
+
+## 文件系统
+查看分区信息的相关指令：
+
+```c
+// 查看文件inode
+$ ls -i
+
+// 查看硬盘分区
+$ lsblk
+// 查看分区UUID
+$ lsblk -f
+// 查看分区UUID
+# blkid
+
+// 显示已挂载分区的信息
+$ mount
+// 显示指定分区的信息
+# file -s [分区卷]
+```
+
+查看文件系统标志使用`wipefs`指令：
+
+```c
+// 查看分区的文件系统标志
+$ wipefs [分区]
+// 清理分区所包含的所有文件系统标志
+# wipefs -a [分区]
 ```
 
 
