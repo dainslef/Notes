@@ -874,35 +874,35 @@ class Override {
 
   var m = 100 //普通成员字段会自动合成setter/getter方法
   /*
-  def m(): Int = m //错误，提示重复定义
-  def m_=(m: Int) { this.m = m } //错误，提示重复定义
-  */
+   * def m(): Int = m //错误，提示重复定义
+   * def m_=(m: Int) { this.m = m } //错误，提示重复定义
+   */
   def m(m: Int) {} //正常，签名未冲突
 
   /*
-    私有this字段不会合成setter/getter方法，
-    但自行手动定义同名的setter/getter方法时有许多限制(getter方法需要空参且写明返回值)，
-    且没有实用价值(setter方法使用报错)
-  */
+   * 私有this字段不会合成setter/getter方法，
+   * 但自行手动定义同名的setter/getter方法时有许多限制(getter方法需要空参且写明返回值)，
+   * 且没有实用价值(setter方法使用报错)
+   */
   private[this] var num = 100
   def num(): Int = num //正常
   def num_=(num: Int) {
     this.num = num
   } //正常，虽然定义时不报错，但赋值时报错
   /*
-  def num = this.num //报错
-  def num: Int = num //报错
-  def num: Int = this.num //报错
-  */
+   * def num = this.num //报错
+   * def num: Int = num //报错
+   * def num: Int = this.num //报错
+   */
 
   // 常用的私有变量自定义setter/getter风格是私有字段名前加上下划线
   private[this] var _abc = 0
   def abc = _abc
   def abc_=(abc: Int) = _abc = abc
   /*
-    也可以写成：
-    def abc_=(abc: Int) { _abc = abc }
-  */
+   * 也可以写成：
+   * def abc_=(abc: Int) { _abc = abc }
+   */
 }
 ```
 
@@ -928,11 +928,18 @@ Scala中类可以拥有一个**主构造器(primary constructor)**和任意个**
 示例：
 
 ```scala
-class Constructor(a: Int, var b: Double = 2.0) { //构造器参数紧跟在类名之后，构造器中的参数可以带有默认值
-  //在构造器中创建了字段b，a变量没有显式使用var/val关键字，同时也没有被其它方法引用，因而仅仅作为临时变量存在
+/*
+ * 构造器参数紧跟在类名之后，构造器中的参数可以带有默认值
+ * 在构造器中创建了字段b，a变量没有显式使用var/val关键字，同时也没有被其它方法引用，因而仅仅作为临时变量存在
+ */
+class Constructor(a: Int, var b: Double = 2.0) {
 
-  //定义辅助构造器，使用this关键字
-  def this() = this(2, 3.0) //辅助构造器的函数体中必须最终调用主构造器，辅助构造器即使没有参数也必须也必须带括号
+  /*
+   * 定义辅助构造器，使用this关键字
+   * 辅助构造器的函数体中必须最终调用主构造器，辅助构造器即使没有参数也必须也必须带括号
+   */
+  def this() = this(2, 3.0)
+
 }
 
 //只有主构造器能够调用父类构造器，调用的父类构造器可以是主构造器，也可以是辅助构造器
@@ -1766,11 +1773,11 @@ object Main extends App {
   var ca = Case(str = "S13")
   println(ca.num + " " + ca.str)
 
-  //使用样例类提供的copy()方法可以复制出一个字段值相同的类
+  // 使用样例类提供的copy()方法可以复制出一个字段值相同的类
   var caCopy = ca.copy()
   println(caCopy.num + " " + caCopy.str)
 
-  //也可以在copy()只复制需要的值甚至不使用原先对象的值
+  // 也可以在copy()只复制需要的值甚至不使用原先对象的值
   var caCopy1 = ca.copy(200)
   var caCopy2 = ca.copy(str = "Abc")
   var caCopy3 = ca.copy(50, "ABC")
@@ -1778,10 +1785,10 @@ object Main extends App {
   println(caCopy2.num + " " + caCopy2.str)
   println(caCopy3.num + " " + caCopy3.str)
 
-  //样例类的实例之间可以直接比较,只要构造器中的字段值相同便会返回true
+  // 样例类的实例之间可以直接比较,只要构造器中的字段值相同便会返回true
   println(ca == caCopy)
 
-  //样例类经常用于模式匹配中(unapply()方法的应用)
+  // 样例类经常用于模式匹配中(unapply()方法的应用)
   def show(ca: Case) = ca match {
     case Case(num, _) if num > 100 => println("Case.num > 100")
     case Case(100, _) => println("Case.num == 100")
@@ -2498,7 +2505,7 @@ Float 666.666
 scala> var str = "Hello World"
 str: String = Hello World
 
-//使用插值器后，在变量前使用"$"符号即可将变量值作为文本插入
+// 使用插值器后，在变量前使用"$"符号即可将变量值作为文本插入
 scala> s"The str is $str"
 res0: String = The str is Hello World
 
@@ -2533,7 +2540,7 @@ scala> var (a, b) = (1.0, 2.5)
 a: Double = 1.0
 b: Double = 2.5
 
-//引用变量之后紧跟格式化字符
+// 引用变量之后紧跟格式化字符
 scala> f"$a%6.3f $b%10.5f"
 res3: String = " 1.000    2.50000"
 ```
@@ -2561,12 +2568,12 @@ res15: String = \n\s\\b\\%''^#@ 3.0
 示例：
 
 ```scala
-scala> val str = scala.io.StdIn.readLine()		//自行脑补终端输入"Test input"
+scala> val str = scala.io.StdIn.readLine() //自行脑补终端输入 "Test input"
 str: String = Test input
-scala> val int = scala.io.StdIn.readInt()		//自行脑补终端输入"200"
+scala> val int = scala.io.StdIn.readInt() //自行脑补终端输入 "200"
 int: Int = 200
 
-//输入内容不匹配读取类型时会抛出异常
+// 输入内容不匹配读取类型时会抛出异常
 scala> val double = scala.io.StdIn.readDouble()
 java.lang.NumberFormatException: For input string: "test"
   at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:2043)
@@ -2578,18 +2585,18 @@ java.lang.NumberFormatException: For input string: "test"
   at scala.io.StdIn$.readDouble(StdIn.scala:229)
   ... 33 elided
 
-//readf()可以接收任意数量的值，返回值为List[Any]类型
-scala> val list = scala.io.StdIn.readf("{0} + {1}")				//自行脑补终端输入"Test + Input"
-list: List[Any] = List(Test, Input)								//按照格式化字符串提取出了输入内容
+// readf() 可以接收任意数量的值，返回值为 List[Any] 类型
+scala> val list = scala.io.StdIn.readf("{0} + {1}") //自行脑补终端输入 "Test + Input"
+list: List[Any] = List(Test, Input) //按照格式化字符串提取出了输入内容
 scala> list foreach println
 Test
 Input
 
-//readf1()仅能接收一个值，返回接收的值
-scala> val num = scala.io.StdIn.readf1("This is {0}")			//自行脑补终端输入"This is 666"
+// readf1() 仅能接收一个值，返回接收的值
+scala> val num = scala.io.StdIn.readf1("This is {0}") //自行脑补终端输入 "This is 666"
 num: Any = 666
-//readf2()/readf3()接收两个/三个值，返回值为Tuple类型
-scala> val tuple = scala.io.StdIn.readf3("{0} + {1} + {2}")		//自行脑补终端输入"One + Two + Three"
+// readf2()/readf3() 接收两个/三个值，返回值为 Tuple 类型
+scala> val tuple = scala.io.StdIn.readf3("{0} + {1} + {2}") //自行脑补终端输入 "One + Two + Three"
 tuple: (Any, Any, Any) = (On,Two,Three)
 ```
 
@@ -2738,7 +2745,7 @@ object Color extends Enumeration {
 }
 
 object Main extends App {
-  // Xxx.Value才是真正的枚举类型
+  // Xxx.Value 才是真正的枚举类型
   def showEnum(color: Color.Value) = println(s"ID: ${color.id}, Str: $color")
   showEnum(Color.blue)
   showEnum(Color.white)
