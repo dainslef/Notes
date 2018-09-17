@@ -319,6 +319,70 @@ app2 = do
 	4
 	```
 
+- `sequence`/`sequence_`
+
+	sequence函数从左向右执行Traversable结构中的每个单子操作，收集结果并包装在Monad结构中做为返回值。
+	sequence_函数是sequence的无结果版本。
+	函数定义：
+
+	```hs
+	class (Functor t, Foldable t) => Traversable (t :: * -> *) where
+	  ...
+	  sequence :: Monad m => t (m a) -> m (t a)
+	        -- Defined in ‘Data.Traversable’
+
+	sequence_ :: (Foldable t, Monad m) => t (m a) -> m ()
+	        -- Defined in ‘Data.Foldable’
+	```
+
+	示例：
+
+	```hs
+	Prelude Control.Monad> actionA = print "Action A" >> return "A"
+	Prelude Control.Monad> actionB = print "Action B" >> return "B"
+	Prelude Control.Monad> actionC = print "Action C" >> return "C"
+	Prelude Control.Monad> sequence [actionA, actionB, actionC] -- 执行后产生副作用，并生成结果
+	"Action A"
+	"Action B"
+	"Action C"
+	["A","B","C"]
+	Prelude Control.Monad> sequence_ [actionA, actionB, actionC] -- 执行后仅产生副作用，结果为空
+	"Action A"
+	"Action B"
+	"Action C"
+	```
+
+- `=<<`/`>=>`/`<=<`
+
+	`=<<`函数与`>>=`相同，仅参数位置不同。
+	`>=>`函数用于从左向右组合Monad操作，`<=<`函数用于从右向左组合Monad操作。
+	函数定义：
+
+	```hs
+	(=<<) :: Monad m => (a -> m b) -> m a -> m b
+	        -- Defined in ‘GHC.Base’
+	infixr 1 =<<
+
+	(>=>) :: Monad m => (a -> m b) -> (b -> m c) -> a -> m c
+	        -- Defined in ‘Control.Monad’
+	infixr 1 >=>
+
+	(<=<) :: Monad m => (b -> m c) -> (a -> m b) -> a -> m c
+	        -- Defined in ‘Control.Monad’
+	infixr 1 <=<
+	```
+
+	示例：
+
+	```hs
+	Prelude Control.Monad> print =<< return 2333
+	2333
+	Prelude Control.Monad> return >=> print $ 2333
+	2333
+	Prelude Control.Monad> print <=< return $ 2333
+	2333
+	```
+
 
 
 # GADTs
