@@ -7,6 +7,7 @@
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
+	- [Control.Monad](#controlmonad)
 - [GADTs](#gadts)
 	- [ADT 的限制](#adt-的限制)
 	- [使用 GADT](#使用-gadt)
@@ -262,6 +263,61 @@ app2 = do
   b <- App 2
   return $ a ++ (show b) -- 亦可使用 pure 函数
 ```
+
+## Control.Monad
+`Control.Monad`包中提供了Monad的常用变换操作。
+
+- `mapM`/`forM`/`mapM_`/`forM_`
+
+	mapM函数定义在Traversable类型中，函数对Foldable类型的每个元素执行参数给定的单子操作(monadic action)，
+	从左向右收集结果，并将结果集包装到单个Monad中。
+	forM函数功能与mapM相同，仅参数位置不同。
+	函数定义：
+
+	```hs
+	class (Functor t, Foldable t) => Traversable (t :: * -> *) where
+	  ...
+	  mapM :: Monad m => (a -> m b) -> t a -> m (t b)
+	  ...
+	        -- Defined in ‘Data.Traversable’
+
+	forM :: (Traversable t, Monad m) => t a -> (a -> m b) -> m (t b)
+	        -- Defined in ‘Data.Traversable’
+	```
+
+	示例：
+
+	```hs
+	Prelude Control.Monad> mapM Just [1, 2, 3]
+	Just [1,2,3]
+	Prelude Control.Monad> forM [1, 2, 3] $ \n -> Just $ n + 1
+	Just [2,3,4]
+	```
+
+	mapM_/forM_是对应函数的无结果版本，做为返回值的Monad参数类型固定为空元组`()`。
+	函数定义：
+
+	```hs
+	mapM_ :: (Foldable t, Monad m) => (a -> m b) -> t a -> m ()
+	        -- Defined in ‘Data.Foldable’
+
+	forM_ :: (Foldable t, Monad m) => t a -> (a -> m b) -> m ()
+	        -- Defined in ‘Data.Foldable’
+	```
+
+	mapM_/forM_常用于处理不关注返回值副作用操作(IO Monad)。
+	示例：
+
+	```hs
+	Prelude Control.Monad> mapM_ print [1, 2, 3]
+	1
+	2
+	3
+	Prelude Control.Monad> forM_ [1, 2, 3] $ print . (+1)
+	2
+	3
+	4
+	```
 
 
 
