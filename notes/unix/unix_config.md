@@ -3,6 +3,7 @@
 	- [grep](#grep)
 	- [进程管理](#进程管理)
 	- [文件系统](#文件系统)
+- [PulseAudio](#pulseaudio)
 - [用户管理](#用户管理)
 - [UID/GID/Sticky](#uidgidsticky)
 - [ftp](#ftp)
@@ -196,6 +197,29 @@ $ mount
 $ wipefs [分区]
 // 清理分区所包含的所有文件系统标志
 # wipefs -a [分区]
+```
+
+
+
+# PulseAudio
+`PulseAudio`是用于`POSIX`系统的音频系统，是音频程序的代理(proxy)。
+PulseAudio允许用户对音频应用和音频硬件之间传递的音频数据执行高级操作。
+使用音频服务可轻松实现诸如将音频传输到另一台机器上、改变样本格式或通道数量、混合多种音频等功能。
+
+PulseAudio为Linux系统设计，现在也被移植到了`Solaris`、`FreeBSD`、`NetBSD`、`macOS`、`Windows 2000`、`Windows XP`等系统上。
+
+使用PulseAudio提供的`pactl`控制、调整音频设备：
+
+```c
+// 输出音频设备信息(简短输出)
+$ pactl list sinks short
+// 输出完整音频设备信息
+$ pactl list
+
+// 调整设备音量，"调整幅度" 格式为百分数如 "+5%"
+$ pactl set-link-volume [音频设备编号] [调整幅度]
+// 开启/关闭静音
+$ pactl set-sink-mute [音频设备编号] [true/false]
 ```
 
 
