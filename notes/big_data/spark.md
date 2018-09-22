@@ -31,6 +31,7 @@
 	- [Datasets & DataFrames](#datasets--dataframes)
 	- [SparkSession](#sparksession)
 	- [构建 DataFame](#构建-datafame)
+	- [Untyped Dataset Operations (无类型的 Dataset 操作，aka DataFrame Operations)](#untyped-dataset-operations-无类型的-dataset-操作aka-dataframe-operations)
 - [Structured Streaming](#structured-streaming)
 	- [基础概念](#基础概念)
 - [问题注记](#问题注记)
@@ -159,8 +160,9 @@ $ stop-history-server.sh
 # 集群模型
 Spark应用作为独立的进程集在集群中运行，通过`SparkContext`对象在用户主程序(`dirver program`)中与集群组织、交互。
 
-Spark应用在集群中运行时，SparkContext会连接到某种类型的`cluster managers`(集群管理器，如`Mesos`、`YARN`)，由集群管理器在多个应用间分配资源。
-一旦连接建立，Spark会在集群的节点中获取`executors`(执行器)，executors是执行计算操作和存储用户应用数据的进程。
+Spark应用在集群中运行时，SparkContext会连接到某种类型的`cluster managers`(集群管理器，如`Mesos`、`YARN`)，
+由集群管理器在多个应用间分配资源。一旦连接建立，Spark会在集群的节点中获取`executors`(执行器)，
+executors是执行计算操作和存储用户应用数据的进程。
 之后，SparkContext将用户的应用代码(在`JAR`中或Python源码文件)发送到executors。
 最终，SparkContext发送`tasks`(任务)到executors中运行。
 
@@ -1791,6 +1793,71 @@ val dataFrameJdbc2 = sparkSession.read
   .load()
 ```
 
+## Untyped Dataset Operations (无类型的 Dataset 操作，aka DataFrame Operations)
+DataFrame操作结构化数据提供了DSL(domain-specific language，特定领域专用语言)，在Scala、Java、Python、R语言中可用。
+
+`Spark 2.0`之后，在Java/Scala API中，DataFrame仅仅是Dataset使用Row类型作为泛型参数构成的类型。
+除了简单的列引用和表达式，Dataset还拥有丰富的函数库包括字符串操作、日期计算、通用数学操作等。
+完整的功能列表可查看[DataFrame Function Reference](http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.functions$)。
+
+基础的DataFrame操作：
+
+```scala
+// 定义数据结构
+scala> case class Test(name: String, age: Int)
+defined class Test
+
+// 创建测试数据结构
+scala> val dataFrame = spark.createDataFrame(Seq(Test("Haskell", 25), Test("Rust", 6), Test("Scala", 15)))
+dataFrame: org.apache.spark.sql.DataFrame = [name: string, age: int]
+
+// 输出DataFrame内容
+scala> dataFrame.show()
++-------+---+
+|   name|age|
++-------+---+
+|Haskell| 25|
+|   Rust|  6|
+|  Scala| 15|
++-------+---+
+
+// 输出DataFrame结构
+scala> dataFrame.printSchema()
+root
+ |-- name: string (nullable = true)
+ |-- age: integer (nullable = false)
+
+// 显示指定列的内容
+scala> dataFrame.select("name").show()
++-------+
+|   name|
++-------+
+|Haskell|
+|   Rust|
+|  Scala|
++-------+
+
+// 显示列内容时可添加额外处理
+// 输出 name，age 列，同时 age 列的值执行 +1 操作
+scala> dataFrame.select($"name", $"age" + 1).show()
++-------+---------+
+|   name|(age + 1)|
++-------+---------+
+|Haskell|       26|
+|   Rust|        7|
+|  Scala|       16|
++-------+---------+
+
+// 过滤内容
+scala> dataFrame.filter($"age" > 10).show()
++-------+---+
+|   name|age|
++-------+---+
+|Haskell| 25|
+|  Scala| 15|
++-------+---+
+```
+
 
 
 # Structured Streaming
@@ -1834,10 +1901,11 @@ Spark运行环境中已包含了Scala、Hadoop、Zookeeper等依赖，与Jar包�
 ## Operation category READ is not supported in state standby
 问题说明：<br>
 配置了NameNode HA的Hadoop集群会存在`active`、`standby`两种状态。
-SparkStreaming使用HDFS为数据源时URL需要使用active节点的主机名。
+SparkStreaming使用HDFS为数据源时URL使用standby节点的主机名触发该异常。
 
 解决方式：<br>
 登陆HDFS的WEB管理界面查看节点状态，设置HDFS的URL时使用active节点的主机名。
+Spark/SparkStreaming访问HDFS时URL需要使用active节点的主机名。
 
 ## org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx
 问题说明：<br>
