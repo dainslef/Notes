@@ -6,6 +6,7 @@
 - [集群模型](#集群模型)
 	- [集群管理器类型](#集群管理器类型)
 	- [术语表](#术语表)
+- [Spark Submit](#spark-submit)
 - [RDD (弹性分布式数据集)](#rdd-弹性分布式数据集)
 	- [创建 RDD](#创建-rdd)
 	- [RDD 操作](#rdd-操作)
@@ -204,6 +205,34 @@ Spark当前支持以下集群管理器：
 | Task | 将要发往executor的工作单元(a unit of work)。 |
 | Job | 由多个Spark操作(如`save()`、`collect()`等)的task组成的并行计算。 |
 | Stage | 每个job被拆分成较小的、具有依赖关系的task集合，这些任务集被称为stage。 |
+
+
+
+# Spark Submit
+使用`spark-submit`指令提交Spark应用，脚本位于`$SPARK_HOME/bin`路径下。
+该工具管理Spark应用及其依赖的CLASSPATH设置，并且支持不同的集群管理器和部署模式。
+
+基本指令语法：
+
+```c
+$ spark-submit [spark-submit指令参数...] [用户Spark应用(*.jar)] [用户Spark应用参数]
+```
+
+指令参数：(取自Spark 2.3.0)
+
+| 参数 | 功能 |
+| :- | :- |
+| --master MASTER_URL | 设置Spark集群Master节点的URL(如`spark://host:port`、`mesos://host:port`、`yarn`)，默认值为`locale[*]` |
+| --deploy-mod DEPLOY_MODE | 设置启动driver在本地启动(`client`)，或在集群的某个工作节点中启动(`cluster`)，默认值为`client` |
+| --class CLASS_NAME | 设置driver的主类 |
+| --jars JARS | 以逗号分隔的方式列出所有使用的JAR包，包括driver端和executor的CLASSPATH |
+| --conf PROP=VALUE | 设置任意的Spark配置项 |
+| --properties-file FILE | 指定使用的Spark配置文件，未显式指定则使用`$SPARK_HOME/conf/spark-defaults.conf`文件中提供的配置 |
+| --driver-java-options | 设置driver端的额外Java参数 |
+| --driver-memory MEM | 设置driver分配的内存(如`1000M`、`2G`)，默认值为`1G` |
+| --executor-memory MEM | 设置每个executor分配的内存，默认值为`1G` |
+| --total-executor-cores NUM | 设置executor使用的CPU总核数，默认使用所有可用的CPU核心(该参数仅Standalone/Mesos集群管理器下可用) |
+| --executor-cores NUM | 设置每个executor使用的CPU核数。YARN模式下，默认值为`1`；Standalone模式下，默认使用所有可用的CPU核心 |
 
 
 
