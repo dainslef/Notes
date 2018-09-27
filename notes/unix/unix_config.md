@@ -29,6 +29,7 @@
 	- [Physical Volume (PV，物理卷)](#physical-volume-pv物理卷)
 	- [Volume Group (VG，卷组)](#volume-group-vg卷组)
 	- [Logical Volume (LV，逻辑卷)](#logical-volume-lv逻辑卷)
+	- [逻辑卷状态和块设备不显示问题](#逻辑卷状态和块设备不显示问题)
 - [curl](#curl)
 	- [FTP 操作](#ftp-操作)
 - [Suspend 和 Hibernate](#suspend-和-hibernate)
@@ -840,6 +841,21 @@ LVM中一个逻辑分区在物理结构上可能由多个磁盘组成，添加�
 
 - `# xfs_growfs [逻辑分区路径]` 扩展`xfs`文件系统的大小
 - `# resize2fs [逻辑分区路径] [分区大小]` 调整`ext`系列文件系统的大小
+
+## 逻辑卷状态和块设备不显示问题
+使用lvdisplay查看逻辑卷状态时，若逻辑卷`LV Status`显示`NOT available`，
+可使用`vgchange`激活卷组下所有的逻辑卷，使其状态恢复为`available`：
+
+```c
+# vgchange -a y [卷组名称]
+```
+
+部分状态为`NOT available`的逻辑卷对应的块设备不显示在`/dev/mapper`和`/dev/[卷组]`路径下，
+可激活卷组后执行`vgmknodes`指令，会创建对应缺失的块设备文件：
+
+```
+# vgmknodes
+```
 
 
 
