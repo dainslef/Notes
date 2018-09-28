@@ -11,6 +11,8 @@
 - [GADTs](#gadts)
 	- [ADT 的限制](#adt-的限制)
 	- [使用 GADT](#使用-gadt)
+- [Concurrent](#concurrent)
+	- [Async 包](#async-包)
 
 
 
@@ -101,7 +103,7 @@ Haskell中可以使用符号做为函数名。
 infixr 0 $
 ```
 
-`$`函数优先级为0，因而能代替括号操作符改变操作优先级。
+`$`函数优先级为0，低于几乎所有的常见函数/操作符，使用`$`运算符将函数与之后的参数分隔开，能代替括号操作符改变操作优先级。
 示例：
 
 ```hs
@@ -442,3 +444,30 @@ Bool 666
 -- ? In the expression: Add (Bool True) (Bool False)
 Add (Bool True) (Bool False)
 ```
+
+
+
+# Concurrent
+`Control.Concurrent`中提供了Haskell的公用异步抽象。
+
+## Async 包
+`async`包提供跨多线程执行异步操作的功能。
+async包底层使用base包中的`forkIO`函数(在`Control.Concurrent`中)实现，提供了以下改进：
+
+- 彻底、优雅地处理异常(graceful and thorough handling of exceptions)
+- 从子线程中获取返回值
+- 提供`STM`接口用于访问线程返回值，STM提供了方便的方式处理诸如阻塞操作等待结果等问题
+- 使得取消线程变得简单和可靠
+- 对于某些通用的用例，`race`、`concurrently`函数和`Concurrently`类型可以大幅简化代码
+
+`Async`是async包的主要数据类型，一个`Async a`类型的值表示一个分离的线程(represents a separate thread)，
+该线程将最终生成一个`a`类型的值(which will ultimately generate a value of type `a`)。
+
+主要API介绍：
+
+- `async*` fork一个线程并返回Async值
+- `withAsync*` fork一个线程并提供Async值给内置的操作处理，被fork出的线程将在内置操作结束后被杀死
+- `wait*` 等待Async类型返回结果
+- `poll` 检查Async类型操作是否完成
+- `cancel` 取消异步操作
+- `*STM` 常用异步操作的STM接口版本
