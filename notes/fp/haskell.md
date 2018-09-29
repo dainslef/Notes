@@ -463,11 +463,87 @@ async包底层使用base包中的`forkIO`函数(在`Control.Concurrent`中)实�
 `Async`是async包的主要数据类型，一个`Async a`类型的值表示一个分离的线程(represents a separate thread)，
 该线程将最终生成一个`a`类型的值(which will ultimately generate a value of type `a`)。
 
-主要API介绍：
+async包相关API位于`Control.Concurrent.Async`路径下，主要API介绍：
 
-- `async*` fork一个线程并返回Async值
-- `withAsync*` fork一个线程并提供Async值给内置的操作处理，被fork出的线程将在内置操作结束后被杀死
-- `wait*` 等待Async类型返回结果
-- `poll` 检查Async类型操作是否完成
-- `cancel` 取消异步操作
-- `*STM` 常用异步操作的STM接口版本
+- `async*`系列函数fork一个线程并返回Async值，`wait*`系列函数等待Async类型返回结果
+
+	```hs
+	-- 异步执行一个操作
+	async :: IO a -> IO (Async a)
+
+	-- 阻塞线程，等待一个异步操作执行结束并获取结果
+	wait :: Async a -> IO a
+	-- 等待异步结果，并处理异常
+	waitCatch :: Async a -> IO (Either SomeException a)
+
+	-- 等待多个操作，任意一个异步操作完成时返回
+	waitEither :: Async a -> Async b -> IO (Either a b)
+	waitAny :: [Async a] -> IO (Async a, a)
+
+	-- 等待两个异步操作全部返回
+	waitBoth :: Async a -> Async b -> IO (a, b)
+	```
+
+	基本的异步操作示例：
+
+	```hs
+	import Control.Concurrent
+	import Control.Concurrent.Async
+
+	actionN :: Int -> IO String
+	actionN num = do
+	  threadDelay 1000000 -- 暂停线程 1s，便于观察异步操作执行情况
+	  let n = show num
+	  print $ "Running action" ++ n ++ "..."
+	  return $ "Action " ++ n
+
+	main :: IO ()
+	main = do
+	  a1 <- async $ actionN 1
+	  print "After action1"
+	  a2 <- async $ actionN 2
+	  print "After action2"
+	  (r1, r2) <- waitBoth a1 a2
+	  print $ "Finish: " ++ r1 ++ " " ++ r2
+	```
+
+	执行结果：
+
+	```
+	"After action1"
+	"After action2"
+	"Running action1..."
+	"Running action2..."
+	"Finish: Action 1 Action 2"
+	```
+
+- `withAsync*`函数用于fork一个线程并提供Async值给内置的操作处理，被fork出的线程在内置操作结束后被杀死
+
+	```hs
+	withAsync :: IO a -> (Async a -> IO b) -> IO b
+	```
+
+- `poll`函数用于检查Async类型操作是否完成，`cancel`函数用于取消异步操作，`asyncThreadId`用于查看线程ID
+
+	```hs
+	-- 检查一个异步操作是否完成
+	poll :: Async a -> IO (Maybe (Either SomeException a))
+
+	-- 取消一个异步操作
+	cancel :: Async a -> IO ()
+	cancelWith :: Exception e => Async a -> e -> IO ()
+
+	asyncThreadId :: Async a -> ThreadId
+	```
+
+- `*STM`系列函数是对应异步操作的STM接口版本
+
+	```hs
+	pollSTM :: Async a -> STM (Maybe (Either SomeException a))
+
+	-- wait系列API均有对应STM版本
+	waitSTM :: Async a -> STM a
+	waitAnySTM :: [Async a] -> STM (Async a, a)
+	waitCatchSTM :: Async a -> STM (Either SomeException a)
+	...
+	```
