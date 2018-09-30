@@ -113,7 +113,7 @@ long num1 = 6666666666l; //正确
 常用的字面值后缀：
 
 | 后缀 | 含义 |
-|:---:|:----:|
+| :-: | :-: |
 | L/l | long |
 | F/f | float |
 | D/d | double |
@@ -121,7 +121,7 @@ long num1 = 6666666666l; //正确
 整型数值通过添加前缀可以指定数值以不同进制表示：
 
 | 前缀 | 含义 |
-|:----|:----:|
+| :-: | :-: |
 | 0B/0b | 二进制数值 |
 | 0 | 八进制数值 |
 | 0X/0x | 十六进制数值 |
@@ -138,25 +138,25 @@ char c2 = '\u0000'; //正确
 ```
 
 ## 格式化
-在`Java`中，使用`System.out.printf()`方法进行格式化输出，格式化语法类似`C`语言标准库中的`printf()`函数。
+在Java中，使用`System.out.printf()`方法进行格式化输出，格式化语法类似`C`语言标准库中的`printf()`函数。
 
 常用的格式化字符：
 
 | 格式化字符 | 含义 | 样例 |
-|:--------:|:----:|:---:|
-| `%s` | 字符串类型 | `"abc"` |
-| `%c` | 字符类型 | `'a'` |
-| `%b` | 布尔类型 | `true` |
-| `%d` | 整数类型(十进制) | `99` |
-| `%x` | 整数类型(十六进制) | `FF` |
-| `%o` | 整数类型(八进制) | `77` |
-| `%f` | 浮点类型 | `99.990000` |
-| `%a` | 十六进制浮点类型 | `0x1.8ff5c28f5c28fp6` |
-| `%e` | 指数类型 | `9.999000e+01` |
-| `%g` | 通用浮点类型(宽度较短) | `99.9900` |
-| `%h` | 散列码 | / |
-| `%%` | 百分比符号(在格式化语句中直接使用`%`会开始转义) | `%` |
-| `%n` | 换行符(在格式化语句中使用`\n`换行转义无效) | / |
+| :-: | :-: | :-: |
+| %s | 字符串类型 | `"abc"` |
+| %c | 字符类型 | `'a'` |
+| %b | 布尔类型 | `true` |
+| %d | 整数类型(十进制) | `99` |
+| %x | 整数类型(十六进制) | `FF` |
+| %o | 整数类型(八进制) | `77` |
+| %f | 浮点类型 | `99.990000` |
+| %a | 十六进制浮点类型 | `0x1.8ff5c28f5c28fp6` |
+| %e | 指数类型 | `9.999000e+01` |
+| %g | 通用浮点类型(宽度较短) | `99.9900` |
+| %h | 散列码 | / |
+| %% | 百分比符号(在格式化语句中直接使用`%`会开始转义) | `%` |
+| %n | 换行符(在格式化语句中使用`\n`换行转义无效) | / |
 
 实例如下所示：
 
@@ -206,7 +206,7 @@ public class Main {
 数值类型支持更丰富的格式化操作：
 
 | 格式化字符 | 含义 | 样例 |
-|:--------:|:----:|:---:|
+| :-: | :-: | :-: |
 | `%+d` | 为数值类型添加正负号 | `+99`/`-99` |
 | `% 5d` | 指定输出数值的宽度，宽度不足时左边使用空格补齐 | `   99` |
 | `%-5d` | 指定输出数值的宽度，宽度不足时右边使用空格补齐 | `99   ` |
@@ -451,14 +451,14 @@ Java支持泛型`<>`**菱形推断**，实例化时类型可以省略(`Java 1.7`
 
 ```java
 List<Type> list = new ArrayList<>();
-Map map = new HashMap<>();
+Map<Type, Value> map = new HashMap<>();
 ```
 
-甚至，你还可以直接省略`<>`符号，完全让编译器推断(Java1.8新特性，一般编译器会隐式推断为`Object`类型)：
+不使用菱形推断时，集合库会使用Object类型做为类型参数：
 
 ```java
-List list = new ArrayList();
-Map map = new HashMap();
+List list = new ArrayList(); //List<Object>
+Map map = new HashMap(); //Map<Object, Object>
 ```
 
 `Set`和`List`都可以得到一个迭代器用于迭代：
@@ -475,7 +475,7 @@ Set set = map.keySet();
 Iterator iteratorSet = set.iterator();
 ```
 
-`Map`使用`get(key)`可以得到对应的键值，但是这个键值是`Object`型的，需要通过向下转型来恢复键值类型。
+`Map`使用`get(key)`可以得到对应Key的Value。
 `HashMap`之类的容器只能一个键对应**一个**键值，如果需要一个键绑定多个键值可以使用`IdentityHashMap`。
 
 
@@ -568,7 +568,7 @@ public class TestEquals {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
-		if (obj |= null && obj instanceof TestEquals {
+		if (obj != null && obj instanceof TestEquals) {
 			TestEquals o = (TestEquals) obj;
 			return num == o.num &&
 				str == o.str &&
@@ -581,7 +581,7 @@ public class TestEquals {
 ```
 
 ## hashCode() 方法
-部分数据结构(如`HashMap`、`HashSet`)处于性能考虑，会使用对象提供的`hashCode()`方法，根据Hash是否相等判断对象的异同。
+部分数据结构(如`HashMap`、`HashSet`等)出于性能考虑，会使用对象提供的`hashCode()`方法，根据Hash是否相等判断对象的异同。
 对于重写了`equals()`方法重写了比较策略的类型而言，也应重写`hashCode()`方法。
 
 自定义Hash值的生成规则，确保对象内容相同时得到的Hash值也相同：
