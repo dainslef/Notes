@@ -492,10 +492,11 @@ async包相关API位于`Control.Concurrent.Async`路径下，主要API介绍：
 
 	actionN :: Int -> IO String
 	actionN num = do
-	  threadDelay 1000000 -- 暂停线程 1s，便于观察异步操作执行情况
 	  let n = show num
-	  print $ "Running action" ++ n ++ "..."
-	  return $ "Action " ++ n
+	  print $ "Action" ++ n ++ " start..."
+	  threadDelay 1000000 -- 暂停线程 1s
+	  print $ "Action" ++ n ++ " finished..."
+	  return n
 
 	main :: IO ()
 	main = do
@@ -510,20 +511,58 @@ async包相关API位于`Control.Concurrent.Async`路径下，主要API介绍：
 	执行结果：
 
 	```
+	"Action1 start..."
 	"After action1"
 	"After action2"
-	"Running action1..."
-	"Running action2..."
-	"Finish: Action 1 Action 2"
+	"Action2 start..."
+	"Action1 finished..."
+	"Action2 finished..."
+	"Finish: 1 2"
 	```
 
-- `withAsync*`函数用于fork一个线程并提供Async值给内置的操作处理，被fork出的线程在内置操作结束后被杀死
+- `withAsync*`函数启动一个独立线程执行首个参数中传入的操作，并提供Async值给匿名函数(第二参数)
 
 	```hs
 	withAsync :: IO a -> (Async a -> IO b) -> IO b
 	```
 
-- `poll`函数用于检查Async类型操作是否完成，`cancel`函数用于取消异步操作，`asyncThreadId`用于查看线程ID
+	withAsync函数是async函数的一类有用的变体，能够确保异步操作不会意外地执行(启动的线程在匿名函数执行结束后被杀死)。
+
+	示例：
+
+	```hs
+	import Control.Concurrent
+	import Control.Concurrent.Async
+
+	actionN :: Int -> IO String
+	actionN num = do
+	  let n = show num
+	  print $ "Action" ++ n ++ " start..."
+	  threadDelay 1000000 -- 暂停线程 1s
+	  print $ "Action" ++ n ++ " finished..."
+	  return n
+
+	main :: IO ()
+	main = do
+	  result <- withAsync (actionN 1) $ \a -> do
+	    print "WithAsync start..."
+	    result <- wait a
+	    print $ "WithAsync finished: " ++ result
+	    return "2333"
+	  print $ "Main finished: " ++ result
+	```
+
+	输出结果：
+
+	```
+	"WithAsync start..."
+	"Action1 start..."
+	"Action1 finished..."
+	"WithAsync finished: 1"
+	"Main finished: 2333"
+	```
+
+- `poll`函数用于检查Async类型操作是否完成，`cancel`函数用于提前取消异步操作，`asyncThreadId`用于查看线程ID
 
 	```hs
 	-- 检查一个异步操作是否完成
