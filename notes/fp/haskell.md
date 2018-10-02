@@ -13,6 +13,7 @@
 	- [使用 GADT](#使用-gadt)
 - [Concurrent](#concurrent)
 	- [Async 包](#async-包)
+- [RankNTypes](#rankntypes)
 
 
 
@@ -586,3 +587,44 @@ async包相关API位于`Control.Concurrent.Async`路径下，主要API介绍：
 	waitCatchSTM :: Async a -> STM (Either SomeException a)
 	...
 	```
+
+
+
+# RankNTypes
+GHC的类型系统支持任意等级(arbitrary-rank)的显式类型量化(explicit universal quantification in types)。
+
+使用RankNTypes需要开启对应语言扩展：
+
+```hs
+{-# LANGUAGE RankNTypes #-}
+```
+
+使用RankNTypes扩展后可使用`forall`关键字定义函数参数表的多态层次。
+
+Haskell标准语法中函数参数表默认即为`rank-1 types`，如：
+
+```hs
+f1 :: a -> b -> a
+g1 :: (Ord a, Eq  b) => a -> b -> a
+```
+
+等价于使用forall关键字描述的参数表：
+
+```hs
+f1 :: forall a b . a -> b -> a
+g1 :: forall a b . (Ord a, Eq  b) => a -> b -> a
+```
+
+使用forall可以在参数表中定义更多多态层级：
+
+```hs
+f2 :: (forall a . a -> a) -> Int -> Int
+g2 :: (forall a . Eq a => [a] -> a -> Bool) -> Int -> Int
+
+f3 :: ((forall a . a -> a) -> Int) -> Bool -> Bool
+
+f4 :: Int -> (forall a . a -> a)
+```
+
+函数`f2`、`g2`为`rank-2 types`，f2/g2函数在函数箭头左端拥有局部的forall参数表，参数表内部的多态类型能够重载。
+函数`f3`为`rank-3 types`，f3函数在函数箭头左端拥有一个`rank-2 types`的局部forall参数表。
