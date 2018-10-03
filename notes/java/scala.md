@@ -1,3 +1,5 @@
+<!-- TOC -->
+
 - [配置开发环境](#配置开发环境)
 	- [开发工具](#开发工具)
 	- [编译器](#编译器)
@@ -51,6 +53,7 @@
 - [unapply() 与 unapplySeq()](#unapply-与-unapplyseq)
 - [sealed 与 final 关键字](#sealed-与-final-关键字)
 	- [sealed 用于模式匹配](#sealed-用于模式匹配)
+	- [sealed 与 ADT](#sealed-与-adt)
 - [格式化输出](#格式化输出)
 	- [StringLike.format() 格式化输出](#stringlikeformat-格式化输出)
 	- [s字符串插值器](#s字符串插值器)
@@ -118,6 +121,8 @@
 - [Annotation (注解)](#annotation-注解)
 	- [自定义注解](#自定义注解)
 	- [解析注解](#解析注解)
+
+<!-- /TOC -->
 
 
 
@@ -1762,6 +1767,7 @@ defined trait TestMixin //同名字段的混入类型链为 Test => T => Test
 - 样例类构造器中的字段默认使用`val`关键字定义(即默认为公有访问权限，而不是普通类默认的`private[this]`)。
 - 样例类默认即实现了`apply()`方法用于构造对象和`unapply()`方法用于模式匹配。
 - 样例类默认实现了`toString`、`equals`、`hashCode`、`copy`等其它方法。
+- 样例类实现了序列化接口。
 
 示例：
 
@@ -2440,8 +2446,9 @@ abc cde efg
 
 - `sealed`关键字作用与`C#`中的`sealed`不同：
 
-	在Scala中，`sealed`的作用是防止继承被滥用。
-	`sealed`修饰的类其子类定义需要与该类在统一文件中。
+	C#中的sealed类似Java/Scala中的final，表示类型不可继承。
+	在Scala中，sealed的作用是防止继承被滥用。
+	sealed修饰的类仅能在该类所属的源码文件中定义子类，即禁止从外部增加sealed类的子类。
 
 ## sealed 用于模式匹配
 使用`sealed`关键字修饰的类型用于模式匹配时，编译器会对匹配条件进行检查。
@@ -2473,6 +2480,22 @@ one warning found
 ```
 
 编译器提示**匹配可能会有遗漏**。若代码中去掉基类定义前的`sealed`关键字，则编译器不再输出警告。
+
+## sealed 与 ADT
+Scala中sealed类概念上类似于纯函数式语言中的`ADT`(Algebraic Datatypes，代数数据类型)。
+
+上文中的例子使用Haskell语言编写近似于：
+
+```hs
+data Lang =
+  C { name :: String } |
+  CPP { name :: String } |
+  CSharp { name :: String } deriving (Show, Eq)
+
+getLangName :: Lang -> String
+getLangName (C name) = name
+getLangName (CPP name) = name
+```
 
 
 
