@@ -1,3 +1,5 @@
+<!-- TOC -->
+
 - [Haskell 开发环境](#haskell-开发环境)
 	- [GHC 常用功能](#ghc-常用功能)
 	- [REPL (GHCi)](#repl-ghci)
@@ -14,6 +16,9 @@
 - [Concurrent](#concurrent)
 	- [Async 包](#async-包)
 - [RankNTypes](#rankntypes)
+	- [示例](#示例)
+
+<!-- /TOC -->
 
 
 
@@ -628,3 +633,34 @@ f4 :: Int -> (forall a . a -> a)
 
 函数`f2`、`g2`为`rank-2 types`，f2/g2函数在函数箭头左端拥有局部的forall参数表，参数表内部的多态类型能够重载。
 函数`f3`为`rank-3 types`，f3函数在函数箭头左端拥有一个`rank-2 types`的局部forall参数表。
+
+## 示例
+RankNTypes常用于函数的部分参数自身为多态函数的情况下，考虑如下函数：
+
+```hs
+rankNTypes :: (Show a, Show b) =>
+  (Show ? => ? -> String) -> a -> b -> IO ()
+rankNTypes f a b = do
+  let (fa, fb) = (f a, f b)
+  print $ "a: " ++ fa ++ " b: " ++ fb
+```
+
+rankNTypes的参数`f`是一个函数，该函数应能接收`a`或`b`类型的参数(多态)并返回String类型，
+满足要求的f参数类型(使用`?`标识)在标准Haskell语法下没有合适的表达方式。
+
+使用RankNTypes扩展即可满足需求：
+
+```hs
+{-# LANGUAGE RankNTypes, FlexibleInstances #-}
+
+rankNTypes :: (Show a, Show b) =>
+  (forall a . Show a => a -> String) -> a -> b -> IO ()
+rankNTypes f a b = do
+  let (fa, fb) = (f a, f b)
+  print $ "a: " ++ fa ++ " b: " ++ fb
+
+main :: IO ()
+main = rankNTypes show 666 "23333"
+```
+
+使用了RankNTypes扩展，函数f拥有了独立的多态层次(rank-2 types)，能够接收多态参数。
