@@ -1,7 +1,10 @@
+<!-- TOC -->
+
 - [Windows CMD](#windows-cmd)
 - [常用Unix工具指令](#常用unix工具指令)
 	- [grep](#grep)
 	- [进程管理](#进程管理)
+	- [日志记录](#日志记录)
 	- [文件系统](#文件系统)
 - [PulseAudio](#pulseaudio)
 - [用户管理](#用户管理)
@@ -49,6 +52,8 @@
 - [常见问题记录](#常见问题记录)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
+
+<!-- /TOC -->
 
 
 
@@ -169,6 +174,23 @@ $ ps --pid [pid]
 $ ps a
 // 输出指定内容的进程信息
 $ ps -o cmd,user,stat,pid,ppid,pgid,sid,tpgid,tty
+```
+
+## 日志记录
+使用传统syslog服务的Linux发行版日志存放在`/var/log`路径下，以纯文本形式存储；
+使用systemd服务的Linux发行版日志使用二进制格式记录，通过`journalctl`工具查看。
+
+```c
+// 查看登录记录、开关机记录
+$ last
+
+// 输出内核信息
+$ dmesg
+
+// 查看systemd日志
+$ journalctl
+// 倒序查看systemd日志
+$ journalctl -r
 ```
 
 ## 文件系统
