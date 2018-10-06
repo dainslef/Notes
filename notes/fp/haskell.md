@@ -13,6 +13,7 @@
 - [GADTs](#gadts)
 	- [ADT 的限制](#adt-的限制)
 	- [使用 GADT](#使用-gadt)
+- [Type Families](#type-families)
 - [Concurrent](#concurrent)
 	- [Async 包](#async-包)
 - [RankNTypes](#rankntypes)
@@ -449,6 +450,28 @@ Bool 666
 -- ? No instance for (Num Bool) arising from a use of ‘Add’
 -- ? In the expression: Add (Bool True) (Bool False)
 Add (Bool True) (Bool False)
+```
+
+
+
+# Type Families
+GHC提供了`Type Families`扩展，支持对数据类型的点对点重载(supporting ad-hoc overloading of data types)。
+
+type families是参数化的类型，可根据实例化的类型参数分配特定的表示。
+type families用途与type classes类似，type classes用于定义可重载的方法，type families则用于定义可重载的数据类型。
+
+type families适用于以下场景：
+
+- 泛型编程(for generic programming)
+- 创建高度参数化的库接口(for creating highly parameterised library interfaces)
+- 创建带有额外静态信息的接口，如依赖类型(for creating interfaces with enhanced static information, much like dependent types)
+
+type families拥有两种形式：`data families`和`type synonym families`。
+
+使用type families需要开启对应语言扩展：
+
+```hs
+{-# LANGUAGE TypeFamilies #-}
 ```
 
 
