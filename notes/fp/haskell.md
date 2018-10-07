@@ -14,6 +14,7 @@
 	- [ADT 的限制](#adt-的限制)
 	- [使用 GADT](#使用-gadt)
 - [Type Families](#type-families)
+	- [Data Families](#data-families)
 - [Concurrent](#concurrent)
 	- [Async 包](#async-包)
 - [RankNTypes](#rankntypes)
@@ -473,6 +474,42 @@ type families拥有两种形式：`data families`和`type synonym families`。
 ```hs
 {-# LANGUAGE TypeFamilies #-}
 ```
+
+## Data Families
+data families是type families特性用在数据类(data types)的情形，包含以下用法：
+
+- 在顶层代码使用：
+
+	在顶层代码中使用时，使用`data family`关键字定义类型族，
+	使用`data instance`/`newtype instance`关键字定义类型族的成员。
+
+	data families用于顶层代码时，作用一定程度上类似于GADT，能够为带有泛型参数的数据类的每种构造器指定具体的类型。
+	示例：
+
+	```hs
+	data family Family a
+	newtype instance Family Int = FInt Int  -- 构造器单参数时可使用 newtype 关键字
+	data instance Family String = FString (Family Int) String -- 构造器中的参数可依赖具体的类型族中的其它实例
+	data instance Family (Maybe a) = FJust a | FNothing deriving (Show, Eq) -- 每格 instance 可以 deriving 各自的 TypeClass
+	```
+
+	`TypeFamilies`与`GADTs`扩展同时使用时，可直接使用类似GADT的语法定义每个构造器的函数签名。
+	示例：
+
+	```hs
+	data family Expr a
+	data instance Expr a where
+	  Num :: Num a => a -> Expr a
+	  Bool :: Bool -> Expr Bool
+	  Add :: Num a => Expr a -> Expr a -> Expr a
+	  Eq :: Eq a => Expr a -> Expr a -> Expr Bool
+	```
+
+	data families与GADT的比较：
+
+	- data families与GADT均能定义每个构造器的参数表与返回类型，
+	但GADT需要将所有构造器集中在一处(where子句中)，data families支持分离定义。
+	- GADT的每个构造器均能用于通用的模式匹配，data families的构造器仅能针对对应实例类型匹配。
 
 
 
