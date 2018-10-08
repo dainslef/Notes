@@ -511,6 +511,25 @@ data families是type families特性用在数据类(data types)的情形，包含
 	但GADT需要将所有构造器集中在一处(where子句中)，data families支持分离定义。
 	- GADT的每个构造器均能用于通用的模式匹配，data families的构造器仅能针对对应实例类型匹配。
 
+- 在type classes内部使用：
+
+	在type classes内部使用时，用于定义未实现的抽象类型，语法上不必添加family关键字；
+	在实现带有data families的type classes时，instance必须定义抽象类型的构造器。
+	示例：
+
+	```hs
+	class TypeClass a where
+	  data Family a
+
+	instance TypeClass Int where
+	  data Family Int = FInt Int -- 为抽象类型定义构造器
+
+	instance TypeClass [a] where
+	  data Family [a] = FList [a] | FNil
+
+	...
+	```
+
 
 
 # Concurrent
