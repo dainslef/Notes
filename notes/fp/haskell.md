@@ -329,6 +329,43 @@ app2 = do
 	4
 	```
 
+- `replicateM`/`replicateM_`/`forever`
+
+	replicateM函数执行指定次数的单子操作，将结果以数组形式保存在单个Monad中；
+	replicateM_函数是对应的无返回结果版本。
+	forever函数则无限地执行给定的单子操作。
+	函数定义：
+
+	```hs
+	replicateM :: Applicative m => Int -> m a -> m [a]
+	  	-- Defined in ‘Control.Monad’
+
+	replicateM_ :: Applicative m => Int -> m a -> m ()
+	  	-- Defined in ‘Control.Monad’
+
+	forever :: Applicative f => f a -> f b
+	  	-- Defined in ‘Control.Monad’
+	```
+
+	示例：
+
+	```hs
+	Prelude Control.Monad> replicateM_ 3 $ return 233 >>= print . show
+	"233"
+	"233"
+	"233"
+	```
+
+	forever、replicateM等循环函数可使用`fail`函数通过抛出异常的方式提前结束循环。
+	示例：
+
+	```hs
+	Prelude Control.Monad Control.Exception> replicateM_ 3 $ fail "2333"
+	*** Exception: user error (2333)
+	Prelude Control.Monad Control.Exception> forever $ fail "2333"
+	*** Exception: user error (2333)
+	```
+
 - `sequence`/`sequence_`
 
 	sequence函数从左向右执行Traversable结构中的每个单子操作，收集结果并包装在Monad结构中做为返回值。
