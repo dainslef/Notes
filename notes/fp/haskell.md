@@ -10,6 +10,8 @@
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
 	- [Control.Monad](#controlmonad)
+- [STM](#stm)
+	- [主要API介绍](#主要api介绍)
 - [GADTs](#gadts)
 	- [ADT 的限制](#adt-的限制)
 	- [使用 GADT](#使用-gadt)
@@ -356,7 +358,7 @@ app2 = do
 	"233"
 	```
 
-	forever、replicateM等循环函数可使用`fail`函数通过抛出异常的方式提前结束循环。
+	forever、replicateM等循环函数可使用`fail`、`error`等函数通过抛出异常的方式提前结束循环。
 	示例：
 
 	```hs
@@ -364,6 +366,10 @@ app2 = do
 	*** Exception: user error (2333)
 	Prelude Control.Monad Control.Exception> forever $ fail "2333"
 	*** Exception: user error (2333)
+	Prelude Control.Monad> forever $ error "2333"
+	*** Exception: 2333
+	CallStack (from HasCallStack):
+	  error, called at <interactive>:8:11 in interactive:Ghci1
 	```
 
 - `sequence`/`sequence_`
@@ -429,6 +435,21 @@ app2 = do
 	Prelude Control.Monad> print <=< return $ 2333
 	2333
 	```
+
+
+
+# STM
+`STM`全称`Software Transactional Memory`(软件事务内存)，是一种对并发通信的模块化(modular)、可组合(composable)的抽象。
+相对与锁/MVars，STM能够在不暴露抽象如何保证安全性细节的前提下，简单地与其它使用STM的抽象相组合。
+
+## 主要API介绍
+STM相关API位于`Control.Concurrent.STM`包下，`Control.Monad.STM`包提供了对STM的Monad变换操作。
+
+在经典的并发编程模型中，对于共享变量进行跨线程的修改通常需要通过加锁保证数据的读写一致性，
+然而常规的基于锁的并发模型对于开发者而言有较大的心智负担，对锁的不当操作会引起死锁等问题。
+
+在STM模型下，将具有逻辑依赖关系的多个共享变量读写操作组合成一个事务，
+当一个线程内的事务操作开始时，操作的影响并不会立即对其它线程可见，而是要等到该事务内部的所有操作完成时。
 
 
 
