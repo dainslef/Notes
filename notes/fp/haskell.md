@@ -11,6 +11,7 @@
 	- [ApplicativeDo](#applicativedo)
 	- [Control.Monad](#controlmonad)
 - [STM](#stm)
+	- [STM概念](#stm概念)
 	- [主要API介绍](#主要api介绍)
 - [GADTs](#gadts)
 	- [ADT 的限制](#adt-的限制)
@@ -96,6 +97,7 @@ REPL环境下的内部指令均以`:`为前缀，常用指令如下：
 | :set -X\<extensions\> | 开启指定语言扩展 |
 | :unset -X\<extensions\> | 关闭指定语言扩展 |
 | :show languages | 显示已开启的语言扩展 |
+| :module [+/-] [*]<mod> ... | 导入/移除指定的包路径 |
 
 
 
@@ -442,9 +444,7 @@ app2 = do
 `STM`全称`Software Transactional Memory`(软件事务内存)，是一种对并发通信的模块化(modular)、可组合(composable)的抽象。
 相对与锁/MVars，STM能够在不暴露抽象如何保证安全性细节的前提下，简单地与其它使用STM的抽象相组合。
 
-## 主要API介绍
-STM相关API位于`Control.Concurrent.STM`包下，`Control.Monad.STM`包提供了对STM的Monad变换操作。
-
+## STM概念
 在经典的并发编程模型中，对于共享变量进行跨线程的修改通常需要通过加锁保证数据的读写一致性，
 然而常规的基于锁的并发模型对于开发者而言有较大的心智负担，对锁的不当操作会引起死锁等问题。
 
@@ -457,6 +457,31 @@ STM相关API位于`Control.Concurrent.STM`包下，`Control.Monad.STM`包提供�
 
 事务操作具有隔离性(isolated)，以此来规避锁问题。
 
+## 主要API介绍
+`Control.Monad.STM`包提供了STM结构定义和Monad变换操作；
+`Control.Concurrent.STM`包提供了STM相关容器的实现。
+
+`Control.Monad.STM`内的`atomically`函数提供了对STM操作的原子执行，
+`retry`函数用于重试STM操作，相关API定义：
+
+```hs
+-- 原子化地执行一系列STM操作
+atomically :: STM a -> IO a
+
+-- 重试STM操作
+-- 在GHC的实现中，会阻塞STM操作线程，直至读取的共享变量已被更新
+retry :: STM a
+
+-- 检测给定的Bool条件，不满足则重试STM操作(retry)
+check :: Bool -> STM ()
+
+-- 在STM操作中抛出和捕获异常
+throwSTM :: Exception e => e -> STM a
+catchSTM :: Exception e => STM a -> (e -> STM a) -> STM a
+```
+
+STM实现了Monad，因而多个STM操作之间可简单地相互组合。
+
 `Control.Concurrent.STM`包中提供了常见的基于STM的共享变量容器：
 
 | API | 简介 |
@@ -467,12 +492,6 @@ STM相关API位于`Control.Concurrent.STM`包下，`Control.Monad.STM`包提供�
 | Control.Concurrent.STM.TChan | FIFO形式的数据通道 |
 | Control.Concurrent.STM.TQueue | 数据队列，与TChan类似，具有更高的吞吐速率，但不支持复制 |
 | Control.Concurrent.STM.TBQueue | 数据队列，与TQueue类似，但具有固定数据数目上限 |
-
-`Control.Monad.STM`包内的`atomically`函数提供了对STM操作的原子执行，函数定义：
-
-```hs
-atomically :: STM a -> IO a     -- Defined in ‘GHC.Conc.Sync’
-```
 
 
 
@@ -569,9 +588,9 @@ data families是type families特性用在数据类(data types)的情形，包含
 
 	```hs
 	data family Family a
-	newtype instance Family Int = FInt Int  -- 构造器单参数时可使用 newtype 关键字
+	newtype instance Family Int = FInt Int  -- 构造器单参数时可使用newtype关键字
 	data instance Family String = FString (Family Int) String -- 构造器中的参数可依赖具体的类型族中的其它实例
-	data instance Family (Maybe a) = FJust a | FNothing deriving (Show, Eq) -- 每格 instance 可以 deriving 各自的 TypeClass
+	data instance Family (Maybe a) = FJust a | FNothing deriving (Show, Eq) -- 每个instance可以deriving各自的TypeClass
 	```
 
 	`TypeFamilies`与`GADTs`扩展同时使用时，可直接使用类似GADT的语法定义每个构造器的函数签名。
