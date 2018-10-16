@@ -206,15 +206,19 @@ $ git show [commit_id/标签名]
 比较文件当前状态与版本库中的区别：
 
 ```c
-$ git diff //该命令可以看到当前文件与最近一次的提交版本有哪些区别
+// 查看当前工作区与最近一次的提交版本有哪些区别
+$ git diff
 ```
 
 比较不同版本/分支：
 
 ```c
-$ git diff [commit_id] //将当前版本与指定commit进行比较
-$ git diff [commit_id1] [commit_id2] //将两个commit版本进行比较
-$ git diff [分支名1] [分支名2] //将两个分支进行比较
+// 将当前版本与指定commit进行比较
+$ git diff [commit_id]
+// 将两个commit版本进行比较
+$ git diff [commit_id1] [commit_id2]
+// 将两个分支进行比较
+$ git diff [分支名1] [分支名2]
 ```
 
 ## 提交管理
@@ -231,7 +235,7 @@ $ git log --pretty=oneline
 根据每次提交的`commit_id`回滚到历史版本：
 
 ```c
-// 回滚到指令版本，该版本之后的文件改动变为待提交状态
+// 回滚到指定版本，该版本之后的文件改动变为待提交状态(仅回退索引和提交记录，源码保留)
 $ git reset [commit_id]
 
 // 回滚到指令版本同时完全清除该版本之后的文件变化

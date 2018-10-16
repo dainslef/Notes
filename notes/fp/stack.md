@@ -1,3 +1,5 @@
+<!-- TOC -->
+
 - [概述](#概述)
 - [安装与配置](#安装与配置)
 	- [Stackage](#stackage)
@@ -17,6 +19,8 @@
 - [问题注记](#问题注记)
 	- [Revision Mismatch](#revision-mismatch)
 	- [HDBC-mysql](#hdbc-mysql)
+
+<!-- /TOC -->
 
 
 
@@ -183,7 +187,7 @@ $ stack new [项目名称] [模版名称]
 ## 项目结构
 Stack项目默认目录结构如下：
 
-```
+```sh
 项目名称
 ├── README.md # 项目说明
 ├── LICENSE # 项目许可证
