@@ -11,10 +11,12 @@
 	- [创建项目](#创建项目)
 	- [项目结构](#项目结构)
 - [构建配置](#构建配置)
-	- [模块定义](#模块定义)
-	- [可执行文件定义](#可执行文件定义)
-	- [测试定义](#测试定义)
-	- [数据文件定义](#数据文件定义)
+	- [Cabal 构建配置](#cabal-构建配置)
+		- [模块定义](#模块定义)
+		- [可执行文件定义](#可执行文件定义)
+		- [测试定义](#测试定义)
+		- [数据文件定义](#数据文件定义)
+	- [hpack 构建配置](#hpack-构建配置)
 	- [Paths_xxx 模块](#paths_xxx-模块)
 - [问题注记](#问题注记)
 	- [Revision Mismatch](#revision-mismatch)
@@ -212,9 +214,20 @@ Stack项目默认目录结构如下：
 
 
 # 构建配置
-Stack项目根目录下的`项目名称.cabal`文件定义了项目的构建配置。
+Stack支持两类构建配置：
 
-基本的配置结构如下所示：
+- `项目名称.cabal` cabal格式的构建配置
+- `package.yaml` hpack项目定义的构建配置，使用标准yaml语法
+
+两种配置功能相同，仅需提供一种即可。
+cabal格式的构建配置来自于Cabal构建工具，出现较早，使用自创语法；
+hpack格式的构建配置更加现代化，使用标准yaml语法。
+
+## Cabal 构建配置
+在Stack项目根目录下创建`项目名称.cabal`文件，定义项目的构建配置。
+
+Cabal配置项可查看[官方文档](https://www.haskell.org/cabal)。
+基本的配置结构：
 
 ```yaml
 name:                项目名称
@@ -230,11 +243,11 @@ build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
-library
-  ... -- 模块相关定义
-
 executable ...
   ... -- 可执行文件相关定义
+
+library
+  ... -- 模块相关定义
 
 test-suite ...
   .. -- 测试相关定义
@@ -251,7 +264,7 @@ source-repository head
 - `default-language` 设定使用的语言标准
 - `ghc-options` 设置`GHC`的编译选项
 
-## 模块定义
+### 模块定义
 Haskell中`module`与`Java`中`package`概念类似，模块路径需要与磁盘中的物理路径对应。
 
 `library`配置段定义了导出模块的信息。<br>
@@ -268,7 +281,7 @@ library
   default-language:    Haskell2010
 ```
 
-## 可执行文件定义
+### 可执行文件定义
 `executable`配置段定义了构建生成的可执行程序。
 
 `executable`后添加生成可执行文件的名称，默认的名称为`[项目名称]-exe`，名称可以自定义。
@@ -290,7 +303,7 @@ executable 可执行文件名称
 使用`stack build`指令后，会在`[项目根路径]/.stack-work/install/[CPU架构]-[操作系统]/lts-[LTS版本号]/[GHC版本号]/bin`路径下生成可执行文件。
 使用`stack exec [执行文件名称]`执行生成的文件。
 
-## 测试定义
+### 测试定义
 `test-suite`配置段定义了测试相关内容。
 
 `test-suite`后添加测试名称，默认名称为`[项目名称]-test`，名称可以自定义。
@@ -320,7 +333,7 @@ $ stack test :[测试名称] //执行指定名称的测试
 测试名称前需要添加**冒号**。
 当测试目标为空时，会按定义顺序执行项目中的**所有**测试。
 
-## 数据文件定义
+### 数据文件定义
 在全局的`data-dir/data-files`配置段中添加关于运行时使用的数据、资源、配置文件相关定义。
 
 - `data-dir`
@@ -349,7 +362,7 @@ $ stack test :[测试名称] //执行指定名称的测试
 
 正确设定了数据文件相关配置，则使用`stack build`构建工程时，会在`[项目根路径]/.stack-work/install/[CPU架构]-[操作系统]/lts-[LTS版本]/[GHC版本]/share/[CPU架构]-[操作系统]/[项目名称]-[项目版本]`路径下生成对应的数据文件。
 
-若存在以下`Stack`项目目录：
+假设存在以下项目目录：
 
 ```
 项目名称
@@ -379,8 +392,14 @@ data-files: conf/xxx.json, conf/xxx.xml
 
 构建后会在目标路径下生成`conf`路径，并生成数据文件。
 
+## hpack 构建配置
+在Stack项目根目录下创建`package.yaml`文件，定义项目的构建配置。
+stack工具构建项目时，会解析package.yaml文件，自动生成`项目名称.cabal`文件做为真正的构建配置。
+
+hpack配置项可查看[GitHub主页](https://github.com/sol/hpack)。
+
 ## Paths_xxx 模块
-`Stack`构建项目时，会自动生成一个名称为`Paths_[项目名称]`的模块。
+stack构建项目时，会自动生成一个名称为`Paths_[项目名称]`的模块。
 该模块提供了项目的**版本**与**路径**信息。
 
 模块导出接口如下：
