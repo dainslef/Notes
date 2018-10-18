@@ -1,18 +1,18 @@
 <!-- TOC -->
 
 - [简介](#简介)
-	- [*ECMA Script*](#ecma-script)
+	- [ECMA Script](#ecma-script)
 - [作用域](#作用域)
-	- [块作用域(ES6)](#块作用域es6)
-- [*for* 语句](#for-语句)
-	- [*for-in*](#for-in)
-	- [*for-of*](#for-of)
+	- [块作用域 (ES6)](#块作用域-es6)
+- [for 语句](#for-语句)
+	- [for-in](#for-in)
+	- [for-of](#for-of)
 	- [迭代变量作用域](#迭代变量作用域)
-- [*this*](#this)
-	- [*Function's this*](#functions-this)
-	- [*Arrow Function's this*](#arrow-functions-this)
-	- [*Node.js* 环境中的 this](#nodejs-环境中的-this)
-- [*Prototype* (原型)](#prototype-原型)
+- [this](#this)
+	- [Function's this](#functions-this)
+	- [Arrow Function's this](#arrow-functions-this)
+	- [Node.js环境中的 this](#nodejs环境中的-this)
+- [Prototype (原型)](#prototype-原型)
 	- [原型链](#原型链)
 	- [原型继承](#原型继承)
 - [属性访问器](#属性访问器)
@@ -22,31 +22,31 @@
 
 
 
-## 简介
+# 简介
 `JavaScript`是**弱类型**、**隐式类型**、**动态类型**的脚本语言。
 
-JavaScript可用于浏览器端，所有的现代浏览器均支持JavaScript。  
+JavaScript可用于浏览器端，所有的现代浏览器均支持JavaScript。
 JavaScript在浏览器端可用于操作`HTML`标签，控制WEB页面的交互逻辑。
 
-JavaScript亦可用于服务端，使用`Node.js`可通过JavaScript操作服务端API。  
+JavaScript亦可用于服务端，使用`Node.js`可通过JavaScript操作服务端API。
 Node.js基于性能优秀的`Chrome V8`引擎，提供了一套**事件驱动I/O**的JavaScript运行环境。
 
-### *ECMA Script*
+## ECMA Script
 `ECMA Script`是JavaScript的工业标准，由`Ecma International`(**Ecma国际**，前身为**欧洲计算机制造商协会**)制定。
 
-JavaScript是`ECMA-262`标准的扩展，兼容ECMAScript。  
+JavaScript是`ECMA-262`标准的扩展，兼容ECMAScript。
 JavaScript额外包含以下内容：
 
 - 与HTML页面交互的`DOM`(`Document Object Model`，文档对象模型)
 - 与浏览器窗口交互的`BOM`(`Browser Object Model`，浏览器对象模型)
 
-到目前为止(2018年)，ECMAScript现在的主流标准为`ES5`，最新标准为`ES8, ECMAScript 2017`。  
+到目前为止(2018年)，ECMAScript现在的主流标准为`ES5`，最新标准为`ES8, ECMAScript 2017`。
 一些现代浏览器(`FireFox`、`Chrome`等)已部分实现了最新标准。
 
 
 
-## 作用域
-块语义见`ECMAScript 2015`规范`13.2`节`Block`。  
+# 作用域
+块语义见`ECMAScript 2015`规范`13.2`节`Block`。
 定义与变量语义见`ECMAScript 2015`规范`13.3`节`Declarations and the Variable Statement`。
 
 在`ES6`之前，JavaScript中仅存在**函数内作用域**与**全局作用域**。
@@ -55,7 +55,7 @@ JavaScript额外包含以下内容：
 
 	```js
 	var num = 2333
-	
+
 	test = () => {
 		var num = 6666
 		console.info(`Num in function: ${num}`)
@@ -83,7 +83,7 @@ JavaScript额外包含以下内容：
 		num = 6666
 		console.info(`Num in function: ${num}`)
 	}
-	
+
 	test()
 	console.info(`Num in global: ${num}`)
 	```
@@ -99,8 +99,8 @@ JavaScript额外包含以下内容：
 
 - ES6之前，`Block`(代码块)不具有独立作用域：
 
-	使用`var`关键字在代码块内部定义的变量在代码块所属的函数作用域内均可访问。  
-	如下所示：
+	使用`var`关键字在代码块内部定义的变量在代码块所属的函数作用域内均可访问。
+	示例：
 
 	```js
 	var num = 2333
@@ -109,7 +109,7 @@ JavaScript额外包含以下内容：
 		// 块内的变量定义语句影响了外部定义变量
 		var num = 6666
 	}
-	
+
 	console.info(num)
 	```
 
@@ -119,8 +119,8 @@ JavaScript额外包含以下内容：
 	6666
 	```
 
-	常见的语法结构如`if`、`for`、`while`等包含的代码块中使用`var`定义变量特性类似。  
-	如下所示：
+	常见的语法结构如`if`、`for`、`while`等包含的代码块中使用`var`定义变量特性类似。
+	示例：
 
 	```js
 	var num = 2333
@@ -138,7 +138,7 @@ JavaScript额外包含以下内容：
 	6666
 	```
 
-### 块作用域(ES6)
+## 块作用域 (ES6)
 ES6之后，新增了关键字`let/const`，使用let/const关键字定义的字段仅在块作用域中有效：
 
 ```js
@@ -163,7 +163,7 @@ ES6之后，常见的语法结构如`if`、`for`、`while`等包含的代码块�
 
 
 
-## *for* 语句
+# for 语句
 迭代器语义见`ECMAScipt 2015`规范`13.7`节`Iteration Statements`。
 
 JavaScript中使用`for`关键字描述循环语法。
@@ -176,7 +176,7 @@ for (表达式; 表达式; 表达式) {
 }
 ```
 
-### *for-in*
+## for-in
 JavaScript中的for语句支持使用`for-in`语法遍历集合：
 
 ```js
@@ -185,8 +185,8 @@ for (变量 in 集合) {
 }
 ```
 
-与传统语言的for-in语法不同，在JavaScript的for-in语句中迭代变量保存的是当前迭代的**索引**，而集合的非迭代值。  
-如下所示：
+与传统语言的for-in语法不同，在JavaScript的for-in语句中迭代变量保存的是当前迭代的**索引**，而集合的非迭代值。
+示例：
 
 ```js
 for (i in [5, 6, 7, 8]) console.info(i)
@@ -201,7 +201,7 @@ for (i in [5, 6, 7, 8]) console.info(i)
 3
 ```
 
-### *for-of*
+## for-of
 ES6开始引入了`for-of`语法：
 
 ```js
@@ -210,8 +210,8 @@ for (变量 of 集合) {
 }
 ```
 
-for-of语法更近似与传统语言的集合遍历语法，迭代变量中保存的是当前循环的迭代值。  
-如下所示：
+for-of语法更近似与传统语言的集合遍历语法，迭代变量中保存的是当前循环的迭代值。
+示例：
 
 ```js
 for (v of [5, 6, 7, 8]) console.info(v)
@@ -226,7 +226,7 @@ for (v of [5, 6, 7, 8]) console.info(v)
 8
 ```
 
-### 迭代变量作用域
+## 迭代变量作用域
 使用`for-in/for-of`语句中的迭代变量同样遵循作用域规则。
 
 默认情形下，迭代变量定义在**全局作用域**中：
@@ -275,7 +275,7 @@ i in global: 3
 	C:\Users\dainslef\test.js:7
 	console.info(`i in global: ${i}`)
 	                             ^
-	
+
 	ReferenceError: i is not defined
 	    at Object.<anonymous> (C:\Users\dainslef\test.js:7:30)
 	    at Module._compile (module.js:662:30)
@@ -295,9 +295,9 @@ i in global: 3
 		for (let i in [5, 6, 7, 8]) console.info(`i: ${i}`)
 		console.info(`i in function: ${i}`)
 	}
-	
+
 	test()
-	console.info(`i in global: ${i}`)	
+	console.info(`i in global: ${i}`)
 	```
 
 	输出结果：
@@ -310,7 +310,7 @@ i in global: 3
 	C:\Users\dainslef\test.js:3
 	        console.info(`i in function: ${i}`)
 	                                       ^
-	
+
 	ReferenceError: i is not defined
 	    at test (C:\Users\dainslef\test.js:3:33)
 	    at Object.<anonymous> (C:\Users\dainslef\test.js:6:1)
@@ -326,22 +326,22 @@ i in global: 3
 
 
 
-## *this*
-JavaScript中的`this`关键字与传统的OOP语言有较大差异。  
+# this
+JavaScript中的`this`关键字与传统的OOP语言有较大差异。
 在不同的上下文、不同的语法结构中，this具有不同的含义，指向不同的对象。
 
-### *Function's this*
-函数环境记录相关内容见`ECMAScript 2015`规范`8.1.1.3`节`Function Environment Records`。  
+## Function's this
+函数环境记录相关内容见`ECMAScript 2015`规范`8.1.1.3`节`Function Environment Records`。
 函数执行语义见`ECMAScript 2015`规范`14.1`节`Function Definitions`中`14.1.20`小节`Runtime Semantics: Evaluation`。
 函数具有独立的词法环境，词法环境相关内容见`ECMAScript 2015`规范`8.1`节`Lexical Environmens`。
 
-使用`function`关键字定义的函数中this由调用者决定。  
+使用`function`关键字定义的函数中this由调用者决定。
 普通地调用函数，函数的调用者默认为全局对象，在不同的JavaScript运行时下，全局对象略有不同：
 
 - 在**浏览器**环境中，全局对象为`window`。
 - 在`Node.js`环境中，全局对象为`global`。
 
-如下所示：
+示例：
 
 ```js
 function test() {
@@ -461,11 +461,11 @@ console.info(`obj === args.obj: ${obj === args.obj}`)
 obj === args.obj: true
 ```
 
-### *Arrow Function's this*
+## Arrow Function's this
 箭头函数的函数环境相关内容见`ECMAScript 2015`规范`14.2`节`Arrow Function Definitions`中`14.2.16`小节`Runtime Semantics: Evaluation`。
 
-箭头函数**没有**独立的词法作用域，箭头函数中的this由箭头函数的父级上下文决定，与调用者**无关**。  
-如下所示：
+箭头函数**没有**独立的词法作用域，箭头函数中的this由箭头函数的父级上下文决定，与调用者**无关**。
+示例：
 
 ```js
 /*
@@ -519,13 +519,13 @@ obj.name: undefined
 module.exports.name: test name
 ```
 
-### *Node.js* 环境中的 this
+## Node.js环境中的 this
 在`Node.js`环境中，全局this在不同场景下代表不同内容：
 
 - `Node.js REPL`
 
-	在Node.js提供的REPL中，this指向全局对象`global`。  
-	如下所示：(Node.js v10.1.0)
+	在Node.js提供的REPL中，this指向全局对象`global`。
+	示例：(Node.js v10.1.0)
 
 	```js
 	> global === this
@@ -534,9 +534,9 @@ module.exports.name: test name
 
 - `Node.js Module`
 
-	使用Node.js解释器执行JavaScript源码文件时，每个源码文件会作为一个JS模块(`Module`)。  
-	模块中的this指向模块导出对象`module.exports`，而非全局对象`global`。  
-	如下所示：
+	使用Node.js解释器执行JavaScript源码文件时，每个源码文件会作为一个JS模块(`Module`)。
+	模块中的this指向模块导出对象`module.exports`，而非全局对象`global`。
+	示例：
 
 	```js
 	console.info(`this === global: ${this === global}`)
@@ -552,15 +552,15 @@ module.exports.name: test name
 
 
 
-## *Prototype* (原型)
+# Prototype (原型)
 原型相关内容见`ECMAScript 2015`规范`4.2.1`节`Objects`。
 
 在JavaScript中，每个使用`function`关键字定义的函数皆具有`prototype`属性。
 
-使用`new`操作符调用函数时，函数会做为`constructor`(构造器)使用，  
-除了正常执行函数体外，还会创建对象，并返回所创建对象的引用，  
-创建的对象带有`__proto__`属性，该属性指向对象的构造器的prototype属性。  
-如下所示：
+使用`new`操作符调用函数时，函数会做为`constructor`(构造器)使用，
+除了正常执行函数体外，还会创建对象，并返回所创建对象的引用，
+创建的对象带有`__proto__`属性，该属性指向对象的构造器的prototype属性。
+示例：
 
 ```js
 > function Test() {} //定义函数
@@ -573,10 +573,10 @@ Test {}
 true
 ```
 
-在访问对象的属性、方法不存在时，JavaScript运行时会继续在对象的原型中查找，  
-使用同一构造器创建的对象共享相同的prototype对象，  
-可使用prototype属性定义一些对象间共享的字段、方法。  
-如下所示：
+在访问对象的属性、方法不存在时，JavaScript运行时会继续在对象的原型中查找，
+使用同一构造器创建的对象共享相同的prototype对象，
+可使用prototype属性定义一些对象间共享的字段、方法。
+示例：
 
 ```js
 > function Test() {}
@@ -603,11 +603,11 @@ undefined
 true
 ```
 
-### 原型链
+## 原型链
 访问对象的属性、方法时，若对应名称的字段不存在，则JavaScript运行时会查找`对象.__proto__`中是否有定义，
-若`对象.__proto__`中无定义，则查找`对象.__proto__.proto__`中是否有定义，依此类推，直至`__proto__`属性为`null`。  
-递归地从`__prot·o__`属性中查找字段的机制被称为**原型链**。  
-如下所示：
+若`对象.__proto__`中无定义，则查找`对象.__proto__.proto__`中是否有定义，依此类推，直至`__proto__`属性为`null`。
+递归地从`__prot·o__`属性中查找字段的机制被称为**原型链**。
+示例：
 
 ```js
 > function Test() {}
@@ -649,19 +649,19 @@ undefined
 false
 ```
 
-### 原型继承
+## 原型继承
 在ES6之前，JavaScript不具有标准的OOP语法，可以使用**原型链**模拟面向对象语言中的继承功能。
 
 继承一个父原型需要以下步骤：
 
 1. 在函数体中调用要作为父类的函数
 
-	使用`函数名.call(this, 参数表...)`或`函数名.apply(this, 参数数组)`的方式调用要作为父类的函数。  
-	使用call()/apply()调用函数并将this引用传入，则所调用函数内的this操作会作用于当前的this引用。  
-	如下所示：
+	使用`函数名.call(this, 参数表...)`或`函数名.apply(this, 参数数组)`的方式调用要作为父类的函数。
+	使用call()/apply()调用函数并将this引用传入，则所调用函数内的this操作会作用于当前的this引用。
+	示例：
 
 	```js
-	function Base(...) { 
+	function Base(...) {
 		...
 	}
 
@@ -675,9 +675,9 @@ false
 
 1. 修改函数prototype属性
 
-	函数prototype属性中指向父原型的`__proto__`引用默认指向`Object.prototype`；  
-	将该引用修改为指向父原型。  
-	如下所示：
+	函数prototype属性中指向父原型的`__proto__`引用默认指向`Object.prototype`；
+	将该引用修改为指向父原型。
+	示例：
 
 	```js
 	Child.prototype.__proto__ = Base.prototype
@@ -732,14 +732,15 @@ Child name: Test Child
 
 
 
-## 属性访问器
+# 属性访问器
 在JavaScript中，对象可为自身属性定义访问器(`get()/set()`方法)，在访问属性时，实际会调用对应的访问器方法。
 
-### 访问器属性
+## 访问器属性
 访问器属性相关内容见`ECMAScript 2015`规范`6.1.7`节`The Object Type`。
 
-使用Object对象的内置方法`Object.defineProperty()`定义属性时，可为属性设定属性描述对象(`PropertyDescriptor`)，在该对象中定义对应的`get()/set()`方法。  
-如下所示：
+使用Object对象的内置方法`Object.defineProperty()`定义属性时，可为属性设定属性描述对象(`PropertyDescriptor`)，
+在该对象中定义对应的`get()/set()`方法。
+示例：
 
 ```js
 obj = {
@@ -776,7 +777,7 @@ Set property ...
 6666
 ```
 
-`ES5`开始添加了定义访问器属性的简便语法，在对象的方法前使用`set/get`关键字修饰，即可使方法成为属性访问器方法。  
+`ES5`开始添加了定义访问器属性的简便语法，在对象的方法前使用`set/get`关键字修饰，即可使方法成为属性访问器方法。
 上述例子使用ES5语法可以简写成：
 
 ```js
