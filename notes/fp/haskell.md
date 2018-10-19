@@ -6,6 +6,7 @@
 - [常用函数](#常用函数)
 	- [`$` 函数](#-函数)
 	- [`.` 函数](#-函数)
+- [Type Class](#type-class)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
@@ -132,6 +133,55 @@ Prelude> print $ "abc" ++ "cde" -- 使用 $ 函数改变优先级更符合Haskel
 (.) :: (b -> c) -> (a -> b) -> a -> c 	-- Defined in ‘GHC.Base’
 infixr 9 .
 ```
+
+
+
+# Type Class
+`Type Class`(类型类)是用于支持点对点多态(ad hoc polymorphism)的类型系统结构，
+通过在参数化多态类型中添加类型参数约束来实现。
+
+type class的实际作用近似于OOP语言中的接口，一个type class中通常包含一个类型参数和若干抽象方法，
+通过提供type class在不同类型参数时的实例来为抽象方法提供多种实现，
+调用type class中方法时，会根据参数类型使用不同实例提供的实现，以此达到函数重载的目的(多态性)。
+
+使用`class`关键字定义type class，`instance`关键字定义实例，`=>`操作符用于要求类型参数必须实现某些type class。
+示例：
+
+```hs
+{-# LANGUAGE FlexibleInstances #-}
+
+module Main where
+
+-- 定义type class
+class TypeClass t where
+  doSomething :: t -> IO ()
+
+-- 针对不同类型为TypeClass类的抽象方法"doSomething"提供不同的实现
+instance TypeClass Int where
+  doSomething t = print $ "Int Type Class: " ++ (show t)
+
+-- 使用语言扩展"FlexibleInstances"开启泛型参数特化
+instance TypeClass String where
+  doSomething t = print $ "String Type Class: " ++ t
+
+-- 要求类型参数t必须实现TypeClass类
+testTypeClass :: TypeClass t => t -> IO ()
+testTypeClass t = doSomething t
+
+main :: IO ()
+main = do
+  testTypeClass (233 :: Int)
+  testTypeClass "666"
+```
+
+输出结果：
+
+```
+Int Type Class: 233
+String Type Class: 666
+```
+
+由输出结果可知，调用`testTypeClass`方法时，根据使用参数类型的不同，方法使用了不同的实现。
 
 
 
@@ -449,7 +499,7 @@ app2 = do
 然而常规的基于锁的并发模型对于开发者而言有较大的心智负担，对锁的不当操作会引起死锁等问题。
 
 在STM模型下，将具有逻辑依赖关系的多个共享变量读写操作组合成一个事务，
-当一个线程内的事务操作开始时，操作的影响并不会立即对其它线程可见，而是要等到该事务内部的所有操作完成时；
+当一个线程内的事务操作开始时，操作的影响并不会立即对其它线程可见，直到该事务内部的所有操作完成；
 当事务操作完成时，会产生以下两种结果：
 
 1. 没有其它线程修改了相同的共享变量，当前线程的事务操作结果会对其它线程可见。
