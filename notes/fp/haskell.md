@@ -7,6 +7,7 @@
 	- [`$` 函数](#-函数)
 	- [`.` 函数](#-函数)
 - [Type Class](#type-class)
+	- [Multi-parameter Type Classes](#multi-parameter-type-classes)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
@@ -182,6 +183,45 @@ String Type Class: 666
 ```
 
 由输出结果可知，调用`testTypeClass`方法时，根据使用参数类型的不同，方法使用了不同的实现。
+
+## Multi-parameter Type Classes
+type class允许多个类型参数，因而type class可被视为多个类型之间的关联。
+
+与传统的OOP语言类似，多参数type class支持在调用函数时根据多个参数的类型调用不同的函数实现。
+多参数type class同样不需要在运行时查找方法的实现，在编译期间使用类型匹配的type class实例。
+
+多参数type class特性并不是Haskell标准的一部分，在GHC中，开启多参数type class特性需要使用语言扩展：
+
+```hs
+{-# LANGUAGE MultiParamTypeClasses #-}
+```
+
+示例：
+
+```hs
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
+
+class MultiParamTypeClasses a b where
+  m :: a -> a -> b
+
+instance MultiParamTypeClasses String String where
+  m = (++)
+
+instance MultiParamTypeClasses Int String where
+  m = (flip $ (++) . show) . show
+
+test3 :: IO ()
+test3 = do
+  print (m "123" "456" :: String) -- 需要显式写明无法被推导出的返回值类型
+  print (m (123 :: Int) (456 :: Int) :: String)
+```
+
+输出结果：
+
+```
+"123456"
+"456123"
+```
 
 
 
