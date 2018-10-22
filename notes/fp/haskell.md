@@ -8,6 +8,7 @@
 	- [`.` 函数](#-函数)
 - [Type Class](#type-class)
 	- [Multi-parameter Type Classes](#multi-parameter-type-classes)
+	- [Functional Dependencies](#functional-dependencies)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
@@ -210,10 +211,10 @@ instance MultiParamTypeClasses String String where
 instance MultiParamTypeClasses Int String where
   m = (flip $ (++) . show) . show
 
-test3 :: IO ()
-test3 = do
+main :: IO ()
+main = do
   print (m "123" "456" :: String) -- 需要显式写明无法被推导出的返回值类型
-  print (m (123 :: Int) (456 :: Int) :: String)
+  print (m (123 :: Int) 456 :: String)
 ```
 
 输出结果：
@@ -221,6 +222,37 @@ test3 = do
 ```
 "123456"
 "456123"
+```
+
+## Functional Dependencies
+functional dependencies特性用于限制多参数type class的类型参数，让其中的某个类型参数可由其它类型参数决定。
+例如，一个类型参数可以是方法的返回值类型，而不是方法的参数类型。
+
+在GHC中，开启type class的functional dependencies特性需要使用语言扩展：
+
+```hs
+{-# LANGUAGE FunctionalDependencies #-}
+```
+
+使用functional dependencies特性能够避免一些场景下无法直接推导出类型时的显式类型标注，如类型参数在返回值的情形。
+示例：
+
+```hs
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, FunctionalDependencies #-}
+
+class MultiParamTypeClasses a b | a -> b where
+  m :: a -> a -> b
+
+instance MultiParamTypeClasses String String where
+  m = (++)
+
+instance MultiParamTypeClasses Int String where
+  m = (flip $ (++) . show) . show
+
+main :: IO ()
+main = do
+  print $ m "123" "456"
+  print $ m (123 :: Int) 456
 ```
 
 
