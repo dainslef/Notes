@@ -1,5 +1,7 @@
+<!-- TOC -->
+
 - [macOS 层次结构](#macos-层次结构)
-	- [常用功能](#常用功能)
+- [常用功能](#常用功能)
 	- [常用快捷键](#常用快捷键)
 	- [常用命令行指令](#常用命令行指令)
 	- [常用软件](#常用软件)
@@ -41,6 +43,8 @@
 	- [删除 GarageBand](#删除-garageband)
 	- [MacBook 合盖无法正常休眠](#macbook-合盖无法正常休眠)
 
+<!-- /TOC -->
+
 
 
 # macOS 层次结构
@@ -54,7 +58,7 @@
 
 
 
-## 常用功能
+# 常用功能
 记录macOS的常用快捷键、工具指令。
 
 ## 常用快捷键
@@ -123,7 +127,8 @@
 ## 托盘图标
 `macOS`下托盘图标可以使用`Command + 鼠标左键`点选，拖动进行排序。
 
-锁屏托盘图标无法直接在系统设置中调出，需要打开`Keychain Access.app`，在`Reference`中勾选`Show keychain status in menu bar`选项。
+锁屏托盘图标无法直接在系统设置中调出，需要打开`Keychain Access.app`，
+在`Reference`中勾选`Show keychain status in menu bar`选项。
 
 ## 特殊目录
 - `/System/Library/Fonts` 系统默认字体目录
@@ -138,13 +143,14 @@
 - `~/Library/VirtualBox` VirtualBox的配置文件目录，删除则VirtualBox恢复初始状态，需要重新添加虚拟机
 
 ## 文件系统
-`macOS`默认文件系统为`HFS+`，此类文件系统同时支持区分大小写(`Case-Sensitive`)和忽略大小写两种类型，在格式化时可以进行选择。  
+`macOS`默认文件系统为`HFS+`，此类文件系统同时支持区分大小写(`Case-Sensitive`)和忽略大小写两种类型，在格式化时可以进行选择。
 若选择了区分大小写形式的`HFS+`文件系统，则部分软件将无法安装(如`PhotoShop`等)。
 
 文件系统类型在安装了macOS之后除了重装系统之外无法更改，需要**慎重选择**。
 
 ### 挂载 NTFS 读写
-默认情况下，`macOS`以**只读**形式挂载`NTFS`文件系统，但`macOS`本身实现了对`NTFS`文件系统的写入功能，创建`/etc/fstab`文件，在其中添加挂载选项：
+默认情况下，`macOS`以**只读**形式挂载`NTFS`文件系统，但`macOS`本身实现了对`NTFS`文件系统的写入功能，
+创建`/etc/fstab`文件，在其中添加挂载选项：
 
 ```
 LABEL=[label_name] none ntfs rw,auto,nobrowse
@@ -201,7 +207,7 @@ Mac机与常规的PC有较大的差异，需要一个适应过程。
 
 
 ## NVRAM
-`NVRAM`全称`Non-volatile random-access memory`(非易失性随机访问存储器)，用于在关机状态下保存信息。  
+`NVRAM`全称`Non-volatile random-access memory`(非易失性随机访问存储器)，用于在关机状态下保存信息。
 Mac使用NVRAM存储音量、显示屏分辨率、启动磁盘选择、时区，内核崩溃转储等信息。
 
 在`macOS`中使用`nvram`指令操作NVRAM相关功能：
@@ -221,12 +227,12 @@ Note that arguments and options are executed in order.
 ```
 
 ## 重置 NVRAM
-启动配置异常时，可尝试重置NVRAM。  
-开机时按下组合键`Option + Command P + R`，按住组合键20秒后可松开。  
+启动配置异常时，可尝试重置NVRAM。
+开机时按下组合键`Option + Command P + R`，按住组合键20秒后可松开。
 在此期间Mac可能看似在重新启动。
 
 ## 禁用翻盖自启
-从`New MacBook`和`MacBook Pro 2016`开始，MacBook会在翻盖后自动开机。  
+从`New MacBook`和`MacBook Pro 2016`开始，MacBook会在翻盖后自动开机。
 可通过修改NVRAM参数关闭此特性：
 
 ```
@@ -244,8 +250,7 @@ Note that arguments and options are executed in order.
 
 
 # 包管理
-`Homebrew`是`macOS`当下最流行、最主流的包管理器。  
-`MacPorts`来自于`FreeBSD`，亦是优秀的包管理器。
+`Homebrew`是`macOS`当下最流行、最主流的包管理器；`MacPorts`来自于`FreeBSD`，亦是优秀的包管理器。
 
 二者之间的差异：
 
@@ -257,7 +262,7 @@ Note that arguments and options are executed in order.
 ## Homebrew
 Homebrew使用`Ruby`语言实现。
 
-与传统的包管理器不同，使用Homebrew并不需要使用`root`用户，管理员权限用户即可。  
+与传统的包管理器不同，使用Homebrew并不需要使用`root`用户，管理员权限用户即可。
 Homebrew将软件包安装在`/usr/local`目录下，在macOS中该目录默认情况下为**空**，因此当用户不再需要使用Homebrew时，只需完整删除`/usr/local`目录下的所有内容即可。(需要注意，某些非Bundle形式安装的软件亦会将一些内容安装在`/usr/local`目录下，如`VirtualBox`。若安装了此类软件，清理`/usr/local`目录时需要仔细辨别)
 
 默认情况下，在macOS中，`/usr/local`的所有者为`root`，用户组为`wheel`，安装Homebrew时，安装脚本会将该目录所有者会更改为**当前管理员用户**，并将用户组改为`admin`。
@@ -286,22 +291,23 @@ Homebrew基本操作与其它包管理器类似：
 与Linux下的常规包管理器不同，Homebrew在安装、卸载包时，不会有多余的确认提示，输入指令后立即执行。
 
 ### 路径信息
-`homebrew`仓库中的包安装后文件保存在`/usr/local/Cellar`路径下。  
+`homebrew`仓库中的包安装后文件保存在`/usr/local/Cellar`路径下。
 `caskroom`仓库中的包安装后文件保存在`/usr/local/Caskroom`路径下。
 
-`homebrew`仓库默认的包缓存路径为`~/Library/Caches/Homebrew`。  
-`caskroom`仓库默认的包缓存路径为`~/Library/Caches/Homebrew/Cask`
+`homebrew`仓库默认的包缓存路径为`~/Library/Caches/Homebrew`。
+`caskroom`仓库默认的包缓存路径为`~/Library/Caches/Homebrew/Cask`。
 
 可使用指令查看`Homebrew`的相关路径：
 
 - `$ brew --cache` 查看缓存路径
 - `$ brew --repo` 查看`Hombrew`安装路径
 
-在缓存中的包重复安装无需重新下载。  
-由于国内网络问题，直接通过`brew`指令安装包有时会频繁下载失败。  
+在缓存中的包重复安装无需重新下载。
+由于国内网络问题，直接通过`brew`指令安装包有时会频繁下载失败。
 可直接使用其它下载工具从符合要求的源地址下载包文件放置于对应缓存路径下，进行离线安装。
 
-对于带有头文件的包(如`boost、gcc`等)，会在`/usr/local/include`目录下创建符号链接，指向`/usr/local/Cellar`目录中的具体包内容。
+对于带有头文件的包(如`boost、gcc`等)，会在`/usr/local/include`目录下创建符号链接，
+指向`/usr/local/Cellar`目录中的具体包内容。
 
 ### 安装参数
 Homebrew使用`brew install`指令安装包时可以附加额外选项，用于定制包的依赖。
@@ -328,13 +334,14 @@ neofetch需要两个可选依赖包`screenresolution`、`imagemagick`，默认�
 使用参数`--without-imagemagick --without-screenresolution`安装可忽略依赖。
 
 ### bottled
-Homebrew对于常用的包如`gcc、gdb、python3、qt`等均提供了**预编译包**(`bottled`)，但部分包默认安装时会优先选择从源码编译(如`gcc`、`python`)，可在安装时使用`--force-bottle`参数强制安装预编译的包：
+Homebrew对于常用的包如`gcc、gdb、python3、qt`等均提供了**预编译包**(`bottled`)，
+但部分包默认安装时会优先选择从源码编译(如`gcc`、`python`)，可在安装时使用`--force-bottle`参数强制安装预编译的包：
 
 ```
 $ brew install [软件包] --force-bottle
 ```
 
---force-bottle参数与其它安装参数不同，不会记录到安装信息中，
+`--force-bottle`参数与其它安装参数不同，不会记录到安装信息中，
 默认使用源码编译的包即使强制安装预编译包在下次升级时依旧会从源码编译。
 要使源码编译包在升级时安装预编译包，则在使用升级指令时也需要添加--force-bottle参数：
 
@@ -342,7 +349,7 @@ $ brew install [软件包] --force-bottle
 $ brew upgrade --force-bottle
 ```
 
-需要注意，`bottled`版本的gcc在编译时需要手动指定`sys_root`参数，否则会出现找不到头文件的情况。
+需要注意，bottled版本的gcc在编译时需要手动指定`sys_root`参数，否则会出现找不到头文件的情况。
 以`GCC 7.2.0`和`XCode 8.3.3`为例：
 
 ```
@@ -383,7 +390,7 @@ $ brew uses --installed [软件包名称]
 - `$ brew untap [repo_name]` 禁用指令名称的仓库
 
 ### Homebrew Cask
-使用`brew cask`指令可以安装`macOS`专属的`Bundle`封装应用。  
+使用`brew cask`指令可以安装macOS专属的Bundle封装应用。
 常用指令：
 
 - `$ brew cask install [app_name]` 安装应用
@@ -394,7 +401,7 @@ $ brew uses --installed [软件包名称]
 - `$ brew cask search [app_name]` 搜索应用
 - `$ brew cask info [app_name]` 查看某个应用的详细信息
 
-使用`brew cask`安装的应用位于`/Application`路径下。  
+使用`brew cask`安装的应用位于`/Application`路径下。
 安装常用应用：
 
 ```
@@ -413,7 +420,8 @@ $ brew cask outdated | xargs brew cask reinstall
 $ brew reinstall [需要更新的应用名称]
 ```
 
-默认的`Homebrew Cask`仓库`caskroom/cask`仅保存最新版的应用，若需要同时安装多个版本(如`Java SDK`)，则需要开启`caskroom/versions`仓库。  
+默认的`Homebrew Cask`仓库`caskroom/cask`仅保存最新版的应用，若需要同时安装多个版本(如`Java SDK`)，
+则需要开启`caskroom/versions`仓库。
 执行指令：
 
 ```
@@ -423,7 +431,7 @@ $ brew tap caskroom/versions
 `caskroom/versions`仓库保存了常见应用的长期维护版本，如`Java SDK`的`java6/java8`，`FireFox`的`firefox-beta/firefox-esr`。
 
 ### Homebrew Services
-对于使用`Homebrew`安装的包，若包提供了服务，则可以使用`brew services`指令进行服务状态管理。  
+对于使用`Homebrew`安装的包，若包提供了服务，则可以使用`brew services`指令进行服务状态管理。
 常用指令：
 
 - `$ brew services list` 列出可用服务
@@ -445,7 +453,7 @@ $ brew tap caskroom/versions
 	```
 
 	替换`homebrew/core`更新源，在`$(brew --repo)/Library/Taps/homebrew/homebrew-core`路径下执行：
-	
+
 	```
 	$ git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-core.git
 	```
@@ -458,9 +466,9 @@ $ brew tap caskroom/versions
 
 - 替换`Bottles`源：
 
-	`Homebrew`在`Bottles`源中提供了常用包的预编译二进制包。  
-	在默认`Shell`的**配置文件**中设置`HOMEBREW_BOTTLE_DOMAIN`环境变量：
-	
+	Homebrew在Bottles源中提供了常用包的预编译二进制包。
+	在默认Shell的**配置文件**中设置`HOMEBREW_BOTTLE_DOMAIN`环境变量：
+
 	```
 	export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
 	```
@@ -481,13 +489,13 @@ $ brew tap caskroom/versions
 
 
 # macOS下的软件格式
-在`macOS`中，软件包常以`dmg`格式的镜像封存，而安装软件的方式分为`Bundle`以及`pkg`形式。
+在macOS中，软件包常以`dmg`格式的镜像封存，而安装软件的方式分为`Bundle`以及`pkg`形式。
 
 ## Bundle
-在`macOS`中最常见的软件包是以`Bundle`的形式存在的，`Bundle`是一个以`.app`为后缀的**目录**，
+在macOS中最常见的软件包是以`Bundle`的形式存在的，`Bundle`是一个以`.app`为后缀的**目录**，
 外观为可执行程序的图标，封装了程序执行所需的一些必要资源以及真正的可执行文件。
 
-`dmg`镜像中若直接包含`Bundle`，则将其复制到`/Application`或`~/Application`目录下即可(推荐存放在用户的`Application`目录下)。  
+`dmg`镜像中若直接包含`Bundle`，则将其复制到`/Application`或`~/Application`目录下即可(推荐存放在用户的`Application`目录下)。
 常规的`Bundle`程序所有者为**当前用户**。
 
 ## pkg
@@ -498,10 +506,10 @@ $ brew tap caskroom/versions
 通过pkg安装的软件所有者一般为`root`，不能随意移动到`~/Application`路径下。
 
 ## 软件路径
-默认情况下，`Bundle`形式的软件一般存在于`/Application`目录或`~/Application`目录下。  
+默认情况下，`Bundle`形式的软件一般存在于`/Application`目录或`~/Application`目录下。
 `macOS`的系统默认`Bundle`应用存放在`/Application`目录下，一些以`pkg`形式安装或通过`AppStore`安装的应用也在该目录下。
 
-默认情况下`~/Application`目录不存在，需要自行创建。  
+默认情况下`~/Application`目录不存在，需要自行创建。
 用户自行安装的Bundle应用推荐存放在`~/Application`目录下，避免与系统程序混淆。
 
 
@@ -510,7 +518,7 @@ $ brew tap caskroom/versions
 记录一些常见问题的解决方案。
 
 ## 切换分辨率/语言时，登陆界面的分辨率/语言依然不变
-可以尝试更改登录界面的选项。  
+可以尝试更改登录界面的选项。
 或尝试以下指令:
 
 ```
@@ -550,14 +558,14 @@ $ brew tap caskroom/versions
 	```
 
 ## 引导 Linux
-使用默认的bootloader可以直接引导Linux系统。  
+使用默认的bootloader可以直接引导Linux系统。
 需要创建一个`100MB`左右的分区(其实可以更小)，在分区的中创建`System/Library/CoreServices`目录：
 
 ```
 $ mkdir -p /Volumes/[启动分区名称]/System/Library/CoreServices
 ```
 
-并在该目录中放入`Linux`的`efi`启动文件。  
+并在该目录中放入`Linux`的`efi`启动文件。
 同时创建系统描述文件：
 
 ```
@@ -580,7 +588,7 @@ $ nano /Volumes/[启动分区名称]/System/Library/CoreServices/SystemVersion.p
 </plist>
 ```
 
-然后使用`macOS`系统的启动管理器`bless`来创建启动项，执行指令：
+然后使用macOS系统的启动管理器`bless`来创建启动项，执行指令：
 
 ```
 # bless --folder=/Volumes/[启动分区名称]/System/Library/CoreServices/ --file=/Volumes/[启动分区名称]/System/Library/CoreServices/boot.efi --setBoot
@@ -592,7 +600,7 @@ $ nano /Volumes/[启动分区名称]/System/Library/CoreServices/SystemVersion.p
 
 ## 设置 Xcode 路径
 `Xcode`中包含了一系列命令行工具如`clang`、`git`等，Homebrew的安装也依赖于这些命令行工具。
-默认情况下，安装`Xcode`同时会自动配置相关路径信息。
+默认情况下，安装Xcode同时会自动配置相关路径信息。
 
 查看Xcode命令行路径：
 
@@ -606,8 +614,8 @@ $ xcode-select -p
 /Applications/Xcode.app/Contents/Developer
 ```
 
-若用户移动了`Xcode.app`的位置，则需要重新设定Xcode的路径，否则会出现找不到命令行工具的情况。  
-使用`xcode-select`设定`Xcode`的安装位置：
+若用户移动了`Xcode.app`的位置，则需要重新设定Xcode的路径，否则会出现找不到命令行工具的情况。
+使用`xcode-select`设定Xcode的安装位置：
 
 ```
 # xcode-select --switch [Xcode.app路径]/Contents/Developer
@@ -617,7 +625,7 @@ $ xcode-select -p
 
 ## 签名 GDB
 新版的macOS系统中，`clang`作为默认编译器取代了`gcc`，`lldb`作为默认编译器取代了`gdb`。
-默认配置下，使用`Homebrew`安装的`gdb`调试器**不能**在普通用户下正常调试代码，
+默认配置下，使用Homebrew安装的`gdb`调试器**不能**在普通用户下正常调试代码，
 需要对其进行**签名**后才能使其正常调试代码。
 
 签名步骤：
@@ -632,7 +640,7 @@ $ xcode-select -p
 $ codesign -s [证书名称] [gdb安装路径]
 ```
 
-证书需要在系统重启之后才会生效。  
+证书需要在系统重启之后才会生效。
 需要注意的是，每次gdb包升级，都需要重新使用证书对其进行签名，否则不能正常调试代码。
 
 ## 安装 mysql/mariadb
@@ -656,7 +664,7 @@ mariadb/mysql使用`mysql.server`指令管理服务：
 1. `/Library/Internet Plug-Ins/JavaAppletPlugin.plugin`
 1. `/Library/PreferencePanes/JavaControlPanel.prefPane`
 
-删除JDK时需要手动移除这些目录、文件。  
+删除JDK时需要手动移除这些目录、文件。
 安装新版本的JDK时，旧版本JDK不会自动卸载，相关文件依然位于`/Library/Java/JavaVirtualMachines`路径下，
 文件夹名称即为对应的JDK版本，手动删除不需要的版本即可。
 
@@ -747,4 +755,5 @@ tcpkeepalive选项值为`1`代表改特性已启用，启用该特性会导致�
 Warning: This option disables TCP Keep Alive mechanism when sytem is sleeping. This will result in some critical features like 'Find My Mac' not to function properly.
 ```
 
-需要注意，在`System Reference`的`Energy Saver`中选择`Restore Defaults`将电源管理策略重置为默认值时，tcpkeepalive配置也会被重置为默认值(`1`)，会重新导致休眠失败。
+需要注意，在`System Reference`的`Energy Saver`中选择`Restore Defaults`将电源管理策略重置为默认值时，
+tcpkeepalive配置也会被重置为默认值(`1`)，会重新导致休眠失败。
