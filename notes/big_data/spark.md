@@ -1,3 +1,5 @@
+<!-- TOC -->
+
 - [概述](#概述)
 	- [下载](#下载)
 	- [服务配置](#服务配置)
@@ -39,6 +41,10 @@
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
 	- [org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx](#orgapachesparksparkexception-failed-to-get-broadcast_xxx-of-broadcast_xxx)
+	- [java.sql.SQLException: No suitable driver](#javasqlsqlexception-no-suitable-driver)
+	- [RDD transformations and actions are NOT invoked by the driver, but inside of other transformations;](#rdd-transformations-and-actions-are-not-invoked-by-the-driver-but-inside-of-other-transformations)
+
+<!-- /TOC -->
 
 
 
@@ -1943,3 +1949,20 @@ Spark/SparkStreaming访问HDFS时URL需要使用active节点的主机名。
 解决方式：<br>
 避免使用单例模式保存SparkContent实例，单例模式在集群中存在多个JVM实例时不可靠。
 创建SparkContext应在主函数代码中进行，构建SparkContext应使用伴生对象中提供的`SparkContext.getOrCreate()`方法。
+
+## java.sql.SQLException: No suitable driver
+问题说明：<br>
+SparkSQL通过JDBC操作数据库时，提示找不到对应数据库驱动。
+将对应数据库驱动打包到Driver Program内部依旧产生该异常信息。
+
+解决方式：<br>
+直接将JDBC驱动包放置到`$SPARK_HOME/jars`路径下。
+或者设置`SPARK_CLASSPATH`环境变量，将JDBC驱动包所处的路径添加到其中。
+
+## RDD transformations and actions are NOT invoked by the driver, but inside of other transformations;
+问题说明：<br>
+Spark应用的transformation/action操作的闭包函数内部再次调用了其它RDD的transformation操作，产生该异常信息。
+
+解决方式：<br>
+将transformation/action操作移至闭包外部，若需要在闭包内访问其它RDD的计算结果应在闭包外部完成计算，
+对于部分数据量较大的内容，应使用广播变量存储。
