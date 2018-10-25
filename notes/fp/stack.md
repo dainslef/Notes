@@ -397,6 +397,63 @@ data-files: conf/xxx.json, conf/xxx.xml
 stack工具构建项目时，会解析package.yaml文件，自动生成`项目名称.cabal`文件做为真正的构建配置。
 
 hpack配置项可查看[GitHub主页](https://github.com/sol/hpack)。
+基本配置结构：
+
+```yaml
+name: 项目名称
+version: 项目版本
+license: BSD3
+license-file: LICENSE
+author: Dainslef
+maintainer: dainslef@outlook.com
+copyright: 2017 Author name here
+category: Web
+build-type: Simple
+extra-source-files: README.md
+
+executables:
+  ... # 可执行文件定义
+
+library:
+  ... # 库定义
+
+tests:
+  ... # 测试定义
+```
+
+hpack格式的定义多数配置项与原有cabal配置相同，但配置使用标准yaml语法，
+因此`executables`、`tests`等配置段中每个子单元使用单独的层次。
+示例：
+
+```yaml
+executables:
+  可执行文件1: # 定义可执行文件，类似cabal中的 "executable 可执行文件1"
+    source-dirs: 主模块源码路径
+    main: 主模块对应源码文件
+    dependencies:
+      - base >= 版本号 && <= 版本号
+      - ... # 其它依赖项
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+  可执行文件2:
+    ... # 类似
+
+tests:
+  测试1: # 定义测试，类似cabal中的 ”test-suite 测试1“
+    source-dirs: 测试源码路径
+    main: 测试源码文件
+    dependencies: [base, ...]
+    other-modules: []
+    ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
+```
+
+hpack配置中没有`default-language`配置项，默认使用`Haskell2010`(`Haskell98`标准已过时)。
+
+hpack的测试用例配置中，`other-modules`配置项默认包含所有测试源码，
+会导致使用`stack test :测试单元`指令执行指定测试时，非测试用例代码也会参与编译、构建，
+需要显式将`other-modules`配置项置为`[]`，避免不必要的编译。
 
 ## Paths_xxx 模块
 stack构建项目时，会自动生成一个名称为`Paths_[项目名称]`的模块。
