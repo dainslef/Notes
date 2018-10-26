@@ -1,3 +1,5 @@
+<!-- TOC -->
+
 - [基础类型](#基础类型)
 	- [Literal number (字面值)](#literal-number-字面值)
 	- [char (字符类型)](#char-字符类型)
@@ -64,11 +66,13 @@
 	- [项目打包](#项目打包)
 	- [多模块项目](#多模块项目)
 - [常见问题记录](#常见问题记录)
-	- [String.split() 方法](#stringsplit-方法)
-	- [String.format() 方法](#stringformat-方法)
-	- [查询 OS 信息](#查询-os-信息)
+	- [String.split()](#stringsplit)
+	- [String.format()](#stringformat)
+	- [String.getProperty()](#stringgetproperty)
 	- [java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXrender.so.1: cannot open shared object file: No such file or directory](#javalangunsatisfiedlinkerror-jrelibamd64libawt_xawtso-libxrenderso1-cannot-open-shared-object-file-no-such-file-or-directory)
 	- [java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory](#javalangunsatisfiedlinkerror-jrelibamd64libawt_xawtso-libxtstso6-cannot-open-shared-object-file-no-such-file-or-directory)
+
+<!-- /TOC -->
 
 
 
@@ -90,14 +94,17 @@
 ## Literal number (字面值)
 在Java中，无任何修饰的整型数值字面值默认为`int`类型，无任何修饰的浮点型数值字面值默认为`double`类型。
 
-字面值数值在进行赋值操作时数值的大小不能超过目标类型的上限，如下所示：
+字面值数值在进行赋值操作时数值的大小不能超过目标类型的上限。
+示例：
 
 ```java
 byte num0 = 1; //正确
 byte num1 = 1000; //错误，提示"从int转换到byte可能会有损失"
 ```
 
-整型字面值默认为`int`型，即默认字面值范围应在`-2147483648 ~ 2147483647`之间，当整型字面值超出这个范围时，即使目标类型能够容纳数值，赋值操作时依然会报错，如下所示：
+整型字面值默认为`int`型，即默认字面值范围应在`-2147483648 ~ 2147483647`之间，
+当整型字面值超出这个范围时，即使目标类型能够容纳数值，赋值操作时依然会报错。
+示例：
 
 ```java
 long num = 6666666666; //错误，提示"过大的整数: 6666666666"
@@ -138,7 +145,7 @@ char c2 = '\u0000'; //正确
 ```
 
 ## 格式化
-在Java中，使用`System.out.printf()`方法进行格式化输出，格式化语法类似`C`语言标准库中的`printf()`函数。
+在Java中，使用`System.out.printf()`方法进行格式化输出，格式化语法类似C语言标准库中的`printf()`函数。
 
 常用的格式化字符：
 
@@ -220,7 +227,8 @@ public class Main {
 在`Java`中，没有内置的无符号类型，则在表示大于`2 ^ 位宽 - 1`的数值时，需要使用更高位宽的数值来表示。
 
 以`byte`类型为例，有符号的`byte`类型范围在`-128 ~ 127`之间，当数值大于`127`时，则需要使用更高位宽的类型表示(如`short`)。
-`byte`类型为单字节，则将原始有符号数值转换位更高位宽的类型，再与`0xFF`进行`&`(逻辑与)操作(保留原始数值位，擦除其它内容)，得到对应的无符号值。
+`byte`类型为单字节，则将原始有符号数值转换位更高位宽的类型，
+再与`0xFF`进行`&`(逻辑与)操作(保留原始数值位，擦除其它内容)，得到对应的无符号值。
 
 以`byte`类型负数`-11`为例，运算过程如下：
 
@@ -248,7 +256,7 @@ public class Main {
 
 ## 字符串、数值转换
 基础数值类型存在`OOP`的封装，用于在泛型中使用。
-如下所示：
+示例：
 
 | 基础数值类型 | 封装数值类型 |
 | :-: | :-: |
@@ -627,7 +635,8 @@ public class TestEquals {
 
 
 # 浅复制与深复制
-Java中**基础类型**如`int`、`double`等在复制时进行**值拷贝**，而对于**引用类型**，则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
+Java中**基础类型**如`int`、`double`等在复制时进行**值拷贝**，而对于**引用类型**，
+则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
 
 ## 浅复制
 要想让一个类能够被复制，则类需要实现`Cloneable`接口，并重写`clone()`方法。
@@ -1335,7 +1344,7 @@ Java中提供了一系列**内置注解**，常用的有：
 	1. `Annotation`类型。
 	1. 上述类型的**一维**数组。
 
-如下所示：
+示例：
 
 ```java
 import java.lang.annotation.*;
@@ -1477,7 +1486,7 @@ TestValue: Schwarzes marken 6
 	public Constructor<?> getEnclosingConstructor() throws SecurityException;
 	```
 
-如下所示：
+示例：
 
 ```java
 package com.dainslef;
@@ -1959,7 +1968,8 @@ class FileProxy implements File {
 
 代理类`FileProxy`能够在调用实现具体代码的同时加入扩充的功能。
 
-随着接口功能的扩充，代理类的代理方法数量也会增加，但代理类中很多方法的扩充代码可能相同的或是根本没有扩充代码，因而没有必要针对每一个方法编写代理方法，此时使用**动态代理**能够很方便地控制代码规模。
+随着接口功能的扩充，代理类的代理方法数量也会增加，但代理类中很多方法的扩充代码可能相同的或是根本没有扩充代码，
+因而没有必要针对每一个方法编写代理方法，此时使用**动态代理**能够很方便地控制代码规模。
 
 动态代理使用`java.lang.reflect.Proxy`类中的`newProxyInstance`方法构建代理类实例：
 
@@ -2082,7 +2092,7 @@ B
 由输出可知，向上转型后的实例对象调用的是被重写之后的方法。
 
 当一个类实现了多个带有相同函数签名的默认方法的接口，需要重写引发冲突的默认方法。
-如下所示：
+示例：
 
 ```java
 // 接口 Test1 中含有默认方法 int test(int a)
@@ -2110,7 +2120,7 @@ class Test implements Test1, Test2 {
 ```
 
 如果你想在重写的方法中直接使用原先接口中的某个默认方法实现，可以使用`super`关键字。
-如下所示：
+示例：
 
 ```java
 // 类中的 int test(int a) 方法采用 Test1 接口中的默认方法实现
@@ -2135,7 +2145,7 @@ class Test implements Test1, Test2 {
 **Lambda表达式**用于实现**函数式接口**，函数接口是**有且只有一个**抽象方法的接口。
 
 函数式接口可以使用`@FunctionalInterface`注解，被其标注的接口中若含有**多个**抽象方法则无法通过编译。
-如下所示：
+示例：
 
 ```java
 // 编译报错
@@ -2155,7 +2165,7 @@ Error: java: Unexpected @FunctionalInterface annotation
 ```
 
 对于**函数接口**，只能带有一个**抽象方法**，但可以带有任意数量的**默认方法**。
-如下所示：
+示例：
 
 ```java
 // 以下接口定义符合函数接口要求
@@ -2244,8 +2254,10 @@ a -> 2 * a;
 ```
 
 Lambda表达式能够**访问**外部作用域中的变量。
-Java中的Lambda捕获外部作用域变量时会自动带有`final`属性，因而在Lambda中不能对引用的外部作用域变量进行更改(变量若为类实例，则类内成员**不受**影响)。
-在其它支持Lambda表达式的主流语言中，`C#`中的Lambda可以修改外部作用域的变量，`C++`可以控制外部变量的捕获方式，对于**引用捕获**的变量，可以修改其值。
+Java中的Lambda捕获外部作用域变量时会自动带有`final`属性，
+因而在Lambda中不能对引用的外部作用域变量进行更改(变量若为类实例，则类内成员**不受**影响)。
+在其它支持Lambda表达式的主流语言中，`C#`中的Lambda可以修改外部作用域的变量，
+`C++`可以控制外部变量的捕获方式，对于**引用捕获**的变量，可以修改其值。
 
 ## Method Reference (方法引用)
 对于函数接口，还可以将当前类的某个符合方法签名的方法作为引用实例化函数接口对象。
@@ -2301,7 +2313,7 @@ class B {
 Java8中的函数接口**不能**做到类似C#中`Delegate/Func/Action`或Scala中`Function*`那样直接以函数的语法进行调用。
 Java8中的Lambda语法仅仅简化了实现函数接口的过程，调用函数接口内的方法时仍然需要显式使用接口中的方法名称。
 
-如下所示：
+示例：
 
 ```java
 import java.util.function.*;
@@ -2334,8 +2346,8 @@ public class Main {
 
 
 # JDBC
-`JDBC`为`Java`定义了一套公用的数据库`API`，`JDBC`屏蔽了不同数据库之间的差异。
-对于支持`JDBC`的数据库，只要导入对应的`JDBC Driver`即可使用相同的`JDBC API`进行操作。
+`JDBC`为Java定义了一套公用的数据库`API`，JDBC屏蔽了不同数据库之间的差异。
+对于支持JDBC的数据库，只要导入对应的`JDBC Driver`即可使用相同的`JDBC API`进行操作。
 
 ## 连接数据库
 `JDBC API`相关类型位于`java.sql`包中：
@@ -2459,7 +2471,8 @@ Access数据库的一些小常识：
 `Eclipse`是Java开发中最常用的IDE，`Eclipse`通过插件扩展可以进行多种语言的开发。
 
 ## Marketplace
-`Eclipse Marketplace`是`Eclipse`新增的应用商店，可以从中直接安装`e(fx)clipse`、`GoClipse`、`ScalaIDE`、`PyDev`等由第三方社区维护的插件。
+`Eclipse Marketplace`是`Eclipse`新增的应用商店，
+可以从中直接安装`e(fx)clipse`、`GoClipse`、`ScalaIDE`、`PyDev`等由第三方社区维护的插件。
 
 在部分`Eclipse`版本中，`Marketplace`没有默认安装，手动添加：
 
@@ -2642,7 +2655,7 @@ Module "xxx" must not contain source root "xxx". The root already belongs to mod
 
 # 常见问题记录
 
-## String.split() 方法
+## String.split()
 函数的定义为：
 
 ```java
@@ -2658,7 +2671,7 @@ String[] nums = "123.456.789".split("\\.");
 
 其它文本处理方法如`String.replace()`、`String.join()`等也有以正则表达式为匹配参数的重载版本，使用方式类似。
 
-## String.format() 方法
+## String.format()
 函数的定义为：
 
 ```java
@@ -2668,8 +2681,8 @@ public static String format(Locale var0, String var1, Object... var2);
 
 String类的`format()`方法提供类似C语言中`sprintf()`函数类似的文本格式化方式，格式化字段的语法类似。
 
-## 查询 OS 信息
-使用System类中的`getProperty()`方法可以获取**操作系统**以及**Java虚拟机**的各类状态信息：
+## String.getProperty()
+使用`System.getProperty()`方法可以获取**操作系统**以及**Java虚拟机**的各类状态信息：
 
 ```java
 public static String getProperty(String key);
@@ -2677,8 +2690,8 @@ public static String getProperty(String key);
 
 参数`key`为需要获取信息的类型，常用系统信息的key如下：
 
-| key | 信息内容 |
-|:----|:--------|
+| Key | 含义 |
+| :- | :- |
 | line.separator | 行分隔符(UNIX中是`/n`，Win中是`/r/n`) |
 | os.name | 操作系统的名称 |
 | os.arch | 操作系统的架构 |
