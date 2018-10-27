@@ -234,14 +234,22 @@ functional dependencies特性用于限制多参数type class的类型参数，�
 {-# LANGUAGE FunctionalDependencies #-}
 ```
 
+在type class声明中的参数列表后使用`|`操作符追加参数依赖关系定义，参数依赖语法类似函数参数签名：
+
+```hs
+class XxxTypeClass typeA typeB typeC ... | typeA typeB ... -> typeC where
+  ...
+```
+
 使用functional dependencies特性能够避免一些场景下无法直接推导出类型时的显式类型标注，如类型参数在返回值的情形。
-示例：
+上一节的例子中，使用functional dependencies特性的示例：
 
 ```hs
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, FunctionalDependencies #-}
 
+-- 指定类型参数依赖关系，声明类型参数"b"由类型参数"a"决定
 class MultiParamTypeClasses a b | a -> b where
-  m :: a -> a -> b
+  m :: a -> a -> b -- 方法参数类型与类型参数依赖关系相符
 
 instance MultiParamTypeClasses String String where
   m = (++)
@@ -251,8 +259,38 @@ instance MultiParamTypeClasses Int String where
 
 main :: IO ()
 main = do
-  print $ m "123" "456"
+  print $ m "123" "456" -- 不再需要返回值类型标注
   print $ m (123 :: Int) 456
+```
+
+在指定类型参数依赖关系时，需要保证类型依赖关系与方法签名相匹配，否则依然需要指定返回类型标注：
+
+```hs
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, FunctionalDependencies #-}
+
+class MultiParamTypeClasses a b | b -> a where
+  m :: a -> a -> b -- 方法参数类型与类型依赖关系不符，依赖关系中定义类型"a"由类型"b"推导
+
+instance MultiParamTypeClasses String String where
+  m = (++)
+
+main :: IO ()
+main = print $ m "123" "456" -- 编译报错，类型依赖关系未生效
+```
+
+编译时得到错误信息：
+
+```
+• Ambiguous type variable ‘a0’ arising from a use of ‘m’
+  prevents the constraint ‘(MultiParamTypeClasses
+                              [Char] a0)’ from being solved.
+  Probable fix: use a type annotation to specify what ‘a0’ should be.
+  These potential instance exist:
+    instance MultiParamTypeClasses String String
+      -- Defined at ...
+• In the second argument of ‘($)’, namely ‘m "123" "456"’
+  In the expression: print $ m "123" "456"
+  In an equation for ‘main’: main = print $ m "123" "456"
 ```
 
 
