@@ -15,7 +15,7 @@
 	- [Control.Monad](#controlmonad)
 - [STM](#stm)
 	- [STM概念](#stm概念)
-	- [主要API介绍](#主要api介绍)
+	- [STM API介绍](#stm-api介绍)
 - [GADTs](#gadts)
 	- [ADT 的限制](#adt-的限制)
 	- [使用 GADT](#使用-gadt)
@@ -100,7 +100,7 @@ REPL环境下的内部指令均以`:`为前缀，常用指令如下：
 | :set -X\<extensions\> | 开启指定语言扩展 |
 | :unset -X\<extensions\> | 关闭指定语言扩展 |
 | :show languages | 显示已开启的语言扩展 |
-| :module [+/-] [*]<mod> ... | 导入/移除指定的包路径 |
+| :module [+/-] [*]<mod> ... | 导入/移除指定的模块路径 |
 
 
 
@@ -439,7 +439,7 @@ app2 = do
 ```
 
 ## Control.Monad
-`Control.Monad`包中提供了Monad的常用变换操作。
+`Control.Monad`模块中提供了Monad的常用变换操作。
 
 - `mapM`/`forM`/`mapM_`/`forM_`
 
@@ -617,9 +617,9 @@ app2 = do
 
 事务操作具有隔离性(isolated)，以此来规避锁问题。
 
-## 主要API介绍
-`Control.Monad.STM`包提供了STM结构定义和Monad变换操作；
-`Control.Concurrent.STM`包提供了STM相关容器的实现。
+## STM API介绍
+`Control.Monad.STM`模块提供了STM结构定义和Monad变换操作；
+`Control.Concurrent.STM`模块提供了STM相关容器的实现。
 
 `Control.Monad.STM`内的`atomically`函数提供了对STM操作的原子执行，
 `retry`函数用于重试STM操作，相关API定义：
@@ -642,7 +642,7 @@ catchSTM :: Exception e => STM a -> (e -> STM a) -> STM a
 
 STM实现了Monad，因而多个STM操作之间可简单地相互组合。
 
-`Control.Concurrent.STM`包中提供了常见的基于STM的共享变量容器：
+`Control.Concurrent.STM`模块中提供了常见的基于STM的共享变量容器：
 
 | API | 简介 |
 | :- | :- |
@@ -797,7 +797,7 @@ data families是type families特性用在数据类(data types)的情形，包含
 
 ## Async 包
 `async`包提供跨多线程执行异步操作的功能。
-async包底层使用base包中的`forkIO`函数(在`Control.Concurrent`中)实现，提供了以下改进：
+async包底层使用base包中的`forkIO`函数(在`Control.Concurrent`模块中)实现，提供了以下改进：
 
 - 彻底、优雅地处理异常(graceful and thorough handling of exceptions)
 - 从子线程中获取返回值
@@ -808,9 +808,9 @@ async包底层使用base包中的`forkIO`函数(在`Control.Concurrent`中)实�
 `Async`是async包的主要数据类型，一个`Async a`类型的值表示一个分离的线程(represents a separate thread)，
 该线程将最终生成一个`a`类型的值(which will ultimately generate a value of type `a`)。
 
-async包相关API位于`Control.Concurrent.Async`路径下，主要API介绍：
+async包相关API位于`Control.Concurrent.Async`模块下，主要API介绍：
 
-- `async*`系列函数fork一个线程并返回Async值，`wait*`系列函数等待Async类型返回结果
+- `async*`系列函数fork一个线程并返回Async值，`wait*`系列函数等待Async类型返回结果。
 
 	```hs
 	-- 异步执行一个操作
@@ -865,7 +865,7 @@ async包相关API位于`Control.Concurrent.Async`路径下，主要API介绍：
 	"Finish: 1 2"
 	```
 
-- `withAsync*`函数启动一个独立线程执行首个参数中传入的操作，并提供Async值给匿名函数(第二参数)
+- `withAsync*`函数启动一个独立线程执行首个参数中传入的操作，并提供Async值给匿名函数(第二参数)。
 
 	```hs
 	withAsync :: IO a -> (Async a -> IO b) -> IO b
@@ -907,7 +907,7 @@ async包相关API位于`Control.Concurrent.Async`路径下，主要API介绍：
 	"Main finished: 2333"
 	```
 
-- `poll`函数用于检查Async类型操作是否完成，`cancel`函数用于提前取消异步操作，`asyncThreadId`用于查看线程ID
+- `poll`函数用于检查Async类型操作是否完成，`cancel`函数用于提前取消异步操作，`asyncThreadId`用于查看线程ID。
 
 	```hs
 	-- 检查一个异步操作是否完成
@@ -920,7 +920,7 @@ async包相关API位于`Control.Concurrent.Async`路径下，主要API介绍：
 	asyncThreadId :: Async a -> ThreadId
 	```
 
-- `*STM`系列函数是对应异步操作的STM接口版本
+- `*STM`系列函数是对应异步操作的STM接口版本。
 
 	```hs
 	pollSTM :: Async a -> STM (Maybe (Either SomeException a))
