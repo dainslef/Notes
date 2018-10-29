@@ -293,6 +293,33 @@ main = print $ m "123" "456" -- 编译报错，类型依赖关系未生效
   In an equation for ‘main’: main = print $ m "123" "456"
 ```
 
+对于使用了functional dependencies特性的type class而言，添加instance时，
+类型依赖路径相同的实例仅能存在一个，否则编译报错。
+示例：
+
+```hs
+class MultiParamTypeClasses a b | a -> b where
+  m :: a -> a -> b
+
+-- 编译报错，存在两个类型依赖路径冲突的实例
+instance MultiParamTypeClasses String String where m = (++)
+instance MultiParamTypeClasses String Int where m = (flip $ (+) . read) . read
+```
+
+编译时得到的错误信息：
+
+```
+Functional dependencies conflict between instance declarations:
+  instance MultiParamTypeClasses String String
+    -- Defined at ...
+  instance MultiParamTypeClasses String Int
+    -- Defined at ...
+```
+
+在该例子中，`instance MultiParamTypeClasses String String`的类型依赖`String -> String`与`instance MultiParamTypeClasses String Int`的类型依赖`String -> Int`存在冲突(都是`String -> ?`)，
+两个实例声明的方法签名`m :: String -> String -> String`与`m :: String -> String -> Int`存在调用歧义(需要依赖返回值确定实际调用者)，
+不使用functional dependencies特性时正常通过编译，启用functional dependencies特性时则编译报错。
+
 
 
 # Monad
