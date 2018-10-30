@@ -16,6 +16,7 @@
 - [STM](#stm)
 	- [STM概念](#stm概念)
 	- [STM API介绍](#stm-api介绍)
+	- [TVar](#tvar)
 - [GADTs](#gadts)
 	- [ADT 的限制](#adt-的限制)
 	- [使用 GADT](#使用-gadt)
@@ -679,6 +680,29 @@ STM实现了Monad，因而多个STM操作之间可简单地相互组合。
 | Control.Concurrent.STM.TChan | FIFO形式的数据通道 |
 | Control.Concurrent.STM.TQueue | 数据队列，与TChan类似，具有更高的吞吐速率，但不支持复制 |
 | Control.Concurrent.STM.TBQueue | 数据队列，与TQueue类似，但具有固定数据数目上限 |
+
+## TVar
+`Control.Concurrent.STM.TVar`用于存储单个共享变量，是最简单、基础的API，
+支持对共享变量的读、写、修改操作。
+
+核心API定义如下：
+
+```hs
+-- 使用参数中给定的值创建TVar
+newTVar :: a -> STM (TVar a)
+-- 创建TVar，保存在IO Monad中，通常用在外层IO方法中
+newTVarIO :: a -> IO (TVar a)
+
+-- 读取TVar
+readTVar :: TVar a -> STM a
+-- readTVar的IO版本，等价于 atomically . readTVar
+readTVarIO :: TVar a -> IO a
+
+-- 写入TVar，有多种修改方式
+writeTVar :: TVar a -> a -> STM ()
+modifyTVar :: TVar a -> (a -> a) -> STM ()
+swapTVar :: TVar a -> a -> STM a
+```
 
 
 
