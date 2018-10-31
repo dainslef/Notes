@@ -704,6 +704,65 @@ modifyTVar :: TVar a -> (a -> a) -> STM ()
 swapTVar :: TVar a -> a -> STM a
 ```
 
+示例：
+
+```hs
+import Control.Monad (replicateM_)
+import Control.Monad.STM (atomically)
+import Control.Concurrent
+import Control.Concurrent.Async
+import Control.Concurrent.STM.TVar
+
+varA, varB :: IO (TVar Int)
+varA = newTVarIO 1000
+varB = newTVarIO 0
+
+changeTVar :: String -> TVar Int -> TVar Int -> IO (Async ())
+changeTVar i varA varB = async $ replicateM_ 2 $ do
+  (a, b) <- atomically $ do
+    a <- readTVar varA
+    b <- readTVar varB
+    let (na, nb) = (a - 20, b + 20)
+    writeTVar varA na
+    writeTVar varB nb
+    return (na, nb)
+  threadId <- myThreadId
+  printValue ("TVar " ++ i ++ " [" ++ (show threadId) ++ "]:") a b
+
+printValue :: String -> Int -> Int -> IO ()
+printValue prefix a b = print $ foldl1 (++)
+  [prefix, " A: [", show a, "], B: [", show b, "]"]
+
+main :: IO ()
+main = do
+  a <- varA
+  b <- varB
+  changeTVar "1" a b
+  changeTVar "2" a b
+  changeTVar "3" a b
+  changeTVar "4" a b
+  changeTVar "5" a b
+  threadDelay 500000
+```
+
+输出结果：
+
+```
+"TVar 2 [ThreadId 3]: A: [960], B: [40]"
+"TVar 1 [ThreadId 2]: A: [980], B: [20]"
+"TVar 3 [ThreadId 4]: A: [940], B: [60]"
+"TVar 4 [ThreadId 5]: A: [920], B: [80]"
+"TVar 5 [ThreadId 6]: A: [900], B: [100]"
+"TVar 2 [ThreadId 3]: A: [880], B: [120]"
+"TVar 1 [ThreadId 2]: A: [860], B: [140]"
+"TVar 3 [ThreadId 4]: A: [840], B: [160]"
+"TVar 4 [ThreadId 5]: A: [820], B: [180]"
+"TVar 5 [ThreadId 6]: A: [800], B: [200]"
+```
+
+在STM操作下，数据的加减操作为原子操作执行；
+由输出结果可知，多个线程之间的数据修改操作并未影响数据一致性。
+
 
 
 # GADTs
@@ -711,7 +770,7 @@ swapTVar :: TVar a -> a -> STM a
 允许显式地指定ADT定义中每个构造器的类型。
 
 ## ADT 的限制
-普通的ADT类型中，每个构造器的返回值类型不可指定。
+普通的ADT类型中，无法显式指定每个构造器的返回值类型。
 定义一个代表表达式的类型，如下所示：
 
 ```hs
