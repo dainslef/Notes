@@ -17,6 +17,7 @@
 	- [STM概念](#stm概念)
 	- [STM API介绍](#stm-api介绍)
 	- [TVar](#tvar)
+	- [TChan](#tchan)
 - [GADTs](#gadts)
 	- [ADT 的限制](#adt-的限制)
 	- [使用 GADT](#使用-gadt)
@@ -762,6 +763,84 @@ main = do
 
 在STM操作下，数据的加减操作为原子操作执行；
 由输出结果可知，多个线程之间的数据修改操作并未影响数据一致性。
+
+## TChan
+`Control.Concurrent.STM.TChan`是FIFO的数据管道，向管道中写入数据，可从管道中按对应顺序读取。
+
+核心API如下：
+
+```hs
+-- 创建数据管道
+newTChan :: STM (TChan a)
+newTChanIO :: IO (TChan a)
+
+-- 从管道中取出一条数据，取出的数据在管道中会被移除
+readTChan :: TChan a -> STM a
+-- 从管道中读取一条数据，读取的数据不被管道移除
+peekTChan :: TChan a -> STM a
+
+-- 向管道中写入数据，数据被加入管道末尾
+writeTChan :: TChan a -> a -> STM ()
+-- 向管道中写入数据，数据被加入管道前端，该数据会立即被下次读取操作获取
+unGetTChan :: TChan a -> a -> STM ()
+```
+
+数据管道简单示例：
+
+```hs
+import Control.Monad
+import Control.Monad.STM
+import Control.Concurrent
+import Control.Concurrent.Async
+import Control.Concurrent.STM.TChan
+
+main :: IO ()
+main = do
+
+  c <- chan
+  a <- sendMessage c
+  receiveMessage c
+  receiveMessage c
+  receiveMessage c
+  wait a
+
+  where
+
+    chan :: IO (TChan String)
+    chan = newTChanIO
+
+    sendMessage :: TChan String -> IO (Async ())
+    sendMessage chan = async $ forever $ do
+      input <- getLine
+      print $ "Input: " ++ input
+      atomically $ writeTChan chan input
+
+    receiveMessage :: TChan String -> IO (Async ())
+    receiveMessage chan = async $ do
+      threadId <- myThreadId
+      forever $ do
+        receive <- atomically $ readTChan chan
+        print $ "Receive [" ++ (show threadId) ++ "]: " ++ receive
+        threadDelay 500000
+```
+
+输出结果：
+
+```
+test1
+"Input: test1"
+"Receive [ThreadId 3]: test1"
+test2
+"Input: test2"
+"Receive [ThreadId 4]: test2"
+test3
+"Input: test3"
+"Receive [ThreadId 5]: test3"
+test4
+"Input: test4"
+"Receive [ThreadId 3]: test4"
+^C⏎
+```
 
 
 
