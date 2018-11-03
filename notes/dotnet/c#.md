@@ -1,3 +1,5 @@
+<!-- TOC -->
+
 - [入口函数](#入口函数)
 - [数据类型](#数据类型)
 	- [Value Type (值类型)](#value-type-值类型)
@@ -21,7 +23,7 @@
 	- [扩展方法的应用场景](#扩展方法的应用场景)
 - [Generic (泛型)](#generic-泛型)
 	- [泛型约束](#泛型约束)
-	- [*Variance* (变性)](#variance-变性)
+	- [Variance (型变/变性)](#variance-型变变性)
 	- [泛型类的静态成员](#泛型类的静态成员)
 - [delegate (委托) 和 event (事件)](#delegate-委托-和-event-事件)
 	- [delegate (委托)](#delegate-委托)
@@ -43,14 +45,14 @@
 	- [lock 关键字](#lock-关键字)
 - [Reflection (反射)](#reflection-反射)
 	- [反射机制的相关类型](#反射机制的相关类型)
-	- [*Type*/*TypeInfo* 类型](#typetypeinfo-类型)
+	- [Type/TypeInfo 类型](#typetypeinfo-类型)
 	- [反射获取成员信息](#反射获取成员信息)
-- [*Attribute* (特性)](#attribute-特性)
+- [Attribute (特性)](#attribute-特性)
 	- [使用特性](#使用特性)
 	- [自定义特性](#自定义特性)
 - [动态代理](#动态代理)
-- [*FTP*](#ftp)
-	- [创建 *FTP* 请求](#创建-ftp-请求)
+- [FTP](#ftp)
+	- [创建 FTP 请求](#创建-ftp-请求)
 	- [下载](#下载)
 	- [上传](#上传)
 - [WinForm 开发注记](#winform-开发注记)
@@ -66,10 +68,12 @@
 	- [partial 关键字](#partial-关键字)
 	- [params 关键字](#params-关键字)
 - [常见问题](#常见问题)
-	- [处理`\0`结尾字符串](#处理0结尾字符串)
+	- [处理`\0`结尾字符串](#处理\0结尾字符串)
 	- [MySQL 中 TINYINT 类型](#mysql-中-tinyint-类型)
 	- [DEBUG 宏](#debug-宏)
 	- [输出代码文件名、行号](#输出代码文件名行号)
+
+<!-- /TOC -->
 
 
 
@@ -85,20 +89,20 @@ static int Main(string[] args);
 
 `C#`允许多种入口函数形式，一般采用第二种(默认)。
 
-与`Java`不同，`C#`并不强制要求主类的类名与主类所在文件的文件名相同。  
+与`Java`不同，`C#`并不强制要求主类的类名与主类所在文件的文件名相同。
 实际上，`C#`由于支持`部分类`特性，也不可能要求类名与源码文件名相同。
 
 
 
 # 数据类型
-C#的数据类型分为两类：值类型和引用类型。  
+C#的数据类型分为两类：值类型和引用类型。
 一般而言，值类型用于**存储数据**，引用类型用于**定义行为**。
 
 ## Value Type (值类型)
-值类型具体包括**预定义值类型**、**自定义值类型**和**枚举类型**。  
+值类型具体包括**预定义值类型**、**自定义值类型**和**枚举类型**。
 所有值类型隐式派生于`System.ValueType`类。
 
-例如，系统预定义的值类型`int`是`System`命名空间中`System.Int32`结构体的别名。  
+例如，系统预定义的值类型`int`是`System`命名空间中`System.Int32`结构体的别名。
 `System.Int32`结构的定义为：
 
 ```cs
@@ -133,7 +137,7 @@ public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>,
 public abstract class ValueType {};
 ```
 
-值类型实例通常分配在线程的**栈(stack)**上，并且不包含任何指向实例数据的指针，因为变量本身就包含了其实例数据。  
+值类型实例通常分配在线程的**栈(stack)**上，并且不包含任何指向实例数据的指针，因为变量本身就包含了其实例数据。
 值类型在复制时是**值传递(pass by value)**，会复制当前值类型变量包含的内容。
 
 ## Reference Type (引用类型)
@@ -175,7 +179,7 @@ public abstract class ValueType {};
 int num = null; //错误信息："Cannot convert null to 'int' because it is a non-nullable value type"
 ```
 
-在传统的值类型后添加`?`符号，即成为对应的**可空类型**。  
+在传统的值类型后添加`?`符号，即成为对应的**可空类型**。
 可空类型的实际类型为`System.Nullable<T>`结构体：
 
 ```cs
@@ -212,7 +216,7 @@ System.Nullable<T> variable;
 
 - `?`操作符
 
-	`?`操作符可用于在访问引用类型/可空类型前对目标对象进行检查，访问的实例为`null`则不执行操作。  
+	`?`操作符可用于在访问引用类型/可空类型前对目标对象进行检查，访问的实例为`null`则不执行操作。
 	如下所示：
 
 	```cs
@@ -252,7 +256,7 @@ System.Nullable<T> variable;
 	1
 	```
 
-	使用`?`运算符的语句带有可空类型/引用类型的返回值，当受检对象未通过`null`检查，后续语句不执行，同时整个语句返回`null`。  
+	使用`?`运算符的语句带有可空类型/引用类型的返回值，当受检对象未通过`null`检查，后续语句不执行，同时整个语句返回`null`。
 	利用此特性可搭配`??`运算符组合使用：
 
 	```cs
@@ -272,7 +276,7 @@ System.Nullable<T> variable;
 	```
 
 ## Type alias (类型别名)
-C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++11`中添加的新`using`语法相似。  
+C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++11`中添加的新`using`语法相似。
 如下所示：
 
 ```cs
@@ -356,8 +360,8 @@ class Program
 对类`A`中属性`Num`的赋值通过属性的`set`块中的局部关键字`value`传给了`A`类私有成员`num`，通过`Num`属性的`get`块获取了私有成员`num`的值。
 
 ## 自动成员属性
-在`C# 3.0`之后，可以使用**自动属性**。  
-自动属性只需直接使用`set`、`get`关键字，**不必**定义属性相关的私有变量并编写`set`、`get`块代码。  
+在`C# 3.0`之后，可以使用**自动属性**。
+自动属性只需直接使用`set`、`get`关键字，**不必**定义属性相关的私有变量并编写`set`、`get`块代码。
 编译器会为自动属性生成私有变量保存属性的内容。
 
 上述例子中成员属性`Num`可以简写为：
@@ -382,12 +386,12 @@ public int Num { get; } = 0;
 ```
 
 ## 属性表达式
-在`C# 6.0`中，对于**只读属性**，可以使用简化的语法进行定义。  
+在`C# 6.0`中，对于**只读属性**，可以使用简化的语法进行定义。
 有如下只读属性：
 
 ```cs
 private int num = 0;
-public int Num 
+public int Num
 {
 	get
 	{
@@ -403,12 +407,12 @@ private int num = 0;
 public int Num => num;
 ```
 
-在`C# 7.0`中，对于普通属性也提供了表达式语法。  
+在`C# 7.0`中，对于普通属性也提供了表达式语法。
 有如下属性：
 
 ```cs
 private int num = 0;
-public int Num 
+public int Num
 {
 	get
 	{
@@ -425,7 +429,7 @@ public int Num
 
 ```cs
 private int num = 0;
-public int Num 
+public int Num
 {
 	get => num;
 	set => num = value;
@@ -450,12 +454,12 @@ error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; 
 ```
 
 ## 静态字段
-静态字段的概念与其它传统`OOP`语言如`C++`、`Java`类似，一个类的静态字段全局唯一。  
+静态字段的概念与其它传统`OOP`语言如`C++`、`Java`类似，一个类的静态字段全局唯一。
 与静态方法类似，使用实例访问静态字段会在编译时报错，在`C#`中，只能通过类名访问静态字段。
 
 - 字段初始化
 
-	在`C#`中，成员字段初始化时不能引用非静态成员。  
+	在`C#`中，成员字段初始化时不能引用非静态成员。
 	如下代码所示：
 
 	```cs
@@ -470,8 +474,8 @@ error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; 
 
 - 静态字段初始化
 
-	在`C#`中，静态字段初始化时能够引用其它静态成员，但需要注意成员定义的**先后顺序**。  
-	若引用的静态字段定义在当前静态字段之后，则当前静态不会被初始化。  
+	在`C#`中，静态字段初始化时能够引用其它静态成员，但需要注意成员定义的**先后顺序**。
+	若引用的静态字段定义在当前静态字段之后，则当前静态不会被初始化。
 	如下所示：
 
 	```cs
@@ -568,7 +572,7 @@ true
 ## 扩展方法的应用场景
 扩展方法主要用于向一些不方便改动的类型添加额外的方法，并让添加的方法能够以常规语法调用。
 
-在`C#`标准库中，典型的扩展案例为`System.Linq.Enumerable`类。  
+在`C#`标准库中，典型的扩展案例为`System.Linq.Enumerable`类。
 该类为`System.Collections.Generic.IEnumerable<T>`类型添加了大量`LINQ`风格的扩展方法定义。
 
 使用扩展方法时需要节制，滥用扩展方法会造成代码难以理解。
@@ -578,9 +582,9 @@ true
 # Generic (泛型)
 值类型转变为引用类型会经过`装箱(boxing)`操作，而引用类型转变为值类型则要经过`拆箱(unboxing)`操作。
 
-一个容器需要接收多种类型时，可能就需要将接受参数的类型设置为`object`型(即所有类型的父类)。  
-值类型在转化到`object`型时就需要进行装箱操作，频繁地装箱与拆箱会有较高的开销。  
-`object`类型并不安全(可能同时接收到不同的类型)，因而可以使用**泛型**来**显式指定**需要接收的类型(编译器会检查接收类型是否符合指定泛型)。  
+一个容器需要接收多种类型时，可能就需要将接受参数的类型设置为`object`型(即所有类型的父类)。
+值类型在转化到`object`型时就需要进行装箱操作，频繁地装箱与拆箱会有较高的开销。
+`object`类型并不安全(可能同时接收到不同的类型)，因而可以使用**泛型**来**显式指定**需要接收的类型(编译器会检查接收类型是否符合指定泛型)。
 对于值类型而言，使用泛型还可以避免重复的装箱与拆箱操作。
 
 ## 泛型约束
@@ -616,7 +620,7 @@ class B<T, V> where T : XXX where V : XXXX { }
 class C<T, V> where T : class, T : V { }
 ```
 
-## *Variance* (变性)
+## Variance (型变/变性)
 泛型类型在使用不同类型参数时默认**不存在**继承关系。
 如下所示：
 
@@ -628,8 +632,8 @@ csharp> List<Base> list = new List<Child>() as List<Base>; //不可进行强制�
 (1,38): error CS0039: Cannot convert type `System.Collections.Generic.List<Child>' to `System.Collections.Generic.List<Base>' via a built-in conversion
 ```
 
-使用`variances`特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。  
-`variances`特性分为`covariance`(协变)和`contravariance`(逆变)。  
+使用variances特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。
+variances特性分为`covariance`(协变)和`contravariance`(逆变)。
 在泛型参数前使用`int/out`关键字表示该泛型参数**变性**，如下所示：
 
 ```cs
@@ -637,11 +641,11 @@ csharp> interface ICovariance<in T> {}; //逆变
 csharp> interface IContravariance<out T> {}; //协变
 ```
 
-与`Scala`、`Kotlin`不同，在C#中，`variances`仅支持`interface`和`delegate`。  
+与`Scala`、`Kotlin`不同，在C#中，`variances`仅支持`interface`和`delegate`。
 `class`和`struct`无法使用`variances`特性，如下所示：
 
 ```cs
-csharp> class Test<out T> {}; 
+csharp> class Test<out T> {};
 (1,17): error CS1960: Variant type parameters can only be used with interfaces and delegates
 csharp> struct Test<in T> {};
 (1,17): error CS1960: Variant type parameters can only be used with interfaces and delegates
@@ -649,7 +653,7 @@ csharp> struct Test<in T> {};
 
 - `Covariance` (协变)
 
-	类型参数声明为`covariance`(协变)时，泛型类型的继承关系与类型参数相同。  
+	类型参数声明为`covariance`(协变)时，泛型类型的继承关系与类型参数相同。
 	如下所示：
 
 	```cs
@@ -660,7 +664,7 @@ csharp> struct Test<in T> {};
 
 - `Contravariance` (逆变)
 
-	类型参数声明为`contravariance`(逆变)时，泛型类型的继承关系与类型参数相反。  
+	类型参数声明为`contravariance`(逆变)时，泛型类型的继承关系与类型参数相反。
 	如下所示：
 
 	```cs
@@ -670,8 +674,8 @@ csharp> struct Test<in T> {};
 	```
 
 ## 泛型类的静态成员
-不同于Java中`Type Erasure`形式的泛型实现，`.Net`中采用类似C++的实现，同一泛型类使用不同泛型参数时会独立生成代码。  
-C#中，同一泛型类使用不同类型参数时，各自的静态成员是相互独立的。  
+不同于Java中`Type Erasure`形式的泛型实现，`.Net`中采用类似C++的实现，同一泛型类使用不同泛型参数时会独立生成代码。
+C#中，同一泛型类使用不同类型参数时，各自的静态成员是相互独立的。
 静态成员共享仅在使用相同类型参数的泛型类之间。
 
 如下代码所示：
@@ -702,13 +706,13 @@ class Program
 
 
 # delegate (委托) 和 event (事件)
-**委托**让C#拥有了函数对象的概念，使一个方法可以作为参数被传递。  
+**委托**让C#拥有了函数对象的概念，使一个方法可以作为参数被传递。
 **事件**让C#拥有了语言级别的消息通信机制。
 
 ## delegate (委托)
 委托是C#特有的概念，委托的作用类似于C/C++中的函数指针，但委托是类型安全的。
 
-在`C#`中，委托实际上是一个类，因而使用方式与`class`类似。  
+在`C#`中，委托实际上是一个类，因而使用方式与`class`类似。
 委托支持加减运算符操作，一个委托实例能够通过加法运算绑定多个**签名相同**的函数。
 
 定义委托：
@@ -719,7 +723,7 @@ delegate 返回值类型 委托名(参数表);
 
 委托的定义可以在全局、命名空间或是作为某个类的成员，但委托的定义不能放在方法体内部。
 
-委托前可以使用访问权限关键字(`public`、`private`、`protected`等)进行限制，但委托定义不能使用`static`关键字(委托实例作为一个**类的成员**存在时才可以使用`static`关键字)。  
+委托前可以使用访问权限关键字(`public`、`private`、`protected`等)进行限制，但委托定义不能使用`static`关键字(委托实例作为一个**类的成员**存在时才可以使用`static`关键字)。
 委托可以绑定`static`或是非`static`成员函数，委托同样可以绑定当前类之外的符合签名要求的其它类的可见成员函数(`public`、`internal`成员)。
 
 `delegate`关键字还可以用来定义**匿名函数**，实例化委托或是增加委托实例绑定时都可以使用委托匿名函数。
@@ -748,15 +752,15 @@ delegate 返回值类型 委托名(参数表);
 };
 ```
 
-一个委托可以同加减运算符动态地更改绑定的函数个数。  
+一个委托可以同加减运算符动态地更改绑定的函数个数。
 委托在使用时类似一个普通的函数，调用委托：
 
 ```cs
 委托实例名(符合委托签名的参数表);
 ```
 
-调用委托会把委托绑定的所有函数按照绑定的先后次序**依次执行**。  
-若绑定的方法拥有返回值，则将**最后一个**绑定方法的返回值作为整个委托实例的返回值。  
+调用委托会把委托绑定的所有函数按照绑定的先后次序**依次执行**。
+若绑定的方法拥有返回值，则将**最后一个**绑定方法的返回值作为整个委托实例的返回值。
 委托类型作为函数的形参时，传入实参时可以直接使用符合委托签名的函数名，无需手动使用`new`操作符构建委托对象。
 
 ## event (事件)
@@ -940,7 +944,7 @@ GetDouble getDouble2 = (num1, num2) => (int)(num1 + num2);
 GetDouble getDouble3 = (double num1, double num2) => { return (int)(num1 + num2); };		//三种形式效果完全相同
 ```
 
-需要注意的是，使用`Lambda`代替匿名委托虽然能够减少代码量，但这并不代表`Lambda`能够完全取代匿名委托。  
+需要注意的是，使用`Lambda`代替匿名委托虽然能够减少代码量，但这并不代表`Lambda`能够完全取代匿名委托。
 `Lambda`中参数不能带有关键字`ref`、`out`，如果需要使用**引用参数**则依然需要使用匿名委托。
 
 ## 函数对象
@@ -954,8 +958,8 @@ C#中定义了一系列类型用来表示委托和Lambda对象。
 - 与`Java`的**残废**`Lambda`不同，`C#`的`Lambda`可以捕获并**修改**外部作用域变量，而`Java`中外部作用域变量在`Lambda`中带有`final`属性，只能读取不能更改。
 
 ## 变量捕获
-在`C#`中，`Lambda`能够访问到在`Lambda`被定义的作用域中的所有成员。  
-如果`Lambda`表达式在类中被定义，则`Lambda`表达式能够访问到类的成员。  
+在`C#`中，`Lambda`能够访问到在`Lambda`被定义的作用域中的所有成员。
+如果`Lambda`表达式在类中被定义，则`Lambda`表达式能够访问到类的成员。
 如同函数一样，`Lambda`有自己的作用域，`Lambda`内部定义的变量在外部作用域**不可访问**。
 
 示例代码-1：
@@ -996,7 +1000,7 @@ class Test
 ```
 
 ## 定义成员函数
-在`C# 6.0`中，开始支持使用`Lambda`语法直接定义**单行**的成员函数。  
+在`C# 6.0`中，开始支持使用Lambda语法直接定义**单行**的成员函数。
 **示例代码-1**使用新的语法可以使用如下格式书写：
 
 示例代码-2：
@@ -1033,7 +1037,7 @@ class Test
 
 
 # Pattern Matching (模式匹配)
-`C# 7.0`中加入了**模式匹配**特性，支持根据对象类型提供不同的行为。  
+`C# 7.0`中加入了**模式匹配**特性，支持根据对象类型提供不同的行为。
 在`C# 7.0`中，支持模式匹配的新特性包括：
 
 - `is`表达式。
@@ -1129,8 +1133,8 @@ switch (xxx)
 
 - 创建与启动线程
 
-	`Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。  
-	两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。  
+	`Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。
+	两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。
 	`Thread`类在构造时还可以接收一个`int`型参数用于指定线程的最大堆栈大小。
 
 	使用`Thread.Start()`方法可以启动线程，如下代码所示：
@@ -1159,12 +1163,12 @@ switch (xxx)
 	```
 
 - 等待线程结束
-	
+
 	使用成员方法`Thread.Join()`能够等待指定线程结束，在等待的线程结束前，该方法会一直阻塞**当前**线程。
 
 - 获取线程ID
 
-	每个线程都有独立的线程ID。  
+	每个线程都有独立的线程ID。
 	`Thread.CurrentThread.ManagedThreadId`属性保存了当前线程的ID，可以通过比较线程ID来判断代码是否在相同的线程执行。
 
 ## Async Delegate (异步委托)
@@ -1177,9 +1181,9 @@ switch (xxx)
 	1. `AsyncCallback`委托在回调委托运行结束之后触发，`AsyncCallback`委托接收一个`IAsyncResult`类型的参数。
 	1. `object`类型用于传递一些参数给`AsyncCallback`委托。
 
-	`BeginInvoke()`的最后两个参数可以为`null`。  
+	`BeginInvoke()`的最后两个参数可以为`null`。
 	`BeginInvoke()`返回`IAsyncResult`类型：
-	
+
 	1. 使用`IAsyncResult.IsCompleted`属性可以判断回调委托的执行状态。
 	1. 使用`IAsyncResult.AsyncState`属性获取`BeginInvoke()`参数表中的最后一个`object`类型的传入参数。
 
@@ -1292,7 +1296,7 @@ switch (xxx)
 ## Task
 `Task`类是`.NET 4.0`之后提供的异步操作抽象，完整路径为`System.Threading.Tasks.Task`。
 
-`Task`类用于表示无返回值的异步操作，对于带有返回值的异步操作应使用`Task`类的子类`Task<TResult>`。  
+`Task`类用于表示无返回值的异步操作，对于带有返回值的异步操作应使用`Task`类的子类`Task<TResult>`。
 `Task`类创建的任务会加入线程池中。
 
 `Task/Task<TResult>`类的主要构造函数如下：
@@ -1362,7 +1366,7 @@ async Task testAsync()
 }
 ```
 
-并不是方法使用`async`关键字标记了就是异步方法，直接出现在`async`方法内部的语句也是同步执行的，**异步执行的内容**需要使用`Task`类执行。  
+并不是方法使用`async`关键字标记了就是异步方法，直接出现在`async`方法内部的语句也是同步执行的，**异步执行的内容**需要使用`Task`类执行。
 事实上，一个不包含任何`await`语句的`async`方法将是同步执行的，此时编译器会给出警告。
 
 简单示例，使用`async/await`在屏幕并发输出内容：
@@ -1471,7 +1475,7 @@ lock (object)
 }
 ```
 
-`lock`块开始时锁定`object`，在lock代码块结束后释放锁。  
+`lock`块开始时锁定`object`，在lock代码块结束后释放锁。
 锁定相同`object`的`lock`代码块同一时刻只能被一个线程执行。
 
 - 基本用法
@@ -1548,7 +1552,7 @@ lock (object)
 
 - lock实现
 
-	`lock`块在实现上使用了`Monitor`类。  
+	`lock`块在实现上使用了`Monitor`类。
 	`lock (object) { ... }`实际相当于：
 
 	```
@@ -1660,7 +1664,7 @@ lock (object)
 
 	三段代码执行后均无输出，且程序不退出，均死锁。
 
-	需要注意的是，`lock`锁定对象是基于**线程**的，在同一线程内的代码不受影响。  
+	需要注意的是，`lock`锁定对象是基于**线程**的，在同一线程内的代码不受影响。
 	如下所示的代码**不会**发生死锁：
 
 	```cs
@@ -1742,8 +1746,8 @@ lock (object)
 
 	`PropertyInfo`、`MethodInfo`等描述类成员信息的类型均直接或间接从抽象基类`MemberInfo`中继承。
 
-## *Type*/*TypeInfo* 类型
-`C#`中的`Type`类型作用近似于`Java`反射机制中的`Class`类型，`Type`类定义了类型的反射操作。  
+## Type/TypeInfo 类型
+`C#`中的`Type`类型作用近似于`Java`反射机制中的`Class`类型，`Type`类定义了类型的反射操作。
 获取目标类型的`Type`实例是使用反射功能的起始步骤。
 
 获取`Type`实例可以通过以下方式：
@@ -1758,7 +1762,7 @@ lock (object)
 - 用于获取由该类型定义的成员信息的**方法**(`GetDeclaredMethod()`、`GetDeclaredField()`等)。
 
 ## 反射获取成员信息
-`Type`类型提供了与Java中`Class`类型类似的接口。  
+`Type`类型提供了与Java中`Class`类型类似的接口。
 反射获取类型成员信息的相关`API`遵循以下命名规则：
 
 - `GetXxx(string)` 获取**指定公有成员**
@@ -1899,7 +1903,7 @@ namespace System.Reflection
 
 
 
-# *Attribute* (特性)
+# Attribute (特性)
 `.Net`平台中的**特性**类似于`JVM`平台中的**注解**，作用都是向特定的元素添加元数据。
 
 `MSDN`中关于**特性**的介绍：
@@ -1943,30 +1947,30 @@ namespace System.Reflection
 
 - 特性名称
 
-	根据约定，所有特性类名称都以单词`Attribute`结束，以便将它们与`.NET Framework`中的其他项区分。  
+	根据约定，所有特性类名称都以单词`Attribute`结束，以便将它们与`.NET Framework`中的其他项区分。
 	使用特性时，不需要追加`Attribute`后缀(使用带有`Attribute`后缀的全称也不会报错)。
 
 - 特性类字段类型
 
-	特性类可以提供一些字段和属性，不应提供公共方法，事件等。  
-	在定义特性类的构造方法，字段和属性时，对数据类型有严格的要求。  
+	特性类可以提供一些字段和属性，不应提供公共方法，事件等。
+	在定义特性类的构造方法，字段和属性时，对数据类型有严格的要求。
 	类型只能为：`Boolean, Char, Byte, Sbyte, Int16, UInt16, Int32, Int64, Single, Double, String, Type, Object, Enum`，可以使用这些类型对应的数组类型。
 
 - 定位参数与命名参数
 
-	特性类可以具有定位参数和命名参数。  
-	特性类的每个公共实例构造函数为该属性类定义一个有效的定位参数序列。  
+	特性类可以具有定位参数和命名参数。
+	特性类的每个公共实例构造函数为该属性类定义一个有效的定位参数序列。
 	特性类的每个非静态公共读写字段和属性为该属性类定义一个命名参数。
 
 - 构造函数
 
-	特性类的构造函数决定了在使用特性时应传入怎样的特性参数(特性的定位参数需要与构造函数参数表相匹配)。  
-	一个特性类可以拥有多个构造函数，使用特性时特性的定位参数只需与其中任意一个构造函数匹配即可。  
+	特性类的构造函数决定了在使用特性时应传入怎样的特性参数(特性的定位参数需要与构造函数参数表相匹配)。
+	一个特性类可以拥有多个构造函数，使用特性时特性的定位参数只需与其中任意一个构造函数匹配即可。
 	定义了空参构造函数的特性在使用时只需要写出特性名称即可(特性参数的小括号省略)。
 
 - 配置自定义特性
 
-	使用`System.AttributeUsage`特性可以指定其它特性的使用方式。  
+	使用`System.AttributeUsage`特性可以指定其它特性的使用方式。
 	`AttributeUsage`类的定义如下所示：
 
 	```cs
@@ -2027,7 +2031,7 @@ namespace System.Reflection
 
 - 获取特性
 
-	使用**反射**机制可以从指定元素提取特性。  
+	使用**反射**机制可以从指定元素提取特性。
 	例如`Attribute.GetCustomAttribute()`、`MemberInfo.GetCustomAttributes()`等相关方法可获取元素中的特性信息。
 
 自定义特性示例：
@@ -2248,7 +2252,7 @@ Method result:
 
 
 
-# *FTP*
+# FTP
 在`.Net`平台中，标准库内置了对`FTP`协议的支持。
 
 `FTP`相关的类均位于`System.Net`命名空间，常见的有：
@@ -2259,7 +2263,7 @@ Method result:
 - `FtpWebResponse` 表示`FTP`协议的服务端回应，是`WebResponse`的子类实现
 - `WebRequestMethods` 定义了各类协议的具体请求方法字符串，`FTP`协议的方法定义位于其内部类`WebRequestMethods.Ftp`中
 
-## 创建 *FTP* 请求
+## 创建 FTP 请求
 `WebRequest`类的静态成员方法`WebRequest.Create(string)`，以`FTP`路径字符串为参数即可构建一个未设定操作的`FTP`请求：
 
 ```cs
@@ -2403,7 +2407,7 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 `C#`对应的**GUI**库为基于`.NET Framework`的`Windows Form`。
 
 ## 常见控件类型
-在`Windows Form`中，控件相关的类大多派生于`System.Windows.Forms.Control`。  
+在`Windows Form`中，控件相关的类大多派生于`System.Windows.Forms.Control`。
 控件的名称也与其它的GUI库类似：
 
 - `Form` 窗体，类似于Qt中的**QFrame**
@@ -2429,13 +2433,13 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 - `TableLayoutPanel` 表格布局面板
 
 ## 布局与样式
-在`Windows From`中，控件的大小与位置一般是固定的。  
-若需要控件大小自动变化，则应使用`AutoSize`属性。  
-一般情况下，控件的位置不会随着窗口大小的变化而自动排列位置，需要通过设置`Archor`属性来指定扩展的方向。  
+在`Windows From`中，控件的大小与位置一般是固定的。
+若需要控件大小自动变化，则应使用`AutoSize`属性。
+一般情况下，控件的位置不会随着窗口大小的变化而自动排列位置，需要通过设置`Archor`属性来指定扩展的方向。
 控件还可以通过设置`Dock`属性指定需要停靠的边框。
 
 ## 控件事件
-一个标准的`Windows Form`控件中定义了多种事件，通过将指定的事件处理函数绑定到事件上，当满足事件触发的条件时，绑定的函数便会被回调。  
+一个标准的`Windows Form`控件中定义了多种事件，通过将指定的事件处理函数绑定到事件上，当满足事件触发的条件时，绑定的函数便会被回调。
 一个事件可以绑定多个事件处理函数，一个事件处理函数也可以被多个事件绑定。
 
 普通的事件签名没有限制，但`.NET Framework`类库中的所有事件均基于`EventHandler`委托，定义如下：
@@ -2479,7 +2483,7 @@ protected override void WndProc(ref Message m);
 # 调用 C/C++ 动态链接库
 C#支持调用`C/C++`语言编写的`dll`。
 
-使用`DLLImport`特性修饰一个方法。  
+使用`DLLImport`特性修饰一个方法。
 加载动态链接库需要指定dll的路径以及符号名称：
 
 ```cs
@@ -2487,7 +2491,7 @@ C#支持调用`C/C++`语言编写的`dll`。
 public/protected/private extern Type Func(Type args...);
 ```
 
-声明方法的名称可以与dll中导出符号名称不同，只需在标注的`EntryPoint`中写明对应的符号名称。  
+声明方法的名称可以与dll中导出符号名称不同，只需在标注的`EntryPoint`中写明对应的符号名称。
 声明的方法参数表必须与dll中的参数表**完全匹配**。
 
 C#中的常见类型与C++中类型之间的转换关系：
@@ -2525,19 +2529,19 @@ C#中的常见类型与C++中类型之间的转换关系：
 
 - `internal`关键字修饰类
 
-	`internal`关键字用在类、接口前表示只能在当前项目中访问该类、接口。  
-	`internel`关键字修饰的类不能被`public`类继承。  
+	`internal`关键字用在类、接口前表示只能在当前项目中访问该类、接口。
+	`internel`关键字修饰的类不能被`public`类继承。
 	默认不添加关键字的情况下，类和接口的访问属性即为`internal`。
 
 - `internal`关键字修饰成员
 
-	`internal`关键字用在类内成员之前表示只能在当前项目中访问该成员。  
+	`internal`关键字用在类内成员之前表示只能在当前项目中访问该成员。
 	在对类内成员使用时，`internal`关键字可以搭配`protected`关键字使用，即定义一个只能被当前项目的子类访问的成员。
 
 需要注意的是，`internal`修饰的类不能作为`public`成员出现在其它类中。
 
 ## readonly 关键字
-`readonly`关键字用于修饰**运行时只读**变量。  
+`readonly`关键字用于修饰**运行时只读**变量。
 `readonly`变量的赋值操作只能发生在以下情形：
 
 - 在变量定义时。
@@ -2550,7 +2554,7 @@ C#中的常见类型与C++中类型之间的转换关系：
 - `const`仅能修饰**值类型**/`string`类型/`null`，`readonly`可以修饰任意类型，
 - `const`修饰的变量自动带有`static`特性：
 
-	`const`关键字与`static`关键字不能共同修饰相同变量。  
+	`const`关键字与`static`关键字不能共同修饰相同变量。
 	`const`修饰的变量**可以**被定义在静态类中。
 
 - `readonly`修饰的变量默认**不带有**`static`属性：
@@ -2562,8 +2566,8 @@ C#中的常见类型与C++中类型之间的转换关系：
 ## partial 关键字
 `partial`关键字用于定义`部分类`(局部类型)，局部类型允许我们将一个类、结构或接口分成几个部分，分别实现在几个不同的源码文件中。
 
-在`Windows From`中，窗口类代码便使用了部分类特性。  
-对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中。  
+在`Windows From`中，窗口类代码便使用了部分类特性。
+对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中。
 两个文件中的代码本质上属于同一个类，`部分类`特性巧妙地隔离开了**由IDE产生的代码**与**用户自行编写的代码**，使代码结构更清晰。
 
 ## params 关键字
@@ -2604,7 +2608,7 @@ Console.WriteLine(testNew); //输出 "aaa"
 ## MySQL 中 TINYINT 类型
 在`MySQL`中没有内置的`bool`类型，`bool`类型常常使用最小的整型数据类型`TINYINT`表示。
 
-在C#中，会将`TINYINT(1)`视为`bool`类型处理，对于类型为`TINYINT(1)`的列，使用`ToString()`方法转换得到的是文本`true/false`而非字面意义数值。  
+在C#中，会将`TINYINT(1)`视为`bool`类型处理，对于类型为`TINYINT(1)`的列，使用`ToString()`方法转换得到的是文本`true/false`而非字面意义数值。
 要使`TINYINT`不被视为`bool`类型，需要调整数据列的显示宽度，即类型设为`TINYINT(2)`或是其它大于`1`的值。
 
 ## DEBUG 宏
@@ -2623,7 +2627,7 @@ Console.WriteLine(testNew); //输出 "aaa"
 
 - 使用`StackStrace`获取调试信息
 
-	使用`StackStrace`类通过反射可以得到函数调用者的栈信息，并从中获取代码信息。  
+	使用`StackStrace`类通过反射可以得到函数调用者的栈信息，并从中获取代码信息。
 	使用`StackTrace`的`GetFrame(int index)`成员方法获取指定的堆栈帧(`StackFrame`类型)。
 
 	- 索引`0`为当前函数堆栈的信息。
