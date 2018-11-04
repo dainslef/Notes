@@ -842,6 +842,23 @@ test4
 ^C⏎
 ```
 
+TChan支持数据广播，创建广播管道并多次复制该管道，向广播管道中写入数据，每个复制出的管道都会收到相同数据，
+以此实现数据的广播发送，相关API如下：
+
+```hs
+
+-- 创建广播管道，广播管道只能写入不能读取(服务端)，仅能通过dupTChan/cloneTChan函数复制出新管道读取数据
+newBroadcastTChan :: STM (TChan a)
+newBroadcastTChanIO :: IO (TChan a)
+
+-- 复制数据管道，复制出的管道仅能读取数据，不能写入(客户端)
+dupTChan :: TChan a -> STM (TChan a)
+cloneTChan :: TChan a -> STM (TChan a)
+```
+
+newTChan函数创建的普通管道会一直缓存写入的数据直到数据从管道中被取出；
+newBroadcastTChan函数创建的广播管道写入数据时在数据抵达客户端后即可被垃圾收集。
+
 
 
 # GADTs
