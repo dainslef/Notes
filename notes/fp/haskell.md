@@ -859,6 +859,61 @@ cloneTChan :: TChan a -> STM (TChan a)
 newTChan函数创建的普通管道会一直缓存写入的数据直到数据从管道中被取出；
 newBroadcastTChan函数创建的广播管道写入数据时在数据抵达客户端后即可被垃圾收集。
 
+广播数据管道示例：
+
+```hs
+import Control.Monad
+import Control.Monad.STM
+import Control.Concurrent
+import Control.Concurrent.Async
+import Control.Concurrent.STM.TChan
+
+main :: IO ()
+main = do
+
+  c <- chan
+  a <- sendMessage c
+  receiveMessage c
+  receiveMessage c
+  receiveMessage c
+  wait a
+
+  where
+
+    chan :: IO (TChan String)
+    chan = newBroadcastTChanIO
+
+    sendMessage :: TChan String -> IO (Async ())
+    sendMessage chan = async $ forever $ do
+      input <- getLine
+      print $ "Input: " ++ input
+      atomically $ writeTChan chan input
+
+    receiveMessage :: TChan String -> IO (Async ())
+    receiveMessage chan = async $ do
+      rChan <- atomically $ dupTChan chan
+      threadId <- myThreadId
+      forever $ do
+        receive <- atomically $ readTChan rChan
+        print $ "Receive [" ++ (show threadId) ++ "]: " ++ receive
+```
+
+输出结果；
+
+```
+test1
+"Input: test1"
+"Receive [ThreadId 3]: test1"
+"Receive [ThreadId 4]: test1"
+"Receive [ThreadId 5]: test1"
+test2
+"Input: test2"
+"Receive [ThreadId 3]: test2"
+"Receive [ThreadId 4]: test2"
+"Receive [ThreadId 5]: test2"
+^C⏎
+```
+
 
 
 # GADTs
