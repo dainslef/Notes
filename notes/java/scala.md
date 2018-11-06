@@ -179,7 +179,8 @@ $ scalac *.scala
 $ scala 主类类名
 ```
 
-对于使用了`包(package)`的源码，在用`scalac`指令进行编译时，编译器会自动根据包路径创建对应的目录，然后在对应的包路径下生成对应的class文件。
+对于使用了`包(package)`的源码，在用`scalac`指令进行编译时，编译器会自动根据包路径创建对应的目录，
+然后在对应的包路径下生成对应的class文件。
 
 运行带有包路径的字节码需要在包路径的相对根目录下，执行：
 
@@ -755,7 +756,7 @@ Scala**没有**提供主流语言中的`continue`和`break`关键字用于流程
 
 ## break
 `break`功能可以由`scala.util.control.Breaks`类提供。
-`Breaks`类中定义了`breakable()`和`break()`成员方法：
+Breaks类中定义了`breakable()`和`break()`成员方法：
 
 ```scala
 def breakable(op: => Unit): Unit {
@@ -2363,7 +2364,8 @@ Print test
 **提取器**用于解构对象，通过实现`unapply()`方法定义解构行为。
 
 - `unapply()`方法则与`apply()`方法相反，可以从对象中提取出需要的数据(在实际使用过程中，可以从任意的目标里提取数据)。
-- `unapply()`方法返回值必须为`Option`及其子类，单一返回值使用`Option[T]`，多个返回值可以包含在元组中`Option[(T1, T2, T3, ...)]`。
+- `unapply()`方法返回值必须为`Option`及其子类，单一返回值使用`Option[T]`，
+多个返回值可以包含在元组中`Option[(T1, T2, T3, ...)]`。
 - `unapply()`方法虽然也可以定义在类中，但一般定义在**伴生对象**中(在类中定义没有合适的语法使用)。
 
 假设有伴生对象名为`Unapply`，则：
@@ -2484,7 +2486,7 @@ one warning found
 ## sealed 与 ADT
 Scala中sealed类概念上类似于纯函数式语言中的`ADT`(Algebraic Datatypes，代数数据类型)。
 
-上文中的例子使用Haskell语言编写近似于：
+上文中的例子使用Haskell编写近似于：
 
 ```hs
 data Lang =
@@ -2581,9 +2583,10 @@ res15: String = \n\s\\b\\%''^#@ 3.0
 
 # 终端输入
 早期的Scala中`Console`类提供了一系列的终端输入方法，在现在的版本中这些方法已经被**废弃**。
+当前版本的Scala获取终端输入需要使用包`scala.io.StdIn`中的相关方法。
 
-- 当前版本的Scala获取终端输入需要使用包`scala.io.StdIn`中的相关方法。
-- `scala.io.StdIn`中的相关方法签名与先前的`Console`类中完全相同。
+`scala.io.StdIn`中的相关方法签名与先前的`Console`类中完全相同，主要API介绍：
+
 - 使用`readLine()`获取单行文本输入，返回`String`类型。
 - 使用`readInt()/readFloat()/readChar()/readLong()...`等方法获取特定类型的输出，当输入的内容不匹配时，会抛出异常。
 - 使用`readf()/readf1()/readf2()/readf3()`等方法能以`java.text.MessageFormat`语法格式化接收的终端输入。
@@ -2630,7 +2633,8 @@ tuple: (Any, Any, Any) = (On,Two,Three)
 
 ## 继承枚举类
 继承枚举类`Enumeration`可以在成员中使用无参方法`Value`给每个枚举成员赋值。
-默认的`Value`方法会按**变量名**生成**枚举名**和并自动从`0`开始生成**枚举ID**，若需要手动设定枚举名称和枚举ID则可以使用`Value`方法的重载`Value(id: Int, name: Strig)`。
+默认的`Value`方法会按**变量名**生成**枚举名**和并自动从`0`开始生成**枚举ID**，
+若需手动设定枚举名称和枚举ID则可以使用`Value`方法的重载`Value(id: Int, name: Strig)`。
 
 示例：
 
@@ -3817,7 +3821,8 @@ scala> Try { "Dainslef".toInt } foreach println //无输出
 
 ```
 
-`fold()`高阶函数用法与`Option`类型类似，在`Try`语句块成功是执行成功表达式并输出返回结果，在`Try`语句块失败时执行失败表达式并返回结果，两类表达式返回结果类型需要相同。
+`fold()`高阶函数用法与`Option`类型类似，在`Try`语句块成功是执行成功表达式并输出返回结果，
+在`Try`语句块失败时执行失败表达式并返回结果，两类表达式返回结果类型需要相同。
 示例：
 
 ```scala
@@ -4169,7 +4174,8 @@ object Main extends App {
 ```
 
 Scala标准类库中大量使用了隐式转换特性。
-以`String`类型为例，源自Java标准库的`String`类型自身并未定义`toInt/toDouble`等成员方法，在调用这些方法时，`String`被**隐式转换**成定义了这些方法的`StringLike`类型来执行这些操作。
+以`String`类型为例，源自Java标准库的`String`类型自身并未定义`toInt/toDouble`等成员方法，
+在调用这些方法时，`String`被**隐式转换**成定义了这些方法的`StringLike`类型来执行这些操作。
 
 ## 隐式参数
 函数和方法的参数前可以添加关键字`implicit`来将一个参数标记为**隐式参数**。
