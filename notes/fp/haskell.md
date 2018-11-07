@@ -6,6 +6,7 @@
 - [常用函数](#常用函数)
 	- [`$` 函数](#-函数)
 	- [`.` 函数](#-函数)
+- [求值策略](#求值策略)
 - [Type Class](#type-class)
 	- [Multi-parameter Type Classes](#multi-parameter-type-classes)
 	- [Functional Dependencies](#functional-dependencies)
@@ -137,6 +138,54 @@ Prelude> print $ "abc" ++ "cde" -- 使用 $ 函数改变优先级更符合Haskel
 (.) :: (b -> c) -> (a -> b) -> a -> c 	-- Defined in ‘GHC.Base’
 infixr 9 .
 ```
+
+
+
+# 求值策略
+Haskell默认采用**惰性求值**，字段、函数参数在真正被使用前，不会被求值，
+即一个表达式绑定到字段时并没有立即，而是延迟到该表达式的结果被其它计算需要时再执行(进行求值)。
+
+示例：
+
+```hs
+main :: IO ()
+main = do
+  let f = 1 + error "Error Arg!"
+  print "Before..."
+  print $ "After: " ++ (show f) -- 打印结果，此时会对f字段进行求值
+```
+
+输出结果：
+
+```
+"Before..."
+Lazy: Error Arg!
+CallStack (from HasCallStack):
+  error, called at ... in main:Main
+```
+
+由输出结果可知，异常并未在表达式创建时就触发，而是真正使用字段时才对表达式求值，从而触发异常。
+
+若一个字段自始自终没有被计算结果依赖，则该字段不会被求值。
+包含异常的代码若没有被真正求值，也不会触发：
+
+```hs
+main :: IO ()
+main = do
+  let f = 1 + error "Error Arg!"
+  print "Before..."
+  let s = f - 1
+  print $ "After..."
+```
+
+输出结果：
+
+```
+"Before..."
+"After..."
+```
+
+由结果可知，包含异常的表达式没有被真正执行，程序正常退出。
 
 
 
