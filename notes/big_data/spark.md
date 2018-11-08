@@ -35,6 +35,7 @@
 	- [SparkSession](#sparksession)
 	- [构建 DataFame](#构建-datafame)
 	- [Untyped Dataset Operations (无类型的 Dataset 操作，aka DataFrame Operations)](#untyped-dataset-operations-无类型的-dataset-操作aka-dataframe-operations)
+	- [执行 SQL 查询](#执行-sql-查询)
 - [Structured Streaming](#structured-streaming)
 	- [基础概念](#基础概念)
 - [问题注记](#问题注记)
@@ -1889,6 +1890,34 @@ scala> dataFrame.filter($"age" > 10).show()
 |   name|age|
 +-------+---+
 |Haskell| 25|
+|  Scala| 15|
++-------+---+
+```
+
+## 执行 SQL 查询
+SparkSession类提供了`sql()`方法在Spark应用中执行SQL查询并返回DataFrame类型的结果：
+
+```scala
+scala> case class Test(name: String, age: Int)
+defined class Test
+
+scala> val dataFrame = spark.createDataFrame(Seq(Test("Haskell", 25), Test("Rust", 6), Test("Scala", 15)))
+dataFrame: org.apache.spark.sql.DataFrame = [name: string, age: int]
+
+// 为数据创建临时视图
+scala> dataFrame.createTempView("TestTable")
+
+// 执行SQL语句，表名即为创建的临时视图的名称
+scala> val sqlResult = spark.sql("select * from TestTable")
+sqlResult: org.apache.spark.sql.DataFrame = [name: string, age: int]
+
+// 打印查询结果
+scala> sqlResult.show()
++-------+---+
+|   name|age|
++-------+---+
+|Haskell| 25|
+|   Rust|  6|
 |  Scala| 15|
 +-------+---+
 ```
