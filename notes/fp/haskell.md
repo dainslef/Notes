@@ -24,6 +24,7 @@
 	- [使用 GADT](#使用-gadt)
 - [Type Families](#type-families)
 	- [Data Families](#data-families)
+	- [Type Synonym Families](#type-synonym-families)
 - [Concurrent](#concurrent)
 	- [Async 包](#async-包)
 - [RankNTypes](#rankntypes)
@@ -1098,6 +1099,40 @@ data families是type families特性用在数据类(data types)的情形，包含
 	  data Family [a] = FList [a] | FNil
 
 	...
+	```
+
+## Type Synonym Families
+type synonym families扩展了type关键字定义类型别名的用法，包含以下用法：
+
+- 在顶层代码使用：
+
+	顶层代码中的type synonym families扩展了类型别名的功能。
+	普通的类型别名仅能指代一种类型(无论别名是否带有类型参数)；
+	type synonym families则强制要求别名带有类型参数，同时别名在搭配不同的类型参数时可指代不同的实际类型。
+
+	使用`type family`关键字定义同义类型族，使用`type instance`定义类型族成员。
+	示例：
+
+	```hs
+	type family Family a
+	type instance Family String = String
+	type instance Family Int = Int
+	type instance Family (Maybe a) = Maybe a
+	... -- 可任意追加其它instance，避免定义 Family a 这样的类型，会与其它instance冲突
+	```
+
+	普通的type synonym families是开放式的，可以任意添加成员(追加新的type instance)，
+	type synonym families亦支持类似GADT语法的封闭式(closed)定义，
+	将所有的类型族成员定义在where子句内部，不再能从外部扩展。
+	示例：
+
+	```hs
+	-- 类型族仅包含where子句中列出的成员，不能扩展
+	type family Family a where
+	  Family [a] = [a]
+	  Family String = String
+	  Family Int = Int
+	  Family (Maybe a) = Maybe a
 	```
 
 
