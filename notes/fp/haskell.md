@@ -7,6 +7,7 @@
 	- [`$` 函数](#-函数)
 	- [`.` 函数](#-函数)
 - [求值策略](#求值策略)
+	- [强制求值](#强制求值)
 - [Type Class](#type-class)
 	- [Multi-parameter Type Classes](#multi-parameter-type-classes)
 	- [Functional Dependencies](#functional-dependencies)
@@ -188,6 +189,57 @@ main = do
 
 由结果可知，包含异常的表达式没有被真正执行，程序正常退出。
 
+## 强制求值
+标准库中提供了`seq`、`$!`等函数可立即对指定字段求值。
+seq函数对函数的首个参数强制求值；`$!`函数则对第二参数强制求值，之后传入第一参数提供的函数中执行。
+相关函数定义：
+
+```hs
+seq :: a -> b -> b 	-- Defined in ‘GHC.Prim’
+infixr 0 `seq`
+
+($!) :: (a -> b) -> a -> b 	-- Defined in ‘GHC.Base’
+infixr 0 $!
+```
+
+示例：
+
+```hs
+Prelude> :{
+Prelude| doSomething :: Int -> IO ()
+Prelude| doSomething n = do
+Prelude|   print "Before..."
+Prelude|   print $ "After: " ++ (show n) ++ "..."
+Prelude| :}
+
+-- 普通调用
+Prelude> doSomething 123
+"Before..."
+"After: 123..."
+
+-- 使用包含异常的参数，参数真正被使用时抛出异常
+Prelude> doSomething undefined
+"Before..."
+"After: "*** Exception: Prelude.undefined
+CallStack (from HasCallStack):
+  error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
+  undefined, called at <interactive>:199:13 in interactive:Ghci21
+
+-- 使用"$!"函数，提前对参数强制求值，异常提前触发
+Prelude> doSomething $! undefined
+*** Exception: Prelude.undefined
+CallStack (from HasCallStack):
+  error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
+  undefined, called at <interactive>:200:16 in interactive:Ghci21
+
+-- 使用seq函数，作用类似
+Prelude> seq undefined $ doSomething 123
+*** Exception: Prelude.undefined
+CallStack (from HasCallStack):
+  error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
+  undefined, called at <interactive>:201:5 in interactive:Ghci21
+```
+
 
 
 # Type Class
@@ -332,7 +384,7 @@ main = print $ m "123" "456" -- 编译报错，类型依赖关系未生效
 
 编译时得到错误信息：
 
-```
+```hs
 • Ambiguous type variable ‘a0’ arising from a use of ‘m’
   prevents the constraint ‘(MultiParamTypeClasses
                               [Char] a0)’ from being solved.
@@ -360,7 +412,7 @@ instance MultiParamTypeClasses String Int where m = (flip $ (+) . read) . read
 
 编译时得到的错误信息：
 
-```
+```hs
 Functional dependencies conflict between instance declarations:
   instance MultiParamTypeClasses String String
     -- Defined at ...
