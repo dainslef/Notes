@@ -6,8 +6,9 @@
 - [常用函数](#常用函数)
 	- [`$` 函数](#-函数)
 	- [`.` 函数](#-函数)
-- [Lazy evaluation](#lazy-evaluation)
-	- [惰性求值的优劣](#惰性求值的优劣)
+- [求值策略](#求值策略)
+	- [Lazy evaluation 的实现](#lazy-evaluation-的实现)
+	- [Lazy evaluation 的优劣](#lazy-evaluation-的优劣)
 	- [强制求值](#强制求值)
 - [Type Class](#type-class)
 	- [Multi-parameter Type Classes](#multi-parameter-type-classes)
@@ -144,7 +145,7 @@ infixr 9 .
 
 
 
-# Lazy evaluation
+# 求值策略
 Haskell默认采用`Lazy evaluation`(懒执行/惰性求值/非严格求值)，字段、函数参数在真正被使用前，不会被求值，
 即一个表达式绑定到字段时并没有立即，而是延迟到该表达式的结果被其它计算需要时再执行(进行求值)。
 
@@ -192,7 +193,25 @@ main = do
 
 由结果可知，包含异常的表达式没有被真正执行，程序正常退出。
 
-## 惰性求值的优劣
+## Lazy evaluation 的实现
+在Haskell中，Lazy evaluation技术上是`Call by name`加上`Sharing`。
+Call by name意味着在字段在需要时再被执行；
+Sharing意味着被多次使用的临时数据会被存储，例如在如下表达式中：
+
+```hs
+let x = 1 + 1 in x * x
+```
+
+字段`x`在之后的表达式中被使用了两次，但字段x不会被多次计算，而是在首次计算后被存储并用于之后的使用。
+
+Lazy evaluation也被称为`Call by need`，Call by need是Call by name的带有记忆性的变体，
+Call by need的字段在需要时被求值(Call by need)，字段绑定的表达式执行后结果会被存储(Sharing)，
+之后再次访问该字段时，不会再重复执行计算。
+
+在Haskell中，使用名为`Thunk`的数据结构来存储表达式，等到表达式在需要的时刻再执行。
+Thunk包含一个布尔变量用于记录Thunk内包含的表达式是否已被计算过，若已被计算，则直接获取之前的结果，而非重复进行计算。
+
+## Lazy evaluation 的优劣
 惰性求值的优势：
 
 - 程序仅在需要时进行求求值，避免了无意义的计算
