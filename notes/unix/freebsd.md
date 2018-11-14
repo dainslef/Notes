@@ -42,8 +42,8 @@ FreeBSD继承自`BSD`(`Berkeley Software Distribution`)系列，是正统的Unix
 
 
 # 安装与配置
-FreeBSD官方FTP站点提供了镜像下载，地址为`ftp://ftp.freebsd.org/pub/FreeBSD`。
-`ISO-IMAGES`目录下即为正式发布版本的镜像，选择匹配的`CPU`架构和版本即可。
+[FreeBSD官网](http://ftp.freebsd.org/pub/FreeBSD)提供了镜像下载。
+`ISO-IMAGES`目录下即为正式发布版本的镜像，选择匹配的CPU架构和版本即可。
 
 镜像命名规则如下：
 
@@ -151,7 +151,7 @@ dumpdev="AUTO" //内核错误转储服务
 
 
 # 包管理
-`FreeBSD`同时提供了基于源码编译软件包的`Ports`系统和基于预编译二进制包的`pkg`包管理。
+FreeBSD同时提供了基于源码编译软件包的`Ports`系统和基于预编译二进制包的`pkg`包管理。
 
 ## pkg
 `FreeBSD 10`之后引入了新的`pkg`工具用于管理软件包，常用指令类似与`yum/apt/dnf`：
