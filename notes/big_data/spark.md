@@ -44,6 +44,8 @@
 	- [org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx](#orgapachesparksparkexception-failed-to-get-broadcast_xxx-of-broadcast_xxx)
 	- [java.sql.SQLException: No suitable driver](#javasqlsqlexception-no-suitable-driver)
 	- [RDD transformations and actions are NOT invoked by the driver, but inside of other transformations;](#rdd-transformations-and-actions-are-not-invoked-by-the-driver-but-inside-of-other-transformations)
+	- [java.lang.NoSuchMethodError: net.jpountz.lz4.LZ4BlockInputStream.<init>(Ljava/io/InputStream;Z)V](#javalangnosuchmethoderror-netjpountzlz4lz4blockinputstreaminitljavaioinputstreamzv)
+	- [MySQL的TINYINT类型错误映射到JDBC的Boolean类型](#mysql的tinyint类型错误映射到jdbc的boolean类型)
 
 <!-- /TOC -->
 
@@ -1995,3 +1997,20 @@ Spark应用的transformation/action操作的闭包函数内部再次调用了其
 解决方式：<br>
 将transformation/action操作移至闭包外部，若需要在闭包内访问其它RDD的计算结果应在闭包外部完成计算，
 对于部分数据量较大的内容，应使用广播变量存储。
+
+## java.lang.NoSuchMethodError: net.jpountz.lz4.LZ4BlockInputStream.<init>(Ljava/io/InputStream;Z)V
+问题说明：<br>
+SparkSQL与Spark Streaming Kafka一同使用时提示该错误。
+
+解决方式：<br>
+该问题是由于Spark与Kafka共同依赖了`lz4`库，但依赖的版本不同导致运行时报错。
+以`Spark 2.3`和`Spark Streaming Kafka 0.10`为例，二者分别依赖lz4库的1.4和1.3版本，需要显式指定依赖的版本，
+在sbt构建配置中添加：`"net.jpountz.lz4" % "lz4" % "1.3.0"`。
+
+## MySQL的TINYINT类型错误映射到JDBC的Boolean类型
+问题说明：<br>
+SparkSQL查询MySQL表时，对于类型为`TINYINT(1)`的字段默认会映射到`Boolean`类型。
+
+解决方案：<br>
+修改MySQL中对应字段的定义，将`TINYINT(1)`类型的字段对应的Display Size调整为2以上(`TINYINT(2)`)。
+或者在JDBC连接中设置连接参数`tinyInt1isBit`为false，即JDBC连接URL设为`jdbc:mysql://ip:port/db_name?tinyInt1isBit=false`。
