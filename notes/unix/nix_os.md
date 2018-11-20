@@ -132,3 +132,25 @@ Nix配置修改完成后执行安装操作：
 // 清理所有非激活配置和过时软件包
 # nix-collect-garbage -d
 ```
+
+## Nix Channel
+NixOS中的`Channel`概念上类似与常规发行版的`Mirror`(软件源)。
+使用`nix-channel`指令管理channel：
+
+```c
+$ nix-channel --list //显示当前已配置的channel
+$ nix-channel --add url [name] //添加指定channel
+$ nix-channel --remove name //移除指定channel
+```
+
+NixOS的channel按照维度分类：
+
+- 按照版本分类：**unstable**和**指定版本**
+- 按照包类别分类：**nixos**和**nixpkgs**
+
+```
+nixos https://nixos.org/channels/nixos-unstable
+nixpkgs https://nixos.org/channels/nixpkgs-unstable
+```
+
+在添加Channel时若不指定名称，则按找包类别使用默认名称，例如`nixos-unstable`的Channel名称为`nixos`。
