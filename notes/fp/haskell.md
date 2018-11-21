@@ -205,11 +205,14 @@ let x = 1 + 1 in x * x
 字段`x`在之后的表达式中被使用了两次，但字段x不会被多次计算，而是在首次计算后被存储并用于之后的使用。
 
 Lazy evaluation也被称为`Call by need`，Call by need是Call by name的带有记忆性的变体，
-Call by need的字段在需要时被求值(Call by need)，字段绑定的表达式执行后结果会被存储(Sharing)，
+Call by need的字段在需要时被求值(Call by name)，字段绑定的表达式执行后结果会被存储(Sharing)，
 之后再次访问该字段时，不会再重复执行计算。
 
 在Haskell中，使用名为`Thunk`的数据结构来存储表达式，等到表达式在需要的时刻再执行。
-Thunk包含一个布尔变量用于记录Thunk内包含的表达式是否已被计算过，若已被计算，则直接获取之前的结果，而非重复进行计算。
+Thunk包含一个布尔类型字段用于记录包含的表达式是否已被计算过：
+
+- 若表达式未被计算，则计算并存储结果
+- 若表达式已被计算，则直接获取之前的结果，而非重复进行计算
 
 ## Lazy evaluation 的优劣
 惰性求值的优势：
@@ -273,6 +276,37 @@ CallStack (from HasCallStack):
   error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
   undefined, called at <interactive>:201:5 in interactive:Ghci21
 ```
+
+需要注意，seq和`$!`函数虽然能对指定参数强制求值，但若函数表达式本身未被执行则不会生效。
+修改前文中的代码：
+
+```hs
+main :: IO ()
+main = do
+  let f = (1+) $! error "Error Arg!"
+  print "Before..."
+  let s = f - 1
+  print "After..."
+```
+
+输出结果：
+
+```
+"Before..."
+"After..."
+```
+
+由结果可知，函数正常执行完毕，`$!`函数对异常参数的强制求值并未生效。
+函数体中Monad的do语法糖实际近似如下代码：
+
+```hs
+main :: IO ()
+main =
+  let f = (1+) $! error "Error Arg!" in print "Before..." >>
+    let s = f - 1 in print "After..."
+```
+
+中间字段实际并未被使用，整个表达式没有真正执行，对参数的强制求值也未生效。
 
 
 
