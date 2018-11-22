@@ -1255,6 +1255,44 @@ type synonym families扩展了type关键字定义类型别名的用法，包含�
 	  Family (Maybe a) = Maybe a
 	```
 
+- 在type classes内部使用：
+
+	在type classes内部使用时，语法上同样不需要使用`family`；
+	功能上相当于添加了一个额外的类型参数，创建对应instance时，需要指定对应的实际类型。
+	示例：
+
+	```hs
+	class TypeClass a where
+	  type Family a
+
+	instance TypeClass Int where
+	  type Family Int = Int -- 实现instance时指定具体的类型
+
+	instance TypeClass [a] where
+	  type Family [a] = [a]
+
+	...
+	```
+
+	在type classes内部使用type synonym families，能够替代functional dependencies特性：
+
+	```hs
+	-- 使用 functional dependencies
+	class Collects c e | c -> e where
+	  empty  :: c
+	  insert :: e -> c -> c
+	  member :: e -> c -> Bool
+	  toList :: c -> [e]
+
+	-- 等价于使用 type synonym families
+	class Collects c where
+	  type Elem c
+	  empty  :: c
+	  insert :: Elem c -> c -> c
+	  member :: Elem c -> c -> Bool
+	  toList :: c -> [Elem c]
+	```
+
 
 
 # Concurrent
