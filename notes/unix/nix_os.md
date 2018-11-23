@@ -46,6 +46,36 @@ Nix包管理器支持同时管理、安装一个软件包的多个版本，
 # nix-store --gc --print-dead
 ```
 
+## Nix Channel
+NixOS中的`Channel`概念上类似与常规发行版的`Mirror`(软件源)。
+NixOS的channel按照维度分类：
+
+- 按照版本分类：**unstable**和**指定版本**
+- 按照包类别分类：**nixos**和**nixpkgs**
+
+```sh
+nixos https://nixos.org/channels/nixos-unstable
+nixpkgs https://nixos.org/channels/nixpkgs-unstable
+```
+
+使用`nix-channel`指令管理channel：
+
+```c
+$ nix-channel --list //显示当前已配置的channel
+$ nix-channel --add url [name] //添加指定channel
+$ nix-channel --remove name //移除指定channel
+```
+
+在添加channel时若不指定名称，则按找包类别使用默认名称，例如`nixos-unstable`的channel名称为`nixos`。
+channel名称是**唯一**的，添加名称相同的channel时，后添加的会替换先前的channel。
+
+更新软件包前应先更新channel：
+
+```
+# nixos-channel --update
+# nix-env -u
+```
+
 
 
 # NixOS
@@ -114,7 +144,8 @@ Nix配置修改完成后执行安装操作：
 重新应用配置：
 
 ```c
-# nixos-rebuild siwtch --upgrade
+# nixos-rebuild switch //重新生成配置，并立即切换到新配置
+# nixos-rebuild switch --upgrade //生成配置同时更新系统
 ```
 
 列出所有的配置：
@@ -132,25 +163,3 @@ Nix配置修改完成后执行安装操作：
 // 清理所有非激活配置和过时软件包
 # nix-collect-garbage -d
 ```
-
-## Nix Channel
-NixOS中的`Channel`概念上类似与常规发行版的`Mirror`(软件源)。
-使用`nix-channel`指令管理channel：
-
-```c
-$ nix-channel --list //显示当前已配置的channel
-$ nix-channel --add url [name] //添加指定channel
-$ nix-channel --remove name //移除指定channel
-```
-
-NixOS的channel按照维度分类：
-
-- 按照版本分类：**unstable**和**指定版本**
-- 按照包类别分类：**nixos**和**nixpkgs**
-
-```
-nixos https://nixos.org/channels/nixos-unstable
-nixpkgs https://nixos.org/channels/nixpkgs-unstable
-```
-
-在添加Channel时若不指定名称，则按找包类别使用默认名称，例如`nixos-unstable`的Channel名称为`nixos`。
