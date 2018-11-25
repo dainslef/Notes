@@ -915,9 +915,11 @@ class Override {
 在Scala中，字段名称可以与方法名称**相同**。
 
 - 默认情况下，生成的`setter/getter`方法就与字段同名。
-	手动在代码中创建与`setter/getter`签名相同的方法会导致编译错误。
+手动在代码中创建与`setter/getter`签名相同的方法会导致编译错误。
 - 访问权限为`private[this]`的字段可以手动定义该字段的`setter/getter`方法(编译器不自动合成)。
-- 在实际编码过程中，虽然给`private[this]`的字段定义同名的`setter`、`getter`方法不会报错，但调用过程中会提示错误(如上例子中给num字段赋值会得到错误`reassignment to val`，因此不要手动给字段定义同名的`setter`、`getter`方法)。
+- 在实际编码过程中，虽然给`private[this]`的字段定义同名的`setter`、`getter`方法不会报错，
+但调用过程中会提示错误(如上例子中给num字段赋值会得到错误`reassignment to val`，
+因此不要手动给字段定义同名的`setter`、`getter`方法)。
 
 此外，由于字段名称可以与方法名称相同，因而即使编译器生成了`setter`、`getter`方法，编码者依然可以使用字段名称定义其它签名的重载函数。
 
@@ -1065,7 +1067,6 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 	构造器参数前加上**访问权限修饰符**则生成的方法类似，
 	但方法前会添加对应的访问权限(Scala中的`protected`限定符编译为Java后变为`public`)。
-
 	示例：
 
 	```scala
@@ -1095,7 +1096,6 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 	主构造器的参数中若没有使用`val/val`关键字，则默认修饰为`private[this] val`。
 	编译器默认不会为该参数生成`setter/getter`方法以及私有成员变量，除非被其它成员方法引用。
-
 	示例：
 
 	```scala
@@ -1118,7 +1118,6 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 	当该参数被其它成员方法引用时，编译器会为其生成对应的`final`私有成员变量(但没有生成`setter/getter`)。
 	只要构造器参数没有使用`var`关键字标记，则生成的成员变量就带有`final`属性。
-
 	示例：
 
 	```scala
@@ -2341,7 +2340,7 @@ scala> t.apply //显式调用 apply 方法
 Print test
 ```
 
-在无参`apply`方法带有**泛型参数**时，可以正常使用带有泛型参数的省略形式，如下所示：
+在无参apply方法带有**泛型参数**时，可以正常使用带有泛型参数的省略形式，如下所示：
 
 ```scala
 scala> object Test { def apply[T] { println("Print test") } }
@@ -4364,15 +4363,20 @@ Implicit Class: 100
 
 
 # 求值策略
-Scala中存在三种求值策略：
+常见的编程语言中存在三种求值策略：
 
-1. `Call by Value`，在表达式定义时立即求值，仅在定义时求值**一次**。
-1. `Call by Name`，在表达式调用时求值，每次调用都会对表达式重新求值。
-1. `Call bt Need`，在表达式首次调用时求值，仅在首次被访问时求值**一次**。
+1. `Call by value`，在表达式定义时立即求值，仅在定义时求值**一次**。
+1. `Call by name`，在表达式调用时求值，每次调用都会对表达式重新求值。
+1. `Call by need`/`Lazy evaluation`，在表达式首次调用时求值，仅在首次被访问时求值**一次**。
 
-使用`val/var`定义字段时即为即为直接求值，字段值在定义时即被确定；
-使用`val/var`定义字段时若搭配`lazy`关键字，则字段在首次被访问时求值；
-使用`def`定义无参方法时即为传名调用，方法在调用时才会求值，且每次调用重新求值。
+Call by need是Call by name的带有记忆性的变体，Call by need的字段在需要时被求值，
+字段绑定的表达式执行后结果会被存储，之后再次访问该字段时，不会再重复执行计算。
+
+在Scala中，Call by value是默认行为，
+函数参数以及使用`val/var`定义字段时即为即为直接求值，此类字段值在定义时即被确定；
+使用`lazy val`定义的字段(var与lazy不能搭配使用)为Call by need，此类字段在首次被访问时求值；
+使用`def`定义的字段(无参方法)、传名参数为Call by name，此类字段在调用时才会求值，且每次调用重新求值。
+
 示例：
 
 ```scala
@@ -4420,12 +4424,12 @@ Call test1
 test0: 23333, test1: 66666, test2: 44444
 ```
 
-`Call by Value`的字段`test0`在定义时值已被确定，仅在定义时求值一次，三次输出结果相同；
-`Call by Name`的字段`test1`在每次调用时重新求值，三次输出结果不同；
-`Call by Need`的字段`test2`在首次被访问时进行求值，两次输出结果相同。
+Call by value的字段`test0`在定义时值已被确定，仅在定义时求值一次，三次输出结果相同；
+Call by name的字段`test1`在每次调用时重新求值，三次输出结果不同；
+Call by need的字段`test2`在首次被访问时进行求值，两次输出结果相同。
 
 ## 参数的求值策略
-与大多数编程语言类似，Scala中的方法、函数的参数默认即为`Call by Value`，参数在传入时立即求值，如下所示：
+与大多数编程语言类似，Scala中的方法参数默认即为Call by value，参数在传入时立即求值，如下所示：
 
 ```scala
 scala> def show(num: Int) {
@@ -4447,7 +4451,7 @@ num: 23333
 
 做为参数的代码块在传入方法时便已被执行，参数代码块仅执行一次。
 
-使用`By-name parameter`(**传名参数**)特性可以使方法参数变为`Call by Name`。
+使用`By-name parameter`(**传名参数**)特性可以使方法参数变为Call by Name。
 传名参数语法为在类型前添加`=>`操作符，上述例子改用传名参数，如下所示：
 
 ```scala
@@ -4474,7 +4478,7 @@ num: 23333
 每次访问传名参数时都重新进行求值。
 
 ## && 与 || 运算符
-在传统编程语言中，双目运算符`&&`、`||`具有`Call by Name`特性：
+在传统编程语言中，双目运算符`&&`、`||`具有Call by name特性：
 
 - 若`&&`运算符左侧表达式值为`false`，则右侧表达式不被执行。
 - 若`||`运算符左侧表达式值为`true`，则右侧表达式不被执行。
@@ -4503,7 +4507,7 @@ object Main extends App {
 }
 ```
 
-在`C++`中，代码**近似**于：
+在C++中，代码**近似**于：
 
 ```cpp
 #include <iostream>
@@ -4545,7 +4549,7 @@ expr2_1
 
 	编写自定义方法`and()`、`or()`在不使用内建`&&`、`||`的情况下模拟`&&`、`||`运算符。
 
-	若使用`Call by Value`，如下所示：
+	使用默认求值策略(Call by value)，如下所示：
 
 	```scala
 	object Main extends App {
@@ -4585,9 +4589,9 @@ expr2_1
 	```
 
 	输出结果中`and()`、`or()`方法右侧的表达式已被执行。
-	在`Call by Value`的求值策略下，参数一经传入便已被求值，不符合`&&`、`||`运算符逻辑。
+	在Call by value求值策略下，参数一经传入便已被求值，不符合`&&`、`||`运算符逻辑。
 
-	将源码修改为`Call by Name`：
+	使用传名参数(Call by name)：
 
 	```scala
 	object Main extends App {
@@ -4624,7 +4628,7 @@ expr2_1
 	expr2_1
 	```
 
-	使用`Call by Name`求值策略下，右侧表达式并未执行，符合`&&`、`||`运算符逻辑。
+	在Call by name求值策略下，右侧表达式并未执行，符合`&&`、`||`运算符逻辑。
 
 
 
@@ -4769,7 +4773,8 @@ scala> test[Other](null)
 使用`Lower Type Bounds`可以将传入的更细粒度的类型转换为更粗粒度的类型。
 
 ## View Bounds (视图界定)
-`View Bounds`(视图界定)相比普通类型约束更加**宽松**，类型参数不必自身满足类型约束，仅需类型参数能被**隐式转换**为满足类型约束的类型。
+`View Bounds`(视图界定)相比普通类型约束更加**宽松**，类型参数不必自身满足类型约束，
+仅需类型参数能被**隐式转换**为满足类型约束的类型。
 
 视图界定语法为`T <% Xxx`，可用于方法定义与类型定义。
 与类型界定不同，**不存在**`T >% Xxx`这样的语法。
@@ -5177,7 +5182,7 @@ object Main extends App {
 ```
 
 TypeClass是`Haskell`等FP语言实现参数化多态的主要方式。
-在`Haskell`中，上述代码近似于：
+在Haskell中，上述代码近似于：
 
 ```hs
 {-# LANGUAGE FlexibleInstances #-}
@@ -5210,7 +5215,7 @@ Int Type Class: 233
 String Type Class: 666
 ```
 
-`C++`中的**模板特化**功能上亦与TypeClass类似。
+C++中的**模板特化**功能上亦与TypeClass类似。
 
 
 
@@ -5327,10 +5332,10 @@ String Type Class: 666
 	...
 	```
 
- 	- `Duration` (时间类型)
+ 	- Duration (时间类型)
 
 		时间参数类型为`Duration`，为抽象类，完整路径为`scala.concurrent.duration.Duration`。
-		`Duration`的伴生对象内定义了`apply()`方法，声明如下：
+		Duration的伴生对象内定义了`apply()`方法，声明如下：
 
 		```scala
 		def apply(length: Long, unit: TimeUnit): FiniteDuration
@@ -5362,7 +5367,7 @@ String Type Class: 666
 		诸如此类...
 		在`scala.concurrent.duration.DurationConversions`特质中定义了完整的转化语法。
 
-- *blocking* (阻塞块)
+- blocking (阻塞块)
 
 	`Future`是异步执行的，不会阻塞基础的执行线程。但在某些情况下，阻塞是必要的，需要区别两种形式的执行线程阻塞：
 
@@ -5443,6 +5448,7 @@ String Type Class: 666
 	import scala.concurrent.ExecutionContext.Implicits.global
 
 	object Main extends App {
+
 	  for (n <- 0 to 30)
 	    Future {
 	      println(s"Index: $n Thread before blocking: ${Thread.currentThread.getName}")
@@ -5634,7 +5640,8 @@ object Async {
 }
 ```
 
-- `async`用法类似`Future`的`apply()`方法，接收传名参数`body`作为异步执行的内容，接收隐式参数`execContext`作为执行器。
+- `async`用法类似`Future`的`apply()`方法，
+接收传名参数`body`作为异步执行的内容，接收隐式参数`execContext`作为执行器。
 - `await`只能用在`async`代码块中，作用类似`Await.result()`方法。
 
 `async`利用了Scala的宏机制，`await`本质上是`async`代码块中的一个关键字。
@@ -5697,15 +5704,15 @@ object TestSync {
 
 
 # Reflect (反射)
-`Scala 2.10`之后提供了自身的反射相关`API`。
+`Scala 2.10`之后提供了自身的反射相关API。
 
-Java标准库中的反射`API`不支持Scala的专有语言特性。
-Scala自身提供的反射`API`能完整地支持所有Scala语言特性。
+Java标准库中的反射API不支持Scala的专有语言特性。
+Scala自身提供的反射API能完整地支持所有Scala语言特性。
 
-到目前版本(`Scala 2.12`)为止，反射相关功能依然是`Expermental`(**实验性**)的，相关`API`在后续版本中可能会有较大改动。
+到目前版本(`Scala 2.12`)为止，反射相关功能依然是`Expermental`(**实验性**)的，相关API在后续版本中可能会有较大改动。
 
 ## 反射机制相关类型
-反射`API`相关的类型定义在包路径`scala.reflect.runtime.universe`中。
+反射API相关的类型定义在包路径`scala.reflect.runtime.universe`中。
 
 ### Type
 `Type`类型包含类型内的成员信息(定义的字段`fields`、方法`methods`、类型别名`type aliases`等)、类型继承关系、基类信息等。
@@ -5942,7 +5949,8 @@ Scala中的注解语法与Java中类似。
 `Scala 2.10`之前，Scala并未提供自定义注解功能，自定义注解需要在Java源码中进行。
 `Scala 2.10`开始，作为`Reflect`功能的一部分，Scala提供了自定义注解支持。
 
-与反射相关功能类似，到目前版本(`Scala 2.12`)为止，注解相关功能依然是`Expermental`(**实验性**)的，注解相关`API`一直处于变化中。
+与反射相关功能类似，到目前版本(`Scala 2.12`)为止，注解相关功能依然是`Expermental`(**实验性**)的，
+注解相关API一直处于变化中。
 
 Scala中的自定义注解不是**接口/特质**，而是**类**。
 自定义注解需要从注解特质中继承，Scala中提供了两类注解特质：
@@ -5979,7 +5987,7 @@ class Test
 ```
 
 ## 解析注解
-通过反射机制获取注解信息，相关`API`位于`scala.reflect.runtime.universe`包路径下。
+通过反射机制获取注解信息，相关API位于`scala.reflect.runtime.universe`包路径下。
 
 获取注解：
 
@@ -6003,7 +6011,8 @@ class Test
 	1. 通过`Symbol.annotations`获取`List[Annotation]`(注解列表)。
 
 Scala注解类型为`scala.reflect.runtime.universe.Annotation`。
-在`Scala 2.11`之前，`Annotation`类型提供了`scalaArgs/javaArgs`等无参方法用于获取注解信息，但在`Scala 2.11`版本中，这些方法已被标记为`deprecated`。
+在`Scala 2.11`之前，`Annotation`类型提供了`scalaArgs/javaArgs`等无参方法用于获取注解信息，
+但在`Scala 2.11`版本中，这些方法已被标记为`deprecated`；
 应使用`Annotation.tree`方法获取注解语法树，类型为`scala.reflect.runtime.universe.Tree`。
 
 示例：
