@@ -28,6 +28,7 @@
 - [Type Families](#type-families)
 	- [Data Families](#data-families)
 	- [Type Synonym Families](#type-synonym-families)
+	- [Type Families Kind](#type-families-kind)
 - [Concurrent](#concurrent)
 	- [Async 包](#async-包)
 - [RankNTypes](#rankntypes)
@@ -1292,6 +1293,50 @@ type synonym families扩展了type关键字定义类型别名的用法，包含�
 	  member :: Elem c -> c -> Bool
 	  toList :: c -> [Elem c]
 	```
+
+## Type Families Kind
+使用`data family`、`type family`关键字定义类型族时，可追加可选的Kind签名。
+
+未显式指定Kind时，默认Kind为`*`：
+
+```hs
+-- 常规 type families 定义
+data family DataFamily a
+type family TypeFamily a
+
+-- 等价于以下定义：
+data family DataFamily a :: *
+type family TypeFamily a :: *
+
+-- 在 type classes 中的定义类似
+class TypeClass a where
+  data DataFamily a
+  type TypeFamily a
+
+-- 等价于以下定义：
+class TypeClass a where
+  data DataFamily a :: *
+  type TypeFamily a :: *
+```
+
+使用显式Kind定义：
+
+```hs
+-- 接收单个类型参数
+data family KindA1 a
+-- 使用 Kind 声明
+data family Kind1 :: * -> *
+
+-- 接收两个类型参数
+data family KindAB2 a b
+-- 使用 Kind 声明
+data family Kind2 :: * -> * -> *
+-- 同时使用类型参数和 Kind 声明
+data family KindA2 a :: * -> *
+
+-- 依此类推
+...
+```
 
 
 
