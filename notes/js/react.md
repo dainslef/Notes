@@ -1,20 +1,49 @@
-## 简介
+<!-- TOC -->
+
+- [简介](#简介)
+- [安装与配置](#安装与配置)
+	- [create-react-app](#create-react-app)
+	- [项目结构](#项目结构)
+- [JSX](#jsx)
+	- [引用表达式](#引用表达式)
+	- [设置节点属性](#设置节点属性)
+	- [闭合、嵌套标签](#闭合嵌套标签)
+- [Component (组件)](#component-组件)
+	- [组件命名](#组件命名)
+	- [Functional Component](#functional-component)
+	- [ES6 Component](#es6-component)
+	- [组合组件](#组合组件)
+	- [State (组件状态)](#state-组件状态)
+	- [Lifecycle Methods (生命周期方法)](#lifecycle-methods-生命周期方法)
+- [路由](#路由)
+	- [安装](#安装)
+	- [Router类别](#router类别)
+- [常见错误](#常见错误)
+	- [Uncaught ReferenceError: $ is not defined](#uncaught-referenceerror--is-not-defined)
+	- [Target container is not a DOM element.](#target-container-is-not-a-dom-element)
+
+<!-- /TOC -->
+
+
+
+# 简介
 `React`是`Facebook`开发的一套JavaScript库，提供了组件化的方式来构建`WEB UI`。
 
 官网中提到的React的优势：
 
 - 让创建交互式UI变得简单。为应用的中每个状态创建简单的视图，当状态变化时，React会高效地渲染正确的组件。
-- 封装组件来管理拥有的状态，通过组合组件来构建复杂的UI。使用JaveSript代替模板来编写组件逻辑，开发者可以简单地在程序中传递复杂的数据同时将状态保存在`DOM`之外。
+- 封装组件来管理拥有的状态，通过组合组件来构建复杂的UI。使用JaveSript代替模板来编写组件逻辑，
+开发者可以简单地在程序中传递复杂的数据同时将状态保存在`DOM`之外。
 - React不仅仅可用于构建`WEB UI`，还有用于移动端的`React Native`。
 
 
 
-## 安装与配置
-推荐使用`npm`来创建React项目，管理项目依赖。  
+# 安装与配置
+推荐使用`npm`来创建React项目，管理项目依赖。
 React项目需要使用的`JSX`扩展语法不能被浏览器原生支持，需要配置`Babel`转译为普通的JavaScript代码。
 
-### 使用 *create-react-app* 创建项目
-直接配置React项目较为复杂，`Facebook`为React项目提供了官方的项目创建工具`create-react-app`。  
+## create-react-app
+直接配置React项目较为复杂，`Facebook`为React项目提供了官方的项目创建工具`create-react-app`。
 使用`npm`安装：
 
 ```
@@ -36,7 +65,7 @@ $ npm test //启动测试服务器
 $ npm run build //构建项目的生产版本(Release)，输出到项目根目录的 build 路径下
 ```
 
-### 项目结构
+## 项目结构
 使用`create-react-app`新创建的React项目具有以下结构：
 
 ```
@@ -57,7 +86,7 @@ $ npm run build //构建项目的生产版本(Release)，输出到项目根目�
 
 其中，`index.html`为单页应用的主页，`index.js`为React应用的入口。
 
-`index.html`中使用`id`标记一个节点，使用`ReactDOM.render()`方法渲染该节点。  
+`index.html`中使用`id`标记一个节点，使用`ReactDOM.render()`方法渲染该节点。
 简单的`Hello World`例子如下所示：
 
 (页面)
@@ -92,25 +121,25 @@ ReactDOM.render(
 
 
 
-## *JSX*
-React扩展了JavaScript语法，允许在JavaScript代码中直接使用类XML语法，被称为`JSX`。  
-React的`JSX`类似于Scala的`XML Literal`，XML语句可直接作为变量或参数。  
-如下所示：
+# JSX
+React扩展了JavaScript语法，允许在JavaScript代码中直接使用类XML语法，被称为`JSX`。
+React的`JSX`类似于Scala的`XML Literal`，XML语句可直接作为变量或参数。
+示例：
 
 ```jsx
 const element = <h1>xxx</h1>
 ```
 
-### 在 *JSX* 中引用表达式
-使用`{}`(**花括号**)在JSX标签中嵌入JavaScript表达式。  
-如下所示：
+## 引用表达式
+使用`{}`(**花括号**)在JSX标签中嵌入JavaScript表达式。
+示例：
 
 ```jsx
 const name = "Dainslef"
-const element = <h1>Hello, my name is {name} !</h1>
+const element = <h1>Hello, my name is {name}!</h1>
 ```
 
-### 在 *JSX* 中设置节点属性
+## 设置节点属性
 使用具体的字符串作为JSX标签属性：
 
 ```jsx
@@ -126,7 +155,7 @@ const src = "/resource/xxx.jpg"
 const element2 = <img src={src}></img>
 ```
 
-### 闭合、嵌套标签
+## 闭合、嵌套标签
 与XML类似，JSX使用`<Xxx/>`语法表示自闭合的标签：
 
 ```jsx
@@ -136,7 +165,7 @@ const element = <img src="/resource/xxx.jpg" />
 JSX标签可以相互嵌套，如下所示：
 
 ```jsx
-const element = 
+const element =
 	<div>
 		<h1>Hello!</h1>
 		<h2>Good to see you here.</h2>
@@ -145,21 +174,21 @@ const element =
 
 
 
-## 组件
-**组件**是React的核心。
+# Component (组件)
+**组件**(Component)是React的核心。
 
-组件的概念类似于JavaScript中的**函数**。  
+组件的概念类似于JavaScript中的**函数**。
 组件接收输入的属性(保存在`props`中)，返回React对象，用以描述需要在屏幕中显示的内容。
 
 React使用组件机制将HTML代码块封装为可复用的组件，通过一个个组件组合构成复杂的WEB应用。
 
-### 组件命名
-在React中，自定义组件名称应以大写字母开始。  
+## 组件命名
+在React中，自定义组件名称应以大写字母开始。
 React将小写字母开始的组件视为`DOM`标签。
- 
+
 例如，`<div />`代表`HTML`中的`div`标签，但`<Component />`代表名为`Component`的自定义组件。
 
-### *Functional Component*
+## Functional Component
 定义组件最简单的方式是直接使用JavaScript中的函数：
 
 ```jsx
@@ -180,10 +209,10 @@ const MyComponent = props => <img src={props.src} alt={props.alt} />
 
 直接使用JavaScript函数定义的组件被称为`Functional Component`(函数式组件)。
 
-### *ES6 Component*
-组件支持使用`ES6`新特性`class`进行定义。  
-自定义组件类从`React.Component`类型中继承，通过实现`render()`成员方法来描述组件的内容。  
-如下所示：
+## ES6 Component
+组件支持使用ES6新特性`class`进行定义。
+自定义组件类从`React.Component`类型中继承，通过实现`render()`成员方法来描述组件的内容。
+示例：
 
 ```jsx
 class MyComponent extends Component {
@@ -194,8 +223,8 @@ class MyComponent extends Component {
 <MyComponent />
 ```
 
-组件属性保存在`props`属性中，通过`this.props.属性名`进行访问。  
-如下所示：
+组件属性保存在`props`属性中，通过`this.props.属性名`进行访问。
+示例：
 
 ```jsx
 class MyComponent extends Component {
@@ -206,9 +235,9 @@ class MyComponent extends Component {
 <MyComponent src="/resource/xxx.jpg" alt="test"/>
 ```
 
-### 组合组件
-组件标签之间可以相互组合。  
-如下所示：
+## 组合组件
+组件标签之间可以相互组合。
+示例：
 
 ```jsx
 class Image extends Component {
@@ -247,9 +276,9 @@ class MyComponent extends Component {
 }
 ```
 
-### *State* (组件状态)
-`state`字段在React组件中具有特殊意义。  
-在组件类中定义`state`字段来保存组件的本地状态(`Local State`)。  
+## State (组件状态)
+`state`字段在React组件中具有特殊意义。
+在组件类中定义`state`字段来保存组件的本地状态(`Local State`)。
 
 `Functional Component`(函数式组件)自身是无状态的，组件需要保存本地状态应使用`ES6 Component`。
 
@@ -300,7 +329,7 @@ this.setState({ myState1: xxx })
 
 使用`setState()`方法更新组件状态，对应组件所属的DOM会重新渲染。
 
-在React中更新组件状态是**异步**(`Asynchronous`)的，出于性能考虑，React可能会将多个状态更新方法(`setState()`)合并到一次更新中。  
+在React中更新组件状态是**异步**(`Asynchronous`)的，出于性能考虑，React可能会将多个状态更新方法(`setState()`)合并到一次更新中。
 当一个状态依赖于多个之前的状态时，不应简单地直接使用`setState()`更新状态，如下所示：
 
 ```jsx
@@ -323,12 +352,12 @@ this.setState((prevState, props) => {
 })
 ```
 
-### *Lifecycle Methods* (生命周期方法)
-在组件的生命周期中，首次被渲染为DOM时，在React中被称为**挂载**(`mounting`)；  
+## Lifecycle Methods (生命周期方法)
+在组件的生命周期中，首次被渲染为DOM时，在React中被称为**挂载**(`mounting`)；
 在组件被从DOM树中移除时，在React中被称为**卸载**(`unmounting`)。
 
-通过在组件类中定义`componentDidMount()`、`componentWillUnmount()`方法可在组件挂载、卸载时添加额外的逻辑。  
-如下所示：
+通过在组件类中定义`componentDidMount()`、`componentWillUnmount()`方法可在组件挂载、卸载时添加额外的逻辑。
+示例：
 
 ```jsx
 class MyComponent extends Component {
@@ -351,8 +380,8 @@ class MyComponent extends Component {
 
 
 
-## 路由
-React项目提供了官方的路由组件`React Router`。  
+# 路由
+React项目提供了官方的路由组件`React Router`。
 `React Router`当前主流的版本为`3.x`和`4.x`，`4.x`的API相对`3.x`有较大改动，笔记以`4.x`的API为准。
 
 `React Router`拥有两个实现：
@@ -360,7 +389,7 @@ React项目提供了官方的路由组件`React Router`。
 - 基于DOM，用于WEB开发的`React Router DOM`
 - 用于移动开发的`React Router Native`
 
-### 安装
+## 安装
 `React Router`并未直接包含在React中，需要使用npm单独安装：
 
 ```
@@ -368,17 +397,17 @@ $ npm install react-router-dom //React Router DOM
 $ npm install react-router-native //React Router Native
 ```
 
-### *Router* 类别
+## Router类别
 根据使用场景的区别，`React Router`提供了以下几类Router：
 
 - `BrowserRouter`
 
-	BrowserRouter使用HTML5提供的`history API`(`pushState()`, `replaceState()`、`popstate`事件)来保持UI和URL的同步。  
+	BrowserRouter使用HTML5提供的`history API`(`pushState()`, `replaceState()`、`popstate`事件)来保持UI和URL的同步。
 	BrowserRouter常用于支持HTML5的现代浏览器中。
 
 - `HashRouter`
 
-	HashRouter使用URL的`hash`(如：`window.location.hash`)来保持UI和URL的同步。  
+	HashRouter使用URL的`hash`(如：`window.location.hash`)来保持UI和URL的同步。
 	HashRouter用在不支持HTML5的旧式浏览器中。
 
 - `StaticRouter`
@@ -387,10 +416,10 @@ $ npm install react-router-native //React Router Native
 
 - `MemoryRouter`
 
-	MemoryRouter将历史URL保存在内存中(不从地址栏中读取/写入URL)。  
+	MemoryRouter将历史URL保存在内存中(不从地址栏中读取/写入URL)。
 	MemoryRouter常用于测试环境或非浏览器环境(如`React Native`)。
 
-将需要使用路由功能的组件置于`<Router />`标签内部。  
+将需要使用路由功能的组件置于`<Router />`标签内部。
 通常直接将页面的根组件置于`<Router />`标签中：
 
 ```jsx
@@ -412,10 +441,10 @@ ReactDOM.render(
 
 
 
-## 常见错误
+# 常见错误
 React开发中的踩坑记录。
 
-### *Uncaught ReferenceError: $ is not defined*
+## Uncaught ReferenceError: $ is not defined
 使用`Webpack`打包，不能以常规方式使用JQuery，需要在Webpack配置中使用JQuery插件：
 
 ```js
@@ -425,11 +454,11 @@ new webpack.ProvidePlugin({
 })
 ```
 
-### *Target container is not a DOM element.*
-在`React`项目中，使用`Webpack`打包生成js文件时，生成的js文件应在主Html文件的最后(至少需要在被渲染的元素出现之后)导入。  
+## Target container is not a DOM element.
+在`React`项目中，使用`Webpack`打包生成js文件时，生成的js文件应在主Html文件的最后(至少需要在被渲染的元素出现之后)导入。
 若在`<head>`标签中导入生成的js，React执行时会出现`Target container is not a DOM element.`错误，
-原因是加载js时DOM尚未创建完毕。  
-如下所示：
+原因是加载js时DOM尚未创建完毕。
+示例：
 
 ```html
 <!DOCTYPE html>
