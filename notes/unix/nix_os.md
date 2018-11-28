@@ -25,6 +25,9 @@ Nix包管理器支持同时管理、安装一个软件包的多个版本，
 // 安装软件包
 # nix-env -i [软件包名称]
 # nix-env --install [软件包名称]
+# nix-env -iA [channel名称.包名称] //使用完整名称安装软件包，可避免歧义
+# nix-env -iv [软件包名称] //安装软件包时输出详细日志，便于发现错误
+
 // 移除软件包
 # nix-env -e [软件包名称]
 # nix-env --uninstall [软件包名称]
@@ -93,7 +96,7 @@ channel名称是**唯一**的，添加名称相同的channel时，后添加的�
 以fdisk工具为例，三个分区的分区类型(partiton table)和分区路径配置如下：
 
 | 分区路径 | 分区类型(类型编号) | 分区作用 | 推荐大小 | 文件系统 |
-| :- | :- |
+| :- | :- | :- | :- | :- |
 | /dev/sda1 | EFI System (1) | 存放引导器 | 200MB | FAT32(vfat) |
 | /dev/sda2 | Linux swap (19) | 虚拟内存 | 1～2倍内存大小 | / |
 | /dev/sda3 | Linux filesystem (20) | 主要分区 | 20GB+ | EXT4/XFS/BTRFS |
@@ -163,3 +166,17 @@ Nix配置修改完成后执行安装操作：
 // 清理所有非激活配置和过时软件包
 # nix-collect-garbage -d
 ```
+
+## 用户配置
+在`users.users`配置项中设定用户相关配置。
+
+```sh
+users.users.[用户名] = {
+  isNormalUser = true; # 设定是否为普通用户，普通用户才拥有独立的家目录和用户组
+  home = "家目录"; # 默认家目录为"/home/用户名"，有特殊需求可使用此配置指定家目录
+  description = "用户简介";
+  extraGroups = ["wheel" "networkmanager"]; # 为用户添加额外的用户组
+};
+```
+
+要使用户能使用`sudo`，需要将用户加入`wheel`(管理员)用户组中。
