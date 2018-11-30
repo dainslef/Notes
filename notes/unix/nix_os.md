@@ -21,6 +21,8 @@ Nix包管理器支持同时管理、安装一个软件包的多个版本，
 // 查询软件包
 # nix-env -q [软件包名称]
 # nix-env -qa
+// 查询名称中包含指定字段的软件包
+# nix-env -qa '.*软件包名称.*'
 
 // 安装软件包
 # nix-env -i [软件包名称]
@@ -36,6 +38,8 @@ Nix包管理器支持同时管理、安装一个软件包的多个版本，
 # nix-env -u
 // 更新指定软件包
 # nix-env -u '软件包'
+// 查看可升级的软件包
+# nix-env -u --dry-run
 ```
 
 使用`nix-env -e`删除的软件包并为真正的删除软件包本体，而是移除了到该软件包的软链接。
@@ -180,3 +184,24 @@ users.users.[用户名] = {
 ```
 
 要使用户能使用`sudo`，需要将用户加入`wheel`(管理员)用户组中。
+
+## 设置默认Shell
+默认配置下使用`bash`做为普通用户的默认shell，要使用其它shell应在configuration.nix配置中开启需要使用的shell，
+常见的shell如下：
+
+```sh
+programs.zsh.enable = true; # ZSH
+programs.fish.enable = true; # fish
+```
+
+启用了需要的shell后，修改configuration.nix中的**用户配置**。
+以fish为例：
+
+```sh
+programs.fish.enable = true;
+
+users.users.[用户名] = {
+  ...
+  shell = pkgs.fish;
+};
+```
