@@ -83,6 +83,38 @@ channel名称是**唯一**的，添加名称相同的channel时，后添加的�
 # nix-env -u
 ```
 
+## Unfree
+NixOS软件源中收录了部分Unfree的软件包，如`Chrome`、`Visual Studio Code`等，
+此类软件包因为许可证问题，默认不可被安装。
+
+临时允许unfree软件安装，安装时需要将`allowUnfree`属性置为true：
+
+```
+# nix-env -iA nixos.vscode --arg config '{ allowUnfree = true; }'
+```
+
+全局允许unfree软件安装，需要在configuration.nix配置中设定`nixpkgs.config.allowUnfree`属性：
+
+```sh
+nixpkgs.config.allowUnfree = true;
+```
+
+configuration.nix配置中的unfree配置能允许在`environment.systemPackages`配置项中加入unfree软件包，如：
+
+```sh
+environment.systemPackages = with pkgs; [ vscode ];
+```
+
+Nix包管理器对于每个用户拥有独立的配置，全局的unfree配置并不会对具体的某个用户生效，
+要使某个用户能够使用`nix-env -i`安装unfree软件包，则需要编辑用户的Nix配置`~/.config/nixpkgs/config.nix`，
+在该配置文件中加入：
+
+```sh
+{
+  allowUnfree = true;
+}
+```
+
 
 
 # NixOS
