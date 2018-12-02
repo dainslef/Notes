@@ -217,7 +217,7 @@ users.users.[用户名] = {
 
 要使用户能使用`sudo`，需要将用户加入`wheel`(管理员)用户组中。
 
-## 设置默认Shell
+## 默认Shell配置
 默认配置下使用`bash`做为普通用户的默认shell，要使用其它shell应在configuration.nix配置中开启需要使用的shell，
 常见的shell如下：
 
@@ -237,3 +237,19 @@ users.users.[用户名] = {
   shell = pkgs.fish;
 };
 ```
+
+## 字体配置
+configuration.nix配置中常用的字体相关配置：
+
+```sh
+fonts.enableFontDir = true; # 为所有字体在"/run/current-system/sw/share/X11-fonts"路径下创建软连接
+fonts.fonts = with pkgs; [ ... ]; # 配置字体包
+fonts.fontconfig.defaultFonts = {
+  monospace = [ "Xxx" ]; # 等宽字体
+  sansSerif = [ "Xxx" ]; # 无衬线字体
+  serif = [ "Xxx" ]; # 衬线字体
+};
+```
+
+用户自定义字体路径`~/.fonts`已被上游废弃，在NixOS中，将个人字体放置在此路径下不会被加入字体列表。
+取代该路径的用户字体路径是`$XDG_DATA_HOME/fonts`，实际对应路径为`~/.local/share/fonts`。
