@@ -203,6 +203,50 @@ Nix配置修改完成后执行安装操作：
 # nix-collect-garbage -d
 ```
 
+## 系统软件包与服务配置
+在NixOS中，可将常用的软件包配置为系统软件包，在configuration.nix配置中设定`environment.systemPackages`配置项：
+
+```sh
+environment.systemPackages = with pkgs; [
+  git neofetch stack rustup ... # 添加软件包名称
+]
+```
+
+设定的软件包会在`nixos-rebuild`时做为系统软件包自动安装，而不需要手动安装。
+
+对于部分影响系统配置的应用和服务，NixOS中提供了独立的配置项，
+在configuration.nix配置中`programs`、`services`配置段：
+
+```sh
+programs = {
+  fish.enable = true;
+  chromium.enable = true;
+  npm.enable = true;
+  java.enable = true;
+  wireshark.enable = true;
+  vim.defaultEditor = true;
+  ...
+};
+
+services = {
+
+  # 桌面环境配置，以KDE5为例
+  xserver = {
+    enable = true;
+    desktopManager.plasma5.enable = true;
+    displayManager.sddm.enable = true;
+  };
+
+  # 数据库配置，以MySQL为例
+  mysql = {
+    enable = true;
+    package = pkgs.mariadb;
+  };
+
+  ...
+};
+```
+
 ## 用户配置
 在`users.users`配置项中设定用户相关配置。
 
@@ -217,7 +261,7 @@ users.users.[用户名] = {
 
 要使用户能使用`sudo`，需要将用户加入`wheel`(管理员)用户组中。
 
-## 默认Shell配置
+## Shell配置
 默认配置下使用`bash`做为普通用户的默认shell，要使用其它shell应在configuration.nix配置中开启需要使用的shell，
 常见的shell如下：
 
