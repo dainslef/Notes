@@ -224,15 +224,17 @@ Spark当前支持以下集群管理器：
 基本指令语法：
 
 ```c
-$ spark-submit [spark-submit指令参数...] [用户Spark应用(*.jar)] [用户Spark应用参数]
+$ spark-submit [spark-submit指令参数...] [用户Spark应用(*.jar)] [用户Spark应用参数...]
 ```
+
+用户参数应放在整条指令的末尾，否则会被做为spark-submit指令参数解析，同时用户应用参数需要避免与指令参数名称相冲突。
 
 指令参数：(取自Spark 2.3.0)
 
 | 参数 | 功能 |
 | :- | :- |
 | --master MASTER_URL | 设置Spark集群Master节点的URL(如`spark://host:port`、`mesos://host:port`、`yarn`)，默认值为`locale[*]` |
-| --deploy-mod DEPLOY_MODE | 设置启动driver在本地启动(`client`)，或在集群的某个工作节点中启动(`cluster`)，默认值为`client` |
+| --deploy-mode DEPLOY_MODE | 设置启动driver在本地启动(`client`)，或在集群的某个工作节点中启动(`cluster`)，默认值为`client` |
 | --class CLASS_NAME | 设置driver的主类 |
 | --jars JARS | 以逗号分隔的方式列出所有使用的JAR包，包括driver端和executor的CLASSPATH |
 | --conf PROP=VALUE | 设置任意的Spark配置项 |
@@ -241,7 +243,14 @@ $ spark-submit [spark-submit指令参数...] [用户Spark应用(*.jar)] [用户S
 | --driver-memory MEM | 设置driver分配的内存(如`1000M`、`2G`)，默认值为`1G` |
 | --executor-memory MEM | 设置每个executor分配的内存，默认值为`1G` |
 | --total-executor-cores NUM | 设置executor使用的CPU总核数，默认使用所有可用的CPU核心(该参数仅Standalone/Mesos集群管理器下可用) |
+| --driver-class-path [路径1]:[路径2]:... | 设置driver依赖的库路径 |
 | --executor-cores NUM | 设置每个executor使用的CPU核数。YARN模式下，默认值为`1`；Standalone模式下，默认使用所有可用的CPU核心 |
+
+TIPS：
+
+- 使用Standalone模式时，默认提交会使用所有的可用CPU核心，这会导致一个任务在运行期间占用所有的CPU资源，
+在该任务运行期间提交的其它任务都将处于等待状态。
+- 使用YARN、MESOS等第三方资源管理框架时，Spark UI不会显示执行的任务，需要在对应的资源管理器中查看任务的执行状态。
 
 
 
