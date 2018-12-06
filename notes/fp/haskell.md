@@ -132,7 +132,7 @@ infixr 0 $
 ```hs
 Prelude> print ("abc" ++ "cde") -- 使用括号改变表达式优先级，与传统命令式语言类似
 "abccde"
-Prelude> print $ "abc" ++ "cde" -- 使用 $ 函数改变优先级更符合Haskell代码风格
+Prelude> print $ "abc" ++ "cde" -- 使用"$"函数改变优先级更符合Haskell代码风格
 "abccde"
 ```
 
@@ -1336,6 +1336,33 @@ data family KindA2 a :: * -> *
 
 -- 依此类推
 ...
+```
+
+在同时使用显式Kind定义和类型参数时，类型的实际Kind由二者共同决定(相加)：
+
+```hs
+-- 实际 Kind 为 * -> * -> * -> * ，最大可接收三个类型参数
+data family Kind3 a b :: * -> *
+
+-- 实际 Kind 为 * -> * -> * -> * -> * ，最大可接收四个类型参数
+data family Kind4 a :: * -> * -> * -> *
+
+-- 实际 Kind 为 * -> * -> * -> * -> * -> * ，最大可接收五个类型参数
+data family Kind5 a b c :: * -> * -> *
+
+-- 依此类推
+...
+```
+
+在使用类型时，显式命名的类型参数不可省略，Kind声明部分的Kind类型参数可选：
+
+```hs
+data family Kind a b :: * -> * -- 使用该类型时，a、b两个显式命名的类型参数不可省略
+
+Kind Int Int -- 正确，Kind为 * -> *
+Kind Int Int Int -- 正确，Kind为 *
+Kind IO Int -- 错误，首个类型类型参数的Kind不匹配
+Kind Int -- 错误，缺失第二类型参数
 ```
 
 
