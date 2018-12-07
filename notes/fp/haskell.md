@@ -10,6 +10,7 @@
 	- [Lazy evaluation 的实现](#lazy-evaluation-的实现)
 	- [Lazy evaluation 的优劣](#lazy-evaluation-的优劣)
 	- [强制求值](#强制求值)
+	- [BangPatterns](#bangpatterns)
 - [Type Class](#type-class)
 	- [Multi-parameter Type Classes](#multi-parameter-type-classes)
 	- [Functional Dependencies](#functional-dependencies)
@@ -308,6 +309,45 @@ main =
 ```
 
 中间字段实际并未被使用，整个表达式没有真正执行，对参数的强制求值也未生效。
+
+## BangPatterns
+直接使用`seq`、`$!`等函数对字段进行强制求值较为繁琐，当需要对多个字段强制求值时需要编写大量的冗余代码。
+对此GHC提供了`BangPatterns`扩展：
+
+```hs
+{-# LANGUAGE BangPatterns #-}
+```
+
+开启扩展后，字段前添加`!`操作符即代表对该字段进行严格求值(Strict)。
+`!`操作符可用在多数场景下：
+
+- `let`绑定
+
+	在let绑定时在字段前添加`!`操作符，则绑定时会立即求值：
+
+	```hs
+	-- 默认惰性求值，异常字段只要不使用就不会触发异常
+	Prelude> let n = undefined in print "Lazy"
+	"Lazy"
+
+	-- 使用BangPatterns，异常在字段绑定时触发
+	Prelude> let !n = undefined in print "Strict"
+	*** Exception: Prelude.undefined
+	CallStack (from HasCallStack):
+	  error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
+	  undefined, called at <interactive>:206:10 in interactive:Ghci24
+
+	-- 在do语法糖中同样有效
+	Prelude> :{
+	Prelude| do
+	Prelude|   let !n = undefined
+	Prelude|   print "Strict"
+	Prelude| :}
+	*** Exception: Prelude.undefined
+	CallStack (from HasCallStack):
+	  error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
+	  undefined, called at <interactive>:209:12 in interactive:Ghci24
+	```
 
 
 
