@@ -1219,7 +1219,7 @@ switch (xxx)
 			IAsyncResult result = del.BeginInvoke(ar =>
 			{
 				//异步委托结束时执行该Lambda，打印传入参数
-				Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState);
+				Console.WriteLine("The object arg is: {0}", (int) ar.AsyncState);
 			}, 200);
 
 			Console.WriteLine("Program start...");
@@ -1272,7 +1272,7 @@ switch (xxx)
 
 			//使用BeginInvoke()进行异步委托回调
 			IAsyncResult result = del.BeginInvoke(ar =>
-					Console.WriteLine("The object arg is: {0}", (int)ar.AsyncState), 200);
+					Console.WriteLine("The object arg is: {0}", (int) ar.AsyncState), 200);
 
 			Console.WriteLine("Program start...");
 			if (result.AsyncWaitHandle.WaitOne(1000))

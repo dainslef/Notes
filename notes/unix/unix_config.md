@@ -126,9 +126,17 @@ Windows系统提供的命令行执行DOS系统工具指令。
 > ipconfig
 // 查询完整的网络信息
 > ipconfig /all
+// 查看路由信息
+> route print
 
 // 查看内存信息
 > wmic memorychip
+
+// DirectX诊断工具，可查看系统信息，显卡对DirectX的支持情况
+> dxdiag
+
+// 查看KMS激活剩余时间
+> slmgr.vbs -dlv
 ```
 
 
