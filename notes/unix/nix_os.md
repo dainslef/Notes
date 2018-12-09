@@ -247,6 +247,17 @@ services = {
 };
 ```
 
+NixOS使用`systemd`管理服务的状态，在services配置段中启用的服务默认会开机自启动，且无法修改自启状态。
+启用与禁用services配置段中设定的服务，需要设定`systemd.services`配置段：
+
+```sh
+systemd.services.<name>.enable = true/false;
+...
+
+# 以MySQL服务为例，禁用服务自启
+systemd.services.mysql.enable = false;
+```
+
 ## 用户配置
 在`users.users`配置项中设定用户相关配置。
 
