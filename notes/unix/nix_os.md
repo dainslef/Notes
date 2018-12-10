@@ -308,3 +308,22 @@ fonts.fontconfig.defaultFonts = {
 
 用户自定义字体路径`~/.fonts`已被上游废弃，在NixOS中，将个人字体放置在此路径下不会被加入字体列表。
 取代该路径的用户字体路径是`$XDG_DATA_HOME/fonts`，实际对应路径为`~/.local/share/fonts`。
+
+## 输入法配置
+在configuration.nix配置的`i18n.inputMethod`配置项中设定使用的输入法：
+
+```sh
+i18n.inputMethod = {
+  enabled = "fcitx"; # 使用fcitx输入法
+  fcitx.engines = with pkgs.fcitx-engines; [ libpinyin anthy ];
+};
+```
+
+在Gnome3桌面环境下，推荐使用`iBus`输入法：
+
+```sh
+i18n.inputMethod = {
+  enabled = "ibus"; # 使用ibus输入法
+  ibus.engines = with pkgs.ibus-engines; [ libpinyin anthy ];
+};
+```
