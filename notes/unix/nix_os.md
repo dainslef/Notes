@@ -327,3 +327,39 @@ i18n.inputMethod = {
   ibus.engines = with pkgs.ibus-engines; [ libpinyin anthy ];
 };
 ```
+
+## 桌面配置
+NixOS提供了对各类主流桌面环境的支持，与常规发行版不同，安装桌面环境不是直接通过包管理器直接安装对应桌面相关软件包，
+而是在configuration.nix配置中设定桌面相关配置。
+
+配置各类桌面环境前，需要首先开启`X Window System (X11)`：
+
+```sh
+services.xserver.enable = true;
+```
+
+`services.xserver.desktopManager`配置项设定使用的桌面环境：
+
+```sh
+services.xserver.desktopManager.plasma5.enable = true;
+services.xserver.desktopManager.xfce.enable = true;
+services.xserver.desktopManager.gnome3.enable = true;
+services.xserver.desktopManager.mate.enable = true;
+```
+
+`services.xserver.windowManager`配置项设定使用的窗口管理器：
+
+```sh
+services.xserver.windowManager.xmonad.enable = true;
+services.xserver.windowManager.twm.enable = true;
+services.xserver.windowManager.icewm.enable = true;
+services.xserver.windowManager.i3.enable = true;
+```
+
+`services.xserver.displayManager`配置项设定使用的登陆管理器：
+
+```sh
+services.xserver.displayManager.sddm.enable = true; # SDDM为默认使用的登陆管理器
+services.xserver.displayManager.slim.enable = true;
+services.xserver.displayManager.lightdm.enable = true;
+```
