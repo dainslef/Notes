@@ -19,8 +19,8 @@
 	- [ApplicativeDo](#applicativedo)
 	- [Control.Monad](#controlmonad)
 - [STM](#stm)
-	- [STM概念](#stm概念)
-	- [STM API介绍](#stm-api介绍)
+	- [STM 概念](#stm-概念)
+	- [STM API 介绍](#stm-api-介绍)
 	- [TVar](#tvar)
 	- [TChan](#tchan)
 - [GADTs](#gadts)
@@ -144,6 +144,18 @@ Prelude> print $ "abc" ++ "cde" -- 使用"$"函数改变优先级更符合Haskel
 (.) :: (b -> c) -> (a -> b) -> a -> c 	-- Defined in ‘GHC.Base’
 infixr 9 .
 ```
+
+示例：
+
+```hs
+Prelude> print ("abc" ++ "cde" ++ "efg") -- 使用括号改变表达式优先级，与传统命令式语言类似
+"abccdeefg"
+Prelude> print $ "abc" ++ "cde" ++ "efg" -- 使用"$"函数改变优先级更符合Haskell代码风格
+"abccdeefg"
+Prelude> print . ("abc"++) . ("cde"++) $ "efg" --使用"."组合函数
+```
+
+`.`函数常用于`Pointfree`风格中，通过函数组合来代替多个连续的函数调用。
 
 
 
@@ -347,6 +359,32 @@ main =
 	CallStack (from HasCallStack):
 	  error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
 	  undefined, called at <interactive>:209:12 in interactive:Ghci24
+	```
+
+- 类型构造器
+
+	在类型构造器的参数前添加`!`操作符，则使用构造器时会对该参数强制求值：
+
+	```hs
+	-- 定义一个ADT，分别带有惰性求值和严格求值的构造器
+	Prelude> data Data = Lazy String | Strict !String deriving Show
+	-- 处理该类数据
+	Prelude> :{
+	Prelude| dealData :: Data -> String
+	Prelude| dealData (Lazy _) = "Lazy"
+	Prelude| dealData (Strict _) = "Strict"
+	Prelude| :}
+
+	-- 惰性求值，使用异常字段构造数据，异常字段未被使用，正常输出结果
+	Prelude> dealData $ Lazy undefined
+	"Lazy"
+
+	-- 严格求值，使用异常字段构造数据，构造时立即触发异常
+	Prelude> dealData $ Strict undefined
+	"*** Exception: Prelude.undefined
+	CallStack (from HasCallStack):
+	  error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
+	  undefined, called at <interactive>:247:19 in interactive:Ghci35
 	```
 
 
@@ -844,7 +882,7 @@ app2 = do
 `STM`全称`Software Transactional Memory`(软件事务内存)，是一种对并发通信的模块化(modular)、可组合(composable)的抽象。
 相对与锁/MVars，STM能够在不暴露抽象如何保证安全性细节的前提下，简单地与其它使用STM的抽象相组合。
 
-## STM概念
+## STM 概念
 在经典的并发编程模型中，对于共享变量进行跨线程的修改通常需要通过加锁保证数据的读写一致性，
 然而常规的基于锁的并发模型对于开发者而言有较大的心智负担，对锁的不当操作会引起死锁等问题。
 
@@ -857,7 +895,7 @@ app2 = do
 
 事务操作具有隔离性(isolated)，以此来规避锁问题。
 
-## STM API介绍
+## STM API 介绍
 `Control.Monad.STM`模块提供了STM结构定义和Monad变换操作；
 `Control.Concurrent.STM`模块提供了STM相关容器的实现。
 
