@@ -1,3 +1,24 @@
+<!-- TOC -->
+
+- [Nix package manager](#nix-package-manager)
+	- [多版本管理](#多版本管理)
+	- [基本指令](#基本指令)
+	- [Nix Channel](#nix-channel)
+	- [Unfree](#unfree)
+- [NixOS](#nixos)
+	- [安装](#安装)
+	- [配置管理](#配置管理)
+	- [系统软件包与服务配置](#系统软件包与服务配置)
+	- [用户配置](#用户配置)
+	- [Shell配置](#shell配置)
+	- [字体配置](#字体配置)
+	- [输入法配置](#输入法配置)
+	- [桌面配置](#桌面配置)
+
+<!-- /TOC -->
+
+
+
 # Nix package manager
 `Nix package manager`是纯函数式(purely functional)的包管理器，
 Nix像纯函数式语言(如Haskell)处理值一样对待软件包：通过无副作用(no side-effects)的纯函数来构建，在构建完成后就不再改变。

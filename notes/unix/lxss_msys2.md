@@ -1,3 +1,5 @@
+<!-- TOC -->
+
 - [MSYS2 概述](#msys2-概述)
 	- [下载与安装](#下载与安装)
 	- [配置仓库与源](#配置仓库与源)
@@ -7,8 +9,10 @@
 - [Linux Subsystem 概述](#linux-subsystem-概述)
 	- [启用 Linux Subsystem](#启用-linux-subsystem)
 	- [管理 Linux Subsystem](#管理-linux-subsystem)
-	- [Build 1709](#build-1709)
+	- [Windows Build 1709](#windows-build-1709)
 - [Linux Subsystem 与 MSYS2 比较](#linux-subsystem-与-msys2-比较)
+
+<!-- /TOC -->
 
 
 
@@ -131,7 +135,7 @@ $ pacman-key --init
 - `lxrun /update` 更新子系统的包索引
 - `lxrun /setdefaultuser` 配置子系统用户
 
-## Build 1709
+## Windows Build 1709
 从`Windows Build 1709`(2017秋季创意者更新)开始，`Linux Subsystem`正式脱离`Beta`版本。
 从`Build 1709`版本开始，应用商店中直接提供`Linux Subsystem`下载。
 同时，`Linux Subsystem`也不仅限于`Ubuntu`发行版，还提供了`openSUSE`和`SUSE Linux Enterprise Server`。
