@@ -387,6 +387,27 @@ main =
 	  undefined, called at <interactive>:247:19 in interactive:Ghci35
 	```
 
+- 模式匹配
+
+	使用模式匹配特性时，可对整个表达式或解构的指定字段使用`!`操作符：
+
+	```hs
+	-- 不使用"!"操作符，未使用异常字段，不触发异常
+	Prelude> case (1, undefined) of { (a, b) -> print "Lazy" }
+	"Lazy"
+
+	-- 在模式匹配表达式外部使用"!"操作符，未使用异常字段，不触发异常
+	Prelude> case (1, undefined) of { !(a, b) -> print "Strict Out" }
+	"Strict Out"
+
+	-- 在模式匹配内部的异常字段前使用"!"操作符，能够触发异常
+	Prelude> case (1, undefined) of { (a, !b) -> print "Strict Inner" }
+	*** Exception: Prelude.undefined
+	CallStack (from HasCallStack):
+	  error, called at libraries/base/GHC/Err.hs:79:14 in base:GHC.Err
+	  undefined, called at <interactive>:38:10 in interactive:Ghci13
+	```
+
 
 
 # Type Class
