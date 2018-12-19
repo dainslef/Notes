@@ -1,3 +1,5 @@
+<!-- TOC -->
+
 - [概述](#概述)
 	- [下载](#下载)
 	- [环境变量配置](#环境变量配置)
@@ -13,10 +15,11 @@
 		- [Conceptual View (概念视图)](#conceptual-view-概念视图)
 		- [Physical View (物理视图)](#physical-view-物理视图)
 		- [Namespace (命名空间)](#namespace-命名空间)
+	- [压测工具](#压测工具)
 	- [HBase Shell](#hbase-shell)
 	- [HBase Client API](#hbase-client-api)
 - [问题注记](#问题注记)
-	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0. Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0-expected-transaction-id-was-1)
+	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0--expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
 	- [java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx](#javaioioexception-got-error-status-message--ack-with-firstbadlink-as-xxxxxxxxxxxxxxx)
 	- [全部HA节点处于 stand by 状态](#全部ha节点处于-stand-by-状态)
@@ -26,6 +29,7 @@
 	- [java.io.IOException: Incompatible clusterIDs in /tmp/hadoop-root/dfs/data: namenode clusterID = CID-...; datanode clusterID = CID-...](#javaioioexception-incompatible-clusterids-in-tmphadoop-rootdfsdata-namenode-clusterid--cid--datanode-clusterid--cid-)
 	- [WARN org.apache.hadoop.hdfs.server.datanode.DataNode: IOException in offerService; java.io.EOFException: End of File Exception between local host is: "xxxs/xx.xx.xx.xx"; destination host is: "xxhostname":xxxx;](#warn-orgapachehadoophdfsserverdatanodedatanode-ioexception-in-offerservice-javaioeofexception-end-of-file-exception-between-local-host-is-xxxsxxxxxxxx-destination-host-is-xxhostnamexxxx)
 
+<!-- /TOC -->
 
 
 # 概述
@@ -33,7 +37,8 @@
 
 Hadoop是一套框架，允许使用简单的编程模型在计算机集群中对大型数据集进行分布式处理。
 Hadoop被设计成从单个服务器扩展到数千台机器，每台机器都提供本地计算和存储。
-Hadoop不依靠硬件来提供高可用性，而是被设计成在应用层检测和处理故障，因此能够在一组计算机集群上提供高可用性服务，即便每一台计算机都可能出现故障。
+Hadoop不依靠硬件来提供高可用性，而是被设计成在应用层检测和处理故障，因此能够在一组计算机集群上提供高可用性服务，
+即便每一台计算机都可能出现故障。
 
 `Apache Hadoop`项目包含以下模块：
 
@@ -432,8 +437,6 @@ $ start-hbase.sh
 $ stop-hbase.sh
 ```
 
-
-
 ## 数据模型
 HBase是面向**列**的数据库，数据由行排序，表中仅能定义列族。
 一张表中可以拥有多个列族，一个列族可拥有任意数量的列。表中每个单元格的数据都具有时间戳。
@@ -577,6 +580,95 @@ HBase中表的概念结构如下所示：
 - 配额管理(HBASE-8410)
 - 命名空间安全管理(HBASE-9206)
 - 区域服务器组(HBASE-6721)
+
+## 压测工具
+HBase自带了压测工具，基本指令：
+
+```
+$ hbase pe <OPTIONS> [-D<property=value>]* <command> <nclients>
+
+Options:
+ nomapred        Run multiple clients using threads (rather than use mapreduce)
+ rows            Rows each client runs. Default: One million
+ size            Total size in GiB. Mutually exclusive with --rows. Default: 1.0.
+ sampleRate      Execute test on a sample of total rows. Only supported by randomRead. Default: 1.0
+ traceRate       Enable HTrace spans. Initiate tracing every N rows. Default: 0
+ table           Alternate table name. Default: 'TestTable'
+ multiGet        If >0, when doing RandomRead, perform multiple gets instead of single gets. Default: 0
+ compress        Compression type to use (GZ, LZO, ...). Default: 'NONE'
+ flushCommits    Used to determine if the test should flush the table. Default: false
+ writeToWAL      Set writeToWAL on puts. Default: True
+ autoFlush       Set autoFlush on htable. Default: False
+ oneCon          all the threads share the same connection. Default: False
+ presplit        Create presplit table. Recommended for accurate perf analysis (see guide).  Default: disabled
+ inmemory        Tries to keep the HFiles of the CF inmemory as far as possible. Not guaranteed that reads are always served from memory.  Default: false
+ usetags         Writes tags along with KVs. Use with HFile V3. Default: false
+ numoftags       Specify the no of tags that would be needed. This works only if usetags is true.
+ filterAll       Helps to filter out all the rows on the server side there by not returning any thing back to the client.  Helps to check the server side performance.  Uses FilterAllFilter internally.
+ latency         Set to report operation latencies. Default: False
+ bloomFilter      Bloom filter type, one of [NONE, ROW, ROWCOL]
+ valueSize       Pass value size to use: Default: 1024
+ valueRandom     Set if we should vary value size between 0 and 'valueSize'; set on read for stats on size: Default: Not set.
+ valueZipf       Set if we should vary value size between 0 and 'valueSize' in zipf form: Default: Not set.
+ period          Report every 'period' rows: Default: opts.perClientRunRows / 10
+ multiGet        Batch gets together into groups of N. Only supported by randomRead. Default: disabled
+ addColumns      Adds columns to scans/gets explicitly. Default: true
+ replicas        Enable region replica testing. Defaults: 1.
+ splitPolicy     Specify a custom RegionSplitPolicy for the table.
+ randomSleep     Do a random sleep before each get between 0 and entered value. Defaults: 0
+ columns         Columns to write per row. Default: 1
+ caching         Scan caching to use. Default: 30
+
+ Note: -D properties will be applied to the conf used.
+  For example:
+   -Dmapreduce.output.fileoutputformat.compress=true
+   -Dmapreduce.task.timeout=60000
+
+Command:
+ append          Append on each row; clients overlap on keyspace so some concurrent operations
+ checkAndDelete  CheckAndDelete on each row; clients overlap on keyspace so some concurrent operations
+ checkAndMutate  CheckAndMutate on each row; clients overlap on keyspace so some concurrent operations
+ checkAndPut     CheckAndPut on each row; clients overlap on keyspace so some concurrent operations
+ filterScan      Run scan test using a filter to find a specific row based on it's value (make sure to use --rows=20)
+ increment       Increment on each row; clients overlap on keyspace so some concurrent operations
+ randomRead      Run random read test
+ randomSeekScan  Run random seek and scan 100 test
+ randomWrite     Run random write test
+ scan            Run scan test (read every row)
+ scanRange10     Run random seek scan with both start and stop row (max 10 rows)
+ scanRange100    Run random seek scan with both start and stop row (max 100 rows)
+ scanRange1000   Run random seek scan with both start and stop row (max 1000 rows)
+ scanRange10000  Run random seek scan with both start and stop row (max 10000 rows)
+ sequentialRead  Run sequential read test
+ sequentialWrite Run sequential write test
+
+Args:
+ nclients        Integer. Required. Total number of clients (and HRegionServers)
+                 running: 1 <= value <= 500
+```
+
+默认参数下，以百万行作为测试基准，常用指令组合：
+
+```c
+$ hbase pe randomRead [客户端数目] //随机读取测试
+$ hbase pe randomWrite [客户端数目] //随机写入测试
+$ hbase pe sequentialRead [客户端数目] //连续写入测试
+$ hbase pe sequentialWrite [客户端数目] //连续读取测试
+$ hbase pe scan [客户端数目] //Scan测试
+```
+
+压测的输出结果中可看到测试的数据量和耗时：
+
+```
+...
+HBase Performance Evaluation
+        Elapsed time in milliseconds=...
+        Row count=...
+File Input Format Counters
+        Bytes Read=...
+File Output Format Counters
+        Bytes Written=...
+```
 
 ## HBase Shell
 HBase提供了基于`(J)Ruby`语言的交互式Shell(`IRB`)，提供了HBase中常用的功能函数。
@@ -950,7 +1042,7 @@ Hadoop、HBase、Spark启动时提示`JAVA_HOME`环境变量配置未配置，�
 Spark应用使用HBase Client连接HBase数据库，建立连接时提示找不到类。
 
 解决方案：<br>
-打包Spark应用时需要完整包含HBase相关依赖，包括`hbase*`、`metrics*`、`htrace*`。
+打包Spark应用时需要完整包含HBase相关依赖，包括`hbase*`、`metrics-core*`。
 
 ## java.io.IOException: Incompatible clusterIDs in /tmp/hadoop-root/dfs/data: namenode clusterID = CID-...; datanode clusterID = CID-...
 问题说明：<br>
