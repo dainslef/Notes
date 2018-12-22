@@ -131,16 +131,22 @@
 在`Reference`中勾选`Show keychain status in menu bar`选项。
 
 ## 特殊目录
-- `/System/Library/Fonts` 系统默认字体目录
-- `/Library/Fonts` 系统可选字体目录
-- `/Volumes` 系统默认挂载目录
-- `~/Library/Fonts` 用户字体目录
-- `~/Library/Caches` 缓存目录
-- `~/Library/Application Support` 用户程序文件、配置目录
-- `/Library/Application Support` 系统程序配置目录
-- `~/Library/Preferences` 用户程序配置目录
-- `~/Library/Saved Application State` 用户程序状态目录
-- `~/Library/VirtualBox` VirtualBox的配置文件目录，删除则VirtualBox恢复初始状态，需要重新添加虚拟机
+系统中特定功能相关的路径介绍。
+
+| 路径 | 功能 |
+| :- | :- |
+| /System/Library/Fonts | 系统默认字体目录 |
+| /Library/Fonts | 系统可选字体目录 |
+| /Volumes | 系统默认挂载目录 |
+| ~/Library/Fonts | 用户字体目录 |
+| ~/Library/Caches | 缓存目录 |
+| ~/Library/Application Support | 用户程序文件、配置目录 |
+| /Library/Application Support | 系统程序配置目录 |
+| ~/Library/Preferences | 用户程序配置目录 |
+| ~/Library/Saved Application State | 用户程序状态目录 |
+| ~/Library/VirtualBox | VirtualBox的配置文件目录，删除则VirtualBox恢复初始状态，需要重新添加虚拟机 |
+
+删除一个应用后，通常需要检查Library路径下的`Caches`、`Preferences`、`Application Support`、`Saved Application State`等路径，清理软件的残余配置。
 
 ## 文件系统
 `macOS`默认文件系统为`HFS+`，此类文件系统同时支持区分大小写(`Case-Sensitive`)和忽略大小写两种类型，在格式化时可以进行选择。
