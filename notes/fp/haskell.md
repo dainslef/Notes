@@ -408,6 +408,46 @@ main =
 	  undefined, called at <interactive>:38:10 in interactive:Ghci13
 	```
 
+	在let绑定的模式匹配中使用`!`操作符，规则类似，但let绑定中外层模式匹配也需要使用`!`操作符。
+	示例：
+
+	```hs
+	{-# LANGUAGE BangPatterns #-}
+
+	main :: IO ()
+	main = do
+	  let (a, b) = (1, undefined)
+	  print "Lazy"
+	  let !(a, b) = (1, undefined)
+	  print "Strict Out"
+	  let (a, !b) = (1, undefined) -- 整个let绑定由于惰性求值特性而未被求值，内部字段的"!"操作也未生效
+	  print "Strict Inner"
+	  let !(a, !b) = (1, undefined)
+	  print "Strict Out and Inner"
+	```
+
+	输出结果：
+
+	```
+	"Lazy"
+	"Strict Out"
+	"Strict Inner"
+	lazy.exe: Prelude.undefined
+	CallStack (from HasCallStack):
+	  error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
+	  undefined, called at test\TestLazy.hs:35:22 in main:Main
+	```
+
+	需要注意，在目前版本的`GHCi`(`GHCi, version 8.2.2`)环境下，let绑定的模式匹配中使用`!`**无效**。
+	示例：
+
+	```hs
+	Prelude> let (a, !b) = (1, undefined) in print "Lazy"
+	"Lazy"
+	Prelude> let !(a, !b) = (1, undefined) in print "Lazy"
+	"Lazy"
+	```
+
 
 
 # Type Class
