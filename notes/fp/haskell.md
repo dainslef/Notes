@@ -705,6 +705,13 @@ Functor => Applicative => Monad
 
 	Functor类型至少需要实现`fmap`函数，fmap需要提供参数类型之间的直接变换逻辑。
 
+	Functor满足如下规则：
+
+	```hs
+	fmap id == id
+	fmap (f . g) == fmap f . fmap g
+	```
+
 - `Applicative`
 
 	定义：
@@ -748,19 +755,25 @@ Functor => Applicative => Monad
 
 Monad实例应遵循下列规则：
 
-- `return a >>= k = k a`
-- `m >>= return = m`
-- `m >>= (\x -> k x >>= h) = (m >>= k) >>= h`
+```hs
+return a >>= k = k a
+m >>= return = m
+m >>= (\x -> k x >>= h) = (m >>= k) >>= h
+```
 
-Monad与Applicative操作符应遵循：
+Monad与Applicative操作符应遵循下列规则：
 
-- `pure = return`
-- `(<*>) = ap`
+```hs
+pure = return
+(<*>) = ap
+```
 
-这些规则意味着：
+这些规则可推导出：
 
-- `fmap f xs = xs >>= return . f`
-- `(>>) = (*>)`
+```hs
+fmap f xs = xs >>= return . f
+(>>) = (*>)
+```
 
 Haskell标准库中Monad的实例类型如`[]`、`Maybe`、`IO`等均遵循以上规则。
 
@@ -805,15 +818,15 @@ nameDo = do
 
 ```hs
 data App a = App {
-  valueA :: a
+  app :: a
 } deriving (Eq, Show)
 
 instance Functor App where
-  fmap f fa = App $ f $ valueA fa
+  fmap f = App . f . app
 
 instance Applicative App where
-  pure a = App a
-  fab <*> fa = App $ valueA fab $ valueA fa
+  pure = App
+  (<*>) = flip (flip (App.) . app) . app
 
 -- 原始 Applicative 类型运算逻辑
 app1 = (\a b -> App $ a ++ (show b)) <$> App "abc" <*> App 1
