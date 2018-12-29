@@ -6,6 +6,7 @@
 - [常用函数](#常用函数)
 	- [`$` 函数](#-函数)
 	- [`.` 函数](#-函数)
+- [Currying (柯里化)](#currying-柯里化)
 - [求值策略](#求值策略)
 	- [Lazy evaluation 的实现](#lazy-evaluation-的实现)
 	- [Lazy evaluation 的优劣](#lazy-evaluation-的优劣)
@@ -157,6 +158,55 @@ Prelude> print . ("abc"++) . ("cde"++) $ "efg" --使用"."组合函数
 ```
 
 `.`函数常用于`Pointfree`风格中，通过函数组合来代替多个连续的函数调用。
+
+
+
+# Currying (柯里化)
+`Currying`(柯里化)是一类函数的转换过程，将通过元组接收多个参数的函数转换为接收单一参数并返回接收另一个参数的函数，
+以此逐级递推，通过不断返回接收其它参数的函数来逐渐接收元组中的所有参数。
+
+以签名如下的函数为例：
+
+```hs
+f :: (Int, Int, Int, Int) -> Int
+```
+
+函数`f`为接收一个四元组作为参数，进行柯里化：
+
+```hs
+c1 :: (Int, Int, Int) -> (Int -> Int) -- 从元组中分离出一个参数，返回接收该参数的函数
+c2 :: (Int, Int) -> (Int -> (Int -> Int)) -- 再分离出一个参数，返回接收该参数的函数
+... -- 重复该操作，直至元组中的参数被完全解构
+
+cN :: Int -> (Int -> (Int -> (Int -> Int))) -- 最终结果
+cN :: Int -> Int -> Int -> Int -> Int -- 依据Haskell中的操作符优先级，该签名与上述签名等价
+```
+
+`Data.Tuple`模块中提供了`curry/uncurry`函数，用于将函数进行柯里化与逆柯里化：
+
+```hs
+curry :: ((a, b) -> c) -> a -> b -> c 	-- Defined in ‘Data.Tuple’
+uncurry :: (a -> b -> c) -> (a, b) -> c 	-- Defined in ‘Data.Tuple’
+```
+
+示例：
+
+```hs
+Prelude> :{
+Prelude| f :: (Int, Int) -> Int
+Prelude| f (a, b) = a + b
+Prelude| :}
+Prelude> c = curry f -- 柯里化
+Prelude> :type c
+c :: Int -> Int -> Int
+Prelude> f (1, 2) == c 1 2
+True
+Prelude> uc = uncurry c --逆柯里化
+Prelude> :type uc
+uc :: (Int, Int) -> Int
+Prelude> c 1 2 == uc (1, 2)
+True
+```
 
 
 
