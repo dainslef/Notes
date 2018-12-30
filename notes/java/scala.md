@@ -99,6 +99,7 @@
 - [求值策略](#求值策略)
 	- [参数的求值策略](#参数的求值策略)
 	- [&& 与 || 运算符](#-与--运算符)
+		- [模拟 && 、 || 运算符](#模拟----运算符)
 - [类型系统](#类型系统)
 	- [类型参数](#类型参数)
 	- [类型约束](#类型约束)
@@ -1894,16 +1895,16 @@ Scala中存在底类型(`Bottom Type`)。底类型包括`Nothing`和`Null`。
 - `Nothing`
 
 	`Nothing`是所有类型的子类型，定义为`final trait Nothing extends Any`。
-	`Nothing`特质没有实例。
+	Nothing特质没有实例。
 
-	一些特殊的操作返回类型为`Nothing`，如抛出异常：
+	一些特殊的操作返回类型为Nothing，如抛出异常：
 
 	```scala
 	scala> def e = throw new Exception
 	e: Nothing
 	```
 
-	`Nothing`做为返回类型能协助更精确地进行类型推导。
+	Nothing做为返回类型能协助更精确地进行类型推导。
 	例如，在`if`语句中抛出异常：
 
 	```scala
@@ -1911,12 +1912,12 @@ Scala中存在底类型(`Bottom Type`)。底类型包括`Nothing`和`Null`。
 	num: (n: Int)Int
 	```
 
-	抛出异常的语句返回值类型为`Nothing`，是任意类型的子类(也是`Int`的子类)，整条语句返回值类型被推导为`Int`。
+	抛出异常的语句返回值类型为Nothing，是任意类型的子类(也是Int的子类)，整条语句返回值类型被推导为Int。
 
 - `Null`
 
 	`Null`是所有引用类型`AnyRef`的子类型。
-	`Null`特质拥有唯一实例`null`(类似于Java中`null`的作用)。
+	Null特质拥有唯一实例`null`(类似于Java中null的作用)。
 
 ## Option (可空类型)
 `Option[T]`表示可空类型，`Option[T]`包含两个子类：
@@ -1939,7 +1940,7 @@ scala> Option(null)
 res11: Option[Null] = None
 ```
 
-`Option[T]`类型常用方法如下所示：
+其它常用方法如下所示：
 
 ```scala
 sealed abstract class Option[+A] extends Product with Serializable {
@@ -1987,7 +1988,8 @@ scala> Option(null) foreach println  //无值时无输出
 ```
 
 `map()`高阶函数用于将目标值映射到新的`Option`中。
-`fold()`高阶函数用于使用目标值执行表达式并输出返回结果，在目标值不存在时使用提供的值做为返回结果，提供的值需要与表达式返回结果类型相同。
+`fold()`高阶函数用于使用目标值执行表达式并输出返回结果，在目标值不存在时使用提供的值做为返回结果，
+提供的值需要与表达式返回结果类型相同。
 示例：
 
 ```scala
@@ -4334,6 +4336,7 @@ def testImplicit(implicit num0: Int)(num1: Double) {} //错误。只有最后一
 
 与**隐式转换**类似，当一个实例调用了**不存在**或**无法访问**的成员方法，编译器会为之搜索作用域中可访问的隐式类。
 若隐式类的构造器参数与实例相同且带有实例调用的方法，则自动调用该隐式类的构造器。
+
 示例：
 
 ```scala
@@ -4545,90 +4548,89 @@ expr2_1
 
 输出结果中没有`&&`、`||`运算符右侧表达式的输出，表达式并未被执行。
 
-- 模拟`&&`、`||`运算符
+### 模拟 && 、 || 运算符
+编写自定义方法`and()`、`or()`在不使用内建`&&`、`||`的情况下模拟`&&`、`||`运算符。
 
-	编写自定义方法`and()`、`or()`在不使用内建`&&`、`||`的情况下模拟`&&`、`||`运算符。
+使用默认求值策略(Call by value)，如下所示：
 
-	使用默认求值策略(Call by value)，如下所示：
+```scala
+object Main extends App {
 
-	```scala
-	object Main extends App {
+  // 使用隐式类为 Boolean 类型提供额外操作
+  implicit class Operate(bool: Boolean) {
+    def and(bool: Boolean) = if (!this.bool) false else bool
+    def or(bool: Boolean) = if (this.bool) true else bool
+  }
 
-	  // 使用隐式类为 Boolean 类型提供额外操作
-	  implicit class Operate(bool: Boolean) {
-	    def and(bool: Boolean) = if (!this.bool) false else bool
-	    def or(bool: Boolean) = if (this.bool) true else bool
-	  }
+  {
+    println("expr1_1")
+    false
+  } and {
+    println("expr1_2")
+    false
+  }
 
-	  {
-	    println("expr1_1")
-	    false
-	  } and {
-	    println("expr1_2")
-	    false
-	  }
+  {
+    println("expr2_1")
+    true
+  } or {
+    println("expr2_2")
+    false
+  }
 
-	  {
-	    println("expr2_1")
-	    true
-	  } or {
-	    println("expr2_2")
-	    false
-	  }
+}
+```
 
-	}
-	```
+输出结果：
 
-	输出结果：
+```
+expr1_1
+expr1_2
+expr2_1
+expr2_2
+```
 
-	```
-	expr1_1
-	expr1_2
-	expr2_1
-	expr2_2
-	```
+输出结果中`and()`、`or()`方法右侧的表达式已被执行。
+在Call by value求值策略下，参数一经传入便已被求值，不符合`&&`、`||`运算符逻辑。
 
-	输出结果中`and()`、`or()`方法右侧的表达式已被执行。
-	在Call by value求值策略下，参数一经传入便已被求值，不符合`&&`、`||`运算符逻辑。
+使用传名参数(Call by name)：
 
-	使用传名参数(Call by name)：
+```scala
+object Main extends App {
 
-	```scala
-	object Main extends App {
+  // 方法参数采用传名参数特性
+  implicit class Operate(bool: Boolean) {
+    def and(bool: => Boolean) = if (!this.bool) false else bool
+    def or(bool: => Boolean) = if (this.bool) true else bool
+  }
 
-	  // 方法参数采用传名参数特性
-	  implicit class Operate(bool: Boolean) {
-	    def and(bool: => Boolean) = if (!this.bool) false else bool
-	    def or(bool: => Boolean) = if (this.bool) true else bool
-	  }
+  {
+    println("expr1_1")
+    false
+  } and {
+    println("expr1_2")
+    false
+  }
 
-	  {
-	    println("expr1_1")
-	    false
-	  } and {
-	    println("expr1_2")
-	    false
-	  }
+  {
+    println("expr2_1")
+    true
+  } or {
+    println("expr2_2")
+    false
+  }
 
-	  {
-	    println("expr2_1")
-	    true
-	  } or {
-	    println("expr2_2")
-	    false
-	  }
+}
+```
 
-	}
-	```
+输出结果：
 
-	输出结果：
+```
+expr1_1
+expr2_1
+```
 
-	```
-	expr1_1
-	expr2_1
-	```
-
-	在Call by name求值策略下，右侧表达式并未执行，符合`&&`、`||`运算符逻辑。
+在Call by name求值策略下，右侧表达式并未执行，符合`&&`、`||`运算符逻辑。
 
 
 
@@ -5047,7 +5049,7 @@ res1: Test[Seq] = Test@11cc9e1e
 
 `Type Theory`(类型理论)中的`Kind`(型别)在Scala中的对应概念：
 
-| 类型 | 含义 | Scala中的对应概念 | 实例 |
+| Kind | 含义 | Scala中的对应概念 | 实例 |
 | :- | :- | :- | :- |
 | * | 类型 | 普通类型，或带有具体类型参数的泛型类型 | `Int`, `List[Int]` |
 | * -> * | 一阶类型(类型构造器) | 泛型类型 | `List[_]`, `Seq[_]`, `Map[_, String]` |
@@ -5173,7 +5175,7 @@ object Main extends App {
     def doSomething(t: String) = println(s"String Type Class: $t")
   }
 
-  def testTypeClass[T](t: T)(implicit typeClass: TypeClass[T]) = typeClass.doSomething(t)
+  def testTypeClass[T: TypeClass](t: T) = implicitly[TypeClass[T]].doSomething(t)
 
   testTypeClass(233)
   testTypeClass("666")
@@ -5193,14 +5195,14 @@ class TypeClass t where
   doSomething :: t -> IO ()
 
 instance TypeClass Int where
-  doSomething t = print $ "Int Type Class: " ++ (show t)
+  doSomething = print . ("Int Type Class: "++) . show
 
 -- 使用语言扩展 FlexibleInstances 开启泛型参数特化
 instance TypeClass String where
-  doSomething t = print $ "String Type Class: " ++ t
+  doSomething = print . ("String Type Class: "++)
 
 testTypeClass :: TypeClass t => t -> IO ()
-testTypeClass t = doSomething t
+testTypeClass = doSomething
 
 main :: IO ()
 main = do
