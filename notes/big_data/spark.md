@@ -36,6 +36,7 @@
 	- [构建 DataFame](#构建-datafame)
 	- [Untyped Dataset Operations (无类型的 Dataset 操作，aka DataFrame Operations)](#untyped-dataset-operations-无类型的-dataset-操作aka-dataframe-operations)
 	- [执行 SQL 查询](#执行-sql-查询)
+		- [Global Temporary View](#global-temporary-view)
 - [Structured Streaming](#structured-streaming)
 	- [基础概念](#基础概念)
 - [问题注记](#问题注记)
@@ -251,6 +252,8 @@ TIPS：
 - 使用Standalone模式时，默认提交会使用所有的可用CPU核心，这会导致一个任务在运行期间占用所有的CPU资源，
 在该任务运行期间提交的其它任务都将处于等待状态。
 - 使用YARN、MESOS等第三方资源管理框架时，Spark UI不会显示执行的任务，需要在对应的资源管理器中查看任务的执行状态。
+- 在Driver端代码中创建对象会被闭包捕获，序列化后发送到Executor端。对于一些与系统状态相关的对象(如数据库连接对象)，
+序列化仅保证了对象的数据状态，系统状态并不能复制，因而在Executor端中使用Driver端创建的系统状态相关对象时会出错。
 
 
 
@@ -1924,6 +1927,33 @@ sqlResult: org.apache.spark.sql.DataFrame = [name: string, age: int]
 
 // 打印查询结果
 scala> sqlResult.show()
++-------+---+
+|   name|age|
++-------+---+
+|Haskell| 25|
+|   Rust|  6|
+|  Scala| 15|
++-------+---+
+```
+
+### Global Temporary View
+SparkSQL中临时视图基于会话(session-scoped)，当某个SparkSession实例终止时，由该SparkSession创建的视图会随之消失。
+
+```scala
+// 使用新的SparkSession执行查询操作，得到异常，提示找不到表/视图
+scala> spark.newSession().sql("select * from TestTable")
+org.apache.spark.sql.AnalysisException: Table or view not found: TestTable; line 1 pos 14
+  ...
+```
+
+若需要创建能够在多个会话间共享数据并能维持生命周期到Spark应用结束的临时视图，应使用**全局视图**(global temporary view)。
+全局视图绑定到系统保留的数据库`global_temp`，需要使用正确的名称来引用它：
+
+```scala
+scala> dataFrame.createGlobalTempView("TestTable")
+
+// 正常的得到查询结果
+scala> spark.newSession().sql("select * from global_temp.TestTable").show()
 +-------+---+
 |   name|age|
 +-------+---+
