@@ -858,7 +858,7 @@ nameDo = do
 ```
 
 ## ApplicativeDo
-`GHC 8.0.1`后提供了针对Applicative类型的do语法糖语言扩展：
+`GHC 8.0.1`开始提供了针对Applicative类型的do语法糖语言扩展：
 
 ```hs
 {-# LANGUAGE ApplicativeDo #-}
@@ -872,14 +872,14 @@ data App a = App {
 } deriving (Eq, Show)
 
 instance Functor App where
-  fmap f = App . f . app
+  fmap = (App.) . (.app)
 
 instance Applicative App where
   pure = App
   (<*>) = flip (flip (App.) . app) . app
 
 -- 原始 Applicative 类型运算逻辑
-app1 = (\a b -> App $ a ++ (show b)) <$> App "abc" <*> App 1
+app1 = (App.) . (flip $ (++) . show) <$> App "abc" <*> App 1
 
 -- 使用 ApplicativeDo 扩展后的等价语法糖表示
 app2 = do
