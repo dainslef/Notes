@@ -208,6 +208,34 @@ Prelude> c 1 2 == uc (1, 2)
 True
 ```
 
+在Haskell中，每个函数实际仅能接收一个参数，多参数函数应用单个参数后返回新函数，从而逐步应用多个参数。
+示例：
+
+```hs
+Prelude> :{
+Prelude| c :: Int -> Int -> Int -> Int -- 定义多参数函数，参数优先级"Int -> (Int -> (Int -> Int))"
+Prelude| c x y z = x + y + z
+Prelude| :}
+Prelude> c 1 2 3
+6
+Prelude> ((c 1) 2) 3 -- 函数传入多个参数实际是逐步应用单个参数
+6
+```
+
+对于多参数函数，Haskell允许仅应用部分参数，应用部分参数后生成新的函数，称为`Partial Application`(部分应用函数)。
+示例：
+
+```hs
+Prelude> :type c
+c :: Int -> Int -> Int -> Int
+Prelude> :type c 1
+c 1 :: Int -> Int -> Int
+Prelude> :type c 1 2
+c 1 2 :: Int -> Int
+Prelude> :type c 1 2 3
+c 1 2 3 :: Int
+```
+
 
 
 # 求值策略
