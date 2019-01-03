@@ -34,12 +34,12 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 ```
 
 ## 主服务配置
-单机版Kafka使用默认配置即可正常启动。  
+单机版Kafka使用默认配置即可正常启动。
 集群版本Kafka需要修改以下配置：
 
 - `$KAFKA_HOME/etc/kafka/server.properties`
 
-	Kafka服务的核心启动配置项。  
+	Kafka服务的核心启动配置项。
 	做为集群启动时需要指定以下配置：
 
 	```sh
@@ -66,7 +66,7 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 	# 示例： replica.fetch.max.bytes = 5001000
 	```
 
-	Kafka会缓存所有消息，无论消息是否被消费，可通过配置设定消息的缓存清理策略。  
+	Kafka会缓存所有消息，无论消息是否被消费，可通过配置设定消息的缓存清理策略。
 	消息存储相关配置：
 
 	```sh
@@ -94,7 +94,7 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 
 - `$KAFKA_HOME/etc/kafka/consumer.properties`
 
-	消费者配置。  
+	消费者配置。
 	修改消费端消息大小：
 
 	```sh
@@ -110,7 +110,7 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 
 - `$KAFKA_HOME/etc/kafka/producer.properties`
 
-	生产者配置。  
+	生产者配置。
 	修改生产者端消息大小：
 
 	```sh
@@ -153,7 +153,7 @@ $ kafka-topics --delete --topic [话题名称] --zookeeper [Zookeeper集群IP:�
 $ kafka-topics --describe --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
 ```
 
-使用的Zookeeper集群IP可以是connect参数中配置的任意IP。  
+使用的Zookeeper集群IP可以是connect参数中配置的任意IP。
 在Kafka中，已创建的话题配置可以动态修改：
 
 ```c
@@ -178,11 +178,11 @@ $ kafka-console-producer --broker-list [listeners IP:端口] --topic [话题名�
 
 
 # Topic & Partition
-Kafka为一连串的记录提供了抽象：`Topic`(话题)。  
+Kafka为一连串的记录提供了抽象：`Topic`(话题)。
 Topic作为记录发布时的类别/服务名称，Topic在Kafka中总是`multi-subscriber`(多订阅者)的，
 一个Topic可以拥有任意数量的订阅者(零个或多个)，数据会推送给订阅者。
 
-一个Topic的数据由一个或多个`Partition`组成(可配置)，多个Partition会优先分配在不同的物理节点中。  
+一个Topic的数据由一个或多个`Partition`组成(可配置)，多个Partition会优先分配在不同的物理节点中。
 Producer向Topic写入数据时，数据会记录在不同的Partition中，避免单一节点承载过多的IO请求。
 
 使用`kafka-topics --describe`指令查看某个话题的详情，输出内容如下：
@@ -201,14 +201,14 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
 	- `Replicas` 分区备份的broker编号，ReplicationFactor大于1时会有多个broker编号
 	- `Isr` 当前处于活跃状态的broker编号，是Replicas中分区编号的子集
 
-多个Consumer之间通过`Group`分组，一条发布到话题中的数据会发往每一个Group，但同一Group中只有**一个**Consumer实例会收到数据。  
+多个Consumer之间通过`Group`分组，一条发布到话题中的数据会发往每一个Group，但同一Group中只有**一个**Consumer实例会收到数据。
 当一个Group中存在多个Consumer时，Topic内的不同Partition会关联到不同的Consumer，当一个Partition中写入数据时，只有与该Partition关联的Consumer会收到数据。
 
 一个Partition在一个Group内仅会关联一个Consumer，因此当同一Group下的Consumer数目**大于**Partition数目时，会有Consumer因为未关联到Partition而收不到数据。
 
 ## 存储机制
-Kafka将消息数据存储在`$KAFKA_HOME/etc/kafka/server.properties`文件中的`log.dirs`配置项设定的路径下。  
-Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区编号]`的命名规则创建子路径，记录每个话题的数据。  
+Kafka将消息数据存储在`$KAFKA_HOME/etc/kafka/server.properties`文件中的`log.dirs`配置项设定的路径下。
+Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区编号]`的命名规则创建子路径，记录每个话题的数据。
 例如，Topic为`test`，Partition为`3`，则会生成以下子路径：
 
 ```sh
@@ -223,15 +223,15 @@ Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区�
 
 
 # Kafka Connect
-`Kafka Connect`是一套在`Apache Kafka`和其它数据系统间进行可靠的、可扩展的流式数据传输的框架。  
-`Kafka Connect`使得向Kafka输入、输出数据变得简单。
+`Kafka Connect`是一套在`Apache Kafka`和其它数据系统间进行可靠的、可扩展的流式数据传输的框架。
+Kafka Connect使得向Kafka输入、输出数据变得简单。
 
 ## 依赖服务配置
-`Kafka Connect`使用前除了启动`Zookeeper`和`Kafka`主进程外，还需要启动以下服务：
+Kafka Connect使用前除了启动Zookeeper和Kafka主进程外，还需要启动以下服务：
 
 - `Schema Registry`
 
-	SchemaRegistry服务提供了对出入Kafka的消息的监控，并对数据进行序列化/反序列化处理。  
+	SchemaRegistry服务提供了对出入Kafka的消息的监控，并对数据进行序列化/反序列化处理。
 	服务配置文件为`$KAFKA_HOME/etc/schema-registry/schema-registry.properties`，配置说明：
 
 	```sh
@@ -262,7 +262,7 @@ Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区�
 
 - `Kafka Rest`
 
-	KafkaRest服务为Kafka提供了`Rest API`支持，使Kafka可以通过HTTP请求进行互操作。  
+	KafkaRest服务为Kafka提供了`Rest API`支持，使Kafka可以通过HTTP请求进行互操作。
 	服务配置文件为`$KAFKA_HOME/etc/kafka-rest/kafka-rest.properties`，配置说明：
 
 	```sh
@@ -272,14 +272,14 @@ Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区�
 	listeners = http://服务地址:服务端口
 	# 设置 Kafka Rest 服务绑定的地址与服务端口，默认端口为8082
 	# 示例： listeners = http://spark-master:8082
-	
+
 	schema.registry.url = SchemaRegistry服务地址:端口
 	# 对应 $KAFKA_HOME/etc/schema-registry/schema-registry.properties 中设定的 listeners 配置
 	# 示例： schema.registry.url = http://spark-master:8081
-	
+
 	zookeeper.connect = Zookeeper集群地址:端口
 	# 示例： zookeeper.connect = spark-master:2181, spark-slave0:2181, spark-slave1:2181
-	
+
 	bootstrap.servers = Kafka服务监听协议://监听地址:监听端口
 	# 对应 $KAFKA_HOME/etc/kafka/server.properties 中设定的 listeners 配置
 	# 示例： bootstrap.servers = PLAINTEXT://spark-master:9092
@@ -293,19 +293,19 @@ Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区�
 
 ## JDBC Source Connector
 `JDBC Source Connector`可以实现通过Kafka监控数据库变化，通过Kafka导入、导出数据，
-[官方文档地址](https://docs.confluent.io/current/connect/connect-jdbc/docs/source_connector.html)(最新版本)。
+[官方文档地址](https://docs.confluent.io/current/connect/kafka-connect-jdbc/source-connector/source_config_options.html)(最新版本)。
 
 按下列步骤创建监控MySQL新增数据的服务:
 
 1. 确保所连接数据库的驱动存在。
 
-	连接`MySQL`数据库时，需要提供额外的`JDBC Driver`。  
-	从`https://www.mysql.com/downloads/`或`Maven`下载MySQL对应的JDBC驱动Jar包。  
+	连接`MySQL`数据库时，需要提供额外的`JDBC Driver`。
+	从`https://www.mysql.com/downloads/`或`Maven`下载MySQL对应的JDBC驱动Jar包。
 	将`mysql-connector-java-x.x.xx.jar`放置在`$KAFKA_HOME/share/java/kafka-connect-jdbc`路径下。
 
 1. 修改连接配置：
 
-	连接配置文件为`$KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties`。  
+	连接配置文件为`$KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties`。
 	配置项说明：
 
 	```sh
@@ -324,7 +324,7 @@ Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区�
 
 1. 创建数据源配置。
 
-	创建配置`$KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties`。  
+	创建配置`$KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties`。
 	配置项说明：
 
 	```sh
@@ -339,7 +339,7 @@ Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区�
 
 	topic.prefix = 生成话题的前缀
 	# 示例： topic.prefix = mysql-
-	
+
 	mode = 模式
 	# 设置 JDBC Connector 的工作模式，支持 incrementing(自增)、timestamp(时间戳)、bulk(直接导入) 等模式
 	# 示例：
@@ -373,10 +373,20 @@ Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区�
 	$ connect-standalone -daemon $KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties $KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties
 	```
 
-数据监控服务正常启动后，会按照数据源配置项`topic.prefix`以`话题前缀 + 表格名称`的规则创建话题，在话题中以JSON形式输出表格新增的数据。  
-话题中输出的数据以`Apache Avro`做为数据交互格式，直接使用`kafka-console-consumer`获取话题中的数据得到的信息不具备可读性。  
+数据监控服务正常启动后，会按照数据源配置项`topic.prefix`以`话题前缀 + 表格名称`的规则创建话题，
+在话题中以JSON形式输出表格新增的数据。
+话题中输出的数据以`Apache Avro`做为数据交互格式，直接使用`kafka-console-consumer`获取话题中的数据得到的信息不具备可读性。
 应使用`kafka-avro-console-consumer`工具消费数据：
 
 ```
 $ kafka-avro-console-consumer --bootstrap-server [Kafka主服务IP:端口] --from-beginning --topic [话题名称] --property schema.registry.url=[http://SchemaRegistry服务地址:端口]
 ```
+
+JDBC Source Connector提供了多种数据源导入/监控模式：
+
+| 模式 | 功能 |
+| :- | :- |
+| bulk | 在轮询时导入整张表的数据 |
+| incrementing | 严格通过自增列来检测新增行(仅检测表格中的新增行，不会检测已存在的行的修改与删除) |
+| timestamp | 通过时间戳来检测新增与变化的行 |
+| timestamp + incrementing | 使用时间戳检测新增与修改的行，并通过自增列为更新提供全局唯一ID，每行能被分配一个唯一的流偏移量 |
