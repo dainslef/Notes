@@ -7,6 +7,7 @@
 	- [`$` 函数](#-函数)
 	- [`.` 函数](#-函数)
 - [Currying (柯里化)](#currying-柯里化)
+- [Pointfree Style](#pointfree-style)
 - [求值策略](#求值策略)
 	- [Lazy evaluation 的实现](#lazy-evaluation-的实现)
 	- [Lazy evaluation 的优劣](#lazy-evaluation-的优劣)
@@ -235,6 +236,28 @@ c 1 2 :: Int -> Int
 Prelude> :type c 1 2 3
 c 1 2 3 :: Int
 ```
+
+
+
+# Pointfree Style
+在函数式编程中，通常使用函数之间相互组合来实现新函数，而非显式地提及需要被应用的参数。
+
+考虑如下函数：
+
+```hs
+f n = a (b (c n))
+```
+
+函数`f`的逻辑是将参数n按顺序依次调用函数`c`、`b`、`a`，使用pointfree风格可以写成：
+
+```hs
+f = a . b . c
+```
+
+pointfree的作用：
+
+- 能更清晰地展示函数的调用逻辑
+- 在某些逻辑中参数名称难以找到合适的名称描述，使用pointfree风格可避免为参数命名
 
 
 
