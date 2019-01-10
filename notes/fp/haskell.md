@@ -8,6 +8,8 @@
 	- [`.` 函数](#-函数)
 - [Currying (柯里化)](#currying-柯里化)
 - [Pointfree Style](#pointfree-style)
+	- [概念解释](#概念解释)
+	- [Pointfree 应用](#pointfree-应用)
 - [求值策略](#求值策略)
 	- [Lazy evaluation 的实现](#lazy-evaluation-的实现)
 	- [Lazy evaluation 的优劣](#lazy-evaluation-的优劣)
@@ -258,6 +260,53 @@ pointfree的作用：
 
 - 能更清晰地展示函数的调用逻辑
 - 在某些逻辑中参数名称难以找到合适的名称描述，使用pointfree风格可避免为参数命名
+
+## 概念解释
+pointfree名称源自数学领域中的**拓扑**(研究由点组成的空间以及空间之间的函数)，
+对函数而言，pointfree是不显式提及在函数作用空间的点
+(does not explicitly the points of the space on which the function acts, 即参数)的一类函数。
+在Haskell中，**空间**(space)是某些类型，**点**(points)是参数。
+
+更详细的概念解释可参考[Haskell Wiki](https://wiki.haskell.org/Pointfree)。
+
+## Pointfree 应用
+pointfree风格不仅限于使用`.`组合函数，例如使用Partial application作为函数实现：
+
+```hs
+Prelude> :{
+Prelude| f :: Int -> Int
+Prelude| f x = x + 1
+Prelude| :}
+Prelude> f 1
+2
+
+-- pointfree版本
+Prelude> :{
+Prelude| f :: Int -> Int
+Prelude| f = (+1) -- 生成签名同样为 Int -> Int 函数作为实现
+Prelude| :}
+Prelude> f 1
+2
+```
+
+函数实现与签名中位置完全相同的参数可直接省略：
+
+```hs
+Prelude> :{
+Prelude| f :: (Int -> Int) -> Int -> Int
+Prelude| f f' x = f' x
+Prelude| :}
+Prelude> f (+1) 1
+2
+
+-- pointfree版本
+Prelude> :{
+Prelude| f :: (Int -> Int) -> Int -> Int
+Prelude| f f' = f'
+Prelude| :}
+Prelude> f (+1) 1
+2
+```
 
 
 
