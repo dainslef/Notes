@@ -8,7 +8,7 @@
 
 ## .Net
 
-- [C#](notes/dotnet/c#.md)
+- [C#](notes/dotnet/c_sharp.md)
 - [WPF](notes/dotnet/wpf.md)
 
 ## Java
@@ -34,6 +34,11 @@
 - [Python](notes/script/python.md)
 - [Django](notes/script/django.md)
 - [PyQt](notes/script/pyqt.md)
+
+## Functional Programing
+
+- [Haskell](notes/fp/haskell.md)
+- [Stack](notes/fp/stack.md)
 
 ## BigData
 
