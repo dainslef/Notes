@@ -1,12 +1,17 @@
 # 目录
-日常学习总结。
+日常工作、学习总结。
 
-## C++相关
+## C++
 
 - [C++](notes/c_c++/c_c++.md)
 - [Qt](notes/c_c++/qt.md)
 
-## Java相关
+## .Net
+
+- [C#](notes/dotnet/c#.md)
+- [WPF](notes/dotnet/wpf.md)
+
+## Java
 
 - [Java](notes/java/java.md)
 - [Swing](notes/java/swing.md)
@@ -18,33 +23,31 @@
 - [Play!](notes/java/play_framework.md)
 - [Akka](notes/java/akka.md)
 
-## JavaScript相关
+## JavaScript
 
 - [JavaScript](notes/js/javascript.md)
 - [npm](notes/js/npm.md)
 - [React](notes/js/react.md)
 
-## Python相关
+## Python
 
 - [Python](notes/script/python.md)
 - [Django](notes/script/django.md)
 - [PyQt](notes/script/pyqt.md)
 
-## 大数据相关
+## BigData
 
 - [Scala](notes/java/scala.md)
 - [Spark](notes/big_data/spark.md)
 - [Kafka](notes/big_data/kafka.md)
 - [Hadoop](notes/big_data/hadoop.md)
 
-## Unix相关
+## Unix
 
-- [Unix工具链](notes/unix/unix_config.md)
+- [Unix Tool Chains](notes/unix/unix_config.md)
 - [Shell](notes/script/shell.md)
 - [Docker](notes/unix/docker.md)
-- [GDB](notes/unix/gdb.md)
 - [Git](notes/unix/git.md)
-- [Vim](notes/unix/vim.md)
 - [Posix](notes/unix/unix_posix.md)
 - [macOS](notes/unix/mac_os.md)
 - [FreeBSD](notes/unix/freebsd.md)
