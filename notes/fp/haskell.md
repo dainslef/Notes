@@ -10,6 +10,7 @@
 - [Pointfree Style](#pointfree-style)
 	- [概念解释](#概念解释)
 	- [Pointfree 应用](#pointfree-应用)
+	- [有趣的pointfree变换](#有趣的pointfree变换)
 - [求值策略](#求值策略)
 	- [Lazy evaluation 的实现](#lazy-evaluation-的实现)
 	- [Lazy evaluation 的优劣](#lazy-evaluation-的优劣)
@@ -307,6 +308,48 @@ Prelude| :}
 Prelude> f (+1) 1
 2
 ```
+
+在一些需要使用Lambda的场景下，同样可以通过ETA Conversion和Partial application，直接传递函数，例如：
+
+```hs
+Prelude> filter (\x -> x > 5) [1 .. 10]
+[6,7,8,9,10]
+
+-- pointfree版本
+Prelude> filter (>5) [1 .. 10]
+[6,7,8,9,10]
+```
+
+## 有趣的pointfree变换
+[Haskell Wiki](https://wiki.haskell.org/Pointfree)中介绍了多种有趣的pointfree变换。
+
+- `owl`
+
+	```hs
+	Prelude> :{
+	Prelude| owl :: (a -> c -> d) -> a -> (b -> c) -> b -> d
+	Prelude| owl = ((.)$(.))
+	Prelude| :}
+
+	-- 使用示例
+	Prelude> owl (==) 1 (+1) 0
+	True
+	```
+
+- `dot`
+
+	```hs
+	Prelude> :{
+	Prelude| dot :: (c -> d) -> (a -> b -> c) -> a -> b -> d
+	Prelude| dot = ((.).(.))
+	Prelude| :}
+
+	-- 使用示例
+	Prelude> dot print (++) "Hello " " World"
+	"Hello  World"
+	```
+
+使用pointfree风格需要**适可而止**，过度使用会造成代码难以理解。
 
 
 
