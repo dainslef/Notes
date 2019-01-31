@@ -188,3 +188,10 @@ $ serve -s 目标路径
 
 解决方法：<br>
 执行`npm clean --force`清理缓存
+
+## npm ERR! Unexpected end of JSON input while parsing near '...rcemaps-apply":"lates'
+错误原因：<br>
+部分缓存中的软件包可能未能正确下载。
+
+解决方法：<br>
+查看对应错误日志，清理错误的npm包缓存。

@@ -23,7 +23,7 @@
 		- [模板类型](#模板类型)
 		- [自定义模板类型](#自定义模板类型)
 		- [单独使用模板引擎](#单独使用模板引擎)
-	- [ORM](#orm)
+- [ORM](#orm)
 
 <!-- /TOC -->
 
@@ -670,7 +670,7 @@ sourceDirectories in (Compile, TwirlKeys.compileTemplates) := (unmanagedSourceDi
 
 
 
-## ORM
+# ORM
 `Play Framework`并未内置`ORM`，需要搭配额外的`ORM`框架。
 
 `Play Framework`支持多种`ORM`框架，官方推荐使用`Slick`。

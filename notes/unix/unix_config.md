@@ -372,7 +372,7 @@ $ chmod 7777 [文件/目录]
 $ ftp [服务端IP地址]
 ```
 
-成功建立连接后，会提示输入`FTP`用户名/密码，如下所示：
+成功建立连接后，会提示输入FTP用户名/密码，如下所示：
 
 ```
 > ftp [服务端IP地址]
@@ -391,8 +391,8 @@ ftp>
 ftp> ...
 ```
 
-亦可不指定服务端`IP`直接进入`ftp shell`，在`ftp`命令行中打开`FTP`连接。
-在`ftp shell`中使用`open/close`指令建立/关闭连接，如下所示：
+亦可不指定服务端IP直接进入ftp shell，在命令行中打开FTP连接。
+在ftp shell中使用`open/close`指令建立/关闭连接，如下所示：
 
 ```
 ftp> open [服务端IP地址]
@@ -713,13 +713,13 @@ $ ulimit [类别] [限制数值]
 
 ## Core Dump (核心转储)
 启用核心转储后，则在进程执行异常退出时，会生成包含异常信息的错误转储文件。
-使用`gdb`可分析转储文件：
+使用gdb可分析转储文件：
 
 ```
 $ gdb [进程文件] [进程核心转储]
 ```
 
-进入`gdb shell`之后，使用`bt`指令查看调用堆栈。
+进入gdb shell之后，使用`bt`指令查看调用堆栈。
 
 
 
@@ -995,7 +995,7 @@ $ curl ftp://[用户名]:[密码]@[ip/域名] -X "[FTP协议指令]"
 # systemd
 `systemd`是Linux下新式的init系统，在各大发行版中逐渐替代了原先`Unix System V`风格的init系统。
 
-systemd的设计理念来自于`Apple`公司`macOS`中的`launchd`，
+systemd的设计理念来自于Apple公司`macOS`中的`launchd`。
 传统的SystemV风格init系统需要一次一个串行地启动服务进程，
 systemd则根据服务进程的依赖关系并行地启动服务，极大地减少了系统的启动耗时。
 
