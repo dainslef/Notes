@@ -181,7 +181,6 @@ f :: (Int, Int, Int, Int) -> Int
 c1 :: (Int, Int, Int) -> (Int -> Int) -- 从元组中分离出一个参数，返回接收该参数的函数
 c2 :: (Int, Int) -> (Int -> (Int -> Int)) -- 再分离出一个参数，返回接收该参数的函数
 ... -- 重复该操作，直至元组中的参数被完全解构
-
 cN :: Int -> (Int -> (Int -> (Int -> Int))) -- 最终结果
 cN :: Int -> Int -> Int -> Int -> Int -- 依据Haskell中的操作符优先级，该签名与上述签名等价
 ```
@@ -205,7 +204,7 @@ Prelude> :type c
 c :: Int -> Int -> Int
 Prelude> f (1, 2) == c 1 2
 True
-Prelude> uc = uncurry c --逆柯里化
+Prelude> uc = uncurry c -- 逆柯里化
 Prelude> :type uc
 uc :: (Int, Int) -> Int
 Prelude> c 1 2 == uc (1, 2)
@@ -319,6 +318,13 @@ Prelude> filter (\x -> x > 5) [1 .. 10]
 Prelude> filter (>5) [1 .. 10]
 [6,7,8,9,10]
 ```
+
+常用的pointfree变换技巧：
+
+1. 使用`.`函数组合函数或变更函数签名
+1. `.`函数是右结合性的，参数会优先执行`.`函数右侧的函数
+1. 灵活使用`flip`函数调换参数位置，使表达式的参数位置匹配签名位置
+1. 当表达式结果类型完全匹配函数签名时则变形完成
 
 ## 有趣的pointfree变换
 [Haskell Wiki](https://wiki.haskell.org/Pointfree)中介绍了多种有趣的pointfree变换。
