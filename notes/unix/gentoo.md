@@ -269,82 +269,8 @@ openRC服务下更换显示管理器，编辑`/etc/conf.d/xdm`文件，将`DISPL
 
 
 
-# 其他配置
-不同于一般发行版，Gentoo有需要需要注意的特殊知识。
-
-## 关于 Kernel Modules
-内核模块被安装在`/lib/modules/``uname -r```目录中。
-使用如下命令查看可用的内核模块：
-
-```
-# find /lib/modules/`uname -r` -type f -iname '*.o' -or -iname '*.ko'
-```
-
-使用默认的openRC服务管理，将查询到的内核模块名按需加入`/etc/conf.d/modules`中可以使模块开机自启动(后缀名`*.ko`可省略)。
-配置文件中的内核模块不能写alisa名称，而是要写清模块文件的名字。
-如果使用systemd作为服务管理，则将需要开机启动的模块写入`/etc/modprobe.d/`中的任意文件。
-
-
-## 关于 flags
-全局USE标记在`/etc/portage/make.conf`中。
-每个软件单独设定USE标记在`/etc/portage/package.use`里。
-其他标记如`PYTHON_TARGETS`，`PYTHON_SINGLE_TARGET`等也可以加入`make.conf`(全局)，
-页可写入`package.use`(单个包有效)。
-
-## 关于 Masked
-包被Masked的原因很多。
-因为许可证被Masked，需要将接受的许可证级别的写在`/etc/portage/package.license`里。
-部分软件稳定性不达标会被Masked，如果需要安装，则将对应的包名和稳定性级别加入`/etc/portage/package.accept_keywords`里。
-如果要安装很多稳定性级别不够的包，一一加入很麻烦，可以在`/etc/portage/make.conf`中使用全局关键字 `ACCEPT_KEYWORDS="~amd64"`，一般不推荐这样做，这会降低系统稳定性。
-
-## 关于 CONFIGURATION FILES
-有时包更新带来新的配置文件便会产生文件冲突，新加入的配置文件会以`.cfg00xx_[原配置文件名]`命名，可以使用：
-
-```
-# find /etc -name '*._cfg*'
-```
-
-找出这些冲突的配置文件，然后一一比较内容，并决定取舍。
-
-## openRC
-Gentoo默认使用`openRC`管理服务，常用指令：
-
-```c
-# rc-update -a [服务名] default //添加一个服务(add)
-# rc-update -d [服务名] default //移除一个服务(delete)
-# rc-update //列出服务树(已设置自启动的服务)
-# rc-update -v //列出服务树(包括未设置自启动的服务)
-# rc-status //查看用户添加启动的服务
-# rc-status [运行级别] //查看某个运行级别中的服务
-# rc-status -s //显示所有服务的状态
-```
-
-openRC系统的服务模块位于`/etc/conf.d`目录下，可以根据需求自行添加。
-
-## MySQL初始化
-默认情况下，安装完mysql/mariadb数据库并未进行初始化配置，此时服务无法启动，
-需要手动进行初始化：
-
-```c
-# emerge --config dev-db/mariadb //初始化mysql配置
-```
-
-之后就可以启动msyql服务：
-
-```
-# /etc/init.d/mysql start
-```
-
-## 修改主机名
-与其它systemd发行版不同，主机名配置位于`/etc/conf.d/hostname`。
-
-## 安装JDK
-默认源中似乎没有OpenJDK，但是可以安装OracleJDK，安装包需要自己从Oracle官网下载。
-下载完成后，移动到`/usr/portage/distfiles`文件夹中，注意修改文件权限为`664`，文件属主和用户组都改为`portage`。
-然后在安装源里的OracleJDK包。
-
-## emerge 包管理器
-Gentoo使用emerge作为包管理器，常用指令：
+# emerge 包管理器
+Gentoo使用`emerge`作为包管理器，常用指令：
 
 ```c
 # emerge --sync //同步portage树
@@ -388,18 +314,18 @@ world | system， world范围更广，包含了system，这是两个包的set。
 -n noreplace 更新system，但先前安装的软件不予覆盖
 ```
 
-### equery
+## equery
 查询系统内已安装的包的信息需要安装额外的工具`app-portage/gentoolkit`，该包含有eclean、equery等工具。
 
-```
-$ equery list [包名]						//列出对应包名的包安装了哪些版本
-$ equery files [包名]						//查看包里有哪些文件
-$ equery belongs [文件路径]					//查看文件属于哪个包
-$ equery depends [包名]					//查看某个包的依赖
-$ equery uses [包名]						//查看一个已经安装的包使用了哪些USE
+```c
+$ equery list [包名] //列出对应包名的包安装了哪些版本
+$ equery files [包名] //查看包里有哪些文件
+$ equery belongs [文件路径] //查看文件属于哪个包
+$ equery depends [包名] //查看某个包的依赖
+$ equery uses [包名] //查看一个已经安装的包使用了哪些USE
 ```
 
-### 指定world成员列表
+## 包组列表
 系统默认的包组有`system`和`world`，system列表为系统成员组件，不可更改(由你选择的profile决定)；
 world包组成员列表记录在`/var/lib/portage/world`文件中，可自行更改，
 这些包及其依赖包被保护，其余包被视为孤立包，执行清理依赖命令时孤立包会被移除。
@@ -408,7 +334,7 @@ world包组成员列表记录在`/var/lib/portage/world`文件中，可自行更
 除非主动移除手动安装的包)。
 使用`--oneshot`指令安装的包不会被加入world列表中。
 
-### 多版本包管理(slot机制)
+## 多版本包管理(slot机制)
 对于Python，JDK等多版本共存软件，使用select命令选取一个默认版本：
 
 ```
@@ -427,8 +353,10 @@ world包组成员列表记录在`/var/lib/portage/world`文件中，可自行更
 $ eselect help
 ```
 
-### 使用overlay(类似于Arch中的AUR)
-overlay仓库
+## overlay
+overlay仓库类似于`Arch Linux`中的`AUR`仓库，用来提供一些官方源中未包含的软件包。
+
+安装overlay：
 
 ```c
 # emerge -av layman
@@ -445,3 +373,78 @@ overlay仓库
 # layman -s XXX //更新XXX overlay
 # layman -S //更新所有 overlay
 ```
+
+
+
+# 其他配置
+不同于一般发行版，Gentoo有需要需要注意的特殊知识。
+
+## 关于 Kernel Modules
+内核模块被安装在`/lib/modules/``uname -r```目录中。
+使用如下命令查看可用的内核模块：
+
+```
+# find /lib/modules/`uname -r` -type f -iname '*.o' -or -iname '*.ko'
+```
+
+使用默认的openRC服务管理，将查询到的内核模块名按需加入`/etc/conf.d/modules`中可以使模块开机自启动(后缀名`*.ko`可省略)。
+配置文件中的内核模块不能写alisa名称，而是要写清模块文件的名字。
+如果使用systemd作为服务管理，则将需要开机启动的模块写入`/etc/modprobe.d/`中的任意文件。
+
+## 关于 flags
+全局USE标记在`/etc/portage/make.conf`中。
+每个软件单独设定USE标记在`/etc/portage/package.use`里。
+其他标记如`PYTHON_TARGETS`，`PYTHON_SINGLE_TARGET`等也可以加入`make.conf`(全局)，
+页可写入`package.use`(单个包有效)。
+
+## 关于 Masked
+包被Masked的原因很多。
+因为许可证被Masked，需要将接受的许可证级别的写在`/etc/portage/package.license`里。
+部分软件稳定性不达标会被Masked，如果需要安装，则将对应的包名和稳定性级别加入`/etc/portage/package.accept_keywords`里。
+如果要安装很多稳定性级别不够的包，一一加入很麻烦，可以在`/etc/portage/make.conf`中使用全局关键字 `ACCEPT_KEYWORDS="~amd64"`，一般不推荐这样做，这会降低系统稳定性。
+
+## 关于 CONFIGURATION FILES
+有时包更新带来新的配置文件便会产生文件冲突，新加入的配置文件会以`.cfg00xx_[原配置文件名]`命名，可以使用：
+
+```
+# find /etc -name '*._cfg*'
+```
+
+找出这些冲突的配置文件，然后一一比较内容，并决定取舍。
+
+## openRC
+Gentoo默认使用`openRC`管理服务，常用指令：
+
+```c
+# rc-update -a [服务名] default //添加一个服务(add)
+# rc-update -d [服务名] default //移除一个服务(delete)
+# rc-update //列出服务树(已设置自启动的服务)
+# rc-update -v //列出服务树(包括未设置自启动的服务)
+# rc-status //查看用户添加启动的服务
+# rc-status [运行级别] //查看某个运行级别中的服务
+# rc-status -s //显示所有服务的状态
+```
+
+openRC系统的服务模块位于`/etc/conf.d`目录下，可以根据需求自行添加。
+
+## MySQL初始化
+默认情况下，安装完MySQL/MariaDB数据库并未进行初始化配置，此时服务无法启动，
+需要手动进行初始化：
+
+```c
+# emerge --config dev-db/mariadb //初始化mysql配置
+```
+
+之后就可以启动msyql服务：
+
+```
+# /etc/init.d/mysql start
+```
+
+## 修改主机名
+与其它systemd发行版不同，主机名配置位于`/etc/conf.d/hostname`。
+
+## 安装JDK
+默认源中似乎没有OpenJDK，但是可以安装OracleJDK，安装包需要自己从Oracle官网下载。
+下载完成后，移动到`/usr/portage/distfiles`文件夹中，注意修改文件权限为`664`，文件属主和用户组都改为`portage`。
+然后在安装源里的OracleJDK包。
