@@ -1,9 +1,12 @@
+<!-- TOC -->
+
 - [概述](#概述)
-- [切换默认 Shell](#切换默认-shell)
+- [切換默認 Shell](#切換默認-shell)
 - [Shell 交互](#shell-交互)
 	- [调试信息](#调试信息)
 	- [访问历史路径](#访问历史路径)
 	- [匹配规则](#匹配规则)
+	- [字符串截取](#字符串截取)
 	- [任务管理](#任务管理)
 	- [管道](#管道)
 	- [重定向](#重定向)
@@ -23,40 +26,48 @@
 	- [随机数](#随机数)
 	- [Fork Bomb](#fork-bomb)
 
+<!-- /TOC -->
+
 
 
 # 概述
-`Unix`系统中的`Shell`一般指`CLI Shell`，提供了`CLI`方式的系统交互接口。
-`Shell`本身是**指令解释器**，将用户输入的指令转化为对`OS`的实际操作。
+`Unix`系統中的`Shell`一般指`CLI Shell`，提供了`CLI`方式的系统交互接口。
+Shell本身是**指令解释器**，將用戶輸入的指令轉換为對`OS`的實際操作。
 
 `Unix`系统中默认`Shell`可更换，不同的`Unix`使用的默认`Shell`亦不相同。
-传统`Shell`：
 
-- `sh`(`Bourne Shell`) 在`Version 7 Unix`中引入，其特性被作为后续其它`Shell`的基础
-- `bash`(`Bourne-Again Shell`) `GNU`项目的一部分，特性是`Bourne Shell`的超集，被广泛使用，是`Linux`和`macOS`的默认`Shell`
-- `csh`(`C Shell`) `BSD Unix`的默认`Shell`，采用类似`C`语言风格的语法
-- `tcsh`(`TENEX C Shell`) 基于`csh`，兼容`csh`，在`csh`基础上添加了命令补全等特性，是`FreeBSD`的默认`Shell`
+傳統`Shell`：
 
-现代`Shell`：
+| 名稱 | 簡介 |
+| :- | :- |
+| `sh`(`Bourne Shell`) | 在`Version 7 Unix`中引入，其特性被之後的其它Shell作爲設計基礎 |
+| `bash`(`Bourne-Again Shell`) | GNU項目的一部分，特性是`Bourne Shell`的超集，現代使用最廣汎的Shell，是`Linux`、`macOS`的默認Shell |
+| `csh`(`C Shell`) | `BSD Unix`的默認Shell，采用類似`C`語言風格的語法 |
+| `tcsh`(`TENEX C Shell`) | 基於`csh`，兼容`csh`，在`csh`基礎上添加了命令補全等特性，是`FreeBSD`的默認`Shell` |
 
-- `zsh`(`Z Shell`) 兼容`bash`语法，同时提供更多强大功能
-- `fish` 智能、用户友好的现代`Shell`，相比`zsh`拥有更多的内置特性与更现代化的设计。放弃了`bash`兼容性，使用全新设计的语法，更加简洁、优雅
+現代`Shell`：
+
+| 名稱 | 簡介 |
+| :- | :- |
+| `zsh`(`Z Shell`) | 兼容bash语法，同时提供更多强大功能 |
+| `fish` | 智能、用戶友好的現代Shell，相比zsh拥有更多的内置特性与更现代化的设计。fish放弃了bash兼容性，使用全新設計的語法，更加簡潔、優雅 |
 
 
 
-# 切换默认 Shell
-更换`Shell`使用`chsh`指令，不同`Unix`中`chsh`指令参数、效果不同。
+# 切換默認 Shell
+更换默認Shell使用`chsh`指令，不同Unix中chsh指令的參數、效果不同。
 
-- `Linux`中使用`chsh`会提示输入新的默认`Shell`路径
-- `FreeBSD/macOS`中使用`chsh`会进入`Shell`配置编辑界面
+- `Linux`中使用`chsh`會提示輸入新的默认Shell路徑
+- `FreeBSD/macOS`中使用`chsh`會進入Shell的配置編輯界面
 
-在`/etc/shells`文件记录了本机安装的所有`Shell`，需要保证使用的`Shell`路径已添加入该文件中。
-`macOS`下使用`Homebrew`安装`fish`不会更新`/etc/shells`文件，需要手动将`fish`的路径`/usr/local/bin/fish`添加到该文件中才能正常使用`fish`作为默认`Shell`。
+`/etc/shells`文件記錄了本機安裝的所有Shell，需要保證使用的Shell路徑已添加到該文件中。
+`macOS`下使用`Homebrew`安裝`fish`不會更新`/etc/shells`文件，
+需要手動將fish的路徑`/usr/local/bin/fish`添加到該文件中才能正常使用fish作爲默認Shell。
 
 
 
 # Shell 交互
-`Shell`中的常用组合键：
+Shell中的常用組合鍵：
 
 - `Ctrl + C` 停止当前指令(发送中断信号`SIGINT`)
 - `Ctrl + \` 停止当前指令(发送退出信号`SIGQUIT`)
@@ -190,6 +201,25 @@ ${file#/*} # 获取首个"/"之前的内容: path_a
 ${file##/*} # 获取最后一个"/"之前的内容: path_a/path_b
 ${file#.*} # 获取首个"."之前的内容: path_a/path_b/abc
 ${file##.*} # 获取最后一个"."之前的内容: path_a/path_b/abc.cde
+```
+
+使用`${var:start:length}`可以自左向右獲取指定起始位置、指定長度的字符子串：
+
+```sh
+file="path_a/path_b/abc.cde.hs"
+
+${file:7:6} # 從左邊第8個字符開始獲取之後的6個字符： path_b
+${file:7} # 從左邊第8個字符開始獲取之後的所有字符： path_b/abc.cde.hs
+```
+
+使用`${var:0-start:0-length}`可以自右向左獲取字符子串：
+
+```sh
+file="path_a/path_b/abc.cde.hs"
+
+${file:0-10} # 獲取最右端的10個字符：abc.cde.hs
+${file:0-10:7} # 獲取最右的10個字符，從中自左向右截取7個字符： abc.cde
+${file:0-10:0-2} # 獲取最右的10個字符，從中自右向左截取2個字符： hs
 ```
 
 ## 任务管理
