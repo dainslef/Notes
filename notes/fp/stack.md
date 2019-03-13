@@ -4,9 +4,10 @@
 - [安装与配置](#安装与配置)
 	- [Stackage](#stackage)
 	- [Stack Path](#stack-path)
-	- [包管理](#包管理)
 	- [安装 GHC](#安装-ghc)
 	- [配置 Mirrors](#配置-mirrors)
+	- [包管理](#包管理)
+	- [环境清理](#环境清理)
 - [启动与使用](#启动与使用)
 	- [创建项目](#创建项目)
 	- [项目结构](#项目结构)
@@ -106,13 +107,6 @@ Stack默认根路径：
 
 可使用`STACK_ROOT`环境变量设置stack使用的根路径。
 
-## 包管理
-使用`stack install [Stackage包名]`可在全局安装某个Stackage包。
-截止到`stack 1.7.1`，Stack仍未提供卸载指定Stackage包的功能，删除指定包需要手动清理所有相关路径。
-
-Stack判断一个包是否安装是根据本地的`snapshot-pkg-db`中的信息决定的，
-该路径下为每个已安装的Stackage包创建了conf文件记录安装信息，使用`stack path --snapshot-pkg-db`指令查看该路径信息。
-
 ## 安装 GHC
 Stack可以简便地安装、配置`GHC`编译器。
 
@@ -135,7 +129,7 @@ Windows下，GHC编译器需要依赖`MSYS2`，使用`stack setup`安装GHC时�
 ```
 
 可通过修改`$stack-root\config.yaml`中的顶层配置`local-programs-path`来指定GHC、MSYS2的安装路径。<br>
-可通过修改`$stack-root/global-project/stack.yaml`中的顶层配置`resolver`来指定全局的GHC版本。
+可通过修改`$stack-root/global-project/stack.yaml`中的顶层配置`resolver`字段设置全局的LTS版本，进而控制GHC编译器的版本。
 
 ## 配置 Mirrors
 Stackage和Hackage默认的镜像源在国内均被**墙**，需要替换源后才能正常使用。
@@ -157,6 +151,27 @@ urls:
   lts-build-plans: http://mirrors.ustc.edu.cn/stackage/lts-haskell/
   nightly-build-plans: http://mirrors.ustc.edu.cn/stackage/stackage-nightly/
 ```
+
+## 包管理
+使用`stack install [Stackage包名]`可在全局安装某个Stackage包。
+截止到`stack 1.7.1`，Stack仍未提供卸载指定Stackage包的功能，删除指定包需要手动清理所有相关路径。
+
+Stack判断一个包是否安装是根据本地的`snapshot-pkg-db`中的信息决定的，
+该路径下为每个已安装的Stackage包创建了conf文件记录安装信息，使用`stack path --snapshot-pkg-db`指令查看该路径信息。
+
+## 环境清理
+Stack在构建项目时，会首先查看项目构建配置中使用的LTS版本，若目标LTS版本对应的编译器、依赖库等未下载，会首先下载编译器和依赖。
+每个大版本的LTS通常都会对应不同的GHC版本，不同的GHC版本会拥有不同的依赖库，当本地存在太多LTS版本时，STACK_ROOT目录会变得十分臃肿。
+Stack并未提供清理不再需要的LTS版本相关功能，当切换到新的LTS版本时，旧的LTS版本对应的编译器、依赖库等均需要手动删除。
+
+可使用`find`工具在STACK_ROOT下查找旧的LTS相关路径，进行删除：
+
+```c
+$ find ~/.stack -name '*GHC编译器版本*' -exec rm -r \{\} \; //查找GHC编译器相关路径，进行删除
+$ find ~/.stack -name '*LTS版本号*' -exec rm -r \{\} \; //查找LTS相关路径，进行删除
+```
+
+具体的路径相关信息，可使用前文介绍的`stack path`指令进行查看。
 
 
 
