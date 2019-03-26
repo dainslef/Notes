@@ -20,6 +20,8 @@
 - [Type Class](#type-class)
 	- [Multi-parameter Type Classes](#multi-parameter-type-classes)
 	- [Functional Dependencies](#functional-dependencies)
+- [Exception](#exception)
+	- [异常类型](#异常类型)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
@@ -878,6 +880,39 @@ Functional dependencies conflict between instance declarations:
 在该例子中，`instance MultiParamTypeClasses String String`的类型依赖`String -> String`与`instance MultiParamTypeClasses String Int`的类型依赖`String -> Int`存在冲突(都是`String -> ?`)，
 两个实例声明的方法签名`m :: String -> String -> String`与`m :: String -> String -> Int`存在调用歧义(需要依赖返回值确定实际调用者)，
 不使用functional dependencies特性时正常通过编译，启用functional dependencies特性时则编译报错。
+
+
+
+# Exception
+与主流编程语言类似，Haskell中提供了`Exception`(异常)机制来表示程序运行中产生的意外状态。
+
+Haskell程序中默认的异常行为是中断程序，并将异常信息输出到终端；可以使用异常处理相关API来自定义异常产生后的行为。
+
+## 异常类型
+Haskell中异常接口由`Control.Exception`模块中的type class Exception定义：
+
+```hs
+class (Data.Typeable.Internal.Typeable e, Show e) =>
+      Exception e where
+  toException :: e -> SomeException
+  fromException :: SomeException -> Maybe e
+  displayException :: e -> String
+  	-- Defined in ‘GHC.Exception’
+```
+
+在GHC的实现中，type class Exception实际定义为`GHC.Exception`。
+Control.Exception模块中定义了多个常见的异常类型，如`IOException`、`AsyncException`、`TypeError`等。
+
+`SomeException`类型是所有异常的基类，当抛出一个任意类型的异常时，实际的异常会被封装到SomeException中。
+类型定义：
+
+```hs
+data SomeException where
+  SomeException :: Exception e => e -> SomeException
+  	-- Defined in ‘GHC.Exception’
+instance Show SomeException -- Defined in ‘GHC.Exception’
+instance Exception SomeException -- Defined in ‘GHC.Exception’
+```
 
 
 
