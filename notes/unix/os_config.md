@@ -118,6 +118,9 @@ Windows系統提供的命令行執行DOS系統工具指令。
 其它實用工具：
 
 ```c
+// 查看系統進程列表
+> tasklist
+
 // Windows遠程桌面工具
 > mstsc
 
@@ -136,9 +139,6 @@ Windows系統提供的命令行執行DOS系統工具指令。
 
 // DirectX診斷工具，可查看系統信息，顯卡對DirectX的支持情況
 > dxdiag
-
-// 查看KMS激活剩餘時間
-> slmgr.vbs -dlv
 ```
 
 ## 文件/目錄鏈接
