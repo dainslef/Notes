@@ -30,7 +30,8 @@
 	- [时区问题](#时区问题)
 	- [时间转换](#时间转换)
 	- [禁用 DNS 解析](#禁用-dns-解析)
-- [MySQL 的 C API](#mysql-的-c-api)
+- [查看數據庫狀態](#查看數據庫狀態)
+- [C API](#c-api)
 	- [连接数据库](#连接数据库)
 	- [执行SQL语句](#执行sql语句)
 	- [处理查询结果](#处理查询结果)
@@ -255,7 +256,8 @@ mysql> grant select, update on [数据库名].* to [用户名]@[登录方式];
 mysql> grant all privileges on *.* to [用户名]@[登录方式];
 ```
 
-被授权的用户默认不能将所拥有的权限授权给其它用户，如果需要使授权能够被传播则使用(一般不推荐这样使用，数据库权限应由DBA统一管理)：
+被授权的用户默认不能将所拥有的权限授权给其它用户，
+如果需要使授权能够被传播则使用(一般不推荐这样使用，数据库权限应由DBA统一管理)：
 
 ```sql
 mysql> grant all privileges on *.* to [用户名]@[登录方式] with grant option;
@@ -566,8 +568,24 @@ skip-name-resolve
 
 
 
-# MySQL 的 C API
-`MySQL`数据库提供了**C语言**接口用于数据库交互，在`*nix`中，头文件为`/usr/include/mysql/mysql.h`。
+# 查看數據庫狀態
+`information_schema`庫中存儲了MySQL數據庫的元數據。
+通過使用SQL語句對庫中的各類表格進行查詢操作，可獲取MySQL中的各類狀態信息，如數據庫/表的名稱、列的數據類型、訪問權限等。
+
+常用表格的功能：
+
+| 表名 | 功能 |
+| :- | :- |
+| PROCESSLIST | 正在執行的綫程信息 |
+| TABLES | 表格信息 |
+| COLUMNS | 表格列信息 |
+| SCHEMA_PRIVILEGES | 數據庫權限信息(自mysql.db表獲取) |
+| USER_PRIVILEGES | 用戶權限信息(自mysql.user表獲取) |
+
+
+
+# C API
+MySQL数据库提供了**C语言**接口用于数据库交互，在`*nix`中，头文件为`/usr/include/mysql/mysql.h`。
 
 在使用Unix工具链进行编译时，需要添加参数`-lmysqlclient`用于链接`libmysqlclient.so`动态库。
 
