@@ -21,6 +21,7 @@
 	- [内置函数](#内置函数)
 	- [复制表格](#复制表格)
 	- [主键自增](#主键自增)
+	- [外键约束](#外键约束)
 - [常用设置](#常用设置)
 	- [导出数据](#导出数据)
 	- [导入数据](#导入数据)
@@ -387,6 +388,31 @@ mysql> show global variables like "auto_increment%";
 - `auto_increment_offset` 自增起始值
 
 默认的自增偏移和自增步长均为1，可通过`set global auto_increment_increment/auto_increment_offset = xxx`进行修改。
+
+## 外键约束
+InnoDB引擎支持外键约束，从表可引用主表的键/主键作为外键，外键字段的值必须为主表中对应字段已存在的值。
+外键可用在`CREATE TABLE`和`ALTER TABLE`语句中，语法如下：
+
+```sql
+[CONSTRAINT [symbol]] FOREIGN KEY
+    [index_name] (col_name, ...)
+    REFERENCES tbl_name (col_name,...)
+    [ON DELETE reference_option]
+    [ON UPDATE reference_option]
+
+reference_option:
+    RESTRICT | CASCADE | SET NULL | NO ACTION | SET DEFAULT
+```
+
+创建外键约束时，可通过`reference_option`设置外键数据的更新、删除行为：
+
+- `RESTRICT` 检测主表数据是否被从表引用，未引用数据可删除、修改，已被引用则不可删除、修改
+- `NO ACTION` 标准SQL中的关键字，等价于RESTRICT
+- `CASCADE` 级联，同步更新、删除从表数据
+- `SET NULL` 主表变化，从表的引用字段设为NULL
+- `DEFAULT` 默认操作，等价于RESTRICT
+
+移除外键在`ALTER TABLE`中使用`DROP FOREIGN KEY fk_symbol`子句。
 
 
 
