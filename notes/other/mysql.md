@@ -1,169 +1,169 @@
 <!-- TOC -->
 
-- [初始化与基本配置](#初始化与基本配置)
-	- [数据库初始化 (Windows)](#数据库初始化-windows)
-	- [数据库初始化 (Linux)](#数据库初始化-linux)
-	- [手动配置](#手动配置)
-	- [使用指定配置启动](#使用指定配置启动)
-- [服务管理](#服务管理)
-	- [管理数据库服务 (Windows)](#管理数据库服务-windows)
-	- [管理数据库服务 (Linux SystemD)](#管理数据库服务-linux-systemd)
-	- [管理数据库服务 (BSD/Linux SysV)](#管理数据库服务-bsdlinux-sysv)
-- [用户登陆与管理](#用户登陆与管理)
-	- [远程登陆](#远程登陆)
-	- [修改用户密码](#修改用户密码)
-	- [查看用户信息](#查看用户信息)
-	- [创建/删除用户](#创建删除用户)
-	- [授权用户](#授权用户)
-- [驱动配置](#驱动配置)
+- [初始化與基本配置](#初始化與基本配置)
+	- [數據庫初始化 (Windows)](#數據庫初始化-windows)
+	- [數據庫初始化 (Linux)](#數據庫初始化-linux)
+	- [手動配置](#手動配置)
+	- [使用指定配置啓動](#使用指定配置啓動)
+- [服務管理](#服務管理)
+	- [管理數據庫服務 (Windows)](#管理數據庫服務-windows)
+	- [管理數據庫服務 (Linux SystemD)](#管理數據庫服務-linux-systemd)
+	- [管理數據庫服務 (BSD/Linux SysV)](#管理數據庫服務-bsdlinux-sysv)
+- [用戶登陸與管理](#用戶登陸與管理)
+	- [遠程登陸](#遠程登陸)
+	- [修改用戶密碼](#修改用戶密碼)
+	- [查看用戶信息](#查看用戶信息)
+	- [創建/刪除用戶](#創建刪除用戶)
+	- [授權用戶](#授權用戶)
+- [驅動配置](#驅動配置)
 - [基本操作](#基本操作)
-	- [常用的SQL语句](#常用的sql语句)
-	- [内置函数](#内置函数)
-	- [复制表格](#复制表格)
-	- [主键自增](#主键自增)
-	- [外键约束](#外键约束)
-- [常用设置](#常用设置)
-	- [导出数据](#导出数据)
-	- [导入数据](#导入数据)
-	- [设置中文编码](#设置中文编码)
-	- [二进制数据](#二进制数据)
-	- [JSP编码设置](#jsp编码设置)
-	- [时区问题](#时区问题)
-	- [时间转换](#时间转换)
+	- [常用的SQL語句](#常用的sql語句)
+	- [內置函數](#內置函數)
+	- [複製表格](#複製表格)
+	- [主鍵自增](#主鍵自增)
+	- [外鍵約束](#外鍵約束)
+- [常用設置](#常用設置)
+	- [導出數據](#導出數據)
+	- [導入數據](#導入數據)
+	- [設置中文編碼](#設置中文編碼)
+	- [二進制數據](#二進制數據)
+	- [JSP編碼設置](#jsp編碼設置)
+	- [時區問題](#時區問題)
+	- [時間轉換](#時間轉換)
 	- [禁用 DNS 解析](#禁用-dns-解析)
 - [查看數據庫狀態](#查看數據庫狀態)
 - [C API](#c-api)
-	- [连接数据库](#连接数据库)
-	- [执行SQL语句](#执行sql语句)
-	- [处理查询结果](#处理查询结果)
-	- [切换当前数据库](#切换当前数据库)
-	- [关闭数据库连接](#关闭数据库连接)
+	- [連接數據庫](#連接數據庫)
+	- [執行SQL語句](#執行sql語句)
+	- [處理查詢結果](#處理查詢結果)
+	- [切換當前數據庫](#切換當前數據庫)
+	- [關閉數據庫連接](#關閉數據庫連接)
 
 <!-- /TOC -->
 
 
 
-# 初始化与基本配置
-对于`MariaDB`与`MySQL`而言，在初始化操作上有着明显的区别。
+# 初始化與基本配置
+對於`MariaDB`與`MySQL`而言，在初始化操作上有着明顯的區別。
 
-## 数据库初始化 (Windows)
-`MySQL`在`5.5`版本之后变更了初始化的方式，原先使用的`mysql_install_db`指令已被废弃，
-现在应该使用`--initialize`系列参数进行数据库初始化，如下所示：
+## 數據庫初始化 (Windows)
+`MySQL`在`5.5`版本之後變更了初始化的方式，原先使用的`mysql_install_db`指令已被廢棄，
+現在應該使用`--initialize`系列參數進行數據庫初始化，如下所示：
 
 ```
 > mysqld --initialize
 ```
 
-使用`--initialize`参数初始化会默认创建带有密码的`root`账户，密码会记录在`[主机名].err`文件中，日至内容大致为：
+使用`--initialize`參數初始化會默認創建帶有密碼的`root`賬戶，密碼會記錄在`[主機名].err`文件中，日至內容大致爲：
 
 ```
 [Note] A temporary password is generated for root@localhost: [password]
 ```
 
-可以使用`--initialize-insecure`参数初始化并创建不带密码的`root`账户，如下所示：
+可以使用`--initialize-insecure`參數初始化並創建不帶密碼的`root`賬戶，如下所示：
 
 ```
 >  mysqld --initialize-insecure
 ```
 
-## 数据库初始化 (Linux)
-`MariaDB`在MySQL被`Oracle`收购之后，被各大Linux发行版作为默认的MySQL替代版本。
+## 數據庫初始化 (Linux)
+`MariaDB`在MySQL被`Oracle`收購之後，被各大Linux發行版作爲默認的MySQL替代版本。
 
-作为MySQL的分支，并没有采用`MySQL 5.5`之后的新初始化方式，依旧使用`mysql_install_db`指令进行数据库初始化，
-以ArchLinux为例，初始化操作为：
+作爲MySQL的分支，並沒有採用`MySQL 5.5`之後的新初始化方式，依舊使用`mysql_install_db`指令進行數據庫初始化，
+以ArchLinux爲例，初始化操作爲：
 
 ```
 # mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
 ```
 
-## 手动配置
-几乎所有的主流Linux发行版都将仓库中默认的MySQL数据库迁移到了MariaDB分支，
-因而在Linux下使用`Oracle MySQL`需要从官网下载二进制包手动进行配置。
+## 手動配置
+幾乎所有的主流Linux發行版都將倉庫中默認的MySQL數據庫遷移到了MariaDB分支，
+因而在Linux下使用`Oracle MySQL`需要從官網下載二進制包手動進行配置。
 
-与Windows下不同，在Linux下启动mysql服务需要显式使用`--basedir`、`--datadir`等参数指定数据库的相关路径，
-在MySQL的`bin`目录下执行如下所示指令：
-
-```
-$ ./mysqld --initialize-insecure --basedir=[软件路径] --datadir=[数据路径]
-```
-
-启动数据库服务需要指定一个拥有权限的路径/文件作为socket路径，
-在启动时会创建该文件(使用默认参数启动数据库服务会尝试使用`/run/mysqld/mysqld.sock`文件作为锁文件，
-但普通用户不具有该路径的权限，因而需要显式指定`--socket`参数)：
+與Windows下不同，在Linux下啓動mysql服務需要顯式使用`--basedir`、`--datadir`等參數指定數據庫的相關路徑，
+在MySQL的`bin`目錄下執行如下所示指令：
 
 ```
-$ ./mysql --socket=[socket文件路径] -u root
+$ ./mysqld --initialize-insecure --basedir=[軟件路徑] --datadir=[數據路徑]
 ```
 
-## 使用指定配置启动
-可以将MySQL的启动参数写入配置文件中，启动时指定配置文件的路径即可：
+啓動數據庫服務需要指定一個擁有權限的路徑/文件作爲socket路徑，
+在啓動時會創建該文件(使用默認參數啓動數據庫服務會嘗試使用`/run/mysqld/mysqld.sock`文件作爲鎖文件，
+但普通用戶不具有該路徑的權限，因而需要顯式指定`--socket`參數)：
 
 ```
-$ ./mysqld --defaults-file=[配置文件路径]
+$ ./mysql --socket=[socket文件路徑] -u root
 ```
 
-启动操作类似：
+## 使用指定配置啓動
+可以將MySQL的啓動參數寫入配置文件中，啓動時指定配置文件的路徑即可：
 
 ```
-$ ./mysqld --defaults-file=[配置文件路径]
+$ ./mysqld --defaults-file=[配置文件路徑]
 ```
 
-一个精简的配置文件大致结构如下：
+啓動操作類似：
+
+```
+$ ./mysqld --defaults-file=[配置文件路徑]
+```
+
+一個精簡的配置文件大致結構如下：
 
 ```sh
 [mysqld]
-basedir = #软件路径
-datadir = #数据库路径
-port = #服务端口
-server_id = #服务id
-socket = #服务socket文件位置
+basedir = #軟件路徑
+datadir = #數據庫路徑
+port = #服務端口
+server_id = #服務id
+socket = #服務socket文件位置
 
 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
 
 [server]
-character_set_server = #数据库编码
+character_set_server = #數據庫編碼
 
 [client]
-default-character-set = #连接编码
-socket = #客户端启动socket文件位置
+default-character-set = #連接編碼
+socket = #客戶端啓動socket文件位置
 ```
 
 
 
-# 服务管理
-除了使用`mysqld`指令启动服务之外，在不同的OS上，可以使用OS自带的服务管理工具启动MySQL服务。
+# 服務管理
+除了使用`mysqld`指令啓動服務之外，在不同的OS上，可以使用OS自帶的服務管理工具啓動MySQL服務。
 
-## 管理数据库服务 (Windows)
-在Windows系统下，可以使用`--install`参数将MySQL注册到系统服务上：
+## 管理數據庫服務 (Windows)
+在Windows系統下，可以使用`--install`參數將MySQL註冊到系統服務上：
 
 ```
 > mysqld --install
 ```
 
-之后可以使用Windows自带的服务管理工具`net`启动MySQL服务：
+之後可以使用Windows自帶的服務管理工具`net`啓動MySQL服務：
 
 ```
 > net start mysql
 ```
 
-如果不再需要MySQL服务，则使用`--remove`参数移除服务：
+如果不再需要MySQL服務，則使用`--remove`參數移除服務：
 
 ```
 > mysqld --remove
 ```
 
-## 管理数据库服务 (Linux SystemD)
-采用`systemd`的发行版中可以使用`systemctl`指令管理MySQL服务：
+## 管理數據庫服務 (Linux SystemD)
+採用`systemd`的發行版中可以使用`systemctl`指令管理MySQL服務：
 
 ```
-# systemctl status mysqld //查看mysql服务状态
-# systemctl start mysqld //启动mysql服务
-# systemctl stop mysqld //停止mysql服务
-# systemctl restart mysqld //重启mysql服务
+# systemctl status mysqld //查看mysql服務狀態
+# systemctl start mysqld //啓動mysql服務
+# systemctl stop mysqld //停止mysql服務
+# systemctl restart mysqld //重啓mysql服務
 ```
 
-## 管理数据库服务 (BSD/Linux SysV)
-旧式的Linux发行版以及`*BSD`中使用`service`指令管理MySQL服务：
+## 管理數據庫服務 (BSD/Linux SysV)
+舊式的Linux發行版以及`*BSD`中使用`service`指令管理MySQL服務：
 
 ```
 # service mysql status
@@ -174,204 +174,204 @@ socket = #客户端启动socket文件位置
 
 
 
-# 用户登陆与管理
-在成功启动了`MySQL`服务之后，使用`mysql`指令登陆：
+# 用戶登陸與管理
+在成功啓動了`MySQL`服務之後，使用`mysql`指令登陸：
 
 ```
-$ mysql -u [用户名]
+$ mysql -u [用戶名]
 ```
 
-对于有密码的用户，需要使用`-p`参数登陆：
+對於有密碼的用戶，需要使用`-p`參數登陸：
 
 ```
-$ mysql -u [用户名] -p
+$ mysql -u [用戶名] -p
 ```
 
-## 远程登陆
-默认情况下为登陆本机的数据库，如果需要**远程登陆**到其它主机上的数据库，应该使用`-h`参数：
+## 遠程登陸
+默認情況下爲登陸本機的數據庫，如果需要**遠程登陸**到其它主機上的數據庫，應該使用`-h`參數：
 
 ```
-$ mysql -h [目标主机ip] -u [用户名] -p
+$ mysql -h [目標主機ip] -u [用戶名] -p
 ```
 
-远程登陆要求本机的ip已被添加到mysql服务端配置中的`bind-address`配置项中，或者不启用bind-address配置。
-在Ubuntu发行版中，默认配置中bind-address配置项是**启用**的。
+遠程登陸要求本機的ip已被添加到mysql服務端配置中的`bind-address`配置項中，或者不啓用bind-address配置。
+在Ubuntu發行版中，默認配置中bind-address配置項是**啓用**的。
 
-## 修改用户密码
-登陆数据库之后，在数据库命令行中输入：
-
-```
-mysql> set password = password('[密码内容]')
-```
-
-也可以使用`mysqladmin`工具进行密码修改操作：
+## 修改用戶密碼
+登陸數據庫之後，在數據庫命令行中輸入：
 
 ```
-$ mysqladmin -u [用户名] password '[密码内容]'
+mysql> set password = password('[密碼內容]')
 ```
 
-## 查看用户信息
-MySQL数据库的用户信息记录在`mysql`库中的`user`表中，查询该表即可得到**用户信息**：
+也可以使用`mysqladmin`工具進行密碼修改操作：
+
+```
+$ mysqladmin -u [用戶名] password '[密碼內容]'
+```
+
+## 查看用戶信息
+MySQL數據庫的用戶信息記錄在`mysql`庫中的`user`表中，查詢該表即可得到**用戶信息**：
 
 ```
 mysql> select * from mysql.user;
 ```
 
-## 创建/删除用户
-在数据库命令行中使用`create user`指令即可创建用户：
+## 創建/刪除用戶
+在數據庫命令行中使用`create user`指令即可創建用戶：
 
 ```
-mysql> create user [用户名];
+mysql> create user [用戶名];
 ```
 
-默认情况下创建的是不允许本地登录的远程用户，以上指令相当于：
+默認情況下創建的是不允許本地登錄的遠程用戶，以上指令相當於：
 
 ```
-mysql> create user [用户名@'%'];
+mysql> create user [用戶名@'%'];
 ```
 
-创建本地用户：
+創建本地用戶：
 
 ```
-mysql> create user [用户名@localhost];
+mysql> create user [用戶名@localhost];
 ```
 
-删除用户操作类似，使用`drop user`指令：
+刪除用戶操作類似，使用`drop user`指令：
 
 ```
-mysql> drop user [用户名@主机名/主机地址];
+mysql> drop user [用戶名@主機名/主機地址];
 ```
 
-## 授权用户
-新创建的用户不具有权限，需要使用管理员账户(一般为`root`)对其进行授权。
+## 授權用戶
+新創建的用戶不具有權限，需要使用管理員賬戶(一般爲`root`)對其進行授權。
 
-授予某个用户指定数据库的查询与更新权限：
+授予某個用戶指定數據庫的查詢與更新權限：
 
 ```sql
-mysql> grant select, update on [数据库名].* to [用户名]@[登录方式];
+mysql> grant select, update on [數據庫名].* to [用戶名]@[登錄方式];
 ```
 
-授予某个用户所有权限：
+授予某個用戶所有權限：
 
 ```sql
-mysql> grant all privileges on *.* to [用户名]@[登录方式];
+mysql> grant all privileges on *.* to [用戶名]@[登錄方式];
 ```
 
-被授权的用户默认不能将所拥有的权限授权给其它用户，
-如果需要使授权能够被传播则使用(一般不推荐这样使用，数据库权限应由DBA统一管理)：
+被授權的用戶默認不能將所擁有的權限授權給其它用戶，
+如果需要使授權能夠被傳播則使用(一般不推薦這樣使用，數據庫權限應由DBA統一管理)：
 
 ```sql
-mysql> grant all privileges on *.* to [用户名]@[登录方式] with grant option;
+mysql> grant all privileges on *.* to [用戶名]@[登錄方式] with grant option;
 ```
 
-也可以通过修改`mysql.user`表来赋予权限：
+也可以通過修改`mysql.user`表來賦予權限：
 
 ```sql
-mysql> update user set Host='[主机名称]',select_priv='y', insert_priv='y',update_priv='y', Alter_priv='y',delete_priv='y',create_priv='y',drop_priv='y',reload_priv='y',shutdown_priv='y',Process_priv='y',file_priv='y',grant_priv='y',References_priv='y',index_priv='y',create_user_priv='y',show_db_priv='y',super_priv='y',create_tmp_table_priv='y',Lock_tables_priv='y',execute_priv='y',repl_slave_priv='y',repl_client_priv='y',create_view_priv='y',show_view_priv='y',create_routine_priv='y',alter_routine_priv='y',create_user_priv='y' where user='[用户名]';
+mysql> update user set Host='[主機名稱]',select_priv='y', insert_priv='y',update_priv='y', Alter_priv='y',delete_priv='y',create_priv='y',drop_priv='y',reload_priv='y',shutdown_priv='y',Process_priv='y',file_priv='y',grant_priv='y',References_priv='y',index_priv='y',create_user_priv='y',show_db_priv='y',super_priv='y',create_tmp_table_priv='y',Lock_tables_priv='y',execute_priv='y',repl_slave_priv='y',repl_client_priv='y',create_view_priv='y',show_view_priv='y',create_routine_priv='y',alter_routine_priv='y',create_user_priv='y' where user='[用戶名]';
 ```
 
-更新完用户权限表之后，刷新权限信息：
+更新完用戶權限表之後，刷新權限信息：
 
 ```sql
 mysql> flush privileges;
 ```
 
-查看一个用户的权限可以在数据库命令行中使用`show grants`指令：
+查看一個用戶的權限可以在數據庫命令行中使用`show grants`指令：
 
 ```sql
-mysql> show grants; //显示当前用户的权限信息
-mysql> show grants for [用户名]@[主机地址]; //显示指定用户的权限信息
+mysql> show grants; //顯示當前用戶的權限信息
+mysql> show grants for [用戶名]@[主機地址]; //顯示指定用戶的權限信息
 ```
 
 
 
-# 驱动配置
-使用不同的开发语言/库/平台需要配置对应的驱动。
+# 驅動配置
+使用不同的開發語言/庫/平臺需要配置對應的驅動。
 
 - `Java API`
 
-	Java语言中与MySQL交互一般使用通用的JDBC接口，加载MySQL官方的JDBC驱动即可。
-	Java IDE如`NetBeans`、`Eclipse`、`IntelliJ IDEA`等提供的MySQL数据库管理功能也需要添加MySQL的JDBC驱动。
+	Java語言中與MySQL交互一般使用通用的JDBC接口，加載MySQL官方的JDBC驅動即可。
+	Java IDE如`NetBeans`、`Eclipse`、`IntelliJ IDEA`等提供的MySQL數據庫管理功能也需要添加MySQL的JDBC驅動。
 
 - `Qt API`
 
-	使用Qt官方安装包的Qt环境中无须额外配置(驱动已被集成至安装包中)。
-	`ArchLinux`中使用使用Qt5操作MySQL数据无需安装额外的包(驱动已被集成至`Qt5`包组中)。
-	`Debian`系发行版中使用Qt5操作MySQL数据库需要安装`libqt5sql-mysql`包。
+	使用Qt官方安裝包的Qt環境中無須額外配置(驅動已被集成至安裝包中)。
+	`ArchLinux`中使用使用Qt5操作MySQL數據無需安裝額外的包(驅動已被集成至`Qt5`包組中)。
+	`Debian`系發行版中使用Qt5操作MySQL數據庫需要安裝`libqt5sql-mysql`包。
 
 - `C API`
 
-	`Debian/RedHat`系发行版中使用`C API`连接mysql数据库时需要安装额外的开发头文件包：
+	`Debian/RedHat`系發行版中使用`C API`連接mysql數據庫時需要安裝額外的開發頭文件包：
 
 	```
 	# apt-get install libmysqlclient-devel //大便系
-	# yum/dnf install mysql-devel //红帽系
+	# yum/dnf install mysql-devel //紅帽系
 	```
 
-	`ArchLinux`中不需要，ArchLinux中的`mysql`包已经包含了开发头文件。
+	`ArchLinux`中不需要，ArchLinux中的`mysql`包已經包含了開發頭文件。
 
 
 
 # 基本操作
-基本的数据库管理、操作指令：
+基本的數據庫管理、操作指令：
 
-- `status;` 查看数据库基本状态
-- `show databases;` 查看数据库列表
-- `create database [数据库名];` 创建数据库
-- `drop database [数据库名];` 删除数据库
-- `use [数据库名];` 切换正在使用的数据库
-- `desc [表名];` 查看指定表格的结构
-- `truncate table [表名];` 清除指定表格的内容(速度快，但不可恢复)
-- `delete from [表名];` 删除指定表格的内容(速度慢，但可以恢复)
+- `status;` 查看數據庫基本狀態
+- `show databases;` 查看數據庫列表
+- `create database [數據庫名];` 創建數據庫
+- `drop database [數據庫名];` 刪除數據庫
+- `use [數據庫名];` 切換正在使用的數據庫
+- `desc [表名];` 查看指定表格的結構
+- `truncate table [表名];` 清除指定表格的內容(速度快，但不可恢復)
+- `delete from [表名];` 刪除指定表格的內容(速度慢，但可以恢復)
 
-## 常用的SQL语句
+## 常用的SQL語句
 - `insert into [表名] ([列名1], [列名2], ....) values([值1], [值2], ....);` 增
-- `delete from [表名] where [限制条件];` 删
-- `update [表名] set [列名] = '[内容]' where [列名] = '[内容]';` 改
-- `select [列名] from [表名] where [限制条件];` 查
-- `select count([统计内容]) from [表名];` 统计表中的指定记录数
-- `select [列名] from [表名] limit [数量] offset [起始行];` 从指定行开始查询指定数量的记录
-- `select [列名] from [表名] limit [起始行], [数量];` 从指定行开始查询指定数量的记录
+- `delete from [表名] where [限制條件];` 刪
+- `update [表名] set [列名] = '[內容]' where [列名] = '[內容]';` 改
+- `select [列名] from [表名] where [限制條件];` 查
+- `select count([統計內容]) from [表名];` 統計表中的指定記錄數
+- `select [列名] from [表名] limit [數量] offset [起始行];` 從指定行開始查詢指定數量的記錄
+- `select [列名] from [表名] limit [起始行], [數量];` 從指定行開始查詢指定數量的記錄
 
-## 内置函数
-使用**内置函数**可以查询一些特殊的信息：
+## 內置函數
+使用**內置函數**可以查詢一些特殊的信息：
 
-- `select user();` 查询当前登录的用户
-- `select database();` 查询正在使用的数据库名称
-- `select version();` 查询数据库的版本信息
-- `select @@version_compile_os;` 查询数据编译平台
+- `select user();` 查詢當前登錄的用戶
+- `select database();` 查詢正在使用的數據庫名稱
+- `select version();` 查詢數據庫的版本信息
+- `select @@version_compile_os;` 查詢數據編譯平臺
 
-## 复制表格
-仅复制表格结构：
-
-```sql
-create table [新表] like [旧表]
-```
-
-复制表格的结构和数据：
+## 複製表格
+僅複製表格結構：
 
 ```sql
-create table [新表] select * from [旧表]
+create table [新表] like [舊錶]
 ```
 
-## 主键自增
-设置指定表格主键自增：
+複製表格的結構和數據：
 
 ```sql
-mysql> alert table [表名] auto_increment=[数字]; //设置自增属性
-mysql> alter table [表名] change [主键列名] [主键列名] [属性] auto_increment;
+create table [新表] select * from [舊錶]
 ```
 
-取消主键自增：
+## 主鍵自增
+設置指定表格主鍵自增：
 
 ```sql
-mysql> alter table [表名] change [列名] [列名] [属性];
+mysql> alert table [表名] auto_increment=[數字]; //設置自增屬性
+mysql> alter table [表名] change [主鍵列名] [主鍵列名] [屬性] auto_increment;
 ```
 
-设置主键自增对于已有数据的列需要清空已有数据才能正常显示。
-必须是**主键**才能设置自增属性。
+取消主鍵自增：
 
-可配置数据库全局的自增起始值和自增步长，查看相关配置：
+```sql
+mysql> alter table [表名] change [列名] [列名] [屬性];
+```
+
+設置主鍵自增對於已有數據的列需要清空已有數據才能正常顯示。
+必須是**主鍵**才能設置自增屬性。
+
+可配置數據庫全局的自增起始值和自增步長，查看相關配置：
 
 ```
 mysql> show global variables like "auto_increment%";
@@ -384,14 +384,14 @@ mysql> show global variables like "auto_increment%";
 2 rows in set (0.00 sec)
 ```
 
-- `auto_increment_increment` 自增步长
+- `auto_increment_increment` 自增步長
 - `auto_increment_offset` 自增起始值
 
-默认的自增偏移和自增步长均为1，可通过`set global auto_increment_increment/auto_increment_offset = xxx`进行修改。
+默認的自增偏移和自增步長均爲1，可通過`set global auto_increment_increment/auto_increment_offset = xxx`進行修改。
 
-## 外键约束
-InnoDB引擎支持外键约束，从表可引用主表的键/主键作为外键，外键字段的值必须为主表中对应字段已存在的值。
-外键可用在`CREATE TABLE`和`ALTER TABLE`语句中，语法如下：
+## 外鍵約束
+InnoDB引擎支持外鍵約束，從表可引用主表的鍵/主鍵作爲外鍵，外鍵字段的值必須爲主表中對應字段已存在的值。
+外鍵可用在`CREATE TABLE`和`ALTER TABLE`語句中，語法如下：
 
 ```sql
 [CONSTRAINT [symbol]] FOREIGN KEY
@@ -404,18 +404,18 @@ reference_option:
     RESTRICT | CASCADE | SET NULL | NO ACTION | SET DEFAULT
 ```
 
-创建外键约束时，可通过`reference_option`设置外键数据的更新、删除行为：
+創建外鍵約束時，可通過`reference_option`設置外鍵數據的更新、刪除行爲：
 
-- `RESTRICT` 检测主表数据是否被从表引用，未引用数据可删除、修改，已被引用则不可删除、修改
-- `NO ACTION` 标准SQL中的关键字，等价于RESTRICT
-- `CASCADE` 级联，同步更新、删除从表数据
-- `SET NULL` 主表变化，从表的引用字段设为NULL
-- `DEFAULT` 默认操作，等价于RESTRICT
+- `RESTRICT` 檢測主表數據是否被從表引用，未引用數據可刪除、修改，已被引用則不可刪除、修改
+- `NO ACTION` 標準SQL中的關鍵字，等價於RESTRICT
+- `CASCADE` 級聯，同步更新、刪除從表數據
+- `SET NULL` 主表變化，從表的引用字段設爲NULL
+- `DEFAULT` 默認操作，等價於RESTRICT
 
-移除外键在`ALTER TABLE`中使用`DROP FOREIGN KEY fk_symbol`子句。
+移除外鍵在`ALTER TABLE`中使用`DROP FOREIGN KEY fk_symbol`子句。
 
-主表字段需要与从表的字段类型相同或兼容。
-同一个数据库内的约束名称**不可重复**，否则表格创建失败，可能会造成以下错误：
+主表字段需要與從表的字段類型相同或兼容。
+同一個數據庫內的約束名稱**不可重複**，否則表格創建失敗，可能會造成以下錯誤：
 
 ```
 Error Code: 1022. Can't write; duplicate key in table '***'
@@ -424,51 +424,51 @@ Error Code: 1215. Cannot add the foreign key constraint
 
 
 
-# 常用设置
+# 常用設置
 
-## 导出数据
-使用`mysqldump`工具可以导出数据库的内容，基本操作指令如下：
-
-```
-$ mysqldump -u"[用户名]" -p"[密码]" -A //导出所有数据库
-$ mysqldump -u"[用户名]" -p"[密码]" [要备份的数据库名称] //导出指定数据库
-$ mysqldump -u"[用户名]" -p"[密码]" [要备份的数据库名称] [要备份的表名称] //导出指定数据库中的指定表的内容
-```
-
-默认情况下，mysqldump工具会将导出的数据以SQL语句的形式输出到终端，可以使用重定向将导出的内容写入文本中：
+## 導出數據
+使用`mysqldump`工具可以導出數據庫的內容，基本操作指令如下：
 
 ```
-$ mysqldump -u"[用户名]" -p"[密码]" -A > xxx.sql //导出的内容写入 xxx.sql 文件中
+$ mysqldump -u"[用戶名]" -p"[密碼]" -A //導出所有數據庫
+$ mysqldump -u"[用戶名]" -p"[密碼]" [要備份的數據庫名稱] //導出指定數據庫
+$ mysqldump -u"[用戶名]" -p"[密碼]" [要備份的數據庫名稱] [要備份的表名稱] //導出指定數據庫中的指定表的內容
 ```
 
-mysqldump支持根据条件导出指定的内容(使用`-w`参数)：
+默認情況下，mysqldump工具會將導出的數據以SQL語句的形式輸出到終端，可以使用重定向將導出的內容寫入文本中：
 
 ```
-$ mysqldump -u"[用户名]" -p"[密码]" -w"[限制条件]" [数据库名] [表名]
+$ mysqldump -u"[用戶名]" -p"[密碼]" -A > xxx.sql //導出的內容寫入 xxx.sql 文件中
 ```
 
-导出内容时支持设定只导出数据(`-t`)或只导出表结构(`-d`)。
-
-## 导入数据
-导入数据需要在数据库命令行中使用`source`指令：
+mysqldump支持根據條件導出指定的內容(使用`-w`參數)：
 
 ```
-mysql> source [数据库备份文件]
+$ mysqldump -u"[用戶名]" -p"[密碼]" -w"[限制條件]" [數據庫名] [表名]
 ```
 
-导入数据库时需要注意编码问题，数据库编码、连接编码、备份文件的编码需要相同才不会产生中文乱码问题。
+導出內容時支持設定只導出數據(`-t`)或只導出表結構(`-d`)。
 
-## 设置中文编码
-默认情况下，旧版的mysql数据库的编码为`latin1`，此编码不支持东亚语系的文字显示，需要修改为支持各国文字的`UTF-8`编码。
-对于部分使用`MariaDB`的发行版(如`ArchLinux`)，默认的编码为`UTF-8`，无需额外配置。
+## 導入數據
+導入數據需要在數據庫命令行中使用`source`指令：
 
-查看数据库的默认的所有编码信息：
+```
+mysql> source [數據庫備份文件]
+```
+
+導入數據庫時需要注意編碼問題，數據庫編碼、連接編碼、備份文件的編碼需要相同纔不會產生中文亂碼問題。
+
+## 設置中文編碼
+默認情況下，舊版的mysql數據庫的編碼爲`latin1`，此編碼不支持東亞語系的文字顯示，需要修改爲支持各國文字的`UTF-8`編碼。
+對於部分使用`MariaDB`的發行版(如`ArchLinux`)，默認的編碼爲`UTF-8`，無需額外配置。
+
+查看數據庫的默認的所有編碼信息：
 
 ```
 mysql> show variables like 'character_set_%';
 ```
 
-典型的结果如下所示：
+典型的結果如下所示：
 
 ```
 +--------------------------+------------------------------------------------------------+
@@ -487,27 +487,27 @@ mysql> show variables like 'character_set_%';
 
 其中：
 
-- `character_set_client`、`character_set_connection`可以通过配置文件中的`[client]`段进行修改。
-- `character_set_database`、`character_set_results`、`character_set_server`可以通过修改配置文件中的`[server]`段进行修改。
+- `character_set_client`、`character_set_connection`可以通過配置文件中的`[client]`段進行修改。
+- `character_set_database`、`character_set_results`、`character_set_server`可以通過修改配置文件中的`[server]`段進行修改。
 
-需要注意的是，每个数据库可以拥有不同的编码信息，查看指定数据库的编码：
+需要注意的是，每個數據庫可以擁有不同的編碼信息，查看指定數據庫的編碼：
 
 ```
-mysql> use [数据库名称];
+mysql> use [數據庫名稱];
 mysql> show variables like 'character_set_database';
 ```
 
-修改指定数据库的编码：
+修改指定數據庫的編碼：
 
 ```
-mysql> alter database [数据库名称] CHARACTER SET [编码类型(gbk/utf8)];
+mysql> alter database [數據庫名稱] CHARACTER SET [編碼類型(gbk/utf8)];
 ```
 
-如果需要修改数据库的默认编码，则需要修改配置文件：
+如果需要修改數據庫的默認編碼，則需要修改配置文件：
 
-- 在`Debian`系中，配置文件为`/etc/mysql/mariadb.conf.d/client.cnf`。
-- 在`RedHat`系中，配置文件为`/etc/my.cnf`。
-- 在`ArchLinux`中，配置文件为`/etc/mysql/my.cnf`。
+- 在`Debian`系中，配置文件爲`/etc/mysql/mariadb.conf.d/client.cnf`。
+- 在`RedHat`系中，配置文件爲`/etc/my.cnf`。
+- 在`ArchLinux`中，配置文件爲`/etc/mysql/my.cnf`。
 
 在配置文件中加入下列配置：
 
@@ -519,80 +519,80 @@ default-character-set = utf8
 default-character-set = utf8
 ```
 
-在`Windows`系统下，配置文件位于mysql的软件主目录下，名称为`my.ini`，该配置文件需要手动创建：
+在`Windows`系統下，配置文件位於mysql的軟件主目錄下，名稱爲`my.ini`，該配置文件需要手動創建：
 
 ```ini
 [server]
-# mysql5.5版本之后[server]配置段不再使用default-character-set=utf8，该配置已被废弃
+# mysql5.5版本之後[server]配置段不再使用default-character-set=utf8，該配置已被廢棄
 character_set_server = utf8
 [client]
-# 客户端配置不变
+# 客戶端配置不變
 default-character-set = utf8
 ```
 
-## 二进制数据
-如果需要向数据库中存储二进制信息(比如**图片**)，则字段应选择`BLOB`类型(`binary large object`)。
+## 二進制數據
+如果需要向數據庫中存儲二進制信息(比如**圖片**)，則字段應選擇`BLOB`類型(`binary large object`)。
 
-MySQL中与BLOB相关的类型有四种，分别为：`TinyBlob`、`Blob`、`MediumBlum`、`LongBlum`。
-这四种类型之间的区别在于存储文件大小上限不同。
+MySQL中與BLOB相關的類型有四種，分別爲：`TinyBlob`、`Blob`、`MediumBlum`、`LongBlum`。
+這四種類型之間的區別在於存儲文件大小上限不同。
 `TinyBlob`最大`255B`，`Blob`最大`65KB`，`MediumBlob`最大`16MB`，`LongBlob`最大`4GB`。
 
-## JSP编码设置
-在`JSP`开发中，编码问题主要体现在以下几个方面：
+## JSP編碼設置
+在`JSP`開發中，編碼問題主要體現在以下幾個方面：
 
-- 数据库表的编码：`ENGINE=InnoDB DEFAULT CHARSET=utf8`。
-- 数据库连接编码：`jdbc:mysql://localhost:3306/xxx?useUnicode=true&characterEncoding=UTF-8`。
-- 页面提交内容的编码：`request.setCharacterEncoding("UTF-8");response.setCharacterEncoding("UTF-8");`。
+- 數據庫表的編碼：`ENGINE=InnoDB DEFAULT CHARSET=utf8`。
+- 數據庫連接編碼：`jdbc:mysql://localhost:3306/xxx?useUnicode=true&characterEncoding=UTF-8`。
+- 頁面提交內容的編碼：`request.setCharacterEncoding("UTF-8");response.setCharacterEncoding("UTF-8");`。
 
-数据表的编码需要与连接的编码相同，否则读取数据会出现中文乱码，而JSP页面中的内容编码可以单独指定。
+數據表的編碼需要與連接的編碼相同，否則讀取數據會出現中文亂碼，而JSP頁面中的內容編碼可以單獨指定。
 
-## 时区问题
-MySQL连接出现如下所示错误：
+## 時區問題
+MySQL連接出現如下所示錯誤：
 
 ```
 The server time zone value 'XXX' is unrecognized or represents more than one time zone. You must configure either the server or JDBC driver (via the serverTimezone configuration property) to use a more specifc time zone value if you want to utilize time zone support.
 ```
 
-原因是服务端的时区信息未能正常获取，需要在连接中显式指明时区信息，如下所示：
+原因是服務端的時區信息未能正常獲取，需要在連接中顯式指明時區信息，如下所示：
 
 ```
-jdbc:mysql://localhost:3306/xxx?serverTimezone=UTC //服务端时区信息不为UTC时，需要改为与服务端相匹配的时区
+jdbc:mysql://localhost:3306/xxx?serverTimezone=UTC //服務端時區信息不爲UTC時，需要改爲與服務端相匹配的時區
 ```
 
-## 时间转换
-MySQL中使用内置函数`unix_timestamp(xxx)`可将时间转换为Unix时间戳(从`1970-1-1`至今的秒数)。
+## 時間轉換
+MySQL中使用內置函數`unix_timestamp(xxx)`可將時間轉換爲Unix時間戳(從`1970-1-1`至今的秒數)。
 
-MySQL中的内置时间类型(`datetime`类型)在不同语言中的对应类型：
+MySQL中的內置時間類型(`datetime`類型)在不同語言中的對應類型：
 
-- Java中的`java.sql.Timestamp`类型：
+- Java中的`java.sql.Timestamp`類型：
 
-	使用`Timestamp.getTime()`获取时间对应的Unix时间戳。
-	在Java中Timestamp类型精确到**微秒**，而MySQL中datetime类型精确到**秒**，
-	相同时间在Java中获得的时间戳应除以`1000`才能与MySQL中的时间戳相比较。
+	使用`Timestamp.getTime()`獲取時間對應的Unix時間戳。
+	在Java中Timestamp類型精確到**微秒**，而MySQL中datetime類型精確到**秒**，
+	相同時間在Java中獲得的時間戳應除以`1000`才能與MySQL中的時間戳相比較。
 	如下所示：
 
 	```java
-	timestamp.getTime() / 1000; //获取与MySQL中等价的Unix时间戳
+	timestamp.getTime() / 1000; //獲取與MySQL中等價的Unix時間戳
 	```
 
-- C#中的`System.DateTime`类型：
+- C#中的`System.DateTime`類型：
 
-	将在C#中获得的`DateTime`实例与表示`1970-1-1`至今的时间相减，得到`System.TimeSpan`类型表示的时间间隔，
-	访问`TimeSpan.TotalSeconds`属性获得Unix时间戳。
+	將在C#中獲得的`DateTime`實例與表示`1970-1-1`至今的時間相減，得到`System.TimeSpan`類型表示的時間間隔，
+	訪問`TimeSpan.TotalSeconds`屬性獲得Unix時間戳。
 	如下所示：
 
 	```cs
-	(dateTime - DateTime.Parse("1970-1-1")).TotalSeconds; //获取时间戳
+	(dateTime - DateTime.Parse("1970-1-1")).TotalSeconds; //獲取時間戳
 	```
 
 ## 禁用 DNS 解析
-MySQL默认开启了DNS解析，但在DNS服务器异常时，一次数据库操作会异常缓慢，并在`/var/log/mysql/error.log`中写入类似日志：
+MySQL默認開啓了DNS解析，但在DNS服務器異常時，一次數據庫操作會異常緩慢，並在`/var/log/mysql/error.log`中寫入類似日誌：
 
 ```
 [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved: Temporary failure in name resolution
 ```
 
-解决方法是禁用MySQL的DNS解析，在配置`my.cnf`中添加以下内容：
+解決方法是禁用MySQL的DNS解析，在配置`my.cnf`中添加以下內容：
 
 ```
 [mysqld]
@@ -619,47 +619,47 @@ skip-name-resolve
 
 
 # C API
-MySQL数据库提供了**C语言**接口用于数据库交互，在`*nix`中，头文件为`/usr/include/mysql/mysql.h`。
+MySQL數據庫提供了**C語言**接口用於數據庫交互，在`*nix`中，頭文件爲`/usr/include/mysql/mysql.h`。
 
-在使用Unix工具链进行编译时，需要添加参数`-lmysqlclient`用于链接`libmysqlclient.so`动态库。
+在使用Unix工具鏈進行編譯時，需要添加參數`-lmysqlclient`用於鏈接`libmysqlclient.so`動態庫。
 
-mysql的C语言绑定主要涉及以下几种结构体类型：
+mysql的C語言綁定主要涉及以下幾種結構體類型：
 
-- `MYSQL` 存储连接相关信息
-- `MYSQL_RES` 存储查询操作相关返回信息
+- `MYSQL` 存儲連接相關信息
+- `MYSQL_RES` 存儲查詢操作相關返回信息
 
-## 连接数据库
-使用`mysql_init()`初始化连接信息结构体，使用`mysql_real_connect()`连接数据库。
+## 連接數據庫
+使用`mysql_init()`初始化連接信息結構體，使用`mysql_real_connect()`連接數據庫。
 
 ```c
 MYSQL* mysql_init(MYSQL *mysql);
 MYSQL* mysql_real_connect(MYSQL *mysql, const char *host, const char *user, const char *passwd, const char *db, unsigned int port, const char *unix_socket, unsigned long clientflag);
 ```
 
-- `mysql`参数标识连接。
-- `host`、`user`、`passwd`参数依次为**主机地址**、**数据库用户名**、**数据库密码**。
-- `db`参数为连接到的数据库名称。
-- `port`参数用于显式指定连接端口，`unix_socket`参数为socket连接类型，`clientflag`为mysql运行ODBC的标记，一般本地连接这三个参数全填`NULL`。
+- `mysql`參數標識連接。
+- `host`、`user`、`passwd`參數依次爲**主機地址**、**數據庫用戶名**、**數據庫密碼**。
+- `db`參數爲連接到的數據庫名稱。
+- `port`參數用於顯式指定連接端口，`unix_socket`參數爲socket連接類型，`clientflag`爲mysql運行ODBC的標記，一般本地連接這三個參數全填`NULL`。
 
-旧式的连接函数`mysql_connect()`已不再推荐使用，仅仅为兼容而保留。
+舊式的連接函數`mysql_connect()`已不再推薦使用，僅僅爲兼容而保留。
 
-## 执行SQL语句
-使用`mysql_query()`以及`mysql_real_query()`执行SQL语句：
+## 執行SQL語句
+使用`mysql_query()`以及`mysql_real_query()`執行SQL語句：
 
 ```c
 int mysql_query(MYSQL *mysql, const char *q);
 int mysql_real_query(MYSQL *mysql, const char *q, unsigned long length);
 ```
 
-两个函数的区别如下：
+兩個函數的區別如下：
 
-- 一般性的SQL语句可以直接使用`mysql_query()`执行，`q`参数为需要执行的SQL语句字符数组指针。
-- `mysql_real_query()`相比`mysql_query()`而言效率更高，因为其内部实现不调用`strlen()`来获取字符数组长度。此外，如果执行的sql语句中包含有二进制内容，则一定需要使用`mysql_real_query()`，因为`mysql_query()`会调用`strlen()`来获取字符数组长度，而`strlen()`判断字符数组结束是以`\0`作为标志的，但对于二进制数据而言，数据中的`\0`可能是有效值，因而使用`mysql_query()`可能会造成对数据长度的误判使得程序未按预期执行。
+- 一般性的SQL語句可以直接使用`mysql_query()`執行，`q`參數爲需要執行的SQL語句字符數組指針。
+- `mysql_real_query()`相比`mysql_query()`而言效率更高，因爲其內部實現不調用`strlen()`來獲取字符數組長度。此外，如果執行的sql語句中包含有二進制內容，則一定需要使用`mysql_real_query()`，因爲`mysql_query()`會調用`strlen()`來獲取字符數組長度，而`strlen()`判斷字符數組結束是以`\0`作爲標誌的，但對於二進制數據而言，數據中的`\0`可能是有效值，因而使用`mysql_query()`可能會造成對數據長度的誤判使得程序未按預期執行。
 
-函数执行成功返回`0`，执行失败时返回错误代码。
+函數執行成功返回`0`，執行失敗時返回錯誤代碼。
 
-## 处理查询结果
-使用下列函数对结果集进行操作：
+## 處理查詢結果
+使用下列函數對結果集進行操作：
 
 ```c
 MYSQL_RES* mysql_store_result(MYSQL *mysql);
@@ -670,27 +670,27 @@ MYSQL_ROW mysql_fetch_row(MYSQL_RES *result);
 void mysql_data_seek(MYSQL_RES *result, my_ulonglong offset);
 ```
 
-- `mysql_store_result()`和`mysql_use_result()`用于获取查询语句之后的结果集内容，二者的区别是前者会将结果集拷贝到本地，开销大，后者直接读取服务器中的数据，每次只拷贝一行，开销小，但是后者需要在下一次SQL语句执行之前将结果集中的数据全部读出，但前者就不需要。
-- `mysql_field_count()`用于获取最近查询的列数。
-- `mysql_num_fields()`用于获取指定查询结果的列数。
-- `mysql_fetch_row()`用于按行读取结果集中的内容，每次执行`mysql_fetch_row()`会返回下一行结果集的指针。返回值类型`MYSQL_ROW`的实际类型为二维指针`char**`，保存了每一列的字符数组指针。
-- `mysql_data_seek()`用于设置结果集读取位置到指定的偏移量，`offset`参数取值为`0`时，则重置结果集的读取位置。
+- `mysql_store_result()`和`mysql_use_result()`用於獲取查詢語句之後的結果集內容，二者的區別是前者會將結果集拷貝到本地，開銷大，後者直接讀取服務器中的數據，每次只拷貝一行，開銷小，但是後者需要在下一次SQL語句執行之前將結果集中的數據全部讀出，但前者就不需要。
+- `mysql_field_count()`用於獲取最近查詢的列數。
+- `mysql_num_fields()`用於獲取指定查詢結果的列數。
+- `mysql_fetch_row()`用於按行讀取結果集中的內容，每次執行`mysql_fetch_row()`會返回下一行結果集的指針。返回值類型`MYSQL_ROW`的實際類型爲二維指針`char**`，保存了每一列的字符數組指針。
+- `mysql_data_seek()`用於設置結果集讀取位置到指定的偏移量，`offset`參數取值爲`0`時，則重置結果集的讀取位置。
 
-## 切换当前数据库
-使用`mysql_select_db()`函数切换数据库：
+## 切換當前數據庫
+使用`mysql_select_db()`函數切換數據庫：
 
 ```c
 int mysql_select_db(MYSQL *mysql,const char *db);
 ```
 
-相当于mysql指令`use [数据库名]`。
+相當於mysql指令`use [數據庫名]`。
 
-## 关闭数据库连接
-使用`mysql_close()`函数关闭数据库连接：
+## 關閉數據庫連接
+使用`mysql_close()`函數關閉數據庫連接：
 
 ```c
 void mysql_close(MYSQL *sock);
 ```
 
-- 如果传入的参数是指针，则指针所指向的MYSQL结构体内存区域会被释放掉。
-- 立即访问执行`mysql_close()`之后的MYSQL指针会报错(野指针)，如果在关闭连接之后需要重新启用连接，需要重新执行初始化操作`mysql_init()`。
+- 如果傳入的參數是指針，則指針所指向的MYSQL結構體內存區域會被釋放掉。
+- 立即訪問執行`mysql_close()`之後的MYSQL指針會報錯(野指針)，如果在關閉連接之後需要重新啓用連接，需要重新執行初始化操作`mysql_init()`。
