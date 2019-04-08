@@ -414,6 +414,14 @@ reference_option:
 
 移除外键在`ALTER TABLE`中使用`DROP FOREIGN KEY fk_symbol`子句。
 
+主表字段需要与从表的字段类型相同或兼容。
+同一个数据库内的约束名称**不可重复**，否则表格创建失败，可能会造成以下错误：
+
+```
+Error Code: 1022. Can't write; duplicate key in table '***'
+Error Code: 1215. Cannot add the foreign key constraint
+```
+
 
 
 # 常用设置

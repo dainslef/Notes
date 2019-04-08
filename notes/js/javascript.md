@@ -393,7 +393,7 @@ function testNormal(f) {
 
 function testMember(f) {
 	obj.f = f
-	obj.f(obj)
+	obj.f(this)
 }
 
 testNormal(function (target) {
@@ -432,7 +432,7 @@ this == gobal: true
 this == target: true
 Test Member Call:
 this == gobal: false
-this == target: true
+this == target: false
 Test Normal Call in obj:
 this == gobal: true
 this == target: false

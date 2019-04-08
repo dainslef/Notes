@@ -2349,7 +2349,7 @@ public class Main {
 
 
 # JDBC
-`JDBC`为Java定义了一套公用的数据库`API`，JDBC屏蔽了不同数据库之间的差异。
+`JDBC`为Java定义了一套公用的数据库API，JDBC屏蔽了不同数据库之间的差异。
 对于支持JDBC的数据库，只要导入对应的`JDBC Driver`即可使用相同的`JDBC API`进行操作。
 
 ## 连接数据库
@@ -2569,8 +2569,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 关闭折叠显示可点击`Project`导航中的设置按钮，取消选中`Flatten Packages`选项。
 
 ## 其它常用选项
-通用编辑器选项
-`File` => `Settings` => `Editor` => `General`：
+通用编辑器选项 `File` => `Settings` => `Editor` => `General`：
 
 | 选项名称 | 含义 |
 | :- | :- |
@@ -2580,8 +2579,7 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 | Virtual Space | 虚空格(空白处的点按逻辑) |
 | Other => Show quick documentation on mouse move | 光标悬停显示变量/方法信息 |
 
-代码风格选项
-`File` => `Settings` => `Editor` => `Code Style`：
+代码风格选项 `File` => `Settings` => `Editor` => `Code Style`：
 
 | 选项名称 | 含义 |
 | :- | :- |
@@ -2591,10 +2589,11 @@ Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方�
 | [目标语言] => Wrappings and Braces => Method parenttheses => Align when multiline | 函数多行参数是否自动对齐到函数名 |
 | [目标语言] => Blank Lines => Minimum Blank Lines | 方法、字段前空行数量 |
 
-`File` => `Settings` => `Project` => `Inspections` => `Spelling` 设置是否开启拼写检查
+设置是否开启拼写检查 `File` => `Settings` => `Project` => `Inspections` => `Spelling`
 
-`File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
-设置`JavaScript`支持`ECMAScript 6`语法
+关闭代码重复性检测 `File` => `Settings` => `Project` => `Inspections` => `Genernal` => `Duplicated code fragment`
+
+设置JavaScript支持ES6语法 `File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
 
 ## 项目打包
 将Java项目打包成`jar`、`war`等分发格式，按以下菜单路径设置：
