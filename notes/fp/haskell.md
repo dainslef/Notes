@@ -942,8 +942,16 @@ Functor => Applicative => Monad
 	Functor满足如下规则：
 
 	```hs
-	fmap id == id
-	fmap (f . g) == fmap f . fmap g
+	fmap id = id
+	fmap (f . g) = fmap f . fmap g
+	```
+
+	对于Functor类型，亦可使用`<$>`操作符，功能与fmap函数相同：
+
+	```hs
+	(<$>) :: Functor f => (a -> b) -> f a -> f b
+	        -- Defined in ‘Data.Functor’
+	infixl 4 <$>
 	```
 
 - `Applicative`
@@ -960,9 +968,10 @@ Functor => Applicative => Monad
 	  	-- Defined in ‘GHC.Base’
 	```
 
-	Applicative类型至少需要实现`pure`和`<*>`操作符。
-	pure函数定义参数类型到Applicative的构造逻辑。
-	<*>操作符作用与fmap类似，但参数类型的变换逻辑包装在在Applicative类型中。
+	Applicative类型至少需要实现`pure`和`<*>`操作符：
+
+	- pure函数定义参数类型到Applicative的构造逻辑。
+	- `<*>`操作符作用与fmap类似，但参数类型的变换逻辑包装在在Applicative类型中。
 
 - `Monad`
 
@@ -987,7 +996,7 @@ Functor => Applicative => Monad
 
 	`return`函数提供参数类型到Monad的构造逻辑，由于Monad是Applicative子类，return默认使用pure函数做为实现。
 
-Monad实例应遵循下列规则：
+Monad类型应遵循下列规则：
 
 ```hs
 return a >>= k = k a
@@ -995,7 +1004,7 @@ m >>= return = m
 m >>= (\x -> k x >>= h) = (m >>= k) >>= h
 ```
 
-Monad与Applicative操作符应遵循下列规则：
+Monad与Applicative实现函数/操作符时应遵循下列规则：
 
 ```hs
 pure = return
