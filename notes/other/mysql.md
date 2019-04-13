@@ -1,8 +1,8 @@
 <!-- TOC -->
 
 - [初始化與基本配置](#初始化與基本配置)
-	- [數據庫初始化 (Windows)](#數據庫初始化-windows)
-	- [數據庫初始化 (Linux)](#數據庫初始化-linux)
+	- [數據庫初始化 (MySQL 5.5+)](#數據庫初始化-mysql-55)
+	- [數據庫初始化 (MariaDB & MySQL 5.5-)](#數據庫初始化-mariadb--mysql-55-)
 	- [手動配置](#手動配置)
 	- [使用指定配置啓動](#使用指定配置啓動)
 - [服務管理](#服務管理)
@@ -46,7 +46,7 @@
 # 初始化與基本配置
 對於`MariaDB`與`MySQL`而言，在初始化操作上有着明顯的區別。
 
-## 數據庫初始化 (Windows)
+## 數據庫初始化 (MySQL 5.5+)
 `MySQL`在`5.5`版本之後變更了初始化的方式，原先使用的`mysql_install_db`指令已被廢棄，
 現在應該使用`--initialize`系列參數進行數據庫初始化，如下所示：
 
@@ -63,10 +63,10 @@
 可以使用`--initialize-insecure`參數初始化並創建不帶密碼的`root`賬戶，如下所示：
 
 ```
->  mysqld --initialize-insecure
+> mysqld --initialize-insecure
 ```
 
-## 數據庫初始化 (Linux)
+## 數據庫初始化 (MariaDB & MySQL 5.5-)
 `MariaDB`在MySQL被`Oracle`收購之後，被各大Linux發行版作爲默認的MySQL替代版本。
 
 作爲MySQL的分支，並沒有採用`MySQL 5.5`之後的新初始化方式，依舊使用`mysql_install_db`指令進行數據庫初始化，
@@ -194,7 +194,10 @@ $ mysql -u [用戶名] -p
 $ mysql -h [目標主機ip] -u [用戶名] -p
 ```
 
-遠程登陸要求本機的ip已被添加到mysql服務端配置中的`bind-address`配置項中，或者不啓用bind-address配置。
+遠程登陸需要注意以下配置：
+
+- 正確創建了遠程帳戶。
+- 服務端ip已被添加到數據庫配置中的`bind-address`配置項中，或者**不啓用**bind-address配置。
 在Ubuntu發行版中，默認配置中bind-address配置項是**啓用**的。
 
 ## 修改用戶密碼
@@ -204,10 +207,19 @@ $ mysql -h [目標主機ip] -u [用戶名] -p
 mysql> set password = password('[密碼內容]')
 ```
 
-也可以使用`mysqladmin`工具進行密碼修改操作：
+在`MySQL 8.0`之後，密碼不可使用`set password = password('xxx')`的方式修改，但新增了如下修改方式：
 
 ```
-$ mysqladmin -u [用戶名] password '[密碼內容]'
+mysql> use mysql;
+mysql> alter user '[用戶名]'@'[主機]' identified with mysql_native_password by '[新密碼]';
+```
+
+亦可使用`mysqladmin`工具修改密碼：
+
+```
+$ mysqladmin -u [用戶名] password '[密碼內容]' # 目標用戶不存在舊密碼時可用
+$ mysqladmin -u [用戶名] -p password '[密碼內容]' # 目標用戶存在舊密碼時可用，會提示輸入舊密碼
+$ mysqladmin -u [用戶名] -h [主機] -p password '[密碼內容]' # 修改遠程用戶密碼
 ```
 
 ## 查看用戶信息
@@ -235,6 +247,8 @@ mysql> create user [用戶名@'%'];
 ```
 mysql> create user [用戶名@localhost];
 ```
+
+需要注意，MySQL中同名本地用戶與遠程用戶間沒有關聯，本地用戶與遠程用戶密碼、權限等各自獨立。
 
 刪除用戶操作類似，使用`drop user`指令：
 
@@ -316,6 +330,7 @@ mysql> show grants for [用戶名]@[主機地址]; //顯示指定用戶的權限
 基本的數據庫管理、操作指令：
 
 - `status;` 查看數據庫基本狀態
+- `show status;` 查看數據庫環境變量
 - `show databases;` 查看數據庫列表
 - `create database [數據庫名];` 創建數據庫
 - `drop database [數據庫名];` 刪除數據庫
@@ -415,11 +430,11 @@ reference_option:
 移除外鍵在`ALTER TABLE`中使用`DROP FOREIGN KEY fk_symbol`子句。
 
 主表字段需要與從表的字段類型相同或兼容。
-同一個數據庫內的約束名稱**不可重複**，否則表格創建失敗，可能會造成以下錯誤：
+約束名稱可以不指定，但若顯式指定約束名稱，則需要保證同一個數據庫內的約束名稱**唯一**，
+約束名稱重複時會造成以下錯誤：
 
 ```
 Error Code: 1022. Can't write; duplicate key in table '***'
-Error Code: 1215. Cannot add the foreign key constraint
 ```
 
 
