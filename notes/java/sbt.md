@@ -264,7 +264,23 @@ sbt.version = X.X.X //填写 sbt 版本号，如 0.13.16
 在启动构建任务时，会查找指定sbt版本的依赖包是否存在，不存在则在下载依赖包后执行构建任务。
 
 ## 自定义源码路径
-sbt项目默认源码路径为`项目根目录/src`，若需要管理默认路径之外的源码，在`build.sbt`中添加：
+sbt项目默认源码路径为`项目根目录/src`。
+
+修改默認源碼路徑，在`build.sbt`中添加：
+
+```scala
+// 默認Scala源碼路徑
+scalaSource in Compile := file("...")
+// 默認Scala測試源碼路徑
+scalaSource in Test := file("...")
+
+// 默認Java源碼路徑
+javaSource in Compile := file("...")
+// 默認Java測試源碼路徑
+javaSource in Test := file("...")
+```
+
+若需要管理默认路径之外的源码，在`build.sbt`中添加：
 
 ```scala
 // 获取源码绝对路径，并构建 File 实例
