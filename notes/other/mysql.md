@@ -12,6 +12,8 @@
 - [用戶登陸與管理](#用戶登陸與管理)
 	- [遠程登陸](#遠程登陸)
 	- [修改用戶密碼](#修改用戶密碼)
+	- [跳過登陸驗證](#跳過登陸驗證)
+	- [關於密碼策略](#關於密碼策略)
 	- [查看用戶信息](#查看用戶信息)
 	- [創建/刪除用戶](#創建刪除用戶)
 	- [授權用戶](#授權用戶)
@@ -221,6 +223,52 @@ $ mysqladmin -u [用戶名] password '[密碼內容]' # 目標用戶不存在舊
 $ mysqladmin -u [用戶名] -p password '[密碼內容]' # 目標用戶存在舊密碼時可用，會提示輸入舊密碼
 $ mysqladmin -u [用戶名] -h [主機] -p password '[密碼內容]' # 修改遠程用戶密碼
 ```
+
+還可采用更新`mysql.user`表的方式來更新密碼。
+
+在`MySQL 5.6`及以下版本，密碼列名稱為`password`，`MySQL 5.7`及之後版本密碼列為`authentication_string`。
+
+```sql
+-- MySQL 5.6-
+mysql> update mysql.user set password=password('[密碼]') where user='[用戶名]' and host='[主機]';
+
+-- MySQL 5.7+
+mysql> update mysql.user set authentication_string=password('[密碼]') where user='[用戶名]' and host='[主機]';
+```
+
+## 跳過登陸驗證
+對於忘記密碼的情形，可通過配置跳過登陸密碼，免密登陸后再修改密碼。
+
+修改`my.cnf`文件，在`[mysqld]`配置段添加：
+
+```
+skip-grant-tables
+```
+
+之後重啓數據庫服務即可免密登陸。
+
+需要注意，以免密登錄方式登錄數據庫后，不能直接使用`set passowrd`的方式更新密碼，但依舊可以修改`mysql.user`表來更新密碼。
+
+## 關於密碼策略
+儅出現密碼策略相關的異常信息時，可查看相關環境變量：
+
+```sql
+> SHOW VARIABLES LIKE 'validate_password%';
++--------------------------------------+-------+
+| Variable_name                        | Value |
++--------------------------------------+-------+
+| validate_password_check_user_name    | OFF   |
+| validate_password_dictionary_file    |       |
+| validate_password_length             | 8     |
+| validate_password_mixed_case_count   | 1     |
+| validate_password_number_count       | 1     |
+| validate_password_policy             | LOW   |
+| validate_password_special_char_count | 1     |
++--------------------------------------+-------+
+7 rows in set (0.01 sec)
+```
+
+可通過修改此類環境變量避免密碼策略相關的異常信息。
 
 ## 查看用戶信息
 MySQL數據庫的用戶信息記錄在`mysql`庫中的`user`表中，查詢該表即可得到**用戶信息**：
