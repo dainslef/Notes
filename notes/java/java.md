@@ -1,71 +1,71 @@
 <!-- TOC -->
 
-- [基础类型](#基础类型)
+- [基礎類型](#基礎類型)
 	- [Literal number (字面值)](#literal-number-字面值)
-	- [char (字符类型)](#char-字符类型)
+	- [char (字符類型)](#char-字符類型)
 	- [格式化](#格式化)
-	- [有符号数转换无符号数](#有符号数转换无符号数)
-	- [字符串、数值转换](#字符串数值转换)
+	- [有符號數轉換無符號數](#有符號數轉換無符號數)
+	- [字符串、數值轉換](#字符串數值轉換)
 - [Package](#package)
-	- [import 关键字](#import-关键字)
-	- [import static 语法](#import-static-语法)
-	- [实例](#实例)
-	- [引用依赖](#引用依赖)
+	- [import 關鍵字](#import-關鍵字)
+	- [import static 語法](#import-static-語法)
+	- [實例](#實例)
+	- [引用依賴](#引用依賴)
 - [Container (容器)](#container-容器)
-- [Enum (枚举)](#enum-枚举)
-- [对象相等性](#对象相等性)
+- [Enum (枚舉)](#enum-枚舉)
+- [對象相等性](#對象相等性)
 	- [equals() 方法](#equals-方法)
 	- [hashCode() 方法](#hashcode-方法)
-- [浅复制与深复制](#浅复制与深复制)
-	- [浅复制](#浅复制)
-	- [深复制](#深复制)
+- [淺複製與深複製](#淺複製與深複製)
+	- [淺複製](#淺複製)
+	- [深複製](#深複製)
 - [泛型方法](#泛型方法)
-- [Nested Classes (嵌套类)](#nested-classes-嵌套类)
-- [并发编程](#并发编程)
+- [Nested Classes (嵌套類)](#nested-classes-嵌套類)
+- [併發編程](#併發編程)
 	- [Thread / Runnable](#thread--runnable)
-	- [synchronized 关键字](#synchronized-关键字)
+	- [synchronized 關鍵字](#synchronized-關鍵字)
 	- [Executor 框架](#executor-框架)
-- [Annotation (注解)](#annotation-注解)
-	- [内置注解](#内置注解)
-	- [元注解](#元注解)
-	- [自定义注解](#自定义注解)
+- [Annotation (註解)](#annotation-註解)
+	- [內置註解](#內置註解)
+	- [元註解](#元註解)
+	- [自定義註解](#自定義註解)
 - [Reflection (反射)](#reflection-反射)
-	- [反射机制的相关类型](#反射机制的相关类型)
-	- [Class 类型](#class-类型)
-	- [反射获取成员信息](#反射获取成员信息)
-	- [反射构建实例](#反射构建实例)
-	- [反射调用对象方法](#反射调用对象方法)
+	- [反射機制的相關類型](#反射機制的相關類型)
+	- [Class 類型](#class-類型)
+	- [反射獲取成員信息](#反射獲取成員信息)
+	- [反射構建實例](#反射構建實例)
+	- [反射調用對象方法](#反射調用對象方法)
 	- [反射修改字段](#反射修改字段)
-	- [反射判定继承关系](#反射判定继承关系)
-	- [ClassLoader (类加载器)](#classloader-类加载器)
-- [动态代理](#动态代理)
+	- [反射判定繼承關係](#反射判定繼承關係)
+	- [ClassLoader (類加載器)](#classloader-類加載器)
+- [動態代理](#動態代理)
 	- [代理模式](#代理模式)
-	- [实例](#实例-1)
-- [Default Method (接口默认方法)](#default-method-接口默认方法)
+	- [實例](#實例-1)
+- [Default Method (接口默認方法)](#default-method-接口默認方法)
 - [Lambda](#lambda)
-	- [实现函数式接口](#实现函数式接口)
+	- [實現函數式接口](#實現函數式接口)
 	- [一般用法](#一般用法)
 	- [Method Reference (方法引用)](#method-reference-方法引用)
-	- [标准库中的函数式接口 (java.util.function)](#标准库中的函数式接口-javautilfunction)
+	- [標準庫中的函數式接口 (java.util.function)](#標準庫中的函數式接口-javautilfunction)
 - [JDBC](#jdbc)
-	- [连接数据库](#连接数据库)
-	- [数据库操作](#数据库操作)
-	- [获取时间](#获取时间)
-	- [与 Access 数据库交互](#与-access-数据库交互)
-- [Eclipse 使用注记](#eclipse-使用注记)
+	- [連接數據庫](#連接數據庫)
+	- [數據庫操作](#數據庫操作)
+	- [獲取時間](#獲取時間)
+	- [與 Access 數據庫交互](#與-access-數據庫交互)
+- [Eclipse 使用註記](#eclipse-使用註記)
 	- [Marketplace](#marketplace)
-	- [查看源码](#查看源码)
-	- [编辑器自动换行](#编辑器自动换行)
-- [IntelliJ IDEA 使用注记](#intellij-idea-使用注记)
-	- [显示行号和不可见空白](#显示行号和不可见空白)
-	- [字段类型推断、参数名称提示](#字段类型推断参数名称提示)
-	- [列边界提示](#列边界提示)
-	- [缩进](#缩进)
-	- [包路径折叠](#包路径折叠)
-	- [其它常用选项](#其它常用选项)
-	- [项目打包](#项目打包)
-	- [多模块项目](#多模块项目)
-- [常见问题记录](#常见问题记录)
+	- [查看源碼](#查看源碼)
+	- [編輯器自動換行](#編輯器自動換行)
+- [IntelliJ IDEA 使用註記](#intellij-idea-使用註記)
+	- [顯示行號和不可見空白](#顯示行號和不可見空白)
+	- [字段類型推斷、參數名稱提示](#字段類型推斷參數名稱提示)
+	- [列邊界提示](#列邊界提示)
+	- [縮進](#縮進)
+	- [包路徑摺疊](#包路徑摺疊)
+	- [其它常用選項](#其它常用選項)
+	- [項目打包](#項目打包)
+	- [多模塊項目](#多模塊項目)
+- [常見問題記錄](#常見問題記錄)
 	- [String.split()](#stringsplit)
 	- [String.format()](#stringformat)
 	- [String.getProperty()](#stringgetproperty)
@@ -76,96 +76,96 @@
 
 
 
-# 基础类型
-与主流语言不同，Java中仅仅提供了**有符号**数值类型，**没有**提供无符号的数值类型。
+# 基礎類型
+與主流語言不同，Java中僅僅提供了**有符號**數值類型，**沒有**提供無符號的數值類型。
 
-基础整型数值类型如下所示：
+基礎整型數值類型如下所示：
 
-- `byte`，单字节，范围`-128 ~ 127`
-- `short`，双字节，范围`-32768 ~ 32767`
-- `int`，四字节，范围`-2147483648 ~ 2147483647`
-- `long`，八字节，范围`-9223372036854775808 ~ 9223372036854775807`
+- `byte`，單字節，範圍`-128 ~ 127`
+- `short`，雙字節，範圍`-32768 ~ 32767`
+- `int`，四字節，範圍`-2147483648 ~ 2147483647`
+- `long`，八字節，範圍`-9223372036854775808 ~ 9223372036854775807`
 
-浮点型数值类型如下所示：
+浮點型數值類型如下所示：
 
-- `float`，四字节，范围`-3.4028235E38 ~ 3.4028235E38`
-- `double`，八字节，范围`-1.7976931348623157E308 ~  1.7976931348623157E308`
+- `float`，四字節，範圍`-3.4028235E38 ~ 3.4028235E38`
+- `double`，八字節，範圍`-1.7976931348623157E308 ~  1.7976931348623157E308`
 
 ## Literal number (字面值)
-在Java中，无任何修饰的整型数值字面值默认为`int`类型，无任何修饰的浮点型数值字面值默认为`double`类型。
+在Java中，無任何修飾的整型數值字面值默認爲`int`類型，無任何修飾的浮點型數值字面值默認爲`double`類型。
 
-字面值数值在进行赋值操作时数值的大小不能超过目标类型的上限。
+字面值數值在進行賦值操作時數值的大小不能超過目標類型的上限。
 示例：
 
 ```java
-byte num0 = 1; //正确
-byte num1 = 1000; //错误，提示"从int转换到byte可能会有损失"
+byte num0 = 1; //正確
+byte num1 = 1000; //錯誤，提示"從int轉換到byte可能會有損失"
 ```
 
-整型字面值默认为`int`型，即默认字面值范围应在`-2147483648 ~ 2147483647`之间，
-当整型字面值超出这个范围时，即使目标类型能够容纳数值，赋值操作时依然会报错。
+整型字面值默認爲`int`型，即默認字面值範圍應在`-2147483648 ~ 2147483647`之間，
+當整型字面值超出這個範圍時，即使目標類型能夠容納數值，賦值操作時依然會報錯。
 示例：
 
 ```java
-long num = 6666666666; //错误，提示"过大的整数: 6666666666"
+long num = 6666666666; //錯誤，提示"過大的整數: 6666666666"
 ```
 
-此时，需要显式使用后缀指定字面值类型，如下所示：
+此時，需要顯式使用後綴指定字面值類型，如下所示：
 
 ```java
-long num0 = 6666666666L; //正确
-long num1 = 6666666666l; //正确
+long num0 = 6666666666L; //正確
+long num1 = 6666666666l; //正確
 ```
 
-常用的字面值后缀：
+常用的字面值後綴：
 
-| 后缀 | 含义 |
+| 後綴 | 含義 |
 | :-: | :-: |
 | L/l | long |
 | F/f | float |
 | D/d | double |
 
-整型数值通过添加前缀可以指定数值以不同进制表示：
+整型數值通過添加前綴可以指定數值以不同進製表示：
 
-| 前缀 | 含义 |
+| 前綴 | 含義 |
 | :-: | :-: |
-| 0B/0b | 二进制数值 |
-| 0 | 八进制数值 |
-| 0X/0x | 十六进制数值 |
+| 0B/0b | 二進制數值 |
+| 0 | 八進制數值 |
+| 0X/0x | 十六進制數值 |
 
-## char (字符类型)
-与其它语言不同，`Java`中采用`UTF-16`编码，一个字符占用**两个字节**，而非传统语言中的单个字节。
+## char (字符類型)
+與其它語言不同，`Java`中採用`UTF-16`編碼，一個字符佔用**兩個字節**，而非傳統語言中的單個字節。
 
-`char`类型无符号，范围为`0 ~ 65535`，字面值表示方式为`'\u0000' ~ '\uFFFF'`，如下所示：
+`char`類型無符號，範圍爲`0 ~ 65535`，字面值表示方式爲`'\u0000' ~ '\uFFFF'`，如下所示：
 
 ```java
-char c0 = \u0000; //错误，字符需要加单引号
-char c1 = '\U0000'; //错误，字符只能使用小写`\u`转义，大写`\U`无效
-char c2 = '\u0000'; //正确
+char c0 = \u0000; //錯誤，字符需要加單引號
+char c1 = '\U0000'; //錯誤，字符只能使用小寫`\u`轉義，大寫`\U`無效
+char c2 = '\u0000'; //正確
 ```
 
 ## 格式化
-在Java中，使用`System.out.printf()`方法进行格式化输出，格式化语法类似C语言标准库中的`printf()`函数。
+在Java中，使用`System.out.printf()`方法進行格式化輸出，格式化語法類似C語言標準庫中的`printf()`函數。
 
 常用的格式化字符：
 
-| 格式化字符 | 含义 | 样例 |
+| 格式化字符 | 含義 | 樣例 |
 | :-: | :-: | :-: |
-| %s | 字符串类型 | `"abc"` |
-| %c | 字符类型 | `'a'` |
-| %b | 布尔类型 | `true` |
-| %d | 整数类型(十进制) | `99` |
-| %x | 整数类型(十六进制) | `FF` |
-| %o | 整数类型(八进制) | `77` |
-| %f | 浮点类型 | `99.990000` |
-| %a | 十六进制浮点类型 | `0x1.8ff5c28f5c28fp6` |
-| %e | 指数类型 | `9.999000e+01` |
-| %g | 通用浮点类型(宽度较短) | `99.9900` |
-| %h | 散列码 | / |
-| %% | 百分比符号(在格式化语句中直接使用`%`会开始转义) | `%` |
-| %n | 换行符(在格式化语句中使用`\n`换行转义无效) | / |
+| %s | 字符串類型 | `"abc"` |
+| %c | 字符類型 | `'a'` |
+| %b | 布爾類型 | `true` |
+| %d | 整數類型(十進制) | `99` |
+| %x | 整數類型(十六進制) | `FF` |
+| %o | 整數類型(八進制) | `77` |
+| %f | 浮點類型 | `99.990000` |
+| %a | 十六進制浮點類型 | `0x1.8ff5c28f5c28fp6` |
+| %e | 指數類型 | `9.999000e+01` |
+| %g | 通用浮點類型(寬度較短) | `99.9900` |
+| %h | 散列碼 | / |
+| %% | 百分比符號(在格式化語句中直接使用`%`會開始轉義) | `%` |
+| %n | 換行符(在格式化語句中使用`\n`換行轉義無效) | / |
 
-实例如下所示：
+實例如下所示：
 
 ```java
 public class Main {
@@ -191,7 +191,7 @@ public class Main {
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 99:
@@ -210,55 +210,55 @@ public class Main {
 %g: 99.9900
 ```
 
-数值类型支持更丰富的格式化操作：
+數值類型支持更豐富的格式化操作：
 
-| 格式化字符 | 含义 | 样例 |
+| 格式化字符 | 含義 | 樣例 |
 | :-: | :-: | :-: |
-| `%+d` | 为数值类型添加正负号 | `+99`/`-99` |
-| `% 5d` | 指定输出数值的宽度，宽度不足时左边使用空格补齐 | `   99` |
-| `%-5d` | 指定输出数值的宽度，宽度不足时右边使用空格补齐 | `99   ` |
-| `%05d` | 指定输出数值的宽度，宽度不足时使用0补齐 | `00099` |
-| `%,d` | 格式化数值时使用`,`对长数值进行分割 | `9,999` |
-| `%<d` | 格式化数值，使用前一个数值做为格式化对象 | / |
-| `%(d` | 格式化负数时采用括号标记负值(对正值无效) | `(99)` |
-| `%#`/`%#x` | 格式化8/16进制数值时添加前缀`0`/`0x` | `0x63` |
+| `%+d` | 爲數值類型添加正負號 | `+99`/`-99` |
+| `% 5d` | 指定輸出數值的寬度，寬度不足時左邊使用空格補齊 | `   99` |
+| `%-5d` | 指定輸出數值的寬度，寬度不足時右邊使用空格補齊 | `99   ` |
+| `%05d` | 指定輸出數值的寬度，寬度不足時使用0補齊 | `00099` |
+| `%,d` | 格式化數值時使用`,`對長數值進行分割 | `9,999` |
+| `%<d` | 格式化數值，使用前一個數值做爲格式化對象 | / |
+| `%(d` | 格式化負數時採用括號標記負值(對正值無效) | `(99)` |
+| `%#`/`%#x` | 格式化8/16進制數值時添加前綴`0`/`0x` | `0x63` |
 
-## 有符号数转换无符号数
-在`Java`中，没有内置的无符号类型，则在表示大于`2 ^ 位宽 - 1`的数值时，需要使用更高位宽的数值来表示。
+## 有符號數轉換無符號數
+在`Java`中，沒有內置的無符號類型，則在表示大於`2 ^ 位寬 - 1`的數值時，需要使用更高位寬的數值來表示。
 
-以`byte`类型为例，有符号的`byte`类型范围在`-128 ~ 127`之间，当数值大于`127`时，则需要使用更高位宽的类型表示(如`short`)。
-`byte`类型为单字节，则将原始有符号数值转换位更高位宽的类型，
-再与`0xFF`进行`&`(逻辑与)操作(保留原始数值位，擦除其它内容)，得到对应的无符号值。
+以`byte`類型爲例，有符號的`byte`類型範圍在`-128 ~ 127`之間，當數值大於`127`時，則需要使用更高位寬的類型表示(如`short`)。
+`byte`類型爲單字節，則將原始有符號數值轉換位更高位寬的類型，
+再與`0xFF`進行`&`(邏輯與)操作(保留原始數值位，擦除其它內容)，得到對應的無符號值。
 
-以`byte`类型负数`-11`为例，运算过程如下：
+以`byte`類型負數`-11`爲例，運算過程如下：
 
-1. `byte`类型数值`-11`，原码为：
+1. `byte`類型數值`-11`，原碼爲：
 
 	`10001011`
 
-	计算机内部数值以反码存储，反码表示为：
+	計算機內部數值以反碼存儲，反碼錶示爲：
 
-	`11110101`(对应无符号数值`245`(首位不视为符号位))
+	`11110101`(對應無符號數值`245`(首位不視爲符號位))
 
-1. `byte`类型数值`-11`提升到`short`型，编译器会保留数值含义(数值`-11`)不变，原码为：
+1. `byte`類型數值`-11`提升到`short`型，編譯器會保留數值含義(數值`-11`)不變，原碼爲：
 
 	`1000000000001011`
 
-	在计算机中存储的反码为：
+	在計算機中存儲的反碼爲：
 
 	`1111111111110101`
 
-	若保留原先的无符号值含义(数值`245`)，则原码/反码均应为：
+	若保留原先的無符號值含義(數值`245`)，則原碼/反碼均應爲：
 
 	`0000000011110101`
 
-	对比可知**低8位**对应原先的数值，则应保留低8位数值，将高8位**置零**，与`0xFF`进行**逻辑与**操作可达到此效果。
+	對比可知**低8位**對應原先的數值，則應保留低8位數值，將高8位**置零**，與`0xFF`進行**邏輯與**操作可達到此效果。
 
-## 字符串、数值转换
-基础数值类型存在`OOP`的封装，用于在泛型中使用。
+## 字符串、數值轉換
+基礎數值類型存在`OOP`的封裝，用於在泛型中使用。
 示例：
 
-| 基础数值类型 | 封装数值类型 |
+| 基礎數值類型 | 封裝數值類型 |
 | :-: | :-: |
 | byte | Byte |
 | short | Short |
@@ -267,88 +267,88 @@ public class Main {
 | float | Float |
 | double | Double |
 
-引用数值类型提供了一系列的静态方法用于字符串到数值之间的转换。
-以`Integer`类型为例，将字符串形式的数值转换为基础数值类型：
+引用數值類型提供了一系列的靜態方法用於字符串到數值之間的轉換。
+以`Integer`類型爲例，將字符串形式的數值轉換爲基礎數值類型：
 
 ```scala
-scala> Integer.parseInt("2333") //默认文本数值视为10进制
+scala> Integer.parseInt("2333") //默認文本數值視爲10進制
 res1: Int = 2333
 ```
 
-使用无进制参数版本的转换方法时，默认将文本数值视为十进制。
-对于非十进制的数值，需要使用带有进制参数的重载版本：
+使用無進制參數版本的轉換方法時，默認將文本數值視爲十進制。
+對於非十進制的數值，需要使用帶有進制參數的重載版本：
 
 ```scala
-scala> Integer.parseInt("d9") //16进制数值文本会抛出异常
+scala> Integer.parseInt("d9") //16進制數值文本會拋出異常
 java.lang.NumberFormatException: For input string: "d9"
   at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
   at java.lang.Integer.parseInt(Integer.java:580)
   at java.lang.Integer.parseInt(Integer.java:615)
   ... 27 elided
 
-scala> Integer.parseInt("d9", 16) //使用进制参数后正常转换
+scala> Integer.parseInt("d9", 16) //使用進制參數後正常轉換
 res2: Int = 217
 
-scala> Integer.parseInt("2333", 8) //文本数值设为8进制
+scala> Integer.parseInt("2333", 8) //文本數值設爲8進制
 res3: Int = 1243
 ```
 
-String类型则提供了`valueOf()`方法用于将数值转为字符串形式：
+String類型則提供了`valueOf()`方法用於將數值轉爲字符串形式：
 
 ```scala
-scala> String.valueOf(2333) //转换10进制数值
+scala> String.valueOf(2333) //轉換10進制數值
 res4: String = 2333
 
-scala> String.valueOf(0xd9) //转换16进制数值
+scala> String.valueOf(0xd9) //轉換16進制數值
 res5: String = 217
 ```
 
 
 
 # Package
-`Package`是`Java`的命名空间隔离机制。
-使用`package`关键字将类层次化区分，使用`import`关键字来导入使用。
-未使用`package`关键字的类则位于**默认包**中。
+`Package`是`Java`的命名空間隔離機制。
+使用`package`關鍵字將類層次化區分，使用`import`關鍵字來導入使用。
+未使用`package`關鍵字的類則位於**默認包**中。
 
-## import 关键字
-`import`语法：
-
-```java
-import 包路径.类名;
-```
-
-引入**内部类**，语法类似：
+## import 關鍵字
+`import`語法：
 
 ```java
-import 包路径.类名.内部类名称;
+import 包路徑.類名;
 ```
 
-`import`与源码的路径**无关**。
-执行字节码时需要将**class文件**放在与其源码中`package`路径的对应目录下，否则会在执行时出错。
+引入**內部類**，語法類似：
+
+```java
+import 包路徑.類名.內部類名稱;
+```
+
+`import`與源碼的路徑**無關**。
+執行字節碼時需要將**class文件**放在與其源碼中`package`路徑的對應目錄下，否則會在執行時出錯。
 另外，包名也可以是`*.*.*`的形式。
 
-## import static 语法
+## import static 語法
 `Java 5`中新加入了`import static`用法。
-`import static`可以包含目标类中的静态方法，如下所示：
+`import static`可以包含目標類中的靜態方法，如下所示：
 
 ```java
-import static [包路径].[类名].[静态方法名];
+import static [包路徑].[類名].[靜態方法名];
 ```
 
-使用静态导入的静态方法使用时不必写出类名，直接使用方法名称即可。
+使用靜態導入的靜態方法使用時不必寫出類名，直接使用方法名稱即可。
 
-## 实例
-有两个文件**A.java**和**B.java**。
+## 實例
+有兩個文件**A.java**和**B.java**。
 
-文件B中的类被A中引用,则将B打包,代码中添加`package b`，并放在b目录下。
-文件A中引用B中的类。
+文件B中的類被A中引用,則將B打包,代碼中添加`package b`，並放在b目錄下。
+文件A中引用B中的類。
 
-按照描述，两文件的位置：
+按照描述，兩文件的位置：
 
-- **文件A**路径为`~/A.java`。
-- **文件B**路径为`~/b/B.java`。
+- **文件A**路徑爲`~/A.java`。
+- **文件B**路徑爲`~/b/B.java`。
 
-实例代码(`import`)：
+實例代碼(`import`)：
 
 A.java:
 
@@ -374,7 +374,7 @@ public class B {
 }
 ```
 
-实例代码(`import static`)：
+實例代碼(`import static`)：
 
 A.java:
 
@@ -400,53 +400,53 @@ public class B {
 }
 ```
 
-其中**A.java**文件能够正常调用类B的方法`getNow()`。
+其中**A.java**文件能夠正常調用類B的方法`getNow()`。
 
-一个`java`源码文件只能包含一个**公有类**，且源码文件的名称应该与包含的公有类的类名**一致**。
+一個`java`源碼文件只能包含一個**公有類**，且源碼文件的名稱應該與包含的公有類的類名**一致**。
 
-`package`打包的源码应当放在与包名相同的目录中，这样生成的字节码class文件才会在对应目录生成。
-若源码均置于同一级目录，则编译之后产生的`class`文件需要按照`package`关系放在与包名相同的目录下，否则执行`class`文件时会报错(找不到对应的class文件)。
+`package`打包的源碼應當放在與包名相同的目錄中，這樣生成的字節碼class文件纔會在對應目錄生成。
+若源碼均置於同一級目錄，則編譯之後產生的`class`文件需要按照`package`關係放在與包名相同的目錄下，否則執行`class`文件時會報錯(找不到對應的class文件)。
 
-## 引用依赖
-引用第三方的`jar`文件，则编译时应使用`-cp`参数，如下：
-
-```
-$ javac -cp [第三方库的路径] [源码文件]
-```
-
-编译生成的class文件无法直接被`java`指令执行(class文件使用了第三方库，库的位置不在系统环境变量内)，运行时需要显式地指定引用库的位置：
+## 引用依賴
+引用第三方的`jar`文件，則編譯時應使用`-cp`參數，如下：
 
 ```
-$ java -Djava.ext.dirs=[第三方库所在的目录] [编译生成的class文件]
+$ javac -cp [第三方庫的路徑] [源碼文件]
+```
+
+編譯生成的class文件無法直接被`java`指令執行(class文件使用了第三方庫，庫的位置不在系統環境變量內)，運行時需要顯式地指定引用庫的位置：
+
+```
+$ java -Djava.ext.dirs=[第三方庫所在的目錄] [編譯生成的class文件]
 ```
 
 
 
 # Container (容器)
-与常见的编程语言相同，Java中的常见的**容器类型**为`List`、`Set`、`Map`。
+與常見的編程語言相同，Java中的常見的**容器類型**爲`List`、`Set`、`Map`。
 
-| 容器 | 特点 |
+| 容器 | 特點 |
 | :- | :- |
-| List | 元素**有序**，元素**可重复** |
-| Map | 元素按键值对存储，**无序** |
-| Set | 元素**无序**，元素**不可重复**(注意：元素虽然无放入顺序，但是元素在`Set`中的位置是有该元素的**HashCode**决定的，其位置其实是固定的) |
+| List | 元素**有序**，元素**可重複** |
+| Map | 元素按鍵值對存儲，**無序** |
+| Set | 元素**無序**，元素**不可重複**(注意：元素雖然無放入順序，但是元素在`Set`中的位置是有該元素的**HashCode**決定的，其位置其實是固定的) |
 
-在Java中，这三种集合类型都是以接口形式存在的，不能直接使用，要使用这三种类型可以使用其实现类：
+在Java中，這三種集合類型都是以接口形式存在的，不能直接使用，要使用這三種類型可以使用其實現類：
 
-| 接口 | 实现类 |
+| 接口 | 實現類 |
 | :- | :- |
 | List | LinkedList、ArrayList、Vector |
 | Set | HashSet、LinkedHashSet |
 | Map | HashMap、HashTable、LinkeHashMap |
 
-这些实现类各有优缺点：
+這些實現類各有優缺點：
 
-- `ArrayList`**非线程安全**，效率**高**。
-- `Vector`**线程安全**，效率**低**。
-- `HashMap`**非线程安全**，高效，**支持**null。
-- `HashTable`**线程安全**，低效，**不支持**null 。
+- `ArrayList`**非線程安全**，效率**高**。
+- `Vector`**線程安全**，效率**低**。
+- `HashMap`**非線程安全**，高效，**支持**null。
+- `HashTable`**線程安全**，低效，**不支持**null 。
 
-语法：
+語法：
 
 ```java
 List<Type> list = new ArrayList<Type>();
@@ -455,43 +455,43 @@ Map<Key, Type>  map = new HashMap<Key, Type>();
 map.put(key, type);
 ```
 
-Java支持泛型`<>`**菱形推断**，实例化时类型可以省略(`Java 1.7`新特性)，上面的语句实例化可以简写为：
+Java支持泛型`<>`**菱形推斷**，實例化時類型可以省略(`Java 1.7`新特性)，上面的語句實例化可以簡寫爲：
 
 ```java
 List<Type> list = new ArrayList<>();
 Map<Type, Value> map = new HashMap<>();
 ```
 
-不使用菱形推断时，集合库会使用Object类型做为类型参数：
+不使用菱形推斷時，集合庫會使用Object類型做爲類型參數：
 
 ```java
 List list = new ArrayList(); //List<Object>
 Map map = new HashMap(); //Map<Object, Object>
 ```
 
-`Set`和`List`都可以得到一个迭代器用于迭代：
+`Set`和`List`都可以得到一個迭代器用於迭代：
 
 ```java
 Iterator iteratorList = list.iterator();
 Iterator iteratorSet = set.iterator();
 ```
 
-`Map`的`Key`就是一个`Set`，可以得到`Key`的集合再迭代：
+`Map`的`Key`就是一個`Set`，可以得到`Key`的集合再迭代：
 
 ```java
 Set set = map.keySet();
 Iterator iteratorSet = set.iterator();
 ```
 
-`Map`使用`get(key)`可以得到对应Key的Value。
-`HashMap`之类的容器只能一个键对应**一个**键值，如果需要一个键绑定多个键值可以使用`IdentityHashMap`。
+`Map`使用`get(key)`可以得到對應Key的Value。
+`HashMap`之類的容器只能一個鍵對應**一個**鍵值，如果需要一個鍵綁定多個鍵值可以使用`IdentityHashMap`。
 
 
 
-# Enum (枚举)
-Java中使用`enum`关键字来定义一个枚举类。
+# Enum (枚舉)
+Java中使用`enum`關鍵字來定義一個枚舉類。
 
-基本的枚举与`C`语言中的语法类似：
+基本的枚舉與`C`語言中的語法類似：
 
 ```
 enum Enum {
@@ -503,24 +503,24 @@ enum Enum {
 }
 ```
 
-枚举是`Java`中少数比`C++`更**复杂**的语法之一：
+枚舉是`Java`中少數比`C++`更**複雜**的語法之一：
 
-- `Java`枚举类中的**枚举成员**(类内普通成员除外)每一个都是枚举类的实例。
-- 在枚举类与普通类相似，也可以在类内定义成员方法和成员变量。
-- 要在枚举类内定义成员方法/变量，需要在最后一个枚举成员成员后添加**分号**以标志枚举成员列表结束。
-- 在枚举类内定义的方法/变量每一个枚举成员都拥有。
-- 在枚举类内自定义构造函数则枚举成员需要通过自定义的构造函数来构建，参数需要符合构造函数的参数表。
-- 枚举类内的构造函数默认为`private`访问权限，且不可更改。
-- 枚举类为抽象类`java.lang.Enum`的子类，而Java为单继承语言，因而枚举类不能再继承其它类，只能实现接口。
+- `Java`枚舉類中的**枚舉成員**(類內普通成員除外)每一個都是枚舉類的實例。
+- 在枚舉類與普通類相似，也可以在類內定義成員方法和成員變量。
+- 要在枚舉類內定義成員方法/變量，需要在最後一個枚舉成員成員後添加**分號**以標誌枚舉成員列表結束。
+- 在枚舉類內定義的方法/變量每一個枚舉成員都擁有。
+- 在枚舉類內自定義構造函數則枚舉成員需要通過自定義的構造函數來構建，參數需要符合構造函數的參數表。
+- 枚舉類內的構造函數默認爲`private`訪問權限，且不可更改。
+- 枚舉類爲抽象類`java.lang.Enum`的子類，而Java爲單繼承語言，因而枚舉類不能再繼承其它類，只能實現接口。
 
-简单的自定义枚举类示例如下：
+簡單的自定義枚舉類示例如下：
 
 ```java
 enum Enum {
 
-	// 定义枚举成员，以分号做为结束标志
+	// 定義枚舉成員，以分號做爲結束標誌
 	ENUM_MEMBER_1("member1") {
-		// 枚举类成员内可以重写枚举类内定义的方法
+		// 枚舉類成員內可以重寫枚舉類內定義的方法
 		@Override
 		int index() { return 1; }
 	},
@@ -537,11 +537,11 @@ enum Enum {
 		@Override
 		int index() { return 4; }
 
-		// 枚举类内可以定义新的方法，但该方法无法被访问，因而没有意义
+		// 枚舉類內可以定義新的方法，但該方法無法被訪問，因而沒有意義
 		public int size() { return 4; }
 	};
 
-	// 自定义枚举类的构造函数
+	// 自定義枚舉類的構造函數
 	Enum(String name) { this.name = name; }
 
 	String getName() { return name; }
@@ -554,17 +554,17 @@ enum Enum {
 
 
 
-# 对象相等性
-Java**不支持**操作符重载，Java中相等性比较运算符`==`的含义如下：
+# 對象相等性
+Java**不支持**操作符重載，Java中相等性比較運算符`==`的含義如下：
 
-- 对于**原始类型**、`String`类型，==操作符语义为比较两个原始类型值是否相等。
-- 对于**引用类型**，==操作符用于比较两个引用指向的实例是否相同。
+- 對於**原始類型**、`String`類型，==操作符語義爲比較兩個原始類型值是否相等。
+- 對於**引用類型**，==操作符用於比較兩個引用指向的實例是否相同。
 
 ## equals() 方法
-对于引用类型而言，比较两个对象是否相等应使用`equals()`方法。
-equals()方法定义在Object类型中，默认实现默认语义与==操作符相同(引用比较)，需要实现值比较语义的类型应自行重写equals()方法。
+對於引用類型而言，比較兩個對象是否相等應使用`equals()`方法。
+equals()方法定義在Object類型中，默認實現默認語義與==操作符相同(引用比較)，需要實現值比較語義的類型應自行重寫equals()方法。
 
-以一个包含3个成员的自定义类型为例：
+以一個包含3個成員的自定義類型爲例：
 
 ```java
 public class TestEquals {
@@ -589,10 +589,10 @@ public class TestEquals {
 ```
 
 ## hashCode() 方法
-部分数据结构(如`HashMap`、`HashSet`等)出于性能考虑，会使用对象提供的`hashCode()`方法，根据Hash是否相等判断对象的异同。
-对于重写了`equals()`方法重写了比较策略的类型而言，也应重写`hashCode()`方法。
+部分數據結構(如`HashMap`、`HashSet`等)出於性能考慮，會使用對象提供的`hashCode()`方法，根據Hash是否相等判斷對象的異同。
+對於重寫了`equals()`方法重寫了比較策略的類型而言，也應重寫`hashCode()`方法。
 
-自定义Hash值的生成规则，确保对象内容相同时得到的Hash值也相同：
+自定義Hash值的生成規則，確保對象內容相同時得到的Hash值也相同：
 
 ```java
 public class TestEquals {
@@ -613,7 +613,7 @@ public class TestEquals {
 }
 ```
 
-在`Java 7`之后，可直接使用`java.util.Objects`工具类中提供的`hash()`方法：
+在`Java 7`之後，可直接使用`java.util.Objects`工具類中提供的`hash()`方法：
 
 ```java
 public class TestEquals {
@@ -634,21 +634,21 @@ public class TestEquals {
 
 
 
-# 浅复制与深复制
-Java中**基础类型**如`int`、`double`等在复制时进行**值拷贝**，而对于**引用类型**，
-则默认拷贝的只是一个对象的**引用**(类似与C/C++中的**指针**)，对象本体**并未**被复制。
+# 淺複製與深複製
+Java中**基礎類型**如`int`、`double`等在複製時進行**值拷貝**，而對於**引用類型**，
+則默認拷貝的只是一個對象的**引用**(類似與C/C++中的**指針**)，對象本體**並未**被複制。
 
-## 浅复制
-要想让一个类能够被复制，则类需要实现`Cloneable`接口，并重写`clone()`方法。
+## 淺複製
+要想讓一個類能夠被複制，則類需要實現`Cloneable`接口，並重寫`clone()`方法。
 
-如下代码所示：
+如下代碼所示：
 
 ```java
 class TestClone implements Cloneable {
 
 	StringBuffer str = new StringBuffer("str");
 
-	//重写clone()方法
+	//重寫clone()方法
 	@Override
 	public TestClone clone() {
 		TestClone clone = null;
@@ -662,9 +662,9 @@ class TestClone implements Cloneable {
 }
 ```
 
-虽然`clone()`方法来自于根类`Object`，但如果不实现`Cloneable`接口，则在调用`clone()`方法的时候会抛出`CloneNotSupportedException`异常。
+雖然`clone()`方法來自於根類`Object`，但如果不實現`Cloneable`接口，則在調用`clone()`方法的時候會拋出`CloneNotSupportedException`異常。
 
-编写代码测试：
+編寫代碼測試：
 
 ```java
 public class Main {
@@ -677,17 +677,17 @@ public class Main {
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 strNew
 ```
 
-可以发现调用`clone()`方法复制出的对象**testClone**在原对象**test**被修改后也发生了变化，并未真正的达到**复制**的效果。
-原因是**TestClone**类完成的仅仅是**浅复制**的过程，类中的引用类型`StringBuffer`并未被真正复制。
+可以發現調用`clone()`方法複製出的對象**testClone**在原對象**test**被修改後也發生了變化，並未真正的達到**複製**的效果。
+原因是**TestClone**類完成的僅僅是**淺複製**的過程，類中的引用類型`StringBuffer`並未被真正複製。
 
-## 深复制
-深复制一个对象，则需要将类中的每一个引用成员都进行**复制**，因此，**TestCode**的代码需要改成：
+## 深複製
+深複製一個對象，則需要將類中的每一個引用成員都進行**複製**，因此，**TestCode**的代碼需要改成：
 
 ```java
 class TestClone implements Cloneable {
@@ -699,7 +699,7 @@ class TestClone implements Cloneable {
 		TestClone clone = null;
 		try {
 			clone = (TestClone)super.clone();
-			clone.str = new StringBuffer(str); //构建新的StringBuffer对象
+			clone.str = new StringBuffer(str); //構建新的StringBuffer對象
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -708,22 +708,22 @@ class TestClone implements Cloneable {
 }
 ```
 
-在重写`clone()`方法的过程中，要实现**深复制**，就需要重新构造类中的每一个引用类型。
-重新构造对象优先使用该引用类型的`clone()`方法(如果该类型实现了`Cloneable`接口)。
-如果需要复制的引用类型没有实现`Cloneable`接口，则直接使用构造函数创建一个与当前实例中保存内容相同的对象。
+在重寫`clone()`方法的過程中，要實現**深複製**，就需要重新構造類中的每一個引用類型。
+重新構造對象優先使用該引用類型的`clone()`方法(如果該類型實現了`Cloneable`接口)。
+如果需要複製的引用類型沒有實現`Cloneable`接口，則直接使用構造函數創建一個與當前實例中保存內容相同的對象。
 
-需要注意的是，`String`类型是**特例**，虽然其为**引用类型**，但`String`内部重新实现了自身的`clone()`，在重写当前类的`clone()`方法的时候可以将其视为基本类型(即不必显式构建)。
+需要注意的是，`String`類型是**特例**，雖然其爲**引用類型**，但`String`內部重新實現了自身的`clone()`，在重寫當前類的`clone()`方法的時候可以將其視爲基本類型(即不必顯式構建)。
 
 
 
 # 泛型方法
-Java中的泛型同样支持独立于类的泛型方法。
-与`C++`、`C#`等语言不同，Java在泛型方法中的类型声明放在方法的修饰符(`public`、`static`、`final`、`abstract`等)之后，返回值声明之前。
+Java中的泛型同樣支持獨立於類的泛型方法。
+與`C++`、`C#`等語言不同，Java在泛型方法中的類型聲明放在方法的修飾符(`public`、`static`、`final`、`abstract`等)之後，返回值聲明之前。
 
-Java中的泛型方法支持自动类型推导。
-也可手动显式指定泛型类型，手动指定泛型类型时，与`C++`、`C#`等语言不同，类型参数写在方法名称**之前**。
+Java中的泛型方法支持自動類型推導。
+也可手動顯式指定泛型類型，手動指定泛型類型時，與`C++`、`C#`等語言不同，類型參數寫在方法名稱**之前**。
 
-如下代码所示：
+如下代碼所示：
 
 ```java
 public class Test {
@@ -731,7 +731,7 @@ public class Test {
 		Func t = new Func();
 		System.out.println(t.getType(123));
 		System.out.println(t.getType("Test"));
-		System.out.println(t.<Double>getType(25.672)); //类型参数写在方法名称之前
+		System.out.println(t.<Double>getType(25.672)); //類型參數寫在方法名稱之前
 	}
 }
 
@@ -742,7 +742,7 @@ class Func {
 }
 ```
 
-输出结果：(Windows 10 && JDK 1.8)
+輸出結果：(Windows 10 && JDK 1.8)
 
 ```
 java
@@ -753,58 +753,58 @@ Test
 
 
 
-# Nested Classes (嵌套类)
-嵌套类(`nested class`)是指定义在一个类内部的类，对应的，包含嵌套类的类被称为**外部类**(`enclosing class`)。
+# Nested Classes (嵌套類)
+嵌套類(`nested class`)是指定義在一個類內部的類，對應的，包含嵌套類的類被稱爲**外部類**(`enclosing class`)。
 
-嵌套类有以下几种类型：
+嵌套類有以下幾種類型：
 
-1. `member nested class`(成员嵌套类)：
+1. `member nested class`(成員嵌套類)：
 
-	成员嵌套类是作为`enclosing class`的成员定义的，成员嵌套类有`enclosing class`属性。
-	成员嵌套类可以使用访问控制符，也可以用`static`、`final`关键字修饰。
+	成員嵌套類是作爲`enclosing class`的成員定義的，成員嵌套類有`enclosing class`屬性。
+	成員嵌套類可以使用訪問控制符，也可以用`static`、`final`關鍵字修飾。
 
-1. `local nested class`(局部嵌套类)：
+1. `local nested class`(局部嵌套類)：
 
-	局部嵌套类定义在方法里面，局部嵌套类有`enclosing class`属性和`enclosing method`。
-	局部嵌套类可以使用`final`关键字。
+	局部嵌套類定義在方法裏面，局部嵌套類有`enclosing class`屬性和`enclosing method`。
+	局部嵌套類可以使用`final`關鍵字。
 
-1. `anonymous nested class`(匿名嵌套类)：
+1. `anonymous nested class`(匿名嵌套類)：
 
-	匿名嵌套类没有显示的定义一个类，直接通过`new`操作符构造。
-	匿名嵌套类不使用任何关键字和访问控制符。
+	匿名嵌套類沒有顯示的定義一個類，直接通過`new`操作符構造。
+	匿名嵌套類不使用任何關鍵字和訪問控制符。
 
-普通嵌套类内部不能定义`static`关键字修饰的成员，只有**静态嵌套类**(`static nested class`)内部才能定义`static`成员。
-静态嵌套类之外的所有嵌套类又被称为**内部类**(`inner class`)。
-静态嵌套类只能访问外部类的静态成员。
+普通嵌套類內部不能定義`static`關鍵字修飾的成員，只有**靜態嵌套類**(`static nested class`)內部才能定義`static`成員。
+靜態嵌套類之外的所有嵌套類又被稱爲**內部類**(`inner class`)。
+靜態嵌套類只能訪問外部類的靜態成員。
 
-如下代码所示：
+如下代碼所示：
 
 ```java
 class EnclosingClass {
 
-	// 成员嵌套类
+	// 成員嵌套類
 	class MemberNestedClass {
 
-		//static int a; //错误，只有静态嵌套类才能在内部定义静态成员
+		//static int a; //錯誤，只有靜態嵌套類才能在內部定義靜態成員
 
 	}
 
-	// 使用static关键字修饰的成员嵌套类为静态嵌套类
+	// 使用static關鍵字修飾的成員嵌套類爲靜態嵌套類
 	static class StaticMemberNestedClass {
 
-		static int a; //正确，可以正常定义静态成员
+		static int a; //正確，可以正常定義靜態成員
 
 	}
 
 	void showLocalNestedClass() {
 
-		// 局部嵌套类
+		// 局部嵌套類
 		class LocalNestedClass {
 		}
 
 	}
 
-	// 匿名嵌套类
+	// 匿名嵌套類
 	XXX xxx = new XXX {
 		@Override
 		...
@@ -815,24 +815,24 @@ class EnclosingClass {
 
 
 
-# 并发编程
-在Java，常见的并发技术有基本的`Thread`类，以及线程池`Executor`框架。
+# 併發編程
+在Java，常見的併發技術有基本的`Thread`類，以及線程池`Executor`框架。
 
 ## Thread / Runnable
-使用`Thread`创建线程的两种方式：
+使用`Thread`創建線程的兩種方式：
 
-1. `Runnable`接口定义了`run()`方法，实现该接口，将需要并发执行的内容写在`run()`方法中。
-	将实现`Runnable`的实例作为参数构造`Thread`实例。
-1. `Thread`类实现了`Runnable`接口，因此也可以直接继承`Thread`类重写其`run()`方法。
+1. `Runnable`接口定義了`run()`方法，實現該接口，將需要併發執行的內容寫在`run()`方法中。
+	將實現`Runnable`的實例作爲參數構造`Thread`實例。
+1. `Thread`類實現了`Runnable`接口，因此也可以直接繼承`Thread`類重寫其`run()`方法。
 
-完成`Thread`对象的构建后，再调用其成员函数`start()`便会开启线程执行`run()`中的代码。
+完成`Thread`對象的構建後，再調用其成員函數`start()`便會開啓線程執行`run()`中的代碼。
 
-注意事项：
+注意事項：
 
-- 启动线程需要使用`start()`成员方法，调用`run()`无效，代码依然同步执行。
-- `Thread`类只是**一个**线程的抽象，因此在线程启动后不能再次调用`start()`启动新线程，启动新线程需要构建新的`Thread`对象。
+- 啓動線程需要使用`start()`成員方法，調用`run()`無效，代碼依然同步執行。
+- `Thread`類只是**一個**線程的抽象，因此在線程啓動後不能再次調用`start()`啓動新線程，啓動新線程需要構建新的`Thread`對象。
 
-如下代码所示：
+如下代碼所示：
 
 ```java
 class TestThread extends Thread {
@@ -850,38 +850,38 @@ public class Main {
 			/* do something */
 		}
 
-		//使用继承的线程类启动线程
+		//使用繼承的線程類啓動線程
 		new TestThread().start();
 
-		//使用Runnable实例构造Thread类启动线程
+		//使用Runnable實例構造Thread類啓動線程
 		new Thread(runnable).start();
 	}
 
 }
 ```
 
-`Thread`类的常用方法：
+`Thread`類的常用方法：
 
 ```java
-// 使用指定名称创建线程
+// 使用指定名稱創建線程
 public Thread(Runnable runable, String name);
-// 获取线程对象
+// 獲取線程對象
 public static native Thread currentThread();
-// 获取线程名称
+// 獲取線程名稱
 public final String getName();
-// 线程休眠指定毫秒
+// 線程休眠指定毫秒
 public static native void sleep(long millis) throws InterruptedException;
 ```
 
-## synchronized 关键字
-在多线程环境下，多个线程同时访问一个变量时，会产生线程同步问题，变量可能会被其它线程意外地修改。典型的解决方式是对共享变量进行**加锁**。
+## synchronized 關鍵字
+在多線程環境下，多個線程同時訪問一個變量時，會產生線程同步問題，變量可能會被其它線程意外地修改。典型的解決方式是對共享變量進行**加鎖**。
 
-`Java 5`之后提供了`synchronized`关键字用于解决线程同步问题。
-`synchronized`关键字有两种用法：
+`Java 5`之後提供了`synchronized`關鍵字用於解決線程同步問題。
+`synchronized`關鍵字有兩種用法：
 
-1. `synchronized`块
+1. `synchronized`塊
 
-	基本语法如下：
+	基本語法如下：
 
 	```java
 	synchronized (object) {
@@ -889,28 +889,28 @@ public static native void sleep(long millis) throws InterruptedException;
 	}
 	```
 
-	其中，同步变量`object`可以是实例、`this`引用或是类型(`XXX.class`)。
+	其中，同步變量`object`可以是實例、`this`引用或是類型(`XXX.class`)。
 
-	以相同`object`为同步对象的多个`synchronized`块在同一时刻只能有一个`synchronized`块被一个线程执行。
-	在该线程离开`synchronized`块之前，其余线程都会处于等待状态。
+	以相同`object`爲同步對象的多個`synchronized`塊在同一時刻只能有一個`synchronized`塊被一個線程執行。
+	在該線程離開`synchronized`塊之前，其餘線程都會處於等待狀態。
 
-	- `object`为实例时：
+	- `object`爲實例時：
 
-		同步变量需要为**引用类型**(基础类型如`int`、`float`等不能使用`synchronized`关键字进行同步)。
-		同步变量**不能**为`null`。
-		同步变量为类的实例成员时，需要注意同一个类的不同实例的相同实例成员是不同的。
-		同步变量为类的静态成员时，一个类的所有实例共享静态成员，此时效果类似于同步类型(`XXX.class`)。
+		同步變量需要爲**引用類型**(基礎類型如`int`、`float`等不能使用`synchronized`關鍵字進行同步)。
+		同步變量**不能**爲`null`。
+		同步變量爲類的實例成員時，需要注意同一個類的不同實例的相同實例成員是不同的。
+		同步變量爲類的靜態成員時，一個類的所有實例共享靜態成員，此時效果類似於同步類型(`XXX.class`)。
 
-	- `object`为`this`引用时：
+	- `object`爲`this`引用時：
 
-		同一实例中以`this`为同步变量的代码块同时只能被一个线程执行。
-		不同实例之间以`this`为同步对象的代码块无影响。
+		同一實例中以`this`爲同步變量的代碼塊同時只能被一個線程執行。
+		不同實例之間以`this`爲同步對象的代碼塊無影響。
 
-	- `object`为类型时，所有以此为同步变量的代码块都只能被一个线程执行。
+	- `object`爲類型時，所有以此爲同步變量的代碼塊都只能被一個線程執行。
 
 1. `synchronized`方法
 
-	`synchronized`关键字用于修饰方法，语法如下：
+	`synchronized`關鍵字用於修飾方法，語法如下：
 
 	```java
 	synchronized Type methodName(Type args...) {
@@ -918,21 +918,21 @@ public static native void sleep(long millis) throws InterruptedException;
 	}
 	```
 
-	被`synchronized`修饰的方法同时只能被**一个**线程访问：
+	被`synchronized`修飾的方法同時只能被**一個**線程訪問：
 
-	- 修饰的方法为**实例方法**时：
+	- 修飾的方法爲**實例方法**時：
 
-		同一实例的`synchronized`方法同时只能有一个被执行。
-		等价于将整个方法体的内容写在`synchronized (this) { ... }`中。不同实例间不受影响。
+		同一實例的`synchronized`方法同時只能有一個被執行。
+		等價於將整個方法體的內容寫在`synchronized (this) { ... }`中。不同實例間不受影響。
 
-	- 修饰的方法为**静态方法**时：
+	- 修飾的方法爲**靜態方法**時：
 
-		所有该类中的静态`synchronized`方法同时只能有一个被执行。
-		等价于将整个方法体的内容写在`synchronized (类名.class) { ... }`中。
+		所有該類中的靜態`synchronized`方法同時只能有一個被執行。
+		等價於將整個方法體的內容寫在`synchronized (類名.class) { ... }`中。
 
-	一个类中被`synchronized`修饰的实例方法和被`synchronized`修饰的静态方法的同步变量不同，因而不会相互同步。
+	一個類中被`synchronized`修飾的實例方法和被`synchronized`修飾的靜態方法的同步變量不同，因而不會相互同步。
 
-	如下代码所示：
+	如下代碼所示：
 
 	```java
 	import static java.lang.Thread.sleep;
@@ -991,7 +991,7 @@ public static native void sleep(long millis) throws InterruptedException;
 	}
 	```
 
-	输出结果：
+	輸出結果：
 
 	```
 	Thread One showOne()
@@ -1011,26 +1011,26 @@ public static native void sleep(long millis) throws InterruptedException;
 	Thread Two showTwo()
 	```
 
-	输出结果分析：
+	輸出結果分析：
 
-	`Example`类中的三个成员方法都使用了`synchronized`关键字进行修饰。
-	`showOne()`、`showTwo()`为实例方法，`showStatic()`为静态方法。
+	`Example`類中的三個成員方法都使用了`synchronized`關鍵字進行修飾。
+	`showOne()`、`showTwo()`爲實例方法，`showStatic()`爲靜態方法。
 
-	来自同一个实例在不同线程中的两个实例方法**没有**并发执行：
-	`showTwo()`一直等到`showOne()`结束才开始执行。
+	來自同一個實例在不同線程中的兩個實例方法**沒有**併發執行：
+	`showTwo()`一直等到`showOne()`結束纔開始執行。
 
-	静态方法并发执行了：
-	`showOne()`与`showStatic()`交错打印输出。
+	靜態方法併發執行了：
+	`showOne()`與`showStatic()`交錯打印輸出。
 
 ## Executor 框架
-`Thread`类功能简单，仅仅提供了原始的线程抽象，在实际的开发中，往往会使用更高层次的API。
+`Thread`類功能簡單，僅僅提供了原始的線程抽象，在實際的開發中，往往會使用更高層次的API。
 
-`Java 5`之后提供了`Executor`框架，用于创建、管理与执行线程。
-`Executor`框架主要包含`Executor`、`Executors`、`ExecutorService`、`CompletionService`、`Future`、`Callable`等类型。
+`Java 5`之後提供了`Executor`框架，用於創建、管理與執行線程。
+`Executor`框架主要包含`Executor`、`Executors`、`ExecutorService`、`CompletionService`、`Future`、`Callable`等類型。
 
-`Runnable`、`Callable`、`Future`接口是Java中对于异步操作的抽象。
+`Runnable`、`Callable`、`Future`接口是Java中對於異步操作的抽象。
 
-`Runnbale`接口用于表示没有返回值的异步操作，定义如下：
+`Runnbale`接口用於表示沒有返回值的異步操作，定義如下：
 
 ```java
 public interface Runnable {
@@ -1038,10 +1038,10 @@ public interface Runnable {
 }
 ```
 
-除了`Runnable`接口是Java早期版本就已包含的之外，其余的接口/类定义都在`java.util.concurrent`包中。
+除了`Runnable`接口是Java早期版本就已包含的之外，其餘的接口/類定義都在`java.util.concurrent`包中。
 
-`Callable`接口用于表示带有返回值的异步操作。
-定义如下：
+`Callable`接口用於表示帶有返回值的異步操作。
+定義如下：
 
 ```java
 public interface Callable<V> {
@@ -1049,28 +1049,28 @@ public interface Callable<V> {
 }
 ```
 
-`Future`接口用于表示一个异步操作的结果。
-定义如下：
+`Future`接口用於表示一個異步操作的結果。
+定義如下：
 
 ```java
 public interface Future<V> {
 
-	// 尝试取消任务的执行，参数mayInterruptIfRunning表示是否允许中断，返回是否取消了任务
+	// 嘗試取消任務的執行，參數mayInterruptIfRunning表示是否允許中斷，返回是否取消了任務
 	boolean cancel(boolean mayInterruptIfRunning);
 
-	// 获取任务的取消/执行状态
+	// 獲取任務的取消/執行狀態
 	boolean isCancelled();
 	boolean isDone();
 
-	// 获取结果
+	// 獲取結果
 	V get() throws InterruptedException, ExecutionException;
 	V get(long timeout, TimeUnit unit)
 		throws InterruptedException, ExecutionException, TimeoutException;
 }
 ```
 
-`Executor`接口是框架中最基础的部分，仅包含一个执行`Runnable`的`execute()`的抽象方法。
-定义如下：
+`Executor`接口是框架中最基礎的部分，僅包含一個執行`Runnable`的`execute()`的抽象方法。
+定義如下：
 
 ```java
 public interface Executor {
@@ -1078,80 +1078,80 @@ public interface Executor {
 }
 ```
 
-`Executor`接口没有直接子类，但拥有子接口`ExecutorService`。
-`ExecutorService`接口定义了一系列终止、提交、跟踪任务状态的抽象方法，是整个库的核心接口。
-定义如下：
+`Executor`接口沒有直接子類，但擁有子接口`ExecutorService`。
+`ExecutorService`接口定義了一系列終止、提交、跟蹤任務狀態的抽象方法，是整個庫的核心接口。
+定義如下：
 
 ```java
 public interface ExecutorService extends Executor {
 
-	// 关闭ExecutorService，调用后之前已接收的任务继续执行，但不再接收新的任务
-	// 线程池使用完毕需要调用该方法关闭线程池
+	// 關閉ExecutorService，調用後之前已接收的任務繼續執行，但不再接收新的任務
+	// 線程池使用完畢需要調用該方法關閉線程池
 	void shutdown();
 
-	// 尝试终止所有正在执行的任务，并终止等待执行的任务并返回这些任务的列表
+	// 嘗試終止所有正在執行的任務，並終止等待執行的任務並返回這些任務的列表
 	List<Runnable> shutdownNow();
 
 	// 返回是否showdown
 	boolean isShutdown();
 
-	// 返回shutdown()后所有剩余任务是否执行完毕
+	// 返回shutdown()後所有剩餘任務是否執行完畢
 	boolean isTerminated();
 
-	// shutdown()后等待剩余任务执行一定时间，在指定时间结束后返回所有任务是否执行完毕
+	// shutdown()後等待剩餘任務執行一定時間，在指定時間結束後返回所有任務是否執行完畢
 	boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
 
-	// 提交任务，返回该任务的Future，非阻塞
+	// 提交任務，返回該任務的Future，非阻塞
 	<T> Future<T> submit(Callable<T> task);
 	<T> Future<T> submit(Runnable task, T result);
 	Future<?> submit(Runnable task);
 
-	// 执行给定的任务集合，同步等待集合中所有的任务完成，并返回这些任务的Future
+	// 執行給定的任務集合，同步等待集合中所有的任務完成，並返回這些任務的Future
 	<T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException;
 	/*
-		执行给定的任务集合，等待指定时间，超过等待时间则终止尚未完成的任务。
-		返回给定时间内已完成的任务的Future，若在等待时间结束前所有任务都已完成，则方法提前返回。
+		執行給定的任務集合，等待指定時間，超過等待時間則終止尚未完成的任務。
+		返回給定時間內已完成的任務的Future，若在等待時間結束前所有任務都已完成，則方法提前返回。
 	*/
 	<T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
 		long timeout, TimeUnit unit) throws InterruptedException;
 
-	// 执行给定的任务集合，同步等待，直到有任意任务完成时，方法返回该任务的执行结果，同时停止执行其它仍在执行的任务
+	// 執行給定的任務集合，同步等待，直到有任意任務完成時，方法返回該任務的執行結果，同時停止執行其它仍在執行的任務
 	<T> T invokeAny(Collection<? extends Callable<T>> tasks)
 		throws InterruptedException, ExecutionException;
 	/*
-		执行给定的任务集合，等待指定时间。
-		在指定时间内有任意任务完成，则返回该任务的执行结果，同时停止其它正在执行的任务。
-		若没有任何任务完成则抛出TimeoutException异常。
+		執行給定的任務集合，等待指定時間。
+		在指定時間內有任意任務完成，則返回該任務的執行結果，同時停止其它正在執行的任務。
+		若沒有任何任務完成則拋出TimeoutException異常。
 	*/
 	<T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
 		throws InterruptedException, ExecutionException, TimeoutException;
 }
 ```
 
-`ExecutorService`接口的实例可以使用工厂类`Executors`中的静态方法进行创建，常用的一些方法如下：
+`ExecutorService`接口的實例可以使用工廠類`Executors`中的靜態方法進行創建，常用的一些方法如下：
 
 ```java
-// 创建固定线程数目的ExecutorService，线程数目决定了同时并发执行的任务数目
+// 創建固定線程數目的ExecutorService，線程數目決定了同時併發執行的任務數目
 public static ExecutorService newFixedThreadPool(int nThreads);
 
-// 创建一个可根据需要创建新线程的ExecutorService，会重用以前可用的线程
+// 創建一個可根據需要創建新線程的ExecutorService，會重用以前可用的線程
 public static ExecutorService newCachedThreadPool()；
 
-// 创建一个使用单一工作线程的ExecutorService
+// 創建一個使用單一工作線程的ExecutorService
 public static ExecutorService newSingleThreadExecutor()；
 
-// 创建周期性执行任务的ScheduledExecutorService
+// 創建週期性執行任務的ScheduledExecutorService
 public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize);
 ```
 
-使用`ExecutorService`的基本代码如下：
+使用`ExecutorService`的基本代碼如下：
 
 ```java
 public class Main {
 
 	public static void main(String[] args) {
 
-		// 创建并发任务
+		// 創建併發任務
 		Callable<XXX> callable1 = () -> {
 			/* do something... */
 			return xxx;
@@ -1162,69 +1162,69 @@ public class Main {
 		};
 		// create more tasks...
 
-		// 创建线程池
+		// 創建線程池
 		ExecutorService service = Executors.newCachedThreadPool();
 
-		// 提交任务，获取结果Future
+		// 提交任務，獲取結果Future
 		List<Future<XXX>> results = new ArrayList();
 		results.add(service.submit(callable1));
 		results.add(service.submit(callable2));
 		// add more tasks...
 
-		// 处理任务结果
+		// 處理任務結果
 		for (Future<XXX> result : results) {
 			XXX xxx = result.get();
 			/* do something... */
 		}
 
-		// 关闭线程池，没有关闭线程池的操作main函数会一直不返回，程序也不会退出
+		// 關閉線程池，沒有關閉線程池的操作main函數會一直不返回，程序也不會退出
 		service.shutdown();
 	}
 
 }
 ```
 
-使用`ExecutorService`在处理任务返回结果时，有以下缺陷：
+使用`ExecutorService`在處理任務返回結果時，有以下缺陷：
 
-- 直接使用`get()`从`Future`中同步获取返回值需要对任务的执行时间有大致的估算，否则可能造成在某一个执行耗时高的任务中阻塞较长时间。
-- 使用`get(long timeout, TimeUnit unit)`限定了等待时间，但任务未必会在限定时间内完成，可能需要多次轮询才能获取到所有`Future`的结果。
+- 直接使用`get()`從`Future`中同步獲取返回值需要對任務的執行時間有大致的估算，否則可能造成在某一個執行耗時高的任務中阻塞較長時間。
+- 使用`get(long timeout, TimeUnit unit)`限定了等待時間，但任務未必會在限定時間內完成，可能需要多次輪詢才能獲取到所有`Future`的結果。
 
-处理多个任务返回结果应该使用`CompletionService`接口。
-`CompletionService`接口定义了将已完成的任务与新提交的任务分离的方法。
-定义如下：
+處理多個任務返回結果應該使用`CompletionService`接口。
+`CompletionService`接口定義了將已完成的任務與新提交的任務分離的方法。
+定義如下：
 
 ```java
 public interface CompletionService<V> {
 
-	// 提交任务
+	// 提交任務
 	Future<V> submit(Callable<V> task);
 	Future<V> submit(Runnable task, V result);
 
-	// 获取下一个完成的任务的结果Future，若没有任务完成，则会同步等待直至有任务完成
+	// 獲取下一個完成的任務的結果Future，若沒有任務完成，則會同步等待直至有任務完成
 	Future<V> take() throws InterruptedException;
 
-	// 获取下一个完成的任务的结果Future，若没有任务完成，则返回null
+	// 獲取下一個完成的任務的結果Future，若沒有任務完成，則返回null
 	Future<V> poll();
 
-	// 获取下一个完成的任务的结果Future，若没有任务，则等待指定时间，指定时间结束后仍没有任务完成则返回null
+	// 獲取下一個完成的任務的結果Future，若沒有任務，則等待指定時間，指定時間結束後仍沒有任務完成則返回null
 	Future<V> poll(long timeout, TimeUnit unit) throws InterruptedException;
 }
 ```
 
-`CompletionService`接口常用的实现类是`ExecutorCompletionService`，可以使用`Executor`实例构建：
+`CompletionService`接口常用的實現類是`ExecutorCompletionService`，可以使用`Executor`實例構建：
 
 ```java
 public ExecutorCompletionService(Executor executor);
 ```
 
-使用`ExecutorCompletionService`的基本代码如下：
+使用`ExecutorCompletionService`的基本代碼如下：
 
 ```java
 public class Main {
 
 	public static void main(String[] args) {
 
-		// 创建并发任务
+		// 創建併發任務
 		Callable<XXX> callable1 = () -> {
 			/* do something... */
 			return xxx;
@@ -1235,28 +1235,28 @@ public class Main {
 		};
 		// create more tasks...
 
-		// 创建线程池
+		// 創建線程池
 		ExecutorService service = Executors.newCachedThreadPool();
 
-		// 使用ExecutorService构建CompletionService实例
+		// 使用ExecutorService構建CompletionService實例
 		ExecutorCompletionService<XXX> completionService = new ExecutorCompletionService(service);
 
-		// 提交任务
+		// 提交任務
 		completionService.submit(callable1);
 		completionService.submit(callable2);
 		// add more tasks...
 
-		// 处理任务结果
-		for (int i = 0; i < 任务数量; i++) {
+		// 處理任務結果
+		for (int i = 0; i < 任務數量; i++) {
 			/*
-				使用take()/pull()等方法获取下一个执行完毕任务结果。
-				使用take()方法获取结果时只要服务中提交的任意任务完成方法就会返回，不必担心在某一个任务上等待时间过长。
+				使用take()/pull()等方法獲取下一個執行完畢任務結果。
+				使用take()方法獲取結果時只要服務中提交的任意任務完成方法就會返回，不必擔心在某一個任務上等待時間過長。
 			*/
 			XXX xxx = completionService.take().get();
 			/* do something... */
 		}
 
-		// 关闭线程池，CompletionService一样需要通过ExecutorService关闭线程池
+		// 關閉線程池，CompletionService一樣需要通過ExecutorService關閉線程池
 		service.shutdown();
 	}
 
@@ -1265,84 +1265,84 @@ public class Main {
 
 
 
-# Annotation (注解)
-注解(元数据)是`Java 5`之后引入的机制，从`Java 6`开始支持**自定义注解**。
+# Annotation (註解)
+註解(元數據)是`Java 5`之後引入的機制，從`Java 6`開始支持**自定義註解**。
 
-注解可以声明在**包**、**类**、**字段**、**方法**、**局部变量**、**方法参数**等之前，用来对这些元素进行说明和注释。
-注解的相关内容在包`java.lang.annotation`中。
+註解可以聲明在**包**、**類**、**字段**、**方法**、**局部變量**、**方法參數**等之前，用來對這些元素進行說明和註釋。
+註解的相關內容在包`java.lang.annotation`中。
 
-注解的基本语法为：
+註解的基本語法爲：
 
 ```java
-@注解名称(注解参数...)
+@註解名稱(註解參數...)
 ```
 
-其中，注解的参数不是必须的，没有注解参数的注解称为**标记注解**。一个元素可以拥有**多个**注解。
+其中，註解的參數不是必須的，沒有註解參數的註解稱爲**標記註解**。一個元素可以擁有**多個**註解。
 
-## 内置注解
-Java中提供了一系列**内置注解**，常用的有：
+## 內置註解
+Java中提供了一系列**內置註解**，常用的有：
 
-- `@Override`为**标记注解**，用于标记**重写**的方法，若被标记的方法没有发生重写行为，则编译时会得到错误警告。
-- `@Deprecated`为**标记注解**，用于标记**废弃**的内容，作用与JavaDOC提供的`@deprecated`注解类似。
-- `@SuppressWarnings`用于控制编译时的输出警告信息，该注解有多个参数，但都带有默认值。
+- `@Override`爲**標記註解**，用於標記**重寫**的方法，若被標記的方法沒有發生重寫行爲，則編譯時會得到錯誤警告。
+- `@Deprecated`爲**標記註解**，用於標記**廢棄**的內容，作用與JavaDOC提供的`@deprecated`註解類似。
+- `@SuppressWarnings`用於控制編譯時的輸出警告信息，該註解有多個參數，但都帶有默認值。
 
-## 元注解
-**元注解**专门用来修饰其它注解，用于**自定义注解**。
-**元注解**有以下4类：
+## 元註解
+**元註解**專門用來修飾其它註解，用於**自定義註解**。
+**元註解**有以下4類：
 
-1. `@Target`用于限制注解的范围，参数为注解范围的数组(可以同时设定多个注解范围，用花括号包裹)，取值如下所示：
+1. `@Target`用於限制註解的範圍，參數爲註解範圍的數組(可以同時設定多個註解範圍，用花括號包裹)，取值如下所示：
 
-	- `ElementType.CONSTRUCTOR` 描述构造器
+	- `ElementType.CONSTRUCTOR` 描述構造器
 	- `ElementType.FIELD` 描述域
-	- `ElementType.LOCAL_VARIABLE` 描述局部变量
+	- `ElementType.LOCAL_VARIABLE` 描述局部變量
 	- `ElementType.METHOD` 描述方法
 	- `ElementType.PACKAGE` 描述包
-	- `ElementType.PARAMETER` 描述参数
-	- `ElementType.TYPE` 描述类、接口(包括注解类型)或`enum`声明
+	- `ElementType.PARAMETER` 描述參數
+	- `ElementType.TYPE` 描述類、接口(包括註解類型)或`enum`聲明
 
-1. `@Retention`设置注解的**生命周期**，取值如下所示：
+1. `@Retention`設置註解的**生命週期**，取值如下所示：
 
 	- `RetentionPolicy.SOURCE`
 
-		注解在编译阶段丢弃。
-		被修饰的注解在编译结束之后就不再有任何意义，不会写入字节码。
-		`@Override`、`@SuppressWarnings`属于此类注解。
+		註解在編譯階段丟棄。
+		被修飾的註解在編譯結束之後就不再有任何意義，不會寫入字節碼。
+		`@Override`、`@SuppressWarnings`屬於此類註解。
 
 	- `RetentionPolicy.CLASS`
 
-		在类加载的时候丢弃注解信息。
-		在字节码文件的处理中有用。注解**默认使用**这种方式。
+		在類加載的時候丟棄註解信息。
+		在字節碼文件的處理中有用。註解**默認使用**這種方式。
 
 	- `RetentionPolicy.RUNTIME`
 
-		不丢弃注解信息。
-		运行期也保留该注解，可以使用反射机制读取该注解的信息。
-		**自定义注解**通常使用这种方式。
+		不丟棄註解信息。
+		運行期也保留該註解，可以使用反射機制讀取該註解的信息。
+		**自定義註解**通常使用這種方式。
 
-1. `@Inherited`为**标记注解**，用于设置注解的继承性：
+1. `@Inherited`爲**標記註解**，用於設置註解的繼承性：
 
-	被改注解修饰的注解用在类中是**可继承的**，但类不从它所实现的接口继承注解，方法并不从它所重载的方法继承注解。
-	对于设置了`@Inherited`和`@Retention`元注解的注解，并且声明周期设为`RetentionPolicy.RUNTIME`时，则使用`反射`机制来获取元素注解，且检查不到该注解时，会一直沿着继承树向上搜索，直到查找到了该注解或到达类继承结构的顶层。
+	被改註解修飾的註解用在類中是**可繼承的**，但類不從它所實現的接口繼承註解，方法並不從它所重載的方法繼承註解。
+	對於設置了`@Inherited`和`@Retention`元註解的註解，並且聲明週期設爲`RetentionPolicy.RUNTIME`時，則使用`反射`機制來獲取元素註解，且檢查不到該註解時，會一直沿着繼承樹向上搜索，直到查找到了該註解或到達類繼承結構的頂層。
 
-1. `@Documented`设置在使用`javadoc`生成API时记录注解信息。
-	默认情况下，`javadoc`**不会**记录注解信息。
+1. `@Documented`設置在使用`javadoc`生成API時記錄註解信息。
+	默認情況下，`javadoc`**不會**記錄註解信息。
 
-## 自定义注解
-`Java`中的注解实际上是**接口**(`interface`)。
+## 自定義註解
+`Java`中的註解實際上是**接口**(`interface`)。
 
-- 使用`@interface`自定义注解，自定义注解继承了`java.lang.annotation.Annotation`接口。
-- 定义注解时，**不能**继承其他的注解或接口。
-- 定义注解时，每一个方法实际上是定义了一个配置参数。
-	方法的名称就是参数的名称，返回值类型就是参数的类型。可以通过`default`关键字来设置参数**默认值**。
-- 定义注解时，使用`value`做为注解参数名称，则使用注解时参数名称可省略。
-- 定义注解时，参数的访问权限只能为`public`或**默认**权限。
-- 注解参数支持的数据类型：
-	1. 所有基本数据类型(`int`、`float`、`boolean`、`byte`、`double`、`char`、`long`、`short`)。
-	1. `String`类型。
-	1. `Class`类型。
-	1. `enum`类型。
-	1. `Annotation`类型。
-	1. 上述类型的**一维**数组。
+- 使用`@interface`自定義註解，自定義註解繼承了`java.lang.annotation.Annotation`接口。
+- 定義註解時，**不能**繼承其他的註解或接口。
+- 定義註解時，每一個方法實際上是定義了一個配置參數。
+	方法的名稱就是參數的名稱，返回值類型就是參數的類型。可以通過`default`關鍵字來設置參數**默認值**。
+- 定義註解時，使用`value`做爲註解參數名稱，則使用註解時參數名稱可省略。
+- 定義註解時，參數的訪問權限只能爲`public`或**默認**權限。
+- 註解參數支持的數據類型：
+	1. 所有基本數據類型(`int`、`float`、`boolean`、`byte`、`double`、`char`、`long`、`short`)。
+	1. `String`類型。
+	1. `Class`類型。
+	1. `enum`類型。
+	1. `Annotation`類型。
+	1. 上述類型的**一維**數組。
 
 示例：
 
@@ -1366,7 +1366,7 @@ class TestAnnotation extends A {}
 public class Main {
 
 	public static void main(String[] args) {
-		//注解无需实例，可直接通过Class类获得
+		//註解無需實例，可直接通過Class類獲得
 		Test test = TestAnnotation.class.getAnnotation(Test.class);
 		System.out.println(test.value() + ": " + test.test() + " " + test.numbers()[0]);
 	}
@@ -1374,7 +1374,7 @@ public class Main {
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 TestValue: Schwarzes marken 6
@@ -1383,76 +1383,76 @@ TestValue: Schwarzes marken 6
 
 
 # Reflection (反射)
-在`Java`中，**反射**机制提供了一系列**运行时**功能：
+在`Java`中，**反射**機制提供了一系列**運行時**功能：
 
-- 判断任意一个对象所属的类。
-- 构造任意一个类的对象。
-- 判断任意一个类所具有的成员变量和方法。
-- 调用任意一个对象的方法。
-- 获取目标的注解信息。
-- 生成**动态代理**。
+- 判斷任意一個對象所屬的類。
+- 構造任意一個類的對象。
+- 判斷任意一個類所具有的成員變量和方法。
+- 調用任意一個對象的方法。
+- 獲取目標的註解信息。
+- 生成**動態代理**。
 
-反射在Java各类框架中都有着大量的应用，如`Spring`中的`IOC`。
+反射在Java各類框架中都有着大量的應用，如`Spring`中的`IOC`。
 
-## 反射机制的相关类型
-在`Java`中，反射相关的类型定义在包`java.lang.reflect`中，主要有以下类型：
+## 反射機制的相關類型
+在`Java`中，反射相關的類型定義在包`java.lang.reflect`中，主要有以下類型：
 
-- `Class` 表示一个类、接口
-- `Field` 表示类的成员变量(字段)
-- `Method` 表示类的成员方法
-- `Constructor` 表示类的构造方法
+- `Class` 表示一個類、接口
+- `Field` 表示類的成員變量(字段)
+- `Method` 表示類的成員方法
+- `Constructor` 表示類的構造方法
 
-## Class 类型
-`Class`类定义了类型的反射操作，获取目标类型的`Class`实例是使用反射功能的起始步骤。
+## Class 類型
+`Class`類定義了類型的反射操作，獲取目標類型的`Class`實例是使用反射功能的起始步驟。
 
-获取`Class`实例可以通过以下方式：
+獲取`Class`實例可以通過以下方式：
 
-- `Xxx.class` 通过类型的`class`成员获得
-- `Class.forName("class_path")` 通过类型名称获得(传入的类型字符串需要为完整路径)
-- `instance.getClass()` 通过目标实例的`getClass()`方法获得
+- `Xxx.class` 通過類型的`class`成員獲得
+- `Class.forName("class_path")` 通過類型名稱獲得(傳入的類型字符串需要爲完整路徑)
+- `instance.getClass()` 通過目標實例的`getClass()`方法獲得
 
-## 反射获取成员信息
-`Java`中反射获取类型成员信息的相关`API`遵循以下命名规则：
+## 反射獲取成員信息
+`Java`中反射獲取類型成員信息的相關`API`遵循以下命名規則：
 
-- `getXxx()`用于获取**指定成员**，搜索范围为**公有成员**，包括继承的成员。
-- `getDeclaredXxx()`用于获取**指定成员**，搜索范围为**所有访问权限成员**，不包括继承的成员。
-- `getXxxs()`用于获取**所有成员**，搜索范围为**公有成员**，包括继承的成员。
-- `getDeclaredXxxs()`用于获取**所有成员**，搜索范围为**所有访问权限成员**，不包括继承的成员。
+- `getXxx()`用於獲取**指定成員**，搜索範圍爲**公有成員**，包括繼承的成員。
+- `getDeclaredXxx()`用於獲取**指定成員**，搜索範圍爲**所有訪問權限成員**，不包括繼承的成員。
+- `getXxxs()`用於獲取**所有成員**，搜索範圍爲**公有成員**，包括繼承的成員。
+- `getDeclaredXxxs()`用於獲取**所有成員**，搜索範圍爲**所有訪問權限成員**，不包括繼承的成員。
 
-1. 获取类型**完整路径**：
+1. 獲取類型**完整路徑**：
 
-	`Class`类型的`getName()`方法返回类型的完整路径：
+	`Class`類型的`getName()`方法返回類型的完整路徑：
 
 	```java
 	Xxx.class.getName();
 	```
 
-1. 获取类型的**成员变量**：
+1. 獲取類型的**成員變量**：
 
-	获取所有成员字段信息：
+	獲取所有成員字段信息：
 
 	```java
 	public Field[] getFields() throws SecurityException;
 	public Field[] getDeclaredFields() throws SecurityException;
 	```
 
-	通过字段名称获取指定字段的成员信息：
+	通過字段名稱獲取指定字段的成員信息：
 
 	```java
 	public Field getField(String name) throws NoSuchFieldException, SecurityException;
 	public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException;
 	```
 
-1. 获取类型的**成员方法**：
+1. 獲取類型的**成員方法**：
 
-	获取所有成员方法信息：
+	獲取所有成員方法信息：
 
 	```java
 	public Method[] getMethods() throws SecurityException;
 	public Method[] getDeclaredMethods() throws SecurityException;
 	```
 
-	获取指定参数的方法信息，`name`参数为方法名称，`parameterTypes`参数为方法参数类型(变长参数)：
+	獲取指定參數的方法信息，`name`參數爲方法名稱，`parameterTypes`參數爲方法參數類型(變長參數)：
 
 	```java
 	public Method getMethod(String name, Class<?>... parameterTypes)
@@ -1461,17 +1461,17 @@ TestValue: Schwarzes marken 6
 			throws NoSuchMethodException, SecurityException;
 	```
 
-1. 获取类型的**构造方法**
+1. 獲取類型的**構造方法**
 
-	获取所有的构造方法信息：
+	獲取所有的構造方法信息：
 
 	```java
-	// 构造方法不存在继承关系，getConstructors()/getgetDeclaredConstructors()区别仅在于获取构造方法的访问权限不同
+	// 構造方法不存在繼承關係，getConstructors()/getgetDeclaredConstructors()區別僅在於獲取構造方法的訪問權限不同
 	public Constructor<?>[] getConstructors() throws SecurityException;
 	public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
 	```
 
-	获取指定参数的构造方法信息，`parameterTypes`参数为方法参数类型(变长参数)：
+	獲取指定參數的構造方法信息，`parameterTypes`參數爲方法參數類型(變長參數)：
 
 	```java
 	public Constructor<T> getConstructor(Class<?>... parameterTypes)
@@ -1480,7 +1480,7 @@ TestValue: Schwarzes marken 6
 			throws NoSuchMethodException, SecurityException;
 	```
 
-	内部类获取外部类的构造方法(非内部类返回`null`)：
+	內部類獲取外部類的構造方法(非內部類返回`null`)：
 
 	```java
 	public Constructor<?> getEnclosingConstructor() throws SecurityException;
@@ -1555,17 +1555,17 @@ public class Main {
 		for (Field field : classTest.getDeclaredFields())
 			System.out.print(field.getName() + " ");
 
-		// 获取到了继承的方法
+		// 獲取到了繼承的方法
 		System.out.println("\n\nPublic Methods:");
 		for (Method method : classTest.getMethods())
 			System.out.print(method.getName() + " ");
 
-		// 获取内容不包括继承方法，但包含定义的保护/私有方法
+		// 獲取內容不包括繼承方法，但包含定義的保護/私有方法
 		System.out.println("\n\nAll Methods:");
 		for (Method method : classTest.getDeclaredMethods())
 			System.out.print(method.getName() + " ");
 
-		// 构造方法不存在继承的概念，因而只获取到当前类公有构造器
+		// 構造方法不存在繼承的概念，因而只獲取到當前類公有構造器
 		System.out.println("\n\nPublic Constructor:");
 		for (Constructor constructor : classTest.getConstructors())
 			System.out.print(constructor.getName() + " ");
@@ -1574,14 +1574,14 @@ public class Main {
 		for (Constructor constructor : classTest.getDeclaredConstructors())
 			System.out.print(constructor.getName() + " ");
 
-		// 对于非内部类，获取外部类的构造函数返回null
+		// 對於非內部類，獲取外部類的構造函數返回null
 		System.out.println("\n\nEnclosing Constructor:");
 		System.out.println(classTest.getEnclosingConstructor());
 	}
 }
 ```
 
-运行输出结果：
+運行輸出結果：
 
 ```
 Class Full Name:
@@ -1609,17 +1609,17 @@ Enclosing Constructor:
 null
 ```
 
-## 反射构建实例
-若一个类定义了空参的构造函数，则可以直接通过`Class`类中的成员方法来构造对象。
+## 反射構建實例
+若一個類定義了空參的構造函數，則可以直接通過`Class`類中的成員方法來構造對象。
 
 ```java
 public T newInstance() throws InstantiationException, IllegalAccessException;
 ```
 
-`Class`类中没有直接提供通过**有参构造函数**反射构建实例的方式。
-若需要反射调用类的有参构造方法，则需要先获取其有参构造器(`Constructor`类型)，之后通过`Constructor`类的相关方法构造实例。
+`Class`類中沒有直接提供通過**有參構造函數**反射構建實例的方式。
+若需要反射調用類的有參構造方法，則需要先獲取其有參構造器(`Constructor`類型)，之後通過`Constructor`類的相關方法構造實例。
 
-通过反射可以实现使用**非公有构造函数**构建对象。
+通過反射可以實現使用**非公有構造函數**構建對象。
 
 ```java
 public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
@@ -1627,7 +1627,7 @@ public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
 		throws NoSuchMethodException, SecurityException;
 ```
 
-实例如下代码所示：
+實例如下代碼所示：
 
 ```java
 package com.dainslef;
@@ -1659,37 +1659,37 @@ public class Main {
 			NoSuchMethodException,
 			InvocationTargetException {
 
-		// 直接通过Class类调用无参构造函数
+		// 直接通過Class類調用無參構造函數
 		Test.class.newInstance().showNum();
 
-		// 获取构造器对象
+		// 獲取構造器對象
 		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
-		constructor.setAccessible(true); //对于私有构造器默认是无法访问的，需要设置权限才能正常调用
+		constructor.setAccessible(true); //對於私有構造器默認是無法訪問的，需要設置權限才能正常調用
 		constructor.newInstance(200).showNum();
 	}
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 0
 200
 ```
 
-## 反射调用对象方法
-通过反射可以实现调用任意方法(包括**私有方法**)，方式与调用构造函数基本类似。
+## 反射調用對象方法
+通過反射可以實現調用任意方法(包括**私有方法**)，方式與調用構造函數基本類似。
 
-首先获取目标方法的`Method`对象，之后通过Method类的`invoke()`方法执行，第一个参数为类的实例，之后的参数为方法签名中的参数。
+首先獲取目標方法的`Method`對象，之後通過Method類的`invoke()`方法執行，第一個參數爲類的實例，之後的參數爲方法簽名中的參數。
 
 ```java
 public Object invoke(Object var1, Object... var2)
 		throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 ```
 
-与`Constructor`类似，如果获取到的`Method`对象代表的是非公有成员方法，则需要使用`setAccessible()`方法设置属性为可访问才能正常调用。
+與`Constructor`類似，如果獲取到的`Method`對象代表的是非公有成員方法，則需要使用`setAccessible()`方法設置屬性爲可訪問才能正常調用。
 
-访问一个全部成员**私有**的类，如下所示：
+訪問一個全部成員**私有**的類，如下所示：
 
 ```java
 package com.dainslef;
@@ -1721,38 +1721,38 @@ public class Main {
 			InvocationTargetException {
 
 		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
-		constructor.setAccessible(true); //设置私有构造器可访问
+		constructor.setAccessible(true); //設置私有構造器可訪問
 
-		Test test = constructor.newInstance(200); //通过私有构造器构造对象，并传入初值
+		Test test = constructor.newInstance(200); //通過私有構造器構造對象，並傳入初值
 
 		Method method = Test.class.getDeclaredMethod("showNum", int.class);
-		method.setAccessible(true); //设置方法的访问权限
-		method.invoke(test, 100); //调用私有方法showNum()
+		method.setAccessible(true); //設置方法的訪問權限
+		method.invoke(test, 100); //調用私有方法showNum()
 	}
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 300
 ```
 
 ## 反射修改字段
-通过反射亦可访问、修改类的非公有成员字段，方式类似。
+通過反射亦可訪問、修改類的非公有成員字段，方式類似。
 
-通过`Field`类的相关的`set()`、`get()`方法设置、获取字段内容：
+通過`Field`類的相關的`set()`、`get()`方法設置、獲取字段內容：
 
 ```java
 public void set(Object var1, Object var2) throws IllegalArgumentException, IllegalAccessException;
 public Object get(Object var1) throws IllegalArgumentException, IllegalAccessException;
 ```
 
-- `set()`方法中参数`var1`为要设置字段所属的对象，参数`var2`为设置的内容。
-- `get()`方法同名参数作用相同。
-- `set()/get()`方法接收的参数为`Object`类型。
+- `set()`方法中參數`var1`爲要設置字段所屬的對象，參數`var2`爲設置的內容。
+- `get()`方法同名參數作用相同。
+- `set()/get()`方法接收的參數爲`Object`類型。
 
-对于基本类型，`Field`类中预先定义了一套方法(`setInt()/getInt()/setBoolean()/getBoolean()`等)，基本类型可直接使用这些方法以避免不必要的强制类型转换。
+對於基本類型，`Field`類中預先定義了一套方法(`setInt()/getInt()/setBoolean()/getBoolean()`等)，基本類型可直接使用這些方法以避免不必要的強制類型轉換。
 
 ```java
 package com.dainslef;
@@ -1798,14 +1798,14 @@ public class Main {
 }
 ```
 
-## 反射判定继承关系
-使用`Class`类中的`isAssignableFrom()`成员方法可以判定当前类型是否可以由目标类型转换得到：
+## 反射判定繼承關係
+使用`Class`類中的`isAssignableFrom()`成員方法可以判定當前類型是否可以由目標類型轉換得到：
 
 ```java
 public native boolean isAssignableFrom(Class<?> cls);
 ```
 
-`isAssignableFrom()`方法对于接口和类都有效，只要类型满足转换关系即可，如下所示：
+`isAssignableFrom()`方法對於接口和類都有效，只要類型滿足轉換關係即可，如下所示：
 
 ```java
 interface A { }
@@ -1823,7 +1823,7 @@ class Main {
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 true
@@ -1831,16 +1831,16 @@ true
 true
 ```
 
-## ClassLoader (类加载器)
-在Java中有三种类加载器。
+## ClassLoader (類加載器)
+在Java中有三種類加載器。
 
-1. `Bootstrap ClassLoader`引导类加载器，用于加载`Java`核心类。
-1. `Extension ClassLoader`扩展类加载器，它负责加载`JRE`的扩展目录(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系统属性指定)类包。
-1. `App ClassLoader`应用类加载器，通常类都由此加载器加载(包括`java.class.path`)。
+1. `Bootstrap ClassLoader`引導類加載器，用於加載`Java`核心類。
+1. `Extension ClassLoader`擴展類加載器，它負責加載`JRE`的擴展目錄(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系統屬性指定)類包。
+1. `App ClassLoader`應用類加載器，通常類都由此加載器加載(包括`java.class.path`)。
 
-获取一个类的加载器使用`getClassLoader()`方法。
+獲取一個類的加載器使用`getClassLoader()`方法。
 
-展示一般应用类加载器：
+展示一般應用類加載器：
 
 ```java
 package com.dainslef;
@@ -1867,7 +1867,7 @@ public class Main {
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 sun.misc.Launcher$AppClassLoader
@@ -1876,27 +1876,27 @@ sun.misc.Launcher$AppClassLoader
 
 
 
-# 动态代理
-**动态代理**是反射机制的一种应用，能够动态地产生代理实例，避免为每一个接口方法编写大量的重复代理代码。
+# 動態代理
+**動態代理**是反射機制的一種應用，能夠動態地產生代理實例，避免爲每一個接口方法編寫大量的重複代理代碼。
 
 ## 代理模式
-**代理模式**是常见的设计模式，主要作用是通过创建**代理类**为其他对象提供一种代理，并以控制对这个对象的访问。
+**代理模式**是常見的設計模式，主要作用是通過創建**代理類**爲其他對象提供一種代理，並以控制對這個對象的訪問。
 
-代理模式常见的应用场景有：
+代理模式常見的應用場景有：
 
-1. `Remote Proxy`远程代理，为一个位于不同的地址空间的对象提供一个本地的代理对象。
-这个不同的地址空间可以是在同一台主机中，也可是在另一台主机中。
-1. `Virtual Proxy`虚拟代理，根据需要创建开销很大的对象。
-若需要创建一个资源消耗较大的对象，先创建一个消耗相对较小的对象来表示，真实对象只在需要时才会被真正创建。
-1. `Protection Proxy`保护代理，控制对原始对象的访问。保护代理用于对象应该有不同的访问权限的时候。
-1. `Smart Reference`智能指引，取代了简单的指针，它在访问对象时执行一些附加操作，扩充原有对象的功能。
-1. `Copy-on-Write`写时复制，它是虚拟代理的一种，把复制操作延迟到只有在客户端真正需要时才执行。
+1. `Remote Proxy`遠程代理，爲一個位於不同的地址空間的對象提供一個本地的代理對象。
+這個不同的地址空間可以是在同一臺主機中，也可是在另一臺主機中。
+1. `Virtual Proxy`虛擬代理，根據需要創建開銷很大的對象。
+若需要創建一個資源消耗較大的對象，先創建一個消耗相對較小的對象來表示，真實對象只在需要時纔會被真正創建。
+1. `Protection Proxy`保護代理，控制對原始對象的訪問。保護代理用於對象應該有不同的訪問權限的時候。
+1. `Smart Reference`智能指引，取代了簡單的指針，它在訪問對象時執行一些附加操作，擴充原有對象的功能。
+1. `Copy-on-Write`寫時複製，它是虛擬代理的一種，把複製操作延遲到只有在客戶端真正需要時才執行。
 
-在Java中代理模式的典型方式是使用接口定义功能，实现类实现接口功能，而代理类控制/扩充实现类功能。
-代理类与实现类都实现接口，但代理类本身不直接实现具体功能，而是调用被其代理的实现类的方法。
+在Java中代理模式的典型方式是使用接口定義功能，實現類實現接口功能，而代理類控制/擴充實現類功能。
+代理類與實現類都實現接口，但代理類本身不直接實現具體功能，而是調用被其代理的實現類的方法。
 
-## 实例
-假设有一个文件接口`File`，定义了支持的文件操作：
+## 實例
+假設有一個文件接口`File`，定義了支持的文件操作：
 
 ```java
 interface File {
@@ -1905,7 +1905,7 @@ interface File {
 }
 ```
 
-`FileImpl`类实现文件接口：
+`FileImpl`類實現文件接口：
 
 ```java
 class FileImpl implements File {
@@ -1926,12 +1926,12 @@ class FileImpl implements File {
 }
 ```
 
-使用静态代理，则应创建一个**代理类**用于控制之前的实现。
-代理类同样需要实现基础接口，但代理类不同于实现类，代理类使用别的接口实现类的实现而不是自身实现功能。
-代理类在调用实现类功能的同时，也可以加入自身的扩充功能。
+使用靜態代理，則應創建一個**代理類**用於控制之前的實現。
+代理類同樣需要實現基礎接口，但代理類不同於實現類，代理類使用別的接口實現類的實現而不是自身實現功能。
+代理類在調用實現類功能的同時，也可以加入自身的擴充功能。
 
-实现类以接口的形式被传入代理类，当一个接口有多种实现的时候，代理类能够针对每一种实现类都添加相同的功能。
-这就是所谓的`AOP`(面向切面编程)，代理类可以被视为是一个切面。
+實現類以接口的形式被傳入代理類，當一個接口有多種實現的時候，代理類能夠針對每一種實現類都添加相同的功能。
+這就是所謂的`AOP`(面向切面編程)，代理類可以被視爲是一個切面。
 
 ```java
 class FileProxy implements File {
@@ -1968,23 +1968,23 @@ class FileProxy implements File {
 }
 ```
 
-代理类`FileProxy`能够在调用实现具体代码的同时加入扩充的功能。
+代理類`FileProxy`能夠在調用實現具體代碼的同時加入擴充的功能。
 
-随着接口功能的扩充，代理类的代理方法数量也会增加，但代理类中很多方法的扩充代码可能相同的或是根本没有扩充代码，
-因而没有必要针对每一个方法编写代理方法，此时使用**动态代理**能够很方便地控制代码规模。
+隨着接口功能的擴充，代理類的代理方法數量也會增加，但代理類中很多方法的擴充代碼可能相同的或是根本沒有擴充代碼，
+因而沒有必要針對每一個方法編寫代理方法，此時使用**動態代理**能夠很方便地控制代碼規模。
 
-动态代理使用`java.lang.reflect.Proxy`类中的`newProxyInstance`方法构建代理类实例：
+動態代理使用`java.lang.reflect.Proxy`類中的`newProxyInstance`方法構建代理類實例：
 
 ```java
 public static Object newProxyInstance(ClassLoader loader,
 		Class<?>[] interfaces, InvocationHandler h) throws IllegalArgumentException;
 ```
 
-- `loader`参数为动态代理类的类加载器。
-- `interfaces`参数为代理类实现的接口的数组。
-- `h`参数为动态代理的具体内容。
+- `loader`參數爲動態代理類的類加載器。
+- `interfaces`參數爲代理類實現的接口的數組。
+- `h`參數爲動態代理的具體內容。
 
-`h`参数的类型为`InvocationHand`接口，定义如下：
+`h`參數的類型爲`InvocationHand`接口，定義如下：
 
 ```java
 public interface InvocationHandler {
@@ -1992,12 +1992,12 @@ public interface InvocationHandler {
 }
 ```
 
-- `proxy`参数为代理类。
-- `method`参数为调用的方法。
-- `args`参数为对调用方法传入的参数。
+- `proxy`參數爲代理類。
+- `method`參數爲調用的方法。
+- `args`參數爲對調用方法傳入的參數。
 
-需要自行实现`InvocationHandler`接口，来实现动态代理的具体内容。
-以上文的`FileImpl`类为例，使用动态代理实现如下：
+需要自行實現`InvocationHandler`接口，來實現動態代理的具體內容。
+以上文的`FileImpl`類爲例，使用動態代理實現如下：
 
 ```java
 class InvocationHandlerImpl implements InvocationHandler {
@@ -2008,7 +2008,7 @@ class InvocationHandlerImpl implements InvocationHandler {
 		this.file = file;
 	}
 
-	// 多个接口方法的代理扩展代码全部写在一个invoke()方法中
+	// 多個接口方法的代理擴展代碼全部寫在一個invoke()方法中
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
@@ -2016,7 +2016,7 @@ class InvocationHandlerImpl implements InvocationHandler {
 			do something before...
 		*/
 
-		// 判断是否为静态方法，并使用不同的调用方式
+		// 判斷是否爲靜態方法，並使用不同的調用方式
 		Object object = Modifier.isStatic(method.getModifiers()) ?
 				method.invoke(args) : method.invoke(file, args);
 
@@ -2032,17 +2032,17 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		//类实现
+		//類實現
 		File fileImpl = new FileImpl();
 
-		//代理规则
+		//代理規則
 		InvocationHandler invocationHandler = new InvocationHandlerImpl(fileImpl);
 
-		//生成动态代理对象
+		//生成動態代理對象
 		File file = (File)Proxy.newProxyInstance(fileImpl.getClass().getClassLoader(),
 			new Class[] { File.class }, invocationHandler);
 
-		//通过动态代理对象调用方法
+		//通過動態代理對象調用方法
 		file.getName();
 		file.getSize();
 	}
@@ -2052,13 +2052,13 @@ public class Main {
 
 
 
-# Default Method (接口默认方法)
-从`Java 8`开始，接口中允许定义带有方法实现的默认方法，在方法前使用关键字`default`来区别于普通的抽象方法。
+# Default Method (接口默認方法)
+從`Java 8`開始，接口中允許定義帶有方法實現的默認方法，在方法前使用關鍵字`default`來區別於普通的抽象方法。
 
-- 一个接口可以定义**多个**默认方法。
-- 一个接口也可以只包含**默认方法**而不含有抽象方法。
-- 默认方法**不是**静态方法，可被重写，不可通过接口名称直接访问。
-- 默认方法不会强制子类重写，并且可以像类的成员方法一样被继承。
+- 一個接口可以定義**多個**默認方法。
+- 一個接口也可以只包含**默認方法**而不含有抽象方法。
+- 默認方法**不是**靜態方法，可被重寫，不可通過接口名稱直接訪問。
+- 默認方法不會強制子類重寫，並且可以像類的成員方法一樣被繼承。
 
 例如：
 
@@ -2075,7 +2075,7 @@ class B implements A {
 
 class Main {
 	public static void main(String[] args) {
-		// A.show(); //编译错误
+		// A.show(); //編譯錯誤
 		B b = new B();
 		b.show();
 		A a = b;
@@ -2084,34 +2084,34 @@ class Main {
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 B
 B
 ```
 
-由输出可知，向上转型后的实例对象调用的是被重写之后的方法。
+由輸出可知，向上轉型後的實例對象調用的是被重寫之後的方法。
 
-当一个类实现了多个带有相同函数签名的默认方法的接口，需要重写引发冲突的默认方法。
+當一個類實現了多個帶有相同函數簽名的默認方法的接口，需要重寫引發衝突的默認方法。
 示例：
 
 ```java
-// 接口 Test1 中含有默认方法 int test(int a)
+// 接口 Test1 中含有默認方法 int test(int a)
 interface Test1 {
 	default int test(int a) {
 		return a;
 	}
 }
 
-// 接口 Test2 中也含有默认方法 int test(int a)
+// 接口 Test2 中也含有默認方法 int test(int a)
 interface Test2 {
 	default int test(int a) {
 		return a;
 	}
 }
 
-// 类 Test 同时实现接口 Test1 和 Test2
+// 類 Test 同時實現接口 Test1 和 Test2
 class Test implements Test1, Test2 {
 	@Override
 	public int abc(int a) {
@@ -2121,11 +2121,11 @@ class Test implements Test1, Test2 {
 }
 ```
 
-如果你想在重写的方法中直接使用原先接口中的某个默认方法实现，可以使用`super`关键字。
+如果你想在重寫的方法中直接使用原先接口中的某個默認方法實現，可以使用`super`關鍵字。
 示例：
 
 ```java
-// 类中的 int test(int a) 方法采用 Test1 接口中的默认方法实现
+// 類中的 int test(int a) 方法採用 Test1 接口中的默認方法實現
 class Test implements Test1, Test2 {
 
 	@Override
@@ -2136,21 +2136,21 @@ class Test implements Test1, Test2 {
 }
 ```
 
-一个类实现多个带有默认方法的接口，在一定程度上类似于`C++`中的**多重继承**。
+一個類實現多個帶有默認方法的接口，在一定程度上類似於`C++`中的**多重繼承**。
 
 
 
 # Lambda
-`Java 8`中加入的一个重要的特性为**Lambda表达式**。
+`Java 8`中加入的一個重要的特性爲**Lambda表達式**。
 
-## 实现函数式接口
-**Lambda表达式**用于实现**函数式接口**，函数接口是**有且只有一个**抽象方法的接口。
+## 實現函數式接口
+**Lambda表達式**用於實現**函數式接口**，函數接口是**有且只有一個**抽象方法的接口。
 
-函数式接口可以使用`@FunctionalInterface`注解，被其标注的接口中若含有**多个**抽象方法则无法通过编译。
+函數式接口可以使用`@FunctionalInterface`註解，被其標註的接口中若含有**多個**抽象方法則無法通過編譯。
 示例：
 
 ```java
-// 编译报错
+// 編譯報錯
 @FunctionalInterface
 interface Test {
 	void test1();
@@ -2158,7 +2158,7 @@ interface Test {
 }
 ```
 
-编译报错，提示：
+編譯報錯，提示：
 
 ```
 Error: java: Unexpected @FunctionalInterface annotation
@@ -2166,11 +2166,11 @@ Error: java: Unexpected @FunctionalInterface annotation
 		multiple non-overriding abstract methods found in interface Test
 ```
 
-对于**函数接口**，只能带有一个**抽象方法**，但可以带有任意数量的**默认方法**。
+對於**函數接口**，只能帶有一個**抽象方法**，但可以帶有任意數量的**默認方法**。
 示例：
 
 ```java
-// 以下接口定义符合函数接口要求
+// 以下接口定義符合函數接口要求
 @FunctionalInterface
 interface Test {
 
@@ -2187,7 +2187,7 @@ interface Test {
 }
 ```
 
-Java8之前，实现一个接口，通常使用**匿名类**语法：
+Java8之前，實現一個接口，通常使用**匿名類**語法：
 
 ```java
 @FunctionalInterface
@@ -2203,38 +2203,38 @@ Test t = new Test() {
 };
 ```
 
-Java8之后，可使用Lambda实现函数接口：
+Java8之後，可使用Lambda實現函數接口：
 
 ```java
 Test t = (int a) -> a;
 ```
 
 ## 一般用法
-对于一个如下定义的函数：
+對於一個如下定義的函數：
 
 ```java
-返回类型 函数名(参数列表) {
-	// 函数内容
+返回類型 函數名(參數列表) {
+	// 函數內容
 	return 返回值;
 }
 ```
 
-对应的Lambda表达式格式为：
+對應的Lambda表達式格式爲：
 
 ```java
-(参数列表) -> {
-	// 函数内容
+(參數列表) -> {
+	// 函數內容
 	return 返回值;
 }
 ```
 
-如果函数体只有一句表达式，则可以省略大括号，简写成：
+如果函數體只有一句表達式，則可以省略大括號，簡寫成：
 
 ```java
-(参数表) -> 表达式;
+(參數表) -> 表達式;
 ```
 
-比如有以下函数定义：
+比如有以下函數定義：
 
 ```java
 int test(int a) {
@@ -2242,28 +2242,28 @@ int test(int a) {
 }
 ```
 
-使用Lambda表达式可以写成：
+使用Lambda表達式可以寫成：
 
 ```java
 (a) -> { return 2 * a; };
-(a) -> 2 * a; //省略大括号
+(a) -> 2 * a; //省略大括號
 ```
 
-特别的，在参数只有一个时，可以省略括号直接写成：
+特別的，在參數只有一個時，可以省略括號直接寫成：
 
 ```java
 a -> 2 * a;
 ```
 
-Lambda表达式能够**访问**外部作用域中的变量。
-Java中的Lambda捕获外部作用域变量时会自动带有`final`属性，
-因而在Lambda中不能对引用的外部作用域变量进行更改(变量若为类实例，则类内成员**不受**影响)。
+Lambda表達式能夠**訪問**外部作用域中的變量。
+Java中的Lambda捕獲外部作用域變量時會自動帶有`final`屬性，
+因而在Lambda中不能對引用的外部作用域變量進行更改(變量若爲類實例，則類內成員**不受**影響)。
 
-在其它支持Lambda表达式的主流语言中，C#/Scala的Lambda可以修改外部作用域的变量，
-C++可以控制外部变量的捕获方式，对于**引用捕获**的变量，可以修改其值。
+在其它支持Lambda表達式的主流語言中，C#/Scala的Lambda可以修改外部作用域的變量，
+C++可以控制外部變量的捕獲方式，對於**引用捕獲**的變量，可以修改其值。
 
 ## Method Reference (方法引用)
-对于函数接口，还可以将当前类的某个符合方法签名的方法作为引用实例化函数接口对象。
+對於函數接口，還可以將當前類的某個符合方法簽名的方法作爲引用實例化函數接口對象。
 例如：
 
 ```java
@@ -2284,37 +2284,37 @@ class B {
 }
 ```
 
-使用操作符`::`将符合签名的方法作为重写内容构造出接口对象。
-接口的成员方法为公有成员，但若使用方法引用实现接口时，不必考虑被引用方法的访问限制，
-即使是本类的私有成员，一样可以作为引用来实现接口，
-但如果是重写接口则必须访问权限为`public`(重写权限必须大于等于原有权限)。
-只要**方法签名**相同(返回值类型可以不同)，可使用抽象方法来作为引用实现函数接口。
+使用操作符`::`將符合簽名的方法作爲重寫內容構造出接口對象。
+接口的成員方法爲公有成員，但若使用方法引用實現接口時，不必考慮被引用方法的訪問限制，
+即使是本類的私有成員，一樣可以作爲引用來實現接口，
+但如果是重寫接口則必須訪問權限爲`public`(重寫權限必須大於等於原有權限)。
+只要**方法簽名**相同(返回值類型可以不同)，可使用抽象方法來作爲引用實現函數接口。
 
-## 标准库中的函数式接口 (java.util.function)
-在`Java 8`中，`java.util.function`包中预定义了一系列的泛型函数接口。
+## 標準庫中的函數式接口 (java.util.function)
+在`Java 8`中，`java.util.function`包中預定義了一系列的泛型函數接口。
 
 - `*Function`
 
-	Function系列的函数接口表示带有返回值的函数，类似于**C#**中的`Func`类：
+	Function系列的函數接口表示帶有返回值的函數，類似於**C#**中的`Func`類：
 
-	- `Function<T, R>` 接收两个泛型参数，`T`表示参数类型，`R`表示返回值类型
-	- `BiFunction<T, U, R>` 接收三个泛型参数，`T`、`U`表示参数类型，`R`表示返回值类型
+	- `Function<T, R>` 接收兩個泛型參數，`T`表示參數類型，`R`表示返回值類型
+	- `BiFunction<T, U, R>` 接收三個泛型參數，`T`、`U`表示參數類型，`R`表示返回值類型
 
 - `*Consumer`
 
-	Consumer系列的函数接口表示无返回值(`void`)的函数，类似于**C#**中的`Action`类型：
+	Consumer系列的函數接口表示無返回值(`void`)的函數，類似於**C#**中的`Action`類型：
 
-	- `Consumer<T>` 接收参数类型作为泛型参数
-	- `BiConsumer<T, U>` 接收两个泛型参数，均为参数类型
+	- `Consumer<T>` 接收參數類型作爲泛型參數
+	- `BiConsumer<T, U>` 接收兩個泛型參數，均爲參數類型
 
-预定义的函数接口仅包含**单个参数**、**两个参数**的情形，若需要**三个或以上**参数的函数接口则需自行定义。
+預定義的函數接口僅包含**單個參數**、**兩個參數**的情形，若需要**三個或以上**參數的函數接口則需自行定義。
 
-由于Java泛型机制的限制，泛型参数不能使用基础类型(如`int`、`double`等，需要使用对应的包装类型`Integer`、`Double`)。
-为避免基础类型装箱，`java.util.function`包为基础类型作为方法参数的情形提供了对应的预定义接口，如`IntFunction<R>`、`DoubleConsumer`等。
+由於Java泛型機制的限制，泛型參數不能使用基礎類型(如`int`、`double`等，需要使用對應的包裝類型`Integer`、`Double`)。
+爲避免基礎類型裝箱，`java.util.function`包爲基礎類型作爲方法參數的情形提供了對應的預定義接口，如`IntFunction<R>`、`DoubleConsumer`等。
 
-`java.util.function`包中预定义的一系列函数接口只是简化了函数接口的定义，
-Java8中的函数接口**不能**做到类似C#中`Delegate/Func/Action`或Scala中`Function*`那样直接以函数的语法进行调用。
-Java8中的Lambda语法仅仅简化了实现函数接口的过程，调用函数接口内的方法时仍然需要显式使用接口中的方法名称。
+`java.util.function`包中預定義的一系列函數接口只是簡化了函數接口的定義，
+Java8中的函數接口**不能**做到類似C#中`Delegate/Func/Action`或Scala中`Function*`那樣直接以函數的語法進行調用。
+Java8中的Lambda語法僅僅簡化了實現函數接口的過程，調用函數接口內的方法時仍然需要顯式使用接口中的方法名稱。
 
 示例：
 
@@ -2325,7 +2325,7 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		// 实例化函数接口对象
+		// 實例化函數接口對象
 		// 使用 IntFunction<Integer> 代替 Function<Integer, Integer>
 		Function<Integer, Integer> function = in -> 2 * in;
 		IntFunction<Integer> intFunction = in -> 2 * in;
@@ -2335,9 +2335,9 @@ public class Main {
 		IntConsumer intConsumer = in -> System.out.println(in);
 
 		/*
-			使用函数接口对象，仍然需要明确调用函数接口中的方法。
-			Function系列的有返回值的接口调用方法apply()
-			Consumer系列的无返回值的接口调用方法accept()
+			使用函數接口對象，仍然需要明確調用函數接口中的方法。
+			Function系列的有返回值的接口調用方法apply()
+			Consumer系列的無返回值的接口調用方法accept()
 		*/
 		System.out.println(function.apply(100));
 		consumer.accept(200);
@@ -2349,273 +2349,273 @@ public class Main {
 
 
 # JDBC
-`JDBC`为Java定义了一套公用的数据库API，JDBC屏蔽了不同数据库之间的差异。
-对于支持JDBC的数据库，只要导入对应的`JDBC Driver`即可使用相同的`JDBC API`进行操作。
+`JDBC`爲Java定義了一套公用的數據庫API，JDBC屏蔽了不同數據庫之間的差異。
+對於支持JDBC的數據庫，只要導入對應的`JDBC Driver`即可使用相同的`JDBC API`進行操作。
 
-## 连接数据库
-`JDBC API`相关类型位于`java.sql`包中：
+## 連接數據庫
+`JDBC API`相關類型位於`java.sql`包中：
 
-- `DriverManager` JDBC驱动集合
-- `Connection` 数据库连接
-- `Statement` 数据库交互对象，用于执行各类SQL语句
-- `PreparedStatement/CallableStatement` 包含扩展功能的数据库交互对象
-- `ResultSet` 包含查询结果的集合
+- `DriverManager` JDBC驅動集合
+- `Connection` 數據庫連接
+- `Statement` 數據庫交互對象，用於執行各類SQL語句
+- `PreparedStatement/CallableStatement` 包含擴展功能的數據庫交互對象
+- `ResultSet` 包含查詢結果的集合
 
-基本的访问数据库流程：
+基本的訪問數據庫流程：
 
 ```java
-String connectUrl = "jdbc:数据库类型://连接地址...";
+String connectUrl = "jdbc:數據庫類型://連接地址...";
 
 try {
-	Connection connection = DriverManager.getConnection(connectUrl); //获取数据库连接
+	Connection connection = DriverManager.getConnection(connectUrl); //獲取數據庫連接
 	Statement statement = connection.createStatement()
 } catch (SQLException ex) {
 	...
 }
 ```
 
-## 数据库操作
-`Statement`类性提供了执行SQL语句的方法：
+## 數據庫操作
+`Statement`類性提供了執行SQL語句的方法：
 
 ```java
-// 执行查询语句并返回查询结果集
+// 執行查詢語句並返回查詢結果集
 ResultSet executeQuery(String sql) throws SQLException;
-// 执行更新语句并返回更新的数目
+// 執行更新語句並返回更新的數目
 int executeUpdate(String sql) throws SQLException;
 ```
 
-查询结果返回的结果集`ResultSet`，常用方法：
+查詢結果返回的結果集`ResultSet`，常用方法：
 
 ```java
-// 将光标移动到正好位于第一行之前
+// 將光標移動到正好位於第一行之前
 public void beforeFirst() throws SQLException;
-// 将光标移动到刚刚结束的最后一行
+// 將光標移動到剛剛結束的最後一行
 public void afterLast() throws SQLException;
-// 将光标移动到第一行
+// 將光標移動到第一行
 public boolean first() throws SQLException;
-// 将光标移动到最后一行
+// 將光標移動到最後一行
 public void last() throws SQLException;
-// 将光标移动到指定的行
+// 將光標移動到指定的行
 public boolean absolute(int row) throws SQLException;
-// 从它目前所指向向前或向后移动光标行的给定数量
+// 從它目前所指向向前或向後移動光標行的給定數量
 public boolean relative(int row) throws SQLException;
-// 将光标移动到上一行，上一行关闭的结果集此方法返回false
+// 將光標移動到上一行，上一行關閉的結果集此方法返回false
 public boolean previous() throws SQLException;
-// 将光标移动到下一行，如果没有更多的行结果集中的此方法返回false
+// 將光標移動到下一行，如果沒有更多的行結果集中的此方法返回false
 public boolean next() throws SQLException;
-// 返回的行号，该光标指向的行
+// 返回的行號，該光標指向的行
 public int getRow() throws SQLException;
-// 将光标移动到一个特殊的行，可以用来插入新行插入到数据库中的结果集，当前光标位置被记住
+// 將光標移動到一個特殊的行，可以用來插入新行插入到數據庫中的結果集，當前光標位置被記住
 public void moveToInsertRow() throws SQLException;
-// 移动光标返回到当前行，如果光标在当前插入行，否则，这个方法不执行任何操作
+// 移動光標返回到當前行，如果光標在當前插入行，否則，這個方法不執行任何操作
 public void moveToCurrentRow() throws SQLException;
 ```
 
 基本操作如下所示：
 
 ```java
-ResultSet resultSet = statement.executeQuery("SQL查询语句...");
-while (resultSet.next()) { // 使用 next() 方法将当前游标移动到下一行
-	resultSet.getInt(...); // 获取数据，支持使用列号/列名进行获取
+ResultSet resultSet = statement.executeQuery("SQL查詢語句...");
+while (resultSet.next()) { // 使用 next() 方法將當前遊標移動到下一行
+	resultSet.getInt(...); // 獲取數據，支持使用列號/列名進行獲取
 	resultSet.getString(...);
 }
 ```
 
-## 获取时间
-`ResultSet`类型提供了以下方法用于获取时间类型(如`MySQL`中的`DateTime`)信息：
+## 獲取時間
+`ResultSet`類型提供了以下方法用於獲取時間類型(如`MySQL`中的`DateTime`)信息：
 
-- `getDate()` 获取日期信息
-- `getTime()` 获取时间信息
-- `getTimestamp()` 获取完整时间信息
+- `getDate()` 獲取日期信息
+- `getTime()` 獲取時間信息
+- `getTimestamp()` 獲取完整時間信息
 
-对于时间类型的数据，使用`getDate()`、`getTime()`等方法获取到的时间信息不完整：
+對於時間類型的數據，使用`getDate()`、`getTime()`等方法獲取到的時間信息不完整：
 
-- `getDate()`获取到的仅为日期信息，小时、分钟、秒等信息被置为默认(`00:00:00`)。
-- `getTime()`获取到的时间信息不包含日期，日期部分被置为默认(`1970-1-1`)
+- `getDate()`獲取到的僅爲日期信息，小時、分鐘、秒等信息被置爲默認(`00:00:00`)。
+- `getTime()`獲取到的時間信息不包含日期，日期部分被置爲默認(`1970-1-1`)
 
-使用`getTimestamp()`方法才能获取到完整的时间信息。
+使用`getTimestamp()`方法才能獲取到完整的時間信息。
 
-## 与 Access 数据库交互
-`JDK 1.7`之前，可以使用`JDBC-ODBC`桥接`Access`数据库。
-在`JDK 1.8`之后，`JDBC-ODBC`桥被移除，只能使用专有的Access驱动来连接Access数据库(驱动名称：`Access_JDBC40.jar`)。
+## 與 Access 數據庫交互
+`JDK 1.7`之前，可以使用`JDBC-ODBC`橋接`Access`數據庫。
+在`JDK 1.8`之後，`JDBC-ODBC`橋被移除，只能使用專有的Access驅動來連接Access數據庫(驅動名稱：`Access_JDBC40.jar`)。
 
-连接Access数据库：
+連接Access數據庫：
 
 ```java
-// 使用相对路径
+// 使用相對路徑
 String connectUrl = "jdbc:Access:///***.accdb";
 
-// 使用绝对路径
+// 使用絕對路徑
 //String connectUrl = "jdbc:Access:///c:/a/b/***.accdb";
 
-// 注册驱动
+// 註冊驅動
 Class.forName("com.hxtt.sql.access.AccessDriver");
-// 创建连接
+// 創建連接
 Connection connection = DriverManager.getConnection(connectUrl);
 Statement statement = connection
 	.createStatement(
 		ResultSet.TYPE_SCROLL_INSENSITIVE,
 		ResultSet.CONCUR_READ_ONLY);
-		//后两个参数是为了得到resultSet集能够进行last()操作
+		//後兩個參數是爲了得到resultSet集能夠進行last()操作
 ```
 
-Access数据库的一些小常识：
+Access數據庫的一些小常識：
 
-- 表单的高级字段设置在`开始 - 视图 - 设计视图`中。
-- 配置自增属性需要将字段类型设为`自动编号`。
-- 默认情况下，创建的数据类型`数字`的字段大小为`长整型`。
-	长整型不支持**小数输入**，小数输入会自动被去尾。
-	需要将字段大小设置为`单精度浮点型/双精度浮点型`才能支持小数位。
-- 如果需要某个字段的内容唯一不可重复，可以将改字段的索引设置为`有(无重复)`即可。
+- 表單的高級字段設置在`開始 - 視圖 - 設計視圖`中。
+- 配置自增屬性需要將字段類型設爲`自動編號`。
+- 默認情況下，創建的數據類型`數字`的字段大小爲`長整型`。
+	長整型不支持**小數輸入**，小數輸入會自動被去尾。
+	需要將字段大小設置爲`單精度浮點型/雙精度浮點型`才能支持小數位。
+- 如果需要某個字段的內容唯一不可重複，可以將改字段的索引設置爲`有(無重複)`即可。
 
 
 
-# Eclipse 使用注记
-`Eclipse`是Java开发中最常用的IDE，`Eclipse`通过插件扩展可以进行多种语言的开发。
+# Eclipse 使用註記
+`Eclipse`是Java開發中最常用的IDE，`Eclipse`通過插件擴展可以進行多種語言的開發。
 
 ## Marketplace
-`Eclipse Marketplace`是`Eclipse`新增的应用商店，
-可以从中直接安装`e(fx)clipse`、`GoClipse`、`ScalaIDE`、`PyDev`等由第三方社区维护的插件。
+`Eclipse Marketplace`是`Eclipse`新增的應用商店，
+可以從中直接安裝`e(fx)clipse`、`GoClipse`、`ScalaIDE`、`PyDev`等由第三方社區維護的插件。
 
-在部分`Eclipse`版本中，`Marketplace`没有默认安装，手动添加：
+在部分`Eclipse`版本中，`Marketplace`沒有默認安裝，手動添加：
 
 `Help` =>
 `Install New Software` =>
 `General Purpose Tools` =>
 `Marketplace Client`
 
-## 查看源码
-与**NetBeans**不同，Eclipse默认无法直接查看JDK中类库源码，需要手动指定源码的位置。
-通常JDK源码位于JDK的安装目录下的`src.zip`文件中。
+## 查看源碼
+與**NetBeans**不同，Eclipse默認無法直接查看JDK中類庫源碼，需要手動指定源碼的位置。
+通常JDK源碼位於JDK的安裝目錄下的`src.zip`文件中。
 
-在Eclipse中按以下步骤添加源码路径：
+在Eclipse中按以下步驟添加源碼路徑：
 
 `Window` =>
 `Preferences` =>
 `Java` =>
 `Installed JREs` =>
-选中使用的`JRE` =>
+選中使用的`JRE` =>
 `Edit` =>
-选中`../xxx/rt.jar` =>
+選中`../xxx/rt.jar` =>
 `Source Attachment Configuration` =>
 `Exernal location` =>
-选中`src.zip` =>
+選中`src.zip` =>
 `OK` =>
 `Finish`
 
-## 编辑器自动换行
-Eclipse的编辑器没有自动换行的功能，该功能需要通过第三方插件进行实现。
-在Eclipse中按以下步骤安装`Word Wrap`插件使编辑器能够自动换行：
+## 編輯器自動換行
+Eclipse的編輯器沒有自動換行的功能，該功能需要通過第三方插件進行實現。
+在Eclipse中按以下步驟安裝`Word Wrap`插件使編輯器能夠自動換行：
 
 `Help` =>
 `Install New Software` =>
 `Add Repository` =>
-输入仓库地址`http://ahtik.com/eclipse-update` =>
-安装`WordWrap`插件 =>
-安装完成之后重启IDE =>
-编辑器中点右键，激活`Word Warp`选项 =>
+輸入倉庫地址`http://ahtik.com/eclipse-update` =>
+安裝`WordWrap`插件 =>
+安裝完成之後重啓IDE =>
+編輯器中點右鍵，激活`Word Warp`選項 =>
 `Finish`
 
 
 
-# IntelliJ IDEA 使用注记
-`IntelliJ IDEA`相比`Eclipse`而言，有着更精美的UI，更智能的代码提示，且对`Scala`、`Golang`等冷门语言有着更好的支持。
+# IntelliJ IDEA 使用註記
+`IntelliJ IDEA`相比`Eclipse`而言，有着更精美的UI，更智能的代碼提示，且對`Scala`、`Golang`等冷門語言有着更好的支持。
 
-## 显示行号和不可见空白
-选择选项：
-
-`File` => `Settings` => `Editor` => `General` => `Appearance`
-
-| 选项名称 | 含义 |
-| :- | :- |
-| Show whitespaces | 显示空白 |
-| Show line numbers | 显示行号 |
-| Show method separators | 显示方法分界线 |
-
-## 字段类型推断、参数名称提示
-选择选项：
+## 顯示行號和不可見空白
+選擇選項：
 
 `File` => `Settings` => `Editor` => `General` => `Appearance`
 
-| 选项名称 | 含义 |
+| 選項名稱 | 含義 |
 | :- | :- |
-| Show external annotations inline | 显示Java/Kotlin的参数名称提示 |
-| Show inferred annotations inline | 显示Java/Kotlin的变量类型推断 |
-| Show function return type hints (Scala) | 显示Scala方法返回类型推断 |
-| Show property type hints (Scala) | 显示Scala字段类型推断 |
-| Show local variable type hints (Scala) | 显示Scala本地变量 |
+| Show whitespaces | 顯示空白 |
+| Show line numbers | 顯示行號 |
+| Show method separators | 顯示方法分界線 |
 
-## 列边界提示
-列宽边界线用于提示代码单行长度是否超过界限。
-选择选项：
+## 字段類型推斷、參數名稱提示
+選擇選項：
+
+`File` => `Settings` => `Editor` => `General` => `Appearance`
+
+| 選項名稱 | 含義 |
+| :- | :- |
+| Show external annotations inline | 顯示Java/Kotlin的參數名稱提示 |
+| Show inferred annotations inline | 顯示Java/Kotlin的變量類型推斷 |
+| Show function return type hints (Scala) | 顯示Scala方法返回類型推斷 |
+| Show property type hints (Scala) | 顯示Scala字段類型推斷 |
+| Show local variable type hints (Scala) | 顯示Scala本地變量 |
+
+## 列邊界提示
+列寬邊界線用於提示代碼單行長度是否超過界限。
+選擇選項：
 
 `File` => `Settings` => `Editor` => `Code Style` => `Default Options` => `Right margin (columns)`
 
-默认列边界线为`120`列，而大部分编码规范要求一行不能超过`80/100`列。
+默認列邊界線爲`120`列，而大部分編碼規範要求一行不能超過`80/100`列。
 
-## 缩进
-默认情况下，IDEA使用的是**空格**做为缩进，如果需要使用**tab缩进**，则按以下菜单路径设置：
+## 縮進
+默認情況下，IDEA使用的是**空格**做爲縮進，如果需要使用**tab縮進**，則按以下菜單路徑設置：
 
-`File` => `Settings` => `Editor` => `Code Style` => `[目标语言]` => `Tabs and Indents`
+`File` => `Settings` => `Editor` => `Code Style` => `[目標語言]` => `Tabs and Indents`
 
-- 选中`Use tab charactor`。
-- 勾选`Smart tabs`则会在**行尾**使用tab键时使用**空格**代替`Tab`。
-- 勾选`Keep indents on empyt lines`则会在**空行**中**保持缩进**。
+- 選中`Use tab charactor`。
+- 勾選`Smart tabs`則會在**行尾**使用tab鍵時使用**空格**代替`Tab`。
+- 勾選`Keep indents on empyt lines`則會在**空行**中**保持縮進**。
 
-## 包路径折叠
-默认侧边栏`Project`导航中的包内无源码且仅包含一个子包时，包路径会折叠显示。
-折叠显示包路径更加简洁，但不能在包路径中添加其它包。
+## 包路徑摺疊
+默認側邊欄`Project`導航中的包內無源碼且僅包含一個子包時，包路徑會摺疊顯示。
+摺疊顯示包路徑更加簡潔，但不能在包路徑中添加其它包。
 
-关闭折叠显示可点击`Project`导航中的设置按钮，取消选中`Flatten Packages`选项。
+關閉摺疊顯示可點擊`Project`導航中的設置按鈕，取消選中`Flatten Packages`選項。
 
-## 其它常用选项
-通用编辑器选项 `File` => `Settings` => `Editor` => `General`：
+## 其它常用選項
+通用編輯器選項 `File` => `Settings` => `Editor` => `General`：
 
-| 选项名称 | 含义 |
+| 選項名稱 | 含義 |
 | :- | :- |
-| Code Folding | 代码折叠 |
-| Soft Wraps | 代码自动换行 |
-| Appearance => Show right margin | 设置代码边界指示线 |
-| Virtual Space | 虚空格(空白处的点按逻辑) |
-| Other => Show quick documentation on mouse move | 光标悬停显示变量/方法信息 |
+| Code Folding | 代碼摺疊 |
+| Soft Wraps | 代碼自動換行 |
+| Appearance => Show right margin | 設置代碼邊界指示線 |
+| Virtual Space | 虛空格(空白處的點按邏輯) |
+| Other => Show quick documentation on mouse move | 光標懸停顯示變量/方法信息 |
 
-代码风格选项 `File` => `Settings` => `Editor` => `Code Style`：
+代碼風格選項 `File` => `Settings` => `Editor` => `Code Style`：
 
-| 选项名称 | 含义 |
+| 選項名稱 | 含義 |
 | :- | :- |
-| Java => Spaces => After type cast | Java强制类型转换前是否空格 |
-| Scala => Other => Enfore procedure syntax for methods with Unit return type | Scala函数是否自动补全空返回类型 |
-| Scala => Wrappings and Braces => Class definition => Place self type on new line | Scala自身类型参数在类定义中是否另起一行 |
-| [目标语言] => Wrappings and Braces => Method parenttheses => Align when multiline | 函数多行参数是否自动对齐到函数名 |
-| [目标语言] => Blank Lines => Minimum Blank Lines | 方法、字段前空行数量 |
+| Java => Spaces => After type cast | Java強制類型轉換前是否空格 |
+| Scala => Other => Enfore procedure syntax for methods with Unit return type | Scala函數是否自動補全空返回類型 |
+| Scala => Wrappings and Braces => Class definition => Place self type on new line | Scala自身類型參數在類定義中是否另起一行 |
+| [目標語言] => Wrappings and Braces => Method parenttheses => Align when multiline | 函數多行參數是否自動對齊到函數名 |
+| [目標語言] => Blank Lines => Minimum Blank Lines | 方法、字段前空行數量 |
 
-设置是否开启拼写检查 `File` => `Settings` => `Project` => `Inspections` => `Spelling`
+設置是否開啓拼寫檢查 `File` => `Settings` => `Project` => `Inspections` => `Spelling`
 
-关闭代码重复性检测 `File` => `Settings` => `Project` => `Inspections` => `Genernal` => `Duplicated code fragment`
+關閉代碼重複性檢測 `File` => `Settings` => `Project` => `Inspections` => `Genernal` => `Duplicated code fragment`
 
-设置JavaScript支持ES6语法 `File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
+設置JavaScript支持ES6語法 `File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
 
-## 项目打包
-将Java项目打包成`jar`、`war`等分发格式，按以下菜单路径设置：
+## 項目打包
+將Java項目打包成`jar`、`war`等分發格式，按以下菜單路徑設置：
 
 `File` => `Project Structure` => `Project Settings` => `Artifacts`
 
-选择界面中的`+`符号添加打包配置，根据项目类型打包成不同的目标格式。
+選擇界面中的`+`符號添加打包配置，根據項目類型打包成不同的目標格式。
 
-## 多模块项目
-Idea中一个项目被称为`Project`，项目中可包含多个子模块(`Module`)。
-当一个项目中需要包含多个子项目时，可以创建多个Module。
-每个Module管理独立的源码，Module拥有独立的依赖关系，并可以依赖其它Module。
+## 多模塊項目
+Idea中一個項目被稱爲`Project`，項目中可包含多個子模塊(`Module`)。
+當一個項目中需要包含多個子項目時，可以創建多個Module。
+每個Module管理獨立的源碼，Module擁有獨立的依賴關係，並可以依賴其它Module。
 
-Idea中的`Project`类似于Eclipse中的`WorkSpace`，Idea中的`Module`类似于Eclipse中的`Project`。
+Idea中的`Project`類似於Eclipse中的`WorkSpace`，Idea中的`Module`類似於Eclipse中的`Project`。
 
-创建新的`Module`时，新的源码目录会被默认添加至主模块中，会导致修改子模块的依赖关系时出现错误：
+創建新的`Module`時，新的源碼目錄會被默認添加至主模塊中，會導致修改子模塊的依賴關係時出現錯誤：
 
 ```
 Module "xxx" must not contain source root "xxx". The root already belongs to module "xxx".
 ```
 
-解决此错误需要修改项目主模块配置，路径为`项目路径/.idea/modules/项目名称.iml`，如下所示：
+解決此錯誤需要修改項目主模塊配置，路徑爲`項目路徑/.idea/modules/項目名稱.iml`，如下所示：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -2627,7 +2627,7 @@ Module "xxx" must not contain source root "xxx". The root already belongs to mod
 		<exclude-output />
 		<content url="file://$MODULE_DIR$/../..">
 
-		<!-- 子模块源码目录被包含 -->
+		<!-- 子模塊源碼目錄被包含 -->
 		<sourceFolder url="file://$MODULE_DIR$/../../Common/src" isTestSource="false" />
 		<sourceFolder url="file://$MODULE_DIR$/../../ExcelConverter/src" isTestSource="false" />
 		<sourceFolder url="file://$MODULE_DIR$/../../ReportGenerator/src" isTestSource="false" />
@@ -2651,77 +2651,77 @@ Module "xxx" must not contain source root "xxx". The root already belongs to mod
 </module>
 ```
 
-移除工程配置中子源码被包含的`<sourceFolder/>`标签即可。
+移除工程配置中子源碼被包含的`<sourceFolder/>`標籤即可。
 
 
 
-# 常见问题记录
+# 常見問題記錄
 
 ## String.split()
-函数的定义为：
+函數的定義爲：
 
 ```java
 public String[] split(String regex);
 ```
 
-`String`类中提供的文本切片函数`String.split()`接收的参数是**正则表达式**(Regex)。
-以一些**特殊符号**(`.`、`+`等)作为分隔符时，不能直接使用符号本身，而是需要使用转义符号，如以**小数点**作为分隔符切片需要写成：
+`String`類中提供的文本切片函數`String.split()`接收的參數是**正則表達式**(Regex)。
+以一些**特殊符號**(`.`、`+`等)作爲分隔符時，不能直接使用符號本身，而是需要使用轉義符號，如以**小數點**作爲分隔符切片需要寫成：
 
 ```java
 String[] nums = "123.456.789".split("\\.");
 ```
 
-其它文本处理方法如`String.replace()`、`String.join()`等也有以正则表达式为匹配参数的重载版本，使用方式类似。
+其它文本處理方法如`String.replace()`、`String.join()`等也有以正則表達式爲匹配參數的重載版本，使用方式類似。
 
 ## String.format()
-函数的定义为：
+函數的定義爲：
 
 ```java
 public static String format(String var0, Object... var1);
 public static String format(Locale var0, String var1, Object... var2);
 ```
 
-String类的`format()`方法提供类似C语言中`sprintf()`函数类似的文本格式化方式，格式化字段的语法类似。
+String類的`format()`方法提供類似C語言中`sprintf()`函數類似的文本格式化方式，格式化字段的語法類似。
 
 ## String.getProperty()
-使用`System.getProperty()`方法可以获取**操作系统**以及**Java虚拟机**的各类状态信息：
+使用`System.getProperty()`方法可以獲取**操作系統**以及**Java虛擬機**的各類狀態信息：
 
 ```java
 public static String getProperty(String key);
 ```
 
-参数`key`为需要获取信息的类型，常用系统信息的key如下：
+參數`key`爲需要獲取信息的類型，常用系統信息的key如下：
 
-| Key | 含义 |
+| Key | 含義 |
 | :- | :- |
 | line.separator | 行分隔符(UNIX中是`/n`，Win中是`/r/n`) |
-| os.name | 操作系统的名称 |
-| os.arch | 操作系统的架构 |
-| os.version | 操作系统的版本 |
-| user.name | 用户的账户名称 |
-| user.home | 用户的主目录 |
-| user.dir | 用户的当前工作目录 |
-| java.io.tmpdir | 操作系统的TEMP目录 |
+| os.name | 操作系統的名稱 |
+| os.arch | 操作系統的架構 |
+| os.version | 操作系統的版本 |
+| user.name | 用戶的賬戶名稱 |
+| user.home | 用戶的主目錄 |
+| user.dir | 用戶的當前工作目錄 |
+| java.io.tmpdir | 操作系統的TEMP目錄 |
 
 ## java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXrender.so.1: cannot open shared object file: No such file or directory
-错误原因：<br>
-Linux环境下，系统缺失动态链接库`libXrender.so`。
+錯誤原因：<br>
+Linux環境下，系統缺失動態鏈接庫`libXrender.so`。
 
-解决方法：<br>
-使用发行版对应包管理器安装缺失的库。
-以`Debian`、`Ubuntu`为例：
+解決方法：<br>
+使用發行版對應包管理器安裝缺失的庫。
+以`Debian`、`Ubuntu`爲例：
 
 ```
 # apt install libxrender-dev
 ```
 
 ## java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory
-错误原因：<br>
-Linux环境下，系统缺失动态链接库`libXtst.so`。
+錯誤原因：<br>
+Linux環境下，系統缺失動態鏈接庫`libXtst.so`。
 
-解决方法：<br>
-使用发行版对应包管理器安装缺失的库：
-以`Debian`、`Ubuntu`为例：
+解決方法：<br>
+使用發行版對應包管理器安裝缺失的庫：
+以`Debian`、`Ubuntu`爲例：
 
 ```
 # apt install libxtst-dev
