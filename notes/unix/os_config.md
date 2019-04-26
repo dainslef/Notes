@@ -54,6 +54,9 @@
 - [常見問題記錄](#常見問題記錄)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
+	- [CentOS](#centos)
+		- [iptable/firewalld](#iptablefirewalld)
+		- [SELinux](#selinux)
 
 <!-- /TOC -->
 
@@ -1396,3 +1399,45 @@ Errors were encountered while processing:
 
 解決方法：<br>
 修改`/etc/init.d`對應服務的腳本文件，在腳本頂部添加`exit 0`，讓腳本文件的實際邏輯不執行直接正常退出。
+
+## CentOS
+記錄CentOS發行版中遇到的問題。
+
+### iptable/firewalld
+CentOS是默認啟用網絡防火牆的發行版：
+
+- `CentOS 6` iptable
+- `CentOS 7` firewalld
+
+默認的防火牆策略會導致需要監聽端口的服務啟動失敗、數據包被過濾等情況。
+
+### SELinux
+CentOS默認啟用了SELinux，會導致某些需要綁定端口的服務啟動失敗。
+
+以**nginx**為例，在**CentOS 7**下啟動失敗：
+
+```
+● nginx.service - nginx - high performance web server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: failed (Result: exit-code) since Thu 2019-04-25 10:54:42 CST; 20min ago
+     Docs: http://nginx.org/en/docs/
+  Process: 3721 ExecStart=/usr/sbin/nginx (code=exited, status=1/FAILURE)
+
+Apr 25 10:54:42 localhost.localdomain systemd[1]: Starting nginx - high performance web server...
+Apr 25 10:54:42 localhost.localdomain nginx[3721]: nginx: [emerg] bind() to 0.0.0.0:7171 failed (13: Permission denied)
+Apr 25 10:54:42 localhost.localdomain systemd[1]: nginx.service: control process exited, code=exited status=1
+Apr 25 10:54:42 localhost.localdomain systemd[1]: Failed to start nginx - high performance web server.
+Apr 25 10:54:42 localhost.localdomain systemd[1]: Unit nginx.service entered failed state.
+Apr 25 10:54:42 localhost.localdomain systemd[1]: nginx.service failed.
+```
+
+關閉SELinux後正常。
+
+臨時開啟/關閉SELinux可使用`setenforce`指令：
+
+```c
+# setenforce 0 //關閉SELinux
+# setenforce 1 //開啟SELinux
+```
+
+永久禁用SELinux可編輯`/etc/selinux/config`文件，將`SELINUX=enforcing`修改為`SELINUX=disabled`。
