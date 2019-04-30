@@ -485,6 +485,17 @@ reference_option:
 Error Code: 1022. Can't write; duplicate key in table '***'
 ```
 
+使用VARCHAR類型作為外鍵時，不僅要注意字符長度，還要注意字符編碼類型(`DEFAULT CHARACTER SET`)和校驗類型(`COLLATE`)，
+二者不同會造成外鍵創建失敗。
+行類型(`ROW_FORMAT`)不同不影響外鍵的創建。
+外鍵約束創建失敗時會出現如下錯誤信息：
+
+```
+Error Code: 1215. Cannot add the foreign key constraint
+```
+
+可使用`SHOW ENGINE INNODB STATUS`語句輸出最近的SQL執行的詳細狀態，查閱具體的錯誤信息。
+
 
 
 # 常用設置
