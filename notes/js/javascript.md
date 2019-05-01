@@ -1,57 +1,57 @@
 <!-- TOC -->
 
-- [简介](#简介)
+- [簡介](#簡介)
 	- [ECMA Script](#ecma-script)
 - [作用域](#作用域)
-	- [块作用域 (ES6)](#块作用域-es6)
-- [for 语句](#for-语句)
+	- [塊作用域 (ES6)](#塊作用域-es6)
+- [for 語句](#for-語句)
 	- [for-in](#for-in)
 	- [for-of](#for-of)
-	- [迭代变量作用域](#迭代变量作用域)
+	- [迭代變量作用域](#迭代變量作用域)
 - [this](#this)
 	- [Function's this](#functions-this)
 	- [Arrow Function's this](#arrow-functions-this)
-	- [Node.js环境中的 this](#nodejs环境中的-this)
+	- [Node.js環境中的 this](#nodejs環境中的-this)
 - [Prototype (原型)](#prototype-原型)
-	- [原型链](#原型链)
-	- [原型继承](#原型继承)
-- [属性访问器](#属性访问器)
-	- [访问器属性](#访问器属性)
+	- [原型鏈](#原型鏈)
+	- [原型繼承](#原型繼承)
+- [屬性訪問器](#屬性訪問器)
+	- [訪問器屬性](#訪問器屬性)
 
 <!-- /TOC -->
 
 
 
-# 简介
-`JavaScript`是**弱类型**、**隐式类型**、**动态类型**的脚本语言。
+# 簡介
+`JavaScript`是**弱類型**、**隱式類型**、**動態類型**的腳本語言。
 
-JavaScript可用于浏览器端，所有的现代浏览器均支持JavaScript。
-JavaScript在浏览器端可用于操作`HTML`标签，控制WEB页面的交互逻辑。
+JavaScript可用於瀏覽器端，所有的現代瀏覽器均支持JavaScript。
+JavaScript在瀏覽器端可用於操作`HTML`標籤，控制WEB頁面的交互邏輯。
 
-JavaScript亦可用于服务端，使用`Node.js`可通过JavaScript操作服务端API。
-Node.js基于性能优秀的`Chrome V8`引擎，提供了一套**事件驱动I/O**的JavaScript运行环境。
+JavaScript亦可用於服務端，使用`Node.js`可通過JavaScript操作服務端API。
+Node.js基於性能優秀的`Chrome V8`引擎，提供了一套**事件驅動I/O**的JavaScript運行環境。
 
 ## ECMA Script
-`ECMA Script`是JavaScript的工业标准，由`Ecma International`(**Ecma国际**，前身为**欧洲计算机制造商协会**)制定。
+`ECMA Script`是JavaScript的工業標準，由`Ecma International`(**Ecma國際**，前身爲**歐洲計算機制造商協會**)制定。
 
-JavaScript是`ECMA-262`标准的扩展，兼容ECMAScript。
-JavaScript额外包含以下内容：
+JavaScript是`ECMA-262`標準的擴展，兼容ECMAScript。
+JavaScript額外包含以下內容：
 
-- 与HTML页面交互的`DOM`(`Document Object Model`，文档对象模型)
-- 与浏览器窗口交互的`BOM`(`Browser Object Model`，浏览器对象模型)
+- 與HTML頁面交互的`DOM`(`Document Object Model`，文檔對象模型)
+- 與瀏覽器窗口交互的`BOM`(`Browser Object Model`，瀏覽器對象模型)
 
-到目前为止(2018年)，ECMAScript现在的主流标准为`ES5`，最新标准为`ES8, ECMAScript 2017`。
-一些现代浏览器(`FireFox`、`Chrome`等)已部分实现了最新标准。
+到目前爲止(2018年)，ECMAScript現在的主流標準爲`ES5`，最新標準爲`ES8, ECMAScript 2017`。
+一些現代瀏覽器(`FireFox`、`Chrome`等)已部分實現了最新標準。
 
 
 
 # 作用域
-块语义见`ECMAScript 2015`规范`13.2`节`Block`。
-定义与变量语义见`ECMAScript 2015`规范`13.3`节`Declarations and the Variable Statement`。
+塊語義見`ECMAScript 2015`規範`13.2`節`Block`。
+定義與變量語義見`ECMAScript 2015`規範`13.3`節`Declarations and the Variable Statement`。
 
-在`ES6`之前，JavaScript中仅存在**函数内作用域**与**全局作用域**。
+在`ES6`之前，JavaScript中僅存在**函數內作用域**與**全局作用域**。
 
-- 使用`var`关键字声明变量，在全局区域为全局变量，在函数内为局部变量：
+- 使用`var`關鍵字聲明變量，在全局區域爲全局變量，在函數內爲局部變量：
 
 	```js
 	var num = 2333
@@ -66,7 +66,7 @@ JavaScript额外包含以下内容：
 	console.info(`Num after in global: ${num}`)
 	```
 
-	输出结果：
+	輸出結果：
 
 	```
 	Num before in global: 2333
@@ -74,9 +74,9 @@ JavaScript额外包含以下内容：
 	Num after in global: 2333
 	```
 
-	在函数内使用var关键字声明的局部变量不会对外部全局变量造成影响。
+	在函數內使用var關鍵字聲明的局部變量不會對外部全局變量造成影響。
 
-- 直接对未声明的变量使用赋值语句，则会自动在全局区域创建该变量：
+- 直接對未聲明的變量使用賦值語句，則會自動在全局區域創建該變量：
 
 	```js
 	test = () => {
@@ -88,38 +88,38 @@ JavaScript额外包含以下内容：
 	console.info(`Num in global: ${num}`)
 	```
 
-	输出结果：
+	輸出結果：
 
 	```
 	Num in function: 6666
 	Num in global: 6666
 	```
 
-	函数内的赋值语句创建了全局变量，在函数外可访问。
+	函數內的賦值語句創建了全局變量，在函數外可訪問。
 
-- ES6之前，`Block`(代码块)不具有独立作用域：
+- ES6之前，`Block`(代碼塊)不具有獨立作用域：
 
-	使用`var`关键字在代码块内部定义的变量在代码块所属的函数作用域内均可访问。
+	使用`var`關鍵字在代碼塊內部定義的變量在代碼塊所屬的函數作用域內均可訪問。
 	示例：
 
 	```js
 	var num = 2333
 
 	{
-		// 块内的变量定义语句影响了外部定义变量
+		// 塊內的變量定義語句影響了外部定義變量
 		var num = 6666
 	}
 
 	console.info(num)
 	```
 
-	输出结果：
+	輸出結果：
 
 	```
 	6666
 	```
 
-	常见的语法结构如`if`、`for`、`while`等包含的代码块中使用`var`定义变量特性类似。
+	常見的語法結構如`if`、`for`、`while`等包含的代碼塊中使用`var`定義變量特性類似。
 	示例：
 
 	```js
@@ -132,20 +132,20 @@ JavaScript额外包含以下内容：
 	console.info(num)
 	```
 
-	输出结果：
+	輸出結果：
 
 	```
 	6666
 	```
 
-## 块作用域 (ES6)
-ES6之后，新增了关键字`let/const`，使用let/const关键字定义的字段仅在块作用域中有效：
+## 塊作用域 (ES6)
+ES6之後，新增了關鍵字`let/const`，使用let/const關鍵字定義的字段僅在塊作用域中有效：
 
 ```js
 var num1 = 2333, num2 = 2333
 
 {
-	// 使用let/const关键字定义局部变量，不会对外部变量造成影响
+	// 使用let/const關鍵字定義局部變量，不會對外部變量造成影響
 	let num1 = 6666
 	const num2 = 7777
 }
@@ -153,46 +153,46 @@ var num1 = 2333, num2 = 2333
 console.info(num1, num2)
 ```
 
-输出结果：
+輸出結果：
 
 ```
 2333 2333
 ```
 
-ES6之后，常见的语法结构如`if`、`for`、`while`等包含的代码块中均可使用`let/const`关键字定义本地变量。
+ES6之後，常見的語法結構如`if`、`for`、`while`等包含的代碼塊中均可使用`let/const`關鍵字定義本地變量。
 
 
 
-# for 语句
-迭代器语义见`ECMAScipt 2015`规范`13.7`节`Iteration Statements`。
+# for 語句
+迭代器語義見`ECMAScipt 2015`規範`13.7`節`Iteration Statements`。
 
-JavaScript中使用`for`关键字描述循环语法。
+JavaScript中使用`for`關鍵字描述循環語法。
 
-for语句的基本用法与**C语言**中的语法类似：
+for語句的基本用法與**C語言**中的語法類似：
 
 ```js
-for (表达式; 表达式; 表达式) {
+for (表達式; 表達式; 表達式) {
 	...
 }
 ```
 
 ## for-in
-JavaScript中的for语句支持使用`for-in`语法遍历集合：
+JavaScript中的for語句支持使用`for-in`語法遍歷集合：
 
 ```js
-for (变量 in 集合) {
+for (變量 in 集合) {
 	...
 }
 ```
 
-与传统语言的for-in语法不同，在JavaScript的for-in语句中迭代变量保存的是当前迭代的**索引**，而集合的非迭代值。
+與傳統語言的for-in語法不同，在JavaScript的for-in語句中迭代變量保存的是當前迭代的**索引**，而集合的非迭代值。
 示例：
 
 ```js
 for (i in [5, 6, 7, 8]) console.info(i)
 ```
 
-输出结果：
+輸出結果：
 
 ```
 0
@@ -202,22 +202,22 @@ for (i in [5, 6, 7, 8]) console.info(i)
 ```
 
 ## for-of
-ES6开始引入了`for-of`语法：
+ES6開始引入了`for-of`語法：
 
 ```js
-for (变量 of 集合) {
+for (變量 of 集合) {
 	...
 }
 ```
 
-for-of语法更近似与传统语言的集合遍历语法，迭代变量中保存的是当前循环的迭代值。
+for-of語法更近似與傳統語言的集合遍歷語法，迭代變量中保存的是當前循環的迭代值。
 示例：
 
 ```js
 for (v of [5, 6, 7, 8]) console.info(v)
 ```
 
-输出结果：
+輸出結果：
 
 ```
 5
@@ -226,10 +226,10 @@ for (v of [5, 6, 7, 8]) console.info(v)
 8
 ```
 
-## 迭代变量作用域
-使用`for-in/for-of`语句中的迭代变量同样遵循作用域规则。
+## 迭代變量作用域
+使用`for-in/for-of`語句中的迭代變量同樣遵循作用域規則。
 
-默认情形下，迭代变量定义在**全局作用域**中：
+默認情形下，迭代變量定義在**全局作用域**中：
 
 ```js
 test = () => {
@@ -240,7 +240,7 @@ test()
 console.info(`i in global: ${i}`)
 ```
 
-输出结果：
+輸出結果：
 
 ```
 i: 0
@@ -250,9 +250,9 @@ i: 3
 i in global: 3
 ```
 
-迭代变量前可使用`var/let/const`关键字做为修饰，分别对应不同的作用域。
+迭代變量前可使用`var/let/const`關鍵字做爲修飾，分別對應不同的作用域。
 
-- `var`，迭代变量在所属函数作用域内有效
+- `var`，迭代變量在所屬函數作用域內有效
 
 	```js
 	test = () => {
@@ -264,7 +264,7 @@ i in global: 3
 	console.info(`i in global: ${i}`)
 	```
 
-	输出结果：
+	輸出結果：
 
 	```
 	i: 0
@@ -288,7 +288,7 @@ i in global: 3
 	    at bootstrap_node.js:665:3
 	```
 
-- `let/const`，迭代变量在所属for语句块内有效
+- `let/const`，迭代變量在所屬for語句塊內有效
 
 	```js
 	test = () => {
@@ -300,7 +300,7 @@ i in global: 3
 	console.info(`i in global: ${i}`)
 	```
 
-	输出结果：
+	輸出結果：
 
 	```
 	i: 0
@@ -327,19 +327,19 @@ i in global: 3
 
 
 # this
-JavaScript中的`this`关键字与传统的OOP语言有较大差异。
-在不同的上下文、不同的语法结构中，this具有不同的含义，指向不同的对象。
+JavaScript中的`this`關鍵字與傳統的OOP語言有較大差異。
+在不同的上下文、不同的語法結構中，this具有不同的含義，指向不同的對象。
 
 ## Function's this
-函数环境记录相关内容见`ECMAScript 2015`规范`8.1.1.3`节`Function Environment Records`。
-函数执行语义见`ECMAScript 2015`规范`14.1`节`Function Definitions`中`14.1.20`小节`Runtime Semantics: Evaluation`。
-函数具有独立的词法环境，词法环境相关内容见`ECMAScript 2015`规范`8.1`节`Lexical Environmens`。
+函數環境記錄相關內容見`ECMAScript 2015`規範`8.1.1.3`節`Function Environment Records`。
+函數執行語義見`ECMAScript 2015`規範`14.1`節`Function Definitions`中`14.1.20`小節`Runtime Semantics: Evaluation`。
+函數具有獨立的詞法環境，詞法環境相關內容見`ECMAScript 2015`規範`8.1`節`Lexical Environmens`。
 
-使用`function`关键字定义的函数中this由调用者决定。
-普通地调用函数，函数的调用者默认为全局对象，在不同的JavaScript运行时下，全局对象略有不同：
+使用`function`關鍵字定義的函數中this由調用者決定。
+普通地調用函數，函數的調用者默認爲全局對象，在不同的JavaScript運行時下，全局對象略有不同：
 
-- 在**浏览器**环境中，全局对象为`window`。
-- 在`Node.js`环境中，全局对象为`global`。
+- 在**瀏覽器**環境中，全局對象爲`window`。
+- 在`Node.js`環境中，全局對象爲`global`。
 
 示例：
 
@@ -354,14 +354,14 @@ test()
 console.info(`name: ${name}`)
 ```
 
-输出结果：(Node.js v9.8.0)
+輸出結果：(Node.js v9.8.0)
 
 ```
 this === global: true
 name: test name
 ```
 
-使用`对象.方法()`的语法调用函数时，this指向调用对象：
+使用`對象.方法()`的語法調用函數時，this指向調用對象：
 
 ```js
 function test(target) {
@@ -375,14 +375,14 @@ obj.test(obj)
 console.info(`obj: ${obj}`)
 ```
 
-输出结果：(Node.js v9.8.0)
+輸出結果：(Node.js v9.8.0)
 
 ```
 this === target: true
 obj: { test: [Function: test], name: 'test name' }
 ```
 
-作为匿名函数使用时，this同样指向调用对象：
+作爲匿名函數使用時，this同樣指向調用對象：
 
 ```js
 obj = {}
@@ -424,7 +424,7 @@ obj.testMember(function (target) {
 })
 ```
 
-输出结果：(Node.js v9.8.0)
+輸出結果：(Node.js v9.8.0)
 
 ```
 Test Normal Call:
@@ -441,7 +441,7 @@ this == gobal: false
 this == target: true
 ```
 
-函数搭配`new`关键字作为**构造函数**使用时，会创建新的对象，此时this指向创建的对象：
+函數搭配`new`關鍵字作爲**構造函數**使用時，會創建新的對象，此時this指向創建的對象：
 
 ```js
 function test(args) {
@@ -455,22 +455,22 @@ obj = new test(args)
 console.info(`obj === args.obj: ${obj === args.obj}`)
 ```
 
-输出结果：(Node.js v9.9.0)
+輸出結果：(Node.js v9.9.0)
 
 ```
 obj === args.obj: true
 ```
 
 ## Arrow Function's this
-箭头函数的函数环境相关内容见`ECMAScript 2015`规范`14.2`节`Arrow Function Definitions`中`14.2.16`小节`Runtime Semantics: Evaluation`。
+箭頭函數的函數環境相關內容見`ECMAScript 2015`規範`14.2`節`Arrow Function Definitions`中`14.2.16`小節`Runtime Semantics: Evaluation`。
 
-箭头函数**没有**独立的词法作用域，箭头函数中的this由箭头函数的父级上下文决定，与调用者**无关**。
+箭頭函數**沒有**獨立的詞法作用域，箭頭函數中的this由箭頭函數的父級上下文決定，與調用者**無關**。
 示例：
 
 ```js
 /*
- * 箭头函数 test 此时的父级作用域为模块作用域
- * 函数内 this 指向模块作用域(即 module.exports，不是 global)
+ * 箭頭函數 test 此時的父級作用域爲模塊作用域
+ * 函數內 this 指向模塊作用域(即 module.exports，不是 global)
  */
 test = () => {
 	this.name = "test name"
@@ -479,11 +479,11 @@ test = () => {
 }
 
 test()
-console.info(`this.name: ${this.name}`) //直接访问 name 或 global.name 会抛出异常
+console.info(`this.name: ${this.name}`) //直接訪問 name 或 global.name 會拋出異常
 console.info(`module.exports.name: ${module.exports.name}`)
 ```
 
-输出结果：(Node.js v10.0.0)
+輸出結果：(Node.js v10.0.0)
 
 ```
 this === global: false
@@ -492,11 +492,11 @@ this.name: test name
 module.exports.name: test name
 ```
 
-使用`对象.方法()`的语法调用**箭头函数**时，this依旧指向**定义时**的父级上下文：
+使用`對象.方法()`的語法調用**箭頭函數**時，this依舊指向**定義時**的父級上下文：
 
 ```js
 test = target => {
-	this.name = "test name" // this 始终指向模块作用域，与外部调用者无关
+	this.name = "test name" // this 始終指向模塊作用域，與外部調用者無關
 	console.info(`this === target: ${this === target}`)
 	console.info(`this === module.epxorts: ${this === module.exports}`)
 }
@@ -505,11 +505,11 @@ obj = { test: test }
 obj.test(obj)
 
 console.info(`obj: ${obj}`)
-console.info(`obj.name: ${obj.name}`) // obj 对象中并不存在 name 属性
-console.info(`module.exports.name: ${module.exports.name}`) // name 属性添加到了模块作用域中
+console.info(`obj.name: ${obj.name}`) // obj 對象中並不存在 name 屬性
+console.info(`module.exports.name: ${module.exports.name}`) // name 屬性添加到了模塊作用域中
 ```
 
-输出结果：(Node.js v10.0.0)
+輸出結果：(Node.js v10.0.0)
 
 ```
 this === target: false
@@ -519,12 +519,12 @@ obj.name: undefined
 module.exports.name: test name
 ```
 
-## Node.js环境中的 this
-在`Node.js`环境中，全局this在不同场景下代表不同内容：
+## Node.js環境中的 this
+在`Node.js`環境中，全局this在不同場景下代表不同內容：
 
 - `Node.js REPL`
 
-	在Node.js提供的REPL中，this指向全局对象`global`。
+	在Node.js提供的REPL中，this指向全局對象`global`。
 	示例：(Node.js v10.1.0)
 
 	```js
@@ -534,8 +534,8 @@ module.exports.name: test name
 
 - `Node.js Module`
 
-	使用Node.js解释器执行JavaScript源码文件时，每个源码文件会作为一个JS模块(`Module`)。
-	模块中的this指向模块导出对象`module.exports`，而非全局对象`global`。
+	使用Node.js解釋器執行JavaScript源碼文件時，每個源碼文件會作爲一個JS模塊(`Module`)。
+	模塊中的this指向模塊導出對象`module.exports`，而非全局對象`global`。
 	示例：
 
 	```js
@@ -543,7 +543,7 @@ module.exports.name: test name
 	console.info(`this === module.epxorts: ${this === module.exports}`)
 	```
 
-	输出结果：(Node.js v10.1.0)
+	輸出結果：(Node.js v10.1.0)
 
 	```
 	this === global: false
@@ -553,29 +553,29 @@ module.exports.name: test name
 
 
 # Prototype (原型)
-原型相关内容见`ECMAScript 2015`规范`4.2.1`节`Objects`。
+原型相關內容見`ECMAScript 2015`規範`4.2.1`節`Objects`。
 
-在JavaScript中，每个使用`function`关键字定义的函数皆具有`prototype`属性。
+在JavaScript中，每個使用`function`關鍵字定義的函數皆具有`prototype`屬性。
 
-使用`new`操作符调用函数时，函数会做为`constructor`(构造器)使用，
-除了正常执行函数体外，还会创建对象，并返回所创建对象的引用，
-创建的对象带有`__proto__`属性，该属性指向对象的构造器的prototype属性。
+使用`new`操作符調用函數時，函數會做爲`constructor`(構造器)使用，
+除了正常執行函數體外，還會創建對象，並返回所創建對象的引用，
+創建的對象帶有`__proto__`屬性，該屬性指向對象的構造器的prototype屬性。
 示例：
 
 ```js
-> function Test() {} //定义函数
+> function Test() {} //定義函數
 undefined
 > Test.prototype
 Test {}
-> t = new Test //使用构造器语法创建对象
+> t = new Test //使用構造器語法創建對象
 Test {}
-> t.__proto__ == Test.prototype //创建的对象的__proto__属性指向构造器的prototype属性
+> t.__proto__ == Test.prototype //創建的對象的__proto__屬性指向構造器的prototype屬性
 true
 ```
 
-在访问对象的属性、方法不存在时，JavaScript运行时会继续在对象的原型中查找，
-使用同一构造器创建的对象共享相同的prototype对象，
-可使用prototype属性定义一些对象间共享的字段、方法。
+在訪問對象的屬性、方法不存在時，JavaScript運行時會繼續在對象的原型中查找，
+使用同一構造器創建的對象共享相同的prototype對象，
+可使用prototype屬性定義一些對象間共享的字段、方法。
 示例：
 
 ```js
@@ -589,24 +589,24 @@ undefined
 Test {}
 > t2 = new Test
 Test {}
-> t1.name //访问原型中定义的属性
+> t1.name //訪問原型中定義的屬性
 'Test'
 > t2.name
 'Test'
-> t1.show() //调用原型中定义的方法
+> t1.show() //調用原型中定義的方法
 Name: Test
 undefined
 > t2.show()
 Name: Test
 undefined
-> t1.__proto__ == t2.__proto__ //相同构造器创建的对象拥有相同的prototype对象
+> t1.__proto__ == t2.__proto__ //相同構造器創建的對象擁有相同的prototype對象
 true
 ```
 
-## 原型链
-访问对象的属性、方法时，若对应名称的字段不存在，则JavaScript运行时会查找`对象.__proto__`中是否有定义，
-若`对象.__proto__`中无定义，则查找`对象.__proto__.proto__`中是否有定义，依此类推，直至`__proto__`属性为`null`。
-递归地从`__prot·o__`属性中查找字段的机制被称为**原型链**。
+## 原型鏈
+訪問對象的屬性、方法時，若對應名稱的字段不存在，則JavaScript運行時會查找`對象.__proto__`中是否有定義，
+若`對象.__proto__`中無定義，則查找`對象.__proto__.proto__`中是否有定義，依此類推，直至`__proto__`屬性爲`null`。
+遞歸地從`__prot·o__`屬性中查找字段的機制被稱爲**原型鏈**。
 示例：
 
 ```js
@@ -614,25 +614,25 @@ true
 undefined
 > t = new Test
 Test {}
-> t.__proto__ //实例t的原型
+> t.__proto__ //實例t的原型
 Test {}
-> t.__proto__.__proto__ //实例t原型的原型
+> t.__proto__.__proto__ //實例t原型的原型
 {}
-> t.__proto__.__proto__.__proto__ //实例t原型的原型的原型，为null(原型链到此为止)
+> t.__proto__.__proto__.__proto__ //實例t原型的原型的原型，爲null(原型鏈到此爲止)
 null
-> t.__proto__ == Test.prototype //实例t的原型
+> t.__proto__ == Test.prototype //實例t的原型
 true
-> t.__proto__.__proto__ == Object.prototype //实例t的父原型
+> t.__proto__.__proto__ == Object.prototype //實例t的父原型
 true
 ```
 
-函数`Test()`创建的实例`t`的原型链为：
+函數`Test()`創建的實例`t`的原型鏈爲：
 
 ```
 Test.prototype => Object.prototype => null
 ```
 
-使用`instanceof`关键字可以检测对象的原型链中是否具有某个函数的原型。
+使用`instanceof`關鍵字可以檢測對象的原型鏈中是否具有某個函數的原型。
 
 ```js
 > function Test() {}
@@ -649,15 +649,15 @@ undefined
 false
 ```
 
-## 原型继承
-在ES6之前，JavaScript不具有标准的OOP语法，可以使用**原型链**模拟面向对象语言中的继承功能。
+## 原型繼承
+在ES6之前，JavaScript不具有標準的OOP語法，可以使用**原型鏈**模擬面嚮對象語言中的繼承功能。
 
-继承一个父原型需要以下步骤：
+繼承一個父原型需要以下步驟：
 
-1. 在函数体中调用要作为父类的函数
+1. 在函數體中調用要作爲父類的函數
 
-	使用`函数名.call(this, 参数表...)`或`函数名.apply(this, 参数数组)`的方式调用要作为父类的函数。
-	使用call()/apply()调用函数并将this引用传入，则所调用函数内的this操作会作用于当前的this引用。
+	使用`函數名.call(this, 參數表...)`或`函數名.apply(this, 參數數組)`的方式調用要作爲父類的函數。
+	使用call()/apply()調用函數並將this引用傳入，則所調用函數內的this操作會作用於當前的this引用。
 	示例：
 
 	```js
@@ -671,21 +671,21 @@ false
 	}
 	```
 
-	子类构造函数中使用call()/apply()调用父类构造函数，让子类实例继承父类在this引用中定义的字段。
+	子類構造函數中使用call()/apply()調用父類構造函數，讓子類實例繼承父類在this引用中定義的字段。
 
-1. 修改函数prototype属性
+1. 修改函數prototype屬性
 
-	函数prototype属性中指向父原型的`__proto__`引用默认指向`Object.prototype`；
-	将该引用修改为指向父原型。
+	函數prototype屬性中指向父原型的`__proto__`引用默認指向`Object.prototype`；
+	將該引用修改爲指向父原型。
 	示例：
 
 	```js
 	Child.prototype.__proto__ = Base.prototype
 	```
 
-	修改子类原型内的父原型引用，使子类实例继承父类在原型中定义的字段。
+	修改子類原型內的父原型引用，使子類實例繼承父類在原型中定義的字段。
 
-完整的继承示例：
+完整的繼承示例：
 
 ```js
 function Base(name) {
@@ -693,11 +693,11 @@ function Base(name) {
 }
 
 function Child(name, baseName) {
-	Base.call(this, baseName) //调用父原型的构造函数
+	Base.call(this, baseName) //調用父原型的構造函數
 	this.childName = name
 }
 
-// 向原型中添加属性
+// 向原型中添加屬性
 Base.prototype.showBase = function () {
 	console.info(`Base name: ${this.baseName}`)
 }
@@ -707,21 +707,21 @@ Child.prototype.showChild = function () {
 	console.info(`Child name: ${this.childName}`)
 }
 
-// 变更作为子类函数的原型的父原型的指向
+// 變更作爲子類函數的原型的父原型的指向
 Child.prototype.__proto__ = Base.prototype
 
-// 构建实例
+// 構建實例
 child = new Child("Test Child", "Test Base")
 
-// 检验原型链
+// 檢驗原型鏈
 console.info(`child instanceof Child: ${child instanceof Child}`)
 console.info(`child instanceof Base: ${child instanceof Base}`)
 
-// 调用方法，正常访问原型、父原型中定义的内容
+// 調用方法，正常訪問原型、父原型中定義的內容
 child.showChild()
 ```
 
-输出结果：
+輸出結果：
 
 ```
 child instanceof Child: true
@@ -732,26 +732,26 @@ Child name: Test Child
 
 
 
-# 属性访问器
-在JavaScript中，对象可为自身属性定义访问器(`get()/set()`方法)，在访问属性时，实际会调用对应的访问器方法。
+# 屬性訪問器
+在JavaScript中，對象可爲自身屬性定義訪問器(`get()/set()`方法)，在訪問屬性時，實際會調用對應的訪問器方法。
 
-## 访问器属性
-访问器属性相关内容见`ECMAScript 2015`规范`6.1.7`节`The Object Type`。
+## 訪問器屬性
+訪問器屬性相關內容見`ECMAScript 2015`規範`6.1.7`節`The Object Type`。
 
-使用Object对象的内置方法`Object.defineProperty()`定义属性时，可为属性设定属性描述对象(`PropertyDescriptor`)，
-在该对象中定义对应的`get()/set()`方法。
+使用Object對象的內置方法`Object.defineProperty()`定義屬性時，可爲屬性設定屬性描述對象(`PropertyDescriptor`)，
+在該對象中定義對應的`get()/set()`方法。
 示例：
 
 ```js
 obj = {
-	_name: "2333" //实际保存属性内容的字段
+	_name: "2333" //實際保存屬性內容的字段
 }
 
 /*
- * 使用 Object.defineProperty() 方法定义属性：
- * 第一参数为被添加属性的对象
- * 第二参数为属性名称
- * 第三参数为属性的属性描述对象，在该对象中添加 get()/set() 方法
+ * 使用 Object.defineProperty() 方法定義屬性：
+ * 第一參數爲被添加屬性的對象
+ * 第二參數爲屬性名稱
+ * 第三參數爲屬性的屬性描述對象，在該對象中添加 get()/set() 方法
  */
 Object.defineProperty(obj, "name", {
 	get() {
@@ -768,7 +768,7 @@ console.info(obj.name)
 console.info(obj.name = "6666")
 ```
 
-输出结果：
+輸出結果：
 
 ```
 Read property ...
@@ -777,8 +777,8 @@ Set property ...
 6666
 ```
 
-`ES5`开始添加了定义访问器属性的简便语法，在对象的方法前使用`set/get`关键字修饰，即可使方法成为属性访问器方法。
-上述例子使用ES5语法可以简写成：
+`ES5`開始添加了定義訪問器屬性的簡便語法，在對象的方法前使用`set/get`關鍵字修飾，即可使方法成爲屬性訪問器方法。
+上述例子使用ES5語法可以簡寫成：
 
 ```js
 obj = {
