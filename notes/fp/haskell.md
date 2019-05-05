@@ -22,6 +22,7 @@
 	- [Functional Dependencies](#functional-dependencies)
 - [Exception](#exception)
 	- [异常类型](#异常类型)
+	- [异常 API](#异常-api)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
@@ -913,6 +914,78 @@ data SomeException where
 instance Show SomeException -- Defined in ‘GHC.Exception’
 instance Exception SomeException -- Defined in ‘GHC.Exception’
 ```
+
+## 异常 API
+`Prelude`模块中默认已导入了`undefined`、`error`等函数，用于产生默认类型的异常：
+
+```hs
+undefined :: forall (r :: RuntimeRep). forall (a :: TYPE r). HasCallStack => a
+error :: forall (r :: RuntimeRep). forall (a :: TYPE r). HasCallStack => [Char] -> a
+```
+
+`Control.Exception`模块提供了通用的异常处理函数，主要API介绍：
+
+- `try*`系列函数执行给定的逻辑，将结果存放在`IO Either`类型中。
+
+	```hs
+	try :: Exception e => IO a -> IO (Either e a)
+	tryJust :: Exception e => (e -> Maybe b) -> IO a -> IO (Either b a)
+	```
+
+	示例：
+
+	```hs
+	{-# LANGUAGE LambdaCase #-}
+
+	import Control.Exception
+
+	main :: IO
+	main = (try $ do
+	  let n1 = 1
+	  let n2 = error "Try Exception!"
+	  print "Run..."
+	  return $! n1 + n2) >>= \case
+	    Left (SomeException e) -> print $ "Exception info: " ++ (displayException e)
+	    Right a -> print $ "Success: " ++ (show a)
+	```
+
+- `catch*/handle*`系列函数执行给定的逻辑，在发生异常时执行给定的异常处理逻辑。
+
+	```hs
+	-- catch系列函数无论目标操作是否产生异常，都返回给定类型的值，操作异常时返回值由给定的异常处理逻辑产生
+	catch :: Exception e => IO a -> (e -> IO a) -> IO a
+	catches :: IO a -> [Handler a] -> IO a
+	catchJust :: Exception e => (e -> Maybe b) -> IO a -> (b -> IO a) -> IO a
+
+	-- handle系列函数作用与catch系列对应函数相同，仅参数位置不同
+	handle :: Exception e => (e -> IO a) -> IO a -> IO a
+	handleJust :: Exception e => (e -> Maybe b) -> (b -> IO a) -> IO a -> IO a
+	```
+
+	示例：
+
+	```hs
+	import Control.Exception
+
+	main :: IO ()
+	main = do
+	  re1 <- catch (do
+	    let n1 = 1
+	    let n2 = error "Catch Exception!"
+	    print "Run..."
+	    return $! n1 + n2) $ \e -> do
+	      print $ "Exception info: " ++ (show (e :: SomeException))
+	      return 233
+	  re2 <- handle (\e -> do
+	    print $ "Exception info: " ++ (show (e :: SomeException))
+	    return 666) $! do
+	      let n1 = 1
+	      let n2 = error "Handle Exception!"
+	      print "Run..."
+	      return $! n1 + n2
+	  print $ "Result1: " ++ (show re1)
+	  print $ "Result2: " ++ (show re2)
+	```
 
 
 
