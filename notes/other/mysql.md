@@ -24,6 +24,11 @@
 	- [複製表格](#複製表格)
 	- [主鍵自增](#主鍵自增)
 	- [外鍵約束](#外鍵約束)
+- [Row Formats](#row-formats)
+	- [REDUNDANT Row Format](#redundant-row-format)
+	- [COMPACT Row Format](#compact-row-format)
+	- [DYNAMIC Row Format](#dynamic-row-format)
+- [索引](#索引)
 - [常用設置](#常用設置)
 	- [導出數據](#導出數據)
 	- [導入數據](#導入數據)
@@ -495,6 +500,23 @@ Error Code: 1215. Cannot add the foreign key constraint
 ```
 
 可使用`SHOW ENGINE INNODB STATUS`語句輸出最近的SQL執行的詳細狀態，查閱具體的錯誤信息。
+
+
+
+# Row Formats
+表格的行格式決定了行的物理排列，會影響查詢、DML操作的性能。
+隨著多個行存入相同的磁盤頁，查詢、索引查找等操作執行速度加快，並在寫出更新內容時消耗更少的緩存和IO。
+
+MySQL使用的InnoDB存儲引擎支持四種行格式：`REDUNDANT`、`COMPACT`、`DYNAMIC`、`COMPRESSED`。
+
+格式特性比較：
+
+| Row Format | Compact Storage Characteristics | Enhanced Variable-Length Column Storage	Large | Index Key Prefix Support | Compression Support | Supported Tablespace Types | Required File Format |
+| :- | :- | :- | :- | :- | :- | :- |
+| REDUNDANT | No | No | No | No | system, file-per-table, general | Antelope or Barracuda |
+| COMPACT | Yes | No | No | No | system, file-per-table, general | Antelope or Barracuda |
+| DYNAMIC | Yes | Yes | Yes | No | system, file-per-table, general | Barracuda |
+| COMPRESSED | Yes | Yes | Yes | Yes | file-per-table, general | Barracuda |
 
 
 
