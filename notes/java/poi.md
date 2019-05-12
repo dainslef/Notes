@@ -2,30 +2,30 @@
 
 - [概述](#概述)
 	- [接口結構](#接口結構)
-- [*XWPF*](#xwpf)
-	- [*XWPFDocument*](#xwpfdocument)
-	- [*XWPFParagraph* / *XWPFRun*](#xwpfparagraph--xwpfrun)
-	- [*XWPFTable* / *XWPFTableRow* / *XWPFTableCell*](#xwpftable--xwpftablerow--xwpftablecell)
+- [XWPF](#xwpf)
+	- [XWPFDocument](#xwpfdocument)
+	- [XWPFParagraph / XWPFRun](#xwpfparagraph--xwpfrun)
+	- [XWPFTable / XWPFTableRow / XWPFTableCell](#xwpftable--xwpftablerow--xwpftablecell)
 	- [向文檔中插入圖片](#向文檔中插入圖片)
 	- [設置表格寬度](#設置表格寬度)
 	- [設置表格單元格的對齊方式](#設置表格單元格的對齊方式)
-- [*XSSF*](#xssf)
-	- [*XSSFWorkbook*](#xssfworkbook)
-	- [*XSSFSheet* / *XSSFTable*](#xssfsheet--xssftable)
-- [*XSSFRow* / *XSSFCell*](#xssfrow--xssfcell)
+- [XSSF](#xssf)
+	- [XSSFWorkbook](#xssfworkbook)
+	- [XSSFSheet / XSSFTable](#xssfsheet--xssftable)
+	- [XSSFRow / XSSFCell](#xssfrow--xssfcell)
 - [常見問題](#常見問題)
-	- [*Schemas* 類型缺失](#schemas-類型缺失)
+	- [Schemas 類型缺失](#schemas-類型缺失)
 
 <!-- /TOC -->
 
 
 
-## 概述
-`POI`是`Apache`基金會下的項目之一，提供了對微軟`Office`系列各類文檔的讀寫支持。  
-`POI`採用純`Java`實現。
+# 概述
+`POI`是`Apache`基金會下的項目之一，提供了對`Microsoft Office`系列各類文檔的讀寫支持。
+POI採用純Java實現。
 
-### 接口結構
-`POI`對不同格式的文檔支持拆分在不同的包中，如下所示：
+## 接口結構
+POI對不同格式的文檔支持拆分在不同的包中，如下所示：
 
 | 包路徑 | 支持文檔類型 | Maven ArtifactId |
 |:-----:|:----------:|:----------------:|
@@ -60,27 +60,27 @@
 
 `Word/Visio`文檔之間無通用接口。
 
-`POI`的用戶`API`一般位於`org.apache.poi.文檔類型.usermodel`路徑下。
+POI的用戶API一般位於`org.apache.poi.文檔類型.usermodel`路徑下。
 
 
 
-## *XWPF*
+# XWPF
 `XWPF`提供了對`Word 2007`(*docx*)格式的文檔讀寫功能。
 
 主要包含以下類型，位於`org.apache.poi.xwpf.usermodel`包路徑下：
 
-- `XWPFDocument` 代表整個`Word`文檔
+- `XWPFDocument` 代表整個Word文檔
 - `XWPFParagraph` 代表段落
 - `XWPFRun` 代表文本
 - `XWPFTable` 代表文檔表格
 	1. `XWPFTableRow` 代表表格行
 	1. `XWPFTableCell` 代表表格內的單元格
 
-### *XWPFDocument*
-`XWPFDocument`是對整個`Word`文檔的抽象。
+## XWPFDocument
+`XWPFDocument`是對整個Word文檔的抽象。
 
-使用默認的空參構造方法即可創建新的空白文檔。  
-使用其父類`POIXMLDocument`提供的`write()`方法可將文檔寫入輸出流中。  
+使用默認的空參構造方法即可創建新的空白文檔。
+使用其父類`POIXMLDocument`提供的`write()`方法可將文檔寫入輸出流中。
 相關方法定義如下所示：
 
 ```java
@@ -113,12 +113,12 @@ object Main extends App {
 }
 ```
 
-### *XWPFParagraph* / *XWPFRun*
-`XWPFParagraph`是對文檔中**段落**的抽象。  
+## XWPFParagraph / XWPFRun
+`XWPFParagraph`是對文檔中**段落**的抽象。
 `XWPFRun`是對文檔中**文本**的抽象。
 
-`XWPFParagraph`可由`XWPFDocument`創建。  
-`XWPFRun`可由`XWPFParagraph`創建。  
+`XWPFParagraph`可由`XWPFDocument`創建。
+`XWPFRun`可由`XWPFParagraph`創建。
 相關方法定義如下所示：
 
 ```java
@@ -164,12 +164,12 @@ public class XWPFRun implements ISDTContents, IRunElement, CharacterRun {
 }
 ```
 
-### *XWPFTable* / *XWPFTableRow* / *XWPFTableCell*
-`XWPFTable`是對文檔中**表格**的抽象。  
-`XWPFTableRow`是對錶格中**行**的抽象。  
+## XWPFTable / XWPFTableRow / XWPFTableCell
+`XWPFTable`是對文檔中**表格**的抽象。
+`XWPFTableRow`是對錶格中**行**的抽象。
 `XWPFTableCell`是對錶格中**單元格**的抽象。
 
-`XWPFTable`可由`XWPFDocument`創建。  
+`XWPFTable`可由`XWPFDocument`創建。
 相關方法定義如下所示：
 
 ```java
@@ -196,7 +196,7 @@ public class XWPFTable implements IBodyElement, ISDTContents {
 }
 ```
 
-`XWPFTableRow`可由`XWPFTable`的`createRow()/getRow()`等方法創建/獲取。  
+`XWPFTableRow`可由`XWPFTable`的`createRow()/getRow()`等方法創建/獲取。
 `XWPFTableRow`類型的常用方法如下所示：
 
 ```java
@@ -210,7 +210,7 @@ public class XWPFTableRow {
 }
 ```
 
-`XWPFTableCell`可由`XWPFTableRow`的`createCell()/getCell()`等方法獲取。  
+`XWPFTableCell`可由`XWPFTableRow`的`createCell()/getCell()`等方法獲取。
 `XWPFTableCell`類型的常用方法如下所示：
 
 ```java
@@ -226,9 +226,9 @@ public class XWPFTableCell implements IBody, ICell {
 
 從`XWPFTable`中通過索引獲取行列時需要注意，行列序號均爲從`0`開始(類似**數組下標**)。
 
-### 向文檔中插入圖片
-到目前版本爲止(`POI 3.16`)，向`Word 2007`文檔中插入圖片的功能實現存在`BUG`。  
-使用`XWPFRun`提供的`addPicture()`方法插入圖片時，並未在文檔中正確地生成圖片的相關`XML`。
+## 向文檔中插入圖片
+到目前版本爲止(`POI 3.16`)，向`Word 2007`文檔中插入圖片的功能實現存在BUG。
+使用`XWPFRun`提供的`addPicture()`方法插入圖片時，並未在文檔中正確地生成圖片的相關XML。
 
 要使圖片插入功能正常使用，需要自行實現圖片插入相關邏輯。
 以`Implicit Class`形式擴展`XWPFDocument`類，添加圖片插入功能，如下所示：
@@ -319,7 +319,7 @@ object Main extends App {
   val picture = File("測試圖片.png")
 
   // 調用隱式方法，添加圖片數據，獲取圖片資源id
-  val id = doc.addPictureData(picture.inputStream, PictureType.PNG.nativeId) 
+  val id = doc.addPictureData(picture.inputStream, PictureType.PNG.nativeId)
   // 獲取圖片信息
   val imageIO = ImageIO.read(picture.inputStream)
 
@@ -336,8 +336,8 @@ object Main extends App {
 }
 ```
 
-### 設置表格寬度
-`XWPFTable`類型提供了用於設置表格寬度的`setWidth()`方法，但該方法無效。  
+## 設置表格寬度
+`XWPFTable`類型提供了用於設置表格寬度的`setWidth()`方法，但該方法無效。
 `POI 3.16`中`XWPFTable`類型的`setWidth()`方法源碼如下所示：
 
 ```java
@@ -383,12 +383,12 @@ implicit class XWPFTableUtils(table: XWPFTable) {
 }
 ```
 
-### 設置表格單元格的對齊方式
-`POI`沒有提供設置`XWPFTableCell`內部對齊方式的用戶層接口。  
-實現單元格居中功能需要使用`Schemas`相關底層接口。  
-涉及的`Schemas`相關類型包路徑爲`org.openxmlformats.schemas.wordprocessingml.x2006.main`。
+## 設置表格單元格的對齊方式
+POI沒有提供設置`XWPFTableCell`內部對齊方式的用戶層接口。
+實現單元格居中功能需要使用`Schemas`相關底層接口。
+涉及的Schemas相關類型包路徑爲`org.openxmlformats.schemas.wordprocessingml.x2006.main`。
 
-以`Implicit Class`形式擴展`XWPFTable`類，自行實現單元格對齊功能，如下所示：
+以`Implicit Class`形式擴展XWPFTable類，自行實現單元格對齊功能，如下所示：
 
 ```scala
 import org.apache.poi.xwpf.usermodel.XWPFTable
@@ -438,7 +438,7 @@ java.lang.NoClassDefFoundError: org/openxmlformats/schemas/wordprocessingml/x200
 
 
 
-## *XSSF*
+# XSSF
 `XSSF`提供了對`Excel 2007`(*xlsx*)格式的文檔讀寫功能。
 
 主要包含以下類型，位於`org.apache.poi.xssf.usermodel`包路徑下：
@@ -451,11 +451,11 @@ java.lang.NoClassDefFoundError: org/openxmlformats/schemas/wordprocessingml/x200
 
 與`XWPF`相比，`Excel`相關的`HSSF/XSSF`是`POI`的主打功能，接口完善、功能強大。
 
-### *XSSFWorkbook*
+## XSSFWorkbook
 `XSSFWorkbook`是對整個`Excel`文檔的抽象，與`XWPF`中的`XWPFDocument`類似。
 
-使用默認的空參構造方法即可創建新的空白文檔。  
-使用其父類`POIXMLDocument`提供的`write()`方法可將文檔寫入輸出流中。  
+使用默認的空參構造方法即可創建新的空白文檔。
+使用其父類`POIXMLDocument`提供的`write()`方法可將文檔寫入輸出流中。
 相關方法定義如下所示：
 
 ```java
@@ -472,9 +472,9 @@ public abstract class POIXMLDocument extends POIXMLDocumentPart implements Close
 }
 ```
 
-### *XSSFSheet* / *XSSFTable*
-`XSSFSheet`代表`Excel`文檔中的**工作表**，一個`Excel`文檔中可以包含多張工作表。  
-使用`XSSFWorkbook`的`createSheet()/getSheet()/getSheetAt()`等方法可以創建/獲取文檔中的工作表(`XSSFSheet`實例)。  
+## XSSFSheet / XSSFTable
+`XSSFSheet`代表Excel文檔中的**工作表**，一個Excel文檔中可以包含多張工作表。
+使用`XSSFWorkbook`的`createSheet()/getSheet()/getSheetAt()`等方法可以創建/獲取文檔中的工作表(`XSSFSheet`實例)。
 相關方法定義如下所示：
 
 ```java
@@ -487,7 +487,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook {
 }
 ```
 
-工作表本身可以包含子表格，使用`XSSFWorkbook`的`createTable()/getTables()`方法創建/獲取表格。  
+工作表本身可以包含子表格，使用`XSSFWorkbook`的`createTable()/getTables()`方法創建/獲取表格。
 相關方法定義如下所示：
 
 ```java
@@ -499,30 +499,30 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
 }
 ```
 
-## *XSSFRow* / *XSSFCell*
+## XSSFRow / XSSFCell
 `XSSFRow/XSSFCell`代表表格中的行、列。
 
-通過`XSSFSheet`的`createRow()`方法向工作表中添加行。  
+通過`XSSFSheet`的`createRow()`方法向工作表中添加行。
 通過`XSSFCell`的`createCell()`方法向行中添加單元格。
 
 
 
-## 常見問題
-包含`POI`使用中的一些問題的解決方案。
+# 常見問題
+包含POI使用中的一些問題的解決方案。
 
-### *Schemas* 類型缺失
+## Schemas 類型缺失
 在使用部分`Schemas`相關類型、方法時出現異常：
 
 ```
 java.lang.NoClassDefFoundError: org/openxmlformats/schemas/...
 ```
 
-該異常是由於缺少`Schemas`相關類型的`JAR`包造成的，需要在`build.sbt`中添加：
+該異常是由於缺少Schemas相關類型的JAR包造成的，需要在`build.sbt`中添加：
 
 ```scala
 "org.apache.poi" % "ooxml-schemas" % "版本號"
 ```
 
-對於多數此類型的異常，都是由於`Schemas`相關類型缺失造成的。  
-默認依賴的`poi-ooxml-schemas`體積較小，並不包含完整的`Schemas`類型，
-需要使用完整的`Schemas`相關類型時，需要依賴體積較大的`ooxml-schemas`包。
+對於多數此類型的異常，都是由於Schemas相關類型缺失造成的。
+默認依賴的`poi-ooxml-schemas`體積較小，並不包含完整的Schemas類型，
+需要使用完整的Schemas相關類型時，需要依賴體積較大的`ooxml-schemas`包。
