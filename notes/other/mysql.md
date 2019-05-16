@@ -28,7 +28,6 @@
 	- [REDUNDANT Row Format](#redundant-row-format)
 	- [COMPACT Row Format](#compact-row-format)
 	- [DYNAMIC Row Format](#dynamic-row-format)
-- [索引](#索引)
 - [常用設置](#常用設置)
 	- [導出數據](#導出數據)
 	- [導入數據](#導入數據)
@@ -517,6 +516,38 @@ MySQL使用的InnoDB存儲引擎支持四種行格式：`REDUNDANT`、`COMPACT`�
 | COMPACT | Yes | No | No | No | system, file-per-table, general | Antelope or Barracuda |
 | DYNAMIC | Yes | Yes | Yes | No | system, file-per-table, general | Barracuda |
 | COMPRESSED | Yes | Yes | Yes | Yes | file-per-table, general | Barracuda |
+
+## REDUNDANT Row Format
+REDUNDANT格式用於兼容舊版本的MySQL。
+
+使用REDUNDANT行格式的表會將前768字節的變長列字段(VARCHAR、VARBINARY、BLOB、TEXT)存儲到B-tree節點索引中，
+其餘内容存儲到溢出頁面中(overflow pages)。
+大於等於768字節的定長列(fixed-length column)被編碼為變長列(variable-length column)，
+從而可以在頁外存儲。
+例如，在每個字符的最大大小可超過3字節時，CHAR(255)類型可以超過768字節(類似於`uff8mb4`編碼)。
+
+若列小於等於768字節，溢出頁不會被使用，可能會降低某些IO開銷，因爲值完全存儲在B-tree節點中。
+這在相對較小的BLOB列中工作良好，但會導致B-tree節點填充數據而非鍵值，進而降低效率。
+若一張表帶有許多BLOB列會導致B-tree節點過滿，包含較少的行，使得整個索引效率低於行較短或列值存儲在頁外的情形。
+
+## COMPACT Row Format
+與REDUNDANT格式相比，COMPACT行格式能降低大約20％的存儲空間，但會某些操作的CPU開銷。
+在受緩存命中率和磁盤速度限制的場景下，使用COMPACT格式可能會更快。
+在CPU受限的場景下，使用COMPACT行格式可能會變慢。
+
+## DYNAMIC Row Format
+DYNAMIC行格式提供與REDUNDANT格式相同的存儲特徵，但增强了長變長列的存儲能力，並支持大型索引前綴。
+
+當使用`ROW_FORMAT = DYNAMIC`創建表時，InnoDB可以完全在頁外存儲長的變長列值(VARCHAR，VARBINARY，BLOB和TEXT)，
+聚集索引記錄只包含20字節的指針指向溢出頁面。大於或等於768字節定長字段被編碼為變長字段。
+
+列是否存儲在頁外是否取決於頁面大小和行的總大小。當行太長時，選擇最長的列進行頁外存儲，直到聚簇索引記錄適合B-tree頁面。
+小於或等於40字節的TEXT和BLOB列會存儲在行中。
+
+DYNAMIC行格式保持在索引節點中存儲整行的效率(類似COMPACT和REDUNDANT)，但避免了用長列的大量數據内容填充B-tree節點的問題。
+DYNAMIC行格式基於以下思想：
+若一個大的數據值一部分存儲在頁外，則通常最有效的存儲方式是將整個值存儲在頁外。
+使用DYNAMIC格式時，較短的列可能會保留在B樹節點中，從而最大限度地減少一行所需的溢出頁數。
 
 
 
