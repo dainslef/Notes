@@ -1,72 +1,72 @@
 <!-- TOC -->
 
-- [简介](#简介)
+- [簡介](#簡介)
 	- [配置 Slick](#配置-slick)
 	- [Play Framework 集成](#play-framework-集成)
-	- [接口包路径](#接口包路径)
-- [Model 定义](#model-定义)
-	- [特殊类型映射](#特殊类型映射)
-- [DataBase 实例](#database-实例)
-	- [使用 Database 类构建实例](#使用-database-类构建实例)
-	- [使用 Play Frameowrk 注入实例](#使用-play-frameowrk-注入实例)
-- [查询集操作](#查询集操作)
-	- [构建 TableQurey 实例](#构建-tablequrey-实例)
-	- [查询](#查询)
+	- [接口包路徑](#接口包路徑)
+- [Model 定義](#model-定義)
+	- [特殊類型映射](#特殊類型映射)
+- [DataBase 實例](#database-實例)
+	- [使用 Database 類構建實例](#使用-database-類構建實例)
+	- [使用 Play Frameowrk 注入實例](#使用-play-frameowrk-注入實例)
+- [查詢集操作](#查詢集操作)
+	- [構建 TableQurey 實例](#構建-tablequrey-實例)
+	- [查詢](#查詢)
 	- [插入](#插入)
 	- [修改](#修改)
-	- [删除](#删除)
-	- [应用查询集操作](#应用查询集操作)
+	- [刪除](#刪除)
+	- [應用查詢集操作](#應用查詢集操作)
 
 <!-- /TOC -->
 
 
 
-# 简介
-`Slick`是`LightBend`官方支持的函数式风格的`ORM`框架，官方介绍中称之为`Functional Relational Mapping(FRM)`。
+# 簡介
+`Slick`是`LightBend`官方支持的函數式風格的`ORM`框架，官方介紹中稱之爲`Functional Relational Mapping(FRM)`。
 
 ## 配置 Slick
-Slick搭配不同数据库时需要对应的数据库驱动支持。
+Slick搭配不同數據庫時需要對應的數據庫驅動支持。
 
-以MySQL为例，需要在`build.sbt`文件中添加以下依赖：
+以MySQL爲例，需要在`build.sbt`文件中添加以下依賴：
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.typesafe.slick" %% "slick" % "版本号", //Slick ORM框架
-  "com.typesafe.slick" %% "slick-hikaricp" % "版本号" //Slick 数据库连接池
-  "mysql" % "mysql-connector-java" % "版本号" //JDBC 连接驱动包
+  "com.typesafe.slick" %% "slick" % "版本號", //Slick ORM框架
+  "com.typesafe.slick" %% "slick-hikaricp" % "版本號" //Slick 數據庫連接池
+  "mysql" % "mysql-connector-java" % "版本號" //JDBC 連接驅動包
 )
 ```
 
-默认配置下，`Slick`会使用连接池缓存数据库连接，需要搭配插件`slick-hikaricp`。
+默認配置下，`Slick`會使用連接池緩存數據庫連接，需要搭配插件`slick-hikaricp`。
 
 ## Play Framework 集成
-对于在`Play Framework`中使用`Slick`，则推荐使用`play-slick`库，该库提供了`Play Framework`的`Slick`集成，添加`sbt`依赖：
+對於在`Play Framework`中使用`Slick`，則推薦使用`play-slick`庫，該庫提供了`Play Framework`的`Slick`集成，添加`sbt`依賴：
 
 ```scala
-"com.typesafe.play" %% "play-slick" % "版本号"
+"com.typesafe.play" %% "play-slick" % "版本號"
 ```
 
-`play-slick`依赖于`slick`和`slick-hikaricp`，`SBT`依赖中添加了`play-slick`则无需再添加`slick`以及`slick-hikaricp`。
+`play-slick`依賴於`slick`和`slick-hikaricp`，`SBT`依賴中添加了`play-slick`則無需再添加`slick`以及`slick-hikaricp`。
 
-## 接口包路径
-Slick相关用户接口在包路径`slick.jdbc.数据库类型.api`下(`Slick 3.2.0`版本之后)。
-在`Slick 3.1.1`版本之前，相关接口位于包路径`slick.driver.数据库驱动.api`下。
+## 接口包路徑
+Slick相關用戶接口在包路徑`slick.jdbc.數據庫類型.api`下(`Slick 3.2.0`版本之後)。
+在`Slick 3.1.1`版本之前，相關接口位於包路徑`slick.driver.數據庫驅動.api`下。
 
-常见的数据库对应的包路径：
+常見的數據庫對應的包路徑：
 
-| 数据库名称 | 包路径 |
+| 數據庫名稱 | 包路徑 |
 | :-: | :-: |
 | MySQL | slick.jdbc.MySQLProfile.api |
 | PostgresSQL | slick.jdbc.PostgresProfile.api |
 
 
 
-# Model 定义
-自定义模型类需要从`slick.jdbc.数据库类型.api.Table[T]`类型中继承。
-泛型参数`T`具体可以是**元组**(`Tuple`)类型或是**样例类**，内容为表中包含的字段类型。
-与Django不同，Slick**不使用**专门的类型来映射SQL字段类型，而是直接使用语言内置类型(Int、String等)映射SQL中的字段类型。
+# Model 定義
+自定義模型類需要從`slick.jdbc.數據庫類型.api.Table[T]`類型中繼承。
+泛型參數`T`具體可以是**元組**(`Tuple`)類型或是**樣例類**，內容爲表中包含的字段類型。
+與Django不同，Slick**不使用**專門的類型來映射SQL字段類型，而是直接使用語言內置類型(Int、String等)映射SQL中的字段類型。
 
-假设有以下结构的MySQL表：
+假設有以下結構的MySQL表：
 
 ```sql
 CREATE TABLE `TestTable` (
@@ -76,65 +76,65 @@ CREATE TABLE `TestTable` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 ```
 
-在Slick中，该表对应的模型类可以写成：
+在Slick中，該表對應的模型類可以寫成：
 
 ```scala
 import slick.jdbc.MySQLProfile.api._
 import slick.lifted.ProvenShape
 
-// 元组参数类型为表中字段的类型，参数中可以指定对应表在数据库中的名称
+// 元組參數類型爲表中字段的類型，參數中可以指定對應表在數據庫中的名稱
 class TestTable(tag: Tag) extends Table[(Int, String)](tag, "TestTable") {
 
-  // 列的类型为Rep，使用cloumn方法生成，参数中可以指定列对象对应的SQL字段的名称
+  // 列的類型爲Rep，使用cloumn方法生成，參數中可以指定列對象對應的SQL字段的名稱
   def index: Rep[Int] = cloumn[Int]("Index", O.PrimaryKey)
   def name: Rep[String] = column[String]("Name")
 
-  // ProvenShape类型由隐式转换得到，重写无参*方法确定字段的排列顺序
+  // ProvenShape類型由隱式轉換得到，重寫無參*方法確定字段的排列順序
   def * : ProvenShape[(Int, String)] = (index, name)
 }
 ```
 
-对于简单的表格直接使用**元组**表示代码更为简洁，但若表格结构较为复杂则应为表格结构定义单独的**样例类**，上表采用样例类可以改写为：
+對於簡單的表格直接使用**元組**表示代碼更爲簡潔，但若表格結構較爲複雜則應爲表格結構定義單獨的**樣例類**，上表採用樣例類可以改寫爲：
 
 ```scala
 import slick.jdbc.MySQLProfile.api._
 
-// 使用样例类来表示表格的结构
+// 使用樣例類來表示表格的結構
 case class TestModel(index: Int, name: String)
 
-// 元组参数类型为表中字段的类型，参数中可以指定对应表在数据库中的名称
+// 元組參數類型爲表中字段的類型，參數中可以指定對應表在數據庫中的名稱
 class TestTable(tag: Tag) extends Table[TestModel](tag, "TestTable") {
 
-  // 具体类型可以省略
+  // 具體類型可以省略
   def index = cloumn[Int]("Index", O.PrimaryKey)
   def name = column[String]("Name")
 
-  // 需要使用<>()方法将元组与样例类绑定
+  // 需要使用<>()方法將元組與樣例類綁定
   def * = (index, name) <> (TestModel.tupled, TestModel.unapply)
 }
 ```
 
-若映射的表名不确定，则可保留构造方法中的表名参数，在运行时传入。
-模型定义示例：
+若映射的表名不確定，則可保留構造方法中的表名參數，在運行時傳入。
+模型定義示例：
 
 ```scala
 import slick.jdbc.MySQLProfile.api._
 import slick.lifted.ProvenShape
 
-// 保留表名参数，通过主构造方法传入
+// 保留表名參數，通過主構造方法傳入
 class NoNameTable(tag: Tag, tableName: String) extends Table[(Int, String)](tag, tableName) {
 	...
 }
 ```
 
-## 特殊类型映射
-对于时间类型(`MySQL`中的`DateTime`类型)，`Slick`可以将其映射到`Java`中的以下类型：
+## 特殊類型映射
+對於時間類型(`MySQL`中的`DateTime`類型)，`Slick`可以將其映射到`Java`中的以下類型：
 
 - `java.sql.Date`
 - `java.sql.Time`
 - `java.sql.Timestamp`
 
-对于二进制类型(`MySQL`中的`Blob`类型)，`Slick`可以将其映射到`Java`中的以下类型：
+對於二進制類型(`MySQL`中的`Blob`類型)，`Slick`可以將其映射到`Java`中的以下類型：
 
 - `java.sql.Blob`
 - `java.sql.Clob`
@@ -142,85 +142,85 @@ class NoNameTable(tag: Tag, tableName: String) extends Table[(Int, String)](tag,
 
 
 
-# DataBase 实例
-正确配置了Slick之后，需要获取数据库对象来进行具体的增删改查操作。
+# DataBase 實例
+正確配置了Slick之後，需要獲取數據庫對象來進行具體的增刪改查操作。
 
-Slick根据数据库类型提供了不同的`Database`类型，格式如下：
+Slick根據數據庫類型提供了不同的`Database`類型，格式如下：
 
 ```scala
-slick.jdbc.数据库类别.api.Database
+slick.jdbc.數據庫類別.api.Database
 ```
 
-以MySQL数据库为例，应使用`slick.jdbc.MySQLProfile.api.Database`类型。
-`Database`对象在使用完毕后需要关闭以释放资源。
+以MySQL數據庫爲例，應使用`slick.jdbc.MySQLProfile.api.Database`類型。
+`Database`對象在使用完畢後需要關閉以釋放資源。
 
-## 使用 Database 类构建实例
-使用`Database`伴生对象中的方法直接构建数据库对象实例：
+## 使用 Database 類構建實例
+使用`Database`伴生對象中的方法直接構建數據庫對象實例：
 
 ```scala
 val db = Database.forDriver(
   new com.mysql.jdbc.Driver(),
-  "jdbc:mysql://localhost:端口号/数据库名称",
-  "MySQL用户名",
-  "MySQL密码"
+  "jdbc:mysql://localhost:端口號/數據庫名稱",
+  "MySQL用戶名",
+  "MySQL密碼"
 )
 
 val db = Database.forURL(
-  "jdbc:mysql://localhost:端口号/数据库名称",
-  "MySQL用户名",
-  "MySQL密码"
+  "jdbc:mysql://localhost:端口號/數據庫名稱",
+  "MySQL用戶名",
+  "MySQL密碼"
 )
 ```
 
-或者从项目配置文件`conf/application.conf`中读取数据库配置构建实例：
+或者從項目配置文件`conf/application.conf`中讀取數據庫配置構建實例：
 
 ```scala
-val db = Database.forConfig("配置名称")
+val db = Database.forConfig("配置名稱")
 ```
 
 配置格式示例：
 
 ```scala
-配置名称 {
+配置名稱 {
 	driver = com.mysql.jdbc.Driver
-	url = "jdbc:mysql://IP地址:端口号/数据库名称"
-	user = "MySQL用户名"
-	password = "MySQL密码"
+	url = "jdbc:mysql://IP地址:端口號/數據庫名稱"
+	user = "MySQL用戶名"
+	password = "MySQL密碼"
 	connectionPool = disabled
 }
 ```
 
-## 使用 Play Frameowrk 注入实例
-对于在`Play Framework`框架中使用Slick，可以使用`play-sick`插件。
+## 使用 Play Frameowrk 注入實例
+對於在`Play Framework`框架中使用Slick，可以使用`play-sick`插件。
 
-在项目配置文件`conf/application.conf`中添加数据库的具体连接配置。
-使用`play-sick`时，配置中需要使用特定前缀`slick.dbs.XXX`，`XXX`需要替换为需要的配置名称。
-默认配置名称为`default`，配置结构示例：
+在項目配置文件`conf/application.conf`中添加數據庫的具體連接配置。
+使用`play-sick`時，配置中需要使用特定前綴`slick.dbs.XXX`，`XXX`需要替換爲需要的配置名稱。
+默認配置名稱爲`default`，配置結構示例：
 
 ```scala
-slick.dbs.default { //"default"为默认的配置名称，可以自行修改
-	driver = "slick.driver.MySQLDriver$" //Slick对应数据库的驱动，注意"$"符号不能少
+slick.dbs.default { //"default"爲默認的配置名稱，可以自行修改
+	driver = "slick.driver.MySQLDriver$" //Slick對應數據庫的驅動，注意"$"符號不能少
 	db {
-		driver = "com.mysql.jdbc.Driver" //JDBC驱动
-		url = "jdbc:mysql://IP地址:端口号/数据库名称" //数据库连接字符串
-		user= "MySQL用户名" //数据库用户名
-		password = "MySQL密码" //数据库密码
-		connectionPool = disabled/enabled //是否使用连接池，使用连接池则需要slick-hikaricp插件支持
+		driver = "com.mysql.jdbc.Driver" //JDBC驅動
+		url = "jdbc:mysql://IP地址:端口號/數據庫名稱" //數據庫連接字符串
+		user= "MySQL用戶名" //數據庫用戶名
+		password = "MySQL密碼" //數據庫密碼
+		connectionPool = disabled/enabled //是否使用連接池，使用連接池則需要slick-hikaricp插件支持
 	}
 }
 ```
 
-配置文件语法灵活，上述配置也可以写成：
+配置文件語法靈活，上述配置也可以寫成：
 
 ```scala
 slick.dbs.default.driver = "slick.driver.MySQLDriver$"
 slick.dbs.default.db.driver = "com.mysql.jdbc.Driver"
-slick.dbs.default.db.url = "jdbc:mysql://IP地址:端口号/数据库名称"
-slick.dbs.default.db.user = "MySQL用户名"
-slick.dbs.default.db.password = "MySQL密码"
+slick.dbs.default.db.url = "jdbc:mysql://IP地址:端口號/數據庫名稱"
+slick.dbs.default.db.user = "MySQL用戶名"
+slick.dbs.default.db.password = "MySQL密碼"
 ```
 
-使用`play.api.db.slick.DatabaseConfigProvider`获取数据库对象，定义示例：
+使用`play.api.db.slick.DatabaseConfigProvider`獲取數據庫對象，定義示例：
 
 ```scala
 trait DatabaseConfigProvider {
@@ -228,8 +228,8 @@ trait DatabaseConfigProvider {
 }
 ```
 
-使用`DatabaseConfigProvider`特质提供的无参`get`方法来获取配置。
-配置类型`DatabaseConfig`定义如下：
+使用`DatabaseConfigProvider`特質提供的無參`get`方法來獲取配置。
+配置類型`DatabaseConfig`定義如下：
 
 ```scala
 trait DatabaseConfig[P <: BasicProfile] {
@@ -241,19 +241,19 @@ trait DatabaseConfig[P <: BasicProfile] {
 }
 ```
 
-使用无参方法`db`即可获得可供操作的数据库对象。
+使用無參方法`db`即可獲得可供操作的數據庫對象。
 
-在`Play Framework 2.4`及之前的版本，直接通过单例对象获取：
+在`Play Framework 2.4`及之前的版本，直接通過單例對象獲取：
 
 ```scala
 val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
 val db = dbConfig.db
 ```
 
-在最新的`Play Framework 2.5`中，框架设计发生了变化，不再拥有全局的`Play.current`对象。
-`DatabaseConfigProvider`需要通过`DI`(`Dependcy Inject`，即**依赖注入**)的方式来获取。
+在最新的`Play Framework 2.5`中，框架設計發生了變化，不再擁有全局的`Play.current`對象。
+`DatabaseConfigProvider`需要通過`DI`(`Dependcy Inject`，即**依賴注入**)的方式來獲取。
 
-一个注入了`DatabaseConfigProvider`的控制器示例：
+一個注入了`DatabaseConfigProvider`的控制器示例：
 
 ```scala
 import javax.inject.Inject
@@ -272,21 +272,21 @@ class TestController @Inject()(dbConfig: DatabaseConfigProvider) extends Control
 }
 ```
 
-默认情况下，使用配置文件`conf/application.conf`中`slick.dbs.default`配置项内写入的配置。
-若需要使用自定义名称的配置，则需要使用`@NamedDatabase`注解，示例：
+默認情況下，使用配置文件`conf/application.conf`中`slick.dbs.default`配置項內寫入的配置。
+若需要使用自定義名稱的配置，則需要使用`@NamedDatabase`註解，示例：
 
 ```scala
 import play.api.db.NamedDatabase
 
 @Singleton
-class TestController @Inject()(@NamedDatabase("配置名称") dbConfig: DatabaseConfigProvider) extends Controller {
+class TestController @Inject()(@NamedDatabase("配置名稱") dbConfig: DatabaseConfigProvider) extends Controller {
   ...
 }
 ```
 
-其中，**配置名称**填写的**不是**完整路径，如`slick.dbs.XXX`的配置名称仅需填写`XXX`即可。
+其中，**配置名稱**填寫的**不是**完整路徑，如`slick.dbs.XXX`的配置名稱僅需填寫`XXX`即可。
 
-`DatabaseConfigProvider`也可以通过`set`注入，示例：
+`DatabaseConfigProvider`也可以通過`set`注入，示例：
 
 ```scala
 import javax.inject.Inject
@@ -299,9 +299,9 @@ import play.api.db.slick.DatabaseConfigProvider
 @Singleton
 class TestController extends Controller {
 
-  // 成员字段需要为可变对象var才能注入，val字段不能注入
+  // 成員字段需要爲可變對象var才能注入，val字段不能注入
   @Inject
-  @NamedDatabase("配置名称")
+  @NamedDatabase("配置名稱")
   private var dbConfig: DatabaseConfigProvider = null
 
   def testPage = Action {
@@ -314,12 +314,12 @@ class TestController extends Controller {
 
 
 
-# 查询集操作
-查询集类型为`slick.lifted.TableQurey[T]`，该类型提供各类数据操作方法。
-泛型参数类型需要为`slick.driver.数据库驱动名称.api.Table`的子类。
+# 查詢集操作
+查詢集類型爲`slick.lifted.TableQurey[T]`，該類型提供各類數據操作方法。
+泛型參數類型需要爲`slick.driver.數據庫驅動名稱.api.Table`的子類。
 
-## 构建 TableQurey 实例
-`TableQurey`类型的单例对象中提供了用于构建类型的`apply`方法，示例：
+## 構建 TableQurey 實例
+`TableQurey`類型的單例對象中提供了用於構建類型的`apply`方法，示例：
 
 ```scala
 object TableQuery {
@@ -333,8 +333,8 @@ object TableQuery {
 }
 ```
 
-对于映射表名已确定的`Table`子类，可使用无参`apply`方法直接构建实例。
-以`TestTable`表为例，直接使用`TableQurey[TestTable]`即可构建实例。
+對於映射表名已確定的`Table`子類，可使用無參`apply`方法直接構建實例。
+以`TestTable`表爲例，直接使用`TableQurey[TestTable]`即可構建實例。
 示例：
 
 ```scala
@@ -342,101 +342,101 @@ val query = TableQuery[TestTable]
 ...
 ```
 
-对于构造方法传入表名称的`Table`子类，应使用接收高阶类型参数的`apply(Tag => E)`方法。
-以`NoNameTable`为例，示例：
+對於構造方法傳入表名稱的`Table`子類，應使用接收高階類型參數的`apply(Tag => E)`方法。
+以`NoNameTable`爲例，示例：
 
 ```scala
-val query = TableQuery[NoNameTable](new NoNameTable(_, "数据库中表的名称"))
+val query = TableQuery[NoNameTable](new NoNameTable(_, "數據庫中表的名稱"))
 ```
 
-## 查询
-查询操作类似于使用Scala集合库中的**高阶函数**，常见操作如下：
+## 查詢
+查詢操作類似於使用Scala集合庫中的**高階函數**，常見操作如下：
 
 ```scala
 val query = TableQuery[TestTable]
-query.filter(_.name === "abc") //筛选出符合条件的数据
-query.drop(10) //丢弃前10条数据
-query.take(5) //截取前5条数据
-query.sortBy(_.index) //按index字段排序数据(增序)
-query.sortBy(_.index.desc) //按index字段排序数据(减序)
+query.filter(_.name === "abc") //篩選出符合條件的數據
+query.drop(10) //丟棄前10條數據
+query.take(5) //截取前5條數據
+query.sortBy(_.index) //按index字段排序數據(增序)
+query.sortBy(_.index.desc) //按index字段排序數據(減序)
 ```
 
-高阶函数内的数据表列实际类型均为`slick.lifted.Rep[T]`。
+高階函數內的數據表列實際類型均爲`slick.lifted.Rep[T]`。
 
-在使用`filter()`方法筛选数据时，`Rep`类型重载了基本运算符，可直接使用`>`、`<`、`>=`、`<=`等运算符进行比较。
-但在表示`==`、`!=`操作时，需要使用`===`、`=!=`操作符代替，原因是基类`Any`已经定义了`==`、`!=`操作符，不能通过隐式转换调用。
+在使用`filter()`方法篩選數據時，`Rep`類型重載了基本運算符，可直接使用`>`、`<`、`>=`、`<=`等運算符進行比較。
+但在表示`==`、`!=`操作時，需要使用`===`、`=!=`操作符代替，原因是基類`Any`已經定義了`==`、`!=`操作符，不能通過隱式轉換調用。
 
 ## 插入
-`TableQurey`类型重载了`+=`运算符，使用其插入新行：
+`TableQurey`類型重載了`+=`運算符，使用其插入新行：
 
 ```scala
 val query = TableQuery[TestTable]
 query += TestModel(666, "dainslef")
 ```
 
-对于`PrimaryKey`或是`Unique`的列，不能插入重复的内容，否则会触发`java.sql.SQLIntegrityConstraintViolationException`异常。
-使用`TableQurey`类型的`insertOrUpdate()`在插入重复字段时更新该行内容而非产生异常。
+對於`PrimaryKey`或是`Unique`的列，不能插入重複的內容，否則會觸發`java.sql.SQLIntegrityConstraintViolationException`異常。
+使用`TableQurey`類型的`insertOrUpdate()`在插入重複字段時更新該行內容而非產生異常。
 
 ```scala
 val query = TableQuery[TestTable]
-query.insertOrUpdate(TestModel(666, "SSR")) //若主键为666的行已存在，则更新行的内容
+query.insertOrUpdate(TestModel(666, "SSR")) //若主鍵爲666的行已存在，則更新行的內容
 ```
 
 ## 修改
-使用查询操作筛选出目标数据集后使用`update()`方法更新行：
+使用查詢操作篩選出目標數據集後使用`update()`方法更新行：
 
 ```scala
 val query = TableQuery[TestTable]
-query.filter(_.name === "dainslef") //筛选出name为dainslef的行
-  .map(_.name) //将筛选出的行中的name字段映射成新的查询集
-  .update("Dainslef") //更新筛选出的行中指定字段的内容
+query.filter(_.name === "dainslef") //篩選出name爲dainslef的行
+  .map(_.name) //將篩選出的行中的name字段映射成新的查詢集
+  .update("Dainslef") //更新篩選出的行中指定字段的內容
 ```
 
-## 删除
-删除操作与修改操作类似，使用查询操作筛选出目标数据集之后使用`delete`方法删除行：
+## 刪除
+刪除操作與修改操作類似，使用查詢操作篩選出目標數據集之後使用`delete`方法刪除行：
 
 ```scala
 val query = TableQuery[TestTable]
-query.filter(_.name === "dainslef").delete //删除所有name为dainslef的行
+query.filter(_.name === "dainslef").delete //刪除所有name爲dainslef的行
 ```
 
-## 应用查询集操作
-查询集`TableQurey`类型执行的操作需要通过`Database`实例才能真正执行，示例：
+## 應用查詢集操作
+查詢集`TableQurey`類型執行的操作需要通過`Database`實例才能真正執行，示例：
 
 ```scala
 val db = Database.forConfig("xxx")
 val query = TableQuery[TestTable]
 
-query... //执行各类查询过滤操作
+query... //執行各類查詢過濾操作
 
-val action = query.result //获取查询操作，返回类型为DriverAction[T]
+val action = query.result //獲取查詢操作，返回類型爲DriverAction[T]
 val future = db.run(action)
 ```
 
-`Database.run()`方法为异步执行，调用方法时不会阻塞，返回类型为`Future[Seq[XxxModel]]`。
-若需要同步等待数据操作结束，可以使用`Await.result()`方法，该方法同时返回`Future`的执行结果：
+`Database.run()`方法爲異步執行，調用方法時不會阻塞，返回類型爲`Future[Seq[XxxModel]]`。
+若需要同步等待數據操作結束，可以使用`Await.result()`方法，該方法同時返回`Future`的執行結果：
 
 ```scala
 val result = Await.result(future, Duration.Inf)
 ```
 
-若查询的内容不存在，`Future`内包含的查询结果序列`Seq[XxxModel]`大小为`0`(不是`null`)。
+若查詢的內容不存在，`Future`內包含的查詢結果序列`Seq[XxxModel]`大小爲`0`(不是`null`)。
 
-对于所有返回`DriverAction`类型的操作都需要使用`Database.run()`方法执行才能生效。
+對於所有返回`DriverAction`類型的操作都需要使用`Database.run()`方法執行才能生效。
 示例：
 
 ```scala
 val db = Database.forConfig("xxx")
 val query = TableQuery[TestTable]
 
-query.delete //删除、插入等操作返回类型皆为DriverAction
+query.delete //刪除、插入等操作返回類型皆爲DriverAction
 query += TestModel(111, "XXXX") //未生效
 
 val action = query.result
-val future = db.run(action) //获取的结果未改变
+val future = db.run(action) //獲取的結果未改變
 ```
 
-正确的做法是：
+正確的做法是：
 
 ```scala
 val db = Database.forConfig("xxx")
@@ -449,7 +449,7 @@ val action = query.result
 val future = db.run(action)
 ```
 
-多个返回`DriverAction`的操作不必每次都调用`Database.run()`方法执行，可以将多个操作添加到`DBIO`序列中一并执行，示例：
+多個返回`DriverAction`的操作不必每次都調用`Database.run()`方法執行，可以將多個操作添加到`DBIO`序列中一併執行，示例：
 
 ```scala
 val db = Database.forConfig("xxx")
@@ -460,5 +460,5 @@ val actions = DBIO.seq(
   query += TestModel(111, "XXXX")
 )
 
-db.run(actions) //执行多个操作
+db.run(actions) //執行多個操作
 ```
