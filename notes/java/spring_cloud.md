@@ -3,6 +3,7 @@
 - [概述](#概述)
 - [Spring Cloud Netfix](#spring-cloud-netfix)
 	- [Eureka Server](#eureka-server)
+	- [Eureka Client](#eureka-client)
 
 <!-- /TOC -->
 
@@ -80,3 +81,85 @@ fun main(args: Array<String>) {
 
 Eureka Server的服務URL爲`http://主機ip:配置端口/eureka/`。
 Eureka Server的提供了WBE UI來展示已註冊服務的狀態，URL爲`http://主機ip:配置端口`。
+
+## Eureka Client
+在Maven中引入以下依賴：
+
+```xml
+...
+<!-- Eureka Client -->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+	<version>${spring-boot-version}</version>
+</dependency>
+
+<!-- Eureka need Spring Cloud Config Client -->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-config</artifactId>
+	<version>${spring-boot-version}</version>
+</dependency>
+...
+```
+
+在項目的`application.yaml`中配置Eureka Client的連接、應用名：
+
+```yaml
+eureka:
+  client:
+    service-url:
+      defaultZone: http://Eureka主機ip:服務端口/eureka/ # 設定需要註冊的 Eureka Server 地址
+
+spring:
+  application:
+    name: xxx # 設置應用名稱，默認配置下，應用名稱會用於生成 Eureka Client ID
+```
+
+在Spring Boot配置類上添加`@EnableEurekaClient`註解即可啓用Eureka Client，在配置類中注入`EurekaClient`類型的Bean：
+
+```kt
+import com.netflix.discovery.EurekaClient
+import org.springframework.boot.SpringApplication
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient
+
+@SpringBootApplication
+@EnableEurekaClient
+class ClientConfig {
+
+    // 注入 EurekaClient
+    @Autowired
+    lateinit var client: EurekaClient
+
+}
+
+fun main(args: Array<String>) {
+    SpringApplication.run(ClientConfig::class.java, *args)
+}
+```
+
+`import com.netflix.discovery.EurekaClient`是Eureka直接提供的客戶端類型，
+Spring Cloud Netfix還提供了更加通用的`org.springframework.cloud.client.discovery.DiscoveryClient`類型，
+以及對應的`@EnableDiscoveryClient`註解，接口相對更加簡單：
+
+```kt
+import com.netflix.discovery.EurekaClient
+import org.springframework.boot.SpringApplication
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient
+
+@SpringBootApplication
+@EnableDiscoveryClient
+class ClientConfig {
+
+    // 注入 DiscoveryClient
+    @Autowired
+    lateinit var client: DiscoveryClient
+
+}
+
+fun main(args: Array<String>) {
+    SpringApplication.run(ClientConfig::class.java, *args)
+}
+```
