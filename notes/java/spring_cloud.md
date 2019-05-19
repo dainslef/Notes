@@ -4,6 +4,8 @@
 - [Spring Cloud Netfix](#spring-cloud-netfix)
 	- [Eureka Server](#eureka-server)
 	- [Eureka Client](#eureka-client)
+- [Spring Cloud Config](#spring-cloud-config)
+	- [Config Server](#config-server)
 
 <!-- /TOC -->
 
@@ -162,4 +164,89 @@ class ClientConfig {
 fun main(args: Array<String>) {
     SpringApplication.run(ClientConfig::class.java, *args)
 }
+```
+
+
+
+# Spring Cloud Config
+Spring Cloud Config提供了對分佈式系統的外部配置文件支持，包括客戶端和服務端。
+
+## Config Server
+在Maven中引入以下依賴：
+
+```xml
+<!-- Config Server -->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-config-server</artifactId>
+	<version>${spring-boot-version}</version>
+</dependency>
+```
+
+在Spring Boot配置類上添加`@EnableConfigServer`註解即可開啓Config Server功能。
+
+Config Server支持多種模式，最簡單的是`native`模式，直接將文件系統中的某個路徑作爲配置目錄。
+在Config Server的`application.yaml`寫入配置：
+
+```yaml
+spring:
+  profiles:
+    active: native # 設置 Config Server 為 native 模式
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/ # 指定配置路徑
+```
+
+放置配置路徑下所有符合規範的`properties/yaml`文件會被作爲配置對外提供。
+配置路徑下的配置文件應遵循`${spring.cloud.config.name}-${spring.cloud.config.profile}.yaml`的命名規範。
+
+Config Server提供了Monitor組件，用於監測配置文件的變化，在Maven中引入依賴：
+
+```xml
+<!-- Monitor can discover files which are motified -->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-config-monitor</artifactId>
+	<version>${spring-boot-version}</version>
+</dependency>
+```
+
+Monitor組件使用`Spring Cluoud DBus`推送配置的變化信息，需要引入相關依賴，否則運行時會出現如下錯誤：
+
+```
+...
+Cannot create binder factory, no `META-INF/spring.binders` resources found on the classpath
+```
+
+Spring Cluoud Dbus支持多種後端，如官方默認的`RabbitMQ`：
+
+```xml
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-dbus-rabbit</artifactId>
+	<version>${spring-boot-version}</version>
+</dependency>
+```
+
+若集羣中已配置了`Kafka`，則推薦使用對應依賴：
+
+```xml
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-dbus-kafka</artifactId>
+	<version>${spring-boot-version}</version>
+</dependency>
+```
+
+配置對應的DBus後端之後，在配置中添加對應消息隊列的連接配置，以Kafka爲例：
+
+```yaml
+spring:
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: ...
 ```
