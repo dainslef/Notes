@@ -6,6 +6,9 @@
 	- [Eureka Client](#eureka-client)
 - [Spring Cloud Config](#spring-cloud-config)
 	- [Config Server](#config-server)
+	- [Config Client](#config-client)
+	- [公共配置](#公共配置)
+	- [自動發現配置中心](#自動發現配置中心)
 
 <!-- /TOC -->
 
@@ -250,3 +253,53 @@ spring:
         binder:
           brokers: ...
 ```
+
+## Config Client
+在Maven中引入以下依賴：
+
+```xml
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-config</artifactId>
+	<version>${spring-boot-version}</version>
+</dependency>
+```
+
+使用Config Client無需額外代碼，只需要修改配置，相關默認配置：
+
+```yaml
+spring:
+  cloud:
+    config:
+      name: ${spring.application.name} # 配置的應用名稱
+      profile: ${spring.profiles.active} # 配置的profile名稱
+      uri: http://localhost:8888/ # 配置服務地址
+```
+
+修改配置時需要注意，以上配置寫入`application.yaml`中**不生效**，應寫入`bootstrap.yaml`文件中。
+Config Server的配置目錄中需要存在名稱為`${spring.cloud.config.name}-${spring.cloud.config.profile}.yaml`的配置文件。
+
+## 公共配置
+以`application*`為前綴的配置文件(application.properties, application.yml, application-*.properties等)，
+會在所有客戶端之間共享，所有客戶端之間公用的重複配置可以直接寫在其中。
+
+公共配置中的配置項優先級低，可被應用特定的配置內容重寫。
+
+在使用`native`模式時，需要指定配置搜索路徑(`spring.cloud.config.server.native.search-locations`)為Config Server配置路徑外的位置。
+若配置搜索路徑在Config Server中，則相關的`application*`文件不會被視爲公共配置，因爲這些配置屬於Config Server。
+
+## 自動發現配置中心
+Config Client與Eureka一同使用時，可直接通過`service-id`查找到配置中心，
+將service-id設置為Config Server應用名稱(`spring.application.name`)即可。
+
+```yaml
+spring:
+  cloud:
+    config:
+      # when use Eureka, you can use service-id to find Spring Cloud Server, instead of hard code in config file
+      discovery:
+        enabled: true
+        service-id: 配置中心的${spring.application.name}
+```
+
+自動發現相關配置內容同樣需要寫入`bootstrap.yaml`文件中。
