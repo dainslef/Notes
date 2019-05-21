@@ -9,6 +9,8 @@
 	- [Config Client](#config-client)
 	- [公共配置](#公共配置)
 	- [自動發現配置中心](#自動發現配置中心)
+	- [@RefreshScope](#refreshscope)
+	- [手動刷新配置](#手動刷新配置)
 
 <!-- /TOC -->
 
@@ -303,3 +305,42 @@ spring:
 ```
 
 自動發現相關配置內容同樣需要寫入`bootstrap.yaml`文件中。
+
+## @RefreshScope
+Config Client中的配置默認僅在初始化時加載一次，若需要實現配置熱更新，則需要搭配`@RefreshScope`註解，
+被該註解修飾的配置類注入的配置能夠實現動態更新。
+
+`@RefreshScope`註解的詳細介紹，參考[`Spring Cloud官方文檔`](https://projects.spring.io/spring-cloud/spring-cloud.html#_refresh_scope)。
+
+> @RefreshScope works (technically) on an @Configuration class, but it might lead to surprising behaviour: e.g. it does not mean that all the @Beans defined in that class are themselves @RefreshScope. Specifically, anything that depends on those beans cannot rely on them being updated when a refresh is initiated, unless it is itself in @RefreshScope (in which it will be rebuilt on a refresh and its dependencies re-injected, at which point they will be re-initialized from the refreshed @Configuration).
+
+@RefreshScope通常用於@Configuration修飾的類中，但可能會導致意外的行爲：
+不是所有定義在@RefreshScope範圍內的Bean都會自動更新，典型的，在一次refresh完成後，Bean依賴的內容不會被更新，
+除非該內容的定義也被@RefreshScope修飾。
+
+## 手動刷新配置
+在Config Client端添加執行器組件：
+
+```xml
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-actuator</artifactId>
+	<version>${spring-boot-version}</version>
+</dependency>
+```
+
+修改`bootstrap.yaml`文件，導出用於配置更新的Rest API：
+
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh
+```
+
+向需要刷新配置的客戶端的`actuator/refresh`路徑發送POST請求即可實現手動刷新：
+
+```
+$ curl -X POST http://localhost:xxxx/actuator/refresh
+```
