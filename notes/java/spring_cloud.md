@@ -4,6 +4,8 @@
 - [Spring Cloud Netfix](#spring-cloud-netfix)
 	- [Eureka Server](#eureka-server)
 	- [Eureka Client](#eureka-client)
+	- [Zuul](#zuul)
+		- [保留前綴父級路徑URL](#保留前綴父級路徑url)
 - [Spring Cloud Config](#spring-cloud-config)
 	- [Config Server](#config-server)
 	- [Config Client](#config-client)
@@ -169,6 +171,55 @@ class ClientConfig {
 fun main(args: Array<String>) {
     SpringApplication.run(ClientConfig::class.java, *args)
 }
+```
+
+## Zuul
+路由是微服務體系中的一個組成部分，`Zuul`提供了基於JVM的路由和服務端的負載均衡。
+
+使用Zuul，在Maven中引入以下依賴：
+
+```xml
+<!-- Zuul -->
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+    <version>${spring-boot-version}</version>
+</dependency>
+```
+
+在配置了Eureka的微服務集羣中，Zuul可通過應用名稱查找到指定的服務，並實現路由轉發。
+在`application.yaml`中添加路由配置：
+
+```yaml
+zuul:
+  routes:
+    應用名稱1: /Xxx1/**
+    應用名稱2: /Xxx2/**
+    ...
+```
+
+簡單的路由配置可直接為一個應用添加一個前置路徑層級，向Zuul發送的請求的URL匹配到對應的路由則會被轉發到對應名稱的應用。
+
+Zuul支持更細粒度的路由控制：
+
+```yaml
+zuul:
+  routes:
+    路由名稱:
+      path: /Xxx/**
+      serviceId: 應用名稱
+```
+
+### 保留前綴父級路徑URL
+默認的轉發規則下，用作匹配標識的前綴在轉發到目標服務後會被丟棄，若需保留前綴，則使用如下配置：
+
+```yaml
+zuul:
+  routes:
+    路由名稱:
+      path: /Xxx/**
+      serviceId: 應用名稱
+      stripPrefix: false
 ```
 
 

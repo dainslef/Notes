@@ -14,6 +14,7 @@
 ## Java
 
 - [Java](notes/java/java.md)
+- [Spring Cloud](notes/java/spring_cloud.md)
 - [Swing](notes/java/swing.md)
 - [POI](notes/java/poi.md)
 - [Android](notes/java/android.md)
