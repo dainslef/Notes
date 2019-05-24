@@ -6,6 +6,7 @@
 	- [Eureka Client](#eureka-client)
 	- [Zuul](#zuul)
 		- [保留前綴父級路徑URL](#保留前綴父級路徑url)
+		- [Cookies 與 sensitiveHeaders](#cookies-與-sensitiveheaders)
 - [Spring Cloud Config](#spring-cloud-config)
 	- [Config Server](#config-server)
 	- [Config Client](#config-client)
@@ -220,6 +221,37 @@ zuul:
       path: /Xxx/**
       serviceId: 應用名稱
       stripPrefix: false
+```
+
+### Cookies 與 sensitiveHeaders
+Zuul在轉發請求時會丟棄敏感信息相關請求頭，設定`zuul.sensitiveHeaders`配置項可設定全局的敏感信息頭，
+默認的請求頭配置為：
+
+```yaml
+zuul:
+  sensitiveHeaders: Cookie,Set-Cookie,Authorization
+```
+
+`zuul.sensitiveHeaders`配置項是**黑名單**(blacklist)，
+即默認配置下，`Cookie`、`Set-Cookie`、`Authorization`三個請求頭在轉發時會被丟棄。
+以Cookie被丟棄爲例，使用Spring Session等分佈式Session解決方案時，會導致Zuul轉發的目標模塊無法正確獲取到Session實例。
+
+在轉發時要保留所有認證信息，將該配置項置空即可：
+
+```yaml
+zuul:
+  sensitiveHeaders:
+```
+
+還可配置指定服務的轉發、保留敏感信息請求頭：
+
+```yaml
+zuul:
+  routes:
+    路由名稱:
+      path: /Xxx/**
+      serviceId: 應用名稱
+      sensitiveHeaders: ...
 ```
 
 
