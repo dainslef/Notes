@@ -6,7 +6,9 @@
 	- [Eureka Client](#eureka-client)
 	- [Zuul](#zuul)
 		- [保留前綴父級路徑URL](#保留前綴父級路徑url)
-		- [Cookies 與 sensitiveHeaders](#cookies-與-sensitiveheaders)
+		- [Sensitive Headers](#sensitive-headers)
+		- [ZuulFilter](#zuulfilter)
+		- [HandlerInterceptorAdapter 與 ZuulFilter](#handlerinterceptoradapter-與-zuulfilter)
 - [Spring Cloud Config](#spring-cloud-config)
 	- [Config Server](#config-server)
 	- [Config Client](#config-client)
@@ -223,7 +225,7 @@ zuul:
       stripPrefix: false
 ```
 
-### Cookies 與 sensitiveHeaders
+### Sensitive Headers
 Zuul在轉發請求時會丟棄敏感信息相關請求頭，設定`zuul.sensitiveHeaders`配置項可設定全局的敏感信息頭，
 默認的請求頭配置為：
 
@@ -253,6 +255,48 @@ zuul:
       serviceId: 應用名稱
       sensitiveHeaders: ...
 ```
+
+### ZuulFilter
+`ZuulFilter`提供了在轉發請求時對請求進行額外處理、攔截請求等功能。
+
+ZuulFilter使用方式類似Spring攔截器，繼承ZuulFilter類，重寫相關方法，並提供Bean即可：
+
+```kt
+import javax.ws.rs.core.MediaType
+
+import com.netflix.zuul.ZuulFilter
+import com.netflix.zuul.context.RequestContext
+
+import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE
+import org.springframework.context.annotation.Configuration
+
+@Configuration
+class CustomFilter : ZuulFilter() {
+
+    override fun shouldFilter() = true // 在過濾器的run()方法前執行，判斷run()方法是否需要執行
+    override fun filterType() = PRE_TYPE // 過濾器類型
+    override fun filterOrder() = 0 // 過濾器的執行優先級
+
+    // 過濾器核心邏輯
+    override fun run() {
+        RequestContext.getCurrentContext()?.apply {
+            ...
+            setSendZuulResponse(...) // 通過該方法控制請求是否可被進一步轉發
+            ...
+        }
+    }
+
+}
+```
+
+### HandlerInterceptorAdapter 與 ZuulFilter
+Zuul監控、轉發的請求運行在獨立的ZuulServlet中，
+因而Spring MVC提供的攔截器`HandlerInterceptorAdapter`不會對Zuul管理、轉發的請求生效。
+Zuul監聽的相關請求**不會**觸發Spring MVC提供的攔截器。
+
+在Zuul中，過濾/攔截相關功能需要使用`ZuulFilter`。
+
+相關問題參考StackOverflow上的[**對應提問**](`https://stackoverflow.com/questions/39801282/handlerinterceptoradapter-and-zuul-filter`)。
 
 
 
