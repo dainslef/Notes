@@ -1,6 +1,7 @@
 <!-- TOC -->
 
 - [概述](#概述)
+- [依賴管理](#依賴管理)
 - [Spring Cloud Netfix](#spring-cloud-netfix)
 	- [Eureka Server](#eureka-server)
 	- [Eureka Client](#eureka-client)
@@ -31,6 +32,44 @@ Spring Cloud能夠很好地運行在任何分佈式平臺，包括開發者自�
 
 
 
+# 依賴管理
+與Spring Boot項目類似，Spring Cloud項目同樣存在公用的基礎依賴，並以此決定各個組件的版本。
+
+Spring Cloud的組件版本通過`spring-cloud-dependencies`包進行設定，在Maven中添加：
+
+```xml
+<dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-dependencies</artifactId>
+			<version>{spring-cloud-version}</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+	</dependencies>
+</dependencyManagement>
+```
+
+添加依賴后，Spring Cloud相關組件不必再逐一指定版本號，統一由spring-cloud-dependencies決定。
+
+與Spring Boot不同，Spring Cloud組件版本不使用版本號，而使用版本代號，因爲相同Spring Cloud版本下各個子組件的版本并不統一。
+Spring Cloud版本號遵循`版本代號.SRx`的結構，版本代號是一系列首字母按照羅馬字母順序排佈的單詞
+(`Angel`為首個版本，`Brixton`為第二個版本，以此類推)，`SRx`代表`service releases`，`x`是數字，
+表示服務更新，主要包括安全性維護、BUG修復等。
+以當前(2019-5-29)的最新穩定版爲例，版本號為`Greenwich.SR1`，即第七個大版本，第一個service release版本。
+
+每個版本代號需要搭配匹配的Spring Boot版本才能正常工作(即項目的parent需要為版本匹配的Spring Boot)：
+
+| Spring Cloud | Spring Boot |
+| :- | :- |
+| Greenwich | 2.1.x |
+| Finchley | 2.0.x |
+| Edgware | 1.5.x |
+| Dalston | 1.5.x |
+
+
+
 # Spring Cloud Netfix
 `Spring Cloud Netflix`項目提供了對Netfix服務的Spring Boot集成，包括：
 
@@ -47,14 +86,12 @@ Spring Cloud能夠很好地運行在任何分佈式平臺，包括開發者自�
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
-	<version>${spring-boot-version}</version>
 </dependency>
 
 <!-- Eureka need Spring Cloud Config Client -->
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-config</artifactId>
-	<version>${spring-boot-version}</version>
 </dependency>
 ```
 
@@ -98,21 +135,17 @@ Eureka Server的提供了WBE UI來展示已註冊服務的狀態，URL爲`http:/
 在Maven中引入以下依賴：
 
 ```xml
-...
 <!-- Eureka Client -->
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-	<version>${spring-boot-version}</version>
 </dependency>
 
 <!-- Eureka need Spring Cloud Config Client -->
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-config</artifactId>
-	<version>${spring-boot-version}</version>
 </dependency>
-...
 ```
 
 在項目的`application.yaml`中配置Eureka Client的連接、應用名：
@@ -311,7 +344,6 @@ Spring Cloud Config提供了對分佈式系統的外部配置文件支持，包�
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-config-server</artifactId>
-	<version>${spring-boot-version}</version>
 </dependency>
 ```
 
@@ -341,24 +373,23 @@ Config Server提供了Monitor組件，用於監測配置文件的變化，在Mav
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-config-monitor</artifactId>
-	<version>${spring-boot-version}</version>
 </dependency>
 ```
 
-Monitor組件使用`Spring Cluoud DBus`推送配置的變化信息，需要引入相關依賴，否則運行時會出現如下錯誤：
+Monitor組件依賴了`Spring Cluoud DBus`組件，通過該組件進行配置變化信息的推送。
+而DBus又依賴于`Spring Cloud Stream`組件，需要添加具體的Stream後端，否則運行時會出現如下錯誤：
 
 ```
 ...
 Cannot create binder factory, no `META-INF/spring.binders` resources found on the classpath
 ```
 
-Spring Cluoud Dbus支持多種後端，如官方默認的`RabbitMQ`：
+Spring Cluoud Stream支持多種後端，如官方默認的`RabbitMQ`：
 
 ```xml
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-dbus-rabbit</artifactId>
-	<version>${spring-boot-version}</version>
+	<artifactId>spring-cloud-starter-stream-rabbit</artifactId>
 </dependency>
 ```
 
@@ -367,12 +398,11 @@ Spring Cluoud Dbus支持多種後端，如官方默認的`RabbitMQ`：
 ```xml
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-dbus-kafka</artifactId>
-	<version>${spring-boot-version}</version>
+	<artifactId>spring-cloud-starter-stream-kafka</artifactId>
 </dependency>
 ```
 
-配置對應的DBus後端之後，在配置中添加對應消息隊列的連接配置，以Kafka爲例：
+配置對應的Stream後端之後，在配置中添加對應消息隊列的連接配置，以Kafka爲例：
 
 ```yaml
 spring:
@@ -390,7 +420,6 @@ spring:
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-config</artifactId>
-	<version>${spring-boot-version}</version>
 </dependency>
 ```
 
@@ -452,7 +481,6 @@ Config Client中的配置默認僅在初始化時加載一次，若需要實現�
 <dependency>
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-starter-actuator</artifactId>
-	<version>${spring-boot-version}</version>
 </dependency>
 ```
 
