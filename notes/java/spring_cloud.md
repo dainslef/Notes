@@ -1,10 +1,12 @@
 <!-- TOC -->
 
 - [概述](#概述)
-- [依賴管理](#依賴管理)
+- [Spring Cloud 版本](#spring-cloud-版本)
+	- [依賴管理](#依賴管理)
 - [Spring Cloud Netfix](#spring-cloud-netfix)
-	- [Eureka Server](#eureka-server)
-	- [Eureka Client](#eureka-client)
+	- [Eureka](#eureka)
+		- [Eureka Server](#eureka-server)
+		- [Eureka Client](#eureka-client)
 	- [Zuul](#zuul)
 		- [保留前綴父級路徑URL](#保留前綴父級路徑url)
 		- [Sensitive Headers](#sensitive-headers)
@@ -32,12 +34,30 @@ Spring Cloud能夠很好地運行在任何分佈式平臺，包括開發者自�
 
 
 
-# 依賴管理
-與Spring Boot項目類似，Spring Cloud項目同樣存在公用的基礎依賴，並以此決定各個組件的版本。
+# Spring Cloud 版本
+與Spring Boot不同，Spring Cloud組件版本不使用數字版本號，而使用版本代號，因爲相同Spring Cloud大版本下各個子組件的版本并不統一。
+
+Spring Cloud版本號遵循`版本代號.SRx`的結構，版本代號是一系列首字母按照羅馬字母順序排佈的單詞
+(`Angel`為首個版本，`Brixton`為第二個版本，以此類推)，`SRx`代表`service releases`，`x`是數字，
+表示服務更新，主要包括安全性維護、BUG修復等。
+以當前(2019-5-29)的最新穩定版爲例，版本號為`Greenwich.SR1`，即第七個大版本，第一個service release版本。
+
+每個版本代號需要搭配匹配的Spring Boot版本才能正常工作(即項目的parent需要為版本匹配的Spring Boot)：
+
+| Spring Cloud | Spring Boot |
+| :- | :- |
+| Greenwich | 2.1.x |
+| Finchley | 2.0.x |
+| Edgware | 1.5.x |
+| Dalston | 1.5.x |
+
+## 依賴管理
+與Spring Boot類似，Spring Cloud同樣存在公用的基礎依賴，並以此決定各個組件的版本。
 
 Spring Cloud的組件版本通過`spring-cloud-dependencies`包進行設定，在Maven中添加：
 
 ```xml
+<!-- Spring Cloud base dependency -->
 <dependencyManagement>
 	<dependencies>
 		<dependency>
@@ -53,21 +73,6 @@ Spring Cloud的組件版本通過`spring-cloud-dependencies`包進行設定，�
 
 添加依賴后，Spring Cloud相關組件不必再逐一指定版本號，統一由spring-cloud-dependencies決定。
 
-與Spring Boot不同，Spring Cloud組件版本不使用版本號，而使用版本代號，因爲相同Spring Cloud版本下各個子組件的版本并不統一。
-Spring Cloud版本號遵循`版本代號.SRx`的結構，版本代號是一系列首字母按照羅馬字母順序排佈的單詞
-(`Angel`為首個版本，`Brixton`為第二個版本，以此類推)，`SRx`代表`service releases`，`x`是數字，
-表示服務更新，主要包括安全性維護、BUG修復等。
-以當前(2019-5-29)的最新穩定版爲例，版本號為`Greenwich.SR1`，即第七個大版本，第一個service release版本。
-
-每個版本代號需要搭配匹配的Spring Boot版本才能正常工作(即項目的parent需要為版本匹配的Spring Boot)：
-
-| Spring Cloud | Spring Boot |
-| :- | :- |
-| Greenwich | 2.1.x |
-| Finchley | 2.0.x |
-| Edgware | 1.5.x |
-| Dalston | 1.5.x |
-
 
 
 # Spring Cloud Netfix
@@ -78,7 +83,11 @@ Spring Cloud版本號遵循`版本代號.SRx`的結構，版本代號是一系�
 - `Zuul`(Intelligent Routing，智能路由)
 - `Ribbon`(Client Side Load Balancing，客戶端負載均衡)
 
-## Eureka Server
+## Eureka
+Eureka分爲Client和Server兩部分，Server提供注冊服務，Client向Server進行注冊。
+Client會定期向Server發送心跳包告知服務的存活狀態。
+
+### Eureka Server
 在Maven中引入以下依賴：
 
 ```xml
@@ -109,7 +118,8 @@ eureka:
     fetchRegistry: false
 ```
 
-Eureka Server自身亦是Eureka Client，默認配置下同樣要求一個Eureka Server來註冊並維持心跳(未配置依然可運行，但會定期彈出告警信息)，
+Eureka Server自身亦是Eureka Client，默認配置下同樣要求一個Eureka Server來註冊並維持心跳
+(未配置依然可運行，但會定期彈出告警信息)，
 可以使用配置自身的服務關閉註冊(Standalone Mode)或者使用自身地址進行註冊。
 
 在Spring Boot配置類上添加`@EnableEurekaServer`註解即可啓用Eureka Server：
@@ -131,7 +141,7 @@ fun main(args: Array<String>) {
 Eureka Server的服務URL爲`http://主機ip:配置端口/eureka/`。
 Eureka Server的提供了WBE UI來展示已註冊服務的狀態，URL爲`http://主機ip:配置端口`。
 
-## Eureka Client
+### Eureka Client
 在Maven中引入以下依賴：
 
 ```xml
@@ -161,16 +171,14 @@ spring:
     name: xxx # 設置應用名稱，默認配置下，應用名稱會用於生成 Eureka Client ID
 ```
 
-在Spring Boot配置類上添加`@EnableEurekaClient`註解即可啓用Eureka Client，在配置類中注入`EurekaClient`類型的Bean：
+在配置類中注入`EurekaClient`類型的Bean：
 
 ```kt
 import com.netflix.discovery.EurekaClient
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient
 
 @SpringBootApplication
-@EnableEurekaClient
 class ClientConfig {
 
     // 注入 EurekaClient
@@ -186,16 +194,14 @@ fun main(args: Array<String>) {
 
 `import com.netflix.discovery.EurekaClient`是Eureka直接提供的客戶端類型，
 Spring Cloud Netfix還提供了更加通用的`org.springframework.cloud.client.discovery.DiscoveryClient`類型，
-以及對應的`@EnableDiscoveryClient`註解，接口相對更加簡單：
+接口相對更加簡單：
 
 ```kt
-import com.netflix.discovery.EurekaClient
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient
+import org.springframework.cloud.client.discovery.DiscoveryClient
 
 @SpringBootApplication
-@EnableDiscoveryClient
 class ClientConfig {
 
     // 注入 DiscoveryClient
