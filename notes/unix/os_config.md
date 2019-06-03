@@ -2,6 +2,8 @@
 
 - [Windows CMD](#windows-cmd)
 	- [文件/目錄鏈接](#文件目錄鏈接)
+	- [常見問題記錄](#常見問題記錄)
+		- [Reply from ::1: time<1ms](#reply-from-1-time1ms)
 - [常用Unix工具指令](#常用unix工具指令)
 	- [grep](#grep)
 	- [find](#find)
@@ -51,7 +53,7 @@
 	- [apt-mirror](#apt-mirror)
 		- [本地源配置](#本地源配置)
 		- [使用本地源](#使用本地源)
-- [常見問題記錄](#常見問題記錄)
+- [常見問題記錄](#常見問題記錄-1)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
 	- [CentOS](#centos)
@@ -144,6 +146,15 @@ Windows系統提供的命令行執行DOS系統工具指令。
 > dxdiag
 ```
 
+語言包管理：
+
+```c
+> lpksetup
+
+// 刪除語言包
+> lpksetup /u
+```
+
 ## 文件/目錄鏈接
 Windows文件管理器提供的快捷方式(`Shortcut`)並不是對應用程序透明的，
 應用程序在使用快捷方式路徑時並不等價於使用目標文件路徑。
@@ -167,6 +178,64 @@ mklink指令默認創建軟連接文件，使用`/d`參數創建軟連接**目�
 ```c
 > mklink /h [文件名] [鏈接目標文件]
 ```
+
+## 常見問題記錄
+記錄Windows中常見問題的解決方案。
+
+### Reply from ::1: time<1ms
+問題描述：<br/>
+ping本機(`localhost`)時，出現如下輸出：
+
+```
+> ping localhost
+
+Pinging mypc [::1] with 32 bytes of data:
+
+Reply from ::1: time<1ms
+Reply from ::1: time<1ms
+Reply from ::1: time<1ms
+Reply from ::1: time<1ms
+
+Ping statistics for ::1:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms
+```
+
+向`::1`地址而非常規的`127.0.0.1`發起請求。
+
+問題分析：<br/>
+`::1`是IPv6協議的默認本機地址，類似IPv4下的`127.0.0.1`，系統處在無有效IPv6網絡的環境下，ping本機出現回環。
+
+解決方案：<br/>
+可依次嘗試以下解決方案：
+
+1. 在控制面版中禁用對應網卡的IPv6協議(`Control Panel\Network and Internet\Network Connections`)。
+1. 參考[微軟官方文檔](https://support.microsoft.com/en-us/help/929852/guidance-for-configuring-ipv6-in-windows-for-advanced-users)，
+	從注冊表中禁用或優先選擇IPv4網絡：
+
+	```c
+	> reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD /d <value> /f
+	```
+
+	常用的取值及含義：
+
+	| 值 | 含義 |
+	| :- | :- |
+	| 0x20 | Prefer IPv4 over IPv6 |
+	| 0xff | Disable IPv6 |
+
+1. 查看IPv6路由表：
+
+	```c
+	> netsh interface ipv6 show route
+	```
+
+	移除`::1`地址相關的路由：
+
+	```c
+	> netsh interface ipv6 delete route "route..."
+	```
 
 
 
