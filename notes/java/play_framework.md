@@ -1,62 +1,62 @@
 <!-- TOC -->
 
-- [简介](#简介)
-- [安装和配置](#安装和配置)
-	- [创建项目](#创建项目)
-	- [项目结构](#项目结构)
-	- [设置 Play 版本](#设置-play-版本)
+- [概述](#概述)
+- [安裝和配置](#安裝和配置)
+	- [創建項目](#創建項目)
+	- [項目結構](#項目結構)
+	- [設置 Play 版本](#設置-play-版本)
 - [Controller (控制器)](#controller-控制器)
 	- [Action](#action)
 	- [Result](#result)
 	- [Redirect](#redirect)
 - [路由映射](#路由映射)
-	- [路由语法](#路由语法)
-	- [匹配规则](#匹配规则)
-	- [配置多个路由文件](#配置多个路由文件)
-	- [自定义 HTTP 请求处理](#自定义-http-请求处理)
+	- [路由語法](#路由語法)
+	- [匹配規則](#匹配規則)
+	- [配置多個路由文件](#配置多個路由文件)
+	- [自定義 HTTP 請求處理](#自定義-http-請求處理)
 - [Template (模板)](#template-模板)
-	- [模板引擎简介](#模板引擎简介)
-	- [`@` 关键字](#-关键字)
-	- [模板传参](#模板传参)
-		- [结构语法](#结构语法)
-		- [定义可复用的代码块](#定义可复用的代码块)
-		- [模板类型](#模板类型)
-		- [自定义模板类型](#自定义模板类型)
-		- [单独使用模板引擎](#单独使用模板引擎)
+	- [模板引擎簡介](#模板引擎簡介)
+	- [`@` 關鍵字](#-關鍵字)
+	- [模板傳參](#模板傳參)
+		- [結構語法](#結構語法)
+		- [定義可複用的代碼塊](#定義可複用的代碼塊)
+		- [模板類型](#模板類型)
+		- [自定義模板類型](#自定義模板類型)
+		- [單獨使用模板引擎](#單獨使用模板引擎)
 - [ORM](#orm)
 
 <!-- /TOC -->
 
 
 
-# 简介
-`Play Framework`是一个轻量级的`MVC`框架。
+# 概述
+`Play Framework`是一個輕量級的`MVC`框架。
 
-早期的`Play Framework 1.x`是使用Java实现的框架，之后`Play Framework 2.x`则成为`Lightbend`公司官方支持的框架。
+早期的`Play Framework 1.x`是使用Java實現的框架，之後`Play Framework 2.x`則成爲`Lightbend`公司官方支持的框架。
 
-`Play Framework 2.x`框架本身采用Scala实现，拥有全新的代码基础，对外同时提供Scala和Java的API。
-`Play Framework 2.x`发布后，原先的`Play Framework 1.x`不再有实质性的功能更新，更新只提供BUG修复。
+`Play Framework 2.x`框架本身採用Scala實現，擁有全新的代碼基礎，對外同時提供Scala和Java的API。
+`Play Framework 2.x`發佈後，原先的`Play Framework 1.x`不再有實質性的功能更新，更新只提供BUG修復。
 
 
 
-# 安装和配置
-开发`Play Framework`需要安装`Lightbend Activator`。
-`Activator`包含了完整的Scala开发环境，使用方法在Scala笔记中已有记录。
+# 安裝和配置
+開發`Play Framework`需要安裝`Lightbend Activator`。
+`Activator`包含了完整的Scala開發環境，使用方法在Scala筆記中已有記錄。
 
-## 创建项目
-使用activator创建新的`Play Framework`项目：
+## 創建項目
+使用activator創建新的`Play Framework`項目：
 
-- `$ activator new [项目名称] play-scala` 创建使用Scala作为开发语言的`Play Framework`项目
-- `$ activator new [项目名称] play-java` 创建使用Java作为开发语言的`Play Framework`项目
+- `$ activator new [項目名稱] play-scala` 創建使用Scala作爲開發語言的`Play Framework`項目
+- `$ activator new [項目名稱] play-java` 創建使用Java作爲開發語言的`Play Framework`項目
 
-`Play Framework`项目同样基于sbt构建，编译、运行项目使用sbt的相关指令即可。
+`Play Framework`項目同樣基於sbt構建，編譯、運行項目使用sbt的相關指令即可。
 
-## 项目结构
-一个新创建的`Play Framework`项目文件结构如下所示：
+## 項目結構
+一個新創建的`Play Framework`項目文件結構如下所示：
 
 ```
-项目名称
-├── app //程序资源
+項目名稱
+├── app //程序資源
 │   ├── controllers
 │   │   ├── AsyncController.scala
 │   │   ├── CountController.scala
@@ -68,19 +68,19 @@
 │   ├── services
 │   │   ├── ApplicationTimer.scala
 │   │   └── Counter.scala
-│   └── views //页面模版
+│   └── views //頁面模版
 │       ├── index.scala.html
 │       └── main.scala.html
-├── build.sbt //sbt构建脚本(定义项目依赖等配置)
-├── conf //存放配置文件和非编译资源
-│   ├── application.conf //Play项目的主要配置文件
+├── build.sbt //sbt構建腳本(定義項目依賴等配置)
+├── conf //存放配置文件和非編譯資源
+│   ├── application.conf //Play項目的主要配置文件
 │   ├── logback.xml
-│   └── routes //路由定义
+│   └── routes //路由定義
 ├── LICENSE
 ├── project
-│   ├── build.properties //sbt项目构建参数
+│   ├── build.properties //sbt項目構建參數
 │   └── plugins.sbt //sbt插件
-├── public //公共资源
+├── public //公共資源
 │   ├── images
 │   │   └── favicon.png
 │   ├── javascripts
@@ -93,11 +93,11 @@
     └── IntegrationSpec.scala
 ```
 
-## 设置 Play 版本
-`Play Framework`项目基于`sbt`构建，框架本身是以`sbt`插件的形式定义在项目中的。
-在`[项目名称]/project/plugins.sbt`中，定义了所使用`Play Framework`的版本。
+## 設置 Play 版本
+`Play Framework`項目基於`sbt`構建，框架本身是以`sbt`插件的形式定義在項目中的。
+在`[項目名稱]/project/plugins.sbt`中，定義了所使用`Play Framework`的版本。
 
-以`Play Framework 2.5.10`版本为例，默认生成的`plugins.sbt`文件如下所示：
+以`Play Framework 2.5.10`版本爲例，默認生成的`plugins.sbt`文件如下所示：
 
 ```scala
 logLevel := Level.Warn
@@ -107,15 +107,15 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.10") //play框架信息
 ```
 
-将最后的版本号替换为需要的目标版本号即可。
+將最後的版本號替換爲需要的目標版本號即可。
 
 
 
 # Controller (控制器)
-在`Play Framework`中，使用`Controller`(控制器)内定义的`Action`实例来响应、处理`HTTP`请求。
+在`Play Framework`中，使用`Controller`(控制器)內定義的`Action`實例來響應、處理`HTTP`請求。
 
-`Controller`是特质，完整路径为`play.api.mvc.Controller`。
-常见的编码方式为继承`Controller`特质，在`Controller`特质的子类中定义`Action`处理`HTTP`请求。
+`Controller`是特質，完整路徑爲`play.api.mvc.Controller`。
+常見的編碼方式爲繼承`Controller`特質，在`Controller`特質的子類中定義`Action`處理`HTTP`請求。
 
 如下所示：
 
@@ -134,9 +134,9 @@ class CustomController extends Controller {
 ```
 
 ## Action
-`Action`单例是处理`HTTP`请求的基本单位，完整路径为`play.api.mvc.Action`。
+`Action`單例是處理`HTTP`請求的基本單位，完整路徑爲`play.api.mvc.Action`。
 
-`Action`单例继承自`ActionBuilder[Request]`特质，在`ActionBuilder`特质中定义了如下的`apply()`方法(源码摘自`Play 2.5.10`)用于构建`Action`：
+`Action`單例繼承自`ActionBuilder[Request]`特質，在`ActionBuilder`特質中定義瞭如下的`apply()`方法(源碼摘自`Play 2.5.10`)用於構建`Action`：
 
 ```scala
 trait ActionBuilder[+R[_]] extends ActionFunction[Request, R] {
@@ -152,19 +152,19 @@ trait ActionBuilder[+R[_]] extends ActionFunction[Request, R] {
 
 ```scala
 def index = Action {
-  Ok("xxxx") //返回xxxx做为HTTP请求的回应
-} //调用继承的apply(block: => Result)方法，方法参数为返回Result类型的传名参数
+  Ok("xxxx") //返回xxxx做爲HTTP請求的迴應
+} //調用繼承的apply(block: => Result)方法，方法參數爲返回Result類型的傳名參數
 
 def echo = Action {
   request => Ok(s"Request is: [$request]")
-} //调用继承的apply(block: R[AnyContent] => Result)方法，方法参数为接收Request类型，返回Result类型的Function
+} //調用繼承的apply(block: R[AnyContent] => Result)方法，方法參數爲接收Request類型，返回Result類型的Function
 ```
 
 ## Result
-`Action`参数方法的返回类型为`play.api.mvc.Result`，包含了`HTTP`响应状态码以及返回的请求内容。
+`Action`參數方法的返回類型爲`play.api.mvc.Result`，包含了`HTTP`響應狀態碼以及返回的請求內容。
 
-`HTTP`响应状态在`Play Framework`中使用`play.api.mvc.Results`特质中定义的内部类`Status`表示。
-`Results`特质中定义了一系列字段用于表示常用的`HTTP`状态码(源码摘自`Play 2.5.10`)：
+`HTTP`響應狀態在`Play Framework`中使用`play.api.mvc.Results`特質中定義的內部類`Status`表示。
+`Results`特質中定義了一系列字段用於表示常用的`HTTP`狀態碼(源碼摘自`Play 2.5.10`)：
 
 ```scala
 trait Results {
@@ -205,10 +205,10 @@ trait Results {
 }
 ```
 
-使用`Ok()`、`Created()`等方法本质上是调用`Status`类的`apply()`方法，以页面返回内容为参数，生成`Result`对象。
-在实际开发过程中，并不会直接在控制器中写入页面内容，而是调用视图层中的模板做为页面的呈现内容。
+使用`Ok()`、`Created()`等方法本質上是調用`Status`類的`apply()`方法，以頁面返回內容爲參數，生成`Result`對象。
+在實際開發過程中，並不會直接在控制器中寫入頁面內容，而是調用視圖層中的模板做爲頁面的呈現內容。
 
-`Result`对象也可以自行指定状态码和页面内容创建：
+`Result`對象也可以自行指定狀態碼和頁面內容創建：
 
 ```scala
 import play.api.http.HttpEntity
@@ -221,22 +221,22 @@ def index = Action {
 }
 ```
 
-还可以使用从`Controller`特质继承的`TODO`字段表示页面尚未完成：
+還可以使用從`Controller`特質繼承的`TODO`字段表示頁面尚未完成：
 
 ```scala
 def todo = TODO
 ```
 
 ## Redirect
-`Action`内可以不直接返回页面结果，而是重定向到其它路径。如下所示：
+`Action`內可以不直接返回頁面結果，而是重定向到其它路徑。如下所示：
 
 ```scala
 def index = Action {
-  Redirect("/other") //重定向到路径other
+  Redirect("/other") //重定向到路徑other
 }
 ```
 
-重定向操作会以`303 SEE_OTHER`做为默认的返回状态码，如果需要手动指定状态码，可以在`Redirect()`同时添加状态码参数：
+重定向操作會以`303 SEE_OTHER`做爲默認的返回狀態碼，如果需要手動指定狀態碼，可以在`Redirect()`同時添加狀態碼參數：
 
 ```scala
 def index = Action {
@@ -247,14 +247,14 @@ def index = Action {
 
 
 # 路由映射
-在Play中，路由映射写在项目的`/conf/routes`文件内。
+在Play中，路由映射寫在項目的`/conf/routes`文件內。
 
-路由映射定义了`HTTP`请求路径与控制器的对应关系。
+路由映射定義了`HTTP`請求路徑與控制器的對應關係。
 
-## 路由语法
-一条路由映射由`HTTP方法`、`HTTP路径`、`控制器Action`三部分组成。
+## 路由語法
+一條路由映射由`HTTP方法`、`HTTP路徑`、`控制器Action`三部分組成。
 
-默认的`routes`文件内容如下：
+默認的`routes`文件內容如下：
 
 ```
 # Routes
@@ -268,8 +268,8 @@ GET         /                    controllers.Application.index
 GET         /assets/*file        controllers.Assets.at(path="/public", file)
 ```
 
-## 匹配规则
-假设控制器定义如下：
+## 匹配規則
+假設控制器定義如下：
 
 ```scala
 package controllers
@@ -296,80 +296,80 @@ class Application extends Controller {
 }
 ```
 
-匹配路径的控制器有多个时，优先匹配位置靠前的控制器：
+匹配路徑的控制器有多個時，優先匹配位置靠前的控制器：
 
 ```
 GET         /                    controllers.Application.index0
-GET         /                    controllers.Application.index1		# 实际会跳转到index0
+GET         /                    controllers.Application.index1		# 實際會跳轉到index0
 ```
 
-- 参数匹配
+- 參數匹配
 
-	若控制器方法带有参数，则可以使用请求路径的一部分做为参数匹配控制器方法：
+	若控制器方法帶有參數，則可以使用請求路徑的一部分做爲參數匹配控制器方法：
 
 	```
 	GET        /test/:name              controllers.Application.num(name)
 	```
 
-	将会匹配所有`/test/*`形式的路径，`*`代表的内容会做为参数`name`传入控制器方法中。
+	將會匹配所有`/test/*`形式的路徑，`*`代表的內容會做爲參數`name`傳入控制器方法中。
 
-	匹配控制器方法时可以限定类型：
+	匹配控制器方法時可以限定類型：
 
 	```
 	GET        /test/:num               controllers.Application.num(num: Int)
 	```
 
-	路由语法中的控制器方法不支持重载，不要在多个匹配规则中调用一个控制器的重载方法：
+	路由語法中的控制器方法不支持重載，不要在多個匹配規則中調用一個控制器的重載方法：
 
 	```
 	GET        /test/:name              controllers.Application.name(name: Int)
 	GET        /test/:name              controllers.Application.name(name: String)
 	```
 
-	报错`method name is defined twice`。
+	報錯`method name is defined twice`。
 
-	当需要对有参控制器方法传入固定内容的参数时，参数名称不可省略：
+	當需要對有參控制器方法傳入固定內容的參數時，參數名稱不可省略：
 
 	```
 	GET        /test                    controllers.Application.name(name = "default")
 	```
 
-- 正则表达式匹配
+- 正則表達式匹配
 
-	路由路径支持使用正则表达式来进行更精确的匹配，基本语法如下所示：
+	路由路徑支持使用正則表達式來進行更精確的匹配，基本語法如下所示：
 
 	```
-	GET        /路径/$变量名称<正则表达式>  controllers.Xxx.xxx(变量名称)
+	GET        /路徑/$變量名稱<正則表達式>  controllers.Xxx.xxx(變量名稱)
 	```
 
-	以下两种表达方式等价：
+	以下兩種表達方式等價：
 
 	```
 	GET        /test/:name              controllers.Application.num(name)
 	GET        /test/$name<.+>          controllers.Application.num(name)
 	```
 
-## 配置多个路由文件
-除了`/conf/routes`文件，在项目路径`/conf`下的所有`*.routes`文件都会被视作路由配置文件。
+## 配置多個路由文件
+除了`/conf/routes`文件，在項目路徑`/conf`下的所有`*.routes`文件都會被視作路由配置文件。
 
-路由配置文件会被编译成`Routes`类，该类包含了由路由配置转换成的代码。
-生成的`Routes`类会继承自`play.core.routing.GeneratedRouter`抽象类。
+路由配置文件會被編譯成`Routes`類，該類包含了由路由配置轉換成的代碼。
+生成的`Routes`類會繼承自`play.core.routing.GeneratedRouter`抽象類。
 
-路由配置文件在生成`Routes`类时会以**文件名称**做为**包名**，如`test.routes`文件会对应生成`test.Routes`类。
-默认的`routes`文件会生成`router.Routes`类。
+路由配置文件在生成`Routes`類時會以**文件名稱**做爲**包名**，如`test.routes`文件會對應生成`test.Routes`類。
+默認的`routes`文件會生成`router.Routes`類。
 
-`/conf/routes`为主要的路由匹配文件，默认配置下，只有该文件内设置的路由规则生效。
-可以通过`/conf/routes`跳转到其它路由文件，以`test.routes`为例，语法如下：
+`/conf/routes`爲主要的路由匹配文件，默認配置下，只有該文件內設置的路由規則生效。
+可以通過`/conf/routes`跳轉到其它路由文件，以`test.routes`爲例，語法如下：
 
 ```
 ->          /xxxx                   test.Routes
 ```
 
-该配置会匹配所有一级路径为`xxxx`的路径，并跳转到`test.routes`路由配置文件中查找匹配的路由规则。
-需要注意的是，跳转到其它路由文件时，传入的路径内容不包含已经匹配的部分，如路径`xxxx/abc`在传到`test.routes`文件中时，路径为`abc`。
+該配置會匹配所有一級路徑爲`xxxx`的路徑，並跳轉到`test.routes`路由配置文件中查找匹配的路由規則。
+需要注意的是，跳轉到其它路由文件時，傳入的路徑內容不包含已經匹配的部分，如路徑`xxxx/abc`在傳到`test.routes`文件中時，路徑爲`abc`。
 
-## 自定义 HTTP 请求处理
-可以通过继承`play.api.http.DefaultHttpRequestHandler`类，重写`routeRequest()`方法自定义`HTTP`请求处理逻辑。
+## 自定義 HTTP 請求處理
+可以通過繼承`play.api.http.DefaultHttpRequestHandler`類，重寫`routeRequest()`方法自定義`HTTP`請求處理邏輯。
 
 如下所示：
 
@@ -380,62 +380,62 @@ import play.api.http._
 import play.api.mvc.RequestHeader
 
 class CustomRequestHandler @Inject()(
-  routes: router.Routes, // 传入主构造器的路由配置实例为主要路由配置
+  routes: router.Routes, // 傳入主構造器的路由配置實例爲主要路由配置
   errorHandler: HttpErrorHandler,
   configuration: HttpConfiguration,
   filters: HttpFilters)
   extends DefaultHttpRequestHandler(routes, errorHandler, configuration, filters) {
 
-  // 注入test.routes文件生成的路由规则类
+  // 注入test.routes文件生成的路由規則類
   @Inject
   private var testRoutes: test.Routes = null
 
-  // 重写默认的请求处理逻辑
+  // 重寫默認的請求處理邏輯
   override def routeRequest(request: RequestHeader) = request.host match {
-    case ... => super.routeRequest(request) // 满足xxx条件使用默认路由配置
-    case ... => testRoutes.routes.lift(request) // 满足xxx条件使用test路由配置
+    case ... => super.routeRequest(request) // 滿足xxx條件使用默認路由配置
+    case ... => testRoutes.routes.lift(request) // 滿足xxx條件使用test路由配置
     case _ => ...
   }
 
 }
 ```
 
-自定义的`HTTP`请求处理类需要在配置文件中启用，在`/conf/application.conf`文件中添加：
+自定義的`HTTP`請求處理類需要在配置文件中啓用，在`/conf/application.conf`文件中添加：
 
 ```
-play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类的类名做为配置参数
+play.http.requestHandler = "CustomRequestHandler" # 使用自定義HTTP請求類的類名做爲配置參數
 ```
 
-`routeRequest()`方法参数为`play.api.mvc.RequestHeader`类型，包含了完整的请求信息，可以用于`URL`过滤、验证`Session`等诸多用途。
+`routeRequest()`方法參數爲`play.api.mvc.RequestHeader`類型，包含了完整的請求信息，可以用於`URL`過濾、驗證`Session`等諸多用途。
 
 
 
 # Template (模板)
-`Play Framework 2.x`内置了`Twirl`模板引擎。
+`Play Framework 2.x`內置了`Twirl`模板引擎。
 
-## 模板引擎简介
-`Twirl`模板引擎采用Scala实现，使用类Scala语法，是**类型安全**的模板引擎。
+## 模板引擎簡介
+`Twirl`模板引擎採用Scala實現，使用類Scala語法，是**類型安全**的模板引擎。
 
-模板文件为纯文本，命名规则为`*.scala.模板类型`。
-默认的`HTML`模板后缀为`*.scala.html`。
-在项目编译时，模板文件会被编译为Scala类，模板文件名会做为类名，模板文件所处的路径会做为模板类的包路径。
+模板文件爲純文本，命名規則爲`*.scala.模板類型`。
+默認的`HTML`模板後綴爲`*.scala.html`。
+在項目編譯時，模板文件會被編譯爲Scala類，模板文件名會做爲類名，模板文件所處的路徑會做爲模板類的包路徑。
 
-## `@` 关键字
-`Twirl`模板引擎使用`@`做为引用模板语法的关键字，`@`关键字的主要用法：
+## `@` 關鍵字
+`Twirl`模板引擎使用`@`做爲引用模板語法的關鍵字，`@`關鍵字的主要用法：
 
-- 直接引用模板参数
+- 直接引用模板參數
 
 	```scala
 	<p>Name: @name</p>
 	```
 
-- 调用模板参数的方法
+- 調用模板參數的方法
 
 	```scala
 	<p>Name Length: @name.length</p>
 	```
 
-- 执行代码块
+- 執行代碼塊
 
 	```scala
 	<p>@(name1.length + name2.length)</p>
@@ -445,23 +445,23 @@ play.http.requestHandler = "CustomRequestHandler" # 使用自定义HTTP请求类
 	}</p>
 	```
 
-	在使用`@{ ... }`执行代码块时，代码块的最后一个变量会做为整个代码块的**返回值**。
+	在使用`@{ ... }`執行代碼塊時，代碼塊的最後一個變量會做爲整個代碼塊的**返回值**。
 
-- 添加注释
+- 添加註釋
 
 	```scala
-	@* 注释内容 *@
+	@* 註釋內容 *@
 	```
 
-	使用`@* *@`插入的注释内容在编译期间会被清除，不会保留到最后生成的`html`文件中。
+	使用`@* *@`插入的註釋內容在編譯期間會被清除，不會保留到最後生成的`html`文件中。
 
-若需要在模板中输出普通的`@`字符，则应使用`@@`。
+若需要在模板中輸出普通的`@`字符，則應使用`@@`。
 
-## 模板传参
-Twirl模板引擎需要**显式**定义模板接收的参数。
-传入模板的参数需要写在模板文件的最顶端。
+## 模板傳參
+Twirl模板引擎需要**顯式**定義模板接收的參數。
+傳入模板的參數需要寫在模板文件的最頂端。
 
-模板参数表前需要使用`@`关键字修饰，语法与Scala方法参数语法类似：
+模板參數表前需要使用`@`關鍵字修飾，語法與Scala方法參數語法類似：
 
 ```scala
 @(title: String)
@@ -471,7 +471,7 @@ Twirl模板引擎需要**显式**定义模板接收的参数。
 </html>
 ```
 
-模板参数表支持Scala的高级语法特性，如**参数默认值**、**柯里化**、**隐式参数**等：
+模板參數表支持Scala的高級語法特性，如**參數默認值**、**柯里化**、**隱式參數**等：
 
 ```scala
 @(title: String)(content: Html = Html(""))(implicit css: String = null)
@@ -481,12 +481,12 @@ Twirl模板引擎需要**显式**定义模板接收的参数。
 </html>
 ```
 
-模板的参数表在编译为Scala类时，会做为生成类的`apply()`方法的参数表。
+模板的參數表在編譯爲Scala類時，會做爲生成類的`apply()`方法的參數表。
 
-### 结构语法
-`Twirl`模板引擎支持**循环**、**分支**等控制结构语法。
+### 結構語法
+`Twirl`模板引擎支持**循環**、**分支**等控制結構語法。
 
-**循环**语法：
+**循環**語法：
 
 ```scala
 <ul>
@@ -496,7 +496,7 @@ Twirl模板引擎需要**显式**定义模板接收的参数。
 </ul>
 ```
 
-**分支**语法：
+**分支**語法：
 
 ```scala
 @if(items.isEmpty()) {
@@ -506,7 +506,7 @@ Twirl模板引擎需要**显式**定义模板接收的参数。
 }
 ```
 
-`Twirl`模板引擎还支持Scala的模式匹配特性：
+`Twirl`模板引擎還支持Scala的模式匹配特性：
 
 ```scala
 @(op: Option[String])
@@ -521,25 +521,25 @@ Twirl模板引擎需要**显式**定义模板接收的参数。
 }
 ```
 
-### 定义可复用的代码块
-在模板中，对于多次使用的内容，可以定义可复用的代码块。
+### 定義可複用的代碼塊
+在模板中，對於多次使用的內容，可以定義可複用的代碼塊。
 
-将代码块赋值到模板变量上：
+將代碼塊賦值到模板變量上：
 
-- 使用`@xxx = { ... }`语法将普通的`html`文本赋值到模板变量上，模板变量为`play.twirl.api.HtmlFormat.Appendable`类型。
-- 使用`@xxx = @{ ... }`语法将Scala代码的执行结果赋值到模板变量上，模板变量类型由Scala代码块的**返回值**决定。
+- 使用`@xxx = { ... }`語法將普通的`html`文本賦值到模板變量上，模板變量爲`play.twirl.api.HtmlFormat.Appendable`類型。
+- 使用`@xxx = @{ ... }`語法將Scala代碼的執行結果賦值到模板變量上，模板變量類型由Scala代碼塊的**返回值**決定。
 
 ```scala
-@* 模板变量保存普通html *@
+@* 模板變量保存普通html *@
 @header = {
 	<script type="text/javascript"> ... </script>
 	<script type="text/javascript"> ... </script>
 }
 
-@* 模板变量存储执行Scala代码执行结果 *@
+@* 模板變量存儲執行Scala代碼執行結果 *@
 @content = @{
-	val xxx = ... // @{ ... } 代码块中可以直接使用Scala语法
-	xxx // content 变量类型由返回值 xxx 的类型决定
+	val xxx = ... // @{ ... } 代碼塊中可以直接使用Scala語法
+	xxx // content 變量類型由返回值 xxx 的類型決定
 }
 
 <html>
@@ -555,11 +555,11 @@ Twirl模板引擎需要**显式**定义模板接收的参数。
 </html>
 ```
 
-可复用代码块支持带有参数：
+可複用代碼塊支持帶有參數：
 
 ```scala
 @display(product: models.Product) = {
-	@product.name ($@product.price) @* 输出内容： 产品名称 ($产品价格) *@
+	@product.name ($@product.price) @* 輸出內容： 產品名稱 ($產品價格) *@
 }
 
 <ul>
@@ -569,12 +569,12 @@ Twirl模板引擎需要**显式**定义模板接收的参数。
 </ul>
 ```
 
-在一个模板中调用其它模板，方法类似。
-一个模板文件本身可视为一个可复用的代码块。
+在一個模板中調用其它模板，方法類似。
+一個模板文件本身可視爲一個可複用的代碼塊。
 
-### 模板类型
-`Twirl`模板引擎默认支持`html`、`js`、`xml`、`txt`四种后缀的模板类型。
-四种模板类型在API中已有默认定义，完整类型路径为：
+### 模板類型
+`Twirl`模板引擎默認支持`html`、`js`、`xml`、`txt`四種後綴的模板類型。
+四種模板類型在API中已有默認定義，完整類型路徑爲：
 
 ```scala
 play.twirl.api.Html
@@ -583,13 +583,13 @@ play.twirl.api.Xml
 play.twirl.api.Txt
 ```
 
-四种模板类型均继承于`play.twirl.api.BufferedContent`，而`BufferedContent`继承于`play.twirl.api.Appendable`和`play.twirl.api.Content`。
+四種模板類型均繼承於`play.twirl.api.BufferedContent`，而`BufferedContent`繼承於`play.twirl.api.Appendable`和`play.twirl.api.Content`。
 
-`BufferedContent`抽象类中定义了`buildString()`方法用于控制文本生成、转义规则。
+`BufferedContent`抽象類中定義了`buildString()`方法用於控制文本生成、轉義規則。
 
-`Html`类型重写了的`buildString()`方法，对于`Html`类型的模板，以下字符将被转换：
+`Html`類型重寫了的`buildString()`方法，對於`Html`類型的模板，以下字符將被轉換：
 
-| 转义前字符 | 转义后字符 |
+| 轉義前字符 | 轉義後字符 |
 |:--------:|:---------:|
 | `<` | `&lt` |
 | `>` | `&gt` |
@@ -597,52 +597,52 @@ play.twirl.api.Txt
 | `\` | `$#x27` |
 | `&` | `&amp` |
 
-若需要避免文本转义，则应使用`Html`类型伴生对象中提供的`apply()`方法将无需转换的文本直接构造为`Html`类型。
+若需要避免文本轉義，則應使用`Html`類型伴生對象中提供的`apply()`方法將無需轉換的文本直接構造爲`Html`類型。
 
-### 自定义模板类型
-若需要扩展支持的模板文件类型，则需要在项目构建配置`build.sbt`中设定`TwirlKeys.templateFormats`配置项。
-`TwirlKeys.templateFormats`配置项应添加`Map[String, String]`类型的配置：
+### 自定義模板類型
+若需要擴展支持的模板文件類型，則需要在項目構建配置`build.sbt`中設定`TwirlKeys.templateFormats`配置項。
+`TwirlKeys.templateFormats`配置項應添加`Map[String, String]`類型的配置：
 
-- 配置**key**为需要扩展的文件类型。
-- 配置**value**为文件类型对应采用的模板规则类的路径字符串，若无需自定义规则，可以使用预置的`play.twirl.api.XxxFormat`类型。
+- 配置**key**爲需要擴展的文件類型。
+- 配置**value**爲文件類型對應採用的模板規則類的路徑字符串，若無需自定義規則，可以使用預置的`play.twirl.api.XxxFormat`類型。
 
-以常见的`json`格式为例，在`build.sbt`文件中添加：
+以常見的`json`格式爲例，在`build.sbt`文件中添加：
 
 ```scala
-// 将json后缀的模板应用预定义的js模板生成规则
+// 將json後綴的模板應用預定義的js模板生成規則
 TwirlKeys.templateFormats += "json" -> "play.twirl.api.JavaScriptFormat"
 ```
 
-若现有的模板生成规则不能满足需要，则可以自行扩展`play.twirl.api.Format[T <: Appendable[T]]`特质，重写`raw()`、`escape()`等方法实现自定义的模板生成规则。
+若現有的模板生成規則不能滿足需要，則可以自行擴展`play.twirl.api.Format[T <: Appendable[T]]`特質，重寫`raw()`、`escape()`等方法實現自定義的模板生成規則。
 
-### 单独使用模板引擎
-`Twirl`模板引擎提供了`sbt-twirl`插件，支持在`sbt`项目中单独使用，不依赖于完整的`Play Framework`框架。
+### 單獨使用模板引擎
+`Twirl`模板引擎提供了`sbt-twirl`插件，支持在`sbt`項目中單獨使用，不依賴於完整的`Play Framework`框架。
 
-在普通`sbt`项目中的`project/plugins.sbt`文件中引入该插件：
+在普通`sbt`項目中的`project/plugins.sbt`文件中引入該插件：
 
 ```scala
 // 添加模板引擎插件
-addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "版本号")
+addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "版本號")
 ```
 
-在项目构建配置文件`build.sbt`中启用模板引擎插件：
+在項目構建配置文件`build.sbt`中啓用模板引擎插件：
 
 ```scala
-// 启用模板引擎插件
+// 啓用模板引擎插件
 enablePlugins(SbtTwirl)
 ```
 
-执行编译操作时，模板引擎编译器会扫描`src/main/twirl`和`src/test/twirl`路径下的所有模板文件(以`*.scala.xxx`命名)，根据模板内容生成Scala代码。
+執行編譯操作時，模板引擎編譯器會掃描`src/main/twirl`和`src/test/twirl`路徑下的所有模板文件(以`*.scala.xxx`命名)，根據模板內容生成Scala代碼。
 
-生成模板类的路径遵顼以下规则：
+生成模板類的路徑遵頊以下規則：
 
-- 模板文件直接位于模板目录中时，生成类路径为`模板类型.文件名称`
-- 模板文件位于模板目录中的某个子目录时，生成类路径为`子路径.模板类型.文件名称`
+- 模板文件直接位於模板目錄中時，生成類路徑爲`模板類型.文件名稱`
+- 模板文件位於模板目錄中的某個子目錄時，生成類路徑爲`子路徑.模板類型.文件名稱`
 
-举例，假设`sbt`项目存在以下目录结构：
+舉例，假設`sbt`項目存在以下目錄結構：
 
 ```
-项目名称
+項目名稱
 └── src
     └── main
         └── twirl
@@ -652,28 +652,28 @@ enablePlugins(SbtTwirl)
                 └── test2.scala.xml
 ```
 
-生成的Scala代码类型路径分别为：
+生成的Scala代碼類型路徑分別爲：
 
 ```scala
-js.test //无子路径直接以"模板类型"做为包名
-template.html.test1 //存在子路径时以"子路径.模板类型"做为包名
+js.test //無子路徑直接以"模板類型"做爲包名
+template.html.test1 //存在子路徑時以"子路徑.模板類型"做爲包名
 template.xml.test2
 ```
 
-可设置模版引擎在编译时扫描源码路径(`src/main/scala`、`src/main/java`)。
-在`build.sbt`中添加目录配置：
+可設置模版引擎在編譯時掃描源碼路徑(`src/main/scala`、`src/main/java`)。
+在`build.sbt`中添加目錄配置：
 
 ```scala
-// 使模板编译器扫描项目源码目录
+// 使模板編譯器掃描項目源碼目錄
 sourceDirectories in (Compile, TwirlKeys.compileTemplates) := (unmanagedSourceDirectories in Compile).value
 ```
 
 
 
 # ORM
-`Play Framework`并未内置`ORM`，需要搭配额外的`ORM`框架。
+`Play Framework`並未內置`ORM`，需要搭配額外的`ORM`框架。
 
-`Play Framework`支持多种`ORM`框架，官方推荐使用`Slick`。
-`Slick`是`LightBend`官方支持的函数式风格的`ORM`，官方介绍中称之为`Functional Relational Mapping(FRM)`。
+`Play Framework`支持多種`ORM`框架，官方推薦使用`Slick`。
+`Slick`是`LightBend`官方支持的函數式風格的`ORM`，官方介紹中稱之爲`Functional Relational Mapping(FRM)`。
 
-除了`Slick`，`Play Framework`还支持`Anorm`、`EBean`等ORM框架。
+除了`Slick`，`Play Framework`還支持`Anorm`、`EBean`等ORM框架。
