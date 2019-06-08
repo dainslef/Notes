@@ -7,6 +7,7 @@
 	- [Eureka](#eureka)
 		- [Eureka Server](#eureka-server)
 		- [Eureka Client](#eureka-client)
+		- [Eureka Event](#eureka-event)
 	- [Zuul](#zuul)
 		- [保留前綴父級路徑URL](#保留前綴父級路徑url)
 		- [Sensitive Headers](#sensitive-headers)
@@ -214,6 +215,44 @@ fun main(args: Array<String>) {
     SpringApplication.run(ClientConfig::class.java, *args)
 }
 ```
+
+### Eureka Event
+Spring Eureka組件會為實例在生命周期的各個階段均會發送不同類型的Spring事件(`ApplicationEvent`的子類)：
+
+- `EurekaInstanceRenewedEvent` 實例續約事件
+- `EurekaInstanceRegisteredEvent` 實例注冊事件
+- `EurekaInstanceCanceledEvent` 實例下綫事件
+- `EurekaRegistryAvailableEvent` 注冊服務可用事件
+- `EurekaServerStartedEvent` Eureka Server啓動事件
+
+相關事件触发源碼位於`org.springframework.cloud.netflix.eureka.server.InstanceRegistry`文件中。
+可使用`@EventListener`注解修飾方法進行監聽：
+
+```kt
+import org.springframework.cloud.netflix.eureka.server.event.*
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.event.EventListener
+
+@Configuration
+class EurekaEventHandler {
+
+    @EventListener
+    fun listen(event: EurekaInstanceCanceledEvent) {
+        ...
+    }
+
+    @EventListener
+    fun listen(event: EurekaInstanceRegisteredEvent) {
+        ...
+    }
+
+    ...
+
+}
+```
+
+在Spring Cloud Finchley/Greenwich等版本中，Spring Eureka發送的事件與EurekaClient提供的注冊信息并非**實時同步**更新。
+當EventListener接收到事件通知時，此時Eureka Client中的注冊信息仍然是舊的，通常需要等待5s以上注冊信息才會同步變化。
 
 ## Zuul
 路由是微服務體系中的一個組成部分，`Zuul`提供了基於JVM的路由和服務端的負載均衡。
