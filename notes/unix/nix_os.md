@@ -6,13 +6,13 @@
 	- [Nix Channel](#nix-channel)
 	- [Unfree](#unfree)
 - [NixOS](#nixos)
-	- [安装](#安装)
+	- [安裝](#安裝)
 	- [配置管理](#配置管理)
-	- [系统软件包与服务配置](#系统软件包与服务配置)
-	- [用户配置](#用户配置)
+	- [系統軟件包與服務配置](#系統軟件包與服務配置)
+	- [用戶配置](#用戶配置)
 	- [Shell配置](#shell配置)
-	- [字体配置](#字体配置)
-	- [输入法配置](#输入法配置)
+	- [字體配置](#字體配置)
+	- [輸入法配置](#輸入法配置)
 	- [桌面配置](#桌面配置)
 
 <!-- /TOC -->
@@ -20,66 +20,66 @@
 
 
 # Nix package manager
-`Nix package manager`是纯函数式(purely functional)的包管理器，
-Nix像纯函数式语言(如Haskell)处理值一样对待软件包：通过无副作用(no side-effects)的纯函数来构建，在构建完成后就不再改变。
+`Nix package manager`是純函數式(purely functional)的包管理器，
+Nix像純函數式語言(如Haskell)處理值一樣對待軟件包：通過無副作用(no side-effects)的純函數來構建，在構建完成後就不再改變。
 
-与传统的软件包管理器设计不同，Nix将软件包存储在`Nix Store`中(通常是`/nix/store`路径下)，
-每个软件包存储在**独立**的子目录中,软件包路径的命名规则为`[软件包id]-[软件包名]-[版本]`，路径示例：
+與傳統的軟件包管理器設計不同，Nix將軟件包存儲在`Nix Store`中(通常是`/nix/store`路徑下)，
+每個軟件包存儲在**獨立**的子目錄中,軟件包路徑的命名規則爲`[軟件包id]-[軟件包名]-[版本]`，路徑示例：
 
 ```
 /nix/store/b6gvzjyb2pg0kjfwrjmg1vfhh54ad73z-firefox-33.1/
 ```
 
 ## 多版本管理
-Nix包管理器支持同时管理、安装一个软件包的多个版本，
-保证了不同应用在依赖同一个软件包的不同版本时不会造成`DLL hell`(动态库依赖地狱)。
-不同版本的软件包安装在Nix Store中的不同路径下，各自隔离，不会相互影响。
+Nix包管理器支持同時管理、安裝一個軟件包的多個版本，
+保證了不同應用在依賴同一個軟件包的不同版本時不會造成`DLL hell`(動態庫依賴地獄)。
+不同版本的軟件包安裝在Nix Store中的不同路徑下，各自隔離，不會相互影響。
 
 ## 基本指令
-查询、安装、移除、更新软件包：
+查詢、安裝、移除、更新軟件包：
 
 ```c
-// 查询软件包
-# nix-env -q [软件包名称]
+// 查詢軟件包
+# nix-env -q [軟件包名稱]
 # nix-env -qa
-// 查询名称中包含指定字段的软件包
-# nix-env -qa '.*软件包名称.*'
+// 查詢名稱中包含指定字段的軟件包
+# nix-env -qa '.*軟件包名稱.*'
 
-// 安装软件包
-# nix-env -i [软件包名称]
-# nix-env --install [软件包名称]
-# nix-env -iA [channel名称.包名称] //使用完整名称安装软件包，可避免歧义
-# nix-env -iv [软件包名称] //安装软件包时输出详细日志，便于发现错误
+// 安裝軟件包
+# nix-env -i [軟件包名稱]
+# nix-env --install [軟件包名稱]
+# nix-env -iA [channel名稱.包名稱] //使用完整名稱安裝軟件包，可避免歧義
+# nix-env -iv [軟件包名稱] //安裝軟件包時輸出詳細日誌，便於發現錯誤
 
-// 移除软件包
-# nix-env -e [软件包名称]
-# nix-env --uninstall [软件包名称]
+// 移除軟件包
+# nix-env -e [軟件包名稱]
+# nix-env --uninstall [軟件包名稱]
 
-// 更新所有软件包
+// 更新所有軟件包
 # nix-env -u
-// 更新指定软件包
-# nix-env -u '软件包'
-// 查看可升级的软件包
+// 更新指定軟件包
+# nix-env -u '軟件包'
+// 查看可升級的軟件包
 # nix-env -u --dry-run
 ```
 
-使用`nix-env -e`删除的软件包并为真正的删除软件包本体，而是移除了到该软件包的软链接。
-使用`nix-store --gc`来真正清理软件包缓存：
+使用`nix-env -e`刪除的軟件包併爲真正的刪除軟件包本體，而是移除了到該軟件包的軟鏈接。
+使用`nix-store --gc`來真正清理軟件包緩存：
 
 ```c
-// 清理软件包时会计算当前系统的依赖关系，将不被依赖的软件包全部清理
+// 清理軟件包時會計算當前系統的依賴關係，將不被依賴的軟件包全部清理
 # nix-store --gc
 
-// 使用--print-dead参数时仅计算并打印会被清理的依赖，不真正执行清理操作
+// 使用--print-dead參數時僅計算並打印會被清理的依賴，不真正執行清理操作
 # nix-store --gc --print-dead
 ```
 
 ## Nix Channel
-NixOS中的`Channel`概念上类似与常规发行版的`Mirror`(软件源)。
-NixOS的channel按照维度分类：
+NixOS中的`Channel`概念上類似與常規發行版的`Mirror`(軟件源)。
+NixOS的channel按照維度分類：
 
-- 按照版本分类：**unstable**和**指定版本**
-- 按照包类别分类：**nixos**和**nixpkgs**
+- 按照版本分類：**unstable**和**指定版本**
+- 按照包類別分類：**nixos**和**nixpkgs**
 
 ```sh
 nixos https://nixos.org/channels/nixos-unstable
@@ -89,15 +89,15 @@ nixpkgs https://nixos.org/channels/nixpkgs-unstable
 使用`nix-channel`指令管理channel：
 
 ```c
-$ nix-channel --list //显示当前已配置的channel
+$ nix-channel --list //顯示當前已配置的channel
 $ nix-channel --add url [name] //添加指定channel
 $ nix-channel --remove name //移除指定channel
 ```
 
-在添加channel时若不指定名称，则按找包类别使用默认名称，例如`nixos-unstable`的channel名称为`nixos`。
-channel名称是**唯一**的，添加名称相同的channel时，后添加的会替换先前的channel。
+在添加channel時若不指定名稱，則按找包類別使用默認名稱，例如`nixos-unstable`的channel名稱爲`nixos`。
+channel名稱是**唯一**的，添加名稱相同的channel時，後添加的會替換先前的channel。
 
-更新软件包前应先更新channel：
+更新軟件包前應先更新channel：
 
 ```
 # nixos-channel --update
@@ -105,30 +105,30 @@ channel名称是**唯一**的，添加名称相同的channel时，后添加的�
 ```
 
 ## Unfree
-NixOS软件源中收录了部分Unfree的软件包，如`Chrome`、`Visual Studio Code`等，
-此类软件包因为许可证问题，默认不可被安装。
+NixOS軟件源中收錄了部分Unfree的軟件包，如`Chrome`、`Visual Studio Code`等，
+此類軟件包因爲許可證問題，默認不可被安裝。
 
-临时允许unfree软件安装，安装时需要将`allowUnfree`属性置为true：
+臨時允許unfree軟件安裝，安裝時需要將`allowUnfree`屬性置爲true：
 
 ```
 # nix-env -iA nixos.vscode --arg config '{ allowUnfree = true; }'
 ```
 
-全局允许unfree软件安装，需要在configuration.nix配置中设定`nixpkgs.config.allowUnfree`属性：
+全局允許unfree軟件安裝，需要在configuration.nix配置中設定`nixpkgs.config.allowUnfree`屬性：
 
 ```sh
 nixpkgs.config.allowUnfree = true;
 ```
 
-configuration.nix配置中的unfree配置能允许在`environment.systemPackages`配置项中加入unfree软件包，如：
+configuration.nix配置中的unfree配置能允許在`environment.systemPackages`配置項中加入unfree軟件包，如：
 
 ```sh
 environment.systemPackages = with pkgs; [ vscode ];
 ```
 
-Nix包管理器对于每个用户拥有独立的配置，全局的unfree配置并不会对具体的某个用户生效，
-要使某个用户能够使用`nix-env -i`安装unfree软件包，则需要编辑用户的Nix配置`~/.config/nixpkgs/config.nix`，
-在该配置文件中加入：
+Nix包管理器對於每個用戶擁有獨立的配置，全局的unfree配置並不會對具體的某個用戶生效，
+要使某個用戶能夠使用`nix-env -i`安裝unfree軟件包，則需要編輯用戶的Nix配置`~/.config/nixpkgs/config.nix`，
+在該配置文件中加入：
 
 ```sh
 {
@@ -139,26 +139,26 @@ Nix包管理器对于每个用户拥有独立的配置，全局的unfree配置�
 
 
 # NixOS
-`NixOS`是基于`Nix package manager`的Linux发行版，提供了统一的包管理与配置管理。
+`NixOS`是基於`Nix package manager`的Linux發行版，提供了統一的包管理與配置管理。
 
-## 安装
-[NixOS官网](https://nixos.org/nixos/download.html)提供了镜像下载，官方提供的镜像支持`x86/x64`平台。
-镜像包括带有KDE桌面的LiveCD版(`Graphical live CD`)和无GUI环境的精简版(`Minimal installation CD`)，
+## 安裝
+[NixOS官網](https://nixos.org/nixos/download.html)提供了鏡像下載，官方提供的鏡像支持`x86/x64`平臺。
+鏡像包括帶有KDE桌面的LiveCD版(`Graphical live CD`)和無GUI環境的精簡版(`Minimal installation CD`)，
 
-以`Minimal installation CD`为例，下载刻录镜像后启动进入安装环境。
-首先对磁盘进行分区，安装镜像中提供了`fdisk`、`gparted`等常用分区工具，分区操作与其它发行版安装流程相同。
-对于旧式BIOS的机器推荐使用DOS分区表搭配MBR引导，对于支持UEFI的机器推荐使用GPT分区表搭配UEFI启动。
+以`Minimal installation CD`爲例，下載刻錄鏡像後啓動進入安裝環境。
+首先對磁盤進行分區，安裝鏡像中提供了`fdisk`、`gparted`等常用分區工具，分區操作與其它發行版安裝流程相同。
+對於舊式BIOS的機器推薦使用DOS分區表搭配MBR引導，對於支持UEFI的機器推薦使用GPT分區表搭配UEFI啓動。
 
-通常最精简的UEFI安装包括三个分区，存放引导器的启动分区`ESP`、交换区`SWAP`、主分区。
-以fdisk工具为例，三个分区的分区类型(partiton table)和分区路径配置如下：
+通常最精簡的UEFI安裝包括三個分區，存放引導器的啓動分區`ESP`、交換區`SWAP`、主分區。
+以fdisk工具爲例，三個分區的分區類型(partiton table)和分區路徑配置如下：
 
-| 分区路径 | 分区类型(类型编号) | 分区作用 | 推荐大小 | 文件系统 |
+| 分區路徑 | 分區類型(類型編號) | 分區作用 | 推薦大小 | 文件系統 |
 | :- | :- | :- | :- | :- |
-| /dev/sda1 | EFI System (1) | 存放引导器 | 200MB | FAT32(vfat) |
-| /dev/sda2 | Linux swap (19) | 虚拟内存 | 1～2倍内存大小 | / |
-| /dev/sda3 | Linux filesystem (20) | 主要分区 | 20GB+ | EXT4/XFS/BTRFS |
+| /dev/sda1 | EFI System (1) | 存放引導器 | 200MB | FAT32(vfat) |
+| /dev/sda2 | Linux swap (19) | 虛擬內存 | 1～2倍內存大小 | / |
+| /dev/sda3 | Linux filesystem (20) | 主要分區 | 20GB+ | EXT4/XFS/BTRFS |
 
-分区完成后在对应分区创建文件系统：
+分區完成後在對應分區創建文件系統：
 
 ```c
 # mkfs.vfat /dev/sda1
@@ -166,7 +166,7 @@ Nix包管理器对于每个用户拥有独立的配置，全局的unfree配置�
 # mkfs.ext4 /dev/sda3
 ```
 
-挂载分区到安装环境的`/mnt`目录下：
+掛載分區到安裝環境的`/mnt`目錄下：
 
 ```c
 # mount /dev/sda3 /mnt
@@ -175,37 +175,37 @@ Nix包管理器对于每个用户拥有独立的配置，全局的unfree配置�
 # swapon /dev/sda2
 ```
 
-之后开始生成Nix安装配置：
+之後開始生成Nix安裝配置：
 
 ```c
 # nixos-generate-config --root /mnt
 ```
 
-编辑生成的Nix配置`/mnt/etc/nixos/configuration.nix`，多数配置使用默认值即可。
-针对UEFI启动，需要确认以下选项是否开启：
+編輯生成的Nix配置`/mnt/etc/nixos/configuration.nix`，多數配置使用默認值即可。
+針對UEFI啓動，需要確認以下選項是否開啓：
 
 ```sh
-boot.loader.systemd-boot.enable = true # 启动 systemd 的启动支持
-boot.loader.efi.canTouchEfiVariables = true # 允许安装进程修改EFI启动参数
+boot.loader.systemd-boot.enable = true # 啓動 systemd 的啓動支持
+boot.loader.efi.canTouchEfiVariables = true # 允許安裝進程修改EFI啓動參數
 ```
 
-Nix配置修改完成后执行安装操作：
+Nix配置修改完成後執行安裝操作：
 
 ```c
 # nixos-install
 ```
 
-执行指令后安装器会以给定的Nix配置执行系统安装流程：安装系统文件、配置引导器、配置账户信息等。
+執行指令後安裝器會以給定的Nix配置執行系統安裝流程：安裝系統文件、配置引導器、配置賬戶信息等。
 
 ## 配置管理
-在NixOS中，Nix配置接管了系统内所有软件包的配置，同时，以常规方式修改软件包自身配置的方式对于系统级软件包无效。
-以`sudo`为例，直接修改`/etc/sudoers`配置并不能正常赋予某个用户管理员权限。
+在NixOS中，Nix配置接管了系統內所有軟件包的配置，同時，以常規方式修改軟件包自身配置的方式對於系統級軟件包無效。
+以`sudo`爲例，直接修改`/etc/sudoers`配置並不能正常賦予某個用戶管理員權限。
 
-重新应用配置：
+重新應用配置：
 
 ```c
-# nixos-rebuild switch //重新生成配置，并立即切换到新配置
-# nixos-rebuild switch --upgrade //生成配置同时更新系统
+# nixos-rebuild switch //重新生成配置，並立即切換到新配置
+# nixos-rebuild switch --upgrade //生成配置同時更新系統
 ```
 
 列出所有的配置：
@@ -214,28 +214,28 @@ Nix配置修改完成后执行安装操作：
 # nix-env --list-generations
 ```
 
-执行清理操作：
+執行清理操作：
 
 ```c
-// 删除指定编号的配置
-# nix-env --delete-generations [配置编号...]
+// 刪除指定編號的配置
+# nix-env --delete-generations [配置編號...]
 
-// 清理所有非激活配置和过时软件包
+// 清理所有非激活配置和過時軟件包
 # nix-collect-garbage -d
 ```
 
-## 系统软件包与服务配置
-在NixOS中，可将常用的软件包配置为系统软件包，在configuration.nix配置中设定`environment.systemPackages`配置项：
+## 系統軟件包與服務配置
+在NixOS中，可將常用的軟件包配置爲系統軟件包，在configuration.nix配置中設定`environment.systemPackages`配置項：
 
 ```sh
 environment.systemPackages = with pkgs; [
-  git neofetch stack rustup ... # 添加软件包名称
+  git neofetch stack rustup ... # 添加軟件包名稱
 ]
 ```
 
-设定的软件包会在`nixos-rebuild`时做为系统软件包自动安装，而不需要手动安装。
+設定的軟件包會在`nixos-rebuild`時做爲系統軟件包自動安裝，而不需要手動安裝。
 
-对于部分影响系统配置的应用和服务，NixOS中提供了独立的配置项，
+對於部分影響系統配置的應用和服務，NixOS中提供了獨立的配置項，
 在configuration.nix配置中`programs`、`services`配置段：
 
 ```sh
@@ -251,14 +251,14 @@ programs = {
 
 services = {
 
-  # 桌面环境配置，以KDE5为例
+  # 桌面環境配置，以KDE5爲例
   xserver = {
     enable = true;
     desktopManager.plasma5.enable = true;
     displayManager.sddm.enable = true;
   };
 
-  # 数据库配置，以MySQL为例
+  # 數據庫配置，以MySQL爲例
   mysql = {
     enable = true;
     package = pkgs.mariadb;
@@ -268,98 +268,98 @@ services = {
 };
 ```
 
-NixOS使用`systemd`管理服务的状态，在services配置段中启用的服务默认会开机自启动，且无法修改自启状态。
-启用与禁用services配置段中设定的服务，需要设定`systemd.services`配置段：
+NixOS使用`systemd`管理服務的狀態，在services配置段中啓用的服務默認會開機自啓動，且無法修改自啓狀態。
+啓用與禁用services配置段中設定的服務，需要設定`systemd.services`配置段：
 
 ```sh
 systemd.services.<name>.enable = true/false;
 ...
 
-# 以MySQL服务为例，禁用服务自启
+# 以MySQL服務爲例，禁用服務自啓
 systemd.services.mysql.enable = false;
 ```
 
-## 用户配置
-在`users.users`配置项中设定用户相关配置。
+## 用戶配置
+在`users.users`配置項中設定用戶相關配置。
 
 ```sh
-users.users.[用户名] = {
-  isNormalUser = true; # 设定是否为普通用户，普通用户才拥有独立的家目录和用户组
-  home = "家目录"; # 默认家目录为"/home/用户名"，有特殊需求可使用此配置指定家目录
-  description = "用户简介";
-  extraGroups = ["wheel" "networkmanager"]; # 为用户添加额外的用户组
+users.users.[用戶名] = {
+  isNormalUser = true; # 設定是否爲普通用戶，普通用戶才擁有獨立的家目錄和用戶組
+  home = "家目錄"; # 默認家目錄爲"/home/用戶名"，有特殊需求可使用此配置指定家目錄
+  description = "用戶簡介";
+  extraGroups = ["wheel" "networkmanager"]; # 爲用戶添加額外的用戶組
 };
 ```
 
-要使用户能使用`sudo`，需要将用户加入`wheel`(管理员)用户组中。
+要使用戶能使用`sudo`，需要將用戶加入`wheel`(管理員)用戶組中。
 
 ## Shell配置
-默认配置下使用`bash`做为普通用户的默认shell，要使用其它shell应在configuration.nix配置中开启需要使用的shell，
-常见的shell如下：
+默認配置下使用`bash`做爲普通用戶的默認shell，要使用其它shell應在configuration.nix配置中開啓需要使用的shell，
+常見的shell如下：
 
 ```sh
 programs.zsh.enable = true; # ZSH
 programs.fish.enable = true; # fish
 ```
 
-启用了需要的shell后，修改configuration.nix中的**用户配置**。
-以fish为例：
+啓用了需要的shell後，修改configuration.nix中的**用戶配置**。
+以fish爲例：
 
 ```sh
 programs.fish.enable = true;
 
-users.users.[用户名] = {
+users.users.[用戶名] = {
   ...
   shell = pkgs.fish;
 };
 ```
 
-## 字体配置
-configuration.nix配置中常用的字体相关配置：
+## 字體配置
+configuration.nix配置中常用的字體相關配置：
 
 ```sh
-fonts.enableFontDir = true; # 为所有字体在"/run/current-system/sw/share/X11-fonts"路径下创建软连接
-fonts.fonts = with pkgs; [ ... ]; # 配置字体包
+fonts.enableFontDir = true; # 爲所有字體在"/run/current-system/sw/share/X11-fonts"路徑下創建軟連接
+fonts.fonts = with pkgs; [ ... ]; # 配置字體包
 fonts.fontconfig.defaultFonts = {
-  monospace = [ "Xxx" ]; # 等宽字体
-  sansSerif = [ "Xxx" ]; # 无衬线字体
-  serif = [ "Xxx" ]; # 衬线字体
+  monospace = [ "Xxx" ]; # 等寬字體
+  sansSerif = [ "Xxx" ]; # 無襯線字體
+  serif = [ "Xxx" ]; # 襯線字體
 };
 ```
 
-用户自定义字体路径`~/.fonts`已被上游废弃，在NixOS中，将个人字体放置在此路径下不会被加入字体列表。
-取代该路径的用户字体路径是`$XDG_DATA_HOME/fonts`，实际对应路径为`~/.local/share/fonts`。
+用戶自定義字體路徑`~/.fonts`已被上游廢棄，在NixOS中，將個人字體放置在此路徑下不會被加入字體列表。
+取代該路徑的用戶字體路徑是`$XDG_DATA_HOME/fonts`，實際對應路徑爲`~/.local/share/fonts`。
 
-## 输入法配置
-在configuration.nix配置的`i18n.inputMethod`配置项中设定使用的输入法：
+## 輸入法配置
+在configuration.nix配置的`i18n.inputMethod`配置項中設定使用的輸入法：
 
 ```sh
 i18n.inputMethod = {
-  enabled = "fcitx"; # 使用fcitx输入法
+  enabled = "fcitx"; # 使用fcitx輸入法
   fcitx.engines = with pkgs.fcitx-engines; [ libpinyin anthy ];
 };
 ```
 
-在Gnome3桌面环境下，推荐使用`iBus`输入法：
+在Gnome3桌面環境下，推薦使用`iBus`輸入法：
 
 ```sh
 i18n.inputMethod = {
-  enabled = "ibus"; # 使用ibus输入法
+  enabled = "ibus"; # 使用ibus輸入法
   ibus.engines = with pkgs.ibus-engines; [ libpinyin anthy ];
 };
 ```
 
 ## 桌面配置
-NixOS提供了对各类主流桌面环境的支持，与常规发行版不同，安装桌面环境不是直接通过包管理器直接安装对应桌面相关软件包，
-而是在configuration.nix配置中设定桌面相关配置。
+NixOS提供了對各類主流桌面環境的支持，與常規發行版不同，安裝桌面環境不是直接通過包管理器直接安裝對應桌面相關軟件包，
+而是在configuration.nix配置中設定桌面相關配置。
 
-配置各类桌面环境前，需要首先开启`X Window System (X11)`：
+配置各類桌面環境前，需要首先開啓`X Window System (X11)`：
 
 ```sh
 services.xserver.enable = true;
 ```
 
-`services.xserver.desktopManager`配置项设定使用的桌面环境：
+`services.xserver.desktopManager`配置項設定使用的桌面環境：
 
 ```sh
 services.xserver.desktopManager.plasma5.enable = true;
@@ -368,7 +368,7 @@ services.xserver.desktopManager.gnome3.enable = true;
 services.xserver.desktopManager.mate.enable = true;
 ```
 
-`services.xserver.windowManager`配置项设定使用的窗口管理器：
+`services.xserver.windowManager`配置項設定使用的窗口管理器：
 
 ```sh
 services.xserver.windowManager.xmonad.enable = true;
@@ -377,10 +377,10 @@ services.xserver.windowManager.icewm.enable = true;
 services.xserver.windowManager.i3.enable = true;
 ```
 
-`services.xserver.displayManager`配置项设定使用的登陆管理器：
+`services.xserver.displayManager`配置項設定使用的登陸管理器：
 
 ```sh
-services.xserver.displayManager.sddm.enable = true; # SDDM为默认使用的登陆管理器
+services.xserver.displayManager.sddm.enable = true; # SDDM爲默認使用的登陸管理器
 services.xserver.displayManager.slim.enable = true;
 services.xserver.displayManager.lightdm.enable = true;
 ```
