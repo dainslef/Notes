@@ -48,3 +48,32 @@ $ mvn dependency:tree
 ```
 
 使用Idea時，可在Maven依賴圖中搜索指定包名，右鍵選擇`Exclude`將指定依賴從項目中排除。
+
+
+
+# Repository
+Maven會將依賴包緩存到本地，默認本地緩存倉庫路徑為`~/.m2/repository`。
+
+## 修改本地緩存路徑
+修改`$HOME/.m2/settings.xml`文件，添加`<localRepository/>`配置段：
+
+```xml
+<localRepository>...(自定義路徑)</localRepository>
+```
+
+## Mirror
+Maven中心倉庫服務器位於海外，在牆內下載速度較慢。國內可使用阿里提供的鏡像源。
+
+修改`$HOME/.m2/settings.xml`文件，添加`<mirrors/>`配置段：
+
+```xml
+<mirrors>
+	<!-- 阿里雲倉庫 -->
+	<mirror>
+		<id>alimaven</id>
+		<mirrorOf>central</mirrorOf>
+		<name>aliyun maven</name>
+		<url>http://maven.aliyun.com/nexus/content/repositories/central/</url>
+	</mirror>
+</mirrors>
+```
