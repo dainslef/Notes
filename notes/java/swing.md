@@ -48,12 +48,12 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "版本号"
 Java Swing提供的控件位于`javax.swing`包路径下，命名均以字母`J`起始。
 
 Scala Swing对`Java Swing`提供的多数控件进行了浅层的封装，使之更符合Scala的API风格。
-`Scala Swing`控件位于`scala.swing`路径下，名称为对应的`Java Swing`控件去掉首字母`J`。
+Scala Swing控件位于`scala.swing`路径下，名称为对应的Java Swing控件去掉首字母`J`。
 
 容器类控件：
 
 | Java Swing 控件名称 | Scala Swing 控件名称 | 控件简介 |
-|:-------------------|:-------------------|:--------|
+| :- | :- | :- |
 | JFrame | Frame | 顶层窗体控件 |
 | JDialog | Dialog | 对话框窗体 |
 | JPanel | Panel | 面板 |
@@ -64,7 +64,7 @@ Scala Swing对`Java Swing`提供的多数控件进行了浅层的封装，使之
 文本控件：
 
 | Java Swing 控件名称 | Scala Swing 控件名称 | 控件简介 |
-|:-------------------|:-------------------|:--------|
+| :- | :- | :- |
 | JLabel | Label | 文本标签 |
 | JTextField | TextField | 单行文本框 |
 | JTextArea | TextArea | 多行文本框 |
@@ -73,7 +73,7 @@ Scala Swing对`Java Swing`提供的多数控件进行了浅层的封装，使之
 按钮控件：
 
 | Java Swing 控件名称 | Scala Swing 控件名称 | 控件简介 |
-|:-------------------|:-------------------|:--------|
+| :- | :- | :- |
 | JButton | Button | 普通按钮 |
 | JCheckBox | CheckBox | 复选框 |
 | JRadioButton | RadioButton | 单选框 |
@@ -84,7 +84,7 @@ Scala Swing对`Java Swing`提供的多数控件进行了浅层的封装，使之
 菜单栏：
 
 | Java Swing 控件名称 | Scala Swing 控件名称 | 控件简介 |
-|:-------------------|:-------------------|:--------|
+| :- | :- | :- |
 | JMenubar | Menubar | 菜单栏 |
 | JMenu | Menu | 菜单栏上的按钮 |
 | JMenuItem | MenuItem | 点击菜单按钮弹出的菜单项 |
@@ -144,10 +144,10 @@ public void setBorder(Border border);
 
 - `EmptyBorder`
 
-	`EmptyBorder`为仅占据面板空间的透明边框。
-	通过使用`EmptyBorder`，可以实现控制控件边界空隙的效果(类似于**CSS**中的`Margin`属性)。
+	EmptyBorder为仅占据面板空间的透明边框。
+	通过使用EmptyBorder，可以实现控制控件边界空隙的效果(类似于**CSS**中的`Margin`属性)。
 
-	创建`EmptyBorder`的静态方法：
+	创建EmptyBorder的静态方法：
 
 	```java
 	// 创建默认样式的 EmptyBorder
@@ -156,12 +156,12 @@ public void setBorder(Border border);
 	public static Border createEmptyBorder(int top, int left, int bottom, int right);
 	```
 
-- `TitledBorder
+- `TitledBorder`
 
-	`TitledBorder`为框线上带有标题的边框。
-	`Swing`中并未提供默认的`GroupBox`控件，但可以对`JPanel`等控件设定`TitledBorder`来实现类似效果。
+	TitledBorder为框线上带有标题的边框。
+	Swing中并未提供默认的`GroupBox`控件，但可以对JPanel等控件设定TitledBorder来实现类似效果。
 
-	创建`EmptyBorder`的静态方法：
+	创建TitledBorder的静态方法：
 
 	```java
 	public static TitledBorder createTitledBorder(Border border, String title,
@@ -194,7 +194,7 @@ JScrollPane scrollPane = new JScrollPane(textArea);
 
 
 # MessageBox
-与**Qt**类似，`Swing`也提供了弹出`MessageBox`的静态方法，即`JOptionPane.showMessageDialog()`。
+与`Qt`类似，Swing也提供了弹出`MessageBox`的静态方法，即`JOptionPane.showMessageDialog()`。
 
 ```java
 // 调出标题为"Message"的信息消息对话框
@@ -224,11 +224,7 @@ Scala Swing在事件处理上采用了`Reactor`模式，与Java Swing风格不�
 ## Java Swing 事件机制
 Java Swing的事件机制主要包括以下部分：
 
-1. 监听器，包含对事件的处理逻辑。
-1. 事件源，即触发事件的控件。
-1. 事件，包含特定的事件信息。
-
-- 监听器
+1. 监听器，包含对事件的处理逻辑：
 
 	所有的的监听源都实现了`java.util.EventListener`接口。
 	`EventListener`接口是空接口，`Java Swing`根据不同的事件类型定义了一系列继承于`EventListener`的子接口。
@@ -236,7 +232,7 @@ Java Swing的事件机制主要包括以下部分：
 	不同的监听器接口定义了不同的抽象方法，当对应的监听事件触发时，对应方法会被调用。
 	通过重写监听器接口的抽象方法来实现事件处理逻辑。
 
-- 事件源
+1. 事件源，即触发事件的控件：
 
 	事件源是某个具体的控件对象。
 	控件对象通过绑定监听器对象在事件触发时调用对应监听器对象的重写方法。
@@ -254,16 +250,16 @@ Java Swing的事件机制主要包括以下部分：
 
 	不同的控件类型根据其控件职能会拥有不同类型监听器的交互方法。
 
-- 事件
+1. 事件，包含特定的事件信息：
 
 	所有的事件都继承自`java.util.EventObject`。
 
 	事件保存了具体的某一次事件发生时的事件信息。
 	事件做为监听器抽象方法的参数，当事件触发时，对应的事件信息做为参数传入。
 
-	以按钮控件的`ActionEvent`为例，实现`ActionEvent`的处理需要以下步骤：
+	以按钮控件的`ActionEvent`为例，实现ActionEvent的处理需要以下步骤：
 
-	1. 构建`ActionEvent`监听器，监听器实现`ActionListener`接口，重写抽象方法`actionPerformed()`。
+	1. 构建ActionEvent监听器，监听器实现`ActionListener`接口，重写抽象方法`actionPerformed()`。
 	1. 按钮控件对象调用`addActionListener()`方法，将控件绑定监听器。
 
 	如下代码所示：
@@ -278,28 +274,28 @@ Java Swing的事件机制主要包括以下部分：
 	button.addActionListener(action);
 	```
 
-- 常见监听器类型应用
+常见监听器类型应用：
 
-	1. *KeyListener* (键盘按键监听器)
+1. `KeyListener` (键盘按键监听器)
 
- 		通过键盘监听器可屏蔽指定按键输入。
+	通过键盘监听器可屏蔽指定按键输入。
 
-		实现`KeyListener`接口，重写`keyTyped()`方法。
-		对`KeyEvent`类型的事件参数调用`getKeyChar()`方法获取输入的字符，判断输入内容。
-		对需要屏蔽的输入使用`setKeyChar('\0')`转化为空输入。
+	实现KeyListener接口，重写`keyTyped()`方法。
+	对`KeyEvent`类型的事件参数调用`getKeyChar()`方法获取输入的字符，判断输入内容。
+	对需要屏蔽的输入使用`setKeyChar('\0')`转化为空输入。
 
-		如下所示：(只接受数字输入)
+	如下所示：(只接受数字输入)
 
-		```java
-		KeyListener keyListener = e -> {
-			if (e.getKeyChar() < '0' || e.getKeyChar() > '9') e.setKeyChar('\0');
-		}
-		```
+	```java
+	KeyListener keyListener = e -> {
+		if (e.getKeyChar() < '0' || e.getKeyChar() > '9') e.setKeyChar('\0');
+	}
+	```
 
 ## Scala Swing 事件机制
-`Scala Swing`中，事件采用集中式处理，所有被监听的控件发出的各类事件会被汇总统一处理。
+Scala Swing中，事件采用集中式处理，所有被监听的控件发出的各类事件会被汇总统一处理。
 
-`Scala Swing`所有控件的基类`scala.swing.UIElement`都间接混入了事件发布者特质`scala.swing.Publisher`：
+Scala Swing所有控件的基类`scala.swing.UIElement`都间接混入了事件发布者特质`scala.swing.Publisher`：
 
 ```scala
 trait UIElement extends Proxy with LazyPublisher {
@@ -353,12 +349,12 @@ abstract class Reactions extends Reactions.Reaction {
 ```
 
 向`reactions`字段添加自定义的事件处理偏函数来处理UI事件。
-`reactions`字段添加的偏函数参数为`scala.swing.event.Event`，返回值类型为`Unit`。
+reactions字段添加的偏函数参数为`scala.swing.event.Event`，返回值类型为`Unit`。
 
-`Event`特质是所有`Scala Swing`事件类型的基类。
-事件类型与`Java Swing`中类似，但使用了`Scala`的样例类特性，便于在事件处理偏函数中使用。
+`Event`特质是所有Scala Swing事件类型的基类。
+事件类型与Java Swing中类似，但使用了Scala的样例类特性，便于在事件处理偏函数中使用。
 
-以`ActionEvent`为例，在`Scala Swing`中实现`ActionEvent`事件的处理：
+以`ActionEvent`为例，在Scala Swing中实现ActionEvent事件的处理：
 
 ```scala
 val button = new Button
@@ -375,10 +371,10 @@ reactions += {
 
 
 # MVC
-`Swing`中的组件采用了`MVC`的设计模式，对于`JList`、`JComboBox`、`JTable`等控件均可通过组装`Model`构建对象并显示内容。
+Swing中的组件采用了`MVC`的设计模式，对于`JList`、`JComboBox`、`JTable`等控件均可通过组装Model构建对象并显示内容。
 
 ## ComboBox
-获取目标`Map`的`Key`集合：
+获取目标Map的`Key`集合：
 
 ```java
 Set set = map.keySet();
@@ -407,8 +403,8 @@ JTable(TableModel dm);
 即使用`Object数组`确定表格模型或是使用`TableModel`类构建表格模型。
 使用对象数组构建表格模型可以先从数组库中读取对应数据，然后将数据存储在对象数组中。
 
-使用`TableModel`类的基本步骤：
+使用TableModel的基本步骤：
 
-1. 构建`TableMode`对象。
-1. 使用`TableMode`类的成员方法`setValueAt(Object aValue, int rowIndex, int columnIndex)`设定表格模型每个位置的数据。
-1. 在`JTable`使用构造函数或在已有的`JTable`实例调用`setModel(TableModel dataModel)`成员方法创建表格。
+1. 构建TableMode对象。
+1. 使用TableMode类的成员方法`setValueAt(Object aValue, int rowIndex, int columnIndex)`设定表格模型每个位置的数据。
+1. 使用JTable构造函数或在已有的JTable实例调用`setModel(TableModel dataModel)`成员方法创建表格。
