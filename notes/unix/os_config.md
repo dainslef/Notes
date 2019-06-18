@@ -71,7 +71,7 @@ Windows系統提供的命令行執行DOS系統工具指令。
 
 ```c
 // 查看DOS指令的使用幫助
-> [指令名稱] /help
+> [指令名稱] /?
 
 // 查看目錄
 > dir
@@ -84,6 +84,8 @@ Windows系統提供的命令行執行DOS系統工具指令。
 > copy
 // 刪除文件
 > del
+// 查看文件
+> type
 
 // 展示目錄樹
 > tree
@@ -183,7 +185,7 @@ mklink指令默認創建軟連接文件，使用`/d`參數創建軟連接**目�
 記錄Windows中常見問題的解決方案。
 
 ### Reply from ::1: time<1ms
-問題描述：<br/>
+問題描述：<br>
 ping本機(`localhost`)時，出現如下輸出：
 
 ```
@@ -204,10 +206,10 @@ Approximate round trip times in milli-seconds:
 
 向`::1`地址而非常規的`127.0.0.1`發起請求。
 
-問題分析：<br/>
+問題分析：<br>
 `::1`是IPv6協議的默認本機地址，類似IPv4下的`127.0.0.1`，系統處在無有效IPv6網絡的環境下，ping本機出現回環。
 
-解決方案：<br/>
+解決方案：<br>
 可依次嘗試以下解決方案：
 
 1. 在控制面版中禁用對應網卡的IPv6協議(`Control Panel\Network and Internet\Network Connections`)。
