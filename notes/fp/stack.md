@@ -128,14 +128,28 @@ Windows下，GHC编译器需要依赖`MSYS2`，使用`stack setup`安装GHC时�
 > stack setup --skip-msys
 ```
 
-可通过修改`$stack-root\config.yaml`中的顶层配置`local-programs-path`来指定GHC、MSYS2的安装路径。<br>
-可通过修改`$stack-root/global-project/stack.yaml`中的顶层配置`resolver`字段设置全局的LTS版本，进而控制GHC编译器的版本。
+可通过修改`$stack-root\config.yaml`中的顶层配置`local-programs-path`来指定GHC、MSYS2的安装路径：
+
+```yaml
+...
+local-programs-path: 路徑...
+...
+```
+
+可通过修改`$stack-root/global-project/stack.yaml`中的顶层配置`resolver`字段设置全局的LTS版本，
+进而控制GHC编译器的版本：
+
+```yaml
+...
+resolver: lts-xx.xx
+...
+```
 
 ## 配置 Mirrors
 Stackage和Hackage默认的镜像源在国内均被**墙**，需要替换源后才能正常使用。
 国内推荐使用`TUNA`源(清华大学镜像源)或`USTC`源(中科大镜像源)。
 
-以中科大源为例，编辑`$stack-root\config.yaml`，在`config.yaml`文件中添加：
+以中科大源为例，编辑`$stack-root\config.yaml`，在文件中添加：
 
 ```yaml
 # Hackage
@@ -154,6 +168,18 @@ urls:
 
 ## 包管理
 使用`stack install [Stackage包名]`可在全局安装某个Stackage包。
+
+對於包含Binary工具的Stackage包，在macOS/Linux中默認會被安裝到`~/.local/bin`路徑下，
+在Windows中默認會被安裝到`~\AppData\Roaming\local\bin`路徑下。
+
+通過修改配置`$stack-root\config.yaml`可改變Binary的安裝配置：
+
+```yaml
+...
+local-bin-path: 路徑...
+...
+```
+
 截止到`stack 1.7.1`，Stack仍未提供卸载指定Stackage包的功能，删除指定包需要手动清理所有相关路径。
 
 Stack判断一个包是否安装是根据本地的`snapshot-pkg-db`中的信息决定的，
