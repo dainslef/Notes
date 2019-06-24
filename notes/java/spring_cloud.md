@@ -84,6 +84,8 @@ Spring Cloud的組件版本通過`spring-cloud-dependencies`包進行設定，�
 - `Zuul`(Intelligent Routing，智能路由)
 - `Ribbon`(Client Side Load Balancing，客戶端負載均衡)
 
+詳細介紹可查閲[Spring Cloud Netfix官方文檔](https://cloud.spring.io/spring-cloud-netflix/spring-cloud-netflix.html)。
+
 ## Eureka
 Eureka分爲Client和Server兩部分，Server提供注冊服務，Client向Server進行注冊。
 Client會定期向Server發送心跳包告知服務的存活狀態。
@@ -109,14 +111,12 @@ Client會定期向Server發送心跳包告知服務的存活狀態。
 
 ```yaml
 # 設定 Eureka Server 的服務端口
-server:
-  port: xxxx
+server.port: xxxx
 
-eureka:
-  client:
-    # Standalone Mode，關閉 Eureka Server 自身的服務註冊
-    registerWithEureka: false
-    fetchRegistry: false
+eureka.client:
+  # Standalone Mode，關閉 Eureka Server 自身的服務註冊
+  registerWithEureka: false
+  fetchRegistry: false
 ```
 
 Eureka Server自身亦是Eureka Client，默認配置下同樣要求一個Eureka Server來註冊並維持心跳
@@ -162,14 +162,8 @@ Eureka Server的提供了WBE UI來展示已註冊服務的狀態，URL爲`http:/
 在項目的`application.yaml`中配置Eureka Client的連接、應用名：
 
 ```yaml
-eureka:
-  client:
-    service-url:
-      defaultZone: http://Eureka主機ip:服務端口/eureka/ # 設定需要註冊的 Eureka Server 地址
-
-spring:
-  application:
-    name: xxx # 設置應用名稱，默認配置下，應用名稱會用於生成 Eureka Client ID
+eureka.client.service-url.defaultZone: http://Eureka主機ip:服務端口/eureka/ # 設定需要註冊的 Eureka Server 地址
+spring.application.name: xxx # 設置應用名稱，默認配置下，應用名稱會用於生成 Eureka Client ID
 ```
 
 在配置類中注入`EurekaClient`類型的Bean：
@@ -272,11 +266,10 @@ class EurekaEventHandler {
 在`application.yaml`中添加路由配置：
 
 ```yaml
-zuul:
-  routes:
-    應用名稱1: /Xxx1/**
-    應用名稱2: /Xxx2/**
-    ...
+zuul.routes:
+  應用名稱1: /Xxx1/**
+  應用名稱2: /Xxx2/**
+  ...
 ```
 
 簡單的路由配置可直接為一個應用添加一個前置路徑層級，向Zuul發送的請求的URL匹配到對應的路由則會被轉發到對應名稱的應用。
@@ -284,23 +277,21 @@ zuul:
 Zuul支持更細粒度的路由控制：
 
 ```yaml
-zuul:
-  routes:
-    路由名稱:
-      path: /Xxx/**
-      serviceId: 應用名稱
+zuul.routes:
+  路由名稱:
+    path: /Xxx/**
+    serviceId: 應用名稱
 ```
 
 ### 保留前綴父級路徑URL
 默認的轉發規則下，用作匹配標識的前綴在轉發到目標服務後會被丟棄，若需保留前綴，則使用如下配置：
 
 ```yaml
-zuul:
-  routes:
-    路由名稱:
-      path: /Xxx/**
-      serviceId: 應用名稱
-      stripPrefix: false
+zuul.routes:
+  路由名稱:
+    path: /Xxx/**
+    serviceId: 應用名稱
+    stripPrefix: false
 ```
 
 ### Sensitive Headers
@@ -308,8 +299,7 @@ Zuul在轉發請求時會丟棄敏感信息相關請求頭，設定`zuul.sensiti
 默認的請求頭配置為：
 
 ```yaml
-zuul:
-  sensitiveHeaders: Cookie,Set-Cookie,Authorization
+zuul.sensitiveHeaders: Cookie,Set-Cookie,Authorization
 ```
 
 `zuul.sensitiveHeaders`配置項是**黑名單**(blacklist)，
@@ -319,19 +309,17 @@ zuul:
 在轉發時要保留所有認證信息，將該配置項置空即可：
 
 ```yaml
-zuul:
-  sensitiveHeaders:
+zuul.sensitiveHeaders:
 ```
 
 還可配置指定服務的轉發、保留敏感信息請求頭：
 
 ```yaml
-zuul:
-  routes:
-    路由名稱:
-      path: /Xxx/**
-      serviceId: 應用名稱
-      sensitiveHeaders: ...
+zuul.routes:
+  路由名稱:
+    path: /Xxx/**
+    serviceId: 應用名稱
+    sensitiveHeaders: ...
 ```
 
 ### ZuulFilter
@@ -381,6 +369,8 @@ Zuul監聽的相關請求**不會**觸發Spring MVC提供的攔截器。
 # Spring Cloud Config
 Spring Cloud Config提供了對分佈式系統的外部配置文件支持，包括客戶端和服務端。
 
+詳細介紹可查閲[Spring Cloud Config官方文檔](https://cloud.spring.io/spring-cloud-config/spring-cloud-config.html)。
+
 ## Config Server
 在Maven中引入以下依賴：
 
@@ -399,13 +389,8 @@ Config Server支持多種模式，最簡單的是`native`模式，直接將文�
 
 ```yaml
 spring:
-  profiles:
-    active: native # 設置 Config Server 為 native 模式
-  cloud:
-    config:
-      server:
-        native:
-          search-locations: classpath:/ # 指定配置路徑
+  profiles.active: native # 設置 Config Server 為 native 模式
+  cloud.config.server.native.search-locations: classpath:/ # 指定配置路徑
 ```
 
 放置配置路徑下所有符合規範的`properties/yaml`文件會被作爲配置對外提供。
@@ -450,12 +435,7 @@ Spring Cluoud Stream支持多種後端，如官方默認的`RabbitMQ`：
 配置對應的Stream後端之後，在配置中添加對應消息隊列的連接配置，以Kafka爲例：
 
 ```yaml
-spring:
-  cloud:
-    stream:
-      kafka:
-        binder:
-          brokers: ...
+spring.cloud.stream.kafka.binder.brokers: ...
 ```
 
 ## Config Client
@@ -471,12 +451,10 @@ spring:
 使用Config Client無需額外代碼，只需要修改配置，相關默認配置：
 
 ```yaml
-spring:
-  cloud:
-    config:
-      name: ${spring.application.name} # 配置的應用名稱
-      profile: ${spring.profiles.active} # 配置的profile名稱
-      uri: http://localhost:8888/ # 配置服務地址
+spring.cloud.config:
+  name: ${spring.application.name} # 配置的應用名稱
+  profile: ${spring.profiles.active} # 配置的profile名稱
+  uri: http://localhost:8888/ # 配置服務地址
 ```
 
 修改配置時需要注意，以上配置寫入`application.yaml`中**不生效**，應寫入`bootstrap.yaml`文件中。
@@ -496,13 +474,10 @@ Config Client與Eureka一同使用時，可直接通過`service-id`查找到配�
 將service-id設置為Config Server應用名稱(`spring.application.name`)即可。
 
 ```yaml
-spring:
-  cloud:
-    config:
-      # when use Eureka, you can use service-id to find Spring Cloud Server, instead of hard code in config file
-      discovery:
-        enabled: true
-        service-id: 配置中心的${spring.application.name}
+spring.cloud.config.discovery:
+  # when use Eureka, you can use service-id to find Spring Cloud Server, instead of hard code in config file
+  enabled: true
+  service-id: 配置中心的${spring.application.name}
 ```
 
 自動發現相關配置內容同樣需要寫入`bootstrap.yaml`文件中。
