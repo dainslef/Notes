@@ -20,6 +20,7 @@
 	- [自動發現配置中心](#自動發現配置中心)
 	- [@RefreshScope](#refreshscope)
 	- [手動刷新配置](#手動刷新配置)
+	- [客戶端配置自動刷新](#客戶端配置自動刷新)
 
 <!-- /TOC -->
 
@@ -507,15 +508,45 @@ Config Client中的配置默認僅在初始化時加載一次，若需要實現�
 修改`bootstrap.yaml`文件，導出用於配置更新的Rest API：
 
 ```yaml
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,refresh
+management.endpoints.web.exposure.include: health,info,refresh
 ```
 
 向需要刷新配置的客戶端的`actuator/refresh`路徑發送POST請求即可實現手動刷新：
 
 ```
 $ curl -X POST http://localhost:xxxx/actuator/refresh
+```
+
+## 客戶端配置自動刷新
+Config Server配置Moniter，可實現服務端配置自動刷新，並將變化的信息通過`Spring Cloud DBus`向外廣播。
+Config Client通過配置Spring Cloud DBus，訂閲指定Channel的消息，可實現配置自動刷新。
+
+使用Kafka作爲DBus後端，Config Client需要引入以下依賴：
+
+```xml
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-bus-kafka</artifactId>
+</dependency>
+```
+
+使用RabbitMQ作爲DBus後端，Config Client需要引入以下依賴：
+
+```xml
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-bus-amqp</artifactId>
+</dependency>
+```
+
+在`application.yaml`中添加對應DBus後端的連接配置即可運行。
+
+在`Spring Cloud Finchley/Greenwich`版本中，Spring Cloud DBus的實現存在BUG，
+Config Client訂閲的Channel ID與Config Server發送配置變化消息的Channel ID默認生成規則不同，
+會導致Config Client訂閲錯誤的Channel，進而Config Server端正常發現配置變化並推送DBus消息時，
+Config Client卻端未收到任何消息。
+解決方案是手動指定Client Config的DBus ID，在`application.yaml`中添加配置：
+
+```yaml
+spring.cloud.bus.id: ${vcap.application.name:${spring.application.name:application}}:${vcap.application.instance_index:${spring.profiles.active:${local.server.port:${server.port:0}}}}:${vcap.application.instance_id:${random.value}}
 ```
