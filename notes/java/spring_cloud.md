@@ -21,6 +21,7 @@
 	- [@RefreshScope](#refreshscope)
 	- [手動刷新配置](#手動刷新配置)
 	- [客戶端配置自動刷新](#客戶端配置自動刷新)
+	- [Config Server WEB API 與整合 Eureka Server](#config-server-web-api-與整合-eureka-server)
 
 <!-- /TOC -->
 
@@ -549,4 +550,29 @@ Config Client卻端未收到任何消息。
 
 ```yaml
 spring.cloud.bus.id: ${vcap.application.name:${spring.application.name:application}}:${vcap.application.instance_index:${spring.profiles.active:${local.server.port:${server.port:0}}}}:${vcap.application.instance_id:${random.value}}
+```
+
+## Config Server WEB API 與整合 Eureka Server
+Config Server配置完成后，會通過WEB API對外提供服務：
+
+```
+/{application}.yml
+/{application}/{profile}[/{label}]
+/{application}-{profile}.yml
+/{label}/{application}-{profile}.yml
+/{application}-{profile}.properties
+/{label}/{application}-{profile}.properties
+```
+
+默認的WEB API規則会將符合以上規則的URL視爲對配置的訪問。
+
+Eureka Server和Config Server可以進行整合，在配置類中同時添加`@EnableEurekaServer`和`@EnableConfigServer`即可。
+Config Server與Eureka Server進行整合後，會導致Eureka Server提供的Web UI中CSS樣式錯誤。
+因而Eureka Server Web UI中的CSS和JS請求均會被作爲對配置的請求，進而造成頁面需要的資源失效。
+
+解決方案是為Config Server相關請求添加前綴，隔離Config Server相關請求，避免幹擾Eureka相關請求。
+在Config Server的`application.yaml`中添加：
+
+```yaml
+spring.cloud.config.server.prefix: /config # 為所有 Config Server 的請求添加 /config 前綴
 ```
