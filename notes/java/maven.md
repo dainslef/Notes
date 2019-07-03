@@ -77,3 +77,49 @@ Maven中心倉庫服務器位於海外，在牆內下載速度較慢。國內可
 	</mirror>
 </mirrors>
 ```
+
+
+
+# Language Level
+默認配置下，Maven項目使用的`Language Level`和`Java Compiler`爲`Java 5(JDK 1.5)`，
+該配置下Java5之後的語言特性如自定義註解(Java6)、try-with-resource(Java7)，Lambda(Java8)等諸多新特性無法使用。
+
+使用Idea導入Maven工程時，Maven項目的LanguageLevel還會覆蓋項目的配置，導致Idea中設置的項目LanguageLevel失效。
+
+更改項目的LanguageLevel，在pom.xml中加入以下配置：
+
+```xml
+<project>
+	...
+	<properties>
+		<!-- 使用當前的JDK版本 -->
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+	...
+</project>
+```
+
+也可以直接設置`maven-compiler-plugin`的編譯參數來控制LanguageLevel：
+
+```xml
+<project>
+	...
+	<build>
+		...
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+		...
+	</build>
+	...
+</project>
+```
