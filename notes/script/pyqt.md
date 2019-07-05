@@ -1,25 +1,25 @@
 <!-- TOC -->
 
-- [*PyQt* 简介](#pyqt-简介)
-	- [安装 *PyQt*](#安装-pyqt)
+- [PyQt 简介](#pyqt-简介)
+	- [安装 PyQt](#安装-pyqt)
 - [信号槽机制](#信号槽机制)
 	- [连接信号槽](#连接信号槽)
 	- [自定义信号](#自定义信号)
 	- [自定义信号实例](#自定义信号实例)
-- [使用 *QtDesigner* 构建UI](#使用-qtdesigner-构建ui)
+- [QtDesigner](#qtdesigner)
 	- [调用UI文件生成的源码](#调用ui文件生成的源码)
-	- [简单实例：使用 *QSqlTableModel* 组装 *QTableView* 浏览 *MaraiDB* 数据库](#简单实例使用-qsqltablemodel-组装-qtableview-浏览-maraidb-数据库)
+	- [简单实例：使用 QSqlTableModel 组装 QTableView 浏览 MaraiDB 数据库](#简单实例使用-qsqltablemodel-组装-qtableview-浏览-maraidb-数据库)
 
 <!-- /TOC -->
 
 
 
-## *PyQt* 简介
-`PyQt`为`Qt`库提供了`Python`语言的接口，使用`PyQt`能够快速地完成GUI程序的开发。  
+# PyQt 简介
+`PyQt`为`Qt`库提供了Python语言的接口，使用PyQt能够快速地完成GUI程序的开发。
 本文基于`Python3`和`PyQt5`。
 
-### 安装 *PyQt*
-在`Linux`、`OS X`等Unix环境下，安装`PyQt`直接使用`pip`包管理器即可，无需额外的配置：
+## 安装 PyQt
+在`Linux`、`OS X`等Unix环境下，安装PyQt直接使用`pip`包管理器即可，无需额外的配置：
 
 ```
 $ pip install pyqt5
@@ -27,23 +27,23 @@ $ pip install pyqt5
 
 
 
-## 信号槽机制
-信号`signals`和槽`slots`机制是`Qt`的基础。  
-在`PyQt`中，信号槽的接口风格与传统的`C++ Qt`略有不同。
+# 信号槽机制
+信号`signals`和槽`slots`机制是Qt的基础。
+在PyQt中，信号槽的接口风格与传统的`C++ Qt`略有不同。
 
-### 连接信号槽
-信号使用`connect()`方法与槽函数或是其它信号相连。  
-与`C++ Qt`中的静态成员函数`QObject::connect()`不同，`PyQt5`中的`connect()`函数作为`class pyqtBoundSignal(builtins.object)`类型的**成员函数**存在，
-接口风格类似于`C#`中的`event`以及`C++`中的`boost::signals`。  
+## 连接信号槽
+信号使用`connect()`方法与槽函数或是其它信号相连。
+与C++的Qt中静态成员函数`QObject::connect()`不同，PyQt5中的`connect()`函数作为`class pyqtBoundSignal(builtins.object)`类型的**成员函数**存在，
+接口风格类似于`C#`中的`Event`以及`C++`中的`boost::signals`。
 函数定义如下：
 
 ```py
 connect(slot, type = Qt.AutoConnection, no_receiver_check = False)
 ```
 
-与`C++`不同，Python中的成员函数、全局函数无需额外修饰即可直接作为槽函数与信号连接。
+与C++不同，Python中的成员函数、全局函数无需额外修饰即可直接作为槽函数与信号连接。
 
-### 自定义信号
+## 自定义信号
 使用`class pyqtSignal(builtins.object)`来定义信号：
 
 ```py
@@ -51,7 +51,6 @@ pyqtSignal(*types, name: str = ..., revision: int = ..., arguments: Sequence = .
 ```
 
 自定义信号需要作为**类成员**定义在类中才能正常连接槽函数，**不能**作为**实例成员**定义在类中。
-
 如下所示：
 
 ```py
@@ -63,7 +62,7 @@ class TestSignal(QObject):
 		self.signalInt = pyqtSignal(int) # 错误，信号作为实例成员定义
 ```
 
-### 自定义信号实例
+## 自定义信号实例
 信号连接各类槽函数的演示如下：
 
 ```py
@@ -111,20 +110,20 @@ Call staticSlot, num: 666, strings: TestSignals
 
 
 
-## 使用 *QtDesigner* 构建UI
-与传统的`C++ Qt`开发相同，使用`PyQt`开发同样可以使用`QtDesigner`进行拖放式的快速UI布局。  
+# QtDesigner
+与传统C++的Qt开发相同，使用PyQt开发同样可以使用`QtDesigner`进行拖放式的快速UI布局。
 UI布局完成之后，使用Qt提供的`User Interface Compiler`将拖放的到的UI文件编译称对应的编程语言代码。
 
-在`PyQt`开发中，使用`pyuic`工具将`QtDesigner`得到的UI文件编译成对应的Python代码：
+在PyQt开发中，使用`pyuic`工具将QtDesigner得到的UI文件编译成对应的Python代码：
 
 ```
 $ pyuic5 [source_name].ui -o [code_name].py
 ```
 
-其步骤类似于`C++ Qt`开发中使用`uic`将UI文件编译成对应C++代码的过程。
+其步骤类似于C++的Qt开发中使用`uic`工具将UI文件编译成对应C++代码的过程。
 
-### 调用UI文件生成的源码
-与`C++ Qt`开发类似，`User Interface Compiler`会根据窗口类的名称生成对应的`Ui_xxx`类。  
+## 调用UI文件生成的源码
+与C++下的Qt开发类似，`User Interface Compiler`会根据窗口类的名称生成对应的`Ui_xxx`类。
 引用生成的代码大致分为以下几个步骤：
 
 1. 在自己的窗口类中实例化`Ui_xxx`类。
@@ -132,10 +131,10 @@ $ pyuic5 [source_name].ui -o [code_name].py
 
 之后，当前的窗口类便会使用UI文件中定义的布局。
 
-与`C++ Qt`开发类似，使用`PyQt`开发时，如果需要使用`QObject`内存回收机制，则需要重定义构造函数。  
-在构造函数中添加`parent`参数，并显式调用父类构造函数，将`parent`参数传入其中。
+与C++的Qt开发类似，使用PyQt开发时，如果需要使用`QObject`内存回收机制，则需要重定义构造函数。
+在构造函数中添加`parent`参数，并显式调用父类构造函数，将parent参数传入其中。
 
-### 简单实例：使用 *QSqlTableModel* 组装 *QTableView* 浏览 *MaraiDB* 数据库
+## 简单实例：使用 QSqlTableModel 组装 QTableView 浏览 MaraiDB 数据库
 在`MariaDB`数据库中创建创建如下结构的表：
 
 ```sql
@@ -147,7 +146,7 @@ CREATE TABLE `TestData` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 ```
 
-使用`QtCreator`创建如下的UI文件：
+使用QtCreator创建如下的UI文件：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -183,7 +182,7 @@ CREATE TABLE `TestData` (
 </ui>
 ```
 
-使用`pyuic`工具为其生成`Python`代码模块`ui.py`：
+使用`pyuic`工具为其生成Python代码模块`ui.py`：
 
 ```py
 # file_name: ui.py
