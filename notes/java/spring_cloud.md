@@ -22,6 +22,8 @@
 	- [手動刷新配置](#手動刷新配置)
 	- [客戶端配置自動刷新](#客戶端配置自動刷新)
 	- [Config Server WEB API 與整合 Eureka Server](#config-server-web-api-與整合-eureka-server)
+- [Spring Cloud Stream](#spring-cloud-stream)
+	- [依賴配置](#依賴配置)
 
 <!-- /TOC -->
 
@@ -576,3 +578,24 @@ Config Server與Eureka Server進行整合後，會導致Eureka Server提供的We
 ```yaml
 spring.cloud.config.server.prefix: /config # 為所有 Config Server 的請求添加 /config 前綴
 ```
+
+
+
+# Spring Cloud Stream
+`Spring Cloud Stream`是用於構建消息驅動(message-driven)的微服務框架。
+Spring Cloud Stream支持多種主流的消息隊列實現，如Kafka、RabbitMQ等，為不同的消息隊列實現提供了一套公用的API。
+
+更多介紹可查閲[Spring Cloud Stream官方文檔](https://cloud.spring.io/spring-cloud-stream/spring-cloud-stream.html)。
+
+## 依賴配置
+在Spring Boot項目中配置Spring Cloud的基礎依賴，然後添加Spring Cloud Stream對應的starter依賴。
+不同的消息隊列後端擁有不同的starter，以Kafka爲例：
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-stream-kafka</artifactId>
+</dependency>
+```
+
+其它消息隊列類似，`RabbitMQ`依賴即爲`spring-cloud-starter-stream-rabbit`。
