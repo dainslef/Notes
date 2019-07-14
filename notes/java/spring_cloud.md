@@ -24,6 +24,8 @@
 	- [Config Server WEB API 與整合 Eureka Server](#config-server-web-api-與整合-eureka-server)
 - [Spring Cloud Stream](#spring-cloud-stream)
 	- [依賴配置](#依賴配置)
+	- [應用結構](#應用結構)
+	- [Sink & Source](#sink--source)
 
 <!-- /TOC -->
 
@@ -599,3 +601,95 @@ Spring Cloud Stream支持多種主流的消息隊列實現，如Kafka、RabbitMQ
 ```
 
 其它消息隊列類似，`RabbitMQ`依賴即爲`spring-cloud-starter-stream-rabbit`。
+
+## 應用結構
+Spring Cloud Stream應用通過`input/output`兩類消息管道(channel)經過`Binder`與外部消息隊列相連。
+對於不同的消息隊列，Binder擁有各自特定的實現，但對外提供一致的接口。
+
+Spring Cloud Stream官方文檔中給出了應用結構的圖示：
+
+![Spring Cloud Stream Application Model](../../images/spring-cloud-stream-application-model.png)
+
+## Sink & Source
+Spring Cloud Stream中提供了預定義的消息通道：
+
+- `org.springframework.cloud.stream.messaging.Source` 消息發佈端，對應管道名稱`output`
+- `org.springframework.cloud.stream.messaging.Sink` 消息接收端，對應管道名稱`input`
+
+在`application.yaml`中加入管道消息發佈端和接收端綁定：
+
+```yaml
+spring.cloud.stream.bindings: # 設定管道
+  output: # 消息發佈管道
+    destination: input # 消息接收管道，一個的消息可以存在多個消息
+```
+
+使用`@EnableBinding(Source.class)`注解修飾配置類，注入Source類型實例，即可通過該實例向管道中發送消息：
+
+```kt
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.messaging.support.GenericMessage
+import org.springframework.cloud.stream.annotation.EnableBinding
+import org.springframework.cloud.stream.messaging.Source
+
+@EnableBinding(Source::class)
+class MessageSender {
+
+    @Autowired
+    private lateinit var source: Source
+
+    fun sendMessage(message: String) {
+        source.output().send(GenericMessage(message))
+    }
+
+}
+```
+
+使用`@EnableBinding(Sink.class)`注解修飾配置類，使用`@StreamListener`注解修飾指定方法，
+被修飾的方法會在消息到達時被回調：
+
+```kt
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.messaging.support.GenericMessage
+import org.springframework.cloud.stream.annotation.EnableBinding
+import org.springframework.cloud.stream.annotation.StreamListener
+import org.springframework.cloud.stream.messaging.Sink
+
+@EnableBinding(Sink::class)
+class MessageReceiver {
+
+    @StreamListener(Sink.INPUT)
+    fun receiveMessage(message: String) {
+        ...
+    }
+
+}
+```
+
+`@EnbaleBinding`注解可以同時綁定多個管道配置，包括輸入/輸出配置：
+
+```kt
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.messaging.support.GenericMessage
+import org.springframework.cloud.stream.annotation.EnableBinding
+import org.springframework.cloud.stream.annotation.StreamListener
+import org.springframework.cloud.stream.messaging.Sink
+import org.springframework.cloud.stream.messaging.Source
+
+@EnableBinding(Sink::class, Source::class)
+class MessageReceiver {
+
+    @Autowired
+    private lateinit var source: Source
+
+    fun sendMessage(message: String) {
+        source.output().send(GenericMessage(message))
+    }
+
+    @StreamListener(Sink.INPUT)
+    fun receiveMessage(message: String) {
+        ...
+    }
+
+}
+```
