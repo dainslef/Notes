@@ -13,6 +13,7 @@
 		- [Sensitive Headers](#sensitive-headers)
 		- [ZuulFilter](#zuulfilter)
 		- [HandlerInterceptorAdapter 與 ZuulFilter](#handlerinterceptoradapter-與-zuulfilter)
+		- [CrossOrigin (跨域問題)](#crossorigin-跨域問題)
 - [Spring Cloud Config](#spring-cloud-config)
 	- [Config Server](#config-server)
 	- [Config Client](#config-client)
@@ -369,6 +370,39 @@ Zuul監聽的相關請求**不會**觸發Spring MVC提供的攔截器。
 在Zuul中，過濾/攔截相關功能需要使用`ZuulFilter`。
 
 相關問題參考StackOverflow上的[**對應提問**](`https://stackoverflow.com/questions/39801282/handlerinterceptoradapter-and-zuul-filter`)。
+
+### CrossOrigin (跨域問題)
+使用Zuul轉發請求的模塊同樣需要處理跨域問題，要正確實現轉發跨域請求，需要滿足：
+
+- 目標模塊需要在自身控制器類中添加`@CrossOrigin(allowCredentials = "true")`注解。
+- Zuul自身提供`CorsFilter`的Bean來允許請求的跨域轉發。
+
+CorsFilter示例：
+
+```kt
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.context.annotation.Configuration
+
+@Configuration
+class XxxConfig {
+
+    ...
+
+    @Bean
+    fun corsFilter() = CorsFilter(UrlBasedCorsConfigurationSource().apply {
+        registerCorsConfiguration("/**", CorsConfiguration().apply {
+            allowCredentials = true //在請求回應中設置允許跨域
+            addAllowedOrigin("*") //設置允許的源
+            addAllowedHeader("*") //設置允許的請求頭
+            addAllowedMethod("*") //設置允許的方法
+        })
+    })
+
+    ...
+
+}
+```
 
 
 
