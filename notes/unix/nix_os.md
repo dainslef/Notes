@@ -14,6 +14,8 @@
 	- [字體配置](#字體配置)
 	- [輸入法配置](#輸入法配置)
 	- [桌面配置](#桌面配置)
+- [問題紀錄](#問題紀錄)
+	- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
 
 <!-- /TOC -->
 
@@ -384,3 +386,45 @@ services.xserver.displayManager.sddm.enable = true; # SDDM爲默認使用的登�
 services.xserver.displayManager.slim.enable = true;
 services.xserver.displayManager.lightdm.enable = true;
 ```
+
+
+
+# 問題紀錄
+紀錄在安裝、配置、日常使用NixOS時遇到的問題以及對應的解決方案。
+
+## Failed to start Network Time Synchronization.
+問題說明：<br>
+執行`nixos-rebuild switch`構建新配置並進行切換後，出現時間同步服務啟動失敗的提示：
+
+```
+# nixos-rebuild switch
+building Nix...
+building the system configuration...
+activating the configuration...
+setting up /etc...
+setting up tmpfiles
+warning: the following units failed: systemd-timesyncd.service
+
+● systemd-timesyncd.service - Network Time Synchronization
+   Loaded: loaded (/nix/store/4rv8z4s8hvs11r98414gqzkvxws5kii5-systemd-234/example/systemd/system/systemd-timesyncd.service; enabled; vendor preset: enabled)
+  Drop-In: /nix/store/yr7yppbvy8ibpjzdb4f0ra10063avjpx-system-units/systemd-timesyncd.service.d
+           └─overrides.conf
+   Active: failed (Result: exit-code) since Sat 2017-11-11 20:19:13 UTC; 4s ago
+     Docs: man:systemd-timesyncd.service(8)
+  Process: 16674 ExecStart=/nix/store/4rv8z4s8hvs11r98414gqzkvxws5kii5-systemd-234/lib/systemd/systemd-timesyncd (code=exited, status=226/NAMESPACE)
+ Main PID: 16674 (code=exited, status=226/NAMESPACE)
+
+Nov 11 20:19:13 nixos systemd[1]: systemd-timesyncd.service: Unit entered failed state.
+Nov 11 20:19:13 nixos systemd[1]: systemd-timesyncd.service: Failed with result 'exit-code'.
+Nov 11 20:19:13 nixos systemd[1]: systemd-timesyncd.service: Service has no hold-off time, scheduling restart.
+Nov 11 20:19:13 nixos systemd[1]: Stopped Network Time Synchronization.
+Nov 11 20:19:13 nixos systemd[1]: systemd-timesyncd.service: Start request repeated too quickly.
+Nov 11 20:19:13 nixos systemd[1]: Failed to start Network Time Synchronization.
+Nov 11 20:19:13 nixos systemd[1]: systemd-timesyncd.service: Unit entered failed state.
+Nov 11 20:19:13 nixos systemd[1]: systemd-timesyncd.service: Failed with result 'exit-code'.
+warning: error(s) occurred while switching to the new configuration
+```
+
+解決方案：<br>
+移除符號鏈接`/var/lib/systemd/timesync`和路徑`/var/lib/private/systemd/timesync`下的所有內容，重啓服務則不會再收到錯誤提示。
+參考[GitHub NixOS/nixpkgs Issues #31540](https://github.com/NixOS/nixpkgs/issues/31540)。
