@@ -123,3 +123,38 @@ Maven中心倉庫服務器位於海外，在牆內下載速度較慢。國內可
 	...
 </project>
 ```
+
+
+
+# Sub Project
+與sbt類似，Maven同樣可在一個項目中創建多個子項目，每個子項目可繼承父項目的依賴、插件等配置。
+
+在父項目的pom.xml中加入`<module/>`標簽，提供子模塊路徑的聲明：
+
+```xml
+<project>
+	...
+	<modules>
+		<module>...</module> <!-- 告知子模塊的路徑 -->
+		<module>...</module>
+		...
+	</modules>
+	...
+</project>
+```
+
+子項目擁有獨立的目錄和pom.xml配置，在子模塊的配置中添加`<parent/>`標簽，聲明父模塊的引用：
+
+```xml
+<project>
+	...
+	<parent>
+		<artifactId>spring-cloud-practice</artifactId>
+		<groupId>dainslef</groupId>
+		<version>0.1</version>
+	</parent>
+	...
+</project>
+```
+
+子模塊繼承父模塊的`<groupId/>`、`<version/>`，無須單獨配置。
