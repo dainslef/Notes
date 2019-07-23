@@ -1,41 +1,41 @@
-- [简介](#简介)
+- [簡介](#簡介)
 - [Akka Actor](#akka-actor)
 	- [配置 Akka Actor](#配置-akka-actor)
-	- [定义 Actor](#定义-actor)
-	- [创建 Actor](#创建-actor)
-- [问题注记](#问题注记)
-	- [Akka HTTP 文件缓存问题](#akka-http-文件缓存问题)
+	- [定義 Actor](#定義-actor)
+	- [創建 Actor](#創建-actor)
+- [問題註記](#問題註記)
+	- [Akka HTTP 文件緩存問題](#akka-http-文件緩存問題)
 
 
 
-# 简介
-`Akka`是一套用于构建**弹性**(scalable)、**可扩展**(resilient)、**分布式**(distributed)系统的开源库。  
-Akka让用户专注于**业务需求**(business needs)，而非编写底层代码来提供**可靠的行为**(reliable behavior)、**容错性**(fault tolerance)、**高性能**(high performance)。
+# 簡介
+`Akka`是一套用於構建**彈性**(scalable)、**可擴展**(resilient)、**分佈式**(distributed)系統的開源庫。  
+Akka讓用戶專注於**業務需求**(business needs)，而非編寫底層代碼來提供**可靠的行爲**(reliable behavior)、**容錯性**(fault tolerance)、**高性能**(high performance)。
 
 
 
 # Akka Actor
-`Akka Actor`提供了`Actor`模型在`JVM`上的实现。
+`Akka Actor`提供了`Actor`模型在`JVM`上的實現。
 
-Actor模型为编写高并发、分布式系统提供了高级的抽象。  
-Actor模型缓解了并发编程中的锁和线程管理等问题，让开发者能够简单、正确地构建并行系统。
+Actor模型爲編寫高併發、分佈式系統提供了高級的抽象。  
+Actor模型緩解了併發編程中的鎖和線程管理等問題，讓開發者能夠簡單、正確地構建並行系統。
 
-Actor模型最初由`Carl Hewitt`在`1973`年的论文中提出，之后由`Ericsson`开发的`Erlang`实现，
-在构建高并发、高可靠性的电信系统中有着成功的应用。  
-`Akka Actor`提供了与`Erlang Actor`类似的语法。
+Actor模型最初由`Carl Hewitt`在`1973`年的論文中提出，之後由`Ericsson`開發的`Erlang`實現，
+在構建高併發、高可靠性的電信系統中有着成功的應用。  
+`Akka Actor`提供了與`Erlang Actor`類似的語法。
 
-`Akka Actor`现在是`Lightbend`官方推荐的Actor实现，原先标准库中提供的`Scala Actor`在`Scala 2.10`版本后已被废弃。
+`Akka Actor`現在是`Lightbend`官方推薦的Actor實現，原先標準庫中提供的`Scala Actor`在`Scala 2.10`版本後已被廢棄。
 
 ## 配置 Akka Actor
-在sbt项目的`build.sbt`中添加依赖：
+在sbt項目的`build.sbt`中添加依賴：
 
 ```scala
-"com.typesafe.akka" %% "akka-actor" % "版本号"
+"com.typesafe.akka" %% "akka-actor" % "版本號"
 ```
 
-## 定义 Actor
-在包路径`akka.actor`下定义了Actor的相关类型。  
-自定义Actor应继承/混入`akk.actor.Actor`特质，如下所示：
+## 定義 Actor
+在包路徑`akka.actor`下定義了Actor的相關類型。  
+自定義Actor應繼承/混入`akk.actor.Actor`特質，如下所示：
 
 ```scala
 import akka.actor.Actor
@@ -50,9 +50,9 @@ class MyActor extends Actor {
 }
 ```
 
-自定义Actor应重写`receive`方法，在receive方法中提供消息处理逻辑。  
-receive方法为无参方法，返回值类型为`akka.actor.Actor.Receive`。  
-定义在Actor特质的伴生对象中：
+自定義Actor應重寫`receive`方法，在receive方法中提供消息處理邏輯。  
+receive方法爲無參方法，返回值類型爲`akka.actor.Actor.Receive`。  
+定義在Actor特質的伴生對象中：
 
 ```scala
 object Actor {
@@ -66,12 +66,12 @@ object Actor {
 }
 ```
 
-`Actor.Receive`类型实际为`Any => Unit`签名的**偏函数**。
+`Actor.Receive`類型實際爲`Any => Unit`簽名的**偏函數**。
 
-## 创建 Actor
-自定义的Actor类型子类并不能直接构造实例使用，而是需要通过`ActorSystem`管理、创建出对应的`ActorRef`引用进行操作。
+## 創建 Actor
+自定義的Actor類型子類並不能直接構造實例使用，而是需要通過`ActorSystem`管理、創建出對應的`ActorRef`引用進行操作。
 
-使用`ActorSystem`与`Props`创建`ActorRef`，基本代码如下所示：
+使用`ActorSystem`與`Props`創建`ActorRef`，基本代碼如下所示：
 
 ```scala
 import akka.actor._
@@ -81,8 +81,8 @@ val xxxActor = actorSystem.actorOf(Props[XxxActor])
 ...
 ```
 
-`ActorSystem`类提供了对Actor的管理、调度。  
-创建ActorRef需要首先构建ActorSystem实例，ActorSystem类的伴生对象提供了`apply()`方法用于构建实例：
+`ActorSystem`類提供了對Actor的管理、調度。  
+創建ActorRef需要首先構建ActorSystem實例，ActorSystem類的伴生對象提供了`apply()`方法用於構建實例：
 
 ```scala
 object ActorSystem {
@@ -94,14 +94,14 @@ object ActorSystem {
 }
 ```
 
-不同的ActorSystem以名字作为区分，不填写名称参数时，默认名称为`default`。  
-ActorSystem有较大系统开销，不应反复构造过多的ActorSystem实例。
+不同的ActorSystem以名字作爲區分，不填寫名稱參數時，默認名稱爲`default`。  
+ActorSystem有較大系統開銷，不應反覆構造過多的ActorSystem實例。
 
-`Props`类提供了Actor的配置。  
-无构造器参数的Actor可直接使用Props伴生对象中的空参`apply()`方法生成默认Actor配置，
-构造器带有参数的Actor应使用Props伴生对象中的其它`apply()`方法的重载形式，
-显式传入构造器参数/Actor实例构造Props配置。  
-相关方法定义如下：
+`Props`類提供了Actor的配置。  
+無構造器參數的Actor可直接使用Props伴生對象中的空參`apply()`方法生成默認Actor配置，
+構造器帶有參數的Actor應使用Props伴生對象中的其它`apply()`方法的重載形式，
+顯式傳入構造器參數/Actor實例構造Props配置。  
+相關方法定義如下：
 
 ```scala
 object Props extends AbstractProps {
@@ -113,7 +113,7 @@ object Props extends AbstractProps {
 }
 ```
 
-构建Props实例如下所示：
+構建Props實例如下所示：
 
 ```scala
 class MyActor extends Actor {
@@ -125,13 +125,13 @@ class MyActor extends Actor {
 
 }
 
-val props = Props[MyActor] //使用无参构造器
-val propsWithArgs = Props(classOf[MyActor], "xxxx") //使用参数有参构造器
-val propsWithInstance = Props(new MyActor("xxxx")) //直接使用Actor实例
+val props = Props[MyActor] //使用無參構造器
+val propsWithArgs = Props(classOf[MyActor], "xxxx") //使用參數有參構造器
+val propsWithInstance = Props(new MyActor("xxxx")) //直接使用Actor實例
 ```
 
-ActorSystem类继承了`ActorRefFactory`特质，该特质提供了`actorOf()`方法，
-可通过Props实例构建对应的ActorRef，相关方法定义如下：
+ActorSystem類繼承了`ActorRefFactory`特質，該特質提供了`actorOf()`方法，
+可通過Props實例構建對應的ActorRef，相關方法定義如下：
 
 ```scala
 abstract class ActorSystem extends ActorRefFactory {
@@ -146,17 +146,17 @@ trait ActorRefFactory {
 }
 ```
 
-除了直接通过ActorSystem创建顶层ActorRef外，亦可在Actor定义内部创建ActorRef。
+除了直接通過ActorSystem創建頂層ActorRef外，亦可在Actor定義內部創建ActorRef。
 
-`Actor`类型内定义了隐式成员`content`，通过content成员可以获取当前Actor的`ActorContent`实例，
-通过ActorContent实例的`actorOf()`方法可创建新的`ActorRef`。  
-`ActorContent`特质继承了`ActorRefFactory`特质，ActorRefFactory特质中同样定义了`actorOf()`方法用于创建`ActorRef`。  
-相关源码如下：
+`Actor`類型內定義了隱式成員`content`，通過content成員可以獲取當前Actor的`ActorContent`實例，
+通過ActorContent實例的`actorOf()`方法可創建新的`ActorRef`。  
+`ActorContent`特質繼承了`ActorRefFactory`特質，ActorRefFactory特質中同樣定義了`actorOf()`方法用於創建`ActorRef`。  
+相關源碼如下：
 
 ```scala
 trait Actor {
   ...
-  implicit val context: ActorContext //通过 context 成员获取 ActorContent 实例
+  implicit val context: ActorContext //通過 context 成員獲取 ActorContent 實例
   ...
 }
 
@@ -174,13 +174,13 @@ trait ActorRefFactory {
 
 
 
-# 问题注记
-记录一些Akka开发中遇到的问题。
+# 問題註記
+記錄一些Akka開發中遇到的問題。
 
-## Akka HTTP 文件缓存问题
-问题描述：  
-使用Akka HTTP返回本地文件做为请求响应时，Tomcat会在`/tmp/tomcat...`路径下缓存该文件。
-当本地文件内容更新后，Akka HTTP依旧返回Tomcat缓存路径中的旧文件，请求端依旧得到旧文件。
+## Akka HTTP 文件緩存問題
+問題描述：  
+使用Akka HTTP返回本地文件做爲請求響應時，Tomcat會在`/tmp/tomcat...`路徑下緩存該文件。
+當本地文件內容更新後，Akka HTTP依舊返回Tomcat緩存路徑中的舊文件，請求端依舊得到舊文件。
 
-解决方案：  
-删除Tomcat缓存目录`/tmp/tomcat...`。
+解決方案：  
+刪除Tomcat緩存目錄`/tmp/tomcat...`。
