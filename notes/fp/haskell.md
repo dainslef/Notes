@@ -10,6 +10,7 @@
 - [Pointfree Style](#pointfree-style)
 	- [概念解释](#概念解释)
 	- [Pointfree 应用](#pointfree-应用)
+	- [pointfree變換技巧](#pointfree變換技巧)
 	- [有趣的pointfree变换](#有趣的pointfree变换)
 - [求值策略](#求值策略)
 	- [Lazy evaluation 的实现](#lazy-evaluation-的实现)
@@ -322,12 +323,37 @@ Prelude> filter (>5) [1 .. 10]
 [6,7,8,9,10]
 ```
 
+## pointfree變換技巧
 常用的pointfree变换技巧：
 
 1. 使用`.`函数组合函数或变更函数签名
 1. `.`函数是右结合性的，参数会优先执行`.`函数右侧的函数
 1. 灵活使用`flip`函数调换参数位置，使表达式的参数位置匹配签名位置
 1. 当表达式结果类型完全匹配函数签名时则变形完成
+
+以一個更複雜的函數作爲例子：
+
+```hs
+p x y z = f (g x y) z
+```
+
+逐步變換為pointfree形式：
+
+```hs
+p = \x -> \y -> \z -> f (g x y) z
+  = \x -> \y -> f (g x y)
+  = \x -> \y -> (f . (g x)) y
+  = \x -> f . (g x)
+  = \x -> ((.) f) (g x)
+  = \x -> (((.) f) . g) x
+  = ((.) f) . g
+```
+
+即函數`p x y z = f (g x y) z`的pointfree形式為：
+
+```hs
+p = ((.) f) . g
+```
 
 ## 有趣的pointfree变换
 [Haskell Wiki](https://wiki.haskell.org/Pointfree)中介绍了多种有趣的pointfree变换。
