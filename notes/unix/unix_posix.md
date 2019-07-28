@@ -1,129 +1,131 @@
 <!-- TOC -->
 
-- [系統調用與庫函數](#系統調用與庫函數)
-	- [系統調用](#系統調用)
-	- [庫函數](#庫函數)
-- [時間API](#時間api)
-	- [獲取當前的系統時間](#獲取當前的系統時間)
-	- [將時間轉化爲可讀格式](#將時間轉化爲可讀格式)
-	- [將時間轉化爲標準字符串表示](#將時間轉化爲標準字符串表示)
-- [文件與基本IO](#文件與基本io)
-	- [創建/打開一個文件](#創建打開一個文件)
-	- [讀取文件中的內容](#讀取文件中的內容)
-	- [向文件中寫入內容](#向文件中寫入內容)
-	- [獲取文件信息](#獲取文件信息)
+- [System Call & Library Call](#system-call--library-call)
+	- [System Call (系統調用)](#system-call-系統調用)
+	- [Library Call (庫函數)](#library-call-庫函數)
+- [Time API](#time-api)
+	- [獲取當前系統時間](#獲取當前系統時間)
+	- [讀取時間](#讀取時間)
+	- [時間轉換文本](#時間轉換文本)
+- [IO](#io)
+	- [創建/打開文件](#創建打開文件)
+	- [文件讀取](#文件讀取)
+	- [文件寫入](#文件寫入)
+	- [文件信息](#文件信息)
 	- [標準輸入/輸出](#標準輸入輸出)
-- [複製文件描述符](#複製文件描述符)
-	- [*dup3()* 函數](#dup3-函數)
-	- [使用 *dup()* 重定向輸出](#使用-dup-重定向輸出)
-- [Unix日誌](#unix日誌)
-- [日誌服務](#日誌服務)
+- [Dup (描述符複製)](#dup-描述符複製)
+	- [dup()](#dup)
+	- [dup3()](#dup3)
+- [Log (日誌)](#log-日誌)
+	- [日誌服務](#日誌服務)
 	- [打開日誌](#打開日誌)
 	- [輸出日誌](#輸出日誌)
 	- [關閉日誌連接](#關閉日誌連接)
 	- [實例代碼](#實例代碼)
-- [Unix進程](#unix進程)
+- [Process (進程)](#process-進程)
 	- [進程控制函數](#進程控制函數)
 	- [等待進程](#等待進程)
-	- [*Daemon* (守護進程)](#daemon-守護進程)
-- [*signal* (信號)](#signal-信號)
-	- [處理信號](#處理信號)
-	- [發送信號](#發送信號)
+	- [Daemon (守護進程)](#daemon-守護進程)
+- [Signal (信號)](#signal-信號)
+	- [信號處理](#信號處理)
+	- [信號發送](#信號發送)
 	- [信號觸發](#信號觸發)
-	- [可靠信號與不可靠信號](#可靠信號與不可靠信號)
-	- [屏蔽信號](#屏蔽信號)
+	- [可靠信號/不可靠信號](#可靠信號不可靠信號)
+	- [信號屏蔽](#信號屏蔽)
 	- [屏蔽線程信號](#屏蔽線程信號)
 	- [信號相關的進程控制函數](#信號相關的進程控制函數)
 	- [多線程信號處理](#多線程信號處理)
-- [POSIX 線程(pthread)](#posix-線程pthread)
+- [pthread (POSIX線程)](#pthread-posix線程)
 	- [Linux下的線程實現](#linux下的線程實現)
-	- [創建線程](#創建線程)
-	- [等待線程](#等待線程)
-	- [取消線程](#取消線程)
-	- [終止線程](#終止線程)
-	- [用互斥量進行線程同步](#用互斥量進行線程同步)
-	- [使用互斥量進行進程同步](#使用互斥量進行進程同步)
-- [*XSI IPC*](#xsi-ipc)
-	- [IPC標誌](#ipc標誌)
-	- [XSI IPC特點](#xsi-ipc特點)
-- [*SystemV* 共享內存](#systemv-共享內存)
-	- [創建/獲取共享內存](#創建獲取共享內存)
-	- [獲得共享內存地址](#獲得共享內存地址)
-	- [分離共享內存](#分離共享內存)
-	- [控制共享內存](#控制共享內存)
-- [SystemV 信號量(Semaphore)](#systemv-信號量semaphore)
-	- [創建/獲取信號量](#創建獲取信號量)
-	- [改變信號量的值](#改變信號量的值)
-	- [設置信號量信息](#設置信號量信息)
-- [SystemV 消息隊列(XSI Message Queue)](#systemv-消息隊列xsi-message-queue)
-	- [創建/獲取消息隊列](#創建獲取消息隊列)
-	- [向消息隊列中添加消息](#向消息隊列中添加消息)
-	- [從消息隊列中獲取消息](#從消息隊列中獲取消息)
-	- [控制消息隊列](#控制消息隊列)
-	- [實例代碼](#實例代碼-1)
-- [POSIX 消息隊列](#posix-消息隊列)
-	- [創建/獲取消息隊列](#創建獲取消息隊列-1)
-	- [關閉/移除消息隊列](#關閉移除消息隊列)
-	- [設置獲取消息隊列的屬性](#設置獲取消息隊列的屬性)
-	- [打印消息隊列的系統限制](#打印消息隊列的系統限制)
-	- [向消息隊列發送消息](#向消息隊列發送消息)
-	- [從消息隊列獲取消息](#從消息隊列獲取消息)
-	- [消息隊列通知](#消息隊列通知)
-	- [實例代碼](#實例代碼-2)
-- [IO多路複用(POSIX)](#io多路複用posix)
-	- [*select()* 調用](#select-調用)
-	- [*pselect()* 調用](#pselect-調用)
-- [IO多路複用(Epoll)](#io多路複用epoll)
-	- [*epoll_create()* 函數](#epoll_create-函數)
-	- [*epoll_ctl()* 函數](#epoll_ctl-函數)
-	- [*epoll_wait()* 函數](#epoll_wait-函數)
+	- [線程創建](#線程創建)
+	- [線程等待](#線程等待)
+	- [線程取消](#線程取消)
+	- [線程終止](#線程終止)
+	- [互斥量](#互斥量)
+	- [互斥量用於進程同步](#互斥量用於進程同步)
+- [XSI IPC](#xsi-ipc)
+	- [IPC 標誌](#ipc-標誌)
+	- [XSI IPC 特點](#xsi-ipc-特點)
+	- [SystemV 共享內存](#systemv-共享內存)
+		- [創建/獲取共享內存](#創建獲取共享內存)
+		- [共享內存獲取](#共享內存獲取)
+		- [共享內存分離](#共享內存分離)
+	- [共享內存控制](#共享內存控制)
+	- [Semaphore (SystemV 信號量)](#semaphore-systemv-信號量)
+		- [信號量創建/獲取](#信號量創建獲取)
+		- [改變信號量值](#改變信號量值)
+		- [信號量信息設置](#信號量信息設置)
+	- [XSI Message Queue (SystemV 消息隊列)](#xsi-message-queue-systemv-消息隊列)
+		- [創建/獲取消息隊列](#創建獲取消息隊列)
+		- [向消息隊列中添加消息](#向消息隊列中添加消息)
+		- [從消息隊列中獲取消息](#從消息隊列中獲取消息)
+		- [消息隊列控制](#消息隊列控制)
+		- [實例代碼](#實例代碼-1)
+	- [POSIX 消息隊列](#posix-消息隊列)
+		- [創建/獲取消息隊列](#創建獲取消息隊列-1)
+		- [關閉/移除消息隊列](#關閉移除消息隊列)
+		- [設置獲取消息隊列的屬性](#設置獲取消息隊列的屬性)
+		- [打印消息隊列的系統限制](#打印消息隊列的系統限制)
+		- [向消息隊列發送消息](#向消息隊列發送消息)
+		- [從消息隊列獲取消息](#從消息隊列獲取消息)
+		- [消息隊列通知](#消息隊列通知)
+		- [實例代碼](#實例代碼-2)
+- [IO多路複用 (POSIX)](#io多路複用-posix)
+	- [select()](#select)
+	- [pselect()](#pselect)
+- [IO多路複用 (Epoll)](#io多路複用-epoll)
+	- [epoll_create()](#epoll_create)
+	- [epoll_ctl()](#epoll_ctl)
+	- [epoll_wait()](#epoll_wait)
 	- [注意事項](#注意事項)
-	- [*LT* 與 *ET* 模式](#lt-與-et-模式)
+	- [LT/ET](#ltet)
 
 <!-- /TOC -->
 
 
 
-## 系統調用與庫函數
+# System Call & Library Call
 對開發者而言，系統調用與庫函數在Unix中都是一組C語言接口，但內部有很大區別。
 
-### 系統調用
+## System Call (系統調用)
 **系統調用**(`System calls`)是操作系統提供的服務入口點，程序由這些服務入口點向內核請求服務。
 
-Unix系統爲大多數的系統調用提供了同名的C函數接口，封裝在標準C庫(libc)中，在用戶進程中調用這些C函數來發起系統調用。  
+Unix系統爲大多數的系統調用提供了同名的C函數接口，封裝在標準C庫(libc)中，在用戶進程中調用這些C函數來發起系統調用。
 使用系統調用會在**用戶態**與**內核態**之間進行環境切換(內核發現`trap`之後進入內核態)，有較大開銷。
 
-在Linux和BSD中，部分系統函數沒有提供C庫的封裝(比如Linux中的`gettid()`)，需要使用`syscall()`函數進行調用，`syscall()`最初由BSD引入，Linux在`Linux Kernel 2.6.19`之後引入該函數。
+在Linux和BSD中，部分系統函數沒有提供C庫的封裝(比如Linux中的`gettid()`)，
+需要使用`syscall()`函數進行調用，`syscall()`最初由BSD引入，Linux在`Linux Kernel 2.6.19`之後引入該函數。
 
-一般而言，系統調用是系統服務的直接入口點。一些庫函數也會用到系統調用，但這些庫函數**不是**系統入口點(典型的例子是C語言標準庫中的`printf()`函數使用了系統調用`write()`)。
+一般而言，系統調用是系統服務的直接入口點。一些庫函數也會用到系統調用，
+但這些庫函數**不是**系統入口點(典型的例子是C語言標準庫中的`printf()`函數使用了系統調用`write()`)。
 
-`man`手冊卷`2`中的函數皆爲系統調用。
+`man`手冊**卷2**中的函數皆爲系統調用。
 
-### 庫函數
+## Library Call (庫函數)
 **庫函數**(`Library calls`)是編程語言的一部分，與操作系統無關，`Windows`系統中，例如`printf()`、`scanf()`等庫函數依然可用，但Unix系統調用如`read()`、`write()`便不再存在。
 
-一些庫函數內部會使用系統調用(如`printf()`)，在不同的操作系統中，庫函數會使用對應操作系統的系統調用。  
+一些庫函數內部會使用系統調用(如`printf()`)，在不同的操作系統中，庫函數會使用對應操作系統的系統調用。
 輔助功能性庫函數(如`memcpy()`、`atoi()`之類)是純粹的用戶態函數，不涉及系統調用，不會造成系統在用戶態與內核態之間切換。
 
-C標準庫函數可在`man`手冊卷`3`中查閱。
+C標準庫函數可在`man`手冊**卷3**中查閱。
 
 
 
-## 時間API
+# Time API
 Unix環境下的時間獲取相關函數定義在`time.h`頭文件之中。
 
-### 獲取當前的系統時間
+## 獲取當前系統時間
 使用`time()`函數獲取當前系統時間。
 
 ```c
 time_t time(time_t *t);
 ```
 
-`t`參數爲`time_t`類型變量的地址，函數會返回當前系統的時間，同時將當前系統的時間寫入傳入的地址中。  
-如果只是從返回值獲取當前時間，不需要將時間寫入傳入參數中，則參數可以填`NULL`，函數正常運行。  
+`t`參數爲`time_t`類型變量的地址，函數會返回當前系統的時間，同時將當前系統的時間寫入傳入的地址中。
+如果只是從返回值獲取當前時間，不需要將時間寫入傳入參數中，則參數可以填`NULL`，函數正常運行。
 返回值`time_t`保存的是`1970-01-01 00:00:00 +0000 (UTC)`開始到**當前時間**的秒數的數值，一般不直接使用。
 
-### 將時間轉化爲可讀格式
+## 讀取時間
 使用`localtime()`函數輸出時間結構體`tm`類型。
 
 ```c
@@ -154,13 +156,14 @@ struct tm {
 - **年份**爲當前年份減去`1900`的值，實際年份需要加`1900`。
 - **月份**範圍爲`0 ~ 11`，實際月份需要加`1`。
 
-### 將時間轉化爲標準字符串表示
+## 時間轉換文本
+使用`asctime()`函數可將`tm`時間結構轉換為`char*`時間文本。
 
 ```c
 char *asctime(const struct tm *tm);
 ```
 
-對於`localtime()`函數獲得的當前時間，可以使用該函數轉化爲可讀的字符串形式，返回值爲標準時間字符串的地址。  
+對於`localtime()`函數獲得的當前時間，可以使用該函數轉化爲可讀的字符串形式，返回值爲標準時間字符串的地址。
 需要注意的是，該函數返回的地址指向的字符串內容中已經包含了換行符，不需要再額外添加。
 
 一個典型的時間輸出如：`Wed Jul 29 01:04:10 2015`
@@ -190,11 +193,11 @@ int main(void)
 
 
 
-## 文件與基本IO
-Unix環境下基本的文件操作爲`open()`、`read()`、`write()`、`close()`、`ioctl()`等。  
+# IO
+Unix環境下基本的文件操作爲`open()`、`read()`、`write()`、`close()`、`ioctl()`等。
 相關的頭文件在`unistd.h`、`fcntl.h`、`sys/ioctl.h`之中。
 
-### 創建/打開一個文件
+## 創建/打開文件
 創建/打開文件涉及的系統調用定義在文件`fcntl.h`中。
 
 ```c
@@ -205,17 +208,17 @@ int openat(int dirfd, const char *pathname, int flags);
 int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 ```
 
-`creat()`函數用於創建文件；  
+`creat()`函數用於創建文件；
 `open()`函數既可用於創建文件(**flags**取`O_CREAT`)，也可用於打開文件，打開的對象也可以是**目錄**。
 
 - `pathname`參數：
 
-	對於`create()`和`open()`函數，參數`pathname`指向的字符數組爲文件所在路徑(路徑可爲絕對路徑或相對路徑)。  
+	對於`create()`和`open()`函數，參數`pathname`指向的字符數組爲文件所在路徑(路徑可爲絕對路徑或相對路徑)。
 	`dirfd`文件描述符表示的路徑爲**父目錄**，參數`pathname`指向的字符數組爲相對路徑。
 
 - `mode`參數：
 
-	`mode`代表創建的文件文件帶有的默認權限，可以用邏輯或操作符連接以下參數：
+	mode代表創建的文件文件帶有的默認權限，可以用邏輯或操作符連接以下參數：
 
 	- `S_IRUSR` 擁有者讀權限
 	- `S_IWUSR` 擁有者寫權限
@@ -229,7 +232,7 @@ int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 
 - `flag`參數
 
-	`flags`參數表示文件打開時的參數，參數可取**多個**，以**邏輯或**操作符連接，常用的有：
+	flags參數表示文件打開時的參數，參數可取**多個**，以**邏輯或**操作符連接，常用的有：
 
 	- `O_RDONLY` 只讀打開文件
 	- `O_WRONLY` 只寫打開文件
@@ -237,17 +240,15 @@ int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 	- `O_APPEND` 寫入數據時在原文件的末尾追加數據，而不是清楚原有數據
 	- `O_CREAT | O_EXECL` 創建原先**不存在**的文件，若文件已經存在了，則調用**失敗**
 
-- `openat()`函數
+`openat()`函數作用與open()函數類似，openat()函數允許使用多種路徑表示方式：
 
-	函數作用與`open()`函數類似，`openat()`函數允許使用多種路徑表示方式：
-
-	- `dirfd`文件描述符表示的路徑爲父目錄，而`pathname`中包含的字符串爲相對路徑。
-	- `dirfd`取特殊值`AT_FDCWD`，則父目錄爲**當前路徑**。
-	- `dirfd`取值**忽略**，`pathname`參數爲**絕對路徑**。
+- `dirfd`文件描述符表示的路徑爲父目錄，而`pathname`中包含的字符串爲相對路徑。
+- `dirfd`取特殊值`AT_FDCWD`，則父目錄爲**當前路徑**。
+- `dirfd`取值**忽略**，`pathname`參數爲**絕對路徑**。
 
 以上函數在執行成功時返回新的文件描述符，失敗時返回**-1**並置`errno`。
 
-### 讀取文件中的內容
+## 文件讀取
 使用`read()`函數讀取文件，函數定義在`unistd.h`中。
 
 ```c
@@ -258,10 +259,9 @@ ssize_t read(int fd, void *buf, size_t count);
 - `buf`參數爲讀取的內容的首地址。
 - `count`參數爲設定讀取的字節數。
 
-返回值爲實際讀取了的字節數。  
-失敗時返回`-1`。
+返回值爲實際讀取了的字節數。失敗時返回`-1`。
 
-### 向文件中寫入內容
+## 文件寫入
 使用`write()`向文件中寫入數據，函數定義在`unistd.h`中。
 
 ```c
@@ -272,13 +272,13 @@ ssize_t write(int fd, const void *buf, size_t count);
 - `buf`參數爲要寫入內容的首地址。
 - `count`參數指定寫入數據的長度。
 
-`buf`指向的內容中超過`count`長度的內容**不會**被寫入。  
+`buf`指向的內容中超過`count`長度的內容**不會**被寫入。
 返回值爲**實際寫入內容的大小**。
 
-對於同一個文件描述符，連續進行讀寫操作，每一次函數調用都會在上一次結束的位置進行，因此想要重複讀取某個文件的內容，需要創建新的文件描述符。  
+對於同一個文件描述符，連續進行讀寫操作，每一次函數調用都會在上一次結束的位置進行，因此想要重複讀取某個文件的內容，需要創建新的文件描述符。
 同一個文件可以同時擁有多個文件描述符，且各個文件描述符之間的文件讀取是相互獨立的。
 
-### 獲取文件信息
+## 文件信息
 使用`stat()`獲取文件的信息，函數定義在`sys/stat.h`中。
 
 ```c
@@ -320,11 +320,11 @@ struct stat {
 
 在`stat`結構中，定義了文件的文件的**大小**、**文件種類**、**所屬用戶/用戶組**、**文件的訪問/修改時間**等信息。
 
-### 標準輸入/輸出
+## 標準輸入/輸出
 在Unix哲學中，秉承**一切皆文件**思想，因而，在終端中進行輸入/輸出與讀寫文件操作類似，使用`read()/write()`調用即可。
 
 - **標準輸入**對應的文件描述符爲`0`。
-- **標準輸出**對應的文件描述符爲`1`。 
+- **標準輸出**對應的文件描述符爲`1`。
 - **標準錯誤輸出**對應的文件描述符爲`2`。
 
 使用`read()/write()`調用對這些特殊的文件描述符進行讀寫操作即可實現**終端輸入/輸出**的效果。
@@ -340,7 +340,7 @@ struct stat {
 
 
 
-## 複製文件描述符
+# Dup (描述符複製)
 使用`dup()`系列函數進行描述符複製操作，函數定義在頭文件`unistd.h`中。
 
 ```c
@@ -351,32 +351,18 @@ int dup2(int oldfd, int newfd);
 - `oldfd`參數爲舊的文件描述符。
 - `newfd`參數爲新的文件描述符。
 
-`dup()`接收舊的文件描述符參數，並複製舊描述符到當前未被使用的最小描述符編號上，返回該描述符。  
+`dup()`接收舊的文件描述符參數，並複製舊描述符到當前未被使用的最小描述符編號上，返回該描述符。
 `dup2()`接收舊的文件描述符和新文件描述符參數，並將舊文件描述符複製到新文件描述符上。
 
-函數執行成功返回新的文件描述符，失敗時返回`-1`。  
-函數執行成功則新舊文件描述符可以交替使用，新文件描述符擁有**相同**的文件偏移量和文件狀態標誌，當一個文件描述符的偏移量發生改變時，另一個文件描述符也將同步改變。
+函數執行成功返回新的文件描述符，失敗時返回`-1`。
+函數執行成功則新舊文件描述符可以交替使用，新文件描述符擁有**相同**的文件偏移量和文件狀態標誌，
+當一個文件描述符的偏移量發生改變時，另一個文件描述符也將同步改變。
 
 新舊文件描述符之間**不**共享`FD_CLOEXEC`描述符標誌。
 
-### *dup3()* 函數
-`Linux`下還提供了獨有的函數`dup3()`，`dup3()`函數需要定義`_GNU_SOURCE`宏並引用`fcntl.h`頭文件才能使用。
-
-```c
-#define _GNU_SOURCE             /* See feature_test_macros(7) */
-#include <fcntl.h>              /* Obtain O_* constant definitions */
-#include <unistd.h>
-
-int dup3(int oldfd, int newfd, int flags);
-```
-
-- `flags`參數可以取`O_CLOEXEC`標誌，設置了該標誌之後，複製的新描述符將帶有`FD_CLOEXEC`標誌。
-
-對於新舊文件描述符相同的情況，`dup2()`函數正常執行完畢並返回`newfd`，`dup3()`函數執行失敗並置`error`爲`EINVAL`。
-
-### 使用 *dup()* 重定向輸出
-`dup()`系列函數最常見的用途之一就是重定向標準、錯誤輸出到指定文件。  
-如下所示：
+## dup()
+`dup()`系列函數最常見的用途之一就是重定向標準、錯誤輸出到指定文件。
+示例：
 
 ```c
 #include <stdio.h>
@@ -433,16 +419,31 @@ The stderror_back is 4.
 ERROR1
 ```
 
+## dup3()
+`Linux`下還提供了獨有的函數`dup3()`，`dup3()`函數需要定義`_GNU_SOURCE`宏並引用`fcntl.h`頭文件才能使用。
+
+```c
+#define _GNU_SOURCE             /* See feature_test_macros(7) */
+#include <fcntl.h>              /* Obtain O_* constant definitions */
+#include <unistd.h>
+
+int dup3(int oldfd, int newfd, int flags);
+```
+
+- `flags`參數可以取`O_CLOEXEC`標誌，設置了該標誌之後，複製的新描述符將帶有`FD_CLOEXEC`標誌。
+
+對於新舊文件描述符相同的情況，`dup2()`函數正常執行完畢並返回`newfd`，`dup3()`函數執行失敗並置`error`爲`EINVAL`。
 
 
-## Unix日誌
-日誌相關的函數定義在頭文件`syslog.h`中。
+
+# Log (日誌)
+Unix日誌相關的函數定義在頭文件`syslog.h`中。
 
 ## 日誌服務
-在使用`SysVinit`作爲init系統的Linux中，日誌服務爲`rsyslog`或`syslog-ng`，主要日誌爲`/var/log/syslog`文件。  
+在使用`SysVinit`作爲init系統的Linux中，日誌服務爲`rsyslog`或`syslog-ng`，主要日誌爲`/var/log/syslog`文件。
 `/var/log/syslog`文件爲純文本，可以直接使用編輯器查看。
 
-在現代Linux中，init系統採用`systemd`，日誌服務也由`systemd`的子模塊`systemd-journald`提供，日誌文件位於`/var/log/journal`目錄下。  
+在現代Linux中，init系統採用`systemd`，日誌服務也由`systemd`的子模塊`systemd-journald`提供，日誌文件位於`/var/log/journal`目錄下。
 `systemd-journald`記錄的日誌爲**二進制**格式，使用編輯器查看顯示爲**亂碼**，應使用`journalctl`指令查看：
 
 ```
@@ -452,7 +453,7 @@ $ journalctl -e //查看近期日誌(最近的1000條日誌)
 
 使用`journalctl`指令會進入交互式日誌查看界面，跳轉翻頁快捷鍵等與`vim`編輯器類似。
 
-### 打開日誌
+## 打開日誌
 在開始記錄日誌之前，使用`openlog()`打開一個日誌連接。
 
 ```c
@@ -487,12 +488,15 @@ void closelog(void);
 
 `[日誌時間] [主機名稱/主機ip] [ident] [facility]: [消息內容]`
 
-在使用純文本日誌的發行版中，默認日誌輸出到文件`/var/log/syslog`，但一些日誌服務如`rsyslog`，可以根據日誌的類型(`facility`參數)將日誌轉儲到不同的日誌文件中。
+在使用純文本日誌的發行版中，默認日誌輸出到文件`/var/log/syslog`，
+但一些日誌服務如`rsyslog`，可以根據日誌的類型(`facility`參數)將日誌轉儲到不同的日誌文件中。
 
-`openlog()`函數是**可選**的，即使不調用`openlog()`函數，在首次調用`syslog()`函數打印日誌時也會**自動**打開日誌連接。  
-不使用`openlog()`直接使用`syslog()`函數輸出日誌時自動創建的日誌連接會使用默認配置，若需**自定義日誌前綴**、**輸出日誌到stderr**等額外功能，則仍然需要**手動**打開日誌連接並配置參數。
+`openlog()`函數是**可選**的，即使不調用`openlog()`函數，
+在首次調用`syslog()`函數打印日誌時也會**自動**打開日誌連接。
+不使用`openlog()`直接使用`syslog()`函數輸出日誌時自動創建的日誌連接會使用默認配置，
+若需**自定義日誌前綴**、**輸出日誌到stderr**等額外功能，則仍然需要**手動**打開日誌連接並配置參數。
 
-### 輸出日誌
+## 輸出日誌
 使用`syslog()`函數輸出日誌：
 
 ```c
@@ -510,12 +514,13 @@ void syslog(int priority, const char *format, ...);
 	- `LOG_DEBUG` 調試消息
 - `format`參數指向日誌的格式化字符數組，格式化語法與`printf()`函數相同。
 
-在使用`systemd`作爲init系統的發行版中，使用`journalctl`指令查看日誌時，對特定級別的日誌會有不同的顯示方式，令日誌更加醒目：
+在使用`systemd`作爲init系統的發行版中，使用`journalctl`指令查看日誌時，
+對特定級別的日誌會有不同的顯示方式，令日誌更加醒目：
 
 - `LOG_EMERG`、`LOG_ALERT`、`LOG_CRIT`、`LOG_ERR`級別的日誌以**紅色**字體顯示。
 - `LOG_WARNING`、`LOG_NOTICE`級別的日誌以**粗體**字顯示。
 
-### 關閉日誌連接
+## 關閉日誌連接
 使用`closelog()`函數立即關閉日誌連接：
 
 ```
@@ -524,8 +529,8 @@ void closelog(void);
 
 使用`closelog()`會關閉用於寫入日誌的描述符，`closelog()`同樣是**可選**的操作。
 
-### 實例代碼
-打印各個級別的日誌，並將日誌轉儲到日誌文件`test.log`中，如下所示：
+## 實例代碼
+打印各個級別的日誌，並將日誌轉儲到日誌文件`test.log`中，示例：
 
 ```c
 #include <syslog.h>
@@ -571,87 +576,96 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 
 
 
-## Unix進程
-進程是資源調度與分配的基本單位。  
+# Process (進程)
+**進程**(process)是資源調度與分配的基本單位。
 在Unix中，進程具有以下概念：
 
-`PID`(進程ID)
-> PID是一個用於標誌進程的非負整數，具有唯一性，且無法被用戶修改。
-> PID爲`1`的進程爲`init`進程。
-> 獲取進程ID使用`getpid()`函數：
->
->	```c
->	pid_t getpid(void);
->	```
+- `PID` (進程ID)
 
-`PPID`(父進程ID)
-> 除了`init`進程外，其它進程都由先前存在的進程創建。
-> 創建進程的進程稱爲**父進程**，被創建的進程稱爲**子進程**。
-> 獲取父進程ID使用`getppid()`函數：
->
->	```c
->	pid_t getppid(void);
->	```
+	PID是一個用於標誌進程的非負整數，具有唯一性，且無法被用戶修改。
+	PID爲`1`的進程爲`init`進程。
 
-`PGID`(進程組ID)
-> **進程組**是一個或多個進程的集合，PGID等於組長進程的PID。
-> 進程組相關函數：
->
->	```c
->	/*
->		設置指定PID進程的PGID。
->		pid參數取0時，設置當前進程的PGID。
->		pgid參數取0時，指定進程的PGID會被設置爲與PID相同。
->		被設置進程組的進程原有PGID與新設置的PGID需要位於同一個會話(Session)中。
->	*/
->	int setpgid(pid_t pid, pid_t pgid);
->
->	// 得到指定PID進程的PGID，pid參數取0時獲取當前進程PGID
->	pid_t getpgid(pid_t pid);
->	```
+	獲取進程ID使用`getpid()`函數：
 
-`SID`(會話ID)
-> **會話**(`Session`)是一個或多個進程組的集合。
-> 獲取SID使用`getsid()`函數：
->
->	```c
->	// 獲取指定PID進程的SID，pid參數取0時獲取當前進程的SID
->	pid_t getsid(pid_t pid);
->	```
->
-> 創建會話使用`setsid()`函數：
->
->	```c
->	pid_t setsid(void);
->	```
->
-> 關於`setsid()`函數，需要注意：
->
->	- 如果調用進程不是進程組的組長，則創建新的會話。
->	- 調用進程將成爲新會話中的會話首進程(Session Leader)。
->	- 調用進程將成爲新會話的新進程組中的組長進程。
->	- 新的會話ID、進程組ID都將等於調用進程的PID。
->	- 新創建的會話將沒有控制終端，無論原有會話是否有控制終端。
+	```c
+	pid_t getpid(void);
+	```
 
-`Control Terminal`(控制終端)
-> 控制終端用於與系統交互，在用戶登陸時系統會自動爲用戶分配控制終端。
-> 控制終端相關函數：
->
->	```c
->	// 返回指定文件描述符的控制終端的前臺進程組ID
->	pid_t tcgetpgrp(int fd);
->	// 設置指定文件描述符的控制終端的前臺進程組ID
->	int tcsetpgrp(int fd, pid_t pgrp);
->	```
->
-> 控制終端與進程組、會話是密切相關的概念：
->
->	- 會話可以擁有控制終端。
->	- 建立與控制終端連接的會話首進程被稱爲控制進程。
->	- 帶有控制終端的會話擁有前臺進程組，其餘進程組爲後臺進程組。
->	- 在控制終端中輸入的中斷鍵(`Ctrl + C`)、退出鍵會將中斷信號(`SIGINT`)、退出信號(`SIGQUIT`)發送給前臺進程組中的所有進程。
+- `PPID` (父進程ID)
 
-### 進程控制函數
+	除了`init`進程外，其它進程都由先前存在的進程創建。
+	創建進程的進程稱爲**父進程**，被創建的進程稱爲**子進程**。
+
+	獲取父進程ID使用`getppid()`函數：
+
+	```c
+	pid_t getppid(void);
+	```
+
+- `PGID` (進程組ID)
+
+	**進程組**是一個或多個進程的集合，PGID等於組長進程的PID。
+
+	進程組相關函數：
+
+	```c
+	/*
+		設置指定PID進程的PGID。
+		pid參數取0時，設置當前進程的PGID。
+		pgid參數取0時，指定進程的PGID會被設置爲與PID相同。
+		被設置進程組的進程原有PGID與新設置的PGID需要位於同一個會話(Session)中。
+	*/
+	int setpgid(pid_t pid, pid_t pgid);
+
+	// 得到指定PID進程的PGID，pid參數取0時獲取當前進程PGID
+	pid_t getpgid(pid_t pid);
+	```
+
+- `SID` (會話ID)
+
+	**會話**(`Session`)是一個或多個進程組的集合。
+	獲取SID使用`getsid()`函數：
+
+	```c
+	// 獲取指定PID進程的SID，pid參數取0時獲取當前進程的SID
+	pid_t getsid(pid_t pid);
+	```
+
+	創建會話使用`setsid()`函數：
+
+	```c
+	pid_t setsid(void);
+	```
+
+	關於`setsid()`函數，需要注意：
+
+	- 若調用進程不是進程組的組長，則創建新的會話。
+	- 調用進程將成爲新會話中的會話首進程(Session Leader)。
+	- 調用進程將成爲新會話的新進程組中的組長進程。
+	- 新的會話ID、進程組ID都將等於調用進程的PID。
+	- 新創建的會話將沒有控制終端，無論原有會話是否有控制終端。
+
+- `Control Terminal`(控制終端)
+
+	控制終端用於與系統交互，在用戶登陸時系統會自動爲用戶分配控制終端。
+	控制終端相關函數：
+
+	```c
+	// 返回指定文件描述符的控制終端的前臺進程組ID
+	pid_t tcgetpgrp(int fd);
+	// 設置指定文件描述符的控制終端的前臺進程組ID
+	int tcsetpgrp(int fd, pid_t pgrp);
+	```
+
+	控制終端與進程組、會話是密切相關的概念：
+
+	- 會話可以擁有控制終端。
+	- 建立與控制終端連接的會話首進程被稱爲控制進程。
+	- 帶有控制終端的會話擁有前臺進程組，其餘進程組爲後臺進程組。
+	- 在控制終端中輸入的中斷鍵(`Ctrl + C`)、退出鍵會將中斷信號(`SIGINT`)、
+	退出信號(`SIGQUIT`)發送給前臺進程組中的所有進程。
+
+## 進程控制函數
 常見的進程控制函數如下：
 
 - 終止進程
@@ -693,7 +707,8 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 
 	- `system()`函數運行以字符串參數的形式傳遞給它的命令，並等待該命令的完成(效果類似於在Shell中使用對應命令)。
 	- 與`exec()`函數不同，`system()`函數會新建一個Shell來執行命令。
-	- 如果無法啓動Shell來運行這個命令，`system()`函數將返回錯誤代碼`127`；其它錯誤返回`-1`，否則`system()`函數將返回該命令的退出碼(一般命令都是`0`)。
+	- 如果無法啓動Shell來運行這個命令，`system()`函數將返回錯誤代碼`127`；
+	其它錯誤返回`-1`，否則`system()`函數將返回該命令的退出碼(一般命令都是`0`)。
 	- 在實際開發中，`system()`函數往往是很少被使用的，使用`system()`函數必須啓動`Shell`執行指令，**效率不高**。
 
 實際開發中，`fork() + exec()`是最常用的進程創建方式。
@@ -708,15 +723,17 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 	pid_t fork(void);
 	```
 
-	`fork()`函數爲當前進程創建一個相同的**拷貝**，原進程爲**父進程**，新進程爲**子進程**。  
+	`fork()`函數爲當前進程創建一個相同的**拷貝**，原進程爲**父進程**，新進程爲**子進程**。
 	原進程的`fork()`函數返回子進程的`pid`，新進程的`fork()`函數返回`0`。
-	
-	新進程與原進程有着相同的**運行狀態**和**代碼**，即從`fork()`函數開始(包括`fork()`函數本身)接下來的代碼原進程和新進程將會各執行一遍。  
-	新的進程有**獨立**的數據空間、環境、和文件描述符。  
+
+	新進程與原進程有着相同的**運行狀態**和**代碼**，
+	即從`fork()`函數開始(包括`fork()`函數本身)接下來的代碼原進程和新進程將會各執行一遍。
+	新的進程有**獨立**的數據空間、環境、和文件描述符。
 	父進程中已經打開的文件描述符在子進程中依然會存在，父進程註冊的信號處理函數在子進程依然有效。
 
-	子進程不繼承父進程的文件鎖，父進程中未處理的信號集在子進程中被置爲空集。  
-	多進程並行執行時，各個進程是**異步亂序**執行的，因此不能確定各個進程各段代碼的執行先後順序，**不要**嘗試編寫依賴於其它進程執行結果的代碼。
+	子進程不繼承父進程的文件鎖，父進程中未處理的信號集在子進程中被置爲空集。
+	多進程並行執行時，各個進程是**異步亂序**執行的，因此不能確定各個進程各段代碼的執行先後順序，
+	**不要**嘗試編寫依賴於其它進程執行結果的代碼。
 
 	實例代碼：
 
@@ -780,12 +797,15 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 	End!
 	```
 
-	由結果可知，`fork()`函數之前的`system("whoami")`函數只執行了一遍，因此shell指令`whoami`也只執行一遍。但在`fork()`函數之後的代碼都執行了兩遍，分別來自父進程和子進程的`printf()`函數向屏幕打印了兩次`End!`。  
-	由`system("ps")`函數中執行的shell指令`ps`向屏幕中輸出的結果可以看出，父進程的`ppid`是啓動這個進程的shell的`pid`，而**子進程**的`ppid`就是**父進程**的`pid`。
+	由結果可知，`fork()`函數之前的`system("whoami")`函數只執行了一遍，
+	因此shell指令`whoami`也只執行一遍。但在`fork()`函數之後的代碼都執行了兩遍，
+	分別來自父進程和子進程的`printf()`函數向屏幕打印了兩次`End!`。
+	由`system("ps")`函數中執行的shell指令`ps`向屏幕中輸出的結果可以看出，
+	父進程的`ppid`是啓動這個進程的shell的`pid`，而**子進程**的`ppid`就是**父進程**的`pid`。
 
 - `vfork()` 函數
 
-	`vfork()`作用與`fork()`類似，函數定義在`unistd.h`中，如下所示：
+	`vfork()`作用與`fork()`類似，函數定義在`unistd.h`中，示例：
 
 	```c
 	pid_t vfork(void);
@@ -794,7 +814,9 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 	相比`fork()`調用，`vfork()`有以下不同之處：
 
 	- `fork()`子進程拷貝父進程中的數據段和代碼段，`vfork()`中子進程與父進程共享數據段。
-	- `fork()`調用之後父子進程執行順序是**隨機**的，`vfork()`中子進程在調用`exec()`或`exit()`之前與父進程數據共享，而父進程在子進程調用了`exec()`或`exit()`之前會一直**阻塞**。
+	- `fork()`調用之後父子進程執行順序是**隨機**的，
+	`vfork()`中子進程在調用`exec()`或`exit()`之前與父進程數據共享，
+	而父進程在子進程調用了`exec()`或`exit()`之前會一直**阻塞**。
 
 	在Linux中，`fork()`與`vfork()`最終的內部實現都使用`do_fork()`。
 
@@ -813,13 +835,18 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 	int fexecve(int fd, char *const argv[], char *const envp[]);
 	```
 
-	- `exec()`系列函數爲**系統調用**，執行後，會將當前的進程**完全替換**爲執行新程序的進程(即這個進程`exec()`調用成功之後的代碼都不再運行)，但`PID`不變。
+	- `exec()`系列函數爲**系統調用**，執行後，
+	會將當前的進程**完全替換**爲執行新程序的進程(即這個進程`exec()`調用成功之後的代碼都不再運行)，但`PID`不變。
 	- `exec()`系統調用比`system()`函數要**高效**，`exec()`與`fork()`搭配是Unix系統中最**常用**的系統進程創建組合。
 	- 通常`exec()`不會返回，除非發生了錯誤。出錯時，`exec()`返回`-1`並且置`errno`，同時繼續執行餘下的代碼。
 	- 在`exec()`函數組中，只有`execve()`函數是真正的系統調用，其它的幾個函數都是`execve()`封裝而成的庫函數。
 	- 參數`path`爲絕對路徑，`file`爲命令名稱。
-	- `execl()`、`execlp()`、`execle()`三個函數接收的參數個數是可變的，參數以一個空指針結束(`(char*)0`或`NULL`)，用多個字符數組`*arg`來傳遞要執行的程序的參數。
-	- `execv()`、`execp()`、`execve()`等函數參數個數是固定的，將要傳遞給要執行的程序的參數放在二維字符數組`*argv[]`中(對應main函數參數中的`*argv[]`)，而二維字符數組`*envp[]`中保存`exec()`函數要運行的程序的環境變量無論是傳遞給被執行程序的參數字符數組`*argv[]`或是環境變量字符數組`*envp[]`都要以一個空指針結尾。
+	- `execl()`、`execlp()`、`execle()`三個函數接收的參數個數是可變的，
+	參數以一個空指針結束(`(char*)0`或`NULL`)，用多個字符數組`*arg`來傳遞要執行的程序的參數。
+	- `execv()`、`execp()`、`execve()`等函數參數個數是固定的，
+	將要傳遞給要執行的程序的參數放在二維字符數組`*argv[]`中(對應main函數參數中的`*argv[]`)，
+	而二維字符數組`*envp[]`中保存`exec()`函數要運行的程序的環境變量，
+	無論是傳遞給被執行程序的參數字符數組`*argv[]`或是環境變量字符數組`*envp[]`都要以一個空指針結尾。
 
 	實例代碼：
 
@@ -863,8 +890,9 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 	}
 	```
 
-子進程默認會繼承父進程已打開的文件描述符。  
-當父進程持有描述符爲`Socket`描述符時，子進程會繼承對應描述符代表的**監聽端口**、**監聽地址**等信息，當父進程結束時，端口不會被釋放，而是由子進程繼續佔用。  
+子進程默認會繼承父進程已打開的文件描述符。
+當父進程持有描述符爲`Socket`描述符時，子進程會繼承對應描述符代表的**監聽端口**、**監聽地址**等信息，
+當父進程結束時，端口不會被釋放，而是由子進程繼續佔用。
 避免子進程繼承`Socket`描述符，創建`Socket`時應設置`SOCK_CLOEXEC/FD_CLOEXEC`屬性：
 
 ```c
@@ -875,8 +903,10 @@ int sock_fd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC);
 fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC);
 ```
 
-### 等待進程
-可以在父進程中調用`wait()`函數讓父進程等待子進程結束，還可以使用`waitpid()`函數來等待某個**特定進程**結束，函數定義在`sys/wait.h`中，函數原型爲：
+## 等待進程
+可以在父進程中調用`wait()`函數讓父進程等待子進程結束，還可以使用`waitpid()`函數來等待某個**特定進程**結束。
+
+函數定義在`sys/wait.h`中，函數原型爲：
 
 ```c
 pid_t wait(int *status);
@@ -938,7 +968,7 @@ int main(void)
 	if (pid)
 	{
 		int status;
-		int child_pid = waitpid(pid, &status, 0);	//等效於 int child_pid = wait(&status);
+		int child_pid = waitpid(pid, &status, 0); //等效於 int child_pid = wait(&status);
 
 		printf("This is the parent process!\n");
 		printf("The PID is %d\n", getpid());
@@ -981,19 +1011,19 @@ The child process's exit_code is 100
 Parent process END!
 ```
 
-### *Daemon* (守護進程)
+## Daemon (守護進程)
 **守護進程**是一類具有較長生存週期的進程，守護進程在後臺運行，並且沒有控制終端。
 
 編寫守護進程一般有如下幾個步驟：
 
 1. 調用`fork()`函數，同時退出**父進程**。
 
-	使用了`fork()`函數之後父進程退出，則子進程成爲孤兒進程，由`init系統`接管。  
+	使用了`fork()`函數之後父進程退出，則子進程成爲孤兒進程，由`init系統`接管。
 	子進程雖然脫離了父進程，但仍然處於父進程的進程組中和會話中，與控制終端的聯繫依然存在。
 
 1. 調用`setsid()`函數，爲子進程創建新的會話。
 
-	使用了`setsid()`函數，子進程脫離了原先父進程的進程組與會話，並且不再與原先的控制終端相關聯。  
+	使用了`setsid()`函數，子進程脫離了原先父進程的進程組與會話，並且不再與原先的控制終端相關聯。
 	子進程在創建了會話之後成爲了會話和新進程組的**首進程**，依然有可能被系統分配控制終端。
 
 1. 再次調用`fork()`函數，再次退出**父進程**。
@@ -1070,16 +1100,16 @@ CMD                         STAT   PID  PPID  PGID   SID TPGID TT
 
 
 
-## *signal* (信號)
-信號是Unix系統響應某些條件而產生的的一個事件，進程接收到信號會採取一些相應的行動。  
+# Signal (信號)
+信號是Unix系統響應某些條件而產生的的一個事件，進程接收到信號會採取一些相應的行動。
 信號的相關函數定義在頭文件`signal.h`中。
 
 使用`fork()`時，子進程會繼承父進程註冊的信號處理函數。
 
-常用的信號有`SIGINT`(中斷信號，用`CTRL + C`觸發)，`SIGQUIT`(退出信號)。  
+常用的信號有`SIGINT`(中斷信號，用`CTRL + C`觸發)，`SIGQUIT`(退出信號)。
 使用`kill`指令發送信號，默認發送信號爲`SIGTERM`。
 
-### 處理信號
+## 信號處理
 使用`signal()`或`sigaction()`函數將需要處理的信號與信號處理函數的函數指針綁定。
 
 - `signal()` 函數
@@ -1136,8 +1166,9 @@ CMD                         STAT   PID  PPID  PGID   SID TPGID TT
 	- `sa_flags` 設置信號處理選項，沒有特別要求可以設爲`NULL`
 	```
 
-### 發送信號
-使用`kill()`函數可以向**指定進程**發送信號，使用`raise()`可以向**當前進程**發送信號。函數定義在`signal.h`中，如下所示：
+## 信號發送
+使用`kill()`函數可以向**指定進程**發送信號，使用`raise()`可以向**當前進程**發送信號。
+函數定義在`signal.h`中，示例：
 
 ```c
 int raise(int sig);
@@ -1149,7 +1180,7 @@ int kill(pid_t pid, int sig);
 
 使用`kill()`、`raise()`發送信號，接收信號的是**整個**目標進程。
 
-在**多線程**環境下，使用`kill()`、`raise()`發送信號，進程內包含的**所有線程**都會接收到信號。  
+在**多線程**環境下，使用`kill()`、`raise()`發送信號，進程內包含的**所有線程**都會接收到信號。
 如果需要發送信號給**指定線程**，需要使用`pthread_kill()`，函數定義在`signal.h`中：
 
 ```c
@@ -1161,8 +1192,8 @@ int pthread_kill(pthread_t thread, int sig);
 
 函數成功返回`0`，失敗時返回錯誤代碼。
 
-### 信號觸發
-信號機制實質上是**軟件中斷**，信號處理函數**不會**運行在獨立的線程，而是**中斷**現有的代碼運行信號處理函數。  
+## 信號觸發
+信號機制實質上是**軟件中斷**，信號處理函數**不會**運行在獨立的線程，而是**中斷**現有的代碼運行信號處理函數。
 一個進程觸發了信號處理函數，則在信號處理函數結束返回之後纔會繼續運行先前的代碼。
 
 如下代碼所示：
@@ -1200,17 +1231,18 @@ int main(void)
 }
 ```
 
-通過循環中的打印的耗時可以看出，每次觸發信號處理函數`deal_signal()`，循環便會**暫停**，直到`deal_signal()`運行完畢返回。  
-在`BSD`和`Linux`中，運行信號處理函數期間再次收到信號會**阻塞**此信號，直到信號處理函數返回。  
+通過循環中的打印的耗時可以看出，每次觸發信號處理函數`deal_signal()`，循環便會**暫停**，直到`deal_signal()`運行完畢返回。
+在`BSD`和`Linux`中，運行信號處理函數期間再次收到信號會**阻塞**此信號，直到信號處理函數返回。
 在部分Unix中，運行信號處理函數時可能會將此信號**重置**爲默認操作，在此類情況下，需要在信號處理函數中重新綁定信號。
 
-### 可靠信號與不可靠信號
+## 可靠信號/不可靠信號
 可靠信號機制最初來自於`BSD`。
 
-在`Linux`中，**不可靠**信號範圍爲`1(SIGHUP) ~ 31(SIGSYS)`，**可靠信號**的範圍爲`34(SIGRTMIN) ~ 64(SIGRTMAX)`。  
-**不可靠**信號**不支持**信號隊列，當同類信號在短時間內**多次**觸發，不可靠信號只會觸發信號處理函數**一次**，其餘的同類信號被**忽略**。
+在`Linux`中，**不可靠**信號範圍爲`1(SIGHUP) ~ 31(SIGSYS)`，**可靠信號**的範圍爲`34(SIGRTMIN) ~ 64(SIGRTMAX)`。
+**不可靠**信號**不支持**信號隊列，當同類信號在短時間內**多次**觸發，不可靠信號只會觸發信號處理函數**一次**，
+其餘的同類信號被**忽略**。
 
-### 屏蔽信號
+## 信號屏蔽
 直接在**進程**中屏蔽指定信號可以使用下列函數，函數定義在`signal.h`中：
 
 ```c
@@ -1222,7 +1254,7 @@ int sigblock(int mask); //向現有屏蔽信號中添加mask
 
 - `mask`參數爲要屏蔽的信號**mask**，由`sigmask(signum)`宏根據輸入的信號值生成。
 
-函數返回之前設定的**mask**值。  
+函數返回之前設定的**mask**值。
 實例代碼如下：
 
 ```c
@@ -1249,8 +1281,9 @@ int sigprocmask(int how, const sigset_t *restrict set, sigset_t *restrict oset);
 - `set`參數爲輸入的信號集合。
 - `oset`參數爲輸出信號集合，函數運行結束會將新的信號集合寫入`oset`參數中，不需要該參數可設爲`NULL`。
 
-函數執行成功返回`0`。執行失敗返回`-1`，並置`errno`。  
-實例代碼如下：
+函數執行成功返回`0`。執行失敗返回`-1`，並置`errno`。
+
+示例：
 
 ```c
 //創建信號集合，置空後添加SIGINT信號
@@ -1271,9 +1304,9 @@ sigprocmask(SIG_BLOCK, &set, NULL);
 sigprocmask(SIG_UNBLOCK, &set, NULL);
 ```
 
-### 屏蔽線程信號
-`sigsetmask()`和`sigprocmask()`等函數設置的屏蔽信號對於**整個進程**有效。  
-在**多線程**環境下，使用`sigprocmask()`則進程內包含的**所有線程**的屏蔽信號集都會被修改。  
+## 屏蔽線程信號
+`sigsetmask()`和`sigprocmask()`等函數設置的屏蔽信號對於**整個進程**有效。
+在**多線程**環境下，使用`sigprocmask()`則進程內包含的**所有線程**的屏蔽信號集都會被修改。
 創建新的線程時，新的線程會**繼承**原有線程的**屏蔽信號集**。
 
 需要設置**指定線程**的屏蔽信號集，可以使用`pthread_sigmask()`函數，函數定義在`signal.h`中：
@@ -1287,21 +1320,23 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 - 設置的屏蔽信號集僅對**當前線程**生效。
 - 調用失敗時直接返回錯誤代碼，而不是像`sigprocmask()`那樣返回`-1`並置`errno`。
 
-### 信號相關的進程控制函數
+## 信號相關的進程控制函數
 `pause()`、`sleep()`等函數在多線程情況下的觸發機制。
 
 - `pause()` 函數
-	
-	使用`pause()`可以掛起線程，直到當前進程捕捉到了一個**信號**，函數定義在`unistd.h`中，如下所示：
+
+	使用`pause()`可以掛起線程，直到當前進程捕捉到了一個**信號**，函數定義在`unistd.h`中，示例：
 
 	```c
 	int pause(void);
 	```
 
 	只有進程捕獲了信號，執行了信號處理程序並從其返回時，`pause()`函數才返回。
-	`pause()`函數**不存在**成功返回值，當進程捕捉到信號並從信號處理函數返回時，`pause()`返回`-1`，並置`errno`爲`ENTER`。
+	`pause()`函數**不存在**成功返回值，當進程捕捉到信號並從信號處理函數返回時，
+	`pause()`返回`-1`，並置`errno`爲`ENTER`。
 
-	在**多線程**環境中，在未設置`pthread_sigmask()`的情況下，信號優先級使得只有**主線程**的`pause()`會在信號處理函數結束後返回。  
+	在**多線程**環境中，在未設置`pthread_sigmask()`的情況下，
+	信號優先級使得只有**主線程**的`pause()`會在信號處理函數結束後返回。
 	在主線程以外的線程中，除非使用`pthread_kill()`發送消息到指定線程，否則無法觸發`pause()`函數。
 
 - `sleep()` 函數
@@ -1314,16 +1349,18 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 
 	- `seconds`參數爲需要休眠的時間，單位爲**秒**。
 
-	若線程在設定的時間中正常休眠，返回值爲`0`。  
-	若在掛起期間進程捕獲到一個**信號**，並從信號處理函數返回，則無論休眠時間是否滿足，休眠不再繼續，`sleep()`立即函數結束，返回值爲**尚未休眠**的時間。
+	若線程在設定的時間中正常休眠，返回值爲`0`。
+	若在掛起期間進程捕獲到一個**信號**，並從信號處理函數返回，則無論休眠時間是否滿足，休眠不再繼續，
+	`sleep()`立即函數結束，返回值爲**尚未休眠**的時間。
 
-	在**多線程**環境中，在未設置`pthread_sigmask()`的情況下，捕獲信號，並從信號處理函數返回，只會結束進程**主線程**中正在運行的`sleep()`函數，對其它線程中的`sleep()`無影響。
+	在**多線程**環境中，在未設置`pthread_sigmask()`的情況下，捕獲信號，並從信號處理函數返回，
+	只會結束進程**主線程**中正在運行的`sleep()`函數，對其它線程中的`sleep()`無影響。
 
 	在`Solaris`中`sleep()`內部實現採用`alarm()`，在`BSD`和`Linux`中`sleep()`由`nanosleep()`實現，與信號無關。
 
 - `alarm()` 函數
 
-	使用`alarm()`可以使當前進程在指定時間之後收到`SIGALRM`信號，函數定義在`unistd.h`中，如下所示：
+	使用`alarm()`可以使當前進程在指定時間之後收到`SIGALRM`信號，函數定義在`unistd.h`中，示例：
 
 	```c
 	unsigned alarm(unsigned seconds);
@@ -1331,24 +1368,25 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 
 	- `seconds`參數爲發送信號的延遲時間，取`0`時表示清除原有`alarm()`設置。
 
-	一個進程同時只能存在一個`alarm()`，調用`alarm()`時若之前已經設置了`alarm()`且尚未觸發，則返回上一個`alarm()`的剩餘等待時間，同時以當前`alarm()`的設置**替換**上一個。  
+	一個進程同時只能存在一個`alarm()`，調用`alarm()`時若之前已經設置了`alarm()`且尚未觸發，
+	則返回上一個`alarm()`的剩餘等待時間，同時以當前`alarm()`的設置**替換**上一個。
 	默認情況下，若沒有設置`SIGALRM`的信號處理函數，系統收到`SIGALRM`會終止進程。
 
-### 多線程信號處理
+## 多線程信號處理
 在多線程的環境下，信號處理需要考慮更多的情況：
 
 - 默認情況下，Unix中的信號機制是對於**整個進程**而言的，使用`kill()`發送信號，則**整個進程**都將收到信號。
 - 使用`signal()`綁定信號處理函數會對**整個進程**生效。
 - 在多線程的程序中，若不做特殊處理，則發送給進程的信號會由系統選擇一個線程來處理信號。
 - 系統會在**沒有**屏蔽此信號的線程中選擇`pid`**最小**的那個線程來處理信號。
-- 在未設置屏蔽信號的情況下，主線程的`pid`最小，因而一般會選擇**主線程**來響應信號。  
-	這使得**默認情況**下只有**主線程**的`pause()`、`sleep()`函數能夠被信號中斷。
+- 在未設置屏蔽信號的情況下，主線程的`pid`最小，因而一般會選擇**主線程**來響應信號。
+這使得**默認情況**下只有**主線程**的`pause()`、`sleep()`函數能夠被信號中斷。
 
 多線程環境下的信號處理一般有兩種方式：
 
 - 在指定線程中處理信號：
 
-	除目標線程外，其它線程全部使用`pthread_sigmask()`在線程中屏蔽指定信號，讓信號只能被**指定線程**處理。如下所示：
+	除目標線程外，其它線程全部使用`pthread_sigmask()`在線程中屏蔽指定信號，讓信號只能被**指定線程**處理。示例：
 
 	```c
 	#include <stdio.h>
@@ -1393,8 +1431,9 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 	}
 	```
 
-	默認情況下，`SIGINT`信號會被主線程處理(不會中斷子線程中的`sleep()`)。  
-	通過設置屏蔽信號，讓`SIGINT`被主線程屏蔽而由子線程處理，使得`SIGINT`能夠中斷子線程的`sleep()`函數，讓`sleep()`提前結束。
+	默認情況下，`SIGINT`信號會被主線程處理(不會中斷子線程中的`sleep()`)。
+	通過設置屏蔽信號，讓`SIGINT`被主線程屏蔽而由子線程處理，
+	使得`SIGINT`能夠中斷子線程的`sleep()`函數，讓`sleep()`提前結束。
 
 - 以同步的方式處理異步信號：
 
@@ -1407,15 +1446,17 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 	- `set`參數爲要等待的信號集合。
 	- `sig`參數指向等待到的信號值，函數會將等待到的信號值寫入傳入的地址中。
 
-	運行`sigwait()`會阻塞所處線程，直到所處線程接受到`set`信號集中的信號。  
-	函數執行成功返回`0`，失敗時返回錯誤代碼。  
+	運行`sigwait()`會阻塞所處線程，直到所處線程接受到`set`信號集中的信號。
+	函數執行成功返回`0`，失敗時返回錯誤代碼。
 	使用`sigwait()`需要保證等待的信號至少被`sigwait()`**所處線程**之外的線程屏蔽。
 
-	對於`sigwait()`所處的線程，在`OS X`和`Linux`等Unix系統上，`sigwait()`的優先級比默認的信號處理行爲以及綁定的信號處理函數要高，接受到信號時，優先結束`sigwait()`的阻塞而不是執行設定/默認的信號處理行爲。
+	對於`sigwait()`所處的線程，在`OS X`和`Linux`等Unix系統上，
+	`sigwait()`的優先級比默認的信號處理行爲以及綁定的信號處理函數要高，接受到信號時，
+	優先結束`sigwait()`的阻塞而不是執行設定/默認的信號處理行爲。
 
 	在**多個**`sigwait()`共存的情況下，系統會**隨機**選取一個線程中的`sigwait()`進行響應。
 
-	實例如下所示：
+	示例：
 
 	```c
 	#include <stdio.h>
@@ -1492,8 +1533,8 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 
 
 
-## POSIX 線程(pthread)
-在Unix系統中，多線程開發相關函數定義在頭文件`pthread.h`中。  
+# pthread (POSIX線程)
+在Unix系統中，多線程開發相關函數定義在頭文件`pthread.h`中。
 在`Linux`中編譯使用了線程庫的程序時，需要鏈接`pthread`庫，編譯指令如下：
 
 ```sh
@@ -1502,18 +1543,25 @@ $ cc -lpthread [源碼文件]
 
 在`FreeBSD`以及`OS X`中，編譯使用了線程庫的程序**無需**鏈接`pthread`庫。
 
-### Linux下的線程實現
+## Linux下的線程實現
 `Linux Kernel 2.6`之後，線程的實現爲`NPTL`，即**本地POSIX線程庫**`Native POSIX Thread Library`。
 
 - 在Linux內核中，線程和進程都使用`task_struct`結構體表示，線程僅是一類特殊的進程(創建時使用不同的`clone`標識組合)。
-- Linux提供了`clone()`調用，使用`clone()`創建子進程時，可以選擇性地共享父進程的資源，創建出的子進程被稱爲**輕量級進程**(`LWP, Low Weight Process`)。
+- Linux提供了`clone()`調用，使用`clone()`創建子進程時，可以選擇性地共享父進程的資源，
+創建出的子進程被稱爲**輕量級進程**(`LWP, Low Weight Process`)。
 - 早期的Linux(`Linux Kernel 2.6`之前)使用`Linux Threads`線程庫，即通過**輕量級進程**來實現線程。
-- `Linux Threads`庫沒有實現`POSIX`的線程定義，每個線程在`ps`指令下顯示爲進程，並且不同線程使用`getpid()`返回的進程`pid`也不相同，在現代Linux(採用`NPTL`之後的Linux)已經**不會**出現此類情況。
-- 在`Linux Kernel 2.6`之後，內核中有了**線程組**的概念，`task_struct`結構中增加了`tgid(thread group id)`字段，如果一個`task_struct`是一個**主線程**, 則它的`tgid`等於`pid`, 否則`tgid`等於進程的`pid`(即主線程的`pid`),此外，每個線程依舊是一個`task_struct`，依然有自己的`pid`。
-- 在`Linux Kernel 2.6`之後，使用`getpid()`獲取的是`tgid`，因而進程中的每個線程使用`getpid()`返回值相同(主線程`pid`)。獲取線程自身的`pid`需要用到系統調用`gettid()`，`gettid()`是Linux特有的系統調用，在其它Unix中並不存在，`glibc`沒有提供`gettid()`的封裝，使用`gettid()`需要通過`syscall()`調用。
-- `NPTL`的實現依賴於`Linux Kernel 2.6`內核的`task_struct`改動，因此在`2.4`、`2.2`等舊版本的內核上無法使用`NPTL`，在採用了`NPTL`的Linux上，線程的行爲與其它Unix更爲相似。
+- `Linux Threads`庫沒有實現`POSIX`的線程定義，每個線程在`ps`指令下顯示爲進程，
+並且不同線程使用`getpid()`返回的進程`pid`也不相同，在現代Linux(採用`NPTL`之後的Linux)已經**不會**出現此類情況。
+- 在`Linux Kernel 2.6`之後，內核中有了**線程組**的概念，`task_struct`結構中增加了`tgid(thread group id)`字段，
+若一`task_struct`是**主線程**, 則它的`tgid`等於`pid`, 否則`tgid`等於進程的`pid`(即主線程的`pid`)。
+此外，每個線程依舊是一個`task_struct`，依然有自己的`pid`。
+- 在`Linux Kernel 2.6`之後，使用`getpid()`獲取的是`tgid`，因而進程中的每個線程使用`getpid()`返回值相同(主線程`pid`)。
+獲取線程自身的`pid`需要用到系統調用`gettid()`，`gettid()`是Linux特有的系統調用，
+在其它Unix中並不存在，`glibc`沒有提供`gettid()`的封裝，使用`gettid()`需要通過`syscall()`調用。
+- `NPTL`的實現依賴於`Linux Kernel 2.6`內核的`task_struct`改動，因此在`2.4`、`2.2`等舊版本的內核上無法使用`NPTL`，
+在採用了`NPTL`的Linux上，線程的行爲與其它Unix更爲相似。
 
-### 創建線程
+## 線程創建
 創建線程使用`pthread_create()`函數。
 
 ```c
@@ -1528,7 +1576,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_
 需要注意的是，`thread`參數必須要填入**有效**的地址，填`NULL`會引起程序崩潰。
 創建新線程成功則返回`0`，未創建成功返回**錯誤代碼**(**不一定**是`-1`)，可根據man手冊查看錯誤代碼判斷錯誤類型。
 
-### 等待線程
+## 線程等待
 等待線程使用`pthread_join()`函數。
 
 ```c
@@ -1541,9 +1589,11 @@ int pthread_join(pthread_t thread, void **retval);
 該函數爲**阻塞**函數。
 需要注意的是，`pthread_join()`函數只會等待指定線程標識符對應的線程，對其它線程不會造成影響，依然是併發執行。
 
-默認情況下，主程序是不會等待線程執行的，無論線程是否執行完畢，主程序都會依次執行直到結束。由於線程是共享資源的，一旦主程序結束了，該程序創建的線程無論是否執行完畢都會立即被關閉。如果需要主程序等待某個線程執行完畢，即可以使用`pthread_join()`函數。
+默認情況下，主程序是不會等待線程執行的，無論線程是否執行完畢，主程序都會依次執行直到結束。
+由於線程資源共享，一旦主程序結束，該程序創建的線程無論是否執行完畢都會立即被關閉。
+如果需要主程序等待某個線程執行完畢，即可以使用`pthread_join()`函數。
 
-### 取消線程
+## 線程取消
 取消線程使用`pthread_cacnel()`函數。
 
 ```c
@@ -1554,7 +1604,7 @@ int pthread_cancel(pthread_t thread);
 
 取消線程成功返回值爲`0`，取消線程失敗返回一個非`0`的**錯誤代碼**(不一定是-1)。
 
-### 終止線程
+## 線程終止
 退出、終止一個線程使用`pthread_exit()`函數。
 
 ```c
@@ -1563,10 +1613,12 @@ void pthread_exit(void *retval);
 
 線程調用該函數終止自身，如同進程的`exit(num)`函數一樣。
 
-`pthread_exit()`函數的參數爲線程的返回內容，需要注意的是，不要將`retval`指向一個**局部變量**，因爲調用`pthread_exit()`函數之後線程會結束，線程函數內的局部變量(棧變量)將會被**刪除**。
+`pthread_exit()`函數的參數爲線程的返回內容，需要注意的是，不要將`retval`指向一個**局部變量**，
+因爲調用`pthread_exit()`函數之後線程會結束，線程函數內的局部變量(棧變量)將會被**刪除**。
 與其它函數一樣，線程也可以使用`return`提供返回值。
 
-### 用互斥量進行線程同步
+## 互斥量
+pthread同樣提供了**互斥量**進行線程同步。
 互斥量相關的函數也定義在頭文件`pthread.h`文件中，常用的函數有：
 
 ```c
@@ -1578,7 +1630,8 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex);
 
 互斥量可以讓程序員鎖住某個對象，使得每次只有一個線程能對其進行訪問。
 `pthread_mutex_lock()`在未成功加鎖時會一直阻塞線程。
-使用`pthread_mutex_init()`函數初始化一個互斥量，`mutex`參數爲要初始化的互斥量，`attr`參數爲互斥量屬性，沒有特殊要求可以設置爲`NULL`(默認爲**線程同步**)。
+使用`pthread_mutex_init()`函數初始化一個互斥量，`mutex`參數爲要初始化的互斥量，
+`attr`參數爲互斥量屬性，沒有特殊要求可以設置爲`NULL`(默認爲**線程同步**)。
 
 實例代碼：
 
@@ -1589,7 +1642,7 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex);
 #include <pthread.h>
 #include <string.h>
 
-#define MYMES1 SIGUSR1 + 1			//自定義信號，不能設置太大，Linux中32～64信號爲用戶可用
+#define MYMES1 SIGUSR1 + 1 //自定義信號，不能設置太大，Linux中32～64信號爲用戶可用
 #define MYMES2 SIGUSR1 + 2
 
 pthread_t thread_fd = 0;
@@ -1600,11 +1653,11 @@ void deal_signal(int signal)
 {
 	switch(signal)
 	{
-	case SIGQUIT:		//捕獲SIGQUIT信號，用 "ctrl+\" 組合鍵觸發
-		pthread_cancel(thread_fd);					//取消一號線程
-		pthread_cancel(thread_fd1);					//取消二號線程
+	case SIGQUIT: //捕獲SIGQUIT信號，用 "ctrl+\" 組合鍵觸發
+		pthread_cancel(thread_fd); //取消一號線程
+		pthread_cancel(thread_fd1); //取消二號線程
 		printf("結束一、二號線程，接下來三、四號線程沒有互斥量，輸出內容會相互交錯！\n");
-		if (pthread_mutex_destroy(&mutex) == -1)		//刪除鎖，實際刪除鎖沒什麼用。。。
+		if (pthread_mutex_destroy(&mutex) == -1) //刪除鎖，實際刪除鎖沒什麼用。。。
 			printf("刪除失敗！\n");
 		break;
 	case MYMES1:
@@ -1621,11 +1674,11 @@ void* thread_func(void* arg)
 	while (1)
 	{
 		if (!strcmp(arg, "三號線程") || !strcmp(arg, "四號線程"))
-			kill(getpid(), MYMES2);		//三號、四號線程發送自定義信號MYMES2
+			kill(getpid(), MYMES2); //三號、四號線程發送自定義信號MYMES2
 		else if (pthread_mutex_lock(&mutex) == -1)
 			printf("加鎖失敗！\n");
 		else
-			kill(getpid(), MYMES1);		//一號、二號線程發送自定義信號MYMES1
+			kill(getpid(), MYMES1); //一號、二號線程發送自定義信號MYMES1
 
 		printf("%s開始。\n", (char*)arg);
 
@@ -1639,7 +1692,7 @@ void* thread_func(void* arg)
 		if (pthread_mutex_unlock(&mutex) == -1)
 			printf("解鎖失敗！\n");
 
-		sleep(2);			//線程休眠一秒，否則資源會一直被一個線程佔有
+		sleep(2); //線程休眠一秒，否則資源會一直被一個線程佔有
 	}
 }
 
@@ -1654,24 +1707,24 @@ int main(void)
 	sig.sa_handler = deal_signal;
 	sig.sa_flags = 0;
 	sigemptyset(&sig.sa_mask);
-	sigaction(SIGQUIT, &sig, 0);		//現代Unix信號捕捉函數
+	sigaction(SIGQUIT, &sig, 0); //現代Unix信號捕捉函數
 
-	signal(MYMES1, deal_signal);		//傳統Unix信號捕捉函數
+	signal(MYMES1, deal_signal); //傳統Unix信號捕捉函數
 	signal(MYMES2, deal_signal);
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_create(&thread_fd, NULL, thread_func, str1);
 	pthread_create(&thread_fd1, NULL, thread_func, str2);
-	pthread_join(thread_fd1, NULL);			//等待二號線程結束
-	pthread_create(&thread_fd, NULL, thread_func, str3);		//創建三號線程
-	pthread_create(&thread_fd, NULL, thread_func, str4);		//創建四號線程
+	pthread_join(thread_fd1, NULL); //等待二號線程結束
+	pthread_create(&thread_fd, NULL, thread_func, str3); //創建三號線程
+	pthread_create(&thread_fd, NULL, thread_func, str4); //創建四號線程
 	pthread_join(thread_fd1, NULL);
 
 	return 0;
 }
 ```
 
-### 使用互斥量進行進程同步
+## 互斥量用於進程同步
 互斥量用於**進程同步**時，會用到下列函數，頭文件同樣在`pthread.h`中：
 
 ```c
@@ -1681,7 +1734,7 @@ int pthread_mutexattr_setpshared(pthread_mutexattr_t *attr, int pshared);
 int pthread_mutexattr_getpshared(const pthread_mutexattr_t *restrict attr, int *restrict pshared);
 ```
 
-通過設置`pthread_mutex_init()`函數的參數`attr`來實現**進程間互斥**。  
+通過設置`pthread_mutex_init()`函數的參數`attr`來實現**進程間互斥**。
 使用以下方式初始化`pthread_mutexattr_t`結構體。
 
 ```c
@@ -1690,9 +1743,10 @@ pthread_mutexattr_init(&attr);
 pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED); //第二個參數如果取PTHREAD_PROCESS_PRIVATE則互斥量僅爲進程內部所使用，這是默認情況，即pthread_mutex_init()函數的第二個參數取NULL時的情況
 ```
 
-需要注意的是，由於每個進程的地址空間是獨立的，每個進程定義的變量無法被其它進程所訪問。
+需要注意，由於每個進程的地址空間是獨立的，每個進程定義的變量無法被其它進程所訪問。
 
-若需要使用互斥量進行進程間的同步，不僅需要設置其共享屬性，還需要使用Unix的**共享內存**機制，開闢一塊共享內存，將互斥量定義在**共享內存**中，以此來保證一個互斥量能被多個進程訪問，實現進程互斥。
+若需要使用互斥量進行進程間的同步，不僅需要設置其共享屬性，還需要使用Unix的**共享內存**機制。
+創建一塊共享內存，將互斥量定義在**共享內存**中，以此來保證一個互斥量能被多個進程訪問，實現進程互斥。
 
 實例代碼：
 
@@ -1706,9 +1760,9 @@ pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED); //第二個參數�
 #include <unistd.h>
 #include <signal.h>
 #include <pthread.h>
-#include <sys/shm.h>				//包含共享內存的相關函數
+#include <sys/shm.h> //包含共享內存的相關函數
 
-int shm_id;							//共享內存標誌，類似於文件標識符
+int shm_id; //共享內存標誌，類似於文件標識符
 pthread_mutexattr_t attr;
 
 void dealSignal(int signal)
@@ -1717,11 +1771,13 @@ void dealSignal(int signal)
 			&& !pthread_mutex_unlock((pthread_mutex_t*)shmat(shm_id, NULL, 0)))
 	{
 		printf("解鎖互斥量成功！\n父進程即將結束！\n");
+
 		for (int i = 5; i > 0; i--)
 		{
 			printf("倒數計時：%d\n", i);
 			sleep(1);
 		}
+
 		printf("父進程結束！\n");
 		_exit(0);
 	}
@@ -1793,14 +1849,14 @@ int main(void)
 
 運行結果：(文字描述)
 
-`Process_Mutex_Parent`先運行，創建互斥量並鎖住，然後一直循環。  
-`Process_Mutex_Child`後執行，進程阻塞在`pthread_mutex_lock()`函數上。  
-在`Process_Mutex_Parent`中觸發`SIGQUIT`信號，由信號處理函數釋放鎖，倒數計時後結束進程。  
+`Process_Mutex_Parent`先運行，創建互斥量並鎖住，然後一直循環。
+`Process_Mutex_Child`後執行，進程阻塞在`pthread_mutex_lock()`函數上。
+在`Process_Mutex_Parent`中觸發`SIGQUIT`信號，由信號處理函數釋放鎖，倒數計時後結束進程。
 `Process_Mutex_Child`在`Process_Mutex_Parent`釋放互斥量鎖之後立即加鎖成功，開始循環。
 
 
 
-## *XSI IPC*
+# XSI IPC
 `XSI IPC`包括**消息隊列**、**共享內存**、**信號量**。
 `XSI IPC`來自`SystemV`，三類`XSI IPC`擁有相似的API，包括如下的一組函數：
 
@@ -1810,7 +1866,7 @@ int xxxctl(int ipc_fd, ...);		//添加IPC設定
 ...
 ```
 
-### IPC標誌
+## IPC 標誌
 `XSI IPC`都使用類型爲`key_t`的`key`值來區分不同的IPC。`key`值可以通過以下函數生成：
 
 ```c
@@ -1822,10 +1878,10 @@ key_t ftok(const char *pathname, int proj_id);
 - `pathname`參數爲約定的路徑。
 - `proj_id`參數爲約定的項目編號。
 
-通過指定**路徑**和**項目編號**能夠得到唯一的`key`值。  
+通過指定**路徑**和**項目編號**能夠得到唯一的`key`值。
 函數執行成功返回生成的`key`值，執行失敗返回`-1`。
 
-### XSI IPC特點
+## XSI IPC 特點
 `XSI IPC`並沒有遵循Unix中`一切皆文件`的思想，`XSI IPC`在文件系統中沒有名字，不能使用文件描述符進行表示，不能使用`open()`、`write()`等文件操作對其進行控制，亦不能對其使用`select()`、`epoll()`、`kqueue()`等IO複用機制。
 
 `XSI IPC`不能使用傳統的shell指令進行管理，不能使用`ls`查看，不能使用`rm`刪除。
@@ -1842,11 +1898,8 @@ $ ipcs
 $ ipcrm { shm | msg | sem } id
 ```
 
-
-
-## *SystemV* 共享內存
+## SystemV 共享內存
 共享內存是一種進程間通信(IPC, Inter-Process Communication)機制，屬於三類`XSI IPC`之一。
-
 相比信號量等IPC機制，共享內存有着最高的效率，因爲共享內存不涉及複製操作。
 
 共享內存的相關函數定義在`sys/shm.h`中。
@@ -1862,14 +1915,14 @@ int shmget(key_t key, size_t size, int shmflg);
 - `size`參數爲共享內存的大小。
 - `shmflg`參數爲特殊標識，取`0`時獲取**key值**對應的共享內存，若傳入的**key值**對應的共享內存**未創建**，則調用**失敗**。
 
-創建共享內存使用`IPC_CREAT`標識，創建的同時可以手動設定共享內存的讀寫權限如`IPC_CREAT | 0660`。  
-使用`IPC_CREAT`標識時，若傳入**key值**對應的共享內存已經存在，不會調用失敗，而是忽略該標識，返回已存在的共享內存的描述符。  
-如果需要創建一塊**唯一**的共享內存，則使用`IPC_CREAT | IPC_EXCL`。  
-使用`IPC_CREAT | IPC_EXCL`標識時，若傳入`key`參數對應的共享內存已存在，則創建**失敗**。  
-`IPC_PRIVATE`標誌用於創建一個只屬於創建進程的共享內存。  
+創建共享內存使用`IPC_CREAT`標識，創建的同時可以手動設定共享內存的讀寫權限如`IPC_CREAT | 0660`。
+使用`IPC_CREAT`標識時，若傳入**key值**對應的共享內存已經存在，不會調用失敗，而是忽略該標識，返回已存在的共享內存的描述符。
+若需要創建一塊**唯一**的共享內存，則使用`IPC_CREAT | IPC_EXCL`。
+使用`IPC_CREAT | IPC_EXCL`標識時，若傳入`key`參數對應的共享內存已存在，則創建**失敗**。
+`IPC_PRIVATE`標誌用於創建一個只屬於創建進程的共享內存。
 共享內存創建成功時返回**共享內存描述符**(非負整數)，失敗時返回`-1`。
 
-### 獲得共享內存地址
+### 共享內存獲取
 使用`shmat()`函數獲取共享內存的**地址**。
 
 ```c
@@ -1877,12 +1930,14 @@ void *shmat(int shmid, const void *shmaddr, int shmflg);
 ```
 
 - `shmid`參數爲目標共享內存描述符。
-- `shmaddr`參數爲將共享連接到當前進程中的地址，如果不需要指定共享內存連接到進程中的**指定地址**，則該參數可以爲`NULL`(讓系統分配可用的地址)。
-- `shmflg`參數爲一組標誌位，如果`shmaddr`參數手動指定了地址，則搭配`shmflg`參數取`SHM_RND`，如果**只讀**共享內存則設定`SHM_RDONLY`，不使用此參數可設爲`0`。
+- `shmaddr`參數爲將共享連接到當前進程中的地址，
+若不需要指定共享內存連接到進程中的**指定地址**，則該參數可以爲`NULL`(讓系統分配可用的地址)。
+- `shmflg`參數爲一組標誌位，如果`shmaddr`參數手動指定了地址，則搭配`shmflg`參數取`SHM_RND`，
+若**只讀**共享內存則設定`SHM_RDONLY`，不使用此參數可設爲`0`。
 
 函數運行成功返回**共享內存**的**首地址**，運行失敗返回數值`-1`。
 
-### 分離共享內存
+### 共享內存分離
 使用`shmdt()`函數分離共享內存。
 
 ```c
@@ -1893,7 +1948,7 @@ int shmdt(const void *shmaddr);
 
 調用成功時返回`0`，失敗返回`-1`。
 
-### 控制共享內存
+## 共享內存控制
 使用`shmctl()`函數設置共享內存的**標識**。
 
 ```c
@@ -1905,16 +1960,15 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 
 函數調用成功返回`0`，失敗返回`-1`。
 
-與信號量機制類似，如果`shmget()`函數以`IPC_CREAT | IPC_EXCL`的形式創建**唯一**共享內存的話，如果沒有在進程結束前將共享內存刪除，則下次程序執行時將**不能**夠再以`IPC_CREAT | IPC_EXCL`的形式創建**key值**相同的共享內存！
+與信號量機制類似，如果`shmget()`函數以`IPC_CREAT | IPC_EXCL`的形式創建**唯一**共享內存的話，
+若沒有在進程結束前將共享內存刪除，則下次程序執行時將**不能**夠再以`IPC_CREAT | IPC_EXCL`的形式創建**key值**相同的共享內存！
 
-
-
-## SystemV 信號量(Semaphore)
-信號量是一種進程間通信(`IPC, Inter-Process Communication`)機制，屬於三類`XSI IPC`之一。  
-信號量用於控制進程對資源的訪問，但信號量也可以用於線程。  
+## Semaphore (SystemV 信號量)
+信號量是一種進程間通信(`IPC, Inter-Process Communication`)機制，屬於三類`XSI IPC`之一。
+信號量用於控制進程對資源的訪問，但信號量也可以用於線程。
 在進程開發中，常用的信號量函數定義在`sys/sem.h`文件中。
 
-### 創建/獲取信號量
+### 信號量創建/獲取
 使用`semget()`函數創建一個新的信號量或獲取一個已經存在的信號量。
 
 ```c
@@ -1925,13 +1979,16 @@ int semget(key_t key, int num_sems, int sem_flags);
 - `num_sems`參數爲需要的信號量數目，一般爲`1`。
 - `sem_flags`參數爲信號量標誌位，多個標誌通過邏輯或操作符`|`相連。
 
-函數調用成功時返回信號量描述符，失敗時返回`-1`。  
-`sem_flags`參數上常用的信號標識有`IPC_CREAT`，用於**創建**新的信號量，但如果**key值**對應的信號量已被創建，並不會調用失敗，而是**忽略**該標誌。  
-`IPC_CREAT | IPC_EXCL`標識，用於創建一個**新的**、**唯一**的信號量，如果**key值**對應的信號量已被創建，則調用**失敗**。  
-使用`IPC_CREAT | IPC_EXCL`標識需要注意，使用此種方式創建信號量在使用完畢後需要調用`semctl()`函數釋放，否則下次運行同樣的程序會由於信號量已經存在(沒被釋放)而造成調用失敗。  
+函數調用成功時返回信號量描述符，失敗時返回`-1`。
+`sem_flags`參數上常用的信號標識有`IPC_CREAT`，用於**創建**新的信號量，
+若**key值**對應的信號量已被創建，並不會調用失敗，而是**忽略**該標誌。
+`IPC_CREAT | IPC_EXCL`標識，用於創建一個**新的**、**唯一**的信號量，
+若**key值**對應的信號量已被創建，則調用**失敗**。
+使用`IPC_CREAT | IPC_EXCL`標識需要注意，使用此種方式創建信號量在使用完畢後需要調用`semctl()`函數釋放，
+否則下次運行同樣的程序會由於信號量已經存在(沒被釋放)而造成調用失敗。
 `IPC_CRAET | 0666`標識，用於創建有**讀寫權限**的信號量。
 
-### 改變信號量的值
+### 改變信號量值
 使用`semop()`函數修改信號量的值。
 
 ```c
@@ -1955,7 +2012,7 @@ struct sembuf
 
 函數調用成功返回`0`，調用失敗返回`-1`並置**errno**。
 
-### 設置信號量信息
+### 信號量信息設置
 使用`semctl()`函數來執行信號量集上的控制操作。
 
 ```c
@@ -1966,8 +2023,10 @@ int semctl(int sem_id, int sem_num, int command, ...);
 - `sem_num`參數爲信號量編號，一般沒有多個信號量時取`0`。
 - `command`參數爲要執行的操作的標誌位。
 
-`command`參數可以有很多不同的值，常用的有`IPC_RMID`，用於刪除一個信號量(如果信號創建方式是`IPC_CREAT | IPC_EXCL`，則務必要在程序結束時刪除信號量)。  
-`command`設置爲`SETVAL`，則用於**初始化**一個信號量，此時函數需要有第四個參數，聯合體`union semun`，通過設置`semun`的`val`成員的值來初始化信號量。
+`command`參數可以有很多不同的值，常用的有`IPC_RMID`，
+用於刪除一個信號量(如果信號創建方式是`IPC_CREAT | IPC_EXCL`，則務必要在程序結束時刪除信號量)。
+`command`設置爲`SETVAL`，則用於**初始化**一個信號量，此時函數需要有第四個參數，聯合體`union semun`，
+通過設置`semun`的`val`成員的值來初始化信號量。
 
 `semun`聯合體的定義爲：
 
@@ -2087,18 +2146,17 @@ int main(void)
 
 運行結果：(文字描述)
 
-`Semaphore_Before`先運行，創建信號量成功(一直循環)。  
-`Semaphore_After`後運行，獲取信號量成功，然後進程阻塞在`semop()`函數上，等待`Semaphore_Before`釋放資源。  
-向`Semaphore_Before`發送`SIGINT`信號，讓其釋放資源，結束進程，然後`Semaphore_After`獲得資源，`semop()`函數不再阻塞，也開始循環。  
+`Semaphore_Before`先運行，創建信號量成功(一直循環)。
+`Semaphore_After`後運行，獲取信號量成功，然後進程阻塞在`semop()`函數上，等待`Semaphore_Before`釋放資源。
+向`Semaphore_Before`發送`SIGINT`信號，讓其釋放資源，結束進程，然後`Semaphore_After`獲得資源，
+`semop()`函數不再阻塞，也開始循環。
 最後向`Semphore_After`發送`SIGINT`信號，讓其刪除信號量並結束進程。
 
-
-
-## SystemV 消息隊列(XSI Message Queue)
+## XSI Message Queue (SystemV 消息隊列)
 消息隊列是一種進程間通信(IPC, Inter-Process Communication)機制，屬於三類`XSI IPC`之一。
 以下描述引用自`<<Unix網絡編程 卷2>>`：
 
-消息隊列是一個**消息鏈表**，有足夠**寫權限**的線程可以向消息隊列中添加消息，有足夠**讀權限**的線程可以從消息隊列中獲取消息。  
+消息隊列是一個**消息鏈表**，有足夠**寫權限**的線程可以向消息隊列中添加消息，有足夠**讀權限**的線程可以從消息隊列中獲取消息。
 消息隊列具有**隨內核的持續性**。
 
 消息隊列相關函數定義在`sys/msg.h`中。
@@ -2117,7 +2175,7 @@ int msgget(key_t key, int msgflg);
 
 `key`參數的取值可以爲宏`IPC_PRIVATE`(實際值爲`0`)，此時該消息隊列爲**私有**，用於`fork()`調用之後的**父子進程**間通信(打開的消息隊列描述符在`fork()`之後依然存在)。
 
-`msgflg`取`IPC_CREAT`創建一個消息隊列(消息隊列已存在則忽略此標誌位)，取`IPC_CREAT | IPC_EXCL`創建一個新的消息隊列(消息隊列已存在則函數執行失敗)。  
+`msgflg`取`IPC_CREAT`創建一個消息隊列(消息隊列已存在則忽略此標誌位)，取`IPC_CREAT | IPC_EXCL`創建一個新的消息隊列(消息隊列已存在則函數執行失敗)。
 創建消息隊列時，若需要對消息隊列進行**讀寫操作**需要在`msgflg`參數後追加讀寫權限如`0600`(等價於`S_IRUSR | S_IWUSR`)，但打開消息隊列時不需要設定(打開的消息隊列由創建者決定訪問權限)。
 
 ### 向消息隊列中添加消息
@@ -2144,8 +2202,8 @@ struct mymsg
 }
 ```
 
-消息結構中的首個成員需要爲`long`型，用於指示消息的**類型**(之後的`msgrcv()`函數會用到)，之後才爲消息的數據區。  
-`msgsz`參數傳入的消息大小**不包括**消息類型的大小。  
+消息結構中的首個成員需要爲`long`型，用於指示消息的**類型**(之後的`msgrcv()`函數會用到)，之後才爲消息的數據區。
+`msgsz`參數傳入的消息大小**不包括**消息類型的大小。
 在實際開發中，消息數據不一定是簡單的字符數組，可以是**任意類型**(包括**結構體**)。
 
 ### 從消息隊列中獲取消息
@@ -2157,12 +2215,18 @@ ssize_t msgrcv(int msqid, void *msgp, size_t msgsz, long msgtyp, int msgflg);
 
 - `msqid`、`msgsz`參數作用與`msgsnd()`函數中類似。
 - `msgp`參數指向用戶緩衝區，成功收到消息後會將消息從隊列中拷貝到用戶緩衝區，之後移除隊列中被接收的消息。
-- `msgtyp`參數爲目標接受消息的類型。默認情況下，取值`0`表示接受消息隊列中的第一個消息(任意類型)；取值爲**正數**時表示接受第一個**類型與`msgtyp`相同**的消息；取**負值**表示接受**絕對值**小於等於`msgtyp`的消息。
-- `msgflg`參數爲消息標誌位，默認以阻塞方式接受消息(若消息隊列爲空，則`msgrcv()`函數阻塞)，使用`IPC_NOWAIT`標誌表示以非阻塞形式接收消息，隊列爲空則直接返回錯誤；使用`MSG_EXCEPT`標誌時排除接收類型等於`msgtyp`的消息；使用`MSG_NOERROR`標誌複製消息時捨棄大於`msgsz`參數值的消息。
+- `msgtyp`參數爲目標接受消息的類型。
+默認情況下，取值`0`表示接受消息隊列中的第一個消息(任意類型)；
+取值爲**正數**時表示接受第一個**類型與`msgtyp`相同**的消息；
+取**負值**表示接受**絕對值**小於等於`msgtyp`的消息。
+- `msgflg`參數爲消息標誌位，默認以阻塞方式接受消息(若消息隊列爲空，則`msgrcv()`函數阻塞)，
+使用`IPC_NOWAIT`標誌表示以非阻塞形式接收消息，隊列爲空則直接返回錯誤；
+使用`MSG_EXCEPT`標誌時排除接收類型等於`msgtyp`的消息；
+使用`MSG_NOERROR`標誌複製消息時捨棄大於`msgsz`參數值的消息。
 
 函數執行成功返回獲取消息的大小，失敗時返回`-1`並置`errno`。
 
-### 控制消息隊列
+### 消息隊列控制
 使用`msgctl()`函數控制消息隊列：
 
 ```c
@@ -2178,7 +2242,8 @@ int msgctl(int msqid, int cmd, struct msqid_ds *buf);
 
 函數執行成功返回`0`，執行失敗返回`-1`並置`errno`。
 
-參數`buf`的類型`msqid_ds`結構用於設置消息隊列的一些屬性，該結構的定義根據具體實現略有不同，在`Linux x64`中的定義如下：
+參數`buf`的類型`msqid_ds`結構用於設置消息隊列的一些屬性，該結構的定義根據具體實現略有不同，
+在`Linux x64`中的定義如下：
 
 ```c
 /* Structure of record for one message inside the kernel.
@@ -2228,11 +2293,11 @@ struct ipc_perm
 };
 ```
 
-`msqid_ds`結構中的`msg_perm.uid`、`msg_perm.gid`、`msg_perm.mode`以及`msg_qbytes`成員可以**手動指定**。  
+`msqid_ds`結構中的`msg_perm.uid`、`msg_perm.gid`、`msg_perm.mode`以及`msg_qbytes`成員可以**手動指定**。
 `msgctl`函數的`IPC_SET`操作只有下列兩種進程可以執行:
 
-0. 進程執行用戶的用戶ID等於`msg_perm.cuid`或`msg_per.uid`。
-0. 具有超級用戶特權的進程。
+1. 進程執行用戶的用戶ID等於`msg_perm.cuid`或`msg_per.uid`。
+1. 具有超級用戶特權的進程。
 
 ### 實例代碼
 定義消息結構頭`my_msg.h`：
@@ -2403,7 +2468,7 @@ msgrcv: No message of desired type
 
 
 ## POSIX 消息隊列
-POSIX消息隊列相關函數定義在`mqueue.h`頭文件中。  
+POSIX消息隊列相關函數定義在`mqueue.h`頭文件中。
 使用POSIX消息隊列，編譯時需要鏈接`librt`庫。
 
 POSIX消息隊列與SystemV消息隊列的差異：
@@ -2421,10 +2486,11 @@ mqd_t mq_open(const char *name, int oflag, mode_t mode, struct mq_attr *attr);
 
 - `name`參數爲POSIX IPC名稱。
 - `oflag`參數爲標誌位，類似於`open()`調用中的`flags`參數。
-	0. 可取`O_RDONLY`、`O_WRONLY`、`O_RDWR`(三選一)，分別表示以**只讀**、**只寫**、**讀寫**的方式打開POSIX消息隊列。
-	0. 可取`O_CREAT`，表示不存在消息隊列時創建，可追加`O_EXCL`標誌，若消息隊列已存在函數返回`EEXIST`錯誤。
-	0. 可取`O_NONBLOCK`，表示以**非阻塞**的形式打開消息隊列。
-- `mode`參數僅當`oflag`參數中使用了`O_CREAT`標誌時需要使用，參數內容爲創建的消息隊列的權限，格式與文件權限相同(八進制，如`0600`)。
+	1. 可取`O_RDONLY`、`O_WRONLY`、`O_RDWR`(三選一)，分別表示以**只讀**、**只寫**、**讀寫**的方式打開POSIX消息隊列。
+	1. 可取`O_CREAT`，表示不存在消息隊列時創建，可追加`O_EXCL`標誌，若消息隊列已存在函數返回`EEXIST`錯誤。
+	1. 可取`O_NONBLOCK`，表示以**非阻塞**的形式打開消息隊列。
+- `mode`參數僅當`oflag`參數中使用了`O_CREAT`標誌時需要使用，
+參數內容爲創建的消息隊列的權限，格式與文件權限相同(八進制，如`0600`)。
 - `attr`參數僅當`oflag`參數中使用了`O_CREAT`標誌時需要使用，用於設置消息隊列的屬性，
 
 函數執行成功返回POSIX消息隊列的描述符，失敗時返回`(mqd_t)-1`，並置`errno`。
@@ -2445,7 +2511,8 @@ int mq_unlink(const char *name);
 
 使用`mq_close()`關閉消息隊列後消息隊列不會被刪除，刪除消息隊列需要使用`mq_unlink()`。
 一個進程結束後，所有該進程中打開的消息隊列都將被自動關閉。
-調用`mq_unlink()`時若被刪除的消息隊列已被其它進程打開則不會立即刪除，直到最後一個打開該消息隊列的進程結束或主動關閉該消息隊列時纔會被刪除。
+調用`mq_unlink()`時若被刪除的消息隊列已被其它進程打開則不會立即刪除，
+直到最後一個打開該消息隊列的進程結束或主動關閉該消息隊列時纔會被刪除。
 
 ### 設置獲取消息隊列的屬性
 使用`mq_getattr()`獲取消息隊列的屬性，使用`mq_setattr()`設置消息隊列的屬性：
@@ -2519,8 +2586,10 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
 - `msg_prio`參數爲指向消息優先級數據的指針，在隊列中有多個消息時，首先獲取優先級高的消息。
 - `abs_timeout`參數爲指向超時時間的指針，`mq_timedreceive()`函數等待超時後返回`-1`並置`errno`值爲`ETIMEDOUT`。
 
-當消息隊列沒有設置`O_NONBLOCK`時，`mq_receive()`函數會一直阻塞到消息能被接收，`mq_timdreceive()`函數阻塞到超時時間等待完畢或消息能被接收。
-`mq_receive()/mq_timedreceive()`函數的阻塞狀態會被信號處理函數中斷，觸發信號處理函數時，`mq_receive()/mq_timedreceive()`函數立即返回`-1`並置`errno`爲`EINTR`。
+當消息隊列沒有設置`O_NONBLOCK`時，`mq_receive()`函數會一直阻塞到消息能被接收，
+`mq_timdreceive()`函數阻塞到超時時間等待完畢或消息能被接收。
+`mq_receive()/mq_timedreceive()`函數的阻塞狀態會被信號處理函數中斷，觸發信號處理函數時，
+`mq_receive()/mq_timedreceive()`函數立即返回`-1`並置`errno`爲`EINTR`。
 
 當消息隊列設置了`O_NONBLOCK`時，若消息隊列中的消息數量爲`0`，函數返回`-1`並置`errno`值爲`EAGAIN`。
 
@@ -2560,9 +2629,9 @@ struct sigevent {
 
 注意：
 
-0. 消息隊列阻塞的優先級比信號通知更高，只有指定消息隊列的所有描述符都以`O_NONBLOCK`標誌打開時，信號纔會發出。
-0. 任何時刻只能有一個進程被註冊到指定的消息隊列中。
-0. 信號成功發送之後，註冊即被取消，在此發出信號需要重新註冊。
+1. 消息隊列阻塞的優先級比信號通知更高，只有指定消息隊列的所有描述符都以`O_NONBLOCK`標誌打開時，信號纔會發出。
+1. 任何時刻只能有一個進程被註冊到指定的消息隊列中。
+1. 信號成功發送之後，註冊即被取消，在此發出信號需要重新註冊。
 
 ### 實例代碼
 定義消息結構頭`posix_mq.h`：
@@ -2749,13 +2818,13 @@ mq_receive: Resource temporarily unavailable
 
 
 
-## IO多路複用(POSIX)
-在Unix中，POSIX定義了一系列IO多路複用機制，如`select()`、`pselect()`、`poll()`等調用。  
+# IO多路複用 (POSIX)
+在Unix中，POSIX定義了一系列IO多路複用機制，如`select()`、`pselect()`、`poll()`等調用。
 Linux和BSD還分別提供了增強的IO複用機制，在Linux中爲`epoll`，在BSD中爲`kqueue`。
 
-### *select()* 調用
-在Unix環境下，`select()`是常用的IO多路複用機制之一，函數定義在`sys/select.h`中。  
-`select()`函數定義如下所示：
+## select()
+在Unix環境下，`select()`是常用的IO多路複用機制之一，函數定義在`sys/select.h`中。
+`select()`函數定義示例：
 
 ```c
 int select(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_set *restrict errorfds, struct timeval *restrict timeout);
@@ -2835,19 +2904,21 @@ while(1)
 }
 ```
 
-使用 *select()* 的一些注意事項：
+使用`select()`的一些注意事項：
 
 - `select()`處於阻塞狀態時會被信號中斷(當`select()`所處線程是信號處理線程時)。
 - 每次調用`select()`前都需要重設描述符集合(執行`FD_ZERO`和`FD_SET`宏)。
-- `timeval`結構體會在`select()`運行時被修改，因此，在需要設置超時時間的情況下，循環中每次調用`select()`之前都需要重新設置`timeval`結構體。
-- 對於**普通文件**描述符，無論**讀、寫、異常狀態**，都是**始終準備好**的，因此在監控的描述符中如果存在**普通文件**，無論`timeout`參數取何值，`select()`都將**立即返回**。
+- `timeval`結構體會在`select()`運行時被修改，因此，在需要設置超時時間的情況下，
+循環中每次調用`select()`之前都需要重新設置`timeval`結構體。
+- 對於**普通文件**描述符，無論**讀、寫、異常狀態**，都是**始終準備好**的，
+因此在監控的描述符中如果存在**普通文件**，無論`timeout`參數取何值，`select()`都將**立即返回**。
 
-### *pselect()* 調用
-`pselect()`函數由**POSIX**定義，是`select()`的完善版本，在早期的Unix中並不存在。  
-`pselect()`監聽描述符的功能以及使用方式與`select()`相同。  
+## pselect()
+`pselect()`函數由**POSIX**定義，是`select()`的完善版本，在早期的Unix中並不存在。
+`pselect()`監聽描述符的功能以及使用方式與`select()`相同。
 `pselect()`在`select()`基礎上添加了等待期間**阻塞**信號的功能。
 
-`pselect()`函數定義如下所示：
+`pselect()`函數定義示例：
 
 ```c
 int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_set *restrict errorfds, const struct timespec *restrict timeout, const sigset_t *restrict sigmask);
@@ -2873,11 +2944,14 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_se
 
 信號集合只需要設置一次，就可以在之後的`pselect()`中一直使用。
 
-- 在`pselect()`處於**阻塞**狀態時，會暫時屏蔽信號集中的信號，在`pselect()`阻塞期間若發出了被屏蔽的信號，則信號處理函數會在`pselect()`結束時觸發。
-- 在`pselect()`**阻塞**期間多次發出了信號，在`pselect()`結束時**同類信號**只觸發信號處理函數**一次**，不會多次觸發。
-- 在`pselect()`**阻塞**期間發出的不同種類信號都會在`pselect()`結束時觸發(即使信號處理函數是**同一個**)，但**每類信號**只會觸發**一次**信號處理函數。
+- 在`pselect()`處於**阻塞**狀態時，會暫時屏蔽信號集中的信號，
+在`pselect()`阻塞期間若發出了被屏蔽的信號，則信號處理函數會在`pselect()`結束時觸發。
+- 在`pselect()`**阻塞**期間多次發出了信號，
+在`pselect()`結束時**同類信號**只觸發信號處理函數**一次**，不會多次觸發。
+- 在`pselect()`**阻塞**期間發出的不同種類信號都會在`pselect()`結束時觸發(即使信號處理函數是**同一個**)，
+但**每類信號**只會觸發**一次**信號處理函數。
 
-如下代碼所示：
+示例：
 
 ```c
 #include <signal.h>
@@ -2928,12 +3002,15 @@ int main(void)
 }
 ```
 
-在上述代碼中，`timespec`結構設置了**5秒**的超時等待時間，屏蔽信號集中加入了`SIGINT`和`SIGQUIT`兩個信號，在`pselect()`啓動後的超時等待時間中，發送這兩個信號並不會立即得到響應，而是在**5秒**的超時時間過後，`deal_signal`纔會觸發。  
+在上述代碼中，`timespec`結構設置了**5秒**的超時等待時間，屏蔽信號集中加入了`SIGINT`和`SIGQUIT`兩個信號，
+在`pselect()`啓動後的超時等待時間中，發送這兩個信號並不會立即得到響應，
+而是在**5秒**的超時時間過後，`deal_signal`纔會觸發。
 在等待期間，無論發送多少次`SIGINT`和`SIGQUIT`信號，`SIGINT`和`SIGQUIT`的信號處理函數只會**分別觸發**一次。
 
-在**多線程**環境下，只有`pselect()`所處的線程是信號處理線程時，`pselect()`才能起到阻塞信號的效果，在其它線程中，即使使用`pselect()`並設置屏蔽信號，信號處理函數依然會**立即**觸發。
+在**多線程**環境下，只有`pselect()`所處的線程是信號處理線程時，`pselect()`才能起到阻塞信號的效果，
+在其它線程中，即使使用`pselect()`並設置屏蔽信號，信號處理函數依然會**立即**觸發。
 
-如下代碼所示：
+示例：
 
 ```c
 #include <signal.h>
@@ -2965,7 +3042,7 @@ void* pthread_func(void* arg)
 	signal(SIGINT, deal_signal);
 	signal(SIGQUIT, deal_signal);
 
-	//sigmask參數設置一次即可，不需要每次調用pselect前都設置
+	// sigmask參數設置一次即可，不需要每次調用pselect前都設置
 	sigset_t set;
 	sigemptyset(&set);
 	sigaddset(&set, SIGINT);
@@ -2992,16 +3069,20 @@ int main(void)
 }
 ```
 
-在上述代碼中，`pselect()`代碼塊被轉移到了主線程之外，儘管依舊設置了`sigmask`，但由於信號由**主線程**而非`pselect()`所處線程處理，因而阻塞信號沒有在`pselect()`等待期間阻塞，發送`SIGINT`和`SIGQUIT`等信號會**立即觸發**信號處理函數。
+在上述代碼中，`pselect()`代碼塊被轉移到了主線程之外，儘管依舊設置了`sigmask`，
+但由於信號由**主線程**而非`pselect()`所處線程處理，因而阻塞信號沒有在`pselect()`等待期間阻塞，
+發送`SIGINT`和`SIGQUIT`等信號會**立即觸發**信號處理函數。
 
 
 
-## IO多路複用(Epoll)
-`epoll`是`Linux`環境下**獨有**的IO多路複用機制，在`Linux Kernel 2.6`之後被引入。  
-傳統的`select()`在描述符變化事件產生時需要使用`FD_ISSET`宏遍歷測試所有描述符，因此隨着監聽描述符數量的增加性能會出現線性下降，而使用`epoll`則能直接獲取到變化的描述符。
+# IO多路複用 (Epoll)
+`epoll`是`Linux`環境下**獨有**的IO多路複用機制，在`Linux Kernel 2.6`之後被引入。
+傳統的`select()`在描述符變化事件產生時需要使用`FD_ISSET`宏遍歷測試所有描述符，
+因此隨着監聽描述符數量的增加性能會出現線性下降，而使用`epoll`則能直接獲取到變化的描述符。
+
 `epoll`相關API定義在`sys/epoll.h`頭文件中。
 
-### *epoll_create()* 函數
+## epoll_create()
 使用`epoll_create()`初始化一個`epoll`描述符：
 
 ```c
@@ -3012,7 +3093,7 @@ int epoll_create(int size);
 
 函數執行成功返回`epoll`描述符。執行失敗返回`-1`，並置`errno`。
 
-### *epoll_ctl()* 函數
+## epoll_ctl()
 使用`epoll_ctl()`添加、修改或刪除監聽描述符：
 
 ```c
@@ -3020,45 +3101,48 @@ int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 ```
 
 - `epfd`參數爲`epoll_create()`得到的`epoll`描述符。
-- `op`參數爲要執行的操作，可取宏`EPOLL_CTL_ADD`(添加監聽描述符)、`EPOLL_CTL_MOD`(修改描述符操作)、`EPOLL_CTL_DEL`(刪除監聽描述符)。
+- `op`參數爲要執行的操作，
+可取宏`EPOLL_CTL_ADD`(添加監聽描述符)、`EPOLL_CTL_MOD`(修改描述符操作)、`EPOLL_CTL_DEL`(刪除監聽描述符)。
 - `fd`參數爲被操作的描述符。
 - `event`參數爲描述符`fd`對應的事件，不能取值`NULL`。
 
 函數執行成功返回`0`，執行失敗返回`-1`並置`errno`。
 
-*epoll_event* 結構
-> `event`參數的類型`epoll_event`結構體定義如下：
->
->	```c
->	struct epoll_event {
->		uint32_t events;		/* Epoll events */
->		epoll_data_t data;		/* User data variable */
->	};
->	```
->
-> 其中，`events`成員爲文件描述符觸發的條件，是一組標誌，使用邏輯或操作符`|`相連，常用的有：
->
->	- `EPOLLIN` 描述符**可讀**
->	- `EPOLLOUT` 描述符**可寫**
->	- `EPOLLPRI` 描述符有緊急的數據可讀
->	- `EPOLLET` `Edge Triggered`(ET，邊緣觸發)模式，不設置此標誌時默認爲`Level Triggered`(LT，水平觸發)
->	- `EPOLLONESHOT` 只監聽**一次**事件
+- `epoll_event` 結構
 
-*epoll_data_t* 類型
-> `epoll_event`結構體成員`data`的類型`epoll_data_t`聯合體定義如下：
->
->	```c
->	typedef union epoll_data {
->		void *ptr;
->		int fd;
->		uint32_t u32;
->		uint64_t u64;
->	} epoll_data_t;
->	```
->
-> `data`用來存放事件的對應數據。
+	`event`參數的類型`epoll_event`結構體定義如下：
 
-### *epoll_wait()* 函數
+	```c
+	struct epoll_event {
+		uint32_t events;		/* Epoll events */
+		epoll_data_t data;		/* User data variable */
+	};
+	```
+
+	其中，`events`成員爲文件描述符觸發的條件，是一組標誌，使用邏輯或操作符`|`相連，常用的有：
+
+	- `EPOLLIN` 描述符**可讀**
+	- `EPOLLOUT` 描述符**可寫**
+	- `EPOLLPRI` 描述符有緊急的數據可讀
+	- `EPOLLET` `Edge Triggered`(ET，邊緣觸發)模式，不設置此標誌時默認爲`Level Triggered`(LT，水平觸發)
+	- `EPOLLONESHOT` 只監聽**一次**事件
+
+- `epoll_data_t` 類型
+
+	`epoll_event`結構體成員`data`的類型`epoll_data_t`聯合體定義如下：
+
+	```c
+	typedef union epoll_data {
+		void *ptr;
+		int fd;
+		uint32_t u32;
+		uint64_t u64;
+	} epoll_data_t;
+	```
+
+	`data`用來存放事件的對應數據。
+
+## epoll_wait()
 完整監聽描述符的設置之後，使用`epoll_wait()`函數等待事件觸發：
 
 ```c
@@ -3072,18 +3156,20 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 
 函數執行成功返回變化的描述符數量，返回值爲`0`則等待超時。執行失敗返回`-1`並置`errno`。
 
-### 注意事項
+## 注意事項
 - `epoll_create()`創建的`epoll`描述符需要使用`close()`關閉。
 - `epoll`**不能**監聽普通文件描述符，對於`read()`、`write()`調用而言，普通文件是**始終準備好**(always ready)的。在`epoll_ctl()`函數中嘗試添加一個普通文件描述符則會得到`Operation not permitted`錯誤。
 - `epoll_create()`中的`size`參數雖然是被忽略的，但不要取`0`和**負值**，會得到`Bad file desriptor`錯誤。
 
-### *LT* 與 *ET* 模式
+## LT/ET
 `epoll`擁有兩種工作模式，分別爲`Level Triggered`(LT，水平觸發)和`Edge Triggered`(ET，邊緣觸發)模式。
 
 - `LT`模式爲`epoll`的默認工作模式，在該模式下，只要有數據可讀/寫，使用`epoll_wait()`都會返回。
 - `ET`模式只有描述符狀態變化(從不可讀/寫變爲可讀/寫)時纔會另`epoll_wait()`返回，相比之下，`ET`模式更爲高效。
 
-`LT`模式下，由於只要有數據讀寫就會觸發事件，因此**不必**在一次`epoll`循環中嘗試讀盡所有的數據，有數據未讀會繼續觸發觸發事件，在下次觸發的事件中讀盡數據即可。`LT`模式下可以使用阻塞式IO也可以使用非阻塞IO。
+`LT`模式下，由於只要有數據讀寫就會觸發事件，因此**不必**在一次`epoll`循環中嘗試讀盡所有的數據，
+有數據未讀會繼續觸發觸發事件，在下次觸發的事件中讀盡數據即可。
+`LT`模式下可以使用阻塞式IO也可以使用非阻塞IO。
 
 `LT`模式下基本的代碼框架爲：
 
@@ -3132,7 +3218,9 @@ while (1)
 }
 ```
 
-`ET`模式下，只有描述符在可讀寫狀態發生改變時纔會觸發事件，因此，在`ET`模式下，必須**一次讀盡**所有的數據，否則會造成數據丟失。`ET`模式下，IO需要放在一個無限循環中進行，直到數據全部讀出，IO操作置`ernno`爲`EAGAIN`才終止。
+`ET`模式下，只有描述符在可讀寫狀態發生改變時纔會觸發事件，
+因此，在`ET`模式下，必須**一次讀盡**所有的數據，否則會造成數據丟失。
+`ET`模式下，IO需要放在一個無限循環中進行，直到數據全部讀出，IO操作置`ernno`爲`EAGAIN`才終止。
 
 相比`LT`模式，`ET`模式觸發`epoll`次數減少，效率更高，但`ET`模式下必須使用**非阻塞IO**。
 
