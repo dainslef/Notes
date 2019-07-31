@@ -387,6 +387,19 @@ services.xserver.displayManager.slim.enable = true;
 services.xserver.displayManager.lightdm.enable = true;
 ```
 
+NixOS下的Gnome3默認會安裝所有Gnome的可選軟件包，如播放器、遊戲等。
+可通過`environment.gnome3.excludePackages`配置項指定排除不需要的軟件包：
+
+```sh
+environment.gnome3.excludePackages = [ pkgs.gnome3.gnome-weather pkgs.gnome3.simple-scan ... ];
+```
+
+還可以排除所有的Gnome3可選軟件包：
+
+```sh
+environment.gnome3.excludePackages = pkgs.gnome3.optionalPackages;
+```
+
 
 
 # 問題紀錄
