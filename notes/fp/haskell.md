@@ -12,6 +12,7 @@
 	- [Pointfree 应用](#pointfree-应用)
 	- [pointfree變換技巧](#pointfree變換技巧)
 	- [有趣的pointfree变换](#有趣的pointfree变换)
+- [CPS (Continuation Passing Style)](#cps-continuation-passing-style)
 - [求值策略](#求值策略)
 	- [Lazy evaluation 的实现](#lazy-evaluation-的实现)
 	- [Lazy evaluation 的优劣](#lazy-evaluation-的优劣)
@@ -24,6 +25,9 @@
 - [Exception](#exception)
 	- [异常类型](#异常类型)
 	- [异常 API](#异常-api)
+	- [异常捕获与求值策略](#异常捕获与求值策略)
+	- [异常安全](#异常安全)
+	- [自定义异常](#自定义异常)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
@@ -385,6 +389,16 @@ p = ((.) f) . g
 	```
 
 使用pointfree风格需要**适可而止**，过度使用会造成代码难以理解。
+
+
+
+# CPS (Continuation Passing Style)
+CPS(Continuation Passing Style，延续传递风格)是一种编程风格，函数不直接返回计算结果，
+而是将计算结果传递到一个continuation(通常是回调)中，由continuation对结果进行操作。
+
+关于CPS的详细概念，可参考[WikiBooks](https://en.wikibooks.org/wiki/Haskell/Continuation_passing_style)中的介绍。
+
+
 
 
 
@@ -1012,6 +1026,40 @@ error :: forall (r :: RuntimeRep). forall (a :: TYPE r). HasCallStack => [Char] 
 	  print $ "Result1: " ++ (show re1)
 	  print $ "Result2: " ++ (show re2)
 	```
+
+## 异常捕获与求值策略
+在Haskell中，默认为惰性求值，因此异常字段在其被求值前不会触发异常，该特性会导致异常可能不被异常捕获逻辑所捕获。
+示例：
+
+```hs
+{-# LANGUAGE LambdaCase #-}
+
+import Control.Exception
+
+main :: IO
+main = (try $ do
+  let n1 = 1
+  let n2 = error "Try Exception!" -- 严格求值的语言在执行到此行代码时，异常就会立即触发
+  print "Run..." -- Haskell中的惰性求值使得异常没有立即触发，后续逻辑继续执行
+  return $ n1 + n2) >>= \case -- 异常信息没有被捕获进入提供的Lambda逻辑
+    Left (SomeException e) -> print $ "Exception info: " ++ (displayException e)
+    Right a -> print $ "Success: " ++ (show a)
+```
+
+运行结果：
+
+```
+"Run..."
+exception.exe: Try Exception!
+CallStack (from HasCallStack):
+  error, called at test\TestException.hs:9:12 in main:Main
+```
+
+在上述例子中，try函数没有对首个参数中的IO逻辑求值，捕获到异常信息，执行`>>=`操作时，开始真正对IO操作进行求值，
+求值时触发异常，但此时程序已脱离了异常捕获逻辑，异常直接触发导致程序崩溃。
+
+要规避此类问题，需要在IO逻辑内部对返回结果进行强制求值(使用`$!`、`seq`函数)，提前触发异常，
+让异常在受到捕获函数控制时触发，而非脱离了异常捕获函数之后再触发。
 
 
 
