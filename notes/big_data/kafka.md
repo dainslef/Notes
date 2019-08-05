@@ -23,7 +23,8 @@ Kafka通常用于以下两大类应用：
 Kafka主要版本包括：
 
 - [原生版本Kafka](http://kafka.apache.org/downloads)，由`Apache`基金会维护。
-- [Confluent Kafka](https://www.confluent.io/download)，由前`LinkedIn`的Kafka核心开发者创立的商业公司`Confluent`维护，在原生Kafka的基础上提供了一系列的扩展功能。
+- [Confluent Kafka](https://www.confluent.io/download)，
+由前`LinkedIn`的Kafka核心开发者创立的商业公司`Confluent`维护，在原生Kafka的基础上提供了一系列的扩展功能。
 
 ## 环境变量配置
 配置环境变量，在`~/.profile`或`/etc/profile`中添加：
@@ -64,6 +65,15 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 	replica.fetch.max.bytes = 可复制最大字节数
 	# 取值应大于 message.max.bytes ，否则会造成接收到的消息复制失败
 	# 示例： replica.fetch.max.bytes = 5001000
+	```
+
+	話題相關配置：
+
+	```sh
+	# 允許刪除話題
+	delete.topic.enable = true
+	# 禁用話題自動創建
+	auto.create.topics.enable = true
 	```
 
 	Kafka会缓存所有消息，无论消息是否被消费，可通过配置设定消息的缓存清理策略。
@@ -119,7 +129,7 @@ export PATH+=:$KAFKA_HOME/bin # 将Kafka相关工具加入PATH环境变量
 	# 示例： max.request.size = 5000000
 	```
 
-## 工具指令
+## 服務啟動
 Kafka相关CLI工具位于`$KAFKA_HOME/bin`路径下。
 
 主服务启动、停止相关指令：
@@ -134,33 +144,7 @@ $ kafka-server-stop
 
 配置Kafka集群需要在集群中每台机器中执行服务启动指令。
 
-话题操作指令：
-
-```c
-// 创建话题
-// 使用 --partitions 参数指定话题的分区数量
-// 使用 --replication-factor 参数指定话题数据备份数量
-$ kafka-topics --create --zookeeper [Zookeeper集群IP:端口] --topic [话题名称]
-
-// 列出话题
-$ kafka-topics --list --zookeeper [Zookeeper集群IP:端口]
-
-// 移除话题，若移除话题失败需要在Kafka服务端配置中添加设定 delete.topic.enble = true
-$ kafka-topics --delete --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
-
-// 查看话题描述(包括话题的 Partition、PartitionCount、ReplicationFactor 等信息)
-// 不使用 --topic 参数时展示所有话题的信息
-$ kafka-topics --describe --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
-```
-
-使用的Zookeeper集群IP可以是connect参数中配置的任意IP。
-在Kafka中，已创建的话题配置可以动态修改：
-
-```c
-// 单独设定话题的某个配置
-$ kafka-topics.sh --alter --config [话题配置xxx=xxx] --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
-```
-
+## 消費數據
 命令行端数据生产/消费相关指令：
 
 ```c
@@ -204,7 +188,8 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
 多个Consumer之间通过`Group`分组，一条发布到话题中的数据会发往每一个Group，但同一Group中只有**一个**Consumer实例会收到数据。
 当一个Group中存在多个Consumer时，Topic内的不同Partition会关联到不同的Consumer，当一个Partition中写入数据时，只有与该Partition关联的Consumer会收到数据。
 
-一个Partition在一个Group内仅会关联一个Consumer，因此当同一Group下的Consumer数目**大于**Partition数目时，会有Consumer因为未关联到Partition而收不到数据。
+一个Partition在一个Group内仅会关联一个Consumer，因此当同一Group下的Consumer数目**大于**Partition数目时，
+会有Consumer因为未关联到Partition而收不到数据。
 
 ## 存储机制
 Kafka将消息数据存储在`$KAFKA_HOME/etc/kafka/server.properties`文件中的`log.dirs`配置项设定的路径下。
@@ -373,13 +358,15 @@ Kafka Connect使用前除了启动Zookeeper和Kafka主进程外，还需要启�
 	$ connect-standalone -daemon $KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties $KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties
 	```
 
+	執行connect-standalone指令時，當前路徑需要為$KAFKA_HOME。
+
 数据监控服务正常启动后，会按照数据源配置项`topic.prefix`以`话题前缀 + 表格名称`的规则创建话题，
 在话题中以JSON形式输出表格新增的数据。
 话题中输出的数据以`Apache Avro`做为数据交互格式，直接使用`kafka-console-consumer`获取话题中的数据得到的信息不具备可读性。
 应使用`kafka-avro-console-consumer`工具消费数据：
 
 ```
-$ kafka-avro-console-consumer --bootstrap-server [Kafka主服务IP:端口] --from-beginning --topic [话题名称] --property schema.registry.url=[http://SchemaRegistry服务地址:端口]
+$ kafka-avro-console-consumer --bootstrap-server [listeners IP:端口] --from-beginning --topic [话题名称] --property schema.registry.url=[http://SchemaRegistry服务地址:端口]
 ```
 
 JDBC Source Connector提供了多种数据源导入/监控模式：
