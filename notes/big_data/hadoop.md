@@ -376,7 +376,8 @@ $ hdfs dfs -rmdir [HDFS路径]
 `Apache HBase™`是基于Hadoop的数据库，具有分布式、可扩展、支持海量数据存储等特性。
 
 HBase常用在需要随机、实时读写海量数据的场景下。项目的目标是在商业硬件集群上管理非常巨大的表(上亿行 x 上亿列)。
-HBase是开源(open-source)、分布式(distributed)、版本化(versioned)、非关系型(non-relational)的数据库，参照了Google Bigtable的设计。
+HBase是开源(open-source)、分布式(distributed)、版本化(versioned)、非关系型(non-relational)的数据库，
+参照了Google Bigtable的设计。
 HBase在Hadoop和HDFS之上提供了类似Bigtable的功能。
 
 HBase的详细介绍、配置、使用说明等可查阅[官方文档](http://hbase.apache.org/book.html)。
@@ -389,7 +390,7 @@ HBase依赖于Hadoop服务，HBase与Hadoop版本的兼容性参考中的`4.1`�
 
 ```sh
 export HBASE_HOME=... # 配置软件包路径
-PATH+=:$HBASE_HOME/bin # 将HBase相关工具脚本加入 PATH 中
+PATH+=:$HBASE_HOME/bin # 将HBase相关工具脚本加入PATH中
 ```
 
 HBase配置文件位于`$HBASE_HOME/conf`路径下，编辑`$HBASE_HOME/conf/hbase-site.xml`，添加下列配置：
@@ -427,6 +428,8 @@ HBase配置文件位于`$HBASE_HOME/conf`路径下，编辑`$HBASE_HOME/conf/hba
 </configuration>
 ```
 
+編輯`$HBASE_HOME/conf/regionservers`文件，將需要啟動`HRegionServer`服務的主機添加到其中。
+
 启动/关闭HBase服务：
 
 ```c
@@ -436,6 +439,8 @@ $ start-hbase.sh
 // 关闭 HBase 服务
 $ stop-hbase.sh
 ```
+
+HBase同样提供了Web页面用于查看服务状态，默认配置下，Web页面端口为`16010`。
 
 ## 数据模型
 HBase是面向**列**的数据库，数据由行排序，表中仅能定义列族。
@@ -749,7 +754,13 @@ hbase(main):001:0>
 
 - 删除数据
 
-	使用`delete/deleteall`函数从表中删除数据：
+	使用`truncate`指令刪除整張表的數據：
+
+	```ruby
+	hbase> truncate "表名"
+	```
+
+	使用`delete/deleteall`函数从表中删除指定数据：
 
 	```ruby
 	# 使用delete函数删除指定单元格、指定时间的数据
