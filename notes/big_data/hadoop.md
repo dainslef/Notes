@@ -1,28 +1,28 @@
 <!-- TOC -->
 
 - [概述](#概述)
-	- [下载](#下载)
-	- [环境变量配置](#环境变量配置)
-	- [集群规划](#集群规划)
-	- [路径规划](#路径规划)
-	- [服务配置](#服务配置)
+	- [下載](#下載)
+	- [環境變量配置](#環境變量配置)
+	- [集羣規劃](#集羣規劃)
+	- [路徑規劃](#路徑規劃)
+	- [服務配置](#服務配置)
 - [HDFS](#hdfs)
-	- [访问地址](#访问地址)
+	- [訪問地址](#訪問地址)
 	- [命令行工具](#命令行工具)
 - [Hbase](#hbase)
-	- [服务配置](#服务配置-1)
-	- [数据模型](#数据模型)
-		- [Conceptual View (概念视图)](#conceptual-view-概念视图)
-		- [Physical View (物理视图)](#physical-view-物理视图)
-		- [Namespace (命名空间)](#namespace-命名空间)
-	- [压测工具](#压测工具)
+	- [服務配置](#服務配置-1)
+	- [數據模型](#數據模型)
+		- [Conceptual View (概念視圖)](#conceptual-view-概念視圖)
+		- [Physical View (物理視圖)](#physical-view-物理視圖)
+		- [Namespace (命名空間)](#namespace-命名空間)
+	- [壓測工具](#壓測工具)
 	- [HBase Shell](#hbase-shell)
 	- [HBase Client API](#hbase-client-api)
-- [问题注记](#问题注记)
+- [問題註記](#問題註記)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0--expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
 	- [java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx](#javaioioexception-got-error-status-message--ack-with-firstbadlink-as-xxxxxxxxxxxxxxx)
-	- [全部HA节点处于 stand by 状态](#全部ha节点处于-stand-by-状态)
+	- [全部HA節點處於 stand by 狀態](#全部ha節點處於-stand-by-狀態)
 	- [org.apache.hadoop.hbase.client.RetriesExhaustedException](#orgapachehadoophbaseclientretriesexhaustedexception)
 	- [XXX: Error: JAVA_HOME is not set and could not be found.](#xxx-error-java_home-is-not-set-and-could-not-be-found)
 	- [Caused by: java.lang.ClassNotFoundException: com.yammer.metrics.core.Gauge](#caused-by-javalangclassnotfoundexception-comyammermetricscoregauge)
@@ -33,46 +33,46 @@
 
 
 # 概述
-`Apache Hadoop`是一套面向**可靠性**、**可扩展性**、**分布式计算**的开源套件。
+`Apache Hadoop`是一套面向**可靠性**、**可擴展性**、**分佈式計算**的開源套件。
 
-Hadoop是一套框架，允许使用简单的编程模型在计算机集群中对大型数据集进行分布式处理。
-Hadoop被设计成从单个服务器扩展到数千台机器，每台机器都提供本地计算和存储。
-Hadoop不依靠硬件来提供高可用性，而是被设计成在应用层检测和处理故障，因此能够在一组计算机集群上提供高可用性服务，
-即便每一台计算机都可能出现故障。
+Hadoop是一套框架，允許使用簡單的編程模型在計算機集羣中對大型數據集進行分佈式處理。
+Hadoop被設計成從單個服務器擴展到數千臺機器，每臺機器都提供本地計算和存儲。
+Hadoop不依靠硬件來提供高可用性，而是被設計成在應用層檢測和處理故障，因此能夠在一組計算機集羣上提供高可用性服務，
+即便每一臺計算機都可能出現故障。
 
-`Apache Hadoop`项目包含以下模块：
+`Apache Hadoop`項目包含以下模塊：
 
-- `Hadoop Common` 支持其它Hadoop模块的公用库
-- `Hadoop Distributed File System (HDFS™)` 提供支持高数据访问量的分布式文件系统
-- `Hadoop YARN` 作业调度与集群资源管理的框架
-- `Hadoop MapReduce` 基于YARN的并行数据计算引擎
+- `Hadoop Common` 支持其它Hadoop模塊的公用庫
+- `Hadoop Distributed File System (HDFS™)` 提供支持高數據訪問量的分佈式文件系統
+- `Hadoop YARN` 作業調度與集羣資源管理的框架
+- `Hadoop MapReduce` 基於YARN的並行數據計算引擎
 
-Apache基金会中还包含大量的Hadoop关联项目，如：
+Apache基金會中還包含大量的Hadoop關聯項目，如：
 
-- `Ambari™` 基于Web的Hadoop集群管理、监控工具
-- `Avro™:` 数据序列化系统
-- `HBase™` 支持大型表格结构化数据存储的可扩展分布式数据库
-- `Hive™` 提供数据汇总和随机查询的数据仓库基础设施
-- `Spark™` 用于Hadoop数据的快速和通用计算引擎，用于取代MapReduce
-- `ZooKeeper™` 高性能的分布式应用程序协调服务
+- `Ambari™` 基於Web的Hadoop集羣管理、監控工具
+- `Avro™:` 數據序列化系統
+- `HBase™` 支持大型表格結構化數據存儲的可擴展分佈式數據庫
+- `Hive™` 提供數據彙總和隨機查詢的數據倉庫基礎設施
+- `Spark™` 用於Hadoop數據的快速和通用計算引擎，用於取代MapReduce
+- `ZooKeeper™` 高性能的分佈式應用程序協調服務
 
-## 下载
-在[Hadoop官网](http://hadoop.apache.org/releases.html)下载Hadoop软件包。
+## 下載
+在[Hadoop官網](http://hadoop.apache.org/releases.html)下載Hadoop軟件包。
 
-截止到`2018-3-30`，Hadoop主要分为`2.x`和`3.x`两大版本，`3.x`版本在配置上与`2.x`版本有较大差异。
-`3.x`版本正式发布时间较晚(2017-12-13)、迭代周期较短，稳定性有待考证，本文配置使用`2.7.5`版本。
+截止到`2018-3-30`，Hadoop主要分爲`2.x`和`3.x`兩大版本，`3.x`版本在配置上與`2.x`版本有較大差異。
+`3.x`版本正式發佈時間較晚(2017-12-13)、迭代週期較短，穩定性有待考證，本文配置使用`2.7.5`版本。
 
-## 环境变量配置
-配置环境变量，在`~/.profile`或`/etc/profile`中添加：
+## 環境變量配置
+配置環境變量，在`~/.profile`或`/etc/profile`中添加：
 
 ```sh
-export HADOOP_HOME=... # 配置Hadoop软件包路径
+export HADOOP_HOME=... # 配置Hadoop軟件包路徑
 PATH+=:$HADOOP_HOME/bin
-PATH+=:$HADOOP_HOME/sbin # 将Hadoop相关工具加入PATH环境变量
+PATH+=:$HADOOP_HOME/sbin # 將Hadoop相關工具加入PATH環境變量
 ```
 
-## 集群规划
-使用5台机器构建Hadoop集群，IP与主机映射关系写入`/etc/hosts`文件中：
+## 集羣規劃
+使用5臺機器構建Hadoop集羣，IP與主機映射關係寫入`/etc/hosts`文件中：
 
 ```
 172.16.0.126 spark-master
@@ -82,11 +82,11 @@ PATH+=:$HADOOP_HOME/sbin # 将Hadoop相关工具加入PATH环境变量
 172.16.0.130 spark-slave3
 ```
 
-为集群中的每台机器配置SSH免密登陆，保证任意两台机器之间能够免密登陆。
+爲集羣中的每臺機器配置SSH免密登陸，保證任意兩臺機器之間能夠免密登陸。
 
-每个节点执行的服务规划如下：
+每個節點執行的服務規劃如下：
 
-| 主机名称 | 执行服务 |
+| 主機名稱 | 執行服務 |
 |:-|:-|
 | spark-master | namenode, journalnode, zkfc, kafka |
 | spark-slave0 | namenode, journalnode, zkfc, kafka, datanode，nodemanager |
@@ -94,44 +94,44 @@ PATH+=:$HADOOP_HOME/sbin # 将Hadoop相关工具加入PATH环境变量
 | spark-slave2 | secondarynamenode, resourcemanager, datanode，nodemanager |
 | spark-slave3 | resourcemanager, datanode，nodemanager |
 
-- `spark-master/spark-slave0`两台机器配置NameNode，实现HA。
-- `spark-slave0 ~ spark-slave3`作为DataNode。
-- `spark-master/spark-slave0/spark-slave1`三台机器启动Zookeeper，并作为JournalNode，同时运行Kafka。
+- `spark-master/spark-slave0`兩臺機器配置NameNode，實現HA。
+- `spark-slave0 ~ spark-slave3`作爲DataNode。
+- `spark-master/spark-slave0/spark-slave1`三臺機器啓動Zookeeper，並作爲JournalNode，同時運行Kafka。
 
-## 路径规划
-Hadoop提供的HDFS等组件需要占用大量的磁盘空间，需要对磁盘分区做出合理规划。
-以`/home/data/hadoop`路径为例，执行指令，在路径下创建以下子路径：
+## 路徑規劃
+Hadoop提供的HDFS等組件需要佔用大量的磁盤空間，需要對磁盤分區做出合理規劃。
+以`/home/data/hadoop`路徑爲例，執行指令，在路徑下創建以下子路徑：
 
 ```c
-// 创建缓存路径
+// 創建緩存路徑
 # mkdir -p /home/data/hadoop/tmp
 
-// 创建 DataNode 数据存储路径
+// 創建 DataNode 數據存儲路徑
 # mkdir -p /home/data/hadoop/hdfs/data
 
-// 创建 NameNode 数据存储路径
+// 創建 NameNode 數據存儲路徑
 # mkdir -p /home/data/hadoop/hdfs/name
 
-// 创建 JournalNode 数据存储路径
+// 創建 JournalNode 數據存儲路徑
 # mkdir -p /home/data/hadoop/hdfs/journal
 ```
 
-## 服务配置
-Hadoop服务配置项多而繁杂，根据Hadoop版本选择匹配的[官方文档](http://hadoop.apache.org/docs)进行查阅。
-集群配置相关文档地址为`http://hadoop.apache.org/docs/{Hadoop版本}/hadoop-project-dist/hadoop-common/ClusterSetup.html`。
+## 服務配置
+Hadoop服務配置項多而繁雜，根據Hadoop版本選擇匹配的[官方文檔](http://hadoop.apache.org/docs)進行查閱。
+集羣配置相關文檔地址爲`http://hadoop.apache.org/docs/{Hadoop版本}/hadoop-project-dist/hadoop-common/ClusterSetup.html`。
 
-Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配置文件如下：
+Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配置文件如下：
 
 - `core-site.xml`
 
-	Hadoop的核心配置项。<br>
-	配置项说明：
+	Hadoop的核心配置項。<br>
+	配置項說明：
 
 	```xml
 	<configuration>
 
 		<!--
-			指定 HDFS 的 nameservice 为 lj-nameservice
+			指定 HDFS 的 nameservice 爲 lj-nameservice
 			亦可直接使用 NameNode 的RPC通信地址，如 hdfs://spark-master:9000
 		-->
 		<property>
@@ -140,21 +140,21 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 		</property>
 
 		<!--
-			指定 Hadoop 临时文件目录
-			默认临时文件会生成在 /tmp/hadoop-[用户名] 路径下，机器重启后临时文件会被清空
+			指定 Hadoop 臨時文件目錄
+			默認臨時文件會生成在 /tmp/hadoop-[用戶名] 路徑下，機器重啓後臨時文件會被清空
 		-->
 		<property>
 			<name>hadoop.tmp.dir</name>
 			<value>/home/data/hadoop/tmp</value>
 		</property>
 
-		<!-- 指定 Zookeeper 集群访问地址 -->
+		<!-- 指定 Zookeeper 集羣訪問地址 -->
 		<property>
 			<name>ha.zookeeper.quorum</name>
 			<value>spark-master:2181,spark-slave0:2181,spark-slave1:2181</value>
 		</property>
 
-		<!-- 配置隔离机制方法，多个机制用换行分割，即每个机制暂用一行-->
+		<!-- 配置隔離機制方法，多個機制用換行分割，即每個機制暫用一行-->
 		<property>
 			<name>dfs.ha.fencing.methods</name>
 			<value>
@@ -163,13 +163,13 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 			</value>
 		</property>
 
-		<!-- 使用 sshfence 隔离机制时需要 ssh 免登陆 -->
+		<!-- 使用 sshfence 隔離機制時需要 ssh 免登陸 -->
 		<property>
 			<name>dfs.ha.fencing.ssh.private-key-files</name>
 			<value>/root/.ssh/id_rsa</value>
 		</property>
 
-		<!-- 配置 sshfence 隔离机制超时时间 -->
+		<!-- 配置 sshfence 隔離機制超時時間 -->
 		<property>
 			<name>dfs.ha.fencing.ssh.connect-timeout</name>
 			<value>30000</value>
@@ -180,25 +180,25 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 
 - `hdfs-site.xml`
 
-	包含对NameNode和DataNode的配置项。<br>
-	配置项说明：
+	包含對NameNode和DataNode的配置項。<br>
+	配置項說明：
 
 	```xml
 	<configuration>
 
-		<!-- 指定副本数 -->
+		<!-- 指定副本數 -->
 		<property>
 			<name>dfs.replication</name>
 			<value>2</value>
 		</property>
 
-		<!-- 指定 NameService，需要和 core-site.xml 中 fs.defaultFS 配置项保持一致 -->
+		<!-- 指定 NameService，需要和 core-site.xml 中 fs.defaultFS 配置項保持一致 -->
 		<property>
 			<name>dfs.nameservices</name>
 			<value>lj-nameservice</value>
 		</property>
 
-		<!-- 设置 NameService 下的 NameNode 名称 -->
+		<!-- 設置 NameService 下的 NameNode 名稱 -->
 		<property>
 			<name>dfs.ha.namenodes.lj-nameservice</name>
 			<value>namenode1,namenode2</value>
@@ -228,36 +228,36 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 			<value>spark-slave0:50070</value>
 		</property>
 
-		<!-- 指定 NameNode 在本地磁盘存放数据的位置(可选) -->
+		<!-- 指定 NameNode 在本地磁盤存放數據的位置(可選) -->
 		<property>
 			<name>dfs.namenode.name.dir</name>
 			<value>/home/data/hadoop/hdfs/name</value>
 		</property>
 
-		<!-- 指定 DataNode 在本地磁盘存放数据的位置(可选) -->
+		<!-- 指定 DataNode 在本地磁盤存放數據的位置(可選) -->
 		<property>
 			<name>dfs.namenode.data.dir</name>
 			<value>/home/data/hadoop/hdfs/data</value>
 		</property>
 
-		<!-- 指定 JournalNode 在本地磁盘存放数据的位置(可选) -->
+		<!-- 指定 JournalNode 在本地磁盤存放數據的位置(可選) -->
 		<property>
 			<name>dfs.journalnode.edits.dir</name>
 			<value>/home/data/hadoop/hdfs/journal</value>
 		</property>
 
-		<!-- 开启 NameNode 失败自动切换(HA，单NameNode时此配置无效) -->
+		<!-- 開啓 NameNode 失敗自動切換(HA，單NameNode時此配置無效) -->
 		<property>
 			<name>dfs.ha.automatic-failover.enabled</name>
 			<value>true</value>
 		</property>
 
 		<!--
-			指定HA集群中多个NameNode之间的共享存储路径(单NameNode时此配置无效)
-			指定URL对应的机器上会启动 JournalNode 服务
-			设定该配置需要启用HA(dfs.ha.automatic-failover.enabled设置为true)
-			JournalNode至少需要配置3个，数量需要为奇数
-			JournalNode配置不正确会造成NameNode启动失败
+			指定HA集羣中多個NameNode之間的共享存儲路徑(單NameNode時此配置無效)
+			指定URL對應的機器上會啓動 JournalNode 服務
+			設定該配置需要啓用HA(dfs.ha.automatic-failover.enabled設置爲true)
+			JournalNode至少需要配置3個，數量需要爲奇數
+			JournalNode配置不正確會造成NameNode啓動失敗
 		-->
 		<property>
 			<name>dfs.namenode.shared.edits.dir</name>
@@ -267,159 +267,159 @@ Hadoop配置文件位于`$HADOOP_HOME/etc/hadoop`路径下，需要修改的配�
 	</configuration>
 	```
 
-首次启动NameNode节点前，需要格式化NameNode对应的数据目录，执行指令：
+首次啓動NameNode節點前，需要格式化NameNode對應的數據目錄，執行指令：
 
 ```
 $ hadoop namenode -format
 ```
 
-启动/关闭Hadoop相关服务：
+啓動/關閉Hadoop相關服務：
 
 ```c
-// 启动 NameNode、DataNode、JournalNode 服务
+// 啓動 NameNode、DataNode、JournalNode 服務
 $ start-dfs.sh
-// 启动 NodeManager、ResourceManager 服务
+// 啓動 NodeManager、ResourceManager 服務
 $ start-yarn.sh
 
-// 停止服务
+// 停止服務
 $ stop-dfs.sh && stop-yarn.sh
 ```
 
-服务启动日志记录在`$HADOOP_HOME/logs`路径下，主要服务的日志路径：
+服務啓動日誌記錄在`$HADOOP_HOME/logs`路徑下，主要服務的日誌路徑：
 
 ```c
 // NameNode
-$HADOOP_HOME/logs/hadoop-[用户名]-namenode-[主机名].log
+$HADOOP_HOME/logs/hadoop-[用戶名]-namenode-[主機名].log
 
 // DataNode
-$HADOOP_HOME/logs/hadoop-[用户名]-datanode-[主机名].log
+$HADOOP_HOME/logs/hadoop-[用戶名]-datanode-[主機名].log
 
 // JournalNode
-$HADOOP_HOME/logs/hadoop-[用户名]-journalnode-[主机名].log
+$HADOOP_HOME/logs/hadoop-[用戶名]-journalnode-[主機名].log
 ```
 
-服务启动失败时，可通过查询对应日志检查失败原因。
+服務啓動失敗時，可通過查詢對應日誌檢查失敗原因。
 
 
 
 # HDFS
-`Hadoop Distributed File System (HDFS)`是一个被设计成运行在商用硬件上的分布式文件系统。
-HDFS与现存的分布式文件系统类似，不同之处在于HDFS是**高容错**(highly fault-tolerant)的，
-HDFS被设计成能够部署在低成本的硬件上。HDFS提供了对应用数据的高吞吐访问，适用于拥有大量数据集的应用。
-HDFS放宽了一些POSIX标准的要求，以便实现流式地访问文件系统数据。
-HDFS最初被设计成`Apache Nutch`(一个Web搜索引擎项目)的基础设施，现在HDFS是`Apache Hadoop`项目的核心部分。
+`Hadoop Distributed File System (HDFS)`是一個被設計成運行在商用硬件上的分佈式文件系統。
+HDFS與現存的分佈式文件系統類似，不同之處在於HDFS是**高容錯**(highly fault-tolerant)的，
+HDFS被設計成能夠部署在低成本的硬件上。HDFS提供了對應用數據的高吞吐訪問，適用於擁有大量數據集的應用。
+HDFS放寬了一些POSIX標準的要求，以便實現流式地訪問文件系統數據。
+HDFS最初被設計成`Apache Nutch`(一個Web搜索引擎項目)的基礎設施，現在HDFS是`Apache Hadoop`項目的核心部分。
 
-## 访问地址
-HDFS的RPC通信地址规则如下：
+## 訪問地址
+HDFS的RPC通信地址規則如下：
 
 ```sh
-# 默认端口 9000
-hdfs://主机名或IP:RPC服务端口/HDFS路径
+# 默認端口 9000
+hdfs://主機名或IP:RPC服務端口/HDFS路徑
 ```
 
-HDFS还提供了WEB管理界面，地址如下：
+HDFS還提供了WEB管理界面，地址如下：
 
 ```sh
-# 默认端口 50070
-http://主机名或IP:WEB服务端口
+# 默認端口 50070
+http://主機名或IP:WEB服務端口
 ```
 
 ## 命令行工具
-使用`hdfs dfs`指令对HDFS文件系统进行操作。
+使用`hdfs dfs`指令對HDFS文件系統進行操作。
 
-查看指令帮助信息：
+查看指令幫助信息：
 
 ```
-$ hdfs dfs -help [指令名称]
+$ hdfs dfs -help [指令名稱]
 ```
 
-查看文件/目录：
+查看文件/目錄：
 
 ```c
-// 查看目录内容
-$ hdfs dfs -ls [HDFS目录]
+// 查看目錄內容
+$ hdfs dfs -ls [HDFS目錄]
 
-// 递归查看目录
-$ hdfs dfs -lsr [HDFS目录]
+// 遞歸查看目錄
+$ hdfs dfs -lsr [HDFS目錄]
 
-// 查看文件内容
-$ hdfs dfs -cat [HDFS文件路径]
-$ hdfs dfs -tail [HDFS文件路径]
+// 查看文件內容
+$ hdfs dfs -cat [HDFS文件路徑]
+$ hdfs dfs -tail [HDFS文件路徑]
 
-// 查看目录统计信息(文件数，大小等)
-$ hdfs dfs -count [HDFS文件路径]
-$ hdfs dfs -df [HDFS文件路径]
-$ hdfs dfs -du [HDFS文件路径]
+// 查看目錄統計信息(文件數，大小等)
+$ hdfs dfs -count [HDFS文件路徑]
+$ hdfs dfs -df [HDFS文件路徑]
+$ hdfs dfs -du [HDFS文件路徑]
 ```
 
-创建/删除文件：
+創建/刪除文件：
 
 ```c
-// 上传本地文件到HDFS
-$ hdfs dfs -put [本地路径] [HDFS路径]
+// 上傳本地文件到HDFS
+$ hdfs dfs -put [本地路徑] [HDFS路徑]
 
-// 从HDFS下载文件
-$ hdfs dfs -get [HDFS路径] [本地路径]
+// 從HDFS下載文件
+$ hdfs dfs -get [HDFS路徑] [本地路徑]
 
-// 创建目录
-// 使用 -p 参数递归创建不存在的路径
-$ hdfs dfs -mkdir [HDFS路径]
+// 創建目錄
+// 使用 -p 參數遞歸創建不存在的路徑
+$ hdfs dfs -mkdir [HDFS路徑]
 
-// 移除文件、目录
-$ hdfs dfs -rm [HDFS路径]
-$ hdfs dfs -rmdir [HDFS路径]
+// 移除文件、目錄
+$ hdfs dfs -rm [HDFS路徑]
+$ hdfs dfs -rmdir [HDFS路徑]
 ```
 
 
 
 # Hbase
-`Apache HBase™`是基于Hadoop的数据库，具有分布式、可扩展、支持海量数据存储等特性。
+`Apache HBase™`是基於Hadoop的數據庫，具有分佈式、可擴展、支持海量數據存儲等特性。
 
-HBase常用在需要随机、实时读写海量数据的场景下。项目的目标是在商业硬件集群上管理非常巨大的表(上亿行 x 上亿列)。
-HBase是开源(open-source)、分布式(distributed)、版本化(versioned)、非关系型(non-relational)的数据库，
-参照了Google Bigtable的设计。
-HBase在Hadoop和HDFS之上提供了类似Bigtable的功能。
+HBase常用在需要隨機、實時讀寫海量數據的場景下。項目的目標是在商業硬件集羣上管理非常巨大的表(上億行 x 上億列)。
+HBase是開源(open-source)、分佈式(distributed)、版本化(versioned)、非關係型(non-relational)的數據庫，
+參照了Google Bigtable的設計。
+HBase在Hadoop和HDFS之上提供了類似Bigtable的功能。
 
-HBase的详细介绍、配置、使用说明等可查阅[官方文档](http://hbase.apache.org/book.html)。
+HBase的詳細介紹、配置、使用說明等可查閱[官方文檔](http://hbase.apache.org/book.html)。
 
-## 服务配置
-从[HBase官网](http://hbase.apache.org/downloads.html)中下载稳定版本的HBase。
-HBase依赖于Hadoop服务，HBase与Hadoop版本的兼容性参考中的`4.1`节。
+## 服務配置
+從[HBase官網](http://hbase.apache.org/downloads.html)中下載穩定版本的HBase。
+HBase依賴於Hadoop服務，HBase與Hadoop版本的兼容性參考中的`4.1`節。
 
-配置环境变量，在`~/.profile`或`/etc/profile`中添加：
+配置環境變量，在`~/.profile`或`/etc/profile`中添加：
 
 ```sh
-export HBASE_HOME=... # 配置软件包路径
-PATH+=:$HBASE_HOME/bin # 将HBase相关工具脚本加入PATH中
+export HBASE_HOME=... # 配置軟件包路徑
+PATH+=:$HBASE_HOME/bin # 將HBase相關工具腳本加入PATH中
 ```
 
-HBase配置文件位于`$HBASE_HOME/conf`路径下，编辑`$HBASE_HOME/conf/hbase-site.xml`，添加下列配置：
+HBase配置文件位於`$HBASE_HOME/conf`路徑下，編輯`$HBASE_HOME/conf/hbase-site.xml`，添加下列配置：
 
 ```xml
 <configuration>
 
 	<!--
-		指定 HBase 临时文件目录
-		默认临时文件会生成在 /tmp/hbase-[用户名] 路径下，机器重启后临时文件会被清空
+		指定 HBase 臨時文件目錄
+		默認臨時文件會生成在 /tmp/hbase-[用戶名] 路徑下，機器重啓後臨時文件會被清空
 	-->
 	<property>
 		<name>hbase.tmp.dir</name>
 		<value>/home/data/hadoop/hbase-tmp</value>
 	</property>
 
-	<!-- 指定 HBase 的数据存储路径 -->
+	<!-- 指定 HBase 的數據存儲路徑 -->
 	<property>
 		<name>hbase.rootdir</name>
 		<value>hdfs://spark-master:9000/hbase</value>
 	</property>
 
-	<!-- 设定 HBase 是否以分布式方式执行 -->
+	<!-- 設定 HBase 是否以分佈式方式執行 -->
 	<property>
 		<name>hbase.cluster.distributed</name>
 		<value>true</value>
 	</property>
 
-	<!-- 指定 Zookeeper 集群访问地址 -->
+	<!-- 指定 Zookeeper 集羣訪問地址 -->
 	<property>
 		<name>hbase.zookeeper.quorum</name>
 		<value>spark-master:2181,spark-slave0:2181,spark-slave1:2181</value>
@@ -430,24 +430,24 @@ HBase配置文件位于`$HBASE_HOME/conf`路径下，编辑`$HBASE_HOME/conf/hba
 
 編輯`$HBASE_HOME/conf/regionservers`文件，將需要啟動`HRegionServer`服務的主機添加到其中。
 
-启动/关闭HBase服务：
+啓動/關閉HBase服務：
 
 ```c
-// 启动 HBase 服务
+// 啓動 HBase 服務
 $ start-hbase.sh
 
-// 关闭 HBase 服务
+// 關閉 HBase 服務
 $ stop-hbase.sh
 ```
 
-HBase同样提供了Web页面用于查看服务状态，默认配置下，Web页面端口为`16010`。
+HBase同樣提供了Web頁面用於查看服務狀態，默認配置下，Web頁面端口爲`16010`。
 
-## 数据模型
-HBase是面向**列**的数据库，数据由行排序，表中仅能定义列族。
-一张表中可以拥有多个列族，一个列族可拥有任意数量的列。表中每个单元格的数据都具有时间戳。
+## 數據模型
+HBase是面向**列**的數據庫，數據由行排序，表中僅能定義列族。
+一張表中可以擁有多個列族，一個列族可擁有任意數量的列。表中每個單元格的數據都具有時間戳。
 
-### Conceptual View (概念视图)
-HBase中表的概念结构如下所示：
+### Conceptual View (概念視圖)
+HBase中表的概念結構如下所示：
 
 <table style="text-align:center">
 	<tr>
@@ -521,8 +521,8 @@ HBase中表的概念结构如下所示：
 	</tr>
 </table>
 
-与传统的数据库不同，空的单元格并不实际占用空间，这是HBase被称为`sparse`(稀疏)存储的原因。<br>
-上述概念结构用JSON表示为近似于：
+與傳統的數據庫不同，空的單元格並不實際佔用空間，這是HBase被稱爲`sparse`(稀疏)存儲的原因。<br>
+上述概念結構用JSON表示爲近似於：
 
 ```json
 {
@@ -552,10 +552,10 @@ HBase中表的概念结构如下所示：
 }
 ```
 
-### Physical View (物理视图)
-在概念上表格可被视为由一组稀疏行组成，但在物理结构上按**列族**分类存储。新的列限定符(列族:列名)可以随时追加到现有的列族中。
+### Physical View (物理視圖)
+在概念上表格可被視爲由一組稀疏行組成，但在物理結構上按**列族**分類存儲。新的列限定符(列族:列名)可以隨時追加到現有的列族中。
 
-上述例子中的表格对应物理结构如下：
+上述例子中的表格對應物理結構如下：
 
 - 表 `Column Family A`
 
@@ -573,21 +573,21 @@ HBase中表的概念结构如下所示：
 	| Row Key 2 | t1 | B:f="..." |
 	| Row Key 3 | t4 | B:g="..." |
 
-概念视图中显示的空单元格实际上并不存储。
-使用时间戳访问数据时，访问时间戳不存在的数据不会得到返回结果。
-当指定的`行:列族:列名`存在多个版本的数据时，不使用时间戳访问数据，得到的是最新(时间戳最靠后)的版本。
-查询**整行数据**时，得到的是该行数据每列各自的最新版本的数据。
+概念視圖中顯示的空單元格實際上並不存儲。
+使用時間戳訪問數據時，訪問時間戳不存在的數據不會得到返回結果。
+當指定的`行:列族:列名`存在多個版本的數據時，不使用時間戳訪問數據，得到的是最新(時間戳最靠後)的版本。
+查詢**整行數據**時，得到的是該行數據每列各自的最新版本的數據。
 
-### Namespace (命名空间)
-命名空间是与传统的关系型数据库中的**数据库**概念类似的表格逻辑分组。<br>
-命名空间是多租户(multi-tenancy)相关功能的基础：
+### Namespace (命名空間)
+命名空間是與傳統的關係型數據庫中的**數據庫**概念類似的表格邏輯分組。<br>
+命名空間是多租戶(multi-tenancy)相關功能的基礎：
 
-- 配额管理(HBASE-8410)
-- 命名空间安全管理(HBASE-9206)
-- 区域服务器组(HBASE-6721)
+- 配額管理(HBASE-8410)
+- 命名空間安全管理(HBASE-9206)
+- 區域服務器組(HBASE-6721)
 
-## 压测工具
-HBase自带了压测工具，基本指令：
+## 壓測工具
+HBase自帶了壓測工具，基本指令：
 
 ```
 $ hbase pe <OPTIONS> [-D<property=value>]* <command> <nclients>
@@ -652,17 +652,17 @@ Args:
                  running: 1 <= value <= 500
 ```
 
-默认参数下，以百万行作为测试基准，常用指令组合：
+默認參數下，以百萬行作爲測試基準，常用指令組合：
 
 ```c
-$ hbase pe randomRead [客户端数目] //随机读取测试
-$ hbase pe randomWrite [客户端数目] //随机写入测试
-$ hbase pe sequentialRead [客户端数目] //连续写入测试
-$ hbase pe sequentialWrite [客户端数目] //连续读取测试
-$ hbase pe scan [客户端数目] //Scan测试
+$ hbase pe randomRead [客戶端數目] //隨機讀取測試
+$ hbase pe randomWrite [客戶端數目] //隨機寫入測試
+$ hbase pe sequentialRead [客戶端數目] //連續寫入測試
+$ hbase pe sequentialWrite [客戶端數目] //連續讀取測試
+$ hbase pe scan [客戶端數目] //Scan測試
 ```
 
-压测的输出结果中可看到测试的数据量和耗时：
+壓測的輸出結果中可看到測試的數據量和耗時：
 
 ```
 ...
@@ -676,10 +676,10 @@ File Output Format Counters
 ```
 
 ## HBase Shell
-HBase提供了基于`(J)Ruby`语言的交互式Shell(`IRB`)，提供了HBase中常用的功能函数。
-IRB是标准的Ruby Shell，可直接执行Ruby代码。
+HBase提供了基於`(J)Ruby`語言的交互式Shell(`IRB`)，提供了HBase中常用的功能函數。
+IRB是標準的Ruby Shell，可直接執行Ruby代碼。
 
-使用`hbase shell`指令可进入HBase的IRB中：
+使用`hbase shell`指令可進入HBase的IRB中：
 
 ```ruby
 Version 1.2.6, rUnknown, Mon May 29 02:25:32 CDT 2017
@@ -687,72 +687,72 @@ Version 1.2.6, rUnknown, Mon May 29 02:25:32 CDT 2017
 hbase(main):001:0>
 ```
 
-使用`help`函数查看基本的帮助信息，使用`help "函数名"`查看具体某个功能函数的详细用法。
+使用`help`函數查看基本的幫助信息，使用`help "函數名"`查看具體某個功能函數的詳細用法。
 
-常用指令函数用法：
+常用指令函數用法：
 
 - 表格操作
 
-	使用`describe/desc`函数查看表信息：
+	使用`describe/desc`函數查看錶信息：
 
 	```ruby
 	hbase> describe "表名"
 	hbase> desc "表名"
 
-	# 查看带有命名空间的表
-	hbase> describe "命名空间:表名"
-	hbase> desc "命名空间:表名"
+	# 查看帶有命名空間的表
+	hbase> describe "命名空間:表名"
+	hbase> desc "命名空間:表名"
 	```
 
-	使用`create`函数创建表格：
+	使用`create`函數創建表格：
 
 	```ruby
-	# 首个参数为表名，之后为表中包含的列族
+	# 首個參數爲表名，之後爲表中包含的列族
 	hbase> create "表名", "列族1", "列族2", ...
 
-	# HBase中每个列族拥有独立的配置，创建表同时设置每个列族的配置
+	# HBase中每個列族擁有獨立的配置，創建表同時設置每個列族的配置
 	hbase> create "表名", { NAME => "列族1", XXX => xxx, ... }, { NAME => "列族2", XXX => xxx, ... }, ...
 	```
 
-	删除表格首先使用`disable`函数禁用表格，之后使用`drop`函数删除：
+	刪除表格首先使用`disable`函數禁用表格，之後使用`drop`函數刪除：
 
 	```ruby
 	# 禁用指定表
 	hbase> disable "表名"
 
-	# 删除指定表
+	# 刪除指定表
 	hbase> drop "表名"
 	```
 
-	使用`alter`函数调整已创建的表格的配置：
+	使用`alter`函數調整已創建的表格的配置：
 
 	```ruby
 	hbase> alter "表名", Xxx => xxx, ...
 
-	# 可以同时修改多个列族的配置
+	# 可以同時修改多個列族的配置
 	hbase> alter "表名", { NAME => "列族1", Xxx => xxx, ... }, { NAME => "列族2", Xxx => xxx, ... }, ...
 	```
 
-	部分配置(如`VERSIONS`)直接修改无效，需要指定列族名称进行修改。
+	部分配置(如`VERSIONS`)直接修改無效，需要指定列族名稱進行修改。
 
-- 插入、更新数据
+- 插入、更新數據
 
-	使用`put`函数向表中插入、更新数据：
+	使用`put`函數向表中插入、更新數據：
 
 	```ruby
-	hbase> put "命名空间:表名", "RowKey", "列族:列名", "值"
+	hbase> put "命名空間:表名", "RowKey", "列族:列名", "值"
 
-	# 命名空间和列名可以不写，默认为空
+	# 命名空間和列名可以不寫，默認爲空
 	hbase> put "表名", "RowKey", "列族", "值"
-	hbase> put "表名", "RowKey", "列族", "值", 时间
+	hbase> put "表名", "RowKey", "列族", "值", 時間
 	hbase> put "表名", "RowKey", "列族", "值", ATTRIBUTES => { Xxx => xxx, ... }
-	hbase> put "表名", "RowKey", "列族", "值", 时间, ATTRIBUTES => { Xxx => xxx, ... }
-	hbase> put "表名", "RowKey", "列族", "值", 时间, VISIBILITY => "PRIVATE|SECRET"
+	hbase> put "表名", "RowKey", "列族", "值", 時間, ATTRIBUTES => { Xxx => xxx, ... }
+	hbase> put "表名", "RowKey", "列族", "值", 時間, VISIBILITY => "PRIVATE|SECRET"
 	```
 
-	根据列族的VERSIONS配置，每个单元格会保存一定版本的数据，当保存的版本数达到设定的VERSIONS值时会丢弃时间戳最早的数据。
+	根據列族的VERSIONS配置，每個單元格會保存一定版本的數據，當保存的版本數達到設定的VERSIONS值時會丟棄時間戳最早的數據。
 
-- 删除数据
+- 刪除數據
 
 	使用`truncate`指令刪除整張表的數據：
 
@@ -760,68 +760,68 @@ hbase(main):001:0>
 	hbase> truncate "表名"
 	```
 
-	使用`delete/deleteall`函数从表中删除指定数据：
+	使用`delete/deleteall`函數從表中刪除指定數據：
 
 	```ruby
-	# 使用delete函数删除指定单元格、指定时间的数据
-	hbase> delete "命名空间:表名", "RowKey", "列族:列名", 时间
-	hbase> delete "表名", "RowKey", "列族", 时间
-	hbase> delete "表名", "RowKey", "列族", 时间, VISIBILITY => "PRIVATE|SECRET"
+	# 使用delete函數刪除指定單元格、指定時間的數據
+	hbase> delete "命名空間:表名", "RowKey", "列族:列名", 時間
+	hbase> delete "表名", "RowKey", "列族", 時間
+	hbase> delete "表名", "RowKey", "列族", 時間, VISIBILITY => "PRIVATE|SECRET"
 
-	# deleteall函数支持删除整行、所有时间戳的数据
-	hbase> deleteall "命名空间:表名", "RowKey"
+	# deleteall函數支持刪除整行、所有時間戳的數據
+	hbase> deleteall "命名空間:表名", "RowKey"
 	hbase> deleteall "表名", "RowKey"
 	hbase> deleteall "表名", "RowKey", "列族:列名"
-	hbase> deleteall "表名", "RowKey", "列族", 时间
-	hbase> deleteall "表名", "RowKey", "列族", 时间, VISIBILITY => "PRIVATE|SECRET"
+	hbase> deleteall "表名", "RowKey", "列族", 時間
+	hbase> deleteall "表名", "RowKey", "列族", 時間, VISIBILITY => "PRIVATE|SECRET"
 
-	# delete/deleteall方法也存在于 HBase::Table 对象中，通过get_table函数构建对象
+	# delete/deleteall方法也存在於 HBase::Table 對象中，通過get_table函數構建對象
 	hbase> table = get_table "表名"
-	hbase> table.deleteall "RowKey" # 等价于 deleteall "表名", "RowKey"
-	hbase> table.delete "RowKey", "列族", 时间 # 等价于 delete "表名", "RowKey", "列族", 时间
+	hbase> table.deleteall "RowKey" # 等價於 deleteall "表名", "RowKey"
+	hbase> table.delete "RowKey", "列族", 時間 # 等價於 delete "表名", "RowKey", "列族", 時間
 	```
 
-- 查询数据
+- 查詢數據
 
-	使用`scan`函数查看表格内数据：
+	使用`scan`函數查看錶格內數據：
 
 	```ruby
-	# 查看整张表内的数据
+	# 查看整張表內的數據
 	hbase> scan "表名"
 
-	# 表名之后可携带查询参数，如RowKey前缀、列族、列名、返回数目、逆序等
-	hbase> scan "表名", ROWPREFIXFILTER => "RowKey前缀", COLUMNS => ["列族", "列族:列名", ...], REVERSED => 是否逆序, LIMIT => 返回数目, FLITER => "自定义过滤器...", ....
+	# 表名之後可攜帶查詢參數，如RowKey前綴、列族、列名、返回數目、逆序等
+	hbase> scan "表名", ROWPREFIXFILTER => "RowKey前綴", COLUMNS => ["列族", "列族:列名", ...], REVERSED => 是否逆序, LIMIT => 返回數目, FLITER => "自定義過濾器...", ....
 	```
 
-	使用`get`函数查看指定表中指定行的数据：
+	使用`get`函數查看指定表中指定行的數據：
 
 	```ruby
-	# 获取指定表中某个RowKey的所有数据
+	# 獲取指定表中某個RowKey的所有數據
 	hbase> get "表名", "RowKey"
 
-	# get方法也存在于 HBase::Table 对象中，通过get_table函数构建对象
+	# get方法也存在於 HBase::Table 對象中，通過get_table函數構建對象
 	hbase> table = get_table "表名"
-	hbase> table.get "RowKey" # 等价于 get "表名", "RowKey"
+	hbase> table.get "RowKey" # 等價於 get "表名", "RowKey"
 
-	# RowKey之后可添加限制条件
-	hbase> get "表名", "RowKey", TIMERANGE => [时间1, 时间2]
+	# RowKey之後可添加限制條件
+	hbase> get "表名", "RowKey", TIMERANGE => [時間1, 時間2]
 	hbase> get "表名", "RowKey", COLUMN => "列名"
 	hbase> get "表名", "RowKey", COLUMN => ["列名1", "列名2", "列名3", ...]
 	hbase> get "表名", "RowKey", "列名"
 	hbase> get "表名", "RowKey", "列名1", "列名2", ...
 	hbase> get "表名", "RowKey", ["列名1", "列名2", ...]
-	hbase> get "表名", "RowKey", COLUMN => "列名", TIMESTAMP => 时间
-	hbase> get "表名", "RowKey", COLUMN => "列名", TIMERANGE => [时间1, 时间2], VERSIONS => 版本数目
-	hbase> get "表名", "RowKey", COLUMN => "列名", TIMESTAMP => 时间, VERSIONS => 版本数目
-	hbase> get "表名", "RowKey", FILTER => "自定义过滤器..."
+	hbase> get "表名", "RowKey", COLUMN => "列名", TIMESTAMP => 時間
+	hbase> get "表名", "RowKey", COLUMN => "列名", TIMERANGE => [時間1, 時間2], VERSIONS => 版本數目
+	hbase> get "表名", "RowKey", COLUMN => "列名", TIMESTAMP => 時間, VERSIONS => 版本數目
+	hbase> get "表名", "RowKey", FILTER => "自定義過濾器..."
 	hbase> get "表名", "RowKey", CONSISTENCY => 'TIMELINE'
 	hbase> get "表名", "RowKey", CONSISTENCY => 'TIMELINE', REGION_REPLICA_ID => 1
 	```
 
 ## HBase Client API
-使用HBase的客户端API首先需要引入对应依赖。
+使用HBase的客戶端API首先需要引入對應依賴。
 
-- 使用`Maven`则在`pom.xml`中引入：
+- 使用`Maven`則在`pom.xml`中引入：
 
 	```xml
 	<dependency>
@@ -831,20 +831,20 @@ hbase(main):001:0>
 	</dependency>
 	```
 
-- 使用`SBT`则在`build.sbt`中引入：
+- 使用`SBT`則在`build.sbt`中引入：
 
 	```scala
 	libraryDependencies += "org.apache.hbase" % "hbase-client" % "HBase版本"
 	```
 
-HBase相关API位于`org.apache.hadoop.hbase`包路径下，
-Client相关API主要位于`org.apache.hadoop.hbase.client`包路径下。
+HBase相關API位於`org.apache.hadoop.hbase`包路徑下，
+Client相關API主要位於`org.apache.hadoop.hbase.client`包路徑下。
 
 主要的API用法：
 
-- 创建数据连接
+- 創建數據連接
 
-	通过`org.apache.hadoop.hbase.client.ConnectionFactory`工厂类提供的`ConnectionFactory.createConnection()`静态方法创建数据连接：
+	通過`org.apache.hadoop.hbase.client.ConnectionFactory`工廠類提供的`ConnectionFactory.createConnection()`靜態方法創建數據連接：
 
 	```java
 	public class ConnectionFactory {
@@ -857,47 +857,47 @@ Client相关API主要位于`org.apache.hadoop.hbase.client`包路径下。
 	}
 	```
 
-	`ConnectionFactory.createConnection()`方法提供了多个重载，可在创建连接是设定连接配置、线程池、用户信息等配置。
+	`ConnectionFactory.createConnection()`方法提供了多個重載，可在創建連接是設定連接配置、線程池、用戶信息等配置。
 
-	连接配置使用`org.apache.hadoop.hbase.HBaseConfiguration`类提供的`HBaseConfiguration.create()`静态方法创建。
-	使用`Configuration.set()`方法向创建的配置实例中添加具体的配置项。
+	連接配置使用`org.apache.hadoop.hbase.HBaseConfiguration`類提供的`HBaseConfiguration.create()`靜態方法創建。
+	使用`Configuration.set()`方法向創建的配置實例中添加具體的配置項。
 
-	连接创建完毕后，使用`Connection.getTable()`方法获取指定HBase数据表的实例进行具体的数据操作。
+	連接創建完畢後，使用`Connection.getTable()`方法獲取指定HBase數據表的實例進行具體的數據操作。
 
-	创建数据连接、获取表格实例，示例代码如下：
+	創建數據連接、獲取表格實例，示例代碼如下：
 
 	```java
-	// 创建连接配置
+	// 創建連接配置
 	HBaseConfiguration hbaseConfiguration = HBaseConfiguration.create();
-	// 设定配置项
+	// 設定配置項
 	hbaseConfiguration.set("hbase.zookeeper.property.clientPort", "2181");
-	hbaseConfiguration.set("hbase.zookeeper.quorum", "主机名/主机IP");
+	hbaseConfiguration.set("hbase.zookeeper.quorum", "主機名/主機IP");
 	...
 
-	// 通过连接配置构建连接实例
+	// 通過連接配置構建連接實例
 	Connection hBaseConnection = ConnectionFactory.createConnection(hbaseConfig);
 
-	// 通过连接获取指定表格实例
+	// 通過連接獲取指定表格實例
 	Table table = hBaseConnection.getTable(TableName.valueOf("表名"));
 	```
 
 
 - 表格操作
 
-	`org.apache.hadoop.hbase.client.Table`接口中声明了`Table.getTableDescriptor()`方法，
-	Table实例使用此方法可获取表格的描述实例`HTableDescriptor`，该类中提供了查看、设置各类表格信息的方法：
+	`org.apache.hadoop.hbase.client.Table`接口中聲明瞭`Table.getTableDescriptor()`方法，
+	Table實例使用此方法可獲取表格的描述實例`HTableDescriptor`，該類中提供了查看、設置各類表格信息的方法：
 
 	```java
 	public class HTableDescriptor implements WritableComparable<HTableDescriptor> {
 
 		...
 
-		// 获取表的配置项
+		// 獲取表的配置項
 		public Map<String, String> getConfiguration();
 
-		// 获取列族的描述信息
+		// 獲取列族的描述信息
 		public Collection<HColumnDescriptor> getFamilies();
-		// 获取指定列族的描述信息
+		// 獲取指定列族的描述信息
 		public HColumnDescriptor getFamily(byte[] column);
 		// 移除指定列族
 		public HColumnDescriptor removeFamily(byte[] column);
@@ -911,8 +911,8 @@ Client相关API主要位于`org.apache.hadoop.hbase.client`包路径下。
 	}
 	```
 
-	`org.apache.hadoop.hbase.client.Connection`接口中声明了`Connection.getAdmin()`方法，
-	Connection实例使用此方法获取表格管理实例`Admin`，该类提供了表格的查看、创建、删除、禁用等功能：
+	`org.apache.hadoop.hbase.client.Connection`接口中聲明瞭`Connection.getAdmin()`方法，
+	Connection實例使用此方法獲取表格管理實例`Admin`，該類提供了表格的查看、創建、刪除、禁用等功能：
 
 	```java
 	public interface Admin extends Abortable, Closeable {
@@ -922,15 +922,15 @@ Client相关API主要位于`org.apache.hadoop.hbase.client`包路径下。
 		// 列出所有表
 		HTableDescriptor[] listTables() throws IOException;
 
-		// 创建、删除表
+		// 創建、刪除表
 		void createTable(HTableDescriptor desc) throws IOException;
 		void deleteTable(TableName tableName) throws IOException;
 
-		// 启用、禁用表
+		// 啓用、禁用表
 		void enableTable(TableName tableName) throws IOException;
 		void disableTable(TableName tableName) throws IOException;
 
-		// 添加、删除、更新表中的列
+		// 添加、刪除、更新表中的列
 		void addColumn(TableName tableName, HColumnDescriptor desc) throws IOException;
 		void deleteColumn(TableName tableName, byte[] columnName) throws IOException;
 		void modifyColumn(TableName tableName, HColumnDescriptor desc) throws IOException;
@@ -940,25 +940,25 @@ Client相关API主要位于`org.apache.hadoop.hbase.client`包路径下。
 	}
 	```
 
-- 增、删、改、查
+- 增、刪、改、查
 
-	与命令行指令类似，通过创建以下类型实例描述增删改查操作：
+	與命令行指令類似，通過創建以下類型實例描述增刪改查操作：
 
-	| 类型 | 操作 |
+	| 類型 | 操作 |
 	| :- | :- |
 	| org.apache.hadoop.hbase.client.Put | 插入、修改 |
-	| org.apache.hadoop.hbase.client.Delete | 删除 |
-	| org.apache.hadoop.hbase.client.Scan | 查询 |
-	| org.apache.hadoop.hbase.client.Get | 指定查询 |
+	| org.apache.hadoop.hbase.client.Delete | 刪除 |
+	| org.apache.hadoop.hbase.client.Scan | 查詢 |
+	| org.apache.hadoop.hbase.client.Get | 指定查詢 |
 
-	Table类型中提供了同名方法，用于执行对应的操作：
+	Table類型中提供了同名方法，用於執行對應的操作：
 
 	```java
 	public interface Table extends Closeable {
 
 		...
 
-		// 查询
+		// 查詢
 		Result get(Get get) throws IOException;
 		Result[] get(List<Get> gets) throws IOException;
 		ResultScanner getScanner(Scan scan) throws IOException;
@@ -967,7 +967,7 @@ Client相关API主要位于`org.apache.hadoop.hbase.client`包路径下。
 		void put(Put put) throws IOException;
 		void put(List<Put> puts) throws IOException;
 
-		// 删除
+		// 刪除
 		void delete(Delete delete) throws IOException;
 		void delete(List<Delete> deletes) throws IOException;
 
@@ -976,108 +976,108 @@ Client相关API主要位于`org.apache.hadoop.hbase.client`包路径下。
 	}
 	```
 
-	调用对应方法，将创建操作实例作为参数，执行增删改查操作。
+	調用對應方法，將創建操作實例作爲參數，執行增刪改查操作。
 
 
 
-# 问题注记
-Hadoop配置中遇到问题的说明和解决方案。
+# 問題註記
+Hadoop配置中遇到問題的說明和解決方案。
 
 ## ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1
-问题说明：<br>
-namenode启动失败，需要重新格式化，保证namenode的ID一致性。
+問題說明：<br>
+namenode啓動失敗，需要重新格式化，保證namenode的ID一致性。
 
-解决方案：<br>
-格式化失败尝试`hdfs  namenode -format -force`同时格式化namenode和datanode。
+解決方案：<br>
+格式化失敗嘗試`hdfs  namenode -format -force`同時格式化namenode和datanode。
 
 ## Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;
-问题说明：<br>
-执行`hdfs namenode -format`指令时，集群未启动，需要在集群已启动的情况下格式化NameNode。
+問題說明：<br>
+執行`hdfs namenode -format`指令時，集羣未啓動，需要在集羣已啓動的情況下格式化NameNode。
 
-解决方案：<br>
-启动集群后再格式化NameNode。
+解決方案：<br>
+啓動集羣后再格式化NameNode。
 
 ## java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx
-问题说明：<br>
-防火墙服务开启导致HDFS节点之间访问异常。
+問題說明：<br>
+防火牆服務開啓導致HDFS節點之間訪問異常。
 
-解决方案：<br>
-关闭对应节点的防火墙服务：
+解決方案：<br>
+關閉對應節點的防火牆服務：
 
 ```c
-# systemctl stop firewalld //关闭防火墙服务
-# systemctl disable firewalld //禁止防火墙服务自启动
+# systemctl stop firewalld //關閉防火牆服務
+# systemctl disable firewalld //禁止防火牆服務自啓動
 ```
 
-## 全部HA节点处于 stand by 状态
-问题说明：<br>
-NameNode的HA状态异常，没有选举出active的节点，HA节点均为stand by。
+## 全部HA節點處於 stand by 狀態
+問題說明：<br>
+NameNode的HA狀態異常，沒有選舉出active的節點，HA節點均爲stand by。
 
-解决方案：<br>
-检查Zookeeper运行状态，NameNode选举依赖Zookeeper提供的服务。
-若Zookeeper正常，则可尝试重新格式化NameNode。
-或者使用`haadmin`工具强制指定active节点：
+解決方案：<br>
+檢查Zookeeper運行狀態，NameNode選舉依賴Zookeeper提供的服務。
+若Zookeeper正常，則可嘗試重新格式化NameNode。
+或者使用`haadmin`工具強制指定active節點：
 
 ```
-$ hdfs haadmin -transitionToActive --forcemanual [需要激活的NameNode名称]
+$ hdfs haadmin -transitionToActive --forcemanual [需要激活的NameNode名稱]
 ```
 
 ## org.apache.hadoop.hbase.client.RetriesExhaustedException
-问题说明：<br>
-HBase建立连接不成功，重试次数过多后产生异常。
+問題說明：<br>
+HBase建立連接不成功，重試次數過多後產生異常。
 
-解决方案：<br>
-在日志中打印HBase的连接字符串，检查连接字符串是否有错误。
-HBase连接字符串中多个Zookeeper服务主机名之间用逗号分隔，不能带有空格：
+解決方案：<br>
+在日誌中打印HBase的連接字符串，檢查連接字符串是否有錯誤。
+HBase連接字符串中多個Zookeeper服務主機名之間用逗號分隔，不能帶有空格：
 
 ```scala
 val hbaseConfig = HBaseConfiguration.create()
 
-// 错误
+// 錯誤
 hbaseConfig.set("hbase.zookeeper.quorum", "spark-master, spark-slave0, spark-slave1")
 
-// 正确
+// 正確
 hbaseConfig.set("hbase.zookeeper.quorum", "spark-master,spark-slave0,spark-slave1")
 ```
 
 ## XXX: Error: JAVA_HOME is not set and could not be found.
-问题说明：<br>
-Hadoop、HBase、Spark启动时提示`JAVA_HOME`环境变量配置未配置，但实际环境变量中已设定JAVA_HOME。
+問題說明：<br>
+Hadoop、HBase、Spark啓動時提示`JAVA_HOME`環境變量配置未配置，但實際環境變量中已設定JAVA_HOME。
 
-解决方案：<br>
-编辑`$HADOOP_HOME/etc/hadoop/hadoop-env.sh`文件，
-将文件中的`export JAVA_HOME=${JAVA_HOME}`替换为实际的绝对路径。
+解決方案：<br>
+編輯`$HADOOP_HOME/etc/hadoop/hadoop-env.sh`文件，
+將文件中的`export JAVA_HOME=${JAVA_HOME}`替換爲實際的絕對路徑。
 
 ## Caused by: java.lang.ClassNotFoundException: com.yammer.metrics.core.Gauge
-问题说明：<br>
-Spark应用使用HBase Client连接HBase数据库，建立连接时提示找不到类。
+問題說明：<br>
+Spark應用使用HBase Client連接HBase數據庫，建立連接時提示找不到類。
 
-解决方案：<br>
-打包Spark应用时需要完整包含HBase相关依赖，包括`hbase*`、`metrics-core*`。
+解決方案：<br>
+打包Spark應用時需要完整包含HBase相關依賴，包括`hbase*`、`metrics-core*`。
 
 ## java.io.IOException: Incompatible clusterIDs in /tmp/hadoop-root/dfs/data: namenode clusterID = CID-...; datanode clusterID = CID-...
-问题说明：<br>
-启动DataNode失败，提示DataNode的`clusterID`与NameNode不匹配。
-通常是NameNode重新格式化后，DataNode数据路径未清空，仍保留与之前NameNode版本匹配的数据。
+問題說明：<br>
+啓動DataNode失敗，提示DataNode的`clusterID`與NameNode不匹配。
+通常是NameNode重新格式化後，DataNode數據路徑未清空，仍保留與之前NameNode版本匹配的數據。
 
-解决方案：<br>
-清空DataNode中数据路径下的内容。
-默认DataNode路径为`${hadoop.tmp.dir}/dfs/dfs`，若设定了`hadoop.datanode.data.dir`配置，则路径以该配置项为准。
+解決方案：<br>
+清空DataNode中數據路徑下的內容。
+默認DataNode路徑爲`${hadoop.tmp.dir}/dfs/dfs`，若設定了`hadoop.datanode.data.dir`配置，則路徑以該配置項爲準。
 
 ## WARN org.apache.hadoop.hdfs.server.datanode.DataNode: IOException in offerService; java.io.EOFException: End of File Exception between local host is: "xxxs/xx.xx.xx.xx"; destination host is: "xxhostname":xxxx;
-问题说明：<br>
-启动DataNode时日志中提示目标IP与本地主机IP不符。使用`hadoop fs -xx...`指令访问HDFS文件系统时，
-命令行提示`-ls: java.net.UnknownHostException: [NameService]`错误。
+問題說明：<br>
+啓動DataNode時日誌中提示目標IP與本地主機IP不符。使用`hadoop fs -xx...`指令訪問HDFS文件系統時，
+命令行提示`-ls: java.net.UnknownHostException: [NameService]`錯誤。
 
-解决方案：<br>
-修改`$HADOOP_HOME/etc/hadoop/core-site.xml`配置中的`fs.defaultFS`配置项，
-不使用NameServices名称作为HDFS路径，而是直接使用HDFS的RPC地址。
+解決方案：<br>
+修改`$HADOOP_HOME/etc/hadoop/core-site.xml`配置中的`fs.defaultFS`配置項，
+不使用NameServices名稱作爲HDFS路徑，而是直接使用HDFS的RPC地址。
 如下所示：
 
 ```xml
 <property>
 	<name>fs.defaultFS</name>
 	<value>hdfs://localhost:9000</value>
-	<!-- 不使用 hdfs://XxxNameService 形式的HDFS路径 -->
+	<!-- 不使用 hdfs://XxxNameService 形式的HDFS路徑 -->
 </property>
 ```
