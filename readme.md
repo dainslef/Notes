@@ -50,7 +50,7 @@
 
 ## Unix
 
-- [Unix Tool Chains](notes/unix/unix_config.md)
+- [Unix Tool Chains](notes/unix/os_config.md)
 - [Shell](notes/script/shell.md)
 - [Docker](notes/unix/docker.md)
 - [Git](notes/unix/git.md)
