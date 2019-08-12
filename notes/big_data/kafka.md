@@ -205,6 +205,42 @@ Kafka根据Topic和Partition在消息存储路径下以`[话题名称]-[分区�
   ...
 ```
 
+創建話題時，備份的數量**不能大於**broker的數量，否則會得到異常：
+
+```
+Error while executing topic command : Replication factor: 2 larger than available brokers: 1.
+[2019-08-05 05:05:12,837] ERROR org.apache.kafka.common.errors.InvalidReplicationFactorException: Replication factor: 2 larger than available brokers: 1.
+ (kafka.admin.TopicCommand$)
+```
+
+## 話題操作指令
+话题相關的操作指令：
+
+```c
+// 创建话题
+// 使用 --partitions 参数指定话题的分区数量
+// 使用 --replication-factor 参数指定话题数据备份数量
+$ kafka-topics --create --zookeeper [Zookeeper集群IP:端口] --topic [话题名称]
+
+// 列出话题
+$ kafka-topics --list --zookeeper [Zookeeper集群IP:端口]
+
+// 移除话题，若移除话题失败需要在Kafka服务端配置中添加设定 delete.topic.enble = true
+$ kafka-topics --delete --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
+
+// 查看话题描述(包括话题的 Partition、PartitionCount、ReplicationFactor 等信息)
+// 不使用 --topic 参数时展示所有话题的信息
+$ kafka-topics --describe --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
+```
+
+使用的Zookeeper集群IP可以是connect参数中配置的任意IP。
+在Kafka中，已创建的话题配置可以动态修改：
+
+```c
+// 单独设定话题的某个配置
+$ kafka-topics --alter --config [话题配置xxx=xxx] --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
+```
+
 
 
 # Kafka Connect
