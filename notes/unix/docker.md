@@ -60,7 +60,7 @@ Ddocker提供了对应的命令行工具进行管理操作。
 - `docker tag` 为镜像添加／移除标志
 
 ## 在 macOS 中使用 docker
-Docker使用了诸多`Linux Kernel`专有特性，并非`POSIX`兼容，无法直接移植到`macOS`中。
+Docker使用了诸多`Linux Kernel`专有特性，并非POSIX兼容，无法直接移植到`macOS`中。
 macOS中Docker使用`docker-machine`在`VirtualBox`中创建`Linux`虚拟机，并在虚拟机中运行Docker。
 
 安装Docker和`docker-machine`：
@@ -91,6 +91,45 @@ Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docke
 ```
 $ eval $(docker-machine env [环境变量])
 ```
+
+## Docker Desktop for macOS
+通過docker-machine創建VirtualBox虛擬機來使用docker需要較多配置，存在諸多不便，
+因而官方推出了[`Docker Desktop`](https://www.docker.com/products/docker-desktop)。
+
+Dcoker Desktop針對Windows、macOS平台提供了開箱即用的配置整合，內置了docker運行需要的Linux虛擬機，
+並提供了美觀的GUI，便於對網絡、存儲、性能等各類配置進行管理。
+
+Docker Desktop在對應平台使用該平台推薦的虛擬化技術創建虛擬機(Windows下使用HyperV，macOS下使用HyperKit)，
+相比使用VirtualBox更加高效。
+
+### 訪問 HyperKit 虛擬機
+在macOS下，Docker Desktop使用HyperKit啟動虛擬機，用以提供docker執行需要的Linux環境。
+通過訪問該虛擬機可以查看和配置docker運行的真實主機環境。
+
+HyperKit創建的虛擬機會在以下路徑創建終端虛擬設備：
+
+```c
+~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
+
+// 該設備實際指向 /dev 路徑下的終端設備
+$ ls -alh ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
+lrwxr-xr-x  1 dainslef  staff    12B Aug 13 01:00 /Users/dainslef/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty -> /dev/ttys009
+// 文件類型為特殊字符設備
+$ file ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
+/Users/dainslef/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty: character special (16/9)
+```
+
+通過`screen`指令可訪問該終端設備並進行交互：
+
+```
+$ screen ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
+```
+
+screen指令會創建窗口管理器，在窗口管理器中可直接與虛擬機進行交互：
+
+- 普通指令與標準終端類似
+- 使用`Ctrl-A k`可退出會話
+- 使用`Ctrl-A Ctrl-D`掛起會話，使用`screen -r [pid]`恢復會話
 
 
 
