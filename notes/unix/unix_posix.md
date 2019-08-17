@@ -23,6 +23,7 @@
 	- [關閉日誌連接](#關閉日誌連接)
 	- [實例代碼](#實例代碼)
 - [Process (進程)](#process-進程)
+	- [查看進程信息](#查看進程信息)
 	- [進程控制函數](#進程控制函數)
 	- [等待進程](#等待進程)
 	- [Daemon (守護進程)](#daemon-守護進程)
@@ -664,6 +665,23 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 	- 帶有控制終端的會話擁有前臺進程組，其餘進程組爲後臺進程組。
 	- 在控制終端中輸入的中斷鍵(`Ctrl + C`)、退出鍵會將中斷信號(`SIGINT`)、
 	退出信號(`SIGQUIT`)發送給前臺進程組中的所有進程。
+
+## 查看進程信息
+在Linux下，一切皆文件，進程相關信息可在`/proc`文件系統中看到，每個進程的`pid`會在`/proc`路徑下存在對應的路徑。
+
+以現代發行版的初始化進程`systemd`為例，進程信息位於`/proc/1`路徑下：
+
+```
+$ ls
+attr        comm             fd        map_files   net            pagemap      setgroups     status
+autogroup   coredump_filter  fdinfo    maps        ns             personality  smaps         syscall
+auxv        cpuset           gid_map   mem         numa_maps      projid_map   smaps_rollup  task
+cgroup      cwd              io        mountinfo   oom_adj        root         stack         timerslack_ns
+clear_refs  environ          limits    mounts      oom_score      schedstat    stat          uid_map
+cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    statm         wchan
+```
+
+該路徑中提供了許多進程內部的關鍵信息，如`fd`(進程使用的文件描述符)、`net`(進程的網絡棧信息)、`limits`(進程的資源限制)等。
 
 ## 進程控制函數
 常見的進程控制函數如下：
