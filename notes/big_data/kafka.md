@@ -185,8 +185,10 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
 	- `Replicas` 分区备份的broker编号，ReplicationFactor大于1时会有多个broker编号
 	- `Isr` 当前处于活跃状态的broker编号，是Replicas中分区编号的子集
 
-多个Consumer之间通过`Group`分组，一条发布到话题中的数据会发往每一个Group，但同一Group中只有**一个**Consumer实例会收到数据。
-当一个Group中存在多个Consumer时，Topic内的不同Partition会关联到不同的Consumer，当一个Partition中写入数据时，只有与该Partition关联的Consumer会收到数据。
+多个Consumer之间通过`Group`分组，一条发布到话题中的数据会发往每一个Group，
+但同一Group中只有**一个**Consumer实例会收到数据。
+当一个Group中存在多个Consumer时，Topic内的不同Partition会关联到不同的Consumer，当一个Partition中写入数据时，
+只有与该Partition关联的Consumer会收到数据。
 
 一个Partition在一个Group内仅会关联一个Consumer，因此当同一Group下的Consumer数目**大于**Partition数目时，
 会有Consumer因为未关联到Partition而收不到数据。
@@ -213,7 +215,7 @@ Error while executing topic command : Replication factor: 2 larger than availabl
  (kafka.admin.TopicCommand$)
 ```
 
-## 話題操作指令
+## 話題操作
 话题相關的操作指令：
 
 ```c
@@ -240,6 +242,42 @@ $ kafka-topics --describe --topic [话题名称] --zookeeper [Zookeeper集群IP:
 // 单独设定话题的某个配置
 $ kafka-topics --alter --config [话题配置xxx=xxx] --topic [话题名称] --zookeeper [Zookeeper集群IP:端口]
 ```
+
+## 話題刪除
+Kafka中刪除話題操作較為複雜，直接使用刪除指令不會生效，需要在`server.proerties`配置中設置參數允許話題刪除：
+
+```sh
+# 默認話題不允許刪除，需要在每個broker中設置允許話題被刪除
+delete.topic.enable = true
+```
+
+之後再使用話題刪除指令：
+
+```c
+$ kafka-topics --delete --topics [話題名稱] --zookeeper [Zookeeper集群IP:端口]
+```
+
+若未啟用`delete.topic.enable`參數，則執行刪除指令不會真正刪除話題，僅為話題打上刪除標記。
+手動完整刪除話題還需要執行以下步驟：
+
+- 刪除話題數據目錄：
+
+	```c
+	// 刪除話題對應的所有分區目錄
+	$ rm -rf $KAFKA_LOGS/[話題名稱]*
+	```
+
+- 刪除ZooKeeper中對應話題的相關記錄：
+
+	```c
+	// 進入ZooKeeper命令行環境
+	$ zkCli.sh
+
+	// 刪除對應話題相關信息
+	[zk...] rmr /brokers/topics/[話題名稱]
+	// 刪除話題的delete標記信息
+	[zk...] rmr /admin/delete_topics/[話題名稱]
+	```
 
 
 
