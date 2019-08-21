@@ -7,8 +7,6 @@
 	- [常用軟件](#常用軟件)
 	- [托盤圖標](#托盤圖標)
 	- [特殊目錄](#特殊目錄)
-	- [文件系統](#文件系統)
-		- [掛載 NTFS 讀寫](#掛載-ntfs-讀寫)
 - [與常規PC的不同之處](#與常規pc的不同之處)
 	- [Darwin 與 GNU/Linux 的差異](#darwin-與-gnulinux-的差異)
 	- [NVRAM](#nvram)
@@ -146,31 +144,8 @@
 | ~/Library/Saved Application State | 用戶程序狀態目錄 |
 | ~/Library/VirtualBox | VirtualBox的配置文件目錄，刪除則VirtualBox恢復初始狀態，需要重新添加虛擬機 |
 
-刪除一個應用後，通常需要檢查Library路徑下的`Caches`、`Preferences`、`Application Support`、`Saved Application State`等路徑，清理軟件的殘餘配置。
-
-## 文件系統
-`macOS`默認文件系統爲`HFS+`，此類文件系統同時支持區分大小寫(`Case-Sensitive`)和忽略大小寫兩種類型，在格式化時可以進行選擇。
-若選擇了區分大小寫形式的`HFS+`文件系統，則部分軟件將無法安裝(如`PhotoShop`等)。
-
-文件系統類型在安裝了macOS之後除了重裝系統之外無法更改，需要**慎重選擇**。
-
-### 掛載 NTFS 讀寫
-默認情況下，`macOS`以**只讀**形式掛載`NTFS`文件系統，但`macOS`本身實現了對`NTFS`文件系統的寫入功能，
-創建`/etc/fstab`文件，在其中添加掛載選項：
-
-```
-LABEL=[label_name] none ntfs rw,auto,nobrowse
-```
-
-- `label_name`爲分區的名稱。
-- `rw`參數表示以**讀寫**的方式掛載分區。
-- `nobrowse`參數表示分區不直接顯示在Finder中，`rw`參數必須與`nobrowse`參數搭配，否則無法掛載`NTFS`分區。
-
-使用`open`指令可以在`Finder.app`中查看設置了`nobrowse`屬性的分區：
-
-```
-$ open /Volumes
-```
+刪除一個應用後，通常需要檢查Library路徑下的`Caches`、`Preferences`、`Application Support`、
+`Saved Application State`等路徑，清理軟件的殘餘配置。
 
 
 
@@ -269,9 +244,13 @@ Note that arguments and options are executed in order.
 Homebrew使用`Ruby`語言實現。
 
 與傳統的包管理器不同，使用Homebrew並不需要使用`root`用戶，管理員權限用戶即可。
-Homebrew將軟件包安裝在`/usr/local`目錄下，在macOS中該目錄默認情況下爲**空**，因此當用戶不再需要使用Homebrew時，只需完整刪除`/usr/local`目錄下的所有內容即可。(需要注意，某些非Bundle形式安裝的軟件亦會將一些內容安裝在`/usr/local`目錄下，如`VirtualBox`。若安裝了此類軟件，清理`/usr/local`目錄時需要仔細辨別)
+Homebrew將軟件包安裝在`/usr/local`目錄下，在macOS中該目錄默認情況下爲**空**，
+因此當用戶不再需要使用Homebrew時，只需完整刪除`/usr/local`目錄下的所有內容即可。
+(需要注意，某些非Bundle形式安裝的軟件亦會將一些內容安裝在`/usr/local`目錄下，
+如`VirtualBox`。若安裝了此類軟件，清理`/usr/local`目錄時需要仔細辨別)
 
-默認情況下，在macOS中，`/usr/local`的所有者爲`root`，用戶組爲`wheel`，安裝Homebrew時，安裝腳本會將該目錄所有者會更改爲**當前管理員用戶**，並將用戶組改爲`admin`。
+默認情況下，在macOS中，`/usr/local`的所有者爲`root`，用戶組爲`wheel`，安裝Homebrew時，
+安裝腳本會將該目錄所有者會更改爲**當前管理員用戶**，並將用戶組改爲`admin`。
 
 ### 配置與安裝
 Homebrew採用`Ruby`語言開發，`macOS`中默認已經集成了Ruby環境。
@@ -434,7 +413,8 @@ $ brew reinstall [需要更新的應用名稱]
 $ brew tap caskroom/versions
 ```
 
-`caskroom/versions`倉庫保存了常見應用的長期維護版本，如`Java SDK`的`java6/java8`，`FireFox`的`firefox-beta/firefox-esr`。
+`caskroom/versions`倉庫保存了常見應用的長期維護版本，
+如`Java SDK`的`java6/java8`，`FireFox`的`firefox-beta/firefox-esr`。
 
 ### Homebrew Services
 對於使用`Homebrew`安裝的包，若包提供了服務，則可以使用`brew services`指令進行服務狀態管理。
@@ -505,9 +485,11 @@ $ brew tap caskroom/versions
 常規的`Bundle`程序所有者爲**當前用戶**。
 
 ## pkg
-一些大型的軟件包如Adobe系列、Office系列等的dmg鏡像中保存的是pkg格式的安裝包，雙擊進行安裝，步驟與Windows系統下的安裝流程類似。
+一些大型的軟件包如Adobe系列、Office系列等的dmg鏡像中保存的是pkg格式的安裝包，雙擊進行安裝，
+步驟與Windows系統下的安裝流程類似。
 
-通過pkg安裝的軟件最終也會在`/Application`目錄下創建軟件的Bundle，但通過此種方式安裝的軟件往往會在系統的其它目錄創建程序所需的額外文件。
+通過pkg安裝的軟件最終也會在`/Application`目錄下創建軟件的Bundle，
+但通過此種方式安裝的軟件往往會在系統的其它目錄創建程序所需的額外文件。
 
 通過pkg安裝的軟件所有者一般爲`root`，不能隨意移動到`~/Application`路徑下。
 
@@ -539,7 +521,8 @@ $ brew tap caskroom/versions
 1. 選擇`Change All...`將所有此類文件全部修改爲自定義的程序。
 
 ## 在BootCamp安裝的Windows中調整分區，重啓後Mac分區在啓動頁中消失
-發生此種情況的原因是Windows下的一些分區管理工具將Mac分區的分區`Type UUID`改成了Windows的`Type UUID`，只需將分區類型ID改回來即可恢復Mac分區。
+發生此種情況的原因是Windows下的一些分區管理工具將Mac分區的分區`Type UUID`改成了Windows的`Type UUID`，
+只需將分區類型ID改回來即可恢復Mac分區。
 
 具體解決方法：
 
@@ -601,8 +584,10 @@ $ nano /Volumes/[啓動分區名稱]/System/Library/CoreServices/SystemVersion.p
 ```
 
 ## 重置 Launchpad
-`Launchpad`中數據保存在`~/Library/Application Support/Dock`路徑下，若Launchpad圖標出現異常(如已刪除軟件圖標依然存在)，可以嘗試清空其中的數據。
-刪除該目錄之後，`Launchpad`會在下次開機之後重置圖標佈局，恢復成默認的樣式(Apple自帶的軟件佔一頁，用戶自行安裝的軟件從第二頁開始)。
+`Launchpad`中數據保存在`~/Library/Application Support/Dock`路徑下，
+若Launchpad圖標出現異常(如已刪除軟件圖標依然存在)，可以嘗試清空其中的數據。
+刪除該目錄之後，`Launchpad`會在下次開機之後重置圖標佈局，
+恢復成默認的樣式(Apple自帶的軟件佔一頁，用戶自行安裝的軟件從第二頁開始)。
 
 ## 設置 Xcode 路徑
 `Xcode`中包含了一系列命令行工具如`clang`、`git`等，Homebrew的安裝也依賴於這些命令行工具。
@@ -627,7 +612,8 @@ $ xcode-select -p
 # xcode-select --switch [Xcode.app路徑]/Contents/Developer
 ```
 
-若該變了Xcode.app的位置，即使使用`xcode-select`重新設定Xocde.app的路徑，通過`Homebrew`安裝的編譯器(如`gcc`)依然會出現找不到頭文件的情況，此時需要重新安裝包。
+若該變了Xcode.app的位置，即使使用`xcode-select`重新設定Xocde.app的路徑，
+通過`Homebrew`安裝的編譯器(如`gcc`)依然會出現找不到頭文件的情況，此時需要重新安裝包。
 
 ## 簽名 GDB
 新版的macOS系統中，`clang`作爲默認編譯器取代了`gcc`，`lldb`作爲默認編譯器取代了`gdb`。
