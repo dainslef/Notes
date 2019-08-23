@@ -534,3 +534,59 @@ $ docker inspect [容器ID]
     }
 ]
 ```
+
+在容器詳細信息中的`HostConfig.PortBindings`以及`NetworkSettings.Ports`等配置段可看到容器的端口映射信息。
+在宿主機中修改docker容器的相關配置文件：
+
+- `/var/lib/docker/containers/[容器ID]/hostconfig.json`
+
+	修改`PortBindings`配置段：
+
+	```json
+	{
+		...
+		"PortBindings": {
+			"22/tcp": [
+				{
+					"HostIp": "",
+					"HostPort": "22"
+				}
+			],
+			...
+		},
+		...
+	}
+	```
+
+- `/var/lib/docker/containers/[容器ID]/config.v2.json`
+
+	修改`Config.ExposedPorts`和`NetworkSettings.Ports`配置段：
+
+	```json
+	{
+		...
+		"Config": {
+			...
+			"ExposedPorts": {
+				"22/tcp": {},
+				...
+			},
+			...
+		},
+		...
+		"NetworkSettings": {
+			...
+			"Ports": {
+				"22/tcp": [
+					{
+						"HostIp": "0.0.0.0",
+						"HostPort": "22"
+					}
+				],
+				...
+			},
+			...
+		}
+		...
+	}
+	```
