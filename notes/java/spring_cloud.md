@@ -27,6 +27,7 @@
 	- [依賴配置](#依賴配置)
 	- [應用結構](#應用結構)
 	- [Sink & Source](#sink--source)
+	- [自定義管道](#自定義管道)
 
 <!-- /TOC -->
 
@@ -723,6 +724,45 @@ class MessageReceiver {
     @StreamListener(Sink.INPUT)
     fun receiveMessage(message: String) {
         ...
+    }
+
+}
+```
+
+## 自定義管道
+若需要自定義管道，可以仿照官方源碼中的Sink/Source定義，自定義管道接口。
+使用`@Input`注解修飾消息接收管道，`@Output`注解修飾消息發佈管道，注解參數中填寫管道名稱，
+輸入/輸出管道可以定義在同一個接口中。
+
+```kt
+import org.springframework.cloud.stream.annotation.Input
+import org.springframework.cloud.stream.annotation.Output
+import org.springframework.messaging.MessageChannel
+import org.springframework.messaging.SubscribableChannel
+
+interface CustomSinkSource {
+
+    // Receive message use input1 channel
+    @Input(inChannel1)
+    fun input1(): SubscribableChannel
+
+    // Receive message use input2 channel
+    @Input(inChannel2)
+    fun input2(): SubscribableChannel
+
+    // Send message use output1 channel
+    @Output(outChannel1)
+    fun output1(): MessageChannel
+
+    // Send message use output2 channel
+    @Output(outChannel2)
+    fun output2(): MessageChannel
+
+    companion object {
+        const val outChannel1 = "customOutChannel1"
+        const val outChannel2 = "customOutChannel2"
+        const val inChannel1 = "customInChannel1"
+        const val inChannel2 = "customInChannel2"
     }
 
 }
