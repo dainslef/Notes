@@ -31,7 +31,6 @@
 	- [Core Dump (核心轉儲)](#core-dump-核心轉儲)
 - [fdisk](#fdisk)
 - [parted](#parted)
-- [diskutil](#diskutil)
 - [LVM](#lvm)
 	- [基本操作](#基本操作)
 	- [Physical Volume (PV，物理卷)](#physical-volume-pv物理卷)
@@ -983,34 +982,6 @@ parted會話中的基本指令如下：
 | quit | 退出parted會話 |
 
 相比fdisk，parted會話中的分區操作會立即執行生效，因此更需小心謹慎。
-
-
-
-# diskutil
-macOS中自帶的`fdisk`工具為BSD版本，與Linux版本有較大差異。
-在macOS中通常使用`diskutil`工具進行磁盤管理。
-
-常用工具指令：
-
-```c
-// 列出所有分區信息
-$ diskutil list
-// 列出指定分區的詳細信息(包含文件系統等)
-$ diskutil info [分區路徑]
-
-// 監視磁盤分區變化
-$ diskutil activity
-
-// 掛載/取消掛載分區
-$ diskutil mount/unmount [分區路徑]
-// 彈出整個磁盤，磁盤下的所有已掛載分區均會被卸載
-$ diskutil eject [設備]
-
-// 格式化磁盤
-# diskutil eraseDisk format name [APM[Format] | MBR[Format] | GPT[Format]] device
-// 格式化卷
-# diskutil eraseVolume format name device
-```
 
 
 

@@ -28,6 +28,7 @@
 	- [Bundle](#bundle)
 	- [pkg](#pkg)
 	- [軟件路徑](#軟件路徑)
+- [diskutil](#diskutil)
 - [常見問題](#常見問題)
 	- [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
 	- [更改默認應用程序](#更改默認應用程序)
@@ -499,6 +500,37 @@ $ brew tap caskroom/versions
 
 默認情況下`~/Application`目錄不存在，需要自行創建。
 用戶自行安裝的Bundle應用推薦存放在`~/Application`目錄下，避免與系統程序混淆。
+
+
+
+# diskutil
+macOS中自帶的`fdisk`工具為BSD版本，與Linux版本有較大差異。
+在macOS中通常使用`diskutil`工具進行磁盤管理。
+
+常用工具指令：
+
+```c
+// 列出所有分區信息
+$ diskutil list
+// 列出指定分區的詳細信息(包含文件系統等)
+$ diskutil info [分區路徑]
+
+// 監視磁盤分區變化
+$ diskutil activity
+
+// 掛載/取消掛載分區
+$ diskutil mount/unmount [分區路徑]
+// 彈出整個磁盤，磁盤下的所有已掛載分區均會被卸載
+$ diskutil eject [設備]
+
+// 格式化磁盤
+# diskutil eraseDisk format name [APM[Format] | MBR[Format] | GPT[Format]] device
+// 格式化卷
+# diskutil eraseVolume format name device
+```
+
+當某些進程佔用磁盤時，使用`umount`指令將無法取消掛載，此時可嘗試使用`diskutil unmount`取消掛載，
+diskutil指令在無法取消掛載時會輸出佔用磁盤的進程信息。
 
 
 
