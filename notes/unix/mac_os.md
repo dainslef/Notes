@@ -28,7 +28,9 @@
 	- [Bundle](#bundle)
 	- [pkg](#pkg)
 	- [軟件路徑](#軟件路徑)
-- [diskutil](#diskutil)
+- [文件系統](#文件系統)
+	- [掛載 NTFS 讀寫](#掛載-ntfs-讀寫)
+	- [diskutil](#diskutil)
 - [常見問題](#常見問題)
 	- [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
 	- [更改默認應用程序](#更改默認應用程序)
@@ -503,7 +505,33 @@ $ brew tap caskroom/versions
 
 
 
-# diskutil
+# 文件系統
+`macOS`默認文件系統爲`HFS+`，此類文件系統同時支持區分大小寫(`Case-Sensitive`)和忽略大小寫兩種類型，
+在格式化時可以進行選擇。若選擇了區分大小寫形式的`HFS+`文件系統，則部分軟件將無法安裝(如`PhotoShop`等)。
+
+文件系統類型在安裝了macOS之後除了重裝系統之外無法更改，需要**慎重選擇**。
+
+## 掛載 NTFS 讀寫
+默認情況下，`macOS`以**只讀**形式掛載`NTFS`文件系統，但`macOS`本身實現了對`NTFS`文件系統的寫入功能，
+創建`/etc/fstab`文件，在其中添加掛載選項：
+
+```
+LABEL=[label_name] none ntfs rw,auto,nobrowse
+```
+
+- `label_name`爲分區的名稱。
+- `rw`參數表示以**讀寫**的方式掛載分區。
+- `nobrowse`參數表示分區不直接顯示在Finder中，`rw`參數必須與`nobrowse`參數搭配，否則無法掛載`NTFS`分區。
+
+使用`open`指令可以在`Finder.app`中查看設置了`nobrowse`屬性的分區：
+
+```
+$ open /Volumes
+```
+
+在`macOS 10.14 (Darwin Kernel Version 18.7.0)`上，使用此方法對NTFS讀寫無效。
+
+## diskutil
 macOS中自帶的`fdisk`工具為BSD版本，與Linux版本有較大差異。
 在macOS中通常使用`diskutil`工具進行磁盤管理。
 
