@@ -31,6 +31,8 @@
 - [文件系統](#文件系統)
 	- [掛載 NTFS 讀寫](#掛載-ntfs-讀寫)
 	- [diskutil](#diskutil)
+	- [NTFS-3G](#ntfs-3g)
+		- [安裝配置](#安裝配置)
 - [常見問題](#常見問題)
 	- [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
 	- [更改默認應用程序](#更改默認應用程序)
@@ -559,6 +561,32 @@ $ diskutil eject [設備]
 
 當某些進程佔用磁盤時，使用`umount`指令將無法取消掛載，此時可嘗試使用`diskutil unmount`取消掛載，
 diskutil指令在無法取消掛載時會輸出佔用磁盤的進程信息。
+
+## NTFS-3G
+[`NTFS-3G`](https://www.tuxera.com/community/ntfs-3g-manual/)項目為各類Unix系統提供了對Windows文件系統的讀寫支持。
+
+### 安裝配置
+NTFS-3G可直接通過Homebrew安裝：
+
+```
+$ brew install ntfs-3g
+```
+
+與其它工具不同，NTFS-3G會在`/usr/local/sbin`路徑下創建符號鏈接，需要保證該路徑存在(默認該路徑不存在，需要手動創建)，
+否則安裝時會出現錯誤信息：
+
+```
+Error: The `brew link` step did not complete successfully
+The formula built, but is not symlinked into /usr/local
+Could not symlink sbin/mkntfs
+/usr/local/sbin is not writable.
+
+You can try again using:
+  brew link ntfs-3g
+```
+
+需要手動創建`/usr/local/sbin`路徑，並將該路徑修改為與其它Hombrew路徑相同的權限，
+之後執行`brew link ntfs-3g`再次創建符號鏈接。
 
 
 
