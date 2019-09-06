@@ -33,6 +33,7 @@
 	- [diskutil](#diskutil)
 	- [NTFS-3G](#ntfs-3g)
 		- [安裝配置](#安裝配置)
+		- [使用 NTFS-3G](#使用-ntfs-3g)
 - [常見問題](#常見問題)
 	- [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
 	- [更改默認應用程序](#更改默認應用程序)
@@ -587,6 +588,35 @@ You can try again using:
 
 需要手動創建`/usr/local/sbin`路徑，並將該路徑修改為與其它Hombrew路徑相同的權限，
 之後執行`brew link ntfs-3g`再次創建符號鏈接。
+
+### 使用 NTFS-3G
+插入NTFS文件系統的U盤，macOS會使用系統自帶工具`mount_ntfs`自動掛載，首先需要使用`umount`指令取消U盤的掛載：
+
+```c
+# umount /Volumes/[U盤名稱]
+```
+
+取消U盤掛載後，使用`diskutil`指令查看插入U盤的詳細信息：
+
+```
+$ diskutil list
+
+...
+
+/dev/disk2 (external, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:     FDisk_partition_scheme                        *30.8 GB    disk2
+   1:               Windows_NTFS                         30.7 GB    disk2s1
+```
+
+確認U盤的NTFS分區的設備名稱後，使用`ntfs-3g`指令進行掛載：
+
+```c
+// 示例： ntfs-3g /dev/disk2s1 /Volumes/ntfs_device
+# ntfs-3g /dev/[分區對應磁盤設備] /Volumes/[分區掛載設備]
+```
+
+取消U盤掛載使用umount指令而不是直接彈出U盤，彈出U盤會斷開系統的鏈接，無法再使用ntfs-3g指令掛載。
 
 
 
