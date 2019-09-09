@@ -158,3 +158,52 @@ Maven中心倉庫服務器位於海外，在牆內下載速度較慢。國內可
 ```
 
 子模塊繼承父模塊的`<groupId/>`、`<version/>`，無須單獨配置。
+
+
+
+# Package
+Maven默認的package功能僅將當前項目生成的class文件進行打包，要打包所有依賴資源，需要引入額外插件。
+
+## maven-assembly-plugin
+與sbt的`sbt-assembly`類似，Maven的`maven-assembly-plugin`插件提供將所有項目依賴打包到一個JAR的功能。
+
+在pom.xml文件中添加插件配置：
+
+```xml
+<project>
+	...
+	<build>
+		...
+		<plugins>
+			...
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+					<manifest>
+						<!-- 定義 Mainfest 文件中的MainClass(JAR文件的執行入口類) -->
+						<mainClass>xxx.xxx.Xxx...</mainClass>
+					</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			...
+	 	</plugins>
+		...
+	</build>
+	...
+</project>
+```
