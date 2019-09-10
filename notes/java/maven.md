@@ -207,3 +207,29 @@ Maven默認的package功能僅將當前項目生成的class文件進行打包，
 	...
 </project>
 ```
+
+## spring-boot-maven-plugin
+對於`Spring Boot`項目，使用該插件能將所有依賴打包到一個JAR。
+
+在pom.xml文件中添加插件配置：
+
+```xml
+<project>
+	...
+	<build>
+		<plugins>
+			...
+			<!-- package plugin for Spring project, build all dependencies into one jar -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			...
+		</plugins>
+	</build>
+	...
+</project>
+```
+
+相比`maven-assembly-plugin`，`spring-boot-maven-plugin`對於Spring Boot項目的打包結構更加合理，
+所有依賴的JAR包不會被被解包重新封裝，而是保留原始結構壓縮到生成的JAR包中，避免了傳統插件打包時的文件衝突等問題。
