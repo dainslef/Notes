@@ -1,84 +1,84 @@
 <!-- TOC -->
 
-- [Fixed-Point (不动点)](#fixed-point-不动点)
-- [Fixed-Point Combinator (不动点组合子)](#fixed-point-combinator-不动点组合子)
-- [Y组合子实例](#y组合子实例)
-	- [展开Y组合子](#展开y组合子)
-	- [调用自身](#调用自身)
-	- [单步递归函数](#单步递归函数)
-	- [实现Y组合子](#实现y组合子)
-	- [各语言完整源码](#各语言完整源码)
+- [Fixed-Point (不動點)](#fixed-point-不動點)
+- [Fixed-Point Combinator (不動點組合子)](#fixed-point-combinator-不動點組合子)
+- [Y組合子實例](#y組合子實例)
+	- [展開Y組合子](#展開y組合子)
+	- [調用自身](#調用自身)
+	- [單步遞歸函數](#單步遞歸函數)
+	- [實現Y組合子](#實現y組合子)
+	- [各語言完整源碼](#各語言完整源碼)
 
 <!-- /TOC -->
 
 
 
-# Fixed-Point (不动点)
-不动点的定义是`被这个函数映射到其自身一个点`。
+# Fixed-Point (不動點)
+不動點的定義是`被這個函數映射到其自身一個點`。
 
-函数`f`的不动点是一个值`x`使得`f(x) == x`。
-若`f`为高阶函数，则`f`的不动点是一个函数`g`满足`f(g) == g`。
-
-
-
-# Fixed-Point Combinator (不动点组合子)
-不动点组合子是用于计算一个函数的不动点的高阶函数。
-对于任意函数`f`，不动点组合子`Fix`满足`f(Fix(f)) == Fix(f)`。
-不动点组合子有多种，最常见的是`Y组合子`。
-
-Y组合子的数学定义为`Y = λf.(λx.f(x x))(λx.f(x x))`。
-由普通`Y`组合子的部分的`η-`展开则可得到`Z`组合子：`Z = λf.(λx.f(λy.x x y))(λx.f(λy.x x y))`
-
-使用不动点组合子能够使Lambda递归地调用自身。
-使用各种语言实现Y组合子参考`http://rosettacode.org/wiki/Y_combinator`。
+函數`f`的不動點是一個值`x`使得`f(x) == x`。
+若`f`爲高階函數，則`f`的不動點是一個函數`g`滿足`f(g) == g`。
 
 
 
-# Y组合子实例
-使用Y组合子来实现阶乘和斐波那契数列。
+# Fixed-Point Combinator (不動點組合子)
+不動點組合子是用於計算一個函數的不動點的高階函數。
+對於任意函數`f`，不動點組合子`Fix`滿足`f(Fix(f)) == Fix(f)`。
+不動點組合子有多種，最常見的是`Y組合子`。
 
-## 展开Y组合子
-在Lambda演算中，函数接受另一个函数作为参数，在求值策略为**立即求值**的编程语言中，
-直接使用Y组合子编写代码能够通过编译，但在运行阶段会无限递归直至栈溢出。
+Y組合子的數學定義爲`Y = λf.(λx.f(x x))(λx.f(x x))`。
+由普通`Y`組合子的部分的`η-`展開則可得到`Z`組合子：`Z = λf.(λx.f(λy.x x y))(λx.f(λy.x x y))`
 
-为了正确地适应求值策略，应当对Y组合子进行部分`η-`展开，以下两种展开方式都能正确地在传值调用情况下使用：
+使用不動點組合子能夠使Lambda遞歸地調用自身。
+使用各種語言實現Y組合子參考`http://rosettacode.org/wiki/Y_combinator`。
+
+
+
+# Y組合子實例
+使用Y組合子來實現階乘和斐波那契數列。
+
+## 展開Y組合子
+在Lambda演算中，函數接受另一個函數作爲參數，在求值策略爲**立即求值**的編程語言中，
+直接使用Y組合子編寫代碼能夠通過編譯，但在運行階段會無限遞歸直至棧溢出。
+
+爲了正確地適應求值策略，應當對Y組合子進行部分`η-`展開，以下兩種展開方式都能正確地在傳值調用情況下使用：
 
 - `λf.(λx.f(x x))(λx.f(λy.x x y))`
 - `λf.(λx.f(x x))(λx.λy.f(x x)y)`
 
-或者直接使用`Z组合子`。
+或者直接使用`Z組合子`。
 
-## 调用自身
-不动点组合子`Y`的数学表示为`Y = λf.(λx.f(x x))(λx.f(x x))`，其中`x`和`λx.f(x x)`的类型是一个具备调用自身逻辑的高阶函数。
-在**显式类型**的编程语言中，需要首先确定这个高阶函数的实际类型。
+## 調用自身
+不動點組合子`Y`的數學表示爲`Y = λf.(λx.f(x x))(λx.f(x x))`，其中`x`和`λx.f(x x)`的類型是一個具備調用自身邏輯的高階函數。
+在**顯式類型**的編程語言中，需要首先確定這個高階函數的實際類型。
 
-在`C#`中，可以简单地使用一个**泛型委托**来表示：
+在`C#`中，可以簡單地使用一個**泛型委託**來表示：
 
 ```csharp
 delegate T Self<T>(Self<T> self);
 ```
 
-对应到阶乘函数，则泛型参数应为`Func<int, int>`。
-这个委托接受自身作为参数，返回真正的被调函数。
+對應到階乘函數，則泛型參數應爲`Func<int, int>`。
+這個委託接受自身作爲參數，返回真正的被調函數。
 
-在`Scala`语言中，可以使用一个`泛型样例类`或是`泛型隐式类`来表示：
+在`Scala`語言中，可以使用一個`泛型樣例類`或是`泛型隱式類`來表示：
 
 ```scala
-// 使用样例类表示
+// 使用樣例類表示
 case Self[T](in: Self[T] => T) {
 	def apply(self: Self[T]) = in(self)
 }
 
-// 使用隐式类表示
+// 使用隱式類表示
 implicit class ImSelf[T](in: ImSelf[T] => T) {
 	def apply(self: ImSelf[T]) = in(self)
 }
 ```
 
-定义的样例类和隐式类内部实现了`apply()`方法，使得该类实例可以像函数一样调用。
-对应到阶乘函数，则泛型参数为`Int => Int`。
+定義的樣例類和隱式類內部實現了`apply()`方法，使得該類實例可以像函數一樣調用。
+對應到階乘函數，則泛型參數爲`Int => Int`。
 
-在`Java`语言中，可以参考`Scala`中的实现方式，实现`Function`接口：
+在`Java`語言中，可以參考`Scala`中的實現方式，實現`Function`接口：
 
 ```java
 class Self<T> implements Function<Self<T>, T> {
@@ -91,40 +91,40 @@ class Self<T> implements Function<Self<T>, T> {
 }
 ```
 
-对应到阶乘和斐波那契数列，则泛型参数应为`Function<Integer, Integer>`。
+對應到階乘和斐波那契數列，則泛型參數應爲`Function<Integer, Integer>`。
 
-## 单步递归函数
-阶乘和斐波那契运算使用递归方式的单步函数，使用`C#`可以写成：
+## 單步遞歸函數
+階乘和斐波那契運算使用遞歸方式的單步函數，使用`C#`可以寫成：
 
 ```csharp
-// 阶乘
+// 階乘
 Func<Func<int, int>, Func<int, int>> fac = x => n => n < 2 ? 1 : n * x(n - 1);
-// 斐波那契数列
+// 斐波那契數列
 Func<Func<int, int>, Func<int, int>> fib = x => n => n < 2 ? n : x(n - 1) + x(n - 2);
 ```
 
-使用`Scala`可以写成：
+使用`Scala`可以寫成：
 
 ```scala
-// 阶乘
+// 階乘
 val fac = (x: Int => Int) => (n: Int) => if (n < 2) 1 else n * x(n - 1)
-// 斐波那契数列
+// 斐波那契數列
 val fib = (x: Int => Int) => (n: Int) => if (n < 2) n else x(n - 1) + x(n - 2)
 ```
 
-`Java`中的函数接口不能真正地使用函数语法调用，使用Java语言需要写成：
+Java中的函數接口不能真正地使用函數語法調用，使用Java語言需要寫成：
 
 ```java
-// 阶乘
+// 階乘
 Function<Function<Integer, Integer>, Function<Integer, Integer>> fac =
 	x -> n -> n < 2 ? 1 : n * x.apply(n - 1);
-// 斐波那契数列
+// 斐波那契數列
 Function<Function<Integer, Integer>, Function<Integer, Integer>> fib =
 	x -> n -> n < 2 ? n : x.apply(n - 1) + x.apply(n - 2);
 ```
 
-## 实现Y组合子
-Y组合子的两种展开形式，用`C#`可以表示为：
+## 實現Y組合子
+Y組合子的兩種展開形式，用C#可以表示爲：
 
 ```csharp
 // λf.(λx.f(x x))(λx.f(λy.x x y))
@@ -135,18 +135,18 @@ Func<Func<Func<int, int>, Func<int, int>>, Func<int, int>> Y1 =
 	f => ((Self<Func<int, int>>)(x => f(x(x))))((Self<Func<int, int>>)(x => y => f(x(x))(y)));
 ```
 
-使用`Scala`可以表示为：
+使用Scala可以表示爲：
 
 ```scala
-// λf.(λx.f(x x))(λx.f(λy.x x y)) 使用样例类
+// λf.(λx.f(x x))(λx.f(λy.x x y)) 使用樣例類
 val Y0 = (f: (Int => Int) => Int => Int) =>
 	((x: Self[Int => Int]) => f(x(x)))(Self[Int => Int](x => f(y => x(x)(y))))
-// λf.(λx.f(x x))(λx.λy.f(x x)y) 使用隐式类
+// λf.(λx.f(x x))(λx.λy.f(x x)y) 使用隱式類
 val Y1 = (f: (Int => Int) => Int => Int) =>
 	((x: ImSelf[Int => Int]) => f(x(x)))((x: ImSelf[Int => Int]) => (y: Int) => f(x(x))(y))
 ```
 
-使用`Java`可以表示为：
+使用Java可以表示爲：
 
 ```java
 // λf.(λx.f(x x))(λx.f(λy.x x y))
@@ -159,7 +159,7 @@ Function<Function<Function<Integer, Integer>, Function<Integer, Integer>>, Funct
 		.apply(new Self<Function<Integer, Integer>>(x -> y -> f.apply(x.apply(x)).apply(y)));
 ```
 
-在**隐式类型**的语言中，实现Y组合子则无需确定自身调用逻辑的高阶函数的实际类型，如使用`Python`表示为：
+在**隱式類型**的語言中，實現Y組合子則無需確定自身調用邏輯的高階函數的實際類型，如使用`Python`表示爲：
 
 ```py
 # λf.(λx.f(x x))(λx.f(λy.x x y))
@@ -168,9 +168,9 @@ Y0 = lambda f: (lambda x: f(x(x)))(lambda x: f(lambda y: x(x)(y)))
 Y1 = lambda f: (lambda x: f(x(x)))(lambda x: lambda y: f(x(x))(y))
 ```
 
-使用得到的Y组合子将单步递归函数作为参数即可得到最终的目标函数。
+使用得到的Y組合子將單步遞歸函數作爲參數即可得到最終的目標函數。
 
-在`C++14`之后，C++可以使用**泛型Lambda**，使用`C++14`实现Y组合子同样无需确定调用自身逻辑的高阶函数具体类型，可以使用`auto`关键字让模版类型自动推断，使用`C++14`表示Y组合子：
+在`C++14`之後，C++可以使用**泛型Lambda**，使用`C++14`實現Y組合子同樣無需確定調用自身邏輯的高階函數具體類型，可以使用`auto`關鍵字讓模版類型自動推斷，使用`C++14`表示Y組合子：
 
 ```cpp
 // λf.(λx.f(x x))(λx.f(λy.x x y))
@@ -188,8 +188,8 @@ auto Y1 =
 				{ return [&](auto n) { return f(x(x))(n); }; }); };
 ```
 
-## 各语言完整源码
-使用`Scala`、`Python`、`C#`、`C++`等语言使用Y组合子计算斐波那契数列和阶乘的结果。
+## 各語言完整源碼
+使用`Scala`、`Python`、`C#`、`C++`等語言使用Y組合子計算斐波那契數列和階乘的結果。
 
 `Scala`(Scala 2.11.8)
 
@@ -333,7 +333,7 @@ print("Factorial(10): %d" % Y1(fac)(10))
 print("Fibonacci(10): %d" % Y1(fib)(10))
 ```
 
-输出结果：
+輸出結果：
 
 ```
 Factorial(5): 120
