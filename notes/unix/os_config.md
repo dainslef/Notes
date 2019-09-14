@@ -28,6 +28,7 @@
 	- [7z](#7z)
 - [ulimit](#ulimit)
 	- [配置文件](#配置文件)
+	- [prlimit](#prlimit)
 - [Core Dump (核心轉儲)](#core-dump-核心轉儲)
 - [fdisk](#fdisk)
 - [parted](#parted)
@@ -859,6 +860,22 @@ $ ulimit -c
 $ ulimit -c unlimited
 ```
 
+系統限制分為**軟限制**和**硬限制**，ulimit指令默認顯示和修改的是**軟限制**。
+要顯示和修改**硬限制**，需要額外添加`-H`參數。
+
+同樣以**核心轉儲**為例：
+
+```c
+// 查看系統設定的核心轉儲大小(硬限制)
+$ ulimit -cH
+
+// 設置核心轉儲大小爲無限(硬限制)
+$ ulimit -cH unlimited
+```
+
+使用ulimit默認修改的配置僅對當前會話有效，退出當前會話後，配置重新變為默認值。
+要使修改的系統限制永久生效，需要修改`/etc/security/limits.conf`文件中配置。
+
 ## 配置文件
 通過配置文件`/etc/security/limits.conf`配置相關限制。
 `limits.conf`文件每行爲一條配置，依次爲`<domain>`、`<type>`、`<item>`、`<value>`。
@@ -882,6 +899,20 @@ $ ulimit -c unlimited
 #ftp             hard    nproc           0
 #ftp             -       chroot          /ftp
 #@student        -       maxlogins       4
+```
+
+修改limits.conf文件後不必重啓服務器，僅需要關閉當前開啟的會話(當前以開啟的會話依舊會使用之前資源限制配置)，
+關閉會話後重新登錄系統新的資源限制便會生效。
+
+## prlimit
+使用`prlimit`可以查看和動態修改運行中的進程的資源限制：
+
+```c
+// 查看進程的全部資源限制
+$ prlimit -p [進程號]
+
+// 設置進程的資源限制
+$ prlimit -p [進程號] --[類別=軟限制數值:硬限制數值]
 ```
 
 
