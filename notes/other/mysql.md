@@ -1,8 +1,8 @@
 <!-- TOC -->
 
 - [初始化與基本配置](#初始化與基本配置)
-	- [數據庫初始化 (MySQL 5.5+)](#數據庫初始化-mysql-55)
-	- [數據庫初始化 (MariaDB & MySQL 5.5-)](#數據庫初始化-mariadb--mysql-55-)
+	- [數據庫初始化 (MySQL 5.7+)](#數據庫初始化-mysql-57)
+	- [數據庫初始化 (MariaDB & MySQL 5.6-)](#數據庫初始化-mariadb--mysql-56-)
 	- [手動配置](#手動配置)
 	- [使用指定配置啓動](#使用指定配置啓動)
 - [服務管理](#服務管理)
@@ -19,12 +19,12 @@
 	- [授權用戶](#授權用戶)
 - [驅動配置](#驅動配置)
 - [基本操作](#基本操作)
-	- [常用的SQL語句](#常用的sql語句)
+	- [基本SQL語句](#基本sql語句)
 	- [內置函數](#內置函數)
 	- [複製表格](#複製表格)
 	- [主鍵自增](#主鍵自增)
 	- [外鍵約束](#外鍵約束)
-- [Row Formats](#row-formats)
+- [Row Formats (行格式)](#row-formats-行格式)
 	- [REDUNDANT Row Format](#redundant-row-format)
 	- [COMPACT Row Format](#compact-row-format)
 	- [DYNAMIC Row Format](#dynamic-row-format)
@@ -52,8 +52,8 @@
 # 初始化與基本配置
 對於`MariaDB`與`MySQL`而言，在初始化操作上有着明顯的區別。
 
-## 數據庫初始化 (MySQL 5.5+)
-`MySQL`在`5.5`版本之後變更了初始化的方式，原先使用的`mysql_install_db`指令已被廢棄，
+## 數據庫初始化 (MySQL 5.7+)
+`MySQL`在`5.7`版本開始變更了初始化的方式，原先使用的`mysql_install_db`指令已被廢棄，
 現在應該使用`--initialize`系列參數進行數據庫初始化，如下所示：
 
 ```
@@ -72,7 +72,7 @@
 > mysqld --initialize-insecure
 ```
 
-## 數據庫初始化 (MariaDB & MySQL 5.5-)
+## 數據庫初始化 (MariaDB & MySQL 5.6-)
 `MariaDB`在MySQL被`Oracle`收購之後，被各大Linux發行版作爲默認的MySQL替代版本。
 
 作爲MySQL的分支，並沒有採用`MySQL 5.5`之後的新初始化方式，依舊使用`mysql_install_db`指令進行數據庫初始化，
@@ -362,19 +362,19 @@ mysql> show grants for [用戶名]@[主機地址]; //顯示指定用戶的權限
 - `Qt API`
 
 	使用Qt官方安裝包的Qt環境中無須額外配置(驅動已被集成至安裝包中)。
-	`ArchLinux`中使用使用Qt5操作MySQL數據無需安裝額外的包(驅動已被集成至`Qt5`包組中)。
-	`Debian`系發行版中使用Qt5操作MySQL數據庫需要安裝`libqt5sql-mysql`包。
+	ArchLinux中使用使用Qt5操作MySQL數據無需安裝額外的包(驅動已被集成至`Qt5`包組中)。
+	Debian系發行版中使用Qt5操作MySQL數據庫需要安裝`libqt5sql-mysql`包。
 
 - `C API`
 
-	`Debian/RedHat`系發行版中使用`C API`連接mysql數據庫時需要安裝額外的開發頭文件包：
+	Debian/RedHat系發行版中使用`C API`連接mysql數據庫時需要安裝額外的開發頭文件包：
 
 	```
 	# apt-get install libmysqlclient-devel //大便系
 	# yum/dnf install mysql-devel //紅帽系
 	```
 
-	`ArchLinux`中不需要，ArchLinux中的`mysql`包已經包含了開發頭文件。
+	ArchLinux中不需要，ArchLinux中的`mysql`包已經包含了開發頭文件。
 
 
 
@@ -391,7 +391,7 @@ mysql> show grants for [用戶名]@[主機地址]; //顯示指定用戶的權限
 - `truncate table [表名];` 清除指定表格的內容(速度快，但不可恢復)
 - `delete from [表名];` 刪除指定表格的內容(速度慢，但可以恢復)
 
-## 常用的SQL語句
+## 基本SQL語句
 - `insert into [表名] ([列名1], [列名2], ....) values([值1], [值2], ....);` 增
 - `delete from [表名] where [限制條件];` 刪
 - `update [表名] set [列名] = '[內容]' where [列名] = '[內容]';` 改
@@ -481,7 +481,7 @@ reference_option:
 
 移除外鍵在`ALTER TABLE`中使用`DROP FOREIGN KEY fk_symbol`子句。
 
-主表字段需要與從表的字段類型相同或兼容。
+主表字段需要與從表的字段類型相同(範圍不同的類型如`INT`/`BIGINT`會造成外鍵創建失敗)。
 約束名稱可以不指定，但若顯式指定約束名稱，則需要保證同一個數據庫內的約束名稱**唯一**，
 約束名稱重複時會造成以下錯誤：
 
@@ -502,7 +502,7 @@ Error Code: 1215. Cannot add the foreign key constraint
 
 
 
-# Row Formats
+# Row Formats (行格式)
 表格的行格式決定了行的物理排列，會影響查詢、DML操作的性能。
 隨著多個行存入相同的磁盤頁，查詢、索引查找等操作執行速度加快，並在寫出更新內容時消耗更少的緩存和IO。
 
@@ -778,10 +778,13 @@ int mysql_query(MYSQL *mysql, const char *q);
 int mysql_real_query(MYSQL *mysql, const char *q, unsigned long length);
 ```
 
-兩個函數的區別如下：
+兩函數區別如下：
 
 - 一般性的SQL語句可以直接使用`mysql_query()`執行，`q`參數爲需要執行的SQL語句字符數組指針。
-- `mysql_real_query()`相比`mysql_query()`而言效率更高，因爲其內部實現不調用`strlen()`來獲取字符數組長度。此外，如果執行的sql語句中包含有二進制內容，則一定需要使用`mysql_real_query()`，因爲`mysql_query()`會調用`strlen()`來獲取字符數組長度，而`strlen()`判斷字符數組結束是以`\0`作爲標誌的，但對於二進制數據而言，數據中的`\0`可能是有效值，因而使用`mysql_query()`可能會造成對數據長度的誤判使得程序未按預期執行。
+- `mysql_real_query()`相比`mysql_query()`而言效率更高，因爲其內部實現不調用`strlen()`來獲取字符數組長度。
+此外，如果執行的sql語句中包含有二進制內容，則一定需要使用`mysql_real_query()`，
+因爲`mysql_query()`會調用`strlen()`來獲取字符數組長度，而`strlen()`判斷字符數組結束是以`\0`作爲標誌的，
+但對於二進制數據而言，數據中的`\0`可能是有效值，因而使用`mysql_query()`可能會造成對數據長度的誤判使得程序未按預期執行。
 
 函數執行成功返回`0`，執行失敗時返回錯誤代碼。
 
