@@ -17,6 +17,8 @@
 	- [Shuffle 操作](#shuffle-操作)
 		- [背景知识](#背景知识)
 		- [性能影响](#性能影响)
+- [Job Scheduling (作业调度)](#job-scheduling-作业调度)
+	- [Scheduling Within an Application (应用内调度)](#scheduling-within-an-application-应用内调度)
 	- [作业调度源码分析](#作业调度源码分析)
 		- [Job Sumbit](#job-sumbit)
 		- [Stage Submit](#stage-submit)
@@ -61,19 +63,19 @@ Spark同时提供了一套高级工具集包括`Spark SQL`(针对SQL和结构化
 在[Spark官网](http://spark.apache.org/downloads.html)下载Saprk软件包。
 下载Spark时需要注意Spark版本与Hadoop、Scala版本的对应关系：
 
-- `Spark 2.0`之后官网提供的软件包默认基于`Scala 2.11`构建。
-- Spark运行需要的Hadoop最低版本通常会写入压缩包名称中，如`spark-2.3.0-bin-hadoop2.7.tgz`最低需要`Hadoop 2.7`。
+- `Spark 2.0`之后官网提供的软件包默认基于`Scala 2.11`构建，`Spark 2.4.2`之後開始基於`Scala 2.12`構建。
+- Spark官方提供的預編譯包中包括了集成Hadoop的版本(如`spark-2.4.4-bin-hadoop2.7.tgz`)，或未集成Hadoop的版本(`spark-2.4.4-bin-without-hadoop.tgz`)，未集成Hadoop的版本需要自行配置Hadoop路徑。
 
 Scala版本兼容性：
 
 - 大版本兼容性
 
-	Scala编译器编译出的字节码在不同大版本之间**不具有**二进制兼容性，如`2.10`/`2.11`/`2.12`等。<br>
+	Scala编译器编译出的字节码在不同大版本之间**不具有**二进制兼容性，如`2.10`/`2.11`/`2.12`等。
 	在添加`Spark API`依赖时需要根据集群运行的Spark版本使用正确的Scala编译器版本。
 
 - 小版本兼容性
 
-	Scala编译器在小版本之前二进制兼容，如`2.12.1`/`2.12.2`等。<br>
+	Scala编译器在小版本之前二进制兼容，如`2.12.1`/`2.12.2`等。
 	在小版本内切换编译器版本无需重新编译生成字节码。
 
 ## 服务配置
@@ -90,6 +92,12 @@ export SPARK_WORKER_CORES=4 # 指定 Worker 节点使用的核心数
 export SPARK_WORKER_MEMORY=16g # 指定 Worker 节点能够最大分配给 Executors 的内存大小
 export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop # 指定 Hadoop 集群的配置路径
 export SPARK_CLASSPATH=$SPARK_HOME/jars:$HBASE_HOME/lib # 指定 Spark 環境的CLASSPATH
+```
+
+若部署的是未集成Hadoop的Spark，需要額外設置`SPARK_DIST_CLASSPATH`環境變量指定Hadoop庫的路徑：
+
+```sh
+export SPARK_DIST_CLASSPATH=$(hadoop classpath)
 ```
 
 之后创建`$SPARK_HOME/conf/slaves`文件，将需要做为Worker的主机名添加到改文件中：
@@ -431,6 +439,29 @@ Shuffle是高开销(expensive)的操作，因为它涉及磁盘IO、网络IO、�
 这样的命名来自`Hadoop MapReudce`，与Spark中的`map()`、`reduce()`方法不直接相关。
 
 
+
+# Job Scheduling (作业调度)
+Spark拥有一些在多个计算间调度资源的机制。
+首先，如前文描述的[**集群模型**](#cluster-mode-集群模型)，
+每个Spark应用(SparkContext的实例)运行在执行器进程之外。Spark运行的集群管理器提供了应用间的调度机制。
+其次，在每个Spark应用内部，多个Job(作业，由Action算子产生)在被提交到不同线程时可以并发执行。
+Spark提供了公平调度器(Fair Scheduler)在每个SparkContext内部调度资源。
+
+## Scheduling Within an Application (应用内调度)
+默认配置下，Spark调度器以`FIFO`(first in first out，先进先出)模式执行作业。
+每个作业会被划分成多个stage，首个作业会优先获取到所有可用资源，之后才轮到第二个作业。
+若首个作业不需要整个集群，则后续的作业可以立即开始执行，但若作业队列较大，后续的作业会有显著的延迟。
+
+从`Spark 0.8`开始，可以将作业间配置为公平调度。在公平调度模式下，Spark将不同作业下的任务以循环的方式分配，
+因而所有的作业能够获得大致相等地共享集群资源。这意味着小型作业在大型作业执行期间提交依然能够立即开始获取资源，
+而不必等待大型作业完成。公平调度模式最适用于多用户配置。
+
+开启公平调度，仅需要在SparkContext中设置`spark.scheduler.mode`属性为`FAIR`：
+
+```scala
+val sparkContext = ...
+sparkContext.set("spark.scheduler.mode", "FAIR")
+```
 
 ## 作业调度源码分析
 Spark在提交作业时会为RDD相关操作生成DAG(Directed Acyclic Graph，有向无环图)。
