@@ -451,3 +451,21 @@ JDBC Source Connector提供了多种数据源导入/监控模式：
 | incrementing | 严格通过自增列来检测新增行(仅检测表格中的新增行，不会检测已存在的行的修改与删除) |
 | timestamp | 通过时间戳来检测新增与变化的行 |
 | timestamp + incrementing | 使用时间戳检测新增与修改的行，并通过自增列为更新提供全局唯一ID，每行能被分配一个唯一的流偏移量 |
+
+### 堆溢出問題
+當需要監聽的目標表格過大時，使用默認JVM配置啟動的Connector可能會產生`OutOfMemoryError`，
+出現內存溢出問題後，數據監控線程會退出，之後不再能正常監聽數據表的變化數據。
+
+默認配置下，Connector進程僅分配256MB內存，可通過java指令的`-Xms/-Xmx`參數顯式指定進程分配的內存。
+查看Confluent軟件包提供的connect-standalone工具，
+調用的`kafka-run-class`工具腳本會嘗試讀取環境變量`KAFKA_HEAP_OPTS`中的值來設定額外的內存參數，
+未設置該環境變量時，默認僅設置`256MB`的最大內存：
+
+```sh
+...
+# Memory options
+if [ -z "$KAFKA_HEAP_OPTS" ]; then
+  KAFKA_HEAP_OPTS="-Xmx256M"
+fi
+...
+```
