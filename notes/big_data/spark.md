@@ -19,6 +19,7 @@
 		- [性能影响](#性能影响)
 - [Job Scheduling (作业调度)](#job-scheduling-作业调度)
 	- [Scheduling Within an Application (应用内调度)](#scheduling-within-an-application-应用内调度)
+		- [Fair Scheduler Pools (公平调度池)](#fair-scheduler-pools-公平调度池)
 	- [作业调度源码分析](#作业调度源码分析)
 		- [Job Sumbit](#job-sumbit)
 		- [Stage Submit](#stage-submit)
@@ -456,11 +457,38 @@ Spark提供了公平调度器(Fair Scheduler)在每个SparkContext内部调度�
 因而所有的作业能够获得大致相等地共享集群资源。这意味着小型作业在大型作业执行期间提交依然能够立即开始获取资源，
 而不必等待大型作业完成。公平调度模式最适用于多用户配置。
 
+應用內調度的詳細內容可查看[**官方文檔**](https://spark.apache.org/docs/latest/job-scheduling.html#scheduling-within-an-application)。
+
 开启公平调度，仅需要在SparkContext中设置`spark.scheduler.mode`属性为`FAIR`：
 
 ```scala
 val sparkContext = ...
 sparkContext.set("spark.scheduler.mode", "FAIR")
+```
+
+### Fair Scheduler Pools (公平调度池)
+公平调度模式下，支持将作业分组到不同pools(调度池)中，并为每个pool设置不同的调度选项(如weight，权重)。
+此模式可用於為某些更重要的作業創建「高優先級」的調度池，
+例如，將作業根據用戶分組，無視並行作業數目給予用戶相等的共享資源，而非給予作業本身相等的共享資源。
+公平調度池模型近似於[`Hadoop Fair Scheduler(Hadoop公平調度器)`](http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/FairScheduler.html)。
+
+默認配置下，新提交的作業將會添加到一個默認的調度池中。
+用戶可通過在SparkContext中設置本地參數(local property)`spark.scheduler.pool`來控制提交的作業所屬的調度池：
+
+```scala
+val sparkContext = ...
+// Assuming sc is your SparkContext variable
+sparkContext.setLocalProperty("spark.scheduler.pool", "user_custom_pool")
+```
+
+在設置本地參數後，所有由該線程提交的作業(由該線程的方法調用如`RDD.save()/count()/collect()`等)將會使用設定的線程池名稱。
+此本地配置使得一個線程可簡單地代表同一個用戶執行多個作業。
+
+清除線程所屬的調度池僅需要在對應線程將調度池配置項置為null即可：
+
+```scala
+val sparkContext = ...
+sparkContext.setLocalProperty("spark.scheduler.pool", null)
 ```
 
 ## 作业调度源码分析
