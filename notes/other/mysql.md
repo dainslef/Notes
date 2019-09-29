@@ -24,6 +24,9 @@
 	- [複製表格](#複製表格)
 	- [主鍵自增](#主鍵自增)
 	- [外鍵約束](#外鍵約束)
+- [表格優化與修復](#表格優化與修復)
+	- [optimize](#optimize)
+	- [repair](#repair)
 - [Row Formats (行格式)](#row-formats-行格式)
 	- [REDUNDANT Row Format](#redundant-row-format)
 	- [COMPACT Row Format](#compact-row-format)
@@ -499,6 +502,26 @@ Error Code: 1215. Cannot add the foreign key constraint
 ```
 
 可使用`SHOW ENGINE INNODB STATUS`語句輸出最近的SQL執行的詳細狀態，查閱具體的錯誤信息。
+
+
+
+# 表格優化與修復
+使用`optimize/repair`指令對表格進行優化與修復：
+
+- `optimize table [表名];` 優化表(整理磁盤排布，優化表格性能，釋放額外佔用的空間)
+- `repair table [表名];` 修復表(用於表格原數據損壞的情形)
+
+## optimize
+使用`delete`語句刪除數據時，表格佔用的磁盤空間並未立即回收，需要使用`optimize`指令對表格進行優化，
+執行optimize後磁盤上對應表格的數據會被重排，索引會被優化，佔用的多餘數據/索引空間會被回收，。
+
+對於數據量較大的表，通常需要定期執行optimize指令以保證表格處於最佳狀態，擁有最好的性能。
+若表格長時間未執行過optimize指令，則優化過程會耗時較長，根據表格數據量大小，會佔用屬分鐘乃至數小時。
+執行優化操作期間表格會被加鎖，因而需要避免在業務高峰期進行表格優化操作。
+
+## repair
+當部分操作失敗(如創建索引、優化表格等)、磁盤數據表文件被意外修改時，可能會造成表格元數據異常，導致查詢等操作抱錯。
+此時可嘗試使用`repair`指令對表格進行修復，repair指令會嘗試修復表格，重建元數據信息。
 
 
 
