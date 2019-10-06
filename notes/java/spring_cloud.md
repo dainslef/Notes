@@ -28,6 +28,8 @@
 	- [應用結構](#應用結構)
 	- [Sink & Source](#sink--source)
 	- [自定義管道](#自定義管道)
+	- [MessageChannel](#messagechannel)
+	- [消息結構](#消息結構)
 
 <!-- /TOC -->
 
@@ -767,3 +769,82 @@ interface CustomSinkSource {
 
 }
 ```
+
+## MessageChannel
+管道實例對應的類型為`org.springframework.messaging.MessageChannel`，還可以直接注入管道實例進行消息發送：
+
+```kt
+import org.springframework.messaging.support.GenericMessage
+import org.springframework.cloud.stream.annotation.EnableBinding
+import org.springframework.cloud.stream.annotation.StreamListener
+import org.springframework.cloud.stream.messaging.Source
+import org.springframework.messaging.MessageChannel
+
+import javax.annotation.Resource;
+
+@EnableBinding(Source::class)
+class MessageReceiver {
+
+    @Resource(name = Source.OUTPUT)
+    private lateinit var output: MessageChannel
+
+    fun sendMessage(message: String) {
+        output.send(GenericMessage(message))
+    }
+
+}
+```
+
+## 消息結構
+Spring Cloud Stream中消息類型的頂層接口為`org.springframework.messaging.Message<T>`，
+定義了一條消息包含的基本内容，如下所示：
+
+> 源碼摘取自 Spring Cloud Stream 2.12 RELEASE
+>
+> ```java
+> public interface Message<T> {
+>    T getPayload();
+>    MessageHeaders getHeaders();
+> }
+> ```
+
+實際常用的消息類型為實現了`Message<T>`接口的`org.springframework.messaging.support.GenericMessage`。
+使用GenericMessage類型，會自動為消息生成id、timestamp等header，同時還可在消息構造函數自行添加header。
+
+一條消息包含主要内容`payload`和消息的標識`headers`，headers中的標志可用來判斷消息類型，
+在`@StreamListener`注解的`condition`參數中添加判斷條件，條件使用**SPeL表達式**(`SPeL expression`)語法。
+
+早期版本的Spring Cloud Stream中condition可以訪問payload的實際結構，
+但現在的實現中無論payload的content-type實際何種類型，均采用`byte[]`進行傳輸，
+并且在condition判斷階段不會將payload的内容轉化為實際類型，因而，不再能夠在condition中直接訪問payload的實際結構。
+
+參考[官方文檔](`https://docs.spring.io/spring-cloud-stream/docs/current/reference/htmlsingle/#_using_streamlistener_for_content_based_routing`)中的描述：
+
+> ### Content Type Negotiation in the Context of condition
+>
+> It is important to understand some of the mechanics behind content-based routing using the condition argument of @StreamListener, especially in the context of the type of the message as a whole. It may also help if you familiarize yourself with the Content Type Negotiation before you proceed.
+>
+> Consider the following scenario:
+>
+> ```java
+> @EnableBinding(Sink.class)
+> @EnableAutoConfiguration
+> public static class CatsAndDogs {
+>
+>     @StreamListener(target = Sink.INPUT, condition = "payload.class.simpleName=='Dog'")
+>     public void bark(Dog dog) {
+>        // handle the message
+>     }
+>
+>     @StreamListener(target = Sink.INPUT, condition = "payload.class.simpleName=='Cat'")
+>     public void purr(Cat cat) {
+>        // handle the message
+>     }
+> }
+> ```
+>
+> The preceding code is perfectly valid. It compiles and deploys without any issues, yet it never produces the result you expect.
+>
+> That is because you are testing something that does not yet exist in a state you expect. That is becouse the payload of the message is not yet converted from the wire format (byte[]) to the desired type. In other words, it has not yet gone through the type conversion process described in the Content Type Negotiation.
+>
+> So, unless you use a SPeL expression that evaluates raw data (for example, the value of the first byte in the byte array), use message header-based expressions (such as condition = "headers['type']=='dog'").
