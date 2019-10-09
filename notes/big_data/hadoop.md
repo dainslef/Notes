@@ -100,20 +100,20 @@ PATH+=:$HADOOP_HOME/sbin # 將Hadoop相關工具加入PATH環境變量
 
 ## 路徑規劃
 Hadoop提供的HDFS等組件需要佔用大量的磁盤空間，需要對磁盤分區做出合理規劃。
-以`/home/data/hadoop`路徑爲例，執行指令，在路徑下創建以下子路徑：
+以`/root/data/hadoop`路徑爲例，執行指令，在路徑下創建以下子路徑：
 
 ```c
 // 創建緩存路徑
-# mkdir -p /home/data/hadoop/tmp
+# mkdir -p /root/data/hadoop/tmp
 
 // 創建 DataNode 數據存儲路徑
-# mkdir -p /home/data/hadoop/hdfs/data
+# mkdir -p /root/data/hadoop/hdfs/data
 
 // 創建 NameNode 數據存儲路徑
-# mkdir -p /home/data/hadoop/hdfs/name
+# mkdir -p /root/data/hadoop/hdfs/name
 
 // 創建 JournalNode 數據存儲路徑
-# mkdir -p /home/data/hadoop/hdfs/journal
+# mkdir -p /root/data/hadoop/hdfs/journal
 ```
 
 ## 服務配置
@@ -145,7 +145,7 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 		-->
 		<property>
 			<name>hadoop.tmp.dir</name>
-			<value>/home/data/hadoop/tmp</value>
+			<value>/root/data/hadoop/hadoop-temp</value>
 		</property>
 
 		<!-- 指定 Zookeeper 集羣訪問地址 -->
@@ -231,19 +231,19 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 		<!-- 指定 NameNode 在本地磁盤存放數據的位置(可選) -->
 		<property>
 			<name>dfs.namenode.name.dir</name>
-			<value>/home/data/hadoop/hdfs/name</value>
+			<value>/root/data/hadoop/hdfs/name</value>
 		</property>
 
 		<!-- 指定 DataNode 在本地磁盤存放數據的位置(可選) -->
 		<property>
 			<name>dfs.namenode.data.dir</name>
-			<value>/home/data/hadoop/hdfs/data</value>
+			<value>/root/data/hadoop/hdfs/data</value>
 		</property>
 
 		<!-- 指定 JournalNode 在本地磁盤存放數據的位置(可選) -->
 		<property>
 			<name>dfs.journalnode.edits.dir</name>
-			<value>/home/data/hadoop/hdfs/journal</value>
+			<value>/root/data/hadoop/hdfs/journal</value>
 		</property>
 
 		<!-- 開啓 NameNode 失敗自動切換(HA，單NameNode時此配置無效) -->
@@ -404,7 +404,7 @@ HBase配置文件位於`$HBASE_HOME/conf`路徑下，編輯`$HBASE_HOME/conf/hba
 	-->
 	<property>
 		<name>hbase.tmp.dir</name>
-		<value>/home/data/hadoop/hbase-tmp</value>
+		<value>/root/data/hadoop/hbase-temp</value>
 	</property>
 
 	<!-- 指定 HBase 的數據存儲路徑 -->
@@ -430,7 +430,7 @@ HBase配置文件位於`$HBASE_HOME/conf`路徑下，編輯`$HBASE_HOME/conf/hba
 
 編輯`$HBASE_HOME/conf/regionservers`文件，將需要啟動`HRegionServer`服務的主機添加到其中。
 
-啓動/關閉HBase服務：
+在需要作為HBase Master的節點上啓動/關閉HBase服務：
 
 ```c
 // 啓動 HBase 服務
@@ -439,6 +439,10 @@ $ start-hbase.sh
 // 關閉 HBase 服務
 $ stop-hbase.sh
 ```
+
+開啟HBase服務後，作為Master節點的機器中會存在`HMaster`進程，作為RegionServer節點的機器會存在`HRegionServer`進程。
+若需要啟用HA機制，則應創建`$HBASE_HOME/conf/backup-masters`文件，將需要作為備用節點的主機添加到其中。
+啟動主服務後，對應備用主機會啟動備用HMaster進程。
 
 HBase同樣提供了Web頁面用於查看服務狀態，默認配置下，Web頁面端口爲`16010`。
 
@@ -995,7 +999,7 @@ namenode啓動失敗，需要重新格式化，保證namenode的ID一致性。
 執行`hdfs namenode -format`指令時，集羣未啓動，需要在集羣已啓動的情況下格式化NameNode。
 
 解決方案：<br>
-啓動集羣后再格式化NameNode。
+啓動集羣後再格式化NameNode。
 
 ## java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx
 問題說明：<br>
