@@ -20,6 +20,8 @@
 - [Job Scheduling (作业调度)](#job-scheduling-作业调度)
 	- [Scheduling Within an Application (应用内调度)](#scheduling-within-an-application-应用内调度)
 		- [Fair Scheduler Pools (公平调度池)](#fair-scheduler-pools-公平调度池)
+		- [調度池默認行為](#調度池默認行為)
+		- [配置調度池屬性](#配置調度池屬性)
 	- [作业调度源码分析](#作业调度源码分析)
 		- [Job Sumbit](#job-sumbit)
 		- [Stage Submit](#stage-submit)
@@ -477,7 +479,6 @@ sparkContext.set("spark.scheduler.mode", "FAIR")
 
 ```scala
 val sparkContext = ...
-// Assuming sc is your SparkContext variable
 sparkContext.setLocalProperty("spark.scheduler.pool", "user_custom_pool")
 ```
 
@@ -490,6 +491,32 @@ sparkContext.setLocalProperty("spark.scheduler.pool", "user_custom_pool")
 val sparkContext = ...
 sparkContext.setLocalProperty("spark.scheduler.pool", null)
 ```
+
+### 調度池默認行為
+默認配置下，每個調度池會從集群中獲得等價的共享資源(並且等價地共享給在默認調度池中的每個作業)，
+但是在每個調度池內部，作業以FIFO次序執行。
+
+例如，為每個用戶創建調度池意味著每個用戶將會從集群中獲得等量的資源，並且每個用戶的查詢會按照次序進行，
+而不是後進行查詢的用戶從先執行查詢的用戶中獲取資源。
+
+### 配置調度池屬性
+調度池的屬性可通過配置文件修改，每個調度池支持三種屬性：
+
+- `schedulingMode` (調度模式)
+
+	可設置為`FIFO`/`FAIR`，用於控制調度池中的作業是順序排隊還是公平地共享調度池的資源。
+
+- `weight` (權重)
+
+	用於設置每個調度池從集群中獲取到的資源的相對值。默認所有調度池的權重均為`1`。
+	例如，給特定的調度池權重設置為2，則該調度池會獲得兩倍相當於其它調度池的資源。
+
+- `minShare` (最小CPU核心數)
+
+	除了weight(總體權重)，每個調度池還可以配置給予的最小資源量(CPU核心數目)。
+	公平調度器總是先嘗試獲取所有調度池的最小資源配置，之後再根據權重分配額外的資源。
+	minShare參數是可以快讀確保特定調度池能獲取確定數目的資源而不給集群的其它部分高優先級。
+	默認該參數的值為`0`。
 
 ## 作业调度源码分析
 Spark在提交作业时会为RDD相关操作生成DAG(Directed Acyclic Graph，有向无环图)。
