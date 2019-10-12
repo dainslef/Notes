@@ -22,6 +22,7 @@
 		- [Fair Scheduler Pools (公平调度池)](#fair-scheduler-pools-公平调度池)
 		- [調度池默認行為](#調度池默認行為)
 		- [配置調度池屬性](#配置調度池屬性)
+		- [在JDBC連接中設置調度](#在jdbc連接中設置調度)
 	- [作业调度源码分析](#作业调度源码分析)
 		- [Job Sumbit](#job-sumbit)
 		- [Stage Submit](#stage-submit)
@@ -517,6 +518,40 @@ sparkContext.setLocalProperty("spark.scheduler.pool", null)
 	公平調度器總是先嘗試獲取所有調度池的最小資源配置，之後再根據權重分配額外的資源。
 	minShare參數是可以快讀確保特定調度池能獲取確定數目的資源而不給集群的其它部分高優先級。
 	默認該參數的值為`0`。
+
+調度池配置可由XML文件進行設置，類似`conf/fairscheduler.xml.template`，
+將名為`fairscheduler.xml`的文件加入CLASSPATH，或通過`spark.scheduler.allocation.file`配置項顯式指定：
+
+```scala
+val sparkConf = ...
+sparkConf.set("spark.scheduler.allocation.file", "/path/to/file")
+```
+
+調度池配置文件結構使用`<pool/>`節點來描述每個調度池，在pool節點內部添加其它屬性。
+文件結構示例：
+
+```xml
+<?xml version="1.0"?>
+<allocations>
+  <pool name="user_custom_pool1">
+    <schedulingMode>FAIR</schedulingMode>
+    <weight>1</weight>
+    <minShare>2</minShare>
+  </pool>
+  <pool name="user_custom_pool2">
+    <schedulingMode>FIFO</schedulingMode>
+    <weight>2</weight>
+    <minShare>3</minShare>
+  </pool>
+</allocations>
+```
+
+### 在JDBC連接中設置調度
+在JDBC客戶端會話中設置公平調度池，可設置`spark.sql.thriftserver.scheduler.pool`配置項：
+
+```sql
+SET spark.sql.thriftserver.scheduler.pool=accounting;
+```
 
 ## 作业调度源码分析
 Spark在提交作业时会为RDD相关操作生成DAG(Directed Acyclic Graph，有向无环图)。
