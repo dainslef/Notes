@@ -47,6 +47,8 @@
 	- [處理查詢結果](#處理查詢結果)
 	- [切換當前數據庫](#切換當前數據庫)
 	- [關閉數據庫連接](#關閉數據庫連接)
+- [問題記錄](#問題記錄)
+	- [MySQL error: sql_mode=only_full_group_by](#mysql-error-sql_modeonly_full_group_by)
 
 <!-- /TOC -->
 
@@ -847,3 +849,37 @@ void mysql_close(MYSQL *sock);
 
 - 如果傳入的參數是指針，則指針所指向的MYSQL結構體內存區域會被釋放掉。
 - 立即訪問執行`mysql_close()`之後的MYSQL指針會報錯(野指針)，如果在關閉連接之後需要重新啓用連接，需要重新執行初始化操作`mysql_init()`。
+
+
+
+# 問題記錄
+記錄MySQL在使用、配置中遇到的問題。
+
+## MySQL error: sql_mode=only_full_group_by
+`MySQL 5.7.5`開始默認啟用`only_full_group_by`特性，select的列需要包含在group by子句中，否則會出現類似的錯誤信息：
+
+```
+Expression #6 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'Xxx.xxx' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+```
+
+詳細可參考[MySQL官方文檔](https://dev.mysql.com/doc/refman/5.7/en/group-by-handling.html)中對應章節。
+
+以`MySQL 8.0.15`為例，在Shell中查看當前的sqlmode：
+
+```
+mysql> select @@sql_mode;
++-----------------------------------------------------------------------------------------------------------------------+
+| @@sql_mode                                                                                                            |
++-----------------------------------------------------------------------------------------------------------------------+
+| ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION |
++-----------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+```
+
+可以看到，輸出的模式信息中包含`ONLY_FULL_GROUP_BY`，說明啟用了only_full_group_by特性。
+關閉該模式：
+
+```
+mysql> SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+Query OK, 0 rows affected (0.00 sec)
+```
