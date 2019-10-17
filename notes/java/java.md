@@ -19,7 +19,9 @@
 - [淺複製與深複製](#淺複製與深複製)
 	- [淺複製](#淺複製)
 	- [深複製](#深複製)
-- [泛型方法](#泛型方法)
+- [泛型](#泛型)
+	- [類型擦除](#類型擦除)
+	- [泛型方法](#泛型方法)
 - [Nested Classes (嵌套類)](#nested-classes-嵌套類)
 - [併發編程](#併發編程)
 	- [Thread / Runnable](#thread--runnable)
@@ -653,7 +655,7 @@ class TestClone implements Cloneable {
 	public TestClone clone() {
 		TestClone clone = null;
 		try {
-			clone = (TestClone)super.clone();
+			clone = (TestClone) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -698,7 +700,7 @@ class TestClone implements Cloneable {
 	public TestClone clone() {
 		TestClone clone = null;
 		try {
-			clone = (TestClone)super.clone();
+			clone = (TestClone) super.clone();
 			clone.str = new StringBuffer(str); //構建新的StringBuffer對象
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
@@ -716,7 +718,23 @@ class TestClone implements Cloneable {
 
 
 
-# 泛型方法
+# 泛型
+`Java 1.5`開始引入了汎型機制，定義類型時可為類型添加汎型參數，
+擁有汎型參數的類型在初始化時除了提供常規的構造器參數外還需要確定汎型類型。
+
+## 類型擦除
+Java語言爲了保證Java Runtime的前向兼容性，采用了類型擦除的方式實現了汎型功能，
+Java中的泛型與.Net提供的汎型以及C++的Template機制有本質區別，編譯器不會為使用不同參數汎型類生成不同的代碼。
+
+在編譯成字節碼后汎型會被直接擦除，變爲所有類型的基礎類型`java.lang.Object`類型。
+如`List<String>`在運行時汎型類型擦除后會變爲`List<Object>`，等價於Java 1.5之前的無汎型的List。
+
+類型擦除機制實現的泛型導致JVM在運行期間並不能僅通過泛型參數得到該泛型參數對應的類型信息(例如不能憑藉泛型參數構建對應類型的實例，即無法`new T(...)`)，額外的泛型參數信息需要顯式地通過參數傳入(`Class<T>`類型)。
+其它基於JVM的靜態類型語言針對Java泛型機制的缺陷，都給出了對應的解決方案，如Scala的`implicit parameters + TypeTag`、Kotlin的`reified`。
+
+基於類型擦除機制實現的泛型還一定程度上限制了其它JVM語言的功能，如Scala的`Pattern Match`特性(對於類型相同，僅有泛型參數不同的類型不能做到正確匹配)。
+
+## 泛型方法
 Java中的泛型同樣支持獨立於類的泛型方法。
 與`C++`、`C#`等語言不同，Java在泛型方法中的類型聲明放在方法的修飾符(`public`、`static`、`final`、`abstract`等)之後，返回值聲明之前。
 
@@ -1239,7 +1257,7 @@ public class Main {
 		ExecutorService service = Executors.newCachedThreadPool();
 
 		// 使用ExecutorService構建CompletionService實例
-		ExecutorCompletionService<XXX> completionService = new ExecutorCompletionService(service);
+		CompletionService<XXX> completionService = new ExecutorCompletionService(service);
 
 		// 提交任務
 		completionService.submit(callable1);
@@ -2121,7 +2139,7 @@ class Test implements Test1, Test2 {
 }
 ```
 
-如果你想在重寫的方法中直接使用原先接口中的某個默認方法實現，可以使用`super`關鍵字。
+若需要在重寫的方法中直接使用原接口中某個默認方法的實現，可以使用`父接口名稱.super`關鍵字。
 示例：
 
 ```java
@@ -2446,7 +2464,7 @@ while (resultSet.next()) { // 使用 next() 方法將當前遊標移動到下一
 String connectUrl = "jdbc:Access:///***.accdb";
 
 // 使用絕對路徑
-//String connectUrl = "jdbc:Access:///c:/a/b/***.accdb";
+// String connectUrl = "jdbc:Access:///c:/a/b/***.accdb";
 
 // 註冊驅動
 Class.forName("com.hxtt.sql.access.AccessDriver");
