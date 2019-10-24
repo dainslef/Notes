@@ -49,6 +49,7 @@
 	- [關閉數據庫連接](#關閉數據庫連接)
 - [問題記錄](#問題記錄)
 	- [MySQL error: sql_mode=only_full_group_by](#mysql-error-sql_modeonly_full_group_by)
+	- [Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column To disable safe mode, toggle the option in Preferences -> SQL Queries and reconnect.](#error-code-1175-you-are-using-safe-update-mode-and-you-tried-to-update-a-table-without-a-where-that-uses-a-key-column-to-disable-safe-mode-toggle-the-option-in-preferences---sql-queries-and-reconnect)
 
 <!-- /TOC -->
 
@@ -882,4 +883,19 @@ mysql> select @@sql_mode;
 ```
 mysql> SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 Query OK, 0 rows affected (0.00 sec)
+```
+
+## Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column To disable safe mode, toggle the option in Preferences -> SQL Queries and reconnect.
+若MySQL的會話中開啓了`SAFE MODE`，則可在會話中手動設置`SQL_SAFE_UPDATES`屬性關閉該模式：
+
+```sql
+> SET SQL_SAFE_UPDATES = 0;
+```
+
+添加global關鍵字全局關閉安全模式(通常不推薦)。
+
+若需要恢復安全模式，則可將該屬性置為1：
+
+```sql
+> SET SQL_SAFE_UPDATES = 1;
 ```
