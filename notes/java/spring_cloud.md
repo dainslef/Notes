@@ -30,6 +30,8 @@
 	- [自定義管道](#自定義管道)
 	- [MessageChannel](#messagechannel)
 	- [消息結構](#消息結構)
+- [Spring Boot Admin](#spring-boot-admin)
+	- [Spring Boot Admin Server](#spring-boot-admin-server)
 
 <!-- /TOC -->
 
@@ -848,3 +850,45 @@ Spring Cloud Stream中消息類型的頂層接口為`org.springframework.messagi
 > That is because you are testing something that does not yet exist in a state you expect. That is becouse the payload of the message is not yet converted from the wire format (byte[]) to the desired type. In other words, it has not yet gone through the type conversion process described in the Content Type Negotiation.
 >
 > So, unless you use a SPeL expression that evaluates raw data (for example, the value of the first byte in the byte array), use message header-based expressions (such as condition = "headers['type']=='dog'").
+
+
+
+# Spring Boot Admin
+`Spring Boot Admin`是用於管理和監測Spring Boot應用的項目，應用可通過`Spring Boot Admin Client (HTTP)`或`Spring Cloud (如Eureka、Consul)`進行注冊，服務端基於`Spring Boot Actuator`端點(endpoints)采集應用的各類信息，提供Vue.js UI進行展示。
+詳細介紹[官方文檔](http://codecentric.github.io/spring-boot-admin/current)。
+
+該項目由`codecentric`社区提供，并非Spring官方项目，详见[GitHub主页](https://github.com/codecentric/spring-boot-admin)。
+
+## Spring Boot Admin Server
+配置服務端，添加依賴：
+
+```xml
+<dependency>
+    <groupId>de.codecentric</groupId>
+    <artifactId>spring-boot-admin-starter-server</artifactId>
+    <version>2.1.5</version>
+</dependency>
+```
+
+在配置類中使用注解`@EnableAdminServer`即可啓用Admin Server：
+
+```kt
+import org.springframework.boot.SpringApplication
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import de.codecentric.boot.admin.server.config.EnableAdminServer
+
+@SpringBootApplication
+@EnableAdminServer
+class ServerConfig
+
+fun main(args: Array<String>) {
+    SpringApplication.run(ServerConfig::class.java, *args)
+}
+```
+
+默認配置下，應用的根URL(`/`)會被映射到Spring Boot Admin提供的應用管理界面。
+儅與Eureka Server進行整合時會產生衝突(Eureka Server默認的URL也是根路徑)，可通過配置`application.yaml`設定URL前綴：
+
+```yaml
+spring.boot.admin.context-path: /admin-ui # 以 /admin-ui 作爲管理UI的路徑前綴
+```
