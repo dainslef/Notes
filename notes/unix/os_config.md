@@ -13,12 +13,12 @@
 - [PulseAudio](#pulseaudio)
 - [用戶管理](#用戶管理)
 - [UID/GID/Sticky](#uidgidsticky)
-- [ftp](#ftp)
+- [FTP (File Transfer Protocol)](#ftp-file-transfer-protocol)
 	- [連接服務器](#連接服務器)
 	- [常用指令](#常用指令)
-- [SSH](#ssh)
+- [SSH (Secure Shell)](#ssh-secure-shell)
 	- [遠程登錄](#遠程登錄)
-	- [服務配置](#服務配置)
+	- [SSH 配置](#ssh-配置)
 	- [配置免密登陸](#配置免密登陸)
 - [GNU GRUB](#gnu-grub)
 	- [安裝與配置](#安裝與配置)
@@ -32,7 +32,7 @@
 - [Core Dump (核心轉儲)](#core-dump-核心轉儲)
 - [fdisk](#fdisk)
 - [parted](#parted)
-- [LVM](#lvm)
+- [LVM (Logical Volume Manager)](#lvm-logical-volume-manager)
 	- [基本操作](#基本操作)
 	- [Physical Volume (PV，物理卷)](#physical-volume-pv物理卷)
 	- [Volume Group (VG，卷組)](#volume-group-vg卷組)
@@ -520,7 +520,7 @@ $ chmod 7777 [文件/目錄]
 
 
 
-# ftp
+# FTP (File Transfer Protocol)
 `Windows`系統下提供了`ftp`命令行工具用於訪問`FTP`服務器進行交互。
 
 ## 連接服務器
@@ -581,7 +581,7 @@ ftp>
 
 
 
-# SSH
+# SSH (Secure Shell)
 `SSH`全稱`Secure Shell`，是一種加密的網絡傳輸協議。
 SSH通過在網絡中建立`Secure Channel`(安全通道)實現SSH客戶端與服務端之間的連接。
 
@@ -598,7 +598,7 @@ SSH的主流實現是`OpenSSH`(全稱`OpenBSD Secure Shell`)。
 $ ssh [用戶名]@[主機名/IP]
 ```
 
-## 服務配置
+## SSH 配置
 SSH服務相關配置文件位於`/etc/ssh`路徑下：
 
 - `/etc/ssh/ssh_config` ssh指令使用的配置
@@ -1033,8 +1033,8 @@ parted會話中的基本指令如下：
 
 
 
-# LVM
-`LVM`是`Logical Volume Manager`(邏輯卷管理)的簡寫，是Linux環境下對磁盤分區進行管理的一種機制。
+# LVM (Logical Volume Manager)
+`LVM (Logical Volume Manager)`，邏輯卷管理，是Linux環境下對磁盤分區進行管理的一種機制。
 
 使用LVM能夠將不同的硬盤上的物理卷(`Physical Volume`，簡稱`PV`)加入卷組(`Volume Group`，簡稱`VG`)。
 在卷組中將其劃分爲不同的邏輯卷(`Logical Volume`，簡稱`LV`)，然後在邏輯卷中創建文件系統並進行掛載。
@@ -1058,10 +1058,12 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 
 物理卷相關的操作爲`pvXXX`系列指令：
 
-- `# pvcreate [硬盤路徑/物理分區路徑]` 創建物理卷
-- `# pvremove [硬盤路徑/物理分區路徑]` 移除物理卷
-- `# pvmove [原物理分區路徑] [目標物理分區路徑]` 將原物理卷中的數據轉移到另一物理卷
-- `# pvdisplay` 顯示已創建的物理卷
+```c
+# pvcreate [硬盤路徑/物理分區路徑] // 創建物理卷
+# pvremove [硬盤路徑/物理分區路徑] // 移除物理卷
+# pvmove [原物理分區路徑] [目標物理分區路徑] // 將原物理卷中的數據轉移到另一物理卷
+# pvdisplay // 顯示已創建的物理卷
+```
 
 移除一個物理卷需要先將該物理卷從所屬的卷組中移除。
 移除物理卷前需要保證沒有數據存儲在該物理卷中，若**要被移除的物理卷**中已有數據，
@@ -1072,11 +1074,13 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 
 卷組相關的操作爲`vgXXX`系列指令：
 
-- `# vgcreate [卷組名稱] [物理卷路徑]` 一個卷組至少需要包含一個物理卷，物理卷路徑可爲多個
-- `# vgextend [卷組名稱] [物理卷路徑]` 向指定卷組中添加物理卷
-- `# vgreduce [卷組名稱] [物理卷路徑]` 從指定卷組中刪除物理卷
-- `# vgremove [卷組名稱]` 移除指定卷組
-- `# vgdisplay` 顯示所有卷組
+```c
+# vgcreate [卷組名稱] [物理卷路徑] // 一個卷組至少需要包含一個物理卷，物理卷路徑可爲多個
+# vgextend [卷組名稱] [物理卷路徑] // 向指定卷組中添加物理卷
+# vgreduce [卷組名稱] [物理卷路徑] // 從指定卷組中刪除物理卷
+# vgremove [卷組名稱] // 移除指定卷組
+# vgdisplay // 顯示所有卷組
+```
 
 ## Logical Volume (LV，邏輯卷)
 邏輯卷(`Logical Volume`)是`LVM`中實際用於創建文件系統、掛載的分區。
@@ -1084,12 +1088,14 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 
 邏輯卷相關的操作爲`lvXXX`系列指令：
 
-- `# lvcreate -L [分區大小(xxGB/xxMB/...)] -n [邏輯分區路徑] [卷組名稱]` 創建邏輯卷
-- `# lvresize -L +/-[分區大小(xxGB/xxMB/...)] [邏輯分區路徑]` 在原先邏輯卷大小的基礎上擴充/縮減指定大小
-- `# lvextend -L [分區大小(xxGB/xxMB/...)] [邏輯分區路徑]` 增加邏輯捲到指定大小(分區大小的數值需要大於原先該邏輯分區的大小)
-- `# lvreduce -L [分區大小(xxGB/xxMB/...)] [邏輯分區路徑]` 減小邏輯捲到指定大小(分區大小的數值需要小於原先該邏輯分區的大小)
-- `# lvremove [邏輯分區名稱]` 移除指定邏輯卷
-- `# lvdisplay` 顯示所有邏輯卷
+```c
+# lvcreate -L [分區大小(xxGB/xxMB/...)] -n [邏輯分區路徑] [卷組名稱] // 創建邏輯卷
+# lvresize -L +/-[分區大小(xxGB/xxMB/...)] [邏輯分區路徑] // 在原先邏輯卷大小的基礎上擴充/縮減指定大小
+# lvextend -L [分區大小(xxGB/xxMB/...)] [邏輯分區路徑] // 增加邏輯捲到指定大小(分區大小的數值需要大於原先該邏輯分區的大小)
+# lvreduce -L [分區大小(xxGB/xxMB/...)] [邏輯分區路徑] // 減小邏輯捲到指定大小(分區大小的數值需要小於原先該邏輯分區的大小)
+# lvremove [邏輯分區名稱] // 移除指定邏輯卷
+# lvdisplay // 顯示所有邏輯卷
+```
 
 擴展邏輯卷大小無需卸載、重新掛載文件系統。
 縮減邏輯卷大小需要重先卸載文件系統，縮減空間後重新掛載。
@@ -1101,8 +1107,10 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 
 根據邏輯卷的文件系統類型，調整對應文件系統的大小：
 
-- `# xfs_growfs [邏輯分區路徑]` 擴展`xfs`文件系統的大小
-- `# resize2fs [邏輯分區路徑] [分區大小]` 調整`ext`系列文件系統的大小
+```c
+# xfs_growfs [邏輯分區路徑] // 擴展xfs文件系統的大小
+# resize2fs [邏輯分區路徑] [分區大小] // 調整ext系列文件系統的大小
+```
 
 ## 邏輯卷狀態和塊設備不顯示問題
 使用lvdisplay查看邏輯卷狀態時，若邏輯卷`LV Status`顯示`NOT available`，
