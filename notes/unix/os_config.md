@@ -38,6 +38,9 @@
 	- [Volume Group (VG，卷組)](#volume-group-vg卷組)
 	- [Logical Volume (LV，邏輯卷)](#logical-volume-lv邏輯卷)
 	- [邏輯卷狀態和塊設備不顯示問題](#邏輯卷狀態和塊設備不顯示問題)
+- [NTP (Network Time Protocol)](#ntp-network-time-protocol)
+	- [NTP 服務配置](#ntp-服務配置)
+		- [NTP 客戶端](#ntp-客戶端)
 - [curl](#curl)
 	- [FTP 操作](#ftp-操作)
 - [Suspend 和 Hibernate](#suspend-和-hibernate)
@@ -1125,6 +1128,40 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 
 ```
 # vgmknodes
+```
+
+
+
+# NTP (Network Time Protocol)
+`NTP(Network Time Protocol)`是用於在多台計算機之間同步時鐘信息的網絡協議。
+
+## NTP 服務配置
+配置NTP服務前需要在系統中安裝ntp軟件包，各大Linux發行版的軟件源中均包含了ntp軟件包，
+以ArchLinux為例，安裝ntp：
+
+```
+# pacman -S ntp
+```
+
+NTP配置文件為`/etc/ntp.conf`。
+
+啟動NTP服務：
+
+```
+# systemctl start ntpd
+```
+
+### NTP 客戶端
+將服務器配置為NTP Client，需要在配置中添加同步目標主機。
+添加`server`配置段：
+
+```sh
+...
+# 配置格式 server [版本號].[需要同步的主機地址]
+server time.stdtime.gov.tw prefer # 設置具有更高優先級的主機
+server 0.xxx
+server 1.xxx
+...
 ```
 
 
