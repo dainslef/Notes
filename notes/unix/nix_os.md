@@ -14,6 +14,7 @@
 	- [字體配置](#字體配置)
 	- [輸入法配置](#輸入法配置)
 	- [桌面配置](#桌面配置)
+		- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
 - [問題紀錄](#問題紀錄)
 	- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
 
@@ -387,6 +388,7 @@ services.xserver.displayManager.slim.enable = true;
 services.xserver.displayManager.lightdm.enable = true;
 ```
 
+### Gnome桌面環境可選軟件包配置
 NixOS下的Gnome3默認會安裝所有Gnome的可選軟件包，如播放器、遊戲等。
 可通過`environment.gnome3.excludePackages`配置項指定排除不需要的軟件包：
 
@@ -398,6 +400,18 @@ environment.gnome3.excludePackages = [ pkgs.gnome3.gnome-weather pkgs.gnome3.sim
 
 ```sh
 environment.gnome3.excludePackages = pkgs.gnome3.optionalPackages;
+```
+
+在`2019-8-25`的更新中，`environment.gnome3.excludePackages`配置項已被廢棄，
+新版本中控制Gnome3的可選軟件包使用`services.gnome3`系列配置項進行控制：
+
+```sh
+services.gnome3 = {
+  core-os-services.enable = false;
+  core-shell.enable = false;
+  core-utilities.enable = false; # 控制周邊工具軟件包是否安裝
+  games.enable = false; # 控制遊戲相關軟件包是否安裝
+}
 ```
 
 
