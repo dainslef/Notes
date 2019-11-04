@@ -41,6 +41,7 @@
 - [NTP (Network Time Protocol)](#ntp-network-time-protocol)
 	- [NTP 服務配置](#ntp-服務配置)
 		- [NTP 客戶端](#ntp-客戶端)
+		- [NTP 服務端](#ntp-服務端)
 - [curl](#curl)
 	- [FTP 操作](#ftp-操作)
 - [Suspend 和 Hibernate](#suspend-和-hibernate)
@@ -1163,6 +1164,28 @@ server 0.xxx
 server 1.xxx
 ...
 ```
+
+### NTP 服務端
+配置了NTP服務的主機可以允許同一網絡下的其它NTP客戶端同步此服務器。
+添加`restrict`配置段：
+
+```sh
+...
+# 配置格式 restrict [IP] mask [子網掩碼] [參數]...
+restrict 192.168.1.0 mask 255.255.255.0 nomodify notrap
+...
+```
+
+restrict配置段的參數簡介：
+
+| 參數 | 簡介 |
+| :- | :- |
+| ignore | 阻止所有類型的NTP連接 |
+| nomodify | 阻止任何配置修改 |
+| noquery | 阻止ntpq/ntpdc查詢，但允許時間查詢 |
+| notrap | 阻止ntpdc控制消息協議 |
+| notrust | 阻止未認證的客戶端 |
+| nopeer | 阻止對等關聯(不允許同一層級服務關連) |
 
 
 
