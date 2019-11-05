@@ -42,6 +42,7 @@
 	- [NTP 服務配置](#ntp-服務配置)
 		- [NTP 客戶端](#ntp-客戶端)
 		- [NTP 服務端](#ntp-服務端)
+	- [NTP 管理指令](#ntp-管理指令)
 - [curl](#curl)
 	- [FTP 操作](#ftp-操作)
 - [Suspend 和 Hibernate](#suspend-和-hibernate)
@@ -1186,6 +1187,51 @@ restrict配置段的參數簡介：
 | notrap | 阻止ntpdc控制消息協議 |
 | notrust | 阻止未認證的客戶端 |
 | nopeer | 阻止對等關聯(不允許同一層級服務關連) |
+
+## NTP 管理指令
+使用`ntpstat`指令查看NTP服務狀態：
+
+```
+$ ntpstat
+synchronised to unspecified (120.25.115.20) at stratum 3
+   time correct to within 35 ms
+   polling server every 64 s
+```
+
+使用`ntpq/ntpdc`指令進入交互式Shell，進行具體的NTP查詢操作：
+
+```c
+// ntpq - standard NTP query program
+$ ntpq
+ntpq> help
+ntpq commands:
+:config          delay            mreadvar         readlist
+addvars          exit             mrl              readvar
+associations     help             mrv              rl
+authenticate     host             ntpversion       rmvars
+cl               hostnames        opeers           rv
+clearvars        keyid            passociations    saveconfig
+clocklist        keytype          passwd           showvars
+clockvar         lassociations    peers            timeout
+config-from-file lopeers          poll             version
+cooked           lpassociations   pstatus          writelist
+cv               lpeers           quit             writevar
+debug            mreadlist        raw
+
+// ntpdc - special NTP query program
+$ ntpdc
+ntpdc> help
+ntpdc commands:
+addpeer      controlkey   fudge        keytype      quit         timeout
+addrefclock  ctlstats     help         listpeers    readkeys     timerstats
+addserver    debug        host         loopinfo     requestkey   traps
+addtrap      delay        hostnames    memstats     reset        trustedkey
+authinfo     delrestrict  ifreload     monlist      reslist      unconfig
+broadcast    disable      ifstats      passwd       restrict     unrestrict
+clkbug       dmpeers      iostats      peers        showpeer     untrustedkey
+clockstat    enable       kerninfo     preset       sysinfo      version
+clrtrap      exit         keyid        pstats       sysstats
+```
 
 
 
