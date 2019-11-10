@@ -602,15 +602,18 @@ flags --extra-include-dirs= and --extra-lib-dirs= to specify where they are.
 
 ```c
 /*
-	MariaDB 提供了 libmysqlclient 依賴，
+	MariaDB/MySQL 提供了 libmysqlclient 依賴，
 	同時 MariaDB 依賴於 openssl，安裝 MariaDB 時會自行安裝該依賴
 */
-$ brew install mariadb
+$ brew install mariadb/mysql
 ```
 
 通過Homebrew安裝的openssl對應的庫文件不在標準路徑下，而是位於`/usr/local/opt/openssl/lib`路徑下，
-使用Stack安裝HDBC-mysql需要額外指定該路徑：
+使用stack安裝HDBC-mysql需要額外指定該路徑：
 
-```
+```c
 $ stack install HDBC-mysql --extra-lib-dirs=/usr/local/opt/openssl/lib
+
+// MySQL依賴特定版本的openssl，以 MySQL 8.0.18 為例，依賴的openssl版本為1.11，對應路徑 /usr/local/opt/openssl@1.11/lib
+$ stack install HDBC-mysql --extra-lib-dirs=/usr/local/opt/openssl@1.11/lib
 ```
