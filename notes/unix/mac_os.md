@@ -66,22 +66,27 @@
 記錄macOS的常用快捷鍵、工具指令。
 
 ## 常用快捷鍵
-- 鎖屏: `Control + Shift + Power`
-- 全屏截圖: `Shift + Command + 3`
-- 指定位置截圖: `Shift + Command + 4`
-- 指定窗口截圖: `Shift + Command + 4`然後將光標放在需要截圖的窗口上，按`Space`確認
-- 保存: `Command + S`
-- 全選: `Command + A`
-- 行首/行尾: `Control + A/E`(終端內)
-- Home/End/PageDown/PageUp: `Fn + Left/Right/Down/Up`
-- 複製/粘貼文件: `Command + C/V`
-- 剪切文件: `Option + Command + V`
-- 切換程序: `Command + Tab`
-- 切換當前程序的窗口: `Command + \`
-- 退出程序: `Command + Q`
-- 關閉當前窗口: `Command + W`
-- 最小化窗口: `Command + M`
-- 立即息屏進入睡眠: `Command + Alt + Power`
+macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的肌肉記憶。
+
+| 功能 | 快捷鍵 |
+| :- | :- |
+| 鎖屏 | Control + Shift + Power |
+| 全屏截圖 | Shift + Command + 3 |
+| 指定位置截圖 | Shift + Command + 4 |
+| 指定窗口截圖 | Shift + Command + 4然後將光標放在需要截圖的窗口上，按Space確認 |
+| 保存 | Command + S |
+| 全選 | Command + A |
+| 行首/行尾 | Control + A/E(僅默認終端) |
+| Home/End/PageDown/PageUp | Fn + Left/Right/Down/Up |
+| 複製/粘貼文件 | Command + C/V |
+| 剪切文件 | Command + Option + V |
+| 切換程序 | Command + Tab |
+| 切換當前程序的窗口 | Command + ` |
+| 退出程序 | Command + Q |
+| 關閉當前窗口 | Command + W |
+| 最小化窗口 | Command + M |
+| 立即息屏進入睡眠 | Command + Alt + Power |
+| 切換Finder是否顯示隱藏文件： | Command + Shift + . |
 
 ## 常用命令行指令
 `macOS`中的一些配置項沒有提供圖形化的配置方式，需要通過命令行進行配置。
@@ -288,13 +293,13 @@ Homebrew基本操作與其它包管理器類似：
 `homebrew`倉庫默認的包緩存路徑爲`~/Library/Caches/Homebrew`。
 `caskroom`倉庫默認的包緩存路徑爲`~/Library/Caches/Homebrew/Cask`。
 
-可使用指令查看`Homebrew`的相關路徑：
+可使用指令查看Homebrew的相關路徑：
 
 - `$ brew --cache` 查看緩存路徑
-- `$ brew --repo` 查看`Hombrew`安裝路徑
+- `$ brew --repo` 查看Hombrew安裝路徑
 
 在緩存中的包重複安裝無需重新下載。
-由於國內網絡問題，直接通過`brew`指令安裝包有時會頻繁下載失敗。
+由於國內網絡問題，直接通過brew指令安裝包有時會頻繁下載失敗。
 可直接使用其它下載工具從符合要求的源地址下載包文件放置於對應緩存路徑下，進行離線安裝。
 
 對於帶有頭文件的包(如`boost、gcc`等)，會在`/usr/local/include`目錄下創建符號鏈接，
@@ -302,7 +307,7 @@ Homebrew基本操作與其它包管理器類似：
 
 ### 安裝參數
 Homebrew使用`brew install`指令安裝包時可以附加額外選項，用於定製包的依賴。
-每個包擁有不同的依賴項，使用`brew info`指令查看`Options`說明。
+每個包擁有不同的依賴項，使用`brew info`指令查看選項說明。
 
 以`neofetch`爲例，brew info輸出信息如下：
 
