@@ -1,21 +1,21 @@
 <!-- TOC -->
 
-- [概述](#概述)
-	- [下載](#下載)
-	- [環境變量配置](#環境變量配置)
-	- [集羣規劃](#集羣規劃)
-	- [路徑規劃](#路徑規劃)
-	- [服務配置](#服務配置)
+- [Hadoop](#hadoop)
+	- [Hadoop下載](#hadoop下載)
+	- [Hadoop環境變量配置](#hadoop環境變量配置)
+	- [Hadoop集羣規劃](#hadoop集羣規劃)
+	- [Hadoop服務配置](#hadoop服務配置)
 - [HDFS](#hdfs)
-	- [訪問地址](#訪問地址)
-	- [命令行工具](#命令行工具)
+	- [HDFS RPC地址](#hdfs-rpc地址)
+	- [HDFS命令行工具](#hdfs命令行工具)
 - [Hbase](#hbase)
-	- [服務配置](#服務配置-1)
-	- [數據模型](#數據模型)
+	- [HBase體系結構](#hbase體系結構)
+	- [HBase服務配置](#hbase服務配置)
+	- [HBase數據模型](#hbase數據模型)
 		- [Conceptual View (概念視圖)](#conceptual-view-概念視圖)
 		- [Physical View (物理視圖)](#physical-view-物理視圖)
 		- [Namespace (命名空間)](#namespace-命名空間)
-	- [壓測工具](#壓測工具)
+	- [HBase壓測工具](#hbase壓測工具)
 	- [HBase Shell](#hbase-shell)
 	- [HBase Client API](#hbase-client-api)
 - [問題註記](#問題註記)
@@ -32,7 +32,8 @@
 <!-- /TOC -->
 
 
-# 概述
+
+# Hadoop
 `Apache Hadoop`是一套面向**可靠性**、**可擴展性**、**分佈式計算**的開源套件。
 
 Hadoop是一套框架，允許使用簡單的編程模型在計算機集羣中對大型數據集進行分佈式處理。
@@ -56,13 +57,13 @@ Apache基金會中還包含大量的Hadoop關聯項目，如：
 - `Spark™` 用於Hadoop數據的快速和通用計算引擎，用於取代MapReduce
 - `ZooKeeper™` 高性能的分佈式應用程序協調服務
 
-## 下載
+## Hadoop下載
 在[Hadoop官網](http://hadoop.apache.org/releases.html)下載Hadoop軟件包。
 
 截止到`2018-3-30`，Hadoop主要分爲`2.x`和`3.x`兩大版本，`3.x`版本在配置上與`2.x`版本有較大差異。
 `3.x`版本正式發佈時間較晚(2017-12-13)、迭代週期較短，穩定性有待考證，本文配置使用`2.7.5`版本。
 
-## 環境變量配置
+## Hadoop環境變量配置
 配置環境變量，在`~/.profile`或`/etc/profile`中添加：
 
 ```sh
@@ -71,7 +72,7 @@ PATH+=:$HADOOP_HOME/bin
 PATH+=:$HADOOP_HOME/sbin # 將Hadoop相關工具加入PATH環境變量
 ```
 
-## 集羣規劃
+## Hadoop集羣規劃
 使用5臺機器構建Hadoop集羣，IP與主機映射關係寫入`/etc/hosts`文件中：
 
 ```
@@ -87,7 +88,7 @@ PATH+=:$HADOOP_HOME/sbin # 將Hadoop相關工具加入PATH環境變量
 每個節點執行的服務規劃如下：
 
 | 主機名稱 | 執行服務 |
-|:-|:-|
+| :- | :- |
 | spark-master | namenode, journalnode, zkfc, kafka |
 | spark-slave0 | namenode, journalnode, zkfc, kafka, datanode，nodemanager |
 | spark-slave1 | journalnode, zkfc, kafka, datanode，nodemanager |
@@ -98,7 +99,6 @@ PATH+=:$HADOOP_HOME/sbin # 將Hadoop相關工具加入PATH環境變量
 - `spark-slave0 ~ spark-slave3`作爲DataNode。
 - `spark-master/spark-slave0/spark-slave1`三臺機器啓動Zookeeper，並作爲JournalNode，同時運行Kafka。
 
-## 路徑規劃
 Hadoop提供的HDFS等組件需要佔用大量的磁盤空間，需要對磁盤分區做出合理規劃。
 以`/root/data/hadoop`路徑爲例，執行指令，在路徑下創建以下子路徑：
 
@@ -116,7 +116,7 @@ Hadoop提供的HDFS等組件需要佔用大量的磁盤空間，需要對磁盤�
 # mkdir -p /root/data/hadoop/hdfs/journal
 ```
 
-## 服務配置
+## Hadoop服務配置
 Hadoop服務配置項多而繁雜，根據Hadoop版本選擇匹配的[官方文檔](http://hadoop.apache.org/docs)進行查閱。
 集羣配置相關文檔地址爲`http://hadoop.apache.org/docs/{Hadoop版本}/hadoop-project-dist/hadoop-common/ClusterSetup.html`。
 
@@ -124,7 +124,7 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 
 - `core-site.xml`
 
-	Hadoop的核心配置項。<br>
+	Hadoop的核心配置項。
 	配置項說明：
 
 	```xml
@@ -145,7 +145,7 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 		-->
 		<property>
 			<name>hadoop.tmp.dir</name>
-			<value>/root/data/hadoop/hadoop-temp</value>
+			<value>/root/data/hadoop/temp</value>
 		</property>
 
 		<!-- 指定 Zookeeper 集羣訪問地址 -->
@@ -180,7 +180,7 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 
 - `hdfs-site.xml`
 
-	包含對NameNode和DataNode的配置項。<br>
+	包含對NameNode和DataNode的配置項。
 	配置項說明：
 
 	```xml
@@ -231,12 +231,14 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 		<!-- 指定 NameNode 在本地磁盤存放數據的位置(可選) -->
 		<property>
 			<name>dfs.namenode.name.dir</name>
+			<!-- 默認值 file://${hadoop.tmp.dir}/dfs/name -->
 			<value>/root/data/hadoop/hdfs/name</value>
 		</property>
 
 		<!-- 指定 DataNode 在本地磁盤存放數據的位置(可選) -->
 		<property>
-			<name>dfs.namenode.data.dir</name>
+			<name>dfs.datanode.data.dir</name>
+			<!-- 默認值 file://${hadoop.tmp.dir}/dfs/data -->
 			<value>/root/data/hadoop/hdfs/data</value>
 		</property>
 
@@ -246,7 +248,7 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 			<value>/root/data/hadoop/hdfs/journal</value>
 		</property>
 
-		<!-- 開啓 NameNode 失敗自動切換(HA，單NameNode時此配置無效) -->
+		<!-- 開啓 NameNode 失敗自動切換(HA，單NameNode時此配置無效，需要core-site.xml中配置了Zookeeper訪問地址) -->
 		<property>
 			<name>dfs.ha.automatic-failover.enabled</name>
 			<value>true</value>
@@ -309,7 +311,7 @@ HDFS被設計成能夠部署在低成本的硬件上。HDFS提供了對應用數
 HDFS放寬了一些POSIX標準的要求，以便實現流式地訪問文件系統數據。
 HDFS最初被設計成`Apache Nutch`(一個Web搜索引擎項目)的基礎設施，現在HDFS是`Apache Hadoop`項目的核心部分。
 
-## 訪問地址
+## HDFS RPC地址
 HDFS的RPC通信地址規則如下：
 
 ```sh
@@ -324,7 +326,7 @@ HDFS還提供了WEB管理界面，地址如下：
 http://主機名或IP:WEB服務端口
 ```
 
-## 命令行工具
+## HDFS命令行工具
 使用`hdfs dfs`指令對HDFS文件系統進行操作。
 
 查看指令幫助信息：
@@ -382,7 +384,10 @@ HBase在Hadoop和HDFS之上提供了類似Bigtable的功能。
 
 HBase的詳細介紹、配置、使用說明等可查閱[官方文檔](http://hbase.apache.org/book.html)。
 
-## 服務配置
+## HBase體系結構
+HBase
+
+## HBase服務配置
 從[HBase官網](http://hbase.apache.org/downloads.html)中下載穩定版本的HBase。
 HBase依賴於Hadoop服務，HBase與Hadoop版本的兼容性參考中的`4.1`節。
 
@@ -393,44 +398,54 @@ export HBASE_HOME=... # 配置軟件包路徑
 PATH+=:$HBASE_HOME/bin # 將HBase相關工具腳本加入PATH中
 ```
 
-HBase配置文件位於`$HBASE_HOME/conf`路徑下，編輯`$HBASE_HOME/conf/hbase-site.xml`，添加下列配置：
+HBase相關配置文件均位於`$HBASE_HOME/conf/`路徑下，配置文件簡介：
 
-```xml
-<configuration>
+- `backup-masters`
 
-	<!--
-		指定 HBase 臨時文件目錄
-		默認臨時文件會生成在 /tmp/hbase-[用戶名] 路徑下，機器重啓後臨時文件會被清空
-	-->
-	<property>
-		<name>hbase.tmp.dir</name>
-		<value>/root/data/hadoop/hbase-temp</value>
-	</property>
+	定義需要啟動備用`HMaster`集成的主機。
 
-	<!-- 指定 HBase 的數據存儲路徑 -->
-	<property>
-		<name>hbase.rootdir</name>
-		<value>hdfs://spark-master:9000/hbase</value>
-	</property>
+- `regionservers`
 
-	<!-- 設定 HBase 是否以分佈式方式執行 -->
-	<property>
-		<name>hbase.cluster.distributed</name>
-		<value>true</value>
-	</property>
+	定義需要啟動`HRegionServer`服務的主機地址。
 
-	<!-- 指定 Zookeeper 集羣訪問地址 -->
-	<property>
-		<name>hbase.zookeeper.quorum</name>
-		<value>spark-master:2181,spark-slave0:2181,spark-slave1:2181</value>
-	</property>
+- `hbase-site.xml`
 
-</configuration>
-```
+	HBase主要配置文件。常用配置如下所示：
 
-編輯`$HBASE_HOME/conf/regionservers`文件，將需要啟動`HRegionServer`服務的主機添加到其中。
+	```xml
+	<configuration>
 
-在需要作為HBase Master的節點上啓動/關閉HBase服務：
+		<!--
+			指定 HBase 臨時文件目錄
+			默認臨時文件會生成在 /tmp/hbase-[用戶名] 路徑下，機器重啓後臨時文件會被清空
+		-->
+		<property>
+			<name>hbase.tmp.dir</name>
+			<value>/root/data/hadoop/hbase-temp</value>
+		</property>
+
+		<!-- 指定 HBase 的數據存儲路徑 -->
+		<property>
+			<name>hbase.rootdir</name>
+			<value>hdfs://spark-master:9000/hbase</value>
+		</property>
+
+		<!-- 設定 HBase 是否以分佈式方式執行 -->
+		<property>
+			<name>hbase.cluster.distributed</name>
+			<value>true</value>
+		</property>
+
+		<!-- 指定 Zookeeper 集羣訪問地址 -->
+		<property>
+			<name>hbase.zookeeper.quorum</name>
+			<value>spark-master:2181,spark-slave0:2181,spark-slave1:2181</value>
+		</property>
+
+	</configuration>
+	```
+
+正確編寫和分發配置文件後，在需要作為HBase Master的節點上啓動/關閉HBase服務：
 
 ```c
 // 啓動 HBase 服務
@@ -441,12 +456,11 @@ $ stop-hbase.sh
 ```
 
 開啟HBase服務後，作為Master節點的機器中會存在`HMaster`進程，作為RegionServer節點的機器會存在`HRegionServer`進程。
-若需要啟用HA機制，則應創建`$HBASE_HOME/conf/backup-masters`文件，將需要作為備用節點的主機添加到其中。
-啟動主服務後，對應備用主機會啟動備用HMaster進程。
+若配置了backup-masters，則啟動主服務後，對應備用主機會啟動備用HMaster進程。
 
 HBase同樣提供了Web頁面用於查看服務狀態，默認配置下，Web頁面端口爲`16010`。
 
-## 數據模型
+## HBase數據模型
 HBase是面向**列**的數據庫，數據由行排序，表中僅能定義列族。
 一張表中可以擁有多個列族，一個列族可擁有任意數量的列。表中每個單元格的數據都具有時間戳。
 
@@ -590,7 +604,7 @@ HBase中表的概念結構如下所示：
 - 命名空間安全管理(HBASE-9206)
 - 區域服務器組(HBASE-6721)
 
-## 壓測工具
+## HBase壓測工具
 HBase自帶了壓測工具，基本指令：
 
 ```
