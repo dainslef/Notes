@@ -163,6 +163,23 @@ Windows系統提供的命令行執行DOS系統工具指令。
 > lpksetup /u
 ```
 
+服務管理：
+
+```c
+// 啟動/停止服務
+> sc start [服務名稱]
+> sc stop [服務名稱]
+
+// 查詢服務
+> sc query // 查詢指定服務
+> sc query [服務名稱] // 查詢所有服務
+> sc qc [服務名稱] // 查詢服務配置信息
+
+// 創建/刪除服務
+> sc create [服務名稱] binPath=[指令]
+> sc delete [服務名稱]
+```
+
 ## 文件/目錄鏈接
 Windows文件管理器提供的快捷方式(`Shortcut`)並不是對應用程序透明的，
 應用程序在使用快捷方式路徑時並不等價於使用目標文件路徑。
@@ -1677,11 +1694,18 @@ Apr 25 10:54:42 localhost.localdomain systemd[1]: nginx.service failed.
 
 關閉SELinux後正常。
 
+查看系統的SELinux狀態：
+
+```c
+$ sestatus
+SELinux status:                 disabled
+```
+
 臨時開啟/關閉SELinux可使用`setenforce`指令：
 
 ```c
-# setenforce 0 //關閉SELinux
-# setenforce 1 //開啟SELinux
+# setenforce 0 // 關閉SELinux
+# setenforce 1 // 開啟SELinux
 ```
 
 永久禁用SELinux可編輯`/etc/selinux/config`文件，將`SELINUX=enforcing`修改為`SELINUX=disabled`。
