@@ -1,13 +1,26 @@
+<!-- TOC -->
+
 - [概述](#概述)
 	- [下载](#下载)
 	- [环境变量配置](#环境变量配置)
 	- [主服务配置](#主服务配置)
-	- [工具指令](#工具指令)
+	- [服務啟動](#服務啟動)
+	- [消費數據](#消費數據)
 - [Topic & Partition](#topic--partition)
 	- [存储机制](#存储机制)
+	- [話題操作](#話題操作)
+	- [話題刪除](#話題刪除)
 - [Kafka Connect](#kafka-connect)
 	- [依赖服务配置](#依赖服务配置)
 	- [JDBC Source Connector](#jdbc-source-connector)
+		- [堆溢出問題](#堆溢出問題)
+- [問題記錄](#問題記錄)
+	- [org.apache.kafka.clients.NetworkClient: Connection to node -1 could not be established. Broker may not be available.](#orgapachekafkaclientsnetworkclient-connection-to-node--1-could-not-be-established-broker-may-not-be-available)
+	- [org.apache.kafka.common.errors.TimeoutException: Expiring 1 record(s) for xxx-topic-0: 30056 ms has passed since batch creation plus linger time](#orgapachekafkacommonerrorstimeoutexception-expiring-1-records-for-xxx-topic-0-30056-ms-has-passed-since-batch-creation-plus-linger-time)
+	- [org.apache.kafka.common.errors.TimeoutException: Failed to update metadata after 60000 ms](#orgapachekafkacommonerrorstimeoutexception-failed-to-update-metadata-after-60000-ms)
+	- [Error shile writing to checkpoint file ... Caused by: java.io.FileNotFoundException: ... (Too many open files)](#error-shile-writing-to-checkpoint-file--caused-by-javaiofilenotfoundexception--too-many-open-files)
+
+<!-- /TOC -->
 
 
 
@@ -469,3 +482,21 @@ if [ -z "$KAFKA_HEAP_OPTS" ]; then
 fi
 ...
 ```
+
+
+
+# 問題記錄
+
+## org.apache.kafka.clients.NetworkClient: Connection to node -1 could not be established. Broker may not be available.
+Kafka配置中`listeners`不能使用IP地址，只能使用主機名稱。listeners設置為localhost時，則不能被外網訪問。
+KafkaClient的連接配置中，broker的主機和端口需要與listeners中配置的相同。
+
+## org.apache.kafka.common.errors.TimeoutException: Expiring 1 record(s) for xxx-topic-0: 30056 ms has passed since batch creation plus linger time
+Kafka的`listeners`配置項中需要使用本機的主機名。
+
+## org.apache.kafka.common.errors.TimeoutException: Failed to update metadata after 60000 ms
+通常為連接問題，檢查服務端話題各分區狀態是否正常；檢查Host文件中是否正確配置了目標主機的IP映射。
+
+## Error shile writing to checkpoint file ... Caused by: java.io.FileNotFoundException: ... (Too many open files)
+Kafka服務長期工作會開啟大量的文件描述符，而多數Linux發行版中，默認的Linux文件描述符限制默認是`1024`。
+在Linux系統下，通過設置`/etc/security/limits.conf`來允許進程同時打開更大數目的描述符。
