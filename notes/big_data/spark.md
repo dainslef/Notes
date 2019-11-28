@@ -30,6 +30,7 @@
 - [Spark Streaming](#spark-streaming)
 	- [Streaming Context](#streaming-context)
 	- [DStream](#dstream)
+	- [Concurrent Jobs](#concurrent-jobs)
 	- [数据变换](#数据变换)
 		- [updateStateByKey()](#updatestatebykey)
 		- [mapWithState()](#mapwithstate)
@@ -1478,6 +1479,23 @@ lines中的每一个RDD均会通过flatMap()生成新的RDD，并构成words，�
 ![Spark Streaming DStream Operate](../../images/spark_streaming_dstream_operate.png)
 
 底层的RDD变化由Spark引擎完成计算。DStream操作隐藏了多数的底层细节，给开发者提供了便利的高层次API。
+
+## Concurrent Jobs
+默認SparkStreaming中各個數據批次的任務是順序執行的，當一個批次的數據被處理完畢才會開始下一個批次數據的處理。
+
+Client端設置`spark.streaming.concurrentjobs`參數可讓SparkStreaming各個批次並行執行。
+到`Spark 2.4.4`版本，該參數為實驗性的，官方文檔中未提及該參數。
+
+默認該參數數值為`1`，在實際使用中，推薦配置為與Executor數目相同，能夠更好的利用集群的並行計算能力。
+
+對於部分狀態相關的算子(如`mapWithState()/updateStateByKey()`)，若concurrentjobs參數設置過大，
+在同一Executor上存在任務積壓時，可能會存在後到達的Batch先執行完畢進而導致同節點上之前的Batch產生異常：
+
+```
+org.apache.spark.streaming.scheduler.JobScheduler logError - Error running job streaming job ... org.apache.spark.SparkException: Job aborted due to stage failure: Task creation failed: java.io.FileNotFoundException: File does not exist: hdfs://...
+```
+
+造成該異常的原因是state存儲的checkpoint被後續操作生成的結果所覆蓋。
 
 ## 数据变换
 与RDD类似，DStream允许对输入的数据进行变换操作。
