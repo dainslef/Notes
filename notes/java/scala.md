@@ -48,6 +48,7 @@
 	- [簡單匹配](#簡單匹配)
 	- [類型匹配](#類型匹配)
 	- [解構](#解構)
+		- [解構Lambda](#解構lambda)
 - [apply() 與 update()](#apply-與-update)
 	- [無參 apply 方法](#無參-apply-方法)
 - [unapply() 與 unapplySeq()](#unapply-與-unapplyseq)
@@ -2243,6 +2244,34 @@ scala> def destruct(obj: Any) = obj match {
      |   case User(_, age@(10 | 20 | 30)) => s"Age: $age" //使用 @ 指代局部匹配表達式
      | }
 destruct: (obj: Any)String
+```
+
+### 解構Lambda
+若一個方法僅接收一個Lambda作為參數，而Lambda的參數為可以結構類型，
+則在定義Lambda參數時可直接將複雜的可解構類型解構成更細粒度的參數，語法：
+
+```scala
+// 方法定義
+def methodName(... => ...) = ...
+
+// 方法調用(若需要解構參數，則不能使用小括號語法進行調用)
+methodName {
+  case ... => ...
+}
+```
+
+示例：
+
+```scala
+// Lambda的簽名中接收的參數為可解構類型
+scala> (Some("Name1" -> 1) :: Some("Name2" -> 2) :: Nil).foreach
+   final override def foreach[U](f: Some[(String, Int)] => U): Unit
+
+scala> (Some("Name1" -> 1) :: Some("Name2" -> 2) :: Nil).foreach {
+     | case Some((name, value)) => println(s"$name -> $value") // 直接解構了參數
+     | }
+Name1 -> 1
+Name2 -> 2
 ```
 
 
