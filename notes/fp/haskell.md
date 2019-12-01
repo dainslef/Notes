@@ -9,7 +9,7 @@
 - [Currying (柯里化)](#currying-柯里化)
 - [Pointfree Style](#pointfree-style)
 	- [概念解释](#概念解释)
-	- [Pointfree 应用](#pointfree-应用)
+	- [pointfree应用](#pointfree应用)
 	- [pointfree變換技巧](#pointfree變換技巧)
 	- [有趣的pointfree变换](#有趣的pointfree变换)
 - [CPS (Continuation Passing Style)](#cps-continuation-passing-style)
@@ -26,8 +26,6 @@
 	- [异常类型](#异常类型)
 	- [异常 API](#异常-api)
 	- [异常捕获与求值策略](#异常捕获与求值策略)
-	- [异常安全](#异常安全)
-	- [自定义异常](#自定义异常)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
@@ -277,7 +275,7 @@ pointfree名称源自数学领域中的**拓扑**(研究由点组成的空间以
 
 更详细的概念解释可参考[Haskell Wiki](https://wiki.haskell.org/Pointfree)。
 
-## Pointfree 应用
+## pointfree应用
 pointfree风格不仅限于使用`.`组合函数，例如使用Partial application作为函数实现：
 
 ```hs
@@ -330,8 +328,20 @@ Prelude> filter (>5) [1 .. 10]
 ## pointfree變換技巧
 常用的pointfree变换技巧：
 
-1. 使用`.`函数组合函数或变更函数签名
-1. `.`函数是右结合性的，参数会优先执行`.`函数右侧的函数
+1. 使用`.`函数组合多個函数，`.`函数為右结合性，参数会优先执行`.`函数右侧的函数
+
+	```hs
+	a (b (c n)) = a . b . c $ n
+	```
+
+1. 使用`.`函數組合單個函數改變函數簽名
+
+	```hs
+	f :: a -> b
+	(.f) :: (b -> c) -> a -> c
+	(f.) :: (a -> b) -> a -> c
+	```
+
 1. 灵活使用`flip`函数调换参数位置，使表达式的参数位置匹配签名位置
 1. 当表达式结果类型完全匹配函数签名时则变形完成
 
