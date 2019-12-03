@@ -49,9 +49,9 @@
 	- [類型匹配](#類型匹配)
 	- [解構](#解構)
 		- [解構Lambda](#解構lambda)
+	- [unapply() 與 unapplySeq()](#unapply-與-unapplyseq)
 - [apply() 與 update()](#apply-與-update)
 	- [無參 apply 方法](#無參-apply-方法)
-- [unapply() 與 unapplySeq()](#unapply-與-unapplyseq)
 - [sealed 與 final 關鍵字](#sealed-與-final-關鍵字)
 	- [sealed 用於模式匹配](#sealed-用於模式匹配)
 	- [sealed 與 ADT](#sealed-與-adt)
@@ -2274,6 +2274,82 @@ Name1 -> 1
 Name2 -> 2
 ```
 
+## unapply() 與 unapplySeq()
+**提取器**用於解構對象，通過實現`unapply()`方法定義解構行爲。
+
+- `unapply()`方法則與`apply()`方法相反，可以從對象中提取出需要的數據(在實際使用過程中，可以從任意的目標裏提取數據)。
+- `unapply()`方法返回值必須爲`Option`及其子類，單一返回值使用`Option[T]`，
+多個返回值可以包含在元組中`Option[(T1, T2, T3, ...)]`。
+- `unapply()`方法雖然也可以定義在類中，但一般定義在**伴生對象**中(在類中定義沒有合適的語法使用)。
+
+假設有伴生對象名爲`Unapply`，則：
+
+```scala
+val Unapply(arg1, arg2, arg3, ...) = value
+```
+
+等價於：
+
+```scala
+val (arg1, arg2, arg3, ...) = Unapply.unapply(value)
+```
+
+示例：
+
+```scala
+object TestUnapply extends App {
+  val Unapply(num1) = 1 //提取一個值
+  println(num1)
+  val Unapply(num2, num3) = Unapply(100, 200) //提取多個值
+  println(num2 + " " + num3)
+}
+
+object Unapply {
+  def apply(num1: Int, num2: Int) = new Unapply(num1, num2)
+  def unapply(num: Int) = Option(num)
+  def unapply(a: Unapply) = Option((a.num1, a.num2))
+}
+
+class Unapply(var num1: Int, var num2: Int)
+```
+
+輸出結果：
+
+```
+1
+100 200
+```
+
+若需要提取**任意長度**的值的序列，則可以使用`unapplySeq()`方法，該方法返回值類型爲`Option[Seq[T]]`。
+**不要**同時定義`unapplySeq()`方法和`unapply()`方法，會產生衝突。
+
+示例：
+
+```scala
+object TestUnapply extends App {
+  def showSplit(str: String) = str match {
+    case Unapply(str1, str2) => println(s"$str1 $str2")
+    case Unapply(str1, str2, str3) => println(s"$str1 $str2 $str3")
+    case _ => println("Case Nothing")
+  }
+  showSplit("abc")
+  showSplit("abc.cde")
+  showSplit("abc.cde.efg")
+}
+
+object Unapply {
+  def unapplySeq(str: String) = Option(str split "\\.") //split()方法接收的是正則表達式，小數點、加減乘除之類的符號需要轉義
+}
+```
+
+輸出結果：
+
+```
+Case Nothing
+abc cde
+abc cde efg
+```
+
 
 
 # apply() 與 update()
@@ -2386,84 +2462,6 @@ t: Test = Test@6f88319b
 
 scala> t[Any] //字段名稱帶有泛型參數，亦被解析爲無參泛型 apply 調用
 Print test
-```
-
-
-
-# unapply() 與 unapplySeq()
-**提取器**用於解構對象，通過實現`unapply()`方法定義解構行爲。
-
-- `unapply()`方法則與`apply()`方法相反，可以從對象中提取出需要的數據(在實際使用過程中，可以從任意的目標裏提取數據)。
-- `unapply()`方法返回值必須爲`Option`及其子類，單一返回值使用`Option[T]`，
-多個返回值可以包含在元組中`Option[(T1, T2, T3, ...)]`。
-- `unapply()`方法雖然也可以定義在類中，但一般定義在**伴生對象**中(在類中定義沒有合適的語法使用)。
-
-假設有伴生對象名爲`Unapply`，則：
-
-```scala
-val Unapply(arg1, arg2, arg3, ...) = value
-```
-
-等價於：
-
-```scala
-val (arg1, arg2, arg3, ...) = Unapply.unapply(value)
-```
-
-示例：
-
-```scala
-object TestUnapply extends App {
-  val Unapply(num1) = 1 //提取一個值
-  println(num1)
-  val Unapply(num2, num3) = Unapply(100, 200) //提取多個值
-  println(num2 + " " + num3)
-}
-
-object Unapply {
-  def apply(num1: Int, num2: Int) = new Unapply(num1, num2)
-  def unapply(num: Int) = Option(num)
-  def unapply(a: Unapply) = Option((a.num1, a.num2))
-}
-
-class Unapply(var num1: Int, var num2: Int)
-```
-
-輸出結果：
-
-```
-1
-100 200
-```
-
-若需要提取**任意長度**的值的序列，則可以使用`unapplySeq()`方法，該方法返回值類型爲`Option[Seq[T]]`。
-**不要**同時定義`unapplySeq()`方法和`unapply()`方法，會產生衝突。
-
-示例：
-
-```scala
-object TestUnapply extends App {
-  def showSplit(str: String) = str match {
-    case Unapply(str1, str2) => println(s"$str1 $str2")
-    case Unapply(str1, str2, str3) => println(s"$str1 $str2 $str3")
-    case _ => println("Case Nothing")
-  }
-  showSplit("abc")
-  showSplit("abc.cde")
-  showSplit("abc.cde.efg")
-}
-
-object Unapply {
-  def unapplySeq(str: String) = Option(str split "\\.") //split()方法接收的是正則表達式，小數點、加減乘除之類的符號需要轉義
-}
-```
-
-輸出結果：
-
-```
-Case Nothing
-abc cde
-abc cde efg
 ```
 
 
