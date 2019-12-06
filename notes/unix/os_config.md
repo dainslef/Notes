@@ -20,6 +20,7 @@
 	- [遠程登錄](#遠程登錄)
 	- [SSH 配置](#ssh-配置)
 	- [配置免密登陸](#配置免密登陸)
+- [路由轉發](#路由轉發)
 - [GNU GRUB](#gnu-grub)
 	- [安裝與配置](#安裝與配置)
 	- [安裝引導器](#安裝引導器)
@@ -697,6 +698,36 @@ $ ssh -i [指定私鑰路徑] [目標用戶名]@[目標主機地址/IP]
 ```
 
 或使用`ssh -v/-vv/-vvv`在執行登錄指令時輸出額外的日誌信息。
+
+
+
+# 路由轉發
+Linux具備路由轉發功能，作為路由器使用，在proc文件系統中查看系統路由功能是否開啟：
+
+```c
+// 值為0路由轉發功能處於關閉狀態，值為1時開啟
+$ cat /proc/sys/net/ipv4/ip_forward
+```
+
+臨時開啟路由轉發功能可直接對該文件賦值：
+
+```
+# echo 1 > /proc/sys/net/ipv4/ip_forward
+```
+
+通過編輯配置`/etc/sysctl.cnf`可永久開啟路由轉發功能：
+
+```
+# Kernel sysctl configuration file for ...
+#
+# For binary values, 0 is disabled, 1 is enabled.  See sysctl(8) and
+# sysctl.conf(5) for more details.
+
+# Controls IP packet forwarding
+net.ipv4.ip_forward = 1
+# Controls source route verification
+net.ipv4.conf.default.rp_filter = 1
+```
 
 
 
