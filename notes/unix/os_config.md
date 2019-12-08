@@ -41,8 +41,8 @@
 	- [邏輯卷狀態和塊設備不顯示問題](#邏輯卷狀態和塊設備不顯示問題)
 - [NTP (Network Time Protocol)](#ntp-network-time-protocol)
 	- [NTP 服務配置](#ntp-服務配置)
-		- [NTP 客戶端](#ntp-客戶端)
-		- [NTP 服務端](#ntp-服務端)
+		- [NTP Client 配置](#ntp-client-配置)
+		- [NTP Server 配置](#ntp-server-配置)
 	- [NTP 管理指令](#ntp-管理指令)
 - [curl](#curl)
 	- [FTP 操作](#ftp-操作)
@@ -1165,6 +1165,8 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 # resize2fs [邏輯分區路徑] [分區大小] // 調整ext系列文件系統的大小
 ```
 
+縮減邏輯卷時操作相反，先卸載對應分區，使用文件系統對應的工具縮減文件系統大小，之後再縮減文件系統所屬的LVM分區的大小。
+
 ## 邏輯卷狀態和塊設備不顯示問題
 使用lvdisplay查看邏輯卷狀態時，若邏輯卷`LV Status`顯示`NOT available`，
 可使用`vgchange`激活卷組下所有的邏輯卷，使其狀態恢復爲`available`：
@@ -1201,7 +1203,7 @@ NTP配置文件為`/etc/ntp.conf`。
 # systemctl start ntpd
 ```
 
-### NTP 客戶端
+### NTP Client 配置
 將服務器配置為NTP Client，需要在配置中添加同步目標主機。
 添加`server`配置段：
 
@@ -1214,7 +1216,7 @@ server 1.xxx
 ...
 ```
 
-### NTP 服務端
+### NTP Server 配置
 配置了NTP服務的主機可以允許同一網絡下的其它NTP客戶端同步此服務器。
 添加`restrict`配置段：
 
