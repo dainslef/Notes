@@ -19,6 +19,8 @@
 		- [數據文件定義](#數據文件定義)
 	- [hpack 構建配置](#hpack-構建配置)
 	- [Paths_xxx 模塊](#paths_xxx-模塊)
+- [Haskell IDE Engine (HIE)](#haskell-ide-engine-hie)
+	- [源碼安裝](#源碼安裝)
 - [問題註記](#問題註記)
 	- [Revision Mismatch](#revision-mismatch)
 	- [HDBC-mysql](#hdbc-mysql)
@@ -30,7 +32,7 @@
 # 概述
 `Stack`是新一代的Haskell構建工具。
 
-Stack集成了以下功能：
+stack集成了以下功能：
 
 - 創建標準的Haksell項目模板。
 - 獲取最新的GHC編譯器。
@@ -40,11 +42,11 @@ Stack集成了以下功能：
 
 
 # 安裝與配置
-Stack支持各大主流平臺，根據平臺在頁面`https://www.stackage.org/stack/`選擇下載二進制包。
+stack支持各大主流平臺，根據平臺在頁面`https://www.stackage.org/stack/`選擇下載二進制包。
 
 - **Linux/Unix**系統：
 
-	各類Unix可以使用對應發行版的包管理器安裝`Stack`。
+	各類Unix可以使用對應發行版的包管理器安裝stack。
 
 	```
 	# apt install stack //Debian
@@ -54,7 +56,7 @@ Stack支持各大主流平臺，根據平臺在頁面`https://www.stackage.org/s
 
 - **Wdinwos**系統：
 
-	1. 在`https://www.stackage.org/stack/windows-x86_64`下載`Stack`。
+	1. 在`https://www.stackage.org/stack/windows-x86_64`下載stack。
 	1. 配置`STACK_ROOT`環境變量。
 	1. 將`%STACK_ROOT%`加入`PATH`環境變量中。
 
@@ -79,7 +81,7 @@ LTS版本配置：
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: lts-11.13
+resolver: lts-12.26
 ```
 
 `resolver`配置項可以是LTS版本號、nightly版本日期或GHC編譯器版本號。<br>
@@ -566,6 +568,30 @@ library
 ```
 Undefined symbols for architecture x86_64:
 ...
+```
+
+
+
+# Haskell IDE Engine (HIE)
+[HIE項目](https://github.com/haskell/haskell-ide-engine)旨在成為Haskell工具鏈的通用接口，
+針對Haskell需求的特性，提供**特性完整**、**易於訪問**的編輯器/IDE後端。
+
+HIE使用微軟提出的協議[Language Server Protocol](https://microsoft.github.io/language-server-protocol/overview)與客戶端交互，
+目前已支持多種編輯器編輯器前端(如VSCode、Atom、Sublime Text等)。
+
+## 源碼安裝
+從源碼編譯項目需要已安裝`git、stack`等工具。
+同時需要將stack的二進制目錄配置在PATH環境變量中：
+
+```sh
+export PATH+=$(stack path --local-bin)
+```
+
+從項目[官方GitHub主頁地址](https://github.com/haskell/haskell-ide-engine)克隆項目源碼：
+
+```
+$ git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules
+$ cd haskell-ide-engine
 ```
 
 
