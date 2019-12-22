@@ -21,6 +21,8 @@
 	- [Paths_xxx 模塊](#paths_xxx-模塊)
 - [Haskell IDE Engine (HIE)](#haskell-ide-engine-hie)
 	- [源碼安裝](#源碼安裝)
+		- [指定Stackage版本](#指定stackage版本)
+		- [執行安裝](#執行安裝)
 - [問題註記](#問題註記)
 	- [Revision Mismatch](#revision-mismatch)
 	- [HDBC-mysql](#hdbc-mysql)
@@ -592,6 +594,40 @@ export PATH+=$(stack path --local-bin)
 ```
 $ git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules
 $ cd haskell-ide-engine
+```
+
+### 指定Stackage版本
+默認生成的配置文件會使用目前最新的Stackge LTS版本，要選用指定的LTS版本Stackage進行安裝，
+需要修改安裝配置`./install/shake.yaml`，以`LTS 12.26 (GHC 8.4.4)`為例：
+
+```yaml
+resolver: lts-12.26 # GHC 8.4.4
+allow-newer: true # 允許安裝部分與Stackage版本不匹配的包
+...
+```
+
+### 執行安裝
+安裝腳本文件為`./install.hs`，通過stack工具執行腳本進行安裝：
+
+```c
+$ stack ./install.hs help
+
+// 安裝指定GHC編譯器對應的版本
+$ stack ./install.hs hie-8.4.4
+// 構建HIE依賴的周邊工具，如cabal-helper/ghc-mod/HaRe等，並構建Stackage庫的符號信息
+$ stack ./install.hs build-data
+```
+
+安裝結束後，會在`~/.local/bin`路徑下生成對應Stackage版本的二進制文件(以Stackage LTS 12.26為例)：
+
+```
+$ ls -al ~/.local/bin
+...
+-rwxr-xr-x   1 dainslef  staff  118524664 Nov 23 13:15 hie
+-rwxr-xr-x   1 dainslef  staff  118524664 Nov 23 13:15 hie-8.4
+-rwxr-xr-x   1 dainslef  staff  118524664 Nov 23 13:15 hie-8.4.4
+-rwxr-xr-x   1 dainslef  staff    4315304 Nov 23 13:15 hie-wrapper
+...
 ```
 
 
