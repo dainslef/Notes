@@ -882,7 +882,7 @@ tcpkeepalive配置也會被重置爲默認值(`1`)，會重新導致休眠失敗
 
 ## <W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'
 問題描述：<br>
-使用Homebrew Cask安裝Wireshark後，使用fish shell啟動時會出現該錯誤。
+使用Homebrew Cask安裝Wireshark後，普通用戶使用fish shell啟動時會出現該錯誤。
 
 解決方案：<br>
 出現該錯誤信息的原因是Wireshark安裝過程中創建了`/etc/path.d/Wireshark`文件。
@@ -893,8 +893,11 @@ tcpkeepalive配置也會被重置爲默認值(`1`)，會重新導致休眠失敗
 -rw-------  1 root  wheel  43 Nov 21 07:19 /etc/paths.d/Wireshark
 ```
 
-普通用戶所屬的用戶組不具備讀取權限，修改權限為`644`後正常：
+普通用戶所屬的用戶組不具備讀取權限，而fish shell的補全功能需要訪問該文件。
+修改權限為`644`後，普通用戶fish shell不再出現該錯誤信息：
 
 ```
 # chmod +r /etc/paths.d/Wireshark
+# ls -al /etc/paths.d/Wireshark
+-rw-r--r--  1 root  wheel  43 Nov 21 07:19 /etc/paths.d/Wireshark
 ```
