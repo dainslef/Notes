@@ -46,6 +46,8 @@
 	- [完整刪除 JDK](#完整刪除-jdk)
 	- [刪除 GarageBand](#刪除-garageband)
 	- [MacBook 合蓋無法正常休眠](#macbook-合蓋無法正常休眠)
+- [問題記錄](#問題記錄)
+	- [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
 
 <!-- /TOC -->
 
@@ -872,3 +874,27 @@ Warning: This option disables TCP Keep Alive mechanism when sytem is sleeping. T
 
 需要注意，在`System Reference`的`Energy Saver`中選擇`Restore Defaults`將電源管理策略重置爲默認值時，
 tcpkeepalive配置也會被重置爲默認值(`1`)，會重新導致休眠失敗。
+
+
+
+# 問題記錄
+記錄macOS下遇到的一些問題的解決方案。
+
+## <W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'
+問題描述：<br>
+使用Homebrew Cask安裝Wireshark後，使用fish shell啟動時會出現該錯誤。
+
+解決方案：<br>
+出現該錯誤信息的原因是Wireshark安裝過程中創建了`/etc/path.d/Wireshark`文件。
+該文件創建時的權限為`600`：
+
+```
+# ls -al /etc/paths.d/Wireshark
+-rw-------  1 root  wheel  43 Nov 21 07:19 /etc/paths.d/Wireshark
+```
+
+普通用戶所屬的用戶組不具備讀取權限，修改權限為`644`後正常：
+
+```
+# chmod +r /etc/paths.d/Wireshark
+```
