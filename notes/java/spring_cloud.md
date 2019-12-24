@@ -32,6 +32,7 @@
 	- [消息結構](#消息結構)
 - [Spring Boot Admin](#spring-boot-admin)
 	- [Spring Boot Admin Server](#spring-boot-admin-server)
+	- [Spring Boot Admin Client](#spring-boot-admin-client)
 
 <!-- /TOC -->
 
@@ -374,7 +375,7 @@ Zuul監聽的相關請求**不會**觸發Spring MVC提供的攔截器。
 
 在Zuul中，過濾/攔截相關功能需要使用`ZuulFilter`。
 
-相關問題參考StackOverflow上的[**對應提問**](`https://stackoverflow.com/questions/39801282/handlerinterceptoradapter-and-zuul-filter`)。
+相關問題參考StackOverflow上的[**對應提問**](https://stackoverflow.com/questions/39801282/handlerinterceptoradapter-and-zuul-filter)。
 
 ### CrossOrigin (跨域問題)
 使用Zuul轉發請求的模塊同樣需要處理跨域問題，要正確實現轉發跨域請求，需要滿足：
@@ -647,7 +648,7 @@ Spring Cloud Stream應用通過`input/output`兩類消息管道(channel)經過`B
 
 Spring Cloud Stream官方文檔中給出了應用結構的圖示：
 
-![Spring Cloud Stream Application Model](../../images/spring-cloud-stream-application-model.png)
+![Spring Cloud Stream Application Model](../../images/spring_cloud_stream_application_model.png)
 
 ## Sink & Source
 Spring Cloud Stream中提供了預定義的消息通道：
@@ -891,4 +892,32 @@ fun main(args: Array<String>) {
 
 ```yaml
 spring.boot.admin.context-path: /admin-ui # 以 /admin-ui 作爲管理UI的路徑前綴
+```
+
+## Spring Boot Admin Client
+每個應用需要添加Spring Boot Admin Client依賴來與服務端通信傳輸狀態信息：
+
+```xml
+<dependency>
+    <groupId>de.codecentric</groupId>
+    <artifactId>spring-boot-admin-starter-client</artifactId>
+    <version>2.1.5</version>
+</dependency>
+```
+
+對於使用了Spring Cloud Eureka的項目，客戶端無需引入Admin Client。
+
+Spring Boot Admin依賴與Spring Actuator提供的端點接口，需要在每個客戶端添加actuator對應的starter：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+Spring Boot 2之後關閉了多數的端點，要讓Admin Server能獲取到完整的監控信息，可以在`application.yaml`配置開放端點：
+
+```yaml
+management.endpoints.web.exposure.include: '*' # 開放所有端點，在真正的產品開發中，需要慎重考慮到端點的開放
 ```
