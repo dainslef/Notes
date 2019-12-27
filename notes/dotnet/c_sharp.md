@@ -1,84 +1,84 @@
 <!-- TOC -->
 
-- [入口函数](#入口函数)
-- [数据类型](#数据类型)
-	- [Value Type (值类型)](#value-type-值类型)
-	- [Reference Type (引用类型)](#reference-type-引用类型)
-	- [struct (结构类型)](#struct-结构类型)
-	- [可空类型与 ?、?? 操作符](#可空类型与--操作符)
-	- [Type alias (类型别名)](#type-alias-类型别名)
-- [字符转换](#字符转换)
-	- [byte[] 与 string 转换](#byte-与-string-转换)
-- [Property (属性)](#property-属性)
-	- [自动成员属性](#自动成员属性)
-	- [成员属性初始化](#成员属性初始化)
-	- [属性表达式](#属性表达式)
-- [static 关键字](#static-关键字)
-	- [静态方法](#静态方法)
-	- [静态字段](#静态字段)
-	- [静态构造函数](#静态构造函数)
-	- [静态类](#静态类)
-- [Extension Methods (扩展方法)](#extension-methods-扩展方法)
-	- [在 Scala 中模拟扩展方法](#在-scala-中模拟扩展方法)
-	- [扩展方法的应用场景](#扩展方法的应用场景)
+- [入口函數](#入口函數)
+- [數據類型](#數據類型)
+	- [Value Type (值類型)](#value-type-值類型)
+	- [Reference Type (引用類型)](#reference-type-引用類型)
+	- [struct (結構類型)](#struct-結構類型)
+	- [可空類型與 ?、?? 操作符](#可空類型與--操作符)
+	- [Type alias (類型別名)](#type-alias-類型別名)
+- [字符轉換](#字符轉換)
+	- [byte[] 與 string 轉換](#byte-與-string-轉換)
+- [Property (屬性)](#property-屬性)
+	- [自動成員屬性](#自動成員屬性)
+	- [成員屬性初始化](#成員屬性初始化)
+	- [屬性表達式](#屬性表達式)
+- [static 關鍵字](#static-關鍵字)
+	- [靜態方法](#靜態方法)
+	- [靜態字段](#靜態字段)
+	- [靜態構造函數](#靜態構造函數)
+	- [靜態類](#靜態類)
+- [Extension Methods (擴展方法)](#extension-methods-擴展方法)
+	- [在 Scala 中模擬擴展方法](#在-scala-中模擬擴展方法)
+	- [擴展方法的應用場景](#擴展方法的應用場景)
 - [Generic (泛型)](#generic-泛型)
-	- [泛型约束](#泛型约束)
-	- [Variance (型变/变性)](#variance-型变变性)
-	- [泛型类的静态成员](#泛型类的静态成员)
-- [delegate (委托) 和 event (事件)](#delegate-委托-和-event-事件)
-	- [delegate (委托)](#delegate-委托)
+	- [泛型約束](#泛型約束)
+	- [Variance (型變/變性)](#variance-型變變性)
+	- [泛型類的靜態成員](#泛型類的靜態成員)
+- [delegate (委託) 和 event (事件)](#delegate-委託-和-event-事件)
+	- [delegate (委託)](#delegate-委託)
 	- [event (事件)](#event-事件)
-	- [自定义添加/删除操作的事件](#自定义添加删除操作的事件)
+	- [自定義添加/刪除操作的事件](#自定義添加刪除操作的事件)
 - [Lambda](#lambda)
-	- [实现委托](#实现委托)
-	- [函数对象](#函数对象)
-	- [变量捕获](#变量捕获)
-	- [定义成员函数](#定义成员函数)
+	- [實現委託](#實現委託)
+	- [函數對象](#函數對象)
+	- [變量捕獲](#變量捕獲)
+	- [定義成員函數](#定義成員函數)
 - [Pattern Matching (模式匹配)](#pattern-matching-模式匹配)
-	- [is 表达式](#is-表达式)
+	- [is 表達式](#is-表達式)
 	- [switch 模式匹配](#switch-模式匹配)
-- [并发编程](#并发编程)
+- [併發編程](#併發編程)
 	- [Thread](#thread)
-	- [Async Delegate (异步委托)](#async-delegate-异步委托)
+	- [Async Delegate (異步委託)](#async-delegate-異步委託)
 	- [Task](#task)
-	- [async/await 关键字](#asyncawait-关键字)
-	- [lock 关键字](#lock-关键字)
+	- [async/await 關鍵字](#asyncawait-關鍵字)
+	- [lock 關鍵字](#lock-關鍵字)
 - [Reflection (反射)](#reflection-反射)
-	- [反射机制的相关类型](#反射机制的相关类型)
-	- [Type/TypeInfo 类型](#typetypeinfo-类型)
-	- [反射获取成员信息](#反射获取成员信息)
+	- [反射機制的相關類型](#反射機制的相關類型)
+	- [Type/TypeInfo 類型](#typetypeinfo-類型)
+	- [反射獲取成員信息](#反射獲取成員信息)
 - [Attribute (特性)](#attribute-特性)
 	- [使用特性](#使用特性)
-	- [自定义特性](#自定义特性)
-- [动态代理](#动态代理)
+	- [自定義特性](#自定義特性)
+- [動態代理](#動態代理)
 - [FTP](#ftp)
-	- [创建 FTP 请求](#创建-ftp-请求)
-	- [下载](#下载)
-	- [上传](#上传)
-- [WinForm 开发注记](#winform-开发注记)
-	- [常见控件类型](#常见控件类型)
+	- [創建 FTP 請求](#創建-ftp-請求)
+	- [下載](#下載)
+	- [上傳](#上傳)
+- [WinForm 開發註記](#winform-開發註記)
+	- [常見控件類型](#常見控件類型)
 	- [容器控件](#容器控件)
-	- [布局与样式](#布局与样式)
+	- [佈局與樣式](#佈局與樣式)
 	- [控件事件](#控件事件)
 	- [接收Windows消息](#接收windows消息)
-- [调用 C/C++ 动态链接库](#调用-cc-动态链接库)
-- [特殊关键字](#特殊关键字)
-	- [internal 关键字](#internal-关键字)
-	- [readonly 关键字](#readonly-关键字)
-	- [partial 关键字](#partial-关键字)
-	- [params 关键字](#params-关键字)
-- [常见问题](#常见问题)
-	- [处理`\0`结尾字符串](#处理\0结尾字符串)
-	- [MySQL 中 TINYINT 类型](#mysql-中-tinyint-类型)
+- [調用 C/C++ 動態鏈接庫](#調用-cc-動態鏈接庫)
+- [特殊關鍵字](#特殊關鍵字)
+	- [internal 關鍵字](#internal-關鍵字)
+	- [readonly 關鍵字](#readonly-關鍵字)
+	- [partial 關鍵字](#partial-關鍵字)
+	- [params 關鍵字](#params-關鍵字)
+- [常見問題](#常見問題)
+	- [處理`\0`結尾字符串](#處理\0結尾字符串)
+	- [MySQL 中 TINYINT 類型](#mysql-中-tinyint-類型)
 	- [DEBUG 宏](#debug-宏)
-	- [输出代码文件名、行号](#输出代码文件名行号)
+	- [輸出代碼文件名、行號](#輸出代碼文件名行號)
 
 <!-- /TOC -->
 
 
 
-# 入口函数
-`C#`中允许以下4种形式的入口函数：
+# 入口函數
+`C#`中允許以下4種形式的入口函數：
 
 ```cs
 static void Main();
@@ -87,23 +87,23 @@ static int Main();
 static int Main(string[] args);
 ```
 
-`C#`允许多种入口函数形式，一般采用第二种(默认)。
+`C#`允許多種入口函數形式，一般採用第二種(默認)。
 
-与`Java`不同，`C#`并不强制要求主类的类名与主类所在文件的文件名相同。
-实际上，`C#`由于支持`部分类`特性，也不可能要求类名与源码文件名相同。
+與`Java`不同，`C#`並不強制要求主類的類名與主類所在文件的文件名相同。
+實際上，`C#`由於支持`部分類`特性，也不可能要求類名與源碼文件名相同。
 
 
 
-# 数据类型
-C#的数据类型分为两类：值类型和引用类型。
-一般而言，值类型用于**存储数据**，引用类型用于**定义行为**。
+# 數據類型
+C#的數據類型分爲兩類：值類型和引用類型。
+一般而言，值類型用於**存儲數據**，引用類型用於**定義行爲**。
 
-## Value Type (值类型)
-值类型具体包括**预定义值类型**、**自定义值类型**和**枚举类型**。
-所有值类型隐式派生于`System.ValueType`类。
+## Value Type (值類型)
+值類型具體包括**預定義值類型**、**自定義值類型**和**枚舉類型**。
+所有值類型隱式派生於`System.ValueType`類。
 
-例如，系统预定义的值类型`int`是`System`命名空间中`System.Int32`结构体的别名。
-`System.Int32`结构的定义为：
+例如，系統預定義的值類型`int`是`System`命名空間中`System.Int32`結構體的別名。
+`System.Int32`結構的定義爲：
 
 ```cs
 public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>, IEquatable<int>
@@ -112,9 +112,9 @@ public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>,
 }
 ```
 
-其它的预定义值类型也是类似的`结构类型(Struct)`的别名：
+其它的預定義值類型也是類似的`結構類型(Struct)`的別名：
 
-| 别名 | 实际类型 |
+| 別名 | 實際類型 |
 |:----|:--------|
 | sbyte | System.SByte |
 | short | System.Int16 |
@@ -127,60 +127,60 @@ public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>,
 | char | System.Char |
 | float | System.Single |
 | double | System.Double |
-| decimal | System.Decimal(一般用于财务计算) |
+| decimal | System.Decimal(一般用於財務計算) |
 | bool | System.Boolean |
-| enum | System.Enum(枚举类型) |
+| enum | System.Enum(枚舉類型) |
 
-用户定义的结构体，从`System.ValueType`类中继承：
+用戶定義的結構體，從`System.ValueType`類中繼承：
 
 ```cs
 public abstract class ValueType {};
 ```
 
-值类型实例通常分配在线程的**栈(stack)**上，并且不包含任何指向实例数据的指针，因为变量本身就包含了其实例数据。
-值类型在复制时是**值传递(pass by value)**，会复制当前值类型变量包含的内容。
+值類型實例通常分配在線程的**棧(stack)**上，並且不包含任何指向實例數據的指針，因爲變量本身就包含了其實例數據。
+值類型在複製時是**值傳遞(pass by value)**，會複製當前值類型變量包含的內容。
 
-## Reference Type (引用类型)
-引用类型包括：
+## Reference Type (引用類型)
+引用類型包括：
 
-- 数组(派生于`System.Array`)
-- 字符串`string`(`System.String`类的别名)
-- 自定义类(派生于`System.Object`)
-- 委托类型(派生于`System.Delegate`)
-- `object`类型(`System.Object`)的别名
+- 數組(派生於`System.Array`)
+- 字符串`string`(`System.String`類的別名)
+- 自定義類(派生於`System.Object`)
+- 委託類型(派生於`System.Delegate`)
+- `object`類型(`System.Object`)的別名
 
-引用类型与值类型比较：
+引用類型與值類型比較：
 
-- 值类型和引用类型都可以**实现接口**，但值类型**不能**再派生出新的子类型。
-- 引用类型可以为`null`，但值类型不行(除了**可空类型**)。
-- 引用类型复制是传递引用，值类型复制是拷贝整个对象。
-- 值类型分配内存在线程栈上，出栈自动释放；引用类型分配内存在托管堆上，由`GC`负责内存回收。
+- 值類型和引用類型都可以**實現接口**，但值類型**不能**再派生出新的子類型。
+- 引用類型可以爲`null`，但值類型不行(除了**可空類型**)。
+- 引用類型複製是傳遞引用，值類型複製是拷貝整個對象。
+- 值類型分配內存在線程棧上，出棧自動釋放；引用類型分配內存在託管堆上，由`GC`負責內存回收。
 
-## struct (结构类型)
-与`C++`完全不同，`C#`中的`结构体`与`类`有**很大区别**：
+## struct (結構類型)
+與`C++`完全不同，`C#`中的`結構體`與`類`有**很大區別**：
 
-- C#中的结构体为**值类型**，在**栈(stack)**中分配内存，而引用类型则仅在栈中保存**引用(reference)**，类型实体内存分配在**堆(heap)**中。
-- 由于结构体为值类型，复制结构体时是完全复制出一个新的结构体实例，而非引用类型的引用传递。
-- C#中结构体的默认访问权限是`private`，且结构体成员变量**不能**直接赋初值(需要通过有参构造函数赋初值)。
-- C#中结构类型全部继承自`System.ValueType`类，但结构体是隐式**密封(sealed)**的，**不能**被继承。
-- C#中结构体可以用来实现接口。用来实现接口的结构体虽然本身为值类型，但如果发生**向上转型**重新变为父类接口对象则值类型的特性也将随之消失。
-- C#中结构体不能被继承，因而结构体定义时不能使用`sealed`和`abstract`关键字，结构体成员定义时也不能使用`protected`和`internal`等关键字。
-- C#中结构体带有默认的无参构造函数，且该默认构造函数一直存在(无论你是否创建了有参构造函数)，默认的无参构造函数**不能**被自定义(改写)。
-- 创建有参构造函数时，必须在该构造函数中初始化所有的成员变量，否则无法通过编译。
-- 创建结构体时可以不使用`new`操作符，不使用`new`操作符创建的结构体对象中的结构体成员全部处于未初始化状态，需要经过初始化操作(手动访问赋值)之后方可使用。
-- 如果需要使用结构体提供的有参构造函数，则必须使用`new`操作符进行对象创建，语法类似于`class`。
-- 在C#中结构体成员可以使用`static`修饰，结构体也可以创建静态构造函数。
-- 在C#中结构体中可以正常使用泛型。
+- C#中的結構體爲**值類型**，在**棧(stack)**中分配內存，而引用類型則僅在棧中保存**引用(reference)**，類型實體內存分配在**堆(heap)**中。
+- 由於結構體爲值類型，複製結構體時是完全複製出一個新的結構體實例，而非引用類型的引用傳遞。
+- C#中結構體的默認訪問權限是`private`，且結構體成員變量**不能**直接賦初值(需要通過有參構造函數賦初值)。
+- C#中結構類型全部繼承自`System.ValueType`類，但結構體是隱式**密封(sealed)**的，**不能**被繼承。
+- C#中結構體可以用來實現接口。用來實現接口的結構體雖然本身爲值類型，但如果發生**向上轉型**重新變爲父類接口對象則值類型的特性也將隨之消失。
+- C#中結構體不能被繼承，因而結構體定義時不能使用`sealed`和`abstract`關鍵字，結構體成員定義時也不能使用`protected`和`internal`等關鍵字。
+- C#中結構體帶有默認的無參構造函數，且該默認構造函數一直存在(無論你是否創建了有參構造函數)，默認的無參構造函數**不能**被自定義(改寫)。
+- 創建有參構造函數時，必須在該構造函數中初始化所有的成員變量，否則無法通過編譯。
+- 創建結構體時可以不使用`new`操作符，不使用`new`操作符創建的結構體對象中的結構體成員全部處於未初始化狀態，需要經過初始化操作(手動訪問賦值)之後方可使用。
+- 如果需要使用結構體提供的有參構造函數，則必須使用`new`操作符進行對象創建，語法類似於`class`。
+- 在C#中結構體成員可以使用`static`修飾，結構體也可以創建靜態構造函數。
+- 在C#中結構體中可以正常使用泛型。
 
-## 可空类型与 ?、?? 操作符
-在`C#`中，值类型不能为`null`，对值类型赋值`null`会得到错误，如下所示：
+## 可空類型與 ?、?? 操作符
+在`C#`中，值類型不能爲`null`，對值類型賦值`null`會得到錯誤，如下所示：
 
 ```cs
-int num = null; //错误信息："Cannot convert null to 'int' because it is a non-nullable value type"
+int num = null; //錯誤信息："Cannot convert null to 'int' because it is a non-nullable value type"
 ```
 
-在传统的值类型后添加`?`符号，即成为对应的**可空类型**。
-可空类型的实际类型为`System.Nullable<T>`结构体：
+在傳統的值類型後添加`?`符號，即成爲對應的**可空類型**。
+可空類型的實際類型爲`System.Nullable<T>`結構體：
 
 ```cs
 public struct Nullable<T> where T : struct
@@ -189,34 +189,34 @@ public struct Nullable<T> where T : struct
 }
 ```
 
-假设有值类型`T`，对应的可空类型声明可以为：
+假設有值類型`T`，對應的可空類型聲明可以爲：
 
 ```cs
 T? variable;
 System.Nullable<T> variable;
 ```
 
-可空类型提供以下**只读属性**用于检查/获取保存的实际值：
+可空類型提供以下**只讀屬性**用於檢查/獲取保存的實際值：
 
-- `HasValue`属性类型为`bool`类型，当变量包含非`null`值时，返回`true`。
-- `Value`属性类型为可空类型对应的值类型，当可空类型保存的值**不为**`null`时，返回保存的值，否则抛出`InvalidOperationException`异常。
+- `HasValue`屬性類型爲`bool`類型，當變量包含非`null`值時，返回`true`。
+- `Value`屬性類型爲可空類型對應的值類型，當可空類型保存的值**不爲**`null`時，返回保存的值，否則拋出`InvalidOperationException`異常。
 
 - `??`操作符
 
-	`??`运算符用于在可空类型/引用类型值为`null`时返回默认值，如下所示：
+	`??`運算符用於在可空類型/引用類型值爲`null`時返回默認值，如下所示：
 
 	```cs
 	int? num0 = null;
-	num0 ?? 1; //可空变量为null时返回指定的默认值1
+	num0 ?? 1; //可空變量爲null時返回指定的默認值1
 	int? num1 = 0;
-	num1 ?? 1; //可空变量不为null时返回保存的值0
+	num1 ?? 1; //可空變量不爲null時返回保存的值0
 	string str = null;
-	str ?? "test" //??操作符同样可以用在普通引用类型上
+	str ?? "test" //??操作符同樣可以用在普通引用類型上
 	```
 
 - `?`操作符
 
-	`?`操作符可用于在访问引用类型/可空类型前对目标对象进行检查，访问的实例为`null`则不执行操作。
+	`?`操作符可用於在訪問引用類型/可空類型前對目標對象進行檢查，訪問的實例爲`null`則不執行操作。
 	如下所示：
 
 	```cs
@@ -234,19 +234,19 @@ System.Nullable<T> variable;
 		{
 			Test test = null;
 			Console.WriteLine("First Call:");
-			test?.Show(); //实例为null，不调用方法
-			int? num = test?.GetNum(); //返回可空类型，实例为null时返回值为null
-			Console.WriteLine(num); //打印结果为空(null)
+			test?.Show(); //實例爲null，不調用方法
+			int? num = test?.GetNum(); //返回可空類型，實例爲null時返回值爲null
+			Console.WriteLine(num); //打印結果爲空(null)
 			Console.WriteLine("Second Call:");
 			test = new Test();
-			test?.Show(); //实例不为null，正常调用方法
+			test?.Show(); //實例不爲null，正常調用方法
 			num = test?.GetNum();
-			Console.WriteLine(num); //打印结果为1
+			Console.WriteLine(num); //打印結果爲1
 		}
 	}
 	```
 
-	输出结果：
+	輸出結果：
 
 	```
 	First Call:
@@ -256,8 +256,8 @@ System.Nullable<T> variable;
 	1
 	```
 
-	使用`?`运算符的语句带有可空类型/引用类型的返回值，当受检对象未通过`null`检查，后续语句不执行，同时整个语句返回`null`。
-	利用此特性可搭配`??`运算符组合使用：
+	使用`?`運算符的語句帶有可空類型/引用類型的返回值，當受檢對象未通過`null`檢查，後續語句不執行，同時整個語句返回`null`。
+	利用此特性可搭配`??`運算符組合使用：
 
 	```cs
 	int? num = null;
@@ -266,7 +266,7 @@ System.Nullable<T> variable;
 	Console.WriteLine(num?.ToString() ?? "Empty"); //打印 "2333"
 	```
 
-	`?`运算符还可结合索引运算符`[]`使用：
+	`?`運算符還可結合索引運算符`[]`使用：
 
 	```cs
 	int?[] nums = { null, 2333, null, 666 };
@@ -275,48 +275,48 @@ System.Nullable<T> variable;
 	Console.WriteLine(nums?[1]?.ToString() ?? "Error"); //打印 "2333"
 	```
 
-## Type alias (类型别名)
-C#中使用`using`关键字为已有类型创建**别名**，基本用法与`C++11`中添加的新`using`语法相似。
+## Type alias (類型別名)
+C#中使用`using`關鍵字爲已有類型創建**別名**，基本用法與`C++11`中添加的新`using`語法相似。
 如下所示：
 
 ```cs
 namespace Np
 {
-	using Fvoid = Action; //普通类型别名
-	using FInt = Func<int>; //泛型类型需要指定具体类型
+	using Fvoid = Action; //普通類型別名
+	using FInt = Func<int>; //泛型類型需要指定具體類型
 
-	// C#不支持高阶类型
-	using FInInt<In> = Func<In, int>; //错误
-	using Ft<R> = Func<R>; //错误
+	// C#不支持高階類型
+	using FInInt<In> = Func<In, int>; //錯誤
+	using Ft<R> = Func<R>; //錯誤
 }
 ```
 
-`C#`中的类型别名有较多**限制**：
+`C#`中的類型別名有較多**限制**：
 
-- 不支持定义**高阶类型**，`C++11`中的`using`支持此功能。
-- 不能在命名空间之外的区域定义类型别名(全局区域、类体、函数体内皆不可定义别名)，`C++11`的`using`无此限制。
-
-
-
-# 字符转换
-`System.Text.Encoding`抽象类定义了一系列的编码转换方法。
-
-## byte[] 与 string 转换
-- 使用`string System.Text.Encoding.ASCII.GetString(byte[] bytes)`获取byte数组的对应string字符串。
-- 使用`byte[] System.Text.Encoding.ASCII.GetBytes(string s)`获取string字符串对应的byte数组。
+- 不支持定義**高階類型**，`C++11`中的`using`支持此功能。
+- 不能在命名空間之外的區域定義類型別名(全局區域、類體、函數體內皆不可定義別名)，`C++11`的`using`無此限制。
 
 
 
-# Property (属性)
-`C#`类中成员有一种被称为`属性`。
+# 字符轉換
+`System.Text.Encoding`抽象類定義了一系列的編碼轉換方法。
 
-- 属性的访问方式与成员变量类似；通过定义`set`和`get`块的内容，能够通过属性给成员变量赋值或是获取成员变量的值。
-- `set`和`get`可以分别设置**访问权限**，不加关键字时访问权限与所在的属性相同。
-- `set`块中使用局部关键字`value`来代表给属性的赋值。`get`块必须返回一个与属性类型相符的值。
-- `set`块和`get`块**不是**必须同时存在的，只有`set/get`块的属性被称为`只读/只写属性`。
-- 属性前允许使用`static`修饰，表示定义静态属性，与静态变量类似。
+## byte[] 與 string 轉換
+- 使用`string System.Text.Encoding.ASCII.GetString(byte[] bytes)`獲取byte數組的對應string字符串。
+- 使用`byte[] System.Text.Encoding.ASCII.GetBytes(string s)`獲取string字符串對應的byte數組。
 
-如下代码所示：
+
+
+# Property (屬性)
+`C#`類中成員有一種被稱爲`屬性`。
+
+- 屬性的訪問方式與成員變量類似；通過定義`set`和`get`塊的內容，能夠通過屬性給成員變量賦值或是獲取成員變量的值。
+- `set`和`get`可以分別設置**訪問權限**，不加關鍵字時訪問權限與所在的屬性相同。
+- `set`塊中使用局部關鍵字`value`來代表給屬性的賦值。`get`塊必須返回一個與屬性類型相符的值。
+- `set`塊和`get`塊**不是**必須同時存在的，只有`set/get`塊的屬性被稱爲`只讀/只寫屬性`。
+- 屬性前允許使用`static`修飾，表示定義靜態屬性，與靜態變量類似。
+
+如下代碼所示：
 
 ```cs
 using System;
@@ -350,44 +350,44 @@ class Program
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 0
 100
 ```
 
-对类`A`中属性`Num`的赋值通过属性的`set`块中的局部关键字`value`传给了`A`类私有成员`num`，通过`Num`属性的`get`块获取了私有成员`num`的值。
+對類`A`中屬性`Num`的賦值通過屬性的`set`塊中的局部關鍵字`value`傳給了`A`類私有成員`num`，通過`Num`屬性的`get`塊獲取了私有成員`num`的值。
 
-## 自动成员属性
-在`C# 3.0`之后，可以使用**自动属性**。
-自动属性只需直接使用`set`、`get`关键字，**不必**定义属性相关的私有变量并编写`set`、`get`块代码。
-编译器会为自动属性生成私有变量保存属性的内容。
+## 自動成員屬性
+在`C# 3.0`之後，可以使用**自動屬性**。
+自動屬性只需直接使用`set`、`get`關鍵字，**不必**定義屬性相關的私有變量並編寫`set`、`get`塊代碼。
+編譯器會爲自動屬性生成私有變量保存屬性的內容。
 
-上述例子中成员属性`Num`可以简写为：
+上述例子中成員屬性`Num`可以簡寫爲：
 
 ```cs
 public int Num { get; set; }
 ```
 
-同时，不用定义私有变量`num`来存储属性的内容，编译器会自动生成一个变量。
+同時，不用定義私有變量`num`來存儲屬性的內容，編譯器會自動生成一個變量。
 
-## 成员属性初始化
-在`C# 6.0`中，开始支持对自动成员属性进行**类内初始化**，可以直接在类中对自动成员属性**赋初值**：
+## 成員屬性初始化
+在`C# 6.0`中，開始支持對自動成員屬性進行**類內初始化**，可以直接在類中對自動成員屬性**賦初值**：
 
 ```cs
 public int Num { get; set; } = 0;
 ```
 
-该特性也同样支持**只读属性**：
+該特性也同樣支持**只讀屬性**：
 
 ```cs
 public int Num { get; } = 0;
 ```
 
-## 属性表达式
-在`C# 6.0`中，对于**只读属性**，可以使用简化的语法进行定义。
-有如下只读属性：
+## 屬性表達式
+在`C# 6.0`中，對於**只讀屬性**，可以使用簡化的語法進行定義。
+有如下只讀屬性：
 
 ```cs
 private int num = 0;
@@ -400,15 +400,15 @@ public int Num
 }
 ```
 
-在`C# 6.0`中可以使用基于表达式的简化语法：
+在`C# 6.0`中可以使用基於表達式的簡化語法：
 
 ```cs
 private int num = 0;
 public int Num => num;
 ```
 
-在`C# 7.0`中，对于普通属性也提供了表达式语法。
-有如下属性：
+在`C# 7.0`中，對於普通屬性也提供了表達式語法。
+有如下屬性：
 
 ```cs
 private int num = 0;
@@ -425,7 +425,7 @@ public int Num
 }
 ```
 
-在`C# 7.0`中可以使用简化语法：
+在`C# 7.0`中可以使用簡化語法：
 
 ```cs
 private int num = 0;
@@ -438,87 +438,87 @@ public int Num
 
 
 
-# static 关键字
-在`C#`中，`static`关键字用于定义**静态类**、**静态方法**、**静态属性**、**静态字段**。
+# static 關鍵字
+在`C#`中，`static`關鍵字用於定義**靜態類**、**靜態方法**、**靜態屬性**、**靜態字段**。
 
-## 静态方法
-静态方法与实例无关，只能直接通过类名进行访问：
+## 靜態方法
+靜態方法與實例無關，只能直接通過類名進行訪問：
 
-- 在传统的`OOP`语言如`C++`、`Java`中，并不限制通过实例访问静态方法，作用与通过类名访问静态方法相同。
-- 在`C#`中，**不允许**通过实例访问静态方法，调用静态方法只能通过**类名**。
+- 在傳統的`OOP`語言如`C++`、`Java`中，並不限制通過實例訪問靜態方法，作用與通過類名訪問靜態方法相同。
+- 在`C#`中，**不允許**通過實例訪問靜態方法，調用靜態方法只能通過**類名**。
 
-通过实例访问静态方法会在编译时得到错误：
+通過實例訪問靜態方法會在編譯時得到錯誤：
 
 ```
 error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; qualify it with a type name instead`
 ```
 
-## 静态字段
-静态字段的概念与其它传统`OOP`语言如`C++`、`Java`类似，一个类的静态字段全局唯一。
-与静态方法类似，使用实例访问静态字段会在编译时报错，在`C#`中，只能通过类名访问静态字段。
+## 靜態字段
+靜態字段的概念與其它傳統`OOP`語言如`C++`、`Java`類似，一個類的靜態字段全局唯一。
+與靜態方法類似，使用實例訪問靜態字段會在編譯時報錯，在`C#`中，只能通過類名訪問靜態字段。
 
 - 字段初始化
 
-	在`C#`中，成员字段初始化时不能引用非静态成员。
-	如下代码所示：
+	在`C#`中，成員字段初始化時不能引用非靜態成員。
+	如下代碼所示：
 
 	```cs
 	class Test
 	{
 		int num = 0;
-		int num1 = num; //编译报错
+		int num1 = num; //編譯報錯
 	}
 	```
 
-	在`Java`、`C++`、`Scala`中，则允许成员字段初始化时引用其它字段。
+	在`Java`、`C++`、`Scala`中，則允許成員字段初始化時引用其它字段。
 
-- 静态字段初始化
+- 靜態字段初始化
 
-	在`C#`中，静态字段初始化时能够引用其它静态成员，但需要注意成员定义的**先后顺序**。
-	若引用的静态字段定义在当前静态字段之后，则当前静态不会被初始化。
+	在`C#`中，靜態字段初始化時能夠引用其它靜態成員，但需要注意成員定義的**先後順序**。
+	若引用的靜態字段定義在當前靜態字段之後，則當前靜態不會被初始化。
 	如下所示：
 
 	```cs
 	class Test
 	{
-		static int num = num1; //字段num1定义在num之后，num不会被初始化，值为0(默认值)
+		static int num = num1; //字段num1定義在num之後，num不會被初始化，值爲0(默認值)
 		static int num1 = 100;
 	}
 	```
 
-## 静态构造函数
-静态构造函数是`C#`中特有的概念，用于在类首次被使用前进行静态成员的初始化。
+## 靜態構造函數
+靜態構造函數是`C#`中特有的概念，用於在類首次被使用前進行靜態成員的初始化。
 
-- 静态构造函数与普通构造函数一样在类中定义。
-- 静态构造函数不能带有参数和访问权限。
-- 一个类/结构体只能定义一个静态构造函数。
-- 静态构造函数与类的无参构造函数虽然参数表相同，但不会冲突。
-- 静态构造函数只能初始化静态成员，若类中有静态成员赋了初值(类内初始化)，则.NET会自动为其创建默认的静态构造函数。
-- 静态构造函数不需要手动调用，在首次使用创建类实例或是方位类的静态成员时会由.NET自动调用，静态构造函数在全局只会被**调用一次**。
+- 靜態構造函數與普通構造函數一樣在類中定義。
+- 靜態構造函數不能帶有參數和訪問權限。
+- 一個類/結構體只能定義一個靜態構造函數。
+- 靜態構造函數與類的無參構造函數雖然參數表相同，但不會衝突。
+- 靜態構造函數只能初始化靜態成員，若類中有靜態成員賦了初值(類內初始化)，則.NET會自動爲其創建默認的靜態構造函數。
+- 靜態構造函數不需要手動調用，在首次使用創建類實例或是方位類的靜態成員時會由.NET自動調用，靜態構造函數在全局只會被**調用一次**。
 
-## 静态类
-在`C#`中，类定义前可以使用`static`关键字表示定义一个**静态类**。
+## 靜態類
+在`C#`中，類定義前可以使用`static`關鍵字表示定義一個**靜態類**。
 
-- 静态类只能包含静态成员，且是密封(`sealed`)的，不能被实例化和继承。
-- 静态类不能从普通类中派生，而静态类本身不可被继承，因而实际上所有静态类都从`object`中派生。
-- 静态类不能定义普通构造函数，但能够定义静态构造函数。
-- 静态类在首次被引用前加载，初始化其成员字段并调用该类的静态构造函数。
-- 一个类的静态构造函数仅被调用一次，在程序驻留的应用程序域的生存期内，静态类一直保留在内存中。
-- 扩展方法只能定义在静态类中。
-- `const`常量自带静态特性，可以定义在静态类中。
+- 靜態類只能包含靜態成員，且是密封(`sealed`)的，不能被實例化和繼承。
+- 靜態類不能從普通類中派生，而靜態類本身不可被繼承，因而實際上所有靜態類都從`object`中派生。
+- 靜態類不能定義普通構造函數，但能夠定義靜態構造函數。
+- 靜態類在首次被引用前加載，初始化其成員字段並調用該類的靜態構造函數。
+- 一個類的靜態構造函數僅被調用一次，在程序駐留的應用程序域的生存期內，靜態類一直保留在內存中。
+- 擴展方法只能定義在靜態類中。
+- `const`常量自帶靜態特性，可以定義在靜態類中。
 
 
 
-# Extension Methods (扩展方法)
-扩展方法能够在不改变现有类结构的前提下，向已存在的类型添加方法，并让这些方法像普通成员方法一样地被调用。
+# Extension Methods (擴展方法)
+擴展方法能夠在不改變現有類結構的前提下，向已存在的類型添加方法，並讓這些方法像普通成員方法一樣地被調用。
 
-- 扩展方法本质上是一种特殊的**静态方法**，且必须定义在**静态类**中。
-- 扩展方法被定义为静态方法，但调用时的语法与实例方法相同。
-- 扩展方法的第一个参数必须带有`this`关键字，且类型必须是需要被扩展的类型(即第一个参数接收被扩展类型的实例)。
-- 扩展方法本质上是一个语法糖，并不是真正向已有的类中添加了成员方法，因此扩展方法无法访问被扩展类的**私有成员**。
-- 扩展方法在编译成**IL**中间代码时会被转换为对静态方法的调用。
+- 擴展方法本質上是一種特殊的**靜態方法**，且必須定義在**靜態類**中。
+- 擴展方法被定義爲靜態方法，但調用時的語法與實例方法相同。
+- 擴展方法的第一個參數必須帶有`this`關鍵字，且類型必須是需要被擴展的類型(即第一個參數接收被擴展類型的實例)。
+- 擴展方法本質上是一個語法糖，並不是真正向已有的類中添加了成員方法，因此擴展方法無法訪問被擴展類的**私有成員**。
+- 擴展方法在編譯成**IL**中間代碼時會被轉換爲對靜態方法的調用。
 
-如下代码所示：
+如下代碼所示：
 
 ```cs
 using System;
@@ -534,21 +534,21 @@ class Test
 	{
 		object obj = null;
 		Console.WriteLine(obj.IsNull());
-		//实际等价于 Console.WriteLine(ExtensionMethod.IsNull(obj));
+		//實際等價於 Console.WriteLine(ExtensionMethod.IsNull(obj));
 	}
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 True
 ```
 
-## 在 Scala 中模拟扩展方法
-在`Scala`中，可以利用**隐式类**特性来获得与C#中扩展方法类似的效果。
+## 在 Scala 中模擬擴展方法
+在`Scala`中，可以利用**隱式類**特性來獲得與C#中擴展方法類似的效果。
 
-上述例子在`Scala`中可以写成：
+上述例子在`Scala`中可以寫成：
 
 ```scala
 object Test extends App {
@@ -563,32 +563,32 @@ object Test extends App {
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 true
 ```
 
-## 扩展方法的应用场景
-扩展方法主要用于向一些不方便改动的类型添加额外的方法，并让添加的方法能够以常规语法调用。
+## 擴展方法的應用場景
+擴展方法主要用於向一些不方便改動的類型添加額外的方法，並讓添加的方法能夠以常規語法調用。
 
-在`C#`标准库中，典型的扩展案例为`System.Linq.Enumerable`类。
-该类为`System.Collections.Generic.IEnumerable<T>`类型添加了大量`LINQ`风格的扩展方法定义。
+在`C#`標準庫中，典型的擴展案例爲`System.Linq.Enumerable`類。
+該類爲`System.Collections.Generic.IEnumerable<T>`類型添加了大量`LINQ`風格的擴展方法定義。
 
-使用扩展方法时需要节制，滥用扩展方法会造成代码难以理解。
+使用擴展方法時需要節制，濫用擴展方法會造成代碼難以理解。
 
 
 
 # Generic (泛型)
-值类型转变为引用类型会经过`装箱(boxing)`操作，而引用类型转变为值类型则要经过`拆箱(unboxing)`操作。
+值類型轉變爲引用類型會經過`裝箱(boxing)`操作，而引用類型轉變爲值類型則要經過`拆箱(unboxing)`操作。
 
-一个容器需要接收多种类型时，可能就需要将接受参数的类型设置为`object`型(即所有类型的父类)。
-值类型在转化到`object`型时就需要进行装箱操作，频繁地装箱与拆箱会有较高的开销。
-`object`类型并不安全(可能同时接收到不同的类型)，因而可以使用**泛型**来**显式指定**需要接收的类型(编译器会检查接收类型是否符合指定泛型)。
-对于值类型而言，使用泛型还可以避免重复的装箱与拆箱操作。
+一個容器需要接收多種類型時，可能就需要將接受參數的類型設置爲`object`型(即所有類型的父類)。
+值類型在轉化到`object`型時就需要進行裝箱操作，頻繁地裝箱與拆箱會有較高的開銷。
+`object`類型並不安全(可能同時接收到不同的類型)，因而可以使用**泛型**來**顯式指定**需要接收的類型(編譯器會檢查接收類型是否符合指定泛型)。
+對於值類型而言，使用泛型還可以避免重複的裝箱與拆箱操作。
 
-## 泛型约束
-C#中泛型可以使用`where`关键字进行泛型约束，例如：
+## 泛型約束
+C#中泛型可以使用`where`關鍵字進行泛型約束，例如：
 
 ```cs
 class A<T> where T : XXX
@@ -597,52 +597,52 @@ class A<T> where T : XXX
 }
 ```
 
-拥有多个泛型参数时，使用多个`where`语句限制多个泛型参数：
+擁有多個泛型參數時，使用多個`where`語句限制多個泛型參數：
 
 ```cs
-// 泛型参数T必须从XXX类型派生，泛型参数V必须从XXXX类型派生
+// 泛型參數T必須從XXX類型派生，泛型參數V必須從XXXX類型派生
 class B<T, V> where T : XXX where V : XXXX { }
 ```
 
-在C#中，泛型约束支持以下形式：
+在C#中，泛型約束支持以下形式：
 
-- `T : struct` 限制类型参数为结构类型，存在多个泛型约束条件时，该条件需要置于首位
-- `T : class` 限制类型参数为引用类型，存在多个泛型约束条件时，该条件需要置于首位
-- `T : new()` 类型参数必须具有可访问的无参构造函数，存在多个泛型约束条件时，该条件需要置于末尾
-- `T : 接口名称` 类型参数必须实现了指定接口
-- `T : 类名称` 类型参数必须为指定类型或其子类
-- `T : V` 类型参数`T`必须为类型参数`V`的派生类型(裸类型约束)
+- `T : struct` 限制類型參數爲結構類型，存在多個泛型約束條件時，該條件需要置於首位
+- `T : class` 限制類型參數爲引用類型，存在多個泛型約束條件時，該條件需要置於首位
+- `T : new()` 類型參數必須具有可訪問的無參構造函數，存在多個泛型約束條件時，該條件需要置於末尾
+- `T : 接口名稱` 類型參數必須實現了指定接口
+- `T : 類名稱` 類型參數必須爲指定類型或其子類
+- `T : V` 類型參數`T`必須爲類型參數`V`的派生類型(裸類型約束)
 
-一个泛型参数可以使用多个条件进行约束，例如：
+一個泛型參數可以使用多個條件進行約束，例如：
 
 ```cs
-// 泛型参数T必须为引用类型，同时从类型V派生
+// 泛型參數T必須爲引用類型，同時從類型V派生
 class C<T, V> where T : class, T : V { }
 ```
 
-## Variance (型变/变性)
-泛型类型在使用不同类型参数时默认**不存在**继承关系。
+## Variance (型變/變性)
+泛型類型在使用不同類型參數時默認**不存在**繼承關係。
 如下所示：
 
 ```cs
 csharp> class Child : Base { };
-csharp> List<Base> list = new List<Child>(); //泛型参数的继承关系无法作用于范型自身
+csharp> List<Base> list = new List<Child>(); //泛型參數的繼承關係無法作用於範型自身
 (1,20): error CS0029: Cannot implicitly convert type `System.Collections.Generic.List<Child>' to `System.Collections.Generic.List<Base>'
-csharp> List<Base> list = new List<Child>() as List<Base>; //不可进行强制类型转换
+csharp> List<Base> list = new List<Child>() as List<Base>; //不可進行強制類型轉換
 (1,38): error CS0039: Cannot convert type `System.Collections.Generic.List<Child>' to `System.Collections.Generic.List<Base>' via a built-in conversion
 ```
 
-使用variances特性可使类型参数的继承关系扩展到承载类型参数的泛型类型自身。
-variances特性分为`covariance`(协变)和`contravariance`(逆变)。
-在泛型参数前使用`int/out`关键字表示该泛型参数**变性**，如下所示：
+使用variances特性可使類型參數的繼承關係擴展到承載類型參數的泛型類型自身。
+variances特性分爲`covariance`(協變)和`contravariance`(逆變)。
+在泛型參數前使用`int/out`關鍵字表示該泛型參數**變性**，如下所示：
 
 ```cs
-csharp> interface ICovariance<in T> {}; //逆变
-csharp> interface IContravariance<out T> {}; //协变
+csharp> interface ICovariance<in T> {}; //逆變
+csharp> interface IContravariance<out T> {}; //協變
 ```
 
-与`Scala`、`Kotlin`不同，在C#中，`variances`仅支持`interface`和`delegate`。
-`class`和`struct`无法使用`variances`特性，如下所示：
+與`Scala`、`Kotlin`不同，在C#中，`variances`僅支持`interface`和`delegate`。
+`class`和`struct`無法使用`variances`特性，如下所示：
 
 ```cs
 csharp> class Test<out T> {};
@@ -651,34 +651,34 @@ csharp> struct Test<in T> {};
 (1,17): error CS1960: Variant type parameters can only be used with interfaces and delegates
 ```
 
-- `Covariance` (协变)
+- `Covariance` (協變)
 
-	类型参数声明为`covariance`(协变)时，泛型类型的继承关系与类型参数相同。
+	類型參數聲明爲`covariance`(協變)時，泛型類型的繼承關係與類型參數相同。
 	如下所示：
 
 	```cs
 	csharp> interface ICovariance<out T> {};
 	csharp> class Covariance<T> : ICovariance<T> {};
-	csharp> ICovariance<Base> covariance = new Covariance<Child>(); //协变
+	csharp> ICovariance<Base> covariance = new Covariance<Child>(); //協變
 	```
 
-- `Contravariance` (逆变)
+- `Contravariance` (逆變)
 
-	类型参数声明为`contravariance`(逆变)时，泛型类型的继承关系与类型参数相反。
+	類型參數聲明爲`contravariance`(逆變)時，泛型類型的繼承關係與類型參數相反。
 	如下所示：
 
 	```cs
 	csharp> interface IContravariance<in T> {};
 	csharp> class Contravariance<T> : IContravariance<T> {};
-	csharp> IContravariance<Child> contravariance = new Contravariance<Base>(); //逆变
+	csharp> IContravariance<Child> contravariance = new Contravariance<Base>(); //逆變
 	```
 
-## 泛型类的静态成员
-不同于Java中`Type Erasure`形式的泛型实现，`.Net`中采用类似C++的实现，同一泛型类使用不同泛型参数时会独立生成代码。
-C#中，同一泛型类使用不同类型参数时，各自的静态成员是相互独立的。
-静态成员共享仅在使用相同类型参数的泛型类之间。
+## 泛型類的靜態成員
+不同於Java中`Type Erasure`形式的泛型實現，`.Net`中採用類似C++的實現，同一泛型類使用不同泛型參數時會獨立生成代碼。
+C#中，同一泛型類使用不同類型參數時，各自的靜態成員是相互獨立的。
+靜態成員共享僅在使用相同類型參數的泛型類之間。
 
-如下代码所示：
+如下代碼所示：
 
 ```cs
 struct Test<T>
@@ -691,13 +691,13 @@ class Program
 	static void Main(string[] args)
 	{
 		Test<int>.a = 100;
-		Test<uint>.a = 200; //两个a并不是同一个
+		Test<uint>.a = 200; //兩個a並不是同一個
 		Console.WriteLine(Test<int>.a);
 	}
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 100
@@ -705,138 +705,139 @@ class Program
 
 
 
-# delegate (委托) 和 event (事件)
-**委托**让C#拥有了函数对象的概念，使一个方法可以作为参数被传递。
-**事件**让C#拥有了语言级别的消息通信机制。
+# delegate (委託) 和 event (事件)
+**委託**讓C#擁有了函數對象的概念，使一個方法可以作爲參數被傳遞。
+**事件**讓C#擁有了語言級別的消息通信機制。
 
-## delegate (委托)
-委托是C#特有的概念，委托的作用类似于C/C++中的函数指针，但委托是类型安全的。
+## delegate (委託)
+委託是C#特有的概念，委託的作用類似於C/C++中的函數指針，但委託是類型安全的。
 
-在`C#`中，委托实际上是一个类，因而使用方式与`class`类似。
-委托支持加减运算符操作，一个委托实例能够通过加法运算绑定多个**签名相同**的函数。
+在`C#`中，委託實際上是一個類，因而使用方式與`class`類似。
+委託支持加減運算符操作，一個委託實例能夠通過加法運算綁定多個**簽名相同**的函數。
 
-定义委托：
+定義委託：
 
 ```cs
-delegate 返回值类型 委托名(参数表);
+delegate 返回值類型 委託名(參數表);
 ```
 
-委托的定义可以在全局、命名空间或是作为某个类的成员，但委托的定义不能放在方法体内部。
+委託的定義可以在全局、命名空間或是作爲某個類的成員，但委託的定義不能放在方法體內部。
 
-委托前可以使用访问权限关键字(`public`、`private`、`protected`等)进行限制，但委托定义不能使用`static`关键字(委托实例作为一个**类的成员**存在时才可以使用`static`关键字)。
-委托可以绑定`static`或是非`static`成员函数，委托同样可以绑定当前类之外的符合签名要求的其它类的可见成员函数(`public`、`internal`成员)。
+委託前可以使用訪問權限關鍵字(`public`、`private`、`protected`等)進行限制，但委託定義不能使用`static`關鍵字(委託實例作爲一個**類的成員**存在時纔可以使用`static`關鍵字)。
+委託可以綁定`static`或是非`static`成員函數，委託同樣可以綁定當前類之外的符合簽名要求的其它類的可見成員函數(`public`、`internal`成員)。
 
-`delegate`关键字还可以用来定义**匿名函数**，实例化委托或是增加委托实例绑定时都可以使用委托匿名函数。
+`delegate`關鍵字還可以用來定義**匿名函數**，實例化委託或是增加委託實例綁定時都可以使用委託匿名函數。
 
-委托实例化：
+委託實例化：
 
 ```cs
-委托名 委托实例名; //与事件相同，委托也可以只定义不初始化
-委托名 委托实例名 = new 委托名(符合委托签名的函数名);
-委托名 委托实例名 = 符合委托签名的当前类成员函数名; //可以省略使用构造函数
-委托名 委托实例名 = 类实例/类名.符合委托签名的公有非static/static成员函数名; //委托同样可以绑定到其他类的可见成员函数
-委托名 委托实例名 = delegate(符合委托签名的参数表) //匿名委托
+委託名 委託實例名; //與事件相同，委託也可以只定義不初始化
+委託名 委託實例名 = new 委託名(符合委託簽名的函數名);
+委託名 委託實例名 = 符合委託簽名的當前類成員函數名; //可以省略使用構造函數
+委託名 委託實例名 = 類實例/類名.符合委託簽名的公有非static/static成員函數名; //委託同樣可以綁定到其他類的可見成員函數
+委託名 委託實例名 = delegate(符合委託簽名的參數表) //匿名委託
 {
-	函数内容;
+	函數內容;
 };
 ```
 
-增加/删除委托绑定函数：
+增加/刪除委託綁定函數：
 
 ```cs
-委托实例名 += 符合委托签名的函数名;
-委托实例名 -= 已绑定到委托的函数名;
-委托实例名 += delegate(符合委托签名的参数表)
+委託實例名 += 符合委託簽名的函數名;
+委託實例名 -= 已綁定到委託的函數名;
+委託實例名 += delegate(符合委託簽名的參數表)
 {
-	函数内容;
+	函數內容;
 };
 ```
 
-一个委托可以同加减运算符动态地更改绑定的函数个数。
-委托在使用时类似一个普通的函数，调用委托：
+一個委託可以同加減運算符動態地更改綁定的函數個數。
+委託在使用時類似一個普通的函數，調用委託：
 
 ```cs
-委托实例名(符合委托签名的参数表);
+委託實例名(符合委託簽名的參數表);
 ```
 
-调用委托会把委托绑定的所有函数按照绑定的先后次序**依次执行**。
-若绑定的方法拥有返回值，则将**最后一个**绑定方法的返回值作为整个委托实例的返回值。
-委托类型作为函数的形参时，传入实参时可以直接使用符合委托签名的函数名，无需手动使用`new`操作符构建委托对象。
+調用委託會把委託綁定的所有函數按照綁定的先後次序**依次執行**。
+若綁定的方法擁有返回值，則將**最後一個**綁定方法的返回值作爲整個委託實例的返回值。
+委託類型作爲函數的形參時，傳入實參時可以直接使用符合委託簽名的函數名，無需手動使用`new`操作符構建委託對象。
 
 ## event (事件)
-事件是委托的扩展概念，事件本质上是一类特殊的委托实例(不是委托类型)，创建事件前需要先定义一个委托，然后才能将事件与委托绑定。
+事件是委託的擴展概念，事件本質上是一類特殊的委託實例(不是委託類型)，創建事件前需要先定義一個委託，然後才能將事件與委託綁定。
 
-定义事件：
+定義事件：
 
 ```cs
-event 委托名 事件名;
-event 委托名 事件名 = new 委托名(符合委托签名的函数名); //事件也可以在定义时就初始化
-event 委托名 事件名 = 符合委托函数签名的函数名; //可以省略使用构造函数
-event 委托名 事件名 = delegate(符合委托签名的参数表) //匿名委托
+event 委託名 事件名;
+event 委託名 事件名 = new 委託名(符合委託簽名的函數名); //事件也可以在定義時就初始化
+event 委託名 事件名 = 符合委託函數簽名的函數名; //可以省略使用構造函數
+event 委託名 事件名 = delegate(符合委託簽名的參數表) //匿名委託
 {
-	函数内容;
+	函數內容;
 };
 ```
 
-给事件添加/删除处理函数：
+給事件添加/刪除處理函數：
 
 ```cs
-事件名 += 符合委托签名的函数名;
-事件名 -= 已绑定到事件的函数名;
-事件名 += delegate(符合委托签名的参数表)
+事件名 += 符合委託簽名的函數名;
+事件名 -= 已綁定到事件的函數名;
+事件名 += delegate(符合委託簽名的參數表)
 {
-	函数内容;
+	函數內容;
 };
 ```
 
-触发事件：
+觸發事件：
 
 ```cs
-事件名(符合委托签名的参数表);
+事件名(符合委託簽名的參數表);
 ```
 
-事件是一种特殊的**委托实例**：
+事件是一種特殊的**委託實例**：
 
-- 与委托不同，不能在全局区域和命名空间中定义事件，只能将事件作为某个类的成员来进行定义。
-- 事件与普通的成员类似，受到类的访问权限控制。
-- 事件的访问权限不能高于用于定义事件的委托。
-- 调用事件与调用委托实例的方式完全相同。
+- 與委託不同，不能在全局區域和命名空間中定義事件，只能將事件作爲某個類的成員來進行定義。
+- 事件與普通的成員類似，受到類的訪問權限控制。
+- 事件的訪問權限不能高於用於定義事件的委託。
+- 調用事件與調用委託實例的方式完全相同。
 
-事件机制是其他`C#`高级技术的基础。
+事件機制是其他`C#`高級技術的基礎。
 
-实例代码：
+實例代碼：
 
 ```cs
 using System;
 
-delegate void Delegate(string str); //委托可以定义在全局区域或是命名空间
+delegate void Delegate(string str); // 委託可以定義在全局區域或是命名空間
 
 class Program
 {
-	static event Delegate Event; //定义事件
+	static event Delegate Event; // 定義事件
 
 	static void Main(string[] args)
 	{
-		Event += str => Console.WriteLine(str); //为事件绑定方法
-		Event("Test Event!"); //触发事件
+		Event += str => Console.WriteLine(str); // 爲事件綁定方法
+		Event("Test Event!"); // 觸發事件
 	}
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 Test Event!
 ```
 
-## 自定义添加/删除操作的事件
-在定义事件时，可以选择自行实现事件的`+=`、`-=`操作符，语法类似**属性**：
+## 自定義添加/刪除操作的事件
+在定義事件時，可以選擇自行實現事件的`+=`、`-=`操作符，語法類似**屬性**：
 
-- 使用`add`、`remove`关键字标志代码块来对应`+=`、`-=`操作符的行为。
-- 与**属性**定义中的`set`代码块类似，事件定义中的`add`、`remove`代码块中包含**隐含参数**`value`，`value`代表操作符的参数，即符合事件委托签名的方法。
-- `add`、`remove`代码块不包含其它参数，同时代码块也没有返回值(返回`void`)。
+- 使用`add`、`remove`關鍵字標誌代碼塊來對應`+=`、`-=`操作符的行爲。
+- 與**屬性**定義中的`set`代碼塊類似，事件定義中的`add`、`remove`代碼塊中包含**隱含參數**`value`，
+`value`代表操作符的參數，即符合事件委託簽名的方法。
+- `add`、`remove`代碼塊不包含其它參數，同時代碼塊也沒有返回值(返回`void`)。
 
-示例代码如下所示：
+示例：
 
 ```cs
 using System;
@@ -845,14 +846,14 @@ delegate void Delegate(string str);
 
 class Program
 {
-	static event Delegate Event //定义事件
+	static event Delegate Event //定義事件
 	{
-		add //对应事件的"+="操作符
+		add //對應事件的"+="操作符
 		{
-			XXXX += value //隐含参数value表示传入的方法
+			XXXX += value //隱含參數value表示傳入的方法
 			//do something...
 		}
-		remove //对应事件的"-="操作符
+		remove //對應事件的"-="操作符
 		{
 			XXXX -= value
 			//do something...
@@ -861,35 +862,35 @@ class Program
 }
 ```
 
-自定义`+=`、`-=`运算符行为的事件**不能**像普通事件那样直接以函数的语法调用，调用时编译器会报错：
+自定義`+=`、`-=`運算符行爲的事件**不能**像普通事件那樣直接以函數的語法調用，調用時編譯器會報錯：
 
 ```
 error CS0079: The event XXX can only appear on the left hand side of += or -= operator
 ```
 
-自定义运算符事件的真正用途是为其它事件提供**包装**，实例如下所示：
+自定義運算符事件的真正用途是爲其它事件提供**包裝**，示例：
 
 ```cs
 using System;
 
-delegate void Delegate(string str); //委托可以定义在全局区域或是命名空间
+delegate void Delegate(string str); //委託可以定義在全局區域或是命名空間
 
 class Program
 {
-	private static Delegate _event; //真正用于绑定方法的事件
+	private static Delegate _event; //真正用於綁定方法的事件
 
-	// 自定义事件，在添加、移除方法时在终端输出信息
+	// 自定義事件，在添加、移除方法時在終端輸出信息
 	static event Delegate Event
 	{
-		add //对应事件的"+="操作符
+		add //對應事件的"+="操作符
 		{
-			Console.WriteLine("Add Method!"); //在终端打印"Add Method!"
-			_event += value; //将传入的方法绑定到_event上
+			Console.WriteLine("Add Method!"); //在終端打印"Add Method!"
+			_event += value; //將傳入的方法綁定到_event上
 		}
-		remove //对应事件的"-="操作符
+		remove //對應事件的"-="操作符
 		{
-			Console.WriteLine("Remove Method!"); //在终端打印"Remove Method!"
-			_event -= value; //将传入的方法与_event解绑
+			Console.WriteLine("Remove Method!"); //在終端打印"Remove Method!"
+			_event -= value; //將傳入的方法與_event解綁
 		}
 	}
 
@@ -897,17 +898,17 @@ class Program
 	{
 		Delegate del = str => Console.WriteLine(str);
 
-		Event += del; //事件绑定委托
+		Event += del; //事件綁定委託
 
-		//Event("Test Event!"); //使用Event()触发事件会在编译时报错
-		_event("Test Event!"); //触发事件还是需要使用真正被包装的事件
+		//Event("Test Event!"); //使用Event()觸發事件會在編譯時報錯
+		_event("Test Event!"); //觸發事件還是需要使用真正被包裝的事件
 
-		Event -= del; //事件与委托解绑
+		Event -= del; //事件與委託解綁
 	}
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 Add Method!
@@ -918,51 +919,52 @@ Remove Method!
 
 
 # Lambda
-在`C#3.0`之后，引入了`Lambda表达式`的概念，基本语法为：
+在`C#3.0`之後，引入了`Lambda表達式`的概念，基本語法：
 
 ```cs
-() => 单一表达式;
-(参数表) => 单一表达式;
-单个参数 => 单一表达式;
-(参数表) => { 多行表达式; };
+() => 單一表達式;
+(參數表) => 單一表達式;
+單個參數 => 單一表達式;
+(參數表) => { 多行表達式; };
 ```
 
-- 当参数表中只有一个参数时，参数表外的括号可以省略，但有多个参数或是无参数时括号不可省略。
-- 参数表中可以不显式指定参数类型，在表达式只有一条语句时，该语句如有返回值，则被作为整个`Lambda`的返回值。
-- 如果表达式有多条语句(使用花括号)时，需要显式使用`return`关键字指定返回值。
-- 参数表可以不指定参数类型交由编译器隐式推导，也可以显式指定参数类型，显式指定与隐式指定不可混用，一旦有参数使用了显式指定或隐式指定，其余的参数必须使用相同的指定方式。
+- 當參數表中只有一個參數時，參數表外的括號可以省略，但有多個參數或是無參數時括號不可省略。
+- 參數表中可以不顯式指定參數類型，在表達式只有一條語句時，該語句如有返回值，則被作爲整個`Lambda`的返回值。
+- 如果表達式有多條語句(使用花括號)時，需要顯式使用`return`關鍵字指定返回值。
+- 參數表可以不指定參數類型交由編譯器隱式推導，也可以顯式指定參數類型，顯式指定與隱式指定不可混用，
+一旦有參數使用了顯式指定或隱式指定，其餘的參數必須使用相同的指定方式。
 
-## 实现委托
-在C#中，`Lambda`概念与委托相通，可以使用`Lambda`以更简洁的方式代替匿名委托实现委托实例。
-如下所示：
+## 實現委託
+在C#中，`Lambda`概念與委託相通，可以使用`Lambda`以更簡潔的方式代替匿名委託實現委託實例。
+示例：
 
 ```cs
 delegate int GetDouble(double num1, double num2);
 
 GetDouble getDouble1 = delegate(double num1, double num2) { return (int)(num1 + num2); };
 GetDouble getDouble2 = (num1, num2) => (int)(num1 + num2);
-GetDouble getDouble3 = (double num1, double num2) => { return (int)(num1 + num2); };		//三种形式效果完全相同
+GetDouble getDouble3 = (double num1, double num2) => { return (int)(num1 + num2); };		//三種形式效果完全相同
 ```
 
-需要注意的是，使用`Lambda`代替匿名委托虽然能够减少代码量，但这并不代表`Lambda`能够完全取代匿名委托。
-`Lambda`中参数不能带有关键字`ref`、`out`，如果需要使用**引用参数**则依然需要使用匿名委托。
+需要注意的是，使用`Lambda`代替匿名委託雖然能夠減少代碼量，但這並不代表`Lambda`能夠完全取代匿名委託。
+`Lambda`中參數不能帶有關鍵字`ref`、`out`，如果需要使用**引用參數**則依然需要使用匿名委託。
 
-## 函数对象
-C#中定义了一系列类型用来表示委托和Lambda对象。
+## 函數對象
+C#中定義了一系列類型用來表示委託和Lambda對象。
 
-- 使用`Action`表示不带参数且返回值为`void`类型的`Lambda`，注意，不需要也**不能**画蛇添足地写成`Action<>`形式。
-- 使用`Action<T1, T2...>`表示带参数的`void`型返回值的`Lambda`。
-- 使用`Func<T1, T2..., R>`表示返回值类型不为空的`Lambda`(**最后一个**泛型参数为函数返回值的类型)。
-- `Action<>`、`Func<>`等泛型类型至多接收`8`个参数。
-- `C#`中的`Lambda`**不能**直接加括号执行，而是需要创建一个函数对象或显式指明类型才能执行(即不能直接`(() => {})();`来执行`Lambda`)。
-- 与`Java`的**残废**`Lambda`不同，`C#`的`Lambda`可以捕获并**修改**外部作用域变量，而`Java`中外部作用域变量在`Lambda`中带有`final`属性，只能读取不能更改。
+- 使用`Action`表示不帶參數且返回值爲`void`類型的`Lambda`，注意，不需要也**不能**畫蛇添足地寫成`Action<>`形式。
+- 使用`Action<T1, T2...>`表示帶參數的`void`型返回值的`Lambda`。
+- 使用`Func<T1, T2..., R>`表示返回值類型不爲空的`Lambda`(**最後一個**泛型參數爲函數返回值的類型)。
+- `Action<>`、`Func<>`等泛型類型至多接收`8`個參數。
+- `C#`中的`Lambda`**不能**直接加括號執行，而是需要創建一個函數對象或顯式指明類型才能執行(即不能直接`(() => {})();`來執行`Lambda`)。
+- 與`Java`的**殘廢**`Lambda`不同，`C#`的`Lambda`可以捕獲並**修改**外部作用域變量，而`Java`中外部作用域變量在`Lambda`中帶有`final`屬性，只能讀取不能更改。
 
-## 变量捕获
-在`C#`中，`Lambda`能够访问到在`Lambda`被定义的作用域中的所有成员。
-如果`Lambda`表达式在类中被定义，则`Lambda`表达式能够访问到类的成员。
-如同函数一样，`Lambda`有自己的作用域，`Lambda`内部定义的变量在外部作用域**不可访问**。
+## 變量捕獲
+在`C#`中，`Lambda`能夠訪問到在`Lambda`被定義的作用域中的所有成員。
+如果`Lambda`表達式在類中被定義，則`Lambda`表達式能夠訪問到類的成員。
+如同函數一樣，`Lambda`有自己的作用域，`Lambda`內部定義的變量在外部作用域**不可訪問**。
 
-示例代码-1：
+示例代碼-1：
 
 ```cs
 using System;
@@ -974,8 +976,8 @@ class Test
 
 	static void SetNum(int newNum) {
 		/*
-			不能直接执行Lambda，需要创建函数对象或显式类型转换才能执行。
-			另一种写法： ((Action<int>)(n => num = n))(newNum);
+			不能直接執行Lambda，需要創建函數對象或顯式類型轉換才能執行。
+			另一種寫法： ((Action<int>)(n => num = n))(newNum);
 		*/
 		new Action<int>(n => num = n)(newNum);
 	}
@@ -991,7 +993,7 @@ class Test
 }
 ```
 
-输出结果：(Mono 4.0.2 && ArchLinux x64)
+輸出結果：(Mono 4.0.2 && ArchLinux x64)
 
 ```
 100
@@ -999,11 +1001,11 @@ class Test
 500
 ```
 
-## 定义成员函数
-在`C# 6.0`中，开始支持使用Lambda语法直接定义**单行**的成员函数。
-**示例代码-1**使用新的语法可以使用如下格式书写：
+## 定義成員函數
+在`C# 6.0`中，開始支持使用Lambda語法直接定義**單行**的成員函數。
+**示例代碼-1**使用新的語法可以使用如下格式書寫：
 
-示例代码-2：
+示例代碼-2：
 
 ```cs
 using System;
@@ -1014,7 +1016,7 @@ class Test
 	static Action setNum200 = () => num = 200;
 
 	static void SetNum(int newNum) =>
-		new Action<int>(n => num = n)(newNum); //直接使用Lambda实现成员函数
+		new Action<int>(n => num = n)(newNum); //直接使用Lambda實現成員函數
 
 	static void Main(string[] args)
 	{
@@ -1027,24 +1029,24 @@ class Test
 }
 ```
 
-在`C# 6.0`中，表达式语法以下限制：
+在`C# 6.0`中，表達式語法以下限制：
 
-- 不能应用于**构造方法**、**析构方法**和**属性访问器**。
-- 单行表达式不能为`throw`语句(不能在表达式中抛出异常)。
+- 不能應用於**構造方法**、**析構方法**和**屬性訪問器**。
+- 單行表達式不能爲`throw`語句(不能在表達式中拋出異常)。
 
-在`C# 7.0`中，表达式语法更加完善，在以上场景可以使用。
+在`C# 7.0`中，表達式語法更加完善，在以上場景可以使用。
 
 
 
 # Pattern Matching (模式匹配)
-`C# 7.0`中加入了**模式匹配**特性，支持根据对象类型提供不同的行为。
+`C# 7.0`中加入了**模式匹配**特性，支持根據對象類型提供不同的行爲。
 在`C# 7.0`中，支持模式匹配的新特性包括：
 
-- `is`表达式。
-- `switch`声明更新。
+- `is`表達式。
+- `switch`聲明更新。
 
-## is 表达式
-`is`表达式具有比较对象类型的功能，在早期版本的`C#`中，比较变量类型并进行转换：
+## is 表達式
+`is`表達式具有比較對象類型的功能，在早期版本的`C#`中，比較變量類型並進行轉換：
 
 ```cs
 object obj = 100;
@@ -1054,7 +1056,7 @@ if (obj is int)
 	num = (int)obj;
 ```
 
-在`C# 7.0`中，可以在比较对象类型相同时直接创建变量：
+在`C# 7.0`中，可以在比較對象類型相同時直接創建變量：
 
 ```cs
 object obj = 100;
@@ -1065,18 +1067,18 @@ if (obj is int i)
 ```
 
 ## switch 模式匹配
-在`C# 7.0`中，`switch`表达式的`case`标签中支持根据对象类型进行跳转：
+在`C# 7.0`中，`switch`表達式的`case`標籤中支持根據對象類型進行跳轉：
 
 ```cs
 object xxx = ...;
 
 switch (xxx)
 {
-	// 匹配 int 类型
+	// 匹配 int 類型
 	case int num:
 		...
 		break;
-	// 匹配 double 类型
+	// 匹配 double 類型
 	case double num:
 		...
 		break;
@@ -1086,7 +1088,7 @@ switch (xxx)
 }
 ```
 
-若不需要在匹配类型后使用变量，则可使用下划线`_`代替变量名称：
+若不需要在匹配類型後使用變量，則可使用下劃線`_`代替變量名稱：
 
 ```cs
 object xxx = ...;
@@ -1102,18 +1104,18 @@ switch (xxx)
 }
 ```
 
-`case`标签可以带有`when`子句，用于添加额外的匹配条件，类似于`Scala`中的**守卫**语法：
+`case`標籤可以帶有`when`子句，用於添加額外的匹配條件，類似於`Scala`中的**守衛**語法：
 
 ```cs
 object xxx = ...;
 
 switch (xxx)
 {
-	// 匹配 int 类型，且需要匹配的数值大于100
+	// 匹配 int 類型，且需要匹配的數值大於100
 	case int num when num > 100:
 		...
 		break;
-	// 匹配 string 类型，且需要匹配的字符串长度大于5
+	// 匹配 string 類型，且需要匹配的字符串長度大於5
 	case string str when str.Length > 5:
 		...
 		break;
@@ -1125,19 +1127,19 @@ switch (xxx)
 
 
 
-# 并发编程
-在`C#`中，除了常见的`Thread`类，主要的并发技术有**异步委托**、`Task`类、`async/await`等。
+# 併發編程
+在`C#`中，除了常見的`Thread`類，主要的併發技術有**異步委託**、`Task`類、`async/await`等。
 
 ## Thread
-与常规的**OOP**语言类似，C#中也可以使用`Thread`类来进行并发编程，`Thread`类完整路径为`System.Threading.Thread`。
+與常規的**OOP**語言類似，C#中也可以使用`Thread`類來進行併發編程，`Thread`類完整路徑爲`System.Threading.Thread`。
 
-- 创建与启动线程
+- 創建與啓動線程
 
-	`Thread`类拥有四种构造函数，可以分别以`ThreadStart`或`ParameterizedThreadStart`委托实例做为参数构建一个线程对象。
-	两种委托的区别是前者不能带有参数，后者带有一个`Object`类型的参数，两种委托返回值都为`void`。
-	`Thread`类在构造时还可以接收一个`int`型参数用于指定线程的最大堆栈大小。
+	`Thread`類擁有四種構造函數，可以分別以`ThreadStart`或`ParameterizedThreadStart`委託實例做爲參數構建一個線程對象。
+	兩種委託的區別是前者不能帶有參數，後者帶有一個`Object`類型的參數，兩種委託返回值都爲`void`。
+	`Thread`類在構造時還可以接收一個`int`型參數用於指定線程的最大堆棧大小。
 
-	使用`Thread.Start()`方法可以启动线程，如下代码所示：
+	使用`Thread.Start()`方法可以啓動線程，如下代碼所示：
 
 	```cs
 	using System;
@@ -1155,47 +1157,47 @@ switch (xxx)
 	}
 	```
 
-	运行结果：
+	運行結果：
 
 	```
 	This is thread!
 	The arg is: test args.
 	```
 
-- 等待线程结束
+- 等待線程結束
 
-	使用成员方法`Thread.Join()`能够等待指定线程结束，在等待的线程结束前，该方法会一直阻塞**当前**线程。
+	使用成員方法`Thread.Join()`能夠等待指定線程結束，在等待的線程結束前，該方法會一直阻塞**當前**線程。
 
-- 获取线程ID
+- 獲取線程ID
 
-	每个线程都有独立的线程ID。
-	`Thread.CurrentThread.ManagedThreadId`属性保存了当前线程的ID，可以通过比较线程ID来判断代码是否在相同的线程执行。
+	每個線程都有獨立的線程ID。
+	`Thread.CurrentThread.ManagedThreadId`屬性保存了當前線程的ID，可以通過比較線程ID來判斷代碼是否在相同的線程執行。
 
-## Async Delegate (异步委托)
-委托实例执行操作默认**同步**执行，但委托实例同样可以**异步**执行操作。
+## Async Delegate (異步委託)
+委託實例執行操作默認**同步**執行，但委託實例同樣可以**異步**執行操作。
 
-- 使用`BeginInvoke()`进行异步回调
+- 使用`BeginInvoke()`進行異步回調
 
-	`BeginInvoke()`除了接收原有委托签名的参数之外，参数表尾部额外带有两个参数，分别为`AsyncCallback`委托类型和`object`类型：
+	`BeginInvoke()`除了接收原有委託簽名的參數之外，參數表尾部額外帶有兩個參數，分別爲`AsyncCallback`委託類型和`object`類型：
 
-	1. `AsyncCallback`委托在回调委托运行结束之后触发，`AsyncCallback`委托接收一个`IAsyncResult`类型的参数。
-	1. `object`类型用于传递一些参数给`AsyncCallback`委托。
+	1. `AsyncCallback`委託在回調委託運行結束之後觸發，`AsyncCallback`委託接收一個`IAsyncResult`類型的參數。
+	1. `object`類型用於傳遞一些參數給`AsyncCallback`委託。
 
-	`BeginInvoke()`的最后两个参数可以为`null`。
-	`BeginInvoke()`返回`IAsyncResult`类型：
+	`BeginInvoke()`的最後兩個參數可以爲`null`。
+	`BeginInvoke()`返回`IAsyncResult`類型：
 
-	1. 使用`IAsyncResult.IsCompleted`属性可以判断回调委托的执行状态。
-	1. 使用`IAsyncResult.AsyncState`属性获取`BeginInvoke()`参数表中的最后一个`object`类型的传入参数。
+	1. 使用`IAsyncResult.IsCompleted`屬性可以判斷回調委託的執行狀態。
+	1. 使用`IAsyncResult.AsyncState`屬性獲取`BeginInvoke()`參數表中的最後一個`object`類型的傳入參數。
 
-- 使用`EndInvoke()`等待异步委托返回
+- 使用`EndInvoke()`等待異步委託返回
 
-	若需等待异步执行的委托结束，可以使用`EndInvoke()`成员函数。
+	若需等待異步執行的委託結束，可以使用`EndInvoke()`成員函數。
 
-	- `EndInvoke()`接受一个`IAsyncResult`类型的参数(即`BeginInvoke()`的返回值)。
-	- `EndInvoke()`的返回值即为异步委托的返回值。
-	- 在异步委托执行完毕之前，`EndInvoke()`会一直阻塞当前线程，直到异步委托结束。
+	- `EndInvoke()`接受一個`IAsyncResult`類型的參數(即`BeginInvoke()`的返回值)。
+	- `EndInvoke()`的返回值即爲異步委託的返回值。
+	- 在異步委託執行完畢之前，`EndInvoke()`會一直阻塞當前線程，直到異步委託結束。
 
-	如下代码所示：
+	如下代碼所示：
 
 	```cs
 	using System;
@@ -1207,7 +1209,7 @@ switch (xxx)
 	{
 		static void Main(string[] args)
 		{
-			//用于回调的委托
+			//用於回調的委託
 			Delegate del = () =>
 			{
 				Thread.Sleep(1000);
@@ -1215,23 +1217,23 @@ switch (xxx)
 				return 100;
 			};
 
-			//使用BeginInvoke()进行异步委托回调
+			//使用BeginInvoke()進行異步委託回調
 			IAsyncResult result = del.BeginInvoke(ar =>
 			{
-				//异步委托结束时执行该Lambda，打印传入参数
+				//異步委託結束時執行該Lambda，打印傳入參數
 				Console.WriteLine("The object arg is: {0}", (int) ar.AsyncState);
 			}, 200);
 
 			Console.WriteLine("Program start...");
 			Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
 
-			//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
+			//使用IAsyncResult.IsCompleted屬性判斷委託是否執行完畢
 			Console.WriteLine("The thread status is: {0}", result.IsCompleted);
 		}
 	}
 	```
 
-	运行结果：
+	運行結果：
 
 	```
 	Program start...
@@ -1241,16 +1243,16 @@ switch (xxx)
 	The object arg is: 200
 	```
 
-	委托实例`del`虽然先被调用，但由于是异步调用，`Sleep()`了1000毫秒之后再输出的字符位于主线程之后。
+	委託實例`del`雖然先被調用，但由於是異步調用，`Sleep()`了1000毫秒之後再輸出的字符位於主線程之後。
 
-- 使用`WaitOne()`等待异步委托返回
+- 使用`WaitOne()`等待異步委託返回
 
-	`BeginInvoke()`的返回值`IAsyncResult`类型的`AsyncWaitHandle`属性会返回一个`WaitHandle`类型的等待句柄：
+	`BeginInvoke()`的返回值`IAsyncResult`類型的`AsyncWaitHandle`屬性會返回一個`WaitHandle`類型的等待句柄：
 
-	- `WaitHandle.WaitOne()`接受`int`型参数作为超时时间，使用此方法可以实现等待指定时间(单位为**毫秒**)的效果。
-	- `WaitHandle.WaitOne()`的返回值为`bool`类型，用于表示异步委托是否结束。
+	- `WaitHandle.WaitOne()`接受`int`型參數作爲超時時間，使用此方法可以實現等待指定時間(單位爲**毫秒**)的效果。
+	- `WaitHandle.WaitOne()`的返回值爲`bool`類型，用於表示異步委託是否結束。
 
-	如下所示：
+	示例：
 
 	```cs
 	using System;
@@ -1262,7 +1264,7 @@ switch (xxx)
 	{
 		static void Main(string[] args)
 		{
-			//用于回调的委托
+			//用於回調的委託
 			Delegate del = () =>
 			{
 				Thread.Sleep(1000);
@@ -1270,7 +1272,7 @@ switch (xxx)
 				return 100;
 			};
 
-			//使用BeginInvoke()进行异步委托回调
+			//使用BeginInvoke()進行異步委託回調
 			IAsyncResult result = del.BeginInvoke(ar =>
 					Console.WriteLine("The object arg is: {0}", (int) ar.AsyncState), 200);
 
@@ -1278,98 +1280,98 @@ switch (xxx)
 			if (result.AsyncWaitHandle.WaitOne(1000))
 				Console.WriteLine("The return value is: {0}", del.EndInvoke(result));
 
-			//使用IAsyncResult.IsCompleted属性判断委托是否执行完毕
+			//使用IAsyncResult.IsCompleted屬性判斷委託是否執行完畢
 			Console.WriteLine("The thread status is: {0}", result.IsCompleted);
 		}
 	}
 	```
 
-	执行结果：
+	執行結果：
 
 	```
 	Program start...
 	The thread status is: False
 	```
 
-	超时时间设为1000毫秒，由输出结果可知，此时异步委托尚未执行完毕，因而`IAsyncResult.IsCompleted`属性为`false`。
+	超時時間設爲1000毫秒，由輸出結果可知，此時異步委託尚未執行完畢，因而`IAsyncResult.IsCompleted`屬性爲`false`。
 
 ## Task
-`Task`类是`.NET 4.0`之后提供的异步操作抽象，完整路径为`System.Threading.Tasks.Task`。
+`Task`類是`.NET 4.0`之後提供的異步操作抽象，完整路徑爲`System.Threading.Tasks.Task`。
 
-`Task`类用于表示无返回值的异步操作，对于带有返回值的异步操作应使用`Task`类的子类`Task<TResult>`。
-`Task`类创建的任务会加入线程池中。
+`Task`類用於表示無返回值的異步操作，對於帶有返回值的異步操作應使用`Task`類的子類`Task<TResult>`。
+`Task`類創建的任務會加入線程池中。
 
-`Task/Task<TResult>`类的主要构造函数如下：
+`Task/Task<TResult>`類的主要構造函數如下：
 
 ```cs
-// 接收Action类型作为异步操作的执行内容
+// 接收Action類型作爲異步操作的執行內容
 public Task(Action action);
-// 首参数为带有一个参数的Action<Object>类型，第二参数为要传入的内容
+// 首參數爲帶有一個參數的Action<Object>類型，第二參數爲要傳入的內容
 public Task(Action<object> action, object state);
-// TaskCreationOptions类型为枚举，并设定TaskScheduler的执行策略
+// TaskCreationOptions類型爲枚舉，並設定TaskScheduler的執行策略
 public Task(Action action, TaskCreationOptions creationOptions);
 
-// 在Task<TResult>类中接收Func<TResult>类型作为异步执行的内容
+// 在Task<TResult>類中接收Func<TResult>類型作爲異步執行的內容
 public Task(Func<TResult> function);
 public Task(Func<object, TResult> function, object state);
 ```
 
-创建完毕的`Task`可以使用`Start()`方法开始执行：
+創建完畢的`Task`可以使用`Start()`方法開始執行：
 
 ```cs
-// 将任务添加到当前的TaskScheduler(任务调度器)中，任务调度器选择合适的时机执行
+// 將任務添加到當前的TaskScheduler(任務調度器)中，任務調度器選擇合適的時機執行
 public void Start();
-// 将任务添加到特定的TaskScheduler中
+// 將任務添加到特定的TaskScheduler中
 public void Start(TaskScheduler scheduler);
 ```
 
-在实际开发中，更多情况下使用`Task`类的静态方法`Run()`或者工厂类`TaskFactory`的成员方法`StartNew()`来创建和启动新的任务。
+在實際開發中，更多情況下使用`Task`類的靜態方法`Run()`或者工廠類`TaskFactory`的成員方法`StartNew()`來創建和啓動新的任務。
 
-`Task`类中的一些常用方法：
+`Task`類中的一些常用方法：
 
 ```cs
-// 将参数中的异步操作在当前调度器中排队，并返回Task对象
+// 將參數中的異步操作在當前調度器中排隊，並返回Task對象
 public static Task Run(Action action);
 public static Task<TResult> Run<TResult>(Func<TResult> function);
 
 // 等待Task完成
-public void Wait(); //等待当前任务完成
-public static void WaitAll(params Task[] tasks); //等待任务数组中的所有任务完成
-public static bool WaitAll(Task[] tasks, int millisecondsTimeout;) //等待指定时间
+public void Wait(); //等待當前任務完成
+public static void WaitAll(params Task[] tasks); //等待任務數組中的所有任務完成
+public static bool WaitAll(Task[] tasks, int millisecondsTimeout;) //等待指定時間
 ```
 
-## async/await 关键字
-`C# 5.0`之后引入了`async`和`await`关键字，在语言层面给予了并发更好的支持。
+## async/await 關鍵字
+`C# 5.0`之後引入了`async`和`await`關鍵字，在語言層面給予了併發更好的支持。
 
-1. `async`用于标记**异步方法**：
+1. `async`用於標記**異步方法**：
 
-	- `async`关键字是**上下文关键字**，只有在修饰方法与Lambda时才会被当作关键字处理，在其它区域将被作为标识符处理。
-	- `async`关键字可以标记静态方法，但不能标记**入口点**(`Main()`方法)。
-	- `async`标记的方法返回值必须为`Task`、`Task<TResult>`、`void`其中之一。
+	- `async`關鍵字是**上下文關鍵字**，只有在修飾方法與Lambda時纔會被當作關鍵字處理，在其它區域將被作爲標識符處理。
+	- `async`關鍵字可以標記靜態方法，但不能標記**入口點**(`Main()`方法)。
+	- `async`標記的方法返回值必須爲`Task`、`Task<TResult>`、`void`其中之一。
 
-1. `await`用于等待异步方法的结果：
+1. `await`用於等待異步方法的結果：
 
-	- `await`关键字同样是**上下文关键字**，只有在`async`标记的方法中才被视为关键字。
-	- `await`关键字可以用在`async`方法和`Task`、`Task<TResult>`之前，用于等待异步任务执行结束。
+	- `await`關鍵字同樣是**上下文關鍵字**，只有在`async`標記的方法中才被視爲關鍵字。
+	- `await`關鍵字可以用在`async`方法和`Task`、`Task<TResult>`之前，用於等待異步任務執行結束。
 
-一个简单的`async`方法结构如下：
+一個簡單的`async`方法結構如下：
 
 ```cs
 async Task testAsync()
 {
-	... //顺序执行的内容
+	... //順序執行的內容
 
 	return await Task.Run(() =>
 	{
-		... //异步执行的内容
+		... //異步執行的內容
 	});
 }
 ```
 
-并不是方法使用`async`关键字标记了就是异步方法，直接出现在`async`方法内部的语句也是同步执行的，**异步执行的内容**需要使用`Task`类执行。
-事实上，一个不包含任何`await`语句的`async`方法将是同步执行的，此时编译器会给出警告。
+並不是方法使用`async`關鍵字標記了就是異步方法，直接出現在`async`方法內部的語句也是同步執行的，**異步執行的內容**需要使用`Task`類執行。
+事實上，一個不包含任何`await`語句的`async`方法將是同步執行的，此時編譯器會給出警告。
 
-简单示例，使用`async/await`在屏幕并发输出内容：
+簡單示例，使用`async/await`在屏幕併發輸出內容：
 
 ```cs
 using System;
@@ -1378,11 +1380,11 @@ using System.Threading.Tasks;
 
 class Program
 {
-	// Task.Run()方法中的Function是真正异步执行的内容
+	// Task.Run()方法中的Function是真正異步執行的內容
 	static async Task<int> Async() =>
 		await Task.Run<int>(() =>
 		{
-			// 线程ID与Handler()方法不同
+			// 線程ID與Handler()方法不同
 			Console.WriteLine("Async() Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
 
 			for (int i = 0; i < 5; i++)
@@ -1395,52 +1397,52 @@ class Program
 			return 666;
 		});
 
-	// 返回值为void的async方法AsyncHandler()仅仅是包装器
+	// 返回值爲void的async方法AsyncHandler()僅僅是包裝器
 	static async void AsyncHandler()
 	{
-		// 方法体中的内容实际为同步执行，与Main()函数线程ID相同
+		// 方法體中的內容實際爲同步執行，與Main()函數線程ID相同
 		Console.WriteLine("Handler() Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
 
-		// 调用异步方法Async()不会阻塞，Async()方法开始异步执行
+		// 調用異步方法Async()不會阻塞，Async()方法開始異步執行
 		Task<int> task = Async();
 
-		// 每隔0.1s打印输出，此时异步方法Async()也在另一线程中执行，同步打印输出
+		// 每隔0.1s打印輸出，此時異步方法Async()也在另一線程中執行，同步打印輸出
 		for (int i = 0; i < 3; i++)
 		{
 			Thread.Sleep(100);
 			Console.WriteLine("Handler: Run{0}", i);
 		}
 
-		// 在使用await之前的代码都运行在与Main()函数相同的线程
+		// 在使用await之前的代碼都運行在與Main()函數相同的線程
 		Console.WriteLine("Handler()-1 Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
 
-		// AsyncHandler()中的循环执行3次，此时异步方法Async()尚未执行完毕，使用await关键字会阻塞函数
-		// 在Main()函数中，从调用await开始，AsyncHandler()就已返回了
+		// AsyncHandler()中的循環執行3次，此時異步方法Async()尚未執行完畢，使用await關鍵字會阻塞函數
+		// 在Main()函數中，從調用await開始，AsyncHandler()就已返回了
 		Console.WriteLine(await task);
 
-		// 使用await之后的代码运行在Async()方法所处的线程
+		// 使用await之後的代碼運行在Async()方法所處的線程
 		Console.WriteLine("Handler()-2 Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
 
-		// 打印AsyncHandler()函数真正执行完毕信息
+		// 打印AsyncHandler()函數真正執行完畢信息
 		Console.WriteLine("Handler Really Finished!");
 	}
 
-	// Main方法不能标记为异步
+	// Main方法不能標記爲異步
 	static void Main(string[] args)
 	{
 		Console.WriteLine("Main() Thread ID: [{0}]", Thread.CurrentThread.ManagedThreadId);
 		AsyncHandler();
 
-		// 打印AsyncHandler()函数在Main()中已经执行完毕的信息
+		// 打印AsyncHandler()函數在Main()中已經執行完畢的信息
 		Console.WriteLine("Handler Finished in Main!");
 
-		// AsyncHandler()在实际执行完成之前就返回了，需要阻塞主线程等待AsyncHandler()真正执行完毕
+		// AsyncHandler()在實際執行完成之前就返回了，需要阻塞主線程等待AsyncHandler()真正執行完畢
 		Console.ReadLine();
 	}
 }
 ```
 
-输出结果：(`Mono 4.4.0 && ArchLinux x64`)
+輸出結果：(`Mono 4.4.0 && ArchLinux x64`)
 
 ```
 Main() Thread ID: [1]
@@ -1463,10 +1465,10 @@ Handler Really Finished!
 
 ```
 
-由上述程序中不难看出，在`async`关键字标记的异步方法中，使用`await`之前的代码都是同步执行的，在调用了`await`之后，剩余的代码便异步运行在独立的线程。
+由上述程序中不難看出，在`async`關鍵字標記的異步方法中，使用`await`之前的代碼都是同步執行的，在調用了`await`之後，剩餘的代碼便異步運行在獨立的線程。
 
-## lock 关键字
-`C#`语言提供了与`Java`中`synchronized`类似的`lock`关键字，基本语法如下：
+## lock 關鍵字
+`C#`語言提供了與`Java`中`synchronized`類似的`lock`關鍵字，基本語法如下：
 
 ```cs
 lock (object)
@@ -1475,18 +1477,18 @@ lock (object)
 }
 ```
 
-`lock`块开始时锁定`object`，在lock代码块结束后释放锁。
-锁定相同`object`的`lock`代码块同一时刻只能被一个线程执行。
+`lock`塊開始時鎖定`object`，在lock代碼塊結束後釋放鎖。
+鎖定相同`object`的`lock`代碼塊同一時刻只能被一個線程執行。
 
 - 基本用法
 
-	`lock`关键字用法基本与`Java`中`synchronized`关键字类似：
+	`lock`關鍵字用法基本與`Java`中`synchronized`關鍵字類似：
 
-	- 被锁定的`object`可以是引用类型实例、`this`引用、以及类型(`typeof(XXX)`)。
-	- `lock`关键字**不能**用于修饰方法。
-	- lock块中不能使用`await`关键字。
+	- 被鎖定的`object`可以是引用類型實例、`this`引用、以及類型(`typeof(XXX)`)。
+	- `lock`關鍵字**不能**用於修飾方法。
+	- lock塊中不能使用`await`關鍵字。
 
-	`Java`笔记中的例子使用`C#`可以改写为：
+	`Java`筆記中的例子使用`C#`可以改寫爲：
 
 	```cs
 	using System;
@@ -1535,7 +1537,7 @@ lock (object)
 	}
 	```
 
-	输出结果：(`Mono 4.4.1 && ArchLinux x64`)
+	輸出結果：(`Mono 4.4.1 && ArchLinux x64`)
 
 	```
 	Thread One ShowOne()
@@ -1550,10 +1552,10 @@ lock (object)
 	Thread Two ShowTwo()
 	```
 
-- lock实现
+- lock實現
 
-	`lock`块在实现上使用了`Monitor`类。
-	`lock (object) { ... }`实际相当于：
+	`lock`塊在實現上使用了`Monitor`類。
+	`lock (object) { ... }`實際相當於：
 
 	```
 	Monitor.Enter(object);
@@ -1561,24 +1563,24 @@ lock (object)
 	Monitor.Exit(object);
 	```
 
- 在进入lock块时调用`Monitor.Enter()`，离开时调用`Monitor.Exit()`。
+ 在進入lock塊時調用`Monitor.Enter()`，離開時調用`Monitor.Exit()`。
 
-- 死锁问题
+- 死鎖問題
 
-	在`MSDN`中提到了应避免锁定`public`访问权限的内容，在实际编码中，常见的三类lock行为都可能引发死锁：
+	在`MSDN`中提到了應避免鎖定`public`訪問權限的內容，在實際編碼中，常見的三類lock行爲都可能引發死鎖：
 
-	- 若实例可被公共访问，则`lock(this)`可能死锁。
-	- 若类型`XXX`可被公共访问，则`lock(typeof(XXX))`可能死锁。
-	- 使用`lock("XXX")`时，同一进程中使用锁定相同字符串的代码块都将共享同一个锁。
+	- 若實例可被公共訪問，則`lock(this)`可能死鎖。
+	- 若類型`XXX`可被公共訪問，則`lock(typeof(XXX))`可能死鎖。
+	- 使用`lock("XXX")`時，同一進程中使用鎖定相同字符串的代碼塊都將共享同一個鎖。
 
-	定义示例类`Example`：
+	定義示例類`Example`：
 
 	```cs
 	class Example
 	{
 		public void Lock()
 		{
-			// 锁定this
+			// 鎖定this
 			lock (this)
 			{
 				Console.WriteLine("Lock!");
@@ -1587,7 +1589,7 @@ lock (object)
 
 		public static void StaticLock()
 		{
-			// 锁定类型
+			// 鎖定類型
 			lock (typeof(Example))
 			{
 				Console.WriteLine("StaticLock!");
@@ -1596,7 +1598,7 @@ lock (object)
 
 		public void StringLock()
 		{
-			// 锁定字符串
+			// 鎖定字符串
 			lock ("Lock")
 			{
 				Console.WriteLine("StringLock!");
@@ -1605,9 +1607,9 @@ lock (object)
 	}
 	```
 
-	分别针对三种情况编写主函数测试。
+	分別針對三種情況編寫主函數測試。
 
-	锁定`this`：
+	鎖定`this`：
 
 	```cs
 	class Program
@@ -1626,7 +1628,7 @@ lock (object)
 	}
 	```
 
-	锁定类型：
+	鎖定類型：
 
 	```cs
 	class Program
@@ -1643,7 +1645,7 @@ lock (object)
 	}
 	```
 
-	锁定相同字符串：
+	鎖定相同字符串：
 
 	```cs
 	class Program
@@ -1662,10 +1664,10 @@ lock (object)
 	}
 	```
 
-	三段代码执行后均无输出，且程序不退出，均死锁。
+	三段代碼執行後均無輸出，且程序不退出，均死鎖。
 
-	需要注意的是，`lock`锁定对象是基于**线程**的，在同一线程内的代码不受影响。
-	如下所示的代码**不会**发生死锁：
+	需要注意的是，`lock`鎖定對象是基於**線程**的，在同一線程內的代碼不受影響。
+	如下代碼**不會**發生死鎖：
 
 	```cs
 	using System;
@@ -1690,47 +1692,47 @@ lock (object)
 
 			lock (example)
 			{
-				// 虽然实例example与Lock()方法内部锁定的this相同，但代码运行在同一线程，不会死锁。
+				// 雖然實例example與Lock()方法內部鎖定的this相同，但代碼運行在同一線程，不會死鎖。
 				example.Lock();
 			}
 		}
 	}
 	```
 
-	锁定类型、字符串时类似。
+	鎖定類型、字符串時類似。
 
 
 
 # Reflection (反射)
-`C#`中的**反射**机制与`Java`等高级语言类似，反射机制的主要作用：
+`C#`中的**反射**機制與`Java`等高級語言類似，反射機制的主要作用：
 
-- 获取类型的成员信息，包括私有成员。
-- 通过成员信息访问/修改字段、属性，调用成员方法。
-- 判断类型的继承关系。
-- 动态生成类型实例。
-- 获取类型特性(`Attribute`)信息。
+- 獲取類型的成員信息，包括私有成員。
+- 通過成員信息訪問/修改字段、屬性，調用成員方法。
+- 判斷類型的繼承關係。
+- 動態生成類型實例。
+- 獲取類型特性(`Attribute`)信息。
 
-在`C#`中，反射相关API在命名空间`System.Reflection`中。
+在`C#`中，反射相關API在命名空間`System.Reflection`中。
 
-## 反射机制的相关类型
-`C#`语言相比`Java`，类内的成员种类更多，用于描述成员信息反射类型结构也与`Java`不尽相同。
+## 反射機制的相關類型
+`C#`語言相比`Java`，類內的成員種類更多，用於描述成員信息反射類型結構也與`Java`不盡相同。
 
 - `System.Type`
 
-	表示一个类型(类、结构体、接口)。
+	表示一個類型(類、結構體、接口)。
 
 - `System.Reflection.XxxInfo`
 
-	表示类内的成员信息，主要包含：
+	表示類內的成員信息，主要包含：
 
-	1. `ConstructorInfo` 构造器信息
-	1. `FieldInfo` 成员变量(字段)信息
+	1. `ConstructorInfo` 構造器信息
+	1. `FieldInfo` 成員變量(字段)信息
 	1. `EventInfo` 事件信息
 	1. `MethodInfo` 方法信息
-	1. `PropertyInfo` 属性信息
-	1. `TypeInfo` 类型信息
+	1. `PropertyInfo` 屬性信息
+	1. `TypeInfo` 類型信息
 
-	继承树如下所示：
+	繼承樹如下所示：
 
 	```
 	MemberInfo
@@ -1744,127 +1746,127 @@ lock (object)
 	└─ PropertyInfo
 	```
 
-	`PropertyInfo`、`MethodInfo`等描述类成员信息的类型均直接或间接从抽象基类`MemberInfo`中继承。
+	`PropertyInfo`、`MethodInfo`等描述類成員信息的類型均直接或間接從抽象基類`MemberInfo`中繼承。
 
-## Type/TypeInfo 类型
-`C#`中的`Type`类型作用近似于`Java`反射机制中的`Class`类型，`Type`类定义了类型的反射操作。
-获取目标类型的`Type`实例是使用反射功能的起始步骤。
+## Type/TypeInfo 類型
+`C#`中的`Type`類型作用近似於`Java`反射機制中的`Class`類型，`Type`類定義了類型的反射操作。
+獲取目標類型的`Type`實例是使用反射功能的起始步驟。
 
-获取`Type`实例可以通过以下方式：
+獲取`Type`實例可以通過以下方式：
 
-- `typeof(T)` 通过`typeof`操作符直接由类型获取
-- `instance.GetType()` 通过目标实例的`GetType()`方法获取
-- `Type.GetType("Xxx")` 通过`Type`类型的静态方法`Type.GetType(string)`以类型名称字符串获取
+- `typeof(T)` 通過`typeof`操作符直接由類型獲取
+- `instance.GetType()` 通過目標實例的`GetType()`方法獲取
+- `Type.GetType("Xxx")` 通過`Type`類型的靜態方法`Type.GetType(string)`以類型名稱字符串獲取
 
-`TypeInfo`类型为`Type`类型的子类，在`Type`类型的基础上额外提供了以下内容：
+`TypeInfo`類型爲`Type`類型的子類，在`Type`類型的基礎上額外提供了以下內容：
 
-- 用于访问各类成员信息集合的**属性**(`DeclaredMethods`、`DeclaredFields`等)。
-- 用于获取由该类型定义的成员信息的**方法**(`GetDeclaredMethod()`、`GetDeclaredField()`等)。
+- 用於訪問各類成員信息集合的**屬性**(`DeclaredMethods`、`DeclaredFields`等)。
+- 用於獲取由該類型定義的成員信息的**方法**(`GetDeclaredMethod()`、`GetDeclaredField()`等)。
 
-## 反射获取成员信息
-`Type`类型提供了与Java中`Class`类型类似的接口。
-反射获取类型成员信息的相关`API`遵循以下命名规则：
+## 反射獲取成員信息
+`Type`類型提供了與Java中`Class`類型類似的接口。
+反射獲取類型成員信息的相關`API`遵循以下命名規則：
 
-- `GetXxx(string)` 获取**指定公有成员**
-- `GetXxxs()` 获取**所有公有成员**
-- `GetXxx(string, BindingFlags)` 获取满足`BindingFlags`的**指定成员**
-- `GetXxxs(BindingFlags)` 获取满足`BindingFlags`的**所有成员**
+- `GetXxx(string)` 獲取**指定公有成員**
+- `GetXxxs()` 獲取**所有公有成員**
+- `GetXxx(string, BindingFlags)` 獲取滿足`BindingFlags`的**指定成員**
+- `GetXxxs(BindingFlags)` 獲取滿足`BindingFlags`的**所有成員**
 
-在`C#`中，`GetXxx()/GetXxxs()`方法包含多个重载版本。
+在`C#`中，`GetXxx()/GetXxxs()`方法包含多個重載版本。
 
-- 默认的的无参`GetXxx()/GetXxxs()`方法只能获取公有成员。
-- 通过`BindingFlags`枚举可设定反射的搜索范围(**是否搜索非公有成员**/**是否搜索继承而来的成员**/...)，多个`BindingFlags`可使用**逻辑或**操作符相连。
+- 默認的的無參`GetXxx()/GetXxxs()`方法只能獲取公有成員。
+- 通過`BindingFlags`枚舉可設定反射的搜索範圍(**是否搜索非公有成員**/**是否搜索繼承而來的成員**/...)，多個`BindingFlags`可使用**邏輯或**操作符相連。
 
-`BindingFlags`枚举完整路径为`System.Reflection.BindingFlags`，定义如下：
+`BindingFlags`枚舉完整路徑爲`System.Reflection.BindingFlags`，定義如下：
 
 ```cs
 namespace System.Reflection
 {
-	// 指定控制绑定和由反射执行的成员和类型搜索方法的标志。
+	// 指定控制綁定和由反射執行的成員和類型搜索方法的標誌。
 	[ComVisible(true)]
 	[Flags]
 	public enum BindingFlags
 	{
-		// 不指定绑定标志。
+		// 不指定綁定標誌。
 		Default = 0,
-		// 指定当绑定时不应考虑成员名的大小写。
+		// 指定當綁定時不應考慮成員名的大小寫。
 		IgnoreCase = 1,
-		// 指定只应考虑在所提供类型的层次结构级别上声明的成员。不考虑继承成员。
+		// 指定只應考慮在所提供類型的層次結構級別上聲明的成員。不考慮繼承成員。
 		DeclaredOnly = 2,
-		// 指定实例成员将包括在搜索中。
+		// 指定實例成員將包括在搜索中。
 		Instance = 4,
-		// 指定静态成员将包括在搜索中。
+		// 指定靜態成員將包括在搜索中。
 		Static = 8,
-		// 指定公共成员将包括在搜索中。
+		// 指定公共成員將包括在搜索中。
 		Public = 16,
-		// 指定非公共成员将包括在搜索中。
+		// 指定非公共成員將包括在搜索中。
 		NonPublic = 32,
-		// 指定应返回层次结构上的公共静态成员和受保护的静态成员。不返回继承类中的私有静态成员。静态成员包括字段、方法、事件和属性。不返回嵌套类型。
+		// 指定應返回層次結構上的公共靜態成員和受保護的靜態成員。不返回繼承類中的私有靜態成員。靜態成員包括字段、方法、事件和屬性。不返回嵌套類型。
 		FlattenHierarchy = 64,
-		// 指定要调用一个方法。它不能是构造函数或类型初始值设定项。
+		// 指定要調用一個方法。它不能是構造函數或類型初始值設定項。
 		InvokeMethod = 256,
-		// 指定“反射”应该创建指定类型的实例。调用与给定参数匹配的构造函数。忽略提供的成员名。如果未指定查找类型，将应用 (Instance |Public)。调用类型初始值设定项是不可能的。
+		// 指定“反射”應該創建指定類型的實例。調用與給定參數匹配的構造函數。忽略提供的成員名。如果未指定查找類型，將應用 (Instance |Public)。調用類型初始值設定項是不可能的。
 		CreateInstance = 512,
-		// 指定应返回指定字段的值。
+		// 指定應返回指定字段的值。
 		GetField = 1024,
-		// 指定应设置指定字段的值。
+		// 指定應設置指定字段的值。
 		SetField = 2048,
-		// 指定应返回指定属性的值。
+		// 指定應返回指定屬性的值。
 		GetProperty = 4096,
-		// 指定应设置指定属性的值。对于 COM 属性，指定此绑定标志与指定 PutDispProperty 和 PutRefDispProperty 是等效的。
+		// 指定應設置指定屬性的值。對於 COM 屬性，指定此綁定標誌與指定 PutDispProperty 和 PutRefDispProperty 是等效的。
 		SetProperty = 8192,
-		// 指定应调用 COM 对象的 PROPPUT 成员。PROPPUT 指定使用值的属性设置函数。如果属性同时具有 PROPPUT 和 PROPPUTREF，而且需要区分调用哪一个，请使用 PutDispProperty。
+		// 指定應調用 COM 對象的 PROPPUT 成員。PROPPUT 指定使用值的屬性設置函數。如果屬性同時具有 PROPPUT 和 PROPPUTREF，而且需要區分調用哪一個，請使用 PutDispProperty。
 		PutDispProperty = 16384,
-		// 指定应调用 COM 对象的 PROPPUTREF 成员。PROPPUTREF 指定使用引用而不是值的属性设置函数。如果属性同时具有 PROPPUT 和 PROPPUTREF，而且需要区分调用哪一个，请使用 PutRefDispProperty。
+		// 指定應調用 COM 對象的 PROPPUTREF 成員。PROPPUTREF 指定使用引用而不是值的屬性設置函數。如果屬性同時具有 PROPPUT 和 PROPPUTREF，而且需要區分調用哪一個，請使用 PutRefDispProperty。
 		PutRefDispProperty = 32768,
-		// 指定提供参数的类型必须与对应形参的类型完全匹配。如果调用方提供一个非空 Binder 对象，则“反射”将引发异常，因为这意味着调用方正在提供的 BindToXXX 实现将选取适当的方法。
+		// 指定提供參數的類型必須與對應形參的類型完全匹配。如果調用方提供一個非空 Binder 對象，則“反射”將引發異常，因爲這意味着調用方正在提供的 BindToXXX 實現將選取適當的方法。
 		ExactBinding = 65536,
-		// 未实现。
+		// 未實現。
 		SuppressChangeType = 131072,
-		// 返回其参数计数与提供参数的数目匹配的成员集。此绑定标志用于所带参数具有默认值的方法和带变量参数 (varargs) 的方法。此标志应只与 System.Type.InvokeMember(System.String,System.Reflection.BindingFlags,System.Reflection.Binder,System.Object,System.Object[],System.Reflection.ParameterModifier[],System.Globalization.CultureInfo,System.String[]) 一起使用。
+		// 返回其參數計數與提供參數的數目匹配的成員集。此綁定標誌用於所帶參數具有默認值的方法和帶變量參數 (varargs) 的方法。此標誌應只與 System.Type.InvokeMember(System.String,System.Reflection.BindingFlags,System.Reflection.Binder,System.Object,System.Object[],System.Reflection.ParameterModifier[],System.Globalization.CultureInfo,System.String[]) 一起使用。
 		OptionalParamBinding = 262144,
-		// 在 COM 互操作中用于指定可以忽略成员的返回值。
+		// 在 COM 互操作中用於指定可以忽略成員的返回值。
 		IgnoreReturn = 16777216
 	}
 }
 ```
 
-- 反射获取类型的**完整路径**
+- 反射獲取類型的**完整路徑**
 
-	`Type`类型的`FullName`成员属性保存了类型的**完整路径**：
+	`Type`類型的`FullName`成員屬性保存了類型的**完整路徑**：
 
 	```cs
 	typeof(Xxx).FullName;
 	```
 
-- 反射获取类型的**成员变量**/**成员属性**
+- 反射獲取類型的**成員變量**/**成員屬性**
 
-	获取所有成员字段/属性信息：
+	獲取所有成員字段/屬性信息：
 
 	```cs
-	// 获取所有公有成员字段
+	// 獲取所有公有成員字段
 	public FieldInfo[] GetFields();
-	// 获取bindingAttr范围内的所有成员字段
+	// 獲取bindingAttr範圍內的所有成員字段
 	public abstract FieldInfo[] GetFields(BindingFlags bindingAttr);
-	// 获取成员属性的API类似
+	// 獲取成員屬性的API類似
 	public PropertyInfo[] GetProperties();
 	public abstract PropertyInfo[] GetProperties(BindingFlags bindingAttr);
 	```
 
-	获取指定成员字段/属性信息：
+	獲取指定成員字段/屬性信息：
 
 	```cs
-	// 获取指定名称的字段
+	// 獲取指定名稱的字段
 	public FieldInfo GetField(string name);
-	// 以bindingAttr为搜索标志，获取指定名称的字段
+	// 以bindingAttr爲搜索標誌，獲取指定名稱的字段
 	public abstract FieldInfo GetField(string name, BindingFlags bindingAttr);
-	// 获取指定名称的属性
+	// 獲取指定名稱的屬性
 	public PropertyInfo GetProperty(string name);
-	// 通过名称与返回值类型获取属性
+	// 通過名稱與返回值類型獲取屬性
 	public PropertyInfo GetProperty(string name, Type returnType);
-	// 通过名称与参数类型获取属性(索引属性)
+	// 通過名稱與參數類型獲取屬性(索引屬性)
 	public PropertyInfo GetProperty(string name, Type[] types);
-	// 以bindingAttr为搜索标志，获取指定名称的属性
+	// 以bindingAttr爲搜索標誌，獲取指定名稱的屬性
 	public PropertyInfo GetProperty(string name, BindingFlags bindingAttr);
 	public PropertyInfo GetProperty(string name, Type returnType, Type[] types);
 	public PropertyInfo GetProperty(string name, Type returnType,
@@ -1873,9 +1875,9 @@ namespace System.Reflection
 			Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers);
 	```
 
-- 反射获取类型的**成员方法**/**构造方法**
+- 反射獲取類型的**成員方法**/**構造方法**
 
-	获取所有成员方法/构造方法：
+	獲取所有成員方法/構造方法：
 
 	```cs
 	public MethodInfo[] GetMethods();
@@ -1884,94 +1886,94 @@ namespace System.Reflection
 	public abstract ConstructorInfo[] GetConstructors(BindingFlags bindingAttr);
 	```
 
-	获取指定签名的成员方法：
+	獲取指定簽名的成員方法：
 
 	```cs
-	// 查找指定名称的成员方法(适用于不存在方法重载的情形，若查找到多个方法会抛出异常)
+	// 查找指定名稱的成員方法(適用於不存在方法重載的情形，若查找到多個方法會拋出異常)
 	public MethodInfo GetMethod(string name);
-	// 查找指定名称的成员方法，使用签名参数获取方法
+	// 查找指定名稱的成員方法，使用簽名參數獲取方法
 	public MethodInfo GetMethod(string name, BindingFlags bindingAttr,
 			Binder binder, Type[] types, ParameterModifier[] modifiers);
-	// 构造方法与类名相同，不存在使用名称获取的方式，应使用签名参数类型获取指定构造方法
+	// 構造方法與類名相同，不存在使用名稱獲取的方式，應使用簽名參數類型獲取指定構造方法
 	public ConstructorInfo GetConstructor(BindingFlags bindingAttr,
 			Binder binder, Type[] types, ParameterModifier[] modifiers);
 	...
 	```
 
-	- `binder`参数用于设定绑定相关信息，一般使用默认默认绑定`Type.DefaultBinder`。
-	- `modifiers`参数用于设定签名参数的附加修饰符，一般可置为`null`，默认的联编程序不处理此参数。
+	- `binder`參數用於設定綁定相關信息，一般使用默認默認綁定`Type.DefaultBinder`。
+	- `modifiers`參數用於設定簽名參數的附加修飾符，一般可置爲`null`，默認的聯編程序不處理此參數。
 
 
 
 # Attribute (特性)
-`.Net`平台中的**特性**类似于`JVM`平台中的**注解**，作用都是向特定的元素添加元数据。
+.Net平臺中的**特性**類似於`JVM`平臺中的**註解**，作用都是向特定的元素添加元數據。
 
-`MSDN`中关于**特性**的介绍：
+MSDN中關於**特性**的介紹：
 
 ```
-特性提供功能强大的方法，用以将元数据或声明信息与代码（程序集、类型、方法、属性等）相关联。
-特性与程序实体关联后，即可在运行时使用名为“反射”的技术查询特性。
+特性提供功能強大的方法，用以將元數據或聲明信息與代碼(程序集、類型、方法、屬性等)相關聯。
+特性與程序實體關聯後，即可在運行時使用名爲“反射”的技術查詢特性。
 ```
 
-在`Java`中，注解是**接口**，在`C#`中，特性是**类**。
+在Java中，註解是**接口**，在C#中，特性是**類**。
 
 ## 使用特性
-特性的基本语法为：
+特性的基本語法爲：
 
 ```cs
-[特性名称(特性参数...)] 被修饰的元素
+[特性名稱(特性參數...)] 被修飾的元素
 ```
 
-特性参数可以是定位参数、未命名参数或命名参数，定位参数部分需要匹配特性的构造器，
-命名参数是**可选**的，由特性类的公有属性和公有字段决定。
+特性參數可以是定位參數、未命名參數或命名參數，定位參數部分需要匹配特性的構造器，
+命名參數是**可選**的，由特性類的公有屬性和公有字段決定。
 
-- 使用**多个**特性
+- 使用**多個**特性
 
-	被多个特性修饰时，可以使用以下语法：
-
-	```cs
-	[特性名称1(特性1参数...)]
-	[特性名称2(特性2参数...)]
-	被修饰的元素
-	```
-
-	或将多个特性合并在一行中：
+	被多個特性修飾時，可以使用以下語法：
 
 	```cs
-	[特性名称1(特性1参数...), 特性名称2(特性2参数...)]
-	被修饰的元素
+	[特性名稱1(特性1參數...)]
+	[特性名稱2(特性2參數...)]
+	被修飾的元素
 	```
 
-## 自定义特性
-在`C#`中，所有特性都从基类`System.Attribute`中继承。
+	或將多個特性合併在一行中：
 
-- 特性名称
+	```cs
+	[特性名稱1(特性1參數...), 特性名稱2(特性2參數...)]
+	被修飾的元素
+	```
 
-	根据约定，所有特性类名称都以单词`Attribute`结束，以便将它们与`.NET Framework`中的其他项区分。
-	使用特性时，不需要追加`Attribute`后缀(使用带有`Attribute`后缀的全称也不会报错)。
+## 自定義特性
+在C#中，所有特性都從基類`System.Attribute`中繼承。
 
-- 特性类字段类型
+- 特性名稱
 
-	特性类可以提供一些字段和属性，不应提供公共方法，事件等。
-	在定义特性类的构造方法，字段和属性时，对数据类型有严格的要求。
-	类型只能为：`Boolean, Char, Byte, Sbyte, Int16, UInt16, Int32, Int64, Single, Double, String, Type, Object, Enum`，可以使用这些类型对应的数组类型。
+	根據約定，所有特性類名稱都以單詞`Attribute`結束，以便將它們與`.NET Framework`中的其他項區分。
+	使用特性時，不需要追加`Attribute`後綴(使用帶有`Attribute`後綴的全稱也不會報錯)。
 
-- 定位参数与命名参数
+- 特性類字段類型
 
-	特性类可以具有定位参数和命名参数。
-	特性类的每个公共实例构造函数为该属性类定义一个有效的定位参数序列。
-	特性类的每个非静态公共读写字段和属性为该属性类定义一个命名参数。
+	特性類可以提供一些字段和屬性，不應提供公共方法，事件等。
+	在定義特性類的構造方法，字段和屬性時，對數據類型有嚴格的要求。
+	類型只能爲：`Boolean, Char, Byte, Sbyte, Int16, UInt16, Int32, Int64, Single, Double, String, Type, Object, Enum`，可以使用這些類型對應的數組類型。
 
-- 构造函数
+- 定位參數與命名參數
 
-	特性类的构造函数决定了在使用特性时应传入怎样的特性参数(特性的定位参数需要与构造函数参数表相匹配)。
-	一个特性类可以拥有多个构造函数，使用特性时特性的定位参数只需与其中任意一个构造函数匹配即可。
-	定义了空参构造函数的特性在使用时只需要写出特性名称即可(特性参数的小括号省略)。
+	特性類可以具有定位參數和命名參數。
+	特性類的每個公共實例構造函數爲該屬性類定義一個有效的定位參數序列。
+	特性類的每個非靜態公共讀寫字段和屬性爲該屬性類定義一個命名參數。
 
-- 配置自定义特性
+- 構造函數
+
+	特性類的構造函數決定了在使用特性時應傳入怎樣的特性參數(特性的定位參數需要與構造函數參數表相匹配)。
+	一個特性類可以擁有多個構造函數，使用特性時特性的定位參數只需與其中任意一個構造函數匹配即可。
+	定義了空參構造函數的特性在使用時只需要寫出特性名稱即可(特性參數的小括號省略)。
+
+- 配置自定義特性
 
 	使用`System.AttributeUsage`特性可以指定其它特性的使用方式。
-	`AttributeUsage`类的定义如下所示：
+	`AttributeUsage`類的定義如下所示：
 
 	```cs
 	using System.Reflection;
@@ -1994,11 +1996,11 @@ namespace System.Reflection
 
 	其中：
 
-	- `AllowMultiple`属性用于设置一个特性可否被多次添加到一个元素上。
-	- `Inherited`属性用于设定特性是否可被继承。
-	- `ValidOn`属性用于设定特性的可作用对象(类型为`AttributeTargets`枚举，多个标识位使用逻辑或操作符`|`连接)。
+	- `AllowMultiple`屬性用於設置一個特性可否被多次添加到一個元素上。
+	- `Inherited`屬性用於設定特性是否可被繼承。
+	- `ValidOn`屬性用於設定特性的可作用對象(類型爲`AttributeTargets`枚舉，多個標識位使用邏輯或操作符`|`連接)。
 
-	`AttributeTargets`枚举定义如下：
+	`AttributeTargets`枚舉定義如下：
 
 	```cs
 	using System.Runtime.InteropServices;
@@ -2009,37 +2011,37 @@ namespace System.Reflection
 		[Flags]
 		public enum AttributeTargets
 		{
-			Assembly = 1, //可以对程序集应用特性
-			Module = 2, //可以对模块应用特性
-			Class = 4, //可以对类应用特性
-			Struct = 8, //可以对结构应用属性
-			Enum = 16, //可以对枚举应用特性
-			Constructor = 32, //可以对构造函数应用特性
-			Method = 64, //可以对方法应用特性
-			Property = 128, //可以对属性应用特性
-			Field = 256, //可以对字段应用特性
-			Event = 512, //可以对事件应用特性
-			Interface = 1024, //可以对接口应用特性
-			Parameter = 2048, //可以对参数应用特性
-			Delegate = 4096, //可以对委托应用特性
-			ReturnValue = 8192, //可以对返回值应用特性
-			GenericParameter = 16384, //可以对泛型参数应用特性
-			All = 32767 //可以对任何应用程序元素应用特性
+			Assembly = 1, //可以對程序集應用特性
+			Module = 2, //可以對模塊應用特性
+			Class = 4, //可以對類應用特性
+			Struct = 8, //可以對結構應用屬性
+			Enum = 16, //可以對枚舉應用特性
+			Constructor = 32, //可以對構造函數應用特性
+			Method = 64, //可以對方法應用特性
+			Property = 128, //可以對屬性應用特性
+			Field = 256, //可以對字段應用特性
+			Event = 512, //可以對事件應用特性
+			Interface = 1024, //可以對接口應用特性
+			Parameter = 2048, //可以對參數應用特性
+			Delegate = 4096, //可以對委託應用特性
+			ReturnValue = 8192, //可以對返回值應用特性
+			GenericParameter = 16384, //可以對泛型參數應用特性
+			All = 32767 //可以對任何應用程序元素應用特性
 		}
 	}
 	```
 
-- 获取特性
+- 獲取特性
 
-	使用**反射**机制可以从指定元素提取特性。
-	例如`Attribute.GetCustomAttribute()`、`MemberInfo.GetCustomAttributes()`等相关方法可获取元素中的特性信息。
+	使用**反射**機制可以從指定元素提取特性。
+	例如`Attribute.GetCustomAttribute()`、`MemberInfo.GetCustomAttributes()`等相關方法可獲取元素中的特性信息。
 
-自定义特性示例：
+自定義特性示例：
 
 ```cs
 using System;
 
-// 特性Test1可作用于所有元素，不允许多次应用到一个元素，不可被继承
+// 特性Test1可作用於所有元素，不允許多次應用到一個元素，不可被繼承
 [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
 class Test1Attribute : Attribute
 {
@@ -2051,7 +2053,7 @@ class Test1Attribute : Attribute
 	public void ShowAttribute() => Console.WriteLine("Id: {0}, Info: {1}", Id, Info);
 }
 
-// 特性Test2可作用于类、属性、字段等元素，允许多次应用到一个元素，不可被继承
+// 特性Test2可作用於類、屬性、字段等元素，允許多次應用到一個元素，不可被繼承
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field,
 		AllowMultiple = true, Inherited = false)]
 class Test2Attribute : Attribute
@@ -2061,11 +2063,11 @@ class Test2Attribute : Attribute
 	public void ShowAttribute() => Console.WriteLine("Name: {0}", Name);
 }
 
-[Test1(1, Info = "Test1")] //使用特性时，可简化名称，Attribute后缀可省略
-[Test2, Test2(Name = "Test2")] //AllowMultiple为true的特性可多次修饰一个元素，且多个特性可合并在一个语句中
+[Test1(1, Info = "Test1")] //使用特性時，可簡化名稱，Attribute後綴可省略
+[Test2, Test2(Name = "Test2")] //AllowMultiple爲true的特性可多次修飾一個元素，且多個特性可合併在一個語句中
 class Test
 {
-	[Test1Attribute(2, Info = "Test1Attribute")] //使用特性也可以不省略Attribute后缀
+	[Test1Attribute(2, Info = "Test1Attribute")] //使用特性也可以不省略Attribute後綴
 	public string Property { get; set; } = "";
 }
 
@@ -2074,7 +2076,7 @@ class Program
 	static void Main(string[] args)
 	{
 		Console.WriteLine("Find attribute at class Test:");
-		// 获取Test类上的特性
+		// 獲取Test類上的特性
 		foreach (var attr in typeof(Test).GetCustomAttributes(false))
 		{
 			if (attr as Test1Attribute != null)
@@ -2086,7 +2088,7 @@ class Program
 		Console.WriteLine();
 
 		Console.WriteLine("Find attribute at property Test.Property:");
-		// 获取Test类Name属性的特性
+		// 獲取Test類Name屬性的特性
 		foreach (var attr in typeof(Test).GetProperty("Property").GetCustomAttributes(false))
 		{
 			if (attr as Test1Attribute != null)
@@ -2096,7 +2098,7 @@ class Program
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 Find attribute at class Test:
@@ -2110,15 +2112,15 @@ Id: 2, Info: Test1Attribute
 
 
 
-# 动态代理
-在`C#`中，提供了类似`Java`中的**动态代理**机制。
+# 動態代理
+在`C#`中，提供了類似`Java`中的**動態代理**機制。
 
-`C#`中实现动态代理需要以下内容：
+`C#`中實現動態代理需要以下內容：
 
-- 代理规则类需要从基类`System.Runtime.Remoting.Proxies.RealProxy`中派生。
-- 被代理的类需要从基类`System.MarshalByRefObject`中派生。
+- 代理規則類需要從基類`System.Runtime.Remoting.Proxies.RealProxy`中派生。
+- 被代理的類需要從基類`System.MarshalByRefObject`中派生。
 
-与`Java`不同，在`C#`中，要使一个类能被代理需要该类从抽象基类`System.MarshalByRefObject`中继承。
+與`Java`不同，在`C#`中，要使一個類能被代理需要該類從抽象基類`System.MarshalByRefObject`中繼承。
 
 如下所示：
 
@@ -2131,20 +2133,20 @@ class Xxx : MarshalByRefObject
 }
 ```
 
-编写代理规则需要继承抽象基类`System.Runtime.Remoting.Proxies.RealProxy`，并实现其中的`Invoke()`抽象方法。
+編寫代理規則需要繼承抽象基類`System.Runtime.Remoting.Proxies.RealProxy`，並實現其中的`Invoke()`抽象方法。
 
-一个基本的`RealProxy`泛型封装如下所示：
+一個基本的`RealProxy`泛型封裝如下所示：
 
 ```cs
-// 限定泛型参数为MarshalByRefObject子类
+// 限定泛型參數爲MarshalByRefObject子類
 class Proxy<T> : RealProxy where T : MarshalByRefObject
 {
-	// 保存被代理类的实例以及代理方法执行前后的操作
+	// 保存被代理類的實例以及代理方法執行前後的操作
 	private T t = null;
 	private Action beforeAction = null;
 	private Action afterAction = null;
 
-	// 使用代理类Type做为基类MarshalByRefObject的构造方法参数
+	// 使用代理類Type做爲基類MarshalByRefObject的構造方法參數
 	public Proxy(T t, Action before = null, Action after = null) : base(typeof(T))
 	{
 		this.t = t;
@@ -2152,66 +2154,66 @@ class Proxy<T> : RealProxy where T : MarshalByRefObject
 		afterAction = after;
 	}
 
-	// 编写代理规则
+	// 編寫代理規則
 	public override IMessage Invoke(IMessage msg)
 	{
-		// 将消息接口转换为方法调用消息接口
+		// 將消息接口轉換爲方法調用消息接口
 		IMethodCallMessage method = msg as IMethodCallMessage;
 
-		// 执行实例方法调用前的代理操作
+		// 執行實例方法調用前的代理操作
 		beforeAction?.Invoke();
 
-		// 通过方法消息执行真正的方法体
+		// 通過方法消息執行真正的方法體
 		object result = method.MethodBase.Invoke(t, method.Args);
 
-		// 执行实例方法调用后的代理操作
+		// 執行實例方法調用後的代理操作
 		afterAction?.Invoke();
 
-		// 构建方法返回信息
+		// 構建方法返回信息
 		return new ReturnMessage(result, null, 0, method.LogicalCallContext, method);
 	}
 
-	// 封装获取代理的接口
+	// 封裝獲取代理的接口
 	public T GetProxy() => GetTransparentProxy() as T;
 }
 ```
 
-- `RealProxy`类中定义了`GetTransparentProxy()`方法，使用该方法可获取应用了代理规则之后的实例。
-- 需要使用被代理类的`Type`类型做为基类`RealProxy`的构造函数参数，否则获取的代理实例为空指针。
+- `RealProxy`類中定義了`GetTransparentProxy()`方法，使用該方法可獲取應用了代理規則之後的實例。
+- 需要使用被代理類的`Type`類型做爲基類`RealProxy`的構造函數參數，否則獲取的代理實例爲空指針。
 
-简单的动态代理完整实例如下所示：
+簡單的動態代理完整實例如下所示：
 
 ```cs
 using System;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
 
-// 被代理的类，需要继承自基类MarshalByRefObject
+// 被代理的類，需要繼承自基類MarshalByRefObject
 class Example : MarshalByRefObject
 {
 	public string GetName() => "Example";
 	public void Print(string str) => Console.WriteLine(str);
 }
 
-// 代理规则类，需要继承自基类RealProxy
+// 代理規則類，需要繼承自基類RealProxy
 class ExampleProxy : RealProxy
 {
 	private Example example = null;
 
-	// 使用被代理类的Type类型做为基类构造器参数
+	// 使用被代理類的Type類型做爲基類構造器參數
 	public ExampleProxy(Example example) : base(typeof(Example)) { this.example = example; }
 
-	// 实现代理规则
+	// 實現代理規則
 	public override IMessage Invoke(IMessage msg)
 	{
 		IMethodCallMessage callMsg = msg as IMethodCallMessage;
 
-		// 打印调用方法的名称
+		// 打印調用方法的名稱
 		Console.WriteLine("Call method: {0}", callMsg.MethodName);
 
 		object result = callMsg.MethodBase.Invoke(example, callMsg.Args);
 
-		// 打印调用方法的结果
+		// 打印調用方法的結果
 		Console.WriteLine("Method result: {0}\n", result);
 
 		return new ReturnMessage(result, null, 0, callMsg.LogicalCallContext, callMsg);
@@ -2222,12 +2224,12 @@ class Program
 {
 	static void Main(string[] args)
 	{
-		// 构建原始实例
+		// 構建原始實例
 		Example example = new Example();
-		// 获取应用了代理规则后的实例
+		// 獲取應用了代理規則後的實例
 		Example exampleProxy = new ExampleProxy(example).GetTransparentProxy() as Example;
 
-		// 调用方法
+		// 調用方法
 		exampleProxy.GetName();
 		exampleProxy.Print("Test Proxy!");
 
@@ -2236,7 +2238,7 @@ class Program
 }
 ```
 
-输出结果：
+輸出結果：
 
 ```
 Call method: GetName
@@ -2248,65 +2250,65 @@ Method result:
 
 ```
 
-由输出结果可知，在访问被代理实例的成员方法时触发了定义的代理操作。
+由輸出結果可知，在訪問被代理實例的成員方法時觸發了定義的代理操作。
 
 
 
 # FTP
-在`.Net`平台中，标准库内置了对`FTP`协议的支持。
+在`.Net`平臺中，標準庫內置了對`FTP`協議的支持。
 
-`FTP`相关的类均位于`System.Net`命名空间，常见的有：
+`FTP`相關的類均位於`System.Net`命名空間，常見的有：
 
-- `WebRequest` 表示对`URI`(统一资源标识符)的请求，是未实现的抽象类
-- `WebResponse` 表示对`URI`(统一资源标识符)的回应，是未实现的抽象类
-- `FtpWebRequest` 表示`FTP`协议的客户端请求，是`WebRequest`的子类实现
-- `FtpWebResponse` 表示`FTP`协议的服务端回应，是`WebResponse`的子类实现
-- `WebRequestMethods` 定义了各类协议的具体请求方法字符串，`FTP`协议的方法定义位于其内部类`WebRequestMethods.Ftp`中
+- `WebRequest` 表示對`URI`(統一資源標識符)的請求，是未實現的抽象類
+- `WebResponse` 表示對`URI`(統一資源標識符)的迴應，是未實現的抽象類
+- `FtpWebRequest` 表示`FTP`協議的客戶端請求，是`WebRequest`的子類實現
+- `FtpWebResponse` 表示`FTP`協議的服務端迴應，是`WebResponse`的子類實現
+- `WebRequestMethods` 定義了各類協議的具體請求方法字符串，`FTP`協議的方法定義位於其內部類`WebRequestMethods.Ftp`中
 
-## 创建 FTP 请求
-`WebRequest`类的静态成员方法`WebRequest.Create(string)`，以`FTP`路径字符串为参数即可构建一个未设定操作的`FTP`请求：
+## 創建 FTP 請求
+`WebRequest`類的靜態成員方法`WebRequest.Create(string)`，以`FTP`路徑字符串爲參數即可構建一個未設定操作的`FTP`請求：
 
 ```cs
-string ftpUri = $"ftp://ip地址/路径...";
+string ftpUri = $"ftp://ip地址/路徑...";
 FtpWebRequest ftpRequest = WebRequest.Create(ftpUri) as FtpWebRequest;
 ```
 
-对于需要账户的`FTP`服务端，需要在请求中设定账户和密码：
+對於需要賬戶的`FTP`服務端，需要在請求中設定賬戶和密碼：
 
 ```cs
 string ftpUserName = "...", ftpUserPassword = "...";
 ftpRequest.Credentials = new NetworkCredential(ftpUserName, ftpUserPassword);
 ```
 
-## 下载
-在一个未设定操作的`FTP`请求创建完毕后，设置请求对象的`Method`属性为`RETR`(`FTP`协议中规定的下载指令)。
+## 下載
+在一個未設定操作的`FTP`請求創建完畢後，設置請求對象的`Method`屬性爲`RETR`(`FTP`協議中規定的下載指令)。
 
 ```cs
 ftpRequest.Method = "RETR";
 ```
 
-`WebRequestMethods.Ftp`中定义了各类`FTP`操作的指令文本，下载操作可以使用：
+`WebRequestMethods.Ftp`中定義了各類`FTP`操作的指令文本，下載操作可以使用：
 
 ```cs
 ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
 ```
 
-下载请求设定完毕后，执行以下操作：
+下載請求設定完畢後，執行以下操作：
 
-1. 使用`WebRequest`类成员方法`WebRequest.GetResponse()`获取服务端回应，并向下转型为`FtpWebResponse`回应。
-1. 使用`FtpWebResponse`类成员方法`FtpWebResponse.GetResponseStream()`获取回应中包含的文件流(`Stream`类)，并将其写入本地文件。
+1. 使用`WebRequest`類成員方法`WebRequest.GetResponse()`獲取服務端迴應，並向下轉型爲`FtpWebResponse`迴應。
+1. 使用`FtpWebResponse`類成員方法`FtpWebResponse.GetResponseStream()`獲取迴應中包含的文件流(`Stream`類)，並將其寫入本地文件。
 
-完整实例代码：
+完整實例代碼：
 
 ```cs
 /// <summary>
-/// 下载文件，保存到指定路径
+/// 下載文件，保存到指定路徑
 /// </summary>
-/// <param name="ftpUri">FTP目标路径</param>
-/// <param name="savePath">保存到本地的路径</param>
-/// <param name="ftpUserName">FTP用户名</param>
-/// <param name="ftpUserPassword">FTP用户密码</param>
-/// <returns>下载是否成功</returns>
+/// <param name="ftpUri">FTP目標路徑</param>
+/// <param name="savePath">保存到本地的路徑</param>
+/// <param name="ftpUserName">FTP用戶名</param>
+/// <param name="ftpUserPassword">FTP用戶密碼</param>
+/// <returns>下載是否成功</returns>
 public bool DownloadFile(string ftpUri, string savePath, string ftpUserName, string ftpUserPassword)
 {
 	bool result = false;
@@ -2315,18 +2317,18 @@ public bool DownloadFile(string ftpUri, string savePath, string ftpUserName, str
 	{
 		FtpWebRequest request = WebRequest.Create(ftpUri) as FtpWebRequest;
 
-		// 设定下载请求，填充FTP用户名/密码
+		// 設定下載請求，填充FTP用戶名/密碼
 		request.Method = WebRequestMethods.Ftp.DownloadFile;
 		request.Credentials = new NetworkCredential(ftpUserName, ftpUserPassword);
 
-		// 对于请求回应、文件流等资源，需要使用using语句或显式关闭资源
+		// 對於請求迴應、文件流等資源，需要使用using語句或顯式關閉資源
 		using (FtpWebResponse response = request.GetResponse() as FtpWebResponse)
 		{
-			// 复制回应数据流到文件流中
+			// 複製迴應數據流到文件流中
 			using (FileStream file = new FileStream(savePath, FileMode.Create))
 				response.GetResponseStream().CopyTo(file);
 
-			// 验证操作状态，打印操作结果
+			// 驗證操作狀態，打印操作結果
 			Console.WriteLine($"Operate status: {response.StatusDescription}");
 			if (response.StatusCode == FtpStatusCode.ClosingData) result = true;
 		}
@@ -2337,38 +2339,38 @@ public bool DownloadFile(string ftpUri, string savePath, string ftpUserName, str
 }
 ```
 
-## 上传
-上传操作与下载略有不同，首先对未设定操作的`FTP`请求设置操作：
+## 上傳
+上傳操作與下載略有不同，首先對未設定操作的`FTP`請求設置操作：
 
 ```cs
 ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
 ```
 
-若使用了**网络代理**(如翻墙工具等)，则还需要将请求的`Proxy`属性置为`null`，
-否则会产生`用 HTTP 代理时不支持请求的 FTP 命令。`异常。
+若使用了**網絡代理**(如翻牆工具等)，則還需要將請求的`Proxy`屬性置爲`null`，
+否則會產生`用 HTTP 代理時不支持請求的 FTP 命令。`異常。
 
 ```cs
 ftpRequest.Proxy = null;
 ```
 
-之后执行以下操作：
+之後執行以下操作：
 
-1. 设定请求的`ContentLength`属性，表示上传文件的大小。
-1. 使用`FtpWebRequest`类成员方法`FtpWebRequest.GetRequestStream()`获取请求文件流。
-1. 将本地待上传文件复制到请求文件流中。
-1. 使用`FtpWebResponse`类成员方法`FtpWebResponse.GetResponse()`获取操作回应。
+1. 設定請求的`ContentLength`屬性，表示上傳文件的大小。
+1. 使用`FtpWebRequest`類成員方法`FtpWebRequest.GetRequestStream()`獲取請求文件流。
+1. 將本地待上傳文件複製到請求文件流中。
+1. 使用`FtpWebResponse`類成員方法`FtpWebResponse.GetResponse()`獲取操作迴應。
 
-完整实例代码：
+完整實例代碼：
 
 ```cs
 /// <summary>
-/// 上传文件到指定FTP路径
+/// 上傳文件到指定FTP路徑
 /// </summary>
-/// <param name="ftpUri">FTP目标路径</param>
-/// <param name="localPath">待上传的本地文件路径</param>
-/// <param name="ftpUserName">FTP用户名</param>
-/// <param name="ftpUserPassword">FTP用户密码</param>
-/// <returns>上传是否成功</returns>
+/// <param name="ftpUri">FTP目標路徑</param>
+/// <param name="localPath">待上傳的本地文件路徑</param>
+/// <param name="ftpUserName">FTP用戶名</param>
+/// <param name="ftpUserPassword">FTP用戶密碼</param>
+/// <returns>上傳是否成功</returns>
 public bool UploadFile(string ftpUri, string localPath, string ftpUserName, string ftpUserPassword)
 {
 	bool result = false;
@@ -2377,20 +2379,20 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 	{
 		FtpWebRequest request = WebRequest.Create(ftpUri) as FtpWebRequest;
 
-		// 设定下载请求，填充FTP用户名/密码
+		// 設定下載請求，填充FTP用戶名/密碼
 		request.Proxy = null;
 		request.Method = WebRequestMethods.Ftp.UploadFile;
 		request.Credentials = new NetworkCredential(ftpUserName, ftpUserPassword);
 
 		using (FileStream file = new FileStream(localPath, FileMode.Open))
 		{
-			// 设定待上传的文件大小，复制文件数据流到请求文件流中
+			// 設定待上傳的文件大小，複製文件數據流到請求文件流中
 			request.ContentLength = file.Length;
 			using (Stream upStream = request.GetRequestStream()) file.CopyTo(upStream);
 		}
 		using (FtpWebResponse response = request.GetResponse() as FtpWebResponse)
 		{
-			// 验证操作状态，打印操作结果
+			// 驗證操作狀態，打印操作結果
 			Console.WriteLine($"Operate status: {response.StatusDescription}");
 			if (response.StatusCode == FtpStatusCode.ClosingData) result = true;
 		}
@@ -2403,98 +2405,98 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 
 
 
-# WinForm 开发注记
-`C#`对应的**GUI**库为基于`.NET Framework`的`Windows Form`。
+# WinForm 開發註記
+`C#`對應的**GUI**庫爲基於`.NET Framework`的`Windows Form`。
 
-## 常见控件类型
-在`Windows Form`中，控件相关的类大多派生于`System.Windows.Forms.Control`。
-控件的名称也与其它的GUI库类似：
+## 常見控件類型
+在`Windows Form`中，控件相關的類大多派生於`System.Windows.Forms.Control`。
+控件的名稱也與其它的GUI庫類似：
 
-- `Form` 窗体，类似于Qt中的**QFrame**
-- `Label` 标签文本，类似于Qt中的**QLabel**
-- `Button` 按钮，类似于Qt中的**QPushButton**
-- `RadioButton` 单选框，类似于Qt中的**QRadioButton**
-- `CheckBox` 复选框，类似于Qt中的**QCheckBox**
-- `CheckedListBox` 多行复选框
-- `ListBox` 列表框，类似于Qt中的**QListWidget**
-- `TextBox` 简单文本框，类似于Qt中的**QLineEdit**
-- `RichTextBox` 富文本框，类似于Qt中的**QTextEdit**
-- `TreeView` 树形控件，类似于Qt中的**QTreeWidget**
+- `Form` 窗體，類似於Qt中的**QFrame**
+- `Label` 標籤文本，類似於Qt中的**QLabel**
+- `Button` 按鈕，類似於Qt中的**QPushButton**
+- `RadioButton` 單選框，類似於Qt中的**QRadioButton**
+- `CheckBox` 複選框，類似於Qt中的**QCheckBox**
+- `CheckedListBox` 多行復選框
+- `ListBox` 列表框，類似於Qt中的**QListWidget**
+- `TextBox` 簡單文本框，類似於Qt中的**QLineEdit**
+- `RichTextBox` 富文本框，類似於Qt中的**QTextEdit**
+- `TreeView` 樹形控件，類似於Qt中的**QTreeWidget**
 
 ## 容器控件
-在`Windows From`中，常见的容器控件有：
+在`Windows From`中，常見的容器控件有：
 
 - `Panel` 最基本的面板容器
-- `GroupBox` 控件组面板，类似于Qt中的**QGroupBox**
+- `GroupBox` 控件組面板，類似於Qt中的**QGroupBox**
 
-部分容器自带布局，放入其中的控件会按照其布局排列：
+部分容器自帶佈局，放入其中的控件會按照其佈局排列：
 
-- `FlowLayoutPanel` 流布局面板
-- `TableLayoutPanel` 表格布局面板
+- `FlowLayoutPanel` 流佈局面板
+- `TableLayoutPanel` 表格佈局面板
 
-## 布局与样式
-在`Windows From`中，控件的大小与位置一般是固定的。
-若需要控件大小自动变化，则应使用`AutoSize`属性。
-一般情况下，控件的位置不会随着窗口大小的变化而自动排列位置，需要通过设置`Archor`属性来指定扩展的方向。
-控件还可以通过设置`Dock`属性指定需要停靠的边框。
+## 佈局與樣式
+在`Windows From`中，控件的大小與位置一般是固定的。
+若需要控件大小自動變化，則應使用`AutoSize`屬性。
+一般情況下，控件的位置不會隨着窗口大小的變化而自動排列位置，需要通過設置`Archor`屬性來指定擴展的方向。
+控件還可以通過設置`Dock`屬性指定需要停靠的邊框。
 
 ## 控件事件
-一个标准的`Windows Form`控件中定义了多种事件，通过将指定的事件处理函数绑定到事件上，当满足事件触发的条件时，绑定的函数便会被回调。
-一个事件可以绑定多个事件处理函数，一个事件处理函数也可以被多个事件绑定。
+一個標準的`Windows Form`控件中定義了多種事件，通過將指定的事件處理函數綁定到事件上，當滿足事件觸發的條件時，綁定的函數便會被回調。
+一個事件可以綁定多個事件處理函數，一個事件處理函數也可以被多個事件綁定。
 
-普通的事件签名没有限制，但`.NET Framework`类库中的所有事件均基于`EventHandler`委托，定义如下：
+普通的事件簽名沒有限制，但`.NET Framework`類庫中的所有事件均基於`EventHandler`委託，定義如下：
 
 ```cs
 public delegate void EventHandler(object sender, EventArgs e);
 ```
 
-`sender`参数指明了事件的发出者，而`e`参数携带了事件的具体信息，`EventArgs`是所有`.NET Framework`类库中事件的基类，
-实际的事件类型只有符合`EventHandler`委托签名的函数才能被绑定到`Windows Form`的控件事件上。
+`sender`參數指明瞭事件的發出者，而`e`參數攜帶了事件的具體信息，`EventArgs`是所有`.NET Framework`類庫中事件的基類，
+實際的事件類型只有符合`EventHandler`委託簽名的函數才能被綁定到`Windows Form`的控件事件上。
 
 常用的`Windows Form`控件事件有：
 
-- `Load` 载入窗体时触发，一般可用于初始化一些UI设置(`Form`类)
-- `Click` 点按控件时触发
-- `MouseDown` 鼠标按下时触发
-- `MouseUp` 鼠标抬起时触发
-- `KeyDown` 按键按下时触发
-- `KeyUp` 按键抬起时触发
-- `GotFocus` 接收焦点时触发
+- `Load` 載入窗體時觸發，一般可用於初始化一些UI設置(`Form`類)
+- `Click` 點按控件時觸發
+- `MouseDown` 鼠標按下時觸發
+- `MouseUp` 鼠標擡起時觸發
+- `KeyDown` 按鍵按下時觸發
+- `KeyUp` 按鍵擡起時觸發
+- `GotFocus` 接收焦點時觸發
 
 ## 接收Windows消息
-在`Windows Form`中，所有从`System.Windows.Forms.Control`派生的类都包含以下方法：
+在`Windows Form`中，所有從`System.Windows.Forms.Control`派生的類都包含以下方法：
 
 ```cs
 protected override void WndProc(ref Message m);
 ```
 
-重写其即可处理**Windows消息**。
+重寫其即可處理**Windows消息**。
 
-`Message`类完整路径为`System.Windows.Forms.Message`，该类包装了Windows消息，包含以下属性：
+`Message`類完整路徑爲`System.Windows.Forms.Message`，該類包裝了Windows消息，包含以下屬性：
 
-- `HWnd` 获取或设置消息的窗口句柄
+- `HWnd` 獲取或設置消息的窗口句柄
 - `LParam` 指定消息的**LParam**字段
-- `Msg` 获取或设置消息的**ID**号
-- `Result` 指定为响应消息处理而向**Windows**返回的值
-- `WParam` 获取或设置消息的**WParam**字段
+- `Msg` 獲取或設置消息的**ID**號
+- `Result` 指定爲響應消息處理而向**Windows**返回的值
+- `WParam` 獲取或設置消息的**WParam**字段
 
 
 
-# 调用 C/C++ 动态链接库
-C#支持调用`C/C++`语言编写的`dll`。
+# 調用 C/C++ 動態鏈接庫
+C#支持調用`C/C++`語言編寫的`dll`。
 
-使用`DLLImport`特性修饰一个方法。
-加载动态链接库需要指定dll的路径以及符号名称：
+使用`DLLImport`特性修飾一個方法。
+加載動態鏈接庫需要指定dll的路徑以及符號名稱：
 
 ```cs
 [DLLImport("DLL Library", EntryPoint = "Symbol Name")]
 public/protected/private extern Type Func(Type args...);
 ```
 
-声明方法的名称可以与dll中导出符号名称不同，只需在标注的`EntryPoint`中写明对应的符号名称。
-声明的方法参数表必须与dll中的参数表**完全匹配**。
+聲明方法的名稱可以與dll中導出符號名稱不同，只需在標註的`EntryPoint`中寫明對應的符號名稱。
+聲明的方法參數表必須與dll中的參數表**完全匹配**。
 
-C#中的常见类型与C++中类型之间的转换关系：
+C#中的常見類型與C++中類型之間的轉換關係：
 
 | C++ | C# |
 |:----|:---|
@@ -2521,59 +2523,59 @@ C#中的常见类型与C++中类型之间的转换关系：
 
 
 
-# 特殊关键字
-介绍一些在其它语言中不常见的关键字。
+# 特殊關鍵字
+介紹一些在其它語言中不常見的關鍵字。
 
-## internal 关键字
-类和类成员前可以使用`internal`关键字。
+## internal 關鍵字
+類和類成員前可以使用`internal`關鍵字。
 
-- `internal`关键字修饰类
+- `internal`關鍵字修飾類
 
-	`internal`关键字用在类、接口前表示只能在当前项目中访问该类、接口。
-	`internel`关键字修饰的类不能被`public`类继承。
-	默认不添加关键字的情况下，类和接口的访问属性即为`internal`。
+	`internal`關鍵字用在類、接口前表示只能在當前項目中訪問該類、接口。
+	`internel`關鍵字修飾的類不能被`public`類繼承。
+	默認不添加關鍵字的情況下，類和接口的訪問屬性即爲`internal`。
 
-- `internal`关键字修饰成员
+- `internal`關鍵字修飾成員
 
-	`internal`关键字用在类内成员之前表示只能在当前项目中访问该成员。
-	在对类内成员使用时，`internal`关键字可以搭配`protected`关键字使用，即定义一个只能被当前项目的子类访问的成员。
+	`internal`關鍵字用在類內成員之前表示只能在當前項目中訪問該成員。
+	在對類內成員使用時，`internal`關鍵字可以搭配`protected`關鍵字使用，即定義一個只能被當前項目的子類訪問的成員。
 
-需要注意的是，`internal`修饰的类不能作为`public`成员出现在其它类中。
+需要注意的是，`internal`修飾的類不能作爲`public`成員出現在其它類中。
 
-## readonly 关键字
-`readonly`关键字用于修饰**运行时只读**变量。
-`readonly`变量的赋值操作只能发生在以下情形：
+## readonly 關鍵字
+`readonly`關鍵字用於修飾**運行時只讀**變量。
+`readonly`變量的賦值操作只能發生在以下情形：
 
-- 在变量定义时。
-- 在变量所属类的构造函数中。
+- 在變量定義時。
+- 在變量所屬類的構造函數中。
 
-与`const`关键字的异同：
+與`const`關鍵字的異同：
 
-- `const`修饰的变量被视为**编译时常量**，`readonly`修饰的变量被视为**运行时常量**。
-- `const`关键字修饰的变量须在**定义时**立即初始化。
-- `const`仅能修饰**值类型**/`string`类型/`null`，`readonly`可以修饰任意类型，
-- `const`修饰的变量自动带有`static`特性：
+- `const`修飾的變量被視爲**編譯時常量**，`readonly`修飾的變量被視爲**運行時常量**。
+- `const`關鍵字修飾的變量須在**定義時**立即初始化。
+- `const`僅能修飾**值類型**/`string`類型/`null`，`readonly`可以修飾任意類型，
+- `const`修飾的變量自動帶有`static`特性：
 
-	`const`关键字与`static`关键字不能共同修饰相同变量。
-	`const`修饰的变量**可以**被定义在静态类中。
+	`const`關鍵字與`static`關鍵字不能共同修飾相同變量。
+	`const`修飾的變量**可以**被定義在靜態類中。
 
-- `readonly`修饰的变量默认**不带有**`static`属性：
+- `readonly`修飾的變量默認**不帶有**`static`屬性：
 
-	`readonly`与`static`关键字可一同使用表示**静态只读**变量。
+	`readonly`與`static`關鍵字可一同使用表示**靜態只讀**變量。
 
-对于引用类型，不能使用`const`关键字修饰，要限制其修改只能使用`readonly`关键字。
+對於引用類型，不能使用`const`關鍵字修飾，要限制其修改只能使用`readonly`關鍵字。
 
-## partial 关键字
-`partial`关键字用于定义`部分类`(局部类型)，局部类型允许我们将一个类、结构或接口分成几个部分，分别实现在几个不同的源码文件中。
+## partial 關鍵字
+`partial`關鍵字用於定義`部分類`(局部類型)，局部類型允許我們將一個類、結構或接口分成幾個部分，分別實現在幾個不同的源碼文件中。
 
-在`Windows From`中，窗口类代码便使用了部分类特性。
-对于同一个窗口类，由VS窗体编辑器生成的GUI代码在文件**GUI类名.Designer.cs**文件中，而由用户编写的界面控制代码放在**GUI类名.cs**文件中。
-两个文件中的代码本质上属于同一个类，`部分类`特性巧妙地隔离开了**由IDE产生的代码**与**用户自行编写的代码**，使代码结构更清晰。
+在`Windows From`中，窗口類代碼便使用了部分類特性。
+對於同一個窗口類，由VS窗體編輯器生成的GUI代碼在文件**GUI類名.Designer.cs**文件中，而由用戶編寫的界面控制代碼放在**GUI類名.cs**文件中。
+兩個文件中的代碼本質上屬於同一個類，`部分類`特性巧妙地隔離開了**由IDE產生的代碼**與**用戶自行編寫的代碼**，使代碼結構更清晰。
 
-## params 关键字
-`params`用在方法的参数之前，用于标记可变参数。一个方法只能拥有一个`params`参数，且被`params`标记的参数必须为最后一个参数，并且是数组类型。
+## params 關鍵字
+`params`用在方法的參數之前，用於標記可變參數。一個方法只能擁有一個`params`參數，且被`params`標記的參數必須爲最後一個參數，並且是數組類型。
 
-在调用含有`params`参数的方法时，方法末尾可以追加**任意数量**的类型相符的变量，例如：
+在調用含有`params`參數的方法時，方法末尾可以追加**任意數量**的類型相符的變量，例如：
 
 ```cs
 using System;
@@ -2587,32 +2589,32 @@ class Program
 	}
 
 	static void Main(string[] args) =>
-		Print(1, 2, 3, 4, 5); //多个int型参数都被添加到params关键字标记的数组中
+		Print(1, 2, 3, 4, 5); //多個int型參數都被添加到params關鍵字標記的數組中
 }
 ```
 
 
 
-# 常见问题
+# 常見問題
 
-## 处理`\0`结尾字符串
-在C#中，以`\0`结尾的`string`类型尾部的`\0`并不会被自动忽略，在输出是，中文环境下会显示`口口...`，删除字符串中的`\0`可以使用`string`类的`Replace()`成员方法进行字符串替换：
+## 處理`\0`結尾字符串
+在C#中，以`\0`結尾的`string`類型尾部的`\0`並不會被自動忽略，在輸出是，中文環境下會顯示`口口...`，刪除字符串中的`\0`可以使用`string`類的`Replace()`成員方法進行字符串替換：
 
 ```cs
 string test = "aaa\0\0\0";
-Console.WriteLine(test); //输出 "aaa口口口"
-string testNew = test.Replace("\0", ""); //将 \0 替换为空
-Console.WriteLine(testNew); //输出 "aaa"
+Console.WriteLine(test); //輸出 "aaa口口口"
+string testNew = test.Replace("\0", ""); //將 \0 替換爲空
+Console.WriteLine(testNew); //輸出 "aaa"
 ```
 
-## MySQL 中 TINYINT 类型
-在`MySQL`中没有内置的`bool`类型，`bool`类型常常使用最小的整型数据类型`TINYINT`表示。
+## MySQL 中 TINYINT 類型
+在`MySQL`中沒有內置的`bool`類型，`bool`類型常常使用最小的整型數據類型`TINYINT`表示。
 
-在C#中，会将`TINYINT(1)`视为`bool`类型处理，对于类型为`TINYINT(1)`的列，使用`ToString()`方法转换得到的是文本`true/false`而非字面意义数值。
-要使`TINYINT`不被视为`bool`类型，需要调整数据列的显示宽度，即类型设为`TINYINT(2)`或是其它大于`1`的值。
+在C#中，會將`TINYINT(1)`視爲`bool`類型處理，對於類型爲`TINYINT(1)`的列，使用`ToString()`方法轉換得到的是文本`true/false`而非字面意義數值。
+要使`TINYINT`不被視爲`bool`類型，需要調整數據列的顯示寬度，即類型設爲`TINYINT(2)`或是其它大於`1`的值。
 
 ## DEBUG 宏
-在C#中，可使用类似C/C++的宏针对`DEBUG/RELEASE`模式下进行额外的操作，语法如下：
+在C#中，可使用類似C/C++的宏針對`DEBUG/RELEASE`模式下進行額外的操作，語法如下：
 
 ```cs
 #if DEBUG
@@ -2622,27 +2624,27 @@ Console.WriteLine(testNew); //输出 "aaa"
 #endif
 ```
 
-## 输出代码文件名、行号
-在输出日志时，常常需要输出打印日志的代码位置以便跟踪查看。
+## 輸出代碼文件名、行號
+在輸出日誌時，常常需要輸出打印日誌的代碼位置以便跟蹤查看。
 
-- 使用`StackStrace`获取调试信息
+- 使用`StackStrace`獲取調試信息
 
-	使用`StackStrace`类通过反射可以得到函数调用者的栈信息，并从中获取代码信息。
-	使用`StackTrace`的`GetFrame(int index)`成员方法获取指定的堆栈帧(`StackFrame`类型)。
+	使用`StackStrace`類通過反射可以得到函數調用者的棧信息，並從中獲取代碼信息。
+	使用`StackTrace`的`GetFrame(int index)`成員方法獲取指定的堆棧幀(`StackFrame`類型)。
 
-	- 索引`0`为当前函数堆栈的信息。
-	- 索引`1`为函数调用者的堆栈信息，以此类推，可获取多级调用者信息。
-	- 使用`StackFrame`类可以获得堆栈所在的方法名称、源码文件名称，代码行号等，还可进一步获得类型信息。
+	- 索引`0`爲當前函數堆棧的信息。
+	- 索引`1`爲函數調用者的堆棧信息，以此類推，可獲取多級調用者信息。
+	- 使用`StackFrame`類可以獲得堆棧所在的方法名稱、源碼文件名稱，代碼行號等，還可進一步獲得類型信息。
 
 - `.Net 4.5`新增特性
 
-	在`.Net 4.5`中引入了三种`Attribute`用于获取方法的调用成员名称、调用文件、调用代码行号：
+	在`.Net 4.5`中引入了三種`Attribute`用於獲取方法的調用成員名稱、調用文件、調用代碼行號：
 
-	- `System.Runtime.CompilerServices.CallerMemberNameAttribute` 成员名称
-	- `System.Runtime.CompilerServices.CallerFilePathAttribute` 调用文件
-	- `System.Runtime.CompilerServices.CallerLineNumberAttribute` 调用行号
+	- `System.Runtime.CompilerServices.CallerMemberNameAttribute` 成員名稱
+	- `System.Runtime.CompilerServices.CallerFilePathAttribute` 調用文件
+	- `System.Runtime.CompilerServices.CallerLineNumberAttribute` 調用行號
 
-	三种特性用于修饰日志函数的参数(参数需要有默认值)，编译器会自动为参数补充对应的调用信息，如下所示：
+	三種特性用於修飾日誌函數的參數(參數需要有默認值)，編譯器會自動爲參數補充對應的調用信息，如下所示：
 
 	```cs
 	using System.Runtime.CompilerServices;
