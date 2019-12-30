@@ -45,6 +45,8 @@
 	- [执行 SQL 查询](#执行-sql-查询)
 		- [Global Temporary View](#global-temporary-view)
 		- [视图管理](#视图管理)
+	- [回写数据](#回写数据)
+		- [MySQL 建表异常](#mysql-建表异常)
 - [问题注记](#问题注记)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -2155,6 +2157,163 @@ scala> dataFrame.createGlobalTempView("TestTable")
 
 scala> dataFrame.createOrReplaceGlobalTempView("TestTable")
 ```
+
+## 回写数据
+DataSet/DataFrame支持直接输出到其它数据源中，操作与读取数据类似。
+
+```scala
+scala> dataFrame.write.jdbc("jdbc:mysql://ip:port/db_name?xxx=xxx...", "tablename", connectionProperties)
+```
+
+可以手动指定SparkSQL建表时的字段类型：
+
+```scala
+scala> dataFrame.write
+  // 设定字段在建表时对应的字段类型
+  .option("createTableColumnTypes", "xxxField1 XXXTYPE1, xxxField2 XXXTYPE2", ...)
+  .jdbc("jdbc:mysql://ip:port/db_name?xxx=xxx...", "tablename", connectionProperties)
+```
+
+对于`createTableColumnTypes`选项中指定的字段会优先使用设置的类型覆盖默认类型。
+
+### MySQL 建表异常
+SparkSQL建表时会可能会产生异常，以MySQL数据库为例：
+
+```java
+com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '...' at line 1
+  at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+  at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+  at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+  at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
+  at com.mysql.jdbc.Util.handleNewInstance(Util.java:425)
+  at com.mysql.jdbc.Util.getInstance(Util.java:408)
+  at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:944)
+  at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3973)
+  at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3909)
+  at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:2527)
+  at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2680)
+  at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2480)
+  at com.mysql.jdbc.StatementImpl.executeUpdateInternal(StatementImpl.java:1552)
+  at com.mysql.jdbc.StatementImpl.executeLargeUpdate(StatementImpl.java:2607)
+  at com.mysql.jdbc.StatementImpl.executeUpdate(StatementImpl.java:1480)
+  at org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils$.createTable(JdbcUtils.scala:844)
+  at org.apache.spark.sql.execution.datasources.jdbc.JdbcRelationProvider.createRelation(JdbcRelationProvider.scala:77)
+  at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:46)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.doExecute(commands.scala:86)
+  at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:131)
+  at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:127)
+  at org.apache.spark.sql.execution.SparkPlan$$anonfun$executeQuery$1.apply(SparkPlan.scala:155)
+  at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+  at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:152)
+  at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:127)
+  at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:80)
+  at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:80)
+  at org.apache.spark.sql.DataFrameWriter$$anonfun$runCommand$1.apply(DataFrameWriter.scala:654)
+  at org.apache.spark.sql.DataFrameWriter$$anonfun$runCommand$1.apply(DataFrameWriter.scala:654)
+  at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:77)
+  at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:654)
+  at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:273)
+  at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:267)
+  at org.apache.spark.sql.DataFrameWriter.jdbc(DataFrameWriter.scala:499)
+  ... 49 elided
+```
+
+异常产生的原因是SparkSQL在生成DataFrame对应的建表SQL语句时对于部分字段类型未正确映射到目标数据库。
+通过分析异常堆栈可知SparkSQL建表相关逻辑位于`org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils`单例对象提供的`createTable()`方法中：
+
+```scala
+object JdbcUtils extends Logging {
+
+  ...
+
+  /**
+   * Retrieve standard jdbc types.
+   *
+   * @param dt The datatype (e.g. [[org.apache.spark.sql.types.StringType]])
+   * @return The default JdbcType for this DataType
+   */
+  def getCommonJDBCType(dt: DataType): Option[JdbcType] = {
+    dt match {
+      case IntegerType => Option(JdbcType("INTEGER", java.sql.Types.INTEGER))
+      case LongType => Option(JdbcType("BIGINT", java.sql.Types.BIGINT))
+      case DoubleType => Option(JdbcType("DOUBLE PRECISION", java.sql.Types.DOUBLE))
+      case FloatType => Option(JdbcType("REAL", java.sql.Types.FLOAT))
+      case ShortType => Option(JdbcType("INTEGER", java.sql.Types.SMALLINT))
+      case ByteType => Option(JdbcType("BYTE", java.sql.Types.TINYINT))
+      case BooleanType => Option(JdbcType("BIT(1)", java.sql.Types.BIT))
+      case StringType => Option(JdbcType("TEXT", java.sql.Types.CLOB))
+      case BinaryType => Option(JdbcType("BLOB", java.sql.Types.BLOB))
+      case TimestampType => Option(JdbcType("TIMESTAMP", java.sql.Types.TIMESTAMP))
+      case DateType => Option(JdbcType("DATE", java.sql.Types.DATE))
+      case t: DecimalType => Option(
+        JdbcType(s"DECIMAL(${t.precision},${t.scale})", java.sql.Types.DECIMAL))
+      case _ => None
+    }
+  }
+
+  private def getJdbcType(dt: DataType, dialect: JdbcDialect): JdbcType = {
+    dialect.getJDBCType(dt).orElse(getCommonJDBCType(dt)).getOrElse(
+      throw new IllegalArgumentException(s"Can't get JDBC type for ${dt.simpleString}"))
+  }
+
+  ...
+
+  /**
+   * Compute the schema string for this RDD.
+   */
+  def schemaString(
+      df: DataFrame,
+      url: String,
+      createTableColumnTypes: Option[String] = None): String = {
+    val sb = new StringBuilder()
+    val dialect = JdbcDialects.get(url)
+    val userSpecifiedColTypesMap = createTableColumnTypes
+      .map(parseUserSpecifiedCreateTableColumnTypes(df, _))
+      .getOrElse(Map.empty[String, String])
+    df.schema.fields.foreach { field =>
+      val name = dialect.quoteIdentifier(field.name)
+      val typ = userSpecifiedColTypesMap
+        .getOrElse(field.name, getJdbcType(field.dataType, dialect).databaseTypeDefinition)
+      val nullable = if (field.nullable) "" else "NOT NULL"
+      sb.append(s", $name $typ $nullable")
+    }
+    if (sb.length < 2) "" else sb.substring(2)
+  }
+
+  ...
+
+  /**
+   * Creates a table with a given schema.
+   */
+  def createTable(
+      conn: Connection,
+      df: DataFrame,
+      options: JDBCOptions): Unit = {
+    val strSchema = schemaString(
+      df, options.url, options.createTableColumnTypes)
+    val table = options.table
+    val createTableOptions = options.createTableOptions
+    // Create the table if the table does not exist.
+    // To allow certain options to append when create a new table, which can be
+    // table_options or partition_options.
+    // E.g., "CREATE TABLE t (name string) ENGINE=InnoDB DEFAULT CHARSET=utf8"
+    val sql = s"CREATE TABLE $table ($strSchema) $createTableOptions"
+    val statement = conn.createStatement
+    try {
+      statement.executeUpdate(sql)
+    } finally {
+      statement.close()
+    }
+  }
+
+  ...
+
+}
+```
+
+分析源码可知，DataFrame使用SparkSQL生成建表SQL语句时，`byte/boolean`等类型没有被映射成MySQL中对应的正确类型。
 
 
 
