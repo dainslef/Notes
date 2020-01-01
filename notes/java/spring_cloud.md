@@ -33,6 +33,10 @@
 - [Spring Boot Admin](#spring-boot-admin)
 	- [Spring Boot Admin Server](#spring-boot-admin-server)
 	- [Spring Boot Admin Client](#spring-boot-admin-client)
+- [部分問題解決方案](#部分問題解決方案)
+	- [Cannot create binder factory, no `META-INF/spring.binders` resources found on the classpath](#cannot-create-binder-factory-no-meta-infspringbinders-resources-found-on-the-classpath)
+	- [java.lang.NoSuchMethodError: javax.servlet.ServletContext.getVirtualServerName()Ljava/lang/String;](#javalangnosuchmethoderror-javaxservletservletcontextgetvirtualservernameljavalangstring)
+	- [java.lang.NoSuchMethodError: com.netflix.servo.monitor.Monitors.isObjectRegistered(Ljava/lang/String;Ljava/lang/Object;)Z](#javalangnosuchmethoderror-comnetflixservomonitormonitorsisobjectregisteredljavalangstringljavalangobjectz)
 
 <!-- /TOC -->
 
@@ -920,4 +924,61 @@ Spring Boot 2之後關閉了多數的端點，要讓Admin Server能獲取到完�
 
 ```yaml
 management.endpoints.web.exposure.include: '*' # 開放所有端點，在真正的產品開發中，需要慎重考慮到端點的開放
+```
+
+
+
+# 部分問題解決方案
+記錄配置Spring Cloud相關組件時遇到的問題。
+
+## Cannot create binder factory, no `META-INF/spring.binders` resources found on the classpath
+問題説明：<br>
+配置Spring Config Server Monitor，啓動後提示`spring.binders`相關資源缺失。
+
+解決方案：<br>
+部分Spring Cloud組件(如`Spring Cloud Config Server Monitor`)依賴Spring Cloud Dbus，而DBus依賴Stream，
+默認的Binder為RabbitMQ，添加相關依賴：
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+</dependency>
+```
+
+## java.lang.NoSuchMethodError: javax.servlet.ServletContext.getVirtualServerName()Ljava/lang/String;
+問題說明：<br>
+部分Netfix組件依賴的`javax.servlet:servlet-api`版本過低(2.x)，`ServletContext`接口中未包含指定方法。
+
+版本描述：<br>
+問題出現在Spring Cloud Finchley版本中，Spring Cloud Greenwich版本無此問題。
+
+解決方案：<br>
+`ServletContext.getVirtualServerName()`方法需要`servlet-api 3.x`。
+Tomcat自身已包含了servlet相關接口，在構建配置中屏蔽依賴的`javax.servlet:servlet-api`包。
+
+## java.lang.NoSuchMethodError: com.netflix.servo.monitor.Monitors.isObjectRegistered(Ljava/lang/String;Ljava/lang/Object;)Z
+問題説明：<br>
+Zuul組件依賴的`com.netflix.servo:servo-core`版本過低(0.7.x)，`Monitors`類中未包含指定方法。
+
+版本描述：<br>
+問題出現在Spring Cloud Finchley版本中，Spring Cloud Greenwich版本無此問題。
+
+解決方案：<br>
+`Monitors.isObjectRegistered()`方法需要`servo-core 0.12.x`，Eureka Server已包含該依賴。
+在Zuul的依賴中屏蔽`com.netflix.servo:servo-core`：
+
+```xml
+<!-- Zuul -->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-netflix-zuul</artifactId>
+	<exclusions>
+		<!-- exclude the old version servo -->
+		<exclusion>
+			<artifactId>servo-core</artifactId>
+			<groupId>com.netflix.servo</groupId>
+		</exclusion>
+	</exclusions>
+</dependency>
 ```
