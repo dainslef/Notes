@@ -37,20 +37,32 @@ npm通常包含在`Node.js`中，安装Node.js时会一同安装npm。
 
 ```c
 $ npm install 包名
-# npm install -g 包名 //安装模块到全局路径下
+# npm install -g 包名 // 安装模块到全局路径下
 ```
 
 默认模块将安装在当前路径的`node_modules`路径下，使用`-g`参数可将模块安装在**全局路径**下。
 
-部分模块带有可执行的`CLI`工具：
+部分模块带有可执行的CLI工具：
 
 - 安装在**当前目录**时会在`项目路径/node_modules/.bin`路径下创建可执行脚本的符号链接。
 - 安装在**全局目录**时会在根据操作系统类型在对应的bin路径下创建脚本的符号链接。
 
-在`Linux/macOS`中，全局安装的模块工具在`/usr/local/bin`下创建符号链接，通常该目录已被加入`PATH`环境变量中，即全局安装的工具模块可直接执行。
+在`Linux/macOS`中，全局安装的模块工具在`/usr/local/bin`下创建符号链接，通常该目录已被加入`PATH`环境变量中，
+即全局安装的工具模块可直接执行。
 在`Windows`中，全局安装的模块工具在**Node.js安装目录**下创建符号链接，需要将该路径手动加入`PATH`中。
 
-从`npm 5.2.0`开始，npm包管理器会自带`npx`指令，npx指令可用于执行安装在**全局路径/当前路径**下的工具模块，免去了配置环境变量的步骤。
+从`npm 5.2.0`开始，npm包管理器会自带`npx`指令，npx指令可用于执行安装在**全局路径/当前路径**下的工具模块，
+免去了配置环境变量的步骤。
+
+使用`npm update`更新模塊：
+
+```c
+$ npm update // 更新當前目錄下的所有模塊
+$ npm update 包名 // 更新當前目錄下的指定模塊
+
+# npm update -g // 更新所有全局模塊
+# npm update -g 包名 // 更新指定全局模塊
+```
 
 ## 查看已安装模块
 使用`npm ls/list`相关指令查看已安装模块。
@@ -104,23 +116,6 @@ test-react@0.0.1 /Users/dainslef/Downloads/WorkSpace/test-react
 │ │ └── js-tokens@3.0.2 deduped
 │ ├── object-assign@4.1.1
 │ └── prop-types@15.6.0 deduped
-├─┬ react-dom@16.2.0
-│ ├── fbjs@0.8.16 deduped
-│ ├── loose-envify@1.3.1 deduped
-│ ├── object-assign@4.1.1 deduped
-│ └── prop-types@15.6.0 deduped
-├─┬ webpack@3.10.0
-│ ├── acorn@5.3.0
-│ ├─┬ acorn-dynamic-import@2.0.2
-│ │ └── acorn@4.0.13
-│ ├─┬ ajv@5.5.2
-│ │ ├── co@4.6.0
-│ │ ├── fast-deep-equal@1.0.0
-│ │ ├── fast-json-stable-stringify@2.0.0
-│ │ └── json-schema-traverse@0.3.1
-│ ├── ajv-keywords@2.1.1
-│ ├─┬ async@2.6.0
-│ │ └── lodash@4.17.4 deduped
 ...
 ```
 
