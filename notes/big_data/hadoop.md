@@ -8,8 +8,7 @@
 - [HDFS](#hdfs)
 	- [HDFS RPC地址](#hdfs-rpc地址)
 	- [HDFS命令行工具](#hdfs命令行工具)
-- [Hbase](#hbase)
-	- [HBase體系結構](#hbase體系結構)
+- [HBase](#hbase)
 	- [HBase服務配置](#hbase服務配置)
 	- [HBase數據模型](#hbase數據模型)
 		- [Conceptual View (概念視圖)](#conceptual-view-概念視圖)
@@ -28,6 +27,8 @@
 	- [Caused by: java.lang.ClassNotFoundException: com.yammer.metrics.core.Gauge](#caused-by-javalangclassnotfoundexception-comyammermetricscoregauge)
 	- [java.io.IOException: Incompatible clusterIDs in /tmp/hadoop-root/dfs/data: namenode clusterID = CID-...; datanode clusterID = CID-...](#javaioioexception-incompatible-clusterids-in-tmphadoop-rootdfsdata-namenode-clusterid--cid--datanode-clusterid--cid-)
 	- [WARN org.apache.hadoop.hdfs.server.datanode.DataNode: IOException in offerService; java.io.EOFException: End of File Exception between local host is: "xxxs/xx.xx.xx.xx"; destination host is: "xxhostname":xxxx;](#warn-orgapachehadoophdfsserverdatanodedatanode-ioexception-in-offerservice-javaioeofexception-end-of-file-exception-between-local-host-is-xxxsxxxxxxxx-destination-host-is-xxhostnamexxxx)
+	- [master.ServerManager: Waiting for region servers count to settle; currently checked in 0, slept for 67247 ms, expecting minimum of 1, maximum of 2147483647, timeout of 4500 ms, interval of 1500 ms.](#masterservermanager-waiting-for-region-servers-count-to-settle-currently-checked-in-0-slept-for-67247-ms-expecting-minimum-of-1-maximum-of-2147483647-timeout-of-4500-ms-interval-of-1500-ms)
+	- [INFO org.apache.hadoop.hbase.util.FSUtils: Waiting for dfs to exit safe mode...](#info-orgapachehadoophbaseutilfsutils-waiting-for-dfs-to-exit-safe-mode)
 
 <!-- /TOC -->
 
@@ -374,7 +375,7 @@ $ hdfs dfs -rmdir [HDFS路徑]
 
 
 
-# Hbase
+# HBase
 `Apache HBase™`是基於Hadoop的數據庫，具有分佈式、可擴展、支持海量數據存儲等特性。
 
 HBase常用在需要隨機、實時讀寫海量數據的場景下。項目的目標是在商業硬件集羣上管理非常巨大的表(上億行 x 上億列)。
@@ -383,9 +384,6 @@ HBase是開源(open-source)、分佈式(distributed)、版本化(versioned)、�
 HBase在Hadoop和HDFS之上提供了類似Bigtable的功能。
 
 HBase的詳細介紹、配置、使用說明等可查閱[官方文檔](http://hbase.apache.org/book.html)。
-
-## HBase體系結構
-HBase
 
 ## HBase服務配置
 從[HBase官網](http://hbase.apache.org/downloads.html)中下載穩定版本的HBase。
@@ -1098,4 +1096,49 @@ Spark應用使用HBase Client連接HBase數據庫，建立連接時提示找不�
 	<value>hdfs://localhost:9000</value>
 	<!-- 不使用 hdfs://XxxNameService 形式的HDFS路徑 -->
 </property>
+```
+
+## master.ServerManager: Waiting for region servers count to settle; currently checked in 0, slept for 67247 ms, expecting minimum of 1, maximum of 2147483647, timeout of 4500 ms, interval of 1500 ms.
+問題說明：<br>
+啟動HBase後，HBase Master一直處於初始化過程中，任何HBase請求會得到錯誤異常：
+
+```
+ERROR: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing
+	at org.apache.hadoop.hbase.master.HMaster.checkInitialized(HMaster.java:2379)
+	at org.apache.hadoop.hbase.master.MasterRpcServices.getTableNames(MasterRpcServices.java:900)
+	at org.apache.hadoop.hbase.protobuf.generated.MasterProtos$MasterService$2.callBlockingMethod(MasterProtos.java:55650)
+	at org.apache.hadoop.hbase.ipc.RpcServer.call(RpcServer.java:2196)
+	at org.apache.hadoop.hbase.ipc.CallRunner.run(CallRunner.java:112)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor.consumerLoop(RpcExecutor.java:133)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$1.run(RpcExecutor.java:108)
+	at java.lang.Thread.run(Thread.java:748)
+```
+
+解決方案：<br>
+出現該問題通常是HBase進程所處各個節點間的時間同步出現了問題，可配置`NTP`服務保證各個服務器時間一致。
+
+## INFO org.apache.hadoop.hbase.util.FSUtils: Waiting for dfs to exit safe mode...
+問題說明：<br>
+啟動HBase後，HBase Master一直處於初始化過程中，查看HBase啟動日誌，可看到一直輸出類似日誌：
+
+```
+...
+2019-10-08 16:50:22,560 INFO  [spark-master:16000.activeMasterManager] util.FSUtils: Waiting for dfs to exit safe mode...
+2019-10-08 16:50:32,565 INFO  [spark-master:16000.activeMasterManager] util.FSUtils: Waiting for dfs to exit safe mode...
+2019-10-08 16:50:42,570 INFO  [spark-master:16000.activeMasterManager] util.FSUtils: Waiting for dfs to exit safe mode...
+2019-10-08 16:50:52,575 INFO  [spark-master:16000.activeMasterManager] util.FSUtils: Waiting for dfs to exit safe mode...
+2019-10-08 16:51:02,579 INFO  [spark-master:16000.activeMasterManager] util.FSUtils: Waiting for dfs to exit safe mode...
+```
+
+解決方案：<br>
+該問題是由於NameNode進入了安全模式(Safe Mode)導致的，查看各個NameNode的狀態，退出安全模式：
+
+```
+$ hdfs dfsadmin -safemode get
+Safe mode is ON in spark-master/172.16.1.126:9000
+Safe mode is ON in spark-slave2/172.16.1.129:9000
+
+$ hdfs dfsadmin -safemode leave
+Safe mode is OFF in spark-master/172.16.1.126:9000
+Safe mode is OFF in spark-slave2/172.16.1.129:9000
 ```
