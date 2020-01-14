@@ -25,7 +25,7 @@
 	- [org.apache.hadoop.hbase.client.RetriesExhaustedException](#orgapachehadoophbaseclientretriesexhaustedexception)
 	- [XXX: Error: JAVA_HOME is not set and could not be found.](#xxx-error-java_home-is-not-set-and-could-not-be-found)
 	- [Caused by: java.lang.ClassNotFoundException: com.yammer.metrics.core.Gauge](#caused-by-javalangclassnotfoundexception-comyammermetricscoregauge)
-	- [java.io.IOException: Incompatible clusterIDs in /tmp/hadoop-root/dfs/data: namenode clusterID = CID-...; datanode clusterID = CID-...](#javaioioexception-incompatible-clusterids-in-tmphadoop-rootdfsdata-namenode-clusterid--cid--datanode-clusterid--cid-)
+	- [java.io.IOException: Incompatible clusterIDs in ...](#javaioioexception-incompatible-clusterids-in-)
 	- [WARN org.apache.hadoop.hdfs.server.datanode.DataNode: IOException in offerService; java.io.EOFException: End of File Exception between local host is: "xxxs/xx.xx.xx.xx"; destination host is: "xxhostname":xxxx;](#warn-orgapachehadoophdfsserverdatanodedatanode-ioexception-in-offerservice-javaioeofexception-end-of-file-exception-between-local-host-is-xxxsxxxxxxxx-destination-host-is-xxhostnamexxxx)
 	- [master.ServerManager: Waiting for region servers count to settle; currently checked in 0, slept for 67247 ms, expecting minimum of 1, maximum of 2147483647, timeout of 4500 ms, interval of 1500 ms.](#masterservermanager-waiting-for-region-servers-count-to-settle-currently-checked-in-0-slept-for-67247-ms-expecting-minimum-of-1-maximum-of-2147483647-timeout-of-4500-ms-interval-of-1500-ms)
 	- [INFO org.apache.hadoop.hbase.util.FSUtils: Waiting for dfs to exit safe mode...](#info-orgapachehadoophbaseutilfsutils-waiting-for-dfs-to-exit-safe-mode)
@@ -100,21 +100,14 @@ PATH+=:$HADOOP_HOME/sbin # 將Hadoop相關工具加入PATH環境變量
 - `spark-slave0 ~ spark-slave3`作爲DataNode。
 - `spark-master/spark-slave0/spark-slave1`三臺機器啓動Zookeeper，並作爲JournalNode，同時運行Kafka。
 
-Hadoop提供的HDFS等組件需要佔用大量的磁盤空間，需要對磁盤分區做出合理規劃。
-以`/root/data/hadoop`路徑爲例，執行指令，在路徑下創建以下子路徑：
+Hadoop提供的HDFS等組件需要使用大量的磁盤數據空間，需要對磁盤分區做出合理規劃。
+Hadoop數據目錄的根路徑由`${hadoop.tmp.dir}`配置。默認配置下，Hadoop在根路徑下會創建以下結構存儲不同的組件信息：
 
-```c
-// 創建緩存路徑
-# mkdir -p /root/data/hadoop/tmp
-
-// 創建 DataNode 數據存儲路徑
-# mkdir -p /root/data/hadoop/hdfs/data
-
-// 創建 NameNode 數據存儲路徑
-# mkdir -p /root/data/hadoop/hdfs/name
-
-// 創建 JournalNode 數據存儲路徑
-# mkdir -p /root/data/hadoop/hdfs/journal
+```
+${hadoop.tmp.dir}
+|- dfs
+   |- name
+   |- data
 ```
 
 ## Hadoop服務配置
@@ -246,6 +239,7 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 		<!-- 指定 JournalNode 在本地磁盤存放數據的位置(可選) -->
 		<property>
 			<name>dfs.journalnode.edits.dir</name>
+			<!-- 默認值 /tmp/hadoop/dfs/journalnode -->
 			<value>/root/data/hadoop/hdfs/journal</value>
 		</property>
 
@@ -1071,14 +1065,18 @@ Spark應用使用HBase Client連接HBase數據庫，建立連接時提示找不�
 解決方案：<br>
 打包Spark應用時需要完整包含HBase相關依賴，包括`hbase*`、`metrics-core*`。
 
-## java.io.IOException: Incompatible clusterIDs in /tmp/hadoop-root/dfs/data: namenode clusterID = CID-...; datanode clusterID = CID-...
+## java.io.IOException: Incompatible clusterIDs in ...
 問題說明：<br>
 啓動DataNode失敗，提示DataNode的`clusterID`與NameNode不匹配。
-通常是NameNode重新格式化後，DataNode數據路徑未清空，仍保留與之前NameNode版本匹配的數據。
 
 解決方案：<br>
-清空DataNode中數據路徑下的內容。
-默認DataNode路徑爲`${hadoop.tmp.dir}/dfs/dfs`，若設定了`hadoop.datanode.data.dir`配置，則路徑以該配置項爲準。
+通常是NameNode重新格式化後，DataNode數據路徑未清空，仍保留與之前NameNode版本匹配的數據，則清空DataNode中數據路徑下的內容。
+默認DataNode路徑爲`${hadoop.tmp.dir}/dfs`，若設定了`hadoop.datanode.data.dir`配置，則路徑以該配置項爲準。
+
+若是正常啟動出現版本不相容，則檢查NameNode、DataNode等的版本信息：
+
+- 用當前激活的NameNode的版本信息(`${hadoop.tmp.dir}/dfs/name/current/VERSION`)覆蓋掉啟動失敗的NameNode的版本信息。
+- 用當前激活的NameNode的版本信息中的`clusterID`替換掉啟動失敗的DataNode版本信息(`${hadoop.tmp.dir}/dfs/data/current/VERSION`)集群ID。
 
 ## WARN org.apache.hadoop.hdfs.server.datanode.DataNode: IOException in offerService; java.io.EOFException: End of File Exception between local host is: "xxxs/xx.xx.xx.xx"; destination host is: "xxhostname":xxxx;
 問題說明：<br>
