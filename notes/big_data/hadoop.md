@@ -988,6 +988,51 @@ Client相關API主要位於`org.apache.hadoop.hbase.client`包路徑下。
 
 	調用對應方法，將創建操作實例作爲參數，執行增刪改查操作。
 
+- 條件查詢
+
+	HBase中基本的查詢方式是通過Scan類型設置起止RowKey查詢指定範圍內的數據：
+
+	```java
+	public class Scan extends Query {
+		...
+		public Scan setStartRow(byte [] startRow);
+		public Scan setStopRow(byte [] stopRow);
+		...
+	}
+	```
+
+	HBase還提供了`Filter`(過濾器)來實現複雜條件的限定查詢，需要注意常規Filter默認會掃描過濾全表數據，因而效率低下；
+	正確的使用方式是搭配起止RowKey限定，先粗粒度地限制數據總量，之後再通過Filter做進一步的精細過濾。
+
+	```java
+	public class Scan extends Query {
+		...
+		public Scan setFilter(Filter filter);
+		...
+	}
+	```
+
+	HBase提供了多種Filter，其中針對RowKey進行過濾的`RowFilter`相對其它Filter效率更高，
+	因爲HBase中的RowKey是高度優化的。
+	過濾數據時可常見的操作是使用正則表達式：
+
+	```kt
+	Scan().apply {
+		filter = RowFilter(CompareOperator.EQUAL, RegexStringComparator("..."))
+	}
+	```
+
+	若僅需要查詢RowKey而不關注數據內容，則可以使用`KeyOnlyFilter`，使用該Filter僅返回Key，因而效率最高。
+
+	多個Filter可以相互組合：
+
+	```kt
+	Scan().apply {
+		// filter 存在 MUST_PASS_ALL/MUST_PASS_ONE 兩種組合策略
+		filter = RowFilter(FilterList.Operator.MUST_PASS_ALL, listOf(filter1, filter2, ...))
+	}
+	```
+
 
 
 # 問題註記
