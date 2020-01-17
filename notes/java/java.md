@@ -49,6 +49,7 @@
 	- [一般用法](#一般用法)
 	- [Method Reference (方法引用)](#method-reference-方法引用)
 	- [標準庫中的函數式接口 (java.util.function)](#標準庫中的函數式接口-javautilfunction)
+- [Process](#process)
 - [JDBC](#jdbc)
 	- [連接數據庫](#連接數據庫)
 	- [數據庫操作](#數據庫操作)
@@ -2362,6 +2363,80 @@ public class Main {
 	}
 
 }
+```
+
+
+
+# Process
+Java提供了`java.util.Process`類作爲對進程模型的抽象。
+創建進程最簡單的方式是通過`Runtime.getRuntime()`獲取Runtime實例，使用`exec()`相關方法。
+相關API如下：
+
+```java
+public class Runtime {
+	...
+	// 執行給定指令
+	public Process exec(String command) throws IOException;
+	// 在給定的環境變量參數下執行給定指令
+	public Process exec(String command, String[] envp) throws IOException;
+	// 在給定的環境變量和工作路徑下執行指令
+	public Process exec(String command, String[] envp, File dir);
+	...
+}
+```
+
+`Java 5`后還提供了`java.util.ProcessBuilder`類，提供了更加完善的進程參數設定API。
+
+Process類型為抽象類，包含基本進程相關方法：
+
+```java
+public abstract class Process {
+	...
+	// 獲取進程的標準輸出、標準輸入、錯誤輸出
+	public abstract OutputStream getOutputStream();
+	public abstract InputStream getInputStream();
+	public abstract InputStream getErrorStream();
+
+	// 等待進程結束
+	public abstract int waitFor() throws InterruptedException;
+	// 等待進程指定時間
+	public boolean waitFor(long timeout, TimeUnit unit) throws InterruptedException;
+
+	// 獲取進程結束返回值
+	public abstract int exitValue();
+	// 銷毀進程
+	public abstract void destroy();
+	// 檢查進程是否存活
+	public boolean isAlive();
+	...
+}
+```
+
+JVM啓動進程需要藉助對應平臺的shell：
+
+- Widnows平臺下，使用`cmd.exe`啓動進程：
+
+	```scala
+	scala> Runtime.getRuntime().exec("cmd /c xxx")
+	res1: Process = java.lang.ProcessImpl@e3c36d
+	```
+
+- Linux/macOS平臺下使用`bash`或其他已安裝的shell啓動進程：
+
+	```scala
+	scala> Runtime.getRuntime().exec("bash -c xxx")
+	res2: Process = java.lang.ProcessImpl@2fca282c
+	```
+
+JVM啓動的子進程后不會阻塞當前環境，子進程的運行與父進程無關。
+需要注意，默認配置下，子進程啓動后會將標準輸出寫入輸出流，輸出流中的内容需要及時取出，
+否則當輸出流的緩衝區被填滿后會造成子進程**阻塞**。
+
+亦可在啓動進程時通過重定向標準輸出，以此避免標準/錯誤輸出内容被寫入輸出流中：
+
+```scala
+scala> Runtime.getRuntime().exec("cmd /c xxx > xxx.txt")
+res1: Process = java.lang.ProcessImpl@e3c36d
 ```
 
 
