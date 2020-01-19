@@ -9,6 +9,7 @@
 	- [HDFS RPC地址](#hdfs-rpc地址)
 	- [HDFS命令行工具](#hdfs命令行工具)
 - [HBase](#hbase)
+	- [HBase體系結構](#hbase體系結構)
 	- [HBase服務配置](#hbase服務配置)
 	- [HBase數據模型](#hbase數據模型)
 		- [Conceptual View (概念視圖)](#conceptual-view-概念視圖)
@@ -378,6 +379,49 @@ HBase是開源(open-source)、分佈式(distributed)、版本化(versioned)、�
 HBase在Hadoop和HDFS之上提供了類似Bigtable的功能。
 
 HBase的詳細介紹、配置、使用說明等可查閱[官方文檔](http://hbase.apache.org/book.html)。
+
+## HBase體系結構
+HBase體系的核心組件介紹可參考[Edureka博客](https://www.edureka.co/blog/hbase-architecture/)。
+組件簡介：
+
+- `Region`/`HBase Region Server`
+
+	一個Region包含分配的起止rowkey之間所有的行，一張HBase表可被拆分成一組Region，一個列族內的所有列存儲在一個Region中。
+	每個Region包含的行是**有序**的。一個Region默認大小為`256MB`，可根據需求設置。
+
+	一組Region被分配到一個**Region Server**，用以管理這些Region，處理讀寫請求。
+	通常一個Region Server能管理上千的Region。
+
+- `HMaster Server`
+
+	HMaster負責執行DDL操作(創建、刪除表等)，為DDL操作提供接口；
+	管理和協調多個Region Server(類似HDFS中的NameNode管理DataNode)；
+	將Region分配到Region Server上，在Region Server啟動時分配Region，
+	在Region Server處於Recovery狀態時重新分配Region，保證負載均衡；
+	監控集羣中所有的Region Server實例，在某個Region Server離線時執行恢復操作。
+
+- `Zookeeper`
+
+	Zookeeper在HBase分佈式集羣中扮演協調者的角色，通過會話通信協助維護集羣狀態。
+	每個Region Server和HMaster Server均會以固定的間隔向Zookeeper發送心跳，Zookeeper檢測服務是否存活和可用，如圖所示：
+
+	![HBase Zookeeper Architecture](../../images/hbase_architecture_zookeeper.png)
+
+	Zookeeper還提供服務失敗通知，以執行失敗恢復操作。
+
+	處於活躍狀態的HMaster會發送心跳給Zookeeper，而處於非活躍狀態的HMaster會監聽來自活躍HMaster的通知。
+	若活躍的HMaster發送心跳失敗，則會話被刪除並且非活躍的HMaster進入活躍狀態。
+
+	當Region Server發送心跳失敗，則會話終止，所有其它的監聽者都將得到通知。
+	之後HMaster會執行合適的恢復操作。
+
+	Zookeeper同樣管理.META服務路徑，以幫助客戶端搜索Region，
+	客戶端首先需要從.META服務中查詢Region所屬的Region Server，之後得到Region Server的路徑。
+
+- `META Table`
+
+	META Table是特殊的HBase目錄表(HBase Catalog Table)，維護了HBase存儲系統中所有Region Server的列表，
+	`.META`文件維護了`Key-Value`形式的表，Key代表了Region的起始rowkey，Value包含了Region Server的路徑。
 
 ## HBase服務配置
 從[HBase官網](http://hbase.apache.org/downloads.html)中下載穩定版本的HBase。
@@ -1029,7 +1073,7 @@ Client相關API主要位於`org.apache.hadoop.hbase.client`包路徑下。
 	```kt
 	Scan().apply {
 		// filter 存在 MUST_PASS_ALL/MUST_PASS_ONE 兩種組合策略
-		filter = RowFilter(FilterList.Operator.MUST_PASS_ALL, listOf(filter1, filter2, ...))
+		filter = FilterList(FilterList.Operator.MUST_PASS_ALL, listOf(filter1, filter2, ...))
 	}
 	```
 
