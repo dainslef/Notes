@@ -30,6 +30,43 @@ npm通常包含在`Node.js`中，安装Node.js时会一同安装npm。
 - `list` 列出当前路径的包依赖树
 - `config` 调整npm配置
 
+## Mirror
+npm默認的鏡像地址位於海外，國內使用速度較慢，可將鏡像倉庫地址替換為淘寶npm鏡像：
+
+```
+$ npm config set registry https://registry.npm.taobao.org
+```
+
+使用淘寶鏡像會導致npm搜索功能失效：
+
+```
+$ npm search npm
+npm WARN search fast search endpoint errored. Using old search.
+npm WARN Failed to read search cache. Rebuilding
+npm WARN Building the local index for the first time, please be patient
+npm WARN Search data request failed, search might be stale
+npm ERR! No search sources available
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /Users/dainslef/.npm/_logs/xxx-debug.log
+```
+
+重新將鏡像修改為官方鏡像後搜索功能恢復正常：
+
+```
+$ npm config set registry https://registry.npmjs.org
+$ npm search npm
+NAME                      | DESCRIPTION          | AUTHOR          | DATE       | VERSION  | KEYWORDS
+npm                       | a package manager…   | =adam_baldwin…  | 2019-12-11 | 6.13.4   | install modules package man
+...
+```
+
+安裝淘寶鏡像包可以使用cnpm，cnpm功能與npm基本類似：
+
+```
+$ npm install -g cnpm
+```
+
 
 
 # 安装模块
