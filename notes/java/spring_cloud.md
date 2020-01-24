@@ -37,6 +37,8 @@
 	- [Cannot create binder factory, no `META-INF/spring.binders` resources found on the classpath](#cannot-create-binder-factory-no-meta-infspringbinders-resources-found-on-the-classpath)
 	- [java.lang.NoSuchMethodError: javax.servlet.ServletContext.getVirtualServerName()Ljava/lang/String;](#javalangnosuchmethoderror-javaxservletservletcontextgetvirtualservernameljavalangstring)
 	- [java.lang.NoSuchMethodError: com.netflix.servo.monitor.Monitors.isObjectRegistered(Ljava/lang/String;Ljava/lang/Object;)Z](#javalangnosuchmethoderror-comnetflixservomonitormonitorsisobjectregisteredljavalangstringljavalangobjectz)
+	- [java.lang.ClassNotFoundException: org.springframework.security.web.authentication.RememberMeServices](#javalangclassnotfoundexception-orgspringframeworksecuritywebauthenticationremembermeservices)
+	- [org.springframework.messaging.converter.MessageConversionException: Could not read JSON: Cannot construct instance of `Xxx` (no Creators, like default construct, exist): cannot deserialize from Object value (no delegate- or property-based Creator)](#orgspringframeworkmessagingconvertermessageconversionexception-could-not-read-json-cannot-construct-instance-of-xxx-no-creators-like-default-construct-exist-cannot-deserialize-from-object-value-no-delegate--or-property-based-creator)
 
 <!-- /TOC -->
 
@@ -982,3 +984,29 @@ Zuul組件依賴的`com.netflix.servo:servo-core`版本過低(0.7.x)，`Monitors
 	</exclusions>
 </dependency>
 ```
+
+## java.lang.ClassNotFoundException: org.springframework.security.web.authentication.RememberMeServices
+問題説明：<br>
+引入Spring Boot Web和Spring Session組件后，需要搭配Spring Security Web組件。
+
+版本描述：<br>
+問題出現在Spring Cloud Greenwich版本，Spring Cloud Finchley版本無此問題。
+
+解決方案：<br>
+引入Spring Security Web依賴：
+
+```xml
+<!-- Spring Security -->
+<dependency>
+	<groupId>org.springframework.security</groupId>
+	<artifactId>spring-security-web</artifactId>
+</dependency>
+```
+
+## org.springframework.messaging.converter.MessageConversionException: Could not read JSON: Cannot construct instance of `Xxx` (no Creators, like default construct, exist): cannot deserialize from Object value (no delegate- or property-based Creator)
+問題説明：<br>
+在Java/Kotlin等語言中，提供了自定義構造器后，默認的空參構造器不再生成。
+但對於JPA、Jackson等框架，POJO類需要通過反射API被構造、解析，需要目標類型的默認構造器。
+
+解決方案：<br>
+為POJO類添加無參數的默認構造器。
