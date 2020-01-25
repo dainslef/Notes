@@ -10,6 +10,7 @@
 	- [HDFS命令行工具](#hdfs命令行工具)
 - [HBase](#hbase)
 	- [HBase體系結構](#hbase體系結構)
+		- [Region Server](#region-server)
 	- [HBase服務配置](#hbase服務配置)
 	- [HBase數據模型](#hbase數據模型)
 		- [Conceptual View (概念視圖)](#conceptual-view-概念視圖)
@@ -422,6 +423,34 @@ HBase體系的核心組件介紹可參考[Edureka博客](https://www.edureka.co/
 
 	META Table是特殊的HBase目錄表(HBase Catalog Table)，維護了HBase存儲系統中所有Region Server的列表，
 	`.META`文件維護了`Key-Value`形式的表，Key代表了Region的起始rowkey，Value包含了Region Server的路徑。
+
+### Region Server
+Region Server運行在HDFS上，維護了一定數目的Region。
+Region Server結構圖示：
+
+![HBase Region Server Components](../../images/hbase_architecture_region_server_components.png)
+
+相關組件介紹：
+
+- `WAL(Write Ahead Log)`
+
+	WAL(Write Ahead Log)是屬於每個Region Server的文件，位於分佈式環境內部。
+	WAL存儲那些未被持久化貨提交到固定存儲的新數據，用於錯誤恢復。
+
+- `Block Cache`
+
+	Block Cache位於Region Server的頂部，用於將頻繁讀取的數據存儲在內存中。
+	若數據在Block Cache中被使用的頻率降低，則該數據會被從Block Cache中移除。
+
+- `MemStore`
+
+	MemStore是寫入緩存，存儲了所有將要寫入磁盤或持久存儲的數據。
+	一個Region內的每個列族均包含獨立的MemStore。
+	在數據提交到磁盤前，會對數據按照Row Key的ASC序列進行排序。
+
+- `HFile`
+
+	HFile是存儲在HDFS中的實際單元，當MemStore中數據大小超過設定值時，數據會提交到HFile中。
 
 ## HBase服務配置
 從[HBase官網](http://hbase.apache.org/downloads.html)中下載穩定版本的HBase。
