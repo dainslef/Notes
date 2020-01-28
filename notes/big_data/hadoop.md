@@ -19,6 +19,7 @@
 	- [HBase壓測工具](#hbase壓測工具)
 	- [HBase Shell](#hbase-shell)
 	- [HBase Client API](#hbase-client-api)
+	- [Compaction (壓縮)](#compaction-壓縮)
 - [問題註記](#問題註記)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0--expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
@@ -1105,6 +1106,68 @@ Client相關API主要位於`org.apache.hadoop.hbase.client`包路徑下。
 		filter = FilterList(FilterList.Operator.MUST_PASS_ALL, listOf(filter1, filter2, ...))
 	}
 	```
+
+## Compaction (壓縮)
+HBase中每張表的每個列族均擁有獨立的文件。在HBase處於高負載寫入期間，「一個文件對應一個列族」並不總是有效，
+HBase會嘗試合併HFiles來減少讀取操作時磁盤對文件的最大搜索數，該過程被稱為`Compaction`(壓縮)。
+
+壓縮操作分為兩類：
+
+- `Minor Compactions`
+
+	將一定數目的較小HFiles合併到一個較大的HFile中。用戶可以調整HFiles壓縮的數量以及觸發的頻率。
+	Minor Compactions很重要，沒有該機制，則讀取特定某行的數據會要求多次磁盤讀取，進而拖慢全局性能。
+
+- `Major Compactions`
+
+	從一個Region的讀取所有存儲文件，並寫入單一的存儲文件。
+	HBase中刪除指令不會立即刪除數據，而是將數據打上刪除標記，只有在Major Compactions之後，對應數據才會真正被刪除。
+
+默認配置下，HBase會定期執行壓縮操作，在壓縮過程中，HBase整體的IO會大幅度下降，
+對應承載的上層業務會出現顯著的數據查詢/寫入速度下降。
+在生產環境下，常見應對方案是關閉Major Compaction，在`$HBASE_HOME/conf/hbase-site.xml`中添加如下配置：
+
+```xml
+<configuration>
+...
+	<proerty>
+		<!-- 觸發 Major Compaction 的週期(單位：ms))，默認為 86400000(1day)，設置為 0 則關閉自動觸發 -->
+		<name>hbase.hregion.majorcompaction</name>
+		<value>0</value>
+	</property>
+...
+</configuration>
+```
+
+在HBase Shell中可使用指令主動觸發Major Compaction：
+
+```ruby
+hbase> major_compact
+
+ERROR: wrong number of arguments (0 for 1)
+
+Here is some help for this command:
+          Run major compaction on passed table or pass a region row
+          to major compact an individual region. To compact a single
+          column family within a region specify the region name
+          followed by the column family name.
+          Examples:
+          Compact all regions in a table:
+          hbase> major_compact 't1'
+          hbase> major_compact 'ns1:t1'
+          Compact an entire region:
+          hbase> major_compact 'r1'
+          Compact a single column family within a region:
+          hbase> major_compact 'r1', 'c1'
+          Compact a single column family within a table:
+          hbase> major_compact 't1', 'c1'
+```
+
+編寫使用bash腳本時可使用管道將要壓縮的表名傳入HBase Shell中：
+
+```sh
+echo "t1","t2"... | hbase shell
+```
 
 
 
