@@ -46,6 +46,8 @@
 	- [完整刪除 JDK](#完整刪除-jdk)
 	- [刪除 GarageBand](#刪除-garageband)
 	- [MacBook 合蓋無法正常休眠](#macbook-合蓋無法正常休眠)
+- [VPN](#vpn)
+	- [IKEv2](#ikev2)
 - [問題記錄](#問題記錄)
 	- [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
 
@@ -874,6 +876,29 @@ Warning: This option disables TCP Keep Alive mechanism when sytem is sleeping. T
 
 需要注意，在`System Reference`的`Energy Saver`中選擇`Restore Defaults`將電源管理策略重置爲默認值時，
 tcpkeepalive配置也會被重置爲默認值(`1`)，會重新導致休眠失敗。
+
+
+
+# VPN
+macOS提供了開箱即用的VPN功能，在`System Preferences/Network`選項卡下，可手動添加VPN配置，
+macOS原生支持`IKEv2/L2TP over IPSec/Cisco IPSec`等多種VPN協議，如下圖所示：
+
+![VPN](../../images/mac_os_vpn.png)
+
+## IKEv2
+`IKEv2(Internet Key Exchange version 2)`是一種處理請求/響應行為的VPN加密協議。
+該協議通過在安全套件(通常是IPSec，從IKEv2開始基於並內置了此協議)中建立和處理SA(Security Association)屬性來確保數據傳輸安全。
+
+配置IKEv2的VPN需要**服務器地址(Server Address)**、**遠程ID(Remote ID)**等信息，對於需要身份驗證的VPN提供商，
+還需要額外的用戶名和密碼信息，如下圖所示：
+
+![NordVPN](../../images/mac_os_vpn_ikev2.png)
+
+部分VPN(如`NordVPN`)還需要導入VPN提供商的根證書，否則無法進行身份驗證。
+NordVPN官方沒有提供macOS版的配置教程，但可參照[iOS版本教程](https://nordvpn.com/tutorials/ios/ikev2)。
+下載並導入根證書到`System Keychans`中，並設置證書的信任級別：
+
+![NordVPN Root CA](../../images/mac_os_vpn_root_certificate_authority.png)
 
 
 
