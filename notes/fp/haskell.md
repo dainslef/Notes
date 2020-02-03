@@ -26,6 +26,7 @@
 	- [异常类型](#异常类型)
 	- [异常 API](#异常-api)
 	- [异常捕获与求值策略](#异常捕获与求值策略)
+	- [异常安全](#异常安全)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
@@ -1070,6 +1071,50 @@ CallStack (from HasCallStack):
 
 要规避此类问题，需要在IO逻辑内部对返回结果进行强制求值(使用`$!`、`seq`函数)，提前触发异常，
 让异常在受到捕获函数控制时触发，而非脱离了异常捕获函数之后再触发。
+
+## 异常安全
+在传统编程语言中，C++使用`RAII`机制、Java使用`try ... catch ... finally ...`语法保证代码块中出现异常时，
+已分配的资源能够被正确释放。
+在Haskell中，则使用`Control.Exception`模块中提供的工具函数保障异常安全，相关API：
+
+```hs
+-- 第一参数为获取资源操作，第二参数为释放资源操作，第三参数为在资源分配与释放之间真正需要执行的操作
+-- 当第三参数中的操作出现异常时，函数会先执行资源释放操作，之后再重新抛出异常
+bracket :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
+bracket_ :: IO a -> IO b -> IO c -> IO c
+
+-- 与bracket函数类似，但仅在产生异常时执行资源释放操作
+bracketOnError :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
+
+-- 执行第一参数中提供的操作，之后执行第二参数中提供的操作(无论第一操作是否发生异常)
+finally :: IO a -> IO b -> IO a
+
+-- 与finally函数类似，但第二操作仅在发生异常触发后执行
+onException :: IO a -> IO b -> IO a
+```
+
+示例：
+
+```hs
+main = do
+
+  _ <- onException (doSomething 1) after
+  _ <- onException (error "onException") after
+  bracket_ before after (doSomething $ error "bracket_")
+
+  where
+
+    doSomething :: Int -> IO Int
+    doSomething v = do
+      let n1 = 1
+      let n2 = v
+      print $ "Run [" ++ (show v) ++ "]..."
+      return $! n1 + n2
+
+    before, after :: IO ()
+    before = print "Before action..."
+    after = print "After action..."
+```
 
 
 
