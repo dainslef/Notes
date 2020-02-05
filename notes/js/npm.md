@@ -1,23 +1,23 @@
-- [简介](#简介)
-- [安装与配置](#安装与配置)
-- [安装模块](#安装模块)
-	- [查看已安装模块](#查看已安装模块)
+- [簡介](#簡介)
+- [安裝與配置](#安裝與配置)
+- [安裝模塊](#安裝模塊)
+	- [查看已安裝模塊](#查看已安裝模塊)
 - [Serve](#serve)
 	- [配置 SPA](#配置-spa)
-- [常见错误](#常见错误)
+- [常見錯誤](#常見錯誤)
 	- [npm WARN tar zlib error: unexpected end of file](#npm-warn-tar-zlib-error-unexpected-end-of-file)
 
 
 
-# 简介
-`npm`是`JavaScript`代码的包管理器，类似于Python的`pip`，Ruby的`gem`。
-npm也是`Node.js`项目的模块管理工具。
+# 簡介
+`npm`是`JavaScript`代碼的包管理器，類似於Python的`pip`，Ruby的`gem`。
+npm也是`Node.js`項目的模塊管理工具。
 
 
 
-# 安装与配置
-npm通常包含在`Node.js`中，安装Node.js时会一同安装npm。
-主流的Linux发行版中已经包含了Node.js，以`ArchLinux`为例，安装npm：
+# 安裝與配置
+npm通常包含在`Node.js`中，安裝Node.js時會一同安裝npm。
+主流的Linux發行版中已經包含了Node.js，以`ArchLinux`爲例，安裝npm：
 
 ```
 # pacman -S nodejs
@@ -25,10 +25,10 @@ npm通常包含在`Node.js`中，安装Node.js时会一同安装npm。
 
 常用的npm指令：
 
-- `install` 安装模块
-- `update` 更新模块
-- `list` 列出当前路径的包依赖树
-- `config` 调整npm配置
+- `install` 安裝模塊
+- `update` 更新模塊
+- `list` 列出當前路徑的包依賴樹
+- `config` 調整npm配置
 
 ## Mirror
 npm默認的鏡像地址位於海外，國內使用速度較慢，可將鏡像倉庫地址替換為淘寶npm鏡像：
@@ -69,27 +69,27 @@ $ npm install -g cnpm
 
 
 
-# 安装模块
-使用`npm install`指令安装Node.js模块或JavaScript包：
+# 安裝模塊
+使用`npm install`指令安裝Node.js模塊或JavaScript包：
 
 ```c
 $ npm install 包名
-# npm install -g 包名 // 安装模块到全局路径下
+# npm install -g 包名 // 安裝模塊到全局路徑下
 ```
 
-默认模块将安装在当前路径的`node_modules`路径下，使用`-g`参数可将模块安装在**全局路径**下。
+默認模塊將安裝在當前路徑的`node_modules`路徑下，使用`-g`參數可將模塊安裝在**全局路徑**下。
 
-部分模块带有可执行的CLI工具：
+部分模塊帶有可執行的CLI工具：
 
-- 安装在**当前目录**时会在`项目路径/node_modules/.bin`路径下创建可执行脚本的符号链接。
-- 安装在**全局目录**时会在根据操作系统类型在对应的bin路径下创建脚本的符号链接。
+- 安裝在**當前目錄**時會在`項目路徑/node_modules/.bin`路徑下創建可執行腳本的符號鏈接。
+- 安裝在**全局目錄**時會在根據操作系統類型在對應的bin路徑下創建腳本的符號鏈接。
 
-在`Linux/macOS`中，全局安装的模块工具在`/usr/local/bin`下创建符号链接，通常该目录已被加入`PATH`环境变量中，
-即全局安装的工具模块可直接执行。
-在`Windows`中，全局安装的模块工具在**Node.js安装目录**下创建符号链接，需要将该路径手动加入`PATH`中。
+在`Linux/macOS`中，全局安裝的模塊工具在`/usr/local/bin`下創建符號鏈接，通常該目錄已被加入`PATH`環境變量中，
+即全局安裝的工具模塊可直接執行。
+在`Windows`中，全局安裝的模塊工具在**Node.js安裝目錄**下創建符號鏈接，需要將該路徑手動加入`PATH`中。
 
-从`npm 5.2.0`开始，npm包管理器会自带`npx`指令，npx指令可用于执行安装在**全局路径/当前路径**下的工具模块，
-免去了配置环境变量的步骤。
+從`npm 5.2.0`開始，npm包管理器會自帶`npx`指令，npx指令可用於執行安裝在**全局路徑/當前路徑**下的工具模塊，
+免去了配置環境變量的步驟。
 
 使用`npm update`更新模塊：
 
@@ -101,11 +101,11 @@ $ npm update 包名 // 更新當前目錄下的指定模塊
 # npm update -g 包名 // 更新指定全局模塊
 ```
 
-## 查看已安装模块
-使用`npm ls/list`相关指令查看已安装模块。
+## 查看已安裝模塊
+使用`npm ls/list`相關指令查看已安裝模塊。
 
-直接使用`npm ls/list`指令会以当前路径做为模块根目录，以树状呈现当前模块的依赖。
-以一个React项目为例，`package.json`中定义的模块依赖信息：
+直接使用`npm ls/list`指令會以當前路徑做爲模塊根目錄，以樹狀呈現當前模塊的依賴。
+以一個React項目爲例，`package.json`中定義的模塊依賴信息：
 
 ```json
 {
@@ -129,7 +129,7 @@ $ npm update 包名 // 更新當前目錄下的指定模塊
 }
 ```
 
-使用`npm ls/list`输出依赖信息，如下所示：
+使用`npm ls/list`輸出依賴信息，如下所示：
 
 ```
 $ npm ls
@@ -156,9 +156,9 @@ test-react@0.0.1 /Users/dainslef/Downloads/WorkSpace/test-react
 ...
 ```
 
-直接使用`npm ls`命令会递归计算并输出模块所有的依赖，一些大型模块(如`Webpack`)有复杂的依赖树，
-会在终端输出大量的依赖信息。
-使用`depth`参数会限制输出依赖的层数，当设置`--depth=0`时仅输出**主动设置**的依赖：
+直接使用`npm ls`命令會遞歸計算並輸出模塊所有的依賴，一些大型模塊(如`Webpack`)有複雜的依賴樹，
+會在終端輸出大量的依賴信息。
+使用`depth`參數會限制輸出依賴的層數，當設置`--depth=0`時僅輸出**主動設置**的依賴：
 
 ```
 $ npm ls --depth=0
@@ -176,54 +176,54 @@ test-react@0.0.1 /Users/dainslef/Downloads/WorkSpace/test-react
 └── webpack-dev-server@2.9.7
 ```
 
-此时输出的依赖信息即为模块`package.json`中定义的模块依赖(`dependencies + devDependencies`)。
+此時輸出的依賴信息即爲模塊`package.json`中定義的模塊依賴(`dependencies + devDependencies`)。
 
 
 
 # Serve
-`Serve`是一个简单的基于Node.js的静态WEB服务器。
-Serve提供了常见的静态服务器参数，并为**单页WEB应用**提供了参数，相比`Apache`、`Nginx`等传统WEB服务器在配置上更加简单。
-Serve亦是React项目推荐的默认WEB服务器。
+`Serve`是一個簡單的基於Node.js的靜態WEB服務器。
+Serve提供了常見的靜態服務器參數，併爲**單頁WEB應用**提供了參數，相比`Apache`、`Nginx`等傳統WEB服務器在配置上更加簡單。
+Serve亦是React項目推薦的默認WEB服務器。
 
-安装Serve：
+安裝Serve：
 
 ```
 $ npm install -g serve
 ```
 
-使用Serve启动WEB服务需要目标路径下包含`index.html`页面，默认路由将指向该页面。
+使用Serve啓動WEB服務需要目標路徑下包含`index.html`頁面，默認路由將指向該頁面。
 
-启动Serve服务：
+啓動Serve服務：
 
 ```
-$ serve //在当前路径下启动WEB服务
-$ serve 目标路径 //在目标路径下启动WEB服务
+$ serve //在當前路徑下啓動WEB服務
+$ serve 目標路徑 //在目標路徑下啓動WEB服務
 ```
 
 ## 配置 SPA
-`SPA`(**Single Web Page Application，单页WEB应用**)是当今主流的WEB呈现方式，配置SPA需要WEB服务器将路由发往同一个入口页面。
-Serve为单页应用提供了内置的参数，使用`-s`参数即可在路由没有匹配资源时指向默认的`index.html`页面。
+`SPA`(**Single Web Page Application，單頁WEB應用**)是當今主流的WEB呈現方式，配置SPA需要WEB服務器將路由發往同一個入口頁面。
+Serve爲單頁應用提供了內置的參數，使用`-s`參數即可在路由沒有匹配資源時指向默認的`index.html`頁面。
 如下所示：
 
 ```
-$ serve -s 目标路径
+$ serve -s 目標路徑
 ```
 
 
 
-# 常见错误
-常见`npm`相关错误记录。
+# 常見錯誤
+常見`npm`相關錯誤記錄。
 
 ## npm WARN tar zlib error: unexpected end of file
-错误原因：<br>
-部分包未完全下载，或下载文件校验不通过，安装时使用缓存的错误文件安装导致安装失败。
+錯誤原因：<br>
+部分包未完全下載，或下載文件校驗不通過，安裝時使用緩存的錯誤文件安裝導致安裝失敗。
 
-解决方法：<br>
-执行`npm clean --force`清理缓存
+解決方法：<br>
+執行`npm clean --force`清理緩存
 
 ## npm ERR! Unexpected end of JSON input while parsing near '...rcemaps-apply":"lates'
-错误原因：<br>
-部分缓存中的软件包可能未能正确下载。
+錯誤原因：<br>
+部分緩存中的軟件包可能未能正確下載。
 
-解决方法：<br>
-查看对应错误日志，清理错误的npm包缓存。
+解決方法：<br>
+查看對應錯誤日誌，清理錯誤的npm包緩存。
