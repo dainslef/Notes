@@ -17,10 +17,11 @@
 	- [Lifecycle Methods (生命周期方法)](#lifecycle-methods-生命周期方法)
 - [路由](#路由)
 	- [安装](#安装)
-	- [Router类别](#router类别)
+	- [Router](#router)
 - [常见错误](#常见错误)
 	- [Uncaught ReferenceError: $ is not defined](#uncaught-referenceerror--is-not-defined)
 	- [Target container is not a DOM element.](#target-container-is-not-a-dom-element)
+	- [Warning: Each child in an array or iterator should have a unique "key" prop.](#warning-each-child-in-an-array-or-iterator-should-have-a-unique-key-prop)
 
 <!-- /TOC -->
 
@@ -382,23 +383,25 @@ class MyComponent extends Component {
 
 # 路由
 React项目提供了官方的路由组件`React Router`。
-`React Router`当前主流的版本为`3.x`和`4.x`，`4.x`的API相对`3.x`有较大改动，笔记以`4.x`的API为准。
+React Router当前主流的版本为`3.x`和`4.x+`，從`4.x`版本開始，API相对`3.x`版有较大改动，本文以`4.x+`API为准。
 
-`React Router`拥有两个实现：
+React Router拥有两个实现：
 
 - 基于DOM，用于WEB开发的`React Router DOM`
 - 用于移动开发的`React Router Native`
 
+React Router的詳細介紹參考[官方文檔](https://reacttraining.com/react-router)。
+
 ## 安装
-`React Router`并未直接包含在React中，需要使用npm单独安装：
+React Router并未直接包含在React中，需要使用npm单独安装：
 
 ```
 $ npm install react-router-dom //React Router DOM
 $ npm install react-router-native //React Router Native
 ```
 
-## Router类别
-根据使用场景的区别，`React Router`提供了以下几类Router：
+## Router
+根据使用场景的区别，React Router提供了以下几类Router：
 
 - `BrowserRouter`
 
@@ -458,6 +461,7 @@ new webpack.ProvidePlugin({
 在`React`项目中，使用`Webpack`打包生成js文件时，生成的js文件应在主Html文件的最后(至少需要在被渲染的元素出现之后)导入。
 若在`<head>`标签中导入生成的js，React执行时会出现`Target container is not a DOM element.`错误，
 原因是加载js时DOM尚未创建完毕。
+
 示例：
 
 ```html
@@ -474,4 +478,22 @@ new webpack.ProvidePlugin({
 </body>
 <script src="./build/bundle.js"></script> <!-- 正确，在HTML页面底部导入JS，此时DOM已被加载完毕 -->
 </html>
+```
+
+## Warning: Each child in an array or iterator should have a unique "key" prop.
+使用数组承载组件或使用`map`函数通过数组批量生成组件时，数组内的每一个组件需要设置唯一的`key`属性，
+否则会在运行期间得到告警信息。
+
+示例：
+
+```jsx
+// 提示需要 key 属性
+[<Component1 />,
+<Component2 />,
+...]
+
+// 正确
+[<Component1 key={1}/>,
+<Component2 key={2}/>,
+...]
 ```
