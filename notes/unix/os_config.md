@@ -44,6 +44,7 @@
 		- [NTP Client 配置](#ntp-client-配置)
 		- [NTP Server 配置](#ntp-server-配置)
 	- [NTP 管理指令](#ntp-管理指令)
+	- [chrony](#chrony)
 - [curl](#curl)
 	- [FTP 操作](#ftp-操作)
 - [Suspend 和 Hibernate](#suspend-和-hibernate)
@@ -1283,6 +1284,89 @@ clockstat    enable       kerninfo     preset       sysinfo      version
 clrtrap      exit         keyid        pstats       sysstats
 ```
 
+## chrony
+自`CentOS 7/RHEL 7`開始，RedHat使用`chrony`代替了傳統的ntpd作為時間同步服務。
+相比傳統的ntpd，chrony具有以下優勢：
+
+1. 更快的同步速度。
+1. 能更好地響應時鐘頻率的快速變化，對於不穩定的虛擬機環境或使用不穩定始終的低功耗場景下更有效。
+1. 在初始化同步之後不再計時。
+1. 在處理非對稱延遲時居於更好的穩定性。
+1. 不需要定期輪詢服務器，在網絡不定期間斷的場景下仍可快速同步時鐘。
+
+chrony詳細介紹可參考[官方網站](https://chrony.tuxfamily.org/index.html)。
+
+主流的發行版的軟件倉庫中均內置了chrony：
+
+```c
+// Arch Linux
+# pacman -S chrony
+
+// CentOS
+# yum install chrony
+```
+
+chrony配置文件為`/etc/chrony.conf`，核心配置如下：
+
+```sh
+server [主機名稱/IP地址] [參數] # 設置用於同步的服務端
+
+# 設置允許從該機同步的客戶端，支持以下類型的IP限制
+# allow 1.2.3.4
+# allow 1.2             # 對應網段 1.2.*.*
+# allow 3.4.5           # 對應網段 3.4.5.*
+# allow 6.7.8/22
+# allow 6.7.8.9/22
+# allow 2001:db8::/32
+# allow 0/0
+# allow ::/0
+# allow all             # 允許任意主機同步
+allow [IP地址]/[子網]
+```
+
+服務管理(以systemD發行版為例)：
+
+```c
+# systemctl enbale/disable chronyd // 開啟/關閉chrony自啟動
+# systemctl start/stop chrony // 啟動/停止chrony
+```
+
+chrony核心的工具指令包括`chronyc`(管理指令)/`chronyd`(服務進程)。
+使用chronyc可進入類似ntpdc對應交互終端，直接指令子命令，常用指令：
+
+```c
+// 查看服務的執行狀態
+$ chronyc tracking
+Reference ID : 192.0.2.1 (192.0.2.1)
+Stratum : 12
+Ref time (UTC) : Fri Aug 05 19:06:51 2016
+System time     : 0.000823375 seconds fast of NTP time
+Last offset     : 0.001989304 seconds
+RMS offset      : 0.060942811 seconds
+Frequency       : 1728.043 ppm slow
+Residual freq   : 1.100 ppm
+Skew            : 94.293 ppm
+Root delay	    : 0.000207 seconds
+Root dispersion : 0.016767 seconds
+Update interval : 65.1 seconds
+Leap status     : Normal
+
+// 查看用於同步的源
+// M表示源的類型，'^'表示服務器，'='表示對等主機
+// S表示源的狀態，'*'表示已同步，'+'表示已綁定，'-'表示被排除，'?'表示連接故障，'x'表示目標時鐘錯誤，'~'表示目標時鐘不穩定
+$ chronyc sources
+210 Number of sources = 1
+MS Name/IP address    Stratum    Poll   Reach   LastRx   Last sample
+=============================================================================
+^* 192.0.2.1           11        6      377      63      +1827us[+6783us]
+
+// 查看從當前主機同步的客戶端
+$ chronyc clients
+Hostname                      NTP   Drop Int IntL Last     Cmd   Drop Int  Last
+===============================================================================
+spark-master                   11      0  7     -   67       0      0   -     -
+```
+
 
 
 # curl
@@ -1691,7 +1775,7 @@ Errors were encountered while processing:
 卸載部分在`/etc/init.d`下注冊了服務的軟件包時，卸載腳本會嘗試執行`invoke-rc.d`指令，調用對應的服務腳本指令關閉服務。
 在部分特殊的Linux環境下(如`WSL`、`Docker`)，服務腳本可能會執行失敗，腳本執行失敗導致卸載操作錯誤退出。
 
-解決方法：<br>
+解決方案：<br>
 修改`/etc/init.d`對應服務的腳本文件，在腳本頂部添加`exit 0`，讓腳本文件的實際邏輯不執行直接正常退出。
 
 ## CentOS
