@@ -15,6 +15,7 @@
 	- [組合組件](#組合組件)
 	- [State (組件狀態)](#state-組件狀態)
 	- [Lifecycle Methods (生命週期方法)](#lifecycle-methods-生命週期方法)
+	- [Lists & Keys](#lists--keys)
 - [路由](#路由)
 	- [安裝](#安裝)
 	- [Router](#router)
@@ -381,6 +382,43 @@ class MyComponent extends Component {
 componentDidMount()方法執行時保證DOM已被渲染完畢。
 - `componentWillUnmount()`方法用法類似`C++`中的**析構函數**，通常用於在組件卸載時執行一些清理操作(如**定時器**等)。
 
+## Lists & Keys
+Keys用於幫助react識別被修改、添加、更新的內容。以數組形式組合多個組件時，每個組件需要需要提供穩定的標識符(key)，示例：
+
+```js
+const numbers = [1, 2, 3, 4, 5]
+const listItems = numbers.map(number =>
+	<li key={number.toString()}>
+		{number}
+	</li>
+)
+```
+
+key的最佳使用方法是使用文本作為來唯一標誌一組兄弟節點中的某一個。
+最常用的方式是使用的數據ID作為key：
+
+```js
+const todoItems = todos.map(todo =>
+	<li key={todo.id}>
+		{todo.text}
+	</li>
+)
+```
+
+當數據沒有穩定ID時，使用數組索引作為key時最簡單的方式：
+
+```js
+const todoItems = todos.map((todo, index) =>
+	// Only do this if items have no stable IDs
+	<li key={index}>
+		{todo.text}
+	</li>
+)
+```
+
+若數組內的組件會改變次序，則不應使用索引作為key，這會導致性能以及組件的狀態問題，
+具體可參考此博客[Index as a key is an anti-pattern](https://medium.com/@robinpokorny/index-as-a-key-is-an-anti-pattern-e0349aece318)。
+
 
 
 # 路由
@@ -495,7 +533,7 @@ new webpack.ProvidePlugin({
 ...]
 
 // 正確
-[<Component1 key={1}/>,
-<Component2 key={2}/>,
+[<Component1 key={"component1_key_xxx..."}/>,
+<Component2 key={"component2_key_xxx..."}/>,
 ...]
 ```
