@@ -19,6 +19,8 @@
 - [路由](#路由)
 	- [安裝](#安裝)
 	- [Router](#router)
+	- [Route](#route)
+	- [Switch & Redirect](#switch--redirect)
 - [常見錯誤](#常見錯誤)
 	- [Uncaught ReferenceError: $ is not defined](#uncaught-referenceerror--is-not-defined)
 	- [Target container is not a DOM element.](#target-container-is-not-a-dom-element)
@@ -481,6 +483,66 @@ ReactDOM.render(
 	document.getElementById("root")
 )
 ```
+
+## Route
+使用`<Route />`标签定義一個路由並綁定組件，當請求路徑匹配路由時顯示標籤綁定的組件：
+
+```xml
+<BrowserRouter>
+	<div>
+		<!-- 使用exact屬性則路徑需要完整匹配 -->
+		<Route exact path="/">
+			<Xxx />
+		</Route>
+		<!-- 綁定的組件可以寫在Route標籤內容中 -->
+		<Route path="/xxx2">
+			<Xxx2 />
+		</Route>
+		<!-- Route也可以寫成自閉和的形式，綁定的組件也可以寫在component屬性中 -->
+		<Route path="/xxx3" component={Xxx3} />
+	</div>
+</BrowserRouter>
+```
+
+多個Route標籤匹配路徑時這些Route標籤對應的組件均會顯示。
+
+Route標籤常用屬性說明：
+
+| 屬性 | 說明 |
+| :- | :- |
+| path | 定義路由路徑 |
+| component | 定義路由綁定的組件 |
+| exact | 是否要求路徑完全匹配(默認路徑匹配規將定義路徑的子路徑也同樣視為匹配) |
+
+## Switch & Redirect
+每個Route標籤在匹配到路徑時均會顯示組件內容，而搭配Switch標籤時，只會展示第一個匹配到的組件，示例；
+
+```xml
+<BrowserRouter>
+	<Switch>
+		<Route path="/xxx1" component={Xxx1} />
+		<Route path="/xxx2" component={Xxx2} />
+		<Route path="/xxx3" component={Xxx3} />
+	</Switch>
+</BrowserRouter>
+```
+
+當輸入路徑`/xxx1`時，僅會展示Xxx1組件，其餘組件不展示。
+
+Redirect標籤則可以在所有路由不匹配時跳轉到一個默認的路由，示例：
+
+```xml
+<BrowserRouter>
+	<Switch>
+		<Route path="/xxx1" component={Xxx1} />
+		<Route path="/xxx2" component={Xxx2} />
+		<Route path="/xxx3" component={Xxx3} />
+		<Redirect to="/xxx1">
+	</Switch>
+</BrowserRouter>
+```
+
+當輸入任意一個不匹配所有路由的路徑時，全部重定向到`/xxx1`路徑。
 
 
 
