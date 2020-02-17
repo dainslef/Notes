@@ -26,6 +26,7 @@
 - [問題註記](#問題註記)
 	- [Revision Mismatch](#revision-mismatch)
 	- [HDBC-mysql](#hdbc-mysql)
+	- [unable to load package 'integer-gmp-xxx'](#unable-to-load-package-integer-gmp-xxx)
 
 <!-- /TOC -->
 
@@ -51,9 +52,9 @@ stack支持各大主流平臺，根據平臺在頁面`https://www.stackage.org/s
 	各類Unix可以使用對應發行版的包管理器安裝stack。
 
 	```
-	# apt install stack //Debian
-	# pacman -S stack //Arch Linux
-	$ brew install haskell-stack //macOS
+	# apt install stack // Debian
+	# pacman -S stack // Arch Linux
+	$ brew install haskell-stack // macOS
 	```
 
 - **Wdinwos**系統：
@@ -157,46 +158,46 @@ Stackage和Hackage默認的鏡像源在國內均被**牆(Fxxk CPP)**，需要替
 
 - `stack < v2.1.1`
 
-```yaml
-# Hackage
-package-indices:
-  - name: USTC
-    download-prefix: https://mirrors.ustc.edu.cn/hackage/package/
-    http: https://mirrors.ustc.edu.cn/hackage/01-index.tar.gz
+	```yaml
+	# Hackage
+	package-indices:
+	  - name: USTC
+	    download-prefix: https://mirrors.ustc.edu.cn/hackage/package/
+	    http: https://mirrors.ustc.edu.cn/hackage/01-index.tar.gz
 
-# Stackage
-setup-info: "http://mirrors.ustc.edu.cn/stackage/stack-setup.yaml"
-urls:
-  latest-snapshot: http://mirrors.ustc.edu.cn/stackage/snapshots.json
-  lts-build-plans: http://mirrors.ustc.edu.cn/stackage/lts-haskell/
-  nightly-build-plans: http://mirrors.ustc.edu.cn/stackage/stackage-nightly/
-```
+	# Stackage
+	setup-info: "http://mirrors.ustc.edu.cn/stackage/stack-setup.yaml"
+	urls:
+	  latest-snapshot: http://mirrors.ustc.edu.cn/stackage/snapshots.json
+	  lts-build-plans: http://mirrors.ustc.edu.cn/stackage/lts-haskell/
+	  nightly-build-plans: http://mirrors.ustc.edu.cn/stackage/stackage-nightly/
+	```
 
 - `stack >= v2.1.1`
 
-```yaml
-# Hackage
-package-indices:
-  - download-prefix: http://mirrors.tuna.tsinghua.edu.cn/hackage/
-    hackage-security:
-      keyids:
-      - 0a5c7ea47cd1b15f01f5f51a33adda7e655bc0f0b0615baa8e271f4c3351e21d
-      - 1ea9ba32c526d1cc91ab5e5bd364ec5e9e8cb67179a471872f6e26f0ae773d42
-      - 280b10153a522681163658cb49f632cde3f38d768b736ddbc901d99a1a772833
-      - 2a96b1889dc221c17296fcc2bb34b908ca9734376f0f361660200935916ef201
-      - 2c6c3627bd6c982990239487f1abd02e08a02e6cf16edb105a8012d444d870c3
-      - 51f0161b906011b52c6613376b1ae937670da69322113a246a09f807c62f6921
-      - 772e9f4c7db33d251d5c6e357199c819e569d130857dc225549b40845ff0890d
-      - aa315286e6ad281ad61182235533c41e806e5a787e0b6d1e7eef3f09d137d2e9
-      - fe331502606802feac15e514d9b9ea83fee8b6ffef71335479a2e68d84adc6b0
-      key-threshold: 3 # number of keys required
-      ignore-expiry: no # ignore expiration date, see https://github.com/commercialhaskell/stack/pull/4614
+	```yaml
+	# Hackage
+	package-indices:
+	  - download-prefix: http://mirrors.tuna.tsinghua.edu.cn/hackage/
+	    hackage-security:
+	      keyids:
+	      - 0a5c7ea47cd1b15f01f5f51a33adda7e655bc0f0b0615baa8e271f4c3351e21d
+	      - 1ea9ba32c526d1cc91ab5e5bd364ec5e9e8cb67179a471872f6e26f0ae773d42
+	      - 280b10153a522681163658cb49f632cde3f38d768b736ddbc901d99a1a772833
+	      - 2a96b1889dc221c17296fcc2bb34b908ca9734376f0f361660200935916ef201
+	      - 2c6c3627bd6c982990239487f1abd02e08a02e6cf16edb105a8012d444d870c3
+	      - 51f0161b906011b52c6613376b1ae937670da69322113a246a09f807c62f6921
+	      - 772e9f4c7db33d251d5c6e357199c819e569d130857dc225549b40845ff0890d
+	      - aa315286e6ad281ad61182235533c41e806e5a787e0b6d1e7eef3f09d137d2e9
+	      - fe331502606802feac15e514d9b9ea83fee8b6ffef71335479a2e68d84adc6b0
+	      key-threshold: 3 # number of keys required
+	      ignore-expiry: no # ignore expiration date, see https://github.com/commercialhaskell/stack/pull/4614
 
-# Stackage
-setup-info: "http://mirrors.tuna.tsinghua.edu.cn/stackage/stack-setup.yaml"
-urls:
-  latest-snapshot: http://mirrors.tuna.tsinghua.edu.cn/stackage/snapshots.json
-```
+	# Stackage
+	setup-info: "http://mirrors.tuna.tsinghua.edu.cn/stackage/stack-setup.yaml"
+	urls:
+	  latest-snapshot: http://mirrors.tuna.tsinghua.edu.cn/stackage/snapshots.json
+	```
 
 ## 包管理
 使用`stack install [Stackage包名]`可在全局安裝某個Stackage包。
@@ -513,12 +514,17 @@ executables:
   可執行文件2:
     ... # 類似
 
+library:
+  source-dirs: 庫源碼目錄
+  exposed-modules: ... # 設置需要導出模塊的完整模塊路徑，默認導出源碼路徑下的所有模塊
+  dependencies: [base, ...]
+
 tests:
   測試1: # 定義測試，類似cabal中的 ”test-suite 測試1“
     source-dirs: 測試源碼路徑
     main: 測試源碼文件
     dependencies: [base, ...]
-    other-modules: []
+    other-modules: ... # 設置需要一同參與編譯的其它模塊，默認將相同源碼路徑下的其它源碼均視為需要一同參與編譯的模塊
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
 ```
 
@@ -615,7 +621,7 @@ $ stack ./install.hs help
 // 安裝指定GHC編譯器對應的版本
 $ stack ./install.hs hie-8.4.4
 // 構建HIE依賴的周邊工具，如cabal-helper/ghc-mod/HaRe等，並構建Stackage庫的符號信息
-$ stack ./install.hs build-data
+$ stack ./install.hs data
 ```
 
 安裝結束後，會在`~/.local/bin`路徑下生成對應Stackage版本的二進制文件(以Stackage LTS 12.26為例)：
@@ -678,4 +684,13 @@ $ stack install HDBC-mysql --extra-lib-dirs=/usr/local/opt/openssl/lib
 
 // MySQL依賴特定版本的openssl，以 MySQL 8.0.18 為例，依賴的openssl版本為1.11，對應路徑 /usr/local/opt/openssl@1.11/lib
 $ stack install HDBC-mysql --extra-lib-dirs=/usr/local/opt/openssl@1.11/lib
+```
+
+## unable to load package 'integer-gmp-xxx'
+在`GHC 8.4`版本中使用stack安裝`integer-gmp`包會得到此錯誤，原因是該軟件包生成了多餘的目標文件`HSinteger-gmp-xxx.o`
+重命名/刪除該目標文件即可：
+
+```
+$ cd ~/.stack/programs/x86_64-osx/ghc-8.4.4/lib/ghc-8.4.4/integer-gmp-1.0.2.0/
+$ mv HSinteger-gmp-1.0.2.0.o HSinteger-gmp-1.0.2.0.o.back
 ```
