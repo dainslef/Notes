@@ -88,10 +88,16 @@
 Haskell源码后缀为`*.hs`，使用`ghc`指令编译Haskell代码：
 
 ```
-$ ghc *.hs
+$ ghc xxx.hs
 ```
 
 GHC编译器会直接将Haskell源码编译为对应平台的二进制文件。
+
+GHC還提供了`runhaskell`指令，可直接將Haskell源碼視作腳本運行：
+
+```
+$ runhaskell xxx.hs
+```
 
 ## REPL (GHCi)
 与Scala类似，GHC编译器同样提供了REPL环境，即GHCi。
@@ -165,7 +171,7 @@ Prelude> print ("abc" ++ "cde" ++ "efg") -- 使用括号改变表达式优先级
 "abccdeefg"
 Prelude> print $ "abc" ++ "cde" ++ "efg" -- 使用"$"函数改变优先级更符合Haskell代码风格
 "abccdeefg"
-Prelude> print . ("abc"++) . ("cde"++) $ "efg" --使用"."组合函数
+Prelude> print . ("abc"++) . ("cde"++) $ "efg" -- 使用"."组合函数
 ```
 
 `.`函数常用于`Pointfree`风格中，通过函数组合来代替多个连续的函数调用。
@@ -378,7 +384,7 @@ p = ((.) f) . g
 	```hs
 	Prelude> :{
 	Prelude| owl :: (a -> c -> d) -> a -> (b -> c) -> b -> d
-	Prelude| owl = ((.)$(.))
+	Prelude| owl = (.) (.)
 	Prelude| :}
 
 	-- 使用示例
@@ -391,7 +397,7 @@ p = ((.) f) . g
 	```hs
 	Prelude> :{
 	Prelude| dot :: (c -> d) -> (a -> b -> c) -> a -> b -> d
-	Prelude| dot = ((.).(.))
+	Prelude| dot = (.) . (.)
 	Prelude| :}
 
 	-- 使用示例
@@ -426,7 +432,7 @@ main :: IO ()
 main = do
   let f = 1 + error "Error Arg!"
   print "Before..."
-  print $ "After: " ++ (show f) -- 打印结果，此时会对f字段进行求值
+  print $ "After: " ++ show f -- 打印结果，此时会对f字段进行求值
 ```
 
 输出结果：
@@ -561,7 +567,7 @@ Prelude> :{
 Prelude| doSomething :: Int -> IO ()
 Prelude| doSomething n = do
 Prelude|   print "Before..."
-Prelude|   print $ "After: " ++ (show n) ++ "..."
+Prelude|   print $ "After: " ++ show n ++ "..."
 Prelude| :}
 
 -- 普通调用
@@ -773,7 +779,7 @@ class TypeClass t where
 
 -- 针对不同类型为TypeClass类的抽象方法"doSomething"提供不同的实现
 instance TypeClass Int where
-  doSomething t = print $ "Int Type Class: " ++ (show t)
+  doSomething t = print $ "Int Type Class: " ++ show t
 
 -- 使用语言扩展"FlexibleInstances"开启泛型参数特化
 instance TypeClass String where
@@ -997,7 +1003,7 @@ error :: forall (r :: RuntimeRep). forall (a :: TYPE r). HasCallStack => [Char] 
 	  print "Run..."
 	  return $! n1 + n2) >>= \case
 	    Left (SomeException e) -> print $ "Exception info: " ++ (displayException e)
-	    Right a -> print $ "Success: " ++ (show a)
+	    Right a -> print $ "Success: " ++ show a
 	```
 
 - `catch*/handle*`系列函数执行给定的逻辑，在发生异常时执行给定的异常处理逻辑。
@@ -1025,17 +1031,17 @@ error :: forall (r :: RuntimeRep). forall (a :: TYPE r). HasCallStack => [Char] 
 	    let n2 = error "Catch Exception!"
 	    print "Run..."
 	    return $! n1 + n2) $ \e -> do
-	      print $ "Exception info: " ++ (show (e :: SomeException))
+	      print $ "Exception info: " ++ show (e :: SomeException)
 	      return 233
 	  re2 <- handle (\e -> do
-	    print $ "Exception info: " ++ (show (e :: SomeException))
+	    print $ "Exception info: " ++ show (e :: SomeException)
 	    return 666) $! do
 	      let n1 = 1
 	      let n2 = error "Handle Exception!"
 	      print "Run..."
 	      return $! n1 + n2
-	  print $ "Result1: " ++ (show re1)
-	  print $ "Result2: " ++ (show re2)
+	  print $ "Result1: " ++ show re1
+	  print $ "Result2: " ++ show re2
 	```
 
 ## 异常捕获与求值策略
@@ -1053,8 +1059,8 @@ main = (try $ do
   let n2 = error "Try Exception!" -- 严格求值的语言在执行到此行代码时，异常就会立即触发
   print "Run..." -- Haskell中的惰性求值使得异常没有立即触发，后续逻辑继续执行
   return $ n1 + n2) >>= \case -- 异常信息没有被捕获进入提供的Lambda逻辑
-    Left (SomeException e) -> print $ "Exception info: " ++ (displayException e)
-    Right a -> print $ "Success: " ++ (show a)
+    Left (SomeException e) -> print $ "Exception info: " ++ displayException e
+    Right a -> print $ "Success: " ++ show a
 ```
 
 运行结果：
@@ -1108,7 +1114,7 @@ main = do
     doSomething v = do
       let n1 = 1
       let n2 = v
-      print $ "Run [" ++ (show v) ++ "]..."
+      print $ "Run [" ++ show v ++ "]..."
       return $! n1 + n2
 
     before, after :: IO ()
@@ -1280,7 +1286,7 @@ app1 = (App.) . (flip $ (++) . show) <$> App "abc" <*> App 1
 app2 = do
   a <- App "abc"
   b <- App 2
-  return $ a ++ (show b) -- 亦可使用 pure 函数
+  return $ a ++ show b -- 亦可使用 pure 函数
 ```
 
 ## Control.Monad
@@ -1544,7 +1550,7 @@ changeTVar i varA varB = async $ replicateM_ 2 $ do
     writeTVar varB nb
     return (na, nb)
   threadId <- myThreadId
-  printValue ("TVar " ++ i ++ " [" ++ (show threadId) ++ "]:") a b
+  printValue ("TVar " ++ i ++ " [" ++ show threadId ++ "]:") a b
 
 printValue :: String -> Int -> Int -> IO ()
 printValue prefix a b = print $ foldl1 (++)
@@ -1636,7 +1642,7 @@ main = do
       threadId <- myThreadId
       forever $ do
         receive <- atomically $ readTChan chan
-        print $ "Receive [" ++ (show threadId) ++ "]: " ++ receive
+        print $ "Receive [" ++ show threadId ++ "]: " ++ receive
         threadDelay 500000
 ```
 
@@ -1711,7 +1717,7 @@ main = do
       threadId <- myThreadId
       forever $ do
         receive <- atomically $ readTChan rChan
-        print $ "Receive [" ++ (show threadId) ++ "]: " ++ receive
+        print $ "Receive [" ++ show threadId ++ "]: " ++ receive
 ```
 
 输出结果；
