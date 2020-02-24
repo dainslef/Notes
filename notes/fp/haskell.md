@@ -27,6 +27,7 @@
 	- [异常 API](#异常-api)
 	- [异常捕获与求值策略](#异常捕获与求值策略)
 	- [异常安全](#异常安全)
+	- [自定义异常](#自定义异常)
 - [Monad](#monad)
 	- [do 语法](#do-语法)
 	- [ApplicativeDo](#applicativedo)
@@ -1121,6 +1122,85 @@ main = do
     before = print "Before action..."
     after = print "After action..."
 ```
+
+## 自定义异常
+自定义异常需要让做为异常的类型实现`Control.Exception`模块中提供的Exception类。
+Exception类继承于`Typeable`和`Show`类，Exception类**没有**必须要实现的方法，可直接为实现了Show类的类型创建实例。
+
+使用`Control.Exception`模块中提供的`throw*`系列方法抛出指定类型的异常，相关方法的API：
+
+```hs
+throw :: forall (r :: RuntimeRep). forall (a :: TYPE r). forall e. Exception e => e -> a
+throwIO :: Exception e => e -> IO a
+ioError :: IOError -> IO a
+throwTo :: Exception e => ThreadId -> e -> IO ()
+```
+
+捕获异常时，可指定异常类型，或使用`SomeException`类型捕获所有种类的异常。
+当捕获异常的类型不匹配时，异常会继续抛出。
+
+示例：
+
+```hs
+import Control.Exception
+
+-- 自定义异常类型
+data MyException = MyException String deriving Show
+instance Exception MyException -- 为异常类实现Exception类
+
+main :: IO ()
+main = do
+
+  re1 <- catch (doSomething e1) dealException
+  print $ "Result1: " ++ show re1
+
+  re2 <- handle dealMyException $ doSomething e2
+  print $ "Result2: " ++ show re2
+
+  re3 <- handle dealMyException $ doSomething e1 -- 不会捕获与实际异常不相符的异常
+  print $ "Result3: " ++ show re3
+
+  where
+
+    e1, e2 :: Int
+    e1 = error "Error!"
+    e2 = throw $ MyException "MyException!"
+
+    doSomething :: Int -> IO Int
+    doSomething e = do
+      let n1 = 1
+      let n2 = e
+      print "Run..."
+      return $! n1 + n2
+
+    dealException :: SomeException -> IO Int -- 捕获所有类型的异常
+    dealException = showException
+
+    dealMyException :: MyException -> IO Int -- 仅捕获自定义类型的异常
+    dealMyException = showException
+
+    showException :: Exception e => e -> IO Int
+    showException = (>> return 0) . putStrLn . ("Catch the exception: "++) . displayException
+```
+
+输出结果：
+
+```
+"Run..."
+Catch the exception: Error!
+CallStack (from HasCallStack):
+  error, called at test\TestException.hs:32:10 in main:Main
+"Result1: 0"
+"Run..."
+Catch the exception: MyException "MyException!"
+"Result2: 0"
+"Run..."
+exception.exe: Error!
+CallStack (from HasCallStack):
+  error, called at test\TestException.hs:32:10 in main:Main
+```
+
+由输出结果可知，类型不匹配的异常并未被成功捕获，而是触发并中断了程序。
 
 
 
