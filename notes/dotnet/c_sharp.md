@@ -78,7 +78,7 @@
 
 
 # 入口函數
-`C#`中允許以下4種形式的入口函數：
+C#中允許以下4種形式的入口函數：
 
 ```cs
 static void Main();
@@ -87,10 +87,10 @@ static int Main();
 static int Main(string[] args);
 ```
 
-`C#`允許多種入口函數形式，一般採用第二種(默認)。
+C#允許多種入口函數形式，一般採用第二種(默認)。
 
-與`Java`不同，`C#`並不強制要求主類的類名與主類所在文件的文件名相同。
-實際上，`C#`由於支持`部分類`特性，也不可能要求類名與源碼文件名相同。
+與Java不同，C#並不強制要求主類的類名與主類所在文件的文件名相同。
+實際上，C#由於支持`部分類`特性，也不可能要求類名與源碼文件名相同。
 
 
 
@@ -115,7 +115,7 @@ public struct Int32 : IComparable, IFormattable, IConvertible, IComparable<int>,
 其它的預定義值類型也是類似的`結構類型(Struct)`的別名：
 
 | 別名 | 實際類型 |
-|:----|:--------|
+| :- | :- |
 | sbyte | System.SByte |
 | short | System.Int16 |
 | int | System.Int32 |
@@ -157,23 +157,28 @@ public abstract class ValueType {};
 - 值類型分配內存在線程棧上，出棧自動釋放；引用類型分配內存在託管堆上，由`GC`負責內存回收。
 
 ## struct (結構類型)
-與`C++`完全不同，`C#`中的`結構體`與`類`有**很大區別**：
+與`C++`完全不同，C#中的`結構體`與`類`有**很大區別**：
 
-- C#中的結構體爲**值類型**，在**棧(stack)**中分配內存，而引用類型則僅在棧中保存**引用(reference)**，類型實體內存分配在**堆(heap)**中。
+- C#中的結構體爲**值類型**，在**棧(stack)**中分配內存，而引用類型則僅在棧中保存**引用(reference)**，
+類型實體內存分配在**堆(heap)**中。
 - 由於結構體爲值類型，複製結構體時是完全複製出一個新的結構體實例，而非引用類型的引用傳遞。
 - C#中結構體的默認訪問權限是`private`，且結構體成員變量**不能**直接賦初值(需要通過有參構造函數賦初值)。
 - C#中結構類型全部繼承自`System.ValueType`類，但結構體是隱式**密封(sealed)**的，**不能**被繼承。
-- C#中結構體可以用來實現接口。用來實現接口的結構體雖然本身爲值類型，但如果發生**向上轉型**重新變爲父類接口對象則值類型的特性也將隨之消失。
-- C#中結構體不能被繼承，因而結構體定義時不能使用`sealed`和`abstract`關鍵字，結構體成員定義時也不能使用`protected`和`internal`等關鍵字。
-- C#中結構體帶有默認的無參構造函數，且該默認構造函數一直存在(無論你是否創建了有參構造函數)，默認的無參構造函數**不能**被自定義(改寫)。
+- C#中結構體可以用來實現接口。用來實現接口的結構體雖然本身爲值類型，
+但如果發生**向上轉型**重新變爲父類接口對象則值類型的特性也將隨之消失。
+- C#中結構體不能被繼承，因而結構體定義時不能使用`sealed`和`abstract`關鍵字，
+結構體成員定義時也不能使用`protected`和`internal`等關鍵字。
+- C#中結構體帶有默認的無參構造函數，且該默認構造函數一直存在(無論你是否創建了有參構造函數)，
+默認的無參構造函數**不能**被自定義(改寫)。
 - 創建有參構造函數時，必須在該構造函數中初始化所有的成員變量，否則無法通過編譯。
-- 創建結構體時可以不使用`new`操作符，不使用`new`操作符創建的結構體對象中的結構體成員全部處於未初始化狀態，需要經過初始化操作(手動訪問賦值)之後方可使用。
+- 創建結構體時可以不使用`new`操作符，不使用`new`操作符創建的結構體對象中的結構體成員全部處於未初始化狀態，
+需要經過初始化操作(手動訪問賦值)之後方可使用。
 - 如果需要使用結構體提供的有參構造函數，則必須使用`new`操作符進行對象創建，語法類似於`class`。
 - 在C#中結構體成員可以使用`static`修飾，結構體也可以創建靜態構造函數。
 - 在C#中結構體中可以正常使用泛型。
 
 ## 可空類型與 ?、?? 操作符
-在`C#`中，值類型不能爲`null`，對值類型賦值`null`會得到錯誤，如下所示：
+在C#中，值類型不能爲`null`，對值類型賦值`null`會得到錯誤，示例：
 
 ```cs
 int num = null; //錯誤信息："Cannot convert null to 'int' because it is a non-nullable value type"
@@ -203,7 +208,7 @@ System.Nullable<T> variable;
 
 - `??`操作符
 
-	`??`運算符用於在可空類型/引用類型值爲`null`時返回默認值，如下所示：
+	`??`運算符用於在可空類型/引用類型值爲`null`時返回默認值，示例：
 
 	```cs
 	int? num0 = null;
@@ -217,7 +222,7 @@ System.Nullable<T> variable;
 - `?`操作符
 
 	`?`操作符可用於在訪問引用類型/可空類型前對目標對象進行檢查，訪問的實例爲`null`則不執行操作。
-	如下所示：
+	示例：
 
 	```cs
 	using System;
@@ -277,7 +282,7 @@ System.Nullable<T> variable;
 
 ## Type alias (類型別名)
 C#中使用`using`關鍵字爲已有類型創建**別名**，基本用法與`C++11`中添加的新`using`語法相似。
-如下所示：
+示例：
 
 ```cs
 namespace Np
@@ -291,7 +296,7 @@ namespace Np
 }
 ```
 
-`C#`中的類型別名有較多**限制**：
+C#中的類型別名有較多**限制**：
 
 - 不支持定義**高階類型**，`C++11`中的`using`支持此功能。
 - 不能在命名空間之外的區域定義類型別名(全局區域、類體、函數體內皆不可定義別名)，`C++11`的`using`無此限制。
@@ -308,7 +313,7 @@ namespace Np
 
 
 # Property (屬性)
-`C#`類中成員有一種被稱爲`屬性`。
+C#類中成員有一種被稱爲`屬性`。
 
 - 屬性的訪問方式與成員變量類似；通過定義`set`和`get`塊的內容，能夠通過屬性給成員變量賦值或是獲取成員變量的值。
 - `set`和`get`可以分別設置**訪問權限**，不加關鍵字時訪問權限與所在的屬性相同。
@@ -439,13 +444,13 @@ public int Num
 
 
 # static 關鍵字
-在`C#`中，`static`關鍵字用於定義**靜態類**、**靜態方法**、**靜態屬性**、**靜態字段**。
+在C#中，`static`關鍵字用於定義**靜態類**、**靜態方法**、**靜態屬性**、**靜態字段**。
 
 ## 靜態方法
 靜態方法與實例無關，只能直接通過類名進行訪問：
 
-- 在傳統的`OOP`語言如`C++`、`Java`中，並不限制通過實例訪問靜態方法，作用與通過類名訪問靜態方法相同。
-- 在`C#`中，**不允許**通過實例訪問靜態方法，調用靜態方法只能通過**類名**。
+- 在傳統的`OOP`語言如`C++`、Java中，並不限制通過實例訪問靜態方法，作用與通過類名訪問靜態方法相同。
+- 在C#中，**不允許**通過實例訪問靜態方法，調用靜態方法只能通過**類名**。
 
 通過實例訪問靜態方法會在編譯時得到錯誤：
 
@@ -454,12 +459,12 @@ error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; 
 ```
 
 ## 靜態字段
-靜態字段的概念與其它傳統`OOP`語言如`C++`、`Java`類似，一個類的靜態字段全局唯一。
-與靜態方法類似，使用實例訪問靜態字段會在編譯時報錯，在`C#`中，只能通過類名訪問靜態字段。
+靜態字段的概念與其它傳統`OOP`語言如`C++`、Java類似，一個類的靜態字段全局唯一。
+與靜態方法類似，使用實例訪問靜態字段會在編譯時報錯，在C#中，只能通過類名訪問靜態字段。
 
 - 字段初始化
 
-	在`C#`中，成員字段初始化時不能引用非靜態成員。
+	在C#中，成員字段初始化時不能引用非靜態成員。
 	如下代碼所示：
 
 	```cs
@@ -470,13 +475,13 @@ error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; 
 	}
 	```
 
-	在`Java`、`C++`、`Scala`中，則允許成員字段初始化時引用其它字段。
+	在Java、`C++`、`Scala`中，則允許成員字段初始化時引用其它字段。
 
 - 靜態字段初始化
 
-	在`C#`中，靜態字段初始化時能夠引用其它靜態成員，但需要注意成員定義的**先後順序**。
+	在C#中，靜態字段初始化時能夠引用其它靜態成員，但需要注意成員定義的**先後順序**。
 	若引用的靜態字段定義在當前靜態字段之後，則當前靜態不會被初始化。
-	如下所示：
+	示例：
 
 	```cs
 	class Test
@@ -487,7 +492,7 @@ error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; 
 	```
 
 ## 靜態構造函數
-靜態構造函數是`C#`中特有的概念，用於在類首次被使用前進行靜態成員的初始化。
+靜態構造函數是C#中特有的概念，用於在類首次被使用前進行靜態成員的初始化。
 
 - 靜態構造函數與普通構造函數一樣在類中定義。
 - 靜態構造函數不能帶有參數和訪問權限。
@@ -497,7 +502,7 @@ error CS0176: Member 'xxx.xxx()' cannot be accessed with an instance reference; 
 - 靜態構造函數不需要手動調用，在首次使用創建類實例或是方位類的靜態成員時會由.NET自動調用，靜態構造函數在全局只會被**調用一次**。
 
 ## 靜態類
-在`C#`中，類定義前可以使用`static`關鍵字表示定義一個**靜態類**。
+在C#中，類定義前可以使用`static`關鍵字表示定義一個**靜態類**。
 
 - 靜態類只能包含靜態成員，且是密封(`sealed`)的，不能被實例化和繼承。
 - 靜態類不能從普通類中派生，而靜態類本身不可被繼承，因而實際上所有靜態類都從`object`中派生。
@@ -548,7 +553,7 @@ True
 ## 在 Scala 中模擬擴展方法
 在`Scala`中，可以利用**隱式類**特性來獲得與C#中擴展方法類似的效果。
 
-上述例子在`Scala`中可以寫成：
+上述例子在Scala中可以寫成：
 
 ```scala
 object Test extends App {
@@ -572,7 +577,7 @@ true
 ## 擴展方法的應用場景
 擴展方法主要用於向一些不方便改動的類型添加額外的方法，並讓添加的方法能夠以常規語法調用。
 
-在`C#`標準庫中，典型的擴展案例爲`System.Linq.Enumerable`類。
+在C#標準庫中，典型的擴展案例爲`System.Linq.Enumerable`類。
 該類爲`System.Collections.Generic.IEnumerable<T>`類型添加了大量`LINQ`風格的擴展方法定義。
 
 使用擴展方法時需要節制，濫用擴展方法會造成代碼難以理解。
@@ -583,8 +588,9 @@ true
 值類型轉變爲引用類型會經過`裝箱(boxing)`操作，而引用類型轉變爲值類型則要經過`拆箱(unboxing)`操作。
 
 一個容器需要接收多種類型時，可能就需要將接受參數的類型設置爲`object`型(即所有類型的父類)。
-值類型在轉化到`object`型時就需要進行裝箱操作，頻繁地裝箱與拆箱會有較高的開銷。
-`object`類型並不安全(可能同時接收到不同的類型)，因而可以使用**泛型**來**顯式指定**需要接收的類型(編譯器會檢查接收類型是否符合指定泛型)。
+值類型在轉化到object型時就需要進行裝箱操作，頻繁地裝箱與拆箱會有較高的開銷。
+object類型並不安全(可能同時接收到不同的類型)，
+因而可以使用**泛型**來**顯式指定**需要接收的類型(編譯器會檢查接收類型是否符合指定泛型)。
 對於值類型而言，使用泛型還可以避免重複的裝箱與拆箱操作。
 
 ## 泛型約束
@@ -622,7 +628,7 @@ class C<T, V> where T : class, T : V { }
 
 ## Variance (型變/變性)
 泛型類型在使用不同類型參數時默認**不存在**繼承關係。
-如下所示：
+示例：
 
 ```cs
 csharp> class Child : Base { };
@@ -634,15 +640,15 @@ csharp> List<Base> list = new List<Child>() as List<Base>; //不可進行強制�
 
 使用variances特性可使類型參數的繼承關係擴展到承載類型參數的泛型類型自身。
 variances特性分爲`covariance`(協變)和`contravariance`(逆變)。
-在泛型參數前使用`int/out`關鍵字表示該泛型參數**變性**，如下所示：
+在泛型參數前使用`int/out`關鍵字表示該泛型參數**變性**，示例：
 
 ```cs
 csharp> interface ICovariance<in T> {}; //逆變
 csharp> interface IContravariance<out T> {}; //協變
 ```
 
-與`Scala`、`Kotlin`不同，在C#中，`variances`僅支持`interface`和`delegate`。
-`class`和`struct`無法使用`variances`特性，如下所示：
+與Scala、Kotlin不同，在C#中，`variances`僅支持`interface`和`delegate`。
+`class`和`struct`無法使用`variances`特性，示例：
 
 ```cs
 csharp> class Test<out T> {};
@@ -654,7 +660,7 @@ csharp> struct Test<in T> {};
 - `Covariance` (協變)
 
 	類型參數聲明爲`covariance`(協變)時，泛型類型的繼承關係與類型參數相同。
-	如下所示：
+	示例：
 
 	```cs
 	csharp> interface ICovariance<out T> {};
@@ -665,7 +671,7 @@ csharp> struct Test<in T> {};
 - `Contravariance` (逆變)
 
 	類型參數聲明爲`contravariance`(逆變)時，泛型類型的繼承關係與類型參數相反。
-	如下所示：
+	示例：
 
 	```cs
 	csharp> interface IContravariance<in T> {};
@@ -674,7 +680,7 @@ csharp> struct Test<in T> {};
 	```
 
 ## 泛型類的靜態成員
-不同於Java中`Type Erasure`形式的泛型實現，`.Net`中採用類似C++的實現，同一泛型類使用不同泛型參數時會獨立生成代碼。
+不同於Java中`Type Erasure`形式的泛型實現，.Net中採用類似C++的實現，同一泛型類使用不同泛型參數時會獨立生成代碼。
 C#中，同一泛型類使用不同類型參數時，各自的靜態成員是相互獨立的。
 靜態成員共享僅在使用相同類型參數的泛型類之間。
 
@@ -712,7 +718,7 @@ class Program
 ## delegate (委託)
 委託是C#特有的概念，委託的作用類似於C/C++中的函數指針，但委託是類型安全的。
 
-在`C#`中，委託實際上是一個類，因而使用方式與`class`類似。
+在C#中，委託實際上是一個類，因而使用方式與`class`類似。
 委託支持加減運算符操作，一個委託實例能夠通過加法運算綁定多個**簽名相同**的函數。
 
 定義委託：
@@ -802,7 +808,7 @@ event 委託名 事件名 = delegate(符合委託簽名的參數表) //匿名委
 - 事件的訪問權限不能高於用於定義事件的委託。
 - 調用事件與調用委託實例的方式完全相同。
 
-事件機制是其他`C#`高級技術的基礎。
+事件機制是其他C#高級技術的基礎。
 
 實例代碼：
 
@@ -929,13 +935,13 @@ Remove Method!
 ```
 
 - 當參數表中只有一個參數時，參數表外的括號可以省略，但有多個參數或是無參數時括號不可省略。
-- 參數表中可以不顯式指定參數類型，在表達式只有一條語句時，該語句如有返回值，則被作爲整個`Lambda`的返回值。
+- 參數表中可以不顯式指定參數類型，在表達式只有一條語句時，該語句如有返回值，則被作爲整個Lambda的返回值。
 - 如果表達式有多條語句(使用花括號)時，需要顯式使用`return`關鍵字指定返回值。
 - 參數表可以不指定參數類型交由編譯器隱式推導，也可以顯式指定參數類型，顯式指定與隱式指定不可混用，
 一旦有參數使用了顯式指定或隱式指定，其餘的參數必須使用相同的指定方式。
 
 ## 實現委託
-在C#中，`Lambda`概念與委託相通，可以使用`Lambda`以更簡潔的方式代替匿名委託實現委託實例。
+在C#中，Lambda概念與委託相通，可以使用Lambda以更簡潔的方式代替匿名委託實現委託實例。
 示例：
 
 ```cs
@@ -946,23 +952,23 @@ GetDouble getDouble2 = (num1, num2) => (int)(num1 + num2);
 GetDouble getDouble3 = (double num1, double num2) => { return (int)(num1 + num2); };		//三種形式效果完全相同
 ```
 
-需要注意的是，使用`Lambda`代替匿名委託雖然能夠減少代碼量，但這並不代表`Lambda`能夠完全取代匿名委託。
-`Lambda`中參數不能帶有關鍵字`ref`、`out`，如果需要使用**引用參數**則依然需要使用匿名委託。
+需要注意的是，使用Lambda代替匿名委託雖然能夠減少代碼量，但這並不代表Lambda能夠完全取代匿名委託。
+Lambda中參數不能帶有關鍵字`ref`、`out`，如果需要使用**引用參數**則依然需要使用匿名委託。
 
 ## 函數對象
 C#中定義了一系列類型用來表示委託和Lambda對象。
 
-- 使用`Action`表示不帶參數且返回值爲`void`類型的`Lambda`，注意，不需要也**不能**畫蛇添足地寫成`Action<>`形式。
-- 使用`Action<T1, T2...>`表示帶參數的`void`型返回值的`Lambda`。
-- 使用`Func<T1, T2..., R>`表示返回值類型不爲空的`Lambda`(**最後一個**泛型參數爲函數返回值的類型)。
+- 使用`Action`表示不帶參數且返回值爲`void`類型的Lambda，注意，不需要也**不能**畫蛇添足地寫成`Action<>`形式。
+- 使用`Action<T1, T2...>`表示帶參數的`void`型返回值的Lambda。
+- 使用`Func<T1, T2..., R>`表示返回值類型不爲空的Lambda(**最後一個**泛型參數爲函數返回值的類型)。
 - `Action<>`、`Func<>`等泛型類型至多接收`8`個參數。
-- `C#`中的`Lambda`**不能**直接加括號執行，而是需要創建一個函數對象或顯式指明類型才能執行(即不能直接`(() => {})();`來執行`Lambda`)。
-- 與`Java`的**殘廢**`Lambda`不同，`C#`的`Lambda`可以捕獲並**修改**外部作用域變量，而`Java`中外部作用域變量在`Lambda`中帶有`final`屬性，只能讀取不能更改。
+- C#中的Lambda**不能**直接加括號執行，而是需要創建一個函數對象或顯式指明類型才能執行(即不能直接`(() => {})();`來執行Lambda)。
+- 與Java的**殘廢**Lambda不同，C#的Lambda可以捕獲並**修改**外部作用域變量，而Java中外部作用域變量在Lambda中帶有`final`屬性，只能讀取不能更改。
 
 ## 變量捕獲
-在`C#`中，`Lambda`能夠訪問到在`Lambda`被定義的作用域中的所有成員。
-如果`Lambda`表達式在類中被定義，則`Lambda`表達式能夠訪問到類的成員。
-如同函數一樣，`Lambda`有自己的作用域，`Lambda`內部定義的變量在外部作用域**不可訪問**。
+在C#中，Lambda能夠訪問到在Lambda被定義的作用域中的所有成員。
+如果Lambda表達式在類中被定義，則Lambda表達式能夠訪問到類的成員。
+如同函數一樣，Lambda有自己的作用域，Lambda內部定義的變量在外部作用域**不可訪問**。
 
 示例代碼-1：
 
@@ -1046,7 +1052,7 @@ class Test
 - `switch`聲明更新。
 
 ## is 表達式
-`is`表達式具有比較對象類型的功能，在早期版本的`C#`中，比較變量類型並進行轉換：
+`is`表達式具有比較對象類型的功能，在早期版本的C#中，比較變量類型並進行轉換：
 
 ```cs
 object obj = 100;
@@ -1128,7 +1134,7 @@ switch (xxx)
 
 
 # 併發編程
-在`C#`中，除了常見的`Thread`類，主要的併發技術有**異步委託**、`Task`類、`async/await`等。
+在C#中，除了常見的`Thread`類，主要的併發技術有**異步委託**、`Task`類、`async/await`等。
 
 ## Thread
 與常規的**OOP**語言類似，C#中也可以使用`Thread`類來進行併發編程，`Thread`類完整路徑爲`System.Threading.Thread`。
@@ -1468,7 +1474,7 @@ Handler Really Finished!
 由上述程序中不難看出，在`async`關鍵字標記的異步方法中，使用`await`之前的代碼都是同步執行的，在調用了`await`之後，剩餘的代碼便異步運行在獨立的線程。
 
 ## lock 關鍵字
-`C#`語言提供了與`Java`中`synchronized`類似的`lock`關鍵字，基本語法如下：
+C#語言提供了與Java中`synchronized`類似的`lock`關鍵字，基本語法如下：
 
 ```cs
 lock (object)
@@ -1482,13 +1488,13 @@ lock (object)
 
 - 基本用法
 
-	`lock`關鍵字用法基本與`Java`中`synchronized`關鍵字類似：
+	`lock`關鍵字用法基本與Java中`synchronized`關鍵字類似：
 
 	- 被鎖定的`object`可以是引用類型實例、`this`引用、以及類型(`typeof(XXX)`)。
 	- `lock`關鍵字**不能**用於修飾方法。
 	- lock塊中不能使用`await`關鍵字。
 
-	`Java`筆記中的例子使用`C#`可以改寫爲：
+	Java筆記中的例子使用C#可以改寫爲：
 
 	```cs
 	using System;
@@ -1704,7 +1710,7 @@ lock (object)
 
 
 # Reflection (反射)
-`C#`中的**反射**機制與`Java`等高級語言類似，反射機制的主要作用：
+C#中的**反射**機制與Java等高級語言類似，反射機制的主要作用：
 
 - 獲取類型的成員信息，包括私有成員。
 - 通過成員信息訪問/修改字段、屬性，調用成員方法。
@@ -1712,10 +1718,10 @@ lock (object)
 - 動態生成類型實例。
 - 獲取類型特性(`Attribute`)信息。
 
-在`C#`中，反射相關API在命名空間`System.Reflection`中。
+在C#中，反射相關API在命名空間`System.Reflection`中。
 
 ## 反射機制的相關類型
-`C#`語言相比`Java`，類內的成員種類更多，用於描述成員信息反射類型結構也與`Java`不盡相同。
+C#語言相比Java，類內的成員種類更多，用於描述成員信息反射類型結構也與Java不盡相同。
 
 - `System.Type`
 
@@ -1732,7 +1738,7 @@ lock (object)
 	1. `PropertyInfo` 屬性信息
 	1. `TypeInfo` 類型信息
 
-	繼承樹如下所示：
+	繼承樹示例：
 
 	```
 	MemberInfo
@@ -1749,7 +1755,7 @@ lock (object)
 	`PropertyInfo`、`MethodInfo`等描述類成員信息的類型均直接或間接從抽象基類`MemberInfo`中繼承。
 
 ## Type/TypeInfo 類型
-`C#`中的`Type`類型作用近似於`Java`反射機制中的`Class`類型，`Type`類定義了類型的反射操作。
+C#中的`Type`類型作用近似於Java反射機制中的`Class`類型，`Type`類定義了類型的反射操作。
 獲取目標類型的`Type`實例是使用反射功能的起始步驟。
 
 獲取`Type`實例可以通過以下方式：
@@ -1772,7 +1778,7 @@ lock (object)
 - `GetXxx(string, BindingFlags)` 獲取滿足`BindingFlags`的**指定成員**
 - `GetXxxs(BindingFlags)` 獲取滿足`BindingFlags`的**所有成員**
 
-在`C#`中，`GetXxx()/GetXxxs()`方法包含多個重載版本。
+在C#中，`GetXxx()/GetXxxs()`方法包含多個重載版本。
 
 - 默認的的無參`GetXxx()/GetXxxs()`方法只能獲取公有成員。
 - 通過`BindingFlags`枚舉可設定反射的搜索範圍(**是否搜索非公有成員**/**是否搜索繼承而來的成員**/...)，多個`BindingFlags`可使用**邏輯或**操作符相連。
@@ -1973,7 +1979,7 @@ MSDN中關於**特性**的介紹：
 - 配置自定義特性
 
 	使用`System.AttributeUsage`特性可以指定其它特性的使用方式。
-	`AttributeUsage`類的定義如下所示：
+	`AttributeUsage`類的定義示例：
 
 	```cs
 	using System.Reflection;
@@ -2113,16 +2119,16 @@ Id: 2, Info: Test1Attribute
 
 
 # 動態代理
-在`C#`中，提供了類似`Java`中的**動態代理**機制。
+在C#中，提供了類似Java中的**動態代理**機制。
 
-`C#`中實現動態代理需要以下內容：
+C#中實現動態代理需要以下內容：
 
 - 代理規則類需要從基類`System.Runtime.Remoting.Proxies.RealProxy`中派生。
 - 被代理的類需要從基類`System.MarshalByRefObject`中派生。
 
-與`Java`不同，在`C#`中，要使一個類能被代理需要該類從抽象基類`System.MarshalByRefObject`中繼承。
+與Java不同，在C#中，要使一個類能被代理需要該類從抽象基類`System.MarshalByRefObject`中繼承。
 
-如下所示：
+示例：
 
 ```cs
 using System;
@@ -2135,7 +2141,7 @@ class Xxx : MarshalByRefObject
 
 編寫代理規則需要繼承抽象基類`System.Runtime.Remoting.Proxies.RealProxy`，並實現其中的`Invoke()`抽象方法。
 
-一個基本的`RealProxy`泛型封裝如下所示：
+一個基本的`RealProxy`泛型封裝示例：
 
 ```cs
 // 限定泛型參數爲MarshalByRefObject子類
@@ -2181,7 +2187,7 @@ class Proxy<T> : RealProxy where T : MarshalByRefObject
 - `RealProxy`類中定義了`GetTransparentProxy()`方法，使用該方法可獲取應用了代理規則之後的實例。
 - 需要使用被代理類的`Type`類型做爲基類`RealProxy`的構造函數參數，否則獲取的代理實例爲空指針。
 
-簡單的動態代理完整實例如下所示：
+簡單的動態代理完整實例示例：
 
 ```cs
 using System;
@@ -2255,7 +2261,7 @@ Method result:
 
 
 # FTP
-在`.Net`平臺中，標準庫內置了對`FTP`協議的支持。
+在.Net平臺中，標準庫內置了對`FTP`協議的支持。
 
 `FTP`相關的類均位於`System.Net`命名空間，常見的有：
 
@@ -2406,7 +2412,7 @@ public bool UploadFile(string ftpUri, string localPath, string ftpUserName, stri
 
 
 # WinForm 開發註記
-`C#`對應的**GUI**庫爲基於`.NET Framework`的`Windows Form`。
+C#對應的**GUI**庫爲基於`.NET Framework`的`Windows Form`。
 
 ## 常見控件類型
 在`Windows Form`中，控件相關的類大多派生於`System.Windows.Forms.Control`。
@@ -2644,7 +2650,7 @@ Console.WriteLine(testNew); //輸出 "aaa"
 	- `System.Runtime.CompilerServices.CallerFilePathAttribute` 調用文件
 	- `System.Runtime.CompilerServices.CallerLineNumberAttribute` 調用行號
 
-	三種特性用於修飾日誌函數的參數(參數需要有默認值)，編譯器會自動爲參數補充對應的調用信息，如下所示：
+	三種特性用於修飾日誌函數的參數(參數需要有默認值)，編譯器會自動爲參數補充對應的調用信息，示例：
 
 	```cs
 	using System.Runtime.CompilerServices;
