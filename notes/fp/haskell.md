@@ -7,6 +7,7 @@
 	- [`$` 函数](#-函数)
 	- [`.` 函数](#-函数)
 - [Currying (柯里化)](#currying-柯里化)
+- [Fixity Declarations (操作符結合性、優先級定義)](#fixity-declarations-操作符結合性優先級定義)
 - [Pointfree Style](#pointfree-style)
 	- [概念解释](#概念解释)
 	- [pointfree应用](#pointfree应用)
@@ -252,6 +253,38 @@ c 1 2 :: Int -> Int
 Prelude> :type c 1 2 3
 c 1 2 3 :: Int
 ```
+
+
+
+# Fixity Declarations (操作符結合性、優先級定義)
+在Haskell中，操作符的優先級可以自行顯式定義，語法示例：
+
+```hs
+infix/infixl/infixr [優先級數值] [操作符]
+```
+
+語法詳細說明：
+
+| 關鍵字 | 說明 |
+| :- | :- |
+| infix | 定義操作符為**不可結合** |
+| infixl | 定義操作符為**左結合性** |
+| infixr | 定義操作符為**右結合性** |
+| 優先級數值(可選) | 定義操作符優先級，範圍[0, 9]，操作符和函數默認的優先級為9(最高優先級) |
+| op1, ... , opn | 操作符名稱(可多個並列) |
+
+以標準庫中的`+`操作符為例：
+
+```hs
+Prelude> :info +
+class Num a where
+  (+) :: a -> a -> a
+  ...
+  	-- Defined in ‘GHC.Num’
+infixl 6 +
+```
+
+其中`infixl 6 +`定義了`+`操作符的結合性為左結合，優先級為6。
 
 
 
