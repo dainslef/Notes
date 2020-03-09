@@ -286,6 +286,50 @@ infixl 6 +
 
 其中`infixl 6 +`定義了`+`操作符的結合性為左結合，優先級為6。
 
+示例：
+
+```hs
+Prelude> :{
+Prelude| (...), (|||) :: IO Int -> IO Int -> IO Int
+Prelude| n1 ... n2 = do
+Prelude|   v1 <- n1
+Prelude|   v2 <- n2
+Prelude|   print $ "left: " ++ show v1 ++ " right: " ++ show v2
+Prelude|   return $ v1 + v2
+Prelude| (|||) = (...)
+Prelude|
+Prelude| -- 定義操作符結合性和優先級
+Prelude| infixl 5 ...
+Prelude| infixr 6 |||
+Prelude| :}
+Prelude> return 1 ... return 2 ... return 3 -- 操作符左結合
+"left: 1 right: 2" -- 先執行 return 1 ... return 2
+"left: 3 right: 3"
+6
+Prelude> return 1 ||| return 2 ||| return 3 -- 操作符右結合
+"left: 2 right: 3" -- 先執行 return 2 ||| return 3
+"left: 1 right: 5"
+6
+Prelude> return 1 ... return 2 ||| return 3 ||| return 4 --- 多種操作符結合
+"left: 3 right: 4"
+"left: 2 right: 7"
+"left: 1 right: 9"
+10
+Prelude> :{
+Prelude| infix 7 @@@ -- 定義操作符為不可結合
+Prelude| (@@@) = (...)
+Prelude| :}
+Prelude> return 1 @@@ return 2 @@@ return 3 -- 連接不可結合的操作符會得到錯誤信息
+
+<interactive>:28:1: error:
+    Precedence parsing error
+        cannot mix ‘@@@’ [infix 7] and ‘@@@’ [infix 7] in the same infix expression
+Prelude> (return 1 @@@ return 2) @@@ return 3 -- 正確連接多個不可結合操作符需要使用括號
+"number left: 1 number right: 2"
+"number left: 3 number right: 3"
+6
+```
+
 
 
 # Pointfree Style
