@@ -47,6 +47,7 @@
 		- [视图管理](#视图管理)
 	- [回写数据](#回写数据)
 		- [MySQL 建表异常](#mysql-建表异常)
+	- [Complex Types (复合类型字段)](#complex-types-复合类型字段)
 - [问题注记](#问题注记)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -143,7 +144,8 @@ Web界面中的提供了以下几类信息：
 
 ![Spark Web UI](../../images/spark_web_ui.png)
 
-对于正在执行的Spark应用，Spark还提供了`Application Detail UI`，用于查看应用的执行信息，如`Event Timeline`、`DAG Visualization`：
+对于正在执行的Spark应用，Spark还提供了`Application Detail UI`，用于查看应用的执行信息，
+如`Event Timeline`、`DAG Visualization`：
 
 ![Spark Application Detail UI](../../images/spark_application_detail_ui.png)
 
@@ -218,7 +220,7 @@ Spark当前支持以下集群管理器：
 ## 术语表
 以下列表总结了在集群概念中提及的术语：
 
-| 术语 | 含义 |
+| 术语 | 說明 |
 | :- | :- |
 | Application | Spark中的用户应用程序，由集群中的driver program和executors组成。 |
 | Application jar | 包含用户应用内容的JAR包。JAR包中应打包用户代码所需要的第三方依赖库，但不应该包含Hadoop或Spark库，这些库会在应用运行时添加。 |
@@ -2314,6 +2316,90 @@ object JdbcUtils extends Logging {
 ```
 
 分析源码可知，DataFrame使用SparkSQL生成建表SQL语句时，`byte/boolean`等类型没有被映射成MySQL中对应的正确类型。
+
+## Complex Types (复合类型字段)
+DataFrame中的列不仅仅可以是常规字段，还可以包含复合结构(Complex types)，符合结构有以下类型：
+
+- `ArrayType` 表示一组元素的序列
+- `MapType` 表示一组键值对
+- `StructType` 表示一个包含一组StructField的结构类型
+
+对应到Scala语法中，一个样例类的某个字段类型是另一个样例类时，则该字段在SparkSQL中转化为DataFrame时，
+会被映射成`StructType`。
+示例，定义包含StructType结构的DataFrame，并注册到内存中：
+
+```scala
+scala> case class Test(name: String, age: Int)
+defined class Test
+
+// 字段inner是一个结构字段
+scala> case class TestInner(index: Int, inner: Test)
+defined class TestInner
+
+scala> val dataFrame = spark.createDataFrame(Seq(TestInner(1, Test("Haskell", 25)), TestInner(2, Test("Rust", 6)), TestInner(3, Test("Scala", 15))))
+dataFrame: org.apache.spark.sql.DataFrame = [index: int, inner: struct<name: string, age: int>]
+
+scala> dataFrame.createOrReplaceTempView("TestTable")
+```
+
+该表的Schema如下：
+
+```scala
+scala> dataFrame.printSchema
+root
+ |-- index: integer (nullable = false)
+ |-- inner: struct (nullable = true)
+ |    |-- name: string (nullable = true)
+ |    |-- age: integer (nullable = false)
+```
+
+对于包含嵌套结构的DataFrame，在SparkSQL中的SQL语句中使用`.`语法可直接访问结构内部的字段(与访问表内字段的语法类似)。
+示例：
+
+```scala
+scala> spark.sql("select * from TestTable").show()
++-----+-------------+
+|index|        inner|
++-----+-------------+
+|    1|[Haskell, 25]|
+|    2|    [Rust, 6]|
+|    3|  [Scala, 15]|
++-----+-------------+
+
+scala> spark.sql("select index, inner.name, inner.age from TestTable").show()
++-----+-------+---+
+|index|   name|age|
++-----+-------+---+
+|    1|Haskell| 25|
+|    2|   Rust|  6|
+|    3|  Scala| 15|
++-----+-------+---+
+
+scala> spark.sql("select index, inner.name as inner_name, inner.age as inner_age from TestTable").show()
++-----+----------+---------+
+|index|inner_name|inner_age|
++-----+----------+---------+
+|    1|   Haskell|       25|
+|    2|      Rust|        6|
+|    3|     Scala|       15|
++-----+----------+---------+
+```
+
+JDBC中没有与SparkSQL中StructType相匹配的类型，因而包含StructType字段的表不能直接使用JDBC输出到MySQL之类的常规数据库中。
+尝试将包含StructType字段的表写入MySQL会得到输出类型不匹配的异常信息(`Can't get JDBC type for struct<...>`)：
+
+```scala
+scala> dataFrame.write.jdbc("jdbc:mysql://ip:port/db_name?tinyInt1isBit=false", "TestTable", new java.util.Properties { put("user", "root"); put("password", "xxx") })
+java.lang.IllegalArgumentException: Can't get JDBC type for struct<name:string,age:int>
+  ...
+```
+
+可通过在SQL中显式访问StructType内部字段的方式将StructType字段解构为普通字段，然后再通过JDBC写入：
+
+```scala
+// 无异常信息
+scala> spark.sql("select index, inner.name, inner.age from TestTable").write.jdbc("jdbc:mysql://ip:port/db_name?tinyInt1isBit=false", "TestTable", new java.util.Properties { put("user", "root"); put("password", "xxx") })
+```
 
 
 
