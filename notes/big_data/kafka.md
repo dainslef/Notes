@@ -288,6 +288,8 @@ $ kafka-topics --delete --topics [話題名稱] --zookeeper [Zookeeper集群IP:�
 
 	// 刪除對應話題相關信息
 	[zk...] rmr /brokers/topics/[話題名稱]
+	// 刪除對應話題相關配置
+	[zk...] rmr /config/topics/[話題名稱]
 	// 刪除話題的delete標記信息
 	[zk...] rmr /admin/delete_topics/[話題名稱]
 	```
@@ -332,7 +334,7 @@ Kafka Connect使用前除了启动Zookeeper和Kafka主进程外，还需要启�
 	$ schema-registry-start -daemon $KAFKA_HOME/etc/schema-registry/schema-registry.properties
 	```
 
-- `Kafka Rest`
+- `Kafka Rest` (可選)
 
 	KafkaRest服务为Kafka提供了`Rest API`支持，使Kafka可以通过HTTP请求进行互操作。
 	服务配置文件为`$KAFKA_HOME/etc/kafka-rest/kafka-rest.properties`，配置说明：
@@ -385,8 +387,10 @@ Kafka Connect使用前除了启动Zookeeper和Kafka主进程外，还需要启�
 	# 对应 $KAFKA_HOME/etc/kafka/server.properties 中设定的 listeners 配置，仅需要服务地址、端口
 	# 示例： bootstrap.servers = spark-master:9092
 
-	kafkastore.connection.url = Zookeeper集群地址:端口
-	# 示例： kafkastore.connection.url = spark-master:2181, spark-slave0:2181, spark-slave1:2181
+	key.converter.schema.registry.url = SchemaRegistry服务地址:端口
+	value.converter.schema.registry.url = SchemaRegistry服务地址:端口
+	# 對應 $KAFKA_HOME/etc/schema-registry/schema-registry.properties 中设定的 listeners 配置
+	# 示例： schema.registry.url = http://spark-master:8081
 
 	rest.host.name = Kafka Rest 服务地址
 	# 示例：
@@ -447,7 +451,7 @@ Kafka Connect使用前除了启动Zookeeper和Kafka主进程外，还需要启�
 
 	執行connect-standalone指令時，當前路徑需要為$KAFKA_HOME。
 
-数据监控服务正常启动后，会按照数据源配置项`topic.prefix`以`话题前缀 + 表格名称`的规则创建话题，
+数据监控服务正常启动后，会按照数据源配置项`topic.prefix`以`话题前缀 + 表格名称`的规则自動创建话题，
 在话题中以JSON形式输出表格新增的数据。
 话题中输出的数据以`Apache Avro`做为数据交互格式，直接使用`kafka-console-consumer`获取话题中的数据得到的信息不具备可读性。
 应使用`kafka-avro-console-consumer`工具消费数据：
@@ -464,6 +468,9 @@ JDBC Source Connector提供了多种数据源导入/监控模式：
 | incrementing | 严格通过自增列来检测新增行(仅检测表格中的新增行，不会检测已存在的行的修改与删除) |
 | timestamp | 通过时间戳来检测新增与变化的行 |
 | timestamp + incrementing | 使用时间戳检测新增与修改的行，并通过自增列为更新提供全局唯一ID，每行能被分配一个唯一的流偏移量 |
+
+除了bulk模式外，JDBC Source Connector對於已導出數據的表格會記錄偏移量，重啓服務會後只會追加導入新增數據；
+若需要重新導入完整數據則可嘗試**刪除話題**或切換**導入模式**。
 
 ### 堆溢出問題
 當需要監聽的目標表格過大時，使用默認JVM配置啟動的Connector可能會產生`OutOfMemoryError`，
