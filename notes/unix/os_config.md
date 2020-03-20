@@ -21,6 +21,7 @@
 	- [SSH 配置](#ssh-配置)
 	- [配置免密登陸](#配置免密登陸)
 - [路由轉發](#路由轉發)
+	- [追蹤路由](#追蹤路由)
 - [GNU GRUB](#gnu-grub)
 	- [安裝與配置](#安裝與配置)
 	- [安裝引導器](#安裝引導器)
@@ -728,6 +729,59 @@ $ cat /proc/sys/net/ipv4/ip_forward
 net.ipv4.ip_forward = 1
 # Controls source route verification
 net.ipv4.conf.default.rp_filter = 1
+```
+
+## 追蹤路由
+`traceroute`是傳統Unix使用的路由追蹤工具，在Linux、macOS、BSD上均可使用。
+
+```
+$ traceroute www.baidu.com
+traceroute: Warning: www.baidu.com has multiple addresses; using 39.156.66.14
+traceroute to www.a.shifen.com (39.156.66.14), 64 hops max, 52 byte packets
+ 1  172.20.10.1 (172.20.10.1)  2.899 ms  6.245 ms  4.776 ms
+ 2  * * *
+ 3  192.168.26.105 (192.168.26.105)  29.399 ms  67.376 ms  40.647 ms
+ 4  * * *
+ 5  183.203.61.233 (183.203.61.233)  28.742 ms  29.355 ms  24.181 ms
+ 6  221.183.47.225 (221.183.47.225)  42.761 ms  25.997 ms  28.628 ms
+ 7  221.183.37.249 (221.183.37.249)  35.779 ms  40.650 ms  49.872 ms
+ 8  * 221.183.53.182 (221.183.53.182)  37.733 ms *
+ 9  * * *
+10  39.156.27.5 (39.156.27.5)  79.128 ms
+    39.156.67.97 (39.156.67.97)  40.540 ms
+    39.156.27.5 (39.156.27.5)  44.496 ms
+11  * * *
+```
+
+Linux系統下iputils工具鏈還提供了`tracepath`工具作為traceroute的替代品，相比traceroute，
+tracepath的無須root權限，擁有更簡單的命令行參數。
+
+在Windows系統下，使用`tracert`工具追蹤路由，功能與traceroute類似。
+
+```
+C:\Windows\system32>tracert www.baidu.com
+
+Tracing route to www.a.shifen.com [39.156.66.14]
+over a maximum of 30 hops:
+
+  1    <1 ms    <1 ms     1 ms  10.0.2.2
+  2     6 ms     2 ms     4 ms  172.20.10.1
+  3     *        *        *     Request timed out.
+  4     *       73 ms    35 ms  192.168.26.105
+  5     *        *        *     Request timed out.
+  6    25 ms    34 ms    21 ms  183.203.61.233
+  7    25 ms    31 ms     *     221.183.47.225
+  8    38 ms    56 ms    60 ms  221.183.37.249
+  9     *        *        *     Request timed out.
+ 10    43 ms    50 ms    38 ms  39.156.27.5
+ 11    47 ms    59 ms    91 ms  39.156.67.29
+ 12     *        *        *     Request timed out.
+ 13     *        *        *     Request timed out.
+ 14     *        *        *     Request timed out.
+ 15     *        *        *     Request timed out.
+ 16    59 ms    42 ms    83 ms  39.156.66.14
+
+Trace complete.
 ```
 
 
