@@ -68,6 +68,7 @@
 	- [CentOS](#centos)
 		- [iptable/firewalld](#iptablefirewalld)
 		- [SELinux](#selinux)
+		- [grub2-install: error: /usr/lib/grub/x86_64-efi/modinfo.sh doesn't exist. Please specify --target or --directory.](#grub2-install-error-usrlibgrubx86_64-efimodinfosh-doesnt-exist-please-specify---target-or---directory)
 
 <!-- /TOC -->
 
@@ -318,6 +319,13 @@ $ find [路徑] -type d
 
 // 查找路徑下的所有文件
 $ find [路徑] -type f
+```
+
+按照文件`inode`查找文件，可查詢一個inode對應的多個硬鏈接文件：
+
+```c
+$ ls -i // 查看文件inode
+$ find [路徑] -inum [inode]
 ```
 
 使用`-exec`參數對查找到目標執行額外附加操作：
@@ -1880,3 +1888,14 @@ SELinux status:                 disabled
 ```
 
 永久禁用SELinux可編輯`/etc/selinux/config`文件，將`SELINUX=enforcing`修改為`SELINUX=disabled`。
+
+### grub2-install: error: /usr/lib/grub/x86_64-efi/modinfo.sh doesn't exist. Please specify --target or --directory.
+問題描述：<br>
+在CentOS 7、UEFI引導下，使用`grub-install`指令安裝grub引導器時出現錯誤。
+
+解決方案：<br>
+該問題是CentOS 7默認安裝時未安裝`grub-efi-modules`導致的，執行安裝：
+
+```
+# yum install grub2-efi-modules
+```
