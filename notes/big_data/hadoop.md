@@ -8,6 +8,7 @@
 - [HDFS](#hdfs)
 	- [HDFS RPC地址](#hdfs-rpc地址)
 	- [HDFS命令行工具](#hdfs命令行工具)
+	- [Balancer](#balancer)
 - [HBase](#hbase)
 	- [HBase體系結構](#hbase體系結構)
 		- [Region Server](#region-server)
@@ -20,6 +21,8 @@
 	- [HBase Shell](#hbase-shell)
 	- [HBase Client API](#hbase-client-api)
 	- [Compaction (壓縮)](#compaction-壓縮)
+		- [禁用自動 Major Compactions](#禁用自動-major-compactions)
+		- [主動觸發 Major Compactions](#主動觸發-major-compactions)
 - [問題註記](#問題註記)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0--expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
@@ -369,6 +372,26 @@ $ hdfs dfs -mkdir [HDFS路徑]
 $ hdfs dfs -rm [HDFS路徑]
 $ hdfs dfs -rmdir [HDFS路徑]
 ```
+
+## Balancer
+向Hadoop集群中寫入新數據時，HDFS並不保證數據會均勻地分佈到集群中的每個DataNode中，
+集群長期運行會造成各個DataNode間使用率有較大差異。
+HDFS中提供了`start-balancer.sh`以及`hdfs balancer`等命令行工具可手動觸發DataNode間的數據均衡操作，
+以`hdfs balancer`為例：
+
+```
+$ hdfs balancer --help
+Usage: java Balancer
+        [-policy <policy>]       the balancing policy: datanode or blockpool
+        [-threshold <threshold>]         Percentage of disk capacity
+        [-exclude [-f <hosts-file>  | comma-separated list of hosts]]     Excludes
+the specified datanodes.
+        [-include [-f <hosts-file>  | comma-separated list of hosts]]     Includes
+only the specified datanodes.
+```
+
+參數`threshold`表示HDFS中每個DataNode使用的百分比偏差，偏差比例超過該值的的節點(無論高於/低於)將會被均衡。
+更多詳細介紹可參考[官方文檔](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html#balancer)。
 
 
 
@@ -1123,6 +1146,7 @@ HBase會嘗試合併HFiles來減少讀取操作時磁盤對文件的最大搜索
 	從一個Region的讀取所有存儲文件，並寫入單一的存儲文件。
 	HBase中刪除指令不會立即刪除數據，而是將數據打上刪除標記，只有在Major Compactions之後，對應數據才會真正被刪除。
 
+### 禁用自動 Major Compactions
 默認配置下，HBase會定期執行壓縮操作，在壓縮過程中，HBase整體的IO會大幅度下降，
 對應承載的上層業務會出現顯著的數據查詢/寫入速度下降。
 在生產環境下，常見應對方案是關閉Major Compaction，在`$HBASE_HOME/conf/hbase-site.xml`中添加如下配置：
@@ -1139,7 +1163,8 @@ HBase會嘗試合併HFiles來減少讀取操作時磁盤對文件的最大搜索
 </configuration>
 ```
 
-在HBase Shell中可使用指令主動觸發Major Compaction：
+### 主動觸發 Major Compactions
+在禁用Major Compactions後，需要手動觸發壓縮。在HBase Shell中可使用指令主動觸發Major Compaction：
 
 ```ruby
 hbase> major_compact
