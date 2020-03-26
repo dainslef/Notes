@@ -8,6 +8,7 @@
 - [NixOS](#nixos)
 	- [安裝](#安裝)
 	- [配置管理](#配置管理)
+		- [Binary Cache](#binary-cache)
 	- [系統軟件包與服務配置](#系統軟件包與服務配置)
 	- [用戶配置](#用戶配置)
 	- [Shell配置](#shell配置)
@@ -188,6 +189,9 @@ Nix包管理器對於每個用戶擁有獨立的配置，全局的unfree配置�
 針對UEFI啓動，需要確認以下選項是否開啓：
 
 ```sh
+boot.loader.efi.efiSysMountPoint = "/boot/efi" # 設定ESP分區掛載位置
+boot.loader.grub.device = "nodev" # 使用 UEFI + GPT 的設備無需指定grub引導器位置，MBR需要指定(如 /dev/sda 等)
+
 boot.loader.systemd-boot.enable = true # 啓動 systemd 的啓動支持
 boot.loader.efi.canTouchEfiVariables = true # 允許安裝進程修改EFI啓動參數
 ```
@@ -207,8 +211,8 @@ Nix配置修改完成後執行安裝操作：
 重新應用配置：
 
 ```c
-# nixos-rebuild switch //重新生成配置，並立即切換到新配置
-# nixos-rebuild switch --upgrade //生成配置同時更新系統
+# nixos-rebuild switch // 重新構建配置，並立即切換到新配置
+# nixos-rebuild switch --upgrade // 構建配置同時更新系統
 ```
 
 列出所有的配置：
@@ -225,6 +229,23 @@ Nix配置修改完成後執行安裝操作：
 
 // 清理所有非激活配置和過時軟件包
 # nix-collect-garbage -d
+```
+
+### Binary Cache
+Nix會在構建軟件包時會使用名為`Binary Cache`的優化機制，即構建目標時優先從指定軟件源中下載**預編譯**版本，
+而非直接從源碼中進行編譯。
+
+默認的Binary Cache地址為` https://cache.nixos.org/`，身在牆國該地址無法正常訪問，
+Nix會在該步驟上會浪費大量時間(直到訪問超時)，可在執行構建時禁用Binary Cache機制：
+
+```
+# nixos-rebuild switch --option use-binary-caches false
+```
+
+清華大學提供了牆內可用的Binary Cache源，在執行構建時可顯式指定Binary Cache源為該地址：
+
+```
+# nixos-rebuild switch --option binary-caches https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store
 ```
 
 ## 系統軟件包與服務配置
