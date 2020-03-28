@@ -1,11 +1,17 @@
+<!-- TOC -->
+
 - [簡介](#簡介)
 - [安裝與配置](#安裝與配置)
+	- [Mirror](#mirror)
 - [安裝模塊](#安裝模塊)
 	- [查看已安裝模塊](#查看已安裝模塊)
 - [Serve](#serve)
 	- [配置 SPA](#配置-spa)
 - [常見錯誤](#常見錯誤)
 	- [npm WARN tar zlib error: unexpected end of file](#npm-warn-tar-zlib-error-unexpected-end-of-file)
+	- [npm ERR! Unexpected end of JSON input while parsing near '...rcemaps-apply":"lates'](#npm-err-unexpected-end-of-json-input-while-parsing-near-rcemaps-applylates)
+
+<!-- /TOC -->
 
 
 
