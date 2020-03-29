@@ -9,6 +9,7 @@
 	- [HDFS RPC地址](#hdfs-rpc地址)
 	- [HDFS命令行工具](#hdfs命令行工具)
 	- [Balancer](#balancer)
+		- [Disk Balancer](#disk-balancer)
 - [HBase](#hbase)
 	- [HBase體系結構](#hbase體系結構)
 		- [Region Server](#region-server)
@@ -390,8 +391,30 @@ the specified datanodes.
 only the specified datanodes.
 ```
 
+參數`policy`設定數據平衡策略，可取值`datanode/blockpool`，blockpool相比datanode粒度更細。
+參數`exclude/include`用於設定需要進行數據平衡的主機。
 參數`threshold`表示HDFS中每個DataNode使用的百分比偏差，偏差比例超過該值的的節點(無論高於/低於)將會被均衡。
 更多詳細介紹可參考[官方文檔](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html#balancer)。
+
+### Disk Balancer
+`Hadoop 3`中引入了`Disk Balancer`，與之前的集群數據層面的Balancer不同，
+Disk Balancer用於將一個DataNode內部**各個磁盤**的數據進行均衡。
+詳情可參考[官方文檔](https://hadoop.apache.org/docs/r3.0.0/hadoop-project-dist/hadoop-hdfs/HDFSDiskbalancer.html)。
+
+在HDFS中，寫入新數據時，DataNode會根據配置的**卷選擇策略(volume-choosing policies)**來選擇數據寫入的磁盤。
+HDFS提供了兩種卷選擇策略：
+
+- `Round-Robin Policy` 均勻地在可用的磁盤中擴展新的數據塊(默認策略)
+- `Available Space Policy` 根據磁盤中剩餘空間的百分比選擇磁盤
+
+![HDFS Disk Balancing Policy](../../images/hdfs_disk_balancing_policy.jpg)
+
+默認的Round-Robin策略並不保證數據會均勻地分佈到集群中的每個DataNode的磁盤中，
+例如發生大量的讀寫操作或是磁盤更換時。
+而Available Space策略則會將所有的新增數據寫入空閒的磁盤，若集群中新增磁盤，
+則舊磁盤處於空閒狀態，新增磁盤會造成寫入瓶頸，直到新磁盤被填充到與舊磁盤比例相近的數據。
+
+默認配置下，Disk Balancer未被開啟，在`hdfs-site.xml`中設置`dfs.disk.balancer.enabled`配置項為true啟用該特性。
 
 
 
