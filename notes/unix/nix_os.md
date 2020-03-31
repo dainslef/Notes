@@ -8,6 +8,7 @@
 - [NixOS](#nixos)
 	- [安裝](#安裝)
 	- [配置管理](#配置管理)
+		- [構建與版本升級](#構建與版本升級)
 		- [Binary Cache](#binary-cache)
 	- [系統軟件包與服務配置](#系統軟件包與服務配置)
 	- [用戶配置](#用戶配置)
@@ -94,8 +95,8 @@ nixpkgs https://nixos.org/channels/nixpkgs-unstable
 
 ```c
 $ nix-channel --list //顯示當前已配置的channel
-$ nix-channel --add url [name] //添加指定channel
-$ nix-channel --remove name //移除指定channel
+$ nix-channel --add [url] [name] //添加指定channel
+$ nix-channel --remove [name] //移除指定channel
 ```
 
 在添加channel時若不指定名稱，則按找包類別使用默認名稱，例如`nixos-unstable`的channel名稱爲`nixos`。
@@ -205,15 +206,18 @@ Nix配置修改完成後執行安裝操作：
 執行指令後安裝器會以給定的Nix配置執行系統安裝流程：安裝系統文件、配置引導器、配置賬戶信息等。
 
 ## 配置管理
-在NixOS中，Nix配置接管了系統內所有軟件包的配置，同時，以常規方式修改軟件包自身配置的方式對於系統級軟件包無效。
+在NixOS中，系統核心配置`/etc/nixos/configuration.nix`接管了系統內所有服務以及軟件包的配置，
+以常規方式修改軟件包自身配置的方式對於系統級軟件包**無效**。
 以`sudo`爲例，直接修改`/etc/sudoers`配置並不能正常賦予某個用戶管理員權限。
 
-重新應用配置：
+重新構建系統配置：
 
 ```c
 # nixos-rebuild switch // 重新構建配置，並立即切換到新配置
 # nixos-rebuild switch --upgrade // 構建配置同時更新系統
 ```
+
+每次rebuild生成的配置會以啟動項的方式顯示在GRUB菜單中，想要恢復之前配置環境僅需重啓進入GRUB進入對應菜單即可。
 
 列出所有的配置：
 
@@ -231,11 +235,19 @@ Nix配置修改完成後執行安裝操作：
 # nix-collect-garbage -d
 ```
 
+### 構建與版本升級
+執行`nixos-rebuild switch --upgrade`指令重構配置並執行升級操作時，
+系統會按照當前nix-channel中指定的nixos源進行升級，該源也可以由configuration.nix中的配置來指定：
+
+```
+system.autoUpgrade.channel = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixos-unstable;
+```
+
 ### Binary Cache
 Nix會在構建軟件包時會使用名為`Binary Cache`的優化機制，即構建目標時優先從指定軟件源中下載**預編譯**版本，
 而非直接從源碼中進行編譯。
 
-默認的Binary Cache地址為` https://cache.nixos.org/`，身在牆國該地址無法正常訪問，
+默認的Binary Cache地址為`https://cache.nixos.org/`，身在牆國該地址無法正常訪問，
 Nix會在該步驟上會浪費大量時間(直到訪問超時)，可在執行構建時禁用Binary Cache機制：
 
 ```
@@ -247,6 +259,15 @@ Nix會在該步驟上會浪費大量時間(直到訪問超時)，可在執行構
 ```
 # nixos-rebuild switch --option binary-caches https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store
 ```
+
+亦可在configuration.nix中顯式指定Binary Cache源使用清華鏡像源：
+
+```nix
+nix.binaryCaches = ["https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"];
+```
+
+需要注意，清華的Binary Cache源相比官方源cache.nixos.org缺少一些包，
+僅使用清華源會導致部分包因為找不到匹配的二進制版本而需要從源碼進行編譯。
 
 ## 系統軟件包與服務配置
 在NixOS中，可將常用的軟件包配置爲系統軟件包，在configuration.nix配置中設定`environment.systemPackages`配置項：
@@ -295,7 +316,7 @@ services = {
 NixOS使用`systemd`管理服務的狀態，在services配置段中啓用的服務默認會開機自啓動，且無法修改自啓狀態。
 啓用與禁用services配置段中設定的服務，需要設定`systemd.services`配置段：
 
-```sh
+```nix
 systemd.services.<name>.enable = true/false;
 ...
 
@@ -423,7 +444,8 @@ environment.gnome3.excludePackages = [ pkgs.gnome3.gnome-weather pkgs.gnome3.sim
 environment.gnome3.excludePackages = pkgs.gnome3.optionalPackages;
 ```
 
-在`2019-8-25`的更新中，`environment.gnome3.excludePackages`配置項已被廢棄，
+使用`environment.gnome3.excludePackages`可能會屏蔽掉`environment.systemPackages`中設定的Gnome模塊，
+因此在`2019-8-25`的更新(正式版本為`release-19.09`)中，`environment.gnome3.excludePackages`配置項已被廢棄，
 新版本中控制Gnome3的可選軟件包使用`services.gnome3`系列配置項進行控制：
 
 ```sh
