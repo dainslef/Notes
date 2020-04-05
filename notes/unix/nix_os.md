@@ -8,7 +8,7 @@
 - [NixOS](#nixos)
 	- [安裝](#安裝)
 	- [配置管理](#配置管理)
-		- [構建與版本升級](#構建與版本升級)
+		- [版本升級與回退](#版本升級與回退)
 		- [Binary Cache](#binary-cache)
 	- [系統軟件包與服務配置](#系統軟件包與服務配置)
 	- [用戶配置](#用戶配置)
@@ -235,12 +235,27 @@ Nix配置修改完成後執行安裝操作：
 # nix-collect-garbage -d
 ```
 
-### 構建與版本升級
-執行`nixos-rebuild switch --upgrade`指令重構配置並執行升級操作時，
+### 版本升級與回退
+執行`nixos-rebuild`系列指令重構配置。
+
+```c
+# nixos-rebuild boot // 構建配置後繼續使用當前配置，新配置將在下次啟動時作為默認配置載入
+# nixos-rebuild test // 構建並立即切換到新配置，但下次重啓後恢復之前的配置(測試配置)
+
+# nixos-rebuild switch // 構建配置後立即切換到新配置
+# nixos-rebuild switch --upgrade // 刷新軟件源後構建並切換配置，相當於系統更新
+```
+
 系統會按照當前nix-channel中指定的nixos源進行升級，該源也可以由configuration.nix中的配置來指定：
 
 ```
 system.autoUpgrade.channel = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixos-unstable;
+```
+
+回滾之前配置可在開機的GRUB啟動菜單中選擇；亦可在命令行中回滾配置，執行：
+
+```c
+# nixos-rebuild switch --rollback // 回滾到當前配置的上一版本配置
 ```
 
 ### Binary Cache
