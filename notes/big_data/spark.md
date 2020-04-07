@@ -1,29 +1,29 @@
 <!-- TOC -->
 
 - [概述](#概述)
-	- [下载](#下载)
-	- [服务配置](#服务配置)
+	- [下載](#下載)
+	- [服務配置](#服務配置)
 	- [Web UI](#web-ui)
 	- [History Server](#history-server)
-- [Cluster Mode (集群模型)](#cluster-mode-集群模型)
-	- [集群管理器类型](#集群管理器类型)
-	- [术语表](#术语表)
+- [Cluster Mode (集羣模型)](#cluster-mode-集羣模型)
+	- [集羣管理器類型](#集羣管理器類型)
+	- [術語表](#術語表)
 - [Spark Submit](#spark-submit)
-- [RDD (弹性分布式数据集)](#rdd-弹性分布式数据集)
-	- [创建 RDD](#创建-rdd)
+- [RDD (彈性分佈式數據集)](#rdd-彈性分佈式數據集)
+	- [創建 RDD](#創建-rdd)
 	- [RDD 操作](#rdd-操作)
-	- [RDD 分区](#rdd-分区)
-	- [RDD 依赖](#rdd-依赖)
+	- [RDD 分區](#rdd-分區)
+	- [RDD 依賴](#rdd-依賴)
 	- [Shuffle 操作](#shuffle-操作)
-		- [背景知识](#背景知识)
-		- [性能影响](#性能影响)
-- [Job Scheduling (作业调度)](#job-scheduling-作业调度)
-	- [Scheduling Within an Application (应用内调度)](#scheduling-within-an-application-应用内调度)
-		- [Fair Scheduler Pools (公平调度池)](#fair-scheduler-pools-公平调度池)
+		- [背景知識](#背景知識)
+		- [性能影響](#性能影響)
+- [Job Scheduling (作業調度)](#job-scheduling-作業調度)
+	- [Scheduling Within an Application (應用內調度)](#scheduling-within-an-application-應用內調度)
+		- [Fair Scheduler Pools (公平調度池)](#fair-scheduler-pools-公平調度池)
 		- [調度池默認行為](#調度池默認行為)
 		- [配置調度池屬性](#配置調度池屬性)
 		- [在JDBC連接中設置調度](#在jdbc連接中設置調度)
-	- [作业调度源码分析](#作业调度源码分析)
+	- [作業調度源碼分析](#作業調度源碼分析)
 		- [Job Sumbit](#job-sumbit)
 		- [Stage Submit](#stage-submit)
 		- [Task Submit](#task-submit)
@@ -31,74 +31,74 @@
 	- [Streaming Context](#streaming-context)
 	- [DStream](#dstream)
 	- [Concurrent Jobs](#concurrent-jobs)
-	- [数据变换](#数据变换)
+	- [數據變換](#數據變換)
 		- [updateStateByKey()](#updatestatebykey)
 		- [mapWithState()](#mapwithstate)
-	- [Transform Operation (变换操作)](#transform-operation-变换操作)
+	- [Transform Operation (變換操作)](#transform-operation-變換操作)
 	- [Window Operations (窗口操作)](#window-operations-窗口操作)
 - [Spark SQL](#spark-sql)
 	- [SQL](#sql)
 	- [Datasets & DataFrames](#datasets--dataframes)
 	- [SparkSession](#sparksession)
-	- [构建 DataFame](#构建-datafame)
-	- [Untyped Dataset Operations (无类型的 Dataset 操作，aka DataFrame Operations)](#untyped-dataset-operations-无类型的-dataset-操作aka-dataframe-operations)
-	- [执行 SQL 查询](#执行-sql-查询)
+	- [構建 DataFame](#構建-datafame)
+	- [Untyped Dataset Operations (無類型的 Dataset 操作，aka DataFrame Operations)](#untyped-dataset-operations-無類型的-dataset-操作aka-dataframe-operations)
+	- [執行 SQL 查詢](#執行-sql-查詢)
 		- [Global Temporary View](#global-temporary-view)
-		- [视图管理](#视图管理)
-	- [回写数据](#回写数据)
-		- [MySQL 建表异常](#mysql-建表异常)
-	- [Complex Types (复合类型字段)](#complex-types-复合类型字段)
-- [问题注记](#问题注记)
+		- [視圖管理](#視圖管理)
+	- [回寫數據](#回寫數據)
+		- [MySQL 建表異常](#mysql-建表異常)
+	- [Complex Types (複合類型字段)](#complex-types-複合類型字段)
+- [問題註記](#問題註記)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
 	- [org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx](#orgapachesparksparkexception-failed-to-get-broadcast_xxx-of-broadcast_xxx)
 	- [java.sql.SQLException: No suitable driver](#javasqlsqlexception-no-suitable-driver)
 	- [RDD transformations and actions are NOT invoked by the driver, but inside of other transformations;](#rdd-transformations-and-actions-are-not-invoked-by-the-driver-but-inside-of-other-transformations)
 	- [java.lang.NoSuchMethodError: net.jpountz.lz4.LZ4BlockInputStream.<init>(Ljava/io/InputStream;Z)V](#javalangnosuchmethoderror-netjpountzlz4lz4blockinputstreaminitljavaioinputstreamzv)
-	- [MySQL的TINYINT类型错误映射到JDBC的Boolean类型](#mysql的tinyint类型错误映射到jdbc的boolean类型)
+	- [MySQL的TINYINT類型錯誤映射到JDBC的Boolean類型](#mysql的tinyint類型錯誤映射到jdbc的boolean類型)
 
 <!-- /TOC -->
 
 
 
 # 概述
-`Apache Spark`是一套**快速**(fast)、**多用途**(general-purpose)的集群计算系统(cluster computing system)。
+`Apache Spark`是一套**快速**(fast)、**多用途**(general-purpose)的集羣計算系統(cluster computing system)。
 
-Spark提供了`Scala`、`Java`、`Python`、`R`等语言的上层API和支持通用执行图的优化引擎。
-Spark同时提供了一套高级工具集包括`Spark SQL`(针对SQL和结构化数据处理)、`MLib`(针对机器学习)、`GraphX`(针对图处理)、`Spark Streaming`。
+Spark提供了`Scala`、`Java`、`Python`、`R`等語言的上層API和支持通用執行圖的優化引擎。
+Spark同時提供了一套高級工具集包括`Spark SQL`(針對SQL和結構化數據處理)、`MLib`(針對機器學習)、`GraphX`(針對圖處理)、`Spark Streaming`。
 
-## 下载
-在[Spark官网](http://spark.apache.org/downloads.html)下载Saprk软件包。
-下载Spark时需要注意Spark版本与Hadoop、Scala版本的对应关系：
+## 下載
+在[Spark官網](http://spark.apache.org/downloads.html)下載Saprk軟件包。
+下載Spark時需要注意Spark版本與Hadoop、Scala版本的對應關係：
 
-- `Spark 2.0`之后官网提供的软件包默认基于`Scala 2.11`构建，`Spark 2.4.2`之後開始基於`Scala 2.12`構建。
+- `Spark 2.0`之後官網提供的軟件包默認基於`Scala 2.11`構建，`Spark 2.4.2`之後開始基於`Scala 2.12`構建。
 - Spark官方提供的預編譯包中包括了集成Hadoop的版本(如`spark-2.4.4-bin-hadoop2.7.tgz`)，或未集成Hadoop的版本(`spark-2.4.4-bin-without-hadoop.tgz`)，未集成Hadoop的版本需要自行配置Hadoop路徑。
 
 Scala版本兼容性：
 
 - 大版本兼容性
 
-	Scala编译器编译出的字节码在不同大版本之间**不具有**二进制兼容性，如`2.10`/`2.11`/`2.12`等。
-	在添加`Spark API`依赖时需要根据集群运行的Spark版本使用正确的Scala编译器版本。
+	Scala編譯器編譯出的字節碼在不同大版本之間**不具有**二進制兼容性，如`2.10`/`2.11`/`2.12`等。
+	在添加`Spark API`依賴時需要根據集羣運行的Spark版本使用正確的Scala編譯器版本。
 
 - 小版本兼容性
 
-	Scala编译器在小版本之前二进制兼容，如`2.12.1`/`2.12.2`等。
-	在小版本内切换编译器版本无需重新编译生成字节码。
+	Scala編譯器在小版本之前二進制兼容，如`2.12.1`/`2.12.2`等。
+	在小版本內切換編譯器版本無需重新編譯生成字節碼。
 
-## 服务配置
-编辑`/etc/profile`或`~/.profile`，配置Spark相关的环境变量：
+## 服務配置
+編輯`/etc/profile`或`~/.profile`，配置Spark相關的環境變量：
 
 ```sh
-export SPARK_HOME=... # 配置软件包路径
-PATH+=:$SPARK_HOME/bin # 将Spark工具加入 PATH 中
-PATH+=:$SPARK_HOME/sbin # 将Spark工具加入 PATH 中
+export SPARK_HOME=... # 配置軟件包路徑
+PATH+=:$SPARK_HOME/bin # 將Spark工具加入 PATH 中
+PATH+=:$SPARK_HOME/sbin # 將Spark工具加入 PATH 中
 
-# 以下配置也可写入 $SPARK_HOME/conf/spark-env.sh 中
-export SPARK_MASTER_HOST=172.16.0.126 # 指定集群的 Master 节点
-export SPARK_WORKER_CORES=4 # 指定 Worker 节点使用的核心数
-export SPARK_WORKER_MEMORY=16g # 指定 Worker 节点能够最大分配给 Executors 的内存大小
-export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop # 指定 Hadoop 集群的配置路径
+# 以下配置也可寫入 $SPARK_HOME/conf/spark-env.sh 中
+export SPARK_MASTER_HOST=172.16.0.126 # 指定集羣的 Master 節點
+export SPARK_WORKER_CORES=4 # 指定 Worker 節點使用的核心數
+export SPARK_WORKER_MEMORY=16g # 指定 Worker 節點能夠最大分配給 Executors 的內存大小
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop # 指定 Hadoop 集羣的配置路徑
 export SPARK_CLASSPATH=$SPARK_HOME/jars:$HBASE_HOME/lib # 指定 Spark 環境的CLASSPATH
 ```
 
@@ -108,7 +108,7 @@ export SPARK_CLASSPATH=$SPARK_HOME/jars:$HBASE_HOME/lib # 指定 Spark 環境的
 export SPARK_DIST_CLASSPATH=$(hadoop classpath)
 ```
 
-之后创建`$SPARK_HOME/conf/slaves`文件，将需要做为Worker的主机名添加到改文件中：
+之後創建`$SPARK_HOME/conf/slaves`文件，將需要做爲Worker的主機名添加到改文件中：
 
 ```sh
 spark-slave0
@@ -117,177 +117,179 @@ spark-slave2
 ...
 ```
 
-保证集群各机器间能够免密登陆，将配置文件分发到集群的其它机器上，执行指令启动/关闭服务：
+保證集羣各機器間能夠免密登陸，將配置文件分發到集羣的其它機器上，執行指令啓動/關閉服務：
 
 ```c
-// 启动 Master 服务
+// 啓動 Master 服務
 $ start-master.sh
-// 启动 Worker 服务
+// 啓動 Worker 服務
 $ start-slaves.sh
 
-// 停止服务
+// 停止服務
 $ stop-master.sh && stop-slaves.sh
 ```
 
-正常启动Spark服务后，使用JPS查看进程，主节点应有`Master`进程，从节点应有`Worker`进程。
+正常啓動Spark服務後，使用JPS查看進程，主節點應有`Master`進程，從節點應有`Worker`進程。
 
 ## Web UI
-默认配置下，Spark在`8080`端口提供集群管理的Web界面，可在Web界面中查看集群的工作状态。
+默認配置下，Spark在`8080`端口提供集羣管理的Web界面，可在Web界面中查看集羣的工作狀態。
 
-Web界面中的提供了以下几类信息：
+Web界面中的提供了以下幾類信息：
 
-- `Workers` 展示Worker node(工作节点)的状态。
-- `Running Applications` 展示正在执行的Spark应用的信息。
-- `Completed Applications` 展示已结束的Spark应用的信息。
+- `Workers` 展示Worker node(工作節點)的狀態。
+- `Running Applications` 展示正在執行的Spark應用的信息。
+- `Completed Applications` 展示已結束的Spark應用的信息。
 
-如下图所示：
+如下圖所示：
 
 ![Spark Web UI](../../images/spark_web_ui.png)
 
-对于正在执行的Spark应用，Spark还提供了`Application Detail UI`，用于查看应用的执行信息，
+對於正在執行的Spark應用，Spark還提供了`Application Detail UI`，用於查看應用的執行信息，
 如`Event Timeline`、`DAG Visualization`：
 
 ![Spark Application Detail UI](../../images/spark_application_detail_ui.png)
 
 ## History Server
-Application Detail UI中的信息仅在应用执行期间可查看，默认配置下，应用结束后仅能查看文本日志。
-若需要在应用结束后保留应用的执行信息，则需要启动`Spark History Server`。
+Application Detail UI中的信息僅在應用執行期間可查看，默認配置下，應用結束後僅能查看文本日誌。
+若需要在應用結束後保留應用的執行信息，則需要啓動`Spark History Server`。
 
-在HDFS中为Spark创建Spark Event Log路径:
+在HDFS中爲Spark創建Spark Event Log路徑:
 
 ```c
-$ hdfs dfs -mkdir [HDFS路径]
+$ hdfs dfs -mkdir [HDFS路徑]
 ```
 
-编辑`$SPARK_HOME/conf/spark-defaults.conf`文件，加入以下配置：
+編輯`$SPARK_HOME/conf/spark-defaults.conf`文件，加入以下配置：
 
 ```sh
-# 启用 Spark Event Log
+# 啓用 Spark Event Log
 spark.eventLog.enabled           true
-# 设置 Spark Event Log 的写入路径
-spark.eventLog.dir               [HDFS路径]
+# 設置 Spark Event Log 的寫入路徑
+spark.eventLog.dir               [HDFS路徑]
 
-# 配置 Spark History Server 的服务端口和实现类
+# 配置 Spark History Server 的服務端口和實現類
 spark.history.provider           org.apache.spark.deploy.history.FsHistoryProvider
 spark.history.ui.port            18081
-# 配置 Spark History Server 访问的日志路径，需要与 spark.eventLog.dir 路径相同
-spark.history.fs.logDirectory    [HDFS路径]
+# 配置 Spark History Server 訪問的日誌路徑，需要與 spark.eventLog.dir 路徑相同
+spark.history.fs.logDirectory    [HDFS路徑]
 ```
 
-之后启用Spark History Server服务：
+之後啓用Spark History Server服務：
 
 ```c
 $ start-history-server.sh
 
-// 关闭服务
+// 關閉服務
 $ stop-history-server.sh
 ```
 
 
 
-# Cluster Mode (集群模型)
-Spark应用作为独立的进程集在集群中运行，通过`SparkContext`对象在用户主程序(`dirver program`)中与集群组织、交互。
+# Cluster Mode (集羣模型)
+Spark應用作爲獨立的進程集在集羣中運行，通過`SparkContext`對象在用戶主程序(`dirver program`)中與集羣組織、交互。
 
-Spark应用在集群中运行时，SparkContext会连接到某种类型的`cluster managers`(集群管理器，如`Mesos`、`YARN`)，
-由集群管理器在多个应用间分配资源。一旦连接建立，Spark会在集群的节点中获取`executors`(执行器)，
-executors是执行计算操作和存储用户应用数据的进程。
-之后，SparkContext将用户的应用代码(在`JAR`中或Python源码文件)发送到executors。
-最终，SparkContext发送`tasks`(任务)到executors中运行。
+Spark應用在集羣中運行時，SparkContext會連接到某種類型的`cluster managers`(集羣管理器，如`Mesos`、`YARN`)，
+由集羣管理器在多個應用間分配資源。一旦連接建立，Spark會在集羣的節點中獲取`executors`(執行器)，
+executors是執行計算操作和存儲用戶應用數據的進程。
+之後，SparkContext將用戶的應用代碼(在`JAR`中或Python源碼文件)發送到executors。
+最終，SparkContext發送`tasks`(任務)到executors中運行。
 
-集群结构如下图所示：
+集羣結構如下圖所示：
 
 ![Spark Cluster Overview](../../images/spark_cluster_overview.png)
 
-关于集群架构的一些注意事项：
+關於集羣架構的一些注意事項：
 
-1. 每个用户应用拥有属于自己的执行器进程(executor processes)，这些进程保持在整个应用期间，并在多个线程中执行tasks。
-这有利于隔离不同的用户应用，包括调度端(每个driver调度自己的tasks)和执行端(来自不同应用的tasks子不同的JVM中执行)。
-1. Spark并不知道底层集的群管理器，仅需要能获取执行器进程并能相互通信。
-相对而言，将Spark运行在支持其它应用的集群管理器上更加简单(如`Mesos`、`YARN`)。
-1. dirver program必须在整个生命周期内监听并接受来自executors的连接。因此，driver program必须能从work nodes寻址。
-1. 由于driver在集群中调度tasks，因此需要在网络位置上邻近worker nodes，最好在相同的局域网中。
-如果需要向远程集群发送请求，最好为driver开启RPC，在与worker nodes邻近的网络位置启动driver，
-使用RPC提交操作，而不是在与worker nodes较远的网络位置上直接执行driver。
+1. 每個用戶應用擁有屬於自己的執行器進程(executor processes)，這些進程保持在整個應用期間，並在多個線程中執行tasks。
+這有利於隔離不同的用戶應用，包括調度端(每個driver調度自己的tasks)和執行端(來自不同應用的tasks子不同的JVM中執行)。
+1. Spark並不知道底層集的羣管理器，僅需要能獲取執行器進程並能相互通信。
+相對而言，將Spark運行在支持其它應用的集羣管理器上更加簡單(如`Mesos`、`YARN`)。
+1. dirver program必須在整個生命週期內監聽並接受來自executors的連接。因此，driver program必須能從work nodes尋址。
+1. 由於driver在集羣中調度tasks，因此需要在網絡位置上鄰近worker nodes，最好在相同的局域網中。
+如果需要向遠程集羣發送請求，最好爲driver開啓RPC，在與worker nodes鄰近的網絡位置啓動driver，
+使用RPC提交操作，而不是在與worker nodes較遠的網絡位置上直接執行driver。
 
-## 集群管理器类型
-Spark当前支持以下集群管理器：
+## 集羣管理器類型
+Spark當前支持以下集羣管理器：
 
-- `Standalone` Spark内置的简单集群管理器
-- `Apache Mesos` 通用的资源管理器，也可用于执行Hadoop MapReduce和服务应用
-- `Hadoop YARN` Hadoop2的资源管理器
-- `Kubernetes` 用于自动化部署、容器应用管理的开源系统
+- `Standalone` Spark內置的簡單集羣管理器
+- `Apache Mesos` 通用的資源管理器，也可用於執行Hadoop MapReduce和服務應用
+- `Hadoop YARN` Hadoop2的資源管理器
+- `Kubernetes` 用於自動化部署、容器應用管理的開源系統
 
-## 术语表
-以下列表总结了在集群概念中提及的术语：
+## 術語表
+以下列表總結了在集羣概念中提及的術語：
 
-| 术语 | 說明 |
+| 術語 | 說明 |
 | :- | :- |
-| Application | Spark中的用户应用程序，由集群中的driver program和executors组成。 |
-| Application jar | 包含用户应用内容的JAR包。JAR包中应打包用户代码所需要的第三方依赖库，但不应该包含Hadoop或Spark库，这些库会在应用运行时添加。 |
-| Driver program | 执行用户应用中的main()函数并创建SparkContext的进程。 |
-| Cluster manager | 在集群中获取资源的外部服务(如Mesos、YARN)。 |
-| Deploy mode | 区分driver进程的执行位置。`cluster`模式下，在集群内部启动driver；`client`模式下，在集群外部启动driver。 |
-| Worker node | 可以在集群中执行用户应用代码的节点(部署了Spark服务的IP)。 |
-| Executor | 在woker node中启动的用户应用的进程，执行tasks并在内存/磁盘中保存数据。每个用户应用都拥有属于自身的executor。 |
-| Task | 将要发往executor的工作单元(a unit of work)。 |
-| Job | 由多个Spark操作(如`save()`、`collect()`等)的task组成的并行计算。 |
-| Stage | 每个job被拆分成较小的、具有依赖关系的task集合，这些任务集被称为stage。 |
+| Application | Spark中的用戶應用程序，由集羣中的driver program和executors組成。 |
+| Application jar | 包含用戶應用內容的JAR包。JAR包中應打包用戶代碼所需要的第三方依賴庫，但不應該包含Hadoop或Spark庫，這些庫會在應用運行時添加。 |
+| Driver program | 執行用戶應用中的main()函數並創建SparkContext的進程。 |
+| Cluster manager | 在集羣中獲取資源的外部服務(如Mesos、YARN)。 |
+| Deploy mode | 區分driver進程的執行位置。`cluster`模式下，在集羣內部啓動driver；`client`模式下，在集羣外部啓動driver。 |
+| Worker node | 可以在集羣中執行用戶應用代碼的節點(部署了Spark服務的IP)。 |
+| Executor | 在woker node中啓動的用戶應用的進程，執行tasks並在內存/磁盤中保存數據。每個用戶應用都擁有屬於自身的executor。 |
+| Task | 將要發往executor的工作單元(a unit of work)。 |
+| Job | 由多個Spark操作(如`save()`、`collect()`等)的task組成的並行計算。 |
+| Stage | 每個job被拆分成較小的、具有依賴關係的task集合，這些任務集被稱爲stage。 |
 
 
 
 # Spark Submit
-使用`spark-submit`指令提交Spark应用，脚本位于`$SPARK_HOME/bin`路径下。
-该工具管理Spark应用及其依赖的CLASSPATH设置，并且支持不同的集群管理器和部署模式。
+使用`spark-submit`指令提交Spark應用，腳本位於`$SPARK_HOME/bin`路徑下。
+該工具管理Spark應用及其依賴的CLASSPATH設置，並且支持不同的集羣管理器和部署模式。
 
-基本指令语法：
+基本指令語法：
 
 ```c
-$ spark-submit [spark-submit指令参数...] [用户Spark应用(*.jar)] [用户Spark应用参数...]
+$ spark-submit [spark-submit指令參數...] [用戶Spark應用(*.jar)] [用戶Spark應用參數...]
 ```
 
-用户参数应放在整条指令的末尾，否则会被做为spark-submit指令参数解析，同时用户应用参数需要避免与指令参数名称相冲突。
+用戶參數應放在整條指令的末尾，否則會被做爲spark-submit指令參數解析，同時用戶應用參數需要避免與指令參數名稱相沖突。
 
-指令参数：(取自Spark 2.3.0)
+指令參數：(取自Spark 2.3.0)
 
-| 参数 | 功能 |
+| 參數 | 功能 |
 | :- | :- |
-| --master MASTER_URL | 设置Spark集群Master节点的URL(如`spark://host:port`、`mesos://host:port`、`yarn`)，默认值为`locale[*]` |
-| --deploy-mode DEPLOY_MODE | 设置启动driver在本地启动(`client`)，或在集群的某个工作节点中启动(`cluster`)，默认值为`client` |
-| --class CLASS_NAME | 设置driver的主类 |
-| --jars JARS | 以逗号分隔的方式列出所有使用的JAR包，包括driver端和executor的CLASSPATH |
-| --conf PROP=VALUE | 设置任意的Spark配置项 |
-| --properties-file FILE | 指定使用的Spark配置文件，未显式指定则使用`$SPARK_HOME/conf/spark-defaults.conf`文件中提供的配置 |
-| --driver-java-options | 设置driver端的额外Java参数 |
-| --driver-memory MEM | 设置driver分配的内存(如`1000M`、`2G`)，默认值为`1G` |
-| --executor-memory MEM | 设置每个executor分配的内存，默认值为`1G` |
-| --total-executor-cores NUM | 设置executor使用的CPU总核数，默认使用所有可用的CPU核心(该参数仅Standalone/Mesos集群管理器下可用) |
-| --driver-class-path [路径1]:[路径2]:... | 设置driver依赖的库路径 |
-| --executor-cores NUM | 设置每个executor使用的CPU核数。YARN模式下，默认值为`1`；Standalone模式下，默认使用所有可用的CPU核心 |
+| --master MASTER_URL | 設置Spark集羣Master節點的URL(如`spark://host:port`、`mesos://host:port`、`yarn`)，默認值爲`locale[*]` |
+| --deploy-mode DEPLOY_MODE | 設置啓動driver在本地啓動(`client`)，或在集羣的某個工作節點中啓動(`cluster`)，默認值爲`client` |
+| --class CLASS_NAME | 設置driver的主類 |
+| --jars JARS | 以逗號分隔的方式列出所有使用的JAR包，包括driver端和executor的CLASSPATH |
+| --conf PROP=VALUE | 設置任意的Spark配置項 |
+| --properties-file FILE | 指定使用的Spark配置文件，未顯式指定則使用`$SPARK_HOME/conf/spark-defaults.conf`文件中提供的配置 |
+| --driver-java-options | 設置driver端的額外Java參數 |
+| --driver-memory MEM | 設置driver分配的內存(如`1000M`、`2G`)，默認值爲`1G` |
+| --executor-memory MEM | 設置每個executor分配的內存，默認值爲`1G` |
+| --total-executor-cores NUM | 設置executor使用的CPU總核數，默認使用所有可用的CPU核心(該參數僅Standalone/Mesos集羣管理器下可用) |
+| --driver-class-path [路徑1]:[路徑2]:... | 設置driver依賴的庫路徑 |
+| --executor-cores NUM | 設置每個executor使用的CPU核數。YARN模式下，默認值爲`1`；Standalone模式下，默認使用所有可用的CPU核心 |
 
 TIPS：
 
-- 使用Standalone模式时，默认提交会使用所有的可用CPU核心，这会导致一个任务在运行期间占用所有的CPU资源，
-在该任务运行期间提交的其它任务都将处于等待状态。
-- 使用YARN、MESOS等第三方资源管理框架时，Spark UI不会显示执行的任务，需要在对应的资源管理器中查看任务的执行状态。
-- 在Driver端代码中创建对象会被闭包捕获，序列化后发送到Executor端。对于一些与系统状态相关的对象(如数据库连接对象)，
-序列化仅保证了对象的数据状态，系统状态并不能复制，因而在Executor端中使用Driver端创建的系统状态相关对象时会出错。
-- 命令行参数与应用内配置冲突时，优先级是不确定的；如应用内配置了主机地址，命令行参数也设置主机地址，则根据使用参数的不同，
-可能使用应用内设置的主机地址(命令行单独设定master会被应用内覆盖)，也可能使用命令行设定的主机地址(命令行指定集群模式时，
-同时设定master参数会覆盖应用内的配置)。
+- 使用Standalone模式時，默認提交會使用所有的可用CPU核心，這會導致一個任務在運行期間佔用所有的CPU資源，
+在該任務運行期間提交的其它任務都將處於等待狀態。
+- 使用YARN、MESOS等第三方資源管理框架時，Spark UI不會顯示執行的任務，需要在對應的資源管理器中查看任務的執行狀態。
+- 在Driver端代碼中創建對象會被閉包捕獲，序列化後發送到Executor端。對於一些與系統狀態相關的對象(如數據庫連接對象)，
+序列化僅保證了對象的數據狀態，系統狀態並不能複製，因而在Executor端中使用Driver端創建的系統狀態相關對象時會出錯。
+- 命令行參數與應用內配置衝突時，優先級是不確定的；如應用內配置了主機地址，命令行參數也設置主機地址，則根據使用參數的不同，
+可能使用應用內設置的主機地址(命令行單獨設定master會被應用內覆蓋)，也可能使用命令行設定的主機地址(命令行指定集羣模式時，
+同時設定master參數會覆蓋應用內的配置)。
+- DriverMemory會影響Client端的可用內存大小，如果該值分配過小，
+使用廣播變量等機制在Client端交互了大量的數據會造成Client端GC異常。
 
 
 
-# RDD (弹性分布式数据集)
-`RDD`(`Resilient Distributed Datasets`，弹性分布式数据集)是高容错性(fault-tolerant)、可并行操作的的数据集合。
-RDD是Spark中对数据的抽象，是Spark中的核心概念。
+# RDD (彈性分佈式數據集)
+`RDD`(`Resilient Distributed Datasets`，彈性分佈式數據集)是高容錯性(fault-tolerant)、可並行操作的的數據集合。
+RDD是Spark中對數據的抽象，是Spark中的核心概念。
 
-## 创建 RDD
-Spark提供了两种创建RDD的方式：
+## 創建 RDD
+Spark提供了兩種創建RDD的方式：
 
-1. 并行化程序中已存在的普通数据集：
+1. 並行化程序中已存在的普通數據集：
 
-	调用`SparkContext.parallelize()`方法将已存在的普通数据集(`Seq[T]`)转换为`RDD[T]`。<br>
-	方法定义如下(源码取自`Spark 2.3.0`)：
+	調用`SparkContext.parallelize()`方法將已存在的普通數據集(`Seq[T]`)轉換爲`RDD[T]`。<br>
+	方法定義如下(源碼取自`Spark 2.3.0`)：
 
 	```scala
 	class SparkContext(config: SparkConf) extends Logging {
@@ -300,17 +302,17 @@ Spark提供了两种创建RDD的方式：
 	使用示例：
 
 	```scala
-	scala> val normalData = 1 to 10 //构建普通数据集
+	scala> val normalData = 1 to 10 //構建普通數據集
 	normalData: scala.collection.immutable.Range.Inclusive = Range(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
-	scala> val rddData = sc.parallelize(normalData) //并行化数据集，生成RDD
+	scala> val rddData = sc.parallelize(normalData) //並行化數據集，生成RDD
 	rddData: org.apache.spark.rdd.RDD[Int] = ParallelCollectionRDD[0] at parallelize at <console>:26
 	```
 
-1. 引用来自外部存储系统的数据集，如本地文件系统、HDFS、HBase、AmazonS3等：
+1. 引用來自外部存儲系統的數據集，如本地文件系統、HDFS、HBase、AmazonS3等：
 
-	以文本文件为例，调用`SparkContext.textFile()`方法使用文本文件创建RDD。
-	该方法传入文件的URI，按行读取文件构建文本数据集。<br>
+	以文本文件爲例，調用`SparkContext.textFile()`方法使用文本文件創建RDD。
+	該方法傳入文件的URI，按行讀取文件構建文本數據集。<br>
 	使用示例：
 
 	```scala
@@ -319,27 +321,27 @@ Spark提供了两种创建RDD的方式：
 	```
 
 ## RDD 操作
-RDD支持两类操作：
+RDD支持兩類操作：
 
 1. `Transformation`
 
-	通过已有的RDD创建出新的RDD，常见的transformation操作有`map()`、`filter()`、`flatMap()`等。
+	通過已有的RDD創建出新的RDD，常見的transformation操作有`map()`、`filter()`、`flatMap()`等。
 
 1. `Action`
 
-	对RDD进行计算并返回计算结果，常见的action操作有`reduce()`、`collect()`、`count()`、`first()`等。
+	對RDD進行計算並返回計算結果，常見的action操作有`reduce()`、`collect()`、`count()`、`first()`等。
 
-所有的transformation操作是延迟执行(lazy)的，transformation操作不会立即计算结果，而仅仅是记录要执行的操作。
-transformation操作只在action操作要求返回结果时进行计算。Spark这样的设计能够保证计算更有效率，
-例如，当一个数据集先后进行了`map()`和`reduce()`操作，Spark服务端便只会返回reduce之后的结果，而不是更大的map之后的数据集。
+所有的transformation操作是延遲執行(lazy)的，transformation操作不會立即計算結果，而僅僅是記錄要執行的操作。
+transformation操作只在action操作要求返回結果時進行計算。Spark這樣的設計能夠保證計算更有效率，
+例如，當一個數據集先後進行了`map()`和`reduce()`操作，Spark服務端便只會返回reduce之後的結果，而不是更大的map之後的數據集。
 
-默认情况下，每个执行transformation操作之后的RDD会每次执行action操作时重新计算。
-可以使用`persist()/cache()`方法将RDD在内存中持久化，Spark将在集群中保留这些数据，在下次查询时访问会更加快速。
-Spark同样支持将RDD持久化到磁盘中，或是在多个节点之间复制。
+默認情況下，每個執行transformation操作之後的RDD會每次執行action操作時重新計算。
+可以使用`persist()/cache()`方法將RDD在內存中持久化，Spark將在集羣中保留這些數據，在下次查詢時訪問會更加快速。
+Spark同樣支持將RDD持久化到磁盤中，或是在多個節點之間複製。
 
-简单的RDD操作示例：
+簡單的RDD操作示例：
 
-给定两个数据集：数据集1(1 ~ 10)、数据集2(10 ~ 20)，筛选出数据集1中的偶数，筛选出数据集2中的奇数，并将两个数据集拼接。
+給定兩個數據集：數據集1(1 ~ 10)、數據集2(10 ~ 20)，篩選出數據集1中的偶數，篩選出數據集2中的奇數，並將兩個數據集拼接。
 
 ```scala
 scala> val dataSet1 = sc.parallelize(Seq(1 to 10: _*))
@@ -370,40 +372,40 @@ scala> result foreach println
 13
 ```
 
-## RDD 分区
-RDD在创建完毕后可以被并行地操作。
-RDD中的一个重要的参数是分区数量(numbers of partions)，分区数量决定了数据集将会被切分成多少个部分。
-Spark执行task时会在集群中的每一个分区进行。
+## RDD 分區
+RDD在創建完畢後可以被並行地操作。
+RDD中的一個重要的參數是分區數量(numbers of partions)，分區數量決定了數據集將會被切分成多少個部分。
+Spark執行task時會在集羣中的每一個分區進行。
 
-典型的分配方式是根据CPU数目每个CPU分配2～4个分区(CPU双核/四核)。
-通常Spark会根据集群配置自动设置分区大小(defaultParallelism)，手动创建RDD时可通过设置`SparkContext.parallelize()`方法的第二参数来显式地设定分区的数量。
+典型的分配方式是根據CPU數目每個CPU分配2～4個分區(CPU雙核/四核)。
+通常Spark會根據集羣配置自動設置分區大小(defaultParallelism)，手動創建RDD時可通過設置`SparkContext.parallelize()`方法的第二參數來顯式地設定分區的數量。
 
-## RDD 依赖
-每个RDD操作都会依赖之前的RDD，根据对RDD分区的依赖关系，依赖可分为两类：
+## RDD 依賴
+每個RDD操作都會依賴之前的RDD，根據對RDD分區的依賴關係，依賴可分爲兩類：
 
-- **窄依赖**(Narrow Dependency)，父RDD中的一个分区仅被子RDD的一个分区使用(O(1)，常数级)
-- **宽依赖**(Wide/Shuffle Dependency)，父RDD中的一个分区可能会被子RDD的多个分区使用(O(n)，随分区大小线性增长)
+- **窄依賴**(Narrow Dependency)，父RDD中的一個分區僅被子RDD的一個分區使用(O(1)，常數級)
+- **寬依賴**(Wide/Shuffle Dependency)，父RDD中的一個分區可能會被子RDD的多個分區使用(O(n)，隨分區大小線性增長)
 
-map()、filter()等窄依赖操作中分区之间平行关系，互不影响。
-每个旧分区可独立地执行操作，因而不必要求RDD中所有分区处于相同的操作阶段，旧分区执行完一个窄依赖操作后可立即执行下一个窄依赖操作。
-窄依赖操作不会造成跨分区的数据重新排布，Spark将多个窄依赖操作划分到**相同**的stage中。
+map()、filter()等窄依賴操作中分區之間平行關係，互不影響。
+每個舊分區可獨立地執行操作，因而不必要求RDD中所有分區處於相同的操作階段，舊分區執行完一個窄依賴操作後可立即執行下一個窄依賴操作。
+窄依賴操作不會造成跨分區的數據重新排布，Spark將多個窄依賴操作劃分到**相同**的stage中。
 
-groupByKey()、reduceByKey()等宽依赖操作中RDD的每个旧分区会被多次使用，
-每个新分区依赖所有的父分区，因此宽依赖操作需要等待所有父分区之前的操作执行完毕。
-宽依赖操作会引起跨分区的数据复制、再分布(shuffle操作)，Spark将宽依赖操作划分到**新**的stage中。
+groupByKey()、reduceByKey()等寬依賴操作中RDD的每個舊分區會被多次使用，
+每個新分區依賴所有的父分區，因此寬依賴操作需要等待所有父分區之前的操作執行完畢。
+寬依賴操作會引起跨分區的數據複製、再分佈(shuffle操作)，Spark將寬依賴操作劃分到**新**的stage中。
 
-如下图所示：
+如下圖所示：
 
 ![Spark RDD Dependency](../../images/spark_rdd_dependency.png)
 
 ## Shuffle 操作
-Spark中的宽依赖操作会触发被称为**shuffle**的事件。
-Shuffle是Spark中将不同分组、横跨多个分区的数据再分布(re-distributing)的一套机制，
-通常会包含跨excutor、跨机器的复制数据。这使得shuffle成为一种复杂(complex)、高开销(costly)的操作。
+Spark中的寬依賴操作會觸發被稱爲**shuffle**的事件。
+Shuffle是Spark中將不同分組、橫跨多個分區的數據再分佈(re-distributing)的一套機制，
+通常會包含跨excutor、跨機器的複製數據。這使得shuffle成爲一種複雜(complex)、高開銷(costly)的操作。
 
-### 背景知识
-以`reduceByKey()`操作为例，该操作对类型为`RDD[(Key, Value)]`的RDD执行，
-将相同Key的所有`(Key, Value)`元组通过执行传入的reduce函数聚合到一个`(Key, NewValue)`的新元组中，构成新的RDD。
+### 背景知識
+以`reduceByKey()`操作爲例，該操作對類型爲`RDD[(Key, Value)]`的RDD執行，
+將相同Key的所有`(Key, Value)`元組通過執行傳入的reduce函數聚合到一個`(Key, NewValue)`的新元組中，構成新的RDD。
 如下所示：
 
 ```
@@ -418,64 +420,64 @@ Shuffle是Spark中将不同分组、横跨多个分区的数据再分布(re-dist
   ...
 ```
 
-一个Key关联的所有`(Key, Value)`元组未必在相同的分区、甚至相同的机器，但计算结果时需要在相同的位置。
+一個Key關聯的所有`(Key, Value)`元組未必在相同的分區、甚至相同的機器，但計算結果時需要在相同的位置。
 
-在Spark中，数据通常不会跨分区分布到某个特定操作所需要的位置。在计算期间，单个任务将在单个分区中执行。
-事实上，为执行一个reduceByKey()的reduce task，Spark需要执行所有的操作，
-必须从所有分区读取所有的Key和Value，并将多个分区中的Value组合，从而为每个Key计算最终结果。
-这个重新分配数据的过程即被称为shuffle。
+在Spark中，數據通常不會跨分區分佈到某個特定操作所需要的位置。在計算期間，單個任務將在單個分區中執行。
+事實上，爲執行一個reduceByKey()的reduce task，Spark需要執行所有的操作，
+必須從所有分區讀取所有的Key和Value，並將多個分區中的Value組合，從而爲每個Key計算最終結果。
+這個重新分配數據的過程即被稱爲shuffle。
 
-新执行shuffle操作之后，元素在每个分区是确定的(deterministic)，分区的排序也是确定的，但元素的排序不是。
-如果需要将元素排序，可以使用下列操作：
+新執行shuffle操作之後，元素在每個分區是確定的(deterministic)，分區的排序也是確定的，但元素的排序不是。
+如果需要將元素排序，可以使用下列操作：
 
-- `mapPartitions()` 使用`sorted()`等方法排序每一个分区
-- `repartitionAndSortWithinPartitions()` 在重分区同时高效地排序分区
-- `sortBy()` 生成一个全局已排序的RDD
+- `mapPartitions()` 使用`sorted()`等方法排序每一個分區
+- `repartitionAndSortWithinPartitions()` 在重分區同時高效地排序分區
+- `sortBy()` 生成一個全局已排序的RDD
 
-会引起shuffle的操作包括：
+會引起shuffle的操作包括：
 
 - `repartition`操作，例如`repartition()`、`coalesce()`方法
 - `byKey`操作，例如`groupByKey()`、`reduceByKey()`方法
 - `join`操作，例如`join()`、`cogroup()`方法
 
-### 性能影响
-Shuffle是高开销(expensive)的操作，因为它涉及磁盘IO、网络IO、数据序列化。
-为了shuffle操作组织数据，Spark会生成一系列tasks：
+### 性能影響
+Shuffle是高開銷(expensive)的操作，因爲它涉及磁盤IO、網絡IO、數據序列化。
+爲了shuffle操作組織數據，Spark會生成一系列tasks：
 
-- `map tasks` 组织数据(organize the data)
-- `reduce tasks` 聚合数据(aggregate the data)
+- `map tasks` 組織數據(organize the data)
+- `reduce tasks` 聚合數據(aggregate the data)
 
-这样的命名来自`Hadoop MapReudce`，与Spark中的`map()`、`reduce()`方法不直接相关。
+這樣的命名來自`Hadoop MapReudce`，與Spark中的`map()`、`reduce()`方法不直接相關。
 
 
 
-# Job Scheduling (作业调度)
-Spark拥有一些在多个计算间调度资源的机制。
-首先，如前文描述的[**集群模型**](#cluster-mode-集群模型)，
-每个Spark应用(SparkContext的实例)运行在执行器进程之外。Spark运行的集群管理器提供了应用间的调度机制。
-其次，在每个Spark应用内部，多个Job(作业，由Action算子产生)在被提交到不同线程时可以并发执行。
-Spark提供了公平调度器(Fair Scheduler)在每个SparkContext内部调度资源。
+# Job Scheduling (作業調度)
+Spark擁有一些在多個計算間調度資源的機制。
+首先，如前文描述的[**集羣模型**](#cluster-mode-集羣模型)，
+每個Spark應用(SparkContext的實例)運行在執行器進程之外。Spark運行的集羣管理器提供了應用間的調度機制。
+其次，在每個Spark應用內部，多個Job(作業，由Action算子產生)在被提交到不同線程時可以併發執行。
+Spark提供了公平調度器(Fair Scheduler)在每個SparkContext內部調度資源。
 
-## Scheduling Within an Application (应用内调度)
-默认配置下，Spark调度器以`FIFO`(first in first out，先进先出)模式执行作业。
-每个作业会被划分成多个stage，首个作业会优先获取到所有可用资源，之后才轮到第二个作业。
-若首个作业不需要整个集群，则后续的作业可以立即开始执行，但若作业队列较大，后续的作业会有显著的延迟。
+## Scheduling Within an Application (應用內調度)
+默認配置下，Spark調度器以`FIFO`(first in first out，先進先出)模式執行作業。
+每個作業會被劃分成多個stage，首個作業會優先獲取到所有可用資源，之後才輪到第二個作業。
+若首個作業不需要整個集羣，則後續的作業可以立即開始執行，但若作業隊列較大，後續的作業會有顯著的延遲。
 
-从`Spark 0.8`开始，可以将作业间配置为公平调度。在公平调度模式下，Spark将不同作业下的任务以循环的方式分配，
-因而所有的作业能够获得大致相等地共享集群资源。这意味着小型作业在大型作业执行期间提交依然能够立即开始获取资源，
-而不必等待大型作业完成。公平调度模式最适用于多用户配置。
+從`Spark 0.8`開始，可以將作業間配置爲公平調度。在公平調度模式下，Spark將不同作業下的任務以循環的方式分配，
+因而所有的作業能夠獲得大致相等地共享集羣資源。這意味着小型作業在大型作業執行期間提交依然能夠立即開始獲取資源，
+而不必等待大型作業完成。公平調度模式最適用於多用戶配置。
 
 應用內調度的詳細內容可查看[**官方文檔**](https://spark.apache.org/docs/latest/job-scheduling.html#scheduling-within-an-application)。
 
-开启公平调度，仅需要在SparkContext中设置`spark.scheduler.mode`属性为`FAIR`：
+開啓公平調度，僅需要在SparkContext中設置`spark.scheduler.mode`屬性爲`FAIR`：
 
 ```scala
 val sparkContext = ...
 sparkContext.set("spark.scheduler.mode", "FAIR")
 ```
 
-### Fair Scheduler Pools (公平调度池)
-公平调度模式下，支持将作业分组到不同pools(调度池)中，并为每个pool设置不同的调度选项(如weight，权重)。
+### Fair Scheduler Pools (公平調度池)
+公平調度模式下，支持將作業分組到不同pools(調度池)中，併爲每個pool設置不同的調度選項(如weight，權重)。
 此模式可用於為某些更重要的作業創建「高優先級」的調度池，
 例如，將作業根據用戶分組，無視並行作業數目給予用戶相等的共享資源，而非給予作業本身相等的共享資源。
 公平調度池模型近似於[`Hadoop Fair Scheduler(Hadoop公平調度器)`](http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/FairScheduler.html)。
@@ -499,10 +501,10 @@ sparkContext.setLocalProperty("spark.scheduler.pool", null)
 ```
 
 ### 調度池默認行為
-默認配置下，每個調度池會從集群中獲得等價的共享資源(並且等價地共享給在默認調度池中的每個作業)，
+默認配置下，每個調度池會從集羣中獲得等價的共享資源(並且等價地共享給在默認調度池中的每個作業)，
 但是在每個調度池內部，作業以FIFO次序執行。
 
-例如，為每個用戶創建調度池意味著每個用戶將會從集群中獲得等量的資源，並且每個用戶的查詢會按照次序進行，
+例如，為每個用戶創建調度池意味著每個用戶將會從集羣中獲得等量的資源，並且每個用戶的查詢會按照次序進行，
 而不是後進行查詢的用戶從先執行查詢的用戶中獲取資源。
 
 ### 配置調度池屬性
@@ -514,14 +516,14 @@ sparkContext.setLocalProperty("spark.scheduler.pool", null)
 
 - `weight` (權重)
 
-	用於設置每個調度池從集群中獲取到的資源的相對值。默認所有調度池的權重均為`1`。
+	用於設置每個調度池從集羣中獲取到的資源的相對值。默認所有調度池的權重均為`1`。
 	例如，給特定的調度池權重設置為2，則該調度池會獲得兩倍相當於其它調度池的資源。
 
 - `minShare` (最小CPU核心數)
 
 	除了weight(總體權重)，每個調度池還可以配置給予的最小資源量(CPU核心數目)。
 	公平調度器總是先嘗試獲取所有調度池的最小資源配置，之後再根據權重分配額外的資源。
-	minShare參數是可以快讀確保特定調度池能獲取確定數目的資源而不給集群的其它部分高優先級。
+	minShare參數是可以快讀確保特定調度池能獲取確定數目的資源而不給集羣的其它部分高優先級。
 	默認該參數的值為`0`。
 
 調度池配置可由XML文件進行設置，類似`conf/fairscheduler.xml.template`，
@@ -558,16 +560,16 @@ sparkConf.set("spark.scheduler.allocation.file", "/path/to/file")
 SET spark.sql.thriftserver.scheduler.pool=accounting;
 ```
 
-## 作业调度源码分析
-Spark在提交作业时会为RDD相关操作生成DAG(Directed Acyclic Graph，有向无环图)。
+## 作業調度源碼分析
+Spark在提交作業時會爲RDD相關操作生成DAG(Directed Acyclic Graph，有向無環圖)。
 
-`DAGScheduler`类是Spark中作业调度的核心。
-在SparkContext初始化过程中会创建DAGScheduler、TaskScheduler、SchedulerBackend实例，用于作业调度、任务调度。
+`DAGScheduler`類是Spark中作業調度的核心。
+在SparkContext初始化過程中會創建DAGScheduler、TaskScheduler、SchedulerBackend實例，用於作業調度、任務調度。
 
 ### Job Sumbit
-在driver program中，每次对RDD调用action操作的相关方法(如count()、reduce()、collect()等)，都会提交Job，
-执行SparkContext的`runJob()`方法，通过DAGScheduler执行`runJob()`、`submitJob()`，
-最终调用EventLoop(实现类DAGSchedulerEventProcessLoop)中post()方法发送`JobSubmitted()`消息通知任务提交完成。
+在driver program中，每次對RDD調用action操作的相關方法(如count()、reduce()、collect()等)，都會提交Job，
+執行SparkContext的`runJob()`方法，通過DAGScheduler執行`runJob()`、`submitJob()`，
+最終調用EventLoop(實現類DAGSchedulerEventProcessLoop)中post()方法發送`JobSubmitted()`消息通知任務提交完成。
 
 ```
 RDD
@@ -586,9 +588,9 @@ DAGScheduler.submitJob()
 DAGSchedulerEventProcessLoop.post()
 ```
 
-相关源码分析如下(源码取自`Spark 2.3.0`)：
+相關源碼分析如下(源碼取自`Spark 2.3.0`)：
 
-- RDD中的action操作会调用SparkContext的`runJob()`方法提交Job(以count()、collect()、reduce()为例)：
+- RDD中的action操作會調用SparkContext的`runJob()`方法提交Job(以count()、collect()、reduce()爲例)：
 
 	```scala
 	abstract class RDD[T: ClassTag](
@@ -667,8 +669,8 @@ DAGSchedulerEventProcessLoop.post()
 	}
 	```
 
-- SparkConext的`runJob()`方法会调用自身关联的DAGScheduler中的`runJob()`方法
-(SparkContext中的runJob()方法有多个重载，最终都会转发到调用DAGScheduler的重载)：
+- SparkConext的`runJob()`方法會調用自身關聯的DAGScheduler中的`runJob()`方法
+(SparkContext中的runJob()方法有多個重載，最終都會轉發到調用DAGScheduler的重載)：
 
 	```scala
 	class SparkContext(config: SparkConf) extends Logging {
@@ -724,7 +726,7 @@ DAGSchedulerEventProcessLoop.post()
 	}
 	```
 
-- DAGScheduler中的`runJob()`会调用自身的`submitJob()`方法提交Job，在submitJob()方法中将Job最终post到EventLoop中：
+- DAGScheduler中的`runJob()`會調用自身的`submitJob()`方法提交Job，在submitJob()方法中將Job最終post到EventLoop中：
 
 	```scala
 	private[spark]
@@ -830,8 +832,8 @@ DAGSchedulerEventProcessLoop.post()
 	```
 
 ### Stage Submit
-Job提交完成后，DAGScheduler的EventLoop中接收到Job提交完成的消息，开始根据Job中的finalRDD创建finalStage，
-之后反向根据RDD的依赖关系类型依次划分、创建stage。
+Job提交完成後，DAGScheduler的EventLoop中接收到Job提交完成的消息，開始根據Job中的finalRDD創建finalStage，
+之後反向根據RDD的依賴關係類型依次劃分、創建stage。
 
 ```
 DAGSchedulerEventProcessLoop
@@ -846,16 +848,16 @@ DAGScheduler.createResultStage()
 \|/
 DAGScheduler.submitStage()
  |
- | 递归调用submitStage()方法
+ | 遞歸調用submitStage()方法
 \|/
 DAGScheduler.getMissingParentStages()
 DAGScheduler.submitStage()
 ```
 
-相关源码分析如下(源码取自`Spark 2.3.0`)：
+相關源碼分析如下(源碼取自`Spark 2.3.0`)：
 
-- Job提交完成后，JobDAGSchedulerEventProcessLoop接收到`JobSubmitted()`消息，
-触发DAGScheduler的`handleJobSubmitted()`方法：
+- Job提交完成後，JobDAGSchedulerEventProcessLoop接收到`JobSubmitted()`消息，
+觸發DAGScheduler的`handleJobSubmitted()`方法：
 
 	```scala
 	private[scheduler] class DAGSchedulerEventProcessLoop(dagScheduler: DAGScheduler)
@@ -886,8 +888,8 @@ DAGScheduler.submitStage()
 	}
 	```
 
-- 在handleJobSubmitted()方法中，先调用`createResultStage()`根据finalRDD创建finalStage，
-之后调用`submitStage()`提交finalStage：
+- 在handleJobSubmitted()方法中，先調用`createResultStage()`根據finalRDD創建finalStage，
+之後調用`submitStage()`提交finalStage：
 
 	```scala
 	private[spark]
@@ -946,8 +948,8 @@ DAGScheduler.submitStage()
 	}
 	```
 
-- 在submitStage()方法中，调用了`getMissingParentStages()`方法根据finalStage计算出缺失的父stage，
-循环遍历提交这些stage，并递归调用submitStage()，直到没有缺失的父stage：
+- 在submitStage()方法中，調用了`getMissingParentStages()`方法根據finalStage計算出缺失的父stage，
+循環遍歷提交這些stage，並遞歸調用submitStage()，直到沒有缺失的父stage：
 
 	```scala
 	private[spark]
@@ -991,10 +993,10 @@ DAGScheduler.submitStage()
 	}
 	```
 
-	getMissingParentStages()方法中描述了stage的**划分逻辑**，即根据RDD的依赖类型进行划分：
+	getMissingParentStages()方法中描述了stage的**劃分邏輯**，即根據RDD的依賴類型進行劃分：
 
-	- `ShuffleDependency` 该RDD需要shuffle操作才能生成，划分新stage
-	- `NarrowDependency` 普通依赖，加入当前stage
+	- `ShuffleDependency` 該RDD需要shuffle操作才能生成，劃分新stage
+	- `NarrowDependency` 普通依賴，加入當前stage
 
 	如下所示：
 
@@ -1050,7 +1052,7 @@ DAGScheduler.submitStage()
 	```
 
 ### Task Submit
-提交stage会根据分区数量计算需要提交的task，根据stage类型生成对应的task，最终提交task到executor。
+提交stage會根據分區數量計算需要提交的task，根據stage類型生成對應的task，最終提交task到executor。
 
 ```
 DAGScheduler.submitStage()
@@ -1068,7 +1070,7 @@ TaskScheduler.submitTasks()
 SchedulableBuilder.addTaskSetManager()
 SchedulerBackend.reviveOffers()
  |
- | SchedulerBackend存在多个实现，以CoarseGrainedSchedulerBackend为例
+ | SchedulerBackend存在多個實現，以CoarseGrainedSchedulerBackend爲例
 \|/
 DriverEndpoint.send()
  |
@@ -1079,17 +1081,17 @@ CoarseGrainedSchedulerBackend.makeOffers()
 CoarseGrainedSchedulerBackend.launchTasks()
 ```
 
-相关源码分析如下(源码取自Spark 2.3.0)：
+相關源碼分析如下(源碼取自Spark 2.3.0)：
 
-- 在`submitMissingTasks()`中，先通过`Stage.findMissingPartitions()`得到用于计算的分区，
-根据stage类型和分区信息创建了对应的task。
+- 在`submitMissingTasks()`中，先通過`Stage.findMissingPartitions()`得到用於計算的分區，
+根據stage類型和分區信息創建了對應的task。
 
-	stage类型和task类型的对应关系：
+	stage類型和task類型的對應關係：
 
 	- `ShuffleMapStage` => `ShuffleMapTask`
 	- `ResultStage` => `ShuffleMapStage`
 
-	task创建完成后，调用TaskScheduler的`submitTasks()`方法提交任务：
+	task創建完成後，調用TaskScheduler的`submitTasks()`方法提交任務：
 
 	```scala
 	private[spark]
@@ -1166,9 +1168,9 @@ CoarseGrainedSchedulerBackend.launchTasks()
 	}
 	```
 
-- 在TaskScheduler的submitTasks()方法中，通过任务集TaskSet创建了任务管理器TaskSetManager，
-调用`SchedulableBuilder.addTaskSetManager()`将TaskSetManager添加到SchedulableBuilder中，
-之后调用`SchedulerBackend.reviveOffers()`方法，通知对应的SchedulerBackend处理提交信息。
+- 在TaskScheduler的submitTasks()方法中，通過任務集TaskSet創建了任務管理器TaskSetManager，
+調用`SchedulableBuilder.addTaskSetManager()`將TaskSetManager添加到SchedulableBuilder中，
+之後調用`SchedulerBackend.reviveOffers()`方法，通知對應的SchedulerBackend處理提交信息。
 
 	```scala
 	private[spark] class TaskSchedulerImpl(
@@ -1220,13 +1222,13 @@ CoarseGrainedSchedulerBackend.launchTasks()
 	}
 	```
 
-- SchedulerBackend根据配置，拥有不同的实现类：
+- SchedulerBackend根據配置，擁有不同的實現類：
 
-	- `LocalSchedulerBackend` 本地模式使用的实现
-	- `StandaloneSchedulerBackend` 使用Spark自带的集群管理器时采用此实现
-	- `CoarseGrainedSchedulerBackend` 使用外部集群管理器时采用此实现
+	- `LocalSchedulerBackend` 本地模式使用的實現
+	- `StandaloneSchedulerBackend` 使用Spark自帶的集羣管理器時採用此實現
+	- `CoarseGrainedSchedulerBackend` 使用外部集羣管理器時採用此實現
 
-	以`CoarseGrainedSchedulerBackend`为例，调用`reviveOffers()`方法实际是向DriverEndpoint发送`ReviveOffers`消息。
+	以`CoarseGrainedSchedulerBackend`爲例，調用`reviveOffers()`方法實際是向DriverEndpoint發送`ReviveOffers`消息。
 
 	```scala
 	class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: RpcEnv)
@@ -1243,7 +1245,7 @@ CoarseGrainedSchedulerBackend.launchTasks()
 	}
 	```
 
-	DriverEndpoint在CoarseGrainedSchedulerBackend启动服务时(调用`start()`方法)初始化：
+	DriverEndpoint在CoarseGrainedSchedulerBackend啓動服務時(調用`start()`方法)初始化：
 
 	```scala
 	class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: RpcEnv)
@@ -1281,9 +1283,9 @@ CoarseGrainedSchedulerBackend.launchTasks()
 	}
 	```
 
-- DriverEndpoint在接收到ReviveOffers消息时调用自身的`makeOffers()`方法，
-makeOffers()方法中通过`TaskSchedulerImpl.resourceOffers()`向集群管理器申请资源，
-之后调用`launchTasks()`启动任务：
+- DriverEndpoint在接收到ReviveOffers消息時調用自身的`makeOffers()`方法，
+makeOffers()方法中通過`TaskSchedulerImpl.resourceOffers()`向集羣管理器申請資源，
+之後調用`launchTasks()`啓動任務：
 
 	```scala
 	private[spark]
@@ -1354,10 +1356,10 @@ makeOffers()方法中通过`TaskSchedulerImpl.resourceOffers()`向集群管理�
 	}
 	```
 
-- launchTasks()方法中将任务信息通过RPC发送到执行器执行，逻辑转到Spark的网络层。
+- launchTasks()方法中將任務信息通過RPC發送到執行器執行，邏輯轉到Spark的網絡層。
 
-	发送数据的`executorEndpoint`对象为RpcEndpointRef类型，
-	实际实现类为NettyRpcEndpointRef，调用的`send()`方法实现如下：
+	發送數據的`executorEndpoint`對象爲RpcEndpointRef類型，
+	實際實現類爲NettyRpcEndpointRef，調用的`send()`方法實現如下：
 
 	```scala
 	private[netty] class NettyRpcEndpointRef(
@@ -1377,7 +1379,7 @@ makeOffers()方法中通过`TaskSchedulerImpl.resourceOffers()`向集群管理�
 	}
 	```
 
-	`NettyRpcEndpointRef.send()`内部调用了`NettyRpcEnv.send()`，将消息添加到Dispatcher内部队列中等待发送：
+	`NettyRpcEndpointRef.send()`內部調用了`NettyRpcEnv.send()`，將消息添加到Dispatcher內部隊列中等待發送：
 
 	```scala
 	private[netty] class NettyRpcEnv(
@@ -1412,39 +1414,39 @@ makeOffers()方法中通过`TaskSchedulerImpl.resourceOffers()`向集群管理�
 
 
 # Spark Streaming
-`Spark Streaming`是对核心`Spark API`的扩展，包含了对实时数据流(live data streams)的可扩展(scalable)、高吞吐(high-throughput)、容错性(fault-tolerant)的流式处理。
-数据可从多种数据源中获取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，数据能将复杂的算法使用高阶函数表达，如`map()`、`reduce()`、`join()`、`window()`等。
-最终，处理过后的数据可被发布到文件系统、数据库、实时仪表等。
-实际上，可以将Spark的`Machine Learning`(机器学习)和`Graph Processing`(图处理)算法应用于数据流。
+`Spark Streaming`是對核心`Spark API`的擴展，包含了對實時數據流(live data streams)的可擴展(scalable)、高吞吐(high-throughput)、容錯性(fault-tolerant)的流式處理。
+數據可從多種數據源中獲取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，數據能將複雜的算法使用高階函數表達，如`map()`、`reduce()`、`join()`、`window()`等。
+最終，處理過後的數據可被髮布到文件系統、數據庫、實時儀表等。
+實際上，可以將Spark的`Machine Learning`(機器學習)和`Graph Processing`(圖處理)算法應用於數據流。
 
 ![Spark Streaming Arch](../../images/spark_streaming_arch.png)
 
-SparkStreaming接收实时的输入数据流并将数据划分批次，每个批次的数据将由Spark引擎处理并在批次中生成最终结果集的流。
+SparkStreaming接收實時的輸入數據流並將數據劃分批次，每個批次的數據將由Spark引擎處理並在批次中生成最終結果集的流。
 
 ![Spark Streaming Flow](../../images/spark_streaming_flow.png)
 
-SparkStreaming为一个连续的数据流提供了高层抽象，叫做`DStream`(`discretized stream`，离散流)。
-DStreams可以从多种数据源(如`Kafka`、`Flume`等)的输入数据流创建，或者通过其它DStream的高阶运算得到。
-DStream本质上是一个`RDD`的序列。
+SparkStreaming爲一個連續的數據流提供了高層抽象，叫做`DStream`(`discretized stream`，離散流)。
+DStreams可以從多種數據源(如`Kafka`、`Flume`等)的輸入數據流創建，或者通過其它DStream的高階運算得到。
+DStream本質上是一個`RDD`的序列。
 
 ## Streaming Context
-`Streaming Context`是所有SparkStreaming功能的主要入口点，通过`SparkConf`或已存在的`SparkContext`构建`StreamingContext`实例：
+`Streaming Context`是所有SparkStreaming功能的主要入口點，通過`SparkConf`或已存在的`SparkContext`構建`StreamingContext`實例：
 
 ```scala
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
 val sparkConf = new SparkConf() {
-  setAppName("应用名称...")
+  setAppName("應用名稱...")
   setMaster("spark://xxx:xxx...")
   ...
 }
 
-/* 通过 SparkConf 直接构建 StreamingContext 实例
- * 第二参数为生成数据批次的间隔
+/* 通過 SparkConf 直接構建 StreamingContext 實例
+ * 第二參數爲生成數據批次的間隔
  */
 new StreamingContext(sparkConf, Seconds(1)) {
-  /* CheckPoint不设置在运行时会产生异常：
+  /* CheckPoint不設置在運行時會產生異常：
    * java.lang.IllegalArgumentException: requirement failed:
    * The checkpoint directory has not been set. Please set it by StreamingContext.checkpoint().
    */
@@ -1452,8 +1454,8 @@ new StreamingContext(sparkConf, Seconds(1)) {
   ...
 }
 
-/* 获取 SparkContent 实例时，使用伴生对象中的 getOrCreate() 方法
- * 避免分布式场景下多个 SparkContent 实例同时存在发生异常
+/* 獲取 SparkContent 實例時，使用伴生對象中的 getOrCreate() 方法
+ * 避免分佈式場景下多個 SparkContent 實例同時存在發生異常
  */
 new StreamingContext(SparkContext.getOrCreate(sparkConf), Seconds(10)) {
   checkpoint("hdfs://xxx:xxx...")
@@ -1461,28 +1463,28 @@ new StreamingContext(SparkContext.getOrCreate(sparkConf), Seconds(10)) {
 }
 ```
 
-通过StreamingContext从不同的数据源构建输入数据的DStream，常见的数据源获取方式如下：
+通過StreamingContext從不同的數據源構建輸入數據的DStream，常見的數據源獲取方式如下：
 
 ```scala
-// 使用 Socket 做为数据源，返回值类型为 org.apache.spark.streaming.dstream.DStream
+// 使用 Socket 做爲數據源，返回值類型爲 org.apache.spark.streaming.dstream.DStream
 streamingContext.socketTextStream(...)
 
-// 使用 HDFS 做为数据源
+// 使用 HDFS 做爲數據源
 streamingContext.textFileStream(...)
 ```
 
 ## DStream
-`DStream`(Discretized Stream)是SparkStreaming提供的基础抽象，表示一串连续的数据流，可以是来自数据源的输入数据流，
-也可以由其它数据流转换生成。实质上，DStream是一组连续的RDD，每个DStream中的RDD包含者来自某个时间间隔的数据，如下所示：
+`DStream`(Discretized Stream)是SparkStreaming提供的基礎抽象，表示一串連續的數據流，可以是來自數據源的輸入數據流，
+也可以由其它數據流轉換生成。實質上，DStream是一組連續的RDD，每個DStream中的RDD包含者來自某個時間間隔的數據，如下所示：
 
 ![Spark Streaming DStream](../../images/spark_streaming_dstream.png)
 
-DStream中执行的操作将会应用到底层的每个RDD中。例如，对**lines DStream**执行`flatMap()`操作得到**words DStream**，
-lines中的每一个RDD均会通过flatMap()生成新的RDD，并构成words，如下所示：
+DStream中執行的操作將會應用到底層的每個RDD中。例如，對**lines DStream**執行`flatMap()`操作得到**words DStream**，
+lines中的每一個RDD均會通過flatMap()生成新的RDD，並構成words，如下所示：
 
 ![Spark Streaming DStream Operate](../../images/spark_streaming_dstream_operate.png)
 
-底层的RDD变化由Spark引擎完成计算。DStream操作隐藏了多数的底层细节，给开发者提供了便利的高层次API。
+底層的RDD變化由Spark引擎完成計算。DStream操作隱藏了多數的底層細節，給開發者提供了便利的高層次API。
 
 ## Concurrent Jobs
 默認SparkStreaming中各個數據批次的任務是順序執行的，當一個批次的數據被處理完畢才會開始下一個批次數據的處理。
@@ -1490,7 +1492,7 @@ lines中的每一个RDD均会通过flatMap()生成新的RDD，并构成words，�
 Client端設置`spark.streaming.concurrentjobs`參數可讓SparkStreaming各個批次並行執行。
 到`Spark 2.4.4`版本，該參數為實驗性的，官方文檔中未提及該參數。
 
-默認該參數數值為`1`，在實際使用中，推薦配置為與Executor數目相同，能夠更好的利用集群的並行計算能力。
+默認該參數數值為`1`，在實際使用中，推薦配置為與Executor數目相同，能夠更好的利用集羣的並行計算能力。
 
 對於部分狀態相關的算子(如`mapWithState()/updateStateByKey()`)，若concurrentjobs參數設置過大，
 在同一Executor上存在任務積壓時，可能會存在後到達的Batch先執行完畢進而導致同節點上之前的Batch產生異常：
@@ -1501,20 +1503,20 @@ org.apache.spark.streaming.scheduler.JobScheduler logError - Error running job s
 
 造成該異常的原因是state存儲的checkpoint被後續操作生成的結果所覆蓋。
 
-## 数据变换
-与RDD类似，DStream允许对输入的数据进行变换操作。
-DStream支持多数RDD中可用的变换操作，如`map()`、`flatMap()`、`fliter()`、`reduce()`等，
-其中较为特殊的是支持存储状态的`updateStateByKey()`和`mapWithState()`操作。
+## 數據變換
+與RDD類似，DStream允許對輸入的數據進行變換操作。
+DStream支持多數RDD中可用的變換操作，如`map()`、`flatMap()`、`fliter()`、`reduce()`等，
+其中較爲特殊的是支持存儲狀態的`updateStateByKey()`和`mapWithState()`操作。
 
 ### updateStateByKey()
-`updateStateByKey()`允许保存任意的状态并一直使用数据流中的新数据来更新它。
-使用updateStateByKey()需要以下两个步骤：
+`updateStateByKey()`允許保存任意的狀態並一直使用數據流中的新數據來更新它。
+使用updateStateByKey()需要以下兩個步驟：
 
-1. 定义状态，状态可以任意的数据类型。
-1. 定义状态更新函数，指定如何根据输入数据和之前的状态来更新状态、输出数据。
+1. 定義狀態，狀態可以任意的數據類型。
+1. 定義狀態更新函數，指定如何根據輸入數據和之前的狀態來更新狀態、輸出數據。
 
-updateStateByKey()方法并未直接定义在DStream类型中，而是由`PairDStreamFunctions[K, V]`类型提供，
-`PairDStreamFunctions[K, V]`由`DStream[(K, V)]`隐式转换得到，如下所示(源码取自`Spark 2.3.0`)：
+updateStateByKey()方法並未直接定義在DStream類型中，而是由`PairDStreamFunctions[K, V]`類型提供，
+`PairDStreamFunctions[K, V]`由`DStream[(K, V)]`隱式轉換得到，如下所示(源碼取自`Spark 2.3.0`)：
 
 ```scala
 object DStream {
@@ -1528,8 +1530,8 @@ object DStream {
 }
 ```
 
-即调用updateStateByKey()方法的DStream需要为`DStream[(K, V)]`类型。
-updateStateByKey()方法包含多个重载，定义如下(源码取自`Spark 2.3.0`)：
+即調用updateStateByKey()方法的DStream需要爲`DStream[(K, V)]`類型。
+updateStateByKey()方法包含多個重載，定義如下(源碼取自`Spark 2.3.0`)：
 
 ```scala
 class PairDStreamFunctions[K, V](self: DStream[(K, V)])
@@ -1547,32 +1549,32 @@ class PairDStreamFunctions[K, V](self: DStream[(K, V)])
 }
 ```
 
-方法参数`updateFunc`即为真正的数据处理逻辑，参数类型为：
+方法參數`updateFunc`即爲真正的數據處理邏輯，參數類型爲：
 
 ```scala
 (Seq[V], Option[S]) => Option[S]
 ```
 
-数据处理函数的输入/输出如下：
+數據處理函數的輸入/輸出如下：
 
-1. 第一参数为根据Key值归类的值序列，原DStream中Key相同的Value构成`Seq[V]`做为第一输入参数。
-1. 第二参数为存储的状态，首次调用为空，之后调用为上一次计算返回的状态。
-1. 返回值是更新的状态，下次触发updateStateByKey()方法时相同Key会使用此刻的返回值。
+1. 第一參數爲根據Key值歸類的值序列，原DStream中Key相同的Value構成`Seq[V]`做爲第一輸入參數。
+1. 第二參數爲存儲的狀態，首次調用爲空，之後調用爲上一次計算返回的狀態。
+1. 返回值是更新的狀態，下次觸發updateStateByKey()方法時相同Key會使用此刻的返回值。
 
-输入数据类型由原DStream的Value类型(`V`)决定，状态类型(`S`)由用户决定。
-经过updateStateByKey()处理，生成新的类型为`DStream[(K, S)]`的DStream。
+輸入數據類型由原DStream的Value類型(`V`)決定，狀態類型(`S`)由用戶決定。
+經過updateStateByKey()處理，生成新的類型爲`DStream[(K, S)]`的DStream。
 
-整个计算流程的类型变化关系：
+整個計算流程的類型變化關係：
 
 ```scala
 DStream[(K, V)] => PairDStreamFunctions[K, V] => PairDStreamFunctions.updateStateByKey[S]() => DStream[(K, S)]
 ```
 
 ### mapWithState()
-`mapWithState()`直接处理**每一条**数据，通过每一条数据的Key、Value、之前的状态计算出新的数据。
+`mapWithState()`直接處理**每一條**數據，通過每一條數據的Key、Value、之前的狀態計算出新的數據。
 
-mapWithState()方法同样由`PairDStreamFunctions[K, V]`类型提供，需要原DStream为`DStream[(K, V)]`类型。
-截止到`Spark 2.3.0`版本，mapWithState相关API依然带有`@Experimental`注解(实验性的)，定义如下(源码取自`Spark 2.3.0`)：
+mapWithState()方法同樣由`PairDStreamFunctions[K, V]`類型提供，需要原DStream爲`DStream[(K, V)]`類型。
+截止到`Spark 2.3.0`版本，mapWithState相關API依然帶有`@Experimental`註解(實驗性的)，定義如下(源碼取自`Spark 2.3.0`)：
 
 ```scala
 class PairDStreamFunctions[K, V](self: DStream[(K, V)])
@@ -1586,8 +1588,8 @@ class PairDStreamFunctions[K, V](self: DStream[(K, V)])
 }
 ```
 
-mapWithState()方法接收的参数为`StateSpec`类型，可以使用StateSpec伴生对象中提供的`function()`相关方法构建。
-相关方法定义如下(源码取自`Spark 2.3.0`)：
+mapWithState()方法接收的參數爲`StateSpec`類型，可以使用StateSpec伴生對象中提供的`function()`相關方法構建。
+相關方法定義如下(源碼取自`Spark 2.3.0`)：
 
 ```scala
 @Experimental
@@ -1603,31 +1605,31 @@ object StateSpec {
 }
 ```
 
-传入StateSpec.function()的参数`mappingFunction`即为mapWithState()方法真正的处理逻辑，参数类型为：
+傳入StateSpec.function()的參數`mappingFunction`即爲mapWithState()方法真正的處理邏輯，參數類型爲：
 
 ```scala
 (KeyType, Option[ValueType], State[StateType]) => MappedType
 ```
 
-数据处理函数的输入/输出如下：
+數據處理函數的輸入/輸出如下：
 
-1. 第一参数为原DStream中的Key。
-1. 第二参数为原DStream中的Value。
-1. 第三参数为Key对应存储状态。类型为`State[StateType]`，使用`State.update()`添加、更新状态值，使用`State.remove()`移除状态。
-1. 返回值为通过Key、Value、存储状态计算得到的新数据。
+1. 第一參數爲原DStream中的Key。
+1. 第二參數爲原DStream中的Value。
+1. 第三參數爲Key對應存儲狀態。類型爲`State[StateType]`，使用`State.update()`添加、更新狀態值，使用`State.remove()`移除狀態。
+1. 返回值爲通過Key、Value、存儲狀態計算得到的新數據。
 
-KeyType、ValueType实际类型由原DStream决定，存储状态类型StateType、目标数据类型MappedType由用户决定。
-经过mapWithState()处理，生成新的类型为`MapWithStateDStream[K, V, StateType, MappedType]`的DStream。
+KeyType、ValueType實際類型由原DStream決定，存儲狀態類型StateType、目標數據類型MappedType由用戶決定。
+經過mapWithState()處理，生成新的類型爲`MapWithStateDStream[K, V, StateType, MappedType]`的DStream。
 
-整个计算流程的类型变化关系：
+整個計算流程的類型變化關係：
 
 ```scala
 DStream[(K, V)] => PairDStreamFunctions[K, V] => PairDStreamFunctions.mapWithState[K, V, StateType, MappedType]() => MapWithStateDStream[K, V, StateType, MappedType]
 ```
 
-`MapWithStateDStream[K, V, StateType, MappedType]`类型继承自`DStream[MappedType]`，
-即mapWithState()操作最终生成的是目标数据类型MappedType的DStream。
-定义如下所示(源码取自`Spark 2.3.0`)：
+`MapWithStateDStream[K, V, StateType, MappedType]`類型繼承自`DStream[MappedType]`，
+即mapWithState()操作最終生成的是目標數據類型MappedType的DStream。
+定義如下所示(源碼取自`Spark 2.3.0`)：
 
 ```scala
 @Experimental
@@ -1637,11 +1639,11 @@ sealed abstract class MapWithStateDStream[KeyType, ValueType, StateType, MappedT
 }
 ```
 
-## Transform Operation (变换操作)
-DStream提供了`transform()/transformWith()`方法可以直接将RDD的变换操作应用到DStream，
-通过transform()相关方法可以使用任何DStream API中未直接提供的RDD操作。
+## Transform Operation (變換操作)
+DStream提供了`transform()/transformWith()`方法可以直接將RDD的變換操作應用到DStream，
+通過transform()相關方法可以使用任何DStream API中未直接提供的RDD操作。
 
-相关方法定义如下(源码取自`Spark 2.3.0`)：
+相關方法定義如下(源碼取自`Spark 2.3.0`)：
 
 ```scala
 abstract class DStream[T: ClassTag] (
@@ -1726,9 +1728,9 @@ val resultDStream = inputDStream transform { rdd =>
 }
 ```
 
-使用transform()相关方法，能够直接操作每一个批次数据的RDD本体，通过在RDD上直接执行变换操作来实现那些未在DStream API中提供的功能。
+使用transform()相關方法，能夠直接操作每一個批次數據的RDD本體，通過在RDD上直接執行變換操作來實現那些未在DStream API中提供的功能。
 
-transform()相关方法还可用于执行随时间变化的操作，通过回调方法参数中的时间戳判断时间来执行不同的逻辑：
+transform()相關方法還可用於執行隨時間變化的操作，通過回調方法參數中的時間戳判斷時間來執行不同的邏輯：
 
 ```scala
 val resultDStream = inputDStream transform { (rdd, time) =>
@@ -1743,53 +1745,53 @@ val resultDStream = inputDStream transform { (rdd, time) =>
 ```
 
 ## Window Operations (窗口操作)
-Spark Streaming也提供了窗口操作(windowed computations)，可以对滑动窗口中的数据(sliding window of data)进行变换。
+Spark Streaming也提供了窗口操作(windowed computations)，可以對滑動窗口中的數據(sliding window of data)進行變換。
 如下所示：
 
 ![Spark Streaming Stream As A Table](../../images/spark_streaming_dstream_window.png)
 
-如图所示，落入滑动窗口的源RDD通过窗口操作生成新的RDD，这些新的RDD构成了新DStream。
+如圖所示，落入滑動窗口的源RDD通過窗口操作生成新的RDD，這些新的RDD構成了新DStream。
 
-窗口操作至少需要指定以下参数：
+窗口操作至少需要指定以下參數：
 
-- `window length` 窗口大小，窗口的持续时间
-- `sliding interval` 滑动间隔，以多少时间间隔执行窗口操作
+- `window length` 窗口大小，窗口的持續時間
+- `sliding interval` 滑動間隔，以多少時間間隔執行窗口操作
 
-| 操作 | 含义 |
+| 操作 | 含義 |
 | :- | :- |
-| **window**(windowLength, slideInterval) | 返回根据原窗口批次计算出的新DStream |
-| **countByWindow**(windowLength, slideInterval) | 返回当前滑动窗口内元素的数目 |
-| **reduceByWindow**(func, windowLength, slideInterval) | 返回单元素的新DStream，新DStream由原DStream中的元素执func方法聚合得到 |
-| **reduceByKeyAndWindow**(func, windowLength, slideInterval, [numTasks]) | 对元素为`(Key, Value)`类型的DStream根据Key归类，对Key相同的元素执行func操作进行聚合 |
-| **countByValueAndWindow**(windowLength, slideInterval, [numTasks]) | 统计元素为`(Key, Value)`类型的DStream中每个Key对应的元素数目，构成元素类型为`(Key, Long)`类型的新DStream |
+| **window**(windowLength, slideInterval) | 返回根據原窗口批次計算出的新DStream |
+| **countByWindow**(windowLength, slideInterval) | 返回當前滑動窗口內元素的數目 |
+| **reduceByWindow**(func, windowLength, slideInterval) | 返回單元素的新DStream，新DStream由原DStream中的元素執func方法聚合得到 |
+| **reduceByKeyAndWindow**(func, windowLength, slideInterval, [numTasks]) | 對元素爲`(Key, Value)`類型的DStream根據Key歸類，對Key相同的元素執行func操作進行聚合 |
+| **countByValueAndWindow**(windowLength, slideInterval, [numTasks]) | 統計元素爲`(Key, Value)`類型的DStream中每個Key對應的元素數目，構成元素類型爲`(Key, Long)`類型的新DStream |
 
 
 
 # Spark SQL
-`Spark SQL`是用于结构化数据(structured data)处理的Spark模块。与基础的Spark RDD API不同，
-Spark SQL提供的接口为Spark提供了更多关于数据结构和正在执行的计算的信息。Spark使用这些额外的信息来进行额外的优化。
-可以使用SQL语句或Dataset API与Spark SQL交互。无论用SQL语句或是Dataset API来表达计算逻辑，计算时都采用相同的执行引擎。
-开发者可以简单地在不同接口上自由切换，从中选择最自然的方式来描述给定的数据变换。
+`Spark SQL`是用於結構化數據(structured data)處理的Spark模塊。與基礎的Spark RDD API不同，
+Spark SQL提供的接口爲Spark提供了更多關於數據結構和正在執行的計算的信息。Spark使用這些額外的信息來進行額外的優化。
+可以使用SQL語句或Dataset API與Spark SQL交互。無論用SQL語句或是Dataset API來表達計算邏輯，計算時都採用相同的執行引擎。
+開發者可以簡單地在不同接口上自由切換，從中選擇最自然的方式來描述給定的數據變換。
 
 ## SQL
-Spark SQL的作用之一是用来执行SQL查询。Spark SQL也可以从已安装的Hive中读取数据。
-当使用API执行SQL时，结果将会以`Dataset/DataFrame`类型返回。还可以通过命令行或JDBC/ODBC来使用SQL接口交互。
+Spark SQL的作用之一是用來執行SQL查詢。Spark SQL也可以從已安裝的Hive中讀取數據。
+當使用API執行SQL時，結果將會以`Dataset/DataFrame`類型返回。還可以通過命令行或JDBC/ODBC來使用SQL接口交互。
 
 ## Datasets & DataFrames
-`Dataset`是分布式的数据集合。Dataset是`Spark 1.6`中新引入的接口，
-结合了RDD的优点(强类型，能够使用Lambda)和Spark SQL优化执行引擎的优点。
-Dataset可由JVM对象构建并且使用高阶函数进行变换(如`map`、`flatMap`等)。Dataset仅提供Scala和Java的API。
-Python不支持Dataset API。但由于Python动态特性，许多Dataset API中的优秀特性已经提供
-(如使用`row.cloumnName`通过字段名称来访问一行数据中的某个字段)。R语言的情况类似。
+`Dataset`是分佈式的數據集合。Dataset是`Spark 1.6`中新引入的接口，
+結合了RDD的優點(強類型，能夠使用Lambda)和Spark SQL優化執行引擎的優點。
+Dataset可由JVM對象構建並且使用高階函數進行變換(如`map`、`flatMap`等)。Dataset僅提供Scala和Java的API。
+Python不支持Dataset API。但由於Python動態特性，許多Dataset API中的優秀特性已經提供
+(如使用`row.cloumnName`通過字段名稱來訪問一行數據中的某個字段)。R語言的情況類似。
 
-`DataFrame`由Dataset组织到命名的列中构成，概念上等价于关系型数据库中的表或Python/R中的data frame，但具有更深层次的优化。
-DataFrame可由各种数据源构造，如：结构化的数据文件、Hive中的表、外部数据库、已存在的RDD等。
-DataFrame提供了Scala、Java、Python、R等语言的API，在Scala和Java中，
-DataFrame类型由泛型参数为`Row`的Dataset表示，如`Dataset[Row]`(Scala)和`Dataset<Row>`(Java)。
+`DataFrame`由Dataset組織到命名的列中構成，概念上等價於關係型數據庫中的表或Python/R中的data frame，但具有更深層次的優化。
+DataFrame可由各種數據源構造，如：結構化的數據文件、Hive中的表、外部數據庫、已存在的RDD等。
+DataFrame提供了Scala、Java、Python、R等語言的API，在Scala和Java中，
+DataFrame類型由泛型參數爲`Row`的Dataset表示，如`Dataset[Row]`(Scala)和`Dataset<Row>`(Java)。
 
 ## SparkSession
-自`Spark 2.0`开始，Spark SQL提供的`SparkSession`代替了原先的SparkContext做为Spark功能的主要入口点。
-使用`SparkSession.builder()`构建SparkSession实例：
+自`Spark 2.0`開始，Spark SQL提供的`SparkSession`代替了原先的SparkContext做爲Spark功能的主要入口點。
+使用`SparkSession.builder()`構建SparkSession實例：
 
 ```scala
 import org.apache.spark.sql.SparkSession
@@ -1801,18 +1803,18 @@ val sparkSession = SparkSession
   .config(...)
   .getOrCreate()
 
-// 导入 Spark SQL 相关的隐式转换，如将 RDD 转换到 DataFrame
+// 導入 Spark SQL 相關的隱式轉換，如將 RDD 轉換到 DataFrame
 import sparkSession.implicits._
 ```
 
-在`Spark Shell`中，直接提供了配置好的SparkSession实例`spark`：
+在`Spark Shell`中，直接提供了配置好的SparkSession實例`spark`：
 
 ```scala
 scala> spark
 res0: org.apache.spark.sql.SparkSession = org.apache.spark.sql.SparkSession@2e8986b6
 ```
 
-可通过SparkSession获取封装的SparkContext和SQLContext：
+可通過SparkSession獲取封裝的SparkContext和SQLContext：
 
 ```scala
 scala> spark.sparkContext
@@ -1822,12 +1824,12 @@ scala> spark.sqlContext
 res2: org.apache.spark.sql.SQLContext = org.apache.spark.sql.SQLContext@53741683
 ```
 
-Spark 2.0后的SparkSession提供了内置的Hive特性支持，如使用`HiveQL`、访问`Hive UDFs`、从Hive表中读取数据等。
+Spark 2.0後的SparkSession提供了內置的Hive特性支持，如使用`HiveQL`、訪問`Hive UDFs`、從Hive表中讀取數據等。
 
-## 构建 DataFame
-Spark应用可通过SparkSession从已存在的RDD、Hive表、Spark Data Source中构建`DataFrame`。
+## 構建 DataFame
+Spark應用可通過SparkSession從已存在的RDD、Hive表、Spark Data Source中構建`DataFrame`。
 
-SparkSession类中定义了`createDataFrame()`方法，包含多个重载，提供了多种构建DataFrame的方式：
+SparkSession類中定義了`createDataFrame()`方法，包含多個重載，提供了多種構建DataFrame的方式：
 
 ```scala
 class SparkSession private(
@@ -1846,10 +1848,10 @@ class SparkSession private(
 }
 ```
 
-从Seq、RDD构建DataFrame时，表格的结构取决于做为RDD的泛型参数的结构：
+從Seq、RDD構建DataFrame時，表格的結構取決於做爲RDD的泛型參數的結構：
 
 ```scala
-// 定义数据结构
+// 定義數據結構
 scala> case class Test(name: String, age: Int)
 defined class Test
 
@@ -1859,11 +1861,11 @@ seq: Seq[Test] = List(Test(Haskell,25), Test(Rust,6), Test(Scala,15))
 scala> val rdd = sc.parallelize(seq)
 rdd: org.apache.spark.rdd.RDD[Test] = ParallelCollectionRDD[0] at parallelize at <console>:26
 
-// 从 Seq 中构建 DataFrame
+// 從 Seq 中構建 DataFrame
 scala> val dataFrameFromSeq = spark.createDataFrame(seq)
 dataFrameFromSeq: org.apache.spark.sql.DataFrame = [name: string, age: int]
 
-// 打印 DataFrame 内容
+// 打印 DataFrame 內容
 scala> dataFrameFromSeq.show()
 +-------+---+
 |   name|age|
@@ -1873,11 +1875,11 @@ scala> dataFrameFromSeq.show()
 |  Scala| 15|
 +-------+---+
 
-// 从 RDD 中构建 DataFrame
+// 從 RDD 中構建 DataFrame
 scala> val dataFrameFromRdd = spark.createDataFrame(rdd)
 dataFrameFromRdd: org.apache.spark.sql.DataFrame = [name: string, age: int]
 
-// 打印 DataFrame 内容
+// 打印 DataFrame 內容
 scala> dataFrameFromRdd.show()
 +-------+---+
 |   name|age|
@@ -1888,7 +1890,7 @@ scala> dataFrameFromRdd.show()
 +-------+---+
 ```
 
-SparkSession类中定义了`implicits`单例，提供了常用的隐式转换：
+SparkSession類中定義了`implicits`單例，提供了常用的隱式轉換：
 
 ```scala
 class SparkSession private(
@@ -1905,11 +1907,11 @@ class SparkSession private(
 }
 ```
 
-编写SparkSQL应用时，需要导入SparkSession实例中提供的隐式转换(导入`SparkSession.implicits`单例内的成员)。
-SparkShell环境下默认已经导入了SparkSQL相关的隐式转换。
+編寫SparkSQL應用時，需要導入SparkSession實例中提供的隱式轉換(導入`SparkSession.implicits`單例內的成員)。
+SparkShell環境下默認已經導入了SparkSQL相關的隱式轉換。
 
-Seq/RDD经过隐式方法`rddToDatasetHolder()/localSeqToDatasetHolder()`被隐式转换为`DatasetHolder[T]`类型。
-DatasetHolder类型提供了`toDF()`方法生成DataFrame：
+Seq/RDD經過隱式方法`rddToDatasetHolder()/localSeqToDatasetHolder()`被隱式轉換爲`DatasetHolder[T]`類型。
+DatasetHolder類型提供了`toDF()`方法生成DataFrame：
 
 ```scala
 abstract class SQLImplicits extends LowPrioritySQLImplicits {
@@ -1931,10 +1933,10 @@ case class DatasetHolder[T] private[sql](private val ds: Dataset[T]) {
 }
 ```
 
-使用隐式转换构建DataFrame：
+使用隱式轉換構建DataFrame：
 
 ```scala
-// 使用无参的 toDF() 方法构建DataFrame会使用结构字段名称做为列名
+// 使用無參的 toDF() 方法構建DataFrame會使用結構字段名稱做爲列名
 scala> rdd.toDF().show()
 +-------+---+
 |   name|age|
@@ -1944,7 +1946,7 @@ scala> rdd.toDF().show()
 |  Scala| 15|
 +-------+---+
 
-// 使用有参的 toDF() 方法构建DataFrame时可自定义列名
+// 使用有參的 toDF() 方法構建DataFrame時可自定義列名
 scala> seq.toDF("name1", "age1").show()
 +-------+----+
 |  name1|age1|
@@ -1955,26 +1957,26 @@ scala> seq.toDF("name1", "age1").show()
 +-------+----+
 ```
 
-从各类文件中构建DataFrame：
+從各類文件中構建DataFrame：
 
 ```scala
 val sparkSession: SparkSession = ...
 
-// 从JSON文件中创建DataFrame
+// 從JSON文件中創建DataFrame
 val dataFrameJson1 = sparkSession.read.json("xxx/xxx.json")
 val dataFrameJson2 = sparkSession.read.format("json").load("xxx/xxx.json")
 
-// 从CSV文件中创建DataFrame
+// 從CSV文件中創建DataFrame
 val dataFrameCsv1 = sparkSession.read.csv("xxx/xxx.csv")
 val dataFrameCsv2 = sparkSession.read
   .format("csv")
-  .option("sep", ";") //设定CSV文件的分隔符
-  .option("inferSchema", "true") //使用推断Schema结构的方式
+  .option("sep", ";") //設定CSV文件的分隔符
+  .option("inferSchema", "true") //使用推斷Schema結構的方式
   .option("header", "true") //包含Header
   .load("xxx/xxx.csv")
 ```
 
-从JDBC数据源中构建DataFrame：
+從JDBC數據源中構建DataFrame：
 
 ```scala
 val sparkSession: SparkSession = ...
@@ -1991,25 +1993,25 @@ val dataFrameJdbc2 = sparkSession.read
   .load()
 ```
 
-## Untyped Dataset Operations (无类型的 Dataset 操作，aka DataFrame Operations)
-DataFrame操作结构化数据提供了DSL(domain-specific language，特定领域专用语言)，在Scala、Java、Python、R语言中可用。
+## Untyped Dataset Operations (無類型的 Dataset 操作，aka DataFrame Operations)
+DataFrame操作結構化數據提供了DSL(domain-specific language，特定領域專用語言)，在Scala、Java、Python、R語言中可用。
 
-`Spark 2.0`之后，在Java/Scala API中，DataFrame仅仅是Dataset使用Row类型作为泛型参数构成的类型。
-除了简单的列引用和表达式，Dataset还拥有丰富的函数库包括字符串操作、日期计算、通用数学操作等。
+`Spark 2.0`之後，在Java/Scala API中，DataFrame僅僅是Dataset使用Row類型作爲泛型參數構成的類型。
+除了簡單的列引用和表達式，Dataset還擁有豐富的函數庫包括字符串操作、日期計算、通用數學操作等。
 完整的功能列表可查看[DataFrame Function Reference](http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.functions$)。
 
-基础的DataFrame操作：
+基礎的DataFrame操作：
 
 ```scala
-// 定义数据结构
+// 定義數據結構
 scala> case class Test(name: String, age: Int)
 defined class Test
 
-// 创建测试数据结构
+// 創建測試數據結構
 scala> val dataFrame = spark.createDataFrame(Seq(Test("Haskell", 25), Test("Rust", 6), Test("Scala", 15)))
 dataFrame: org.apache.spark.sql.DataFrame = [name: string, age: int]
 
-// 输出DataFrame内容
+// 輸出DataFrame內容
 scala> dataFrame.show()
 +-------+---+
 |   name|age|
@@ -2019,13 +2021,13 @@ scala> dataFrame.show()
 |  Scala| 15|
 +-------+---+
 
-// 输出DataFrame结构
+// 輸出DataFrame結構
 scala> dataFrame.printSchema()
 root
  |-- name: string (nullable = true)
  |-- age: integer (nullable = false)
 
-// 显示指定列的内容
+// 顯示指定列的內容
 scala> dataFrame.select("name").show()
 +-------+
 |   name|
@@ -2035,8 +2037,8 @@ scala> dataFrame.select("name").show()
 |  Scala|
 +-------+
 
-// 显示列内容时可添加额外处理
-// 输出 name，age 列，同时 age 列的值执行 +1 操作
+// 顯示列內容時可添加額外處理
+// 輸出 name，age 列，同時 age 列的值執行 +1 操作
 scala> dataFrame.select($"name", $"age" + 1).show()
 +-------+---------+
 |   name|(age + 1)|
@@ -2046,7 +2048,7 @@ scala> dataFrame.select($"name", $"age" + 1).show()
 |  Scala|       16|
 +-------+---------+
 
-// 过滤内容
+// 過濾內容
 scala> dataFrame.filter($"age" > 10).show()
 +-------+---+
 |   name|age|
@@ -2056,8 +2058,8 @@ scala> dataFrame.filter($"age" > 10).show()
 +-------+---+
 ```
 
-## 执行 SQL 查询
-SparkSession类提供了`sql()`方法在Spark应用中执行SQL查询并返回DataFrame类型的结果：
+## 執行 SQL 查詢
+SparkSession類提供了`sql()`方法在Spark應用中執行SQL查詢並返回DataFrame類型的結果：
 
 ```scala
 scala> case class Test(name: String, age: Int)
@@ -2066,14 +2068,14 @@ defined class Test
 scala> val dataFrame = spark.createDataFrame(Seq(Test("Haskell", 25), Test("Rust", 6), Test("Scala", 15)))
 dataFrame: org.apache.spark.sql.DataFrame = [name: string, age: int]
 
-// 为数据创建临时视图
+// 爲數據創建臨時視圖
 scala> dataFrame.createTempView("TestTable")
 
-// 执行SQL语句，表名即为创建的临时视图的名称
+// 執行SQL語句，表名即爲創建的臨時視圖的名稱
 scala> val sqlResult = spark.sql("select * from TestTable")
 sqlResult: org.apache.spark.sql.DataFrame = [name: string, age: int]
 
-// 打印查询结果
+// 打印查詢結果
 scala> sqlResult.show()
 +-------+---+
 |   name|age|
@@ -2085,22 +2087,22 @@ scala> sqlResult.show()
 ```
 
 ### Global Temporary View
-SparkSQL中临时视图基于会话(session-scoped)，当某个SparkSession实例终止时，由该SparkSession创建的视图会随之消失。
+SparkSQL中臨時視圖基於會話(session-scoped)，當某個SparkSession實例終止時，由該SparkSession創建的視圖會隨之消失。
 
 ```scala
-// 使用新的SparkSession执行查询操作，得到异常，提示找不到表/视图
+// 使用新的SparkSession執行查詢操作，得到異常，提示找不到表/視圖
 scala> spark.newSession().sql("select * from TestTable")
 org.apache.spark.sql.AnalysisException: Table or view not found: TestTable; line 1 pos 14
   ...
 ```
 
-若需要创建能够在多个会话间共享数据并能维持生命周期到Spark应用结束的临时视图，应使用**全局视图**(global temporary view)。
-全局视图绑定到系统保留的数据库`global_temp`，需要使用正确的名称来引用它：
+若需要創建能夠在多個會話間共享數據並能維持生命週期到Spark應用結束的臨時視圖，應使用**全局視圖**(global temporary view)。
+全局視圖綁定到系統保留的數據庫`global_temp`，需要使用正確的名稱來引用它：
 
 ```scala
 scala> dataFrame.createGlobalTempView("TestTable")
 
-// 正常的得到查询结果
+// 正常的得到查詢結果
 scala> spark.newSession().sql("select * from global_temp.TestTable").show()
 +-------+---+
 |   name|age|
@@ -2111,8 +2113,8 @@ scala> spark.newSession().sql("select * from global_temp.TestTable").show()
 +-------+---+
 ```
 
-### 视图管理
-创建视图后使用SparkSession实例的`table()`成员方法通过视图名称获取对应DataFrame：
+### 視圖管理
+創建視圖後使用SparkSession實例的`table()`成員方法通過視圖名稱獲取對應DataFrame：
 
 ```scala
 scala> dataFrame.createTempView("TestTable")
@@ -2130,25 +2132,25 @@ scala> spark.table("TestTable").show()
 +-------+---+
 ```
 
-创建视图时，若视图名称已被使用则会触发异常：
+創建視圖時，若視圖名稱已被使用則會觸發異常：
 
 ```scala
 scala> dataFrame.createTempView("TestTable")
 
-// 提示视图名称已经存在
+// 提示視圖名稱已經存在
 scala> dataFrame.createTempView("TestTable")
 org.apache.spark.sql.catalyst.analysis.TempTableAlreadyExistsException: Temporary view 'TestTable' already exists;
   ...
 
 scala> dataFrame.createGlobalTempView("TestTable")
 
-// Global Temporary View 类似
+// Global Temporary View 類似
 scala> dataFrame.createGlobalTempView("TestTable")
 org.apache.spark.sql.catalyst.analysis.TempTableAlreadyExistsException: Temporary view 'testtable' already exists;
   ...
 ```
 
-使用`createOrReplaceTempView()`方法创建视图，在视图名称已存在时替换原有视图：
+使用`createOrReplaceTempView()`方法創建視圖，在視圖名稱已存在時替換原有視圖：
 
 ```scala
 scala> dataFrame.createTempView("TestTable")
@@ -2160,26 +2162,26 @@ scala> dataFrame.createGlobalTempView("TestTable")
 scala> dataFrame.createOrReplaceGlobalTempView("TestTable")
 ```
 
-## 回写数据
-DataSet/DataFrame支持直接输出到其它数据源中，操作与读取数据类似。
+## 回寫數據
+DataSet/DataFrame支持直接輸出到其它數據源中，操作與讀取數據類似。
 
 ```scala
 scala> dataFrame.write.jdbc("jdbc:mysql://ip:port/db_name?xxx=xxx...", "tablename", connectionProperties)
 ```
 
-可以手动指定SparkSQL建表时的字段类型：
+可以手動指定SparkSQL建表時的字段類型：
 
 ```scala
 scala> dataFrame.write
-  // 设定字段在建表时对应的字段类型
+  // 設定字段在建表時對應的字段類型
   .option("createTableColumnTypes", "xxxField1 XXXTYPE1, xxxField2 XXXTYPE2", ...)
   .jdbc("jdbc:mysql://ip:port/db_name?xxx=xxx...", "tablename", connectionProperties)
 ```
 
-对于`createTableColumnTypes`选项中指定的字段会优先使用设置的类型覆盖默认类型。
+對於`createTableColumnTypes`選項中指定的字段會優先使用設置的類型覆蓋默認類型。
 
-### MySQL 建表异常
-SparkSQL建表时会可能会产生异常，以MySQL数据库为例：
+### MySQL 建表異常
+SparkSQL建表時會可能會產生異常，以MySQL數據庫爲例：
 
 ```java
 com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '...' at line 1
@@ -2222,8 +2224,8 @@ com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: You have an error in 
   ... 49 elided
 ```
 
-异常产生的原因是SparkSQL在生成DataFrame对应的建表SQL语句时对于部分字段类型未正确映射到目标数据库。
-通过分析异常堆栈可知SparkSQL建表相关逻辑位于`org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils`单例对象提供的`createTable()`方法中：
+異常產生的原因是SparkSQL在生成DataFrame對應的建表SQL語句時對於部分字段類型未正確映射到目標數據庫。
+通過分析異常堆棧可知SparkSQL建表相關邏輯位於`org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils`單例對象提供的`createTable()`方法中：
 
 ```scala
 object JdbcUtils extends Logging {
@@ -2315,24 +2317,24 @@ object JdbcUtils extends Logging {
 }
 ```
 
-分析源码可知，DataFrame使用SparkSQL生成建表SQL语句时，`byte/boolean`等类型没有被映射成MySQL中对应的正确类型。
+分析源碼可知，DataFrame使用SparkSQL生成建表SQL語句時，`byte/boolean`等類型沒有被映射成MySQL中對應的正確類型。
 
-## Complex Types (复合类型字段)
-DataFrame中的列不仅仅可以是常规字段，还可以包含复合结构(Complex types)，符合结构有以下类型：
+## Complex Types (複合類型字段)
+DataFrame中的列不僅僅可以是常規字段，還可以包含複合結構(Complex types)，符合結構有以下類型：
 
-- `ArrayType` 表示一组元素的序列
-- `MapType` 表示一组键值对
-- `StructType` 表示一个包含一组StructField的结构类型
+- `ArrayType` 表示一組元素的序列
+- `MapType` 表示一組鍵值對
+- `StructType` 表示一個包含一組StructField的結構類型
 
-对应到Scala语法中，一个样例类的某个字段类型是另一个样例类时，则该字段在SparkSQL中转化为DataFrame时，
-会被映射成`StructType`。
-示例，定义包含StructType结构的DataFrame，并注册到内存中：
+對應到Scala語法中，一個樣例類的某個字段類型是另一個樣例類時，則該字段在SparkSQL中轉化爲DataFrame時，
+會被映射成`StructType`。
+示例，定義包含StructType結構的DataFrame，並註冊到內存中：
 
 ```scala
 scala> case class Test(name: String, age: Int)
 defined class Test
 
-// 字段inner是一个结构字段
+// 字段inner是一個結構字段
 scala> case class TestInner(index: Int, inner: Test)
 defined class TestInner
 
@@ -2342,7 +2344,7 @@ dataFrame: org.apache.spark.sql.DataFrame = [index: int, inner: struct<name: str
 scala> dataFrame.createOrReplaceTempView("TestTable")
 ```
 
-该表的Schema如下：
+該表的Schema如下：
 
 ```scala
 scala> dataFrame.printSchema
@@ -2353,7 +2355,7 @@ root
  |    |-- age: integer (nullable = false)
 ```
 
-对于包含嵌套结构的DataFrame，在SparkSQL中的SQL语句中使用`.`语法可直接访问结构内部的字段(与访问表内字段的语法类似)。
+對於包含嵌套結構的DataFrame，在SparkSQL中的SQL語句中使用`.`語法可直接訪問結構內部的字段(與訪問表內字段的語法類似)。
 示例：
 
 ```scala
@@ -2385,8 +2387,8 @@ scala> spark.sql("select index, inner.name as inner_name, inner.age as inner_age
 +-----+----------+---------+
 ```
 
-JDBC中没有与SparkSQL中StructType相匹配的类型，因而包含StructType字段的表不能直接使用JDBC输出到MySQL之类的常规数据库中。
-尝试将包含StructType字段的表写入MySQL会得到输出类型不匹配的异常信息(`Can't get JDBC type for struct<...>`)：
+JDBC中沒有與SparkSQL中StructType相匹配的類型，因而包含StructType字段的表不能直接使用JDBC輸出到MySQL之類的常規數據庫中。
+嘗試將包含StructType字段的表寫入MySQL會得到輸出類型不匹配的異常信息(`Can't get JDBC type for struct<...>`)：
 
 ```scala
 scala> dataFrame.write.jdbc("jdbc:mysql://ip:port/db_name?tinyInt1isBit=false", "TestTable", new java.util.Properties { put("user", "root"); put("password", "xxx") })
@@ -2394,72 +2396,72 @@ java.lang.IllegalArgumentException: Can't get JDBC type for struct<name:string,a
   ...
 ```
 
-可通过在SQL中显式访问StructType内部字段的方式将StructType字段解构为普通字段，然后再通过JDBC写入：
+可通過在SQL中顯式訪問StructType內部字段的方式將StructType字段解構爲普通字段，然後再通過JDBC寫入：
 
 ```scala
-// 无异常信息
+// 無異常信息
 scala> spark.sql("select index, inner.name, inner.age from TestTable").write.jdbc("jdbc:mysql://ip:port/db_name?tinyInt1isBit=false", "TestTable", new java.util.Properties { put("user", "root"); put("password", "xxx") })
 ```
 
 
 
-# 问题注记
-记录Spark开发、使用过程中遇到的错误信息以及对应解决方法。
+# 問題註記
+記錄Spark開發、使用過程中遇到的錯誤信息以及對應解決方法。
 
 ## Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-问题说明：<br>
-Spark运行环境中已包含了Scala、Hadoop、Zookeeper等依赖，与Jar包中自带的依赖产生冲突。
+問題說明：<br>
+Spark運行環境中已包含了Scala、Hadoop、Zookeeper等依賴，與Jar包中自帶的依賴產生衝突。
 
-解决方式：<br>
-开发环境中为确保源码正常编译，需要完整引入Spark相关依赖，但在生成Jar时，需要移除Spark以及相关联的Scala、Hadoop、Zookeeper相关依赖。
+解決方式：<br>
+開發環境中爲確保源碼正常編譯，需要完整引入Spark相關依賴，但在生成Jar時，需要移除Spark以及相關聯的Scala、Hadoop、Zookeeper相關依賴。
 
 ## Operation category READ is not supported in state standby
-问题说明：<br>
-配置了NameNode HA的Hadoop集群会存在`active`、`standby`两种状态。
-SparkStreaming使用HDFS为数据源时URL使用standby节点的主机名触发该异常。
+問題說明：<br>
+配置了NameNode HA的Hadoop集羣會存在`active`、`standby`兩種狀態。
+SparkStreaming使用HDFS爲數據源時URL使用standby節點的主機名觸發該異常。
 
-解决方式：<br>
-登陆HDFS的WEB管理界面查看节点状态，设置HDFS的URL时使用active节点的主机名。
-Spark/SparkStreaming访问HDFS时URL需要使用active节点的主机名。
+解決方式：<br>
+登陸HDFS的WEB管理界面查看節點狀態，設置HDFS的URL時使用active節點的主機名。
+Spark/SparkStreaming訪問HDFS時URL需要使用active節點的主機名。
 
 ## org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx
-问题说明：<br>
-在集群模式下执行Spark应用时，多个JVM实例间持有不同的SparkContent实例，导致Worker节点间通信出错。
+問題說明：<br>
+在集羣模式下執行Spark應用時，多個JVM實例間持有不同的SparkContent實例，導致Worker節點間通信出錯。
 
-解决方式：<br>
-避免使用单例模式保存SparkContent实例，单例模式在集群中存在多个JVM实例时不可靠。
-创建SparkContext应在主函数代码中进行，构建SparkContext应使用伴生对象中提供的`SparkContext.getOrCreate()`方法。
+解決方式：<br>
+避免使用單例模式保存SparkContent實例，單例模式在集羣中存在多個JVM實例時不可靠。
+創建SparkContext應在主函數代碼中進行，構建SparkContext應使用伴生對象中提供的`SparkContext.getOrCreate()`方法。
 
 ## java.sql.SQLException: No suitable driver
-问题说明：<br>
-SparkSQL通过JDBC操作数据库时，提示找不到对应数据库驱动。
-将对应数据库驱动打包到Driver Program内部依旧产生该异常信息。
+問題說明：<br>
+SparkSQL通過JDBC操作數據庫時，提示找不到對應數據庫驅動。
+將對應數據庫驅動打包到Driver Program內部依舊產生該異常信息。
 
-解决方式：<br>
-直接将JDBC驱动包放置到`$SPARK_HOME/jars`路径下。
-或者设置`SPARK_CLASSPATH`环境变量，将JDBC驱动包所处的路径添加到其中。
+解決方式：<br>
+直接將JDBC驅動包放置到`$SPARK_HOME/jars`路徑下。
+或者設置`SPARK_CLASSPATH`環境變量，將JDBC驅動包所處的路徑添加到其中。
 
 ## RDD transformations and actions are NOT invoked by the driver, but inside of other transformations;
-问题说明：<br>
-Spark应用的transformation/action操作的闭包函数内部再次调用了其它RDD的transformation操作，产生该异常信息。
+問題說明：<br>
+Spark應用的transformation/action操作的閉包函數內部再次調用了其它RDD的transformation操作，產生該異常信息。
 
-解决方式：<br>
-将transformation/action操作移至闭包外部，若需要在闭包内访问其它RDD的计算结果应在闭包外部完成计算，
-对于部分数据量较大的内容，应使用广播变量存储。
+解決方式：<br>
+將transformation/action操作移至閉包外部，若需要在閉包內訪問其它RDD的計算結果應在閉包外部完成計算，
+對於部分數據量較大的內容，應使用廣播變量存儲。
 
 ## java.lang.NoSuchMethodError: net.jpountz.lz4.LZ4BlockInputStream.<init>(Ljava/io/InputStream;Z)V
-问题说明：<br>
-SparkSQL与Spark Streaming Kafka一同使用时提示该错误。
+問題說明：<br>
+SparkSQL與Spark Streaming Kafka一同使用時提示該錯誤。
 
-解决方式：<br>
-该问题是由于Spark与Kafka共同依赖了`lz4`库，但依赖的版本不同导致运行时报错。
-以`Spark 2.3`和`Spark Streaming Kafka 0.10`为例，二者分别依赖lz4库的1.4和1.3版本，需要显式指定依赖的版本，
-在sbt构建配置中添加：`"net.jpountz.lz4" % "lz4" % "1.3.0"`。
+解決方式：<br>
+該問題是由於Spark與Kafka共同依賴了`lz4`庫，但依賴的版本不同導致運行時報錯。
+以`Spark 2.3`和`Spark Streaming Kafka 0.10`爲例，二者分別依賴lz4庫的1.4和1.3版本，需要顯式指定依賴的版本，
+在sbt構建配置中添加：`"net.jpountz.lz4" % "lz4" % "1.3.0"`。
 
-## MySQL的TINYINT类型错误映射到JDBC的Boolean类型
-问题说明：<br>
-SparkSQL查询MySQL表时，对于类型为`TINYINT(1)`的字段默认会映射到`Boolean`类型。
+## MySQL的TINYINT類型錯誤映射到JDBC的Boolean類型
+問題說明：<br>
+SparkSQL查詢MySQL表時，對於類型爲`TINYINT(1)`的字段默認會映射到`Boolean`類型。
 
-解决方案：<br>
-修改MySQL中对应字段的定义，将`TINYINT(1)`类型的字段对应的Display Size调整为2以上(`TINYINT(2)`)。
-或者在JDBC连接中设置连接参数`tinyInt1isBit`为false，即JDBC连接URL设为`jdbc:mysql://ip:port/db_name?tinyInt1isBit=false`。
+解決方案：<br>
+修改MySQL中對應字段的定義，將`TINYINT(1)`類型的字段對應的Display Size調整爲2以上(`TINYINT(2)`)。
+或者在JDBC連接中設置連接參數`tinyInt1isBit`爲false，即JDBC連接URL設爲`jdbc:mysql://ip:port/db_name?tinyInt1isBit=false`。
