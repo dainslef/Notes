@@ -19,6 +19,7 @@
 		- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
 - [問題紀錄](#問題紀錄)
 	- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
+	- [No output backlight property](#no-output-backlight-property)
 
 <!-- /TOC -->
 
@@ -472,6 +473,22 @@ services.gnome3 = {
 }
 ```
 
+詳情可參考[NixOS官方更新日誌](https://nixos.org/nixos/manual/release-notes.html#sec-release-19.09-highlights)：
+
+> The GNOME 3 desktop manager module sports an interface to enable/disable core services, applications, and optional GNOME packages like games.
+>
+> This can be achieved with the following options which the desktop manager default enables, excluding games.
+>
+> services.gnome3.core-os-services.enable
+>
+> services.gnome3.core-shell.enable
+>
+> services.gnome3.core-utilities.enable
+>
+> services.gnome3.games.enable
+>
+> With these options we hope to give users finer grained control over their systems. Prior to this change you'd either have to manually disable options or use environment.gnome3.excludePackages which only excluded the optional applications. environment.gnome3.excludePackages is now unguarded, it can exclude any package installed with environment.systemPackages in the GNOME 3 module.
+
 
 
 # 問題紀錄
@@ -513,3 +530,17 @@ warning: error(s) occurred while switching to the new configuration
 解決方案：<br>
 移除符號鏈接`/var/lib/systemd/timesync`和路徑`/var/lib/private/systemd/timesync`下的所有內容，重啓服務則不會再收到錯誤提示。
 參考[GitHub NixOS/nixpkgs Issues #31540](https://github.com/NixOS/nixpkgs/issues/31540)。
+
+## No output backlight property
+問題說明：<br>
+使用`xbacklight`相關指令時，提示`No output backlight property`。
+啟用`hardware.acpilight.enable`參數、用戶加入`video`組後依舊如此。
+
+解決方案：<br>
+對於使用intel核芯顯卡的計算機，需要正確配置intel顯卡驅動，在configuration.nix中添加：
+
+```nix
+services.xserver.videoDivers = ["intel"];
+```
+
+實際上，僅需要正確配置intel顯卡驅動，xbacklight即可正常工作，無需設置acpilight或是將用戶加入video用戶組。
