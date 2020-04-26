@@ -36,6 +36,7 @@
 	- [WARN org.apache.hadoop.hdfs.server.datanode.DataNode: IOException in offerService; java.io.EOFException: End of File Exception between local host is: "xxxs/xx.xx.xx.xx"; destination host is: "xxhostname":xxxx;](#warn-orgapachehadoophdfsserverdatanodedatanode-ioexception-in-offerservice-javaioeofexception-end-of-file-exception-between-local-host-is-xxxsxxxxxxxx-destination-host-is-xxhostnamexxxx)
 	- [master.ServerManager: Waiting for region servers count to settle; currently checked in 0, slept for 67247 ms, expecting minimum of 1, maximum of 2147483647, timeout of 4500 ms, interval of 1500 ms.](#masterservermanager-waiting-for-region-servers-count-to-settle-currently-checked-in-0-slept-for-67247-ms-expecting-minimum-of-1-maximum-of-2147483647-timeout-of-4500-ms-interval-of-1500-ms)
 	- [INFO org.apache.hadoop.hbase.util.FSUtils: Waiting for dfs to exit safe mode...](#info-orgapachehadoophbaseutilfsutils-waiting-for-dfs-to-exit-safe-mode)
+	- [org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.hdfs.server.namenode.LeaseExpiredException): No lease on ... (inode ...): File does not exist. [Lease.  Holder: DFSClient_NONMAPREDUCE_1864798381_45, pendingcreates: 2]](#orgapachehadoopipcremoteexceptionorgapachehadoophdfsservernamenodeleaseexpiredexception-no-lease-on--inode--file-does-not-exist-lease--holder-dfsclient_nonmapreduce_1864798381_45-pendingcreates-2)
 
 <!-- /TOC -->
 
@@ -1369,3 +1370,14 @@ $ hdfs dfsadmin -safemode leave
 Safe mode is OFF in spark-master/172.16.1.126:9000
 Safe mode is OFF in spark-slave2/172.16.1.129:9000
 ```
+
+## org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.hdfs.server.namenode.LeaseExpiredException): No lease on ... (inode ...): File does not exist. [Lease.  Holder: DFSClient_NONMAPREDUCE_1864798381_45, pendingcreates: 2]
+問題說明：<br>
+使用HDFS FileSystem API高頻率訪問HDFS中的文件時出現該異常信息。
+
+解決方案：<br>
+該類異常可能有以下兩類原因造成：
+
+- 多線程訪問同一個文件，應保證每個線程訪問唯一的文件。
+- 同時訪問的文件數目超過HDFS默認的限制。`hdfs-site.xml`中配置`dfs.datanode.max.xcivers`，
+該配置決定HDFS允許同時訪問的文件數目的上限，該配置默認為`4096`，可根據需求增大。
