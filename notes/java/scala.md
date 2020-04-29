@@ -300,7 +300,7 @@ def methodName(args: Type) = /* function_body */
 
 ```scala
 def num = {
-  200 //編譯器推斷出返回值爲 Int 類型
+  200 // 編譯器推斷出返回值爲 Int 類型
 }
 ```
 
@@ -329,7 +329,7 @@ def num(num: Int): Int = {
 
 ```scala
 def getNum: Int = 100
-def getNum(): Int = 100 //以上兩個定義只能存在一個
+def getNum(): Int = 100 // 以上兩個定義只能存在一個
 ```
 
 無參數方法與空參數方法只能存在一個，二者在使用方式上略有不同：
@@ -340,19 +340,19 @@ def getNum(): Int = 100 //以上兩個定義只能存在一個
 示例：
 
 ```scala
-scala> def getNum: Int = 100 //定義了方法 getNum: Int
+scala> def getNum: Int = 100 // 定義了方法 getNum: Int
 getNum: Int
-scala> getNum //正確，返回 100
+scala> getNum // 正確，返回 100
 res0: Int = 100
-scala> getNum() //錯誤，提示 error: Int does not take parameters
+scala> getNum() // 錯誤，提示 error: Int does not take parameters
 <console>:12: error: Int does not take parameters
   getNum()
         ^
-scala> def getNum(): Int = 200 //定義了方法 getNum(): Int，覆蓋了之前定義的 getNum: Int
+scala> def getNum(): Int = 200 // 定義了方法 getNum(): Int，覆蓋了之前定義的 getNum: Int
 getNum: ()Int
-scala> getNum //正確，返回 200
+scala> getNum // 正確，返回 200
 res1: Int = 200
-scala> getNum() //正確，返回 200
+scala> getNum() // 正確，返回 200
 res2: Int = 200
 ```
 
@@ -364,11 +364,11 @@ res2: Int = 200
 ```scala
 scala> var num = 100
 num: Int = 100
-scala> def setNum(p: Int = 0) { num = p } //方法的參數不能由默認值進行類型推導，即使給參數寫明瞭默認值，也依然需要顯式指明類型
+scala> def setNum(p: Int = 0) { num = p } // 方法的參數不能由默認值進行類型推導，即使給參數寫明瞭默認值，也依然需要顯式指明類型
 setNum: (p: Int)Unit
-scala> setNum() //對於有參數的方法，即使參數帶有默認值使得參數表可以爲空但在調用時依然不能省略括號，否則報錯
+scala> setNum() // 對於有參數的方法，即使參數帶有默認值使得參數表可以爲空但在調用時依然不能省略括號，否則報錯
 scala> println(num)
-0 //輸出0
+0 // 輸出0
 ```
 
 若方法中包含多個同類型並帶有默認值的參數，調用時默認匹配第一個參數：
@@ -395,7 +395,7 @@ class Test {
 }
 
 object Main extends App {
-  def get(num: Int = (new Test).num) = num //Scala支持使用new操作符創建實例獲取成員字段做爲默認值
+  def get(num: Int = (new Test).num) = num // Scala支持使用new操作符創建實例獲取成員字段做爲默認值
   def show(num: Int = get()) = println(num)
   show()
 }
@@ -448,7 +448,7 @@ object Main extends App {
 	Unspecified value parameter char.
 	    func(100, 'c')
 	        ^
-	scala> func(int = 100, char = 'c') //對於默認參數不連續的方法，需要使用"具名參數"特性
+	scala> func(int = 100, char = 'c') // 對於默認參數不連續的方法，需要使用"具名參數"特性
 	100 String c 123.0
 	```
 
@@ -489,7 +489,7 @@ Scala中提供了`Function0[+R]`(無參數)到`Function22[-T1, ..., -T22, +R]`�
 ```scala
 scala> var show100: () => Int = () => 100
 show100: () => Int = <function0>
-scala> show100 //直接使用函數名得到的是函數對象而非調用函數
+scala> show100 // 直接使用函數名得到的是函數對象而非調用函數
 res0: () => Int = <function0>
 scala> show100()
 res1: Int = 100
@@ -525,7 +525,7 @@ class Test
 {
 	static void Main(string[] args)
 		=> new Action<string>(str => Console.WriteLine(str))("Hello World!");
-		//或者寫成 ((Action<string>)(str => Console.WriteLine(str)))("Hello World!");
+		// 或者寫成 ((Action<string>)(str => Console.WriteLine(str)))("Hello World!");
 }
 ```
 
@@ -544,7 +544,7 @@ object Main extends App {
   def add(num: Int) = num + 100
   def double(num: Int) = num * 2
 
-  //只有函數能進行組合,方法需要加"_"符號轉化成函數
+  // 只有函數能進行組合,方法需要加"_"符號轉化成函數
   val compose = add _ compose double
   val andThen = add _ andThen double
 
@@ -566,7 +566,7 @@ true
 在Scala中使用類型`PartialFunction[-A, +B]`來表示偏函數。
 `PartialFunction[-A, +B]`繼承於`A => B`類型，即偏函數具有普通函數的功能，是普通函數的一類特例。
 
-可以使用**模式匹配**中的`case`語法來定義有限定義域的偏函數，一個最簡單的偏函數如下所示：
+可以使用**模式匹配**中的`case`語法來定義有限定義域的偏函數，一個最簡單的偏函數示例：
 
 ```scala
 scala> val func: PartialFunction[Int, Int] = { case 0 => 0 }
@@ -739,7 +739,7 @@ Scala**沒有**提供主流語言中的`continue`和`break`關鍵字用於流程
 ## continue
 其它語言中的`continue`功能可以通過`for`語句條件後添加`if`判斷條件實現或使用**守衛**。
 
-簡單的例子如下所示：
+簡單的例子示例：
 
 - `CPP`
 
@@ -784,9 +784,9 @@ import scala.util.control.Breaks.{breakable, break}
 object Main extends App {
 
   breakable {
-    //使用break的代碼塊作爲傳名參數傳入breakable中
+    // 使用break的代碼塊作爲傳名參數傳入breakable中
     for (i <- 1 to 10) {
-      if (i == 8) break		//跳出循環
+      if (i == 8) break //跳出循環
     }
   }
 
@@ -819,21 +819,21 @@ Scala中公有類的名稱不強制要求與源碼文件相同，同時一個文
 ```scala
 package TestCode {
 
-  private class A //類定義前可以使用訪問權限修飾
-  protected class B //類定義的訪問權限可以爲protected
+  private class A // 類定義前可以使用訪問權限修飾
+  protected class B // 類定義的訪問權限可以爲protected
 
-  case class Num private(num: Int = 200) //權限修飾符可以用在類名與主構造器之間，代表構造器私有
+  case class Num private(num: Int = 200) // 權限修飾符可以用在類名與主構造器之間，代表構造器私有
 
   // 即使主構造器參數爲空，也不能直接以權限關鍵字結尾
-  class Test protected() //或者寫成 class Test protected {}
+  class Test protected() // 或者寫成 class Test protected {}
 
   class Access(a: Int = 1, var b: Double = 2.0) {
-    def showOther1(access: Access) = access.show1 //出錯，access非當前類實例，無訪問權限
-    def showOther2(access: Access) = access.show2 //正常訪問
-    def showOther3(access: Access) = access.show3 //正常訪問
-    private[this] def show1 = println(a + " " + b) //限定當前實例可訪問
-    private[Access] def show2 = println(a + " " + b) //類似Java中的private，當前類的任意實例皆可相互訪問私有成員
-    private[TestCode] def show3 = println(a + " " + b) //作用域爲包名，此時的訪問權限類似Java中的default訪問權限，當前包中類的實例皆可訪問到該私有成員
+    def showOther1(access: Access) = access.show1 // 出錯，access非當前類實例，無訪問權限
+    def showOther2(access: Access) = access.show2 // 正常訪問
+    def showOther3(access: Access) = access.show3 // 正常訪問
+    private[this] def show1 = println(a + " " + b) // 限定當前實例可訪問
+    private[Access] def show2 = println(a + " " + b) // 類似Java中的private，當前類的任意實例皆可相互訪問私有成員
+    private[TestCode] def show3 = println(a + " " + b) // 作用域爲包名，此時的訪問權限類似Java中的default訪問權限，當前包中類的實例皆可訪問到該私有成員
   }
 
 }
@@ -858,8 +858,8 @@ public class Test {
 	private int num;
 	private final java.lang.String str;
 	public int num();
-	public void num_$eq(int); //var字段生成了setter/getter
-	public java.lang.String str(); //val字段生成了getter
+	public void num_$eq(int); // var字段生成了setter/getter
+	public java.lang.String str(); // val字段生成了getter
 	public Test();
 }
 ```
@@ -880,10 +880,10 @@ public class Test {
 ```scala
 class Override {
 
-  var m = 100 //普通成員字段會自動合成setter/getter方法
+  var m = 100 // 普通成員字段會自動合成setter/getter方法
   /*
-   * def m(): Int = m //錯誤，提示重複定義
-   * def m_=(m: Int) { this.m = m } //錯誤，提示重複定義
+   * def m(): Int = m // 錯誤，提示重複定義
+   * def m_=(m: Int) { this.m = m } // 錯誤，提示重複定義
    */
   def m(m: Int) {} //正常，簽名未衝突
 
@@ -893,14 +893,14 @@ class Override {
    * 且沒有實用價值(setter方法使用報錯)
    */
   private[this] var num = 100
-  def num(): Int = num //正常
+  def num(): Int = num // 正常
   def num_=(num: Int) {
     this.num = num
-  } //正常，雖然定義時不報錯，但賦值時報錯
+  } // 正常，雖然定義時不報錯，但賦值時報錯
   /*
-   * def num = this.num //報錯
-   * def num: Int = num //報錯
-   * def num: Int = this.num //報錯
+   * def num = this.num // 報錯
+   * def num: Int = num // 報錯
+   * def num: Int = this.num // 報錯
    */
 
   // 常用的私有變量自定義setter/getter風格是私有字段名前加上下劃線
@@ -923,7 +923,8 @@ class Override {
 但調用過程中會提示錯誤(如上例子中給num字段賦值會得到錯誤`reassignment to val`，
 因此不要手動給字段定義同名的`setter`、`getter`方法)。
 
-此外，由於字段名稱可以與方法名稱相同，因而即使編譯器生成了`setter`、`getter`方法，編碼者依然可以使用字段名稱定義其它簽名的重載函數。
+此外，由於字段名稱可以與方法名稱相同，因而即使編譯器生成了`setter`、`getter`方法，
+編碼者依然可以使用字段名稱定義其它簽名的重載函數。
 
 ## Constructor (構造器)
 在Scala中構造方法的作用與Java類似，用於在創建類實例的同時對指定的成員進行初始化。
@@ -955,9 +956,9 @@ class Constructor(a: Int, var b: Double = 2.0) {
 //只有主構造器能夠調用父類構造器，調用的父類構造器可以是主構造器，也可以是輔助構造器
 class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
   def this() {
-    //a = 100 //代碼要在構造器調用之後，放在this()之前會報錯
+    // a = 100 // 代碼要在構造器調用之後，放在this()之前會報錯
     this(2, 4.0)
-    //super(2, 4.0) //在Scala中沒有這種用法，父類的構造函數只能由主構造器調用
+    // super(2, 4.0) // 在Scala中沒有這種用法，父類的構造函數只能由主構造器調用
   }
 }
 ```
@@ -1017,12 +1018,12 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	// Scala中單例模式的寫法
 	object Test {
 	  lazy val instance = Test()
-	  private def apply() = new Test(100) //正確，伴生對象中可以訪問類的私有成員，包括私有主構造器
+	  private def apply() = new Test(100) // 正確，伴生對象中可以訪問類的私有成員，包括私有主構造器
 	}
 
 	object Main extends App {
-	  Test.instance.show() //正確，獲取單例
-	  new Test(100).show() //錯誤，無法直接訪問私有構造器
+	  Test.instance.show() // 正確，獲取單例
+	  new Test(100).show() // 錯誤，無法直接訪問私有構造器
 	}
 	```
 
@@ -1203,7 +1204,7 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 
 	```scala
 	class Default {
-	  //編譯報錯，主構造器已爲空參，不能重複定義
+	  // 編譯報錯，主構造器已爲空參，不能重複定義
 	  def this() { ... }
 	}
 	```
@@ -1242,7 +1243,7 @@ class Clone extends Cloneable {
   override def clone = {
     // Cloneable接口中clone()返回的是Object型，即Scala中的Any，需要進行強制類型轉換
     val clone = super.clone.asInstanceOf[Clone]
-    clone.nums = nums.clone //深複製需要對成員中的引用類型調用clone()
+    clone.nums = nums.clone // 深複製需要對成員中的引用類型調用clone()
     clone
   }
 }
@@ -1261,7 +1262,7 @@ class Clone extends Cloneable[Clone] {
   var nums = Array(1, 2, 3)
   var str = "TestClone"
   override def clone = {
-    val clone = super.clone //不必進行強制類型轉換，類型已在泛型參數中指定
+    val clone = super.clone // 不必進行強制類型轉換，類型已在泛型參數中指定
     clone.nums = nums.clone
     clone
   }
@@ -1278,8 +1279,8 @@ object Init extends App {
   val num = new Num {
     num = 100
     name = "Num"
-  } //相當於創建了一個匿名類，然後向上轉型到類Num上
-  println(s"${num.name} ${num.num}") //正常輸出了初始化的值
+  } // 相當於創建了一個匿名類，然後向上轉型到類Num上
+  println(s"${num.name} ${num.num}") // 正常輸出了初始化的值
 }
 
 class Num {
@@ -1296,7 +1297,7 @@ class Init {
 		Num num = new Num() {{
 			num = 100;
 			name = "Num";
-		}}; //匿名類的構造函數的函數名爲空，因此可以使用大括號直接嵌套的方式
+		}}; // 匿名類的構造函數的函數名爲空，因此可以使用大括號直接嵌套的方式
 		System.out.println(num.name + " " + num.num);
 	}
 }
@@ -1326,7 +1327,7 @@ defined object Test
 scala> Test.num
 res1: Int = 2333
 
-scala> Test.msg //單例對象的內部成員支持訪問權限控制
+scala> Test.msg // 單例對象的內部成員支持訪問權限控制
 <console>:13: error: value msg is not a member of object Test
        Test.msg
             ^
@@ -1363,7 +1364,7 @@ Show Trait
 scala> import scala.reflect.runtime.universe.typeOf
 import scala.reflect.runtime.universe.typeOf
 
-scala> typeOf[Test.type] //單例自身的類型信息
+scala> typeOf[Test.type] // 單例自身的類型信息
 res1: reflect.runtime.universe.Type = Test.type
 
 scala> typeOf[Test.type] <:< typeOf[Base]
@@ -1384,11 +1385,11 @@ res3: Boolean = true
 scala> object Test { println("Init Singleton Test") }
 defined object Test
 
-scala> Test //首次訪問單例，單例進行初始化，觸發副作用
+scala> Test // 首次訪問單例，單例進行初始化，觸發副作用
 Init Singleton Test
 res0: Test.type = Test$@16ea0f22
 
-scala> Test //再次訪問單例，單例已被初始化，不再觸發副作用
+scala> Test // 再次訪問單例，單例已被初始化，不再觸發副作用
 res1: Test.type = Test$@16ea0f22
 ```
 
@@ -1417,7 +1418,8 @@ trait中的成員同樣可以設置訪問權限。
 Scala不支持**多重繼承**，一個類只能擁有一個父類，但可以**混入(mixin)**多個特質。
 
 - **Mixin**機制相比傳統的單根繼承，保留了多重繼承的大部分優點。
-- 使用`with`關鍵字混入特質，一個類中混入多個特質時，會將第一個擴展的特質的父類作爲自身的父類，同時，後續混入的特質都必須是從該父類派生。
+- 使用`with`關鍵字混入特質，一個類中混入多個特質時，會將第一個擴展的特質的父類作爲自身的父類，
+同時，後續混入的特質都必須是從該父類派生。
 - 若同時繼承類並混入特質，需要將繼承的類寫在`extends`關鍵字的後面，`with`只能混入**特質**，不能混入**類**。
 
 示例：
@@ -1444,12 +1446,14 @@ class TestExtend extends TraitA with TraitB
 class ExtendClass extends TraitA with BaseA
 ```
 
-`TestExtend`類中，特質`TraitA`的父類`BaseA`並不是特質`TraitB`父類`BaseB`的父類，而Scala中一個類只能擁有一個父類，因而無法通過編譯。
+`TestExtend`類中，特質`TraitA`的父類`BaseA`並不是特質`TraitB`父類`BaseB`的父類，
+而Scala中一個類只能擁有一個父類，因而無法通過編譯。
 `ExtendClass`類中，應該繼承`BaseA`後混入特質`TraitA`，`with`關鍵字之後的必需是特質而不能是類名。
 
 ## 重寫衝突方法/字段
 混入機制需要解決**富接口**帶來的成員衝突問題。
-當一個類的父類與後續混入的特質中帶有相同名稱的字段或相同簽名的方法時，需要在子類重寫這些衝突的內容，否則無法通過編譯。
+當一個類的父類與後續混入的特質中帶有相同名稱的字段或相同簽名的方法時，
+需要在子類重寫這些衝突的內容，否則無法通過編譯。
 
 示例：
 
@@ -1467,7 +1471,7 @@ trait TraitB {
 }
 
 class TestExtend extends BaseA with TraitA with TraitB {
-  override def get = 77 //對於衝突的內容，必需顯式重寫
+  override def get = 77 // 對於衝突的內容，必需顯式重寫
 }
 ```
 
@@ -1504,7 +1508,7 @@ trait TraitB extends TraitA {
 
 class Main extends App {
   new ClassChild with TraitA with TraitB {
-    println("Now") //當前特質最後進行構造
+    println("Now") // 當前特質最後進行構造
   }
 }
 ```
@@ -1573,7 +1577,7 @@ super關鍵字具有以下限制：
 
 	class TestExtend extends BaseA with TraitA with TraitC {
 
-	  override def get = super[BaseA].get //正確，顯式使用父類BaseA中的實現，即返回123
+	  override def get = super[BaseA].get // 正確，顯式使用父類BaseA中的實現，即返回123
 
 	  /* 錯誤，super關鍵字引用父類/父特質的實現時必需使用直接混入的類或特質，不能使用繼承層級中更遠的類或特質
 	   * 編譯報錯：error: super may not be used on value get
@@ -1615,12 +1619,11 @@ trait NameB extends Name {
 }
 
 object Main extends App {
-  new NameA extends NameB //編譯出錯
+  new NameA extends NameB // 編譯出錯
 }
 ```
 
 混入兩個重寫了同一個抽象方法/字段的特質時，若未使用`override`關鍵字，則混入時編譯出錯，需要顯式重寫衝突內容。
-
 若特質使用了`override`關鍵字進行重寫，則混入時依據線性化順序決定最終的實現(保留最後混入的實現)。
 示例：
 
@@ -1667,7 +1670,7 @@ object Main extends App {
 ```
 
 ## 線性化與類型關係
-在混入帶有衝突內容的特質時，衝突內容的類型不能爲完全無關的類型，如下所示：
+在混入帶有衝突內容的特質時，衝突內容的類型不能爲完全無關的類型，示例：
 
 ```scala
 scala> class A
@@ -1690,7 +1693,7 @@ scala> trait TestMixin extends TraitA with TraitB
 ```
 
 混入同名字段時，同名字段的類型可以不完全相同，但需要滿足繼承關係，同時子類位於線性化順序的**最右端**，
-即滿足`最右端類型 <: 同名字段類型鏈中最具體的類型`，如下所示：
+即滿足`最右端類型 <: 同名字段類型鏈中最具體的類型`，示例：
 
 ```scala
 scala> class Base
@@ -1721,16 +1724,16 @@ scala> trait TestMixin extends TraitB with TraitA
 ```
 
 線性化的最右端需要爲更**具體**的類型，但混入順序中間的同名字段不必都比前一個同名字段更具體
-(中間字段類型僅需存在父子類關係即可，可爲基類)，如下所示：
+(中間字段類型僅需存在父子類關係即可，可爲基類)，示例：
 
 ```scala
 scala> trait TestMixin extends TraitB with TraitA { val t: Child }
-defined trait TestMixin //同名字段的混入類型鏈爲 Child => Base => Child
+defined trait TestMixin // 同名字段的混入類型鏈爲 Child => Base => Child
 ```
 
 ## 線性化與泛型
 當混入特質帶有同名字段類型爲泛型參數時，只要泛型參數滿足繼承類型約束，並保證子類位於線性化順序的最右端，
-同樣可以正常進行類型定義，如下所示：
+同樣可以正常進行類型定義，示例：
 
 ```scala
 scala> trait Test
@@ -1743,19 +1746,19 @@ scala> trait TraitB[T <: Test] { val t: T }
 defined trait TraitB
 
 scala> trait TestMixin[T <: Test] extends TraitA with TraitB[T]
-defined trait TestMixin //使用類型下界
+defined trait TestMixin // 使用類型下界
 
 scala> trait TestMixin[T <: Test] extends TraitB[T] with TraitA { val t: T }
-defined trait TestMixin //同名字段的混入類型鏈爲 T => Test => T
+defined trait TestMixin // 同名字段的混入類型鏈爲 T => Test => T
 
 scala> trait TraitC[T >: Test] { val t: T }
 defined trait TraitC
 
 scala> trait TestMixin[T >: Test] extends TraitC[T] with TraitA
-defined trait TestMixin //使用類型上界
+defined trait TestMixin // 使用類型上界
 
 scala> trait TestMixin[T >: Test] extends TraitA with TraitC[T] { val t: Test }
-defined trait TestMixin //同名字段的混入類型鏈爲 Test => T => Test
+defined trait TestMixin // 同名字段的混入類型鏈爲 Test => T => Test
 ```
 
 
@@ -1824,8 +1827,8 @@ Not Matching
 ```
 
 ## 避免重定義樣例類自動生成的方法
-手動創建樣例類的伴生對象時，應避免定義與樣例類自動生成方法簽名相同的方法(`apply()/unapply()`等)
-，否則編譯報錯，如下所示：
+手動創建樣例類的伴生對象時，應避免定義與樣例類自動生成方法簽名相同的方法(`apply()/unapply()`等)，
+否則編譯報錯，示例：
 
 ```scala
 object Main extends App {
@@ -1833,8 +1836,8 @@ object Main extends App {
   case class Case(num: Int)
 
   object Case {
-    def apply(num: Int) = new Case(num) //編譯報錯
-    def unapply(arg: Case) = Option(arg.num) //編譯報錯
+    def apply(num: Int) = new Case(num) // 編譯報錯
+    def unapply(arg: Case) = Option(arg.num) // 編譯報錯
   }
 
 }
@@ -1853,7 +1856,7 @@ error: method unapply is defined twice;
              ^
 ```
 
-若伴生對象中的自定義方法與默認生成的方法簽名不同，則正常編譯，如下所示：
+若伴生對象中的自定義方法與默認生成的方法簽名不同，則正常編譯，示例：
 
 ```scala
 object Main extends App {
@@ -1861,8 +1864,8 @@ object Main extends App {
   case class Case(num: Int)
 
   object Case {
-    def apply(num1: Int, num2: Int) = new Case(num1 + num2) //正常編譯
-    def unapply(arg: (Case, Case)) = Option(arg._1.num, arg._2.num) //正常編譯
+    def apply(num1: Int, num2: Int) = new Case(num1 + num2) // 正常編譯
+    def unapply(arg: (Case, Case)) = Option(arg._1.num, arg._2.num) // 正常編譯
   }
 
 }
@@ -1883,7 +1886,7 @@ object Main extends App {
 - 基礎類型轉換
 
 	基礎類型與字符串(String)等類型之間的轉換也由類提供的成員函數進行。
-	將數值與字符串相互轉換，如下所示：
+	將數值與字符串相互轉換，示例：
 
 	```scala
 	val str = 100.toString
@@ -1941,7 +1944,7 @@ scala> Option(null)
 res11: Option[Null] = None
 ```
 
-其它常用方法如下所示：
+其它常用方法如下：
 
 ```scala
 sealed abstract class Option[+A] extends Product with Serializable {
@@ -2001,13 +2004,13 @@ scala> Option.empty[Int] map (_.length)
 res5: Option[Int] = None
 
 scala> Option("abc").fold(0)(_.length)
-res8: Int = 3 //目標值存在時輸出表達式結果
+res8: Int = 3 // 目標值存在時輸出表達式結果
 
 scala> Option.empty[String].fold(0)(_.length)
-res9: Int = 0 //目標值不存在時使用提供的值做爲返回結果
+res9: Int = 0 // 目標值不存在時使用提供的值做爲返回結果
 ```
 
-可空類型也可以用於**模式匹配**中，如下所示：
+可空類型也可以用於**模式匹配**中，示例：
 
 ```scala
 object TestOption extends App {
@@ -2044,7 +2047,7 @@ Scala的**模式匹配**提供了諸多強大的特性，主要功能如下：
 使用`match`關鍵字開始一個模式匹配語句。
 使用`case`關鍵字添加一個匹配值。
 
-基本語法如下所示：
+基本語法示例：
 
 ```scala
 變量 match {
@@ -2073,15 +2076,15 @@ object Main extends App {
     print(s"String: $str => ")
     str match {
       case "str0" => println("Match case str0"); 0
-      case "str1" | "str2" => println("Match case str1 | str2"); 1 //使用 | 操作符連接多個模式匹配條件
-      case s@_ if s.length > 3 => //使用 @ 操作符指代整個匹配條件，使用 if 添加守衛
+      case "str1" | "str2" => println("Match case str1 | str2"); 1 // 使用 | 操作符連接多個模式匹配條件
+      case s@_ if s.length > 3 => // 使用 @ 操作符指代整個匹配條件，使用 if 添加守衛
         println("Match case which string's length is larger then 3"); s.length
-      case s@("a" | "bb" | "cccc") => s.length //使用 @ 指代多個匹配條件
+      case s@("a" | "bb" | "cccc") => s.length // 使用 @ 指代多個匹配條件
       case _ => println("No match"); -1
     }
   }
 
-  val re0 = switch(str0) //case語句後的最後一句做會做爲整個match表達式的返回值
+  val re0 = switch(str0) // case語句後的最後一句做會做爲整個match表達式的返回值
   val re1 = switch(str1)
   val re2 = switch(str2)
   val re3 = switch(str3)
@@ -2136,7 +2139,7 @@ object Main extends App {
 
   def typeMatch(lang: Any) = lang match {
     case s: Scala => println(s.scala)
-    case _: CSharp | _: Cpp => println("Match C# or CPP!") //匹配多種類型
+    case _: CSharp | _: Cpp => println("Match C# or CPP!") // 匹配多種類型
     case l: Language => println(s"Other language: ${l.name}")
     case _ => println("No match!")
   }
@@ -2162,7 +2165,7 @@ Other language: Java
 No match!
 ```
 
-當模式匹配匹配泛型類型時，由於`JVM`採用`Type Erasure`的方式實現泛型，因而泛型類型的泛型參數無法準確匹配，如下所示：
+當模式匹配匹配泛型類型時，由於`JVM`採用`Type Erasure`的方式實現泛型，因而泛型類型的泛型參數無法準確匹配，示例：
 
 ```scala
 object Main extends App {
@@ -2236,7 +2239,7 @@ scala> destruct(Manager("Dainslef", 2333))
 Manager name: Dainslef, right: 2333
 ```
 
-解構類型時，亦可使用**值匹配**(多個候選值同樣使用`|`操作符連接)，還可使用`@`操作符指代匹配表達式/子表達式，如下所示：
+解構類型時，亦可使用**值匹配**(多個候選值同樣使用`|`操作符連接)，還可使用`@`操作符指代匹配表達式/子表達式，示例：
 
 ```scala
 scala> def destruct(obj: Any) = obj match {
@@ -2423,7 +2426,7 @@ object Apply {
 ```
 
 ## 無參 apply 方法
-`apply()`方法對應的無參數形式`apply`方法在通常情形下並不生效，字段、類會被優先解析爲本身的含義(值、類型)，如下所示：
+`apply()`方法對應的無參數形式`apply`方法在通常情形下並不生效，字段、類會被優先解析爲本身的含義(值、類型)，示例：
 
 ```scala
 scala> object Test { def apply { println("Print test") } }
@@ -2447,7 +2450,7 @@ scala> t.apply //顯式調用 apply 方法
 Print test
 ```
 
-在無參apply方法帶有**泛型參數**時，可以正常使用帶有泛型參數的省略形式，如下所示：
+在無參apply方法帶有**泛型參數**時，可以正常使用帶有泛型參數的省略形式，示例：
 
 ```scala
 scala> object Test { def apply[T] { println("Print test") } }
@@ -2539,7 +2542,7 @@ getLangName (CPP name) = name
 在Scala中，字符串依然使用Java中標準的`String`類型，但通過**隱式轉換**特性，`String`可以被自動構造爲`StringLike`類型。
 
 `StringLike`類型提供了一系列方便強大的字符操作方法，格式化字符串可以使用其提供的`format()`方法
-(使用方式類似於靜態方法`String.format()`，但使用方法調用者作爲格式化內容而非方法的首個參數)，如下所示：
+(使用方式類似於靜態方法`String.format()`，但使用方法調用者作爲格式化內容而非方法的首個參數)，示例：
 
 ```scala
 scala> "Test format str:\nString %s\nInt %d\nFloat %f\n".format("Hello World!", 666, 666.666)
@@ -2552,7 +2555,7 @@ Float 666.666
 ```
 
 ## s字符串插值器
-在`Scala 2.10`之後，還可以使用字符串插值器`s""`，基本用法如下所示：
+在`Scala 2.10`之後，還可以使用字符串插值器`s""`，基本用法示例：
 
 ```scala
 scala> var str = "Hello World"
@@ -2704,7 +2707,7 @@ ID: 100, Str: white
 ID: 200, Str: black
 ```
 
-`Enumeration`類的默認構造方法帶有一個`Int`類型參數，用於指定枚舉ID的**起始大小**，如下所示：
+`Enumeration`類的默認構造方法帶有一個`Int`類型參數，用於指定枚舉ID的**起始大小**，示例：
 
 ```scala
 object Color extends Enumeration(100) {
@@ -2739,7 +2742,7 @@ ID: 104, Str: Black
 
 枚舉內部的成員全部保存在一個`Set`容器中，可使用`values`成員方法訪問。
 
-以前文中的`Color`單例對象爲例，使用多種方式訪問枚舉內容，如下所示：
+以前文中的`Color`單例對象爲例，使用多種方式訪問枚舉內容，示例：
 
 ```scala
 object Color extends Enumeration {
@@ -2790,7 +2793,7 @@ ID: 200, Str: black
 對應的枚舉類型應使用對象內部定義的抽象類型`Value`來表示，即`單例對象名稱.Value`。
 
 以前文中的`Color`單例對象爲例，對應的枚舉類型應使用`Color.Value`表示。
-將枚舉做爲參數傳遞，如下所示：
+將枚舉做爲參數傳遞，示例：
 
 ```scala
 object Color extends Enumeration {
@@ -2822,19 +2825,19 @@ Scala通過使用單例繼承`Enumeration`類來提供枚舉功能，**枚舉值
 示例：
 
 ```scala
-scala> def testEnum[T <: Enumeration#Value](enum: T) = println(enum) //打印枚舉參數名稱
+scala> def testEnum[T <: Enumeration#Value](enum: T) = println(enum) // 打印枚舉參數名稱
 testEnum: [T <: Enumeration#Value](enum: T)Unit
 
 scala> object Enum extends Enumeration { val enum0, enum1  = Value }
 defined object Enum
 
-scala> testEnum(Enum.enum0) //傳入枚舉類型參數
+scala> testEnum(Enum.enum0) // 傳入枚舉類型參數
 enum0
 
 scala> testEnum(Enum.enum1)
 enum1
 
-scala> testEnum(123) //使用其它類型不滿足泛型約束，報錯
+scala> testEnum(123) // 使用其它類型不滿足泛型約束，報錯
 <console>:13: error: inferred type arguments [Int] do not conform to method testEnum's type parameter bounds [T <: Enumeration#Value]
        testEnum(123)
        ^
@@ -2849,25 +2852,25 @@ scala> testEnum(123) //使用其它類型不滿足泛型約束，報錯
 示例：
 
 ```scala
-scala> class MyEnumeration extends Enumeration //自定義枚舉基類
+scala> class MyEnumeration extends Enumeration // 自定義枚舉基類
 defined class MyEnumeration
 
-scala> def testMyEnum[T <: MyEnumeration#Value](enum: T) = println(enum) //限定枚舉從自定義基類MyEnumeration中繼承
+scala> def testMyEnum[T <: MyEnumeration#Value](enum: T) = println(enum) // 限定枚舉從自定義基類MyEnumeration中繼承
 testMyEnum: [T <: MyEnumeration#Value](enum: T)Unit
 
-scala> object Enum extends Enumeration { val enum0, enum1  = Value } //普通枚舉
+scala> object Enum extends Enumeration { val enum0, enum1  = Value } // 普通枚舉
 defined object Enum
 
-scala> object MyEnum extends MyEnumeration { val enum0, enum1  = Value } //從自定義基類MyEnumeration繼承的枚舉
+scala> object MyEnum extends MyEnumeration { val enum0, enum1  = Value } // 從自定義基類MyEnumeration繼承的枚舉
 defined object MyEnum
 
-scala> testMyEnum(MyEnum.enum0) //參數爲從自定義枚舉基類MyEnumeration繼承的枚舉單例的枚舉值，正常
+scala> testMyEnum(MyEnum.enum0) // 參數爲從自定義枚舉基類MyEnumeration繼承的枚舉單例的枚舉值，正常
 enum0
 
 scala> testMyEnum(MyEnum.enum1)
 enum1
 
-scala> testMyEnum(Enum.enum1) //參數爲普通枚舉單例的枚舉值，錯誤
+scala> testMyEnum(Enum.enum1) // 參數爲普通枚舉單例的枚舉值，錯誤
 <console>:14: error: inferred type arguments [Enum.Value] do not conform to method testMyEnum's type parameter bounds [T <: MyEnumeration#Value]
        testMyEnum(Enum.enum1)
        ^
@@ -2892,7 +2895,7 @@ Scala中的包用法基本與Java類似：
 Scala中使用`_`符號表示導入該路徑下的所有包和成員：
 
 ```scala
-import java.awt._ //等價於java中的 import java.awt.*
+import java.awt._ // 等價於java中的 import java.awt.*
 ```
 
 導入路徑規則與Java中的類似，處於同一級包路徑下的類可以直接使用不必導入。
@@ -2923,7 +2926,7 @@ import java.awt._ //等價於java中的 import java.awt.*
 
 	而在Java中，無論包的層次關係如何，都需要通過絕對路徑進行導入。
 
-	上例對應Java版本如下所示：
+	上例對應Java版本示例：
 
 	```java
 	// file1
@@ -2982,8 +2985,8 @@ import java.awt._ //等價於java中的 import java.awt.*
 
 	object Main extends App {
 	  // 在內層包中訪問外部默認包的內容
-	  println(Test.test) //錯誤，提示 "not found: value Test"
-	  println(_root_.Test.test) //錯誤，提示 "object Test is not a member of package <root>"
+	  println(Test.test) // 錯誤，提示 "not found: value Test"
+	  println(_root_.Test.test) // 錯誤，提示 "object Test is not a member of package <root>"
 	}
 	```
 
@@ -3010,7 +3013,7 @@ import java.awt.{Color => _}
 Scala中的`import`帶有類似`Java 1.6`中的`static import`特性：
 
 ```scala
-import java.lang.Math.abs //導入Math類中的靜態方法abs
+import java.lang.Math.abs // 導入Math類中的靜態方法abs
 ```
 
 在Scala中，包引入了名稱相同的類不會發生衝突，而是後引入的類**覆蓋**之前引入的類。
@@ -3040,9 +3043,9 @@ package object Package {
 
 package Package {
   object Test extends App {
-    println(num0) //正確，可以直接訪問包對象的公有成員，不用使用前綴
-    println(num1) //錯誤，不能訪問包對象的保護成員
-    println(num2) //錯誤，不能訪問包對象的私有成員
+    println(num0) // 正確，可以直接訪問包對象的公有成員，不用使用前綴
+    println(num1) // 錯誤，不能訪問包對象的保護成員
+    println(num2) // 錯誤，不能訪問包對象的私有成員
   }
 }
 ```
@@ -3057,24 +3060,24 @@ Scala常用的基礎結構包括**數組**和**元組**。
 ## 定長數組
 在Scala中定長數組使用`Array[T]`進行表示，定長數組與Java中概念類似。
 
-構建一個固定長度的數組如下所示：
+構建一個固定長度的數組示例：
 
 ```scala
-scala> val array = new Array[Int](10) //構建一個長度爲10的Int型數組
+scala> val array = new Array[Int](10) // 構建一個長度爲10的Int型數組
 array: Array[Int] = Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-scala> val a = Array(100, 200) //使用伴生對象的apply()方法創建數組
+scala> val a = Array(100, 200) // 使用伴生對象的apply()方法創建數組
 a: Array[Int] = Array(100, 200)
 
-scala> array(5) //獲取數組中指定位置的值(使用小括號中加偏移量)
+scala> array(5) // 獲取數組中指定位置的值(使用小括號中加偏移量)
 res1: Int = 0
 
-scala> array(5) = 10 //給指定位置的元素賦值
+scala> array(5) = 10 // 給指定位置的元素賦值
 
-scala> array //查看賦值結果
+scala> array // 查看賦值結果
 res2: Array[Int] = Array(0, 0, 0, 0, 0, 10, 0, 0, 0, 0)
 
-scala> array(100) //數組訪問越界會拋出異常
+scala> array(100) // 數組訪問越界會拋出異常
 java.lang.ArrayIndexOutOfBoundsException: 100
   ... 33 elided
 ```
@@ -3095,8 +3098,8 @@ tuple: (Int, Int, Int) = (1,2,3)
 示例：
 
 ```scala
-for (t <- tuple.productIterator) println(t) //命令式遍歷
-tuple.productIterator foreach println //函數式遍歷
+for (t <- tuple.productIterator) println(t) // 命令式遍歷
+tuple.productIterator foreach println // 函數式遍歷
 ```
 
 由於元組成員可具有**不同**的類型，因而使用`Product.productIterator`遍歷時，迭代對象爲`Any`類型。
@@ -3106,18 +3109,18 @@ tuple.productIterator foreach println //函數式遍歷
 scala> val tuple = (1, 2, 3)
 tuple: (Int, Int, Int) = (1,2,3)
 
-scala> tuple.productIterator foreach { i => println(i - 1) } //直接遍歷迭代對象爲 Any 類型
+scala> tuple.productIterator foreach { i => println(i - 1) } // 直接遍歷迭代對象爲 Any 類型
 <console>:13: error: value - is not a member of Any
        tuple.productIterator foreach { i => println(i - 1) }
                                                       ^
 
-scala> tuple.productIterator foreach { case i: Int => println(i - 1) } //使用模式匹配得到真實類型
+scala> tuple.productIterator foreach { case i: Int => println(i - 1) } // 使用模式匹配得到真實類型
 0
 1
 2
 ```
 
-元組可以通過`元組對象._索引號`的形式訪問。元組下標從`1`開始而非`0`，如下所示：
+元組可以通過`元組對象._索引號`的形式訪問。元組下標從`1`開始而非`0`，示例：
 
 ```scala
 scala> println(tuple._1 + " " + tuple._2 + " " + tuple._3)
@@ -3127,7 +3130,7 @@ scala> println(tuple._1 + " " + tuple._2 + " " + tuple._3)
 元組可以用來一次性初始化多個變量：
 
 ```scala
-scala> val (a, b, c) = tuple //等價於 val (a, b, c) = (1, 2, 3)
+scala> val (a, b, c) = tuple // 等價於 val (a, b, c) = (1, 2, 3)
 a: Int = 1
 b: Int = 2
 c: Int = 3
@@ -3143,7 +3146,7 @@ num: Int = 123
 str: String = 456
 ```
 
-元組用作函數返回類型時，即可讓一個函數擁有多個返回值，如下所示：
+元組用作函數返回類型時，即可讓一個函數擁有多個返回值，示例：
 
 ```scala
 object TestTuple extends App {
@@ -3159,11 +3162,11 @@ object TestTuple extends App {
 1 2 3
 ```
 
-當一個方法的參數表中僅包含**單個元組**時，調用方法時可省略元組外部括號，在**柯里化**情形下同樣有效，如下所示：
+當一個方法的參數表中僅包含**單個元組**時，調用方法時可省略元組外部括號，在**柯里化**情形下同樣有效，示例：
 
 ```scala
 def add(n1: (Int, Int, Int))(n2: (Int, Int)) = n1._1 + n1._2 + n1._3 + n2._1 + n2._2
-add(1, 2, 3)(4, 5) //參數直接傳入，無需外部括號
+add(1, 2, 3)(4, 5) // 參數直接傳入，無需外部括號
 ```
 
 
@@ -3223,14 +3226,14 @@ list0: List[Int] = List(1, 2, 3)
 
 除了直接使用`List`單例提供的`apply()`方法構建列表對象之外，還可以使用`::`操作符來將多個值構成列表。
 `::`操作符爲**右結合性**運算符。
-使用`::`操作符構成列表時，列表的最後一個值必須爲`Nil`，如下所示：
+使用`::`操作符構成列表時，列表的最後一個值必須爲`Nil`，示例：
 
 ```scala
 scala> val list1 = 0 :: 1 :: 2 :: 3 :: Nil
 list1: List[Int] = List(0, 1, 2, 3)
 ```
 
-列表同樣允許不同類型的值，也允許重複的值，如下所示：
+列表同樣允許不同類型的值，也允許重複的值，示例：
 
 ```scala
 scala> val list2 = 1 :: 1 :: "str" :: 2.0 :: Nil
@@ -3245,9 +3248,9 @@ list2: List[Any] = List(1, 1, str, 2.0)
 ```scala
 scala> val list0 = 1 :: 2 :: 3 :: Nil
 list0: List[Int] = List(1, 2, 3)
-scala> val list1 = 0 :: list0 //向列表頭部增加元素
+scala> val list1 = 0 :: list0 // 向列表頭部增加元素
 list1: List[Int] = List(0, 1, 2, 3)
-scala> val list2 = list0 :: 4 //列表不能從尾部添加元素(List以Nil結尾)
+scala> val list2 = list0 :: 4 // 列表不能從尾部添加元素(List以Nil結尾)
 <console>:11: error: value :: is not a member of Int
   val list2 = list0 :: 4
                     ^
@@ -3285,7 +3288,7 @@ Scala中的`ArrayBuffer`相當於Java中的`ArrayList`，可存儲任意數量�
 ```scala
 scala> val arrayBuffer = new ArrayBuffer[Int]
 arrayBuffer: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer()
-val a = ArrayBuffer(100, 200)  //同樣可以使用伴生對象的apply()方法創建ArrayBuffer
+val a = ArrayBuffer(100, 200) // 同樣可以使用伴生對象的apply()方法創建ArrayBuffer
 a: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(100, 200)
 ```
 
@@ -3317,7 +3320,7 @@ required: String
 與Java中的`ArrayList`類似，`ArrayBuffer`也允許在**任意位置**進行元素插入：
 
 ```scala
-scala> arrayBuffer.insert(1, -100) //在索引1的位置插入數值-100
+scala> arrayBuffer.insert(1, -100) // 在索引1的位置插入數值-100
 scala> arrayBuffer
 res17: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, -100, 100)
 ```
@@ -3325,7 +3328,7 @@ res17: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, -100, 100)
 插入多個元素：
 
 ```scala
-scala> arrayBuffer.insert(1, 7, 8, 9) //在索引1的位置插入數值7，8，9
+scala> arrayBuffer.insert(1, 7, 8, 9) // 在索引1的位置插入數值7，8，9
 scala> arrayBuffer
 res19: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 7, 8, 9, -100, 100)
 ```
@@ -3335,7 +3338,7 @@ res19: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 7, 8, 9, -100
 ```scala
 scala> arrayBuffer.remove(1, 4)
 scala> arrayBuffer
-res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)  //刪除了索引1到4位之間的元素
+res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100) // 刪除了索引1到4位之間的元素
 ```
 
 需要注意的是，`ArrayBuffer`是**線性結構**，只有在尾部進行插入刪除操作纔是高效的，在其它位置進行的元素操作都會造成大量的元素移動。
@@ -3346,33 +3349,33 @@ res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100)  //刪�
 `Set`完整包路徑爲`scala.collection.immutable.Set`。
 集合同樣允許任意類型的元素，但集合中不能包含重複的元素。
 
-在使用`Set`類的`apply()`方法構建集合時，重複的元素會被忽略，如下所示：
+在使用`Set`類的`apply()`方法構建集合時，重複的元素會被忽略，示例：
 
 ```scala
 scala> val set = Set(1, 1, 's', "str")
-set: scala.collection.immutable.Set[Any] = Set(1, s, str) //重複的元素"1"被忽略了
+set: scala.collection.immutable.Set[Any] = Set(1, s, str) // 重複的元素"1"被忽略了
 ```
 
 `Set`可以使用`+`、`-`操作符來增加或是減少元素並返回新的集合。
-使用`+`、`-`操作符會返回新的集合，但原集合內的值不會發生改變，如下所示：
+使用`+`、`-`操作符會返回新的集合，但原集合內的值不會發生改變，示例：
 
 ```scala
 scala> val set1 = set + 3
-set0: scala.collection.immutable.Set[Any] = Set(1, s, str, 3) //原集合添加元素輸出新的集合
+set0: scala.collection.immutable.Set[Any] = Set(1, s, str, 3) // 原集合添加元素輸出新的集合
 
 scala> set
-res1: scala.collection.immutable.Set[Any] = Set(1, s, str) //原集合本身沒有變化
+res1: scala.collection.immutable.Set[Any] = Set(1, s, str) // 原集合本身沒有變化
 
 scala> val set2 = set - 's'
-set2: scala.collection.immutable.Set[Any] = Set(1, str) //從集合中移除一個元素
+set2: scala.collection.immutable.Set[Any] = Set(1, str) // 從集合中移除一個元素
 
 scala> set
 res3: scala.collection.immutable.Set[Any] = Set(1, s, str)
 
-scala> set + (1, 2, 3) //可直接添加元組
+scala> set + (1, 2, 3) // 可直接添加元組
 res4: scala.collection.immutable.Set[Any] = Set(s, 1, 2, str, 3)
 
-scala> set - (1, 2, 3) //通過元組刪除數據
+scala> set - (1, 2, 3) // 通過元組刪除數據
 res5: scala.collection.immutable.Set[Any] = Set(s, str)
 ```
 
@@ -3382,12 +3385,12 @@ res5: scala.collection.immutable.Set[Any] = Set(s, str)
 scala> var set = Set(1, 2, 3)
 set: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
 
-scala> set += 4 //增加元素"4"
+scala> set += 4 // 增加元素"4"
 
 scala> set
 res6: scala.collection.immutable.Set[Int] = Set(1, 2, 3, 4)
 
-scala> set -= 4 //移除元素"4"
+scala> set -= 4 // 移除元素"4"
 
 scala> set
 res7: scala.collection.immutable.Set[Int] = Set(1, 2, 3)
@@ -3408,7 +3411,7 @@ set = set + 4
 ```
 
 對不可變類型的變量使用`+=`、`-=`操作，實際上改變了變量指向的實例。
-當不可變類型實例爲**常量**時，則不能使用`+=`、`-=`操作，因爲常量的實例指向不可變，如下所示：
+當不可變類型實例爲**常量**時，則不能使用`+=`、`-=`操作，因爲常量的實例指向不可變，示例：
 
 ```scala
 scala> val set = Set(1, 2, 3)
@@ -3480,7 +3483,7 @@ scala> set = set + 4
 ## Map (映射)
 `Map[A, B]`類型的完整包路徑爲`scala.collection.immutable.Map`。
 映射中的每一個元素都是一組`對偶(Tuple2)`，分別爲key和value，key不可重複。
-通過`->`操作符可以將兩個值組成一組對偶，如下所示：
+通過`->`操作符可以將兩個值組成一組對偶，示例：
 
 ```scala
 scala> var map = Map(1 -> "1", 2 -> "2", 3 -> "3")
@@ -3488,15 +3491,15 @@ map: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 scala> for ((key, value) <- map) println(s"key: $key value: $value")
 key: 1 value: 1
 key: 2 value: 2
-key: 3 value: 3 //使用for循環遍歷map
+key: 3 value: 3 // 使用for循環遍歷map
 scala> for (value <- map.values) println(s"value: $value")
 value: 1
 value: 2
-value: 3 //僅遍歷map的value
+value: 3 // 僅遍歷map的value
 scala> for (key <- map.keys) println(s"value: $key")
 value: 1
 value: 2
-value: 3 //僅遍歷map的key
+value: 3 // 僅遍歷map的key
 ```
 
 使用`updated()`方法可以更新指定key對應的value之後輸出，通過`+`方法添加對偶後輸出，也可以通過`-`移除指定key的對偶後輸出。
@@ -3509,7 +3512,7 @@ scala> map + (4 -> "4")
 res21: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4)
 scala> map - 1
 res22: scala.collection.immutable.Map[Int,String] = Map(2 -> 2, 3 -> 3)
-scala> map  //更改的結果作爲返回值輸出，原本的Map值沒有任何改變
+scala> map // 更改的結果作爲返回值輸出，原本的Map值沒有任何改變
 res23: scala.collection.immutable.Map[Int,String] = Map(1 -> 1, 2 -> 2, 3 -> 3)
 ```
 
@@ -3524,11 +3527,11 @@ Scala還提供了多種不同結構的`Map`實現，如`HashMap`、`ListMap`、`
 ```scala
 trait GenTraversableLike[+A, +Repr] extends Any with GenTraversableOnce[A] with Parallelizable[A, parallel.ParIterable[A]] {
   ...
-  def head: A //獲取第一個元素，元素不存在時拋出NoSuchElementException
-  def headOption: Option[A] //獲取第一個元素的Option，元素不存在時爲None值
-  def tail: Repr //獲取除了第一個元素之外的其餘所有元素
-  def last: A //獲取最後一個元素，元素不存在時拋出異常
-  def lastOption: Option[A] //獲取最後一個元素的Option
+  def head: A // 獲取第一個元素，元素不存在時拋出NoSuchElementException
+  def headOption: Option[A] // 獲取第一個元素的Option，元素不存在時爲None值
+  def tail: Repr // 獲取除了第一個元素之外的其餘所有元素
+  def last: A // 獲取最後一個元素，元素不存在時拋出異常
+  def lastOption: Option[A] // 獲取最後一個元素的Option
   ...
 }
 ```
@@ -3710,7 +3713,7 @@ Scala沿用了Java的異常機制，但相關語法略有不同。
 
 	Scala中同樣使用`try ... catch ... finally ...`語句進行異常捕獲，但語法略有不同：
 
-	1. 在Scala中，`catch`子句沒有參數，直接在語句內部使用**模式匹配**進行異常捕獲，如下所示：
+	1. 在Scala中，`catch`子句沒有參數，直接在語句內部使用**模式匹配**進行異常捕獲，示例：
 
 		```scala
 		try {
@@ -3734,14 +3737,14 @@ Scala沿用了Java的異常機制，但相關語法略有不同。
 		}
 		```
 
-	1. 單條`try`語句可省略花括號，`try`語句可不帶有`case`、`finally`單獨存在，如下所示：
+	1. 單條`try`語句可省略花括號，`try`語句可不帶有`case`、`finally`單獨存在，示例：
 
 		```scala
 		scala> try 2333
 		<console>:12: warning: A try without a catch or finally is equivalent to putting its body in a block; no exceptions are handled.
 		       try 2333
 		       ^
-		res9: Int = 2333 //有警告，但正常執行
+		res9: Int = 2333 // 有警告，但正常執行
 		```
 
 	1. Scala中的`try ... catch ... finally ...`語句具有返回值。
@@ -3752,16 +3755,16 @@ Scala沿用了Java的異常機制，但相關語法略有不同。
 
 		```scala
 		scala> try 2333
-		res9: Int = 2333 //try語句返回值
+		res9: Int = 2333 // try語句返回值
 
 		scala> try 2333 catch { case _ => 666 }
-		res10: Int = 2333 //try與case返回值類型相同時，正確推導出整條語句的返回值類型
+		res10: Int = 2333 // try與case返回值類型相同時，正確推導出整條語句的返回值類型
 
 		scala> try 2333 catch { case _ => "666" }
-		res11: Any = 2333 //try與case返回值類型不同時，結果類型推導爲Any
+		res11: Any = 2333 // try與case返回值類型不同時，結果類型推導爲Any
 
 		scala> try 2333 catch { case _ => 666 } finally "666"
-		res12: Int = 2333 //finally語句不影響try表達式結果類型
+		res12: Int = 2333 // finally語句不影響try表達式結果類型
 		```
 
 ## scala.util.Try[T]
@@ -3778,7 +3781,7 @@ object Try {
 
 ```scala
 Try {
-  ... //可能拋出異常的代碼
+  ... // 可能拋出異常的代碼
 }
 ```
 
@@ -3794,12 +3797,12 @@ Try {
 ```scala
 sealed abstract class Try[+T] extends Product with Serializable {
   ...
-  def get: T //獲取語句塊的執行結果
-  def getOrElse[U >: T](default: => U): U //語句執行失敗時使用給定的默認值做爲返回結果
-  def foreach[U](f: T => U): Unit //語句執行成功時執行函數f，否則不進行操作
-  def map[U](f: T => U): Try[U] //以上一個操作的執行結果爲入參執行下一個操作，同樣返回Try類型
+  def get: T // 獲取語句塊的執行結果
+  def getOrElse[U >: T](default: => U): U // 語句執行失敗時使用給定的默認值做爲返回結果
+  def foreach[U](f: T => U): Unit // 語句執行成功時執行函數f，否則不進行操作
+  def map[U](f: T => U): Try[U] // 以上一個操作的執行結果爲入參執行下一個操作，同樣返回Try類型
   def fold[U](fa: Throwable => U, fb: T => U): U
-  def toOption: Option[T] //將語句塊的執行結果轉換爲Option形式
+  def toOption: Option[T] // 將語句塊的執行結果轉換爲Option形式
   ...
 }
 ```
@@ -3855,10 +3858,10 @@ scala> Try { "Dainslef".toInt } foreach println //無輸出
 
 ```scala
 scala> Try { "Dainslef".toInt } fold (_ => "Failed", _ => "Success")
-res10: String = Failed //執行失敗
+res10: String = Failed // 執行失敗
 
 scala> Try { "Dainslef" } fold (_ => "Failed", _ => "Success")
-res11: String = Success //執行成功
+res11: String = Success // 執行成功
 ```
 
 `toOption`方法用於將`Try[T]`語句塊的執行結果轉換爲`Option[T]`類型，語句塊執行成功得到`Some[T]`，執行失敗得到`None`。
@@ -3866,10 +3869,10 @@ res11: String = Success //執行成功
 
 ```scala
 scala> Try { "Dainslef".toInt } toOption
-res1: Option[Int] = None //執行失敗，得到 None
+res1: Option[Int] = None // 執行失敗，得到 None
 
 scala> Try { 233.3.toInt } toOption
-res2: Option[Int] = Some(233) //執行成功，得到 Some(233)
+res2: Option[Int] = Some(233) // 執行成功，得到 Some(233)
 ```
 
 
@@ -4012,7 +4015,7 @@ def value: Seq[Node]
 </Root>
 ```
 
-代碼如下所示：
+代碼示例：
 
 ```scala
 object Xml extends App {
@@ -4078,9 +4081,9 @@ attribute name: arg_one attribute value: arg_4_1
 ```scala
 scala> val str = "Test"
 str: String = Test
-scala> val node0 = <li>{ str }</li> //xml節點內容可以插入變量,使用花括號區分表達式與xml本身內容
+scala> val node0 = <li>{ str }</li> // xml節點內容可以插入變量,使用花括號區分表達式與xml本身內容
 node0: scala.xml.Elem = <li>Test</li>
-scala> val node1 = <li name={ str }>test</li> //xml屬性中插入變量
+scala> val node1 = <li name={ str }>test</li> // xml屬性中插入變量
 node1: scala.xml.Elem = <li name="Test">test</li>
 ```
 
@@ -4093,7 +4096,7 @@ node3: scala.xml.Elem = <ul><li>1</li><li>2</li><li>3</li></ul>
 
 在Scala中，節點是**不可變**的，拼接節點的正確方式是使用`Elem`類型的`cospy()`方法，並在複製時重新設定`child`參數。
 
-`copy()`方法的定義如下所示：
+`copy()`方法的定義如下：
 
 ```scala
 def copy(
@@ -4105,7 +4108,7 @@ def copy(
   child: Seq[Node] = this.child.toSeq): Elem = Elem(prefix, label, attributes, scope, minimizeEmpty, child: _*)
 ```
 
-使用`copy()`方法拼接節點如下所示：
+使用`copy()`方法拼接節點示例：
 
 ```scala
 //使用具名參數指定子節點內容
@@ -4132,7 +4135,7 @@ Scala是**強類型**語言，不同類型之間的變量默認**不會**自動�
 若需要提供類型之間的自動轉換功能，需要顯式使用`implicit`關鍵字自定義隱式轉換。
 隱式轉換可以定義在**當前類**中或是**伴生對象**中，只要需要進行轉換時能被訪問到即可。
 
-當傳入參數的類型與函數需要的類型不同時，編譯器便會查找是否有合適的隱式轉換，如下所示：
+當傳入參數的類型與函數需要的類型不同時，編譯器便會查找是否有合適的隱式轉換，示例：
 
 ```scala
 class Implicit(val num: Int)
@@ -4154,7 +4157,7 @@ object Main extends App {
 }
 ```
 
-當訪問一個實例不存在的成員時，編譯器也會查找是否存在隱式轉換，能將其轉化爲擁有此成員的類型，如下所示：
+當訪問一個實例不存在的成員時，編譯器也會查找是否存在隱式轉換，能將其轉化爲擁有此成員的類型，示例：
 
 ```scala
 class Implicit(val num: Int) {
@@ -4166,12 +4169,12 @@ object Implicit {
 }
 
 object Main extends App {
-  import Implicit.intToImpl //當隱式轉換沒有定義在當前作用域也不在實例的伴生對象中時需要顯式導入
-  100.show //Int型被隱式轉換爲Implicit類型
+  import Implicit.intToImpl // 當隱式轉換沒有定義在當前作用域也不在實例的伴生對象中時需要顯式導入
+  100.show // Int型被隱式轉換爲Implicit類型
 }
 ```
 
-當一個實例自身和方法的參數都能通過隱式轉換來滿足方法調用時，優先轉換方法參數而不是實例自身，如下所示：
+當一個實例自身和方法的參數都能通過隱式轉換來滿足方法調用時，優先轉換方法參數而不是實例自身，示例：
 
 ```scala
 class Impl1(val str: String = "100") {
@@ -4189,8 +4192,8 @@ class Impl2(val str: String = "200") {
 
 object Main extends App {
   val impl1 = new Impl1
-  impl1.test //實例由Impl1類型隱式轉換成了Impl2類型
-  impl1.show(impl1) //可以通過將實例隱式轉換爲Impl2類型來滿足方法調用，但編譯器實際執行的操作是將參數隱式轉換成了Impl2類型
+  impl1.test // 實例由Impl1類型隱式轉換成了Impl2類型
+  impl1.show(impl1) // 可以通過將實例隱式轉換爲Impl2類型來滿足方法調用，但編譯器實際執行的操作是將參數隱式轉換成了Impl2類型
 }
 ```
 
@@ -4214,12 +4217,12 @@ Scala標準類庫中大量使用了隱式轉換特性。
 
 ```scala
 object Implicit {
-  implicit val impl = 200.0 //隱式值可以定義在伴生對象中
+  implicit val impl = 200.0 // 隱式值可以定義在伴生對象中
   def testImplicit(implicit num: Double) = println(num)
 }
 
 object Main extends App {
-  import Implicit.impl //不在當前作用域中的隱式參數需要顯式引入
+  import Implicit.impl // 不在當前作用域中的隱式參數需要顯式引入
   Implicit.testImplicit
 }
 ```
@@ -4261,20 +4264,20 @@ object Main extends App {
 示例：
 
 ```scala
-def testImplicit(implicit num0: Int, num1: Int) {} //正確。num0、num1，皆爲隱式參數
-def testImplicit(implicit num0: Int, implicit num1: Int) {} //錯誤。只能在參數表的首個參數前添加implicit關鍵字修飾
-def testImplicit(num0: Int, implicit num1: Int) {} //錯誤。只能在參數表的首個參數前添加implicit關鍵字修飾
+def testImplicit(implicit num0: Int, num1: Int) {} // 正確。num0、num1，皆爲隱式參數
+def testImplicit(implicit num0: Int, implicit num1: Int) {} // 錯誤。只能在參數表的首個參數前添加implicit關鍵字修飾
+def testImplicit(num0: Int, implicit num1: Int) {} // 錯誤。只能在參數表的首個參數前添加implicit關鍵字修飾
 
-def testImplicit(num: Int)(implicit num0: Int, num1: Int) {} //正確。對於柯里化函數，最後一個參數表可以設爲隱式參數
-def testImplicit(implicit num0: Int)(implicit num1: Double) {} //錯誤。一個方法不允許擁有多個隱式參數表
-def testImplicit(implicit num0: Int)(num1: Double) {} //錯誤。只有最後一個參數表可以設爲隱式參數表
+def testImplicit(num: Int)(implicit num0: Int, num1: Int) {} // 正確。對於柯里化函數，最後一個參數表可以設爲隱式參數
+def testImplicit(implicit num0: Int)(implicit num1: Double) {} // 錯誤。一個方法不允許擁有多個隱式參數表
+def testImplicit(implicit num0: Int)(num1: Double) {} // 錯誤。只有最後一個參數表可以設爲隱式參數表
 ```
 
 - 隱式參數與參數默認值
 
 	隱式參數與參數默認值特性**可以**共存。
 
-	當一個方法的所有隱式參數均帶有默認值時，可以直接調用，如下所示：
+	當一個方法的所有隱式參數均帶有默認值時，可以直接調用，示例：
 
 	```scala
 	object Main extends App {
@@ -4329,8 +4332,8 @@ def testImplicit(implicit num0: Int)(num1: Double) {} //錯誤。只有最後一
 	- 採用參數默認值時，即使參數全部擁有默認值，參數表不可省略(`()`操作符必須存在)。
 	- 採用隱式值時，隱式參數全部具有隱式值或默認值時，參數表直接省略。
 
-	當一個隱式參數表的所有參數均帶有默認值且作用域內也擁有滿足條件的隱式值時，調用方法時帶有`()`操作符爲使用默認值，省略參數表爲使用隱式值。
-
+	當一個隱式參數表的所有參數均帶有默認值且作用域內也擁有滿足條件的隱式值時，
+	調用方法時帶有`()`操作符爲使用默認值，省略參數表爲使用隱式值。
 	示例：
 
 	```scala
@@ -4341,8 +4344,8 @@ def testImplicit(implicit num0: Int)(num1: Double) {} //錯誤。只有最後一
 	  implicit val num0 = 1
 	  implicit val num1 = 1.0
 
-	  testImplicit //全部採用隱式值
-	  testImplicit() //全部採用默認值
+	  testImplicit // 全部採用隱式值
+	  testImplicit() // 全部採用默認值
 	}
 	```
 
@@ -4363,7 +4366,6 @@ def testImplicit(implicit num0: Int)(num1: Double) {} //錯誤。只有最後一
 
 與**隱式轉換**類似，當一個實例調用了**不存在**或**無法訪問**的成員方法，編譯器會爲之搜索作用域中可訪問的隱式類。
 若隱式類的構造器參數與實例相同且帶有實例調用的方法，則自動調用該隱式類的構造器。
-
 示例：
 
 ```scala
@@ -4378,8 +4380,8 @@ object Main extends App {
     def show(num: Int) = println(s"Implicit Class: $num")
   }
 
-  Source(0).show //調用無法訪問的成員方法可能觸發隱式轉換
-  Source(0).show(100) //調用不存在的方法也能觸發隱式轉換
+  Source(0).show // 調用無法訪問的成員方法可能觸發隱式轉換
+  Source(0).show(100) // 調用不存在的方法也能觸發隱式轉換
 }
 ```
 
@@ -4459,7 +4461,7 @@ Call by name的字段`test1`在每次調用時重新求值，三次輸出結果�
 Call by need的字段`test2`在首次被訪問時進行求值，兩次輸出結果相同。
 
 ## 參數的求值策略
-與大多數編程語言類似，Scala中的方法參數默認即爲Call by value，參數在傳入時立即求值，如下所示：
+與大多數編程語言類似，Scala中的方法參數默認即爲Call by value，參數在傳入時立即求值，示例：
 
 ```scala
 scala> def show(num: Int) {
@@ -4482,7 +4484,7 @@ num: 23333
 做爲參數的代碼塊在傳入方法時便已被執行，參數代碼塊僅執行一次。
 
 使用`By-name parameter`(**傳名參數**)特性可以使方法參數變爲Call by Name。
-傳名參數語法爲在類型前添加`=>`操作符，上述例子改用傳名參數，如下所示：
+傳名參數語法爲在類型前添加`=>`操作符，上述例子改用傳名參數，示例：
 
 ```scala
 // 參數 num 爲傳名參數
@@ -4578,7 +4580,7 @@ expr2_1
 ### 模擬 && 、 || 運算符
 編寫自定義方法`and()`、`or()`在不使用內建`&&`、`||`的情況下模擬`&&`、`||`運算符。
 
-使用默認求值策略(Call by value)，如下所示：
+使用默認求值策略(Call by value)，示例：
 
 ```scala
 object Main extends App {
@@ -4678,7 +4680,7 @@ Scala是靜態類型語言，具有強大的類型系統。
 
 ```scala
 scala> trait Xxx[T] { val t: T }
-defined trait Xxx //定義帶有泛型參數的類型
+defined trait Xxx // 定義帶有泛型參數的類型
 
 scala> val x = new Xxx[String] { val t = "t" }
 x: Xxx[String] = $anon$1@7ca16520
@@ -4695,7 +4697,7 @@ Xxx[String]
 
 ```scala
 scala> trait Xxx { type T; val t: T }
-defined trait Xxx //定義帶有抽象類型的類型
+defined trait Xxx // 定義帶有抽象類型的類型
 
 scala> val x = new Xxx { type T = String; val t = "t" }
 x: Xxx{type T = String} = $anon$1@36acfcff
@@ -4713,7 +4715,7 @@ Xxx{type T = String}
 - `Upper Type Bounds` 上界(上層類型約束)，語法`T <: Xxx`
 - `Lower Type Bounds` 下界(低級類型約束)，語法`T >: Xxx`
 
-`Upper Type Bounds`用於限定類型參數爲指定類型的**子類**，如下所示：
+`Upper Type Bounds`用於限定類型參數爲指定類型的**子類**，示例：
 
 ```scala
 scala> trait Other
@@ -4772,7 +4774,7 @@ scala> new Test[Other] { }
            ^
 ```
 
-`Lower Type Bounds`用於限定類型參數爲另一類型的**父類**，如下所示：
+`Lower Type Bounds`用於限定類型參數爲另一類型的**父類**，示例：
 
 ```scala
 scala> trait Other
@@ -4819,21 +4821,21 @@ defined trait Base
 scala> trait Child extends Base
 defined trait Child
 
-scala> def test[T <% Base](t: T) = t //使用視圖界定會生成隱式參數表
+scala> def test[T <% Base](t: T) = t // 使用視圖界定會生成隱式參數表
 test: [T](t: T)(implicit evidence$1: T => Base)T
 
-scala> test[Child](null) //與上級類型約束類似，使用子類能夠滿足約束條件
+scala> test[Child](null) // 與上級類型約束類似，使用子類能夠滿足約束條件
 res1: Child = null
 
-scala> test[Other](null) //使用無關類型不能滿足約束條件
+scala> test[Other](null) // 使用無關類型不能滿足約束條件
 <console>:14: error: No implicit view available from Other => Base.
        test[Other](null)
                   ^
 
-scala> implicit def otherToChild(t: Other) = null: Child //定義隱式轉換
+scala> implicit def otherToChild(t: Other) = null: Child // 定義隱式轉換
 otherToChild: (t: Other)Child
 
-scala> test[Other](null) //提供符合要求的隱式轉換後能夠正常調用方法
+scala> test[Other](null) // 提供符合要求的隱式轉換後能夠正常調用方法
 res3: Other = null
 ```
 
@@ -4842,10 +4844,10 @@ res3: Other = null
 示例：
 
 ```scala
-scala> class Test[T <% Base] //定義類型時使用視圖界定
+scala> class Test[T <% Base] // 定義類型時使用視圖界定
 defined class Test
 
-scala> trait Test[T <% Base] //特質無法使用視圖界定特性
+scala> trait Test[T <% Base] // 特質無法使用視圖界定特性
 <console>:1: error: traits cannot have type parameters with context bounds `: ...' nor view bounds `<% ...'
        trait Test[T <% Base]
                             ^
@@ -4854,35 +4856,35 @@ scala> trait Test[T <% Base] //特質無法使用視圖界定特性
 ## Content Bounds
 `Content Bounds`(上下文界定)要求上下文中存在類型爲`Xxx[T]`的隱式值。
 
-上下文界定語法爲`T: Xxx`，可用於方法定義與類型定義，如下所示：
+上下文界定語法爲`T: Xxx`，可用於方法定義與類型定義，示例：
 
 ```scala
 scala> class Xxx[T]
 defined class Xxx
 
-scala> def test[T: Xxx] = null //上下文界定用於方法類型參數，生成隱式參數表
+scala> def test[T: Xxx] = null // 上下文界定用於方法類型參數，生成隱式參數表
 test: [T](implicit evidence$1: Xxx[T])Null
 
-scala> class Test[T: Xxx] //上下文界定用於類型定義
+scala> class Test[T: Xxx] // 上下文界定用於類型定義
 defined class Test
 
-scala> test[Int] //調用方法出錯，缺少符合要求隱式值
+scala> test[Int] // 調用方法出錯，缺少符合要求隱式值
 <console>:14: error: could not find implicit value for evidence parameter of type Xxx[Int]
        test[Int]
            ^
 
-scala> new Test[Int] //構建實例出錯，缺少符合要求隱式值
+scala> new Test[Int] // 構建實例出錯，缺少符合要求隱式值
 <console>:14: error: could not find implicit value for evidence parameter of type Xxx[Int]
        new Test[Int]
        ^
 
-scala> implicit object XxxInt extends Xxx[Int] //提供隱式值
+scala> implicit object XxxInt extends Xxx[Int] // 提供隱式值
 defined object XxxInt
 
-scala> test[Int] //正常調用
+scala> test[Int] // 正常調用
 res1: Null = null
 
-scala> new Test[Int] //正常構建實例
+scala> new Test[Int] // 正常構建實例
 res2: Test[Int] = Test@62640933
 ```
 
@@ -4902,18 +4904,18 @@ trait Test[T: Xxx]
 示例：
 
 ```scala
-scala> def test[T: Seq] = println(implicitly[Seq[T]]) //打印獲取到的隱式值
+scala> def test[T: Seq] = println(implicitly[Seq[T]]) // 打印獲取到的隱式值
 test: [T](implicit evidence$1: Seq[T])Unit
 
-scala> implicit val seq = Seq(6, 6, 6) //提供隱式值
+scala> implicit val seq = Seq(6, 6, 6) // 提供隱式值
 seq: Seq[Int] = List(6, 6, 6)
 
-scala> test[Int] //調用使用了上下文界定的方法，輸出隱式值
+scala> test[Int] // 調用使用了上下文界定的方法，輸出隱式值
 List(6, 6, 6)
 ```
 
 ## Variances (型變)
-泛型類型在使用不同類型參數時默認**不存在**繼承關係，如下所示：
+泛型類型在使用不同類型參數時默認**不存在**繼承關係，示例：
 
 ```scala
 scala> import scala.reflect.runtime.universe._
@@ -4929,10 +4931,10 @@ scala> class Child extends Base
 defined class Child
 
 scala> typeOf[Test[Base]] =:= typeOf[Test[Child]]
-res1: Boolean = false //帶有不同類型參數的泛型類是不相等的類型
+res1: Boolean = false // 帶有不同類型參數的泛型類是不相等的類型
 
 scala> typeOf[Test[Base]] <:< typeOf[Test[Child]]
-res2: Boolean = false //類型參數的繼承關係不影響泛型類型自身
+res2: Boolean = false // 類型參數的繼承關係不影響泛型類型自身
 ```
 
 使用`variances`特性可使類型參數的繼承關係擴展到承載類型參數的泛型類型自身。
@@ -4941,9 +4943,9 @@ res2: Boolean = false //類型參數的繼承關係不影響泛型類型自身
 型變特性語法：
 
 ```scala
-class Test[T] //invariance，無型變
-class Test[+T] //covariance，協變
-class Test[-T] //contravariance，逆變
+class Test[T] // invariance，無型變
+class Test[+T] // covariance，協變
+class Test[-T] // contravariance，逆變
 ```
 
 - `Covariance` (協變)
@@ -4951,14 +4953,14 @@ class Test[-T] //contravariance，逆變
 	類型參數聲明爲`covariance`(協變)時，泛型類型的繼承關係與類型參數相：
 
 	```scala
-	scala> class Test[+T] //定義帶有協變類型參數的泛型類型
+	scala> class Test[+T] // 定義帶有協變類型參數的泛型類型
 	defined class Test
 
 	scala> typeOf[Child] <:< typeOf[Base]
 	res3: Boolean = true
 
 	scala> typeOf[Test[Child]] <:< typeOf[Test[Base]]
-	res4: Boolean = true //泛型類型的繼承關係與類型參數相同
+	res4: Boolean = true // 泛型類型的繼承關係與類型參數相同
 	```
 
 	帶有協變類型參數的泛型類型用於方法參數/返回值中，使方法能接受/返回帶有子類類型參數的泛型類型：
@@ -4970,7 +4972,7 @@ class Test[-T] //contravariance，逆變
 	scala> def test(t: Test[Base]) = t.toString
 	test: (t: Test[Base])String
 
-	scala> test(new Test[Child]) //泛型類型的參數不支持協變，報錯
+	scala> test(new Test[Child]) // 泛型類型的參數不支持協變，報錯
 	<console>:18: error: type mismatch;
 	 found   : Test[Child]
 	 required: Test[Base]
@@ -4994,7 +4996,7 @@ class Test[-T] //contravariance，逆變
 	scala> def test(t: Test[Child]) = t.toString
 	test: (t: Test[Child])String
 
-	scala> test(new Test[Child]) //正常調用方法
+	scala> test(new Test[Child]) // 正常調用方法
 	res5: String = Test@61fbec8a
 
 	scala> def test: Test[Base] = new Test[Child]
@@ -5006,14 +5008,14 @@ class Test[-T] //contravariance，逆變
 	類型參數聲明爲`contravariance`(逆變)時，泛型類型的繼承關係與類型參數相反：
 
 	```scala
-	scala> class Test[-T] //定義帶有逆變類型參數的泛型類型
+	scala> class Test[-T] // 定義帶有逆變類型參數的泛型類型
 	defined class Test
 
 	scala> typeOf[Child] <:< typeOf[Base]
 	res6: Boolean = true
 
 	scala> typeOf[Test[Base]] <:< typeOf[Test[Child]]
-	res7: Boolean = true //泛型類型的繼承關係與類型參數相反
+	res7: Boolean = true // 泛型類型的繼承關係與類型參數相反
 	```
 
 協變與逆變的類型參數需要在正確的位置使用，即`covariant position`(協變點)和`contravariant position`(逆變點)。
@@ -5065,12 +5067,12 @@ defined class Test
 類型`Test`接收一個類型爲`T[_]`的類型參數，僅能使用泛型類型做爲類型參數：
 
 ```scala
-scala> new Test[Int] //使用普通類型做爲類型參數，報錯
+scala> new Test[Int] // 使用普通類型做爲類型參數，報錯
 <console>:14: error: Int takes no type parameters, expected: one
        new Test[Int]
                 ^
 
-scala> new Test[Seq] //使用泛型類型爲類型參數，正確
+scala> new Test[Seq] // 使用泛型類型爲類型參數，正確
 res1: Test[Seq] = Test@11cc9e1e
 ```
 
@@ -5179,7 +5181,7 @@ Int Type Class
 scala> testTypeClass[String]()
 String Type Class
 
-scala> testTypeClass[Double]() //使用未提供隱式實例的泛型參數時，報錯
+scala> testTypeClass[Double]() // 使用未提供隱式實例的泛型參數時，報錯
 <console>:16: error: could not find implicit value for parameter typeClass: TypeClass[Double]
        testTypeClass[Double]()
                             ^
@@ -5404,7 +5406,7 @@ C++中的**模板特化**功能上亦與TypeClass類似。
 	- 在`Future`外部等待一個`Future`完成。
 
 	在`Future`外部主動阻塞等待應使用`Await`類，在`Future`內部阻塞則應使用`blocking`方法。
-	`blocking`定義在包對象`scala.concurrent`中，是一個接收**傳名參數**的泛型方法，定義如下所示：
+	`blocking`定義在包對象`scala.concurrent`中，是一個接收**傳名參數**的泛型方法，定義示例：
 
 	```scala
 	def future[T](body: =>T)(implicit @deprecatedName('execctx) executor: ExecutionContext): Future[T] = Future[T](body)
@@ -5935,8 +5937,8 @@ object Main extends App {
     構造器名稱爲 <init>，也通過可以查找 TremName 的方式從 Type 類型中獲取：
     typeOf[TestReflect].decl(TermName("<init>")).asMethod
   */
-  val constructor = classSymbol.primaryConstructor.asMethod //獲取類型主構造器的MethodSymbol
-  val instance = runtime //通過構造器的MethodSymbol反射構建實例
+  val constructor = classSymbol.primaryConstructor.asMethod // 獲取類型主構造器的MethodSymbol
+  val instance = runtime // 通過構造器的MethodSymbol反射構建實例
     .reflectClass(classSymbol)
     .reflectConstructor(constructor).apply(2333)
 
@@ -6009,9 +6011,9 @@ import scala.annotation.{ClassfileAnnotation, StaticAnnotation}
 class CustomStaticAnnotation(name: String) extends StaticAnnotation
 class CustomClassfileAnnotation(name: String) extends ClassfileAnnotation
 
-@CustomStaticAnnotation("2333") //正確
-@CustomClassfileAnnotation("2333") //錯誤，Java註解需要以具名參數形式進行傳入
-@CustomClassfileAnnotation(name = "2333") //正確
+@CustomStaticAnnotation("2333") // 正確
+@CustomClassfileAnnotation("2333") // 錯誤，Java註解需要以具名參數形式進行傳入
+@CustomClassfileAnnotation(name = "2333") // 正確
 class Test
 ```
 
@@ -6043,7 +6045,6 @@ Scala註解類型爲`scala.reflect.runtime.universe.Annotation`。
 在`Scala 2.11`之前，`Annotation`類型提供了`scalaArgs/javaArgs`等無參方法用於獲取註解信息，
 但在`Scala 2.11`版本中，這些方法已被標記爲`deprecated`；
 應使用`Annotation.tree`方法獲取註解語法樹，類型爲`scala.reflect.runtime.universe.Tree`。
-
 示例：
 
 ```scala
@@ -6063,9 +6064,9 @@ object Main extends App {
   {
     // 獲取類型註解
     val tpe: Type = typeOf[Test]
-    val symbol: Symbol = tpe.typeSymbol //獲取類型符號信息
+    val symbol: Symbol = tpe.typeSymbol // 獲取類型符號信息
     val annotation: Annotation = symbol.annotations.head
-    val tree: Tree = annotation.tree //獲取語法樹
+    val tree: Tree = annotation.tree // 獲取語法樹
 
     // 解析註解語法樹...
   }
@@ -6073,7 +6074,7 @@ object Main extends App {
   {
     // 獲取成員字段註解
     val tpe: Type = typeOf[Test]
-    val symbol: Symbol = tpe.decl(TermName("ff ")) //獲取字段符號信息
+    val symbol: Symbol = tpe.decl(TermName("ff ")) // 獲取字段符號信息
     val annotation: Annotation = symbol.annotations.head
     val tree: Tree = annotation.tree
 
@@ -6101,11 +6102,11 @@ object Main extends App {
 
   // 獲取類型註解
   val tpe: Type = typeOf[Test]
-  val symbol: Symbol = tpe.typeSymbol //獲取類型符號信息
+  val symbol: Symbol = tpe.typeSymbol // 獲取類型符號信息
   val annotation: Annotation = symbol.annotations.head
-  val tree: Tree = annotation.tree //獲取語法樹
+  val tree: Tree = annotation.tree // 獲取語法樹
 
-  println(showRaw(tree)) //打印語法樹
+  println(showRaw(tree)) // 打印語法樹
   val Apply(_, Literal(Constant(name: String)) :: Literal(Constant(num: Int)) :: Nil) = tree
   println(s"Annotation args: name -> $name, num -> $num")
 
