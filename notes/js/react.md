@@ -16,11 +16,18 @@
 	- [State (組件狀態)](#state-組件狀態)
 	- [Lifecycle Methods (生命週期方法)](#lifecycle-methods-生命週期方法)
 	- [Lists & Keys](#lists--keys)
+- [Hooks](#hooks)
+	- [State Hook (useState())](#state-hook-usestate)
+	- [Effect Hook (useEffect() / useLayoutEffect())](#effect-hook-useeffect--uselayouteffect)
+		- [Layout Effect](#layout-effect)
+		- [組件更新](#組件更新)
 - [路由](#路由)
 	- [安裝](#安裝)
 	- [Router](#router)
 	- [Route](#route)
 	- [Switch & Redirect](#switch--redirect)
+	- [match & location & history](#match--location--history)
+	- [withRouter](#withrouter)
 - [常見錯誤](#常見錯誤)
 	- [Uncaught ReferenceError: $ is not defined](#uncaught-referenceerror--is-not-defined)
 	- [Target container is not a DOM element.](#target-container-is-not-a-dom-element)
@@ -485,7 +492,7 @@ ReactDOM.render(
 ```
 
 ## Route
-使用`<Route />`标签定義一個路由並綁定組件，當請求路徑匹配路由時顯示標籤綁定的組件：
+使用`<Route />`標籤定義一個路由並綁定組件，當請求路徑匹配路由時顯示標籤綁定的組件：
 
 ```xml
 <BrowserRouter>
@@ -543,6 +550,55 @@ Redirect標籤則可以在所有路由不匹配時跳轉到一個默認的路由
 ```
 
 當輸入任意一個不匹配所有路由的路徑時，全部重定向到`/xxx1`路徑。
+
+## match & location & history
+Route標籤會為綁定的組件的props中附加`match、location、history`等一系列屬性，可用於訪問歷史記錄、路由信息等。
+
+- `match`
+
+	match對象包含了路徑是如何與路由進行匹配的詳細信息，結構示例：
+
+	```js
+	{
+		isExact: true
+		params: {
+			id: "2"
+		}
+		path: "/users/:id"
+		url: "/users/2"
+	}
+	```
+
+- `location`
+
+	location對象表示應用的位置信息，結構示例：
+
+	```js
+	{
+		key: 'ac3df4', // not with HashHistory!
+		pathname: '/somewhere',
+		search: '?some=search-string',
+		hash: '#howdy',
+		state: {
+			[userDefined]: true
+		}
+	}
+	```
+
+- `history`
+
+	history對象提供了對歷史記錄訪問、路由跳轉等功能，主要屬性、方法說明：
+
+	| 屬性/方法 | 說明 |
+	| :- | :- |
+	| length | (number) 歷史記錄總條數 |
+	| action | (string) 當前操作("PUSH"/"REPLACE"/"POP") |
+	| location | 當前的location對象 |
+	| push(path, [state]) | 歷史紀錄棧中添加一條新記錄 |
+	| replace(path, [state]) | 替換當前歷史紀錄 |
+	| go(n) | 以當前條目為基準，在歷史記錄棧中的移動n個條目 |
+	| goBack() | 等價於 go(1) |
+	| goForward() | 等價於 go(-1) |
 
 
 
