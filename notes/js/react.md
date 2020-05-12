@@ -16,11 +16,6 @@
 	- [State (組件狀態)](#state-組件狀態)
 	- [Lifecycle Methods (生命週期方法)](#lifecycle-methods-生命週期方法)
 	- [Lists & Keys](#lists--keys)
-- [Hooks](#hooks)
-	- [State Hook (useState())](#state-hook-usestate)
-	- [Effect Hook (useEffect() / useLayoutEffect())](#effect-hook-useeffect--uselayouteffect)
-		- [Layout Effect](#layout-effect)
-		- [組件更新](#組件更新)
 - [路由](#路由)
 	- [安裝](#安裝)
 	- [Router](#router)
@@ -599,6 +594,39 @@ Route標籤會為綁定的組件的props中附加`match、location、history`等
 	| go(n) | 以當前條目為基準，在歷史記錄棧中的移動n個條目 |
 	| goBack() | 等價於 go(1) |
 	| goForward() | 等價於 go(-1) |
+
+## withRouter
+在`4.x+`版本中，在非路由組件中訪問路由信息需要使用`withRouter()`函數包裝組件，示例：
+
+```jsx
+import React from "react"
+import { withRouter } from "react-router"
+
+class ShowTheLocation extends React.Component {
+	render() {
+		// 導出組件時使用withRouter()函數後，組件內部的props中會附加一系列屬性
+		const { match, location, history } = this.props
+		return <div>You are now at {location.pathname}</div>
+	}
+}
+
+// 導出組件時使用withRouter()函數包裝
+export default withRouter(ShowTheLocation)
+```
+
+若使用Hooks，同樣可將函數式組件作為參數傳入`withRouter()`函數中並導出，
+對於函數式組件而言，`match、location、history`等屬性可通過解構參數得到，上述示例使用Hooks可改寫為：
+
+```jsx
+import React from "react"
+import { withRouter } from "react-router"
+
+// 導出組件時使用withRouter()函數包裝
+export default withRouter(
+	({ match, location, history }) => // 解構參數，獲取目標屬性
+	<div>You are now at {location.pathname}</div>
+)
+```
 
 
 
