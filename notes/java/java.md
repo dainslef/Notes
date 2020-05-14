@@ -49,7 +49,10 @@
 	- [一般用法](#一般用法)
 	- [Method Reference (方法引用)](#method-reference-方法引用)
 	- [標準庫中的函數式接口 (java.util.function)](#標準庫中的函數式接口-javautilfunction)
-- [Process](#process)
+- [Process API](#process-api)
+- [DateTime API](#datetime-api)
+	- [java.util.Date](#javautildate)
+	- [java.time.LocalDateTime](#javatimelocaldatetime)
 - [JDBC](#jdbc)
 	- [連接數據庫](#連接數據庫)
 	- [數據庫操作](#數據庫操作)
@@ -2367,7 +2370,7 @@ public class Main {
 
 
 
-# Process
+# Process API
 Java提供了`java.util.Process`類作爲對進程模型的抽象。
 創建進程最簡單的方式是通過`Runtime.getRuntime()`獲取Runtime實例，使用`exec()`相關方法。
 相關API如下：
@@ -2437,6 +2440,89 @@ JVM啓動的子進程后不會阻塞當前環境，子進程的運行與父進�
 ```scala
 scala> Runtime.getRuntime().exec("cmd /c xxx > xxx.txt")
 res1: Process = java.lang.ProcessImpl@e3c36d
+```
+
+
+
+# DateTime API
+Java語言中提供了兩組時間相關API：
+
+| API | 精確度 | 說明 |
+| :- | :- | :- | :- |
+| java.util.Date | 毫秒 | `JDK 1.1`時代就引入的時間API，功能簡單，缺點眾多，並且非線程安全 |
+| java.time.LocalDateTime | 納秒 | `Java8`中引入的新一代時間API，功能強大，改進了舊API的諸多缺點，線程安全 |
+
+## java.util.Date
+舊的Date API簡單用法示例：
+
+```java
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+// 定義時間格式
+DateFormat dateFormat = new SimpleDateFormat("Date Pattern...");
+
+// 從文本轉化為時間
+Date time = dateFormat.parse("Time String...");
+
+// 將時間格式化為可讀文本
+String timeString = dateFormat.format(time);
+
+// 時間比較
+Date time1 = ..., time2 = ...;
+time1.before(time2); // boolean
+time1.after(time2); // boolean
+time1.compareTo(time2); // 返回值：0 => 時間相等，1 => 時間1 大於 時間2，-1 => 時間1小於時間2
+```
+
+## java.time.LocalDateTime
+DateTime API的基本用法類似Date API，示例：
+
+```java
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+// 定義時間格式
+DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("Date Pattern...");
+
+// 從文本轉換為時間
+LocalDateTime time = LocalDateTime.parse("Time String...", dateTimeFormatter);
+
+// 從時間轉換為文本
+String timeString = time.format(dateTimeFormatter);
+
+// 時間比較
+LocalDateTime time1 = ..., time2 = ...;
+time1.isAfter(time2);
+time1.isBefore(time2);
+time1.isEqual(time2);
+```
+
+使用Duration API可以獲取兩個時間的差值：
+
+```java
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+LocalDateTime time1 = ..., time2 = ...;
+Duration duration = Duration.between(time1, time2);
+duration.getSeconds(); // 獲取時間間隔的秒部分
+duration.getNano(); // 獲取時間間隔的納秒部分
+
+// 將時間間隔轉換為其它單位
+duration.toDays();
+duration.toHours();
+duration.toMinutes();
+duration.toMillis();
+
+import java.time.temporal.ChronoUnit;
+
+// 需要特定格式的時間差值亦可直接使用 ChronoUnit 枚舉中提供的對應實例
+ChronoUnit.MILLIS.between(time1, time2);
+ChronoUnit.SECONDS.between(time1, time2);
+ChronoUnit.MINUTES.between(time1, time2);
+... // 其它單位如 HOURS、DAYS 等類似
 ```
 
 
@@ -2557,8 +2643,8 @@ Access數據庫的一些小常識：
 - 表單的高級字段設置在`開始 - 視圖 - 設計視圖`中。
 - 配置自增屬性需要將字段類型設爲`自動編號`。
 - 默認情況下，創建的數據類型`數字`的字段大小爲`長整型`。
-	長整型不支持**小數輸入**，小數輸入會自動被去尾。
-	需要將字段大小設置爲`單精度浮點型/雙精度浮點型`才能支持小數位。
+長整型不支持**小數輸入**，小數輸入會自動被去尾。
+需要將字段大小設置爲`單精度浮點型/雙精度浮點型`才能支持小數位。
 - 如果需要某個字段的內容唯一不可重複，可以將改字段的索引設置爲`有(無重複)`即可。
 
 
