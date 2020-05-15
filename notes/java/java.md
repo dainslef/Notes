@@ -53,6 +53,7 @@
 - [DateTime API](#datetime-api)
 	- [java.util.Date](#javautildate)
 	- [java.time.LocalDateTime](#javatimelocaldatetime)
+		- [LocalDateTime處理日期](#localdatetime處理日期)
 - [JDBC](#jdbc)
 	- [連接數據庫](#連接數據庫)
 	- [數據庫操作](#數據庫操作)
@@ -2524,6 +2525,32 @@ ChronoUnit.SECONDS.between(time1, time2);
 ChronoUnit.MINUTES.between(time1, time2);
 ... // 其它單位如 HOURS、DAYS 等類似
 ```
+
+### LocalDateTime處理日期
+在Date Pattern為日期的情況下，直接使用LocalDateTime進行parse會得到異常信息：
+
+```java
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+LocalDateTime time = LocalDateTime.parse("20140218", formatter);
+
+// exception stack info
+Exception in thread "main" java.time.format.DateTimeParseException:
+Text '20140218' could not be parsed:
+Unable to obtain LocalDateTime from TemporalAccessor:
+{},ISO resolved to 2014-02-18 of type java.time.format.Parsed
+    at java.time.format.DateTimeFormatter.createError(DateTimeFormatter.java:1918)
+    at java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:1853)
+    at java.time.LocalDateTime.parse(LocalDateTime.java:492)
+```
+
+原因是LocalDateTime類型不能接收一個純日期時間，正確的做法是使用LocalDate類型處理日期，之後在轉換為LocalDateTime：
+
+```java
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+LocalDateTime time = LocalDate.parse("20140218", formatter).atStartOfDay();
+```
+
+類似問題可參考[StackOverflow](https://stackoverflow.com/questions/27454025/unable-to-obtain-localdatetime-from-temporalaccessor-when-parsing-localdatetime)上的相關討論。
 
 
 
