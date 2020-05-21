@@ -23,10 +23,11 @@
 	- [源碼安裝](#源碼安裝)
 		- [指定Stackage版本](#指定stackage版本)
 		- [執行安裝](#執行安裝)
-- [問題註記](#問題註記)
+- [Stack相關問題註記](#stack相關問題註記)
 	- [Revision Mismatch](#revision-mismatch)
 	- [HDBC-mysql](#hdbc-mysql)
 	- [unable to load package 'integer-gmp-xxx'](#unable-to-load-package-integer-gmp-xxx)
+	- [Error in $['setup-info']: failed to parse field 'setup-info': parsing SetupInfo failed, expected Object, but encountered String](#error-in-setup-info-failed-to-parse-field-setup-info-parsing-setupinfo-failed-expected-object-but-encountered-string)
 
 <!-- /TOC -->
 
@@ -195,6 +196,18 @@ Stackage和Hackage默認的鏡像源在國內均被**牆(Fxxk CPP)**，需要替
 
 	# Stackage
 	setup-info: "http://mirrors.tuna.tsinghua.edu.cn/stackage/stack-setup.yaml"
+	urls:
+	  latest-snapshot: http://mirrors.tuna.tsinghua.edu.cn/stackage/snapshots.json
+	```
+
+- `stack >= 2.3`
+
+	```yaml
+	# Hackage
+	# same as stack v2.1.1+
+
+	# Stackage
+	setup-info-locations: ["http://mirrors.tuna.tsinghua.edu.cn/stackage/stack-setup.yaml"]
 	urls:
 	  latest-snapshot: http://mirrors.tuna.tsinghua.edu.cn/stackage/snapshots.json
 	```
@@ -375,7 +388,6 @@ executable 可執行文件名稱
 ```
 
 使用`stack build`指令後，會在`[項目根路徑]/.stack-work/install/[CPU架構]-[操作系統]/lts-[LTS版本號]/[GHC版本號]/bin`路徑下生成可執行文件。
-使用`stack exec [執行文件名稱]`執行生成的文件。
 
 ### 測試定義
 `test-suite`配置段定義了測試相關內容。
@@ -400,8 +412,10 @@ test-suite 測試名稱
 使用`stack test`指令執行測試：
 
 ```c
-$ stack test //執行所有測試
-$ stack test :[測試名稱] //執行指定名稱的測試
+$ stack test // 執行所有測試
+$ stack test :[test name] // 執行指定名稱的測試
+$ stack test --test-arguments "args..." // 執行測試並傳入指定的命令行參數(參數需要整體作為文本傳入，被雙引號包圍)
+$ stack test --ta "args..." // --test-arguments 參數可縮寫為 --ta
 ```
 
 測試名稱前需要添加**冒號**。
@@ -429,8 +443,8 @@ $ stack test :[測試名稱] //執行指定名稱的測試
 	`data-files`配置段添加指定的數據文件。
 
 	支持使用通配符匹配某一類型的文件，如`*.xml`、`*.json`，**不能**使用`*`通配符匹配所有文件。
-	默認以**項目根路徑**爲起始路徑，若數據文件位於子路徑下，需要完整的相對路徑，如`conf1/xxx1.xml`、`conf2/xxx2.json`。
-	多個數據文件使用`,`符號作爲分隔符。
+	默認以**項目根路徑**爲起始路徑，若數據文件位於子路徑下，需要完整的相對路徑，
+	如`conf1/xxx1.xml`、`conf2/xxx2.json`。多個數據文件使用`,`符號作爲分隔符。
 
 	若設定了`data-dir`配置段，則以`項目根路徑/data-dir配置路徑`做爲起始路徑。
 
@@ -638,7 +652,7 @@ $ ls -al ~/.local/bin
 
 
 
-# 問題註記
+# Stack相關問題註記
 記錄使用stack中遇到的問題。
 
 ## Revision Mismatch
@@ -694,3 +708,34 @@ $ stack install HDBC-mysql --extra-lib-dirs=/usr/local/opt/openssl@1.11/lib
 $ cd ~/.stack/programs/x86_64-osx/ghc-8.4.4/lib/ghc-8.4.4/integer-gmp-1.0.2.0/
 $ mv HSinteger-gmp-1.0.2.0.o HSinteger-gmp-1.0.2.0.o.back
 ```
+
+## Error in $['setup-info']: failed to parse field 'setup-info': parsing SetupInfo failed, expected Object, but encountered String
+stack版本升級到`2.3.1`後，若使用清華Stackage源，
+並在`~/.config.yaml`中使用了[清華源文檔](https://mirror.tuna.tsinghua.edu.cn/help/stackage/)中示例的配置：
+
+```yaml
+setup-info: "http://mirrors.tuna.tsinghua.edu.cn/stackage/stack-setup.yaml"
+urls:
+  latest-snapshot: http://mirrors.tuna.tsinghua.edu.cn/stackage/snapshots.json
+```
+
+此時，會出現如下錯誤：
+
+```
+Could not parse '~/.stack/config.yaml':
+Aeson exception:
+Error in $['setup-info']: failed to parse field 'setup-info': parsing SetupInfo failed, expected Object, but encountered String
+See http://docs.haskellstack.org/en/stable/yaml_configuration/
+```
+
+出現該錯誤的原因是在`stack 2.3`版本之後，`stack-info`配置項不再支持文本形式的配置定義，
+對應的配置項現在應使用`setup-info-locations`，將清華Stackage源的配置改為如下結構後恢復正常：
+
+```yaml
+# Stackage
+setup-info-locations: ["http://mirrors.tuna.tsinghua.edu.cn/stackage/stack-setup.yaml"]
+urls:
+  latest-snapshot: http://mirrors.tuna.tsinghua.edu.cn/stackage/snapshots.json
+```
+
+詳情可參考[官方文檔](https://docs.haskellstack.org/en/stable/yaml_configuration/#setup-info-locations)中的對應配置項說明。
