@@ -3,6 +3,8 @@
 - [Haskell 開發環境](#haskell-開發環境)
 	- [GHC 常用功能](#ghc-常用功能)
 	- [REPL (GHCi)](#repl-ghci)
+- [Debug (調試)](#debug-調試)
+	- [Debug.Trace](#debugtrace)
 - [常用函數](#常用函數)
 	- [`$` 函數](#-函數)
 	- [`.` 函數](#-函數)
@@ -48,7 +50,7 @@
 - [Concurrent](#concurrent)
 	- [Async 包](#async-包)
 - [RankNTypes](#rankntypes)
-	- [示例](#示例)
+	- [RankNTypes 示例](#rankntypes-示例)
 
 <!-- /TOC -->
 
@@ -134,6 +136,41 @@ REPL環境下的內部指令均以`:`爲前綴，常用指令如下：
 
 
 
+# Debug (調試)
+在Haskell中，可以使用trace系列函數打印調試信息，或者在GHCi中進行斷點調試。
+相關介紹參考[Haskell Wiki](https://wiki.haskell.org/Debugging)。
+
+## Debug.Trace
+`Debug.Trace`模塊下提供了trace系列函數，能夠將錯誤信息打印到輸出流(`*nix`下為`stderr`)中。
+
+常用的trace函數：
+
+```hs
+trace :: String -> a -> a 	-- Defined in ‘Debug.Trace’
+traceShow :: Show a => a -> b -> b 	-- Defined in ‘Debug.Trace’
+traceShowId :: Show a => a -> a 	-- Defined in ‘Debug.Trace’
+```
+
+使用示例：
+
+```hs
+Prelude> import           Debug.Trace
+Prelude Debug.Trace> let i = 1
+Prelude Debug.Trace> 1 + trace ("Value i: " ++ show i) i
+Value i: 1
+2
+Prelude Debug.Trace> 1 + traceShowId i
+1
+2
+```
+
+trace系列函數應該僅用於調試或監控執行狀況，該系列函數雖然帶有純函數的簽名(未標記為IO Monad)，
+但函數的內部實現存在**side effects**(向外部輸出流中輸出trace信息)。
+
+完整的Trace API可參考[Hackage文檔](https://hackage.haskell.org/package/base/docs/Debug-Trace.html)。
+
+
+
 # 常用函數
 Haskell中可以使用符號做爲函數名。
 
@@ -148,8 +185,8 @@ Haskell中可以使用符號做爲函數名。
 infixr 0 $
 ```
 
-`$`函數優先級爲0，低於幾乎所有的常見函數/操作符，使用`$`運算符將函數與之後的參數分隔開，能代替括號操作符改變操作優先級。
-示例：
+`$`函數優先級爲0，低於幾乎所有的常見函數/操作符，使用`$`運算符將函數與之後的參數分隔開，
+能代替括號操作符改變操作優先級。示例：
 
 ```hs
 Prelude> print ("abc" ++ "cde") -- 使用括號改變表達式優先級，與傳統命令式語言類似
@@ -938,8 +975,11 @@ class XxxTypeClass typeA typeB typeC ... | typeA typeB ... -> typeC where
   ...
 ```
 
-使用functional dependencies特性能夠避免一些場景下無法直接推導出類型時的顯式類型標註，如類型參數在返回值的情形。
-上一節的例子中，使用functional dependencies特性的示例：
+Haskell中type class方法簽名可以僅重載返回值(即多個方法參數類型相同，僅有返回值類型不同)，
+此類方法在調用時需要顯式標註表達式的返回值類型，參考上一節的示例。
+
+使用functional dependencies特性能夠避免一些場景下無法直接推導出類型時的顯式類型標註，
+如上述的類型參數在返回值的情形。上一節的例子中，使用functional dependencies特性的示例：
 
 ```hs
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, FunctionalDependencies #-}
@@ -1356,8 +1396,8 @@ Functor => Applicative => Monad
 	`>>=`操作符需要提供源參數類型生成包含目標參數類型的Monad的變換邏輯。
 	`>>=`操作順序地組合兩個動作，將前一個動作的處理結果做爲參數傳遞給後一個。
 
-	`>>`操作符用於將返回值無關的Monad操作相連。
-	`>>`操作順序地組合兩個動作，但丟棄前一個動作的處理結果，類似於命令式語言(imperative languages)中的分隔符，比如C中的分號。
+	`>>`操作符用於將返回值無關的Monad操作相連。`>>`操作順序地組合兩個動作，但丟棄前一個動作的處理結果，
+	類似於命令式語言(imperative languages)中的分隔符，比如C中的分號。
 
 	`return`函數提供參數類型到Monad的構造邏輯，由於Monad是Applicative子類，return默認使用pure函數做爲實現。
 
@@ -2356,7 +2396,7 @@ f4 :: Int -> (forall a . a -> a)
 函數`f2`、`g2`爲`rank-2 types`，f2/g2函數在函數箭頭左端擁有局部的forall參數表，參數表內部的多態類型能夠重載。
 函數`f3`爲`rank-3 types`，f3函數在函數箭頭左端擁有一個`rank-2 types`的局部forall參數表。
 
-## 示例
+## RankNTypes 示例
 RankNTypes常用於函數的部分參數自身爲多態函數的情況下，考慮如下函數：
 
 ```hs
