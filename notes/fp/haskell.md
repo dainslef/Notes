@@ -5,6 +5,7 @@
 	- [REPL (GHCi)](#repl-ghci)
 - [Debug (調試)](#debug-調試)
 	- [Debug.Trace](#debugtrace)
+	- [GHCi Debugger](#ghci-debugger)
 - [常用函數](#常用函數)
 	- [`$` 函數](#-函數)
 	- [`.` 函數](#-函數)
@@ -168,6 +169,46 @@ trace系列函數應該僅用於調試或監控執行狀況，該系列函數雖
 但函數的內部實現存在**side effects**(向外部輸出流中輸出trace信息)。
 
 完整的Trace API可參考[Hackage文檔](https://hackage.haskell.org/package/base/docs/Debug-Trace.html)。
+
+## GHCi Debugger
+GHCi內置了調試器功能，可在Shell中加載指定源碼，並設置斷點進行調試。
+
+假設存在源碼文件`~/Main.hs`：
+
+```hs
+main :: IO ()
+main = do
+  let (line1, line2, line3) = (1, 2, 3)
+  print $ "Line 1 ..." ++ show line1
+  print $ "Line 2 ..." ++ show line2
+  print $ "Line 3 ..." ++ show line3
+```
+
+在GHCi Shell中加載源碼、添加斷點進行調試：
+
+```hs
+*Main> :load ~/Main.hs -- 載入模塊
+[1 of 1] Compiling Main             ( /Users/dainslef/Main.hs, interpreted )
+Ok, one module loaded.
+*Main> :break 5 -- 設置斷點
+Breakpoint 3 activated at /Users/dainslef/Main.hs:5:3-36
+*Main> main -- 執行待調試的函數
+"Line 1 ...1"
+Stopped in Main.main, /Users/dainslef/Main.hs:5:3-36
+_result :: IO () = _
+line2 :: Integer = _
+[/Users/dainslef/Main.hs:5:3-36] [/Users/dainslef/Main.hs:5:3-36] *Main> print line2 -- 打印該斷點環境下的變量
+2
+[/Users/dainslef/Main.hs:5:3-36] [/Users/dainslef/Main.hs:5:3-36] *Main> :step -- 繼續單步調試
+"Stopped in Main.main, /Users/dainslef/Main.hs:5:11-36
+_result :: [Char] = _
+line2 :: Integer = 2
+[/Users/dainslef/Main.hs:5:11-36] [/Users/dainslef/Main.hs:5:11-36] *Main> :continue -- 繼續執行函數到下一個斷點或或函數結束
+Line 2 ...2"
+"Line 3 ...3"
+```
+
+更多GHCi Debugger相關功能可參考[GHC官方手冊](https://downloads.haskell.org/ghc/latest/docs/html/users_guide/ghci.html#the-ghci-debugger)。
 
 
 
