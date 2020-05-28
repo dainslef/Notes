@@ -54,6 +54,7 @@
 	- [java.util.Date](#javautildate)
 	- [java.time.LocalDateTime](#javatimelocaldatetime)
 		- [LocalDateTime處理日期](#localdatetime處理日期)
+		- [關於 Oracle JDK 8 在 yyyyMMddHHmmssSSS 時間格式下的 DateTimeParseException](#關於-oracle-jdk-8-在-yyyymmddhhmmsssss-時間格式下的-datetimeparseexception)
 - [JDBC](#jdbc)
 	- [連接數據庫](#連接數據庫)
 	- [數據庫操作](#數據庫操作)
@@ -2551,6 +2552,33 @@ LocalDateTime time = LocalDate.parse("20140218", formatter).atStartOfDay();
 ```
 
 類似問題可參考[StackOverflow](https://stackoverflow.com/questions/27454025/unable-to-obtain-localdatetime-from-temporalaccessor-when-parsing-localdatetime)上的相關討論。
+
+### 關於 Oracle JDK 8 在 yyyyMMddHHmmssSSS 時間格式下的 DateTimeParseException
+在`Oracle JDK 8`中，若使用的時間格式化文本為`yyyyMMddHHmmssSSS`，則會得到異常信息：
+
+```java
+DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").parse("20180301050630663");
+
+// exception stack info
+Exception in thread "main" java.time.format.DateTimeParseException: Text '20180301050630663' could not be parsed at index 0
+    at java.time.format.DateTimeFormatter.parseResolved0(DateTimeFormatter.java:1947)
+    at java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:1849)
+    at java.time.LocalDateTime.parse(LocalDateTime.java:492)
+    ...
+```
+
+該BUG是Oracle JDK 8自身的BUG，收錄在[甲骨文官方BUG數據庫(JDK-8031085)](https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8031085)中，
+在`Oracle JDK 9`中已經得到修復。
+
+在不切換JDK版本的前提下繞開此BUG可以採用自定義DateTimeFormatter的方式，
+手動使用`DateTimeFormatterBuilder`構建DateTimeFormatter：
+
+```java
+new DateTimeFormatterBuilder()
+	.appendPattern("yyyyMMddHHmmss")
+	.appendValue(ChronoField.MILLI_OF_SECOND, 3)
+	.toFormatter();
+```
 
 
 
