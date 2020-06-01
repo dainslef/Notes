@@ -48,6 +48,7 @@
 	- [MacBook 合蓋無法正常休眠](#macbook-合蓋無法正常休眠)
 - [VPN](#vpn)
 	- [IKEv2](#ikev2)
+	- [Shadowsocks](#shadowsocks)
 - [問題記錄](#問題記錄)
 	- [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
 
@@ -899,6 +900,22 @@ NordVPN官方沒有提供macOS版的配置教程，但可參照[iOS版本教程]
 下載並導入根證書到`System Keychans`中，並設置證書的信任級別：
 
 ![NordVPN Root CA](../../images/mac_os_vpn_root_certificate_authority.png)
+
+## Shadowsocks
+`Shadowsocks`是專為解決牆國Great Fire Wall而誕生的協議，解決了傳統VPN的在翻牆這一特殊應用場景下的一些缺陷：
+
+- 定向流量代理，Shadowsocks為不同流向選擇不同的路徑，對於牆內站點直連，僅代理牆外流量；VPN僅能全局代理。
+- 速度更快，Shadowsocks能同時在工作在多個TCP連接下。
+- 流量偽裝，Shadowsocks會偽裝牆外流量以繞過GFW，Shadowsocks偽裝後的數據難以識別和攔截；傳統VPN則很容易被GFW識別。
+
+在macOS下，主流的Shadowsocks客戶端為[ShadowsocksX-NG]()(其它客戶端幾乎已全部停止開發)，
+可以使用Homebrew直接安裝：
+
+```c
+$ brew cask install shadowsocksx-ng
+```
+
+目前ShadowsocksX-NG缺少**訂閱**功能，管理多個連接地址較為不便。
 
 
 
