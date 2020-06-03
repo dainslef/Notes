@@ -23,6 +23,7 @@
 	- [源碼安裝](#源碼安裝)
 		- [指定Stackage版本](#指定stackage版本)
 		- [執行安裝](#執行安裝)
+	- [多組件項目配置](#多組件項目配置)
 - [Stack相關問題註記](#stack相關問題註記)
 	- [Revision Mismatch](#revision-mismatch)
 	- [HDBC-mysql](#hdbc-mysql)
@@ -389,6 +390,15 @@ executable 可執行文件名稱
 
 使用`stack build`指令後，會在`[項目根路徑]/.stack-work/install/[CPU架構]-[操作系統]/lts-[LTS版本號]/[GHC版本號]/bin`路徑下生成可執行文件。
 
+項目執行相關指令：
+
+```c
+$ stack run // 構建並執行項目的首個可執行文件
+$ stack run -- [args...] // 構建運行項目的首個可執行文件，並向可執行文件傳入給定的命令行參數
+$ stack exec [exec_file] // 執行項目生成的指定可執行文件
+$ stack exec [exec_file] -- [args..] // 執行項目並向可執行文件傳入指定的命令行參數(避免傳入的命令行參數被解析為stack指令自身的參數)
+```
+
 ### 測試定義
 `test-suite`配置段定義了測試相關內容。
 
@@ -649,6 +659,55 @@ $ ls -al ~/.local/bin
 -rwxr-xr-x   1 dainslef  staff    4315304 Nov 23 13:15 hie-wrapper
 ...
 ```
+
+## 多組件項目配置
+HIE在項目中配置了多個組件(根源碼路徑)時，除了主源碼路徑(./src)外，其它的代碼路徑下的文件被HIE解析時會得到如下錯誤信息：
+
+```
+Fail on initialisation for ".../xxx.hs".
+Could not obtain flags for: ".../xxx.hs".
+
+This module was not part of any component we are aware of.
+
+Component: ChLibName ChMainLibName with source directory: ["src"]
+Component: ChExeName "xxx-exe" with source directory: ["app"]
+
+
+To expose a module, refer to:
+https://docs.haskellstack.org/en/stable/GUIDE/
+If you are using `package.yaml` then you don't have to manually expose modules.
+Maybe you didn't set the source directories for your project correctly.
+```
+
+出現該問題是因為其它組件默認不在stack的全局項目定義中，解決此問題的方案有兩種：
+
+1. 在項目中執行`stack build/test`指令後啟動構建、編譯、測試組件，之後HIE在解析源碼時不會再產生錯誤。
+1. 在項目根路徑下創建項目工作空間定義文件`hie.yaml`，在其中添加組件的描述。
+使用`stack ide targets`查看項目的組件信息：
+
+	```c
+	$ stack ide targets
+	haskell-practice:lib
+	haskell-practice:test:hacker-rank
+	haskell-practice:test:lang-feature
+	```
+
+	將組件信息添加到hie.yaml文件中：
+
+	```yaml
+	cradle:
+	  stack:
+	    - path: ./test
+	      component: "haskell-practice:test:hacker-rank"
+	    - path: ./test
+	      component: "haskell-practice:test:lang-feature"
+	    - path: ./src
+	      component: "haskell-practice:lib"
+	```
+
+若執行以上操作後錯誤依舊出現，則可嘗試刪除項目構建緩存目錄`.stack-work`。之後重新執行HIE。
+
+具體可參考[GitHub](https://github.com/haskell/haskell-ide-engine/issues/1564)的對應ISSUE。
 
 
 
