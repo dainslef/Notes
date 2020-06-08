@@ -2,7 +2,7 @@
 
 - [初始化與基本配置](#初始化與基本配置)
 	- [數據庫初始化 (MySQL 5.7+)](#數據庫初始化-mysql-57)
-	- [數據庫初始化 (MariaDB & MySQL 5.6-)](#數據庫初始化-mariadb--mysql-56-)
+	- [數據庫初始化 (MariaDB & MySQL 5.7-)](#數據庫初始化-mariadb--mysql-57-)
 	- [手動配置](#手動配置)
 	- [使用指定配置啓動](#使用指定配置啓動)
 - [服務管理](#服務管理)
@@ -60,7 +60,7 @@
 
 ## 數據庫初始化 (MySQL 5.7+)
 `MySQL`在`5.7`版本開始變更了初始化的方式，原先使用的`mysql_install_db`指令已被廢棄，
-現在應該使用`--initialize`系列參數進行數據庫初始化，如下所示：
+相關功能被整合到了`mysqld`中，通過`--initialize`系列參數進行數據庫初始化，如下所示：
 
 ```
 > mysqld --initialize
@@ -78,10 +78,10 @@
 > mysqld --initialize-insecure
 ```
 
-## 數據庫初始化 (MariaDB & MySQL 5.6-)
+## 數據庫初始化 (MariaDB & MySQL 5.7-)
 `MariaDB`在MySQL被`Oracle`收購之後，被各大Linux發行版作爲默認的MySQL替代版本。
 
-作爲MySQL的分支，並沒有採用`MySQL 5.5`之後的新初始化方式，依舊使用`mysql_install_db`指令進行數據庫初始化，
+作爲MySQL的分支，並沒有採用`MySQL 5.7`之後的新初始化方式，依舊使用`mysql_install_db`指令進行數據庫初始化，
 以ArchLinux爲例，初始化操作爲：
 
 ```
@@ -394,6 +394,7 @@ mysql> show grants for [用戶名]@[主機地址]; //顯示指定用戶的權限
 - `drop database [數據庫名];` 刪除數據庫
 - `use [數據庫名];` 切換正在使用的數據庫
 - `desc [表名];` 查看指定表格的結構
+- `drop table [表名]` 刪除指定表格
 - `truncate table [表名];` 清除指定表格的內容(速度快，但不可恢復)
 - `delete from [表名];` 刪除指定表格的內容(速度慢，但可以恢復)
 
@@ -477,13 +478,15 @@ reference_option:
     RESTRICT | CASCADE | SET NULL | NO ACTION | SET DEFAULT
 ```
 
-創建外鍵約束時，可通過`reference_option`設置外鍵數據的更新、刪除行爲：
+創建外鍵約束時，可通過`reference_option`設置外鍵數據的更新(`ON UPDATE`)、刪除(`ON DELETE`)行爲：
 
-- `RESTRICT` 檢測主表數據是否被從表引用，未引用數據可刪除、修改，已被引用則不可刪除、修改
-- `NO ACTION` 標準SQL中的關鍵字，等價於RESTRICT
-- `CASCADE` 級聯，同步更新、刪除從表數據
-- `SET NULL` 主表變化，從表的引用字段設爲NULL
-- `DEFAULT` 默認操作，等價於RESTRICT
+| 約束類型 | 說明 |
+| :- | :- |
+| RESTRICT | 檢測主表數據是否被從表引用，未引用數據可刪除、修改，已被引用則不可刪除、修改 |
+| NO ACTION | 標準SQL中的關鍵字，等價於RESTRICT |
+| CASCADE | 級聯，同步更新、刪除從表數據 |
+| SET NULL | 主表變化，從表的引用字段設爲NULL |
+| DEFAULT | 默認操作，等價於RESTRICT |
 
 移除外鍵在`ALTER TABLE`中使用`DROP FOREIGN KEY fk_symbol`子句。
 
@@ -495,7 +498,8 @@ reference_option:
 Error Code: 1022. Can't write; duplicate key in table '***'
 ```
 
-使用VARCHAR類型作為外鍵時，不僅要注意字符長度，還要注意字符編碼類型(`DEFAULT CHARACTER SET`)和校驗類型(`COLLATE`)，
+使用VARCHAR類型作為外鍵時，不僅要注意字符長度，
+還要注意**字符編碼類型**(`DEFAULT CHARACTER SET`)和**校驗類型**(`COLLATE`)，
 二者不同會造成外鍵創建失敗。
 行類型(`ROW_FORMAT`)不同不影響外鍵的創建。
 外鍵約束創建失敗時會出現如下錯誤信息：
@@ -505,6 +509,11 @@ Error Code: 1215. Cannot add the foreign key constraint
 ```
 
 可使用`SHOW ENGINE INNODB STATUS`語句輸出最近的SQL執行的詳細狀態，查閱具體的錯誤信息。
+或者直接根據表格名稱查詢外鍵被引用的信息：
+
+```sql
+select * from INFORMATION_SCHEMA.KEY_COLUMN_USAGE where REFERENCED_TABLE_NAME='被引用的表名稱'
+```
 
 
 
@@ -564,13 +573,16 @@ REDUNDANT格式用於兼容舊版本的MySQL。
 ## DYNAMIC Row Format
 DYNAMIC行格式提供與REDUNDANT格式相同的存儲特徵，但增强了長變長列的存儲能力，並支持大型索引前綴。
 
-當使用`ROW_FORMAT = DYNAMIC`創建表時，InnoDB可以完全在頁外存儲長的變長列值(VARCHAR，VARBINARY，BLOB和TEXT)，
+當使用`ROW_FORMAT = DYNAMIC`創建表時，
+InnoDB可以完全在頁外存儲長的變長列值(VARCHAR，VARBINARY，BLOB和TEXT)，
 聚集索引記錄只包含20字節的指針指向溢出頁面。大於或等於768字節定長字段被編碼為變長字段。
 
-列是否存儲在頁外是否取決於頁面大小和行的總大小。當行太長時，選擇最長的列進行頁外存儲，直到聚簇索引記錄適合B-tree頁面。
+列是否存儲在頁外是否取決於頁面大小和行的總大小。
+當行太長時，選擇最長的列進行頁外存儲，直到聚簇索引記錄適合B-tree頁面。
 小於或等於40字節的TEXT和BLOB列會存儲在行中。
 
-DYNAMIC行格式保持在索引節點中存儲整行的效率(類似COMPACT和REDUNDANT)，但避免了用長列的大量數據内容填充B-tree節點的問題。
+DYNAMIC行格式保持在索引節點中存儲整行的效率(類似COMPACT和REDUNDANT)，
+但避免了用長列的大量數據内容填充B-tree節點的問題。
 DYNAMIC行格式基於以下思想：
 若一個大的數據值一部分存儲在頁外，則通常最有效的存儲方式是將整個值存儲在頁外。
 使用DYNAMIC格式時，較短的列可能會保留在B樹節點中，從而最大限度地減少一行所需的溢出頁數。
