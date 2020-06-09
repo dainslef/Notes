@@ -55,6 +55,7 @@
 	- [java.time.LocalDateTime](#javatimelocaldatetime)
 		- [LocalDateTime處理日期](#localdatetime處理日期)
 		- [關於 Oracle JDK 8 在 yyyyMMddHHmmssSSS 時間格式下的 DateTimeParseException](#關於-oracle-jdk-8-在-yyyymmddhhmmsssss-時間格式下的-datetimeparseexception)
+	- [java.time.Instant](#javatimeinstant)
 - [JDBC](#jdbc)
 	- [連接數據庫](#連接數據庫)
 	- [數據庫操作](#數據庫操作)
@@ -2578,6 +2579,35 @@ new DateTimeFormatterBuilder()
 	.appendPattern("yyyyMMddHHmmss")
 	.appendValue(ChronoField.MILLI_OF_SECOND, 3)
 	.toFormatter();
+```
+
+## java.time.Instant
+`Instant`類型提供了時間戳與Java新老時間API(LocalDateTime/Date)相關類型的轉換。
+該類型可作為新老時間API轉換的中間類型。
+
+`java.util.Date`類型與Instant類型相互轉換：
+
+```java
+Date date = ...;
+Instant instant = date.toInstant();
+Date newDate = Date.from(instant);
+```
+
+`java.time.LocalDateTime`類型與Instant類型相互轉換：
+
+```java
+LocalDateTime dateTime = ...;
+Instant instant = dateTime.toInstant(ZoneOffset...); // 使用對應時區的偏移量
+Instant instant = Instant.from(dateTime); // 要求DateTime時間帶有時區信息
+LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+```
+
+通過Instant類型與時間戳相互轉換：
+
+```java
+// 從各類時間戳轉換到Instant
+Instant instant = Instant.ofEpochSecond(epochSecond...); // 從Unix時間戳(秒)轉換到Instant
+Instant instant = Instant.ofEpochMilli(epochMilli...); // 從Java Date時間戳(微秒)轉換到Instant
 ```
 
 
