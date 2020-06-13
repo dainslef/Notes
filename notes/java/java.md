@@ -56,6 +56,8 @@
 		- [LocalDateTime處理日期](#localdatetime處理日期)
 		- [關於 Oracle JDK 8 在 yyyyMMddHHmmssSSS 時間格式下的 DateTimeParseException](#關於-oracle-jdk-8-在-yyyymmddhhmmsssss-時間格式下的-datetimeparseexception)
 	- [java.time.Instant](#javatimeinstant)
+		- [Caused by: java.time.DateTimeException: Unable to obtain LocalDate from TemporalAccessor: 2020-05-14T03:08:24.322080Z of type java.time.Instant](#caused-by-javatimedatetimeexception-unable-to-obtain-localdate-from-temporalaccessor-2020-05-14t030824322080z-of-type-javatimeinstant)
+		- [Caused by: java.time.temporal.UnsupportedTemporalTypeException: Unsupported field: InstantSeconds](#caused-by-javatimetemporalunsupportedtemporaltypeexception-unsupported-field-instantseconds)
 - [JDBC](#jdbc)
 	- [連接數據庫](#連接數據庫)
 	- [數據庫操作](#數據庫操作)
@@ -2609,6 +2611,82 @@ LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDef
 Instant instant = Instant.ofEpochSecond(epochSecond...); // 從Unix時間戳(秒)轉換到Instant
 Instant instant = Instant.ofEpochMilli(epochMilli...); // 從Java Date時間戳(微秒)轉換到Instant
 ```
+
+### Caused by: java.time.DateTimeException: Unable to obtain LocalDate from TemporalAccessor: 2020-05-14T03:08:24.322080Z of type java.time.Instant#
+使用`LocalDateTime.from()`方法從Instant類型構建LocalDateTime時間時得到該異常信息：
+
+```scala
+scala> LocalDateTime.from(Instant.now)
+java.time.DateTimeException: Unable to obtain LocalDateTime from TemporalAccessor: 2020-05-14T03:16:35.676532Z of type java.time.Instant
+  at java.base/java.time.LocalDateTime.from(LocalDateTime.java:461)
+  ... 28 elided
+Caused by: java.time.DateTimeException: Unable to obtain LocalDate from TemporalAccessor: 2020-05-14T03:16:35.676532Z of type java.time.Instant
+  at java.base/java.time.LocalDate.from(LocalDate.java:396)
+  at java.base/java.time.LocalDateTime.from(LocalDateTime.java:456)
+  ... 28 more
+```
+
+通過查閱源碼得知，雖然Instant類型實現了TemporalAccessor接口，但該方法本身只提供了*DateTime相關類型的轉換功能，
+並不能轉換所有實現TemporalAccessor的類型。
+
+相關源碼段如下：(摘取自 OpenJDK 1.8.0_242)
+
+```java
+public final class LocalDateTime
+        implements Temporal, TemporalAdjuster, ChronoLocalDateTime<LocalDate>, Serializable {
+    ...
+    public static LocalDateTime from(TemporalAccessor temporal) {
+        if (temporal instanceof LocalDateTime) {
+            return (LocalDateTime) temporal;
+        } else if (temporal instanceof ZonedDateTime) {
+            return ((ZonedDateTime) temporal).toLocalDateTime();
+        } else if (temporal instanceof OffsetDateTime) {
+            return ((OffsetDateTime) temporal).toLocalDateTime();
+        }
+        try {
+            LocalDate date = LocalDate.from(temporal);
+            LocalTime time = LocalTime.from(temporal);
+            return new LocalDateTime(date, time);
+        } catch (DateTimeException ex) {
+            throw new DateTimeException("Unable to obtain LocalDateTime from TemporalAccessor: " +
+                    temporal + " of type " + temporal.getClass().getName(), ex);
+        }
+    }
+    ...
+}
+```
+
+### Caused by: java.time.temporal.UnsupportedTemporalTypeException: Unsupported field: InstantSeconds
+使用`Instant.from()`方法轉換LocalDateTime時要求對應的LocalDateTime時間帶有時區信息，否則會得到該異常：
+
+```scala
+scala> Instant.from(LocalDateTime.now)
+java.time.DateTimeException: Unable to obtain Instant from TemporalAccessor: 2020-05-14T10:29:06.130812 of type java.time.LocalDateTime
+  at java.base/java.time.Instant.from(Instant.java:378)
+  ... 28 elided
+Caused by: java.time.temporal.UnsupportedTemporalTypeException: Unsupported field: InstantSeconds
+  at java.base/java.time.LocalDate.get0(LocalDate.java:708)
+  at java.base/java.time.LocalDate.getLong(LocalDate.java:687)
+  at java.base/java.time.LocalDateTime.getLong(LocalDateTime.java:720)
+  at java.base/java.time.Instant.from(Instant.java:373)
+  ... 28 more
+```
+
+為時間附加時區信息：
+
+```java
+LocalDateTime dateTime = ...;
+Instant instant = Instant.from(dateTime.atZone(ZoneId.systemDefault()));
+```
+
+若時間由格式化得到，則可在構建DateTimeFormatter時添加時區信息：
+
+```java
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern(...).withZone(ZoneId.systemDefault());
+Instant instant = Instant.from(formatter.parse(...));
+```
+
+類似問題可參考[Stack Overflow](https://stackoverflow.com/questions/35610597/parse-string-timestamp-to-instant-throws-unsupported-field-instantseconds)中的對應提問。
 
 
 
