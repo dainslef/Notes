@@ -5,6 +5,7 @@
 	- [編譯器](#編譯器)
 		- [反編譯](#反編譯)
 	- [Scala REPL](#scala-repl)
+		- [java.lang.NoClassDefFoundError: javax/tools/JavaFileManager](#javalangnoclassdeffounderror-javaxtoolsjavafilemanager)
 - [Hello World](#hello-world)
 - [Method (方法)](#method-方法)
 	- [方法返回值](#方法返回值)
@@ -57,9 +58,10 @@
 	- [sealed 與 ADT](#sealed-與-adt)
 - [格式化輸出](#格式化輸出)
 	- [StringLike.format() 格式化輸出](#stringlikeformat-格式化輸出)
-	- [s字符串插值器](#s字符串插值器)
-	- [f字符串插值器](#f字符串插值器)
-	- [raw字符串插值器](#raw字符串插值器)
+	- [插值器](#插值器)
+		- [s字符串插值器](#s字符串插值器)
+		- [f字符串插值器](#f字符串插值器)
+		- [raw字符串插值器](#raw字符串插值器)
 - [終端輸入](#終端輸入)
 - [Enumerate (枚舉)](#enumerate-枚舉)
 	- [繼承枚舉類](#繼承枚舉類)
@@ -241,6 +243,40 @@ $ scalap -private [類名]
 | :implicits [-v] | 顯示當前作用域下的隱式對象 |
 | :type [-v] <\expr\> | 顯示錶達式的類型 |
 | :kind [-v] <\type\> | 顯示類型的Kind(型別)信息 |
+
+### java.lang.NoClassDefFoundError: javax/tools/JavaFileManager
+`Scala 2.13`在使用高版本的`OpenJDK`時，使用Scala REPL指令`:javap`進行代碼反編譯時，會得到上述錯誤：
+
+```scala
+scala> def test() = ()
+test: ()Unit
+
+scala> :javap test
+java.lang.NoClassDefFoundError: javax/tools/JavaFileManager
+	at scala.tools.nsc.interpreter.shell.JavapClass$JavapTool.$anonfun$TaskCtor$1(JavapClass.scala:217)
+	at scala.tools.nsc.interpreter.shell.JavapClass$JavapTool$Failer.orFailed(JavapClass.scala:143)
+	...
+```
+
+[GitHub](https://github.com/scala/bug/issues/11154)上記錄了這個錯誤，
+解決方法是在啟動Scala REPL時添加`-nobootcp`參數：
+
+```scala
+> scala -nobootcp
+Welcome to Scala 2.13.1 (OpenJDK 64-Bit Server VM, Java 13.0.2).
+Type in expressions for evaluation. Or try :help.
+
+scala> def test() = ()
+test: ()Unit
+
+scala> :javap test
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by scala.tools.nsc.interpreter.shell.JavapClass$JavapTool (file:/usr/local/Cellar/scala/2.13.1_1/libexec/lib/scala-compiler.jar) to method com.sun.tools.javap.JavapFileManager.create(javax.tools.DiagnosticListener,java.io.PrintWriter)
+WARNING: Please consider reporting this to the maintainers of scala.tools.nsc.interpreter.shell.JavapClass$JavapTool
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+	...
+```
 
 
 
@@ -2554,7 +2590,10 @@ Float 666.666
 "
 ```
 
-## s字符串插值器
+## 插值器
+Scala提供了多種插值器，用於便利地格式化文本。
+
+### s字符串插值器
 在`Scala 2.10`之後，還可以使用字符串插值器`s""`，基本用法示例：
 
 ```scala
@@ -2585,7 +2624,7 @@ res2: String = 1 Test 2.000000 3.0
 
 `s""`字符串插值器實際上相當於調用`StringContext.s()`，`r""`、`raw""`插值器類似。
 
-## f字符串插值器
+### f字符串插值器
 除了`s""`字符串插值器，還有帶有格式化功能的`f""`插值器。
 
 相比s插值器，f插值器可以帶有格式化參數，在不使用格式化參數的情況下，f插值器作用與s插值器相同。
@@ -2601,7 +2640,7 @@ scala> f"$a%6.3f $b%10.5f"
 res3: String = " 1.000    2.50000"
 ```
 
-## raw字符串插值器
+### raw字符串插值器
 `raw""`插值器用法與`s""`類似，但不會轉義反斜槓。
 示例：
 
