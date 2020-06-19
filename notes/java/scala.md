@@ -11,6 +11,7 @@
 	- [方法返回值](#方法返回值)
 	- [空參數方法與無參數方法](#空參數方法與無參數方法)
 	- [參數默認值](#參數默認值)
+	- [變長參數](#變長參數)
 - [Function (函數)](#function-函數)
 	- [Function Compose (函數組合)](#function-compose-函數組合)
 	- [Partial Function (偏函數)](#partial-function-偏函數)
@@ -487,6 +488,67 @@ object Main extends App {
 	scala> func(int = 100, char = 'c') // 對於默認參數不連續的方法，需要使用"具名參數"特性
 	100 String c 123.0
 	```
+
+## 變長參數
+Scala中方法支持變長參數，一個方法中**最後**的參數可以設置為變長參數，變長參數的類型上添加`*`號作為標記，示例：
+
+```scala
+scala> def showNums(nums: Int*) = nums foreach println
+def showNums(nums: Int*): Unit
+
+scala> showNums(1, 2, 3, 4, 5)
+1
+2
+3
+4
+5
+
+// 變長參數可傳入任意數目的相同類型參數
+scala> showNums(1, 2, 3, 4, 5, 6)
+1
+2
+3
+4
+5
+6
+```
+
+變長參數僅能定義在參數列表的末尾，在其它位置定義會得到異常：
+
+```scala
+scala> def nums(nums: Int*, n: Int) = nums
+                ^
+       error: *-parameter must come last
+```
+
+變長參數的實際類型為`Seq[T]`：
+
+```scala
+scala> def nums(nums: Int*) = nums
+def nums(nums: Int*): Seq[Int]
+```
+
+常見的Scala容器類型均可通過`: _*`語法將容器內的元素解構：
+
+```scala
+scala> val list = 1 :: 2 :: 3 :: 4 :: 5 :: Nil
+val list: List[Int] = List(1, 2, 3, 4, 5)
+
+// 直接傳入參數提示類型不兼容
+scala> showNums(list)
+                ^
+       error: type mismatch;
+        found   : List[Int]
+        required: Int
+
+// 解構參數後可正常匹配變長參數列表中
+scala> showNums(list: _*)
+1
+2
+3
+4
+5
+```
 
 
 
