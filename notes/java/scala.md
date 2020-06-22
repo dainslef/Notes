@@ -63,6 +63,7 @@
 		- [s字符串插值器](#s字符串插值器)
 		- [f字符串插值器](#f字符串插值器)
 		- [raw字符串插值器](#raw字符串插值器)
+	- [多行文本](#多行文本)
 - [終端輸入](#終端輸入)
 - [Enumerate (枚舉)](#enumerate-枚舉)
 	- [繼承枚舉類](#繼承枚舉類)
@@ -2709,6 +2710,80 @@ res3: String = " 1.000    2.50000"
 ```scala
 scala> raw"\n\s\\b\\%''^#@ $num"
 res15: String = \n\s\\b\\%''^#@ 3.0
+```
+
+## 多行文本
+Scala支持使用一對三個雙引號(three double quotes, `""" """`)添加多行文本：
+
+```scala
+scala> val text = """
+     | The first line.
+     | The second line.
+     | The third line.
+     | """
+text: String =
+"
+The first line.
+The second line.
+The third line.
+"
+```
+
+搭配`stripMargin()`相關方法可以實現以指定字符對齊並剔除：
+
+```scala
+// stripMargin 相關方法，可不接收參數貨接收單個字符作為參數
+scala> """""".stripMargin
+   def stripMargin: String   def stripMargin(marginChar: Char): String
+
+// 默認的無參數stripMargin方法以'|'字符作為對齊字符
+scala> """
+     |       |The first line.
+     |        |The second line.
+     |         |The third line.
+     | """.stripMargin
+res8: String =
+"
+The first line.
+The second line.
+The third line.
+"
+
+// stripMargin方法可以指定對齊清除的字符
+scala> """
+     |       >The first line.
+     |        >The second line.
+     |         >The third line.
+     | """.stripMargin('>')
+res13: String =
+"
+The first line.
+The second line.
+The third line.
+"
+```
+
+多行文本同樣支持各類字符串插值器：
+
+```scala
+scala> val (haskell, scala, rust) = ("Haskell", "Scala", "Rust")
+haskell: String = Haskell
+scala: String = Scala
+rust: String = Rust
+
+scala> s"""
+     | Language Ranking:
+     | 27. $rust
+     | 28. $scala
+     | 41. $haskell
+     | """
+res14: String =
+"
+Language Ranking:
+27. Rust
+28. Scala
+41. Haskell
+"
 ```
 
 
