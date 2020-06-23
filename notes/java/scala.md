@@ -64,6 +64,7 @@
 		- [f字符串插值器](#f字符串插值器)
 		- [raw字符串插值器](#raw字符串插值器)
 	- [多行文本](#多行文本)
+	- [文本字面量](#文本字面量)
 - [終端輸入](#終端輸入)
 - [Enumerate (枚舉)](#enumerate-枚舉)
 	- [繼承枚舉類](#繼承枚舉類)
@@ -2785,6 +2786,28 @@ Language Ranking:
 41. Haskell
 "
 ```
+
+## 文本字面量
+字符串插值器使用了文本字面量(String Literals)特性。
+
+在Scala中，開發者可以自定義文本字面量：
+使用隱式類擴展`StringContext`類型並提供成員方法，成員方法的名稱即為自定義的字面量。
+
+示例：
+
+```scala
+// 定義隱式類，提供 test() 方法，則 test 成為字面量標誌
+scala> implicit class StringImplicit(s: StringContext) {
+     |   def test() = "This is test: $s"
+     | }
+defined class StringImplicit
+
+// 使用自定義字面量，字面量轉換為對相應方法的調用
+scala> test"abc"
+res15: String = This is test: $s
+```
+
+更多字面量功能的介紹，可參考[官方文檔](https://docs.scala-lang.org/overviews/core/string-interpolation.html#advanced-usage)。
 
 
 
