@@ -24,6 +24,7 @@
 	- [Compaction (壓縮)](#compaction-壓縮)
 		- [禁用自動 Major Compactions](#禁用自動-major-compactions)
 		- [主動觸發 Major Compactions](#主動觸發-major-compactions)
+		- [Off-peak Compactions (非高峰時間壓縮)](#off-peak-compactions-非高峰時間壓縮)
 - [問題註記](#問題註記)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0--expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
@@ -1216,6 +1217,36 @@ Here is some help for this command:
 
 ```sh
 echo "t1","t2"... | hbase shell
+```
+
+### Off-peak Compactions (非高峰時間壓縮)
+HBase中支持在不同時段設定不同的壓縮策略，在`$HBASE_HOME/conf/hbase-site.xml`中添加如下配置：
+
+```xml
+<configuration>
+	...
+	<!-- 非高峰時段的起止小時 -->
+	<proerty>
+		<name>hbase.offpeak.start.hour</name>
+		<value>0-23</value>
+	</property>
+	<proerty>
+		<name>hbase.offpeak.end.hour</name>
+		<value>0-23</value>
+	</property>
+	...
+	<proerty>
+		<!-- 默認的常規壓縮級別為5.0 -->
+		<name>hbase.hstore.compaction.ratio</name>
+		<value>5.0</value>
+	</property>
+	<proerty>
+		<!-- 默認的非高峰時段壓縮級別為1.2 -->
+		<name>hbase.offpeak.end.hour</name>
+		<value>1.2</value>
+	</property>
+	...
+</configuration>
 ```
 
 
