@@ -25,6 +25,7 @@
 		- [禁用自動 Major Compactions](#禁用自動-major-compactions)
 		- [主動觸發 Major Compactions](#主動觸發-major-compactions)
 		- [Off-peak Compactions (非高峰時間壓縮)](#off-peak-compactions-非高峰時間壓縮)
+	- [TTL (Time to Live)](#ttl-time-to-live)
 - [問題註記](#問題註記)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0--expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
@@ -1248,6 +1249,67 @@ HBase中支持在不同時段設定不同的壓縮策略，在`$HBASE_HOME/conf/
 	...
 </configuration>
 ```
+
+## TTL (Time to Live)
+HBase中數據支持自動清理，每個**列族**可以設定參數`TTL(Time to Live)`來決定數據保存的時間(默認單位：秒)，
+超過保存時間的數據將會被自動清理。TTL設定的自動數據清理對一个行內所有版本的數據生效。
+
+當存儲文件僅包含過期的數據時將會在下一輪Minor Compaction中被刪除，
+設置`hbase.store.delete.expired.storefile`屬性為false可關閉該特性，設置最小數據版本大於0時同樣會禁用該特性。
+
+TTL相關操作示例：
+
+```ruby
+# 查看表格/列族屬性，TTL即為數據保存時間，默認值為"FOREVER"，即數據永久保存
+hbase> describe "Test"
+Table Test is ENABLED
+Test
+COLUMN FAMILIES DESCRIPTION
+{NAME => 'f1', BLOOMFILTER => 'ROW', VERSIONS => '1', IN_MEMORY => 'false', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_EN
+CODING => 'NONE', TTL => 'FOREVER', COMPRESSION => 'NONE', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE => '6553
+6', REPLICATION_SCOPE => '0'}
+1 row(s) in 0.0470 seconds
+
+# 修改列族的TTL為5秒
+hbase> alter "Test", { NAME => "f1", TTL => 5 }
+Updating all regions with the new schema...
+0/1 regions updated.
+1/1 regions updated.
+Done.
+0 row(s) in 3.4680 seconds
+
+# 再次查看列族屬性，TTL配置已變化
+hbase> describe "Test"
+Table Test is ENABLED
+Test
+COLUMN FAMILIES DESCRIPTION
+{NAME => 'f1', BLOOMFILTER => 'ROW', VERSIONS => '1', IN_MEMORY => 'false', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_EN
+CODING => 'NONE', TTL => '5 SECONDS', COMPRESSION => 'NONE', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE => '65
+536', REPLICATION_SCOPE => '0'}
+1 row(s) in 0.0090 seconds
+
+# 插入數據測試
+hbase> scan "Test"
+ROW                             COLUMN+CELL
+0 row(s) in 0.0070 seconds
+
+# 插入數據
+hbase> put "Test", "row1", "f1", "test data"
+0 row(s) in 0.0080 seconds
+
+# 立即查詢數據存在
+hbase> scan "Test"
+ROW                             COLUMN+CELL
+ row1                           column=f1:, timestamp=1578899157756, value=test data
+1 row(s) in 0.0060 seconds
+
+# 5秒之後再度查詢，數據已被清除
+hbase> scan "Test"
+ROW                             COLUMN+CELL
+0 row(s) in 0.0190 seconds
+```
+
+最近版本的HBase還支持了對每個單元設置數據保存時間，參考[HBASE-10560](https://issues.apache.org/jira/browse/HBASE-10560)。
 
 
 
