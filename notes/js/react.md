@@ -16,6 +16,8 @@
 	- [State (組件狀態)](#state-組件狀態)
 	- [Lifecycle Methods (生命週期方法)](#lifecycle-methods-生命週期方法)
 	- [Lists & Keys](#lists--keys)
+- [Hooks](#hooks)
+	- [State Hook (useState())](#state-hook-usestate)
 - [路由](#路由)
 	- [安裝](#安裝)
 	- [Router](#router)
@@ -422,6 +424,81 @@ const todoItems = todos.map((todo, index) =>
 
 若數組內的組件會改變次序，則不應使用索引作為key，這會導致性能以及組件的狀態問題，
 具體可參考此博客[Index as a key is an anti-pattern](https://medium.com/@robinpokorny/index-as-a-key-is-an-anti-pattern-e0349aece318)。
+
+
+
+# Hooks
+React自`16.8`版本開始引入了`Hooks`機制，能夠在不編寫class的條件下使用state以及其它React特性。
+Hooks不包含破壞性的改動，完全與之前兼容，React團隊也不會移除基於class的組建特性。
+
+Hooks的出現是為了解決之前的某些問題：
+
+- 組建之間的狀態相關邏輯難以復用
+- 複雜組件難以被理解
+- Class組件會同時使開發者和機器困惑
+
+更多詳細介紹，可參見[官方文檔](https://reactjs.org/docs/hooks-reference.html)。
+
+## State Hook (useState())
+`State Hook`用於在函數式組件中添加本地狀態，將組件重新渲染時保存狀態。
+在傳統的class組件中，狀態保存在類的成員對象`state`中，使用成員的成員方法`this.setState()`更新狀態。
+使用State Hook則通過`useState()`函數創建狀態字段，useState()函數接收屬性的初始值作為參數，
+執行返回長度為2的數組，包含該字段和響應的更新更新函數。
+使用示例：
+
+```jsx
+// create a state variable called "count" with initial value 0
+const [count, setCount] = useState(0)
+```
+
+API在ts中的詳細定義：
+
+```ts
+/**
+ * Returns a stateful value, and a function to update it.
+ */
+function useState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>];
+
+// convenience overload when first argument is ommitted
+/**
+ * Returns a stateful value, and a function to update it.
+ */
+function useState<S = undefined>(): [S | undefined, Dispatch<SetStateAction<S | undefined>>];
+```
+
+使用State Hook改寫基於ES6 Class組件的完整示例：
+
+```jsx
+import React, { useState } from 'react';
+
+// use class based component
+class Example extends React.Component {
+
+	state = {
+		count: 0
+	}
+
+	render() =>
+		<div>
+			<p>You clicked {this.state.count} times</p>
+			<button onClick={() => this.setState({ count: this.state.count + 1 })}>
+				Click me
+			</button>
+		</div>
+}
+
+// use State Hook
+const Example = () => {
+	// Declare a new state variable, which we'll call "count"
+	const [count, setCount] = useState(0)
+	return <div>
+		<p>You clicked {count} times</p>
+		<button onClick={() => setCount(count + 1)}>
+			Click me
+		</button>
+	</div>
+}
+```
 
 
 
