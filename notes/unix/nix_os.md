@@ -87,7 +87,7 @@ NixOS的channel按照維度分類：
 - 按照版本分類：**unstable**和**指定版本**
 - 按照包類別分類：**nixos**和**nixpkgs**
 
-```sh
+```nix
 nixos https://nixos.org/channels/nixos-unstable
 nixpkgs https://nixos.org/channels/nixpkgs-unstable
 ```
@@ -122,13 +122,13 @@ NixOS軟件源中收錄了部分Unfree的軟件包，如`Chrome`、`Visual Studi
 
 全局允許unfree軟件安裝，需要在configuration.nix配置中設定`nixpkgs.config.allowUnfree`屬性：
 
-```sh
+```nix
 nixpkgs.config.allowUnfree = true;
 ```
 
 configuration.nix配置中的unfree配置能允許在`environment.systemPackages`配置項中加入unfree軟件包，如：
 
-```sh
+```nix
 environment.systemPackages = with pkgs; [ vscode ];
 ```
 
@@ -136,7 +136,7 @@ Nix包管理器對於每個用戶擁有獨立的配置，全局的unfree配置�
 要使某個用戶能夠使用`nix-env -i`安裝unfree軟件包，則需要編輯用戶的Nix配置`~/.config/nixpkgs/config.nix`，
 在該配置文件中加入：
 
-```sh
+```nix
 {
   allowUnfree = true;
 }
@@ -190,13 +190,24 @@ Nix包管理器對於每個用戶擁有獨立的配置，全局的unfree配置�
 編輯生成的Nix配置`/mnt/etc/nixos/configuration.nix`，多數配置使用默認值即可。
 針對UEFI啓動，需要確認以下選項是否開啓：
 
-```sh
-boot.loader.efi.efiSysMountPoint = "/boot/efi" # 設定ESP分區掛載位置
-boot.loader.grub.device = "nodev" # 使用 UEFI + GPT 的設備無需指定grub引導器位置，MBR需要指定(如 /dev/sda 等)
+```nix
+boot.loader = {
+  efi = {
+    canTouchEfiVariables = true # 允許安裝進程修改EFI啓動參數
+    efiSysMountPoint = "/boot/efi" # 設定ESP分區掛載位置
+  }
 
-boot.loader.systemd-boot.enable = true # 啓動 systemd 的啓動支持
-boot.loader.efi.canTouchEfiVariables = true # 允許安裝進程修改EFI啓動參數
+  # 啓用 systemd 的啓動支持(systemd-boot)
+  # 與GRUB不必同時啟用
+  systemd-boot.enable = true
+
+  # 啟用GRUB引導器，使用UEFI+GPT的設備無需指定GRUB引導器位置，MBR的舊式設備則需要指定(如"/dev/sda"等)
+  # 與systemd-boot不必同時啟用
+  grub.device = "nodev"
+}
 ```
+
+其中，GRUB引導器和systemd-boot之間可二選一，不必同時安裝，對於UEFI+GPT的現代設備，推薦使用systemd-boot。
 
 Nix配置修改完成後執行安裝操作：
 
@@ -288,7 +299,7 @@ nix.binaryCaches = ["https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"];
 ## 系統軟件包與服務配置
 在NixOS中，可將常用的軟件包配置爲系統軟件包，在configuration.nix配置中設定`environment.systemPackages`配置項：
 
-```sh
+```nix
 environment.systemPackages = with pkgs; [
   git neofetch stack rustup ... # 添加軟件包名稱
 ]
@@ -299,7 +310,7 @@ environment.systemPackages = with pkgs; [
 對於部分影響系統配置的應用和服務，NixOS中提供了獨立的配置項，
 在configuration.nix配置中`programs`、`services`配置段：
 
-```sh
+```nix
 programs = {
   fish.enable = true;
   chromium.enable = true;
@@ -343,7 +354,7 @@ systemd.services.mysql.enable = false;
 ## 用戶配置
 在`users.users`配置項中設定用戶相關配置。
 
-```sh
+```nix
 users.users.[用戶名] = {
   isNormalUser = true; # 設定是否爲普通用戶，普通用戶才擁有獨立的家目錄和用戶組
   home = "家目錄"; # 默認家目錄爲"/home/用戶名"，有特殊需求可使用此配置指定家目錄
@@ -358,7 +369,7 @@ users.users.[用戶名] = {
 默認配置下使用`bash`做爲普通用戶的默認shell，要使用其它shell應在configuration.nix配置中開啓需要使用的shell，
 常見的shell如下：
 
-```sh
+```nix
 programs.zsh.enable = true; # ZSH
 programs.fish.enable = true; # fish
 ```
@@ -366,7 +377,7 @@ programs.fish.enable = true; # fish
 啓用了需要的shell後，修改configuration.nix中的**用戶配置**。
 以fish爲例：
 
-```sh
+```nix
 programs.fish.enable = true;
 
 users.users.[用戶名] = {
@@ -378,13 +389,13 @@ users.users.[用戶名] = {
 ## 字體配置
 configuration.nix配置中常用的字體相關配置：
 
-```sh
+```nix
 fonts.enableFontDir = true; # 爲所有字體在"/run/current-system/sw/share/X11-fonts"路徑下創建軟連接
 fonts.fonts = with pkgs; [ ... ]; # 配置字體包
 fonts.fontconfig.defaultFonts = {
-  monospace = [ "Xxx" ]; # 等寬字體
-  sansSerif = [ "Xxx" ]; # 無襯線字體
-  serif = [ "Xxx" ]; # 襯線字體
+  monospace = ["Xxx"]; # 等寬字體
+  sansSerif = ["Xxx"]; # 無襯線字體
+  serif = ["Xxx"]; # 襯線字體
 };
 ```
 
@@ -394,19 +405,19 @@ fonts.fontconfig.defaultFonts = {
 ## 輸入法配置
 在configuration.nix配置的`i18n.inputMethod`配置項中設定使用的輸入法：
 
-```sh
+```nix
 i18n.inputMethod = {
   enabled = "fcitx"; # 使用fcitx輸入法
-  fcitx.engines = with pkgs.fcitx-engines; [ libpinyin anthy ];
+  fcitx.engines = with pkgs.fcitx-engines; [libpinyin anthy];
 };
 ```
 
 在Gnome3桌面環境下，推薦使用`iBus`輸入法：
 
-```sh
+```nix
 i18n.inputMethod = {
   enabled = "ibus"; # 使用ibus輸入法
-  ibus.engines = with pkgs.ibus-engines; [ libpinyin anthy ];
+  ibus.engines = with pkgs.ibus-engines; [libpinyin anthy];
 };
 ```
 
@@ -416,13 +427,13 @@ NixOS提供了對各類主流桌面環境的支持，與常規發行版不同，
 
 配置各類桌面環境前，需要首先開啓`X Window System (X11)`：
 
-```sh
+```nix
 services.xserver.enable = true;
 ```
 
 `services.xserver.desktopManager`配置項設定使用的桌面環境：
 
-```sh
+```nix
 services.xserver.desktopManager.plasma5.enable = true;
 services.xserver.desktopManager.xfce.enable = true;
 services.xserver.desktopManager.gnome3.enable = true;
@@ -431,7 +442,7 @@ services.xserver.desktopManager.mate.enable = true;
 
 `services.xserver.windowManager`配置項設定使用的窗口管理器：
 
-```sh
+```nix
 services.xserver.windowManager.xmonad.enable = true;
 services.xserver.windowManager.twm.enable = true;
 services.xserver.windowManager.icewm.enable = true;
@@ -440,7 +451,7 @@ services.xserver.windowManager.i3.enable = true;
 
 `services.xserver.displayManager`配置項設定使用的登陸管理器：
 
-```sh
+```nix
 services.xserver.displayManager.sddm.enable = true; # SDDM爲默認使用的登陸管理器
 services.xserver.displayManager.slim.enable = true;
 services.xserver.displayManager.lightdm.enable = true;
@@ -450,13 +461,13 @@ services.xserver.displayManager.lightdm.enable = true;
 NixOS下的Gnome3默認會安裝所有Gnome的可選軟件包，如播放器、遊戲等。
 可通過`environment.gnome3.excludePackages`配置項指定排除不需要的軟件包：
 
-```sh
+```nix
 environment.gnome3.excludePackages = [ pkgs.gnome3.gnome-weather pkgs.gnome3.simple-scan ... ];
 ```
 
 還可以排除所有的Gnome3可選軟件包：
 
-```sh
+```nix
 environment.gnome3.excludePackages = pkgs.gnome3.optionalPackages;
 ```
 
@@ -464,7 +475,7 @@ environment.gnome3.excludePackages = pkgs.gnome3.optionalPackages;
 因此在`2019-8-25`的更新(正式版本為`release-19.09`)中，`environment.gnome3.excludePackages`配置項已被廢棄，
 新版本中控制Gnome3的可選軟件包使用`services.gnome3`系列配置項進行控制：
 
-```sh
+```nix
 services.gnome3 = {
   core-os-services.enable = false;
   core-shell.enable = false;
