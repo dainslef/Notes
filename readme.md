@@ -55,6 +55,7 @@
 - [Docker](notes/unix/docker.md)
 - [Git](notes/unix/git.md)
 - [Posix](notes/unix/unix_posix.md)
+- [NixOS](notes/unix/nix_os.md)
 - [macOS](notes/unix/mac_os.md)
 - [FreeBSD](notes/unix/freebsd.md)
 - [MSYS2/WSL](notes/unix/lxss_msys2.md)
