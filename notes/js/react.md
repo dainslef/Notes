@@ -18,6 +18,7 @@
 	- [Lists & Keys](#lists--keys)
 - [Hooks](#hooks)
 	- [State Hook (useState())](#state-hook-usestate)
+	- [Effect Hook (useEffect() / useLayoutEffect())](#effect-hook-useeffect--uselayouteffect)
 - [路由](#路由)
 	- [安裝](#安裝)
 	- [Router](#router)
@@ -499,6 +500,49 @@ const Example = () => {
 	</div>
 }
 ```
+
+## Effect Hook (useEffect() / useLayoutEffect())
+`Effect Hook`允許開發者在函數式組件中執行帶有**副作用**(side effects)的行為。
+Effect Hook的用於提供類似ES6組件中生命週期方法(lifecycle methods)類似的功能，
+近似於`componentDidMount(), componentDidUpdate(), componentWillUnmount(), componentWillUpdate()`等方法的組合。
+
+Effect Hook中使用`useEffect()`函數，將ES6組件中對應生命週期函數內的邏輯寫入其中。
+簡單的使用示例：
+
+```jsx
+useEffect(() => {
+	// do something before component mount (componentDidMount(), componentDidUpdate()) ...
+	return () => ... // do something before component umount (componentWillUnmount(), componentWillUpdate()) ...
+}, [/* dependency args... */])
+```
+
+API在ts中的詳細定義：
+
+```ts
+// TODO (TypeScript 3.0): ReadonlyArray<unknown>
+type DependencyList = ReadonlyArray<any>;
+
+// NOTE: callbacks are _only_ allowed to return either void, or a destructor.
+// The destructor is itself only allowed to return void.
+type EffectCallback = () => (void | (() => void | undefined));
+
+/**
+ * Accepts a function that contains imperative, possibly effectful code.
+ *
+ * @param effect Imperative function that can return a cleanup function
+ * @param deps If present, effect will only activate if the values in the list change.
+ *
+ * @version 16.8.0
+ * @see https://reactjs.org/docs/hooks-reference.html#useeffect
+ */
+function useEffect(effect: EffectCallback, deps?: DependencyList): void;
+```
+
+useEffect()函數接收一個無參數Lambda：
+
+- 該Lambda中的內容等價於寫在ES6組件的componentDidMount()/componentDidUpdate()中的內容。
+- 該Lambda可以選擇是否帶有返回值，若存在返回值應為`() => void`簽名的Lambda，
+該Lambda的內容等價於寫在ES6組件生命週期方法中componentWillUnmount()中的內容。
 
 
 
