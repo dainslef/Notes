@@ -20,6 +20,7 @@
 - [問題紀錄](#問題紀錄)
 	- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
 	- [No output backlight property](#no-output-backlight-property)
+	- [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
 
 <!-- /TOC -->
 
@@ -555,3 +556,28 @@ services.xserver.videoDivers = ["intel"];
 ```
 
 實際上，僅需要正確配置intel顯卡驅動，xbacklight即可正常工作，無需設置acpilight或是將用戶加入video用戶組。
+
+## systemd-boot not installed in ESP.
+問題說明：<br>
+使用systemd-boot管理作為啟動管理器時，若引導器未能正確安裝，在重新生成NixOS構建配置時會得到以下錯誤信息：
+
+```c
+# nixos-rebuild switch
+...
+systemd-boot not installed in ESP.
+...
+```
+
+錯誤信息中告知了引導器未能正確安裝在ESP分區中。
+
+解決方案：<br>
+使用systemd-boot提供的`bootctl`工具可重新安裝引導器到ESP分區中：
+
+```c
+# bootctl install
+...
+Created EFI boot entry "Linux Boot Manager".
+```
+
+正確安裝了引導器會出現`Created EFI boot entry "Linux Boot Manager".`文本提示，
+在BIOS中的啟動項管理頁面可看到對應引導器並進行配置。
