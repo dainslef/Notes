@@ -56,6 +56,8 @@
 	- [RDD transformations and actions are NOT invoked by the driver, but inside of other transformations;](#rdd-transformations-and-actions-are-not-invoked-by-the-driver-but-inside-of-other-transformations)
 	- [java.lang.NoSuchMethodError: net.jpountz.lz4.LZ4BlockInputStream.<init>(Ljava/io/InputStream;Z)V](#javalangnosuchmethoderror-netjpountzlz4lz4blockinputstreaminitljavaioinputstreamzv)
 	- [MySQL的TINYINT類型錯誤映射到JDBC的Boolean類型](#mysql的tinyint類型錯誤映射到jdbc的boolean類型)
+	- [java.util.ConcurrentModificationException: KafkaConsumer is not safe for multi-threaded access](#javautilconcurrentmodificationexception-kafkaconsumer-is-not-safe-for-multi-threaded-access)
+	- [org.apache.spark.streaming.scheduler.JobScheduler logError - Error running job streaming job ... org.apache.spark.SparkException: Job aborted due to stage failure: Task creation failed: java.io.FileNotFoundException: File does not exist: hdfs://...](#orgapachesparkstreamingschedulerjobscheduler-logerror---error-running-job-streaming-job--orgapachesparksparkexception-job-aborted-due-to-stage-failure-task-creation-failed-javaiofilenotfoundexception-file-does-not-exist-hdfs)
 
 <!-- /TOC -->
 
@@ -2465,3 +2467,23 @@ SparkSQL查詢MySQL表時，對於類型爲`TINYINT(1)`的字段默認會映射�
 解決方案：<br>
 修改MySQL中對應字段的定義，將`TINYINT(1)`類型的字段對應的Display Size調整爲2以上(`TINYINT(2)`)。
 或者在JDBC連接中設置連接參數`tinyInt1isBit`爲false，即JDBC連接URL設爲`jdbc:mysql://ip:port/db_name?tinyInt1isBit=false`。
+
+## java.util.ConcurrentModificationException: KafkaConsumer is not safe for multi-threaded access
+問題說明：<br>
+Spark Streaming應用在使用Kafka作為數據源，並開啓Job並行執行(`spark.streaming.concurrentJobs`參數大於`1`)時，
+多個線程會使用相同的KafkaConsumer，但KafkaConsumer本身不是線程安全的，因而產生異常。
+詳情參見[SPARK-19185](https://issues.apache.org/jira/browse/SPARK-19185)和[SPARK-22606](https://issues.apache.org/jira/browse/SPARK-22606)。
+
+解決方案：<br>
+升級Spark版本，該問題存在於`Spark 2.0 ~ Spark 2.3`，在`Spark 2.4`中該問題已被解決，
+在Spark 2.4中，KafkaConsumer按照線程各自緩存。
+源碼層面的解決方案見[GitHub](https://github.com/apache/spark/pull/20997)。
+
+## org.apache.spark.streaming.scheduler.JobScheduler logError - Error running job streaming job ... org.apache.spark.SparkException: Job aborted due to stage failure: Task creation failed: java.io.FileNotFoundException: File does not exist: hdfs://...
+問題說明：<br>
+Spark Streaming應用中使用了`mapWithState()`算子，若後到達的Batch先處理完畢，
+而先前Batch在處理中會用到之前的state中保存的狀態，但該狀態已被後續的Rdd所覆蓋，
+導致無法從讀取到所需數據的checkpoint，進而觸發該異常。
+
+解決方案：<br>
+適當減小`spark.streaming.concurrentjobs`參數，避免一個在Executor上同時處理多個Batch的數據。
