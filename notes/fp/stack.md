@@ -24,6 +24,8 @@
 		- [指定Stackage版本](#指定stackage版本)
 		- [執行安裝](#執行安裝)
 	- [多組件項目配置](#多組件項目配置)
+- [Hspec](#hspec)
+	- [主要API簡介](#主要api簡介)
 - [Stack相關問題註記](#stack相關問題註記)
 	- [Revision Mismatch](#revision-mismatch)
 	- [HDBC-mysql](#hdbc-mysql)
@@ -708,6 +710,54 @@ Maybe you didn't set the source directories for your project correctly.
 若執行以上操作後錯誤依舊出現，則可嘗試刪除項目構建緩存目錄`.stack-work`。之後重新執行HIE。
 
 具體可參考[GitHub](https://github.com/haskell/haskell-ide-engine/issues/1564)的對應ISSUE。
+
+
+
+# Hspec
+[`Hspec`](https://hspec.github.io/)是目前Haskell主流的測試框架。
+具有以下特性：
+
+- 友好的DSL用於定義測試
+- 集成了其它測試庫，包括QuickCheck、SmallCheck、HUnit
+- 並行執行測試
+- 自動搜索測試文件
+
+## 主要API簡介
+Hspec框架的主要類型和函數定義在`Test.Hspec`模塊下，
+主要API和相關類型定義：
+
+```hs
+-- run multi tests from `hspec`
+hspec :: Spec -> IO ()
+
+-- function combines a list of specs into a larger spec.
+describe :: HasCallStack => String -> SpecWith a -> SpecWith a
+
+-- function `it` creates a spec item
+it :: (HasCallStack, Example a) => String -> a -> SpecWith (Arg a)
+
+-- `pending` can be used to mark a spec item as pending
+pending :: HasCallStack => Expectation
+pendingWith :: HasCallStack => String -> Expectation
+
+type Spec = SpecWith ()
+type SpecWith a = SpecM a ()
+
+-- a writer monad for SpecTree forests
+newtype SpecM a r = SpecM (WriterT [SpecTree a] IO r)
+```
+
+簡單的測試定義：
+
+```hs
+import Test.Hspec where
+
+main = hspec $ do
+  describe "Test Group1" $ do
+    it "test1" $ print "execute test1..."
+    it "test2" $ 1 == 2
+  describe "Test Group2" $ it "test3" $ 2 > 1
+```
 
 
 
