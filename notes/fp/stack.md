@@ -26,6 +26,7 @@
 	- [多組件項目配置](#多組件項目配置)
 - [Hspec](#hspec)
 	- [主要API簡介](#主要api簡介)
+	- [執行測試](#執行測試)
 - [Stack相關問題註記](#stack相關問題註記)
 	- [Revision Mismatch](#revision-mismatch)
 	- [HDBC-mysql](#hdbc-mysql)
@@ -757,6 +758,22 @@ main = hspec $ do
     it "test1" $ print "execute test1..."
     it "test2" $ 1 == 2
   describe "Test Group2" $ it "test3" $ 2 > 1
+```
+
+## 執行測試
+Hspec框架默認會執行所有的測試。
+
+通過從命令行中接收參數來判斷需要執行的測試，使用`-m [測試名稱]`來執行特定的測試。
+在stack項目中，若測試單元定義在`executables`中，使用如下指令：
+
+```sh
+$ stack exec [測試應用] -- -m [測試名稱]
+```
+
+若測試單元定義在`tests`中，使用以下指令：
+
+```sh
+$ stack test :[測試應用] --ta "-m [測試名稱]"
 ```
 
 
