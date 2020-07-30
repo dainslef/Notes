@@ -255,11 +255,11 @@ public class Main {
 
 	`1000000000001011`
 
-	在計算機中存儲的反碼爲：
+	在計算機中存儲的補碼爲：
 
 	`1111111111110101`
 
-	若保留原先的無符號值含義(數值`245`)，則原碼/反碼均應爲：
+	若保留原先的無符號值含義(數值`245`)，則原碼/補碼均應爲：
 
 	`0000000011110101`
 
@@ -282,7 +282,7 @@ public class Main {
 以`Integer`類型爲例，將字符串形式的數值轉換爲基礎數值類型：
 
 ```scala
-scala> Integer.parseInt("2333") //默認文本數值視爲10進制
+scala> Integer.parseInt("2333") // 默認文本數值視爲10進制
 res1: Int = 2333
 ```
 
@@ -290,27 +290,27 @@ res1: Int = 2333
 對於非十進制的數值，需要使用帶有進制參數的重載版本：
 
 ```scala
-scala> Integer.parseInt("d9") //16進制數值文本會拋出異常
+scala> Integer.parseInt("d9") // 16進制數值文本會拋出異常
 java.lang.NumberFormatException: For input string: "d9"
   at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
   at java.lang.Integer.parseInt(Integer.java:580)
   at java.lang.Integer.parseInt(Integer.java:615)
   ... 27 elided
 
-scala> Integer.parseInt("d9", 16) //使用進制參數後正常轉換
+scala> Integer.parseInt("d9", 16) // 使用進制參數後正常轉換
 res2: Int = 217
 
-scala> Integer.parseInt("2333", 8) //文本數值設爲8進制
+scala> Integer.parseInt("2333", 8) // 文本數值設爲8進制
 res3: Int = 1243
 ```
 
 String類型則提供了`valueOf()`方法用於將數值轉爲字符串形式：
 
 ```scala
-scala> String.valueOf(2333) //轉換10進制數值
+scala> String.valueOf(2333) // 轉換10進制數值
 res4: String = 2333
 
-scala> String.valueOf(0xd9) //轉換16進制數值
+scala> String.valueOf(0xd9) // 轉換16進制數值
 res5: String = 217
 ```
 
@@ -694,7 +694,7 @@ public class Main {
 strNew
 ```
 
-可以發現調用`clone()`方法複製出的對象**testClone**在原對象**test**被修改後也發生了變化，並未真正的達到**複製**的效果。
+可以發現調用`clone()`方法複製出的對象**testClone**在原對象**test**被修改後也發生了變化，並未真正的達到**複製**效果。
 原因是**TestClone**類完成的僅僅是**淺複製**的過程，類中的引用類型`StringBuffer`並未被真正複製。
 
 ## 深複製
@@ -723,7 +723,8 @@ class TestClone implements Cloneable {
 重新構造對象優先使用該引用類型的`clone()`方法(如果該類型實現了`Cloneable`接口)。
 如果需要複製的引用類型沒有實現`Cloneable`接口，則直接使用構造函數創建一個與當前實例中保存內容相同的對象。
 
-需要注意的是，`String`類型是**特例**，雖然其爲**引用類型**，但`String`內部重新實現了自身的`clone()`，在重寫當前類的`clone()`方法的時候可以將其視爲基本類型(即不必顯式構建)。
+需要注意的是，`String`類型是**特例**，雖然其爲**引用類型**，但`String`內部重新實現了自身的`clone()`，
+在重寫當前類的`clone()`方法的時候可以將其視爲基本類型(即不必顯式構建)。
 
 
 
@@ -738,14 +739,18 @@ Java中的泛型與.Net提供的汎型以及C++的Template機制有本質區別�
 在編譯成字節碼后汎型會被直接擦除，變爲所有類型的基礎類型`java.lang.Object`類型。
 如`List<String>`在運行時汎型類型擦除后會變爲`List<Object>`，等價於Java 1.5之前的無汎型的List。
 
-類型擦除機制實現的泛型導致JVM在運行期間並不能僅通過泛型參數得到該泛型參數對應的類型信息(例如不能憑藉泛型參數構建對應類型的實例，即無法`new T(...)`)，額外的泛型參數信息需要顯式地通過參數傳入(`Class<T>`類型)。
-其它基於JVM的靜態類型語言針對Java泛型機制的缺陷，都給出了對應的解決方案，如Scala的`implicit parameters + TypeTag`、Kotlin的`reified`。
+類型擦除機制實現的泛型導致JVM在運行期間並不能僅通過泛型參數得到該泛型參數對應的類型信息
+(例如不能憑藉泛型參數構建對應類型的實例，即無法`new T(...)`)，
+額外的泛型參數信息需要顯式地通過參數傳入(`Class<T>`類型)。
+其它基於JVM的靜態類型語言針對Java泛型機制的缺陷，都給出了對應的解決方案，
+如Scala的`implicit parameters + TypeTag`、Kotlin的`reified`。
 
-基於類型擦除機制實現的泛型還一定程度上限制了其它JVM語言的功能，如Scala的`Pattern Match`特性(對於類型相同，僅有泛型參數不同的類型不能做到正確匹配)。
+基於類型擦除機制實現的泛型還一定程度上限制了其它JVM語言的功能，
+如Scala的`Pattern Match`特性(對於類型相同，僅有泛型參數不同的類型不能做到正確匹配)。
 
 ## 泛型方法
-Java中的泛型同樣支持獨立於類的泛型方法。
-與`C++`、`C#`等語言不同，Java在泛型方法中的類型聲明放在方法的修飾符(`public`、`static`、`final`、`abstract`等)之後，返回值聲明之前。
+Java中的泛型同樣支持獨立於類的泛型方法。與`C++`、`C#`等語言不同，
+Java在泛型方法中的類型聲明放在方法的修飾符(`public`、`static`、`final`、`abstract`等)之後，返回值聲明之前。
 
 Java中的泛型方法支持自動類型推導。
 也可手動顯式指定泛型類型，手動指定泛型類型時，與`C++`、`C#`等語言不同，類型參數寫在方法名稱**之前**。
@@ -859,7 +864,7 @@ class EnclosingClass {
 - 啓動線程需要使用`start()`成員方法，調用`run()`無效，代碼依然同步執行。
 - `Thread`類只是**一個**線程的抽象，因此在線程啓動後不能再次調用`start()`啓動新線程，啓動新線程需要構建新的`Thread`對象。
 
-如下代碼所示：
+示例：
 
 ```java
 class TestThread extends Thread {
@@ -877,10 +882,10 @@ public class Main {
 			/* do something */
 		}
 
-		//使用繼承的線程類啓動線程
+		// 使用繼承的線程類啓動線程
 		new TestThread().start();
 
-		//使用Runnable實例構造Thread類啓動線程
+		// 使用Runnable實例構造Thread類啓動線程
 		new Thread(runnable).start();
 	}
 
