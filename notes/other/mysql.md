@@ -31,6 +31,9 @@
 	- [REDUNDANT Row Format](#redundant-row-format)
 	- [COMPACT Row Format](#compact-row-format)
 	- [DYNAMIC Row Format](#dynamic-row-format)
+- [FEDERATED 存儲引擎](#federated-存儲引擎)
+	- [啟用FEDERATED引擎](#啟用federated引擎)
+	- [創建FEDERATED表](#創建federated表)
 - [常用設置](#常用設置)
 	- [導出數據](#導出數據)
 	- [導入數據](#導入數據)
@@ -586,6 +589,53 @@ DYNAMIC行格式保持在索引節點中存儲整行的效率(類似COMPACT和RE
 DYNAMIC行格式基於以下思想：
 若一個大的數據值一部分存儲在頁外，則通常最有效的存儲方式是將整個值存儲在頁外。
 使用DYNAMIC格式時，較短的列可能會保留在B樹節點中，從而最大限度地減少一行所需的溢出頁數。
+
+
+
+# FEDERATED 存儲引擎
+`FEDERATED`存儲引擎允許用戶訪問其它MySQL實例中的表，而不需要使用複製、集群等技術。
+查詢本地的FEDERATED表會從實際遠端的表中拉取數據。
+
+相關完整內容可參考[官方文檔](https://dev.mysql.com/doc/refman/en/federated-storage-engine.html)
+
+## 啟用FEDERATED引擎
+默認配置下，FEDERATED存儲引擎未被開啟，需要在MySQL配置中啟用：
+
+```conf
+# my.cnf / my.ini
+[mysqld]
+federated
+```
+
+或者在啟動MySQL實例時添加`--federated`參數。
+
+## 創建FEDERATED表
+創建FEDERATED表的步驟與創建普通表類似，使用CREATE TBALE語句進行創建；
+FEDERATED表的結構需要與引用的實際表格完全一致，僅在存儲引擎部分需要設定為`FEDERATED`，
+並且需要額外附加`CONNECTION`信息，用於指定遠程表所處的MySQL實例信息：
+
+```sql
+CREATE TABLE federated_table (
+	... # same as remote table
+)
+ENGINE=FEDERATED
+CONNECTION='mysql://fed_user@remote_host:9306/federated/test_table'
+...
+```
+
+其中CONNECTION字段的語法規則如下：
+
+```url
+scheme://user_name[:password]@host_name[:port_num]/db_name/tbl_name
+```
+
+- `scheme` 數據庫協議，對於MySQL數據庫，僅支持`mysql`協議
+- `user_name` 遠程數據庫實例的用戶名
+- `password`(可選) 遠程數據庫實例用戶對應的密碼
+- `host_name` 遠程數據庫實例的主機地址
+- `port_num`(可選) 遠程數據庫實例監聽的端口號
+- `db_name` 遠程表所處的遠程數據庫名稱
+- `tbl_name` 遠程表的表名，本地表與關聯的遠程表表名稱不需要一致
 
 
 
