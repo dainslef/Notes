@@ -906,7 +906,8 @@ public static native void sleep(long millis) throws InterruptedException;
 ```
 
 ## synchronized 關鍵字
-在多線程環境下，多個線程同時訪問一個變量時，會產生線程同步問題，變量可能會被其它線程意外地修改。典型的解決方式是對共享變量進行**加鎖**。
+在多線程環境下，多個線程同時訪問一個變量時，會產生線程同步問題，變量可能會被其它線程意外地修改。
+典型的解決方式是對共享變量進行**加鎖**。
 
 `Java 5`之後提供了`synchronized`關鍵字用於解決線程同步問題。
 `synchronized`關鍵字有兩種用法：
@@ -950,62 +951,49 @@ public static native void sleep(long millis) throws InterruptedException;
 	}
 	```
 
-	被`synchronized`修飾的方法同時只能被**一個**線程訪問：
+	被`synchronized`修飾的方法不可重入(同時只能被**一個**線程訪問)：
 
 	- 修飾的方法爲**實例方法**時：
 
-		同一實例的`synchronized`方法同時只能有一個被執行。
-		等價於將整個方法體的內容寫在`synchronized (this) { ... }`中。不同實例間不受影響。
+		同一實例的synchronized方法同時只能有一個被執行(不同實例則互不影響)。
+		等價於將整個方法體的內容寫在`synchronized (this) { ... }`中。
 
 	- 修飾的方法爲**靜態方法**時：
 
-		所有該類中的靜態`synchronized`方法同時只能有一個被執行。
+		所有該類中的靜態synchronized方法同時只能有一個被執行。
 		等價於將整個方法體的內容寫在`synchronized (類名.class) { ... }`中。
 
-	一個類中被`synchronized`修飾的實例方法和被`synchronized`修飾的靜態方法的同步變量不同，因而不會相互同步。
+	一個類中被synchronized修飾的**實例方法**和被synchronized修飾的**靜態方法**的同步對象不同，因而不會相互同步。
 
-	如下代碼所示：
+	示例：
 
 	```java
 	import static java.lang.Thread.sleep;
 
 	class Example {
 
-		public synchronized void showOne() {
+		private static void show(String name) {
 			for (int i = 0; i < 5; i++) {
 				String threadName = Thread.currentThread().getName();
-				System.out.println(threadName + " showOne()");
+				System.out.println(threadName + ": " + name);
 				try {
 					sleep(100);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
+		}
+
+		public synchronized void showOne() {
+			show("showOne()");
 		}
 
 		public synchronized void showTwo() {
-			for (int i = 0; i < 5; i++) {
-				String threadName = Thread.currentThread().getName();
-				System.out.println(threadName + " showTwo()");
-				try {
-					sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-
+			show("showTwo()");
 		}
 
 		public static synchronized void showStatic() {
-			for (int i = 0; i < 5; i++) {
-				String threadName = Thread.currentThread().getName();
-				System.out.println(threadName + " showStatic()");
-				try {
-					sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			show("showStatic()");
 		}
 	}
 
@@ -1017,7 +1005,7 @@ public static native void sleep(long millis) throws InterruptedException;
 
 			new Thread(() -> example.showOne(), "Thread One").start();
 			new Thread(() -> example.showTwo(), "Thread Two").start();
-			new Thread(() -> example.showStatic(), "Thread Three").start();
+			new Thread(() -> Example.showStatic(), "Thread Three").start();
 		}
 
 	}
@@ -1026,21 +1014,21 @@ public static native void sleep(long millis) throws InterruptedException;
 	輸出結果：
 
 	```
-	Thread One showOne()
-	Thread Three showStatic()
-	Thread One showOne()
-	Thread Three showStatic()
-	Thread One showOne()
-	Thread Three showStatic()
-	Thread One showOne()
-	Thread Three showStatic()
-	Thread One showOne()
-	Thread Three showStatic()
-	Thread Two showTwo()
-	Thread Two showTwo()
-	Thread Two showTwo()
-	Thread Two showTwo()
-	Thread Two showTwo()
+	Thread One: showOne()
+	Thread Three: showStatic()
+	Thread One: showOne()
+	Thread Three: showStatic()
+	Thread One: showOne()
+	Thread Three: showStatic()
+	Thread Three: showStatic()
+	Thread One: showOne()
+	Thread One: showOne()
+	Thread Three: showStatic()
+	Thread Two: showTwo()
+	Thread Two: showTwo()
+	Thread Two: showTwo()
+	Thread Two: showTwo()
+	Thread Two: showTwo()
 	```
 
 	輸出結果分析：
@@ -1048,11 +1036,8 @@ public static native void sleep(long millis) throws InterruptedException;
 	`Example`類中的三個成員方法都使用了`synchronized`關鍵字進行修飾。
 	`showOne()`、`showTwo()`爲實例方法，`showStatic()`爲靜態方法。
 
-	來自同一個實例在不同線程中的兩個實例方法**沒有**併發執行：
-	`showTwo()`一直等到`showOne()`結束纔開始執行。
-
-	靜態方法併發執行了：
-	`showOne()`與`showStatic()`交錯打印輸出。
+	來自同一個實例在不同線程中的兩個實例方法**沒有**併發執行：`showTwo()`一直等到`showOne()`結束纔開始執行。
+	靜態方法與實例方法同步對象不同，正常併發執行：`showOne()`與`showStatic()`交錯打印輸出。
 
 ## Executor 框架
 `Thread`類功能簡單，僅僅提供了原始的線程抽象，在實際的開發中，往往會使用更高層次的API。
@@ -1784,7 +1769,8 @@ public Object get(Object var1) throws IllegalArgumentException, IllegalAccessExc
 - `get()`方法同名參數作用相同。
 - `set()/get()`方法接收的參數爲`Object`類型。
 
-對於基本類型，`Field`類中預先定義了一套方法(`setInt()/getInt()/setBoolean()/getBoolean()`等)，基本類型可直接使用這些方法以避免不必要的強制類型轉換。
+對於基本類型，`Field`類中預先定義了一套方法(`setInt()/getInt()/setBoolean()/getBoolean()`等)，
+基本類型可直接使用這些方法以避免不必要的強制類型轉換。
 
 ```java
 package com.dainslef;
@@ -1867,7 +1853,8 @@ true
 在Java中有三種類加載器。
 
 1. `Bootstrap ClassLoader`引導類加載器，用於加載`Java`核心類。
-1. `Extension ClassLoader`擴展類加載器，它負責加載`JRE`的擴展目錄(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系統屬性指定)類包。
+1. `Extension ClassLoader`擴展類加載器，
+它負責加載`JRE`的擴展目錄(`JAVA_HOME/jre/lib/ext`或`java.ext.dirs`系統屬性指定)類包。
 1. `App ClassLoader`應用類加載器，通常類都由此加載器加載(包括`java.class.path`)。
 
 獲取一個類的加載器使用`getClassLoader()`方法。
