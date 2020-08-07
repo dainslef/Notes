@@ -25,6 +25,7 @@
 - [Nested Classes (嵌套類)](#nested-classes-嵌套類)
 - [併發編程](#併發編程)
 	- [Thread / Runnable](#thread--runnable)
+		- [Daemon Thread](#daemon-thread)
 	- [synchronized 關鍵字](#synchronized-關鍵字)
 	- [Executor 框架](#executor-框架)
 - [Annotation (註解)](#annotation-註解)
@@ -905,11 +906,64 @@ public final String getName();
 public static native void sleep(long millis) throws InterruptedException;
 ```
 
+### Daemon Thread
+**守護線程**(Daemon Thread)是一類優先級較低的線程，用於在後台執行一些諸如垃圾收集(GC)等。
+
+相比普通線程，守護線程具有以下特徵：
+
+- 守護線程具有非常低的優先級(an utmost low priority thread)。
+- 當所有的用戶線程執行完畢後，守護線程不會阻止JVM退出。
+- 當所有的普通線程執行完畢後，JVM會終止；在JVM終止前，若JVM查找到了正在執行的守護線程，
+則會終止守護線程，之後終止自身，無論守護線程是否正在執行。
+
+在創建線程時，daemon特性默認關閉，可在構造函數中指定啟用該特性，並可通過Bean方法查看該屬性。
+相關定義如下：
+
+```java
+public
+class Thread implements Runnable {
+	...
+	/* Whether or not the thread is a daemon thread. */
+	private boolean     daemon = false;
+	...
+
+	/**
+	 * Marks this thread as either a {@linkplain #isDaemon daemon} thread
+	 * or a user thread. The Java Virtual Machine exits when the only
+	 * threads running are all daemon threads.
+	 *
+	 * <p> This method must be invoked before the thread is started.
+	 *
+	 * @param  on
+	 *         if {@code true}, marks this thread as a daemon thread
+	 *
+	 * @throws  IllegalThreadStateException
+	 *          if this thread is {@linkplain #isAlive alive}
+	 *
+	 * @throws  SecurityException
+	 *          if {@link #checkAccess} determines that the current
+	 *          thread cannot modify this thread
+	 */
+	public final void setDaemon(boolean on) { ... }
+
+	/**
+	 * Tests if this thread is a daemon thread.
+	 *
+	 * @return  <code>true</code> if this thread is a daemon thread;
+	 *          <code>false</code> otherwise.
+	 * @see     #setDaemon(boolean)
+	 */
+	public final boolean isDaemon() {
+		return daemon;
+	}
+	...
+}
+```
+
 ## synchronized 關鍵字
 在多線程環境下，多個線程同時訪問一個變量時，會產生線程同步問題，變量可能會被其它線程意外地修改。
 典型的解決方式是對共享變量進行**加鎖**。
 
-`Java 5`之後提供了`synchronized`關鍵字用於解決線程同步問題。
 `synchronized`關鍵字有兩種用法：
 
 1. `synchronized`塊
@@ -922,14 +976,14 @@ public static native void sleep(long millis) throws InterruptedException;
 	}
 	```
 
-	其中，同步變量`object`可以是實例、`this`引用或是類型(`XXX.class`)。
+	其中，同步變量object可以是實例、this引用或是類型(`XXX.class`)。
 
-	以相同`object`爲同步對象的多個`synchronized`塊在同一時刻只能有一個`synchronized`塊被一個線程執行。
-	在該線程離開`synchronized`塊之前，其餘線程都會處於等待狀態。
+	以相同object爲同步對象的多個synchronized塊在同一時刻只能有一個synchronized塊被一個線程執行。
+	在該線程離開synchronized塊之前，其餘線程都會處於等待狀態。
 
 	- `object`爲實例時：
 
-		同步變量需要爲**引用類型**(基礎類型如`int`、`float`等不能使用`synchronized`關鍵字進行同步)。
+		同步變量需要爲**引用類型**(基礎類型如`int`、`float`等不能使用synchronized關鍵字進行同步)。
 		同步變量**不能**爲`null`。
 		同步變量爲類的實例成員時，需要注意同一個類的不同實例的相同實例成員是不同的。
 		同步變量爲類的靜態成員時，一個類的所有實例共享靜態成員，此時效果類似於同步類型(`XXX.class`)。
@@ -2534,9 +2588,9 @@ Exception in thread "main" java.time.format.DateTimeParseException:
 Text '20140218' could not be parsed:
 Unable to obtain LocalDateTime from TemporalAccessor:
 {},ISO resolved to 2014-02-18 of type java.time.format.Parsed
-    at java.time.format.DateTimeFormatter.createError(DateTimeFormatter.java:1918)
-    at java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:1853)
-    at java.time.LocalDateTime.parse(LocalDateTime.java:492)
+	at java.time.format.DateTimeFormatter.createError(DateTimeFormatter.java:1918)
+	at java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:1853)
+	at java.time.LocalDateTime.parse(LocalDateTime.java:492)
 ```
 
 原因是LocalDateTime類型不能接收一個純日期時間，正確的做法是使用LocalDate類型處理日期，之後在轉換為LocalDateTime：
@@ -2556,10 +2610,10 @@ DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").parse("20180301050630663");
 
 // exception stack info
 Exception in thread "main" java.time.format.DateTimeParseException: Text '20180301050630663' could not be parsed at index 0
-    at java.time.format.DateTimeFormatter.parseResolved0(DateTimeFormatter.java:1947)
-    at java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:1849)
-    at java.time.LocalDateTime.parse(LocalDateTime.java:492)
-    ...
+	at java.time.format.DateTimeFormatter.parseResolved0(DateTimeFormatter.java:1947)
+	at java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:1849)
+	at java.time.LocalDateTime.parse(LocalDateTime.java:492)
+	...
 ```
 
 該BUG是Oracle JDK 8自身的BUG，收錄在[甲骨文官方BUG數據庫(JDK-8031085)](https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8031085)中，
@@ -2625,26 +2679,26 @@ Caused by: java.time.DateTimeException: Unable to obtain LocalDate from Temporal
 
 ```java
 public final class LocalDateTime
-        implements Temporal, TemporalAdjuster, ChronoLocalDateTime<LocalDate>, Serializable {
-    ...
-    public static LocalDateTime from(TemporalAccessor temporal) {
-        if (temporal instanceof LocalDateTime) {
-            return (LocalDateTime) temporal;
-        } else if (temporal instanceof ZonedDateTime) {
-            return ((ZonedDateTime) temporal).toLocalDateTime();
-        } else if (temporal instanceof OffsetDateTime) {
-            return ((OffsetDateTime) temporal).toLocalDateTime();
-        }
-        try {
-            LocalDate date = LocalDate.from(temporal);
-            LocalTime time = LocalTime.from(temporal);
-            return new LocalDateTime(date, time);
-        } catch (DateTimeException ex) {
-            throw new DateTimeException("Unable to obtain LocalDateTime from TemporalAccessor: " +
-                    temporal + " of type " + temporal.getClass().getName(), ex);
-        }
-    }
-    ...
+		implements Temporal, TemporalAdjuster, ChronoLocalDateTime<LocalDate>, Serializable {
+	...
+	public static LocalDateTime from(TemporalAccessor temporal) {
+		if (temporal instanceof LocalDateTime) {
+			return (LocalDateTime) temporal;
+		} else if (temporal instanceof ZonedDateTime) {
+			return ((ZonedDateTime) temporal).toLocalDateTime();
+		} else if (temporal instanceof OffsetDateTime) {
+			return ((OffsetDateTime) temporal).toLocalDateTime();
+		}
+		try {
+			LocalDate date = LocalDate.from(temporal);
+			LocalTime time = LocalTime.from(temporal);
+			return new LocalDateTime(date, time);
+		} catch (DateTimeException ex) {
+			throw new DateTimeException("Unable to obtain LocalDateTime from TemporalAccessor: " +
+					temporal + " of type " + temporal.getClass().getName(), ex);
+		}
+	}
+	...
 }
 ```
 
