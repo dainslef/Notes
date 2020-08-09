@@ -13,7 +13,8 @@
 	- [標準輸入輸出](#標準輸入輸出)
 - [Shell 語法](#shell-語法)
 	- [變量](#變量)
-	- [本地變量](#本地變量)
+		- [本地變量](#本地變量)
+		- [環境變量](#環境變量)
 	- [指令](#指令)
 	- [數組](#數組)
 	- [條件語法](#條件語法)
@@ -150,17 +151,17 @@ $ 1 # 使用編號作爲指令跳轉到對應路徑
 $ cd Downloads
 $ dirh
  1) /Users/dainslef
-    /Users/dainslef/Downloads
+	/Users/dainslef/Downloads
 
 $ prevd 1 # 跳轉到之前的指定路徑
 $ dirh
-    /Users/dainslef
+	/Users/dainslef
  1) /Users/dainslef/Downloads
 
 $ nextd 1 # 跳轉到之後的指定路徑
 $ dirh
  1) /Users/dainslef
-    /Users/dainslef/Downloads
+	/Users/dainslef/Downloads
 ```
 
 ## 匹配規則
@@ -401,7 +402,7 @@ $ echo $num
 - `unset 變量名` 刪除指定名稱的變量(bash/zsh語法)
 - `set -e 變量名` 刪除指定名稱的變量(fish語法)
 
-## 本地變量
+### 本地變量
 Shell中修改變量與定義變量語法相同，需要使用額外的作用域關鍵字區分訪問外部變量或是新定義本地變量。
 
 bash/zsh中使用`local`關鍵字定義**本地變量**。
@@ -438,6 +439,44 @@ zsh擴展了local關鍵字的用法，可以在任意區域使用local關鍵字�
 使用local定義的變量之前若存在非local形式的定義，則隱藏之前的定義而非改寫其值。
 
 fish中使用`set`函數定義變量，使用`set -l`定義**本地變量**。
+
+### 環境變量
+**環境變量**(environment variable)是Unix系統中的一類全局配置，部分程序會通過讀取環境變量改變自身行為。
+在bash/zsh/fish中，均可使用`export`指令設置環境變量：
+
+```sh
+$ export [key]=[value]
+```
+
+export指令由對應的Shell提供，以fish為例，fish中的export指令實際上是一個函數，
+對應代碼在macOS下位於`/usr/local/Cellar/fish/[version]/share/fish/functions/export.fish`。
+
+```fish
+function export --description 'Set env variable. Alias for `set -gx` for bash compatibility.'
+	if not set -q argv[1]
+		set -x
+		return 0
+	end
+	for arg in $argv
+		set -l v (string split -m 1 "=" -- $arg)
+		switch (count $v)
+			case 1
+				set -gx $v $$v
+			case 2
+				if contains -- $v[1] PATH CDPATH MANPATH
+					set -l colonized_path (string replace -- "$$v[1]" (string join ":" -- $$v[1]) $v[2])
+					set -gx $v[1] (string split ":" -- $colonized_path)
+				else
+					# status is 1 from the contains check, and `set` does not change the status on success: reset it.
+					true
+					set -gx $v[1] $v[2]
+				end
+		end
+	end
+end
+```
+
+由源碼可知，fish中的export函數實際上最終使用了`set -gx`指令設置環境變量。
 
 ## 指令
 執行指令，語法如下：
@@ -557,17 +596,17 @@ $ echo $nums[2..3]
 $ echo $nums[0] # fish數組下標從1開始，數組越界
 fish: Array index out of bounds
 echo $nums[0]
-           ^
+		   ^
 $ echo $nums[1]
 1
 $ echo $[nums[1]] # 報錯，fish不支持bash/zsh中的數組訪問語法
 fish: $[ is not a valid variable in fish.
 echo $[nums[1]]
-      ^
+	  ^
 $ echo ${nums[1]} # 報錯，fish不支持bash/zsh中的數組訪問語法
 fish: ${ is not a valid variable in fish.
 echo ${nums[1]}
-      ^
+	  ^
 ```
 
 獲取數組長度：
