@@ -49,6 +49,7 @@
 - [VPN](#vpn)
 	- [IKEv2](#ikev2)
 	- [Shadowsocks](#shadowsocks)
+	- [V2Ray](#v2ray)
 - [問題記錄](#問題記錄)
 	- [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
 
@@ -890,7 +891,7 @@ macOS原生支持`IKEv2/L2TP over IPSec/Cisco IPSec`等多種VPN協議，如下�
 `IKEv2(Internet Key Exchange version 2)`是一種處理請求/響應行為的VPN加密協議。
 該協議通過在安全套件(通常是IPSec，從IKEv2開始基於並內置了此協議)中建立和處理SA(Security Association)屬性來確保數據傳輸安全。
 
-配置IKEv2的VPN需要**服務器地址(Server Address)**、**遠程ID(Remote ID)**等信息，對於需要身份驗證的VPN提供商，
+配置IKEv2的VPN需要**服務器地址**(Server Address)、**遠程ID**(Remote ID)等信息，對於需要身份驗證的VPN提供商，
 還需要額外的用戶名和密碼信息，如下圖所示：
 
 ![NordVPN](../../images/mac_os_vpn_ikev2.png)
@@ -902,20 +903,36 @@ NordVPN官方沒有提供macOS版的配置教程，但可參照[iOS版本教程]
 ![NordVPN Root CA](../../images/mac_os_vpn_root_certificate_authority.png)
 
 ## Shadowsocks
-`Shadowsocks`是專為解決牆國Great Fire Wall而誕生的協議，解決了傳統VPN的在翻牆這一特殊應用場景下的一些缺陷：
+`Shadowsocks`是專為解決牆國`Great Fire Wall (GFW)`而誕生的協議，解決了傳統VPN的在翻牆這一特殊應用場景下的一些缺陷：
 
 - 定向流量代理，Shadowsocks為不同流向選擇不同的路徑，對於牆內站點直連，僅代理牆外流量；VPN僅能全局代理。
 - 速度更快，Shadowsocks能同時在工作在多個TCP連接下。
 - 流量偽裝，Shadowsocks會偽裝牆外流量以繞過GFW，Shadowsocks偽裝後的數據難以識別和攔截；傳統VPN則很容易被GFW識別。
 
-在macOS下，主流的Shadowsocks客戶端為[ShadowsocksX-NG]()(其它客戶端幾乎已全部停止開發)，
-可以使用Homebrew直接安裝：
+Shadowsocks目前託管在[GitHub](https://github.com/shadowsocks)上，由於TG追殺，
+最初的Python實現已被原作者刪除，目前主流的實現是C語言，亦有Rust、Golang等語言的實現。
+
+在macOS下，主流的Shadowsocks客戶端為[ShadowsocksX-NG](https://github.com/shadowsocks/ShadowsocksX-NG)
+(受TG追殺，其它客戶端作者相繼慘遭喝茶，幾乎已全部停止開發)，可以使用Homebrew直接安裝：
 
 ```c
 $ brew cask install shadowsocksx-ng
 ```
 
 目前ShadowsocksX-NG缺少**訂閱**功能，管理多個連接地址較為不便。
+
+## V2Ray
+[`V2Ray`](https://github.com/v2ray/v2ray-core)是`Project V`項目的核心，負責網絡協議和通信。
+V2Ray支持以下特性：
+
+- 內置多種主流協議的支持：包括Socks、HTTP、Shadowsocks、VMess等等。
+- 支持多種協議的輸入/輸出：一個V2Ray進程可同時支持多種輸入、輸出協議，同時這些協議可各自獨立運行。
+- 自定義路由：基於配置(如：域名、IP地址)對輸入的流量可分發到不同出口。
+- 流量混淆：V2Ray內置了流量混淆機制，將流量隱藏在TLS協議中，
+同時與Web服務器一併運行，能實現更好的流量偽裝，以規避GFW的流量探測。
+
+在macOS下，常用V2Ray客戶端是[V2rayu](https://github.com/yanue/V2rayU)，
+採用Swift語言編寫，支持節點訂閱功能。
 
 
 
