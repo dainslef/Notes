@@ -19,6 +19,9 @@
 - [Hooks](#hooks)
 	- [State Hook (useState())](#state-hook-usestate)
 	- [Effect Hook (useEffect() / useLayoutEffect())](#effect-hook-useeffect--uselayouteffect)
+		- [Layout Effect](#layout-effect)
+		- [組件更新](#組件更新)
+		- [Effect Hook 完整示例](#effect-hook-完整示例)
 - [路由](#路由)
 	- [安裝](#安裝)
 	- [Router](#router)
@@ -543,6 +546,86 @@ useEffect()函數接收一個無參數Lambda：
 - 該Lambda中的內容等價於寫在ES6組件的componentDidMount()/componentDidUpdate()中的內容。
 - 該Lambda可以選擇是否帶有返回值，若存在返回值應為`() => void`簽名的Lambda，
 該Lambda的內容等價於寫在ES6組件生命週期方法中componentWillUnmount()中的內容。
+
+### Layout Effect
+React中還提供了`useLayoutEffect()`，API在ts中的詳細定義：
+
+```ts
+/**
+ * The signature is identical to `useEffect`, but it fires synchronously after all DOM mutations.
+ * Use this to read layout from the DOM and synchronously re-render. Updates scheduled inside
+ * `useLayoutEffect` will be flushed synchronously, before the browser has a chance to paint.
+ *
+ * Prefer the standard `useEffect` when possible to avoid blocking visual updates.
+ *
+ * If you’re migrating code from a class component, `useLayoutEffect` fires in the same phase as
+ * `componentDidMount` and `componentDidUpdate`.
+ *
+ * @version 16.8.0
+ * @see https://reactjs.org/docs/hooks-reference.html#uselayouteffect
+ */
+function useLayoutEffect(effect: EffectCallback, deps?: DependencyList): void;
+```
+
+該Hook於`useEffect()`簽名完全相同，但運行時機不同：
+
+- useEffect()發生在render()結束後，不會阻塞瀏覽器的繪製。
+- useLayoutEffect()發生在瀏覽器的繪製操作之前，通常用於處理DOM，該Hook中的操作會在DOM變更後立即執行，
+該Hook執行完畢後瀏覽器才開始繪製，因而會阻塞瀏覽器的繪製操作。
+- 兩種Effect Hook的運行順序為`useLayoutEffect() => DOM渲染完成 => useEffect()`。
+
+### 組件更新
+在Effect Hook中，沒有直接等價於componentDidMount()的方法，
+useEffect()函數的在不使用依賴參數(可選，第二參數)的情況下，函數中的邏輯在每次組件初始化以及更新時均會執行。
+
+要避免useEffect()中的邏輯在每次組件渲染中重複更新，則可指定依賴參數(第二參數，數組類型)，
+傳入依賴參數後僅當依賴參數值發生變化才會執行函數體。
+
+依賴參數可以傳入**空數組**，此時函數內的邏輯相當於寫在componentDidMount()中，僅在組件首次渲染時執行。
+
+### Effect Hook 完整示例
+使用Effect Hook改寫基於ES6 Class組件的完整示例：
+
+```js
+import React, { useEffect } from 'react';
+
+// use ES6 class based component
+class Example extends React.Component {
+
+	componentDidMount() {
+		alert("Component did mount...")
+	}
+
+	componentWillUnmount() {
+		alert("Component will unmount...")
+	}
+
+	componentDidUpdate() {
+		alert("Component did update...")
+	}
+
+	componentWillUpdate() {
+		alert("Component will update...")
+	}
+
+	render() => <div></div>
+}
+
+// use Effect Hook
+const Example = () => {
+	useEffect(() => {
+		// with empty dependency array, these code will only execute when component first load
+		alert("Component did mount...")
+		return () => alert("Component will unmount...")
+	}, [])
+	useEffect(() => {
+		// without dependency args, these code will execute when the component rerender each time
+		alert("Component did update...")
+		return () => alert("Component will update...")
+	})
+  return <div></div>
+}
+```
 
 
 
