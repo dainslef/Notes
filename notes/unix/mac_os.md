@@ -40,10 +40,11 @@
 	- [在BootCamp安裝的Windows中調整分區，重啓後Mac分區在啓動頁中消失](#在bootcamp安裝的windows中調整分區重啓後mac分區在啓動頁中消失)
 	- [引導 Linux](#引導-linux)
 	- [重置 Launchpad](#重置-launchpad)
-	- [設置 Xcode 路徑](#設置-xcode-路徑)
 	- [簽名 GDB](#簽名-gdb)
 	- [安裝 mysql/mariadb](#安裝-mysqlmariadb)
-	- [完整刪除 JDK](#完整刪除-jdk)
+	- [JDK](#jdk)
+		- [OpenJDK](#openjdk)
+		- [刪除JDK](#刪除jdk)
 	- [刪除 GarageBand](#刪除-garageband)
 	- [MacBook 合蓋無法正常休眠](#macbook-合蓋無法正常休眠)
 - [VPN](#vpn)
@@ -642,7 +643,8 @@ $ diskutil list
 # languagesetup
 ```
 
-登陸界面的分辨率/語言未發生變化是由於登陸界面的數據未更新，使用`root`權限執行`languagesetup`重設語言即會刷新登陸界面信息。
+登陸界面的分辨率/語言未發生變化是由於登陸界面的數據未更新，
+使用`root`權限執行`languagesetup`重設語言即會刷新登陸界面信息。
 
 ## 更改默認應用程序
 1. 使用`Command + i`查看一個文件的詳細信息。
@@ -718,32 +720,6 @@ $ nano /Volumes/[啓動分區名稱]/System/Library/CoreServices/SystemVersion.p
 刪除該目錄之後，`Launchpad`會在下次開機之後重置圖標佈局，
 恢復成默認的樣式(Apple自帶的軟件佔一頁，用戶自行安裝的軟件從第二頁開始)。
 
-## 設置 Xcode 路徑
-`Xcode`中包含了一系列命令行工具如`clang`、`git`等，Homebrew的安裝也依賴於這些命令行工具。
-默認情況下，安裝Xcode同時會自動配置相關路徑信息。
-
-查看Xcode命令行路徑：
-
-```
-$ xcode-select -p
-```
-
-對於從AppStore安裝Xcode的用戶，會得到以下輸出：
-
-```
-/Applications/Xcode.app/Contents/Developer
-```
-
-若用戶移動了`Xcode.app`的位置，則需要重新設定Xcode的路徑，否則會出現找不到命令行工具的情況。
-使用`xcode-select`設定Xcode的安裝位置：
-
-```
-# xcode-select --switch [Xcode.app路徑]/Contents/Developer
-```
-
-若該變了Xcode.app的位置，即使使用`xcode-select`重新設定Xocde.app的路徑，
-通過`Homebrew`安裝的編譯器(如`gcc`)依然會出現找不到頭文件的情況，此時需要重新安裝包。
-
 ## 簽名 GDB
 新版的macOS系統中，`clang`作爲默認編譯器取代了`gcc`，`lldb`作爲默認編譯器取代了`gdb`。
 默認配置下，使用Homebrew安裝的`gdb`調試器**不能**在普通用戶下正常調試代碼，
@@ -778,7 +754,41 @@ mariadb/mysql使用`mysql.server`指令管理服務：
 
 亦可通過`brew services`相關指令管理管理服務。
 
-## 完整刪除 JDK
+## JDK
+早期版本(`Mac OS X 10.6`以及更早的版本)中的macOS曾經自帶了Oracle JDK，
+從`Mac OS X 10.7 (Lion)`開始，macOS不再預置JDK，JDK需要手動安裝，
+現在的macOS中，存放JDK的路徑`/Library/Java/JavaVirtualMachines/`為空，
+macOS系統依舊保留了一套空的java工具鏈(位於`/usr/bin`路徑下)，該工具鏈並未綁定實際的JDK，
+執行時會產生錯誤信息，提示需要下載JDK。
+
+早期Homebrew Cask中提供了OracleJDK軟件包，可以直接安裝；
+自從Oracle更改了OracleJDK的分發協議，多數Linux發行版以及Homebrew軟件源中都取消了Oracle JDK的軟件包的分發。
+
+### OpenJDK
+現在多使用OpenJDK代替Oracle JDK，相比Oracle JDK，OpenJDK完全開源，允許自由分發。
+在Homebrew中可以直接安裝：
+
+```
+$ brew install openjdk
+```
+
+Homebrew中直接安裝的OpenJDK緊緊作為一個庫安裝，並未綁定到macOS默認的java工具鏈，
+需要手動綁定安裝的OpenJDK到macOS提供的java工具鏈：
+
+```
+$ sudo ln -sfn /usr/local/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
+```
+
+默認Homebrew中提供的是最新版本的JDK，若需要歷史版本的JDK，可考慮[AdoptOpenJDK](https://adoptopenjdk.net/)；
+AdoptOpenJDK提供了多個版本OpenJDK的預編譯包。
+Homebrew Cask中提供了AdoptOpenJDK項目的預編譯包，可直接安裝：
+
+```
+$ brew cask install adoptopenjdk // 最新版本JDK
+$ brew cask install adoptopenjdk8 // 使用頻率最高的JDK8
+```
+
+### 刪除JDK
 `JDK`需要自行手工刪除，相關文件位於以下路徑：
 
 1. `/Library/Java/JavaVirtualMachines/*`
