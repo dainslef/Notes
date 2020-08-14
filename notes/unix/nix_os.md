@@ -28,7 +28,8 @@
 
 # Nix package manager
 `Nix package manager`是純函數式(purely functional)的包管理器，
-Nix像純函數式語言(如Haskell)處理值一樣對待軟件包：通過無副作用(no side-effects)的純函數來構建，在構建完成後就不再改變。
+Nix像純函數式語言(如Haskell)處理值一樣對待軟件包：
+通過無副作用(no side-effects)的純函數來構建，在構建完成後就不再改變。
 
 與傳統的軟件包管理器設計不同，Nix將軟件包存儲在`Nix Store`中(通常是`/nix/store`路徑下)，
 每個軟件包存儲在**獨立**的子目錄中,軟件包路徑的命名規則爲`[軟件包id]-[軟件包名]-[版本]`，路徑示例：
@@ -134,8 +135,8 @@ environment.systemPackages = with pkgs; [ vscode ];
 ```
 
 Nix包管理器對於每個用戶擁有獨立的配置，全局的unfree配置並不會對具體的某個用戶生效，
-要使某個用戶能夠使用`nix-env -i`安裝unfree軟件包，則需要編輯用戶的Nix配置`~/.config/nixpkgs/config.nix`，
-在該配置文件中加入：
+要使某個用戶能夠使用`nix-env -i`安裝unfree軟件包，
+則需要編輯用戶的Nix配置`~/.config/nixpkgs/config.nix`，在該配置文件中加入：
 
 ```nix
 {
@@ -149,7 +150,7 @@ Nix包管理器對於每個用戶擁有獨立的配置，全局的unfree配置�
 `NixOS`是基於`Nix package manager`的Linux發行版，提供了統一的包管理與配置管理。
 
 ## 安裝
-[NixOS官網](https://nixos.org/nixos/download.html)提供了鏡像下載，官方提供的鏡像支持`x86/x64`平臺。
+[NixOS官網](https://nixos.org/nixos/download.html)提供了鏡像下載，官方提供的鏡像支持`x86/x64`平台。
 鏡像包括帶有KDE桌面的LiveCD版(`Graphical live CD`)和無GUI環境的精簡版(`Minimal installation CD`)，
 
 以`Minimal installation CD`爲例，下載刻錄鏡像後啓動進入安裝環境。
@@ -208,7 +209,8 @@ boot.loader = {
 }
 ```
 
-其中，GRUB引導器和systemd-boot之間可二選一，不必同時安裝，對於UEFI+GPT的現代設備，推薦使用systemd-boot。
+其中，GRUB引導器和systemd-boot之間可二選一，不必同時安裝，
+對於UEFI+GPT的現代設備，推薦使用systemd-boot。
 
 Nix配置修改完成後執行安裝操作：
 
@@ -230,7 +232,8 @@ Nix配置修改完成後執行安裝操作：
 # nixos-rebuild switch --upgrade // 構建配置同時更新系統
 ```
 
-每次rebuild生成的配置會以啟動項的方式顯示在GRUB菜單中，想要恢復之前配置環境僅需重啓進入GRUB進入對應菜單即可。
+每次rebuild生成的配置會以啟動項的方式顯示在GRUB菜單中，
+想要恢復之前配置環境僅需重啓進入GRUB進入對應菜單即可。
 
 列出所有的配置：
 
@@ -298,7 +301,8 @@ nix.binaryCaches = ["https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"];
 僅使用清華源會導致部分包因為找不到匹配的二進制版本而需要從源碼進行編譯。
 
 ## 系統軟件包與服務配置
-在NixOS中，可將常用的軟件包配置爲系統軟件包，在configuration.nix配置中設定`environment.systemPackages`配置項：
+在NixOS中，可將常用的軟件包配置爲系統軟件包，
+在configuration.nix配置中設定`environment.systemPackages`配置項：
 
 ```nix
 environment.systemPackages = with pkgs; [
@@ -423,7 +427,8 @@ i18n.inputMethod = {
 ```
 
 ## 桌面配置
-NixOS提供了對各類主流桌面環境的支持，與常規發行版不同，安裝桌面環境不是直接通過包管理器直接安裝對應桌面相關軟件包，
+NixOS提供了對各類主流桌面環境的支持，與常規發行版不同，
+安裝桌面環境不是直接通過包管理器直接安裝對應桌面相關軟件包，
 而是在configuration.nix配置中設定桌面相關配置。
 
 配置各類桌面環境前，需要首先開啓`X Window System (X11)`：
@@ -540,7 +545,8 @@ warning: error(s) occurred while switching to the new configuration
 ```
 
 解決方案：<br>
-移除符號鏈接`/var/lib/systemd/timesync`和路徑`/var/lib/private/systemd/timesync`下的所有內容，重啓服務則不會再收到錯誤提示。
+移除符號鏈接`/var/lib/systemd/timesync`和路徑`/var/lib/private/systemd/timesync`下的所有內容，
+重啓服務則不會再收到錯誤提示。
 參考[GitHub NixOS/nixpkgs Issues #31540](https://github.com/NixOS/nixpkgs/issues/31540)。
 
 ## No output backlight property
