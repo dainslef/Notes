@@ -53,6 +53,7 @@
 	- [V2Ray](#v2ray)
 - [問題記錄](#問題記錄)
 	- [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
+	- ["Xxx.app" is damaged and can't be opened. You should move it to the Trash.](#xxxapp-is-damaged-and-cant-be-opened-you-should-move-it-to-the-trash)
 
 <!-- /TOC -->
 
@@ -969,4 +970,36 @@ V2Ray支持以下特性：
 # chmod +r /etc/paths.d/Wireshark
 # ls -al /etc/paths.d/Wireshark
 -rw-r--r--  1 root  wheel  43 Nov 21 07:19 /etc/paths.d/Wireshark
+```
+
+## "Xxx.app" is damaged and can't be opened. You should move it to the Trash.
+問題描述：<br>
+運行一些未經簽名的App時，會出現上述提示，出現該提示後程序運行終止，App無法運行。
+
+![錯誤訊息](../../images/mac_os_is_damaged_and_can_not_be_opened.png)
+
+解決方案：<br>
+通過`xattr`查詢App是否帶有附加屬性，以[`V2rayU.app`](https://github.com/yanue/V2rayU)為例：
+
+```
+$ xattr /Applications/V2rayU.app
+com.apple.quarantine
+```
+
+與之對比，普通的App通常並不包含任何屬性：
+
+```
+$ xattr /Applications/Visual\ Studio\ Code.app
+
+```
+
+因此，可嘗試使用xattr清除`com.apple.quarantine`屬性：
+
+```c
+// -r 代表遞歸設置屬性
+// -d 代表清除指定名稱的屬性
+# xattr -rd com.apple.quarantine /Applications/V2rayU.app
+
+// -c 表示清除所有屬性
+# xattr -rc /Applications/V2rayU.app
 ```
