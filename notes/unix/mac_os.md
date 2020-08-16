@@ -447,26 +447,56 @@ $ brew tap caskroom/versions
 - `$ brew services cleanup` 清理未被使用的服務
 
 ### 配置國內源
-默認情況下，Homebrew訪問`GitHub`來更新包數據，速度較慢，可使用國內源替代，推薦使用中科大源`USTC`源。
+默認情況下，Homebrew訪問`GitHub`來更新包數據，速度較慢，可使用國內源替代，
+推薦使用清華大學[`TUNA`源](https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/)。
 
 - 替換更新數據源：
 
-	替換`Homebrew`源，在`$(brew --repo)`路徑下執行：
+	TUNA源提供了Homebrew本體、以及部分Tap倉庫(core、cask)等。
 
 	```
-	$ git remote set-url origin https://mirrors.ustc.edu.cn/brew.git
+	// bash
+	$ git -C "$(brew --repo)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+	$ git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+	$ git -C "$(brew --repo homebrew/cask)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
+
+	// fish
+	$ git -C (brew --repo) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+	$ git -C (brew --repo homebrew/core) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+	$ git -C (brew --repo homebrew/cask) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
 	```
 
-	替換`homebrew/core`更新源，在`$(brew --repo)/Library/Taps/homebrew/homebrew-core`路徑下執行：
+	替換更新源完成後，可使用查看各個倉庫的信息：
 
 	```
-	$ git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-core.git
-	```
+	// Homebrew自身
+	$ git -C (brew --repo) remote show origin
+	* remote origin
+	  Fetch URL: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+	  Push  URL: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+	  HEAD branch: master
+	  Remote branches:
+	    dependabot/bundler/Library/Homebrew/rubocop-0.89.1 new (next fetch will store in remotes/origin)
+	    master                                             tracked
+	    test-automate-tapioca-update                       new (next fetch will store in remotes/origin)
+	  Local branch configured for 'git pull':
+	    master merges with remote master
+	  Local ref configured for 'git push':
+	    master pushes to master (up to date)
 
-	替換`caskroom/cask`更新源，在`$(brew --repo)/Library/Taps/caskroom/homebrew-cask`路徑下執行：
+	// Homebrew軟件倉庫
+	$ brew tap-info --installed
+	homebrew/cask: 1 command, 3636 casks
+	/usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask (4,753 files, 1.3GB)
+	From: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
 
-	```
-	$ git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-cask.git
+	homebrew/core: 2 commands, 5184 formulae
+	/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core (5,748 files, 1.1GB)
+	From: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+
+	homebrew/services: 1 command
+	/usr/local/Homebrew/Library/Taps/homebrew/homebrew-services (488 files, 470.5KB)
+	From: https://github.com/Homebrew/homebrew-services
 	```
 
 - 替換`Bottles`源：
@@ -475,20 +505,23 @@ $ brew tap caskroom/versions
 	在默認Shell的**配置文件**中設置`HOMEBREW_BOTTLE_DOMAIN`環境變量：
 
 	```
-	export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
+	export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/
 	```
 
 - 恢復官方源：
 
-	執行以下指令：
+	恢復官方源操作與設置第三方源相反：
 
 	```
-	$ cd "$(brew --repo)"
-	$ git remote set-url origin https://github.com/Homebrew/brew.git
-	$ cd "$(brew --repo)"/Library/Taps/homebrew/homebrew-core
-	$ git remote set-url origin https://github.com/Homebrew/homebrew-core.git
-	$ cd "$(brew --repo)"/Library/Taps/caskroom/homebrew-cask
-	$ git remote set-url origin https://github.com/caskroom/homebrew-cask.git
+	<!-- bash / zsh -->
+	$ git -C "$(brew --repo)" remote set-url origin https://github.com/Homebrew/brew.git
+	$ git -C "$(brew --repo homebrew/core)" remote set-url origin https://github.com/Homebrew/homebrew-core.git
+	$ git -C "$(brew --repo homebrew/cask)" remote set-url origin https://github.com/caskroom/homebrew-cask.git
+
+	<!-- fish -->
+	$ git -C (brew --repo) remote set-url origin https://github.com/Homebrew/brew.git
+	$ git -C (brew --repo homebrew/core) remote set-url origin https://github.com/Homebrew/homebrew-core.git
+	$ git -C (brew --repo homebrew/cask) remote set-url origin https://github.com/caskroom/homebrew-cask.git
 	```
 
 
@@ -500,7 +533,8 @@ $ brew tap caskroom/versions
 在macOS中最常見的軟件包是以`Bundle`的形式存在的，`Bundle`是一個以`.app`爲後綴的**目錄**，
 外觀爲可執行程序的圖標，封裝了程序執行所需的一些必要資源以及真正的可執行文件。
 
-`dmg`鏡像中若直接包含`Bundle`，則將其複製到`/Application`或`~/Application`目錄下即可(推薦存放在用戶的`Application`目錄下)。
+`dmg`鏡像中若直接包含`Bundle`，
+則將其複製到`/Application`或`~/Application`目錄下即可(推薦存放在用戶的`Application`目錄下)。
 常規的`Bundle`程序所有者爲**當前用戶**。
 
 ## pkg
@@ -514,7 +548,8 @@ $ brew tap caskroom/versions
 
 ## 軟件路徑
 默認情況下，`Bundle`形式的軟件一般存在於`/Application`目錄或`~/Application`目錄下。
-`macOS`的系統默認`Bundle`應用存放在`/Application`目錄下，一些以`pkg`形式安裝或通過`AppStore`安裝的應用也在該目錄下。
+`macOS`的系統默認`Bundle`應用存放在`/Application`目錄下，
+一些以`pkg`形式安裝或通過`AppStore`安裝的應用也在該目錄下。
 
 默認情況下`~/Application`目錄不存在，需要自行創建。
 用戶自行安裝的Bundle應用推薦存放在`~/Application`目錄下，避免與系統程序混淆。
