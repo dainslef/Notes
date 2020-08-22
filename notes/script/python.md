@@ -99,7 +99,7 @@ True
 ```
 
 ## n進製表示
-在`Python`中2進制/8進制/16進制的表示方式：
+在Python中2進制/8進制/16進制的表示方式：
 
 ```py
 # 2進制，0b做前綴
@@ -113,7 +113,7 @@ True
 65
 ```
 
-使用`chr()`將數值視爲`ASCII`碼轉換爲字符，使用`ord()`將字符轉換爲`ASCII`碼：
+使用`chr()`將數值視爲ASCII碼轉換爲字符，使用`ord()`將字符轉換爲ASCII碼：
 
 ```py
 
@@ -195,7 +195,7 @@ bytearray(b'ea')
 
 
 # 容器類型
-`Python`中的常見容器類型有：
+Python中的常見容器類型有：
 
 - `tuple` 元組，不可變有序集合
 - `list` 列表，可變有序集合
@@ -204,7 +204,7 @@ bytearray(b'ea')
 
 ## list (列表)
 `list`是一個**有序集合**，可以容納各類數據，並能隨意添加和刪除。
-`list`中的數據可以是另一個`list`，訪問方式類似**二維數組**。
+list中的數據可以是另一個list，訪問方式類似**二維數組**。
 
 定義一個`list`：
 
@@ -296,8 +296,8 @@ TypeError: 'int' object is not iterable
 ```
 
 ## tuple (元組)
-`tuple`與`list`類似，但`tuple`中的數據**不可修改**，因此沒有`append()`、`insert()`、`pop()`之類的方法。
-`tuple`可以像數組一樣通過下標訪問，但不能對其賦值：
+`tuple`與`list`類似，但tuple中的數據**不可修改**，因此沒有`append()`、`insert()`、`pop()`之類的方法。
+tuple可以像數組一樣通過下標訪問，但不能對其賦值：
 
 ```py
 >>> t = (1, 2, 3)
@@ -324,11 +324,11 @@ TypeError: 'tuple' object does not support item assignment
 
 ## dict (字典)
 `dict`使用`鍵-值`(key-value)存儲，類似於`Java`中的`Map`，擁有很快的查找速度。
-相對於`list`，`dict`擁有更快的查找刪除速度，而且不會隨着`dict`內容的增加而減慢查找刪除速度，
-但`dict`內存開銷更大(空間換時間)。在`dict`中，`key`是**唯一、不能改變**的，`value`則沒有此限制。
-`dict`根據`key`的值來計算對應`value`的位置(hash算法)，因此`key`是不能改變的，而可變對象`list`不能作爲`key`。
+相對於list，dict擁有更快的查找刪除速度，而且不會隨着dict內容的增加而減慢查找刪除速度，
+但dict內存開銷更大(空間換時間)。在dict中，`key`是**唯一、不能改變**的，`value`則沒有此限制。
+dict根據key的值來計算對應value的位置(hash算法)，因此key是不能改變的，而可變對象list不能作爲key。
 
-定義`dict`使用大括號：
+定義dict使用大括號：
 
 ```py
 >>> d = { 'first': 'one', 'second': 2, 'third': 3 }
@@ -366,7 +366,7 @@ True
 {'first': 1, 'second': 2, 'third': 3, 'new': 4}
 ```
 
-刪除`dict`中的內容使用`pop(key)`成員方法，刪除了某個`dict`中的某個`key`，則該`key`的`value`也會隨之被刪除：
+刪除dict中的內容使用`pop(key)`成員方法，刪除了某個dict中的某個key，則該key的value也會隨之被刪除：
 
 ```py
 >>> d.pop('new')
@@ -375,8 +375,8 @@ True
 ```
 
 ## set (集合)
-`set`是一組**沒有**`value`的`key`的集合，`set`中的內容是**不可重複**的。
-定義一個`set`：
+`set`是一組**沒有**value的key的集合，set中的內容是**不可重複**的。
+定義set：
 
 ```py
 >>> s = { 1, 2, 3, 3 } #即使在定義時輸入重複的元素，解釋器也會將其自動忽略
@@ -1066,7 +1066,7 @@ no_arg_method: 100
 - 參數爲空的成員方法，即使沒有添加任何裝飾器，也只能通過類名訪問。
 
 ## 私有成員
-`Python`類中默認成員的訪問屬性爲公有，在`Python`中不能定義保護成員，但可以定義私有成員。
+Python類中默認成員的訪問屬性爲公有，在Python中不能定義保護成員，但可以定義私有成員。
 
 在命名類的成員時，以`__`開頭的成員即爲**私有成員**，不能在類的外部被訪問。
 如下代碼所示：
@@ -1201,7 +1201,7 @@ for a in range(5):
 
 
 # 變量作用域
-在`Python`中，定義變量與賦值變量語法相同，這一設計導致局部作用域下訪問外部變量時會有語義衝突。
+在Python中，定義變量與賦值變量語法相同，這一設計導致局部作用域下訪問外部變量時會有語義衝突。
 
 ## global 關鍵字
 在局部作用域下，直接對全局變量賦值，解釋器會認爲你創建了一個與全局變量同名的**局部變量**，該變量在函數結束之後會被釋放。
@@ -1303,8 +1303,9 @@ num after set_nonlocal_num(): 1
 
 - 在函數定義中使用關鍵字`yield`則該函數變成爲一個**生成器**。
 - 執行生成器函數**不會**得到該函數的返回值，而是得到一個生成器對象。
-- 對生成器對象使用`next(生成器對象)`方法會執行一次生成器，執行到`yield`關鍵字時，方法暫停，並返回`yield`語句的返回值。
-	再次調用`next()`方法會從上次`yield`結束的語句繼續開始執行，直到再次運行到`yield`語句。
+- 對生成器對象使用`next(生成器對象)`方法會執行一次生成器，執行到`yield`關鍵字時，
+方法暫停，並返回`yield`語句的返回值。再次調用`next()`方法會從上次`yield`結束的語句繼續開始執行，
+直到再次運行到`yield`語句。
 
 在`Python 2`中，可以使用`生成器對象.next()`的方式進行生成器迭代，
 在`Python 3`中，可以使用`生成器對象.__next()__`，作用與`next(生成器對象)`相同。
@@ -1388,9 +1389,10 @@ print([next(g) for i in range(0, 3)])
 ## 使用 send() 與生成器進行交互
 當使用`next()`生成器啓動後，便可以使用`生成器對象.send(內容)`向生成器傳遞內容，
 `send()`傳遞的內容將作爲`yield`表達式的**返回值**。
-`next()`相當於`send(None)`，即`None`爲`yield`表達式的默認返回值。
-執行了`send()`函數相當於先執行一次`next()`，然後將`send()`中的參數作爲`yield`的返回值。
-首次啓動生成器必須使用`next()`，因爲第一次迭代沒有`yield`表達式參與，以後的每一次迭代都可以使用`send()`代替`next()`。
+next()相當於`send(None)`，即None爲yield表達式的默認返回值。
+執行了send()函數相當於先執行一次next()，然後將send()中的參數作爲yield的返回值。
+首次啓動生成器必須使用next()，因爲第一次迭代沒有yield表達式參與，
+以後的每一次迭代都可以使用send()代替next()。
 
 如下代碼所示：
 
@@ -1431,11 +1433,11 @@ print(g.send(20))
 
 
 # Socket API
-`Python`中的`sokcet`模塊對`BSD`的`Socket API`做了基本的封裝，函數調用名稱與`BSD Socket`相同，
+Python中的`sokcet`模塊對`BSD`的`Socket API`做了基本的封裝，函數調用名稱與`BSD Socket`相同，
 但在參數上有所簡化，使之更加易於使用。
 
 ## 創建 Socket
-`socket`類的構造函數定義爲：
+socket類的構造函數定義爲：
 
 ```py
 __init__(self, family=<AddressFamily.AF_INET: 2>, type=<SocketKind.SOCK_STREAM: 1>, proto=0, fileno=None)
@@ -1502,8 +1504,8 @@ clientSock.connect(("ip地址", 端口))
 `Python`提供了包管理器`pip`用於安裝、管理第三方模塊。
 
 ## 安裝和配置 pip
-在部分Linux發行版中，`pip`並沒有隨`Python`一併被安裝。
-`pip`可以從發行版的軟件源中安裝，也可以下載安裝腳本：
+在部分Linux發行版中，pip並沒有隨Python一併被安裝。
+pip可以從發行版的軟件源中安裝，也可以下載安裝腳本：
 
 ```
 $ wget https://bootstrap.pypa.io/get-pip.py
@@ -1513,59 +1515,63 @@ $ python3 get-pip.py --user //將pip安裝到用戶目錄
 
 系統目錄下的Python包是所有用戶共享的，用戶目錄下的Python包只有所有者可訪問。
 
-- `Linux`下的`pip`相關特性
+- `Linux`下的pip相關特性
 
-	安裝**pip**到系統目錄需要`root`權限，系統`Python`模塊安裝在路徑`/usr/lib/python[version]/site-packages`下，需要`root`權限對其進行寫入操作。
-	安裝`Python`模塊到用戶目錄下無需`root`權限，用戶`Python`模塊在路徑`~/.local/lib/python[version]/site-packages`下。
+	安裝**pip**到系統目錄需要`root`權限，
+	系統模塊安裝在路徑`/usr/lib/python[version]/site-packages`下，
+	需要root權限對其進行寫入操作。
+	安裝模塊到用戶目錄下無需root權限，
+	用戶模塊在路徑`~/.local/lib/python[version]/site-packages`下。
 	還會在`~/.local/bin`路徑下生成可執行腳本。
 
-	由發行版自身的包管理器(`apt`、`yum`、`dnf`、`pacman`等)安裝的`Python`模塊也會顯示在`pip list`指令的輸出中。
-	系統包管理器安裝的`Python`模塊通常被系統某些組件依賴，嘗試刪除這些包時會收到`DEPRECATION`(反對)，提示這些包是由`distutils`(發行版工具)安裝的，一般情況下，除非必要，不要刪除這些由發行版包管理器安裝的`Python`模塊。
+	由發行版自身的包管理器(`apt`、`yum`、`dnf`、`pacman`等)安裝的模塊也會顯示在`pip list`指令的輸出中。
+	系統包管理器安裝的`Python`模塊通常被系統某些組件依賴，嘗試刪除這些包時會收到`DEPRECATION`(反對)，
+	提示這些包是由`distutils`(發行版工具)安裝的，除非必要，不要刪除這些由發行版包管理器安裝的模塊。
 
-- `macOS`下的`pip`相關特性
+- `macOS`下的pip相關特性
 
-	使用**homebrew**安裝`Python`時會自動安裝`pip`，使用`pip`**無需**`root`權限。
-	系統`Python`模塊安裝在路徑`/usr/local/lib/python[version]/site-packages/`下。
-	用戶`Python`模塊安裝在路徑`~/Library/Python/[version]/lib/python/site-packages`下。
-	系統`Python`模塊會在`/usr/local/bin`路徑下生成可執行腳本。
-	用戶`Python`模塊會在`~/Library/Python/[version]/bin`路徑下生成可執行腳本。
+	使用**homebrew**安裝Python時會自動安裝`pip`，使用`pip`**無需**`root`權限。
+	系統模塊安裝在路徑`/usr/local/lib/python[version]/site-packages/`下。
+	用戶模塊安裝在路徑`~/Library/Python/[version]/lib/python/site-packages`下。
+	系統模塊會在`/usr/local/bin`路徑下生成可執行腳本。
+	用戶模塊會在`~/Library/Python/[version]/bin`路徑下生成可執行腳本。
 
 ## 鏡像源
-由於`GFW`的存在，`pip`官方源可能無法訪問。
-使用國內鏡像源替換官方源，推薦使用`USTC`源，在`.pip/pip.conf`文件中添加內容：
+由於`GFW`的存在，pip官方源可能無法訪問。
+使用國內鏡像源替換官方源，推薦使用`TUNA`源(清華大學鏡像源)，在`.pip/pip.conf`文件中添加內容：
 
 ```
 [global]
-index-url = https://mirrors.ustc.edu.cn/pypi/web/simple
+index-url = https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/
 format = columns
 ```
 
 ## 常用操作
-`pip`包管理器使用方式類似`Linux`發行版的包管理器，常見操作如下：
+pip包管理器使用方式類似Linux發行版的包管理器，常見操作如下：
 
 ```
-# pip install [package_name] //安裝包
-# pip uninstall [package_name] //移除包
-# pip install --upgrade [package_name] //升級指定包
-# pip install -U [package_name] //升級指定包，"-U"參數等價於"--upgrade"
-$ pip install --user [package_name] //安裝指定包到用戶目錄
-$ pip list //列出已安裝的包
-$ pip list --outdated //列出可以升級的包
-$ pip list --user //列出安裝在用戶目錄的包
-$ pip show [package_name] //顯示包的詳細信息
-$ pip show --files [package_name] //列出包安裝的文件列表
-$ pip help [operate] //查看pip相關操作的幫助信息，如"pip help install"即查看"pip install"指令的所有用法
+# pip install [package_name] // 安裝包
+# pip uninstall [package_name] // 移除包
+# pip install --upgrade [package_name] // 升級指定包
+# pip install -U [package_name] // 升級指定包，"-U"參數等價於"--upgrade"
+$ pip install --user [package_name] // 安裝指定包到用戶目錄
+$ pip list // 列出已安裝的包
+$ pip list --outdated // 列出可以升級的包
+$ pip list --user // 列出安裝在用戶目錄的包
+$ pip show [package_name] // 顯示包的詳細信息
+$ pip show --files [package_name] // 列出包安裝的文件列表
+$ pip help [operate] // 查看pip相關操作的幫助信息，如"pip help install"即查看"pip install"指令的所有用法
 ```
 
 ## 包依賴檢查與清理
-相比Linux各大發行版的包管理器。`pip`是一個非常**原始**、**簡陋**的包管理器工具。
+相比Linux各大發行版的包管理器。pip是一個非常**原始**、**簡陋**的包管理器工具。
 
-`pip`的主要缺陷如下：
+pip的主要缺陷如下：
 
 - 沒有一次性升級所有包的指令。
 - 沒有依賴清理功能，卸載一個包時不會清理無用依賴。
 
-清理無用的`pip`包可以安裝工具`pip-autoremove`：
+清理無用的pip包可以安裝工具`pip-autoremove`：
 
 ```
 $ pip install pip-autoremove
@@ -1583,7 +1589,7 @@ $ pip-autoremove -L //列出不被其它包依賴的包(主動安裝的包)
 # 文檔瀏覽
 Python提供了文檔工具`pydoc`。
 
-使用`pydoc`可以方便地查看Python標準庫以及從pip安裝的模塊的對應文檔：
+使用pydoc可以方便地查看Python標準庫以及從pip安裝的模塊的對應文檔：
 
 ```
 $ pydoc -p [port]
@@ -1615,7 +1621,8 @@ $ pydoc -p [port]
 - 序列的左括號前不要加空格。如`list[2]`。
 - `if`、`for`、`while`語句中，即使執行語句只有一句，也必須另起一行。
 - 函數默認參數使用的賦值符左右省略空格。
-- 賦值操作符(`=`、`+=`等)、比較操作符(`==`、`>`、`<`、`in`、`is`等)、布爾操作符(`and`、`is`、`not`)左右各加一個空格，不要爲了對齊增加空格。
+- 賦值操作符(`=`、`+=`等)、比較操作符(`==`、`>`、`<`、`in`、`is`等)、
+布爾操作符(`and`、`is`、`not`)左右各加一個空格，不要爲了對齊增加空格。
 
 ## 命名規範
 - 類名使用駝峯命名法。
