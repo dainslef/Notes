@@ -1,9 +1,10 @@
 <!-- TOC -->
 
 - [概述](#概述)
+	- [學習資料](#學習資料)
 	- [下載](#下載)
 	- [服務配置](#服務配置)
-	- [Web UI](#web-ui)
+		- [Web UI](#web-ui)
 	- [History Server](#history-server)
 - [Cluster Mode (集羣模型)](#cluster-mode-集羣模型)
 	- [集羣管理器類型](#集羣管理器類型)
@@ -67,14 +68,25 @@
 `Apache Spark`是一套**快速**(fast)、**多用途**(general-purpose)的集羣計算系統(cluster computing system)。
 
 Spark提供了`Scala`、`Java`、`Python`、`R`等語言的上層API和支持通用執行圖的優化引擎。
-Spark同時提供了一套高級工具集包括`Spark SQL`(針對SQL和結構化數據處理)、`MLib`(針對機器學習)、`GraphX`(針對圖處理)、`Spark Streaming`。
+Spark同時提供了一套高級工具集包括`Spark SQL`(針對SQL和結構化數據處理)、`MLib`(針對機器學習)、
+`GraphX`(針對圖處理)、`Spark Streaming`。
+
+## 學習資料
+Spark相關的學習資料主要可以參考[官方文檔](http://spark.apache.org/docs/latest/)，官方文檔的內容比較全面，但部分內容不夠細緻，
+適合維護Spark環境的運維人員以及僅使用Spark API而不深入研究Spark內部機制的初級開發者。
+
+對於Spark的內部機制，可直接閱讀項目源碼，亦可參考GitHub上的一些項目：
+
+- [JerryLead/SparkInternals](https://github.com/JerryLead/SparkInternals)
+- [japila-books/apache-spark-internals](https://github.com/japila-books/apache-spark-internals)
 
 ## 下載
 在[Spark官網](http://spark.apache.org/downloads.html)下載Saprk軟件包。
 下載Spark時需要注意Spark版本與Hadoop、Scala版本的對應關係：
 
 - `Spark 2.0`之後官網提供的軟件包默認基於`Scala 2.11`構建，`Spark 2.4.2`之後開始基於`Scala 2.12`構建。
-- Spark官方提供的預編譯包中包括了集成Hadoop的版本(如`spark-2.4.4-bin-hadoop2.7.tgz`)，或未集成Hadoop的版本(`spark-2.4.4-bin-without-hadoop.tgz`)，未集成Hadoop的版本需要自行配置Hadoop路徑。
+- Spark官方提供的預編譯包中包括了集成Hadoop的版本(如`spark-2.4.4-bin-hadoop2.7.tgz`)，
+或未集成Hadoop的版本(`spark-2.4.4-bin-without-hadoop.tgz`)，未集成Hadoop的版本需要自行配置Hadoop路徑。
 
 Scala版本兼容性：
 
@@ -133,7 +145,7 @@ $ stop-master.sh && stop-slaves.sh
 
 正常啓動Spark服務後，使用JPS查看進程，主節點應有`Master`進程，從節點應有`Worker`進程。
 
-## Web UI
+### Web UI
 默認配置下，Spark在`8080`端口提供集羣管理的Web界面，可在Web界面中查看集羣的工作狀態。
 
 Web界面中的提供了以下幾類信息：
@@ -183,6 +195,19 @@ $ start-history-server.sh
 
 // 關閉服務
 $ stop-history-server.sh
+```
+
+默認HistoryServer中的eventLog不會被清理，若需要自動清理eventLog，則添加以下配置：
+
+```sh
+# 是否開啟 eventLog 清理，默認false
+spark.history.fs.cleaner.enabled true
+# 清理器觸發間隔，默認 1day
+spark.history.fs.cleaner.interval 1d
+# eventLog 保留期限，默認 7day
+spark.history.fs.cleaner.maxAge	7d
+# 最大保留 eventLog 數目，默認 Int.MaxValue
+spark.history.fs.cleaner.maxNum	100
 ```
 
 
@@ -2415,7 +2440,8 @@ scala> spark.sql("select index, inner.name, inner.age from TestTable").write.jdb
 Spark運行環境中已包含了Scala、Hadoop、Zookeeper等依賴，與Jar包中自帶的依賴產生衝突。
 
 解決方式：<br>
-開發環境中爲確保源碼正常編譯，需要完整引入Spark相關依賴，但在生成Jar時，需要移除Spark以及相關聯的Scala、Hadoop、Zookeeper相關依賴。
+開發環境中爲確保源碼正常編譯，需要完整引入Spark相關依賴，但在生成Jar時，
+需要移除Spark以及相關聯的Scala、Hadoop、Zookeeper相關依賴。
 
 ## Operation category READ is not supported in state standby
 問題說明：<br>
