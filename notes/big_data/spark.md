@@ -4,7 +4,8 @@
 	- [學習資料](#學習資料)
 	- [下載](#下載)
 	- [服務配置](#服務配置)
-		- [Web UI](#web-ui)
+	- [Local Dir](#local-dir)
+	- [Web UI](#web-ui)
 	- [History Server](#history-server)
 - [Cluster Mode (集羣模型)](#cluster-mode-集羣模型)
 	- [集羣管理器類型](#集羣管理器類型)
@@ -145,7 +146,21 @@ $ stop-master.sh && stop-slaves.sh
 
 正常啓動Spark服務後，使用JPS查看進程，主節點應有`Master`進程，從節點應有`Worker`進程。
 
-### Web UI
+## Local Dir
+Spark任務在運行期間會創建一系列的運行期間的緩存文件(如RDD在磁盤中存儲的數據)，
+該路徑由`$SPARK_HOME/conf/spark-defaults.conf`配置文件中的配置項`spark.local.dir`決定，默認值為`/tmp`。
+
+`spark.local.dir`設定的值可被環境變量覆蓋，在不同的集群模式下，環境變量名稱分別為：
+
+- SPARK_LOCAL_DIRS (Standalone)
+- MESOS_SANDBOX (Mesos)
+- LOCAL_DIRS (YARN)
+
+在生產環境中，多數服務器的`/tmp`路徑不會單獨掛載，通常位於默認的`/`下；
+若分區方案中沒有給予根目錄較大的空間，則在執行數據量較大的計算任務，且包含Shuffle操作時，
+可能會出現`No space left on device`的異常，該異常會導致計算任務強制中斷。
+
+## Web UI
 默認配置下，Spark在`8080`端口提供集羣管理的Web界面，可在Web界面中查看集羣的工作狀態。
 
 Web界面中的提供了以下幾類信息：
@@ -202,7 +217,7 @@ $ stop-history-server.sh
 ```sh
 # 是否開啟 eventLog 清理，默認false
 spark.history.fs.cleaner.enabled true
-# 清理器觸發間隔，默認 1day
+# 清理器觸發間隔，默認 1day，配置項支持h/m/s等時間單位
 spark.history.fs.cleaner.interval 1d
 # eventLog 保留期限，默認 7day
 spark.history.fs.cleaner.maxAge	7d
