@@ -24,6 +24,8 @@
 	- [複製表格](#複製表格)
 	- [主鍵自增](#主鍵自增)
 	- [外鍵約束](#外鍵約束)
+		- [排查外鍵錯誤信息](#排查外鍵錯誤信息)
+		- [臨時禁用/恢復外鍵約束](#臨時禁用恢復外鍵約束)
 - [表格優化與修復](#表格優化與修復)
 	- [optimize](#optimize)
 	- [repair](#repair)
@@ -502,9 +504,10 @@ Error Code: 1022. Can't write; duplicate key in table '***'
 ```
 
 使用VARCHAR類型作為外鍵時，不僅要注意字符長度，
-還要注意**字符編碼類型**(`DEFAULT CHARACTER SET`)和**校驗類型**(`COLLATE`)，
-二者不同會造成外鍵創建失敗。
+還要注意**字符編碼類型**(`DEFAULT CHARACTER SET`)和**校驗類型**(`COLLATE`)，二者不同會造成外鍵創建失敗。
 行類型(`ROW_FORMAT`)不同不影響外鍵的創建。
+
+### 排查外鍵錯誤信息
 外鍵約束創建失敗時會出現如下錯誤信息：
 
 ```
@@ -516,6 +519,17 @@ Error Code: 1215. Cannot add the foreign key constraint
 
 ```sql
 select * from INFORMATION_SCHEMA.KEY_COLUMN_USAGE where REFERENCED_TABLE_NAME='被引用的表名稱'
+```
+
+### 臨時禁用/恢復外鍵約束
+在某些特殊場景下(truncate等)，可以通過修改配置`FOREIGN_KEY_CHECKS`臨時禁用/禁用外鍵約束檢查：
+
+```sql
+# 禁用外鍵約束
+mysql> SET FOREIGN_KEY_CHECKS = 0;
+
+# 啟用外鍵約束
+mysql> SET FOREIGN_KEY_CHECKS = 1;
 ```
 
 
