@@ -13,6 +13,7 @@
 - [Kafka Connect](#kafka-connect)
 	- [依賴服務配置](#依賴服務配置)
 	- [JDBC Source Connector](#jdbc-source-connector)
+		- [单机多实例](#单机多实例)
 		- [堆溢出問題](#堆溢出問題)
 - [問題記錄](#問題記錄)
 	- [org.apache.kafka.clients.NetworkClient: Connection to node -1 could not be established. Broker may not be available.](#orgapachekafkaclientsnetworkclient-connection-to-node--1-could-not-be-established-broker-may-not-be-available)
@@ -407,6 +408,7 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 	# 示例： schema.registry.url = http://spark-master:8081
 
 	rest.host.name = Kafka Rest 服務地址
+	rest.port = Rest 监听端口
 	# 示例：
 	# rest.host.name = spark-master
 	# rest.port = 8083
@@ -485,6 +487,17 @@ JDBC Source Connector提供了多種數據源導入/監控模式：
 
 除了bulk模式外，JDBC Source Connector對於已導出數據的表格會記錄偏移量，重啓服務會後只會追加導入新增數據；
 若需要重新導入完整數據則可嘗試**刪除話題**或切換**導入模式**。
+
+### 单机多实例
+一个JDBC Source Connector进程可监控多张表，并将数据发送到同一个话题中；
+若需要发送数据到不同的话题中，则需要启动多个JDBC Source Connector实例。
+
+新启动JDBC Source Connector实例不必再重复启动和配置依赖服务，如Schema Registry服务，
+多个JDBC Source Connector实例可以复用相同的Schema Registry。
+
+JDBC Source Connector进程启动时会读取`$KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties`中
+的`rest.port`配置项来决定自身Rest服务监听的端口，新启动的JDBC Source Connector进程需要修改该配置，
+否则会端口占用导致启动失败。
 
 ### 堆溢出問題
 當需要監聽的目標表格過大時，使用默認JVM配置啟動的Connector可能會產生`OutOfMemoryError`，
