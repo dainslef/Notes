@@ -34,6 +34,8 @@
 	- [NTFS-3G](#ntfs-3g)
 		- [安裝配置](#安裝配置)
 		- [使用 NTFS-3G](#使用-ntfs-3g)
+- [Xcode](#xcode)
+	- [Command Line Tools](#command-line-tools)
 - [常見問題](#常見問題)
 	- [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
 	- [更改默認應用程序](#更改默認應用程序)
@@ -665,6 +667,43 @@ $ diskutil list
 ```
 
 取消U盤掛載使用umount指令而不是直接彈出U盤，彈出U盤會斷開系統的鏈接，無法再使用ntfs-3g指令掛載。
+
+
+
+# Xcode
+[`Xcode`](https://developer.apple.com/xcode/)是Apple提供的macOS下的官方IDE(集成開發環境)，
+提供了macOS、iOS等所有Apple係產品的App開發平台，地位相當於Windows下Microsoft官方推出的Visual Studio。
+
+## Command Line Tools
+Xcode中附帶了一系列命令行工具如`clang`、`git`等，
+一些依賴Unix工具鏈的程序(如Homebrew)的安裝依賴於這些命令行工具。
+
+完整的Xcode在安裝完成首次啟動時，會提示是否安裝命令行工具；
+Apple對Xcode附帶的命令行工具部分可以通過獨立的安裝包安裝(不必安裝完整的Xcode)；
+可主動執行Xcode命令行工具的安裝：
+
+```
+$ xcode-select --install
+```
+
+Xcode提供的命令行工具相關內容會安裝在路徑`/Library/Developer/CommandLineTools`下，
+安裝命令行工具同時還會在該路徑下安裝對應版本macOS的開發SDK和部分開發庫，
+內容與`Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer`相同。
+
+需要注意，安裝新版本的命令行工具時不會刪除舊版的macOS SDK，安裝/升級過多個版本Xcode的命令行工具後，
+`/Library/Developer/CommandLineTools/SDKs`路徑下的SDK版本會越來越多：
+
+```
+$ pwd
+/Library/Developer/CommandLineTools/SDKs
+$ ls -al
+total 0
+drwxr-xr-x  5 root  wheel  160 Dec 20  2019 ./
+drwxr-xr-x  5 root  admin  160 Nov  8  2019 ../
+lrwxr-xr-x  1 root  wheel   15 Dec 20  2019 MacOSX.sdk@ -> MacOSX10.15.sdk
+drwxr-xr-x  7 root  wheel  224 Dec 20  2019 MacOSX10.14.sdk/
+drwxr-xr-x  8 root  wheel  256 Dec 20  2019 MacOSX10.15.sdk/
+```
 
 
 
