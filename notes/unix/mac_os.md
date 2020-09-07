@@ -36,6 +36,7 @@
 		- [使用 NTFS-3G](#使用-ntfs-3g)
 - [Xcode](#xcode)
 	- [Command Line Tools](#command-line-tools)
+	- [Developer Path](#developer-path)
 - [常見問題](#常見問題)
 	- [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
 	- [更改默認應用程序](#更改默認應用程序)
@@ -704,6 +705,30 @@ lrwxr-xr-x  1 root  wheel   15 Dec 20  2019 MacOSX.sdk@ -> MacOSX10.15.sdk
 drwxr-xr-x  7 root  wheel  224 Dec 20  2019 MacOSX10.14.sdk/
 drwxr-xr-x  8 root  wheel  256 Dec 20  2019 MacOSX10.15.sdk/
 ```
+
+## Developer Path
+查看Xcode命令行路徑：
+
+```
+$ xcode-select -p
+```
+
+對於從AppStore安裝Xcode的用戶，會得到以下輸出：
+
+```
+/Applications/Xcode.app/Contents/Developer
+```
+
+多數依賴Xcode相關工具的程序會將Xcode的默認安裝路徑做為查找路徑。
+若用戶移動了`Xcode.app`的位置，則需要重新設定Xcode的路徑，否則會出現找不到命令行工具的情況。
+使用xcode-select設定Xcode的安裝位置：
+
+```
+# xcode-select --switch [Xcode.app路徑]/Contents/Developer
+```
+
+若該變了Xcode.app的位置，即使使用xcode-select重新設定Xocde.app的路徑，
+通過`Homebrew`安裝的編譯器(如`gcc`)依然會出現找不到頭文件的情況，此時需要重新安裝包。
 
 
 
