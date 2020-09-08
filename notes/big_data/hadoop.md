@@ -182,9 +182,11 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 	</configuration>
 	```
 
+	`fs.defaultFS`配置項中指定的是命令行工具默認訪問的HDFS地址。
+
 - `hdfs-site.xml`
 
-	包含對NameNode和DataNode的配置項。
+	包含對NameNode、DataNode、JournalNode的配置項。
 	配置項說明：
 
 	```xml
@@ -274,6 +276,10 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 	</configuration>
 	```
 
+	只有配置了NameNode HA時才需要JournalNode，JournalNode用於同步active和standby狀態的NameNode信息。
+	active狀態的NameNode會向每個JournalNode寫入改動，若active的NameNode故障，
+	則standby狀態的備用NameNode會讀取JournalNode中的信息之後變為active狀態。
+
 首次啓動NameNode節點前，需要格式化NameNode對應的數據目錄，執行指令：
 
 ```
@@ -320,7 +326,7 @@ HDFS最初被設計成`Apache Nutch`(一個Web搜索引擎項目)的基礎設施
 HDFS的RPC通信地址規則如下：
 
 ```sh
-# 默認端口 9000
+# 默認端口 8020
 hdfs://主機名或IP:RPC服務端口/HDFS路徑
 ```
 
@@ -331,8 +337,17 @@ HDFS還提供了WEB管理界面，地址如下：
 http://主機名或IP:WEB服務端口
 ```
 
+對於配置了HA的namenode，使用nameservice名稱來訪問HDFS(`hdfs://[nameservices名稱]`)；
+對於沒有配置HA的namenode，HDFS地址使用namenode的RPC地址(`hdfs://[namenode的RPC地址]:[namenode的RPC端口]`)。
+
 ## HDFS命令行工具
 使用`hdfs dfs`指令對HDFS文件系統進行操作。
+hdfs dfs指令默認訪問的HDFS地址由`$HADOOP_HOME/etc/hadoop`下的`fs.defaultFS`配置項指定，
+若需要對其它的HDFS進行操作，則可以使用`-fs`參數指定地址：
+
+```
+$ hdfs dfs -fs hdfs://xxxx:xxx/xxx [指令名稱]
+```
 
 查看指令幫助信息：
 
