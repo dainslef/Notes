@@ -48,6 +48,7 @@
 		- [Global Temporary View](#global-temporary-view)
 		- [視圖管理](#視圖管理)
 	- [回寫數據](#回寫數據)
+		- [字段類型限制](#字段類型限制)
 		- [MySQL 建表異常](#mysql-建表異常)
 	- [Complex Types (複合類型字段)](#complex-types-複合類型字段)
 - [問題註記](#問題註記)
@@ -193,12 +194,12 @@ $ hdfs dfs -mkdir [HDFS路徑]
 ```sh
 # 啓用 Spark Event Log
 spark.eventLog.enabled           true
-# 設置 Spark Event Log 的寫入路徑
+# 設置 Spark Event Log 的寫入路徑，例如：hdfs://nameservice/spark/event-log
 spark.eventLog.dir               [HDFS路徑]
 
 # 配置 Spark History Server 的服務端口和實現類
 spark.history.provider           org.apache.spark.deploy.history.FsHistoryProvider
-spark.history.ui.port            18081
+spark.history.ui.port            18080
 # 配置 Spark History Server 訪問的日誌路徑，需要與 spark.eventLog.dir 路徑相同
 spark.history.fs.logDirectory    [HDFS路徑]
 ```
@@ -2221,6 +2222,25 @@ scala> dataFrame.write
 ```
 
 對於`createTableColumnTypes`選項中指定的字段會優先使用設置的類型覆蓋默認類型。
+
+### 字段類型限制
+使用createTableColumnTypes自定義字段類型時，
+並不是所有數據庫的字段類型SparkSQL都支持，部分常見類型如`LONGTEXT`等在SparkSQL中會到異常：
+
+```
+Caused by: org.apache.spark.sql.catalyst.parser.ParseException:
+DataType LONGTEXT is not supported.(line 1, pos 0)
+...
+```
+
+對於LONGTEXT類型可使用`VARCHAR()`代替，僅需要將對應長度設定成需要的範圍即可。
+實際上對於`VARCHAR`類型，SparkSQL在MySQL等數據庫中生成表格時，
+表格在數據中的對應類型會按照VARCHAR大小映射成TINYTEXT，TEXT，MEDIUMTEXT、LONGTEXT等類型：
+
+- TINYTEXT(255 - 255B)
+- TEXT(65,535 - 64KB)
+- MEDIUMTEXT(16,777,215 - 16MB)
+- LONGTEXT(4,294,967,295 - 4GB)
 
 ### MySQL 建表異常
 SparkSQL建表時會可能會產生異常，以MySQL數據庫爲例：
