@@ -37,6 +37,7 @@
 - [Xcode](#xcode)
 	- [Command Line Tools](#command-line-tools)
 	- [Developer Path](#developer-path)
+- [System Integrity Protection (SIP)](#system-integrity-protection-sip)
 - [常見問題](#常見問題)
 	- [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
 	- [更改默認應用程序](#更改默認應用程序)
@@ -729,6 +730,49 @@ $ xcode-select -p
 
 若該變了Xcode.app的位置，即使使用xcode-select重新設定Xocde.app的路徑，
 通過`Homebrew`安裝的編譯器(如`gcc`)依然會出現找不到頭文件的情況，此時需要重新安裝包。
+
+
+
+# System Integrity Protection (SIP)
+從`macOS El Capitan`(Mac OS X 10.11)開始，
+macOS引入了`System Integrity Protection`(系統安全保護模式，簡稱SIP)。
+
+SIP是一項安全技術，用於防止潛在的惡意軟件修改Mac中受保護的文件和目錄。
+SIP技術限制了root用戶在macOS中受保護部分的操作權限。
+
+在SIP技術出現前，root用戶在系統中擁有不被限制的權限，能夠訪問Mac內的任何系統目錄或App。
+軟件在獲得了root級別的權限後會被允許修改任何系統文件或App。
+在SIP模式下，系統的關鍵目錄將處於只讀模式，不可被外部程序刪改，能夠極大地提升系統安全性，
+El Capitan版本之後的macOS均默認開啟了此模式。
+
+SIP技術將保護以下系統路徑和內容：
+
+- /System
+- /usr
+- /bin
+- /sbin
+- /var
+- macOS預裝App
+
+以下路徑第三方App和安裝器依舊能夠繼續寫入：
+
+- /Applications
+- /Library
+- /usr/local
+
+關於SIP技術的詳細介紹，可參考[Apple官網](https://support.apple.com/en-us/HT204899)。
+
+El Capitan版本之後的macOS提供了`csrutil`工具用以查看和變更系統的SIP狀態：
+
+```c
+$ csrutil status // 查看SIP狀態不需要root權限
+System Integrity Protection status: enabled.
+
+# csrutil disable // 啟動/關閉SIP在Recovery模式下進行，使用root權限也無法直接更改
+csrutil: This tool needs to be executed from Recovery OS.
+```
+
+修改系統的SIP狀態需要重啟Mac後使用`Command + R`組合鍵進入Recovery模式。
 
 
 
