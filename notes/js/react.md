@@ -22,6 +22,7 @@
 		- [Layout Effect](#layout-effect)
 		- [組件更新](#組件更新)
 		- [Effect Hook 完整示例](#effect-hook-完整示例)
+	- [useRef()](#useref)
 - [路由](#路由)
 	- [安裝](#安裝)
 	- [Router](#router)
@@ -626,6 +627,85 @@ const Example = () => {
   return <div></div>
 }
 ```
+
+## useRef()
+`useRef()`返回一個可變引用對象，該對象的`.current`屬性被賦值為傳入的初始化參數(initialValue)；
+該對象在整個組件的生命週期中都將保持。
+API在ts中的詳細定義：
+
+```ts
+/**
+ * `useRef` returns a mutable ref object whose `.current` property is initialized to the passed argument
+ * (`initialValue`). The returned object will persist for the full lifetime of the component.
+ *
+ * Note that `useRef()` is useful for more than the `ref` attribute. It’s handy for keeping any mutable
+ * value around similar to how you’d use instance fields in classes.
+ *
+ * @version 16.8.0
+ * @see https://reactjs.org/docs/hooks-reference.html#useref
+ */
+// TODO (TypeScript 3.0): <T extends unknown>
+function useRef<T>(initialValue: T): MutableRefObject<T>;
+
+// convenience overload for refs given as a ref prop as they typically start with a null value
+/**
+ * `useRef` returns a mutable ref object whose `.current` property is initialized to the passed argument
+ * (`initialValue`). The returned object will persist for the full lifetime of the component.
+ *
+ * Note that `useRef()` is useful for more than the `ref` attribute. It’s handy for keeping any mutable
+ * value around similar to how you’d use instance fields in classes.
+ *
+ * Usage note: if you need the result of useRef to be directly mutable, include `| null` in the type
+ * of the generic argument.
+ *
+ * @version 16.8.0
+ * @see https://reactjs.org/docs/hooks-reference.html#useref
+ */
+// TODO (TypeScript 3.0): <T extends unknown>
+function useRef<T>(initialValue: T|null): RefObject<T>;
+
+// convenience overload for potentially undefined initialValue / call with 0 arguments
+// has a default to stop it from defaulting to {} instead
+/**
+ * `useRef` returns a mutable ref object whose `.current` property is initialized to the passed argument
+ * (`initialValue`). The returned object will persist for the full lifetime of the component.
+ *
+ * Note that `useRef()` is useful for more than the `ref` attribute. It’s handy for keeping any mutable
+ * value around similar to how you’d use instance fields in classes.
+ *
+ * @version 16.8.0
+ * @see https://reactjs.org/docs/hooks-reference.html#useref
+ */
+// TODO (TypeScript 3.0): <T extends unknown>
+function useRef<T = undefined>(): MutableRefObject<T | undefined>;
+```
+
+簡單的使用示例：
+
+```js
+const refContainer = useRef(initialValue)
+```
+
+useRef()的一個常用用法是獲取子組件的引用，用與在事件中操作子組件：
+
+```js
+const Example() {
+	const inputEl = useRef(null)
+	const onButtonClick = () => {
+		// `current` points to the mounted text input element
+		inputEl.current.focus()
+	}
+	return
+		<div>
+			<input ref={inputEl} type="text" />
+			<button onClick={onButtonClick}>Focus the input</button>
+		<div/>
+}
+```
+
+useRef()會在組件的每次渲染中提供相同的對象引用，引用對象不會因為組件重新渲染而變化。
+useRef()同樣也不會在內部對象發生變化時發送通知，修改useRef()提供對象的內容也不會引起組件的重新渲染(區別於useState())。
+當組件內部存在一些可變屬性需要修改，但又不希望修改屬性造成組件重新渲染時可使用useRef()替代useState()。
 
 
 
