@@ -2228,17 +2228,30 @@ scala> dataFrame.write
 並不是所有數據庫的字段類型SparkSQL都支持，部分常見類型如`LONGTEXT`等在SparkSQL中會到異常：
 
 ```
-Caused by: org.apache.spark.sql.catalyst.parser.ParseException:
-DataType LONGTEXT is not supported.(line 1, pos 0)
+org.apache.spark.sql.catalyst.parser.ParseException:
+DataType longtext is not supported.(line 1, pos 12)
+
+== SQL ==
+xxxField longtext
+---------^^^
+
+        at org.apache.spark.sql.catalyst.parser.AstBuilder.$anonfun$visitPrimitiveDataType$1(AstBuilder.scala:1772)
+        at org.apache.spark.sql.catalyst.parser.ParserUtils$.withOrigin(ParserUtils.scala:108)
+        at org.apache.spark.sql.catalyst.parser.AstBuilder.visitPrimitiveDataType(AstBuilder.scala:1750)
+        at org.apache.spark.sql.catalyst.parser.AstBuilder.visitPrimitiveDataType(AstBuilder.scala:49)
+        at org.apache.spark.sql.catalyst.parser.SqlBaseParser$PrimitiveDataTypeContext.accept(SqlBaseParser.java:14452)
+        at org.apache.spark.sql.catalyst.parser.AstBuilder.typedVisit(AstBuilder.scala:55)
+        at org.apache.spark.sql.catalyst.parser.AstBuilder.$anonfun$visitColType$1(AstBuilder.scala:1816)
+        at org.apache.spark.sql.catalyst.parser.ParserUtils$.withOrigin(ParserUtils.scala:108)
+        at org.apache.spark.sql.catalyst.parser.AstBuilder.visitColType(AstBuilder.scala:1807)
+        at org.apache.spark.sql.catalyst.parser.AstBuilder.$anonfun$visitColTypeList$2(AstBuilder.scala:1801)
 ...
 ```
 
-對於LONGTEXT類型可使用`VARCHAR()`代替，僅需要將對應長度設定成需要的範圍即可。
-實際上對於`VARCHAR`類型，SparkSQL在MySQL等數據庫中生成表格時，
-表格在數據中的對應類型會按照VARCHAR大小映射成TINYTEXT，TEXT，MEDIUMTEXT、LONGTEXT等類型：
+對於LONGTEXT類型可使用`VARCHAR(n)`代替，僅需要將對應長度設定成需要的範圍即可。
+關閉MySQL的`STRICT_TRANS_TABLES`特性後(MySQL 5.x系列該特性默認關閉)，
+`VARCHAR`類型在超過長度限制(65535)時會按照大小被自動轉換為MEDIUMTEXT、LONGTEXT等類型：
 
-- TINYTEXT(255 - 255B)
-- TEXT(65,535 - 64KB)
 - MEDIUMTEXT(16,777,215 - 16MB)
 - LONGTEXT(4,294,967,295 - 4GB)
 
