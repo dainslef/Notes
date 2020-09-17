@@ -5,6 +5,7 @@
 	- [下載](#下載)
 	- [服務配置](#服務配置)
 	- [Local Dir](#local-dir)
+	- [Work Dir](#work-dir)
 	- [Web UI](#web-ui)
 	- [History Server](#history-server)
 - [Cluster Mode (集羣模型)](#cluster-mode-集羣模型)
@@ -160,6 +161,47 @@ Spark任務在運行期間會創建一系列的運行期間的緩存文件(如RD
 在生產環境中，多數服務器的`/tmp`路徑不會單獨掛載，通常位於默認的`/`下；
 若分區方案中沒有給予根目錄較大的空間，則在執行數據量較大的計算任務，且包含Shuffle操作時，
 可能會出現`No space left on device`的異常，該異常會導致計算任務強制中斷。
+
+## Work Dir
+使用`Spark Standalone Mode`集群模式下，
+提交的Spark應用會在每個`Worker Node`下創建Work Dir(工作目錄)用於記錄應用執行的日誌信息。
+默認工作目錄路徑為`$SPARK_HOME/work`，工作目錄結構如下：
+
+```
+$ tree $SPARK_HOME/work
+/opt/spark-2.4.4-bin-without-hadoop-scala-2.12/work
+├── app-20191127160520-0000
+│   └── 2
+│       ├── stderr
+│       └── stdout
+├── app-20191129131849-0001
+│   └── 2
+│       ├── etl-0.1-jar-with-dependencies.jar
+│       ├── stderr
+│       └── stdout
+...
+```
+
+長時間運行的Spark應用(如Spark Streaming應用)會在工作目錄下產生大量的運行日誌，
+若Spark部署的分區較小則可能造成分區可用空間被佔滿。
+
+使用`SPARK_WORKER_DIR`環境變量可自定義工作目錄的位置：
+
+```sh
+export SPARK_WORKER_DIR=...
+```
+
+Spark默認不會清理Work Dir下的日誌，頻繁地創建Spark任務運行，會在Work Dir留下大量的日誌，佔用大量磁盤空間。
+修改`$SPARK_HOME/conf/spark-defaults.conf`配置文件，加入以下配置項：
+
+```sh
+# 是否開啟Spark工作目錄自動清理，默認為false，需要手動開啟
+spark.worker.cleanup.enabled true
+# Spark工作目錄清理機制的觸發間隔，單位(s)，默認1800s(30min)，配置項必須為純數字
+spark.worker.cleanup.interval 86400
+# Spark工作目錄的日誌保留時間，單位(s)，默認7*24*3600s(7day)
+spark.worker.cleanup.appDataTtl 604800
+```
 
 ## Web UI
 默認配置下，Spark在`8080`端口提供集羣管理的Web界面，可在Web界面中查看集羣的工作狀態。
