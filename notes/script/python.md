@@ -1536,6 +1536,19 @@ $ python3 get-pip.py --user //將pip安裝到用戶目錄
 	系統模塊會在`/usr/local/bin`路徑下生成可執行腳本。
 	用戶模塊會在`~/Library/Python/[version]/bin`路徑下生成可執行腳本。
 
+	`macOS Catalina`開始，macOS開始默認提供Python3(Catalina需要同時安裝developer tools)。
+	macOS提供的Python3安裝的系統模塊位於路徑`/Library/Python/[version]`路徑下，
+	用戶模塊路徑與homebrew安裝的Python相同。
+	由於`macOS El Capitan`版本之後引入了`SIP`機制，`/Library`路徑不可寫入，
+	嘗試安裝系統模塊會得到如下錯誤：
+
+	```
+	Could not install packages due to an EnvironmentError: [Errno 13] Permission denied: '/Library/Python/xxx'
+	Consider using the `--user` option or check the permissions.
+	```
+
+	因此，使用系統提供的Python3在不關閉SIP機制的前提下只能安裝模塊到用戶路徑下。
+
 ## 鏡像源
 由於`GFW`的存在，pip官方源可能無法訪問。
 使用國內鏡像源替換官方源，推薦使用`TUNA`源(清華大學鏡像源)，在`.pip/pip.conf`文件中添加內容：
