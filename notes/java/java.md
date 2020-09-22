@@ -26,7 +26,8 @@
 - [併發編程](#併發編程)
 	- [Thread / Runnable](#thread--runnable)
 		- [Daemon Thread](#daemon-thread)
-	- [synchronized 關鍵字](#synchronized-關鍵字)
+	- [synchronized & Monitors](#synchronized--monitors)
+		- [synchronized語法](#synchronized語法)
 	- [Executor 框架](#executor-框架)
 - [Annotation (註解)](#annotation-註解)
 	- [內置註解](#內置註解)
@@ -64,6 +65,7 @@
 	- [數據庫操作](#數據庫操作)
 	- [獲取時間](#獲取時間)
 	- [與 Access 數據庫交互](#與-access-數據庫交互)
+	- [com.mysql.jdbc.MysqlDataTruncation: Data truncation: Data too long for column 'column_name'](#commysqljdbcmysqldatatruncation-data-truncation-data-too-long-for-column-column_name)
 - [Eclipse 使用註記](#eclipse-使用註記)
 	- [Marketplace](#marketplace)
 	- [查看源碼](#查看源碼)
@@ -960,10 +962,10 @@ class Thread implements Runnable {
 }
 ```
 
-## synchronized 關鍵字
-在多線程環境下，多個線程同時訪問一個變量時，會產生線程同步問題，變量可能會被其它線程意外地修改。
-典型的解決方式是對共享變量進行**加鎖**。
+## synchronized & Monitors
+`Java 5`之後提供了`synchronized`關鍵字用於解決線程同步問題。
 
+### synchronized語法
 `synchronized`關鍵字有兩種用法：
 
 1. `synchronized`塊
@@ -2855,6 +2857,15 @@ Access數據庫的一些小常識：
 長整型不支持**小數輸入**，小數輸入會自動被去尾。
 需要將字段大小設置爲`單精度浮點型/雙精度浮點型`才能支持小數位。
 - 如果需要某個字段的內容唯一不可重複，可以將改字段的索引設置爲`有(無重複)`即可。
+
+## com.mysql.jdbc.MysqlDataTruncation: Data truncation: Data too long for column 'column_name'
+MySQL的JDBC驅動默認開啟了`jdbcCompliantTruncation`功能，
+該特性會使得在數據被要求截斷(truncate)時拋出`com.mysql.jdbc.MysqlDataTruncation`異常。
+
+在JDBC連接字符串中添加`jdbcCompliantTruncation=false`可關閉該功能，
+但若MySQL服務端配置中啟用了sqlmode特性`STRICT_TRANS_TABLES`，則該JDBC功能無效。
+
+更多MySQL JDBC Driver的連接參數，可參考[官方文檔](https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-configuration-properties.html)。
 
 
 
