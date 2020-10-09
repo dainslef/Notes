@@ -803,11 +803,11 @@ Args:
 默認參數下，以百萬行作爲測試基準，常用指令組合：
 
 ```c
-$ hbase pe randomRead [客戶端數目] //隨機讀取測試
-$ hbase pe randomWrite [客戶端數目] //隨機寫入測試
-$ hbase pe sequentialRead [客戶端數目] //連續寫入測試
-$ hbase pe sequentialWrite [客戶端數目] //連續讀取測試
-$ hbase pe scan [客戶端數目] //Scan測試
+$ hbase pe randomRead [客戶端數目] // 隨機讀取測試
+$ hbase pe randomWrite [客戶端數目] // 隨機寫入測試
+$ hbase pe sequentialRead [客戶端數目] // 連續寫入測試
+$ hbase pe sequentialWrite [客戶端數目] // 連續讀取測試
+$ hbase pe scan [客戶端數目] // Scan測試
 ```
 
 壓測的輸出結果中可看到測試的數據量和耗時：
@@ -1363,8 +1363,7 @@ NameNode的HA狀態異常，沒有選舉出active的節點，HA節點均爲stand
 
 解決方案：<br>
 檢查Zookeeper運行狀態，NameNode選舉依賴Zookeeper提供的服務。
-若Zookeeper正常，則可嘗試重新格式化NameNode。
-或者使用`haadmin`工具強制指定active節點：
+若Zookeeper正常，則可嘗試重新格式化NameNode；或者使用`haadmin`工具強制指定active節點：
 
 ```
 $ hdfs haadmin -transitionToActive --forcemanual [需要激活的NameNode名稱]
@@ -1408,8 +1407,10 @@ Spark應用使用HBase Client連接HBase數據庫，建立連接時提示找不�
 啓動DataNode失敗，提示DataNode的`clusterID`與NameNode不匹配。
 
 解決方案：<br>
-通常是NameNode重新格式化後，DataNode數據路徑未清空，仍保留與之前NameNode版本匹配的數據，則清空DataNode中數據路徑下的內容。
-默認DataNode路徑爲`${hadoop.tmp.dir}/dfs`，若設定了`hadoop.datanode.data.dir`配置，則路徑以該配置項爲準。
+通常是NameNode重新格式化後，DataNode數據路徑未清空，
+仍保留與之前NameNode版本匹配的數據，則清空DataNode中數據路徑下的內容。
+默認DataNode路徑爲`${hadoop.tmp.dir}/dfs`，若設定了`hadoop.datanode.data.dir`配置，
+則路徑以該配置項爲準。
 
 若是正常啟動出現版本不相容，則檢查NameNode、DataNode等的版本信息：
 
