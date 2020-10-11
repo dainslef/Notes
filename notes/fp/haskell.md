@@ -24,6 +24,7 @@
 	- [強制求值](#強制求值)
 	- [BangPatterns](#bangpatterns)
 - [Type Class](#type-class)
+	- [變長參數重載](#變長參數重載)
 	- [Multi-parameter Type Classes](#multi-parameter-type-classes)
 	- [Functional Dependencies](#functional-dependencies)
 - [Exception](#exception)
@@ -959,6 +960,39 @@ String Type Class: 666
 ```
 
 由輸出結果可知，調用`testTypeClass`方法時，根據使用參數類型的不同，方法使用了不同的實現。
+
+## 變長參數重載
+TypeClass的參數可以使用高階Kind，以此改變TypeClass接口函數的參數數目，實現變長參數重載：
+
+```hs
+{-# LANGUAGE FlexibleInstances #-}
+
+class TypeClassWithDynamicArgs a where
+  dynamicArgs :: a
+
+instance TypeClassWithDynamicArgs (Int -> IO ()) where
+  dynamicArgs = \a -> print $ "Int: " ++ show a
+
+instance TypeClassWithDynamicArgs (String -> IO ()) where
+  dynamicArgs = \b -> print $ "String: " ++ b
+
+instance TypeClassWithDynamicArgs (Int -> String -> IO ()) where
+  dynamicArgs = \a b -> print $ "Int: " ++ show a ++ ", String: " ++ b
+
+-- overload method with different number of parameter in argument list (parametric polymorphism)
+main = do
+  dynamicArgs (666 :: Int) :: IO ()
+  dynamicArgs "2333" :: IO ()
+  dynamicArgs (666 :: Int) "2333" :: IO () -- allow two parameters
+```
+
+輸出結果：
+
+```
+"Int: 666"
+"String: 2333"
+"Int: 666, String: 2333"
+```
 
 ## Multi-parameter Type Classes
 type class允許多個類型參數，因而type class可被視爲多個類型之間的關聯。
