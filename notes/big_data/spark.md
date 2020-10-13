@@ -62,6 +62,8 @@
 	- [MySQL的TINYINT類型錯誤映射到JDBC的Boolean類型](#mysql的tinyint類型錯誤映射到jdbc的boolean類型)
 	- [java.util.ConcurrentModificationException: KafkaConsumer is not safe for multi-threaded access](#javautilconcurrentmodificationexception-kafkaconsumer-is-not-safe-for-multi-threaded-access)
 	- [org.apache.spark.streaming.scheduler.JobScheduler logError - Error running job streaming job ... org.apache.spark.SparkException: Job aborted due to stage failure: Task creation failed: java.io.FileNotFoundException: File does not exist: hdfs://...](#orgapachesparkstreamingschedulerjobscheduler-logerror---error-running-job-streaming-job--orgapachesparksparkexception-job-aborted-due-to-stage-failure-task-creation-failed-javaiofilenotfoundexception-file-does-not-exist-hdfs)
+	- [Method Rference異常： java.lang.ClassCastException: Xxx cannot be cast to Xxx](#method-rference異常-javalangclasscastexception-xxx-cannot-be-cast-to-xxx)
+	- [scheduler.DAGScheduler: ShuffleMapStage Xxx ...: java.io.IOException: No space left on device](#schedulerdagscheduler-shufflemapstage-xxx--javaioioexception-no-space-left-on-device)
 
 <!-- /TOC -->
 
@@ -2529,7 +2531,7 @@ scala> spark.sql("select index, inner.name, inner.age from TestTable").write.jdb
 問題說明：<br>
 Spark運行環境中已包含了Scala、Hadoop、Zookeeper等依賴，與Jar包中自帶的依賴產生衝突。
 
-解決方式：<br>
+解決方案：<br>
 開發環境中爲確保源碼正常編譯，需要完整引入Spark相關依賴，但在生成Jar時，
 需要移除Spark以及相關聯的Scala、Hadoop、Zookeeper相關依賴。
 
@@ -2538,9 +2540,14 @@ Spark運行環境中已包含了Scala、Hadoop、Zookeeper等依賴，與Jar包�
 配置了NameNode HA的Hadoop集羣會存在`active`、`standby`兩種狀態。
 SparkStreaming使用HDFS爲數據源時URL使用standby節點的主機名觸發該異常。
 
-解決方式：<br>
+解決方案：<br>
 登陸HDFS的WEB管理界面查看節點狀態，設置HDFS的URL時使用active節點的主機名。
 Spark/SparkStreaming訪問HDFS時URL需要使用active節點的主機名。
+若已確認Hadoop集群NameNode狀態無問題，則應排查Spark配置或代碼中訪問HDFS路徑是否有誤
+(常見的配置項如`spark-defaults.conf`中的`spark.eventLog.dir`、`spark.history.fs.logDirectory`等)。
+
+對於開啟了HA機制的Hadoop集群，不應該直接使用HDFS的RPC地址，
+而應該使用`hdfs-site.xml`中配置的NameNode命名空間名稱(配置項`dfs.nameservices`)。
 
 ## org.apache.spark.SparkException: Failed to get broadcast_xxx of broadcast_xxx
 問題說明：<br>
@@ -2603,3 +2610,41 @@ Spark Streaming應用中使用了`mapWithState()`算子，若後到達的Batch�
 
 解決方案：<br>
 適當減小`spark.streaming.concurrentjobs`參數，避免一個在Executor上同時處理多個Batch的數據。
+
+## Method Rference異常： java.lang.ClassCastException: Xxx cannot be cast to Xxx
+問題說明：<br>
+在集群模式下，Spark算子中連續使用Java8的`Method Reference`特性會在執行時可能得到類型cast異常。
+示例代碼：
+
+```java
+apples.filter(Fruit::isRed)
+bananas.filter(Fruit::isRed) // throws cast exception!
+```
+
+該問題可參考[Stack Overflow](https://stackoverflow.com/questions/48541273/spark-catalyst-optimizer-cast-exception/63467975#63467975)。
+BUG詳情參見[SPARK-9135](https://issues.apache.org/jira/browse/SPARK-9135)。
+
+解決方案：<br>
+根據社區中的描述，此問題實際上是[JDK BUG](https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8154236)，
+JDK在反序列化Method Rference時存在一些限制，當兩個方法引用的調用點(callsites)不同時，會造成該問題。
+為規避此類問題，目前的解決方案是不要使用Method Reference，轉換為普通Lambda表達式則正常：
+
+```java
+apples.filter(f -> f.isRed())
+bananas.filter(f -> f.isRed()) // works fine!
+```
+
+## scheduler.DAGScheduler: ShuffleMapStage Xxx ...: java.io.IOException: No space left on device
+問題說明：<br>
+在Spark計算中使用了包含Shuffle操作的算子，且計算量較大時，
+在Shuffle操作時會提示`No space left on device`(磁盤空間不足)，隨後計算任務因為該異常被終止。
+但計算任務結束後，查看系統各個分區的佔用情況會發現並沒有磁盤空間佔用較高的分區。
+
+問題詳情參見[Stack Overflow](https://stackoverflow.com/questions/30162845/spark-java-io-ioexception-no-space-left-on-device)
+和[GitHub](https://github.com/sparklyr/sparklyr/issues/1390)。
+
+解決方案：<br>
+Spark默認將任務的運行信息寫入`/tmp`路徑下，在計算數據量較大時，會佔用大量的磁盤空間。
+應查看分區方案中`/tmp`是否獨立掛載，是否有足夠的可用空間。
+若`/tmp`所處的分區較小，則應考慮修改`spark.local.dir`配置(或`SPARK_LOCAL_DIRS`環境變量)，
+為其分配一個可用空間較大的分區。
