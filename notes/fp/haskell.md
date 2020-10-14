@@ -25,6 +25,7 @@
 	- [BangPatterns](#bangpatterns)
 - [Type Class](#type-class)
 	- [變長參數重載](#變長參數重載)
+	- [使用TypeClass定義可無限遞歸的接口](#使用typeclass定義可無限遞歸的接口)
 	- [Multi-parameter Type Classes](#multi-parameter-type-classes)
 	- [Functional Dependencies](#functional-dependencies)
 - [Exception](#exception)
@@ -922,7 +923,8 @@ type class的實際作用近似於OOP語言中的接口，一個type class中通
 通過提供type class在不同類型參數時的實例來爲抽象方法提供多種實現，
 調用type class中方法時，會根據參數類型使用不同實例提供的實現，以此達到函數重載的目的(多態性)。
 
-使用`class`關鍵字定義type class，`instance`關鍵字定義實例，`=>`操作符用於要求類型參數必須實現某些type class。
+使用`class`關鍵字定義type class，`instance`關鍵字定義實例，
+`=>`操作符用於要求類型參數必須實現某些type class(可以要求參數類型實現多個type classes)。
 示例：
 
 ```hs
@@ -934,7 +936,7 @@ module Main where
 class TypeClass t where
   doSomething :: t -> IO ()
 
--- 針對不同類型爲TypeClass類的抽象方法"doSomething"提供不同的實現
+-- 針對不同類型爲type class類的抽象方法"doSomething"提供不同的實現
 instance TypeClass Int where
   doSomething t = print $ "Int Type Class: " ++ show t
 
@@ -942,7 +944,7 @@ instance TypeClass Int where
 instance TypeClass String where
   doSomething t = print $ "String Type Class: " ++ t
 
--- 要求類型參數t必須實現TypeClass類
+-- 要求類型參數t必須實現type class類
 testTypeClass :: TypeClass t => t -> IO ()
 testTypeClass t = doSomething t
 
@@ -962,7 +964,8 @@ String Type Class: 666
 由輸出結果可知，調用`testTypeClass`方法時，根據使用參數類型的不同，方法使用了不同的實現。
 
 ## 變長參數重載
-TypeClass的參數可以使用高階Kind，以此改變TypeClass接口函數的參數數目，實現變長參數重載：
+type class的參數可以使用高階Kind，搭配`FlexibleInstances`擴展，
+可以改變type class接口函數的實際簽名，實現變長參數重載：
 
 ```hs
 {-# LANGUAGE FlexibleInstances #-}
@@ -993,6 +996,80 @@ main = do
 "String: 2333"
 "Int: 666, String: 2333"
 ```
+
+## 使用TypeClass定義可無限遞歸的接口
+type class的接口方法參數中可以返回自身類型，同時在開啟了`FlexibleInstances`擴展的情況下，
+type class可以參數可以為函數簽名(`* -> ... -> *`)，將需要遞歸處理的參數作為輸入參數類型傳入。
+
+假設需要定義一個支持變長參數表的的`recurse`函數，能夠打印輸出。
+
+定義如下type class接口：
+
+```hs
+class TypeClassRecursion t where
+  recurse :: [String] -> t
+```
+
+定義遞歸實例的實現：
+
+```hs
+instance (Show a, TypeClassRecursion t) => TypeClassRecursion (a -> t) where
+  recurse v a = recurse $ v ++ [show a]
+```
+
+在遞歸實例中，使用`Show a -> TypeClassRecursion t`作為實現類型，
+這使得type class接口函數的參數表實際變為：
+
+```hs
+recurse :: (Show a, TypeClassRecursion t) => [String] -> a -> t
+```
+
+展開之後的接口可以額外容納一個參數(在本例中是`Show a`)，
+由於該接口的實際返回類型依舊是`TypeClassRecursion t`，該類型可繼續視為可被展開的目標，
+實際上可以繼續遞歸展開類型：
+
+```hs
+recurse :: (Show a, TypeClassRecursion t) => [String] -> a -> t
+  |
+ \|/
+recurse :: (Show a, TypeClassRecursion t) => [String] -> a -> a -> t
+  |
+ \|/
+ ...
+```
+
+依此遞歸展開類型之後，即可實現接受變長參數，通常應再實現一個簡單類型實例作為遞歸的終止點。
+
+完整實例：
+
+```hs
+{-# LANGUAGE FlexibleInstances #-}
+
+class TypeClassRecursion t where
+  recurse :: [String] -> t
+  p :: t
+  p = recurse ["print:"]
+
+instance TypeClassRecursion (IO ()) where
+  recurse = putStrLn . foldl1 ((++) . (++ " "))
+
+instance (Show a, TypeClassRecursion t) => TypeClassRecursion (a -> t) where
+  recurse v a = recurse $ v ++ [show a]
+
+main :: IO ()
+main = do
+  p "FreeHK" "Fu*kCCP" :: IO ()
+  p 1984 "1959-1961" 8964 7.09 :: IO ()
+```
+
+輸出結果：
+
+```
+print: "FreeHK" "Fu*kCCP"
+print: 1984 "1959-1961" 8964 7.09
+```
+
+Haskell的標準庫中的`Text.Printf.PrintfType`使用了該技巧提供了變長參數表用以接收不定量的輸入參數。
 
 ## Multi-parameter Type Classes
 type class允許多個類型參數，因而type class可被視爲多個類型之間的關聯。
@@ -2057,7 +2134,7 @@ data Expr a where
 各個構造器都添加對應了類型約束，因此下列語句無法通過編譯：
 
 ```hs
--- 參數類型[Char]未實現TypeClass
+-- 參數類型[Char]未實現type class
 Num "Test"
 -- Bool構造器應該僅接收Bool類型
 Bool 666
@@ -2103,9 +2180,9 @@ data families是type families特性用在數據類(data types)的情形，包含
 
 	```hs
 	data family Family a
-	newtype instance Family Int = FInt Int  -- 構造器單參數時可使用newtype關鍵字
+	newtype instance Family Int = FInt Int -- 構造器單參數時可使用newtype關鍵字
 	data instance Family String = FString (Family Int) String -- 構造器中的參數可依賴具體的類型族中的其它實例
-	data instance Family (Maybe a) = FJust a | FNothing deriving (Show, Eq) -- 每個instance可以deriving各自的TypeClass
+	data instance Family (Maybe a) = FJust a | FNothing deriving (Show, Eq) -- 每個instance可以deriving各自的type class
 	```
 
 	`TypeFamilies`與`GADTs`擴展同時使用時，可直接使用類似GADT的語法定義每個構造器的函數簽名。
