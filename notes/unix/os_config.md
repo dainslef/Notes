@@ -2,6 +2,7 @@
 
 - [Windows CMD](#windows-cmd)
 	- [文件/目錄鏈接](#文件目錄鏈接)
+	- [Windows系統引導](#windows系統引導)
 	- [常見問題記錄](#常見問題記錄)
 		- [Reply from ::1: time<1ms](#reply-from-1-time1ms)
 - [常用Unix工具指令](#常用unix工具指令)
@@ -208,6 +209,39 @@ mklink指令默認創建軟連接文件，使用`/d`參數創建軟連接**目�
 ```c
 > mklink /h [文件名] [鏈接目標文件]
 ```
+
+## Windows系統引導
+標準的UEFI引導Windows系統通常包括以下分區：
+
+- ESR (EFI system partition，通常為FAT文件系統)
+- MSR (Microsoft Reserved Partition，通常為NTFS文件系統)
+- Windows系統分區
+
+其中，ESP分區存放引導器，Windows引導器路徑為`\EFI\MICROSOFT\BOOT\`；
+MSR分區可以不分配，但每次重裝系統或Windows大版本更新都會重新自動創建。
+
+BCDBoot是微軟官方提供的引導配置工具，主要有以下功能：
+
+- 在新安裝的Windows鏡像后添加啓動文件
+- 為電腦設置從包含Windows鏡像的虛擬硬盤( virtual hard disk, VHD)中啓動
+- 修復系統分區
+- 在安裝了雙系統的電腦中設置和更新啓動菜單
+
+詳細内容可查看微軟[官方文檔](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/bcdboot-command-line-options-techref-di)。
+
+指令格式：
+
+```
+> bcdboot <source> [/l <locale>] [/s <volume-letter> [/f <firmware type>]] [/v] [/m [{OS Loader GUID}]] [/addlast or /p] [/d] [/c]
+```
+
+假設Windows系統分區盤符為`C:\`，ESP分區盤符為`H:\`，則將引導器安裝到ESP分區的指令為：
+
+```
+> bcdboot c:\windows /s h: /f UEFI
+```
+
+使用`/v`參數可以顯示指令執行的詳情，在某些執行錯誤的情況下，可以展示更詳細的錯誤原因。
 
 ## 常見問題記錄
 記錄Windows中常見問題的解決方案。
