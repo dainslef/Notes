@@ -20,6 +20,7 @@
 	- [Shuffle 操作](#shuffle-操作)
 		- [背景知識](#背景知識)
 		- [性能影響](#性能影響)
+	- [RDD Persistence](#rdd-persistence)
 - [Job Scheduling (作業調度)](#job-scheduling-作業調度)
 	- [Scheduling Within an Application (應用內調度)](#scheduling-within-an-application-應用內調度)
 		- [Fair Scheduler Pools (公平調度池)](#fair-scheduler-pools-公平調度池)
@@ -535,6 +536,49 @@ Shuffle是高開銷(expensive)的操作，因爲它涉及磁盤IO、網絡IO、�
 - `reduce tasks` 聚合數據(aggregate the data)
 
 這樣的命名來自`Hadoop MapReudce`，與Spark中的`map()`、`reduce()`方法不直接相關。
+
+## RDD Persistence
+在Spark中RDD默認不會緩存(持久化)數據，每次執行新的計算需要重新讀取數據。
+數據緩存需要使用RDD提供的`cache()/persist()`方法將RDD中存儲的數據持久化到內存中，
+被緩存的數據集可被重複利用，在已被緩存的數據集上執行操作會極大地提升速度(10倍+)。
+
+Spark的Cache是可容錯(fault-tolerant)的，若RDD分區的某一部分丟失，會自動通過轉換操作重新創建。
+
+Spark中提供了多種緩存策略，通過`StorageLevel`類型進行設定：
+
+- MEMORY_ONLY
+
+	將RDD作為反序列化後的對象存儲在JVM中，當內存不足時，RDD的部分分區將不會被緩存，而是在需要時被重新計算。
+	MEMORY_ONLY是默認的緩存方式(cache()方法使用的即是此緩存方式)。
+
+- MEMORY_AND_DISK
+
+	將RDD作為反序列化後的對象存儲在JVM中，當內存不足時，將RDD的部分分區存儲到磁盤中，使用時從磁盤中讀取。
+
+- MEMORY_ONLY_SER
+
+	將RDD作為序列化後的對象(Byte數組)進行存儲，相比直接存儲反序列化後的對象，此方式更加節省內存，
+	在讀取數據時才反序列對象，但會帶來更大的CPU開銷。
+
+- MEMORY_AND_DISK_SER
+
+	類似於MEMORY_ONLY_SER，但會將內存中不足以存儲的RDD分區保存在磁盤中。
+
+- DISK_ONLY
+
+	將所有的RDD數據均保存在磁盤中。
+
+- MEMORY_ONLY_2, MEMORY_AND_DISK_2
+
+	類似於同名的緩存策略，但每個分區存儲雙倍數據。
+
+- OFF_HEAP (experimental)
+
+	類似於MEMORY_ONLY_SER，但使用off-heap memory存儲數據，此緩存策略要求開啟了off-heap memory特性。
+
+在使用`MEMORY_ONLY_SER`、`MEMORY_AND_DISK_SER`兩類存儲級別時，
+可以使用參數`spark.rdd.compress`參數開啟RDD壓縮，開啟RDD壓縮後能進一步節省內存佔用，
+但會進一步增大CPU開銷，壓縮類型由參數`spark.io.compression.codec`。
 
 
 
