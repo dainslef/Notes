@@ -21,6 +21,7 @@
 		- [背景知識](#背景知識)
 		- [性能影響](#性能影響)
 	- [RDD Persistence](#rdd-persistence)
+	- [內存分配](#內存分配)
 - [Job Scheduling (作業調度)](#job-scheduling-作業調度)
 	- [Scheduling Within an Application (應用內調度)](#scheduling-within-an-application-應用內調度)
 		- [Fair Scheduler Pools (公平調度池)](#fair-scheduler-pools-公平調度池)
@@ -579,6 +580,26 @@ Spark中提供了多種緩存策略，通過`StorageLevel`類型進行設定：
 在使用`MEMORY_ONLY_SER`、`MEMORY_AND_DISK_SER`兩類存儲級別時，
 可以使用參數`spark.rdd.compress`參數開啟RDD壓縮，開啟RDD壓縮後能進一步節省內存佔用，
 但會進一步增大CPU開銷，壓縮類型由參數`spark.io.compression.codec`。
+
+## 內存分配
+在Spark中，內存使用主要分為兩類，execution memory(執行內存)和storage memory(存儲內存)；
+其中execution memory用於計算操作(shuffles, joins, sorts, aggregations等)，
+storage memory用於緩存和在節點間傳遞內部數據。
+兩類內存共享同一塊區域，被稱為Unified Memory Region(假設為M)，當沒有使用execution memory時，
+storage memory可以獲取所有分配的內存，反之亦然。
+在必要時，execution memory會侵佔storage memory，但storage memory最多只會被侵佔一部分，
+仍保留至一定大小(假設為R)，不會全部被佔有。
+考慮到實現的複雜性，在Spark中，storage memory**不會**侵佔execution memory。
+
+Spark中提供了兩個相關參數用於調整內存的分配比例：
+
+- `spark.memory.fraction` 表示總內存中Unified Memory Region(execution memory/storage memory共享)的比例
+(默認0.6，剩下0.4部分的內存保留，用於保存用戶數據結構和Spark的元數據信息等內容，避免某些大Record帶來的OOM異常)
+- `spark.memory.storageFraction` 表示最少保留storage memory的比例(R/M，默認0.5)
+
+![Spark Memory Fraction](../../images/spark_memory_fraction.png)
+
+關於Spark內存管理的更多細節，可參考[官方文檔](https://spark.apache.org/docs/latest/tuning.html#memory-management-overview)。
 
 
 
