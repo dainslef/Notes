@@ -2,6 +2,7 @@
 
 - [dotnet CLI commands](#dotnet-cli-commands)
 	- [創建項目](#創建項目)
+	- [包管理](#包管理)
 
 <!-- /TOC -->
 
@@ -83,3 +84,60 @@ Running 'dotnet restore' on TestMVC/TestMVC.fsproj...
 
 Restore succeeded.
 ```
+
+## 包管理
+dotnet提供了nuget的部分包管理功能，指令語法如下：
+
+```c
+// 添加依賴包
+$ dotnet add [<PROJECT>] package <PACKAGE_NAME>
+    [-f|--framework <FRAMEWORK>] [--interactive]
+    [-n|--no-restore] [--package-directory <PACKAGE_DIRECTORY>]
+    [-s|--source <SOURCE>] [-v|--version <VERSION>]
+
+$ dotnet add package -h|--help
+
+// 移除依賴包
+$ dotnet remove [<PROJECT>] package <PACKAGE_NAME>
+
+$ dotnet remove package -h|--help
+```
+
+將NuGet包`Newtonsoft.Json`安裝到當前項目中：
+
+```
+$ dotnet add package Newtonsoft.Json
+  Determining projects to restore...
+  Writing /var/folders/xr/pvslfmfn1_jffzjzr1gj1vbw0000gn/T/tmpmmenkA.tmp
+info : Adding PackageReference for package 'Newtonsoft.Json' into project '/Users/dainslef/Downloads/Codes/TestMVC/TestMVC.fsproj'.
+info : Restoring packages for /Users/dainslef/Downloads/Codes/TestMVC/TestMVC.fsproj...
+info :   GET https://api.nuget.org/v3-flatcontainer/newtonsoft.json/index.json
+info :   OK https://api.nuget.org/v3-flatcontainer/newtonsoft.json/index.json 315ms
+info :   GET https://api.nuget.org/v3-flatcontainer/newtonsoft.json/12.0.3/newtonsoft.json.12.0.3.nupkg
+info :   OK https://api.nuget.org/v3-flatcontainer/newtonsoft.json/12.0.3/newtonsoft.json.12.0.3.nupkg 728ms
+info : Installing Newtonsoft.Json 12.0.3.
+info : Package 'Newtonsoft.Json' is compatible with all the specified frameworks in project '/Users/dainslef/Downloads/Codes/TestMVC/TestMVC.fsproj'.
+info : PackageReference for package 'Newtonsoft.Json' version '12.0.3' added to file '/Users/dainslef/Downloads/Codes/TestMVC/TestMVC.fsproj'.
+info : Committing restore...
+info : Writing assets file to disk. Path: /Users/dainslef/Downloads/Codes/TestMVC/obj/project.assets.json
+log  : Restored /Users/dainslef/Downloads/Codes/TestMVC/TestMVC.fsproj (in 5.53 sec).
+```
+
+安裝包後，會在項目定義文件的`<ItemGroup />`標籤段中添加定義：
+
+```xml
+...
+<ItemGroup>
+  <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+</ItemGroup>
+...
+```
+
+若需要移除該包，執行指令：
+
+```
+$ dotnet remove package Newtonsoft.Json
+info : Removing PackageReference for package 'Newtonsoft.Json' from project '/Users/dainslef/Downloads/Codes/TestMVC/TestMVC.fsproj'.
+```
+
+執行包移除指令後，項目定義文件中對應包所屬的`<PackageReference />`區段會被移除。
