@@ -3,6 +3,9 @@
 - [dotnet CLI commands](#dotnet-cli-commands)
 	- [創建項目](#創建項目)
 	- [包管理](#包管理)
+- [Testing (測試)](#testing-測試)
+	- [編寫測試](#編寫測試)
+	- [執行測試](#執行測試)
 
 <!-- /TOC -->
 
@@ -141,3 +144,73 @@ info : Removing PackageReference for package 'Newtonsoft.Json' from project '/Us
 ```
 
 執行包移除指令後，項目定義文件中對應包所屬的`<PackageReference />`區段會被移除。
+
+
+
+# Testing (測試)
+dotnet工具支持.Net下的主流測試框架如`NUnit`、`xUnit`、`MSTest`等主流測試框架。
+
+以MSTest為例，在項目中使用MSTest首先需要安裝相關依賴：
+
+```
+$ dotnet add package MSTest.TestAdapter
+$ dotnet add package MSTest.TestFramework
+```
+
+測試代碼通常需要在解決方案中創建獨立的測試項目，以F#項目為例，使用了MSTest測試框架後，
+會自動在項目中生成`Microsoft.NET.Test.Sdk.Program.fs`，
+該文件定義了`[<EntryPoint>]`，導致項目不能存在其它的入口點，因而需要房在獨立的項目中。
+
+## 編寫測試
+以F#項目和MSTest為例，測試代碼需要是類型的成員方法(不能是函數/靜態方法)，
+測試入口類使用`[<TestClass>]`標註，測試方法使用`[<TestMethod>]`標註：
+
+```fs
+[<TestClass>]
+type Test() = // 需要提供空參的默認構造函數
+
+    // 測試方法簽名需要為 unit -> unit
+    [<TestMethod>]
+    member _.TestXxx() =
+        ...
+        |> ignore
+```
+
+## 執行測試
+使用`dotnet test`指令執行測試，指令語法：
+
+```
+$ dotnet test [<PROJECT> | <SOLUTION> | <DIRECTORY> | <DLL>]
+    [-a|--test-adapter-path <ADAPTER_PATH>] [--blame] [--blame-crash]
+    [--blame-crash-dump-type <DUMP_TYPE>] [--blame-crash-collect-always]
+    [--blame-hang] [--blame-hang-dump-type <DUMP_TYPE>]
+    [--blame-hang-timeout <TIMESPAN>]
+    [-c|--configuration <CONFIGURATION>]
+    [--collect <DATA_COLLECTOR_NAME>]
+    [-d|--diag <LOG_FILE>] [-f|--framework <FRAMEWORK>]
+    [--filter <EXPRESSION>] [--interactive]
+    [-l|--logger <LOGGER>] [--no-build]
+    [--nologo] [--no-restore] [-o|--output <OUTPUT_DIRECTORY>]
+    [-r|--results-directory <RESULTS_DIR>] [--runtime <RUNTIME_IDENTIFIER>]
+    [-s|--settings <SETTINGS_FILE>] [-t|--list-tests]
+    [-v|--verbosity <LEVEL>] [[--] <RunSettings arguments>]
+
+$ dotnet test -h|--help
+```
+
+在執行測試中，默認不會顯示標準輸出，若需要顯示標準輸出，則應設置日誌級別：
+
+```
+$ dotnet test --logger "console;verbosity=detailed"
+```
+
+默認會執行項目中所有的測試用例，可以選擇過濾或指定執行某些測試用例：
+
+| Expressio | Result |
+| :- | :- |
+| dotnet test --filter Method | Runs tests whose FullyQualifiedName contains Method. Available in vstest 15.1+. |
+| dotnet test --filter Name~TestMethod1 | Runs tests whose name contains TestMethod1. |
+| dotnet test --filter ClassName=MSTestNamespace.UnitTest1 | Runs tests that are in class MSTestNamespace.UnitTest1. Note: The ClassName value should have a namespace, so ClassName=UnitTest1 won't work. |
+| dotnet test --filter FullyQualifiedName!=MSTestNamespace.UnitTest1.TestMethod1 | Runs all tests except MSTestNamespace.UnitTest1.TestMethod1. |
+| dotnet test --filter TestCategory=CategoryA | Runs tests that are annotated with [TestCategory("CategoryA")]. |
+| dotnet test --filter Priority=2 | Runs tests that are annotated with [Priority(2)]. |
