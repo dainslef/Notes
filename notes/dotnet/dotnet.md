@@ -6,6 +6,8 @@
 - [Testing (測試)](#testing-測試)
 	- [編寫測試](#編寫測試)
 	- [執行測試](#執行測試)
+- [MSBuild](#msbuild)
+	- [基本結構](#基本結構)
 
 <!-- /TOC -->
 
@@ -214,3 +216,73 @@ $ dotnet test --logger "console;verbosity=detailed"
 | dotnet test --filter FullyQualifiedName!=MSTestNamespace.UnitTest1.TestMethod1 | Runs all tests except MSTestNamespace.UnitTest1.TestMethod1. |
 | dotnet test --filter TestCategory=CategoryA | Runs tests that are annotated with [TestCategory("CategoryA")]. |
 | dotnet test --filter Priority=2 | Runs tests that are annotated with [Priority(2)]. |
+
+
+
+# MSBuild
+`MSBuild(Microsoft Build Engine)`是微軟的構建平台，通過提供XML格式的工程文件來控制構建過程。
+`Visual Studio`使用了MSBuild，但MSBuild不依賴VS。
+在項目中執行`msbuild.exe`可以在沒有VS安裝的環境下開始項目構建任務。
+
+VS使用MSBuild來加載和構建被管理的項目，當從IDE中執行項目構建時，
+VS的項目文件(如.csproj, .vbproj, .vcxproj等)包含的MSBuild XML代碼會被執行。
+
+關於MSBuild的詳細介紹，可參考[微軟官方文檔](https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild)。
+
+## 基本結構
+以一個`F# .Net Core`命令行項目為例，新創建項目生成的項目定義(`.fsproj`)為：
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+</Project>
+```
+
+在.Net Core項目中，幾個比較重要的標籤為：
+
+- `<Project Sdk="..." />`
+
+	`<Project/>`標籤將整個構建配置包含在內，`Sdk`屬性定義項目使用的SDK。
+	命令行項目使用SDK為`Microsoft.NET.Sdk`；WEB項目使用SDK為`Microsoft.NET.Sdk.Web`。
+
+	SDK還可以單獨定義在標籤中：
+
+	```xml
+	<Project>
+	  <Sdk Name="Microsoft.NET.Sdk" />
+	  ...
+	</Project>
+	```
+
+- `<PropertyGroup />`
+
+	`<PropertyGroup />`標籤裡定義了項目使用的一些屬性值。
+	.Net Core項目默認定義了`OutputType`(輸出二進制格式，通常為Exe)和`TargetFramework`(指定.Net Core的版本)。
+
+- `<ItemGroup />`
+
+	`<ItemGroup />`標籤定義輸入構建系統的構建資源，通常是文件。
+	該標籤內可添加幾類資源：
+
+	```xml
+	<ItemGroup>
+	  <Compile Include="xxx.fs" /> <!-- 包含源碼文件 -->
+	  <Compile Include="xxxDir/*" /> <!-- 包含指定目錄(單層目錄) -->
+	  <Compile Include="xxxDir/**" /> <!-- 包含指定目錄(遞歸包含子目錄) -->
+	  <EmbeddedResource Include="xxxDir/*" /> <!-- 設置項目的資源路徑/文件 -->
+	  <PackageReference Include="Newtonsoft.Json" Version="12.0.3" /> <!-- 包含NuGet包依賴 -->
+
+	  <Compile Remove="xxx.xx" /> <!-- 移除指定內容 -->
+	</ItemGroup>
+	```
+
+	使用`*`可匹配指定路徑下當前目錄層級的所有資源，
+	使用`**`可遞歸匹配指定路徑下所有子路徑內的所有資源。
+
+	除了使用`Include`屬性包含內容，亦可使用`Remove`屬性排除指定內容。
