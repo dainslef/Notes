@@ -178,6 +178,51 @@ type Test() = // 需要提供空參的默認構造函數
         |> ignore
 ```
 
+測試方法可以帶有參數，同時將參數寫在`[<DataRow(...)>]`特性中並用以標注方法：
+
+```fs
+[<TestMethod>]
+[<DataRow(10, 10)>]
+[<DataRow(1, 1)>]
+[<DataRow(-1, -1)>]
+[<DataRow(-1, 2)>]
+[<DataRow(2, -1)>]
+member _.TestPattern2(x: int, y: int) = ...
+
+[<TestMethod>]
+[<DataRow(-1, -1, "Test")>]
+member _.TestPattern3(x: int, y: int, message: string) = ...
+```
+
+`[<DataRow(...)>]`特性中使用的參數需要為基本類型(字面量類型，Literal Types)，
+若需要測試的內容為自定義類型，則可使用`[<DynamicData(...)>]`特性標注測試方法，
+該特性允許將測試類的一個靜態屬性/方法返回的內容作為測試方法的輸入值，
+作為測試方法輸入值的靜態屬性/方法返回值類型需要為`IEnumerable<obj []>`，
+每一組待測試的參數都放在一個數組中，實例：
+
+```fs
+[<TestClass>]
+type Test() =
+
+    [<TestMethod>]
+    [<DynamicData("Data", DynamicDataSourceType.Property)>]
+    // DynamicData特性指定作為輸入參數的靜態屬性/方法名稱，並指定類型DynamicDataSourceType.Property/Method
+    member _.TestPattern1(p: Point) = ...
+
+    static member Data =
+        seq {
+            Point(10, 10)
+            Point(1, 1)
+            Point(-1, -1, c = "Test")
+            Point(-1, 2)
+            Point(2, -1)
+            Point()
+        }
+        |> Seq.map (fun v -> [| v :> obj |])
+        // map 通過函數轉換為 obj [] 類型
+        // seq 類型實現了IEnumerable接口
+```
+
 ## 執行測試
 使用`dotnet test`指令執行測試，指令語法：
 
