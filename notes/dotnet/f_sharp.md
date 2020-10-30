@@ -3,6 +3,8 @@
 - [Entry Point (入口點/函數)](#entry-point-入口點函數)
 - [F# Interactive (F#交互式環境)](#f-interactive-f交互式環境)
 - [Function (函數)](#function-函數)
+	- [可選參數](#可選參數)
+	- [參數默認值](#參數默認值)
 
 <!-- /TOC -->
 
@@ -85,3 +87,59 @@ val it : (int -> int) = <fun:it@35-5>
 > add 1 2 3;;
 val it : int = 6
 ```
+
+## 可選參數
+F#在類型方法上可使用`?`語法將一個參數標記為可選參數：
+
+```fs
+type DuplexType =
+    | Full
+    | Half
+
+type Connection(?rate0 : int, ?duplex0 : DuplexType, ?parity0 : bool) =
+    let duplex = defaultArg duplex0 Full
+    let parity = defaultArg parity0 false
+    let mutable rate = match rate0 with
+                        | Some rate1 -> rate1
+                        | None -> match duplex with
+                                  | Full -> 9600
+                                  | Half -> 4800
+    do printfn "Baud Rate: %d Duplex: %A Parity: %b" rate duplex parity
+
+let conn1 = Connection(duplex0 = Full)
+let conn2 = Connection(duplex0 = Half)
+let conn3 = Connection(300, Half, true)
+let conn4 = Connection()
+let conn5 = Connection(?duplex0 = Some(Full))
+
+let optionalDuplexValue : option<DuplexType> = Some(Half)
+let conn6 = Connection(?duplex0 = optionalDuplexValue)
+```
+
+使用了`?`標記的參數實際類型將從`'a`變為`'a option`，在調用方法時，該參數位置對應可不傳參，
+未傳參時對應參數位置得到值為`None`。
+
+只有類型的成員方法、構造方法參數可使用此語法，在函數上使用該語法會得到錯誤：
+
+```fs
+> let add (?a: int) (?b: int) = a + b;;
+
+  let add (?a: int) (?b: int) = a + b;;
+  ---------^^
+
+/Users/dainslef/stdin(57,10): error FS0718: Optional arguments are only permitted on type members
+```
+
+## 參數默認值
+還可以使用`System.Runtime.InteropServices`命名空間下的特性將參數標記為可選參數，並為參數提供默認值。
+
+```fs
+open System.Threading
+open System.Runtime.InteropServices
+type C =
+    static member Foo([<Optional; DefaultParameterValue(CancellationToken())>] ct: CancellationToken) =
+        printfn "%A" ct
+```
+
+被`System.Runtime.InteropServices.OptionalAttribute`特性標註的可選參數不會改變簽名中的實際類型。
+由`System.Runtime.InteropServices.DefaultParameterValueAttribute`特性為可選參數顯式提供默認值。
