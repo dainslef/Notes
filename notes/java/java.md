@@ -60,6 +60,9 @@
 	- [java.time.Instant](#javatimeinstant)
 		- [Caused by: java.time.DateTimeException: Unable to obtain LocalDate from TemporalAccessor: 2020-05-14T03:08:24.322080Z of type java.time.Instant](#caused-by-javatimedatetimeexception-unable-to-obtain-localdate-from-temporalaccessor-2020-05-14t030824322080z-of-type-javatimeinstant)
 		- [Caused by: java.time.temporal.UnsupportedTemporalTypeException: Unsupported field: InstantSeconds](#caused-by-javatimetemporalunsupportedtemporaltypeexception-unsupported-field-instantseconds)
+- [定時任務](#定時任務)
+	- [Timer API](#timer-api)
+		- [Timer任務調度](#timer任務調度)
 - [JDBC](#jdbc)
 	- [連接數據庫](#連接數據庫)
 	- [數據庫操作](#數據庫操作)
@@ -2735,6 +2738,121 @@ Instant instant = Instant.from(formatter.parse(...));
 ```
 
 類似問題可參考[Stack Overflow](https://stackoverflow.com/questions/35610597/parse-string-timestamp-to-instant-throws-unsupported-field-instantseconds)中的對應提問。
+
+
+
+# 定時任務
+Java中內置了基於線程的任務調度API，包括早期的`java.util.Timer`，
+以及`Java 5 (JDK 1.5)`之後引入的基於Executor的`java.util.concurrent.ScheduledThreadPoolExecutor`。
+
+## Timer API
+`java.util`包中提供了Timer相關API，用於在一個後端線程中調度任務，支持任務的定時執行、重複執行等功能。
+
+Timer API包括兩個類：
+
+- `java.util.Timer` 提供任務調度功能
+- `java.util.TimerTask` 用於封裝被調度的任務邏輯
+
+相關內容可參考[Baeldung博客](https://www.baeldung.com/java-timer-and-timertask)
+或[Oracle官方文檔](https://docs.oracle.com/javase/7/docs/api/java/util/Timer.html)。
+
+### Timer任務調度
+在Timer API中任務使用`java.util.TimerTask`類型表示，TimerTask定義如下：
+
+```java
+public abstract class TimerTask implements Runnable {
+	...
+	// 需要被重寫的抽象方法
+	public abstract void run();
+
+	// 取消本定時任務，對於僅執行一次的定時任務無需調用此方法
+	// 重複執行的定時任務在調用此方法後該任務不再會被執行
+	public boolean cancel() { ... }
+	...
+}
+```
+
+TimerTask是**抽象類**，主要API包括抽象方法`run()`(用於重寫提供自訂義的任務行為)；
+以及`cancel()`(用於在任務執行完畢後取消調度)。
+
+調度器由`java.util.Timer`類型提供，Timer定義如下：
+
+```java
+public class Timer {
+
+	// 定時任務隊列，定時任務線程共享該數據結構，
+	// Timer通過各類調度方法添加任務到隊列中，再由定時任務執行線程執行
+	private final TaskQueue queue = new TaskQueue();
+
+	// 定時任務執行線程
+	private final TimerThread thread = new TimerThread(queue);
+	...
+	// 構造定時器時可設置執行線程的一些屬性
+	public Timer(boolean isDaemon) { ... }
+	...
+	// 調度任務，在指定延遲時間後執行一次
+	public void schedule(TimerTask task, long delay) { ... }
+	// 調度任務，在指定延遲後以指定間隔循環執行
+	public void schedule(TimerTask task, long delay, long period) { ... }
+	// 調度任務，保證重複任務的執行速率
+	public void scheduleAtFixedRate(TimerTask task, long delay, long period) { ... }
+	...
+}
+```
+
+Timer類在內部維護一個任務隊列`TaskQueue`和任務線程`TimerThread`，
+使用調度`schedule()/scheduleAtFixedRate()`相關方法啟動調度任務，
+使用`purge()`清理執行完成隊列任務，使用`cancel()`停止整個定時器。
+
+Timer API的使用例子：
+
+```kt
+import java.util.*
+import kotlin.concurrent.timerTask
+
+import org.junit.Test
+
+class TestTimer {
+
+	@Test
+	fun testTimer() {
+
+		// 創建Timer
+		val timer = Timer(true)
+
+		// 重寫run()方法，創建TimerTask
+		val timerTask1 = object: TimerTask() {
+			var executeCount = 0
+			override fun run() {
+				println("Timer Task 1 ...")
+				executeCount += 1
+				if (executeCount >= 3) cancel() // 取消Task的執行
+			}
+		}
+		// Kotlin提供了對TimerTask的封裝函數
+		val timerTask2 = timerTask {
+			println("Timer Task 2 ...")
+		}
+
+		// 調度任務
+		timer.scheduleAtFixedRate(timerTask1, 0, 1000) // 重複執行
+		timer.schedule(timerTask2, 1000) // 僅調度一次
+
+		readLine()
+		timer.cancel() // 取消定時器
+	}
+
+}
+```
+
+執行結果：
+
+```
+Timer Task 1 ...
+Timer Task 1 ...
+Timer Task 2 ...
+Timer Task 1 ...
+```
 
 
 
