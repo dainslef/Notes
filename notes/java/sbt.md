@@ -2,6 +2,7 @@
 
 - [簡介](#簡介)
 	- [安裝與配置](#安裝與配置)
+	- [更換倉庫](#更換倉庫)
 - [啓動與使用](#啓動與使用)
 	- [Giter8 模版](#giter8-模版)
 	- [關於 No Scala version specified or detected 錯誤](#關於-no-scala-version-specified-or-detected-錯誤)
@@ -50,6 +51,25 @@
 下載完成之後解壓並將目錄下的`bin`目錄加入`PATH`中。
 
 如果已經安裝了`Activator`，則無需再安裝sbt，Activator中已經包含了sbt。
+
+## 更換倉庫
+鑒於牆內的網絡狀況，通常sbt的默認倉庫鏡像無法連接或速度較慢，
+可通過修改`~/.sbt/repositories`文件自定義鏡像倉庫，文件格式：
+
+```ini
+[repositories]
+  local
+  my-ivy-proxy-releases: http://repo.company.com/ivy-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
+  my-maven-proxy-releases: http://repo.company.com/maven-releases/
+```
+
+sbt支持Ivy/Maven鏡像倉庫，Ivy倉庫在牆內使用較少，沒有主流的牆內鏡像，Maven推薦使用阿里雲倉庫：
+
+```ini
+[repositories]
+  local
+  my-maven-proxy-releases: https://maven.aliyun.com/repository/public/
+```
 
 
 
@@ -472,7 +492,7 @@ scalacOptions ++= Seq(
 )
 ```
 
-`Scala`中的部分語言特性需要使用參數`-language:xxx`來開啓：
+Scala中的部分語言特性需要使用參數`-language:xxx`來開啓：
 
 - 使用`-language:help`參數顯示所有可使用的語言特性參數。
 - 使用`-language:_`參數可以開啓所有的語言特性。
