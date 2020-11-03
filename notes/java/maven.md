@@ -1,3 +1,22 @@
+<!-- TOC -->
+
+- [配置文件](#配置文件)
+- [依賴管理](#依賴管理)
+	- [查看依賴樹](#查看依賴樹)
+	- [排除指定依賴](#排除指定依賴)
+- [Repository](#repository)
+	- [修改本地緩存路徑](#修改本地緩存路徑)
+	- [Mirror](#mirror)
+- [Language Level](#language-level)
+- [Sub Project](#sub-project)
+- [Package](#package)
+	- [maven-assembly-plugin](#maven-assembly-plugin)
+	- [spring-boot-maven-plugin](#spring-boot-maven-plugin)
+
+<!-- /TOC -->
+
+
+
 # 配置文件
 Maven默認的配置文件為`~/.m2/settings.xml`。
 若配置文件不存在，則可手動創建，配置文件模板：
@@ -71,9 +90,9 @@ Maven中心倉庫服務器位於海外，在牆內下載速度較慢。國內可
 	<!-- 阿里雲倉庫 -->
 	<mirror>
 		<id>alimaven</id>
-		<mirrorOf>central</mirrorOf>
+		<mirrorOf>*</mirrorOf>
 		<name>aliyun maven</name>
-		<url>http://maven.aliyun.com/nexus/content/repositories/central/</url>
+		<url>https://maven.aliyun.com/repository/public</url>
 	</mirror>
 </mirrors>
 ```
