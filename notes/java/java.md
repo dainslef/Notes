@@ -63,6 +63,7 @@
 - [定時任務](#定時任務)
 	- [Timer API](#timer-api)
 		- [Timer任務調度](#timer任務調度)
+		- [java.lang.IllegalStateException: Timer already cancelled.](#javalangillegalstateexception-timer-already-cancelled)
 - [JDBC](#jdbc)
 	- [連接數據庫](#連接數據庫)
 	- [數據庫操作](#數據庫操作)
@@ -2854,6 +2855,69 @@ Timer Task 2 ...
 Timer Task 1 ...
 ```
 
+### java.lang.IllegalStateException: Timer already cancelled.
+Timer調度器是**單線程**的，實際上僅存在**一個**任務執行線程(TimerThread)。
+當執行的TimerTask中拋出InterruptedException以外的異常，
+會導致任務執行線程崩潰，進而使得整個Timer無法正常工作。
+
+相關源碼參見(摘取自JDK 1.8)：
+
+```java
+/**
+ * TimerThread類繼承自線程類Thread，在一個獨立的線程中，從任務隊列中等待、提取任務；
+ * 在設定的時間執行任務，重新調度重複任務，從隊列中移除被取消和非重複的任務
+ */
+class TimerThread extends Thread {
+
+	// 標記是否存在剩餘未被執行的任務
+	boolean newTasksMayBeScheduled = true;
+
+	// Timer的任務隊列
+	private TaskQueue queue;
+
+	TimerThread(TaskQueue queue) {
+		this.queue = queue;
+	}
+
+	public void run() {
+		try {
+			mainLoop();
+		} finally {
+			// 因為某些原因線程被殺死時，表現為Timer被取消
+			synchronized(queue) {
+				newTasksMayBeScheduled = false;
+				queue.clear();  // 清除廢棄的引用
+			}
+		}
+	}
+
+	// 主循環
+	private void mainLoop() {
+		while (true) {
+			try {
+				TimerTask task;
+				boolean taskFired;
+				synchronized(queue) {
+					// 等待隊列變為非空
+					while (queue.isEmpty() && newTasksMayBeScheduled)
+						queue.wait();
+					if (queue.isEmpty())
+						break; // 任務隊列為空則說明會導致死循環
+					... // 任務調度時間相關計算邏輯，省略
+				}
+				if (taskFired)  // 任務到達執行時間，在不持有鎖的情況下執行任務
+					task.run();
+			} catch(InterruptedException e) {
+			}
+		}
+	}
+}
+```
+
+由源碼可知，主循環mainLoop()方法中在TimerTask執行時僅捕獲了InterruptedException這一種異常，
+其它任意種類的TimerTask異常均會造成mainLoop()方法的崩潰退出。
+在TimerThread的run()方法中，mainLoop()方法中斷後將Timer按照取消處理。
+
 
 
 # JDBC
@@ -2988,13 +3052,13 @@ MySQL的JDBC驅動默認開啟了`jdbcCompliantTruncation`功能，
 
 
 # Eclipse 使用註記
-`Eclipse`是Java開發中最常用的IDE，`Eclipse`通過插件擴展可以進行多種語言的開發。
+`Eclipse`是Java開發中最常用的IDE，Eclipse通過插件擴展可以進行多種語言的開發。
 
 ## Marketplace
-`Eclipse Marketplace`是`Eclipse`新增的應用商店，
+`Eclipse Marketplace`是Eclipse新增的應用商店，
 可以從中直接安裝`e(fx)clipse`、`GoClipse`、`ScalaIDE`、`PyDev`等由第三方社區維護的插件。
 
-在部分`Eclipse`版本中，`Marketplace`沒有默認安裝，手動添加：
+在部分Eclipse版本中，Marketplace沒有默認安裝，手動添加：
 
 `Help` =>
 `Install New Software` =>
