@@ -39,6 +39,7 @@
 	- [java.lang.NoSuchMethodError: com.netflix.servo.monitor.Monitors.isObjectRegistered(Ljava/lang/String;Ljava/lang/Object;)Z](#javalangnosuchmethoderror-comnetflixservomonitormonitorsisobjectregisteredljavalangstringljavalangobjectz)
 	- [java.lang.ClassNotFoundException: org.springframework.security.web.authentication.RememberMeServices](#javalangclassnotfoundexception-orgspringframeworksecuritywebauthenticationremembermeservices)
 	- [org.springframework.messaging.converter.MessageConversionException: Could not read JSON: Cannot construct instance of `Xxx` (no Creators, like default construct, exist): cannot deserialize from Object value (no delegate- or property-based Creator)](#orgspringframeworkmessagingconvertermessageconversionexception-could-not-read-json-cannot-construct-instance-of-xxx-no-creators-like-default-construct-exist-cannot-deserialize-from-object-value-no-delegate--or-property-based-creator)
+	- [SEC7128: [CORS] The origin 'http://origin-url...' found multiple Access-Control-Allow-Origin response headers for cross-origin  resource at 'http://target-url...'.](#sec7128-cors-the-origin-httporigin-url-found-multiple-access-control-allow-origin-response-headers-for-cross-origin--resource-at-httptarget-url)
 
 <!-- /TOC -->
 
@@ -55,7 +56,8 @@ Spring Cloud能夠很好地運行在任何分佈式平臺，包括開發者自�
 
 
 # Spring Cloud 版本
-與Spring Boot不同，Spring Cloud組件版本不使用數字版本號，而使用版本代號，因爲相同Spring Cloud大版本下各個子組件的版本并不統一。
+與Spring Boot不同，Spring Cloud組件版本不使用數字版本號，而使用版本代號，
+因爲相同Spring Cloud大版本下各個子組件的版本并不統一。
 
 Spring Cloud版本號遵循`版本代號.SRx`的結構，版本代號是一系列首字母按照羅馬字母順序排佈的單詞
 (`Angel`為首個版本，`Brixton`為第二個版本，以此類推)，`SRx`代表`service releases`，`x`是數字，
@@ -264,8 +266,10 @@ class EurekaEventHandler {
 }
 ```
 
-在Spring Cloud Finchley/Greenwich等版本中，Spring Eureka發送的事件與EurekaClient提供的注冊信息并非**實時同步**更新。
-當EventListener接收到事件通知時，此時Eureka Client中的注冊信息仍然是舊的，通常需要等待5s以上注冊信息才會同步變化。
+在Spring Cloud Finchley/Greenwich等版本中，
+Spring Eureka發送的事件與EurekaClient提供的注冊信息并非**實時同步**更新。
+當EventListener接收到事件通知時，此時Eureka Client中的注冊信息仍然是舊的，
+通常需要等待5s以上注冊信息才會同步變化。
 
 ## Zuul
 路由是微服務體系中的一個組成部分，`Zuul`提供了基於JVM的路由和服務端的負載均衡。
@@ -291,7 +295,8 @@ zuul.routes:
   ...
 ```
 
-簡單的路由配置可直接為一個應用添加一個前置路徑層級，向Zuul發送的請求的URL匹配到對應的路由則會被轉發到對應名稱的應用。
+簡單的路由配置可直接為一個應用添加一個前置路徑層級，
+向Zuul發送的請求的URL匹配到對應的路由則會被轉發到對應名稱的應用。
 
 Zuul支持更細粒度的路由控制：
 
@@ -323,7 +328,8 @@ zuul.sensitiveHeaders: Cookie,Set-Cookie,Authorization
 
 `zuul.sensitiveHeaders`配置項是**黑名單**(blacklist)，
 即默認配置下，`Cookie`、`Set-Cookie`、`Authorization`三個請求頭在轉發時會被丟棄。
-以Cookie被丟棄爲例，使用Spring Session等分佈式Session解決方案時，會導致Zuul轉發的目標模塊無法正確獲取到Session實例。
+以Cookie被丟棄爲例，使用Spring Session等分佈式Session解決方案時，
+會導致Zuul轉發的目標模塊無法正確獲取到Session實例。
 
 在轉發時要保留所有認證信息，將該配置項置空即可：
 
@@ -404,10 +410,10 @@ class XxxConfig {
     @Bean
     fun corsFilter() = CorsFilter(UrlBasedCorsConfigurationSource().apply {
         registerCorsConfiguration("/**", CorsConfiguration().apply {
-            allowCredentials = true //在請求回應中設置允許跨域
-            addAllowedOrigin("*") //設置允許的源
-            addAllowedHeader("*") //設置允許的請求頭
-            addAllowedMethod("*") //設置允許的方法
+            allowCredentials = true // 在請求回應中設置允許跨域
+            addAllowedOrigin("*") // 設置允許的源
+            addAllowedHeader("*") // 設置允許的請求頭
+            addAllowedMethod("*") // 設置允許的方法
         })
     })
 
@@ -1010,3 +1016,18 @@ Zuul組件依賴的`com.netflix.servo:servo-core`版本過低(0.7.x)，`Monitors
 
 解決方案：<br>
 為POJO類添加無參數的默認構造器。
+
+## SEC7128: [CORS] The origin 'http://origin-url...' found multiple Access-Control-Allow-Origin response headers for cross-origin  resource at 'http://target-url...'.
+問題説明：<br>
+使用Zuul的CorsFilter解決跨域問題，會在目標模塊的response中添加`Access-Control-Allow-Origin`頭，
+而Spring Web框架在使用`@CrossOrigin(allowCredentials = "true")`註解時已經在請求response中添加了`Access-Control-Allow-Origin/Access-Control-Allow-Credentials`頭，
+根據HTTP協議規範，不允許多個Access-Control-Allow-Origin頭出現，因而產生此錯誤。
+
+解決方案：<br>
+在整合的Zuul的模塊中修改配置文件application.yaml，添加以下配置項屏蔽掉Zuul添加的相關頭：
+
+```yaml
+zuul:
+  sensitiveHeaders: # keep all sensitive headers
+  ignored-headers: Access-Control-Allow-Origin,Access-Control-Allow-Credentials # exclude some headers about cross-origin
+```
