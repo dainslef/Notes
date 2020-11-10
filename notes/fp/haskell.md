@@ -9,6 +9,10 @@
 - [常用函數](#常用函數)
 	- [`$` 函數](#-函數)
 	- [`.` 函數](#-函數)
+- [Module (模塊)](#module-模塊)
+	- [定義模塊](#定義模塊)
+	- [導入內容](#導入內容)
+	- [Re-Export](#re-export)
 - [Currying (柯里化)](#currying-柯里化)
 - [Fixity Declarations (操作符結合性、優先級定義)](#fixity-declarations-操作符結合性優先級定義)
 - [Pointfree Style](#pointfree-style)
@@ -257,6 +261,72 @@ Prelude> print . ("abc"++) . ("cde"++) $ "efg" -- 使用"."組合函數
 ```
 
 `.`函數常用於`Pointfree`風格中，通過函數組合來代替多個連續的函數調用。
+
+
+
+# Module (模塊)
+`Module`是一組值、類型、類型別名、type class等的集合。
+模塊中可以導入其它模塊的資源，也可以導出自身模塊的部分/全部內容。
+關於模塊的更多介紹，可參考[GHC官網文檔](https://www.haskell.org/onlinereport/haskell2010/haskellch5.html)。
+
+## 定義模塊
+使用`module`關鍵字定義一個模塊，示例：
+
+```hs
+-- 模塊 Xxx 對應需要定義在 Xxx.hs 文件中
+module Xxx where
+
+xxxA = ...
+xxxB = ...
+...
+```
+
+與Java的包命名類似，Haskell中模塊的名稱需要和模塊所屬的源碼文件名稱相同，
+例如，模塊`Xxx`對應的源碼文件為`Xxx.hs`；
+模塊路徑需要與源碼目錄對應，例如模塊`Xxx1.Xxx2.Xxx`對應源碼路徑為`Xxx1/Xxx2/Xxx.hs`。
+
+默認模塊導出時會導出當前模塊的所有內容，定義模塊時可指定需要導出的內容：
+
+```hs
+-- 僅導出 xxxA
+module Xxx (xxxA) where
+
+xxxA = ...
+xxxB = ...
+...
+```
+
+## 導入內容
+使用`import`關鍵字從其它模塊導入內容，示例：
+
+```hs
+import Xxx1 -- 導入模塊 Xxx1 中的所有內容
+import Xxx2 (xxxA, xxxB) -- 導入模塊 Xxx2 模塊中的部分內容(顯式指定需要導入的部分)
+import Xxx3 hiding (xxxA, xxxB) -- 導入 Xxx3 模塊中的部分內容(僅排除不需要導入的部分)
+import Xxx.Xxx.Xxx as X -- 導入模塊並為模塊定義別名
+```
+
+導入模塊後可以使用直接訪問模塊內容，或使用完整的模塊路徑來訪問模塊內容。
+
+當多個模塊中出現名稱相同的內容時，未避免歧義，需要使用**限定導入**，示例：
+
+```hs
+import qualified Xxx1 -- 導入模塊 Xxx1，僅能使用完整模塊路徑訪問模塊內容
+import qualified Xxx.Xxx.Xxx as X -- 限定導入，同時設置別名，僅能通過設定的別名進行訪問
+```
+
+限定導入的模塊僅能使用完整的模塊路徑進行訪問。
+
+## Re-Export
+導出模塊時，不僅可以導出本模塊的內容，亦可導出其它模塊的內容：
+
+```hs
+-- 導出本模塊的部分內容時，將 Xxx2 模塊的內容一併導出
+module Xxx1 (module Xxx2, ...) where
+...
+```
+
+其它模塊在導入本模塊時，同樣可以訪問本模塊重導出的其它模塊內容。
 
 
 
