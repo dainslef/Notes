@@ -64,6 +64,7 @@
 	- [Timer API](#timer-api)
 		- [Timer任務調度](#timer任務調度)
 		- [java.lang.IllegalStateException: Timer already cancelled.](#javalangillegalstateexception-timer-already-cancelled)
+	- [ScheduledThreadPoolExecutor](#scheduledthreadpoolexecutor)
 - [JDBC](#jdbc)
 	- [連接數據庫](#連接數據庫)
 	- [數據庫操作](#數據庫操作)
@@ -2917,6 +2918,133 @@ class TimerThread extends Thread {
 由源碼可知，主循環mainLoop()方法中在TimerTask執行時僅捕獲了InterruptedException這一種異常，
 其它任意種類的TimerTask異常均會造成mainLoop()方法的崩潰退出。
 在TimerThread的run()方法中，mainLoop()方法中斷後將Timer按照取消處理。
+
+## ScheduledThreadPoolExecutor
+`java.util.concurrent.ScheduledThreadPoolExecutor`基於`Java 1.5`之後引入的Executor框架，
+提供與`java.util.Timer`類似的定時任務調度功能。
+相比單線程的Timer，基於Executor的ScheduledThreadPoolExecutor可自定義任務隊列的執行線程數目，
+具有更好的可擴展性與性能。
+
+完整的說明可參考[Oracle官方文檔](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ScheduledThreadPoolExecutor.html)。
+
+ScheduledThreadPoolExecutor提供了與Timer類似的調度API：
+
+```java
+public class ScheduledThreadPoolExecutor
+		extends ThreadPoolExecutor
+		implements ScheduledExecutorService {
+
+	...
+
+	// ScheduledThreadPoolExecutor 提供了自定義的Future作為調度任務的返回值
+	// 可通過該類型取消重複任務、延遲執行的任務
+	private class ScheduledFutureTask<V>
+		extends FutureTask<V> implements RunnableScheduledFuture<V> {
+		...
+		// 通過 cancel() 方法可終止未開始執行的延遲任務，以及任務的重複執行
+		public boolean cancel(boolean mayInterruptIfRunning) { ... }
+		...
+	}
+
+	...
+
+	public ScheduledThreadPoolExecutor(int corePoolSize) { ... }
+
+	// 提供任務延遲執行功能，通過Runnable/Callable接口分別支持無/有返回值的任務
+	public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) { ... }
+	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) { ... }
+
+	// 提供任務的重複執行功能
+	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) { ... }
+	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) { ... }
+
+	// 終止本Executor
+	public void shutdown() { ... }
+	public List<Runnable> shutdownNow() { ... }
+
+	// 訪問執行器的任務隊列
+	public BlockingQueue<Runnable> getQueue() { ... }
+
+	// 提供ScheduledThreadPoolExecutor的默認BlockingQueue實現
+	static class DelayedWorkQueue extends AbstractQueue<Runnable>
+		implements BlockingQueue<Runnable> { ... }
+
+	...
+}
+```
+
+構造ScheduledThreadPoolExecutor時至少需要指定`corePoolSize`，指定線程池的大小。
+與Timer的行為不同，在ScheduledThreadPoolExecutor中，
+任務方法拋出異常不會導致執行器的異常，僅僅終止任務的重複執行(當前任務從隊列中移除)。
+
+當一個提交的任務在執行前被取消，任務不會被執行，但依舊保留在任務隊列中，直到任務設定的時間到期。
+使用`setRemoveOnCancelPolicy(boolean)`方法設定執行器策略，參數為true時，取消的任務會被立即從隊列中移除。
+
+實例：
+
+```scala
+scala> import java.util.concurrent.{ScheduledThreadPoolExecutor, TimeUnit}
+     |
+     | val executor = new ScheduledThreadPoolExecutor(5)
+     |
+     | var count = 0
+     | val future1 = executor.scheduleAtFixedRate(() => {
+     |   println(s"Task 1, count: $count, ${Thread.currentThread()}")
+     |   // use Exception to mark the scheduled task as finished
+     |   if (count > 2) {
+     |     println(s"Interrupted thread: ${Thread.currentThread()}")
+     |     throw new InterruptedException("Over...")
+     |   }
+     | }, 0, 1, TimeUnit.SECONDS)
+     | val future2 = executor.scheduleAtFixedRate(() => {
+     |   println(s"Task 2, count: $count, ${Thread.currentThread()}")
+     |   count += 1
+     | }, 0, 1, TimeUnit.SECONDS)
+     |
+     | while (!executor.getQueue.isEmpty) {
+     |   // use Future.cancel() to cancel the scheduled task
+     |   if (count > 5) future2.cancel(true)
+     |   executor.setRemoveOnCancelPolicy(true)
+     |   println(s"Future1 isDone: ${future1.isDone} isCancelled: ${future1.isCancelled}")
+     |   println(s"Future2 isDone: ${future2.isDone} isCancelled: ${future2.isCancelled}")
+     |   println(s"$executor")
+     |   Thread.sleep(1000)
+     | }
+Task 1, count: 0, Thread[pool-1-thread-1,5,main]
+Task 2, count: 0, Thread[pool-1-thread-2,5,main]
+Future1 isDone: false isCancelled: false
+Future2 isDone: false isCancelled: false
+java.util.concurrent.ScheduledThreadPoolExecutor@4cb702ce[Running, pool size = 4, active threads = 0, queued tasks = 2, completed tasks = 2]
+Task 1, count: 1, Thread[pool-1-thread-1,5,main]
+Task 2, count: 1, Thread[pool-1-thread-2,5,main]
+Future1 isDone: false isCancelled: false
+Future2 isDone: false isCancelled: false
+java.util.concurrent.ScheduledThreadPoolExecutor@4cb702ce[Running, pool size = 5, active threads = 0, queued tasks = 2, completed tasks = 4]
+Task 1, count: 2, Thread[pool-1-thread-3,5,main]
+Task 2, count: 2, Thread[pool-1-thread-3,5,main]
+Future1 isDone: false isCancelled: false
+Future2 isDone: false isCancelled: false
+java.util.concurrent.ScheduledThreadPoolExecutor@4cb702ce[Running, pool size = 5, active threads = 0, queued tasks = 2, completed tasks = 6]
+Task 1, count: 3, Thread[pool-1-thread-3,5,main]
+Interrupted thread: Thread[pool-1-thread-3,5,main]
+Task 2, count: 3, Thread[pool-1-thread-1,5,main]
+Future1 isDone: true isCancelled: false
+Future2 isDone: false isCancelled: false
+java.util.concurrent.ScheduledThreadPoolExecutor@4cb702ce[Running, pool size = 5, active threads = 0, queued tasks = 1, completed tasks = 8]
+Task 2, count: 4, Thread[pool-1-thread-1,5,main]
+Future1 isDone: true isCancelled: false
+Future2 isDone: false isCancelled: false
+java.util.concurrent.ScheduledThreadPoolExecutor@4cb702ce[Running, pool size = 5, active threads = 0, queued tasks = 1, completed tasks = 9]
+Task 2, count: 5, Thread[pool-1-thread-1,5,main]
+Future1 isDone: true isCancelled: false
+Future2 isDone: true isCancelled: true
+java.util.concurrent.ScheduledThreadPoolExecutor@4cb702ce[Running, pool size = 5, active threads = 0, queued tasks = 0, completed tasks = 10]
+import java.util.concurrent.{ScheduledThreadPoolExecutor, TimeUnit}
+val executor: java.util.concurrent.ScheduledThreadPoolExecutor = java.util.concurrent.ScheduledThreadPoolExecutor@4cb702ce[Running, pool size = 5, active threads = 0, queued tasks = 0, completed tasks = 10]
+var count: Int = 6
+val future1: java.util.concurrent.ScheduledFuture[_] = java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask@383caf89[Completed exceptionally: java.lang.InterruptedException: Over...]
+val future2: java.util.concurrent.ScheduledFuture[_] = java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask@64c781a9[Cancelled]
+```
 
 
 
