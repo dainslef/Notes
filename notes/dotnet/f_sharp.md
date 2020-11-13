@@ -1,7 +1,9 @@
 <!-- TOC -->
 
-- [Entry Point (入口點/函數)](#entry-point-入口點函數)
-- [F# Interactive (F#交互式環境)](#f-interactive-f交互式環境)
+- [概述](#概述)
+	- [開發環境](#開發環境)
+	- [F# Interactive (F#交互式環境)](#f-interactive-f交互式環境)
+	- [與主流語言的語法差異](#與主流語言的語法差異)
 - [Function (函數)](#function-函數)
 	- [可選參數](#可選參數)
 	- [參數默認值](#參數默認值)
@@ -10,23 +12,18 @@
 
 
 
-# Entry Point (入口點/函數)
-F#項目中，使用特性`[<EntryPoint>]`標註一個函數，使之成為入口函數。
+# 概述
+F#是微軟推出、運行在.NET平台的函數式語言，F#的最初設計源於ML語族的OCaml語言。
 
-```fs
-[<EntryPoint>]
-let main args = ...
-```
+## 開發環境
+F#現在已經集成在[.NET Core SDK](https://dotnet.microsoft.com/download/visual-studio-sdks)中，
+從官方下載SDK即可使用F#。
 
-與C#不同，F#中的入口函數對函數名稱無要求，僅函數簽名需要滿足：
+F#的官方IDE是微軟提供的[`Visual Studio`](https://visualstudio.microsoft.com/)。
+其它廠商/社區提供的開發環境包括[`JetBrains Rider`](https://www.jetbrains.com/rider/)，
+[`Visual Studio Code`](https://code.visualstudio.com/)的[`Ionide`](https://ionide.io/)插件。
 
-```fs
-string array -> int
-```
-
-
-
-# F# Interactive (F#交互式環境)
+## F# Interactive (F#交互式環境)
 F#同樣提供了類似Haskell、Scala的交互式環境：
 
 ```
@@ -51,6 +48,48 @@ $ dotnet fsi
 
       See 'dotnet fsi --help' for options
 ```
+
+## 與主流語言的語法差異
+F#繼承了大部分OCaml的設計，與主流語言存在一些差異。
+
+- 相等性比較運算符為`=`/`<>`，而不是其它語言中常見的`==`/`!=`。
+
+	```fs
+	> if 1 = 1 then true else false;;
+	val it : bool = true
+
+	> if 1 <> 1 then true else false;;
+	val it : bool = false
+	```
+
+- 逗號`,`語法高度一致，始終用與構成元組。
+
+	在列表生成式中：
+
+	```fs
+	> 1, 2, 3;;
+	val it : int * int * int = (1, 2, 3)
+
+	> [1, 2, 3];;
+	val it : (int * int * int) list = [(1, 2, 3)]
+	```
+
+	C#中的多參數函數在F#中亦被視作參數為一個多值元組。
+
+	在模式匹配、let綁定等場景下進行元組匹配不用像其它函數式語言那樣使用小括號：
+
+	```fs
+	> match 1, 2, 3 with
+	- | a, b, c -> printfn $"{a}, {b}, {c}"
+	- ;;
+	1, 2, 3
+	val it : unit = ()
+
+	> let a, b = 1 + 2, "abc" + "cde"
+	- ;;
+	val b : string = "abccde"
+	val a : int = 3
+	```
 
 
 
