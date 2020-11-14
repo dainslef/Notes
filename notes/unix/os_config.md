@@ -1325,6 +1325,8 @@ restrict 192.168.1.0 mask 255.255.255.0 nomodify notrap
 ...
 ```
 
+restrict配置項中，子網掩碼和其它參數均為**可選**。
+
 restrict配置段的參數簡介：
 
 | 參數 | 簡介 |
@@ -1336,6 +1338,15 @@ restrict配置段的參數簡介：
 | notrust | 阻止未認證的客戶端 |
 | nopeer | 阻止對等關聯(不允許同一層級服務關連) |
 
+若在局域網中使用NTP時，則應考慮將某一台服務器作為基準時間，在該台服務器的配置中添加：
+
+```
+server 127.127.1.0
+fudge 127.127.1.0
+```
+
+該服務器向自身進行同步，自身作為時鐘同步源。
+
 ## NTP 管理指令
 使用`ntpstat`指令查看NTP服務狀態：
 
@@ -1344,6 +1355,12 @@ $ ntpstat
 synchronised to unspecified (120.25.115.20) at stratum 3
    time correct to within 35 ms
    polling server every 64 s
+```
+
+對於同步延遲、失敗的情況可嘗試使用`ntpdate`指令進行**手動同步**：
+
+```
+# ntpdate [server ip/hostname]
 ```
 
 使用`ntpq/ntpdc`指令進入交互式Shell，進行具體的NTP查詢操作：
@@ -1419,6 +1436,12 @@ server [主機名稱/IP地址] [參數] # 設置用於同步的服務端
 # allow ::/0
 # allow all             # 允許任意主機同步
 allow [IP地址]/[子網]
+```
+
+在局域網環境下，可將一台服務器作為時鐘同步源，允許主機從自身同步：
+
+```sh
+local # 允許主機以本地時間作為時鐘源
 ```
 
 服務管理(以systemD發行版為例)：
