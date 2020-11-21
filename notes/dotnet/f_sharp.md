@@ -7,6 +7,7 @@
 - [Function (函數)](#function-函數)
 	- [可選參數](#可選參數)
 	- [參數默認值](#參數默認值)
+	- [Entry Point (入口點/函數)](#entry-point-入口點函數)
 
 <!-- /TOC -->
 
@@ -89,6 +90,34 @@ F#繼承了大部分OCaml的設計，與主流語言存在一些差異。
 	- ;;
 	val b : string = "abccde"
 	val a : int = 3
+	```
+
+- 位運算符與主流語言不同。
+
+	邏輯與`&&&`、或`|||`、非`~~~`、異或`^^^`。
+
+	```fs
+	> 1 &&& 2;;
+	val it : int = 0
+
+	> 1 ||| 2;;
+	val it : int = 3
+
+	> 1 ^^^ 2;;
+	val it : int = 3
+
+	> ~~~1;;
+	val it : int = -2
+	```
+
+	左移位`<<<`，右移位`>>>`。
+
+	```fs
+	> 1 <<< 1;;
+	val it : int = 2
+
+	> 1 >>> 1;;
+	val it : int = 0
 	```
 
 
@@ -182,3 +211,17 @@ type C =
 
 被`System.Runtime.InteropServices.OptionalAttribute`特性標註的可選參數不會改變簽名中的實際類型。
 由`System.Runtime.InteropServices.DefaultParameterValueAttribute`特性為可選參數顯式提供默認值。
+
+## Entry Point (入口點/函數)
+F#項目中，使用特性`[<EntryPoint>]`標註一個函數，使之成為入口函數。
+
+```fs
+[<EntryPoint>]
+let main args = ...
+```
+
+與C#不同，F#中的入口函數對函數名稱無要求，僅函數簽名需要滿足：
+
+```fs
+string array -> int
+```
