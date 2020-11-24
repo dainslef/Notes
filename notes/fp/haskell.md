@@ -13,6 +13,8 @@
 	- [定義模塊](#定義模塊)
 	- [導入內容](#導入內容)
 	- [Re-Export](#re-export)
+- [Collections (集合)](#collections-集合)
+	- [List (列表)](#list-列表)
 - [Currying (柯里化)](#currying-柯里化)
 - [Fixity Declarations (操作符結合性、優先級定義)](#fixity-declarations-操作符結合性優先級定義)
 - [Pointfree Style](#pointfree-style)
@@ -327,6 +329,108 @@ module Xxx1 (module Xxx2, ...) where
 ```
 
 其它模塊在導入本模塊時，同樣可以訪問本模塊重導出的其它模塊內容。
+
+
+
+# Collections (集合)
+與其它函數式語言類似，Haskell中提供了多種集合類型，包括最基礎的`[a]`(列表)，
+以及`Data.Array`(數組)、`Data.Vector`(向量)、`Data.Sequence`(序列)。
+
+## List (列表)
+**列表**是Haskell的基礎數據結構，使用`[a]`表示。
+
+列表在Haskell中的定義非常簡單：
+
+```hs
+Prelude> :info []
+data [] a = [] | a : [a] 	-- Defined in ‘GHC.Types’
+instance Applicative [] -- Defined in ‘GHC.Base’
+instance Eq a => Eq [a] -- Defined in ‘GHC.Classes’
+instance Functor [] -- Defined in ‘GHC.Base’
+instance Monad [] -- Defined in ‘GHC.Base’
+instance Monoid [a] -- Defined in ‘GHC.Base’
+instance Ord a => Ord [a] -- Defined in ‘GHC.Classes’
+instance Semigroup [a] -- Defined in ‘GHC.Base’
+instance Show a => Show [a] -- Defined in ‘GHC.Show’
+instance Read a => Read [a] -- Defined in ‘GHC.Read’
+instance [safe] IsChar c => PrintfArg [c]
+  -- Defined in ‘Text.Printf’
+instance [safe] IsChar c => PrintfType [c]
+  -- Defined in ‘Text.Printf’
+instance Foldable [] -- Defined in ‘Data.Foldable’
+instance Traversable [] -- Defined in ‘Data.Traversable’
+```
+
+Haskell中列表的實現為linked list，因此在數據量較大時與傳統語言中基於數組的數據結構相比，
+查找性能與內存佔用均表現不佳，對性能有較高要求的場景應考慮使用`Data.Vector`。
+
+Haskell中的列表支持函數式語言中常見的範圍操作符進行初始化：
+
+```hs
+Prelude> [1 .. 10]
+[1,2,3,4,5,6,7,8,9,10]
+Prelude> [1, 3 .. 10] -- 間隔輸出
+[1,3,5,7,9]
+Prelude> [10, 8 .. 0] -- 降序輸出
+[10,8,6,4,2,0]
+```
+
+列表生成式(List comprehension)：
+
+```hs
+Prelude> [2 * i | i <- [1 .. 10]]
+[2,4,6,8,10,12,14,16,18,20]
+-- 可以使用多個列表
+Prelude> [(x, y) | x <- [1, 2], y <- [3 .. 5]]
+[(1,3),(1,4),(1,5),(2,3),(2,4),(2,5)]
+-- 支持穿插普通語句
+Prelude> [(x, y) | x <- [1, 2], let y = "[" ++ show x ++ "]"]
+[(1,"[1]"),(2,"[2]")]
+-- 允許使用Bool語句篩選需要生成的內容
+Prelude> [(x, y) | x <- [1 .. 5], let y = "[" ++ show x ++ "]", mod x 2 == 0]
+[(2,"[2]"),(4,"[4]")]
+```
+
+列表的增刪改查操作：
+
+```hs
+Prelude> l = [1, 2, 3, 4, 5]
+Prelude> 0:l -- 添加元素，鏈表的添加元素在頭部
+[0,1,2,3,4,5]
+Prelude> [0, 0, 0] ++ l -- 拼接兩個鏈表
+[0,0,0,1,2,3,4,5]
+Prelude> l ++ [6] -- 利用拼接鏈表操作向尾部添加元素
+[1,2,3,4,5,6]
+Prelude> length l -- 獲取大小
+5
+Prelude> null l -- 判斷是否為空
+False
+Prelude> l !! 0 -- 按索引獲取對應位置的內容(注意鏈表的按索引訪問尾部元素的時間複雜度為O(n))
+1
+Prelude> filter (>2) l -- 按指定條件過濾
+[3,4,5]
+Prelude> reverse l -- 反轉列表
+[5,4,3,2,1]
+Prelude> init l -- 取出頭部元素
+[1,2,3,4]
+Prelude> tail l -- 取出尾部元素
+[2,3,4,5]
+Prelude> take 3 l -- 取其中部分指定元素
+[1,2,3]
+Prelude> splitAt 3 l -- 從指定位置開始切分列表
+([1,2,3],[4,5])
+```
+
+列表類型實現了`Foldable`、`Monad`等一系列type class：
+
+```hs
+Prelude> any (>1) l -- 檢測是否存在任意成員滿足條件
+True
+Prelude> all (>1) l -- 檢測是否全部成員滿足條件
+False
+Prelude> sum l -- 求和
+15
+```
 
 
 
