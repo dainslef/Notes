@@ -64,6 +64,8 @@
 	- [apt-mirror](#apt-mirror)
 		- [本地源配置](#本地源配置)
 		- [使用本地源](#使用本地源)
+- [OpenCC](#opencc)
+	- [命令行工具opencc](#命令行工具opencc)
 - [常見問題記錄](#常見問題記錄-1)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
@@ -1879,6 +1881,52 @@ deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-backports main restrict
 
 
 
+# OpenCC
+`OpenCC`(Open Chinese Convert)是一個中文簡繁轉換的開源項目，
+支持詞彙級別的轉換、異體字轉換和地區習慣用詞轉換(牆國、臺灣、香港、日本新字體)。
+
+項目託管在[GitHub](https://github.com/BYVoid/OpenCC)上。
+
+## 命令行工具opencc
+OpenCC提供的命令行工具`opencc`在各大平台的倉庫中均以內置，可使用對應包管理器直接安裝：
+
+```c
+# pacman -S opencc // Arch Linux
+$ brew install opencc // macOS Homebrew
+```
+
+簡單的指令用法：
+
+```
+$ opencc -i <輸入文本文件> -o <輸出文本文件>
+```
+
+默認的轉換策略是將殘體字轉換為正體字。
+通過`-c`參數可設定轉換文本使用的配置：
+
+```
+$ opencc -i <輸入文本文件> -o <輸出文本文件> -c <*.json>
+```
+
+文本轉換配置為json文件，OpenCC提供了常見的轉換配置：
+
+- `s2t.json` Simplified Chinese to Traditional Chinese 簡體到繁體
+- `t2s.json` Traditional Chinese to Simplified Chinese 繁體到簡體
+- `s2tw.json` Simplified Chinese to Traditional Chinese (Taiwan Standard) 簡體到臺灣正體
+- `tw2s.json` Traditional Chinese (Taiwan Standard) to Simplified Chinese 臺灣正體到簡體
+- `s2hk.json` Simplified Chinese to Traditional Chinese (Hong Kong variant) 簡體到香港繁體
+- `hk2s.json` Traditional Chinese (Hong Kong variant) to Simplified Chinese 香港繁體到簡體
+- `s2twp.json` Simplified Chinese to Traditional Chinese (Taiwan Standard) with Taiwanese idiom 簡體到繁體（臺灣正體標準）並轉換爲臺灣常用詞彙
+- `tw2sp.json` Traditional Chinese (Taiwan Standard) to Simplified Chinese with Mainland Chinese idiom 繁體（臺灣正體標準）到簡體並轉換爲中國大陸常用詞彙
+- `t2tw.json` Traditional Chinese (OpenCC Standard) to Taiwan Standard 繁體（OpenCC 標準）到臺灣正體
+- `hk2t.json` Traditional Chinese (Hong Kong variant) to Traditional Chinese 香港繁體到繁體（OpenCC 標準）
+- `t2hk.json` Traditional Chinese (OpenCC Standard) to Hong Kong variant 繁體（OpenCC 標準）到香港繁體
+- `t2jp.json` Traditional Chinese Characters (Kyūjitai) to New Japanese Kanji (Shinjitai) 繁體（OpenCC 標準，舊字體）到日文新字體
+- `jp2t.json` New Japanese Kanji (Shinjitai) to Traditional Chinese Characters (Kyūjitai) 日文新字體到繁體（OpenCC 標準，舊字體）
+- `tw2t.json` Traditional Chinese (Taiwan standard) to Traditional Chinese 臺灣正體到繁體（OpenCC 標準）
+
+
+
 # 常見問題記錄
 記錄各類發行版使用中可能會遇到的問題。
 
@@ -1957,7 +2005,7 @@ SELinux status:                 disabled
 
 ### grub2-install: error: /usr/lib/grub/x86_64-efi/modinfo.sh doesn't exist. Please specify --target or --directory.
 問題描述：<br>
-在CentOS 7、UEFI引導下，使用`grub-install`指令安裝grub引導器時出現錯誤。
+在`CentOS 7`、UEFI引導下，使用`grub-install`指令安裝grub引導器時出現錯誤。
 
 解決方案：<br>
 該問題是CentOS 7默認安裝時未安裝`grub-efi-modules`導致的，執行安裝：
