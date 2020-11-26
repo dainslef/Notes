@@ -73,6 +73,7 @@
 		- [iptable/firewalld](#iptablefirewalld)
 		- [SELinux](#selinux)
 		- [grub2-install: error: /usr/lib/grub/x86_64-efi/modinfo.sh doesn't exist. Please specify --target or --directory.](#grub2-install-error-usrlibgrubx86_64-efimodinfosh-doesnt-exist-please-specify---target-or---directory)
+		- [http://.../repodata/repomd.xml: [Errno 14] HTTP Error 404 - Not Found Trying other mirror.](#httprepodatarepomdxml-errno-14-http-error-404---not-found-trying-other-mirror)
 
 <!-- /TOC -->
 
@@ -2012,4 +2013,66 @@ SELinux status:                 disabled
 
 ```
 # yum install grub2-efi-modules
+```
+
+### http://.../repodata/repomd.xml: [Errno 14] HTTP Error 404 - Not Found Trying other mirror.
+問題描述：<br>
+在`CentOS 7`下，網絡正常，倉庫配置正確，但執行`yum update`出現如下錯誤：
+
+```
+[root@spark-slave3 ~]# yum update
+Loaded plugins: fastestmirror
+http://mirror.centos.org/centos/%24releasever/extras/x86_64/repodata/repomd.xml: [Errno 14] HTTP Error 404 - Not Found
+Trying other mirror.
+To address this issue please refer to the below wiki article
+
+https://wiki.centos.org/yum-errors
+
+If above article doesn't help to resolve this issue please use https://bugs.centos.org/.
+
+
+
+ One of the configured repositories failed (CentOS-$releasever - Extras),
+ and yum doesn't have enough cached data to continue. At this point the only
+ safe thing yum can do is fail. There are a few ways to work "fix" this:
+
+     1. Contact the upstream for the repository and get them to fix the problem.
+
+     2. Reconfigure the baseurl/etc. for the repository, to point to a working
+        upstream. This is most often useful if you are using a newer
+        distribution release than is supported by the repository (and the
+        packages for the previous distribution release still work).
+
+     3. Run the command with the repository temporarily disabled
+            yum --disablerepo=extras ...
+
+     4. Disable the repository permanently, so yum won't use it by default. Yum
+        will then just ignore the repository until you permanently enable it
+        again or use --enablerepo for temporary usage:
+
+            yum-config-manager --disable extras
+        or
+            subscription-manager repos --disable=extras
+
+     5. Configure the failing repository to be skipped, if it is unavailable.
+        Note that yum will try to contact the repo. when it runs most commands,
+        so will have to try and fail each time (and thus. yum will be be much
+        slower). If it is a very temporary problem though, this is often a nice
+        compromise:
+
+            yum-config-manager --save --setopt=extras.skip_if_unavailable=true
+
+failure: repodata/repomd.xml from extras: [Errno 256] No more mirrors to try.
+http://mirror.centos.org/centos/$releasever/extras/x86_64/repodata/repomd.xml: [Errno 14] HTTP Error 404 - Not Found
+```
+
+相關文秘描述參考[StackExchange](https://superuser.com/questions/1091450/centos-7-2-yum-repo-configuration-fails)。
+
+解決方案：<br>
+出現此問題是由於`/etc/yum/vars/releasever`被修改或破壞，
+進而導致yum無法檢測當前系統版本，執行修復：
+
+```
+# mkdir -p /etc/yum/vars
+# echo 7 > /etc/yum/vars/releasever
 ```
