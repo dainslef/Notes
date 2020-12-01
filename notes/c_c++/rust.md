@@ -6,6 +6,7 @@
 		- [cargo](#cargo)
 		- [rustup](#rustup)
 		- [rustfmt](#rustfmt)
+	- [REPL](#repl)
 
 <!-- /TOC -->
 
@@ -82,4 +83,42 @@ rustfmt默認會按照社區風格格式化代碼，VSCode自身配置的Rust代
 	"--config",
 	"tab_spaces=2"
 ],
+```
+
+## REPL
+Rust目前沒有官方的REPL實現，目前流行的REPL實現是Google提供的[`evcxr`](https://github.com/google/evcxr)。
+
+evcxr可以直接通過cargo進行安裝：
+
+```c
+$ cargo install evcxr_repl
+```
+
+安裝完成後，若已正確配置環境變量，則可直接通過命令行進入Rust REPL：
+
+```
+$ evcxr
+Welcome to evcxr. For help, type :help
+>> println!("Hello World!");
+Hello World!
+>>
+```
+
+evcxr項目還提供了對Jupyter Notebook的支持：
+
+```c
+$ cargo install evcxr_jupyter // 安裝 evcxr_jupyter 工具
+$ evcxr_jupyter --install // 使用 evcxr_jupyter 安裝 Jupyter Kernel
+Writing /Users/dainslef/Library/Jupyter/kernels/rust/kernel.json
+Writing /Users/dainslef/Library/Jupyter/kernels/rust/logo-32x32.png
+Writing /Users/dainslef/Library/Jupyter/kernels/rust/logo-64x64.png
+Writing /Users/dainslef/Library/Jupyter/kernels/rust/logo-LICENSE.md
+Installation complete
+$ jupyter kernelspec list // 查看 Jupyter Kernel，新增了 rust kernel
+Available kernels:
+  .net-csharp        /Users/dainslef/Library/Jupyter/kernels/.net-csharp
+  .net-fsharp        /Users/dainslef/Library/Jupyter/kernels/.net-fsharp
+  .net-powershell    /Users/dainslef/Library/Jupyter/kernels/.net-powershell
+  rust               /Users/dainslef/Library/Jupyter/kernels/rust
+  python3            /usr/local/share/jupyter/kernels/python3
 ```
