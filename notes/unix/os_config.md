@@ -54,6 +54,8 @@
 	- [服務管理](#服務管理)
 	- [服務分析](#服務分析)
 	- [系統配置](#系統配置)
+- [網絡](#網絡)
+- [net-tools & iproute2](#net-tools--iproute2)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
@@ -1634,6 +1636,43 @@ systemd則根據服務進程的依賴關係並行地啓動服務，極大地減�
 - `networkctl` 網絡配置
 - `coredumpctl` 核心轉儲查看工具
 - `journalctl` 日誌查看工具
+
+
+
+# 網絡
+Linux下網絡工具主要包括老式的net-tools系列和新的iproute2系列工具。
+
+Linux的proc文件系統在`/proc/net`路徑下也提供大量網絡相關信息：
+
+```
+$ ls /proc/net/
+anycast6   fib_triestat   ip6_mr_vif         mcfilter   psched     rt_cache      tcp       wireless
+arp        icmp           ip_mr_cache        mcfilter6  ptype      snmp          tcp6      xfrm_stat
+connector  if_inet6       ip_mr_vif          netfilter  raw        snmp6         udp
+dev        igmp           ip_tables_matches  netlink    raw6       sockstat      udp6
+dev_mcast  igmp6          ip_tables_names    netstat    route      sockstat6     udplite
+dev_snmp6  ip6_flowlabel  ip_tables_targets  packet     rt6_stats  softnet_stat  udplite6
+fib_trie   ip6_mr_cache   ipv6_route         protocols  rt_acct    stat          unix
+```
+
+# net-tools & iproute2
+[`net-tools`](https://sourceforge.net/projects/net-tools)套件歷史悠久，
+提供了與其它Unix類似的網絡管理工具(ip、route等)，但目前已停止維護。
+
+[`iproute2`](https://wiki.linuxfoundation.org/networking/iproute2)是下一代的Linux網絡工具套件。
+
+net-tools與iproute2的主要功能對照：
+
+| Legacy utility | Replacement command | Note |
+| :- | :- | :- |
+| ifconfig | ip addr, ip link | Address and link configuration |
+| route | ip route | Routing tables
+| arp | ip neigh | Neighbors |
+| iptunnel | ip tunnel | Tunnels |
+| nameif | ifrename, ip link set name | Rename network interfaces |
+| ipmaddr | ip maddr | Multicast |
+| netstat | ip route | Show various networking statistics |
+| brctl | bridge | Handle bridge addresses and devices |
 
 
 
