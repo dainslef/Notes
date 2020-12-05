@@ -392,6 +392,21 @@ $ hdfs dfs -rm [HDFS路徑]
 $ hdfs dfs -rmdir [HDFS路徑]
 ```
 
+若操作的HDFS路徑中帶有特殊字符，則需要使用`\`對其進行轉義：
+
+```c
+// 假設存在HDFS路徑 /test-[0]
+
+// 直接刪除提示不存在該路徑
+$ hdfs dfs -rm -r /test-[0]
+rm: `/test-[0]': No such file or directory
+
+// 使用雙引號包含內容，並使用轉義字符"\"轉義
+$ hdfs dfs -rm -r "/test-\[0\]"
+20/11/23 14:02:34 INFO fs.TrashPolicyDefault: Namenode trash configuration: Deletion interval = 0 minutes, Emptier interval = 0 minutes.
+Deleted /test-[0]
+```
+
 ## Balancer
 向Hadoop集群中寫入新數據時，HDFS並不保證數據會均勻地分佈到集群中的每個DataNode中，
 集群長期運行會造成各個DataNode間使用率有較大差異。
