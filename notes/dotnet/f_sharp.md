@@ -8,6 +8,9 @@
 	- [可選參數](#可選參數)
 	- [參數默認值](#參數默認值)
 	- [Entry Point (入口點/函數)](#entry-point-入口點函數)
+- [Pattern Matching (模式匹配)](#pattern-matching-模式匹配)
+	- [Constant Patterns (常量模式)](#constant-patterns-常量模式)
+	- [Identifier Patterns (標識符匹配)](#identifier-patterns-標識符匹配)
 
 <!-- /TOC -->
 
@@ -224,4 +227,73 @@ let main args = ...
 
 ```fs
 string array -> int
+```
+
+
+
+# Pattern Matching (模式匹配)
+**模式匹配**是函數式語言中常見的基礎功能，F#同樣提供了強大的模式匹配功能，
+詳細可參考[微軟官方文檔](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/pattern-matching)。
+
+## Constant Patterns (常量模式)
+常量模式包括數值、字符、文本字面量、常量枚舉等。
+
+```fs
+[<Literal>] // 使用Literal特性，字段可用於模式匹配中
+let Three = 3
+
+let filter123 x =
+    match x with
+    // 常量模式匹配
+    | 1 | 2 | Three -> printfn "Found 1, 2, or 3!"
+    // 變量模式
+    | var1 -> printfn "%d" var1
+
+for x in 1..10 do filter123 x
+```
+
+## Identifier Patterns (標識符匹配)
+對與聯合類型(union type)的每一個用例(case)可按照類型的定義進行匹配：
+
+```fs
+// 匹配標準庫內的 'a option 類型
+let printOption (data : int option) =
+    match data with
+    | Some var1  -> printfn "%d" var1
+    | None -> ()
+
+// 自定義聯合類型
+type PersonName =
+    | FirstOnly of string
+    | LastOnly of string
+    | FirstLast of string * string
+
+// 按照自定義類型的結構進行匹配並解構
+let constructQuery personName =
+    match personName with
+    | FirstOnly(firstName) -> printf "May I call you %s?" firstName
+    | LastOnly(lastName) -> printf "Are you Mr. or Ms. %s?" lastName
+    | FirstLast(firstName, lastName) -> printf "Are you %s %s?" firstName lastName
+```
+
+若聯合類型使用了命名字段(named fields)，則解構時可以等號(=)將指定字段解構到變量中：
+
+```fs
+// 定義命名聯合類型
+type Shape =
+    | Rectangle of height : float * width : float
+    | Circle of radius : float
+
+let matchShape shape =
+    match shape with
+    | Rectangle(height = h) -> printfn "Rectangle with length %f" h
+    | Circle(r) -> printfn "Circle with radius %f" r // 解構時的名稱綁定是可選的
+```
+
+當需要顯式解構多個字段時，使用`;`進行分隔：
+
+```fs
+match shape with
+| Rectangle(height = h; width = w) -> printfn "Rectangle with height %f and width %f" h w
+| _ -> ()
 ```
