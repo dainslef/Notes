@@ -58,6 +58,7 @@
 - [問題記錄](#問題記錄)
 	- [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
 	- ["Xxx.app" is damaged and can't be opened. You should move it to the Trash.](#xxxapp-is-damaged-and-cant-be-opened-you-should-move-it-to-the-trash)
+	- [Error: Your CLT does not support macOS 11.0.](#error-your-clt-does-not-support-macos-110)
 
 <!-- /TOC -->
 
@@ -1146,3 +1147,22 @@ $ xattr /Applications/Visual\ Studio\ Code.app
 // -c 表示清除所有屬性
 # xattr -rc /Applications/V2rayU.app
 ```
+
+## Error: Your CLT does not support macOS 11.0.
+問題描述：<br>
+macOS大版本更新，但Xcode(CommandLineTools SDK)未同步更新到匹配的版本；
+使用Homebrew安裝部分軟件包時出現如下錯誤：
+
+```
+Error: Your CLT does not support macOS 11.0.
+It is either outdated or was modified.
+Please update your CLT or delete it if no updates are available.
+Error: An exception occurred within a child process:
+  SystemExit: exit
+```
+
+解決方案：<br>
+查看`/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk`指向的實際SDK版本，
+若SDK版本與當前macOS版本不匹配，則應更新到SDK到macOS匹配的版本。
+
+若已經安裝了Xcode，則可以直接刪除`/Library/Developer/CommandLineTools`路徑。
