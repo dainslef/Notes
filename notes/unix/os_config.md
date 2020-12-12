@@ -56,6 +56,7 @@
 	- [系統配置](#系統配置)
 - [網絡](#網絡)
 - [net-tools & iproute2](#net-tools--iproute2)
+	- [mii-tool & ethtool](#mii-tool--ethtool)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
@@ -1673,6 +1674,74 @@ net-tools與iproute2的主要功能對照：
 | ipmaddr | ip maddr | Multicast |
 | netstat | ip route | Show various networking statistics |
 | brctl | bridge | Handle bridge addresses and devices |
+
+## mii-tool & ethtool
+`mii-tool`用於查看網卡的狀態，指令語法：
+
+```
+usage: mii-tool [-VvRrwl] [-A media,... | -F media] [-p addr] <interface ...>
+       -V, --version               display version information
+       -v, --verbose               more verbose output
+       -R, --reset                 reset MII to poweron state
+       -r, --restart               restart autonegotiation
+       -w, --watch                 monitor for link status changes
+       -l, --log                   with -w, write events to syslog
+       -A, --advertise=media,...   advertise only specified media
+       -F, --force=media           force specified media technology
+       -p, --phy=addr              set PHY (MII address) to report
+media: 1000baseTx-HD, 1000baseTx-FD,
+       100baseT4, 100baseTx-FD, 100baseTx-HD,
+       10baseT-FD, 10baseT-HD,
+       (to advertise both HD and FD) 1000baseTx, 100baseTx, 10baseT
+```
+
+其中`xxxbase`代表網卡的速率，100base即為百兆網卡，1000base即為千兆網卡。
+
+實例：
+
+```c
+$ mii-tool eno2
+eno2: negotiated 1000baseT-FD flow-control, link ok
+```
+
+`ethtool`可用於查看網卡的性能參數，包括帶寬等信息。
+基本指令格式：
+
+```
+# ethtool devname
+```
+
+實例：
+
+```
+# ethtool enp1s0
+Settings for enp1s0:
+	Supported ports: [ TP MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Half 1000baseT/Full
+	Supported pause frame use: No
+	Supports auto-negotiation: Yes
+	Advertised link modes:  10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	Advertised pause frame use: Symmetric Receive-only
+	Advertised auto-negotiation: Yes
+	Link partner advertised link modes:  10baseT/Half 10baseT/Full
+	                                     100baseT/Half 100baseT/Full
+	Link partner advertised pause frame use: Symmetric
+	Link partner advertised auto-negotiation: Yes
+	Speed: 100Mb/s
+	Duplex: Full
+	Port: MII
+	PHYAD: 0
+	Transceiver: internal
+	Auto-negotiation: on
+	Supports Wake-on: pumbg
+	Wake-on: g
+	Current message level: 0x00000033 (51)
+			       drv probe ifdown ifup
+	Link detected: yes
+```
 
 
 
