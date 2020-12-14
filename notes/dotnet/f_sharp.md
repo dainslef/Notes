@@ -11,6 +11,7 @@
 - [Pattern Matching (模式匹配)](#pattern-matching-模式匹配)
 	- [Constant Patterns (常量模式)](#constant-patterns-常量模式)
 	- [Identifier Patterns (標識符匹配)](#identifier-patterns-標識符匹配)
+	- [Active Patterns (活動模式)](#active-patterns-活動模式)
 
 <!-- /TOC -->
 
@@ -296,4 +297,40 @@ let matchShape shape =
 match shape with
 | Rectangle(height = h; width = w) -> printfn "Rectangle with height %f and width %f" h w
 | _ -> ()
+```
+
+## Active Patterns (活動模式)
+**活動模式**能夠針對特定類型提供自定義的解構邏輯。
+
+`(|XXX|XXX|)`語法稱為香蕉剪輯(banana clips)，定義用於匹配的模式，
+函數的輸入內容為需要結構的目標對象，返回類型需要為香蕉剪輯中定義的模式。
+函數創建的內容稱為模式識別器(active recognizer)：
+
+```fs
+let (|Pattern1|Pattern2|Pattern3|) target =
+    if ... then Pattern1(...)
+    elif ... then Pattern2(...)
+    else Pattern3
+```
+
+定義活動模式時，無須需要一次定義所有模式識別器，還可以定義部分活動模式(partial active patterns)，
+用於匹配滿足某些條件的輸入數據，在該模式未匹配成功時繼續匹配其它模式。
+部分活動模式香蕉剪輯以`(|_|)`結尾，返回類型為`option`類型。
+
+```fs
+let (|PartialPattern|_|) target = if ... then Some(...) else None
+```
+
+定義活動模式的函數至少需要接收一個參數用於表示被匹配的目標，
+當活動模式函數擁有多個參數時，被稱為參數活動模式(parameterized active pattern)，
+最後一個參數表示被匹配的目標，其它參數在編寫模式時傳入：
+
+```fs
+let (|ParameterizedPattern|_|) arg1 arg2 target = if ... then Some(...) else None
+
+// 除了用於匹配的參數外，其餘參數在匹配模式時傳入
+match target with
+| ParameterizedPattern arg1 arg2 ... -> ...
+| ParameterizedPattern argXxx argXxx ... -> ...
+| ...
 ```
