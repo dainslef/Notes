@@ -334,3 +334,69 @@ match target with
 | ParameterizedPattern argXxx argXxx ... -> ...
 | ...
 ```
+
+完整的活動模式用法實例：
+
+```fs
+type Point(?a: int, ?b: int, ?c: string) =
+    member val X = a |> Option.defaultValue 0 with get, set
+    member val Y = b |> Option.defaultValue 0 with get, set
+    member _.Message = c |> Option.defaultValue ""
+
+// (||) 語法稱為香蕉剪輯(banana clips)，定義用於匹配的模式，函數的返回類型需要為香蕉剪輯中定義的模式
+// 函數創建的內容稱為模式識別器(active recognizer)
+let (|Pattern1|Pattern2|Pattern3|) (p: Point) =
+    if p.X < 0 then Pattern1(p.X)
+    elif p.Y < 0 then Pattern2(p.Y)
+    else Pattern3
+
+// 定義部分活動模式，香蕉剪輯以(|_|)結尾，返回類型為option類型
+let (|PartialPattern1|_|) (p: Point) =
+    if p.X > 0 && p.Y > 0 then Some((p.X, p.Y)) else None
+
+let (|PartialPattern2|_|) (p: Point) =
+    if not <| isNull p.Message && p.Message.Length <> 0
+    then Some(p.Message)
+    else None
+
+// 參數活動匹配
+let (|ParameterizedPattern|_|) ((x: int, y: int) as v) (p: Point) =
+    if p.X = x && p.Y = y then Some((v, p)) else None
+
+// 使用定義的模式
+let printPoint (p: Point) =
+    match p with
+    | ParameterizedPattern (10, 10) p -> printfn "ParameterizedPattern: Value: %A" p
+    | PartialPattern1 (x, y) -> printfn "PartialPattern1: X: %d, Y: %d" x y
+    | PartialPattern2 message -> printfn "PartialPattern2: Message: %s" message
+    | Pattern1 v
+    | Pattern2 v -> printfn "Pattern1|Patterns2: Value: %d" v
+    | Pattern3 -> printfn "Pattern3"
+
+open Microsoft.VisualStudio.TestTools.UnitTesting
+
+[<TestClass>]
+type Test() =
+
+    [<TestMethod>]
+    member _.TestPattern() =
+        [ Point(10, 10)
+          Point(1, 1)
+          Point(-1, -1, c = "Test")
+          Point(-1, 2)
+          Point(2, -1)
+          Point() ]
+        |> List.map printPoint
+        |> ignore
+```
+
+輸出結果：
+
+```
+ParameterizedPattern: Value: ((10, 10), FSharpPractice.Pattern+Point)
+PartialPattern1: X: 1, Y: 1
+PartialPattern2: Message: Test
+Pattern1|Patterns2: Value: -1
+Pattern1|Patterns2: Value: -1
+Pattern3
+```
