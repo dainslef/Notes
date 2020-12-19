@@ -12,6 +12,7 @@
 	- [Constant Patterns (常量模式)](#constant-patterns-常量模式)
 	- [Identifier Patterns (標識符匹配)](#identifier-patterns-標識符匹配)
 	- [Active Patterns (活動模式)](#active-patterns-活動模式)
+	- [`as` / `when`](#as--when)
 
 <!-- /TOC -->
 
@@ -399,4 +400,26 @@ PartialPattern2: Message: Test
 Pattern1|Patterns2: Value: -1
 Pattern1|Patterns2: Value: -1
 Pattern3
+```
+
+## `as` / `when`
+F#在模式匹配中可以使用`when`關鍵字提供類似Haskell、Scala中的守衛(guard)功能：
+
+```fs
+let function1 x =
+    match x with
+    | (var1, var2) when var1 > var2 -> printfn "%d is greater than %d" var1 var2
+    | (var1, var2) when var1 < var2 -> printfn "%d is less than %d" var1 var2
+    | (var1, var2) -> printfn "%d equals %d" var1 var2
+
+function1 (1, 2)
+function1 (2, 1)
+function1 (0, 0)
+```
+
+`as`關鍵字提供了類似Haskell、Scala中的`@`綁定功能，為匹配到的值綁定一個新的變量名稱：
+
+```fs
+let (var1, var2) as tuple1 = (1, 2)
+printfn "%d %d %A" var1 var2 tuple1
 ```
