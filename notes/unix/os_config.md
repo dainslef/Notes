@@ -387,20 +387,40 @@ $ find . -type f -exec chmod 644 \{\} \;
 
 ```c
 // 強制殺死進程(發送SIGKILL信號，該信號不可被忽略)
-$ kill -9 [pid]
-// 向指定進程發送指定名稱的信號
-$ kill -s [sig_name] [pid]
+# kill -9 [pid]
 // 向指定進程發送指定編號的信號
-$ kill -n [sig_num] [pid]
+# kill -[sig_num] [pid]
+// 向指定進程發送指定名稱的信號
+# kill -s [sig_name] [pid]
 // 列出系統支持的信號
 $ kill -l
 
-// 打印指定 pid 進程信息
-$ ps --pid [pid]
-// 打印所有進程信息
-$ ps a
+// 打印指定 pid 進程信息詳情
+$ ps u -p [pid]
+// 打印當前所有進程信息詳情
+$ ps au
+// 打印所有進程信息詳情
+$ ps ux
 // 輸出指定內容的進程信息
 $ ps -o cmd,user,stat,pid,ppid,pgid,sid,tpgid,tty
+```
+
+在Linux發行版中，`sysvinit-tools`提供了`pidof`工具，可根據進程名稱查詢pid。
+
+```c
+$ pidof [process_name]
+```
+
+搭配kill指令，可一次殺死指定進程名的所有進程：
+
+```c
+# kill -9 $(pidof [process_name])
+```
+
+macOS下未直接提供與pidof功能等價的指令，但可使用管道組合指令提供類似功能：
+
+```c
+$ ps A | grep [process_name] | awk '{print $1}'
 ```
 
 ## 日誌記錄
@@ -1818,6 +1838,7 @@ apt的常用指令：
 
 // Ubuntu 14.04 之後可使用更簡單的命令形式
 # apt update
+# apt search [包名]
 # apt install/remove [包名]
 # apt purge [包名]
 # apt upgrade/dist-upgrade
@@ -1828,6 +1849,11 @@ apt的常用指令：
 
 // 查看/搜索指定包
 # apt-cache show/search	[包名]
+
+// 建立/更新軟件包的文件信息
+# apt-file update
+// 查看/搜索某個文件的軟件包歸屬
+# apt-file search [文件路徑]
 
 // 將某個包標記爲自動/手動安裝
 # apt-mask auto/manual [包名]
