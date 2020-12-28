@@ -86,12 +86,15 @@
 ## 數據庫初始化 (MariaDB & MySQL 5.7-)
 `MariaDB`在MySQL被`Oracle`收購之後，被各大Linux發行版作爲默認的MySQL替代版本。
 
-作爲MySQL的分支，並沒有採用`MySQL 5.7`之後的新初始化方式，依舊使用`mysql_install_db`指令進行數據庫初始化，
+作爲MySQL的分支，並沒有採用`MySQL 5.7`版本引入的新初始化方式，依舊使用`mysql_install_db`指令進行數據庫初始化，
 以ArchLinux爲例，初始化操作爲：
 
 ```
 # mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
 ```
+
+對於非軟件源安裝的MySQL，可能會找不到mysql_install_db工具，
+該工具為perl腳本，不在`$MYSQL_HOME\bin`下，而是位於`$MYSQL_HOME\scripts`路徑中。
 
 ## 手動配置
 幾乎所有的主流Linux發行版都將倉庫中默認的MySQL數據庫遷移到了MariaDB分支，
