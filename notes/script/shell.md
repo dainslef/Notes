@@ -10,6 +10,10 @@
 	- [任務管理](#任務管理)
 	- [管道](#管道)
 	- [重定向](#重定向)
+	- [bash/zsh擴展重定向語法](#bashzsh擴展重定向語法)
+		- [here-document](#here-document)
+		- [here-string](#here-string)
+		- [process-substitution](#process-substitution)
 	- [標準輸入輸出](#標準輸入輸出)
 - [Shell 語法](#shell-語法)
 	- [變量](#變量)
@@ -294,9 +298,11 @@ $ 指令 >> 目標文件
 $ 指令 < 目標文件
 ```
 
-對於bash/zsh，輸入重定向額外支持`<<`以及`<<<`語法。
+## bash/zsh擴展重定向語法
+對於bash/zsh，輸入重定向額外支持`<<`以及`<<<`語法、`< <(...)`語法。
 
-`<<`語法被稱為`here-document`結構，用於在命令行開啟一個支持多行輸入的文檔，
+### here-document
+`<<`語法被稱為`here-document`，用於在命令行開啟一個支持多行輸入的文檔，
 `<<`操作符後需要指定**文檔結束標誌**：
 
 ```
@@ -327,6 +333,7 @@ abc
 
 `<<`操作效果近似於創建一個文檔，輸入內容後將指令的標準輸入重定向到該文檔。
 
+### here-string
 `<<<`語法被稱為`here-string`，該操作符將直接傳入文本內容，而不是文件作為重定向的輸入。
 
 實例：
@@ -334,6 +341,36 @@ abc
 ```
 $ grep abc <<< abcdef
 abcdef
+```
+
+### process-substitution
+[`process-substitution`](http://mywiki.wooledge.org/ProcessSubstitution)(進程替換)是bash/zsh的擴展功能。
+作用類似`command1 | command2`形式的管道操作，但可於避免管道操作引起的子Shell問題
+(在循環中使用管道會創建大量子Shell，產生較大開銷，例如經典的fork炸彈)。
+
+process substitution存在兩種形式：
+
+- `<(command...)` 將指定進程的執行結果重定向到臨時FD中作為其它進程的輸入
+- `>(command...)` 將其它進程的執行結果作為指定進程的輸入
+
+兩種操作均會在`/tmp`或`/var/tmp`下創建`named pipes`(FIFO，命名管道)或`named file descriptor`(FD，命名文件描述)，
+實際差異取決於操作系統的實現。
+
+process substitution read語法可轉換為對FIFO或FD的操作。
+有如下語法：
+
+```
+$ command1 <(command2) <(command3)
+```
+
+近似等價於：
+
+```
+$ mkfifo /var/tmp/fifo1 /var/tmp/fifo2
+$ command2 > /var/tmp/fifo1 &
+$ command3 > /var/tmp/fifo2 &
+$ command1 /var/tmp/fifo1 /var/tmp/fifo2
+$ rm /var/tmp/fifo1 /var/tmp/fifo2
 ```
 
 ## 標準輸入輸出
