@@ -8,6 +8,7 @@
 - [常用Unix工具指令](#常用unix工具指令)
 	- [grep](#grep)
 	- [find](#find)
+	- [tee](#tee)
 	- [進程管理](#進程管理)
 	- [日誌記錄](#日誌記錄)
 	- [文件系統](#文件系統)
@@ -380,6 +381,36 @@ exec參數執行的指令以`;`符號結尾，指令中可使用`{}`符號代表
 
 ```c
 $ find . -type f -exec chmod 644 \{\} \;
+```
+
+## tee
+`tee`用於將標準輸入拷貝到標準輸出中，同時寫入一個或**多個**文件，常用於搭配管道操作。
+
+指令語法：
+
+```c
+$ tee [-ai] [file ...]
+```
+
+參數說明：
+
+- `-a` 默認寫入文件時使用重寫方式，使用該參數則變為追加新增內容到文件末尾
+- `-i` 執行該指令時忽略SIGINT信號
+
+使用實例：
+
+```c
+// 將字符 abcd 寫入test1.txt,test2.txt兩個文件中
+$ echo abcd | tee test1.txt test2.txt
+$ cat test1.txt
+abcd
+$ cat test2.txt
+abcd
+// 以追加模式增加文本內容
+$ echo cdef | tee -a test1.txt
+$ cat test1.txt
+abcd
+cdef
 ```
 
 ## 進程管理
