@@ -373,6 +373,37 @@ $ command1 /var/tmp/fifo1 /var/tmp/fifo2
 $ rm /var/tmp/fifo1 /var/tmp/fifo2
 ```
 
+以macOS下的zsh為例，使用`md5`計算兩個文件的md5值：
+
+```c
+// 文件內容：
+// abc.txt: abc\n
+// cde.txt: cde\n
+$ md5 <(cat abc.txt) <(cat cde.txt)
+MD5 (/dev/fd/11) = 0bee89b07a248e27c83fc3d5951213c1
+MD5 (/dev/fd/12) = 7f4d13d9b0b61c086fd68637067435c5
+```
+
+可以看到，macOS下使用process substitution語法在`/dev/fd`下創建了兩個臨時FD，
+從臨時FD中讀取了數據。
+
+process substitution read常搭配標準重定向操作，構成類似雙括號的語法：
+
+```
+$ command1 > >(command2)
+```
+
+功能為先執行commnad1指令，command2讀取command1的執行結果作為輸入並執行；
+功能近似於`command1 | command2`，但避免了子Shell的創建。
+
+process substitution write常見用法如下所示：
+
+```
+$ commnad1 > >(command2)
+```
+
+功能為先執行commnad1指令，command2讀取command1的執行結果作為輸入並執行。
+
 ## 標準輸入輸出
 Shell環境下標準輸入輸出存在默認編號：
 
