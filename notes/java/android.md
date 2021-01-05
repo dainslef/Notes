@@ -1,36 +1,36 @@
 <!-- TOC -->
 
-- [环境搭建](#环境搭建)
+- [環境搭建](#環境搭建)
 	- [管理 Android SDK](#管理-android-sdk)
 	- [Intel HAXM](#intel-haxm)
-- [项目构建](#项目构建)
-	- [项目结构](#项目结构)
-	- [构建定义](#构建定义)
+- [項目構建](#項目構建)
+	- [項目結構](#項目結構)
+	- [構建定義](#構建定義)
 	- [添加 Korlin 支持](#添加-korlin-支持)
-- [资源](#资源)
-	- [资源ID](#资源id)
+- [資源](#資源)
+	- [資源ID](#資源id)
 - [Activity](#activity)
-	- [View (视图)](#view-视图)
-	- [启动/结束 Activity](#启动结束-activity)
-	- [获取 Activity 返回结果](#获取-activity-返回结果)
-	- [保存 Activity 状态](#保存-activity-状态)
+	- [View (視圖)](#view-視圖)
+	- [啓動/結束 Activity](#啓動結束-activity)
+	- [獲取 Activity 返回結果](#獲取-activity-返回結果)
+	- [保存 Activity 狀態](#保存-activity-狀態)
 - [Fragment](#fragment)
 	- [Fragment View](#fragment-view)
 	- [管理 Fragment](#管理-fragment)
-	- [Fragment 数据传递](#fragment-数据传递)
+	- [Fragment 數據傳遞](#fragment-數據傳遞)
 - [Intent](#intent)
 	- [Standard Extra Data](#standard-extra-data)
 - [Menu](#menu)
-	- [定义菜单](#定义菜单)
-	- [菜单项属性](#菜单项属性)
-	- [创建菜单](#创建菜单)
-	- [处理菜单事件](#处理菜单事件)
+	- [定義菜單](#定義菜單)
+	- [菜單項屬性](#菜單項屬性)
+	- [創建菜單](#創建菜單)
+	- [處理菜單事件](#處理菜單事件)
 	- [ActionBar](#actionbar)
 	- [ToolBar](#toolbar)
 - [LinearLayout](#linearlayout)
-	- [布局比例分配](#布局比例分配)
+	- [佈局比例分配](#佈局比例分配)
 - [ScrollView](#scrollview)
-	- [嵌套 ScrollView 滑动冲突](#嵌套-scrollview-滑动冲突)
+	- [嵌套 ScrollView 滑動衝突](#嵌套-scrollview-滑動衝突)
 - [Android Design Support Library](#android-design-support-library)
 	- [TabLayout](#tablayout)
 	- [AppBarLayout](#appbarlayout)
@@ -39,42 +39,42 @@
 
 
 
-# 环境搭建
-`Android`早期通过`Eclipse`外挂`ADT`(`Android Development Tools`)插件来进行开发。
-`Eclipse ADT`插件现在已停止更新，官方推荐开发环境迁移到`Android Studio`。
+# 環境搭建
+`Android`早期通過`Eclipse`外掛`ADT`(`Android Development Tools`)插件來進行開發。
+`Eclipse ADT`插件現在已停止更新，官方推薦開發環境遷移到`Android Studio`。
 
-`Android Studio`基于`IntelliJ IDEA Community`定制开发，
-`IntelliJ IDEA`的`Android Support`插件提供了`Android Studio`的核心功能，启用该插件即可进行`Android`开发。
+`Android Studio`基於`IntelliJ IDEA Community`定製開發，
+`IntelliJ IDEA`的`Android Support`插件提供了`Android Studio`的核心功能，啓用該插件即可進行`Android`開發。
 
 ## 管理 Android SDK
-依次通过`Tools => Android => SDK Manager`进入`Android SDK`配置界面。
+依次通過`Tools => Android => SDK Manager`進入`Android SDK`配置界面。
 
-- `SDK Platforms`界面勾选需要的`Android SDK`版本。
-- `SDK Tools`界面勾选需要的开发工具链。
+- `SDK Platforms`界面勾選需要的`Android SDK`版本。
+- `SDK Tools`界面勾選需要的開發工具鏈。
 
-选择`Android SDK`时，需要注意`IntelliJ IDEA`的`Android Support`插件与`Android Studio`版本的对应关系。
-如`IntelliJ IDEA 2017.2`的`Android Support`插件版本为`10.2.3`，对应`Android Studio 2.3`，
-`Android Studio 2.3`发布时的`Android SDK`最高版本为`API 25 (Android 7.1.1 Nougat)`。
+選擇`Android SDK`時，需要注意`IntelliJ IDEA`的`Android Support`插件與`Android Studio`版本的對應關係。
+如`IntelliJ IDEA 2017.2`的`Android Support`插件版本爲`10.2.3`，對應`Android Studio 2.3`，
+`Android Studio 2.3`發佈時的`Android SDK`最高版本爲`API 25 (Android 7.1.1 Nougat)`。
 
-高版本的`Android SDK`在低版本的`Android Support`插件中仅显示`API`级别，不显示版本信息。
-如`Android 8.0 Oreo`在`Android Support 10.2.3`中仅显示为`API 26`。
+高版本的`Android SDK`在低版本的`Android Support`插件中僅顯示`API`級別，不顯示版本信息。
+如`Android 8.0 Oreo`在`Android Support 10.2.3`中僅顯示爲`API 26`。
 
-不应使用与插件不匹配的高版本`Android SDK`(不显示版本信息的版本)，高版本的`Android SDK`搭配低版本的`Android Support`插件可能会造成UI设计器、构建工具等出错。
+不應使用與插件不匹配的高版本`Android SDK`(不顯示版本信息的版本)，高版本的`Android SDK`搭配低版本的`Android Support`插件可能會造成UI設計器、構建工具等出錯。
 
 ## Intel HAXM
-**Android模拟器**需要`Intel HAXM`技术提供图形加速支持，否则模拟器无法启动。
+**Android模擬器**需要`Intel HAXM`技術提供圖形加速支持，否則模擬器無法啓動。
 
-在`Windows/Linux`平台上，直接使用`Android Studio`安装`Intel HAXM`。
+在`Windows/Linux`平臺上，直接使用`Android Studio`安裝`Intel HAXM`。
 
-在`macOS`平台上，`Intel HAXM`安装包提供的安装脚本会检测macOS版本，安装脚本可能无法识别最新版macOS。
-使用`Android Stduio`直接安装`Intel HAXM`时，可能无法通过安装脚本的检测，
-此时应在Intel官网下载安装包，解压得到`dpkg`格式的安装包手动执行安装。
+在`macOS`平臺上，`Intel HAXM`安裝包提供的安裝腳本會檢測macOS版本，安裝腳本可能無法識別最新版macOS。
+使用`Android Stduio`直接安裝`Intel HAXM`時，可能無法通過安裝腳本的檢測，
+此時應在Intel官網下載安裝包，解壓得到`dpkg`格式的安裝包手動執行安裝。
 
-`Intel HAXM`安装完成后，在macOS下直接启动模拟器会出现`/dev/kvm is not found`错误，
-原因是HAXM的APP在macOS的默认安全策略下被禁止启动，
-在`System Preferences => Security & Privacy => General`选项中点击**允许**相关APP执行。
+`Intel HAXM`安裝完成後，在macOS下直接啓動模擬器會出現`/dev/kvm is not found`錯誤，
+原因是HAXM的APP在macOS的默認安全策略下被禁止啓動，
+在`System Preferences => Security & Privacy => General`選項中點擊**允許**相關APP執行。
 
-在macOS下移除已安装的`Intel HAXM`，执行指令：
+在macOS下移除已安裝的`Intel HAXM`，執行指令：
 
 ```
 sudo /System/Library/Extensions/intelhaxm.kext/Contents/Resources/uninstall.sh
@@ -82,54 +82,54 @@ sudo /System/Library/Extensions/intelhaxm.kext/Contents/Resources/uninstall.sh
 
 
 
-# 项目构建
-Anddroid项目使用`Gradle`做为构建工具。
+# 項目構建
+Anddroid項目使用`Gradle`做爲構建工具。
 
-## 项目结构
-一个基本的Android项目具有以下目录结构：
+## 項目結構
+一個基本的Android項目具有以下目錄結構：
 
 ```
-项目名称
+項目名稱
 ├── build.gradle
 ├── settings.gradle
 ├── gradle.properties
-├── build # 构建缓存目录
+├── build # 構建緩存目錄
 │    └── ...
 ├── gradle # Gradle Wrapper
 │    └── ...
-└── app # Android 核心目录
-     ├── build.gradle # Android 构建配置
-     ├── build # Android 构建缓存
+└── app # Android 核心目錄
+     ├── build.gradle # Android 構建配置
+     ├── build # Android 構建緩存
      │    └── ...
      ├── libs
      │    └── ...
-     └── src # 项目源码、资源目录
-          ├── androidTest # Android 测试
+     └── src # 項目源碼、資源目錄
+          ├── androidTest # Android 測試
           │    └── ...
-          ├── test # 单元测试
+          ├── test # 單元測試
           │    └── ...
-          └── main # APP主要目录
+          └── main # APP主要目錄
                ├── AndroidManifest.xml
-               ├── java # 源码目录
+               ├── java # 源碼目錄
                │    └── ...
-               └── res # 资源目录
+               └── res # 資源目錄
                     └── ...
 ```
 
-## 构建定义
-`Android`项目使用`Gradle`做为构建工具，项目构建配置位于`app/build.gradle`。
-构建配置基本结构如下：
+## 構建定義
+`Android`項目使用`Gradle`做爲構建工具，項目構建配置位於`app/build.gradle`。
+構建配置基本結構如下：
 
 ```groovy
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion xx(编译SDK版本)
-    buildToolsVersion "xx(构建工具版本)"
+    compileSdkVersion xx(編譯SDK版本)
+    buildToolsVersion "xx(構建工具版本)"
     defaultConfig {
         applicationId "xxx.yyy.zzz(包名)"
         minSdkVersion xx(最小SDK版本)
-        targetSdkVersion xx(目标SDK版本)
+        targetSdkVersion xx(目標SDK版本)
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -144,20 +144,20 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'Xxx:Xxx:版本' //依赖项
+    compile 'Xxx:Xxx:版本' //依賴項
     ...
     testCompile 'junit:junit:xxx'
 }
 
 repositories {
-    mavenCentral() //使用 Maven 仓库
+    mavenCentral() //使用 Maven 倉庫
 }
 ```
 
 ## 添加 Korlin 支持
-在`Android`项目中添加`Kotlin`支持，需要以下步骤：
+在`Android`項目中添加`Kotlin`支持，需要以下步驟：
 
-1. 在`build.gradle`中追加以下内容：
+1. 在`build.gradle`中追加以下內容：
 
 	```groovy
 	buildscript {
@@ -168,7 +168,7 @@ repositories {
 	}
 	```
 
-1. 在`app/build.gradle`中追加以下内容：
+1. 在`app/build.gradle`中追加以下內容：
 
 	```groovy
 	apply plugin: 'kotlin-android'
@@ -180,102 +180,102 @@ repositories {
 
 
 
-# 资源
-资源是非代码形式，如图片、音频、XML文件等。
-在Andorid项目中，所有的资源均位于`res`路径下。
-`res`路径下具有以下结构：
+# 資源
+資源是非代碼形式，如圖片、音頻、XML文件等。
+在Andorid項目中，所有的資源均位於`res`路徑下。
+`res`路徑下具有以下結構：
 
 ```
 res
- ├── drawable # 矢量图
+ ├── drawable # 矢量圖
  │    ├── activity_main.xml
  │    └── ...
- ├── layout # UI布局 XML
+ ├── layout # UI佈局 XML
  │    └── ...
- ├── menu # 菜单布局 XML
+ ├── menu # 菜單佈局 XML
  │    └── ...
  ├── values
  │    ├── colors.xml # 色彩
- │    ├── strings.xml # 字符串资源
- │    ├── styles.xml # 样式定义
- │    ├── arrays.xml # 数组资源定义
+ │    ├── strings.xml # 字符串資源
+ │    ├── styles.xml # 樣式定義
+ │    ├── arrays.xml # 數組資源定義
  │    └── ...
- └── mipmap-*dpi # 不同DPI的位图资源
+ └── mipmap-*dpi # 不同DPI的位圖資源
       └── ...
 ```
 
-## 资源ID
-在Android项目构建时，`res`路径下各类资源文件会被分配资源ID，在多数`Andorid API`中，均通过资源ID访问资源。
-资源ID定义在静态类`R`中(`R.java`文件)中：
+## 資源ID
+在Android項目構建時，`res`路徑下各類資源文件會被分配資源ID，在多數`Andorid API`中，均通過資源ID訪問資源。
+資源ID定義在靜態類`R`中(`R.java`文件)中：
 
-- 部分路径会直接在`R`类型内生成对应名称的**静态内部类**：
+- 部分路徑會直接在`R`類型內生成對應名稱的**靜態內部類**：
 
 	- `res/mipmap`
 	- `res/drawable`
 	- `res/layout`
 	- `res/menu`
 
-	路径下的每个文件会在所属路径对应的静态内部类中生成资源ID变量。
+	路徑下的每個文件會在所屬路徑對應的靜態內部類中生成資源ID變量。
 
-- `res/values`路径下的资源文件直接生成对应**静态内部类**：
+- `res/values`路徑下的資源文件直接生成對應**靜態內部類**：
 
 	- `res/values/strings.xml`
 	- `res/values/colors.xml`
 	- `res/values/styles.xml`
 	- `res/values/arrays.xml`
 
-	文件内的每个资源定义会根据资源类型在对应的静态内部类中生成资源ID变量。
+	文件內的每個資源定義會根據資源類型在對應的靜態內部類中生成資源ID變量。
 
-- 使用`android:id`属性定义的资源ID会在静态内部类`R.id`中生成对应资源ID变量。
+- 使用`android:id`屬性定義的資源ID會在靜態內部類`R.id`中生成對應資源ID變量。
 
-类型`R`的基本内容如下所示：
+類型`R`的基本內容如下所示：
 
 ```java
 public final class R {
 	...
-	// 对应 res/drawable 路径下的资源文件
+	// 對應 res/drawable 路徑下的資源文件
 	public static final class drawable {
 		...
 		public static final int xxx = 0x????;
 		...
 	}
-	// 对应 res/layout 路径下的资源文件
+	// 對應 res/layout 路徑下的資源文件
 	public static final class layout {
 		...
 		public static final int xxx = 0x????;
 		...
 	}
-	// 对应 res/menu 路径下的资源文件
+	// 對應 res/menu 路徑下的資源文件
 	public static final class menu {
 		...
 		public static final int xxx = 0x????;
 		...
 	}
-	// 对应 res/values/strings.xml 文件内的资源定义
+	// 對應 res/values/strings.xml 文件內的資源定義
 	public static final class string {
 		...
 		public static final int xxx = 0x????;
 		...
 	}
-	// 对应 res/values/colors.xml 文件内的资源定义
+	// 對應 res/values/colors.xml 文件內的資源定義
 	public static final class color {
 		...
 		public static final int xxx = 0x????;
 		...
 	}
-	// 对应 res/values/arrays.xml 文件内的资源定义
+	// 對應 res/values/arrays.xml 文件內的資源定義
 	public static final class array {
 		...
 		public static final int xxx = 0x????;
 		...
 	}
-	// 对应 res/values/styles.xml 文件内的资源定义
+	// 對應 res/values/styles.xml 文件內的資源定義
 	public static final class style {
 		...
 		public static final int xxx = 0x????;
 		...
 	}
-	// 对应使用 android:id 属性定义的资源
+	// 對應使用 android:id 屬性定義的資源
 	public static final class id {
 		...
 		public static final int xxx = 0x????;
@@ -288,20 +288,20 @@ public final class R {
 
 
 # Activity
-`Activity`是Android系统中的核心组件，每个Activity对应一个独立的应用窗口。
-Activity类似于`Swing`中的`JFrame`、`Qt`中的`QWindow`、`JavaFx`中的`Stage`，
-做为应用的顶层窗口存在，一个应用可以由一个/多个Activity构成。
+`Activity`是Android系統中的核心組件，每個Activity對應一個獨立的應用窗口。
+Activity類似於`Swing`中的`JFrame`、`Qt`中的`QWindow`、`JavaFx`中的`Stage`，
+做爲應用的頂層窗口存在，一個應用可以由一個/多個Activity構成。
 
-多个Activity之间可相互跳转，并传递信息。
-跳转到新的Activity时，旧的Activity会停止并驻留在返回栈上，使用返回按钮会销毁新Activity，并恢复原Activity。
-启动时呈现的Activity为**主Activity(MainActivity)**，**主Activity**销毁会退出应用。
+多個Activity之間可相互跳轉，並傳遞信息。
+跳轉到新的Activity時，舊的Activity會停止並駐留在返回棧上，使用返回按鈕會銷燬新Activity，並恢復原Activity。
+啓動時呈現的Activity爲**主Activity(MainActivity)**，**主Activity**銷燬會退出應用。
 
-## View (视图)
-`android.view.View`及其子类用于为`Activity`提供用户界面。
-`View`类型存在子类`ViewGroup`，可做为容器容纳其它`View`。
+## View (視圖)
+`android.view.View`及其子類用於爲`Activity`提供用戶界面。
+`View`類型存在子類`ViewGroup`，可做爲容器容納其它`View`。
 
-在Android项目使用`XML`语法描述视图布局，在`app/res/layout`路径下添加视图资源文件，
-重写父类Activity的`onCreate()`方法，在其中调用`setContentView()`，传入资源ID来设定Activity的视图。
+在Android項目使用`XML`語法描述視圖佈局，在`app/res/layout`路徑下添加視圖資源文件，
+重寫父類Activity的`onCreate()`方法，在其中調用`setContentView()`，傳入資源ID來設定Activity的視圖。
 如下所示：
 
 ```kotlin
@@ -309,7 +309,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.xxx) //通过资源ID设置视图
+        setContentView(R.layout.xxx) //通過資源ID設置視圖
     }
 
     ...
@@ -317,10 +317,10 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-使用`setContentView()`将视图资源设置到`Activity`后，
-视图资源的描述的每一个容器、控件皆可由`findViewById()`方法通过视图`ID`获取对应的视图实例
-(需要对应控件在`XML`定义中声明了`android:id`属性)。
-如下所示，资源文件定义如下：
+使用`setContentView()`將視圖資源設置到`Activity`後，
+視圖資源的描述的每一個容器、控件皆可由`findViewById()`方法通過視圖`ID`獲取對應的視圖實例
+(需要對應控件在`XML`定義中聲明瞭`android:id`屬性)。
+如下所示，資源文件定義如下：
 
 ```
 <TableLayout
@@ -339,7 +339,7 @@ class MainActivity : AppCompatActivity() {
 </TableLayout>
 ```
 
-获取控件实例：
+獲取控件實例：
 
 ```kotlin
 class MainActivity : AppCompatActivity() {
@@ -351,11 +351,11 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-Android项目中亦可如`Swing`一般使用纯Java代码构建视图，但语法过于繁琐，通常不使用。
+Android項目中亦可如`Swing`一般使用純Java代碼構建視圖，但語法過於繁瑣，通常不使用。
 
-## 启动/结束 Activity
-使用`startActivity()`方法启动另一个`Activity`。
-相关方法定义在`Activity`类中，具有多个重载：
+## 啓動/結束 Activity
+使用`startActivity()`方法啓動另一個`Activity`。
+相關方法定義在`Activity`類中，具有多個重載：
 
 ```java
 public class Activity extends ... {
@@ -366,15 +366,15 @@ public class Activity extends ... {
 }
 ```
 
-`intent`参数使用目标Activity的**Class实例**做为参数，指定需要启动的目标Activity类型。
-`intent`参数亦可附加传递数据、实例。
+`intent`參數使用目標Activity的**Class實例**做爲參數，指定需要啓動的目標Activity類型。
+`intent`參數亦可附加傳遞數據、實例。
 如下所示：
 
 ```kotlin
 startActivity(Intent(this, OtherActicity::class.java))
 ```
 
-结束`Activity`使用`finish()`方法：
+結束`Activity`使用`finish()`方法：
 
 ```java
 public class Activity extends ... {
@@ -384,11 +384,11 @@ public class Activity extends ... {
 }
 ```
 
-结束一个Activity后会回到上一个Activity。
-若结束的是**主Activity**，则会退出应用。
+結束一個Activity後會回到上一個Activity。
+若結束的是**主Activity**，則會退出應用。
 
-## 获取 Activity 返回结果
-对于需要获取返回结果的`Activity`启动任务，应使用`startActivityForResult()`相关方法启动：
+## 獲取 Activity 返回結果
+對於需要獲取返回結果的`Activity`啓動任務，應使用`startActivityForResult()`相關方法啓動：
 
 ```java
 public class Activity extends ... {
@@ -399,7 +399,7 @@ public class Activity extends ... {
 }
 ```
 
-同时重写`onActivityResult()`方法，该方法在目标`Activity`返回后会被回调：
+同時重寫`onActivityResult()`方法，該方法在目標`Activity`返回後會被回調：
 
 ```java
 public class Activity extends ... {
@@ -409,8 +409,8 @@ public class Activity extends ... {
 }
 ```
 
-`requestCode`参数由`startActivityForResult()`时传入，用于区分不同的启动任务。
-目标Activity在`finish()`调用前应使用`setResult()`方法设定返回值。
+`requestCode`參數由`startActivityForResult()`時傳入，用於區分不同的啓動任務。
+目標Activity在`finish()`調用前應使用`setResult()`方法設定返回值。
 
 ```java
 public class Activity extends ... {
@@ -421,14 +421,14 @@ public class Activity extends ... {
 }
 ```
 
-## 保存 Activity 状态
-Activity在下列事件发生时会重新构造：
+## 保存 Activity 狀態
+Activity在下列事件發生時會重新構造：
 
-- 设备屏幕旋转
-- 系统内存不足时被清理，再度主动打开
+- 設備屏幕旋轉
+- 系統內存不足時被清理，再度主動打開
 
-重建的Activity状态会被重置(重新构造Activity实例)。
-若需要保存应用状态，应重写`onSaveInstanceState()`方法，相关定义如下：
+重建的Activity狀態會被重置(重新構造Activity實例)。
+若需要保存應用狀態，應重寫`onSaveInstanceState()`方法，相關定義如下：
 
 ```java
 public class Activity extends ... {
@@ -439,8 +439,8 @@ public class Activity extends ... {
 }
 ```
 
-将需要保存状态的字段传入`outState`参数中。
-当Activity重建时，会调用`onRestoreInstanceState()`方法，相关定义如下：
+將需要保存狀態的字段傳入`outState`參數中。
+當Activity重建時，會調用`onRestoreInstanceState()`方法，相關定義如下：
 
 ```java
 public class Activity extends ... {
@@ -451,26 +451,26 @@ public class Activity extends ... {
 }
 ```
 
-Activity销毁前存入`outState`参数中的字段可从`onRestoreInstanceState()`方法的`savedInstanceState`参数中取出，用于恢复Activity状态。
+Activity銷燬前存入`outState`參數中的字段可從`onRestoreInstanceState()`方法的`savedInstanceState`參數中取出，用於恢復Activity狀態。
 
 
 
 # Fragment
-`Fragment`是`Android 3.0 (API Level 11)`开始引入的新UI组件。
+`Fragment`是`Android 3.0 (API Level 11)`開始引入的新UI組件。
 
-Fragment被称为**片段**，用来组成Activity中的UI部分。
-一个Activity可由一个或多个Fragment组成，多个Activity亦可共享同一个Fragment。
+Fragment被稱爲**片段**，用來組成Activity中的UI部分。
+一個Activity可由一個或多個Fragment組成，多個Activity亦可共享同一個Fragment。
 
-Fragment有独立的事件处理、生命周期。
-但Fragment必须始终嵌入在Activity中，其生命周期直接受宿主Activity生命周期的影响：
+Fragment有獨立的事件處理、生命週期。
+但Fragment必須始終嵌入在Activity中，其生命週期直接受宿主Activity生命週期的影響：
 
-- 宿主Activity暂停时，包含的子Fragment都将暂停。
-- 宿主Activity销毁时，包含的子Fragment都将被销毁。
+- 宿主Activity暫停時，包含的子Fragment都將暫停。
+- 宿主Activity銷燬時，包含的子Fragment都將被銷燬。
 
 ## Fragment View
-与`Activity`类似，Fragment可以使用XML资源文件描述UI布局，在`app/res/layout`路径下添加视图资源文件，
-重写父类Fragment的`onCreateView()`方法，在其中调用`LayoutInflater`实例的`inflate()`方法，
-传入资源ID来设定Fragment的视图。
+與`Activity`類似，Fragment可以使用XML資源文件描述UI佈局，在`app/res/layout`路徑下添加視圖資源文件，
+重寫父類Fragment的`onCreateView()`方法，在其中調用`LayoutInflater`實例的`inflate()`方法，
+傳入資源ID來設定Fragment的視圖。
 
 如下所示：
 
@@ -479,7 +479,7 @@ class XxxFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // 通过视图资源ID设定Fragment的视图
+        // 通過視圖資源ID設定Fragment的視圖
         return inflater!!.inflate(R.layout.fragment_xxx, container, false)
     }
 
@@ -489,10 +489,10 @@ class XxxFragment : Fragment() {
 ```
 
 ## 管理 Fragment
-Activity可在运行时动态地添加与移除、替换Fragment。
+Activity可在運行時動態地添加與移除、替換Fragment。
 
-`FragmentManager`类型提供了对Fragment的管理操作。
-Activity类型提供了`getFragmentManager()`方法，用于获取FragmentManager实例：
+`FragmentManager`類型提供了對Fragment的管理操作。
+Activity類型提供了`getFragmentManager()`方法，用於獲取FragmentManager實例：
 
 ```java
 public class Activity extends ... {
@@ -502,9 +502,9 @@ public class Activity extends ... {
 }
 ```
 
-- 获取 *Fragment*
+- 獲取 *Fragment*
 
-	FragmentManager类型提供了`findFragmentById()`方法，通过传入资源ID获取指定Fragment实例：
+	FragmentManager類型提供了`findFragmentById()`方法，通過傳入資源ID獲取指定Fragment實例：
 
 	```java
 	public class Fragment implements ComponentCallbacks2, OnCreateContextMenuListener {
@@ -514,8 +514,8 @@ public class Activity extends ... {
 	}
 	```
 
-	当指定的Fragment未被初始化时，`findFragmentById()`方法会返回空指针，
-	因而在获取Fragment时应进行`NullCheck`。
+	當指定的Fragment未被初始化時，`findFragmentById()`方法會返回空指針，
+	因而在獲取Fragment時應進行`NullCheck`。
 
 	如下所示：
 
@@ -525,9 +525,9 @@ public class Activity extends ... {
 	}
 	```
 
-- *Fragment* 事务(添加、移除、替换、显示、隐藏)
+- *Fragment* 事務(添加、移除、替換、顯示、隱藏)
 
-	FragmentManager类型提供了`beginTransaction()`方法用于启动事务：
+	FragmentManager類型提供了`beginTransaction()`方法用於啓動事務：
 
 	```java
 	public abstract class FragmentManager {
@@ -537,7 +537,7 @@ public class Activity extends ... {
 	}
 	```
 
-	事务类型`FragmentTransaction`提供对Fragment增加、删除、替换、隐藏、显示等操作，以及对事务的提交：
+	事務類型`FragmentTransaction`提供對Fragment增加、刪除、替換、隱藏、顯示等操作，以及對事務的提交：
 
 	```java
 	public abstract class FragmentTransaction {
@@ -552,8 +552,8 @@ public class Activity extends ... {
 	}
 	```
 
-	`containerViewId`参数可以是任意常见容器View的资源ID，如`FrameLayout、LinearLayout`等。
-	在一个事务中完成各类Fragment操作后提交事务，入下所示：
+	`containerViewId`參數可以是任意常見容器View的資源ID，如`FrameLayout、LinearLayout`等。
+	在一個事務中完成各類Fragment操作後提交事務，入下所示：
 
 	```kotlin
 	fragmentManager.beginTransaction().apply {
@@ -564,9 +564,9 @@ public class Activity extends ... {
 	}
 	```
 
-## Fragment 数据传递
-Fragment通过`setArguments()/getArguments()`方法传递`Bundle`类型的数据。
-相关方法定义如下：
+## Fragment 數據傳遞
+Fragment通過`setArguments()/getArguments()`方法傳遞`Bundle`類型的數據。
+相關方法定義如下：
 
 ```java
 public class Fragment implements ComponentCallbacks2, OnCreateContextMenuListener {
@@ -577,15 +577,15 @@ public class Fragment implements ComponentCallbacks2, OnCreateContextMenuListene
 }
 ```
 
-`Bundle`类型拥有一系列`getXxx()/setXxx()`方法用于**获取/设置**指定类型的数据。
-与`Intent`类型类似，`Bundle`类型传递数据的方法`setXxx()`接收字符串和数据内容做为参数(数据内容由字符串作为`Key`)，
-获取数据的相关方法`getXxx()`使用字符串标`Key`提取指定的数据。
+`Bundle`類型擁有一系列`getXxx()/setXxx()`方法用於**獲取/設置**指定類型的數據。
+與`Intent`類型類似，`Bundle`類型傳遞數據的方法`setXxx()`接收字符串和數據內容做爲參數(數據內容由字符串作爲`Key`)，
+獲取數據的相關方法`getXxx()`使用字符串標`Key`提取指定的數據。
 
 
 
 # Intent
-`Intent`类型用来描述需要执行的操作。
-`Intent`类型拥有多种构造方法：
+`Intent`類型用來描述需要執行的操作。
+`Intent`類型擁有多種構造方法：
 
 ```java
 public class Intent implements Parcelable, Cloneable {
@@ -597,19 +597,19 @@ public class Intent implements Parcelable, Cloneable {
 }
 ```
 
-`Intent`常用于：
+`Intent`常用於：
 
-- 启动`Activity`(`startActivity()`方法)
-- 启动`Service`(`startService()`方法)
-- 与后端`Service`通信(`bindService()`方法)
+- 啓動`Activity`(`startActivity()`方法)
+- 啓動`Service`(`startService()`方法)
+- 與後端`Service`通信(`bindService()`方法)
 
 ## Standard Extra Data
-`Intent`在通信时可添加附加数据。
+`Intent`在通信時可添加附加數據。
 
-使用`putExtra()`方法为Intent实例添加附加数据，使用`getXxxExtra()`从Intent实例中获取附加数据。
+使用`putExtra()`方法爲Intent實例添加附加數據，使用`getXxxExtra()`從Intent實例中獲取附加數據。
 
-`putExtra()`方法接收字符串和数据内容做为参数，字符串做为数据的名称，数据内容可为多种类型。
-`putExtra()`方法包含一系列重载，用于传入不同类型的数据：
+`putExtra()`方法接收字符串和數據內容做爲參數，字符串做爲數據的名稱，數據內容可爲多種類型。
+`putExtra()`方法包含一系列重載，用於傳入不同類型的數據：
 
 ```java
 public class Intent implements Parcelable, Cloneable {
@@ -622,9 +622,9 @@ public class Intent implements Parcelable, Cloneable {
 }
 ```
 
-可直接将实现了`Parcelable/Serializable`接口的实例做为数据内容传入(序列化)。
+可直接將實現了`Parcelable/Serializable`接口的實例做爲數據內容傳入(序列化)。
 
-`getXxxExtra()`系列方法针对不同类型的数据内容提供了获取功能：
+`getXxxExtra()`系列方法針對不同類型的數據內容提供了獲取功能：
 
 ```java
 public class Intent implements Parcelable, Cloneable {
@@ -637,31 +637,31 @@ public class Intent implements Parcelable, Cloneable {
 }
 ```
 
-返回`Object`类型的`getExtra()`方法现在已经废弃，不推荐使用。
+返回`Object`類型的`getExtra()`方法現在已經廢棄，不推薦使用。
 
 
 
 # Menu
-`Android`系统中包括三类菜单：
+`Android`系統中包括三類菜單：
 
-- 选项菜单和应用栏
-- 上下文菜单
-- 弹出菜单
+- 選項菜單和應用欄
+- 上下文菜單
+- 彈出菜單
 
-从`Android 3.0 (API Level 11)`开始，设备不再拥有独立菜单键，而是使用`Action Bar`提供主菜单。
+從`Android 3.0 (API Level 11)`開始，設備不再擁有獨立菜單鍵，而是使用`Action Bar`提供主菜單。
 
-## 定义菜单
-在`app/res/menu`路径下添加菜单的`XML`定义。
-菜单对应`XML`文件的名称会做为菜单的资源`ID`，
-如菜单定义为`app/res/menu_main.xml`，则对应资源为`R.menu.menu_main`。
+## 定義菜單
+在`app/res/menu`路徑下添加菜單的`XML`定義。
+菜單對應`XML`文件的名稱會做爲菜單的資源`ID`，
+如菜單定義爲`app/res/menu_main.xml`，則對應資源爲`R.menu.menu_main`。
 
-菜单定义包括以下元素：
+菜單定義包括以下元素：
 
-- `<menu>` 菜单的**根节点**。`<menu>`能够包含一个或多个`<item>`和`<group>`子节点。
-- `<item>` 菜单项(`MenuItem`)，可包含`<menu>`子节点(创建子菜单)。
-- `<group>` 菜单组，对菜单进行编组，同组内的菜单共享可选、可见性等属性。
+- `<menu>` 菜單的**根節點**。`<menu>`能夠包含一個或多個`<item>`和`<group>`子節點。
+- `<item>` 菜單項(`MenuItem`)，可包含`<menu>`子節點(創建子菜單)。
+- `<group>` 菜單組，對菜單進行編組，同組內的菜單共享可選、可見性等屬性。
 
-基本的菜单定义示例如下：
+基本的菜單定義示例如下：
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -685,28 +685,28 @@ public class Intent implements Parcelable, Cloneable {
 </menu>
 ```
 
-## 菜单项属性
-菜单节点`<item>`的常用属性：
+## 菜單項屬性
+菜單節點`<item>`的常用屬性：
 
-- `android:title` 菜单显示文本
-- `android:icon` 菜单图标
-- `app:showAsAction` 菜单的展示方式，取值如下：
+- `android:title` 菜單顯示文本
+- `android:icon` 菜單圖標
+- `app:showAsAction` 菜單的展示方式，取值如下：
 
-	- `alaways` 总是显示
-	- `never` 从不显示
-	- `ifRoom` 有足够空间时显示
+	- `alaways` 總是顯示
+	- `never` 從不顯示
+	- `ifRoom` 有足夠空間時顯示
 
-## 创建菜单
-在`Activity`及其子类中通过重写`onCreateOptionsMenu()`方法创建菜单：
+## 創建菜單
+在`Activity`及其子類中通過重寫`onCreateOptionsMenu()`方法創建菜單：
 
 ```kotlin
 override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-    menuInflater.inflate(R.menu.Xxx, menu) //R.menu.Xxx 为菜单对应的资源ID
+    menuInflater.inflate(R.menu.Xxx, menu) //R.menu.Xxx 爲菜單對應的資源ID
     return true
 }
 ```
 
-`Fragment`亦可拥有菜单，通过重写`Fragment`类的`onCreateOptionsMenu()`方法创建菜单：
+`Fragment`亦可擁有菜單，通過重寫`Fragment`類的`onCreateOptionsMenu()`方法創建菜單：
 
 ```kotlin
 override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -714,8 +714,8 @@ override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
 }
 ```
 
-使用`Fragment`创建菜单时，需要在`Fragment`创建时调用`setHasOptionsMenu()`方法，
-传递`true`参数才能使`Fragment`的`onCreateOptionsMenu()`方法被调用：
+使用`Fragment`創建菜單時，需要在`Fragment`創建時調用`setHasOptionsMenu()`方法，
+傳遞`true`參數才能使`Fragment`的`onCreateOptionsMenu()`方法被調用：
 
 ```kotlin
 override fun onCreate(savedInstanceState: Bundle?) {
@@ -723,13 +723,13 @@ override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     ...
 
-    // 启用菜单，否则 Fragment 中重写的 onCreateOptionsMenu() 方法不被调用
+    // 啓用菜單，否則 Fragment 中重寫的 onCreateOptionsMenu() 方法不被調用
     setHasOptionsMenu(true)
 }
 ```
 
-## 处理菜单事件
-`Activity/Fragment`处理菜单事件方法类似，通过重写基类的`onOptionsItemSelected()`方法响应菜单选择事件：
+## 處理菜單事件
+`Activity/Fragment`處理菜單事件方法類似，通過重寫基類的`onOptionsItemSelected()`方法響應菜單選擇事件：
 
 ```kotlin
 override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -741,43 +741,43 @@ override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 ```
 
 ## ActionBar
-从`Android 3.0 (API Level 11)`开始，`Activity`带有`ActionBar`做为主菜单栏。
+從`Android 3.0 (API Level 11)`開始，`Activity`帶有`ActionBar`做爲主菜單欄。
 
-在`Activity`子类中使用`getActionBar()`获取`ActionBar`：
+在`Activity`子類中使用`getActionBar()`獲取`ActionBar`：
 
 ```kotlin
 val bar = actionBar
 ```
 
-在`Fragment`中获取`ActionBar`：
+在`Fragment`中獲取`ActionBar`：
 
 ```kotlin
 val bar = activity.actionBar
 ```
 
-对于`AppCompatActivity`的子类，应使用`getSupportActionBar()`方法获取`ActionBar`：
+對於`AppCompatActivity`的子類，應使用`getSupportActionBar()`方法獲取`ActionBar`：
 
 ```kotlin
-//在 AppCompatActivity 子类中获取 ActionBar
+//在 AppCompatActivity 子類中獲取 ActionBar
 val bar = supportActionBar
 
-//在 Fragment 中获取 AppCompatActivity 子类的 ActionBar
+//在 Fragment 中獲取 AppCompatActivity 子類的 ActionBar
 val bar = activity.supportActionBar
 ```
 
-在`AppCompatActivity`子类中使用`getActionBar()`会得到`null`。
+在`AppCompatActivity`子類中使用`getActionBar()`會得到`null`。
 
-获取`ActionBar`可用于设定主菜单的显示标题、Logo、返回菜单等。
-在`Activity/Fragment`子类中使用`setDisplayOptions()`方法设定在`ActionBar`中显示的内容。
-`setDisplayOptions()`方法具有以下重载：
+獲取`ActionBar`可用於設定主菜單的顯示標題、Logo、返回菜單等。
+在`Activity/Fragment`子類中使用`setDisplayOptions()`方法設定在`ActionBar`中顯示的內容。
+`setDisplayOptions()`方法具有以下重載：
 
 ```java
 public abstract void setDisplayOptions(@DisplayOptions int options);
 public abstract void setDisplayOptions(@DisplayOptions int options, @DisplayOptions int mask);
 ```
 
-`options`参数设定启用的内容，`mask`参数设定禁用的内容，多个参数使用逻辑与操作符`|`连接。
-可使用以下选项：
+`options`參數設定啓用的內容，`mask`參數設定禁用的內容，多個參數使用邏輯與操作符`|`連接。
+可使用以下選項：
 
 ```
 DISPLAY_USE_LOGO
@@ -787,35 +787,35 @@ DISPLAY_SHOW_TITLE
 DISPLAY_SHOW_CUSTOM
 ```
 
-亦可使用单独的方法独立地设置显示内容：
+亦可使用單獨的方法獨立地設置顯示內容：
 
 ```kotlin
 actionBar?.apply {
-    setDisplayHomeAsUpEnabled(true) //显示返回按钮
+    setDisplayHomeAsUpEnabled(true) //顯示返回按鈕
     setDisplayShowCustomEnabled(true)
     setDisplayShowHomeEnabled(true)
     setDisplayShowTitleEnabled(true)
-    setDisplayUseLogoEnabled(true) //显示 APP Logo
+    setDisplayUseLogoEnabled(true) //顯示 APP Logo
 }
 ```
 
 ## ToolBar
 原生`ActionBar`具有以下缺陷：
 
-- 仅支持`Android 3.0 (API Level 11)`以上的系统。
-- 在不同的Android系统版本中，ActionBar的行为有差异。
-- ActionBar仅能位于APP中的固定位置，灵活性欠佳，不利于APP设计。
+- 僅支持`Android 3.0 (API Level 11)`以上的系統。
+- 在不同的Android系統版本中，ActionBar的行爲有差異。
+- ActionBar僅能位於APP中的固定位置，靈活性欠佳，不利於APP設計。
 
-支持库组件`android.support.v7.widget.Toolbar`提供了与原生ActionBar行为、外观类似的菜单工具栏。
-ToolBar相比原生ActionBar有以下优势：
+支持庫組件`android.support.v7.widget.Toolbar`提供了與原生ActionBar行爲、外觀類似的菜單工具欄。
+ToolBar相比原生ActionBar有以下優勢：
 
-- 支持`Android 2.1（API Level 7`以上的系统。
-- 在不同版本的系统中具有更好的行为一致性。
-- 可自由定义ToolBar，配合`AppBarLayout`，可实现滚动隐藏等高级特效。
+- 支持`Android 2.1（API Level 7`以上的系統。
+- 在不同版本的系統中具有更好的行爲一致性。
+- 可自由定義ToolBar，配合`AppBarLayout`，可實現滾動隱藏等高級特效。
 
-使用ToolBar需要禁用系统布局中的原生ActionBar，使用`NoActionBar`主题。
-在`app/manifests/AndroidManifest.xml`文件中的`<application/>`节点中，
-将`android:theme`属性设置为`@style/Theme.AppCompat.Light.NoActionBar`，如下所示：
+使用ToolBar需要禁用系統佈局中的原生ActionBar，使用`NoActionBar`主題。
+在`app/manifests/AndroidManifest.xml`文件中的`<application/>`節點中，
+將`android:theme`屬性設置爲`@style/Theme.AppCompat.Light.NoActionBar`，如下所示：
 
 ```xml
 <application
@@ -823,7 +823,7 @@ ToolBar相比原生ActionBar有以下优势：
 	.../>
 ```
 
-在布局文件中声明ToolBar：
+在佈局文件中聲明ToolBar：
 
 ```xml
 <android.support.v7.widget.Toolbar
@@ -834,8 +834,8 @@ ToolBar相比原生ActionBar有以下优势：
    	android:elevation="4dp"/>
 ```
 
-ToolBar与ActionBar类似，通过`res/menu`下的菜单资源文件来设定菜单内容。
-在`Activity`子类中重写`onCreateOptionsMenu()`方法设定菜单内容，重写`onCreate()`方法设置ToolBar：
+ToolBar與ActionBar類似，通過`res/menu`下的菜單資源文件來設定菜單內容。
+在`Activity`子類中重寫`onCreateOptionsMenu()`方法設定菜單內容，重寫`onCreate()`方法設置ToolBar：
 
 ```kotlin
 class XxxActivity : AppCompatActivity() {
@@ -847,14 +847,14 @@ class XxxActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_xxx)
 
-        // 设置 ToolBar
+        // 設置 ToolBar
         setSupportActionBar(toolbar)
 
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
 
-        // 设置菜单内容
+        // 設置菜單內容
         menuInflater.inflate(R.menu.menu_xxx, menu)
         return super.onCreateOptionsMenu(menu)
 
@@ -863,17 +863,17 @@ class XxxActivity : AppCompatActivity() {
 }
 ```
 
-默认情况下，ToolBar的菜单按钮为**黑色**，可通过自定义`colorControlNormal`属性手动指定菜单按钮颜色。
+默認情況下，ToolBar的菜單按鈕爲**黑色**，可通過自定義`colorControlNormal`屬性手動指定菜單按鈕顏色。
 在`app/res/values/styles.xml`文件中添加：
 
 ```xml
 <style name="tooBarTheme">
-    <!-- 定义菜单按钮的色彩-->
+    <!-- 定義菜單按鈕的色彩-->
     <item name="colorControlNormal">@android:color/xxx</item>
 </style>
 ```
 
-之后在布局文件的ToolBar声明中添加`app:theme`属性引用主题：
+之後在佈局文件的ToolBar聲明中添加`app:theme`屬性引用主題：
 
 ```xml
 <android.support.v7.widget.Toolbar
@@ -881,13 +881,13 @@ class XxxActivity : AppCompatActivity() {
     app:theme="@style/tooBarTheme"/>
 ```
 
-注意ToolBar必须以`app:theme`属性引用Style才能使菜单按钮色彩生效，使用`style`属性引用不生效。
+注意ToolBar必須以`app:theme`屬性引用Style才能使菜單按鈕色彩生效，使用`style`屬性引用不生效。
 
 
 
 # LinearLayout
-`LinearLayout`提供了基本的单向排列布局，布局内的控件按水平/垂直方向排列。
-在布局文件中声明：
+`LinearLayout`提供了基本的單向排列布局，佈局內的控件按水平/垂直方向排列。
+在佈局文件中聲明：
 
 ```xml
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -904,17 +904,17 @@ class XxxActivity : AppCompatActivity() {
  </LinearLayout>
 ```
 
-使用`android:orientation`属性设定控件的排布方向(`horizontal`水平排列控件，`vertical`垂直排列控件)。
-使用`android:gravity`属性设定控件自身的对齐方式。
+使用`android:orientation`屬性設定控件的排布方向(`horizontal`水平排列控件，`vertical`垂直排列控件)。
+使用`android:gravity`屬性設定控件自身的對齊方式。
 
-## 布局比例分配
-`LinearLayout`支持以**百分比**设置布局内部的宽度/高度分配。
+## 佈局比例分配
+`LinearLayout`支持以**百分比**設置佈局內部的寬度/高度分配。
 
-如水平布局按比例分配，需要设置内部控件的宽度属性为`android:layout_width="0dp"`；
-通过`android:layout_weight`属性设定每个控件的比例权重；
-每个控件所占宽度比例为**当前控件的android:layout_weight值**/**布局的android:layout_weight值总和**。
+如水平佈局按比例分配，需要設置內部控件的寬度屬性爲`android:layout_width="0dp"`；
+通過`android:layout_weight`屬性設定每個控件的比例權重；
+每個控件所佔寬度比例爲**當前控件的android:layout_weight值**/**佈局的android:layout_weight值總和**。
 
-实例：在一行中添加两个宽度相同的按钮，如下所示：
+實例：在一行中添加兩個寬度相同的按鈕，如下所示：
 
 ```xml
 <LinearLayout
@@ -940,11 +940,11 @@ class XxxActivity : AppCompatActivity() {
 
 
 # ScrollView
-`ScrollView`为尺寸过大、无法完全显示的组件提供了滚动条。
-`Android Design Support Library`中提供了支持**关联滑动**特性的`android.support.v4.widget.NestedScrollView`，
-与ScrollView拥有相似的基本特性。
+`ScrollView`爲尺寸過大、無法完全顯示的組件提供了滾動條。
+`Android Design Support Library`中提供了支持**關聯滑動**特性的`android.support.v4.widget.NestedScrollView`，
+與ScrollView擁有相似的基本特性。
 
-将目标控件包含在ScrollView/NestedScrollView中，即可为其提供滚动支持，以`TextView`为例：
+將目標控件包含在ScrollView/NestedScrollView中，即可爲其提供滾動支持，以`TextView`爲例：
 
 ```xml
 <ScrollView android:layout_width="match_parent"
@@ -957,17 +957,17 @@ class XxxActivity : AppCompatActivity() {
 </ScrollView>
 ```
 
-当TextView中的文本内容超过显示空间后，会出现滚动条。
+當TextView中的文本內容超過顯示空間後，會出現滾動條。
 
 在ScrollView/NestedScrollView中的子控件
-使用`android:layout_height="match_parent"`属性并不能让子控件填满ScrollView的剩余空间，
-若需要子控件完全填充ScrollView剩余空间，则ScrollView自身应使用`android:fillViewport="true"`属性。
+使用`android:layout_height="match_parent"`屬性並不能讓子控件填滿ScrollView的剩餘空間，
+若需要子控件完全填充ScrollView剩餘空間，則ScrollView自身應使用`android:fillViewport="true"`屬性。
 
-## 嵌套 ScrollView 滑动冲突
-当多个ScrollView嵌套时，内部的ScrollView**不能**正常为其包含的控件提供滑动支持。
-造成内部ScrollView滑动失效的原因是父控件处理了触摸事件并为。
+## 嵌套 ScrollView 滑動衝突
+當多個ScrollView嵌套時，內部的ScrollView**不能**正常爲其包含的控件提供滑動支持。
+造成內部ScrollView滑動失效的原因是父控件處理了觸摸事件併爲。
 
-如下所示，ScrollView嵌套的布局声明，滑动TextView不会产生正常的滚动文本效果：
+如下所示，ScrollView嵌套的佈局聲明，滑動TextView不會產生正常的滾動文本效果：
 
 ```xml
 <ScrollView android:layout_width="match_parent"
@@ -987,14 +987,14 @@ class XxxActivity : AppCompatActivity() {
 </ScrollView>
 ```
 
-解决方案是在内部ScrollView的触摸事件回调中，
-使用`requestDisallowInterceptTouchEvent()`方法让父ScrollView将事件交由内部ScrollView处理。
-重写`onStart()`方法，如下所示：
+解決方案是在內部ScrollView的觸摸事件回調中，
+使用`requestDisallowInterceptTouchEvent()`方法讓父ScrollView將事件交由內部ScrollView處理。
+重寫`onStart()`方法，如下所示：
 
 ```kotlin
 override fun onStart() {
 
-    // 禁止 Parent View 处理子控件的触摸动作
+    // 禁止 Parent View 處理子控件的觸摸動作
     innerScrollView.apply {
         setOnTouchListener { _, _ ->
             requestDisallowInterceptTouchEvent(true)
@@ -1008,10 +1008,10 @@ override fun onStart() {
 
 
 # Android Design Support Library
-`Android 5.0 (API Level 21)`之后官方发布了`Android Design Support Library`。
-`Android Design Support Library`提供了更多现代的、符合的`Material Design`设计规范的控件。
+`Android 5.0 (API Level 21)`之後官方發佈了`Android Design Support Library`。
+`Android Design Support Library`提供了更多現代的、符合的`Material Design`設計規範的控件。
 
-使用`Android Design Support Library`，在`app/build.gradle`文件中添加依赖：
+使用`Android Design Support Library`，在`app/build.gradle`文件中添加依賴：
 
 ```groovy
 dependencies {
@@ -1020,8 +1020,8 @@ dependencies {
 ```
 
 ## TabLayout
-`android.support.design.widget.TabLayout`提供了更加简洁的Tab页实现。
-在布局资源文件中声明`TabLayout`：
+`android.support.design.widget.TabLayout`提供了更加簡潔的Tab頁實現。
+在佈局資源文件中聲明`TabLayout`：
 
 ```xml
 <android.support.design.widget.TabLayout
@@ -1037,7 +1037,7 @@ dependencies {
         app:tabSelectedTextColor="@android:color/white"
         app:tabIndicatorHeight="4dp">
 
-    <!-- 使用 setupWithViewPager() 绑定 FragmentPagerAdapter 时，直接在节点内添加的 TabItem 不生效 -->
+    <!-- 使用 setupWithViewPager() 綁定 FragmentPagerAdapter 時，直接在節點內添加的 TabItem 不生效 -->
     <android.support.design.widget.TabItem
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -1050,16 +1050,16 @@ dependencies {
 </android.support.design.widget.TabLayout>
 ```
 
-TabLayout中的常用属性：
+TabLayout中的常用屬性：
 
-- `app:tabBackground` 标签栏背景
-- `app:tabIndicatorColor` 标签指示器色彩
-- `app:tabTextColor` 普通标签文本色彩
-- `app:tabSelectedTextColor` 选中标签的文本色彩
-- `app:tabIndicatorHeight` 标签指示器的高度
+- `app:tabBackground` 標籤欄背景
+- `app:tabIndicatorColor` 標籤指示器色彩
+- `app:tabTextColor` 普通標籤文本色彩
+- `app:tabSelectedTextColor` 選中標籤的文本色彩
+- `app:tabIndicatorHeight` 標籤指示器的高度
 
-`<TabLayout/>`节点内可以使用`<TabItem/>`节点直接添加具体的标签项。
-通过`addOnTabSelectedListener()`方法设定点击监听器：
+`<TabLayout/>`節點內可以使用`<TabItem/>`節點直接添加具體的標籤項。
+通過`addOnTabSelectedListener()`方法設定點擊監聽器：
 
 ```kotlin
 tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -1069,7 +1069,7 @@ tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 })
 ```
 
-TabLayout可搭配`ViewPager`使用，搭配ViewPager时**无需**使用`addOnTabSelectedListener()`设定监听器。
+TabLayout可搭配`ViewPager`使用，搭配ViewPager時**無需**使用`addOnTabSelectedListener()`設定監聽器。
 如下所示：
 
 ```koltin
@@ -1081,15 +1081,15 @@ viewPager.adapter = object : FragmentPagerAdapter(supportFragmentManager) {
 tabLayout.setupWithViewPager(viewPager)
 ```
 
-使用`setupWithViewPager()`方法设定ViewPager后，布局文件中声明的`TabItem`不生效，
-Tab标签文本由`FragmentPagerAdapter`适配器的`getPageTitle()`方法决定。
+使用`setupWithViewPager()`方法設定ViewPager後，佈局文件中聲明的`TabItem`不生效，
+Tab標籤文本由`FragmentPagerAdapter`適配器的`getPageTitle()`方法決定。
 
 ## AppBarLayout
-`android.support.design.widget.AppBarLayout`提供了对顶栏菜单的布局支持，
-搭配`ToolBar`，能实现复杂的顶栏效果。
-AppBarLayout布局与纵向LinearLayout类似，布局内的组件依次在垂直方向上排列。
-被AppBarLayout布局包含的内容均作为顶栏存在。
-在布局文件中声明AppBarLayout：
+`android.support.design.widget.AppBarLayout`提供了對頂欄菜單的佈局支持，
+搭配`ToolBar`，能實現複雜的頂欄效果。
+AppBarLayout佈局與縱向LinearLayout類似，佈局內的組件依次在垂直方向上排列。
+被AppBarLayout佈局包含的內容均作爲頂欄存在。
+在佈局文件中聲明AppBarLayout：
 
 ```xml
 <android.support.design.widget.AppBarLayout
@@ -1099,16 +1099,16 @@ AppBarLayout布局与纵向LinearLayout类似，布局内的组件依次在垂�
             android:layout_height="wrap_content"
             android:layout_width="match_parent">
 
-    <!-- ToolBar 放在 AppBarLayout 内部 -->
+    <!-- ToolBar 放在 AppBarLayout 內部 -->
     <android.support.v7.widget.Toolbar/>
 
-    ... <!-- 可以将其它内容放在 AppBarLayout中，都将作为顶栏的一部分存在 -->
+    ... <!-- 可以將其它內容放在 AppBarLayout中，都將作爲頂欄的一部分存在 -->
 
 </android.support.design.widget.AppBarLayout>
 ```
 
-AppBarLayout在`android.support.design.widget.CoordinatorLayout`布局下，
-搭配`android.support.v4.widget.NestedScrollView`控件，可实现滚动隐藏工具栏效果。
+AppBarLayout在`android.support.design.widget.CoordinatorLayout`佈局下，
+搭配`android.support.v4.widget.NestedScrollView`控件，可實現滾動隱藏工具欄效果。
 如下所示：
 
 ```xml
@@ -1162,17 +1162,17 @@ AppBarLayout在`android.support.design.widget.CoordinatorLayout`布局下，
 </android.support.design.widget.CoordinatorLayout>
 ```
 
-确保滑动隐藏工具栏效果能生效，需要注意：
+確保滑動隱藏工具欄效果能生效，需要注意：
 
-- 根布局为`android.support.design.widget.CoordinatorLayout`，其它布局滑动工具拦效果不生效。
-- AppBarLayout内需要滚动隐藏的组件设置了属性`app:layout_scrollFlags="scroll"`。
-- AppBarLayout的相邻组件需要为支持关联滚动的组件如`android.support.v4.widget.NestedScrollView`。
-- AppBarLayout的相邻的关联滚动组件需要设置属性`app:layout_behavior="@string/appbar_scrolling_view_behavior"`。
+- 根佈局爲`android.support.design.widget.CoordinatorLayout`，其它佈局滑動工具攔效果不生效。
+- AppBarLayout內需要滾動隱藏的組件設置了屬性`app:layout_scrollFlags="scroll"`。
+- AppBarLayout的相鄰組件需要爲支持關聯滾動的組件如`android.support.v4.widget.NestedScrollView`。
+- AppBarLayout的相鄰的關聯滾動組件需要設置屬性`app:layout_behavior="@string/appbar_scrolling_view_behavior"`。
 
-`app:layout_scrollFlags`属性取值如下(取多个属性值时用`|`操作符连接)：
+`app:layout_scrollFlags`屬性取值如下(取多個屬性值時用`|`操作符連接)：
 
-- `scroll` 需要响应滚动事件的组件需要设置该属性，是其它滚动属性的前置条件，默认优先滚动关联组件
-- `snap` 弹性滚动效果，下滑/上滑时，组件要么隐藏，要么完全展现，滚动距离未达要求时，当前控件回弹到之前状态
-- `enterAlways` 优先滚动当前控件，发生向下滚动行为时，处于隐藏状态的控件会立即出现，而不是等待关联滚动组件滚动到顶部
-- `enterAlwaysCollapsed` enterAlways的附加选项，向下滚动时，当前控件先滚动到最小高度，之后再开始滚动关联组件，关联组件滚动到顶部时再滚动当前组件到最大值
-- `exitUntilCollapsed` enterAlways的附加选项，向上滚动时，当前组件缩小到最小高度，但不会完全隐藏
+- `scroll` 需要響應滾動事件的組件需要設置該屬性，是其它滾動屬性的前置條件，默認優先滾動關聯組件
+- `snap` 彈性滾動效果，下滑/上滑時，組件要麼隱藏，要麼完全展現，滾動距離未達要求時，當前控件回彈到之前狀態
+- `enterAlways` 優先滾動當前控件，發生向下滾動行爲時，處於隱藏狀態的控件會立即出現，而不是等待關聯滾動組件滾動到頂部
+- `enterAlwaysCollapsed` enterAlways的附加選項，向下滾動時，當前控件先滾動到最小高度，之後再開始滾動關聯組件，關聯組件滾動到頂部時再滾動當前組件到最大值
+- `exitUntilCollapsed` enterAlways的附加選項，向上滾動時，當前組件縮小到最小高度，但不會完全隱藏
