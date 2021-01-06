@@ -13,6 +13,7 @@
 	- [Identifier Patterns (標識符匹配)](#identifier-patterns-標識符匹配)
 	- [Active Patterns (活動模式)](#active-patterns-活動模式)
 	- [`as` / `when`](#as--when)
+	- [`&` / `|`](#--)
 
 <!-- /TOC -->
 
@@ -422,4 +423,31 @@ function1 (0, 0)
 ```fs
 let (var1, var2) as tuple1 = (1, 2)
 printfn "%d %d %A" var1 var2 tuple1
+```
+
+## `&` / `|`
+模式匹配中同樣可以使用邏輯運算符(`&`、`|`)連接多個模式：
+
+```fs
+// 邏輯或操作符
+let detectZeroOR point =
+    match point with
+    | (0, 0) | (0, _) | (_, 0) -> printfn "Zero found."
+    | _ -> printfn "Both nonzero."
+detectZeroOR (0, 0)
+detectZeroOR (1, 0)
+detectZeroOR (0, 10)
+detectZeroOR (10, 15)
+
+// 邏輯與操作符
+let detectZeroAND point =
+    match point with
+    | (0, 0) -> printfn "Both values zero."
+    | (var1, var2) & (0, _) -> printfn "First value is 0 in (%d, %d)" var1 var2
+    | (var1, var2)  & (_, 0) -> printfn "Second value is 0 in (%d, %d)" var1 var2
+    | _ -> printfn "Both nonzero."
+detectZeroAND (0, 0)
+detectZeroAND (1, 0)
+detectZeroAND (0, 10)
+detectZeroAND (10, 15)
 ```
