@@ -57,6 +57,7 @@
 	- [系統配置](#系統配置)
 - [網絡](#網絡)
 - [net-tools & iproute2](#net-tools--iproute2)
+	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
@@ -1723,8 +1724,38 @@ net-tools與iproute2的主要功能對照：
 | iptunnel | ip tunnel | Tunnels |
 | nameif | ifrename, ip link set name | Rename network interfaces |
 | ipmaddr | ip maddr | Multicast |
-| netstat | ip route | Show various networking statistics |
+| netstat | ss | Show network port status |
 | brctl | bridge | Handle bridge addresses and devices |
+
+## netstat & ss
+`netstat`是net-tools中提供的端口查看工具，各大平台的netstat工具參數有較大差異。
+
+Linux/macOS均支持的netstat參數：
+
+- `-n` 禁用常用端口的名稱轉義，默認常用端口會直接轉換為協議名稱如`80`(http)
+- `-h` 展示幫助信息
+
+Linux平台的netstat的常用參數：
+
+- `-t` 展示TCP端口
+- `-u` 展示UDP端口
+- `-l` 展示處於監聽狀態的端口
+- `-p` 展示使用端口的進程信息
+
+多個參數可組合使用：
+
+```c
+// 展示處於監聽狀態的UDP、TCP端口以及監聽進程
+$ netstat -utnlp
+```
+
+macOS平台netstat的常用參數：
+
+- `-p` 展示使用指定協議的端口
+- `-v` 列出詳情，包括進程信息
+
+`ss`是iproute2提供的次世代工具，提供與netstat類似的功能。
+參數基本與Linux平台的netstat類似，如`-t`、`-u`、`-p`、`-n`、`-l`等。
 
 ## mii-tool & ethtool
 `mii-tool`用於查看網卡的狀態，指令語法：
