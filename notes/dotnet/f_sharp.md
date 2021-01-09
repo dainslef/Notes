@@ -14,6 +14,8 @@
 	- [Active Patterns (活動模式)](#active-patterns-活動模式)
 	- [`as` / `when`](#as--when)
 	- [`&` / `|`](#--)
+- [Namespaces & Modules](#namespaces--modules)
+	- [命名空間](#命名空間)
 
 <!-- /TOC -->
 
@@ -450,4 +452,75 @@ detectZeroAND (0, 0)
 detectZeroAND (1, 0)
 detectZeroAND (0, 10)
 detectZeroAND (10, 15)
+```
+
+
+
+# Namespaces & Modules
+F#中存在兩類代碼的組織結構，分別是`Namespaces`(命名空間)和`Modules`(模塊)。
+相關概念可參考[微軟官方文檔](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/namespaces)
+以及[Wiki](https://en.wikibooks.org/wiki/F_Sharp_Programming/Modules_and_Namespaces)。
+
+## 命名空間
+命名空間是C#中的概念，命名空間的名稱首字母必須大寫。
+在命名空間僅能包含類型(`type`)和模塊(`module`)定義，
+其它操作(定義字段、函數、執行普通語句等)均會編譯錯誤，示例：
+
+```fs
+namespace Aaa.Bbb.Ccc
+
+type TypeXxx =
+    ... // OK
+
+module ModuleXxx =
+    ... // OK
+
+let xxx = ... // Error!
+do ... // Error!
+...
+```
+
+一個文件內可以定義多個命名空間，定義內部命名空間時同樣需要使用完整路徑：
+
+```fs
+namespace Aaa.Bbb.Ccc
+...
+
+namespace Aaa.Bbb.Ccc.Ddd.Eee // 不能簡寫為 Ddd.Eee
+...
+```
+
+當需要將內容直接定義在全局命名空間中時，使用global關鍵字：
+
+```fs
+namespace global
+...
+```
+
+當模塊/命名空間名稱產生衝突時，可顯式使用global關鍵字從根路徑訪問命名空間以解決衝突：
+
+```fs
+global.System.Console.WriteLine "Hello World!"
+```
+
+命名空間中默認不允許類型的遞歸定義，若需要開啟類型遞歸定義支持，
+則需要使用`namespace rec`定義支持遞歸的命名空間。
+
+```fs
+namespace rec FSharpPractice.Lang
+
+// Recursive Type, need "namespace rec"
+type A =
+    | A of A
+    | B of B
+
+type B =
+    | A of A
+    | B of B
+```
+
+在遞歸命名空間中，open語句有所限制，需要置於所有定義內容之前，否則會得到錯誤：
+
+```
+In a recursive declaration group, 'open' declarations must come first in each moduleF# Compiler(3200)
 ```
