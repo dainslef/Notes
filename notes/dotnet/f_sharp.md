@@ -16,6 +16,7 @@
 	- [`&` / `|`](#--)
 - [Namespaces & Modules](#namespaces--modules)
 	- [命名空間](#命名空間)
+	- [模塊](#模塊)
 
 <!-- /TOC -->
 
@@ -524,3 +525,34 @@ type B =
 ```
 In a recursive declaration group, 'open' declarations must come first in each moduleF# Compiler(3200)
 ```
+
+## 模塊
+模塊(`module`)的概念來自OCaml，是F#中組織代碼的標準方式，模塊中內容無限制。
+
+語法：
+
+```fs
+// Top-level module declaration.
+module [accessibility-modifier] [qualified-namespace.]module-name
+declarations
+// Local module declaration.
+module [accessibility-modifier] module-name =
+    declarations
+```
+
+當是使用頂層模塊定義(Top-level module declaration)是，可以使用多級名稱，
+此時最後一級名稱為模塊名稱，之前的名稱為命名空間名稱：
+
+```fs
+module Aaa.Bbb.Ccc.Ddd.Eee // 實際模塊名稱為
+```
+
+等價於：
+
+```fs
+namespace Aaa.Bbb.Ccc.Ddd
+
+module Eee = ...
+```
+
+從`F# 4.1`開始，模塊內也支持遞歸類型定義，使用`module rec`定義允許遞歸定義的模塊。
