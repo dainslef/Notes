@@ -1110,8 +1110,14 @@ $ ulimit -cH unlimited
 #@student        -       maxlogins       4
 ```
 
+與常規Unix配置類似，配置中使用`#`註釋內容。
+
+添加配置時需要保證配置內容無衝突，例如，soft資源限制應小於等於hard限制。
+錯誤的配置可能導致SSH服務無法被登陸，甚至本地帳戶無法登陸。
+
 修改limits.conf文件後不必重啓服務器，僅需要關閉當前開啟的會話(當前以開啟的會話依舊會使用之前資源限制配置)，
-關閉會話後重新登錄系統新的資源限制便會生效。
+關閉會話後重新登錄系統新的資源限制便會生效(對於普通進程而言)；
+若進程使用了Linux PAM(如SSH)，則需要重啟機器生效。
 
 ## prlimit
 使用`prlimit`可以查看和動態修改運行中的進程的資源限制：
@@ -1728,7 +1734,7 @@ net-tools與iproute2的主要功能對照：
 | brctl | bridge | Handle bridge addresses and devices |
 
 ## netstat & ss
-`netstat`是net-tools中提供的端口查看工具，各大平台的netstat工具參數有較大差異。
+`netstat`是net-tools中提供的socket查看工具，各大平台的netstat工具參數有較大差異。
 
 Linux/macOS均支持的netstat參數：
 
@@ -1753,6 +1759,7 @@ macOS平台netstat的常用參數：
 
 - `-p` 展示使用指定協議的端口
 - `-v` 列出詳情，包括進程信息
+- `-a` 顯示包含被服務端進程監聽的socket
 
 `ss`是iproute2提供的次世代工具，提供與netstat類似的功能。
 參數基本與Linux平台的netstat類似，如`-t`、`-u`、`-p`、`-n`、`-l`等。
