@@ -122,7 +122,10 @@ ${hadoop.tmp.dir}
 
 ## Hadoop服務配置
 Hadoop服務配置項多而繁雜，根據Hadoop版本選擇匹配的[官方文檔](http://hadoop.apache.org/docs)進行查閱。
-集羣配置相關文檔地址爲`http://hadoop.apache.org/docs/{Hadoop版本}/hadoop-project-dist/hadoop-common/ClusterSetup.html`。
+集羣配置[官方文檔](`http://hadoop.apache.org/docs/{Hadoop版本}/hadoop-project-dist/hadoop-common/ClusterSetup.html`)。
+
+關於配置HDFS**高可用**(HDFS High Availability)，
+可參考[官方文檔](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithNFS.html)。
 
 Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配置文件如下：
 
@@ -255,7 +258,10 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 			<value>/root/data/hadoop/hdfs/journal</value>
 		</property>
 
-		<!-- 開啓 NameNode 失敗自動切換(HA，單NameNode時此配置無效，需要core-site.xml中配置了Zookeeper訪問地址) -->
+		<!--
+			開啓 NameNode 失敗自動切換，會啟動ZKFailoverController進程
+			(HA，單NameNode時此配置無效，需要core-site.xml中配置了Zookeeper訪問地址)
+		-->
 		<property>
 			<name>dfs.ha.automatic-failover.enabled</name>
 			<value>true</value>
@@ -280,18 +286,48 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 	active狀態的NameNode會向每個JournalNode寫入改動，若active的NameNode故障，
 	則standby狀態的備用NameNode會讀取JournalNode中的信息之後變為active狀態。
 
-首次啓動NameNode節點前，需要格式化NameNode對應的數據目錄，執行指令：
+首次啟動集群前，應單獨啟動每個節點的JournalNode：
 
+```c
+// 集群每個節點均需要執行
+$ hadoop-daemon.sh start journalnode
 ```
+
+之後格式化NameNode，執行指令：
+
+```c
+// HA集群只需要選擇一個NameNode進行格式化
 $ hadoop namenode -format
+
+// 格式化NameNode成功後，在對應節點啟動NameNode
+$ hadoop-daemon.sh start namenode
+```
+
+若配置HA NameNode，則需要讓另一個NameNode複製先前NameNode的元數據，执行指令：
+
+```c
+// 共享先前啟動NameNode的元數據
+$ hdfs namenode -bootstrapStandby
+
+// 共享信息後之後也啟動本NameNode
+$ hadoop-daemon.sh start namenode
+```
+
+HA NameNode還會啟動ZKFC服務(`DFSZKFailoverController`進程，提供活動NameNode選舉，失敗恢復等功能)，
+用於提供NameNode的狀態監控、選舉Active NameNode等功能，該功能需要依賴Zookeeper。
+首次啟動前同樣需要格式化，在Zookeeper中創建對應ZNode，執行指令：
+
+```c
+// 僅需在一個節點中執行即可
+$ hdfs zkfc -formatZK
 ```
 
 啓動/關閉Hadoop相關服務：
 
 ```c
-// 啓動 NameNode、DataNode、JournalNode 服務
+// 啓動 NameNode、DataNode、JournalNode，DFSZKFailoverController 進程
 $ start-dfs.sh
-// 啓動 NodeManager、ResourceManager 服務
+// 啓動 NodeManager、ResourceManager 進程
 $ start-yarn.sh
 
 // 停止服務
@@ -1351,7 +1387,7 @@ Hadoop配置中遇到問題的說明和解決方案。
 namenode啓動失敗，需要重新格式化，保證namenode的ID一致性。
 
 解決方案：<br>
-格式化失敗嘗試`hdfs  namenode -format -force`同時格式化namenode和datanode。
+格式化失敗嘗試`hdfs namenode -format -force`同時格式化namenode和datanode。
 
 ## Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;
 問題說明：<br>
