@@ -20,6 +20,7 @@
 - [驅動配置](#驅動配置)
 - [基本操作](#基本操作)
 	- [基本SQL語句](#基本sql語句)
+		- [CASE 與 IF](#case-與-if)
 	- [內置函數](#內置函數)
 	- [複製表格](#複製表格)
 	- [主鍵自增](#主鍵自增)
@@ -414,6 +415,59 @@ mysql> show grants for [用戶名]@[主機地址]; //顯示指定用戶的權限
 - `select count([統計內容]) from [表名];` 統計表中的指定記錄數
 - `select [列名] from [表名] limit [數量] offset [起始行];` 從指定行開始查詢指定數量的記錄
 - `select [列名] from [表名] limit [起始行], [數量];` 從指定行開始查詢指定數量的記錄
+
+### CASE 與 IF
+使用`case`或`if`語法可實現對指定字段的條件判斷，並根據條件設定值。
+
+case用於多重條件判斷：
+
+```sql
+CASE
+    WHEN condition1 THEN result1
+    WHEN condition2 THEN result2
+    WHEN conditionN THEN resultN
+    ELSE result
+END;
+```
+
+if用於單一條件判斷：
+
+```sql
+IF(expression, expr_true, expr_false);
+```
+
+case與if可用於多種場景，如查詢、排序、更新中：
+
+```sql
+# 數據查詢
+SELECT OrderID, Quantity,
+CASE
+    WHEN Quantity > 30 THEN "The quantity is greater than 30"
+    ELSE "The quantity is under 30"
+END
+FROM OrderDetails;
+
+SELECT OrderID, Quantity,
+IF(Quantity > 30, "The quantity is greater than 30", "The quantity is under 30")
+FROM OrderDetails;
+
+# 數據排序
+SELECT CustomerName, City, Country
+FROM Customers
+ORDER BY
+CASE
+    WHEN City IS NULL THEN Country
+    ELSE City
+END;
+
+SELECT CustomerName, City, Country
+FROM Customers
+ORDER BY IF(City IS NULL, Country, City);
+
+# 數據更新
+UPDATE OrderDetails SET Quantity = IF(Quantity > 0, Quantity, -1);
+UPDATE OrderDetails SET Quantity = CASE WHEN Quantity > 0 THEN Quantity ELSE -1 END;
+```
 
 ## 內置函數
 使用**內置函數**可以查詢一些特殊的信息：
@@ -936,7 +990,8 @@ void mysql_close(MYSQL *sock);
 記錄MySQL在使用、配置中遇到的問題。
 
 ## MySQL error: sql_mode=only_full_group_by
-`MySQL 5.7.5`開始默認啟用`only_full_group_by`特性，select的列需要包含在group by子句中，否則會出現類似的錯誤信息：
+`MySQL 5.7.5`開始默認啟用`only_full_group_by`特性，
+select的列需要包含在group by子句中，否則會出現類似的錯誤信息：
 
 ```
 Expression #6 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'Xxx.xxx' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
