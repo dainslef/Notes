@@ -26,6 +26,7 @@
 		- [主動觸發 Major Compactions](#主動觸發-major-compactions)
 		- [Off-peak Compactions (非高峰時間壓縮)](#off-peak-compactions-非高峰時間壓縮)
 	- [TTL (Time to Live)](#ttl-time-to-live)
+	- [HBase表格在HDFS中的實際存儲](#hbase表格在hdfs中的實際存儲)
 - [問題註記](#問題註記)
 	- [ERROR org.apache.hadoop.hdfs.server.namenode.NameNode: Failed to start namenode.org.apache.hadoop.hdfs.server.namenode.EditLogInputException: Error replaying edit log at offset 0.  Expected transaction ID was 1](#error-orgapachehadoophdfsservernamenodenamenode-failed-to-start-namenodeorgapachehadoophdfsservernamenodeeditloginputexception-error-replaying-edit-log-at-offset-0--expected-transaction-id-was-1)
 	- [Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;](#call-from-xxx-to-xxx-failed-on-connection-exception-javanetconnectexception-connection-refused)
@@ -303,7 +304,7 @@ $ hadoop namenode -format
 $ hadoop-daemon.sh start namenode
 ```
 
-若配置HA NameNode，則需要讓另一個NameNode複製先前NameNode的元數據，执行指令：
+若配置HA NameNode，則需要讓其它NameNode複製最初格式化的NameNode的元數據，执行指令：
 
 ```c
 // 共享先前啟動NameNode的元數據
@@ -1377,6 +1378,25 @@ ROW                             COLUMN+CELL
 
 最近版本的HBase還支持了對每個單元設置數據保存時間，參考[HBASE-10560](https://issues.apache.org/jira/browse/HBASE-10560)。
 
+## HBase表格在HDFS中的實際存儲
+HBase在HDFS中實際存儲的位置默認為：
+
+```
+/hbase/data/<命名空間>/<表名>/
+```
+
+其中，未顯式設置命名空間的表命名空間為`default`。
+
+查看一張HBase表在HDFS中實際佔用的空間大小可使用HDFS工具提供的`du`指令：
+
+```
+[root@spark-master ~]# hdfs dfs -du -h /hbase/data/default/NetworkCountBtsResult
+301      /hbase/data/default/NetworkCountBtsResult/.tabledesc
+0        /hbase/data/default/NetworkCountBtsResult/.tmp
+473.3 M  /hbase/data/default/NetworkCountBtsResult/624e27343d4521146b3634c471935b92
+432.9 M  /hbase/data/default/NetworkCountBtsResult/b47c86cdf0ac95634929b367eb52f564
+```
+
 
 
 # 問題註記
@@ -1391,10 +1411,15 @@ namenode啓動失敗，需要重新格式化，保證namenode的ID一致性。
 
 ## Call From xxx to xxx failed on connection exception: java.net.ConnectException: Connection refused;
 問題說明：<br>
-執行`hdfs namenode -format`指令時，集羣未啓動，需要在集羣已啓動的情況下格式化NameNode。
+執行`hdfs namenode -format`指令時，JournalNode未啓動，需要在JournalNode已啓動的情況下格式化NameNode。
 
 解決方案：<br>
-啓動集羣後再格式化NameNode。
+啓動JournalNode後再格式化NameNode：
+
+```
+$ hadoop-daemon.sh start journalnode
+$ hdfs namenode -format
+```
 
 ## java.io.IOException: Got error, status message , ack with firstBadLink as xxx.xxx.xxx.xxx:xxx
 問題說明：<br>
