@@ -72,6 +72,7 @@
 - [OpenCC](#opencc)
 	- [命令行工具opencc](#命令行工具opencc)
 - [常見問題記錄](#常見問題記錄-1)
+	- [sshd[2169]: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'](#sshd2169-pam_limitssshdsession-error-parsing-the-configuration-file-etcsecuritylimitsconf)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
 	- [CentOS](#centos)
@@ -2133,6 +2134,22 @@ $ opencc -i <輸入文本文件> -o <輸出文本文件> -c <*.json>
 
 # 常見問題記錄
 記錄各類發行版使用中可能會遇到的問題。
+
+## sshd[2169]: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'
+問題描述：<br>
+修改了`/etc/security/limits.conf`，之後SSH服務無法被登陸，
+每次SSH客戶端嘗試登陸均被立即關閉連接，查看SSH服務日誌出現上述錯誤。
+修改limits.conf文件至正確內容後無效，依舊出現該錯誤。
+
+問題分析：<br>
+該問題是由於limits.conf文件內容語法不正確；
+或是配置項存在衝突，如soft資源限制大於hard資源限制，
+亦或是未配置hard資源限制導致soft限制大於默認hard限制。
+需要注意，SSH服務使用了PAM(Pluggable Authentication Modules)，
+對於limits.conf的修改需要重啟機器才會生效，僅修改配置/重啟服務會一直重複得到該錯誤。
+
+解決方案：<br>
+修改limits.conf至正確語法、正確配置參數，之後重啟機器。
 
 ## Ubuntu
 記錄Ubuntu發行版中遇到的問題。
