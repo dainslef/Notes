@@ -1,12 +1,11 @@
 <!-- TOC -->
 
 - [配置文件](#配置文件)
+	- [Repository](#repository)
+	- [Mirror](#mirror)
 - [依賴管理](#依賴管理)
 	- [查看依賴樹](#查看依賴樹)
 	- [排除指定依賴](#排除指定依賴)
-- [Repository](#repository)
-	- [修改本地緩存路徑](#修改本地緩存路徑)
-	- [Mirror](#mirror)
 - [Language Level](#language-level)
 - [Sub Project](#sub-project)
 - [Package](#package)
@@ -34,6 +33,40 @@ Maven默認的配置文件為`~/.m2/settings.xml`。
 
 要使該配置在Idea中生效，需要勾選`Preferences => Build, Execution, Deployment => Build Tools => Maven => User settings file => Override`，
 選擇自定義的settings.xml文件。
+
+## Repository
+Maven會將依賴包緩存到本地，默認本地緩存倉庫路徑為`~/.m2/repository`。
+
+修改`$HOME/.m2/settings.xml`文件，添加`<localRepository/>`配置段：
+
+```xml
+<settings>
+	...
+	<localRepository>...(自定義路徑)</localRepository>
+	...
+</settings>
+```
+
+## Mirror
+Maven中心倉庫服務器位於海外，在牆內下載速度較慢。國內可使用阿里提供的鏡像源。
+
+修改`$HOME/.m2/settings.xml`文件，添加`<mirrors/>`配置段：
+
+```xml
+<settings>
+	...
+	<mirrors>
+		<!-- 阿里雲倉庫 -->
+		<mirror>
+			<id>alimaven</id>
+			<mirrorOf>*</mirrorOf>
+			<name>aliyun maven</name>
+			<url>https://maven.aliyun.com/repository/public</url>
+		</mirror>
+	</mirrors>
+	...
+</settings>
+```
 
 
 
@@ -67,35 +100,6 @@ $ mvn dependency:tree
 ```
 
 使用Idea時，可在Maven依賴圖中搜索指定包名，右鍵選擇`Exclude`將指定依賴從項目中排除。
-
-
-
-# Repository
-Maven會將依賴包緩存到本地，默認本地緩存倉庫路徑為`~/.m2/repository`。
-
-## 修改本地緩存路徑
-修改`$HOME/.m2/settings.xml`文件，添加`<localRepository/>`配置段：
-
-```xml
-<localRepository>...(自定義路徑)</localRepository>
-```
-
-## Mirror
-Maven中心倉庫服務器位於海外，在牆內下載速度較慢。國內可使用阿里提供的鏡像源。
-
-修改`$HOME/.m2/settings.xml`文件，添加`<mirrors/>`配置段：
-
-```xml
-<mirrors>
-	<!-- 阿里雲倉庫 -->
-	<mirror>
-		<id>alimaven</id>
-		<mirrorOf>*</mirrorOf>
-		<name>aliyun maven</name>
-		<url>https://maven.aliyun.com/repository/public</url>
-	</mirror>
-</mirrors>
-```
 
 
 
@@ -177,6 +181,20 @@ Maven中心倉庫服務器位於海外，在牆內下載速度較慢。國內可
 ```
 
 子模塊繼承父模塊的`<groupId/>`、`<version/>`，無須單獨配置。
+模塊的目錄名稱最好與pom.xml中定義的artifactId相同，否則部分IDE在導入項目時可能不能正確識別子模塊。
+
+默認查找父模塊的路徑為上級目錄，若需要指定父模塊的路徑，可通過`<relativePath/>`標籤設置：
+
+```xml
+<project>
+	...
+	<parent>
+		...
+		<relativePath>/xxx/pom.xml<relativePath/> <!-- 指定路徑 -->
+	</parent>
+	...
+</project>
+```
 
 
 
