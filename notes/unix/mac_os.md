@@ -65,13 +65,17 @@
 
 
 # macOS 層次結構
-`macOS`基於`Darwin`(對應`GNU/Linux`)。
+`macOS`基於`Darwin`(對應`GNU/Linux`)，系統架構圖如下所示：
+
+![macOS Kernel Architecture](../../images/macos_kernel_architecture.gif)
 
 - `Darwin`包含內核`XNU`(對應`Linux Kernel`)以及shell環境(對應`GNU Tools`)。
 - `XNU`內核由微內核`Mach`和`BSD`層以及一些其它組件(主要爲驅動層`IoKit`)構成。
 - `Mach`微內核提供了基本的硬件抽象，提供了一套獨有的`Mach Trap`(`Mach`系統調用)。
 - `BSD`層提供了文件系統抽象以及`POSIX`調用。
 - `macOS`在文件佈局以及配置方式上與傳統的Linux發行版**有較大不同**。
+
+macOS系統架構可參考[Apple官方內核架構文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Architecture/Architecture.html)。
 
 
 
@@ -195,19 +199,21 @@ Mac機與常規的PC有較大的差異，需要一個適應過程。
 	- `Windows/Linux`中的`Alt`鍵在`macOS`中名稱爲`Option`鍵。
 
 ## Darwin 與 GNU/Linux 的差異
-`Darwin`提供的`Unix`環境基於`FreeBSD`，與傳統`GNU/Linux`有較大差異。
+`Darwin`提供的Unix環境基於`FreeBSD`，與傳統`GNU/Linux`有較大差異。
 
-1. `Darwin`爲混合內核架構，`Linux`爲宏內核架構。
-1. `Linux`中普通用戶UID從`1000`開始，`macOS`中UID從`500`開始。
+1. Darwin爲混合內核架構，Linux爲宏內核架構。
+1. Linux中普通用戶UID從`1000`開始，macOS中UID從`500`開始。
 1. 家目錄與Linux/BSD中不同，macOS中的`/home`目錄默認爲**空**，用戶家目錄的位置爲`/Users`。
-1. `root`用戶家目錄與Linux中不同，位於`/var/root`。
-1. `Darwin`沒有用於展示系統運行狀態的`/proc`目錄。
-1. `Darwin`沒有默認的包管理器。
-1. `Darwin`的`PATH`環境變量記錄在文件`/etc/paths`中。
-1. `Darwin`的微內核`Mach`使用`Mach-O`作爲二進制格式，而傳統的`Linux/Unix`使用`EFL`作爲二進制格式。
-1. `Darwin`中動態鏈接庫後綴名爲`dylib`，傳統`Unix`中一般爲`so`，靜態庫後綴名與傳統`Unix`相同，皆爲`a`。
-1. `Darwin`不使用GNU工具鏈，默認工具鏈爲FreeBSD工具鏈。
-1. `macOS`採用`Aqua`作爲GUI實現，傳統`Unix`使用`X11`。
+1. root用戶家目錄與Linux中不同，位於`/var/root`。
+1. Darwin沒有用於展示系統運行狀態的`/proc`文件系統。
+1. Darwin沒有提供原生的包管理器。
+1. Darwin的PATH環境變量記錄在文件`/etc/paths`中。
+1. Darwin的微內核Mach使用`Mach-O`作爲二進制格式，而傳統的Linux/Unix使用`EFL`作爲二進制格式。
+1. Darwin中動態鏈接庫後綴名爲`dylib`，傳統Unix中一般爲`so`，靜態庫後綴名與傳統Unix相同，皆爲`a`。
+1. Darwin不使用GNU工具鏈，默認工具鏈爲FreeBSD工具鏈。
+1. macOS採用`Aqua`作爲GUI實現，傳統Unix使用`X11`。
+
+Mach內核的技術細節可參見[Darwin內核開發者文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Mach/Mach.html)。
 
 
 
