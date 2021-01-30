@@ -89,26 +89,45 @@ NixOS的channel按照維度分類：
 - 按照版本分類：**unstable**和**指定版本**
 - 按照包類別分類：**nixos**和**nixpkgs**
 
-```nix
+```html
+<!-- 官方源 -->
 nixos https://nixos.org/channels/nixos-unstable
 nixpkgs https://nixos.org/channels/nixpkgs-unstable
+
+<!-- TUNA源 -->
+nixos https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixos-unstable
+nixpkgs https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixpkgs-unstable
 ```
 
 使用`nix-channel`指令管理channel：
 
-```c
-$ nix-channel --list //顯示當前已配置的channel
-$ nix-channel --add [url] [name] //添加指定channel
-$ nix-channel --remove [name] //移除指定channel
+```html
+$ nix-channel --list <!-- 顯示當前已配置的channel -->
+$ nix-channel --add [url] [name] <!-- 添加指定channel -->
+$ nix-channel --remove [name] <!-- 移除指定channel -->
 ```
 
 在添加channel時若不指定名稱，則按找包類別使用默認名稱，例如`nixos-unstable`的channel名稱爲`nixos`。
 channel名稱是**唯一**的，添加名稱相同的channel時，後添加的會替換先前的channel。
 
-更新軟件包前應先更新channel：
+示例，設置nixpkg使用TUNA源：
 
 ```
-# nixos-channel --update
+$ nix-channel --add https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixpkgs-unstable nixpkgs
+```
+
+對於獨立安裝的Nix，若需要使用Binary Cache，則應修改`/etc/nix/nix.conf`，添加如下配置：
+
+```
+substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/
+```
+
+更新軟件包前應先更新channel：
+
+```html
+# nix-channel --update <!-- 獨立安裝Nix時使用 -->
+# nixos-channel --update <!-- NixOS 使用 -->
+
 # nix-env -u
 ```
 
