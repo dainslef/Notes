@@ -59,6 +59,7 @@
 - [net-tools & iproute2](#net-tools--iproute2)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
+- [性能監控](#性能監控)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
@@ -1832,6 +1833,34 @@ Settings for enp1s0:
 			       drv probe ifdown ifup
 	Link detected: yes
 ```
+
+
+
+# 性能監控
+Linux下存在大量的性能監控工具，包括Unix系統通用的`ps`、`top`，
+以及功能更加強大的`sysstat`工具套件，還有用於網絡性能監控的`iftop`工具等。
+
+Linux的proc文件系統直接提供了大量進程、文件系統信息，可直接觀測：
+
+| Path | Description |
+| :- | :- |
+| /proc/cpuinfo | Information about the processor, such as its type, make, model, and performance. |
+| /proc/meminfo | Information about memory usage, both physical and swap. Concatenating this file produces similar results to using 'free' or the first few lines of 'top'. |
+| /proc/PID/cmdline | Command line arguments. |
+| /proc/PID/cpu | Current and last cpu in which it was executed. |
+| /proc/PID/cwd | Link to the current working directory. |
+| /proc/PID/environ | Values of environment variables. |
+| /proc/PID/exe | Link to the executable of this process. |
+| /proc/PID/fd | Directory, which contains all file descriptors. |
+| /proc/PID/maps | Memory maps to executables and library files. |
+| /proc/PID/mem | Memory held by this process. |
+| /proc/PID/root | Link to the root directory of this process. |
+| /proc/PID/stat | Process status. |
+| /proc/PID/statm | Process memory status information. |
+| /proc/PID/status | Process status in human readable form. |
+
+多數Linux下的性能監控套件會依賴proc文件系統，而多數其它Unix並未提供該特性，
+這使得Linux下的多數性能監控工具無法移植到其它Unix平台，如macOS/BSD。
 
 
 
