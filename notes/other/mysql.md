@@ -22,6 +22,7 @@
 	- [基本SQL語句](#基本sql語句)
 		- [CASE 與 IF](#case-與-if)
 	- [內置函數](#內置函數)
+	- [系統變量](#系統變量)
 	- [複製表格](#複製表格)
 	- [主鍵自增](#主鍵自增)
 	- [外鍵約束](#外鍵約束)
@@ -470,12 +471,37 @@ UPDATE OrderDetails SET Quantity = CASE WHEN Quantity > 0 THEN Quantity ELSE -1 
 ```
 
 ## 內置函數
-使用**內置函數**可以查詢一些特殊的信息：
+MySQL提供了大量**內置函數**，包含各類功能。
+
+信息查詢類：
 
 - `select user();` 查詢當前登錄的用戶
 - `select database();` 查詢正在使用的數據庫名稱
 - `select version();` 查詢數據庫的版本信息
-- `select @@version_compile_os;` 查詢數據編譯平臺
+
+## 系統變量
+MySQL使用`@@變量名`語法訪問變量，MySQL定義了大量系統變量用於配置數據庫、提供內部信息等功能。
+
+變量按作用域可分為**全局**(GLOBAL)和**會話**(SESSION)，
+查詢、修改全局變量需要使用`global`關鍵字修飾，無關鍵字修飾時默認訪問會話變量。
+語法示例：
+
+```sql
+-- 查詢變量
+> select @@變量名; -- 查詢當前會話變量
+> select @@session.變量名; -- 等價於 select @變量名;
+> select @@global.變量名; -- 查詢全局變量
+
+-- 修改變量
+> set @@變量名 = '內容'; -- 設置當前會話變量
+> set @@session.變量名 = '內容'; -- 等價於 set @@變量名 = '內容';
+> set @@global.變量名 = '內容'; -- 設置全局變量
+```
+
+常用變量說明：
+
+- `@@version_compile_os` 數據庫編譯平臺
+- `@@sql_mode` 數據庫的SQL特性
 
 ## 複製表格
 僅複製表格結構：
