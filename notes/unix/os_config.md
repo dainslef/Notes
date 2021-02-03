@@ -59,6 +59,7 @@
 - [net-tools & iproute2](#net-tools--iproute2)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
+	- [NetworkManager](#networkmanager)
 - [性能監控](#性能監控)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
@@ -1833,6 +1834,51 @@ Settings for enp1s0:
 			       drv probe ifdown ifup
 	Link detected: yes
 ```
+
+## NetworkManager
+`NetworkManager`是現代Linux發行版的主流網絡管理服務。
+NetworkManager服務用於管理網絡連接和其它網絡接口，如Ethernet、WiFi、Mobile Broadband，
+使網絡配置和操作變得盡可能自動化。
+
+NetworkManager最初由RedHat開發，之後由GNOME項目進行維護。
+
+NetworkManager基本概念可參考[Wikipedia](https://en.wikipedia.org/wiki/NetworkManager)，
+功能配置相關可參考[ArchWiki](https://wiki.archlinux.org/index.php/NetworkManager)。
+
+啟用關閉NetworkManager服務：
+
+```
+$ systemctl status NetworkManager
+# systemctl enable NetworkManager
+# systemctl disable NetworkManager
+```
+
+NetworkManager提供了基於命令行的網絡配置工具`nmcli`和基於TUI的`nmtui`。
+
+nmcli常用指令：
+
+```html
+<!-- 列出無線網絡列表 -->
+$ nmcli device wifi list
+<!-- 連接指定無線網絡 -->
+# nmcli device wifi connect [SSID] password [password]
+# nmcli device wifi connect [SSID] password [password] hidden yes
+<!-- 關閉無線網卡 -->
+# nmcli radio wifi off
+
+<!-- 連接管理相關 -->
+$ nmcli connection show
+# nmcli connection up [name/uuid]
+# nmcli connection delete [name/uuid]
+
+<!-- 網絡設備狀態相關 -->
+$ nmcli device
+
+<!-- 列出網絡連接信息 -->
+$ nmcli connection
+```
+
+nmtui提供友好的TUI，可直接編輯、啟用、禁用連接。
 
 
 
