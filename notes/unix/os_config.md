@@ -3,7 +3,7 @@
 - [Windows CMD](#windows-cmd)
 	- [文件/目錄鏈接](#文件目錄鏈接)
 	- [Windows系統引導](#windows系統引導)
-	- [常見問題記錄](#常見問題記錄)
+	- [Windows常見問題記錄](#windows常見問題記錄)
 		- [Reply from ::1: time<1ms](#reply-from-1-time1ms)
 - [常用Unix工具指令](#常用unix工具指令)
 	- [grep](#grep)
@@ -14,7 +14,7 @@
 	- [文件系統](#文件系統)
 - [PulseAudio](#pulseaudio)
 - [用戶管理](#用戶管理)
-- [UID/GID/Sticky](#uidgidsticky)
+- [setuid/setgid/sticky](#setuidsetgidsticky)
 - [FTP (File Transfer Protocol)](#ftp-file-transfer-protocol)
 	- [連接服務器](#連接服務器)
 	- [常用指令](#常用指令)
@@ -73,7 +73,7 @@
 		- [使用本地源](#使用本地源)
 - [OpenCC](#opencc)
 	- [命令行工具opencc](#命令行工具opencc)
-- [常見問題記錄](#常見問題記錄-1)
+- [Linux常見問題記錄](#linux常見問題記錄)
 	- [sshd[2169]: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'](#sshd2169-pam_limitssshdsession-error-parsing-the-configuration-file-etcsecuritylimitsconf)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
@@ -254,7 +254,7 @@ BCDBoot是微軟官方提供的引導配置工具，主要有以下功能：
 
 使用`/v`參數可以顯示指令執行的詳情，在某些執行錯誤的情況下，可以展示更詳細的錯誤原因。
 
-## 常見問題記錄
+## Windows常見問題記錄
 記錄Windows中常見問題的解決方案。
 
 ### Reply from ::1: time<1ms
@@ -598,25 +598,27 @@ $ chgrp [選項] [用戶組名] [文件名]
 
 
 
-# UID/GID/Sticky
-Linux系統中擁有三類特殊權限標誌：
+# setuid/setgid/sticky
+Unix系統中擁有三類特殊權限標誌：
 
-| 權限標誌 | 含義 |
-| :- | :- |
-| s(setuid) | 僅對文件有效，使文件在執行階段具有文件所有者的權限 |
-| s(setgid) | 僅對目錄有效，使目錄下創建的文件都具有和該目錄所屬的組相同的組 |
-| t(sticky) | 僅對文件有效，禁止文件被刪除(不受寫權限約束，對root用戶無效) |
+| 權限標誌 | 含義(對可執行文件使用) | 含義(對目錄使用) |
+| :- | :- | :- |
+| s(setuid) | 使文件在執行階段具有文件所有者的權限 | 在多數Unix實現(包括Linux)下，對目錄設置setuid會被忽略 |
+| s(setgid) | 使文件在執行階段具有文件所屬組的權限 | 使目錄下的文件都具有和該目錄所屬組相同的權限 |
+| t(sticky) | 禁止文件被所屬用戶外的其它用戶刪除(不受寫權限約束，對root用戶無效) | 在Linux/macOS上均被忽略 |
 
-使用8進制數值表示文件權限時，這些特殊權限佔有一組獨立的8進制位(位於傳統權限標誌位之前)。
+使用8進制數值表示文件權限時，這些特殊權限佔有一組獨立的8進制位(位於傳統權限標誌位**之前**)。
 如傳統文件的權限爲`777`，添加了特殊權限後使用`?777`表示，`?`即爲特殊權限的啓用情況。
 
-特殊權限8進制數值的2進制位含義：
+特殊權限的三個二進制位含義：
 
-`321`
+```
+4 - 2 - 1
+```
 
-| 位置索引 | 含義 |
+| 數值 | 含義 |
 | :- | :- |
-| 3(高位) | 高位使用字母s，表示setuid |
+| 4(高位) | 高位使用字母s，表示setuid |
 | 2(中間位) | 中間位同樣使用字母s，表示setgid |
 | 1(低位) | 低位使用字母t，表示sticky bit |
 
@@ -2207,7 +2209,7 @@ $ opencc -i <輸入文本文件> -o <輸出文本文件> -c <*.json>
 
 
 
-# 常見問題記錄
+# Linux常見問題記錄
 記錄各類發行版使用中可能會遇到的問題。
 
 ## sshd[2169]: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'
