@@ -60,6 +60,9 @@
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
 	- [NetworkManager](#networkmanager)
+	- [Netcat (nc)](#netcat-nc)
+		- [客戶端/服務端模式](#客戶端服務端模式)
+		- [數據傳送](#數據傳送)
 - [性能監控](#性能監控)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
@@ -1881,6 +1884,48 @@ $ nmcli connection
 ```
 
 nmtui提供友好的TUI，可直接編輯、啟用、禁用連接。
+
+## Netcat (nc)
+`nc`(netcat)是Unix環境下常用的TCP/UDP連接和監聽工具；
+可用於打開TCP連接，發送UDP數據包，監聽TCP/UDP端口，執行端口掃描，該工具同時支持IPv4和IPv6。
+
+macOS/BSD、部分Linux發行版預裝了該工具，
+未預裝該工具的Linux可在發行版軟件倉庫中安裝該工具。
+
+### 客戶端/服務端模式
+nc工具可以選擇運行在客戶端/服務端模式。
+
+作為服務端，可使用nc監聽指定端口：
+
+```
+$ nc -l [port]
+```
+
+作為客戶端，可使用nc向指定端口發送數據：
+
+```
+$ nc [ip/hostname] [port]
+```
+
+默認服務端僅能接受一個連接，客戶端或服務端使用`Ctrl + C`結束會話後，客戶端、服務端均會關閉。
+默認nc使用TCP協議，使用`-u`參數可使用UDP協議進行交互。
+
+### 數據傳送
+默認模式下，nc直接在命令行中進行標準輸入輸出。
+與大多數Unix工具類似，可使用管道、重定向來傳送數據量較大的數據，
+或者將接收到的數據寫入文件中。
+
+```c
+// 重定向輸入數據
+$ nc -l [port] > [output_file]
+
+// 基於文件重定向發送數據
+$ nc [hostname/ip] [port] < [input_file]
+// 基於管道發送數據
+$ echo [content] | nc [hostname/ip] [port]
+```
+
+當數據發送完畢，連接將會關閉。
 
 
 
