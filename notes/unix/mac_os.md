@@ -401,38 +401,29 @@ $ brew uses --installed [軟件包名稱]
 
 - `$ brew tap` 列出已啓用的倉庫
 - `$ brew tap [repo_name]` 啓用指定名稱的倉庫
-- `$ brew tap --list-official` 列出官方提供的倉庫
 - `$ brew untap [repo_name]` 禁用指令名稱的倉庫
 
+常用的官方倉庫包括`homebrew/core`和`homebrew/cask`。
+
 ### Homebrew Cask
-使用`brew cask`指令可以安裝macOS專屬的Bundle封裝應用。
-常用指令：
+Homebrew提供了macOS專屬Bundle封裝應用的軟件倉庫`homebrew/cask`，
+使用`brew --cask`指令可以管理。
 
-- `$ brew cask install [app_name]` 安裝應用
-- `$ brew cask uninstall [app_name]` 移除某個應用
-- `$ brew cask reinstall [app_name]` 重新安裝應用(重新安裝時會安裝應用最新版本，用於升級應用)
-- `$ brew cask outdated` 顯示具有新版本的應用
-- `$ brew cask list` 列出已在本地安裝的應用
-- `$ brew cask search [app_name]` 搜索應用
-- `$ brew cask info [app_name]` 查看某個應用的詳細信息
+早期Homebrew提供了`brew cask`指令現在已經**廢棄**，
+現在對於Cask的處理方式與普通包類似，僅將其視為一個軟件倉庫，
+使用與普通包相同的指令進行操作。
 
-使用`brew cask`安裝的應用位於`/Application`路徑下。
+安裝的Cask應用位於`/Application`路徑下。
 安裝常用應用：
 
 ```
-$ brew install appcleaner filezilla intellij-idea onedrive teamviewer visual-studio-code blender flash-npapi java qq the-unarchiver vlc docker google-chrome lantern qt-creator virtualbox
-```
-
-`brew cask`沒有提供升級所有應用的指令，可以組合使用以下指令達到類似效果：
-
-```
-$ brew cask outdated | xargs brew cask reinstall
+$ brew install --cask appcleaner intellij-idea microsoft-office teamviewer visual-studio-code blender java qq the-unarchiver vlc docker google-chrome qt-creator virtualbox visualvm dotnet-sdk steam wechat wireshark v2rayu neteasemusic gimp mysqlworkbench android-file-transfer android-platform-tools
 ```
 
 部分應用打包時並未寫明確切的版本號(如`google-chrome`)，此類應用升級需要執行重新安裝指令：
 
 ```
-$ brew reinstall [需要更新的應用名稱]
+$ brew reinstall --cask [需要更新的應用名稱]
 ```
 
 默認的`Homebrew Cask`倉庫`caskroom/cask`僅保存最新版的應用，若需要同時安裝多個版本(如`Java SDK`)，
@@ -477,6 +468,7 @@ $ brew tap caskroom/versions
 	$ git -C (brew --repo homebrew/cask) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
 	```
 
+	替換源地址後，需要執行`brew update-reset`重新拉取倉庫信息。
 	替換更新源完成後，可使用查看各個倉庫的信息：
 
 	```
