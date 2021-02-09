@@ -188,7 +188,7 @@ $ docker tag [鏡像ID/鏡像名稱] [鏡像新名稱]
 對於未設置鏡像名稱的鏡像，會爲原鏡像添加`REPOSITORY`、`TAG`等信息；
 對於已設置鏡像名稱的鏡像，會創建內容與原鏡像相同，使用新`REPOSITORY`、`TAG`等信息的新鏡像。
 
-從`dcoker pull`指令從Docker Hub中拉取鏡像到本地：
+從`docker pull`指令從Docker Hub中拉取鏡像到本地：
 
 ```c
 // 拉取指定名稱默認TAG的鏡像
@@ -213,6 +213,27 @@ $ docker image rm [鏡像ID/鏡像名稱]
 // 顯示鏡像詳情
 $ docker image inspect [鏡像ID/鏡像名稱]
 ```
+
+## 鏡像源
+默認Docker會從**官方源**(https://production.cloudflare.docker.com)中拉取鏡像，
+在牆國通常無法連接或下載龜速。
+
+相關配置文件為`daemon.json`，在不同OS和不同Docker發行版下路徑有所差異：
+
+- macOS下，安裝`Docker Desktop`，則配置路徑為`~/.docker/daemon.json`
+- Linux下，通過發行版默認包管理器安裝，則配置路徑通常為`/etc/docker/daemon.json`
+
+在該配置中添加`registry-mirrors`配置項(以中科大USTC鏡像源為例)：
+
+```json
+{
+	...
+	"registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"],
+	...
+}
+```
+
+該配置項為數組結構，內容為文本數組(可添加多個鏡像地址)。
 
 ## 容器管理
 容器是鏡像的運行實例，容器在獨立、隔離的Linux環境中運行一個或一組進程。
