@@ -1,8 +1,8 @@
 <!-- TOC -->
 
-- [Nix package manager](#nix-package-manager)
+- [Nix Package Manager](#nix-package-manager)
 	- [多版本管理](#多版本管理)
-	- [基本指令](#基本指令)
+	- [Nix User Environments](#nix-user-environments)
 	- [Nix Channel](#nix-channel)
 	- [Unfree](#unfree)
 - [NixOS](#nixos)
@@ -26,8 +26,8 @@
 
 
 
-# Nix package manager
-`Nix package manager`是純函數式(purely functional)的包管理器，
+# Nix Package Manager
+`Nix Package Manager`是純函數式(purely functional)的包管理器，
 Nix像純函數式語言(如Haskell)處理值一樣對待軟件包：
 通過無副作用(no side-effects)的純函數來構建，在構建完成後就不再改變。
 
@@ -43,42 +43,56 @@ Nix包管理器支持同時管理、安裝一個軟件包的多個版本，
 保證了不同應用在依賴同一個軟件包的不同版本時不會造成`DLL hell`(動態庫依賴地獄)。
 不同版本的軟件包安裝在Nix Store中的不同路徑下，各自隔離，不會相互影響。
 
-## 基本指令
+Nix包管理器是函數式包管理器，在升級軟件包時不會對既有軟件包進行修改，
+而是在Nix Store中添加新的軟件包，然後切換至新版本(修改符號連接指向)；
+在版本升級後，舊版本軟件包依然存在，並且支持回滾到舊版本。
+
+## Nix User Environments
+`Nix User Environments`(Nix用戶環境)包含一組對特定用戶可用的軟件包，
+Nix支持多用戶，允許同時存在多個用戶環境，每個用戶環境實際相當於一個特定的Nix Store視圖。
+
+使用`nix-env`指令管理Nix用戶環境；
 查詢、安裝、移除、更新軟件包：
 
-```c
-// 查詢軟件包
-# nix-env -q [軟件包名稱]
-# nix-env -qa
-// 查詢名稱中包含指定字段的軟件包
+```html
+<!-- 列出已安裝的軟件包 -->
+# nix-env -q
+<!-- 列出倉庫內所有軟件包 -->
+# nix-env -q
+
+<!-- 查詢指定名稱的軟件包 -->
+# nix-env -qa [軟件包名稱]
+<!-- 查詢名稱中包含指定字段的軟件包，使用正則表達式語法 -->
 # nix-env -qa '.*軟件包名稱.*'
 
-// 安裝軟件包
+<!-- 安裝軟件包 -->
 # nix-env -i [軟件包名稱]
 # nix-env --install [軟件包名稱]
-# nix-env -iA [channel名稱.包名稱] //使用完整名稱安裝軟件包，可避免歧義
-# nix-env -iv [軟件包名稱] //安裝軟件包時輸出詳細日誌，便於發現錯誤
+# nix-env -iA [channel名稱.包名稱] <!-- 使用完整名稱安裝軟件包，可避免歧義 -->
+# nix-env -iv [軟件包名稱] <!-- 安裝軟件包時輸出詳細日誌，便於發現錯誤 -->
 
-// 移除軟件包
+<!-- 移除指定軟件包 -->
 # nix-env -e [軟件包名稱]
 # nix-env --uninstall [軟件包名稱]
+<!-- 移除所有軟件包 -->
+# nix-env -e '.*'
 
-// 更新所有軟件包
+<!-- 更新所有軟件包 -->
 # nix-env -u
-// 更新指定軟件包
+<!-- 更新指定軟件包 -->
 # nix-env -u '軟件包'
-// 查看可升級的軟件包
+<!-- 查看可升級的軟件包 -->
 # nix-env -u --dry-run
 ```
 
 使用`nix-env -e`刪除的軟件包併爲真正的刪除軟件包本體，而是移除了到該軟件包的軟鏈接。
 使用`nix-store --gc`來真正清理軟件包緩存：
 
-```c
-// 清理軟件包時會計算當前系統的依賴關係，將不被依賴的軟件包全部清理
+```html
+<!-- 清理軟件包時會計算當前系統的依賴關係，將不被依賴的軟件包全部清理 -->
 # nix-store --gc
 
-// 使用--print-dead參數時僅計算並打印會被清理的依賴，不真正執行清理操作
+<!-- 使用--print-dead參數時僅計算並打印會被清理的依賴，不真正執行清理操作 -->
 # nix-store --gc --print-dead
 ```
 
@@ -128,7 +142,7 @@ substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://c
 # nix-channel --update <!-- 獨立安裝Nix時使用 -->
 # nixos-channel --update <!-- NixOS 使用 -->
 
-# nix-env -u
+# nix-env -u <!-- 更新軟件源後更新軟件包 -->
 ```
 
 ## Unfree
