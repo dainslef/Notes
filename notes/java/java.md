@@ -28,6 +28,7 @@
 		- [Daemon Thread](#daemon-thread)
 	- [synchronized & Monitors](#synchronized--monitors)
 		- [synchronized語法](#synchronized語法)
+		- [synchronized工作機制](#synchronized工作機制)
 	- [Executor 框架](#executor-框架)
 - [Annotation (註解)](#annotation-註解)
 	- [內置註解](#內置註解)
@@ -1099,6 +1100,85 @@ class Thread implements Runnable {
 
 	來自同一個實例在不同線程中的兩個實例方法**沒有**併發執行：`showTwo()`一直等到`showOne()`結束纔開始執行。
 	靜態方法與實例方法同步對象不同，正常併發執行：`showOne()`與`showStatic()`交錯打印輸出。
+
+### synchronized工作機制
+Java為每個對象分配了一個monitor，monitor會強制排它性訪問一個對象的synchronized方法/代碼塊，
+在同一個對象上執行同步，JVM會檢測對象的monitor：
+
+- 若monitor處於**unowned**(未獲取)狀態，則當前線程會得到該monitor的所有權，允許繼續執行代碼。
+- 若monitor處於被其它線程**owned**(已獲取)的狀態，則當前線程會等待直到monitor的所有權被其它線程釋放。
+
+詳細解釋可參考該[博客](http://www.csc.villanova.edu/~mdamian/threads/javamonitors.html#:~:text=Java%20associates%20a%20monitor%20with,the%20monitor%20for%20that%20object)。
+
+假設一個類定義如下：
+
+```java
+class Counter
+{
+	private int count = 0;
+	public void increment() {
+		int n = count;
+		count = n + 1;
+	}
+}
+```
+
+類實例為：
+
+```java
+Counter counter;
+```
+
+同時存在兩個線程`thread1`、`thread2`調用了方法：
+
+```java
+counter.increment();
+```
+
+一種可能的執行流程如下：
+
+| Thread 1 | Thread 2 | Count |
+| :- | :- | :-: |
+| counter.Increment(); | --- | 0 |
+| n = count; // 0 | --- | 0 |
+| --- | counter.Increment(); | 0 |
+| --- | n = count; // 0 | 0 | --- | count = n + 1; // 1 | 1 |
+| count = n + 1; // 1 | --- | 1 |
+
+可以看到，兩個方法的執行流程出現了重疊，即發生了方法的**重入**，導致方法沒有按照預期輸出結果。
+在方法定義前加上synchronized關鍵字：
+
+```java
+class Counter
+{
+	private int count = 0;
+	public synchronized void increment() {
+		int n = count;
+		count = n + 1;
+	}
+}
+```
+
+synchronized後的執行流程如下：
+
+| Thread 1 | Thread 2 | Count |
+| :- | :- | :-: |
+| counter.increment(); | --- | 0 |
+| (acquires the monitor) | --- | 0 |
+| n = count; // 0 | --- | 0 |
+| --- | counter.increment(); | 0 |
+| --- | (can't acquire monitor) | 0 |
+| count = n + 1; // 1 | ---(blocked) | 1 |
+| (releases the monitor) | ---(blocked) | 1 |
+| --- | (acquires the monitor) | 1 |
+| --- | n = count; // 1 | 1 |
+| --- | count = n + 1; // 1 | 2 |
+| --- | (releases the monitor) | 2 |
+
+當thread2對同一個counter對象執行increment()方法時，所在線程被阻塞。
+thread2不能獲取counter對象的monitor所有權，因為該對象的monitor早已被thread1獲取，
+thread2在monitor變為可被獲取所有權之前將暫停，當thread1釋放monitor所有權，
+thread2便能夠獲取所有權並繼續執行，完成方法的調用。
 
 ## Executor 框架
 `Thread`類功能簡單，僅僅提供了原始的線程抽象，在實際的開發中，往往會使用更高層次的API。
@@ -2948,6 +3028,7 @@ public class ScheduledThreadPoolExecutor
 
 	...
 
+	// 構造實例，傳入核心線程池的大小
 	public ScheduledThreadPoolExecutor(int corePoolSize) { ... }
 
 	// 提供任務延遲執行功能，通過Runnable/Callable接口分別支持無/有返回值的任務
@@ -2974,8 +3055,12 @@ public class ScheduledThreadPoolExecutor
 ```
 
 構造ScheduledThreadPoolExecutor時至少需要指定`corePoolSize`，指定線程池的大小。
+終止重複任務使用ScheduledFutureTask提供的`cancel()`方法。
 與Timer的行為不同，在ScheduledThreadPoolExecutor中，
 任務方法拋出異常不會導致執行器的異常，僅僅終止任務的重複執行(當前任務從隊列中移除)。
+
+由於在ScheduledThreadPoolExecutor中調度的任務接口為`Runnable`或者`Callable`，
+因此沒有直接提供在實例內取消任務調度的方法，但可以通過拋出異常的方式終止任務重複執行。
 
 當一個提交的任務在執行前被取消，任務不會被執行，但依舊保留在任務隊列中，直到任務設定的時間到期。
 使用`setRemoveOnCancelPolicy(boolean)`方法設定執行器策略，參數為true時，取消的任務會被立即從隊列中移除。
