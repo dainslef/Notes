@@ -1,9 +1,14 @@
+<!-- TOC -->
+
 - [概述](#概述)
 - [安裝與配置](#安裝與配置)
 	- [基本使用](#基本使用)
 	- [在 macOS 中使用 docker](#在-macos-中使用-docker)
+	- [Docker Desktop for macOS](#docker-desktop-for-macos)
+		- [訪問 HyperKit 虛擬機](#訪問-hyperkit-虛擬機)
 - [鏡像與容器](#鏡像與容器)
 	- [鏡像管理](#鏡像管理)
+	- [鏡像源](#鏡像源)
 	- [容器管理](#容器管理)
 	- [容器生成鏡像](#容器生成鏡像)
 	- [容器導入/導出](#容器導入導出)
@@ -12,6 +17,10 @@
 	- [文件傳輸](#文件傳輸)
 	- [Bind Mounts (綁定掛載)](#bind-mounts-綁定掛載)
 	- [Volumes (卷)](#volumes-卷)
+- [端口映射](#端口映射)
+	- [修改端口映射](#修改端口映射)
+
+<!-- /TOC -->
 
 
 
@@ -19,10 +28,14 @@
 `Docker`是使用`Go`實現的開源容器引擎。
 Docker將應用與依賴項放置在容器中執行，僅僅依賴宿主機的內核，簡化了應用的運維與部署。
 
+與傳統虛擬機不同Docker屬於`OS-level virtualization`(操作系統層次的虛擬化)，
+每個Docker實例實際僅僅是獨立的用戶空間實例，類似一個高級的`chroot`實現，
+在普通的chroot上添加了資源控制等高級功能。
+
 
 
 # 安裝與配置
-各類`Linux`發行版的官方倉庫中均內置了Docker，使用發行版內置的包管理器安裝即可：
+各類Linux發行版的官方倉庫中均內置了Docker，使用發行版內置的包管理器安裝即可：
 
 ```
 # pacman -S docker //Arch Linux
@@ -46,7 +59,7 @@ Docker在使用前需要開啓對應服務。
 # systemctl start docker
 ```
 
-Ddocker提供了對應的命令行工具進行管理操作。
+Docker提供了對應的命令行工具進行管理操作。
 核心指令如下：
 
 - `docker run` 新建容器執行指令
@@ -60,8 +73,8 @@ Ddocker提供了對應的命令行工具進行管理操作。
 - `docker tag` 爲鏡像添加／移除標誌
 
 ## 在 macOS 中使用 docker
-Docker使用了諸多`Linux Kernel`專有特性，並非POSIX兼容，無法直接移植到`macOS`中。
-macOS中Docker使用`docker-machine`在`VirtualBox`中創建`Linux`虛擬機，並在虛擬機中運行Docker。
+Docker使用了諸多`Linux Kernel`專有特性，並非POSIX兼容，無法直接移植到macOS中。
+macOS中Docker使用`docker-machine`在VirtualBox中創建Linux虛擬機，並在虛擬機中運行Docker。
 
 安裝Docker和`docker-machine`：
 
@@ -72,11 +85,11 @@ $ brew install docker docker-machine
 `docker-machine`主要指令：
 
 ```
-$ docker-machine create [虛擬機名稱] //創建虛擬機
-$ docker-machine rm [虛擬機名稱] //移除虛擬機
-$ docker-machine ls //列出已創建的虛擬機
-$ docker-machine start/stop [虛擬機名稱] //啓動/停止虛擬機
-$ docker-machine env [虛擬機名稱] //獲取指定已啓動的虛擬機的環境變量
+$ docker-machine create [虛擬機名稱] // 創建虛擬機
+$ docker-machine rm [虛擬機名稱] // 移除虛擬機
+$ docker-machine ls // 列出已創建的虛擬機
+$ docker-machine start/stop [虛擬機名稱] // 啓動/停止虛擬機
+$ docker-machine env [虛擬機名稱] // 獲取指定已啓動的虛擬機的環境變量
 ```
 
 啓動虛擬機後，直接在命令行中使用`docker`指令，會得到以下錯誤輸出：
@@ -108,13 +121,13 @@ Docker Desktop在對應平臺使用該平臺推薦的虛擬化技術創建虛擬
 
 HyperKit創建的虛擬機會在以下路徑創建終端虛擬設備：
 
-```c
+```html
 ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
 
-// 該設備實際指向 /dev 路徑下的終端設備
+<!-- 該設備實際指向 /dev 路徑下的終端設備 -->
 $ ls -alh ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
 lrwxr-xr-x  1 dainslef  staff    12B Aug 13 01:00 /Users/dainslef/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty -> /dev/ttys009
-// 文件類型為特殊字符設備
+<!-- 文件類型為特殊字符設備 -->
 $ file ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
 /Users/dainslef/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty: character special (16/9)
 ```
@@ -272,6 +285,12 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 容器創建時若未分配**僞終端**，則在容器內進程執行完畢後會立即退出，
 若需要容器一直處於執行狀態，則需要保證容器執行的進程爲**守護進程**，或在創建容器時爲容器分配**僞終端**。
 
+創建可持續執行的容器，並指定容器名稱：
+
+```
+$ docker create -it --name Nix nixos/nix sh
+```
+
 使用`docker exec`指令可以使用已啓動的容器執行指令：
 
 ```
@@ -287,12 +306,13 @@ $ docker exec -it [容器ID/容器名稱] bash
 使用`docker container`相關指令查看、管理容器相關信息。
 
 ```
-$ docker ps //查看正在運行中的容器
-$ docker container ls //同 docker ps
-$ docker ps -a //查看所有創建的容器
-$ docker container ls -a //同 docker ps -a
-$ docker rm [容器ID/容器名稱] //刪除指定容器
-$ docker container rm [容器ID/容器名稱] //同 docker rm
+$ docker ps // 查看正在運行中的容器
+$ docker container ls // 同 docker ps
+$ docker ps -a // 查看所有創建的容器
+$ docker container ls -a // 同 docker ps -a
+$ docker rm [容器ID/容器名稱] // 刪除指定容器
+$ docker container rm [容器ID/容器名稱] // 同 docker rm
+$ docker container inspect [容器ID/容器名稱] // 查看容器的詳細配置
 ```
 
 ## 容器生成鏡像
