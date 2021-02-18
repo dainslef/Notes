@@ -260,9 +260,9 @@ Nix配置修改完成後執行安裝操作：
 
 重新構建系統配置：
 
-```c
-# nixos-rebuild switch // 重新構建配置，並立即切換到新配置
-# nixos-rebuild switch --upgrade // 構建配置同時更新系統
+```html
+# nixos-rebuild switch <!-- 重新構建配置，並立即切換到新配置 -->
+# nixos-rebuild switch --upgrade <!-- 構建配置同時更新系統 -->
 ```
 
 每次rebuild生成的配置會以啟動項的方式顯示在GRUB菜單中，
@@ -276,23 +276,23 @@ Nix配置修改完成後執行安裝操作：
 
 執行清理操作：
 
-```c
-// 刪除指定編號的配置
+```html
+<!-- 刪除指定編號的配置 -->
 # nix-env --delete-generations [配置編號...]
 
-// 清理所有非激活配置和過時軟件包
+<!-- 清理所有非激活配置和過時軟件包 -->
 # nix-collect-garbage -d
 ```
 
 ### 版本升級與回退
 執行`nixos-rebuild`系列指令重構配置。
 
-```c
-# nixos-rebuild boot // 構建配置後繼續使用當前配置，新配置將在下次啟動時作為默認配置載入
-# nixos-rebuild test // 構建並立即切換到新配置，但下次重啓後恢復之前的配置(測試配置)
+```html
+# nixos-rebuild boot <!-- 構建配置後繼續使用當前配置，新配置將在下次啟動時作為默認配置載入 -->
+# nixos-rebuild test <!-- 構建並立即切換到新配置，但下次重啓後恢復之前的配置(測試配置) -->
 
-# nixos-rebuild switch // 構建配置後立即切換到新配置
-# nixos-rebuild switch --upgrade // 刷新軟件源後構建並切換配置，相當於系統更新
+# nixos-rebuild switch <!-- 構建配置後立即切換到新配置 -->
+# nixos-rebuild switch --upgrade <!-- 刷新軟件源後構建並切換配置，相當於系統更新 -->
 ```
 
 系統會按照當前nix-channel中指定的nixos源進行升級，該源也可以由configuration.nix中的配置來指定：
@@ -303,8 +303,8 @@ system.autoUpgrade.channel = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/n
 
 回滾之前配置可在開機的GRUB啟動菜單中選擇；亦可在命令行中回滾配置，執行：
 
-```c
-# nixos-rebuild switch --rollback // 回滾到當前配置的上一版本配置
+```html
+# nixos-rebuild switch --rollback <!-- 回滾到當前配置的上一版本配置 -->
 ```
 
 ### Binary Cache
@@ -408,7 +408,7 @@ users.users.[用戶名] = {
 常見的shell如下：
 
 ```nix
-programs.zsh.enable = true; # ZSH
+programs.zsh.enable = true; # zsh
 programs.fish.enable = true; # fish
 ```
 
