@@ -35,7 +35,7 @@
 		- [安裝配置](#安裝配置)
 		- [使用 NTFS-3G](#使用-ntfs-3g)
 - [Xcode](#xcode)
-	- [Command Line Tools](#command-line-tools)
+	- [CommandLineTools](#commandlinetools)
 	- [Developer Path](#developer-path)
 - [System Integrity Protection (SIP)](#system-integrity-protection-sip)
 - [常見問題](#常見問題)
@@ -396,22 +396,33 @@ $ brew uses --installed [軟件包名稱]
 ```
 
 ### Homebrew Taps
-使用`brew tap/untap`相關指令管理Homebrew啓用的倉庫。
-倉庫信息位於`$(brew --repo)/Library/Taps`路徑下，常用指令：
+使用`brew tap/untap`相關指令管理Homebrew啓用的倉庫，常用指令：
 
 - `$ brew tap` 列出已啓用的倉庫
 - `$ brew tap [repo_name]` 啓用指定名稱的倉庫
 - `$ brew untap [repo_name]` 禁用指令名稱的倉庫
 
 常用的官方倉庫包括`homebrew/core`和`homebrew/cask`。
+首次使用`brew services`指令還會啟用`homebrew/services`倉庫。
+
+倉庫本地目錄位於`$(brew --repo)/Library/Taps`路徑下，
+每個倉庫是獨立的git repo，切換源時需要為每個倉庫替換remote的origin分支路徑。
 
 ### Homebrew Cask
-Homebrew提供了macOS專屬Bundle封裝應用的軟件倉庫`homebrew/cask`，
-使用`brew --cask`指令可以管理。
+Homebrew提供了macOS專屬Bundle封裝應用的軟件倉庫`homebrew/cask`(原`caskroom/cask`倉庫)。
+啟用Homebrew Casks倉庫：
+
+```
+$ brew tap homebrew/cask
+```
 
 早期Homebrew提供了`brew cask`指令現在已經**廢棄**，
-現在對於Cask的處理方式與普通包類似，僅將其視為一個軟件倉庫，
-使用與普通包相同的指令進行操作。
+現在對於Casks的處理方式與普通包類似，僅將其視為一個軟件倉庫，
+使用與普通包相同的指令進行操作，必要時使用`--cask`參數指定操作。
+
+通常Casks應用直接使用普通的`brew install`指令即可安裝，
+只有Casks倉庫內軟件包名稱與默認倉庫衝突時(如docker，同時存在Formulae和Casks版本)，
+才需要使用`brew install --cask`等相關指令顯式指定安裝Casks版本。
 
 安裝的Cask應用位於`/Application`路徑下。
 安裝常用應用：
@@ -426,8 +437,8 @@ $ brew install --cask appcleaner intellij-idea microsoft-office teamviewer visua
 $ brew reinstall --cask [需要更新的應用名稱]
 ```
 
-默認的`Homebrew Cask`倉庫`caskroom/cask`僅保存最新版的應用，若需要同時安裝多個版本(如`Java SDK`)，
-則需要開啓`caskroom/versions`倉庫。
+默認的`Homebrew Cask`倉庫`homebrew/cask`僅保存最新版的應用，若需要同時安裝多個版本(如`Java SDK`)，
+則需要開啓`homebrew/cask-versions`(原`caskroom/versions`倉庫)倉庫。
 執行指令：
 
 ```
@@ -471,8 +482,8 @@ $ brew tap caskroom/versions
 	替換源地址後，需要執行`brew update-reset`重新拉取倉庫信息。
 	替換更新源完成後，可使用查看各個倉庫的信息：
 
-	```
-	// Homebrew自身
+	```html
+	<!-- Homebrew自身 -->
 	$ git -C (brew --repo) remote show origin
 	* remote origin
 	  Fetch URL: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
@@ -487,7 +498,7 @@ $ brew tap caskroom/versions
 	  Local ref configured for 'git push':
 	    master pushes to master (up to date)
 
-	// Homebrew軟件倉庫
+	<!-- Homebrew軟件倉庫 -->
 	$ brew tap-info --installed
 	homebrew/cask: 1 command, 3636 casks
 	/usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask (4,753 files, 1.3GB)
@@ -675,7 +686,7 @@ $ diskutil list
 [`Xcode`](https://developer.apple.com/xcode/)是Apple提供的macOS下的官方IDE(集成開發環境)，
 提供了macOS、iOS等所有Apple係產品的App開發平台，地位相當於Windows下Microsoft官方推出的Visual Studio。
 
-## Command Line Tools
+## CommandLineTools
 Xcode中附帶了一系列命令行工具如`clang`、`git`等，
 一些依賴Unix工具鏈的程序(如Homebrew)的安裝依賴於這些命令行工具。
 
@@ -706,11 +717,21 @@ drwxr-xr-x  7 root  wheel  224 Dec 20  2019 MacOSX10.14.sdk/
 drwxr-xr-x  8 root  wheel  256 Dec 20  2019 MacOSX10.15.sdk/
 ```
 
+若已安裝了完整的Xcode，則**不必**單獨安裝命令行工具，若已安裝命令行工具，
+則`/Library/Developer/CommandLineTools`路徑亦可直接移除，
+使用`xcode-select --switch`切換到`Xcode.app/Contents/Developer`即可。
+
 ## Developer Path
 查看Xcode命令行路徑：
 
 ```
 $ xcode-select -p
+```
+
+對於單獨安裝CommandLineTools的用戶，會得到以下輸出：
+
+```
+/Library/Developer/CommandLineTools
 ```
 
 對於從AppStore安裝Xcode的用戶，會得到以下輸出：
@@ -728,7 +749,7 @@ $ xcode-select -p
 ```
 
 若該變了Xcode.app的位置，即使使用xcode-select重新設定Xocde.app的路徑，
-通過`Homebrew`安裝的編譯器(如`gcc`)依然會出現找不到頭文件的情況，此時需要重新安裝包。
+通過Homebrew安裝的編譯器(如`gcc`)依然會出現找不到頭文件的情況，此時需要重新安裝包。
 
 
 
@@ -911,8 +932,9 @@ macOS系統依舊保留了一套空的java工具鏈(位於`/usr/bin`路徑下)�
 現在多使用OpenJDK代替Oracle JDK，相比Oracle JDK，OpenJDK完全開源，允許自由分發。
 在Homebrew中可以直接安裝：
 
-```
-$ brew install openjdk
+```html
+$ brew install openjdk <!-- 默認安裝當前最新版本的JDK -->
+$ brew install openjdk@8 <!-- 使用率最高的JDK版本 -->
 ```
 
 Homebrew中直接安裝的OpenJDK緊緊作為一個庫安裝，並未綁定到macOS默認的java工具鏈，
@@ -922,13 +944,15 @@ Homebrew中直接安裝的OpenJDK緊緊作為一個庫安裝，並未綁定到ma
 $ sudo ln -sfn /usr/local/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
 ```
 
-默認Homebrew中提供的是最新版本的JDK，若需要歷史版本的JDK，可考慮[AdoptOpenJDK](https://adoptopenjdk.net/)；
+默認Homebrew中提供了各個LTS版本的JDK(openjdk@8、openjdk@11)以及最新版本的JDK，
+若需要更多歷史版本的JDK，可考慮[AdoptOpenJDK](https://adoptopenjdk.net/)；
 AdoptOpenJDK提供了多個版本OpenJDK的預編譯包。
-Homebrew Cask中提供了AdoptOpenJDK項目的預編譯包，可直接安裝：
+`homebrew/cask-versions`中提供了AdoptOpenJDK項目的所有版本的預編譯包，可直接安裝：
 
-```
-$ brew cask install adoptopenjdk // 最新版本JDK
-$ brew cask install adoptopenjdk8 // 使用頻率最高的JDK8
+```html
+$ brew tap homebrew/cask-versions <!-- 啟用 cask-versions 倉庫 -->
+$ brew install --cask adoptopenjdk <!-- 最新版本JDK -->
+$ brew install --cask adoptopenjdk8 <!-- 使用頻率最高的JDK8 -->
 ```
 
 ### 刪除JDK
