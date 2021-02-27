@@ -64,6 +64,7 @@
 		- [客戶端/服務端模式](#客戶端服務端模式)
 		- [數據傳送](#數據傳送)
 - [性能監控](#性能監控)
+	- [Load Averages](#load-averages)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
@@ -1954,6 +1955,55 @@ Linux的proc文件系統直接提供了大量進程、文件系統信息，可�
 
 多數Linux下的性能監控套件會依賴proc文件系統，而多數其它Unix並未提供該特性，
 這使得Linux下的多數性能監控工具無法移植到其它Unix平台，如macOS/BSD。
+
+## Load Averages
+[`Load Averages`](https://en.wikipedia.org/wiki/Load_(computing))是Unix系統中重要的負載指標，
+表示一個時間段內的系統資源佔用，通常以三個數值的形式展示，
+分別表示最近**1分鐘**、**5分鐘**、**15分鐘**的平均性能負載。
+
+在Linux、macOS/BSD等主流Unix系統中，Load Averages可使用uptime、top等工具可直接查看：
+
+```html
+<!-- macOS uptime -->
+$ uptime
+22:01  up 16 days, 15:51, 4 users, load averages: 2.90 3.09 3.64
+
+<!-- macOS top -->
+$ top
+Processes: 504 total, 3 running, 501 sleeping, 2144 threads                                                    23:08:32
+Load Avg: 2.97, 3.57, 3.14  CPU usage: 18.91% user, 9.92% sys, 71.15% idle
+SharedLibs: 377M resident, 61M data, 68M linkedit. MemRegions: 106212 total, 2679M resident, 112M private, 734M shared.
+PhysMem: 8117M used (2067M wired), 74M unused.
+VM: 2610G vsize, 2308M framework vsize, 36511848(0) swapins, 36934832(0) swapouts.
+Networks: packets: 3954498/4439M in, 2344905/1114M out. Disks: 8950050/274G read, 3033173/187G written.
+
+PID COMMAND %CPU TIME #TH #WQ #PORT MEM PURG CMPRS PGRP PPID STATE BOOSTS %CPU_ME
+...
+
+<!-- Linux uptime -->
+16:22:10 up  8:25,  load average: 0.32, 0.10, 0.03
+
+<!-- Linux top -->
+Mem: 351012K used, 1688252K free, 76K shrd, 25448K buff, 191728K cached
+CPU:   0% usr   4% sys   0% nic  95% idle   0% io   0% irq   0% sirq
+Load average: 0.14 0.10 0.04 2/385 559
+  PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND
+...
+```
+
+空載系統下Load Averages數值為0，隨著系統負載升高，該數值隨之增大。
+
+Linux系統下，每個使用/等待CPU資源的進程會增加數值1的負載，
+對單核CPU而言，假設Load Averages數值為`5.12`，
+則說明平均有`1`個進程使用CPU資源，`5.12 - 1 == 4.12`個進程在等待CPU資源。
+Load Averages數值大於`1`則說明系統過載，例如`1.05`表示系統過載`5%`，`5.12`表示過載`412%`；
+對多核CPU而言，每個CPU核心均可執行1個進程，因此Load Averages數值大於CPU核心數才說明系統過載，
+例如8核心的CPU，若Load Averages數值為`8.18`，則系統僅過載`18%`。
+
+不同Unix下Load Averages的具體計算方式不同，不能直接比較，
+macOS使用線程數計算系統負載，而不是Linux使用的進程數目，因而通常macOS系統下顯示的負載會高於1。
+macOS下的Load Averages介紹可參考[StackExchange](https://superuser.com/questions/370622/how-is-load-average-calculated-on-osx-it-seems-too-high-and-how-do-i-analyze)上的相關問答。
+macOS的進程模型具體可參考[Mach內核官方文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Architecture/Architecture.html)。
 
 
 
