@@ -40,6 +40,7 @@
 	- [java.lang.ClassNotFoundException: org.springframework.security.web.authentication.RememberMeServices](#javalangclassnotfoundexception-orgspringframeworksecuritywebauthenticationremembermeservices)
 	- [org.springframework.messaging.converter.MessageConversionException: Could not read JSON: Cannot construct instance of `Xxx` (no Creators, like default construct, exist): cannot deserialize from Object value (no delegate- or property-based Creator)](#orgspringframeworkmessagingconvertermessageconversionexception-could-not-read-json-cannot-construct-instance-of-xxx-no-creators-like-default-construct-exist-cannot-deserialize-from-object-value-no-delegate--or-property-based-creator)
 	- [SEC7128: [CORS] The origin 'http://origin-url...' found multiple Access-Control-Allow-Origin response headers for cross-origin  resource at 'http://target-url...'.](#sec7128-cors-the-origin-httporigin-url-found-multiple-access-control-allow-origin-response-headers-for-cross-origin--resource-at-httptarget-url)
+	- [java.lang.IllegalStateException: The configuration of the pool is sealed once started. Use HikariConfigMXBean for runtime changes.](#javalangillegalstateexception-the-configuration-of-the-pool-is-sealed-once-started-use-hikariconfigmxbean-for-runtime-changes)
 
 <!-- /TOC -->
 
@@ -281,7 +282,6 @@ Spring Eureka發送的事件與EurekaClient提供的注冊信息并非**實時�
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
-    <version>${spring-boot-version}</version>
 </dependency>
 ```
 
@@ -1031,3 +1031,32 @@ zuul:
   sensitiveHeaders: # keep all sensitive headers
   ignored-headers: Access-Control-Allow-Origin,Access-Control-Allow-Credentials # exclude some headers about cross-origin
 ```
+
+## java.lang.IllegalStateException: The configuration of the pool is sealed once started. Use HikariConfigMXBean for runtime changes.
+問題說明：<br>
+Spring Boot 2.0開始默認使用Hikari數據源，該數據源的配置默認啟動後不可修改。
+使用Spring Cloud Config自動刷新配置時，會出現該錯誤。
+
+對應問題描述和討論可參考[`GitHub Issue`](https://github.com/spring-cloud/spring-cloud-commons/issues/571)。
+
+解決方案：<br>
+允許Hikari數據源修改配置需要配置[`Dropwizard Metrics`](https://github.com/brettwooldridge/HikariCP/wiki/Dropwizard-Metrics)。
+
+在Spring Boot項目中，可直接注入`MetricRegistry`實例並調用方法進行配置：
+
+```kt
+@Configuration
+class DatabaseConfig {
+
+    @Autowired
+    private val lateinit metricRegistry: MetricRegistry
+
+    @Bean
+    fun dataSource() = HikariDataSource().apply {
+        setMetricRegistry(metricRegistry)
+    }
+
+}
+```
+
+詳情可參考[Stack Overflow](https://stackoverflow.com/questions/28615203/how-do-i-configure-hikaricp-and-dropwizard-coda-hale-metrics-in-spring-boot-appl)。
