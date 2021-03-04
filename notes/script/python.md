@@ -1204,7 +1204,8 @@ for a in range(5):
 在Python中，定義變量與賦值變量語法相同，這一設計導致局部作用域下訪問外部變量時會有語義衝突。
 
 ## global 關鍵字
-在局部作用域下，直接對全局變量賦值，解釋器會認爲你創建了一個與全局變量同名的**局部變量**，該變量在函數結束之後會被釋放。
+在局部作用域下，直接對全局變量賦值，解釋器會認爲你創建了一個與全局變量同名的**局部變量**，
+該變量在函數結束之後會被釋放。
 在局部作用域下，訪問全局變量需要使用`global`關鍵字，聲明使用全局變量而不是創建新的變量。
 
 示例：
@@ -1548,12 +1549,15 @@ $ python3 get-pip.py --user //將pip安裝到用戶目錄
 	```
 
 	因此，使用系統提供的Python3在不關閉SIP機制的前提下只能安裝模塊到用戶路徑下。
+	實際上在用戶路徑下安裝/更新pip後，使用pip指令時會優先使用用戶空間的版本，
+	而用戶空間的pip安裝/更新包默認即在用戶路徑下，因此不再需要使用`--user`參數。
 
 ## 鏡像源
 由於`GFW`的存在，pip官方源可能無法訪問。
 使用國內鏡像源替換官方源，推薦使用`TUNA`源(清華大學鏡像源)，在`.pip/pip.conf`文件中添加內容：
 
-```
+```conf
+# Place this file at the path: ～/.pip/pip.conf
 [global]
 index-url = https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/
 format = columns
@@ -1562,18 +1566,18 @@ format = columns
 ## 常用操作
 pip包管理器使用方式類似Linux發行版的包管理器，常見操作如下：
 
-```
-# pip install [package_name] // 安裝包
-# pip uninstall [package_name] // 移除包
-# pip install --upgrade [package_name] // 升級指定包
-# pip install -U [package_name] // 升級指定包，"-U"參數等價於"--upgrade"
-$ pip install --user [package_name] // 安裝指定包到用戶目錄
-$ pip list // 列出已安裝的包
-$ pip list --outdated // 列出可以升級的包
-$ pip list --user // 列出安裝在用戶目錄的包
-$ pip show [package_name] // 顯示包的詳細信息
-$ pip show --files [package_name] // 列出包安裝的文件列表
-$ pip help [operate] // 查看pip相關操作的幫助信息，如"pip help install"即查看"pip install"指令的所有用法
+```html
+# pip install [package_name] <!-- 安裝包 -->
+# pip uninstall [package_name] <!-- 移除包 -->
+# pip install --upgrade [package_name] <!-- 升級指定包 -->
+# pip install -U [package_name] <!-- 升級指定包，"-U"參數等價於"--upgrade" -->
+$ pip install --user [package_name] <!-- 安裝指定包到用戶目錄 -->
+$ pip list <!-- 列出已安裝的包 -->
+$ pip list --outdated <!-- 列出可以升級的包 -->
+$ pip list --user <!-- 列出安裝在用戶目錄的包 -->
+$ pip show [package_name] <!-- 顯示包的詳細信息 -->
+$ pip show --files [package_name] <!-- 列出包安裝的文件列表 -->
+$ pip help [operate] <!-- 查看pip相關操作的幫助信息，如"pip help install"即查看"pip install"指令的所有用法 -->
 ```
 
 ## 包依賴檢查與清理
