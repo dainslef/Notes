@@ -85,6 +85,7 @@
 	- [其它常用選項](#其它常用選項)
 	- [項目打包](#項目打包)
 	- [多模塊項目](#多模塊項目)
+	- [IDEA HTTP Client](#idea-http-client)
 - [常見問題記錄](#常見問題記錄)
 	- [String.split()](#stringsplit)
 	- [String.format()](#stringformat)
@@ -3390,11 +3391,13 @@ Eclipse的編輯器沒有自動換行的功能，該功能需要通過第三方�
 設置JavaScript支持ES6語法 `File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
 
 ## 項目打包
-將Java項目打包成`jar`、`war`等分發格式，按以下菜單路徑設置：
+IDEA提供了自家的打包工具，將Java項目打包成`jar`、`war`等分發格式，按以下菜單路徑設置：
 
 `File` => `Project Structure` => `Project Settings` => `Artifacts`
 
 選擇界面中的`+`符號添加打包配置，根據項目類型打包成不同的目標格式。
+
+對於使用Maven、Sbt、Gradle的項目，通常直接使用構建工具提供的打包功能。
 
 ## 多模塊項目
 Idea中一個項目被稱爲`Project`，項目中可包含多個子模塊(`Module`)。
@@ -3446,6 +3449,50 @@ Module "xxx" must not contain source root "xxx". The root already belongs to mod
 ```
 
 移除工程配置中子源碼被包含的`<sourceFolder/>`標籤即可。
+
+## IDEA HTTP Client
+IDEA自身提供了HTTP請求的模擬發送工具，菜單路徑：
+
+`Tools` => `HTTP Client` => `Test RESTful Web Service`/`Show HTTP Requests History`
+
+打開工具後，會在打開一個後綴為`http`的文本，在該文件中編寫HTTP請求。
+當一個請求正確編寫後，請求的路徑左側會展示出執行按鈕，點擊即可發送請求。
+
+基本語法如下：
+
+```http
+<HTTP Method> URL
+<HTTP Headers>
+
+<Request Body>
+
+###
+
+...
+
+###
+
+...
+```
+
+多個請求會使用`###`作為分隔符，獨立佔用一行。
+實例：
+
+```http
+GET http://localhost:80/api/1
+
+###
+
+POST http://localhost:80/api/1
+Content-Type: application/json
+
+{
+  "arg1": 1,
+  "arg2": 2
+}
+```
+
+測試請求文本以及回復內容均會保存在項目根路徑下的`.idea/httpRequests`路徑中。
 
 
 
