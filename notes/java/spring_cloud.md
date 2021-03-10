@@ -14,6 +14,7 @@
 		- [ZuulFilter](#zuulfilter)
 		- [HandlerInterceptorAdapter 與 ZuulFilter](#handlerinterceptoradapter-與-zuulfilter)
 		- [CrossOrigin (跨域問題)](#crossorigin-跨域問題)
+	- [Hystrix](#hystrix)
 - [Spring Cloud Config](#spring-cloud-config)
 	- [Config Server](#config-server)
 	- [Config Client](#config-client)
@@ -41,6 +42,7 @@
 	- [org.springframework.messaging.converter.MessageConversionException: Could not read JSON: Cannot construct instance of `Xxx` (no Creators, like default construct, exist): cannot deserialize from Object value (no delegate- or property-based Creator)](#orgspringframeworkmessagingconvertermessageconversionexception-could-not-read-json-cannot-construct-instance-of-xxx-no-creators-like-default-construct-exist-cannot-deserialize-from-object-value-no-delegate--or-property-based-creator)
 	- [SEC7128: [CORS] The origin 'http://origin-url...' found multiple Access-Control-Allow-Origin response headers for cross-origin  resource at 'http://target-url...'.](#sec7128-cors-the-origin-httporigin-url-found-multiple-access-control-allow-origin-response-headers-for-cross-origin--resource-at-httptarget-url)
 	- [java.lang.IllegalStateException: The configuration of the pool is sealed once started. Use HikariConfigMXBean for runtime changes.](#javalangillegalstateexception-the-configuration-of-the-pool-is-sealed-once-started-use-hikariconfigmxbean-for-runtime-changes)
+	- [Field applicationInfoManager in org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration required a bean of type 'com.netflix.appinfo.ApplicationInfoManager' that could not be found.](#field-applicationinfomanager-in-orgspringframeworkcloudnetflixeurekaservereurekaserverautoconfiguration-required-a-bean-of-type-comnetflixappinfoapplicationinfomanager-that-could-not-be-found)
 
 <!-- /TOC -->
 
@@ -421,6 +423,21 @@ class XxxConfig {
 
 }
 ```
+
+## Hystrix
+Hystrix用於避免微服務集群中因為單點故障可能造成的**雪崩**現象。
+
+使用Hystrix，在項目中引入依賴：
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+</dependency>
+```
+
+若項目使用了`@SpringCloudApplication`註解，則必須引入該依賴，
+否則會在項目啟動提示缺少Hystrix相關依賴。
 
 
 
@@ -1060,3 +1077,11 @@ class DatabaseConfig {
 ```
 
 詳情可參考[Stack Overflow](https://stackoverflow.com/questions/28615203/how-do-i-configure-hikaricp-and-dropwizard-coda-hale-metrics-in-spring-boot-appl)。
+
+## Field applicationInfoManager in org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration required a bean of type 'com.netflix.appinfo.ApplicationInfoManager' that could not be found.
+問題說明：<br>
+在同一個服務內配置Eureka Client和Eureka Server，同時開啟了`eureka.client.enabled: false`配置項，此時出現該錯誤。
+
+解決方案：<br>
+去掉`eureka.client.enabled: false`配置項服務即可正常啟動。
+問題詳情參考[Stack Overflow](https://stackoverflow.com/questions/40705943/spring-boot-1-4-2-release-with-eureka-server-exception-org-springframework-be)。
