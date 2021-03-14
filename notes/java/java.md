@@ -86,6 +86,7 @@
 	- [項目打包](#項目打包)
 	- [多模塊項目](#多模塊項目)
 	- [IDEA HTTP Client](#idea-http-client)
+		- [文件上傳請求](#文件上傳請求)
 - [常見問題記錄](#常見問題記錄)
 	- [String.split()](#stringsplit)
 	- [String.format()](#stringformat)
@@ -3493,6 +3494,36 @@ Content-Type: application/json
 ```
 
 測試請求文本以及回復內容均會保存在項目根路徑下的`.idea/httpRequests`路徑中。
+
+### 文件上傳請求
+文件上傳請求語法較為複雜，示例：
+
+```http
+POST http://localhost:90/file
+Content-Type: multipart/form-data; boundary=file
+
+--file
+Content-Disposition: form-data; name="file1"; filename="xxx.xxx1"
+
+< /Xxx/xxx/xxx.xxx1
+
+--file
+Content-Disposition: form-data; name="file2"; filename="xxx.xxx2"
+
+< /Xxx/xxx/xxx.xxx2
+```
+
+以Spring為例，服務端控制器中使用`MultipartFile`類型對應上傳的文件：
+
+```kt
+@PostMapping("/file/")
+fun fileUpload(@RequestParam file1: MultipartFile, @RequestParam file2: MultipartFile) = ...
+```
+
+請求信息中的`name`屬性對應服務端`@RequestParam`註解內設定的請求參數名稱；
+`filename`屬性對應文件在服務端讀取到的名稱；
+`boundary`設定多文件上傳時的分段標記，每個文件用`--xxx`(xxx為boundary屬性設定的值)分隔開；
+`< /Xxx/xxx/xxx.xxx`語法設定需要上傳的文件在本地磁盤上的路徑；
 
 
 
