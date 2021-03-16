@@ -54,6 +54,7 @@
 		- [字段類型限制](#字段類型限制)
 		- [MySQL 建表異常](#mysql-建表異常)
 	- [Complex Types (複合類型字段)](#complex-types-複合類型字段)
+	- [UDF (User-Defined Aggregate Functions)](#udf-user-defined-aggregate-functions)
 - [問題註記](#問題註記)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -2358,11 +2359,22 @@ xxxField longtext
 ```
 
 對於LONGTEXT類型可使用`VARCHAR(n)`代替，僅需要將對應長度設定成需要的範圍即可。
-關閉MySQL的`STRICT_TRANS_TABLES`特性後(MySQL 5.x系列該特性默認關閉)，
+關閉MySQL中QL MODE的`STRICT_TRANS_TABLES/STRICT_ALL_TABLES`模式後
+(MySQL 5.7.5開始STRICT_TRANS_TABLES默認開啟)，
 `VARCHAR`類型在超過長度限制(65535)時會按照大小被自動轉換為MEDIUMTEXT、LONGTEXT等類型：
 
 - MEDIUMTEXT(16,777,215 - 16MB)
 - LONGTEXT(4,294,967,295 - 4GB)
+
+臨時關閉STRICT_TRANS_TABLES：
+
+```sql
+mysql> set global sql_mode=(select replace(@@sql_mode,'STRICT_TRANS_TABLES',''));
+Query OK, 0 rows affected (0.01 sec)
+```
+
+永久關閉可修改`my.cnf`，修改`[mysqld]`配置段中`sql_mode`配置項(舊版本)
+或`sql-mode`配置項(MySQL 5.7.8以後)，不要啟用該模式。
 
 ### MySQL 建表異常
 SparkSQL建表時會可能會產生異常，以MySQL數據庫爲例：
@@ -2585,6 +2597,83 @@ java.lang.IllegalArgumentException: Can't get JDBC type for struct<name:string,a
 ```scala
 // 無異常信息
 scala> spark.sql("select index, inner.name, inner.age from TestTable").write.jdbc("jdbc:mysql://ip:port/db_name?tinyInt1isBit=false", "TestTable", new java.util.Properties { put("user", "root"); put("password", "xxx") })
+```
+
+## UDF (User-Defined Aggregate Functions)
+`UDF`是由用戶定義的sql函數，能像原生函數一樣在SparkSQL的SQL語句中使用。
+
+SparkSession實例中提供了`udf`字段用於獲取UDF註冊器實例，
+將一個Lambda註冊指定UDF名稱進行註冊，註冊後即可直接在Spark SQL的SQL語句中調用：
+
+```scala
+scala> case class Lang(index: Int, name: String, age: Int)
+defined class Lang
+
+scala> val dataFrame = spark.createDataFrame(Seq(Lang(1, "Haskell", 25), Lang(2, "Rust", 6), Lang(3, "Scala", 15)))
+dataFrame: org.apache.spark.sql.DataFrame = [index: int, name: string ... 1 more field]
+
+scala> dataFrame.createOrReplaceTempView("Lang")
+
+scala> spark.sql("select * from Lang").show()
++-----+-------+---+
+|index|   name|age|
++-----+-------+---+
+|    1|Haskell| 25|
+|    2|   Rust|  6|
+|    3|  Scala| 15|
++-----+-------+---+
+
+
+scala> import org.apache.spark.sql.functions.udf
+import org.apache.spark.sql.functions.udf
+
+// 定義UDF
+scala> val testUDF = udf((v: String) => s"Data: $v, Size: ${v.length}")
+testUDF: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction($Lambda$2885/1213202938@2c522c26,StringType,Some(List(StringType)))
+
+// 註冊UDF到Spark SQL中
+scala> spark.udf.register("testUDF", testUDF)
+res19: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction($Lambda$2882/1371350639@27550035,StringType,Some(List(StringType)))
+
+// 在SQL語句中使用UDF
+scala> spark.sql("select *, testUDF(name) from Lang").show()
++-----+-------+---+--------------------+
+|index|   name|age|   UDF:testUDF(name)|
++-----+-------+---+--------------------+
+|    1|Haskell| 25|Data: Haskell, Si...|
+|    2|   Rust|  6| Data: Rust, Size: 4|
+|    3|  Scala| 15|Data: Scala, Size: 5|
++-----+-------+---+--------------------+
+```
+
+`spark.udf.register()`方法支持直接定義並註冊UDF：
+
+```scala
+// 直接定義並註冊UDF到Spark SQL中
+scala> spark.udf.register("testUDF", (v: String) => s"Data: $v, Size: ${v.length}")
+res19: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction($Lambda$2882/1371350639@27550035,StringType,Some(List(StringType)))
+
+scala> spark.sql("select *, testUDF(name) from Lang").show()
++-----+-------+---+--------------------+
+|index|   name|age|   UDF:testUDF(name)|
++-----+-------+---+--------------------+
+|    1|Haskell| 25|Data: Haskell, Si...|
+|    2|   Rust|  6| Data: Rust, Size: 4|
+|    3|  Scala| 15|Data: Scala, Size: 5|
++-----+-------+---+--------------------+
+```
+
+UDF同樣可用在DataFrame API中：
+
+```scala
+scala> dataFrame.withColumn("testUDF", testUDF('name)).show()
++-----+-------+---+--------------------+
+|index|   name|age|             testUDF|
++-----+-------+---+--------------------+
+|    1|Haskell| 25|Data: Haskell, Si...|
+|    2|   Rust|  6| Data: Rust, Size: 4|
+|    3|  Scala| 15|Data: Scala, Size: 5|
++-----+-------+---+--------------------+
 ```
 
 
