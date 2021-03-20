@@ -1,9 +1,64 @@
 <!-- TOC -->
 
+- [Spring Profiles](#spring-profiles)
+	- [單文件多Profile](#單文件多profile)
 - [Log](#log)
 	- [WebRequest Log](#webrequest-log)
 
 <!-- /TOC -->
+
+
+
+# Spring Profiles
+Spring支持使用`properties/yaml`等文件格式作爲項目的配置文件。
+
+Spring Profiles的完整介紹參考[Spring官方文檔](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-profiles)。
+
+Spring應用支持多種配置，每組配置被稱為一個`profile`。
+`bootstrap/application.properties/yaml`等文件中存放默認配置，
+不同profile下的特殊配置寫在獨立的文件中，以`boostrap/application-{profile名稱}.properties/yaml`命名。
+
+以`test`作為profile名稱和yaml格式為例，默認配置文件為：
+
+```
+boostrap.yaml
+application.yaml
+```
+
+`test`對應profile專屬的配置應寫在如下文件中：
+
+```
+boostrap-test.yaml
+application-test.yaml
+```
+
+一個Spring應用運行時得到的配置為默認配置與profile專屬配置之和。
+profile配置和默認配置擁有相同的配置項時，profile配置中的配置優先級更高，會覆蓋共用配置文件中的對應內容。
+
+啟動項目時在命令行使用參數`--spring.profiles.active=xxx1,xxx2,...`來指定激活的profile。
+
+## 單文件多Profile
+多個profile也可以寫在同一個文件內，使用`---`符號隔開，在屬性`spring.profiles`配置項中標記配置的名稱：
+
+```yaml
+# 分別定義 config1, config2, test1, test2 四套Profile
+
+---
+spring.profiles: config1
+...
+
+---
+spring.profiles: config2
+...
+
+---
+spring.profiles: test1
+...
+
+---
+spring.profiles: test2
+...
+```
 
 
 
