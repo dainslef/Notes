@@ -2,6 +2,7 @@
 
 - [Spring Profiles](#spring-profiles)
 	- [單文件多Profile](#單文件多profile)
+	- [@Profile](#profile)
 - [Log](#log)
 	- [WebRequest Log](#webrequest-log)
 
@@ -58,6 +59,44 @@ spring.profiles: test1
 ---
 spring.profiles: test2
 ...
+```
+
+## @Profile
+在Bean上使用`@Profile`註解能夠限定Bean僅在特定條件下啟用該Bean：
+
+```kt
+@Service
+@Profile("test1") // 設置該Bean僅在profile的test激活時生效
+class BeanXxx {
+    ...
+}
+```
+
+`@Profile`註解支持邏輯語法，可以結合判斷多個Profile來決定是否啟用Bean。
+詳細可參考Spring的[`Profile API`](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/env/Profiles.html)官方文檔。
+
+邏輯運算符說明：
+
+- `!` 邏輯**非**
+- `&` 邏輯**與**
+- `|` 邏輯**或**
+
+需要注意，邏輯運算符`&`和`|`不能在不使用括號指定優先級的情況下使用，例如`a & b | c`不是有效的表達式，
+應寫成`(a & b) | c`或`a & (b | c)`(顯式用括號指定優先級)。
+
+簡單示例：
+
+```kt
+@Profile("test1 & test2") // 在test1和test2均激活時啟用Bean
+@Profile("test1 | test2") // 在test1或test2均激活時啟用Bean
+@Profile("!test1") // 在test1未激活時啟用Bean
+@Profile("!test1 & test2") // 在test1未激活且test2激活時啟用Bean
+```
+
+`@Profile`註解參數實際為一個數組，因此支持數組語法：
+
+```kt
+@Profile(["test1", "test2"]) // 等價於 @Profile("test1 & test2")
 ```
 
 
