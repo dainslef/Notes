@@ -49,6 +49,8 @@
 	- [NTP 管理指令](#ntp-管理指令)
 	- [chrony](#chrony)
 - [curl](#curl)
+	- [HTTP請求](#http請求)
+	- [用戶認證](#用戶認證)
 	- [FTP 操作](#ftp-操作)
 - [Suspend 和 Hibernate](#suspend-和-hibernate)
 - [systemd](#systemd)
@@ -1521,7 +1523,7 @@ local # 允許主機以本地時間作為時鐘源
 
 ```c
 # systemctl enbale/disable chronyd // 開啟/關閉chrony自啟動
-# systemctl start/stop chrony // 啟動/停止chrony
+# systemctl start/stop chronyd // 啟動/停止chrony
 ```
 
 chrony核心的工具指令包括`chronyc`(管理指令)/`chronyd`(服務進程)。
@@ -1565,13 +1567,38 @@ spark-master                   11      0  7     -   67       0      0   -     -
 # curl
 `curl`是一款功能強大的文件傳輸工具。
 
-基本指令爲：
+基本指令語法：
 
 ```
-$ curl [目標文件路徑]
+$ curl [參數] [目標路徑]
 ```
 
 curl對於獲取的文件會直接以文本的形式輸出在終端上，可以使用`-o`參數導出到文件。
+更多參數和用法參考[Gist](https://gist.github.com/subfuzion/08c5d85437d5d4f00e58)。
+
+## HTTP請求
+HTTP請求常用參數說明：
+
+| 參數 | 說明 | 示例 |
+| :- | :- | :- |
+| -X, --request | HTTP Method | `-X POST`, `-X PUT` |
+| -H, --header <header> | HTTP Request Headers | `-H "Content-Type: application/json"`, `-H "Content-Type: application/x-www-form-urlencoded"` |
+| -d, --data <data> | HTTP Request Body | `-d '{"key1":"value1", "key2":"value2"}'`, `-d @data.json` |
+| -b, --cookie <name=data> | Cookie | `-b key1=value1&key2=value2` |
+| -F, --form <name=content> | From Data | `-F key1=value1&key2=value2` |
+
+請求示例：
+
+```html
+<!-- POST Request with Json Content -->
+$ curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3000/data
+<!-- POST Request with Json File -->
+$ curl -d "@data.json" -H "Content-Type: application/json" -X POST http://localhost:3000/data
+<!-- POST Request with From Data -->
+$ curl -d "param1=value1&param2=value2" -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:3000/data
+```
+
+## 用戶認證
 對於一些可能需要驗證用戶權限的協議(如`ftp`)，可以使用`-u`參數添加用戶信息，指令格式如下：
 
 ```
@@ -1579,7 +1606,7 @@ $ curl [目標文件路徑] -u [用戶名]:[密碼] -o [輸出文件路徑]
 ```
 
 ## FTP 操作
-使用`curl`工具進行`FTP`操作：
+使用curl工具進行`FTP`操作：
 
 - `$ curl ftp://[ip/域名] -u [用戶名]:[密碼]` 列出FTP下的文件、目錄列表
 - `$ curl ftp://[用戶名]:[密碼]@[ip/域名]` 列出FTP下的文件、目錄列表(簡化)
@@ -1588,8 +1615,16 @@ $ curl [目標文件路徑] -u [用戶名]:[密碼] -o [輸出文件路徑]
 
 在上傳/下載時，默認情況下會出現進度提示，可添加`-s`參數取消進度提示。
 
+使用`-T`/`--upload-file`參數在上傳文件時指定要傳送的文件本地路徑：
+
+```html
+$ curl --upload-file "{file1,file2}" http://www.example.com
+<!-- 若文件名有規律，可指定範圍上傳 -->
+$ curl -T "img[1-1000].png" ftp://ftp.example.com/upload/
+```
+
 對於一些複雜的FTP功能，需要直接使用FTP**協議指令**來完成。
-在`curl`工具中，使用`-X`參數追加協議指令，命令格式如下：
+在curl工具中，使用`-X`參數追加協議指令，命令格式如下：
 
 ```
 $ curl ftp://[用戶名]:[密碼]@[ip/域名] -X "[FTP協議指令]"
