@@ -67,6 +67,7 @@
 		- [數據傳送](#數據傳送)
 - [性能監控](#性能監控)
 	- [Load Averages](#load-averages)
+	- [ps](#ps)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
@@ -2039,6 +2040,122 @@ Load Averages數值大於`1`則說明系統過載，例如`1.05`表示系統過�
 macOS使用線程數計算系統負載，而不是Linux使用的進程數目，因而通常macOS系統下顯示的負載會高於1。
 macOS下的Load Averages介紹可參考[StackExchange](https://superuser.com/questions/370622/how-is-load-average-calculated-on-osx-it-seems-too-high-and-how-do-i-analyze)上的相關問答。
 macOS的進程模型具體可參考[Mach內核官方文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Architecture/Architecture.html)。
+
+## ps
+`ps`指令是Unix下最常用的進程信息查看工具，可查看進程的CPU、內存等常見的資源使用情況。
+Linux與macOS/BSD系列指令參數有部分差異。
+
+ps指令支持多種參數風格，通常參數為短參數(單橫槓參數，如`-a,-A,-u,-v,-p,-o`)，
+在BSD風格下部分短參數作為**首個參數**時可以省略單橫槓，Linux也部分支持該風格。
+部分參數在有/無單橫槓時含義不同，如`u`(特定顯示格式)和`-u [uid]`(顯示特定uid所屬進程)。
+
+通用用法：
+
+```c
+// 默認顯示當前用戶進程
+// macOS 格式 PID TTY TIME CMD
+// Linux 格式 PID TTY STAT TIME COMMAND
+$ ps
+
+// 顯示所有進程，不包含無控制終端的進程
+$ ps a
+// 顯示所有進程，包含無控制終端的進程
+$ ps ax // 參數"x"指示顯示結果包含無控制終端進程
+$ ps A // macOS/BSD專有，Linux不支持該參數
+
+// Linux 展示 USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND
+// macOS 展示 USER PID %CPU %MEM VSZ RSS TT STAT STARTED TIME COMMAND
+$ ps u
+
+// Linux 展示 PID TTY STAT TIME MAJFL TRS DRS RSS %MEM COMMAND
+// macOS 展示 PID STAT TIME SL RE PAGEIN VSZ RSS LIM TSIZ %CPU %MEM COMMAND
+$ ps v
+
+// 組合參數展示所有進程詳細信息
+$ ps aux
+$ ps avx
+$ ps -ef
+// macOS/BSD
+$ ps Au
+$ ps Av
+
+// 展示指定特徵的進程信息
+$ ps p [pid]
+$ ps U [user]
+
+// 展示當前終端進程
+$ ps t
+// 展示特定終端進程
+$ ps t [tty]
+
+// Linux 展示 UID PID PPID C STIME TTY TIME CMD
+// macOS 展示 UID PID PPID C STIME TTY TIME CMD
+$ ps f
+
+// Linux 展示 F S UID PID PPID C PRI NI ADDR SZ WCHAN TTY TIME CMD
+// macOS 展示 UID PID PPID F CPU PRI NI SZ RSS WCHAN S ADDR TTY TIME CMD
+$ ps l
+
+// Linux 展示 PID PGID SID TTY TIME CMD
+// macOS 展示 USER PID PPID PGID SESS JOBC STAT TT TIME COMMAND
+$ ps j
+```
+
+ps指令還支持通過關鍵字自定義監控內容：
+
+```c
+$ ps o [keyword1,keyword2,keyword3...]
+
+// 查看支持的監控內容
+$ ps L
+```
+
+macOS和Linux均支持的監控內容：
+
+| Keyword | Description |
+| :- | :- |
+| %cpu | percentage CPU usage (alias pcpu) |
+| %mem | percentage memory usage (alias pmem) |
+| args | command and arguments |
+| comm | command |
+| command | command and arguments |
+| cpu | short-term CPU usage factor (for scheduling) |
+| etime | elapsed running time |
+| flags | the process flags, in hexadecimal (alias f) |
+| gid | processes group id (alias group) |
+| lstart | time started |
+| pgid | process group number |
+| pid | process ID |
+| ppid | parent process ID |
+| pri | scheduling priority |
+| rgid | real group ID |
+| rss | resident set size |
+| ruid | real user ID |
+| ruser | user name (from ruid) |
+| sess | session ID |
+| sig | pending signals (alias pending) |
+| sigmask | blocked signals (alias blocked) |
+| start | time started |
+| state | symbolic process state (alias stat) |
+| svgid | saved gid from a setgid executable |
+| svuid | saved UID from a setuid executable |
+| time | accumulated CPU time, user + system (alias cputime) |
+| tt | control terminal name (two letter abbreviation) |
+| tty | full name of control terminal |
+| uid | effective user ID |
+| user | user name (from UID) |
+| vsz | virtual size in Kbytes (alias vsize) |
+| wchan | wait channel (as a symbolic name) |
+
+實例：
+
+```
+$ ps p 78276 -o command,pid,gid,user,tty,%cpu,%mem,pri,state,time
+COMMAND   PID   GID USER     TTY       %CPU %MEM PRI STAT      TIME
+-fish   78276    20 dainslef ttys000    0.0  0.0  31 S      0:00.45
+```
+
+Linux下的ps指令同樣支持BSD風格的參數，顯式格式與macOS/BSD下基本相同。
 
 
 
