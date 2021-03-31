@@ -47,6 +47,50 @@ Maven會將依賴包緩存到本地，默認本地緩存倉庫路徑為`~/.m2/re
 </settings>
 ```
 
+某些項目依賴包不會發布到Maven官方源，而是發布到自建倉庫，
+此時需要加載這些自建倉庫才能獲取這些依賴。
+
+引入第三方倉庫可以在項目配置pom.xml中：
+
+```xml
+<project>
+	...
+	<repositories>
+		<repository>
+			<id>confluent</id>
+			<name>Confluent Repo</name>
+			<url>http://packages.confluent.io/maven</url>
+		</repository>
+	</repositories>
+	...
+</project>
+```
+
+也可以在全局配置settings.xml中引入第三方倉庫：
+
+```xml
+<settings>
+	...
+	<profiles>
+		<profile>
+			<id>custom-profile</id>
+			<repositories>
+				<repository>
+					<id>jahia</id>
+					<name>maven jahia</name>
+					<url>http://maven.jahia.org/maven2</url>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
+
+	<activeProfiles>
+		<activeProfile>custom-profile</activeProfile>
+	</activeProfiles>
+	...
+</settings>
+```
+
 ## Mirror
 Maven中心倉庫服務器位於海外，在牆內下載速度較慢。國內可使用阿里提供的鏡像源。
 
