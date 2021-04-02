@@ -57,6 +57,8 @@
 - [問題記錄](#問題記錄)
 	- [MySQL error: sql_mode=only_full_group_by](#mysql-error-sql_modeonly_full_group_by)
 	- [Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column To disable safe mode, toggle the option in Preferences -> SQL Queries and reconnect.](#error-code-1175-you-are-using-safe-update-mode-and-you-tried-to-update-a-table-without-a-where-that-uses-a-key-column-to-disable-safe-mode-toggle-the-option-in-preferences---sql-queries-and-reconnect)
+	- [[42000][1071] Specified key was too long; max key length is 3072 bytes](#420001071-specified-key-was-too-long-max-key-length-is-3072-bytes)
+	- [[ERROR] [MY-010123] [Server] Fatal error: Please read "Security" section of the manual to find out how to run mysqld as root!](#error-my-010123-server-fatal-error-please-read-security-section-of-the-manual-to-find-out-how-to-run-mysqld-as-root)
 
 <!-- /TOC -->
 
@@ -70,7 +72,7 @@
 相關功能被整合到了`mysqld`中，通過`--initialize`系列參數進行數據庫初始化，如下所示：
 
 ```
-> mysqld --initialize
+# mysqld --initialize
 ```
 
 使用`--initialize`參數初始化會默認創建帶有密碼的`root`賬戶，密碼會記錄在`[主機名].err`文件中，日至內容大致爲：
@@ -82,7 +84,7 @@
 可以使用`--initialize-insecure`參數初始化並創建不帶密碼的`root`賬戶，如下所示：
 
 ```
-> mysqld --initialize-insecure
+# mysqld --initialize-insecure
 ```
 
 ## 數據庫初始化 (MariaDB & MySQL 5.7-)
@@ -301,13 +303,19 @@ mysql> select * from mysql.user;
 在數據庫命令行中使用`create user`指令即可創建用戶：
 
 ```
-mysql> create user [用戶名];
+mysql> create user 用戶名;
 ```
 
 默認情況下創建的是不允許本地登錄的遠程用戶，以上指令相當於：
 
 ```
-mysql> create user [用戶名@'%'];
+mysql> create user 用戶名@'%';
+```
+
+创建用户时可以指定密码：
+
+```
+mysql> create user 用戶名@'%' identified by '密码';
 ```
 
 創建本地用戶：
@@ -409,6 +417,9 @@ mysql> show grants for [用戶名]@[主機地址]; //顯示指定用戶的權限
 - `delete from [表名];` 刪除指定表格的內容(速度慢，但可以恢復)
 
 ## 基本SQL語句
+SQL語句的詳細語法說明參考[官方文檔](https://dev.mysql.com/doc/refman/en/sql-statements.html)。
+常用的數據增刪改查語句如下：
+
 - `insert into [表名] ([列名1], [列名2], ....) values([值1], [值2], ....);` 增
 - `delete from [表名] where [限制條件];` 刪
 - `update [表名] set [列名] = '[內容]' where [列名] = '[內容]';` 改
@@ -598,7 +609,8 @@ Error Code: 1215. Cannot add the foreign key constraint
 ```
 
 可使用`SHOW ENGINE INNODB STATUS`語句輸出最近的SQL執行的詳細狀態，查閱具體的錯誤信息。
-或者直接根據表格名稱查詢外鍵被引用的信息：
+
+已建立外鍵關聯的表格可直接根據表格名稱查詢外鍵被引用的信息：
 
 ```sql
 select * from INFORMATION_SCHEMA.KEY_COLUMN_USAGE where REFERENCED_TABLE_NAME='被引用的表名稱'
@@ -693,7 +705,7 @@ DYNAMIC行格式基於以下思想：
 `FEDERATED`存儲引擎允許用戶訪問其它MySQL實例中的表，而不需要使用複製、集群等技術。
 查詢本地的FEDERATED表會從實際遠端的表中拉取數據。
 
-相關完整內容可參考[官方文檔](https://dev.mysql.com/doc/refman/en/federated-storage-engine.html)
+相關完整內容可參考[官方文檔](https://dev.mysql.com/doc/refman/en/federated-storage-engine.html)。
 
 ## 啟用FEDERATED引擎
 默認配置下，FEDERATED存儲引擎未被開啟，需要在MySQL配置中啟用：
@@ -1045,6 +1057,16 @@ mysql> SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 Query OK, 0 rows affected (0.00 sec)
 ```
 
+從MySQL Shell中修改該配置在下次數據庫重啟後會恢復，要永久關閉該特性需要修改MySQL配置，
+編輯配置文件(Unix環境下通常為`/etc/my.cnf`或`/etc/mysql/my.cnf`)，
+修改`[mysqld]`配置段的`sql_mode`配置項(該配置項不存在時應手動創建)，
+填寫當前啟用的sql_mode中除ONLY_FULL_GROUP_BY之外的其它項：
+
+```
+[mysqld]
+sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+```
+
 ## Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column To disable safe mode, toggle the option in Preferences -> SQL Queries and reconnect.
 若MySQL的會話中開啓了`SAFE MODE`，則可在會話中手動設置`SQL_SAFE_UPDATES`屬性關閉該模式：
 
@@ -1058,4 +1080,18 @@ Query OK, 0 rows affected (0.00 sec)
 
 ```sql
 > SET SQL_SAFE_UPDATES = 1;
+```
+
+## [42000][1071] Specified key was too long; max key length is 3072 bytes
+MySQL對索引字段的長度有限制，使用VARCHAR類型作為索引時，需要注意不要讓索引字段限制長度。
+參考[StackOverflow](https://stackoverflow.com/questions/8746207/1071-specified-key-was-too-long-max-key-length-is-1000-bytes)上相關問答。
+
+## [ERROR] [MY-010123] [Server] Fatal error: Please read "Security" section of the manual to find out how to run mysqld as root!
+Unix環境下，root用戶直接使用`mysqld`指令直接手動啟動時會出現該錯誤，
+參考[StackOverflow](https://stackoverflow.com/questions/25700971/fatal-error-please-read-security-section-of-the-manual-to-find-out-how-to-run)。
+
+解決方法是啟動時添加`--user=root`參數：
+
+```
+# mysqld --user=root
 ```
