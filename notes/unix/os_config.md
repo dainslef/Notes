@@ -68,6 +68,7 @@
 - [性能監控](#性能監控)
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
+	- [top](#top)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
@@ -2156,6 +2157,154 @@ COMMAND   PID   GID USER     TTY       %CPU %MEM PRI STAT      TIME
 ```
 
 Linux下的ps指令同樣支持BSD風格的參數，顯式格式與macOS/BSD下基本相同。
+
+## top
+`top`是Linux/Unix下最常見的性能監控工具，所有的Linux發行版均包含該工具，
+macOS/BSD系列同樣包含該工具，但參數操作方式有所不同。
+
+在命令行輸入top指令進入指令介面，默認參數下，top會一直在前台以1s為間隔刷新顯示進程信息，
+輸入`q`可退出top。
+
+macOS下top的介面樣式：
+
+```
+Processes: 475 total, 2 running, 473 sleeping, 2441 threads                                                    17:49:08
+Load Avg: 4.03, 5.05, 4.77  CPU usage: 33.64% user, 17.64% sys, 48.70% idle
+SharedLibs: 276M resident, 41M data, 21M linkedit. MemRegions: 170650 total, 2367M resident, 73M private, 753M shared.
+PhysMem: 8096M used (2015M wired), 95M unused.
+VM: 2850G vsize, 2308M framework vsize, 117166562(62) swapins, 119790867(0) swapouts.
+Networks: packets: 18095435/9910M in, 13327243/5146M out. Disks: 32894176/942G read, 17636222/665G written.
+
+PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PPID  STATE    BOOSTS           %CPU_ME
+1368   Terminal     48.1 24:33.43 9     3    416-  131M   26M-   41M-   1368  1     sleeping *0[32380+]       0.69481
+143    WindowServer 30.6 12:14:01 14    6    2461  1177M- 7736K- 166M   143   1     sleeping *0[1]            3.04495
+0      kernel_task  11.9 08:21:25 194/4 0    0     752M+  0B     0B     0     0     running   0[0]            0.00000
+1857   Code Helper  9.5  12:10.20 23    1    156+  57M+   0B     25M-   1369  1369  sleeping *0[1]            0.00000
+97866  idea         7.2  28:05.73 53    1    399   2049M  0B     1303M- 97866 1     sleeping *0[685]          0.00000
+785    mdworker_sha 6.0  00:03.88 4     1    61    1388K  0B     312K   785   1     sleeping *0[1]            0.37947
+697    mdworker_sha 5.9  00:08.64 4     1    61    1400K  0B     340K   697   1     sleeping *0[1]            0.94696
+835    top          5.8  00:01.10 1/1   0    25    6464K+ 0B     0B     835   1463  running  *0[1]            0.00000
+782    mdworker_sha 5.8  00:03.88 4     1    61    2196K  0B     340K   782   1     sleeping *0[1]            0.11713
+91744  com.apple.We 5.1  06:50.51 10    4    174   431M+  6160K- 168M+  91744 1     sleeping  0[71425+]       0.00000
+99766  Code Helper  4.5  04:43.04 25    1    247   184M-  0B     65M    1369  1369  sleeping *0[1]            0.00000
+696    mdworker_sha 4.5  00:08.22 4     1    61    1392K  0B     364K   696   1     sleeping *0[1]            0.27370
+400    mds_stores   4.4  67:55.94 8     6    103+  48M+   36K    31M    400   1     sleeping *0[1]            0.00000
+784    mdworker_sha 4.4  00:04.14 4     1    61    1396K  0B     368K   784   1     sleeping *0[1]            0.78489
+800    mdworker_sha 4.3  00:02.11 4     1    49    1064K  0B     0B     800   1     sleeping *0[1]            0.61253
+787    mdworker_sha 4.3  00:03.93 4     1    61    2280K  0B     332K   787   1     sleeping *0[1]            0.12357
+92     mds          4.3  41:57.87 10    7    482   27M+   0B     20M    92    1     sleeping *0[1]            0.88632
+649    mdworker_sha 4.3  00:14.11 4     1    61    1380K  0B     532K   649   1     sleeping *0[1]            0.54691
+783    mdworker_sha 4.2  00:03.87 4     1    61    2172K  0B     348K   783   1     sleeping *0[1]            0.26021
+780    mdworker_sha 4.1  00:04.05 4     1    61    1388K  0B     348K   780   1     sleeping *0[1]            0.58266
+90530  WeChat       3.6  04:05.32 29    7    2723- 149M-  0B     118M-  90530 1     sleeping *7[6]            0.03709
+62021  MySQLWorkben 3.0  24:25.94 20    1    5377  276M   0B     253M   62021 1     sleeping  0[14444]        0.00000
+12350  gamecontroll 3.0  31:36.68 5     4    70    1608K  0B     492K   12350 1     sleeping *0[3850039+]     0.00000
+99810  bluetoothaud 3.0  02:48.31 4     1    191   4648K  0B     1460K  99810 1     sleeping *0[1]            0.00000
+91739  NeteaseMusic 2.8  07:32.94 21    4    3014  75M+   84K    35M-   91739 1     sleeping *0[2311]         0.35759
+191    coreaudiod   1.2  16:22.49 6     1    1362  9008K  0B     5016K  191   1     sleeping *0[1]            0.00000
+28209  java         1.0  57:47.77 98    1    235   250M   0B     195M-  16532 1     sleeping *0[1]            0.00000
+69     fseventsd    0.8  19:40.71 15    1    297   3640K  0B     1076K  69    1     sleeping *0[1]            0.03872
+699    WeatherWidge 0.4  09:35.25 4     2    2948  55M    0B     49M    699   1     sleeping *1[22]           0.00000
+1373   Finder       0.3  10:51.38 8     2    661   100M   0B     76M    1373  1     sleeping *0[12526]        0.00000
+78384  OneDrive     0.3  32:17.78 17    4    2182  484M   64K    293M   78384 1     sleeping *0[2673]         0.00000
+1369   Electron     0.2  29:47.52 31    1    1414  120M+  0B     50M-   1369  1     sleeping *0[30361]        0.00000
+```
+
+Linux下top的介面樣式：
+
+```
+top - 17:50:00 up 34 days, 14:44,  1 user,  load average: 0.03, 0.14, 0.28
+Tasks: 176 total,   1 running, 175 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  1.0 us,  0.9 sy,  0.0 ni, 98.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem : 32686896 total,  3285348 free, 28451196 used,   950352 buff/cache
+KiB Swap: 31457276 total, 24550632 free,  6906644 used.  3808324 avail Mem
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+ 4191 root      20   0   13.7g   1.0g   7016 S   2.0  3.3   1218:28 java
+ 4608 root      20   0   13.7g 993028   6776 S   2.0  3.0   1011:57 java
+ 4856 root      20   0   13.7g   1.0g   6948 S   1.7  3.2   1032:24 java
+11171 root      20   0   13.7g   1.8g   7780 S   1.7  5.6 716:33.35 java
+ 1867 root      20   0   13.7g   2.1g   7224 S   1.3  6.7 533:29.57 java
+ 5344 root      20   0   22.1g   6.5g   6576 S   1.3 20.7 518:56.08 java
+ 6766 root      20   0   13.8g 664472   7052 S   1.3  2.0 728:52.60 java
+ 7604 root      20   0   13.7g   2.2g   7408 S   1.3  6.9 707:33.46 java
+ 9472 root      20   0   13.7g 808752   7760 S   1.3  2.5 392:01.19 java
+15990 root      20   0   13.7g 654456   7776 S   1.3  2.0 396:45.45 java
+21867 root      20   0   13.6g 555228   7756 S   0.7  1.7 261:55.44 java
+ 3071 root      20   0   12.5g 145636   6180 S   0.3  0.4  88:32.05 java
+ 3154 root      20   0 7319888 803444   6836 S   0.3  2.5 525:59.38 java
+ 3770 root      20   0    9.8g   5.8g   6624 S   0.3 18.6 255:39.33 java
+ 4087 root      20   0 6958564 254508   6248 S   0.3  0.8  54:58.17 java
+ 6762 root      20   0  165752   7624    764 S   0.3  0.0  56:10.98 redis-server
+21455 root      20   0 8714932   1.2g  86512 S   0.3  3.7  15:19.40 java
+    1 root      20   0  191296   2680   1504 S   0.0  0.0   3:54.78 systemd
+    2 root      20   0       0      0      0 S   0.0  0.0   0:01.21 kthreadd
+    3 root      20   0       0      0      0 S   0.0  0.0   2:31.62 ksoftirqd/0
+    5 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/0:0H
+    7 root      rt   0       0      0      0 S   0.0  0.0   0:00.04 migration/0
+    8 root      20   0       0      0      0 S   0.0  0.0   0:00.00 rcu_bh
+    9 root      20   0       0      0      0 S   0.0  0.0  48:24.47 rcu_sched
+   10 root      rt   0       0      0      0 S   0.0  0.0   0:13.40 watchdog/0
+   11 root      rt   0       0      0      0 S   0.0  0.0   0:13.10 watchdog/1
+   12 root      rt   0       0      0      0 S   0.0  0.0   0:00.03 migration/1
+   13 root      20   0       0      0      0 S   0.0  0.0   0:04.07 ksoftirqd/1
+   15 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/1:0H
+   16 root      rt   0       0      0      0 S   0.0  0.0   0:10.39 watchdog/2
+   17 root      rt   0       0      0      0 S   0.0  0.0   0:00.02 migration/2
+   18 root      20   0       0      0      0 S   0.0  0.0   0:03.77 ksoftirqd/2
+   20 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/2:0H
+```
+
+macOS/BSD指令參數：
+
+```
+top	[-a | -d | -e | -c <mode>]
+	[-F | -f]
+	[-h]
+	[-i <interval>]
+	[-l <samples>]
+	[-ncols <columns>]
+	[-o <key>] [-O <secondaryKey>]
+		keys: pid (default), command, cpu, cpu_me, cpu_others, csw,
+			time, threads, ports, mregion, mem, rprvt, purg, vsize, vprvt,
+			kprvt, kshrd, pgrp, ppid, state, uid, wq, faults, cow, user,
+			msgsent, msgrecv, sysbsd, sysmach, pageins, boosts, instrs, cycles
+	[-R | -r]
+	[-S]
+	[-s <delay>]
+	[-n <nprocs>]
+	[-stats <key(s)>]
+	[-pid <processid>]
+	[-user <username>]
+	[-U <username>]
+	[-u]
+```
+
+Linux下指令參數：
+
+```
+top -hv|-bcHiOSs -d secs -n max -u|U user -p pid -o fld -w [cols]
+```
+
+常用功能說明：
+
+- 控制刷新時間間隔
+
+	直接執行top指令會以一定時間為間隔動態展示全部進程的資源佔用，默認時間間隔通常為1s。
+	macOS下使用`-s`，Linux下使用`-d`指定時間間隔。
+
+- 僅展示指定用戶的進程信息
+
+	默認top會展示所有進程信息，macOS下使用`-U`，Linux使用`-u`顯示指定用戶的進程信息。
+
+- 按照指定資源指標排序進程
+
+	默認top指令以CPU佔用率作為進程排序的資源指標。
+
+	macOS下使用`-o`指定排序的主要指標，`-O`指定第二排序指標；
+	亦可在top指令執行後在指令介面中輸入`o`設定排序指標，設置會立即生效。
+
+	Linux下在指令介面中使用`Shift + <`和`Shift + >`組合鍵動態切換進程排序的資源指標。
 
 
 
