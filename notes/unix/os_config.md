@@ -69,6 +69,7 @@
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
 	- [top](#top)
+	- [iftop](#iftop)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
@@ -2305,6 +2306,76 @@ top -hv|-bcHiOSs -d secs -n max -u|U user -p pid -o fld -w [cols]
 	亦可在top指令執行後在指令介面中輸入`o`設定排序指標，設置會立即生效。
 
 	Linux下在指令介面中使用`Shift + <`和`Shift + >`組合鍵動態切換進程排序的資源指標。
+
+## iftop
+`iftop`是常用的網絡IO監控工具，通常發行版中並未直接包含，需要從倉庫中安裝：
+
+```c
+// CentOS中iftop不在主倉庫中
+# yum install epel-release
+# yum install iftop
+
+// 大便系
+# apt install iftop
+
+// Arch系
+# pacman -S iftop
+```
+
+在命令行中直接輸入iftop指令，會進入展示網絡IO的TUI：
+
+```
+$ iftop
+                 19.1Mb           38.1Mb           57.2Mb           76.3Mb	95.4Mb
+└────────────────┴────────────────┴────────────────┴────────────────┴─────────────────
+spark-master                  => spark-slave2                  93.5Kb  53.6Kb  46.9Kb
+                              <=                               91.7Kb   150Kb   143Kb
+spark-master                  => spark-slave3                   143Kb  74.5Kb  71.5Kb
+                              <=                               79.6Kb  87.2Kb  65.7Kb
+spark-master                  => spark-slave0                   401Kb  99.7Kb   224Kb
+                              <=                                115Kb  35.6Kb   112Kb
+spark-master                  => 172.16.0.164                  2.94Kb  11.2Kb  16.7Kb
+                              <=                                464b   1.31Kb  1.65Kb
+spark-master                  => 172.16.1.92                    264b   1.68Kb  1.65Kb
+                              <=                                740b   7.73Kb  7.72Kb
+spark-master                  => spark-slave1                  6.36Kb  2.87Kb  6.04Kb
+                              <=                               5.67Kb  5.43Kb  77.1Kb
+172.16.3.255                  => 172.16.1.116                     0b	  0b	  0b
+                              <=                               1.36Kb  1.61Kb  1.61Kb
+172.16.3.255                  => 172.16.1.115                     0b	  0b	  0b
+                              <=                               1.36Kb  1.36Kb  1.61Kb
+224.0.0.252                   => 172.16.0.14                      0b	  0b	  0b
+                              <=                                520b    520b    520b
+172.16.3.255                  => 172.16.0.198                     0b	  0b	  0b
+                              <=                                624b    374b    406b
+172.16.3.255                  => 172.16.0.54                      0b	  0b	  0b
+                              <=                                624b    374b    406b
+224.0.0.252                   => 172.16.0.198                     0b	  0b	  0b
+                              <=                                880b    352b    396b
+
+──────────────────────────────────────────────────────────────────────────────────────
+TX:             cum:   2.38MB   peak:   2.93Mb        rates:    647Kb   244Kb   366Kb
+RX:                    2.78MB           3.18Mb                  300Kb   294Kb   413Kb
+TOTAL:                 5.16MB           6.10Mb                  947Kb   537Kb   779Kb
+```
+
+iftop的TUI中主要參數的含義：
+
+- `TX` 代表`transmitted traffic`(發送流量)
+- `RX` 代表`received traffic`(接收流量)
+- `TOTAL` 代表發送、接收流量之和
+- `cum` 代表累加流量
+- `peak` 代表最高瞬時流量
+
+常用參數：
+
+```c
+// 監控指定網卡的IO
+$ iftop -i [devname]
+
+// 按照源/目標地址排序
+$ iftop -o source/destination
+```
 
 
 
