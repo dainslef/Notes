@@ -3,6 +3,8 @@
 - [Spring Profiles](#spring-profiles)
 	- [單文件多Profile](#單文件多profile)
 	- [@Profile](#profile)
+	- [@Value](#value)
+	- [@ConfigurationProperties](#configurationproperties)
 - [Log](#log)
 	- [WebRequest Log](#webrequest-log)
 
@@ -97,6 +99,59 @@ class BeanXxx {
 
 ```kt
 @Profile(["test1", "test2"]) // 等價於 @Profile("test1 & test2")
+```
+
+## @Value
+使用`org.springframework.beans.factory.annotation.Value`注解可将指定配置注入到被修饰的字段中。
+
+配置內容：
+
+```yaml
+xxx:
+  xx-a: 123
+  xx-b: test-config
+```
+
+
+```kt
+@Service
+class Xxx(
+    // 構造器注入，內容：123
+    @Value("\${xxx.xx-a}") val xxA: Int
+) {
+    // 成員字段注入，內容：test-config
+    @Value("\${xxx.xx-b}")
+    lateinit var xxB: Sring
+    ....
+}
+```
+
+常見基礎類型如文本、數值等可直接匹配到Java類型；
+文本配置使用逗號分割可支持映射到集合類型：
+
+```yaml
+xxx.xxx: a,b,c
+```
+
+```kt
+@Value("\${xxx.xxx}")
+lateinit var configs: List<String> // 支持映射到不同的集合類型，如Array、List、Set等
+```
+
+## @ConfigurationProperties
+在Bean類型上啟用`@ConfigurationProperties`註解可將配置直接映射到指定配置路徑，
+目標配置路徑下的配置字段將自動注入到當前類的成員中，
+配置字段名稱與類內成員相對應，配置字段中使用短橫槓命名風格的配置項會自動與Java採用的小駝峰命名法進行轉換，
+例如配置中名稱為`xx-a`，則Java成員則對應命名`xxA`。
+
+```kt
+@ConfigurationProperties("xxx.xxx")
+class Xxx(
+    val xxA: XxA // 對應字段路徑 "xxx.xxx.xx-a"
+) {
+    lateinit var xxB: XxB // 對應字段路徑 "xxx.xxx.xx-b"
+    ....
+}
 ```
 
 
