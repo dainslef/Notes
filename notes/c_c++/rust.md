@@ -46,20 +46,20 @@ $ cargo install [包名]
 
 主流的Unix軟件倉庫中均已包含rustup，可直接安裝：
 
-```c
-# pacman -S rustup // Arch系
-$ brew install rustup // macOS Homebrew
+```html
+# pacman -S rustup <!-- Arch系 -->
+$ brew install rustup <!-- macOS Homebrew -->
 ```
 
 常用的rustup操作：
 
-```c
-// 工具鏈管理相關
-$ rustup toolchain install/unistall <channel> // 安裝/移除指定工具鏈，channel 可以是 stable|beta|nightly|<version>
-$ rustup toolchain list // 列出安裝的工具鏈，以macOS下安裝默認最新穩定版工具鏈為例，應為 stable-x86_64-apple-darwin (default)
+```html
+<!-- 工具鏈管理相關 -->
+$ rustup toolchain install/unistall <channel> <!-- 安裝/移除指定工具鏈，channel 可以是 stable|beta|nightly|<version> -->
+$ rustup toolchain list <!-- 列出安裝的工具鏈，以macOS下安裝默認最新穩定版工具鏈為例，應為 stable-x86_64-apple-darwin (default) -->
 
-// 工具鏈組件管理相關，包括cargo、rls、標準庫源碼、調試器等
-$ rustup component add/remove <component> // 添加/移除當前套件的某個組件
+<!-- 工具鏈組件管理相關，包括cargo、rls、標準庫源碼、調試器等 -->
+$ rustup component add/remove <component> <!-- 添加/移除當前套件的某個組件 -->
 ```
 
 ### rustfmt
@@ -69,8 +69,8 @@ $ rustup component add/remove <component> // 添加/移除當前套件的某個�
 
 格式化代碼時，可將自定義的格式化配置直接添加到命令行中，使用`--config`參數：
 
-```c
-// 格式化源碼，以兩格空格作為對齊縮進方式
+```html
+<!-- 格式化源碼，以兩格空格作為對齊縮進方式 -->
 $ rustfmt --config tab_spaces=2 xxx.rs
 ```
 
@@ -106,15 +106,15 @@ Hello World!
 
 evcxr項目還提供了對Jupyter Notebook的支持：
 
-```c
-$ cargo install evcxr_jupyter // 安裝 evcxr_jupyter 工具
-$ evcxr_jupyter --install // 使用 evcxr_jupyter 安裝 Jupyter Kernel
+```html
+$ cargo install evcxr_jupyter <!-- 安裝 evcxr_jupyter 工具 -->
+$ evcxr_jupyter --install <!-- 使用 evcxr_jupyter 安裝 Jupyter Kernel -->
 Writing /Users/dainslef/Library/Jupyter/kernels/rust/kernel.json
 Writing /Users/dainslef/Library/Jupyter/kernels/rust/logo-32x32.png
 Writing /Users/dainslef/Library/Jupyter/kernels/rust/logo-64x64.png
 Writing /Users/dainslef/Library/Jupyter/kernels/rust/logo-LICENSE.md
 Installation complete
-$ jupyter kernelspec list // 查看 Jupyter Kernel，新增了 rust kernel
+$ jupyter kernelspec list <!-- 查看 Jupyter Kernel，新增了 rust kernel -->
 Available kernels:
   .net-csharp        /Users/dainslef/Library/Jupyter/kernels/.net-csharp
   .net-fsharp        /Users/dainslef/Library/Jupyter/kernels/.net-fsharp
