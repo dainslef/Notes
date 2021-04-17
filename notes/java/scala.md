@@ -46,6 +46,7 @@
 	- [值類型](#值類型)
 	- [Bottom (底類型)](#bottom-底類型)
 	- [Option (可空類型)](#option-可空類型)
+	- [Dynamic](#dynamic)
 - [Pattern Matching (模式匹配)](#pattern-matching-模式匹配)
 	- [簡單匹配](#簡單匹配)
 	- [類型匹配](#類型匹配)
@@ -141,9 +142,9 @@ Scala是基於`JVM`的編程語言，配置Scala開發環境前需要正確安�
 	使用發行版自帶的包管理器安裝Scala：
 
 	```
-	# apt install scala //Debian系
-	# pacman -S scala //Arch系
-	$ brew install scala //macOS
+	# apt install scala // Debian系
+	# pacman -S scala // Arch系
+	$ brew install scala // macOS
 	```
 
 - **Windows**系統：
@@ -2129,6 +2130,68 @@ object TestOption extends App {
 No Value
 ```
 
+## Dynamic
+Scala 2.9提供了`scala.Dynamic`特質，該特質為類型提供類似動態語言的動態成員訪問能力，
+開發者可以訪問Dynamic類型中未靜態定義的字段/方法，而對該字段、方法的訪問會被轉發到`*Dynamic()`相關方法中；
+正確實現`*Dynamic()`相關方法即可提供對該類型任意不存在字段/方法的訪問邏輯，
+轉換規則如下：
+
+```scala
+foo.method("blah")      ~~> foo.applyDynamic("method")("blah")
+foo.method(x = "blah")  ~~> foo.applyDynamicNamed("method")(("x", "blah"))
+foo.method(x = 1, 2)    ~~> foo.applyDynamicNamed("method")(("x", 1), ("", 2))
+foo.field           ~~> foo.selectDynamic("field")
+foo.varia = 10      ~~> foo.updateDynamic("varia")(10)
+foo.arr(10) = 13    ~~> foo.selectDynamic("arr").update(10, 13)
+foo.arr(10)         ~~> foo.applyDynamic("arr")(10)
+```
+
+Dynamic特性編譯器默認未開啟，需要在代碼中`import scala.language.dynamics`，
+或者在編譯代碼時添加編譯器參數`-language:dynamics`。
+
+實例：
+
+```scala
+scala> import scala.language.dynamics
+import scala.language.dynamics
+
+scala> class DynamicType[T] extends Dynamic {
+     |
+     |   val members = collection.mutable.HashMap[String, T]()
+     |
+     |   // foo.method("blah")      ~~> foo.applyDynamic("method")("blah")
+     |   def selectDynamic(name: String) = members.getOrElse(name, null.asInstanceOf[T])
+     |
+     |   // foo.varia = 10      ~~> foo.updateDynamic("varia")(10)
+     |   def updateDynamic(name: String)(value: T) = members += name -> value
+     |
+     |   // foo.arr(10)         ~~> foo.applyDynamic("arr")(10)
+     |   def applyDynamic(name: String)(value: T, message: String) =
+     |     println(s"Call method: $name, message: $message, value: $value")
+     |
+     | }
+class DynamicType
+
+scala> val dynamic = new DynamicType[Int]()
+val dynamic: DynamicType[Int] = DynamicType@2120bed
+
+scala> Seq(dynamic.testField1, dynamic.testField2).foreach(v => println(s"Test field: $v"))
+Test field: 0
+Test field: 0
+
+scala> dynamic.testField1 = 1
+// mutated dynamic.testField1
+
+scala> dynamic.testField2 = 2
+// mutated dynamic.testField2
+
+scala> Seq(dynamic.testField1, dynamic.testField2).foreach(v => println(s"Test field: $v"))
+Test field: 1
+Test field: 2
+
+scala> dynamic.testMethod(3, "This is test method")
+Call method: testMethod, message: This is test method, value: 3
+```
 
 
 
@@ -4439,11 +4502,11 @@ object Main extends App {
 object Main extends App {
 
   trait Base[T] { val value: T }
-  implicit object Test extends Base[Int] { val value = 2333 } //以單例對象形式定義隱式類
+  implicit object Test extends Base[Int] { val value = 2333 } // 以單例對象形式定義隱式類
 
   def testImplicit[T](implicit base: Base[T]) = println(base.value)
 
-  testImplicit //無需參數調用隱式方法
+  testImplicit // 無需參數調用隱式方法
 
 }
 ```
