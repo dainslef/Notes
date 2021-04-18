@@ -40,6 +40,7 @@
 	- [線性化與 override 關鍵字](#線性化與-override-關鍵字)
 	- [線性化與類型關係](#線性化與類型關係)
 	- [線性化與泛型](#線性化與泛型)
+	- [Self Type & Cake Mode](#self-type--cake-mode)
 - [Case Class (樣例類)](#case-class-樣例類)
 	- [避免重定義樣例類自動生成的方法](#避免重定義樣例類自動生成的方法)
 - [類型](#類型)
@@ -1860,6 +1861,67 @@ defined trait TestMixin // 使用類型上界
 
 scala> trait TestMixin[T >: Test] extends TraitA with TraitC[T] { val t: Test }
 defined trait TestMixin // 同名字段的混入類型鏈爲 Test => T => Test
+```
+
+## Self Type & Cake Mode
+[`Self Type`](https://docs.scala-lang.org/tour/self-types.html)用於為類型聲明一個非繼承依賴，
+語法類似函數語法：
+
+```scala
+trait Dependency {
+  ...
+}
+
+class SomeType { _: Dependency =>
+  // 可直接使用來自特質Dependency中的所有內容
+  ...
+}
+
+trait OtherDependency {
+  ...
+}
+
+trait SomeTrait { _: Dependency with OtherDependency => // 同時引入多個依賴
+  ...
+}
+```
+
+Self Type與繼承的區別可參考[StackOverflow](https://stackoverflow.com/questions/2224932/difference-between-trait-inheritance-and-self-type-annotation)。
+
+相比直接繼承，使用Self Type能實現類似功能，但不必改變原有類型的繼承樹；
+Self Type將其它Trait的內容作為**依賴**看待，傳統的繼承需要在類型定義時立即明確繼承關係，
+而使用Self Type則可在構建對象時再組裝依賴：
+
+```scala
+object Instance1 extends SomeType with Dependency
+object Instance2 extends SomeTrait with Dependency with OtherDependency
+```
+
+此外，Self Type可用於繼承無法實現環形依賴，如下所示：
+
+```scala
+trait Dependency1 { _: Base => }
+trait Dependency2 { _: Base => }
+class Base { _: Dependency1 with Dependency2 => }
+
+object Base extends Base with Dependency1 with Dependency2
+```
+
+使用常規的繼承會出現錯誤無法編譯：
+
+```scala
+trait Dependency1 extends Base
+trait Dependency2 extends Base
+class Base extends Dependency1 with Dependency2
+```
+
+錯誤信息：
+
+```
+Base.scala:3: error: illegal cyclic reference involving trait Dependency1
+class Base extends Dependency1 with Dependency2
+           ^
+1 error
 ```
 
 
