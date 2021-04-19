@@ -427,43 +427,57 @@ cdef
 ```
 
 ## 進程管理
-`kill`指令用於殺死進程，`ps`指令用於查看進程狀態。
+`ps`指令用於查看進程狀態：
 
-```c
-// 強制殺死進程(發送SIGKILL信號，該信號不可被忽略)
-# kill -9 [pid]
-// 向指定進程發送指定編號的信號
-# kill -[sig_num] [pid]
-// 向指定進程發送指定名稱的信號
-# kill -s [sig_name] [pid]
-// 列出系統支持的信號
-$ kill -l
-
-// 打印指定 pid 進程信息詳情
-$ ps u -p [pid]
-// 打印當前所有進程信息詳情
-$ ps au
-// 打印所有進程信息詳情
-$ ps ux
-// 輸出指定內容的進程信息
-$ ps -o cmd,user,stat,pid,ppid,pgid,sid,tpgid,tty
+```html
+$ ps u -p [pid] <!-- 打印指定 pid 進程信息詳情 -->
+$ ps au <!-- 打印當前所有進程信息詳情 -->
+$ ps ux <!-- 打印所有進程信息詳情 -->
+$ ps -o cmd,user,stat,pid,ppid,pgid,sid,tpgid,tty <!-- 輸出指定內容的進程信息 -->
 ```
 
-在Linux發行版中，`sysvinit-tools`提供了`pidof`工具，可根據進程名稱查詢pid。
+`kill`指令向進程發送信號：
 
-```c
+```html
+# kill [pid] <!-- 向進程發送信號，默認發送的信號為 TERM(終止信號) -->
+# kill -9 [pid] <!-- 強制殺死進程(發送SIGKILL信號，該信號不可被忽略) -->
+# kill -[sig_num] [pid] <!-- 向指定進程發送指定編號的信號 -->
+# kill -s [sig_name] [pid] <!-- 向指定進程發送指定名稱的信號 -->
+$ kill -l <!-- 列出系統支持的信號 -->
+```
+
+除了使用pid的kill指令外，Linux和macOS(BSD)都支持使用進程名稱的`pkill/killall`，
+指令語法與kill指令類似：
+
+```
+# killall [process_name]
+# killall -9 [process_name]
+# killall -[sig_num] [process_name]
+
+# pkill [process_name]
+# pkill -9 [process_name]
+# pkill -[sig_num] [process_name]
+```
+
+Linux和macOS(BSD)都提供了`pgrep`指令用於根據進程名稱查詢pid的功能，
+Linux的`sysvinit-tools`還提供了`pidof`工具，功能與pgrep類似：
+
+```html
+$ pgrep [process_name] <!-- 查詢指定進程名稱的pid -->
+$ pgrep -l [process_name] <!-- 查詢指定進程的pid，同時輸出進程名稱 -->
 $ pidof [process_name]
 ```
 
-搭配kill指令，可一次殺死指定進程名的所有進程：
+pidof/pgrep指令與kill指令組合，可實現類似pkill/killall指令的效果：
 
-```c
+```
 # kill -9 $(pidof [process_name])
+# kill -9 $(pgrep [process_name])
 ```
 
-macOS下未直接提供與pidof功能等價的指令，但可使用管道組合指令提供類似功能：
+pidof/pgrep等指令功能可使用管道組合指令模擬：
 
-```c
+```
 $ ps A | grep [process_name] | awk '{print $1}'
 ```
 
