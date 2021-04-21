@@ -28,6 +28,7 @@
 	- [select 語句](#select-語句)
 	- [echo 函數](#echo-函數)
 	- [自定義函數](#自定義函數)
+	- [函數返回值](#函數返回值)
 - [其它 Shell 特性](#其它-shell-特性)
 	- [隨機數](#隨機數)
 	- [Fork Bomb](#fork-bomb)
@@ -1132,6 +1133,48 @@ All args:
 6
 7
 8
+```
+
+## 函數返回值
+在bash/zsh中，函數可以使用`return`關鍵字返回一個範圍在`0~255`範圍的值。
+使用函數執行語法得到的得到的結果並不是函數的返回值，而是函數執行期間輸出的內容：
+
+```sh
+$ show() { echo "abc"; echo "cde"; return 1; }
+$ show
+abc
+cde
+$ result=`show`
+$ echo $result
+abc cde
+```
+
+獲取函數的返回值需要使用`$?`語法，該語法會獲取最近一次執行的函數的返回值：
+
+```sh
+$ show
+abc
+cde
+$ echo $?
+1
+```
+
+在fish中，函數返回值規則類似，但fish中使用`$status`語法訪問最近執行函數的返回值：
+
+```sh
+$ function show
+    echo abc
+    echo cde
+    return 1
+end
+$ set result (show)
+$ echo $result
+abc cde
+$ show
+abc
+cde
+$ echo $status
+1
 ```
 
 
