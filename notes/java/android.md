@@ -3,10 +3,12 @@
 - [環境搭建](#環境搭建)
 	- [管理 Android SDK](#管理-android-sdk)
 	- [Intel HAXM](#intel-haxm)
+- [Android Platform Tools](#android-platform-tools)
+	- [Android Debug Bridge (adb)](#android-debug-bridge-adb)
 - [項目構建](#項目構建)
 	- [項目結構](#項目結構)
 	- [構建定義](#構建定義)
-	- [添加 Korlin 支持](#添加-korlin-支持)
+	- [添加 Kotlin 支持](#添加-kotlin-支持)
 - [資源](#資源)
 	- [資源ID](#資源id)
 - [Activity](#activity)
@@ -78,6 +80,121 @@
 
 ```
 sudo /System/Library/Extensions/intelhaxm.kext/Contents/Resources/uninstall.sh
+```
+
+
+
+# Android Platform Tools
+`Android Platform Tools`是Android SDK提供的一系列命令行工具，
+位於Android SDK下的`./platform-tools`子路徑中。
+相關內容可參考[Android官方文檔](https://developer.android.com/studio/command-line/)。
+
+Android Platform Tools可以獨立安裝，macOS/Linux通常在對應軟件倉庫中提供了安裝包：
+
+```html
+<!-- macOS -->
+$ brew --cask install android-platform-tools
+```
+
+## Android Debug Bridge (adb)
+[`Android Debug Bridge (adb)`](https://developer.android.com/studio/command-line/adb)工具用於與Android設備通信，
+可執行一系列設備操作，例如安裝和調試應用，adb工具還提供了Unix Shell讓開發者在設備上執行一系列的指令。
+
+adb工具為client-server架構，包含以下組件：
+
+- client，即adb命令行工具，運行在開發機上。
+- daemon(adbd)，用於在目標設備上執行指令，daemon會作為後台進程運行在每個目標設備上。
+- server，用於管理client和daemon之間的通信，server會作為後台進程運行在開發機上。
+
+當首次執行adb指令時，工具會檢測是否存在server進程，不存在則先運行server進程：
+
+```
+$ adb devices
+* daemon not running; starting now at tcp:5037
+* daemon started successfully
+List of devices attached
+
+$ ps -ef | grep adb
+  501 41688     1   0  9:38PM ??         0:00.39 adb -L tcp:5037 fork-server server --reply-fd 4
+  501 41764 21310   0  9:42PM ttys000    0:00.00 grep --color=auto adb
+```
+
+使用adb連接設備前，需要將目標設備開啟調試模式，之後從開發機可查詢到設備信息：
+
+```
+$ adb devices
+List of devices attached
+gi79q8rcrccedynf	device
+
+$ adb devices -l
+List of devices attached
+gi79q8rcrccedynf       device usb:336658432X product:aosp_begonia model:Redmi_Note_8_Pro device:begonia transport_id:1
+```
+
+使用adb shell指令可在目標設備執行指令或直接進入目標設備的Unix Shell：
+
+```html
+<!-- 在目標設備上執行指令 -->
+$ adb shell uname -a
+Linux localhost 4.14.141-g1448309 #1 SMP PREEMPT Mon Jan 18 20:17:04 WIB 2021 aarch64
+
+<!-- 進入目標設備的 Unix Shell -->
+$ adb shell
+begonia:/ $ ls -al
+total 64
+drwxr-xr-x  21 root   root       4096 2009-01-01 08:00 .
+drwxr-xr-x  21 root   root       4096 2009-01-01 08:00 ..
+dr-xr-xr-x 141 root   root          0 2021-03-20 12:34 acct
+drwxr-xr-x  44 root   root        880 2021-03-20 12:34 apex
+lrw-r--r--   1 root   root         11 2009-01-01 08:00 bin -> /system/bin
+lrw-r--r--   1 root   root         50 2009-01-01 08:00 bugreports -> /data/user_de/0/com.android.shell/files/bugreports
+drwxrwx---   6 system cache      4096 2021-03-16 01:12 cache
+drwxr-xr-x   4 root   root          0 1970-01-01 08:00 config
+lrw-r--r--   1 root   root         17 2009-01-01 08:00 d -> /sys/kernel/debug
+drwxrwx--x  49 system system     4096 2021-04-11 19:42 data
+d?????????   ? ?      ?             ?                ? data_mirror
+drwxr-xr-x   2 root   root       4096 2009-01-01 08:00 debug_ramdisk
+lrw-------   1 root   root         23 2009-01-01 08:00 default.prop -> system/etc/prop.default
+drwxr-xr-x  21 root   root       5720 2021-03-20 12:34 dev
+lrw-r--r--   1 root   root         11 2009-01-01 08:00 etc -> /system/etc
+l?????????   ? ?      ?             ?                ? init -> ?
+-?????????   ? ?      ?             ?                ? init.environ.rc
+-?????????   ? ?      ?             ?                ? init.mi_thermald.rc
+d?????????   ? ?      ?             ?                ? linkerconfig
+drwx------   2 root   root      16384 2009-01-01 08:00 lost+found
+drwxr-xr-x  16 root   system      340 2021-03-20 12:34 mnt
+drwxr-xr-x   2 root   root       4096 2009-01-01 08:00 odm
+drwxr-xr-x   2 root   root       4096 2009-01-01 08:00 oem
+dr-xr-xr-x 655 root   root          0 1970-01-01 08:00 proc
+lrw-r--r--   1 root   root         15 2009-01-01 08:00 product -> /system/product
+drwxr-xr-x   3 root   root       4096 2009-01-01 08:00 res
+lrw-r--r--   1 root   root         21 2009-01-01 08:00 sdcard -> /storage/self/primary
+drwx--x---   5 shell  everybody   100 2021-04-11 19:42 storage
+dr-xr-xr-x  15 root   root          0 2021-03-20 12:34 sys
+drwxr-xr-x  14 root   root       4096 2009-01-01 08:00 system
+lrw-r--r--   1 root   root         18 2009-01-01 08:00 system_ext -> /system/system_ext
+drwxr-xr-x  12 root   shell      4096 2009-01-01 08:00 vendor
+```
+
+使用adb對目標設備進行文件傳輸：
+
+```html
+<!-- 從開發機傳輸文件到目標設備 -->
+$ adb push [本地路徑] [目標路徑]
+
+<!-- 從目標設備傳輸文件到開發機 -->
+$ adb pull [目標路徑] [本地路徑]
+```
+
+使用adb對目標設備安裝包：
+
+```html
+$ adb install [包]
+$ adb install -r [包] <!-- 替換掉已存在的包 -->
+$ adb install -d [包] <!-- 允許包降級 -->
+
+$ adb install-multiple [包...]
+$ adb install-multi-package [包...]
 ```
 
 
@@ -154,7 +271,7 @@ repositories {
 }
 ```
 
-## 添加 Korlin 支持
+## 添加 Kotlin 支持
 在`Android`項目中添加`Kotlin`支持，需要以下步驟：
 
 1. 在`build.gradle`中追加以下內容：
