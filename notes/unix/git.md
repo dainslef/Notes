@@ -124,6 +124,49 @@ $ git config core.filemode false
 	filemode = false
 ```
 
+使用git status查看查看當前工作區的文件變化時，
+添加-v參數，可在末尾增加文件的權限變化，示例：
+
+```
+$ git status -v
+On branch dev
+...
+diff --git a/tools/mode_change.sh b/tools/mode_change.sh
+old mode 100644
+new mode 100755
+```
+
+查看指定倉庫路徑下的文件權限：
+
+```
+$ git ls-files -s/--stage [file/dir]
+```
+
+示例：
+
+```html
+$ git ls-files -s ./shell
+100644 d557ad0a566b104265381e3f5645825c31bc40bb 0       shell/.bashrc
+100644 d6584ba60c81b0da76889ffd76f5921e98afb4fc 0       shell/.zshrc
+100644 76881fbd378ddb8027d583ea64d3f9bc9c940da2 0       shell/ConEmu.xml
+100644 1ed617a2301fd59d6a2cc403db73d8482d3875bf 0       shell/config.fish
+```
+
+使用git update-index指令可直接修改倉庫中的文件權限：
+
+```html
+<!-- 直接修改git倉庫中的權限，不會影響當前實際文件的權限 -->
+$ git update-index --chmod=[permission] [file/dir]
+```
+
+示例：
+
+```html
+<!-- 支持chmod指令的語法 -->
+$ git update-index --chmod=755 xxx_file
+$ git update-index --chmod=+x xxx_file
+```
+
 
 
 # 版本操作
@@ -347,14 +390,14 @@ $ git branch -m [原分支名稱] [新分支名稱]
 使用`git branch -a`查看遠程分支時，遠程分支名稱以`remotes/`爲起始路徑。
 刪除遠程分支時，應以`remotes/`之後的部分作爲分支名稱，如下所示：
 
-```
-$ git branch -a //查看所有分支
+```html
+$ git branch -a <!-- 查看所有分支 -->
 * dev
   master
   remotes/GitHub/dev
-$ git bracch -rd remotes/GitHub/dev //刪除失敗，分支名稱未找到
+$ git bracch -rd remotes/GitHub/dev <!-- 刪除失敗，分支名稱未找到 -->
 error: remote-tracking branch 'remotes/GitHub/dev' not found.
-$ git branch -rd GitHub/dev //刪除遠程分支時應忽略 remotes 前綴
+$ git branch -rd GitHub/dev <!-- 刪除遠程分支時應忽略 remotes 前綴 -->
 ```
 
 使用`git checkout`相關指令切換分支：
