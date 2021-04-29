@@ -1603,6 +1603,7 @@ HTTP請求常用參數說明：
 | -d, --data <data> | HTTP Request Body | `-d '{"key1":"value1", "key2":"value2"}'`, `-d @data.json` |
 | -b, --cookie <name=data> | Cookie | `-b key1=value1&key2=value2` |
 | -F, --form <name=content> | From Data | `-F key1=value1&key2=value2` |
+| -v, --verbose | Verbose | `-v` |
 
 請求示例：
 
@@ -1613,6 +1614,57 @@ $ curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/jso
 $ curl -d "@data.json" -H "Content-Type: application/json" -X POST http://localhost:3000/data
 <!-- POST Request with From Data -->
 $ curl -d "param1=value1&param2=value2" -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:3000/data
+```
+
+使用`-v`參數展示請求詳情，會顯示請求和回復的頭等敏感信息：
+
+```
+$ curl -v http://172.16.3.135
+*   Trying 172.16.3.135...
+* TCP_NODELAY set
+* Connected to 172.16.3.135 (172.16.3.135) port 80 (#0)
+> GET / HTTP/1.1
+> Host: 172.16.3.135
+> User-Agent: curl/7.64.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Server: nginx/1.10.3 (Ubuntu)
+< Date: Wed, 14 Apr 2021 05:11:21 GMT
+< Content-Type: text/html
+< Content-Length: 618
+< Last-Modified: Mon, 12 Apr 2021 02:35:43 GMT
+< Connection: keep-alive
+< ETag: "6073b1ff-26a"
+< Accept-Ranges: bytes
+<
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>I am high reliability 1</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+* Connection #0 to host 172.16.3.135 left intact
+* Closing connection 0
 ```
 
 ## 用戶認證
