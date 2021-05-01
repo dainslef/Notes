@@ -1182,7 +1182,6 @@ CMD                         STAT   PID  PPID  PGID   SID TPGID TT
 	- `sa_handler` 指向信號處理函數的函數指針
 	- `sa_mask` 屏蔽信號字，可以使用`sigemptyset(*sigset_t)`函數將信號集置空
 	- `sa_flags` 設置信號處理選項，沒有特別要求可以設爲`NULL`
-	```
 
 ## 信號發送
 使用`kill()`函數可以向**指定進程**發送信號，使用`raise()`可以向**當前進程**發送信號。

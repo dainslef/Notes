@@ -287,7 +287,8 @@ Hadoop配置文件位於`$HADOOP_HOME/etc/hadoop`路徑下，需要修改的配�
 	active狀態的NameNode會向每個JournalNode寫入改動，若active的NameNode故障，
 	則standby狀態的備用NameNode會讀取JournalNode中的信息之後變為active狀態。
 
-首次啟動集群前，應單獨啟動每個節點的JournalNode：
+首次啟動集群前(非首次啟動注意清理相關路徑，例如，重新格式化集群可直接移除`${hadoop.tmp.dir}`路徑下的所有內容)，
+應單獨啟動每個節點的JournalNode：
 
 ```c
 // 集群每個節點均需要執行
