@@ -5,6 +5,7 @@
 	- [Intel HAXM](#intel-haxm)
 - [Android Platform Tools](#android-platform-tools)
 	- [Android Debug Bridge (adb)](#android-debug-bridge-adb)
+	- [Fastboot](#fastboot)
 - [項目構建](#項目構建)
 	- [項目結構](#項目結構)
 	- [構建定義](#構建定義)
@@ -195,6 +196,39 @@ $ adb install -d [包] <!-- 允許包降級 -->
 
 $ adb install-multiple [包...]
 $ adb install-multi-package [包...]
+```
+
+## Fastboot
+查看以fastboot模式連接到當前計算機的設備信息：
+
+```
+$ fastboot devices
+gi79q8rcrccedynf	fastboot
+$ fastboot devices -l
+gi79q8rcrccedynf       fastboot usb:336592896X
+```
+
+若開發機為macOS平台，則目標設備切換到fastboot模式後可能需要重新連接數據線才能正常識別；
+使用轉接頭亦可能導致目標設備無法識別。
+
+fastboot工具可用於安裝設備鏡像。
+
+以recovery鏡像為例，如[`TWRP`](https://twrp.me/Devices/)，
+第三方recovery鏡像通常比原廠鏡像提供更多更強大的功能，也更便於使用，同時沒有刷機固件限制。
+
+以安裝TWRP為例，從下載對應設備的官方鏡像，將設備重啟至fastboot模式，連接電腦後執行指令：
+
+```
+$ fastboot flash recovery [鏡像路徑]
+```
+
+示例：
+
+```
+$ fastboot flash recovery twrp.img
+Sending 'recovery' (65536 KB)                      OKAY [  1.737s]
+Writing 'recovery'                                 OKAY [  1.550s]
+Finished. Total time: 3.289s
 ```
 
 
