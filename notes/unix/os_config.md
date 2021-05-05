@@ -50,6 +50,7 @@
 	- [chrony](#chrony)
 - [curl](#curl)
 	- [HTTP請求](#http請求)
+		- [HTTP協議之文件下載](#http協議之文件下載)
 	- [用戶認證](#用戶認證)
 	- [FTP 操作](#ftp-操作)
 - [Suspend 和 Hibernate](#suspend-和-hibernate)
@@ -1665,6 +1666,48 @@ Commercial support is available at
 </html>
 * Connection #0 to host 172.16.3.135 left intact
 * Closing connection 0
+```
+
+### HTTP協議之文件下載
+curl同樣可用於在基於HTTP協議的文件下載，相關參數說明：
+
+| 參數 | 說明 | 示例 |
+| :- | :- | :- |
+| -o, --output | Write output to <file> instead of stdout | `-o <file>` |
+| -s, --silent | Silent or quiet mode | `-s` |
+
+使用`-o`參數可將請求回應內容重定向到文件中，即實現下載效果：
+
+```
+$ curl http://example.com -o my.file
+$ curl http://example.com --output my.file
+```
+
+默認下載會展示如下樣式的進度指示器：
+
+```
+  % Total    % Received % Xferd  Average Speed   Time    Time
+                                 Dload  Upload   Total   Spent
+100  1270  100  1270    0     0  50573      0 --:--:-- --:--:--
+```
+
+使用`--silent`參數可關閉進度指示(靜默模式)：
+
+```
+$ curl http://example.com -o my.file -s
+$ curl http://example.com --output my.file --silent
+```
+
+curl的其它高級下載功能：
+
+```html
+<!-- 多文件下載 -->
+$ curl -o aa example.com -o bb example.net
+$ curl example.com example.net -o aa -o bb
+
+<!-- 文件名變量替換 -->
+$ curl http://{one,two}.example.com -o "file_#1.txt"
+$ curl http://{site,host}.host[1-5].com -o "#1_#2"
 ```
 
 ## 用戶認證
