@@ -50,7 +50,7 @@
 	- [chrony](#chrony)
 - [curl](#curl)
 	- [HTTP請求](#http請求)
-		- [HTTP協議之文件下載](#http協議之文件下載)
+		- [HTTP文件下載](#http文件下載)
 	- [用戶認證](#用戶認證)
 	- [FTP 操作](#ftp-操作)
 - [Suspend 和 Hibernate](#suspend-和-hibernate)
@@ -1668,19 +1668,30 @@ Commercial support is available at
 * Closing connection 0
 ```
 
-### HTTP協議之文件下載
+### HTTP文件下載
 curl同樣可用於在基於HTTP協議的文件下載，相關參數說明：
 
 | 參數 | 說明 | 示例 |
 | :- | :- | :- |
 | -o, --output | Write output to <file> instead of stdout | `-o <file>` |
+| -O, --remote-name | Write output to a local file named like the remote file we get | `-O` |
+| -L, --location | Download file from new location (for 302 response) | `-L` |
 | -s, --silent | Silent or quiet mode | `-s` |
 
 使用`-o`參數可將請求回應內容重定向到文件中，即實現下載效果：
 
-```
+```html
 $ curl http://example.com -o my.file
 $ curl http://example.com --output my.file
+
+<!-- 下載內容直接使用服務端提供的文件名稱 -->
+$ curl -O http://example.com
+
+<!--
+部分下載地址並不直接提供資源，而是提供一個包含實際資源地址的30x系列回復，
+此時使用-L參數會繼續向實際資源地址發起下載請求
+-->
+$ curl -OL http://example.com
 ```
 
 默認下載會展示如下樣式的進度指示器：
