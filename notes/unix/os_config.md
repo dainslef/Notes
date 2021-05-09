@@ -71,6 +71,7 @@
 	- [ps](#ps)
 	- [top](#top)
 	- [iftop](#iftop)
+	- [sysstat](#sysstat)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
@@ -2495,6 +2496,24 @@ $ iftop -i [devname]
 
 // 按照源/目標地址排序
 $ iftop -o source/destination
+```
+
+## sysstat
+[`sysstat`](https://github.com/sysstat/sysstat)套件是Linux下的性能監控工具，
+包含了一系列工具：
+
+- `iostat` reports CPU statistics and input/output statistics for block devices and partitions.
+- `mpstat` reports individual or combined processor related statistics.
+- `pidstat` reports statistics for Linux tasks (processes) : I/O, CPU, memory, etc.
+- `tapestat` reports statistics for tape drives connected to the system.
+- `cifsiostat` reports CIFS statistics.
+
+主流發行版通常並未直接集成sysstat，但在軟件倉庫中提供了該套件，可直接安裝：
+
+```c
+# apt install sysstat // 大便系
+# yum install sysstat // 紅帽系
+# pacman -S sysstat // Arch系
 ```
 
 
