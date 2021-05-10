@@ -17,6 +17,7 @@
 - [Namespaces & Modules](#namespaces--modules)
 	- [命名空間](#命名空間)
 	- [模塊](#模塊)
+- [let & val](#let--val)
 
 <!-- /TOC -->
 
@@ -193,8 +194,8 @@ let optionalDuplexValue : option<DuplexType> = Some(Half)
 let conn6 = Connection(?duplex0 = optionalDuplexValue)
 ```
 
-使用了`?`標記的參數實際類型將從`'a`變為`'a option`，在調用方法時，該參數位置對應可不傳參，
-未傳參時對應參數位置得到值為`None`。
+使用了`?`標記的參數實際類型將從`'a`變為`'a option`，
+在調用方法時，該參數位置對應可不傳參，未傳參時對應參數位置得到值為`None`。
 
 只有類型的成員方法、構造方法參數可使用此語法，在函數上使用該語法會得到錯誤：
 
@@ -556,3 +557,23 @@ module Eee = ...
 ```
 
 從`F# 4.1`開始，模塊內也支持遞歸類型定義，使用`module rec`定義允許遞歸定義的模塊。
+
+
+
+# let & val
+關鍵字`let`、`val`用於定義字段/函數，二者的用法和使用場景比較：
+
+- `let`、`let mutable`
+
+	let關鍵字最為常用，用於定義值/函數。
+	在模塊頂層中使用時訪問權限為`public`；在類型內部使用時為訪問權限為`private`
+	(相當於C#中的私有成員字段/私有成員方法)。
+	let定義的字段/函數需要立即初始化。
+
+- `val`、`val mutable`
+
+	val只能用在類型內部，訪問權限為`public`，
+	val定義的字段不能在定義處初始化，而是需要在構造器中初始化(基礎類型可使用`[<DefaultValue>]`特性)。
+	val搭配member關鍵字可用於定義**自動屬性**。
+
+更多使用場景區別可參考[Stack Overflow](https://stackoverflow.com/questions/24840948/when-should-i-use-let-member-val-and-member-this)上的討論。
