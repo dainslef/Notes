@@ -72,6 +72,8 @@
 	- [top](#top)
 	- [iftop](#iftop)
 	- [sysstat](#sysstat)
+		- [pidstat](#pidstat)
+		- [iostat](#iostat)
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
@@ -2516,6 +2518,49 @@ $ iftop -o source/destination
 # apt install sysstat // 大便系
 # yum install sysstat // 紅帽系
 # pacman -S sysstat // Arch系
+```
+
+### pidstat
+`pidstat`工具相比系統自帶的ps工具，提供了更為完善的性能參數統計。
+
+默認指令會監控所有進程；
+統計指定進程，並指定監控間隔：
+
+```c
+// 按照指定的時間間隔輸出間隔內的平均資源佔用，退出指令後會展示整個指令期間的平均資源佔用
+$ pidstat -p [pid] [interval]
+
+// 統計指定次數後退出
+$ pidstat -p [pid] [interval] [count]
+```
+
+### iostat
+`iostat`工具用於監測磁盤IO，基本使用方式與pidstat類似。
+
+默認指令會監控所有磁盤；
+統計指定磁盤，並指定監控間隔：
+
+```c
+$ iostat -p [dev] [interval]
+$ iostat -p [dev] [interval] [count]
+```
+
+默認IO的吞吐單位為`kB/s`，若磁盤吞吐量較高，可設置為`MB/s`：
+
+```
+$ iostat -m
+```
+
+CPU佔用可於各個分區磁盤佔用並列展示：
+
+```
+$ iostat -x
+```
+
+可以設置生成統計信息同時帶上時間戳：
+
+```
+$ iostat -t
 ```
 
 
