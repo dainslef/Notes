@@ -1,6 +1,8 @@
 <!-- TOC -->
 
 - [REPL](#repl)
+- [Enum](#enum)
+	- [枚舉構造器和成員方法](#枚舉構造器和成員方法)
 
 <!-- /TOC -->
 
@@ -50,3 +52,33 @@ $ jupyter kernelspec install ~/Library/Python/3.8/share/jupyter/kernels/kotlin
 
 該文件中配置的啟動參數使用了python指令(第6行)，但在macOS下，python指令默認啟動Python2，
 因此會出現異常，修改啟動參數為python3即可正常啟動
+
+
+
+# Enum
+Kotlin提供了類似Java的枚舉功能，使用`enum class Xxx`進行定義。
+枚舉實例自帶兩個屬性，`name`用戶輸出枚舉的名稱，`ordinal`輸出枚舉實例在枚舉中的次序(從零開始)。
+
+```kt
+enum class Enum { A, B, C } // 定義枚舉
+Enum.A.name // 值為 A
+Enum.A.ordinal // 值為 0
+```
+
+Kotlin枚舉與Java枚舉兼容，與Java枚舉類似也不能繼承其它類型(可以實現接口)。
+
+## 枚舉構造器和成員方法
+與Java類似，Kotlin中的枚舉是**類**，因此枚舉類型可以定義構造器，以及自身的屬性/成員方法。
+
+```kt
+// 定義構造器，並帶有成員屬性和默認參數
+enum class Enum(val description: String = "default") {
+	A, // 枚舉成員使用默認參數
+	B("description_b"), // 顯式調用構造器
+	C("description_c")
+}
+
+Enum.A.description // 值為 "default"
+Enum.B.description // 值為 "description_b"
+Enum.C.description // 值為 "description_c"
+```
