@@ -2649,11 +2649,6 @@ $ apt-cache depends [package_name]
 <!-- 計算包的反向依賴(被引用數)，輸出結果中有豎橫線｜標誌的為本地已安裝的依賴項 -->
 $ apt-cache rdepends [package_name]
 
-<!-- 建立/更新軟件包的文件信息 -->
-# apt-file update
-<!-- 查看/搜索某個文件的軟件包歸屬 -->
-# apt-file search [file/path]
-
 <!-- 將某個包標記爲自動/手動安裝 -->
 # apt-mask auto/manual [package_name]
 <!-- 顯示手動安裝/自動安裝的包 -->
@@ -2673,6 +2668,21 @@ $ apt-mask showauto/showmanaul
 <!-- apt-cache 相關 -->
 $ apt show/search [package_name]
 # apt rdepends [package_name]
+```
+
+apt包管理器默認未提供查找包內文件的功能，此類功能可通過安裝`apt-file`實現：
+
+```
+# apt install apt-file
+```
+
+使用`apt-file`：
+
+```html
+<!-- 建立/更新軟件包的文件信息 -->
+# apt-file update
+<!-- 查看/搜索某個文件的軟件包歸屬 -->
+# apt-file search [file/path]
 ```
 
 ## dpkg
