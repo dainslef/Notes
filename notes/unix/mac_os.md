@@ -122,33 +122,26 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 	# scutil --set ComputerName [主機共享名稱]
 	```
 
-- 通知中心相關
-
-	設置通知中心點的通知停留時間：
-
-	```
-	$ defaults write com.apple.notificationcenterui bannerTime [數值] //控單位爲秒
-	```
-
-	恢復默認的通知停留時間：
-
-	```
-	$ defaults delete com.apple.notificationcenterui bannerTime //默認爲一直顯示
-	```
-
 - 顯示/取消顯示隱藏文件：
 
-	```
-	$ defaults write com.apple.finder AppleShowAllFiles YES/NO //重新登陸賬戶後生效
+	```html
+	<!-- 現在版本的macOS可直接使用 "Command + Shift + ." 快捷鍵開關隱藏文件顯示 -->
+	$ defaults write com.apple.finder AppleShowAllFiles YES/NO // 重新登陸賬戶後生效
 	```
 
 ## 常用軟件
-- `The Unarchiver` 解壓軟件
-- `VLC` 多媒體播放器
-- `AppCleaner` APP卸載工具
-- `MacDown` 所見即所得的Markdown編輯工具
-- `Xcode` 集成開發環境
-- `iTerm2` 終端模擬器，相比自帶終端擁有更多高級特性
+macOS常用軟件：
+
+| 軟件名稱 | 說明 |
+| :- | :- |
+| `The Unarchiver` | 解壓軟件 |
+| `VLC` | 多媒體播放器 |
+| `AppCleaner` | APP卸載工具 |
+| `Xcode` | 集成開發環境 |
+| `iTerm2` | 終端模擬器，相比自帶終端擁有更多高級特性 |
+| `Mounty` | 掛載NTFS文件系統 |
+| `ClashX Pro` | Clash在macOS上的客戶端 |
+| `Android File Transfer` | Android文件傳輸客戶端 |
 
 ## 托盤圖標
 `macOS`下托盤圖標可以使用`Command + 鼠標左鍵`點選，拖動進行排序。
@@ -159,7 +152,7 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 ## 特殊目錄
 系統中特定功能相關的路徑介紹。
 
-| 路徑 | 功能 |
+| 路徑 | 說明 |
 | :- | :- |
 | /System/Library/Fonts | 系統默認字體目錄 |
 | /Library/Fonts | 系統可選字體目錄 |
@@ -173,7 +166,8 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 | ~/Library/VirtualBox | VirtualBox的配置文件目錄，刪除則VirtualBox恢復初始狀態，需要重新添加虛擬機 |
 
 刪除一個應用後，通常需要檢查Library路徑下的`Caches`、`Preferences`、`Application Support`、
-`Saved Application State`等路徑，清理軟件的殘餘配置。
+`Saved Application State`等路徑，清理軟件的殘餘配置；
+建議使用`AppCleaner`卸載軟件，能在卸載軟件時檢測相關配置目錄，清理軟件相關配置。
 
 
 
@@ -261,11 +255,11 @@ Note that arguments and options are executed in order.
 
 
 # 包管理
-`Homebrew`是`macOS`當下最流行、最主流的包管理器；`MacPorts`來自於`FreeBSD`，亦是優秀的包管理器。
+`Homebrew`是macOS當下最流行、最主流的包管理器；`MacPorts`來自於`FreeBSD`，亦是優秀的包管理器。
 
 二者之間的差異：
 
-- Homebrew基於`Git`，是輕量級的包管理器，傾向於最大化利用macOS自帶的Unix組件。
+- Homebrew基於Git，是輕量級的包管理器，傾向於最大化利用macOS自帶的Unix組件。
 - MacPorts是FreeBSD中`Ports`系統的移植，使用源碼編譯軟件，不依賴原有macOS中的軟件包，而是獨立構建出一套環境。
 - Homebrew中軟件包多數以二進制形式提供，默認安裝路徑爲`usr/local`。
 - MacPorts編譯的軟件包一般安裝在`/opt`目錄下。
@@ -273,17 +267,17 @@ Note that arguments and options are executed in order.
 ## Homebrew
 Homebrew使用`Ruby`語言實現。
 
-與傳統的包管理器不同，使用Homebrew並不需要使用`root`用戶，管理員權限用戶即可。
+與傳統的包管理器不同，使用Homebrew並不需要使用root用戶，管理員權限用戶即可。
 Homebrew將軟件包安裝在`/usr/local`目錄下，在macOS中該目錄默認情況下爲**空**，
 因此當用戶不再需要使用Homebrew時，只需完整刪除`/usr/local`目錄下的所有內容即可。
 (需要注意，某些非Bundle形式安裝的軟件亦會將一些內容安裝在`/usr/local`目錄下，
-如`VirtualBox`。若安裝了此類軟件，清理`/usr/local`目錄時需要仔細辨別)
+如VirtualBox。若安裝了此類軟件，清理`/usr/local`目錄時需要仔細辨別)
 
 默認情況下，在macOS中，`/usr/local`的所有者爲`root`，用戶組爲`wheel`，安裝Homebrew時，
 安裝腳本會將該目錄所有者會更改爲**當前管理員用戶**，並將用戶組改爲`admin`。
 
 ### 配置與安裝
-Homebrew採用`Ruby`語言開發，`macOS`中默認已經集成了Ruby環境。
+Homebrew採用Ruby語言開發，macOS中默認已經集成了Ruby環境。
 Homebrew需要用到Git等工具，在安裝Homebrew之前需要先安裝**Xcode命令行**工具(或者直接完整安裝Xcode)。
 
 之後在終端內執行：
@@ -306,11 +300,11 @@ Homebrew基本操作與其它包管理器類似：
 與Linux下的常規包管理器不同，Homebrew在安裝、卸載包時，不會有多餘的確認提示，輸入指令後立即執行。
 
 ### 路徑信息
-`homebrew`倉庫中的包安裝後文件保存在`/usr/local/Cellar`路徑下。
-`caskroom`倉庫中的包安裝後文件保存在`/usr/local/Caskroom`路徑下。
+homebrew倉庫中的包安裝後文件保存在`/usr/local/Cellar`路徑下。
+caskroom倉庫中的包安裝後文件保存在`/usr/local/Caskroom`路徑下。
 
-`homebrew`倉庫默認的包緩存路徑爲`~/Library/Caches/Homebrew`。
-`caskroom`倉庫默認的包緩存路徑爲`~/Library/Caches/Homebrew/Cask`。
+homebrew倉庫默認的包緩存路徑爲`~/Library/Caches/Homebrew`。
+caskroom倉庫默認的包緩存路徑爲`~/Library/Caches/Homebrew/Cask`。
 
 可使用指令查看Homebrew的相關路徑：
 
@@ -460,20 +454,29 @@ $ brew tap caskroom/versions
 - `$ brew services cleanup` 清理未被使用的服務
 
 ### 配置國內源
-默認情況下，Homebrew訪問`GitHub`來更新包數據，速度較慢，可使用國內源替代，
-推薦使用清華大學[`TUNA`源](https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/)。
+默認情況下，Homebrew訪問`GitHub`來更新包數據，速度較慢，可使用中國源替代，
+推薦使用清華大學[`TUNA`源](https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/)，
+以及[`USTC`源](https://mirrors.ustc.edu.cn/help/brew.git.html)。
 
 - 替換更新數據源：
 
 	TUNA源提供了Homebrew本體、以及部分Tap倉庫(core、cask)等。
 
-	```
-	// bash
+	```html
+	<!--
+		亦可使用USTC(中科大源)地址替換：
+		"brew --repo" https://mirrors.ustc.edu.cn/brew.git
+		"brew --repo homebrew/core" https://mirrors.ustc.edu.cn/homebrew-core.git
+		"brew --repo homebrew/cask" https://mirrors.ustc.edu.cn/homebrew-cask.git
+		"brew --repo homebrew/cask-versions https://mirrors.ustc.edu.cn/homebrew-cask-versions.git/
+	-->
+
+	<!-- bash -->
 	$ git -C "$(brew --repo)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
 	$ git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
 	$ git -C "$(brew --repo homebrew/cask)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
 
-	// fish
+	<!-- fish -->
 	$ git -C (brew --repo) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
 	$ git -C (brew --repo homebrew/core) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
 	$ git -C (brew --repo homebrew/cask) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
