@@ -43,6 +43,7 @@
 	- [SEC7128: [CORS] The origin 'http://origin-url...' found multiple Access-Control-Allow-Origin response headers for cross-origin  resource at 'http://target-url...'.](#sec7128-cors-the-origin-httporigin-url-found-multiple-access-control-allow-origin-response-headers-for-cross-origin--resource-at-httptarget-url)
 	- [java.lang.IllegalStateException: The configuration of the pool is sealed once started. Use HikariConfigMXBean for runtime changes.](#javalangillegalstateexception-the-configuration-of-the-pool-is-sealed-once-started-use-hikariconfigmxbean-for-runtime-changes)
 	- [Field applicationInfoManager in org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration required a bean of type 'com.netflix.appinfo.ApplicationInfoManager' that could not be found.](#field-applicationinfomanager-in-orgspringframeworkcloudnetflixeurekaservereurekaserverautoconfiguration-required-a-bean-of-type-comnetflixappinfoapplicationinfomanager-that-could-not-be-found)
+	- [Spring Boot Admin中Environment Manager不顯示](#spring-boot-admin中environment-manager不顯示)
 
 <!-- /TOC -->
 
@@ -421,6 +422,19 @@ class XxxConfig {
 
     ...
 
+}
+```
+
+若項目中使用了Spring Security，則還需要在HttpSecurity配置中啟動CORS：
+
+```kt
+@Configuration
+class SecurityConfig : WebSecurityConfigurerAdapter() {
+    ...
+    override fun configure(httpSecurity: HttpSecurity) {
+        httpSecurity.cors()...
+    }
+    ...
 }
 ```
 
@@ -1041,13 +1055,17 @@ Zuul組件依賴的`com.netflix.servo:servo-core`版本過低(0.7.x)，`Monitors
 根據HTTP協議規範，不允許多個Access-Control-Allow-Origin頭出現，因而產生此錯誤。
 
 解決方案：<br>
+解決方案一：
 在整合的Zuul的模塊中修改配置文件application.yaml，添加以下配置項屏蔽掉Zuul添加的相關頭：
 
 ```yaml
 zuul:
-  sensitiveHeaders: # keep all sensitive headers
+  sensitive-headers: # keep all sensitive headers
   ignored-headers: Access-Control-Allow-Origin,Access-Control-Allow-Credentials # exclude some headers about cross-origin
 ```
+
+解決方案二：
+Spring Web的控制器中不使用`@CrossOrigin`註解，則避免了多次添加Access-Control-Allow-Origin頭。
 
 ## java.lang.IllegalStateException: The configuration of the pool is sealed once started. Use HikariConfigMXBean for runtime changes.
 問題說明：<br>
@@ -1085,3 +1103,13 @@ class DatabaseConfig {
 解決方案：<br>
 去掉`eureka.client.enabled: false`配置項服務即可正常啟動。
 問題詳情參考[Stack Overflow](https://stackoverflow.com/questions/40705943/spring-boot-1-4-2-release-with-eureka-server-exception-org-springframework-be)。
+
+## Spring Boot Admin中Environment Manager不顯示
+問題說明：<br>
+Spring Cloud版本升級到Hoxton之後，使用Spring Boot Admin時，
+`Insights => Environment => Environment Manager`功能消失。
+參考[GitHub Issues](https://github.com/spring-cloud/spring-cloud-commons/issues/734)。
+
+解決方案：<br>
+Spring Boot Admin的Environment Manager功能依賴`/env`請求，
+Spring Cloud Hoxton版本開始需要使用`management.endpoint.env.post.enabled: true`開啟。
