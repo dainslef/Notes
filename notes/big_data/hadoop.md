@@ -501,6 +501,9 @@ HBase的詳細介紹、配置、使用說明等可查閱[官方文檔](http://hb
 
 ## HBase體系結構
 HBase體系的核心組件介紹可參考[Edureka博客](https://www.edureka.co/blog/hbase-architecture/)。
+
+![HBase Architecture](../../images/hbase_architecture_components.png)
+
 組件簡介：
 
 - `Region`/`HBase Region Server`
@@ -510,6 +513,10 @@ HBase體系的核心組件介紹可參考[Edureka博客](https://www.edureka.co/
 
 	一組Region被分配到一個**Region Server**，用以管理這些Region，處理讀寫請求。
 	通常一個Region Server能管理上千的Region。
+
+	Region Server結構如圖所示：
+
+	![HBase Region Server](../../images/hbase_architecture_hmaster_region_sever.png)
 
 - `HMaster Server`
 
@@ -541,6 +548,10 @@ HBase體系的核心組件介紹可參考[Edureka博客](https://www.edureka.co/
 
 	META Table是特殊的HBase目錄表(HBase Catalog Table)，維護了HBase存儲系統中所有Region Server的列表，
 	`.META`文件維護了`Key-Value`形式的表，Key代表了Region的起始rowkey，Value包含了Region Server的路徑。
+
+	META Table結構如圖所示：
+
+	![HBase Meta Table](../../images/hbase_architecture_meta_table.png)
 
 ### Region Server
 Region Server運行在HDFS上，維護了一定數目的Region。
