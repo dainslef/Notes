@@ -18,6 +18,7 @@
 	- [命名空間](#命名空間)
 	- [模塊](#模塊)
 - [let & val](#let--val)
+- [Collections (集合類型)](#collections-集合類型)
 
 <!-- /TOC -->
 
@@ -577,3 +578,23 @@ module Eee = ...
 	val搭配member關鍵字可用於定義**自動屬性**。
 
 更多使用場景區別可參考[Stack Overflow](https://stackoverflow.com/questions/24840948/when-should-i-use-let-member-val-and-member-this)上的討論。
+
+
+
+# Collections (集合類型)
+F#作為函數式語言，同樣提供了豐富的集合類型：
+
+| 類型 | 描述 | 構造語法 |
+| :- | :- | :- |
+| list | 一系列有序、不可變的同類型元素，由鏈表實現 | `[1..10]` |
+| array | 固定大小、從零開始、連續數據的可變集合 | `[|1..10|]` |
+| seq | 序列用於數據集巨大、有序，但不必同時使用所有元素的情形，每個元素計算僅在需要時進行(惰性計算)。序列類型是`System.Collections.Generic.IEnumerable<'T>`的別名，所有實現該接口的類型均可作為序列使用 | `seq { 1..10 }` |
+| Map | 不可變的字典類型，元素通過key來訪問 | `Map [(k1, v1), (k2, v2)]` |
+| Set | 不可變的集合類型，基於二叉樹，元素需要實現`System.IComparable`接口 | `set [1..10]` |
+
+詳細可參考[微軟官方文檔](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/fsharp-collection-types)。
+官方給出了各個集合的常見操作的時間複雜度。
+
+與.NET中提供的集合庫(`System.Collections.Generic`命名空間下)不同，
+F#擁有的集合庫按照函數式風格設計，而非面向對象風格。
+除了數組類型擁有可變元素，其它集合類型在修改集合時會產生新的集合，而不是在原先存在的集合上進行修改。
