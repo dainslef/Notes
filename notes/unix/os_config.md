@@ -55,11 +55,11 @@
 	- [FTP 操作](#ftp-操作)
 - [Suspend 和 Hibernate](#suspend-和-hibernate)
 - [systemd](#systemd)
-	- [服務管理](#服務管理)
-	- [服務分析](#服務分析)
+	- [systemd服務管理](#systemd服務管理)
+	- [systemd服務分析](#systemd服務分析)
 	- [系統配置](#系統配置)
 - [網絡](#網絡)
-- [net-tools & iproute2](#net-tools--iproute2)
+	- [net-tools & iproute2](#net-tools--iproute2)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
 	- [NetworkManager](#networkmanager)
@@ -81,8 +81,8 @@
 	- [apt](#apt)
 	- [dpkg](#dpkg)
 	- [源配置](#源配置)
-	- [Debian 源](#debian-源)
-	- [Ubuntu 源](#ubuntu-源)
+		- [Debian 源](#debian-源)
+		- [Ubuntu 源](#ubuntu-源)
 	- [apt-mirror](#apt-mirror)
 		- [本地源配置](#本地源配置)
 		- [使用本地源](#使用本地源)
@@ -1806,6 +1806,7 @@ $ curl ftp://[用戶名]:[密碼]@[ip/域名] -X "[FTP協議指令]"
 
 # systemd
 `systemd`是Linux下新式的init系統，在各大發行版中逐漸替代了原先`Unix System V`風格的init系統。
+詳細說明參見[官方文檔](https://www.freedesktop.org/software/systemd/man/index.html)。
 
 systemd的設計理念來自於Apple公司`macOS`中的`launchd`。
 傳統的SystemV風格init系統需要一次一個串行地啓動服務進程，
@@ -1816,8 +1817,8 @@ systemd則根據服務進程的依賴關係並行地啓動服務，極大地減�
 - `/etc/systemd/system.conf` 全局配置文件
 - `/etc/systemd/user.conf` 用戶配置文件
 
-## 服務管理
-`systemd`提供了統一、完整的服務管理功能：
+## systemd服務管理
+systemd提供了統一、完整的服務管理功能：
 
 - `# systemctl status [服務名稱]` 查看指定服務狀態
 - `# systemctl start [服務名稱]` 啓動指定服務
@@ -1841,8 +1842,8 @@ systemd則根據服務進程的依賴關係並行地啓動服務，極大地減�
 	$ systemctl --user status/start/stop/enable/disable [用戶服務名稱]
 	```
 
-## 服務分析
-`systemd`提供了一系列工具用於查看查看、分析各類服務狀態。
+## systemd服務分析
+systemd提供了一系列工具用於查看查看、分析各類服務狀態。
 
 使用`pstree`指令可以列出本機完整的systemd服務進程樹。
 
@@ -1886,7 +1887,7 @@ dev_snmp6  ip6_flowlabel  ip_tables_targets  packet     rt6_stats  softnet_stat 
 fib_trie   ip6_mr_cache   ipv6_route         protocols  rt_acct    stat          unix
 ```
 
-# net-tools & iproute2
+## net-tools & iproute2
 [`net-tools`](https://sourceforge.net/projects/net-tools)套件歷史悠久，
 提供了與其它Unix類似的網絡管理工具(ip、route等)，但目前已停止維護。
 
@@ -2670,6 +2671,18 @@ $ apt show/search [package_name]
 # apt rdepends [package_name]
 ```
 
+apt install指令可以使用`-d/--download-only`參數僅獲取安裝包而不安裝
+(通常用於下載離線安裝時使用的安裝包)：
+
+```html
+<!--
+使用--download-only參數會基於當前環境解析依賴，下載目標軟件包以及缺失的依賴項，
+依賴項會被緩存在 /var/cache/apt/archives 路徑下
+-->
+# apt install -d [package_name]
+# apt install --download-only [package_name]
+```
+
 apt包管理器默認未提供查找包內文件的功能，此類功能可通過安裝`apt-file`實現：
 
 ```
@@ -2703,6 +2716,14 @@ $ dpkg-query -S [file_name]
 
 <!-- 安裝一個deb包 -->
 # dpkg -i [deb_package]
+<!-- 批量安裝deb包 -->
+# dpkg -i [*.deb]
+<!--
+配量安裝deb包時，解析包的順序是按照包名稱的ASC碼順序，
+在多數場景下該順序與實際依賴順序不符，因此會造成部分軟件包不滿足依賴而配置失敗，
+安裝時搭配--force-all參數可強制配置軟件包，避免因為依賴解析順序而中斷配置流程
+-->
+# dpkg -i --force-all [*.deb]
 
 <!-- 列出所有已安裝包的狀態信息 -->
 $ dpkg -l
@@ -2744,7 +2765,7 @@ deb-src [軟件源地址] [版本號] [倉庫類型]
 
 `Ubuntu`與`Debian`的版本號、倉庫類型分類完全不同。
 
-## Debian 源
+### Debian 源
 `Debian`版本號有兩類：
 
 1. 固定版本號，按照穩定程度分爲`stable`、`testing`、`unstable`、`experimental`。
@@ -2778,7 +2799,7 @@ deb https://mirrors.ustc.edu.cn/debian/ stable-updates main contrib non-free
 deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free
 ```
 
-## Ubuntu 源
+### Ubuntu 源
 `Ubuntu`沒有固定版本號，需要使用發行版本號，主要的`LTS`版本的版本代號：
 
 | 版本 | 版本代號 |
