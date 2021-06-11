@@ -11,7 +11,6 @@
 	- [tee](#tee)
 	- [進程管理](#進程管理)
 	- [日誌記錄](#日誌記錄)
-	- [文件系統](#文件系統)
 - [PulseAudio](#pulseaudio)
 - [用戶管理](#用戶管理)
 - [setuid/setgid/sticky](#setuidsetgidsticky)
@@ -34,8 +33,9 @@
 	- [配置文件](#配置文件)
 	- [prlimit](#prlimit)
 - [Core Dump (核心轉儲)](#core-dump-核心轉儲)
-- [fdisk](#fdisk)
-- [parted](#parted)
+- [文件系統](#文件系統)
+	- [fdisk](#fdisk)
+	- [parted](#parted)
 - [LVM (Logical Volume Manager)](#lvm-logical-volume-manager)
 	- [基本操作](#基本操作)
 	- [Physical Volume (PV，物理卷)](#physical-volume-pv物理卷)
@@ -502,42 +502,6 @@ $ dmesg
 $ journalctl
 // 倒序查看systemd日誌
 $ journalctl -r
-```
-
-## 文件系統
-查看分區信息的相關指令：
-
-```c
-// 查看文件inode
-$ ls -i
-
-// 查看硬盤分區
-$ lsblk
-// 查看分區UUID
-$ lsblk -f
-// 查看分區UUID
-# blkid
-
-// 顯示已掛載分區的信息
-$ mount
-// 顯示指定分區的信息(分區大小，分區類型等)
-# file -s [分區卷]
-
-// 顯示已掛載的文件系統
-# df
-// 以合適的單位顯示文件系統大小
-# df -h
-// 顯示文件系統類型
-# df -T
-```
-
-查看文件系統標誌使用`wipefs`指令：
-
-```c
-// 查看分區的文件系統標誌
-$ wipefs [分區]
-// 清理分區所包含的所有文件系統標誌
-# wipefs -a [分區]
 ```
 
 
@@ -1178,8 +1142,44 @@ $ gdb [進程文件] [進程核心轉儲]
 
 
 
-# fdisk
-`fdisk`是Linux命令行下常用的交互式分區工具。
+# 文件系統
+查看分區信息的相關指令：
+
+```c
+// 查看文件inode
+$ ls -i
+
+// 查看硬盤分區
+$ lsblk
+// 查看分區UUID
+$ lsblk -f
+// 查看分區UUID
+# blkid
+
+// 顯示已掛載分區的信息
+$ mount
+// 顯示指定分區的信息(分區大小，分區類型等)
+# file -s [分區卷]
+
+// 顯示已掛載的文件系統
+# df
+// 以合適的單位顯示文件系統大小
+# df -h
+// 顯示文件系統類型
+# df -T
+```
+
+查看文件系統標誌使用`wipefs`指令：
+
+```c
+// 查看分區的文件系統標誌
+$ wipefs [分區]
+// 清理分區所包含的所有文件系統標誌
+# wipefs -a [分區]
+```
+
+## fdisk
+`fdisk`是Linux命令行下常用的交互式磁盤管理工具。
 
 早期的fdisk不能識別`GPT`分區表，劃分GPT分區需要使用`parted`工具。
 最近版本的fdisk已經能夠正常識別、顯示與創建GPT分區。
@@ -1244,9 +1244,7 @@ $ gdb [進程文件] [進程核心轉儲]
 - `w` 將改動真正寫入硬盤
 - `q` 不保存改動退出
 
-
-
-# parted
+## parted
 `parted`是Linux下的另一種交互式分區工具，與`fdisk`相比，parted一直支持GPT分區表，
 並且在功能選項上更加豐富，但在交互上沒有fdisk便捷。
 
