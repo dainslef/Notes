@@ -15,6 +15,8 @@
 	- [Re-Export](#re-export)
 - [Collections (集合)](#collections-集合)
 	- [List (列表)](#list-列表)
+- [Printf (格式化)](#printf-格式化)
+	- [轉換明細(conversion specification)](#轉換明細conversion-specification)
 - [Currying (柯里化)](#currying-柯里化)
 - [Fixity Declarations (操作符結合性、優先級定義)](#fixity-declarations-操作符結合性優先級定義)
 - [Pointfree Style](#pointfree-style)
@@ -430,6 +432,72 @@ Prelude> all (>1) l -- 檢測是否全部成員滿足條件
 False
 Prelude> sum l -- 求和
 15
+```
+
+
+
+# Printf (格式化)
+`Text.Printf`包提供了類似C語言`printf(3)`函數風格的文本格式化功能，支持幾乎所有的`printf(3)`格式化語法。
+
+函數簽名：
+
+```hs
+printf :: Text.Printf.PrintfType r => String -> r
+  	-- Defined in ‘Text.Printf’
+```
+
+函數接收的參數為格式化字符串，返回結果為格式化後的內容。
+
+## 轉換明細(conversion specification)
+轉換明細(格式化字符串)語法與C語言printf基本相同：
+
+```hs
+%[+/-][0/space][數值寬度.浮點部分寬度][格式化字符]
+```
+
+使用`%`開始格式化的轉換明細，之後是對齊方式(`+/-`，左右對齊)，填充內容(`0/space`)：
+
+```
+-      left adjust (default is right adjust)
++      always use a sign (+ or -) for signed conversions
+space  leading space for positive numbers in signed conversions
+0      pad with zeros rather than spaces
+#      use an \"alternate form\": see below
+```
+
+轉換明細以一個表示格式的字符結尾：
+
+```
+c      character               Integral
+d      decimal                 Integral
+o      octal                   Integral
+x      hexadecimal             Integral
+X      hexadecimal             Integral
+b      binary                  Integral
+u      unsigned decimal        Integral
+f      floating point          RealFloat
+F      floating point          RealFloat
+g      general format float    RealFloat
+G      general format float    RealFloat
+e      exponent format float   RealFloat
+E      exponent format float   RealFloat
+s      string                  String
+v      default format          any type
+```
+
+實例：
+
+```
+%010.5f
+```
+
+說明：
+
+寬度為10位的浮點數，小數點後保留5位，寬度不足的部分從左邊開始補零。
+
+```hs
+Prelude Text.Printf> printf "%010.5f\n" 1.0
+0001.00000
 ```
 
 
