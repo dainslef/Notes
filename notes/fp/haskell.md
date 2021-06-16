@@ -17,6 +17,8 @@
 	- [List (列表)](#list-列表)
 - [Printf (格式化)](#printf-格式化)
 	- [轉換明細(conversion specification)](#轉換明細conversion-specification)
+	- [格式化結果](#格式化結果)
+	- [參數解析](#參數解析)
 - [Currying (柯里化)](#currying-柯里化)
 - [Fixity Declarations (操作符結合性、優先級定義)](#fixity-declarations-操作符結合性優先級定義)
 - [Pointfree Style](#pointfree-style)
@@ -499,6 +501,52 @@ v      default format          any type
 Prelude Text.Printf> printf "%010.5f\n" 1.0
 0001.00000
 ```
+
+## 格式化結果
+返回內容的類型為`PrintfType`，該類型為type class，定義如下：
+
+```hs
+class Text.Printf.PrintfType t where
+  Text.Printf.spr :: String -> [Text.Printf.UPrintf] -> t
+  {-# MINIMAL spr #-}
+  	-- Defined in ‘Text.Printf’
+instance [safe] Text.Printf.IsChar c => Text.Printf.PrintfType [c]
+  -- Defined in ‘Text.Printf’
+instance [safe] (a ~ ()) => Text.Printf.PrintfType (IO a)
+  -- Defined in ‘Text.Printf’
+instance [safe] (Text.Printf.PrintfArg a,
+                 Text.Printf.PrintfType r) =>
+                Text.Printf.PrintfType (a -> r)
+  -- Defined in ‘Text.Printf’
+```
+
+默認實現了該type class的類型包括`String`、`IO ()`等，分別對應不同的情形：
+
+```hs
+Prelude Text.Printf> printf "%010.5f\n" 1.0 :: IO () -- 直接輸出到終端
+0001.00000
+Prelude Text.Printf> printf "%010.5f\n" 1.0 :: String -- 輸出為String類型供其它函數使用
+"0001.00000\n"
+```
+
+## 參數解析
+`Text.Printf.printf`函數簽名僅接收一個轉換明細文本，用於告知函數格式化的目標樣式，
+但實際該函數在格式化時根據不同格式還要接收不定數目的格式化參數：
+
+```hs
+Prelude Text.Printf> printf "%s, %d, %.4f\n" "hello" 123 pi
+hello, 123, 3.1416
+Prelude Text.Printf> printf "%d, %.4f\n" 123 pi
+123, 3.1416
+```
+
+官方文檔中解釋是類型類PrintfType提供了變長參數魔法(variable argument magic)，
+實現原理可參考[StackOverflow](https://stackoverflow.com/questions/7828072/how-does-haskell-printf-work)
+以及[本文type class章節](#使用typeclass定義可無限遞歸的接口)的說明，
+基本思路是在type class接口函數中返回自身，使之能夠遞歸調用type class中定義的接口方法。
+該type class的實現在該模塊中不可見。
+
+用於參與格式化的參數需要實現類型類`PrintfArg`，否則會得到編譯錯誤。
 
 
 
