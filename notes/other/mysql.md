@@ -136,20 +136,26 @@ $ ./mysqld --defaults-file=[配置文件路徑]
 
 ```sh
 [mysqld]
-basedir = #軟件路徑
-datadir = #數據庫路徑
-port = #服務端口
-server_id = #服務id
-socket = #服務socket文件位置
+basedir = # 軟件路徑
+datadir = # 數據庫路徑
+port = # 服務端口
+server_id = # 服務id
+socket = # 服務socket文件位置
 
 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
 
 [server]
-character_set_server = #數據庫編碼
+character_set_server = # 數據庫編碼
 
 [client]
-default-character-set = #連接編碼
-socket = #客戶端啓動socket文件位置
+default-character-set = # 連接編碼
+socket = # 客戶端啓動socket文件位置
+```
+
+對於root用戶，直接啟動mysqld進程會出現異常，需要指定啟動用戶：
+
+```
+# mysqld --user=root
 ```
 
 
@@ -781,6 +787,12 @@ mysql> source [數據庫備份文件]
 ```
 
 導入數據庫時需要注意編碼問題，數據庫編碼、連接編碼、備份文件的編碼需要相同纔不會產生中文亂碼問題。
+
+亦可直接使用命令行重定向進行數據導入：
+
+```
+$ mysql -u[用戶] -p[密碼] < xxx.sql
+```
 
 ## 設置中文編碼
 默認情況下，舊版的mysql數據庫的編碼爲`latin1`，此編碼不支持東亞語系的文字顯示，需要修改爲支持各國文字的`UTF-8`編碼。
