@@ -97,6 +97,7 @@
 		- [SELinux](#selinux)
 		- [grub2-install: error: /usr/lib/grub/x86_64-efi/modinfo.sh doesn't exist. Please specify --target or --directory.](#grub2-install-error-usrlibgrubx86_64-efimodinfosh-doesnt-exist-please-specify---target-or---directory)
 		- [http://.../repodata/repomd.xml: [Errno 14] HTTP Error 404 - Not Found Trying other mirror.](#httprepodatarepomdxml-errno-14-http-error-404---not-found-trying-other-mirror)
+		- [官方ISO在OpenStack中無法識別鏡像](#官方iso在openstack中無法識別鏡像)
 
 <!-- /TOC -->
 
@@ -3076,3 +3077,11 @@ http://mirror.centos.org/centos/$releasever/extras/x86_64/repodata/repomd.xml: [
 # mkdir -p /etc/yum/vars
 # echo 7 > /etc/yum/vars/releasever
 ```
+
+### 官方ISO在OpenStack中無法識別鏡像
+問題描述：<br>
+在OpenStack中使用CentOS 7使用ISO鏡像創建實例，進入安裝流程中，引導器無法識別存儲卷，無法創建硬盤。
+使用外掛卷的方式安裝系統，安裝完成後無法啟動，提示`Can't find boot volume`。
+
+解決方案：<br>
+在雲平台上，應使用為雲平台設計的專屬鏡像，參考[OpenStack文檔](https://docs.openstack.org/image-guide/obtain-images.html)，從`http://cloud.centos.org/centos/7/images/`下載對應的CentOS 7的qcow2鏡像即可。
