@@ -1,37 +1,69 @@
-# 基本安装流程
-首先，需要下载最近版本的镜像和portage树。
+<!-- TOC -->
 
-## 解压镜像
-创建一个空的分区
-挂到`/mnt`上，解压镜像到此：
+- [基本安裝流程](#基本安裝流程)
+	- [解壓鏡像](#解壓鏡像)
+	- [修改全局編譯配置和USE標記](#修改全局編譯配置和use標記)
+	- [修改portage源](#修改portage源)
+	- [添加環境變量](#添加環境變量)
+	- [配置DNS](#配置dns)
+	- [進入gentoo環境](#進入gentoo環境)
+	- [編譯內核](#編譯內核)
+	- [調整內核配置](#調整內核配置)
+	- [安裝內核](#安裝內核)
+- [emerge 包管理器](#emerge-包管理器)
+	- [equery](#equery)
+	- [包組列表](#包組列表)
+	- [多版本包管理(slot機制)](#多版本包管理slot機制)
+	- [overlay](#overlay)
+- [其他配置](#其他配置)
+	- [關於 Kernel Modules](#關於-kernel-modules)
+	- [關於 flags](#關於-flags)
+	- [關於 Masked](#關於-masked)
+	- [關於 CONFIGURATION FILES](#關於-configuration-files)
+	- [openRC](#openrc)
+	- [MySQL初始化](#mysql初始化)
+	- [修改主機名](#修改主機名)
+	- [安裝JDK](#安裝jdk)
 
-```c
-$ tar jvxf [镜像路径] -C /mnt //j参数
+<!-- /TOC -->
+
+
+
+# 基本安裝流程
+首先，需要下載最近版本的鏡像和portage樹。
+
+## 解壓鏡像
+創建一個空的分區
+掛到`/mnt`上，解壓鏡像到此：
+
+```html
+$ tar jvxf [鏡像路徑] -C /mnt <!-- j參數 -->
 ```
 
-将portage树镜像解压到`/mnt/usr`目录：
+將portage樹鏡像解壓到`/mnt/usr`目錄：
 
 ```
-$ tar jvxf [portage树目录] -C /mnt/usr
+$ tar jvxf [portage樹目錄] -C /mnt/usr
 ```
 
-## 修改全局编译配置和USE标记
-修改`/mnt/etc/portage/make.conf`，修改部分参数：
+## 修改全局編譯配置和USE標記
+修改`/mnt/etc/portage/make.conf`，修改部分參數：
 
 ```sh
 USE="X dbus kde -gnome -systemd -gstreamer"	# 如果是gnome桌面就"-kde"
-MAKEOPTS="-j5" # 编译参数，为cpu核数加1
+MAKEOPTS="-j5" # 編譯參數，爲cpu核數加1
 INPUT_DEVICES="evdev synaptics"
 VIDEO_CARDS="radeon intel"
 CFLAGS="-O2 -pipe -march=native"
-GENTOO_MIRRORS="http://mirrors.ustc.edu.cn/gentoo" # 镜像目录
+GENTOO_MIRRORS="http://mirrors.ustc.edu.cn/gentoo" # 鏡像目錄
 LINGUAS="zh_CN"
 PYTHON_TARGETS="python3_4 python2_7"
-PYTHON_SINGLE_TARGET="python3_4" # 设置默认的python环境
+PYTHON_SINGLE_TARGET="python3_4" # 設置默認的python環境
 ```
 
 ## 修改portage源
-创建`/mnt/etc/portage/repos.conf/gentoo.conf`文件，加入portage树源：(该文件的父目录亦不存在，需要一同创建)
+創建`/mnt/etc/portage/repos.conf/gentoo.conf`文件，加入portage樹源：
+(該文件的父目錄亦不存在，需要一同創建)
 
 ```ini
 [gentoo]
@@ -41,8 +73,8 @@ sync-uri = rsync://mirrors.ustc.edu.cn/gentoo-portage
 auto-sync = yes
 ```
 
-## 添加环境变量
-编辑`/mnt/etc/environment`，给新环境设置一些必要的环境变量(否则许多命令会提示找不到)：
+## 添加環境變量
+編輯`/mnt/etc/environment`，給新環境設置一些必要的環境變量(否則許多命令會提示找不到)：
 
 ```sh
 LANG="en_US.utf8"
@@ -51,14 +83,14 @@ PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
 ```
 
 ## 配置DNS
-复制当前机器的dns信息：
+複製當前機器的dns信息：
 
 ```c
 # cp /etc/resolv.conf /mnt/etc/resolv.conf
 ```
 
-## 进入gentoo环境
-Gentoo没有提供类似`arch-chroot`之类的工具，因此在chroot之前需要手动绑定必要分区的位置：
+## 進入gentoo環境
+Gentoo沒有提供類似`arch-chroot`之類的工具，因此在chroot之前需要手動綁定必要分區的位置：
 
 ```c
 # mount -t proc none /mnt/proc
@@ -66,31 +98,35 @@ Gentoo没有提供类似`arch-chroot`之类的工具，因此在chroot之前需�
 # mount --rbind /dev /mnt/dev
 ```
 
-之后才能正常进入chroot环境：
+之後才能正常進入chroot環境：
 
-```c
-// 若当前环境shell并非bash，则需要显式指定chroot shell为bash，否则会提示shell不存在(stage3中仅包含bash)
+```html
+<!--
+若當前環境shell並非bash，
+則需要顯式指定chroot shell爲bash，
+否則會提示shell不存在(stage3中僅包含bash)
+-->
 # chroot /mnt /bin/bash
 
-// 重新加载环境变量：
+<!-- 重新加載環境變量 -->
 # source /etc/environment
 ```
 
-## 编译内核
-进入Gentoo的chroot环境后，安装内核源码：
+## 編譯內核
+進入Gentoo的chroot環境後，安裝內核源碼：
 
 ```
 # emerge gentoo-sources
 ```
 
-转到内核源码目录`/usr/src/linux`，配置内核选项：
+轉到內核源碼目錄`/usr/src/linux`，配置內核選項：
 
 ```
 # make menuconfig
 ```
 
-## 调整内核配置
-查看机器pci信息：
+## 調整內核配置
+查看機器pci信息：
 
 ```
 00:00.0 Host bridge: Intel Corporation Haswell-ULT DRAM Controller (rev 09)
@@ -112,137 +148,137 @@ Gentoo没有提供类似`arch-chroot`之类的工具，因此在chroot之前需�
 03:00.0 Display controller: Advanced Micro Devices, Inc. [AMD/ATI] Opal XT [Radeon R7 M265] (rev ff)
 ```
 
-部分重要的内核选项：
+部分重要的內核選項：
 
 
-- 处理器：(Intel CPU可关闭AMD CPU特性)
+- 處理器：(Intel CPU可關閉AMD CPU特性)
 
 	```
 	Processor type and features  ——>
-		[ ] Enable MPS table								//支持ACPI的电脑都不选
-		[ ] Support for extended (non-PC) x86 platforms		//关闭PC平台以外的支持
+		[ ] Enable MPS table								//支持ACPI的電腦都不選
+		[ ] Support for extended (non-PC) x86 platforms		//關閉PC平臺以外的支持
 		Processor family (Core 2/newer Xeon)
-		[ ] Linux guest support  ----						//安装在虚拟机里才需要
-		[*] Multi-core scheduler support					//开启多核心支持
-		[*] SMT (Hyperthreading) scheduler support			//SMT超线程开启
-		[*] Intel Low Power Subsystem Support				//haswell以上可选
+		[ ] Linux guest support  ----						//安裝在虛擬機裏才需要
+		[*] Multi-core scheduler support					//開啓多核心支持
+		[*] SMT (Hyperthreading) scheduler support			//SMT超線程開啓
+		[*] Intel Low Power Subsystem Support				//haswell以上可選
 		[ ] kexec system call
 		[ ] Build a relocatable kernel
-		[*] EFI runtime service support						//EFI主板开启
+		[*] EFI runtime service support						//EFI主板開啓
 		[ ] EFI stub support								//用不到
 		Preemption Model --->
-			(X) Preemptible Kernel (Low-Latency Desktop)	//低延时模式
+			(X) Preemptible Kernel (Low-Latency Desktop)	//低延時模式
 	```
 
-- 设备驱动相关：
+- 設備驅動相關：
 
 	```
 	Device Drivers  --->
-		[ ] Multiple devices driver support (RAID and LVM)  ----	//关闭磁盘阵列
+		[ ] Multiple devices driver support (RAID and LVM)  ----	//關閉磁盤陣列
 		Graphics support  --->
-			[ ] Bootup logo		//关了，启动动画没用
-			[*] Laptop Hybrid Graphics - GPU switching support		//双显卡切换支持
+			[ ] Bootup logo		//關了，啓動動畫沒用
+			[*] Laptop Hybrid Graphics - GPU switching support		//雙顯卡切換支持
 			Direct Rendering Manager  --->
 				<*> Direct Rendering Manager
 				<*> Intel 8xx/9xx/G3x/G4x/HD Graphics
 			Frame buffer Devices  --->
 				[*] Simple framebuffer support
 		<*> Serial ATA and Parallel ATA drivers (libata)  --->
-			[ ] ATA SFF support (for legacy IDE and PATA)		//关了，老式硬盘才需要
-		[*] Network device support  ---> 						//取消全部，只留一个自己用的
-			[*] Ethernet driver support  --->					//选择有线驱动
+			[ ] ATA SFF support (for legacy IDE and PATA)		//關了，老式硬盤才需要
+		[*] Network device support  ---> 						//取消全部，只留一個自己用的
+			[*] Ethernet driver support  --->					//選擇有線驅動
 				[*] Broadcom devices (NEW)
-				<*> Broadcom Tigon3 support						//BCM57786的驱动是这个
-			[*] Wireless LAN  ---> 								//选择无线驱动
+				<*> Broadcom Tigon3 support						//BCM57786的驅動是這個
+			[*] Wireless LAN  ---> 								//選擇無線驅動
 				Atheros Wireless Cards  --->
 					 [*] Atheros bluetooth coexistence support
 					 <*> Atheros 802.11n wireless cards support
 					 [*] Atheros ath9k PCI/PCIe bus support (NEW)
 		Input device support  --->
-			[ ] Touchscreens  ----								//非触摸屏电脑关闭触屏支持
+			[ ] Touchscreens  ----								//非觸摸屏電腦關閉觸屏支持
 			[ ] Miscellaneous devices  ----
 			[ ] Joysticks/Gamepads  ----
 			(1366)  Horizontal screen resolution
-			(768)   Vertical screen resolution				//设置分辨率
+			(768)   Vertical screen resolution				//設置分辨率
 		[*] USB support  --->
-			<*> xHCI HCD (USB 3.0) support					//打开USB3.0支持
+			<*> xHCI HCD (USB 3.0) support					//打開USB3.0支持
 		<*> MMC/SD/SDIO card support  --->
 			<*> USB SD Host Controller (USHC) support
-		[ ] LED Support  ----								//关闭LED驱动
+		[ ] LED Support  ----								//關閉LED驅動
 	```
 
-- 电源管理和ACPI：
+- 電源管理和ACPI：
 
 	```
 	Power management and ACPI options  --->
 		[*] Suspend to RAM and standby						//睡眠功能
 		[*] Hibernation (aka 'suspend to disk')				//休眠功能
-		[ ] Power Management Debug Support					//不需要调试电源
+		[ ] Power Management Debug Support					//不需要調試電源
 		[*] ACPI (Advanced Configuration and Power Interface) Support  --->
-			<*> Battery										//笔记本开启电池相关支持
+			<*> Battery										//筆記本開啓電池相關支持
 			<*> Smart Battery System
 		CPU Frequency scaling  --->
 			Default CPUFreq governor (ondemand)  --->
 				(X) ondemand
-			< > 'userspace' governor for userspace frequency scaling		//关闭userspace调度器
+			< > 'userspace' governor for userspace frequency scaling		//關閉userspace調度器
 			x86 CPU frequency scaling drivers  --->
 				[*] Intel P state control
 	```
 
-- 文件系统(记得开启vfat、NTFS支持，另文件系统不建议编译成模块)：
+- 文件系統(記得開啓vfat、NTFS支持，另文件系統不建議編譯成模塊)：
 
 	```
 	File systems --->
-		<*> FUSE (Filesystem in Userspace) support			//没有这货挂载Win分区会失败的
+		<*> FUSE (Filesystem in Userspace) support			//沒有這貨掛載Win分區會失敗的
 		CD-ROM/DVD Filesystems  --->
 			<*> ISO 9660 CDROM file system support
-			<*> UDF file system support						//刻盘可能会用到
+			<*> UDF file system support						//刻盤可能會用到
 		DOS/FAT/NT Filesystems  --->
 			<*> MSDOS fs support
 			<*> VFAT (Windows-95) fs support
-			<*> NTFS file system support					//NTFS文件系统支持不打开无法挂载win分区
+			<*> NTFS file system support					//NTFS文件系統支持不打開無法掛載win分區
 		-*- Native language support  --->
 			<*> Simplified Chinese charset (CP936, GB2312)	//fat32的原生中文支持
 	```
 
-- 可执行文件：
+- 可執行文件：
 
 	```
 	Executable file formats / Emulations  --->
-		[ ] IA32 Emulation									//不需要32位模拟
+		[ ] IA32 Emulation									//不需要32位模擬
 	```
 
-- 虚拟化：
+- 虛擬化：
 
 	```
 	[*] Virtualization  --->
 		<*> Kernel-based Virtual Machine (KVM) support
-			<*> KVM for Intel processors support			//VirtualBox会用到
+			<*> KVM for Intel processors support			//VirtualBox會用到
 	```
 
-- 内核安全与内核调试：
+- 內核安全與內核調試：
 
 	```
 	Kernel hacking  --->
-	Security options  --->				//除了默认必选的全关了，不是内核开发者不凑热闹
+	Security options  --->				//除了默認必選的全關了，不是內核開發者不湊熱鬧
 	```
 
-## 安装内核
-确认配置无误之后，执行make指令开始根据makefile进行编译。
+## 安裝內核
+確認配置無誤之後，執行make指令開始根據makefile進行編譯。
 
-编译内核之后复制镜像：
+編譯內核之後複製鏡像：
 
 ```
-# cp arch/x86/boot/bzImage /boot/kernel-[版本号]-gentoo
+# cp arch/x86/boot/bzImage /boot/kernel-[版本號]-gentoo
 ```
 
-之后安装内核模块：
+之後安裝內核模塊：
 
 ```
 # make modules_install
 ```
 
-根据桌面环境选择默认的配置文件集：
+根據桌面環境選擇默認的配置文件集：
 
 ```
 # eselect profile list
@@ -255,121 +291,121 @@ Gentoo没有提供类似`arch-chroot`之类的工具，因此在chroot之前需�
 [7]   default/linux/amd64/13.0/desktop/kde/systemd
 ```
 
-openRC服务下更换显示管理器，编辑`/etc/conf.d/xdm`文件，将`DISPLAYMANAGER="xdm"`改为安装的显示管理器：
+openRC服務下更換顯示管理器，編輯`/etc/conf.d/xdm`文件，將`DISPLAYMANAGER="xdm"`改爲安裝的顯示管理器：
 
 ```c
-# rc-update add xdm default //默认登录到显示管理器
+# rc-update add xdm default //默認登錄到顯示管理器
 ```
 
-加入蓝牙模块自启动：
+加入藍牙模塊自啓動：
 
 ```c
-# rc-update add bluetooth //没写运行级别会默认加入default运行级别
+# rc-update add bluetooth //沒寫運行級別會默認加入default運行級別
 ```
 
 
 
 # emerge 包管理器
-Gentoo使用`emerge`作为包管理器，常用指令：
+Gentoo使用`emerge`作爲包管理器，常用指令：
 
 ```c
-# emerge --sync //同步portage树
-# emerge -e world //更换全局USE之后重新编译所有包
-# emerge -u system //升级系统软件
-# emerge -u world //升级整个系统
-# emerge -auvDN world //完整升级系统
-# emerge -pv [包名] //查看某个包的可用USE
-# emerge --udpate --newuse [包名] //更新USE之后安装包刷新依赖关系
-# emerge --depclean //清理无用依赖
-# emerge -a //执行操作前询问
-# eclean distfiles //清理包文件(请先 emerge gentoolkit)
-$ qfile [文件名/路径名] //查看文件属于哪个包
+# emerge --sync //同步portage樹
+# emerge -e world //更換全局USE之後重新編譯所有包
+# emerge -u system //升級系統軟件
+# emerge -u world //升級整個系統
+# emerge -auvDN world //完整升級系統
+# emerge -pv [包名] //查看某個包的可用USE
+# emerge --udpate --newuse [包名] //更新USE之後安裝包刷新依賴關係
+# emerge --depclean //清理無用依賴
+# emerge -a //執行操作前詢問
+# eclean distfiles //清理包文件(請先 emerge gentoolkit)
+$ qfile [文件名/路徑名] //查看文件屬於哪個包
 ```
 
-emerge常用参数：
+emerge常用參數：
 
 ```
-world | system， world范围更广，包含了system，这是两个包的set。
--p pretend 预览
--a ask 先予询问
--c clean 清理系统
--C unmerge 卸载，与emerge相反
---depclean 深度清理，移除与系统无关的包
--h help 帮助文件
--v verbose 详细内容
+world | system， world範圍更廣，包含了system，這是兩個包的set。
+-p pretend 預覽
+-a ask 先予詢問
+-c clean 清理系統
+-C unmerge 卸載，與emerge相反
+--depclean 深度清理，移除與系統無關的包
+-h help 幫助文件
+-v verbose 詳細內容
 -s search 查找
--S searchdesc 从文件名和描述中查找，效率低
--u update 升级软件包
--U upgradeonly 仅仅升级，不降级软件包
--D deep 计算整个系统的依赖关系
--e emptytree 清空依赖树，重新构建某个包/系统整个依赖树
--1 oneshot 一次性安装，不将其信息加入系统目录树
--o onlydeps 只安装其依赖关系，而不安装软件本身
--t tree 显示其目录树信息
--k usepkg 使用二进制包
--K usepkgonly 只使用二进制包
--f fetchonly 仅下载安装包
---sync 从指定的rsync站点更新portage树，先前所作所有portage树更改均失效
--N newuse 使用新的USE FLAG，如有必要，需重新编译
--n noreplace 更新system，但先前安装的软件不予覆盖
+-S searchdesc 從文件名和描述中查找，效率低
+-u update 升級軟件包
+-U upgradeonly 僅僅升級，不降級軟件包
+-D deep 計算整個系統的依賴關係
+-e emptytree 清空依賴樹，重新構建某個包/系統整個依賴樹
+-1 oneshot 一次性安裝，不將其信息加入系統目錄樹
+-o onlydeps 只安裝其依賴關係，而不安裝軟件本身
+-t tree 顯示其目錄樹信息
+-k usepkg 使用二進制包
+-K usepkgonly 只使用二進制包
+-f fetchonly 僅下載安裝包
+--sync 從指定的rsync站點更新portage樹，先前所作所有portage樹更改均失效
+-N newuse 使用新的USE FLAG，如有必要，需重新編譯
+-n noreplace 更新system，但先前安裝的軟件不予覆蓋
 ```
 
 ## equery
-查询系统内已安装的包的信息需要安装额外的工具`app-portage/gentoolkit`，该包含有eclean、equery等工具。
+查詢系統內已安裝的包的信息需要安裝額外的工具`app-portage/gentoolkit`，該包含有eclean、equery等工具。
 
 ```c
-$ equery list [包名] //列出对应包名的包安装了哪些版本
-$ equery files [包名] //查看包里有哪些文件
-$ equery belongs [文件路径] //查看文件属于哪个包
-$ equery depends [包名] //查看某个包的依赖
-$ equery uses [包名] //查看一个已经安装的包使用了哪些USE
+$ equery list [包名] //列出對應包名的包安裝了哪些版本
+$ equery files [包名] //查看包裏有哪些文件
+$ equery belongs [文件路徑] //查看文件屬於哪個包
+$ equery depends [包名] //查看某個包的依賴
+$ equery uses [包名] //查看一個已經安裝的包使用了哪些USE
 ```
 
-## 包组列表
-系统默认的包组有`system`和`world`，system列表为系统成员组件，不可更改(由你选择的profile决定)；
-world包组成员列表记录在`/var/lib/portage/world`文件中，可自行更改，
-这些包及其依赖包被保护，其余包被视为孤立包，执行清理依赖命令时孤立包会被移除。
+## 包組列表
+系統默認的包組有`system`和`world`，system列表爲系統成員組件，不可更改(由你選擇的profile決定)；
+world包組成員列表記錄在`/var/lib/portage/world`文件中，可自行更改，
+這些包及其依賴包被保護，其餘包被視爲孤立包，執行清理依賴命令時孤立包會被移除。
 
-一般手动执行安装某个包时，该包的包名会被加入`/var/lib/portage/world`文件(即主动安装的包是不会被清理的，
-除非主动移除手动安装的包)。
-使用`--oneshot`指令安装的包不会被加入world列表中。
+一般手動執行安裝某個包時，該包的包名會被加入`/var/lib/portage/world`文件(即主動安裝的包是不會被清理的，
+除非主動移除手動安裝的包)。
+使用`--oneshot`指令安裝的包不會被加入world列表中。
 
-## 多版本包管理(slot机制)
-对于Python，JDK等多版本共存软件，使用select命令选取一个默认版本：
+## 多版本包管理(slot機制)
+對於Python，JDK等多版本共存軟件，使用select命令選取一個默認版本：
 
 ```
-# eselect [软件名] set [软件版本]
+# eselect [軟件名] set [軟件版本]
 ```
 
-例如使用Python2.7为默认版本：
+例如使用Python2.7爲默認版本：
 
 ```c
-# eselect python set python2.7 //版本必须是在环境变量定义下可寻的二进制文件名
+# eselect python set python2.7 //版本必須是在環境變量定義下可尋的二進制文件名
 ```
 
-使用help参数可以查看详情：
+使用help參數可以查看詳情：
 
 ```
 $ eselect help
 ```
 
 ## overlay
-overlay仓库类似于`Arch Linux`中的`AUR`仓库，用来提供一些官方源中未包含的软件包。
+overlay倉庫類似於`Arch Linux`中的`AUR`倉庫，用來提供一些官方源中未包含的軟件包。
 
-安装overlay：
+安裝overlay：
 
 ```c
 # emerge -av layman
-# cat /var/lib/layman/make.conf >> /etc/portage/make.conf //将第三方portage添加到库中
-# layman -a gentoo-zh //加入国人仓库
+# cat /var/lib/layman/make.conf >> /etc/portage/make.conf //將第三方portage添加到庫中
+# layman -a gentoo-zh //加入國人倉庫
 ```
 
 常用命令：
 
 ```c
-# layman -L //获取overlay列表，并列出
+# layman -L //獲取overlay列表，並列出
 # layman -a XXX //添加XXX overlay
-# layman -d XXX //删除XXX overlay
+# layman -d XXX //刪除XXX overlay
 # layman -s XXX //更新XXX overlay
 # layman -S //更新所有 overlay
 ```
@@ -377,74 +413,74 @@ overlay仓库类似于`Arch Linux`中的`AUR`仓库，用来提供一些官方�
 
 
 # 其他配置
-不同于一般发行版，Gentoo有需要需要注意的特殊知识。
+不同於一般發行版，Gentoo有需要需要注意的特殊知識。
 
-## 关于 Kernel Modules
-内核模块被安装在`/lib/modules/``uname -r```目录中。
-使用如下命令查看可用的内核模块：
+## 關於 Kernel Modules
+內核模塊被安裝在`/lib/modules/``uname -r```目錄中。
+使用如下命令查看可用的內核模塊：
 
 ```
 # find /lib/modules/`uname -r` -type f -iname '*.o' -or -iname '*.ko'
 ```
 
-使用默认的openRC服务管理，将查询到的内核模块名按需加入`/etc/conf.d/modules`中可以使模块开机自启动(后缀名`*.ko`可省略)。
-配置文件中的内核模块不能写alisa名称，而是要写清模块文件的名字。
-如果使用systemd作为服务管理，则将需要开机启动的模块写入`/etc/modprobe.d/`中的任意文件。
+使用默認的openRC服務管理，將查詢到的內核模塊名按需加入`/etc/conf.d/modules`中可以使模塊開機自啓動(後綴名`*.ko`可省略)。
+配置文件中的內核模塊不能寫alisa名稱，而是要寫清模塊文件的名字。
+如果使用systemd作爲服務管理，則將需要開機啓動的模塊寫入`/etc/modprobe.d/`中的任意文件。
 
-## 关于 flags
-全局USE标记在`/etc/portage/make.conf`中。
-每个软件单独设定USE标记在`/etc/portage/package.use`里。
-其他标记如`PYTHON_TARGETS`，`PYTHON_SINGLE_TARGET`等也可以加入`make.conf`(全局)，
-页可写入`package.use`(单个包有效)。
+## 關於 flags
+全局USE標記在`/etc/portage/make.conf`中。
+每個軟件單獨設定USE標記在`/etc/portage/package.use`裏。
+其他標記如`PYTHON_TARGETS`，`PYTHON_SINGLE_TARGET`等也可以加入`make.conf`(全局)，
+頁可寫入`package.use`(單個包有效)。
 
-## 关于 Masked
+## 關於 Masked
 包被Masked的原因很多。
-因为许可证被Masked，需要将接受的许可证级别的写在`/etc/portage/package.license`里。
-部分软件稳定性不达标会被Masked，如果需要安装，则将对应的包名和稳定性级别加入`/etc/portage/package.accept_keywords`里。
-如果要安装很多稳定性级别不够的包，一一加入很麻烦，可以在`/etc/portage/make.conf`中使用全局关键字 `ACCEPT_KEYWORDS="~amd64"`，一般不推荐这样做，这会降低系统稳定性。
+因爲許可證被Masked，需要將接受的許可證級別的寫在`/etc/portage/package.license`裏。
+部分軟件穩定性不達標會被Masked，如果需要安裝，則將對應的包名和穩定性級別加入`/etc/portage/package.accept_keywords`裏。
+如果要安裝很多穩定性級別不夠的包，一一加入很麻煩，可以在`/etc/portage/make.conf`中使用全局關鍵字 `ACCEPT_KEYWORDS="~amd64"`，一般不推薦這樣做，這會降低系統穩定性。
 
-## 关于 CONFIGURATION FILES
-有时包更新带来新的配置文件便会产生文件冲突，新加入的配置文件会以`.cfg00xx_[原配置文件名]`命名，可以使用：
+## 關於 CONFIGURATION FILES
+有時包更新帶來新的配置文件便會產生文件衝突，新加入的配置文件會以`.cfg00xx_[原配置文件名]`命名，可以使用：
 
 ```
 # find /etc -name '*._cfg*'
 ```
 
-找出这些冲突的配置文件，然后一一比较内容，并决定取舍。
+找出這些衝突的配置文件，然後一一比較內容，並決定取捨。
 
 ## openRC
-Gentoo默认使用`openRC`管理服务，常用指令：
+Gentoo默認使用`openRC`管理服務，常用指令：
 
 ```c
-# rc-update -a [服务名] default //添加一个服务(add)
-# rc-update -d [服务名] default //移除一个服务(delete)
-# rc-update //列出服务树(已设置自启动的服务)
-# rc-update -v //列出服务树(包括未设置自启动的服务)
-# rc-status //查看用户添加启动的服务
-# rc-status [运行级别] //查看某个运行级别中的服务
-# rc-status -s //显示所有服务的状态
+# rc-update -a [服務名] default //添加一個服務(add)
+# rc-update -d [服務名] default //移除一個服務(delete)
+# rc-update //列出服務樹(已設置自啓動的服務)
+# rc-update -v //列出服務樹(包括未設置自啓動的服務)
+# rc-status //查看用戶添加啓動的服務
+# rc-status [運行級別] //查看某個運行級別中的服務
+# rc-status -s //顯示所有服務的狀態
 ```
 
-openRC系统的服务模块位于`/etc/conf.d`目录下，可以根据需求自行添加。
+openRC系統的服務模塊位於`/etc/conf.d`目錄下，可以根據需求自行添加。
 
 ## MySQL初始化
-默认情况下，安装完MySQL/MariaDB数据库并未进行初始化配置，此时服务无法启动，
-需要手动进行初始化：
+默認情況下，安裝完MySQL/MariaDB數據庫並未進行初始化配置，此時服務無法啓動，
+需要手動進行初始化：
 
 ```c
-# emerge --config dev-db/mariadb //初始化mysql配置
+# emerge --config dev-db/mariadb // 初始化mysql配置
 ```
 
-之后就可以启动msyql服务：
+之後就可以啓動msyql服務：
 
 ```
 # /etc/init.d/mysql start
 ```
 
-## 修改主机名
-与其它systemd发行版不同，主机名配置位于`/etc/conf.d/hostname`。
+## 修改主機名
+與其它systemd發行版不同，主機名配置位於`/etc/conf.d/hostname`。
 
-## 安装JDK
-默认源中似乎没有OpenJDK，但是可以安装OracleJDK，安装包需要自己从Oracle官网下载。
-下载完成后，移动到`/usr/portage/distfiles`文件夹中，注意修改文件权限为`664`，文件属主和用户组都改为`portage`。
-然后在安装源里的OracleJDK包。
+## 安裝JDK
+默認源中似乎沒有OpenJDK，但是可以安裝OracleJDK，安裝包需要自己從Oracle官網下載。
+下載完成後，移動到`/usr/portage/distfiles`文件夾中，注意修改文件權限爲`664`，文件屬主和用戶組都改爲`portage`。
+然後在安裝源裏的OracleJDK包。
