@@ -7,6 +7,9 @@
 		- [rustup](#rustup)
 		- [rustfmt](#rustfmt)
 	- [REPL](#repl)
+- [智能指針](#智能指針)
+	- [Rc / Box](#rc--box)
+	- [Cell / RefCell](#cell--refcell)
 
 <!-- /TOC -->
 
@@ -122,3 +125,32 @@ Available kernels:
   rust               /Users/dainslef/Library/Jupyter/kernels/rust
   python3            /usr/local/share/jupyter/kernels/python3
 ```
+
+
+
+# 智能指針
+作為無GC的現代編程語言，Rust提供了智能指針進行內存管理。
+
+## Rc / Box
+Rc/Box是Rust中最常用的智能指針類型(不提供線程安全保證)，
+對應C++中的`std::shared_ptr`(RC)和`std::unique_ptr`(Box)。
+
+## Cell / RefCell
+`std::cell`mod下提供了對於可變內存區域的抽象。
+Cell/RefCell通常作為智能指針類型(Rc/Box)的泛型參數使用(如`Rc<RefCell<T>>`)，
+由於rust中智能指針默認持有對象不可變，因此需要在持有的對象自身添加一層抽象，
+用於提供對象的可變操作(替換指針指向的內容)。
+
+Cell類型提供了對內部持有對象進行整體安全替換(`Cell::replace()`)、
+交換兩個Cell對象的內容(`Cell::swap()`)的能力。
+
+RefCell類型提供了對內部持有對象進行安全地只讀引用(`RefCell::borrow()`)、
+讀寫引用(`RefCell::borrow_mut()`)的能力。
+borrow()系列方法會在運行期間進行動態檢查，違反讀寫鎖規則時拋出異常，
+保證讀寫安全。
+
+Cell/RefCell均可通過`as_ptr()`方法獲取raw pointer，
+以使用unsafe在某些特殊情形下(如鏈表、二叉樹)繞過rust的所有權檢查。
+
+Cell/RefCell類型不是線程安全的，因此未實現Sync特質；
+若需要保證線程安全，需要搭配Mutex、RwLock等鎖類型。
