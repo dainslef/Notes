@@ -1093,20 +1093,44 @@ $ ulimit -cH unlimited
 - `item`(目標)，爲需要限制的資源類別，可取值`core`(核心轉儲)、`fsize`(文件大小)等，與指令參數對應。
 - `value`(值)，指定限制資源的數值。
 
-如下所示：
+詳細的item列表以及對應說明：
+
+| item | 說明 |
+| :- | :- |
+| core | limits the core file size (KB) |
+| data | max data size (KB) |
+| fsize | maximum filesize (KB) |
+| memlock | max locked-in-memory address space (KB) |
+| nofile | max number of open files |
+| rss | max resident set size (KB) |
+| stack | max stack size (KB) |
+| cpu | max CPU time (MIN) |
+| nproc | max number of processes |
+| as | address space limit (KB) |
+| maxlogins | max number of logins for this user |
+| maxsyslogins | max number of logins on the system |
+| priority | the priority to run user process with |
+| locks | max number of file locks the user can hold |
+| sigpending | max number of pending signals |
+| msgqueue | max memory used by POSIX message queues (bytes) |
+| nice | max nice priority allowed to raise to values: [-20, 19] |
+| rtprio | max realtime priority |
+| chroot | change root to directory (Debian-specific) |
+
+規則示例：
 
 ```
-#<domain>      <type>  <item>         <value>
+<domain>      <type>  <item>         <value>
 
-#*               soft    core            0
-#root            hard    core            100000
-#*               hard    rss             10000
-#@student        hard    nproc           20
-#@faculty        soft    nproc           20
-#@faculty        hard    nproc           50
-#ftp             hard    nproc           0
-#ftp             -       chroot          /ftp
-#@student        -       maxlogins       4
+*               soft    core            0
+root            hard    core            100000
+*               hard    rss             10000
+@student        hard    nproc           20
+@faculty        soft    nproc           20
+@faculty        hard    nproc           50
+ftp             hard    nproc           0
+ftp             -       chroot          /ftp
+@student        -       maxlogins       4
 ```
 
 與常規Unix配置類似，配置中使用`#`註釋內容。
