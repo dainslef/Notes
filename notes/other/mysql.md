@@ -54,7 +54,7 @@
 	- [處理查詢結果](#處理查詢結果)
 	- [切換當前數據庫](#切換當前數據庫)
 	- [關閉數據庫連接](#關閉數據庫連接)
-- [問題記錄](#問題記錄)
+- [問題註記](#問題註記)
 	- [MySQL error: sql_mode=only_full_group_by](#mysql-error-sql_modeonly_full_group_by)
 	- [Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column To disable safe mode, toggle the option in Preferences -> SQL Queries and reconnect.](#error-code-1175-you-are-using-safe-update-mode-and-you-tried-to-update-a-table-without-a-where-that-uses-a-key-column-to-disable-safe-mode-toggle-the-option-in-preferences---sql-queries-and-reconnect)
 	- [[42000][1071] Specified key was too long; max key length is 3072 bytes](#420001071-specified-key-was-too-long-max-key-length-is-3072-bytes)
@@ -252,6 +252,20 @@ $ mysqladmin -u [用戶名] -p password '[密碼內容]' # 目標用戶存在舊
 $ mysqladmin -u [用戶名] -h [主機] -p password '[密碼內容]' # 修改遠程用戶密碼
 ```
 
+若出现如下错误：
+
+```
+You cannot use 'password' command as mysqld runs
+ with grant tables disabled (was started with --skip-grant-tables).
+Use: "mysqladmin flush-privileges password '*'" instead
+```
+
+则应按照提示添加`flush-privileges`參數：
+
+```
+$ mysqladmin -u [用戶名] -p flush-privileges password '[密碼內容]'
+```
+
 還可采用更新`mysql.user`表的方式來更新密碼。
 
 在`MySQL 5.6`及以下版本，密碼列名稱為`password`，`MySQL 5.7`及之後版本密碼列為`authentication_string`。
@@ -262,6 +276,13 @@ mysql> update mysql.user set password=password('[密碼]') where user='[用戶�
 
 -- MySQL 5.7+
 mysql> update mysql.user set authentication_string=password('[密碼]') where user='[用戶名]' and host='[主機]';
+```
+
+更新密碼或Host主機限制等規則後，若未立即生效，則可嘗試刷新權限：
+
+```
+mysql> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
 ```
 
 ## 跳過登陸驗證
@@ -411,16 +432,19 @@ mysql> show grants for [用戶名]@[主機地址]; //顯示指定用戶的權限
 # 基本操作
 基本的數據庫管理、操作指令：
 
-- `status;` 查看數據庫基本狀態
-- `show status;` 查看數據庫環境變量
-- `show databases;` 查看數據庫列表
-- `create database [數據庫名];` 創建數據庫
-- `drop database [數據庫名];` 刪除數據庫
-- `use [數據庫名];` 切換正在使用的數據庫
-- `desc [表名];` 查看指定表格的結構
-- `drop table [表名]` 刪除指定表格
-- `truncate table [表名];` 清除指定表格的內容(速度快，但不可恢復)
-- `delete from [表名];` 刪除指定表格的內容(速度慢，但可以恢復)
+| 指令 | 說明 |
+| :- | :- |
+| `status;` | 查看數據庫基本狀態 |
+| `show status;` | 查看數據庫環境變量 |
+| `show databases;` | 查看數據庫列表 |
+| `create database 數據庫名;` | 創建數據庫 |
+| `drop database 數據庫名;` | 刪除數據庫 |
+| `use 數據庫名;` | 切換正在使用的數據庫 |
+| `desc 表名;` | 查看數據表結構(以表格形式列出字段定義) |
+| `show create table 表名` | 查看數據表的創建SQL |
+| `drop table [表名]` | 刪除指定表格 |
+| `truncate table [表名];` | 清除指定表格的內容(速度快，但不可恢復) |
+| `delete from [表名];` | 刪除指定表格的內容(速度慢，但可以恢復) |
 
 ## 基本SQL語句
 SQL語句的詳細語法說明參考[官方文檔](https://dev.mysql.com/doc/refman/en/sql-statements.html)。
@@ -517,34 +541,37 @@ MySQL使用`@@變量名`語法訪問變量，MySQL定義了大量系統變量用
 
 常用變量說明：
 
-- `@@version_compile_os` 數據庫編譯平臺
-- `@@sql_mode` 數據庫的SQL特性
+| 系統變量 | 說明 |
+| :- | :- |
+| `@@version_compile_os` | 數據庫編譯平臺 |
+| `@@sql_mode` | 數據庫的SQL特性 |
+| `@@time_zone` | 數據庫時間使用時區 |
 
 ## 複製表格
 僅複製表格結構：
 
 ```sql
-create table [新表] like [舊錶]
+create table 新表名 like 舊表名;
 ```
 
 複製表格的結構和數據：
 
 ```sql
-create table [新表] select * from [舊錶]
+create table 新表 select * from 舊表;
 ```
 
 ## 主鍵自增
 設置指定表格主鍵自增：
 
 ```sql
-mysql> alert table [表名] auto_increment=[數字]; //設置自增屬性
-mysql> alter table [表名] change [主鍵列名] [主鍵列名] [屬性] auto_increment;
+alter table 表名 auto_increment=數字; -- 設置自增屬性
+alter table 表名 change 主鍵列名 auto_increment;
 ```
 
 取消主鍵自增：
 
 ```sql
-mysql> alter table [表名] change [列名] [列名] [屬性];
+alter table 表名 change 列名 列名 屬性;
 ```
 
 設置主鍵自增對於已有數據的列需要清空已有數據才能正常顯示。
@@ -1036,7 +1063,7 @@ void mysql_close(MYSQL *sock);
 
 
 
-# 問題記錄
+# 問題註記
 記錄MySQL在使用、配置中遇到的問題。
 
 ## MySQL error: sql_mode=only_full_group_by
