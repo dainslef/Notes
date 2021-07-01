@@ -36,6 +36,7 @@
 - [文件系統](#文件系統)
 	- [fdisk](#fdisk)
 	- [parted](#parted)
+	- [flock](#flock)
 - [LVM (Logical Volume Manager)](#lvm-logical-volume-manager)
 	- [基本操作](#基本操作)
 	- [Physical Volume (PV，物理卷)](#physical-volume-pv物理卷)
@@ -1302,6 +1303,49 @@ parted會話中的基本指令如下：
 | quit | 退出parted會話 |
 
 相比fdisk，parted會話中的分區操作會立即執行生效，因此更需小心謹慎。
+
+## flock
+[flock](https://www.linux.org/docs/man1/flock.html)提供鎖管理的Shell接口，
+使用鎖可實現腳本實例互斥等功能。
+
+基本用法：
+
+```html
+<!-- 鎖定指定路徑/文件，執行指定指令 -->
+$ flock [options] <file|directory> <command> [command args]
+$ flock [options] <file|directory> -c <command>
+<!-- 鎖定指令文件描述符 -->
+$ flock [options] <file descriptor number>
+```
+
+flock默認使用阻塞模式執行，即當待鎖定的資源被其它flock持有時，
+當前flock會一直等待，知道待鎖定的資源被釋放；
+使用`-n/--nb/--nonblock`參數，則可讓flock以非阻塞模式執行，
+該模式下flock獲取不到鎖時會立即退出。
+
+```html
+$ flock -n <文件|路徑> <指令> [參數]
+
+<!-- 使用非阻塞模式，可以指定異常退出的錯誤代碼，默認錯誤代碼為1 -->
+$ flock -n -E <錯誤碼> <文件|路徑> <指令> [參數]
+```
+
+示例：
+
+```html
+$ flock /tmp/sleep.lock sleep 10 & <!-- 後台執行，鎖定10s -->
+[1] 19524
+$ flock -n /tmp/sleep.lock echo "Get Lock!"
+$ echo $?
+1 <!-- 鎖定失敗，返回值1 -->
+$ flock -n -E 100 /tmp/sleep.lock echo "Get Lock!"
+$ echo $?
+100 <!-- 鎖定失敗，返回值100 -->
+...
+$ flock -n /tmp/sleep.lock sleep 10
+Get Lock! <!-- 進程結束，鎖定成功 -->
+[1]+  Done                    flock -n /tmp/sleep.lock sleep 10
+```
 
 
 
