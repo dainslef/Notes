@@ -85,14 +85,14 @@ PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
 ## 配置DNS
 複製當前機器的dns信息：
 
-```c
+```
 # cp /etc/resolv.conf /mnt/etc/resolv.conf
 ```
 
 ## 進入gentoo環境
 Gentoo沒有提供類似`arch-chroot`之類的工具，因此在chroot之前需要手動綁定必要分區的位置：
 
-```c
+```
 # mount -t proc none /mnt/proc
 # mount --rbind /sys /mnt/sys
 # mount --rbind /dev /mnt/dev
@@ -153,114 +153,114 @@ Gentoo沒有提供類似`arch-chroot`之類的工具，因此在chroot之前需�
 
 - 處理器：(Intel CPU可關閉AMD CPU特性)
 
-	```
+	```html
 	Processor type and features  ——>
-		[ ] Enable MPS table								//支持ACPI的電腦都不選
-		[ ] Support for extended (non-PC) x86 platforms		//關閉PC平臺以外的支持
+		[ ] Enable MPS table <!-- 支持ACPI的電腦都不選 -->
+		[ ] Support for extended (non-PC) x86 platforms <!-- 關閉PC平臺以外的支持 -->
 		Processor family (Core 2/newer Xeon)
-		[ ] Linux guest support  ----						//安裝在虛擬機裏才需要
-		[*] Multi-core scheduler support					//開啓多核心支持
-		[*] SMT (Hyperthreading) scheduler support			//SMT超線程開啓
-		[*] Intel Low Power Subsystem Support				//haswell以上可選
+		[ ] Linux guest support  ---- <!-- 安裝在虛擬機裏才需要 -->
+		[*] Multi-core scheduler support <!-- 開啓多核心支持 -->
+		[*] SMT (Hyperthreading) scheduler support <!-- SMT超線程開啓 -->
+		[*] Intel Low Power Subsystem Support <!-- haswell以上可選 -->
 		[ ] kexec system call
 		[ ] Build a relocatable kernel
-		[*] EFI runtime service support						//EFI主板開啓
-		[ ] EFI stub support								//用不到
+		[*] EFI runtime service support <!-- EFI主板開啓 -->
+		[ ] EFI stub support <!-- 用不到 -->
 		Preemption Model --->
-			(X) Preemptible Kernel (Low-Latency Desktop)	//低延時模式
+			(X) Preemptible Kernel (Low-Latency Desktop) <!-- 低延時模式 -->
 	```
 
 - 設備驅動相關：
 
-	```
+	```html
 	Device Drivers  --->
-		[ ] Multiple devices driver support (RAID and LVM)  ----	//關閉磁盤陣列
+		[ ] Multiple devices driver support (RAID and LVM)  ---- <!-- 關閉磁盤陣列 -->
 		Graphics support  --->
 			[ ] Bootup logo		//關了，啓動動畫沒用
-			[*] Laptop Hybrid Graphics - GPU switching support		//雙顯卡切換支持
+			[*] Laptop Hybrid Graphics - GPU switching support <!-- 雙顯卡切換支持 -->
 			Direct Rendering Manager  --->
 				<*> Direct Rendering Manager
 				<*> Intel 8xx/9xx/G3x/G4x/HD Graphics
 			Frame buffer Devices  --->
 				[*] Simple framebuffer support
 		<*> Serial ATA and Parallel ATA drivers (libata)  --->
-			[ ] ATA SFF support (for legacy IDE and PATA)		//關了，老式硬盤才需要
-		[*] Network device support  ---> 						//取消全部，只留一個自己用的
-			[*] Ethernet driver support  --->					//選擇有線驅動
+			[ ] ATA SFF support (for legacy IDE and PATA) <!-- 關了，老式硬盤才需要 -->
+		[*] Network device support  ---> <!-- 取消除了自身硬件之外的全部選項 -->
+			[*] Ethernet driver support  ---> <!-- 選擇有線驅動 -->
 				[*] Broadcom devices (NEW)
-				<*> Broadcom Tigon3 support						//BCM57786的驅動是這個
-			[*] Wireless LAN  ---> 								//選擇無線驅動
+				<*> Broadcom Tigon3 support <!-- BCM57786的驅動是這個 -->
+			[*] Wireless LAN  ---> <!-- 選擇無線驅動 -->
 				Atheros Wireless Cards  --->
 					 [*] Atheros bluetooth coexistence support
 					 <*> Atheros 802.11n wireless cards support
 					 [*] Atheros ath9k PCI/PCIe bus support (NEW)
 		Input device support  --->
-			[ ] Touchscreens  ----								//非觸摸屏電腦關閉觸屏支持
+			[ ] Touchscreens  ---- <!-- 非觸摸屏電腦關閉觸屏支持 -->
 			[ ] Miscellaneous devices  ----
 			[ ] Joysticks/Gamepads  ----
 			(1366)  Horizontal screen resolution
-			(768)   Vertical screen resolution				//設置分辨率
+			(768)   Vertical screen resolution <!-- 設置分辨率 -->
 		[*] USB support  --->
-			<*> xHCI HCD (USB 3.0) support					//打開USB3.0支持
+			<*> xHCI HCD (USB 3.0) support <!-- 打開USB3.0支持 -->
 		<*> MMC/SD/SDIO card support  --->
 			<*> USB SD Host Controller (USHC) support
-		[ ] LED Support  ----								//關閉LED驅動
+		[ ] LED Support  ---- <!-- 關閉LED驅動 -->
 	```
 
 - 電源管理和ACPI：
 
-	```
+	```html
 	Power management and ACPI options  --->
-		[*] Suspend to RAM and standby						//睡眠功能
-		[*] Hibernation (aka 'suspend to disk')				//休眠功能
-		[ ] Power Management Debug Support					//不需要調試電源
+		[*] Suspend to RAM and standby <!-- 睡眠功能 -->
+		[*] Hibernation (aka 'suspend to disk') <!-- 休眠功能 -->
+		[ ] Power Management Debug Support <!-- 不需要調試電源 -->
 		[*] ACPI (Advanced Configuration and Power Interface) Support  --->
-			<*> Battery										//筆記本開啓電池相關支持
+			<*> Battery <!-- 筆記本開啓電池相關支持 -->
 			<*> Smart Battery System
 		CPU Frequency scaling  --->
 			Default CPUFreq governor (ondemand)  --->
 				(X) ondemand
-			< > 'userspace' governor for userspace frequency scaling		//關閉userspace調度器
+			< > 'userspace' governor for userspace frequency scaling <!-- 關閉userspace調度器 -->
 			x86 CPU frequency scaling drivers  --->
 				[*] Intel P state control
 	```
 
 - 文件系統(記得開啓vfat、NTFS支持，另文件系統不建議編譯成模塊)：
 
-	```
+	```html
 	File systems --->
-		<*> FUSE (Filesystem in Userspace) support			//沒有這貨掛載Win分區會失敗的
+		<*> FUSE (Filesystem in Userspace) support <!-- 無此選項掛載Win分區會失敗 -->
 		CD-ROM/DVD Filesystems  --->
 			<*> ISO 9660 CDROM file system support
-			<*> UDF file system support						//刻盤可能會用到
+			<*> UDF file system support <!-- 刻盤可能會用到 -->
 		DOS/FAT/NT Filesystems  --->
 			<*> MSDOS fs support
 			<*> VFAT (Windows-95) fs support
-			<*> NTFS file system support					//NTFS文件系統支持不打開無法掛載win分區
+			<*> NTFS file system support <!-- NTFS文件系統支持不打開無法掛載win分區 -->
 		-*- Native language support  --->
-			<*> Simplified Chinese charset (CP936, GB2312)	//fat32的原生中文支持
+			<*> Simplified Chinese charset (CP936, GB2312) <!-- fat32的原生中文支持 -->
 	```
 
 - 可執行文件：
 
-	```
+	```html
 	Executable file formats / Emulations  --->
-		[ ] IA32 Emulation									//不需要32位模擬
+		[ ] IA32 Emulation <!-- 不需要32位模擬 -->
 	```
 
 - 虛擬化：
 
-	```
+	```html
 	[*] Virtualization  --->
 		<*> Kernel-based Virtual Machine (KVM) support
-			<*> KVM for Intel processors support			//VirtualBox會用到
+			<*> KVM for Intel processors support <!-- VirtualBox使用該特性 -->
 	```
 
 - 內核安全與內核調試：
 
-	```
+	```html
 	Kernel hacking  --->
-	Security options  --->				//除了默認必選的全關了，不是內核開發者不湊熱鬧
+	Security options  ---> <!-- 關閉非必選項-->
 	```
 
 ## 安裝內核
@@ -293,14 +293,14 @@ Gentoo沒有提供類似`arch-chroot`之類的工具，因此在chroot之前需�
 
 openRC服務下更換顯示管理器，編輯`/etc/conf.d/xdm`文件，將`DISPLAYMANAGER="xdm"`改爲安裝的顯示管理器：
 
-```c
-# rc-update add xdm default //默認登錄到顯示管理器
+```html
+# rc-update add xdm default <!-- 默認登錄到顯示管理器 -->
 ```
 
 加入藍牙模塊自啓動：
 
-```c
-# rc-update add bluetooth //沒寫運行級別會默認加入default運行級別
+```html
+# rc-update add bluetooth <!-- 沒寫運行級別會默認加入default運行級別 -->
 ```
 
 
@@ -308,18 +308,18 @@ openRC服務下更換顯示管理器，編輯`/etc/conf.d/xdm`文件，將`DISPL
 # emerge 包管理器
 Gentoo使用`emerge`作爲包管理器，常用指令：
 
-```c
-# emerge --sync //同步portage樹
-# emerge -e world //更換全局USE之後重新編譯所有包
-# emerge -u system //升級系統軟件
-# emerge -u world //升級整個系統
-# emerge -auvDN world //完整升級系統
-# emerge -pv [包名] //查看某個包的可用USE
-# emerge --udpate --newuse [包名] //更新USE之後安裝包刷新依賴關係
-# emerge --depclean //清理無用依賴
-# emerge -a //執行操作前詢問
-# eclean distfiles //清理包文件(請先 emerge gentoolkit)
-$ qfile [文件名/路徑名] //查看文件屬於哪個包
+```html
+# emerge --sync <!-- 同步portage樹 -->
+# emerge -e world <!-- 更換全局USE之後重新編譯所有包 -->
+# emerge -u system <!-- 升級系統軟件 -->
+# emerge -u world <!-- 升級整個系統 -->
+# emerge -auvDN world <!-- 完整升級系統 -->
+# emerge -pv [包名] <!-- 查看某個包的可用USE -->
+# emerge --udpate --newuse [包名] <!-- 更新USE之後安裝包刷新依賴關係 -->
+# emerge --depclean <!-- 清理無用依賴 -->
+# emerge -a <!-- 執行操作前詢問 -->
+# eclean distfiles <!-- 清理包文件(請先 emerge gentoolkit) -->
+$ qfile [文件名/路徑名] <!-- 查看文件屬於哪個包 -->
 ```
 
 emerge常用參數：
@@ -353,12 +353,12 @@ world | system， world範圍更廣，包含了system，這是兩個包的set。
 ## equery
 查詢系統內已安裝的包的信息需要安裝額外的工具`app-portage/gentoolkit`，該包含有eclean、equery等工具。
 
-```c
-$ equery list [包名] //列出對應包名的包安裝了哪些版本
-$ equery files [包名] //查看包裏有哪些文件
-$ equery belongs [文件路徑] //查看文件屬於哪個包
-$ equery depends [包名] //查看某個包的依賴
-$ equery uses [包名] //查看一個已經安裝的包使用了哪些USE
+```html
+$ equery list [包名] <!-- 列出對應包名的包安裝了哪些版本 -->
+$ equery files [包名] <!-- 查看包裏有哪些文件 -->
+$ equery belongs [文件路徑] <!-- 查看文件屬於哪個包 -->
+$ equery depends [包名] <!-- 查看某個包的依賴 -->
+$ equery uses [包名] <!-- 查看一個已經安裝的包使用了哪些USE -->
 ```
 
 ## 包組列表
@@ -379,8 +379,8 @@ world包組成員列表記錄在`/var/lib/portage/world`文件中，可自行更
 
 例如使用Python2.7爲默認版本：
 
-```c
-# eselect python set python2.7 //版本必須是在環境變量定義下可尋的二進制文件名
+```html
+# eselect python set python2.7 <!-- 版本必須是在環境變量定義下可尋的二進制文件名 -->
 ```
 
 使用help參數可以查看詳情：
@@ -394,20 +394,20 @@ overlay倉庫類似於`Arch Linux`中的`AUR`倉庫，用來提供一些官方�
 
 安裝overlay：
 
-```c
+```html
 # emerge -av layman
-# cat /var/lib/layman/make.conf >> /etc/portage/make.conf //將第三方portage添加到庫中
-# layman -a gentoo-zh //加入國人倉庫
+# cat /var/lib/layman/make.conf >> /etc/portage/make.conf <!-- 將第三方portage添加到庫中 -->
+# layman -a gentoo-zh <!-- 加入國人倉庫 -->
 ```
 
 常用命令：
 
-```c
-# layman -L //獲取overlay列表，並列出
-# layman -a XXX //添加XXX overlay
-# layman -d XXX //刪除XXX overlay
-# layman -s XXX //更新XXX overlay
-# layman -S //更新所有 overlay
+```html
+# layman -L <!-- 獲取overlay列表，並列出 -->
+# layman -a XXX <!-- 添加XXX overlay -->
+# layman -d XXX <!-- 刪除XXX overlay -->
+# layman -s XXX <!-- 更新XXX overlay -->
+# layman -S <!-- 更新所有 overlay -->
 ```
 
 
@@ -423,7 +423,8 @@ overlay倉庫類似於`Arch Linux`中的`AUR`倉庫，用來提供一些官方�
 # find /lib/modules/`uname -r` -type f -iname '*.o' -or -iname '*.ko'
 ```
 
-使用默認的openRC服務管理，將查詢到的內核模塊名按需加入`/etc/conf.d/modules`中可以使模塊開機自啓動(後綴名`*.ko`可省略)。
+使用默認的openRC服務管理，將查詢到的內核模塊名按需加入`/etc/conf.d/modules`中，
+可以使模塊開機自啓動(後綴名`*.ko`可省略)。
 配置文件中的內核模塊不能寫alisa名稱，而是要寫清模塊文件的名字。
 如果使用systemd作爲服務管理，則將需要開機啓動的模塊寫入`/etc/modprobe.d/`中的任意文件。
 
@@ -436,8 +437,11 @@ overlay倉庫類似於`Arch Linux`中的`AUR`倉庫，用來提供一些官方�
 ## 關於 Masked
 包被Masked的原因很多。
 因爲許可證被Masked，需要將接受的許可證級別的寫在`/etc/portage/package.license`裏。
-部分軟件穩定性不達標會被Masked，如果需要安裝，則將對應的包名和穩定性級別加入`/etc/portage/package.accept_keywords`裏。
-如果要安裝很多穩定性級別不夠的包，一一加入很麻煩，可以在`/etc/portage/make.conf`中使用全局關鍵字 `ACCEPT_KEYWORDS="~amd64"`，一般不推薦這樣做，這會降低系統穩定性。
+部分軟件穩定性不達標會被Masked，若需要安裝，
+則將對應的包名和穩定性級別加入`/etc/portage/package.accept_keywords`裏。
+如果要安裝很多穩定性級別不夠的包，一一加入很麻煩，
+可以在`/etc/portage/make.conf`中使用全局關鍵字`ACCEPT_KEYWORDS="~amd64"`，
+通常不推薦此選項，這會降低系統穩定性。
 
 ## 關於 CONFIGURATION FILES
 有時包更新帶來新的配置文件便會產生文件衝突，新加入的配置文件會以`.cfg00xx_[原配置文件名]`命名，可以使用：
@@ -451,7 +455,7 @@ overlay倉庫類似於`Arch Linux`中的`AUR`倉庫，用來提供一些官方�
 ## openRC
 Gentoo默認使用`openRC`管理服務，常用指令：
 
-```c
+```html
 # rc-update -a [服務名] default //添加一個服務(add)
 # rc-update -d [服務名] default //移除一個服務(delete)
 # rc-update //列出服務樹(已設置自啓動的服務)
@@ -467,8 +471,8 @@ openRC系統的服務模塊位於`/etc/conf.d`目錄下，可以根據需求自�
 默認情況下，安裝完MySQL/MariaDB數據庫並未進行初始化配置，此時服務無法啓動，
 需要手動進行初始化：
 
-```c
-# emerge --config dev-db/mariadb // 初始化mysql配置
+```html
+# emerge --config dev-db/mariadb <!-- 初始化mysql配置 -->
 ```
 
 之後就可以啓動msyql服務：
@@ -482,5 +486,6 @@ openRC系統的服務模塊位於`/etc/conf.d`目錄下，可以根據需求自�
 
 ## 安裝JDK
 默認源中似乎沒有OpenJDK，但是可以安裝OracleJDK，安裝包需要自己從Oracle官網下載。
-下載完成後，移動到`/usr/portage/distfiles`文件夾中，注意修改文件權限爲`664`，文件屬主和用戶組都改爲`portage`。
+下載完成後，移動到`/usr/portage/distfiles`文件夾中，
+注意修改文件權限爲`664`，文件屬主和用戶組都改爲`portage`。
 然後在安裝源裏的OracleJDK包。
