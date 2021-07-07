@@ -314,3 +314,45 @@ Maven默認的package功能僅將當前項目生成的class文件進行打包，
 
 相比`maven-assembly-plugin`，`spring-boot-maven-plugin`對於Spring Boot項目的打包結構更加合理，
 所有依賴的JAR包不會被被解包重新封裝，而是保留原始結構壓縮到生成的JAR包中，避免了傳統插件打包時的文件衝突等問題。
+
+spring-boot-maven-plugin支持在編譯時生成構建信息，修改配置：
+
+```xml
+<project>
+	...
+	<build>
+		<plugins>
+			...
+			<!-- package plugin for Spring project, build all dependencies into one jar -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<!-- generate build info in META-INF/build.properties -->
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			...
+		</plugins>
+	</build>
+	...
+</project>
+```
+
+添加build-info配置項後，會在打包的JAR內生成`META-INF/build-info.properties`文件用於記錄構建信息，
+格式如下：
+
+```ini
+build.artifact=a1902-terminal-control-server
+build.group=com.ljshuoda
+build.name=a1902-terminal-control-server
+build.time=2021-06-21T02\:44\:22.068Z
+build.version=1.0
+```
+
+若jar包中帶有build-info，當使用spring-boot-admin時，會展示項目的build-info信息。
+若開啟了actuator相關端點，則URL`actuator/info`發送GET請求會得到build-info的json結構。
