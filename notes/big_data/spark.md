@@ -55,6 +55,7 @@
 		- [MySQL 建表異常](#mysql-建表異常)
 	- [Complex Types (複合類型字段)](#complex-types-複合類型字段)
 	- [UDF (User-Defined Aggregate Functions)](#udf-user-defined-aggregate-functions)
+- [Spark 訪問 HBase](#spark-訪問-hbase)
 - [問題註記](#問題註記)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -2675,6 +2676,112 @@ scala> dataFrame.withColumn("testUDF", testUDF('name)).show()
 |    3|  Scala| 15|Data: Scala, Size: 5|
 +-----+-------+---+--------------------+
 ```
+
+
+
+# Spark 訪問 HBase
+Spark訪問HBase存在多種方式，但[HBase官方文檔示例](http://hbase.apache.org/book.html#_basic_spark)不可用，
+`HBaseContext`等API在1.x版本的HBase中並不存在。
+
+社區提供了多種組件/庫提供Spark下的HBase訪問API，但這些組件並未合併到Spark/HBase上游。
+
+目前Spark訪問HBase最直接的方式是使用SparkContext中的`newAPIHadoopRDD()`方法從直接讀取數據得到RDD：
+
+```scala
+class SparkContext(config: SparkConf) extends Logging {
+  ...
+  /**
+   * Get an RDD for a given Hadoop file with an arbitrary new API InputFormat
+   * and extra configuration options to pass to the input format.
+   *
+   * @param conf Configuration for setting up the dataset. Note: This will be put into a Broadcast.
+   *             Therefore if you plan to reuse this conf to create multiple RDDs, you need to make
+   *             sure you won't modify the conf. A safe approach is always creating a new conf for
+   *             a new RDD.
+   * @param fClass storage format of the data to be read
+   * @param kClass `Class` of the key associated with the `fClass` parameter
+   * @param vClass `Class` of the value associated with the `fClass` parameter
+   *
+   * @note Because Hadoop's RecordReader class re-uses the same Writable object for each
+   * record, directly caching the returned RDD or directly passing it to an aggregation or shuffle
+   * operation will create many references to the same object.
+   * If you plan to directly cache, sort, or aggregate Hadoop writable objects, you should first
+   * copy them using a `map` function.
+   */
+  def newAPIHadoopRDD[K, V, F <: NewInputFormat[K, V]](
+      conf: Configuration = hadoopConfiguration,
+      fClass: Class[F],
+      kClass: Class[K],
+      vClass: Class[V]): RDD[(K, V)] = ...
+  ...
+}
+```
+
+使用示例：
+
+```scala
+val hbaseConf = ...
+val sparkSession = ...
+
+sparkSession.sparkContext.newAPIHadoopRDD(hbaseConf,
+  classOf[TableInputFormat], classOf[ImmutableBytesWritable], classOf[Result])
+```
+
+在構建HBase配置時，可通過設置參數的形式設置查詢的表、起止RowKey等參數：
+
+```scala
+val hbaseConf = HBaseConfiguration.create()
+hbaseConf.set(TableInputFormat.INPUT_TABLE, "xxx")
+hbaseConf.set(TableInputFormat.SCAN_ROW_START, "xxx...")
+hbaseConf.set(TableInputFormat.SCAN_ROW_STOP, "xxx...")
+```
+
+若不使用RowKey限定則默認會進行全表掃描，對於不需要處理完整數據集的任務在數據加載階段會有較大的額外開銷。
+若需要定製更複雜的HBase加載邏輯(例如使用Scan和Filter)，則應使用HBase提供的內部接口，
+在工具類`org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil`中提供了`convertScanToString()`方法，
+可以將Scan對象轉換為HBaseConfiguration可識別的配置文本，方法定義如下：
+
+```java
+public class TableMapReduceUtil {
+  ...
+  /**
+   * Writes the given scan into a Base64 encoded string.
+   *
+   * @param scan  The scan to write out.
+   * @return The scan saved in a Base64 encoded string.
+   * @throws IOException When writing the scan fails.
+   */
+  static String convertScanToString(Scan scan) throws IOException {
+    ClientProtos.Scan proto = ProtobufUtil.toScan(scan);
+    return Base64.encodeBytes(proto.toByteArray());
+  }
+  ...
+}
+```
+
+使用該方法向HBaseConfiguration實例設置文本序列化後的Scan對象：
+
+```scala
+...
+import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil
+
+val hbaseConf = HBaseConfiguration.create()
+hbaseConf.set(TableInputFormat.SCAN, TableMapReduceUtil.convertScanToString(scan))
+```
+
+然而在部分版本的HBase中，`convertScanToString()`為默認訪問權限，不可被外部類訪問，
+因而只能直接摘抄該方法的實現：
+
+```scala
+...
+import org.apache.hadoop.hbase.util.Base64
+import org.apache.hadoop.hbase.protobuf.ProtobufUtil
+
+val hbaseConf = HBaseConfiguration.create()
+hbaseConf.set(TableInputFormat.SCAN, Base64.encodeBytes(ProtobufUtil.toScan(scan).toByteArray()))
+```
+
+更多的HBase參數可查看[HBase官方文檔](https://hbase.apache.org/apidocs/constant-values.html)。
 
 
 
