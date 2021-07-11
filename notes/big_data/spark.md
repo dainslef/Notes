@@ -56,6 +56,7 @@
 	- [Complex Types (複合類型字段)](#complex-types-複合類型字段)
 	- [UDF (User-Defined Aggregate Functions)](#udf-user-defined-aggregate-functions)
 - [Spark 訪問 HBase](#spark-訪問-hbase)
+	- [RDD寫入HBase](#rdd寫入hbase)
 - [問題註記](#問題註記)
 	- [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](#unable-to-load-native-hadoop-library-for-your-platform-using-builtin-java-classes-where-applicable)
 	- [Operation category READ is not supported in state standby](#operation-category-read-is-not-supported-in-state-standby)
@@ -2782,6 +2783,61 @@ hbaseConf.set(TableInputFormat.SCAN, Base64.encodeBytes(ProtobufUtil.toScan(scan
 ```
 
 更多的HBase參數可查看[HBase官方文檔](https://hbase.apache.org/apidocs/constant-values.html)。
+
+## RDD寫入HBase
+`org.apache.spark.rdd.PairRDDFunctions`(對應Java API為`org.apache.spark.api.java.JavaPairRDD`)
+定義了`saveAsHadoopDataset()/saveAsNewAPIHadoopDataset()`方法，提供RDD寫入HBase相關功能：
+
+```scala
+/**
+ * Extra functions available on RDDs of (key, value) pairs through an implicit conversion.
+ */
+class PairRDDFunctions[K, V](self: RDD[(K, V)])
+    (implicit kt: ClassTag[K], vt: ClassTag[V], ord: Ordering[K] = null)
+  extends Logging with Serializable {
+  ...
+  /**
+   * Output the RDD to any Hadoop-supported storage system with new Hadoop API, using a Hadoop
+   * Configuration object for that storage system. The Conf should set an OutputFormat and any
+   * output paths required (e.g. a table name to write to) in the same way as it would be
+   * configured for a Hadoop MapReduce job.
+   *
+   * @note We should make sure our tasks are idempotent when speculation is enabled, i.e. do
+   * not use output committer that writes data directly.
+   * There is an example in https://issues.apache.org/jira/browse/SPARK-10063 to show the bad
+   * result of using direct output committer with speculation enabled.
+   */
+  def saveAsNewAPIHadoopDataset(conf: Configuration): Unit = ...
+
+  /**
+   * Output the RDD to any Hadoop-supported storage system, using a Hadoop JobConf object for
+   * that storage system. The JobConf should set an OutputFormat and any output paths required
+   * (e.g. a table name to write to) in the same way as it would be configured for a Hadoop
+   * MapReduce job.
+   */
+  def saveAsHadoopDataset(conf: JobConf): Unit = ...
+  ...
+}
+```
+
+兩個API功能類似，僅接受配置的類型不同，當目標數據源是HBase時，構建HBase配置時添加輸出表名、輸出格式類信息，
+RDD類型需要為`RDD[(ImmutableBytesWritable, Put)]`
+(對應Java API中類型為`JavaPairRDD<ImmutableBytesWritable, Put>`)。
+
+實例代碼：
+
+```scala
+val hbaseConf = HBaseConfiguration.create()
+hbaseConf.set("hbase.zookeeper.quorum", "...")
+hbaseConf.set("hbase.zookeeper.property.clientPort", "...")
+hbaseConf.set("hbase.mapred.outputtable", "表名...");
+hbaseConf.set("mapreduce.outputformat.class", "org.apache.hadoop.hbase.mapreduce.TableOutputFormat");
+
+rdd.map(v => (new ImmutableBytesWritable, new Put(rowKey) {
+    addColumn(...)
+    ...
+})).saveAsNewAPIHadoopDataset(hbaseConf)
+```
 
 
 
