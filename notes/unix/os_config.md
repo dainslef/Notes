@@ -1973,6 +1973,12 @@ net-tools與iproute2的主要功能對照：
 | netstat | ss | Show network port status |
 | brctl | bridge | Handle bridge addresses and devices |
 
+常見的網絡管理指令：
+
+```html
+# ip dev [網卡] flush <!-- 重置指定網卡設備的狀態 -->
+```
+
 ## netstat & ss
 `netstat`是net-tools中提供的socket查看工具，各大平台的netstat工具參數有較大差異。
 
@@ -1995,14 +2001,30 @@ Linux平台的netstat的常用參數：
 $ netstat -utnlp
 ```
 
+`ss`是iproute2提供的次世代工具，提供與netstat類似的功能。
+參數基本與Linux平台的netstat類似，如`-t`、`-u`、`-p`、`-n`、`-l`等。
+
 macOS平台netstat的常用參數：
 
 - `-p` 展示使用指定協議的端口
 - `-v` 列出詳情，包括進程信息
 - `-a` 顯示包含被服務端進程監聽的socket
+- `-n` 不解析主機名稱，能顯著提升指令執行速度
 
-`ss`是iproute2提供的次世代工具，提供與netstat類似的功能。
-參數基本與Linux平台的netstat類似，如`-t`、`-u`、`-p`、`-n`、`-l`等。
+展示macOS下的監聽TCP端口的進程：
+
+```
+$ netstat -anvf tcp | grep LISTEN
+$ netstat -anvp udp
+```
+
+macOS沒有ss，但還可通過lsof查看端口監聽：
+
+```html
+$ lsof -iTCP -nP | grep LISTEN
+$ lsof -iUDP -nP
+$ lsof -i:端口號 -nP <!-- 查詢指定端口 -->
+```
 
 ## mii-tool & ethtool
 `mii-tool`用於查看網卡的狀態，指令語法：
