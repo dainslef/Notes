@@ -1250,7 +1250,7 @@ def func():
 		num = 1
 
 	def set_nonlocal_num():
-		nonlocal num	# 聲明使用外部局部作用域的變量num，而不是創建新的局部變量num
+		nonlocal num # 聲明使用外部局部作用域的變量num，而不是創建新的局部變量num
 		num = 1
 
 	print("num:", num)
@@ -1508,30 +1508,30 @@ clientSock.connect(("ip地址", 端口))
 在部分Linux發行版中，pip並沒有隨Python一併被安裝。
 pip可以從發行版的軟件源中安裝，也可以下載安裝腳本：
 
-```
+```html
 $ wget https://bootstrap.pypa.io/get-pip.py
-$ sudo python3 get-pip.py //將pip安裝到系統目錄(Linux下需要root權限)
-$ python3 get-pip.py --user //將pip安裝到用戶目錄
+$ sudo python3 get-pip.py <!-- 將pip安裝到系統目錄(Linux下需要root權限) -->
+$ python3 get-pip.py --user <!-- 將pip安裝到用戶目錄 -->
 ```
 
 系統目錄下的Python包是所有用戶共享的，用戶目錄下的Python包只有所有者可訪問。
 
 - `Linux`下的pip相關特性
 
-	安裝**pip**到系統目錄需要`root`權限，
+	安裝pip到系統目錄需要`root`權限，
 	系統模塊安裝在路徑`/usr/lib/python[version]/site-packages`下，
 	需要root權限對其進行寫入操作。
 	安裝模塊到用戶目錄下無需root權限，
 	用戶模塊在路徑`~/.local/lib/python[version]/site-packages`下。
 	還會在`~/.local/bin`路徑下生成可執行腳本。
 
-	由發行版自身的包管理器(`apt`、`yum`、`dnf`、`pacman`等)安裝的模塊也會顯示在`pip list`指令的輸出中。
-	系統包管理器安裝的`Python`模塊通常被系統某些組件依賴，嘗試刪除這些包時會收到`DEPRECATION`(反對)，
+	由發行版自身的包管理器(`apt/yum/dnf/pacman`等)安裝的模塊也會顯示在`pip list`指令的輸出中。
+	系統包管理器安裝的Python模塊通常被系統某些組件依賴，嘗試刪除這些包時會收到`DEPRECATION`(反對)，
 	提示這些包是由`distutils`(發行版工具)安裝的，除非必要，不要刪除這些由發行版包管理器安裝的模塊。
 
 - `macOS`下的pip相關特性
 
-	使用**homebrew**安裝Python時會自動安裝`pip`，使用`pip`**無需**`root`權限。
+	使用**homebrew**安裝Python時會自動安裝pip，使用pip**無需**root權限。
 	系統模塊安裝在路徑`/usr/local/lib/python[version]/site-packages/`下。
 	用戶模塊安裝在路徑`~/Library/Python/[version]/lib/python/site-packages`下。
 	系統模塊會在`/usr/local/bin`路徑下生成可執行腳本。
@@ -1554,12 +1554,14 @@ $ python3 get-pip.py --user //將pip安裝到用戶目錄
 
 ## 鏡像源
 由於`GFW`的存在，pip官方源可能無法訪問。
-使用國內鏡像源替換官方源，推薦使用`TUNA`源(清華大學鏡像源)，在`.pip/pip.conf`文件中添加內容：
+使用國內鏡像源替換官方源，推薦使用TUNA(清華大學鏡像源)，或者USTC(中科大鏡像源)
+在`.pip/pip.conf`文件中添加內容：
 
 ```conf
 # Place this file at the path: ～/.pip/pip.conf
 [global]
-index-url = https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/
+# https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/
+index-url = https://pypi.mirrors.ustc.edu.cn/simple/
 format = columns
 ```
 
