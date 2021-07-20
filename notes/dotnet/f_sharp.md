@@ -19,6 +19,8 @@
 	- [模塊](#模塊)
 - [let & val](#let--val)
 - [Collections (集合類型)](#collections-集合類型)
+- [Computation Expressions (計算表達式)](#computation-expressions-計算表達式)
+	- [計算表達式語法](#計算表達式語法)
 
 <!-- /TOC -->
 
@@ -685,4 +687,52 @@ val it : int list = [1; 2; 3; 4; 5; 99; 1; 2; 3; 4; 5]
 - ;;
 head: 1, tail: [2; 3; 4; 5]
 val it : unit = ()
+```
+
+
+
+# Computation Expressions (計算表達式)
+F#中的計算表達式為編寫可排序和組合的計算提供了便利的語法，使之可用於控制流構造和綁定。
+根據計算表達式類型的不同，可用於表達諸如`monads`、`monoids`、
+`monad transformers`、`applicative functors`等概念。
+與Haskell等語言不同，F#中並未給上述的函數式概念提供統一的抽象，
+而是基於**宏(macros)**貨其它**元編程(metaprogramming)**來實現便利的、上下文相關的語法。
+
+計算存在多種形式，最常見、易於理解和修改的計算形式是單線程執行，
+但並非所有的計算都如同單線程執行一般直觀，例如：
+
+- Non-deterministic computations (非確定性計算)
+- Asynchronous computations (異步計算)
+- Effectful computations (存在副作用的計算)
+- Generative computations (生成器計算)
+
+通常來說，這些上下文敏感的計算必須置於程序的某個特定位置。
+編寫上下文敏感的代碼是具有挑戰性的，在沒有抽象機制阻止時，計算很容易被洩漏到計算上下文之外。
+自行編寫這些抽象機制是具有挑戰性的，而F#提供了**計算表達式**，以通用的方式來實現此類內容。
+
+計算表達式提供了統一的語法和抽象模型用於編碼上下文敏感的計算。
+每個計算表達式基於`builder`類型，builder類型定義了在計算表達式中允許的操作。
+
+相關內容可參考[微軟官方文檔](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/computation-expressions)。
+
+## 計算表達式語法
+計算表達式的基本語法：
+
+```fs
+builder-expr { cexper }
+```
+
+`builder-expr`是定義計算表達式的構造器類型名稱(the name of a builder type)，
+`cexper`是計算表達式的表達式主體。
+
+計算表達式中可用的操作包括：
+
+```fs
+expr { let! ... }
+expr { do! ... }
+expr { yield ... }
+expr { yield! ... }
+expr { return ... }
+expr { return! ... }
+expr { match! ... }
 ```
