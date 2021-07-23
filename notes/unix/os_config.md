@@ -89,6 +89,9 @@
 		- [使用本地源](#使用本地源)
 - [OpenCC](#opencc)
 	- [命令行工具opencc](#命令行工具opencc)
+- [Chrome OS](#chrome-os)
+	- [安裝 Chrome OS](#安裝-chrome-os)
+	- [Linux容器問題](#linux容器問題)
 - [Linux常見問題記錄](#linux常見問題記錄)
 	- [sshd[2169]: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'](#sshd2169-pam_limitssshdsession-error-parsing-the-configuration-file-etcsecuritylimitsconf)
 	- [Ubuntu](#ubuntu)
@@ -1677,6 +1680,7 @@ HTTP請求常用參數說明：
 | -b, --cookie <name=data> | Cookie | `-b key1=value1&key2=value2` |
 | -F, --form <name=content> | From Data | `-F key1=value1&key2=value2` |
 | -v, --verbose | Verbose | `-v` |
+| -k, --insecure | Skip TLS certificate check | `-k` |
 
 請求示例：
 
@@ -1898,12 +1902,12 @@ systemd提供了統一、完整的服務管理功能：
 - 系統服務：
 
 	系統服務文件位於路徑`/usr/lib/systemd/system`下。
-	啓用、禁用系統服務需要使用`root`權限(查看服務狀態不需要)。
+	啓用、禁用系統服務需要使用root權限(查看服務狀態不需要)。
 
 - 用戶服務：
 
 	用戶服務文件位於路徑`/usr/lib/systemd/user`下。
-	管理用戶服務不需要以`root`權限執行`systemctl`指令，但需要在指令中添加`--user`參數：
+	管理用戶服務不需要以root權限執行`systemctl`指令，但需要在指令中添加`--user`參數：
 
 	```
 	$ systemctl --user status/start/stop/enable/disable [用戶服務名稱]
@@ -3028,6 +3032,69 @@ $ opencc -i <輸入文本文件> -o <輸出文本文件> -c <*.json>
 - `t2jp.json` Traditional Chinese Characters (Kyūjitai) to New Japanese Kanji (Shinjitai) 繁體（OpenCC 標準，舊字體）到日文新字體
 - `jp2t.json` New Japanese Kanji (Shinjitai) to Traditional Chinese Characters (Kyūjitai) 日文新字體到繁體（OpenCC 標準，舊字體）
 - `tw2t.json` Traditional Chinese (Taiwan standard) to Traditional Chinese 臺灣正體到繁體（OpenCC 標準）
+
+
+
+# Chrome OS
+[Chrome OS](https://en.wikipedia.org/wiki/Chrome_OS)是由Google推出的基於Gentoo的Linux系統。
+Chrome OS使用Chrome瀏覽器作為其主要用戶介面，
+Chrome OS初期設計目標為雲操作系統，基於Google的雲服務，設備數據主要存儲在雲端；
+Chrome OS本地運行的APP主要為使用Web技術的Chome App(後來被PWA取代)，面向上網本用戶和性能較低的設備；
+Chrome OS發展後期則不再侷限於雲服務和Web App，
+而是基於容器技術提供了完整的Linux環境(Debian發行版)以及Android App(直接內置Play Store)。
+
+與Chrome和Chromium類似，Chrome OS也擁有開源版本[Chromium OS](https://en.wikipedia.org/wiki/Chromium_OS)，
+但開源版本的Chromium OS並未提供Android容器等功能。
+
+## 安裝 Chrome OS
+Chrome OS並未直接開源，通常預裝在Chromebook中，
+PC用戶想要體驗Chrome OS可以通過安裝完全開源的[Chromium OS](https://www.chromium.org/chromium-os)，
+或者其它基於Chromium OS的x86發行版如neverware的[CloudReady](https://www.neverware.com/freedownload)。
+
+GitHub上的[brunch](https://github.com/sebanc/brunch)項目提供了通用的x86_64 Chrome OS鏡像，
+以及對應的安裝工具。
+
+從[brunch項目下載頁](https://github.com/sebanc/brunch/releases)下載最新的brunch框架，
+從[鏡像下載頁](https://cros.tech/device/rammus)下載最新的通用Chrome OS鏡像，
+需要保證brunch框架與鏡像版本一致。
+
+鏡像代號與CPU平台的關係：
+
+| 代號 | 支持平台 |
+| :- | :- |
+| rammus | Intel CPU 1th ~ 9th |
+| volteer | Intel Core CPU 10th & 11th |
+| zork | AMD Ryzen CPU |
+
+製作一個主流Linux發行版的USB安裝盤，將brunch框架和通用鏡像拷貝到安裝盤中，
+考慮到鏡像大小，建議使用16GB以上的U盤。
+
+Linux啟動U盤和對應工具鏡像準備完成後，進入Linux LiveCD環境，
+在環境中安裝`pv`、`tar`、`cgpt`和`sgdisk`等工具，
+解壓brunch框架：
+
+```
+$ sudo bash chromeos-install.sh -src ChromeOSx64鏡像(xxx.bin) -dst 磁盤設備路徑(如/dev/sda)
+```
+
+安裝正常結束後，重啟PC會進入Chrome OS的恢復模式，等待幾十分鐘的系統恢復過程後即可進入系統。
+
+使用brunch框架安裝的Chrome OS默認關閉了官方的更新通道，需要使用brunch框架自帶工具進行更新：
+
+```
+$ sudo chromeos-update -r 更新鏡像 -f 磁盤路徑
+```
+
+## Linux容器問題
+在`Brunch r91 stable 20210620`版本中，默認配置下安裝Linux環境會存在問題，提示：
+
+```
+Error installing Linux...
+Error download the virtual machine. Please try again.
+```
+
+該問題可通過禁用`chrome://flags#crostini-use-dlc`解決。
+參考[GtHub Issues](https://github.com/sebanc/brunch/issues/1124)。
 
 
 
