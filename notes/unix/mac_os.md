@@ -20,6 +20,7 @@
 		- [安裝參數](#安裝參數)
 		- [bottled](#bottled)
 		- [依賴查詢](#依賴查詢)
+		- [展示安裝包信息](#展示安裝包信息)
 		- [Homebrew Taps](#homebrew-taps)
 		- [Homebrew Cask](#homebrew-cask)
 		- [Homebrew Services](#homebrew-services)
@@ -387,6 +388,57 @@ $ brew deps [軟件包名稱]
 $ brew uses [軟件包名稱]
 # 顯示指定軟件包被哪些已安裝的軟件包依賴
 $ brew uses --installed [軟件包名稱]
+```
+
+### 展示安裝包信息
+使用`brew list`指令可展示所有安裝的軟件包：
+
+```
+$ brew list
+==> Formulae
+aria2		haskell-stack	libevent	neofetch	openjdk		readline	sqlite
+brotli		icu4c		libssh2		nghttp2		openssl@1.1	redis		syncthing
+c-ares		jemalloc	libuv		nmap		p7zip		rustup-init	zstd
+cmake		jmeter		lz4		node		pcre2		sbt
+fish		krb5		mysql		ntfs-3g		postgresql	scala
+gettext		libev		ncurses		opencc		protobuf	six
+
+==> Casks
+android-file-transfer	docker			microsoft-office	telegram-desktop	vlc
+android-platform-tools	dotnet-sdk		mysqlworkbench		the-unarchiver		wechat
+appcleaner		gimp			neteasemusic		virtualbox		wireshark
+blender			google-chrome		qq			visual-studio-code
+clashx-pro		intellij-idea		steam			visualvm
+```
+
+使用`brew list [包名]`：
+
+```html
+$ brew list redis
+/usr/local/Cellar/redis/6.2.4/.bottle/etc/ (2 files)
+/usr/local/Cellar/redis/6.2.4/bin/redis-benchmark
+/usr/local/Cellar/redis/6.2.4/bin/redis-check-aof
+/usr/local/Cellar/redis/6.2.4/bin/redis-check-rdb
+/usr/local/Cellar/redis/6.2.4/bin/redis-cli
+/usr/local/Cellar/redis/6.2.4/bin/redis-sentinel
+/usr/local/Cellar/redis/6.2.4/bin/redis-server
+/usr/local/Cellar/redis/6.2.4/homebrew.mxcl.redis.plist
+
+<!-- 默認查看文件會會忽略部分目錄，使用-v/--verbose查看所有路徑 -->
+$ brew list -v redis
+/usr/local/Cellar/redis/6.2.4/INSTALL_RECEIPT.json
+/usr/local/Cellar/redis/6.2.4/bin/redis-check-rdb
+/usr/local/Cellar/redis/6.2.4/bin/redis-server
+/usr/local/Cellar/redis/6.2.4/bin/redis-cli
+/usr/local/Cellar/redis/6.2.4/bin/redis-check-aof
+/usr/local/Cellar/redis/6.2.4/bin/redis-sentinel
+/usr/local/Cellar/redis/6.2.4/bin/redis-benchmark
+/usr/local/Cellar/redis/6.2.4/.brew/redis.rb
+/usr/local/Cellar/redis/6.2.4/README.md
+/usr/local/Cellar/redis/6.2.4/homebrew.mxcl.redis.plist
+/usr/local/Cellar/redis/6.2.4/COPYING
+/usr/local/Cellar/redis/6.2.4/.bottle/etc/redis-sentinel.conf
+/usr/local/Cellar/redis/6.2.4/.bottle/etc/redis.conf
 ```
 
 ### Homebrew Taps
