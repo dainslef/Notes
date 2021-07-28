@@ -128,6 +128,34 @@ $ bash -x [bash腳本]
 $ zsh -x [zsh腳本]
 ```
 
+在bash腳本內容中，添加`set -v`，則會逐行輸出當前執行的指令內容，可搭配輸出分析腳本的執行情況。
+示例腳本：
+
+```bash
+echo "test"
+ls
+
+set -v # 開啟指令輸出
+
+echo "test"
+ls
+```
+
+輸出結果；
+
+```html
+test
+Applications    Documents       Library         Music           Public
+Desktop         Downloads       Movies          Pictures        test.sh
+
+<!-- 開啟 set -v 之後的輸出內容前會打印出執行的指令 -->
+echo "test"
+test
+ls
+Applications    Documents       Library         Music           Public
+Desktop         Downloads       Movies          Pictures        test.sh
+```
+
 fish使用`-D`或`--debug-stack-frames`參數設定腳本調試級別，按調試級別輸出不同程度的調試信息：
 
 ```
@@ -343,6 +371,12 @@ abc
 ```
 $ grep abc <<< abcdef
 abcdef
+```
+
+fish中**不支持**here-string語法，但該語法可簡單地使用管道操作符替代：
+
+```
+$ echo abcdef | grep abc
 ```
 
 ### process-substitution
