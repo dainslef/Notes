@@ -348,7 +348,7 @@ mysql> create user 用戶名@'%' identified by '密码';
 創建本地用戶：
 
 ```
-mysql> create user [用戶名@localhost];
+mysql> create user 用戶名@localhost;
 ```
 
 需要注意，MySQL中同名本地用戶與遠程用戶間沒有關聯，本地用戶與遠程用戶密碼、權限等各自獨立。
@@ -356,7 +356,7 @@ mysql> create user [用戶名@localhost];
 刪除用戶操作類似，使用`drop user`指令：
 
 ```
-mysql> drop user [用戶名@主機名/主機地址];
+mysql> drop user 用戶名@主機名/主機地址;
 ```
 
 ## 授權用戶
@@ -450,13 +450,21 @@ mysql> show grants for [用戶名]@[主機地址]; //顯示指定用戶的權限
 SQL語句的詳細語法說明參考[官方文檔](https://dev.mysql.com/doc/refman/en/sql-statements.html)。
 常用的數據增刪改查語句如下：
 
-- `insert into [表名] ([列名1], [列名2], ....) values([值1], [值2], ....);` 增
-- `delete from [表名] where [限制條件];` 刪
-- `update [表名] set [列名] = '[內容]' where [列名] = '[內容]';` 改
-- `select [列名] from [表名] where [限制條件];` 查
-- `select count([統計內容]) from [表名];` 統計表中的指定記錄數
-- `select [列名] from [表名] limit [數量] offset [起始行];` 從指定行開始查詢指定數量的記錄
-- `select [列名] from [表名] limit [起始行], [數量];` 從指定行開始查詢指定數量的記錄
+```sql
+-- 增
+insert into 表名 (列名1, 列名2, ....) values(值1, 值2, ....);
+
+-- 刪
+delete from 表名 where 限制條件;
+
+-- 改
+update 表名 set 列名 = '內容' where 列名 = '內容';
+
+-- 查
+select 列名 from 表名 where 限制條件;
+select 列名 from 表名 limit 數量 offset 起始行; -- 從指定行開始查詢指定數量的記錄
+select 列名 from 表名 limit 起始行, 數量; -- 從指定行開始查詢指定數量的記錄
+```
 
 ### CASE 與 IF
 使用`case`或`if`語法可實現對指定字段的條件判斷，並根據條件設定值。
@@ -514,11 +522,29 @@ UPDATE OrderDetails SET Quantity = CASE WHEN Quantity > 0 THEN Quantity ELSE -1 
 ## 內置函數
 MySQL提供了大量**內置函數**，包含各類功能。
 
-信息查詢類：
+- 信息查詢類
 
-- `select user();` 查詢當前登錄的用戶
-- `select database();` 查詢正在使用的數據庫名稱
-- `select version();` 查詢數據庫的版本信息
+	MySQL環境中的信息可通過對應函數查詢。
+
+	```html
+	user() <!-- 查詢當前登錄的用戶 -->
+	database() <!-- 查詢正在使用的數據庫名稱 -->
+	version() <!-- 查詢數據庫的版本信息 -->
+	```
+
+- 聚合函數
+
+	聚合函數用於實現統計類功能，通常對一個數據集進行操作。
+
+	```html
+	count() <!-- 統計數據數目 -->
+	max() <!-- 統計數據最大值 -->
+	min() <!-- 統計數據最小值 -->
+	avg() <!-- 統計數據平均值 -->
+	```
+
+常規函數可進行嵌套、組合使用，但聚合函數之間嵌套則需要搭配子查詢
+(聚合函數輸入參數則為數據集，輸出結果是單個值，不能直接被其它聚合函數使用)。
 
 ## 系統變量
 MySQL使用`@@變量名`語法訪問變量，MySQL定義了大量系統變量用於配置數據庫、提供內部信息等功能。
