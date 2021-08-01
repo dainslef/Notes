@@ -81,6 +81,7 @@
 - [apt/dpkg](#aptdpkg)
 	- [apt](#apt)
 	- [dpkg](#dpkg)
+	- [deb打包(Binary packages)](#deb打包binary-packages)
 	- [源配置](#源配置)
 		- [Debian 源](#debian-源)
 		- [Ubuntu 源](#ubuntu-源)
@@ -2864,6 +2865,60 @@ $ dpkg -s [package_name]
 <!-- 列出指定包內包含的文件 -->
 $ dpkg -L [package_name]
 ```
+
+## deb打包(Binary packages)
+一個二進制deb包的結構如下所示(假設當前路徑為deb包的根路徑)：
+
+```
+.
+├── DEBIAN
+│   ├── control
+│   ├── preinst
+│   ├── postinst
+│   ├── prerm
+│   ├── postrm
+│   ├── templates
+│   └── ...
+└── files...
+```
+
+主要內容說明：
+
+- `DEBIAN`路徑下存放包元數據，包括定義和維護者腳本(package maintainer scripts)
+
+	使用`./DEBIAN/control`文件定義deb包的信息和依賴，基本格式如下：
+
+	```
+	Package: a1902-package
+	Version: 1.0-1
+	Section: base
+	Priority: optional
+	Architecture: amd64
+	Depends: linux-base (>= 4), mysql-server (>= 5.7), nginx (>= 1.0), redis-server (>= 5)
+	Maintainer: Dainslef Tei <dainslef@outlook.com>
+	Description: This is the package of A1902 Project.
+	```
+
+	`Architecture`為軟件包支持的CPU架構，與CPU架構無關的軟件包可填寫`all`，表示支持所有架構。
+
+	維護者腳本包括preinst、postinst、prerm、postrm等，可用於在安裝過程的前後附加一些特殊操作，
+	這些腳本權限範圍需要在`0555`到`0775`之間。
+	維護者腳本詳細介紹可參考[官方文檔](https://www.debian.org/doc/debian-policy/ch-maintainerscripts.html)，以及[Debian Wiki](https://wiki.debian.org/MaintainerScripts)。
+
+	維護者腳本存在一些限制，例如不能在腳本中使用dpkg相關功能(因為執行腳本期間dpkg會被鎖定)。
+
+- 目錄其它路徑下的文件會被視為安裝文件，執行安裝過程中會被複製到根路徑下的對應位置
+
+	例如`./opt/xxx`會直接複製到`/opt/xxx`路徑下。
+	軟件包含的文件信息會被dpkg數據庫記錄，同一個路徑不能直接被不同軟件包持有，否則安裝時會產生衝突。
+
+使用`dpkg-deb`工具進行將一個指定目錄打包為deb包：
+
+```
+$ dpkg-deb --build [需要被打包的目錄]
+```
+
+生成的軟件包以最外層打包目錄為名，後綴為deb格式。
 
 ## 源配置
 使用`apt`工具需要正確配置鏡像源地址，配置文件爲`/etc/apt/sources.list`。
