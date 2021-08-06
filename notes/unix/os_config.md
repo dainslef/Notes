@@ -78,6 +78,8 @@
 - [VTE](#vte)
 	- [啓動參數](#啓動參數)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
+- [字符串模板](#字符串模板)
+	- [envsubst](#envsubst)
 - [apt/dpkg](#aptdpkg)
 	- [apt](#apt)
 	- [dpkg](#dpkg)
@@ -2728,6 +2730,43 @@ VTE中提供了**剪切板**功能，但Linux終端中常見的複製粘貼快�
 
 - `Control + Insert` 複製
 - `Shift + Insert` 粘貼
+
+
+
+# 字符串模板
+Linux中可以使用`envsubst`替換模板中的環境變量引用，或者使用`sed`指令實現基於正則的文本替換。
+
+## envsubst
+envsubst來自GNU項目的[gettext](https://www.gnu.org/software/gettext/)工具鏈，
+gettext提供了一系列的文本處理工具，如gettext、msggrep、envsubst等。
+envsubst使用方法較為簡單，該工具從標準輸入接收文本，直接讀取當前環境變量，
+替換環境變量內容後輸出到標準輸出。
+
+默認為交互模式，輸入文本後按回車鍵輸出替換後的內容：
+
+```sh
+$ envsubst
+$HOME $EDITOR
+/Users/dainslef vim
+Current language: $LANG
+Current language: en_US.UTF-8
+```
+
+亦可使用管道/重定向等方式輸入內容：
+
+```sh
+# 使用管道
+$ echo $HOME $EDITOR | envsubst
+/Users/dainslef vim
+$ echo Current language: $LANG | envsubst
+Current language: en_US.UTF-8
+
+# 使用重定向
+$ envsubst <<< $HOME
+/Users/dainslef
+$ envsubst <<< 'Current language: $LANG'
+Current language: en_US.UTF-8
+```
 
 
 
