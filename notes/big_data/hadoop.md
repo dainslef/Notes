@@ -315,6 +315,23 @@ $ hdfs namenode -bootstrapStandby
 $ hadoop-daemon.sh start namenode
 ```
 
+正確複製NameNode狀態會得到如下輸出：
+
+```
+...
+21/08/11 15:53:47 INFO namenode.NameNode: createNameNode [-bootstrapStandby]
+...
+21/08/11 15:53:48 INFO common.Storage: Storage directory xxx has been successfully formatted.
+...
+21/08/11 15:53:48 INFO util.ExitUtil: Exiting with status 0
+...
+```
+
+輸出結果提示格式化成功(**has been successfully formatted**)並且退出狀態為`0`(**Exiting with status 0**)。
+
+若另一個NameNode未能正確執行複製元數據指令，而是獨立格式化，
+則集群啟動後會出現兩個NameNode管理頁面展示數據不一致的情形(兩個NameNode各自管理一部分DataNode)。
+
 HA NameNode還會啟動ZKFC服務(`DFSZKFailoverController`進程，提供活動NameNode選舉，失敗恢復等功能)，
 用於提供NameNode的狀態監控、選舉Active NameNode等功能，該功能需要依賴Zookeeper。
 首次啟動前同樣需要格式化，在Zookeeper中創建對應ZNode，執行指令：
