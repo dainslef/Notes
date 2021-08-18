@@ -82,6 +82,7 @@
 	- [envsubst](#envsubst)
 - [apt/dpkg](#aptdpkg)
 	- [apt](#apt)
+	- [add-apt-repository](#add-apt-repository)
 	- [dpkg](#dpkg)
 	- [deb打包(Binary packages)](#deb打包binary-packages)
 	- [源配置](#源配置)
@@ -2857,6 +2858,28 @@ apt包管理器默認未提供查找包內文件的功能，此類功能可通�
 # apt-file update
 <!-- 查看/搜索某個文件的軟件包歸屬 -->
 # apt-file search [file/path]
+```
+
+## add-apt-repository
+`add-apt-repository`是Ubuntu對apt工具的功能擴展，
+解決了傳統Debian係發行版添加第三方庫操作較為複雜的問題。
+
+傳統Debian發行版添加外部倉庫需要添加source.list，並執行導入證書等操作
+(詳情參見[Debian Wiki](https://wiki.debian.org/DebianRepository/UseThirdParty))；
+在Ubuntu中，提供了[`Personal Package Archives`(PPA)](https://launchpad.net/ubuntu/+ppas)，
+集中管理用戶創建的第三方倉庫，使用者通過add-apt-repository工具僅需單指令即可完成倉庫添加配置。
+
+以redis為例，通常較為穩定的發行版倉庫自帶redis版本較低，Ubuntu可添加PPA來獲得最新版：
+
+```
+# add-apt-repository ppa:redislabs/redis
+```
+
+add-apt-repository包含在`software-properties-common`軟件包中，
+通常Ubuntu及其衍生發行版會默認安裝該包，部分精簡鏡像(如ubuntu-core)未包含該工具，可手動安裝：
+
+```
+# apt install software-properties-common
 ```
 
 ## dpkg
