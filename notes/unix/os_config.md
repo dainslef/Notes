@@ -58,7 +58,6 @@
 - [systemd](#systemd)
 	- [systemd服務管理](#systemd服務管理)
 	- [systemd服務分析](#systemd服務分析)
-	- [系統配置](#系統配置)
 - [網絡](#網絡)
 	- [net-tools & iproute2](#net-tools--iproute2)
 	- [netstat & ss](#netstat--ss)
@@ -1934,16 +1933,6 @@ systemd提供了一系列工具用於查看查看、分析各類服務狀態。
 - `$ systemd-analyze` 顯示系統的啓動耗時
 - `$ systemd-analyze blame` 列出所有的啓動單元，按照啓動耗時的高低進行排序
 
-## 系統配置
-`systemd`還集成了常用的系統配置工具：
-
-- `hostnamectl` 配置主機名稱
-- `timedatectl` 時區時間配置
-- `localectl` 語言編碼配置
-- `networkctl` 網絡配置
-- `coredumpctl` 核心轉儲查看工具
-- `journalctl` 日誌查看工具
-
 
 
 # 網絡
@@ -2745,7 +2734,7 @@ envsubst使用方法較為簡單，該工具從標準輸入接收文本，直接
 
 默認為交互模式，輸入文本後按回車鍵輸出替換後的內容：
 
-```sh
+```html
 $ envsubst
 $HOME $EDITOR
 /Users/dainslef vim
@@ -2755,18 +2744,54 @@ Current language: en_US.UTF-8
 
 亦可使用管道/重定向等方式輸入內容：
 
-```sh
-# 使用管道
+```html
+<!-- 使用管道 -->
 $ echo $HOME $EDITOR | envsubst
 /Users/dainslef vim
-$ echo Current language: $LANG | envsubst
+$ echo 'Current language: $LANG'
+Current language: $LANG
+$ echo 'Current language: $LANG' | envsubst
 Current language: en_US.UTF-8
 
-# 使用重定向
+<!-- 使用重定向 -->
 $ envsubst <<< $HOME
 /Users/dainslef
 $ envsubst <<< 'Current language: $LANG'
 Current language: en_US.UTF-8
+```
+
+使用envsubst默認會轉換所有符合環境變量語法(`$XXX`)的內容，
+若被替換的目標環境變量不存在，則以空字符串替代：
+
+```html
+<!-- 查詢當前環境變量的信息 -->
+$ env | grep LANG
+LANG=en_US.UTF-8
+LANGUAGE=en_US:en
+$ env | grep UNKNOWN
+
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN'
+Current language: $LANG, Unkown: $UNKNOWN
+<!-- 環境變量 $UNKNOWN 不存在，輸出空內容 -->
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst
+Current language: en_US.UTF-8, Unkown:
+```
+
+envsubst可添加一個文本參數控制需要替換的環境變量：
+
+```html
+<!-- 僅替換 $UNKNOWN -->
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst '$UNKNOWN'
+Current language: $LANG, Unkown:
+<!-- 僅替換 $LANG -->
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst '$LANG'
+Current language: en_US.UTF-8, Unkown: $UNKNOWN
+<!-- 替換多個環境變量 -->
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst '$UNKNOWN $LANG'
+Current language: en_US.UTF-8, Unkown:
+<!-- 全不替換 -->
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst ''
+Current language: $LANG, Unkown: $UNKNOWN
 ```
 
 
