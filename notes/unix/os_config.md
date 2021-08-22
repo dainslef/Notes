@@ -84,6 +84,7 @@
 	- [add-apt-repository](#add-apt-repository)
 	- [dpkg](#dpkg)
 	- [deb打包(Binary packages)](#deb打包binary-packages)
+		- [debconf](#debconf)
 	- [源配置](#源配置)
 		- [Debian 源](#debian-源)
 		- [Ubuntu 源](#ubuntu-源)
@@ -3006,6 +3007,47 @@ $ dpkg-deb --build [需要被打包的目錄]
 ```
 
 生成的軟件包以最外層打包目錄為名，後綴為deb格式。
+
+### debconf
+[debconf](http://www.fifi.org/doc/debconf-doc/tutorial.html)提供了deb維護者常用的交互工具,
+可用於生成基於TUI的交互對話框，包括輸入框、單選/多選框等多種形式。
+
+debconf提供的Shell API位於`/usr/share/debconf/confmodule`，需要在腳本代碼開始前引入。
+confmodule模塊執行機制較為特殊，加載該模塊後會reload當前腳本，
+因此需要避免在腳本中段引入該模塊，否則會出現腳本內confmodule模塊引入之前的代碼被重複執行的問題。
+
+confmodule模塊提供的API實現對話框交互：
+
+```html
+db_input <level> <package_name/template_name> <!-- 加載模板 -->
+db_go <!-- 執行模板 -->
+db_get <package_name/template_name> <!-- 獲取模板的執行結果，結果保存在變量RET中，使用$RET語法讀取 -->
+```
+
+模板輸入在安裝包被執行一次後會被緩存，重複安裝流程，對話框可能不會再出現，
+需要在每次調用db_input前設置模板的seen屬性，保證模板每次均會展示：
+
+```html
+db_set <package_name/template_name> seen false <!-- 設置指定模板為未顯示狀態 -->
+```
+
+對於包含副作用的函數(如echo等)，也要避免在引入confmodule模塊前執行，
+否則可能會打亂db_input/db_get相關API的輸入/輸出位置。
+
+模板存放在`/DEBIAN/templates`文件中，格式如下：
+
+```
+Template: packagename/something
+Type: [select,multiselect,string,boolean,note,text,password]
+Default: [an optional default value]
+Description: Blah blah blah?
+  Blah blah blah. Blah blah. Blah blah blah. Blah blah. Blah blah blah.
+  blah.
+  ...
+```
+
+templates文件中可編寫多個模板，多個模板之間使用空行隔開。
+加載模板時使用`包名/模板名稱`引用定義的模板。
 
 ## 源配置
 使用`apt`工具需要正確配置鏡像源地址，配置文件爲`/etc/apt/sources.list`。
