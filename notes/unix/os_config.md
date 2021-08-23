@@ -85,6 +85,7 @@
 	- [dpkg](#dpkg)
 	- [deb打包(Binary packages)](#deb打包binary-packages)
 		- [debconf](#debconf)
+		- [dpkg-divert](#dpkg-divert)
 	- [源配置](#源配置)
 		- [Debian 源](#debian-源)
 		- [Ubuntu 源](#ubuntu-源)
@@ -3048,6 +3049,42 @@ Description: Blah blah blah?
 
 templates文件中可編寫多個模板，多個模板之間使用空行隔開。
 加載模板時使用`包名/模板名稱`引用定義的模板。
+
+### dpkg-divert
+dpkg不允許兩個不同的deb包管理相同路徑的文件，因此在打包時需要注意避免與其它deb的文件衝突。
+對於部分場景，可能需要用自己構建的deb包替換掉一些由系統deb包管理的文件，
+此時可使用`dpkg-divert`提供的文件重命名機制，
+將原本衝突的文件路徑(origin_conflict_path，打包時的路徑)在dpkg數據庫中
+重命名為另一個路徑(renamed_path，該路徑在磁盤中實際不存在)，從而避免造成衝突；
+但自身deb包內文件的實際路徑不變，因此可用於替換受其它deb包管理的文件。
+
+關於使用dpkg-divert，
+可參考[Ask Ubuntu](https://askubuntu.com/questions/116768/providing-a-customized-config-file-for-another-package)上的對應問題。
+
+使用dpkg-divert創建文件重命名規則：
+
+```html
+<!--
+構建包內提供的衝突文件路徑 origin_conflict_path
+打包時重命名的路徑 renamed_path
+指令執行成功的輸出結果：
+Adding 'diversion of [origin_conflict_path] to [renamed_path] by a1902-packages'
+-->
+# dpkg-divert --add --package [packaage_name] --divert [renamed_path] --rename [origin_conflict_path]
+```
+
+其它dpkg-divert規則管理指令：
+
+```html
+<!---
+列出當前系統中定義的文件重命名規則，輸出內容結構示例：
+diversion of [origin_conflict_path] to [renamed_path] by [package]
+-->
+$ dpkg-divert --list
+
+<!-- 移除指定重命名規則 -->
+$ dpkg-divert --remove --package [packaage_name] [origin_conflict_path]
+```
 
 ## 源配置
 使用`apt`工具需要正確配置鏡像源地址，配置文件爲`/etc/apt/sources.list`。
