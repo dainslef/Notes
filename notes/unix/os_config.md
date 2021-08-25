@@ -79,6 +79,7 @@
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
 - [字符串模板](#字符串模板)
 	- [envsubst](#envsubst)
+	- [sed](#sed)
 - [apt/dpkg](#aptdpkg)
 	- [apt](#apt)
 	- [add-apt-repository](#add-apt-repository)
@@ -2794,6 +2795,53 @@ Current language: en_US.UTF-8, Unkown:
 <!-- 全不替換 -->
 $ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst ''
 Current language: $LANG, Unkown: $UNKNOWN
+```
+
+## sed
+`sed`是流式編輯器(stream editor)，通常各類Unix中均包含該工具，
+在Linux中內置的實現是[`GNU sed`](https://www.gnu.org/software/sed/manual/sed.html)。
+
+使用GNU sed工具可實現文本替換：
+
+```html
+<!-- 默認將替換後的內容輸出到終端 -->
+$ sed 's/舊文本/新文本/' 文件路徑
+
+<!-- 可替換輸出文件內容 -->
+$ sed -i 's/舊文本/新文本/' 文件路徑
+
+<!-- 基於其它指令的重定向輸出 -->
+$ cat/echo/... | sed 's/舊文本/新文本/'
+```
+
+示例：
+
+```html
+<!-- Linux GNU sed -->
+$ cat test.txt
+$TEST output
+$ sed 's/$TEST/test/' test.txt
+test output
+$ sed -i 's/$TEST/test/' test.txt
+$ cat test.txt
+test output
+$ echo '$TEST output' | sed 's/$TEST/test/'
+test output
+```
+
+需要注意，sed在不同Unix中的實現功能參數有所不同，以BSD的sed為例，
+`-i`參數設置後綴，將輸出內容保存到現有文件，同時備份原內容到添加後綴的文件中。
+示例：
+
+```html
+<!-- macOS BSD sed -->
+$ cat test.txt
+$TEST output
+$ sed -i .back 's/$TEST/test/' test.txt
+$ cat test.txt
+test output <!-- 輸出文件內容已被替換 -->
+$ cat test.txt.back
+$TEST output <!-- 原文件被備份到 "原文件名+後綴" 的文件中 -->
 ```
 
 
