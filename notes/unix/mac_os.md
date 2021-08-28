@@ -105,6 +105,8 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 | 最小化窗口 | Command + M |
 | 立即息屏進入睡眠 | Command + Alt + Power |
 | 切換Finder是否顯示隱藏文件： | Command + Shift + . |
+| Spotlight | Command + Space |
+| 跳轉到字典(Spotlight搜索中) | Command + L |
 
 ## 常用命令行指令
 `macOS`中的一些配置項沒有提供圖形化的配置方式，需要通過命令行進行配置。
@@ -127,7 +129,7 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 
 	```html
 	<!-- 現在版本的macOS可直接使用 "Command + Shift + ." 快捷鍵開關隱藏文件顯示 -->
-	$ defaults write com.apple.finder AppleShowAllFiles YES/NO // 重新登陸賬戶後生效
+	$ defaults write com.apple.finder AppleShowAllFiles YES/NO <!-- 重新登陸賬戶後生效 -->
 	```
 
 ## 常用軟件
@@ -345,7 +347,8 @@ neofetch需要兩個可選依賴包`screenresolution`、`imagemagick`，默認�
 
 ### bottled
 Homebrew對於常用的包如`gcc、gdb、python3、qt`等均提供了**預編譯包**(`bottled`)，
-但部分包默認安裝時會優先選擇從源碼編譯(如`gcc`、`python`)，可在安裝時使用`--force-bottle`參數強制安裝預編譯的包：
+但部分包默認安裝時會優先選擇從源碼編譯(如`gcc`、`python`)，
+可在安裝時使用`--force-bottle`參數強制安裝預編譯的包：
 
 ```
 $ brew install [軟件包] --force-bottle
@@ -380,13 +383,13 @@ $ brew leaves
 
 其它依賴管理相關指令：
 
-```sh
-# 查看指定軟件包的依賴
+```html
+<!-- 查看指定軟件包的依賴 -->
 $ brew deps [軟件包名稱]
 
-# 顯示指定軟件包被哪些軟件包依賴
+<!-- 顯示指定軟件包被哪些軟件包依賴 -->
 $ brew uses [軟件包名稱]
-# 顯示指定軟件包被哪些已安裝的軟件包依賴
+<!-- 顯示指定軟件包被哪些已安裝的軟件包依賴 -->
 $ brew uses --installed [軟件包名稱]
 ```
 
@@ -396,15 +399,16 @@ $ brew uses --installed [軟件包名稱]
 ```
 $ brew list
 ==> Formulae
-aria2		haskell-stack	libevent	neofetch	openjdk		readline	sqlite
-brotli		icu4c		libssh2		nghttp2		openssl@1.1	redis		syncthing
-c-ares		jemalloc	libuv		nmap		p7zip		rustup-init	zstd
-cmake		jmeter		lz4		node		pcre2		sbt
-fish		krb5		mysql		ntfs-3g		postgresql	scala
-gettext		libev		ncurses		opencc		protobuf	six
+aria2		icu4c		libssh2		ncurses		openjdk@8	protobuf	sqlite
+brotli		jemalloc	libuv		neofetch	openssl@1.1	readline	syncthing
+c-ares		jmeter		lz4		nghttp2		openvpn		redis		zstd
+cmake		krb5		lzo		nmap		p7zip		rustup-init
+fish		libev		maven		node		pcre2		sbt
+freetype	libevent	mysql		opencc		pkcs11-helper	scala
+haskell-stack	libpng		nasm		openjdk		postgresql	six
 
 ==> Casks
-android-file-transfer	docker			microsoft-office	telegram-desktop	vlc
+android-file-transfer	docker			microsoft-office	tencent-meeting		vlc
 android-platform-tools	dotnet-sdk		mysqlworkbench		the-unarchiver		wechat
 appcleaner		gimp			neteasemusic		virtualbox		wireshark
 blender			google-chrome		qq			visual-studio-code
@@ -474,7 +478,7 @@ $ brew tap homebrew/cask
 安裝常用應用：
 
 ```
-$ brew install --cask appcleaner intellij-idea microsoft-office teamviewer visual-studio-code blender java qq the-unarchiver vlc docker google-chrome qt-creator virtualbox visualvm dotnet-sdk steam wechat wireshark v2rayu neteasemusic gimp mysqlworkbench android-file-transfer android-platform-tools
+$ brew install --cask appcleaner the-unarchiver intellij-idea microsoft-office visual-studio-code blender qq the-unarchiver vlc docker google-chrome virtualbox visualvm dotnet-sdk steam wechat wireshark clashx-pro neteasemusic gimp mysqlworkbench android-file-transfer android-platform-tools
 ```
 
 部分應用打包時並未寫明確切的版本號(如`google-chrome`)，此類應用升級需要執行重新安裝指令：
