@@ -1178,40 +1178,84 @@ $ gdb [進程文件] [進程核心轉儲]
 
 
 # 文件系統
+Unix系統遵循[`Everything is a file`](https://en.wikipedia.org/wiki/Everything_is_a_file)的設計哲學，
+任何資源、硬件在系統中均抽象為文件。
+
+硬盤在Linux中以塊設備(block)形式呈現，位於`/dev`路徑下，
+通常名稱為`sda`(塊設備路徑`/dev/sda`)，存在多塊磁盤時，則按照次序命名為`sdb,sdc,sdd,...`，依此類推。
+每塊磁盤下的分區同樣會生成塊設備，按照分區編號命名為`sda1,sda2,sda3,...`，依此類推。
+
+磁盤塊設備根據發行版/平台環境差異，也可能使用`vda`等其它名稱。
+
+使用`lsblk`可查看當前系統的磁盤分區結構：
+
+```html
+<!-- 查看磁盤分區 -->
+$ lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+vda    253:0    0  100G  0 disk
+├─vda1 253:1    0   10G  0 part [SWAP]
+├─vda2 253:2    0   40G  0 part /
+└─vda3 253:3    0   50G  0 part /opt
+
+<!--
+上述輸出信息展示系統中存在一塊100GB磁盤/dev/vda，包含三個分區：
+vda1 SWAP交換區 10GB
+vda2 根分區 40GB
+vda3 掛載點/opt 50GB
+-->
+
+<!-- 通過file指令查看磁盤信息 -->
+$ file /dev/vda
+/dev/vda: block special (253/0) <!-- 類型為塊設備 -->
+# file -s /dev/vda <!-- 使用 -s 參數展示塊設備的信息 -->
+/dev/vda: DOS/MBR boot sector <!-- 結果為MBR分區表 -->
+# file -s /dev/vda2 <!-- 展示分區信息，包含文件系統類型、UUID等 -->
+/dev/vda2: Linux rev 1.0 ext4 filesystem data, UUID=cb65c6f7-f958-4b48-be0f-0cec86767ad6, volume name "SYSROOT" (needs journal recovery) (extents) (large files) (huge files)
+```
+
 查看分區信息的相關指令：
 
-```c
-// 查看文件inode
+```html
+<!-- 查看文件inode -->
 $ ls -i
 
-// 查看硬盤分區
-$ lsblk
-// 查看分區UUID
+<!-- 查看分區UUID -->
 $ lsblk -f
-// 查看分區UUID
-# blkid
+$ blkid
 
-// 顯示已掛載分區的信息
+<!-- 顯示已掛載分區的信息 -->
 $ mount
-// 顯示指定分區的信息(分區大小，分區類型等)
-# file -s [分區卷]
+<!-- 顯示指定分區的信息(分區大小，分區類型等) -->
+# file -s [塊設備]
 
-// 顯示已掛載的文件系統
+<!-- 顯示已掛載的文件系統 -->
 # df
-// 以合適的單位顯示文件系統大小
+<!-- 以合適的單位顯示文件系統大小 -->
 # df -h
-// 顯示文件系統類型
+<!-- 顯示文件系統類型 -->
 # df -T
 ```
 
 查看文件系統標誌使用`wipefs`指令：
 
-```c
-// 查看分區的文件系統標誌
-$ wipefs [分區]
-// 清理分區所包含的所有文件系統標誌
-# wipefs -a [分區]
+```html
+<!-- 查看分區的文件系統標誌 -->
+$ wipefs [塊設備]
+<!-- 清理分區所包含的所有文件系統標誌 -->
+# wipefs -a [塊設備]
 ```
+
+使用`fdisk/parted`等工具操作分區塊設備後，內核的分區表並不會立即刷新，
+需要使用`partprobe`工具刷新內核分區表信息：
+
+```
+# partprobe [塊設備]
+```
+
+分區大小變更後，需要調整文件系統大小以匹配新分區大小，否則文件系統實際可使用大小不變。
+
+
 
 ## fdisk
 `fdisk`是Linux命令行下常用的交互式磁盤管理工具。
@@ -1278,6 +1322,9 @@ $ wipefs [分區]
 
 - `w` 將改動真正寫入硬盤
 - `q` 不保存改動退出
+
+fdisk未直接提供調整分區大小的功能，但fdisk刪除分區默認**不會**清空磁盤內容，
+對於磁盤存在額外空餘空間的情形，可通過刪除分區並在**相同起始位置**重建分區的方式進行無損分區擴容。
 
 ## parted
 `parted`是Linux下的另一種交互式分區工具，與`fdisk`相比，parted一直支持GPT分區表，
