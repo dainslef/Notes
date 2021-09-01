@@ -1403,6 +1403,31 @@ Get Lock! <!-- 進程結束，鎖定成功 -->
 [1]+  Done                    flock -n /tmp/sleep.lock sleep 10
 ```
 
+使用`lslocks`指令可查看當前環境中使用的鎖，示例：
+
+```
+$ flock /tmp/sleep.lock sleep 10 &
+$ lslocks
+flock           14204 FLOCK   0B WRITE 0     0   0 /tmp/sleep.lock
+...
+```
+
+當使用flock執行指令時，若目標指令會創建子進程，則子進程會在flock結束後繼續持有鎖(文件描述符共享)，
+該特性會導致只要之前該子進程不退出，鎖會一直被持有，直到創建的子進程結束。
+使用`-o, --close`參數可解決該問題，使用`-o`參數則flock在獲取鎖成功、執行目標指令前關閉鎖文件的描述符。
+示例：
+
+```html
+$ flock -o /tmp/sleep.lock sleep 10 & <!-- 使用 -o 參數進行鎖定 -->
+[1] 21878
+$ echo $?
+0
+$ flock -o /tmp/sleep.lock sleep 10 & <!-- 立即繼續鎖定 -->
+[2] 22220
+$ echo $?
+0 <!-- 返回值為0，繼續鎖定成功，第一個flock進程創建的sleep子進程沒有繼承鎖，所以立即開始第二次鎖定依然成功 -->
+```
+
 
 
 # LVM (Logical Volume Manager)
