@@ -198,6 +198,12 @@ $ adb install-multiple [包...]
 $ adb install-multi-package [包...]
 ```
 
+使用adb還可進行**卡刷**zip刷機包(需要recovery支持並開啟sideload)：
+
+```
+$ adb sideload [卡刷包]
+```
+
 ## Fastboot
 查看以fastboot模式連接到當前計算機的設備信息：
 

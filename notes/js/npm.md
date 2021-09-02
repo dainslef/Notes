@@ -37,7 +37,14 @@ npm通常包含在`Node.js`中，安裝Node.js時會一同安裝npm。
 - `config` 調整npm配置
 
 ## Mirror
-npm默認的鏡像地址位於海外，國內使用速度較慢，可將鏡像倉庫地址替換為淘寶npm鏡像：
+npm默認的鏡像地址位於海外：
+
+```
+$ npm config get registry
+https://registry.npmjs.org/
+```
+
+牆內可能無法訪問，可將鏡像倉庫地址替換為淘寶npm鏡像：
 
 ```
 $ npm config set registry https://registry.npm.taobao.org
@@ -78,9 +85,9 @@ $ npm install -g cnpm
 # 安裝模塊
 使用`npm install`指令安裝Node.js模塊或JavaScript包：
 
-```c
+```html
 $ npm install 包名
-# npm install -g 包名 // 安裝模塊到全局路徑下
+# npm install -g 包名 <!-- 安裝模塊到全局路徑下 -->
 ```
 
 默認模塊將安裝在當前路徑的`node_modules`路徑下，使用`-g`參數可將模塊安裝在**全局路徑**下。
@@ -99,12 +106,12 @@ $ npm install 包名
 
 使用`npm update`更新模塊：
 
-```c
-$ npm update // 更新當前目錄下的所有模塊
-$ npm update 包名 // 更新當前目錄下的指定模塊
+```html
+$ npm update <!-- 更新當前目錄下的所有模塊 -->
+$ npm update 包名 <!-- 更新當前目錄下的指定模塊 -->
 
-# npm update -g // 更新所有全局模塊
-# npm update -g 包名 // 更新指定全局模塊
+# npm update -g <!-- 更新所有全局模塊 -->
+# npm update -g 包名 <!-- 更新指定全局模塊 -->
 ```
 
 ## 查看已安裝模塊
@@ -188,7 +195,8 @@ test-react@0.0.1 /Users/dainslef/Downloads/WorkSpace/test-react
 
 # Serve
 `Serve`是一個簡單的基於Node.js的靜態WEB服務器。
-Serve提供了常見的靜態服務器參數，併爲**單頁WEB應用**提供了參數，相比`Apache`、`Nginx`等傳統WEB服務器在配置上更加簡單。
+Serve提供了常見的靜態服務器參數，併爲**單頁WEB應用**提供了參數，
+相比`Apache`、`Nginx`等傳統WEB服務器在配置上更加簡單。
 Serve亦是React項目推薦的默認WEB服務器。
 
 安裝Serve：
@@ -201,15 +209,16 @@ $ npm install -g serve
 
 啓動Serve服務：
 
-```
-$ serve //在當前路徑下啓動WEB服務
-$ serve 目標路徑 //在目標路徑下啓動WEB服務
+```html
+$ serve <!-- 在當前路徑下啓動WEB服務 -->
+$ serve 目標路徑 <!-- 在目標路徑下啓動WEB服務 -->
 ```
 
 ## 配置 SPA
-`SPA`(**Single Web Page Application，單頁WEB應用**)是當今主流的WEB呈現方式，配置SPA需要WEB服務器將路由發往同一個入口頁面。
+`SPA`(**Single Web Page Application，單頁WEB應用**)是當今主流的WEB呈現方式，
+配置SPA需要WEB服務器將路由發往同一個入口頁面。
 Serve爲單頁應用提供了內置的參數，使用`-s`參數即可在路由沒有匹配資源時指向默認的`index.html`頁面。
-如下所示：
+示例：
 
 ```
 $ serve -s 目標路徑
@@ -218,7 +227,7 @@ $ serve -s 目標路徑
 
 
 # 常見錯誤
-常見`npm`相關錯誤記錄。
+常見npm相關錯誤記錄。
 
 ## npm WARN tar zlib error: unexpected end of file
 錯誤原因：<br>
