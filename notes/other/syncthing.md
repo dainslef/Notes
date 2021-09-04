@@ -2,6 +2,8 @@
 
 - [概述](#概述)
 	- [服務安裝](#服務安裝)
+	- [服務管理](#服務管理)
+- [文件同步規則](#文件同步規則)
 
 <!-- /TOC -->
 
@@ -52,3 +54,43 @@ $ brew services start/stop syncthing
 ```
 
 更多Syncthing服務配置說明可參考[官方文檔](https://docs.syncthing.net/users/autostart.html)。
+
+## 服務管理
+默認配置下，服務安裝啟動後，會在`8384`端口提供Web管理頁面，服務數據通信使用`22000`端口，
+部署在雲環境上，對應端口均需要開放TCP協議。
+
+首次啟動服務，Syncthing會在`～/.config/syncthing`(Linux)或
+`~/Library/Application Support/Syncthing`(macOS)下創建默認配置。
+默認配置下，Web管理頁面僅本機地址可訪問，可修改`configuration.gui.address`節點，改成需要的地址。
+
+
+
+# 文件同步規則
+Syncthing支持git風格的自定義文件同步忽略規則，類似git中的`.gitignore`，
+Syncthing在同步根路徑下創建`.stignore`來定義忽略規則。
+
+`.stignore`文件中包含一組文件/路徑的模式，常用的幾種模式：
+
+- `普通名稱` 匹配任意子路徑下的對應名稱文件
+- `*`/`**` 匹配零或多個字符，`*`僅一層路徑有效，`**`任意層級子路徑有效
+- `?` 匹配非單個字符(不包括路徑分隔符)
+- `!` 反模式，模式以`!`為前綴，則模式的含義由排除變為**包含**
+- `#include 文件名` 從其它文件中引用規則
+- `//` 註釋語法
+
+更多規則可參考[Syncthing官方文檔](https://docs.syncthing.net/users/ignoring.html)。
+
+當多個模式有衝突時，以排在前的模式為準。
+示例，忽略所有除`.gitignore`之外的隱藏文件：
+
+```c
+.* // 忽略所有`.`開頭的文件
+!.gitignore // 取消忽略`.gitignore`
+```
+
+按照上述順序寫入`.stignore`並不生效，因為`.*`規則優先匹配(忽略所有隱藏文件)，正確寫法：
+
+```
+!.gitignore
+.*
+```
