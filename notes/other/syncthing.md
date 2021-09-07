@@ -4,6 +4,8 @@
 	- [服務安裝](#服務安裝)
 	- [服務管理](#服務管理)
 - [文件同步規則](#文件同步規則)
+- [問題註記](#問題註記)
+	- [Syncthing服務僅在與服務器存在SSH連接時正常連接，否則連接斷開](#syncthing服務僅在與服務器存在ssh連接時正常連接否則連接斷開)
 
 <!-- /TOC -->
 
@@ -94,3 +96,25 @@ Syncthing在同步根路徑下創建`.stignore`來定義忽略規則。
 !.gitignore
 .*
 ```
+
+
+
+# 問題註記
+記錄使用Syncthing中遇到的一些問題。
+
+## Syncthing服務僅在與服務器存在SSH連接時正常連接，否則連接斷開
+問題說明：<br>
+Linux環境下使用systemd啟用Syncthing**用戶服務**，僅在與服務器存在SSH連接時Syncthing正常連接，
+一旦SSH連接退出，Syncthing服務也隨之中斷。參考社區中的[相同問題](https://forum.syncthing.net/t/syncthing-server-disconects-when-the-ssh-session-is-closed/11168)。
+
+解決方案：<br>
+該問題實際由systemd機制引起，systemd的默認策略下，管理的用戶服務會在用戶登入時啟動，在用戶登出時退出，
+因此當Syncthing作為用戶服務啟動時，會出現SSH連接上Syncthing可連接，SSH退出Syncthing亦中斷的情況。
+
+解決方案是使用`loginctl`啟用對應用戶的`Linger`屬性：
+
+```
+$ loginctl enable-linger
+```
+
+啟用Linger後，該用戶所屬服務不再與用戶的登入登出關聯，而是如系統服務般始終運行。
