@@ -3050,7 +3050,7 @@ $ dpkg-query -S [file_name]
 <!-- 批量安裝deb包 -->
 # dpkg -i [*.deb]
 <!--
-配量安裝deb包時，解析包的順序是按照包名稱的ASC碼順序，
+批量安裝deb包時，解析包的順序是按照包名稱的ASC碼順序，
 在多數場景下該順序與實際依賴順序不符，因此會造成部分軟件包不滿足依賴而配置失敗，
 安裝時搭配--force-all參數可強制配置軟件包，避免因為依賴解析順序而中斷配置流程
 -->
@@ -3145,8 +3145,8 @@ db_go <!-- 執行模板 -->
 db_get <package_name/template_name> <!-- 獲取模板的執行結果，結果保存在變量RET中，使用$RET語法讀取 -->
 ```
 
-模板輸入在安裝包被執行一次後會被緩存，重複安裝流程，對話框可能不會再出現，
-需要在每次調用db_input前設置模板的seen屬性，保證模板每次均會展示：
+模板輸入在安裝包被執行一次後會被緩存，重複安裝流程，對話框則不會再出現(狀態已被debconf數據庫中)。
+若需要每次執行安裝都強制展示對話框，則應在每次調用db_input前設置模板的seen屬性：
 
 ```html
 db_set <package_name/template_name> seen false <!-- 設置指定模板為未顯示狀態 -->
@@ -3169,6 +3169,36 @@ Description: Blah blah blah?
 
 templates文件中可編寫多個模板，多個模板之間使用空行隔開。
 加載模板時使用`包名/模板名稱`引用定義的模板。
+
+使用`debconf-show`指令可以查看指定包的模板設定值：
+
+```html
+$ debconf-show 包名
+
+<!-- 以 MySQL 為例 -->
+$ debconf-show mysql-community-server
+* mysql-community-server/root-pass: (password omitted)
+* mysql-community-server/re-root-pass: (password omitted)
+* mysql-community-server/data-dir:
+* mysql-server/default-auth-override: Use Legacy Authentication Method (Retain MySQL 5.x Compatibility)
+  mysql-community-server/remove-data-dir: false
+  mysql-server/lowercase-table-names:
+  mysql-community-server/root-pass-mismatch:
+```
+
+已存在設定值的模板再次安裝默認不會展示輸入框。
+除了在API層次上使用`db_set <package_name/template_name> seen false`強制外，
+亦可使用`debconf-communicate`指令清除指定包的deconf數據庫：
+
+```html
+# echo PURGE | debconf-communicate 包名 <!-- 清空指定包名下所有的模板配置 -->
+
+<!-- 清空指定模板配置 -->
+# echo RESET 模板 | debconf-communicate 包名
+# echo UNREGISTER 模板 | debconf-communicate 包名
+```
+
+清空對應模板在deconf數據庫中的記錄後，下次執行模板則會正確展示模板問題的交互TUI。
 
 ### dpkg-divert
 dpkg不允許兩個不同的deb包管理相同路徑的文件，因此在打包時需要注意避免與其它deb的文件衝突。
