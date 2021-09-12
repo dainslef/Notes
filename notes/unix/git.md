@@ -142,7 +142,8 @@ new mode 100755
 查看指定倉庫路徑下的文件權限：
 
 ```
-$ git ls-files -s/--stage [file/dir]
+$ git ls-files -s [file/dir]
+$ git ls-files --stage [file/dir]
 ```
 
 示例：
@@ -408,11 +409,20 @@ $ git branch -rd GitHub/dev <!-- 刪除遠程分支時應忽略 remotes 前綴 -
 
 ```html
 <!-- 切換到指定分支 -->
-$ git checkout [分支名]
+$ git checkout 分支名稱
 
 <!-- 創建分支並切換到該分支 -->
-$ git checkout -b [分支名]
+$ git checkout -b 分支名稱
 ```
+
+從`Git 2.23`版本開始，引入了新的子指令`git switch`用於切換分支:
+
+```
+$ git switch 分支名稱
+```
+
+原先的checkout指令承載了過多功能，例如可使用`git checkout 提交ID`切換到任意提交，
+相比之下switch僅用於分支切換，不支持類似功能。
 
 ### 合併分支
 使用`git merge`合併分支：
@@ -459,7 +469,7 @@ $ git checkout [分支名稱] [文件路徑]
 當修改了工作區中的文件，尚未提交，而遠程倉庫中此文件同樣有改動時，將遠程倉庫`pull`到本地會提示文件衝突。
 
 1. 使用`git stash`將本地修改暫存。
-1. 使用`git stash`之後，工作區會恢復到最近一次提交，所有的改動都被保存，工作區重新變爲`clear`。
+1. 使用`git stash`之後，工作區會恢復到最近一次提交，所有的改動都被保存，工作區重新變爲clear。
 1. 再次進行`pull`操作，將遠程倉庫拉取到本地。
 1. 最後運行`git stash pop`將之前暫存的改動重新應用到當前工作區。
 
