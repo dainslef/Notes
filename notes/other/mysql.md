@@ -31,6 +31,9 @@
 - [表格優化與修復](#表格優化與修復)
 	- [optimize](#optimize)
 	- [repair](#repair)
+- [文本類型](#文本類型)
+	- [CHAR相關類型與TEXT相關類型的區別](#char相關類型與text相關類型的區別)
+	- [字符集](#字符集)
 - [Row Formats (行格式)](#row-formats-行格式)
 	- [REDUNDANT Row Format](#redundant-row-format)
 	- [COMPACT Row Format](#compact-row-format)
@@ -705,6 +708,51 @@ mysql> SET FOREIGN_KEY_CHECKS = 1;
 ## repair
 當部分操作失敗(如創建索引、優化表格等)、磁盤數據表文件被意外修改時，可能會造成表格元數據異常，導致查詢等操作抱錯。
 此時可嘗試使用`repair`指令對表格進行修復，repair指令會嘗試修復表格，重建元數據信息。
+
+
+
+# 文本類型
+常用的文本類型包括`CHAR`、`VARCHAR`、`TINYTEXT`，`TEXT`、`MEDIUMTEXT`、`LONGTEXT`等。
+
+`CHAR/VARCHAR`類型在定義時需要指示字段的長度：
+
+- CHAR類型為固定長度(無論字符串實際長度多少佔用空間均衡定，剩餘空間在字符串右側填充空格)，範圍0~255；
+- VARCHAR類型為可變長度(佔用空間根據字符串實際長度變化)，範圍0~65535。
+
+`TINYTEXT/TEXT/MEDIUMTEXT/LONGTEXT`等類型則無需指定長度，長度範圍固定：
+
+- TINYTEXT(255 - 255B)
+- TEXT(65,535 - 64KB)
+- MEDIUMTEXT(16,777,215 - 16MB)
+- LONGTEXT(4,294,967,295 - 4GB)
+
+## CHAR相關類型與TEXT相關類型的區別
+CHAR相關類型與TEXT相關類型存在顯著的區別：
+
+- 在MyISAM引擎中，CHAR系列類型直接存儲在表格內部，
+而TEXT系列類型數據存儲在表外部，表內對應的列中僅存儲一個指針指向表外的數據區。
+因此，CHAR系列類型速度相對於TEXT類型更快(內聯數據，節省一次尋址時間)。
+- 在InnoDB引擎中，根據行格式(Row Format)可能會存在多種情形，但對變長文本類型(VARCHAR/TEXT)一視同仁。
+- 設置普通索引時，CHAR系列不需要指定範圍，TEXT系列類型僅支持前N個字符索引，在創建索引時需要指定範圍。
+
+## 字符集
+不同字符集下單個字符佔用的實際空間存在差異，因此文本類型實際可容納字符數目並不一定能達到設定的大小。
+例如`VARCHAR(255)`類型的列理論上能存儲最大255個字符，但只有在使用單字節字符集(如`latin1`)時才能達到設定的容量，
+若字符集為`utf8`(`utf8mb3`，一個字符佔用3字節)、`utf8mb4`(一個字符佔用4字節)等。
+
+實際可用字符數目計算方式為：
+
+```
+實際可容納的字符數目 = 設置的字符的數目 / 編碼的單字符字節佔用數目
+```
+
+即對於使用utf8編碼的VARCHAR類型，最大可容納字符數目僅有`65535 / 3 == 21845`，
+使用JDBC與MySQL交互時，操作utf8編碼的VARCHAR類型常見的一種異常即為：
+
+```
+Caused by: com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Column length too big for column 'xxx' (max = 21845); use BLOB or TEXT instead
+...
+```
 
 
 
