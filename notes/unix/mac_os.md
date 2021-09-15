@@ -264,7 +264,7 @@ Note that arguments and options are executed in order.
 
 - Homebrew基於Git，是輕量級的包管理器，傾向於最大化利用macOS自帶的Unix組件。
 - MacPorts是FreeBSD中`Ports`系統的移植，使用源碼編譯軟件，不依賴原有macOS中的軟件包，而是獨立構建出一套環境。
-- Homebrew中軟件包多數以二進制形式提供，默認安裝路徑爲`usr/local`。
+- Homebrew中軟件包多數以二進制形式提供，默認安裝路徑爲`/usr/local`。
 - MacPorts編譯的軟件包一般安裝在`/opt`目錄下。
 
 ## Homebrew
@@ -292,13 +292,15 @@ $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/maste
 ### 基本指令
 Homebrew基本操作與其它包管理器類似：
 
-- `$ brew update` 更新源
-- `$ brew ugrade` 升級包
-- `$ brew info [package_name]` 顯示指定包的信息
-- `$ brew install [package_name]` 安裝指定包
-- `$ brew switch [package_name] [version]` 若安裝了多個版本的包，切換指定包的使用版本
-- `$ brew dockor` 檢測可能存在的問題，並給出修復提示
-- `$ brew prune` 移除無效的符號鏈接
+```html
+$ brew update <!-- 更新源 -->
+$ brew ugrade <!-- 升級包 -->
+$ brew info 包名 <!-- 顯示指定包的信息 -->
+$ brew install 包名 <!-- 安裝指定包 -->
+$ brew switch 包名 版本號 <!-- 若安裝了多個版本的包，切換指定包的使用版本 -->
+$ brew dockor <!-- 檢測可能存在的問題，並給出修復提示 -->
+$ brew prune <!-- 移除無效的符號鏈接 -->
+```
 
 與Linux下的常規包管理器不同，Homebrew在安裝、卸載包時，不會有多餘的確認提示，輸入指令後立即執行。
 
@@ -351,7 +353,7 @@ Homebrew對於常用的包如`gcc、gdb、python3、qt`等均提供了**預編�
 可在安裝時使用`--force-bottle`參數強制安裝預編譯的包：
 
 ```
-$ brew install [軟件包] --force-bottle
+$ brew install 軟件包 --force-bottle
 ```
 
 `--force-bottle`參數與其它安裝參數不同，不會記錄到安裝信息中，
@@ -385,12 +387,12 @@ $ brew leaves
 
 ```html
 <!-- 查看指定軟件包的依賴 -->
-$ brew deps [軟件包名稱]
+$ brew deps 軟件包名稱
 
 <!-- 顯示指定軟件包被哪些軟件包依賴 -->
-$ brew uses [軟件包名稱]
+$ brew uses 軟件包名稱
 <!-- 顯示指定軟件包被哪些已安裝的軟件包依賴 -->
-$ brew uses --installed [軟件包名稱]
+$ brew uses --installed 軟件包名稱
 ```
 
 ### 展示安裝包信息
@@ -448,9 +450,11 @@ $ brew list -v redis
 ### Homebrew Taps
 使用`brew tap/untap`相關指令管理Homebrew啓用的倉庫，常用指令：
 
-- `$ brew tap` 列出已啓用的倉庫
-- `$ brew tap [repo_name]` 啓用指定名稱的倉庫
-- `$ brew untap [repo_name]` 禁用指令名稱的倉庫
+```html
+$ brew tap <!-- 列出已啓用的倉庫 -->
+$ brew tap 倉庫名稱 <!-- 啓用指定名稱的倉庫 -->
+$ brew untap 倉庫名稱 <!--  禁用指令名稱的倉庫 -->
+```
 
 常用的官方倉庫包括`homebrew/core`和`homebrew/cask`。
 首次使用`brew services`指令還會啟用`homebrew/services`倉庫。
@@ -484,7 +488,7 @@ $ brew install --cask appcleaner the-unarchiver intellij-idea microsoft-office v
 部分應用打包時並未寫明確切的版本號(如`google-chrome`)，此類應用升級需要執行重新安裝指令：
 
 ```
-$ brew reinstall --cask [需要更新的應用名稱]
+$ brew reinstall --cask 需要更新的應用名稱
 ```
 
 默認的`Homebrew Cask`倉庫`homebrew/cask`僅保存最新版的應用，若需要同時安裝多個版本(如`Java SDK`)，
@@ -492,22 +496,24 @@ $ brew reinstall --cask [需要更新的應用名稱]
 執行指令：
 
 ```
-$ brew tap caskroom/versions
+$ brew tap homebrew/cask-versions
 ```
 
-`caskroom/versions`倉庫保存了常見應用的長期維護版本，
+`homebrew/cask-versions`倉庫保存了常見應用的長期維護版本，
 如`Java SDK`的`java6/java8`，`FireFox`的`firefox-beta/firefox-esr`。
 
 ### Homebrew Services
-對於使用`Homebrew`安裝的包，若包提供了服務，則可以使用`brew services`指令進行服務狀態管理。
+對於使用Homebrew安裝的包，若包提供了服務，則可以使用`brew services`指令進行服務狀態管理。
 常用指令：
 
-- `$ brew services list` 列出可用服務
-- `$ brew services run [service_name]` 啓動服務
-- `$ brew services start [service_name]` 啓動服務並設置服務開機自啓
-- `$ brew services stop [service_name]` 停止服務並移除服務開機自啓
-- `$ brew services restart [service_name]` 重啓服務
-- `$ brew services cleanup` 清理未被使用的服務
+```html
+$ brew services list <!-- 列出可用服務 -->
+$ brew services run 服務名稱 <!-- 啓動服務 -->
+$ brew services start 服務名稱 <!-- 啓動服務並設置服務開機自啓 -->
+$ brew services stop 服務名稱 <!-- 停止服務並移除服務開機自啓 -->
+$ brew services restart 服務名稱 <!-- 重啓服務 -->
+$ brew services cleanup <!-- 清理未被使用的服務 -->
+```
 
 ### 配置國內源
 默認情況下，Homebrew訪問`GitHub`來更新包數據，速度較慢，可使用中國源替代，
@@ -524,7 +530,7 @@ $ brew tap caskroom/versions
 		"brew --repo" https://mirrors.ustc.edu.cn/brew.git
 		"brew --repo homebrew/core" https://mirrors.ustc.edu.cn/homebrew-core.git
 		"brew --repo homebrew/cask" https://mirrors.ustc.edu.cn/homebrew-cask.git
-		"brew --repo homebrew/cask-versions https://mirrors.ustc.edu.cn/homebrew-cask-versions.git/
+		"brew --repo homebrew/cask-versions" https://mirrors.ustc.edu.cn/homebrew-cask-versions.git
 	-->
 
 	<!-- bash -->
@@ -585,17 +591,21 @@ $ brew tap caskroom/versions
 
 	恢復官方源操作與設置第三方源相反：
 
-	```
+	```html
 	<!-- bash / zsh -->
-	$ git -C "$(brew --repo)" remote set-url origin https://github.com/Homebrew/brew.git
-	$ git -C "$(brew --repo homebrew/core)" remote set-url origin https://github.com/Homebrew/homebrew-core.git
-	$ git -C "$(brew --repo homebrew/cask)" remote set-url origin https://github.com/caskroom/homebrew-cask.git
+	$ git -C "$(brew --repo)" remote set-url origin https://github.com/Homebrew/brew
+	$ git -C "$(brew --repo homebrew/core)" remote set-url origin https://github.com/Homebrew/homebrew-core
+	$ git -C "$(brew --repo homebrew/cask)" remote set-url origin https://github.com/Homebrew/homebrew-cask
+	$ git -C "$(brew --repo homebrew/cask-versions)" remote set-url origin https://github.com/Homebrew/homebrew-cask-versions
 
 	<!-- fish -->
-	$ git -C (brew --repo) remote set-url origin https://github.com/Homebrew/brew.git
-	$ git -C (brew --repo homebrew/core) remote set-url origin https://github.com/Homebrew/homebrew-core.git
-	$ git -C (brew --repo homebrew/cask) remote set-url origin https://github.com/caskroom/homebrew-cask.git
+	$ git -C (brew --repo) remote set-url origin https://github.com/Homebrew/brew
+	$ git -C (brew --repo homebrew/core) remote set-url origin https://github.com/Homebrew/homebrew-core
+	$ git -C (brew --repo homebrew/cask) remote set-url origin https://github.com/Homebrew/homebrew-cask
+	$ git -C (brew --repo homebrew/cask-versions) remote set-url origin https://github.com/Homebrew/homebrew-cask-versions
 	```
+
+	恢復官方源後，也應使用`brew update-reset`重新拉取倉庫信息。
 
 
 
@@ -661,23 +671,23 @@ macOS中自帶的`fdisk`工具為BSD版本，與Linux版本有較大差異。
 
 常用工具指令：
 
-```c
-// 列出所有分區信息
+```html
+<!-- 列出所有分區信息 -->
 $ diskutil list
-// 列出指定分區的詳細信息(包含文件系統等)
+<!-- 列出指定分區的詳細信息(包含文件系統等) -->
 $ diskutil info [分區路徑]
 
-// 監視磁盤分區變化
+<!-- 監視磁盤分區變化 -->
 $ diskutil activity
 
-// 掛載/取消掛載分區
+<!-- 掛載/取消掛載分區 -->
 $ diskutil mount/unmount [分區路徑]
-// 彈出整個磁盤，磁盤下的所有已掛載分區均會被卸載
+<!-- 彈出整個磁盤，磁盤下的所有已掛載分區均會被卸載 -->
 $ diskutil eject [設備]
 
-// 格式化磁盤
+<!-- 格式化磁盤 -->
 # diskutil eraseDisk format name [APM[Format] | MBR[Format] | GPT[Format]] device
-// 格式化卷
+<!-- 格式化卷 -->
 # diskutil eraseVolume format name device
 ```
 
@@ -870,7 +880,10 @@ csrutil: This tool needs to be executed from Recovery OS.
 使用`root`權限執行`languagesetup`重設語言即會刷新登陸界面信息。
 
 ## 更改默認應用程序
-1. 使用`Command + i`查看一個文件的詳細信息。
+macOS沒有為默認程序提供統一的配置面板，除了瀏覽器可直接在System Preferences的General面板中設置外，
+其它文件類型需要在Finder中找到對應類型的文件進行設置：
+
+1. 使用`Command + i`查看目標文件的詳細信息(或在文件上點擊右鍵選擇`Get Info`)。
 1. 在`Open With:`條目中可以選擇打開此文件使用的默認程序，修改爲需要的程序。
 1. 選擇`Change All...`將所有此類文件全部修改爲自定義的程序。
 
@@ -895,9 +908,9 @@ csrutil: This tool needs to be executed from Recovery OS.
 
 	在分區標識中去掉`msdata`(Windows分區標誌)：
 
-	```
-	# parted [磁盤路徑] print all //查看所有磁盤信息，確認分區編號
-	# parted [磁盤路徑] set [分區號] msdata on/off //移除msdata分區標誌
+	```html
+	# parted [磁盤路徑] print all <!-- 查看所有磁盤信息，確認分區編號 -->
+	# parted [磁盤路徑] set [分區號] msdata on/off <!-- 移除msdata分區標誌 -->
 	```
 
 ## 引導 Linux
