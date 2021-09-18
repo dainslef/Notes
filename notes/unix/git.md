@@ -466,6 +466,30 @@ $ git checkout [分支名稱] [文件路徑]
 ```
 
 ## 暫存變更 (stash)
+git stash常用操作：
+
+```html
+<!-- 暫存檔前工作區修改的內容，使工作區clear，同時創建一個stash -->
+$ git stash
+
+<!-- 列出當前存在的所有暫存內容，stash通常以 stash@{0},stash@{1},... 規則命名 -->
+$ git stash list
+
+<!-- 應用/刪除/查看 指定編號的stash -->
+$ git stash apply 編號
+$ git stash drop 編號
+$ git stash show 編號
+<!-- 查看stash時，默認僅展示stash創建的分支，可添加 -v 參數列出具體的文件修改內容 -->
+$ git stash show 編號 -v
+
+<!-- 取出最近暫存的改動，該操作等價於 apply + drop -->
+$ git stash pop
+```
+
+一個Git倉庫中，所有分支共享相同的stash空間，stash的創建/移除等操作均對所有分支可見。
+
+stash的常見應用場景：
+
 當修改了工作區中的文件，尚未提交，而遠程倉庫中此文件同樣有改動時，將遠程倉庫`pull`到本地會提示文件衝突。
 
 1. 使用`git stash`將本地修改暫存。
