@@ -34,6 +34,8 @@
 - [文本類型](#文本類型)
 	- [CHAR相關類型與TEXT相關類型的區別](#char相關類型與text相關類型的區別)
 	- [字符集](#字符集)
+	- [字符類型自動轉換](#字符類型自動轉換)
+	- [枚舉類型](#枚舉類型)
 - [Row Formats (行格式)](#row-formats-行格式)
 	- [REDUNDANT Row Format](#redundant-row-format)
 	- [COMPACT Row Format](#compact-row-format)
@@ -752,6 +754,29 @@ CHAR相關類型與TEXT相關類型存在顯著的區別：
 ```
 Caused by: com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Column length too big for column 'xxx' (max = 21845); use BLOB or TEXT instead
 ...
+```
+
+## 字符類型自動轉換
+MySQL支持自動轉換`VARCHAR(n)`(n > 65,535)到合適的類型(MEDIUMTEXT/LONGTEXT等)。
+
+在未開啟SQL MODE`STRICT_TRANS_TABLES/STRICT_ALL_TABLES`的MySQL中，
+創建CHAR/VARCHAR超過長度上限(如`VARCHAR(65536)`)，MySQL根據實際長度將其轉換為匹配的TEXT類型，
+同時會輸出如下警告信息：
+
+```
+0 row(s) affected, 1 warning(s): 1246 Converting column 'xxx' from VARCHAR to TEXT
+```
+
+## 枚舉類型
+MySQL提供了可限制文本內容的[**枚舉類型**](https://dev.mysql.com/doc/refman/en/enum.html)。
+枚舉類型是一個文本對象，但內容只能為列出的特定文本，語法示例：
+
+```sql
+CREATE TABLE Xxx (
+	...
+    Xxx ENUM('abc', 'cde', 'efg'), # 該列的內容只能為'abc', 'cde', 'efg'其中之一
+	...
+);
 ```
 
 
