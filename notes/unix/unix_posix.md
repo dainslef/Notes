@@ -3,6 +3,7 @@
 - [System Call & Library Call](#system-call--library-call)
 	- [System Call (系統調用)](#system-call-系統調用)
 	- [Library Call (庫函數)](#library-call-庫函數)
+	- [errno](#errno)
 - [Time API](#time-api)
 	- [獲取當前系統時間](#獲取當前系統時間)
 	- [讀取時間](#讀取時間)
@@ -109,6 +110,46 @@ Unix系統爲大多數的系統調用提供了同名的C函數接口，封裝在
 輔助功能性庫函數(如`memcpy()`、`atoi()`之類)是純粹的用戶態函數，不涉及系統調用，不會造成系統在用戶態與內核態之間切換。
 
 C標準庫函數可在`man`手冊**卷3**中查閱。
+
+## errno
+幾乎所有系統調用均會提供外部變量`errno`：
+
+```c
+extern int errno
+```
+
+當系統調用產生錯誤時，函數返回指示失敗的整型數值(通常為`-1`)，並設置對應的errno值。
+成功的系統調用不會設置該值，一旦該值被一個失敗的系統調用設置，值將一直保留到下一個系統調用錯誤，
+檢查errno值應該僅在錯誤產生後進行。
+
+errno可能的取值以宏定義的形式寫在頭文件`<sys/errno.h>`中，
+具體每個取值的含義可參考對應man手冊中對應章節。
+
+C標準庫中的`<stdio.h>`/`<string.h>`提供了errno相關函數：
+
+```c
+#include <stdio.h>
+
+void
+perror(const char *s);
+
+extern const char * const sys_errlist[];
+extern const int sys_nerr;
+
+#include <string.h>
+
+char *
+strerror(int errnum);
+
+int
+strerror_r(int errnum, char *strerrbuf, size_t buflen);
+```
+
+使用`perror()`函數會讀取errno值查找對應錯誤信息寫入參數地址中。
+使用`strerror()/strerror_r()`函數將錯誤碼轉換為錯誤信息文本。
+
+錯誤信息亦可通過外部變量`sys_errlist`(錯誤信息數組)、`sys_nerr`(錯誤信息數組大小)進行訪問，
+但該方法已被**廢棄**，不推薦使用。
 
 
 
@@ -1124,8 +1165,11 @@ CMD                         STAT   PID  PPID  PGID   SID TPGID TT
 
 使用`fork()`時，子進程會繼承父進程註冊的信號處理函數。
 
-常用的信號有`SIGINT`(中斷信號，用`CTRL + C`觸發)，`SIGQUIT`(退出信號)。
+常用的信號有`SIGINT`(中斷信號，使用`CTRL + C`組合鍵觸發)，`SIGQUIT`(退出信號，使用`CTRL + \`組合鍵觸發)。
 使用`kill`指令發送信號，默認發送信號爲`SIGTERM`。
+
+終端連結斷開時，會產生`SIGHUP`信號。
+不同運行時的進程對信號的默認處理規則不同，例如Java進程在收到SIGHUP信號會退出程序，但C/C++程序則不會。
 
 ## 信號處理
 使用`signal()`或`sigaction()`函數將需要處理的信號與信號處理函數的函數指針綁定。
@@ -1552,7 +1596,7 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 
 # pthread (POSIX線程)
 在Unix系統中，多線程開發相關函數定義在頭文件`pthread.h`中。
-在`Linux`中編譯使用了線程庫的程序時，需要鏈接`pthread`庫，編譯指令如下：
+在Linux中編譯使用了線程庫的程序時，需要鏈接`pthread`庫，編譯指令如下：
 
 ```sh
 $ cc -lpthread [源碼文件]
@@ -1563,20 +1607,23 @@ $ cc -lpthread [源碼文件]
 ## Linux下的線程實現
 `Linux Kernel 2.6`之後，線程的實現爲`NPTL`，即**本地POSIX線程庫**`Native POSIX Thread Library`。
 
-- 在Linux內核中，線程和進程都使用`task_struct`結構體表示，線程僅是一類特殊的進程(創建時使用不同的`clone`標識組合)。
-- Linux提供了`clone()`調用，使用`clone()`創建子進程時，可以選擇性地共享父進程的資源，
-創建出的子進程被稱爲**輕量級進程**(`LWP, Low Weight Process`)。
+- 在Linux內核中，線程和進程都使用`task_struct`結構體表示，
+線程僅是一類特殊的進程(創建時使用不同的`clone`標識組合)。
+- Linux提供了`clone()`調用，使用`clone()`創建子進程時，
+可以選擇性地共享父進程的資源，創建出的子進程被稱爲**輕量級進程**(`LWP, Low Weight Process`)。
 - 早期的Linux(`Linux Kernel 2.6`之前)使用`Linux Threads`線程庫，即通過**輕量級進程**來實現線程。
-- `Linux Threads`庫沒有實現`POSIX`的線程定義，每個線程在`ps`指令下顯示爲進程，
-並且不同線程使用`getpid()`返回的進程`pid`也不相同，在現代Linux(採用`NPTL`之後的Linux)已經**不會**出現此類情況。
-- 在`Linux Kernel 2.6`之後，內核中有了**線程組**的概念，`task_struct`結構中增加了`tgid(thread group id)`字段，
-若一`task_struct`是**主線程**, 則它的`tgid`等於`pid`, 否則`tgid`等於進程的`pid`(即主線程的`pid`)。
+- `Linux Threads`庫沒有實現POSIX的線程定義，每個線程在ps指令下顯示爲進程，
+並且不同線程使用`getpid()`返回的進程pid也不相同，在現代Linux(採用NPTL之後的Linux)已經**不會**出現此類情況。
+- 在`Linux Kernel 2.6`之後，內核中有了**線程組**的概念，
+`task_struct`結構中增加了`tgid(thread group id)`字段，
+若某個`task_struct`是**主線程**, 則它的`tgid`等於`pid`，否則`tgid`等於進程的`pid`(即主線程的`pid`)。
 此外，每個線程依舊是一個`task_struct`，依然有自己的`pid`。
-- 在`Linux Kernel 2.6`之後，使用`getpid()`獲取的是`tgid`，因而進程中的每個線程使用`getpid()`返回值相同(主線程`pid`)。
+- 在`Linux Kernel 2.6`之後，使用`getpid()`獲取的是`tgid`，
+因而進程中的每個線程使用`getpid()`返回值相同(主線程`pid`)。
 獲取線程自身的`pid`需要用到系統調用`gettid()`，`gettid()`是Linux特有的系統調用，
 在其它Unix中並不存在，`glibc`沒有提供`gettid()`的封裝，使用`gettid()`需要通過`syscall()`調用。
-- `NPTL`的實現依賴於`Linux Kernel 2.6`內核的`task_struct`改動，因此在`2.4`、`2.2`等舊版本的內核上無法使用`NPTL`，
-在採用了`NPTL`的Linux上，線程的行爲與其它Unix更爲相似。
+- `NPTL`的實現依賴於`Linux Kernel 2.6`內核的`task_struct`改動，
+因此在`2.4`、`2.2`等舊版本的內核上無法使用`NPTL`，在採用了`NPTL`的Linux上，線程的行爲與其它Unix更爲相似。
 
 ## 線程創建
 創建線程使用`pthread_create()`函數。
@@ -1724,17 +1771,17 @@ int main(void)
 	sig.sa_handler = deal_signal;
 	sig.sa_flags = 0;
 	sigemptyset(&sig.sa_mask);
-	sigaction(SIGQUIT, &sig, 0); //現代Unix信號捕捉函數
+	sigaction(SIGQUIT, &sig, 0); // 現代Unix信號捕捉函數
 
-	signal(MYMES1, deal_signal); //傳統Unix信號捕捉函數
+	signal(MYMES1, deal_signal); // 傳統Unix信號捕捉函數
 	signal(MYMES2, deal_signal);
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_create(&thread_fd, NULL, thread_func, str1);
 	pthread_create(&thread_fd1, NULL, thread_func, str2);
 	pthread_join(thread_fd1, NULL); //等待二號線程結束
-	pthread_create(&thread_fd, NULL, thread_func, str3); //創建三號線程
-	pthread_create(&thread_fd, NULL, thread_func, str4); //創建四號線程
+	pthread_create(&thread_fd, NULL, thread_func, str3); // 創建三號線程
+	pthread_create(&thread_fd, NULL, thread_func, str4); // 創建四號線程
 	pthread_join(thread_fd1, NULL);
 
 	return 0;
@@ -1757,7 +1804,7 @@ int pthread_mutexattr_getpshared(const pthread_mutexattr_t *restrict attr, int *
 ```c
 pthread_mutexattr_t attr;
 pthread_mutexattr_init(&attr);
-pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED); //第二個參數如果取PTHREAD_PROCESS_PRIVATE則互斥量僅爲進程內部所使用，這是默認情況，即pthread_mutex_init()函數的第二個參數取NULL時的情況
+pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED); // 第二個參數如果取PTHREAD_PROCESS_PRIVATE則互斥量僅爲進程內部所使用，這是默認情況，即pthread_mutex_init()函數的第二個參數取NULL時的情況
 ```
 
 需要注意，由於每個進程的地址空間是獨立的，每個進程定義的變量無法被其它進程所訪問。
@@ -1805,11 +1852,11 @@ int main(void)
 	shm_id = shmget(ftok(PATH, PROJECT_ID), sizeof(pthread_mutex_t), IPC_CREAT | 0600);
 	pthread_mutex_t *mutex = (pthread_mutex_t*)shmat(shm_id, NULL, 0);
 
-	pthread_mutexattr_init(&attr); //初始化權限結構體attr
+	pthread_mutexattr_init(&attr); // 初始化權限結構體attr
 	pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
 
 	if (!pthread_mutex_init(mutex, &attr))
-		printf("成功創建了互斥量！\n"); //創建了一個進程互斥的互斥量
+		printf("成功創建了互斥量！\n"); // 創建了一個進程互斥的互斥量
 
 	signal(SIGQUIT, dealSignal);
 	printf("父進程啓動：\n");
@@ -1878,8 +1925,8 @@ int main(void)
 `XSI IPC`來自`SystemV`，三類`XSI IPC`擁有相似的API，包括如下的一組函數：
 
 ```c
-int xxxget(key_t key, ...);			//創建/獲取IPC文件描述符
-int xxxctl(int ipc_fd, ...);		//添加IPC設定
+int xxxget(key_t key, ...); // 創建/獲取IPC文件描述符
+int xxxctl(int ipc_fd, ...); // 添加IPC設定
 ...
 ```
 
@@ -1899,7 +1946,9 @@ key_t ftok(const char *pathname, int proj_id);
 函數執行成功返回生成的`key`值，執行失敗返回`-1`。
 
 ## XSI IPC 特點
-`XSI IPC`並沒有遵循Unix中`一切皆文件`的思想，`XSI IPC`在文件系統中沒有名字，不能使用文件描述符進行表示，不能使用`open()`、`write()`等文件操作對其進行控制，亦不能對其使用`select()`、`epoll()`、`kqueue()`等IO複用機制。
+`XSI IPC`並沒有遵循Unix中**一切皆文件**的思想，`XSI IPC`在文件系統中沒有名字，
+不能使用文件描述符進行表示，不能使用`open()`、`write()`等文件操作對其進行控制，
+亦不能對其使用`select()`、`epoll()`、`kqueue()`等IO複用機制。
 
 `XSI IPC`不能使用傳統的shell指令進行管理，不能使用`ls`查看，不能使用`rm`刪除。
 
@@ -1930,10 +1979,12 @@ int shmget(key_t key, size_t size, int shmflg);
 
 - `key`參數爲`ftok()`函數生成的**共享內存**標誌。
 - `size`參數爲共享內存的大小。
-- `shmflg`參數爲特殊標識，取`0`時獲取**key值**對應的共享內存，若傳入的**key值**對應的共享內存**未創建**，則調用**失敗**。
+- `shmflg`參數爲特殊標識，取`0`時獲取**key值**對應的共享內存，
+若傳入的**key值**對應的共享內存**未創建**，則調用**失敗**。
 
 創建共享內存使用`IPC_CREAT`標識，創建的同時可以手動設定共享內存的讀寫權限如`IPC_CREAT | 0660`。
-使用`IPC_CREAT`標識時，若傳入**key值**對應的共享內存已經存在，不會調用失敗，而是忽略該標識，返回已存在的共享內存的描述符。
+使用`IPC_CREAT`標識時，若傳入**key值**對應的共享內存已經存在，
+不會調用失敗，而是忽略該標識，返回已存在的共享內存的描述符。
 若需要創建一塊**唯一**的共享內存，則使用`IPC_CREAT | IPC_EXCL`。
 使用`IPC_CREAT | IPC_EXCL`標識時，若傳入`key`參數對應的共享內存已存在，則創建**失敗**。
 `IPC_PRIVATE`標誌用於創建一個只屬於創建進程的共享內存。
@@ -1973,7 +2024,8 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 ```
 
 - `shmid`參數爲共享內存描述符。
-- `command`參數爲要對共享內存發出的指令，常用的指令爲`IPC_RMID`，用於**刪除**共享內存，執行刪除操作時- `buf`參數可以取值`NULL`。
+- `command`參數爲要對共享內存發出的指令，常用的指令爲`IPC_RMID`，
+用於**刪除**共享內存，執行刪除操作時- `buf`參數可以取值`NULL`。
 
 函數調用成功返回`0`，失敗返回`-1`。
 
@@ -2021,9 +2073,9 @@ int semop(int sem_id, struct sembuf *sem_ops, size_t num_sem_ops);
 ```c
 struct sembuf
 {
-	unsigned short sem_num; //信號量的編號，在沒有使用多個信號量的情況下，一般爲0
-	short sem_op; //信號量操作，一般可以取-1或是+1，分別對應P(請求)、V(釋放)操作
-	short sem_flg; //操作標誌符，一般取SEM_UNDO
+	unsigned short sem_num; // 信號量的編號，在沒有使用多個信號量的情況下，一般爲0
+	short sem_op; // 信號量操作，一般可以取-1或是+1，分別對應P(請求)、V(釋放)操作
+	short sem_flg; // 操作標誌符，一般取SEM_UNDO
 }
 ```
 
@@ -2077,7 +2129,7 @@ struct sembuf sem_ok;
 
 void deal_signal(int sig)
 {
-	semop(sem_id, &sem_ok, 1); //將信號量+1,釋放資源
+	semop(sem_id, &sem_ok, 1); // 將信號量+1,釋放資源
 	_exit(0);
 }
 
@@ -2095,14 +2147,14 @@ int main(void)
 		printf("信號量創建成功！\n");
 
 	sem_wait.sem_num = sem_ok.sem_num = 0;
-	sem_wait.sem_op = -1; //設置操作數，等待時-1
-	sem_ok.sem_op = 1; //等待完畢+1
+	sem_wait.sem_op = -1; // 設置操作數，等待時-1
+	sem_ok.sem_op = 1; // 等待完畢+1
 	sem_wait.sem_flg = sem_ok.sem_flg = SEM_UNDO;
 
-	semctl(sem_id, 0, SETVAL, 1); //初始化信號量時可以不自定義聯合體直接賦值
-	semop(sem_id, &sem_wait, 1); //信號量-1，鎖住資源
+	semctl(sem_id, 0, SETVAL, 1); // 初始化信號量時可以不自定義聯合體直接賦值
+	semop(sem_id, &sem_wait, 1); // 信號量-1，鎖住資源
 
-	while (1) //由於信號量被鎖，因此A在執行此段代碼時，B在等待
+	while (1) // 由於信號量被鎖，因此A在執行此段代碼時，B在等待
 	{
 		sleep(3);
 		printf("正在執行\n");
@@ -2173,8 +2225,8 @@ int main(void)
 消息隊列是一種進程間通信(IPC, Inter-Process Communication)機制，屬於三類`XSI IPC`之一。
 以下描述引用自`<<Unix網絡編程 卷2>>`：
 
-消息隊列是一個**消息鏈表**，有足夠**寫權限**的線程可以向消息隊列中添加消息，有足夠**讀權限**的線程可以從消息隊列中獲取消息。
-消息隊列具有**隨內核的持續性**。
+消息隊列是一個**消息鏈表**，有足夠**寫權限**的線程可以向消息隊列中添加消息，
+有足夠**讀權限**的線程可以從消息隊列中獲取消息。消息隊列具有**隨內核的持續性**。
 
 消息隊列相關函數定義在`sys/msg.h`中。
 
@@ -2190,10 +2242,13 @@ int msgget(key_t key, int msgflg);
 
 函數執行成功返回**消息隊列描述符**(非負數)，執行失敗返回`-1`並置`errno`。
 
-`key`參數的取值可以爲宏`IPC_PRIVATE`(實際值爲`0`)，此時該消息隊列爲**私有**，用於`fork()`調用之後的**父子進程**間通信(打開的消息隊列描述符在`fork()`之後依然存在)。
+`key`參數的取值可以爲宏`IPC_PRIVATE`(實際值爲`0`)，此時該消息隊列爲**私有**，
+用於`fork()`調用之後的**父子進程**間通信(打開的消息隊列描述符在`fork()`之後依然存在)。
 
-`msgflg`取`IPC_CREAT`創建一個消息隊列(消息隊列已存在則忽略此標誌位)，取`IPC_CREAT | IPC_EXCL`創建一個新的消息隊列(消息隊列已存在則函數執行失敗)。
-創建消息隊列時，若需要對消息隊列進行**讀寫操作**需要在`msgflg`參數後追加讀寫權限如`0600`(等價於`S_IRUSR | S_IWUSR`)，但打開消息隊列時不需要設定(打開的消息隊列由創建者決定訪問權限)。
+`msgflg`取`IPC_CREAT`創建一個消息隊列(消息隊列已存在則忽略此標誌位)，
+取`IPC_CREAT | IPC_EXCL`創建一個新的消息隊列(消息隊列已存在則函數執行失敗)。
+創建消息隊列時，若需要對消息隊列進行**讀寫操作**需要在`msgflg`參數後追加讀寫權限，
+如`0600`(等價於`S_IRUSR | S_IWUSR`)，但打開消息隊列時不需要設定(打開的消息隊列由創建者決定訪問權限)。
 
 ### 向消息隊列中添加消息
 使用`msgsnd()`向消息隊列中添加消息：
@@ -2205,7 +2260,8 @@ int msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg);
 - `msqid`參數爲`msgget()`函數返回的消息隊列文件描述符。
 - `msgp`參數爲指向要發送消息的指針。
 - `msgsz`參數爲發送消息的大小(不包括消息類型大小)。
-- `msgflg`參數爲消息標誌位，默認情況下以阻塞方式發送消息(消息隊列已滿時`msgsnd()`函數會阻塞線程)，取值`IPC_NOWAIT`表示以非阻塞形式發送消息，隊列已滿則直接返回錯誤。
+- `msgflg`參數爲消息標誌位，默認情況下以阻塞方式發送消息(消息隊列已滿時`msgsnd()`函數會阻塞線程)，
+取值`IPC_NOWAIT`表示以非阻塞形式發送消息，隊列已滿則直接返回錯誤。
 
 函數執行成功返回`0`，執行失敗返回`-1`並置`errno`。
 
@@ -2219,8 +2275,8 @@ struct mymsg
 }
 ```
 
-消息結構中的首個成員需要爲`long`型，用於指示消息的**類型**(之後的`msgrcv()`函數會用到)，之後才爲消息的數據區。
-`msgsz`參數傳入的消息大小**不包括**消息類型的大小。
+消息結構中的首個成員需要爲`long`型，用於指示消息的**類型**(之後的`msgrcv()`函數會用到)，
+之後才爲消息的數據區。`msgsz`參數傳入的消息大小**不包括**消息類型的大小。
 在實際開發中，消息數據不一定是簡單的字符數組，可以是**任意類型**(包括**結構體**)。
 
 ### 從消息隊列中獲取消息
@@ -2583,10 +2639,13 @@ int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
 - `msg_prio`參數爲消息數據的優先級，數值越大優先級越高。
 - `abs_timeout`參數爲指向超時時間的指針，`mq_timedsend()`函數等待超時後返回`-1`並置`errno`值爲`ETIMEDOUT`。
 
-當消息隊列沒有設置`O_NONBLOCK`時，`mq_send()`函數會一直阻塞到有消息來到，`mq_timedsend()`函數阻塞到超時時間等待完畢或有消息來到。
-`mq_send()/mq_timedsend()`函數的阻塞狀態會被信號處理函數中斷，觸發信號處理函數時，`mq_send()/mq_timedsend()`函數立即返回`-1`並置`errno`爲`EINTR`。
+當消息隊列沒有設置`O_NONBLOCK`時，`mq_send()`函數會一直阻塞到有消息來到，
+`mq_timedsend()`函數阻塞到超時時間等待完畢或有消息來到。
+`mq_send()/mq_timedsend()`函數的阻塞狀態會被信號處理函數中斷，
+觸發信號處理函數時，`mq_send()/mq_timedsend()`函數立即返回`-1`並置`errno`爲`EINTR`。
 
-當消息隊列設置了`O_NONBLOCK`時，若消息隊列中的消息數量已經達到`mq_msgsize`(消息數目上限)，函數返回`-1`並置`errno`值爲`EAGAIN`。
+當消息隊列設置了`O_NONBLOCK`時，若消息隊列中的消息數量已經達到`mq_msgsize`(消息數目上限)，
+函數返回`-1`並置`errno`值爲`EAGAIN`。
 
 ### 從消息隊列獲取消息
 使用`mq_receive()`和`mq_timedreceive()`從POSIX消息隊列中獲取消息：
@@ -2599,9 +2658,11 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
 
 - `mqdes`參數爲消息隊列描述符。
 - `msg_ptr`參數爲要加入消息隊列的數據。
-- `msg_len`參數爲消息數據的大小，該值必須**大於等於**`mq_msgsize`(消息長度最大大小)，否則函數返回`-1`並置`errno`爲`EMSGSIZE`。
+- `msg_len`參數爲消息數據的大小，
+該值必須**大於等於**`mq_msgsize`(消息長度最大大小)，否則函數返回`-1`並置`errno`爲`EMSGSIZE`。
 - `msg_prio`參數爲指向消息優先級數據的指針，在隊列中有多個消息時，首先獲取優先級高的消息。
-- `abs_timeout`參數爲指向超時時間的指針，`mq_timedreceive()`函數等待超時後返回`-1`並置`errno`值爲`ETIMEDOUT`。
+- `abs_timeout`參數爲指向超時時間的指針，
+`mq_timedreceive()`函數等待超時後返回`-1`並置`errno`值爲`ETIMEDOUT`。
 
 當消息隊列沒有設置`O_NONBLOCK`時，`mq_receive()`函數會一直阻塞到消息能被接收，
 `mq_timdreceive()`函數阻塞到超時時間等待完畢或消息能被接收。
@@ -2688,7 +2749,7 @@ int main(int argc, char** argv)
 	if (mq_getattr(mqdes, &attr) == -1)
 		perror("mq_getattr");
 
-	attr.mq_flags = O_NONBLOCK; //設置消息隊列非阻塞
+	attr.mq_flags = O_NONBLOCK; // 設置消息隊列非阻塞
 
 	if (mq_setattr(mqdes, &attr, NULL) == -1)
 		perror("mq_setattr");
@@ -2723,7 +2784,7 @@ int main(int argc, char** argv)
 	printf("MQ_OPEN_MAX: %ld\n", sysconf(_SC_MQ_OPEN_MAX));
 	printf("MQ_RPIO_MAX: %ld\n", sysconf(_SC_MQ_PRIO_MAX));
 
-	//進程結束。消息隊列描述符自動關閉
+	// 進程結束。消息隊列描述符自動關閉
 	mq_close(mqdes);
 
 	return 0;
@@ -2747,14 +2808,14 @@ int main(int argc, char** argv)
 	if (mq_getattr(mqdes, &attr) == -1)
 		perror("mq_getattr");
 
-	attr.mq_flags = O_NONBLOCK; //設置消息隊列非阻塞
+	attr.mq_flags = O_NONBLOCK; // 設置消息隊列非阻塞
 
 	if (mq_setattr(mqdes, &attr, NULL) == -1)
 		perror("mq_setattr");
 
 	unsigned prio;
 
-	//循環取出隊列中所有消息
+	// 循環取出隊列中所有消息
 	while (1)
 	{
 		memset(&data, 0, sizeof(data));
@@ -3051,7 +3112,7 @@ void deal_signal(int sig)
 
 void* pthread_func(void* arg)
 {
-	//初始化時間結構體timespec，需要注意的是tv_nsec成員爲納秒數
+	// 初始化時間結構體timespec，需要注意的是tv_nsec成員爲納秒數
 	struct timespec time;
 	time.tv_sec = 5;
 	time.tv_nsec = 0;
@@ -3065,7 +3126,7 @@ void* pthread_func(void* arg)
 	sigaddset(&set, SIGINT);
 	sigaddset(&set, SIGQUIT);
 
-	//在非主線程中的pselect不再具有屏蔽信號的作用
+	// 在非主線程中的pselect不再具有屏蔽信號的作用
 	while (1)
 	{
 		is_changed = 0;
@@ -3175,20 +3236,22 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 
 ## 注意事項
 - `epoll_create()`創建的`epoll`描述符需要使用`close()`關閉。
-- `epoll`**不能**監聽普通文件描述符，對於`read()`、`write()`調用而言，普通文件是**始終準備好**(always ready)的。在`epoll_ctl()`函數中嘗試添加一個普通文件描述符則會得到`Operation not permitted`錯誤。
+- `epoll`**不能**監聽普通文件描述符，
+對於`read()`、`write()`調用而言，普通文件是**始終準備好**(always ready)的。
+在`epoll_ctl()`函數中嘗試添加一個普通文件描述符則會得到`Operation not permitted`錯誤。
 - `epoll_create()`中的`size`參數雖然是被忽略的，但不要取`0`和**負值**，會得到`Bad file desriptor`錯誤。
 
 ## LT/ET
 `epoll`擁有兩種工作模式，分別爲`Level Triggered`(LT，水平觸發)和`Edge Triggered`(ET，邊緣觸發)模式。
 
-- `LT`模式爲`epoll`的默認工作模式，在該模式下，只要有數據可讀/寫，使用`epoll_wait()`都會返回。
-- `ET`模式只有描述符狀態變化(從不可讀/寫變爲可讀/寫)時纔會另`epoll_wait()`返回，相比之下，`ET`模式更爲高效。
+- `LT`模式爲epoll的默認工作模式，在該模式下，只要有數據可讀/寫，使用`epoll_wait()`都會返回。
+- `ET`模式只有描述符狀態變化(從不可讀/寫變爲可讀/寫)時纔會另`epoll_wait()`返回，相比之下，ET模式更爲高效。
 
-`LT`模式下，由於只要有數據讀寫就會觸發事件，因此**不必**在一次`epoll`循環中嘗試讀盡所有的數據，
+LT模式下，由於只要有數據讀寫就會觸發事件，因此**不必**在一次`epoll`循環中嘗試讀盡所有的數據，
 有數據未讀會繼續觸發觸發事件，在下次觸發的事件中讀盡數據即可。
-`LT`模式下可以使用阻塞式IO也可以使用非阻塞IO。
+LT模式下可以使用阻塞式IO也可以使用非阻塞IO。
 
-`LT`模式下基本的代碼框架爲：
+LT模式下基本的代碼框架爲：
 
 ```c
 int epfd = epoll_create(size);
@@ -3235,19 +3298,19 @@ while (1)
 }
 ```
 
-`ET`模式下，只有描述符在可讀寫狀態發生改變時纔會觸發事件，
-因此，在`ET`模式下，必須**一次讀盡**所有的數據，否則會造成數據丟失。
-`ET`模式下，IO需要放在一個無限循環中進行，直到數據全部讀出，IO操作置`ernno`爲`EAGAIN`才終止。
+ET模式下，只有描述符在可讀寫狀態發生改變時纔會觸發事件，
+因此，在ET模式下，必須**一次讀盡**所有的數據，否則會造成數據丟失。
+ET模式下，IO需要放在一個無限循環中進行，直到數據全部讀出，IO操作置`ernno`爲`EAGAIN`才終止。
 
-相比`LT`模式，`ET`模式觸發`epoll`次數減少，效率更高，但`ET`模式下必須使用**非阻塞IO**。
+相比LT模式，ET模式觸發epoll次數減少，效率更高，但ET模式下必須使用**非阻塞IO**。
 
-`ET`模式下的基本代碼框架爲：
+ET模式下的基本代碼框架爲：
 
 ```c
 int epfd = epoll_create(size);
 
 struct epoll_event event;
-event.events = EPOLLET | /* events type */; //默認爲LT模式，需要顯式使用EPOLLET標誌才能設置爲ET模式
+event.events = EPOLLET | /* events type */; // 默認爲LT模式，需要顯式使用EPOLLET標誌才能設置爲ET模式
 event.data = /* data */;
 
 if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
