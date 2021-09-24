@@ -736,3 +736,39 @@ expr { return ... }
 expr { return! ... }
 expr { match! ... }
 ```
+
+每個計算表達式中的操作只有在使用的buider type中定義了才允許使用，
+唯一的例外是`match!`操作，該操作為`let!`的語法糖。
+builder type是一個定義了特殊方法的對象，這些方法決定了計算表達式的行為。
+
+- `let!`
+
+	`let!`關鍵字綁定了對另一個計算表達式調用的結果：
+
+	```fs
+	let doThingsAsync url =
+	    async {
+	        let! data = getDataAsync url
+	        ...
+	    }
+	```
+
+	若使用let綁定對另一個計算表達式的結果，得到的不是計算結果，而是一個對未實現(unrealized)調用的綁定。
+
+	let!綁定由builder type中的`Bind(x, f)`成員進行定義。
+
+- `do!`
+
+	`do!`關鍵字用於執行返回值為類unit類型的計算表達式：
+
+	```fs
+	let doThingsAsync data url =
+	    async {
+	        do! submitData data url
+	        ...
+	    }
+	```
+
+	對於異步工作流，執行的表達式返回類型為`Async<unit>`，對於其它計算表達式，類型為`CExpType<unit>`。
+
+	do!由由builder type中的`Bind(x, f)`成員進行定義，其中f的類型為unit。
