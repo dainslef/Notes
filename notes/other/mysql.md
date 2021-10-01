@@ -36,6 +36,9 @@
 	- [字符集](#字符集)
 	- [字符類型自動轉換](#字符類型自動轉換)
 	- [枚舉類型](#枚舉類型)
+- [JSON 類型](#json-類型)
+	- [基本JSON操作](#基本json操作)
+	- [查找與更新JSON節點](#查找與更新json節點)
 - [Row Formats (行格式)](#row-formats-行格式)
 	- [REDUNDANT Row Format](#redundant-row-format)
 	- [COMPACT Row Format](#compact-row-format)
@@ -64,6 +67,8 @@
 	- [Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column To disable safe mode, toggle the option in Preferences -> SQL Queries and reconnect.](#error-code-1175-you-are-using-safe-update-mode-and-you-tried-to-update-a-table-without-a-where-that-uses-a-key-column-to-disable-safe-mode-toggle-the-option-in-preferences---sql-queries-and-reconnect)
 	- [[42000][1071] Specified key was too long; max key length is 3072 bytes](#420001071-specified-key-was-too-long-max-key-length-is-3072-bytes)
 	- [[ERROR] [MY-010123] [Server] Fatal error: Please read "Security" section of the manual to find out how to run mysqld as root!](#error-my-010123-server-fatal-error-please-read-security-section-of-the-manual-to-find-out-how-to-run-mysqld-as-root)
+		- [ERROR 1396 (HY000): Operation CREATE USER failed for 'root'@'xxx'](#error-1396-hy000-operation-create-user-failed-for-rootxxx)
+		- [MySQL reset auto_increment value in Innodb after server restart](#mysql-reset-auto_increment-value-in-innodb-after-server-restart)
 
 <!-- /TOC -->
 
@@ -781,6 +786,75 @@ CREATE TABLE Xxx (
 
 
 
+# JSON 類型
+JSON類型是`MySQL 5.7.8`中引入的特性，原生提供對JSON數據類型的支持，並提供一系列JSON操作相關的內置函數。
+
+JSON類型在存儲上大致類似於`LONGBLOB`或`LONGTEXT`；
+与`BLOB`、`TEXT`等类型类似，JSON類型字段不能帶有**默认值**。
+
+詳細說明參考[MySQL官方文檔](https://dev.mysql.com/doc/refman/en/json.html)。
+
+## 基本JSON操作
+使用`JSON_ARRAY()`/`JSON_OBJECT()`函數定義JSON數組/對象；
+
+```sql
+mysql> SELECT JSON_ARRAY(1, 2, 3, 4);
++------------------------+
+| JSON_ARRAY(1, 2, 3, 4) |
++------------------------+
+| [1, 2, 3, 4]           |
++------------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT JSON_OBJECT(1, 2, 3, 4);
++-------------------------+
+| JSON_OBJECT(1, 2, 3, 4) |
++-------------------------+
+| {"1": 2, "3": 4}        |
++-------------------------+
+1 row in set (0.00 sec)
+```
+
+使用`->`/`->>`函數訪問對象中的屬性：
+
+```sql
+
+```
+
+以MySQL 8.0為例，完整的JSON函數列表參照[MySQL官方文檔 12.18 JSON Functions](https://dev.mysql.com/doc/refman/8.0/en/json-functions.html)。
+
+## 查找與更新JSON節點
+MySQL沒有直接提供基於內容刪除節點、替換節點內容的函數，相關功能可通過函數組合實現。
+MySQL提供的JSON_REMOVE()函數基於索引刪除內容，而JSON_SEARCH()函數可基於內容查找節點位置，
+因此組合兩個函數即可實現目標功能。
+
+- 根據內容刪除節點
+
+	組合函數調用：
+
+	```sql
+	JSON_REMOVE(xxx_json_cloumn, JSON_UNQUOTE(JSON_SEARCH(xxx_json_cloumn, 'all', 'content_need_be_deleted')))
+	```
+
+	完整查找並刪除內容SQL語句：
+
+	```sql
+	update xxx_table set xxx_json_cloumn = JSON_REMOVE(xxx_json_cloumn, JSON_UNQUOTE(JSON_SEARCH(xxx_json_cloumn, 'all', 'content_need_be_deleted'))) where JSON_CONTAINS(xxx_json_cloumn, '"content_need_be_deleted"') = 1;
+	```
+
+	需要注意，JSON_REMOVE()函數僅能移除單個節點，當JSON_SEARCH()找到了多個節點時會產生錯誤。
+
+- 替換目標節點的內容
+
+	```sql
+	JSON_REPLACE(xxx_json_cloumn, JSON_UNQUOTE(JSON_SEARCH(xxx_json_cloumn, 'all', 'old_content')), 'new_content')
+	```
+
+使用JSON_SEARCH()函數查找得到的節點位置結果使用雙引號包裹，不可直接使用，
+需要使用JSON_UNQUOTE()處理後才能被其它接收JSON位置的函數(如JSON_REPLACE())使用。
+
+
+
 # Row Formats (行格式)
 表格的行格式決定了行的物理排列，會影響查詢、DML操作的性能。
 隨著多個行存入相同的磁盤頁，查詢、索引查找等操作執行速度加快，並在寫出更新內容時消耗更少的緩存和IO。
@@ -1233,3 +1307,9 @@ Unix環境下，root用戶直接使用`mysqld`指令直接手動啟動時會出�
 ```
 # mysqld --user=root
 ```
+
+### ERROR 1396 (HY000): Operation CREATE USER failed for 'root'@'xxx'
+https://stackoverflow.com/questions/5555328/error-1396-hy000-operation-create-user-failed-for-jacklocalhost
+
+### MySQL reset auto_increment value in Innodb after server restart
+https://dba.stackexchange.com/questions/16602/prevent-reset-of-auto-increment-id-in-innodb-database-after-server-restart
