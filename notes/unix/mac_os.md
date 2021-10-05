@@ -7,6 +7,7 @@
 	- [常用軟件](#常用軟件)
 	- [托盤圖標](#托盤圖標)
 	- [特殊目錄](#特殊目錄)
+	- [垃圾清理](#垃圾清理)
 - [與常規PC的不同之處](#與常規pc的不同之處)
 	- [Darwin 與 GNU/Linux 的差異](#darwin-與-gnulinux-的差異)
 	- [NVRAM](#nvram)
@@ -142,9 +143,9 @@ macOS常用軟件：
 | `AppCleaner` | APP卸載工具 |
 | `Xcode` | 集成開發環境 |
 | `iTerm2` | 終端模擬器，相比自帶終端擁有更多高級特性 |
-| `Mounty` | 掛載NTFS文件系統 |
 | `ClashX Pro` | Clash在macOS上的客戶端 |
 | `Android File Transfer` | Android文件傳輸客戶端 |
+| `OmniDiskSweeper` | 計算文件系統下各個路徑的大小，用於清理垃圾 |
 
 ## 托盤圖標
 `macOS`下托盤圖標可以使用`Command + 鼠標左鍵`點選，拖動進行排序。
@@ -167,10 +168,31 @@ macOS常用軟件：
 | ~/Library/Preferences | 用戶程序配置目錄 |
 | ~/Library/Saved Application State | 用戶程序狀態目錄 |
 | ~/Library/VirtualBox | VirtualBox的配置文件目錄，刪除則VirtualBox恢復初始狀態，需要重新添加虛擬機 |
+| /Library/InstallerSandboxes | 子路徑：系統軟件(`.PKInstallSandboxManager-SystemSoftware`)；App Store軟件(`.PKInstallSandboxManager`)更新緩存路徑。當更新大型軟件失敗(如XCode)時，該路徑下會保存大量安裝文件且不自動清理 |
 
 刪除一個應用後，通常需要檢查Library路徑下的`Caches`、`Preferences`、`Application Support`、
 `Saved Application State`等路徑，清理軟件的殘餘配置；
 建議使用`AppCleaner`卸載軟件，能在卸載軟件時檢測相關配置目錄，清理軟件相關配置。
+
+## 垃圾清理
+macOS內置了`System Information`工具中提供了基本的存儲佔用分析，
+但大部分內容會被歸類到`Others`中，需要使用更專業的存儲分析工具來分析每個路徑的佔用空間，
+進而確定過多佔用存儲的路徑。
+
+推薦使用[`OmniDiskSweeper`](https://www.omnigroup.com/more)，
+Homebrew Cask中已收錄該軟件，可直接安裝：
+
+```
+$ brew install omnidisksweeper
+```
+
+默認該軟件以普通權限執行，部分路徑無法分析，
+導致存儲計算大小可能與內置System Information工具中展示的大小存在差異。
+應使用sudo執行方能正確分析所有路徑：
+
+```
+$ sudo /Applications/OmniDiskSweeper.app/Contents/MacOS/OmniDiskSweeper
+```
 
 
 
@@ -640,13 +662,13 @@ $ brew services cleanup <!-- 清理未被使用的服務 -->
 
 
 # 文件系統
-`macOS`默認文件系統爲`HFS+`，此類文件系統同時支持區分大小寫(`Case-Sensitive`)和忽略大小寫兩種類型，
+macOS默認文件系統爲`HFS+`，此類文件系統同時支持區分大小寫(`Case-Sensitive`)和忽略大小寫兩種類型，
 在格式化時可以進行選擇。若選擇了區分大小寫形式的`HFS+`文件系統，則部分軟件將無法安裝(如`PhotoShop`等)。
 
 文件系統類型在安裝了macOS之後除了重裝系統之外無法更改，需要**慎重選擇**。
 
 ## 掛載 NTFS 讀寫
-默認情況下，`macOS`以**只讀**形式掛載`NTFS`文件系統，但`macOS`本身實現了對`NTFS`文件系統的寫入功能，
+默認情況下，macOS以**只讀**形式掛載`NTFS`文件系統，但`macOS`本身實現了對`NTFS`文件系統的寫入功能，
 創建`/etc/fstab`文件，在其中添加掛載選項：
 
 ```
