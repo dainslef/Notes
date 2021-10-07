@@ -58,6 +58,8 @@
 - [systemd](#systemd)
 	- [systemd服務管理](#systemd服務管理)
 	- [systemd服務分析](#systemd服務分析)
+	- [系統管理](#系統管理)
+		- [loginctl](#loginctl)
 - [網絡](#網絡)
 	- [net-tools & iproute2](#net-tools--iproute2)
 	- [netstat & ss](#netstat--ss)
@@ -99,7 +101,7 @@
 	- [安裝 Chrome OS](#安裝-chrome-os)
 	- [Linux容器問題](#linux容器問題)
 - [Linux常見問題記錄](#linux常見問題記錄)
-	- [sshd[2169]: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'](#sshd2169-pam_limitssshdsession-error-parsing-the-configuration-file-etcsecuritylimitsconf)
+	- [sshd: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'](#sshd-pam_limitssshdsession-error-parsing-the-configuration-file-etcsecuritylimitsconf)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
 	- [CentOS](#centos)
@@ -2008,6 +2010,133 @@ systemd提供了一系列工具用於查看查看、分析各類服務狀態。
 - `$ systemd-analyze` 顯示系統的啓動耗時
 - `$ systemd-analyze blame` 列出所有的啓動單元，按照啓動耗時的高低進行排序
 
+## 系統管理
+systemd還集成了常用的系統管理工具：
+
+| 工具名稱 | 功能 |
+| :- | :- |
+| hostnamectl | 配置主機名稱 |
+| timedatectl | 時區時間配置 |
+| localectl | 語言編碼配置 |
+| networkctl | 網絡配置 |
+| coredumpctl | 核心轉儲查看工具 |
+| journalctl | 日誌查看工具 |
+| loginctl | 會話狀態管理工具 |
+
+### loginctl
+`loginctl`用於配置systemd的登入管理器，loginctl自身服務為`systemd-logind.service`。
+
+使用loginctl可查看當前的會話狀態：
+
+```html
+<!-- 默認列出當前登入的用戶會話 -->
+$ loginctl
+SESSION  UID USER   SEAT TTY
+   1592 1001 ubuntu      pts/0
+   1593 1001 ubuntu      pts/1
+
+2 sessions listed.
+
+<!-- 展示會話狀態，默認展示當前會話，亦可添加會話ID查看指定會話狀態 -->
+$ loginctl session-status
+1593 - ubuntu (1001)
+           Since: Wed 2021-08-11 07:44:11 UTC; 2h 1min ago
+          Leader: 329658 (sshd)
+             TTY: pts/1
+          Remote: 150.136.122.136
+         Service: sshd; type tty; class user
+           State: active
+            Unit: session-1593.scope
+                  ├─329658 sshd: ubuntu [priv]
+                  ├─329731 sshd: ubuntu@pts/1
+                  ├─329732 -fish
+                  ├─330604 loginctl session-status
+                  └─330605 pager
+
+<!-- 展示會話參數，默認展示當前會話，亦可添加會話ID查看指定會話參數 -->
+$ loginctl show-session
+EnableWallMessages=no
+NAutoVTs=6
+KillUserProcesses=no
+RebootToFirmwareSetup=no
+RebootToBootLoaderMenu=18446744073709551615
+IdleHint=no
+IdleSinceHint=1628675225030795
+IdleSinceHintMonotonic=4811977373202
+DelayInhibited=shutdown
+InhibitDelayMaxUSec=30s
+UserStopDelayUSec=10s
+HandlePowerKey=poweroff
+HandleSuspendKey=suspend
+HandleHibernateKey=hibernate
+HandleLidSwitch=suspend
+HandleLidSwitchDocked=ignore
+HoldoffTimeoutUSec=30s
+IdleAction=ignore
+IdleActionUSec=30min
+PreparingForShutdown=no
+PreparingForSleep=no
+Docked=no
+LidClosed=no
+OnExternalPower=yes
+RemoveIPC=yes
+RuntimeDirectorySize=102178816
+InhibitorsMax=8192
+NCurrentInhibitors=1
+SessionsMax=8192
+NCurrentSessions=2
+```
+
+使用loginctl查看用戶狀態：
+
+```html
+<!-- 列出當前用戶 -->
+$ loginctl list-users
+ UID USER
+1001 ubuntu
+
+1 users listed.
+
+<!-- 查看用戶狀態，默認展示當前用戶，可搭配用戶ID展示特定用戶狀態 -->
+$ loginctl user-status
+ubuntu (1001)
+           Since: Wed 2021-08-11 07:27:55 UTC; 2h 22min ago
+           State: active
+        Sessions: 1593 *1592
+          Linger: yes <!-- Linger屬性控制用戶服務是否能在用戶登出後保留 -->
+            Unit: user-1001.slice
+                  ├─session-1592.scope
+                  │ ├─329368 sshd: ubuntu [priv]
+                  │ ├─329441 sshd: ubuntu@pts/0
+                  │ ├─329442 -fish
+                  │ ├─329640 man loginctl
+                  │ └─329650 pager
+                  ├─session-1593.scope
+                  │ ├─329658 sshd: ubuntu [priv]
+                  │ ├─329731 sshd: ubuntu@pts/1
+                  │ ├─329732 -fish
+                  │ ├─330745 loginctl user-status
+                  │ └─330746 pager
+                  └─user@1001.service
+                    ├─init.scope
+                    │ ├─328930 /lib/systemd/systemd --user
+                    │ └─328931 (sd-pam)
+                    └─syncthing.service
+                      └─328936 /usr/bin/syncthing -no-browser -no-restart -logflags=0
+...
+```
+
+用戶的Linger屬性控制用戶服務是否能在用戶登出後保留，修改該屬性：
+
+```html
+<!-- 默認操作當前用戶 -->
+$ loginctl enable-linger/disable-linger
+
+<!-- 啟用/禁用特定用戶的Linger -->
+$ loginctl enable-linger 用戶名/用戶ID
+$ loginctl disable-linger 用戶名/用戶ID
+```
+
 
 
 # 網絡
@@ -3472,7 +3601,7 @@ Error download the virtual machine. Please try again.
 # Linux常見問題記錄
 記錄各類發行版使用中可能會遇到的問題。
 
-## sshd[2169]: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'
+## sshd: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'
 問題描述：<br>
 修改了`/etc/security/limits.conf`，之後SSH服務無法被登陸，
 每次SSH客戶端嘗試登陸均被立即關閉連接，查看SSH服務日誌出現上述錯誤。
