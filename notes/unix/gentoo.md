@@ -291,7 +291,8 @@ Gentoo沒有提供類似`arch-chroot`之類的工具，因此在chroot之前需�
 [7]   default/linux/amd64/13.0/desktop/kde/systemd
 ```
 
-openRC服務下更換顯示管理器，編輯`/etc/conf.d/xdm`文件，將`DISPLAYMANAGER="xdm"`改爲安裝的顯示管理器：
+openRC服務下更換顯示管理器，編輯`/etc/conf.d/xdm`文件，
+將`DISPLAYMANAGER="xdm"`改爲安裝的顯示管理器：
 
 ```html
 # rc-update add xdm default <!-- 默認登錄到顯示管理器 -->
@@ -325,7 +326,6 @@ $ qfile [文件名/路徑名] <!-- 查看文件屬於哪個包 -->
 emerge常用參數：
 
 ```
-world | system， world範圍更廣，包含了system，這是兩個包的set。
 -p pretend 預覽
 -a ask 先予詢問
 -c clean 清理系統
@@ -351,7 +351,8 @@ world | system， world範圍更廣，包含了system，這是兩個包的set。
 ```
 
 ## equery
-查詢系統內已安裝的包的信息需要安裝額外的工具`app-portage/gentoolkit`，該包含有eclean、equery等工具。
+查詢系統內已安裝的包的信息需要安裝額外的工具`app-portage/gentoolkit`，
+該包含有eclean、equery等工具。
 
 ```html
 $ equery list [包名] <!-- 列出對應包名的包安裝了哪些版本 -->
@@ -362,12 +363,12 @@ $ equery uses [包名] <!-- 查看一個已經安裝的包使用了哪些USE -->
 ```
 
 ## 包組列表
-系統默認的包組有`system`和`world`，system列表爲系統成員組件，不可更改(由你選擇的profile決定)；
-world包組成員列表記錄在`/var/lib/portage/world`文件中，可自行更改，
-這些包及其依賴包被保護，其餘包被視爲孤立包，執行清理依賴命令時孤立包會被移除。
+系統默認的包組有`system`和`world`，system列表爲系統成員組件，不可更改(由選擇的profile決定)；
+world包組成員列表記錄在`/var/lib/portage/world`文件中，可自行更改。
+相關包及其依賴包被保護，其餘包被視爲孤立包，執行清理依賴命令時孤立包會被移除。
 
-一般手動執行安裝某個包時，該包的包名會被加入`/var/lib/portage/world`文件(即主動安裝的包是不會被清理的，
-除非主動移除手動安裝的包)。
+一般手動執行安裝某個包時，該包的包名會被加入`/var/lib/portage/world`文件
+(即主動安裝的包不會被清理，除非主動移除)。
 使用`--oneshot`指令安裝的包不會被加入world列表中。
 
 ## 多版本包管理(slot機制)
@@ -435,41 +436,43 @@ overlay倉庫類似於`Arch Linux`中的`AUR`倉庫，用來提供一些官方�
 頁可寫入`package.use`(單個包有效)。
 
 ## 關於 Masked
-包被Masked的原因很多。
-因爲許可證被Masked，需要將接受的許可證級別的寫在`/etc/portage/package.license`裏。
+包被Masked的原因很多，因爲許可證被Masked，
+需要將接受的許可證級別的寫在`/etc/portage/package.license`中，
 部分軟件穩定性不達標會被Masked，若需要安裝，
-則將對應的包名和穩定性級別加入`/etc/portage/package.accept_keywords`裏。
-如果要安裝很多穩定性級別不夠的包，一一加入很麻煩，
-可以在`/etc/portage/make.conf`中使用全局關鍵字`ACCEPT_KEYWORDS="~amd64"`，
+則將對應的包名和穩定性級別加入`/etc/portage/package.accept_keywords`中。
+若安裝很多穩定性級別不夠的包，一一加入較為不便，
+可在`/etc/portage/make.conf`中使用全局關鍵字`ACCEPT_KEYWORDS="~amd64"`，
 通常不推薦此選項，這會降低系統穩定性。
 
 ## 關於 CONFIGURATION FILES
-有時包更新帶來新的配置文件便會產生文件衝突，新加入的配置文件會以`.cfg00xx_[原配置文件名]`命名，可以使用：
+有時包更新帶來新的配置文件便會產生文件衝突，
+新加入的配置文件會以`.cfg00xx_[原配置文件名]`命名，
+查找此類衝突配置文件可使用指令：
 
 ```
 # find /etc -name '*._cfg*'
 ```
 
-找出這些衝突的配置文件，然後一一比較內容，並決定取捨。
+比較文件內容後，自行決定取捨。
 
 ## openRC
 Gentoo默認使用`openRC`管理服務，常用指令：
 
 ```html
-# rc-update -a [服務名] default //添加一個服務(add)
-# rc-update -d [服務名] default //移除一個服務(delete)
-# rc-update //列出服務樹(已設置自啓動的服務)
-# rc-update -v //列出服務樹(包括未設置自啓動的服務)
-# rc-status //查看用戶添加啓動的服務
-# rc-status [運行級別] //查看某個運行級別中的服務
-# rc-status -s //顯示所有服務的狀態
+# rc-update -a [服務名] default <!-- 添加一個服務(add) -->
+# rc-update -d [服務名] default <!-- 移除一個服務(delete) -->
+# rc-update <!-- 列出服務樹(已設置自啓動的服務) -->
+# rc-update -v <!-- 列出服務樹(包括未設置自啓動的服務) -->
+# rc-status <!-- 查看用戶添加啓動的服務 -->
+# rc-status [運行級別] <!-- 查看某個運行級別中的服務 -->
+# rc-status -s <!-- 顯示所有服務的狀態 -->
 ```
 
 openRC系統的服務模塊位於`/etc/conf.d`目錄下，可以根據需求自行添加。
 
 ## MySQL初始化
-默認情況下，安裝完MySQL/MariaDB數據庫並未進行初始化配置，此時服務無法啓動，
-需要手動進行初始化：
+默認情況下，安裝完MySQL/MariaDB數據庫並未進行初始化配置，
+此時服務無法啓動，需要手動進行初始化：
 
 ```html
 # emerge --config dev-db/mariadb <!-- 初始化mysql配置 -->
