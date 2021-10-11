@@ -3,9 +3,8 @@
 - [配置文件](#配置文件)
 	- [Repository](#repository)
 	- [Mirror](#mirror)
-- [依賴管理](#依賴管理)
+- [依賴處理機制](#依賴處理機制)
 	- [查看依賴樹](#查看依賴樹)
-	- [排除指定依賴](#排除指定依賴)
 - [Language Level](#language-level)
 - [Sub Project](#sub-project)
 - [Package](#package)
@@ -114,8 +113,29 @@ Maven中心倉庫服務器位於海外，在牆內下載速度較慢。國內可
 
 
 
-# 依賴管理
-依賴管理是Maven的核心功能之一。
+# 依賴處理機制
+依賴處理機制是Maven的核心功能之一，完整說明參考[Maven官方文檔](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)。
+
+Maven通過讀取項目構建文件(pom.xml)中的配置信息從遠程倉庫中查找類庫依賴，
+並自動遞歸發現依賴，直至找到所有的依賴關係。
+
+在pom.xml中使用`<dependency/>`標籤定義項目的依賴：
+
+```xml
+<project>
+	...
+	<dependencies>
+		<dependency>
+			<groupId>...</groupId>
+			<artifactId>...</artifactId>
+			<version>...</version>
+		</dependency>
+		... <!-- can add more dependencies -->
+	</dependencies>
+</project>
+```
+
+Maven的依賴管理機制對依賴關係的層級無限制，僅會在出現**環狀依賴**(cyclic dependency)時產生錯誤。
 
 ## 查看依賴樹
 在項目根路徑下執行指令，即計算整個項目的依賴，並以樹狀圖形式輸出：
@@ -125,25 +145,6 @@ $ mvn dependency:tree
 ```
 
 使用Idea時，可在Maven工具頁面中選擇`Show Dependices`按鈕查看項目依賴樹。
-
-## 排除指定依賴
-在添加某個依賴項時，可選擇排除該依賴庫的某些依賴：
-
-```xml
-<dependency>
-    <groupId>...</groupId>
-    <artifactId>...</artifactId>
-    <version>...</version>
-    <exclusions>
-        <exclusion>
-            <artifactId>要排除的內容</artifactId>
-            <groupId>要排除的內容</groupId>
-        </exclusion>
-    </exclusions>
-</dependency>
-```
-
-使用Idea時，可在Maven依賴圖中搜索指定包名，右鍵選擇`Exclude`將指定依賴從項目中排除。
 
 
 
