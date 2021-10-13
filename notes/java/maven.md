@@ -5,6 +5,9 @@
 	- [Mirror](#mirror)
 - [依賴處理機制](#依賴處理機制)
 	- [查看依賴樹](#查看依賴樹)
+	- [依賴處理特性](#依賴處理特性)
+		- [依賴協調(Dependency Mediation)](#依賴協調dependency-mediation)
+		- [依賴管理(Dependency Management)](#依賴管理dependency-management)
 - [Language Level](#language-level)
 - [Sub Project](#sub-project)
 - [Package](#package)
@@ -145,6 +148,50 @@ $ mvn dependency:tree
 ```
 
 使用Idea時，可在Maven工具頁面中選擇`Show Dependices`按鈕查看項目依賴樹。
+
+## 依賴處理特性
+由於遞歸查找依賴，類庫的依賴圖會迅速增大。因此，存在部分附加特性用於限制包含的依賴。
+
+### 依賴協調(Dependency Mediation)
+Maven提供了jar包的依賴管理機制，但Java本身不支持多版本jar/module/class，
+同一個jar/module/class，在運行期間僅能存在一個版本。
+當同一個類庫的不同版本被依賴時，通過**最近定義**(Nearest Definition)規則找到合適的版本：
+
+```
+A
+├── B
+│   └── C
+│       └── D 2.0
+└── E
+    └── D 1.0
+```
+
+在上述依賴關係樹中，A的兩個依賴B和E同時都間接依賴了D：
+
+1. A -> B -> C -> D 2.0
+1. A -> E -> D 1.0
+
+第二條依賴鏈中D的依賴路徑更短，因此依賴協調最終選擇依賴D的2.0版本。
+
+### 依賴管理(Dependency Management)
+項目中可直接指定特定依賴的版本。Maven默認會自動管理傳遞依賴而不需要再指定傳遞依賴的版本。
+當需要指定某個依賴的版本時，在`<dependencyManagement/>`標籤中直接指定特定依賴的版本：
+
+```xml
+<project>
+	...
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>xxx</groupId>
+				<artifactId>xxx</artifactId>
+				<version>x.y.z</version>
+			</dependency>
+		...
+		</dependencies>
+	</dependencyManagement>
+</project>
+```
 
 
 
