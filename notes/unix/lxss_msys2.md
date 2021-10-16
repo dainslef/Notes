@@ -1,22 +1,21 @@
 <!-- TOC -->
 
-- [MSYS2 概述](#msys2-概述)
+- [MSYS2](#msys2)
 	- [下載與安裝](#下載與安裝)
 	- [配置倉庫與源](#配置倉庫與源)
 	- [包管理](#包管理)
-	- [設置中文 LC](#設置中文-lc)
-	- [pacman-key/msys2-keyring 更新錯誤](#pacman-keymsys2-keyring-更新錯誤)
-- [Linux Subsystem 概述](#linux-subsystem-概述)
-	- [啓用 Linux Subsystem](#啓用-linux-subsystem)
-	- [管理 Linux Subsystem](#管理-linux-subsystem)
-	- [Windows Build 1709](#windows-build-1709)
+	- [設置中文LC](#設置中文lc)
+	- [pacman-key/msys2-keyring更新錯誤](#pacman-keymsys2-keyring更新錯誤)
+- [Windows Linux Subsystem](#windows-linux-subsystem)
+	- [LXSS](#lxss)
+	- [WSL](#wsl)
 - [Linux Subsystem 與 MSYS2 比較](#linux-subsystem-與-msys2-比較)
 
 <!-- /TOC -->
 
 
 
-# MSYS2 概述
+# MSYS2
 `MSYS2`基於`Cygwin`，解決了Cygwin包升級、管理不便的問題。
 MSYS2採用`ArchLinux`的`pacman`作爲包管理器，能夠方便、簡單地升級、管理已安裝的軟件包。
 
@@ -42,7 +41,7 @@ MSYS2共提供了三個倉庫：
 - 基於`Mingw`的`mingw32`、`mingw64`倉庫
 
 軟件源配置文件爲`/etc/pacman.d/mirrorlist.*`，`*`對應倉庫的名稱，每個倉庫擁有一個源配置。
-由於`GFW`，官方源不穩定，推薦使用中科大的源，在源配置中添加：
+由於GFW，官方源不穩定，推薦使用中科大的源，在源配置中添加：
 
 ```sh
 Server = https://mirrors.ustc.edu.cn/msys2/msys/$arch # mirrorlist.msys
@@ -75,7 +74,7 @@ Server = http://mirrors.ustc.edu.cn/msys2/mingw/x86_64 # mirrorlist.mingw64
 `msys`倉庫中的包會被安裝在`/usr`目錄下。
 `mingw*`倉庫中的包會被安裝在`/mingw*`目錄下。
 
-## 設置中文 LC
+## 設置中文LC
 MSYS2中默認的語言環境是`C`，需要自行設置正確的`locale`，設置方式類似於Linux。
 在Windows的環境變量設置里加入個人環境變量，對應MSYS2工具會從Windows系統的環境變量中讀取信息。
 
@@ -84,12 +83,13 @@ MSYS2中默認的語言環境是`C`，需要自行設置正確的`locale`，設�
 - 環境變量名稱： `LC_ALL`
 - 環境變量值： `zh_CN.UTF-8`
 
-## pacman-key/msys2-keyring 更新錯誤
-在啓用了`Linux Subsystem`的系統中，`Linux Subsystem`提供的`bash`優先級高於`MSYS2`提供的`bash`。
-在更新`msys2-keyring`時，會調用更新腳本`pacman-key`，該腳本默認使用`bash`執行，若等使用`Linux Subsystem`提供的`bash`會因環境不匹配而導致執行失敗。
+## pacman-key/msys2-keyring更新錯誤
+在啓用了Linux Subsystem的系統中，Linux Subsystem提供的bash優先級高於MSYS2提供的bash。
+在更新`msys2-keyring`時，會調用更新腳本`pacman-key`，該腳本默認使用bash執行，
+若等使用Linux Subsystem提供的bash會因環境不匹配而導致執行失敗。
 
 `pacman`指令會因爲密鑰庫更新失敗不能正常地更新倉庫信息。
-解決方案是安裝`zsh`，將`pacman-key`腳本的執行`Shell`切換到`zsh`。
+解決方案是安裝`zsh`，將pacman-key腳本的執行Shell切換到`zsh`。
 編輯`[MSYS根路徑]/usr/bin/pacman-key`文件，原內容：
 
 ```bash
@@ -104,7 +104,7 @@ MSYS2中默認的語言環境是`C`，需要自行設置正確的`locale`，設�
 ...
 ```
 
-之後重新執行`pacman-key`再次初始化密鑰庫即可正常更新`pacman`倉庫數據：
+之後重新執行pacman-key再次初始化密鑰庫即可正常更新pacman倉庫數據：
 
 ```
 $ pacman-key --init
@@ -113,42 +113,44 @@ $ pacman-key --populate
 
 
 
-# Linux Subsystem 概述
-在`Windows 10`週年更新`Version 1607`中引入了`Linux Subsystem`(`LXSS`)。
+# Windows Linux Subsystem
+在`Windows 10`週年更新`Version 1607`中引入了`Linux Subsystem`(簡稱`LXSS`)，
+之後`Version 1709`中正式發布定名`Windows Linux Subsystem`(簡稱`WSL`)。
 
-## 啓用 Linux Subsystem
-啓用`Linux Subsystem`需要執行以下步驟：
+## LXSS
+啓用Linux Subsystem需要執行以下步驟：
 
 1. `設置`中啓用`開發人員模式`。
 1. `啓用或關閉Windows功能`中勾選`適用於Linux的Windows子系統`。
 1. 在CMD中輸入bash指令，按照提示即可進入子系統安裝步驟。
 
-`Linux Subsystem`的安裝路徑爲`[用戶目錄]/AppData/Local/Lxss`路徑下。
+LXSS的安裝路徑爲`[用戶目錄]/AppData/Local/Lxss`路徑下。
 默認的資源管理器配置下，該目錄不可見，需要取消勾選`隱藏受保護的操作系統文件(推薦)`選項才能顯示此目錄。
 
 在`Linux Subsystem`中，Windows下的分區會被掛載到`/mnt`路徑下。
 
-## 管理 Linux Subsystem
-`Linux Subsystem`使用`lxrun`工具進行管理：
+LXSS使用`lxrun`工具進行管理：
 
-- `lxrun /install` 安裝子系統
-- `lxrun /uninstall` 移除子系統，默認情況下保留`/home`和`/root`目錄，指令搭配`/full`參數則執行完全卸載
-- `lxrun /update` 更新子系統的包索引
-- `lxrun /setdefaultuser` 配置子系統用戶
+```html
+> lxrun /install <!-- 安裝子系統 -->
+> lxrun /uninstall <!-- 移除子系統，默認情況下保留`/home`和`/root`目錄，指令搭配`/full`參數則執行完全卸載 -->
+> lxrun /update <!-- 更新子系統的包索引 -->
+> lxrun /setdefaultuser <!-- 配置子系統用戶 -->
+```
 
-## Windows Build 1709
-從`Windows Build 1709`(2017秋季創意者更新)開始，`Linux Subsystem`正式脫離`Beta`版本。
-從`Build 1709`版本開始，應用商店中直接提供`Linux Subsystem`下載。
-同時，`Linux Subsystem`也不僅限於`Ubuntu`發行版，還提供了`openSUSE`和`SUSE Linux Enterprise Server`。
+## WSL
+從`Windows Version 1709`(2017秋季創意者更新)開始，LXSS正式脫離Beta版本，正式名稱為WSL。
+從1709版本開始，應用商店中直接提供WSL發行版應用下載。
+同時，WSL也不僅限於`Ubuntu`發行版，還提供了`openSUSE`和`SUSE Linux Enterprise Server`。
 
-在`Build 1709`中`lxrun`工具依然保留，但已不推薦使用，提示該工具已被廢棄。
-應用商店中提供的新版`Linux Subsystem`不在`[用戶目錄]/AppData/Local/Lxss`路徑下。
+在1709中lxrun工具依然保留，但已不推薦使用，提示該工具已被廢棄。
+應用商店中提供的WSL不在`[用戶目錄]/AppData/Local/Lxss`路徑下。
 
-`Build 1709`中的`Linux Subsystem`新特性：
+1709中的WSL新特性：
 
-- 整個`Linux Subsystem`直接以應用商店APP的形式存在，安裝卸載更加方便。
+- WSL系統發行版部分直接以應用商店APP的形式存在，安裝卸載更加方便。
 - 支持在bash中直接執行`*.exe`可執行文件。
-- 環境變量中添加Windows的`PATH`，位於`PATH`中的Windows工具亦可直接調用。
+- 環境變量中添加Windows的PATH，位於PATH中的Windows工具亦可直接調用。
 
 
 
@@ -168,7 +170,9 @@ $ pacman-key --populate
 - 劣勢：
 
 	`Linux Subsystem`需要使用`Bash Launcher`進入獨立的Linux環境。
-	`Linux Subsystem`環境與Windows環境相互獨立存在，幾乎與宿主的Windows系統幾乎不存在任何交互。
+	`Linux Subsystem`環境與Windows環境相互獨立存在，
+	早期的LXSS幾乎與宿主的Windows系統幾乎不存在任何交互；
+	1709版本之後有部分改進，WSL的Linux Shell可訪問Windows程序，但依舊存在較多限制。
 	`Linux Subsystem`下的Unix工具如同Linux原生程序一樣區分大小寫、不支持Windows格式的路徑。
 
 `Msys2`優劣
