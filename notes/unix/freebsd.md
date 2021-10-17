@@ -11,6 +11,8 @@
 	- [pkg](#pkg)
 	- [Ports](#ports)
 	- [系统版本升级](#系统版本升级)
+- [常用工具指令](#常用工具指令)
+	- [PCI設備](#pci設備)
 
 <!-- /TOC -->
 
@@ -96,8 +98,9 @@ menuentry 'FreeBSD' {
 FreeBSD源内提供的`wpa_supplicant`工具默认未生成配置文件，需要自行在`/etc`路径下创建`wpa_supplicant.conf`。
 `wpa_supplicant.conf`配置模版如下所示：
 
-```
+```shell
 network={
+	#scan_ssid=1 # 當連接隱藏的無線熱點時需要額外添加該參數
 	ssid="无线网ssid"
 	psk="密码"
 }
@@ -136,7 +139,7 @@ FreeBSD采用传统的`BSD`风格的`init`系统，服务项在`/etc/rc.d`目录
 开机自启动的服务，以及一些系统配置存放在`/etc/rc.conf`文件中。
 例如，需要开机自启动`ssh`服务则可以将`sshd_enable="YES"`加入`rc.conf`文件中。
 
-常见的一些服务配置：
+常见服务配置：
 
 ```
 hostname="MacBook" //主机名称
@@ -206,4 +209,48 @@ FreeBSD并非**滚动发行版**，系统有明确的版本划分，升级系统
 
 ```
 # /usr/sbin/freebsd-update install
+```
+
+
+
+# 常用工具指令
+FreeBSD下大量工具指令與Linux中不同。
+
+## PCI設備
+Linux下使用`lspci`查看PCI設備，FreeBSD中則使用`pciconf`：
+
+```html
+$ pciconf -h
+usage: pciconf -l [-bcv]
+       pciconf -a selector
+       pciconf -r [-b | -h] selector addr[:addr2]
+       pciconf -w [-b | -h] selector addr value
+
+$ pciconf -l
+hostb0@pci0:0:0:0:  class=0x060000 card=0x00000000 chip=0x12378086 rev=0x02 hdr=0x00
+isab0@pci0:0:1:0:  class=0x060100 card=0x00000000 chip=0x70008086 rev=0x00 hdr=0x00
+atapci0@pci0:0:1:1:  class=0x01018a card=0x00000000 chip=0x71118086 rev=0x01 hdr=0x00
+vgapci0@pci0:0:2:0:  class=0x030000 card=0x00000000 chip=0xbeef80ee rev=0x00 hdr=0x00
+em0@pci0:0:3:0:   class=0x020000 card=0x001e8086 chip=0x100e8086 rev=0x02 hdr=0x00
+none0@pci0:0:4:0:  class=0x088000 card=0x00000000 chip=0xcafe80ee rev=0x00 hdr=0x00
+none1@pci0:0:7:0:  class=0x068000 card=0x00000000 chip=0x71138086 rev=0x08 hdr=0x00
+atapci1@pci0:0:13:0:  class=0x010601 card=0x00000000 chip=0x28298086 rev=0x02 hdr=0x00
+
+$ pciconf -lv <!-- 查看完整信息 -->
+hostb0@pci0:0:0:0: class=0x060000 card=0x00000000 chip=0x12378086 rev=0x02 hdr=0x00
+    vendor     = 'Intel Corporation'
+    device     = '82440/1FX 440FX (Natoma) System Controller'
+    class      = bridge
+    subclass   = HOST-PCI
+isab0@pci0:0:1:0: class=0x060100 card=0x00000000 chip=0x70008086 rev=0x00 hdr=0x00
+    vendor     = 'Intel Corporation'
+    device     = 'PIIX3 PCI-to-ISA Bridge (Triton II) (82371SB)'
+    class      = bridge
+    subclass   = PCI-ISA
+atapci0@pci0:0:1:1: class=0x01018a card=0x00000000 chip=0x71118086 rev=0x01 hdr=0x00
+    vendor     = 'Intel Corporation'
+    device     = 'PIIX4/4E/4M IDE Controller (82371AB/EB/MB)'
+    class      = mass storage
+    subclass   = ATA
+...
 ```
