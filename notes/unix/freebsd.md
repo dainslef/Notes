@@ -95,22 +95,36 @@ menuentry 'FreeBSD' {
 
 # 无线网络配置
 命令行环境下配置无线网络推荐使用`wpa_supplicant`工具。
-FreeBSD源内提供的`wpa_supplicant`工具默认未生成配置文件，需要自行在`/etc`路径下创建`wpa_supplicant.conf`。
-`wpa_supplicant.conf`配置模版如下所示：
+需要自行在`/etc`路径下创建`wpa_supplicant.conf`。
+配置模版如下所示：
 
 ```shell
 network={
-	#scan_ssid=1 # 當連接隱藏的無線熱點時需要額外添加該參數
+	# scan_ssid=1 # 當連接隱藏的無線熱點時需要額外添加該參數
 	ssid="无线网ssid"
 	psk="密码"
 }
 ```
 
-默认无线网卡名称为`ath0`。将无线配置写入`/etc/rc.conf`中：
+無限設備需要寫入`/etc/rc.conf`中，配置規則：
+
+```html
+wlans_無線設備名稱="無線網絡接口名稱" <!-- FreeBSD中無線網絡接口名稱通常使用 wlan0 -->
+ifconfig_無線網絡接口名稱="WPA DHCP"
+```
+
+無線設備名稱使用sysctl指令查詢，示例：
 
 ```
-wlan_ath0="wlan0"
-ifconfig_wlan="WPA DHCP"
+$ sysctl net.wlan.devices
+sysctl net.wlan.devices: iwm0
+```
+
+可知無線設備為`iwm0`，則對應無線配置為：
+
+```
+wlans_iwm0="wlan0"
+ifconfig_wlan0="WPA DHCP"
 ```
 
 之后启动网络服务：
@@ -122,8 +136,8 @@ ifconfig_wlan="WPA DHCP"
 连接未加密的无线网络，不需要使用`wpa_supplicant.conf`，直接在`/etc/rc.conf`中添加：
 
 ```
-wlans_ath0="wlan0"
-ifconfig_wlan0="ssid [无线网ssid] DHCP”
+wlans_iwm0="wlan0"
+ifconfig_wlan0="ssid [无线网ssid] DHCP"
 ```
 
 
@@ -159,13 +173,13 @@ FreeBSD同时提供了基于源码编译软件包的`Ports`系统和基于预编
 ## pkg
 `FreeBSD 10`之后引入了新的`pkg`工具用于管理软件包，常用指令类似与`yum/apt/dnf`：
 
-```
-# pkg install [软件包名称]
-# pkg search [软件包名称]
-# pkg remove [软件包名称]
-# pkg autoremove [软件包名称]
-# pkg info //查询所有已安装的软件包
-# pkg info [软件包名称] //查询某个软件包的具体信息(包括软件包的文件组成，依赖关系，来源等)
+```html
+# pkg install 软件包名称
+# pkg search 软件包名称
+# pkg remove 软件包名称
+# pkg autoremove 软件包名称
+# pkg info <!-- 查询所有已安装的软件包 -->
+# pkg info 软件包名称 <!-- 查询某个软件包的具体信息(包括软件包的文件组成，依赖关系，来源等) -->
 ```
 
 ## Ports
