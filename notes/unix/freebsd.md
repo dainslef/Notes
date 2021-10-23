@@ -11,6 +11,8 @@
 	- [pkg](#pkg)
 	- [Ports](#ports)
 	- [系统版本升级](#系统版本升级)
+- [GUI](#gui)
+	- [Display Manager](#display-manager)
 - [常用工具指令](#常用工具指令)
 	- [PCI設備](#pci設備)
 
@@ -180,6 +182,7 @@ FreeBSD同时提供了基于源码编译软件包的`Ports`系统和基于预编
 # pkg autoremove 软件包名称
 # pkg info <!-- 查询所有已安装的软件包 -->
 # pkg info 软件包名称 <!-- 查询某个软件包的具体信息(包括软件包的文件组成，依赖关系，来源等) -->
+# pkg query -e '%a = 0' %o <!-- 展示手動安裝的軟件包 -->
 ```
 
 ## Ports
@@ -223,6 +226,49 @@ FreeBSD并非**滚动发行版**，系统有明确的版本划分，升级系统
 
 ```
 # /usr/sbin/freebsd-update install
+```
+
+
+
+# GUI
+FreeBSD在啟用X Window Server之前需要首先安裝`drm-kmod`：
+
+```
+# pkg install drm-kmod
+```
+
+並在`/etc/rc.conf`中進行配置：
+
+```shell
+kld_list="i915kms" # Intel顯卡使用 i915kms ，AMD顯卡參照安裝時的提示
+```
+
+啟用X Window的用戶需要添加到`video`用戶組中：
+
+```
+# pw groupmod video -m 用戶名
+```
+
+之後的步驟與配置Linux X Window類似，安裝根據顯卡xf86系列驅動：
+
+```html
+# pkg install xf86-video-intel <!-- AMD 為 xf86-video-ati -->
+# pkg install xf86-input-libinput <!-- 鍵盤觸摸板驅動 -->
+```
+
+## Display Manager
+與Linux環境下類似，常見DM包括：
+
+- GDM，Gnome項目提供
+- SDDM，通常搭配KDE桌面
+- LightDM，其它桌面/WM使用
+
+若使用LightDM，則需要配套安裝`lightdm-gtk-greeter`，否則無法啟動。
+DM服務默認不會開機自啟動，需要自啟動則在`/etc/rc.conf`中啟用對應DM：
+
+```shell
+lightdm_enable="YES" # LightDM
+sddm_enable="YES" # SDDM
 ```
 
 
