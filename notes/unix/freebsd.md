@@ -1,16 +1,16 @@
 <!-- TOC -->
 
 - [概述](#概述)
-	- [与 Linux 的比较](#与-linux-的比较)
-- [安装与配置](#安装与配置)
-	- [UEFI引导](#uefi引导)
-	- [GRUB2引导](#grub2引导)
-- [无线网络配置](#无线网络配置)
-- [服务管理](#服务管理)
+	- [與 Linux 的比較](#與-linux-的比較)
+- [安裝與配置](#安裝與配置)
+	- [UEFI引導](#uefi引導)
+	- [GRUB2引導](#grub2引導)
+- [無線網絡配置](#無線網絡配置)
+- [服務管理](#服務管理)
 - [包管理](#包管理)
 	- [pkg](#pkg)
 	- [Ports](#ports)
-	- [系统版本升级](#系统版本升级)
+	- [系統版本升級](#系統版本升級)
 - [GUI](#gui)
 	- [Display Manager](#display-manager)
 - [常用工具指令](#常用工具指令)
@@ -21,90 +21,108 @@
 
 
 # 概述
-`FreeBSD`是**开源**、**自由**的`Unix Like`操作系统。
-FreeBSD继承自`BSD`(`Berkeley Software Distribution`)系列，是正统的Unix分支，
-但由于法律原因，FreeBSD不能称为Unix。
+`FreeBSD`是**開源**、**自由**的`Unix Like`操作系統。
+FreeBSD繼承自`BSD`(`Berkeley Software Distribution`)系列，
+是正統的Unix分支，由於法律原因，FreeBSD不能稱爲Unix；
+但內核中部分使用了FreeBSD的macOS(Darwin/XNU)，獲得了`UNIX 03`認證。
 
-相比Linux，FreeBSD更加贴近传统Unix的设计理念。
+相比Linux，FreeBSD更加貼近傳統Unix的設計理念。
 
-## 与 Linux 的比较
-授权协议差异：
+## 與 Linux 的比較
+授權協議差異：
 
-- Linux使用`GPLv2`许可证，许可证兼容性较差，内核二次开发需要继续开源代码，直接导致一些使用其它许可证的开源技术无法并入Linux内核，如`ZFS`文件系统
-- FreeBSD使用`BSD`许可证，许可证宽松，有多家公司基于FreeBSD进行商业性的二次开发，如`Apple`的`macOS`、`Sony`的`Play Station 3/4`等
+- Linux使用`GPLv2`許可證，許可證兼容性較差，內核二次開發需要繼續開源代碼，
+直接導致一些使用其它許可證的開源技術無法併入Linux內核，如`ZFS`文件系統
+- FreeBSD使用`BSD`許可證，許可證寬鬆，有多家公司基於FreeBSD進行商業性的二次開發，
+如`Apple`的`macOS`、`Sony`的`Play Station 3/4`等
 
-开发模式差异：
+開發模式差異：
 
-- Linux项目仅仅包含内核开发，开发迭代较快，上游工具链由不同的团队维护，同时有众多基于Linux内核的**发行版**
-- FreeBSD项目是完整的操作系统，包含内核、设备驱动、工具链、文档等，整个系统均由同一团队维护，因而具有较高的一致性，但开发迭代较慢，衍生发行版也较少
+- Linux項目僅僅包含內核開發，開發迭代較快，
+上游工具鏈由不同的團隊維護，同時有衆多基於Linux內核的**發行版**
+- FreeBSD項目是完整的操作系統，包含內核、設備驅動、工具鏈、文檔等，
+整個系統均由同一團隊維護，因而具有較高的一致性，但開發迭代較慢，衍生發行版也較少
 
-社区规模差异：
+社區規模差異：
 
-- Linux商业宣传优秀，社会关注度高，开发团队庞大，对于新硬件、新技术有较好支持
-- FreeBSD关注度和商业宣传不如Linux，开发团队规模较小，开发进度较慢，对新硬件的支持较为缓慢
+- Linux商業宣傳優秀，社會關注度高，開發團隊龐大，對於新硬件、新技術有較好支持
+- FreeBSD關注度和商業宣傳不如Linux，開發團隊規模較小，開發進度較慢，對新硬件的支持較爲緩慢
 
 
 
-# 安装与配置
-[FreeBSD官网](http://ftp.freebsd.org/pub/FreeBSD)提供了镜像下载。
-`ISO-IMAGES`目录下即为正式发布版本的镜像，选择匹配的CPU架构和版本即可。
+# 安裝與配置
+[FreeBSD官網](http://ftp.freebsd.org/pub/FreeBSD)提供了鏡像下載。
+`ISO-IMAGES`目錄下即爲正式發佈版本的鏡像，選擇匹配的CPU架構和版本即可。
 
-镜像命名规则如下：
-
-```
-FreeBSD-[版本号]-RELEASE-[CPU架构]-[镜像类型].img/iso
-```
-
-镜像类型分为以下几类：
-
-- `bootonly` 后缀名为`iso`，仅供启动引导使用
-- `disc1` 后缀名为`iso`，基本镜像，包含基本软件包
-- `dvd1` 后缀名为`iso`，包含大量常用软件包
-- `memstick` 后缀名`img`，刻录使用镜像，包含基本软件包
-- `memstick-mini` 后缀名`img`，刻录使用镜像，包含核心软件包，最小化安装使用
-
-后缀名`iso`的镜像用于虚拟机启动，后缀名`img`的镜像用于刻盘安装。
-刻录镜像使用`dd`指令，并需要添加部分参数，以`amd64`架构的`memstick-mini`镜像为例，刻录指令如下：
+鏡像命名規則如下：
 
 ```
-# dd if='FreeBSD-[版本]-RELEASE-amd64-memstick-mini.img' of='/dev/[磁盘id]' bs=1M conv=sync
+FreeBSD-[版本號]-RELEASE-[CPU架構]-[鏡像類型].img/iso
 ```
 
-## UEFI引导
-`FreeBSD 10`开始引入`UEFI`启动支持，`FreeBSD 10`运行在`UEFI`模式下需要下载独立的带有`uefi`名称的镜像版本。
-以`FreeBSD 10.3`为例，对应的`amd64`刻录镜像名称为`FreeBSD-10.3-RELEASE-amd64-uefi-memstick.img`。
-从`FreeBSD 11`开始，镜像均支持`UEFI`启动，不再区分是否带有`uefi`。
+鏡像類型分爲以下幾類：
 
-引导`UEFI`模式安装的`FreeBSD`需要下载`iso`格式的镜像，解压后提取`/boot/boot1.efi`文件。
-在`ESP`分区中创建`FreeBSD`目录，将`boot1.efi`文件拷贝到其中。
-在`UEFI BIOS`中手动选取`boot1.efi`文件作为系统引导项，重启即可在`UEFI`模式下引导安装完成的`FreeBSD`系统。
+- `bootonly` 後綴名爲`iso`，僅供啓動引導使用
+- `disc1` 後綴名爲`iso`，基本鏡像，包含基本軟件包
+- `dvd1` 後綴名爲`iso`，包含大量常用軟件包
+- `memstick` 後綴名`img`，刻錄使用鏡像，包含基本軟件包
+- `memstick-mini` 後綴名`img`，刻錄使用鏡像，包含核心軟件包，最小化安裝使用
 
-## GRUB2引导
-在`grub.conf`文件中为`FreeBSD`创建启动项，指定`FreeBSD`启动文件`boot1.efi`的位置，配置如下：
+後綴名`iso`的鏡像用於虛擬機啓動，後綴名`img`的鏡像用於刻盤安裝。
+刻錄鏡像使用`dd`指令，並需要添加部分參數，以`amd64`架構的`memstick-mini`鏡像爲例，刻錄指令如下：
+
+```
+# dd if='FreeBSD-[版本]-RELEASE-amd64-memstick-mini.img' of='/dev/[磁盤id]' bs=1M conv=sync
+```
+
+## UEFI引導
+`FreeBSD 10`開始引入UEFI啓動支持，FreeBSD 10運行在UEFI模式下需要下載獨立的帶有`uefi`名稱的鏡像版本。
+以`FreeBSD 10.3`爲例，對應的amd64刻錄鏡像名稱爲`FreeBSD-10.3-RELEASE-amd64-uefi-memstick.img`。
+從`FreeBSD 11`開始，鏡像均支持UEFI啓動，不再區分是否帶有uefi。
+
+使用`efibootmgr`可為手動生成引導菜單：
+
+```html
+<!-- 掛載ESP分區到 /boot/efi -->
+# mount -t msdos ESP分區 /boot/efi
+
+<!-- 複製引導efi到ESP分區 -->
+# mkdir -p /boot/efi/ESP/FreeBSD/
+$ cp /boot/loader.efi /boot/efi/ESP/FreeBSD/loader.efi
+
+<!-- 創建引導項 -->
+# efibootmgr -acl /boot/efi/EFI/FreeBSD/loader.efi -L FreeBSD
+```
+
+更多efibootmgr說明可參考[FreeBSD手冊](https://www.freebsd.org/cgi/man.cgi?query=efibootmgr)。
+注意**不要**在chroot環境下使用efibootmgr創建引導項，chroot環境下生成的引導efi路徑可能不爭取。
+
+## GRUB2引導
+在`grub.conf`文件中爲FreeBSD創建啓動項，指定FreeBSD啓動文件`boot1.efi`的位置，配置如下：
 
 ```
 menuentry 'FreeBSD' {
     insmod part_gpt
     insmod fat
     set root='hd0,gpt1'
-    chainloader /EFI/FreeBSD/boot1.efi # FreeBSD efi文件的实际路径
+    chainloader /EFI/FreeBSD/boot1.efi # FreeBSD efi文件的實際路徑
 }
 ```
 
-使用`boot1.efi`文件引导`FreeBSD`相比直接通过`GRUB2`启动**BSD内核**的方式更加简单，无需复杂的引导配置。
+使用`boot1.efi`文件引導FreeBSD相比直接通過GRUB2啓動**BSD內核**的方式更加簡單，無需複雜的引導配置。
 
 
 
-# 无线网络配置
-命令行环境下配置无线网络推荐使用`wpa_supplicant`工具。
-需要自行在`/etc`路径下创建`wpa_supplicant.conf`。
+# 無線網絡配置
+命令行環境下配置無線網絡推薦使用`wpa_supplicant`工具。
+需要自行在`/etc`路徑下創建`wpa_supplicant.conf`。
 配置模版如下所示：
 
 ```shell
 network={
 	# scan_ssid=1 # 當連接隱藏的無線熱點時需要額外添加該參數
-	ssid="无线网ssid"
-	psk="密码"
+	ssid="無線網ssid"
+	psk="密碼"
 }
 ```
 
@@ -129,100 +147,100 @@ wlans_iwm0="wlan0"
 ifconfig_wlan0="WPA DHCP"
 ```
 
-之后启动网络服务：
+之後啓動網絡服務：
 
 ```
 # service netif start
 ```
 
-连接未加密的无线网络，不需要使用`wpa_supplicant.conf`，直接在`/etc/rc.conf`中添加：
+連接未加密的無線網絡，不需要使用`wpa_supplicant.conf`，直接在`/etc/rc.conf`中添加：
 
 ```
 wlans_iwm0="wlan0"
-ifconfig_wlan0="ssid [无线网ssid] DHCP"
+ifconfig_wlan0="ssid [無線網ssid] DHCP"
 ```
 
 
 
-# 服务管理
-FreeBSD采用传统的`BSD`风格的`init`系统，服务项在`/etc/rc.d`目录下。
-可以使用service命令来管理服务：
+# 服務管理
+FreeBSD採用傳統的BSD風格的init系統，服務項在`/etc/rc.d`目錄下。
+可以使用service命令來管理服務：
 
 ```
-# service [服务名称] [start | stop | status]
+# service [服務名稱] [start | stop | status]
 ```
 
-开机自启动的服务，以及一些系统配置存放在`/etc/rc.conf`文件中。
-例如，需要开机自启动`ssh`服务则可以将`sshd_enable="YES"`加入`rc.conf`文件中。
+開機自啓動的服務，以及一些系統配置存放在`/etc/rc.conf`文件中。
+例如，需要開機自啓動SSH服務則可以將`sshd_enable="YES"`加入`rc.conf`文件中。
 
-常见服务配置：
+常見服務配置：
 
-```
-hostname="MacBook" //主机名称
-ifconfig_em0="DHCP" //网络DHCP
-ifconfig_em0_ipv6="inet6 accept_rtadv" //ipv6
-sshd_enable="YES" //ssh服务
-ntpd_enable="YES" //时间同步服务
-powerd_enable="YES" //电源管理服务
-dumpdev="AUTO" //内核错误转储服务
+```shell
+hostname="MacBook" # 主機名稱
+ifconfig_em0="DHCP" # 網絡DHCP
+ifconfig_em0_ipv6="inet6 accept_rtadv" # ipv6
+sshd_enable="YES" # ssh服務
+ntpd_enable="YES" # 時間同步服務
+powerd_enable="YES" # 電源管理服務
+dumpdev="AUTO" # 內核錯誤轉儲服務
 ```
 
 
 
 # 包管理
-FreeBSD同时提供了基于源码编译软件包的`Ports`系统和基于预编译二进制包的`pkg`包管理。
+FreeBSD同時提供了基於源碼編譯軟件包的`Ports`系統和基於預編譯二進制包的`pkg`包管理。
 
 ## pkg
-`FreeBSD 10`之后引入了新的`pkg`工具用于管理软件包，常用指令类似与`yum/apt/dnf`：
+`FreeBSD 10`之後引入了新的`pkg`工具用於管理軟件包，常用指令類似與`yum/apt/dnf`：
 
 ```html
-# pkg install 软件包名称
-# pkg search 软件包名称
-# pkg remove 软件包名称
-# pkg autoremove 软件包名称
-# pkg info <!-- 查询所有已安装的软件包 -->
-# pkg info 软件包名称 <!-- 查询某个软件包的具体信息(包括软件包的文件组成，依赖关系，来源等) -->
+# pkg install 軟件包名稱
+# pkg search 軟件包名稱
+# pkg remove 軟件包名稱
+# pkg autoremove 軟件包名稱
+# pkg info <!-- 查詢所有已安裝的軟件包 -->
+# pkg info 軟件包名稱 <!-- 查詢某個軟件包的具體信息(包括軟件包的文件組成，依賴關係，來源等) -->
 # pkg query -e '%a = 0' %o <!-- 展示手動安裝的軟件包 -->
 ```
 
 ## Ports
-`Ports`系统提供了官方源内所有软件包的**源码树**，编译安装前能够定制编译参数，控制依赖项。
-Ports源码树位于`/usr/ports`目录之，首次使用前需要初始化Ports树，执行：
+`Ports`系統提供了官方源內所有軟件包的**源碼樹**，編譯安裝前能夠定製編譯參數，控制依賴項。
+Ports源碼樹位於`/usr/ports`目錄之，首次使用前需要初始化Ports樹，執行：
 
 ```
 # portsnap fetch extract
 ```
 
-之后更新Ports树执行：
+之後更新Ports樹執行：
 
 ```
 # portsnap update
 ```
 
-编译Ports树下某个软件包的源码只需进入对应的源码目录中，执行以下步骤：
+編譯Ports樹下某個軟件包的源碼只需進入對應的源碼目錄中，執行以下步驟：
 
-1. `make config` 进入交互式界面，配置编译依赖
-1. `make` 执行编译操作
-1. `make install` 编译完成后执行安装操作
-1. `make clean` 安装完成后清理编译生成的临时文件
+1. `make config` 進入交互式界面，配置編譯依賴
+1. `make` 執行編譯操作
+1. `make install` 編譯完成後執行安裝操作
+1. `make clean` 安裝完成後清理編譯生成的臨時文件
 
-使用源码编译的软件包安装后同样受到`pkg`包管理器的管理。
+使用源碼編譯的軟件包安裝後同樣受到`pkg`包管理器的管理。
 
-## 系统版本升级
-FreeBSD并非**滚动发行版**，系统有明确的版本划分，升级系统版本需要使用升级工具`freebsd-update`。
-升级到指定版本，执行指令：
+## 系統版本升級
+FreeBSD並非**滾動發行版**，系統有明確的版本劃分，升級系統版本需要使用升級工具`freebsd-update`。
+升級到指定版本，執行指令：
 
 ```
-# freebsd-update -r [版本号-发布状态] upgrade
+# freebsd-update -r [版本號-發佈狀態] upgrade
 ```
 
-以`FreeBSD 10.1`正式版，执行指令：
+以`FreeBSD 10.1`正式版，執行指令：
 
 ```
 # freebsd-update -r 10.1-RELEASE upgrade
 ```
 
-之后系统会开始下载升级所需要的补丁，下载完成之后，执行更新指令：
+之後系統會開始下載升級所需要的補丁，下載完成之後，執行更新指令：
 
 ```
 # /usr/sbin/freebsd-update install
