@@ -9,6 +9,7 @@
 - [Windows Linux Subsystem](#windows-linux-subsystem)
 	- [LXSS](#lxss)
 	- [WSL](#wsl)
+	- [WSL2](#wsl2)
 - [Linux Subsystem 與 MSYS2 比較](#linux-subsystem-與-msys2-比較)
 
 <!-- /TOC -->
@@ -115,10 +116,10 @@ $ pacman-key --populate
 
 # Windows Linux Subsystem
 在`Windows 10`週年更新`Version 1607`中引入了`Linux Subsystem`(簡稱`LXSS`)，
-之後`Version 1709`中正式發布定名`Windows Linux Subsystem`(簡稱`WSL`)。
+之後`Version 1709`中正式發布定名`Windows Subsystem for Linux`(簡稱`WSL`)。
 
 ## LXSS
-啓用Linux Subsystem需要執行以下步驟：
+啓用LXSS需要執行以下步驟：
 
 1. `設置`中啓用`開發人員模式`。
 1. `啓用或關閉Windows功能`中勾選`適用於Linux的Windows子系統`。
@@ -127,7 +128,7 @@ $ pacman-key --populate
 LXSS的安裝路徑爲`[用戶目錄]/AppData/Local/Lxss`路徑下。
 默認的資源管理器配置下，該目錄不可見，需要取消勾選`隱藏受保護的操作系統文件(推薦)`選項才能顯示此目錄。
 
-在`Linux Subsystem`中，Windows下的分區會被掛載到`/mnt`路徑下。
+在LXSS中，Windows下的分區會被掛載到`/mnt`路徑下。
 
 LXSS使用`lxrun`工具進行管理：
 
@@ -152,12 +153,26 @@ LXSS使用`lxrun`工具進行管理：
 - 支持在bash中直接執行`*.exe`可執行文件。
 - 環境變量中添加Windows的PATH，位於PATH中的Windows工具亦可直接調用。
 
+WSL基於API轉發，詳細實現機制參考博客[Windows for Linux Nerds](https://blog.jessfraz.com/post/windows-for-linux-nerds/)，
+以及[微軟官方文檔](https://docs.microsoft.com/en-us/archive/blogs/wsl/windows-subsystem-for-linux-overview)。
+
+## WSL2
+WSL基於API轉發的實現存在一系列問題：
+
+- 文件系統性能(file system performance)
+- 完整的系統調用兼容性(full system call compatibility)
+
+為了改善這些問題，微軟提出了基於虛擬化技術的WSL2。
+WSL2需要`Windows Version 1903`或更高的版本。
+
+關於WSL/WSL2的對比，參見[微軟官方文檔](https://docs.microsoft.com/en-us/windows/wsl/compare-versions)。
+
 
 
 # Linux Subsystem 與 MSYS2 比較
 `Linux Subsystem`與`Msys`等有着本質區別：
 
-- `MSYS2`是傳統的`Unix`工具鏈的`Windows`版本移植，工具均爲`Windows`二進制格式(`PE32/PE32+`)的程序。
+- `MSYS2`是傳統的Unix工具鏈的Windows版本移植，工具均爲Windows二進制格式(`PE32/PE32+`)的程序。
 - `Linux Subsystem`是運行在Windows內核上的完整Linux子系統，軟件包均爲原生Linux二進制格式(`ELF`)程序。
 
 `Linux Subsystem`優劣
