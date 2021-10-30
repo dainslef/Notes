@@ -15,6 +15,7 @@
 	- [Display Manager](#display-manager)
 - [常用工具指令](#常用工具指令)
 	- [PCI設備](#pci設備)
+	- [磁盤分區管理](#磁盤分區管理)
 
 <!-- /TOC -->
 
@@ -331,4 +332,62 @@ atapci0@pci0:0:1:1: class=0x01018a card=0x00000000 chip=0x71118086 rev=0x01 hdr=
     class      = mass storage
     subclass   = ATA
 ...
+```
+
+## 磁盤分區管理
+FreeBSD中使用`fdisk`、`gpart`等工具管理磁盤。
+使用`geom`、`diskinfo`等工具查看磁盤、分區信息。
+
+FreeBSD中磁盤設備的命名規則也與Linux不同，
+Linux下多塊磁盤按照`/dev/sda,sdb,sdc,...`命名，
+磁盤內的分區(以sda為例)按照`/dev/sda1,sda2,sda3,...`命名；
+FreeBSD中則按照`/dev/ada0,ada1,ada2,...`命名，
+磁盤內的分區(以ada0為例)按照`/dev/ada0p1,ada0p2,ada0p3,...`命名。
+
+Linux下磁盤設備為`block special`，FreeBSD中磁盤設備為`character special`。
+
+fdisk工具與Linux下類似，但參數略有不同，且對GPT分區支持較差。
+gpart類似Linux下的parted工具，用於GPT分區的操作：
+
+```
+$ gpart show
+=>      34  31277165  ada3  GPT  (14G)
+        34      1024     1  bios-boot  (512k)
+      1058         6        - free -  (3.0k)
+      1064  31275184     2  freebsd-zfs  (14G)
+  31276248       951        - free -  (475k)
+
+=>         34  11721045101  ada0  GPT  (5.5T)
+           34           94        - free -  (47k)
+          128      4194304     1  freebsd-swap  (2.0G)
+      4194432  11716850696     2  freebsd-zfs  (5.5T)
+  11721045128            7        - free -  (3.5k)
+
+=>         34  11721045101  ada1  GPT  (5.5T)
+           34           94        - free -  (47k)
+          128      4194304     1  freebsd-swap  (2.0G)
+      4194432  11716850696     2  freebsd-zfs  (5.5T)
+  11721045128            7        - free -  (3.5k)
+
+...
+```
+
+diskinfo工具則用於展示更詳盡的磁盤信息：
+
+```
+$ diskinfo -v ada1
+ada1
+	512         	# sectorsize
+	6001175126016	# mediasize in bytes (5.5T)
+	11721045168 	# mediasize in sectors
+	4096        	# stripesize
+	0           	# stripeoffset
+	11628021    	# Cylinders according to firmware.
+	16          	# Heads according to firmware.
+	63          	# Sectors according to firmware.
+	HGST HDN726060ALE614	# Disk descr.
+	K1JVDUGD    	# Disk ident.
+	No          	# TRIM/UNMAP support
+	7200        	# Rotation rate in RPM
+	Not_Zoned   	# Zone Mode
 ```
