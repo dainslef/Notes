@@ -82,7 +82,8 @@ Spark同時提供了一套高級工具集包括`Spark SQL`(針對SQL和結構化
 `GraphX`(針對圖處理)、`Spark Streaming`。
 
 ## 學習資料
-Spark相關的學習資料主要可以參考[官方文檔](http://spark.apache.org/docs/latest/)，官方文檔的內容比較全面，但部分內容不夠細緻，
+Spark相關的學習資料主要可以參考[官方文檔](http://spark.apache.org/docs/latest/)，
+官方文檔的內容比較全面，但部分內容不夠細緻，
 適合維護Spark環境的運維人員以及僅使用Spark API而不深入研究Spark內部機制的初級開發者。
 
 對於Spark的內部機制，可直接閱讀項目源碼，亦可參考GitHub上的一些項目：
@@ -423,12 +424,14 @@ RDD支持兩類操作：
 
 	對RDD進行計算並返回計算結果，常見的action操作有`reduce()`、`collect()`、`count()`、`first()`等。
 
-所有的transformation操作是延遲執行(lazy)的，transformation操作不會立即計算結果，而僅僅是記錄要執行的操作。
-transformation操作只在action操作要求返回結果時進行計算。Spark這樣的設計能夠保證計算更有效率，
-例如，當一個數據集先後進行了`map()`和`reduce()`操作，Spark服務端便只會返回reduce之後的結果，而不是更大的map之後的數據集。
+所有的transformation操作是延遲執行(lazy)的，transformation操作不會立即計算結果，
+而僅僅是記錄要執行的操作。transformation操作只在action操作要求返回結果時進行計算。
+Spark這樣的設計能夠保證計算更有效率，例如，當一個數據集先後進行了`map()`和`reduce()`操作，
+Spark服務端便只會返回reduce之後的結果，而不是更大的map之後的數據集。
 
 默認情況下，每個執行transformation操作之後的RDD會每次執行action操作時重新計算。
-可以使用`persist()/cache()`方法將RDD在內存中持久化，Spark將在集羣中保留這些數據，在下次查詢時訪問會更加快速。
+可以使用`persist()/cache()`方法將RDD在內存中持久化，
+Spark將在集羣中保留這些數據，在下次查詢時訪問會更加快速。
 Spark同樣支持將RDD持久化到磁盤中，或是在多個節點之間複製。
 
 簡單的RDD操作示例：
@@ -470,7 +473,8 @@ RDD中的一個重要的參數是分區數量(numbers of partions)，分區數�
 Spark執行task時會在集羣中的每一個分區進行。
 
 典型的分配方式是根據CPU數目每個CPU分配2～4個分區(CPU雙核/四核)。
-通常Spark會根據集羣配置自動設置分區大小(defaultParallelism)，手動創建RDD時可通過設置`SparkContext.parallelize()`方法的第二參數來顯式地設定分區的數量。
+通常Spark會根據集羣配置自動設置分區大小(defaultParallelism)，
+手動創建RDD時可通過設置`SparkContext.parallelize()`方法的第二參數來顯式地設定分區的數量。
 
 ## RDD 依賴
 每個RDD操作都會依賴之前的RDD，根據對RDD分區的依賴關係，依賴可分爲兩類：
@@ -479,7 +483,8 @@ Spark執行task時會在集羣中的每一個分區進行。
 - **寬依賴**(Wide/Shuffle Dependency)，父RDD中的一個分區可能會被子RDD的多個分區使用(O(n)，隨分區大小線性增長)
 
 map()、filter()等窄依賴操作中分區之間平行關係，互不影響。
-每個舊分區可獨立地執行操作，因而不必要求RDD中所有分區處於相同的操作階段，舊分區執行完一個窄依賴操作後可立即執行下一個窄依賴操作。
+每個舊分區可獨立地執行操作，因而不必要求RDD中所有分區處於相同的操作階段，
+舊分區執行完一個窄依賴操作後可立即執行下一個窄依賴操作。
 窄依賴操作不會造成跨分區的數據重新排布，Spark將多個窄依賴操作劃分到**相同**的stage中。
 
 groupByKey()、reduceByKey()等寬依賴操作中RDD的每個舊分區會被多次使用，
@@ -881,7 +886,8 @@ DAGSchedulerEventProcessLoop.post()
 	}
 	```
 
-- DAGScheduler中的`runJob()`會調用自身的`submitJob()`方法提交Job，在submitJob()方法中將Job最終post到EventLoop中：
+- DAGScheduler中的`runJob()`會調用自身的`submitJob()`方法提交Job，
+在submitJob()方法中將Job最終post到EventLoop中：
 
 	```scala
 	private[spark]
@@ -987,8 +993,8 @@ DAGSchedulerEventProcessLoop.post()
 	```
 
 ### Stage Submit
-Job提交完成後，DAGScheduler的EventLoop中接收到Job提交完成的消息，開始根據Job中的finalRDD創建finalStage，
-之後反向根據RDD的依賴關係類型依次劃分、創建stage。
+Job提交完成後，DAGScheduler的EventLoop中接收到Job提交完成的消息，
+開始根據Job中的finalRDD創建finalStage，之後反向根據RDD的依賴關係類型依次劃分、創建stage。
 
 ```
 DAGSchedulerEventProcessLoop
@@ -1383,7 +1389,8 @@ CoarseGrainedSchedulerBackend.launchTasks()
 	- `StandaloneSchedulerBackend` 使用Spark自帶的集羣管理器時採用此實現
 	- `CoarseGrainedSchedulerBackend` 使用外部集羣管理器時採用此實現
 
-	以`CoarseGrainedSchedulerBackend`爲例，調用`reviveOffers()`方法實際是向DriverEndpoint發送`ReviveOffers`消息。
+	以`CoarseGrainedSchedulerBackend`爲例，
+	調用`reviveOffers()`方法實際是向DriverEndpoint發送`ReviveOffers`消息。
 
 	```scala
 	class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: RpcEnv)
@@ -1534,7 +1541,8 @@ makeOffers()方法中通過`TaskSchedulerImpl.resourceOffers()`向集羣管理�
 	}
 	```
 
-	`NettyRpcEndpointRef.send()`內部調用了`NettyRpcEnv.send()`，將消息添加到Dispatcher內部隊列中等待發送：
+	`NettyRpcEndpointRef.send()`內部調用了`NettyRpcEnv.send()`，
+	將消息添加到Dispatcher內部隊列中等待發送：
 
 	```scala
 	private[netty] class NettyRpcEnv(
@@ -1569,8 +1577,10 @@ makeOffers()方法中通過`TaskSchedulerImpl.resourceOffers()`向集羣管理�
 
 
 # Spark Streaming
-`Spark Streaming`是對核心`Spark API`的擴展，包含了對實時數據流(live data streams)的可擴展(scalable)、高吞吐(high-throughput)、容錯性(fault-tolerant)的流式處理。
-數據可從多種數據源中獲取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，數據能將複雜的算法使用高階函數表達，如`map()`、`reduce()`、`join()`、`window()`等。
+`Spark Streaming`是對核心`Spark API`的擴展，包含了對實時數據流(live data streams)的可擴展(scalable)、
+高吞吐(high-throughput)、容錯性(fault-tolerant)的流式處理。
+數據可從多種數據源中獲取，如`Kafka`、`Flume`、`HDFS`或`TCP Socket`，數據能將複雜的算法使用高階函數表達，
+如`map()`、`reduce()`、`join()`、`window()`等。
 最終，處理過後的數據可被髮布到文件系統、數據庫、實時儀表等。
 實際上，可以將Spark的`Machine Learning`(機器學習)和`Graph Processing`(圖處理)算法應用於數據流。
 
@@ -1585,7 +1595,8 @@ DStreams可以從多種數據源(如`Kafka`、`Flume`等)的輸入數據流創�
 DStream本質上是一個`RDD`的序列。
 
 ## Streaming Context
-`Streaming Context`是所有SparkStreaming功能的主要入口點，通過`SparkConf`或已存在的`SparkContext`構建`StreamingContext`實例：
+`Streaming Context`是所有SparkStreaming功能的主要入口點，
+通過`SparkConf`或已存在的`SparkContext`構建`StreamingContext`實例：
 
 ```scala
 import org.apache.spark.streaming.{Seconds, StreamingContext}
@@ -1629,8 +1640,9 @@ streamingContext.textFileStream(...)
 ```
 
 ## DStream
-`DStream`(Discretized Stream)是SparkStreaming提供的基礎抽象，表示一串連續的數據流，可以是來自數據源的輸入數據流，
-也可以由其它數據流轉換生成。實質上，DStream是一組連續的RDD，每個DStream中的RDD包含者來自某個時間間隔的數據，如下所示：
+`DStream`(Discretized Stream)是SparkStreaming提供的基礎抽象，
+表示一串連續的數據流，可以是來自數據源的輸入數據流，也可以由其它數據流轉換生成。
+實質上，DStream是一組連續的RDD，每個DStream中的RDD包含者來自某個時間間隔的數據，如下所示：
 
 ![Spark Streaming DStream](../../images/spark_streaming_dstream.png)
 
@@ -1770,7 +1782,8 @@ object StateSpec {
 
 1. 第一參數爲原DStream中的Key。
 1. 第二參數爲原DStream中的Value。
-1. 第三參數爲Key對應存儲狀態。類型爲`State[StateType]`，使用`State.update()`添加、更新狀態值，使用`State.remove()`移除狀態。
+1. 第三參數爲Key對應存儲狀態。類型爲`State[StateType]`，
+使用`State.update()`添加、更新狀態值，使用`State.remove()`移除狀態。
 1. 返回值爲通過Key、Value、存儲狀態計算得到的新數據。
 
 KeyType、ValueType實際類型由原DStream決定，存儲狀態類型StateType、目標數據類型MappedType由用戶決定。
@@ -1883,7 +1896,8 @@ val resultDStream = inputDStream transform { rdd =>
 }
 ```
 
-使用transform()相關方法，能夠直接操作每一個批次數據的RDD本體，通過在RDD上直接執行變換操作來實現那些未在DStream API中提供的功能。
+使用transform()相關方法，能夠直接操作每一個批次數據的RDD本體，
+通過在RDD上直接執行變換操作來實現那些未在DStream API中提供的功能。
 
 transform()相關方法還可用於執行隨時間變化的操作，通過回調方法參數中的時間戳判斷時間來執行不同的邏輯：
 
@@ -1900,7 +1914,8 @@ val resultDStream = inputDStream transform { (rdd, time) =>
 ```
 
 ## Window Operations (窗口操作)
-Spark Streaming也提供了窗口操作(windowed computations)，可以對滑動窗口中的數據(sliding window of data)進行變換。
+Spark Streaming也提供了窗口操作(windowed computations)，
+可以對滑動窗口中的數據(sliding window of data)進行變換。
 如下所示：
 
 ![Spark Streaming Stream As A Table](../../images/spark_streaming_dstream_window.png)
@@ -1924,8 +1939,9 @@ Spark Streaming也提供了窗口操作(windowed computations)，可以對滑動
 
 # Spark SQL
 `Spark SQL`是用於結構化數據(structured data)處理的Spark模塊。與基礎的Spark RDD API不同，
-Spark SQL提供的接口爲Spark提供了更多關於數據結構和正在執行的計算的信息。Spark使用這些額外的信息來進行額外的優化。
-可以使用SQL語句或Dataset API與Spark SQL交互。無論用SQL語句或是Dataset API來表達計算邏輯，計算時都採用相同的執行引擎。
+Spark SQL提供的接口爲Spark提供了更多關於數據結構和正在執行的計算的信息。
+Spark使用這些額外的信息來進行額外的優化。可以使用SQL語句或Dataset API與Spark SQL交互。
+無論用SQL語句或是Dataset API來表達計算邏輯，計算時都採用相同的執行引擎。
 開發者可以簡單地在不同接口上自由切換，從中選擇最自然的方式來描述給定的數據變換。
 
 ## SQL
@@ -1935,11 +1951,13 @@ Spark SQL的作用之一是用來執行SQL查詢。Spark SQL也可以從已安�
 ## Datasets & DataFrames
 `Dataset`是分佈式的數據集合。Dataset是`Spark 1.6`中新引入的接口，
 結合了RDD的優點(強類型，能夠使用Lambda)和Spark SQL優化執行引擎的優點。
-Dataset可由JVM對象構建並且使用高階函數進行變換(如`map`、`flatMap`等)。Dataset僅提供Scala和Java的API。
-Python不支持Dataset API。但由於Python動態特性，許多Dataset API中的優秀特性已經提供
+Dataset可由JVM對象構建並且使用高階函數進行變換(如`map`、`flatMap`等)。
+Dataset僅提供Scala和Java的API。Python不支持Dataset API。
+但由於Python動態特性，許多Dataset API中的優秀特性已經提供
 (如使用`row.cloumnName`通過字段名稱來訪問一行數據中的某個字段)。R語言的情況類似。
 
-`DataFrame`由Dataset組織到命名的列中構成，概念上等價於關係型數據庫中的表或Python/R中的data frame，但具有更深層次的優化。
+`DataFrame`由Dataset組織到命名的列中構成，
+概念上等價於關係型數據庫中的表或Python/R中的data frame，但具有更深層次的優化。
 DataFrame可由各種數據源構造，如：結構化的數據文件、Hive中的表、外部數據庫、已存在的RDD等。
 DataFrame提供了Scala、Java、Python、R等語言的API，在Scala和Java中，
 DataFrame類型由泛型參數爲`Row`的Dataset表示，如`Dataset[Row]`(Scala)和`Dataset<Row>`(Java)。
@@ -2149,7 +2167,8 @@ val dataFrameJdbc2 = sparkSession.read
 ```
 
 ## Untyped Dataset Operations (無類型的 Dataset 操作，aka DataFrame Operations)
-DataFrame操作結構化數據提供了DSL(domain-specific language，特定領域專用語言)，在Scala、Java、Python、R語言中可用。
+DataFrame操作結構化數據提供了DSL(domain-specific language，特定領域專用語言)，
+在Scala、Java、Python、R語言中可用。
 
 `Spark 2.0`之後，在Java/Scala API中，DataFrame僅僅是Dataset使用Row類型作爲泛型參數構成的類型。
 除了簡單的列引用和表達式，Dataset還擁有豐富的函數庫包括字符串操作、日期計算、通用數學操作等。
@@ -2242,7 +2261,8 @@ scala> sqlResult.show()
 ```
 
 ### Global Temporary View
-SparkSQL中臨時視圖基於會話(session-scoped)，當某個SparkSession實例終止時，由該SparkSession創建的視圖會隨之消失。
+SparkSQL中臨時視圖基於會話(session-scoped)，
+當某個SparkSession實例終止時，由該SparkSession創建的視圖會隨之消失。
 
 ```scala
 // 使用新的SparkSession執行查詢操作，得到異常，提示找不到表/視圖
