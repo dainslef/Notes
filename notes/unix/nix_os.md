@@ -139,9 +139,7 @@ substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://c
 更新軟件包前應先更新channel：
 
 ```html
-# nix-channel --update <!-- 獨立安裝Nix時使用 -->
-# nixos-channel --update <!-- NixOS 使用 -->
-
+# nix-channel --update <!-- NixOS下使用 -->
 # nix-env -u <!-- 更新軟件源後更新軟件包 -->
 ```
 
@@ -228,22 +226,33 @@ Nix包管理器對於每個用戶擁有獨立的配置，全局的unfree配置�
 ```nix
 boot.loader = {
   efi = {
-    canTouchEfiVariables = true # 允許安裝進程修改EFI啓動參數
-    efiSysMountPoint = "/boot/efi" # 設定ESP分區掛載位置
-  }
+    canTouchEfiVariables = true; # 允許安裝進程修改EFI啓動參數
+    efiSysMountPoint = "/boot/efi"; # 設定ESP分區掛載位置
+  };
 
   # 啓用 systemd 的啓動支持(systemd-boot)
-  # 與GRUB不必同時啟用
-  systemd-boot.enable = true
+  # 該配置與GRUB不必同時啟用
+  systemd-boot.enable = true;
 
   # 啟用GRUB引導器，使用UEFI+GPT的設備無需指定GRUB引導器位置，MBR的舊式設備則需要指定(如"/dev/sda"等)
-  # 與systemd-boot不必同時啟用
-  grub.device = "nodev"
-}
+  # 該配置與systemd-boot不必同時啟用
+  # grub {
+  #   device = "nodev";
+  #   useOSProber = true; # 啟用查找其它OS，雙系統時使用
+  # };
+};
 ```
 
 其中，GRUB引導器和systemd-boot之間可二選一，不必同時安裝，
 對於UEFI+GPT的現代設備，推薦使用systemd-boot。
+
+默認生成的配置會使用當前穩定版系統，若需要使用unstable系統，
+則應替換默認channel，添加對應新channel：
+
+```html
+<!-- 以USTC源為例 -->
+# nix-channel --add https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixos-unstable
+```
 
 Nix配置修改完成後執行安裝操作：
 
@@ -297,8 +306,8 @@ Nix配置修改完成後執行安裝操作：
 
 系統會按照當前nix-channel中指定的nixos源進行升級，該源也可以由configuration.nix中的配置來指定：
 
-```
-system.autoUpgrade.channel = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixos-unstable;
+```nix
+system.autoUpgrade.channel = "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixos-unstable";
 ```
 
 回滾之前配置可在開機的GRUB啟動菜單中選擇；亦可在命令行中回滾配置，執行：
@@ -428,7 +437,6 @@ users.users.[用戶名] = {
 configuration.nix配置中常用的字體相關配置：
 
 ```nix
-fonts.enableFontDir = true; # 爲所有字體在"/run/current-system/sw/share/X11-fonts"路徑下創建軟連接
 fonts.fonts = with pkgs; [ ... ]; # 配置字體包
 fonts.fontconfig.defaultFonts = {
   monospace = ["Xxx"]; # 等寬字體
