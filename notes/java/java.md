@@ -77,6 +77,7 @@
 	- [查看源碼](#查看源碼)
 	- [編輯器自動換行](#編輯器自動換行)
 - [IntelliJ IDEA 使用註記](#intellij-idea-使用註記)
+	- [功能面板](#功能面板)
 	- [顯示行號和不可見空白](#顯示行號和不可見空白)
 	- [字段類型推斷、參數名稱提示](#字段類型推斷參數名稱提示)
 	- [列邊界提示](#列邊界提示)
@@ -1110,7 +1111,7 @@ Java為每個對象分配了一個monitor，monitor會強制排它性訪問一�
 - 若monitor處於**unowned**(未獲取)狀態，則當前線程會得到該monitor的所有權，允許繼續執行代碼。
 - 若monitor處於被其它線程**owned**(已獲取)的狀態，則當前線程會等待直到monitor的所有權被其它線程釋放。
 
-詳細解釋可參考該[博客](http://www.csc.villanova.edu/~mdamian/threads/javamonitors.html#:~:text=Java%20associates%20a%20monitor%20with,the%20monitor%20for%20that%20object)。
+詳細解釋可參考該[博客](http://www.csc.villanova.edu/~mdamian/threads/javamonitors.html)。
 
 假設一個類定義如下：
 
@@ -2298,7 +2299,7 @@ class Test implements Test1, Test2 {
 }
 ```
 
-一個類實現多個帶有默認方法的接口，在一定程度上類似於`C++`中的**多重繼承**。
+一個類實現多個帶有默認方法的接口，在一定程度上類似於C++中的**多重繼承**。
 
 
 
@@ -2615,6 +2616,10 @@ time1.before(time2); // boolean
 time1.after(time2); // boolean
 time1.compareTo(time2); // 返回值：0 => 時間相等，1 => 時間1 大於 時間2，-1 => 時間1小於時間2
 ```
+
+java.util.Date底層使用一個long型的數值存儲毫秒級的時間，
+值為從`January 1, 1970, 00:00:00 GMT`開始到當前時間的毫秒數。
+需要更高精度則需要使用java.time.LocalDateTime。
 
 ## java.time.LocalDateTime
 DateTime API的基本用法類似Date API，示例：
@@ -3240,10 +3245,8 @@ Class.forName("com.hxtt.sql.access.AccessDriver");
 // 創建連接
 Connection connection = DriverManager.getConnection(connectUrl);
 Statement statement = connection
-	.createStatement(
-		ResultSet.TYPE_SCROLL_INSENSITIVE,
-		ResultSet.CONCUR_READ_ONLY);
-		//後兩個參數是爲了得到resultSet集能夠進行last()操作
+	.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+	// 後兩個參數是爲了得到resultSet集能夠進行last()操作
 ```
 
 Access數據庫的一些小常識：
@@ -3315,12 +3318,17 @@ Eclipse的編輯器沒有自動換行的功能，該功能需要通過第三方�
 
 
 # IntelliJ IDEA 使用註記
-`IntelliJ IDEA`相比`Eclipse`而言，有着更精美的UI，更智能的代碼提示，且對`Scala`、`Golang`等冷門語言有着更好的支持。
+`IntelliJ IDEA`相比`Eclipse`而言，有着更精美的UI，更智能的代碼提示，
+且對`Scala`、`Golang`、`Rust`等語言有着更好的支持。
+
+## 功能面板
+菜單`View => Tool Windows`可控制需要開啟或關閉的功能面板。
+菜單`View => Appearence`可控制IDE中的狀態欄、顯示樣式等。
 
 ## 顯示行號和不可見空白
 選擇選項：
 
-`File` => `Settings` => `Editor` => `General` => `Appearance`
+`File => Settings => Editor => General => Appearance`
 
 | 選項名稱 | 含義 |
 | :- | :- |
@@ -3331,7 +3339,7 @@ Eclipse的編輯器沒有自動換行的功能，該功能需要通過第三方�
 ## 字段類型推斷、參數名稱提示
 選擇選項：
 
-`File` => `Settings` => `Editor` => `General` => `Appearance`
+`File => Settings => Editor => General => Appearance`
 
 | 選項名稱 | 含義 |
 | :- | :- |
@@ -3345,14 +3353,14 @@ Eclipse的編輯器沒有自動換行的功能，該功能需要通過第三方�
 列寬邊界線用於提示代碼單行長度是否超過界限。
 選擇選項：
 
-`File` => `Settings` => `Editor` => `Code Style` => `Default Options` => `Right margin (columns)`
+`File => Settings => Editor => Code Style => Default Options => Right margin (columns)`
 
 默認列邊界線爲`120`列，而大部分編碼規範要求一行不能超過`80/100`列。
 
 ## 縮進
 默認情況下，IDEA使用的是**空格**做爲縮進，如果需要使用**tab縮進**，則按以下菜單路徑設置：
 
-`File` => `Settings` => `Editor` => `Code Style` => `[目標語言]` => `Tabs and Indents`
+`File => Settings => Editor => Code Style => [目標語言] => Tabs and Indents`
 
 - 選中`Use tab charactor`。
 - 勾選`Smart tabs`則會在**行尾**使用tab鍵時使用**空格**代替`Tab`。
@@ -3365,7 +3373,7 @@ Eclipse的編輯器沒有自動換行的功能，該功能需要通過第三方�
 關閉摺疊顯示可點擊`Project`導航中的設置按鈕，取消選中`Flatten Packages`選項。
 
 ## 其它常用選項
-通用編輯器選項 `File` => `Settings` => `Editor` => `General`：
+通用編輯器選項 `File => Settings => Editor => General`：
 
 | 選項名稱 | 含義 |
 | :- | :- |
@@ -3375,7 +3383,7 @@ Eclipse的編輯器沒有自動換行的功能，該功能需要通過第三方�
 | Virtual Space | 虛空格(空白處的點按邏輯) |
 | Other => Show quick documentation on mouse move | 光標懸停顯示變量/方法信息 |
 
-代碼風格選項 `File` => `Settings` => `Editor` => `Code Style`：
+代碼風格選項 `File => Settings => Editor => Code Style`：
 
 | 選項名稱 | 含義 |
 | :- | :- |
@@ -3385,16 +3393,16 @@ Eclipse的編輯器沒有自動換行的功能，該功能需要通過第三方�
 | [目標語言] => Wrappings and Braces => Method parenttheses => Align when multiline | 函數多行參數是否自動對齊到函數名 |
 | [目標語言] => Blank Lines => Minimum Blank Lines | 方法、字段前空行數量 |
 
-設置是否開啓拼寫檢查 `File` => `Settings` => `Project` => `Inspections` => `Spelling`
+設置是否開啓拼寫檢查 `File => Settings => Project => Inspections => Spelling`
 
-關閉代碼重複性檢測 `File` => `Settings` => `Project` => `Inspections` => `Genernal` => `Duplicated code fragment`
+關閉代碼重複性檢測 `File => Settings => Project => Inspections => Genernal => Duplicated code fragment`
 
-設置JavaScript支持ES6語法 `File` => `Settings` => `Languages & Frameworks` => `JavaScript` => `JavaScript language version` => `ECMAScript 6`
+設置JavaScript支持ES6語法 `File => Settings => Languages & Frameworks => JavaScript => JavaScript language version => ECMAScript 6`
 
 ## 項目打包
 IDEA提供了自家的打包工具，將Java項目打包成`jar`、`war`等分發格式，按以下菜單路徑設置：
 
-`File` => `Project Structure` => `Project Settings` => `Artifacts`
+`File => Project Structure => Project Settings => Artifacts`
 
 選擇界面中的`+`符號添加打包配置，根據項目類型打包成不同的目標格式。
 
@@ -3454,7 +3462,7 @@ Module "xxx" must not contain source root "xxx". The root already belongs to mod
 ## IDEA HTTP Client
 IDEA自身提供了HTTP請求的模擬發送工具，菜單路徑：
 
-`Tools` => `HTTP Client` => `Test RESTful Web Service`/`Show HTTP Requests History`
+`Tools => HTTP Client => Test RESTful Web Service / Show HTTP Requests History`
 
 打開工具後，會在打開一個後綴為`http`的文本，在該文件中編寫HTTP請求。
 當一個請求正確編寫後，請求的路徑左側會展示出執行按鈕，點擊即可發送請求。
