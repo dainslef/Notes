@@ -16,6 +16,8 @@
 - [常用工具指令](#常用工具指令)
 	- [PCI設備](#pci設備)
 	- [磁盤分區管理](#磁盤分區管理)
+	- [掛載導入zfs分區](#掛載導入zfs分區)
+	- [chroot](#chroot)
 
 <!-- /TOC -->
 
@@ -390,4 +392,36 @@ ada1
 	No          	# TRIM/UNMAP support
 	7200        	# Rotation rate in RPM
 	Not_Zoned   	# Zone Mode
+```
+
+## 掛載導入zfs分區
+查看存在的zfs pools：
+
+```
+# zpool import
+```
+
+確認名稱後導入並查看：
+
+```
+# zpool import 指定pool名稱
+$ zpool list
+```
+
+若能查看到pool信息，則可進行掛載操作：
+
+```html
+<!-- 需要顯式指定文件系統為zfs -->
+# mount -t zfs 指定pool名稱 掛載點
+```
+
+## chroot
+FreeBSD中chroot操作比Linux更加簡便，無須重新綁定`/proc`、`/sys`等關鍵路徑，
+只需目標路徑是有效的跟路徑即可正常chroot。
+
+默認操作下，chroot後`/dev`路徑下只有`/dev/null`，
+要使devfs正常工作需要在chroot前掛載devfs到chroot掛載點的dev路徑上：
+
+```
+# mount -t devfs devfs 掛載點/dev
 ```
