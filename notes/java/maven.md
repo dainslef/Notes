@@ -8,6 +8,7 @@
 	- [依賴處理特性](#依賴處理特性)
 		- [依賴協調(Dependency Mediation)](#依賴協調dependency-mediation)
 		- [依賴管理(Dependency Management)](#依賴管理dependency-management)
+		- [依賴作用域(Dependency Scope)](#依賴作用域dependency-scope)
 - [Language Level](#language-level)
 - [Sub Project](#sub-project)
 - [Package](#package)
@@ -171,7 +172,7 @@ A
 1. A -> B -> C -> D 2.0
 1. A -> E -> D 1.0
 
-第二條依賴鏈中D的依賴路徑更短，因此依賴協調最終選擇依賴D的2.0版本。
+第二條依賴鏈中D的依賴路徑更短，因此依賴協調最終選擇依賴D的1.0版本。
 
 ### 依賴管理(Dependency Management)
 項目中可直接指定特定依賴的版本。Maven默認會自動管理傳遞依賴而不需要再指定傳遞依賴的版本。
@@ -192,6 +193,59 @@ A
 	</dependencyManagement>
 </project>
 ```
+
+### 依賴作用域(Dependency Scope)
+依賴作用域用於限制依賴的傳遞以及決定依賴是否要被包含在classpath中。
+
+Maven包含6類依賴域：
+
+- `compile`
+
+	compile為默認域，當未顯式指定域時使用該域。
+	compile域的依賴可被項目的所有classpath中使用，而且該類依賴可傳遞到關聯的項目。
+
+- `provided`
+
+	provided域類似compile，但由JDK或容器在運行期間提供依賴。
+	provided域的依賴在編譯和測試時會添加到classpath中，但不會添加到runtime classpath中。
+	該類依賴不傳遞。
+
+	示例：構建Java EE的Web應用時，Servlet API以及相關的Java EE API可設置為provided域，
+	因為Web容器(如Tomcat)會提供此類依賴。
+
+- `runtime`
+
+	runtime域的依賴在編譯時不被需要，但在運行時被需要。
+	Maven在runtime以及test的classpath中包含該類依賴，但不在compile classpath中包含。
+
+	示例：各類JDBC Driver的實現。
+
+- `test`
+
+	test域的依賴在程序正常運行時不被需要，僅在編譯、測試、執行階段需要。
+	該類依賴不傳遞。
+
+	示例：各類測試框架。
+
+- `system`
+
+	system域類似於provided，但開發者需要指定依賴jar的路徑(使用`<systemPath/>`標籤)。
+
+	示例：
+
+	```xml
+	<dependency>
+		<groupId>xxx.xxx</groupId>
+		<artifactId>xxx-xxx</artifactId>
+		<version>x.x.x</version>
+		<scope>system</scope>
+		<systemPath>/xxx/xxx.jar</systemPath> <!-- 顯式指定jar位置 -->
+	</dependency>
+	```
+
+- `import`
+
+	import域僅可在`<dependencyManagement/>`標籤段內使用，將指定目標依賴版本替換為import的依賴版本。
 
 
 
