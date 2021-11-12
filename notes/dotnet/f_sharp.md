@@ -772,3 +772,119 @@ builder type是一個定義了特殊方法的對象，這些方法決定了計�
 	對於異步工作流，執行的表達式返回類型為`Async<unit>`，對於其它計算表達式，類型為`CExpType<unit>`。
 
 	do!由由builder type中的`Bind(x, f)`成員進行定義，其中f的類型為unit。
+
+- `yield`
+
+	`yield`關鍵字用於從計算表達式中返回一個值。
+	標準庫中被seq計算表達式用於實現`IEnumerable<T>`：
+
+	```fs
+	let squares =
+	seq {
+	    for i in 1..10 do
+	        yield i * i
+	}
+
+	for sq in squares do
+	    printfn "%d" sq
+	```
+
+	在多數場景下，yield關鍵字可被省略，上述例子可被簡寫為：
+
+	```fs
+	let squares =
+	seq {
+	    for i in 1..10 -> i * i
+	}
+
+	for sq in squares do
+	    printfn "%d" sq
+	```
+
+	一些複雜的計算表達式可能會yield多個不同值，並伴隨不同條件，同樣可以省略yield關鍵字：
+
+	```fs
+	> let isRight = false;;
+	val isRight : bool = false
+
+	> seq {
+	-     "A"
+	-     "B"
+	-     if isRight then "C"
+	-     "D"
+	- };;
+	val it : seq<string> = seq ["A"; "B"; "D"]
+
+	> seq {
+	-     "A"
+	-     "B"
+	-     if isRight then
+	-          "C"
+	-          "D"
+	- };;
+	val it : seq<string> = seq ["A"; "B"]
+	```
+
+- `yield!`
+
+	`yield!`關鍵字作用與yield類似，但被返回的值需要為集合類型，yield!會將集合內容展開返回：
+
+	```fs
+	let squares =
+	    seq {
+	        for i in 1..3 -> i * i
+	    }
+
+	let cubes =
+	    seq {
+	        for i in 1..3 -> i * i * i
+	    }
+
+	let squaresAndCubes =
+	    seq {
+	        yield! squares
+	        yield! cubes
+	    }
+
+	printfn "%A" squaresAndCubes // Prints - 1; 4; 9; 1; 8; 27
+	```
+
+	執行yield!語句會將目標內容一一展開並返回值。
+
+	yield!關鍵字由builder type中的`YieldFrom(x)`成員定義，參數`x`需要為集合類型。
+
+	與yield不同，yield!必須顯式使用，yield!在計算表達式中的行為不是隱式的。
+
+- `return`
+
+	`return`關鍵字將一個值包裝在類型中，與yield不同，yield通常可以多次生成值，
+	return通常用於「完成」計算表達式(但在實際使用中，return也可以實現為允許多次生成值)：
+
+	```fs
+	let req = // 'req' is of type is 'Async<data>'
+	    async {
+	        let! data = fetch url
+	        return data
+	    }
+
+	// 'result' is of type 'data'
+	let result = Async.RunSynchronously req
+	```
+
+	return由builder type的`Return(x)`成員定義，參數`x`為需要被包裝的對象。
+
+- `return!`
+
+	`return!`關鍵字作用相當於`let! + return`，可直接在計算表達式中返回另一個計算表達式的生成值：
+
+	```fs
+	let req = // 'req' is of type 'Async<data>'
+	    async {
+	        return! fetch url
+	    }
+
+	// 'result' is of type 'data'
+	let result = Async.RunSynchronously req
+	```
+
+	return!由builder type的`ReturnFrom(x)`成員定義，參數`x`為需要被包裝的對象。
