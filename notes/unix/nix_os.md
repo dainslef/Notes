@@ -11,6 +11,7 @@
 		- [版本升級與回退](#版本升級與回退)
 		- [Binary Cache](#binary-cache)
 	- [系統軟件包與服務配置](#系統軟件包與服務配置)
+	- [systemd服務](#systemd服務)
 	- [用戶配置](#用戶配置)
 	- [Shell配置](#shell配置)
 	- [字體配置](#字體配置)
@@ -387,15 +388,27 @@ services = {
 };
 ```
 
-NixOS使用`systemd`管理服務的狀態，在services配置段中啓用的服務默認會開機自啓動，且無法修改自啓狀態。
-啓用與禁用services配置段中設定的服務，需要設定`systemd.services`配置段：
+## systemd服務
+NixOS使用`systemd`管理服務，啓用與禁用services配置段中設定的服務，需要設定`systemd.services`配置段：
 
 ```nix
-systemd.services.<name>.enable = true/false;
+systemd.services.服務名稱.enable = true/false;
 ...
 
-# 以MySQL服務爲例，禁用服務自啓
+# 以MySQL服務爲例，禁用服務
 systemd.services.mysql.enable = false;
+```
+
+在services配置段中啓用的服務通常會默認會開機自啓動，
+且**無法修改**自啓狀態，若直接通過`enable`配置項禁用服務，
+則**不會生成**該服務的systemd service(即無法使用systemctl相關指令管理服務)。
+
+若需要禁用服務自啟動同時保留該服務的systemd service unit，
+可使用`wantedBy`配置搭配`lib.mkForce`函數強制覆蓋自啟動配置項：
+
+```nix
+# 強制清空服務的啟動依賴，則目標服務不會被任何其它服務依賴（達到關閉自啟動的目的）
+systemd.services.服務名稱.wantedBy = lib.mkForce [];
 ```
 
 ## 用戶配置
