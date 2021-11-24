@@ -15,6 +15,7 @@
 	- [用戶配置](#用戶配置)
 	- [Shell配置](#shell配置)
 	- [字體配置](#字體配置)
+	- [音頻配置](#音頻配置)
 	- [輸入法配置](#輸入法配置)
 	- [桌面配置](#桌面配置)
 		- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
@@ -460,6 +461,29 @@ fonts.fontconfig.defaultFonts = {
 
 用戶自定義字體路徑`~/.fonts`已被上游廢棄，在NixOS中，將個人字體放置在此路徑下不會被加入字體列表。
 取代該路徑的用戶字體路徑是`$XDG_DATA_HOME/fonts`，實際對應路徑爲`~/.local/share/fonts`。
+
+## 音頻配置
+默認配置下不會開啟音頻，需要手動開啟配置：
+
+```nix
+# 開啟PulseAudio服務，sound.enable配置會隨著該配置自動啟用，因此不必顯式配置
+hardware.pulseaudio.enable = true;
+```
+
+默認NixOS中PulseAudio不會提供系統級服務，而是針對每個用戶提供服務。
+默認全局systemd服務中不存在`pulseaudio.service`，而是在用戶服務中：
+
+```
+$ systemctl --user status pulseaudio.service
+```
+
+默認pulseaudio.service未配置自啟動，因此部分桌面環境下音量指示器會出現無設備指示，
+需要播放任意視屏/音頻激活pulseaudio.service後音量指示器才能正常顯示。
+解決該問題需要將pulseaudio.service設置為自啟動，則音量指示器開機後立即正常顯示：
+
+```
+$ systemctl --user enable pulseaudio.service
+```
 
 ## 輸入法配置
 在configuration.nix配置的`i18n.inputMethod`配置項中設定使用的輸入法：
