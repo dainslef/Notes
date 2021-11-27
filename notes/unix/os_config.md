@@ -78,6 +78,8 @@
 	- [sysstat](#sysstat)
 		- [pidstat](#pidstat)
 		- [iostat](#iostat)
+	- [HTTP壓測工具](#http壓測工具)
+	- [tcpdump](#tcpdump)
 - [VTE](#vte)
 	- [VTE2](#vte2)
 	- [VTE3](#vte3)
@@ -2934,6 +2936,65 @@ $ iostat -x
 
 ```
 $ iostat -t
+```
+
+## HTTP壓測工具
+常見的HTTP壓測工具：
+
+- [ab(Apache Bench)](https://httpd.apache.org/docs/current/programs/ab.html)
+命令行工具，Apache HTTP Server的一部分
+- [Apache JMeter](https://jmeter.apache.org/) Java實現的GUI壓測工具
+- [autocannon](https://github.com/mcollina/autocannon) NodeJS實現的命令行壓測工具
+
+## tcpdump
+tcpdump是Unix環境下常用的抓包工具，macOS下系統自帶了該工具，
+Linux下可從對應發行版軟件倉庫中進行安裝。
+
+tcpdump指令的核心用法：
+
+```
+# tcpdump 參數 表達式
+```
+
+常用參數：
+
+| 參數 | 說明 |
+| :- | :- |
+| -i interface | 指定網卡 |
+| -n | 禁用地址、端口轉換 |
+| -X | 展示包的內容 |
+| -tttt | 展示可讀的完整時間戳 |
+
+tcpdump抓包的內容可導入/導出PCAP（PEE-cap）文件：
+
+```
+# tcpdump -w pcap文件
+# tcpdump -r pcap文件
+```
+
+常用表達式：
+
+```html
+<!-- 依據網絡地址過濾 -->
+# tcpdump  網口
+# tcpdump host a.b.c.d
+# tcpdump src a.b.c.d
+# tcpdump dst a.b.c.d
+# tcpdump net a.b.c.d/子網 <!-- 網段地址，如 1.1.1.0/24 -->
+
+<!-- 依據協議過濾 -->
+# tcpdump tcp
+# tcpdump udp
+# tcpdump icmp
+
+<!-- 依據端口過濾 -->
+# tcpdump port 端口
+# tcpdump portrange 起始端口-結束端口
+
+<!-- 依據包長度過濾 -->
+# tcpdump less 包大小
+# tcpdump greater 包大小
+# tcpdump <= 包大小
 ```
 
 
