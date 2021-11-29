@@ -67,6 +67,7 @@
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
 	- [NetworkManager](#networkmanager)
+	- [tcpdump](#tcpdump)
 	- [Netcat (nc)](#netcat-nc)
 		- [客戶端/服務端模式](#客戶端服務端模式)
 		- [數據傳送](#數據傳送)
@@ -79,7 +80,6 @@
 		- [pidstat](#pidstat)
 		- [iostat](#iostat)
 	- [HTTP壓測工具](#http壓測工具)
-	- [tcpdump](#tcpdump)
 - [VTE](#vte)
 	- [VTE2](#vte2)
 	- [VTE3](#vte3)
@@ -2396,6 +2396,64 @@ $ nmcli connection
 
 nmtui提供友好的TUI，可直接編輯、啟用、禁用連接。
 
+## tcpdump
+tcpdump是Unix環境下常用的抓包工具，macOS下系統自帶了該工具，
+Linux下可從對應發行版軟件倉庫中進行安裝。
+
+tcpdump指令的核心用法：
+
+```
+# tcpdump 參數 表達式
+```
+
+常用參數：
+
+| 參數 | 說明 |
+| :- | :- |
+| -i interface | 指定網卡 |
+| -n | 禁用地址、端口轉換 |
+| -X | 展示包的內容 |
+| -tttt | 展示可讀的完整時間戳 |
+
+tcpdump抓包的內容可導入/導出PCAP（PEE-cap）文件：
+
+```
+# tcpdump -w pcap文件
+# tcpdump -r pcap文件
+```
+
+常用表達式：
+
+```html
+<!-- 依據網絡地址過濾 -->
+# tcpdump  網口
+# tcpdump host a.b.c.d
+# tcpdump src a.b.c.d
+# tcpdump dst a.b.c.d
+# tcpdump net a.b.c.d/子網 <!-- 網段地址，如 1.1.1.0/24 -->
+
+<!-- 依據協議過濾 -->
+# tcpdump tcp
+# tcpdump udp
+# tcpdump icmp
+
+<!-- 依據端口過濾 -->
+# tcpdump port 端口
+# tcpdump portrange 起始端口-結束端口
+
+<!-- 依據包長度過濾 -->
+# tcpdump less 包大小
+# tcpdump greater 包大小
+# tcpdump <= 包大小
+```
+
+tcpdump數據過濾表達式可搭配or、and、not等邏輯操作符組合多種條件：
+
+```html
+<!-- 過濾指定子網下非SSH協議 -->
+# tcpdump net a.b.c.d/子網 and not ssh and port not 80
+```
+
 ## Netcat (nc)
 `nc`(netcat)是Unix環境下常用的TCP/UDP連接和監聽工具；
 可用於打開TCP連接，發送UDP數據包，監聽TCP/UDP端口，執行端口掃描，該工具同時支持IPv4和IPv6。
@@ -2945,57 +3003,6 @@ $ iostat -t
 命令行工具，Apache HTTP Server的一部分
 - [Apache JMeter](https://jmeter.apache.org/) Java實現的GUI壓測工具
 - [autocannon](https://github.com/mcollina/autocannon) NodeJS實現的命令行壓測工具
-
-## tcpdump
-tcpdump是Unix環境下常用的抓包工具，macOS下系統自帶了該工具，
-Linux下可從對應發行版軟件倉庫中進行安裝。
-
-tcpdump指令的核心用法：
-
-```
-# tcpdump 參數 表達式
-```
-
-常用參數：
-
-| 參數 | 說明 |
-| :- | :- |
-| -i interface | 指定網卡 |
-| -n | 禁用地址、端口轉換 |
-| -X | 展示包的內容 |
-| -tttt | 展示可讀的完整時間戳 |
-
-tcpdump抓包的內容可導入/導出PCAP（PEE-cap）文件：
-
-```
-# tcpdump -w pcap文件
-# tcpdump -r pcap文件
-```
-
-常用表達式：
-
-```html
-<!-- 依據網絡地址過濾 -->
-# tcpdump  網口
-# tcpdump host a.b.c.d
-# tcpdump src a.b.c.d
-# tcpdump dst a.b.c.d
-# tcpdump net a.b.c.d/子網 <!-- 網段地址，如 1.1.1.0/24 -->
-
-<!-- 依據協議過濾 -->
-# tcpdump tcp
-# tcpdump udp
-# tcpdump icmp
-
-<!-- 依據端口過濾 -->
-# tcpdump port 端口
-# tcpdump portrange 起始端口-結束端口
-
-<!-- 依據包長度過濾 -->
-# tcpdump less 包大小
-# tcpdump greater 包大小
-# tcpdump <= 包大小
-```
 
 
 
