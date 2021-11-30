@@ -61,6 +61,7 @@
 	- [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
 	- ["Xxx.app" is damaged and can't be opened. You should move it to the Trash.](#xxxapp-is-damaged-and-cant-be-opened-you-should-move-it-to-the-trash)
 	- [Error: Your CLT does not support macOS 11.0.](#error-your-clt-does-not-support-macos-110)
+	- [LaunchPad內出現無效的`Install macOS xxx`圖標](#launchpad內出現無效的install-macos-xxx圖標)
 
 <!-- /TOC -->
 
@@ -1282,3 +1283,15 @@ Error: An exception occurred within a child process:
 若SDK版本與當前macOS版本不匹配，則應更新到SDK到macOS匹配的版本。
 
 若已經安裝了Xcode，則可以直接刪除`/Library/Developer/CommandLineTools`路徑。
+
+## LaunchPad內出現無效的`Install macOS xxx`圖標
+問題描述：<br>
+當嘗試升級macOS失敗時，可能出現`Install macOS xxx`圖標停留在LaunchPad中，
+然而`/Application`以及`~/Application`路徑下卻不存在該App的情況。
+
+示例：
+
+![Install OS App](../../images/mac_os_install_os_app.png)
+
+解決方案：<br>
+將App圖標從LaunchPad中直接拖到垃圾桶內，圖標自動消失。
