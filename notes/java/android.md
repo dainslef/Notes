@@ -37,6 +37,9 @@
 - [Android Design Support Library](#android-design-support-library)
 	- [TabLayout](#tablayout)
 	- [AppBarLayout](#appbarlayout)
+- [Termux](#termux)
+	- [Termux包管理](#termux包管理)
+	- [Termux軟件倉庫](#termux軟件倉庫)
 
 <!-- /TOC -->
 
@@ -1333,3 +1336,31 @@ AppBarLayout在`android.support.design.widget.CoordinatorLayout`佈局下，
 - `enterAlways` 優先滾動當前控件，發生向下滾動行爲時，處於隱藏狀態的控件會立即出現，而不是等待關聯滾動組件滾動到頂部
 - `enterAlwaysCollapsed` enterAlways的附加選項，向下滾動時，當前控件先滾動到最小高度，之後再開始滾動關聯組件，關聯組件滾動到頂部時再滾動當前組件到最大值
 - `exitUntilCollapsed` enterAlways的附加選項，向上滾動時，當前組件縮小到最小高度，但不會完全隱藏
+
+
+
+# Termux
+[`Termux`](https://termux.com/)是Android系統下的終端模擬器和Linux環境。
+Termux提供了免root的Linux環境，默認附帶最小的Linux基礎系統，同時支持使用apt管理軟件包。
+
+Termux的詳細文檔參見[官方Wiki](https://wiki.termux.com/)。
+
+## Termux包管理
+Termux使用Debian係的apt/dpkg作為包管理器，可直接使用相關指令管理軟件包。
+Termux軟件包安裝在App的數據區內(`/data/data/com.termux`)，因而軟件管理不需要root權限。
+
+Termux還提供了apt的淺層封裝pkg，官方推薦使用pkg操作軟件包，
+但對於熟悉Debian係包管理的人無必要。
+
+## Termux軟件倉庫
+Termux將各類軟件包拆分到了不同的倉庫中，默認僅開啟核心倉庫，當前各大倉庫的簡介：
+
+| 倉庫名稱 | 說明 | GitHub地址 |
+| :- | :- | :- |
+| termux-packages | 核心倉庫 | https://github.com/termux/termux-packages |
+| termux-root-packages | 包含需要root權限的軟件包 | https://github.com/termux/termux-root-packages |
+| x11-packages | GUI軟件包 | https://github.com/termux/x11-packages |
+| science-packages | 科學相關軟件包 | https://github.com/termux/science-packages |
+| game-packages | 遊戲倉庫 | https://github.com/termux/game-packages |
+
+使用`apt install`安裝對應倉庫軟件包，對應倉庫的內容才會展示。
