@@ -93,7 +93,8 @@
 	- [sed](#sed)
 - [apt/dpkg](#aptdpkg)
 	- [apt](#apt)
-	- [add-apt-repository](#add-apt-repository)
+		- [apt-file](#apt-file)
+		- [add-apt-repository](#add-apt-repository)
 	- [dpkg](#dpkg)
 	- [deb打包(Binary packages)](#deb打包binary-packages)
 		- [debconf](#debconf)
@@ -1056,9 +1057,13 @@ bootctl安裝後會創建`$ESP/loader`、`$ESP/EFI/systemd`等路徑，
 將systemd-boot引導器安裝到`$ESP/EFI/systemd/systemd-bootx64.efi`路徑，
 引導配置存放在`$ESP/loader/entries`路徑下。
 systemd-boot會加載`$ESP/loader/loader.conf`作為默認配置，
-在loader.conf中，可選擇加載其它`$ESP/loader/entries`路徑下的配置或直接編寫配置引導系統。
+在loader.conf中，選擇加載其它`$ESP/loader/entries`路徑下的配置作為默認配置，
+以及調整其它引導相關配置（如引導介面的等待時間）。
 
-早期ESP分區默認掛載位置為`/boot/efi`，但對於使用systemd-boot的場景推薦直接將ESP分區掛載到`/boot`路徑下。
+早期ESP分區默認掛載位置為`/boot/efi`，
+但對於使用systemd-boot的場景推薦直接將ESP分區掛載到`/boot`路徑下。
+以ArchLinux為例，系統默認會將內核文件安裝到/boot路徑下，
+使用/boot路徑作為ESP路徑便於編寫systemd-boot引導配置。
 
 
 
@@ -2412,6 +2417,8 @@ tcpdump指令的核心用法：
 | :- | :- |
 | -i interface | 指定網卡 |
 | -n | 禁用地址、端口轉換 |
+| -v | 展示協議類型 |
+| -e | 展示鏈路層頭，對於以太網，展示源、目標地址以及包大小 |
 | -X | 展示包的內容 |
 | -tttt | 展示可讀的完整時間戳 |
 
@@ -2490,18 +2497,17 @@ $ nc [ip/hostname] [port]
 ```
 
 默認服務端僅能接受**一個**連接，客戶端或服務端使用`Ctrl + C`結束會話後，客戶端、服務端均會關閉。
+可使用`-k`可實現僅關閉連接而不退出進程：
+
+```html
+$ nc -lk [port] <!-- 在客戶端連接關閉後可繼續接受新連接 -->
+```
+
 可使用`-w`參數設定連接的存活時間，超過存活時間的連接會被斷開：
 
 ```html
 $ nc -lw [timeout] [port] <!-- 存活時間單位為：秒 -->
 $ nc -lw [timeout] [ip/hostname] [port] <!-- 多個參數組合時，-w需要放在最後，否則存在參數解析錯誤 -->
-```
-
-使用`-w`參數連接超過時限的行為是退出當前的nc進程，搭配`-k`參數可實現僅關閉連接而不退出進程：
-
-```html
-$ nc -lkw [timeout] [port]
-$ nc -lkw [timeout] [ip/hostname] [port]
 ```
 
 監聽連接時，省略主機/ip信息**默認**監聽`127.0.0.1/localhost`，
@@ -3300,6 +3306,7 @@ apt install指令可以使用`-d/--download-only`參數僅獲取安裝包而不�
 # apt install --download-only [package_name]
 ```
 
+### apt-file
 apt包管理器默認未提供查找包內文件的功能，此類功能可通過安裝`apt-file`實現：
 
 ```
@@ -3315,7 +3322,7 @@ apt包管理器默認未提供查找包內文件的功能，此類功能可通�
 # apt-file search [file/path]
 ```
 
-## add-apt-repository
+### add-apt-repository
 `add-apt-repository`是Ubuntu對apt工具的功能擴展，
 解決了傳統Debian係發行版添加第三方庫操作較為複雜的問題。
 
@@ -3389,13 +3396,13 @@ $ dpkg -L [package_name]
 ```
 .
 ├── DEBIAN
-│   ├── control
-│   ├── preinst
-│   ├── postinst
-│   ├── prerm
-│   ├── postrm
-│   ├── templates
-│   └── ...
+│   ├── control
+│   ├── preinst
+│   ├── postinst
+│   ├── prerm
+│   ├── postrm
+│   ├── templates
+│   └── ...
 └── files...
 ```
 
