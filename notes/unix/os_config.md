@@ -740,9 +740,14 @@ SSH的主流實現是`OpenSSH`(全稱`OpenBSD Secure Shell`)。
 ## 遠程登錄
 使用`ssh`指令遠程登錄配置了SSH服務的主機：
 
-```c
-// 使用 -p 參數指定遠程登錄端口，SSH服務默認端口爲22
-$ ssh [用戶名]@[主機名/IP]
+```html
+$ ssh 用戶名@主機名/IP
+
+<!-- 使用 -p 參數指定遠程登錄端口，SSH服務默認端口爲22 -->
+$ ssh 用戶名@主機名/IP -p 端口
+
+<!-- 使用 -t 參數指定使用的shell，如 bash/zsh/fish 等 -->
+$ ssh 用戶名@主機名/IP -t shell類型
 ```
 
 ## SSH 配置
@@ -816,9 +821,13 @@ $ ssh -i [指定私鑰路徑] [目標用戶名]@[目標主機地址/IP]
 
 免密登錄失敗可查看相關日誌信息：
 
-```
+```html
+<!-- CentOS -->
 /var/log/secure
 /var/log/audit/audit.log
+
+<!-- Debian/Ubuntu -->
+/var/log/auth.log
 ```
 
 或使用`ssh -v/-vv/-vvv`在執行登錄指令時輸出額外的日誌信息。
@@ -3287,7 +3296,7 @@ $ apt-mask showauto/showmanaul
 # apt install/remove [package_name]
 # apt autoremove
 # apt purge [package_name]
-# apt upgrade/dist-upgrade
+# apt upgrade/full-upgrade
 
 <!-- apt-cache 相關 -->
 $ apt show/search [package_name]
@@ -3357,9 +3366,6 @@ add-apt-repository包含在`software-properties-common`軟件包中，
 dpkg的常用指令：
 
 ```html
-<!-- 查詢文件屬於哪個包 -->
-$ dpkg-query -S [file_name]
-
 <!-- 安裝一個deb包 -->
 # dpkg -i [deb_package]
 <!-- 批量安裝deb包 -->
@@ -3370,6 +3376,12 @@ $ dpkg-query -S [file_name]
 安裝時搭配--force-all參數可強制配置軟件包，避免因為依賴解析順序而中斷配置流程
 -->
 # dpkg -i --force-all [*.deb]
+
+<!-- 移除軟件包 -->
+# dpkg -r [package_name]
+<!-- 移除軟件包同時清除配置（包括配置文件以及執行postrm） -->
+# dpkg -rP [package_name]
+# dpkg -r --purge [package_name]
 
 <!-- 列出所有已安裝包的狀態信息 -->
 $ dpkg -l
@@ -3384,6 +3396,8 @@ $ dpkg -l [package_name] | grep '^rc'
 <!-- 查找所有存在殘餘配置的包並清除殘餘配置 -->
 $ dpkg -l | grep "^rc" | cut -d " " -f 3 | xargs sudo dpkg --purge
 
+<!-- 查詢文件屬於哪個已安裝的軟件包 -->
+$ dpkg -S [file_name]
 <!-- 查看指定包的詳細描述信息 -->
 $ dpkg -s [package_name]
 <!-- 列出指定包內包含的文件 -->
