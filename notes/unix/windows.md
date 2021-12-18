@@ -1,6 +1,10 @@
 <!-- TOC -->
 
 - [Windows CMD](#windows-cmd)
+	- [文件操作](#文件操作)
+	- [服務管理](#服務管理)
+	- [電源管理](#電源管理)
+	- [其它實用工具](#其它實用工具)
 - [文件/目錄鏈接](#文件目錄鏈接)
 - [系統引導](#系統引導)
 - [常見問題記錄](#常見問題記錄)
@@ -13,111 +17,129 @@
 # Windows CMD
 Windows系統提供的命令行執行DOS系統工具指令。
 
-文件操作相關：
+指令通用操作：
 
-```c
-// 查看DOS指令的使用幫助
-> [指令名稱] /?
+```html
+<!-- DOS指令參數使用正斜槓（/）標識參數 -->
+> 指令 /參數
 
-// 查看目錄
+<!-- DOS指令的幫助參數，類似於Unix下的 -h 或 --help -->
+> 指令 /?
+```
+
+## 文件操作
+常用的文件操作相關指令。
+
+```html
+<!-- 查看目錄 -->
 > dir
-// 新建目錄
+<!-- 新建目錄 -->
 > md
-// 刪除目錄(空目錄)
+<!-- 刪除目錄（空目錄）-->
 > rd
 
-// 複製文件
+<!-- 複製文件 -->
 > copy
-// 刪除文件
+<!-- 刪除文件
 > del
-// 查看文件
+<!-- 查看文件
 > type
 
-// 展示目錄樹
+<!-- 展示目錄樹
 > tree
-// 移除目錄樹
+<!-- 移除目錄樹
 > deltree
 ```
 
-服務管理：
+## 服務管理
+Windows在控制面板中提供了直觀的GUI服務管理，但亦可通過指令管理服務。
 
-```c
-// 啓動相關配置
+```html
+<!-- 啓動相關配置 -->
 > msconfig
 
-// 啓動服務管理面板
+<!-- 啓動服務管理面板 -->
 > services.msc
-
-// 創建/刪除服務
-> sc create [服務名稱] binPath=[做爲服務啓動的指令]
-> sc delete [服務名稱]
-
-// 啓動/停止服務
-> net start [服務名稱]
-> net stop [服務名稱]
 ```
 
-電源管理：
+`net`是DOS時代遺留產物，用於提供基本的服務管理功能。
 
-```c
+```html
+<!-- 啓動/停止服務 -->
+> net start 服務名稱
+> net stop 服務名稱
+```
+
+`sc`是微軟在Windows使用NT內核後引入的服務管理工具。
+
+```html
+<!-- 創建/刪除服務 -->
+> sc create 服務名稱 binPath=服務啓動指令
+> sc delete 服務名稱
+
+<!-- 啟動/停止服務 -->
+> sc start 服務名稱
+> sc stop 服務名稱
+
+<!-- 查詢服務 -->
+> sc query <!-- 查詢指定服務 -->
+> sc query 服務名稱 <!-- 查詢所有服務 -->
+> sc qc 服務名稱 <!-- 查詢服務配置信息 -->
+```
+
+就實現機制而言，net指令為**同步**執行，指令會阻塞直到服務完全啟動；
+而sc指令為**異步**執行，指令不會等待服務指令執行完畢。
+net和sc的詳細區別參考[StackExchange](https://superuser.com/questions/315166/net-start-service-and-sc-start-what-is-the-difference)上的相關討論。
+
+## 電源管理
+常用的電源管理指令。
+
+```html
 > powercfg
 
-// 開啓休眠
+<!-- 開啓休眠 -->
 > powercfg /h on
-// 禁用休眠
+<!-- 禁用休眠 -->
 > powercfg /h off
 ```
 
-其它實用工具：
+## 其它實用工具
 
-```c
-// 查看系統進程列表
+```html
+<!-- 查看系統進程列表 -->
 > tasklist
 
-// Windows遠程桌面工具
+<!-- Windows遠程桌面工具 -->
 > mstsc
 
-// 顯示主機名和用戶名
+<!-- 顯示主機名和用戶名 -->
 > whoami
 
-// 查看網絡信息
-> ipconfig
-// 查詢完整的網絡信息
-> ipconfig /all
-// 查看路由信息
-> route print
-
-// 查看內存信息
+<!-- 查看內存信息 -->
 > wmic memorychip
 
-// DirectX診斷工具，可查看系統信息，顯卡對DirectX的支持情況
+<!-- DirectX診斷工具，可查看系統信息，顯卡對DirectX的支持情況 -->
 > dxdiag
+```
+
+網絡基礎：
+
+```html
+<!-- 查看網絡信息 -->
+> ipconfig
+<!-- 查詢完整的網絡信息 -->
+> ipconfig /all
+<!-- 查看路由信息 -->
+> route print
 ```
 
 語言包管理：
 
-```c
+```html
 > lpksetup
 
-// 刪除語言包
+<!-- 刪除語言包 -->
 > lpksetup /u
-```
-
-服務管理：
-
-```c
-// 啟動/停止服務
-> sc start [服務名稱]
-> sc stop [服務名稱]
-
-// 查詢服務
-> sc query // 查詢指定服務
-> sc query [服務名稱] // 查詢所有服務
-> sc qc [服務名稱] // 查詢服務配置信息
-
-// 創建/刪除服務
-> sc create [服務名稱] binPath=[指令]
-> sc delete [服務名稱]
 ```
 
 
@@ -130,20 +152,20 @@ Windows文件管理器提供的快捷方式(`Shortcut`)並不是對應用程序�
 
 創建到目標地址的軟連接文件：
 
-```c
-> mklink [文件名] [鏈接目標地址]
+```html
+> mklink 文件名 鏈接目標地址
 ```
 
 mklink指令默認創建軟連接文件，使用`/d`參數創建軟連接**目錄**：
 
-```c
-> mklink /d [目錄名] [鏈接目標目錄]
+```html
+> mklink /d 目錄名 鏈接目標目錄
 ```
 
 使用`/h`參數可創建硬鏈接代替軟連接，硬鏈接需要鏈接文件於目標文件在相同盤符下：
 
-```c
-> mklink /h [文件名] [鏈接目標文件]
+```html
+> mklink /h 文件名 鏈接目標文件
 ```
 
 
@@ -161,7 +183,7 @@ MSR分區可以不分配，但每次重裝系統或Windows大版本更新都會�
 BCDBoot是微軟官方提供的引導配置工具，主要有以下功能：
 
 - 在新安裝的Windows鏡像后添加啓動文件
-- 為電腦設置從包含Windows鏡像的虛擬硬盤( virtual hard disk, VHD)中啓動
+- 為電腦設置從包含Windows鏡像的虛擬硬盤（virtual hard disk，VHD）中啓動
 - 修復系統分區
 - 在安裝了雙系統的電腦中設置和更新啓動菜單
 
@@ -214,11 +236,11 @@ Approximate round trip times in milli-seconds:
 解決方案：<br>
 可依次嘗試以下解決方案：
 
-1. 在控制面版中禁用對應網卡的IPv6協議(`Control Panel\Network and Internet\Network Connections`)。
+1. 在控制面版中禁用對應網卡的IPv6協議（`Control Panel\Network and Internet\Network Connections`）。
 1. 參考[微軟官方文檔](https://support.microsoft.com/en-us/help/929852/guidance-for-configuring-ipv6-in-windows-for-advanced-users)，
 	從注冊表中禁用或優先選擇IPv4網絡：
 
-	```c
+	```html
 	> reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD /d <value> /f
 	```
 
