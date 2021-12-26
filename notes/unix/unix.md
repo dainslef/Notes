@@ -66,6 +66,7 @@
 	- [Netcat (nc)](#netcat-nc)
 		- [客戶端/服務端模式](#客戶端服務端模式)
 		- [數據傳送](#數據傳送)
+		- [Ncat](#ncat)
 - [性能監控與測試](#性能監控與測試)
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
@@ -2307,6 +2308,30 @@ $ echo [content] | nc [hostname/ip] [port]
 ```
 
 當數據發送完畢，連接將會關閉。
+
+### Ncat
+[Ncat(nmap-ncat)](https://nmap.org/ncat/)是Nmap項目提供的一個現代netcat實現，
+ncat兼容大多數nc參數，同時提供了更多強大的特性：
+
+- 多連接支持。原版nc作為服務端僅支持單一連接，而ncat做為服務端支持多客戶端連接。
+- 更多協議支持。添加了更多現代協議如SSL、SOCKS4、HTTP等的支持。
+
+ncat使用`-k`參數可接受多個客戶端的連接：
+
+```
+$ ncat -lvk 9999
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Listening on :::9999
+Ncat: Listening on 0.0.0.0:9999
+Ncat: Connection from ::1.
+Ncat: Connection from ::1:59238.
+aaaaa
+aaa
+Ncat: Connection from ::1.
+Ncat: Connection from ::1:59241.
+bbbbbb
+bbbb
+```
 
 
 
