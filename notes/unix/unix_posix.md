@@ -75,7 +75,7 @@
 - [IO多路複用 (POSIX)](#io多路複用-posix)
 	- [select()](#select)
 	- [pselect()](#pselect)
-- [IO多路複用 (Epoll)](#io多路複用-epoll)
+- [IO多路複用 (epoll)](#io多路複用-epoll)
 	- [epoll_create()](#epoll_create)
 	- [epoll_ctl()](#epoll_ctl)
 	- [epoll_wait()](#epoll_wait)
@@ -762,13 +762,13 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 	int system(const char *command);
 	```
 
-	`system()`函數的特點：
+	system()函數的特點：
 
-	- `system()`函數運行以字符串參數的形式傳遞給它的命令，並等待該命令的完成(效果類似於在Shell中使用對應命令)。
-	- 與`exec()`函數不同，`system()`函數會新建一個Shell來執行命令。
-	- 如果無法啓動Shell來運行這個命令，`system()`函數將返回錯誤代碼`127`；
-	其它錯誤返回`-1`，否則`system()`函數將返回該命令的退出碼(一般命令都是`0`)。
-	- 在實際開發中，`system()`函數往往是很少被使用的，使用`system()`函數必須啓動`Shell`執行指令，**效率不高**。
+	- system()函數運行以字符串參數的形式傳遞給它的命令，並等待該命令的完成(效果類似於在Shell中使用對應命令)。
+	- 與exec()函數不同，system()函數會新建一個Shell來執行命令。
+	- 如果無法啓動Shell來運行這個命令，system()函數將返回錯誤代碼`127`；
+	其它錯誤返回`-1`，否則system()函數將返回該命令的退出碼(一般命令都是`0`)。
+	- 在實際開發中，system()函數往往是很少被使用的，使用system()函數必須啓動`Shell`執行指令，**效率低下**。
 
 實際開發中，`fork() + exec()`是最常用的進程創建方式。
 
@@ -782,11 +782,11 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 	pid_t fork(void);
 	```
 
-	`fork()`函數爲當前進程創建一個相同的**拷貝**，原進程爲**父進程**，新進程爲**子進程**。
-	原進程的`fork()`函數返回子進程的`pid`，新進程的`fork()`函數返回`0`。
+	fork()函數爲當前進程創建一個相同的**拷貝**，原進程爲**父進程**，新進程爲**子進程**。
+	原進程的fork()函數返回子進程的`pid`，新進程的fork()函數返回`0`。
 
 	新進程與原進程有着相同的**運行狀態**和**代碼**，
-	即從`fork()`函數開始(包括`fork()`函數本身)接下來的代碼原進程和新進程將會各執行一遍。
+	即從fork()函數開始(包括fork()函數本身)接下來的代碼原進程和新進程將會各執行一遍。
 	新的進程有**獨立**的數據空間、環境、和文件描述符。
 	父進程中已經打開的文件描述符在子進程中依然會存在，父進程註冊的信號處理函數在子進程依然有效。
 
@@ -856,28 +856,28 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 	End!
 	```
 
-	由結果可知，`fork()`函數之前的`system("whoami")`函數只執行了一遍，
-	因此shell指令`whoami`也只執行一遍。但在`fork()`函數之後的代碼都執行了兩遍，
+	由結果可知，fork()函數之前的`system("whoami")`函數只執行了一遍，
+	因此shell指令`whoami`也只執行一遍。但在fork()函數之後的代碼都執行了兩遍，
 	分別來自父進程和子進程的`printf()`函數向屏幕打印了兩次`End!`。
 	由`system("ps")`函數中執行的shell指令`ps`向屏幕中輸出的結果可以看出，
 	父進程的`ppid`是啓動這個進程的shell的`pid`，而**子進程**的`ppid`就是**父進程**的`pid`。
 
 - `vfork()` 函數
 
-	`vfork()`作用與`fork()`類似，函數定義在`unistd.h`中，示例：
+	`vfork()`作用與fork()類似，函數定義在`unistd.h`中，示例：
 
 	```c
 	pid_t vfork(void);
 	```
 
-	相比`fork()`調用，`vfork()`有以下不同之處：
+	相比fork()調用，`vfork()`有以下不同之處：
 
-	- `fork()`子進程拷貝父進程中的數據段和代碼段，`vfork()`中子進程與父進程共享數據段。
-	- `fork()`調用之後父子進程執行順序是**隨機**的，
-	`vfork()`中子進程在調用`exec()`或`exit()`之前與父進程數據共享，
-	而父進程在子進程調用了`exec()`或`exit()`之前會一直**阻塞**。
+	- fork()子進程拷貝父進程中的數據段和代碼段，`vfork()`中子進程與父進程共享數據段。
+	- fork()調用之後父子進程執行順序是**隨機**的，
+	`vfork()`中子進程在調用exec()或`exit()`之前與父進程數據共享，
+	而父進程在子進程調用了exec()或`exit()`之前會一直**阻塞**。
 
-	在Linux中，`fork()`與`vfork()`最終的內部實現都使用`do_fork()`。
+	在Linux中，fork()與`vfork()`最終的內部實現都使用`do_fork()`。
 
 - `exec()` 函數
 
@@ -894,17 +894,17 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 	int fexecve(int fd, char *const argv[], char *const envp[]);
 	```
 
-	- `exec()`系列函數爲**系統調用**，執行後，
-	會將當前的進程**完全替換**爲執行新程序的進程(即這個進程`exec()`調用成功之後的代碼都不再運行)，但`PID`不變。
-	- `exec()`系統調用比`system()`函數要**高效**，`exec()`與`fork()`搭配是Unix系統中最**常用**的系統進程創建組合。
-	- 通常`exec()`不會返回，除非發生了錯誤。出錯時，`exec()`返回`-1`並且置`errno`，同時繼續執行餘下的代碼。
-	- 在`exec()`函數組中，只有`execve()`函數是真正的系統調用，其它的幾個函數都是`execve()`封裝而成的庫函數。
+	- exec()系列函數爲**系統調用**，執行後，
+	會將當前的進程**完全替換**爲執行新程序的進程(即這個進程exec()調用成功之後的代碼都不再運行)，但`PID`不變。
+	- exec()系統調用比system()函數要**高效**，exec()與fork()搭配是Unix系統中最**常用**的系統進程創建組合。
+	- 通常exec()不會返回，除非發生了錯誤。出錯時，exec()返回`-1`並且置`errno`，同時繼續執行餘下的代碼。
+	- 在exec()函數組中，只有`execve()`函數是真正的系統調用，其它的幾個函數都是`execve()`封裝而成的庫函數。
 	- 參數`path`爲絕對路徑，`file`爲命令名稱。
 	- `execl()`、`execlp()`、`execle()`三個函數接收的參數個數是可變的，
 	參數以一個空指針結束(`(char*)0`或`NULL`)，用多個字符數組`*arg`來傳遞要執行的程序的參數。
 	- `execv()`、`execp()`、`execve()`等函數參數個數是固定的，
 	將要傳遞給要執行的程序的參數放在二維字符數組`*argv[]`中(對應main函數參數中的`*argv[]`)，
-	而二維字符數組`*envp[]`中保存`exec()`函數要運行的程序的環境變量，
+	而二維字符數組`*envp[]`中保存exec()函數要運行的程序的環境變量，
 	無論是傳遞給被執行程序的參數字符數組`*argv[]`或是環境變量字符數組`*envp[]`都要以一個空指針結尾。
 
 	實例代碼：
@@ -1075,9 +1075,9 @@ Parent process END!
 
 編寫守護進程一般有如下幾個步驟：
 
-1. 調用`fork()`函數，同時退出**父進程**。
+1. 調用fork()函數，同時退出**父進程**。
 
-	使用了`fork()`函數之後父進程退出，則子進程成爲孤兒進程，由`init系統`接管。
+	使用了fork()函數之後父進程退出，則子進程成爲孤兒進程，由`init系統`接管。
 	子進程雖然脫離了父進程，但仍然處於父進程的進程組中和會話中，與控制終端的聯繫依然存在。
 
 1. 調用`setsid()`函數，爲子進程創建新的會話。
@@ -1085,9 +1085,9 @@ Parent process END!
 	使用了`setsid()`函數，子進程脫離了原先父進程的進程組與會話，並且不再與原先的控制終端相關聯。
 	子進程在創建了會話之後成爲了會話和新進程組的**首進程**，依然有可能被系統分配控制終端。
 
-1. 再次調用`fork()`函數，再次退出**父進程**。
+1. 再次調用fork()函數，再次退出**父進程**。
 
-	再次`fork()`退出父進程之後，新的子進程不再是進程組和會話的首進程，不再有被分配控制終端的可能。
+	再次fork()退出父進程之後，新的子進程不再是進程組和會話的首進程，不再有被分配控制終端的可能。
 
 實例代碼：
 
@@ -1309,8 +1309,8 @@ int main(void)
 ```c
 #include <signal.h>
 
-int sigsetmask(int mask); //設定屏蔽信號爲mask
-int sigblock(int mask); //向現有屏蔽信號中添加mask
+int sigsetmask(int mask); // 設定屏蔽信號爲mask
+int sigblock(int mask); // 向現有屏蔽信號中添加mask
 ```
 
 - `mask`參數爲要屏蔽的信號**mask**，由`sigmask(signum)`宏根據輸入的信號值生成。
@@ -1319,11 +1319,11 @@ int sigblock(int mask); //向現有屏蔽信號中添加mask
 實例代碼如下：
 
 ```c
-//多個信號可以使用邏輯或操作符相連
+// 多個信號可以使用邏輯或操作符相連
 int mask = sigmask(SIGINT) | sigmask(QUIT);
-//設置當前的信號屏蔽爲SIGINT和SIGQUIT
+// 設置當前的信號屏蔽爲SIGINT和SIGQUIT
 sigsetmask(mask);
-//添加屏蔽SIGALRM信號
+// 添加屏蔽SIGALRM信號
 sigblock(sigmask(SIGALRM));
 ```
 
@@ -1347,21 +1347,21 @@ int sigprocmask(int how, const sigset_t *restrict set, sigset_t *restrict oset);
 示例：
 
 ```c
-//創建信號集合，置空後添加SIGINT信號
+// 創建信號集合，置空後添加SIGINT信號
 sigset_t set;
 sigemptyset(&set);
 sigaddset(&set, SIGINT);
 
-//屏蔽SIGINT信號
+// 屏蔽SIGINT信號
 sigprocmask(SIG_SETMASK, &set, NULL);
 
-//信號集加入SIGQUIT信號
+// 信號集加入SIGQUIT信號
 sigaddset(&set, SIGQUIT);
 
-//添加屏蔽SIGUQUIT信號
+// 添加屏蔽SIGUQUIT信號
 sigprocmask(SIG_BLOCK, &set, NULL);
 
-//取消SIGINT和SIGQUIT的信號屏蔽
+// 取消SIGINT和SIGQUIT的信號屏蔽
 sigprocmask(SIG_UNBLOCK, &set, NULL);
 ```
 
@@ -1466,7 +1466,7 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 	{
 		printf("Run thread!\n");
 
-		//解除SIGINT的信號屏蔽，讓當前線程能夠處理SIGINT信號
+		// 解除SIGINT的信號屏蔽，讓當前線程能夠處理SIGINT信號
 		pthread_sigmask(SIG_UNBLOCK, &set, NULL);
 
 		while (1)
@@ -1478,7 +1478,7 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 	{
 		signal(SIGINT, deal_signal);
 
-		//整個進程屏蔽SIGINT信號
+		// 整個進程屏蔽SIGINT信號
 		sigemptyset(&set);
 		sigaddset(&set, SIGINT);
 		sigprocmask(SIG_BLOCK, &set, NULL);
@@ -1528,7 +1528,7 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 	int thread_count = 0;
 	pthread_mutex_t mutex;
 
-	//由於sigwait()優先級更高，deal_signal()函數並未觸發
+	// 由於sigwait()優先級更高，deal_signal()函數並未觸發
 	void deal_signal(int sig)
 	{
 		printf("Run deal_signal.\n");
@@ -1542,7 +1542,7 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 
 		printf("Run thread %d!\n", thread_id);
 
-		//子線程即便使用pthread_sigmask()解除SIGINT信號屏蔽，依舊會優先響應sigwait()
+		// 子線程即便使用pthread_sigmask()解除SIGINT信號屏蔽，依舊會優先響應sigwait()
 		int signum;
 		sigwait(&set, &signum);
 
@@ -1572,7 +1572,6 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 		pthread_create(&pfd, NULL, thread_func, NULL);
 
 		pthread_join(pfd, NULL);
-
 		pthread_mutex_destroy(&mutex);
 
 		return 0;
@@ -1602,7 +1601,7 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 $ cc -lpthread [源碼文件]
 ```
 
-在`FreeBSD`以及`OS X`中，編譯使用了線程庫的程序**無需**鏈接`pthread`庫。
+在`FreeBSD`以及`macOS`中，編譯使用了線程庫的程序**無需**鏈接`pthread`庫。
 
 ## Linux下的線程實現
 `Linux Kernel 2.6`之後，線程的實現爲`NPTL`，即**本地POSIX線程庫**`Native POSIX Thread Library`。
@@ -1706,7 +1705,7 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex);
 #include <pthread.h>
 #include <string.h>
 
-#define MYMES1 SIGUSR1 + 1 //自定義信號，不能設置太大，Linux中32～64信號爲用戶可用
+#define MYMES1 SIGUSR1 + 1 // 自定義信號，不能設置太大，Linux中32～64信號爲用戶可用
 #define MYMES2 SIGUSR1 + 2
 
 pthread_t thread_fd = 0;
@@ -1717,11 +1716,11 @@ void deal_signal(int signal)
 {
 	switch(signal)
 	{
-	case SIGQUIT: //捕獲SIGQUIT信號，用 "ctrl+\" 組合鍵觸發
-		pthread_cancel(thread_fd); //取消一號線程
-		pthread_cancel(thread_fd1); //取消二號線程
+	case SIGQUIT: // 捕獲SIGQUIT信號，用 "ctrl+\" 組合鍵觸發
+		pthread_cancel(thread_fd); // 取消一號線程
+		pthread_cancel(thread_fd1); // 取消二號線程
 		printf("結束一、二號線程，接下來三、四號線程沒有互斥量，輸出內容會相互交錯！\n");
-		if (pthread_mutex_destroy(&mutex) == -1) //刪除鎖，實際刪除鎖沒什麼用。。。
+		if (pthread_mutex_destroy(&mutex) == -1) // 刪除鎖
 			printf("刪除失敗！\n");
 		break;
 	case MYMES1:
@@ -1738,11 +1737,11 @@ void* thread_func(void* arg)
 	while (1)
 	{
 		if (!strcmp(arg, "三號線程") || !strcmp(arg, "四號線程"))
-			kill(getpid(), MYMES2); //三號、四號線程發送自定義信號MYMES2
+			kill(getpid(), MYMES2); // 三號、四號線程發送自定義信號MYMES2
 		else if (pthread_mutex_lock(&mutex) == -1)
 			printf("加鎖失敗！\n");
 		else
-			kill(getpid(), MYMES1); //一號、二號線程發送自定義信號MYMES1
+			kill(getpid(), MYMES1); // 一號、二號線程發送自定義信號MYMES1
 
 		printf("%s開始。\n", (char*)arg);
 
@@ -1756,7 +1755,7 @@ void* thread_func(void* arg)
 		if (pthread_mutex_unlock(&mutex) == -1)
 			printf("解鎖失敗！\n");
 
-		sleep(2); //線程休眠一秒，否則資源會一直被一個線程佔有
+		sleep(2); // 線程休眠一秒，否則資源會一直被一個線程佔有
 	}
 }
 
@@ -2179,7 +2178,7 @@ int sem_id = 0;
 
 void deal_signal(int sig)
 {
-	semctl(sem_id, 0, IPC_RMID); //刪除信號量
+	semctl(sem_id, 0, IPC_RMID); // 刪除信號量
 	_exit(0);
 }
 
@@ -2187,7 +2186,7 @@ int main(void)
 {
 	signal(SIGINT, deal_signal);
 
-	sem_id = semget(ftok(PATH, PROJECT_ID), 1, 0600); //需要保證進程有讀寫信號量的權限
+	sem_id = semget(ftok(PATH, PROJECT_ID), 1, 0600); // 需要保證進程有讀寫信號量的權限
 	if (sem_id == -1)
 	{
 		perror("semget");
@@ -2413,7 +2412,7 @@ int main(int argc, char** argv)
 	strcpy(msg.data.text, "Hello");
 	msg.data.num = 1;
 
-	//以非阻塞形式發送消息
+	// 以非阻塞形式發送消息
 	if (msgsnd(msg_id, &msg, sizeof(msg.data), IPC_NOWAIT) == -1)
 		perror("msgsnd");
 	else
@@ -2432,7 +2431,7 @@ int main(int argc, char** argv)
 			printf("Num: %d\nMessage type: %ld\nSend: %s\n\n", msg.data.num, msg.type, msg.data.text);
 	}
 
-	//獲取進程信息
+	// 獲取進程信息
 	struct msqid_ds buf;
 	if (msgctl(msg_id, IPC_STAT, &buf) == -1)
 		perror("msgctl");
@@ -2902,7 +2901,7 @@ Linux和BSD還分別提供了增強的IO複用機制，在Linux中爲`epoll`，�
 
 ## select()
 在Unix環境下，`select()`是常用的IO多路複用機制之一，函數定義在`sys/select.h`中。
-`select()`函數定義示例：
+select()函數定義示例：
 
 ```c
 int select(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_set *restrict errorfds, struct timeval *restrict timeout);
@@ -2912,7 +2911,7 @@ int select(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_set
 - `readfds`參數爲要監視的可讀檢測文件描述符集合。
 - `writefds`參數爲要監視的可寫檢測文件描述符集合。
 - `errorfds`參數爲要監視的錯誤檢測文件描述符集合。
-- `timeout`參數爲超時等待的時間，可以精確到**微秒**，取`NULL`時爲`select()`爲阻塞函數，超時爲`0`時立即返回(非阻塞)。
+- `timeout`參數爲超時等待的時間，可以精確到**微秒**，取`NULL`時爲select()爲阻塞函數，超時爲`0`時立即返回(非阻塞)。
 
 結構`timeval`的定義爲：
 
@@ -2939,7 +2938,7 @@ int FD_ISSET(fd, fd_set *fdset);
 
 函數執行成功返回變化的描述符數量，監視的描述符無變化則返回`0`，調用失敗返回`-1`。
 
-基本的`select()`函數代碼框架爲(以檢測文件描述符可讀爲例)：
+基本的select()函數代碼框架爲(以檢測文件描述符可讀爲例)：
 
 ```c
 int fd[fdcount];
@@ -2948,12 +2947,12 @@ struct timeval timeout;
 
 while(1)
 {
-	//初始化並設置描述符集合，每次調用select()前都需要類似操作
+	// 初始化並設置描述符集合，每次調用select()前都需要類似操作
 	FD_ZERO(&readset);
 	FD_SET(fd[0], &readset);
-	... //設置需要監視的描述符
+	... // 設置需要監視的描述符
 
-	//timeval結構體在每次select()調用會被修改，需要重複設定超時結構體
+	// timeval結構體在每次select()調用會被修改，需要重複設定超時結構體
 	timeout.tv_sec = /* seconds */;
 	timeout.tv_usec = /* microseconds */;
 
@@ -2968,7 +2967,7 @@ while(1)
 	default:
 		for (int i = 0; i < fdcount; i++)
 		{
-			//使用宏FD_ISSET判斷文件描述符是否發生變化
+			// 使用宏FD_ISSET判斷文件描述符是否發生變化
 			if (FD_ISSET(fd[i], &readset))
 			{
 				/* do something */
@@ -2982,29 +2981,29 @@ while(1)
 }
 ```
 
-使用`select()`的一些注意事項：
+使用select()的一些注意事項：
 
-- `select()`處於阻塞狀態時會被信號中斷(當`select()`所處線程是信號處理線程時)。
-- 每次調用`select()`前都需要重設描述符集合(執行`FD_ZERO`和`FD_SET`宏)。
-- `timeval`結構體會在`select()`運行時被修改，因此，在需要設置超時時間的情況下，
-循環中每次調用`select()`之前都需要重新設置`timeval`結構體。
+- select()處於阻塞狀態時會被信號中斷(當select()所處線程是信號處理線程時)。
+- 每次調用select()前都需要重設描述符集合(執行`FD_ZERO`和`FD_SET`宏)。
+- `timeval`結構體會在select()運行時被修改，因此，在需要設置超時時間的情況下，
+循環中每次調用select()之前都需要重新設置`timeval`結構體。
 - 對於**普通文件**描述符，無論**讀、寫、異常狀態**，都是**始終準備好**的，
-因此在監控的描述符中如果存在**普通文件**，無論`timeout`參數取何值，`select()`都將**立即返回**。
+因此在監控的描述符中如果存在**普通文件**，無論`timeout`參數取何值，select()都將**立即返回**。
 
 ## pselect()
 `pselect()`函數由**POSIX**定義，是`select()`的完善版本，在早期的Unix中並不存在。
-`pselect()`監聽描述符的功能以及使用方式與`select()`相同。
-`pselect()`在`select()`基礎上添加了等待期間**阻塞**信號的功能。
+pselect()監聽描述符的功能以及使用方式與select()相同。
+pselect()在select()基礎上添加了等待期間**阻塞**信號的功能。
 
-`pselect()`函數定義示例：
+pselect()函數定義示例：
 
 ```c
 int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_set *restrict errorfds, const struct timespec *restrict timeout, const sigset_t *restrict sigmask);
 ```
 
-- 前**4個**參數與`select()`中含義完全相同。
+- 前**4個**參數與select()中含義完全相同。
 - `sigmask`參數爲需要屏蔽信號的集合。
-- `timeout`參數爲超時等待的時間，類型爲`timespec`，精確到納秒，與`select()`函數中精確到毫秒的`timeval`不同。
+- `timeout`參數爲超時等待的時間，類型爲`timespec`，精確到納秒，與select()函數中精確到毫秒的`timeval`不同。
 
 信號集合參數`sigmask`使用前需要兩個步驟：
 
@@ -3020,13 +3019,14 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_se
 	int sigaddset(sigset_t *set, int signo);
 	```
 
-信號集合只需要設置一次，就可以在之後的`pselect()`中一直使用。
+信號集合只需要設置一次，就可以在之後的pselect()中一直使用。
 
-- 在`pselect()`處於**阻塞**狀態時，會暫時屏蔽信號集中的信號，
-在`pselect()`阻塞期間若發出了被屏蔽的信號，則信號處理函數會在`pselect()`結束時觸發。
-- 在`pselect()`**阻塞**期間多次發出了信號，
-在`pselect()`結束時**同類信號**只觸發信號處理函數**一次**，不會多次觸發。
-- 在`pselect()`**阻塞**期間發出的不同種類信號都會在`pselect()`結束時觸發(即使信號處理函數是**同一個**)，
+- 在pselect()處於**阻塞**狀態時，會暫時屏蔽信號集中的信號，
+在pselect()阻塞期間若發出了被屏蔽的信號，則信號處理函數會在pselect()結束時觸發。
+- 在pselect()**阻塞**期間多次發出了信號，
+在pselect()結束時**同類信號**只觸發信號處理函數**一次**，不會多次觸發。
+- 在pselect()**阻塞**期間，
+發出的不同種類信號都會在pselect()結束時觸發(即使信號處理函數是**同一個**)，
 但**每類信號**只會觸發**一次**信號處理函數。
 
 示例：
@@ -3052,7 +3052,7 @@ void deal_signal(int sig)
 
 int main(void)
 {
-	//初始化時間結構體timespec，需要注意的是tv_nsec成員爲納秒數
+	// 初始化時間結構體timespec，需要注意的是tv_nsec成員爲納秒數
 	struct timespec time;
 	time.tv_sec = 5;
 	time.tv_nsec = 0;
@@ -3060,14 +3060,14 @@ int main(void)
 	signal(SIGINT, deal_signal);
 	signal(SIGQUIT, deal_signal);
 
-	//sigmask參數設置一次即可，不需要每次調用pselect前都設置
+	// sigmask參數設置一次即可，不需要每次調用pselect前都設置
 	sigset_t set;
 	sigemptyset(&set);
 	sigaddset(&set, SIGINT);
 	sigaddset(&set, SIGQUIT);
 
-	//pselect與select的不同之處在於設置sigmask防止超時等待時被信號打斷
-	//信號會在pselect等待後觸發
+	// pselect與select的不同之處在於設置sigmask防止超時等待時被信號打斷
+	// 信號會在pselect等待後觸發
 	while (1)
 	{
 		is_changed = 0;
@@ -3080,13 +3080,16 @@ int main(void)
 }
 ```
 
-在上述代碼中，`timespec`結構設置了**5秒**的超時等待時間，屏蔽信號集中加入了`SIGINT`和`SIGQUIT`兩個信號，
-在`pselect()`啓動後的超時等待時間中，發送這兩個信號並不會立即得到響應，
+在上述代碼中，`timespec`結構設置了**5秒**的超時等待時間，
+屏蔽信號集中加入了`SIGINT`和`SIGQUIT`兩個信號，
+在pselect()啓動後的超時等待時間中，發送這兩個信號並不會立即得到響應，
 而是在**5秒**的超時時間過後，`deal_signal`纔會觸發。
-在等待期間，無論發送多少次`SIGINT`和`SIGQUIT`信號，`SIGINT`和`SIGQUIT`的信號處理函數只會**分別觸發**一次。
+在等待期間，無論發送多少次`SIGINT`和`SIGQUIT`信號，
+`SIGINT`和`SIGQUIT`的信號處理函數只會**分別觸發**一次。
 
-在**多線程**環境下，只有`pselect()`所處的線程是信號處理線程時，`pselect()`才能起到阻塞信號的效果，
-在其它線程中，即使使用`pselect()`並設置屏蔽信號，信號處理函數依然會**立即**觸發。
+在**多線程**環境下，只有pselect()所處的線程是信號處理線程時，
+pselect()才能起到阻塞信號的效果，在其它線程中，即使使用pselect()並設置屏蔽信號，
+信號處理函數依然會**立即**觸發。
 
 示例：
 
@@ -3153,15 +3156,15 @@ int main(void)
 
 
 
-# IO多路複用 (Epoll)
+# IO多路複用 (epoll)
 `epoll`是`Linux`環境下**獨有**的IO多路複用機制，在`Linux Kernel 2.6`之後被引入。
-傳統的`select()`在描述符變化事件產生時需要使用`FD_ISSET`宏遍歷測試所有描述符，
-因此隨着監聽描述符數量的增加性能會出現線性下降，而使用`epoll`則能直接獲取到變化的描述符。
+傳統的select()在描述符變化事件產生時需要使用`FD_ISSET`宏遍歷測試所有描述符，
+因此隨着監聽描述符數量的增加性能會出現線性下降，而使用epoll則能直接獲取到變化的描述符。
 
-`epoll`相關API定義在`sys/epoll.h`頭文件中。
+epoll相關API定義在`sys/epoll.h`頭文件中。
 
 ## epoll_create()
-使用`epoll_create()`初始化一個`epoll`描述符：
+使用`epoll_create()`初始化一個epoll描述符：
 
 ```c
 int epoll_create(int size);
@@ -3169,7 +3172,7 @@ int epoll_create(int size);
 
 - `size`參數爲支持的最大句柄數，從`Linux Kernel 2.6.8`之後，這個參數不再被要求。
 
-函數執行成功返回`epoll`描述符。執行失敗返回`-1`，並置`errno`。
+函數執行成功返回epoll描述符。執行失敗返回`-1`，並置errno。
 
 ## epoll_ctl()
 使用`epoll_ctl()`添加、修改或刪除監聽描述符：
@@ -3178,9 +3181,9 @@ int epoll_create(int size);
 int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 ```
 
-- `epfd`參數爲`epoll_create()`得到的`epoll`描述符。
-- `op`參數爲要執行的操作，
-可取宏`EPOLL_CTL_ADD`(添加監聽描述符)、`EPOLL_CTL_MOD`(修改描述符操作)、`EPOLL_CTL_DEL`(刪除監聽描述符)。
+- `epfd`參數爲`epoll_create()`得到的epoll描述符。
+- `op`參數爲要執行的操作，可取宏`EPOLL_CTL_ADD`(添加監聽描述符)、
+`EPOLL_CTL_MOD`(修改描述符操作)、`EPOLL_CTL_DEL`(刪除監聽描述符)。
 - `fd`參數爲被操作的描述符。
 - `event`參數爲描述符`fd`對應的事件，不能取值`NULL`。
 
@@ -3227,7 +3230,7 @@ int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
 ```
 
-- `epfd`參數爲`epoll_create()`得到的`epoll`描述符。
+- `epfd`參數爲`epoll_create()`得到的epoll描述符。
 - `events`參數爲產生的事件集合，不能取`NULL`，函數會將產生的事件數據寫入該地址中。
 - `maxevents`參數爲最大事件數目，這個值不大於監聽的描述符的數量。
 - `timeout`參數爲超時時間，取`0`時立即返回(非阻塞)，取`-1`時永久阻塞直到事件產生或被信號中斷。
@@ -3235,19 +3238,19 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 函數執行成功返回變化的描述符數量，返回值爲`0`則等待超時。執行失敗返回`-1`並置`errno`。
 
 ## 注意事項
-- `epoll_create()`創建的`epoll`描述符需要使用`close()`關閉。
-- `epoll`**不能**監聽普通文件描述符，
+- `epoll_create()`創建的epoll描述符需要使用`close()`關閉。
+- epoll**不能**監聽普通文件描述符，
 對於`read()`、`write()`調用而言，普通文件是**始終準備好**(always ready)的。
 在`epoll_ctl()`函數中嘗試添加一個普通文件描述符則會得到`Operation not permitted`錯誤。
 - `epoll_create()`中的`size`參數雖然是被忽略的，但不要取`0`和**負值**，會得到`Bad file desriptor`錯誤。
 
 ## LT/ET
-`epoll`擁有兩種工作模式，分別爲`Level Triggered`(LT，水平觸發)和`Edge Triggered`(ET，邊緣觸發)模式。
+epoll擁有兩種工作模式，分別爲`Level Triggered`(LT，水平觸發)和`Edge Triggered`(ET，邊緣觸發)模式。
 
 - `LT`模式爲epoll的默認工作模式，在該模式下，只要有數據可讀/寫，使用`epoll_wait()`都會返回。
 - `ET`模式只有描述符狀態變化(從不可讀/寫變爲可讀/寫)時纔會另`epoll_wait()`返回，相比之下，ET模式更爲高效。
 
-LT模式下，由於只要有數據讀寫就會觸發事件，因此**不必**在一次`epoll`循環中嘗試讀盡所有的數據，
+LT模式下，由於只要有數據讀寫就會觸發事件，因此**不必**在一次epoll循環中嘗試讀盡所有的數據，
 有數據未讀會繼續觸發觸發事件，在下次觸發的事件中讀盡數據即可。
 LT模式下可以使用阻塞式IO也可以使用非阻塞IO。
 
@@ -3257,8 +3260,8 @@ LT模式下基本的代碼框架爲：
 int epfd = epoll_create(size);
 
 struct epoll_event event;
-event.events = /* events type */;
-event.data = /* data */;
+event.events = ... /* events type */;
+event.data = ... /* data */;
 
 if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
 	perror("epoll_ctl()出錯");
@@ -3310,8 +3313,8 @@ ET模式下的基本代碼框架爲：
 int epfd = epoll_create(size);
 
 struct epoll_event event;
-event.events = EPOLLET | /* events type */; // 默認爲LT模式，需要顯式使用EPOLLET標誌才能設置爲ET模式
-event.data = /* data */;
+event.events = EPOLLET | ... /* events type */; // 默認爲LT模式，需要顯式使用EPOLLET標誌才能設置爲ET模式
+event.data = ... /* data */;
 
 if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
 	perror("epoll_ctl()出錯");
