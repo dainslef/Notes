@@ -50,7 +50,7 @@
 
 ## Unix
 
-- [Unix Tool Chains](notes/unix/os_config.md)
+- [Unix Tool Chains](notes/unix/unix.md)
 - [Shell](notes/script/shell.md)
 - [Docker](notes/unix/docker.md)
 - [Git](notes/unix/git.md)
@@ -58,4 +58,4 @@
 - [NixOS](notes/unix/nix_os.md)
 - [macOS](notes/unix/mac_os.md)
 - [FreeBSD](notes/unix/freebsd.md)
-- [MSYS2/WSL](notes/unix/lxss_msys2.md)
+- [MSYS2/WSL](notes/unix/wsl_msys2.md)
