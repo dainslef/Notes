@@ -67,6 +67,8 @@
 		- [客戶端/服務端模式](#客戶端服務端模式)
 		- [數據傳送](#數據傳送)
 		- [Ncat](#ncat)
+	- [iptables/nftables (netfilter)](#iptablesnftables-netfilter)
+		- [iptables基本操作](#iptables基本操作)
 - [性能監控與測試](#性能監控與測試)
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
@@ -2030,6 +2032,7 @@ Linux/macOS均支持的netstat參數：
 
 Linux平台的netstat的常用參數：
 
+- `-a` 展示所有監聽/非監聽類型的socket
 - `-t` 展示TCP端口
 - `-u` 展示UDP端口
 - `-l` 展示處於監聽狀態的端口
@@ -2043,7 +2046,7 @@ $ netstat -utnlp
 ```
 
 `ss`是iproute2提供的次世代工具，提供與netstat類似的功能。
-參數基本與Linux平台的netstat類似，如`-t`、`-u`、`-p`、`-n`、`-l`等。
+參數基本與Linux平台的netstat類似，如`-a`、`-t`、`-u`、`-p`、`-n`、`-l`等。
 
 macOS平台netstat的常用參數：
 
@@ -2331,6 +2334,65 @@ Ncat: Connection from ::1.
 Ncat: Connection from ::1:59241.
 bbbbbb
 bbbb
+```
+
+## iptables/nftables (netfilter)
+iptables以及其繼任者nftables均來自[netfilter](https://www.netfilter.org/)項目，
+netfilter項目提供了包過濾、網絡地址/端口轉換(NAT)，包日誌、用戶態包查詢等功能。
+
+netfilter hooks提供了在Linux內核中提供了框架，允許內核模塊在Linux網絡棧的不同位置註冊回調函數。
+
+### iptables基本操作
+查看啟用的iptables規則：
+
+```html
+<!-- 默認展示INPUT、FORWARD、OUTPUT 規則 -->
+# iptables -L
+<!-- 輸出結果示例
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+-->
+
+<!-- 展示規則同時輸出行號 -->
+# iptables -L --line-number
+
+<!-- 額外展示NAT規則 -->
+# iptables -t nat -L
+<!-- 輸出示例
+Chain PREROUTING (policy ACCEPT)
+target     prot opt source               destination
+DNAT       all  --  anywhere             172.16.0.90          to:10.8.0.6
+
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source               destination
+SNAT       all  --  10.8.0.0/24          anywhere             to:192.168.110.181
+-->
+```
+
+添加和刪除NAT規則：
+
+```html
+<!-- SNAT -->
+# iptables -t nat -A POSTROUTING -s 源網段/地址 -o eth0 -j MASQUERADE
+# iptables -t nat -A POSTROUTING -s 源網段/地址 -o 網卡 -j SNAT --to-source 需要轉換成的地址
+<!-- DNAT -->
+# iptables -t nat -A PREROUTING -d 目標網段/地址 -o 網卡 -j DNAT --to-destination 需要轉換成的地址
+
+<!-- 刪除指定規則 -->
+# iptables -D 規則類型 規則編號
+# iptables -t nat -D 規則類型 規則編號 <!-- 刪除NAT相關規則 -->
 ```
 
 
