@@ -1,6 +1,9 @@
 <!-- TOC -->
 
 - [概述](#概述)
+	- [Docker與傳統虛擬機的區別](#docker與傳統虛擬機的區別)
+	- [容器相關技術架構](#容器相關技術架構)
+	- [Dockershim](#dockershim)
 - [安裝與配置](#安裝與配置)
 	- [基本使用](#基本使用)
 	- [在 macOS 中使用 docker](#在-macos-中使用-docker)
@@ -32,14 +35,59 @@ Docker將應用與依賴項放置在容器中執行，僅僅依賴宿主機的�
 每個Docker實例實際僅僅是獨立的用戶空間實例，類似一個高級的`chroot`實現，
 在普通的chroot上添加了資源控制等高級功能。
 
+## Docker與傳統虛擬機的區別
+Docker基於容器技術，早期使用LinuX Containers(LXC)實現，之後切換到runC(libcontainer)，
+直接使用Docker需要宿主機與容器同樣運行Linux系統，容器直接使用宿主機的內核。
+傳統虛擬機實例之間不能共享資源，而Docker實例可直接共享主機資源，
+以內存為例，傳統虛擬機分配1GB內存，則虛擬機實例會獨佔1GB內存，
+但多個Docker實例之間則可共享該內存。
+
+參考[StackOverflow](https://stackoverflow.com/questions/16047306/how-is-docker-different-from-a-virtual-machine)上的相關問答。
+
+Docker同樣相比傳統虛擬機存在一些限制，例如systemd在Docker中不能直接使用，
+Docker被設計用於提供單個進程/服務運行的最小環境，通常容器中不會運行systemd此類系統管理服務。
+
+關於在Docker中運行systemd，參考[StackOverflow](https://stackoverflow.com/questions/46800594/start-service-using-systemctl-inside-docker-container)上的相關問答。
+
+## 容器相關技術架構
+容器技術體系中，有兩層API標準：
+
+- `Container Runtime Interface (CRI)`
+
+	CRI是Kubernetes定義的、與容器運行時交互的API。
+	Kubernetes通過該API對符合標準的容器運行時進行操作，
+	主流的容器運行時如`containerd`、`CRI-O`等均實現了該API。
+
+- [`Open Container Initiative (OCI)`](https://opencontainers.org/)
+
+	OCI是Linux基金會下的子項目，目標是創建容器格式、容器運行時的行業標準。
+	OCI在2015年6月由Docker和其它行業領導者創建，當前OCI主要包括兩大規範：
+
+	1. `Runtime Specification (runtime-spec)` 容器運行時規範
+	1. `Image Specification (image-spec)` 容器鏡像規範
+
+	容器運行時規範描述如何執行一個在磁盤上解包後的「Filesystem Bundle」。
+	OCI實現下載OCI鏡像，將其解包為「OCI Runtime Filesystem Bundle」，
+	然後由「OCI Runtime」執行「OCI Runtime Bundle」。
+
+	OCI的主要實現是[runc](https://github.com/opencontainers/runc)。
+
+容器技術體系架構參考[博客](https://www.tutorialworks.com/difference-docker-containerd-runc-crio-oci/)。
+
+## Dockershim
+Kubernetes早期使用名為dockershim的機制調用Docker，
+但現在Kubernetes逐步放棄dockershim，轉而使用CRI與任何符合要求的容器運行時交互(不侷限於Docker)；
+自`Kubernetes v1.20`開始，Kubernetes發布了[官方聲明](https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/)，dockershim已被聲明為**廢棄(deprecation)**。
+最新的[官方博客](https://kubernetes.io/blog/2021/11/12/are-you-ready-for-dockershim-removal/)中，dockershim的廢棄推遲到了`1.24`版本。
+
 
 
 # 安裝與配置
 各類Linux發行版的官方倉庫中均內置了Docker，使用發行版內置的包管理器安裝即可：
 
-```
-# pacman -S docker //Arch Linux
-# apt install docker.io //Debian系
+```html
+# pacman -S docker <!-- Arch Linux -->
+# apt install docker.io <!-- Debian系 -->
 ```
 
 Docker容器使用宿主機的內核，需要宿主機內核版本`3.10+`。
