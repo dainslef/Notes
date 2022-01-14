@@ -16,8 +16,7 @@
 	- [遠程登錄](#遠程登錄)
 	- [SSH 配置](#ssh-配置)
 	- [配置免密登陸](#配置免密登陸)
-- [路由轉發](#路由轉發)
-	- [追蹤路由](#追蹤路由)
+	- [關閉主機Key檢測](#關閉主機key檢測)
 - [Linux引導配置](#linux引導配置)
 	- [GNU GRUB](#gnu-grub)
 		- [GRUB安裝與配置](#grub安裝與配置)
@@ -58,7 +57,6 @@
 	- [系統管理](#系統管理)
 		- [loginctl](#loginctl)
 - [網絡](#網絡)
-	- [net-tools & iproute2](#net-tools--iproute2)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
 	- [NetworkManager](#networkmanager)
@@ -604,87 +602,47 @@ $ ssh -i [指定私鑰路徑] [目標用戶名]@[目標主機地址/IP]
 
 或使用`ssh -v/-vv/-vvv`在執行登錄指令時輸出額外的日誌信息。
 
-
-
-# 路由轉發
-Linux具備路由轉發功能，作為路由器使用，在proc文件系統中查看系統路由功能是否開啟：
-
-```c
-// 值為0路由轉發功能處於關閉狀態，值為1時開啟
-$ cat /proc/sys/net/ipv4/ip_forward
-```
-
-臨時開啟路由轉發功能可直接對該文件賦值：
+## 關閉主機Key檢測
+默認配置下，SSH首次連接時將連接的目標主機密鑰信息記錄在`~/.ssh/known_hosts`文件中，
+之後每次登入該主機均會檢測目標主機與文件記錄中的是否一致，若不一致則拒絕登入，輸出信息：
 
 ```
-# echo 1 > /proc/sys/net/ipv4/ip_forward
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that the RSA host key has just been changed.
+The fingerprint for the RSA key sent by the remote host is
+*****
+Please contact your system administrator.
+Add correct host key in /home/user/.ssh/known_hosts to get rid of this message.
+Offending key in /home/user/.ssh/known_hosts:1
+RSA host key for ***** has changed and you have requested strict checking.
+Host key verification failed.
 ```
 
-通過編輯配置`/etc/sysctl.cnf`可永久開啟路由轉發功能：
+刪除~/.ssh/known_hosts中對應的記錄可恢復登入，但若目標IP為Floating IP，IP後的主機會發生變化，
+則應當關閉Key檢測，臨時禁用主機Key檢測可在ssh指令中添加參數：
 
 ```
-# Kernel sysctl configuration file for ...
-#
-# For binary values, 0 is disabled, 1 is enabled.  See sysctl(8) and
-# sysctl.conf(5) for more details.
-
-# Controls IP packet forwarding
-net.ipv4.ip_forward = 1
-# Controls source route verification
-net.ipv4.conf.default.rp_filter = 1
+$ ssh -o "StrictHostKeyChecking=no" 用戶名@地址/主機
 ```
 
-## 追蹤路由
-`traceroute`是傳統Unix使用的路由追蹤工具，在Linux、macOS、BSD上均可使用。
+永久關閉主機Key檢測需要修改`~/.ssh/config`（用戶配置）或`/etc/ssh/ssh_config`（全局配置）：
 
 ```
-$ traceroute www.baidu.com
-traceroute: Warning: www.baidu.com has multiple addresses; using 39.156.66.14
-traceroute to www.a.shifen.com (39.156.66.14), 64 hops max, 52 byte packets
- 1  172.20.10.1 (172.20.10.1)  2.899 ms  6.245 ms  4.776 ms
- 2  * * *
- 3  192.168.26.105 (192.168.26.105)  29.399 ms  67.376 ms  40.647 ms
- 4  * * *
- 5  183.203.61.233 (183.203.61.233)  28.742 ms  29.355 ms  24.181 ms
- 6  221.183.47.225 (221.183.47.225)  42.761 ms  25.997 ms  28.628 ms
- 7  221.183.37.249 (221.183.37.249)  35.779 ms  40.650 ms  49.872 ms
- 8  * 221.183.53.182 (221.183.53.182)  37.733 ms *
- 9  * * *
-10  39.156.27.5 (39.156.27.5)  79.128 ms
-    39.156.67.97 (39.156.67.97)  40.540 ms
-    39.156.27.5 (39.156.27.5)  44.496 ms
-11  * * *
+Host *
+	StrictHostKeyChecking no
+	UserKnownHostsFile=/dev/null
 ```
 
-Linux系統下iputils工具鏈還提供了`tracepath`工具作為traceroute的替代品，相比traceroute，
-tracepath的無須root權限，擁有更簡單的命令行參數。
-
-在Windows系統下，使用`tracert`工具追蹤路由，功能與traceroute類似。
+該配置可限定主機地址範圍：
 
 ```
-C:\Windows\system32>tracert www.baidu.com
-
-Tracing route to www.a.shifen.com [39.156.66.14]
-over a maximum of 30 hops:
-
-  1    <1 ms    <1 ms     1 ms  10.0.2.2
-  2     6 ms     2 ms     4 ms  172.20.10.1
-  3     *        *        *     Request timed out.
-  4     *       73 ms    35 ms  192.168.26.105
-  5     *        *        *     Request timed out.
-  6    25 ms    34 ms    21 ms  183.203.61.233
-  7    25 ms    31 ms     *     221.183.47.225
-  8    38 ms    56 ms    60 ms  221.183.37.249
-  9     *        *        *     Request timed out.
- 10    43 ms    50 ms    38 ms  39.156.27.5
- 11    47 ms    59 ms    91 ms  39.156.67.29
- 12     *        *        *     Request timed out.
- 13     *        *        *     Request timed out.
- 14     *        *        *     Request timed out.
- 15     *        *        *     Request timed out.
- 16    59 ms    42 ms    83 ms  39.156.66.14
-
-Trace complete.
+Host 192.168.0.*
+	StrictHostKeyChecking no
+	UserKnownHostsFile=/dev/null
 ```
 
 
@@ -1984,20 +1942,6 @@ $ loginctl disable-linger 用戶名/用戶ID
 # 網絡
 Linux下網絡工具主要包括老式的net-tools系列和新的iproute2系列工具。
 
-Linux的proc文件系統在`/proc/net`路徑下也提供大量網絡相關信息：
-
-```
-$ ls /proc/net/
-anycast6   fib_triestat   ip6_mr_vif         mcfilter   psched     rt_cache      tcp       wireless
-arp        icmp           ip_mr_cache        mcfilter6  ptype      snmp          tcp6      xfrm_stat
-connector  if_inet6       ip_mr_vif          netfilter  raw        snmp6         udp
-dev        igmp           ip_tables_matches  netlink    raw6       sockstat      udp6
-dev_mcast  igmp6          ip_tables_names    netstat    route      sockstat6     udplite
-dev_snmp6  ip6_flowlabel  ip_tables_targets  packet     rt6_stats  softnet_stat  udplite6
-fib_trie   ip6_mr_cache   ipv6_route         protocols  rt_acct    stat          unix
-```
-
-## net-tools & iproute2
 [`net-tools`](https://sourceforge.net/projects/net-tools)套件歷史悠久，
 提供了與其它Unix類似的網絡管理工具(ip、route等)，但目前已停止維護。
 
@@ -2015,12 +1959,6 @@ net-tools與iproute2的主要功能對照：
 | ipmaddr | ip maddr | Multicast |
 | netstat | ss | Show network port status |
 | brctl | bridge | Handle bridge addresses and devices |
-
-常見的網絡管理指令：
-
-```html
-# ip dev [網卡] flush <!-- 重置指定網卡設備的狀態 -->
-```
 
 ## netstat & ss
 `netstat`是net-tools中提供的socket查看工具，各大平台的netstat工具參數有較大差異。
