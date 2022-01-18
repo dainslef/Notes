@@ -57,6 +57,7 @@
 	- [系統管理](#系統管理)
 		- [loginctl](#loginctl)
 - [網絡](#網絡)
+	- [路由](#路由)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
 	- [NetworkManager](#networkmanager)
@@ -1959,6 +1960,74 @@ net-tools與iproute2的主要功能對照：
 | ipmaddr | ip maddr | Multicast |
 | netstat | ss | Show network port status |
 | brctl | bridge | Handle bridge addresses and devices |
+
+常見的網絡管理指令：
+
+```html
+# ip dev 網卡設備 flush <!-- 重置指定網卡設備的所有狀態 -->
+# ip addr flush 網卡設備 <!-- 重置網卡配置的地址 -->
+```
+
+Linux的proc文件系統在`/proc/net`路徑下也提供大量網絡相關信息：
+
+```
+$ ls /proc/net/
+anycast6   fib_triestat   ip6_mr_vif         mcfilter   psched     rt_cache      tcp       wireless
+arp        icmp           ip_mr_cache        mcfilter6  ptype      snmp          tcp6      xfrm_stat
+connector  if_inet6       ip_mr_vif          netfilter  raw        snmp6         udp
+dev        igmp           ip_tables_matches  netlink    raw6       sockstat      udp6
+dev_mcast  igmp6          ip_tables_names    netstat    route      sockstat6     udplite
+dev_snmp6  ip6_flowlabel  ip_tables_targets  packet     rt6_stats  softnet_stat  udplite6
+fib_trie   ip6_mr_cache   ipv6_route         protocols  rt_acct    stat          unix
+```
+
+## 路由
+Linux提供了強大的路由功能，使用route（net-tools）或ip route（iproute2）進行管理。
+
+ip route常用指令：
+
+```html
+<!-- 打印路由表 -->
+$ ip route
+
+<!-- 添加路由 -->
+# ip route add 網段 via 網關
+# ip route add 網段 dev 網卡設備
+
+<!-- 刪除路由 -->
+# ip route del 網段
+```
+
+使用示例：
+
+```html
+<!-- 打印路由 -->
+$ ip route
+default via 10.10.10.1 dev eno1 onlink
+10.10.10.0/24 dev eno1  proto kernel  scope link  src 10.10.10.253
+
+<!-- 按設備添加路由 -->
+# ip route add 192.168.100.0/24 dev eno1
+$ ip route
+default via 10.10.10.1 dev eno1 onlink
+10.10.10.0/24 dev eno1  proto kernel  scope link  src 10.10.10.253
+192.168.100.0/24 dev eno1  scope link
+
+<!-- 按地址添加路由 -->
+# ip route add 192.168.101.0/24 via 10.10.10.252
+$ ip route
+default via 10.10.10.1 dev eno1 onlink
+10.10.10.0/24 dev eno1  proto kernel  scope link  src 10.10.10.253
+192.168.100.0/24 dev eno1  scope link
+192.168.101.0/24 via 10.10.10.252 dev eno1
+
+<!-- 刪除上述添加的路由 -->
+# ip route del 192.168.100.0/24
+# ip route del 192.168.101.0/24
+$ ip route
+default via 10.10.10.1 dev eno1 onlink
+10.10.10.0/24 dev eno1  proto kernel  scope link  src 10.10.10.253
+```
 
 ## netstat & ss
 `netstat`是net-tools中提供的socket查看工具，各大平台的netstat工具參數有較大差異。
