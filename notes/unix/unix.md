@@ -58,6 +58,8 @@
 		- [loginctl](#loginctl)
 - [網絡](#網絡)
 	- [路由](#路由)
+		- [路由轉發](#路由轉發)
+		- [追蹤路由](#追蹤路由)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
 	- [NetworkManager](#networkmanager)
@@ -2029,6 +2031,61 @@ default via 10.10.10.1 dev eno1 onlink
 10.10.10.0/24 dev eno1  proto kernel  scope link  src 10.10.10.253
 ```
 
+### 路由轉發
+Linux具備路由轉發功能，作為路由器使用，在proc文件系統中查看系統路由功能是否開啟：
+
+```html
+<!-- 值為0路由轉發功能處於關閉狀態，值為1時開啟 -->
+$ sysctl net.ipv4.ip_forward <!-- 通過sysctl工具查看 -->
+$ cat /proc/sys/net/ipv4/ip_forward <!-- 直接查看proc文件系統 -->
+```
+
+臨時開啟路由轉發功能：
+
+```html
+# sysctl net.ipv4.ip_forward=1 <!-- 通過sysctl工具修改 -->
+# echo 1 > /proc/sys/net/ipv4/ip_forward <!-- 直接修改proc文件系統 -->
+```
+
+通過編輯配置`/etc/sysctl.cnf`可永久開啟路由轉發功能：
+
+```
+# Kernel sysctl configuration file for ...
+#
+# For binary values, 0 is disabled, 1 is enabled.  See sysctl(8) and
+# sysctl.conf(5) for more details.
+
+# Controls IP packet forwarding
+net.ipv4.ip_forward = 1
+# Controls source route verification
+net.ipv4.conf.default.rp_filter = 1
+```
+
+### 追蹤路由
+`traceroute`是傳統Unix使用的路由追蹤工具，在Linux、macOS、BSD上均可使用。
+
+```
+$ traceroute www.baidu.com
+traceroute: Warning: www.baidu.com has multiple addresses; using 39.156.66.14
+traceroute to www.a.shifen.com (39.156.66.14), 64 hops max, 52 byte packets
+ 1  172.20.10.1 (172.20.10.1)  2.899 ms  6.245 ms  4.776 ms
+ 2  * * *
+ 3  192.168.26.105 (192.168.26.105)  29.399 ms  67.376 ms  40.647 ms
+ 4  * * *
+ 5  183.203.61.233 (183.203.61.233)  28.742 ms  29.355 ms  24.181 ms
+ 6  221.183.47.225 (221.183.47.225)  42.761 ms  25.997 ms  28.628 ms
+ 7  221.183.37.249 (221.183.37.249)  35.779 ms  40.650 ms  49.872 ms
+ 8  * 221.183.53.182 (221.183.53.182)  37.733 ms *
+ 9  * * *
+10  39.156.27.5 (39.156.27.5)  79.128 ms
+    39.156.67.97 (39.156.67.97)  40.540 ms
+    39.156.27.5 (39.156.27.5)  44.496 ms
+11  * * *
+```
+
+Linux系統下iputils工具鏈還提供了`tracepath`工具作為traceroute的替代品，
+相比traceroute，tracepath的無須root權限，擁有更簡單的命令行參數。
+
 ## netstat & ss
 `netstat`是net-tools中提供的socket查看工具，各大平台的netstat工具參數有較大差異。
 
@@ -3618,7 +3675,7 @@ GitHub上的[brunch](https://github.com/sebanc/brunch)項目提供了通用的x8
 以及對應的安裝工具。
 
 從[brunch項目下載頁](https://github.com/sebanc/brunch/releases)下載最新的brunch框架，
-從[鏡像下載頁](https://cros.tech/device/rammus)下載最新的通用Chrome OS鏡像，
+從[鏡像下載頁](https://cros.tech/device)下載最新的通用Chrome OS鏡像，
 需要保證brunch框架與鏡像版本一致。
 
 鏡像代號與CPU平台的關係：
