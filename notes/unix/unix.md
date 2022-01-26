@@ -78,6 +78,7 @@
 	- [sysstat](#sysstat)
 		- [pidstat](#pidstat)
 		- [iostat](#iostat)
+	- [iperf / qperf](#iperf--qperf)
 	- [HTTP壓測工具](#http壓測工具)
 - [VTE](#vte)
 	- [VTE2](#vte2)
@@ -2930,6 +2931,41 @@ $ iostat -x
 ```
 $ iostat -t
 ```
+
+## iperf / qperf
+[`iPerf`](https://iperf.fr/)以及[`qperf`](https://github.com/linux-rdma/qperf)
+可用於測試網絡的帶寬、時延、UDP丟包率等網絡性能參數。
+
+iPerf目前最新版本為`iperf3`，主流發行版的軟件源中已包含了該軟件包，直接安裝即可：
+
+```html
+# apt install iperf3 <!-- 大便係 -->
+# pacman -S iperf3 <!-- Arch係 -->
+$ nix-env -iA nixos.iperf <!-- Nix -->
+```
+
+使用iPerf需要在服務端、客戶端各自啟動進程：
+
+```html
+<!-- 服務端
+常用參數：
+-B 指定綁定地址
+-p 指定監聽端口
+-D 作為服務運行
+-->
+$ iperf3 -s
+
+<!-- 客戶端
+常用參數：
+-u 使用UDP協議
+-n 限制帶寬，示例 2M 4M 512K
+-P 設置並行數
+-->
+$ iperf3
+```
+
+iperf每個服務端進程僅能同時接收一個客戶端的請求，需要同時接收多個客戶端請求則應啟動多個進程。
+iperf3服務端不需要設定監聽協議，會根據客戶端的協議類型自動選擇。
 
 ## HTTP壓測工具
 常見的HTTP壓測工具：
