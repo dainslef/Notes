@@ -60,6 +60,7 @@
 	- [路由](#路由)
 		- [路由轉發](#路由轉發)
 		- [追蹤路由](#追蹤路由)
+	- [Bonding](#bonding)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
 	- [NetworkManager](#networkmanager)
@@ -2086,6 +2087,44 @@ traceroute to www.a.shifen.com (39.156.66.14), 64 hops max, 52 byte packets
 
 Linux系統下iputils工具鏈還提供了`tracepath`工具作為traceroute的替代品，
 相比traceroute，tracepath的無須root權限，擁有更簡單的命令行參數。
+
+## Bonding
+[Bonding](https://wiki.linuxfoundation.org/networking/bonding)可將兩個以上的物理網卡接口綁定為一個邏輯接口。
+使用Bonding可復用多塊網卡提升網絡IO並提高接口可靠性，組成Bonding的物理接口一部分發生故障時，
+整個接口依舊可以正常工作。
+
+系統的Bonding信息可查看`/proc/net/bonding`路徑下的對應Bonding設備名稱。
+
+以Debian系列發行版為例，Bonding配置可參考[Bonding Wiki](https://wiki.debian.org/Bonding)，
+配置Bonding直接修改`/etc/network/interfaces`即可：
+
+```sh
+...
+auto bond0
+iface bond0 inet static
+  address x.x.x.x
+  netmask x.x.x.x
+  gateway x.x.x.x
+  bond-mode 6 # 設置bond模式，可以為編號或者名稱
+  bond-miimon 100 # 設置檢查間隔（單位：毫秒）
+  bond-slaves eth1 eth2 eth3 ... # 設定組成bond的網卡
+...
+```
+
+`bond-mode`用於配置Bonding的工作模式，共有編號`0 ~ 6`共7種：
+
+| 編號 | 名稱 | 說明 |
+| :- | :- | :- |
+| 0 | balance-rr | Round-robin策略，按順序從第一張slave網卡到最後一張slave網卡發送數據 |
+| 1 | active-backup | 主備策略，同一時刻僅使用一張slave網卡 |
+| 2 | balance-xor | 使用xmit_hash_policy（源網卡MAC異或目標網卡MAC，按slave網卡數目取余），保證相同兩台機器之間始終使用同一slave網卡 |
+| 3 | broadcast | 同時使用所有slave網卡發送數據，提供高容錯性 |
+| 4 | 802.3ad | Dynamic link aggregation，鏈路聚合模式，需要交換機支持 |
+| 5 | balance-tlb | Adaptive transmit load balancing，自適應傳輸負載均衡，可實現發送流量的均衡負載 |
+| 6 | balance-alb | Adaptive load balancing，自適應負載均衡，可實現收、發流量的負載均衡，接收負載均衡通過ARP協商實現 |
+
+通常使用`bond-mode 0`或`bond-mode 2`，Bonding連線多交換機時，
+bond-mode 1/5/6可能會因爲ARP衝突導致網絡不通。
 
 ## netstat & ss
 `netstat`是net-tools中提供的socket查看工具，各大平台的netstat工具參數有較大差異。
