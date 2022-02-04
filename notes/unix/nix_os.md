@@ -344,6 +344,12 @@ nix.binaryCaches = ["https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"];
 需要注意，清華的Binary Cache源相比官方源cache.nixos.org缺少一些包，
 僅使用清華源會導致部分包因為找不到匹配的二進制版本而需要從源碼進行編譯。
 
+從`NixOS 22.05`開始，Binary Cache配置切換爲`nix.settings.substituters`：
+
+```nix
+nix.settings.substituters = ["https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"];
+```
+
 ## 系統軟件包與服務配置
 在NixOS中，可將常用的軟件包配置爲系統軟件包，
 在configuration.nix配置中設定`environment.systemPackages`配置項：
@@ -470,7 +476,7 @@ fonts.fontconfig.defaultFonts = {
 hardware.pulseaudio.enable = true;
 ```
 
-默認NixOS中PulseAudio不會提供系統級服務，而是針對每個用戶提供服務。
+默認NixOS中PulseAudio默認不會提供系統級服務，而是針對每個用戶提供服務。
 默認全局systemd服務中不存在`pulseaudio.service`，而是在用戶服務中：
 
 ```
@@ -483,6 +489,20 @@ $ systemctl --user status pulseaudio.service
 
 ```
 $ systemctl --user enable pulseaudio.service
+```
+
+若系統未正確生成pulseaudio.service服務，則可手動啓動pulseaudio：
+
+```
+$ pulseaudio --start
+```
+
+NixOS中亦可將pulseaudio.service配置爲系統服務：
+
+```nix
+hardware.pulseaudio.systemWide = true;
+# 使用系統級的PluseAudio，則用戶需要加入 audio 組中才能正常輸出音頻
+users.extraUsers.用戶名稱.extraGroups = [ "audio" ... ];
 ```
 
 ## 輸入法配置
