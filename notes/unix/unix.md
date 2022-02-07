@@ -53,6 +53,8 @@
 - [Suspend 和 Hibernate](#suspend-和-hibernate)
 - [systemd](#systemd)
 	- [systemd服務管理](#systemd服務管理)
+	- [rc.local](#rclocal)
+	- [systemd服務後綴](#systemd服務後綴)
 	- [systemd服務分析](#systemd服務分析)
 	- [系統管理](#系統管理)
 		- [loginctl](#loginctl)
@@ -71,6 +73,10 @@
 		- [Ncat](#ncat)
 	- [iptables/nftables (netfilter)](#iptablesnftables-netfilter)
 		- [iptables基本操作](#iptables基本操作)
+- [Keepalived](#keepalived)
+	- [vrrp_instance](#vrrp_instance)
+	- [vrrp_sync_group](#vrrp_sync_group)
+	- [Keepalived完整示例](#keepalived完整示例)
 - [性能監控與測試](#性能監控與測試)
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
@@ -1798,22 +1804,71 @@ systemd提供了統一、完整的服務管理功能：
 	$ systemctl --user status/start/stop/enable/disable [用戶服務名稱]
 	```
 
+## rc.local
+早期sysinit發行版添加開機自啟動指令通常會將指令寫在`/etc/init.d/rc.local`，
+在systemd時代，多數systemd發行版已經不再存在該文件；
+部分發行版會保留rc.local的功能作為服務提供，以Debian係發行版為例：
+
+```
+$ systemctl status rc-local
+● rc-local.service - /etc/rc.local Compatibility
+     Loaded: loaded (/lib/systemd/system/rc-local.service; static; vendor preset: enabled)
+    Drop-In: /usr/lib/systemd/system/rc-local.service.d
+             └─debian.conf
+     Active: inactive (dead)
+       Docs: man:systemd-rc-local-generator(8)
+
+$ cat /lib/systemd/system/rc-local.service
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+# This unit gets pulled automatically into multi-user.target by
+# systemd-rc-local-generator if /etc/rc.local is executable.
+[Unit]
+Description=/etc/rc.local Compatibility
+Documentation=man:systemd-rc-local-generator(8)
+ConditionFileIsExecutable=/etc/rc.local
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/etc/rc.local start
+TimeoutSec=0
+RemainAfterExit=yes
+GuessMainPID=no
+```
+
+Ubuntu/Debian提供了`rc-local`服務，功能與之前類似，開啟該服務自啟動即可。
+
 ## systemd服務分析
 systemd提供了一系列工具用於查看查看、分析各類服務狀態。
 
-使用`pstree`指令可以列出本機完整的systemd服務進程樹。
+使用`systemctl status/list`系列指令查看服務狀態：
 
-使用`systemctl list`系列指令查看服務狀態：
 
-- `$ systemctl list-units` 列出已加載的服務單元信息
-- `$ systemctl list-dependencies` 列出已加載服務單元的依賴關係
-- `$ systemctl list-unit-files` 列出已安裝服務單元(所有服務單元)的自啓狀態
-- `$ systemctl list-units -t [服務類型]` 查看指定類型的服務信息
+```yaml
+$ systemctl status # 列出系統服務依賴樹
+
+$ systemctl list-units # 列出已加載的服務單元信息
+$ systemctl list-dependencies # 列出已加載服務單元的依賴關係
+$ systemctl list-unit-files # 列出已安裝服務單元(所有服務單元)的自啓狀態
+$ systemctl list-units -t 服務類型 # 查看指定類型的服務信息
+```
+
+默認指令展示系統全局服務信息，添加`--user`參數則展示當前用戶服務信息。
 
 使用`systemd-analyze`指令分析系統的啓動性能：
 
-- `$ systemd-analyze` 顯示系統的啓動耗時
-- `$ systemd-analyze blame` 列出所有的啓動單元，按照啓動耗時的高低進行排序
+```yaml
+$ systemd-analyze # 顯示系統的啓動耗時
+$ systemd-analyze blame # 列出所有的啓動單元，按照啓動耗時的高低進行排序
+```
 
 ## 系統管理
 systemd還集成了常用的系統管理工具：
