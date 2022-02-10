@@ -344,10 +344,20 @@ nix.binaryCaches = ["https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"];
 需要注意，清華的Binary Cache源相比官方源cache.nixos.org缺少一些包，
 僅使用清華源會導致部分包因為找不到匹配的二進制版本而需要從源碼進行編譯。
 
-從`NixOS 22.05`開始，Binary Cache配置切換爲`nix.settings.substituters`：
+從`NixOS 22.05`開始，Binary Cache配置項變更爲`nix.settings.substituters`：
 
 ```nix
 nix.settings.substituters = ["https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"];
+```
+
+執行nix-rebuild指令後，會重新生成`/etc/nix/nix.conf`，
+Binary Cache配置項會體現在該文件的`substituters`配置項中：
+
+```
+$ cat /etc/nix/nix.conf
+...
+substituters = https://cache.nixos.org/ https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store
+...
 ```
 
 ## 系統軟件包與服務配置
