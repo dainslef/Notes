@@ -13,6 +13,7 @@
 		- [版本升級與回退](#%E7%89%88%E6%9C%AC%E5%8D%87%E7%B4%9A%E8%88%87%E5%9B%9E%E9%80%80)
 		- [Binary Cache](#binary-cache)
 	- [系統軟件包與服務配置](#%E7%B3%BB%E7%B5%B1%E8%BB%9F%E4%BB%B6%E5%8C%85%E8%88%87%E6%9C%8D%E5%8B%99%E9%85%8D%E7%BD%AE)
+	- [顯卡驅動配置](#%E9%A1%AF%E5%8D%A1%E9%A9%85%E5%8B%95%E9%85%8D%E7%BD%AE)
 	- [systemd服務](#systemd%E6%9C%8D%E5%8B%99)
 	- [用戶配置](#%E7%94%A8%E6%88%B6%E9%85%8D%E7%BD%AE)
 	- [Shell配置](#shell%E9%85%8D%E7%BD%AE)
@@ -433,6 +434,23 @@ services = {
   ...
 };
 ```
+
+## 顯卡驅動配置
+若需要使用桌面環境，則需要根據顯卡配置正確的顯卡驅動。
+Intel CPU使用核心顯卡，直接在配置項中啓用對應驅動即可：
+
+```html
+services.xserver.videoDrivers = ["intel"];
+```
+
+AMD CPU則需要額外配置內核模塊參數，否則X Server會啓動失敗：
+
+```
+boot.initrd.kernelModules = ["amdgpu"];
+services.xserver.videoDrivers = ["amdgpu"];
+```
+
+較老的AMD CPU應使用`radeon`驅動。
 
 ## systemd服務
 NixOS使用`systemd`管理服務，啓用與禁用services配置段中設定的服務，需要設定`systemd.services`配置段：
