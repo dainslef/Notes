@@ -17,6 +17,7 @@
 	- [systemd服務](#systemd%E6%9C%8D%E5%8B%99)
 	- [用戶配置](#%E7%94%A8%E6%88%B6%E9%85%8D%E7%BD%AE)
 	- [Shell配置](#shell%E9%85%8D%E7%BD%AE)
+		- [Shell兼容性](#shell%E5%85%BC%E5%AE%B9%E6%80%A7)
 	- [字體配置](#%E5%AD%97%E9%AB%94%E9%85%8D%E7%BD%AE)
 	- [音頻配置](#%E9%9F%B3%E9%A0%BB%E9%85%8D%E7%BD%AE)
 	- [輸入法配置](#%E8%BC%B8%E5%85%A5%E6%B3%95%E9%85%8D%E7%BD%AE)
@@ -510,6 +511,23 @@ users.users.[用戶名] = {
 };
 ```
 
+### Shell兼容性
+NixOS的標準目錄結構僅提供了`/bin/sh`作爲默認Shell，儘管NixOS下的sh是指向bash的符號鏈接，
+但多數Linux環境下的腳本編碼慣例是顯示指定`#! /bin/bash`作爲腳本解釋器，而不是使用默認的sh，
+因此部分腳本遷移到NixOS中會因爲找不到`/bin/bash`而執行失敗。
+
+NixOS下bash相關配置並未直接提供生成/bin/bash的配置項，
+但可通過配置`system.activationScripts.text`項指定系統構建時額外執行的自定義腳本，
+在腳本中創建/bin/bash符號鏈接：
+
+```nix
+# Execute custom scripts when rebuild NixOS configuration.
+system.activationScripts.text = "
+  # Create custom bash symbol link (/bin/bash) for compatibility with most Linux scripts.
+  ln -sf /bin/sh /bin/bash
+";
+```
+
 ## 字體配置
 configuration.nix配置中常用的字體相關配置：
 
@@ -563,21 +581,32 @@ users.extraUsers.用戶名稱.extraGroups = [ "audio" ... ];
 ```
 
 ## 輸入法配置
-在configuration.nix配置的`i18n.inputMethod`配置項中設定使用的輸入法：
+在大多數桌面環境中，推薦使用Fctix輸入法框架[Fcitx](https://fcitx-im.org)。
+在configuration.nix配置的`i18n.inputMethod`配置項中設定使用的輸入框架：
 
 ```nix
 i18n.inputMethod = {
-  enabled = "fcitx"; # 使用fcitx輸入法
-  fcitx.engines = with pkgs.fcitx-engines; [libpinyin anthy];
+  enabled = "fcitx"; # 使用 Fcitx 4 輸入框架
+  fcitx.engines = with pkgs.fcitx-engines; [mozc]; # Fcitx 4 自帶拼音輸入法，僅需要設置拼音之外的輸入法
 };
 ```
 
-在Gnome3桌面環境下，推薦使用`iBus`輸入法：
+Fcitx輸入框架的最新版本[Fcitx 5](https://github.com/fcitx/fcitx5)，
+舊版Fcitx使用C語言實現，Fcitx 5使用C++實現，配置Fcitx 5：
 
 ```nix
 i18n.inputMethod = {
-  enabled = "ibus"; # 使用ibus輸入法
-  ibus.engines = with pkgs.ibus-engines; [libpinyin anthy];
+  enabled = "fcitx5"; # 啓用 Fcitx 5 輸入框架
+  fcitx5.addons = with pkgs; [fcitx5-chinese-addons fcitx5-mozc]; # Fcitx 5 未集成中文輸入法，需要單獨配置
+};
+```
+
+在Gnome3桌面環境下，推薦使用[`IBus`, Intelligent Input Bus](https://github.com/ibus/ibus)輸入框架：
+
+```nix
+i18n.inputMethod = {
+  enabled = "ibus"; # 使用 IBus 輸入法
+  ibus.engines = with pkgs.ibus-engines; [libpinyin mozc];
 };
 ```
 
