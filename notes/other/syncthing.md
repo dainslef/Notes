@@ -4,8 +4,10 @@
 	- [服務安裝](#服務安裝)
 	- [服務管理](#服務管理)
 - [文件同步規則](#文件同步規則)
+- [同步類型](#同步類型)
 - [問題註記](#問題註記)
 	- [Syncthing服務僅在與服務器存在SSH連接時正常連接，否則連接斷開](#syncthing服務僅在與服務器存在ssh連接時正常連接否則連接斷開)
+	- [同步狀態為`Up to Date`，但Local State與Global State文件統計不同](#同步狀態為up-to-date但local-state與global-state文件統計不同)
 
 <!-- /TOC -->
 
@@ -104,6 +106,22 @@ Syncthing在同步根路徑下創建`.stignore`來定義忽略規則。
 
 
 
+# 同步類型
+Syncthing中的同步文件夾可設置為以下三種類型：
+
+- Send & Recevie
+- Send Only
+- Receive Only
+
+三種類型的文件夾分別對應不同的讀寫限制。
+
+當使用Receive Only模式時，本地的修改僅在本地生效，不會推送到其它機器；
+本地的修改亦會被記錄狀態，存在本地修改時，
+Web UI下對應文件夾頁面中會出現紅色的`Revert Local Changes`按鈕，
+點擊該按鈕可roll back本地的改動。
+
+
+
 # 問題註記
 記錄使用Syncthing中遇到的一些問題。
 
@@ -123,3 +141,15 @@ $ loginctl enable-linger
 ```
 
 啟用Linger後，該用戶所屬服務不再與用戶的登入登出關聯，而是如系統服務般始終運行。
+
+## 同步狀態為`Up to Date`，但Local State與Global State文件統計不同
+問題說明：<br>
+本地目錄顯示已與服務端同步，文件統計數據與服務端不同：
+
+![file state](../../images/syncthing_different_state.png)
+
+解決方案：<br>
+通常該問題是本地與服務端的同步規則差異導致；
+常發生在本地修改了文件忽略規則，導致部分文件不再同步，
+但服務端依舊使用舊的同步規則，此時即使本地與服務端狀態一致（沒有需要同步的內容），
+但由於忽略規則差異，統計各自的文件狀態會產生差異。
