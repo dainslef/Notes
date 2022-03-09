@@ -27,6 +27,7 @@
 	- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
 	- [No output backlight property](#no-output-backlight-property)
 	- [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
+	- [DisplayManager不展示用戶列表](#displaymanager%E4%B8%8D%E5%B1%95%E7%A4%BA%E7%94%A8%E6%88%B6%E5%88%97%E8%A1%A8)
 
 <!-- /TOC -->
 
@@ -189,6 +190,10 @@ Nix包管理器對於每個用戶擁有獨立的配置，全局的unfree配置�
 ## 查看文檔
 NixOS自帶了對應版本的手冊，執行`nixos-help`指令會調用系統默認瀏覽器打開NixOS手冊。
 手冊離線亦可閱讀，由`nixos-manual-html`軟件包提供。
+
+NixOS更多資料可查看[官方Wiki](https://nixos.wiki)。
+官方Wiki中提供了[Cheatsheet](https://nixos.wiki/wiki/Cheatsheet)，
+羅列了與Ubuntu的常用功能對照。
 
 ## 安裝
 [NixOS官網](https://nixos.org/nixos/download.html)提供了鏡像下載，官方提供的鏡像支持`x86/x64`平台。
@@ -491,25 +496,26 @@ users.users.[用戶名] = {
 要使用戶能使用`sudo`，需要將用戶加入`wheel`(管理員)用戶組中。
 
 ## Shell配置
-默認配置下使用`bash`做爲普通用戶的默認shell，要使用其它shell應在configuration.nix配置中開啓需要使用的shell，
-常見的shell如下：
-
-```nix
-programs.zsh.enable = true; # zsh
-programs.fish.enable = true; # fish
-```
-
-啓用了需要的shell後，修改configuration.nix中的**用戶配置**。
+默認配置下使用`bash`做爲普通用戶的默認shell，
+使用其它shell需要修改configuration.nix中的**用戶配置**。
 以fish爲例：
 
 ```nix
-programs.fish.enable = true;
-
 users.users.[用戶名] = {
   ...
   shell = pkgs.fish;
 };
 ```
+
+使用bash之外的默認shell會導致用戶在DisplayManager的候選列表中不展示，
+使用不同shell需要啓用對應shell配置，以fish爲例，需要開啓`programs.fish.enable`配置：
+
+```nix
+# Enable fish feature will set up environment shells (/etc/shells) for Account Service.
+programs.fish.enable = true;
+```
+
+詳細原因可參考[問題記錄](#displaymanager%E4%B8%8D%E5%B1%95%E7%A4%BA%E7%94%A8%E6%88%B6%E5%88%97%E8%A1%A8)。
 
 ### Shell兼容性
 NixOS的標準目錄結構僅提供了`/bin/sh`作爲默認Shell，儘管NixOS下的sh是指向bash的符號鏈接，
@@ -771,3 +777,42 @@ Created EFI boot entry "Linux Boot Manager".
 
 正確安裝了引導器會出現`Created EFI boot entry "Linux Boot Manager".`文本提示，
 在BIOS中的啟動項管理頁面可看到對應引導器並進行配置。
+
+## DisplayManager不展示用戶列表
+問題說明：<br>
+默認配置下，NixOS中的普通用戶若設置了bash之外的默認shell（如zsh、fish等），
+則該用戶不會顯示在GDM、LightDM等主流DisplayManager的候選用戶列表中。
+
+問題分析：<br>
+Linux下的DisplayManager通常使用[AccountService](https://www.freedesktop.org/wiki/Software/AccountsService/)獲取當前系統中的用戶列表，
+[源碼實現](https://gitlab.freedesktop.org/accountsservice/accountsservice/-/blob/main/src/user-classify.c)中會檢查用戶名是否非系統用戶名，以及用戶默認shell是否在`/etc/shells`中，
+滿足上述條件的才是普通用戶，才會展示在候選用戶列表中。
+
+然而NixOS中默認的/etc/shells文件僅包含sh和bash，如下所示：
+
+```
+$ cat /etc/shells
+/run/current-system/sw/bin/bash
+/run/current-system/sw/bin/sh
+/nix/store/3pa0xk3mgmx7hqskg63gxviyw7f217i6-bash-interactive-5.1-p12/bin/bash
+/nix/store/3pa0xk3mgmx7hqskg63gxviyw7f217i6-bash-interactive-5.1-p12/bin/sh
+/bin/sh
+```
+
+因此使用zsh、fish作爲默認shell的用戶會被視爲系統用戶，不會展示在候選用戶列表中。
+詳細可參考[NixOS社區](https://discourse.nixos.org/t/normal-users-not-appearing-in-login-manager-lists/4619)中的對應討論內容。
+
+
+解決方案：<br>
+修改`environment.shells`配置，將用戶使用shell加入其中：
+
+```nix
+# Set up environment shells (/etc/shells) for Account Service.
+environment.shells = [pkgs.fish];
+```
+
+或者直接開啓`programs.fish.enable`配置，開啓該配置同樣會將fish設置到環境shell中：
+
+```nix
+programs.fish.enable = true;
+```
