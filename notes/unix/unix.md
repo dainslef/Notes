@@ -1,101 +1,97 @@
 <!-- TOC -->
 
-- [常用Unix工具指令](#常用unix工具指令)
+- [常用Unix工具指令](#%E5%B8%B8%E7%94%A8unix%E5%B7%A5%E5%85%B7%E6%8C%87%E4%BB%A4)
 	- [grep](#grep)
 	- [find](#find)
 	- [tee](#tee)
-	- [進程管理](#進程管理)
-	- [日誌記錄](#日誌記錄)
+	- [進程管理](#%E9%80%B2%E7%A8%8B%E7%AE%A1%E7%90%86)
+	- [日誌記錄](#%E6%97%A5%E8%AA%8C%E8%A8%98%E9%8C%84)
 - [PulseAudio](#pulseaudio)
-- [用戶管理](#用戶管理)
+- [用戶管理](#%E7%94%A8%E6%88%B6%E7%AE%A1%E7%90%86)
 - [setuid/setgid/sticky](#setuidsetgidsticky)
-- [FTP (File Transfer Protocol)](#ftp-file-transfer-protocol)
-	- [連接服務器](#連接服務器)
-	- [常用指令](#常用指令)
-- [SSH (Secure Shell)](#ssh-secure-shell)
-	- [遠程登錄](#遠程登錄)
-	- [SSH 配置](#ssh-配置)
-	- [配置免密登陸](#配置免密登陸)
-	- [關閉主機Key檢測](#關閉主機key檢測)
-- [Linux引導配置](#linux引導配置)
+- [FTP File Transfer Protocol](#ftp-file-transfer-protocol)
+	- [連接服務器](#%E9%80%A3%E6%8E%A5%E6%9C%8D%E5%8B%99%E5%99%A8)
+	- [常用指令](#%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4)
+- [SSH Secure Shell](#ssh-secure-shell)
+	- [遠程登錄](#%E9%81%A0%E7%A8%8B%E7%99%BB%E9%8C%84)
+	- [SSH 配置](#ssh-%E9%85%8D%E7%BD%AE)
+	- [配置免密登陸](#%E9%85%8D%E7%BD%AE%E5%85%8D%E5%AF%86%E7%99%BB%E9%99%B8)
+	- [關閉主機Key檢測](#%E9%97%9C%E9%96%89%E4%B8%BB%E6%A9%9Fkey%E6%AA%A2%E6%B8%AC)
+- [Linux引導配置](#linux%E5%BC%95%E5%B0%8E%E9%85%8D%E7%BD%AE)
 	- [GNU GRUB](#gnu-grub)
-		- [GRUB安裝與配置](#grub安裝與配置)
-		- [安裝GRUB引導器](#安裝grub引導器)
-		- [修復GRUB引導](#修復grub引導)
+		- [GRUB安裝與配置](#grub%E5%AE%89%E8%A3%9D%E8%88%87%E9%85%8D%E7%BD%AE)
+		- [安裝GRUB引導器](#%E5%AE%89%E8%A3%9Dgrub%E5%BC%95%E5%B0%8E%E5%99%A8)
+		- [修復GRUB引導](#%E4%BF%AE%E5%BE%A9grub%E5%BC%95%E5%B0%8E)
 	- [systemd-boot](#systemd-boot)
-- [壓縮/解壓](#壓縮解壓)
-	- [7z](#7z)
+- [壓縮/解壓](#%E5%A3%93%E7%B8%AE%E8%A7%A3%E5%A3%93)
+	- [z](#z)
 - [ulimit](#ulimit)
-	- [配置文件](#配置文件)
+	- [配置文件](#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6)
 	- [prlimit](#prlimit)
-- [Core Dump (核心轉儲)](#core-dump-核心轉儲)
-- [文件系統](#文件系統)
+- [Core Dump 核心轉儲](#core-dump-%E6%A0%B8%E5%BF%83%E8%BD%89%E5%84%B2)
+- [文件系統](#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%B5%B1)
 	- [fdisk](#fdisk)
 	- [parted](#parted)
 	- [flock](#flock)
-- [LVM (Logical Volume Manager)](#lvm-logical-volume-manager)
-	- [基本操作](#基本操作)
-	- [Physical Volume (PV，物理卷)](#physical-volume-pv物理卷)
-	- [Volume Group (VG，卷組)](#volume-group-vg卷組)
-	- [Logical Volume (LV，邏輯卷)](#logical-volume-lv邏輯卷)
-	- [邏輯卷狀態和塊設備不顯示問題](#邏輯卷狀態和塊設備不顯示問題)
-- [NTP (Network Time Protocol)](#ntp-network-time-protocol)
-	- [NTP 服務配置](#ntp-服務配置)
-		- [NTP Client 配置](#ntp-client-配置)
-		- [NTP Server 配置](#ntp-server-配置)
-	- [NTP 管理指令](#ntp-管理指令)
+- [LVM Logical Volume Manager](#lvm-logical-volume-manager)
+	- [基本操作](#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C)
+	- [Physical Volume PV，物理卷](#physical-volume-pv%E7%89%A9%E7%90%86%E5%8D%B7)
+	- [Volume Group VG，卷組](#volume-group-vg%E5%8D%B7%E7%B5%84)
+	- [Logical Volume LV，邏輯卷](#logical-volume-lv%E9%82%8F%E8%BC%AF%E5%8D%B7)
+	- [邏輯卷狀態和塊設備不顯示問題](#%E9%82%8F%E8%BC%AF%E5%8D%B7%E7%8B%80%E6%85%8B%E5%92%8C%E5%A1%8A%E8%A8%AD%E5%82%99%E4%B8%8D%E9%A1%AF%E7%A4%BA%E5%95%8F%E9%A1%8C)
+- [NTP Network Time Protocol](#ntp-network-time-protocol)
+	- [NTP 服務配置](#ntp-%E6%9C%8D%E5%8B%99%E9%85%8D%E7%BD%AE)
+		- [NTP Client 配置](#ntp-client-%E9%85%8D%E7%BD%AE)
+		- [NTP Server 配置](#ntp-server-%E9%85%8D%E7%BD%AE)
+	- [NTP 管理指令](#ntp-%E7%AE%A1%E7%90%86%E6%8C%87%E4%BB%A4)
 	- [chrony](#chrony)
 - [curl](#curl)
-	- [HTTP請求](#http請求)
-		- [HTTP文件下載](#http文件下載)
-	- [用戶認證](#用戶認證)
-	- [FTP 操作](#ftp-操作)
-- [Suspend 和 Hibernate](#suspend-和-hibernate)
+	- [HTTP請求](#http%E8%AB%8B%E6%B1%82)
+		- [HTTP文件下載](#http%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BC%89)
+	- [用戶認證](#%E7%94%A8%E6%88%B6%E8%AA%8D%E8%AD%89)
+	- [FTP 操作](#ftp-%E6%93%8D%E4%BD%9C)
+- [Suspend 和 Hibernate](#suspend-%E5%92%8C-hibernate)
 - [systemd](#systemd)
-	- [systemd服務管理](#systemd服務管理)
+	- [systemd服務管理](#systemd%E6%9C%8D%E5%8B%99%E7%AE%A1%E7%90%86)
 	- [rc.local](#rclocal)
-	- [systemd服務後綴](#systemd服務後綴)
-	- [systemd服務分析](#systemd服務分析)
-	- [系統管理](#系統管理)
+	- [systemd服務分析](#systemd%E6%9C%8D%E5%8B%99%E5%88%86%E6%9E%90)
+	- [系統管理](#%E7%B3%BB%E7%B5%B1%E7%AE%A1%E7%90%86)
 		- [loginctl](#loginctl)
-- [網絡](#網絡)
-	- [路由](#路由)
-		- [路由轉發](#路由轉發)
-		- [追蹤路由](#追蹤路由)
+- [網絡](#%E7%B6%B2%E7%B5%A1)
+	- [路由](#%E8%B7%AF%E7%94%B1)
+		- [路由轉發](#%E8%B7%AF%E7%94%B1%E8%BD%89%E7%99%BC)
+		- [追蹤路由](#%E8%BF%BD%E8%B9%A4%E8%B7%AF%E7%94%B1)
 	- [Bonding](#bonding)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
 	- [NetworkManager](#networkmanager)
 	- [tcpdump](#tcpdump)
-	- [Netcat (nc)](#netcat-nc)
-		- [客戶端/服務端模式](#客戶端服務端模式)
-		- [數據傳送](#數據傳送)
+	- [Netcat nc](#netcat-nc)
+		- [客戶端/服務端模式](#%E5%AE%A2%E6%88%B6%E7%AB%AF%E6%9C%8D%E5%8B%99%E7%AB%AF%E6%A8%A1%E5%BC%8F)
+		- [數據傳送](#%E6%95%B8%E6%93%9A%E5%82%B3%E9%80%81)
 		- [Ncat](#ncat)
-	- [iptables/nftables (netfilter)](#iptablesnftables-netfilter)
-		- [iptables基本操作](#iptables基本操作)
-- [Keepalived](#keepalived)
-	- [vrrp_instance](#vrrp_instance)
-	- [vrrp_sync_group](#vrrp_sync_group)
-	- [Keepalived完整示例](#keepalived完整示例)
-- [性能監控與測試](#性能監控與測試)
+	- [iptables/nftables netfilter](#iptablesnftables-netfilter)
+		- [iptables基本操作](#iptables%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C)
+- [性能監控與測試](#%E6%80%A7%E8%83%BD%E7%9B%A3%E6%8E%A7%E8%88%87%E6%B8%AC%E8%A9%A6)
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
-	- [top](#top)
+	- [procps](#procps)
+		- [top](#top)
 	- [iftop](#iftop)
 	- [sysstat](#sysstat)
 		- [pidstat](#pidstat)
 		- [iostat](#iostat)
 	- [iperf / qperf](#iperf--qperf)
-	- [HTTP壓測工具](#http壓測工具)
+	- [HTTP壓測工具](#http%E5%A3%93%E6%B8%AC%E5%B7%A5%E5%85%B7)
 - [VTE](#vte)
 	- [VTE2](#vte2)
 	- [VTE3](#vte3)
-	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
-- [字體配置](#字體配置)
-	- [管理字體](#管理字體)
-	- [字體相關路徑](#字體相關路徑)
-	- [字體渲染問題](#字體渲染問題)
-- [字符串模板](#字符串模板)
+	- [複製粘貼快捷鍵](#%E8%A4%87%E8%A3%BD%E7%B2%98%E8%B2%BC%E5%BF%AB%E6%8D%B7%E9%8D%B5)
+- [字體配置](#%E5%AD%97%E9%AB%94%E9%85%8D%E7%BD%AE)
+	- [管理字體](#%E7%AE%A1%E7%90%86%E5%AD%97%E9%AB%94)
+	- [字體相關路徑](#%E5%AD%97%E9%AB%94%E7%9B%B8%E9%97%9C%E8%B7%AF%E5%BE%91)
+	- [字體渲染問題](#%E5%AD%97%E9%AB%94%E6%B8%B2%E6%9F%93%E5%95%8F%E9%A1%8C)
+- [字符串模板](#%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A8%A1%E6%9D%BF)
 	- [envsubst](#envsubst)
 	- [sed](#sed)
 - [apt/dpkg](#aptdpkg)
@@ -103,22 +99,22 @@
 		- [apt-file](#apt-file)
 		- [add-apt-repository](#add-apt-repository)
 	- [dpkg](#dpkg)
-	- [deb打包(Binary packages)](#deb打包binary-packages)
+	- [deb打包Binary packages](#deb%E6%89%93%E5%8C%85binary-packages)
 		- [debconf](#debconf)
 		- [dpkg-divert](#dpkg-divert)
-	- [源配置](#源配置)
-		- [Debian 源](#debian-源)
-		- [Ubuntu 源](#ubuntu-源)
+	- [源配置](#%E6%BA%90%E9%85%8D%E7%BD%AE)
+		- [Debian 源](#debian-%E6%BA%90)
+		- [Ubuntu 源](#ubuntu-%E6%BA%90)
 	- [apt-mirror](#apt-mirror)
-		- [本地源配置](#本地源配置)
-		- [使用本地源](#使用本地源)
+		- [本地源配置](#%E6%9C%AC%E5%9C%B0%E6%BA%90%E9%85%8D%E7%BD%AE)
+		- [使用本地源](#%E4%BD%BF%E7%94%A8%E6%9C%AC%E5%9C%B0%E6%BA%90)
 - [OpenCC](#opencc)
-	- [命令行工具opencc](#命令行工具opencc)
+	- [命令行工具opencc](#%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7opencc)
 - [Chrome OS](#chrome-os)
-	- [安裝 Chrome OS](#安裝-chrome-os)
-	- [Linux容器問題](#linux容器問題)
-- [Linux常見問題記錄](#linux常見問題記錄)
-	- [sshd: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'](#sshd-pam_limitssshdsession-error-parsing-the-configuration-file-etcsecuritylimitsconf)
+	- [安裝 Chrome OS](#%E5%AE%89%E8%A3%9D-chrome-os)
+	- [Linux容器問題](#linux%E5%AE%B9%E5%99%A8%E5%95%8F%E9%A1%8C)
+- [Linux常見問題記錄](#linux%E5%B8%B8%E8%A6%8B%E5%95%8F%E9%A1%8C%E8%A8%98%E9%8C%84)
+	- [sshd: pam_limitssshd:session: error parsing the configuration file: '/etc/security/limits.conf'](#sshd-pam_limitssshdsession-error-parsing-the-configuration-file-etcsecuritylimitsconf)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
 	- [CentOS](#centos)
@@ -126,7 +122,7 @@
 		- [SELinux](#selinux)
 		- [grub2-install: error: /usr/lib/grub/x86_64-efi/modinfo.sh doesn't exist. Please specify --target or --directory.](#grub2-install-error-usrlibgrubx86_64-efimodinfosh-doesnt-exist-please-specify---target-or---directory)
 		- [http://.../repodata/repomd.xml: [Errno 14] HTTP Error 404 - Not Found Trying other mirror.](#httprepodatarepomdxml-errno-14-http-error-404---not-found-trying-other-mirror)
-		- [官方ISO在OpenStack中無法識別鏡像](#官方iso在openstack中無法識別鏡像)
+		- [官方ISO在OpenStack中無法識別鏡像](#%E5%AE%98%E6%96%B9iso%E5%9C%A8openstack%E4%B8%AD%E7%84%A1%E6%B3%95%E8%AD%98%E5%88%A5%E9%8F%A1%E5%83%8F)
 
 <!-- /TOC -->
 
@@ -165,8 +161,8 @@ $ find [路徑] -name [文件名稱]
 
 按照文件類型查找指定路徑下的文件：
 
-```c
-/*
+```html
+<!--
 文件類型：
 b 塊設備
 c 字符設備
@@ -175,14 +171,17 @@ f 普通文件
 l 符號鏈接
 p 管道
 s 套接字
-*/
-$ find [路徑] -type [文件類型]
+-->
+$ find 路徑 -type 文件類型
+$ find 路徑 -type d <!-- 查找路徑下的所有目錄 -->
+$ find 路徑 -type f <!-- 查找路徑下的所有文件 -->
 
-// 查找路徑下的所有目錄
-$ find [路徑] -type d
+<!-- 查找空文件或目錄 -->
+$ find 路徑 -empty
 
-// 查找路徑下的所有文件
-$ find [路徑] -type f
+<!-- 查找空文件目錄參數可與查找類型參數組合使用 -->
+$ find 路徑 -empty -type d
+$ find 路徑 -empty -type f
 ```
 
 按照文件`inode`查找文件，可查詢一個inode對應的多個硬鏈接文件：
@@ -317,18 +316,111 @@ PulseAudio允許用戶對音頻應用和音頻硬件之間傳遞的音頻數據�
 PulseAudio爲Linux系統設計，現在也被移植到了`Solaris`、`FreeBSD`、`NetBSD`、
 `macOS`、`Windows 2000`、`Windows XP`等系統上。
 
-使用PulseAudio提供的`pactl`控制、調整音頻設備：
+使用PulseAudio提供的`pactl`以及`pacmd`控制、調整音頻設備。
 
-```c
-// 輸出音頻設備信息(簡短輸出)
+pactl提供了常用的功能：
+
+```html
+<!-- 展示音頻輸出設備信息(簡短輸出) -->
 $ pactl list sinks short
-// 輸出完整音頻設備信息
+<!-- 展示完整音頻設備信息 -->
 $ pactl list
 
-// 調整設備音量，"調整幅度" 格式爲百分數如 "+5%"
-$ pactl set-link-volume [音頻設備編號] [調整幅度]
-// 開啓/關閉靜音
-$ pactl set-sink-mute [音頻設備編號] [true/false]
+<!-- 調整設備音量，"調整幅度" 格式爲百分數如 "+5%" -->
+$ pactl set-link-volume 音頻設備編號 調整幅度
+<!-- 開啓/關閉靜音 -->
+$ pactl set-sink-mute 音頻設備編號 1/0/yes/no/true/false
+<!-- 切換靜音狀態 -->
+$ pactl set-sink-mute 音頻設備編號 toggle
+```
+
+pactl的音頻設備輸出信息示例：
+
+```html
+<!-- 簡短信息，僅包含輸出設備編號、狀態等 -->
+$ pactl list sinks short
+0	alsa_output.pci-0000_00_1f.3.analog-stereo	module-alsa-card.c	s16le 2ch 44100Hz	SUSPENDED
+
+<!-- 音頻輸出設備完整信息 -->
+$ pactl list sinks
+Sink #0
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
+	Description: Built-in Audio Analog Stereo
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Owner Module: 6
+	Mute: no
+	Volume: front-left: 39294 /  60% / -13.33 dB,   front-right: 39294 /  60% / -13.33 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.pci-0000_00_1f.3.analog-stereo.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "ALC233 Analog"
+		alsa.id = "ALC233 Analog"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel PCH"
+		alsa.long_card_name = "HDA Intel PCH at 0xb1128000 irq 133"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1f.3"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "9d70"
+		device.product.name = "Sunrise Point-LP HD Audio"
+		device.form_factor = "internal"
+		device.string = "front:0"
+		device.buffering.buffer_size = "352800"
+		device.buffering.fragment_size = "176400"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "analog-stereo"
+		device.profile.description = "Analog Stereo"
+		device.description = "Built-in Audio Analog Stereo"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		analog-output-speaker: Speakers (type: Speaker, priority: 10000, availability unknown)
+		analog-output-headphones: Headphones (type: Headphones, priority: 9900, not available)
+	Active Port: analog-output-speaker
+	Formats:
+		pcm
+```
+
+pacmd相比pactl提供了完整的PulseAudio功能，
+支持pactl的全部指令（部分指令語法存在差異），輸出結果格式略有不同。
+
+```html
+<!-- 看音頻輸出設備的信息，類似於 pactl list sinks -->
+$ pacmd list-sinks
+<!-- pacmd 的 set-link-volume 參數不支持使用百分比調整音量 -->
+$ pacmd set-link-volume 音頻設備編號 音量數值
+```
+
+pactl工具缺少一些實用功能（直接提取音量、靜音狀態等），需要組合實用指令並提取輸出。
+獲取音量：
+
+```html
+<!-- 從輸出中查找音量部分，截取 Volume 行所在的內容。-->
+$ pactl list sinks | grep '^[[:space:]]Volume:' | head -n 1 | tail -n 1 | sed -e 's,.* \([0-9][0-9]*\)%.*,\1,'
+```
+
+獲取靜音狀態：
+
+```html
+<!-- 截取 Mute 輸出行 -->
+$ pactl list sinks | awk '/Mute/ { print $2 }'
 ```
 
 
@@ -1067,8 +1159,6 @@ $ wipefs [塊設備]
 ```
 
 分區大小變更後，需要調整文件系統大小以匹配新分區大小，否則文件系統實際可使用大小不變。
-
-
 
 ## fdisk
 `fdisk`是Linux命令行下常用的交互式磁盤管理工具。
@@ -2557,8 +2647,7 @@ SNAT       all  --  10.8.0.0/24          anywhere             to:192.168.110.181
 
 
 # 性能監控與測試
-Linux下存在大量的性能監控工具，包括Unix系統通用的`ps`、`top`，
-以及功能更加強大的`sysstat`工具套件，還有用於網絡性能監控的`iftop`工具等。
+Linux下存在大量的性能監控工具，包括`procps`、`sysstat`等工具套件，以及用於網絡性能監控的`iftop`工具等。
 
 Linux的proc文件系統直接提供了大量進程、文件系統信息，可直接觀測：
 
@@ -2747,8 +2836,12 @@ COMMAND   PID   GID USER     TTY       %CPU %MEM PRI STAT      TIME
 
 Linux下的ps指令同樣支持BSD風格的參數，顯式格式與macOS/BSD下基本相同。
 
-## top
-`top`是Linux/Unix下最常見的性能監控工具，所有的Linux發行版均包含該工具，
+## procps
+[`procps`](https://gitlab.com/procps-ng/procps)包提供了核心的性能監測工具套件，
+包括`top`、`vmstat`、`pmap`、`uptime`、`tload`等常用工具；
+
+### top
+`top`是Linux/Unix下最常見的性能監控工具，所有的Linux發行版均包含該工具，Linux下的top工具由procps套件提供。
 macOS/BSD系列同樣包含該工具，但參數操作方式有所不同。
 
 在命令行輸入top指令進入指令介面，默認參數下，top會一直在前台以1s為間隔刷新顯示進程信息，
@@ -2767,36 +2860,8 @@ Networks: packets: 18095435/9910M in, 13327243/5146M out. Disks: 32894176/942G r
 PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PPID  STATE    BOOSTS           %CPU_ME
 1368   Terminal     48.1 24:33.43 9     3    416-  131M   26M-   41M-   1368  1     sleeping *0[32380+]       0.69481
 143    WindowServer 30.6 12:14:01 14    6    2461  1177M- 7736K- 166M   143   1     sleeping *0[1]            3.04495
-0      kernel_task  11.9 08:21:25 194/4 0    0     752M+  0B     0B     0     0     running   0[0]            0.00000
-1857   Code Helper  9.5  12:10.20 23    1    156+  57M+   0B     25M-   1369  1369  sleeping *0[1]            0.00000
-97866  idea         7.2  28:05.73 53    1    399   2049M  0B     1303M- 97866 1     sleeping *0[685]          0.00000
-785    mdworker_sha 6.0  00:03.88 4     1    61    1388K  0B     312K   785   1     sleeping *0[1]            0.37947
-697    mdworker_sha 5.9  00:08.64 4     1    61    1400K  0B     340K   697   1     sleeping *0[1]            0.94696
-835    top          5.8  00:01.10 1/1   0    25    6464K+ 0B     0B     835   1463  running  *0[1]            0.00000
-782    mdworker_sha 5.8  00:03.88 4     1    61    2196K  0B     340K   782   1     sleeping *0[1]            0.11713
-91744  com.apple.We 5.1  06:50.51 10    4    174   431M+  6160K- 168M+  91744 1     sleeping  0[71425+]       0.00000
-99766  Code Helper  4.5  04:43.04 25    1    247   184M-  0B     65M    1369  1369  sleeping *0[1]            0.00000
-696    mdworker_sha 4.5  00:08.22 4     1    61    1392K  0B     364K   696   1     sleeping *0[1]            0.27370
-400    mds_stores   4.4  67:55.94 8     6    103+  48M+   36K    31M    400   1     sleeping *0[1]            0.00000
-784    mdworker_sha 4.4  00:04.14 4     1    61    1396K  0B     368K   784   1     sleeping *0[1]            0.78489
-800    mdworker_sha 4.3  00:02.11 4     1    49    1064K  0B     0B     800   1     sleeping *0[1]            0.61253
-787    mdworker_sha 4.3  00:03.93 4     1    61    2280K  0B     332K   787   1     sleeping *0[1]            0.12357
-92     mds          4.3  41:57.87 10    7    482   27M+   0B     20M    92    1     sleeping *0[1]            0.88632
-649    mdworker_sha 4.3  00:14.11 4     1    61    1380K  0B     532K   649   1     sleeping *0[1]            0.54691
-783    mdworker_sha 4.2  00:03.87 4     1    61    2172K  0B     348K   783   1     sleeping *0[1]            0.26021
-780    mdworker_sha 4.1  00:04.05 4     1    61    1388K  0B     348K   780   1     sleeping *0[1]            0.58266
-90530  WeChat       3.6  04:05.32 29    7    2723- 149M-  0B     118M-  90530 1     sleeping *7[6]            0.03709
-62021  MySQLWorkben 3.0  24:25.94 20    1    5377  276M   0B     253M   62021 1     sleeping  0[14444]        0.00000
-12350  gamecontroll 3.0  31:36.68 5     4    70    1608K  0B     492K   12350 1     sleeping *0[3850039+]     0.00000
-99810  bluetoothaud 3.0  02:48.31 4     1    191   4648K  0B     1460K  99810 1     sleeping *0[1]            0.00000
-91739  NeteaseMusic 2.8  07:32.94 21    4    3014  75M+   84K    35M-   91739 1     sleeping *0[2311]         0.35759
-191    coreaudiod   1.2  16:22.49 6     1    1362  9008K  0B     5016K  191   1     sleeping *0[1]            0.00000
-28209  java         1.0  57:47.77 98    1    235   250M   0B     195M-  16532 1     sleeping *0[1]            0.00000
-69     fseventsd    0.8  19:40.71 15    1    297   3640K  0B     1076K  69    1     sleeping *0[1]            0.03872
-699    WeatherWidge 0.4  09:35.25 4     2    2948  55M    0B     49M    699   1     sleeping *1[22]           0.00000
-1373   Finder       0.3  10:51.38 8     2    661   100M   0B     76M    1373  1     sleeping *0[12526]        0.00000
-78384  OneDrive     0.3  32:17.78 17    4    2182  484M   64K    293M   78384 1     sleeping *0[2673]         0.00000
-1369   Electron     0.2  29:47.52 31    1    1414  120M+  0B     50M-   1369  1     sleeping *0[30361]        0.00000
+0      kernel_task  11.9 08:21:25 194/4 0    0     752M+  0B     0B     0     0     running   0[0]
+...
 ```
 
 Linux下top的介面樣式：
@@ -2812,36 +2877,7 @@ KiB Swap: 31457276 total, 24550632 free,  6906644 used.  3808324 avail Mem
  4191 root      20   0   13.7g   1.0g   7016 S   2.0  3.3   1218:28 java
  4608 root      20   0   13.7g 993028   6776 S   2.0  3.0   1011:57 java
  4856 root      20   0   13.7g   1.0g   6948 S   1.7  3.2   1032:24 java
-11171 root      20   0   13.7g   1.8g   7780 S   1.7  5.6 716:33.35 java
- 1867 root      20   0   13.7g   2.1g   7224 S   1.3  6.7 533:29.57 java
- 5344 root      20   0   22.1g   6.5g   6576 S   1.3 20.7 518:56.08 java
- 6766 root      20   0   13.8g 664472   7052 S   1.3  2.0 728:52.60 java
- 7604 root      20   0   13.7g   2.2g   7408 S   1.3  6.9 707:33.46 java
- 9472 root      20   0   13.7g 808752   7760 S   1.3  2.5 392:01.19 java
-15990 root      20   0   13.7g 654456   7776 S   1.3  2.0 396:45.45 java
-21867 root      20   0   13.6g 555228   7756 S   0.7  1.7 261:55.44 java
- 3071 root      20   0   12.5g 145636   6180 S   0.3  0.4  88:32.05 java
- 3154 root      20   0 7319888 803444   6836 S   0.3  2.5 525:59.38 java
- 3770 root      20   0    9.8g   5.8g   6624 S   0.3 18.6 255:39.33 java
- 4087 root      20   0 6958564 254508   6248 S   0.3  0.8  54:58.17 java
- 6762 root      20   0  165752   7624    764 S   0.3  0.0  56:10.98 redis-server
-21455 root      20   0 8714932   1.2g  86512 S   0.3  3.7  15:19.40 java
-    1 root      20   0  191296   2680   1504 S   0.0  0.0   3:54.78 systemd
-    2 root      20   0       0      0      0 S   0.0  0.0   0:01.21 kthreadd
-    3 root      20   0       0      0      0 S   0.0  0.0   2:31.62 ksoftirqd/0
-    5 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/0:0H
-    7 root      rt   0       0      0      0 S   0.0  0.0   0:00.04 migration/0
-    8 root      20   0       0      0      0 S   0.0  0.0   0:00.00 rcu_bh
-    9 root      20   0       0      0      0 S   0.0  0.0  48:24.47 rcu_sched
-   10 root      rt   0       0      0      0 S   0.0  0.0   0:13.40 watchdog/0
-   11 root      rt   0       0      0      0 S   0.0  0.0   0:13.10 watchdog/1
-   12 root      rt   0       0      0      0 S   0.0  0.0   0:00.03 migration/1
-   13 root      20   0       0      0      0 S   0.0  0.0   0:04.07 ksoftirqd/1
-   15 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/1:0H
-   16 root      rt   0       0      0      0 S   0.0  0.0   0:10.39 watchdog/2
-   17 root      rt   0       0      0      0 S   0.0  0.0   0:00.02 migration/2
-   18 root      20   0       0      0      0 S   0.0  0.0   0:03.77 ksoftirqd/2
-   20 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/2:0H
+...
 ```
 
 macOS/BSD指令參數：
@@ -3491,7 +3527,8 @@ $ dpkg -L [package_name]
 
 	維護者腳本包括preinst、postinst、prerm、postrm等，可用於在安裝過程的前後附加一些特殊操作，
 	這些腳本權限範圍需要在`0555`到`0775`之間。
-	維護者腳本詳細介紹可參考[官方文檔](https://www.debian.org/doc/debian-policy/ch-maintainerscripts.html)，以及[Debian Wiki](https://wiki.debian.org/MaintainerScripts)。
+	維護者腳本詳細介紹可參考[官方文檔](https://www.debian.org/doc/debian-policy/ch-maintainerscripts.html)，
+	以及[Debian Wiki](https://wiki.debian.org/MaintainerScripts)。
 
 	維護者腳本存在一些限制，例如不能在腳本中使用dpkg相關功能(因為執行腳本期間dpkg會被鎖定)。
 
@@ -4019,4 +4056,6 @@ http://mirror.centos.org/centos/$releasever/extras/x86_64/repodata/repomd.xml: [
 使用外掛卷的方式安裝系統，安裝完成後無法啟動，提示`Can't find boot volume`。
 
 解決方案：<br>
-在雲平台上，應使用為雲平台設計的專屬鏡像，參考[OpenStack文檔](https://docs.openstack.org/image-guide/obtain-images.html)，從`http://cloud.centos.org/centos/7/images/`下載對應的CentOS 7的qcow2鏡像即可。
+在雲平台上，應使用為雲平台設計的專屬鏡像，
+參考[OpenStack文檔](https://docs.openstack.org/image-guide/obtain-images.html)，
+從`http://cloud.centos.org/centos/7/images/`下載對應的CentOS 7的qcow2鏡像即可。
