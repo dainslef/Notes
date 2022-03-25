@@ -1,33 +1,31 @@
 <!-- TOC -->
 
-- [Nix Package Manager](#nix-package-manager)
-	- [多版本管理](#%E5%A4%9A%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86)
-	- [Nix User Environments](#nix-user-environments)
-	- [Nix Channel](#nix-channel)
-	- [Unfree](#unfree)
-- [NixOS](#nixos)
-	- [查看文檔](#%E6%9F%A5%E7%9C%8B%E6%96%87%E6%AA%94)
-	- [安裝](#%E5%AE%89%E8%A3%9D)
-	- [chroot安裝環境](#chroot%E5%AE%89%E8%A3%9D%E7%92%B0%E5%A2%83)
-	- [配置管理](#%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86)
-		- [版本升級與回退](#%E7%89%88%E6%9C%AC%E5%8D%87%E7%B4%9A%E8%88%87%E5%9B%9E%E9%80%80)
-		- [Binary Cache](#binary-cache)
-	- [系統軟件包與服務配置](#%E7%B3%BB%E7%B5%B1%E8%BB%9F%E4%BB%B6%E5%8C%85%E8%88%87%E6%9C%8D%E5%8B%99%E9%85%8D%E7%BD%AE)
-	- [顯卡驅動配置](#%E9%A1%AF%E5%8D%A1%E9%A9%85%E5%8B%95%E9%85%8D%E7%BD%AE)
-	- [systemd服務](#systemd%E6%9C%8D%E5%8B%99)
-	- [用戶配置](#%E7%94%A8%E6%88%B6%E9%85%8D%E7%BD%AE)
-	- [Shell配置](#shell%E9%85%8D%E7%BD%AE)
-		- [Shell兼容性](#shell%E5%85%BC%E5%AE%B9%E6%80%A7)
-	- [字體配置](#%E5%AD%97%E9%AB%94%E9%85%8D%E7%BD%AE)
-	- [音頻配置](#%E9%9F%B3%E9%A0%BB%E9%85%8D%E7%BD%AE)
-	- [輸入法配置](#%E8%BC%B8%E5%85%A5%E6%B3%95%E9%85%8D%E7%BD%AE)
-	- [桌面配置](#%E6%A1%8C%E9%9D%A2%E9%85%8D%E7%BD%AE)
-		- [Gnome桌面環境可選軟件包配置](#gnome%E6%A1%8C%E9%9D%A2%E7%92%B0%E5%A2%83%E5%8F%AF%E9%81%B8%E8%BB%9F%E4%BB%B6%E5%8C%85%E9%85%8D%E7%BD%AE)
-- [問題紀錄](#%E5%95%8F%E9%A1%8C%E7%B4%80%E9%8C%84)
-	- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
-	- [No output backlight property](#no-output-backlight-property)
-	- [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
-	- [DisplayManager不展示用戶列表](#displaymanager%E4%B8%8D%E5%B1%95%E7%A4%BA%E7%94%A8%E6%88%B6%E5%88%97%E8%A1%A8)
+- [多版本管理](#多版本管理)
+- [Nix User Environments](#nix-user-environments)
+- [Nix Channel](#nix-channel)
+- [Unfree](#unfree)
+- [查看文檔](#查看文檔)
+- [安裝](#安裝)
+- [chroot安裝環境](#chroot安裝環境)
+- [配置管理](#配置管理)
+	- [版本升級與回退](#版本升級與回退)
+	- [Binary Cache](#binary-cache)
+- [系統軟件包與服務配置](#系統軟件包與服務配置)
+- [顯卡驅動配置](#顯卡驅動配置)
+- [systemd服務](#systemd服務)
+- [用戶配置](#用戶配置)
+- [Shell配置](#shell配置)
+	- [Shell兼容性](#shell兼容性)
+- [字體配置](#字體配置)
+- [音頻配置](#音頻配置)
+- [輸入法配置](#輸入法配置)
+- [桌面配置](#桌面配置)
+	- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
+- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
+- [No output backlight property](#no-output-backlight-property)
+- [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
+- [DisplayManager不展示用戶列表](#displaymanager不展示用戶列表)
+- [Console介面下字體縮放異常](#console介面下字體縮放異常)
 
 <!-- /TOC -->
 
@@ -456,15 +454,25 @@ services = {
 
 ## 顯卡驅動配置
 若需要使用桌面環境，則需要根據顯卡配置正確的顯卡驅動。
-Intel CPU使用核心顯卡，直接在配置項中啓用對應驅動即可：
+Intel CPU使用核心顯卡，使用`modesetting`通用驅動。
 
 ```html
+services.xserver = {
+  videoDrivers = ["modesetting"];
+  useGlamor = true;
+};
+
+<!--
+intel專屬驅動現在已多年未更新，缺失Glamor等特性，不推薦使用
+若使用較新的intel處理器，該驅動可能無法正常啓用顯卡的3D加速功能
+
 services.xserver.videoDrivers = ["intel"];
+-->
 ```
 
 AMD CPU則需要額外配置內核模塊參數，否則X Server會啓動失敗：
 
-```
+```nix
 boot.initrd.kernelModules = ["amdgpu"];
 services.xserver.videoDrivers = ["amdgpu"];
 ```
@@ -829,3 +837,18 @@ environment.shells = [pkgs.fish];
 ```nix
 programs.fish.enable = true;
 ```
+
+## Console介面下字體縮放異常
+問題說明：<br>
+對於高分辨率的機型（分辨率大於1080P），
+`nixos-generate-config`工具默認生成的配置會導致Console介面下字體不協調得變大。
+
+解決方案：<br>
+導致Console介面字體縮放變大的是`/etc/nixos/hardware-configuration.nix`文件中的下列配置項：
+
+```nix
+# high-resolution display
+hardware.video.hidpi.enable = lib.mkDefault true;
+```
+
+將對應配置註釋掉，重新構建配置Console介面即可恢復正常字體比例。
