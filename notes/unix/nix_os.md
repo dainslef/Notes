@@ -1,31 +1,35 @@
 <!-- TOC -->
 
-- [多版本管理](#多版本管理)
-- [Nix User Environments](#nix-user-environments)
-- [Nix Channel](#nix-channel)
-- [Unfree](#unfree)
-- [查看文檔](#查看文檔)
-- [安裝](#安裝)
-- [chroot安裝環境](#chroot安裝環境)
-- [配置管理](#配置管理)
-	- [版本升級與回退](#版本升級與回退)
-	- [Binary Cache](#binary-cache)
-- [系統軟件包與服務配置](#系統軟件包與服務配置)
-- [顯卡驅動配置](#顯卡驅動配置)
-- [systemd服務](#systemd服務)
-- [用戶配置](#用戶配置)
-- [Shell配置](#shell配置)
-	- [Shell兼容性](#shell兼容性)
-- [字體配置](#字體配置)
-- [音頻配置](#音頻配置)
-- [輸入法配置](#輸入法配置)
-- [桌面配置](#桌面配置)
-	- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
-- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
-- [No output backlight property](#no-output-backlight-property)
-- [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
-- [DisplayManager不展示用戶列表](#displaymanager不展示用戶列表)
-- [Console介面下字體縮放異常](#console介面下字體縮放異常)
+- [Nix Package Manager](#nix-package-manager)
+	- [多版本管理](#多版本管理)
+	- [依賴分析](#依賴分析)
+	- [Nix User Environments](#nix-user-environments)
+	- [Nix Channel](#nix-channel)
+	- [Unfree](#unfree)
+- [NixOS](#nixos)
+	- [查看文檔](#查看文檔)
+	- [安裝](#安裝)
+	- [chroot安裝環境](#chroot安裝環境)
+	- [配置管理](#配置管理)
+		- [版本升級與回退](#版本升級與回退)
+		- [Binary Cache](#binary-cache)
+	- [系統軟件包與服務配置](#系統軟件包與服務配置)
+	- [顯卡驅動配置](#顯卡驅動配置)
+	- [systemd服務](#systemd服務)
+	- [用戶配置](#用戶配置)
+	- [Shell配置](#shell配置)
+		- [Shell兼容性](#shell兼容性)
+	- [字體配置](#字體配置)
+	- [音頻配置](#音頻配置)
+	- [輸入法配置](#輸入法配置)
+	- [桌面配置](#桌面配置)
+		- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
+- [問題紀錄](#問題紀錄)
+	- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
+	- [No output backlight property](#no-output-backlight-property)
+	- [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
+	- [DisplayManager不展示用戶列表](#displaymanager不展示用戶列表)
+	- [Console介面下字體縮放異常](#console介面下字體縮放異常)
 
 <!-- /TOC -->
 
@@ -51,6 +55,44 @@ Nix包管理器支持同時管理、安裝一個軟件包的多個版本，
 Nix包管理器是函數式包管理器，在升級軟件包時不會對既有軟件包進行修改，
 而是在Nix Store中添加新的軟件包，然後切換至新版本(修改符號連接指向)；
 在版本升級後，舊版本軟件包依然存在，並且支持回滾到舊版本。
+
+## 依賴分析
+`nix-store`指令的`-q`參數提供了依賴查詢相關功能。
+
+```html
+<!--
+以樹狀圖形式展示當前系統的依賴關係
+
+示例：
+$ nix-store -q --tree /run/current-system
+/nix/store/54jpfz12zc19sfl9v95h344n49ahvda4-nixos-system-THINKPAD-X1-NANO-22.05pre363214.1d08ea2bd83
+├───/nix/store/3fvq0jjjh50vh0rlqr2xc9ya8llcj113-gnugrep-3.7
+│   ├───/nix/store/q29bwjibv9gi9n86203s38n0577w09sx-glibc-2.33-117
+│   │   ├───/nix/store/fkzaww3nk3zlh9s8ssnlm48mjd370xx1-libidn2-2.3.2
+│   │   │   ├───/nix/store/8vrwnylyyxz2c0djkdvmccy6a580zf0k-libunistring-0.9.10
+│   │   │   │   └───/nix/store/8vrwnylyyxz2c0djkdvmccy6a580zf0k-libunistring-0.9.10 [...]
+│   │   │   └───/nix/store/fkzaww3nk3zlh9s8ssnlm48mjd370xx1-libidn2-2.3.2 [...]
+│   │   └───/nix/store/q29bwjibv9gi9n86203s38n0577w09sx-glibc-2.33-117 [...]
+...
+-->
+$ nix-store -q --tree /run/current-system
+
+<!--
+遞歸查詢指定軟件包的所有反向依賴
+軟件包路徑爲軟件包在Nix Store下的絕對路徑
+
+示例：
+$ nix-store -q --referers-closure /nix/store/v4kkzfvd7cs29dw8x397nvvyr423pa05-kio-5.91.0.drv
+/nix/store/v4kkzfvd7cs29dw8x397nvvyr423pa05-kio-5.91.0.drv
+/nix/store/k7rwz2sivh6l6gihllw6qxl2wqb236gv-kdeclarative-5.91.0.drv
+/nix/store/dj63dq4jss1rbq92h1c8224nyas1nr8z-fcitx5-configtool-5.0.12.drv
+/nix/store/39jw4jvhm7b7hdimmyasflwprrdn0bs5-fcitx5-with-addons-5.0.15.drv
+...
+-->
+$ nix-store -q --referrers-closure 軟件包路徑
+<!-- 查詢軟件包的直接反向依賴 -->
+$ nix-store -q --referrer 軟件包路徑
+```
 
 ## Nix User Environments
 `Nix User Environments`(Nix用戶環境)包含一組對特定用戶可用的軟件包，
