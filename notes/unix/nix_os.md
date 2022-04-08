@@ -16,6 +16,7 @@
 	- [系統軟件包與服務配置](#系統軟件包與服務配置)
 	- [顯卡驅動配置](#顯卡驅動配置)
 	- [systemd服務](#systemd服務)
+		- [創建自定義systemd服務](#創建自定義systemd服務)
 	- [用戶配置](#用戶配置)
 	- [Shell配置](#shell配置)
 		- [Shell兼容性](#shell兼容性)
@@ -149,6 +150,23 @@ Nix支持多用戶，允許同時存在多個用戶環境，每個用戶環境�
 
 ```
 # nix-store --optimise
+```
+
+可在NixOS配置configuration.nix中開啓自動存儲優化：
+
+```nix
+nix.autoOptimiseStore = true;
+```
+
+開啓該配置後，構建配置會在`/etc/nix/nix.conf`中生成對應自動優化配置項：
+
+```
+# WARNING: this file is generated from the nix.* options in
+# your NixOS configuration, typically
+# /etc/nixos/configuration.nix.  Do not edit it!
+...
+auto-optimise-store = true
+...
 ```
 
 ## Nix Channel
@@ -542,6 +560,26 @@ systemd.services.mysql.enable = false;
 ```nix
 # 強制清空服務的啟動依賴，則目標服務不會被任何其它服務依賴（達到關閉自啟動的目的）
 systemd.services.服務名稱.wantedBy = lib.mkForce [];
+```
+
+### 創建自定義systemd服務
+通過`systemd.service.服務名稱`配置項自定義全局系統服務，
+通過`systemd.user.service.服務名稱`配置項自定義用戶服務。
+
+示例：
+
+```nix
+# Setup user service.
+systemd.user.services.clash = {
+  # Define a custom clash service.
+  wantedBy = ["default.target"];
+  after = ["network.target"];
+  description = "Start clash service";
+  serviceConfig = { # Service config options defined in man manual (systemd.service)
+    ExecStart = "/run/current-system/sw/bin/clash-premium &";
+    ExecStop = "/run/current-system/sw/bin/kill -9 clash-premium";
+  };
+};
 ```
 
 ## 用戶配置
