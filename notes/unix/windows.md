@@ -1,13 +1,15 @@
 <!-- TOC -->
 
 - [Windows CMD](#windows-cmd)
-	- [文件操作](#%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C)
-	- [服務管理](#%E6%9C%8D%E5%8B%99%E7%AE%A1%E7%90%86)
-	- [電源管理](#%E9%9B%BB%E6%BA%90%E7%AE%A1%E7%90%86)
-	- [其它實用工具](#%E5%85%B6%E5%AE%83%E5%AF%A6%E7%94%A8%E5%B7%A5%E5%85%B7)
-- [文件/目錄鏈接](#%E6%96%87%E4%BB%B6%E7%9B%AE%E9%8C%84%E9%8F%88%E6%8E%A5)
-- [系統引導](#%E7%B3%BB%E7%B5%B1%E5%BC%95%E5%B0%8E)
-- [常見問題記錄](#%E5%B8%B8%E8%A6%8B%E5%95%8F%E9%A1%8C%E8%A8%98%E9%8C%84)
+	- [文件操作](#文件操作)
+	- [服務管理](#服務管理)
+	- [電源管理](#電源管理)
+	- [其它實用工具](#其它實用工具)
+- [文件/目錄鏈接](#文件目錄鏈接)
+- [系統引導](#系統引導)
+- [Microsoft Office](#microsoft-office)
+	- [Office Deployment Tool](#office-deployment-tool)
+- [常見問題記錄](#常見問題記錄)
 	- [Reply from ::1: time<1ms](#reply-from-1-time1ms)
 
 <!-- /TOC -->
@@ -40,14 +42,14 @@ Windows系統提供的命令行執行DOS系統工具指令。
 
 <!-- 複製文件 -->
 > copy
-<!-- 刪除文件
+<!-- 刪除文件 -->
 > del
-<!-- 查看文件
+<!-- 查看文件 -->
 > type
 
-<!-- 展示目錄樹
+<!-- 展示目錄樹 -->
 > tree
-<!-- 移除目錄樹
+<!-- 移除目錄樹 -->
 > deltree
 ```
 
@@ -204,6 +206,55 @@ BCDBoot是微軟官方提供的引導配置工具，主要有以下功能：
 ```
 
 使用`/v`參數可以顯示指令執行的詳情，在某些執行錯誤的情況下，可以展示更詳細的錯誤原因。
+若不確定當前系統分區的盤符，可使用`diskpart`指令進行查看：
+
+```html
+> diskpart
+DISKPART > list volume <!-- 列出分區結構 -->
+```
+
+其它常用的diskpart操作：
+
+```html
+DISKPART > select volume 分區索引 <!-- 選定當前操作分區 -->
+DISKPART > assign letter=字母 <!-- 給指定分區分配磁盤盤符 -->
+```
+
+
+
+# Microsoft Office
+對於沒有訂閲Office 365的用戶，推薦安裝Office離綫部署版本。
+從Microsoft Download Center下載[`Office Deployment Tool`](https://www.microsoft.com/en-us/download/confirmation.aspx?id=49117)。
+
+相關介紹可參考[微軟官方幫助頁面](https://support.microsoft.com/en-us/office/use-the-office-offline-installer-f0a85fe7-118f-41cb-a791-d59cef96ad1c#OfficePlans=signinorgid)，
+Plan應選擇`Office for business`。
+
+## Office Deployment Tool
+部署工具下載完成后，執行安裝會解壓得到下列文件：
+
+```
+> ls
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/28/2022   1:12 AM           1164 configuration-Office2019Enterprise.xml
+-a----         2/28/2022   1:12 AM           1368 configuration-Office2021Enterprise.xml
+-a----         2/28/2022   1:12 AM           1014 configuration-Office365-x64.xml
+-a----         2/28/2022   1:12 AM           1014 configuration-Office365-x86.xml
+-a----         2/28/2022   1:12 AM        8158008 setup.exe
+```
+
+其中，`setup.exe`為安裝器，`configuration-*.xml`為各個版本的Office下載配置。
+以`Office2021Enterprise`爲例，下載Office離綫安裝包：
+
+```
+> setup.exe /download configuration-Office2021Enterprise.xml
+```
+
+下載完成后，會在對應路徑下生成Office子路徑，即爲離綫安裝所需資源，執行安裝操作：
+
+```
+> .\setup.exe /configure .\configuration-Office2021Enterprise.xml
+```
 
 
 
