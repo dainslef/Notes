@@ -3,7 +3,7 @@
 - [概述](#概述)
 	- [開發環境](#開發環境)
 	- [工具鏈](#工具鏈)
-		- [cargo](#cargo)
+		- [Cargo](#cargo)
 		- [rustup](#rustup)
 		- [rustfmt](#rustfmt)
 	- [REPL](#repl)
@@ -30,18 +30,53 @@ VSCode的Rust插件雖為官方插件，但其默認後端`RLS(Rust Language Ser
 ## 工具鏈
 Rust提供了一系列完備的工具鏈用於簡化開發流程。
 
-### cargo
-`cargo`類似Scala的Sbt、Haskell的Cabal等工具，負責Rust項目依賴管理和項目構建。
-Rust中包被稱為`crate`，cargo提供了中心倉庫`https://crates.io/`，包含了數以萬計的Rust包。
+### Cargo
+`Cargo`類似Scala的Sbt、Haskell的Cabal等工具，負責Rust項目依賴管理和項目構建。
+Rust中包被稱為`crate`，Cargo提供了中心倉庫`https://crates.io/`，包含了數以萬計的Rust包。
 
-使用cargo全局安裝指定包：
+使用Cargo全局安裝指定包：
 
-```c
-$ cargo install [包名]
+```
+$ cargo install 包名
 ```
 
 部分提供工具的包會在`~/.cargo/bin`下添加工具的可執行文件，若需要直接使用這些cargo安裝的工具，
 則需要將該目錄加入**環境變量**中。
+
+Cargo的常用指令：
+
+```html
+$ cargo init <!-- 在當前初始化新項目 -->
+$ cargo init 項目根路徑 <!-- 在指定路徑初始化新項目 -->
+
+$ cargo build <!-- 構建項目 -->
+$ cargo run <!-- 執行項目的可執行文件 -->
+$ cargo test <!-- 執行項目的測試 -->
+```
+
+完成初始化後，項目根路徑下會生成`Cargo.toml`文件，用戶描述項目配置：
+
+```toml
+[package]
+name = "項目名稱"
+version = "版本號"
+edition = "2021"
+authors = ["dainslef <dainslef@outlook.com>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+依賴項 = "版本號"
+依賴項 = { version = "版本號", features = ["開啟的特性"], ... }
+...
+```
+
+版本號可以是具體的數值，亦可使用`*`表示使用最新版本。
+首次使用構建項目時，Cargo會生成`Cargo.toml.lock`文件，
+該文件中會記錄解析出的具體版本號。
+
+與Sbt等構建工具不同，在Cargo中依賴項的關聯依賴在項目中**不可見**，
+有且只有**顯式導入**的依賴才可訪問。
 
 ### rustup
 [`rustup`](https://rustup.rs/)是Rust官方推出的編譯套件管理工具，
@@ -146,8 +181,7 @@ Cell類型提供了對內部持有對象進行整體安全替換(`Cell::replace(
 
 RefCell類型提供了對內部持有對象進行安全地只讀引用(`RefCell::borrow()`)、
 讀寫引用(`RefCell::borrow_mut()`)的能力。
-borrow()系列方法會在運行期間進行動態檢查，違反讀寫鎖規則時拋出異常，
-保證讀寫安全。
+borrow()系列方法會在運行期間進行動態檢查，違反讀寫鎖規則時拋出異常，保證讀寫安全。
 
 Cell/RefCell均可通過`as_ptr()`方法獲取raw pointer，
 以使用unsafe在某些特殊情形下(如鏈表、二叉樹)繞過rust的所有權檢查。
