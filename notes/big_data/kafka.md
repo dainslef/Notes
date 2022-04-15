@@ -294,7 +294,7 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
         Topic: spark-streaming-test     Partition: 0    Leader: 2       Replicas: 2     Isr: 2
         Topic: spark-streaming-test     Partition: 1    Leader: 3       Replicas: 3     Isr: 3
 ```
-
+jian
 - `PartitionCount` 話題分區數量
 - `ReplicationFactor` 話題備份數量
 - `Configs` 包含每個Partition的詳細配置信息
@@ -336,29 +336,38 @@ Error while executing topic command : Replication factor: 2 larger than availabl
 ## 話題操作
 話題相關的操作指令：
 
-```c
-// 創建話題
-// 使用 --partitions 參數指定話題的分區數量
-// 使用 --replication-factor 參數指定話題數據備份數量
-$ kafka-topics --create --zookeeper [Zookeeper集羣IP:端口] --topic [話題名稱]
+```html
+<!--
+創建話題
+使用 --partitions 參數指定話題的分區數量
+使用 --replication-factor 參數指定話題數據備份數量
+-->
+$ kafka-topics --create --zookeeper Zookeeper集羣IP:端口 --topic 話題名稱
 
-// 列出話題
+<!-- 列出話題 -->
 $ kafka-topics --list --zookeeper [Zookeeper集羣IP:端口]
 
-// 移除話題，若移除話題失敗需要在Kafka服務端配置中添加設定 delete.topic.enble = true
-$ kafka-topics --delete --topic [話題名稱] --zookeeper [Zookeeper集羣IP:端口]
+<!-- 移除話題，若移除話題失敗需要在Kafka服務端配置中添加設定 delete.topic.enble = true -->
+$ kafka-topics --delete --topic 話題名稱 --zookeeper Zookeeper集羣IP:端口
 
-// 查看話題描述(包括話題的 Partition、PartitionCount、ReplicationFactor 等信息)
-// 不使用 --topic 參數時展示所有話題的信息
-$ kafka-topics --describe --topic [話題名稱] --zookeeper [Zookeeper集羣IP:端口]
+<!--
+查看話題描述(包括話題的 Partition、PartitionCount、ReplicationFactor 等信息)
+不使用 --topic 參數時展示所有話題的信息
+-->
+$ kafka-topics --describe --topic 話題名稱 --zookeeper Zookeeper集羣IP:端口
 ```
 
 使用的Zookeeper集羣IP可以是connect參數中配置的任意IP。
 在Kafka中，已創建的話題配置可以動態修改：
 
-```c
-// 單獨設定話題的某個配置
-$ kafka-topics --alter --config [xxx=xxx] --topic [topic_name] --zookeeper [zookeeper_ip:port]
+```html
+<!--
+單獨設定話題的指定配置，常用配置：
+log.retention.hours 話題消息保存時間
+replication-factor 分區副本數目
+partitions 分區數目
+-->
+$ kafka-topics --alter --config 鍵=值 --topic 話題名稱 --zookeeper zookeeper地址:端口
 ```
 
 從`Kafka 0.9.x`開始，Kafka引入了獨立的配置管理工具`kafka-configs.sh`，
