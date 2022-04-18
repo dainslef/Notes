@@ -1,9 +1,9 @@
 <!-- TOC -->
 
-- [Make](#make)
-	- [基本語法](#%E5%9F%BA%E6%9C%AC%E8%AA%9E%E6%B3%95)
-	- [自動變量](#%E8%87%AA%E5%8B%95%E8%AE%8A%E9%87%8F)
-	- [推斷依賴關係](#%E6%8E%A8%E6%96%B7%E4%BE%9D%E8%B3%B4%E9%97%9C%E4%BF%82)
+- [基本語法](#基本語法)
+- [自動變量](#自動變量)
+- [推斷依賴關係](#推斷依賴關係)
+- [基本使用](#基本使用)
 
 <!-- /TOC -->
 
@@ -111,4 +111,78 @@ $ cc -MM -I头文件路径 源码文件 <!-- 若包含了系统目录外的头�
 ```html
 $ cc -MD 源码文件 <!-- 将源码文件的依赖输出以文本的形式输出到"源码名称.d"文件中 -->
 $ cc -MM -MD 源码文件 <!-- 默认导出的依赖会包含系统头文件，避免导出系统头文件依赖同样需要使用-MM参数 -->
+```
+
+
+
+# CMake
+[`CMake`](https://cmake.org/)是現代C/C++項目的構建、測試、打包工具。
+CMake相比傳統make工具功能更加強大，配置編寫更加簡單。
+
+## 基本使用
+CMake的構建定義文件為`CMakeLists.txt`，作用類似於makefile，
+CMake通過分析CMakeLists.txt生成makefile進行項目構建。
+
+基本的CMakeLists.txt結構：
+
+```cmake
+# Set the mini version of CMake
+cmake_minimum_required(VERSION 3.0)
+
+# Set the project name
+project(ProjectNameXXX)
+
+# Set the C/CPP standard
+set(CMAKE_CXX_STANDARD 17)
+
+# Include the system header file path
+include_directories(SYSTEM /usr/include/xxx ...)
+
+# Add the source paths
+aux_source_directory(./src SRC1)
+aux_source_directory(./tools SRC2)
+aux_source_directory(./libxxx_src XXXLIB)
+...
+
+# Add the executable
+add_executable(test_exec ./main.cc ${SRC1} ${SRC2} ...)
+...
+
+# Set up the custom library
+add_library(xxx_lib STATIC ${XXXLIB})
+set_target_properties(xxx_lib PROPERTIES LINKER_LANGUAGE CXX)
+...
+
+# Link library
+target_link_libraries(test_exec xxx_lib)
+target_link_libraries(test_exec -lpthread -ldl -lrt ...)
+...
+```
+
+編寫CMakeLists.txt完成後，使用`cmake`指令指定項目路徑生成構建信息：
+
+```html
+<!--
+項目頂層目錄下需要存在CMakeLists.txt文件
+CMakeLists.txt文件中指令的源碼相對路徑即以項目目錄作為基準
+-->
+$ cmake 項目目錄
+
+<!--
+默認cmake指令會在項目目錄下生成構建信息相關文件/目錄，包括：
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+CMakeFiles (目錄)
+
+若不希望cmake生成的構建信息混雜在項目路徑下，則可單獨指定構建信息的生成路徑
+使用 -B 參數指定構建信息生成路徑
+-->
+$ cmake 項目目錄 -B 構建信息生成路徑
+```
+
+正確生成構建信息後，開始構建項目：
+
+```
+$ cmake --build 構建信息路徑
 ```
