@@ -1,78 +1,77 @@
 <!-- TOC -->
 
-- [常用Unix工具指令](#%E5%B8%B8%E7%94%A8unix%E5%B7%A5%E5%85%B7%E6%8C%87%E4%BB%A4)
-	- [grep](#grep)
+- [常用Unix工具指令](#常用unix工具指令)
 	- [find](#find)
 	- [tee](#tee)
-	- [進程管理](#%E9%80%B2%E7%A8%8B%E7%AE%A1%E7%90%86)
-	- [日誌記錄](#%E6%97%A5%E8%AA%8C%E8%A8%98%E9%8C%84)
+	- [進程管理](#進程管理)
+	- [日誌記錄](#日誌記錄)
 - [PulseAudio](#pulseaudio)
-- [用戶管理](#%E7%94%A8%E6%88%B6%E7%AE%A1%E7%90%86)
+- [用戶管理](#用戶管理)
 - [setuid/setgid/sticky](#setuidsetgidsticky)
-- [FTP File Transfer Protocol](#ftp-file-transfer-protocol)
-	- [連接服務器](#%E9%80%A3%E6%8E%A5%E6%9C%8D%E5%8B%99%E5%99%A8)
-	- [常用指令](#%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4)
-- [SSH Secure Shell](#ssh-secure-shell)
-	- [遠程登錄](#%E9%81%A0%E7%A8%8B%E7%99%BB%E9%8C%84)
-	- [SSH 配置](#ssh-%E9%85%8D%E7%BD%AE)
-	- [配置免密登陸](#%E9%85%8D%E7%BD%AE%E5%85%8D%E5%AF%86%E7%99%BB%E9%99%B8)
-	- [關閉主機Key檢測](#%E9%97%9C%E9%96%89%E4%B8%BB%E6%A9%9Fkey%E6%AA%A2%E6%B8%AC)
-- [Linux引導配置](#linux%E5%BC%95%E5%B0%8E%E9%85%8D%E7%BD%AE)
+- [FTP (File Transfer Protocol)](#ftp-file-transfer-protocol)
+	- [連接服務器](#連接服務器)
+	- [常用指令](#常用指令)
+- [SSH (Secure Shell)](#ssh-secure-shell)
+	- [遠程登錄](#遠程登錄)
+	- [SSH 配置](#ssh-配置)
+	- [配置免密登陸](#配置免密登陸)
+	- [關閉主機Key檢測](#關閉主機key檢測)
+- [Linux引導配置](#linux引導配置)
 	- [GNU GRUB](#gnu-grub)
-		- [GRUB安裝與配置](#grub%E5%AE%89%E8%A3%9D%E8%88%87%E9%85%8D%E7%BD%AE)
-		- [安裝GRUB引導器](#%E5%AE%89%E8%A3%9Dgrub%E5%BC%95%E5%B0%8E%E5%99%A8)
-		- [修復GRUB引導](#%E4%BF%AE%E5%BE%A9grub%E5%BC%95%E5%B0%8E)
+		- [GRUB安裝與配置](#grub安裝與配置)
+		- [安裝GRUB引導器](#安裝grub引導器)
+		- [修復GRUB引導](#修復grub引導)
 	- [systemd-boot](#systemd-boot)
-- [壓縮/解壓](#%E5%A3%93%E7%B8%AE%E8%A7%A3%E5%A3%93)
-	- [z](#z)
+- [壓縮/解壓](#壓縮解壓)
+	- [7z](#7z)
 - [ulimit](#ulimit)
-	- [配置文件](#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6)
+	- [配置文件](#配置文件)
 	- [prlimit](#prlimit)
-- [Core Dump 核心轉儲](#core-dump-%E6%A0%B8%E5%BF%83%E8%BD%89%E5%84%B2)
-- [文件系統](#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%B5%B1)
+- [Core Dump (核心轉儲)](#core-dump-核心轉儲)
+- [文件系統](#文件系統)
 	- [fdisk](#fdisk)
 	- [parted](#parted)
 	- [flock](#flock)
-- [LVM Logical Volume Manager](#lvm-logical-volume-manager)
-	- [基本操作](#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C)
-	- [Physical Volume PV，物理卷](#physical-volume-pv%E7%89%A9%E7%90%86%E5%8D%B7)
-	- [Volume Group VG，卷組](#volume-group-vg%E5%8D%B7%E7%B5%84)
-	- [Logical Volume LV，邏輯卷](#logical-volume-lv%E9%82%8F%E8%BC%AF%E5%8D%B7)
-	- [邏輯卷狀態和塊設備不顯示問題](#%E9%82%8F%E8%BC%AF%E5%8D%B7%E7%8B%80%E6%85%8B%E5%92%8C%E5%A1%8A%E8%A8%AD%E5%82%99%E4%B8%8D%E9%A1%AF%E7%A4%BA%E5%95%8F%E9%A1%8C)
-- [NTP Network Time Protocol](#ntp-network-time-protocol)
-	- [NTP 服務配置](#ntp-%E6%9C%8D%E5%8B%99%E9%85%8D%E7%BD%AE)
-		- [NTP Client 配置](#ntp-client-%E9%85%8D%E7%BD%AE)
-		- [NTP Server 配置](#ntp-server-%E9%85%8D%E7%BD%AE)
-	- [NTP 管理指令](#ntp-%E7%AE%A1%E7%90%86%E6%8C%87%E4%BB%A4)
+- [LVM (Logical Volume Manager)](#lvm-logical-volume-manager)
+	- [基本操作](#基本操作)
+	- [Physical Volume (PV，物理卷)](#physical-volume-pv物理卷)
+	- [Volume Group (VG，卷組)](#volume-group-vg卷組)
+	- [Logical Volume (LV，邏輯卷)](#logical-volume-lv邏輯卷)
+	- [邏輯卷狀態和塊設備不顯示問題](#邏輯卷狀態和塊設備不顯示問題)
+- [NTP (Network Time Protocol)](#ntp-network-time-protocol)
+	- [NTP 服務配置](#ntp-服務配置)
+		- [NTP Client 配置](#ntp-client-配置)
+		- [NTP Server 配置](#ntp-server-配置)
+	- [NTP 管理指令](#ntp-管理指令)
 	- [chrony](#chrony)
 - [curl](#curl)
-	- [HTTP請求](#http%E8%AB%8B%E6%B1%82)
-		- [HTTP文件下載](#http%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BC%89)
-	- [用戶認證](#%E7%94%A8%E6%88%B6%E8%AA%8D%E8%AD%89)
-	- [FTP 操作](#ftp-%E6%93%8D%E4%BD%9C)
-- [Suspend 和 Hibernate](#suspend-%E5%92%8C-hibernate)
+	- [HTTP請求](#http請求)
+		- [HTTP文件下載](#http文件下載)
+	- [用戶認證](#用戶認證)
+	- [FTP 操作](#ftp-操作)
+- [Suspend 和 Hibernate](#suspend-和-hibernate)
 - [systemd](#systemd)
-	- [systemd服務管理](#systemd%E6%9C%8D%E5%8B%99%E7%AE%A1%E7%90%86)
+	- [systemd服務管理](#systemd服務管理)
 	- [rc.local](#rclocal)
-	- [systemd服務分析](#systemd%E6%9C%8D%E5%8B%99%E5%88%86%E6%9E%90)
-	- [系統管理](#%E7%B3%BB%E7%B5%B1%E7%AE%A1%E7%90%86)
+	- [systemd服務分析](#systemd服務分析)
+	- [系統管理](#系統管理)
 		- [loginctl](#loginctl)
-- [網絡](#%E7%B6%B2%E7%B5%A1)
-	- [路由](#%E8%B7%AF%E7%94%B1)
-		- [路由轉發](#%E8%B7%AF%E7%94%B1%E8%BD%89%E7%99%BC)
-		- [追蹤路由](#%E8%BF%BD%E8%B9%A4%E8%B7%AF%E7%94%B1)
+- [網絡](#網絡)
+	- [路由](#路由)
+		- [路由轉發](#路由轉發)
+		- [追蹤路由](#追蹤路由)
 	- [Bonding](#bonding)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
 	- [NetworkManager](#networkmanager)
 	- [tcpdump](#tcpdump)
-	- [Netcat nc](#netcat-nc)
-		- [客戶端/服務端模式](#%E5%AE%A2%E6%88%B6%E7%AB%AF%E6%9C%8D%E5%8B%99%E7%AB%AF%E6%A8%A1%E5%BC%8F)
-		- [數據傳送](#%E6%95%B8%E6%93%9A%E5%82%B3%E9%80%81)
+	- [Netcat (nc)](#netcat-nc)
+		- [客戶端/服務端模式](#客戶端服務端模式)
+		- [數據傳送](#數據傳送)
 		- [Ncat](#ncat)
-	- [iptables/nftables netfilter](#iptablesnftables-netfilter)
-		- [iptables基本操作](#iptables%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C)
-- [性能監控與測試](#%E6%80%A7%E8%83%BD%E7%9B%A3%E6%8E%A7%E8%88%87%E6%B8%AC%E8%A9%A6)
+	- [iptables/nftables (netfilter)](#iptablesnftables-netfilter)
+		- [iptables基本操作](#iptables基本操作)
+- [性能監控與測試](#性能監控與測試)
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
 	- [procps](#procps)
@@ -82,42 +81,45 @@
 		- [pidstat](#pidstat)
 		- [iostat](#iostat)
 	- [iperf / qperf](#iperf--qperf)
-	- [HTTP壓測工具](#http%E5%A3%93%E6%B8%AC%E5%B7%A5%E5%85%B7)
-- [通知服務 （Notification）](#%E9%80%9A%E7%9F%A5%E6%9C%8D%E5%8B%99-notification)
+	- [HTTP壓測工具](#http壓測工具)
+- [通知服務 （Notification）](#通知服務-notification)
 	- [libnotify](#libnotify)
 	- [Dunst](#dunst)
 - [VTE](#vte)
 	- [VTE2](#vte2)
 	- [VTE3](#vte3)
-	- [複製粘貼快捷鍵](#%E8%A4%87%E8%A3%BD%E7%B2%98%E8%B2%BC%E5%BF%AB%E6%8D%B7%E9%8D%B5)
-- [字體配置](#%E5%AD%97%E9%AB%94%E9%85%8D%E7%BD%AE)
-	- [管理字體](#%E7%AE%A1%E7%90%86%E5%AD%97%E9%AB%94)
-	- [字體相關路徑](#%E5%AD%97%E9%AB%94%E7%9B%B8%E9%97%9C%E8%B7%AF%E5%BE%91)
-	- [字體渲染問題](#%E5%AD%97%E9%AB%94%E6%B8%B2%E6%9F%93%E5%95%8F%E9%A1%8C)
-- [字符串模板](#%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A8%A1%E6%9D%BF)
+	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
+- [字體配置](#字體配置)
+	- [管理字體](#管理字體)
+	- [字體相關路徑](#字體相關路徑)
+	- [字體渲染問題](#字體渲染問題)
+- [文本處理](#文本處理)
+	- [grep](#grep)
 	- [envsubst](#envsubst)
 	- [sed](#sed)
+		- [截取輸出](#截取輸出)
+		- [文本替換](#文本替換)
 - [apt/dpkg](#aptdpkg)
 	- [apt](#apt)
 		- [apt-file](#apt-file)
 		- [add-apt-repository](#add-apt-repository)
 	- [dpkg](#dpkg)
-	- [deb打包Binary packages](#deb%E6%89%93%E5%8C%85binary-packages)
+	- [deb打包(Binary packages)](#deb打包binary-packages)
 		- [debconf](#debconf)
 		- [dpkg-divert](#dpkg-divert)
-	- [源配置](#%E6%BA%90%E9%85%8D%E7%BD%AE)
-		- [Debian 源](#debian-%E6%BA%90)
-		- [Ubuntu 源](#ubuntu-%E6%BA%90)
+	- [源配置](#源配置)
+		- [Debian 源](#debian-源)
+		- [Ubuntu 源](#ubuntu-源)
 	- [apt-mirror](#apt-mirror)
-		- [本地源配置](#%E6%9C%AC%E5%9C%B0%E6%BA%90%E9%85%8D%E7%BD%AE)
-		- [使用本地源](#%E4%BD%BF%E7%94%A8%E6%9C%AC%E5%9C%B0%E6%BA%90)
+		- [本地源配置](#本地源配置)
+		- [使用本地源](#使用本地源)
 - [OpenCC](#opencc)
-	- [命令行工具opencc](#%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7opencc)
+	- [命令行工具opencc](#命令行工具opencc)
 - [Chrome OS](#chrome-os)
-	- [安裝 Chrome OS](#%E5%AE%89%E8%A3%9D-chrome-os)
-	- [Linux容器問題](#linux%E5%AE%B9%E5%99%A8%E5%95%8F%E9%A1%8C)
-- [Linux常見問題記錄](#linux%E5%B8%B8%E8%A6%8B%E5%95%8F%E9%A1%8C%E8%A8%98%E9%8C%84)
-	- [sshd: pam_limitssshd:session: error parsing the configuration file: '/etc/security/limits.conf'](#sshd-pam_limitssshdsession-error-parsing-the-configuration-file-etcsecuritylimitsconf)
+	- [安裝 Chrome OS](#安裝-chrome-os)
+	- [Linux容器問題](#linux容器問題)
+- [Linux常見問題記錄](#linux常見問題記錄)
+	- [sshd: pam_limits(sshd:session): error parsing the configuration file: '/etc/security/limits.conf'](#sshd-pam_limitssshdsession-error-parsing-the-configuration-file-etcsecuritylimitsconf)
 	- [Ubuntu](#ubuntu)
 		- [invoke-rc.d: initscript Xxxx, action "stop" failed.](#invoke-rcd-initscript-xxxx-action-stop-failed)
 	- [CentOS](#centos)
@@ -125,7 +127,7 @@
 		- [SELinux](#selinux)
 		- [grub2-install: error: /usr/lib/grub/x86_64-efi/modinfo.sh doesn't exist. Please specify --target or --directory.](#grub2-install-error-usrlibgrubx86_64-efimodinfosh-doesnt-exist-please-specify---target-or---directory)
 		- [http://.../repodata/repomd.xml: [Errno 14] HTTP Error 404 - Not Found Trying other mirror.](#httprepodatarepomdxml-errno-14-http-error-404---not-found-trying-other-mirror)
-		- [官方ISO在OpenStack中無法識別鏡像](#%E5%AE%98%E6%96%B9iso%E5%9C%A8openstack%E4%B8%AD%E7%84%A1%E6%B3%95%E8%AD%98%E5%88%A5%E9%8F%A1%E5%83%8F)
+		- [官方ISO在OpenStack中無法識別鏡像](#官方iso在openstack中無法識別鏡像)
 
 <!-- /TOC -->
 
@@ -133,25 +135,6 @@
 
 # 常用Unix工具指令
 一些Unix常用指令的簡介。
-
-## grep
-`grep`用於搜索文本中包含指定內容的行，常用於管道操作中處理其它指令的輸出結果。
-
-```html
-<!-- 從給定的內容中查找包含 xxx 的內容 -->
-$ grep xxx
-
-<!-- 從給定的內容中排除包含 xxx 的內容 -->
-$ grep -v xxx
-
-<!-- 查找 xxx (嚴格匹配) -->
-$ grep -w xxx
-<!-- 等價於grep -w -->
-$ grep '\<xxx\>'
-
-<!-- 匹配 xxx 時忽略大小寫 -->
-$ grep -i xxx
-```
 
 ## find
 `find`用於查找滿足條件的文件，與其它指令搭配起到處理特定類型文件的作用。
@@ -2275,8 +2258,9 @@ iface bond0 inet static
 | 5 | balance-tlb | Adaptive transmit load balancing，自適應傳輸負載均衡，可實現發送流量的均衡負載 |
 | 6 | balance-alb | Adaptive load balancing，自適應負載均衡，可實現收、發流量的負載均衡，接收負載均衡通過ARP協商實現 |
 
-通常使用`bond-mode 0`或`bond-mode 2`，Bonding連線多交換機時，
-bond-mode 1/5/6可能會因爲ARP衝突導致網絡不通。
+通常使用`bond-mode 0`或`bond-mode 2`。
+Bonding連線多交換機時，bond-mode 1/5/6可能會因爲ARP衝突導致網絡不通；
+bind-mode 3則會重複發包，可能會對上層業務產生影響（以ping為例，會得到dup警告）。
 
 ## netstat & ss
 `netstat`是net-tools中提供的socket查看工具，各大平台的netstat工具參數有較大差異。
@@ -3141,15 +3125,13 @@ $ notify-send 消息主題 消息內容 -u 通知級別
 [`Dunst`](https://dunst-project.org/)提供了輕量級的通知服務實現，
 適合搭配各類未內置通知服務的窗口管理器使用。
 
-Dunst配置可參考[官方文檔](https://dunst-project.org/documentation/)，
-以及[ArchLinux Wiki](https://wiki.archlinux.org/title/Dunst)。
-
 安裝Dunst：
 
 ```
 # pacman -S dunst
 ```
 
+dunst兼容libnotify，但完整功能需要使用自身指令。
 dunst使用`dunstctl`管理通知，使用`dunstify`發送通知，常用功能：
 
 ```html
@@ -3214,8 +3196,11 @@ VTE3大多數參數兼容VTE2，為保持與VTE2相近的風格，可使用以�
 保持與VTE2相似的風格，參數示例：
 
 ```
-$ vte-2.91 -W -P never -g 120x40 -f "Monaco 10" -n 5000 -T 20 --reverse --no-decorations --no-scrollbar
+$ vte-2.91 -g 120x40 -f "Monaco 10" -n 5000 -T 20 --reverse --no-decorations --no-scrollbar
 ```
+
+部分參數在VTE3中已經移除，如`-W`，使用該類參數會報錯；
+部分參數未移除，但在幫助信息中已不存在，如`-P`，使用該類參數不報錯但不生效。
 
 ## 複製粘貼快捷鍵
 VTE中提供了**剪切板**功能，但Linux終端中常見的複製粘貼快捷鍵並不生效。
@@ -3265,8 +3250,31 @@ $ fc-cache <!-- 刷新字體緩存，用於環境中新增了字體之後 -->
 
 
 
-# 字符串模板
-Linux中可以使用`envsubst`替換模板中的環境變量引用，或者使用`sed`指令實現基於正則的文本替換。
+# 文本處理
+Linux中存在大量的文本處理工具，可組合使用對命令行輸出進行處理。
+
+## grep
+`grep`用於搜索文本中包含指定內容的行，常用於管道操作中處理其它指令的輸出結果。
+
+```html
+<!-- 從給定的內容中查找包含 xxx 的內容 -->
+$ grep xxx
+
+<!-- 從給定的內容中排除包含 xxx 的內容 -->
+$ grep -v xxx
+
+<!-- 查找 xxx (嚴格匹配) -->
+$ grep -w xxx
+<!-- 等價於grep -w -->
+$ grep '\<xxx\>'
+
+<!-- 匹配 xxx 時忽略大小寫 -->
+$ grep -i xxx
+
+<!-- 基於正則匹配 -->
+$ grep -P xxx
+$ grep -Po xxx <!-- 僅輸出匹配的部分-->
+```
 
 ## envsubst
 envsubst來自GNU項目的[gettext](https://www.gnu.org/software/gettext/)工具鏈，
@@ -3340,6 +3348,34 @@ Current language: $LANG, Unkown: $UNKNOWN
 `sed`是流式編輯器(stream editor)，通常各類Unix中均包含該工具，
 在Linux中內置的實現是[`GNU sed`](https://www.gnu.org/software/sed/manual/sed.html)。
 
+### 截取輸出
+sed支持按行截取命令行輸出：
+
+```html
+<!-- 行數從 1 開始計數 -->
+$ sed -n 行號p <!-- 截取指定行的輸出 -->
+$ sed -n 起始行,結束行p <!-- 截取指定起止範圍的行-->
+```
+
+示例：
+
+```html
+$ echo a\nb\nc\nd
+a
+b
+c
+d
+<!-- 獲取第2行輸出 -->
+$ echo a\nb\nc\nd | sed -n 2p
+b
+<!-- 獲取第2～4行內容 -->
+$ echo a\nb\nc\nd | sed -n 2,4p
+b
+c
+d
+```
+
+### 文本替換
 使用GNU sed工具可實現文本替換：
 
 ```html
