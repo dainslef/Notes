@@ -11,6 +11,7 @@
 	- [Office Deployment Tool](#office-deployment-tool)
 - [常見問題記錄](#常見問題記錄)
 	- [Reply from ::1: time<1ms](#reply-from-1-time1ms)
+	- [Intel CPU機型會在C盤根目錄下創建空的Intel目錄](#intel-cpu機型會在c盤根目錄下創建空的intel目錄)
 
 <!-- /TOC -->
 
@@ -315,3 +316,12 @@ Approximate round trip times in milli-seconds:
 	```c
 	> netsh interface ipv6 delete route "route..."
 	```
+
+## Intel CPU機型會在C盤根目錄下創建空的Intel目錄
+問題描述：<br>
+Intel機型在每次重啓后均會在C盤根路徑下創建空的Intel目錄，
+刪除該目錄后下次開機又會自動創建。
+
+解決方案：<br>
+經過排查，發現是`Intel(R) HD Graphics Control Panel`服務創建了該目錄，
+在服務管理面板中禁用該服務即可阻止Intel目錄的自動創建。
