@@ -25,6 +25,8 @@
 	- [輸入法配置](#輸入法配置)
 	- [桌面配置](#桌面配置)
 		- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
+- [模塊（Module）](#模塊module)
+	- [模塊結構](#模塊結構)
 - [問題紀錄](#問題紀錄)
 	- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
 	- [No output backlight property](#no-output-backlight-property)
@@ -796,6 +798,48 @@ services.gnome3 = {
 > services.gnome3.games.enable
 >
 > With these options we hope to give users finer grained control over their systems. Prior to this change you'd either have to manually disable options or use environment.gnome3.excludePackages which only excluded the optional applications. environment.gnome3.excludePackages is now unguarded, it can exclude any package installed with environment.systemPackages in the GNOME 3 module.
+
+
+
+# 模塊（Module）
+[模塊（Module）](https://nixos.wiki/wiki/Module)是NixOS中組織配置的形式，
+多個模塊組合最終形成完整的系統配置。
+
+例如，NixOS的系統配置文件`etc/nixos/configuration.nix`自身就是一個模塊。
+
+## 模塊結構
+一個模塊文件包含一條Nix表達式，基本模塊結構如下：
+
+```nix
+{
+  imports = [
+    # paths to other modules
+  ];
+
+  options = {
+    # option declarations
+  };
+
+  config = {
+    # option setup
+  };
+}
+```
+
+使用`imports`引用其它模塊的配置：
+
+```nix
+{
+  imports = [
+    # paths to other modules
+    ./module.nix
+    /path/to/absolute/module.nix
+  ];
+
+  # option definitions
+  # ...
+}
+```
 
 
 
