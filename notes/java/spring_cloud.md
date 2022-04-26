@@ -8,12 +8,14 @@
 		- [Eureka Server](#eureka-server)
 		- [Eureka Client](#eureka-client)
 		- [Eureka Event](#eureka-event)
+		- [Eureka啟用HTTPS](#eureka啟用https)
 	- [Zuul](#zuul)
 		- [保留前綴父級路徑URL](#保留前綴父級路徑url)
 		- [Sensitive Headers](#sensitive-headers)
 		- [ZuulFilter](#zuulfilter)
 		- [HandlerInterceptorAdapter 與 ZuulFilter](#handlerinterceptoradapter-與-zuulfilter)
 		- [CrossOrigin (跨域問題)](#crossorigin-跨域問題)
+		- [Zuul轉發HTTPS](#zuul轉發https)
 	- [Hystrix](#hystrix)
 - [Spring Cloud Config](#spring-cloud-config)
 	- [Config Server](#config-server)
@@ -275,6 +277,24 @@ Spring Eureka發送的事件與EurekaClient提供的注冊信息并非**實時�
 當EventListener接收到事件通知時，此時Eureka Client中的注冊信息仍然是舊的，
 通常需要等待5s以上注冊信息才會同步變化。
 
+### Eureka啟用HTTPS
+默認Eureka註冊實例等操作使用HTTP協議，若需要使用HTTPS協議，開啟下列配置：
+
+```yaml
+eureka:
+  instance:
+    secure-port-enabled: true
+```
+
+HTTPS端口默認使用`${server.port}`麼，可以單獨指定：
+
+```yaml
+eureka:
+  instance:
+    secure-port-enabled: true
+    secure-port: 666 # Use custom HTTPS port
+```
+
 ## Zuul
 路由是微服務體系中的一個組成部分，`Zuul`提供了基於JVM的路由和服務端的負載均衡。
 
@@ -436,6 +456,24 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     }
     ...
 }
+```
+
+### Zuul轉發HTTPS
+Zuul默認轉發請求使用HTTP協議，對於使用HTTPS協議的模塊，需要顯式指定路由地址(協議類型)：
+
+```yaml
+zuul:
+  routes:
+    xxx:
+      path: /xxxx/**
+      url: https://localhost:${server.port} # Use HTTPS
+```
+
+若使用自簽名證書，還需要關閉證書驗證：
+
+```yaml
+zuul:
+  ssl-hostname-validation-enabled: false # allow self signed certificate
 ```
 
 ## Hystrix
