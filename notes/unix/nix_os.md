@@ -27,6 +27,8 @@
 		- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
 - [模塊（Module）](#模塊module)
 	- [模塊結構](#模塊結構)
+	- [引用函數](#引用函數)
+	- [自定義屬性](#自定義屬性)
 - [問題紀錄](#問題紀錄)
 	- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
 	- [No output backlight property](#no-output-backlight-property)
@@ -840,6 +842,57 @@ services.gnome3 = {
   # ...
 }
 ```
+
+## 引用函數
+在模塊中可以調用其它模塊提供的函數：
+
+```nix
+{ config, pkgs, ... }:
+
+{
+  # ...
+}
+```
+
+函數模塊說明：
+
+| 模塊 | 說明 |
+| :- | :- |
+| config | The configuration of the entire system.
+| options | All option declarations refined with all definition and declaration references. |
+| pkgs | The attribute set extracted from the Nix package collection and enhanced with the nixpkgs.config option. |
+| modulesPath | The location of the module directory of NixOS. |
+
+## 自定義屬性
+修改`options`對象添加自定義屬性：
+
+```nix
+{ lib, config, ... }:
+
+{
+  # Use 'options' object to define custom options.
+  options = with lib; {
+    custom = {
+      # Use mk* fuctions to define custom options.
+      desktop = {
+        wm = mkEnableOption "wm";
+        kde = mkEnableOption "kde";
+      }
+      platform = {
+        amd = mkEnableOption "amd";
+        intel = mkEnableOption "intel";
+      }
+    };
+  };
+}
+```
+
+自定義屬性使用`lib.mk*Option`系列函數創建，如`mkOption`、`mkEnableOption`等。
+屬性類型位於`lib.types`下，詳細定義可參考[NixOS Wiki](https://nixos.wiki/wiki/Declaration)。
+
+通過`lib.mkIf`函數可根據條件生成配置，並將生成的配置賦值給config對象；
+默認僅能生成一組條件配置，生成多組條件配置需要使用`lib.mkMerge`函數，
+mkMerge函數接受一個配置數組作爲參數。
 
 
 
