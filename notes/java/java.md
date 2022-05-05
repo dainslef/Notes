@@ -53,9 +53,10 @@
 	- [Method Reference (方法引用)](#method-reference-方法引用)
 	- [標準庫中的函數式接口 (java.util.function)](#標準庫中的函數式接口-javautilfunction)
 - [Process API](#process-api)
+	- [ProcessBuilder](#processbuilder)
 - [DateTime API](#datetime-api)
 	- [java.util.Date](#javautildate)
-	- [java.time.LocalDateTime](#javatimelocaldatetime)
+	- [java.time.LocalDateTime/ZonedDateTime](#javatimelocaldatetimezoneddatetime)
 		- [LocalDateTime處理日期](#localdatetime處理日期)
 		- [關於 Oracle JDK 8 在 yyyyMMddHHmmssSSS 時間格式下的 DateTimeParseException](#關於-oracle-jdk-8-在-yyyymmddhhmmsssss-時間格式下的-datetimeparseexception)
 	- [java.time.Instant](#javatimeinstant)
@@ -2529,8 +2530,6 @@ public class Runtime {
 }
 ```
 
-`Java 5`后還提供了`java.util.ProcessBuilder`類，提供了更加完善的進程參數設定API。
-
 Process類型為抽象類，包含基本進程相關方法：
 
 ```java
@@ -2583,6 +2582,30 @@ scala> Runtime.getRuntime().exec("cmd /c xxx > xxx.txt")
 res1: Process = java.lang.ProcessImpl@e3c36d
 ```
 
+## ProcessBuilder
+`Java 5`后還提供了`java.util.ProcessBuilder`類，提供了更加完善的進程參數設定API，
+並且可將輸入/輸出流直接導入/導出到文件。
+
+
+
+示例：
+
+```scala
+scala> val processBuilder = new ProcessBuilder("ls", "-al")
+val processBuilder: ProcessBuilder = java.lang.ProcessBuilder@4e51eda7
+
+scala> import java.io.File
+import java.io.File
+
+// 重定向標準輸出到文件，亦可使用redirectInput()方法重定向輸入
+scala> processBuilder.redirectOutput(new File("/home/dainslef/out"))
+val res7: ProcessBuilder = java.lang.ProcessBuilder@4e51eda7
+
+// 啓動進程
+scala> processBuilder.start()
+val res8: Process = Process[pid=80786, exitValue="not exited"]
+```
+
 
 
 # DateTime API
@@ -2600,6 +2623,15 @@ Java語言中提供了兩組時間相關API：
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+// 獲取當前的毫秒時間戳
+long currentMs = System.currentTimeMillis();
+
+// 獲取當前時間的Unix時間戳
+long currentUnixTimeStamp = currentMs / 1000;
+
+// 默認構造函數為獲取當前時間的Date時間，構造器內使用了System.currentTimeMillis()
+Date currentTime = new Date();
 
 // 定義時間格式
 DateFormat dateFormat = new SimpleDateFormat("Date Pattern...");
@@ -2621,7 +2653,7 @@ java.util.Date底層使用一個long型的數值存儲毫秒級的時間，
 值為從`January 1, 1970, 00:00:00 GMT`開始到當前時間的毫秒數。
 需要更高精度則需要使用java.time.LocalDateTime。
 
-## java.time.LocalDateTime
+## java.time.LocalDateTime/ZonedDateTime
 DateTime API的基本用法類似Date API，示例：
 
 ```java
@@ -2642,7 +2674,21 @@ LocalDateTime time1 = ..., time2 = ...;
 time1.isAfter(time2);
 time1.isBefore(time2);
 time1.isEqual(time2);
+
+// 獲取Unix時間戳
+time.toEpochSecond(zone...);
+
+// 獲取當前時間
+LocalDateTime.now(); // 默認輸出時間精確到毫秒，格式為 2021-06-15T16:45:57.858870
+LocalDateTime.now().withNano(0); // 使用withNano(0)則去除毫秒信息，直接輸出秒級時間，格式為 2021-06-15T16:45:57
 ```
+
+LocalDateTime是基於本地時間信息的API，不包含時區信息，帶有指定時區信息的API為`ZonedDateTime`。
+ZonedDateTime內部代理了一個LocalDateTime實例以及時區信息(ZoneOffset/ZoneId)，
+同時實現了與LocalDateTime類似的接口。
+
+ZonedDateTime類型在使用LocalDateTime中原本需要傳入時區信息的API時不再需要傳入時區參數，
+如`toEpochSecond()`，在ZonedDateTime中是空參數方法。
 
 使用Duration API可以獲取兩個時間的差值：
 
