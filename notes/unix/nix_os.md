@@ -25,6 +25,7 @@
 	- [輸入法配置](#輸入法配置)
 	- [桌面配置](#桌面配置)
 		- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
+		- [Qt5主題配置](#qt5主題配置)
 - [模塊（Module）](#模塊module)
 	- [模塊結構](#模塊結構)
 	- [引用函數](#引用函數)
@@ -800,6 +801,47 @@ services.gnome3 = {
 > services.gnome3.games.enable
 >
 > With these options we hope to give users finer grained control over their systems. Prior to this change you'd either have to manually disable options or use environment.gnome3.excludePackages which only excluded the optional applications. environment.gnome3.excludePackages is now unguarded, it can exclude any package installed with environment.systemPackages in the GNOME 3 module.
+
+### Qt5主題配置
+自`Qt 5.7`開始，Qt默認已不再默認提供GTK風格主題樣式，
+要使Qt程序保持與GTK程序相同的風格，需要添加對應主題配置：
+
+```nix
+# Set up Qt look style.
+qt5 = {
+  enable = true; # Enable Qt theme config.
+  style = "gtk2"; # Let Qt use GTK style.
+  platformTheme = "gtk2";
+};
+```
+
+`gtk2`風格通過`qtstyleplugins`實現，能使Qt程序主題風格基本類似於GTK程序；
+上述配置會設置下列環境變量：
+
+```
+QT_QPA_PLATFORMTHEME=gtk2
+QT_STYLE_OVERRIDE=gtk2
+```
+
+上述兩個環境變量缺一不可，
+僅設置`QT_STYLE_OVERRIDE=gtk2`會導致Qt程序打開時產生空指針異常；
+僅設置`QT_QPA_PLATFORMTHEME=gtk2`則主題設置不生效。
+
+若GTK主題使用默認的Adwaita，則更推薦下列配置：
+
+```nix
+qt5 = {
+  enable = true; # Enable Qt theme config.
+  style = "adwaita"; # Let Qt use Adwaita style.
+  platformTheme = "gnome"; # Use QGnomePlatform.
+};
+```
+
+platformTheme設置爲`gnome`則啓用[`QGnomePlatform`](https://github.com/FedoraQt/QGnomePlatform)，
+該項目提供了更加接近原生風格的AdwaitaQt主題。
+
+相比qtstyleplugins，QGnomePlatform雖不能匹配任意GTK主題樣式，
+但對GTK默認的Adwaita主題還原度更高。
 
 
 
