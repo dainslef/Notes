@@ -8,6 +8,7 @@
 	- [安裝Kubernetes軟件包](#安裝kubernetes軟件包)
 	- [初始化集群](#初始化集群)
 		- [排查集群錯誤](#排查集群錯誤)
+	- [CNI（Container Network Interface）](#cnicontainer-network-interface)
 
 <!-- /TOC -->
 
@@ -175,3 +176,41 @@ $ journalctl -xeu containerd
 ```
 
 之後即可通過kubectl工具訪問集群。
+
+## CNI（Container Network Interface）
+初始化集群後，需要配置[Network Plugins（網絡插件）](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins)，
+否則coredns會一直處於pending狀態：
+
+```
+$ kubectl get pods -A
+NAMESPACE     NAME                                          READY   STATUS    RESTARTS        AGE
+kube-system   coredns-64897985d-hzp5f                       0/1     Pending   0               10m
+kube-system   coredns-64897985d-sksh6                       0/1     Pending   0               10m
+kube-system   etcd-ubuntu-arch64-tokyo                      1/1     Running   10              10m
+kube-system   kube-apiserver-ubuntu-arch64-tokyo            1/1     Running   10              10m
+kube-system   kube-controller-manager-ubuntu-arch64-tokyo   1/1     Running   0               10m
+kube-system   kube-proxy-k9gvq                              1/1     Running   0               10m
+kube-system   kube-scheduler-ubuntu-arch64-tokyo            1/1     Running   11              10m
+```
+
+配置CNI插件，配置較為簡單的網絡插件如下：
+
+- [flannel](https://github.com/flannel-io/flannel)
+- [Weave](https://www.weave.works/docs/net/latest/kubernetes/kube-addon/)
+- [calico](https://projectcalico.docs.tigera.io/getting-started/kubernetes/quickstart)
+
+已經安裝了一種CNI插件後，切換到其它CNI插件，需要重置節點，
+並移除`/etc/kubenetes`、`/etc/cni`等路徑（該類路徑會包含原CNI插件的配置，影響kubeadm的插件選擇）。
+**注意**，`/opt/cni`下會包含`kubernetes-cni`軟件包生成的bin，如`vlan`、`loopback`等，
+不可刪除，否則coredns無法運行，會產生類似錯誤：
+
+```
+  Warning  FailedCreatePodSandBox  9m1s                  kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to setup network for sandbox "2e4502e156e797ad76deb3ddaf69d43bde9aef936bae0bacb631158e7cd3b212": failed to find plugin "loopback" in path [/opt/cni/bin]
+  Warning  FailedCreatePodSandBox  40s (x38 over 8m47s)  kubelet            (combined from similar events): Failed to create pod sandbox: rpc error: code = Unknown desc = failed to setup network for sandbox "352f1abbd2c2d27f116426ac0abbf8c2f18d6b0446e19c2b9b8eb385b8e8aa43": failed to find plugin "loopback" in path [/opt/cni/bin]
+```
+
+部分CNI插件（如`Weave`）亦會在`/opt/cni/bin`下創建自身使用的bin
+（如`/opt/cni/bin/weave-net`，`/opt/cni/bin/weave-plugin-*.*.*`）。
+
+舊的CNI插件已啟動，則即使重置kubeadm節點，已創建的網絡設備不會關閉刪除，
+會影響新的CNI插件工作，因此在重置節點後，若更換了CNI插件，則應重啟服務器，避免干擾配置。
