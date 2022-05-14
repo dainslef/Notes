@@ -24,6 +24,7 @@
 	- [音頻配置](#音頻配置)
 	- [輸入法配置](#輸入法配置)
 	- [桌面配置](#桌面配置)
+		- [DPI縮放](#dpi縮放)
 		- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
 		- [Qt5主題配置](#qt5主題配置)
 - [模塊（Module）](#模塊module)
@@ -757,6 +758,32 @@ services.xserver.windowManager.i3.enable = true;
 services.xserver.displayManager.sddm.enable = true; # SDDM爲默認使用的登陸管理器
 services.xserver.displayManager.slim.enable = true;
 services.xserver.displayManager.lightdm.enable = true;
+```
+
+### DPI縮放
+對與屏幕分辨率較高（2K～4k）的現代計算機，採用默認DPI縮放（96）會導致屏幕內容顯示過小。
+
+若使用Xorg作爲Display Server，可通過設置全局配置（任選其一，對整個Xorg生效）：
+
+- `/etc/X11/Xdefaults`，
+- `/etc/X11/Xresources`
+
+或用戶配置（任選其一，對當前用戶的Xorg會話生效）：
+
+- `~/.Xdefaults`
+- `~/.Xresources`
+
+DPI配置項：
+
+```
+# 相比默認DPI（96）擴展縮放25%
+Xft.dpi: 120
+```
+
+在NixOS中，亦可直接設置`services.xserver.dpi`控制DPI：
+
+```nix
+services.xserver.dpi = 120;
 ```
 
 ### Gnome桌面環境可選軟件包配置
