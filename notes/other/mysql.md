@@ -69,6 +69,7 @@
 	- [[ERROR] [MY-010123] [Server] Fatal error: Please read "Security" section of the manual to find out how to run mysqld as root!](#error-my-010123-server-fatal-error-please-read-security-section-of-the-manual-to-find-out-how-to-run-mysqld-as-root)
 		- [ERROR 1396 (HY000): Operation CREATE USER failed for 'root'@'xxx'](#error-1396-hy000-operation-create-user-failed-for-rootxxx)
 		- [MySQL reset auto_increment value in Innodb after server restart](#mysql-reset-auto_increment-value-in-innodb-after-server-restart)
+		- [mysqld: Can't create directory 'xxx' (Errcode: 13 - Permission denied)](#mysqld-cant-create-directory-xxx-errcode-13---permission-denied)
 
 <!-- /TOC -->
 
@@ -345,19 +346,19 @@ mysql> create user 用戶名;
 
 默認情況下創建的是不允許本地登錄的遠程用戶，以上指令相當於：
 
-```
+```sql
 mysql> create user 用戶名@'%';
 ```
 
 创建用户时可以指定密码：
 
-```
+```sql
 mysql> create user 用戶名@'%' identified by '密码';
 ```
 
 創建本地用戶：
 
-```
+```sql
 mysql> create user 用戶名@localhost;
 ```
 
@@ -375,20 +376,20 @@ mysql> drop user 用戶名@主機名/主機地址;
 授予某個用戶指定數據庫的查詢與更新權限：
 
 ```sql
-mysql> grant select, update on [數據庫名].* to [用戶名]@[登錄方式];
+mysql> grant select, update on 數據庫名.* to 用戶名@登錄方式;
 ```
 
 授予某個用戶所有權限：
 
 ```sql
-mysql> grant all privileges on *.* to [用戶名]@[登錄方式];
+mysql> grant all on *.* to 用戶名@登錄方式;
 ```
 
 被授權的用戶默認不能將所擁有的權限授權給其它用戶，
 如果需要使授權能夠被傳播則使用(一般不推薦這樣使用，數據庫權限應由DBA統一管理)：
 
 ```sql
-mysql> grant all privileges on *.* to [用戶名]@[登錄方式] with grant option;
+mysql> grant all on *.* to 用戶名@登錄方式 with grant option;
 ```
 
 也可以通過修改`mysql.user`表來賦予權限：
@@ -406,8 +407,8 @@ mysql> flush privileges;
 查看一個用戶的權限可以在數據庫命令行中使用`show grants`指令：
 
 ```sql
-mysql> show grants; //顯示當前用戶的權限信息
-mysql> show grants for [用戶名]@[主機地址]; //顯示指定用戶的權限信息
+mysql> show grants; # 顯示當前用戶的權限信息
+mysql> show grants for 用戶名@主機地址; # 顯示指定用戶的權限信息
 ```
 
 
@@ -462,7 +463,7 @@ SQL語句的詳細語法說明參考[官方文檔](https://dev.mysql.com/doc/ref
 
 ```sql
 -- 增
-insert into 表名 (列名1, 列名2, ....) values(值1, 值2, ....);
+insert into 表名 (列名1, 列名2, ....) values (值1, 值2, ....);
 
 -- 刪
 delete from 表名 where 限制條件;
@@ -1313,3 +1314,30 @@ https://stackoverflow.com/questions/5555328/error-1396-hy000-operation-create-us
 
 ### MySQL reset auto_increment value in Innodb after server restart
 https://dba.stackexchange.com/questions/16602/prevent-reset-of-auto-increment-id-in-innodb-database-after-server-restart
+
+### mysqld: Can't create directory 'xxx' (Errcode: 13 - Permission denied)
+問題說明：<br>
+在Ubuntu Server系統下，修改MySQL Data Dir，已正確創建了數據目錄，
+並已修改用戶/用戶組為mysql，使用`mysqld --initialize`初始化數據庫時，出現該錯誤。
+
+解決方案：<br>
+Ubuntu Server默認啟用了[AppArmor](https://apparmor.net/)，
+該服務提供了更嚴格的目錄權限控制，導致mysqld初始化失敗。
+
+解決該初始化問題可直接關閉AppArmor服務，或修改MySQL對應的AppArmor服務配置文件：
+
+```
+/etc/apparmor.d/usr.sbin.mysqld
+```
+
+在該文件中修改對應部分：
+
+```sh
+...
+# Allow data dir access
+  /var/lib/mysql/ r,
+  /var/lib/mysql/** rwk,
+...
+```
+
+在該部分配置中加入自定義的數據路徑即可，修改其它路徑時類似。
