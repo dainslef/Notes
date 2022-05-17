@@ -15,6 +15,7 @@
 	- [容器管理](#容器管理)
 	- [容器生成鏡像](#容器生成鏡像)
 	- [容器導入/導出](#容器導入導出)
+	- [構建鏡像](#構建鏡像)
 	- [Docker Hub](#docker-hub)
 - [文件共享](#文件共享)
 	- [文件傳輸](#文件傳輸)
@@ -71,6 +72,10 @@ Docker被設計用於提供單個進程/服務運行的最小環境，通常容�
 	然後由「OCI Runtime」執行「OCI Runtime Bundle」。
 
 	OCI的主要實現是[runc](https://github.com/opencontainers/runc)。
+
+體系結構圖示：
+
+![Container Ecosystem](../../images/docker_container_ecosystem.png)
 
 容器技術體系架構參考[博客](https://www.tutorialworks.com/difference-docker-containerd-runc-crio-oci/)。
 
@@ -335,8 +340,9 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 創建可持續執行的容器，並指定容器名稱：
 
-```
-$ docker create -it --name Nix nixos/nix sh
+```html
+<!-- 創建容器時僅需使用 -i 參數即可保證容器保持執行狀態 -->
+$ docker create -i --name Nix nixos/nix sh
 ```
 
 使用`docker exec`指令可以使用已啓動的容器執行指令：
@@ -386,6 +392,46 @@ $ docker import [備份.tar] [鏡像倉庫:鏡像TAG]
 ```
 
 導入鏡像時`鏡像倉庫:鏡像TAG`參數可以省略，省略該參數時，導入鏡像的`REPOSITORY`與`TAG`均爲`<none>`。
+
+## 構建鏡像
+Docker使用dockerfile描述鏡像，使用`docker build`指令通過描述文件構建鏡像。
+
+關於Docker鏡像構建，可參考[官方最佳實踐](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)，
+dockerfile詳細說明參考[Dockerfile reference](https://docs.docker.com/engine/reference/builder/)。
+
+典型的dockerfile結構：
+
+```dockerfile
+FROM 原始鏡像 as 構建目標1
+# 構建時在容器內執行自定義指令
+RUN xxx
+RUN xxx
+...
+# 構建時從外部複製資源到容器內
+COPY xxx xxx
+...
+# 導出端口
+EXPOSE xxx
+# 導出TCP端口
+EXPOSE xxx/tcp
+# 導出UDP端口
+EXPOSE xxx/udp
+...
+# 容器啟動指令
+CMD ["xxx", "xxx", ...]
+
+
+
+# 一個dockerfile內可包含多個鏡像的構建邏輯，構建時使用--target指定構建目標區分構建內容
+FROM 原始鏡像 as 構建目標2
+...
+```
+
+鏡像構建指令：
+
+```
+$ docker build -t 生成的鏡像tag --target 構建目標 -f 指定dockerfile路徑 當前工作路徑
+```
 
 ## Docker Hub
 Docker官方提供了鏡像託管服務`Docker Hub`。
