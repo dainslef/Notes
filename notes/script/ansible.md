@@ -3,6 +3,8 @@
 - [Ansible Config](#ansible-config)
 - [Ansible Inventory](#ansible-inventory)
 - [Ansible Module](#ansible-module)
+	- [模塊分發](#模塊分發)
+	- [Command && Shell](#command--shell)
 
 <!-- /TOC -->
 
@@ -130,3 +132,65 @@ $ ansible all -m service -a "name=httpd state=started" <!-- key=value 風格參�
     name: httpd
     state: started
 ```
+
+## 模塊分發
+Ansible中的模塊分為三類，分別有各自的分發平台和維護者。
+
+| Collection | Code location | Maintained by |
+| :- | :- | :- |
+| ansible.builtin | [GitHub Repo](https://github.com/ansible/ansible/tree/devel/lib/ansible/modules) | core team |
+| [Ansible Galaxy](https://galaxy.ansible.com) | various; follow repo link | community or partners |
+| [Automation Hub](https://www.ansible.com/products/automation-hub) | various; follow repo link | content team or partners |
+
+## Command && Shell
+Command和Shell是Ansible中的常用模塊，用於在受控主機上執行指令，示例：
+
+```
+$ ansible all -m command -a "ps"
+oracle-cloud | CHANGED | rc=0 >>
+    PID TTY          TIME CMD
+  32216 pts/0    00:00:00 fish
+  32218 pts/0    00:00:00 sh
+  32219 pts/0    00:00:00 python3
+  32221 pts/0    00:00:00 ps
+
+$ ansible all -m shell -a "ps"
+oracle-cloud | CHANGED | rc=0 >>
+    PID TTY          TIME CMD
+  32171 pts/0    00:00:00 fish
+  32173 pts/0    00:00:00 sh
+  32174 pts/0    00:00:00 python3
+  32176 pts/0    00:00:00 sh
+  32177 pts/0    00:00:00 ps
+```
+
+二者基本功能類似，但Command模塊會將參數內容作為一條指令執行，
+而Shell模塊會將參數內容作為腳本，開啟一個shell執行。
+從前文的進程反饋信息中可知，Shell模塊額外啟動了一個sh進程用於執行指令。
+
+區別示例：
+
+```html
+<!-- Command模塊將 ps; 語法解析為了指令名稱，導致執行錯誤 -->
+$ ansible all -m command -a "ps; ps;"
+oracle-cloud | FAILED | rc=2 >>
+[Errno 2] No such file or directory: b'ps;'
+
+<!-- Shell模塊能正確解析語法並返回結果 -->
+$ ansible all -m shell -a "ps; ps;"
+oracle-cloud | CHANGED | rc=0 >>
+    PID TTY          TIME CMD
+  32655 pts/0    00:00:00 fish
+  32657 pts/0    00:00:00 sh
+  32658 pts/0    00:00:00 python3
+  32660 pts/0    00:00:00 sh
+  32661 pts/0    00:00:00 ps
+    PID TTY          TIME CMD
+  32655 pts/0    00:00:00 fish
+  32657 pts/0    00:00:00 sh
+  32658 pts/0    00:00:00 python3
+  32660 pts/0    00:00:00 sh
+  32662 pts/0    00:00:00 ps
+```
+
+使用**重定向**等shell語法特性需要使用Shell模塊。
