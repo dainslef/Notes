@@ -11,6 +11,8 @@
 	- [WSL](#wsl)
 	- [WSL2](#wsl2)
 - [Linux Subsystem 與 MSYS2 比較](#linux-subsystem-與-msys2-比較)
+- [Wine](#wine)
+	- [安裝和配置Wine](#安裝和配置wine)
 
 <!-- /TOC -->
 
@@ -201,3 +203,38 @@ WSL2需要`Windows Version 1903`或更高的版本。
 - 劣勢：
 
 	`MSYS2`源中移植到Windows平臺的Unix工具數目有限。
+
+
+
+# Wine
+[Wine](https://www.winehq.org/)是POSIX兼容系統（Linux、macOS、*BSD等）下的一套Windows應用兼容層。
+Wine的實現類似於反向的WSL1，將Windows API調用轉換爲POSIX調用，相比傳統的虛擬機方式，
+API轉換的實現通常具備更好的性能和更低的內存佔用。
+
+## 安裝和配置Wine
+Wine在多數主流發行版中可直接安裝：
+
+```html
+# pacman -S wine <!-- Arch系-->
+# brew install wine-stable <!-- macOS -->
+```
+
+Wine會在`~/.wine`路徑下創建Windows環境需要的文件和配置，
+`~/.wine/drive_c`子路徑對應Windows系統下的C盤，目錄結構相同。
+
+Wine常用指令：
+
+```html
+<!--
+Wine同時支持使用Windows風格或Unix風格的路徑啓動程序
+wine "C:\Program Files\Tencent\WeChat\WeChat.exe"
+wine ~/.wine/drive_c/Program\ Files/Tencent/WeChat/WeChat.exe
+-->
+$ wine windows可執行程序
+
+<!-- 常用內置程序 -->
+$ wine regedit <!-- 註冊表 -->
+$ wine uninstaller <!-- 程序卸載面板 -->
+
+$ winecfg <!-- 調整環境配置、主題風格等 -->
+```
