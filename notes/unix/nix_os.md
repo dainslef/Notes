@@ -22,6 +22,7 @@
 		- [Shell兼容性](#shell兼容性)
 	- [字體配置](#字體配置)
 	- [音頻配置](#音頻配置)
+	- [指紋設備配置](#指紋設備配置)
 	- [輸入法配置](#輸入法配置)
 	- [桌面配置](#桌面配置)
 		- [DPI縮放](#dpi縮放)
@@ -37,6 +38,7 @@
 	- [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
 	- [DisplayManager不展示用戶列表](#displaymanager不展示用戶列表)
 	- [Console介面下字體縮放異常](#console介面下字體縮放異常)
+	- [XDG Autostart服務未自啓動](#xdg-autostart服務未自啓動)
 
 <!-- /TOC -->
 
@@ -693,6 +695,36 @@ hardware.pulseaudio.systemWide = true;
 users.extraUsers.用戶名稱.extraGroups = [ "audio" ... ];
 ```
 
+## 指紋設備配置
+[`fprint`](https://fprint.freedesktop.org/)項目提供了對消費級指紋識別設備的支持，
+可通過lsusb指令查看指紋設備是否被正確驅動。示例：
+
+```
+$ lsusb
+...
+Bus 003 Device 002: ID 06cb:00bd Synaptics, Inc. Prometheus MIS Touch Fingerprint Reader
+...
+```
+
+可看到`Prometheus MIS Touch Fingerprint Reader`即爲識別出的指紋設備。
+
+NixOS可通過`services.fprintd.enable`配置項開啓指紋設備支持。
+開啓指紋支持後，需要認證的常規操作（用戶登入、sudo等）均可通過指紋設備完成認證。
+
+Gnome、KDE等桌面環境提供了內置的指紋配置UI，在對應桌面環境的用戶配置頁面即可完成指紋錄入。
+對於其他桌面/窗口管理器，可直接使用`fprintd`系列指令管理、驗證指紋：
+
+```html
+# fprintd-list 用戶 <!-- 列出指定用戶的指紋 -->
+# fprintd-enroll 用戶 <!-- 錄入指定用戶的指紋 -->
+# fprintd-delete 用戶 <!-- 刪除指定用戶的指紋 -->
+# fprintd-verify 用戶 <!-- 測試指紋認證 -->
+```
+
+指紋管理指令需要root權限，部分指令可不指定用戶，未指定用戶時操作對象爲root用戶。
+只有正確錄入了對應用戶的指紋，相關需要認證的操作才支持指紋認證，
+如sudo和登陸需要對應錄入對應用戶的指紋而非root指紋。
+
 ## 輸入法配置
 在大多數桌面環境中，推薦使用Fctix輸入法框架[Fcitx](https://fcitx-im.org)。
 在configuration.nix配置的`i18n.inputMethod`配置項中設定使用的輸入框架：
@@ -763,11 +795,7 @@ services.xserver.displayManager.lightdm.enable = true;
 ### DPI縮放
 對與屏幕分辨率較高（2K～4k）的現代計算機，採用默認DPI縮放（96）會導致屏幕內容顯示過小。
 
-若使用Xorg作爲Display Server，可通過設置全局配置（任選其一，對整個Xorg生效）：
-
-- `/etc/X11/Xdefaults`，
-- `/etc/X11/Xresources`
-
+若使用Xorg作爲Display Server，可通過設置全局配置`/etc/X11/Xresources`（對整個Xorg生效）
 或用戶配置（任選其一，對當前用戶的Xorg會話生效）：
 
 - `~/.Xdefaults`
