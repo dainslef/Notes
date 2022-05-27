@@ -54,7 +54,7 @@
 	- [systemd服務管理](#systemd服務管理)
 	- [rc.local](#rclocal)
 	- [systemd服務分析](#systemd服務分析)
-	- [系統管理](#系統管理)
+	- [其它systemd系統管理工具](#其它systemd系統管理工具)
 		- [loginctl](#loginctl)
 - [網絡](#網絡)
 	- [路由](#路由)
@@ -853,6 +853,8 @@ GRUB的配置文件爲`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令�
 通常發行版的`systemd`軟件包中已經包含了該部分。
 
 systemd-boot支持各類EFI執行文件，如Linux kernel EFISTUB、UEFI shell、GRUB、或Windows Boot Manager。
+使用systemd-boot引導系統，不再需要傳統GRUB的efibootmgr以及os-prober等組件，
+可直接引導機器上的所有的現存支持UEFI的操作系統。
 
 systemd-boot提供了`bootctl`工具管理EFI引導：
 
@@ -863,33 +865,40 @@ systemd-boot提供了`bootctl`工具管理EFI引導：
 使用bootctl安裝引導器後，ESP分區下目錄結構為：
 
 ```
-|- EFI
-|  |- systemd
-|  |  |- systemd-bootx64.efi
-|  |
-|  |- Microsoft
-|  |  |
-|  |  ...
-|  |
-|  |- Linux
-|     |
-|     ...
-|
-|- loader
-   |- entries
-   |  |- xxx-01.conf
-   |  |- xxx-02.conf
-   |  |- ...
-   |
-   |- loader.conf
+├── EFI
+└── loader
+    ├── entries
+    │   ├── xxx1.conf
+    │   └── xxx2.conf
+    ├── loader.conf
+    └── random-seed
 ```
 
 bootctl安裝後會創建`$ESP/loader`、`$ESP/EFI/systemd`等路徑，
 將systemd-boot引導器安裝到`$ESP/EFI/systemd/systemd-bootx64.efi`路徑，
 引導配置存放在`$ESP/loader/entries`路徑下。
-systemd-boot會加載`$ESP/loader/loader.conf`作為默認配置，
+
+systemd-boot會加載`$ESP/loader/loader.conf`作為默認配置。
 在loader.conf中，選擇加載其它`$ESP/loader/entries`路徑下的配置作為默認配置，
 以及調整其它引導相關配置（如引導介面的等待時間）。
+loader.conf的完整參數說明參考[官方文檔](https://systemd.io/BOOT_LOADER_SPECIFICATION/)以及man手冊`man loader.conf`。
+
+loader.conf配置內容示例：
+
+```
+timeout 9999
+console-mode keep
+default xxx1.conf
+```
+
+entries配置示例：
+
+```
+title Arch Linux
+linux /vmlinuz-linux-zen
+initrd /initramfs-linux-zen.img
+options root=/dev/sdaX
+```
 
 早期ESP分區默認掛載位置為`/boot/efi`，
 但對於使用systemd-boot的場景推薦直接將ESP分區掛載到`/boot`路徑下。
@@ -982,7 +991,7 @@ $ ulimit -c unlimited
 $ ulimit -cH
 
 // 設置核心轉儲大小爲無限(硬限制)
-$ ulimit -cH unlimited
+$ ulimit -Hc unlimited
 ```
 
 使用ulimit默認修改的配置僅對當前會話有效，退出當前會話後，配置重新變為默認值。
@@ -1861,13 +1870,20 @@ systemd則根據服務進程的依賴關係並行地啓動服務，極大地減�
 ## systemd服務管理
 systemd提供了統一、完整的服務管理功能：
 
-- `# systemctl status [服務名稱]` 查看指定服務狀態
-- `# systemctl start [服務名稱]` 啓動指定服務
-- `# systemctl stop [服務名稱]` 停止指定服務
-- `# systemctl enable [服務名稱]` 設置指定服務開機自啓動
-- `# systemctl disable [服務名稱]` 取消指定服務開機自啓動
+```html
+<!-- 查看指定服務狀態 -->
+# systemctl status 服務名稱
+<!-- 啓動指定服務 -->
+# systemctl start 服務名稱
+<!-- 停止指定服務 -->
+# systemctl stop 服務名稱
+<!-- 設置指定服務開機自啓動 -->
+# systemctl enable 服務名稱
+<!-- 取消指定服務開機自啓動 -->
+# systemctl disable 服務名稱
+```
 
-`systemd`服務文件通常以`*.service`爲後綴名。
+systemd服務文件以`*.service`爲後綴名。
 
 - 系統服務：
 
@@ -1876,11 +1892,11 @@ systemd提供了統一、完整的服務管理功能：
 
 - 用戶服務：
 
-	用戶服務文件位於路徑`/usr/lib/systemd/user`下。
-	管理用戶服務不需要以root權限執行`systemctl`指令，但需要在指令中添加`--user`參數：
+	用戶服務文件位於路徑`/usr/lib/systemd/user`（全局路徑）或`~/.config/systemd/user`（用戶路徑）下。
+	管理用戶服務以普通權限執行`systemctl`指令，同時在指令中添加`--user`參數：
 
 	```
-	$ systemctl --user status/start/stop/enable/disable [用戶服務名稱]
+	$ systemctl --user status/start/stop/enable/disable 用戶服務名稱
 	```
 
 ## rc.local
@@ -1950,7 +1966,7 @@ $ systemd-analyze <!-- 顯示系統的啓動耗時 -->
 $ systemd-analyze blame <!-- 列出所有的啓動單元，按照啓動耗時的高低進行排序 -->
 ```
 
-## 系統管理
+## 其它systemd系統管理工具
 systemd還集成了常用的系統管理工具：
 
 | 工具名稱 | 功能 |
