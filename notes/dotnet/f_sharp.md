@@ -21,6 +21,8 @@
 - [Collections (集合類型)](#collections-集合類型)
 - [Computation Expressions (計算表達式)](#computation-expressions-計算表達式)
 	- [計算表達式語法](#計算表達式語法)
+	- [內置計算表達式](#內置計算表達式)
+	- [自定義計算表達式](#自定義計算表達式)
 
 <!-- /TOC -->
 
@@ -888,3 +890,210 @@ builder type是一個定義了特殊方法的對象，這些方法決定了計�
 	```
 
 	return!由builder type的`ReturnFrom(x)`成員定義，參數`x`為需要被包裝的對象。
+
+## 內置計算表達式
+F#核心庫提供了三類內置的計算表達式：
+
+- 序列表達式(Sequence Expressions)
+- 異步表達式(Asynchronous Workflows)
+- 查詢表達式(Query Expressions)
+
+## 自定義計算表達式
+通過定義一個包含特定方法的builder class，用戶可以定義自己的計算表達式。
+
+以下是可以在buider class中定義並被使用的特殊方法：
+
+| Metho | Typical signature(s) | Description |
+| :- | :- | :- |
+| Bind | M<'T> * ('T -> M<'U>) -> M<'U> | Called for let! and do! in computation expressions. |
+| Delay | (unit -> M<'T>) -> M<'T> | Wraps a computation expression as a function. |
+| Return | 'T -> M<'T> | Called for return in computation expressions. |
+| ReturnFrom | M<'T> -> M<'T> | Called for return! in computation expressions. |
+| Run | M<'T> -> M<'T> or M<'T> -> 'T | Executes a computation expression. |
+| Combine | M<'T> * M<'T> -> M<'T> or M<unit> * M<'T> -> M<'T> | Called for sequencing in computation expressions. |
+| For | seq<'T> * ('T -> M<'U>) -> M<'U> or seq<'T> * ('T -> M<'U>) -> seq<M<'U>> | Called for for...do expressions in computation expressions. |
+| TryFinally | M<'T> * (unit -> unit) -> M<'T> | Called for try...finally expressions in computation expressions. |
+| TryWith | M<'T> * (exn -> M<'T>) -> M<'T> | Called for try...with expressions in computation expressions. |
+| Using | 'T * ('T -> M<'U>) -> M<'U> when 'T :> IDisposable | Called for use bindings in computation expressions. |
+| While	| (unit -> bool) * M<'T> -> M<'T> | Called for while...do expressions in computation expressions. |
+| Yield	| 'T -> M<'T> | Called for yield expressions in computation expressions. |
+| YieldFrom | M<'T> -> M<'T> | Called for yield! expressions in computation expressions. |
+| Zero | unit -> M<'T> | Called for empty else branches of if...then expressions in computation expressions. |
+| Quote | Quotations.Expr<'T> -> Quotations.Expr<'T> | Indicates that the computation expression is passed to the Run member as a quotation. It translates all instances of a computation into a quotation. |
+
+多數buider class中的方法使用並返回`M<'T>`類型，該類型通常是被計算操作組合的特定類型，
+如用於異步工作流的`Async<'T>`和用於序列工作流的`Seq<'T>`。
+
+編譯器會將計算表達式中的內容轉換為對buider class實例的方法調用：
+
+| Expression | Translation |
+| :- | :- |
+| { let binding in cexpr } | let binding in {| cexpr |} |
+| { let! pattern = expr in cexpr } | builder.Bind(expr, (fun pattern -> {| cexpr |})) |
+| { do! expr in cexpr }	| builder.Bind(expr, (fun () -> {| cexpr |})) |
+| { yield expr } | builder.Yield(expr) |
+| { yield! expr } | builder.YieldFrom(expr) |
+| { return expr } | builder.Return(expr) |
+| { return! expr } | builder.ReturnFrom(expr) |
+| { use pattern = expr in cexpr } | builder.Using(expr, (fun pattern -> {| cexpr |})) |
+| { use! value = expr in cexpr } | builder.Bind(expr, (fun value -> builder.Using(value, (fun value -> { cexpr })))) |
+| { if expr then cexpr0 } | if expr then { cexpr0 } else builder.Zero() |
+| { if expr then cexpr0 else cexpr1 } | if expr then { cexpr0 } else { cexpr1 } |
+| { match expr with | pattern_i -> cexpr_i } | match expr with | pattern_i -> { cexpr_i } |
+| { for pattern in expr do cexpr } | builder.For(enumeration, (fun pattern -> { cexpr })) |
+| { for identifier = expr1 to expr2 do cexpr } | builder.For(enumeration, (fun identifier -> { cexpr })) |
+| { while expr do cexpr } | builder.While(fun () -> expr, builder.Delay({ cexpr })) |
+| { try cexpr with | pattern_i -> expr_i } | builder.TryWith(builder.Delay({ cexpr }), (fun value -> match value with | pattern_i -> expr_i | exn -> reraise exn))) |
+| { try cexpr finally expr } | builder.TryFinally(builder.Delay( { cexpr }), (fun () -> expr)) |
+| { cexpr1; cexpr2 } | builder.Combine({ cexpr1 }, { cexpr2 }) |
+| { other-expr; cexpr } | expr; { cexpr } |
+| { other-expr } | expr; builder.Zero() |
+
+一個自定義的builder class不需要全部實現這些方法，未實現的方法對應操作在計算表達式中不可用。
+例如，開發者需要在計算表達式中使用`use`關鍵字，就應該在builder中實現`Using()`方法。
+
+通常，一個計算表達式的工作流程為：
+
+1. 將計算表達式內的語句翻譯為對應方法，傳入Delay中。
+2. 在Delay中處理表達式方法的包裝函數，調用生成結果。
+3. 判斷是否存在多個語句，存在多個語句時將各個語句的結果使用定義的Combine成員方法進行連結。
+
+方法調用組合：
+
+```fs
+buider.Delay(fun () ->
+    buider.Combine(
+        builder.Delay(fun () -> {| cexpr1 |}),
+        builder.Delay(fun () -> {| cexpr2 |})))
+...
+```
+
+示例，定義生成列表的buider type，提供於seq類似的語法：
+
+```fs
+module FSharpPractice.Lang.ComputationExprssion
+
+type CustomBuilder() =
+
+    // record the method call of this compute expression
+    let log method v =
+        printfn "Call { %s }: %A" method v
+        v
+
+    // record the call stack of the Delay member
+    let mutable count = 0
+
+    member _.Zero() = log "Zero" []
+
+    member _.Return v = log "Return" [ v ]
+
+    // can't use free point style
+    member _.ReturnFrom v = log "Return" v
+
+    member _.Yield v = log "Yield" [ v ]
+
+    member _.YieldFrom v = log "YieldFrom" v
+
+    member _.Combine(v1, v2) =
+        sprintf "Combine, left: %A, right: %A" v1 v2
+        |> log
+        <| List.append v1 v2
+
+    member _.Delay f =
+        let deploy = sprintf "Deploy%d" count
+        printfn "Start %s ..." deploy // record the start call stack
+        count <- count + 1
+
+        let v = log deploy <| f ()
+        printfn "End %s" deploy // record the end call stack
+        count <- count - 1
+
+        v
+
+open Microsoft.VisualStudio.TestTools.UnitTesting
+
+[<TestClass>]
+type Test() =
+
+    [<TestMethod>]
+    member _.TestComputationExprssion() =
+
+        let builder = CustomBuilder()
+
+        printfn "------------- Result1: %A ------------- \n"
+        <| builder { "Test1" }
+
+        printfn "------------- Result2: %A ------------- \n"
+        <| builder {
+            "Test2(1)"
+            if false then "Test2(2)"
+            yield! [ "Test2(3)" ]
+           }
+
+        printfn "------------- Result3: %A ------------- \n"
+        <| builder {
+            1
+            return 2
+            yield! [ 3; 4 ]
+            return! []
+            return! [ 5; 6 ]
+            return 777
+           }
+```
+
+輸出結果：
+
+```
+Start Deploy0 ...
+Call { Yield }: ["Test1"]
+Call { Deploy0 }: ["Test1"]
+End Deploy0
+------------- Result1: ["Test1"] -------------
+
+Start Deploy0 ...
+Call { Yield }: ["Test2(1)"]
+Start Deploy1 ...
+Call { Zero }: []
+Start Deploy2 ...
+Call { YieldFrom }: ["Test2(3)"]
+Call { Deploy2 }: ["Test2(3)"]
+End Deploy2
+Call { Combine, left: [], right: ["Test2(3)"] }: ["Test2(3)"]
+Call { Deploy1 }: ["Test2(3)"]
+End Deploy1
+Call { Combine, left: ["Test2(1)"], right: ["Test2(3)"] }: ["Test2(1)"; "Test2(3)"]
+Call { Deploy0 }: ["Test2(1)"; "Test2(3)"]
+End Deploy0
+------------- Result2: ["Test2(1)"; "Test2(3)"] -------------
+
+Start Deploy0 ...
+Call { Yield }: [1]
+Start Deploy1 ...
+Call { Return }: [2]
+Start Deploy2 ...
+Call { YieldFrom }: [3; 4]
+Start Deploy3 ...
+Call { Return }: []
+Start Deploy4 ...
+Call { Return }: [5; 6]
+Start Deploy5 ...
+Call { Return }: [777]
+Call { Deploy5 }: [777]
+End Deploy5
+Call { Combine, left: [5; 6], right: [777] }: [5; 6; 777]
+Call { Deploy4 }: [5; 6; 777]
+End Deploy4
+Call { Combine, left: [], right: [5; 6; 777] }: [5; 6; 777]
+Call { Deploy3 }: [5; 6; 777]
+End Deploy3
+Call { Combine, left: [3; 4], right: [5; 6; 777] }: [3; 4; 5; 6; 777]
+Call { Deploy2 }: [3; 4; 5; 6; 777]
+End Deploy2
+Call { Combine, left: [2], right: [3; 4; 5; 6; 777] }: [2; 3; 4; 5; 6; 777]
+Call { Deploy1 }: [2; 3; 4; 5; 6; 777]
+End Deploy1
+Call { Combine, left: [1], right: [2; 3; 4; 5; 6; 777] }: [1; 2; 3; 4; 5; 6; 777]
+Call { Deploy0 }: [1; 2; 3; 4; 5; 6; 777]
+End Deploy0
+------------- Result3: [1; 2; 3; 4; 5; 6; 777] -------------
+```
