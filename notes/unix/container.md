@@ -17,6 +17,7 @@
 	- [容器導入/導出](#容器導入導出)
 	- [構建鏡像](#構建鏡像)
 	- [Docker Hub](#docker-hub)
+	- [Docker Registry Server](#docker-registry-server)
 - [文件共享](#文件共享)
 	- [文件傳輸](#文件傳輸)
 	- [Bind Mounts (綁定掛載)](#bind-mounts-綁定掛載)
@@ -460,6 +461,34 @@ dainslef/test_image     2333               9f0a1d72c464        9 minutes ago    
 ```
 $ docker push dainslef/test_image:2333
 ```
+
+## Docker Registry Server
+Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.com/registry/)，
+可讓其它Docker實例訪問本機的本地鏡像。
+
+執行指令：
+
+```
+$ docker run -d -p 5000:5000 --name registry registry:2
+```
+
+執行指令後會在本地的5000端口創建本地鏡像服務，
+可將需要提交到該服務的鏡像添加tag，之後進行提交：
+
+```
+$ docker tag 源鏡像 localhost:5000/鏡像名稱
+$ docker push localhost:5000/鏡像名稱
+```
+
+默認提交的鏡像存儲在容器內部，刪除容器會一併刪除提交的內容，
+若需要保留提交內容，則應將鏡像存儲路徑掛載到外部目錄：
+
+```
+$ docker run -d -p 5000:5000 --name registry -v /mnt/registry:/var/lib/registry registry:2
+```
+
+Docker Registry僅提供了簡單的鏡像服務，且默認僅提供HTTP服務（多數運行時現在強制要求HTTPS），
+更完整的鏡像倉庫功能需要使用Habor等第三方項目。
 
 
 
