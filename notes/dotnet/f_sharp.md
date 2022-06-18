@@ -23,6 +23,7 @@
 	- [計算表達式語法](#計算表達式語法)
 	- [內置計算表達式](#內置計算表達式)
 	- [自定義計算表達式](#自定義計算表達式)
+- [Type Providers](#type-providers)
 
 <!-- /TOC -->
 
@@ -1096,4 +1097,63 @@ Call { Combine, left: [1], right: [2; 3; 4; 5; 6; 777] }: [1; 2; 3; 4; 5; 6; 777
 Call { Deploy0 }: [1; 2; 3; 4; 5; 6; 777]
 End Deploy0
 ------------- Result3: [1; 2; 3; 4; 5; 6; 777] -------------
+```
+
+
+
+# Type Providers
+`Type Providers`為F#提供了動態生成類型的能力，
+type providers根據外部輸入內容由F#編譯器生成`Provided Types`。
+
+詳情可參考[微軟官方文檔](https://docs.microsoft.com/en-us/dotnet/fsharp/tutorials/type-providers/)。
+
+type providers分為兩類：
+
+- `Generative Type Providers`
+
+	generative type providers生成的類型能夠作為.NET類型寫入程序集中；
+	用戶可以從其它程序集中使用這些代碼；但這要求數據源的類型化形式能夠被.NET的類型系統所表示。
+
+- `Erasing Type Providers`
+
+	erasing type providers生成的類型僅能夠被所屬的項目和程序集使用。
+	這些生成的類型是暫時性的，不會被寫入程序集，也不能被其它程序集的代碼所訪問。
+	這些類型能夠包含延遲成員(delayed members)，允許用戶使用來自無限信息空間中的provided types。
+	在使用一個大型、互聯數據集的較小子集時有用。
+
+常用的type providers：
+
+- [`FSharp.Data`](https://fsharp.github.io/FSharp.Data) 包括JSON、XML、CSV和HTML格式的type providers
+- [`SQLProvider`](https://fsprojects.github.io/SQLProvider) 以對象映射的方式提供對關係型數據庫的強類型訪問，通過數據源進行F# LINQ查詢
+- [`FSharp.Data.SqlClient`](https://fsprojects.github.io/FSharp.Data.SqlClient) 提供對T-SQL的編譯時檢查
+
+以`FSharp.Data.JsonProvider`為例：
+
+```fs
+open FSharp.Data
+open Microsoft.VisualStudio.TestTools.UnitTesting
+
+// 根據傳入的JSON文本生成了不同的類型
+type PersonInfo = JsonProvider<"""{ "name":"Winne", "age": 67 }""">
+type PersonInfos = JsonProvider<"""[{ "name":"Mr.Shithole", "age": 67 }]""">
+
+[<TestClass>]
+type Test() =
+
+    [<TestMethod>]
+    member _.TestJsonProvider() =
+        let personInfo =
+            PersonInfo.Parse """{ "name": "Xitele", "age": 67, "sex": "unknown" }"""
+
+        let personInfos =
+            PersonInfos.Parse
+                """[{ "name": "the Emperor QingFeng", "age": 67 }, { "name":"King Gesar", "age": 67 }]"""
+
+        // 將JSON的結構映射到了類型中，JSON的結構直接對應生成了類型的字段
+        printfn "%A" personInfo
+        printfn "Name: %s, Age: %d" personInfo.Name personInfo.Age
+
+        printfn "%A" personInfos
+        for (i, info) in personInfos |> Array.indexed do
+            printfn "[%d] Name: %s, Age: %d" i info.Name info.Age
 ```
