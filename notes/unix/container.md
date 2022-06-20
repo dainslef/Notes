@@ -18,6 +18,12 @@
 	- [構建鏡像](#構建鏡像)
 	- [Docker Hub](#docker-hub)
 	- [Docker Registry Server](#docker-registry-server)
+- [Habor](#habor)
+	- [部署Habor](#部署habor)
+	- [Habor服務管理](#habor服務管理)
+	- [登入Habor](#登入habor)
+		- [Docker登入](#docker登入)
+		- [podman登入](#podman登入)
 - [文件共享](#文件共享)
 	- [文件傳輸](#文件傳輸)
 	- [Bind Mounts (綁定掛載)](#bind-mounts-綁定掛載)
@@ -489,6 +495,109 @@ $ docker run -d -p 5000:5000 --name registry -v /mnt/registry:/var/lib/registry 
 
 Docker Registry僅提供了簡單的鏡像服務，且默認僅提供HTTP服務（多數運行時現在強制要求HTTPS），
 更完整的鏡像倉庫功能需要使用Habor等第三方項目。
+
+
+
+# Habor
+Habor是基於Docker的離線鏡像管理倉庫。
+
+## 部署Habor
+從[官方Release頁面](https://github.com/goharbor/harbor/releases)下載對應版本的Habor壓縮包，
+在服務端解壓；復制配置模板`harbor.yml.tmpl`到`harbor.yml`文件，修改文件中的下列內容：
+
+```yaml
+hostname: xxx.xxx..
+...
+harbor_admin_password: xxx...
+...
+```
+
+主機名稱後續其它容器服務查找鏡像以及HTTPS證書生成時會用到，需要保證一致。
+
+Habor依賴於Docker和docker-compose，並存在最低版本限制，
+docker-compose官方倉庫中的版本可能不滿足Habor的要求，
+可從官方[GitHub](https://github.com/docker/compose/releases)頁面中下載最新版本。
+
+安裝完必備的依賴後，可執行安裝腳本：
+
+```
+# ./install.sh
+```
+
+執行安裝腳本後會自動啟動Habor服務。
+
+若需要部署HTTPS訪問，則需要生成或獲取對應域名的證書，並修改下列配置：
+
+```yaml
+...
+# https related config
+https:
+  # https port for harbor, default is 443
+  port: 443
+  # The path of cert and key files for nginx
+  certificate: /xxx../ca.crt
+  private_key: /xxx../ca.key
+...
+```
+
+可使用`openssl`工具生成對應私有證書：
+
+```
+$  openssl req -new -newkey rsa -x509 -sha512 -days 有效日期數 -nodes -subj "/C=JP/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxx.domain.xxx" -out ca.crt -keyout ca.key
+```
+
+HTTPS配置的完整說明參考[Harbor官方文檔](https://goharbor.io/docs/2.0.0/install-config/configure-https/)。
+
+## Habor服務管理
+Habor使用docker-compose管理服務：
+
+```html
+# docker-compose stop --project-directory harbor安裝路徑 <!-- 停止服務 -->
+# docker-compose start --project-directory harbor安裝路徑 <!-- 啟動服務 -->
+```
+
+## 登入Habor
+Habor默認用戶為`admin`，密碼為部署時配置文件中`harbor_admin_password`字段的內容。
+容器服務需要登入Habor方可上傳鏡像。
+
+### Docker登入
+Docker使用`docker login`指令登入Habor：
+
+```
+$ docker login http://x.x.x.x
+```
+
+現在Docker默認使用HTTPS協議訪問Habor（即使顯式指定了HTTP），
+若Habor未配置HTTPS會登入錯誤，要允許Docker以HTTP方式登入，
+則應修改Docker配置`~/.config/daemon.json`：
+
+```json
+{
+	...
+	"insecure-registries" : ["x.x.x.x:x"],
+	...
+}
+```
+
+### podman登入
+podman同樣使用`podman login`指令登入Habor：
+
+```
+$ podman login http://x.x.x.x
+```
+
+podman同樣不支持直接登入HTTP協議，需要修改配置`~/.config/containers/registries.conf`，
+添加如下內容：
+
+```toml
+# 設置非HTTPS的倉庫地址
+[registries.insecure]
+registries = ['x.x.x.x']
+
+# 需要重新顯式指定倉庫地址，否則拉取鏡像會失敗（會全部從配置的本地倉庫進行拉取）
+[registries.search]
+registries = ['docker.io', 'registry.access.redhat.com']
+```
 
 
 
