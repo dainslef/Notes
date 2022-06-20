@@ -24,6 +24,8 @@
 	- [內置計算表達式](#內置計算表達式)
 	- [自定義計算表達式](#自定義計算表達式)
 - [Type Providers](#type-providers)
+- [問題註記](#問題註記)
+	- [The type 'string' is not compatible with the type 'Printf.TextWriterFormat<'a>'](#the-type-string-is-not-compatible-with-the-type-printftextwriterformata)
 
 <!-- /TOC -->
 
@@ -1157,3 +1159,52 @@ type Test() =
         for (i, info) in personInfos |> Array.indexed do
             printfn "[%d] Name: %s, Age: %d" i info.Name info.Age
 ```
+
+
+
+# 問題註記
+記錄一些遇到的問題。
+
+## The type 'string' is not compatible with the type 'Printf.TextWriterFormat<'a>'
+問題說明：<br>
+在使用`printfn`函數時，格式化模板文本參數直接使用文本字面量可以正常編譯通過，
+但若將模板文本綁定到string類型變量再傳入prinfn函數則編譯錯誤：
+
+```fs
+> printfn "Test...";;
+Test...
+val it : unit = ()
+
+> let format = "Test...";;
+val format : string = "Test..."
+
+> printfn format;;
+
+  printfn format
+  --------^^^^^^
+
+/Users/dainslef/stdin(84,9): error FS0001: The type 'string' is not compatible with the type 'Printf.TextWriterFormat<'a>'
+```
+
+問題詳細討論可參考[StackOverflow](https://stackoverflow.com/questions/9440204/f-printf-string)。
+
+解決方案：<br>
+直接使用`Printf.TextWriterFormat`類型構造string文本：
+
+```fs
+> let format = "Test...";;
+val format : string = "Test..."
+
+> printfn <| Printf.TextWriterFormat<unit> format;;
+Test...
+val it : unit = ()
+
+> let numFormat = "num: %d";;
+val numFormat : string = "num: %d"
+
+> printfn (Printf.TextWriterFormat<int -> unit> numFormat) 123;;
+num: 123
+val it : unit = ()
+```
+
+在非交互式環境下，可使用`Printf.TextWriterFormat<_>`語法推導類型，不必寫出完整類型。
