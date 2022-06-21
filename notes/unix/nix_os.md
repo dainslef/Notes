@@ -8,7 +8,8 @@
 	- [Unfree](#unfree)
 - [NixOS](#nixos)
 	- [查看文檔](#查看文檔)
-	- [安裝](#安裝)
+	- [Nix語言](#nix語言)
+	- [安裝NixOS](#安裝nixos)
 	- [chroot安裝環境](#chroot安裝環境)
 	- [配置管理](#配置管理)
 		- [版本升級與回退](#版本升級與回退)
@@ -38,7 +39,6 @@
 	- [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
 	- [DisplayManager不展示用戶列表](#displaymanager不展示用戶列表)
 	- [Console介面下字體縮放異常](#console介面下字體縮放異常)
-	- [XDG Autostart服務未自啓動](#xdg-autostart服務未自啓動)
 
 <!-- /TOC -->
 
@@ -112,33 +112,33 @@ Nix支持多用戶，允許同時存在多個用戶環境，每個用戶環境�
 
 ```html
 <!-- 列出已安裝的軟件包 -->
-# nix-env -q
+$ nix-env -q
 <!-- 列出倉庫內所有軟件包 -->
-# nix-env -q
+$ nix-env -qa
 
 <!-- 查詢指定名稱的軟件包 -->
-# nix-env -qa [軟件包名稱]
+$ nix-env -qa 軟件包名稱
 <!-- 查詢名稱中包含指定字段的軟件包，使用正則表達式語法 -->
-# nix-env -qa '.*軟件包名稱.*'
+$ nix-env -qa '.*軟件包名稱.*'
 
 <!-- 安裝軟件包 -->
-# nix-env -i [軟件包名稱]
-# nix-env --install [軟件包名稱]
-# nix-env -iA [channel名稱.包名稱] <!-- 使用完整名稱安裝軟件包，可避免歧義 -->
-# nix-env -iv [軟件包名稱] <!-- 安裝軟件包時輸出詳細日誌，便於發現錯誤 -->
+$ nix-env -i 軟件包名稱
+$ nix-env --install 軟件包名稱
+$ nix-env -iA channel名稱.包名稱 <!-- 使用完整名稱安裝軟件包，可避免歧義 -->
+$ nix-env -iv 軟件包名稱 <!-- 安裝軟件包時輸出詳細日誌，便於發現錯誤 -->
 
 <!-- 移除指定軟件包 -->
-# nix-env -e [軟件包名稱]
-# nix-env --uninstall [軟件包名稱]
+$ nix-env -e 軟件包名稱
+$ nix-env --uninstall 軟件包名稱
 <!-- 移除所有軟件包 -->
-# nix-env -e '.*'
+$ nix-env -e '.*'
 
 <!-- 更新所有軟件包 -->
-# nix-env -u
+$ nix-env -u
 <!-- 更新指定軟件包 -->
-# nix-env -u '軟件包'
+$ nix-env -u 軟件包名稱
 <!-- 查看可升級的軟件包 -->
-# nix-env -u --dry-run
+$ nix-env -u --dry-run
 ```
 
 使用`nix-env -e`刪除的軟件包併爲真正的刪除軟件包本體，而是移除了到該軟件包的軟鏈接。
@@ -269,7 +269,21 @@ NixOS更多資料可查看[官方Wiki](https://nixos.wiki)。
 官方Wiki中提供了[Cheatsheet](https://nixos.wiki/wiki/Cheatsheet)，
 羅列了與Ubuntu的常用功能對照。
 
-## 安裝
+## Nix語言
+[Nix Expression Language](https://nixos.wiki/wiki/Nix_Expression_Language)是NixOS配置使用的語言。
+Nix語言不是通用語言，而是僅為Nix包管理器和NixOS設計的DSL。
+[Nix - A One Pager](https://github.com/tazjin/nix-1p)項目提供Nix語言的簡明教程。
+
+使用`nix repl`指令可進入Nix語言的交互式Shell：
+
+```
+$ nix repl
+Welcome to Nix 2.9.1. Type :? for help.
+
+nix-repl>
+```
+
+## 安裝NixOS
 [NixOS官網](https://nixos.org/nixos/download.html)提供了鏡像下載，官方提供的鏡像支持`x86/x64`平台。
 鏡像包括帶有KDE桌面的LiveCD版(`Graphical live CD`)和無GUI環境的精簡版(`Minimal installation CD`)，
 
