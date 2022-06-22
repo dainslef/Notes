@@ -132,6 +132,12 @@ $ openssl req -new -newkey rsa -x509 -sha256 -days [days] -nodes -out [certifica
 $ openssl req -new -x509 -nodes -key private_key -sha256 -days [days] -out [certificate.crt]
 ```
 
+若需要認證指定域名，則可添加`-subj`參數設置認證內容：
+
+```
+$ openssl ... -subj "/C=JP/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxx.domain.xxx" ...
+```
+
 參數說明：
 
 - `-newkey rsa` 創建私有RSA私有key，創建key時可指定key的長度`-newkey rsa:xxx`，

@@ -294,7 +294,7 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
         Topic: spark-streaming-test     Partition: 0    Leader: 2       Replicas: 2     Isr: 2
         Topic: spark-streaming-test     Partition: 1    Leader: 3       Replicas: 3     Isr: 3
 ```
-jian
+
 - `PartitionCount` 話題分區數量
 - `ReplicationFactor` 話題備份數量
 - `Configs` 包含每個Partition的詳細配置信息

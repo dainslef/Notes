@@ -57,36 +57,36 @@
 ```
 項目名稱
 ├── app //程序資源
-│   ├── controllers
-│   │   ├── AsyncController.scala
-│   │   ├── CountController.scala
-│   │   └── HomeController.scala
-│   ├── filters
-│   │   └── ExampleFilter.scala
-│   ├── Filters.scala
-│   ├── Module.scala
-│   ├── services
-│   │   ├── ApplicationTimer.scala
-│   │   └── Counter.scala
-│   └── views //頁面模版
-│       ├── index.scala.html
-│       └── main.scala.html
+│   ├── controllers
+│   │   ├── AsyncController.scala
+│   │   ├── CountController.scala
+│   │   └── HomeController.scala
+│   ├── filters
+│   │   └── ExampleFilter.scala
+│   ├── Filters.scala
+│   ├── Module.scala
+│   ├── services
+│   │   ├── ApplicationTimer.scala
+│   │   └── Counter.scala
+│   └── views //頁面模版
+│       ├── index.scala.html
+│       └── main.scala.html
 ├── build.sbt //sbt構建腳本(定義項目依賴等配置)
 ├── conf //存放配置文件和非編譯資源
-│   ├── application.conf //Play項目的主要配置文件
-│   ├── logback.xml
-│   └── routes //路由定義
+│   ├── application.conf //Play項目的主要配置文件
+│   ├── logback.xml
+│   └── routes //路由定義
 ├── LICENSE
 ├── project
-│   ├── build.properties //sbt項目構建參數
-│   └── plugins.sbt //sbt插件
+│   ├── build.properties //sbt項目構建參數
+│   └── plugins.sbt //sbt插件
 ├── public //公共資源
-│   ├── images
-│   │   └── favicon.png
-│   ├── javascripts
-│   │   └── hello.js
-│   └── stylesheets
-│       └── main.css
+│   ├── images
+│   │   └── favicon.png
+│   ├── javascripts
+│   │   └── hello.js
+│   └── stylesheets
+│       └── main.css
 ├── README
 └── test
     ├── ApplicationSpec.scala
