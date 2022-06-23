@@ -12,6 +12,7 @@
 - [常見問題記錄](#常見問題記錄)
 	- [Reply from ::1: time<1ms](#reply-from-1-time1ms)
 	- [Intel CPU機型會在C盤根目錄下創建空的Intel目錄](#intel-cpu機型會在c盤根目錄下創建空的intel目錄)
+	- [非中文環境下中文非Unicode編碼程序亂碼](#非中文環境下中文非unicode編碼程序亂碼)
 
 <!-- /TOC -->
 
@@ -325,3 +326,20 @@ Intel機型在每次重啓后均會在C盤根路徑下創建空的Intel目錄，
 解決方案：<br>
 經過排查，發現是`Intel(R) HD Graphics Control Panel`服務創建了該目錄，
 在服務管理面板中禁用該服務即可阻止Intel目錄的自動創建。
+
+## 非中文環境下中文非Unicode編碼程序亂碼
+問題描述：<br>
+對於不支持Unicode的早期Windows程序，在非中文的Windows環境下會出現亂碼。
+
+解決方案：<br>
+按下列順序找到菜單：
+
+```
+System >
+Time & language >
+Language & region >
+Administrative language settings >
+Language for non-Unicode program
+```
+
+設置`Current language for non-Unicode program`為`Chinese (Simplified)`。
