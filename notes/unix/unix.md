@@ -89,10 +89,9 @@
 	- [VTE2](#vte2)
 	- [VTE3](#vte3)
 	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
-- [字體配置](#字體配置)
+- [Linux字體（fontconfig）](#linux字體fontconfig)
 	- [管理字體](#管理字體)
-	- [字體相關路徑](#字體相關路徑)
-	- [字體渲染問題](#字體渲染問題)
+	- [字體配置](#字體配置)
 - [文本處理](#文本處理)
 	- [grep](#grep)
 	- [envsubst](#envsubst)
@@ -168,6 +167,12 @@ $ find 路徑 -empty
 <!-- 查找空文件目錄參數可與查找類型參數組合使用 -->
 $ find 路徑 -empty -type d
 $ find 路徑 -empty -type f
+```
+
+查找時可排除指定目標路徑：
+
+```
+$ find 路徑 -name 文件名稱 -not -path 排除路徑
 ```
 
 按照文件`inode`查找文件，可查詢一個inode對應的多個硬鏈接文件：
@@ -3228,7 +3233,7 @@ VTE中提供了**剪切板**功能，但Linux終端中常見的複製粘貼快�
 
 
 
-# 字體配置
+# Linux字體（fontconfig）
 Linux下字體配置需要依賴`fontconfig`軟件包，多數發行版安裝了桌面環境後會自動將該包作為依賴安裝。
 
 手動安裝該軟件包：
@@ -3238,6 +3243,8 @@ Linux下字體配置需要依賴`fontconfig`軟件包，多數發行版安裝了
 # pacman -S fontconfig <!-- Arch係 -->
 # apt install fontconfig <!-- 大便係 -->
 ```
+
+安裝fontconfig軟件包後，可使用`man fonts.conf`查看字體配置手冊。
 
 ## 管理字體
 fontconfig軟件包提供了一系列字體管理工具。
@@ -3250,19 +3257,91 @@ $ fc-list <!-- 列出系統中已安裝的字體信息，包括字體路徑、�
 ...
 
 $ fc-cache <!-- 刷新字體緩存，用於環境中新增了字體之後 -->
+$ fc-conflist <!-- 查看當前生效的配置列表 -->
+
+<!-- 檢查特定字形當前使用的字體 -->
+$ fc-match 字形
+$ fc-match --verbose 字形 <!-- 輸出特定字形的詳細信息 -->
 ```
 
-## 字體相關路徑
+## 字體配置
 字體文件可存放在系統路徑`/usr/share/fonts`以及用戶路徑`~/.local/share/fonts`，
 早期用戶字體路徑`~/.fonts`現已廢棄。
 
-全局的字體配置路徑為`/etc/fonts/fonts.conf`，用戶字體配置路徑為`~/.config/fontconfig/fonts.conf`。
-字體配置遵循XML語法，多數安裝的字體都會在路徑`/usr/share/fontconfig/conf.avail`下提供字體對應的配置，
-可將全局字體配置鏈接到具體使用的字體配置。
+全局的字體配置路徑為`/etc/fonts/fonts.conf`以及`/etc/fonts/conf.d`目錄；
+用戶字體配置文件早期為`~/.fonts.conf`以及`~/.fonts.conf.d`目錄，現已被標記爲**廢棄**；
+現在的用戶配置爲`$XDG_CONFIG_HOME/fontconfig/fonts.conf`（通常爲`$HOME/.config/fontconfig/fonts.conf`）
+以及`$XDG_CONFIG_HOME/fontconfig/conf.d`（通常爲`$HOME/.config/fontconfig/conf.d`）。
+字體配置遵循XML語法。
 
-## 字體渲染問題
-對於無法預估確認字體名稱的環境下，使用錯誤的字體名稱可能導致渲染內容出現`口口...`，
-可直接使用通用字體類型`serif`、`sans-serif`等，系統會根據fontconfig配置選取合適的字體。
+字體軟件包通常提供配套的配置存放於`/usr/share/fontconfig/conf.avail`路徑下，
+可在用戶配置路徑下創建符號鏈接使之生效。
+
+字體配置示例：
+
+```xml
+<?xml version='1.0'?>
+<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
+
+<!-- Link this file (if need) to path ~/.fonts.conf -->
+<fontconfig>
+
+	<!-- Default fonts -->
+	<alias binding="same">
+		<family>sans-serif</family>
+		<prefer><family>Noto Sans</family></prefer>
+	</alias>
+
+	<alias binding="same">
+		<family>serif</family>
+		<prefer><family>Noto Sans</family></prefer>
+	</alias>
+
+	<alias binding="same">
+		<family>monospace</family>
+		<prefer><family>Cascadia Code PL</family></prefer>
+	</alias>
+
+	<alias binding="same">
+		<family>emoji</family>
+		<prefer>
+			<family>Cascadia Code PL</family>
+			<family>Noto Color Emoji</family>
+		</prefer>
+	</alias>
+
+	<alias binding="same">
+		<family>system-ui</family>
+		<prefer>
+			<family>Cascadia Code PL</family>
+			<family>Noto Sans</family>
+		</prefer>
+	</alias>
+
+</fontconfig>
+
+```
+
+字體配置中`<family/>`標籤制定需要設置的字形，系統字形如下所示：
+
+| 字形 | 說明 |
+| :- | :- |
+| serif | 襯線字體 |
+| sans-serif | 無襯線字體 |
+| monospace | 等寬字體，常用於編碼 |
+| system-ui | UI字體 |
+| emoji | emoji字符 |
+
+檢查字體配置可使用`fc-match`指令，示例：
+
+```
+$ fc-match system-ui
+NotoSans-Regular.ttf: "Noto Sans" "Regular"
+$ fc-match emoji
+NotoColorEmoji.ttf: "Noto Color Emoji" "Regular"
+$ fc-match monospace
+CascadiaCodePL-Regular.otf: "Cascadia Code PL" "Regular"
+```
 
 
 
