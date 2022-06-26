@@ -9,6 +9,8 @@
 		- [依賴協調(Dependency Mediation)](#依賴協調dependency-mediation)
 		- [依賴管理(Dependency Management)](#依賴管理dependency-management)
 		- [依賴作用域(Dependency Scope)](#依賴作用域dependency-scope)
+		- [排除依賴(Excluded Dependencies)](#排除依賴excluded-dependencies)
+		- [可選依賴(Optional Dependencies)](#可選依賴optional-dependencies)
 - [Language Level](#language-level)
 - [Sub Project](#sub-project)
 - [Package](#package)
@@ -246,6 +248,58 @@ Maven包含6類依賴域：
 - `import`
 
 	import域僅可在`<dependencyManagement/>`標籤段內使用，將指定目標依賴版本替換為import的依賴版本。
+	import域的詳細說明參考[JBOSS社區文檔](https://developer.jboss.org/docs/DOC-15811)。
+
+### 排除依賴(Excluded Dependencies)
+使用`<exclusion/>`標籤排除指定依賴：
+
+```xml
+<project>
+	...
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>...</groupId>
+				<artifactId>...</artifactId>
+				<version>...</version>
+				<exclusions>
+					<exclusion>
+						<groupId>xxx</groupId>
+						<artifactId>xxx</artifactId>
+					</exclusion>
+					...
+				</exclusions>
+			</dependency>
+			...
+		</dependencies>
+	</dependencyManagement>
+</project>
+```
+
+例如在依賴鏈`A -> B -> C`中，C通過依賴傳遞自動引入，
+對A而言，若不需要依賴C，可以使用上述方式顯式排除依賴C。
+
+### 可選依賴(Optional Dependencies)
+使用`<optional/>`標籤設定指定依賴為可選依賴：
+
+```xml
+<project>
+	...
+	<dependencies>
+		<dependency>
+			<groupId>...</groupId>
+			<artifactId>...</artifactId>
+			<version>...</version>
+			<optional>true</optional>
+		</dependency>
+		...
+	</dependencies>
+</project>
+```
+
+例如在依賴鏈`A -> B -> C`中，C通過依賴傳遞自動引入，
+對A而言，C可以標記為可選依賴，當B依賴C時，A不會直接依賴C，
+當B更新到某個版本後依賴變化不再依賴C時，A會直接依賴C。
 
 
 
