@@ -46,10 +46,10 @@ Kubernetes默認需要關閉系統SWAP（爲了避免潛在的性能問題），
 ### containerd配置
 Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件倉庫中安裝contianerd：
 
-```
-# pacman -S contianerd
-# apt install contianerd
-# dnf install contianerd
+```html
+# pacman -S containerd <!-- Arch系 -->
+# apt install containerd <!-- 大便系 -->
+# dnf install containerd <!-- 紅帽系 -->
 ```
 
 牆國內還需要配置containerd鏡像源：
@@ -135,8 +135,12 @@ Kubernetes現在默認使用containerd，在牆國由於Kubernetes官方鏡像�
 成功初始化集群後，當前節點將作為control-plane（控制平面），之後可繼續添加其它節點。
 初始化的信息中會告知其它節點加入當前集群的指令：
 
-```
-# kubeadm join control-plane地址:6443 --token token_xxx --discovery-token-ca-cert-hash hash_xxx
+```html
+<!--
+實例：
+# kubeadm join 10.89.64.11:6443 --token teyt0x.4bxr2bpw9kej2xue --discovery-token-ca-cert-hash sha256:29d2587fd75618a9f02cf428637ca84d36ca55e8e9bb76071c1966fb5790c30e
+-->
+# kubeadm join control-plane地址:6443 --token token_xxx --discovery-token-ca-cert-hash hash_format:hash_xxx
 ```
 
 加入集群的token可通過下列指令獲取：
@@ -146,6 +150,21 @@ $ kubeadm token list
 
 <!-- 查看token對應的discovery-token-ca-cert-hash -->
 $ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+```
+
+加入集群的token默認有效期僅24小時，token過期後可重新生成：
+
+```html
+<!-- 使用 --print-join-command 參數可直接輸出token對應的集群節點加入語句 -->
+$ kubeadm token create --print-join-command
+```
+
+若需要將節點移出集群，則按順序執行下列操作：
+
+```html
+$ kubectl cordon 節點名稱/ID <!-- 停止節點調度 -->
+$ kubectl drain 節點名稱/ID <!-- 將節點排除出集群 -->
+$ kubectl delete node 節點名稱/ID <!-- 刪除指定節點 -->
 ```
 
 ### 排查集群錯誤
