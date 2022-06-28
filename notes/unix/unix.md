@@ -85,6 +85,7 @@
 - [通知服務 （Notification）](#通知服務-notification)
 	- [libnotify](#libnotify)
 	- [Dunst](#dunst)
+		- [Dunst配置](#dunst配置)
 - [VTE](#vte)
 	- [VTE2](#vte2)
 	- [VTE3](#vte3)
@@ -3164,6 +3165,32 @@ dunstify 發送通知基本功能與 notify-send 類似，
 dunstify僅能在通知服務爲Dunst時使用，但提供了完整的功能
 -->
 $ dunstify 消息主題 消息內容
+```
+
+### Dunst配置
+Dunst配置可參考[官方文檔](https://dunst-project.org/documentation/)，
+以及[ArchLinux Wiki](https://wiki.archlinux.org/title/Dunst)
+和[Github Wiki](https://github.com/dunst-project/dunst/wiki)。
+
+全局配置文件路徑爲`/etc/dunst/dunstrc`，用戶配置路徑爲`~/.config/dunst/dunstrc`。
+
+默認Dunst處理通知的行爲是左鍵關閉當前通知，右鍵關閉全部通知，中鍵執行通知操作；
+該行爲不符合常規通知系統的操作習慣（多數通知系統左鍵爲執行通知操作），進行修改：
+
+```ini
+[global]
+	# Change the default notification actions.
+	mouse_left_click = do_action, close_current
+	mouse_middle_click = close_all
+	mouse_right_click = close_current
+```
+
+設置通知背景透明：
+
+```ini
+[global]
+	# Set up the transparency (0~100)
+	transparency = 15
 ```
 
 
