@@ -57,6 +57,9 @@
 	- [其它systemd系統管理工具](#其它systemd系統管理工具)
 		- [loginctl](#loginctl)
 - [網絡](#網絡)
+	- [網絡配置](#網絡配置)
+		- [Ubuntu (17.10之前) / Debian](#ubuntu-1710之前--debian)
+		- [Ubuntu (17.10及之後)](#ubuntu-1710及之後)
 	- [路由](#路由)
 		- [路由轉發](#路由轉發)
 		- [追蹤路由](#追蹤路由)
@@ -2140,6 +2143,73 @@ dev        igmp           ip_tables_matches  netlink    raw6       sockstat     
 dev_mcast  igmp6          ip_tables_names    netstat    route      sockstat6     udplite
 dev_snmp6  ip6_flowlabel  ip_tables_targets  packet     rt6_stats  softnet_stat  udplite6
 fib_trie   ip6_mr_cache   ipv6_route         protocols  rt_acct    stat          unix
+```
+
+## 網絡配置
+各大發行版的網絡配置差異較大，同一發行版的不同版本網絡配置也不盡相同。
+
+### Ubuntu (17.10之前) / Debian
+Ubuntu早期使用與Debian相同的網絡配置，配置文件爲`/etc/network/interfaces`：
+
+```shell
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The DHCP network interface
+auto xxx
+iface xxx inet dhcp
+
+# The custom network interface
+auto xxx
+iface xxx inet static
+address x.x.x.x
+netmask x.x.x.x
+gateway x.x.x.x
+```
+
+配置更改後，需要重啓網絡服務使之生效：
+
+```
+# systemctl restart networking
+```
+
+配置DNS：
+
+```html
+# echo "nameserver x.x.x.x" > /etc/resolvconf/resolv.conf.d/base
+
+<!-- 刷新DNS，使配置生效 -->
+# resolvconf -u
+```
+
+### Ubuntu (17.10及之後)
+Ubuntu 17.10後，爲了簡化網絡配置，不再使用Debian的網絡配置方式，
+而是引入了新的網絡配置工具Netplan。
+
+Netplan配置文件位於`/etc/netplan/xx_config.yaml`：
+
+```yaml
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    # The DHCP network interface
+    xxx:
+      dhcp4: true
+    # The static network interface
+    eth0:
+      addresses: [x.x.x.x/x, x.x.x.x/x]
+      gateway4: x.x.x.x
+      nameservers:
+        addresses: [x.x.x.x]
+```
+
+應用網絡配置：
+
+```
+# netplan apply
 ```
 
 ## 路由
