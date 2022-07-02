@@ -13,6 +13,9 @@
 - [Linux Subsystem 與 MSYS2 比較](#linux-subsystem-與-msys2-比較)
 - [Wine](#wine)
 	- [安裝和配置Wine](#安裝和配置wine)
+	- [中文字體問題](#中文字體問題)
+	- [Wine64](#wine64)
+	- [Bottles](#bottles)
 
 <!-- /TOC -->
 
@@ -238,3 +241,49 @@ $ wine uninstaller <!-- 程序卸載面板 -->
 
 $ winecfg <!-- 調整環境配置、主題風格等 -->
 ```
+
+## 中文字體問題
+默認配置下，Wine未集成中文字體，執行需要顯示中文字體的軟件時，中文字體會變成口口。
+該問題有以下解決方案：
+
+- 複製原版字體
+
+	從原版Windows系統中複製`ms*`以及`sim*`系列字體到`~/.wine/drive_c/windows/Fonts`路徑下即可。
+	字體示例：
+
+	```
+	$ ls
+	msgothic.ttc  msjhl.ttc  msmincho.ttc  msyhl.ttc  msyi.ttf     simhei.ttf  simsunb.ttf
+	msjhbd.ttc    msjh.ttc   msyhbd.ttc    msyh.ttc   simfang.ttf  simkai.ttf  simsun.ttc
+	```
+
+- 修改註冊表指定自定義字體
+
+	需要將自定義的中文字體存放在`~/.wine/drive_c/windows/Fonts`路徑下；
+	之後編寫如下所示的註冊表(`*.reg`)文件，指定字體名稱（字體文件名稱，以文泉驛微米黑字體爲例）：
+
+	```
+	REGEDIT4
+
+	[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontLink\SystemLink]
+	"Lucida Sans Unicode"="wqy-microhei.ttc"
+	"Microsoft Sans Serif"="wqy-microhei.ttc"
+	"MS Sans Serif"="wqy-microhei.ttc"
+	"Tahoma"="wqy-microhei.ttc"
+	"Tahoma Bold"="wqy-microhei.ttc"
+	"SimSun"="wqy-microhei.ttc"
+	"Arial"="wqy-microhei.ttc"
+	"Arial Black"="wqy-microhei.ttc"
+	```
+
+	其中`wqy-microhei.ttc`可替換爲其它合適的中文字體。
+
+## Wine64
+多數發行版默認提供的Wine版本爲32位，32位的Wine可執行16/32位的Windows程序；
+運行64位Windows程序需要wine64，wine64亦可執行32位Windows程序，但需要配置額外的32位依賴庫。
+
+當前wine64的成熟度和穩定性不如wine。
+
+## Bottles
+[Bottles](https://usebottles.com/)是GTK實現的Wine前端，為Wine提供了友好的操作介面。
+Bottles支持管理多組Wine環境，配置和數據位於`~/.local/share/bottles`路徑下。
