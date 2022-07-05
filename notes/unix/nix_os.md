@@ -14,6 +14,7 @@
 	- [配置管理](#配置管理)
 		- [版本升級與回退](#版本升級與回退)
 		- [Binary Cache](#binary-cache)
+	- [內核配置](#內核配置)
 	- [系統軟件包與服務配置](#系統軟件包與服務配置)
 	- [顯卡驅動配置](#顯卡驅動配置)
 	- [systemd服務](#systemd服務)
@@ -488,6 +489,26 @@ $ cat /etc/nix/nix.conf
 substituters = https://cache.nixos.org/ https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store
 ...
 ```
+
+## 內核配置
+NixOS的內核配置參考[官方Wiki](https://nixos.wiki/wiki/Linux_kernel)。
+NixOS默認使用LTS內核，版本較老，可通過配置`boot.kernelPackages`更換其它內核。
+
+使用最新版本內核：
+
+```nix
+boot.kernelPackages = pkgs.linuxPackages_latest;
+```
+
+常用內核說明：
+
+- pkgs.linuxPackages 默認內核，使用LTS版本的內核
+- pkgs.linuxPackages_latest 最新版本內核
+- pkgs.linuxPackages_zen 為桌面用戶優化的Zen內核
+
+NixOS會提供對應內核的預編譯包，通常不需要自行編譯內核，
+但有時非官方內核如linuxPackages_zen的預編譯包更新較為遲緩，
+會出現需要用戶自行編譯內核的情形。
 
 ## 系統軟件包與服務配置
 在NixOS中，可將常用的軟件包配置爲系統軟件包，
