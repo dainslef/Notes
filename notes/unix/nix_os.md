@@ -40,6 +40,7 @@
 	- [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
 	- [DisplayManager不展示用戶列表](#displaymanager不展示用戶列表)
 	- [Console介面下字體縮放異常](#console介面下字體縮放異常)
+	- [XDG Autostart服務未自啓動](#xdg-autostart服務未自啓動)
 
 <!-- /TOC -->
 
@@ -1161,3 +1162,36 @@ hardware.video.hidpi.enable = lib.mkDefault true;
 ```
 
 將對應配置註釋掉，重新構建配置Console介面即可恢復正常字體比例。
+
+## XDG Autostart服務未自啓動
+問題說明：<br>
+NixOS中使用窗口管理器時，註冊到XDG Autostart的相關服務未自啓動，如Fcitx5：
+
+```
+$ systemctl status --user app-org.fcitx.Fcitx5@autostart.service
+● app-org.fcitx.Fcitx5@autostart.service - Fcitx 5
+     Loaded: loaded (/run/current-system/sw/etc/xdg/autostart/org.fcitx.Fcitx5.desktop; generated)
+     Active: inactive (dead)
+       Docs: man:systemd-xdg-autostart-generator(8)
+```
+
+對應XDG Autostart狀態：
+
+```
+$ systemctl status --user xdg-desktop-autostart.target
+● xdg-desktop-autostart.target - Startup of XDG autostart applications
+     Loaded: loaded (/home/dainslef/.config/systemd/user/xdg-desktop-autostart.target; linked; vendor preset: enabled)
+     Active: inactive (dead)
+       Docs: man:systemd.special(7)
+```
+
+問題分析：<br>
+`services.xserver.desktopManager.runXdgAutostartIfNone`
+選項用於控制是否在僅使用窗口管理器時開啓XDG Autostart關聯服務，該選項默認爲`false`。
+
+解決方案：<br>
+啟用對應配置即可：
+
+```nix
+services.xserver.desktopManager.runXdgAutostartIfNone = true;
+```
