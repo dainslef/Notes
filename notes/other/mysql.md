@@ -10,13 +10,12 @@
 	- [管理數據庫服務 (Linux SystemD)](#管理數據庫服務-linux-systemd)
 	- [管理數據庫服務 (BSD/Linux SysV)](#管理數據庫服務-bsdlinux-sysv)
 - [用戶登陸與管理](#用戶登陸與管理)
-	- [遠程登陸](#遠程登陸)
-	- [修改用戶密碼](#修改用戶密碼)
+	- [管理用戶](#管理用戶)
+		- [創建用戶](#創建用戶)
+		- [授權用戶](#授權用戶)
+		- [修改用戶密碼](#修改用戶密碼)
 	- [跳過登陸驗證](#跳過登陸驗證)
 	- [關於密碼策略](#關於密碼策略)
-	- [查看用戶信息](#查看用戶信息)
-	- [創建/刪除用戶](#創建刪除用戶)
-	- [授權用戶](#授權用戶)
 - [驅動配置](#驅動配置)
 - [基本操作](#基本操作)
 	- [基本SQL語句](#基本sql語句)
@@ -228,7 +227,6 @@ $ mysql -u [用戶名]
 $ mysql -u [用戶名] -p
 ```
 
-## 遠程登陸
 默認情況下爲登陸本機的數據庫，如果需要**遠程登陸**到其它主機上的數據庫，應該使用`-h`參數：
 
 ```
@@ -241,106 +239,19 @@ $ mysql -h [目標主機ip] -u [用戶名] -p
 - 服務端ip已被添加到數據庫配置中的`bind-address`配置項中，或者**不啓用**bind-address配置。
 在Ubuntu發行版中，默認配置中bind-address配置項是**啓用**的。
 
-## 修改用戶密碼
-登陸數據庫之後，在數據庫命令行中輸入：
-
-```
-mysql> set password = password('[密碼內容]')
-```
-
-在`MySQL 8.0`之後，密碼不可使用`set password = password('xxx')`的方式修改，但新增了如下修改方式：
-
-```
-mysql> use mysql;
-mysql> alter user '[用戶名]'@'[主機]' identified with mysql_native_password by '[新密碼]';
-```
-
-亦可使用`mysqladmin`工具修改密碼：
-
-```
-$ mysqladmin -u [用戶名] password '[密碼內容]' # 目標用戶不存在舊密碼時可用
-$ mysqladmin -u [用戶名] -p password '[密碼內容]' # 目標用戶存在舊密碼時可用，會提示輸入舊密碼
-$ mysqladmin -u [用戶名] -h [主機] -p password '[密碼內容]' # 修改遠程用戶密碼
-```
-
-若出现如下错误：
-
-```
-You cannot use 'password' command as mysqld runs
- with grant tables disabled (was started with --skip-grant-tables).
-Use: "mysqladmin flush-privileges password '*'" instead
-```
-
-则应按照提示添加`flush-privileges`參數：
-
-```
-$ mysqladmin -u [用戶名] -p flush-privileges password '[密碼內容]'
-```
-
-還可采用更新`mysql.user`表的方式來更新密碼。
-
-在`MySQL 5.6`及以下版本，密碼列名稱為`password`，`MySQL 5.7`及之後版本密碼列為`authentication_string`。
-
-```sql
--- MySQL 5.6-
-mysql> update mysql.user set password=password('[密碼]') where user='[用戶名]' and host='[主機]';
-
--- MySQL 5.7+
-mysql> update mysql.user set authentication_string=password('[密碼]') where user='[用戶名]' and host='[主機]';
-```
-
-更新密碼或Host主機限制等規則後，若未立即生效，則可嘗試刷新權限：
-
-```
-mysql> flush privileges;
-Query OK, 0 rows affected (0.00 sec)
-```
-
-## 跳過登陸驗證
-對於忘記密碼的情形，可通過配置跳過登陸密碼，免密登陸后再修改密碼。
-
-修改`my.cnf`文件，在`[mysqld]`配置段添加：
-
-```
-skip-grant-tables
-```
-
-之後重啓數據庫服務即可免密登陸。
-
-需要注意，以免密登錄方式登錄數據庫后，不能直接使用`set passowrd`的方式更新密碼，但依舊可以修改`mysql.user`表來更新密碼。
-
-## 關於密碼策略
-儅出現密碼策略相關的異常信息時，可查看相關環境變量：
-
-```sql
-> SHOW VARIABLES LIKE 'validate_password%';
-+--------------------------------------+-------+
-| Variable_name                        | Value |
-+--------------------------------------+-------+
-| validate_password_check_user_name    | OFF   |
-| validate_password_dictionary_file    |       |
-| validate_password_length             | 8     |
-| validate_password_mixed_case_count   | 1     |
-| validate_password_number_count       | 1     |
-| validate_password_policy             | LOW   |
-| validate_password_special_char_count | 1     |
-+--------------------------------------+-------+
-7 rows in set (0.01 sec)
-```
-
-可通過修改此類環境變量避免密碼策略相關的異常信息。
-
-## 查看用戶信息
+## 管理用戶
 MySQL數據庫的用戶信息記錄在`mysql`庫中的`user`表中，查詢該表即可得到**用戶信息**：
 
 ```
 mysql> select * from mysql.user;
 ```
 
-## 創建/刪除用戶
+各類用戶管理操作實際均為對該表的操作。
+
+### 創建用戶
 在數據庫命令行中使用`create user`指令即可創建用戶：
 
-```
+```sql
 mysql> create user 用戶名;
 ```
 
@@ -370,7 +281,7 @@ mysql> create user 用戶名@localhost;
 mysql> drop user 用戶名@主機名/主機地址;
 ```
 
-## 授權用戶
+### 授權用戶
 新創建的用戶不具有權限，需要使用管理員賬戶(一般爲`root`)對其進行授權。
 
 授予某個用戶指定數據庫的查詢與更新權限：
@@ -410,6 +321,96 @@ mysql> flush privileges;
 mysql> show grants; # 顯示當前用戶的權限信息
 mysql> show grants for 用戶名@主機地址; # 顯示指定用戶的權限信息
 ```
+
+### 修改用戶密碼
+使用`mysqladmin`工具修改密碼：
+
+```html
+$ mysqladmin -u 用戶名 password '密碼內容' <!-- 目標用戶不存在舊密碼時可用 -->
+$ mysqladmin -u 用戶名 -p password '密碼內容' <!-- 目標用戶存在舊密碼時可用，會提示輸入舊密碼 -->
+$ mysqladmin -u 用戶名 -h 主機 -p password '密碼內容' <!-- 修改遠程用戶密碼 -->
+```
+
+提示輸入新密碼時，直接使用回車鍵輸入空白密碼則會清除指定用戶的密碼。
+
+若出现如下错误：
+
+```
+You cannot use 'password' command as mysqld runs
+ with grant tables disabled (was started with --skip-grant-tables).
+Use: "mysqladmin flush-privileges password '*'" instead
+```
+
+则应按照提示添加`flush-privileges`參數：
+
+```
+$ mysqladmin -u [用戶名] -p flush-privileges password '[密碼內容]'
+```
+
+用戶密碼存儲在`mysql.user`表中，因此還可采用更新表字段的方式來更新密碼。
+登陸數據庫之後，在數據庫命令行中輸入：
+
+```sql
+mysql> set password = password('密碼內容')
+```
+
+在`MySQL 8.0`之後，密碼不可使用`set password = password('xxx')`的方式修改，但新增了如下修改方式：
+
+```sql
+mysql> use mysql;
+mysql> alter user '[用戶名]'@'[主機]' identified with mysql_native_password by '[新密碼]';
+```
+
+在`MySQL 5.6`及以下版本，密碼列名稱為`password`，`MySQL 5.7`及之後版本密碼列為`authentication_string`。
+
+```sql
+-- MySQL 5.6-
+mysql> update mysql.user set password=password('[密碼]') where user='[用戶名]' and host='[主機]';
+
+-- MySQL 5.7+
+mysql> update mysql.user set authentication_string=password('[密碼]') where user='[用戶名]' and host='[主機]';
+```
+
+更新密碼或Host主機限制等規則後，若未立即生效，則可嘗試刷新權限：
+
+```
+mysql> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
+```
+
+## 跳過登陸驗證
+對於忘記密碼的情形，可通過配置跳過登陸密碼，免密登陸后再修改密碼。
+
+修改`my.cnf`文件，在`[mysqld]`配置段添加：
+
+```
+skip-grant-tables
+```
+
+之後重啓數據庫服務即可免密登陸。
+
+需要注意，以免密登錄方式登錄數據庫后，不能直接使用`set passowrd`的方式更新密碼，但依舊可以修改`mysql.user`表來更新密碼。
+
+## 關於密碼策略
+儅出現密碼策略相關的異常信息時，可查看相關環境變量：
+
+```sql
+mysql> SHOW VARIABLES LIKE 'validate_password%';
++--------------------------------------+-------+
+| Variable_name                        | Value |
++--------------------------------------+-------+
+| validate_password_check_user_name    | OFF   |
+| validate_password_dictionary_file    |       |
+| validate_password_length             | 8     |
+| validate_password_mixed_case_count   | 1     |
+| validate_password_number_count       | 1     |
+| validate_password_policy             | LOW   |
+| validate_password_special_char_count | 1     |
++--------------------------------------+-------+
+7 rows in set (0.01 sec)
+```
+
+可通過修改此類環境變量避免密碼策略相關的異常信息。
 
 
 
