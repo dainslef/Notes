@@ -30,6 +30,13 @@
 	- [Volumes (卷)](#volumes-卷)
 - [端口映射](#端口映射)
 	- [修改端口映射](#修改端口映射)
+- [Podman](#podman)
+	- [Podman on macOS](#podman-on-macos)
+	- [Podman容器配置存儲](#podman容器配置存儲)
+	- [Podman與Docker差異](#podman與docker差異)
+		- [容器服務架構](#容器服務架構)
+		- [systemd容器](#systemd容器)
+		- [Podman構建tag與Docker的差異](#podman構建tag與docker的差異)
 
 <!-- /TOC -->
 
@@ -863,3 +870,65 @@ $ docker inspect [容器ID]
 		...
 	}
 	```
+
+
+
+# Podman
+[Podman](https://podman.io/)是紅帽主導的一項容器技術，提供與Docker兼容的接口和命令行。
+Podman相比Docker，無常駐後台服務，同時原生支持systemd容器。
+
+## Podman on macOS
+macOS上的Podman會使用qemu創建Fedora Linux虛擬機，在虛擬機中運行Podman，
+而macOS宿主機實際上通過`podman-remote`連接到虛擬機中的Podman。
+
+使用`podman machine`指令管理虛擬機：
+
+```html
+$ podman machine init <!-- 初始化虛擬機 -->
+$ podman machine rm <!-- 移除虛擬機 -->
+$ podman machine ssh <!-- 通過ssh連接訪問虛擬機內部 -->
+```
+
+## Podman容器配置存儲
+與Docker不同，Podman中已創建的容器配置並不以文本的形式直接存儲，
+而是使用[`BoltDB`](https://github.com/boltdb/bolt)格式，
+存儲在`.local/share/containers/storage/libpod/bolt_state.db`文件中。
+因此修改容器配置需要安裝boltbrowser工具。
+
+## Podman與Docker差異
+Podman雖號稱最大程度兼容Docker，但技術架構與Docker存在較大差異，
+也解決了Docker的部分設計缺陷，部分指令參數與Docker行為亦不相同。
+
+### 容器服務架構
+Docker服務需要在後端常駐Daemon服務（Client-Server架構），
+Podman則不依賴Deamon服務（Daemon-Less架構）。
+
+### systemd容器
+Podman原生支持systemd容器，創建容器時，將容器的默認啟動進程設置為`/sbin/init`，
+則容器內可使用`systemctl`系列工具管理systemd服務。
+
+Docker則不提供直接支持，需要使用一些Hack手段。
+
+### Podman構建tag與Docker的差異
+對於存在多組構建的Dockerfile，如下所示：
+
+```dockerfile
+FROM ImageName1 as tag1
+...
+
+FROM ImageName2 as tag2
+...
+
+FROM ImageName3 as tag3
+...
+```
+
+使用build指令進行構建操作：
+
+```html
+$ docker build -t tag2 ...
+$ podman build -t tag2 ...
+```
+
+Docker構建tag2時，僅僅執行tag2的構建邏輯，
+而Podman構建tag2時，會從Dockerfile的起始位置開始執行到tag2位置。
