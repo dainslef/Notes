@@ -54,6 +54,7 @@
 	- [systemd服務管理](#systemd服務管理)
 	- [rc.local](#rclocal)
 	- [systemd服務分析](#systemd服務分析)
+	- [編寫systemd服務](#編寫systemd服務)
 	- [其它systemd系統管理工具](#其它systemd系統管理工具)
 		- [loginctl](#loginctl)
 - [網絡](#網絡)
@@ -1974,6 +1975,43 @@ $ systemctl list-units -t 服務類型 <!-- 查看指定類型的服務信息 --
 $ systemd-analyze <!-- 顯示系統的啓動耗時 -->
 $ systemd-analyze blame <!-- 列出所有的啓動單元，按照啓動耗時的高低進行排序 -->
 ```
+
+## 編寫systemd服務
+一個基本的systemd服務結構如下：
+
+```ini
+[Unit]
+Description=User Daemon
+
+[Service]
+ExecStart=/usr/bin/xxx --xxxargs
+
+[Install]
+WantedBy=default.target
+```
+
+Unit區段中編寫服務的描述信息，可用於設置服務的前置依賴條件：
+
+```ini
+[Unit]
+Description=User Daemon
+After=xxx.target
+```
+
+Service區段爲核心的服務內容，設置服務的類型、執行指令、錯誤恢復等內容：
+
+```ini
+[Service]
+Type=xxx # 服務類型
+ExecStartPre=xxx # 在服務指令執行前執行一個前置操作，如等待一定時間（sleep xxx）
+ExecStart=xxx # 服務執行指令
+Restart=xxx # 服務重啓策略
+RestartSec=xxx # 服務重啓的等待時間
+```
+
+Install區段決定服務在啓動流程中的位置，
+只有具有Install區段的服務纔可使用`systemctl enable`開啓自啓動，
+開啓服務自啓動後，會在對應的目標路徑下中創建符號鏈接。
 
 ## 其它systemd系統管理工具
 systemd還集成了常用的系統管理工具：
