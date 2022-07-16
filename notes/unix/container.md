@@ -37,6 +37,9 @@
 		- [容器服務架構](#容器服務架構)
 		- [systemd容器](#systemd容器)
 		- [Podman構建tag與Docker的差異](#podman構建tag與docker的差異)
+- [LXC/LXD](#lxclxd)
+	- [LXD於Docker/Podman的差異](#lxd於dockerpodman的差異)
+	- [LXD初始化](#lxd初始化)
 
 <!-- /TOC -->
 
@@ -932,3 +935,49 @@ $ podman build -t tag2 ...
 
 Docker構建tag2時，僅僅執行tag2的構建邏輯，
 而Podman構建tag2時，會從Dockerfile的起始位置開始執行到tag2位置。
+
+
+
+# LXC/LXD
+[`LXC`](https://linuxcontainers.org/lxc/introduction/)是Linux下的容器技術，早期的Docker底層便使用LXC。
+[`LXD`](https://linuxcontainers.org/lxd/introduction/)是LXC技術的擴展，
+為LXC提供了統一、簡單的命令行接口，提供了各類發行版的鏡像，支持直接從鏡像創建容器和虛擬機（通過QEMU）。
+
+## LXD於Docker/Podman的差異
+Docker/Podman等容器技術為Application Container（應用容器），被設計為在隔離的環境中執行**單一**進程；
+而LXC為System Container（系統容器）則更近似虛擬機，在容器中提供完整的操作系統，並執行**多個**進程。
+
+應用容器適合提供獨立的組件，而系統容器提供則提供完整的庫、應用、數據庫等完整解決方案。
+
+Docker等容器存在部分限制，如無法使用systemd等，LXC則無此類限制。
+
+## LXD初始化
+LXD基本操作參考[官方文檔](https://linuxcontainers.org/lxd/getting-started-cli)。
+
+LXD操作需要root權限，普通用戶可加入lxd用戶組中獲得操作權限。
+首次使用LXD前需要執行初始化操作：
+
+```html
+# lxd init <!-- 進入交互式初始化 -->
+# lxd init --minimal <!-- 使用默認配置初始化 -->
+```
+
+初始化完成後，會在`/var/lib/lxd/storage-pools`路徑下生成存儲池。
+以默熱配置完成初始化，則配置名稱為default，查看配置，示例：
+
+```
+$ lxc profile show default
+config: {}
+description: Default LXD profile
+devices:
+  eth0:
+    name: eth0
+    network: lxdbr0
+    type: nic
+  root:
+    path: /
+    pool: default
+    type: disk
+name: default
+used_by: []
+```
