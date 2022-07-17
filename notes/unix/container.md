@@ -40,6 +40,9 @@
 - [LXC/LXD](#lxclxd)
 	- [LXD於Docker/Podman的差異](#lxd於dockerpodman的差異)
 	- [LXD初始化](#lxd初始化)
+	- [LXD基本操作](#lxd基本操作)
+	- [LXD容器特權模式](#lxd容器特權模式)
+	- [LXD文件傳輸/目錄共享](#lxd文件傳輸目錄共享)
 
 <!-- /TOC -->
 
@@ -980,4 +983,64 @@ devices:
     type: disk
 name: default
 used_by: []
+```
+
+## LXD基本操作
+創建操作與Docker類似，通過鏡像創建容器：
+
+```html
+<!-- 創建容器、虛擬機 -->
+# lxc launch images:發行版/版本 容器名稱 <!-- 使用指定鏡像創建容器 -->
+# lxc launch images:發行版/版本 容器名稱  --vm <!-- 使用指定鏡像創建虛擬機 -->
+```
+
+官方支持的鏡像可在[Linux Containers - Image server](https://us.lxd.images.canonical.com/)查詢。
+
+列出、啟動、停止容器：
+
+```html
+<!-- 啟動、關閉容器 -->
+# lxc start 容器名稱
+# lxc stop 容器名稱
+
+<!-- 列出容器 -->
+# lxc list
+```
+
+訪問容器、執行容器指令：
+
+```html
+<!-- 使用容器默認shell訪問容器 -->
+# lxc shell 容器名稱
+<!-- 執行容器內的指定指令 -->
+# lxc exec 容器名稱 -- 容器內指令
+```
+
+## LXD容器特權模式
+默認創建容器為**普通權限**，可創建**特權模式**的容器：
+
+```html
+<!-- 默認創建的容器為非特權容器，創建特權模式容器 -->
+# lxc launch images:發行版/版本 容器名稱 -c security.privileged=true
+```
+
+修改容器的特權模式：
+
+```
+# lxc config set 容器名稱 security.privileged=true/false
+```
+
+## LXD文件傳輸/目錄共享
+與Docker類似，LXD提供了`lxc file`指令參數用提供文件傳輸功能：
+
+```html
+<!-- 推送、拉取文件 -->
+# lxc file push 宿主機文件路徑 容器名稱/容器文件路徑
+# lxc file pull 容器名稱/容器文件路徑 宿主機文件路徑
+```
+
+可將宿主機的路徑直接掛載到容器中：
+
+```
+# lxc file mount 容器名稱/容器目錄 宿主機目錄
 ```
