@@ -8,7 +8,7 @@
 		- [rustfmt](#rustfmt)
 	- [REPL](#repl)
 - [智能指針](#智能指針)
-	- [Rc / Box](#rc--box)
+	- [Rc / Box / Arc](#rc--box--arc)
 	- [Cell / RefCell](#cell--refcell)
 
 <!-- /TOC -->
@@ -20,9 +20,12 @@
 專注於性能(performance)、可靠性(reliability)、生產力(productivity)。
 
 ## 開發環境
-Rust官方推薦的開發環境是[`Visual Studio Code`](https://code.visualstudio.com/)搭配官方[Rust](https://github.com/rust-lang/vscode-rust)插件。
+Rust官方推薦的開發環境是[`Visual Studio Code`](https://code.visualstudio.com/)
+搭配[rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)插件。
+官方VSCode插件[Rust](https://github.com/rust-lang/vscode-rust)已較長時間未更新，不再推薦使用。
 
-VSCode的Rust插件雖為官方插件，但其默認後端`RLS(Rust Language Server)`()目前開發並不活躍，
+VSCode的Rust插件雖為官方插件，
+但其默認後端[`RLS(Rust Language Server)`](https://github.com/rust-lang/rls)目前開發並不活躍，
 功能較為簡陋，性能較差，部分BUG一直未修復。
 而下一代的[`rust-analyzer`](https://github.com/rust-analyzer/rust-analyzer)目前處於活躍開發中，
 功能更加完備，對新特性支持較好，推薦使用。
@@ -166,9 +169,32 @@ Available kernels:
 # 智能指針
 作為無GC的現代編程語言，Rust提供了智能指針進行內存管理。
 
-## Rc / Box
-Rc/Box是Rust中最常用的智能指針類型(不提供線程安全保證)，
-對應C++中的`std::shared_ptr`(RC)和`std::unique_ptr`(Box)。
+## Rc / Box / Arc
+Rc/Box/Arc是Rust的智能指針類型，
+對應C++中的`std::shared_ptr`(Rc)和`std::unique_ptr`(Box)。
+Rc/Arc共享所有權，支持複製指針；Box獨佔所有權，不可複製，僅支持移動對象。
+
+Box默認即實現了線程安全相關的trait（Send + Sync），
+而Rc沒有，Rc存在單獨的線程安全版本（Arc）。
+
+使用智能指針會將對象創建在堆上，棧上僅保留固定大小的指針對象。
+當對象在編譯期大小不確定，或對象生命週期需要超越當前棧的生命週期時，需要使用智能指針。
+
+典型場景示例：
+
+```rust
+/**
+一個對象需要共享給兩個線程使用，若使用棧變量，
+則一個對象無法移動到兩個線程中（所有權衝突），
+此時將對象存儲在Arc智能指針中，拷貝指針即可實現共享對象。
+*/
+fn example() {
+  let data = std::sync::Arc::new("test".to_string());
+  let cloned_data = data.clone();
+  std::thread::spawn(move || println!("{data}"));
+  std::thread::spawn(move || println!("{cloned_data}"));
+}
+```
 
 ## Cell / RefCell
 `std::cell`mod下提供了對於可變內存區域的抽象。
