@@ -41,6 +41,7 @@
 	- [DisplayManager不展示用戶列表](#displaymanager不展示用戶列表)
 	- [Console介面下字體縮放異常](#console介面下字體縮放異常)
 	- [XDG Autostart服務未自啓動](#xdg-autostart服務未自啓動)
+	- [musl未直接導出musl-gcc/musl-clang等工具鏈](#musl未直接導出musl-gccmusl-clang等工具鏈)
 
 <!-- /TOC -->
 
@@ -1194,4 +1195,38 @@ $ systemctl status --user xdg-desktop-autostart.target
 
 ```nix
 services.xserver.desktopManager.runXdgAutostartIfNone = true;
+```
+
+## musl未直接導出musl-gcc/musl-clang等工具鏈
+問題說明：<br>
+NixOS中的`musl`包並未如常規Linux發行版一般將musl的編譯器工具導出到PATH環境變量中。
+
+解決方案：<br>
+NixOS安裝musl包時會將musl-dev作為依賴安裝（但musl-dev不可直接安裝），示例：
+
+```
+$ nix-env -i musl
+installing 'musl-1.2.3'
+these 5 paths will be fetched (2.76 MiB download, 11.16 MiB unpacked):
+  /nix/store/2bim63kxh3vi6ka6inclfpba9rsjj6v9-iconv.c
+  /nix/store/2dq74ddry1kv8bx2r212xh59lhxwvnwn-musl-1.2.3-debug
+  /nix/store/aa7r19flw6pxpffnnvijznw32chny562-musl-1.2.3-dev
+  /nix/store/g1wz18rl1m075qalwyf3nvfdjnl94w15-linux-headers-5.18
+  /nix/store/la3w1f8aibsyv7n8r5qn9dwbgrzp7dim-musl-1.2.3
+...
+```
+
+musl-gcc等工具位於作為依賴安裝的`/nix/store/aa7r19flw6pxpffnnvijznw32chny562-musl-1.2.3-dev`包中，
+將對應路徑添加到PATH中即可：
+
+```
+$ cd /nix/store/aa7r19flw6pxpffnnvijznw32chny562-musl-1.2.3-dev/bin
+$ ls
+ld.musl-clang  musl-clang  musl-gcc
+$ set -xg PATH $PATH /nix/store/aa7r19flw6pxpffnnvijznw32chny562-musl-1.2.3-dev/bin
+$ musl-gcc
+gcc (GCC) 11.3.0
+Copyright (C) 2021 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ```
