@@ -6,6 +6,7 @@
 	- [配置ArchLinuxCN源](#配置archlinuxcn源)
 	- [系統分區](#系統分區)
 	- [安裝基礎軟件包](#安裝基礎軟件包)
+	- [配置安裝環境](#配置安裝環境)
 
 <!-- /TOC -->
 
@@ -80,3 +81,48 @@ Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
 
 早期的base為軟件包組（package group），自[2019-10-6](https://archlinux.org/news/base-group-replaced-by-mandatory-base-package-manual-intervention-required/)開始，
 base變為元包（meta package），base元中依賴了除內核外所有必備的操作系統組件。
+
+## 配置安裝環境
+完成基礎環境安裝後，此時系統已可進入；
+使用`arch-chroot`工具切換到新的系統環境中：
+
+```
+# arch-chroot /mnt
+```
+
+進入新環境後，設置常用的系統參數：
+
+```html
+<!-- 設置時間相關參數 -->
+# timedatectl set-timezone ... <!-- 設置時區 -->
+# timedatectl set-ntp 1 <!-- 開啟NTP -->
+# timedatectl set-local-rtc 1 <!-- 設置機器硬件時鐘為本地時鐘，當與Windows組建雙系統時需要該配置 -->
+
+# hostnamectl set-hostname ... <!-- 設置主機名稱 -->
+# localectl set-locale en_US.UTF-8 <!-- 設置語言編碼 -->
+```
+
+之後配置用戶密碼，以及創建普通用戶：
+
+```
+# passwd
+# useradd -m xxx
+$ passwd xxx
+```
+
+最後安裝引導器，對於支持systemd的現代發行版，推薦直接使用systemd-boot，而非傳統的GRUB2。
+使用systemd-boot引導系統，不再需要傳統GRUB的efibootmgr以及os-prober等組件。
+安裝引導器：
+
+```
+# bootctl install
+```
+
+引導器成功安裝後，在`/boot/loader/entries`路徑下創建引導配置archlinux.conf：
+
+```
+title Arch Linux
+linux /vmlinuz-linux-zen
+initrd /initramfs-linux-zen.img
+options root=/dev/xxx_root
+```
