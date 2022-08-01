@@ -18,6 +18,7 @@
 	- [磁盤分區管理](#磁盤分區管理)
 	- [掛載導入zfs分區](#掛載導入zfs分區)
 	- [chroot](#chroot)
+	- [查看端口狀態](#查看端口狀態)
 
 <!-- /TOC -->
 
@@ -169,12 +170,21 @@ ifconfig_wlan0="ssid [無線網ssid] DHCP"
 FreeBSD採用傳統的BSD風格的init系統，服務項在`/etc/rc.d`目錄下。
 可以使用service命令來管理服務：
 
-```
-# service [服務名稱] [start | stop | status]
+```html
+# service 服務名稱 onestart/onerestart <!-- 啟動/重啟服務 -->
+# service 服務名稱 stop <!-- 關閉服務 -->
 ```
 
 開機自啓動的服務，以及一些系統配置存放在`/etc/rc.conf`文件中。
 例如，需要開機自啓動SSH服務則可以將`sshd_enable="YES"`加入`rc.conf`文件中。
+
+亦可使用`sysrc`工具開啟/關閉服務自啟動：
+
+```html
+<!-- 使用sysrc亦會在 /etc/rc.conf 文件中生成對應服務配置項 -->
+# sysrc 服務名稱_enable=YES
+# sysrc 服務名稱_enable=NO
+```
 
 常見服務配置：
 
@@ -197,13 +207,25 @@ FreeBSD同時提供了基於源碼編譯軟件包的`Ports`系統和基於預編
 `FreeBSD 10`之後引入了新的`pkg`工具用於管理軟件包，常用指令類似與`yum/apt/dnf`：
 
 ```html
-# pkg install 軟件包名稱
 # pkg search 軟件包名稱
-# pkg remove 軟件包名稱
-# pkg autoremove 軟件包名稱
+
+<!-- 安裝刪除軟件包 -->
+# pkg install 軟件包名稱
+# pkg remove 軟件包名稱 <!-- 移除指定軟件包 -->
+# pkg autoremove 軟件包名稱 <!-- 清理不需要的依賴 -->
+
+<!-- 查看軟件包信息 -->
 # pkg info <!-- 查詢所有已安裝的軟件包 -->
 # pkg info 軟件包名稱 <!-- 查詢某個軟件包的具體信息(包括軟件包的文件組成，依賴關係，來源等) -->
-# pkg query -e '%a = 0' %o <!-- 展示手動安裝的軟件包 -->
+
+<!-- 展示手動安裝的軟件包 -->
+# pkg prime-list
+# pkg prime-origins <!-- 包含軟件包port路徑 -->
+# pkg query -e '%a = 0' %o <!-- 直接通過屬性進行查詢 -->
+
+<!-- 修改軟件包安裝原因 -->
+# pkg set -A 1 軟件包名稱 <!-- 設置軟件包為自動安裝（可被pkg autoremove清理） -->
+# pkg set -A 0 軟件包名稱 <!-- 設置軟件包為手動安裝 -->
 ```
 
 ## Ports
@@ -424,4 +446,15 @@ FreeBSD中chroot操作比Linux更加簡便，無須重新綁定`/proc`、`/sys`�
 
 ```
 # mount -t devfs devfs 掛載點/dev
+```
+
+## 查看端口狀態
+FreeBSD中查看端口使用`sockstat`工具：
+
+```
+# sockstat -l
+USER     COMMAND    PID   FD PROTO  LOCAL ADDRESS         FOREIGN ADDRESS
+root     sshd       1016  3  tcp6   *:22                  *:*
+root     sshd       1016  4  tcp4   *:22                  *:*
+...
 ```
