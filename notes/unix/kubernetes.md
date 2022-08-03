@@ -4,11 +4,14 @@
 	- [前置環境配置](#前置環境配置)
 		- [內核及網絡配置](#內核及網絡配置)
 		- [containerd配置](#containerd配置)
+	- [官方源部署](#官方源部署)
 	- [牆國源部署](#牆國源部署)
 	- [安裝Kubernetes軟件包](#安裝kubernetes軟件包)
 	- [初始化集群](#初始化集群)
 		- [排查集群錯誤](#排查集群錯誤)
+		- [重置集群節點](#重置集群節點)
 	- [CNI（Container Network Interface）](#cnicontainer-network-interface)
+		- [使用helm部署網絡插件](#使用helm部署網絡插件)
 
 <!-- /TOC -->
 
@@ -52,7 +55,7 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 # dnf install containerd <!-- 紅帽系 -->
 ```
 
-牆國內還需要配置containerd鏡像源：
+首先生成默認的containerd配置：
 
 ```html
 # mkdir /etc/containerd/
@@ -61,7 +64,17 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 # containerd config default > /etc/containerd/config.toml
 ```
 
-之後修改配置的`sandbox_image`（該項配置默認爲`"k8s.gcr.io/pause:3.5"`，強國無法訪問，需要修改）
+將`SystemdCgroup`配置項設置為true（缺少該配置會導致容器反覆重啟）：
+
+```toml
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+  ...
+  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+    SystemdCgroup = true
+```
+
+**牆國**內還需要配置containerd鏡像源，
+修改配置的`sandbox_image`（該項配置默認爲`"k8s.gcr.io/pause:3.5"`，強國無法訪問，需要修改）
 以及`[plugins."io.containerd.grpc.v1.cri".registry.mirrors]`部分
 （該配置項默認已創建，但默認爲空，早期版本的containerd該項配置可能名稱爲`[plugins.io]`）：
 
@@ -87,6 +100,17 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 
 ```
 # systemctl restart containerd
+```
+
+## 官方源部署
+在牆國之外或使用代理可直接訪問Google源環境的環境下，配置官方源：
+
+```html
+<!-- 導入倉庫籤名 -->
+# curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+<!-- 添加 Kubernetes 倉庫 -->
+# echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
 ```
 
 ## 牆國源部署
@@ -126,7 +150,8 @@ Kubernetes現在默認使用containerd，在牆國由於Kubernetes官方鏡像�
 # kubeadm init 其它參數...
 ```
 
-初始化集群時可設定各類參數，同樣需要設置阿裏鏡像源，否則無法完成初始化：
+初始化集群時可設定各類參數（如calico插件需要使用`--pod-network-cidr=...`配置pod網段）。
+強國部署需要設置阿裏鏡像源，否則無法完成初始化：
 
 ```
 # kubeadm init --image-repository='registry.cn-hangzhou.aliyuncs.com/google_containers'
@@ -196,6 +221,9 @@ $ journalctl -xeu containerd
 
 之後即可通過kubectl工具訪問集群。
 
+### 重置集群節點
+若需要重置集群節點的狀態，在目標節點中使用`kubeadm reset`指令。
+
 ## CNI（Container Network Interface）
 初始化集群後，需要配置[Network Plugins（網絡插件）](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins)，
 否則coredns會一直處於pending狀態：
@@ -233,3 +261,16 @@ kube-system   kube-scheduler-ubuntu-arch64-tokyo            1/1     Running   11
 
 舊的CNI插件已啟動，則即使重置kubeadm節點，已創建的網絡設備不會關閉刪除，
 會影響新的CNI插件工作，因此在重置節點後，若更換了CNI插件，則應重啟服務器，避免干擾配置。
+
+### 使用helm部署網絡插件
+部分CNI支持通過helm部署，以calico為例，
+官方提供了[教程](https://projectcalico.docs.tigera.io/getting-started/kubernetes/helm)
+用於使用helm部署網絡插件。
+
+基本操作：
+
+```html
+<!-- 使用 helm 部署 calico 時，假定 kubeadm 已使用 --pod-network-cidr=192.168.0.0/16 參數初始化 -->
+$ kubectl create namespace tigera-operator
+$ helm install calico projectcalico/tigera-operator --namespace tigera-operator
+```
