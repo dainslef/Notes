@@ -35,6 +35,8 @@
 	- [字符集](#字符集)
 	- [字符類型自動轉換](#字符類型自動轉換)
 	- [枚舉類型](#枚舉類型)
+- [時間類型](#時間類型)
+	- [毫秒/微秒支持](#毫秒微秒支持)
 - [JSON 類型](#json-類型)
 	- [基本JSON操作](#基本json操作)
 	- [查找與更新JSON節點](#查找與更新json節點)
@@ -785,6 +787,49 @@ CREATE TABLE Xxx (
 	...
 );
 ```
+
+
+
+# 時間類型
+MySQL中時間類型包括`DATE`、`TIME`、`DATETIME`、`TIMESTAMP`等，
+詳情參考[MySQL官方文檔](https://dev.mysql.com/doc/refman/en/datetime.html)。
+
+DATETIME/TIMESTAMP標準時間格式為`YYYY-MM-DD hh:mm:ss[.fraction]`，
+DATETIME時間範圍為`1000-01-01 00:00:00`到`9999-12-31 23:59:59`，
+TIMESTAMP時間範圍為`1970-01-01 00:00:01`到`2038-01-19 03:14:07`。
+
+二者均支持使用CURRENT_TIMESTAMP設置默認值，並可設置自動更新：
+
+```sql
+CREATE TABLE t1 (
+  ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  dt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+參考[MySQL官方文檔](https://dev.mysql.com/doc/refman/en/timestamp-initialization.html)
+
+## 毫秒/微秒支持
+MySQL從5.6開始支持高精度時間，詳情參考[MySQL文檔](https://dev.mysql.com/doc/refman/en/fractional-seconds.html)。
+
+默認時間類型僅精確到**秒**級，更高精度的時間使用語法`type_name(fsp)`，
+type_name可為TIME/DATETIME/TIMESTAMP，fsp為數值，範圍`0 ~ 6`。
+
+DATETIME精確到毫秒：
+
+```
+DATETIME(3)
+```
+
+TIMESTAMP精確到微秒：
+
+```
+TIMESTAMP(6)
+```
+
+使用CURRENT_TIMESTAMP為時間設置默認值時，需要與時間精度匹配，
+即DATETIME(3)對應使用CURRENT_TIMESTAMP(3)，
+TIMESTAMP(6)對應使用CURRENT_TIMESTAMP(6)。
 
 
 
