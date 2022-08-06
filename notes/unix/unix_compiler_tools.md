@@ -8,6 +8,7 @@
 - [編譯器](#編譯器)
 	- [基本編譯操作](#基本編譯操作)
 	- [庫文件](#庫文件)
+	- [靜態鏈接與動態鏈接](#靜態鏈接與動態鏈接)
 	- [符號信息](#符號信息)
 	- [頭文件/庫文件路徑](#頭文件庫文件路徑)
 	- [優化級別](#優化級別)
@@ -244,6 +245,53 @@ $ ldconfig -p
 
 	需要注意的是，該命令會在`logout`之後失效，長期使用可已考慮寫入`.xprofile`或`.profile`文件中。
 	靜態鏈接庫由於在編譯階段已經將庫文件包含在可執行文件中，故不會出現類似問題。
+
+## 靜態鏈接與動態鏈接
+動態鏈接和靜態鏈接程序的比較：
+
+| 類別 | 優勢 | 劣勢 |
+| :- | :- | :- |
+| 動態鏈接 | 使用外部動態鏈接庫，程序自身體積較小 | 部署不便，對環境依賴較高 |
+| 靜態鏈接 | 僅依賴操作系統，無其它額外依賴，部署方便 | 所有依賴庫代碼靜態編譯到程序中，程序自身體積較大 |
+
+Linux平臺下編譯器採用**動態鏈接**，多數發行版使用`Glibc`作為C標準庫的實現，
+而Glibc因為設計上的原因，使用靜態鏈接存在諸多問題，
+詳情參考[StackOverflow](https://stackoverflow.com/questions/57476533/why-is-statically-linking-glibc-discouraged)
+上的相關討論。
+
+Linux平臺下靜態鏈接推薦使用[`musl libc`](https://musl.libc.org/)，
+musl相比Glibc實現簡單、直觀、輕量，適合作靜態鏈接使用。
+
+各大Linux發行版通常源中已包含musl，使用發行版內置包管理器安裝即可：
+
+```html
+# apt install musl-tools <!-- 大便系-->
+# pacman -S musl <!-- Arch系 -->
+# nix-env -i musl <!-- Nix -->
+```
+
+musl軟件包提供了主要編譯工具鏈的腳本封裝：
+
+```
+$ musl-gcc
+$ musl-clang
+$ musl-ldd
+```
+
+使用musl提供的工具編譯代碼會使用musl替換Glibc：
+
+```html
+$ musl-gcc test.c
+$ file a.out
+a.out: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-musl-x86_64.so.1, not stripped
+<!-- musl-gcc 編譯生成的二進制使用標準 ldd 查看動態鏈接庫會產生錯誤 -->
+$ ldd a.out
+./a.out: error while loading shared libraries: /usr/lib/x86_64-linux-gnu/libc.so: invalid ELF header
+<!-- 應使用 musl-ldd 方可正常展示動態鏈接庫 -->
+$ musl-ldd a.out
+	/lib/ld-musl-x86_64.so.1 (0x7fab864c4000)
+	libc.so => /lib/ld-musl-x86_64.so.1 (0x7fab864c4000)
+```
 
 ## 符號信息
 使用`nm`命令可以顯示二進制文件的符號信息(符號表)：
