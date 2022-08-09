@@ -4,6 +4,7 @@
 	- [shadowsocks-libev](#shadowsocks-libev)
 - [Trojan](#trojan)
 	- [安裝和管理Trojan服務](#安裝和管理trojan服務)
+	- [FreeBSD編譯安裝Trojan](#freebsd編譯安裝trojan)
 	- [配置Trojan服務](#配置trojan服務)
 	- [生成RSA私有Key和CA](#生成rsa私有key和ca)
 
@@ -82,6 +83,34 @@ Trojan運行TLS協議之上，使用多種協議避免GFW的主動/被動檢測�
 ```html
 # systemctl enable/disable trojan <!-- 開啟/關閉Trojan服務自啟動 -->
 # systemctl start/stop trojan <!-- 啟動/停止Trojan服務 -->
+```
+
+## FreeBSD編譯安裝Trojan
+截止到FreeBSD當前版本（FreeBSD 13.1），Ports以及Pkg源中均未包含Trojan軟件包，因此需要手動編譯，
+編譯部驟參考[官方Wiki](https://trojan-gfw.github.io/trojan/build)。
+
+安裝依賴以及編譯工具：
+
+```
+# pkg install git cmake boost-libs
+```
+
+拉取源碼倉庫執行構建：
+
+```html
+$ git clone https://github.com/trojan-gfw/trojan.git
+$ cd trojan
+$ cmake -DENABLE_MYSQL=OFF <!-- 生成Makefile（關閉MySQL支持） -->
+$ make <!-- 執行make操作 -->
+# make install <!-- 執行安裝操作 -->
+```
+
+執行`make install`後，trojan執行文件會被安裝到`/usr/local/bin/trojan`，
+設置服務自啟動可將其加入`/etc/rc.local`：
+
+```sh
+#! /bin/sh
+/usr/local/bin/trojan &
 ```
 
 ## 配置Trojan服務
