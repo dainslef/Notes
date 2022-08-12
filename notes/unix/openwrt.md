@@ -1,6 +1,8 @@
 <!-- TOC -->
 
 - [mtd](#mtd)
+- [Breed](#breed)
+	- [Breed Web UI](#breed-web-ui)
 
 <!-- /TOC -->
 
@@ -66,3 +68,29 @@ mtd9: 07580000 00020000 "ubi"
 ```
 # mtd -r write 固件路徑 分區名稱
 ```
+
+
+
+# Breed
+[Breed](https://breed.hackpascal.net/)是由[hackpascal](https://github.com/hackpascal)
+開發的閉源Bootloader固件，俗稱「不死鳥」，能夠提供各類增强功能。
+
+Breed主要特性：
+
+- 實時刷機進度。
+- Web刷機模式。
+- Telnet，免TTL進入Breed命令行。
+
+刷機方式與刷入OpenWrt等固件操作類似：
+
+1. 獲取SSH登入權限
+1. 進入命令行，查看ROM分區佈局`cat /proc/mtd`
+1. 使用`mtd`工具刷機，Breed固件應刷入`Bootloader`分區
+
+## Breed Web UI
+通常當路由器啟動失敗，會自動進入Breed；
+或者按住路由器復位鍵直至系統狀態指示燈閃爍後會重啟進入Breed。
+
+進入Breed後，使用計算機網口與路由器的任意LAN口連接，
+計算機的網口設置DHCP（通常會被分配地址`192.168.1.2`），
+打開瀏覽器，訪問頁面`http://192.168.1.1`，即可進入Breed Web UI。
