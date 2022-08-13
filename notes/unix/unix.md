@@ -627,13 +627,22 @@ SSH服務相關配置文件位於`/etc/ssh`路徑下：
 
 常用SSH服務配置：
 
+- `PasswordAuthentication`
+
+	配置是否允許密碼登入。
+
+	| 配置值 | 含義 |
+	| :- | :- |
+	| no | 關閉（默認） |
+	| yes | 開啓 |
+
 - `PermitRootLogin`
 
 	配置SSH服務是否允許root登陸。
 
 	| 配置值 | 含義 |
 	| :- | :- |
-	| yes(默認) | 允許root用戶登陸 |
+	| yes（默認） | 允許root用戶登陸 |
 	| no | 不允許root用戶登陸 |
 	| without-password | 可登陸root用戶，但不能以密碼驗證的方式登陸(可用key驗證) |
 	| forced-commands-only | 可登陸root用戶，但登陸後僅能執行指令後退出，不能交互 |
@@ -2567,7 +2576,7 @@ tcpdump指令的核心用法：
 
 | 參數 | 說明 |
 | :- | :- |
-| -i interface | 指定網卡 |
+| -i interface | 指定網卡，不指定網卡默認使用第一張網卡，可使用any監聽所有網卡 |
 | -n | 禁用地址、端口轉換 |
 | -v | 展示協議類型 |
 | -e | 展示鏈路層頭，對於以太網，展示源、目標地址以及包大小 |
@@ -2585,7 +2594,6 @@ tcpdump抓包的內容可導入/導出PCAP（PEE-cap）文件：
 
 ```html
 <!-- 依據網絡地址過濾 -->
-# tcpdump  網口
 # tcpdump host a.b.c.d
 # tcpdump src a.b.c.d
 # tcpdump dst a.b.c.d
@@ -2609,8 +2617,13 @@ tcpdump抓包的內容可導入/導出PCAP（PEE-cap）文件：
 tcpdump數據過濾表達式可搭配or、and、not等邏輯操作符組合多種條件：
 
 ```html
+<!-- 過濾指定目標的ICMP協議 -->
+# tcpdump dst a.b.c.d and icmp
 <!-- 過濾指定子網下非SSH協議 -->
 # tcpdump net a.b.c.d/子網 and not ssh and port not 80
+
+<!-- 可通過括號設置條件優先級（表達式需要加引號） -->
+#  tcpdump "net a.b.c.d/子網 and (port 80 or port 443)"
 ```
 
 ## Netcat (nc)
@@ -2755,7 +2768,7 @@ SNAT       all  --  10.8.0.0/24          anywhere             to:192.168.110.181
 
 ```html
 <!-- SNAT -->
-# iptables -t nat -A POSTROUTING -s 源網段/地址 -o eth0 -j MASQUERADE
+# iptables -t nat -A POSTROUTING -s 源網段/地址 -o 網卡 -j MASQUERADE
 # iptables -t nat -A POSTROUTING -s 源網段/地址 -o 網卡 -j SNAT --to-source 需要轉換成的地址
 <!-- DNAT -->
 # iptables -t nat -A PREROUTING -d 目標網段/地址 -o 網卡 -j DNAT --to-destination 需要轉換成的地址
@@ -4064,6 +4077,12 @@ deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-updates main restricted universe 
 deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted universe muitiverse
 
 deb http://archive.canonical.com/ubuntu/ xenial partner
+```
+
+快速將官方源替換為USTC源：
+
+```
+# sed -i 's/archive.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
 ```
 
 ## apt-mirror
