@@ -15,6 +15,7 @@
 	- [容器管理](#容器管理)
 	- [容器生成鏡像](#容器生成鏡像)
 	- [容器導入/導出](#容器導入導出)
+	- [鏡像導入/導出](#鏡像導入導出)
 	- [構建鏡像](#構建鏡像)
 	- [Docker Hub](#docker-hub)
 	- [Docker Registry Server](#docker-registry-server)
@@ -399,19 +400,35 @@ $ docker commit [選項] [容器ID/容器名稱] [鏡像倉庫:鏡像TAG]
 `docker commit`僅會提交相對基礎鏡像變化的部分。
 
 ## 容器導入/導出
-使用`docker save/export`指令將容器的內容導出爲`*.tar`格式的壓縮文件：
+使用`docker export`指令將容器的內容導出爲`*.tar`格式的壓縮文件：
 
-```
-$ docker save/export [容器ID/容器名稱] -o [備份.tar]
-```
-
-使用`docker import`指令將`*.tar`形式的容器備份導入爲鏡像：
-
-```
-$ docker import [備份.tar] [鏡像倉庫:鏡像TAG]
+```html
+$ docker export 容器ID/容器名稱 -o 備份tar文件
+$ docker export > 備份tar文件 <!-- 亦可使用輸出重定向生成備份tar文件 -->
 ```
 
-導入鏡像時`鏡像倉庫:鏡像TAG`參數可以省略，省略該參數時，導入鏡像的`REPOSITORY`與`TAG`均爲`<none>`。
+使用`docker import`指令將tar容器備份導入爲鏡像：
+
+```
+$ docker import 備份tar文件 鏡像倉庫:鏡像TAG
+```
+
+導入鏡像時`鏡像倉庫:鏡像TAG`參數可以省略，省略該參數時，導入鏡像的REPOSITORY與TAG均爲`<none>`。
+
+## 鏡像導入/導出
+使用`docker save`指令將鏡像導出為`*.tar`格式的壓縮文件：
+
+```html
+$ docker save 鏡像ID/鏡像名稱 -o 備份tar文件
+$ docker save 鏡像ID/鏡像名稱 > 備份tar文件
+```
+
+使用`docker load`指令將tar鏡像備份導入：
+
+```
+$ docker load -i 備份tar文件
+$ docker load < 備份tar文件
+```
 
 ## 構建鏡像
 Docker使用dockerfile描述鏡像，使用`docker build`指令通過描述文件構建鏡像。
