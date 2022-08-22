@@ -3,6 +3,8 @@
 - [mtd](#mtd)
 - [Breed](#breed)
 	- [Breed Web UI](#breed-web-ui)
+- [OpenWrt基本配置](#openwrt基本配置)
+	- [opkg包管理器](#opkg包管理器)
 
 <!-- /TOC -->
 
@@ -94,3 +96,60 @@ Breed主要特性：
 進入Breed後，使用計算機網口與路由器的任意LAN口連接，
 計算機的網口設置DHCP（通常會被分配地址`192.168.1.2`），
 打開瀏覽器，訪問頁面`http://192.168.1.1`，即可進入Breed Web UI。
+
+
+
+# OpenWrt基本配置
+[`OpenWrt`](https://openwrt.org/)是當下最流行的Linux嵌入式路由系統。
+
+## opkg包管理器
+[Opkg package manager](https://openwrt.org/docs/guide-user/additional-software/opkg)
+是OpenWrt系統內置的包管理器。
+
+opkg包管理器的軟件源配置文件為`/etc/opkg/distfeeds.conf`，
+替換軟件源為牆國USTC源：
+
+```
+$ sed -i 's/downloads.openwrt.org/mirrors.ustc.edu.cn\/openwrt/g' /etc/opkg/distfeeds.conf
+```
+
+OpenWRT提供的opkg包管理器被設計運行在嵌入式環境中，
+因此遠比傳統的包管理器更加輕量級，功能也更加簡陋。
+
+基本操作：
+
+```html
+<!-- 查詢軟件包 -->
+# opkg list '*軟件包名稱*'
+<!-- 安裝軟件包 -->
+# opkg install 軟件包名稱
+<!-- 移除軟件包（同時移除軟件包的孤兒依賴） -->
+# opkg remove --autoremove 軟件包名稱
+```
+
+opkg升級所有軟件包：
+
+```
+# opkg list-upgradable | cut -f 1 -d ' ' | xargs -r opkg upgrade
+```
+
+系統中已安裝的軟件包信息存儲在`/rom/usr/lib/opkg/status`文件中，
+軟件包信息示例：
+
+```
+# cat /rom/usr/lib/opkg/status
+Package: luci-app-firewall
+Version: git-22.089.67741-3856d50
+Depends: libc, firewall
+Status: install user installed
+Architecture: all
+Installed-Time: 1650113974
+Auto-Installed: yes
+...
+```
+
+查找所有手動安裝的軟件包：
+
+```
+# for i in `opkg list-installed |sed 's/ - .*//'`; do if !(cat /rom/usr/lib/opkg/status |grep -q "Package: $i") && !(opkg whatdepends $i |grep -q "depends on $i"); then echo $i; fi; done
+```
