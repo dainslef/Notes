@@ -5,6 +5,10 @@
 	- [Breed Web UI](#breed-web-ui)
 - [OpenWrt基本配置](#openwrt基本配置)
 	- [opkg包管理器](#opkg包管理器)
+		- [軟件源配置](#軟件源配置)
+		- [基本包管理操作](#基本包管理操作)
+		- [檢查軟件包安裝狀態](#檢查軟件包安裝狀態)
+		- [強制安裝軟件包](#強制安裝軟件包)
 
 <!-- /TOC -->
 
@@ -106,6 +110,7 @@ Breed主要特性：
 [Opkg package manager](https://openwrt.org/docs/guide-user/additional-software/opkg)
 是OpenWrt系統內置的包管理器。
 
+### 軟件源配置
 opkg包管理器的軟件源配置文件為`/etc/opkg/distfeeds.conf`，
 替換軟件源為牆國USTC源：
 
@@ -113,6 +118,7 @@ opkg包管理器的軟件源配置文件為`/etc/opkg/distfeeds.conf`，
 $ sed -i 's/downloads.openwrt.org/mirrors.ustc.edu.cn\/openwrt/g' /etc/opkg/distfeeds.conf
 ```
 
+### 基本包管理操作
 OpenWRT提供的opkg包管理器被設計運行在嵌入式環境中，
 因此遠比傳統的包管理器更加輕量級，功能也更加簡陋。
 
@@ -133,6 +139,7 @@ opkg升級所有軟件包：
 # opkg list-upgradable | cut -f 1 -d ' ' | xargs -r opkg upgrade
 ```
 
+### 檢查軟件包安裝狀態
 系統中已安裝的軟件包信息存儲在`/rom/usr/lib/opkg/status`文件中，
 軟件包信息示例：
 
@@ -148,8 +155,55 @@ Auto-Installed: yes
 ...
 ```
 
-查找所有手動安裝的軟件包：
+### 強制安裝軟件包
+當使用自編譯鏡像時，安裝內核模塊會出現依賴不滿足的錯誤，
+因為即使源碼、配置無任何改動，自編譯鏡像的內核版本與倉庫中內核模塊依賴信息中的小版本也號不相符，
+具體參見[OpenWRT官方文檔](https://openwrt.org/faq/cannot_satisfy_dependencies)。
+
+錯誤示例：
+
+```html
+<!-- 安裝內核模塊，提示內核版本不滿足依賴要求 -->
+# opkg install kmod-fs-exfat
+Installing kmod-fs-exfat (4.14.90+2017-06-20-de4c760b-1) to root...
+Downloading http://fw.gl-inet.cn/releases/v18.06.5/kmod-3.8/siflower/sf19a28_nand/kmod-fs-exfat_4.14.90%2b2017-06-20-de4c760b-1_mips_siflower.ipk
+Collected errors:
+ * satisfy_dependencies_for: Cannot satisfy the following dependencies for kmod-fs-exfat:
+ * 	kernel (= 4.14.90-1-8e7f05250007b3b96947722cb34fb82f) *
+ * opkg_install_cmd: Cannot install package kmod-fs-exfat.
+
+<!-- 查看內核版本信息，可知內核小版本號不滿足要求 -->
+# opkg info kernel
+Package: kernel
+Version: 4.14.90-1-36a80e72295637cf4e383d8ee24054dd
+Depends: libc
+Status: install user installed
+Architecture: mips_siflower
+Installed-Time: 1661108424
+```
+
+解決方案是直接編譯需要的模塊，或安裝時使用`--force-depends`參數強制安裝：
 
 ```
-# for i in `opkg list-installed |sed 's/ - .*//'`; do if !(cat /rom/usr/lib/opkg/status |grep -q "Package: $i") && !(opkg whatdepends $i |grep -q "depends on $i"); then echo $i; fi; done
+# opkg install --force-depends kmod-fs-exfat
+Installing kmod-fs-exfat (4.14.90+2017-06-20-de4c760b-1) to root...
+Downloading http://fw.gl-inet.cn/releases/v18.06.5/kmod-3.8/siflower/sf19a28_nand/kmod-fs-exfat_4.14.90%2b2017-06-20-de4c760b-1_mips_siflower.ipk
+Configuring kmod-fs-exfat.
+Collected errors:
+ * satisfy_dependencies_for: Cannot satisfy the following dependencies for kmod-fs-exfat:
+ * 	kernel (= 4.14.90-1-8e7f05250007b3b96947722cb34fb82f) *
+
+# opkg info kmod-fs-exfat
+Package: kmod-fs-exfat
+Version: 4.14.90+2017-06-20-de4c760b-1
+Depends: kernel (= 4.14.90-1-8e7f05250007b3b96947722cb34fb82f), kmod-nls-base
+Status: install user installed
+Section: kernel
+Architecture: mips_siflower
+Size: 51043
+Filename: kmod-fs-exfat_4.14.90+2017-06-20-de4c760b-1_mips_siflower.ipk
+Description: Kernel module for ExFAT Filesytems
+Installed-Time: 1661238557
 ```
+
+強制安裝依舊會輸出依賴不滿足的告警信息，但軟件包已安裝成功。
