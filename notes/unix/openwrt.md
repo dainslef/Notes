@@ -9,6 +9,7 @@
 		- [基本包管理操作](#基本包管理操作)
 		- [檢查軟件包安裝狀態](#檢查軟件包安裝狀態)
 		- [強制安裝軟件包](#強制安裝軟件包)
+	- [關閉倉庫證書校驗](#關閉倉庫證書校驗)
 
 <!-- /TOC -->
 
@@ -115,7 +116,7 @@ opkg包管理器的軟件源配置文件為`/etc/opkg/distfeeds.conf`，
 替換軟件源為牆國USTC源：
 
 ```
-$ sed -i 's/downloads.openwrt.org/mirrors.ustc.edu.cn\/openwrt/g' /etc/opkg/distfeeds.conf
+# sed -i 's/downloads.openwrt.org/mirrors.ustc.edu.cn\/openwrt/g' /etc/opkg/distfeeds.conf
 ```
 
 ### 基本包管理操作
@@ -139,6 +140,10 @@ opkg升級所有軟件包：
 # opkg list-upgradable | cut -f 1 -d ' ' | xargs -r opkg upgrade
 ```
 
+在OpenWRT中，升級所有軟件包的操作有一定危險性，
+當當使用自編譯固件時，應儘量避免使用該功能，
+自行編譯的固件可能與官方源的軟件包不兼容（例如部分軟件包的動態鏈接庫不匹配）。
+
 ### 檢查軟件包安裝狀態
 系統中已安裝的軟件包信息存儲在`/rom/usr/lib/opkg/status`文件中，
 軟件包信息示例：
@@ -153,6 +158,12 @@ Architecture: all
 Installed-Time: 1650113974
 Auto-Installed: yes
 ...
+```
+
+查找所有手動安裝的軟件包（ash語法）：
+
+```ash
+$ for i in `opkg list-installed |sed 's/ - .*//'`; do if !(cat /rom/usr/lib/opkg/status | grep -q "Package: $i") && !(opkg whatdepends $i | grep -q "depends on $i"); then echo $i; fi; done
 ```
 
 ### 強制安裝軟件包
@@ -207,3 +218,22 @@ Installed-Time: 1661238557
 ```
 
 強制安裝依舊會輸出依賴不滿足的告警信息，但軟件包已安裝成功。
+
+## 關閉倉庫證書校驗
+對於部分非官方倉庫（如GL.iNET的廠家倉庫），默認配置下更新源會得到證書校驗失敗的錯誤：
+
+```
+root@OpenWrt:~# opkg update
+Downloading https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/kmod-4.0/arm_cortex-a7/ip60xx/Packages.gz
+Updated list of available packages in /var/opkg-lists/glinet_core
+Downloading https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/kmod-4.0/arm_cortex-a7/ip60xx/Packages.sig
+Signature check failed.
+Remove wrong Signature file.
+...
+```
+
+對於非官方倉庫，應關閉簽名校驗，編輯`/etc/opkg.conf`，註釋證書校驗相關內容：
+
+```sh
+# option check_signature
+```
