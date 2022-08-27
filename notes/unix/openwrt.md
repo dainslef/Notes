@@ -10,6 +10,8 @@
 		- [檢查軟件包安裝狀態](#檢查軟件包安裝狀態)
 		- [強制安裝軟件包](#強制安裝軟件包)
 	- [關閉倉庫證書校驗](#關閉倉庫證書校驗)
+	- [切換默認Shell](#切換默認shell)
+	- [Dropbear SSH](#dropbear-ssh)
 
 <!-- /TOC -->
 
@@ -236,4 +238,33 @@ Remove wrong Signature file.
 
 ```sh
 # option check_signature
+```
+
+## 切換默認Shell
+OpenWrt中默認使用ash，功能較弱，可通過包管理器安裝fish：
+
+```
+# opkg install fish
+```
+
+OpenWrt使用Busybox提供輕量級的系統環境，因此並未提供chsh用於切換shell，
+可手動修改`/etc/passwd`文件修改指定用戶的shell：
+
+```html
+<!-- 將原先的 /bin/ash 改為 /usr/bin/fish -->
+root:x:0:0:root:/root:/usr/bin/fish
+...
+```
+
+需要保證使用的shell已加入`/etc/shells`文件中。
+
+## Dropbear SSH
+OpenWRT並未使用主流的SSH實現（OpenSSH），
+而選用了更加輕量級的[`Dropbear SSH`](https://matt.ucc.asn.au/dropbear/dropbear.html)。
+Dropbear的軟件體積和資源消耗相比OpenSSH低得多，更加適合OpenWRT的應用場景。
+
+Dropbear僅提供了SSH遠程服務，並未提供SFTP功能，相關功能依舊需要安裝`openssh-sftp-server`：
+
+```
+# opkg install openssh-sftp-server
 ```
