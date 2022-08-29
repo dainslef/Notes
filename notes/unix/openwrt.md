@@ -12,6 +12,8 @@
 	- [關閉倉庫證書校驗](#關閉倉庫證書校驗)
 	- [切換默認Shell](#切換默認shell)
 	- [Dropbear SSH](#dropbear-ssh)
+	- [服務管理](#服務管理)
+	- [語言設置](#語言設置)
 
 <!-- /TOC -->
 
@@ -267,4 +269,82 @@ Dropbear僅提供了SSH遠程服務，並未提供SFTP功能，相關功能依�
 
 ```
 # opkg install openssh-sftp-server
+```
+
+## 服務管理
+OpenWRT使用傳統SysV init風格腳本管理，服務腳本位於`/etc/init.d`路徑下。
+服務腳本提供統一格式的操作指令，以Dropbear SSH為例：
+
+```html
+Syntax: /etc/init.d/dropbear [command]
+
+Available commands:
+	start           Start the service
+	stop            Stop the service
+	restart         Restart the service
+	reload          Reload configuration files (or restart if service does not implement reload)
+	enable          Enable service autostart
+	disable         Disable service autostart
+	enabled         Check if service is started on boot
+	killclients     Kill dropbear processes except servers and yourself
+	running         Check if service is running
+	status          Service status
+	trace           Start with syscall trace
+```
+
+使用`enable`服務指令開啟服務自啟動會在`/etc/rc.d`路徑下創建對應服務的**符號鏈接**；
+使用`disable`服務指令關閉服務自啟動則會對應移除`/etc/rc.d`路徑下的符號鏈接。
+
+## 語言設置
+LuCI介面語言在配置`/etc/config/luci`中：
+
+```
+...
+config internal 'languages'
+	option en 'English'
+	option jp '日本語'
+	option zh_tw '台湾語'
+	option zh_cn 'シナ語'
+...
+```
+
+除英文外，其它語言需要安裝對應語言包，語言相關包以`luci-i18n`為前綴：
+
+```
+# opkg list 'luci-i18n*'
+...
+luci-i18n-base-ar - git-21.282.73955-9987b39 - Translation for luci-base - العربية (Arabic)
+luci-i18n-base-bg - git-21.282.73955-9987b39 - Translation for luci-base - български (Bulgarian)
+luci-i18n-base-bn - git-21.282.73955-9987b39 - Translation for luci-base - বাংলা (Bengali)
+luci-i18n-base-ca - git-21.282.73955-9987b39 - Translation for luci-base - Català (Catalan)
+luci-i18n-base-cs - git-21.282.73955-9987b39 - Translation for luci-base - Čeština (Czech)
+luci-i18n-base-de - git-21.282.73955-9987b39 - Translation for luci-base - Deutsch (German)
+luci-i18n-base-el - git-21.282.73955-9987b39 - Translation for luci-base - Ελληνικά (Greek)
+luci-i18n-base-en - git-21.282.73955-9987b39 - Translation for luci-base - English
+luci-i18n-base-es - git-21.282.73955-9987b39 - Translation for luci-base - Español (Spanish)
+luci-i18n-base-fi - git-21.282.73955-9987b39 - Translation for luci-base - Suomi (Finnish)
+luci-i18n-base-fr - git-21.282.73955-9987b39 - Translation for luci-base - Français (French)
+luci-i18n-base-he - git-21.282.73955-9987b39 - Translation for luci-base - עִבְרִית (Hebrew)
+luci-i18n-base-hi - git-21.282.73955-9987b39 - Translation for luci-base - हिंदी (Hindi)
+luci-i18n-base-hu - git-21.282.73955-9987b39 - Translation for luci-base - Magyar (Hungarian)
+luci-i18n-base-it - git-21.282.73955-9987b39 - Translation for luci-base - Italiano (Italian)
+luci-i18n-base-ja - git-21.282.73955-9987b39 - Translation for luci-base - 日本語 (Japanese)
+luci-i18n-base-ko - git-21.282.73955-9987b39 - Translation for luci-base - 한국어 (Korean)
+luci-i18n-base-mr - git-21.282.73955-9987b39 - Translation for luci-base - Marāṭhī (Marathi)
+luci-i18n-base-ms - git-21.282.73955-9987b39 - Translation for luci-base - Bahasa Melayu (Malay)
+luci-i18n-base-nl - git-21.282.73955-9987b39 - Translation for luci-base - Nederlands (Dutch)
+luci-i18n-base-no - git-21.282.73955-9987b39 - Translation for luci-base - Norsk (Norwegian)
+luci-i18n-base-pl - git-21.282.73955-9987b39 - Translation for luci-base - Polski (Polish)
+luci-i18n-base-pt - git-21.282.73955-9987b39 - Translation for luci-base - Português (Portuguese)
+luci-i18n-base-pt-br - git-21.282.73955-9987b39 - Translation for luci-base - Português do Brasil (Brazilian Portuguese)
+luci-i18n-base-ro - git-21.282.73955-9987b39 - Translation for luci-base - Română (Romanian)
+luci-i18n-base-ru - git-21.282.73955-9987b39 - Translation for luci-base - Русский (Russian)
+luci-i18n-base-sk - git-21.282.73955-9987b39 - Translation for luci-base - Slovenčina (Slovak)
+luci-i18n-base-sv - git-21.282.73955-9987b39 - Translation for luci-base - Svenska (Swedish)
+luci-i18n-base-tr - git-21.282.73955-9987b39 - Translation for luci-base - Türkçe (Turkish)
+luci-i18n-base-uk - git-21.282.73955-9987b39 - Translation for luci-base - Українська (Ukrainian)
+luci-i18n-base-vi - git-21.282.73955-9987b39 - Translation for luci-base - Tiếng Việt (Vietnamese)
+luci-i18n-base-zh-cn - git-21.282.73955-9987b39 - Translation for luci-base - 简体中文 (Chinese Simplified)
+luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - 繁體中文 (Chinese Traditional)
+...
 ```
