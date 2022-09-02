@@ -14,6 +14,7 @@
 	- [Dropbear SSH](#dropbear-ssh)
 	- [服務管理](#服務管理)
 	- [語言設置](#語言設置)
+	- [存儲與文件系統](#存儲與文件系統)
 
 <!-- /TOC -->
 
@@ -78,6 +79,12 @@ mtd9: 07580000 00020000 "ubi"
 
 ```
 # mtd -r write 固件路徑 分區名稱
+```
+
+使用mtd重置系統：
+
+```
+# mtd erase rootfs_data
 ```
 
 
@@ -347,4 +354,32 @@ luci-i18n-base-vi - git-21.282.73955-9987b39 - Translation for luci-base - Tiế
 luci-i18n-base-zh-cn - git-21.282.73955-9987b39 - Translation for luci-base - 简体中文 (Chinese Simplified)
 luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - 繁體中文 (Chinese Traditional)
 ...
+```
+
+## 存儲與文件系統
+多數OpenWRT鏡像默認未集成存儲相關工具，安裝常用工具：
+
+```html
+<!-- 安裝 lsblk fdisk -->
+# opkg install fdisk lsblk
+```
+
+使用掛載文件系統需要安裝啟用對應的內核模塊：
+
+```html
+<!-- ext4文件系統 -->
+# opkg install e2fsprogs <!-- mkfs.ext4 等 -->
+# opkg install kmod-fs-ext4
+
+<!-- f2fs文件系統 -->
+# opkg install f2fs-tools <!-- mkfs.f2fs 等 -->
+# opkg install kmod-fs-f2fs
+```
+
+內核模塊`kmod-fs-ntfs`對NTFS文件系統支持較差，
+使用內核模塊掛載NTFS會出現目錄顯示不全、無法被Samba共享等問題，
+推薦使用`ntfs-3g`，能正常展示NTFS文件系統內容：
+
+```
+# opkg install ntfs-3g
 ```
