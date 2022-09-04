@@ -177,6 +177,24 @@ Auto-Installed: yes
 $ for i in `opkg list-installed |sed 's/ - .*//'`; do if !(cat /rom/usr/lib/opkg/status | grep -q "Package: $i") && !(opkg whatdepends $i | grep -q "depends on $i"); then echo $i; fi; done
 ```
 
+查找所有手動安裝的軟件包（fish語法）：
+
+```fish
+#! /usr/bin/fish
+
+set rom_packages (cat /rom/usr/lib/opkg/status)
+
+for package_info in (cat /usr/lib/opkg/status | tr '\n' ';' | sed 's/;;/\n/g')
+	if not [ (string match "*Auto-Installed: yes*" $package_info) ]
+		# Find packages which are not auto installed.
+		set package_name (string match -r "(?<=Package: )[\w-]+" $package_info)
+		# Check if package not in rom (pre-installed).
+		string match -q "*Package: "$package_name"*" $rom_packages
+		if [ $status = 1 ]; echo $package_name; end
+	end
+end
+```
+
 ### 強制安裝軟件包
 當使用自編譯鏡像時，安裝內核模塊會出現依賴不滿足的錯誤，
 因為即使源碼、配置無任何改動，自編譯鏡像的內核版本與倉庫中內核模塊依賴信息中的小版本也號不相符，
