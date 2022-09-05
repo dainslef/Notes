@@ -190,7 +190,11 @@ for package_info in (cat /usr/lib/opkg/status | tr '\n' ';' | sed 's/;;/\n/g')
 		set package_name (string match -r "(?<=Package: )[\w-]+" $package_info)
 		# Check if package not in rom (pre-installed).
 		string match -q "*Package: "$package_name"*" $rom_packages
-		if [ $status = 1 ]; echo $package_name; end
+		if [ $status = 1 ]
+			opkg whatdepends $package_name | grep -q "depends on $package_name"
+			set not_used_by_others ([ $status = 1 ] && echo clean || echo used by others)
+			echo $package_name"("$not_used_by_others")"
+		end
 	end
 end
 ```
@@ -290,7 +294,8 @@ OpenWRT並未使用主流的SSH實現（OpenSSH），
 而選用了更加輕量級的[`Dropbear SSH`](https://matt.ucc.asn.au/dropbear/dropbear.html)。
 Dropbear的軟件體積和資源消耗相比OpenSSH低得多，更加適合OpenWRT的應用場景。
 
-Dropbear僅提供了SSH遠程服務，並未提供SFTP功能，相關功能依舊需要安裝`openssh-sftp-server`：
+Dropbear的SFTP功能需在編譯時開啟，部分固件的Dropbear僅並未提供該功能，
+相關功能依舊需要安裝`openssh-sftp-server`：
 
 ```
 # opkg install openssh-sftp-server
