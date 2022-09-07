@@ -15,6 +15,10 @@
 	- [服務管理](#服務管理)
 	- [語言設置](#語言設置)
 	- [存儲與文件系統](#存儲與文件系統)
+		- [檢查磁盤信息](#檢查磁盤信息)
+		- [存儲自動掛載](#存儲自動掛載)
+		- [掛載USB存儲](#掛載usb存儲)
+		- [掛載SD卡存儲](#掛載sd卡存儲)
 
 <!-- /TOC -->
 
@@ -343,41 +347,18 @@ config internal 'languages'
 ```
 # opkg list 'luci-i18n*'
 ...
-luci-i18n-base-ar - git-21.282.73955-9987b39 - Translation for luci-base - العربية (Arabic)
-luci-i18n-base-bg - git-21.282.73955-9987b39 - Translation for luci-base - български (Bulgarian)
-luci-i18n-base-bn - git-21.282.73955-9987b39 - Translation for luci-base - বাংলা (Bengali)
-luci-i18n-base-ca - git-21.282.73955-9987b39 - Translation for luci-base - Català (Catalan)
-luci-i18n-base-cs - git-21.282.73955-9987b39 - Translation for luci-base - Čeština (Czech)
-luci-i18n-base-de - git-21.282.73955-9987b39 - Translation for luci-base - Deutsch (German)
-luci-i18n-base-el - git-21.282.73955-9987b39 - Translation for luci-base - Ελληνικά (Greek)
 luci-i18n-base-en - git-21.282.73955-9987b39 - Translation for luci-base - English
-luci-i18n-base-es - git-21.282.73955-9987b39 - Translation for luci-base - Español (Spanish)
-luci-i18n-base-fi - git-21.282.73955-9987b39 - Translation for luci-base - Suomi (Finnish)
+...
 luci-i18n-base-fr - git-21.282.73955-9987b39 - Translation for luci-base - Français (French)
-luci-i18n-base-he - git-21.282.73955-9987b39 - Translation for luci-base - עִבְרִית (Hebrew)
-luci-i18n-base-hi - git-21.282.73955-9987b39 - Translation for luci-base - हिंदी (Hindi)
-luci-i18n-base-hu - git-21.282.73955-9987b39 - Translation for luci-base - Magyar (Hungarian)
-luci-i18n-base-it - git-21.282.73955-9987b39 - Translation for luci-base - Italiano (Italian)
+...
 luci-i18n-base-ja - git-21.282.73955-9987b39 - Translation for luci-base - 日本語 (Japanese)
-luci-i18n-base-ko - git-21.282.73955-9987b39 - Translation for luci-base - 한국어 (Korean)
-luci-i18n-base-mr - git-21.282.73955-9987b39 - Translation for luci-base - Marāṭhī (Marathi)
-luci-i18n-base-ms - git-21.282.73955-9987b39 - Translation for luci-base - Bahasa Melayu (Malay)
-luci-i18n-base-nl - git-21.282.73955-9987b39 - Translation for luci-base - Nederlands (Dutch)
-luci-i18n-base-no - git-21.282.73955-9987b39 - Translation for luci-base - Norsk (Norwegian)
-luci-i18n-base-pl - git-21.282.73955-9987b39 - Translation for luci-base - Polski (Polish)
-luci-i18n-base-pt - git-21.282.73955-9987b39 - Translation for luci-base - Português (Portuguese)
-luci-i18n-base-pt-br - git-21.282.73955-9987b39 - Translation for luci-base - Português do Brasil (Brazilian Portuguese)
-luci-i18n-base-ro - git-21.282.73955-9987b39 - Translation for luci-base - Română (Romanian)
-luci-i18n-base-ru - git-21.282.73955-9987b39 - Translation for luci-base - Русский (Russian)
-luci-i18n-base-sk - git-21.282.73955-9987b39 - Translation for luci-base - Slovenčina (Slovak)
-luci-i18n-base-sv - git-21.282.73955-9987b39 - Translation for luci-base - Svenska (Swedish)
-luci-i18n-base-tr - git-21.282.73955-9987b39 - Translation for luci-base - Türkçe (Turkish)
-luci-i18n-base-uk - git-21.282.73955-9987b39 - Translation for luci-base - Українська (Ukrainian)
-luci-i18n-base-vi - git-21.282.73955-9987b39 - Translation for luci-base - Tiếng Việt (Vietnamese)
+...
 luci-i18n-base-zh-cn - git-21.282.73955-9987b39 - Translation for luci-base - 简体中文 (Chinese Simplified)
 luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - 繁體中文 (Chinese Traditional)
 ...
 ```
+
+卸載語言包不會移除對應語言的配置項，需要手動移除對應配置。
 
 ## 存儲與文件系統
 多數OpenWRT鏡像默認未集成存儲相關工具，安裝常用工具：
@@ -406,3 +387,53 @@ luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - �
 ```
 # opkg install ntfs-3g
 ```
+
+### 檢查磁盤信息
+使用`block`工具可查看各個分區的狀態、掛載、文件系統等信息：
+
+```
+# block info
+/dev/mtdblock6: UUID="2118722505" VERSION="1" TYPE="ubi"
+/dev/ubiblock0_0: UUID="86b6559c-7bba04fb-5f6ce299-53272fd0" VERSION="4.0" MOUNT="/rom" TYPE="squashfs"
+/dev/ubi0_1: UUID="85f078b9-7bf6-4f4d-a9f1-2fe9d12fcfc1" VERSION="w4r0" MOUNT="/overlay" TYPE="ubifs"
+/dev/sda1: UUID="0000001800000048" TYPE="ntfs"
+...
+```
+
+block工具在fish下存在BUG，不會輸出任何信息。
+
+### 存儲自動掛載
+通過`block-mount`軟件包實現自動掛載存儲：
+
+```
+# opkg install block-mount
+```
+
+安裝block-mount軟件包後，會生成`/etc/config/fstab`配置項，
+在該配置中加入自動掛載配置即可。
+
+### 掛載USB存儲
+對於具有USB接口的設備，可通過USB接口連接外置硬盤等設備將OpenWRT路由用作NAS。
+相關說明可參考[OpenWRT官方文檔](https://openwrt.org/docs/guide-user/storage/usb-drives)。
+
+應安裝USB存儲內核模塊，否則無法識別USB存儲設備：
+
+```html
+<!-- uas 模塊包含多數現代 USB 3.0 移動硬盤設備的支持 -->
+# opkg install kmod-usb-storage-uas
+```
+
+### 掛載SD卡存儲
+對於具有SD卡槽的設備，需要安裝對應的內核模塊，否則無法識別設備：
+
+```
+# opkg install kmod-sdhci
+```
+
+部分設備可能需要安裝特定芯片的內核模塊，如使用`mt7620`芯片組的設備：
+
+```
+# opkg install kmod-sdhci-mt7620
+```
+
+安裝對應的內核模塊後，SD卡設備即會出現，通常為`/dev/mmcblk*`。
