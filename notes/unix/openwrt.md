@@ -19,6 +19,7 @@
 		- [存儲自動掛載](#存儲自動掛載)
 		- [掛載USB存儲](#掛載usb存儲)
 		- [掛載SD卡存儲](#掛載sd卡存儲)
+		- [擴展根分區](#擴展根分區)
 
 <!-- /TOC -->
 
@@ -437,3 +438,26 @@ block工具在fish下存在BUG，不會輸出任何信息。
 ```
 
 安裝對應的內核模塊後，SD卡設備即會出現，通常為`/dev/mmcblk*`。
+
+### 擴展根分區
+對於支持SD卡/USB等外置存儲的設備，可將外置存儲作為設備的根分區，
+參考[OpenWRT官方文檔](https://openwrt.org/docs/guide-user/additional-software/extroot_configuration)。
+
+掛載外置存儲設備（以SD卡設備為例），拷貝現有overlay文件系統的內容到新分區：
+
+```
+# mount /dev/mmcblk0p1 /mnt
+# cp -r /overlay/upper /mnt
+```
+
+使用`block info`查看用作overlay分區的UUID，
+之後編輯`/etc/config/fstab`，添加新的overlay分區的掛載信息：
+
+```
+...
+config 'mount'
+	option uuid 'xxx_uuid...'
+	option target '/overlay'
+```
+
+之後重啟路由器即可。
