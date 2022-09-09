@@ -7,6 +7,7 @@
 	- [opkg包管理器](#opkg包管理器)
 		- [軟件源配置](#軟件源配置)
 		- [基本包管理操作](#基本包管理操作)
+		- [升級系統軟件包](#升級系統軟件包)
 		- [檢查軟件包安裝狀態](#檢查軟件包安裝狀態)
 		- [強制安裝軟件包](#強制安裝軟件包)
 	- [關閉倉庫證書校驗](#關閉倉庫證書校驗)
@@ -15,7 +16,6 @@
 	- [服務管理](#服務管理)
 	- [語言設置](#語言設置)
 	- [存儲與文件系統](#存儲與文件系統)
-		- [檢查磁盤信息](#檢查磁盤信息)
 		- [存儲自動掛載](#存儲自動掛載)
 		- [掛載USB存儲](#掛載usb存儲)
 		- [掛載SD卡存儲](#掛載sd卡存儲)
@@ -148,9 +148,12 @@ OpenWRT提供的opkg包管理器被設計運行在嵌入式環境中，
 # opkg install 軟件包名稱
 <!-- 移除軟件包（同時移除軟件包的孤兒依賴） -->
 # opkg remove --autoremove 軟件包名稱
+<!-- 列出軟件包內容 -->
+# opkg files 軟件包名稱
 ```
 
-opkg升級所有軟件包：
+### 升級系統軟件包
+opkg並未直接提供升級所有軟件包功能，可利用管道操作組合指令實現：
 
 ```
 # opkg list-upgradable | cut -f 1 -d ' ' | xargs -r opkg upgrade
@@ -389,8 +392,35 @@ luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - �
 # opkg install ntfs-3g
 ```
 
-### 檢查磁盤信息
-使用`block`工具可查看各個分區的狀態、掛載、文件系統等信息：
+### 存儲自動掛載
+通過`block-mount`軟件包實現自動掛載存儲：
+
+```
+# opkg install block-mount
+```
+
+安裝block-mount軟件包後，會生成`/etc/config/fstab`配置項，
+在該配置中加入自動掛載配置即可。
+
+掛載配置語法：
+
+```sh
+config 'mount' # 掛載普通分區
+	option target '/xxx/xxx' # 設置掛載點
+	option uuid 'xxx_uuid' # 通過UUID掛載分區
+
+config 'mount'
+	option target '/xxx/xxx' # 設置掛載點
+	option device '/dev/xxx' # 通過設備名稱掛載分區
+
+config 'swap' # 掛載swap分區
+	option uuid 'xxx_uuid'
+	option enabled '0'
+
+...
+```
+
+block-mount軟件包提供了`block`工具可查看各個分區的狀態、掛載、文件系統等信息：
 
 ```
 # block info
@@ -402,16 +432,6 @@ luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - �
 ```
 
 block工具在fish下存在BUG，不會輸出任何信息。
-
-### 存儲自動掛載
-通過`block-mount`軟件包實現自動掛載存儲：
-
-```
-# opkg install block-mount
-```
-
-安裝block-mount軟件包後，會生成`/etc/config/fstab`配置項，
-在該配置中加入自動掛載配置即可。
 
 ### 掛載USB存儲
 對於具有USB接口的設備，可通過USB接口連接外置硬盤等設備將OpenWRT路由用作NAS。
