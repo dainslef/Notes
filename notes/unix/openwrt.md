@@ -3,6 +3,7 @@
 - [mtd](#mtd)
 - [Breed](#breed)
 	- [Breed Web UI](#breed-web-ui)
+	- [Redmi Router AC2100](#redmi-router-ac2100)
 - [OpenWrt基本配置](#openwrt基本配置)
 	- [opkg包管理器](#opkg包管理器)
 		- [軟件源配置](#軟件源配置)
@@ -117,6 +118,27 @@ Breed主要特性：
 進入Breed後，使用計算機網口與路由器的任意LAN口連接，
 計算機的網口設置DHCP（通常會被分配地址`192.168.1.2`），
 打開瀏覽器，訪問頁面`http://192.168.1.1`，即可進入Breed Web UI。
+
+在Breed Web UI中，刷機使用的固件應為`initramfs-kernel.bin`固件，
+而非OpenWRT升級使用的`squashfs-sysupgrade.bin`固件。
+
+## Redmi Router AC2100
+紅米路由器AC2100可使用紅米路由器3G的[Breed固件](https://breed.hackpascal.net/breed-mt7621-xiaomi-r3g.bin)，
+Breed環境變量配置中需要添加`xiaomi.r3g.bootfw`字段，值為`2`，否則Breed無法正常引導OpenWRT系統。
+
+在Breed中使用升級`initramfs-kernel.bin`固件OpenWRT啟動後後若出現下列提示：
+
+```
+System running in recovery (initramfs) mode.
+No changes to settings will be stored and are lost after rebooting.
+This mode should only be used to install a firmware upgrade.
+```
+
+則應進入OpenWRT系統中，使用sysupgrade指令重新刷入`squashfs-sysupgrade.bin`固件：
+
+```
+# sysupgrade -n openwrt-ramips-mt7621-xiaomi_redmi-router-ac2100-squashfs-sysupgrade.bin
+```
 
 
 
@@ -399,24 +421,34 @@ luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - �
 # opkg install block-mount
 ```
 
+存儲掛載相關配置詳情可參考[OpenWRT官方文檔](https://openwrt.org/docs/techref/block_mount)。
+
 安裝block-mount軟件包後，會生成`/etc/config/fstab`配置項，
 在該配置中加入自動掛載配置即可。
 
 掛載配置語法：
 
 ```sh
-config 'mount' # 掛載普通分區
+config global
+	...
+	# 配置文件系統和swap是否自動掛載
+	# 啟用該選項後，mount配置自動設置 option enabled '1'
+	option auto_swap '1'
+	option auto_mount '1'
+	...
+
+config mount # 掛載普通分區
 	option target '/xxx/xxx' # 設置掛載點
 	option uuid 'xxx_uuid' # 通過UUID掛載分區
+	option enabled '1' # 配置文件系統自動掛載（0：否，1：是，下同）
+	option enabled_fsck '1' # 配置是否檢查後掛載文件系統
 
-config 'mount'
+config mount
 	option target '/xxx/xxx' # 設置掛載點
 	option device '/dev/xxx' # 通過設備名稱掛載分區
 
-config 'swap' # 掛載swap分區
+config swap # 掛載swap分區
 	option uuid 'xxx_uuid'
-	option enabled '0'
-
 ...
 ```
 
