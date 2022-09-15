@@ -25,8 +25,9 @@
 - [壓縮/解壓](#壓縮解壓)
 	- [7z](#7z)
 - [ulimit](#ulimit)
-	- [配置文件](#配置文件)
+	- [ulimit配置文件](#ulimit配置文件)
 	- [prlimit](#prlimit)
+	- [文件描述符限制](#文件描述符限制)
 - [Core Dump (核心轉儲)](#core-dump-核心轉儲)
 - [文件系統](#文件系統)
 	- [fdisk](#fdisk)
@@ -737,7 +738,7 @@ Host key verification failed.
 則應當關閉Key檢測，臨時禁用主機Key檢測可在ssh指令中添加參數：
 
 ```
-$ ssh -o "StrictHostKeyChecking=no" 用戶名@目標地址或主機名
+$ ssh -o StrictHostKeyChecking=no 用戶名@目標地址或主機名
 ```
 
 永久關閉主機Key檢測需要修改`~/.ssh/config`（用戶配置）或`/etc/ssh/ssh_config`（全局配置）：
@@ -992,11 +993,11 @@ $ ulimit [類別] [限制數值]
 
 以**核心轉儲**爲例：
 
-```c
-// 查看系統設定的核心轉儲大小
+```html
+<!-- 查看系統設定的核心轉儲大小 -->
 $ ulimit -c
 
-// 設置核心轉儲大小爲無限
+<!-- 設置核心轉儲大小爲無限 -->
 $ ulimit -c unlimited
 ```
 
@@ -1005,18 +1006,18 @@ $ ulimit -c unlimited
 
 同樣以**核心轉儲**為例：
 
-```c
-// 查看系統設定的核心轉儲大小(硬限制)
+```html
+<!-- 查看系統設定的核心轉儲大小(硬限制) -->
 $ ulimit -cH
 
-// 設置核心轉儲大小爲無限(硬限制)
+<!-- 設置核心轉儲大小爲無限(硬限制) -->
 $ ulimit -Hc unlimited
 ```
 
 使用ulimit默認修改的配置僅對當前會話有效，退出當前會話後，配置重新變為默認值。
 要使修改的系統限制永久生效，需要修改`/etc/security/limits.conf`文件中配置。
 
-## 配置文件
+## ulimit配置文件
 通過配置文件`/etc/security/limits.conf`配置相關限制。
 `limits.conf`文件每行爲一條配置，依次爲`<domain>`、`<type>`、`<item>`、`<value>`。
 
@@ -1077,12 +1078,31 @@ ftp             -       chroot          /ftp
 ## prlimit
 使用`prlimit`可以查看和動態修改運行中的進程的資源限制：
 
-```c
-// 查看進程的全部資源限制
+```html
+<!-- 查看進程的全部資源限制 -->
 $ prlimit -p [進程號]
 
-// 設置進程的資源限制
+<!-- 設置進程的資源限制 -->
 $ prlimit -p [進程號] --[類別=軟限制數值:硬限制數值]
+```
+
+## 文件描述符限制
+對於文件描述符，ulimit**不可**設置為`unlimited`。
+
+ulimit控制**單個進程**的文件描述符上限；
+**每個會話**的文件描述符數目還受內核參數`fs.file-max`限制，
+查看和修改當前系統限制：
+
+```html
+$ sysctl fs.file-max
+fs.file-max = 9223372036854775807
+
+<!-- 直接通過proc文件系統查看配置 -->
+$ cat /proc/sys/fs/file-max
+9223372036854775807
+
+<!-- 修改配置 -->
+# sysctl fs.file-max=值
 ```
 
 
@@ -2155,7 +2175,7 @@ $ loginctl disable-linger 用戶名/用戶ID
 Linux下網絡工具主要包括老式的net-tools系列和新的iproute2系列工具。
 
 [`net-tools`](https://sourceforge.net/projects/net-tools)套件歷史悠久，
-提供了與其它Unix類似的網絡管理工具(ip、route等)，但目前已停止維護。
+提供了與其它Unix類似的網絡管理工具(ifconfig、route等)，但目前已停止維護。
 
 [`iproute2`](https://wiki.linuxfoundation.org/networking/iproute2)是下一代的Linux網絡工具套件。
 
@@ -2172,9 +2192,17 @@ net-tools與iproute2的主要功能對照：
 | netstat | ss | Show network port status |
 | brctl | bridge | Handle bridge addresses and devices |
 
-常見的網絡管理指令：
+ip指令的基本使用：
 
 ```html
+$ ip <!-- 展示指令基本用法 -->
+$ ip 子指令 help <!-- 展示特定子指令的用法 -->
+
+<!-- 設置/移除ip -->
+# ip addr add 地址/子網 dev 網卡設備
+# ip addr del 地址/子網
+
+<!-- 重置網卡 -->
 # ip dev 網卡設備 flush <!-- 重置指定網卡設備的所有狀態 -->
 # ip addr flush 網卡設備 <!-- 重置網卡配置的地址 -->
 ```
