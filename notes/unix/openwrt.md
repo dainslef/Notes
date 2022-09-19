@@ -9,6 +9,7 @@
 		- [軟件源配置](#軟件源配置)
 		- [基本包管理操作](#基本包管理操作)
 		- [升級系統軟件包](#升級系統軟件包)
+		- [禁止/恢復軟件包升級](#禁止恢復軟件包升級)
 		- [檢查軟件包安裝狀態](#檢查軟件包安裝狀態)
 		- [強制安裝軟件包](#強制安裝軟件包)
 	- [關閉倉庫證書校驗](#關閉倉庫證書校驗)
@@ -16,8 +17,8 @@
 	- [Dropbear SSH](#dropbear-ssh)
 	- [服務管理](#服務管理)
 	- [語言設置](#語言設置)
-	- [存儲與文件系統](#存儲與文件系統)
-		- [存儲自動掛載](#存儲自動掛載)
+	- [文件系統](#文件系統)
+	- [存儲掛載](#存儲掛載)
 		- [掛載USB存儲](#掛載usb存儲)
 		- [掛載SD卡存儲](#掛載sd卡存儲)
 		- [擴展根分區](#擴展根分區)
@@ -140,6 +141,8 @@ This mode should only be used to install a firmware upgrade.
 # sysupgrade -n openwrt-ramips-mt7621-xiaomi_redmi-router-ac2100-squashfs-sysupgrade.bin
 ```
 
+問題詳情可參考[GitHub Issues](https://github.com/openwrt/openwrt/issues/10010)。
+
 
 
 # OpenWrt基本配置
@@ -184,6 +187,19 @@ opkg並未直接提供升級所有軟件包功能，可利用管道操作組合�
 在OpenWRT中，升級所有軟件包的操作有一定危險性，
 當當使用自編譯固件時，應儘量避免使用該功能，
 自行編譯的固件可能與官方源的軟件包不兼容（例如部分軟件包的動態鏈接庫不匹配）。
+
+### 禁止/恢復軟件包升級
+可通過設置軟件包flag為`hold`禁止軟件包升級：
+
+```
+# opkg flag hold 軟件包名稱
+```
+
+設置flag為`user`可恢復軟件包升級：
+
+```
+# opkg flag user 軟件包名稱
+```
 
 ### 檢查軟件包安裝狀態
 系統中已安裝的軟件包信息存儲在`/rom/usr/lib/opkg/status`文件中，
@@ -386,7 +402,7 @@ luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - �
 
 卸載語言包不會移除對應語言的配置項，需要手動移除對應配置。
 
-## 存儲與文件系統
+## 文件系統
 多數OpenWRT鏡像默認未集成存儲相關工具，安裝常用工具：
 
 ```html
@@ -414,7 +430,7 @@ luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - �
 # opkg install ntfs-3g
 ```
 
-### 存儲自動掛載
+## 存儲掛載
 通過`block-mount`軟件包實現自動掛載存儲：
 
 ```
@@ -423,8 +439,10 @@ luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - �
 
 存儲掛載相關配置詳情可參考[OpenWRT官方文檔](https://openwrt.org/docs/techref/block_mount)。
 
-安裝block-mount軟件包後，會生成`/etc/config/fstab`配置項，
-在該配置中加入自動掛載配置即可。
+安裝block-mount軟件包後，luci介面中會出現`System - Mount Points`菜單，
+可在該頁面中設置文件系統掛載配置；
+block-mount軟件包亦會生成`/etc/config/fstab`配置文件，
+亦可在該配置中手動加入掛載配置。
 
 掛載配置語法：
 
