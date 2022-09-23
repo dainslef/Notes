@@ -22,6 +22,7 @@
 		- [掛載USB存儲](#掛載usb存儲)
 		- [掛載SD卡存儲](#掛載sd卡存儲)
 		- [擴展根分區](#擴展根分區)
+		- [使用文件作為SWAP](#使用文件作為swap)
 
 <!-- /TOC -->
 
@@ -371,6 +372,15 @@ Available commands:
 使用`enable`服務指令開啟服務自啟動會在`/etc/rc.d`路徑下創建對應服務的**符號鏈接**；
 使用`disable`服務指令關閉服務自啟動則會對應移除`/etc/rc.d`路徑下的符號鏈接。
 
+與其它 OpenWRT還提供了`service`指令管理服務：
+
+```
+# serivce 服務名稱 start/stop/restart/status
+```
+
+在`OpenWRT 21.02`及之前版本中，service指令僅是ash中的alisa，不可在其它shell中使用，
+自`OpenWRT 22.03`版本開始，service指令為獨立腳本，位於`/sbin/service`，可在其它shell中使用。
+
 ## 語言設置
 LuCI介面語言在配置`/etc/config/luci`中：
 
@@ -531,3 +541,38 @@ config 'mount'
 ```
 
 之後重啟路由器即可。
+
+### 使用文件作為SWAP
+對於內存較小但存儲較大的設備，可在本地創建文件作為swap，將其設置為loop設備，然後掛載swap分區。
+
+安裝相關內核模塊和工具：
+
+```html
+<!--
+kmod-loop 提供loop設備
+losetup 用於將將swap文件配置為loop設備
+ -->
+# opkg install kmod-loop losetup
+```
+
+創建並掛載swap分區：
+
+```html
+<!--
+示例，在 /mnt/swap 路徑下創建64MB大小的swap文件，實際大小為 bs * count
+dd if=/dev/zero of=/mnt/swap bs=1M count=64
+-->
+# dd if=/dev/zero of=swap文件路徑 bs=單位 count=數目 <!-- 創建用作swap分區的文件 -->
+
+# mkswap swap文件路徑 <!-- 創建swap文件系統 -->
+# losetup /dev/loop0 swap文件路徑 <!-- 將swap文件設置為loop設備 -->
+# swapon /dev/loop0 <!--開啟swap分區 -->
+```
+
+要使系統在啟動時自動啟用swap則應將對應操作加入`/etc/rc.local`中：
+
+```sh
+# Enable swap.
+losetup /dev/loop0 swap文件路徑
+swapon /dev/loop0
+```
