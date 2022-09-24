@@ -22,11 +22,12 @@
 		- [文本轉義](#文本轉義)
 	- [指令](#指令)
 	- [數組](#數組)
+	- [數值計算](#數值計算)
 	- [條件語法](#條件語法)
 	- [if/switch/case (分支語法)](#ifswitchcase-分支語法)
 	- [for/while (循環語法)](#forwhile-循環語法)
 	- [select 語句](#select-語句)
-	- [echo 函數](#echo-函數)
+	- [輸出內容](#輸出內容)
 	- [自定義函數](#自定義函數)
 	- [函數參數處理](#函數參數處理)
 	- [函數返回值](#函數返回值)
@@ -655,47 +656,6 @@ abc: 123
 - `$(指令)` 執行指令(`bash/zsh`語法)
 - `(指令)` 執行指令(`fish`語法)
 
-對於算術表達式，`bash/zsh`默認作爲文本處理。
-即`echo 2+3`爲輸出內容爲`2+3`的文本。
-
-示例：
-
-```sh
-# bash/zsh
-$ num=233
-$ echo $num+1
-233+1 # 輸出文本 233+1
-
-# fish
-$ set num 233
-$ echo $num+1
-233+1
-```
-
-求值計算表達式，語法如下：
-
-- `$((表達式))`/`$[表達式]` (`bash/zsh`語法)
-- `expr 表達式` (`bash/zsh`語法)
-- `math 表達式` (`fish`語法)
-
-```sh
-# bash/zsh
-$ num=233
-$ echo $(($num+1))
-234 # 輸出 234
-$ echo $[$num+1]
-234
-$ echo $[$num*10]
-2330
-
-# fish
-$ set num 233
-$ echo (math $num+1)
-234
-$ echo (math $num\*10) # fish 中乘法運算需要使用反斜槓轉義 * 符號
-2330
-```
-
 ## 數組
 `bash/zsh/fish`數組相關語法均存在一定差異。
 
@@ -795,6 +755,50 @@ $ echo ${nums[1]} # 報錯，fish不支持bash/zsh中的數組訪問語法
 fish: ${ is not a valid variable in fish.
 echo ${nums[1]}
 	  ^
+```
+
+## 數值計算
+對於算術表達式，`bash/zsh`默認作爲文本處理。
+即`echo 2+3`爲輸出內容爲`2+3`的文本。
+
+示例：
+
+```sh
+# bash/zsh
+$ num=233
+$ echo $num+1
+233+1 # 輸出文本 233+1
+
+# fish
+$ set num 233
+$ echo $num+1
+233+1
+```
+
+求值計算表達式，語法如下：
+
+- `$((表達式))`/`$[表達式]` (`bash/zsh`語法)
+- `expr 表達式` (`bash/zsh`語法)
+- `math 表達式` (`fish`語法)
+
+```sh
+# bash/zsh
+$ num=233
+$ echo $(($num+1))
+234 # 輸出 234
+$ echo $[$num+1]
+234
+$ echo $[$num*10]
+2330
+
+# fish
+$ set num 233
+$ echo (math $num+1)
+234
+$ echo (math $num\*10) # fish 中乘法運算需要使用反斜槓轉義 * 符號
+2330
+$ echo (math "$num * 10") # 亦可將計算表達式以文本形式傳入，則不需要轉義字符
+2330
 ```
 
 ## 條件語法
@@ -1040,8 +1044,10 @@ done
 
 fish中沒有提供select結構同等的語法。
 
-## echo 函數
-`echo`函數用於向標準輸出(`stdout`)打印文本，類似於高級語言中的`print()`函數。
+## 輸出內容
+Shell中使用`echo`函數用於向標準輸出(`stdout`)打印文本，
+類似於高級語言中的`print()`函數。
+
 echo函數可選參數：
 
 - `-e` 轉義文本
