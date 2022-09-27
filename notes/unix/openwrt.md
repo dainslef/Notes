@@ -22,6 +22,7 @@
 	- [存儲掛載](#存儲掛載)
 		- [掛載USB存儲](#掛載usb存儲)
 		- [掛載SD卡存儲](#掛載sd卡存儲)
+		- [使用文件作為SWAP](#使用文件作為swap)
 
 <!-- /TOC -->
 
@@ -229,7 +230,7 @@ $ for i in `opkg list-installed |sed 's/ - .*//'`; do if !(cat /rom/usr/lib/opkg
 #! /usr/bin/fish
 
 set package_status /usr/lib/opkg/status
-set rom_package_status /rom/usr/$package_status
+set rom_package_status /rom/$package_status
 if [ -e $rom_package_status ]
 	set rom_packages (cat $rom_package_status)
 end
@@ -554,3 +555,38 @@ block工具在fish下存在BUG，不會輸出任何信息。
 ```
 
 安裝對應的內核模塊後，SD卡設備即會出現，通常為`/dev/mmcblk*`。
+
+### 使用文件作為SWAP
+對於內存較小但存儲較大的設備，可在本地創建文件作為swap，將其設置為loop設備，然後掛載swap分區。
+
+安裝相關內核模塊和工具：
+
+```html
+<!--
+kmod-loop 提供loop設備
+losetup 用於將將swap文件配置為loop設備
+ -->
+# opkg install kmod-loop losetup
+```
+
+創建並掛載swap分區：
+
+```html
+<!--
+示例，在 /mnt/swap 路徑下創建64MB大小的swap文件，實際大小為 bs * count
+dd if=/dev/zero of=/mnt/swap bs=1M count=64
+-->
+# dd if=/dev/zero of=swap文件路徑 bs=單位 count=數目 <!-- 創建用作swap分區的文件 -->
+
+# mkswap swap文件路徑 <!-- 創建swap文件系統 -->
+# losetup /dev/loop0 swap文件路徑 <!-- 將swap文件設置為loop設備 -->
+# swapon /dev/loop0 <!--開啟swap分區 -->
+```
+
+要使系統在啟動時自動啟用swap則應將對應操作加入`/etc/rc.local`中：
+
+```sh
+# Enable swap.
+losetup /dev/loop0 swap文件路徑
+swapon /dev/loop0
+```
