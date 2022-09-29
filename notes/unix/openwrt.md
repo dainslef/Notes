@@ -23,6 +23,9 @@
 		- [掛載USB存儲](#掛載usb存儲)
 		- [掛載SD卡存儲](#掛載sd卡存儲)
 		- [使用文件作為SWAP](#使用文件作為swap)
+	- [OverlayFS](#overlayfs)
+		- [使用OverlayFS擴展根分區](#使用overlayfs擴展根分區)
+		- [OverlayFS的工作機制](#overlayfs的工作機制)
 
 <!-- /TOC -->
 
@@ -590,3 +593,39 @@ dd if=/dev/zero of=/mnt/swap bs=1M count=64
 losetup /dev/loop0 swap文件路徑
 swapon /dev/loop0
 ```
+
+## OverlayFS
+[OverlayFS](https://en.wikipedia.org/wiki/OverlayFS)是Linux下實現的一種**聯合文件系統**，
+可將多各文件系統整合、疊加為一個。
+
+### 使用OverlayFS擴展根分區
+對於支持SD卡/USB等外置存儲的設備，可將外置存儲作為設備的根分區，
+參考[OpenWRT官方文檔](https://openwrt.org/docs/guide-user/additional-software/extroot_configuration)。
+
+掛載外置存儲設備（以SD卡設備為例），拷貝現有overlay文件系統的內容到新分區：
+
+```
+# mount /dev/mmcblk0p1 /mnt
+# cp -r /overlay/upper /mnt
+```
+
+使用`block info`查看用作overlay分區設備，
+之後編輯`/etc/config/fstab`，添加新的overlay分區的掛載信息：
+
+```
+...
+config 'mount'
+	option device '/dev/xxx...'
+	option target '/overlay'
+```
+
+之後重啟路由器即可。
+
+### OverlayFS的工作機制
+在OpenWRT中，會先掛載根路徑，並以此啟動系統，之後掛載OverlayFS，
+OverlayFS會疊加在原先的根分區上，組合並覆蓋原先文件系統的內容，
+之後系統根據組合後的新文件系統重新加載OpenWRT。
+
+OverlayFS的掛載需要將`block-mount`安裝在原先的根分區中，
+在原先的根分區中正確配置`/etc/config/fstab`，
+保證基礎系統能正確掛載OverlayFS。
