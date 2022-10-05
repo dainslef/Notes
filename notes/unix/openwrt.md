@@ -12,6 +12,8 @@
 		- [禁止/恢復軟件包升級](#禁止恢復軟件包升級)
 		- [檢查軟件包安裝狀態](#檢查軟件包安裝狀態)
 		- [強制安裝軟件包](#強制安裝軟件包)
+		- [強制覆蓋文件](#強制覆蓋文件)
+		- [未配置的安裝包](#未配置的安裝包)
 	- [關閉倉庫證書校驗](#關閉倉庫證書校驗)
 	- [切換默認Shell](#切換默認shell)
 	- [Dropbear SSH](#dropbear-ssh)
@@ -185,7 +187,7 @@ OpenWRT提供的opkg包管理器被設計運行在嵌入式環境中，
 opkg並未直接提供升級所有軟件包功能，可利用管道操作組合指令實現：
 
 ```
-# opkg list-upgradable | cut -f 1 -d ' ' | xargs -r opkg upgrade
+# opkg list-upgradable | cut -f 1 -d ' ' | xargs -r opkg upgrade --force-overwrite
 ```
 
 在OpenWRT中，升級所有軟件包的操作有一定危險性，
@@ -305,6 +307,84 @@ Installed-Time: 1661238557
 ```
 
 強制安裝依舊會輸出依賴不滿足的告警信息，但軟件包已安裝成功。
+
+### 強制覆蓋文件
+部分軟件包會出現文件衝突，例如：
+
+```
+# opkg info libnl-tiny1
+Package: libnl-tiny1
+Version: 2020-08-05-c291088f-2
+Depends: libc
+Provides: libnl-tiny
+Status: install user installed
+Architecture: aarch64_cortex-a53
+Installed-Time: 1657334765
+
+# opkg info libnl-tiny2022-05-17
+Package: libnl-tiny2022-05-17
+Version: 2022-05-17-b5b2ba09-1
+Depends: libc
+Provides: libnl-tiny
+Status: install ok not-installed
+Section: libs
+Architecture: aarch64_cortex-a53
+Size: 17681
+Filename: libnl-tiny2022-05-17_2022-05-17-b5b2ba09-1_aarch64_cortex-a53.ipk
+Description: This package contains a stripped down version of libnl
+
+# opkg upgrade libnl-tiny2022-05-17
+Installing libnl-tiny2022-05-17 (2022-05-17-b5b2ba09-1) to root...
+Collected errors:
+ * check_data_file_clashes: Package libnl-tiny2022-05-17 wants to install file /usr/lib/libnl-tiny.so
+	But that file is already provided by package  * libnl-tiny1
+ * check_data_file_clashes: Package libnl-tiny2022-05-17 wants to install file /usr/lib/libnl-tiny.so
+	But that file is already provided by package  * libnl-tiny1
+ * check_data_file_clashes: Package libnl-tiny2022-05-17 wants to install file /usr/lib/libnl-tiny.so
+	But that file is already provided by package  * libnl-tiny1
+ * check_data_file_clashes: Package libnl-tiny2022-05-17 wants to install file /usr/lib/libnl-tiny.so
+	But that file is already provided by package  * libnl-tiny1
+opkg: exited with status 255; aborting
+```
+
+系統內存在兩個不同軟件包均提供`/usr/lib/libnl-tiny.so`，會導致另一個軟件包安裝/升級失敗，
+通常可採用刪除其中一個軟件包的方式解決（如`dnsmasq`和`dnsmasq-full`、`tcpdump`和`tcpdump-full`等），
+若產生文件衝突的軟件包同時被依賴，則需要使用`--force-overwrite`參數強制覆蓋文件，繞過依賴錯誤。
+
+### 未配置的安裝包
+當安裝流程中出現錯誤，會導致部分軟件包處於未配置（部分安裝）狀態：
+
+```html
+<!-- 狀態為 install ok not-installed，無Installed-Time屬性，僅標記而未實際安裝 -->
+# opkg info kmod-ikconfig
+Package: kmod-ikconfig
+Version: 5.4.203-1
+Depends: kernel (= 5.4.203-1-5379bb746f374ca43bbbef0b8a9c7bab)
+Status: install ok not-installed
+Section: kernel
+Architecture: aarch64_cortex-a53
+Size: 41972
+Filename: kmod-ikconfig_5.4.203-1_aarch64_cortex-a53.ipk
+Description: Kernel configuration via /proc/config.gz
+
+# opkg install kmod-ikconfig
+Installing kmod-ikconfig (5.4.203-1) to root...
+Downloading https://mirrors.vsean.net/openwrt/releases/21.02.1/targets/sunxi/cortexa53/packages/kmod-ikconfig_5.4.203-1_aarch64_cortex-a53.ipk
+Configuring kmod-ikconfig.
+
+<!-- 重新安裝後狀態為 install user installed，出現Installed-Time屬性，已完成安裝 -->
+# opkg info kmod-ikconfig
+Package: kmod-ikconfig
+Version: 5.4.203-1
+Depends: kernel (= 5.4.203-1-5379bb746f374ca43bbbef0b8a9c7bab)
+Status: install user installed
+Section: kernel
+Architecture: aarch64_cortex-a53
+Size: 41972
+Filename: kmod-ikconfig_5.4.203-1_aarch64_cortex-a53.ipk
+Description: Kernel configuration via /proc/config.gz
+Installed-Time: 1664909591
+```
 
 ## 關閉倉庫證書校驗
 對於部分非官方倉庫（如GL.iNET的廠家倉庫），默認配置下更新源會得到證書校驗失敗的錯誤：
