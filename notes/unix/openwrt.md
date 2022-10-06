@@ -6,7 +6,7 @@
 	- [Redmi Router AC2100](#redmi-router-ac2100)
 - [OpenWrt基本配置](#openwrt基本配置)
 	- [opkg包管理器](#opkg包管理器)
-		- [軟件源配置](#軟件源配置)
+		- [opkg軟件源](#opkg軟件源)
 		- [基本包管理操作](#基本包管理操作)
 		- [升級系統軟件包](#升級系統軟件包)
 		- [禁止/恢復軟件包升級](#禁止恢復軟件包升級)
@@ -14,11 +14,12 @@
 		- [強制安裝軟件包](#強制安裝軟件包)
 		- [強制覆蓋文件](#強制覆蓋文件)
 		- [未配置的安裝包](#未配置的安裝包)
-	- [關閉倉庫證書校驗](#關閉倉庫證書校驗)
+		- [關閉倉庫證書校驗](#關閉倉庫證書校驗)
 	- [切換默認Shell](#切換默認shell)
 	- [Dropbear SSH](#dropbear-ssh)
 	- [服務管理](#服務管理)
 	- [語言設置](#語言設置)
+	- [無線網絡功能配置](#無線網絡功能配置)
 	- [系統升級](#系統升級)
 - [文件系統與存儲機制](#文件系統與存儲機制)
 	- [存儲掛載](#存儲掛載)
@@ -158,8 +159,29 @@ This mode should only be used to install a firmware upgrade.
 [Opkg package manager](https://openwrt.org/docs/guide-user/additional-software/opkg)
 是OpenWrt系統內置的包管理器。
 
-### 軟件源配置
-opkg包管理器的軟件源配置文件為`/etc/opkg/distfeeds.conf`，
+### opkg軟件源
+opkg包管理器的軟件源配置文件為`/etc/opkg/distfeeds.conf`。
+
+官方OpenWRT軟件源配置結構如下：
+
+```
+src/gz openwrt_core https://downloads.openwrt.org/openwrt/releases/openwrt版本號/targets/芯片廠家/芯片架構/packages
+src/gz openwrt_base https://downloads.openwrt.org/openwrt/releases/openwrt版本號/packages/cpu架構/base
+src/gz openwrt_luci https://downloads.openwrt.org/openwrt/releases/openwrt版本號/packages/cpu架構/luci
+src/gz openwrt_packages https://downloads.openwrt.org/openwrt/releases/openwrt版本號/packages/cpu架構/packages
+src/gz openwrt_routing https://downloads.openwrt.org/openwrt/releases/openwrt版本號/packages/cpu架構/routing
+src/gz openwrt_telephony https://downloads.openwrt.org/openwrt/releases/openwrt版本號/packages/cpu架構/telephony
+```
+
+其中`openwrt_core`倉庫提供內核模塊，與Linux內核版本以及特定芯片型號相關，
+而其它倉庫中的軟件包則不依賴Linux內核版本以及芯片型號，通常僅需CPU架構相同即可使用。
+
+本地源配置：
+
+```
+src/gz xxx_local_mirror file:///xxx/xxx...
+```
+
 替換軟件源為牆國USTC源：
 
 ```
@@ -386,7 +408,7 @@ Description: Kernel configuration via /proc/config.gz
 Installed-Time: 1664909591
 ```
 
-## 關閉倉庫證書校驗
+### 關閉倉庫證書校驗
 對於部分非官方倉庫（如GL.iNET的廠家倉庫），默認配置下更新源會得到證書校驗失敗的錯誤：
 
 ```
@@ -468,6 +490,8 @@ Available commands:
 在`OpenWRT 21.02`及之前版本中，service指令僅是ash中的alisa，不可在其它shell中使用，
 自`OpenWRT 22.03`版本開始，service指令為獨立腳本，位於`/sbin/service`，可在其它shell中使用。
 
+服務管理亦可在luci頁面的`System - Startup`頁面中配置。
+
 ## 語言設置
 LuCI介面語言在配置`/etc/config/luci`中：
 
@@ -498,6 +522,24 @@ luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - �
 ```
 
 卸載語言包不會移除對應語言的配置項，需要手動移除對應配置。
+
+## 無線網絡功能配置
+部分不直接支持無線網絡的設備中，固件未繼承無線網絡功能，需要手動安裝相關軟件包。
+使用AP模式（Access Point）模式需要`hostapd`，
+而連接/創建WPA系列的加密熱點需要`wpa_supplicant`。
+
+在OpenWRT中，可安裝此類功能對應的軟件包，亦可直接安裝`wpad`，
+wpad整合了AP和加密功能需要的工具：
+
+```
+# opkg install wpad
+
+# opkg files wpad
+Package wpad (2022-01-16-cff80b4f-13.1) is installed on root and has the following files:
+/usr/sbin/wpad
+/usr/sbin/hostapd
+/usr/sbin/wpa_supplicant
+```
 
 ## 系統升級
 在luci的`System - Backup / Flash Firmware`介面選擇`Flash new firmware image`菜單進行系統升級；
