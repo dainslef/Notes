@@ -21,6 +21,8 @@
 	- [語言設置](#語言設置)
 	- [無線網絡功能配置](#無線網絡功能配置)
 	- [系統升級](#系統升級)
+- [UCI](#uci)
+	- [UCI基本操作](#uci基本操作)
 - [文件系統與存儲機制](#文件系統與存儲機制)
 	- [存儲掛載](#存儲掛載)
 		- [掛載USB存儲](#掛載usb存儲)
@@ -571,6 +573,52 @@ OpenWRT的系統升級會清空整個根文件系統（根據配置項可保留`
 
 需要注意，系統升級前若修改了`/etc/passwd`設置了非預裝的shell作為默認shell，
 則升級前應修改回默認的`/bin/ash`，否則升級後因為軟件包重置、shell不存在，而導致ssh無法連接。
+
+
+
+# UCI
+[`Unified Configuration Interface(UCI)`](https://openwrt.org/docs/guide-user/base-system/uci)
+是OpenWRT的核心配置接口。
+OpenWRT使用中心化的配置管理方式，系統中的所有核心配置均位於`/etc/config`路徑下，
+通過UCI配置接口來進行管理。
+
+核心配置說明：
+
+| 配置路徑 | 配置功能 |
+| :- | :- |
+| /etc/config/system | 核心系統配置 |
+| /etc/config/network | 接口、交換機、路由配置 |
+| /etc/config/wireless | 無線網絡配置 |
+| /etc/config/fstab | 掛載點配置（需要block-mount軟件包） |
+
+多數OpenWRT軟件源中提供的第三方軟件包也已適配了UCI配置接口。
+
+## UCI基本操作
+UCI中的配置項均以`Key = Value`的格式呈現，Key的結構為`a.b.c...`，
+查看系統配置：
+
+```html
+<!-- 查看當前系統的所有配置 -->
+# uci show
+
+<!-- 查看特定的配置項 -->
+# uci show 配置前綴
+```
+
+設置系統配置：
+
+```html
+# uci set 配置鍵=配置值
+
+<!-- 列出當前修改的配置內容 -->
+# uci changes
+
+<!-- 與其它交換機、路由器系統類似，配置需要提交才會保存 -->
+# uci commit
+
+<!-- 撤銷尚未提交的改動 -->
+# uci revert
+```
 
 
 
