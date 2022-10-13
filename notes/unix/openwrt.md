@@ -31,6 +31,7 @@
 	- [OverlayFS](#overlayfs)
 		- [使用OverlayFS擴展根分區](#使用overlayfs擴展根分區)
 		- [OverlayFS的工作機制](#overlayfs的工作機制)
+		- [OpenWRT中OverlayFS與Docker的兼容性](#openwrt中overlayfs與docker的兼容性)
 
 <!-- /TOC -->
 
@@ -678,7 +679,7 @@ config global
 config mount # 掛載普通分區
 	option target '/xxx/xxx' # 設置掛載點
 	option uuid 'xxx_uuid' # 通過UUID掛載分區
-	option enabled '1' # 配置文件系統自動掛載（0：否，1：是，下同）
+	option enabled '1' # 設置該掛載項是否使用（0：否，1：是，下同）
 	option enabled_fsck '1' # 配置是否檢查後掛載文件系統
 
 config mount
@@ -784,9 +785,11 @@ swapon /dev/loop0
 
 ```
 ...
-config 'mount'
+config mount
 	option device '/dev/xxx...'
 	option target '/overlay'
+	option enabled '1'
+	option enabled_fsck '1'
 ```
 
 之後重啟路由器即可。
@@ -799,3 +802,36 @@ OverlayFS會疊加在原先的根分區上，組合並覆蓋原先文件系統�
 OverlayFS的掛載需要將`block-mount`安裝在原先的根分區中，
 在原先的根分區中正確配置`/etc/config/fstab`，
 保證基礎系統能正確掛載OverlayFS。
+
+### OpenWRT中OverlayFS與Docker的兼容性
+Docker的`data-root`若配置在OpenWRT的OverlayFS，
+且OverlayFS的Upper文件系統使用ext4/xfs等傳統文件系統時，
+會出現兼容性問題，Docker初始化時出現下列異常信息：
+
+```
+WARN[0000] containerd config version `1` has been deprecated and will be removed in containerd v2.0, please switch to version `2`, see https://github.com/containerd/containerd/blob/main/docs/PLUGINS.md#version-header
+WARN[2022-09-25T05:31:47.499935622Z] failed to load plugin io.containerd.snapshotter.v1.devmapper  error="devmapper not configured"
+WARN[2022-09-25T05:31:47.501471245Z] could not use snapshotter devmapper in metadata plugin  error="devmapper not configured"
+ERRO[2022-09-25T05:31:47.505957948Z] failed to initialize a tracing processor "otlp"  error="no OpenTelemetry endpoint: skip plugin"
+ERRO[2022-09-25T05:31:47.558108176Z] failed to mount overlay: invalid argument     storage-driver=overlay2
+ERRO[2022-09-25T05:31:47.558431050Z] exec: "fuse-overlayfs": executable file not found in $PATH  storage-driver=fuse-overlayfs
+ERRO[2022-09-25T05:31:47.570146703Z] AUFS was not found in /proc/filesystems       storage-driver=aufs
+ERRO[2022-09-25T05:31:47.572906449Z] failed to mount overlay: invalid argument     storage-driver=overlay
+ERRO[2022-09-25T05:31:47.573019324Z] Failed to built-in GetDriver graph devicemapper /root/docker
+WARN[2022-09-25T05:31:47.718922187Z] Could not load necessary modules for IPSEC rules: protocol not supported
+...
+```
+
+出現改異常後，Docker創建容器時出現錯誤：
+
+```
+# docker create -i --name ubuntu ubuntu
+Error response from daemon: operation not supported
+```
+
+出該該錯誤的原因是，Docker在ext4/xfs等傳統文件系統上會使用overlay存儲驅動掛載data-root路徑，
+若data-root路徑若已在OverlayFS中，則多層疊加overlay會導致錯誤。
+
+解決方案可以是將data-root遷移到非OverlayFS存儲中，
+或者OverlayFS存儲使用zfs/btrfs等支持快照的現代文件系統
+（Docker對於zfs/btrfs等文件系統，會使用對應的专属存儲驅動，而非通用overlay驅動）。
