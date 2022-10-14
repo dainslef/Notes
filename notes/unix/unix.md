@@ -6,6 +6,9 @@
 	- [tee](#tee)
 	- [進程管理](#進程管理)
 	- [日誌記錄](#日誌記錄)
+	- [BIOS信息](#bios信息)
+- [Linux Standard Base](#linux-standard-base)
+	- [Filesystem Hierarchy Standard](#filesystem-hierarchy-standard)
 - [PulseAudio](#pulseaudio)
 - [用戶管理](#用戶管理)
 - [setuid/setgid/sticky](#setuidsetgidsticky)
@@ -338,6 +341,71 @@ $ journalctl
 <!-- 倒序查看systemd日誌 -->
 $ journalctl -r
 ```
+
+## BIOS信息
+使用`dmidecode`指令輸出機器的DMI（SMBIOS）表，並以人類可讀的形式展示：
+
+```
+$ dmidecode
+...
+Handle 0x0002, DMI type 2, 8 bytes.  Base Board Information
+        Manufacturer: Intel
+        Product Name: C440GX+
+        Version: 727281-001
+        Serial Number: INCY92700942
+...
+```
+
+其中`Product Name`項通常為設備型號：
+
+```
+$ dmidecode | grep "Product Name"
+	Product Name: IBM System x3650 M4: -[79152VT]-
+	Product Name: 00MV214
+```
+
+
+
+# Linux Standard Base
+[Linux Standard Base(LSB)](https://refspecs.linuxfoundation.org/lsb.shtml)
+由某些Linux發行版在Linux基金會的組織下制定的Linux系統結構標準。
+
+LSB基於POSIX、 Single UNIX Specification(SUS)以及某些其它開放標準，
+同時在某些領域做了一些擴展。
+
+LSB的目標是開發和促成一組標準，以提升Linux發行版之間的兼容性，
+使得軟件能夠運行在任意遵循標準的系統中，即使是以二進制形式。
+並且LSB將幫助協調和吸引軟件廠商來為Linux移植和編寫軟件產品。
+
+## Filesystem Hierarchy Standard
+[Filesystem Hierarchy Standard(FHS)](https://www.pathname.com/fhs/)
+是LSB標準的一部分，定義了Linux的標準目錄結構。
+
+根路徑下應包含的子目錄：
+
+| 目錄 | 說明 |
+| :- | :- |
+| bin | Essential command binaries |
+| boot | Static files of the boot loader |
+| dev | Device files |
+| etc | Host-specific system configuration |
+| lib | Essential shared libraries and kernel modules |
+| media | Mount point for removeable media |
+| mnt | Mount point for mounting a filesystem temporarily |
+| opt | Add-on application software packages |
+| sbin | Essential system binaries |
+| srv | Data for services provided by this system |
+| tmp | Temporary files |
+| usr | Secondary hierarchy |
+| var | Variable data |
+
+特殊目錄：
+
+| 目錄 | 說明 |
+| :- | :- |
+| home | User home directories (optional) |
+| lib<qual> | Alternate format essential shared libraries (optional) |
+| root | Home directory for the root user (optional) |
 
 
 
