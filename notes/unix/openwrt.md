@@ -32,6 +32,8 @@
 		- [使用OverlayFS擴展根分區](#使用overlayfs擴展根分區)
 		- [OverlayFS的工作機制](#overlayfs的工作機制)
 		- [OpenWRT中OverlayFS與Docker的兼容性](#openwrt中overlayfs與docker的兼容性)
+- [常用軟件包](#常用軟件包)
+	- [實用luci插件](#實用luci插件)
 
 <!-- /TOC -->
 
@@ -185,11 +187,17 @@ src/gz openwrt_telephony https://downloads.openwrt.org/openwrt/releases/openwrt�
 src/gz xxx_local_mirror file:///xxx/xxx...
 ```
 
-替換軟件源為牆國USTC源：
+替換軟件源為牆國軟件源：
 
-```
+```html
+<!-- 替換為牆國USTC源 -->
 # sed -i 's/downloads.openwrt.org/mirrors.ustc.edu.cn\/openwrt/g' /etc/opkg/distfeeds.conf
+
+<!-- 替換為牆國TUNA源 -->
+# sed -i 's_downloads.openwrt.org_mirrors.tuna.tsinghua.edu.cn/openwrt_' /etc/opkg/distfeeds.conf
 ```
+
+USTC源通常更新較慢，TUNA源更新更及時。
 
 ### 基本包管理操作
 OpenWRT提供的opkg包管理器被設計運行在嵌入式環境中，
@@ -568,9 +576,12 @@ sysupgrade主要參數：
 | -l | 列出備份 |
 
 OpenWRT的系統升級會清空整個根文件系統（根據配置項可保留`/etc`下的配置），
-升級後的系統所有用戶安裝的軟件包會清空，若升級時選擇保留配置，則系統以及用戶軟件包的配置將會保留，
-升級後若選擇保留配置，則多數系統配置如Wifi、密碼、防火牆、ssh等配置可直接應用到新環境中，
+升級後的系統所有用戶安裝的軟件包會清空，若升級時選擇保留配置，
+則保留`/etc`路徑下的內容，系統以及用戶軟件包的配置將會保留。
+若保留配置，則多數系統配置如Wifi、密碼、防火牆、ssh等配置可直接應用到新環境中，
 用戶軟件包也可在升級後重新安裝繼續使用保留的配置。
+
+為避免潛在的軟件包升級不兼容，亦可僅保留核心配置`/etc/config`路徑。
 
 需要注意，系統升級前若修改了`/etc/passwd`設置了非預裝的shell作為默認shell，
 則升級前應修改回默認的`/bin/ash`，否則升級後因為軟件包重置、shell不存在，而導致ssh無法連接。
@@ -835,3 +846,46 @@ Error response from daemon: operation not supported
 解決方案可以是將data-root遷移到非OverlayFS存儲中，
 或者OverlayFS存儲使用zfs/btrfs等支持快照的現代文件系統
 （Docker對於zfs/btrfs等文件系統，會使用對應的专属存儲驅動，而非通用overlay驅動）。
+
+
+
+# 常用軟件包
+記錄常用的軟件包：
+
+```html
+# opkg install
+<!-- 常用程序，所有設備均安裝 -->
+fish file rsync usbutils lsblk htop iperf3 lm-sensors tcpdump nmap-full vim-full
+luci-app-adblock luci-app-ddns luci-app-ttyd
+<!-- 帶有USB接口的設備可作為下載服務器 -->
+luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas
+<!-- 需要自定義配置掛載點的設備可安裝 -->
+block-mount parted
+<!-- OpenWRT2020 主題 -->
+luci-theme-openwrt-2020
+
+<!-- ARM64 架構的設備可安裝 Docker -->
+luci-app-dockerman dockerd
+<!-- ImmortalWRT 可直接從軟件源中安裝 OpenClash -->
+luci-app-openclash
+```
+
+MT762x系列芯片的安裝SD卡驅動：
+
+```
+# opkg install kmod-sdhci-mt7620
+```
+
+## 實用luci插件
+常用的luci差價簡介。
+
+| 插件名稱 | 說明 |
+| :- | :- |
+| luci-app-ttyd | Web終端 |
+| luci-app-samba4 | Samba存儲的Web頁面 |
+| luci-app-adblock | 廣告攔截器 |
+| luci-app-aria2 | 下載引擎 |
+| luci-app-ddns | DDNS客戶端 |
+| luci-app-statistics | 以圖表形式展示各類狀態數據 |
+| luci-app-dockerman | Docker容器管理器 |
+| luci-theme-openwrt-2020 | 新版OpenWRT主題 |
