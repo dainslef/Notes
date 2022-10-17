@@ -19,6 +19,7 @@
 	- [掛載導入zfs分區](#掛載導入zfs分區)
 	- [chroot](#chroot)
 	- [查看端口狀態](#查看端口狀態)
+	- [查看時間與設置時區](#查看時間與設置時區)
 
 <!-- /TOC -->
 
@@ -259,7 +260,7 @@ FreeBSD並非**滾動發行版**，系統有明確的版本劃分，升級系統
 # freebsd-update -r [版本號-發佈狀態] upgrade
 ```
 
-以`FreeBSD 10.1`正式版，執行指令：
+以`FreeBSD 10.1`正式版為例，執行指令：
 
 ```
 # freebsd-update -r 10.1-RELEASE upgrade
@@ -268,7 +269,7 @@ FreeBSD並非**滾動發行版**，系統有明確的版本劃分，升級系統
 之後系統會開始下載升級所需要的補丁，下載完成之後，執行更新指令：
 
 ```
-# /usr/sbin/freebsd-update install
+# freebsd-update install
 ```
 
 
@@ -458,3 +459,19 @@ root     sshd       1016  3  tcp6   *:22                  *:*
 root     sshd       1016  4  tcp4   *:22                  *:*
 ...
 ```
+
+## 查看時間與設置時區
+FreeBSD中查看時間操作與Linux中類似，使用`date`指令：
+
+```
+$ date
+Mon Oct 17 22:21:40 CST 2022
+```
+
+FreeBSD中提供了時區配置工具`tzsetup`，執行該指令後會出現TUI窗口：
+
+```
+$ tzsetup
+```
+
+在菜單列表中選取目標時區即可。
