@@ -8,9 +8,8 @@
 	- [opkg包管理器](#opkg包管理器)
 		- [opkg軟件源](#opkg軟件源)
 		- [基本包管理操作](#基本包管理操作)
-		- [升級系統軟件包](#升級系統軟件包)
 		- [禁止/恢復軟件包升級](#禁止恢復軟件包升級)
-		- [檢查軟件包安裝狀態](#檢查軟件包安裝狀態)
+		- [軟件包安裝狀態](#軟件包安裝狀態)
 		- [強制安裝軟件包](#強制安裝軟件包)
 		- [強制覆蓋文件](#強制覆蓋文件)
 		- [未配置的安裝包](#未配置的安裝包)
@@ -34,6 +33,8 @@
 		- [OpenWRT中OverlayFS與Docker的兼容性](#openwrt中overlayfs與docker的兼容性)
 - [常用軟件包](#常用軟件包)
 	- [實用luci插件](#實用luci插件)
+- [OpenWRT Clash](#openwrt-clash)
+	- [luci-app-clash](#luci-app-clash)
 
 <!-- /TOC -->
 
@@ -207,16 +208,23 @@ OpenWRT提供的opkg包管理器被設計運行在嵌入式環境中，
 
 ```html
 <!-- 查詢軟件包 -->
-# opkg list '*軟件包名稱*'
+# opkg list "*軟件包關鍵字*"
+<!-- 查詢已安裝的軟件包 -->
+# opkg list-installed "*軟件包關鍵字*"
+
 <!-- 安裝軟件包 -->
 # opkg install 軟件包名稱
-<!-- 移除軟件包（同時移除軟件包的孤兒依賴） -->
-# opkg remove --autoremove 軟件包名稱
+# opkg install --force-depends 軟件包名稱 <!-- 強制安裝軟件包 -->
+# opkg install --noaction 軟件包名稱 <!-- 模擬安裝過程 -->
+
+<!-- 移除軟件包 -->
+# opkg remove 軟件包名稱
+# opkg remove --autoremove 軟件包名稱 <!-- 移除軟件包（同時移除軟件包的孤兒依賴） -->
+
 <!-- 列出軟件包內容 -->
 # opkg files 軟件包名稱
 ```
 
-### 升級系統軟件包
 opkg並未直接提供升級所有軟件包功能，可利用管道操作組合指令實現：
 
 ```
@@ -240,7 +248,7 @@ opkg並未直接提供升級所有軟件包功能，可利用管道操作組合�
 # opkg flag user 軟件包名稱
 ```
 
-### 檢查軟件包安裝狀態
+### 軟件包安裝狀態
 系統中已安裝的軟件包信息存儲在`/rom/usr/lib/opkg/status`文件中，
 軟件包信息示例：
 
@@ -889,3 +897,31 @@ MT762x系列芯片的安裝SD卡驅動：
 | luci-app-statistics | 以圖表形式展示各類狀態數據 |
 | luci-app-dockerman | Docker容器管理器 |
 | luci-theme-openwrt-2020 | 新版OpenWRT主題 |
+
+
+
+# OpenWRT Clash
+Clash是一款功能強大的代理工具，支持幾乎所有的主流代理協議（SS、SSR、VMESS、Trojan等）。
+
+Clash內核需要與處理器架構匹配，常見CPU架構：
+
+| CPU | 系列 | 架構 |
+| :- | :- | :- |
+| MediaTek MT7621A/N | mipsel_24kc | linux-mipsle-softfloat |
+| SF19A28 | mips_siflower | linux-mipsle-hardfloat |
+| Qualcomm IPQ6000 | ipq60xx | linux-armv7 (32bit OS) |
+
+## luci-app-clash
+[luci-app-clash](https://github.com/frainzy1477/luci-app-clash)是luci的Clash插件，
+提供了Clash的管理面板，目前項目已停止維護，但核心功能依舊可以正常使用。
+
+luci-app-clash未被官方庫包含，
+需要從[luci-app-clash release](https://github.com/frainzy1477/luci-app-clash/releases)頁面中下載。
+下載luci-app-clash的ipk文件後，執行安裝：
+
+```
+# opkg install luci-app-clash_..._all.ipk
+```
+
+luci-app-clash使用的Clash內核需要自行下載，普通內核應放置在`/etc/clash/clash`路徑下，
+premium內核應放置在`/etc/clash/dtun/clash`路徑下。
