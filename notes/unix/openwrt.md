@@ -35,6 +35,7 @@
 	- [實用luci插件](#實用luci插件)
 - [OpenWRT Clash](#openwrt-clash)
 	- [luci-app-clash](#luci-app-clash)
+	- [OpenClash](#openclash)
 
 <!-- /TOC -->
 
@@ -925,3 +926,80 @@ luci-app-clash未被官方庫包含，
 
 luci-app-clash使用的Clash內核需要自行下載，普通內核應放置在`/etc/clash/clash`路徑下，
 premium內核應放置在`/etc/clash/dtun/clash`路徑下。
+
+## OpenClash
+[`OpenClash`](https://github.com/vernesong/OpenClash)基於luci-app-clash開發，
+提供了更多功能，目前項目依舊在活躍更新中。
+
+OpenClash目前（OpenWRT 21.02.3）中並未被官方庫包含，
+需要從[OpenWRT OpenClash Release](https://github.com/vernesong/OpenClash/releases)頁面中手動下載。
+下載OpenClash的ipk文件後，執行安裝：
+
+```
+# opkg install luci-app-openclash_..._all.ipk
+```
+
+默認配置下安裝openclash會出現依賴文件衝突：
+
+```
+Collected errors:
+ * check_data_file_clashes: Package dnsmasq-full wants to install file /etc/hotplug.d/ntp/25-dnsmasqsec
+	But that file is already provided by package  * dnsmasq
+ * check_data_file_clashes: Package dnsmasq-full wants to install file /etc/init.d/dnsmasq
+	But that file is already provided by package  * dnsmasq
+ * check_data_file_clashes: Package dnsmasq-full wants to install file /usr/lib/dnsmasq/dhcp-script.sh
+	But that file is already provided by package  * dnsmasq
+ * check_data_file_clashes: Package dnsmasq-full wants to install file /usr/sbin/dnsmasq
+	But that file is already provided by package  * dnsmasq
+ * check_data_file_clashes: Package dnsmasq-full wants to install file /usr/share/acl.d/dnsmasq_acl.json
+	But that file is already provided by package  * dnsmasq
+ * check_data_file_clashes: Package dnsmasq-full wants to install file /usr/share/dnsmasq/dhcpbogushostname.conf
+	But that file is already provided by package  * dnsmasq
+ * check_data_file_clashes: Package dnsmasq-full wants to install file /usr/share/dnsmasq/rfc6761.conf
+	But that file is already provided by package  * dnsmasq
+ * opkg_install_cmd: Cannot install package luci-app-openclash.
+```
+
+原因是OpenWRT默認安裝了`dnsmasq`，但openclash依賴`dnsmasq-full`，二者存在文件衝突。
+解決方案是將預裝的dnsmasq卸載：
+
+```
+# opkg remove --autoremove dnsmasq
+```
+
+安裝openclash後打開luci頁面會出現錯誤：
+
+```
+/usr/lib/lua/luci/controller/openclash.lua:100: module 'luci.cbi.datatypes' not found:
+	no field package.preload['luci.cbi.datatypes']
+	no file './luci/cbi/datatypes.lua'
+	no file '/usr/share/lua/luci/cbi/datatypes.lua'
+	no file '/usr/share/lua/luci/cbi/datatypes/init.lua'
+	no file '/usr/lib/lua/luci/cbi/datatypes.lua'
+	no file '/usr/lib/lua/luci/cbi/datatypes/init.lua'
+	no file './luci/cbi/datatypes.so'
+	no file '/usr/lib/lua/luci/cbi/datatypes.so'
+	no file '/usr/lib/lua/loadall.so'
+	no file './luci.so'
+	no file '/usr/lib/lua/luci.so'
+	no file '/usr/lib/lua/loadall.so'
+stack traceback:
+	[C]: in function 'require'
+	/usr/lib/lua/luci/controller/openclash.lua:100: in main chunk
+	[C]: in function 'require'
+	/usr/lib/lua/luci/dispatcher.lua:1131: in function 'createindex'
+	/usr/lib/lua/luci/dispatcher.lua:1232: in function 'createtree'
+	/usr/lib/lua/luci/dispatcher.lua:635: in function 'menu_json'
+	/usr/lib/lua/luci/dispatcher.lua:884: in function 'dispatch'
+	/usr/lib/lua/luci/dispatcher.lua:479: in function </usr/lib/lua/luci/dispatcher.lua:478>
+```
+
+安裝`luci-compat`包即可解決該問題：
+
+```
+# opkg install luci-compat
+```
+
+若需要安裝`luci-app-aria2`則無需手動安裝該依賴
+（OpenWRT 22.03開始luci-app-aria2已不再依賴luci-compat，需要手動安裝），
+luci-compat會作為該插件的依賴安裝。
