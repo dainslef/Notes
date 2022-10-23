@@ -36,6 +36,9 @@
 - [OpenWRT Clash](#openwrt-clash)
 	- [luci-app-clash](#luci-app-clash)
 	- [OpenClash](#openclash)
+- [OpenWRT衍生固件](#openwrt衍生固件)
+	- [ImmortalWrt](#immortalwrt)
+	- [FriendlyWrt](#friendlywrt)
 
 <!-- /TOC -->
 
@@ -864,8 +867,8 @@ Error response from daemon: operation not supported
 ```html
 # opkg install
 <!-- 常用程序，所有設備均安裝 -->
-fish file rsync usbutils lsblk htop iperf3 lm-sensors tcpdump nmap-full vim-full
-luci-app-adblock luci-app-ddns luci-app-ttyd
+fish file rsync usbutils lsblk htop iperf3 tcpdump nmap-full vim-full
+luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
 <!-- 帶有USB接口的設備可作為下載服務器 -->
 luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas
 <!-- 需要自定義配置掛載點的設備可安裝 -->
@@ -877,6 +880,8 @@ luci-theme-openwrt-2020
 luci-app-dockerman dockerd
 <!-- ImmortalWRT 可直接從軟件源中安裝 OpenClash -->
 luci-app-openclash
+<!-- ImmortalWRT 不需要安裝溫度檢測器，UI直接提供處理器溫度展示，其它系統需要安裝用於查看處理器溫度 -->
+lm-sensors
 ```
 
 MT762x系列芯片的安裝SD卡驅動：
@@ -895,6 +900,7 @@ MT762x系列芯片的安裝SD卡驅動：
 | luci-app-adblock | 廣告攔截器 |
 | luci-app-aria2 | 下載引擎 |
 | luci-app-ddns | DDNS客戶端 |
+| luci-app-nlbwmon | 基於Netlink的流量統計插件，以圖表的形式統計流量數據 |
 | luci-app-statistics | 以圖表形式展示各類狀態數據 |
 | luci-app-dockerman | Docker容器管理器 |
 | luci-theme-openwrt-2020 | 新版OpenWRT主題 |
@@ -1003,3 +1009,43 @@ stack traceback:
 若需要安裝`luci-app-aria2`則無需手動安裝該依賴
 （OpenWRT 22.03開始luci-app-aria2已不再依賴luci-compat，需要手動安裝），
 luci-compat會作為該插件的依賴安裝。
+
+
+
+# OpenWRT衍生固件
+OpenWRT擁有眾多第三方修改版本。
+
+## ImmortalWrt
+[`ImmortalWrt`](https://github.com/immortalwrt/immortalwrt)
+是牆國特色的OpenWRT衍生版本，添加了部分新增功能，以及更多的設備支持；
+ImmortalWrt倉庫中提供了更多硬件驅動和部分牆國常用但未被包含在官方倉庫中的包（OpenClash等）。
+
+ImmortalWrt固件可從[官方下載頁面](https://downloads.immortalwrt.org)下載，
+或者使用[ImmortalWrt Firmware Selector](https://firmware-selector.immortalwrt.org/)。
+
+ImmortalWrt基於OpenWRT官方分支開發，但僅在大版本上保持一致，小版本號為自己定義，並使用獨立的軟件源。
+ImmortalWrt版本通常會落後於官方版本一個大版本以上，僅在官方版本足夠穩定時才跟進。
+
+## FriendlyWrt
+`FriendlyWrt`是[`FRIENDLY ELEC`](https://friendlyelec.com/)公司為旗下設備提供的定製版OpenWRT，
+通常預裝在其設備中。
+
+FriendlyWrt繼承了大量插件，固件大小動輒數G, 相比原生OpenWRT要臃腫得多。
+FriendlyWrt在UI與軟件倉庫上與官方版本類似，但提供了更新版本的內核、以及更多設備的驅動。
+
+FriendlyWrt版本號直接對齊OpenWRT官方版本，除內核模塊外並直接使用官方源的軟件倉庫。
+FriendlyWrt通常使用與官方版本不同的內核，因此獨立提供內核模塊倉庫，
+內核模塊倉庫以本地源的形式提供，存放在`/opt/packages`路徑中，
+對應倉庫配置如下(以NanoPi R4SE，FriendlyWrt 22.03.0版本為例)：
+
+```
+src/gz friendlywrt_packages file://opt/packages
+```
+
+`friendlywrt_packages`對應替換官方源的`openwrt_core`倉庫。
+
+FriendlyWrt的overlay配置與官方OpenWRT存在一定差異，
+FriendlyWrt默認不使用`/etc/config/fstab`來配置overlay，
+而是直接將label為userdata的分區視為overlay，
+同時overlay直接掛載到根節點，且不使用`/rom`和`/overlay`路徑
+（官方OpenWRT常見的overlay方式是lowerdata掛載到`/rom`，upperdata掛載到`/overlay`下）。
