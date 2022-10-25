@@ -8,12 +8,12 @@
 	- [opkg包管理器](#opkg包管理器)
 		- [opkg軟件源](#opkg軟件源)
 		- [基本包管理操作](#基本包管理操作)
+		- [常用軟件包](#常用軟件包)
 		- [禁止/恢復軟件包升級](#禁止恢復軟件包升級)
 		- [軟件包安裝狀態](#軟件包安裝狀態)
 		- [強制安裝軟件包](#強制安裝軟件包)
 		- [強制覆蓋文件](#強制覆蓋文件)
 		- [未配置的安裝包](#未配置的安裝包)
-		- [關閉倉庫證書校驗](#關閉倉庫證書校驗)
 	- [切換默認Shell](#切換默認shell)
 	- [Dropbear SSH](#dropbear-ssh)
 	- [服務管理](#服務管理)
@@ -31,8 +31,6 @@
 		- [使用OverlayFS擴展根分區](#使用overlayfs擴展根分區)
 		- [OverlayFS的工作機制](#overlayfs的工作機制)
 		- [OpenWRT中OverlayFS與Docker的兼容性](#openwrt中overlayfs與docker的兼容性)
-- [常用軟件包](#常用軟件包)
-	- [實用luci插件](#實用luci插件)
 - [OpenWRT Clash](#openwrt-clash)
 	- [luci-app-clash](#luci-app-clash)
 	- [OpenClash](#openclash)
@@ -204,6 +202,24 @@ src/gz xxx_local_mirror file:///xxx/xxx...
 
 USTC源通常更新較慢，TUNA源更新更及時。
 
+對於部分非官方倉庫（如GL.iNET的廠家倉庫），默認配置下更新源會得到證書校驗失敗的錯誤：
+
+```
+root@OpenWrt:~# opkg update
+Downloading https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/kmod-4.0/arm_cortex-a7/ip60xx/Packages.gz
+Updated list of available packages in /var/opkg-lists/glinet_core
+Downloading https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/kmod-4.0/arm_cortex-a7/ip60xx/Packages.sig
+Signature check failed.
+Remove wrong Signature file.
+...
+```
+
+對於非官方倉庫，應關閉簽名校驗，編輯`/etc/opkg.conf`，註釋證書校驗相關內容：
+
+```sh
+# option check_signature
+```
+
 ### 基本包管理操作
 OpenWRT提供的opkg包管理器被設計運行在嵌入式環境中，
 因此遠比傳統的包管理器更加輕量級，功能也更加簡陋。
@@ -238,6 +254,35 @@ opkg並未直接提供升級所有軟件包功能，可利用管道操作組合�
 在OpenWRT中，升級所有軟件包的操作有一定危險性，
 當當使用自編譯固件時，應儘量避免使用該功能，
 自行編譯的固件可能與官方源的軟件包不兼容（例如部分軟件包的動態鏈接庫不匹配）。
+
+### 常用軟件包
+記錄常用的軟件包：
+
+```html
+# opkg install
+<!-- 常用程序，所有設備均安裝 -->
+fish file rsync usbutils lsblk htop iperf3 tcpdump nmap-full vim-full
+luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
+<!-- 帶有USB接口的設備可作為下載服務器 -->
+luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas
+<!-- 需要自定義配置掛載點的設備可安裝 -->
+block-mount parted
+<!-- OpenWRT2020 主題 -->
+luci-theme-openwrt-2020
+
+<!-- ARM64 架構的設備可安裝 Docker -->
+luci-app-dockerman dockerd
+<!-- ImmortalWRT 可直接從軟件源中安裝 OpenClash -->
+luci-app-openclash
+<!-- ImmortalWRT 不需要安裝溫度檢測器，UI直接提供處理器溫度展示，其它系統需要安裝用於查看處理器溫度 -->
+lm-sensors
+```
+
+MT762x系列芯片的安裝SD卡驅動：
+
+```
+# opkg install kmod-sdhci-mt7620
+```
 
 ### 禁止/恢復軟件包升級
 可通過設置軟件包flag為`hold`禁止軟件包升級：
@@ -431,25 +476,6 @@ Description: Kernel configuration via /proc/config.gz
 Installed-Time: 1664909591
 ```
 
-### 關閉倉庫證書校驗
-對於部分非官方倉庫（如GL.iNET的廠家倉庫），默認配置下更新源會得到證書校驗失敗的錯誤：
-
-```
-root@OpenWrt:~# opkg update
-Downloading https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/kmod-4.0/arm_cortex-a7/ip60xx/Packages.gz
-Updated list of available packages in /var/opkg-lists/glinet_core
-Downloading https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/kmod-4.0/arm_cortex-a7/ip60xx/Packages.sig
-Signature check failed.
-Remove wrong Signature file.
-...
-```
-
-對於非官方倉庫，應關閉簽名校驗，編輯`/etc/opkg.conf`，註釋證書校驗相關內容：
-
-```sh
-# option check_signature
-```
-
 ## 切換默認Shell
 OpenWrt中默認使用ash，功能較弱，可通過包管理器安裝fish：
 
@@ -513,7 +539,7 @@ Available commands:
 在`OpenWRT 21.02`及之前版本中，service指令僅是ash中的alisa，不可在其它shell中使用，
 自`OpenWRT 22.03`版本開始，service指令為獨立腳本，位於`/sbin/service`，可在其它shell中使用。
 
-服務管理亦可在luci頁面的`System - Startup`頁面中配置。
+服務管理亦可在LuCI頁面的`System - Startup`頁面中配置。
 
 ## 語言設置
 LuCI介面語言在配置`/etc/config/luci`中：
@@ -565,7 +591,7 @@ Package wpad (2022-01-16-cff80b4f-13.1) is installed on root and has the followi
 ```
 
 ## 系統升級
-在luci的`System - Backup / Flash Firmware`介面選擇`Flash new firmware image`菜單進行系統升級；
+在LuCI的`System - Backup / Flash Firmware`介面選擇`Flash new firmware image`菜單進行系統升級；
 亦可使用`sysupgrade`工具進行系統升級：
 
 ```html
@@ -602,9 +628,8 @@ OpenWRT的系統升級會清空整個根文件系統（根據配置項可保留`
 
 # UCI
 [`Unified Configuration Interface(UCI)`](https://openwrt.org/docs/guide-user/base-system/uci)
-是OpenWRT的核心配置接口。
-OpenWRT使用中心化的配置管理方式，系統中的所有核心配置均位於`/etc/config`路徑下，
-通過UCI配置接口來進行管理。
+是OpenWRT的核心配置接口；OpenWRT使用中心化的配置管理方式，
+系統中的所有核心配置均位於`/etc/config`路徑下，通過UCI配置接口來進行管理。
 
 核心配置說明：
 
@@ -858,52 +883,6 @@ Error response from daemon: operation not supported
 解決方案可以是將data-root遷移到非OverlayFS存儲中，
 或者OverlayFS存儲使用zfs/btrfs等支持快照的現代文件系統
 （Docker對於zfs/btrfs等文件系統，會使用對應的专属存儲驅動，而非通用overlay驅動）。
-
-
-
-# 常用軟件包
-記錄常用的軟件包：
-
-```html
-# opkg install
-<!-- 常用程序，所有設備均安裝 -->
-fish file rsync usbutils lsblk htop iperf3 tcpdump nmap-full vim-full
-luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
-<!-- 帶有USB接口的設備可作為下載服務器 -->
-luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas
-<!-- 需要自定義配置掛載點的設備可安裝 -->
-block-mount parted
-<!-- OpenWRT2020 主題 -->
-luci-theme-openwrt-2020
-
-<!-- ARM64 架構的設備可安裝 Docker -->
-luci-app-dockerman dockerd
-<!-- ImmortalWRT 可直接從軟件源中安裝 OpenClash -->
-luci-app-openclash
-<!-- ImmortalWRT 不需要安裝溫度檢測器，UI直接提供處理器溫度展示，其它系統需要安裝用於查看處理器溫度 -->
-lm-sensors
-```
-
-MT762x系列芯片的安裝SD卡驅動：
-
-```
-# opkg install kmod-sdhci-mt7620
-```
-
-## 實用luci插件
-常用的luci差價簡介。
-
-| 插件名稱 | 說明 |
-| :- | :- |
-| luci-app-ttyd | Web終端 |
-| luci-app-samba4 | Samba存儲的Web頁面 |
-| luci-app-adblock | 廣告攔截器 |
-| luci-app-aria2 | 下載引擎 |
-| luci-app-ddns | DDNS客戶端 |
-| luci-app-nlbwmon | 基於Netlink的流量統計插件，以圖表的形式統計流量數據 |
-| luci-app-statistics | 以圖表形式展示各類狀態數據 |
-| luci-app-dockerman | Docker容器管理器 |
-| luci-theme-openwrt-2020 | 新版OpenWRT主題 |
 
 
 
