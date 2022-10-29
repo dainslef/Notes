@@ -500,11 +500,30 @@ OpenWRT並未使用主流的SSH實現（OpenSSH），
 Dropbear的軟件體積和資源消耗相比OpenSSH低得多，更加適合OpenWRT的應用場景。
 
 Dropbear的SFTP功能需在編譯時開啟，部分固件的Dropbear僅並未提供該功能，
-相關功能依舊需要安裝`openssh-sftp-server`：
+此時可安裝`openssh-sftp-server`：
 
 ```
 # opkg install openssh-sftp-server
 ```
+
+從`OpenSSH 9.0`版本開始，scp默認使用`SFTP`協議，但Dropbear並不支持；
+使用`OpenSSH 9.0`之後的scp向Dropbear提供的服務傳輸文件時，會得到下列錯誤：
+
+```
+$ scp xxx root@OpenWRT:/xxx
+ash: /usr/libexec/sftp-server: not found
+scp: Connection closed
+```
+
+可通過在路由中安裝`openssh-sftp-server`解決該問題；
+亦可在客戶端使用scp指令時添加`-O`參數，此時scp將使用傳統模式工作：
+
+```
+$ scp -O xxx root@OpenWRT:/xxx
+```
+
+該問題可參見[OpenWRT官方論壇](https://forum.openwrt.org/t/ash-usr-libexec-sftp-server-not-found-when-using-scp/125772)
+中的相關討論。
 
 ## 服務管理
 OpenWRT使用傳統SysV init風格腳本管理，服務腳本位於`/etc/init.d`路徑下。
