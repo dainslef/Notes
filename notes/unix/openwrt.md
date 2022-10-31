@@ -20,6 +20,8 @@
 	- [語言設置](#語言設置)
 	- [無線網絡功能配置](#無線網絡功能配置)
 	- [系統升級](#系統升級)
+	- [系統日誌](#系統日誌)
+	- [內核日誌](#內核日誌)
 - [UCI](#uci)
 	- [UCI基本操作](#uci基本操作)
 - [文件系統與存儲機制](#文件系統與存儲機制)
@@ -642,6 +644,55 @@ OpenWRT的系統升級會清空整個根文件系統（根據配置項可保留`
 
 需要注意，系統升級前若修改了`/etc/passwd`設置了非預裝的shell作為默認shell，
 則升級前應修改回默認的`/bin/ash`，否則升級後因為軟件包重置、shell不存在，而導致ssh無法連接。
+
+## 系統日誌
+系統日誌是OpenWRT中的調試/監控手段。
+OpenWRT的日誌系統詳細說明參見[OpenWRT Wiki](https://openwrt.org/docs/guide-user/base-system/log.essentials)。
+
+標準的日誌功能使用`logd`實現，查看日誌服務狀態：
+
+```
+# service log status
+```
+
+默認將日誌存儲在**內存**中，
+因此默認不存在`/var/log/syslog`文件。
+讀取日誌使用`logread`指令：
+
+```html
+<!-- 列出所有系統日誌 -->
+$ logread
+
+<!-- 按照指定標籤過濾系統日誌 -->
+$ logread -e 標籤
+
+<!-- 持續輸出新系統日誌到終端 -->
+$ logread -f
+```
+
+系統日誌配置位於`/etc/config/system`中，
+可通過配置寫入日誌到磁盤文件中：
+
+```
+config system
+	...
+	option log_file '/var/log/syslog'
+	...
+```
+
+修改配置後需要重啟日誌相關服務使其生效：
+
+```
+# service log restart
+# service system restart
+```
+
+## 內核日誌
+OpenWRT查看內核日誌與標準Linux類似：
+
+```
+$ dmesg
+```
 
 
 
