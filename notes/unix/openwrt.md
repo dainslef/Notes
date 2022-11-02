@@ -24,6 +24,9 @@
 	- [內核日誌](#內核日誌)
 - [UCI](#uci)
 	- [UCI基本操作](#uci基本操作)
+- [LuCI](#luci)
+	- [實用LuCI插件](#實用luci插件)
+	- [LuCI頁面緩存問題](#luci頁面緩存問題)
 - [文件系統與存儲機制](#文件系統與存儲機制)
 	- [存儲掛載](#存儲掛載)
 		- [掛載USB存儲](#掛載usb存儲)
@@ -263,10 +266,10 @@ opkg並未直接提供升級所有軟件包功能，可利用管道操作組合�
 ```html
 # opkg install
 <!-- 常用程序，所有設備均安裝 -->
-fish file rsync usbutils lsblk htop iperf3 tcpdump nmap-full vim-full
+fish file rsync lsblk htop iperf3 tcpdump nmap-full vim-full
 luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
 <!-- 帶有USB接口的設備可作為下載服務器 -->
-luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas
+luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas usbutils
 <!-- 需要自定義配置掛載點的設備可安裝 -->
 block-mount parted
 <!-- OpenWRT2020 主題 -->
@@ -737,6 +740,52 @@ UCI中的配置項均以`Key = Value`的格式呈現，Key的結構為`a.b.c...`
 
 <!-- 撤銷尚未提交的改動 -->
 # uci revert
+```
+
+
+
+# LuCI
+[LuCI](https://openwrt.org/docs/guide-user/luci/luci.essentials)為OpenWRT提供了易於使用的Web管理UI，
+較新版本的OpenWRT默認均已搭載了LuCI（除了部分RAM小於32MB的設備）。
+
+LuCI的配置項位於`/etc/config/luci`中。
+
+## 實用LuCI插件
+LuCI插件通常使用`luci-app-*`風格命名。
+
+常用插件說明：
+
+| 插件名稱 | 說明 |
+| :- | :- |
+| luci-app-ttyd | Web終端 |
+| luci-app-samba4 | Samba存儲的Web頁面 |
+| luci-app-adblock | 廣告攔截器 |
+| luci-app-aria2 | 下載引擎 |
+| luci-app-ddns | DDNS客戶端 |
+| luci-app-nlbwmon | 基於Netlink的流量統計插件，以圖表的形式統計流量數據 |
+| luci-app-dockerman | Docker容器管理器 |
+| luci-theme-openwrt-2020 | 新版OpenWRT主題 |
+
+## LuCI頁面緩存問題
+安裝新組件時，可能會出現LuCI頁面不展示新增組件的情況，重新登出登入刷新頁面無效
+（例如，在不帶無線網絡功能的NanoPi R4S固件中，安裝`wpad`和相關網絡驅動後，
+LuCI頁面中的`Netwok - Wireless`選項依舊未出現）。
+
+解決此類問題需要清空LuCI頁面緩存，緩存相關內容：
+
+```
+$ ls /tmp
+...
+luci-indexcache.REijbCDPVD1Bo3fSx9KSo..lua
+luci-indexcache.UpzsmQTTuMZQLJFrSiwgj0.json
+luci-modulecache/
+...
+```
+
+刪除即可：
+
+```
+# rm /tmp/luci-*
 ```
 
 
