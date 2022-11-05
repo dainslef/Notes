@@ -108,6 +108,12 @@ mtd9: 07580000 00020000 "ubi"
 # mtd -r write 固件路徑 分區名稱
 ```
 
+使用mtd工具刷機，通常應使用`squashfs-factory.bin`固件，
+而非OpenWRT系統升級時使用的`squashfs-sysupgrade.bin`固件。
+注意使用`squashfs-sysupgrade.bin`升級系統時，
+固件應與最初刷入系統的`squashfs-factory.bin`固件mtd佈局兼容，
+否則會造成路由器變磚。
+
 使用mtd重置系統：
 
 ```
@@ -266,10 +272,10 @@ opkg並未直接提供升級所有軟件包功能，可利用管道操作組合�
 ```html
 # opkg install
 <!-- 常用程序，所有設備均安裝 -->
-fish file rsync lsblk htop iperf3 tcpdump nmap-full vim-full
+fish file lsblk htop iperf3 tcpdump nmap-full vim-full
 luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
 <!-- 帶有USB接口的設備可作為下載服務器 -->
-luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas usbutils
+luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas usbutils rsync
 <!-- 需要自定義配置掛載點的設備可安裝 -->
 block-mount parted
 <!-- OpenWRT2020 主題 -->
@@ -1025,7 +1031,7 @@ luci-app-clash未被官方庫包含，
 下載luci-app-clash的ipk文件後，執行安裝：
 
 ```
-# opkg install luci-app-clash_..._all.ipk
+# opkg install ./luci-app-clash_版本號_all.ipk
 ```
 
 luci-app-clash使用的Clash內核需要自行下載，普通內核應放置在`/etc/clash/clash`路徑下，
@@ -1040,7 +1046,7 @@ OpenClash目前（OpenWRT 21.02.3）中並未被官方庫包含，
 下載OpenClash的ipk文件後，執行安裝：
 
 ```
-# opkg install luci-app-openclash_..._all.ipk
+# opkg install luci-app-openclash_版本號_all.ipk
 ```
 
 默認配置下安裝openclash會出現依賴文件衝突：
@@ -1104,7 +1110,7 @@ stack traceback:
 # opkg install luci-compat
 ```
 
-若需要安裝`luci-app-aria2`則無需手動安裝該依賴
+若已安裝`luci-app-aria2`或`luci-app-dockerman`則無需手動安裝該依賴
 （OpenWRT 22.03開始luci-app-aria2已不再依賴luci-compat，需要手動安裝），
 luci-compat會作為該插件的依賴安裝。
 
