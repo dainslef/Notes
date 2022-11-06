@@ -1,6 +1,8 @@
 <!-- TOC -->
 
-- [mtd](#mtd)
+- [OpenWRT的安裝和升級](#openwrt的安裝和升級)
+	- [系統安裝](#系統安裝)
+	- [系統升級](#系統升級)
 - [Breed](#breed)
 	- [Breed Web UI](#breed-web-ui)
 	- [Redmi Router AC2100](#redmi-router-ac2100)
@@ -19,7 +21,6 @@
 	- [服務管理](#服務管理)
 	- [語言設置](#語言設置)
 	- [無線網絡功能配置](#無線網絡功能配置)
-	- [系統升級](#系統升級)
 	- [系統日誌](#系統日誌)
 	- [內核日誌](#內核日誌)
 - [UCI](#uci)
@@ -47,8 +48,12 @@
 
 
 
-# mtd
-`mtd`是路由器刷機使用的固件寫入工具。
+# OpenWRT的安裝和升級
+在[OpenWRT官方下載頁面](https://downloads.openwrt.org)可下載官方固件。
+OpenWRT對各路由器機型的支持參考[OpenWRT Wiki](https://openwrt.org/toh/start)。
+
+## 系統安裝
+`mtd`是路由器刷機使用的固件寫入工具，用於向路由器中刷寫操作系統。
 
 路由器的分區信息寫在`/proc/mtd`文件中，不同機型不同固件會有不同的分區信息，示例：
 
@@ -108,17 +113,52 @@ mtd9: 07580000 00020000 "ubi"
 # mtd -r write 固件路徑 分區名稱
 ```
 
-使用mtd工具刷機，通常應使用`squashfs-factory.bin`固件，
-而非OpenWRT系統升級時使用的`squashfs-sysupgrade.bin`固件。
-注意使用`squashfs-sysupgrade.bin`升級系統時，
-固件應與最初刷入系統的`squashfs-factory.bin`固件mtd佈局兼容，
-否則會造成路由器變磚。
+使用mtd工具刷機，通常應使用factory固件，
+而非OpenWRT系統升級時使用的sysupgrade固件。
 
 使用mtd重置系統：
 
 ```
 # mtd erase rootfs_data
 ```
+
+## 系統升級
+在LuCI的`System - Backup / Flash Firmware`介面選擇`Flash new firmware image`菜單進行系統升級；
+亦可使用`sysupgrade`工具進行系統升級：
+
+```html
+<!-- 系統升級，升級鏡像通常名稱中包含sysupgrade字樣 -->
+# sysupgrade 升級參數 升級鏡像
+
+<!-- 配置備份參數 -->
+# sysupgrade 備份參數 備份文件
+```
+
+使用sysupgrade升級系統時，需要注意所使用升級固件的mtd分區佈局，
+分區佈局需要與最初安裝系統時使用的factory固件兼容。否則會造成路由器變磚。
+
+sysupgrade主要參數：
+
+| 參數 | 說明 |
+| :- | :- |
+| -n | 升級不保留任何配置 |
+| -c | 保留 `/etc` 目錄下的所有變化配置 |
+| -v | 輸出更詳細的操作日誌 |
+| -b | 創建備份 |
+| -r | 恢復備份 |
+| -l | 列出備份 |
+
+OpenWRT的系統升級會清空整個根文件系統（根據配置項可保留`/etc`下的配置），
+升級後的系統所有用戶安裝的軟件包會清空，若升級時選擇保留配置，
+則保留`/etc`路徑下的內容，系統以及用戶軟件包的配置將會保留。
+若保留配置，則多數系統配置如Wifi、密碼、防火牆、ssh等配置可直接應用到新環境中，
+用戶軟件包也可在升級後重新安裝繼續使用保留的配置。
+
+為避免潛在的軟件包升級不兼容，亦可僅保留核心配置`/etc/config`路徑。
+
+需要注意，系統升級前若修改了`/etc/passwd`設置了非預裝的shell作為默認shell，
+則升級前應修改回默認的`/bin/ash`，否則升級後因為軟件包重置、shell不存在，而導致ssh無法連接。
+
 
 
 
@@ -619,40 +659,6 @@ Package wpad (2022-01-16-cff80b4f-13.1) is installed on root and has the followi
 /usr/sbin/hostapd
 /usr/sbin/wpa_supplicant
 ```
-
-## 系統升級
-在LuCI的`System - Backup / Flash Firmware`介面選擇`Flash new firmware image`菜單進行系統升級；
-亦可使用`sysupgrade`工具進行系統升級：
-
-```html
-<!-- 系統升級 -->
-# sysupgrade 升級參數 升級鏡像
-
-<!-- 配置備份參數 -->
-# sysupgrade 備份參數 備份文件
-```
-
-sysupgrade主要參數：
-
-| 參數 | 說明 |
-| :- | :- |
-| -n | 升級不保留任何配置 |
-| -c | 保留 `/etc` 目錄下的所有變化配置 |
-| -v | 輸出更詳細的操作日誌 |
-| -b | 創建備份 |
-| -r | 恢復備份 |
-| -l | 列出備份 |
-
-OpenWRT的系統升級會清空整個根文件系統（根據配置項可保留`/etc`下的配置），
-升級後的系統所有用戶安裝的軟件包會清空，若升級時選擇保留配置，
-則保留`/etc`路徑下的內容，系統以及用戶軟件包的配置將會保留。
-若保留配置，則多數系統配置如Wifi、密碼、防火牆、ssh等配置可直接應用到新環境中，
-用戶軟件包也可在升級後重新安裝繼續使用保留的配置。
-
-為避免潛在的軟件包升級不兼容，亦可僅保留核心配置`/etc/config`路徑。
-
-需要注意，系統升級前若修改了`/etc/passwd`設置了非預裝的shell作為默認shell，
-則升級前應修改回默認的`/bin/ash`，否則升級後因為軟件包重置、shell不存在，而導致ssh無法連接。
 
 ## 系統日誌
 系統日誌是OpenWRT中的調試/監控手段。
