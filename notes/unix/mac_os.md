@@ -22,6 +22,7 @@
 		- [bottled](#bottled)
 		- [依賴查詢](#依賴查詢)
 		- [展示安裝包信息](#展示安裝包信息)
+		- [多版本管理](#多版本管理)
 		- [Homebrew Taps](#homebrew-taps)
 		- [Homebrew Cask](#homebrew-cask)
 		- [Homebrew Services](#homebrew-services)
@@ -471,6 +472,27 @@ $ brew list -v redis
 /usr/local/Cellar/redis/6.2.4/COPYING
 /usr/local/Cellar/redis/6.2.4/.bottle/etc/redis-sentinel.conf
 /usr/local/Cellar/redis/6.2.4/.bottle/etc/redis.conf
+```
+
+### 多版本管理
+部分軟件包（如Python、JDK等）支持多版本共存，
+存在多版本的軟件包會在軟件包名稱後追加版本號，
+格式為`包名稱@版本號`：
+
+```
+$ brew list
+==> Formulae
+openjdk@8 ...
+openssl@1.1 ...
+python@3.10 python@3.9 ...
+```
+
+使用`brew link/unlink`設置/取消當前使用的軟件包版本：
+
+```html
+$ brew link 包名稱@版本號
+$ brew link --overwrite 包名稱@版本號 <!-- 覆蓋已有的軟件包鏈接 -->
+$ brew unlink 包名稱@版本號 <!-- 移除軟件包鏈接 -->
 ```
 
 ### Homebrew Taps
