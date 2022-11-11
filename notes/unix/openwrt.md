@@ -43,6 +43,8 @@
 - [OpenWRT衍生固件](#openwrt衍生固件)
 	- [ImmortalWrt](#immortalwrt)
 	- [FriendlyWrt](#friendlywrt)
+		- [修改FriendlyWrt的overlay配置](#修改friendlywrt的overlay配置)
+		- [Docker服務未自啟動](#docker服務未自啟動)
 
 <!-- /TOC -->
 
@@ -1159,3 +1161,51 @@ FriendlyWrt默認不使用`/etc/config/fstab`來配置overlay，
 而是直接將label為userdata的分區視為overlay，
 同時overlay直接掛載到根節點，且不使用`/rom`和`/overlay`路徑
 （官方OpenWRT常見的overlay方式是lowerdata掛載到`/rom`，upperdata掛載到`/overlay`下）。
+
+### 修改FriendlyWrt的overlay配置
+默認FriendlyWrt的分區結構（以`NanoPi R4SE`為例）：
+
+```
+root@FriendlyWrt:~# lsblk
+NAME         MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+mmcblk2      179:0    0 29.1G  0 disk
+├─mmcblk2p1  179:1    0    4M  0 part
+├─mmcblk2p2  179:2    0    4M  0 part
+├─mmcblk2p3  179:3    0    4M  0 part
+├─mmcblk2p4  179:4    0    4M  0 part
+├─mmcblk2p5  179:5    0   16M  0 part
+├─mmcblk2p6  179:6    0   40M  0 part
+├─mmcblk2p7  179:7    0   48M  0 part
+├─mmcblk2p8  179:8    0  620M  0 part
+└─mmcblk2p9  179:9    0 28.4G  0 part /opt/docker
+                                      /
+mmcblk2boot0 179:32   0    4M  1 disk
+mmcblk2boot1 179:64   0    4M  1 disk
+```
+
+解決方案是刪除`userdata`分區（/dev/mmcblk2p9），
+然後重新創建分區，並在`/etc/config/fstab`中按掛載方式進行配置。
+
+```
+root@FriendlyWrt:~# lsblk
+NAME         MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+mmcblk2      179:0    0 29.1G  0 disk
+├─mmcblk2p1  179:1    0    4M  0 part
+├─mmcblk2p2  179:2    0    4M  0 part
+├─mmcblk2p3  179:3    0    4M  0 part
+├─mmcblk2p4  179:4    0    4M  0 part
+├─mmcblk2p5  179:5    0   16M  0 part
+├─mmcblk2p6  179:6    0   40M  0 part
+├─mmcblk2p7  179:7    0   48M  0 part
+├─mmcblk2p8  179:8    0  620M  0 part /rom
+├─mmcblk2p9  179:9    0    1G  0 part [SWAP]
+└─mmcblk2p10 179:10   0 27.4G  0 part /overlay
+mmcblk2boot0 179:32   0    4M  1 disk
+mmcblk2boot1 179:64   0    4M  1 disk
+```
+
+默熱FriendlyWrt中未創建`/rom`目錄，需要手動創建，而`/srv`、`/lib64`等目錄不需要，可以移除。
+
+### Docker服務未自啟動
+FriendlyWrt自帶的Docker在更換文件系統做Overlay後可能會出現無法自啟動的問題，
+解決方案是移除原先的`/opt/docker`路徑，之後重啟路由器即可。
