@@ -11,7 +11,8 @@
 	- [Filesystem Hierarchy Standard](#filesystem-hierarchy-standard)
 - [PulseAudio](#pulseaudio)
 - [用戶管理](#用戶管理)
-- [setuid/setgid/sticky](#setuidsetgidsticky)
+- [文件特殊權限](#文件特殊權限)
+	- [setuid / setgid / sticky](#setuid--setgid--sticky)
 - [FTP (File Transfer Protocol)](#ftp-file-transfer-protocol)
 	- [連接服務器](#連接服務器)
 	- [常用指令](#常用指令)
@@ -593,7 +594,10 @@ $ chgrp [選項] [用戶組名] [文件名]
 
 
 
-# setuid/setgid/sticky
+# 文件特殊權限
+Unix文件系統中，除了常規的777讀寫權限外，還有部分特殊權限可提供額外的控制機制。
+
+## setuid / setgid / sticky
 Unix系統中擁有三類特殊權限標誌：
 
 | 權限標誌 | 含義(對可執行文件使用) | 含義(對目錄使用) |
@@ -955,13 +959,16 @@ GRUB的配置文件爲`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令�
 	...
 	```
 
+	對於boot分區未單獨掛載的場景，啟動分區應為**根分區**；
+	對於單獨掛載boot分區的場景，啟動分區為單獨掛載的**boot分區**。
+
 1. 指定啓動分區位置，手動加載啓動器。
 
 	確認分區的位置後，設置啓動參數：
 
-	```
+	```html
 	grub rescue> set boot=(hd0,gpt3)
-	grub rescue> set prefix=(hd0,gpt3)/boot/grub
+	grub rescue> set prefix=(hd0,gpt3)/boot/grub <!-- RedHat系列路徑為 (,)/boot/grub2 -->
 	grub rescue> insmod normal
 	grub rescue> normal
 	```
@@ -972,9 +979,10 @@ GRUB的配置文件爲`/boot/grub/grub.cfg`，可以使用`grub-mkconfig`指令�
 
 	正常啓動系統後，在終端重新安裝引導器：
 
-	```c
-	# grub-install /dev/sda //MBR
-	# grub-install //UEFI
+	```html
+	<!-- RedHat系列指令為 grub2-install -->
+	# grub-install /dev/sda <!-- MBR -->
+	# grub-install <!-- UEFI -->
 	```
 
 ## systemd-boot
@@ -1515,10 +1523,10 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 配置LVM的**基本步驟**：
 
 1. 創建硬盤分區
-1. 創建物理卷：`# pvcreate [硬盤路徑/分區路徑]`(物理卷可以是整個硬盤或是硬盤中的某個分區)
-1. 創建卷組：`# vgcreate [卷組名稱] [需要加入卷組的物理卷分區路徑]`
-1. 創建邏輯卷：`# lvcreate -L [分區大小(xxGB/xxMB/...)] -n [邏輯分區名稱] [卷組名稱]`
-1. 格式化邏輯分區，掛載使用
+1. 創建物理卷：`# pvcreate 物理卷塊設備`(物理卷塊設備可以是整個硬盤設備或是硬盤中的某個分區設備)
+1. 創建卷組：`# vgcreate 卷組名稱 待加入卷組的物理卷塊設備`
+1. 創建邏輯卷，生成邏輯卷塊設備：`# lvcreate -L 分區大小(xxGB/xxMB/...) -n 邏輯卷名稱 卷組名稱`
+1. 在邏輯塊設備中進行格式化、創建文件系統等操作，之後可掛載使用
 
 ## Physical Volume (PV，物理卷)
 物理卷`Physical Volume`是在磁盤上**實際存在**的物理分區。
@@ -1526,43 +1534,48 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 
 物理卷相關的操作爲`pvXXX`系列指令：
 
-```c
-# pvcreate [硬盤路徑/物理分區路徑] // 創建物理卷
-# pvremove [硬盤路徑/物理分區路徑] // 移除物理卷
-# pvmove [原物理分區路徑] [目標物理分區路徑] // 將原物理卷中的數據轉移到另一物理卷
-# pvdisplay // 顯示已創建的物理卷
+```html
+# pvcreate 磁盤塊設備/磁盤物理分區塊設備 <!-- 創建物理卷 -->
+# pvremove 磁盤塊設備/磁盤物理分區塊設備 <!-- 移除物理卷 -->
+# pvdisplay <!-- 顯示已創建的物理卷 -->
 ```
 
 移除一個物理卷需要先將該物理卷從所屬的卷組中移除。
 移除物理卷前需要保證沒有數據存儲在該物理卷中，若**要被移除的物理卷**中已有數據，
-則需要使用`pvmove`指令將該卷中的數據轉移到其它卷。
+則需要使用`pvmove`指令將該卷中的數據轉移到其它卷：
+
+```html
+# pvmove 物理分區塊設備 <!-- 將該物理分區中的數據遷移到VG的其它PV中 -->
+# pvmove 原物理分區塊設備 目標物理分區塊設備 <!-- 指定將PV中的數據轉移到另一PV中 -->
+```
 
 ## Volume Group (VG，卷組)
 物理卷需要加入卷組(`Volume Group`)才能被使用。
 
 卷組相關的操作爲`vgXXX`系列指令：
 
-```c
-# vgcreate [卷組名稱] [物理卷路徑] // 一個卷組至少需要包含一個物理卷，物理卷路徑可爲多個
-# vgextend [卷組名稱] [物理卷路徑] // 向指定卷組中添加物理卷
-# vgreduce [卷組名稱] [物理卷路徑] // 從指定卷組中刪除物理卷
-# vgremove [卷組名稱] // 移除指定卷組
-# vgdisplay // 顯示所有卷組
+```html
+# vgcreate 卷組名稱 物理卷塊設備 <!-- 一個卷組至少需要包含一個物理卷，物理卷塊設備可爲多個 -->
+# vgextend 卷組名稱 物理卷塊設備 <!-- 向指定卷組中添加物理卷 -->
+# vgreduce 卷組名稱 物理卷塊設備 <!-- 從指定卷組中刪除物理卷 -->
+# vgremove 卷組名稱 <!-- 移除指定卷組 -->
+# vgdisplay <!-- 顯示所有卷組 -->
 ```
 
 ## Logical Volume (LV，邏輯卷)
 邏輯卷(`Logical Volume`)是`LVM`中實際用於創建文件系統、掛載的分區。
-邏輯卷的磁盤路徑爲`/dev/[邏輯卷所屬卷組名稱]/[邏輯卷名稱]`，使用該路徑可以像操作物理磁盤一樣對其進行創建文件系統、掛載等操作。
+邏輯卷的磁盤塊設備路徑爲`/dev/[邏輯卷所屬卷組名稱]/[邏輯卷名稱]`，
+邏輯卷的塊設備可如物理磁盤塊設備一般進行創建文件系統、掛載等操作。
 
 邏輯卷相關的操作爲`lvXXX`系列指令：
 
-```c
-# lvcreate -L [分區大小(xxGB/xxMB/...)] -n [邏輯分區路徑] [卷組名稱] // 創建邏輯卷
-# lvresize -L +/-[分區大小(xxGB/xxMB/...)] [邏輯分區路徑] // 在原先邏輯卷大小的基礎上擴充/縮減指定大小
-# lvextend -L [分區大小(xxGB/xxMB/...)] [邏輯分區路徑] // 增加邏輯捲到指定大小(分區大小的數值需要大於原先該邏輯分區的大小)
-# lvreduce -L [分區大小(xxGB/xxMB/...)] [邏輯分區路徑] // 減小邏輯捲到指定大小(分區大小的數值需要小於原先該邏輯分區的大小)
-# lvremove [邏輯分區名稱] // 移除指定邏輯卷
-# lvdisplay // 顯示所有邏輯卷
+```html
+# lvcreate -L 分區大小(xxGB/xxMB/...) -n 邏輯分區塊設備 卷組名稱 <!-- 創建邏輯卷 -->
+# lvresize -L +/-分區大小(xxGB/xxMB/...) 邏輯分區塊設備 <!-- 在原先邏輯卷大小的基礎上擴充/縮減指定大小 -->
+# lvextend -L 分區大小(xxGB/xxMB/...) 邏輯分區塊設備 <!-- 增加邏輯捲到指定大小(分區大小的數值需要大於原先該邏輯分區的大小) -->
+# lvreduce -L 分區大小(xxGB/xxMB/...) 邏輯分區塊設備 <!-- 減小邏輯捲到指定大小(分區大小的數值需要小於原先該邏輯分區的大小) -->
+# lvremove 邏輯分區名稱 <!-- 移除指定邏輯卷 -->
+# lvdisplay <!-- 顯示所有邏輯卷 -->
 ```
 
 擴展邏輯卷大小無需卸載、重新掛載文件系統。
@@ -1575,22 +1588,23 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 
 根據邏輯卷的文件系統類型，調整對應文件系統的大小：
 
-```c
-# xfs_growfs [邏輯分區路徑] // 擴展xfs文件系統的大小
-# resize2fs [邏輯分區路徑] [分區大小] // 調整ext系列文件系統的大小
+```html
+# xfs_growfs 分區塊設備路徑 <!-- 擴展xfs文件系統的大小 -->
+# resize2fs 分區塊設備路徑 分區大小 <!-- 調整ext系列文件系統的大小 -->
 ```
 
-縮減邏輯卷時操作相反，先卸載對應分區，使用文件系統對應的工具縮減文件系統大小，之後再縮減文件系統所屬的LVM分區的大小。
+縮減邏輯卷時操作相反，先卸載對應分區，使用文件系統對應的工具縮減文件系統大小，
+之後再縮減文件系統所屬的LVM分區的大小。
 
 ## 邏輯卷狀態和塊設備不顯示問題
 使用lvdisplay查看邏輯卷狀態時，若邏輯卷`LV Status`顯示`NOT available`，
 可使用`vgchange`激活卷組下所有的邏輯卷，使其狀態恢復爲`available`：
 
 ```c
-# vgchange -a y [卷組名稱]
+# vgchange -a y 卷組名稱
 ```
 
-部分狀態爲`NOT available`的邏輯卷對應的塊設備不顯示在`/dev/mapper`和`/dev/[卷組]`路徑下，
+部分狀態爲`NOT available`的邏輯卷對應的塊設備不顯示在`/dev/mapper`和`/dev/卷組`路徑下，
 可激活卷組後執行`vgmknodes`指令，會創建對應缺失的塊設備文件：
 
 ```
