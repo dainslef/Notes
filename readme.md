@@ -50,13 +50,15 @@
 
 ## Unix
 
-- [Unix Tool Chains](notes/unix/unix.md)
+- [Unix Tools](notes/unix/unix.md)
 - [Shell](notes/script/shell.md)
-- [Docker](notes/unix/docker.md)
+- [Container](notes/unix/container.md)
 - [Git](notes/unix/git.md)
 - [Posix](notes/unix/unix_posix.md)
 - [OpenWRT](notes/unix/openwrt.md)
 - [NixOS](notes/unix/nix_os.md)
+- [ArchLinux](notes/unix/arch_linux.md)
+- [Gentoo](notes/unix/gentoo.md)
 - [macOS](notes/unix/mac_os.md)
 - [FreeBSD](notes/unix/freebsd.md)
 - [MSYS2/WSL](notes/unix/wsl_msys2.md)
