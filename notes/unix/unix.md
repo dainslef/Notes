@@ -96,10 +96,12 @@
 	- [libnotify](#libnotify)
 	- [Dunst](#dunst)
 		- [Dunst配置](#dunst配置)
-- [VTE](#vte)
-	- [VTE2](#vte2)
-	- [VTE3](#vte3)
-	- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
+- [終端模擬器](#終端模擬器)
+	- [VTE](#vte)
+		- [VTE2](#vte2)
+		- [VTE3](#vte3)
+		- [複製粘貼快捷鍵](#複製粘貼快捷鍵)
+	- [Kitty](#kitty)
 - [Linux字體（fontconfig）](#linux字體fontconfig)
 	- [管理字體](#管理字體)
 	- [字體配置](#字體配置)
@@ -3489,7 +3491,10 @@ Dunst配置可參考[官方文檔](https://dunst-project.org/documentation/)，
 
 
 
-# VTE
+# 終端模擬器
+終端模擬器是GUI環境下常用的應用之一，用於在GUI環境下創建終端會話並進行交互。
+
+## VTE
 `VTE`是`Gnome`項目提供的輕量級終端庫，許多終端軟件使用VTE實現，如`gnome-terminal`、`roxterm`等。
 VTE自身亦可做爲獨立的終端軟件使用。
 
@@ -3500,7 +3505,7 @@ VTE當前的主流版本爲基於`GTK+ 2`的`VTE2`和基於`GTK+ 3`的`VTE3`。
 
 VTE2現已停止維護，部分發行版(如Arch Linux)已經移除了其對應軟件包。
 
-## VTE2
+### VTE2
 VTE2開發時間較早，現已不支持部分終端顯示特性
 (如systemctl的服務狀態輸出中包含路徑字符串，在VTE2下顯示為亂碼)。
 
@@ -3525,7 +3530,7 @@ $ vte -W -P never -g 120x40 -f "Monaco 10" -n 5000 --reverse
 
 執行結果爲打開大小爲`120`列`40`行的`VTE2`終端，終端回滾`5000`行，不顯示滾動條，反轉配色。
 
-## VTE3
+### VTE3
 VTE3默認會使用Gnome3 App慣用的HeadBar風格，默認參數下啟動會帶有一個巨大的窗口裝飾器，
 可使用參數關閉。
 
@@ -3544,13 +3549,27 @@ $ vte-2.91 -g 120x40 -f "Monaco 10" -n 5000 -T 20 --reverse --no-decorations --n
 部分參數在VTE3中已經移除，如`-W`，使用該類參數會報錯；
 部分參數未移除，但在幫助信息中已不存在，如`-P`，使用該類參數不報錯但不生效。
 
-## 複製粘貼快捷鍵
+### 複製粘貼快捷鍵
 VTE中提供了**剪切板**功能，但Linux終端中常見的複製粘貼快捷鍵並不生效。
 
 在VTE中複製粘貼快捷鍵如下：
 
 - `Control + Insert` 複製
 - `Shift + Insert` 粘貼
+
+## Kitty
+[Kitty](https://sw.kovidgoyal.net/kitty/)是使用OpenGL實現GUI渲染的終端，且功能豐富，支持多標籤。
+
+Kitty的組合鍵使用`ctrl + shift`組合其它按鍵，常用快捷鍵：
+
+| 快捷鍵 | 說明 |
+| :- | :- |
+| `ctrl + shift` + `t` | 創建新標籤頁 |
+| `ctrl + shift` + `q` | 關閉當前標籤頁 |
+| `ctrl + shift` + `left` / `right` | 切換當前標籤頁 |
+| `ctrl + shift` + `,` / `.` | 移動當前標籤頁 |
+| `ctrl + shift` + `w` | 關閉終端程序 |
+| `ctrl + shift` + `h` | 進入搜索模式，搜索模式下輸入`/`進行後向搜索，輸入`?`進行前向搜索 |
 
 
 
