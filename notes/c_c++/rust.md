@@ -7,6 +7,8 @@
 		- [rustup](#rustup)
 		- [rustfmt](#rustfmt)
 	- [REPL](#repl)
+- [靜態構建](#靜態構建)
+	- [musl-gcc](#musl-gcc)
 - [智能指針](#智能指針)
 	- [Rc / Box / Arc](#rc--box--arc)
 	- [Cell / RefCell](#cell--refcell)
@@ -162,6 +164,49 @@ Available kernels:
   .net-powershell    /Users/dainslef/Library/Jupyter/kernels/.net-powershell
   rust               /Users/dainslef/Library/Jupyter/kernels/rust
   python3            /usr/local/share/jupyter/kernels/python3
+```
+
+
+
+# 靜態構建
+Rust在Linux平臺上的默認Target為`x86_64-unknown-linux-gnu`，
+其對Linux環境的依賴已經較小，通常僅依賴libc、librt等必要庫，但並非像Golang那樣純靜態二進制。
+
+Rust可以通過musl生成類似Golang的純靜態二進制文件，
+添加對應Target，並使用該Target進行構建即可：
+
+```
+$ rustup target add x86_64-unknown-linux-musl
+$ cargo build --target x86_64-unknown-linux-musl
+```
+
+使用`x86_64-unknown-linux-musl`構建生成的文件位於`$PROJECT/x86_64-unknown-linux-musl`路徑下。
+
+## musl-gcc
+部分使用CFFI的Rust庫需要用到C編譯器的對應musl版本（musl-gcc），
+需要在系統中安裝musl工具鏈：
+
+```html
+# apt install musl-tools <!-- 大便系 -->
+$ nix-env -i musl <!-- Nix -->
+```
+
+在NixOS中，musl軟件包默認未導出編譯器執行文件`musl-gcc`到環境變量中，
+需要手動查找musl軟件包路徑，並添加到PATH環境變量中。
+示例：
+
+```html
+<!-- 查找musl對應dev包在nix-store下的路徑 -->
+$ find /nix/store -name '*-musl-*-dev'
+/nix/store/0w1v9bcz7vs9462a8q240czgi7hnn8qn-musl-1.2.3-dev
+<!-- 找到路徑後將該路徑添加到 $PATH 中 -->
+$ export PATH=$PATH:/nix/store/0w1v9bcz7vs9462a8q240czgi7hnn8qn-musl-1.2.3-dev/bin
+<!-- 之後即可使用 musl-gcc -->
+$ musl-gcc
+gcc (GCC) 11.3.0
+Copyright (C) 2021 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ```
 
 
