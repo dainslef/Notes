@@ -9,6 +9,8 @@
 	- [REPL](#repl)
 - [靜態構建](#靜態構建)
 	- [musl-gcc](#musl-gcc)
+- [單元測試](#單元測試)
+	- [async函數單元測試](#async函數單元測試)
 - [智能指針](#智能指針)
 	- [Rc / Box / Arc](#rc--box--arc)
 	- [Cell / RefCell](#cell--refcell)
@@ -207,6 +209,39 @@ gcc (GCC) 11.3.0
 Copyright (C) 2021 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+
+
+
+# 單元測試
+Rust內置了對單元測試的支持。
+
+使用`#[test]`特性標註一個函數，則該函數即為單元測試：
+
+```rs
+#[test]
+fn xxx_test() {
+  // Test code...
+}
+```
+
+使用Cargo執行單元測試：
+
+```html
+$ cargo test -- 單元測試函數完整路徑
+<!-- 默認執行測試會忽略函數內的標準輸出，添加 --nocapture 參數展示標註輸出 -->
+$ cargo test -- --nocapture 單元測試函數完整路徑
+```
+
+## async函數單元測試
+使用異步運行時的函數不可直接使用`#[test]`特性標註，
+而是應使用對應運行時提供的特性，以tokio為例，應使用`#[tokio::test]`特性：
+
+```rs
+#[tokio::test]
+async fn xxx_test() {
+  // Aysnc code...
+}
 ```
 
 
