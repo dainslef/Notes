@@ -43,7 +43,7 @@
 - [OpenWRT衍生固件](#openwrt衍生固件)
 	- [ImmortalWrt](#immortalwrt)
 	- [FriendlyWrt](#friendlywrt)
-		- [修改FriendlyWrt的overlay配置](#修改friendlywrt的overlay配置)
+		- [修改FriendlyWrt的Overlay配置](#修改friendlywrt的overlay配置)
 		- [Docker服務未自啟動](#docker服務未自啟動)
 
 <!-- /TOC -->
@@ -314,7 +314,7 @@ opkg並未直接提供升級所有軟件包功能，可利用管道操作組合�
 ```html
 # opkg install
 <!-- 常用程序，所有設備均安裝 -->
-fish file lsblk htop iperf3 tcpdump nmap-full vim-full
+fish file lsblk htop iperf3 tcpdump nmap-full
 luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
 <!-- 帶有USB接口的設備可作為下載服務器 -->
 luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas usbutils rsync
@@ -323,9 +323,14 @@ block-mount parted
 <!-- OpenWRT2020 主題 -->
 luci-theme-openwrt-2020
 
+<!-- vim編輯器，busybox自帶的vi功能較少 -->
+vim
+<!-- 存儲空間足夠的設備可安裝全功能版本的vim -->
+vim-fuller
+
 <!-- ARM64 架構的設備可安裝 Docker -->
 luci-app-dockerman dockerd
-<!-- ImmortalWRT 可直接從軟件源中安裝 OpenClash -->
+<!-- ImmortalWRT 以及部分國產固件可直接從軟件源中安裝 OpenClash -->
 luci-app-openclash
 <!-- ImmortalWRT 不需要安裝溫度檢測器，UI直接提供處理器溫度展示，其它系統需要安裝用於查看處理器溫度 -->
 lm-sensors
@@ -356,6 +361,7 @@ MT762x系列芯片的安裝SD卡驅動：
 
 ```
 # cat /rom/usr/lib/opkg/status
+...
 Package: luci-app-firewall
 Version: git-22.089.67741-3856d50
 Depends: libc, firewall
@@ -450,6 +456,9 @@ Installed-Time: 1661238557
 ```
 
 強制安裝依舊會輸出依賴不滿足的告警信息，但軟件包已安裝成功。
+
+儘管內核模塊版本不匹配可使用強制安裝解決依賴不滿足的問題，
+但若存在大量內核模塊需要安裝時操作較為繁瑣，應考慮使用修改內核軟件包版本信息的方式。
 
 ### 強制覆蓋文件
 部分軟件包會出現文件衝突，例如：
@@ -1162,7 +1171,7 @@ FriendlyWrt默認不使用`/etc/config/fstab`來配置overlay，
 同時overlay直接掛載到根節點，且不使用`/rom`和`/overlay`路徑
 （官方OpenWRT常見的overlay方式是lowerdata掛載到`/rom`，upperdata掛載到`/overlay`下）。
 
-### 修改FriendlyWrt的overlay配置
+### 修改FriendlyWrt的Overlay配置
 默認FriendlyWrt的分區結構（以`NanoPi R4SE`為例）：
 
 ```
