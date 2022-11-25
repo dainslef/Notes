@@ -15,6 +15,7 @@
 	- [其它編譯器參數](#其它編譯器參數)
 - [反編譯](#反編譯)
 	- [otool](#otool)
+	- [radare2](#radare2)
 - [Objective-C 編譯](#objective-c-編譯)
 	- [環境安裝](#環境安裝)
 	- [編譯參數](#編譯參數)
@@ -379,13 +380,43 @@ gcc/clang有`O1`、`O2`、`O3`三個代碼優化級別，`O1`最低，`O3`優化
 使用`otool`工具代替`objdump`進行反彙編：
 
 ```
-$ otool -Vt [二進制文件]
+$ otool -Vt 二進制文件
 ```
 
 使用`otool`工具代替`ldd`顯示文件鏈接了哪些動態庫：
 
 ```
-$ otool -L [二進制文件]
+$ otool -L 二進制文件
+```
+
+## radare2
+[radare2](https://github.com/radareorg/radare2)是Unix平臺的反向工程框架，
+提供對程序的分析、模擬、調試、修改、反彙編等功能的集成。
+
+radare2安裝後的指令名為`r2`或`radare2`。
+與gdb類似，執行radare2工具後會進入交互會話，
+radare2的會話指令為單字母組合，使用`?`顯示當前可用的指令：
+
+```html
+$ r2
+> ? <!-- 列出當前可用的指令 -->
+> x? <!-- 列出x指令可用的子指令 -->
+```
+
+常用功能：
+
+```
+$ r2 /bin/ls   # open the binary in read-only mode
+> aaa          # same as r2 -A, analyse the binary
+> afl          # list all functions (try aflt, aflm)
+> px 32        # print 32 byte hexdump current block
+> s sym.main   # seek to the given offset (by flag name, number, ..)
+> f~foo        # filter flags with ~grep (same as |grep)
+> iS;is        # list sections and symbols (same as rabin2 -Ss)
+> pdf; agf     # print function and show control-flow-graph in ascii-art
+> oo+;w hello  # reopen in rw mode and write a string in the current offset
+> ?*~...       # interactive filter all command help messages
+> q            # quit
 ```
 
 
@@ -394,10 +425,10 @@ $ otool -L [二進制文件]
 主流的編譯器同樣支持`Objective-C`語言，Objective-C語言的源碼爲`*.m`。
 
 ## 環境安裝
-要讓編譯器順利的編譯`Objective-C`的源碼，需要安裝對應開發庫，在Linux系統中是`GNUstep`庫。
+要讓編譯器順利的編譯Objective-C的源碼，需要安裝對應開發庫，在Linux系統中是`GNUstep`庫。
 
-使用gcc編譯`Objective-C`源碼，需要安裝gcc的`Objective-C`支持包`gcc-objc`。
-以`ArchLinux`爲例，安裝`Objective-C`開發環境：
+使用gcc編譯Objective-C源碼，需要安裝gcc的Objective-C支持包`gcc-objc`。
+以Arch Linux爲例，安裝Objective-C開發環境：
 
 ```
 # pacman -S gcc-objc gnustep-core
@@ -406,21 +437,24 @@ $ otool -L [二進制文件]
 ## 編譯參數
 編譯Objective-C源碼相對編譯C/C++源碼而言要更復雜，需要使用更多的編譯器參數。
 
-使用`gnustep-config --objc-flags`指令會自動生成編譯Objective-C源碼需要的編譯器參數，將指令的結果插入gcc編譯指令的參數中。
-通常情況下，需要鏈接`libgnustep-base`、`libobjc`等庫，若源碼使用了GUI庫還需要鏈接`libgnustep-gui`庫。
+使用`gnustep-config --objc-flags`指令會自動生成編譯Objective-C源碼需要的編譯器參數，
+將指令的結果插入gcc編譯指令的參數中。通常情況下，需要鏈接`libgnustep-base`、`libobjc`等庫，
+若源碼使用了GUI庫還需要鏈接`libgnustep-gui`庫。
 
-gcc編譯`Objective-C`源碼指令：
+gcc編譯Objective-C源碼指令：
 
 ```
-$ gcc $(gnustep-config --objc-flags) -lobjc -lgnustep-base [源碼文件]
+$ gcc $(gnustep-config --objc-flags) -lobjc -lgnustep-base 源碼文件
 ```
 
-由於`gnustep-config`默認與`GNU編譯器`組搭配，故其生成的編譯參數並不完全適用於clang編譯器。
-需要手動指定編譯參數以符合clang編譯器的要求，根據編譯器輸出的異常信息將`gnustep-config`指令生成的參數中不符合要求的參數剔除，
+由於gnustep-config默認與**GNU編譯器**組搭配，
+故其生成的編譯參數並不完全適用於clang編譯器。
+需要手動指定編譯參數以符合clang編譯器的要求，
+根據編譯器輸出的異常信息將`gnustep-config指令生成的參數中不符合要求的參數剔除，
 並加入其他需要的編譯器參數。
 
-clang編譯`Objective-C`源碼指令(以`Archlinux x64`和`gcc 4.9.2`爲例)：
+clang編譯Objective-C源碼指令(以`Archlinux x64`和`gcc 4.9.2`爲例)：
 
 ```
-$ clang -fconstant-string-class=NSConstantString -lgnustep-base -lobjc -I/usr/lib/gcc/x86_64-unknown-linux-gnu/[gcc-version]/include [源碼文件]
+$ clang -fconstant-string-class=NSConstantString -lgnustep-base -lobjc -I/usr/lib/gcc/x86_64-unknown-linux-gnu/gcc版本/include 源碼文件
 ```
