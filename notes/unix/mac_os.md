@@ -324,9 +324,8 @@ $ brew update <!-- 更新源 -->
 $ brew ugrade <!-- 升級包 -->
 $ brew info 包名 <!-- 顯示指定包的信息 -->
 $ brew install 包名 <!-- 安裝指定包 -->
-$ brew switch 包名 版本號 <!-- 若安裝了多個版本的包，切換指定包的使用版本 -->
-$ brew dockor <!-- 檢測可能存在的問題，並給出修復提示 -->
-$ brew prune <!-- 移除無效的符號鏈接 -->
+$ brew doctor <!-- 檢測可能存在的問題，並給出修復提示 -->
+$ brew cleanup --prune-prefix <!-- 移除無效的符號鏈接 -->
 ```
 
 與Linux下的常規包管理器不同，Homebrew在安裝、卸載包時，不會有多餘的確認提示，輸入指令後立即執行。
@@ -340,8 +339,10 @@ caskroom倉庫默認的包緩存路徑爲`~/Library/Caches/Homebrew/Cask`。
 
 可使用指令查看Homebrew的相關路徑：
 
-- `$ brew --cache` 查看緩存路徑
-- `$ brew --repo` 查看Hombrew安裝路徑
+```html
+$ brew --cache <!-- 查看緩存路徑 -->
+$ brew --repo <!-- 查看Hombrew安裝路徑 -->
+```
 
 在緩存中的包重複安裝無需重新下載。
 由於國內網絡問題，直接通過brew指令安裝包有時會頻繁下載失敗。
@@ -413,11 +414,16 @@ $ brew leaves
 其它依賴管理相關指令：
 
 ```html
+<!-- 查看當前環境中缺失的依賴 -->
+$ brew missing
+
 <!-- 查看指定軟件包的依賴 -->
 $ brew deps 軟件包名稱
+<!-- 查看指定軟件包的完整依賴樹 -->
+$ brew deps --tree 軟件包名稱
 
-<!-- 顯示指定軟件包被哪些軟件包依賴 -->
-$ brew uses 軟件包名稱
+<!-- 顯示指定軟件包被哪些軟件包依賴（全量） -->
+$ brew uses --eval-all 軟件包名稱
 <!-- 顯示指定軟件包被哪些已安裝的軟件包依賴 -->
 $ brew uses --installed 軟件包名稱
 ```
@@ -444,7 +450,7 @@ blender			google-chrome		qq			visual-studio-code
 clashx-pro		intellij-idea		steam			visualvm
 ```
 
-使用`brew list [包名]`：
+使用`brew list 包名`：
 
 ```html
 $ brew list redis
