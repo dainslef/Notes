@@ -13,6 +13,7 @@
 - [用戶管理](#用戶管理)
 - [文件特殊權限](#文件特殊權限)
 	- [setuid / setgid / sticky](#setuid--setgid--sticky)
+	- [lsattr / chattr](#lsattr--chattr)
 - [FTP (File Transfer Protocol)](#ftp-file-transfer-protocol)
 	- [連接服務器](#連接服務器)
 	- [常用指令](#常用指令)
@@ -649,6 +650,37 @@ $ chmod o+t 文件名
 <!-- 使用4組8進制數值設定文件讀寫執行權限和三類額外權限 -->
 $ chmod 7777 文件/目錄
 ```
+
+## lsattr / chattr
+Linux支持使用`chattr`為文件/目錄附加部分特殊屬性，指令語法：
+
+```
+# chattr +-=[aAcCdDeFijPsStTu] 文件/目錄
+```
+
+常用操作說明：
+
+```html
+<!-- 設置/增加/刪除 特定屬性 -->
+# chattr =屬性 文件/目錄
+# chattr +屬性 文件/目錄
+# chattr -屬性 文件/目錄
+
+<!-- 使用 -R 參數可遞歸對目錄生效 -->
+# chattr -R 屬性操作 目錄
+
+<!-- 使用 -V 參數可展示操作詳情 -->
+# chattr -V 屬性操作 目錄/文件
+```
+
+chattr設置的特殊屬性可使用`lsattr`查看：
+
+```html
+$ lsattr 目錄/文件
+$ lsattr -R 目錄 <!-- 遞歸展示目錄下所有內容的權限 -->
+```
+
+不同文件系統對各類屬性的支持有所不同，詳情需要參見各文件系統的官方文檔。
 
 
 
