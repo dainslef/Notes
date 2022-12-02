@@ -21,6 +21,9 @@
 	- [Docker Registry Server](#docker-registry-server)
 - [Habor](#habor)
 	- [部署Habor](#部署habor)
+	- [部署Https访问](#部署https访问)
+		- [Harbor服務端證書配置](#harbor服務端證書配置)
+		- [Docker客戶端證書配置](#docker客戶端證書配置)
 	- [Habor服務管理](#habor服務管理)
 	- [登入Habor](#登入habor)
 		- [Docker登入](#docker登入)
@@ -536,7 +539,7 @@ Habor是基於Docker的離線鏡像管理倉庫。
 在服務端解壓；復制配置模板`harbor.yml.tmpl`到`harbor.yml`文件，修改文件中的下列內容：
 
 ```yaml
-hostname: xxx.xxx..
+hostname: xxx.xxx.. # IP或主機名
 ...
 harbor_admin_password: xxx...
 ...
@@ -546,7 +549,9 @@ harbor_admin_password: xxx...
 
 Habor依賴於Docker和docker-compose，並存在最低版本限制，
 docker-compose官方倉庫中的版本可能不滿足Habor的要求，
-可從官方[GitHub](https://github.com/docker/compose/releases)頁面中下載最新版本。
+可從官方[GitHub](https://github.com/docker/compose/releases)頁面中下載對應版本。
+需要注意docker-compose 1.x和2.x的區別，若安裝信息中提示需要的docker-compose為1.x版本，
+則應下載大版本號匹配的版本，而非最新的2.x版本。
 
 安裝完必備的依賴後，可執行安裝腳本：
 
@@ -556,27 +561,120 @@ docker-compose官方倉庫中的版本可能不滿足Habor的要求，
 
 執行安裝腳本後會自動啟動Habor服務。
 
-若需要部署HTTPS訪問，則需要生成或獲取對應域名的證書，並修改下列配置：
+## 部署Https访问
+若需要部署HTTPS訪問，則需要生成或獲取對應域名的證書。
 
-```yaml
-...
-# https related config
-https:
-  # https port for harbor, default is 443
-  port: 443
-  # The path of cert and key files for nginx
-  certificate: /xxx../ca.crt
-  private_key: /xxx../ca.key
-...
-```
+Https證書的生成流程：
 
-可使用`openssl`工具生成對應私有證書：
+1. 證書簽名者生成**根密鑰**和**根證書**（CRT）。
+1. 證書申請者生成**域名密鑰**，以及**域名簽名請求**（CSR），提交給根證書提供者。
+1. 根證書簽名者使用自身的根證書和根密鑰簽名證書申請者提交的域名簽名請求，生成**域名證書**（CRT）。
+1. 證書申請者在自身站點配置**域名密鑰**和**域名證書**。
+1. 用戶導入根證書簽名者提供的**根證書**即可合法認證訪問使用**域名證書**加密的站點。
+
+### Harbor服務端證書配置
+可使用`openssl`工具生成對應私有根證書和私鑰：
 
 ```
-$  openssl req -new -newkey rsa -x509 -sha512 -days 有效日期數 -nodes -subj "/C=JP/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxx.domain.xxx" -out ca.crt -keyout ca.key
+$ openssl req -new -newkey rsa -x509 -sha512 -days 有效日期數 -nodes -subj "/C=JP/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxxdomain.xxx" -out ca.crt -keyout ca.key
 ```
 
 HTTPS配置的完整說明參考[Harbor官方文檔](https://goharbor.io/docs/2.0.0/install-config/configure-https/)。
+
+用私有證書生成特定域名的簽名證書：
+
+1. 生成私有密鑰：
+
+	```
+	$ openssl genrsa -out xxxdomain.xxx.key 4096
+	```
+
+1. 生成域名的認證簽名請求（Certificate Signing Request，CSR）：
+
+	```
+	$ openssl req -sha512 -new \
+	-subj "/C=CN/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxxdomain.xxx" \
+	-key xxxdomain.xxx.key \
+	-out xxxdomain.xxx.csr
+	```
+
+1. 生成自簽名證書擴展（x509 v3 extension）：
+
+	```html
+	$ cat > v3.ext <<-EOF
+	authorityKeyIdentifier=keyid,issuer
+	basicConstraints=CA:FALSE
+	keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+	extendedKeyUsage = serverAuth
+	subjectAltName = @alt_names
+
+	[alt_names]
+	DNS.1=xxxdomain.xxx
+	DNS.2=xxxdomain
+	DNS.3=hostname
+	IP.1=xxx.xxx.xxx.xxx <!-- 支持證書綁定IP -->
+	IP.2=xxx.xxx.xxx.xxx <!-- 證書綁定IP需要Harbor對應的host配置也使用相同的IP -->
+	EOF
+	```
+
+1. 使用自簽名擴展`v3.ext`和先前創建的CSR生成證書：
+
+	```
+	$ openssl x509 -req -sha512 -days 3650 \
+	-extfile v3.ext \
+	-CA ca.crt -CAkey ca.key -CAcreateserial \
+	-in xxxdomain.xxx.csr \
+	-out xxxdomain.xxx.crt
+	```
+
+1. 將證書轉換為Docker使用的證書（可選，僅當Harbor未指定證書路徑時使用）：
+
+	```
+	$ openssl x509 -inform PEM -in xxxdomain.xxx.crt -out xxxdomain.xxx.cert
+	```
+
+生成證書後，修改下列配置：
+
+```yaml
+...
+https:
+  port: 443
+  # 指定證書路徑，證書為先前生成的 xxxdomain.xxx.crt 和密鑰 xxxdomain.xxx.key
+  certificate: /xxx../xxxdomain.xxx.crt
+  private_key: /xxx../xxxdomain.xxx.key
+...
+```
+
+若不在配置文件中指定證書路徑，則需要在默認路徑`/etc/docker/certs.d/xxxdomain.xxx`，
+在該路徑下需要存在`xxxdomain.xxx.cert`、`xxxdomain.xxx.key`、`ca.crt`三個文件。
+
+修改配置後需要重新執行`./install.sh`重新部署後才生效。
+
+### Docker客戶端證書配置
+客戶端使用docker則需要導入根證書`ca.crt`。
+不同系統導入方式有所不同。
+
+紅帽係：
+
+```
+# cp /xxx/.../xxx_ca.crt /etc/pki/ca-trust/source/anchors/
+# update-ca-trust
+# systemctl restart docker
+```
+
+大便係：
+
+```
+# cp /xxx/.../xxx_ca.crt /usr/local/share/ca-certificates/
+# update-ca-certificates
+# systemctl restart docker
+```
+
+導入根證書後，需要重啟Docker服務訪客生效：
+
+```
+# systemctl restart docker
+```
 
 ## Habor服務管理
 Habor使用docker-compose管理服務：
