@@ -682,6 +682,74 @@ $ lsattr -R 目錄 <!-- 遞歸展示目錄下所有內容的權限 -->
 
 不同文件系統對各類屬性的支持有所不同，詳情需要參見各文件系統的官方文檔。
 
+常用的特殊屬性：
+
+- `a(append onlybu)` 設置文件僅可以`append`模式打開
+
+	設置該屬性後，文件不可刪除，不可以重寫模式重定向，僅可以追加模式重定向：
+
+	```html
+	# chattr -V =a test <!-- 需要root權限來設置a屬性 -->
+	chattr 1.45.5 (07-Jan-2020)
+	Flags of test set as -----a--------------
+
+	<!-- 設置a屬性後，普通用戶不可刪除文件（即使為文件所有者） -->
+	$ rm test
+	rm: cannot remove 'test': Operation not permitted
+	<!-- 設置a屬性後，root用戶亦不可刪除文件 -->
+	# rm test
+	rm: cannot remove 'test': Operation not permitted
+
+	<!-- 設置了a屬性後，無論普通用戶或root用戶均不可進行重定向重寫內容 -->
+	$ echo fuckccp > test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# echo fuckccp > test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+
+	<!-- 追加模式重定向正常，且無需root權限 -->
+	$ echo fuckccp >> test
+	$ cat test
+	fuckccp
+	```
+
+- `i(immutable)` 設置文件不可刪除、修改
+
+	設置該屬性後不可進行修改和創建硬鏈接：
+
+	```html
+	# chattr -V =i test
+	chattr 1.45.5 (07-Jan-2020)
+	Flags of test set as ----i---------------
+
+	<!-- 與a屬性類似，同樣無法刪除文件 -->
+	$ rm test
+	rm: cannot remove 'test': Operation not permitted
+	# rm test
+	rm: cannot remove 'test': Operation not permitted
+
+	<!-- 相比a屬性，i屬性還禁止重定向追加內容 -->
+	$ echo fuckccp > test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	$ echo fuckccp >> test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# echo fuckccp > test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# echo fuckccp >> test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+
+	<!-- i屬性禁止創建硬鏈接 -->
+	# ln test test1
+	ln: failed to create hard link 'test1' => 'test': Operation not permitted
+	```
+
+
+
 
 
 # FTP (File Transfer Protocol)
