@@ -46,6 +46,8 @@
 	- [鏡像源](#鏡像源)
 	- [常用操作](#常用操作)
 	- [包依賴檢查與清理](#包依賴檢查與清理)
+- [venv](#venv)
+	- [NixOS下venv模塊的軟連接問題](#nixos下venv模塊的軟連接問題)
 - [文檔瀏覽](#文檔瀏覽)
 - [PEP8 編碼規範總結](#pep8-編碼規範總結)
 	- [代碼編排](#代碼編排)
@@ -1722,9 +1724,67 @@ $ pip install pip-autoremove
 
 `pip-autoremove`的常見操作如下：
 
+```html
+$ pip-autoremove -l <!-- 列出未被使用的依賴（可以被清理的依賴） -->
+$ pip-autoremove -L <!-- 列出不被其它包依賴的包（主動安裝的包） -->
 ```
-$ pip-autoremove -l //列出未被使用的依賴(可以被清理的依賴)
-$ pip-autoremove -L //列出不被其它包依賴的包(主動安裝的包)
+
+
+
+# venv
+[`venv`](https://docs.python.org/3/library/venv.html)模塊用於創建輕量級的Python虛擬環境。
+每個虛擬環境下擁有獨立的模塊路徑，與系統環境隔離。
+
+從Python 3.3開始，引入了pyvenv工具用於創建Python虛擬環境，到Python 3.6，pyvenv被venv模塊替代。
+通常Python發行版均以內置該模塊。
+
+使用venv模塊創建Python虛擬環境：
+
+```
+$ python -m venv 自定義Python虛擬環境
+```
+
+創建的虛擬環境結構如下：
+
+```
+.
+├── bin
+│   ├── activate
+│   ├── activate.csh
+│   ├── activate.fish
+│   ├── Activate.ps1
+│   ├── pip
+│   ├── pip3
+│   ├── pip3.10
+│   ├── python -> python3
+│   ├── python3 -> /usr/bin/python3
+│   └── python3.10 -> python3
+├── include
+├── lib
+│   └── python3.10
+│       └── site-packages
+|           ...
+├── lib64 -> lib
+└── pyvenv.cfg
+```
+
+需要切換到新環境時，執行bin路徑下對應Shell類型的腳本即可，以fish為例：
+
+```
+$ source 虛擬環境路徑/bin/activate.fish
+```
+
+若需要直接使用虛擬環境下的安裝的Python工具，可直接將虛擬環境下的bin子路徑加入PATH。
+
+## NixOS下venv模塊的軟連接問題
+NixOS下使用venv模塊創建虛擬環境，
+`$VENV_ROOT_PATH/bin/python3`會使用符號鏈接直接鏈接到具體的Nix軟件包路徑，
+而Nix軟件包路徑在對應包升級後即發生改變，會導致虛擬環境找不到Python軟件包。
+
+應將venv生成的符號鏈接替換為Nix生成的全局符號鏈接：
+
+```
+$ ln -sf /run/current-system/sw/bin/python3 xxx/bin/python3
 ```
 
 
