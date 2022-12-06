@@ -25,6 +25,7 @@
 	- [類方法](#類方法)
 	- [屬性](#屬性)
 	- [隱含參數](#隱含參數)
+	- [開放類](#開放類)
 	- [私有成員](#私有成員)
 	- [繼承](#繼承)
 	- [特殊內置成員](#特殊內置成員)
@@ -1112,6 +1113,33 @@ no_arg_method: 100
 - 使用了`@staticmethod`裝飾器之後，通過實例調用該靜態方法，解釋器不再會將實例作爲隱含參數。
 - 使用了`@classmethod`裝飾器之後，通過實例調用該類方法，解釋器依然將實例視爲類名處理。
 - 參數爲空的成員方法，即使沒有添加任何裝飾器，也只能通過類名訪問。
+
+## 開放類
+Python中雖然未直接提供類似Ruby的**開放類**（Open Class）特性，
+但Python作爲動態語言，可在運行期間修改已存在類型的定義，
+爲已存在的類型添加方法，即可實現與開放類類似的功能：
+
+```py
+In [1]: class Test:
+   ...:     pass
+
+In [2]: Test.is_null = lambda s: s == None
+
+In [3]: t = Test()
+
+In [4]: t.is_null()
+Out[4]: False
+```
+
+但Python的內置類型無法進行此類操作：
+
+```py
+In [5]: str.is_null() = lambda s: s == None
+  Input In [5]
+    str.is_null() = lambda s: s == None
+    ^
+SyntaxError: cannot assign to function call
+```
 
 ## 私有成員
 Python類中默認成員的訪問屬性爲公有，在Python中不能定義保護成員，但可以定義私有成員。
