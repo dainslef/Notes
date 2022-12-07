@@ -5,6 +5,7 @@
 - [Ansible Module](#ansible-module)
 	- [模塊分發](#模塊分發)
 	- [Command && Shell](#command--shell)
+	- [Ansible Console](#ansible-console)
 
 <!-- /TOC -->
 
@@ -57,6 +58,8 @@ all:
       hosts:
         xxx-hostname1: # host參數同上
         xxx-hostname2:
+      children:
+        ... # 組內可以添加其它的組
     xxx-group2:
       hosts:
         xxx-hostname3:
@@ -91,7 +94,7 @@ host_key_checking = False
 在命令行中執行模塊：
 
 ```
-$ ansible 主機 -m 模塊名稱 -a "模塊參數"
+$ ansible 主機組/主機 -m 模塊名稱 -a "模塊參數"
 ```
 
 多數模塊使用`key=value`風格的參數(多組鍵值對使用**空格**分隔)，
@@ -194,3 +197,37 @@ oracle-cloud | CHANGED | rc=0 >>
 ```
 
 使用**重定向**等shell語法特性需要使用Shell模塊。
+
+## Ansible Console
+Ansible提供了`ansible-console`工具可進入交互式Shell便於同時、多次對一組機器執行相同指令：
+
+```
+$ ansible-console 主機組/主機
+```
+
+示例：
+
+```
+$ ansible-console 400m
+[WARNING]: Invalid characters were found in group names but not replaced, use -vvvv to see details
+Welcome to the ansible console. Type help or ? to list commands.
+
+dainslef@400m (4)[f:5]$ uname -a
+nmssuperf03 | CHANGED | rc=0 >>
+Linux nmssuperf03 3.10.0-1062.el7.x86_64 #1 SMP Wed Aug 7 18:08:02 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+nmssuperf01 | CHANGED | rc=0 >>
+Linux nmssuperf01 3.10.0-1062.el7.x86_64 #1 SMP Wed Aug 7 18:08:02 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+nmssuperf02 | CHANGED | rc=0 >>
+Linux nmssuperf02 3.10.0-1062.el7.x86_64 #1 SMP Wed Aug 7 18:08:02 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+nmsinstall01 | CHANGED | rc=0 >>
+Linux nmsinstall01 3.10.0-1062.el7.x86_64 #1 SMP Wed Aug 7 18:08:02 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+dainslef@400m (4)[f:5]$ uptime
+nmsinstall01 | CHANGED | rc=0 >>
+ 16:18:36 up  6:17,  4 users,  load average: 0.01, 0.02, 0.09
+nmssuperf02 | CHANGED | rc=0 >>
+ 16:19:31 up 15:48,  3 users,  load average: 7.21, 7.12, 7.46
+nmssuperf01 | CHANGED | rc=0 >>
+ 16:19:31 up 15:48,  2 users,  load average: 8.73, 7.41, 7.01
+nmssuperf03 | CHANGED | rc=0 >>
+ 16:19:31 up 15:48,  2 users,  load average: 5.30, 6.25, 6.37
+```
