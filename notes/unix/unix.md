@@ -14,6 +14,7 @@
 - [文件特殊權限](#文件特殊權限)
 	- [setuid / setgid / sticky](#setuid--setgid--sticky)
 	- [lsattr / chattr](#lsattr--chattr)
+	- [chflags](#chflags)
 - [FTP (File Transfer Protocol)](#ftp-file-transfer-protocol)
 	- [連接服務器](#連接服務器)
 	- [常用指令](#常用指令)
@@ -677,14 +678,14 @@ chattr設置的特殊屬性可使用`lsattr`查看：
 
 ```html
 $ lsattr 目錄/文件
-$ lsattr -R 目錄 <!-- 遞歸展示目錄下所有內容的權限 -->
+$ lsattr -R 目錄 <!-- 遞歸展示目錄下所有內容的屬性 -->
 ```
 
 不同文件系統對各類屬性的支持有所不同，詳情需要參見各文件系統的官方文檔。
 
 常用的特殊屬性：
 
-- `a(append onlybu)` 設置文件僅可以`append`模式打開
+- `a(append only)` 設置文件僅可以`append`模式打開
 
 	設置該屬性後，文件不可刪除，不可以重寫模式重定向，僅可以追加模式重定向：
 
@@ -748,6 +749,34 @@ $ lsattr -R 目錄 <!-- 遞歸展示目錄下所有內容的權限 -->
 	ln: failed to create hard link 'test1' => 'test': Operation not permitted
 	```
 
+## chflags
+BSD系列系統中（包括macOS）擁有與Linux下chattr類似的機制`chflags`，指令語法：
+
+```
+$ chflags [-fhvx] [-R [-H | -L | -P]] flags file ...
+```
+
+常用操作說明：
+
+```html
+<!-- 對指定的文件/目錄進行屬性操作 -->
+$ chflags 屬性 文件/目錄 <!-- 設置指定屬性 -->
+$ chflags 屬性1,屬性2,屬性3 文件/目錄 <!-- 同時設置多個屬性，使用逗號分隔 -->
+$ chflags 0 文件/目錄 <!-- 清除設置的屬性 -->
+
+<!-- 使用 -R 參數可遞歸對目錄生效 -->
+$ chflags -R 屬性操作 目錄
+
+<!-- 使用 -V 參數可展示操作詳情 -->
+# chflags -v 屬性操作 目錄/文件
+```
+
+與lsattr不同，chflags設置的屬性直接使用ls工具搭配`-lO`參數進行查看，示例：
+
+```html
+$ ls -lO 目錄/文件
+$ ls -lRO 目錄 <!-- 遞歸展示目錄下所有內容的屬性 -->
+```
 
 
 
@@ -2298,9 +2327,13 @@ systemd還集成了常用的系統管理工具：
 | timedatectl | 時區時間配置 |
 | localectl | 語言編碼配置 |
 | networkctl | 網絡配置 |
-| coredumpctl | 核心轉儲查看工具 |
+| coredumpctl | 核心轉儲查看 |
 | journalctl | 日誌查看工具 |
-| loginctl | 會話狀態管理工具 |
+| loginctl | 會話狀態管理 |
+| busctl | | D-Bus監控 |
+| resolvectl | 域名解析配置 |
+| userdbctl | 用戶管理 |
+| machinectl | 虛擬機/容器管理
 
 ### loginctl
 `loginctl`用於配置systemd的登入管理器，loginctl自身服務為`systemd-logind.service`。
