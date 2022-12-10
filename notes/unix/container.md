@@ -21,10 +21,12 @@
 	- [Docker Registry Server](#docker-registry-server)
 - [Habor](#habor)
 	- [部署Habor](#部署habor)
+	- [部署Helm Chart倉庫](#部署helm-chart倉庫)
 	- [部署Https访问](#部署https访问)
 		- [Harbor服務端證書配置](#harbor服務端證書配置)
 		- [Docker客戶端證書配置](#docker客戶端證書配置)
 	- [Habor服務管理](#habor服務管理)
+	- [從其它Harbor倉庫導入鏡像](#從其它harbor倉庫導入鏡像)
 	- [登入Habor](#登入habor)
 		- [Docker登入](#docker登入)
 		- [podman登入](#podman登入)
@@ -561,6 +563,13 @@ docker-compose官方倉庫中的版本可能不滿足Habor的要求，
 
 執行安裝腳本後會自動啟動Habor服務。
 
+## 部署Helm Chart倉庫
+Harbor支持Helm Chart倉庫，開啟該功能可在安裝Harbor時使用下列參數：
+
+```
+# ./install.sh --with-chartmuseum
+```
+
 ## 部署Https访问
 若需要部署HTTPS訪問，則需要生成或獲取對應域名的證書。
 
@@ -683,6 +692,17 @@ Habor使用docker-compose管理服務：
 # docker-compose stop --project-directory harbor安裝路徑 <!-- 停止服務 -->
 # docker-compose start --project-directory harbor安裝路徑 <!-- 啟動服務 -->
 ```
+
+## 從其它Harbor倉庫導入鏡像
+登入Harbor管理頁面，選擇`Administration - Registries - NEW ENDPOINT`菜單，
+登記作為導入源的Harbor倉庫地址。
+
+選擇`Administration - Replications - NEW REPLICATION RULE`菜單，添加鏡像複製規則。
+複製規則菜單中，`Replication mode`設置為`Pull-based`才是從其它倉庫拉取鏡像；
+`Source resource filter`配置項下，`Name`配置項可配置基於鏡像名稱的過濾，並支持使用`*`通配符，
+如`library/*`即為拉取library倉庫下的所有鏡像。
+
+複製規則創建完成後，選中規則點擊`REPLICATE`可手動開始同步操作。
 
 ## 登入Habor
 Habor默認用戶為`admin`，密碼為部署時配置文件中`harbor_admin_password`字段的內容。
