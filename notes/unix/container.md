@@ -19,6 +19,7 @@
 	- [構建鏡像](#構建鏡像)
 	- [Docker Hub](#docker-hub)
 	- [Docker Registry Server](#docker-registry-server)
+	- [Docker Compose](#docker-compose)
 - [Habor](#habor)
 	- [部署Habor](#部署habor)
 	- [部署Helm Chart倉庫](#部署helm-chart倉庫)
@@ -530,6 +531,28 @@ $ docker run -d -p 5000:5000 --name registry -v /mnt/registry:/var/lib/registry 
 
 Docker Registry僅提供了簡單的鏡像服務，且默認僅提供HTTP服務（多數運行時現在強制要求HTTPS），
 更完整的鏡像倉庫功能需要使用Habor等第三方項目。
+
+## Docker Compose
+[`Compose`](https://docs.docker.com/compose)是Docker官方提供的單機容器編排技術。
+
+早期的`docker-compose`為獨立的組件，需要單獨下載使用。
+自[`Docker Compose V2`](https://www.docker.com/blog/announcing-compose-v2-general-availability/)開始，
+Docker Compose已經與Docker一同提供，
+並可直接使用`docker compose`指令執行Compose相關操作。
+
+部分發行版（如`ubuntu`）提供的Docker並未包含Compose，需要自行安裝：
+
+```html
+<!-- 安裝到全局路徑 -->
+# mkdir -p /usr/local/lib/docker/cli-plugins
+# curl -SL https://github.com/docker/compose/releases/download/v2.x.x/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+# chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+<!-- 安裝到用戶路徑 -->
+$ mkdir -p ~/.docker/cli-plugins/
+$ curl -SL https://github.com/docker/compose/releases/download/v2.x.x/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+$ chmod +x ~/.docker/cli-plugins/docker-compose
+```
 
 
 
