@@ -778,6 +778,96 @@ $ ls -lO 目錄/文件
 $ ls -lRO 目錄 <!-- 遞歸展示目錄下所有內容的屬性 -->
 ```
 
+macOS/BSD下常用的特殊屬性：
+
+- `hidden`
+
+	設置該屬性後文件隱藏，不在GUI中展示。
+
+- `sappnd, sappend`
+
+	與Linux中的`a`屬性類似，設置該屬性後，文件不可刪除，僅支持追加寫入（需要管理員權限）：
+
+	```html
+	# chflags -v sappnd test
+	test
+	$ ls -lO test
+	-rw-r--r--  1 dainslef  staff  sappnd 0 Dec  5 11:16 test
+	$ rm test <!-- 普通用戶無權限刪除文件 -->
+	override rw-r--r-- dainslef/staff sappnd for test? y
+	rm: test: Operation not permitted
+	# rm test <!-- 管理員用戶亦無權限刪除文件 -->
+	override rw-r--r-- dainslef/staff sappnd for test? y
+	rm: test: Operation not permitted
+	# echo fuckccp > test <!-- 不可重定向寫入 -->
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	$ echo fuckccp >> test <!-- 可追加寫入 -->
+	$ cat test
+	fuckccp
+	```
+
+- `schg, schange, simmutable`
+
+	與Linux中的`i`屬性類似，設置該屬性後，文件不可刪除、修改（需要管理員權限）：
+
+	```html
+	# chflags -v schg test
+	test
+	$ ls -lO test
+	-rw-r--r--  1 dainslef  staff  schg 0 Dec  5 11:16 test
+	# echo fuckccp > test
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# echo fuckccp >> test
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# rm test <!-- 管理員亦無法刪除 -->
+	override rw-r--r-- dainslef/staff schg for test? y
+	rm: test: Operation not permitted
+	```
+
+- `uappnd, uappend`
+
+	功能與`sappnd, sappend`類似，但無須管理員權限，可由文件所有者添加該屬性：
+
+	```html
+	$ chflags -v uappnd test
+	test
+	$ ls -lO test
+	-rw-r--r--  1 dainslef  staff  uappnd 0 Dec  5 11:16 test
+	# echo fuckccp > test <!-- 管理員亦不可重定向寫入 -->
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	$ echo fuckccp >> test <!-- 普通用戶即可追加寫入 -->
+	$ rm test <!-- 普通用戶不可刪除 -->
+	override rw-r--r-- dainslef/staff uappnd for test? y
+	rm: test: Operation not permitted
+	# rm test <!-- 管理員可刪除 -->
+	override rw-r--r-- dainslef/staff uappnd for test? y
+	```
+
+- `uchg, uchange, uimmutable`
+
+	功能與`schg, schange, simmutable`類似，但無須管理員權限，可由文件所有者添加該屬性：
+
+	```html
+	$ chflags -v uchg test
+	test
+	$ ls -lO test
+	-rw-r--r--  1 dainslef  staff  uchg 0 Dec  5 11:16 test
+	# echo fuckccp > test <!-- 管理員亦不可重定向寫入 -->
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# echo fuckccp >> test <!-- 管理員亦不可追加寫入 -->
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	$ rm test <!-- 普通用戶不可刪除 -->
+	override rw-r--r-- dainslef/staff uchg for test? y
+	rm: test: Operation not permitted
+	# rm test <!-- 管理員可刪除 -->
+	override rw-r--r-- dainslef/staff uchg for test? y
+	```
 
 
 
