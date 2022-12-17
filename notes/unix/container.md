@@ -13,6 +13,7 @@
 	- [鏡像管理](#鏡像管理)
 	- [鏡像源](#鏡像源)
 	- [容器管理](#容器管理)
+	- [容器自啟動](#容器自啟動)
 	- [容器生成鏡像](#容器生成鏡像)
 	- [容器導入/導出](#容器導入導出)
 	- [鏡像導入/導出](#鏡像導入導出)
@@ -395,6 +396,27 @@ $ docker rm [容器ID/容器名稱] // 刪除指定容器
 $ docker container rm [容器ID/容器名稱] // 同 docker rm
 $ docker container inspect [容器ID/容器名稱] // 查看容器的詳細配置
 ```
+
+## 容器自啟動
+Docker中支持對每個容器設置重啟策略，只要Docker後台服務開啟了自啟動，
+容器即可通過策略設置實現自啟動。
+
+完整內容參考[官方文檔](https://docs.docker.com/config/containers/start-containers-automatically)。
+
+Docker中容器使用`--restart`參數設置重啟策略，可用在`create/run/update`等子指令中：
+
+```
+# docker create/run/update --restart 重啟策略 ...
+```
+
+重啟策略存在下列四種：
+
+| 名稱 | 說明 |
+| :- | :- |
+| no | 容器不嘗試重啟（默認策略） |
+| on-failure[:max-retries] | 僅在失敗時重啟，可選通過`max-retries`設置最大重啟次數 |
+| always | 始終重啟 |
+| unless-stopped | 與`always`類似，但容器被手動停止時則不會重啟 |
 
 ## 容器生成鏡像
 使用`docker commit`指令爲指定容器生成新的鏡像。
