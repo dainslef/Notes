@@ -1,8 +1,8 @@
 <!-- TOC -->
 
 - [System Call & Library Call](#system-call--library-call)
-	- [System Call (系統調用)](#system-call-系統調用)
-	- [Library Call (庫函數)](#library-call-庫函數)
+	- [System Call（系統調用）](#system-call系統調用)
+	- [Library Call（庫函數）](#library-call庫函數)
 	- [errno](#errno)
 - [Time API](#time-api)
 	- [獲取當前系統時間](#獲取當前系統時間)
@@ -14,10 +14,10 @@
 	- [文件寫入](#文件寫入)
 	- [文件信息](#文件信息)
 	- [標準輸入/輸出](#標準輸入輸出)
-- [Dup (描述符複製)](#dup-描述符複製)
+- [Dup（描述符複製）](#dup描述符複製)
 	- [dup()](#dup)
 	- [dup3()](#dup3)
-- [Log (日誌)](#log-日誌)
+- [Log（日誌）](#log日誌)
 	- [日誌服務](#日誌服務)
 	- [打開日誌](#打開日誌)
 	- [輸出日誌](#輸出日誌)
@@ -89,25 +89,31 @@
 # System Call & Library Call
 對開發者而言，系統調用與庫函數在Unix中都是一組C語言接口，但內部有很大區別。
 
-## System Call (系統調用)
+## System Call（系統調用）
 **系統調用**(`System calls`)是操作系統提供的服務入口點，程序由這些服務入口點向內核請求服務。
 
-Unix系統爲大多數的系統調用提供了同名的C函數接口，封裝在標準C庫(libc)中，在用戶進程中調用這些C函數來發起系統調用。
+Unix系統爲大多數的系統調用提供了同名的C函數接口，
+封裝在標準C庫(libc)中，在用戶進程中調用這些C函數來發起系統調用。
 使用系統調用會在**用戶態**與**內核態**之間進行環境切換(內核發現`trap`之後進入內核態)，有較大開銷。
 
 在Linux和BSD中，部分系統函數沒有提供C庫的封裝(比如Linux中的`gettid()`)，
-需要使用`syscall()`函數進行調用，`syscall()`最初由BSD引入，Linux在`Linux Kernel 2.6.19`之後引入該函數。
+需要使用`syscall()`函數進行調用，syscall()最初由BSD引入，
+Linux在`Linux Kernel 2.6.19`之後引入該函數。
 
 一般而言，系統調用是系統服務的直接入口點。一些庫函數也會用到系統調用，
-但這些庫函數**不是**系統入口點(典型的例子是C語言標準庫中的`printf()`函數使用了系統調用`write()`)。
+但這些庫函數**不是**系統入口點(典型的例子是C語言標準庫中的printf()函數使用了系統調用`write()`)。
 
-`man`手冊**卷2**中的函數皆爲系統調用。
+man手冊**卷2**中的函數皆爲系統調用。
 
-## Library Call (庫函數)
-**庫函數**(`Library calls`)是編程語言的一部分，與操作系統無關，`Windows`系統中，例如`printf()`、`scanf()`等庫函數依然可用，但Unix系統調用如`read()`、`write()`便不再存在。
+## Library Call（庫函數）
+**庫函數**(`Library calls`)是編程語言的一部分，與操作系統無關，
+Windows系統中，例如`printf()`、`scanf()`等庫函數依然可用，
+但Unix系統調用如`read()`、`write()`便不再存在。
 
-一些庫函數內部會使用系統調用(如`printf()`)，在不同的操作系統中，庫函數會使用對應操作系統的系統調用。
-輔助功能性庫函數(如`memcpy()`、`atoi()`之類)是純粹的用戶態函數，不涉及系統調用，不會造成系統在用戶態與內核態之間切換。
+一些庫函數內部會使用系統調用(如`printf()`)。
+在不同的操作系統中，庫函數會使用對應操作系統的系統調用。
+輔助功能性庫函數(如`memcpy()`、`atoi()`之類)是純粹的用戶態函數，
+不涉及系統調用，不會造成系統在用戶態與內核態之間切換。
 
 C標準庫函數可在`man`手冊**卷3**中查閱。
 
@@ -148,7 +154,7 @@ strerror_r(int errnum, char *strerrbuf, size_t buflen);
 使用`perror()`函數會讀取errno值查找對應錯誤信息寫入參數地址中。
 使用`strerror()/strerror_r()`函數將錯誤碼轉換為錯誤信息文本。
 
-錯誤信息亦可通過外部變量`sys_errlist`(錯誤信息數組)、`sys_nerr`(錯誤信息數組大小)進行訪問，
+錯誤信息亦可通過外部變量`sys_errlist`（錯誤信息數組）、`sys_nerr`（錯誤信息數組大小）進行訪問，
 但該方法已被**廢棄**，不推薦使用。
 
 
@@ -164,8 +170,8 @@ time_t time(time_t *t);
 ```
 
 `t`參數爲`time_t`類型變量的地址，函數會返回當前系統的時間，同時將當前系統的時間寫入傳入的地址中。
-如果只是從返回值獲取當前時間，不需要將時間寫入傳入參數中，則參數可以填`NULL`，函數正常運行。
-返回值`time_t`保存的是`1970-01-01 00:00:00 +0000 (UTC)`開始到**當前時間**的秒數的數值，一般不直接使用。
+如果只是從返回值獲取當前時間，不需要將時間寫入傳入參數中，則參數可以填NULL，函數正常運行。
+返回值time_t保存的是`1970-01-01 00:00:00 +0000 (UTC)`開始到**當前時間**的秒數的數值，一般不直接使用。
 
 ## 讀取時間
 使用`localtime()`函數輸出時間結構體`tm`類型。
@@ -174,7 +180,7 @@ time_t time(time_t *t);
 struct tm *localtime(const time_t *timep);
 ```
 
-函數接受參數爲`time()`返回的標準時間秒數，將其轉換返回對應的可讀時間結構體指針`tm*`類型。
+函數接受參數爲time()返回的標準時間秒數，將其轉換返回對應的可讀時間結構體指針`tm*`類型。
 結構體`tm`的定義爲：
 
 ```c
@@ -191,7 +197,7 @@ struct tm {
 };
 ```
 
-可以從`tm`結構體的對應成員中讀取對應的時間信息。
+可以從tm結構體的對應成員中讀取對應的時間信息。
 
 時間信息中部分信息需要處理才能對應真實時間：
 
@@ -199,14 +205,14 @@ struct tm {
 - **月份**範圍爲`0 ~ 11`，實際月份需要加`1`。
 
 ## 時間轉換文本
-使用`asctime()`函數可將`tm`時間結構轉換為`char*`時間文本。
+使用`asctime()`函數可將tm時間結構轉換為`char*`時間文本。
 
 ```c
 char *asctime(const struct tm *tm);
 ```
 
 對於`localtime()`函數獲得的當前時間，可以使用該函數轉化爲可讀的字符串形式，返回值爲標準時間字符串的地址。
-需要注意的是，該函數返回的地址指向的字符串內容中已經包含了換行符，不需要再額外添加。
+注意，該函數返回的地址指向的字符串內容中已經包含了換行符，不需要再額外添加。
 
 一個典型的時間輸出如：`Wed Jul 29 01:04:10 2015`
 
@@ -317,7 +323,8 @@ ssize_t write(int fd, const void *buf, size_t count);
 `buf`指向的內容中超過`count`長度的內容**不會**被寫入。
 返回值爲**實際寫入內容的大小**。
 
-對於同一個文件描述符，連續進行讀寫操作，每一次函數調用都會在上一次結束的位置進行，因此想要重複讀取某個文件的內容，需要創建新的文件描述符。
+對於同一個文件描述符，連續進行讀寫操作，每一次函數調用都會在上一次結束的位置進行，
+因此想要重複讀取某個文件的內容，需要創建新的文件描述符。
 同一個文件可以同時擁有多個文件描述符，且各個文件描述符之間的文件讀取是相互獨立的。
 
 ## 文件信息
@@ -363,7 +370,8 @@ struct stat {
 在`stat`結構中，定義了文件的文件的**大小**、**文件種類**、**所屬用戶/用戶組**、**文件的訪問/修改時間**等信息。
 
 ## 標準輸入/輸出
-在Unix哲學中，秉承**一切皆文件**思想，因而，在終端中進行輸入/輸出與讀寫文件操作類似，使用`read()/write()`調用即可。
+在Unix哲學中，秉承**一切皆文件**思想，
+在終端中進行輸入/輸出與讀寫文件操作類似，使用`read()/write()`調用即可。
 
 - **標準輸入**對應的文件描述符爲`0`。
 - **標準輸出**對應的文件描述符爲`1`。
@@ -382,7 +390,7 @@ struct stat {
 
 
 
-# Dup (描述符複製)
+# Dup（描述符複製）
 使用`dup()`系列函數進行描述符複製操作，函數定義在頭文件`unistd.h`中。
 
 ```c
@@ -462,7 +470,8 @@ ERROR1
 ```
 
 ## dup3()
-`Linux`下還提供了獨有的函數`dup3()`，`dup3()`函數需要定義`_GNU_SOURCE`宏並引用`fcntl.h`頭文件才能使用。
+Linux下還提供了獨有的函數`dup3()`，
+dup3()函數需要定義`_GNU_SOURCE`宏並引用`fcntl.h`頭文件才能使用。
 
 ```c
 #define _GNU_SOURCE             /* See feature_test_macros(7) */
@@ -474,26 +483,32 @@ int dup3(int oldfd, int newfd, int flags);
 
 - `flags`參數可以取`O_CLOEXEC`標誌，設置了該標誌之後，複製的新描述符將帶有`FD_CLOEXEC`標誌。
 
-對於新舊文件描述符相同的情況，`dup2()`函數正常執行完畢並返回`newfd`，`dup3()`函數執行失敗並置`error`爲`EINVAL`。
+對於新舊文件描述符相同的情況，
+`dup2()`函數正常執行完畢並返回`newfd`，
+`dup3()`函數執行失敗並置`error`爲`EINVAL`。
 
 
 
-# Log (日誌)
+# Log（日誌）
 Unix日誌相關的函數定義在頭文件`syslog.h`中。
 
 ## 日誌服務
-在使用`SysVinit`作爲init系統的Linux中，日誌服務爲`rsyslog`或`syslog-ng`，主要日誌爲`/var/log/syslog`文件。
-`/var/log/syslog`文件爲純文本，可以直接使用編輯器查看。
+在使用`SysVinit`作爲init系統的Linux中，
+日誌服務爲`rsyslog`或`syslog-ng`，主要日誌爲`/var/log/syslog`文件。
+syslog文件爲純文本，可以直接使用編輯器查看。
 
-在現代Linux中，init系統採用`systemd`，日誌服務也由`systemd`的子模塊`systemd-journald`提供，日誌文件位於`/var/log/journal`目錄下。
-`systemd-journald`記錄的日誌爲**二進制**格式，使用編輯器查看顯示爲**亂碼**，應使用`journalctl`指令查看：
+在現代Linux中，init系統採用`systemd`，
+日誌服務也由`systemd`的子模塊`systemd-journald`提供，
+日誌文件位於`/var/log/journal`目錄下。
+`systemd-journald`記錄的日誌爲**二進制**格式，
+使用編輯器查看顯示爲**亂碼**，應使用`journalctl`指令查看：
 
+```html
+$ journalctl <!-- 查看所有日誌 -->
+$ journalctl -e <!-- 查看近期日誌(最近的1000條日誌) -->
 ```
-$ journalctl //查看所有日誌
-$ journalctl -e //查看近期日誌(最近的1000條日誌)
-```
 
-使用`journalctl`指令會進入交互式日誌查看界面，跳轉翻頁快捷鍵等與`vim`編輯器類似。
+使用journalctl指令會進入交互式日誌查看界面，跳轉翻頁快捷鍵等與vim編輯器類似。
 
 ## 打開日誌
 在開始記錄日誌之前，使用`openlog()`打開一個日誌連接。
@@ -503,21 +518,21 @@ void openlog(const char *ident, int option, int facility);
 void closelog(void);
 ```
 
-- `ident`參數爲日誌前綴，使用該連接輸出的日誌都將以該字符串作爲前綴，傳入值爲`NULL`時，將使用程序名稱做爲前綴。
+- `ident`參數爲日誌前綴，使用該連接輸出的日誌都將以該字符串作爲前綴，傳入值爲NULL時，將使用程序名稱做爲前綴。
 - `option`參數爲日誌選項，多個選項之間可以使用邏輯或`|`操作符相連接：
 	- `LOG_CONS` 當寫入系統日誌出錯時直接向終端輸出錯誤
-	- `LOG_NDELAY` 立即打開日誌連接(普通情況下，連接將在打印首個日誌時被打開)
-	- `LOG_NOWAIT` 輸出日誌時不等待子進程創建完畢(`GNU C`庫不會創建子進程，這個選項在Linux下無效)
-	- `LOG_ODELAY` 與LOG_NDELAY相反，日誌連接將被延遲到首個`syslog()`被調用(默認)
-	- `LOG_PERROR` 同時將日誌輸出到`stderr`，實際開發中，可將輸出到`stderr`的日誌**重定向**到指定文件來實現日誌文件轉儲
-	- `LOG_PID` 輸出日誌時包含`PID`信息
+	- `LOG_NDELAY` 立即打開日誌連接（普通情況下，連接將在打印首個日誌時被打開）
+	- `LOG_NOWAIT` 輸出日誌時不等待子進程創建完畢（GNU C庫不會創建子進程，該選項在Linux下無效）
+	- `LOG_ODELAY` 與LOG_NDELAY相反，日誌連接將被延遲到首個syslog()被調用（默認）
+	- `LOG_PERROR` 同時將日誌輸出到stderr，實際開發中，可將輸出到`stderr`的日誌**重定向**到指定文件來實現日誌文件轉儲
+	- `LOG_PID` 輸出日誌時包含PID信息
 - `facility`參數用於標記日誌的類型：
 	- `LOG_AUTH` 安全/權限消息
-	- `LOG_AUTHPRIV` 安全/權限消息(私有)
+	- `LOG_AUTHPRIV` 安全/權限消息（私有）
 	- `LOG_CRON` 時鐘服務
 	- `LOG_DAEMON` 不帶有facility值的系統服務
 	- `LOG_FTP` ftp文件服務
-	- `LOG_KERN` 內核信息(不能由用戶進程生成)
+	- `LOG_KERN` 內核信息（不能由用戶進程生成）
 	- `LOG_LOCAL0 ~ LOG_LOCAL7` 爲本地用戶預留
 	- `LOG_LPR` 行顯示子系統
 	- `LOG_MAIL` 郵件子系統
@@ -528,15 +543,18 @@ void closelog(void);
 
 標準的日誌格式如下：
 
-`[日誌時間] [主機名稱/主機ip] [ident] [facility]: [消息內容]`
+```
+[日誌時間] [主機名稱/主機ip] [ident] [facility]: [消息內容]
+```
 
 在使用純文本日誌的發行版中，默認日誌輸出到文件`/var/log/syslog`，
 但一些日誌服務如`rsyslog`，可以根據日誌的類型(`facility`參數)將日誌轉儲到不同的日誌文件中。
 
-`openlog()`函數是**可選**的，即使不調用`openlog()`函數，
-在首次調用`syslog()`函數打印日誌時也會**自動**打開日誌連接。
-不使用`openlog()`直接使用`syslog()`函數輸出日誌時自動創建的日誌連接會使用默認配置，
-若需**自定義日誌前綴**、**輸出日誌到stderr**等額外功能，則仍然需要**手動**打開日誌連接並配置參數。
+`openlog()`函數是**可選**的，即使不調用openlog()函數，
+在首次調用syslog()函數打印日誌時也會**自動**打開日誌連接。
+不使用openlog()直接使用`syslog()`函數輸出日誌時自動創建的日誌連接會使用默認配置，
+若需**自定義日誌前綴**、**輸出日誌到stderr**等額外功能，
+則仍然需要**手動**打開日誌連接並配置參數。
 
 ## 輸出日誌
 使用`syslog()`函數輸出日誌：
@@ -556,7 +574,7 @@ void syslog(int priority, const char *format, ...);
 	- `LOG_DEBUG` 調試消息
 - `format`參數指向日誌的格式化字符數組，格式化語法與`printf()`函數相同。
 
-在使用`systemd`作爲init系統的發行版中，使用`journalctl`指令查看日誌時，
+在使用systemd作爲init系統的發行版中，使用`journalctl`指令查看日誌時，
 對特定級別的日誌會有不同的顯示方式，令日誌更加醒目：
 
 - `LOG_EMERG`、`LOG_ALERT`、`LOG_CRIT`、`LOG_ERR`級別的日誌以**紅色**字體顯示。
@@ -569,7 +587,7 @@ void syslog(int priority, const char *format, ...);
 void closelog(void);
 ```
 
-使用`closelog()`會關閉用於寫入日誌的描述符，`closelog()`同樣是**可選**的操作。
+使用closelog()會關閉用於寫入日誌的描述符，closelog()同樣是**可選**的操作。
 
 ## 實例代碼
 打印各個級別的日誌，並將日誌轉儲到日誌文件`test.log`中，示例：
@@ -708,7 +726,8 @@ Test_log[28381]: The msg is: LOG_DEBUG.
 	退出信號(`SIGQUIT`)發送給前臺進程組中的所有進程。
 
 ## 查看進程信息
-在Linux下，一切皆文件，進程相關信息可在`/proc`文件系統中看到，每個進程的`pid`會在`/proc`路徑下存在對應的路徑。
+在Linux下，一切皆文件，進程相關信息可在`/proc`文件系統中看到，
+每個進程的`pid`會在`/proc`路徑下存在對應的路徑。
 
 以現代發行版的初始化進程`systemd`為例，進程信息位於`/proc/1`路徑下：
 
@@ -797,9 +816,9 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 	實例代碼：
 
 	```c
-	#include <stdlib.h>		//包含system()系統調用
+	#include <stdlib.h> // 包含system()系統調用
 	#include <stdio.h>
-	#include <unistd.h>		//包含fork()、sleep()系統調用
+	#include <unistd.h> // 包含fork()、sleep()系統調用
 
 	int main(void)
 	{
@@ -822,7 +841,7 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 			printf("This is parent process!\n");
 			printf("The PID is %d\n", getpid());
 			printf("The PPID is %d\n", getppid());
-			sleep(2);		//程序運行到此暫停2秒
+			sleep(2); // 程序運行到此暫停2秒
 			system("ps");
 		}
 		else
@@ -831,7 +850,7 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 			printf("The PID is %d\n", getpid());
 			printf("Ths PPID is %d\n", getppid());
 		}
-		printf("End!\n");	//fork()之後的內容父進程子進程各執行一次
+		printf("End!\n"); // fork()之後的內容父進程子進程各執行一次
 		return 0;
 	}
 	```
@@ -895,17 +914,24 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 	```
 
 	- exec()系列函數爲**系統調用**，執行後，
-	會將當前的進程**完全替換**爲執行新程序的進程(即這個進程exec()調用成功之後的代碼都不再運行)，但`PID`不變。
-	- exec()系統調用比system()函數要**高效**，exec()與fork()搭配是Unix系統中最**常用**的系統進程創建組合。
-	- 通常exec()不會返回，除非發生了錯誤。出錯時，exec()返回`-1`並且置`errno`，同時繼續執行餘下的代碼。
-	- 在exec()函數組中，只有`execve()`函數是真正的系統調用，其它的幾個函數都是`execve()`封裝而成的庫函數。
+	會將當前的進程**完全替換**爲執行新程序的進程
+	（即這個進程exec()調用成功之後的代碼都不再運行），但`PID`不變。
+	- exec()系統調用比system()函數要**高效**，
+	exec()與fork()搭配是Unix系統中最**常用**的系統進程創建組合。
+	- 通常exec()不會返回，除非發生了錯誤。
+	出錯時，exec()返回-1並且置errno，同時繼續執行餘下的代碼。
+	- 在exec()函數組中，只有execve()函數是真正的系統調用，
+	其它的幾個函數都是execve()封裝而成的庫函數。
 	- 參數`path`爲絕對路徑，`file`爲命令名稱。
-	- `execl()`、`execlp()`、`execle()`三個函數接收的參數個數是可變的，
-	參數以一個空指針結束(`(char*)0`或`NULL`)，用多個字符數組`*arg`來傳遞要執行的程序的參數。
-	- `execv()`、`execp()`、`execve()`等函數參數個數是固定的，
-	將要傳遞給要執行的程序的參數放在二維字符數組`*argv[]`中(對應main函數參數中的`*argv[]`)，
+	- execl()、execlp()、execle()三個函數接收的參數個數是可變的，
+	參數以一個空指針結束（`(char*)0`或NULL），
+	用多個字符數組`*arg`來傳遞要執行的程序的參數。
+	- execv()、execp()、execve()等函數參數個數是固定的，
+	將要傳遞給要執行的程序的參數放在二維字符數組`*argv[]`中
+	（對應main函數參數中的`*argv[]`），
 	而二維字符數組`*envp[]`中保存exec()函數要運行的程序的環境變量，
-	無論是傳遞給被執行程序的參數字符數組`*argv[]`或是環境變量字符數組`*envp[]`都要以一個空指針結尾。
+	無論是傳遞給被執行程序的參數字符數組`*argv[]`，
+	或是環境變量字符數組`*envp[]`都要以一個空指針結尾。
 
 	實例代碼：
 
@@ -950,7 +976,8 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 	```
 
 子進程默認會繼承父進程已打開的文件描述符。
-當父進程持有描述符爲`Socket`描述符時，子進程會繼承對應描述符代表的**監聽端口**、**監聽地址**等信息，
+當父進程持有描述符爲`Socket`描述符時，
+子進程會繼承對應描述符代表的**監聽端口**、**監聽地址**等信息，
 當父進程結束時，端口不會被釋放，而是由子進程繼續佔用。
 避免子進程繼承`Socket`描述符，創建`Socket`時應設置`SOCK_CLOEXEC/FD_CLOEXEC`屬性：
 
@@ -963,7 +990,8 @@ fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC);
 ```
 
 ## 等待進程
-可以在父進程中調用`wait()`函數讓父進程等待子進程結束，還可以使用`waitpid()`函數來等待某個**特定進程**結束。
+可以在父進程中調用`wait()`函數讓父進程等待子進程結束，
+還可以使用`waitpid()`函數來等待某個**特定進程**結束。
 
 函數定義在`sys/wait.h`中，函數原型爲：
 
@@ -972,12 +1000,12 @@ pid_t wait(int *status);
 pid_t waitpid(pid_t pid, int *status, int options);
 ```
 
-- `status`參數爲指向進程狀態信息的指針，`wait()/waitpid()`函數都將狀態信息寫到`status`所指向的內容。
-- `pid`參數爲要等待的進程的`pid`，如果該參數爲`-1`，則返回任一子進程的信息。
+- `status`參數爲指向進程狀態信息的指針，`wait()/waitpid()`函數都將狀態信息寫到status所指向的內容。
+- `pid`參數爲要等待的進程的pid，如果該參數爲-1，則返回任一子進程的信息。
 - `options`參數可用來改變函數的行爲。
 
-`wait()`函數返回子進程的`pid`。
-`waitpid()`運行成功返回等待進程的`pid`，失敗返回`-1`並置`errno`。
+wait()函數返回子進程的pid。
+waitpid()運行成功返回等待進程的pid，失敗返回-1並置errno。
 
 `/sys/wait.h`頭文件中定義了宏來解釋狀態信息：
 
@@ -1027,7 +1055,7 @@ int main(void)
 	if (pid)
 	{
 		int status;
-		int child_pid = waitpid(pid, &status, 0); //等效於 int child_pid = wait(&status);
+		int child_pid = waitpid(pid, &status, 0); // 等效於 int child_pid = wait(&status);
 
 		printf("This is the parent process!\n");
 		printf("The PID is %d\n", getpid());
@@ -1075,17 +1103,17 @@ Parent process END!
 
 編寫守護進程一般有如下幾個步驟：
 
-1. 調用fork()函數，同時退出**父進程**。
+1. 調用`fork()`函數，同時退出**父進程**。
 
 	使用了fork()函數之後父進程退出，則子進程成爲孤兒進程，由`init系統`接管。
 	子進程雖然脫離了父進程，但仍然處於父進程的進程組中和會話中，與控制終端的聯繫依然存在。
 
 1. 調用`setsid()`函數，爲子進程創建新的會話。
 
-	使用了`setsid()`函數，子進程脫離了原先父進程的進程組與會話，並且不再與原先的控制終端相關聯。
+	使用了setsid()函數，子進程脫離了原先父進程的進程組與會話，並且不再與原先的控制終端相關聯。
 	子進程在創建了會話之後成爲了會話和新進程組的**首進程**，依然有可能被系統分配控制終端。
 
-1. 再次調用fork()函數，再次退出**父進程**。
+1. 再次調用`fork()`函數，再次退出**父進程**。
 
 	再次fork()退出父進程之後，新的子進程不再是進程組和會話的首進程，不再有被分配控制終端的可能。
 
@@ -1176,7 +1204,7 @@ CMD                         STAT   PID  PPID  PGID   SID TPGID TT
 
 - `signal()` 函數
 
-	`signal()`函數是傳統Unix的信號處理方式。函數原型爲：
+	signal()函數是傳統Unix的信號處理方式。函數原型爲：
 
 	```c
 	#include <signal.h>
@@ -1239,9 +1267,9 @@ int kill(pid_t pid, int sig);
 - `pid`參數爲目標進程的進程id。
 - `sig`爲信號值。
 
-使用`kill()`、`raise()`發送信號，接收信號的是**整個**目標進程。
+使用kill()、raise()發送信號，接收信號的是**整個**目標進程。
 
-在**多線程**環境下，使用`kill()`、`raise()`發送信號，進程內包含的**所有線程**都會接收到信號。
+在**多線程**環境下，使用kill()、raise()發送信號，進程內包含的**所有線程**都會接收到信號。
 如果需要發送信號給**指定線程**，需要使用`pthread_kill()`，函數定義在`signal.h`中：
 
 ```c
@@ -1254,7 +1282,8 @@ int pthread_kill(pthread_t thread, int sig);
 函數成功返回`0`，失敗時返回錯誤代碼。
 
 ## 信號觸發
-信號機制實質上是**軟件中斷**，信號處理函數**不會**運行在獨立的線程，而是**中斷**現有的代碼運行信號處理函數。
+信號機制實質上是**軟件中斷**，信號處理函數**不會**運行在獨立的線程，
+而是**中斷**現有的代碼運行信號處理函數。
 一個進程觸發了信號處理函數，則在信號處理函數結束返回之後纔會繼續運行先前的代碼。
 
 如下代碼所示：
@@ -1292,16 +1321,19 @@ int main(void)
 }
 ```
 
-通過循環中的打印的耗時可以看出，每次觸發信號處理函數`deal_signal()`，循環便會**暫停**，直到`deal_signal()`運行完畢返回。
-在`BSD`和`Linux`中，運行信號處理函數期間再次收到信號會**阻塞**此信號，直到信號處理函數返回。
-在部分Unix中，運行信號處理函數時可能會將此信號**重置**爲默認操作，在此類情況下，需要在信號處理函數中重新綁定信號。
+通過循環中的打印的耗時可以看出，每次觸發信號處理函數`deal_signal()`，
+循環便會**暫停**，直到`deal_signal()`運行完畢返回。
+在BSD和Linux中，運行信號處理函數期間再次收到信號會**阻塞**此信號，直到信號處理函數返回。
+在部分Unix中，運行信號處理函數時可能會將此信號**重置**爲默認操作，
+在此類情況下，需要在信號處理函數中重新綁定信號。
 
 ## 可靠信號/不可靠信號
 可靠信號機制最初來自於`BSD`。
 
-在`Linux`中，**不可靠**信號範圍爲`1(SIGHUP) ~ 31(SIGSYS)`，**可靠信號**的範圍爲`34(SIGRTMIN) ~ 64(SIGRTMAX)`。
-**不可靠**信號**不支持**信號隊列，當同類信號在短時間內**多次**觸發，不可靠信號只會觸發信號處理函數**一次**，
-其餘的同類信號被**忽略**。
+在Linux中，**不可靠**信號範圍爲`1(SIGHUP) ~ 31(SIGSYS)`，
+**可靠信號**的範圍爲`34(SIGRTMIN) ~ 64(SIGRTMAX)`。
+**不可靠**信號**不支持**信號隊列，當同類信號在短時間內**多次**觸發，
+不可靠信號只會觸發信號處理函數**一次**，其餘的同類信號被**忽略**。
 
 ## 信號屏蔽
 直接在**進程**中屏蔽指定信號可以使用下列函數，函數定義在`signal.h`中：
@@ -1367,7 +1399,7 @@ sigprocmask(SIG_UNBLOCK, &set, NULL);
 
 ## 屏蔽線程信號
 `sigsetmask()`和`sigprocmask()`等函數設置的屏蔽信號對於**整個進程**有效。
-在**多線程**環境下，使用`sigprocmask()`則進程內包含的**所有線程**的屏蔽信號集都會被修改。
+在**多線程**環境下，使用sigprocmask()則進程內包含的**所有線程**的屏蔽信號集都會被修改。
 創建新的線程時，新的線程會**繼承**原有線程的**屏蔽信號集**。
 
 需要設置**指定線程**的屏蔽信號集，可以使用`pthread_sigmask()`函數，函數定義在`signal.h`中：
@@ -1386,19 +1418,19 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 
 - `pause()` 函數
 
-	使用`pause()`可以掛起線程，直到當前進程捕捉到了一個**信號**，函數定義在`unistd.h`中，示例：
+	使用pause()可以掛起線程，直到當前進程捕捉到了一個**信號**，函數定義在`unistd.h`中，示例：
 
 	```c
 	int pause(void);
 	```
 
-	只有進程捕獲了信號，執行了信號處理程序並從其返回時，`pause()`函數才返回。
-	`pause()`函數**不存在**成功返回值，當進程捕捉到信號並從信號處理函數返回時，
-	`pause()`返回`-1`，並置`errno`爲`ENTER`。
+	只有進程捕獲了信號，執行了信號處理程序並從其返回時，pause()函數才返回。
+	pause()函數**不存在**成功返回值，當進程捕捉到信號並從信號處理函數返回時，
+	pause()返回-1，並置errno爲`ENTER`。
 
 	在**多線程**環境中，在未設置`pthread_sigmask()`的情況下，
-	信號優先級使得只有**主線程**的`pause()`會在信號處理函數結束後返回。
-	在主線程以外的線程中，除非使用`pthread_kill()`發送消息到指定線程，否則無法觸發`pause()`函數。
+	信號優先級使得只有**主線程**的pause()會在信號處理函數結束後返回。
+	在主線程以外的線程中，除非使用`pthread_kill()`發送消息到指定線程，否則無法觸發pause()函數。
 
 - `sleep()` 函數
 
@@ -1411,17 +1443,19 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 	- `seconds`參數爲需要休眠的時間，單位爲**秒**。
 
 	若線程在設定的時間中正常休眠，返回值爲`0`。
-	若在掛起期間進程捕獲到一個**信號**，並從信號處理函數返回，則無論休眠時間是否滿足，休眠不再繼續，
-	`sleep()`立即函數結束，返回值爲**尚未休眠**的時間。
+	若在掛起期間進程捕獲到一個**信號**，
+	並從信號處理函數返回，則無論休眠時間是否滿足，休眠不再繼續，
+	sleep()立即函數結束，返回值爲**尚未休眠**的時間。
 
 	在**多線程**環境中，在未設置`pthread_sigmask()`的情況下，捕獲信號，並從信號處理函數返回，
 	只會結束進程**主線程**中正在運行的`sleep()`函數，對其它線程中的`sleep()`無影響。
 
-	在`Solaris`中`sleep()`內部實現採用`alarm()`，在`BSD`和`Linux`中`sleep()`由`nanosleep()`實現，與信號無關。
+	在Solaris中sleep()內部實現採用`alarm()`，
+	在BSD和Linux中sleep()由`nanosleep()`實現，與信號無關。
 
 - `alarm()` 函數
 
-	使用`alarm()`可以使當前進程在指定時間之後收到`SIGALRM`信號，函數定義在`unistd.h`中，示例：
+	使用alarm()可以使當前進程在指定時間之後收到`SIGALRM`信號，函數定義在`unistd.h`中，示例：
 
 	```c
 	unsigned alarm(unsigned seconds);
@@ -1436,18 +1470,20 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 ## 多線程信號處理
 在多線程的環境下，信號處理需要考慮更多的情況：
 
-- 默認情況下，Unix中的信號機制是對於**整個進程**而言的，使用`kill()`發送信號，則**整個進程**都將收到信號。
+- 默認情況下，Unix中的信號機制是對於**整個進程**而言的，
+使用`kill()`發送信號，則**整個進程**都將收到信號。
 - 使用`signal()`綁定信號處理函數會對**整個進程**生效。
 - 在多線程的程序中，若不做特殊處理，則發送給進程的信號會由系統選擇一個線程來處理信號。
-- 系統會在**沒有**屏蔽此信號的線程中選擇`pid`**最小**的那個線程來處理信號。
-- 在未設置屏蔽信號的情況下，主線程的`pid`最小，因而一般會選擇**主線程**來響應信號。
+- 系統會在**沒有**屏蔽此信號的線程中選擇**pid最小**的那個線程來處理信號。
+- 在未設置屏蔽信號的情況下，主線程的pid最小，因而一般會選擇**主線程**來響應信號。
 這使得**默認情況**下只有**主線程**的`pause()`、`sleep()`函數能夠被信號中斷。
 
 多線程環境下的信號處理一般有兩種方式：
 
 - 在指定線程中處理信號：
 
-	除目標線程外，其它線程全部使用`pthread_sigmask()`在線程中屏蔽指定信號，讓信號只能被**指定線程**處理。示例：
+	除目標線程外，其它線程全部使用`pthread_sigmask()`在線程中屏蔽指定信號，
+	讓信號只能被**指定線程**處理。示例：
 
 	```c
 	#include <stdio.h>
@@ -1494,11 +1530,11 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 
 	默認情況下，`SIGINT`信號會被主線程處理(不會中斷子線程中的`sleep()`)。
 	通過設置屏蔽信號，讓`SIGINT`被主線程屏蔽而由子線程處理，
-	使得`SIGINT`能夠中斷子線程的`sleep()`函數，讓`sleep()`提前結束。
+	使得`SIGINT`能夠中斷子線程的sleep()函數，讓sleep()提前結束。
 
 - 以同步的方式處理異步信號：
 
-	使用`sigwait()`函數等待指定信號。`sigwait()`函數定義在`signal.h`中：
+	使用`sigwait()`函數等待指定信號。sigwait()函數定義在`signal.h`中：
 
 	```c
 	int sigwait(const sigset_t *restrict set, int *restrict sig);
@@ -1507,15 +1543,15 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 	- `set`參數爲要等待的信號集合。
 	- `sig`參數指向等待到的信號值，函數會將等待到的信號值寫入傳入的地址中。
 
-	運行`sigwait()`會阻塞所處線程，直到所處線程接受到`set`信號集中的信號。
-	函數執行成功返回`0`，失敗時返回錯誤代碼。
-	使用`sigwait()`需要保證等待的信號至少被`sigwait()`**所處線程**之外的線程屏蔽。
+	運行sigwait()會阻塞所處線程，直到所處線程接受到`set`信號集中的信號。
+	函數執行成功返回0，失敗時返回錯誤代碼。
+	使用sigwait()需要保證等待的信號至少被sigwait()**所處線程**之外的線程屏蔽。
 
-	對於`sigwait()`所處的線程，在`OS X`和`Linux`等Unix系統上，
-	`sigwait()`的優先級比默認的信號處理行爲以及綁定的信號處理函數要高，接受到信號時，
-	優先結束`sigwait()`的阻塞而不是執行設定/默認的信號處理行爲。
+	對於sigwait()所處的線程，在macOS和Linux等Unix系統上，
+	sigwait()的優先級比默認的信號處理行爲以及綁定的信號處理函數要高，
+	接受到信號時，優先結束sigwait()的阻塞而不是執行設定/默認的信號處理行爲。
 
-	在**多個**`sigwait()`共存的情況下，系統會**隨機**選取一個線程中的`sigwait()`進行響應。
+	在**多個**sigwait()共存的情況下，系統會**隨機**選取一個線程中的sigwait()進行響應。
 
 	示例：
 
@@ -1589,7 +1625,7 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 	Thread 1 receive signal SIGINT.
 	```
 
-	多個`sigwait()`存在時，選取的處理線程是隨機的，運行結果也可能是1號線程先響應信號。
+	多個sigwait()存在時，選取的處理線程是隨機的，運行結果也可能是1號線程先響應信號。
 
 
 
@@ -3143,7 +3179,6 @@ int main(void)
 {
 	pthread_t pfd;
 	pthread_create(&pfd, NULL, pthread_func, NULL);
-
 	pthread_join(pfd, NULL);
 
 	return 0;
@@ -3282,7 +3317,7 @@ while (1)
 		printf("epoll_wait()超時");
 		break;
 	default:
-		//epoll相比select的高效之處就是能直接處理變化的描述符無需遍歷整個監聽集合
+		// epoll相比select的高效之處就是能直接處理變化的描述符無需遍歷整個監聽集合
 		for (int i = 0; i < count; i++)
 		{
 			if (events[i].events & EPOLLIN)
