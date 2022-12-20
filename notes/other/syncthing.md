@@ -3,6 +3,7 @@
 - [概述](#概述)
 	- [服務安裝](#服務安裝)
 	- [服務管理](#服務管理)
+	- [FreeBSD環境配置](#freebsd環境配置)
 - [文件同步規則](#文件同步規則)
 - [同步類型](#同步類型)
 - [問題註記](#問題註記)
@@ -66,6 +67,18 @@ $ brew services start/stop syncthing
 首次啟動服務，Syncthing會在`～/.config/syncthing`(Linux)或
 `~/Library/Application Support/Syncthing`(macOS)下創建默認配置。
 默認配置下，Web管理頁面僅本機地址可訪問，可修改`configuration.gui.address`節點，改成需要的地址。
+
+## FreeBSD環境配置
+FreeBSD下，Syncthing的配置文件位於`/usr/local/etc/syncthing/config.xml`。
+
+FreeBSD中的Syncthing服務默認以`syncthing`用戶啟動（即使在root用戶下），
+因此，多數目錄無讀寫權限，需要選擇權限為`755`以上的目錄，如`/var`、`/media`等。
+以`/media`為例，創建Syncthing存儲路徑：
+
+```
+# mkdir /media/syncthing
+# chown syncthing:syncthing /media/syncthing
+```
 
 
 
