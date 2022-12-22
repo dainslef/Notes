@@ -91,6 +91,7 @@
 	- [iftop](#iftop)
 	- [sysstat](#sysstat)
 		- [pidstat](#pidstat)
+		- [mpstat](#mpstat)
 		- [iostat](#iostat)
 	- [iperf / qperf](#iperf--qperf)
 	- [HTTP壓測工具](#http壓測工具)
@@ -3466,15 +3467,15 @@ top -hv|-bcHiOSs -d secs -n max -u|U user -p pid -o fld -w [cols]
 ## iftop
 `iftop`是常用的網絡IO監控工具，通常發行版中並未直接包含，需要從倉庫中安裝：
 
-```c
-// CentOS中iftop不在主倉庫中
+```html
+<!-- CentOS中iftop不在主倉庫中 -->
 # yum install epel-release
 # yum install iftop
 
-// 大便系
+<!-- 大便系 -->
 # apt install iftop
 
-// Arch系
+<!-- Arch系 -->
 # pacman -S iftop
 ```
 
@@ -3525,11 +3526,11 @@ iftop的TUI中主要參數的含義：
 
 常用參數：
 
-```c
-// 監控指定網卡的IO
+```html
+<!-- 監控指定網卡的IO -->
 $ iftop -i [devname]
 
-// 按照源/目標地址排序
+<!-- 按照源/目標地址排序 -->
 $ iftop -o source/destination
 ```
 
@@ -3545,10 +3546,10 @@ $ iftop -o source/destination
 
 主流發行版通常並未直接集成sysstat，但在軟件倉庫中提供了該套件，可直接安裝：
 
-```c
-# apt install sysstat // 大便系
-# yum install sysstat // 紅帽系
-# pacman -S sysstat // Arch系
+```html
+# apt install sysstat <!-- 大便系 -->
+# yum install sysstat <!-- 紅帽系 -->
+# pacman -S sysstat <!-- Arch系 -->
 ```
 
 ### pidstat
@@ -3557,12 +3558,23 @@ $ iftop -o source/destination
 默認指令會監控所有進程；
 統計指定進程，並指定監控間隔：
 
-```c
-// 按照指定的時間間隔輸出間隔內的平均資源佔用，退出指令後會展示整個指令期間的平均資源佔用
+```html
+<!-- 按照指定的時間間隔輸出間隔內的平均資源佔用，退出指令後會展示整個指令期間的平均資源佔用 -->
 $ pidstat -p [pid] [interval]
 
-// 統計指定次數後退出
+<!-- 統計指定次數後退出 -->
 $ pidstat -p [pid] [interval] [count]
+```
+
+### mpstat
+`mpstat`用於查看系統的CPU負載：
+
+```html
+<!-- 默認僅展示綜合負載 -->
+$ mpstat
+
+<!-- 同時展示每個核心的負載 -->
+$ mpstat -P ALL
 ```
 
 ### iostat
@@ -3571,7 +3583,7 @@ $ pidstat -p [pid] [interval] [count]
 默認指令會監控所有磁盤；
 統計指定磁盤，並指定監控間隔：
 
-```c
+```
 $ iostat -p [dev] [interval]
 $ iostat -p [dev] [interval] [count]
 ```
