@@ -3,6 +3,7 @@
 - [Haskell 開發環境](#haskell-開發環境)
 	- [GHC 常用功能](#ghc-常用功能)
 	- [REPL (GHCi)](#repl-ghci)
+	- [GHCup](#ghcup)
 - [Debug (調試)](#debug-調試)
 	- [Debug.Trace](#debugtrace)
 	- [GHCi Debugger](#ghci-debugger)
@@ -147,6 +148,65 @@ REPL環境下的內部指令均以`:`爲前綴，常用指令如下：
 | :show languages | 顯示已開啓的語言擴展 |
 | :module [+/-] [*]<mod> ... | 導入/移除指定的模塊路徑 |
 
+## GHCup
+[`GHCup`](https://www.haskell.org/ghcup/)是Haskell的開發環境配置工具，類似Rust的rustup。
+GHCup可實現Haskell相關工具鏈（GHC、Cabal、Stack、HLS）的多版本管理。
+相比使用Stack管理編譯器，GHCup設置默認工具鏈和版本切換更加方便，並且支持工具鏈卸載。
+
+GHCup在多數Unix系統的軟件倉庫中已包含：
+
+```html
+$ brew install ghcup <!-- Homebrew -->
+$ nix-env -i ghcup <!-- Nix -->
+# pacman -S ghcup-hs-bin <!-- Arch Linux（需要添加ArchLinuxCN倉庫） -->
+```
+
+與rustup的實現機制類似，GHCup通過創建符號鏈接來實現工具鏈的版本切換。
+
+GHCup基本操作：
+
+```html
+<!-- 列出已安裝的工具鏈 -->
+$ ghcup list
+
+<!--
+安裝指定工具的指定版本
+工具類型可取值 ghc/cabal/stack/hls
+版本可取值 版本號/latest/recommended
+-->
+$ ghcup install 工具類型 版本
+<!-- 移除指定工具 -->
+$ ghcup rm 工具類型 版本
+
+<!-- 設定指定工具的默認版本 -->
+$ ghcup set 工具類型 版本
+<!-- 取消指定工具的默認版本 -->
+$ ghcup unset 工具類型 版本
+```
+
+實例：
+
+```html
+<!--
+✗ 為尚未安裝的工具
+✔ 為已安裝的工具
+✔✔ 為已安裝且為推薦版本的工具
+-->
+$ ghcup list
+   Tool  Version  Tags                      Notes
+✗  ghc   7.10.3   base-4.8.2.0
+...
+✔✔ ghc   8.10.7   recommended,base-4.14.3.0 hls-powered
+...
+✔✔ cabal 3.6.2.0  recommended
+...
+✔✔ hls   1.7.0.0  latest,recommended
+✗  stack 2.5.1
+...
+✔✔ stack 2.7.5    latest,recommended
+✔✔ ghcup 0.1.18.0 latest,recommended
+```
+
 
 
 # Debug (調試)
@@ -167,7 +227,7 @@ traceShowId :: Show a => a -> a 	-- Defined in ‘Debug.Trace’
 使用示例：
 
 ```hs
-Prelude> import           Debug.Trace
+Prelude> import Debug.Trace
 Prelude Debug.Trace> let i = 1
 Prelude Debug.Trace> 1 + trace ("Value i: " ++ show i) i
 Value i: 1
@@ -434,6 +494,10 @@ Prelude> all (>1) l -- 檢測是否全部成員滿足條件
 False
 Prelude> sum l -- 求和
 15
+Prelude> foldl1 (+) l -- 聚合元素
+15
+Prelude> foldl1 (-) l
+-13
 ```
 
 
@@ -2091,7 +2155,8 @@ app2 = do
 
 
 # STM
-`STM`全稱`Software Transactional Memory`(軟件事務內存)，是一種對併發通信的模塊化(modular)、可組合(composable)的抽象。
+`STM`全稱`Software Transactional Memory`(軟件事務內存)，
+是一種對併發通信的模塊化(modular)、可組合(composable)的抽象。
 相對與鎖/MVars，STM能夠在不暴露抽象如何保證安全性細節的前提下，簡單地與其它使用STM的抽象相組合。
 
 ## STM 概念
@@ -2106,6 +2171,8 @@ app2 = do
 1. 否則當前線程的操作會被丟棄，然後該事務會被重新執行。
 
 事務操作具有隔離性(isolated)，以此來規避鎖問題。
+
+STM的實現可參考[論文Beautiful Concurrency](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.1337&rep=rep1&type=pdf)的對應章節`3.3 Implementing transactional memory`。
 
 ## STM API 介紹
 `Control.Monad.STM`模塊提供了STM結構定義和Monad變換操作；
