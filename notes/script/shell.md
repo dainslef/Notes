@@ -16,6 +16,7 @@
 		- [process-substitution](#process-substitution)
 	- [標準輸入輸出](#標準輸入輸出)
 - [Shell 語法](#shell-語法)
+	- [Shebang (`#!`)](#shebang-)
 	- [變量](#變量)
 		- [本地變量](#本地變量)
 		- [環境變量](#環境變量)
@@ -30,8 +31,8 @@
 	- [輸出內容](#輸出內容)
 		- [刷新輸出](#刷新輸出)
 	- [自定義函數](#自定義函數)
-	- [函數參數處理](#函數參數處理)
-	- [函數返回值](#函數返回值)
+		- [函數參數處理](#函數參數處理)
+		- [函數返回值](#函數返回值)
 - [其它 Shell 特性](#其它-shell-特性)
 	- [隨機數](#隨機數)
 	- [Fork Bomb](#fork-bomb)
@@ -512,15 +513,35 @@ ls: xxx: No such file or directory
 Unix中，Shell腳本通常以`sh`作爲後綴名(`bash/zsh`等)。
 fish由於不兼容bash語法，通常使用`fish`作爲腳本後綴。
 
-腳本首行需要聲明使用的解析器，以zsh爲例：
+## Shebang (`#!`)
+對於以可執行文件形式執行的腳本，腳本首行需要使用shebang語法（`#!`）聲明使用的解析器，
+以zsh爲例：
 
 ```sh
 #! /bin/zsh
 ...
 ```
 
+Shebang的更多介紹參考[Wikipedia](https://en.wikipedia.org/wiki/Shebang_(Unix))。
+
 使用`./***.sh`執行腳本時，已指定解析器的腳本會調用指定的解析器進行介些，
-未指定解析器的腳本會使用默認的Shell解析。
+未指定解析器的腳本會使用環境默認的Shell解析。
+當手動調Shell執行腳本時，shebang聲明的解析器不會生效。
+
+在不同OS中，用戶安裝的Shell路徑可能會有所不同，以fish為例，
+macOS中Homebrew安裝的fish位於`/usr/local/bin/fish`，
+Linux下常規發行版安裝的fish位於`/usr/bin/fish`，
+此時若在shebang中指定絕對路徑跨平台使用時會得到下列錯誤信息：
+
+```
+exec: Failed to execute process 'xxx.fish': The file specified the interpreter '...xxx/fish', which is not an executable command.
+```
+
+解決方案是使用POSIX標準的`/usr/bin/env`來執行對應Shell：
+
+```sh
+#! /usr/bin/env fish
+```
 
 ## 變量
 bash/zsh變量相關語法基本相同，fish與其有較大差異。
@@ -654,16 +675,16 @@ abc: 123
 ## 指令
 執行指令，語法如下：
 
-- `$(指令)` 執行指令(`bash/zsh`語法)
-- `(指令)` 執行指令(`fish`語法)
+- `$(指令)` 執行指令（bash/zsh語法）
+- `(指令)` 執行指令（fish語法）
 
 ## 數組
 `bash/zsh/fish`數組相關語法均存在一定差異。
 
 定義數組：
 
-- `數組名=(內容1 內容2 內容3 ...)` 定義數組，多個數組內容間使用**空格**隔開(`bash/zsh`語法)
-- `set 數組名 內容1 內容2 內容3 ...` 定義數組，多個數組內容間使用**空格**隔開(`fish`語法)
+- `數組名=(內容1 內容2 內容3 ...)` 定義數組，多個數組內容間使用**空格**隔開（bash/zsh語法）
+- `set 數組名 內容1 內容2 內容3 ...` 定義數組，多個數組內容間使用**空格**隔開（fish語法）
 
 示例：
 
@@ -677,22 +698,22 @@ $ set nums 1 2 3
 
 訪問數組內容：
 
-- `$數組名` 訪問數組名返回數組內**首個**元素(bash語法)，或返回**整個**數組(zsh/fish語法)
-- `$數組名[索引]` 訪問數組指定索引的內容，支持**逆序**索引(zsh/fish語法)
-- `$數組名[起始索引..結束索引]` 數組切片，訪問從起始索引到結束索引之間的內容(fish特性)
-- `$((數組名[索引]))`/`$[數組名[索引]]`/`${數組名[索引]}` 訪問數組指定索引的內容(bash/zsh語法)
+- `$數組名` 訪問數組名返回數組內**首個**元素（bash），或返回**整個**數組（zsh/fish）
+- `$數組名[索引]` 訪問數組指定索引的內容，支持**逆序**索引（zsh/fish語法）
+- `$數組名[起始索引..結束索引]` 數組切片，訪問從起始索引到結束索引之間的內容（fish特性）
+- `$((數組名[索引]))`/`$[數組名[索引]]`/`${數組名[索引]}` 訪問數組指定索引的內容（bash/zsh語法）
 
 bash中，數組索引從`0`開始；zsh/fish中，數組索引從`1`開始。
 
 獲取數組長度：
 
-- `${#數組名[@]}` 數組長度(bash/zsh語法)
-- `$[#數組名[@]]` 數組長度(bash/zsh語法)
-- `count 數組名` 數組長度(fish語法)
+- `${#數組名[@]}` 數組長度（bash/zsh語法）
+- `$[#數組名[@]]` 數組長度（bash/zsh語法）
+- `count 數組名` 數組長度（fish語法）
 
 向數組添加內容：
 
-- `數組名[${#數組名[@]}]=取值`（bash/zsh語法）
+- `數組名+=(內容)` 向數組尾部添加內容（bash/zsh語法）
 - `set -a 數組名 內容` 向數組尾部添加內容（fish語法）
 - `set -p 數組名 內容` 向數組頭部添加內容（fish語法）
 
@@ -715,7 +736,7 @@ $ echo $[nums[1]]
 $ echo ${nums[2]}
 3
 $ echo ${nums[3]}
- # 無輸出內容(數組越界)
+ # 無輸出內容（數組越界）
 $ echo $nums[2]
 1[2] # bash不支持直接使用數組名後添加索引訪問數組內容，"$數組名"被解析爲數組首個元素
 
@@ -748,11 +769,11 @@ echo $nums[0]
 		   ^
 $ echo $nums[1]
 1
-$ echo $[nums[1]] # 報錯，fish不支持bash/zsh中的數組訪問語法
+$ echo $[nums[1]] # 錯誤，fish不支持bash/zsh中的數組訪問語法
 fish: $[ is not a valid variable in fish.
 echo $[nums[1]]
 	  ^
-$ echo ${nums[1]} # 報錯，fish不支持bash/zsh中的數組訪問語法
+$ echo ${nums[1]} # 錯誤，fish不支持bash/zsh中的數組訪問語法
 fish: ${ is not a valid variable in fish.
 echo ${nums[1]}
 	  ^
@@ -1116,8 +1137,6 @@ $ echo -ne "test1\r"; echo "test2"
 $ echo -ne "test1\r"; sleep 1; echo "test2"
 ```
 
-
-
 ## 自定義函數
 函數用於封裝一段需要重複調用的邏輯。
 
@@ -1143,7 +1162,7 @@ function 函數名
 end
 ```
 
-## 函數參數處理
+### 函數參數處理
 bash/zsh/fish調用函數語法類似：
 
 ```sh
@@ -1271,7 +1290,7 @@ All args:
 8
 ```
 
-## 函數返回值
+### 函數返回值
 在bash/zsh中，函數可以使用`return`關鍵字返回一個範圍在`0~255`範圍的值。
 使用函數執行語法得到的得到的結果並不是函數的返回值，而是函數執行期間輸出的內容：
 
