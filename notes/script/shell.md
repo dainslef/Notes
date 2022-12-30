@@ -25,8 +25,8 @@
 	- [數組](#數組)
 	- [數值計算](#數值計算)
 	- [條件語法](#條件語法)
-	- [if/switch/case (分支語法)](#ifswitchcase-分支語法)
-	- [for/while (循環語法)](#forwhile-循環語法)
+	- [if/switch/case（分支語法）](#ifswitchcase分支語法)
+	- [for/while（循環語法）](#forwhile循環語法)
 	- [select 語句](#select-語句)
 	- [輸出內容](#輸出內容)
 		- [刷新輸出](#刷新輸出)
@@ -888,12 +888,12 @@ fi
 - `[ 文件1 -nt 文件2 ]` **文件1**比**文件2**更**新**
 - `[ 文件1 -ot 文件2 ]` **文件1**比**文件2**更**老**
 
-## if/switch/case (分支語法)
+## if/switch/case（分支語法）
 分支語法包括：
 
-- `if`語句(`bash/zsh/fish`語法)
-- `case`語句(`bash/zsh`語法)
-- `switch`語句(`fish`語法)
+- `if`語句（bash/zsh/fish語法）
+- `case`語句（bash/zsh語法）
+- `switch`語句（fish語法）
 
 `if`分支結構語法：
 
@@ -912,14 +912,30 @@ fi
 # 多個條件可以使用邏輯運算符連接
 if [ 條件1 ] && [ 條件2 ] || [ 條件3 ]; then
 fi
+# 否定條件
+if ! [ 條件1 ]; then
+fi
 
-# fish 分支語法更近似現代語言
+# fish 分支語法更近似現代腳本語言
 if [ 條件1 ]
 	...
 else if [ 條件2 ]
 	...
 else
 	...
+end
+
+# 在 fish 中，條件邏輯操作符除了可以使用 bash/zsh 的 !、&&、|| 等
+# 也支持使用 not、and、or 等關鍵字作為邏輯操作符
+# 使用 and、or 操作符連接多個條件時，若多個條件寫在同一行，應使用分號 ; 進行分隔
+if [ 條件1 ]; and [ 條件2 ]; or [ 條件3 ]
+end
+# 多個條件分行則無需分號分隔
+if [ 條件1 ]
+	and [ 條件2 ]
+	or [ 條件3 ]
+end
+if not [ 條件 ]
 end
 ```
 
@@ -947,7 +963,7 @@ switch ...
 end
 ```
 
-## for/while (循環語法)
+## for/while（循環語法）
 `for/while`用於重複執行某段邏輯。
 
 bash/zsh的`for`語法：
@@ -1304,7 +1320,7 @@ $ echo $result
 abc cde
 ```
 
-獲取函數的返回值需要使用`$?`語法，該語法會獲取最近一次執行的函數的返回值：
+bash/zsh中獲取函數的返回值需要使用`$?`語法，該語法會獲取最近一次執行的函數的返回值：
 
 ```sh
 $ show
