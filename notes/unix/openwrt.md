@@ -323,9 +323,13 @@ block-mount parted
 <!-- OpenWRT2020 主題 -->
 luci-theme-openwrt-2020
 
-<!-- vim編輯器，busybox自帶的vi功能較少 -->
-vim
-<!-- 存儲空間足夠的設備可安裝全功能版本的vim -->
+<!--
+VIM編輯器，busybox自帶的vi功能簡陋，多數VIM常用指令都未實現，
+OpenWRT中vim分為三個版本vim/vim-full/vim-fuller，
+其中vim為tiny-build，關閉了大多數VIM特性，建議使用vim-full(normal-build)或更完整的vim-fuller(big-build)
+-->
+vim-full
+<!-- 存儲空間足夠的設備可安裝全功能版本的VIM -->
 vim-fuller
 
 <!-- ARM64 架構的設備可安裝 Docker -->
@@ -375,30 +379,57 @@ Auto-Installed: yes
 查找所有手動安裝的軟件包（ash語法）：
 
 ```ash
-$ for i in `opkg list-installed |sed 's/ - .*//'`; do if !(cat /rom/usr/lib/opkg/status | grep -q "Package: $i") && !(opkg whatdepends $i | grep -q "depends on $i"); then echo $i; fi; done
+$ for i in `opkg list-installed | sed 's/ - .*//'`; do if !(cat /rom/usr/lib/opkg/status | grep -q "Package: $i") && !(opkg whatdepends $i | grep -q "depends on $i"); then echo $i; fi; done
 ```
 
-查找所有手動安裝的軟件包（fish語法）：
+查找所有手動安裝的軟件包（fish語法，添加自動修改安裝原因功能）：
 
 ```fish
 #! /usr/bin/fish
 
 set package_status /usr/lib/opkg/status
-set rom_package_status /rom/$package_status
+set rom_package_status /rom$package_status
 if [ -e $rom_package_status ]
 	set rom_packages (cat $rom_package_status)
 end
 
+# Transform the package status contents, and save package info to a list.
 for package_info in (cat $package_status | tr '\n' ';' | sed 's/;;/\n/g')
-	if not [ (string match "*Auto-Installed: yes*" $package_info) ]
+	if not string match -q "*Auto-Installed: yes*" $package_info
 		# Find packages which are not auto installed.
 		set package_name (string match -r "(?<=Package: )[\w-]+" $package_info)
 		# Check if package not in rom (pre-installed).
-		string match -q "*Package: "$package_name"*" $rom_packages
-		if [ $status = 1 ]
-			opkg whatdepends $package_name | grep -q "depends on $package_name"
-			set not_used_by_others ([ $status = 1 ] && echo clean || echo used by others)
-			echo $package_name"("$not_used_by_others")"
+		if not string match -q "*Package: $package_name*" $rom_packages
+			if not opkg whatdepends $package_name | grep -q "depends on $package_name" # Check the package depends result code.
+				set package_used_info "clean"
+			else
+				set package_used_info "used by others"
+				# Add the current package info to a package list.
+				set dependency_packages $dependency_packages $package_name
+			end
+			echo "$package_name($package_used_info)"
+		end
+	end
+end
+
+# Check if packages which need change the installed reason exist.
+if set -q dependency_packages
+	echo -e "=====================================================================\n"
+	echo -e "Packages which can change the installed resaon:\n$dependency_packages\n"
+	read -p 'echo "Do you need to change packge install reason? (yes/NO) "' need_change_install_resaon
+	# Check the user input.
+	if [ $need_change_install_resaon = yes ]; or [ $need_change_install_resaon = y ]
+		for dependency_package in $dependency_packages
+			# Find the packge line number in the file "/usr/lib/opkg/status".
+			set line_number (cat /usr/lib/opkg/status | grep -nE "^Package: $dependency_package\$" | awk -F':' '{print $1}')
+			set insert_line_number (math $line_number + 1)
+			# Check if the line number is valid.
+			if string match -qr '^[0-9]+$' $insert_line_number
+				echo "Change package [$dependency_package](line $insert_line_number) install resaon to Auto-Installed."
+				sed "$insert_line_number i Auto-Installed: yes" -i /usr/lib/opkg/status
+			else
+				echo Find invalid line number, skip the install reason change operation!
+			end
 		end
 	end
 end
@@ -1063,7 +1094,7 @@ OpenClash目前（OpenWRT 21.02.3）中並未被官方庫包含，
 下載OpenClash的ipk文件後，執行安裝：
 
 ```
-# opkg install luci-app-openclash_版本號_all.ipk
+# opkg install ./luci-app-openclash_版本號_all.ipk
 ```
 
 默認配置下安裝openclash會出現依賴文件衝突：
