@@ -11,6 +11,9 @@
 	- [musl-gcc](#musl-gcc)
 - [單元測試](#單元測試)
 	- [async函數單元測試](#async函數單元測試)
+- [Struct（結構體）](#struct結構體)
+	- [結構體對齊](#結構體對齊)
+	- [PhantomData](#phantomdata)
 - [智能指針](#智能指針)
 	- [Rc / Box / Arc](#rc--box--arc)
 	- [Cell / RefCell](#cell--refcell)
@@ -243,6 +246,64 @@ async fn xxx_test() {
   // Aysnc code...
 }
 ```
+
+
+
+# Struct（結構體）
+`Struct（結構體）`是Rust中定義數據結構的方式，於C/C++語言中的同名概念類似。
+
+Rust中結構體存在以下與C語言類似，與C++不同的特徵：
+
+- Rust中的結構體不支持繼承
+
+Rust中結構體存在以下與C++類似，與C不同的特徵：
+
+- 結構體支持定義成員方法
+- 結構體支持泛型參數（C++中的模板）
+- 結構體和成員字段支持設置訪問權限
+
+## 結構體對齊
+類似C/C++中的`#pragma pack(n)`語法，自`Rust 1.25`開始，實現了
+[`RFC1358`](https://github.com/rust-lang/rfcs/blob/master/text/1358-repr-align.md)，
+提供了`#[repr(align(n))]`語法用於結構體對齊。
+
+示例：
+
+```rust
+struct Number(i32);
+
+assert_eq!(std::mem::align_of::<Number>(), 4);
+assert_eq!(std::mem::size_of::<Number>(), 4);
+
+#[repr(align(16))]
+struct Align16(i32);
+
+assert_eq!(std::mem::align_of::<Align16>(), 16);
+assert_eq!(std::mem::size_of::<Align16>(), 16);
+```
+
+## PhantomData
+Rust中的結構體不支持定義未使用的泛型參數，否則會報錯：
+
+```rust
+>> struct Test<T>();
+               ^ unused parameter
+parameter `T` is never used
+help: consider removing `T`, referring to it in a field, or using a marker such as `PhantomData`
+help: if you intended `T` to be a const parameter, use `const T: usize` instead
+```
+
+根據錯誤信息提示，可使用`std::marker::PhantomData`類型提供一個佔位符：
+
+```rust
+>> use std::marker::PhantomData;
+>> struct Test<T>(PhantomData<T>);
+>> use std::mem::size_of;
+>> size_of::<Test<String>>()
+0
+```
+
+`size_of()`輸出結果為0，可知PhantomData類型僅為佔位符，並不佔用實際空間。
 
 
 
