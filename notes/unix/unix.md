@@ -93,6 +93,7 @@
 		- [pidstat](#pidstat)
 		- [mpstat](#mpstat)
 		- [iostat](#iostat)
+	- [sysbench](#sysbench)
 	- [iperf / qperf](#iperf--qperf)
 	- [HTTP壓測工具](#http壓測工具)
 - [通知服務 （Notification）](#通知服務-notification)
@@ -3464,6 +3465,11 @@ top -hv|-bcHiOSs -d secs -n max -u|U user -p pid -o fld -w [cols]
 
 	Linux下在指令介面中使用`Shift + <`和`Shift + >`組合鍵動態切換進程排序的資源指標。
 
+- 展示每個核心的消耗
+
+	默認top指令展示的是所有CPU的總體資源消耗。
+	Linux下載top介面中輸入`1`即可展示每個CPU核心各自的資源消耗，再次輸入則關閉。
+
 ## iftop
 `iftop`是常用的網絡IO監控工具，通常發行版中並未直接包含，需要從倉庫中安裝：
 
@@ -3605,6 +3611,58 @@ $ iostat -x
 ```
 $ iostat -t
 ```
+
+## sysbench
+[`sysbench`](https://github.com/akopytov/sysbench)是基於`LuaJIT`實現的一套多線程性能測試工具。
+
+多數發行版倉庫中已包含了sysbench，可直接安裝：
+
+```html
+<!-- macOS Homebrew -->
+$ brew install sysbench
+
+<!-- 大便係 -->
+# apt install sysbench
+
+<!-- Arch係 -->
+# pacman -S sysbench
+
+<!-- CentOS需要添加額外倉庫 -->
+# curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.rpm.sh | bash
+# yum install sysbench
+```
+
+基本指令語法：
+
+```
+$ sysbench [options]... [testname] [command]
+```
+
+- `testname`為測試類型（可選），內置的測試類型包含`fileio`、`memory`、`cpu`等。
+- `command`為測試指令（可選），與內置測試配合使用，用於設置測試的行為，包含下列指令：
+	- `prepare`執行部分操作的準備操作，例如在fileio測試中，會在磁盤上創建必要的文件。
+	- `run`執行測試操作。
+	- `cleanup`移除測試創建的臨時數據文件。
+	- `help`展示指令幫助信息。
+- `options`為額外的命令行參數，參數以`--`開始。
+
+實例，CPU性能測試：
+
+```html
+<!-- 默認參數下，使用單線程執行10s測試 -->
+$ sysbench cpu run
+
+<!-- 使用指定線程數執行測試 -->
+$ sysbench --threads 線程數目 cpu run
+
+<!-- 執行測試指定秒 -->
+$ sysbench --time 秒數 cpu run
+
+<!-- 執行測試指定次數 -->
+$ sysbench --event 測試次數 cpu run
+```
+
+多個限定參數可組合使用，滿足其中一個限定條件後會終止測試。
 
 ## iperf / qperf
 [`iPerf`](https://iperf.fr/)以及[`qperf`](https://github.com/linux-rdma/qperf)
