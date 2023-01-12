@@ -30,6 +30,7 @@
 	- [select 語句](#select-語句)
 	- [輸出內容](#輸出內容)
 		- [刷新輸出](#刷新輸出)
+	- [輸入內容](#輸入內容)
 	- [自定義函數](#自定義函數)
 		- [函數參數處理](#函數參數處理)
 		- [函數返回值](#函數返回值)
@@ -1151,6 +1152,50 @@ $ echo -n "test1"; sleep 1; echo -e "\rtest2" <!-- 先輸出test1，1秒之後�
 <!-- 或者在被刷新的內容後添加 \r 修飾 -->
 $ echo -ne "test1\r"; echo "test2"
 $ echo -ne "test1\r"; sleep 1; echo "test2"
+```
+
+## 輸入內容
+Shell中使用`read`函數讀取用戶在標準輸入（`stdin`）中鍵入的內容。
+read函數是Shell的**內置函數**，bash/zsh/fish中基本語法類似：
+
+```
+$ read [參數] 變量1 變量2 變量3 ...
+```
+
+read讀取一行用戶輸入，將輸入的內容按照tab/space切分放入read函數輸入的變量中。
+但由於POSIX並未定義read函數相關標準，因此各大Shell的read函數參數均有不同：
+
+- bash/fish參數類似，bash使用短參數，功能較少，fish還支持長參數，額外支持多種功能
+- zsh與bash/fish參數差異相對較大
+
+常用功能說明：
+
+| 功能 | bash參數 | zsh參數 | fish參數 |
+| :- | :- | :- | :- |
+| 添加一段文本作為輸入提示 | -p | "變量?提示文本" | -P/--prompt-str |
+| 將用戶輸入的內容切分後放入數組，全部存入首個變量中 | -a | -A | -a/--list |
+| 禁用輸入回顯 | -s | -s | -s/--silent |
+
+示例：
+
+```html
+<!-- bash -->
+$ read -p "Fuck CCP? " answer
+Fuck CCP? yes
+$ echo $answer
+yes
+
+<!-- zsh -->
+$ read "answer?Fuck CCP? "
+Fuck CCP? yes
+$ echo $answer
+yes
+
+<!-- fish -->
+$ read -P "Fuck CCP? " answer
+Fuck CCP? yes
+$ echo $answer
+yes
 ```
 
 ## 自定義函數
