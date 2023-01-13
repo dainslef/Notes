@@ -1890,7 +1890,7 @@ restrict配置段的參數簡介：
 | noquery | 阻止ntpq/ntpdc查詢，但允許時間查詢 |
 | notrap | 阻止ntpdc控制消息協議 |
 | notrust | 阻止未認證的客戶端 |
-| nopeer | 阻止對等關聯(不允許同一層級服務關連) |
+| nopeer | 阻止對等關聯（不允許同一層級服務關連） |
 
 若在局域網中使用NTP時，則應考慮將某一台服務器作為基準時間，在該台服務器的配置中添加：
 
@@ -2787,17 +2787,18 @@ iface bond0 inet static
 
 `bond-mode`用於配置Bonding的工作模式，共有編號`0 ~ 6`共7種：
 
-| 編號 | 名稱 | 說明 |
-| :- | :- | :- |
-| 0 | balance-rr | Round-robin策略，按順序從第一張slave網卡到最後一張slave網卡發送數據 |
-| 1 | active-backup | 主備策略，同一時刻僅使用一張slave網卡 |
-| 2 | balance-xor | 使用xmit_hash_policy（源網卡MAC異或目標網卡MAC，按slave網卡數目取余），保證相同兩台機器之間始終使用同一slave網卡 |
-| 3 | broadcast | 同時使用所有slave網卡發送數據，提供高容錯性 |
-| 4 | 802.3ad | Dynamic link aggregation，鏈路聚合模式，需要交換機支持 |
-| 5 | balance-tlb | Adaptive transmit load balancing，自適應傳輸負載均衡，可實現發送流量的均衡負載 |
-| 6 | balance-alb | Adaptive load balancing，自適應負載均衡，可實現收、發流量的負載均衡，接收負載均衡通過ARP協商實現 |
+| 編號 | 名稱 | 說明 | 交換機需求 |
+| :- | :- | :- | :- |
+| 0 | balance-rr | Round-robin策略，按順序從第一張slave網卡到最後一張slave網卡發送數據 | Requires static Etherchannel enabled (not LACP-negotiated) |
+| 1 | active-backup | 主備策略，同一時刻僅使用一張slave網卡 | Requires autonomous ports |
+| 2 | balance-xor | 使用xmit_hash_policy（源網卡MAC異或目標網卡MAC，按slave網卡數目取余），保證相同兩台機器之間始終使用同一slave網卡 | Requires static Etherchannel enabled (not LACP-negotiated) |
+| 3 | broadcast | 同時使用所有slave網卡發送數據，提供高容錯性 | Requires static Etherchannel enabled (not LACP-negotiated) |
+| 4 | 802.3ad | Dynamic link aggregation，鏈路聚合模式，需要交換機LACP支持 | Requires LACP-negotiated Etherchannel enabled |
+| 5 | balance-tlb | Adaptive transmit load balancing，自適應傳輸負載均衡，可實現發送流量的均衡負載 | Requires autonomous ports |
+| 6 | balance-alb | Adaptive load balancing，自適應負載均衡，可實現收、發流量的負載均衡，接收負載均衡通過ARP協商實現 | Requires autonomous ports |
 
 通常使用`bond-mode 0`或`bond-mode 2`。
+bond-mode 2可以通過配置layer 3+4模式實現基於協議的哈希策略。
 Bonding連線多交換機時，bond-mode 1/5/6可能會因爲ARP衝突導致網絡不通；
 bind-mode 3則會重複發包，可能會對上層業務產生影響（以ping為例，會得到dup警告）。
 
