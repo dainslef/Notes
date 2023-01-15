@@ -1911,16 +1911,65 @@ synchronised to unspecified (120.25.115.20) at stratum 3
    polling server every 64 s
 ```
 
+亦可使用`ntpq -p`查看NTP同步状态，輸出示例：
+
+```html
+<!-- 同步正常輸出 -->
+$ ntpq -p
+     remote           refid      st t when poll reach   delay   offset  jitter
+==============================================================================
+ 192.168.0.155   .POOL.          16 p    -   64    0    0.000    0.000   0.000
+*192.168.0.155   192.168.2.150   13 u   24   64  377    4.080    0.011   0.193
+
+<!-- 同步失敗輸出 -->
+$ ntpq -p
+localhost: timed out, nothing received
+***Request timed out
+```
+
 對於同步延遲、失敗的情況可嘗試使用`ntpdate`指令進行**手動同步**：
 
 ```
 # ntpdate [server ip/hostname]
 ```
 
+ntpdate指令可添加`-d`參數輸出調試信息，示例：
+
+```
+# ntpdate -d 172.20.10.2
+14 Jan 16:57:13 ntpdate[926]: ntpdate 4.2.8p12@1.3728-o (1)
+Looking for host 172.20.10.2 and service ntp
+host found : 172.20.10.2
+transmit(172.20.10.2)
+receive(172.20.10.2)
+transmit(172.20.10.2)
+receive(172.20.10.2)
+transmit(172.20.10.2)
+receive(172.20.10.2)
+transmit(172.20.10.2)
+receive(172.20.10.2)
+
+server 172.20.10.2, port 123
+stratum 6, precision -24, leap 00, trust 000
+refid [127.127.1.0], root delay 0.000000, root dispersion 0.011078
+transmitted 4, in filter 4
+reference time:    e76c5873.0e9733f0  Sat, Jan 14 2023  6:23:47.056
+originate timestamp: e76c587e.8f58b927  Sat, Jan 14 2023  6:23:58.559
+transmit timestamp:  e76cecef.29e1db09  Sat, Jan 14 2023 16:57:19.163
+filter delay:  0.02858  0.02690  0.02689  0.02708
+         0.00000  0.00000  0.00000  0.00000
+filter offset: -38000.5 -38000.5 -38000.5 -38000.6
+         0.000000 0.000000 0.000000 0.000000
+delay 0.02689, dispersion 0.00880
+offset -38000.595912
+
+14 Jan 16:57:19 ntpdate[926]: step time server 172.20.10.2 offset -38000.595912 sec
+```
+
 使用`ntpq/ntpdc`指令進入交互式Shell，進行具體的NTP查詢操作：
 
-```c
-// ntpq - standard NTP query program
+```html
+<!-- ntpq - standard NTP query program -->
 $ ntpq
 ntpq> help
 ntpq commands:
@@ -1937,7 +1986,7 @@ cooked           lpassociations   pstatus          writelist
 cv               lpeers           quit             writevar
 debug            mreadlist        raw
 
-// ntpdc - special NTP query program
+<!-- ntpdc - special NTP query program -->
 $ ntpdc
 ntpdc> help
 ntpdc commands:
@@ -1966,11 +2015,11 @@ chrony詳細介紹可參考[官方網站](https://chrony.tuxfamily.org/index.htm
 
 主流的發行版的軟件倉庫中均內置了chrony：
 
-```c
-// Arch Linux
+```html
+<!-- Arch Linux -->
 # pacman -S chrony
 
-// CentOS
+<!-- CentOS -->
 # yum install chrony
 ```
 
@@ -2008,8 +2057,8 @@ local # 允許主機以本地時間作為時鐘源
 chrony核心的工具指令包括`chronyc`(管理指令)/`chronyd`(服務進程)。
 使用chronyc可進入類似ntpdc對應交互終端，直接指令子命令，常用指令：
 
-```c
-// 查看服務的執行狀態
+```html
+<!-- 查看服務的執行狀態 -->
 $ chronyc tracking
 Reference ID : 192.0.2.1 (192.0.2.1)
 Stratum : 12
@@ -2025,16 +2074,18 @@ Root dispersion : 0.016767 seconds
 Update interval : 65.1 seconds
 Leap status     : Normal
 
-// 查看用於同步的源
-// M表示源的類型，'^'表示服務器，'='表示對等主機
-// S表示源的狀態，'*'表示已同步，'+'表示已綁定，'-'表示被排除，'?'表示連接故障，'x'表示目標時鐘錯誤，'~'表示目標時鐘不穩定
+<!--
+查看用於同步的源
+M表示源的類型，'^'表示服務器，'='表示對等主機
+S表示源的狀態，'*'表示已同步，'+'表示已綁定，'-'表示被排除，'?'表示連接故障，'x'表示目標時鐘錯誤，'~'表示目標時鐘不穩定
+-->
 $ chronyc sources
 210 Number of sources = 1
 MS Name/IP address    Stratum    Poll   Reach   LastRx   Last sample
 =============================================================================
 ^* 192.0.2.1           11        6      377      63      +1827us[+6783us]
 
-// 查看從當前主機同步的客戶端
+<!-- 查看從當前主機同步的客戶端 -->
 $ chronyc clients
 Hostname                      NTP   Drop Int IntL Last     Cmd   Drop Int  Last
 ===============================================================================
@@ -2067,6 +2118,7 @@ HTTP請求常用參數說明：
 | -F, --form <name=content> | From Data | `-F key1=value1&key2=value2` |
 | -v, --verbose | Verbose | `-v` |
 | -k, --insecure | Skip TLS certificate check | `-k` |
+| -L, --location | Follow redirects | `-L` |
 
 請求示例：
 
