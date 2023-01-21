@@ -94,6 +94,8 @@
 		- [mpstat](#mpstat)
 		- [iostat](#iostat)
 	- [sysbench](#sysbench)
+	- [RT-Tests](#rt-tests)
+		- [cyclictest](#cyclictest)
 	- [iperf / qperf](#iperf--qperf)
 	- [HTTP壓測工具](#http壓測工具)
 - [通知服務 （Notification）](#通知服務-notification)
@@ -3716,6 +3718,40 @@ $ sysbench --event 測試次數 cpu run
 ```
 
 多個限定參數可組合使用，滿足其中一個限定條件後會終止測試。
+
+## RT-Tests
+[`RT-Tests`](https://wiki.linuxfoundation.org/realtime/documentation/howto/tools/rt-tests)
+是Linux官方維護的一套實時性測試工具集。
+
+RT-Tests通常已包含在各大發行版的倉庫中，可直接安裝：
+
+```html
+# apt install rt-tests <!-- 大便係 -->
+# pacman -S rt-tests <!-- Arch係 -->
+```
+
+### cyclictest
+[`cyclictest`](https://wiki.linuxfoundation.org/realtime/documentation/howto/tools/cyclictest/start)
+通過重複測量線程預期喚醒時間與實際喚醒時間的差值來統計系統的實時性。
+
+直接執行cyclictest，默認會使用單個核心，無限循環測試，直到手動退出進程：
+
+```
+$ cyclictest
+# /dev/cpu_dma_latency set to 0us
+policy: other/other: loadavg: 0.12 0.14 0.40 1/172 12785
+
+T: 0 (12783) P: 0 I:1000 C: 573372 Min:     53 Act:  103 Avg:  147 Max:   14413
+```
+
+常用參數：
+
+| 參數 | 說明 |
+| :- | :- |
+| -S/--smp | 測試所有核心，相當於`-t -a` |
+| -l/--loops | 測試循環次數，默認為0（無限循環） |
+| -m/--mlockall | 鎖定分配內存，避免換頁，默認關閉 |
+| -i/--interval | 設置基礎測試間隔，單位為us，默認為1000us |
 
 ## iperf / qperf
 [`iPerf`](https://iperf.fr/)以及[`qperf`](https://github.com/linux-rdma/qperf)
