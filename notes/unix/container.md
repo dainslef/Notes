@@ -157,20 +157,20 @@ Docker提供了對應的命令行工具進行管理操作。
 Docker使用了諸多`Linux Kernel`專有特性，並非POSIX兼容，無法直接移植到macOS中。
 macOS中Docker使用`docker-machine`在VirtualBox中創建Linux虛擬機，並在虛擬機中運行Docker。
 
-安裝Docker和`docker-machine`：
+安裝Docker和docker-machine：
 
 ```
 $ brew install docker docker-machine
 ```
 
-`docker-machine`主要指令：
+docker-machine主要指令：
 
-```
-$ docker-machine create [虛擬機名稱] // 創建虛擬機
-$ docker-machine rm [虛擬機名稱] // 移除虛擬機
-$ docker-machine ls // 列出已創建的虛擬機
-$ docker-machine start/stop [虛擬機名稱] // 啓動/停止虛擬機
-$ docker-machine env [虛擬機名稱] // 獲取指定已啓動的虛擬機的環境變量
+```html
+# docker-machine create 虛擬機名稱 <!-- 創建虛擬機 -->
+# docker-machine rm 虛擬機名稱 <!-- 移除虛擬機 -->
+# docker-machine ls <!-- 列出已創建的虛擬機 -->
+# docker-machine start/stop 虛擬機名稱 <!-- 啓動/停止虛擬機 -->
+# docker-machine env 虛擬機名稱 <!-- 獲取指定已啓動的虛擬機的環境變量 -->
 ```
 
 啓動虛擬機後，直接在命令行中使用`docker`指令，會得到以下錯誤輸出：
@@ -238,12 +238,12 @@ screen指令會創建窗口管理器，在窗口管理器中可直接與虛擬�
 
 使用`docker images`指令查看本地存在的鏡像：
 
-```c
-// 列出本地包含的鏡像
-$ docker images
+```html
+<!-- 列出本地包含的鏡像 -->
+# docker images
 
-// 列出本地包含的鏡像，同 docker images
-$ docker image ls
+<!-- 列出本地包含的鏡像，同 docker images -->
+# docker image ls
 ```
 
 輸出內容格式如下：
@@ -268,7 +268,7 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 使用`docker search`指令搜索鏡像：
 
 ```
-$ docker search [查詢內容]
+# docker search 查詢內容
 ```
 
 `docker search`指令並未提供依據TAG搜索鏡像的功能，名稱相同但TAG不同的鏡像需要在Docker Hub中查找。
@@ -276,7 +276,7 @@ $ docker search [查詢內容]
 使用`docker tag`指令可設置鏡像的名稱：
 
 ```
-$ docker tag [鏡像ID/鏡像名稱] [鏡像新名稱]
+# docker tag 鏡像ID/鏡像名稱 鏡像新名稱
 ```
 
 對於未設置鏡像名稱的鏡像，會爲原鏡像添加`REPOSITORY`、`TAG`等信息；
@@ -284,28 +284,28 @@ $ docker tag [鏡像ID/鏡像名稱] [鏡像新名稱]
 
 從`docker pull`指令從Docker Hub中拉取鏡像到本地：
 
-```c
-// 拉取指定名稱默認TAG的鏡像
-$ docker pull [鏡像倉庫]
+```html
+<!-- 拉取指定名稱默認TAG的鏡像 -->
+# docker pull 鏡像倉庫
 
-// 拉取指定名稱指定TAG的鏡像
-$ docker pull [鏡像倉庫:鏡像TAG]
+<!-- 拉取指定名稱指定TAG的鏡像 -->
+# docker pull 鏡像倉庫:鏡像TAG
 
-// 拉取鏡像，與 docker pull 相同
-$ docker image pull [鏡像倉庫]
+<!-- 拉取鏡像，與 docker pull 相同 -->
+# docker image pull 鏡像倉庫
 ```
 
 其它鏡像管理指令：
 
-```c
-// 刪除指定鏡像
-$ docker rmi [鏡像ID/鏡像名稱]
+```html
+<!-- 刪除指定鏡像 -->
+# docker rmi 鏡像ID/鏡像名稱
 
-// 刪除指定鏡像，同 docker rmi
-$ docker image rm [鏡像ID/鏡像名稱]
+<!-- 刪除指定鏡像，同 docker rmi -->
+# docker image rm 鏡像ID/鏡像名稱
 
-// 顯示鏡像詳情
-$ docker image inspect [鏡像ID/鏡像名稱]
+<!-- 顯示鏡像詳情 -->
+# docker image inspect 鏡像ID/鏡像名稱
 ```
 
 ## 鏡像源
@@ -335,13 +335,13 @@ $ docker image inspect [鏡像ID/鏡像名稱]
 使用`docker create`指令創建容器，並在創建容器時指定啓動的進程：
 
 ```
-$ docker create [容器參數...] [鏡像] [啓動進程] [進程參數...]
+# docker create 容器參數... 鏡像 啓動進程 進程參數...
 ```
 
 以`Ubuntu 14.04 LTS`爲例，創建以`bash`爲啓動進程的容器：
 
 ```
-$ docker create ubuntu:14.04 bash
+# docker create ubuntu:14.04 bash
 ```
 
 容器信息如下所示：
@@ -353,18 +353,21 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
      wonderful_poitras
 ```
 
-創建容器時`docker`會自行爲每個容器分配唯一的`CONTAINER ID`，使用`CONTAINER ID`對指定容器進行操作。
-亦可在創建容器時使用`--name`參數爲容器設置名稱，設定了名稱的容器可使用容器名稱替代`CONTAINER ID`。
+創建容器時docker會自行爲每個容器分配唯一的`CONTAINER ID`，使用容器ID對指定容器進行操作。
+亦可在創建容器時使用`--name`參數爲容器設置名稱，設定了名稱的容器可使用容器名稱替代容器ID。
 
 創建容器時的一些常用參數：
 
-- `-t` 創建容器時，爲容器分配僞終端
-- `-i` 保持容器標準輸出到終端
-- `--name` 創建容器時爲容器指定名稱
+| 參數 | 説明 |
+| :- | :- |
+| `-t` | 創建容器時，爲容器分配僞終端 |
+| `-i` | 保持容器標準輸出到終端 |
+| `--name` | 創建容器時爲容器指定名稱 |
 
 容器創建完成使用`docker start/stop`啓動/停止容器。
 容器創建時若未分配**僞終端**，則在容器內進程執行完畢後會立即退出，
-若需要容器一直處於執行狀態，則需要保證容器執行的進程爲**守護進程**，或在創建容器時爲容器分配**僞終端**。
+若需要容器一直處於執行狀態，則需要保證容器執行的進程爲**守護進程**，
+或在創建容器時爲容器分配**僞終端**。
 
 創建可持續執行的容器，並指定容器名稱：
 
@@ -373,28 +376,32 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 $ docker create -i --name Nix nixos/nix sh
 ```
 
-使用`docker exec`指令可以使用已啓動的容器執行指令：
+容器創建完成后，可執行一系列操作：
 
-```
-$ docker exec [選項] [鏡像] [啓動進程] [進程參數...]
-```
+```html
+<!-- 使用 docker exec 指令可以使用已啓動的容器執行指令 -->
+# docker exec 選項... 鏡像 啓動進程 進程參數...
+<!-- 使用 docker exec 進入已啓動容器內部的僞終端 -->
+# docker exec -it 容器ID/容器名稱 bash
 
-使用`docker exec`進入已啓動容器內部的僞終端：
-
-```
-$ docker exec -it [容器ID/容器名稱] bash
+<!-- 查看容器進程的輸出日志 -->
+# docker logs 容器ID/容器名稱
+# docker logs -f 容器ID/容器名稱 <!-- 同步日志輸出 -->
 ```
 
 使用`docker container`相關指令查看、管理容器相關信息。
 
-```
-$ docker ps // 查看正在運行中的容器
-$ docker container ls // 同 docker ps
-$ docker ps -a // 查看所有創建的容器
-$ docker container ls -a // 同 docker ps -a
-$ docker rm [容器ID/容器名稱] // 刪除指定容器
-$ docker container rm [容器ID/容器名稱] // 同 docker rm
-$ docker container inspect [容器ID/容器名稱] // 查看容器的詳細配置
+```html
+# docker ps <!-- 查看正在運行中的容器 -->
+# docker ps -a <!-- 查看所有創建的容器 -->
+# docker rm [容器ID/容器名稱] <!-- 刪除指定容器 -->
+# docker inspect 容器ID/容器名稱 <!-- 查看容器的詳細配置 -->
+
+<!-- 亦可使用 docker container 系列指令管理容器 -->
+# docker container ls <!-- 同 docker ps -->
+# docker container ls -a <!-- 同 docker ps -a -->
+# docker container rm [容器ID/容器名稱] <!-- 同 docker rm -->
+# docker container inspect [容器ID/容器名稱] <!-- 同 docker inspect -->
 ```
 
 ## 容器自啟動
@@ -422,23 +429,23 @@ Docker中容器使用`--restart`參數設置重啟策略，可用在`create/run/
 使用`docker commit`指令爲指定容器生成新的鏡像。
 
 ```
-$ docker commit [選項] [容器ID/容器名稱] [鏡像倉庫:鏡像TAG]
+# docker commit 選項 容器ID/容器名稱 鏡像倉庫:鏡像TAG
 ```
 
-`docker commit`僅會提交相對基礎鏡像變化的部分。
+docker commit僅會提交相對基礎鏡像變化的部分（OverlayFS）。
 
 ## 容器導入/導出
 使用`docker export`指令將容器的內容導出爲`*.tar`格式的壓縮文件：
 
 ```html
-$ docker export 容器ID/容器名稱 -o 備份tar文件
-$ docker export > 備份tar文件 <!-- 亦可使用輸出重定向生成備份tar文件 -->
+# docker export 容器ID/容器名稱 -o 備份tar文件
+# docker export > 備份tar文件 <!-- 亦可使用輸出重定向生成備份tar文件 -->
 ```
 
 使用`docker import`指令將tar容器備份導入爲鏡像：
 
 ```
-$ docker import 備份tar文件 鏡像倉庫:鏡像TAG
+# docker import 備份tar文件 鏡像倉庫:鏡像TAG
 ```
 
 導入鏡像時`鏡像倉庫:鏡像TAG`參數可以省略，省略該參數時，導入鏡像的REPOSITORY與TAG均爲`<none>`。
@@ -447,15 +454,15 @@ $ docker import 備份tar文件 鏡像倉庫:鏡像TAG
 使用`docker save`指令將鏡像導出為`*.tar`格式的壓縮文件：
 
 ```html
-$ docker save 鏡像ID/鏡像名稱 -o 備份tar文件
-$ docker save 鏡像ID/鏡像名稱 > 備份tar文件
+# docker save 鏡像ID/鏡像名稱 -o 備份tar文件
+# docker save 鏡像ID/鏡像名稱 > 備份tar文件
 ```
 
 使用`docker load`指令將tar鏡像備份導入：
 
 ```
-$ docker load -i 備份tar文件
-$ docker load < 備份tar文件
+# docker load -i 備份tar文件
+# docker load < 備份tar文件
 ```
 
 ## 構建鏡像
@@ -533,22 +540,22 @@ Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.
 執行指令：
 
 ```
-$ docker run -d -p 5000:5000 --name registry registry:2
+# docker run -d -p 5000:5000 --name registry registry:2
 ```
 
 執行指令後會在本地的5000端口創建本地鏡像服務，
 可將需要提交到該服務的鏡像添加tag，之後進行提交：
 
 ```
-$ docker tag 源鏡像 localhost:5000/鏡像名稱
-$ docker push localhost:5000/鏡像名稱
+# docker tag 源鏡像 localhost:5000/鏡像名稱
+# docker push localhost:5000/鏡像名稱
 ```
 
 默認提交的鏡像存儲在容器內部，刪除容器會一併刪除提交的內容，
 若需要保留提交內容，則應將鏡像存儲路徑掛載到外部目錄：
 
 ```
-$ docker run -d -p 5000:5000 --name registry -v /mnt/registry:/var/lib/registry registry:2
+# docker run -d -p 5000:5000 --name registry -v /mnt/registry:/var/lib/registry registry:2
 ```
 
 Docker Registry僅提供了簡單的鏡像服務，且默認僅提供HTTP服務（多數運行時現在強制要求HTTPS），
@@ -562,7 +569,9 @@ Docker Registry僅提供了簡單的鏡像服務，且默認僅提供HTTP服務�
 Docker Compose已經與Docker一同提供，
 並可直接使用`docker compose`指令執行Compose相關操作。
 
-部分發行版（如`ubuntu`）提供的Docker並未包含Compose，需要自行安裝：
+部分發行版（如`ubuntu`）提供的Docker並未包含Compose，
+且軟件源中提供的`docker-compose`組件為Python實現的`Docker Compose 1.x`，
+因此，需要手動從GitHub下載安裝：
 
 ```html
 <!-- 安裝到全局路徑 -->
@@ -965,7 +974,7 @@ $ docker create -p [主機端口1]:[容器端口2] -p [主機端口2]:[容器端
 使用`docker inspect`查看目標容器的具體信息(以SSH服務的`22`端口為例)：
 
 ```json
-$ docker inspect [容器ID]
+# docker inspect 容器ID
 
 [
     {
