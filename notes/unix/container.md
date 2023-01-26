@@ -71,7 +71,8 @@ Docker基於容器技術，早期使用LinuX Containers(LXC)實現，之後切�
 以內存為例，傳統虛擬機分配1GB內存，則虛擬機實例會獨佔1GB內存，
 但多個Docker實例之間則可共享該內存。
 
-參考[StackOverflow](https://stackoverflow.com/questions/16047306/how-is-docker-different-from-a-virtual-machine)上的相關問答。
+參考[StackOverflow](https://stackoverflow.com/questions/16047306/how-is-docker-different-from-a-virtual-machine)
+上的相關問答。
 
 Docker同樣相比傳統虛擬機存在一些限制，例如systemd在Docker中不能直接使用，
 Docker被設計用於提供單個進程/服務運行的最小環境，通常容器中不會運行systemd此類系統管理服務。
@@ -111,7 +112,8 @@ Docker被設計用於提供單個進程/服務運行的最小環境，通常容�
 Kubernetes早期使用名為dockershim的機制調用Docker，
 但現在Kubernetes逐步放棄dockershim，轉而使用CRI與任何符合要求的容器運行時交互(不侷限於Docker)；
 自`Kubernetes v1.20`開始，Kubernetes發布了[官方聲明](https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/)，dockershim已被聲明為**廢棄(deprecation)**。
-最新的[官方博客](https://kubernetes.io/blog/2021/11/12/are-you-ready-for-dockershim-removal/)中，dockershim的廢棄推遲到了`1.24`版本。
+最新的[官方博客](https://kubernetes.io/blog/2021/11/12/are-you-ready-for-dockershim-removal/)中，
+dockershim的廢棄推遲到了`1.24`版本。
 
 
 
@@ -179,8 +181,9 @@ docker-machine主要指令：
 Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
 ```
 
-`docker`工具不能立即訪問虛擬機，需要設置相關環境變量。
-使用`docker-machine env`指令獲取虛擬機相關環境變量，使用`eval`使環境變量生效，之後才能正常使用Ddocker相關指令：
+docker工具不能立即訪問虛擬機，需要設置相關環境變量。
+使用`docker-machine env`指令獲取虛擬機相關環境變量，
+使用`eval`使環境變量生效，之後才能正常使用Ddocker相關指令：
 
 ```
 $ eval $(docker-machine env [環境變量])
@@ -387,6 +390,12 @@ $ docker create -i --name Nix nixos/nix sh
 <!-- 查看容器進程的輸出日志 -->
 # docker logs 容器ID/容器名稱
 # docker logs -f 容器ID/容器名稱 <!-- 同步日志輸出 -->
+
+<!--
+進入容器啓動進程的交互終端；
+退出交互終端使用 ctrl + p 之後輸入 ctrl + q 組合鍵
+-->
+# docker attach 容器ID/容器名稱
 ```
 
 使用`docker container`相關指令查看、管理容器相關信息。
@@ -394,15 +403,39 @@ $ docker create -i --name Nix nixos/nix sh
 ```html
 # docker ps <!-- 查看正在運行中的容器 -->
 # docker ps -a <!-- 查看所有創建的容器 -->
-# docker rm [容器ID/容器名稱] <!-- 刪除指定容器 -->
+# docker rm 容器ID/容器名稱 <!-- 刪除指定容器（無法刪除正在運行的容器） -->
+# docker rm -f 容器ID/容器名稱 <!-- 强制刪除指定容器（可以刪除正在運行的容器） -->
 # docker inspect 容器ID/容器名稱 <!-- 查看容器的詳細配置 -->
 
 <!-- 亦可使用 docker container 系列指令管理容器 -->
 # docker container ls <!-- 同 docker ps -->
 # docker container ls -a <!-- 同 docker ps -a -->
-# docker container rm [容器ID/容器名稱] <!-- 同 docker rm -->
-# docker container inspect [容器ID/容器名稱] <!-- 同 docker inspect -->
+# docker container rm 容器ID/容器名稱 <!-- 同 docker rm -->
+# docker container inspect 容器ID/容器名稱 <!-- 同 docker inspect -->
 ```
+
+docker指令的輸出信息支持使用`--format`參數設定輸出格式：
+
+```
+# docker 指令... --format "{{格式 .字段1 .字段2 ...}}"
+```
+
+format的常用用法是從輸出内容中提取特定字段進行其它操作，示例：
+
+```html
+<!-- 刪除所有容器 -->
+# docker ps -a --format "{{.Names}}" | xargs docker rm -f
+<!-- 刪除所有鏡像 -->
+# docker images --format "{{.ID}}" | xargs docker rmi
+```
+
+指令輸出内容的字段名稱可通過輸出json格式的内容得到：
+
+```
+# docker 指令... --format "{{json .}}"
+```
+
+更多輸出格式用法可參考[官方文檔](https://docs.docker.com/config/formatting)。
 
 ## 容器自啟動
 Docker中支持對每個容器設置重啟策略，只要Docker後台服務開啟了自啟動，
