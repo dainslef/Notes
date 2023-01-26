@@ -4076,9 +4076,13 @@ Linux中存在大量的文本處理工具，可組合使用對命令行輸出進
 ```html
 <!-- 從給定的內容中查找包含 xxx 的內容 -->
 $ grep xxx
-
+<!-- 從給定的內容中查找以 xxx 起始的內容 -->
+$ grep ^xxx
 <!-- 從給定的內容中排除包含 xxx 的內容 -->
 $ grep -v xxx
+
+<!-- 查找內容時，輸出目標內容附近指定行數相關的內容 -->
+$ grep -C 行數
 
 <!-- 查找 xxx (嚴格匹配) -->
 $ grep -w xxx
@@ -4198,6 +4202,17 @@ d
 ```html
 <!-- 默認將替換後的內容輸出到終端 -->
 $ sed 's/舊文本/新文本/' 文件路徑
+<!--
+當需要替換的目標文本中包含替換標識符時，需要使用 \ 進行轉義
+用於切分源文本和被替換文本的標識符可以自定，比如使用 _ 或 - . ? < > 以及空格等等
+可根據需要規避的文本靈活選擇替換標識符
+ -->
+$ sed 's 舊文本 新文本 ' 文件路徑
+$ sed 's.舊文本.新文本.' 文件路徑
+$ sed 's-舊文本-新文本-' 文件路徑
+
+<!-- 默認替換操作僅替換首個匹配的內容，替換所有內容需表達式末尾添加字母 g -->
+$ $ sed 's/舊文本/新文本/g' 文件路徑
 
 <!-- 可替換輸出文件內容 -->
 $ sed -i 's/舊文本/新文本/' 文件路徑
@@ -4214,11 +4229,28 @@ $ cat test.txt
 $TEST output
 $ sed 's/$TEST/test/' test.txt
 test output
+
+<!-- 使用其它替換標誌符作用類似 -->
+$ sed 's.$TEST.test.' test.txt
+test output
+$ sed 's-$TEST-test-' test.txt
+test output
+
 $ sed -i 's/$TEST/test/' test.txt
 $ cat test.txt
 test output
 $ echo '$TEST output' | sed 's/$TEST/test/'
 test output
+
+$ echo aabbaa > test.txt
+$ cat test.txt
+aabbaa
+<!-- 普通替換表達式僅替換首個匹配內容 -->
+$ sed 's/aa/cc/' test.txt
+ccbbaa
+<!-- 匹配表達式末尾添加字母 g ，則替換所有匹配內容 -->
+$ sed 's/aa/cc/g' test.txt
+ccbbcc
 ```
 
 需要注意，sed在不同Unix中的實現功能參數有所不同，以BSD的sed為例，
@@ -4240,7 +4272,7 @@ $TEST output <!-- 原文件被備份到 "原文件名+後綴" 的文件中 -->
 
 # apt/dpkg
 `Debian`系列發行版使用`deb`格式作爲軟件包的打包、分發格式；
-使用`apt`(依賴管理)和`dpkg`(包處理)進行管理。
+使用`apt`（依賴管理）和`dpkg`（包處理）進行管理。
 
 ## apt
 `apt`是Debian系列發行版的前端包管理工具，用於deb處理軟件包之間的依賴關係。
@@ -4251,7 +4283,7 @@ $TEST output <!-- 原文件被備份到 "原文件名+後綴" 的文件中 -->
 - 系統更新。
 - 查看指定軟件包的狀態。
 - 變更已安裝軟件包的狀態。
-- 安裝、卸載軟件包(通過dpkg)。
+- 安裝、卸載軟件包（通過dpkg）。
 
 apt的常用指令：
 
