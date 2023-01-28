@@ -13,13 +13,13 @@
 - [emerge 包管理器](#emerge-包管理器)
 	- [equery](#equery)
 	- [包組列表](#包組列表)
-	- [多版本包管理(slot機制)](#多版本包管理slot機制)
+	- [多版本包管理（slot機制）](#多版本包管理slot機制)
 	- [overlay](#overlay)
 - [其他配置](#其他配置)
-	- [關於 Kernel Modules](#關於-kernel-modules)
-	- [關於 flags](#關於-flags)
-	- [關於 Masked](#關於-masked)
-	- [關於 CONFIGURATION FILES](#關於-configuration-files)
+	- [內核模塊](#內核模塊)
+	- [軟件包flags](#軟件包flags)
+	- [軟件包Masked](#軟件包masked)
+	- [軟件包配置衝突](#軟件包配置衝突)
 	- [openRC](#openrc)
 	- [MySQL初始化](#mysql初始化)
 	- [修改主機名](#修改主機名)
@@ -371,7 +371,7 @@ world包組成員列表記錄在`/var/lib/portage/world`文件中，可自行更
 (即主動安裝的包不會被清理，除非主動移除)。
 使用`--oneshot`指令安裝的包不會被加入world列表中。
 
-## 多版本包管理(slot機制)
+## 多版本包管理（slot機制）
 對於Python，JDK等多版本共存軟件，使用select命令選取一個默認版本：
 
 ```
@@ -416,8 +416,8 @@ overlay倉庫類似於`Arch Linux`中的`AUR`倉庫，用來提供一些官方�
 # 其他配置
 不同於一般發行版，Gentoo有需要需要注意的特殊知識。
 
-## 關於 Kernel Modules
-內核模塊被安裝在`/lib/modules/``uname -r```目錄中。
+## 內核模塊
+內核模塊被安裝在`/lib/modules/$(uname -r)`目錄中。
 使用如下命令查看可用的內核模塊：
 
 ```
@@ -429,13 +429,13 @@ overlay倉庫類似於`Arch Linux`中的`AUR`倉庫，用來提供一些官方�
 配置文件中的內核模塊不能寫alisa名稱，而是要寫清模塊文件的名字。
 如果使用systemd作爲服務管理，則將需要開機啓動的模塊寫入`/etc/modprobe.d/`中的任意文件。
 
-## 關於 flags
+## 軟件包flags
 全局USE標記在`/etc/portage/make.conf`中。
 每個軟件單獨設定USE標記在`/etc/portage/package.use`裏。
 其他標記如`PYTHON_TARGETS`，`PYTHON_SINGLE_TARGET`等也可以加入`make.conf`(全局)，
 頁可寫入`package.use`(單個包有效)。
 
-## 關於 Masked
+## 軟件包Masked
 包被Masked的原因很多，因爲許可證被Masked，
 需要將接受的許可證級別的寫在`/etc/portage/package.license`中，
 部分軟件穩定性不達標會被Masked，若需要安裝，
@@ -444,7 +444,7 @@ overlay倉庫類似於`Arch Linux`中的`AUR`倉庫，用來提供一些官方�
 可在`/etc/portage/make.conf`中使用全局關鍵字`ACCEPT_KEYWORDS="~amd64"`，
 通常不推薦此選項，這會降低系統穩定性。
 
-## 關於 CONFIGURATION FILES
+## 軟件包配置衝突
 有時包更新帶來新的配置文件便會產生文件衝突，
 新加入的配置文件會以`.cfg00xx_[原配置文件名]`命名，
 查找此類衝突配置文件可使用指令：
@@ -459,12 +459,12 @@ overlay倉庫類似於`Arch Linux`中的`AUR`倉庫，用來提供一些官方�
 Gentoo默認使用`openRC`管理服務，常用指令：
 
 ```html
-# rc-update -a [服務名] default <!-- 添加一個服務(add) -->
-# rc-update -d [服務名] default <!-- 移除一個服務(delete) -->
+# rc-update -a 服務名稱 default <!-- 添加一個服務(add) -->
+# rc-update -d 服務名稱 default <!-- 移除一個服務(delete) -->
 # rc-update <!-- 列出服務樹(已設置自啓動的服務) -->
 # rc-update -v <!-- 列出服務樹(包括未設置自啓動的服務) -->
 # rc-status <!-- 查看用戶添加啓動的服務 -->
-# rc-status [運行級別] <!-- 查看某個運行級別中的服務 -->
+# rc-status 運行級別 <!-- 查看某個運行級別中的服務 -->
 # rc-status -s <!-- 顯示所有服務的狀態 -->
 ```
 
