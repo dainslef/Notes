@@ -1,6 +1,6 @@
 <!-- TOC -->
 
-- [macOS 層次結構](#macos-層次結構)
+- [現代 macOS 層次結構](#現代-macos-層次結構)
 - [常用功能](#常用功能)
 	- [常用快捷鍵](#常用快捷鍵)
 	- [常用命令行指令](#常用命令行指令)
@@ -71,15 +71,15 @@
 
 
 
-# macOS 層次結構
-`macOS`基於`Darwin`(對應`GNU/Linux`)，系統架構圖如下所示：
+# 現代 macOS 層次結構
+現代`macOS`（`Mac OS X`及後續版本）基於`Darwin`（對應`GNU/Linux`），系統架構圖如下所示：
 
 ![macOS Kernel Architecture](../../images/macos_kernel_architecture.gif)
 
-- `Darwin`包含內核`XNU`(對應`Linux Kernel`)以及shell環境(對應`GNU Tools`)。
-- `XNU`內核由微內核`Mach`和`BSD`層以及一些其它組件(主要爲驅動層`IoKit`)構成。
-- `Mach`微內核提供了基本的硬件抽象，提供了一套獨有的`Mach Trap`(`Mach`系統調用)。
-- `BSD`層提供了文件系統抽象以及`POSIX`調用。
+- `Darwin`包含內核`XNU`（對應`Linux Kernel`）以及shell環境（對應`GNU Tools`）。
+- `XNU`內核由微內核`Mach`和`BSD`層以及一些其它組件（主要爲驅動層`IoKit`）構成。
+- `Mach`微內核提供了基本的硬件抽象，提供了一套獨有的`Mach Trap`（Mach系統調用）。
+- `BSD`層提供了文件系統抽象以及POSIX調用。
 - `macOS`在文件佈局以及配置方式上與傳統的Linux發行版**有較大不同**。
 
 macOS系統架構可參考[Apple官方內核架構文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Architecture/Architecture.html)。
@@ -1007,28 +1007,36 @@ $ nano /Volumes/[啓動分區名稱]/System/Library/CoreServices/SystemVersion.p
 ## 重置 Launchpad
 `Launchpad`中數據保存在`~/Library/Application Support/Dock`路徑下，
 若Launchpad圖標出現異常(如已刪除軟件圖標依然存在)，可以嘗試清空其中的數據。
-刪除該目錄之後，`Launchpad`會在下次開機之後重置圖標佈局，
+刪除該目錄之後，Launchpad會在下次開機之後重置圖標佈局，
 恢復成默認的樣式(Apple自帶的軟件佔一頁，用戶自行安裝的軟件從第二頁開始)。
+
+現在macOS可通過Launchpad長按的方式清除異常圖標，
+多數場景下已無必要通過清除數據的方式來清理Launchpad中的異常圖標。
 
 ## 簽名 GDB
 新版的macOS系統中，`clang`作爲默認編譯器取代了`gcc`，`lldb`作爲默認編譯器取代了`gdb`。
-默認配置下，使用Homebrew安裝的`gdb`調試器**不能**在普通用戶下正常調試代碼，
+默認配置下，使用Homebrew安裝的gdb調試器**不能**在普通用戶下正常調試代碼，
 需要對其進行**簽名**後才能使其正常調試代碼。
 
 簽名步驟：
 
-1. 使用`KeyChain Access.app`創建一個證書(`certificate`)。
-1. 證書的`Certificate Type`要設爲`Code Signing`。
-1. 證書的`KeyChain`要設爲`System`，`Trust`列表中的`CodeSigning`屬性要設置爲`Always Trust`。
+1. 使用`KeyChain Access.app`創建一個證書
+(`KeyChain Access - Certificate Assistant - Create a Certificate`)
+1. 證書創建的引導頁面中Certificate Type要設爲`Code Signing`，
+需要勾選`Let me override defaults`
+1. `Validity Period`為證書的有效日期，默認為365（天），可按照需求修改更長時間
+1. 引導頁面最後的KeyChain選項要設爲`System`
+1. 證書創建完畢後，會列在`My Certificates`標籤中，
+右鍵選擇`Get Info`菜單，`Trust`列表中的`CodeSigning`屬性要設置爲`Always Trust`
 
-成功創建了證書之後，使用`codesign`命令對`gdb`進行簽名：
+成功創建了證書之後，使用`codesign`命令對gdb進行簽名：
 
 ```
-$ codesign -s [證書名稱] [gdb安裝路徑]
+$ codesign -s 創建的證書名稱 gdb安裝路徑
 ```
 
-證書需要在系統重啓之後纔會生效。
-需要注意的是，每次gdb包升級，都需要重新使用證書對其進行簽名，否則不能正常調試代碼。
+證書需要在系統重啓之後纔會生效；
+每次gdb包升級，都需要重新使用證書對其進行簽名，否則不能正常調試代碼。
 
 ## 安裝 mysql/mariadb
 通過Homebrew安裝的mysql/mariadb使用時不需要root權限。
@@ -1348,6 +1356,7 @@ Error: An exception occurred within a child process:
 ![Hide IP Address](../../images/mac_os_mail_hide_ip_address.png)
 
 ## macOS下Chrome的 NET::ERR_CERT_INVALID
+問題描述：<br>
 當站點證書過期或使用私有證書時，Chrome打開該網站會展示`Your connection is not private`頁面，
 並在頁面中提示錯誤代碼`NET::ERR_CERT_INVALID`頁面：
 
@@ -1358,5 +1367,6 @@ Error: An exception occurred within a child process:
 
 ![NET::ERR_CERT_INVALID Advanced](../../images/mac_os_chrome_your_connection_is_not_private_advanced.png)
 
+解決方案：<br>
 若需要強制訪問頁面，則應選中頁面，在頁面中任意位置輸入`thisisunsafe`，
 參考[StackOverflow](https://stackoverflow.com/questions/58802767/no-proceed-anyway-option-on-neterr-cert-invalid-in-chrome-on-macos)中的對應問題。
