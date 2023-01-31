@@ -15,6 +15,7 @@
 		- [here-string](#here-string)
 		- [process-substitution](#process-substitution)
 	- [標準輸入輸出](#標準輸入輸出)
+	- [交互快捷鍵](#交互快捷鍵)
 - [Shell 語法](#shell-語法)
 	- [Shebang (`#!`)](#shebang-)
 	- [變量](#變量)
@@ -507,6 +508,27 @@ ls: xxx: No such file or directory
 	$ cat error.txt # 錯誤信息被重定向到 error.txt 文件中
 	ls: xxx: No such file or directory
 	```
+
+## 交互快捷鍵
+bash/zsh/fish均支持下列快捷鍵：
+
+| 快捷鍵 | 說明 |
+| :- | :- |
+| ctrl + a | 跳轉到輸入內容的起始位置（功能等同Home鍵） |
+| ctrl + e | 跳轉到輸入內容的結束為止（功能等同End鍵） |
+| ctrl + p | 切換到前一條指令（功能等同方向鍵：上） |
+| ctrl + n | 切換到前一條指令（功能等同方向鍵：下） |
+| ctrl + h | 刪除當前行的一個字符（功能等同刪除鍵） |
+| crtl + w | 清除當前輸入的一段內容（至上一個空格） |
+| ctrl + u | 清除當前行的所有輸入內容 |
+
+fish中額外提供了一系列實用快捷鍵：
+
+| 快捷鍵 | 說明 |
+| :- | :- |
+| alt + w | 展示命令的實際內容（還原alias） |
+| alt + s | 使用sudo執行前一次指令的內容 |
+| alt + e | 快速打開默認編輯器 |
 
 
 
