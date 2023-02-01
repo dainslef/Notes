@@ -8,6 +8,7 @@
 	- [托盤圖標](#托盤圖標)
 	- [特殊目錄](#特殊目錄)
 	- [垃圾清理](#垃圾清理)
+	- [使用 Touch ID 代替命令行密碼驗證](#使用-touch-id-代替命令行密碼驗證)
 - [與常規PC的不同之處](#與常規pc的不同之處)
 	- [Darwin 與 GNU/Linux 的差異](#darwin-與-gnulinux-的差異)
 	- [NVRAM](#nvram)
@@ -198,6 +199,22 @@ $ brew install omnidisksweeper
 ```
 $ sudo /Applications/OmniDiskSweeper.app/Contents/MacOS/OmniDiskSweeper
 ```
+
+## 使用 Touch ID 代替命令行密碼驗證
+對於支持[`Touch ID`](https://support.apple.com/en-sg/guide/mac-help/mchl16fbf90a/mac)的機型，
+命令行工具可配置為使用Touch ID代替手動輸入密碼進行認證。
+
+該功能默認未開啟，手動開啟該功能，需要編輯`/etc/pam.d`路徑下命令行工具對應的配置；
+以`sudo`為例，需要編輯`/etc/pam.d/sudo`文件，添加下列內容：
+
+```
+# Touch ID
+auth sufficient pam_tid.so
+...
+```
+
+該文件中的每行均代表一種認證方式，
+添加的`pam_tid.so`(Touch ID)需要放在文件**行首**才會優先使用該認證方式。
 
 
 
