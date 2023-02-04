@@ -67,6 +67,7 @@
 	- [The folder ... can't be opened because you don't have permission to see its contents.](#the-folder--cant-be-opened-because-you-dont-have-permission-to-see-its-contents)
 	- [Your network preferences prevent content from loading privately](#your-network-preferences-prevent-content-from-loading-privately)
 	- [macOS下Chrome的 NET::ERR_CERT_INVALID](#macos下chrome的-neterr_cert_invalid)
+	- [macOS默認終端下Powerline字體色彩顯示異常](#macos默認終端下powerline字體色彩顯示異常)
 
 <!-- /TOC -->
 
@@ -1387,3 +1388,21 @@ Error: An exception occurred within a child process:
 解決方案：<br>
 若需要強制訪問頁面，則應選中頁面，在頁面中任意位置輸入`thisisunsafe`，
 參考[StackOverflow](https://stackoverflow.com/questions/58802767/no-proceed-anyway-option-on-neterr-cert-invalid-in-chrome-on-macos)中的對應問題。
+
+## macOS默認終端下Powerline字體色彩顯示異常
+問題描述：<br>
+Powerline字體在macOS的默認終端下色彩顯示異常，如下圖：
+
+![自帶終端下Powerline字體色彩錯誤](../../images/mac_os_powerline_font_color_error.png)
+
+解決方案：<br>
+macOS自帶終端顯示Powerline字體色彩問題暫無直接解決方案，
+可使用[iTerm2](https://iterm2.com/)作為替代，在iTerm2下Powerline字體可正常顯示：
+
+![iTerm2下Powerline字體色彩正常](../../images/mac_os_powerline_font_color_iterm2.png)
+
+若設置了背景色透明，則應開啟`Settings - Profiles - Window - Keep background colors opaque`選項：
+
+![iTerm2下Powerline字體設置](../../images/mac_os_powerline_font_color_iterm2_setting.png)
+
+詳情參見[Powerline官方文檔](https://powerline.readthedocs.io/en/master/troubleshooting/osx.html)。
