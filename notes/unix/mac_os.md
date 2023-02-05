@@ -1,6 +1,8 @@
 <!-- TOC -->
 
-- [現代 macOS 層次結構](#現代-macos-層次結構)
+- [macOS 與 Unix](#macos-與-unix)
+	- [A/UX](#aux)
+	- [現代macOS](#現代macos)
 - [常用功能](#常用功能)
 	- [常用快捷鍵](#常用快捷鍵)
 	- [常用命令行指令](#常用命令行指令)
@@ -73,15 +75,33 @@
 
 
 
-# 現代 macOS 層次結構
-現代`macOS`（`Mac OS X`及後續版本）基於`Darwin`（對應`GNU/Linux`），系統架構圖如下所示：
+# macOS 與 Unix
+[Classic Mac OS（Mac OS 9及之前版本）](https://en.wikipedia.org/wiki/Classic_Mac_OS)
+是早期Mac電腦使用的操作系統。
+Classic Mac OS設計簡陋（原始的內存管理機制，缺少內存保護、權限控制、多任務），
+缺少大量現代OS的特性，因此Apple曾多次嘗試將Mac OS與將功能強大的Unix進行整合。
+
+## A/UX
+[`A/UX`](https://en.wikipedia.org/wiki/A/UX)是Apple首次正式發布的Unix系統。
+A/UX基於Unix System V，並引入了部分BSD的特性。
+
+A/UX提供了與Classic Mac OS相同的UI（Classic Mac OS 6、7），
+通過程序兼容層，可執行Classic Mac OS程序；
+A/UX亦支持Unix API以及**混合應用**（同時使用Macintosh Toolbox函數和Unix系統調用）。
+
+A/UX僅能運行在Motorola 68K系列處理器上，後續Apple轉向了PowerPC架構，
+A/UX並未遷移到新架構上，而是隨之停止開發。
+
+## 現代macOS
+Apple當前使用的macOS同樣基於Unix，從NeXTSTEP發展而來。
+現代macOS（`Mac OS X`及後續版本）基於`Darwin`（對應`GNU/Linux`），系統架構圖如下所示：
 
 ![macOS Kernel Architecture](../../images/macos_kernel_architecture.gif)
 
-- `Darwin`包含內核`XNU`（對應`Linux Kernel`）以及shell環境（對應`GNU Tools`）。
-- `XNU`內核由微內核`Mach`和`BSD`層以及一些其它組件（主要爲驅動層`IoKit`）構成。
-- `Mach`微內核提供了基本的硬件抽象，提供了一套獨有的`Mach Trap`（Mach系統調用）。
-- `BSD`層提供了文件系統抽象以及POSIX調用。
+- `Darwin`包含內核`XNU`（對應`Linux Kernel`）以及Shell環境（對應`GNU Tools`）。
+- `XNU`內核由微內核`Mach`和`BSD`層以及一些其它組件（主要爲驅動層IoKit）構成。
+	- `Mach`微內核提供了基本的硬件抽象，提供了一套獨有的`Mach Trap`（Mach系統調用）。
+	- `BSD`層提供了文件系統抽象以及POSIX調用。
 - `macOS`在文件佈局以及配置方式上與傳統的Linux發行版**有較大不同**。
 
 macOS系統架構可參考[Apple官方內核架構文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Architecture/Architecture.html)。
