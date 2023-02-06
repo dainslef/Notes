@@ -142,10 +142,10 @@ Scala是基於`JVM`的編程語言，配置Scala開發環境前需要正確安�
 
 	使用發行版自帶的包管理器安裝Scala：
 
-	```
-	# apt install scala // Debian系
-	# pacman -S scala // Arch系
-	$ brew install scala // macOS
+	```html
+	# apt install scala <!-- Debian系 -->
+	# pacman -S scala <!-- Arch系 -->
+	$ brew install scala <!-- macOS -->
 	```
 
 - **Windows**系統：
@@ -188,8 +188,8 @@ $ scalac *.scala
 $ scala 主類類名
 ```
 
-對於使用了`包(package)`的源碼，在用`scalac`指令進行編譯時，編譯器會自動根據包路徑創建對應的目錄，
-然後在對應的包路徑下生成對應的class文件。
+對於使用了`包(package)`的源碼，在用`scalac`指令進行編譯時，
+編譯器會自動根據包路徑創建對應的目錄，然後在對應的包路徑下生成對應的class文件。
 
 運行帶有包路徑的字節碼需要在包路徑的相對根目錄下，執行：
 
@@ -222,7 +222,8 @@ $ javap [類名]
 $ javap -c [類名]
 ```
 
-默認情況下，通過反編譯得到的Scala以及Java代碼只能看到公有方法的聲明，方法實現以及私有、保護成員均**不可見**。
+默認情況下，通過反編譯得到的Scala以及Java代碼只能看到公有方法的聲明，
+方法實現以及私有、保護成員均**不可見**。
 查看所有成員需要添加`-p/-private`參數：
 
 ```
@@ -494,7 +495,8 @@ object Main extends App {
 	```
 
 ## 變長參數
-Scala中方法支持變長參數，一個方法中**最後**的參數可以設置為變長參數，變長參數的類型上添加`*`號作為標記，示例：
+Scala中方法支持變長參數，一個方法中**最後**的參數可以設置為變長參數，
+變長參數的類型上添加`*`號作為標記，示例：
 
 ```scala
 scala> def showNums(nums: Int*) = nums foreach println
@@ -1282,7 +1284,8 @@ class ExtendConstructor(a: Int = 2, c: Double = 4.0) extends Constructor(a, c) {
 	new Empty //空參方法括號可省略
 	```
 
-	與主流的OOP語言不同，一個使用默認生成的空參構造函數的作爲主構造器的類即使定義了其它構造器，默認生成的主構造器**依然存在**。
+	與主流的OOP語言不同，一個使用默認生成的空參構造函數的作爲主構造器的類，
+	即使定義了其它構造器，默認生成的主構造器**依然存在**。
 	示例：
 
 	```scala
@@ -1351,9 +1354,12 @@ class Clone extends Cloneable {
 }
 ```
 
-與Java中類似，如果需要實現**深複製**，則需要對類成員中的`AnyRef`及其子類調用`clone()`進行復制。
-對於`AnyVal`子類如`Int`、`Double`等類型，沒有提供重載的`clone()`方法，但這些類型默認即爲值複製，無需額外的操作。
-Java中的特例`java.lang.String`在Scala中同樣有效，對於`String`類型，在重寫`clone()`時也可當作基本類型對待。
+與Java中類似，如果需要實現**深複製**，
+則需要對類成員中的`AnyRef`及其子類調用`clone()`進行復制。
+對於`AnyVal`子類如`Int`、`Double`等類型，
+沒有提供重載的`clone()`方法，但這些類型默認即爲值複製，無需額外的操作。
+Java中的特例`java.lang.String`在Scala中同樣有效，
+對於`String`類型，在重寫`clone()`時也可當作基本類型對待。
 
 在Scala中，還可以直接繼承`scala.collection.mutable.Cloneable[T]`特質：
 
@@ -1649,7 +1655,8 @@ trait TraitC extends TraitB {
 }
 
 class TestExtend extends BaseA with TraitA with TraitC {
-  // 使用父類的實現時不需要顯式指定到底是哪一個，編譯器會自動按照線性化順序選擇最後的實現，即TraitC中的實現，即返回111
+  // 使用父類的實現時不需要顯式指定到底是哪一個，
+  // 編譯器會自動按照線性化順序選擇最後的實現，即TraitC中的實現，即返回111
   override def get = super.get
 }
 ```
@@ -1725,8 +1732,11 @@ object Main extends App {
 }
 ```
 
-混入兩個重寫了同一個抽象方法/字段的特質時，若未使用`override`關鍵字，則混入時編譯出錯，需要顯式重寫衝突內容。
-若特質使用了`override`關鍵字進行重寫，則混入時依據線性化順序決定最終的實現(保留最後混入的實現)。
+混入兩個重寫了同一個抽象方法/字段的特質時，
+若未使用`override`關鍵字，則混入時編譯出錯，需要顯式重寫衝突內容。
+若特質使用了`override`關鍵字進行重寫，
+則混入時依據線性化順序決定最終的實現(保留最後混入的實現)。
+
 示例：
 
 ```scala
@@ -1750,6 +1760,7 @@ object Main extends App {
 
 混入多個存在衝突內容的特質時，不需要所有的特質都使用`override`關鍵字進行重寫，
 僅需要最後一個混入的特質使用`override`重寫衝突內容。
+
 示例：
 
 ```scala
@@ -1766,13 +1777,15 @@ trait NameB extends Name {
 }
 
 object Main extends App {
-  (new NameA extends NameB).name //返回 "B"
-  (new NameB extends NameA).name //編譯出錯
+  (new NameA extends NameB).name // 返回 "B"
+  (new NameB extends NameA).name // 編譯出錯
 }
 ```
 
 ## 線性化與類型關係
-在混入帶有衝突內容的特質時，衝突內容的類型不能爲完全無關的類型，示例：
+在混入帶有衝突內容的特質時，衝突內容的類型不能爲完全無關的類型。
+
+示例：
 
 ```scala
 scala> class A
@@ -1794,8 +1807,10 @@ scala> trait TestMixin extends TraitA with TraitB
              ^
 ```
 
-混入同名字段時，同名字段的類型可以不完全相同，但需要滿足繼承關係，同時子類位於線性化順序的**最右端**，
-即滿足`最右端類型 <: 同名字段類型鏈中最具體的類型`，示例：
+混入同名字段時，同名字段的類型可以不完全相同，但需要滿足繼承關係，
+同時子類位於線性化順序的**最右端**，即滿足`最右端類型 <: 同名字段類型鏈中最具體的類型`。
+
+示例：
 
 ```scala
 scala> class Base
@@ -1834,8 +1849,10 @@ defined trait TestMixin // 同名字段的混入類型鏈爲 Child => Base => Ch
 ```
 
 ## 線性化與泛型
-當混入特質帶有同名字段類型爲泛型參數時，只要泛型參數滿足繼承類型約束，並保證子類位於線性化順序的最右端，
-同樣可以正常進行類型定義，示例：
+當混入特質帶有同名字段類型爲泛型參數時，只要泛型參數滿足繼承類型約束，
+並保證子類位於線性化順序的最右端，同樣可以正常進行類型定義。
+
+示例：
 
 ```scala
 scala> trait Test
@@ -2042,7 +2059,8 @@ object Main extends App {
 ## 值類型
 基礎類型如`Int`、`Float`、`Double`、`Unit`等全部從`AnyVal`類中派生。
 可以直接在泛型中直接使用這些類作爲類型參數。
-同時，Scala中提供了`隱式轉換(ImplicitConversion)`來保證`Int`、`Float`、`Double`等類型之間可以**自動進行轉換**。
+同時，Scala中提供了`隱式轉換(ImplicitConversion)`，
+使`Int`、`Float`、`Double`等類型之間可以**自動進行轉換**。
 
 所有的基礎類型之外的引用類型派生自類`AnyRef`。
 
@@ -2155,8 +2173,8 @@ scala> Option(null) foreach println  //無值時無輸出
 ```
 
 `map()`高階函數用於將目標值映射到新的`Option`中。
-`fold()`高階函數用於使用目標值執行表達式並輸出返回結果，在目標值不存在時使用提供的值做爲返回結果，
-提供的值需要與表達式返回結果類型相同。
+`fold()`高階函數用於使用目標值執行表達式並輸出返回結果，
+在目標值不存在時使用提供的值做爲返回結果，提供的值需要與表達式返回結果類型相同。
 示例：
 
 ```scala
@@ -2193,8 +2211,10 @@ No Value
 ```
 
 ## Dynamic
-Scala 2.9提供了`scala.Dynamic`特質，該特質為類型提供類似動態語言的動態成員訪問能力，
-開發者可以訪問Dynamic類型中未靜態定義的字段/方法，而對該字段、方法的訪問會被轉發到`*Dynamic()`相關方法中；
+Scala 2.9提供了`scala.Dynamic`特質，
+該特質為類型提供類似動態語言的動態成員訪問能力，
+開發者可以訪問Dynamic類型中未靜態定義的字段/方法，
+而對該字段、方法的訪問會被轉發到`*Dynamic()`相關方法中；
 正確實現`*Dynamic()`相關方法即可提供對該類型任意不存在字段/方法的訪問邏輯，
 轉換規則如下：
 
@@ -2283,12 +2303,12 @@ Scala的**模式匹配**提供了諸多強大的特性，主要功能如下：
 }
 ```
 
-Scala中的`match`語句具有返回值，可爲變量賦值。
-Scala中沒有`break`關鍵字，`match`語句中的`case`條件不會被穿越。
-某些需要穿越`case`條件的情形，應使用`|`操作符連接多個條件。
+Scala中的match語句具有返回值，可爲變量賦值。
+Scala中沒有`break`關鍵字，match語句中的case條件不會被穿越。
+某些需要穿越case條件的情形，應使用`|`操作符連接多個條件。
 
-每個`case`條件語句可以使用`@`操作符綁定一個變量名。
-每個`case`條件之後可以添加**守衛**(`if 條件語句...`)，用於添加額外的匹配條件。
+每個case條件語句可以使用`@`操作符綁定一個變量名。
+每個case條件之後可以添加**守衛**(`if 條件語句...`)，用於添加額外的匹配條件。
 
 示例：
 
@@ -2390,7 +2410,8 @@ Other language: Java
 No match!
 ```
 
-當模式匹配匹配泛型類型時，由於`JVM`採用`Type Erasure`的方式實現泛型，因而泛型類型的泛型參數無法準確匹配，示例：
+當模式匹配匹配泛型類型時，由於JVM採用`Type Erasure`的方式實現泛型，
+因而泛型類型的泛型參數無法準確匹配，示例：
 
 ```scala
 object Main extends App {
@@ -2412,7 +2433,8 @@ object Main extends App {
 Match type: List[String]
 ```
 
-由輸出結果可知，模式匹配並未正確匹配類型的泛型參數。對於此類情況，Scala編譯器在編譯時會對代碼做出警告。
+由輸出結果可知，模式匹配並未正確匹配類型的泛型參數；
+對於此類情況，Scala編譯器在編譯時會對代碼做出警告。
 
 ## 解構
 **模式匹配**可用於解構任意定義了`unapply()`方法的類型。
@@ -2435,12 +2457,13 @@ scala> destruct (1, 2)
 Match tuple: 1, 2
 
 scala> destruct (1, 2, 3)
-scala.MatchError: (1,2,3) (of class scala.Tuple3) //元組數目不匹配，出錯
+scala.MatchError: (1,2,3) (of class scala.Tuple3) // 元組數目不匹配，出錯
   at .destruct(<console>:14)
   ... 27 elided
 ```
 
-亦可使用`Case Class`(樣例類)特性定義爲模式匹配優化的類，樣例類會自動生成用於解構的`unapply()`方法。<br>
+亦可使用`Case Class`(樣例類)特性定義爲模式匹配優化的類，
+樣例類會自動生成用於解構的`unapply()`方法。<br>
 解構樣例類：
 
 ```scala
@@ -2464,12 +2487,13 @@ scala> destruct(Manager("Dainslef", 2333))
 Manager name: Dainslef, right: 2333
 ```
 
-解構類型時，亦可使用**值匹配**(多個候選值同樣使用`|`操作符連接)，還可使用`@`操作符指代匹配表達式/子表達式，示例：
+解構類型時，亦可使用**值匹配**(多個候選值同樣使用`|`操作符連接)，
+還可使用`@`操作符指代匹配表達式/子表達式，示例：
 
 ```scala
 scala> def destruct(obj: Any) = obj match {
-     |   case m@Manager("A" | "B", _) => m.toString //解構表達式中匹配多個值，使用 @ 指代整個匹配表達式
-     |   case User(_, age@(10 | 20 | 30)) => s"Age: $age" //使用 @ 指代局部匹配表達式
+     |   case m@Manager("A" | "B", _) => m.toString // 解構表達式中匹配多個值，使用 @ 指代整個匹配表達式
+     |   case User(_, age@(10 | 20 | 30)) => s"Age: $age" // 使用 @ 指代局部匹配表達式
      | }
 destruct: (obj: Any)String
 ```
@@ -2505,7 +2529,8 @@ Name2 -> 2
 ## unapply() 與 unapplySeq()
 **提取器**用於解構對象，通過實現`unapply()`方法定義解構行爲。
 
-- `unapply()`方法則與`apply()`方法相反，可以從對象中提取出需要的數據(在實際使用過程中，可以從任意的目標裏提取數據)。
+- `unapply()`方法則與`apply()`方法相反，可以從對象中提取出需要的數據
+(在實際使用過程中，可以從任意的目標裏提取數據)。
 - `unapply()`方法返回值必須爲`Option`及其子類，單一返回值使用`Option[T]`，
 多個返回值可以包含在元組中`Option[(T1, T2, T3, ...)]`。
 - `unapply()`方法雖然也可以定義在類中，但一般定義在**伴生對象**中(在類中定義沒有合適的語法使用)。
@@ -2566,7 +2591,8 @@ object TestUnapply extends App {
 }
 
 object Unapply {
-  def unapplySeq(str: String) = Option(str split "\\.") //split()方法接收的是正則表達式，小數點、加減乘除之類的符號需要轉義
+  // split()方法接收的是正則表達式，小數點、加減乘除之類的符號需要轉義
+  def unapplySeq(str: String) = Option(str split "\\.")
 }
 ```
 
@@ -2613,12 +2639,12 @@ instance.update(arg1, arg2, arg3, ..., value)
 object Main extends App {
   var a = new Apply(0, 0)
   val show = () => println(a.num1 + " " + a.num2)
-  a(1) //相當於調用 a.apply(1)
-  show() //輸出 1 2
-  a(100, 200) = Apply(10, 20) //相當於調用 a.update(100, 200, new Apply(10, 20))
-  show() //輸出 90 180
+  a(1) // 相當於調用 a.apply(1)
+  show() // 輸出 1 2
+  a(100, 200) = Apply(10, 20) // 相當於調用 a.update(100, 200, new Apply(10, 20))
+  show() // 輸出 90 180
   Apply(1000, 2000) = a
-  show() //輸出 1000 2000
+  show() // 輸出 1000 2000
 }
 
 class Apply(var num1: Int, var num2: Int) {
@@ -2651,16 +2677,17 @@ object Apply {
 ```
 
 ## 無參 apply 方法
-`apply()`方法對應的無參數形式`apply`方法在通常情形下並不生效，字段、類會被優先解析爲本身的含義(值、類型)，示例：
+`apply()`方法對應的無參數形式`apply`方法在通常情形下並不生效，
+字段、類會被優先解析爲本身的含義(值、類型)，示例：
 
 ```scala
 scala> object Test { def apply { println("Print test") } }
 defined object Test
 
-scala> Test //直接使用單例對象名稱被解析爲單例對應類型
+scala> Test // 直接使用單例對象名稱被解析爲單例對應類型
 res1: Test.type = Test$@3a5b7d7e
 
-scala> Test.apply //顯式調用 apply 方法
+scala> Test.apply // 顯式調用 apply 方法
 Print test
 
 scala> class Test { def apply { println("Print test") } }
@@ -2668,10 +2695,10 @@ scala> class Test { def apply { println("Print test") } }
 scala> val t = new Test
 t: Test = Test@4c5379f5
 
-scala> t //直接使用字段名稱被解析爲字段自身
+scala> t // 直接使用字段名稱被解析爲字段自身
 res8: Test = Test@4c5379f5
 
-scala> t.apply //顯式調用 apply 方法
+scala> t.apply // 顯式調用 apply 方法
 Print test
 ```
 
@@ -2680,7 +2707,7 @@ Print test
 ```scala
 scala> object Test { def apply[T] { println("Print test") } }
 
-scala> Test[Any] //帶有泛型參數，省略 apply 方法，正常執行調用
+scala> Test[Any] // 帶有泛型參數，省略 apply 方法，正常執行調用
 Print test
 
 scala> class Test { def apply[T] { println("Print test") } }
@@ -2688,7 +2715,7 @@ scala> class Test { def apply[T] { println("Print test") } }
 scala> val t = new Test
 t: Test = Test@6f88319b
 
-scala> t[Any] //字段名稱帶有泛型參數，亦被解析爲無參泛型 apply 調用
+scala> t[Any] // 字段名稱帶有泛型參數，亦被解析爲無參泛型 apply 調用
 Print test
 ```
 
@@ -3341,7 +3368,8 @@ import java.lang.Math.abs // 導入Math類中的靜態方法abs
 ```
 
 在Scala中，包引入了名稱相同的類不會發生衝突，而是後引入的類**覆蓋**之前引入的類。
-在Scala中，`import`語句可以出現在**任意位置**，不必總是放在文件的頂部，`import`語句的作用域直到該語句塊結束。
+在Scala中，`import`語句可以出現在**任意位置**，
+不必總是放在文件的頂部，`import`語句的作用域直到該語句塊結束。
 
 ### 默認導入
 默認情況下，Scala會導入以下幾個包路徑：
@@ -3486,7 +3514,8 @@ object TestTuple extends App {
 1 2 3
 ```
 
-當一個方法的參數表中僅包含**單個元組**時，調用方法時可省略元組外部括號，在**柯里化**情形下同樣有效，示例：
+當一個方法的參數表中僅包含**單個元組**時，調用方法時可省略元組外部括號，
+在**柯里化**情形下同樣有效，示例：
 
 ```scala
 def add(n1: (Int, Int, Int))(n2: (Int, Int)) = n1._1 + n1._2 + n1._3 + n2._1 + n2._2
@@ -3548,8 +3577,8 @@ scala> val list0 = List(1, 2, 3)
 list0: List[Int] = List(1, 2, 3)
 ```
 
-除了直接使用`List`單例提供的`apply()`方法構建列表對象之外，還可以使用`::`操作符來將多個值構成列表。
-`::`操作符爲**右結合性**運算符。
+除了直接使用`List`單例提供的`apply()`方法構建列表對象之外，
+還可以使用`::`操作符來將多個值構成列表。`::`操作符爲**右結合性**運算符。
 使用`::`操作符構成列表時，列表的最後一個值必須爲`Nil`，示例：
 
 ```scala
@@ -3605,7 +3634,8 @@ res0: Int = 1
 ```
 
 ## ArrayBuffer (變長數組)
-在Scala中，變長數組使用`ArrayBuffer[T]`，完整路徑`scala.collection.mutable.ArrayBuffer`，繼承於`Seq`。
+在Scala中，變長數組使用`ArrayBuffer[T]`，
+完整路徑`scala.collection.mutable.ArrayBuffer`，繼承於`Seq`。
 Scala中的`ArrayBuffer`相當於Java中的`ArrayList`，可存儲任意數量的元素。
 創建`ArrayBuffer`：
 
@@ -3665,7 +3695,8 @@ scala> arrayBuffer
 res21: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(10, 100) // 刪除了索引1到4位之間的元素
 ```
 
-需要注意的是，`ArrayBuffer`是**線性結構**，只有在尾部進行插入刪除操作纔是高效的，在其它位置進行的元素操作都會造成大量的元素移動。
+需要注意的是，`ArrayBuffer`是**線性結構**，
+只有在尾部進行插入刪除操作纔是高效的，在其它位置進行的元素操作都會造成大量的元素移動。
 `ArrayBuffer`的不可變版本對應爲`scala.collection.immutable.Vector`。
 
 ## Set (集合)
