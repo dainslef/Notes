@@ -63,6 +63,7 @@
 - [systemd](#systemd)
 	- [systemd服務管理](#systemd服務管理)
 	- [rc.local](#rclocal)
+	- [systemd服務後綴](#systemd服務後綴)
 	- [systemd服務分析](#systemd服務分析)
 	- [編寫systemd服務](#編寫systemd服務)
 	- [其它systemd系統管理工具](#其它systemd系統管理工具)
@@ -2419,6 +2420,95 @@ GuessMainPID=no
 ```
 
 Ubuntu/Debian提供了`rc-local`服務，功能與之前類似，開啟該服務自啟動即可。
+
+## systemd服務後綴
+systemd中的服務可帶有一些特殊後綴，參考[systemd.service官方文檔](https://www.freedesktop.org/software/systemd/man/systemd.service.html)中的`Table 1. Special executable prefixes`。
+
+| 前綴 | 說明 |
+| :- | :- |
+| `@` | 服務執行路徑前綴`@`字符，則完整服務名稱@字符之後的內容（`xxx@?.service`中的`?`）會作為`argv[0]`傳遞給執行進程 |
+| `_` | 服務指令路徑前綴`_`字符，則指令的非零退出代碼、由於信號的退出會被視為失敗而記錄，但不會有其它額外效果（等同於執行成功） |
+| `:` | 服務執行路徑前綴`:`字符，則服務指令內容中的環境變量替換不生效 |
+| `+` | 服務執行路徑前綴`+`字符，則服務指令以完全權限執行，在此模式下，權限限制類配置（如`User=, Group=`等）、各類文件命名空間配置（如`PrivateDevices=, PrivateTmp=`等）不會應用到命令行，但依舊影響其它`ExecStart=, ExecStop=, …`行 |
+| `!` | 類似`+`字符，服務指令以高權限執行，但僅僅影響用戶/組相關參數（`User=, Group=, SupplementaryGroups=`），該功能可與`DynamicUser=`組合使用，此時在指令執行前分配動態用戶/組 |
+| `!!` | 與`!`類似，但僅對不支持ambient process capabilities（環境進程功能）的系統（不支持AmbientCapabilities=）產生影響。 |
+
+部分帶有特殊字符的服務示例：
+
+- `user@.service`，@之後可添加UID，顯示不同用戶的狀態。
+
+	```html
+	<!-- 用戶帳號 -->
+	$ systemctl status user@1001.service
+	● user@1001.service - User Manager for UID 1001
+	     Loaded: loaded (/lib/systemd/system/user@.service; static; vendor preset: enabled)
+	    Drop-In: /usr/lib/systemd/system/user@.service.d
+	             └─timeout.conf
+	     Active: active (running) since Wed 2021-05-19 15:43:12 UTC; 1h 0min ago
+	       Docs: man:user@.service(5)
+	   Main PID: 1463 (systemd)
+	     Status: "Startup finished in 287ms."
+	      Tasks: 2
+	     Memory: 3.5M
+	     CGroup: /user.slice/user-1001.slice/user@1001.service
+	             └─init.scope
+	               ├─1463 /lib/systemd/systemd --user
+	               └─1465 (sd-pam)
+
+	May 19 15:43:12 oracle-cloud systemd[1463]: Listening on GnuPG cryptographic agent (ssh-agent emulation).
+	May 19 15:43:12 oracle-cloud systemd[1463]: Listening on GnuPG cryptographic agent and passphrase cache.
+	May 19 15:43:12 oracle-cloud systemd[1463]: Listening on debconf communication socket.
+	May 19 15:43:12 oracle-cloud systemd[1463]: Listening on REST API socket for snapd user session agent.
+	May 19 15:43:12 oracle-cloud systemd[1463]: Listening on D-Bus User Message Bus Socket.
+	May 19 15:43:12 oracle-cloud systemd[1463]: Reached target Sockets.
+	May 19 15:43:12 oracle-cloud systemd[1463]: Reached target Basic System.
+	May 19 15:43:12 oracle-cloud systemd[1463]: Reached target Main User Target.
+	May 19 15:43:12 oracle-cloud systemd[1463]: Startup finished in 287ms.
+	May 19 15:43:12 oracle-cloud systemd[1]: Started User Manager for UID 1001.
+
+	<!-- root帳號 -->
+	$ systemctl status user@0.service
+	● user@0.service - User Manager for UID 0
+	     Loaded: loaded (/lib/systemd/system/user@.service; static; vendor preset: enabled)
+	    Drop-In: /usr/lib/systemd/system/user@.service.d
+	             └─timeout.conf
+	     Active: inactive (dead)
+	       Docs: man:user@.service(5)
+	```
+
+- `syncthing@.service`，@之後可添加用戶名，不同用戶可擁有不同服務狀態。
+
+	```html
+	<!-- 顯示root用戶的服務狀態 -->
+	$ systemctl status syncthing@root.service
+	● syncthing@root.service - Syncthing - Open Source Continuous File Synchronization for root
+	     Loaded: loaded (/lib/systemd/system/syncthing@.service; disabled; vendor preset: enabled)
+	     Active: inactive (dead)
+	       Docs: man:syncthing(1)
+
+	<!-- 顯示ubuntu用戶的服務狀態 -->
+	$ systemctl status syncthing@ubuntu.service
+	● syncthing@ubuntu.service - Syncthing - Open Source Continuous File Synchronization for ubuntu
+	     Loaded: loaded (/lib/systemd/system/syncthing@.service; enabled; vendor preset: enabled)
+	     Active: active (running) since Wed 2021-05-19 16:37:00 UTC; 4min 7s ago
+	       Docs: man:syncthing(1)
+	   Main PID: 2720 (syncthing)
+	      Tasks: 12 (limit: 1107)
+	     Memory: 61.0M
+	     CGroup: /system.slice/system-syncthing.slice/syncthing@ubuntu.service
+	             └─2720 /usr/bin/syncthing -no-browser -no-restart -logflags=0
+
+	May 19 16:37:03 oracle-cloud syncthing[2720]: [5LDX2] INFO: TCP listener ([::]:22000) starting
+	May 19 16:37:03 oracle-cloud syncthing[2720]: [5LDX2] INFO: Relay listener (dynamic+https://relays.syncthing.net/endpoi>
+	May 19 16:37:03 oracle-cloud syncthing[2720]: [5LDX2] INFO: Completed initial scan of sendreceive folder "Default Folde>
+	May 19 16:37:03 oracle-cloud syncthing[2720]: [5LDX2] INFO: Loading HTTPS certificate: open /home/ubuntu/.config/syncth>
+	May 19 16:37:03 oracle-cloud syncthing[2720]: [5LDX2] INFO: Creating new HTTPS certificate
+	May 19 16:37:03 oracle-cloud syncthing[2720]: [5LDX2] INFO: GUI and API listening on 127.0.0.1:8384
+	May 19 16:37:03 oracle-cloud syncthing[2720]: [5LDX2] INFO: Access the GUI via the following URL: http://127.0.0.1:8384/
+	May 19 16:37:03 oracle-cloud syncthing[2720]: [5LDX2] INFO: My name is "oracle-cloud"
+	May 19 16:37:13 oracle-cloud syncthing[2720]: [5LDX2] INFO: Detected 0 NAT services
+	May 19 16:37:44 oracle-cloud syncthing[2720]: [5LDX2] INFO: Joined relay relay://144.217.112.143:443
+	```
 
 ## systemd服務分析
 systemd提供了一系列工具用於查看查看、分析各類服務狀態。
