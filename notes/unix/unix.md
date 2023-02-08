@@ -86,6 +86,8 @@
 		- [Ncat](#ncat)
 	- [iptables/nftables (netfilter)](#iptablesnftables-netfilter)
 		- [iptables基本操作](#iptables基本操作)
+- [Keepalived](#keepalived)
+	- [vrrp_instance](#vrrp_instance)
 - [性能監控與測試](#性能監控與測試)
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
@@ -3343,6 +3345,56 @@ SNAT       all  --  10.8.0.0/24          anywhere             to:192.168.110.181
 
 
 
+# Keepalived
+[Keepalived](https://www.keepalived.org)在Linux系統上提供浮動IP、高可用等特性。
+詳細特性參見[官方文檔](https://www.keepalived.org/manpage.html)。
+
+## vrrp_instance
+`vrrp_instance`是Keepalived的核心功能，
+基於[VRRP](https://en.wikipedia.org/wiki/Virtual_Router_Redundancy_Protocol)協議提供浮動IP。
+
+```sh
+vrrp_instance VI {
+	state MASTER # or BACKUP，設置默認的主備狀態
+	interface 網卡設備
+	priority 100 # 優先級
+	advert_int 1 # 檢測間隔（秒）
+	virtual_router_id 51 # 虛擬路由ID，用於區分不同VRRP實例，相同浮動IP的成員應使用相同ID
+	authentication {
+		auth_type PASS
+		auth_pass xxxx
+	}
+	virtual_ipaddress {
+		X.X.X.X/X
+		X.X.X.X/X dev 網卡設備 # 將虛擬IP綁定到指定網卡設備
+	}
+}
+```
+
+vrrp_instance關鍵字後的實例名稱在不同節點的配置中可以不同，
+vrrp_instance通過virtual_router_id來區別是否屬於同一浮動IP的主機組。
+配置浮動IP後，選舉MASTER的節點配置中指定的網卡設備上會分配Secondary IP Address：
+
+```html
+$ ip addr
+...
+3: eno1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq portid 3868dd6980f8 state UP group default qlen 1000
+    link/ether 38:68:dd:69:80:f8 brd ff:ff:ff:ff:ff:ff
+    inet 10.10.10.252/24 brd 10.10.10.255 scope global eno1
+       valid_lft forever preferred_lft forever
+    inet 10.10.10.254/24 scope global secondary eno1 <!-- Secondary IP -->
+       valid_lft forever preferred_lft forever
+    inet6 fe80::3a68:ddff:fe69:80f8/64 scope link
+       valid_lft forever preferred_lft forever
+...
+```
+
+當MASTER節點Down機，則浮動IP會根據優先級自動切換到相同virtual_router_id的其它設備中。
+使用浮動IP則處理UDP協議時需要注意，服務綁定地址需要為浮動地址，否則，UDP連接的回應包無法送達；
+通常默認綁定的地址為網卡的首地址而非Secondary IP，因此使用浮動IP時UDP服務需要顯式指定綁定IP。
+
+
+
 # 性能監控與測試
 Linux下存在大量的性能監控工具，包括`procps`、`sysstat`等工具套件，以及用於網絡性能監控的`iftop`工具等。
 
@@ -4412,8 +4464,11 @@ apt的常用指令：
 # apt-get autoremove
 # apt-get autoremove --purge
 
-<!-- 查看/搜索指定包 -->
-# apt-cache show/search	軟件包名稱
+<!-- 查看指定軟件包詳情 -->
+$ apt-cache show 軟件包名稱
+<!-- 搜索軟件包 -->
+$ apt-cache search 軟件包名稱 <!-- 模糊查找（包括相關信息） -->
+$ apt-cache list '*軟件包關鍵字*' <!-- 精確匹配軟件包名關鍵字查找 -->
 <!-- 查看包的依賴 -->
 $ apt-cache depends 軟件包名稱
 <!-- 計算包的反向依賴(被引用數)，輸出結果中有豎橫線｜標誌的為本地已安裝的依賴項 -->
@@ -4436,7 +4491,7 @@ $ apt-mask showauto/showmanaul
 # apt upgrade/full-upgrade
 
 <!-- apt-cache 相關 -->
-$ apt show/search 軟件包名稱
+$ apt show/search/list 軟件包名稱
 # apt rdepends 軟件包名稱
 ```
 
