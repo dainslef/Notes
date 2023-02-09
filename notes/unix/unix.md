@@ -88,6 +88,8 @@
 		- [iptables基本操作](#iptables基本操作)
 - [Keepalived](#keepalived)
 	- [vrrp_instance](#vrrp_instance)
+	- [vrrp_sync_group](#vrrp_sync_group)
+	- [Keepalived完整示例](#keepalived完整示例)
 - [性能監控與測試](#性能監控與測試)
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
@@ -3392,6 +3394,113 @@ $ ip addr
 當MASTER節點Down機，則浮動IP會根據優先級自動切換到相同virtual_router_id的其它設備中。
 使用浮動IP則處理UDP協議時需要注意，服務綁定地址需要為浮動地址，否則，UDP連接的回應包無法送達；
 通常默認綁定的地址為網卡的首地址而非Secondary IP，因此使用浮動IP時UDP服務需要顯式指定綁定IP。
+
+## vrrp_sync_group
+`vrrp_sync_group`提供了將多個實例編組同步切換的功能，
+當同步組內部的任意一個實例發生主備狀態切換，整個組內的其它實例也會同步切換。
+
+早期官方文檔提供的[vrrp_sync_group示例](https://keepalived.readthedocs.io/en/latest/case_study_failover.html#architecture-specification)存在錯誤，
+參考[GitHub issue](https://github.com/voxpupuli/puppet-keepalived/issues/129)。
+
+```
+vrrp_sync_group VG {
+	group {
+		VI_1
+		VI_2
+	}
+}
+
+vrrp_instance VI_1 {
+	...
+}
+
+vrrp_instance VI_2 {
+	...
+}
+```
+
+## Keepalived完整示例
+配置文件路徑`/etc/keepalived/keepalived.conf`，
+假設存在兩台主機，每台主機各自擁有`10.0.0.*`和`192.168.0.*`網段的網口，
+要使主機網口的任意一個發生故障都整組網口一併切換，配置示例：
+
+```html
+<!-- 主節點 -->
+vrrp_sync_group VG {
+    group {
+        VI_MAIN
+        VI_INNER
+    }
+}
+
+vrrp_instance VI_MAIN {
+    state MASTER
+    virtual_router_id 1
+    priority 2 # master should have higer priority
+    advert_int 1 # check time time intervel
+    interface eno1 # bind interface need be generated
+    authentication {
+        auth_type PASS
+        auth_pass pass_xxx_main
+    }
+    virtual_ipaddress {
+        10.0.0.100/24
+    }
+}
+
+vrrp_instance VI_INNER {
+    state MASTER
+    virtual_router_id 2
+    priority 2
+    advert_int 1 # check time time intervel
+    interface ens3f3 # bind interface need be generated
+    authentication {
+        auth_type PASS
+        auth_pass pass_xxx_inner
+    }
+    virtual_ipaddress {
+        192.168.0.100/24
+    }
+}
+
+<!-- 備節點 -->
+vrrp_sync_group VG {
+    group {
+        VI_MAIN
+        VI_INNER
+    }
+}
+
+vrrp_instance VI_MAIN {
+    state BACKUP
+    virtual_router_id 1
+    priority 1
+    advert_int 1 # check time time intervel
+    interface eno1 # bind interface need be generated
+    authentication {
+        auth_type PASS
+        auth_pass pass_xxx_main
+    }
+    virtual_ipaddress {
+        10.0.0.101/24
+    }
+}
+
+vrrp_instance VI_INNER {
+    state BACKUP
+    virtual_router_id 2
+    priority 1
+    advert_int 1 # check time time intervel
+    interface ens3f3 # bind interface need be generated
+    authentication {
+        auth_type PASS
+        auth_pass pass_xxx_inner
+    }
+    virtual_ipaddress {
+        192.168.0.101/24
+    }
+}
+```
 
 
 
