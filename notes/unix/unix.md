@@ -4,6 +4,12 @@
 	- [find](#find)
 	- [rsync](#rsync)
 	- [tee](#tee)
+	- [grep](#grep)
+	- [envsubst](#envsubst)
+	- [sed](#sed)
+		- [截取輸出](#截取輸出)
+		- [文本替換](#文本替換)
+		- [插入/刪除/編輯指定行數的文本](#插入刪除編輯指定行數的文本)
 	- [進程管理](#進程管理)
 	- [日誌記錄](#日誌記錄)
 	- [BIOS信息](#bios信息)
@@ -11,10 +17,6 @@
 	- [Filesystem Hierarchy Standard](#filesystem-hierarchy-standard)
 - [PulseAudio](#pulseaudio)
 - [用戶管理](#用戶管理)
-- [文件特殊權限](#文件特殊權限)
-	- [setuid / setgid / sticky](#setuid--setgid--sticky)
-	- [lsattr / chattr](#lsattr--chattr)
-	- [chflags](#chflags)
 - [FTP (File Transfer Protocol)](#ftp-file-transfer-protocol)
 	- [連接服務器](#連接服務器)
 	- [常用指令](#常用指令)
@@ -42,12 +44,16 @@
 	- [擴容分區](#擴容分區)
 	- [縮容分區](#縮容分區)
 	- [flock（文件鎖）](#flock文件鎖)
-- [LVM (Logical Volume Manager)](#lvm-logical-volume-manager)
-	- [基本操作](#基本操作)
-	- [Physical Volume (PV，物理卷)](#physical-volume-pv物理卷)
-	- [Volume Group (VG，卷組)](#volume-group-vg卷組)
-	- [Logical Volume (LV，邏輯卷)](#logical-volume-lv邏輯卷)
-	- [邏輯卷狀態和塊設備不顯示問題](#邏輯卷狀態和塊設備不顯示問題)
+	- [文件特殊權限](#文件特殊權限)
+		- [setuid / setgid / sticky](#setuid--setgid--sticky)
+		- [lsattr / chattr](#lsattr--chattr)
+		- [chflags](#chflags)
+	- [LVM (Logical Volume Manager)](#lvm-logical-volume-manager)
+		- [LVM基本操作](#lvm基本操作)
+		- [Physical Volume（PV，物理卷）](#physical-volumepv物理卷)
+		- [Volume Group（VG，卷組）](#volume-groupvg卷組)
+		- [Logical Volume（LV，邏輯卷）](#logical-volumelv邏輯卷)
+		- [邏輯卷狀態和塊設備不顯示問題](#邏輯卷狀態和塊設備不顯示問題)
 - [NTP (Network Time Protocol)](#ntp-network-time-protocol)
 	- [NTP 服務配置](#ntp-服務配置)
 		- [NTP Client 配置](#ntp-client-配置)
@@ -105,7 +111,7 @@
 		- [cyclictest](#cyclictest)
 	- [iperf / qperf](#iperf--qperf)
 	- [HTTP壓測工具](#http壓測工具)
-- [通知服務 （Notification）](#通知服務-notification)
+- [通知服務（Notification）](#通知服務notification)
 	- [libnotify](#libnotify)
 	- [Dunst](#dunst)
 		- [Dunst配置](#dunst配置)
@@ -118,14 +124,7 @@
 - [Linux字體（fontconfig）](#linux字體fontconfig)
 	- [管理字體](#管理字體)
 	- [字體配置](#字體配置)
-- [文本處理](#文本處理)
-	- [grep](#grep)
-	- [envsubst](#envsubst)
-	- [sed](#sed)
-		- [截取輸出](#截取輸出)
-		- [文本替換](#文本替換)
-		- [插入/刪除/編輯指定行數的文本](#插入刪除編輯指定行數的文本)
-- [apt/dpkg](#aptdpkg)
+- [Debian系列發行版包管理](#debian系列發行版包管理)
 	- [apt](#apt)
 		- [apt-file](#apt-file)
 		- [add-apt-repository](#add-apt-repository)
@@ -133,12 +132,12 @@
 	- [deb打包(Binary packages)](#deb打包binary-packages)
 		- [debconf](#debconf)
 		- [dpkg-divert](#dpkg-divert)
-	- [源配置](#源配置)
-		- [Debian 源](#debian-源)
-		- [Ubuntu 源](#ubuntu-源)
+	- [apt軟件源配置](#apt軟件源配置)
+		- [Debian源](#debian源)
+		- [Ubuntu源](#ubuntu源)
 	- [apt-mirror](#apt-mirror)
-		- [本地源配置](#本地源配置)
-		- [使用本地源](#使用本地源)
+		- [apt-mirror本地源配置](#apt-mirror本地源配置)
+		- [使用apt-mirror本地源](#使用apt-mirror本地源)
 - [OpenCC](#opencc)
 	- [命令行工具opencc](#命令行工具opencc)
 - [Chrome OS](#chrome-os)
@@ -290,6 +289,263 @@ $ echo cdef | tee -a test1.txt
 $ cat test1.txt
 abcd
 cdef
+```
+
+## grep
+`grep`用於搜索文本中包含指定內容的行，常用於管道操作中處理其它指令的輸出結果。
+
+```html
+<!-- 從給定的內容中查找包含 xxx 的內容 -->
+$ grep xxx
+<!-- 從給定的內容中查找以 xxx 起始的內容 -->
+$ grep ^xxx
+<!-- 從給定的內容中排除包含 xxx 的內容 -->
+$ grep -v xxx
+
+<!-- 僅輸出指定次數的匹配內容 -->
+$ grep -m 最大匹配次數 xxx
+<!-- 僅輸出首個匹配內容 -->
+$ grep -m 1 xxxs
+
+<!-- 查找內容時，輸出目標內容附近指定行數相關的內容 -->
+$ grep -C 行數
+
+<!-- 查找 xxx (嚴格匹配) -->
+$ grep -w xxx
+<!-- 等價於grep -w -->
+$ grep '\<xxx\>'
+
+<!-- 匹配 xxx 時忽略大小寫 -->
+$ grep -i xxx
+
+<!-- 基於正則匹配 -->
+$ grep -P xxx
+$ grep -Po xxx <!-- 僅輸出匹配的部分-->
+```
+
+## envsubst
+envsubst來自GNU項目的[gettext](https://www.gnu.org/software/gettext/)工具鏈，
+gettext提供了一系列的文本處理工具，如gettext、msggrep、envsubst等。
+envsubst使用方法較為簡單，該工具從標準輸入接收文本，直接讀取當前環境變量，
+替換環境變量內容後輸出到標準輸出。
+
+默認為交互模式，輸入文本後按回車鍵輸出替換後的內容：
+
+```html
+$ envsubst
+$HOME $EDITOR
+/Users/dainslef vim
+Current language: $LANG
+Current language: en_US.UTF-8
+```
+
+亦可使用管道/重定向等方式輸入內容：
+
+```html
+<!-- 使用管道 -->
+$ echo $HOME $EDITOR | envsubst
+/Users/dainslef vim
+$ echo 'Current language: $LANG'
+Current language: $LANG
+$ echo 'Current language: $LANG' | envsubst
+Current language: en_US.UTF-8
+
+<!-- 使用重定向 -->
+$ envsubst <<< $HOME
+/Users/dainslef
+$ envsubst <<< 'Current language: $LANG'
+Current language: en_US.UTF-8
+```
+
+使用envsubst默認會轉換所有符合環境變量語法(`$XXX`)的內容，
+若被替換的目標環境變量不存在，則以空字符串替代：
+
+```html
+<!-- 查詢當前環境變量的信息 -->
+$ env | grep LANG
+LANG=en_US.UTF-8
+LANGUAGE=en_US:en
+$ env | grep UNKNOWN
+
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN'
+Current language: $LANG, Unkown: $UNKNOWN
+<!-- 環境變量 $UNKNOWN 不存在，輸出空內容 -->
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst
+Current language: en_US.UTF-8, Unkown:
+```
+
+envsubst可添加一個文本參數控制需要替換的環境變量：
+
+```html
+<!-- 僅替換 $UNKNOWN -->
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst '$UNKNOWN'
+Current language: $LANG, Unkown:
+<!-- 僅替換 $LANG -->
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst '$LANG'
+Current language: en_US.UTF-8, Unkown: $UNKNOWN
+<!-- 替換多個環境變量 -->
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst '$UNKNOWN $LANG'
+Current language: en_US.UTF-8, Unkown:
+<!-- 全不替換 -->
+$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst ''
+Current language: $LANG, Unkown: $UNKNOWN
+```
+
+## sed
+`sed`是流式編輯器(stream editor)，通常各類Unix中均包含該工具，
+在Linux中內置的實現是[`GNU sed`](https://www.gnu.org/software/sed/manual/sed.html)。
+
+### 截取輸出
+sed支持按行截取命令行輸出：
+
+```html
+<!-- 行數從 1 開始計數 -->
+$ sed -n 行號p <!-- 截取指定行的輸出 -->
+$ sed -n 起始行,結束行p <!-- 截取指定起止範圍的行-->
+```
+
+示例：
+
+```html
+$ echo a\nb\nc\nd
+a
+b
+c
+d
+<!-- 獲取第2行輸出 -->
+$ echo a\nb\nc\nd | sed -n 2p
+b
+<!-- 獲取第2～4行內容 -->
+$ echo a\nb\nc\nd | sed -n 2,4p
+b
+c
+d
+```
+
+### 文本替換
+使用GNU sed工具可實現文本替換：
+
+```html
+<!-- 默認將替換後的內容輸出到終端 -->
+$ sed 's/舊文本/新文本/' 文件路徑
+<!--
+當需要替換的目標文本中包含替換標識符時，需要使用 \ 進行轉義
+用於切分源文本和被替換文本的標識符可以自定，比如使用 _ 或 - . ? < > 以及空格等等
+可根據需要規避的文本靈活選擇替換標識符
+ -->
+$ sed 's 舊文本 新文本 ' 文件路徑
+$ sed 's.舊文本.新文本.' 文件路徑
+$ sed 's-舊文本-新文本-' 文件路徑
+
+<!-- 默認替換操作僅替換首個匹配的內容，替換所有內容需表達式末尾添加字母 g -->
+$ $ sed 's/舊文本/新文本/g' 文件路徑
+
+<!-- 可替換輸出文件內容 -->
+$ sed -i 's/舊文本/新文本/' 文件路徑
+
+<!-- 基於其它指令的重定向輸出 -->
+$ cat/echo/... | sed 's/舊文本/新文本/'
+```
+
+示例：
+
+```html
+<!-- Linux GNU sed -->
+$ cat test.txt
+$TEST output
+$ sed 's/$TEST/test/' test.txt
+test output
+
+<!-- 使用其它替換標誌符作用類似 -->
+$ sed 's.$TEST.test.' test.txt
+test output
+$ sed 's-$TEST-test-' test.txt
+test output
+
+$ sed -i 's/$TEST/test/' test.txt
+$ cat test.txt
+test output
+$ echo '$TEST output' | sed 's/$TEST/test/'
+test output
+
+$ echo aabbaa > test.txt
+$ cat test.txt
+aabbaa
+<!-- 普通替換表達式僅替換首個匹配內容 -->
+$ sed 's/aa/cc/' test.txt
+ccbbaa
+<!-- 匹配表達式末尾添加字母 g ，則替換所有匹配內容 -->
+$ sed 's/aa/cc/g' test.txt
+ccbbcc
+```
+
+需要注意，sed在不同Unix中的實現功能參數有所不同，以BSD的sed為例，
+`-i`參數設置後綴，將輸出內容保存到現有文件，同時備份原內容到添加後綴的文件中。
+示例：
+
+```html
+<!-- macOS BSD sed -->
+$ cat test.txt
+$TEST output
+$ sed -i .back 's/$TEST/test/' test.txt
+$ cat test.txt
+test output <!-- 輸出文件內容已被替換 -->
+$ cat test.txt.back
+$TEST output <!-- 原文件被備份到 "原文件名+後綴" 的文件中 -->
+```
+
+### 插入/刪除/編輯指定行數的文本
+sed支持在操作前添加**行號**，對指定行數的文本進行操作，操作指令包括：
+
+- `i` 插入內容
+- `d` 刪除內容
+- `s` 替換內容
+
+指令用法：
+
+```html
+<!-- 在指定行前插入內容 -->
+$ sed '行號 i 內容' 文件路徑
+<!-- 不使用行號，則在每一行插入內容 -->
+$ sed 'i 內容' 文件路徑
+
+<!-- 刪除指定行號的內容 -->
+$ sed '行號 d' 文件路徑
+<!-- 不使用行號則刪除所有內容 -->
+$ sed 'd' 文件路徑
+
+<!-- 替換指定行的文本 -->
+$ sed '行號 s 舊文本 新文本 '
+```
+
+示例：
+
+```html
+$ echo 1111\n2222\n3333 > test.txt
+$ cat test.txt
+1111
+2222
+3333
+
+<!-- 指定行添加內容 -->
+$ sed '3 i xxxx' test.txt
+1111
+2222
+xxxx
+3333
+<!-- 向所有行添加內容 -->
+$ sed 'i xxxx' test.txt
+xxxx
+1111
+xxxx
+2222
+xxxx
+3333
+
+<!-- 刪除指定行 -->
+$ sed '3 d' test.txt
+1111
+2222
 ```
 
 ## 進程管理
@@ -607,279 +863,6 @@ $ chown -R [用戶名:用戶組] [路徑]
 <!-- 更改指定文件所屬用戶組 -->
 $ chgrp [選項] [用戶組名] [文件名]
 ```
-
-
-
-# 文件特殊權限
-Unix文件系統中，除了常規的777讀寫權限外，還有部分特殊權限可提供額外的控制機制。
-
-## setuid / setgid / sticky
-Unix系統中擁有三類特殊權限標誌：
-
-| 權限標誌 | 含義(對可執行文件使用) | 含義(對目錄使用) |
-| :- | :- | :- |
-| s(setuid) | 使文件在執行階段具有文件所有者的權限 | 在多數Unix實現(包括Linux)下，對目錄設置setuid會被忽略 |
-| s(setgid) | 使文件在執行階段具有文件所屬組的權限 | 使目錄下的文件都具有和該目錄所屬組相同的權限 |
-| t(sticky) | 禁止文件被所屬用戶外的其它用戶刪除(不受寫權限約束，對root用戶無效) | 在Linux/macOS上均被忽略 |
-
-使用8進制數值表示文件權限時，這些特殊權限佔有一組獨立的8進制位(位於傳統權限標誌位**之前**)。
-如傳統文件的權限爲`777`，添加了特殊權限後使用`?777`表示，`?`即爲特殊權限的啓用情況。
-
-特殊權限的三個二進制位含義：
-
-```
-4 - 2 - 1
-```
-
-| 數值 | 含義 |
-| :- | :- |
-| 4(高位) | 高位使用字母s，表示setuid |
-| 2(中間位) | 中間位同樣使用字母s，表示setgid |
-| 1(低位) | 低位使用字母t，表示sticky bit |
-
-使用`ls`指令展示文件權限信息時，若設置了這三類特殊權限，則會覆蓋原有的可執行權限位的顯示：
-
-```html
-$ touch test
-
-<!-- 設置所有權限，包括特殊權限 -->
-$ chmod 7777 test
-
-<!-- 打印權限信息，sst標誌代替了原本各自位置的x標誌 -->
-$ ls -alh test
--rwsrwsrwt 1 root root 0 Aug 26 15:17 test
-```
-
-使用`chmod`指令設置三類特殊權限：
-
-```html
-<!-- 設置文件的setuid權限 -->
-$ chmod u+s 文件名
-<!-- 設置目錄的setgid權限 -->
-$ chmod g+s 目錄名
-<!-- 設置文件的stick bit權限 -->
-$ chmod o+t 文件名
-
-<!-- 使用4組8進制數值設定文件讀寫執行權限和三類額外權限 -->
-$ chmod 7777 文件/目錄
-```
-
-## lsattr / chattr
-Linux支持使用`chattr`為文件/目錄附加部分特殊屬性，指令語法：
-
-```
-# chattr +-=[aAcCdDeFijPsStTu] 文件/目錄
-```
-
-常用操作說明：
-
-```html
-<!-- 設置/增加/刪除 特定屬性 -->
-# chattr =屬性 文件/目錄
-# chattr +屬性 文件/目錄
-# chattr -屬性 文件/目錄
-
-<!-- 使用 -R 參數可遞歸對目錄生效 -->
-# chattr -R 屬性操作 目錄
-
-<!-- 使用 -V 參數可展示操作詳情 -->
-# chattr -V 屬性操作 目錄/文件
-```
-
-chattr設置的特殊屬性可使用`lsattr`查看：
-
-```html
-$ lsattr 目錄/文件
-$ lsattr -R 目錄 <!-- 遞歸展示目錄下所有內容的屬性 -->
-```
-
-不同文件系統對各類屬性的支持有所不同，詳情需要參見各文件系統的官方文檔。
-
-常用的特殊屬性：
-
-- `a(append only)` 設置文件僅可以`append`模式打開
-
-	設置該屬性後，文件不可刪除，不可以重寫模式重定向，僅可以追加模式重定向：
-
-	```html
-	# chattr -V =a test <!-- 需要root權限來設置a屬性 -->
-	chattr 1.45.5 (07-Jan-2020)
-	Flags of test set as -----a--------------
-
-	<!-- 設置a屬性後，普通用戶不可刪除文件（即使為文件所有者） -->
-	$ rm test
-	rm: cannot remove 'test': Operation not permitted
-	<!-- 設置a屬性後，root用戶亦不可刪除文件 -->
-	# rm test
-	rm: cannot remove 'test': Operation not permitted
-
-	<!-- 設置了a屬性後，無論普通用戶或root用戶均不可進行重定向重寫內容 -->
-	$ echo fuckccp > test
-	<W> fish: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-	# echo fuckccp > test
-	<W> fish: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-
-	<!-- 追加模式重定向正常，且無需root權限 -->
-	$ echo fuckccp >> test
-	$ cat test
-	fuckccp
-	```
-
-- `i(immutable)` 設置文件不可刪除、修改
-
-	設置該屬性後不可進行修改和創建硬鏈接：
-
-	```html
-	# chattr -V =i test
-	chattr 1.45.5 (07-Jan-2020)
-	Flags of test set as ----i---------------
-
-	<!-- 與a屬性類似，同樣無法刪除文件 -->
-	$ rm test
-	rm: cannot remove 'test': Operation not permitted
-	# rm test
-	rm: cannot remove 'test': Operation not permitted
-
-	<!-- 相比a屬性，i屬性還禁止重定向追加內容 -->
-	$ echo fuckccp > test
-	<W> fish: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-	$ echo fuckccp >> test
-	<W> fish: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-	# echo fuckccp > test
-	<W> fish: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-	# echo fuckccp >> test
-	<W> fish: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-
-	<!-- i屬性禁止創建硬鏈接 -->
-	# ln test test1
-	ln: failed to create hard link 'test1' => 'test': Operation not permitted
-	```
-
-## chflags
-BSD系列系統中（包括macOS）擁有與Linux下chattr類似的機制`chflags`，指令語法：
-
-```
-$ chflags [-fhvx] [-R [-H | -L | -P]] flags file ...
-```
-
-常用操作說明：
-
-```html
-<!-- 對指定的文件/目錄進行屬性操作 -->
-$ chflags 屬性 文件/目錄 <!-- 設置指定屬性 -->
-$ chflags 屬性1,屬性2,屬性3 文件/目錄 <!-- 同時設置多個屬性，使用逗號分隔 -->
-$ chflags 0 文件/目錄 <!-- 清除設置的屬性 -->
-
-<!-- 使用 -R 參數可遞歸對目錄生效 -->
-$ chflags -R 屬性操作 目錄
-
-<!-- 使用 -V 參數可展示操作詳情 -->
-# chflags -v 屬性操作 目錄/文件
-```
-
-與lsattr不同，chflags設置的屬性直接使用ls工具搭配`-lO`參數進行查看，示例：
-
-```html
-$ ls -lO 目錄/文件
-$ ls -lRO 目錄 <!-- 遞歸展示目錄下所有內容的屬性 -->
-```
-
-macOS/BSD下常用的特殊屬性：
-
-- `hidden`
-
-	設置該屬性後文件隱藏，不在GUI中展示。
-
-- `sappnd, sappend`
-
-	與Linux中的`a`屬性類似，設置該屬性後，文件不可刪除，僅支持追加寫入（需要管理員權限）：
-
-	```html
-	# chflags -v sappnd test
-	test
-	$ ls -lO test
-	-rw-r--r--  1 dainslef  staff  sappnd 0 Dec  5 11:16 test
-	$ rm test <!-- 普通用戶無權限刪除文件 -->
-	override rw-r--r-- dainslef/staff sappnd for test? y
-	rm: test: Operation not permitted
-	# rm test <!-- 管理員用戶亦無權限刪除文件 -->
-	override rw-r--r-- dainslef/staff sappnd for test? y
-	rm: test: Operation not permitted
-	# echo fuckccp > test <!-- 不可重定向寫入 -->
-	warning: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-	$ echo fuckccp >> test <!-- 可追加寫入 -->
-	$ cat test
-	fuckccp
-	```
-
-- `schg, schange, simmutable`
-
-	與Linux中的`i`屬性類似，設置該屬性後，文件不可刪除、修改（需要管理員權限）：
-
-	```html
-	# chflags -v schg test
-	test
-	$ ls -lO test
-	-rw-r--r--  1 dainslef  staff  schg 0 Dec  5 11:16 test
-	# echo fuckccp > test
-	warning: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-	# echo fuckccp >> test
-	warning: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-	# rm test <!-- 管理員亦無法刪除 -->
-	override rw-r--r-- dainslef/staff schg for test? y
-	rm: test: Operation not permitted
-	```
-
-- `uappnd, uappend`
-
-	功能與`sappnd, sappend`類似，但無須管理員權限，可由文件所有者添加該屬性：
-
-	```html
-	$ chflags -v uappnd test
-	test
-	$ ls -lO test
-	-rw-r--r--  1 dainslef  staff  uappnd 0 Dec  5 11:16 test
-	# echo fuckccp > test <!-- 管理員亦不可重定向寫入 -->
-	warning: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-	$ echo fuckccp >> test <!-- 普通用戶即可追加寫入 -->
-	$ rm test <!-- 普通用戶不可刪除 -->
-	override rw-r--r-- dainslef/staff uappnd for test? y
-	rm: test: Operation not permitted
-	# rm test <!-- 管理員可刪除 -->
-	override rw-r--r-- dainslef/staff uappnd for test? y
-	```
-
-- `uchg, uchange, uimmutable`
-
-	功能與`schg, schange, simmutable`類似，但無須管理員權限，可由文件所有者添加該屬性：
-
-	```html
-	$ chflags -v uchg test
-	test
-	$ ls -lO test
-	-rw-r--r--  1 dainslef  staff  uchg 0 Dec  5 11:16 test
-	# echo fuckccp > test <!-- 管理員亦不可重定向寫入 -->
-	warning: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-	# echo fuckccp >> test <!-- 管理員亦不可追加寫入 -->
-	warning: An error occurred while redirecting file 'test'
-	open: Operation not permitted
-	$ rm test <!-- 普通用戶不可刪除 -->
-	override rw-r--r-- dainslef/staff uchg for test? y
-	rm: test: Operation not permitted
-	# rm test <!-- 管理員可刪除 -->
-	override rw-r--r-- dainslef/staff uchg for test? y
-	```
 
 
 
@@ -1760,9 +1743,278 @@ $ echo $?
 0 <!-- 返回值為0，繼續鎖定成功，第一個flock進程創建的sleep子進程沒有繼承鎖，所以立即開始第二次鎖定依然成功 -->
 ```
 
+## 文件特殊權限
+Unix文件系統中，除了常規的777讀寫權限外，還有部分特殊權限可提供額外的控制機制。
 
+### setuid / setgid / sticky
+Unix系統中擁有三類特殊權限標誌：
 
-# LVM (Logical Volume Manager)
+| 權限標誌 | 含義(對可執行文件使用) | 含義(對目錄使用) |
+| :- | :- | :- |
+| s(setuid) | 使文件在執行階段具有文件所有者的權限 | 在多數Unix實現(包括Linux)下，對目錄設置setuid會被忽略 |
+| s(setgid) | 使文件在執行階段具有文件所屬組的權限 | 使目錄下的文件都具有和該目錄所屬組相同的權限 |
+| t(sticky) | 禁止文件被所屬用戶外的其它用戶刪除(不受寫權限約束，對root用戶無效) | 在Linux/macOS上均被忽略 |
+
+使用8進制數值表示文件權限時，這些特殊權限佔有一組獨立的8進制位(位於傳統權限標誌位**之前**)。
+如傳統文件的權限爲`777`，添加了特殊權限後使用`?777`表示，`?`即爲特殊權限的啓用情況。
+
+特殊權限的三個二進制位含義：
+
+```
+4 - 2 - 1
+```
+
+| 數值 | 含義 |
+| :- | :- |
+| 4(高位) | 高位使用字母s，表示setuid |
+| 2(中間位) | 中間位同樣使用字母s，表示setgid |
+| 1(低位) | 低位使用字母t，表示sticky bit |
+
+使用`ls`指令展示文件權限信息時，若設置了這三類特殊權限，則會覆蓋原有的可執行權限位的顯示：
+
+```html
+$ touch test
+
+<!-- 設置所有權限，包括特殊權限 -->
+$ chmod 7777 test
+
+<!-- 打印權限信息，sst標誌代替了原本各自位置的x標誌 -->
+$ ls -alh test
+-rwsrwsrwt 1 root root 0 Aug 26 15:17 test
+```
+
+使用`chmod`指令設置三類特殊權限：
+
+```html
+<!-- 設置文件的setuid權限 -->
+$ chmod u+s 文件名
+<!-- 設置目錄的setgid權限 -->
+$ chmod g+s 目錄名
+<!-- 設置文件的stick bit權限 -->
+$ chmod o+t 文件名
+
+<!-- 使用4組8進制數值設定文件讀寫執行權限和三類額外權限 -->
+$ chmod 7777 文件/目錄
+```
+
+### lsattr / chattr
+Linux支持使用`chattr`為文件/目錄附加部分特殊屬性，指令語法：
+
+```
+# chattr +-=[aAcCdDeFijPsStTu] 文件/目錄
+```
+
+常用操作說明：
+
+```html
+<!-- 設置/增加/刪除 特定屬性 -->
+# chattr =屬性 文件/目錄
+# chattr +屬性 文件/目錄
+# chattr -屬性 文件/目錄
+
+<!-- 使用 -R 參數可遞歸對目錄生效 -->
+# chattr -R 屬性操作 目錄
+
+<!-- 使用 -V 參數可展示操作詳情 -->
+# chattr -V 屬性操作 目錄/文件
+```
+
+chattr設置的特殊屬性可使用`lsattr`查看：
+
+```html
+$ lsattr 目錄/文件
+$ lsattr -R 目錄 <!-- 遞歸展示目錄下所有內容的屬性 -->
+```
+
+不同文件系統對各類屬性的支持有所不同，詳情需要參見各文件系統的官方文檔。
+
+常用的特殊屬性：
+
+- `a(append only)` 設置文件僅可以`append`模式打開
+
+	設置該屬性後，文件不可刪除，不可以重寫模式重定向，僅可以追加模式重定向：
+
+	```html
+	# chattr -V =a test <!-- 需要root權限來設置a屬性 -->
+	chattr 1.45.5 (07-Jan-2020)
+	Flags of test set as -----a--------------
+
+	<!-- 設置a屬性後，普通用戶不可刪除文件（即使為文件所有者） -->
+	$ rm test
+	rm: cannot remove 'test': Operation not permitted
+	<!-- 設置a屬性後，root用戶亦不可刪除文件 -->
+	# rm test
+	rm: cannot remove 'test': Operation not permitted
+
+	<!-- 設置了a屬性後，無論普通用戶或root用戶均不可進行重定向重寫內容 -->
+	$ echo fuckccp > test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# echo fuckccp > test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+
+	<!-- 追加模式重定向正常，且無需root權限 -->
+	$ echo fuckccp >> test
+	$ cat test
+	fuckccp
+	```
+
+- `i(immutable)` 設置文件不可刪除、修改
+
+	設置該屬性後不可進行修改和創建硬鏈接：
+
+	```html
+	# chattr -V =i test
+	chattr 1.45.5 (07-Jan-2020)
+	Flags of test set as ----i---------------
+
+	<!-- 與a屬性類似，同樣無法刪除文件 -->
+	$ rm test
+	rm: cannot remove 'test': Operation not permitted
+	# rm test
+	rm: cannot remove 'test': Operation not permitted
+
+	<!-- 相比a屬性，i屬性還禁止重定向追加內容 -->
+	$ echo fuckccp > test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	$ echo fuckccp >> test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# echo fuckccp > test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# echo fuckccp >> test
+	<W> fish: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+
+	<!-- i屬性禁止創建硬鏈接 -->
+	# ln test test1
+	ln: failed to create hard link 'test1' => 'test': Operation not permitted
+	```
+
+### chflags
+BSD系列系統中（包括macOS）擁有與Linux下chattr類似的機制`chflags`，指令語法：
+
+```
+$ chflags [-fhvx] [-R [-H | -L | -P]] flags file ...
+```
+
+常用操作說明：
+
+```html
+<!-- 對指定的文件/目錄進行屬性操作 -->
+$ chflags 屬性 文件/目錄 <!-- 設置指定屬性 -->
+$ chflags 屬性1,屬性2,屬性3 文件/目錄 <!-- 同時設置多個屬性，使用逗號分隔 -->
+$ chflags 0 文件/目錄 <!-- 清除設置的屬性 -->
+
+<!-- 使用 -R 參數可遞歸對目錄生效 -->
+$ chflags -R 屬性操作 目錄
+
+<!-- 使用 -V 參數可展示操作詳情 -->
+# chflags -v 屬性操作 目錄/文件
+```
+
+與lsattr不同，chflags設置的屬性直接使用ls工具搭配`-lO`參數進行查看，示例：
+
+```html
+$ ls -lO 目錄/文件
+$ ls -lRO 目錄 <!-- 遞歸展示目錄下所有內容的屬性 -->
+```
+
+macOS/BSD下常用的特殊屬性：
+
+- `hidden`
+
+	設置該屬性後文件隱藏，不在GUI中展示。
+
+- `sappnd, sappend`
+
+	與Linux中的`a`屬性類似，設置該屬性後，文件不可刪除，僅支持追加寫入（需要管理員權限）：
+
+	```html
+	# chflags -v sappnd test
+	test
+	$ ls -lO test
+	-rw-r--r--  1 dainslef  staff  sappnd 0 Dec  5 11:16 test
+	$ rm test <!-- 普通用戶無權限刪除文件 -->
+	override rw-r--r-- dainslef/staff sappnd for test? y
+	rm: test: Operation not permitted
+	# rm test <!-- 管理員用戶亦無權限刪除文件 -->
+	override rw-r--r-- dainslef/staff sappnd for test? y
+	rm: test: Operation not permitted
+	# echo fuckccp > test <!-- 不可重定向寫入 -->
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	$ echo fuckccp >> test <!-- 可追加寫入 -->
+	$ cat test
+	fuckccp
+	```
+
+- `schg, schange, simmutable`
+
+	與Linux中的`i`屬性類似，設置該屬性後，文件不可刪除、修改（需要管理員權限）：
+
+	```html
+	# chflags -v schg test
+	test
+	$ ls -lO test
+	-rw-r--r--  1 dainslef  staff  schg 0 Dec  5 11:16 test
+	# echo fuckccp > test
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# echo fuckccp >> test
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# rm test <!-- 管理員亦無法刪除 -->
+	override rw-r--r-- dainslef/staff schg for test? y
+	rm: test: Operation not permitted
+	```
+
+- `uappnd, uappend`
+
+	功能與`sappnd, sappend`類似，但無須管理員權限，可由文件所有者添加該屬性：
+
+	```html
+	$ chflags -v uappnd test
+	test
+	$ ls -lO test
+	-rw-r--r--  1 dainslef  staff  uappnd 0 Dec  5 11:16 test
+	# echo fuckccp > test <!-- 管理員亦不可重定向寫入 -->
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	$ echo fuckccp >> test <!-- 普通用戶即可追加寫入 -->
+	$ rm test <!-- 普通用戶不可刪除 -->
+	override rw-r--r-- dainslef/staff uappnd for test? y
+	rm: test: Operation not permitted
+	# rm test <!-- 管理員可刪除 -->
+	override rw-r--r-- dainslef/staff uappnd for test? y
+	```
+
+- `uchg, uchange, uimmutable`
+
+	功能與`schg, schange, simmutable`類似，但無須管理員權限，可由文件所有者添加該屬性：
+
+	```html
+	$ chflags -v uchg test
+	test
+	$ ls -lO test
+	-rw-r--r--  1 dainslef  staff  uchg 0 Dec  5 11:16 test
+	# echo fuckccp > test <!-- 管理員亦不可重定向寫入 -->
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	# echo fuckccp >> test <!-- 管理員亦不可追加寫入 -->
+	warning: An error occurred while redirecting file 'test'
+	open: Operation not permitted
+	$ rm test <!-- 普通用戶不可刪除 -->
+	override rw-r--r-- dainslef/staff uchg for test? y
+	rm: test: Operation not permitted
+	# rm test <!-- 管理員可刪除 -->
+	override rw-r--r-- dainslef/staff uchg for test? y
+	```
+
+## LVM (Logical Volume Manager)
 `LVM (Logical Volume Manager)`，邏輯卷管理，是Linux環境下對磁盤分區進行管理的一種機制。
 
 使用LVM能夠將不同的硬盤上的物理卷(`Physical Volume`，簡稱`PV`)加入卷組(`Volume Group`，簡稱`VG`)。
@@ -1772,7 +2024,7 @@ LVM在物理磁盤上提供了一層抽象，解除了分區與物理磁盤的�
 LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加新的物理磁盤時，
 邏輯分區無需改變結構/重新掛載即可利用新增物理磁盤的空間實現動態擴容。
 
-## 基本操作
+### LVM基本操作
 配置LVM的**基本步驟**：
 
 1. 創建硬盤分區
@@ -1781,7 +2033,7 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 1. 創建邏輯卷，生成邏輯卷塊設備：`# lvcreate -L 分區大小(xxGB/xxMB/...) -n 邏輯卷名稱 卷組名稱`
 1. 在邏輯塊設備中進行格式化、創建文件系統等操作，之後可掛載使用
 
-## Physical Volume (PV，物理卷)
+### Physical Volume（PV，物理卷）
 物理卷`Physical Volume`是在磁盤上**實際存在**的物理分區。
 被添加到LVM的物理分區需要擁有`lvm`標識(flag)。
 
@@ -1802,7 +2054,7 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 # pvmove 原物理分區塊設備 目標物理分區塊設備 <!-- 指定將PV中的數據轉移到另一PV中 -->
 ```
 
-## Volume Group (VG，卷組)
+### Volume Group（VG，卷組）
 物理卷需要加入卷組(`Volume Group`)才能被使用。
 
 卷組相關的操作爲`vgXXX`系列指令：
@@ -1815,7 +2067,7 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 # vgdisplay <!-- 顯示所有卷組 -->
 ```
 
-## Logical Volume (LV，邏輯卷)
+### Logical Volume（LV，邏輯卷）
 邏輯卷(`Logical Volume`)是`LVM`中實際用於創建文件系統、掛載的分區。
 邏輯卷的磁盤塊設備路徑爲`/dev/[邏輯卷所屬卷組名稱]/[邏輯卷名稱]`，
 邏輯卷的塊設備可如物理磁盤塊設備一般進行創建文件系統、掛載等操作。
@@ -1845,7 +2097,7 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 縮減邏輯卷時操作相反，先卸載對應分區，使用文件系統對應的工具縮減文件系統大小，
 之後再縮減文件系統所屬的LVM分區的大小。
 
-## 邏輯卷狀態和塊設備不顯示問題
+### 邏輯卷狀態和塊設備不顯示問題
 使用lvdisplay查看邏輯卷狀態時，若邏輯卷`LV Status`顯示`NOT available`，
 可使用`vgchange`激活卷組下所有的邏輯卷，使其狀態恢復爲`available`：
 
@@ -4068,7 +4320,7 @@ iperf3服務端不需要設定監聽協議，會根據客戶端的協議類型�
 
 
 
-# 通知服務 （Notification）
+# 通知服務（Notification）
 多數Linux桌面環境默認已內置了通知機制，如`Gnome`、`KDE`等完善的桌面環境，
 以及`AwesomeWM`等部分窗口管理器；然而多數窗口管理器未集成通知服務，默認無法展示通知，需要自行配置通知服務。
 
@@ -4078,7 +4330,7 @@ iperf3服務端不需要設定監聽協議，會根據客戶端的協議類型�
 ```html
 $ notify-send 消息主題 消息內容
 
-<!-- 展示進度條 （progress bar）-->
+<!-- 展示進度條（progress bar）-->
 $ notify-send 消息主題 消息內容 -h int:value:百分比數值
 
 <!-- 設置通知駐留時間，單位：毫秒 -->
@@ -4337,264 +4589,7 @@ CascadiaCodePL-Regular.otf: "Cascadia Code PL" "Regular"
 
 
 
-# 文本處理
-Linux中存在大量的文本處理工具，可組合使用對命令行輸出進行處理。
-
-## grep
-`grep`用於搜索文本中包含指定內容的行，常用於管道操作中處理其它指令的輸出結果。
-
-```html
-<!-- 從給定的內容中查找包含 xxx 的內容 -->
-$ grep xxx
-<!-- 從給定的內容中查找以 xxx 起始的內容 -->
-$ grep ^xxx
-<!-- 從給定的內容中排除包含 xxx 的內容 -->
-$ grep -v xxx
-
-<!-- 查找內容時，輸出目標內容附近指定行數相關的內容 -->
-$ grep -C 行數
-
-<!-- 查找 xxx (嚴格匹配) -->
-$ grep -w xxx
-<!-- 等價於grep -w -->
-$ grep '\<xxx\>'
-
-<!-- 匹配 xxx 時忽略大小寫 -->
-$ grep -i xxx
-
-<!-- 基於正則匹配 -->
-$ grep -P xxx
-$ grep -Po xxx <!-- 僅輸出匹配的部分-->
-```
-
-## envsubst
-envsubst來自GNU項目的[gettext](https://www.gnu.org/software/gettext/)工具鏈，
-gettext提供了一系列的文本處理工具，如gettext、msggrep、envsubst等。
-envsubst使用方法較為簡單，該工具從標準輸入接收文本，直接讀取當前環境變量，
-替換環境變量內容後輸出到標準輸出。
-
-默認為交互模式，輸入文本後按回車鍵輸出替換後的內容：
-
-```html
-$ envsubst
-$HOME $EDITOR
-/Users/dainslef vim
-Current language: $LANG
-Current language: en_US.UTF-8
-```
-
-亦可使用管道/重定向等方式輸入內容：
-
-```html
-<!-- 使用管道 -->
-$ echo $HOME $EDITOR | envsubst
-/Users/dainslef vim
-$ echo 'Current language: $LANG'
-Current language: $LANG
-$ echo 'Current language: $LANG' | envsubst
-Current language: en_US.UTF-8
-
-<!-- 使用重定向 -->
-$ envsubst <<< $HOME
-/Users/dainslef
-$ envsubst <<< 'Current language: $LANG'
-Current language: en_US.UTF-8
-```
-
-使用envsubst默認會轉換所有符合環境變量語法(`$XXX`)的內容，
-若被替換的目標環境變量不存在，則以空字符串替代：
-
-```html
-<!-- 查詢當前環境變量的信息 -->
-$ env | grep LANG
-LANG=en_US.UTF-8
-LANGUAGE=en_US:en
-$ env | grep UNKNOWN
-
-$ echo 'Current language: $LANG, Unkown: $UNKNOWN'
-Current language: $LANG, Unkown: $UNKNOWN
-<!-- 環境變量 $UNKNOWN 不存在，輸出空內容 -->
-$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst
-Current language: en_US.UTF-8, Unkown:
-```
-
-envsubst可添加一個文本參數控制需要替換的環境變量：
-
-```html
-<!-- 僅替換 $UNKNOWN -->
-$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst '$UNKNOWN'
-Current language: $LANG, Unkown:
-<!-- 僅替換 $LANG -->
-$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst '$LANG'
-Current language: en_US.UTF-8, Unkown: $UNKNOWN
-<!-- 替換多個環境變量 -->
-$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst '$UNKNOWN $LANG'
-Current language: en_US.UTF-8, Unkown:
-<!-- 全不替換 -->
-$ echo 'Current language: $LANG, Unkown: $UNKNOWN' | envsubst ''
-Current language: $LANG, Unkown: $UNKNOWN
-```
-
-## sed
-`sed`是流式編輯器(stream editor)，通常各類Unix中均包含該工具，
-在Linux中內置的實現是[`GNU sed`](https://www.gnu.org/software/sed/manual/sed.html)。
-
-### 截取輸出
-sed支持按行截取命令行輸出：
-
-```html
-<!-- 行數從 1 開始計數 -->
-$ sed -n 行號p <!-- 截取指定行的輸出 -->
-$ sed -n 起始行,結束行p <!-- 截取指定起止範圍的行-->
-```
-
-示例：
-
-```html
-$ echo a\nb\nc\nd
-a
-b
-c
-d
-<!-- 獲取第2行輸出 -->
-$ echo a\nb\nc\nd | sed -n 2p
-b
-<!-- 獲取第2～4行內容 -->
-$ echo a\nb\nc\nd | sed -n 2,4p
-b
-c
-d
-```
-
-### 文本替換
-使用GNU sed工具可實現文本替換：
-
-```html
-<!-- 默認將替換後的內容輸出到終端 -->
-$ sed 's/舊文本/新文本/' 文件路徑
-<!--
-當需要替換的目標文本中包含替換標識符時，需要使用 \ 進行轉義
-用於切分源文本和被替換文本的標識符可以自定，比如使用 _ 或 - . ? < > 以及空格等等
-可根據需要規避的文本靈活選擇替換標識符
- -->
-$ sed 's 舊文本 新文本 ' 文件路徑
-$ sed 's.舊文本.新文本.' 文件路徑
-$ sed 's-舊文本-新文本-' 文件路徑
-
-<!-- 默認替換操作僅替換首個匹配的內容，替換所有內容需表達式末尾添加字母 g -->
-$ $ sed 's/舊文本/新文本/g' 文件路徑
-
-<!-- 可替換輸出文件內容 -->
-$ sed -i 's/舊文本/新文本/' 文件路徑
-
-<!-- 基於其它指令的重定向輸出 -->
-$ cat/echo/... | sed 's/舊文本/新文本/'
-```
-
-示例：
-
-```html
-<!-- Linux GNU sed -->
-$ cat test.txt
-$TEST output
-$ sed 's/$TEST/test/' test.txt
-test output
-
-<!-- 使用其它替換標誌符作用類似 -->
-$ sed 's.$TEST.test.' test.txt
-test output
-$ sed 's-$TEST-test-' test.txt
-test output
-
-$ sed -i 's/$TEST/test/' test.txt
-$ cat test.txt
-test output
-$ echo '$TEST output' | sed 's/$TEST/test/'
-test output
-
-$ echo aabbaa > test.txt
-$ cat test.txt
-aabbaa
-<!-- 普通替換表達式僅替換首個匹配內容 -->
-$ sed 's/aa/cc/' test.txt
-ccbbaa
-<!-- 匹配表達式末尾添加字母 g ，則替換所有匹配內容 -->
-$ sed 's/aa/cc/g' test.txt
-ccbbcc
-```
-
-需要注意，sed在不同Unix中的實現功能參數有所不同，以BSD的sed為例，
-`-i`參數設置後綴，將輸出內容保存到現有文件，同時備份原內容到添加後綴的文件中。
-示例：
-
-```html
-<!-- macOS BSD sed -->
-$ cat test.txt
-$TEST output
-$ sed -i .back 's/$TEST/test/' test.txt
-$ cat test.txt
-test output <!-- 輸出文件內容已被替換 -->
-$ cat test.txt.back
-$TEST output <!-- 原文件被備份到 "原文件名+後綴" 的文件中 -->
-```
-
-### 插入/刪除/編輯指定行數的文本
-sed支持在操作前添加**行號**，對指定行數的文本進行操作，操作指令包括：
-
-- `i` 插入內容
-- `d` 刪除內容
-- `s` 替換內容
-
-指令用法：
-
-```html
-<!-- 在指定行前插入內容 -->
-$ sed '行號 i 內容' 文件路徑
-<!-- 不使用行號，則在每一行插入內容 -->
-$ sed 'i 內容' 文件路徑
-
-<!-- 刪除指定行號的內容 -->
-$ sed '行號 d' 文件路徑
-<!-- 不使用行號則刪除所有內容 -->
-$ sed 'd' 文件路徑
-
-<!-- 替換指定行的文本 -->
-$ sed '行號 s 舊文本 新文本 '
-```
-
-示例：
-
-```html
-$ echo 1111\n2222\n3333 > test.txt
-$ cat test.txt
-1111
-2222
-3333
-
-<!-- 指定行添加內容 -->
-$ sed '3 i xxxx' test.txt
-1111
-2222
-xxxx
-3333
-<!-- 向所有行添加內容 -->
-$ sed 'i xxxx' test.txt
-xxxx
-1111
-xxxx
-2222
-xxxx
-3333
-
-<!-- 刪除指定行 -->
-$ sed '3 d' test.txt
-1111
-2222
-```
-
-
-
-# apt/dpkg
+# Debian系列發行版包管理
 `Debian`系列發行版使用`deb`格式作爲軟件包的打包、分發格式；
 使用`apt`（依賴管理）和`dpkg`（包處理）進行管理。
 
@@ -4922,7 +4917,7 @@ $ dpkg-divert --list
 $ dpkg-divert --remove --package [packaage_name] [origin_conflict_path]
 ```
 
-## 源配置
+## apt軟件源配置
 使用`apt`工具需要正確配置鏡像源地址，配置文件爲`/etc/apt/sources.list`。
 
 `Debian`系列發行版軟件源格式爲：
@@ -4943,7 +4938,7 @@ deb-src 軟件源地址 版本號 倉庫類型
 
 `Ubuntu`與`Debian`的版本號、倉庫類型分類完全不同。
 
-### Debian 源
+### Debian源
 `Debian`版本號有兩類：
 
 1. 固定版本號，按照穩定程度分爲`stable`、`testing`、`unstable`、`experimental`。
@@ -4977,7 +4972,7 @@ deb https://mirrors.ustc.edu.cn/debian/ stable-updates main contrib non-free
 deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free
 ```
 
-### Ubuntu 源
+### Ubuntu源
 `Ubuntu`沒有固定版本號，需要使用發行版本號，主要的`LTS`版本的版本代號：
 
 | 版本 | 版本代號 |
@@ -5021,7 +5016,7 @@ deb http://archive.canonical.com/ubuntu/ xenial partner
 ## apt-mirror
 `apt-mirror`是Debian系列發行版中用於製作**本地源**的工具。
 
-### 本地源配置
+### apt-mirror本地源配置
 `apt-mirror`的配置文件爲`/etc/apt/mirror.list`。若無特殊需求可直接使用默認配置。
 
 默認配置下，鏡像會被同步到本地的`/var/spool/apt-mirror`路徑下。
@@ -5038,7 +5033,7 @@ deb http://mirrors.ustc.edu.cn/ubuntu xenial-updates main restricted universe mu
 deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted universe muitiverse
 ```
 
-### 使用本地源
+### 使用apt-mirror本地源
 若僅需要本機使用本地源，可以直接使用`file:///...`訪問本機的源路徑。
 
 `sources.list`配置：
