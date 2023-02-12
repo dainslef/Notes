@@ -70,6 +70,7 @@
 	- [Your network preferences prevent content from loading privately](#your-network-preferences-prevent-content-from-loading-privately)
 	- [macOS下Chrome的 NET::ERR_CERT_INVALID](#macos下chrome的-neterr_cert_invalid)
 	- [macOS默認終端下Powerline字體色彩顯示異常](#macos默認終端下powerline字體色彩顯示異常)
+	- [Launchpad無效圖標](#launchpad無效圖標)
 
 <!-- /TOC -->
 
@@ -1426,3 +1427,15 @@ macOS自帶終端顯示Powerline字體色彩問題暫無直接解決方案，
 ![iTerm2下Powerline字體設置](../../images/mac_os_powerline_font_color_iterm2_setting.png)
 
 詳情參見[Powerline官方文檔](https://powerline.readthedocs.io/en/master/troubleshooting/osx.html)。
+
+## Launchpad無效圖標
+問題描述：<br>
+部分程序卸載後，Launchpad圖標未能正常移除，留下了狀態異常的圖標，
+詳情參考[StackExchange](https://apple.stackexchange.com/questions/175989/how-to-remove-icons-showing-question-marks-of-deleted-apps-from-launchpad)上的對應提問。
+
+解決方案：<br>
+在Launchpad中異常的圖標上長按，之後存在問題的圖標會出現刪除按鈕，如下圖所示：
+
+![Launchpad異常圖標刪除](../../images/mac_os_launchpad_icon_error.png)
+
+點擊刪除按鈕即可刪除圖標。
