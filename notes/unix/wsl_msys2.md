@@ -6,10 +6,13 @@
 	- [包管理](#包管理)
 	- [設置中文LC](#設置中文lc)
 	- [pacman-key/msys2-keyring更新錯誤](#pacman-keymsys2-keyring更新錯誤)
-- [Windows Linux Subsystem](#windows-linux-subsystem)
-	- [LXSS](#lxss)
-	- [WSL](#wsl)
-	- [WSL2](#wsl2)
+- [POSIX](#posix)
+	- [Microsoft POSIX subsystem](#microsoft-posix-subsystem)
+	- [Windows Services for UNIX](#windows-services-for-unix)
+	- [Windows Linux Subsystem](#windows-linux-subsystem)
+		- [LXSS](#lxss)
+		- [WSL](#wsl)
+		- [WSL2](#wsl2)
 - [Linux Subsystem 與 MSYS2 比較](#linux-subsystem-與-msys2-比較)
 - [Wine](#wine)
 	- [安裝和配置Wine](#安裝和配置wine)
@@ -119,23 +122,37 @@ $ pacman-key --populate
 
 
 
-# Windows Linux Subsystem
+# POSIX
+Windows在不同時期曾以不同形式支持了部分POSIX特性。
+
+## Microsoft POSIX subsystem
+Windows NT初版開始提供了[`Microsoft POSIX subsystem`](https://en.wikipedia.org/wiki/Microsoft_POSIX_subsystem)，
+該POSIX子系統實現了`POSIX 1`標準（IEEE Std 1003.1-1990）。
+因爲POSIX交互環境相關内容在`POSIX 2`中才標準化，
+故Windows的POSIX子系統并未提供任何POSIX Shell以及Unix命令行工具。
+
+## Windows Services for UNIX
+自`Windows XP`/`Windows Server 2003`開始，POSIX子系統被
+[`Windows Services for UNIX (SFU)`](https://en.wikipedia.org/wiki/Windows_Services_for_UNIX)替代。
+SFU後續亦停止更新，Windows 10之後開始引入WSL，作爲新的Windows POSIX子系統。
+
+## Windows Linux Subsystem
 在`Windows 10`週年更新`Version 1607`中引入了`Linux Subsystem`(簡稱`LXSS`)，
 之後`Version 1709`中正式發布定名`Windows Subsystem for Linux`(簡稱`WSL`)。
 
-## LXSS
+### LXSS
 啓用LXSS需要執行以下步驟：
 
 1. `設置`中啓用`開發人員模式`。
 1. `啓用或關閉Windows功能`中勾選`適用於Linux的Windows子系統`。
 1. 在CMD中輸入bash指令，按照提示即可進入子系統安裝步驟。
 
-LXSS的安裝路徑爲`[用戶目錄]/AppData/Local/Lxss`路徑下。
-默認的資源管理器配置下，該目錄不可見，需要取消勾選`隱藏受保護的操作系統文件(推薦)`選項才能顯示此目錄。
+LXSS的安裝路徑爲`[用戶目錄]/AppData/Local/Lxss`。
+默認資源管理器配置下，該目錄不可見，需取消勾選`隱藏受保護的操作系統文件(推薦)`選項方可顯示此目錄。
 
-在LXSS中，Windows下的分區會被掛載到`/mnt`路徑下。
+在LXSS中，Windows分區會被掛載到`/mnt`路徑下。
 
-LXSS使用`lxrun`工具進行管理：
+LXSS使用`lxrun`工具管理環境：
 
 ```html
 > lxrun /install <!-- 安裝子系統 -->
@@ -144,7 +161,7 @@ LXSS使用`lxrun`工具進行管理：
 > lxrun /setdefaultuser <!-- 配置子系統用戶 -->
 ```
 
-## WSL
+### WSL
 從`Windows Version 1709`(2017秋季創意者更新)開始，LXSS正式脫離Beta版本，正式名稱為WSL。
 從1709版本開始，應用商店中直接提供WSL發行版應用下載。
 同時，WSL也不僅限於`Ubuntu`發行版，還提供了`openSUSE`和`SUSE Linux Enterprise Server`。
@@ -161,7 +178,7 @@ LXSS使用`lxrun`工具進行管理：
 WSL基於API轉發，詳細實現機制參考博客[Windows for Linux Nerds](https://blog.jessfraz.com/post/windows-for-linux-nerds/)，
 以及[微軟官方文檔](https://docs.microsoft.com/en-us/archive/blogs/wsl/windows-subsystem-for-linux-overview)。
 
-## WSL2
+### WSL2
 WSL基於API轉發的實現存在一系列問題：
 
 - 文件系統性能(file system performance)
