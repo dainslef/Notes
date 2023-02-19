@@ -10,12 +10,14 @@
 - [包管理](#包管理)
 	- [pkg](#pkg)
 	- [Ports](#ports)
+	- [安裝系統更新](#安裝系統更新)
 	- [系統版本升級](#系統版本升級)
 - [GUI](#gui)
 	- [Display Manager](#display-manager)
 - [常用工具指令](#常用工具指令)
 	- [PCI設備](#pci設備)
 	- [磁盤分區管理](#磁盤分區管理)
+	- [proc文件系統](#proc文件系統)
 	- [掛載導入zfs分區](#掛載導入zfs分區)
 	- [chroot](#chroot)
 	- [查看端口狀態](#查看端口狀態)
@@ -215,6 +217,9 @@ FreeBSD同時提供了基於源碼編譯軟件包的`Ports`系統和基於預編
 # pkg remove 軟件包名稱 <!-- 移除指定軟件包 -->
 # pkg autoremove 軟件包名稱 <!-- 清理不需要的依賴 -->
 
+<!-- 升級系統已經安裝的所有軟件包 -->
+# pkg upgrade
+
 <!-- 查看軟件包信息 -->
 # pkg info <!-- 查詢所有已安裝的軟件包 -->
 # pkg info 軟件包名稱 <!-- 查詢某個軟件包的具體信息(包括軟件包的文件組成，依賴關係，來源等) -->
@@ -252,13 +257,28 @@ Ports源碼樹位於`/usr/ports`目錄之，首次使用前需要初始化Ports�
 
 使用源碼編譯的軟件包安裝後同樣受到`pkg`包管理器的管理。
 
+## 安裝系統更新
+FreeBSD使用`freebsd-update`獲取和安裝系統補丁：
+
+```html
+<!-- 獲取當前版本系統的更新，更新拉取完成後會進入文件變化的預覽介面，使用 q 鍵退出預覽 -->
+# freebsd-update fetch
+
+<!-- 安裝系統更新 -->
+# freebsd-update install
+```
+
 ## 系統版本升級
-FreeBSD並非**滾動發行版**，系統有明確的版本劃分，升級系統版本需要使用升級工具`freebsd-update`。
-升級到指定版本，執行指令：
+FreeBSD並非**滾動發行版**，系統有明確的版本劃分，
+升級系統版本同樣使用更新工具`freebsd-update`。
+
+升級系統到指定版本，執行指令：
 
 ```
-# freebsd-update -r [版本號-發佈狀態] upgrade
+# freebsd-update -r 目標系統版本 upgrade
 ```
+
+當前支持的系統列表可從[FreeBSD官網](https://www.freebsd.org/releases/)查詢。
 
 以`FreeBSD 10.1`正式版為例，執行指令：
 
@@ -416,6 +436,17 @@ ada1
 	7200        	# Rotation rate in RPM
 	Not_Zoned   	# Zone Mode
 ```
+
+## proc文件系統
+FreeBSD雖支持proc文件系統，但默認並不開啟，
+開啟proc文件系統可在fstab中添加掛載點：
+
+```
+proc /proc procfs rw 0 0
+```
+
+FreeBSD的proc文件系統結構與Linux中基本類似，
+但相對Linux而言較為簡陋，提供的信息較少。
 
 ## 掛載導入zfs分區
 查看存在的zfs pools：
