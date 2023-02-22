@@ -12,6 +12,7 @@
 		- [重置集群節點](#重置集群節點)
 	- [CNI（Container Network Interface）](#cnicontainer-network-interface)
 		- [使用helm部署網絡插件](#使用helm部署網絡插件)
+	- [升級集群](#升級集群)
 
 <!-- /TOC -->
 
@@ -126,7 +127,8 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 ```
 
 Kubernetes可能並未提供與操作系統版本匹配的倉庫
-（截止目前2022-05，Ubuntu最新LTS版本爲22.04，但當前Kubernetes倉庫僅提供最高Xenial/16.04版本的安裝包），
+（截止目前2022-05，Ubuntu最新LTS版本爲22.04，
+但當前Kubernetes倉庫僅提供最高Xenial/16.04版本的安裝包），
 由於Kubernetes使用Golang實現，因而對操作系統依賴較少，
 在版本較新的操作系統中使用舊版本的Kubernetes倉庫通常不會有問題，
 但推薦使用與安裝包完全匹配的系統版本，避免出現潛在的問題。
@@ -271,6 +273,158 @@ kube-system   kube-scheduler-ubuntu-arch64-tokyo            1/1     Running   11
 
 ```html
 <!-- 使用 helm 部署 calico 時，假定 kubeadm 已使用 --pod-network-cidr=192.168.0.0/16 參數初始化 -->
-$ kubectl create namespace tigera-operator
-$ helm install calico projectcalico/tigera-operator --namespace tigera-operator
+$ kubectl create namespace xxx-namespace
+$ helm install calico projectcalico/tigera-operator --namespace xxx-namespace
 ```
+
+## 升級集群
+集群升級可參考[官方文檔](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade)。
+
+升級集群首先需要安裝升級目標版本的Kubernetes軟件包，
+軟件包安裝完成後，檢視當前安裝的`kubeadm`版本信息：
+
+```html
+<!-- 以 v1.25.5 為例 -->
+$ kubeadm version
+kubeadm version: &version.Info{Major:"1", Minor:"25", GitVersion:"v1.25.5", GitCommit:"804d6167111f6858541cef440ccc53887fbbc96a", GitTreeState:"clean", BuildDate:"2022-12-08T10:13:29Z", GoVersion:"go1.19.4", Compiler:"gc", Platform:"linux/arm64"}
+```
+
+確認kubeadm的版本為需要升級的版本，之後可查看升級計畫：
+
+```
+# kubeadm upgrade plan
+[upgrade/config] Making sure the configuration is correct:
+[upgrade/config] Reading configuration from the cluster...
+[upgrade/config] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -o yaml'
+[preflight] Running pre-flight checks.
+[upgrade] Running cluster health checks
+[upgrade] Fetching available versions to upgrade to
+[upgrade/versions] Cluster version: v1.24.3
+[upgrade/versions] kubeadm version: v1.25.5
+I1209 15:46:42.222749 1130494 version.go:256] remote version is much newer: v1.26.0; falling back to: stable-1.25
+[upgrade/versions] Target version: v1.25.5
+[upgrade/versions] Latest version in the v1.24 series: v1.24.9
+
+Components that must be upgraded manually after you have upgraded the control plane with 'kubeadm upgrade apply':
+COMPONENT   CURRENT       TARGET
+kubelet     1 x v1.25.5   v1.24.9
+
+Upgrade to the latest version in the v1.24 series:
+
+COMPONENT                 CURRENT   TARGET
+kube-apiserver            v1.24.3   v1.24.9
+kube-controller-manager   v1.24.3   v1.24.9
+kube-scheduler            v1.24.3   v1.24.9
+kube-proxy                v1.24.3   v1.24.9
+CoreDNS                   v1.8.6    v1.9.3
+etcd                      3.5.3-0   3.5.6-0
+
+You can now apply the upgrade by executing the following command:
+
+	kubeadm upgrade apply v1.24.9
+
+_____________________________________________________________________
+
+Upgrade to the latest stable version:
+
+COMPONENT                 CURRENT   TARGET
+kube-apiserver            v1.24.3   v1.25.5
+kube-controller-manager   v1.24.3   v1.25.5
+kube-scheduler            v1.24.3   v1.25.5
+kube-proxy                v1.24.3   v1.25.5
+CoreDNS                   v1.8.6    v1.9.3
+etcd                      3.5.3-0   3.5.6-0
+
+You can now apply the upgrade by executing the following command:
+
+	kubeadm upgrade apply v1.25.5
+
+_____________________________________________________________________
+
+
+The table below shows the current state of component configs as understood by this version of kubeadm.
+Configs that have a "yes" mark in the "MANUAL UPGRADE REQUIRED" column require manual config upgrade or
+resetting to kubeadm defaults before a successful upgrade can be performed. The version to manually
+upgrade to is denoted in the "PREFERRED VERSION" column.
+
+API GROUP                 CURRENT VERSION   PREFERRED VERSION   MANUAL UPGRADE REQUIRED
+kubeproxy.config.k8s.io   v1alpha1          v1alpha1            no
+kubelet.config.k8s.io     v1beta1           v1beta1             no
+_____________________________________________________________________
+```
+
+升級計畫中會列出升級的內容，通常可升級到同版本的最新子版本，以及最新的穩定版本（跨大版本升級）。
+確認需要升級的版本後，執行輸出的升級指令實施升級操作：
+
+```
+# kubeadm upgrade apply v1.25.5
+[upgrade/config] Making sure the configuration is correct:
+[upgrade/config] Reading configuration from the cluster...
+[upgrade/config] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -o yaml'
+[preflight] Running pre-flight checks.
+[upgrade] Running cluster health checks
+[upgrade/version] You have chosen to change the cluster version to "v1.25.5"
+[upgrade/versions] Cluster version: v1.24.3
+[upgrade/versions] kubeadm version: v1.25.5
+[upgrade] Are you sure you want to proceed? [y/N]: y
+[upgrade/prepull] Pulling images required for setting up a Kubernetes cluster
+[upgrade/prepull] This might take a minute or two, depending on the speed of your internet connection
+[upgrade/prepull] You can also perform this action in beforehand using 'kubeadm config images pull'
+[upgrade/apply] Upgrading your Static Pod-hosted control plane to version "v1.25.5" (timeout: 5m0s)...
+[upgrade/etcd] Upgrading to TLS for etcd
+[upgrade/staticpods] Preparing for "etcd" upgrade
+[upgrade/staticpods] Renewing etcd-server certificate
+[upgrade/staticpods] Renewing etcd-peer certificate
+[upgrade/staticpods] Renewing etcd-healthcheck-client certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/etcd.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2022-12-09-15-50-04/etcd.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+[apiclient] Found 1 Pods for label selector component=etcd
+[upgrade/staticpods] Component "etcd" upgraded successfully!
+[upgrade/etcd] Waiting for etcd to become available
+[upgrade/staticpods] Writing new Static Pod manifests to "/etc/kubernetes/tmp/kubeadm-upgraded-manifests3205360824"
+[upgrade/staticpods] Preparing for "kube-apiserver" upgrade
+[upgrade/staticpods] Renewing apiserver certificate
+[upgrade/staticpods] Renewing apiserver-kubelet-client certificate
+[upgrade/staticpods] Renewing front-proxy-client certificate
+[upgrade/staticpods] Renewing apiserver-etcd-client certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-apiserver.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2022-12-09-15-50-04/kube-apiserver.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+[apiclient] Found 1 Pods for label selector component=kube-apiserver
+[upgrade/staticpods] Component "kube-apiserver" upgraded successfully!
+[upgrade/staticpods] Preparing for "kube-controller-manager" upgrade
+[upgrade/staticpods] Renewing controller-manager.conf certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-controller-manager.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2022-12-09-15-50-04/kube-controller-manager.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+[apiclient] Found 1 Pods for label selector component=kube-controller-manager
+[upgrade/staticpods] Component "kube-controller-manager" upgraded successfully!
+[upgrade/staticpods] Preparing for "kube-scheduler" upgrade
+[upgrade/staticpods] Renewing scheduler.conf certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-scheduler.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2022-12-09-15-50-04/kube-scheduler.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+[apiclient] Found 1 Pods for label selector component=kube-scheduler
+[upgrade/staticpods] Component "kube-scheduler" upgraded successfully!
+[upgrade/postupgrade] Removing the old taint &Taint{Key:node-role.kubernetes.io/master,Value:,Effect:NoSchedule,TimeAdded:<nil>,} from all control plane Nodes. After this step only the &Taint{Key:node-role.kubernetes.io/control-plane,Value:,Effect:NoSchedule,TimeAdded:<nil>,} taint will be present on control plane Nodes.
+[upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[kubelet] Creating a ConfigMap "kubelet-config" in namespace kube-system with the configuration for the kubelets in the cluster
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to get nodes
+[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstrap-token] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstrap-token] Configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[addons] Applied essential addon: CoreDNS
+[addons] Applied essential addon: kube-proxy
+
+[upgrade/successful] SUCCESS! Your cluster was upgraded to "v1.25.5". Enjoy!
+
+[upgrade/kubelet] Now that your control plane is upgraded, please proceed with upgrading your kubelets if you haven't already done so.
+```
+
+輸出`[upgrade/successful] SUCCESS! Your cluster was upgraded to "xxx". Enjoy!`則代表升級成功。
+升級完成後，`kube-system`命名空間下的pods會被全部替換，
+位於`/etc/kubernetes/manifests`路徑下的配置會替換為新版本，
+同時舊的配置會被備份到`/etc/kubernetes/tmp`路徑下，
+若對其中內容進行過修改，則應手動比較配置差異，重新添加配置。
