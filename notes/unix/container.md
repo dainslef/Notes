@@ -363,7 +363,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 | 參數 | 説明 |
 | :- | :- |
-| `-t` | 創建容器時，爲容器分配僞終端 |
+| `-t` | 創建容器時，爲容器分配交互終端 |
 | `-i` | 保持容器標準輸出到終端 |
 | `--name` | 創建容器時爲容器指定名稱 |
 
@@ -376,10 +376,26 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 ```html
 <!-- 創建容器時僅需使用 -i 參數即可保證容器保持執行狀態 -->
+$ docker create -i --name 容器實例名稱 容器鏡像 執行指令
+<!-- 創建容器時僅需使用 -t 參數會為容器分配虛擬終端（用於 attach 操作） -->
+$ docker create -it --name 容器實例名稱 容器鏡像 執行指令
+
+<!-- 示例 -->
 $ docker create -i --name Nix nixos/nix sh
+$ docker create -it --name Nix nixos/nix sh
 ```
 
-容器創建完成后，可執行一系列操作：
+容器創建完成后，可进入容器自带终端（需要創建容器時使用`-t`參數）：
+
+```html
+<!--
+進入容器啓動進程的交互終端；
+退出交互終端使用 ctrl + p 之後輸入 ctrl + q 組合鍵
+-->
+# docker attach 容器ID/容器名稱
+```
+
+其它常用操作：
 
 ```html
 <!-- 使用 docker exec 指令可以使用已啓動的容器執行指令 -->
@@ -390,12 +406,6 @@ $ docker create -i --name Nix nixos/nix sh
 <!-- 查看容器進程的輸出日志 -->
 # docker logs 容器ID/容器名稱
 # docker logs -f 容器ID/容器名稱 <!-- 同步日志輸出 -->
-
-<!--
-進入容器啓動進程的交互終端；
-退出交互終端使用 ctrl + p 之後輸入 ctrl + q 組合鍵
--->
-# docker attach 容器ID/容器名稱
 ```
 
 使用`docker container`相關指令查看、管理容器相關信息。
