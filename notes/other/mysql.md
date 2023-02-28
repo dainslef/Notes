@@ -40,6 +40,9 @@
 - [JSON 類型](#json-類型)
 	- [基本JSON操作](#基本json操作)
 	- [查找與更新JSON節點](#查找與更新json節點)
+- [Index (索引)](#index-索引)
+	- [索引類型](#索引類型)
+	- [索引實現與優化](#索引實現與優化)
 - [Row Formats (行格式)](#row-formats-行格式)
 	- [REDUNDANT Row Format](#redundant-row-format)
 	- [COMPACT Row Format](#compact-row-format)
@@ -899,6 +902,45 @@ MySQL提供的JSON_REMOVE()函數基於索引刪除內容，而JSON_SEARCH()函�
 
 使用JSON_SEARCH()函數查找得到的節點位置結果使用雙引號包裹，不可直接使用，
 需要使用JSON_UNQUOTE()處理後才能被其它接收JSON位置的函數(如JSON_REPLACE())使用。
+
+
+
+# Index (索引)
+索引被用於快速查找包含特定列值的行。在無索引的情況下，MySQL會從首行開始讀取整張表來查找相關的行。
+查找的消耗會隨著表格的增大而增大。若表格查詢的列已建立索引，則MySQL能夠快速地找到數據文件中的位置，
+而不必查找所有數據，相比順序地讀取每一行要快得多。
+
+## 索引類型
+索引分為聚簇索引(Clustered Index)和輔助索引/二級索引(Secondary Index)。
+
+對InnoDB引擎而言，聚簇索引實際是主鍵索引(Primary Key)的同義詞；
+而輔助索引則包含(Unique Key、Index、Prefix、Full Text)等多種。
+
+| 索引類型 | 說明 |
+| :- | :- |
+| Primary Key | 每張表只能擁有一個主鍵索引，在InnoDB中，未顯式設定主鍵時，會自動將帶有唯一索引的字段作為主鍵，不滿足則否則將自動創建一個6 Byte的自增字段作為主鍵 |
+| Unique Key | 帶有唯一性約束的索引，數據不可重複，可為NULL |
+| Index | 常規索引，數據可重複，可為NULL |
+| Prefix | 前綴索引，僅適用於文本相關類型，對文本的前幾個字符創建索引，相比常規索引數據量更小 |
+| Full Text | 全文索引，僅用於文本相關類型，主要用於優化大數據量的自然語言文本的搜索 |
+
+## 索引實現與優化
+大多數索引(Unique Key、Index、Prefix、Full Text)使用`B-trees`實現。
+MySQL 5.7中引入的地理空間數據類型(Spatial Data Types)使用`R-trees`；
+內存存儲引擎(MEMORY Tables)還支持哈希索引；InnoDB使用倒序列表實現Full Text索引。
+
+以`MySQL 8.0`為例，索引相關的詳細內容參考
+[官方文檔第8.3節 Optimization and Indexes](https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html)。
+
+MySQL在以下操作中使用索引：
+
+- 快速地查找匹配的數據行。
+- 優化選擇索引，存在多個索引可供選擇時，
+MySQL通常會使用查找行數最小的索引(the most selective index，最具選擇性的索引)。
+- 若表格帶有組合索引(多列索引)，任何索引的左側前綴可用於優化查找行。
+例如已經存在一個三列的組合索引(col1, col2, col3)，
+則列(col1)、(col1, col2)、(col1, col2, col3)等均建立了索引。
+- 當執行join操作，從其它表中獲取行時，MySQL能夠更有效地在列上使用索引當它們定義為相同的類型和大小時。
 
 
 
