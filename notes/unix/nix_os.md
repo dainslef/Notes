@@ -6,6 +6,7 @@
 	- [Nix User Environments](#nix-user-environments)
 	- [Nix Channel](#nix-channel)
 	- [Unfree](#unfree)
+	- [Insecure](#insecure)
 - [NixOS](#nixos)
 	- [查看文檔](#查看文檔)
 	- [Nix語言](#nix語言)
@@ -237,7 +238,7 @@ NixOS軟件源中收錄了部分Unfree的軟件包，如`Chrome`、`Visual Studi
 # nix-env -iA nixos.vscode --arg config '{ allowUnfree = true; }'
 ```
 
-全局允許unfree軟件安裝，需要在configuration.nix配置中設定`nixpkgs.config.allowUnfree`屬性：
+在NixOS中全局允許unfree軟件安裝，需要在configuration.nix配置中添加配置：
 
 ```nix
 nixpkgs.config.allowUnfree = true;
@@ -257,6 +258,45 @@ Nix包管理器對於每個用戶擁有獨立的配置，全局的unfree配置�
 {
   allowUnfree = true;
 }
+```
+
+## Insecure
+部分軟件包由於不再維護會被標記為`insecure`，默認策略下，
+構建配置中使用了insecure的軟件包會停止構建，並輸出錯誤信息：
+
+```
+error: Package ‘xxx’ in /nix/store/xxx:xx is marked as insecure, refusing to evaluate.
+Known issues:
+...
+```
+
+可通過設置環境便來那個臨時允許insecure軟件包：
+
+```
+# export NIXPKGS_ALLOW_INSECURE=1
+```
+
+在NixOS中，永久允許某個軟件包則需要在configuration.nix中配置允許的軟件包：
+
+```nix
+nixpkgs.config.permittedInsecurePackages = [
+  ...
+]
+```
+
+若存在特定規則的insecure軟件包，則可使用`allowInsecurePredicate`設置包過濾器，
+該配置項接收一個Lambda表達式，參數為pkg，返回值為boolean類型，示例：
+
+```nix
+# 示例，允許所有包名長度為5以下的insecure軟件包
+nixpkgs.config.allowInsecurePredicate = pkg: builtins.stringLength (lib.getName pkg) <= 5;
+```
+
+允許所有insecure軟件包可直接設置返回值為true：
+
+```nix
+# 允許所有insecure軟件包
+nixpkgs.config.allowInsecurePredicate = pkg: true;
 ```
 
 
