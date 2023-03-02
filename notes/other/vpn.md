@@ -4,8 +4,9 @@
 	- [下發路由](#下發路由)
 	- [iroute](#iroute)
 	- [ifconfig-push](#ifconfig-push)
-	- [OpenVPN問題記錄](#openvpn問題記錄)
-		- [OPTIONS ERROR: failed to negotiate cipher with server. Add the server's cipher ('BF-CBC') to --data-ciphers (currently 'AES-256-GCM:AES-128-GCM:AES-128-CBC') if you want to connect to this server.](#options-error-failed-to-negotiate-cipher-with-server-add-the-servers-cipher-bf-cbc-to---data-ciphers-currently-aes-256-gcmaes-128-gcmaes-128-cbc-if-you-want-to-connect-to-this-server)
+	- [設置腳本認證](#設置腳本認證)
+- [OpenVPN問題記錄](#openvpn問題記錄)
+	- [OPTIONS ERROR: failed to negotiate cipher with server. Add the server's cipher ('BF-CBC') to --data-ciphers (currently 'AES-256-GCM:AES-128-GCM:AES-128-CBC') if you want to connect to this server.](#options-error-failed-to-negotiate-cipher-with-server-add-the-servers-cipher-bf-cbc-to---data-ciphers-currently-aes-256-gcmaes-128-gcmaes-128-cbc-if-you-want-to-connect-to-this-server)
 
 <!-- /TOC -->
 
@@ -60,10 +61,61 @@ ifconfig-push 客戶端IP 服務端IP
 
 關於ifconfig-push的說明參見[官方文檔](https://openvpn.net/community-resources/configuring-client-specific-rules-and-access-policies/)。
 
-## OpenVPN問題記錄
+## 設置腳本認證
+通過`auth-user-pass-verify`參數設置認證腳本和認證參數傳入方式：
+
+```
+auth-user-pass-verify 認證腳本路徑 認證方式
+```
+
+認證方式可取值`via-env`或`via-file`。
+使用via-env認證時，用戶/密碼會作為環境變量`username`/`password`傳入腳本中；
+使用via-file認證時，用戶/密碼會寫入臨時文件中，臨時文件路徑作為參數傳入腳本中。
+
+認證腳本由用戶自行編寫認證邏輯，返回值為`0`代表認證通過，非零返回值代表認證失敗。
+當使用via-env模式時，且傳入認證密碼時，需要在服務端額外配置`script-security`配置項，
+並取值`3`，否則在腳本中無法讀取到密碼。（原因可參見man手冊，
+以及[OpenVPN論壇](https://community.openvpn.net/openvpn/ticket/747)的對應問題討論）。
+
+via-env模式的完整示例：
+
+```
+script-security 3
+auth-user-pass-verify check_auth.fish via-env
+```
+
+`check_auth.fish`腳本內容：
+
+```fish
+#! /usr/bin/fish
+
+# Allow user1/user2 to Login.
+
+echo User login:
+echo username: $username
+echo password: $password
+
+switch $username
+	case "user1"
+	case "user2"
+	case "*"
+		exit 1
+end
+
+switch $password
+	case "password1"
+	case "password2"
+	case "*"
+		exit 1
+end
+```
+
+
+
+# OpenVPN問題記錄
 記錄OpenVPN使用中遇到的一些問題。
 
-### OPTIONS ERROR: failed to negotiate cipher with server. Add the server's cipher ('BF-CBC') to --data-ciphers (currently 'AES-256-GCM:AES-128-GCM:AES-128-CBC') if you want to connect to this server.
+## OPTIONS ERROR: failed to negotiate cipher with server. Add the server's cipher ('BF-CBC') to --data-ciphers (currently 'AES-256-GCM:AES-128-GCM:AES-128-CBC') if you want to connect to this server.
 問題說明：<br>
 客戶端指定的加密類型與服務端不符時客戶端會得到該錯誤信息。
 
