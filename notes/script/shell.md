@@ -27,6 +27,7 @@
 	- [數值計算](#數值計算)
 	- [條件語法](#條件語法)
 	- [if/switch/case（分支語法）](#ifswitchcase分支語法)
+	- [三目運算符](#三目運算符)
 	- [for/while（循環語法）](#forwhile循環語法)
 	- [select 語句](#select-語句)
 	- [輸出內容](#輸出內容)
@@ -526,6 +527,7 @@ fish中額外提供了一系列實用快捷鍵：
 
 | 快捷鍵 | 說明 |
 | :- | :- |
+| ctrl + r | 交互式搜索命令歷史記錄 |
 | alt + w | 展示命令的實際內容（還原alias） |
 | alt + s | 使用sudo執行前一次指令的內容 |
 | alt + e | 快速打開默認編輯器 |
@@ -722,6 +724,7 @@ $ set nums 1 2 3
 訪問數組內容：
 
 - `$數組名` 訪問數組名返回數組內**首個**元素（bash），或返回**整個**數組（zsh/fish）
+- `${數組名[@]}` 訪問**整個**內容（bash）
 - `$數組名[索引]` 訪問數組指定索引的內容，支持**逆序**索引（zsh/fish語法）
 - `$數組名[起始索引..結束索引]` 數組切片，訪問從起始索引到結束索引之間的內容（fish特性）
 - `$((數組名[索引]))`/`$[數組名[索引]]`/`${數組名[索引]}` 訪問數組指定索引的內容（bash/zsh語法）
@@ -797,7 +800,7 @@ fish: $[ is not a valid variable in fish.
 echo $[nums[1]]
 	  ^
 $ echo ${nums[1]} # 錯誤，fish不支持bash/zsh中的數組訪問語法
-fish: ${ is not a valid variable in fish.
+fish: '${' is not a valid variable in fish.
 echo ${nums[1]}
 	  ^
 ```
@@ -984,6 +987,37 @@ switch ...
 	case '*'
 		...
 end
+```
+
+## 三目運算符
+bash/zsh中的三目運算符語法與C語言類似：
+
+```sh
+$((條件 ? 值1 : 值2))
+$[條件 ? 值1 : 值2]
+```
+
+示例：
+
+```sh
+$ n=100
+$ echo $[$n > 100 ? 222 : 333]
+333
+```
+
+fish未直接提供三目運算符語法，但類似功能可用邏輯運算符替代：
+
+```fish
+$ set n 100
+$ [ $n -gt 100 ] && echo 222 || echo 333
+333
+```
+
+注意，fish的邏輯運算符表達式用法不支持將`&&`與`||`替換為`and`與`or`：
+
+```fish
+$ [ $n -gt 100 ] and echo 222 or echo 333
+[: the last argument must be ']'
 ```
 
 ## for/while（循環語法）
