@@ -16,6 +16,7 @@
 		- [process-substitution](#process-substitution)
 	- [標準輸入輸出](#標準輸入輸出)
 	- [交互快捷鍵](#交互快捷鍵)
+	- [fish_config](#fish_config)
 - [Shell 語法](#shell-語法)
 	- [Shebang (`#!`)](#shebang-)
 	- [變量](#變量)
@@ -532,6 +533,42 @@ fish中額外提供了一系列實用快捷鍵：
 | alt + s | 使用sudo執行前一次指令的內容 |
 | alt + e | 快速打開默認編輯器 |
 
+## fish_config
+`fish_config`是fish內置的配置管理工具，直接執行後會開啟一個web server：
+
+![fish config web server](../../images/fish_config_web_server.png)
+
+根據輸出信息使用瀏覽器訪問web頁面：
+
+![fish config web ui](../../images/fish_config_web_ui.png)
+
+在web頁面中可查看色彩配置、提示符、函數、變量等各類配置。
+
+使用`fish_config theme`指令可管理終端色彩主題相關配置：
+
+```html
+<!-- 列出色彩主題 -->
+$ fish_config theme
+$ fish_config theme list
+
+<!-- 查看指定色彩主題 -->
+$ fish_config theme show 色彩主題名稱
+$ fish_config theme demo 色彩主題名稱
+
+<!-- 切換到指定主題並保存 -->
+$ fish_config theme choose 色彩主題名稱
+$ fish_config theme save 色彩主題名稱
+```
+
+使用`fish_config prompt`指令可管理提示符主題相關配置，操作類似：
+
+```html
+$ fish_config prompt
+$ fish_config prompt list
+$ fish_config prompt choose 提示符主題名稱
+$ fish_config prompt save 提示符主題名稱
+```
+
 
 
 # Shell 語法
@@ -1013,11 +1050,14 @@ $ [ $n -gt 100 ] && echo 222 || echo 333
 333
 ```
 
-注意，fish的邏輯運算符表達式用法不支持將`&&`與`||`替換為`and`與`or`：
+fish的邏輯運算符表達式中`&&`與`||`替換為`and`與`or`需要添加分號：
 
 ```fish
 $ [ $n -gt 100 ] and echo 222 or echo 333
-[: the last argument must be ']'
+[: the last argument must be ']' # 提示語法錯誤
+
+$ [ $n -gt 100 ]; and echo 222; or echo 333
+333 # 正常輸出結果
 ```
 
 ## for/while（循環語法）
@@ -1433,7 +1473,7 @@ $ echo $?
 
 在fish中，函數返回值規則類似，但fish中使用`$status`語法訪問最近執行函數的返回值：
 
-```sh
+```fish
 $ function show
     echo abc
     echo cde
