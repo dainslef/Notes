@@ -65,8 +65,8 @@ Shadowsocks擁有多個實現，最初使用Python實現，之後原作者慘遭
 
 
 # Trojan
-[`Trojan`](https://github.com/trojan-gfw/trojan)是用於繞過Chinazi GFW的解決方案。
-Trojan運行TLS協議之上，使用多種協議避免GFW的主動/被動檢測，以及ISP的`QoS`限制。
+[`Trojan`](https://github.com/trojan-gfw/trojan)是用於繞過GFW的解決方案。
+Trojan通過模擬互聯網中最常見的HTTPS流量，使得GFW難以偵測。
 
 文檔參見官方[GitHub Pages](https://trojan-gfw.github.io/trojan)頁面。
 
@@ -114,13 +114,18 @@ $ make <!-- 執行make操作 -->
 ```
 
 ## 配置Trojan服務
-正確安裝Trojan後，編輯配置文件`/etc/trojan/config.json`，簡單的服務端配置示例：
+正確安裝Trojan後，編輯配置文件`/etc/trojan/config.json`，
+Trojan服務的配置可參考[Trojan官方文檔](https://trojan-gfw.github.io/trojan/config.html)。
+
+簡單的服務端配置示例：
 
 ```json
 {
     "run_type": "server",
     "local_addr": "0.0.0.0",
     "local_port": 9998,
+    "remote_addr": "127.0.0.1",
+    "remote_port": 9999,
     "password": ["custom_password"],
     "log_level": 1,
     "ssl": {
@@ -146,12 +151,14 @@ $ make <!-- 執行make操作 -->
 | run_type | 進程運行模式，使用`server`則作為Trojan服務執行 |
 | local_addr | 綁定地址，使用`0.0.0.0`則綁定本機ip |
 | local_port | 綁定端口 |
+| remote_addr | 轉發HTTPS流量的目標地址（當客戶端發送的數據包為普通HTTPS數據包時，可配置轉發請求到指定地址） |
+| remote_port | 轉發HTTPS流量的目標端口 |
 | password | 客戶端連接時需要使用的密碼 |
 | ssl.cert | 指定使用的證書 |
 | ssl.key | 指定使用的私有key |
 
 ## 生成RSA私有Key和CA
-以服務模式運行Trojan進程需要私有密鑰(private_key)和自簽名證書(certificate.crt)，
+以服務模式運行Trojan進程需要私有密鑰（private_key）和自簽名證書（certificate.crt），
 相關文件可以使用openssl工具生成：
 
 ```html
