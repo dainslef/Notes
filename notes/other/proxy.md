@@ -7,6 +7,8 @@
 	- [FreeBSD編譯安裝Trojan](#freebsd編譯安裝trojan)
 	- [配置Trojan服務](#配置trojan服務)
 	- [生成RSA私有Key和CA](#生成rsa私有key和ca)
+- [V2Ray](#v2ray)
+	- [安裝和配置V2Ray服務](#安裝和配置v2ray服務)
 
 <!-- /TOC -->
 
@@ -83,6 +85,14 @@ Trojan通過模擬互聯網中最常見的HTTPS流量，使得GFW難以偵測。
 ```html
 # systemctl enable/disable trojan <!-- 開啟/關閉Trojan服務自啟動 -->
 # systemctl start/stop trojan <!-- 啟動/停止Trojan服務 -->
+```
+
+Trojan服務亦可通過docker創建容器部署，
+[DockerHub](https://hub.docker.com/r/trojangfw/trojan)中提供了Trojan的官方鏡像，
+創建並運行容器：
+
+```
+$ docker run -d -v /etc/trojan:/etc/trojan --network host --name trojan trojangfw/trojan:版本號
 ```
 
 ## FreeBSD編譯安裝Trojan
@@ -187,4 +197,72 @@ $ openssl ... -subj "/C=JP/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxx.domain.
 
 ```
 $ chmod 600 private_key certificate.crt
+```
+
+
+
+# V2Ray
+[V2Ray](https://github.com/v2ray/v2ray-core)
+是支持多種協議的網絡平台，可實現單服務多協議同時工作以及高定制化的入站、出站流量規則。
+相比Trojan，V2Ray性能稍差，但功能強大（較新版本的V2Ray亦支持Trojan協議）。
+
+V2Ray官方頁面早期為[`v2ray.com`](https://www.v2ray.com)，
+但原作者後續不再活躍，社區並無相關網站和倉庫的權限，
+後續由社區維護了新的社區官方頁面[`v2fly.org`](https://www.v2fly.org/)；
+官方提供的DockerHub帳號狀況類似，最初為[v2ray/official](https://hub.docker.com/r/v2ray/official)，
+後續由變為社區維護的[v2fly/v2fly-core](https://hub.docker.com/r/v2fly/v2fly-core)。
+
+## 安裝和配置V2Ray服務
+V2Ray在各大發行版官方倉庫中均已包含，使用各大發行版的包管理器安裝即可：
+
+```html
+# apt install v2ray <!-- 大便係 -->
+# pacman -S v2ray <!-- Arch係 -->
+```
+
+管理服務：
+
+```html
+# systemctl enable/disable v2ray <!-- 開啟/關閉V2Ray服務自啟動 -->
+# systemctl start/stop v2ray <!-- 啟動/停止V2Ray服務 -->
+```
+
+[DockerHub](https://hub.docker.com/r/v2fly/v2fly-core)中提供了V2Ray的官方鏡像，
+可直接創建容器使用：
+
+```
+$ docker run -d -v /etc/v2ray:/etc/v2ray --network host --name v2ray v2fly/v2fly-core:版本號
+```
+
+亦可基於Kubernetes部署：
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: v2ray-daemon
+  namespace: custom-components
+  labels:
+    app: v2ray
+spec:
+  selector:
+    matchLabels:
+      app: v2ray
+  template:
+    metadata:
+      labels:
+        app: v2ray
+    spec:
+      hostNetwork: true
+      containers:
+        - name: v2ray
+          image: v2fly/v2fly-core:版本號
+          volumeMounts:
+            - mountPath: /etc/v2ray
+              name: v2ray-config
+      volumes:
+        - name: v2ray-config
+          hostPath:
+            path: /etc/v2ray
+            type: DirectoryOrCreate
 ```
