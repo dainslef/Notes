@@ -7,6 +7,7 @@
 	- [Command && Shell](#command--shell)
 	- [Ansible Console](#ansible-console)
 - [Ansible Playbook](#ansible-playbook)
+	- [Block](#block)
 
 <!-- /TOC -->
 
@@ -233,6 +234,8 @@ nmssuperf03 | CHANGED | rc=0 >>
  16:19:31 up 15:48,  2 users,  load average: 5.30, 6.25, 6.37
 ```
 
+進入環境後執行`exit`指令可退出環境。
+
 
 
 # Ansible Playbook
@@ -243,7 +246,7 @@ nmssuperf03 | CHANGED | rc=0 >>
 Playbook使用YAML語法，基本結構如下：
 
 ```yaml
-- name: playbook name 1
+- name: Playbook name 1
   hosts: xxx host
   remote_user: user name
   tasks:
@@ -256,7 +259,7 @@ Playbook使用YAML語法，基本結構如下：
     模塊名稱: { key1: "value1", key2: "value2" }
   ...
 
-- name: playbook name 2
+- name: Playbook name 2
   hosts: xxx host
   become: true # become用於
   become_user: become user
@@ -269,4 +272,33 @@ Playbook使用YAML語法，基本結構如下：
 
 ```
 $ ansible-playbook playbook文件
+```
+
+## Block
+[Block](https://docs.ansible.com/ansible/latest/user_guide/playbooks_blocks.html)
+是Tasks的邏輯組，可為一組任務提供條件判斷、錯誤處理等邏輯。
+
+示例：
+
+```yaml
+tasks:
+  - name: Xxx group
+    block:
+      - name: Task name 1
+        模塊名稱:
+          key1: value1
+          key2: value2
+          ...
+      - name: Task name 2
+        模塊名稱:
+          key1: value1
+          key2: value2
+          ...
+      ...
+    when: xxx condition
+    rescue:
+      - name: Print when errors
+        ansible.builtin.debug:
+          msg: 'I caught an error, can do stuff here to fix it, :-)'
+    ...
 ```
