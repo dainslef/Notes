@@ -45,6 +45,7 @@
 	- [FriendlyWrt](#friendlywrt)
 		- [修改FriendlyWrt的Overlay配置](#修改friendlywrt的overlay配置)
 		- [Docker服務未自啟動](#docker服務未自啟動)
+- [構建OpenWRT官方固件](#構建openwrt官方固件)
 
 <!-- /TOC -->
 
@@ -314,11 +315,11 @@ opkg並未直接提供升級所有軟件包功能，可利用管道操作組合�
 ```html
 # opkg install
 <!-- 常用程序，所有設備均安裝 -->
-fish file lsblk htop iperf3 tcpdump nmap-full
+fish file lsblk htop iperf3 tcpdump nmap-full screen
 luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
 <!-- 帶有USB接口的設備可作為下載服務器 -->
 luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas usbutils rsync
-<!-- 需要自定義配置掛載點的設備可安裝 -->
+<!-- 有SD卡插槽，需要手動配置Overlay的設備可安裝 -->
 block-mount parted
 <!-- OpenWRT2020 主題 -->
 luci-theme-openwrt-2020
@@ -333,7 +334,7 @@ vim-full
 vim-fuller
 
 <!-- ARM64 架構的設備可安裝 Docker -->
-luci-app-dockerman dockerd
+luci-app-dockerman
 <!-- ImmortalWRT 以及部分國產固件可直接從軟件源中安裝 OpenClash -->
 luci-app-openclash
 <!-- ImmortalWRT 不需要安裝溫度檢測器，UI直接提供處理器溫度展示，其它系統需要安裝用於查看處理器溫度 -->
@@ -397,7 +398,7 @@ end
 for package_info in (cat $package_status | tr '\n' ';' | sed 's/;;/\n/g')
 	if not string match -q "*Auto-Installed: yes*" $package_info
 		# Find packages which are not auto installed.
-		set package_name (string match -r "(?<=Package: )[\w-]+" $package_info)
+		set package_name (string match -r "(?<=Package: )[\w\.-]+" $package_info)
 		# Check if package not in rom (pre-installed).
 		if not string match -q "*Package: $package_name*" $rom_packages
 			if not opkg whatdepends $package_name | grep -q "depends on $package_name" # Check the package depends result code.
@@ -1249,3 +1250,69 @@ mmcblk2boot1 179:64   0    4M  1 disk
 ### Docker服務未自啟動
 FriendlyWrt自帶的Docker在更換文件系統做Overlay後可能會出現無法自啟動的問題，
 解決方案是移除原先的`/opt/docker`路徑，之後重啟路由器即可。
+
+
+
+# 構建OpenWRT官方固件
+首先拉取OpenWRT源碼，設置需要構建的版本：
+
+```html
+<!-- 從官方倉庫拉取 OpenWRT 源碼 -->
+$ git clone https://git.openwrt.org/openwrt/openwrt.git
+
+<!-- 切換到倉庫目錄 -->
+$ cd openwrt
+
+<!-- 切換到需要構建的目標版本，以 21.02.3 版本為例 -->
+$ git checkout v21.02.3
+```
+
+之後更新軟件包內容：
+
+```html
+$ ./scripts/feeds update -a <!-- 拉取軟件包 -->
+$ ./scripts/feeds install -a <!-- 安裝軟件包 -->
+```
+
+之後即可使用`make`工具構建鏡像。
+執行`make menuconfig`會進入編譯配置對話框，可選擇和更改構建配置，配置默認保存在`./.config`中。
+
+通常配置構建選項應使用官方配置作為參考。
+從[官方地址](https://downloads.openwrt.org/)下載設備的官方配置，
+進行定製修改(設備信息可從OpenWRT的Wiki頁面中查到)：
+
+```html
+<!-- 以 Xiaomi Router 4C，21.02.3 版本為例 -->
+$ curl https://downloads.openwrt.org/releases/21.02.3/targets/ramips/mt76x8/config.buildinfo -o .config
+```
+
+執行make後，會檢查系統工具鏈，根據提示安裝缺失的工具鏈/庫即可。
+以`ubuntu-minimal`環境為例，需要安裝下列依賴：
+
+```
+# apt install curl g++ gawk libncurses-dev rsync unzip zlib1g-dev
+```
+
+若使用root用戶編譯，需要設置環境變量，否則編譯過程會因為安全警告中斷：
+
+```
+# export FORCE_UNSAFE_CONFIGURE=1
+```
+
+make構建OpenWRT的部分常用參數：
+
+- `-j核心數` 多核CPU可指定數值與CPU線程數相符，以提升編譯速率
+- `V=sc` 輸出編譯日誌內容，便於排查編譯錯誤
+
+編譯完成後，生成的固件位於`./bin/targets`路徑下的相關目錄中（由設備型號決定），
+以`Xiaomi Router 4C`為例：
+
+```
+$ cd ./bin/targets/ramips/mt76x8/
+```
+
+清理構建生成的內容（重複構建時遇到錯誤可嘗試使用該指令清理之前構建的緩存）：
+
+```
+$ make dirclean
+```
