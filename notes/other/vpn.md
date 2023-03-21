@@ -2,6 +2,7 @@
 
 - [OpenVPN](#openvpn)
 	- [下發路由](#下發路由)
+	- [網關服務器](#網關服務器)
 	- [iroute](#iroute)
 	- [ifconfig-push](#ifconfig-push)
 	- [設置腳本認證](#設置腳本認證)
@@ -38,6 +39,25 @@ push "redirect-gateway def1"
 
 ```
 push "redirect-gateway local def1"
+```
+
+## 網關服務器
+若將OpenVPN作為網關服務器，則需要使用iptables等服務將自身流量NAT後轉發：
+
+```
+# iptables -t nat -A POSTROUTING -s OpenVPN網段 -o 網卡 -j MASQUERADE
+```
+
+示例，假設VPN內部網段為`10.8.0.0/24`，網卡名稱為`ens1`，則NAT規則為：
+
+```
+# iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o ens1 -j MASQUERADE
+```
+
+同時，服務器還要開啟IPv4轉發功能，否則無法正常轉發流量：
+
+```
+# sysctl net.ipv4.ip_forward=1
 ```
 
 ## iroute
