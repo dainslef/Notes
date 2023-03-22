@@ -2,6 +2,7 @@
 
 - [概述](#概述)
 	- [服務安裝](#服務安裝)
+	- [容器部署](#容器部署)
 	- [服務管理](#服務管理)
 	- [FreeBSD環境配置](#freebsd環境配置)
 - [文件同步規則](#文件同步規則)
@@ -59,6 +60,21 @@ $ brew services start/stop syncthing
 ```
 
 更多Syncthing服務配置說明可參考[官方文檔](https://docs.syncthing.net/users/autostart.html)。
+
+## 容器部署
+對於RedHat、CentOS、Ubuntu LTS等穩定版OS，通常內置軟件倉庫中的Syncthing軟件包版本遠低於最新版本，
+對於此類OS，使用容器部署更加合適。
+
+Syncthing鏡像託管在[DockerHub](https://hub.docker.com/r/syncthing/syncthing)中，
+默認鏡像使用普通用戶啟動（UID 1000），沒有大多數路徑的寫入權限，
+映射宿主機路徑時，應確保用戶對宿主機對應路徑以及內部掛載路徑有寫入權限。
+
+Syncthing容器默認使用`/var/syncthing`作為存儲跟路徑，將宿主機路徑映射到該路徑即可，
+創建服務示例：
+
+```
+# docker run -dv /opt/syncthing:/var/syncthing --network host --name syncthing syncthing/syncthing:版本號
+```
 
 ## 服務管理
 默認配置下，服務安裝啟動後，會在`8384`端口提供Web管理頁面，服務數據通信使用`22000`端口，
