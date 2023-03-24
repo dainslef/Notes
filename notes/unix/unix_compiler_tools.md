@@ -13,19 +13,25 @@
 	- [頭文件/庫文件路徑](#頭文件庫文件路徑)
 	- [優化級別](#優化級別)
 	- [其它編譯器參數](#其它編譯器參數)
+	- [Objective-C編譯](#objective-c編譯)
+		- [安裝Objective-C庫](#安裝objective-c庫)
+		- [Objective-C編譯參數](#objective-c編譯參數)
 - [反編譯](#反編譯)
 	- [otool](#otool)
 	- [radare2](#radare2)
-- [Objective-C 編譯](#objective-c-編譯)
-	- [環境安裝](#環境安裝)
-	- [編譯參數](#編譯參數)
+- [GDB](#gdb)
+	- [交互式使用GDB](#交互式使用gdb)
+	- [GDB基本操作](#gdb基本操作)
+	- [調試子進程](#調試子進程)
+	- [設置源碼目錄](#設置源碼目錄)
+	- [調試核心轉儲](#調試核心轉儲)
 
 <!-- /TOC -->
 
 
 
 # 編譯流程
-編譯器處理代碼主要分爲以下幾個階段：
+編譯器處理代碼主要分為以下幾個階段：
 
 1. `Preprocessing` 預處理
 1. `Compilation` 編譯
@@ -40,7 +46,7 @@
 1. 處理`#include`預編譯指令，將被包含的文件插入到該預編譯指令的位置
 1. 刪除所有**註釋**`//`和`/* */`
 1. 添加**行號**和**文件標識**，以便編譯時產生調試用的行號及編譯錯誤警告行號
-1. 保留所有的`#pragma`編譯器指令，因爲編譯器需要使用它們
+1. 保留所有的`#pragma`編譯器指令，因為編譯器需要使用它們
 
 預處理之後得到`*.i`的源碼文件。
 
@@ -53,24 +59,24 @@
 彙編器是將彙編代碼轉變成機器可以執行的命令，每一個彙編語句幾乎都對應一條機器指令。
 彙編相對於編譯過程較簡單，根據彙編指令和機器指令的對照表一一翻譯。
 
-彙編之後得到`*.o`的**目標文件**，內容爲**機器碼**，不能以普通文本形式的查看(用文本編輯器查看則內容爲亂碼)。
-`Linux/Unix`環境下的彙編器爲`as`。
+彙編之後得到`*.o`的**目標文件**，內容為**機器碼**，不能以普通文本形式的查看(用文本編輯器查看則內容為亂碼)。
+`Linux/Unix`環境下的彙編器為`as`。
 
 ## Linking (鏈接)
 鏈接程序運行需要的目標文件，以及所依賴的其它庫文件，最後生成可執行文件。
-`Linux/Unix`環境下的鏈接器爲`ld`。
+`Linux/Unix`環境下的鏈接器為`ld`。
 
 
 
 # 編譯器
-在`Unix`環境下，常用的編譯器爲`gcc/clang`。二者的提供類似的命令行接口。
+在`Unix`環境下，常用的編譯器為`gcc/clang`。二者的提供類似的命令行接口。
 
 ## 基本編譯操作
 編譯源碼的基本命令(一次性執行預處理、編譯、彙編、鏈接等所有過程，直接得到可執行文件)：
 
 ```c
-$ cc [c源碼文件] //cc爲c語言編譯器
-$ c++ [c++源碼文件] //c++爲c++編譯器
+$ cc [c源碼文件] //cc為c語言編譯器
+$ c++ [c++源碼文件] //c++為c++編譯器
 ```
 
 不同的操作系統中對`cc`編譯器的實現**不同**。
@@ -80,7 +86,7 @@ $ c++ [c++源碼文件] //c++爲c++編譯器
 - 在`FreeBSD/macOS`中，`cc`軟鏈接指向`clang`編譯器。
 - 在`Solaris`中，`cc`指令不再是軟鏈接，而是`Solaris`特有的商業閉源編譯器。
 
-編譯完成後編譯器會生成一個名爲`a.out`的二進制可執行文件，運行程序：
+編譯完成後編譯器會生成一個名為`a.out`的二進制可執行文件，運行程序：
 
 ```
 $ ./a.out
@@ -166,12 +172,12 @@ Use macro __TEST__.
 ```
 
 ## 庫文件
-在Unix環境中，系統的庫文件一般存放在`/lib`、`/lib64`、`/usr/lib`等路徑下，庫文件分爲以下兩種類型：
+在Unix環境中，系統的庫文件一般存放在`/lib`、`/lib64`、`/usr/lib`等路徑下，庫文件分為以下兩種類型：
 
-- **動態鏈接庫**，後綴名爲`so`意爲`share object`(共享對象)。
-- **靜態庫**，後綴名爲`a`意爲`archive`(檔案文件)。
+- **動態鏈接庫**，後綴名為`so`意為`share object`(共享對象)。
+- **靜態庫**，後綴名為`a`意為`archive`(檔案文件)。
 
-在Unix環境中，庫的命名方式一般爲`lib+[庫名]`，如動態庫名稱爲`libssl.so`，則鏈接時的庫名稱爲`ssl`。
+在Unix環境中，庫的命名方式一般為`lib+[庫名]`，如動態庫名稱為`libssl.so`，則鏈接時的庫名稱為`ssl`。
 使用`ldd`命令可以查看可執行文件鏈接了哪些動態鏈接庫：
 
 ```
@@ -331,32 +337,70 @@ $ nm [可執行文件]
 - `CPLUS_INCLUDE_PATH` `g++`附加頭文件路徑
 - `LD_LIBRARY_PATH` 附加庫文件路徑
 
-gcc/g++會將對應環境變量下的路徑視爲附加的系統頭文件/庫文件路徑，不必每次使用`-I/-L`參數顯式添加。
+gcc/g++會將對應環境變量下的路徑視為附加的系統頭文件/庫文件路徑，不必每次使用`-I/-L`參數顯式添加。
 
 使用`--sysroot`參數可以重設頭文件/庫文件的邏輯根目錄，使用此參數，默認的頭文件/庫文件路徑均會隨之改變。
-如設定`--sysroot=dir`，則默認頭文件路徑變爲`dir/usr/include`，默認庫文件路徑變爲`dir/usr/lib`。
+如設定`--sysroot=dir`，則默認頭文件路徑變為`dir/usr/include`，默認庫文件路徑變為`dir/usr/lib`。
 
 ## 優化級別
-在編譯程序時，可以爲程序添加代碼優化選項來提升程序的運行效率。
+在編譯程序時，可以為程序添加代碼優化選項來提升程序的運行效率。
 
 gcc/clang有`O1`、`O2`、`O3`三個代碼優化級別，`O1`最低，`O3`優化最高。
 使用優化選項能大幅度提升生成二進制文件的執行效率，但會使得生成的程序難以調試。
-故一般只在程序完成測試之後進入發佈階段纔會啓用編譯優化選項。
+故一般只在程序完成測試之後進入發佈階段才會啟用編譯優化選項。
 
 ## 其它編譯器參數
 其它常用的編譯器參數如下：
 
-- `-W` 警告選項，常用的是`-Wall`，開啓所有警告。
+- `-W` 警告選項，常用的是`-Wall`，開啟所有警告。
 - `-M` 將文件依賴關係輸出到標準輸出，輸出的文件依賴可以被構建工具`make`使用。
 	1. `-M` 默認會輸出所有的頭文件路徑，包括`#include<>`和`#include""`。
 	1. `-MM` 僅輸出`#include""`的頭文件路徑。
 	1. `-MD` 將依賴關係輸出重定向到依賴關係文件`[文件名].d`，通常與`-M`或`-MM`一同使用。
 
+## Objective-C編譯
+主流的編譯器同樣支持`Objective-C`語言，Objective-C語言的源碼為`*.m`。
+
+### 安裝Objective-C庫
+要讓編譯器順利的編譯Objective-C的源碼，需要安裝對應開發庫，在Linux系統中是`GNUstep`庫。
+
+使用gcc編譯Objective-C源碼，需要安裝gcc的Objective-C支持包`gcc-objc`。
+以Arch Linux為例，安裝Objective-C開發環境：
+
+```
+# pacman -S gcc-objc gnustep-core
+```
+
+### Objective-C編譯參數
+編譯Objective-C源碼相對編譯C/C++源碼而言要更復雜，需要使用更多的編譯器參數。
+
+使用`gnustep-config --objc-flags`指令會自動生成編譯Objective-C源碼需要的編譯器參數，
+將指令的結果插入gcc編譯指令的參數中。通常情況下，需要鏈接`libgnustep-base`、`libobjc`等庫，
+若源碼使用了GUI庫還需要鏈接`libgnustep-gui`庫。
+
+gcc編譯Objective-C源碼指令：
+
+```
+$ gcc $(gnustep-config --objc-flags) -lobjc -lgnustep-base 源碼文件
+```
+
+由於gnustep-config默認與**GNU編譯器**組搭配，
+故其生成的編譯參數並不完全適用於clang編譯器。
+需要手動指定編譯參數以符合clang編譯器的要求，
+根據編譯器輸出的異常信息將`gnustep-config指令生成的參數中不符合要求的參數剔除，
+並加入其他需要的編譯器參數。
+
+clang編譯Objective-C源碼指令(以`Archlinux x64`和`gcc 4.9.2`為例)：
+
+```
+$ clang -fconstant-string-class=NSConstantString -lgnustep-base -lobjc -I/usr/lib/gcc/x86_64-unknown-linux-gnu/gcc版本/include 源碼文件
+```
+
 
 
 # 反編譯
 在Linux下，使用`objdump`工具可以對`ELF`二進制文件進行反彙編。
-以ArchLinux爲例，安裝objdump：
+以ArchLinux為例，安裝objdump：
 
 ```
 # pacman -S binutils
@@ -375,7 +419,7 @@ gcc/clang有`O1`、`O2`、`O3`三個代碼優化級別，`O1`最低，`O3`優化
 - `-s` 以16進制形式查看可執行文件內容
 
 ## otool
-在macOS下，二進制格式爲`Mach-O`，macOS沒有提供`objdump`、`ldd`等工具。
+在macOS下，二進制格式為`Mach-O`，macOS沒有提供`objdump`、`ldd`等工具。
 
 使用`otool`工具代替`objdump`進行反彙編：
 
@@ -421,40 +465,114 @@ $ r2 /bin/ls   # open the binary in read-only mode
 
 
 
-# Objective-C 編譯
-主流的編譯器同樣支持`Objective-C`語言，Objective-C語言的源碼爲`*.m`。
+# GDB
+GDB是Linux最常用的調適器。
 
-## 環境安裝
-要讓編譯器順利的編譯Objective-C的源碼，需要安裝對應開發庫，在Linux系統中是`GNUstep`庫。
-
-使用gcc編譯Objective-C源碼，需要安裝gcc的Objective-C支持包`gcc-objc`。
-以Arch Linux爲例，安裝Objective-C開發環境：
+## 交互式使用GDB
+GDB默認情況下是一個純CLI調試器，可以使用`-tui`參數使gdb提供一個基於CLI的簡單的交互式界面：
 
 ```
-# pacman -S gcc-objc gnustep-core
+$ gdb -tui [需要被調試的可執行文件]
 ```
 
-## 編譯參數
-編譯Objective-C源碼相對編譯C/C++源碼而言要更復雜，需要使用更多的編譯器參數。
+## GDB基本操作
+基本操作如下：
 
-使用`gnustep-config --objc-flags`指令會自動生成編譯Objective-C源碼需要的編譯器參數，
-將指令的結果插入gcc編譯指令的參數中。通常情況下，需要鏈接`libgnustep-base`、`libobjc`等庫，
-若源碼使用了GUI庫還需要鏈接`libgnustep-gui`庫。
+- `r(run)` 開始執行程序
+- `n(next)` 執行下一條語句(不會進入子函數)
+- `s(step)` 單步調試(會進入子函數內部)
+- `c(continue)` 繼續執行程序(直到下一個斷點)
+- `l(list)` 查看當前程序運行位置附近的代碼片段
+- `b(break)` 設置斷點
+- `p(print)` 顯示變量/函數等信息
+- `i(info)` 可搭配不同指令顯示具體的狀態信息(斷點,顯示等)
+- `d(delete)` 刪除設置(斷點,顯示信息等)
+- `q(quit)` 退出gdb
+- `bt(backtrace)` 顯示函數堆棧
 
-gcc編譯Objective-C源碼指令：
+`break`用於下斷點：
+
+- `break [行號]`
+- `break [函數名]`
+- `break [地址]`
+
+如果存在多個源碼文件，則需要使用源碼文件名顯式指定要下斷點的文件：
 
 ```
-$ gcc $(gnustep-config --objc-flags) -lobjc -lgnustep-base 源碼文件
+(gdb) break [源碼文件名:行號/函數名/地址]
 ```
 
-由於gnustep-config默認與**GNU編譯器**組搭配，
-故其生成的編譯參數並不完全適用於clang編譯器。
-需要手動指定編譯參數以符合clang編譯器的要求，
-根據編譯器輸出的異常信息將`gnustep-config指令生成的參數中不符合要求的參數剔除，
-並加入其他需要的編譯器參數。
-
-clang編譯Objective-C源碼指令(以`Archlinux x64`和`gcc 4.9.2`爲例)：
+gdb支持條件斷點：
 
 ```
-$ clang -fconstant-string-class=NSConstantString -lgnustep-base -lobjc -I/usr/lib/gcc/x86_64-unknown-linux-gnu/gcc版本/include 源碼文件
+(gdb) break [行號/函數名/地址] if [條件]
+```
+
+在判斷條件中甚至可以直接調用標準庫內的函數。
+
+`display`讓每次運行暫停時都顯示指定的信息。可顯示變量/函數等信息。
+
+一次顯示多個變量的信息：
+
+```
+(gdb) display/print {變量1, 變量2, 變量3......}
+```
+
+`delete`刪除已經存在的設置信息。
+
+```
+(gdb) delete [數據類型] [號碼]
+```
+
+舉例：
+
+```html
+(gdb) delete breakpoint 1 <!-- 刪除1號斷點 -->
+```
+
+`info`可以用於查看一些信息，常見的有：
+
+- `info b` 顯示斷點信息
+- `info locals` 顯示當前函數的局部變量信息
+- `info threads` 顯示線程信息
+- `info files` 顯示二進制文件的區段信息
+
+`until`用於跳出循環，`finish`用於結束當前函數。
+
+`ptype`用於輸出變量類型信息，對於結構類型(類)變量，能夠顯示出整個結構體/類的定義。
+
+`checkpoint`指令可以在調試過程中將當前位置添加為檢查點。
+當需要多次調試同一段代碼時，調試器能夠從檢查點位置恢復運行，而不必重啟整個進程。
+
+查看當前檢查點信息：
+
+```
+(gdb) info checkpoints
+```
+
+從指定的檢查點恢復運行：
+
+```
+(gdb) restart [檢查點編號]
+```
+
+## 調試子進程
+默認情況下，gdb在程序調用fork()之後調試的是父進程，如果需要手動指定調試的進程，使用：
+
+```
+(gdb) set follow-fork-mode [parent | child]
+```
+
+## 設置源碼目錄
+在調試時使用`dir`指令可以添加臨時的源碼目錄：
+
+```
+(gdb) dir [路徑]
+```
+
+## 調試核心轉儲
+程序崩潰時產生的轉儲文件亦可使用`gdb`調試：
+
+```
+$ gdb [可執行文件] [對應錯誤轉儲文件]
 ```
