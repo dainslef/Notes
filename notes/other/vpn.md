@@ -1,6 +1,7 @@
 <!-- TOC -->
 
 - [OpenVPN](#openvpn)
+	- [基本安裝與配置](#基本安裝與配置)
 	- [下發路由](#下發路由)
 	- [網關服務器](#網關服務器)
 	- [iroute](#iroute)
@@ -17,6 +18,28 @@
 OpenVPN是全功能的SSL VPN，通過SSL/TLS協議實現了OSI模型2層或3層安全網絡擴展，
 支持多種客戶端認證方式，包括證書、智能卡、帳號密碼等，
 並且允許指定用戶/組通過VPN虛擬接口應用特定的訪問控制策略。
+
+## 基本安裝與配置
+各大Unix的軟件倉庫中均已內置了OpenVPN安裝包：
+
+```html
+# apt install openvpn <!-- 大便系 -->
+# pacman -S openvpn <!-- Arch系 -->
+# brew install openvpn <!-- Homebrew -->
+```
+
+Linux下的OpenVPN安裝後會生成對應systemd service：
+
+```html
+# systemctl start openvpn@client <!-- 啟動OpenVPN客戶端服務 -->
+# systemctl start openvpn@server <!-- 啟動OpenVPN服務端 -->
+```
+
+OpenVPN的命令行工具為`openvpn`，根據配置文件的不同，可運行在客戶端模式或服務端模式下；
+默認的服務端配置文件為`/etc/openvpn/server.conf`，客戶端配置文件為`/etc/openvpn/client.conf`。
+
+通過man手冊查看OpenVPN的命令行參數，
+多數命令行參數去掉`--`後即可寫入配置文件中。
 
 ## 下發路由
 OpenVPN可配置下發到客戶端的路由，以控制客戶端的網絡規則。
