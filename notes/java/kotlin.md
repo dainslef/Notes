@@ -3,6 +3,9 @@
 - [REPL](#repl)
 - [Enum](#enum)
 	- [枚舉構造器和成員方法](#枚舉構造器和成員方法)
+- [Class](#class)
+	- [構造器參數](#構造器參數)
+	- [data class](#data-class)
 
 <!-- /TOC -->
 
@@ -82,3 +85,28 @@ Enum.A.description // 值為 "default"
 Enum.B.description // 值為 "description_b"
 Enum.C.description // 值為 "description_c"
 ```
+
+
+
+# Class
+Kotlin中Class的設計整體沿襲了Scala的Class語法，取消了Scala類中一些較為靈活的語法：
+
+- 取消了Scala類內直接編初始化寫代碼的功能，Kotlin需要在類內的`init {}`塊中編寫。
+- Scala中`case class`構造器字段自動作為屬性，而Kotlin中`data class`構造器成員字段依舊需要顯式使用val關鍵字標記。
+
+## 構造器參數
+與Scala類似，Kotlin允許使用val關鍵字在構造器中創建字段。
+構造器參數可以創建默認值，但需要注意，創建默認值操作在構造函數中進行，
+若默認值依賴其它字段，則需要保證依賴的字段在構造器調用階段已初始化。
+
+對於使用Java反射機制的框架，通常需要類型提供無參的默認構造器，
+Kotlin中類型中主構造器有参則默認不會再生成無參構造器，
+此時要生成無参構造器需要為每個構造器參數提供默認值。
+
+## data class
+Kotlin中提供了類似Scala中case class的語法，名為`data class`，
+相對於Scala中case class，Kotlin的data class有以下差異：
+
+- 沒有提供模式匹配功能
+- 即使所有構造器參數中均為成員字段，但依舊需要顯式使用val語法進行標記
+- data class不能被任何類繼承，case class僅限制不能被同為case class的類繼承
