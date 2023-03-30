@@ -14,11 +14,12 @@
 	- [系統版本升級](#系統版本升級)
 - [GUI](#gui)
 	- [Display Manager](#display-manager)
-- [常用工具指令](#常用工具指令)
-	- [PCI設備](#pci設備)
-	- [磁盤分區管理](#磁盤分區管理)
+- [磁盤分區管理](#磁盤分區管理)
+	- [調整分區和文件系統大小](#調整分區和文件系統大小)
 	- [proc文件系統](#proc文件系統)
 	- [掛載導入zfs分區](#掛載導入zfs分區)
+- [常用工具指令](#常用工具指令)
+	- [PCI設備](#pci設備)
 	- [chroot](#chroot)
 	- [查看端口狀態](#查看端口狀態)
 	- [查看時間與設置時區](#查看時間與設置時區)
@@ -337,49 +338,7 @@ sddm_enable="YES" # SDDM
 
 
 
-# 常用工具指令
-FreeBSD下大量工具指令與Linux中不同。
-
-## PCI設備
-Linux下使用`lspci`查看PCI設備，FreeBSD中則使用`pciconf`：
-
-```html
-$ pciconf -h
-usage: pciconf -l [-bcv]
-       pciconf -a selector
-       pciconf -r [-b | -h] selector addr[:addr2]
-       pciconf -w [-b | -h] selector addr value
-
-$ pciconf -l
-hostb0@pci0:0:0:0:  class=0x060000 card=0x00000000 chip=0x12378086 rev=0x02 hdr=0x00
-isab0@pci0:0:1:0:  class=0x060100 card=0x00000000 chip=0x70008086 rev=0x00 hdr=0x00
-atapci0@pci0:0:1:1:  class=0x01018a card=0x00000000 chip=0x71118086 rev=0x01 hdr=0x00
-vgapci0@pci0:0:2:0:  class=0x030000 card=0x00000000 chip=0xbeef80ee rev=0x00 hdr=0x00
-em0@pci0:0:3:0:   class=0x020000 card=0x001e8086 chip=0x100e8086 rev=0x02 hdr=0x00
-none0@pci0:0:4:0:  class=0x088000 card=0x00000000 chip=0xcafe80ee rev=0x00 hdr=0x00
-none1@pci0:0:7:0:  class=0x068000 card=0x00000000 chip=0x71138086 rev=0x08 hdr=0x00
-atapci1@pci0:0:13:0:  class=0x010601 card=0x00000000 chip=0x28298086 rev=0x02 hdr=0x00
-
-$ pciconf -lv <!-- 查看完整信息 -->
-hostb0@pci0:0:0:0: class=0x060000 card=0x00000000 chip=0x12378086 rev=0x02 hdr=0x00
-    vendor     = 'Intel Corporation'
-    device     = '82440/1FX 440FX (Natoma) System Controller'
-    class      = bridge
-    subclass   = HOST-PCI
-isab0@pci0:0:1:0: class=0x060100 card=0x00000000 chip=0x70008086 rev=0x00 hdr=0x00
-    vendor     = 'Intel Corporation'
-    device     = 'PIIX3 PCI-to-ISA Bridge (Triton II) (82371SB)'
-    class      = bridge
-    subclass   = PCI-ISA
-atapci0@pci0:0:1:1: class=0x01018a card=0x00000000 chip=0x71118086 rev=0x01 hdr=0x00
-    vendor     = 'Intel Corporation'
-    device     = 'PIIX4/4E/4M IDE Controller (82371AB/EB/MB)'
-    class      = mass storage
-    subclass   = ATA
-...
-```
-
-## 磁盤分區管理
+# 磁盤分區管理
 FreeBSD中使用`fdisk`、`gpart`等工具管理磁盤。
 使用`geom`、`diskinfo`等工具查看磁盤、分區信息。
 
@@ -437,6 +396,23 @@ ada1
 	Not_Zoned   	# Zone Mode
 ```
 
+## 調整分區和文件系統大小
+調整分區大小：
+
+```html
+<!-- 使用分區後的所有可用空間 -->
+# gpart resize -i 分區編號 設備名稱
+<!-- 擴展分區到指定大小 -->
+# gpart resize -i 分區編號 -s 分區大小 設備名稱
+```
+
+調整分區大小後調整文件系統大小：
+
+```html
+# growfs 分區塊設備路徑 <!-- UFS -->
+# zpool online -e 存儲池名稱 分區塊設備名稱 <!-- ZFS -->
+```
+
 ## proc文件系統
 FreeBSD雖支持proc文件系統，但默認並不開啟，
 開啟proc文件系統可在fstab中添加掛載點：
@@ -467,6 +443,50 @@ $ zpool list
 ```html
 <!-- 需要顯式指定文件系統為zfs -->
 # mount -t zfs 指定pool名稱 掛載點
+```
+
+
+
+# 常用工具指令
+FreeBSD下大量工具指令與Linux中不同。
+
+## PCI設備
+Linux下使用`lspci`查看PCI設備，FreeBSD中則使用`pciconf`：
+
+```html
+$ pciconf -h
+usage: pciconf -l [-bcv]
+       pciconf -a selector
+       pciconf -r [-b | -h] selector addr[:addr2]
+       pciconf -w [-b | -h] selector addr value
+
+$ pciconf -l
+hostb0@pci0:0:0:0:  class=0x060000 card=0x00000000 chip=0x12378086 rev=0x02 hdr=0x00
+isab0@pci0:0:1:0:  class=0x060100 card=0x00000000 chip=0x70008086 rev=0x00 hdr=0x00
+atapci0@pci0:0:1:1:  class=0x01018a card=0x00000000 chip=0x71118086 rev=0x01 hdr=0x00
+vgapci0@pci0:0:2:0:  class=0x030000 card=0x00000000 chip=0xbeef80ee rev=0x00 hdr=0x00
+em0@pci0:0:3:0:   class=0x020000 card=0x001e8086 chip=0x100e8086 rev=0x02 hdr=0x00
+none0@pci0:0:4:0:  class=0x088000 card=0x00000000 chip=0xcafe80ee rev=0x00 hdr=0x00
+none1@pci0:0:7:0:  class=0x068000 card=0x00000000 chip=0x71138086 rev=0x08 hdr=0x00
+atapci1@pci0:0:13:0:  class=0x010601 card=0x00000000 chip=0x28298086 rev=0x02 hdr=0x00
+
+$ pciconf -lv <!-- 查看完整信息 -->
+hostb0@pci0:0:0:0: class=0x060000 card=0x00000000 chip=0x12378086 rev=0x02 hdr=0x00
+    vendor     = 'Intel Corporation'
+    device     = '82440/1FX 440FX (Natoma) System Controller'
+    class      = bridge
+    subclass   = HOST-PCI
+isab0@pci0:0:1:0: class=0x060100 card=0x00000000 chip=0x70008086 rev=0x00 hdr=0x00
+    vendor     = 'Intel Corporation'
+    device     = 'PIIX3 PCI-to-ISA Bridge (Triton II) (82371SB)'
+    class      = bridge
+    subclass   = PCI-ISA
+atapci0@pci0:0:1:1: class=0x01018a card=0x00000000 chip=0x71118086 rev=0x01 hdr=0x00
+    vendor     = 'Intel Corporation'
+    device     = 'PIIX4/4E/4M IDE Controller (82371AB/EB/MB)'
+    class      = mass storage
+    subclass   = ATA
+...
 ```
 
 ## chroot
