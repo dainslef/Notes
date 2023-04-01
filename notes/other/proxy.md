@@ -64,6 +64,15 @@ Shadowsocks擁有多個實現，最初使用Python實現，之後原作者慘遭
 | server_port | 服務監聽端口 |
 | local_port | 本地端口(配置服務可忽略該配置項) |
 
+shadowsocks-libev的官方鏡像亦託管在
+[DockerHub](https://hub.docker.com/r/shadowsocks/shadowsocks-libev)，
+使用容器啟動服務：
+
+```html
+<!-- 容器默認不讀取配置文件，需要手動設置啟動指令（使用 -c 參數設置配置路徑） -->
+$ docker run -d -v /etc/shadowsocks-libev:/etc/shadowsocks-libev --network host --name shadowsocks shadowsocks/shadowsocks-libev ss-server -c /etc/shadowsocks-libev/config.json
+```
+
 
 
 # Trojan
@@ -92,7 +101,7 @@ Trojan服務亦可通過docker創建容器部署，
 創建並運行容器：
 
 ```
-$ docker run -d -v /etc/trojan:/etc/trojan --network host --name trojan trojangfw/trojan:版本號
+$ docker run -itd -v /etc/trojan:/etc/trojan --network host --name trojan trojangfw/trojan
 ```
 
 ## FreeBSD編譯安裝Trojan
@@ -202,7 +211,7 @@ $ chmod 600 private_key certificate.crt
 
 
 # V2Ray
-[V2Ray](https://github.com/v2ray/v2ray-core)
+[V2Ray](https://github.com/v2fly/v2ray-core)
 是支持多種協議的網絡平台，可實現單服務多協議同時工作以及高定制化的入站、出站流量規則。
 相比Trojan，V2Ray性能稍差，但功能強大（較新版本的V2Ray亦支持Trojan協議）。
 
