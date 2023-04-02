@@ -14,9 +14,21 @@
 - [Struct（結構體）](#struct結構體)
 	- [結構體對齊](#結構體對齊)
 	- [PhantomData](#phantomdata)
+- [Trait（特質）](#trait特質)
+	- [Dynamically Dispatched / Staic Dispatched](#dynamically-dispatched--staic-dispatched)
+	- [Associated Types](#associated-types)
+	- [Generic Associated Types](#generic-associated-types)
+- [訪問權限](#訪問權限)
+	- [模塊權限](#模塊權限)
+	- [結構體字段權限](#結構體字段權限)
+	- [宏訪問權限](#宏訪問權限)
+- [標準庫](#標準庫)
+	- [std::collections](#stdcollections)
+		- [HashMap/BTreeMap](#hashmapbtreemap)
 - [智能指針](#智能指針)
 	- [Rc / Box / Arc](#rc--box--arc)
 	- [Cell / RefCell](#cell--refcell)
+- [全局變量](#全局變量)
 
 <!-- /TOC -->
 
@@ -259,7 +271,7 @@ Rust中結構體存在以下與C語言類似，與C++不同的特徵：
 Rust中結構體存在以下與C++類似，與C不同的特徵：
 
 - 結構體支持定義成員方法
-- 結構體支持泛型參數（C++中的模板）
+- 結構體支持泛型參數（類似於C++中的模板）
 - 結構體和成員字段支持設置訪問權限
 
 ## 結構體對齊
@@ -307,6 +319,152 @@ help: if you intended `T` to be a const parameter, use `const T: usize` instead
 
 
 
+# Trait（特質）
+`Trait（特質）`概念類似於Haskell中的Type Class，對標OOP語言中的Interface。
+由於Rust不支持繼承、重載，因此Trait系統是Rust語言中實現多態的主要方式。
+
+## Dynamically Dispatched / Staic Dispatched
+Trait同時支持staic dispatched（靜態派發）和dynamically dispatched（動態派發）。
+
+靜態派發在編譯時確定類型，調用靜態派發trait方法等價於調用普通函數；
+動態派發則使用trait object，運行時確定類型，動態派發trait方法近似於C++的虛函數，
+調用需要查找虛表得到函數指針，相對開銷較大。
+
+早期Rust使用泛型約束表示靜態派發，直接使用Trait類型表示動態派發：
+
+```rs
+// 動態派發
+fn f_dynamic(t: &Trait) { ... }
+
+// 靜態派發
+fn f_static<T: Trait>(t: &T) { ... }
+```
+
+[Rust 1.26](https://blog.rust-lang.org/2018/05/10/Rust-1.26.html)
+開始支持`impl Trait`特性，靜態派發使用impl Trait，動態派發使用dyn Trait
+（舊的直接使用Trait類型表示動態派發的語法作廢），使語法更加統一、直觀。
+
+Rust 1.26之後的新語法：
+
+```rs
+// 動態派發
+fn f_dynamic(t: &dyn Trait) { ... }
+
+// 靜態派發
+fn f_static(t: &impl Trait) { ... }
+```
+
+## Associated Types
+[Associated Types](https://doc.rust-lang.org/book/ch19-03-advanced-traits.html#specifying-placeholder-types-in-trait-definitions-with-associated-types)
+提供了類型佔位符特性，語法：
+
+```rust
+trait XxxTrait {
+  type XxxAssociatedType;
+  ...
+}
+
+// 在為某類型實現帶有 Associated Types 的特質時，需要指明 Associated Types 的實際類型
+impl XxxTrait for Xxx {
+  type XxxAssociatedType = ...;
+  ...
+}
+```
+
+例如，Rust標準庫中的否定操作符特質定義中便使用了Associated Types特性：
+
+```rust
+pub trait Not {
+  type Output;
+  fn not(self) -> Self::Output;
+}
+
+// 以內置bool類型為例，實現如下
+impl const Not for bool {
+  type Output = bool;
+  #[inline]
+  fn not(self) -> bool { !self }
+}
+```
+
+與在Trait中添加泛型參數相比，使用Associated Types則意味著一個類型僅能impl時僅能擁有一種實現。
+
+## Generic Associated Types
+自[`Rust 1.65`](https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html)版本開始，
+Rust的Trait支持Generic Associated Types，
+參考[官方博客](https://blog.rust-lang.org/2022/10/28/gats-stabilization.html)。
+
+
+
+# 訪問權限
+與主流語言類似，Rust支持設置模塊、函數、結構體、字段的訪問權限。
+Rust中權限分為三類：
+
+- `pub` 公有權限
+- `pub(crate)` 模塊內部公有
+- 私有（默認）
+
+由於Rust不支持繼承，因此不存在傳統OOP語言中的`protect`（保護權限）。
+
+## 模塊權限
+模塊權限修飾用在`mod`關鍵字之前：
+
+- 公有模塊的內容才能被其它外部模塊訪問。
+- 私有模塊的內容對其子模塊可見。
+
+## 結構體字段權限
+早期Rust的實現中，結構體字段不具有獨立權限，
+[rfcs/0001-private-fields](https://rust-lang.github.io/rfcs/0001-private-fields.html)
+定義了結構體字段的權限機制（默認**私有**權限）。
+
+## 宏訪問權限
+早期版本的Rust中宏不可定義訪問權限，僅能使用專屬語法導入/導出。
+從`Rust 1.33`開始，宏可在定義的模塊內使用`use`關鍵字導出，類似普通內容，
+use前可使用權限字段修飾。
+
+示例：
+
+```rust
+macro_rules! xxx {
+  ...
+}
+pub use xxx; // 使用use關鍵字導出宏
+```
+
+
+
+# 標準庫
+Rust提供了功能強大的標準庫，從`Rust 1.6`開始，標準庫分爲兩部分：
+
+- `libcore` 平臺無關的核心庫，無操作系統依賴（如libc等），命名空間爲`core::`。
+- `libstd` 完整標準庫，命名空間爲`std::`，基於libcore，提供諸如**內存分配、IO、併發**等功能。
+
+libstd包含libcore中的所有內容，對於二者重合的部分，libstd僅僅將命名空間由core導出到std。
+
+## std::collections
+`std::collections`包含Rust的各種集合類型。
+
+### HashMap/BTreeMap
+Rust中的Map類型未提供多值初始化的構造器或宏（類似Vec類型的`vec![]`宏），
+但可通過元組數組進行構建：
+
+```rust
+>> let data: BTreeMap<usize, usize> = vec![(1, 1), (2, 2), (3, 3)].into_iter().collect();
+>> data
+{1: 1, 2: 2, 3: 3}
+```
+
+自`Rust 1.56`開始，Map類型支持`std_collections_from_array`特性，
+提供了數組類型到Map類型的From特質，因此可以直接將數組轉換為對應Map類型：
+
+```rust
+>> let data: BTreeMap<usize, usize> = [(1, 1), (2, 2), (3, 3)].into();
+>> data
+{1: 1, 2: 2, 3: 3}
+```
+
+
+
 # 智能指針
 作為無GC的現代編程語言，Rust提供了智能指針進行內存管理。
 
@@ -332,8 +490,8 @@ Box默認即實現了線程安全相關的trait（Send + Sync），
 fn example() {
   let data = std::sync::Arc::new("test".to_string());
   let cloned_data = data.clone();
-  std::thread::spawn(move || println!("{data}"));
-  std::thread::spawn(move || println!("{cloned_data}"));
+  std::thread::spawn(move || println!("Data: {data}"));
+  std::thread::spawn(move || println!("Cloneed data: {cloned_data}"));
 }
 ```
 
@@ -355,3 +513,35 @@ Cell/RefCell均可通過`as_ptr()`方法獲取raw pointer，
 
 Cell/RefCell類型不是線程安全的，因此未實現Sync特質；
 若需要保證線程安全，需要搭配Mutex、RwLock等鎖類型。
+
+
+
+# 全局變量
+Rust中使用`static`/`const`關鍵字定義全局變量，
+static定義一個**地址恆定**的值，則const定義一個**常量**。
+
+相同點：
+
+- const/static定義的值均具有與程序相等的最長生命週期(`'static`)。
+- 在整個程序中，const/static定義的字段僅存在一個實例。
+- const/static字段只能接受常量或const函數進行初始化。
+- const/static字段均使用大寫下劃線命名法。
+
+不同點：
+
+- const字段會被內聯優化，因此不具備恆定地址；static字段地址不會變化，也不會被內聯。
+- const字段不可修改；static字段則可搭配mut關鍵字，支持在unsafe塊中修改字段的值。
+
+示例：
+
+```rust
+const C_N: i32 = 5;
+static S_N: i32 = 5;
+
+// 定義可變值
+static S_M: i32 = 5;
+// 在unsafe中修改值
+unsafe {
+  S_M += 1;
+}
+```
