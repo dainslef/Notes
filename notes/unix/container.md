@@ -150,10 +150,10 @@ Docker提供了對應的命令行工具進行管理操作。
 - `docker container` 管理容器
 - `docker create` 創建容器
 - `docker build` 構建鏡像
-- `docker commit` 從容器構建鏡像
-- `docker save/export` 導出鏡像到文件
-- `docker import` 從文件導入鏡像
-- `docker tag` 爲鏡像添加／移除標誌
+- `docker commit` 保存容器到鏡像
+- `docker load/save` 鏡像導入/導出
+- `docker import/export` 容器導入/導出
+- `docker tag` 管理鏡像標籤
 
 ## 在 macOS 中使用 docker
 Docker使用了諸多`Linux Kernel`專有特性，並非POSIX兼容，無法直接移植到macOS中。
@@ -311,6 +311,12 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 # docker image inspect 鏡像ID/鏡像名稱
 ```
 
+使用prune操作可清理無任何tag且不被使用的鏡像：
+
+```
+# docker image prune
+```
+
 ## 鏡像源
 默認Docker會從**官方源**(https://production.cloudflare.docker.com)中拉取鏡像，
 在牆國通常無法連接或下載龜速。
@@ -365,6 +371,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 | :- | :- |
 | `-t` | 創建容器時，爲容器分配交互終端 |
 | `-i` | 保持容器標準輸出到終端 |
+| `-u/--user` | 設置執行容器指令的用戶 |
 | `--name` | 創建容器時爲容器指定名稱 |
 
 容器創建完成使用`docker start/stop`啓動/停止容器。
@@ -379,6 +386,8 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 $ docker create -i --name 容器實例名稱 容器鏡像 執行指令
 <!-- 創建容器時僅需使用 -t 參數會為容器分配虛擬終端（用於 attach 操作） -->
 $ docker create -it --name 容器實例名稱 容器鏡像 執行指令
+<!-- 創建容器時指定執行容器指令的用戶 -->
+$ docker create -itu 用戶名 --name 容器實例名稱 容器鏡像 執行指令
 
 <!-- 示例 -->
 $ docker create -i --name Nix nixos/nix sh
@@ -395,17 +404,23 @@ $ docker create -it --name Nix nixos/nix sh
 # docker attach 容器ID/容器名稱
 ```
 
-其它常用操作：
+在容器內執行指令：
 
 ```html
 <!-- 使用 docker exec 指令可以使用已啓動的容器執行指令 -->
 # docker exec 選項... 鏡像 啓動進程 進程參數...
 <!-- 使用 docker exec 進入已啓動容器內部的僞終端 -->
 # docker exec -it 容器ID/容器名稱 bash
+<!-- 對於非root用戶的容器，可使用 -u 參數強制進入root用戶的Shell -->
+# docker exec -itu root 容器ID/容器名稱 bash
+```
 
-<!-- 查看容器進程的輸出日志 -->
-# docker logs 容器ID/容器名稱
+查看容器進程的輸出日志：
+
+```html
+# docker logs 容器ID/容器名稱 <!-- 默認輸出容器進程的全部日誌 -->
 # docker logs -f 容器ID/容器名稱 <!-- 同步日志輸出 -->
+# docker logs -n 日誌行數 容器ID/容器名稱 <!-- 僅查看最近指定行數的日誌 -->
 ```
 
 使用`docker container`相關指令查看、管理容器相關信息。
