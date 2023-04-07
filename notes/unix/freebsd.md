@@ -18,6 +18,7 @@
 	- [調整分區和文件系統大小](#調整分區和文件系統大小)
 	- [proc文件系統](#proc文件系統)
 	- [掛載導入zfs分區](#掛載導入zfs分區)
+- [limits](#limits)
 - [常用工具指令](#常用工具指令)
 	- [PCI設備](#pci設備)
 	- [chroot](#chroot)
@@ -444,6 +445,62 @@ $ zpool list
 <!-- 需要顯式指定文件系統為zfs -->
 # mount -t zfs 指定pool名稱 掛載點
 ```
+
+
+
+# limits
+FreeBSD存在類似Linux下ulimit的資源限制，使用`limits`查看當前用戶的資源限制：
+
+```
+$ limits -a
+Resource limits (current):
+  cputime              infinity secs
+  filesize             infinity kB
+  datasize             33554432 kB
+  stacksize              524288 kB
+  coredumpsize         infinity kB
+  memoryuse            infinity kB
+  memorylocked         infinity kB
+  maxprocesses             5734
+  openfiles              512000
+  sbsize               infinity bytes
+  vmemoryuse           infinity kB
+  pseudo-terminals     infinity
+  swapuse              infinity kB
+  kqueues              infinity
+  umtxp                infinity
+```
+
+limits指令的常見用法：
+
+```html
+$ limits -a <!-- 查看全部類型的限制 -->
+$ limits -H <!-- 查看硬限制 -->
+$ limits -U 用戶名 <!-- 查看指定用戶的限制 -->
+$ limits -P 進程號 <!-- 查看指定進程的限制 -->
+```
+
+使用命令行修改資源限制僅對當前環境生效，若永久生效需要修改`/etc/login.conf`配置文件；
+該文件配置內容示例：
+
+```
+default:\
+	...
+	:filesize=unlimited:\
+	:coredumpsize=unlimited:\
+	:openfiles=unlimited:\
+	:maxproc=unlimited:\
+	...
+
+root:\
+	:ignorenologin:\
+	:memorylocked=unlimited:\
+	:tc=default:
+
+...
+```
+
+`default`為默認配置，根據用戶名可設置每個用戶的獨立配置。
 
 
 
