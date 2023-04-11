@@ -19,6 +19,7 @@
 	- [proc文件系統](#proc文件系統)
 	- [掛載導入zfs分區](#掛載導入zfs分區)
 - [limits](#limits)
+	- [文件描述符數目限制](#文件描述符數目限制)
 - [常用工具指令](#常用工具指令)
 	- [PCI設備](#pci設備)
 	- [chroot](#chroot)
@@ -501,6 +502,30 @@ root:\
 ```
 
 `default`為默認配置，根據用戶名可設置每個用戶的獨立配置。
+
+## 文件描述符數目限制
+查看當前環境的文件描述符數目限制：
+
+```
+$ limits -n
+Resource limits (current):
+  openfiles              512000
+```
+
+`openfiles`（文件描述符數目限制）不僅由`/etc/login.conf`配置，
+還受到`/etc/sysctl.conf`中的內核配置約束，相關配置項如下所示：
+
+```ini
+kern.maxfiles = ...
+kern.maxfilesperproc = ...
+```
+
+`kern.maxfiles`控制內核允許打開的文件描述符總數；
+`kern.maxfilesperproc`控制單個進程允許打開的文件描述符數目；
+limits配置大於內核配置時，以內核配置為準。
+
+FreeBSD系統中默認login.conf中配置了`openfiles=unlimited`，即不限制打開的文件描述符數目，
+因此內核配置中的`kern.maxfilesperproc`即為單進程實際打開的文件描述符數目限制。
 
 
 
