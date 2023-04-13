@@ -29,6 +29,7 @@
 	- [Rc / Box / Arc](#rc--box--arc)
 	- [Cell / RefCell](#cell--refcell)
 - [全局變量](#全局變量)
+	- [const_item_mutation](#const_item_mutation)
 
 <!-- /TOC -->
 
@@ -544,4 +545,65 @@ static S_M: i32 = 5;
 unsafe {
   S_M += 1;
 }
+```
+
+## const_item_mutation
+Rust中const字段不具備恆定地址，在定義一個內部可變的const字段時會得到
+[`const-item-mutation`](https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#const-item-mutation)錯誤。
+
+const字段在調用時會被**內聯**，調用時會創建臨時值，訪問的只是臨時值的地址，
+因此修改不會印象原const值的內容，此類場景應使用static字段代替const字段。
+
+示例：
+
+```rust
+const CONST_DATA: Vec<usize> = vec![];
+static mut STATIC_DATA: Vec<usize> = vec![];
+
+fn main() {
+  println!("CONST_DATA: {CONST_DATA:?}");
+  CONST_DATA.push(100);
+  println!("CONST_DATA: {CONST_DATA:?}");
+
+  unsafe {
+    println!("STATIC_DATA: {STATIC_DATA:?}");
+    STATIC_DATA.push(100);
+    println!("STATIC_DATA: {STATIC_DATA:?}");
+  }
+}
+```
+
+編譯時警告信息：
+
+```
+warning: taking a mutable reference to a `const` item
+    --> test.rs:6:3
+     |
+6    |   CONST_DATA.push(100);
+     |   ^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(const_item_mutation)]` on by default
+     = note: each usage of a `const` item creates a new temporary
+     = note: the mutable reference will refer to this temporary, not the original `const` item
+note: mutable reference created due to call to this method
+    --> /home/dainslef/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/alloc/src/vec/mod.rs:1727:5
+     |
+1727 |     pub fn push(&mut self, value: T) {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: `const` item defined here
+    --> test.rs:1:1
+     |
+1    | const CONST_DATA: Vec<usize> = vec![];
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: 1 warning emitted
+```
+
+輸出結果：(rustc 1.61.0 (fe5b13d68 2022-05-18) && NixOS)
+
+```
+CONST_DATA: []
+CONST_DATA: []
+STATIC_DATA: []
+STATIC_DATA: [100]
 ```
