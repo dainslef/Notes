@@ -101,6 +101,7 @@
 - [性能監控與測試](#性能監控與測試)
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
+	- [自定義ps輸出內容格式](#自定義ps輸出內容格式)
 	- [procps](#procps)
 		- [top](#top)
 	- [iftop](#iftop)
@@ -3902,66 +3903,79 @@ ps指令支持多種參數風格，通常參數為短參數(單橫槓參數，�
 
 通用用法：
 
-```c
-// 默認顯示當前用戶進程
-// macOS 格式 PID TTY TIME CMD
-// Linux 格式 PID TTY STAT TIME COMMAND
+```html
+<!---
+默認顯示當前用戶進程
+macOS 格式 PID TTY TIME CMD
+Linux 格式 PID TTY STAT TIME COMMAND
+-->
 $ ps
 
-// 顯示所有進程，不包含無控制終端的進程
+<!-- 顯示所有進程，不包含無控制終端的進程 -->
 $ ps a
-// 顯示所有進程，包含無控制終端的進程
-$ ps ax // 參數"x"指示顯示結果包含無控制終端進程
-$ ps A // macOS/BSD專有，Linux不支持該參數
+<!-- 顯示所有進程，包含無控制終端的進程 -->
+$ ps ax <!-- 參數x指示顯示結果包含無控制終端進程 -->
+$ ps A <!-- macOS/BSD專有，Linux使用 -A 參數 -->
 
-// Linux 展示 USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND
-// macOS 展示 USER PID %CPU %MEM VSZ RSS TT STAT STARTED TIME COMMAND
+<!--
+Linux 展示 USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND
+macOS 展示 USER PID %CPU %MEM VSZ RSS TT STAT STARTED TIME COMMAND
+-->
 $ ps u
 
-// Linux 展示 PID TTY STAT TIME MAJFL TRS DRS RSS %MEM COMMAND
-// macOS 展示 PID STAT TIME SL RE PAGEIN VSZ RSS LIM TSIZ %CPU %MEM COMMAND
+<!--
+Linux 展示 PID TTY STAT TIME MAJFL TRS DRS RSS %MEM COMMAND
+macOS 展示 PID STAT TIME SL RE PAGEIN VSZ RSS LIM TSIZ %CPU %MEM COMMAND
+-->
 $ ps v
 
-// 組合參數展示所有進程詳細信息
+<!-- 組合參數展示所有進程詳細信息 -->
 $ ps aux
 $ ps avx
-$ ps -ef
-// macOS/BSD
+<!-- macOS/BSD -->
 $ ps Au
 $ ps Av
 
-// 展示指定特徵的進程信息
-$ ps p [pid]
-$ ps U [user]
+<!-- 展示指定特徵的進程信息 -->
+$ ps p 進程號
+$ ps U 用戶名
 
-// 展示當前終端進程
+<!-- 展示當前終端進程 -->
 $ ps t
-// 展示特定終端進程
-$ ps t [tty]
+<!-- 展示特定終端進程 -->
+$ ps t 終端
 
-// Linux 展示 UID PID PPID C STIME TTY TIME CMD
-// macOS 展示 UID PID PPID C STIME TTY TIME CMD
+<!--
+Linux 展示 PID TTY STAT TIME COMMAND
+macOS 不支持
+-->
 $ ps f
 
-// Linux 展示 F S UID PID PPID C PRI NI ADDR SZ WCHAN TTY TIME CMD
-// macOS 展示 UID PID PPID F CPU PRI NI SZ RSS WCHAN S ADDR TTY TIME CMD
+<!--
+Linux 展示 F S UID PID PPID C PRI NI ADDR SZ WCHAN TTY TIME CMD
+macOS 展示 UID PID PPID F CPU PRI NI SZ RSS WCHAN S ADDR TTY TIME CMD
+-->
 $ ps l
 
-// Linux 展示 PID PGID SID TTY TIME CMD
-// macOS 展示 USER PID PPID PGID SESS JOBC STAT TT TIME COMMAND
+<!--
+Linux 展示 PID PGID SID TTY TIME CMD
+macOS 展示 USER PID PPID PGID SESS JOBC STAT TT TIME COMMAND
+-->
 $ ps j
 ```
 
-ps指令還支持通過關鍵字自定義監控內容：
+## 自定義ps輸出內容格式
+ps指令還支持通過關鍵字自定義輸出內容：
 
-```c
-$ ps o [keyword1,keyword2,keyword3...]
+```html
+$ ps o [keyword1,keyword2,keyword3...] <!-- 通用 -->
+$ ps -o [keyword1,keyword2,keyword3...] <!-- BSD風格 -->
 
-// 查看支持的監控內容
+<!-- 查看支持的指標 -->
 $ ps L
 ```
 
-macOS和Linux均支持的監控內容：
+macOS和Linux均支持的關鍵字：
 
 | Keyword | Description |
 | :- | :- |
