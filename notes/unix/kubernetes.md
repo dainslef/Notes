@@ -13,6 +13,8 @@
 	- [CNI（Container Network Interface）](#cnicontainer-network-interface)
 		- [使用helm部署網絡插件](#使用helm部署網絡插件)
 	- [升級集群](#升級集群)
+- [Kubernetes對象](#kubernetes對象)
+	- [Kubernetes API](#kubernetes-api)
 
 <!-- /TOC -->
 
@@ -107,7 +109,7 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 在牆國之外或使用代理可直接訪問Google源環境的環境下，配置官方源：
 
 ```html
-<!-- 導入倉庫籤名 -->
+<!-- 導入倉庫籤名，Ubuntu 22.04 之後推薦將 key 放置在 /etc/apt/keyrings 路徑下 -->
 # curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 
 <!-- 添加 Kubernetes 倉庫 -->
@@ -274,7 +276,8 @@ kube-system   kube-scheduler-ubuntu-arch64-tokyo            1/1     Running   11
 ```html
 <!-- 使用 helm 部署 calico 時，假定 kubeadm 已使用 --pod-network-cidr=192.168.0.0/16 參數初始化 -->
 $ kubectl create namespace xxx-namespace
-$ helm install calico projectcalico/tigera-operator --namespace xxx-namespace
+$ helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
+$ helm install tigera-operator projectcalico/tigera-operator --namespace xxx-namespace
 ```
 
 ## 升級集群
@@ -428,3 +431,37 @@ _____________________________________________________________________
 位於`/etc/kubernetes/manifests`路徑下的配置會替換為新版本，
 同時舊的配置會被備份到`/etc/kubernetes/tmp`路徑下，
 若對其中內容進行過修改，則應手動比較配置差異，重新添加配置。
+
+
+
+# Kubernetes對象
+Kubernetes常用`yaml`的形式描述對象，
+參考[官方文檔](https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/)；
+使用`kubectl`工具執行yaml格式的對象描述：
+
+```
+$ kubctl apply -f 對象描述.yaml
+```
+
+Kubernetes的對象描述包含下列內容：
+
+- `apiVersion` API版本
+- `kind` 資源類型
+- `metadata` 元數據，通常包括name、namespace等
+- `spec` 描述對象的具體內容
+
+具體可填寫的內容可查閱具體資源的對應Kubernetes API。
+
+kubectl工具會將yaml格式的對象描述轉換爲等價的Kubernetes API調用
+（yaml描述轉換為JSON請求體，發送REST API）。
+
+## Kubernetes API
+Kubernetes使用[`Kubernetes API`](https://kubernetes.io/docs/concepts/overview/kubernetes-api/)
+創建、修改、刪除對象。
+
+Kubernetes API的詳細定義參見
+[`Kubernetes API Reference`](https://kubernetes.io/docs/reference/kubernetes-api/)，
+文檔中羅列了不同類別資源yaml的詳細定義。
+
+除了直接使用REST API操作Kubernetes集羣，Kubernetes提供了主流語言的Client綁定，
+參考[Client Libraries](https://kubernetes.io/docs/reference/using-api/client-libraries/)。
