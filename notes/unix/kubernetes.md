@@ -15,6 +15,8 @@
 	- [升級集群](#升級集群)
 - [Kubernetes對象](#kubernetes對象)
 	- [Kubernetes API](#kubernetes-api)
+- [kubectl](#kubectl)
+	- [kubectl常用操作](#kubectl常用操作)
 
 <!-- /TOC -->
 
@@ -465,3 +467,60 @@ Kubernetes API的詳細定義參見
 
 除了直接使用REST API操作Kubernetes集羣，Kubernetes提供了主流語言的Client綁定，
 參考[Client Libraries](https://kubernetes.io/docs/reference/using-api/client-libraries/)。
+
+
+
+# kubectl
+kubectl提供了與Kubernetes集群通信的功能。
+
+kubectl工具的指令完整說明參考[官方文檔](https://kubernetes.io/docs/reference/kubectl/)。
+
+基本語法：
+
+```
+$ kubectl [command] [TYPE] [NAME] [flags]
+```
+
+- command指定操作類型，如create/get/describe/delete等。
+- TYPE指定資源類型，如pods/services等，資源類型大小寫不敏感，且支持部分匹配。
+- NAME指令資源名稱，資源名稱大小寫敏感。
+
+## kubectl常用操作
+`kubectl get`用於查看各類資源：
+
+```html
+$ kubectl get 資源類型 <!-- 查看指定資源類型 -->
+$ kubectl get all <!-- 查看所有資源類型 -->
+```
+
+以pods資源為例：
+
+```html
+$ kubectl get pods <!-- 查看默認命名空間下的pods -->
+$ kubectl get pods pod名稱 <!-- 查看特定名稱的pod -->
+$ kubectl get pods -n 命名空間 <!-- 查看特定命名空間下的pods -->
+$ kubectl get pods -A <!-- 查看所有命名空間下的pods -->
+$ kubectl get pods -o wide/json/yaml <!-- 設置輸出結果的格式 -->
+```
+
+查看指定資源的詳細描述：
+
+```html
+$ kubectl describe 資源類型 對象名稱
+```
+
+查看集群中的發生的事件：
+
+```
+$ kubectl get events
+```
+
+修改已部署的資源對象：
+
+```html
+<!-- 直接編輯對象YAML -->
+$ kubectl edit 資源類型 對象名稱
+
+<!-- 更新部分內容 -->
+$ kubectl patch 資源類型 對象名稱 -p '更新內容' <!-- 更新內容使用JSON語法 -->
+```
