@@ -1910,6 +1910,28 @@ $ lsattr -R 目錄 <!-- 遞歸展示目錄下所有內容的屬性 -->
 	ln: failed to create hard link 'test1' => 'test': Operation not permitted
 	```
 
+- `C(not copy-on-write)` 設置文件不使用寫時複製特性
+
+	對於支持寫時複製的文件系統，設置改屬性可保證文件立即分配實際空間，進而避免一些限制。
+
+	例如，在btrfs中，若使用普通文件作為SWAP則會得到下列錯誤：
+
+	```
+	# swapon swapfile
+	...
+	BTRFS warning (device sda2): swapfile must not be copy-on-write
+	...
+	```
+
+	創建SWAP文件後設置`C`屬性則不再出現該錯誤：
+
+	```
+	# chattr +C swapfile
+	```
+
+	詳情參考[StackExchange](https://superuser.com/questions/1067150/how-to-create-swapfile-on-ssd-disk-with-btrfs)
+	上的對應問答。
+
 ### chflags
 BSD系列系統中（包括macOS）擁有與Linux下chattr類似的機制`chflags`，指令語法：
 
