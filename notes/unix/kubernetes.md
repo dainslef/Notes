@@ -17,6 +17,9 @@
 	- [Kubernetes API](#kubernetes-api)
 - [kubectl](#kubectl)
 	- [kubectl常用操作](#kubectl常用操作)
+	- [kubectl配置](#kubectl配置)
+		- [kubectl配置結構](#kubectl配置結構)
+		- [kubectl關閉證書驗證](#kubectl關閉證書驗證)
 
 <!-- /TOC -->
 
@@ -523,4 +526,60 @@ $ kubectl edit 資源類型 對象名稱
 
 <!-- 更新部分內容 -->
 $ kubectl patch 資源類型 對象名稱 -p '更新內容' <!-- 更新內容使用JSON語法 -->
+```
+
+## kubectl配置
+kubeclt默認配置路徑為`~/.kube/config`。
+
+### kubectl配置結構
+配置為YAML格式，基本配置結構：
+
+```yaml
+apiVersion: v1
+kind: Config
+preferences: {}
+current-context: 當前context名稱
+contexts:
+  - context:
+      cluster: 集群名稱
+      user: 集群使用的用戶名
+    name: context名稱
+  ...
+clusters:
+  - cluster:
+      insecure-skip-tls-verify: true
+      server: https://x.x.x.x:6443
+    name: 集群名稱
+  ...
+users:
+  - name: 用戶名
+    user:
+      client-certificate-data: 認證數據
+      client-key-data: key數據
+  ...
+```
+
+集群可定義`clusters`字段下，用戶認證信息定義在`users`下，
+用戶認證數據和集群在`contexts`字段下綁定組合構成一個個集群環境context；
+`current-context`指定kubectl指令默認使用的context，
+存在多個context時，使用`--content`參數指令指定特定context：
+
+```
+$ kubectl --context 指定context ...
+```
+
+### kubectl關閉證書驗證
+默認生成的配置下，kubectl會校驗生成私有證書的IP地址，
+可使用`insecure-skip-tls-verify`參數關閉：
+
+```yaml
+...
+clusters:
+  - cluster:
+      # 將 certificate-authority-data 字段註釋
+      # certificate-authority-data: ...
+      server: https://x.x.x.x:6443
+      insecure-skip-tls-verify: true # 忽略認證
+    name: kubernetes
+...
 ```
