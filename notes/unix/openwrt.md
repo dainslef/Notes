@@ -46,6 +46,7 @@
 		- [修改FriendlyWrt的Overlay配置](#修改friendlywrt的overlay配置)
 		- [Docker服務未自啟動](#docker服務未自啟動)
 - [構建OpenWRT官方固件](#構建openwrt官方固件)
+- [構建GL.iNET廠家固件](#構建glinet廠家固件)
 
 <!-- /TOC -->
 
@@ -320,7 +321,7 @@ luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
 <!-- 帶有USB接口的設備可作為下載服務器 -->
 luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas usbutils rsync
 <!-- 有SD卡插槽，需要手動配置Overlay的設備可安裝 -->
-block-mount parted
+block-mount fdisk
 <!-- OpenWRT2020 主題 -->
 luci-theme-openwrt-2020
 
@@ -1316,3 +1317,38 @@ $ cd ./bin/targets/ramips/mt76x8/
 ```
 $ make dirclean
 ```
+
+
+
+# 構建GL.iNET廠家固件
+[`GL.iNET`](https://www.gl-inet.com)是一家直接基於OpenWRT開發的路由器廠家，
+該廠家的路由器直接提供OpenWRT源碼，可自行編譯固件。
+
+不同型號編譯固件流程不盡相同，但基本流程類似：
+
+```html
+<!-- 拉取固件倉庫源碼 -->
+$ git clone https://github.com/gl-inet/gl-infra-builder.git
+$ cd gl-infra-builder
+
+<!-- 生成固件構建配置，不同型號對應不同配置 -->
+$ python3 setup.py -c configs/xxx
+
+<!-- 執行 setup.py 後會生成設備相關路徑，切換到對應設備源碼路徑 -->
+$ cd xxx
+
+<!-- 在設備源碼路徑中通過 target 生成構建配置，支持的target可在profiles路徑中找到 -->
+$ ./scripts/gen_config.py luci target_xxx
+
+<!-- 執行構建操作 -->
+$ make -j核心數
+```
+
+在執行`python3 setup.py -c xxx.yml`操作時，需要設置git的帳號和郵箱：
+
+```
+$ git config --global user.email "xxx"
+$ git config --global user.name "xxx"
+```
+
+否則會導致git倉庫拉取不完全，進而後續的`./scripts/gen_config.py`腳本無法找到。
