@@ -101,7 +101,7 @@
 - [性能監控與測試](#性能監控與測試)
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
-	- [自定義ps輸出內容格式](#自定義ps輸出內容格式)
+		- [自定義ps輸出內容格式](#自定義ps輸出內容格式)
 	- [procps](#procps)
 		- [top](#top)
 	- [iftop](#iftop)
@@ -129,6 +129,7 @@
 	- [字體配置](#字體配置)
 - [Debian系列發行版包管理](#debian系列發行版包管理)
 	- [apt](#apt)
+		- [apt下載依賴](#apt下載依賴)
 		- [apt-file](#apt-file)
 		- [add-apt-repository](#add-apt-repository)
 	- [dpkg](#dpkg)
@@ -3986,7 +3987,7 @@ macOS 展示 USER PID PPID PGID SESS JOBC STAT TT TIME COMMAND
 $ ps j
 ```
 
-## 自定義ps輸出內容格式
+### 自定義ps輸出內容格式
 ps指令還支持通過關鍵字自定義輸出內容：
 
 ```html
@@ -4738,8 +4739,11 @@ $ apt-cache search 軟件包名稱 <!-- 模糊查找（包括相關信息） -->
 $ apt-cache list '*軟件包關鍵字*' <!-- 精確匹配軟件包名關鍵字查找 -->
 <!-- 查看包的依賴 -->
 $ apt-cache depends 軟件包名稱
-<!-- 計算包的反向依賴（被引用數），輸出結果中有豎橫線｜標誌的為本地已安裝的依賴項 -->
-$ apt-cache rdepends 軟件包名稱
+<!-- 計算包的反向依賴（被引用依賴） -->
+$ apt-cache rdepends 軟件包名稱 <!-- 默認查詢所有依賴（包括未安裝依賴），輸出結果中有豎橫線｜標誌的為本地已安裝的依賴項 -->
+$ apt-cache rdepends --recurse 軟件包名稱 <!-- 遞歸查詢反向依賴 -->
+$ apt-cache rdepends --installed 軟件包名稱 <!-- 僅查詢安裝的反向依賴 -->
+$ apt-cache rdepends --installed --important 軟件包名稱 <!-- 查詢安裝的反向依賴，僅輸出重要依賴 -->
 
 <!-- 將某個包標記爲自動/手動安裝 -->
 # apt-mask auto/manual 軟件包名稱
@@ -4747,7 +4751,8 @@ $ apt-cache rdepends 軟件包名稱
 $ apt-mask showauto/showmanaul
 ```
 
-`Ubuntu 14.04`之後apt指令為部分常用指令提供了更簡單的命令形式：
+較新版本的apt工具為部分常用指令提供了更簡單的命令形式，直接使用apt作為指令，
+apt指令整合了apt-get和apt-cache指令的部分功能，並提供更好的交互體驗。
 
 ```html
 <!-- apt-get 相關 -->
@@ -4762,6 +4767,37 @@ $ apt show/search/list 軟件包名稱
 # apt rdepends 軟件包名稱
 ```
 
+apt手冊中提及了apt工具的兼容性保證問題：
+
+> The apt(8) commandline is designed as an end-user tool and it may change behavior between versions. While it tries not to break backward compatibility this is not guaranteed either if a change seems beneficial for interactive use.
+>
+> All features of apt(8) are available in dedicated APT tools like apt-get(8) and apt-cache(8) as well. apt(8) just changes the default value of some options (see apt.conf(5) and specifically the Binary scope). So you should prefer using these commands (potentially with some additional options enabled) in your scripts as they keep backward compatibility as much as possible.
+
+即apt命令的輸出可能會隨著版本升級而發生改變（不保證前向兼容），
+將apt相關子指令的輸出結果用在重定向時會輸出警告信息：
+
+```
+$ apt rdepends iproute2 | grep "|"
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+ |Depends: wondershaper
+ |Depends: vpnc-scripts
+ |Depends: tcllib
+ ...
+```
+
+使用apt-cache則不會輸出警告信息：
+
+```
+$ apt-cache rdepends iproute2 | grep "|"
+ |Depends: wondershaper
+ |Depends: vpnc-scripts
+ |Depends: tcllib
+ ...
+```
+
+### apt下載依賴
 apt install指令可以使用`-d/--download-only`參數僅獲取安裝包而不安裝
 （通常用於下載離線安裝時使用的安裝包）：
 
