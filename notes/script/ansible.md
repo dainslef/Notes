@@ -8,6 +8,7 @@
 	- [Ansible Console](#ansible-console)
 - [Ansible Playbook](#ansible-playbook)
 	- [Block](#block)
+	- [Tags](#tags)
 
 <!-- /TOC -->
 
@@ -301,4 +302,46 @@ tasks:
         ansible.builtin.debug:
           msg: 'I caught an error, can do stuff here to fix it, :-)'
     ...
+```
+
+## Tags
+使用tags可為Playbook中的任務添加自訂義標記，在執行任務時可根據不同標記執行Playbook的一部分任務。
+完整說明參考[官方文檔](https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html)。
+
+tags可添加在task、block、play等作用域：
+
+```yaml
+# tags用在play中
+- hosts: Xxx host pattern
+  tags: xxx play tag
+  tasks:
+  - name: task name 1
+    模塊名稱:
+      key1: value1
+      key2: value2
+      ...
+
+# tags用在block中
+- name: Xxx tasks
+  tags: xxx block tag
+  block:
+  - name: task name 1
+    模塊名稱:
+      key1: value1
+      key2: value2
+      ...
+
+# tags直接用在task中
+- name: Task name 1
+  tags: xxx task tag
+  模塊名稱:
+    key1: value1
+    key2: value2
+    ...
+```
+
+執行Playbook中指定tags的任務：
+
+```
+$ ansible Playbook文件 -t tags內容
 ```
