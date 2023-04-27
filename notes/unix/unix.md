@@ -4725,6 +4725,7 @@ apt的常用指令：
 
 <!-- 安裝/卸載軟件包 -->
 # apt-get install/remove 軟件包名稱
+# apt-get install 軟件包名稱/倉庫名稱 <!-- 安裝指定倉庫中的軟件包（在軟件包同時存在與多個倉庫時） -->
 <!-- 卸載軟件包時同時刪除配置 -->
 # apt-get remove --purge 軟件包名稱
 
@@ -4734,6 +4735,9 @@ apt的常用指令：
 
 <!-- 查看指定軟件包詳情 -->
 $ apt-cache show 軟件包名稱
+<!-- 針對多個倉庫中同時存在的軟件包，查看軟件包所屬倉庫及候選版本 -->
+$ apt-cache madison 軟件包名稱
+$ apt-cache policy 軟件包名稱
 <!-- 搜索軟件包 -->
 $ apt-cache search 軟件包名稱 <!-- 模糊查找（包括相關信息） -->
 $ apt-cache list '*軟件包關鍵字*' <!-- 精確匹配軟件包名關鍵字查找 -->
@@ -4767,7 +4771,7 @@ $ apt show/search/list 軟件包名稱
 # apt rdepends 軟件包名稱
 ```
 
-apt手冊中提及了apt工具的兼容性保證問題：
+apt手冊中提及了新版apt工具的兼容性保證問題：
 
 > The apt(8) commandline is designed as an end-user tool and it may change behavior between versions. While it tries not to break backward compatibility this is not guaranteed either if a change seems beneficial for interactive use.
 >
@@ -5106,14 +5110,16 @@ deb-src 軟件源地址 版本號 倉庫類型
 版本代號後是**版本倉庫**，Debian的版本倉庫有：
 
 - `版本號-updates` 提供常規更新
+- `版本號-backports` 將testing源的部分更新下放到stable版本中
+- `版本號-security` 提供安全更新
 - `版本號-proposed-updates` 提供處於測試階段的更新（不建議啓用）
-- `版本號-backports` 提供軟件的`testing`功能性更新
 
 版本倉庫後需要指定啓用的倉庫類型，Debian倉庫類型主要有三類：
 
 - `main` 主要倉庫，符合`DFSG`定義的開源軟件
 - `contrib` 包含依賴於非自由軟件的開源軟件
 - `non-free` 非自由軟件
+- `non-free-firmware` 非自由固件（`Debian 12 bookworm`版本開始引入，之前版本非自由固件亦在non-free倉庫中）
 
 以**中科大鏡像源**爲例，`Debian Stable`的`sources.list`配置：
 
@@ -5134,10 +5140,10 @@ deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free
 
 Ubuntu**版本倉庫**：
 
-- `版本號-security` 提供重要的安全性更新(漏洞修復)
 - `版本號-updates` 提供建議的更新
 - `版本號-backports` 提供功能性更新
-- `版本號-proposed` 提供處於測試階段的`updates`更新(不建議啓用)
+- `版本號-security` 提供重要的安全性更新（漏洞修復）
+- `版本號-proposed` 提供處於測試階段的`updates`更新（不建議啓用）
 
 Ubuntu**倉庫類別**：
 
