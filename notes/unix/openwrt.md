@@ -47,6 +47,7 @@
 		- [Docker服務未自啟動](#docker服務未自啟動)
 - [構建OpenWRT官方固件](#構建openwrt官方固件)
 - [構建GL.iNET廠家固件](#構建glinet廠家固件)
+	- [內核版本配置](#內核版本配置)
 
 <!-- /TOC -->
 
@@ -1352,3 +1353,17 @@ $ git config --global user.name "xxx"
 ```
 
 否則會導致git倉庫拉取不完全，進而後續的`./scripts/gen_config.py`腳本無法找到。
+
+## 內核版本配置
+使用開源代碼編譯出的固件內核VERMAGIC與官方kmod庫中的內核依賴版本不匹配，導致內核模塊無法正常安裝。
+該問題可通過修改`include/kernel.mk`中的`LINUX_VERMAGIC`，顯式指定該值與kmod庫中版本相匹配即可。
+
+```make
+LINUX_VERMAGIC:=5c79df825364eed582b9e6554972c148 # 指定 LINUX_VERMAGIC 變量
+ifneq (,$(findstring uml,$(BOARD)))
+  LINUX_KARCH=um
+else ifneq (,$(findstring $(ARCH) , aarch64 aarch64_be ))
+```
+
+相關內容可參考[GL.iNET官方論壇](https://forum.gl-inet.com/t/axt1800-which-distfeeds-conf-kmod-repo-should-i-use-for-self-compiled-firmware/23907)
+中對應問題的相關討論。
