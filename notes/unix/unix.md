@@ -130,6 +130,7 @@
 - [Debian系列發行版包管理](#debian系列發行版包管理)
 	- [apt](#apt)
 		- [apt下載依賴](#apt下載依賴)
+		- [apt依賴類型](#apt依賴類型)
 		- [apt-file](#apt-file)
 		- [add-apt-repository](#add-apt-repository)
 	- [dpkg](#dpkg)
@@ -4812,6 +4813,36 @@ apt install指令可以使用`-d/--download-only`參數僅獲取安裝包而不�
 -->
 # apt install -d 軟件包名稱
 # apt install --download-only 軟件包名稱
+```
+
+### apt依賴類型
+deb軟件包的依賴包括下列幾種：
+
+| 依賴類型 | 說明 | 關聯度（與當前軟件包） |
+| :- | :- | :- |
+| Depends | 必要依賴，必須被安裝，否則當前軟件包無法工作 | 高 |
+| Recommends | 推薦依賴，通常與當前軟件包一同搭配使用 | 中 |
+| Suggests | 建議依賴，通常是建議的軟件包中包含與當前軟件包功能相關的文件 | 低 |
+
+關於的區別，參考[Debian官方FAQ](https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html#depends)。
+
+默認配置下，使用apt安裝軟件包，會安裝Depends和Recommends，而不會安裝Suggests；
+使用autoremove清理軟件包，則會同時保留Depends、Recommends和Suggests。
+
+可通過在`/etc/apt/apt.conf.d`路徑下添加配置文件設置各類依賴的安裝策略和自動清理策略，
+默認策略如下：
+
+```sh
+APT::Install-Recommends "true"; # 安裝 Recommends 依賴
+APT::Install-Suggests "false"; # 不安裝 Suggests 依賴
+APT::AutoRemove::RecommendsImportant "true"; # 不清理 Recommends 依賴
+APT::AutoRemove::SuggestsImportant "true"; # 不清理 Suggests 依賴
+```
+
+要使清理依賴規則與安裝時匹配，應在清理時不保留Suggests，添加配置：
+
+```sh
+APT::AutoRemove::SuggestsImportant "false";
 ```
 
 ### apt-file
