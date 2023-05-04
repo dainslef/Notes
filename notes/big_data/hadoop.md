@@ -911,6 +911,7 @@ IRB是標準的Ruby Shell，可直接執行Ruby代碼。
 使用`hbase shell`指令可進入HBase的IRB中：
 
 ```ruby
+$ hbase shell
 Version 1.2.6, rUnknown, Mon May 29 02:25:32 CDT 2017
 
 hbase(main):001:0>
@@ -960,6 +961,9 @@ hbase(main):001:0>
 
 	# 可以同時修改多個列族的配置
 	hbase> alter "表名", { NAME => "列族1", Xxx => xxx, ... }, { NAME => "列族2", Xxx => xxx, ... }, ...
+
+	# 使用alter可刪除空的列族
+	hbase> alter "表名", { NAME => "列族", METHOD => "delete" }
 	```
 
 	部分配置(如`VERSIONS`)直接修改無效，需要指定列族名稱進行修改。
@@ -1405,7 +1409,22 @@ ROW                             COLUMN+CELL
 0 row(s) in 0.0190 seconds
 ```
 
-最近版本的HBase還支持了對每個單元設置數據保存時間，參考[HBASE-10560](https://issues.apache.org/jira/browse/HBASE-10560)。
+最近版本的HBase還支持了對每個單元設置數據保存時間，
+參考[HBASE-10560](https://issues.apache.org/jira/browse/HBASE-10560)。
+
+在線上環境修改TTL推薦先禁用表後再執行（保障數據安全）：
+
+```
+hbase> disable "Test"
+hbase> alter "Test", { NAME => "f1", TTL => 5 }
+hbase> enable "Test"
+```
+
+修改TTL刪除數據後不會立即釋放空間，手動觸發Major Compaction釋放空間：
+
+```
+hbase> major_compact "Test"
+```
 
 ## HBase表格在HDFS中的實際存儲
 HBase在HDFS中實際存儲的位置默認為：
