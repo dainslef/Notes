@@ -8,6 +8,7 @@
 	- [牆國源部署](#牆國源部署)
 	- [安裝Kubernetes軟件包](#安裝kubernetes軟件包)
 	- [初始化集群](#初始化集群)
+	- [向集群添加/移除節點](#向集群添加移除節點)
 		- [排查集群錯誤](#排查集群錯誤)
 		- [重置集群節點](#重置集群節點)
 	- [CNI（Container Network Interface）](#cnicontainer-network-interface)
@@ -20,6 +21,8 @@
 	- [kubectl配置](#kubectl配置)
 		- [kubectl配置結構](#kubectl配置結構)
 		- [kubectl關閉證書驗證](#kubectl關閉證書驗證)
+- [集群架構](#集群架構)
+	- [Node](#node)
 
 <!-- /TOC -->
 
@@ -166,6 +169,7 @@ Kubernetes現在默認使用containerd，在牆國由於Kubernetes官方鏡像�
 # kubeadm init --image-repository='registry.cn-hangzhou.aliyuncs.com/google_containers'
 ```
 
+## 向集群添加/移除節點
 成功初始化集群後，當前節點將作為control-plane（控制平面），之後可繼續添加其它節點。
 初始化的信息中會告知其它節點加入當前集群的指令：
 
@@ -581,5 +585,37 @@ clusters:
       server: https://x.x.x.x:6443
       insecure-skip-tls-verify: true # 忽略認證
     name: kubernetes
+...
+```
+
+
+
+# 集群架構
+Kubernetes集群架構參考[官方文檔](https://kubernetes.io/docs/concepts/architecture/)。
+
+集群架構示意圖如下：
+
+![Kubernetes Cluster](../../images/kubernetes_cluster.svg)
+
+集群組件的詳細介紹參考[官方文檔](https://kubernetes.io/docs/concepts/overview/components)。
+
+## Node
+Kubernetes將工作負載放置在容器中，容器放置在Pod中，Pod運行在Node上。
+Node可以是物理機或虛擬機。每個Node均由Control Plane管理，並包含運行Pod必要的服務。
+
+一個Node中包含下列組件：
+
+- `kubelet` 用於確保由Kubernetes創建的容器正確地運行在Pod中
+- `kube-proxy` 管理節點的網絡規則（如iptables、ipvs等）
+- `容器運行時（通常是containerd）` 用於運行容器
+
+通常在集群中會存在多個Nodes，在某些資源受限或學習環境下，才會僅存在單個Node。
+
+使用`kubectl get nodes`查看集群中的節點，示例：
+
+```
+$ kubectl get nodes
+NAME  STATUS   ROLES           AGE   VERSION
+xxx   Ready    control-plane   24d   v1.26.3
 ...
 ```
