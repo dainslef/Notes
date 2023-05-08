@@ -110,6 +110,7 @@
 		- [mpstat](#mpstat)
 		- [iostat](#iostat)
 	- [sysbench](#sysbench)
+	- [fio](#fio)
 	- [RT-Tests](#rt-tests)
 		- [cyclictest](#cyclictest)
 	- [iperf / qperf](#iperf--qperf)
@@ -4339,6 +4340,33 @@ $ sysbench --event=測試次數 cpu run
 ```
 
 多個限定參數可組合使用，滿足其中一個限定條件後會終止測試。
+
+## fio
+[`fio`](https://github.com/axboe/fio)用於多維度測試磁盤性能，
+
+基本操作：
+
+```
+$ fio --name 任務名稱 --filename 測試目標 --rw 測試操作 --bs 塊大小 --ioengine IO引擎
+```
+
+參數說明參考[官方文檔](https://fio.readthedocs.io/en/latest/fio_doc.html)。
+
+常用參數：
+
+| 參數 | 說明 |
+| :- | :- |
+| filename | 測試目標，可以是文件、塊設備等 |
+| size | 文件大小，當測試目標文件不存在時，創建指定大小的文件（測試目標已存在則無需該參數） |
+| bs | 讀寫塊大小，常見取值`4K`、`4M`等 |
+| rw | 讀寫操作，常見取值`read/write/rw`（順序讀、寫、讀寫），`randread/randwrite/randrw`（隨機讀、寫、讀寫） |
+| ioengine | IO引擎，常見取值`sync`（同步IO），`libaio`（Linux異步IO） |
+| sync | 指定打開文件的IO方式，取值可為`none/0`（非同步IO，默認值），`sync/1`（使用O_SYNC），`dsync`（使用O_DSYNC） |
+| iodepth | 文件IO單元書目，默認值`1`，iodepth大於1時對sync IO引擎無效 |
+| direct | 使用非緩衝IO，對應`O_DIRECT`，取值可為`0`（使用緩衝IO，默認值），`1`（使用非緩衝IO） |
+| invalidate | 使現在文件IO生成的buffer/page cache無效化，取值可為`1`（默認）和`0` |
+
+fio的測試目標可以為塊設備或是文件系統中的文件，測試目標為塊設備則反映設備的裸盤性能。
 
 ## RT-Tests
 [`RT-Tests`](https://wiki.linuxfoundation.org/realtime/documentation/howto/tools/rt-tests)
