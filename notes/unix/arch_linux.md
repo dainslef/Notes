@@ -7,6 +7,9 @@
 	- [系統分區](#系統分區)
 	- [安裝基礎軟件包](#安裝基礎軟件包)
 	- [配置安裝環境](#配置安裝環境)
+- [桌面環境配置](#桌面環境配置)
+	- [配置顯卡驅動](#配置顯卡驅動)
+	- [DPI縮放](#dpi縮放)
 
 <!-- /TOC -->
 
@@ -125,4 +128,52 @@ title Arch Linux
 linux /vmlinuz-linux-zen
 initrd /initramfs-linux-zen.img
 options root=/dev/xxx_root
+```
+
+
+
+# 桌面環境配置
+ArchLinux默認並未集成任何桌面環境，可根據自身需求安裝需要的桌面環境。
+
+## 配置顯卡驅動
+Intel核芯顯卡早年使用Intel官方提供的開源驅動`xf86-video-intel`，
+但該驅動已多年未有實質性更新，現在Intel核顯支持已直接集成到Xorg中，已不需要單獨安裝驅動。
+
+AMD核芯顯卡驅動分爲兩類，較老的CPU使用`xf86-video-ati`，
+Zen系列之後較新的CPU使用`xf86-video-amdgpu`。
+
+## DPI縮放
+通過修改全局配置`/etc/X11/Xreources`或用戶配置`~/.Xresources`設置UI縮放比例。
+默認DPI爲96，按照需要縮放的比例設置DPI值，如120（25%），144（50%）：
+
+```
+Xft.dpi: 120
+```
+
+通過查看`/etc/lightdm/Xsession`可知，加載Xresources邏輯如下：
+
+```sh
+# Load resources
+for file in "/etc/X11/Xresources" "$HOME/.Xresources"; do
+    if [ -f "$file" ]; then
+        echo "Loading resource: $file"
+        xrdb -merge "$file"
+    fi
+done
+```
+
+因此Xresources需要xrdb工具才能生效：
+
+```
+# pacman -S xorg-xrdb
+```
+
+Display Manager的縮放配置需要單獨設定，以lightdm-gtk-greeter爲例，
+修改對應配置`/etc/lightdm/lightdm-gtk-greeter.conf`：
+
+```
+[greeter]
+...
+xft-dpi=120
+...
 ```
