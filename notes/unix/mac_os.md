@@ -71,6 +71,7 @@
 	- [macOS下Chrome的 NET::ERR_CERT_INVALID](#macos下chrome的-neterr_cert_invalid)
 	- [macOS默認終端下Powerline字體色彩顯示異常](#macos默認終端下powerline字體色彩顯示異常)
 	- [Launchpad無效圖標](#launchpad無效圖標)
+	- [Wireshark](#wireshark)
 
 <!-- /TOC -->
 
@@ -1439,3 +1440,29 @@ macOS自帶終端顯示Powerline字體色彩問題暫無直接解決方案，
 ![Launchpad異常圖標刪除](../../images/mac_os_launchpad_icon_error.png)
 
 點擊刪除按鈕即可刪除圖標。
+
+## Wireshark
+問題描述：<br>
+安裝Wireshark，啟動後無法抓包，提示錯誤信息：
+
+```
+You don't have permission to capture on local interfaces.
+You can fix this by installing ChmodBPF.
+```
+
+解決方案：<br>
+參考[Wireshark官方QA](https://osqa-ask.wireshark.org/questions/578/mac-os-cant-detect-any-interface/)，
+出現該問題的原因是依賴的ChmodBPF組件生成的`/dev/bpf*`相關設備權限不正確。
+
+設置相關權限即可修復問題：
+
+```
+# chgrp access_bpf /dev/bpf*
+# chmod g+rw /dev/bpf*
+```
+
+若使用Homebrew安裝的Wireshark，亦可執行卸載重裝：
+
+```
+$ brew reinstall --cask wireshark
+```
