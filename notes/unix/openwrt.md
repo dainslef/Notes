@@ -48,6 +48,7 @@
 - [構建OpenWRT官方固件](#構建openwrt官方固件)
 - [構建GL.iNET廠家固件](#構建glinet廠家固件)
 	- [內核版本配置](#內核版本配置)
+- [USB WIFI](#usb-wifi)
 
 <!-- /TOC -->
 
@@ -1367,3 +1368,28 @@ else ifneq (,$(findstring $(ARCH) , aarch64 aarch64_be ))
 
 相關內容可參考[GL.iNET官方論壇](https://forum.gl-inet.com/t/axt1800-which-distfeeds-conf-kmod-repo-should-i-use-for-self-compiled-firmware/23907)
 中對應問題的相關討論。
+
+
+
+# USB WIFI
+對於當下主流的軟路由方案（RK3328-R2S/R2C、RK3399-R4S/R4SE、RK3568-R5S等），
+通常並不提供WIFI功能，若需要在此類方案的設備中使用WIFI，則需要使用USB WIFI網卡。
+
+常用固件對USB WIFI的支持如下：
+
+| 網卡型號 | OpenWRT支持（22.03） | ImmortalWRT支持（21.02） | FriendlyWrt支持（22.03） | AP支持 | 驅動包名 | 速率 | 品牌產品 | 補充說明 |
+| :- | :- | :- | :- | :- | :- | :- | :- | :- |
+| RTL8723BU | Y | Y | Y | N | kmod-rtl8xxxu | bgn 150M | CF-723B | 價格20+RMB，帶藍牙，體積小，但驅動支持極差，所有固件中均不包含專屬驅動，無法開啟AP模式 |
+| RTL8188CU | Y | Y | Y | Y / N | kmod-rtl8192cu / kmod-rtl8xxxu | bgnn 150M | / | 價格10+RMB，各大版本支持較好，且體積小，與RTL8192CU共用驅動 |
+| RTL8192CU | Y | Y | Y | Y / N | kmod-rtl8192cu / kmod-rtl8xxxu | bgn 300M | / | 價格10+RMB，各大版本支持較好，體積比RTL8188CU稍大 |
+| RTL8188EU | Y | Y | Y | Y / N | kmod-rtl8188eu / kmod-rtl8xxxu | bgnn 150M | CF-WU810N | 價格10+RMB，EU系列當前驅動支持較差，僅在ImmortalWRT中存在專屬驅動，其它固件中驅動不支持AP；體積小，與RTL8188CU相同 |
+| RTL8192EU | Y | Y | Y | Y / N | kmod-rtl8192eu / kmod-rtl8xxxu | bgn 300M | / | 價格10+RMB，EU系列當前驅動支持較差，僅在ImmortalWRT中存在專屬驅動，其它固件中驅動不支持AP；體積與RTL8192CU相同 |
+| RTL8811CU | N | Y | Y | Y | kmod-rtl8821cu | bgnac 650M | CF-811AC | 價格30+RMB，體積小，性價比高，與RTL8821CU共用驅動 |
+| RTL8821CU | N | Y | Y | Y | kmod-rtl8821cu | bgnac 650M | CF-813BC | 價格40+RMB，體積中，帶藍牙 |
+| RTL8812BU | N | ? | Y | Y | kmod-rtl88x2bu | bgnac 1200M | CF-812AC | 價格40+RMB，體積小，兼容性一般，使用ImmortalWRT驅動存在問題 |
+| MT7601U | Y | Y | Y | N / Y | kmod-mt7601u / kmod-mt7601u-ap | bgn 150M | CF-W710N | 價格10+RMB，體積小，官方驅動不支持AP模式，僅在ImmortalWRT存在支持AP模式的專屬驅動 |
+| AR9721 | Y | Y | Y | Y | kmod-ath9k-htc | bgn 150M | / | 價格10+RMB，驅動支持完善，體積稍大 |
+
+官方OpenWRT對USB WIFI網卡的支持有限，若需要完善的USB WIFI支持，應使用ImmortalWRT。
+`kmod-rtl8xxxu`驅動幾乎支持大多數RTL81xx系列網卡，但功能不夠完善，不支持AP模式，
+若需要使用AP模式，應考慮存在專屬驅動的網卡。
