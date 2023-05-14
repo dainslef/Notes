@@ -324,8 +324,6 @@ luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
 luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas usbutils rsync
 <!-- 有SD卡插槽，需要手動配置Overlay的設備可安裝 -->
 block-mount fdisk
-<!-- OpenWRT2020 主題 -->
-luci-theme-openwrt-2020
 
 <!--
 VIM編輯器，busybox自帶的vi功能簡陋，多數VIM常用指令都未實現，
@@ -336,12 +334,16 @@ vim-full
 <!-- 存儲空間足夠的設備可安裝全功能版本的VIM -->
 vim-fuller
 
-<!-- ARM64 架構的設備可安裝 Docker -->
-luci-app-dockerman
+<!-- OpenWRT2020 主題 -->
+luci-theme-openwrt-2020
+
 <!-- ImmortalWRT 以及部分國產固件可直接從軟件源中安裝 OpenClash -->
 luci-app-openclash
 <!-- ImmortalWRT 不需要安裝溫度檢測器，UI直接提供處理器溫度展示，其它系統需要安裝用於查看處理器溫度 -->
 lm-sensors
+
+<!-- ARM64 架構的設備可安裝 Docker -->
+luci-app-dockerman
 ```
 
 MT762x系列芯片的安裝SD卡驅動：
@@ -1377,18 +1379,18 @@ else ifneq (,$(findstring $(ARCH) , aarch64 aarch64_be ))
 
 常用固件對USB WIFI的支持如下：
 
-| 網卡型號 | OpenWRT支持（22.03） | ImmortalWRT支持（21.02） | FriendlyWrt支持（22.03） | AP支持 | 驅動包名 | 速率 | 品牌產品 | 補充說明 |
-| :- | :- | :- | :- | :- | :- | :- | :- | :- |
-| RTL8723BU | Y | Y | Y | N | kmod-rtl8xxxu | bgn 150M | CF-723B | 價格20+RMB，帶藍牙，體積小，但驅動支持極差，所有固件中均不包含專屬驅動，無法開啟AP模式 |
-| RTL8188CU | Y | Y | Y | Y / N | kmod-rtl8192cu / kmod-rtl8xxxu | bgnn 150M | / | 價格10+RMB，各大版本支持較好，且體積小，與RTL8192CU共用驅動 |
-| RTL8192CU | Y | Y | Y | Y / N | kmod-rtl8192cu / kmod-rtl8xxxu | bgn 300M | / | 價格10+RMB，各大版本支持較好，體積比RTL8188CU稍大 |
-| RTL8188EU | Y | Y | Y | Y / N | kmod-rtl8188eu / kmod-rtl8xxxu | bgnn 150M | CF-WU810N | 價格10+RMB，EU系列當前驅動支持較差，僅在ImmortalWRT中存在專屬驅動，其它固件中驅動不支持AP；體積小，與RTL8188CU相同 |
-| RTL8192EU | Y | Y | Y | Y / N | kmod-rtl8192eu / kmod-rtl8xxxu | bgn 300M | / | 價格10+RMB，EU系列當前驅動支持較差，僅在ImmortalWRT中存在專屬驅動，其它固件中驅動不支持AP；體積與RTL8192CU相同 |
-| RTL8811CU | N | Y | Y | Y | kmod-rtl8821cu | bgnac 650M | CF-811AC | 價格30+RMB，體積小，性價比高，與RTL8821CU共用驅動 |
-| RTL8821CU | N | Y | Y | Y | kmod-rtl8821cu | bgnac 650M | CF-813BC | 價格40+RMB，體積中，帶藍牙 |
-| RTL8812BU | N | ? | Y | Y | kmod-rtl88x2bu | bgnac 1200M | CF-812AC | 價格40+RMB，體積小，兼容性一般，使用ImmortalWRT驅動存在問題 |
-| MT7601U | Y | Y | Y | N / Y | kmod-mt7601u / kmod-mt7601u-ap | bgn 150M | CF-W710N | 價格10+RMB，體積小，官方驅動不支持AP模式，僅在ImmortalWRT存在支持AP模式的專屬驅動 |
-| AR9721 | Y | Y | Y | Y | kmod-ath9k-htc | bgn 150M | / | 價格10+RMB，驅動支持完善，體積稍大 |
+| 網卡型號 | 設備ID | OpenWRT支持（22.03） | ImmortalWRT支持（21.02） | FriendlyWrt支持（22.03） | AP支持 | 驅動包名 | 速率 | 品牌產品 | 補充說明 |
+| :- | :- | :- | :- | :- | :- | :- | :- | :- | :- |
+| RTL8723BU | 0bda:b720 | Y | Y | Y | N | kmod-rtl8xxxu | bgn 150M | CF-723B | 價格20+RMB，帶藍牙，體積小，但驅動支持極差，所有固件中均不包含專屬驅動，無法開啟AP模式 |
+| RTL8188CU | 0bda:8176 | Y | Y | Y | Y / N | kmod-rtl8192cu / kmod-rtl8xxxu | bgnn 150M | / | 價格10+RMB，各大版本支持較好，且體積小，與RTL8192CU共用驅動 |
+| RTL8188EU | 0bda:8179 | Y | Y | Y | Y / N | kmod-rtl8188eu / kmod-rtl8xxxu | bgnn 150M | CF-WU810N | 價格10+RMB，EU系列當前驅動支持較差，僅在ImmortalWRT中存在專屬驅動，其它固件中驅動不支持AP；體積小，與RTL8188CU相同 |
+| RTL8192CU | / | Y | Y | Y | Y / N | kmod-rtl8192cu / kmod-rtl8xxxu | bgn 300M | / | 價格10+RMB，各大版本支持較好，體積比RTL8188CU稍大 |
+| RTL8192EU | 0bda:818b | Y | Y | Y | Y / N | kmod-rtl8192eu / kmod-rtl8xxxu | bgn 300M | / | 價格10+RMB，EU系列當前驅動支持較差，僅在ImmortalWRT中存在專屬驅動，其它固件中驅動不支持AP；體積與RTL8192CU相同 |
+| RTL8811CU | 0bda:c811 | N | Y | Y | Y | kmod-rtl8821cu | bgnac 650M | CF-811AC | 價格30+RMB，體積小，性價比高，與RTL8821CU共用驅動 |
+| RTL8821CU | / | N | Y | Y | Y | kmod-rtl8821cu | bgnac 650M | CF-813BC | 價格40+RMB，體積中，帶藍牙 |
+| RTL8812BU | 0bda:b812 | N | ? | Y | Y | kmod-rtl88x2bu | bgnac 1200M | CF-812AC | 價格40+RMB，體積小，兼容性一般，使用ImmortalWRT驅動存在問題 |
+| MT7601U | 148f:7601 | Y | Y | Y | N / Y | kmod-mt7601u / kmod-mt7601u-ap | bgn 150M | CF-W710N | 價格10+RMB，體積小，官方驅動不支持AP模式，僅在ImmortalWRT存在支持AP模式的專屬驅動 |
+| AR9721 | 040d:3801 | Y | Y | Y | Y | kmod-ath9k-htc | bgn 150M | / | 價格10+RMB，驅動支持完善，體積稍大 |
 
 官方OpenWRT對USB WIFI網卡的支持有限，若需要完善的USB WIFI支持，應使用ImmortalWRT。
 `kmod-rtl8xxxu`驅動幾乎支持大多數RTL81xx系列網卡，但功能不夠完善，不支持AP模式，
