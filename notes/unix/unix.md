@@ -78,15 +78,15 @@
 		- [loginctl](#loginctl)
 - [網絡](#網絡)
 	- [網絡配置](#網絡配置)
-		- [Ubuntu (17.10之前) / Debian](#ubuntu-1710之前--debian)
-		- [Ubuntu (17.10及之後)](#ubuntu-1710及之後)
+		- [ifupdown（Ubuntu（17.10之前）/ Debian）](#ifupdownubuntu1710之前-debian)
+		- [Netplan（Ubuntu17.10之後）](#netplanubuntu1710之後)
+		- [NetworkManager](#networkmanager)
 	- [路由](#路由)
 		- [路由轉發](#路由轉發)
 		- [追蹤路由](#追蹤路由)
 	- [Bonding](#bonding)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
-	- [NetworkManager](#networkmanager)
 	- [tcpdump](#tcpdump)
 	- [Netcat (nc)](#netcat-nc)
 		- [客戶端/服務端模式](#客戶端服務端模式)
@@ -3101,8 +3101,10 @@ fib_trie   ip6_mr_cache   ipv6_route         protocols  rt_acct    stat         
 ## 網絡配置
 各大發行版的網絡配置差異較大，同一發行版的不同版本網絡配置也不盡相同。
 
-### Ubuntu (17.10之前) / Debian
-Ubuntu早期使用與Debian相同的網絡配置，配置文件爲`/etc/network/interfaces`：
+### ifupdown（Ubuntu（17.10之前）/ Debian）
+Ubuntu與Debian早期默認使用`ifupdown`軟件包管理網絡配置。
+
+ifupdown配置文件位於`/etc/network`路徑下，核心配置文件爲`/etc/network/interfaces`：
 
 ```shell
 # The loopback network interface
@@ -3136,7 +3138,7 @@ gateway x.x.x.x
 # resolvconf -u
 ```
 
-### Ubuntu (17.10及之後)
+### Netplan（Ubuntu17.10之後）
 Ubuntu 17.10後，爲了簡化網絡配置，不再使用Debian的網絡配置方式，
 而是引入了新的網絡配置工具Netplan。
 
@@ -3165,6 +3167,53 @@ network:
 # netplan apply
 ```
 
+### NetworkManager
+`NetworkManager`是現代Linux發行版的主流網絡管理服務，
+NetworkManager服務用於管理網絡連接和其它網絡接口，如Ethernet、WiFi、Mobile Broadband，
+使網絡配置和操作變得盡可能自動化。
+
+NetworkManager最初由RedHat開發，之後由GNOME項目進行維護。
+紅帽系列發行版RHEL、CentOS、Fedora等均默認使用NetworkManager。
+
+NetworkManager基本概念可參考[Wikipedia](https://en.wikipedia.org/wiki/NetworkManager)，
+功能配置相關可參考[ArchWiki](https://wiki.archlinux.org/index.php/NetworkManager)。
+
+啟用關閉NetworkManager服務：
+
+```
+$ systemctl status NetworkManager
+# systemctl enable NetworkManager
+# systemctl disable NetworkManager
+```
+
+NetworkManager提供了基於命令行的網絡配置工具`nmcli`和基於TUI的`nmtui`。
+
+nmcli常用指令：
+
+```html
+<!-- 網絡設備狀態相關 -->
+$ nmcli device <!-- 查看接口狀態 -->
+# nmcli device reapply 接口名稱 <!-- 修改網絡配置後，重新加載指定接口的配置 -->
+
+<!-- 列出無線網絡列表 -->
+$ nmcli device wifi list
+<!-- 連接指定無線網絡 -->
+# nmcli device wifi connect [SSID] password [password]
+# nmcli device wifi connect [SSID] password [password] hidden yes
+<!-- 關閉無線網卡 -->
+# nmcli radio wifi off
+
+<!-- 連接管理相關 -->
+$ nmcli connection show
+# nmcli connection up [name/uuid]
+# nmcli connection delete [name/uuid]
+
+<!-- 列出網絡連接信息 -->
+$ nmcli connection
+```
+
+nmtui提供友好的TUI，可直接編輯、啟用、禁用連接。
+
 ## 路由
 Linux提供了強大的路由功能，使用route（net-tools）或ip route（iproute2）進行管理。
 
@@ -3176,7 +3225,9 @@ $ ip route
 
 <!-- 添加路由 -->
 # ip route add 網段 via 網關
+# ip route add 網段 via 網關 src 源地址 <!-- 設置指定源地址的路由 -->
 # ip route add 網段 dev 網卡設備
+# ip route add 網段 dev 網卡設備 via 網關 <!-- 同時指定設備和網關 -->
 
 <!-- 刪除路由 -->
 # ip route del 網段
@@ -3423,51 +3474,6 @@ Settings for enp1s0:
 			       drv probe ifdown ifup
 	Link detected: yes
 ```
-
-## NetworkManager
-`NetworkManager`是現代Linux發行版的主流網絡管理服務。
-NetworkManager服務用於管理網絡連接和其它網絡接口，如Ethernet、WiFi、Mobile Broadband，
-使網絡配置和操作變得盡可能自動化。
-
-NetworkManager最初由RedHat開發，之後由GNOME項目進行維護。
-
-NetworkManager基本概念可參考[Wikipedia](https://en.wikipedia.org/wiki/NetworkManager)，
-功能配置相關可參考[ArchWiki](https://wiki.archlinux.org/index.php/NetworkManager)。
-
-啟用關閉NetworkManager服務：
-
-```
-$ systemctl status NetworkManager
-# systemctl enable NetworkManager
-# systemctl disable NetworkManager
-```
-
-NetworkManager提供了基於命令行的網絡配置工具`nmcli`和基於TUI的`nmtui`。
-
-nmcli常用指令：
-
-```html
-<!-- 列出無線網絡列表 -->
-$ nmcli device wifi list
-<!-- 連接指定無線網絡 -->
-# nmcli device wifi connect [SSID] password [password]
-# nmcli device wifi connect [SSID] password [password] hidden yes
-<!-- 關閉無線網卡 -->
-# nmcli radio wifi off
-
-<!-- 連接管理相關 -->
-$ nmcli connection show
-# nmcli connection up [name/uuid]
-# nmcli connection delete [name/uuid]
-
-<!-- 網絡設備狀態相關 -->
-$ nmcli device
-
-<!-- 列出網絡連接信息 -->
-$ nmcli connection
-```
-
-nmtui提供友好的TUI，可直接編輯、啟用、禁用連接。
 
 ## tcpdump
 tcpdump是Unix環境下常用的抓包工具，macOS下系統自帶了該工具，
@@ -5235,6 +5241,7 @@ deb-src 軟件源地址 版本號 倉庫類型
 deb https://mirrors.ustc.edu.cn/debian/ stable main contrib non-free
 deb https://mirrors.ustc.edu.cn/debian/ stable-updates main contrib non-free
 deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free
+deb https://mirrors.ustc.edu.cn/debian-security/ stable-security main non-free contrib
 ```
 
 ### Ubuntu源
