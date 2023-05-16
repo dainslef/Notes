@@ -10,6 +10,7 @@
 - [桌面環境配置](#桌面環境配置)
 	- [配置顯卡驅動](#配置顯卡驅動)
 	- [DPI縮放](#dpi縮放)
+	- [字體配置](#字體配置)
 
 <!-- /TOC -->
 
@@ -176,4 +177,26 @@ Display Manager的縮放配置需要單獨設定，以lightdm-gtk-greeter爲例�
 ...
 xft-dpi=120
 ...
+```
+
+## 字體配置
+當下較為完善的字體是Google開發的Noto系列字體：
+
+```html
+# pacman -S noto-fonts-cjk <!-- 東亞語言安裝CJK包，包含日韓港臺語字體 -->
+# pacman -S noto-fonts-emoji <!-- Emoji符號 -->
+```
+
+等寬字體推薦使用微軟的`otf-cascadia-code`，內置了Powerline和連體字符的支持
+（使用`Cascadia Code PL`字形）：
+
+```
+# pacman -S otf-cascadia-code
+```
+
+僅安裝上述字體還會缺少部分Unicode符號（如AwesomeWM電池插件充滿時的閃電符號），
+補全此類特殊字符可安裝DejaVu字體：
+
+```
+# pacman -S ttf-dejavu
 ```
