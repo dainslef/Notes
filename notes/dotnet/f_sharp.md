@@ -2,16 +2,16 @@
 
 - [概述](#概述)
 	- [開發環境](#開發環境)
-	- [F# Interactive (F#交互式環境)](#f-interactive-f交互式環境)
+	- [F# Interactive（F#交互式環境）](#f-interactivef交互式環境)
 	- [與主流語言的語法差異](#與主流語言的語法差異)
-- [Function (函數)](#function-函數)
+- [Function（函數）](#function函數)
 	- [可選參數](#可選參數)
 	- [參數默認值](#參數默認值)
-	- [Entry Point (入口點/函數)](#entry-point-入口點函數)
-- [Pattern Matching (模式匹配)](#pattern-matching-模式匹配)
-	- [Constant Patterns (常量模式)](#constant-patterns-常量模式)
-	- [Identifier Patterns (標識符匹配)](#identifier-patterns-標識符匹配)
-	- [Active Patterns (活動模式)](#active-patterns-活動模式)
+	- [Entry Point（入口點/函數）](#entry-point入口點函數)
+- [Pattern Matching（模式匹配）](#pattern-matching模式匹配)
+	- [Constant Patterns（常量模式）](#constant-patterns常量模式)
+	- [Identifier Patterns（標識符匹配）](#identifier-patterns標識符匹配)
+	- [Active Patterns（活動模式）](#active-patterns活動模式)
 	- [`as` / `when`](#as--when)
 	- [`&` / `|`](#--)
 - [Namespaces & Modules](#namespaces--modules)
@@ -19,7 +19,7 @@
 	- [模塊](#模塊)
 - [let & val](#let--val)
 - [Collections (集合類型)](#collections-集合類型)
-- [Computation Expressions (計算表達式)](#computation-expressions-計算表達式)
+- [Computation Expressions（計算表達式）](#computation-expressions計算表達式)
 	- [計算表達式語法](#計算表達式語法)
 	- [內置計算表達式](#內置計算表達式)
 	- [自定義計算表達式](#自定義計算表達式)
@@ -42,7 +42,7 @@ F#的官方IDE是微軟提供的[`Visual Studio`](https://visualstudio.microsoft
 其它廠商/社區提供的開發環境包括[`JetBrains Rider`](https://www.jetbrains.com/rider/)，
 [`Visual Studio Code`](https://code.visualstudio.com/)的[`Ionide`](https://ionide.io/)插件。
 
-## F# Interactive (F#交互式環境)
+## F# Interactive（F#交互式環境）
 F#同樣提供了類似Haskell、Scala的交互式環境：
 
 ```
@@ -140,8 +140,8 @@ F#繼承了大部分OCaml的設計，與主流語言存在一些差異。
 
 
 
-# Function (函數)
-F#中的函數支持Haskell風格的單參數柯里化風格，也支持C#的多參數風格(將參數表視為一個元組)。
+# Function（函數）
+F#中的函數支持Haskell風格的單參數柯里化風格，也支持C#的多參數風格（將參數表視為一個元組）。
 
 詳情可參考[微軟官方文檔](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/parameters-and-arguments)。
 
@@ -230,7 +230,7 @@ type C =
 被`System.Runtime.InteropServices.OptionalAttribute`特性標註的可選參數不會改變簽名中的實際類型。
 由`System.Runtime.InteropServices.DefaultParameterValueAttribute`特性為可選參數顯式提供默認值。
 
-## Entry Point (入口點/函數)
+## Entry Point（入口點/函數）
 F#項目中，使用特性`[<EntryPoint>]`標註一個函數，使之成為入口函數。
 
 ```fs
@@ -246,11 +246,11 @@ string array -> int
 
 
 
-# Pattern Matching (模式匹配)
+# Pattern Matching（模式匹配）
 **模式匹配**是函數式語言中常見的基礎功能，F#同樣提供了強大的模式匹配功能，
 詳細可參考[微軟官方文檔](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/pattern-matching)。
 
-## Constant Patterns (常量模式)
+## Constant Patterns（常量模式）
 常量模式包括數值、字符、文本字面量、常量枚舉等。
 
 ```fs
@@ -267,8 +267,8 @@ let filter123 x =
 for x in 1..10 do filter123 x
 ```
 
-## Identifier Patterns (標識符匹配)
-對與聯合類型(union type)的每一個用例(case)可按照類型的定義進行匹配：
+## Identifier Patterns（標識符匹配）
+對與聯合類型（union type）的每一個用例（case）可按照類型的定義進行匹配：
 
 ```fs
 // 匹配標準庫內的 'a option 類型
@@ -291,7 +291,7 @@ let constructQuery personName =
     | FirstLast(firstName, lastName) -> printf "Are you %s %s?" firstName lastName
 ```
 
-若聯合類型使用了命名字段(named fields)，則解構時可以等號(=)將指定字段解構到變量中：
+若聯合類型使用了命名字段（named fields），則解構時可以等號`=`將指定字段解構到變量中：
 
 ```fs
 // 定義命名聯合類型
@@ -313,12 +313,12 @@ match shape with
 | _ -> ()
 ```
 
-## Active Patterns (活動模式)
+## Active Patterns（活動模式）
 **活動模式**能夠針對特定類型提供自定義的解構邏輯。
 
-`(|XXX|XXX|)`語法稱為香蕉剪輯(banana clips)，定義用於匹配的模式，
+`(|XXX|XXX|)`語法稱為香蕉剪輯（banana clips），定義用於匹配的模式，
 函數的輸入內容為需要結構的目標對象，返回類型需要為香蕉剪輯中定義的模式。
-函數創建的內容稱為模式識別器(active recognizer)：
+函數創建的內容稱為模式識別器（active recognizer）：
 
 ```fs
 let (|Pattern1|Pattern2|Pattern3|) target =
@@ -327,7 +327,8 @@ let (|Pattern1|Pattern2|Pattern3|) target =
     else Pattern3
 ```
 
-定義活動模式時，無須需要一次定義所有模式識別器，還可以定義部分活動模式(partial active patterns)，
+定義活動模式時，無須需要一次定義所有模式識別器，
+還可以定義部分活動模式（partial active patterns），
 用於匹配滿足某些條件的輸入數據，在該模式未匹配成功時繼續匹配其它模式。
 部分活動模式香蕉剪輯以`(|_|)`結尾，返回類型為`option`類型。
 
@@ -336,7 +337,7 @@ let (|PartialPattern|_|) target = if ... then Some(...) else None
 ```
 
 定義活動模式的函數至少需要接收一個參數用於表示被匹配的目標，
-當活動模式函數擁有多個參數時，被稱為參數活動模式(parameterized active pattern)，
+當活動模式函數擁有多個參數時，被稱為參數活動模式（parameterized active pattern），
 最後一個參數表示被匹配的目標，其它參數在編寫模式時傳入：
 
 ```fs
@@ -416,7 +417,7 @@ Pattern3
 ```
 
 ## `as` / `when`
-F#在模式匹配中可以使用`when`關鍵字提供類似Haskell、Scala中的守衛(guard)功能：
+F#在模式匹配中可以使用`when`關鍵字提供類似Haskell、Scala中的守衛（guard）功能：
 
 ```fs
 let function1 x =
@@ -438,7 +439,7 @@ printfn "%d %d %A" var1 var2 tuple1
 ```
 
 ## `&` / `|`
-模式匹配中同樣可以使用邏輯運算符(`&`、`|`)連接多個模式：
+模式匹配中同樣可以使用邏輯運算符（`&`、`|`）連接多個模式：
 
 ```fs
 // 邏輯或操作符
@@ -467,14 +468,14 @@ detectZeroAND (10, 15)
 
 
 # Namespaces & Modules
-F#中存在兩類代碼的組織結構，分別是`Namespaces`(命名空間)和`Modules`(模塊)。
+F#中存在兩類代碼的組織結構，分別是`Namespaces`（命名空間）和`Modules`（模塊）。
 相關概念可參考[微軟官方文檔](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/namespaces)
 以及[Wiki](https://en.wikibooks.org/wiki/F_Sharp_Programming/Modules_and_Namespaces)。
 
 ## 命名空間
 命名空間是C#中的概念，命名空間的名稱首字母必須大寫。
-在命名空間僅能包含類型(`type`)和模塊(`module`)定義，
-其它操作(定義字段、函數、執行普通語句等)均會編譯錯誤，示例：
+在命名空間僅能包含類型（`type`）和模塊（`module`）定義，
+其它操作（定義字段、函數、執行普通語句等）均會編譯錯誤，示例：
 
 ```fs
 namespace Aaa.Bbb.Ccc
@@ -536,7 +537,7 @@ In a recursive declaration group, 'open' declarations must come first in each mo
 ```
 
 ## 模塊
-模塊(`module`)的概念來自OCaml，是F#中組織代碼的標準方式，模塊中內容無限制。
+模塊（`module`）的概念來自OCaml，是F#中組織代碼的標準方式，模塊中內容無限制。
 
 語法：
 
@@ -549,7 +550,7 @@ module [accessibility-modifier] module-name =
     declarations
 ```
 
-當是使用頂層模塊定義(Top-level module declaration)是，可以使用多級名稱，
+當是使用頂層模塊定義（Top-level module declaration）時，可以使用多級名稱，
 此時最後一級名稱為模塊名稱，之前的名稱為命名空間名稱：
 
 ```fs
@@ -574,8 +575,8 @@ module Eee = ...
 - `let`、`let mutable`
 
 	let關鍵字最為常用，用於定義值/函數。
-	在模塊頂層中使用時訪問權限為`public`；在類型內部使用時為訪問權限為`private`
-	(相當於C#中的私有成員字段/私有成員方法)。
+	在模塊頂層中使用時訪問權限為`public`；
+	在類型內部使用時為訪問權限為`private`（相當於C#中的私有成員字段/私有成員方法）。
 	let定義的字段/函數需要立即初始化。
 
 - `val`、`val mutable`
@@ -625,7 +626,7 @@ val it : int [] = [|1; 2; 3|]
 val it : seq<int> = seq [1; 2; 3]
 ```
 
-序列、數組、列表同樣支持範圍操作符(`..`)進行初始化：
+序列、數組、列表同樣支持範圍操作符（`..`）進行初始化：
 
 ```fs
 > [1..5];;
@@ -696,7 +697,7 @@ val it : unit = ()
 
 
 
-# Computation Expressions (計算表達式)
+# Computation Expressions（計算表達式）
 F#中的計算表達式為編寫可排序和組合的計算提供了便利的語法，使之可用於控制流構造和綁定。
 根據計算表達式類型的不同，可用於表達諸如`monads`、`monoids`、
 `monad transformers`、`applicative functors`等概念。
@@ -706,10 +707,10 @@ F#中的計算表達式為編寫可排序和組合的計算提供了便利的語
 計算存在多種形式，最常見、易於理解和修改的計算形式是單線程執行，
 但並非所有的計算都如同單線程執行一般直觀，例如：
 
-- Non-deterministic computations (非確定性計算)
-- Asynchronous computations (異步計算)
-- Effectful computations (存在副作用的計算)
-- Generative computations (生成器計算)
+- Non-deterministic computations（非確定性計算）
+- Asynchronous computations（異步計算）
+- Effectful computations（存在副作用的計算）
+- Generative computations（生成器計算）
 
 通常來說，這些上下文敏感的計算必須置於程序的某個特定位置。
 編寫上下文敏感的代碼是具有挑戰性的，在沒有抽象機制阻止時，計算很容易被洩漏到計算上下文之外。
@@ -727,7 +728,7 @@ F#中的計算表達式為編寫可排序和組合的計算提供了便利的語
 builder-expr { cexper }
 ```
 
-`builder-expr`是定義計算表達式的構造器類型名稱(the name of a builder type)，
+`builder-expr`是定義計算表達式的構造器類型名稱（the name of a builder type），
 `cexper`是計算表達式的表達式主體。
 
 計算表達式中可用的操作包括：
@@ -758,7 +759,8 @@ builder type是一個定義了特殊方法的對象，這些方法決定了計�
 	    }
 	```
 
-	若使用let綁定對另一個計算表達式的結果，得到的不是計算結果，而是一個對未實現(unrealized)調用的綁定。
+	若使用let綁定對另一個計算表達式的結果，得到的不是計算結果，
+	而是一個對未實現（unrealized）調用的綁定。
 
 	let!綁定由builder type中的`Bind(x, f)`成員進行定義。
 
@@ -774,9 +776,10 @@ builder type是一個定義了特殊方法的對象，這些方法決定了計�
 	    }
 	```
 
-	對於異步工作流，執行的表達式返回類型為`Async<unit>`，對於其它計算表達式，類型為`CExpType<unit>`。
+	對於異步工作流，執行的表達式返回類型為`Async<unit>`，
+	對於其它計算表達式，類型為`CExpType<unit>`。
 
-	do!由由builder type中的`Bind(x, f)`成員進行定義，其中f的類型為unit。
+	do!由builder type中的`Bind(x, f)`成員進行定義，其中`f`的類型為unit。
 
 - `yield`
 
@@ -863,7 +866,7 @@ builder type是一個定義了特殊方法的對象，這些方法決定了計�
 - `return`
 
 	`return`關鍵字將一個值包裝在類型中，與yield不同，yield通常可以多次生成值，
-	return通常用於「完成」計算表達式(但在實際使用中，return也可以實現為允許多次生成值)：
+	return通常用於「完成」計算表達式（但在實際使用中，return也可以實現為允許多次生成值）：
 
 	```fs
 	let req = // 'req' is of type is 'Async<data>'
@@ -880,7 +883,8 @@ builder type是一個定義了特殊方法的對象，這些方法決定了計�
 
 - `return!`
 
-	`return!`關鍵字作用相當於`let! + return`，可直接在計算表達式中返回另一個計算表達式的生成值：
+	`return!`關鍵字作用相當於`let! + return`，
+	可直接在計算表達式中返回另一個計算表達式的生成值：
 
 	```fs
 	let req = // 'req' is of type 'Async<data>'
@@ -897,9 +901,9 @@ builder type是一個定義了特殊方法的對象，這些方法決定了計�
 ## 內置計算表達式
 F#核心庫提供了三類內置的計算表達式：
 
-- 序列表達式(Sequence Expressions)
-- 異步表達式(Asynchronous Workflows)
-- 查詢表達式(Query Expressions)
+- Sequence Expressions（序列表達式）
+- Asynchronous Workflows（異步表達式）
+- Query Expressions（查詢表達式）
 
 ## 自定義計算表達式
 通過定義一個包含特定方法的builder class，用戶可以定義自己的計算表達式。
