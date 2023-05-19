@@ -53,6 +53,7 @@
 		- [Physical Volume（PV，物理卷）](#physical-volumepv物理卷)
 		- [Volume Group（VG，卷組）](#volume-groupvg卷組)
 		- [Logical Volume（LV，邏輯卷）](#logical-volumelv邏輯卷)
+		- [Thinly-Provisioned Logical Volumes（精簡邏輯卷）](#thinly-provisioned-logical-volumes精簡邏輯卷)
 		- [邏輯卷狀態和塊設備不顯示問題](#邏輯卷狀態和塊設備不顯示問題)
 - [時間管理](#時間管理)
 	- [硬件時間](#硬件時間)
@@ -2116,12 +2117,19 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 邏輯卷相關的操作爲`lvXXX`系列指令：
 
 ```html
-# lvcreate -L 分區大小(xxGB/xxMB/...) -n 邏輯分區塊設備 卷組名稱 <!-- 創建邏輯卷 -->
-# lvresize -L +/-分區大小(xxGB/xxMB/...) 邏輯分區塊設備 <!-- 在原先邏輯卷大小的基礎上擴充/縮減指定大小 -->
-# lvextend -L 分區大小(xxGB/xxMB/...) 邏輯分區塊設備 <!-- 增加邏輯捲到指定大小(分區大小的數值需要大於原先該邏輯分區的大小) -->
-# lvreduce -L 分區大小(xxGB/xxMB/...) 邏輯分區塊設備 <!-- 減小邏輯捲到指定大小(分區大小的數值需要小於原先該邏輯分區的大小) -->
-# lvremove 邏輯分區名稱 <!-- 移除指定邏輯卷 -->
-# lvdisplay <!-- 顯示所有邏輯卷 -->
+<!-- 顯示所有邏輯卷 -->
+# lvdisplay
+
+<!-- 創建邏輯卷 -->
+# lvcreate -L 分區大小(xxGB/xxMB/...) 卷組名稱 <!-- 創建邏輯卷，自動生成卷名稱 -->
+# lvcreate -L 分區大小 -n 邏輯分區名稱 卷組名稱 <!-- 創建邏輯卷，手動指定卷名稱 -->
+
+<!-- 移除指定邏輯卷 -->
+# lvremove 邏輯卷塊設備
+
+# lvresize -L +/-分區大小 邏輯分區塊設備 <!-- 在原先邏輯卷大小的基礎上擴充/縮減指定大小 -->
+# lvextend -L 分區大小 邏輯分區塊設備 <!-- 增加邏輯捲到指定大小(分區大小的數值需要大於原先該邏輯分區的大小) -->
+# lvreduce -L 分區大小 邏輯分區塊設備 <!-- 減小邏輯捲到指定大小(分區大小的數值需要小於原先該邏輯分區的大小) -->
 ```
 
 擴展邏輯卷大小無需卸載、重新掛載文件系統。
@@ -2137,6 +2145,30 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 
 縮減邏輯卷時操作相反，先卸載對應分區，使用文件系統對應的工具縮減文件系統大小，
 之後再縮減文件系統所屬的LVM分區的大小。
+
+### Thinly-Provisioned Logical Volumes（精簡邏輯卷）
+`Thinly-Provisioned Logical Volumes`（精簡邏輯卷）相比普通LV卷不需要立即分配空間，
+而僅佔用實際使用大小的空間，使用精簡邏輯卷可以創建出超過實際大小的邏輯存儲。
+
+使用瘦邏輯卷前需要創建`Thinly-Provisioned Logical Volumes Pool`（精簡邏輯卷池）：
+
+```html
+# lvcreate -T -L 邏輯卷池大小 卷組名稱/邏輯卷池名稱
+```
+
+之後使用`-T/--thin`參數創建精簡邏輯卷：
+
+```
+# lvcreate -T -n 邏輯卷名稱 -V 分區大小 --thinpool 精簡卷池 邏輯卷組
+# lvcreate --type thin -n 邏輯卷名稱 -V 分區大小 --thinpool 精簡卷池 邏輯卷組
+```
+
+移除瘦邏輯卷操作類似：
+
+```html
+# lvremove 精簡邏輯卷塊設備
+# lvremove 卷組名稱/邏輯卷池名稱 <!-- 移除逻辑卷池 -->
+```
 
 ### 邏輯卷狀態和塊設備不顯示問題
 使用lvdisplay查看邏輯卷狀態時，若邏輯卷`LV Status`顯示`NOT available`，
