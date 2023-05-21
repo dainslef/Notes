@@ -34,9 +34,10 @@
 		- [掛載SD卡存儲](#掛載sd卡存儲)
 		- [使用文件作為SWAP](#使用文件作為swap)
 	- [OverlayFS](#overlayfs)
-		- [使用OverlayFS擴展根分區](#使用overlayfs擴展根分區)
+		- [使用OverlayFS作為exroot（擴展根分區）](#使用overlayfs作為exroot擴展根分區)
 		- [OverlayFS的工作機制](#overlayfs的工作機制)
-		- [OpenWRT中OverlayFS與Docker的兼容性](#openwrt中overlayfs與docker的兼容性)
+		- [OverlayFS與系統升級的兼容性](#overlayfs與系統升級的兼容性)
+		- [OverlayFS與Docker的兼容性](#overlayfs與docker的兼容性)
 - [OpenWRT Clash](#openwrt-clash)
 	- [luci-app-clash](#luci-app-clash)
 	- [OpenClash](#openclash)
@@ -346,7 +347,7 @@ lm-sensors
 luci-app-dockerman
 ```
 
-MT762x系列芯片的安裝SD卡驅動：
+MT762x系列芯片若未識別出SD卡，則可嘗試安裝SD卡驅動（SD卡正常識別則無需安裝）：
 
 ```
 # opkg install kmod-sdhci-mt7620
@@ -996,8 +997,8 @@ swapon /dev/loop0
 [OverlayFS](https://en.wikipedia.org/wiki/OverlayFS)是Linux下實現的一種**聯合文件系統**，
 可將多各文件系統整合、疊加為一個。
 
-### 使用OverlayFS擴展根分區
-對於支持SD卡/USB等外置存儲的設備，可將外置存儲作為設備的根分區，
+### 使用OverlayFS作為exroot（擴展根分區）
+對於支持SD卡/USB等外置存儲的設備，可將外置存儲作為設備的exroot（擴展根分區），
 參考[OpenWRT官方文檔](https://openwrt.org/docs/guide-user/additional-software/extroot_configuration)。
 
 掛載外置存儲設備（以SD卡設備為例），拷貝現有overlay文件系統的內容到新分區：
@@ -1027,10 +1028,34 @@ OverlayFS會疊加在原先的根分區上，組合並覆蓋原先文件系統�
 之後系統根據組合後的新文件系統重新加載OpenWRT。
 
 OverlayFS的掛載需要將`block-mount`安裝在原先的根分區中，
-在原先的根分區中正確配置`/etc/config/fstab`，
-保證基礎系統能正確掛載OverlayFS。
+在原先的根分區中正確配置`/etc/config/fstab`，保證基礎系統能正確掛載OverlayFS。
 
-### OpenWRT中OverlayFS與Docker的兼容性
+### OverlayFS與系統升級的兼容性
+在OpenWRT系統升級後，原先的OverlayFS無法繼續作為exroot直接使用，
+在內核啟動階段，會得到下列錯誤信息：
+
+```
+...
+[   15.288606] BTRFS: device fsid a0a91f5d-caaa-4b75-84f0-9d7d5d39d03c devid 1 transid 2777 /dev/mmcblk0p2 scanned by block (608)
+[   15.303212] BTRFS info (device mmcblk0p2): flagging fs with big metadata feature
+[   15.310616] BTRFS info (device mmcblk0p2): using free space tree
+[   15.316647] BTRFS info (device mmcblk0p2): has skinny extents
+[   15.352849] BTRFS info (device mmcblk0p2): enabling ssd optimizations
+[   15.370100] block: extroot: UUID mismatch (root: d7449c47-e8e73a77-ff8e465b-f8fc502b, overlay: 7964a8e1-d046b75a-49cd2de4-ecf28bff)
+...
+```
+
+提示分區的UUID不匹配，導致掛載exroot失敗。
+
+OpenWRT的OverlayFS會將底層分區UUID寫在`etc/.extroot-uuid`文件中，掛載OverlayFS時進行校驗。
+若升級後的系統與之前的系統兼容（OpenWRT小版本升級），
+則移除該文件或相關路徑，即可繼續使用之前的OverlayFS。
+
+實際使用過程中，視OverlayFS中安裝的軟件包而異，即使是兼容的小版本升級，
+修改`.extroot-uuid`成功掛載了OverlayFS作為exroot，
+依舊可能會出現其它小問題，如lan網橋DHCP失敗等。
+
+### OverlayFS與Docker的兼容性
 Docker的`data-root`若配置在OpenWRT的OverlayFS，
 且OverlayFS的Upper文件系統使用ext4/xfs等傳統文件系統時，
 會出現兼容性問題，Docker初始化時出現下列異常信息：
