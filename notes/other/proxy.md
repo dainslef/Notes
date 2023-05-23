@@ -3,9 +3,10 @@
 - [Shadowsocks](#shadowsocks)
 	- [shadowsocks-libev](#shadowsocks-libev)
 - [Trojan](#trojan)
-	- [安裝和管理Trojan服務](#安裝和管理trojan服務)
+	- [Linux安裝和管理Trojan服務](#linux安裝和管理trojan服務)
 	- [FreeBSD編譯安裝Trojan](#freebsd編譯安裝trojan)
 	- [配置Trojan服務](#配置trojan服務)
+	- [Trojan轉發流量](#trojan轉發流量)
 	- [生成RSA私有Key和CA](#生成rsa私有key和ca)
 - [V2Ray](#v2ray)
 	- [安裝和配置V2Ray服務](#安裝和配置v2ray服務)
@@ -81,7 +82,7 @@ Trojan通過模擬互聯網中最常見的HTTPS流量，使得GFW難以偵測。
 
 文檔參見官方[GitHub Pages](https://trojan-gfw.github.io/trojan)頁面。
 
-## 安裝和管理Trojan服務
+## Linux安裝和管理Trojan服務
 主流發行版均內置了Trojan軟件包，使用發行版默認的包管理即可直接安裝：
 
 ```html
@@ -140,26 +141,27 @@ Trojan服務的配置可參考[Trojan官方文檔](https://trojan-gfw.github.io/
 
 ```json
 {
-    "run_type": "server",
-    "local_addr": "0.0.0.0",
-    "local_port": 9998,
-    "remote_addr": "127.0.0.1",
-    "remote_port": 9999,
-    "password": ["custom_password"],
-    "log_level": 1,
-    "ssl": {
-        "cert": "/xxx/.../certificate.crt",
-        "key": "/xxx/.../private_key",
-        "alpn": ["h2","http/1.1"]
-    },
-    "tcp": {
-        "prefer_ipv4": false,
-        "no_delay": true,
-        "keep_alive": true,
-        "reuse_port": true,
-        "fast_open": true,
-        "fast_open_qlen": 20
-    }
+  "run_type": "server",
+  "local_addr": "0.0.0.0",
+  "local_port": 9998,
+  "remote_addr": "127.0.0.1",
+  "remote_port": 9999,
+  "password": [ "custom_password" ],
+  "log_level": 1,
+  "ssl": {
+    "cert": "/xxx/.../certificate.crt",
+    "key": "/xxx/.../private_key",
+    "alpn": [ "h2", "http/1.1" ],
+    "alpn_port_override": { "h2": 9997 }
+  },
+  "tcp": {
+    "prefer_ipv4": false,
+    "no_delay": true,
+    "keep_alive": true,
+    "reuse_port": true,
+    "fast_open": true,
+    "fast_open_qlen": 20
+  }
 }
 ```
 
@@ -170,11 +172,38 @@ Trojan服務的配置可參考[Trojan官方文檔](https://trojan-gfw.github.io/
 | run_type | 進程運行模式，使用`server`則作為Trojan服務執行 |
 | local_addr | 綁定地址，使用`0.0.0.0`則綁定本機ip |
 | local_port | 綁定端口 |
-| remote_addr | 轉發HTTPS流量的目標地址（當客戶端發送的數據包為普通HTTPS數據包時，可配置轉發請求到指定地址） |
-| remote_port | 轉發HTTPS流量的目標端口 |
 | password | 客戶端連接時需要使用的密碼 |
 | ssl.cert | 指定使用的證書 |
 | ssl.key | 指定使用的私有key |
+
+## Trojan轉發流量
+Trojan支持將非標流量轉發到指定目標端口，可將其它流量交由Nginx之類的Web服務進行HTTP偽裝。
+
+相關參數說明：
+
+| 配置項 | 說明 |
+| :- | :- |
+| remote_addr | 轉發流量的目標地址（當客戶端發送的數據包為普通HTTPS數據包時，可配置轉發請求到指定地址） |
+| remote_port | 轉發流量的目標端口 |
+| alpn | Application-Layer Protocol Negotiation (ALPN)，應用層協議協商，用於區分HTTP/1.1和HTTP/2流量 |
+| alpn_port_override | 指定HTTP2流量的轉發端口，默認所有非標流量均轉發到remote_port |
+
+Trojan會丟棄普通HTTP流量，僅轉發HTTPS流量。
+在轉發HTTPS流量時，Trojan轉發的是剝離TLS之後的內容，因此轉發的目標端口應為普通HTTP端口。
+
+Trojan默認使用的apln為`[ "http/1.1" ]`，可設置為`[ "h2", "http/1.1" ]`以支持HTTP/2，
+或者直接設置`[ "h2" ]`強制所有流量使用HTTP/2。
+
+雖然HTTP/2默認被設計為與TLS一同工作，
+但Trojan使用在alpn設置為h2時依舊轉發出的是非TLS加密的HTTP/2流量，
+對應Nginx配置為：
+
+```conf
+server {
+	listen xxx http2;
+	...
+}
+```
 
 ## 生成RSA私有Key和CA
 以服務模式運行Trojan進程需要私有密鑰（private_key）和自簽名證書（certificate.crt），
