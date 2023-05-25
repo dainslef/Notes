@@ -2,6 +2,8 @@
 
 - [OpenVPN](#openvpn)
 	- [基本安裝與配置](#基本安裝與配置)
+	- [設置證書密鑰](#設置證書密鑰)
+	- [連接檢測](#連接檢測)
 	- [下發路由](#下發路由)
 	- [網關服務器](#網關服務器)
 	- [iroute](#iroute)
@@ -9,6 +11,7 @@
 	- [設置腳本認證](#設置腳本認證)
 - [OpenVPN問題記錄](#openvpn問題記錄)
 	- [OPTIONS ERROR: failed to negotiate cipher with server. Add the server's cipher ('BF-CBC') to --data-ciphers (currently 'AES-256-GCM:AES-128-GCM:AES-128-CBC') if you want to connect to this server.](#options-error-failed-to-negotiate-cipher-with-server-add-the-servers-cipher-bf-cbc-to---data-ciphers-currently-aes-256-gcmaes-128-gcmaes-128-cbc-if-you-want-to-connect-to-this-server)
+	- [TCP/UDP: Incoming packet rejected from [AF_INET]10.10.10.252:1200[2], expected peer address: [AF_INET]10.21.26.4:1200 (allow this incoming source address/port by removing --remote or adding --float)](#tcpudp-incoming-packet-rejected-from-af_inet10101025212002-expected-peer-address-af_inet10212641200-allow-this-incoming-source-addressport-by-removing---remote-or-adding---float)
 
 <!-- /TOC -->
 
@@ -40,6 +43,22 @@ OpenVPN的命令行工具為`openvpn`，根據配置文件的不同，可運行�
 
 通過man手冊查看OpenVPN的命令行參數，
 多數命令行參數去掉`--`後即可寫入配置文件中。
+
+## 設置證書密鑰
+詳情參考[官方文檔](https://openvpn.net/community-resources/setting-up-your-own-certificate-authority-ca/)。
+
+## 連接檢測
+通過`keepalive`參數設置連接心跳和超時斷開時間，單位為**秒**：
+
+```
+keepalive 心跳間隔 超時時間
+```
+
+參數示例：
+
+```sh
+keepalive 10 60 # 每10秒發送心跳，60秒無響應則斷開連接
+```
 
 ## 下發路由
 OpenVPN可配置下發到客戶端的路由，以控制客戶端的網絡規則。
@@ -164,3 +183,17 @@ end
 
 解決方案：<br>
 查看服務端的OpenVPN配置，確定`cipher`字段配置，將客戶端的cipher設置為與服務端相同。
+
+## TCP/UDP: Incoming packet rejected from [AF_INET]10.10.10.252:1200[2], expected peer address: [AF_INET]10.21.26.4:1200 (allow this incoming source address/port by removing --remote or adding --float)
+問題說明：<br>
+OpenVPN返回的數據包IP頭與配置中remote配置項不一致，
+通常發生在OpenVPN使用UDP承載，且提供的服務地址為浮動IP時。
+
+解決方案：<br>
+配置中添加`float`配置項：
+
+```
+...
+float
+...
+```
