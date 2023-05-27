@@ -49,6 +49,7 @@
 - [構建OpenWRT官方固件](#構建openwrt官方固件)
 - [構建GL.iNET廠家固件](#構建glinet廠家固件)
 	- [內核版本配置](#內核版本配置)
+	- [GL-AXT1800固件編譯](#gl-axt1800固件編譯)
 - [USB WIFI](#usb-wifi)
 
 <!-- /TOC -->
@@ -1395,6 +1396,51 @@ else ifneq (,$(findstring $(ARCH) , aarch64 aarch64_be ))
 
 相關內容可參考[GL.iNET官方論壇](https://forum.gl-inet.com/t/axt1800-which-distfeeds-conf-kmod-repo-should-i-use-for-self-compiled-firmware/23907)
 中對應問題的相關討論。
+
+## GL-AXT1800固件編譯
+推薦使用`Ubuntu 22.04`編譯該機型固件。
+`GL-AXT1800`固件編譯操作（GL-AXT1800默認配置下luci為中文，需要修改luci配置中的translation選項）：
+
+```html
+<!-- 默認為4.4內核 -->
+$ git clone https://github.com/gl-inet/gl-infra-builder.git
+$ cd gl-infra-builder
+$ python3 setup.py -c configs/config-wlan-ap.yml
+$ cd wlan-ap/openwrt
+$ ./scripts/gen_config.py target_wlan_ap-gl-axt1800 luci
+$ make -j8
+
+<!-- 編譯5.4內核固件，目前沒有 5.4 內核模塊倉庫 -->
+$ git clone https://github.com/gl-inet/gl-infra-builder.git
+$ cd gl-infra-builder
+$ python3 setup.py -c configs/config-wlan-ap-5.4.yml
+$ cd wlan-ap/openwrt
+$ ./scripts/gen_config.py target_wlan_ap-gl-axt1800-5-4 luci
+$ make -j8
+```
+
+編譯生成的固件源配置不正確，修改為廠家源：
+
+```html
+<!-- LINUX_VERMAGIC:=57d388dbd346719758aae2131362f842 -->
+<!--
+src/gz glinet_core https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/kmod-4.0.2/arm_cortex-a7/ip60xx
+src/gz glinet_gli_pub https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/packages-4.0.2/arm_cortex-a7/glinet
+-->
+
+<!-- LINUX_VERMAGIC:=5c79df825364eed582b9e6554972c148 -->
+src/gz glinet_core https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/kmod-4.0/arm_cortex-a7/ip60xx
+src/gz glinet_gli_pub https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/packages-4.0/arm_cortex-a7/glinet
+src/gz opnwrt_packages https://fw.gl-inet.cn/releases/v21.02-SNAPSHOT/packages-4.0/arm_cortex-a7/packages
+```
+
+GL-AXT1800編譯固件選項：
+
+- Base system ---> dnsmasq-full （取消默認的dnsmasq）
+- LuCI ---> Modules ---> Translations ---> Chinese Simplified （取消）
+
+安裝luci-app-openclash時會依賴dnsmasq-full，
+AXT1800開源固件在手動安裝配置dnsmasq-full時會導致路由器網口無響應。
 
 
 
