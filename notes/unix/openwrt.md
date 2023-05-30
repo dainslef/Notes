@@ -50,6 +50,7 @@
 - [構建GL.iNET廠家固件](#構建glinet廠家固件)
 	- [內核版本配置](#內核版本配置)
 	- [GL-AXT1800固件編譯](#gl-axt1800固件編譯)
+	- [GL-SFT1200固件編譯](#gl-sft1200固件編譯)
 - [USB WIFI](#usb-wifi)
 
 <!-- /TOC -->
@@ -1441,6 +1442,31 @@ GL-AXT1800編譯固件選項：
 
 安裝luci-app-openclash時會依賴dnsmasq-full，
 AXT1800開源固件在手動安裝配置dnsmasq-full時會導致路由器網口無響應。
+
+## GL-SFT1200固件編譯
+推薦使用`Ubuntu 18.04`編譯該機型固件，更低版本Python腳本語法不支持，更高版本則GCC編譯器版本檢測錯誤。
+
+編譯操作：
+
+```html
+$ git clone https://github.com/gl-inet/gl-infra-builder.git
+$ cd gl-infra-builder
+$ python3 setup.py -c configs/config-siflower-18.x.yml
+$ cd openwrt-18.06/siflower/openwrt-18.06
+$ ./scripts/gen_config.py target_siflower_gl-sft1200 luci
+```
+
+該機型官方源：
+
+```html
+<!-- LINUX_VERMAGIC:=0283fe9b11a102075549beacd96c0bc6 -->
+src/gz glinet_kmod http://fw.gl-inet.cn/releases/v18.06.5/kmod-3.6/siflower/sf19a28_nand
+
+<!-- LINUX_VERMAGIC:=8e7f05250007b3b96947722cb34fb82f -->
+src/gz glinet_kmod http://fw.gl-inet.cn/releases/v18.06.5/kmod-3.8/siflower/sf19a28_nand
+src/gz glinet_private http://fw.gl-inet.cn/releases/v18.06.5/packages-3.6/siflower/glinet
+src/gz glinet_packages http://fw.gl-inet.cn/releases/v18.06.5/packages-3.6/siflower/packages
+```
 
 
 
