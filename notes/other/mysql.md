@@ -7,8 +7,8 @@
 	- [使用指定配置啓動](#使用指定配置啓動)
 - [服務管理](#服務管理)
 	- [管理數據庫服務 (Windows)](#管理數據庫服務-windows)
-	- [管理數據庫服務 (Linux SystemD)](#管理數據庫服務-linux-systemd)
-	- [管理數據庫服務 (BSD/Linux SysV)](#管理數據庫服務-bsdlinux-sysv)
+	- [管理數據庫服務（Linux SystemD）](#管理數據庫服務linux-systemd)
+	- [管理數據庫服務（BSD/Linux SysV）](#管理數據庫服務bsdlinux-sysv)
 - [用戶登陸與管理](#用戶登陸與管理)
 	- [管理用戶](#管理用戶)
 		- [創建用戶](#創建用戶)
@@ -50,7 +50,7 @@
 - [FEDERATED 存儲引擎](#federated-存儲引擎)
 	- [啟用FEDERATED引擎](#啟用federated引擎)
 	- [創建FEDERATED表](#創建federated表)
-- [常用設置](#常用設置)
+- [常用功能和配置](#常用功能和配置)
 	- [導出數據](#導出數據)
 	- [導入數據](#導入數據)
 	- [設置中文編碼](#設置中文編碼)
@@ -84,13 +84,14 @@
 
 ## 數據庫初始化 (MySQL 5.7+)
 `MySQL`在`5.7`版本開始變更了初始化的方式，原先使用的`mysql_install_db`指令已被廢棄，
-相關功能被整合到了`mysqld`中，通過`--initialize`系列參數進行數據庫初始化，如下所示：
+相關功能被整合到了`mysqld`中，通過`--initialize`系列參數進行數據庫初始化：
 
 ```
 # mysqld --initialize
 ```
 
-使用`--initialize`參數初始化會默認創建帶有密碼的`root`賬戶，密碼會記錄在`[主機名].err`文件中，日至內容大致爲：
+使用`--initialize`參數初始化會默認創建帶有密碼的`root`賬戶，
+密碼會記錄在`主機名.err`文件中，日至內容大致爲：
 
 ```
 [Note] A temporary password is generated for root@localhost: [password]
@@ -105,8 +106,8 @@
 ## 數據庫初始化 (MariaDB & MySQL 5.7-)
 `MariaDB`在MySQL被`Oracle`收購之後，被各大Linux發行版作爲默認的MySQL替代版本。
 
-作爲MySQL的分支，並沒有採用`MySQL 5.7`版本引入的新初始化方式，依舊使用`mysql_install_db`指令進行數據庫初始化，
-以ArchLinux爲例，初始化操作爲：
+作爲MySQL的分支，並沒有採用`MySQL 5.7`版本引入的新初始化方式，
+依舊使用`mysql_install_db`指令進行數據庫初始化，以ArchLinux爲例，初始化操作爲：
 
 ```
 # mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
@@ -116,40 +117,40 @@
 該工具為perl腳本，不在`$MYSQL_HOME\bin`下，而是位於`$MYSQL_HOME\scripts`路徑中。
 
 ## 手動配置
-幾乎所有的主流Linux發行版都將倉庫中默認的MySQL數據庫遷移到了MariaDB分支，
+部分Linux發行版將倉庫中默認的MySQL數據庫遷移到了MariaDB分支，
 因而在Linux下使用`Oracle MySQL`需要從官網下載二進制包手動進行配置。
 
-與Windows下不同，在Linux下啓動mysql服務需要顯式使用`--basedir`、`--datadir`等參數指定數據庫的相關路徑，
+Linux下啓動mysql服務需要顯式使用`--basedir`、`--datadir`等參數指定數據庫的相關路徑，
 在MySQL的`bin`目錄下執行如下所示指令：
 
 ```
-$ ./mysqld --initialize-insecure --basedir=[軟件路徑] --datadir=[數據路徑]
+$ ./mysqld --initialize-insecure --basedir=軟件路徑 --datadir=數據路徑
 ```
 
-啓動數據庫服務需要指定一個擁有權限的路徑/文件作爲socket路徑，
-在啓動時會創建該文件(使用默認參數啓動數據庫服務會嘗試使用`/run/mysqld/mysqld.sock`文件作爲鎖文件，
-但普通用戶不具有該路徑的權限，因而需要顯式指定`--socket`參數)：
+啓動數據庫服務需要指定一個擁有權限的路徑/文件作爲socket路徑，在啓動時會創建該文件
+（使用默認參數啓動數據庫，服務會嘗試使用`/run/mysqld/mysqld.sock`文件作爲鎖文件，
+但普通用戶不具有該路徑的權限，因而需要顯式指定`--socket`參數）：
 
 ```
-$ ./mysql --socket=[socket文件路徑] -u root
+$ ./mysql --socket=socket文件路徑 -u root
 ```
 
 ## 使用指定配置啓動
 可以將MySQL的啓動參數寫入配置文件中，啓動時指定配置文件的路徑即可：
 
 ```
-$ ./mysqld --defaults-file=[配置文件路徑]
+$ ./mysqld --defaults-file=配置文件路徑
 ```
 
 啓動操作類似：
 
 ```
-$ ./mysqld --defaults-file=[配置文件路徑]
+$ ./mysqld --defaults-file=配置文件路徑
 ```
 
 一個精簡的配置文件大致結構如下：
 
-```sh
+```ini
 [mysqld]
 basedir = # 軟件路徑
 datadir = # 數據庫路徑
@@ -197,17 +198,17 @@ socket = # 客戶端啓動socket文件位置
 > mysqld --remove
 ```
 
-## 管理數據庫服務 (Linux SystemD)
+## 管理數據庫服務（Linux SystemD）
 採用`systemd`的發行版中可以使用`systemctl`指令管理MySQL服務：
 
-```
-# systemctl status mysqld //查看mysql服務狀態
-# systemctl start mysqld //啓動mysql服務
-# systemctl stop mysqld //停止mysql服務
-# systemctl restart mysqld //重啓mysql服務
+```html
+# systemctl status mysqld <!-- 查看mysql服務狀態 -->
+# systemctl start mysqld <!-- 啓動mysql服務 -->
+# systemctl stop mysqld <!-- 停止mysql服務 -->
+# systemctl restart mysqld <!-- 重啓mysql服務 -->
 ```
 
-## 管理數據庫服務 (BSD/Linux SysV)
+## 管理數據庫服務（BSD/Linux SysV）
 舊式的Linux發行版以及`*BSD`中使用`service`指令管理MySQL服務：
 
 ```
@@ -220,22 +221,22 @@ socket = # 客戶端啓動socket文件位置
 
 
 # 用戶登陸與管理
-在成功啓動了`MySQL`服務之後，使用`mysql`指令登陸：
+在成功啓動了MySQL服務之後，使用`mysql`指令登陸：
 
 ```
-$ mysql -u [用戶名]
+$ mysql -u 用戶名
 ```
 
 對於有密碼的用戶，需要使用`-p`參數登陸：
 
 ```
-$ mysql -u [用戶名] -p
+$ mysql -u 用戶名 -p
 ```
 
 默認情況下爲登陸本機的數據庫，如果需要**遠程登陸**到其它主機上的數據庫，應該使用`-h`參數：
 
 ```
-$ mysql -h [目標主機ip] -u [用戶名] -p
+$ mysql -h 目標主機地址 -u 用戶名 -p
 ```
 
 遠程登陸需要注意以下配置：
@@ -289,12 +290,6 @@ mysql> drop user 用戶名@主機名/主機地址;
 ### 授權用戶
 新創建的用戶不具有權限，需要使用管理員賬戶(一般爲`root`)對其進行授權。
 
-授予某個用戶指定數據庫的查詢與更新權限：
-
-```sql
-mysql> grant select, update on 數據庫名.* to 用戶名@登錄方式;
-```
-
 授予某個用戶所有權限：
 
 ```sql
@@ -308,10 +303,16 @@ mysql> grant all on *.* to 用戶名@登錄方式;
 mysql> grant all on *.* to 用戶名@登錄方式 with grant option;
 ```
 
-也可以通過修改`mysql.user`表來賦予權限：
+授予某個用戶指定數據庫的查詢與更新權限：
 
 ```sql
-mysql> update user set Host='[主機名稱]',select_priv='y', insert_priv='y',update_priv='y', Alter_priv='y',delete_priv='y',create_priv='y',drop_priv='y',reload_priv='y',shutdown_priv='y',Process_priv='y',file_priv='y',grant_priv='y',References_priv='y',index_priv='y',create_user_priv='y',show_db_priv='y',super_priv='y',create_tmp_table_priv='y',Lock_tables_priv='y',execute_priv='y',repl_slave_priv='y',repl_client_priv='y',create_view_priv='y',show_view_priv='y',create_routine_priv='y',alter_routine_priv='y',create_user_priv='y' where user='[用戶名]';
+mysql> grant select,update on 數據庫名.* to 用戶名@登錄方式;
+```
+
+也可以通過修改`mysql.user`表來指定賦予權限（不同版本的MySQL權限字段有所不同）：
+
+```sql
+mysql> update user set Host='主機名',select_priv='y', insert_priv='y',update_priv='y', Alter_priv='y',delete_priv='y',create_priv='y',drop_priv='y',reload_priv='y',shutdown_priv='y',Process_priv='y',file_priv='y',grant_priv='y',References_priv='y',index_priv='y',create_user_priv='y',show_db_priv='y',super_priv='y',create_tmp_table_priv='y',Lock_tables_priv='y',execute_priv='y',repl_slave_priv='y',repl_client_priv='y',create_view_priv='y',show_view_priv='y',create_routine_priv='y',alter_routine_priv='y',create_user_priv='y' where user='用戶名';
 ```
 
 更新完用戶權限表之後，刷新權限信息：
@@ -349,7 +350,7 @@ Use: "mysqladmin flush-privileges password '*'" instead
 则应按照提示添加`flush-privileges`參數：
 
 ```
-$ mysqladmin -u [用戶名] -p flush-privileges password '[密碼內容]'
+$ mysqladmin -u 用戶名 -p flush-privileges password '密碼內容'
 ```
 
 用戶密碼存儲在`mysql.user`表中，因此還可采用更新表字段的方式來更新密碼。
@@ -363,17 +364,17 @@ mysql> set password = password('密碼內容')
 
 ```sql
 mysql> use mysql;
-mysql> alter user '[用戶名]'@'[主機]' identified with mysql_native_password by '[新密碼]';
+mysql> alter user '用戶名'@'主機' identified with mysql_native_password by '新密碼';
 ```
 
 在`MySQL 5.6`及以下版本，密碼列名稱為`password`，`MySQL 5.7`及之後版本密碼列為`authentication_string`。
 
 ```sql
 -- MySQL 5.6-
-mysql> update mysql.user set password=password('[密碼]') where user='[用戶名]' and host='[主機]';
+mysql> update mysql.user set password=password('密碼') where user='用戶名' and host='主機';
 
 -- MySQL 5.7+
-mysql> update mysql.user set authentication_string=password('[密碼]') where user='[用戶名]' and host='[主機]';
+mysql> update mysql.user set authentication_string=password('密碼') where user='用戶名' and host='主機';
 ```
 
 更新密碼或Host主機限制等規則後，若未立即生效，則可嘗試刷新權限：
@@ -388,13 +389,17 @@ Query OK, 0 rows affected (0.00 sec)
 
 修改`my.cnf`文件，在`[mysqld]`配置段添加：
 
-```
+```ini
+[mysqld]
+...
 skip-grant-tables
+...
 ```
 
 之後重啓數據庫服務即可免密登陸。
 
-需要注意，以免密登錄方式登錄數據庫后，不能直接使用`set passowrd`的方式更新密碼，但依舊可以修改`mysql.user`表來更新密碼。
+以免密登錄方式登錄數據庫后，不能直接使用`set passowrd`的方式更新密碼，
+但依舊可以修改`mysql.user`表來更新密碼。
 
 ## 關於密碼策略
 儅出現密碼策略相關的異常信息時，可查看相關環境變量：
@@ -437,9 +442,9 @@ mysql> SHOW VARIABLES LIKE 'validate_password%';
 
 	Debian/RedHat系發行版中使用`C API`連接mysql數據庫時需要安裝額外的開發頭文件包：
 
-	```
-	# apt-get install libmysqlclient-devel //大便系
-	# yum/dnf install mysql-devel //紅帽系
+	```html
+	# apt-get install libmysqlclient-devel <!-- 大便系 -->
+	# yum/dnf install mysql-devel <!-- 紅帽系 -->
 	```
 
 	ArchLinux中不需要，ArchLinux中的`mysql`包已經包含了開發頭文件。
@@ -1035,15 +1040,16 @@ scheme://user_name[:password]@host_name[:port_num]/db_name/tbl_name
 
 - `scheme` 數據庫協議，對於MySQL數據庫，僅支持`mysql`協議
 - `user_name` 遠程數據庫實例的用戶名
-- `password`(可選) 遠程數據庫實例用戶對應的密碼
+- `password`（可選） 遠程數據庫實例用戶對應的密碼
 - `host_name` 遠程數據庫實例的主機地址
-- `port_num`(可選) 遠程數據庫實例監聽的端口號
+- `port_num`（可選） 遠程數據庫實例監聽的端口號
 - `db_name` 遠程表所處的遠程數據庫名稱
 - `tbl_name` 遠程表的表名，本地表與關聯的遠程表表名稱不需要一致
 
 
 
-# 常用設置
+# 常用功能和配置
+補充一些常用周邊功能說明。
 
 ## 導出數據
 使用`mysqldump`工具可以導出數據庫的內容，基本操作指令如下：
@@ -1067,6 +1073,7 @@ $ mysqldump -u"[用戶名]" -p"[密碼]" -w"[限制條件]" [數據庫名] [表�
 ```
 
 導出內容時支持設定只導出數據(`-t`)或只導出表結構(`-d`)。
+導出指定數據庫時，默認不會生成`USE xxx_db`語句，若需要生成該語句，則使用`-B`參數。
 
 ## 導入數據
 導入數據需要在數據庫命令行中使用`source`指令：
