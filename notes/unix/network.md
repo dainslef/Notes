@@ -6,6 +6,8 @@
 	- [端口組](#端口組)
 	- [description（備註信息）](#description備註信息)
 	- [vlan（VLAN配置）](#vlanvlan配置)
+		- [VLAN配置access接口](#vlan配置access接口)
+		- [VLAN配置trunk接口](#vlan配置trunk接口)
 
 <!-- /TOC -->
 
@@ -97,4 +99,44 @@ Enter system view, return user view with Ctrl+Z.
 [Huawei] vlan 100 <!-- 創建ID為100的VLAN -->
 [Huawei-vlan100] quit
 [Huawei] undo vlan 100 <!-- 刪除指定VLAN，需要退出VLAN配置視圖 -->
+```
+
+### VLAN配置access接口
+將接口配置為access，並設置VLAN：
+
+1. 執行命令`interface interface-type interface-number`，進入需要加入VLAN的以太網接口視圖。
+1. 執行命令`port link-type access`，配置接口類型為access。
+1. 執行命令`port default vlan vlan-id`，配置接口的缺省VLAN並將接口加入到指定VLAN。
+
+```
+[HUAWEI] interface gigabitethernet 1/0/1
+[HUAWEI-GigabitEthernet1/0/1] port link-type access
+[HUAWEI-GigabitEthernet1/0/1] port default vlan 100
+[HUAWEI-GigabitEthernet1/0/1] quit
+[HUAWEI] display port vlan gigabitethernet 1/0/1
+Port                        Link Type    PVID  Trunk VLAN List
+-------------------------------------------------------------------------------
+GigabitEthernet1/0/1        access       100   -
+```
+
+### VLAN配置trunk接口
+將接口配置為trunk，並允許特定VLAN：
+
+1. 執行命令`interface interface-type interface-number`，進入需要加入VLAN的以太網接口視圖。
+1. 執行命令`port link-type trunk`，配置接口類型為trunk。
+1. 執行命令`port trunk allow-pass vlan { { vlan-id1 [ to vlan-id2 ] } &<1-10> | all }`，將接口加入到指定的VLAN中。
+1. 執行命令`port trunk pvid vlan vlan-id`，配置Trunk接口的缺省VLAN（可選）。
+
+> 當接口下通過的VLAN為接口的缺省VLAN時，該VLAN對應的報文將以Untagged方式進行轉發。
+> 也就是說接口是以Untagged方式加入該VLAN的。
+
+```
+[HUAWEI] interface gigabitethernet 1/0/2
+[HUAWEI-GigabitEthernet1/0/2] port link-type trunk
+[HUAWEI-GigabitEthernet1/0/2] port trunk allow-pass vlan 100
+[HUAWEI-GigabitEthernet1/0/2] quit
+[HUAWEI] display port vlan gigabitethernet 1/0/2
+Port                        Link Type    PVID  Trunk VLAN List
+-------------------------------------------------------------------------------
+GigabitEthernet1/0/2        trunk        1     1 100
 ```
