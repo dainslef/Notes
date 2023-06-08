@@ -4,6 +4,8 @@
 - [OpenStackClient](#openstackclient)
 	- [配置OpenStack認證](#配置openstack認證)
 	- [OpenStackClient配置文件](#openstackclient配置文件)
+- [Kolla Ansible](#kolla-ansible)
+	- [Debian Stable部署流程](#debian-stable部署流程)
 
 <!-- /TOC -->
 
@@ -74,15 +76,62 @@ clouds:
       password: ...
     region_name: RegionOne
   集群名稱2:
-    auth:
-      ...
-    region_name: RegionOne
+    ...
   集群名稱3:
-  ...
+    ...
 ```
 
 對於在配置文件中記錄的集群信息，需要添加`--os-cloud`參數指定集群名稱進行訪問：
 
 ```
 $ openstack --os-cloud 集群名稱 ...
+```
+
+
+
+# Kolla Ansible
+[kolla-ansible](https://docs.openstack.org/kolla-ansible/latest/)是目前主流的OpenStack集群部署方式之一，
+將OpenStack組件以Docker容器的形式部署到服務器中。
+
+基本部署流程參考[QuickStart教程](https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html)。
+Kolla Ansible部署流程視使用版本而異，部署時需要訪問對應版本的文檔，
+將路徑中`https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html`中的`latest`替換為部署目標版本的版本代號。
+
+使用Kolla Ansible之前，需要選定正確的發行版，Kolla Ansible僅官方支持下列發行版：
+
+- Debian，僅Stable版本
+- Ubuntu，僅LTS版本
+- Roky
+- CentOS
+
+Kolla Ansible實際支持的版本參見官方
+[`Kolla Images Support Matrix`](https://docs.openstack.org/kolla/latest/support_matrix.html)。
+
+## Debian Stable部署流程
+以當前的Debian係發行版為例，首先安裝Python venv，並進入虛擬環境：
+
+```html
+<!-- 安裝 venv，創建並進入虛擬環境 -->
+# apt install python3-venv
+# python3 -m venv /opt/openstack-venv
+# source /opt/openstack-venv/bin/activate.fish
+```
+
+之後安裝Ansible（需要注意Ansible版本，不能直接使用最新版本，
+不同版本Kolla依賴的Ansible版本也有所差異，參考對應版本的部署文檔，當前以`Zed`版本為例）：
+
+```
+# pip install -U pip
+# pip install "ansible>=4,<6"
+```
+
+安裝Kolla Ansible（使用的Kolla分支需要匹配OpenStack的部署目標版本）：
+
+```html
+<!-- 對應Master，當前開發版 -->
+# pip install git+https://opendev.org/openstack/kolla-ansible@master
+
+<!-- 對應 OpenStack Zed 版本，其它版本類似，需要使用Kolla Ansible的對應分支 -->
+# pip install git+https://opendev.org/openstack/kolla-ansible@stable/zed
+...
 ```
