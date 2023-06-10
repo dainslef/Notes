@@ -135,3 +135,56 @@ Kolla Ansible實際支持的版本參見官方
 # pip install git+https://opendev.org/openstack/kolla-ansible@stable/zed
 ...
 ```
+
+複製默認配置：
+
+```html
+# mkdir -p /etc/kolla
+# cp /opt/openstack-venv/share/kolla-ansible/etc_examples/kolla/* /etc/kolla
+# cp /opt/openstack-venv/share/kolla-ansible/ansible/inventory/all-in-one . <!-- 使用all-in-one安裝-->
+```
+
+編輯配置文件`/etc/kolla/globals.yml`，核心配置內容：
+
+```yml
+...
+kolla_base_distro: "ubuntu" # 設置鏡像基於的發行版，基於Ubuntu的鏡像通常經過較為充分的測試，同時體積較小，推薦選用
+openstack_release: "zed" # 指定部署的OpenStack版本，默認的master為開發中版本，不穩定，不推薦使用
+...
+network_interface: "網卡設備" # 管理網
+kolla_internal_vip_address: "x.x.x.x" # VIP地址
+neutron_external_interface: "網卡設備" # 虛擬機業務網
+...
+```
+
+默認配置中節點啟用`enable_openstack_core`配置，會使用下列組件：
+
+```
+glance, keystone, neutron, nova, heat, horizon
+```
+
+修改配置完成後，執行檢查和部署操作：
+
+```html
+# kolla-ansible install-deps <!-- 生成各類roles配置（～/.ansible/collections/ansible_collections/openstack/kolla） -->
+# kolla-genpwd <!-- 生成密碼（/etc/kolla/password.yml文件） -->
+
+# kolla-ansible -i ./all-in-one bootstrap-servers <!-- 安裝依賴軟件包 -->
+# kolla-ansible -i ./all-in-one prechecks <!-- 部署檢查 -->
+
+<!-- 順利通過檢查後可執行部署操作 -->
+# kolla-ansible -i ./all-in-one deploy
+
+<!-- 部署操作順利完成後，執行後置部署操作 -->
+# kolla-ansible -i ./all-in-one post-deploy <!-- 會在 /etc/kolla 路徑下生成 admin-openrc.sh 文件 -->
+```
+
+`kolla-genpwd`生成密碼需要`/etc/kolla/password.yml`文件已存在，password.yml文件中，
+`keystone_admin_password`配置決定Horizon網管頁面以及openstack命令行工具的密碼。
+
+集群部署完成後，常用管理操作：
+
+```html
+# kolla-ansible -i ./all-in-one stop <!-- 關閉服務容器 -->
+# kolla-ansible -i ./all-in-one deploy-containers <!-- 啟動集群容器 -->
+```
