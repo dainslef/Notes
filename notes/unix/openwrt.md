@@ -52,6 +52,9 @@
 	- [GL-AXT1800固件編譯](#gl-axt1800固件編譯)
 	- [GL-SFT1200固件編譯](#gl-sft1200固件編譯)
 - [USB WIFI](#usb-wifi)
+- [常見問題說明](#常見問題說明)
+	- [小米路由器變磚](#小米路由器變磚)
+	- [SSH登入錯誤：no matching key exchange method found. Their offer: diffie-hellman-group1-sha1](#ssh登入錯誤no-matching-key-exchange-method-found-their-offer-diffie-hellman-group1-sha1)
 
 <!-- /TOC -->
 
@@ -1492,3 +1495,34 @@ src/gz glinet_packages http://fw.gl-inet.cn/releases/v18.06.5/packages-3.6/siflo
 官方OpenWRT對USB WIFI網卡的支持有限，若需要完善的USB WIFI支持，應使用ImmortalWRT。
 `kmod-rtl8xxxu`驅動幾乎支持大多數RTL81xx系列網卡，但功能不夠完善，不支持AP模式，
 若需要使用AP模式，應考慮存在專屬驅動的網卡。
+
+
+
+# 常見問題說明
+記錄一些常見問題的解決方案。
+
+## 小米路由器變磚
+問題說明：<br>
+刷入固件錯誤導致路由器變磚，無法啟動（黃燈常亮等）。
+
+解決方案：<br>
+小米品牌的路由器可使用官方提供的
+[小米路由器修復工具](https://bigota.miwifi.com/xiaoqiang/tools/MIWIFIRepairTool.x86.zip)。
+將電腦網線接入路由器LAN口，接入路由器LAN的網卡設置IP為`192.168.1.2/24`，之後按程序提示操作即可。
+
+## SSH登入錯誤：no matching key exchange method found. Their offer: diffie-hellman-group1-sha1
+問題說明：<br>
+部分機型在破解SSH后直接使用ssh登入時會輸出下列錯誤信息：
+
+```
+$ ssh x.x.x.x
+Unable to negotiate with x.x.x.x port 22: no matching key exchange method found. Their offer: diffie-hellman-group1-sha1
+```
+
+解決方案：<br>
+OpenSSH官網中的[遺留問題](http://www.openssh.com/legacy.html)頁面描述了該問題，
+由於算法强度較弱以及潛在的安全問題，OpenSSH默認禁用了該算法，使用參數添加對應算法支持即可：
+
+```
+$ ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 x.x.x.x
+```
