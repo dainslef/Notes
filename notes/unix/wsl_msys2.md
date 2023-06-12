@@ -189,6 +189,45 @@ WSL2需要`Windows Version 1903`或更高的版本。
 
 關於WSL/WSL2的對比，參見[微軟官方文檔](https://docs.microsoft.com/en-us/windows/wsl/compare-versions)。
 
+WSL2不在作爲Windows Features提供（Windows Features中的WSL依舊存在，但不必開啓），
+而是直接以應用形式提供（不在綁定系統，便於快速更新）；
+lxrun工具現在亦已被移除，現在使用`wsl`指令進行管理WSL環境：
+
+```html
+> wsl --help
+> wsl --status <!-- 查看當前WSL狀態 -->
+> wsl --update <!-- 更新WSL -->
+> wsl --shutdown <!-- 關閉WSL虛擬機 -->
+
+> wsl -l/--list
+> wsl -d/--distribution <!-- 進入指定發行版 -->
+```
+
+WSL2的各類發行版均運行在微軟的`Common Base Linux Mariner`上，
+進入該環境，執行：
+
+```
+> wsl --system
+```
+
+通過應用商店安裝的WSL環境，在刪除WSL APP后，對應發行版的文件系統存儲依舊會保留，
+完全移除指定發行版的文件系統存儲，執行：
+
+```
+> wsl --unregister 發行版名稱
+```
+
+[WSL version 0.67.6](https://devblogs.microsoft.com/commandline/systemd-support-is-now-available-in-wsl/)
+開始支持systemd，應用商店中的Ubuntu發行版已直接開啓了systemd支持，
+其它發行版可手動創建`/etc/wsl.conf`配置文件，添加下列内容：
+
+```ini
+[boot]
+systemd=true
+```
+
+之後重啓WSL虛擬機，重新進入WSL環境即可。
+
 
 
 # Linux Subsystem 與 MSYS2 比較
