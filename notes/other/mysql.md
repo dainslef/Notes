@@ -5,18 +5,18 @@
 	- [數據庫初始化 (MariaDB & MySQL 5.7-)](#數據庫初始化-mariadb--mysql-57-)
 	- [手動配置](#手動配置)
 	- [使用指定配置啓動](#使用指定配置啓動)
+	- [驅動配置](#驅動配置)
 - [服務管理](#服務管理)
-	- [管理數據庫服務 (Windows)](#管理數據庫服務-windows)
+	- [管理數據庫服務（Windows）](#管理數據庫服務windows)
 	- [管理數據庫服務（Linux SystemD）](#管理數據庫服務linux-systemd)
 	- [管理數據庫服務（BSD/Linux SysV）](#管理數據庫服務bsdlinux-sysv)
-- [用戶登陸與管理](#用戶登陸與管理)
+- [用戶登入與管理](#用戶登入與管理)
 	- [管理用戶](#管理用戶)
 		- [創建用戶](#創建用戶)
 		- [授權用戶](#授權用戶)
 		- [修改用戶密碼](#修改用戶密碼)
-	- [跳過登陸驗證](#跳過登陸驗證)
+	- [跳過登入驗證](#跳過登入驗證)
 	- [關於密碼策略](#關於密碼策略)
-- [驅動配置](#驅動配置)
 - [基本操作](#基本操作)
 	- [基本SQL語句](#基本sql語句)
 		- [CASE 與 IF](#case-與-if)
@@ -43,7 +43,7 @@
 - [Index (索引)](#index-索引)
 	- [索引類型](#索引類型)
 	- [索引實現與優化](#索引實現與優化)
-- [Row Formats (行格式)](#row-formats-行格式)
+- [Row Formats（行格式）](#row-formats行格式)
 	- [REDUNDANT Row Format](#redundant-row-format)
 	- [COMPACT Row Format](#compact-row-format)
 	- [DYNAMIC Row Format](#dynamic-row-format)
@@ -174,12 +174,37 @@ socket = # 客戶端啓動socket文件位置
 # mysqld --user=root
 ```
 
+## 驅動配置
+使用不同的開發語言/庫/平臺需要配置對應的驅動。
+
+- `Java API`
+
+	Java語言中與MySQL交互一般使用通用的JDBC接口，加載MySQL官方的JDBC驅動即可。
+	Java IDE如`NetBeans`、`Eclipse`、`IntelliJ IDEA`等提供的MySQL數據庫管理功能也需要添加MySQL的JDBC驅動。
+
+- `Qt API`
+
+	使用Qt官方安裝包的Qt環境中無須額外配置(驅動已被集成至安裝包中)。
+	ArchLinux中使用使用Qt5操作MySQL數據無需安裝額外的包(驅動已被集成至`Qt5`包組中)。
+	Debian系發行版中使用Qt5操作MySQL數據庫需要安裝`libqt5sql-mysql`包。
+
+- `C API`
+
+	Debian/RedHat系發行版中使用`C API`連接mysql數據庫時需要安裝額外的開發頭文件包：
+
+	```html
+	# apt-get install libmysqlclient-devel <!-- 大便系 -->
+	# yum/dnf install mysql-devel <!-- 紅帽系 -->
+	```
+
+	ArchLinux中不需要，ArchLinux中的`mysql`包已經包含了開發頭文件。
+
 
 
 # 服務管理
 除了使用`mysqld`指令啓動服務之外，在不同的OS上，可以使用OS自帶的服務管理工具啓動MySQL服務。
 
-## 管理數據庫服務 (Windows)
+## 管理數據庫服務（Windows）
 在Windows系統下，可以使用`--install`參數將MySQL註冊到系統服務上：
 
 ```
@@ -199,7 +224,7 @@ socket = # 客戶端啓動socket文件位置
 ```
 
 ## 管理數據庫服務（Linux SystemD）
-採用`systemd`的發行版中可以使用`systemctl`指令管理MySQL服務：
+採用Systemd的發行版中可以使用`systemctl`指令管理MySQL服務：
 
 ```html
 # systemctl status mysqld <!-- 查看mysql服務狀態 -->
@@ -209,7 +234,7 @@ socket = # 客戶端啓動socket文件位置
 ```
 
 ## 管理數據庫服務（BSD/Linux SysV）
-舊式的Linux發行版以及`*BSD`中使用`service`指令管理MySQL服務：
+舊式的Linux發行版以及BSD系列使用`service`指令管理MySQL服務：
 
 ```
 # service mysql status
@@ -220,26 +245,26 @@ socket = # 客戶端啓動socket文件位置
 
 
 
-# 用戶登陸與管理
-在成功啓動了MySQL服務之後，使用`mysql`指令登陸：
+# 用戶登入與管理
+在成功啓動了MySQL服務之後，使用`mysql`指令登入：
 
 ```
 $ mysql -u 用戶名
 ```
 
-對於有密碼的用戶，需要使用`-p`參數登陸：
+對於有密碼的用戶，需要使用`-p`參數登入：
 
 ```
 $ mysql -u 用戶名 -p
 ```
 
-默認情況下爲登陸本機的數據庫，如果需要**遠程登陸**到其它主機上的數據庫，應該使用`-h`參數：
+默認情況下爲登入本機的數據庫，如果需要**遠程登入**到其它主機上的數據庫，應該使用`-h`參數：
 
 ```
 $ mysql -h 目標主機地址 -u 用戶名 -p
 ```
 
-遠程登陸需要注意以下配置：
+遠程登入需要注意以下配置：
 
 - 正確創建了遠程帳戶。
 - 服務端ip已被添加到數據庫配置中的`bind-address`配置項中，或者**不啓用**bind-address配置。
@@ -279,7 +304,7 @@ mysql> create user 用戶名@'%' identified by '密码';
 mysql> create user 用戶名@localhost;
 ```
 
-需要注意，MySQL中同名本地用戶與遠程用戶間沒有關聯，本地用戶與遠程用戶密碼、權限等各自獨立。
+MySQL中同名本地用戶與遠程用戶間沒有關聯，本地用戶與遠程用戶密碼、權限等各自獨立。
 
 刪除用戶操作類似，使用`drop user`指令：
 
@@ -288,7 +313,7 @@ mysql> drop user 用戶名@主機名/主機地址;
 ```
 
 ### 授權用戶
-新創建的用戶不具有權限，需要使用管理員賬戶(一般爲`root`)對其進行授權。
+新創建的用戶不具有權限，需要使用管理員賬戶（通常爲`root`）對其進行授權。
 
 授予某個用戶所有權限：
 
@@ -297,7 +322,7 @@ mysql> grant all on *.* to 用戶名@登錄方式;
 ```
 
 被授權的用戶默認不能將所擁有的權限授權給其它用戶，
-如果需要使授權能夠被傳播則使用(一般不推薦這樣使用，數據庫權限應由DBA統一管理)：
+如果需要使授權能夠被傳播則使用（一般不推薦這樣使用，數據庫權限應由DBA統一管理）：
 
 ```sql
 mysql> grant all on *.* to 用戶名@登錄方式 with grant option;
@@ -354,7 +379,7 @@ $ mysqladmin -u 用戶名 -p flush-privileges password '密碼內容'
 ```
 
 用戶密碼存儲在`mysql.user`表中，因此還可采用更新表字段的方式來更新密碼。
-登陸數據庫之後，在數據庫命令行中輸入：
+登入數據庫之後，在數據庫命令行中輸入：
 
 ```sql
 mysql> set password = password('密碼內容')
@@ -384,8 +409,8 @@ mysql> flush privileges;
 Query OK, 0 rows affected (0.00 sec)
 ```
 
-## 跳過登陸驗證
-對於忘記密碼的情形，可通過配置跳過登陸密碼，免密登陸后再修改密碼。
+## 跳過登入驗證
+對於忘記密碼的情形，可通過配置跳過登入密碼，免密登入后再修改密碼。
 
 修改`my.cnf`文件，在`[mysqld]`配置段添加：
 
@@ -396,7 +421,7 @@ skip-grant-tables
 ...
 ```
 
-之後重啓數據庫服務即可免密登陸。
+之後重啓數據庫服務即可免密登入。
 
 以免密登錄方式登錄數據庫后，不能直接使用`set passowrd`的方式更新密碼，
 但依舊可以修改`mysql.user`表來更新密碼。
@@ -421,33 +446,6 @@ mysql> SHOW VARIABLES LIKE 'validate_password%';
 ```
 
 可通過修改此類環境變量避免密碼策略相關的異常信息。
-
-
-
-# 驅動配置
-使用不同的開發語言/庫/平臺需要配置對應的驅動。
-
-- `Java API`
-
-	Java語言中與MySQL交互一般使用通用的JDBC接口，加載MySQL官方的JDBC驅動即可。
-	Java IDE如`NetBeans`、`Eclipse`、`IntelliJ IDEA`等提供的MySQL數據庫管理功能也需要添加MySQL的JDBC驅動。
-
-- `Qt API`
-
-	使用Qt官方安裝包的Qt環境中無須額外配置(驅動已被集成至安裝包中)。
-	ArchLinux中使用使用Qt5操作MySQL數據無需安裝額外的包(驅動已被集成至`Qt5`包組中)。
-	Debian系發行版中使用Qt5操作MySQL數據庫需要安裝`libqt5sql-mysql`包。
-
-- `C API`
-
-	Debian/RedHat系發行版中使用`C API`連接mysql數據庫時需要安裝額外的開發頭文件包：
-
-	```html
-	# apt-get install libmysqlclient-devel <!-- 大便系 -->
-	# yum/dnf install mysql-devel <!-- 紅帽系 -->
-	```
-
-	ArchLinux中不需要，ArchLinux中的`mysql`包已經包含了開發頭文件。
 
 
 
@@ -566,12 +564,12 @@ MySQL提供了大量**內置函數**，包含各類功能。
 	```
 
 常規函數可進行嵌套、組合使用，但聚合函數之間嵌套則需要搭配子查詢
-(聚合函數輸入參數則為數據集，輸出結果是單個值，不能直接被其它聚合函數使用)。
+（聚合函數輸入參數則為數據集，輸出結果是單個值，不能直接被其它聚合函數使用）。
 
 ## 系統變量
 MySQL使用`@@變量名`語法訪問變量，MySQL定義了大量系統變量用於配置數據庫、提供內部信息等功能。
 
-變量按作用域可分為**全局**(GLOBAL)和**會話**(SESSION)，
+變量按作用域可分為GLOBAL（**全局變量**）和SESSION（**會話變量**），
 查詢、修改全局變量需要使用`global`關鍵字修飾，無關鍵字修飾時默認訪問會話變量。
 語法示例：
 
@@ -641,7 +639,8 @@ mysql> show global variables like "auto_increment%";
 - `auto_increment_increment` 自增步長
 - `auto_increment_offset` 自增起始值
 
-默認的自增偏移和自增步長均爲1，可通過`set global auto_increment_increment/auto_increment_offset = xxx`進行修改。
+默認的自增偏移和自增步長均爲1，
+可通過`SET GLOBAL auto_increment_increment/auto_increment_offset = xxx`進行修改。
 
 ## 外鍵約束
 InnoDB引擎支持外鍵約束，從表可引用主表的鍵/主鍵作爲外鍵，外鍵字段的值必須爲主表中對應字段已存在的值。
@@ -679,8 +678,8 @@ Error Code: 1022. Can't write; duplicate key in table '***'
 ```
 
 使用VARCHAR類型作為外鍵時，不僅要注意字符長度，
-還要注意**字符編碼類型**(`DEFAULT CHARACTER SET`)和**校驗類型**(`COLLATE`)，二者不同會造成外鍵創建失敗。
-行類型(`ROW_FORMAT`)不同不影響外鍵的創建。
+還要注意`DEFAULT CHARACTER SET`（**字符編碼類型**）和`COLLATE`（**校驗類型**），
+二者不同會造成外鍵創建失敗。`ROW_FORMAT`（行類型）不同不影響外鍵的創建。
 
 ### 排查外鍵錯誤信息
 外鍵約束創建失敗時會出現如下錯誤信息：
@@ -694,11 +693,11 @@ Error Code: 1215. Cannot add the foreign key constraint
 已建立外鍵關聯的表格可直接根據表格名稱查詢外鍵被引用的信息：
 
 ```sql
-select * from INFORMATION_SCHEMA.KEY_COLUMN_USAGE where REFERENCED_TABLE_NAME='被引用的表名稱'
+select * from INFORMATION_SCHEMA.KEY_COLUMN_USAGE where REFERENCED_TABLE_NAME='被引用的表名稱';
 ```
 
 ### 臨時禁用/恢復外鍵約束
-在某些特殊場景下(truncate等)，可以通過修改配置`FOREIGN_KEY_CHECKS`臨時禁用/禁用外鍵約束檢查：
+在某些特殊場景下（truncate等），可以通過修改配置`FOREIGN_KEY_CHECKS`臨時禁用/禁用外鍵約束檢查：
 
 ```sql
 # 禁用外鍵約束
@@ -713,8 +712,8 @@ mysql> SET FOREIGN_KEY_CHECKS = 1;
 # 表格優化與修復
 使用`optimize/repair`指令對表格進行優化與修復：
 
-- `optimize table [表名];` 優化表(整理磁盤排布，優化表格性能，釋放額外佔用的空間)
-- `repair table [表名];` 修復表(用於表格原數據損壞的情形)
+- `optimize table 表名;` 優化表（整理磁盤排布，優化表格性能，釋放額外佔用的空間）
+- `repair table 表名;` 修復表（用於表格原數據損壞的情形）
 
 ## optimize
 使用`delete`語句刪除數據時，表格佔用的磁盤空間並未立即回收，需要使用`optimize`指令對表格進行優化，
@@ -725,7 +724,8 @@ mysql> SET FOREIGN_KEY_CHECKS = 1;
 執行優化操作期間表格會被加鎖，因而需要避免在業務高峰期進行表格優化操作。
 
 ## repair
-當部分操作失敗(如創建索引、優化表格等)、磁盤數據表文件被意外修改時，可能會造成表格元數據異常，導致查詢等操作抱錯。
+當部分操作失敗（如創建索引、優化表格等）、磁盤數據表文件被意外修改時，
+可能會造成表格元數據異常，導致查詢等操作抱錯。
 此時可嘗試使用`repair`指令對表格進行修復，repair指令會嘗試修復表格，重建元數據信息。
 
 
@@ -735,8 +735,8 @@ mysql> SET FOREIGN_KEY_CHECKS = 1;
 
 `CHAR/VARCHAR`類型在定義時需要指示字段的長度：
 
-- CHAR類型為固定長度(無論字符串實際長度多少佔用空間均衡定，剩餘空間在字符串右側填充空格)，範圍0~255；
-- VARCHAR類型為可變長度(佔用空間根據字符串實際長度變化)，範圍0~65535。
+- CHAR類型為固定長度（無論字符串實際長度多少佔用空間均衡定，剩餘空間在字符串右側填充空格），範圍0~255；
+- VARCHAR類型為可變長度（佔用空間根據字符串實際長度變化），範圍0~65535。
 
 `TINYTEXT/TEXT/MEDIUMTEXT/LONGTEXT`等類型則無需指定長度，長度範圍固定：
 
@@ -750,8 +750,8 @@ CHAR相關類型與TEXT相關類型存在顯著的區別：
 
 - 在MyISAM引擎中，CHAR系列類型直接存儲在表格內部，
 而TEXT系列類型數據存儲在表外部，表內對應的列中僅存儲一個指針指向表外的數據區。
-因此，CHAR系列類型速度相對於TEXT類型更快(內聯數據，節省一次尋址時間)。
-- 在InnoDB引擎中，根據行格式(Row Format)可能會存在多種情形，但對變長文本類型(VARCHAR/TEXT)一視同仁。
+因此，CHAR系列類型速度相對於TEXT類型更快（內聯數據，節省一次尋址時間）。
+- 在InnoDB引擎中，根據行格式（Row Format）可能會存在多種情形，但對變長文本類型（VARCHAR/TEXT）一視同仁。
 - 設置普通索引時，CHAR系列不需要指定範圍，TEXT系列類型僅支持前N個字符索引，在創建索引時需要指定範圍。
 
 ## 字符集
@@ -818,7 +818,8 @@ CREATE TABLE t1 (
 參考[MySQL官方文檔](https://dev.mysql.com/doc/refman/en/timestamp-initialization.html)
 
 ## 毫秒/微秒支持
-MySQL從5.6開始支持高精度時間，詳情參考[MySQL文檔](https://dev.mysql.com/doc/refman/en/fractional-seconds.html)。
+MySQL從5.6開始支持高精度時間，詳情參考
+[MySQL文檔](https://dev.mysql.com/doc/refman/en/fractional-seconds.html)。
 
 默認時間類型僅精確到**秒**級，更高精度的時間使用語法`type_name(fsp)`，
 type_name可為TIME/DATETIME/TIMESTAMP，fsp為數值，範圍`0 ~ 6`。
@@ -836,13 +837,13 @@ TIMESTAMP(6)
 ```
 
 使用CURRENT_TIMESTAMP為時間設置默認值時，需要與時間精度匹配，
-即DATETIME(3)對應使用CURRENT_TIMESTAMP(3)，
-TIMESTAMP(6)對應使用CURRENT_TIMESTAMP(6)。
+即DATETIME(3)對應使用CURRENT_TIMESTAMP(3)，TIMESTAMP(6)對應使用CURRENT_TIMESTAMP(6)。
 
 
 
 # JSON 類型
-JSON類型是`MySQL 5.7.8`中引入的特性，原生提供對JSON數據類型的支持，並提供一系列JSON操作相關的內置函數。
+JSON類型是`MySQL 5.7.8`中引入的特性，原生提供對JSON數據類型的支持，
+並提供一系列JSON操作相關的內置函數。
 
 JSON類型在存儲上大致類似於`LONGBLOB`或`LONGTEXT`；
 与`BLOB`、`TEXT`等类型类似，JSON類型字段不能帶有**默认值**。
@@ -876,7 +877,8 @@ mysql> SELECT JSON_OBJECT(1, 2, 3, 4);
 
 ```
 
-以MySQL 8.0為例，完整的JSON函數列表參照[MySQL官方文檔 12.18 JSON Functions](https://dev.mysql.com/doc/refman/8.0/en/json-functions.html)。
+以MySQL 8.0為例，完整的JSON函數列表參照
+[MySQL官方文檔 12.18 JSON Functions](https://dev.mysql.com/doc/refman/8.0/en/json-functions.html)。
 
 ## 查找與更新JSON節點
 MySQL沒有直接提供基於內容刪除節點、替換節點內容的函數，相關功能可通過函數組合實現。
@@ -916,10 +918,10 @@ MySQL提供的JSON_REMOVE()函數基於索引刪除內容，而JSON_SEARCH()函�
 而不必查找所有數據，相比順序地讀取每一行要快得多。
 
 ## 索引類型
-索引分為聚簇索引(Clustered Index)和輔助索引/二級索引(Secondary Index)。
+索引分為`Clustered Index`（聚簇索引）和`Secondary Index`（輔助索引/二級索引）。
 
-對InnoDB引擎而言，聚簇索引實際是主鍵索引(Primary Key)的同義詞；
-而輔助索引則包含(Unique Key、Index、Prefix、Full Text)等多種。
+對InnoDB引擎而言，聚簇索引實際是Primary Key（主鍵索引）的同義詞；
+而輔助索引則包含Unique Key、Index、Prefix、Full Text等多種。
 
 | 索引類型 | 說明 |
 | :- | :- |
@@ -930,9 +932,9 @@ MySQL提供的JSON_REMOVE()函數基於索引刪除內容，而JSON_SEARCH()函�
 | Full Text | 全文索引，僅用於文本相關類型，主要用於優化大數據量的自然語言文本的搜索 |
 
 ## 索引實現與優化
-大多數索引(Unique Key、Index、Prefix、Full Text)使用`B-trees`實現。
-MySQL 5.7中引入的地理空間數據類型(Spatial Data Types)使用`R-trees`；
-內存存儲引擎(MEMORY Tables)還支持哈希索引；InnoDB使用倒序列表實現Full Text索引。
+大多數索引（Unique Key、Index、Prefix、Full Text）使用`B-trees`實現。
+MySQL 5.7中引入的Spatial Data Types（地理空間數據類型）使用`R-trees`；
+MEMORY Tables（內存存儲引擎）還支持哈希索引；InnoDB使用倒序列表實現Full Text索引。
 
 以`MySQL 8.0`為例，索引相關的詳細內容參考
 [官方文檔第8.3節 Optimization and Indexes](https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html)。
@@ -941,15 +943,16 @@ MySQL在以下操作中使用索引：
 
 - 快速地查找匹配的數據行。
 - 優化選擇索引，存在多個索引可供選擇時，
-MySQL通常會使用查找行數最小的索引(the most selective index，最具選擇性的索引)。
-- 若表格帶有組合索引(多列索引)，任何索引的左側前綴可用於優化查找行。
-例如已經存在一個三列的組合索引(col1, col2, col3)，
-則列(col1)、(col1, col2)、(col1, col2, col3)等均建立了索引。
-- 當執行join操作，從其它表中獲取行時，MySQL能夠更有效地在列上使用索引當它們定義為相同的類型和大小時。
+MySQL通常會使用查找行數最小的索引（the most selective index，最具選擇性的索引）。
+- 若表格帶有組合索引（多列索引），任何索引的左側前綴可用於優化查找行。
+例如已經存在一個三列的組合索引`(col1, col2, col3)`，
+則列`(col1)`、`(col1, col2)`、`(col1, col2, col3)`等均建立了索引。
+- 當執行join操作，從其它表中獲取行時，
+MySQL能夠更有效地在列上使用索引當它們定義為相同的類型和大小時。
 
 
 
-# Row Formats (行格式)
+# Row Formats（行格式）
 表格的行格式決定了行的物理排列，會影響查詢、DML操作的性能。
 隨著多個行存入相同的磁盤頁，查詢、索引查找等操作執行速度加快，並在寫出更新內容時消耗更少的緩存和IO。
 
@@ -986,14 +989,14 @@ REDUNDANT格式用於兼容舊版本的MySQL。
 DYNAMIC行格式提供與REDUNDANT格式相同的存儲特徵，但增强了長變長列的存儲能力，並支持大型索引前綴。
 
 當使用`ROW_FORMAT = DYNAMIC`創建表時，
-InnoDB可以完全在頁外存儲長的變長列值(VARCHAR，VARBINARY，BLOB和TEXT)，
+InnoDB可以完全在頁外存儲長的變長列值（VARCHAR，VARBINARY，BLOB和TEXT），
 聚集索引記錄只包含20字節的指針指向溢出頁面。大於或等於768字節定長字段被編碼為變長字段。
 
 列是否存儲在頁外是否取決於頁面大小和行的總大小。
 當行太長時，選擇最長的列進行頁外存儲，直到聚簇索引記錄適合B-tree頁面。
 小於或等於40字節的TEXT和BLOB列會存儲在行中。
 
-DYNAMIC行格式保持在索引節點中存儲整行的效率(類似COMPACT和REDUNDANT)，
+DYNAMIC行格式保持在索引節點中存儲整行的效率（類似COMPACT和REDUNDANT），
 但避免了用長列的大量數據内容填充B-tree節點的問題。
 DYNAMIC行格式基於以下思想：
 若一個大的數據值一部分存儲在頁外，則通常最有效的存儲方式是將整個值存儲在頁外。
@@ -1054,32 +1057,32 @@ scheme://user_name[:password]@host_name[:port_num]/db_name/tbl_name
 ## 導出數據
 使用`mysqldump`工具可以導出數據庫的內容，基本操作指令如下：
 
-```
-$ mysqldump -u"[用戶名]" -p"[密碼]" -A //導出所有數據庫
-$ mysqldump -u"[用戶名]" -p"[密碼]" [要備份的數據庫名稱] //導出指定數據庫
-$ mysqldump -u"[用戶名]" -p"[密碼]" [要備份的數據庫名稱] [要備份的表名稱] //導出指定數據庫中的指定表的內容
+```html
+$ mysqldump -u"用戶名" -p"密碼" -A <!-- 導出所有數據庫 -->
+$ mysqldump -u"用戶名" -p"密碼" 備份數據庫 <!-- 導出指定數據庫 -->
+$ mysqldump -u"用戶名" -p"密碼" 備份數據庫 備份表 <!-- 導出指定數據庫中的指定表的內容 -->
 ```
 
 默認情況下，mysqldump工具會將導出的數據以SQL語句的形式輸出到終端，可以使用重定向將導出的內容寫入文本中：
 
-```
-$ mysqldump -u"[用戶名]" -p"[密碼]" -A > xxx.sql //導出的內容寫入 xxx.sql 文件中
-```
-
-mysqldump支持根據條件導出指定的內容(使用`-w`參數)：
-
-```
-$ mysqldump -u"[用戶名]" -p"[密碼]" -w"[限制條件]" [數據庫名] [表名]
+```html
+$ mysqldump -u"用戶名" -p"密碼" -A > xxx.sql <!-- 導出的內容寫入 xxx.sql 文件中 -->
 ```
 
-導出內容時支持設定只導出數據(`-t`)或只導出表結構(`-d`)。
+mysqldump支持根據條件導出指定的內容（使用`-w`參數）：
+
+```
+$ mysqldump -u"用戶名" -p"密碼" -w"限制條件" 數據庫名 表名
+```
+
+導出內容時支持設定只導出數據（`-t`）或只導出表結構（`-d`）。
 導出指定數據庫時，默認不會生成`USE xxx_db`語句，若需要生成該語句，則使用`-B`參數。
 
 ## 導入數據
 導入數據需要在數據庫命令行中使用`source`指令：
 
 ```
-mysql> source [數據庫備份文件]
+mysql> source 數據庫備份文件
 ```
 
 導入數據庫時需要注意編碼問題，數據庫編碼、連接編碼、備份文件的編碼需要相同纔不會產生中文亂碼問題。
@@ -1087,12 +1090,13 @@ mysql> source [數據庫備份文件]
 亦可直接使用命令行重定向進行數據導入：
 
 ```
-$ mysql -u[用戶] -p[密碼] < xxx.sql
+$ mysql -u用戶 -p密碼 < xxx.sql
 ```
 
 ## 設置中文編碼
-默認情況下，舊版的mysql數據庫的編碼爲`latin1`，此編碼不支持東亞語系的文字顯示，需要修改爲支持各國文字的`UTF-8`編碼。
-對於部分使用`MariaDB`的發行版(如`ArchLinux`)，默認的編碼爲`UTF-8`，無需額外配置。
+默認情況下，舊版的mysql數據庫的編碼爲`latin1`，
+此編碼不支持東亞語系的文字顯示，需要修改爲支持各國文字的`UTF-8`編碼。
+對於部分使用`MariaDB`的發行版（如`ArchLinux`），默認的編碼爲`UTF-8`，無需額外配置。
 
 查看數據庫的默認的所有編碼信息：
 
@@ -1119,27 +1123,29 @@ mysql> show variables like 'character_set_%';
 
 其中：
 
-- `character_set_client`、`character_set_connection`可以通過配置文件中的`[client]`段進行修改。
-- `character_set_database`、`character_set_results`、`character_set_server`可以通過修改配置文件中的`[server]`段進行修改。
+- `character_set_client`、`character_set_connection`
+可以通過配置文件中的`[client]`段進行修改。
+- `character_set_database`、`character_set_results`、`character_set_server`
+可以通過修改配置文件中的`[server]`段進行修改。
 
 需要注意的是，每個數據庫可以擁有不同的編碼信息，查看指定數據庫的編碼：
 
 ```
-mysql> use [數據庫名稱];
+mysql> use 數據庫名稱;
 mysql> show variables like 'character_set_database';
 ```
 
 修改指定數據庫的編碼：
 
 ```
-mysql> alter database [數據庫名稱] CHARACTER SET [編碼類型(gbk/utf8)];
+mysql> alter database 數據庫名稱 CHARACTER SET 編碼類型;
 ```
 
 如果需要修改數據庫的默認編碼，則需要修改配置文件：
 
-- 在`Debian`系中，配置文件爲`/etc/mysql/mariadb.conf.d/client.cnf`。
-- 在`RedHat`系中，配置文件爲`/etc/my.cnf`。
-- 在`ArchLinux`中，配置文件爲`/etc/mysql/my.cnf`。
+- 在Debian系中，配置文件爲`/etc/mysql/mariadb.conf.d/client.cnf`。
+- 在RedHat系中，配置文件爲`/etc/my.cnf`。
+- 在ArchLinux中，配置文件爲`/etc/mysql/my.cnf`。
 
 在配置文件中加入下列配置：
 
@@ -1163,7 +1169,7 @@ default-character-set = utf8
 ```
 
 ## 二進制數據
-如果需要向數據庫中存儲二進制信息(比如**圖片**)，則字段應選擇`BLOB`類型(`binary large object`)。
+如果需要向數據庫中存儲二進制信息（比如**圖片**），則字段應選擇`BLOB`類型（`binary large object`）。
 
 MySQL中與BLOB相關的類型有四種，分別爲：`TinyBlob`、`Blob`、`MediumBlum`、`LongBlum`。
 這四種類型之間的區別在於存儲文件大小上限不同。
@@ -1204,7 +1210,7 @@ MySQL中的內置時間類型(`datetime`類型)在不同語言中的對應類型
 	如下所示：
 
 	```java
-	timestamp.getTime() / 1000; //獲取與MySQL中等價的Unix時間戳
+	timestamp.getTime() / 1000; // 獲取與MySQL中等價的Unix時間戳
 	```
 
 - C#中的`System.DateTime`類型：
@@ -1214,11 +1220,12 @@ MySQL中的內置時間類型(`datetime`類型)在不同語言中的對應類型
 	如下所示：
 
 	```cs
-	(dateTime - DateTime.Parse("1970-1-1")).TotalSeconds; //獲取時間戳
+	(dateTime - DateTime.Parse("1970-1-1")).TotalSeconds; // 獲取時間戳
 	```
 
 ## 禁用 DNS 解析
-MySQL默認開啓了DNS解析，但在DNS服務器異常時，一次數據庫操作會異常緩慢，並在`/var/log/mysql/error.log`中寫入類似日誌：
+MySQL默認開啓了DNS解析，但在DNS服務器異常時，一次數據庫操作會異常緩慢，
+並在`/var/log/mysql/error.log`中寫入類似日誌：
 
 ```
 [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved: Temporary failure in name resolution
@@ -1226,7 +1233,7 @@ MySQL默認開啓了DNS解析，但在DNS服務器異常時，一次數據庫操
 
 解決方法是禁用MySQL的DNS解析，在配置`my.cnf`中添加以下內容：
 
-```
+```ini
 [mysqld]
 skip-host-cache
 skip-name-resolve
@@ -1236,7 +1243,8 @@ skip-name-resolve
 
 # 查看數據庫狀態
 `information_schema`庫中存儲了MySQL數據庫的元數據。
-通過使用SQL語句對庫中的各類表格進行查詢操作，可獲取MySQL中的各類狀態信息，如數據庫/表的名稱、列的數據類型、訪問權限等。
+通過使用SQL語句對庫中的各類表格進行查詢操作，可獲取MySQL中的各類狀態信息，
+如數據庫/表的名稱、列的數據類型、訪問權限等。
 
 常用表格的功能：
 
@@ -1271,7 +1279,8 @@ MYSQL* mysql_real_connect(MYSQL *mysql, const char *host, const char *user, cons
 - `mysql`參數標識連接。
 - `host`、`user`、`passwd`參數依次爲**主機地址**、**數據庫用戶名**、**數據庫密碼**。
 - `db`參數爲連接到的數據庫名稱。
-- `port`參數用於顯式指定連接端口，`unix_socket`參數爲socket連接類型，`clientflag`爲mysql運行ODBC的標記，一般本地連接這三個參數全填`NULL`。
+- `port`參數用於顯式指定連接端口，`unix_socket`參數爲socket連接類型，
+`clientflag`爲mysql運行ODBC的標記，一般本地連接這三個參數全填`NULL`。
 
 舊式的連接函數`mysql_connect()`已不再推薦使用，僅僅爲兼容而保留。
 
@@ -1305,11 +1314,16 @@ MYSQL_ROW mysql_fetch_row(MYSQL_RES *result);
 void mysql_data_seek(MYSQL_RES *result, my_ulonglong offset);
 ```
 
-- `mysql_store_result()`和`mysql_use_result()`用於獲取查詢語句之後的結果集內容，二者的區別是前者會將結果集拷貝到本地，開銷大，後者直接讀取服務器中的數據，每次只拷貝一行，開銷小，但是後者需要在下一次SQL語句執行之前將結果集中的數據全部讀出，但前者就不需要。
+- `mysql_store_result()`和`mysql_use_result()`用於獲取查詢語句之後的結果集內容，
+二者的區別是前者會將結果集拷貝到本地，開銷大，後者直接讀取服務器中的數據，每次只拷貝一行，開銷小，
+但是後者需要在下一次SQL語句執行之前將結果集中的數據全部讀出，但前者就不需要。
 - `mysql_field_count()`用於獲取最近查詢的列數。
 - `mysql_num_fields()`用於獲取指定查詢結果的列數。
-- `mysql_fetch_row()`用於按行讀取結果集中的內容，每次執行`mysql_fetch_row()`會返回下一行結果集的指針。返回值類型`MYSQL_ROW`的實際類型爲二維指針`char**`，保存了每一列的字符數組指針。
-- `mysql_data_seek()`用於設置結果集讀取位置到指定的偏移量，`offset`參數取值爲`0`時，則重置結果集的讀取位置。
+- `mysql_fetch_row()`用於按行讀取結果集中的內容，
+每次執行`mysql_fetch_row()`會返回下一行結果集的指針。
+返回值類型`MYSQL_ROW`的實際類型爲二維指針`char**`，保存了每一列的字符數組指針。
+- `mysql_data_seek()`用於設置結果集讀取位置到指定的偏移量，
+`offset`參數取值爲`0`時，則重置結果集的讀取位置。
 
 ## 切換當前數據庫
 使用`mysql_select_db()`函數切換數據庫：
@@ -1328,7 +1342,8 @@ void mysql_close(MYSQL *sock);
 ```
 
 - 如果傳入的參數是指針，則指針所指向的MYSQL結構體內存區域會被釋放掉。
-- 立即訪問執行`mysql_close()`之後的MYSQL指針會報錯(野指針)，如果在關閉連接之後需要重新啓用連接，需要重新執行初始化操作`mysql_init()`。
+- 立即訪問執行`mysql_close()`之後的MYSQL指針會報錯（野指針），
+如果在關閉連接之後需要重新啓用連接，需要重新執行初始化操作`mysql_init()`。
 
 
 
@@ -1366,8 +1381,8 @@ Query OK, 0 rows affected (0.00 sec)
 ```
 
 從MySQL Shell中修改該配置在下次數據庫重啟後會恢復，要永久關閉該特性需要修改MySQL配置，
-編輯配置文件(Unix環境下通常為`/etc/my.cnf`或`/etc/mysql/my.cnf`)，
-修改`[mysqld]`配置段的`sql_mode`配置項(該配置項不存在時應手動創建)，
+編輯配置文件（Unix環境下通常為`/etc/my.cnf`或`/etc/mysql/my.cnf`），
+修改`[mysqld]`配置段的`sql_mode`配置項（該配置項不存在時應手動創建），
 填寫當前啟用的sql_mode中除ONLY_FULL_GROUP_BY之外的其它項：
 
 ```
@@ -1382,7 +1397,7 @@ sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_
 > SET SQL_SAFE_UPDATES = 0;
 ```
 
-添加global關鍵字全局關閉安全模式(通常不推薦)。
+添加global關鍵字全局關閉安全模式（通常不推薦）。
 
 若需要恢復安全模式，則可將該屬性置為1：
 
