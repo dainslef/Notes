@@ -5248,10 +5248,21 @@ deb-src 軟件源地址 版本號 倉庫類型
 兩類作用相同，固定版本號會指向某個版本代號；
 隨着開發進度的變化，固定版本號實際指向的版本代號會發生變化：
 
-- 當前(`2017-5-11`)Debian的最新穩定版爲`Debian 8`，版本代號爲`jessie`，
+- 當前（`2017-5-11`）Debian的最新穩定版爲`Debian 8`，版本代號爲`jessie`，
 則使用固定版本號`stable`指向的實際版本號即爲`jessie`。
 - 當前處於開發狀態的版本爲`Debian 9`，版本代號爲`stretch`，
 使用固定版本號`testing`則實際指向處於開發狀態的版本代號`stretch`。
+
+當固定版本號指向的實際版本發生變化時，更新軟件源時會給出相應提示：
+
+```
+# apt update
+...
+E: Repository 'https://deb.debian.org/debian testing InRelease' changed its 'Codename' value from 'bookworm' to 'trixie'
+N: This must be accepted explicitly before updates for this repository can be applied. See apt-secure(8) manpage for details.
+Do you want to accept these changes and continue updating from this repository? [y/N]
+...
+```
 
 版本代號後是**版本倉庫**，Debian的版本倉庫有：
 
@@ -5302,7 +5313,7 @@ Ubuntu**倉庫類別**：
 
 以**中科大鏡像源**爲例，`Ubuntu 16.04 LTS`的`sources.list`配置：
 
-```
+```sh
 deb https://mirrors.ustc.edu.cn/ubuntu/ xenial main restricted universe muitiverse
 deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-security main restricted universe muitiverse
 deb https://mirrors.ustc.edu.cn/ubuntu/ xenial-updates main restricted universe muitiverse
