@@ -6,6 +6,7 @@
 	- [OpenStackClient配置文件](#openstackclient配置文件)
 - [Kolla Ansible](#kolla-ansible)
 	- [Debian Stable部署流程](#debian-stable部署流程)
+	- [升級OpenStack版本](#升級openstack版本)
 
 <!-- /TOC -->
 
@@ -176,7 +177,7 @@ glance, keystone, neutron, nova, heat, horizon
 # kolla-ansible -i ./all-in-one deploy
 
 <!-- 部署操作順利完成後，執行後置部署操作 -->
-# kolla-ansible -i ./all-in-one post-deploy <!-- 會在 /etc/kolla 路徑下生成 admin-openrc.sh 文件 -->
+# kolla-ansible -i ./all-in-one post-deploy <!-- 會在 /etc/kolla 路徑下生成 admin-openrc.sh 以及clouds.yaml 文件 -->
 ```
 
 `kolla-genpwd`生成密碼需要`/etc/kolla/password.yml`文件已存在，password.yml文件中，
@@ -188,3 +189,26 @@ glance, keystone, neutron, nova, heat, horizon
 # kolla-ansible -i ./all-in-one stop <!-- 關閉服務容器 -->
 # kolla-ansible -i ./all-in-one deploy-containers <!-- 啟動集群容器 -->
 ```
+
+## 升級OpenStack版本
+Kolla Ansible支持版本升級，基本升級流程：
+
+1. 升級前首先創建新的venv環境
+1. 參考新版本的安裝文檔，在新的venv環境中安裝ansible和kolla-ansible軟件包
+1. 對比`globals.yaml`配置，合併新版本的配置變化
+1. 按照部署模式對比inventory配置（all-in-one/multinode）
+1. 部署新的依賴
+
+	```
+	# kolla-ansible -i ./all-in-one bootstrap-servers
+	# kolla-ansible -i ./all-in-one install-deps
+	```
+
+1. 執行`upgrade`操作
+
+	```
+	# kolla-ansible -i ./all-in-one upgrade
+	```
+
+根據實際組件的版本差異和部署情況，可能部分組件會存在升級失敗的情況，
+此時可嘗試手動對比配置、清理相關容器Docker卷等操作。
