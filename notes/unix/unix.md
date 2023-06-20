@@ -142,6 +142,7 @@
 	- [apt軟件源配置](#apt軟件源配置)
 		- [Debian源](#debian源)
 		- [Ubuntu源](#ubuntu源)
+	- [backports倉庫與倉庫優先級](#backports倉庫與倉庫優先級)
 	- [apt-mirror](#apt-mirror)
 		- [apt-mirror本地源配置](#apt-mirror本地源配置)
 		- [使用apt-mirror本地源](#使用apt-mirror本地源)
@@ -5326,6 +5327,52 @@ deb http://archive.canonical.com/ubuntu/ xenial partner
 
 ```
 # sed -i 's/archive.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
+```
+
+## backports倉庫與倉庫優先級
+`backports`倉庫是Debian係發行中重要的一類倉庫，
+該倉庫中包含內核、固件等軟件包的下一個release的測試版本，
+對`Debian Stable`/`Ubuntu LTS`系列的穩定發行版而言尤為重要，
+可在不改版發行版大版本的前提下，更新內核等指定軟件包到較新的大版本。
+
+以`Debian 11 bullseye`為例，默認內核為`5.10`，
+Stable發行版在整個維護週期中，內核均不會改變版本號，
+若需要更新內核，則可啟用backports倉庫，指定安裝backports內核：
+
+```
+# apt install linux-image-rt-amd64/bullseye-backports
+```
+
+`Debian 11 bullseye`的backports內核實際是下一個release（Debian 12 book）中的內核版本，為`6.1`版本。
+
+可使用`apt-cache madison`或`apt policy`查看一個軟件包在多個倉庫中的版本，以內核為例：
+
+```
+$ apt-cache madison linux-image-rt-amd64
+linux-image-rt-amd64 | 6.1.15-1~bpo11+1 | http://mirrors.ustc.edu.cn/debian bullseye-backports/main amd64 Packages
+linux-image-rt-amd64 | 5.10.162-1 | http://mirrors.ustc.edu.cn/debian-security bullseye-security/main amd64 Packages
+linux-image-rt-amd64 | 5.10.158-2 | http://mirrors.ustc.edu.cn/debian bullseye/main amd64 Packages
+
+$ apt policy linux-image-rt-amd64
+linux-image-rt-amd64:
+  Installed: 6.1.15-1~bpo11+1
+  Candidate: 6.1.15-1~bpo11+1
+  Version table:
+ *** 6.1.15-1~bpo11+1 100
+        100 http://mirrors.ustc.edu.cn/debian bullseye-backports/main amd64 Packages
+        100 /var/lib/dpkg/status
+     5.10.162-1 500
+        500 http://mirrors.ustc.edu.cn/debian-security bullseye-security/main amd64 Packages
+     5.10.158-2 500
+        500 http://mirrors.ustc.edu.cn/debian bullseye/main amd64 Packages
+```
+
+從apt policy中的輸出可知，bullseye、bullseye-security、bullseye-backports均包含內核包，
+bullseye、bullseye-security倉庫中的優先級為500，bullseye-backports倉庫優先級為100，
+因此bullseye-backports倉庫中的軟件包默認不會被選中，除非指令倉庫名稱進行安裝：
+
+```
+# apt install 軟件包名/版本代號-backports
 ```
 
 ## apt-mirror
