@@ -4,25 +4,25 @@
 	- [GHC 常用功能](#ghc-常用功能)
 	- [REPL (GHCi)](#repl-ghci)
 	- [GHCup](#ghcup)
-- [Debug (調試)](#debug-調試)
+- [Debug（調試）](#debug調試)
 	- [Debug.Trace](#debugtrace)
 	- [GHCi Debugger](#ghci-debugger)
 - [常用函數](#常用函數)
 	- [`$` 函數](#-函數)
 	- [`.` 函數](#-函數)
 	- [`&` 函數](#-函數)
-- [Module (模塊)](#module-模塊)
+- [Module（模塊）](#module模塊)
 	- [定義模塊](#定義模塊)
 	- [導入內容](#導入內容)
 	- [Re-Export](#re-export)
-- [Collections (集合)](#collections-集合)
-	- [List (列表)](#list-列表)
+- [Collections（集合）](#collections集合)
+	- [List（列表）](#list列表)
 - [Printf (格式化)](#printf-格式化)
-	- [轉換明細(conversion specification)](#轉換明細conversion-specification)
+	- [conversion specification（轉換明細）](#conversion-specification轉換明細)
 	- [格式化結果](#格式化結果)
 	- [參數解析](#參數解析)
-- [Currying (柯里化)](#currying-柯里化)
-- [Fixity Declarations (操作符結合性、優先級定義)](#fixity-declarations-操作符結合性優先級定義)
+- [Currying（柯里化）](#currying柯里化)
+- [Fixity Declarations（操作符結合性、優先級定義）](#fixity-declarations操作符結合性優先級定義)
 - [Pointfree Style](#pointfree-style)
 	- [概念解釋](#概念解釋)
 	- [pointfree應用](#pointfree應用)
@@ -210,12 +210,12 @@ $ ghcup list
 
 
 
-# Debug (調試)
+# Debug（調試）
 在Haskell中，可以使用trace系列函數打印調試信息，或者在GHCi中進行斷點調試。
 相關介紹參考[Haskell Wiki](https://wiki.haskell.org/Debugging)。
 
 ## Debug.Trace
-`Debug.Trace`模塊下提供了trace系列函數，能夠將錯誤信息打印到輸出流(`*nix`下為`stderr`)中。
+`Debug.Trace`模塊下提供了trace系列函數，能夠將錯誤信息打印到輸出流（`*nix`下為`stderr`）中。
 
 常用的trace函數：
 
@@ -238,8 +238,8 @@ Prelude Debug.Trace> 1 + traceShowId i
 2
 ```
 
-trace系列函數應該僅用於調試或監控執行狀況，該系列函數雖然帶有純函數的簽名(未標記為IO Monad)，
-但函數的內部實現存在**side effects**(向外部輸出流中輸出trace信息)。
+trace系列函數應該僅用於調試或監控執行狀況，該系列函數雖然帶有純函數的簽名（未標記為IO Monad），
+但函數的內部實現存在**side effects**（向外部輸出流中輸出trace信息）。
 
 完整的Trace API可參考[Hackage文檔](https://hackage.haskell.org/package/base/docs/Debug-Trace.html)。
 
@@ -281,7 +281,8 @@ Line 2 ...2"
 "Line 3 ...3"
 ```
 
-更多GHCi Debugger相關功能可參考[GHC官方手冊](https://downloads.haskell.org/ghc/latest/docs/html/users_guide/ghci.html#the-ghci-debugger)。
+更多GHCi Debugger相關功能可參考
+[GHC官方手冊](https://downloads.haskell.org/ghc/latest/docs/html/users_guide/ghci.html#the-ghci-debugger)。
 
 
 
@@ -354,7 +355,7 @@ Prelude Data.Function> [1, 2, 3] & map (\n -> n + 1) & foldl1 (\a b -> a + b)
 
 
 
-# Module (模塊)
+# Module（模塊）
 `Module`是一組值、類型、類型別名、type class等的集合。
 模塊中可以導入其它模塊的資源，也可以導出自身模塊的部分/全部內容。
 關於模塊的更多介紹，可參考[GHC官網文檔](https://www.haskell.org/onlinereport/haskell2010/haskellch5.html)。
@@ -420,11 +421,11 @@ module Xxx1 (module Xxx2, ...) where
 
 
 
-# Collections (集合)
-與其它函數式語言類似，Haskell中提供了多種集合類型，包括最基礎的`[a]`(列表)，
-以及`Data.Array`(數組)、`Data.Vector`(向量)、`Data.Sequence`(序列)。
+# Collections（集合）
+與其它函數式語言類似，Haskell中提供了多種集合類型，包括最基礎的`[a]`（列表），
+以及`Data.Array`（數組）、`Data.Vector`（向量）、`Data.Sequence`（序列）。
 
-## List (列表)
+## List（列表）
 **列表**是Haskell的基礎數據結構，使用`[a]`表示。
 
 列表在Haskell中的定義非常簡單：
@@ -527,7 +528,8 @@ Prelude> foldl1 (-) l
 
 
 # Printf (格式化)
-`Text.Printf`包提供了類似C語言`printf(3)`函數風格的文本格式化功能，支持幾乎所有的`printf(3)`格式化語法。
+`Text.Printf`包提供了類似C語言`printf(3)`函數風格的文本格式化功能，
+支持幾乎所有的`printf(3)`格式化語法。
 
 函數簽名：
 
@@ -538,14 +540,14 @@ printf :: Text.Printf.PrintfType r => String -> r
 
 函數接收的參數為格式化字符串，返回結果為格式化後的內容。
 
-## 轉換明細(conversion specification)
-轉換明細(格式化字符串)語法與C語言printf基本相同：
+## conversion specification（轉換明細）
+轉換明細（格式化字符串）語法與C語言printf基本相同：
 
 ```hs
 %[+/-][0/space][數值寬度.浮點部分寬度][格式化字符]
 ```
 
-使用`%`開始格式化的轉換明細，之後是對齊方式(`+/-`，左右對齊)，填充內容(`0/space`)：
+使用`%`開始格式化的轉換明細，之後是對齊方式（`+/-`，左右對齊），填充內容（`0/space`）：
 
 ```
 -      left adjust (default is right adjust)
@@ -628,7 +630,7 @@ Prelude Text.Printf> printf "%d, %.4f\n" 123 pi
 123, 3.1416
 ```
 
-官方文檔中解釋是類型類PrintfType提供了變長參數魔法(variable argument magic)，
+官方文檔中解釋是類型類PrintfType提供了變長參數魔法（variable argument magic），
 實現原理可參考[StackOverflow](https://stackoverflow.com/questions/7828072/how-does-haskell-printf-work)
 以及[本文type class章節](#使用typeclass定義可無限遞歸的接口)的說明，
 基本思路是在type class接口函數中返回自身，使之能夠遞歸調用type class中定義的接口方法。
@@ -638,9 +640,9 @@ Prelude Text.Printf> printf "%d, %.4f\n" 123 pi
 
 
 
-# Currying (柯里化)
-`Currying`(柯里化)是一類函數的轉換過程，將通過元組接收多個參數的函數轉換爲接收單一參數並返回接收另一個參數的函數，
-以此逐級遞推，通過不斷返回接收其它參數的函數來逐漸接收元組中的所有參數。
+# Currying（柯里化）
+`Currying`（柯里化）是一類函數的轉換過程，將通過元組接收多個參數的函數轉換爲接收單一參數，
+並返回接收另一個參數的函數，以此逐級遞推，通過不斷返回接收其它參數的函數來逐漸接收元組中的所有參數。
 
 以簽名如下的函數爲例：
 
@@ -684,7 +686,9 @@ Prelude> c 1 2 == uc (1, 2)
 True
 ```
 
-在Haskell中，每個函數實際僅能接收一個參數，多參數函數應用單個參數後返回新函數，從而逐步應用多個參數。
+在Haskell中，每個函數實際僅能接收一個參數，
+多參數函數應用單個參數後返回新函數，從而逐步應用多個參數。
+
 示例：
 
 ```hs
@@ -698,7 +702,9 @@ Prelude> ((c 1) 2) 3 -- 函數傳入多個參數實際是逐步應用單個參�
 6
 ```
 
-對於多參數函數，Haskell允許僅應用部分參數，應用部分參數後生成新的函數，稱爲`Partial Application`(部分應用函數)。
+對於多參數函數，Haskell允許僅應用部分參數，應用部分參數後生成新的函數，
+稱爲`Partial Application`（部分應用函數）。
+
 示例：
 
 ```hs
@@ -714,7 +720,7 @@ c 1 2 3 :: Int
 
 
 
-# Fixity Declarations (操作符結合性、優先級定義)
+# Fixity Declarations（操作符結合性、優先級定義）
 在Haskell中，操作符的優先級可以自行顯式定義，語法示例：
 
 ```hs
@@ -728,8 +734,8 @@ infix/infixl/infixr [優先級數值] [操作符]
 | infix | 定義操作符為**不可結合** |
 | infixl | 定義操作符為**左結合性** |
 | infixr | 定義操作符為**右結合性** |
-| 優先級數值(可選) | 定義操作符優先級，範圍[0, 9]，操作符和函數默認的優先級為9(最高優先級) |
-| op1, ... , opn | 操作符名稱(可多個並列) |
+| 優先級數值（可選） | 定義操作符優先級，範圍[0, 9]，操作符和函數默認的優先級為9（最高優先級） |
+| op1, ... , opn | 操作符名稱（可多個並列） |
 
 以標準庫中的`+`操作符為例：
 
@@ -811,10 +817,10 @@ pointfree的作用：
 - 在某些邏輯中參數名稱難以找到合適的名稱描述，使用pointfree風格可避免爲參數命名
 
 ## 概念解釋
-pointfree名稱源自數學領域中的**拓撲**(研究由點組成的空間以及空間之間的函數)，
+pointfree名稱源自數學領域中的**拓撲**（研究由點組成的空間以及空間之間的函數），
 對函數而言，pointfree是不顯式提及在函數作用空間的點
-(does not explicitly the points of the space on which the function acts, 即參數)的一類函數。
-在Haskell中，**空間**(space)是某些類型，**點**(points)是參數。
+（does not explicitly the points of the space on which the function acts, 即參數）的一類函數。
+在Haskell中，**空間**（space）是某些類型，**點**（points）是參數。
 
 更詳細的概念解釋可參考[Haskell Wiki](https://wiki.haskell.org/Pointfree)。
 
@@ -956,8 +962,10 @@ CPS(Continuation Passing Style，延續傳遞風格)是一種編程風格，函�
 
 
 # 求值策略
-Haskell默認採用`Lazy evaluation`(懶執行/惰性求值/非嚴格求值)，字段、函數參數在真正被使用前，不會被求值，
-即一個表達式綁定到字段時並沒有立即，而是延遲到該表達式的結果被其它計算需要時再執行(進行求值)。
+Haskell默認採用`Lazy evaluation`（懶執行/惰性求值/非嚴格求值），
+字段、函數參數在真正被使用前，不會被求值。
+即一個表達式綁定到字段時並沒有立即求值，
+而是延遲到該表達式的結果被其它計算需要時再執行(進行求值)。
 
 關於Lazy evaluation的詳細概念，可參考[Haskell Wiki](https://wiki.haskell.org/Lazy)中的描述。
 
@@ -1015,7 +1023,7 @@ let x = 1 + 1 in x * x
 字段`x`在之後的表達式中被使用了兩次，但字段x不會被多次計算，而是在首次計算後被存儲並用於之後的使用。
 
 Lazy evaluation也被稱爲`Call by need`，Call by need是Call by name的帶有記憶性的變體，
-Call by need的字段在需要時被求值(Call by name)，字段綁定的表達式執行後結果會被存儲(Sharing)，
+Call by need的字段在需要時被求值（Call by name），字段綁定的表達式執行後結果會被存儲（Sharing），
 之後再次訪問該字段時，不會再重複執行計算。
 
 在Haskell中，使用名爲`Thunk`的數據結構來存儲表達式，等到表達式在需要的時刻再執行。
@@ -1028,13 +1036,13 @@ Thunk包含一個布爾類型字段用於記錄包含的表達式是否已被計
 惰性求值的優勢：
 
 - 程序僅在需要時進行求求值，避免了無意義的計算
-- 能夠表示出一些無限大小的數據(如`[0..]`)，並進行操作
+- 能夠表示出一些無限大小的數據（如`[0..]`），並進行操作
 
 惰性求值的劣勢：
 
 - 對於部分基礎數據類型，Haskell中全部使用thunk保存數據會有相比原始類型更大的內存開銷
-- 一些不合理的操作會造成thunk堆積，引起內存泄漏(如`foldl`)
-- 計算的執行時機不確定(取決於編譯器的實現)
+- 一些不合理的操作會造成thunk堆積，引起內存泄漏（如`foldl`）
+- 計算的執行時機不確定（取決於編譯器的實現）
 
 ## 惰性求值與內存泄漏
 惰性求值的特性將計算推遲到了真正需要求值的時刻，Haskell中使用thunk存儲尚未計算的表達式。
@@ -1080,12 +1088,16 @@ foldr f z (n:l) = f n $ foldr f z l
 foldr f z [x1, x2, ..., xn] = f x1 (f x2 (... (f xn z)))
 ```
 
-相對foldl方法，foldr計算邏輯並非非尾遞歸，因而不能被優化爲循環，計算邏輯中表達式會遞歸展開，進而消耗較大的內存。
-由於foldr中遞歸邏輯中每一步計算邏輯均依賴於下一步，因而不存在惰性求值問題，相比惰性求值下foldl的thunk堆積更高效。
+相對foldl方法，foldr計算邏輯並非非尾遞歸，
+因而不能被優化爲循環，計算邏輯中表達式會遞歸展開，進而消耗較大的內存。
+由於foldr中遞歸邏輯中每一步計算邏輯均依賴於下一步，
+因而不存在惰性求值問題，相比惰性求值下foldl的thunk堆積更高效。
 
 ## 強制求值
 標準庫中提供了`seq`、`$!`等函數可立即對指定字段求值。
-seq函數對函數的首個參數強制求值；`$!`函數則對第二參數強制求值，之後傳入第一參數提供的函數中執行。
+seq函數對函數的首個參數強制求值；`$!`函數則對第二參數強制求值，
+之後傳入第一參數提供的函數中執行。
+
 相關函數定義：
 
 ```hs
@@ -1134,7 +1146,7 @@ CallStack (from HasCallStack):
   undefined, called at <interactive>:201:5 in interactive:Ghci21
 ```
 
-需要注意，seq和`$!`函數雖然能對指定參數強制求值，但若函數表達式本身未被執行則不會生效。
+seq和`$!`函數雖然能對指定參數強制求值，但若函數表達式本身未被執行則不會生效。
 修改前文中的代碼：
 
 ```hs
@@ -1166,14 +1178,15 @@ main =
 中間字段實際並未被使用，整個表達式沒有真正執行，對參數的強制求值也未生效。
 
 ## BangPatterns
-直接使用`seq`、`$!`等函數對字段進行強制求值較爲繁瑣，當需要對多個字段強制求值時需要編寫大量的冗餘代碼。
+直接使用`seq`、`$!`等函數對字段進行強制求值較爲繁瑣，
+當需要對多個字段強制求值時需要編寫大量的冗餘代碼。
 對此GHC提供了`BangPatterns`擴展：
 
 ```hs
 {-# LANGUAGE BangPatterns #-}
 ```
 
-開啓擴展後，字段前添加`!`操作符即代表對該字段進行嚴格求值(Strict)。
+開啓擴展後，字段前添加`!`操作符即代表對該字段進行嚴格求值（Strict）。
 `!`操作符可用在多數場景下：
 
 - `let`綁定
@@ -1294,15 +1307,15 @@ main =
 
 
 # Type Class
-`Type Class`(類型類)是用於支持點對點多態(ad hoc polymorphism)的類型系統結構，
+`Type Class`（類型類）是用於支持點對點多態（ad hoc polymorphism）的類型系統結構，
 通過在參數化多態類型中添加類型參數約束來實現。
 
 type class的實際作用近似於OOP語言中的接口，一個type class中通常包含一個類型參數和若干抽象方法，
 通過提供type class在不同類型參數時的實例來爲抽象方法提供多種實現，
-調用type class中方法時，會根據參數類型使用不同實例提供的實現，以此達到函數重載的目的(多態性)。
+調用type class中方法時，會根據參數類型使用不同實例提供的實現，以此達到函數重載的目的（多態性）。
 
 使用`class`關鍵字定義type class，`instance`關鍵字定義實例，
-`=>`操作符用於要求類型參數必須實現某些type class(可以要求參數類型實現多個type classes)。
+`=>`操作符用於要求類型參數必須實現某些type class（可以要求參數類型實現多個type classes）。
 示例：
 
 ```hs
@@ -1377,7 +1390,7 @@ main = do
 
 ## 使用TypeClass定義可無限遞歸的接口
 type class的接口方法參數中可以返回自身類型，同時在開啟了`FlexibleInstances`擴展的情況下，
-type class可以參數可以為函數簽名(`* -> ... -> *`)，將需要遞歸處理的參數作為輸入參數類型傳入。
+type class可以參數可以為函數簽名（`* -> ... -> *`），將需要遞歸處理的參數作為輸入參數類型傳入。
 
 假設需要定義一個支持變長參數表的的`recurse`函數，能夠打印輸出。
 
@@ -1402,7 +1415,7 @@ instance (Show a, TypeClassRecursion t) => TypeClassRecursion (a -> t) where
 recurse :: (Show a, TypeClassRecursion t) => [String] -> a -> t
 ```
 
-展開之後的接口可以額外容納一個參數(在本例中是`Show a`)，
+展開之後的接口可以額外容納一個參數（在本例中是`Show a`），
 由於該接口的實際返回類型依舊是`TypeClassRecursion t`，該類型可繼續視為可被展開的目標，
 實際上可以繼續遞歸展開類型：
 
@@ -1489,7 +1502,9 @@ main = do
 ```
 
 ## Functional Dependencies
-functional dependencies特性用於限制多參數type class的類型參數，讓其中的某個類型參數可由其它類型參數決定。
+functional dependencies特性用於限制多參數type class的類型參數，
+讓其中的某個類型參數可由其它類型參數決定。
+
 例如，一個類型參數可以是方法的返回值類型，而不是方法的參數類型。
 
 在GHC中，開啓type class的functional dependencies特性需要使用語言擴展：
@@ -1505,7 +1520,7 @@ class XxxTypeClass typeA typeB typeC ... | typeA typeB ... -> typeC where
   ...
 ```
 
-Haskell中type class方法簽名可以僅重載返回值(即多個方法參數類型相同，僅有返回值類型不同)，
+Haskell中type class方法簽名可以僅重載返回值（即多個方法參數類型相同，僅有返回值類型不同），
 此類方法在調用時需要顯式標註表達式的返回值類型，參考上一節的示例。
 
 使用functional dependencies特性能夠避免一些場景下無法直接推導出類型時的顯式類型標註，
@@ -1562,6 +1577,7 @@ main = print $ m "123" "456" -- 編譯報錯，類型依賴關係未生效
 
 對於使用了functional dependencies特性的type class而言，添加instance時，
 類型依賴路徑相同的實例僅能存在一個，否則編譯報錯。
+
 示例：
 
 ```hs
@@ -1583,16 +1599,18 @@ Functional dependencies conflict between instance declarations:
     -- Defined at ...
 ```
 
-在該例子中，`instance MultiParamTypeClasses String String`的類型依賴`String -> String`與`instance MultiParamTypeClasses String Int`的類型依賴`String -> Int`存在衝突(都是`String -> ?`)，
-兩個實例聲明的方法簽名`m :: String -> String -> String`與`m :: String -> String -> Int`存在調用歧義(需要依賴返回值確定實際調用者)，
+在該例子中，`instance MultiParamTypeClasses String String`的類型依賴`String -> String`與`instance MultiParamTypeClasses String Int`的類型依賴`String -> Int`存在衝突（均為`String -> ?`），
+兩個實例聲明的方法簽名`m :: String -> String -> String`
+與`m :: String -> String -> Int`存在調用歧義（需要依賴返回值確定實際調用者），
 不使用functional dependencies特性時正常通過編譯，啓用functional dependencies特性時則編譯報錯。
 
 
 
 # Exception
-與主流編程語言類似，Haskell中提供了`Exception`(異常)機制來表示程序運行中產生的意外狀態。
+與主流編程語言類似，Haskell中提供了`Exception`（異常）機制來表示程序運行中產生的意外狀態。
 
-Haskell程序中默認的異常行爲是中斷程序，並將異常信息輸出到終端；可以使用異常處理相關API來自定義異常產生後的行爲。
+Haskell程序中默認的異常行爲是中斷程序，並將異常信息輸出到終端；
+可以使用異常處理相關API來自定義異常產生後的行爲。
 
 ## 異常類型
 Haskell中異常接口由`Control.Exception`模塊中的type class Exception定義：
@@ -1609,7 +1627,9 @@ class (Data.Typeable.Internal.Typeable e, Show e) =>
 在GHC的實現中，type class Exception實際定義爲`GHC.Exception`。
 Control.Exception模塊中定義了多個常見的異常類型，如`IOException`、`AsyncException`、`TypeError`等。
 
-`SomeException`類型是所有異常的基類，當拋出一個任意類型的異常時，實際的異常會被封裝到SomeException中。
+`SomeException`類型是所有異常的基類，當拋出一個任意類型的異常時，
+實際的異常會被封裝到SomeException中。
+
 類型定義：
 
 ```hs
@@ -1693,7 +1713,9 @@ error :: forall (r :: RuntimeRep). forall (a :: TYPE r). HasCallStack => [Char] 
 	```
 
 ## 異常捕獲與求值策略
-在Haskell中，默認爲惰性求值，因此異常字段在其被求值前不會觸發異常，該特性會導致異常可能不被異常捕獲邏輯所捕獲。
+在Haskell中，默認爲惰性求值，因此異常字段在其被求值前不會觸發異常，
+該特性會導致異常可能不被異常捕獲邏輯所捕獲。
+
 示例：
 
 ```hs
@@ -1720,14 +1742,15 @@ CallStack (from HasCallStack):
   error, called at test\TestException.hs:9:12 in main:Main
 ```
 
-在上述例子中，try函數沒有對首個參數中的IO邏輯求值，捕獲到異常信息，執行`>>=`操作時，開始真正對IO操作進行求值，
+在上述例子中，try函數沒有對首個參數中的IO邏輯求值，
+捕獲到異常信息，執行`>>=`操作時，開始真正對IO操作進行求值，
 求值時觸發異常，但此時程序已脫離了異常捕獲邏輯，異常直接觸發導致程序崩潰。
 
-要規避此類問題，需要在IO邏輯內部對返回結果進行強制求值(使用`$!`、`seq`函數)，提前觸發異常，
-讓異常在受到捕獲函數控制時觸發，而非脫離了異常捕獲函數之後再觸發。
+要規避此類問題，需要在IO邏輯內部對返回結果進行強制求值（使用`$!`、`seq`函數），
+提前觸發異常，讓異常在受到捕獲函數控制時觸發，而非脫離了異常捕獲函數之後再觸發。
 
 ## 異常安全
-在傳統編程語言中，C++使用`RAII`機制、Java使用`try ... catch ... finally ...`語法保證代碼塊中出現異常時，
+在傳統編程語言中，C++使用`RAII`機制、Java使用`try ... finally ...`語法保證代碼塊中出現異常時，
 已分配的資源能夠被正確釋放。
 在Haskell中，則使用`Control.Exception`模塊中提供的工具函數保障異常安全，相關API：
 
@@ -1772,7 +1795,8 @@ main = do
 
 ## 自定義異常
 自定義異常需要讓做爲異常的類型實現`Control.Exception`模塊中提供的Exception類。
-Exception類繼承於`Typeable`和`Show`類，Exception類**沒有**必須要實現的方法，可直接爲實現了Show類的類型創建實例。
+Exception類繼承於`Typeable`和`Show`類，Exception類**沒有**必須要實現的方法，
+可直接爲實現了Show類的類型創建實例。
 
 使用`Control.Exception`模塊中提供的`throw*`系列方法拋出指定類型的異常，相關方法的API：
 
@@ -1927,7 +1951,7 @@ Functor => Applicative => Monad
 	`>>=`操作順序地組合兩個動作，將前一個動作的處理結果做爲參數傳遞給後一個。
 
 	`>>`操作符用於將返回值無關的Monad操作相連。`>>`操作順序地組合兩個動作，但丟棄前一個動作的處理結果，
-	類似於命令式語言(imperative languages)中的分隔符，比如C中的分號。
+	類似於命令式語言（imperative languages）中的分隔符，比如C中的分號。
 
 	`return`函數提供參數類型到Monad的構造邏輯，由於Monad是Applicative子類，return默認使用pure函數做爲實現。
 
@@ -2179,8 +2203,8 @@ app2 = do
 
 
 # STM
-`STM`全稱`Software Transactional Memory`(軟件事務內存)，
-是一種對併發通信的模塊化(modular)、可組合(composable)的抽象。
+`STM`全稱`Software Transactional Memory`（軟件事務內存），
+是一種對併發通信的模塊化（modular）、可組合（composable）的抽象。
 相對與鎖/MVars，STM能夠在不暴露抽象如何保證安全性細節的前提下，簡單地與其它使用STM的抽象相組合。
 
 ## STM 概念
@@ -2399,11 +2423,11 @@ TChan支持數據廣播，創建廣播管道並多次複製該管道，向廣播
 
 ```hs
 
--- 創建廣播管道，廣播管道只能寫入不能讀取(服務端)，僅能通過dupTChan/cloneTChan函數複製出新管道讀取數據
+-- 創建廣播管道，廣播管道只能寫入不能讀取（服務端），僅能通過dupTChan/cloneTChan函數複製出新管道讀取數據
 newBroadcastTChan :: STM (TChan a)
 newBroadcastTChanIO :: IO (TChan a)
 
--- 複製數據管道，複製出的管道僅能讀取數據，不能寫入(客戶端)
+-- 複製數據管道，複製出的管道僅能讀取數據，不能寫入（客戶端）
 dupTChan :: TChan a -> STM (TChan a)
 cloneTChan :: TChan a -> STM (TChan a)
 ```
@@ -2469,7 +2493,7 @@ test2
 
 
 # GADTs
-`GADTs`(Generalized Algebraic Datatypes，廣義代數數據類型)，是ADT的泛化版本，
+`GADTs`（Generalized Algebraic Datatypes，廣義代數數據類型），是ADT的泛化版本，
 允許顯式地指定ADT定義中每個構造器的類型。
 
 ## ADT 的限制
@@ -2483,7 +2507,8 @@ data Expr a =
   Eq (Expr a) (Expr a) deriving (Show, Eq)
 ```
 
-`Expr`類型擁有四個構造器，每個構造器返回類型均爲`Expr a`，由於構造器類型相同，在特定組合下會造成語義衝突：
+`Expr`類型擁有四個構造器，每個構造器返回類型均爲`Expr a`，
+由於構造器類型相同，在特定組合下會造成語義衝突：
 
 ```hs
 -- Num構造器不應使用文本做爲參數
@@ -2529,16 +2554,16 @@ Add (Bool True) (Bool False)
 
 
 # Type Families
-GHC提供了`Type Families`擴展，支持對數據類型的點對點重載(supporting ad-hoc overloading of data types)。
+GHC提供了`Type Families`擴展，支持對數據類型的點對點重載（supporting ad-hoc overloading of data types）。
 
 type families是參數化的類型，可根據實例化的類型參數分配特定的表示。
 type families用途與type classes類似，type classes用於定義可重載的方法，type families則用於定義可重載的數據類型。
 
 type families適用於以下場景：
 
-- 泛型編程(for generic programming)
-- 創建高度參數化的庫接口(for creating highly parameterised library interfaces)
-- 創建帶有額外靜態信息的接口，如依賴類型(for creating interfaces with enhanced static information, much like dependent types)
+- 泛型編程（for generic programming）
+- 創建高度參數化的庫接口（for creating highly parameterised library interfaces）
+- 創建帶有額外靜態信息的接口，如依賴類型（for creating interfaces with enhanced static information, much like dependent types）
 
 type families擁有兩種形式：`data families`和`type synonym families`。
 
@@ -2581,7 +2606,7 @@ data families是type families特性用在數據類(data types)的情形，包含
 	data families與GADT的比較：
 
 	- data families與GADT均能定義每個構造器的參數表與返回類型，
-	但GADT需要將所有構造器集中在一處(where子句中)，data families支持分離定義。
+	但GADT需要將所有構造器集中在一處（where子句中），data families支持分離定義。
 	- GADT的每個構造器均能用於通用的模式匹配，data families的構造器僅能針對對應實例類型匹配。
 
 - 在type classes內部使用：
@@ -2609,7 +2634,7 @@ type synonym families擴展了type關鍵字定義類型別名的用法，包含�
 - 在頂層代碼使用：
 
 	頂層代碼中的type synonym families擴展了類型別名的功能。
-	普通的類型別名僅能指代一種類型(無論別名是否帶有類型參數)；
+	普通的類型別名僅能指代一種類型（無論別名是否帶有類型參數）；
 	type synonym families則強制要求別名帶有類型參數，同時別名在搭配不同的類型參數時可指代不同的實際類型。
 
 	使用`type family`關鍵字定義同義類型族，使用`type instance`定義類型族成員。
@@ -2623,8 +2648,8 @@ type synonym families擴展了type關鍵字定義類型別名的用法，包含�
 	... -- 可任意追加其它instance，避免定義 Family a 這樣的類型，會與其它instance衝突
 	```
 
-	普通的type synonym families是開放式的，可以任意添加成員(追加新的type instance)，
-	type synonym families亦支持類似GADT語法的封閉式(closed)定義，
+	普通的type synonym families是開放式的，可以任意添加成員（追加新的type instance），
+	type synonym families亦支持類似GADT語法的封閉式（closed）定義，
 	將所有的類型族成員定義在where子句內部，不再能從外部擴展。
 	示例：
 
@@ -2753,16 +2778,16 @@ Kind Int -- 錯誤，缺失第二類型參數
 
 ## Async 包
 `async`包提供跨多線程執行異步操作的功能。
-async包底層使用base包中的`forkIO`函數(在`Control.Concurrent`模塊中)實現，提供了以下改進：
+async包底層使用base包中的`forkIO`函數（在`Control.Concurrent`模塊中）實現，提供了以下改進：
 
-- 徹底、優雅地處理異常(graceful and thorough handling of exceptions)
+- 徹底、優雅地處理異常（graceful and thorough handling of exceptions）
 - 從子線程中獲取返回值
 - 提供`STM`接口用於訪問線程返回值，STM提供了方便的方式處理諸如阻塞操作等待結果等問題
 - 使得取消線程變得簡單和可靠
 - 對於某些通用的用例，`race`、`concurrently`函數和`Concurrently`類型可以大幅簡化代碼
 
-`Async`是async包的主要數據類型，一個`Async a`類型的值表示一個分離的線程(represents a separate thread)，
-該線程將最終生成一個`a`類型的值(which will ultimately generate a value of type `a`)。
+`Async`是async包的主要數據類型，一個`Async a`類型的值表示一個分離的線程（represents a separate thread），
+該線程將最終生成一個`a`類型的值（which will ultimately generate a value of type `a`）。
 
 async包相關API位於`Control.Concurrent.Async`模塊下，主要API介紹：
 
@@ -2821,13 +2846,14 @@ async包相關API位於`Control.Concurrent.Async`模塊下，主要API介紹：
 	"Finish: 1 2"
 	```
 
-- `withAsync*`函數啓動一個獨立線程執行首個參數中傳入的操作，並提供Async值給匿名函數(第二參數)。
+- `withAsync*`函數啓動一個獨立線程執行首個參數中傳入的操作，並提供Async值給匿名函數（第二參數）。
 
 	```hs
 	withAsync :: IO a -> (Async a -> IO b) -> IO b
 	```
 
-	withAsync函數是async函數的一類有用的變體，能夠確保異步操作不會意外地執行(啓動的線程在匿名函數執行結束後被殺死)。
+	withAsync函數是async函數的一類有用的變體，
+	能夠確保異步操作不會意外地執行（啓動的線程在匿名函數執行結束後被殺死）。
 
 	示例：
 
@@ -2863,7 +2889,8 @@ async包相關API位於`Control.Concurrent.Async`模塊下，主要API介紹：
 	"Main finished: 2333"
 	```
 
-- `poll`函數用於檢查Async類型操作是否完成，`cancel`函數用於提前取消異步操作，`asyncThreadId`用於查看線程ID。
+- `poll`函數用於檢查Async類型操作是否完成，
+`cancel`函數用於提前取消異步操作，`asyncThreadId`用於查看線程ID。
 
 	```hs
 	-- 檢查一個異步操作是否完成
@@ -2891,7 +2918,7 @@ async包相關API位於`Control.Concurrent.Async`模塊下，主要API介紹：
 
 
 # RankNTypes
-GHC的類型系統支持任意等級(arbitrary-rank)的顯式類型量化(explicit universal quantification in types)。
+GHC的類型系統支持任意等級（arbitrary-rank）的顯式類型量化（explicit universal quantification in types）。
 
 使用RankNTypes需要開啓對應語言擴展：
 
@@ -2940,8 +2967,8 @@ rankNTypes f a b = do
   print $ "a: " ++ fa ++ " b: " ++ fb
 ```
 
-rankNTypes的參數`f`是一個函數，該函數應能接收`a`或`b`類型的參數(多態)並返回String類型，
-滿足要求的f參數類型(使用`?`標識)在標準Haskell語法下沒有合適的表達方式。
+rankNTypes的參數`f`是一個函數，該函數應能接收`a`或`b`類型的參數（多態）並返回String類型，
+滿足要求的f參數類型（使用`?`標識）在標準Haskell語法下沒有合適的表達方式。
 
 使用RankNTypes擴展即可滿足需求：
 
@@ -2958,4 +2985,4 @@ main :: IO ()
 main = rankNTypes show 666 "23333"
 ```
 
-使用了RankNTypes擴展，函數f擁有了獨立的多態層次(rank-2 types)，能夠接收多態參數。
+使用了RankNTypes擴展，函數f擁有了獨立的多態層次（rank-2 types），能夠接收多態參數。
