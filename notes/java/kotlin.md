@@ -8,6 +8,7 @@
 	- [data class](#data-class)
 - [Function](#function)
 	- [函數參數默認值](#函數參數默認值)
+	- [參數默認值兼容Java重載（`@JvmOverloads`）](#參數默認值兼容java重載jvmoverloads)
 
 <!-- /TOC -->
 
@@ -170,4 +171,82 @@ scala> showCount()
 
 scala> showN()
 3
+```
+
+## 參數默認值兼容Java重載（`@JvmOverloads`）
+Kotlin中使用參數默認值特性，在生成字節碼時默認會生成一個以`$default`結尾的輔助函數。
+輔助函數在參數表後增加了Int數值類型作為標記位，用於標記哪些參數使用了默認值；
+以及一個Object對象。
+
+示例：
+
+```kt
+fun kotlinOverload(test1: String = "test1", test2: Int = 999, test3: Float) { }
+```
+
+生成的Java代碼：
+
+```java
+public static final void kotlinOverload(@NotNull String test1, long test2, float test3) {
+   Intrinsics.checkNotNullParameter(test1, "test1");
+}
+
+// $FF: synthetic method
+public static void kotlinOverload$default(String var0, long var1, float var3, int var4, Object var5) {
+   if ((var4 & 1) != 0) {
+      var0 = "test1";
+   }
+
+   if ((var4 & 2) != 0) {
+      var1 = 999L;
+   }
+
+   kotlinOverload(var0, var1, var3);
+}
+```
+
+在Kotlin中調用重載，會自動調用輔助函數並填充標記位：
+
+```kt
+kotlinOverload(test3 = 1f)
+```
+
+對應Java代碼：
+
+```java
+kotlinOverload$default((String)null, 0L, 1.0F, 3, (Object)null);
+```
+
+在Java中直接使用重載則較為不便（需要自行計算標記位）。
+可使用`@JvmOverloads`註解為函數生成Java風格的重載，
+添加重載註解後生成的Java代碼：
+
+```java
+@JvmOverloads
+public static final void kotlinOverload(@NotNull String test1, long test2, float test3) {
+   Intrinsics.checkNotNullParameter(test1, "test1");
+}
+
+// $FF: synthetic method
+public static void kotlinOverload$default(String var0, long var1, float var3, int var4, Object var5) {
+   if ((var4 & 1) != 0) {
+      var0 = "test1";
+   }
+
+   if ((var4 & 2) != 0) {
+      var1 = 999L;
+   }
+
+   kotlinOverload(var0, var1, var3);
+}
+
+@JvmOverloads
+public static final void kotlinOverload(@NotNull String test1, float test3) {
+   kotlinOverload$default(test1, 0L, test3, 2, (Object)null);
+}
+
+@JvmOverloads
+public static final void kotlinOverload(float test3) {
+   kotlinOverload$default((String)null, 0L, test3, 3, (Object)null);
+}
 ```
