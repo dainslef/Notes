@@ -6,6 +6,8 @@
 - [Class](#class)
 	- [構造器參數](#構造器參數)
 	- [data class](#data-class)
+- [Function](#function)
+	- [函數參數默認值](#函數參數默認值)
 
 <!-- /TOC -->
 
@@ -110,3 +112,62 @@ Kotlin中提供了類似Scala中case class的語法，名為`data class`，
 - 沒有提供模式匹配功能
 - 即使所有構造器參數中均為成員字段，但依舊需要顯式使用val語法進行標記
 - data class不能被任何類繼承，case class僅限制不能被同為case class的類繼承
+
+
+
+# Function
+與Java和Scala2不同，Kotlin中的函數可以獨立存在（可定義在頂層作用域）。
+
+## 函數參數默認值
+與C++、C#、Scala等語言相同，Kotlin支持參數默認值。
+與Scala相同，Kotlin中的參數默認值無特殊限制，
+支持使用**變量**和**表達式**作為默認值，
+且使用表達式作為默認值時，會在每次調用時重新求值（與Scala行為相同）。
+
+```kt
+var n = 0
+fun count() = ++n
+fun showCount(v: Int = count()) = println(v)
+fun showN(v: Int = n) = println(v)
+
+showCount() // 輸出1
+showN() // 輸出1
+showCount() // 輸出2
+showN() // 輸出2
+showCount() // 輸出3
+showN() // 輸出3
+```
+
+Scala中行為類似：
+
+```scala
+scala> var n = 0
+var n: Int = 0
+
+scala> def count() = { n += 1; n }
+def count(): Int
+
+scala> def showCount(v: Int = count()) = println(v)
+def showCount(v: Int): Unit
+
+scala> def showN(v: Int = n) = println(v)
+def showN(v: Int): Unit
+
+scala> showCount()
+1
+
+scala> showN()
+1
+
+scala> showCount()
+2
+
+scala> showN()
+2
+
+scala> showCount()
+3
+
+scala> showN()
+3
+```
