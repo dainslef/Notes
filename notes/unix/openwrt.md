@@ -55,6 +55,8 @@
 - [常見問題說明](#常見問題說明)
 	- [小米路由器變磚](#小米路由器變磚)
 	- [SSH登入錯誤：no matching key exchange method found. Their offer: diffie-hellman-group1-sha1](#ssh登入錯誤no-matching-key-exchange-method-found-their-offer-diffie-hellman-group1-sha1)
+	- [SSH登入錯誤：no matching host key type found. Their offer: ssh-rsa](#ssh登入錯誤no-matching-host-key-type-found-their-offer-ssh-rsa)
+	- [免密不生效：debug1: send_pubkey_test: no mutual signature algorithm](#免密不生效debug1-send_pubkey_test-no-mutual-signature-algorithm)
 
 <!-- /TOC -->
 
@@ -1525,4 +1527,31 @@ OpenSSH官網中的[遺留問題](http://www.openssh.com/legacy.html)頁面描�
 
 ```
 $ ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 x.x.x.x
+```
+
+## SSH登入錯誤：no matching host key type found. Their offer: ssh-rsa
+問題說明：<br>
+破解SSH登入出現下列錯誤信息：
+
+```
+$ ssh x.x.x.x
+Unable to negotiate with 192.168.28.1 port 22: no matching host key type found. Their offer: ssh-rsa
+```
+
+解決方案：<br>
+使用參數添加對應算法支持即可：
+
+```
+$ ssh -oHostkeyAlgorithms=+ssh-rsa x.x.x.x
+```
+
+## 免密不生效：debug1: send_pubkey_test: no mutual signature algorithm
+問題說明：<br>
+正確配置了HostkeyAlgorithms參數，認證時免密配置不生效。
+
+解決方案：<br>
+添加PublicKey算法支持：
+
+```
+$ ssh -oPubkeyAcceptedAlgorithms=+ssh-rsa x.x.x.x
 ```
