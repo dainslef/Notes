@@ -7,12 +7,12 @@
 - [Docker安裝與配置](#docker安裝與配置)
 	- [macOS中的Docker（docker-machine）](#macos中的dockerdocker-machine)
 	- [Docker Desktop for macOS](#docker-desktop-for-macos)
-		- [訪問Docker Desktop的HyperKit虛擬機](#訪問docker-desktop的hyperkit虛擬機)
+		- [訪問Docker Desktop的HyperKit虛擬機（已過時）](#訪問docker-desktop的hyperkit虛擬機已過時)
 - [Docker基本使用](#docker基本使用)
 	- [Docker容器管理](#docker容器管理)
 		- [Docker容器自啟動](#docker容器自啟動)
-		- [容器生成鏡像](#容器生成鏡像)
-		- [容器導入/導出](#容器導入導出)
+		- [Docker容器生成鏡像](#docker容器生成鏡像)
+		- [Docker容器導入/導出](#docker容器導入導出)
 		- [Docker Compose](#docker-compose)
 	- [Docker鏡像管理](#docker鏡像管理)
 		- [Docker鏡像源](#docker鏡像源)
@@ -59,7 +59,7 @@
 `Docker`是使用`Go`語言實現的開源容器引擎。
 Docker將應用與依賴項放置在容器中執行，僅僅依賴宿主機的內核，簡化了應用的運維與部署。
 
-與傳統虛擬機不同Docker屬於`OS-level virtualization`(操作系統層次的虛擬化)，
+與傳統虛擬機不同Docker屬於`OS-level virtualization`（操作系統層次的虛擬化），
 每個Docker實例實際僅僅是獨立的用戶空間實例，類似一個高級的`chroot`實現，
 在普通的chroot上添加了資源控制等高級功能。
 
@@ -169,7 +169,7 @@ Dcoker Desktop針對Windows、macOS平臺提供了開箱即用的配置整合，
 Docker Desktop在對應平臺使用該平臺推薦的虛擬化技術創建虛擬機(Windows下使用HyperV，macOS下使用HyperKit)，
 相比使用VirtualBox更加高效。
 
-### 訪問Docker Desktop的HyperKit虛擬機
+### 訪問Docker Desktop的HyperKit虛擬機（已過時）
 在macOS下，Docker Desktop使用HyperKit啟動虛擬機，用以提供docker執行需要的Linux環境。
 通過訪問該虛擬機可以查看和配置docker運行的真實主機環境。
 
@@ -216,6 +216,7 @@ Docker在使用前需要開啓對應服務。
 ```
 
 Docker提供了對應的命令行工具進行管理操作。
+
 常用指令如下：
 
 | 指令 | 說明 |
@@ -226,11 +227,11 @@ Docker提供了對應的命令行工具進行管理操作。
 | `docker create` | 創建容器 |
 | `docker build` | 構建鏡像 |
 | `docker commit` | 保存容器到鏡像 |
-| `docker load/save` | 鏡像導入/導出 |
-| `docker import/export` | 容器導入/導出 |
+| `docker load/save` | [鏡像導入/導出](#docker容器導入導出) |
+| `docker import/export` | [容器導入/導出](#docker鏡像導入導出) |
 | `docker tag` | 管理鏡像標籤 |
 
-鏡像與容器是Docker中的核心概念。
+鏡像與容器是Docker中的核心概念：
 
 - `Container`（容器）是一個/一組在獨立環境中執行的應用。
 - `Image`（鏡像）是用於創建容器的模版。
@@ -380,7 +381,7 @@ Docker中容器使用`--restart`參數設置重啟策略，可用在`create/run/
 | always | 始終重啟 |
 | unless-stopped | 與`always`類似，但容器被手動停止時則不會重啟 |
 
-### 容器生成鏡像
+### Docker容器生成鏡像
 使用`docker commit`指令爲指定容器生成新的鏡像。
 
 ```
@@ -389,7 +390,7 @@ Docker中容器使用`--restart`參數設置重啟策略，可用在`create/run/
 
 docker commit僅會提交相對基礎鏡像變化的部分（OverlayFS）。
 
-### 容器導入/導出
+### Docker容器導入/導出
 使用`docker export`指令將容器的內容導出爲`*.tar`格式的壓縮文件：
 
 ```html
@@ -512,7 +513,7 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 ```
 
 ### Docker鏡像源
-默認Docker會從**官方源**(https://production.cloudflare.docker.com)中拉取鏡像，
+默認Docker會從[**官方源**](https://production.cloudflare.docker.com)中拉取鏡像，
 在牆國通常無法連接或下載龜速。
 
 相關配置文件為`daemon.json`，在不同OS和不同Docker發行版下路徑有所差異：
@@ -520,7 +521,7 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 - macOS下，安裝`Docker Desktop`，則配置路徑為`~/.docker/daemon.json`
 - Linux下，通過發行版默認包管理器安裝，則配置路徑通常為`/etc/docker/daemon.json`
 
-在該配置中添加`registry-mirrors`配置項(以中科大USTC鏡像源為例)：
+在該配置中添加`registry-mirrors`配置項（以中科大USTC鏡像源為例）：
 
 ```json
 {
@@ -645,7 +646,6 @@ $ docker push dainslef/test_image:2333
 
 
 
-
 # Docker文件系統
 Docker存儲採用特殊的`Union File System`（聯合文件系統）機制，容器內的文件不能直接被外部訪問。
 容器與宿主機之間的文件共享可以通過以下方式：
@@ -684,7 +684,7 @@ $ docker create --mount [宿主機路徑:容器內路徑] [其它容器參數...
 
 使用綁定掛載時，宿主機路徑、容器內路徑需要爲**絕對路徑**：
 
-- 宿主機路徑使用相對路徑(不以`/`字符起始)時，指令會被解析爲**卷掛載**模式，宿主機的相對路徑實際成了卷的名稱。
+- 宿主機路徑使用相對路徑（不以`/`字符起始）時，指令會被解析爲**卷掛載**模式，宿主機的相對路徑實際成了卷的名稱。
 - 容器路徑使用相對路徑時，會在創建容器時直接得到錯誤信息(`Error response from daemon: invalid volume specification: 'xxx...': invalid mount config for type "volume": invalid mount path: 'xxx/xxx...' mount path must be absolute`)。
 
 綁定掛載僅能在容器創建時配置，若需修改已創建容器的掛載配置，
@@ -717,8 +717,9 @@ $ docker create --mount [宿主機路徑:容器內路徑] [其它容器參數...
 ```
 
 ## Docker Volumes（卷）
-`Volumes`(卷)是持久化由容器產生、使用數據的首選機制。
+`Volumes`（卷）是持久化由容器產生、使用數據的首選機制。
 **綁定掛載**依賴於宿主機的物理路徑結構，**卷**則完全由Docker管理。
+
 與綁定掛載相比，卷具有以下優點：
 
 - 卷比綁定掛載更易於備份或遷移。
@@ -810,12 +811,13 @@ $ docker create -p 主機端口1:容器端口2 -p 主機端口2:容器端口2 ..
 ```
 
 ## Docker修改端口映射
-創建了容器之後，容器的端口不能直接修改。修改端口映射可採用提交(commit)/導出(export)鏡像的方式將容器的內容提交，
+創建了容器之後，容器的端口不能直接修改。
+修改端口映射可採用commit（提交）/export（導出）鏡像的方式將容器的內容提交，
 之後再重新使用`docker create`創建新容器，在創建新容器時使用新的`-p`參數設定新的端口映射。
 
 還可以通過修改容器信息的方式來修改端口映射，修改配置後重啓整個Docker服務，之後重新啟動容器，
 重新啟動的容器會使用修改後的配置，新的端口映射會隨之生效。
-使用`docker inspect`查看目標容器的具體信息(以SSH服務的`22`端口為例)：
+使用`docker inspect`查看目標容器的具體信息（以SSH服務的22端口為例）：
 
 ```json
 # docker inspect 容器ID
@@ -1078,8 +1080,8 @@ Habor使用docker-compose管理服務：
 
 選擇`Administration - Replications - NEW REPLICATION RULE`菜單，添加鏡像複製規則。
 複製規則菜單中，`Replication mode`設置為`Pull-based`才是從其它倉庫拉取鏡像；
-`Source resource filter`配置項下，`Name`配置項可配置基於鏡像名稱的過濾，並支持使用`*`通配符，
-如`library/*`即為拉取library倉庫下的所有鏡像。
+`Source resource filter`配置項下，`Name`配置項可配置基於鏡像名稱的過濾，
+並支持使用`*`通配符，如`library/*`即為拉取library倉庫下的所有鏡像。
 
 複製規則創建完成後，選中規則點擊`REPLICATE`可手動開始同步操作。
 
