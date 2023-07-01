@@ -7,6 +7,8 @@
 - [Kolla Ansible](#kolla-ansible)
 	- [Debian Stable部署流程](#debian-stable部署流程)
 	- [升級OpenStack版本](#升級openstack版本)
+	- [Cinder（存儲配置）](#cinder存儲配置)
+	- [Octavia（負載均衡器配置）](#octavia負載均衡器配置)
 
 <!-- /TOC -->
 
@@ -96,7 +98,8 @@ $ openstack --os-cloud 集群名稱 ...
 
 基本部署流程參考[QuickStart教程](https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html)。
 Kolla Ansible部署流程視使用版本而異，部署時需要訪問對應版本的文檔，
-將路徑中`https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html`中的`latest`替換為部署目標版本的版本代號。
+將路徑中`https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html`
+中的`latest`替換為部署目標版本的版本代號。
 
 使用Kolla Ansible之前，需要選定正確的發行版，Kolla Ansible僅官方支持下列發行版：
 
@@ -134,6 +137,8 @@ Kolla Ansible實際支持的版本參見官方
 
 <!-- 對應 OpenStack Zed 版本，其它版本類似，需要使用Kolla Ansible的對應分支 -->
 # pip install git+https://opendev.org/openstack/kolla-ansible@stable/zed
+<!-- Zedz之後的版本使用年月份作爲版本名稱 -->
+# pip install git+https://opendev.org/openstack/kolla-ansible@stable/2023.1
 ...
 ```
 
@@ -181,7 +186,8 @@ glance, keystone, neutron, nova, heat, horizon
 ```
 
 `kolla-genpwd`生成密碼需要`/etc/kolla/password.yml`文件已存在，password.yml文件中，
-`keystone_admin_password`配置決定Horizon網管頁面以及openstack命令行工具的密碼。
+`keystone_admin_password`配置控制Horizon網管頁面以及openstack命令行工具的密碼；
+`database_password`配置控制數據庫密碼。
 
 集群部署完成後，常用管理操作：
 
@@ -212,3 +218,47 @@ Kolla Ansible支持版本升級，基本升級流程：
 
 根據實際組件的版本差異和部署情況，可能部分組件會存在升級失敗的情況，
 此時可嘗試手動對比配置、清理相關容器Docker卷等操作。
+
+## Cinder（存儲配置）
+Kolla默認配置中未開啟存儲功能，開啟存儲需要在globals.yml中啟用`enable_cinder`配置：
+
+```yaml
+enable_cinder: "yes"
+enable_cinder_backend_lvm: "yes" # Cinder支持多種後端，LVM是最簡單的實現，適合all-in-one模式下使用
+```
+
+使用Cinder LVM後端需要創建名為`cinder-volumes`的LVM Volume Group，
+否則會在prechecks階段得到下列錯誤：
+
+```
+...
+TASK [cinder : Checking LVM volume group exists for Cinder] ************************************************************
+fatal: [localhost]: FAILED! => {"changed": false, "cmd": ["vgs", "cinder-volumes"], "delta": "0:00:00.060885", "end": "2023-05-15 12:53:14.532086", "failed_when_result": true, "msg": "non-zero return code", "rc": 5, "start": "2023-05-15 12:53:14.471201", "stderr": "  Volume group \"cinder-volumes\" not found\n  Cannot process volume group cinder-volumes", "stderr_lines": ["  Volume group \"cinder-volumes\" not found", "  Cannot process volume group cinder-volumes"], "stdout": "", "stdout_lines": []}
+...
+```
+
+創建cinder-volumes卷組：
+
+```
+# pvcreate 磁盤塊設備
+# vgcreate cinder-volumes PV塊設備
+```
+
+## Octavia（負載均衡器配置）
+啟用負載均衡器需要在globals.yml中啟用相關配置：
+
+```yaml
+enable_octavia: yes # 默認Horizon會根據Octavia配置開啟前端面板
+```
+
+部署Octavia需要首先生成相關證書文件：
+
+```
+# kolla-ansible -i ./all-in-one octavia-certificates
+```
+
+之後進行部署：
+
+```
+# kolla-ansible -i ./all-in-one deploy --tags octavia
+```
