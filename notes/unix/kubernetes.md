@@ -14,6 +14,7 @@
 	- [CNI（Container Network Interface）](#cnicontainer-network-interface)
 		- [使用helm部署網絡插件](#使用helm部署網絡插件)
 	- [升級集群](#升級集群)
+	- [清理集群容器](#清理集群容器)
 - [Kubernetes對象](#kubernetes對象)
 	- [Kubernetes API](#kubernetes-api)
 - [kubectl](#kubectl)
@@ -440,6 +441,29 @@ _____________________________________________________________________
 位於`/etc/kubernetes/manifests`路徑下的配置會替換為新版本，
 同時舊的配置會被備份到`/etc/kubernetes/tmp`路徑下，
 若對其中內容進行過修改，則應手動比較配置差異，重新添加配置。
+
+## 清理集群容器
+Kubernetes默認**不會**刪除不再使用的容器，使用crictl可以看到不再使用的容器：
+
+```
+# crictl ps -a
+```
+
+kubelet具備自動清理冗余容器的功能，通過配置kubelet的命令行參數可開啟相關功能，
+編輯`/var/lib/kubelet/kubeadm-flags.env`文件，在其中添加參數：
+
+```sh
+--maximum-dead-containers=0 # 設置最大舊容器的數目，默認取值-1（無限制）
+```
+
+還有兩組參數可用於更加靈活得設置容器清除策略：
+
+- `--maximum-dead-containers-per-container` 單獨設置每個實例的舊容器數目
+- `--minimum-container-ttl-duration` 依據時間清理舊容器
+
+修改參數後重啟kubelet服務即可。
+
+鏡像清理參考[crictl](#crictl清理鏡像)對應章節內容。
 
 
 
