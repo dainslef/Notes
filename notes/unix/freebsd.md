@@ -5,7 +5,9 @@
 - [安裝與配置](#安裝與配置)
 	- [UEFI引導](#uefi引導)
 	- [GRUB2引導](#grub2引導)
-- [無線網絡配置](#無線網絡配置)
+- [網絡](#網絡)
+	- [網卡配置](#網卡配置)
+	- [無線網絡配置](#無線網絡配置)
 - [服務管理](#服務管理)
 - [包管理](#包管理)
 	- [pkg](#pkg)
@@ -125,12 +127,34 @@ menuentry 'FreeBSD' {
 
 
 
-# 無線網絡配置
+# 網絡
+FreeBSD中使用傳統的`ifconfig`工具管理網絡，FreeBSD並不支持Linux的新一代網絡工具鏈`iproute2`。
+
+## 網卡配置
+FreeBSD中網卡配置直接寫在`/etc/rc.conf`中：
+
+```sh
+# 配置DHCP
+ifconfig_網卡名稱="DHCP"
+
+# 配置固定地址
+ifconfig_網卡名稱="x.x.x.x/x" # 數值形式子網
+ifconfig_網卡名稱="inet x.x.x.x/x" # 同上
+ifconfig_網卡名稱="inet x.x.x.x netmask x.x.x.x" # 點分十進制子網
+
+# 配置多個IP
+ifconfig_網卡名稱_alias0="x.x.x.x/x" # 其它寫法與之前配置類似，不再贅述
+
+# 設置默認網關
+defaultrouter="x.x.x.x"
+```
+
+## 無線網絡配置
 命令行環境下配置無線網絡推薦使用`wpa_supplicant`工具。
 需要自行在`/etc`路徑下創建`wpa_supplicant.conf`。
 配置模版如下所示：
 
-```shell
+```sh
 network={
 	# scan_ssid=1 # 當連接隱藏的無線熱點時需要額外添加該參數
 	ssid="無線網ssid"
