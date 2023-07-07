@@ -13,7 +13,7 @@
 	- [使用 Touch ID 代替命令行密碼驗證](#使用-touch-id-代替命令行密碼驗證)
 - [與常規PC的不同之處](#與常規pc的不同之處)
 	- [Darwin 與 GNU/Linux 的差異](#darwin-與-gnulinux-的差異)
-	- [NVRAM](#nvram)
+- [NVRAM](#nvram)
 	- [重置 NVRAM](#重置-nvram)
 	- [禁用翻蓋自啓](#禁用翻蓋自啓)
 - [包管理](#包管理)
@@ -23,7 +23,7 @@
 		- [路徑信息](#路徑信息)
 		- [安裝參數](#安裝參數)
 		- [bottled](#bottled)
-		- [依賴查詢](#依賴查詢)
+		- [依賴管理](#依賴管理)
 		- [展示安裝包信息](#展示安裝包信息)
 		- [多版本管理](#多版本管理)
 		- [Homebrew Taps](#homebrew-taps)
@@ -139,7 +139,7 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 | 跳轉到字典(Spotlight搜索中) | Command + L |
 
 ## 常用命令行指令
-`macOS`中的一些配置項沒有提供圖形化的配置方式，需要通過命令行進行配置。
+macOS中的一些配置項沒有提供圖形化的配置方式，需要通過命令行進行配置。
 
 - 主機信息相關
 
@@ -237,7 +237,7 @@ auth sufficient pam_tid.so
 ```
 
 該文件中的每行均代表一種認證方式，
-添加的`pam_tid.so`(Touch ID)需要放在文件**行首**才會優先使用該認證方式。
+添加的`pam_tid.so`（Touch ID）需要放在文件**行首**才會優先使用該認證方式。
 
 
 
@@ -259,8 +259,8 @@ Mac機與常規的PC有較大的差異，需要一個適應過程。
 
 1. 主要按鍵名稱與`PC`機不同：
 
-	- `Windows/Linux`中以`Control`作爲組合鍵觸發的一些快捷操作在`macOS`中全部使用`Command`鍵進行觸發。
-	- `Windows/Linux`中的`Alt`鍵在`macOS`中名稱爲`Option`鍵。
+	- `Windows/Linux`中以`Control`作爲組合鍵觸發的一些快捷操作在macOS中全部使用`Command`鍵進行觸發。
+	- `Windows/Linux`中的`Alt`鍵在macOS中名稱爲`Option`鍵。
 
 ## Darwin 與 GNU/Linux 的差異
 `Darwin`提供的Unix環境基於`FreeBSD`，與傳統`GNU/Linux`有較大差異。
@@ -281,7 +281,7 @@ Mach內核的技術細節可參見[Darwin內核開發者文檔](https://develope
 
 
 
-## NVRAM
+# NVRAM
 `NVRAM`全稱`Non-volatile random-access memory`(非易失性隨機訪問存儲器)，用於在關機狀態下保存信息。
 Mac使用NVRAM存儲音量、顯示屏分辨率、啓動磁盤選擇、時區，內核崩潰轉儲等信息。
 
@@ -303,7 +303,7 @@ Note that arguments and options are executed in order.
 
 ## 重置 NVRAM
 啓動配置異常時，可嘗試重置NVRAM。
-開機時按下組合鍵`Option + Command P + R`，按住組合鍵20秒後可鬆開。
+開機時按下組合鍵`Option + Command + P + R`，按住組合鍵20秒後可鬆開。
 在此期間Mac可能看似在重新啓動。
 
 ## 禁用翻蓋自啓
@@ -325,7 +325,8 @@ Note that arguments and options are executed in order.
 
 
 # 包管理
-`Homebrew`是macOS當下最流行、最主流的包管理器；`MacPorts`來自於`FreeBSD`，亦是優秀的包管理器。
+`Homebrew`是macOS當下最流行、最主流的包管理器；
+`MacPorts`來自於`FreeBSD`，亦是優秀的包管理器。
 
 二者之間的差異：
 
@@ -348,7 +349,7 @@ Homebrew將軟件包安裝在`/usr/local`目錄下，在macOS中該目錄默認�
 
 ### 配置與安裝
 Homebrew採用Ruby語言開發，macOS中默認已經集成了Ruby環境。
-Homebrew需要用到Git等工具，在安裝Homebrew之前需要先安裝**Xcode命令行**工具(或者直接完整安裝Xcode)。
+Homebrew需要用到Git等工具，在安裝Homebrew之前需要先安裝**Xcode命令行**工具（或者直接完整安裝Xcode）。
 
 之後在終端內執行：
 
@@ -365,7 +366,7 @@ $ brew ugrade <!-- 升級包 -->
 $ brew info 包名 <!-- 顯示指定包的信息 -->
 $ brew install 包名 <!-- 安裝指定包 -->
 $ brew doctor <!-- 檢測可能存在的問題，並給出修復提示 -->
-$ brew cleanup --prune-prefix <!-- 移除無效的符號鏈接 -->
+$ brew cleanup <!-- 清理系統，移除無效的符號鏈接、軟件包緩存等 -->
 ```
 
 與Linux下的常規包管理器不同，Homebrew在安裝、卸載包時，不會有多餘的確認提示，輸入指令後立即執行。
@@ -376,6 +377,8 @@ caskroom倉庫中的包安裝後文件保存在`/usr/local/Caskroom`路徑下。
 
 homebrew倉庫默認的包緩存路徑爲`~/Library/Caches/Homebrew`。
 caskroom倉庫默認的包緩存路徑爲`~/Library/Caches/Homebrew/Cask`。
+
+homebrew倉庫中每個軟件包安裝信息記錄於`/usr/local/Cellar/軟件包/版本/INSTALL_RECEIPT.json`文件中。
 
 可使用指令查看Homebrew的相關路徑：
 
@@ -388,7 +391,7 @@ $ brew --repo <!-- 查看Hombrew安裝路徑 -->
 由於國內網絡問題，直接通過brew指令安裝包有時會頻繁下載失敗。
 可直接使用其它下載工具從符合要求的源地址下載包文件放置於對應緩存路徑下，進行離線安裝。
 
-對於帶有頭文件的包(如`boost、gcc`等)，會在`/usr/local/include`目錄下創建符號鏈接，
+對於帶有頭文件的包（如`boost、gcc`等），會在`/usr/local/include`目錄下創建符號鏈接，
 指向`/usr/local/Cellar`目錄中的具體包內容。
 
 ### 安裝參數
@@ -439,9 +442,11 @@ $ brew upgrade --force-bottle
 $ cc-7 [源碼文件]... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
 ```
 
-### 依賴查詢
-Hombrew在軟件包的安裝信息中並不記錄**安裝原因**，即無法區分一個軟件包是主動安裝還是作爲其它軟件包的依賴而安裝。
-使用brew remove卸載軟件包時，不會卸載該軟件包的依賴包，即使這些依賴包沒有再被其它安裝的軟件包依賴。
+### 依賴管理
+早期版本的Hombrew依賴管理非常簡陋，早期軟件包的安裝信息中並不記錄**安裝原因**，
+導致無法區分軟件包是主動安裝還是作爲其它軟件包的依賴而安裝；
+使用`brew remove`卸載軟件包時，不會卸載該軟件包的依賴包，
+即使這些依賴包沒有再被其它安裝的軟件包依賴。
 
 查看所有不被其它已安裝軟件包依賴的包：
 
@@ -449,7 +454,37 @@ Hombrew在軟件包的安裝信息中並不記錄**安裝原因**，即無法區
 $ brew leaves
 ```
 
-通過brew leaves指令的輸出結果中篩選出不是主動安裝的軟件包進行卸載，以此達到清理無用依賴的目的。
+通過`brew leaves`指令的輸出結果中篩選出不是主動安裝的軟件包進行卸載，以此達到清理無用依賴的目的。
+
+現在Homebrew的軟件包安裝信息`/usr/local/Cellar/軟件包/版本/INSTALL_RECEIPT.json`中添加了紀錄安裝原因的字段：
+
+```json
+{
+  ...
+  "installed_as_dependency": true,
+  "installed_on_request": false,
+  ...
+}
+```
+
+後續的開發中改進了依賴管理功能：
+
+- [Add autoremove #9047](https://github.com/Homebrew/brew/pull/9047)
+
+	該提交實現了類似Debian係發行版`apt autoremove`的功能，可直接清理不必要的依賴：
+
+	```
+	$ brew autoremove
+	```
+
+- [Add leaves --installed-on-request and --installed-as-dependency flags #11368](https://github.com/Homebrew/brew/pull/11368)
+
+	該提交為`brew leaves`指令實現了區分安裝原因的功能：
+
+	```html
+	$ brew leaves --installed-on-request <!-- 列出主動安裝的孤立軟件包 -->
+	$ brew leaves --installed-as-dependency <!-- 列出作為依賴安裝的孤立軟件包（可被清理） -->
+	```
 
 其它依賴管理相關指令：
 
