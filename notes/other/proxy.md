@@ -2,12 +2,12 @@
 
 - [Shadowsocks](#shadowsocks)
 	- [shadowsocks-libev](#shadowsocks-libev)
+- [生成TLS證書以及密鑰](#生成tls證書以及密鑰)
 - [Trojan](#trojan)
 	- [Linux安裝和管理Trojan服務](#linux安裝和管理trojan服務)
 	- [FreeBSD編譯安裝Trojan](#freebsd編譯安裝trojan)
 	- [配置Trojan服務](#配置trojan服務)
 	- [Trojan轉發流量](#trojan轉發流量)
-	- [生成RSA私有Key和CA](#生成rsa私有key和ca)
 - [V2Ray](#v2ray)
 	- [安裝和配置V2Ray服務](#安裝和配置v2ray服務)
 
@@ -16,10 +16,10 @@
 
 
 # Shadowsocks
-[`Shadowsocks`](https://shadowsocks.org)是被設計用於突破Chinazi GFW的Tunnel Proxy(隧道代理)，
+[`Shadowsocks`](https://shadowsocks.org)是被設計用於突破Chinazi GFW的Tunnel Proxy（隧道代理），
 是目前最經典、使用率最高的翻牆方案。
 
-Shadowsocks擁有多個實現，最初使用Python實現，之後原作者慘遭牆國國安喝茶；
+Shadowsocks擁有多個實現，最初使用Python實現，之後原作者慘遭支那晶哥喝茶；
 現在Shadowsocks由社區維護，擁有C、Go、Rust等多種語言實現，
 具體參見項目[GitHub](https://github.com/shadowsocks)。
 
@@ -72,6 +72,43 @@ shadowsocks-libev的官方鏡像亦託管在
 ```html
 <!-- 容器默認不讀取配置文件，需要手動設置啟動指令（使用 -c 參數設置配置路徑） -->
 $ docker run -d -v /etc/shadowsocks-libev:/etc/shadowsocks-libev --network host --name shadowsocks shadowsocks/shadowsocks-libev ss-server -c /etc/shadowsocks-libev/config.json
+```
+
+
+
+# 生成TLS證書以及密鑰
+基於TLS加密的需要私有密鑰（tls.key）和自簽名證書（tls.crt），
+V2Ray、Trojan等服務均需要使用。
+
+相關文件可以使用openssl工具生成：
+
+```html
+<!-- 同時生成新的RSA私有key和證書 -->
+$ openssl req -new -newkey rsa -x509 -sha256 -days 證書有效天數 -nodes -out tls.crt -keyout tls.key
+<!-- 使用已經存在的RSA私有key生成證書 -->
+$ openssl req -new -x509 -nodes -key tls.key -sha256 -days 證書有效天數 -out tls.crt
+```
+
+若需要認證指定域名，則可添加`-subj`參數設置認證內容：
+
+```
+$ openssl ... -subj "/C=JP/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxx.domain.xxx" ...
+```
+
+參數說明：
+
+| 參數 | 說明 |
+| :- | :- |
+| `-newkey rsa` | 創建私有RSA私有key，創建key時可指定key的長度`-newkey rsa:xxx`，默認`rsa:2048`（2048 bit），數值越大越安全，但會增加解密開銷；可選範圍為`512/1024/2048/4096`等 |
+| `-x509` | 創建**自認證**（self-signed）的證書 |
+| `-sha256` | 使用265bit的SHA（Secure Hash Algorithm）算法生成私有key |
+| `-days` | 設定證書有效日期 |
+| `-nodes` | 創建無需passphrase的證書 |
+
+創建證書完成後，需要取消密鑰和證書的同組以及其它用戶的訪問權限：
+
+```
+$ chmod 600 tls.key tls.crt
 ```
 
 
@@ -149,8 +186,8 @@ Trojan服務的配置可參考[Trojan官方文檔](https://trojan-gfw.github.io/
   "password": [ "custom_password" ],
   "log_level": 1,
   "ssl": {
-    "cert": "/xxx/.../certificate.crt",
-    "key": "/xxx/.../private_key",
+    "cert": ".../tls.crt",
+    "key": ".../tls.key",
     "alpn": [ "h2", "http/1.1" ],
     "alpn_port_override": { "h2": 9997 }
   },
@@ -188,7 +225,7 @@ Trojan支持將非標流量轉發到指定目標端口，可將其它流量交�
 | alpn | Application-Layer Protocol Negotiation (ALPN)，應用層協議協商，用於區分HTTP/1.1和HTTP/2流量 |
 | alpn_port_override | 指定HTTP2流量的轉發端口，默認所有非標流量均轉發到remote_port |
 
-Trojan會丟棄普通HTTP流量，僅轉發HTTPS流量。
+Trojan會丟棄普通HTTP流量，僅轉發HTTPS流量；
 在轉發HTTPS流量時，Trojan轉發的是剝離TLS之後的內容，因此轉發的目標端口應為普通HTTP端口。
 
 Trojan默認使用的apln為`[ "http/1.1" ]`，可設置為`[ "h2", "http/1.1" ]`以支持HTTP/2，
@@ -203,38 +240,6 @@ server {
 	listen xxx http2;
 	...
 }
-```
-
-## 生成RSA私有Key和CA
-以服務模式運行Trojan進程需要私有密鑰（private_key）和自簽名證書（certificate.crt），
-相關文件可以使用openssl工具生成：
-
-```html
-<!-- 同時生成新的RSA私有key和證書 -->
-$ openssl req -new -newkey rsa -x509 -sha256 -days [days] -nodes -out [certificate.crt] -keyout [private_key]
-<!-- 使用已經存在的RSA私有key生成證書 -->
-$ openssl req -new -x509 -nodes -key private_key -sha256 -days [days] -out [certificate.crt]
-```
-
-若需要認證指定域名，則可添加`-subj`參數設置認證內容：
-
-```
-$ openssl ... -subj "/C=JP/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxx.domain.xxx" ...
-```
-
-參數說明：
-
-- `-newkey rsa` 創建私有RSA私有key，創建key時可指定key的長度`-newkey rsa:xxx`，
-默認為`rsa:2048`(2048 bit)，數值越大越安全，但會增加解密開銷；可選範圍為`512/1024/2048/4096`等
-- `-x509` 創建**自認證**(self-signed)的證書
-- `-sha256` 使用265bit的SHA(Secure Hash Algorithm)算法生成私有key
-- `-days` 設定證書有效日期
-- `-nodes` 創建無需passphrase的證書
-
-創建證書完成後，需要取消密鑰和證書的同組以及其它用戶的訪問權限：
-
-```
-$ chmod 600 private_key certificate.crt
 ```
 
 
