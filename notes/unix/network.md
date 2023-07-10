@@ -8,6 +8,8 @@
 	- [vlan（VLAN配置）](#vlanvlan配置)
 		- [VLAN配置access接口](#vlan配置access接口)
 		- [VLAN配置trunk接口](#vlan配置trunk接口)
+	- [VLANIF配置](#vlanif配置)
+		- [VLANIF設置192.168.1.1地址失敗](#vlanif設置19216811地址失敗)
 
 <!-- /TOC -->
 
@@ -139,4 +141,77 @@ GigabitEthernet1/0/1        access       100   -
 Port                        Link Type    PVID  Trunk VLAN List
 -------------------------------------------------------------------------------
 GigabitEthernet1/0/2        trunk        1     1 100
+```
+
+## VLANIF配置
+VLANIF是一種三層虛擬接口（SVI，Switch Virtual Interface），用於不同VLAN網段之間的互通，
+VLANIF的配置參考華爲[官方文檔](https://support.huawei.com/enterprise/en/doc/EDOC1000178172/433bc017/configuring-a-vlanif-interface)。
+
+查看交換機當前的vlanif配置：
+
+```
+<HUAWEI> display interface vlanif
+```
+
+在VLAN中創建VLANIF接口，並配置IP地址：
+
+```
+[HUAWEI] interface vlanif 10
+[HUAWEI-Vlanif10] ip address 10.1.1.1 24
+[HUAWEI-Vlanif10] quit
+[HUAWEI] interface vlanif 20
+[HUAWEI-Vlanif20] ip address 10.10.10.1 24
+[HUAWEI-Vlanif20] quit
+```
+
+### VLANIF設置192.168.1.1地址失敗
+設置VLANIF時，可能會出現地址衝突信息：
+
+```
+[App_E_Switch_01-Vlanif14]ip address 192.168.1.1 24
+Error: The specified address conflicts with another address.
+```
+
+此時可通過查看arp信息排查指定網段/地址是否存在佔用：
+
+```
+[App_E_Switch_01-Vlanif14]display arp
+IP ADDRESS      MAC ADDRESS     EXPIRE(M) TYPE INTERFACE      VPN-INSTANCE
+                                          VLAN
+------------------------------------------------------------------------------
+192.168.1.253   d446-494b-13a0            I -  MEth0/0/1
+172.16.0.1      d446-494b-13ae            I -  Vlanif13
+172.16.0.10     fa16-3ed5-95ac  9         D-0  GE0/0/10
+                                          13
+172.16.0.16     fa16-3e4d-310b  16        D-0  GE0/0/10
+                                          13
+172.16.0.9      fa16-3e77-1e30  14        D-0  GE0/0/10
+                                          13
+172.16.0.11     fa16-3e90-8718  12        D-0  GE0/0/10
+                                          13
+172.16.0.17     fa16-3ef7-0b67  14        D-0  GE0/0/10
+                                          13
+172.16.0.62     3429-8f90-3267  13        D-0  GE1/0/24
+                                          13
+172.16.0.19     fa16-3e42-c187  3         D-0  GE0/0/10
+                                          13
+192.168.100.1   d446-494b-13ab            I -  Vlanif10
+192.168.100.64  00e0-4c36-0284  12        D-0  GE0/0/5
+                                          10
+------------------------------------------------------------------------------
+Total:11        Dynamic:8       Static:0     Interface:3
+```
+
+可知Console管理口默認使用了`192.168.1.0`網段，導致VLANIF設置`192.168.1.1`失敗，
+將`MEth0/0/1`設置為其它地址即可：
+
+```
+[App_E_Switch_01] interface MEth 0/0/1
+[App_E_Switch_01-MEth0/0/1] display this
+#
+interface MEth0/0/1
+ ip address 192.168.1.253 255.255.255.0
+#
+return
+[App_E_Switch_01-MEth0/0/1] ip address 192.168.255.1 24
 ```
