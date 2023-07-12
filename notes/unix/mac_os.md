@@ -30,7 +30,7 @@
 		- [Homebrew Cask](#homebrew-cask)
 		- [Homebrew Services](#homebrew-services)
 		- [配置國內源](#配置國內源)
-- [macOS下的軟件格式](#macos下的軟件格式)
+- [macOS軟件格式](#macos軟件格式)
 	- [Bundle](#bundle)
 	- [pkg](#pkg)
 	- [軟件路徑](#軟件路徑)
@@ -248,9 +248,11 @@ Mac機與常規的PC有較大的差異，需要一個適應過程。
 
 1. 缺少一些常用按鍵，且**按鍵邏輯不統一**：
 
-	- 沒有`Home`、`End`、`PageDown`、`PageUp`等按鍵，需要通過`Fn`搭配**方向鍵**等組合鍵才能實現行首、行尾、翻頁等操作。
+	- 沒有`Home`、`End`、`PageDown`、`PageUp`等按鍵，
+	需要通過`Fn`搭配**方向鍵**等組合鍵才能實現行首、行尾、翻頁等操作。
 	- 在部分編輯器以及終端中，跳轉到**行首/行尾**需要通過`Control + A/E`等按鍵完成。
-	- 在部分開發環境中，行首行尾的快捷鍵不使用系統方案，而由程序自身定義(如在`Eclipse`中，行首/行尾爲`Command + 方向鍵左/右`)。
+	- 在部分開發環境中，行首行尾的快捷鍵不使用系統方案，
+	而由程序自身定義（如在Eclipse中，行首/行尾爲`Command + 方向鍵左/右`）。
 
 1. `Finder.app`缺少必備的功能：
 
@@ -341,8 +343,8 @@ Homebrew使用`Ruby`語言實現。
 與傳統的包管理器不同，使用Homebrew並不需要使用root用戶，管理員權限用戶即可。
 Homebrew將軟件包安裝在`/usr/local`目錄下，在macOS中該目錄默認情況下爲**空**，
 因此當用戶不再需要使用Homebrew時，只需完整刪除`/usr/local`目錄下的所有內容即可。
-(需要注意，某些非Bundle形式安裝的軟件亦會將一些內容安裝在`/usr/local`目錄下，
-如VirtualBox。若安裝了此類軟件，清理`/usr/local`目錄時需要仔細辨別)
+（某些非Bundle形式安裝的軟件亦會將一些內容安裝在`/usr/local`目錄下，如VirtualBox。
+若安裝了此類軟件，清理`/usr/local`目錄時需要仔細辨別）
 
 默認情況下，在macOS中，`/usr/local`的所有者爲`root`，用戶組爲`wheel`，安裝Homebrew時，
 安裝腳本會將該目錄所有者會更改爲**當前管理員用戶**，並將用戶組改爲`admin`。
@@ -419,8 +421,8 @@ neofetch需要兩個可選依賴包`screenresolution`、`imagemagick`，默認�
 使用參數`--without-imagemagick --without-screenresolution`安裝可忽略依賴。
 
 ### bottled
-Homebrew對於常用的包如`gcc、gdb、python3、qt`等均提供了**預編譯包**(`bottled`)，
-但部分包默認安裝時會優先選擇從源碼編譯(如`gcc`、`python`)，
+Homebrew對於常用的包如`gcc、gdb、python3、qt`等均提供了**預編譯包**（`bottled`），
+但部分包默認安裝時會優先選擇從源碼編譯（如`gcc`、`python`），
 可在安裝時使用`--force-bottle`參數強制安裝預編譯的包：
 
 ```
@@ -439,7 +441,7 @@ $ brew upgrade --force-bottle
 以`GCC 7.2.0`和`XCode 8.3.3`爲例：
 
 ```
-$ cc-7 [源碼文件]... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
+$ cc-7 源碼文件... --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
 ```
 
 ### 依賴管理
@@ -456,7 +458,8 @@ $ brew leaves
 
 通過`brew leaves`指令的輸出結果中篩選出不是主動安裝的軟件包進行卸載，以此達到清理無用依賴的目的。
 
-現在Homebrew的軟件包安裝信息`/usr/local/Cellar/軟件包/版本/INSTALL_RECEIPT.json`中添加了紀錄安裝原因的字段：
+現在Homebrew的軟件包安裝信息`/usr/local/Cellar/軟件包/版本/INSTALL_RECEIPT.json`
+添加了紀錄安裝原因的字段：
 
 ```json
 {
@@ -592,7 +595,7 @@ $ brew untap 倉庫名稱 <!--  禁用指令名稱的倉庫 -->
 每個倉庫是獨立的git repo，切換源時需要為每個倉庫替換remote的origin分支路徑。
 
 ### Homebrew Cask
-Homebrew提供了macOS專屬Bundle封裝應用的軟件倉庫`homebrew/cask`(原`caskroom/cask`倉庫)。
+Homebrew提供了macOS專屬Bundle封裝應用的軟件倉庫`homebrew/cask`（原`caskroom/cask`倉庫）。
 啟用Homebrew Casks倉庫：
 
 ```
@@ -604,7 +607,7 @@ $ brew tap homebrew/cask
 使用與普通包相同的指令進行操作，必要時使用`--cask`參數指定操作。
 
 通常Casks應用直接使用普通的`brew install`指令即可安裝，
-只有Casks倉庫內軟件包名稱與默認倉庫衝突時(如docker，同時存在Formulae和Casks版本)，
+只有Casks倉庫內軟件包名稱與默認倉庫衝突時（如docker，同時存在Formulae和Casks版本），
 才需要使用`brew install --cask`等相關指令顯式指定安裝Casks版本。
 
 安裝的Cask應用位於`/Application`路徑下。
@@ -614,14 +617,15 @@ $ brew tap homebrew/cask
 $ brew install --cask appcleaner the-unarchiver intellij-idea microsoft-office visual-studio-code blender qq the-unarchiver vlc docker google-chrome virtualbox visualvm dotnet-sdk steam wechat wireshark clashx-pro neteasemusic gimp mysqlworkbench android-file-transfer android-platform-tools
 ```
 
-部分應用打包時並未寫明確切的版本號(如`google-chrome`)，此類應用升級需要執行重新安裝指令：
+部分應用打包時並未寫明確切的版本號（如`google-chrome`），此類應用升級需要執行重新安裝指令：
 
 ```
 $ brew reinstall --cask 需要更新的應用名稱
 ```
 
-默認的`Homebrew Cask`倉庫`homebrew/cask`僅保存最新版的應用，若需要同時安裝多個版本(如`Java SDK`)，
-則需要開啓`homebrew/cask-versions`(原`caskroom/versions`倉庫)倉庫。
+默認的Homebrew Cask倉庫`homebrew/cask`僅保存最新版的應用，若需要同時安裝多個版本（如`Java SDK`），
+則需要開啓`homebrew/cask-versions`（原`caskroom/versions`）倉庫。
+
 執行指令：
 
 ```
@@ -738,7 +742,7 @@ $ brew services cleanup <!-- 清理未被使用的服務 -->
 
 
 
-# macOS下的軟件格式
+# macOS軟件格式
 在macOS中，軟件包常以`dmg`格式的鏡像封存，而安裝軟件的方式分爲`Bundle`以及`pkg`形式。
 
 ## Bundle
@@ -804,15 +808,15 @@ macOS中自帶的`fdisk`工具為BSD版本，與Linux版本有較大差異。
 <!-- 列出所有分區信息 -->
 $ diskutil list
 <!-- 列出指定分區的詳細信息(包含文件系統等) -->
-$ diskutil info [分區路徑]
+$ diskutil info 分區路徑
 
 <!-- 監視磁盤分區變化 -->
 $ diskutil activity
 
 <!-- 掛載/取消掛載分區 -->
-$ diskutil mount/unmount [分區路徑]
+$ diskutil mount/unmount 分區路徑
 <!-- 彈出整個磁盤，磁盤下的所有已掛載分區均會被卸載 -->
-$ diskutil eject [設備]
+$ diskutil eject 設備
 
 <!-- 格式化磁盤 -->
 # diskutil eraseDisk format name [APM[Format] | MBR[Format] | GPT[Format]] device
@@ -824,7 +828,8 @@ $ diskutil eject [設備]
 diskutil指令在無法取消掛載時會輸出佔用磁盤的進程信息。
 
 ## NTFS-3G
-[`NTFS-3G`](https://www.tuxera.com/community/ntfs-3g-manual/)項目為各類Unix系統提供了對Windows文件系統的讀寫支持。
+[`NTFS-3G`](https://www.tuxera.com/community/ntfs-3g-manual/)
+項目為各類Unix系統提供了對Windows文件系統的讀寫支持。
 
 ### 安裝配置
 NTFS-3G可直接通過Homebrew安裝：
@@ -833,8 +838,8 @@ NTFS-3G可直接通過Homebrew安裝：
 $ brew install ntfs-3g
 ```
 
-與其它工具不同，NTFS-3G會在`/usr/local/sbin`路徑下創建符號鏈接，需要保證該路徑存在(默認該路徑不存在，需要手動創建)，
-否則安裝時會出現錯誤信息：
+與其它工具不同，NTFS-3G會在`/usr/local/sbin`路徑下創建符號鏈接，
+需要保證該路徑存在（默認該路徑不存在，需要手動創建），否則安裝時會出現錯誤信息：
 
 ```
 Error: The `brew link` step did not complete successfully
@@ -850,10 +855,11 @@ You can try again using:
 之後執行`brew link ntfs-3g`再次創建符號鏈接。
 
 ### 使用 NTFS-3G
-插入NTFS文件系統的U盤，macOS會使用系統自帶工具`mount_ntfs`自動掛載，首先需要使用`umount`指令取消U盤的掛載：
+插入NTFS文件系統的U盤，macOS會使用系統自帶工具`mount_ntfs`自動掛載，
+首先需要使用`umount`指令取消U盤的掛載：
 
-```c
-# umount /Volumes/[U盤名稱]
+```
+# umount /Volumes/U盤名稱
 ```
 
 取消U盤掛載後，使用`diskutil`指令查看插入U盤的詳細信息：
@@ -873,7 +879,7 @@ $ diskutil list
 
 ```c
 // 示例： ntfs-3g /dev/disk2s1 /Volumes/ntfs_device
-# ntfs-3g /dev/[分區對應磁盤設備] /Volumes/[分區掛載設備]
+# ntfs-3g /dev/分區對應磁盤設備 /Volumes/分區掛載設備
 ```
 
 取消U盤掛載使用umount指令而不是直接彈出U盤，彈出U盤會斷開系統的鏈接，無法再使用ntfs-3g指令掛載。
@@ -900,7 +906,7 @@ Xcode提供的命令行工具相關內容會安裝在路徑`/Library/Developer/C
 安裝命令行工具同時還會在該路徑下安裝對應版本macOS的開發SDK和部分開發庫，
 內容與`Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer`相同。
 
-需要注意，安裝新版本的命令行工具時不會刪除舊版的macOS SDK，安裝/升級過多個版本Xcode的命令行工具後，
+注意，安裝新版本的命令行工具時不會刪除舊版的macOS SDK，安裝/升級過多個版本Xcode的命令行工具後，
 `/Library/Developer/CommandLineTools/SDKs`路徑下的SDK版本會越來越多：
 
 ```
