@@ -14,6 +14,7 @@
 - [Language Level](#language-level)
 - [Sub Project](#sub-project)
 - [Package](#package)
+	- [打包時排除文件](#打包時排除文件)
 	- [maven-assembly-plugin](#maven-assembly-plugin)
 	- [spring-boot-maven-plugin](#spring-boot-maven-plugin)
 
@@ -400,6 +401,24 @@ Maven包含6類依賴域：
 
 # Package
 Maven默認的package功能僅將當前項目生成的class文件進行打包，要打包所有依賴資源，需要引入額外插件。
+
+## 打包時排除文件
+打包時若需要排除部分文件，可使用`<excludes/>`標籤：
+
+```xml
+<project>
+	...
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes><exclude>*.xxx</exclude></excludes>
+			</resource>
+		</resources>
+	</build>
+	...
+</project>
+```
 
 ## maven-assembly-plugin
 與sbt的`sbt-assembly`類似，Maven的`maven-assembly-plugin`插件提供將所有項目依賴打包到一個JAR的功能。
