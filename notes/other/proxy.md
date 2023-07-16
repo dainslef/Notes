@@ -10,6 +10,7 @@
 	- [Trojan轉發流量](#trojan轉發流量)
 - [V2Ray](#v2ray)
 	- [安裝和配置V2Ray服務](#安裝和配置v2ray服務)
+	- [V2Ray使用`VMESS + TLS + WebSocket`模式](#v2ray使用vmess--tls--websocket模式)
 
 <!-- /TOC -->
 
@@ -308,4 +309,78 @@ spec:
           hostPath:
             path: /etc/v2ray
             type: DirectoryOrCreate
+```
+
+## V2Ray使用`VMESS + TLS + WebSocket`模式
+V2Ray支持使用WebSocket作為傳輸協議，
+該種傳輸方式可搭配CDN使用，以實現隱藏代理服務器真實IP的作用。
+
+服務端配置：
+
+```json
+{
+  "inbound": {
+    "protocol": "vmess",
+    "port": 443,
+    "settings": { "clients": [ { "id": "xxx-xxx..." } ] },
+    "streamSettings": {
+      "network": "ws",
+      "wsSettings": { "path": "/xxx" },
+      "security": "tls",
+      "tlsSettings": {
+        "certificates": [ {
+            "certificateFile": "/etc/v2ray/v2ray.crt",
+            "keyFile": "/etc/v2ray/v2ray.key"
+          } ]
+      }
+    }
+  },
+  "outbound": { "protocol": "freedom" }
+}
+```
+
+若使用Nginx等反向代理做轉發TLS流量轉發，則可省略V2Ray自身的`tlsSettings`、`security`配置。
+
+Clash客戶端配置：
+
+```yaml
+...
+proxies:
+  - name: xxx
+    type: vmess
+    server: xxx_domain
+    port: 443
+    uuid: xxx-xxx... # UUID需要與服務端保持一致
+    alterId: 0 # V2Ray v4.28.1之後，alterId設置為0表示啟用VMessAEAD（服務端會自動適配）
+    cipher: auto
+    network: ws
+    tls: true
+    ws-opts:
+      path: /xxx # 需要匹配服務端配置中的WebSocket路徑
+  ...
+```
+
+VMESS協議自身不帶有HTTP偽裝，因此通常在V2Ray前置一個Nginx做流量轉發和偽裝，
+Nginx轉發配置：
+
+```
+server {
+	listen xxxx ssl;
+	ssl_certificate .../tls.crt;
+	ssl_certificate_key .../tls.key;
+
+	# Forward WebSocket to V2Ray.
+	location = /xxx {
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+		proxy_set_header Host $http_host;
+		proxy_pass http://localhost:xxx;
+	}
+
+	# Redirect the other unmatched URLs to XXX.
+	location / {
+		rewrite ^/(.*) / break;
+		proxy_pass https://xxx.xxx;
+	}
+}
 ```
