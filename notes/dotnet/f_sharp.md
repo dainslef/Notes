@@ -8,6 +8,9 @@
 	- [可選參數](#可選參數)
 	- [參數默認值](#參數默認值)
 	- [Entry Point（入口點/函數）](#entry-point入口點函數)
+	- [符號操作符](#符號操作符)
+		- [`|>`/`<|`](#)
+		- [`>>`/`<<`](#)
 - [Pattern Matching（模式匹配）](#pattern-matching模式匹配)
 	- [Constant Patterns（常量模式）](#constant-patterns常量模式)
 	- [Identifier Patterns（標識符匹配）](#identifier-patterns標識符匹配)
@@ -243,6 +246,88 @@ let main args = ...
 ```fs
 string array -> int
 ```
+
+## 符號操作符
+與Haskell、OCaml類似，F#中同樣存在一些符號函數用於增強語言表達能力。
+
+### `|>`/`<|`
+`|>`/`<|`操作符可用於改變操作優先級，消除表達式中的括號。
+
+`|>`操作符近似於Haskell中的`.`操作符，函數定義：
+
+```fs
+> (|>);;
+val it: ('a -> ('a -> 'b) -> 'b)
+```
+
+`<|`操作符近似於Haskell中的`$`操作符，函數定義：
+
+```fs
+> (<|);;
+val it: (('a -> 'b) -> 'a -> 'b)
+```
+
+示例：
+
+```fs
+> List.reduce (fun a b -> a + b) (List.map (fun n -> n + 1) [1; 2; 3]);;
+val it: int = 9
+
+// |> 用於將表達式轉換為可讀性更好的管道操作
+> [1; 2; 3] |> List.map (fun n -> n + 1) |> List.reduce (fun a b -> a + b);;
+val it: int = 9
+
+// <| 用於消除表達式中的括號
+> List.reduce (fun a b -> a + b) <| List.map (fun n -> n + 1) [1; 2; 3];;
+val it: int = 9
+
+> printfn "%d" (1 + 1);;
+2
+val it: unit = ()
+
+> printfn "%d" <| 1 + 1;;
+2
+val it: unit = ()
+```
+
+### `>>`/`<<`
+`>>`/`<<`常用於組合函數，函數定義：
+
+```fs
+> (>>);;
+val it: (('a -> 'b) -> ('b -> 'c) -> 'a -> 'c)
+
+> (<<);;
+val it: (('a -> 'b) -> ('c -> 'a) -> 'c -> 'b)
+```
+
+`>>`與`<<`均接收兩個函數作為參數。
+`>>`將左側函數的返回值作為右側函數的輸入值；
+`<<`將右側函數的返回值作為左側函數的輸入值。
+
+示例：
+
+```fs
+> let f1: int -> int = fun a -> a + 1;;
+val f1: a: int -> int
+
+> let f2: int -> string = fun a -> $"Number: {a}";;
+val f2: a: int -> string
+
+// >> 左側函數返回值傳入右側函數作為參數
+> f1 >> f2;;
+val it: (int -> string) = <fun:it@9>
+
+> f1 >> f2 <| 1
+- ;;
+val it: string = "Number: 2"
+
+// << 右側函數返回值傳入左側函數作為參數
+> f2 << f1 <| 1
+- ;;
+val it: string = "Number: 2"
+```
+
 
 
 
