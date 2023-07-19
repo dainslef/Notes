@@ -4,6 +4,9 @@
 	- [開發環境](#開發環境)
 	- [F# Interactive（F#交互式環境）](#f-interactivef交互式環境)
 	- [與主流語言的語法差異](#與主流語言的語法差異)
+- [string（字符串）](#string字符串)
+	- [Triple Quoted Strings（三引號字符串）](#triple-quoted-strings三引號字符串)
+	- [String Interpolation（字符串插值器）](#string-interpolation字符串插值器)
 - [Function（函數）](#function函數)
 	- [可選參數](#可選參數)
 	- [參數默認值](#參數默認值)
@@ -140,6 +143,70 @@ F#繼承了大部分OCaml的設計，與主流語言存在一些差異。
 	> 1 >>> 1;;
 	val it : int = 0
 	```
+
+
+
+# string（字符串）
+與C#一致，F#中的字符串類型`string`為`System.String`的別名，
+詳情參考[微軟官方文檔](https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/strings)。
+
+## Triple Quoted Strings（三引號字符串）
+[三引號字符串](https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/strings#triple-quoted-strings)
+語法用於輸出多行字符串以及引號的場景：
+
+```fs
+// 三引號語法會保留換行符以及引號
+> """
+-     Taiwan: "Fuck CCP!"
+-     Japan: "Fuck CCP, too."
+- """;;
+val it: string = "
+    Taiwan: "Fuck CCP!"
+    Japan: "Fuck CCP, too."
+"
+```
+
+## String Interpolation（字符串插值器）
+[`F# 5.0`](https://github.com/fsharp/fslang-design/blob/main/FSharp-5.0/FS-1001-StringInterpolation.md)
+引入了`String Interpolation`（字符串插值）語法，自此F#可以使用類似C#的插值語法：
+
+```fs
+> let n = 8964;;
+val n: int = 8964
+
+> $"Number: {n}";;
+val it: string = "Number: 8964"
+
+// 支持表達式
+> $"Number: {n + 190000}";;
+val it: string = "Number: 198964"
+
+// 使用 {{}} 避免轉譯
+> $"Number: {{n}}";;
+val it: string = "Number: {n}"
+
+> let f = 0.198964;;
+val f: float = 0.198964
+
+// 支持 printf 風格的格式化語法
+> $"Number: %.4f{f}";;
+val it: string = "Number: 0.1990"
+
+> $"Number: %.5f{f}";;
+val it: string = "Number: 0.19896"
+
+> $"Number: %.10f{f}";;
+val it: string = "Number: 0.1989640000"
+
+> let s = "Fuck CCP!";;
+val s: string = "Fuck CCP!"
+
+> $"String: {s}";;
+val it: string = "String: Fuck CCP!"
+
+> $"String: %10s{s}";;
+val it: string = "String:  Fuck CCP!"
+```
 
 
 
