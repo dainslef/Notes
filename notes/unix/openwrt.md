@@ -51,12 +51,14 @@
 	- [內核版本配置](#內核版本配置)
 	- [GL-AXT1800固件編譯](#gl-axt1800固件編譯)
 	- [GL-SFT1200固件編譯](#gl-sft1200固件編譯)
-- [USB WIFI](#usb-wifi)
+- [無線網卡](#無線網卡)
+	- [USB WIFI](#usb-wifi)
 - [常見問題說明](#常見問題說明)
 	- [小米路由器變磚](#小米路由器變磚)
 	- [SSH登入錯誤：no matching key exchange method found. Their offer: diffie-hellman-group1-sha1](#ssh登入錯誤no-matching-key-exchange-method-found-their-offer-diffie-hellman-group1-sha1)
 	- [SSH登入錯誤：no matching host key type found. Their offer: ssh-rsa](#ssh登入錯誤no-matching-host-key-type-found-their-offer-ssh-rsa)
 	- [免密不生效：debug1: send_pubkey_test: no mutual signature algorithm](#免密不生效debug1-send_pubkey_test-no-mutual-signature-algorithm)
+	- [Adblock啟動失敗: user.err adblock-xxx: coreutils sort not found or not executable](#adblock啟動失敗-usererr-adblock-xxx-coreutils-sort-not-found-or-not-executable)
 
 <!-- /TOC -->
 
@@ -675,7 +677,7 @@ LuCI介面語言在配置`/etc/config/luci`中：
 config internal 'languages'
 	option en 'English'
 	option jp '日本語'
-	option zh_tw '台湾語'
+	option zh_tw '臺灣語'
 	option zh_cn 'シナ語'
 ...
 ```
@@ -700,8 +702,7 @@ luci-i18n-base-zh-tw - git-21.282.73955-9987b39 - Translation for luci-base - �
 
 ## 無線網絡功能配置
 部分不直接支持無線網絡的設備中，固件未繼承無線網絡功能，需要手動安裝相關軟件包。
-使用AP模式（Access Point）模式需要`hostapd`，
-而連接/創建WPA系列的加密熱點需要`wpa_supplicant`。
+使用AP模式（Access Point）模式需要`hostapd`，而連接/創建WPA系列的加密熱點需要`wpa_supplicant`。
 
 在OpenWRT中，可安裝此類功能對應的軟件包，亦可直接安裝`wpad`，
 wpad整合了AP和加密功能需要的工具：
@@ -1475,7 +1476,13 @@ src/gz glinet_packages http://fw.gl-inet.cn/releases/v18.06.5/packages-3.6/siflo
 
 
 
-# USB WIFI
+# 無線網卡
+Linux對無線網卡的支持參考[Linux內核WIKI](https://wireless.wiki.kernel.org/en/users/Drivers)。
+
+OpenWRT支持的無線網卡通常略少於官方支持，
+部分Linux內核支持的較新設備可能在OpenWRT中並未直接提供相應的驅動軟件包。
+
+## USB WIFI
 對於當下主流的軟路由方案（RK3328-R2S/R2C、RK3399-R4S/R4SE、RK3568-R5S等），
 通常並不提供WIFI功能，若需要在此類方案的設備中使用WIFI，則需要使用USB WIFI網卡。
 
@@ -1554,4 +1561,32 @@ $ ssh -oHostkeyAlgorithms=+ssh-rsa x.x.x.x
 
 ```
 $ ssh -oPubkeyAcceptedAlgorithms=+ssh-rsa x.x.x.x
+```
+
+## Adblock啟動失敗: user.err adblock-xxx: coreutils sort not found or not executable
+問題描述：<br>
+通過`luci-app-adblock`提供的service啟動adblock服務：
+
+```
+# service adblock start
+```
+
+錯誤信息：
+
+```
+...
+Wed Nov  9 10:00:59 2022 user.err adblock-4.1.5[10203]: coreutils sort not found or not executable
+...
+```
+
+對應問題可參考對應[GitHub Issues](https://github.com/openwrt/packages/issues/17468)。
+
+解決方案：<br>
+luci-app-adblock提供的service依賴於GNU版本的`coreutils-sort`工具，
+該問題是由於系統的sort工具被替換成了默認的busybox版本，通常發生在相關軟件包升級之後。
+
+解決方案是強制重新安裝coreutils-sort工具：
+
+```
+# opkg install --force-reinstall coreutils-sort
 ```
