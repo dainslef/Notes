@@ -5,9 +5,9 @@
 	- [容器相關技術架構](#容器相關技術架構)
 	- [Dockershim](#dockershim)
 - [Docker安裝與配置](#docker安裝與配置)
-	- [macOS中的Docker（docker-machine）](#macos中的dockerdocker-machine)
+	- [docker-machine（已廢棄）](#docker-machine已廢棄)
 	- [Docker Desktop for macOS](#docker-desktop-for-macos)
-		- [訪問Docker Desktop的HyperKit虛擬機（已過時）](#訪問docker-desktop的hyperkit虛擬機已過時)
+		- [訪問Docker Desktop的虛擬機（HyperKit，已過時）](#訪問docker-desktop的虛擬機hyperkit已過時)
 - [Docker基本使用](#docker基本使用)
 	- [Docker容器管理](#docker容器管理)
 		- [Docker容器自啟動](#docker容器自啟動)
@@ -125,7 +125,7 @@ dockershim的廢棄推遲到了`1.24`版本。
 
 Docker容器使用宿主機的內核，需要宿主機內核版本`3.10+`。
 
-## macOS中的Docker（docker-machine）
+## docker-machine（已廢棄）
 Docker使用了諸多`Linux Kernel`專有特性，並非POSIX兼容，無法直接移植到macOS中。
 macOS中Docker使用`docker-machine`在VirtualBox中創建Linux虛擬機，並在虛擬機中運行Docker。
 
@@ -169,7 +169,7 @@ Dcoker Desktop針對Windows、macOS平臺提供了開箱即用的配置整合，
 Docker Desktop在對應平臺使用該平臺推薦的虛擬化技術創建虛擬機(Windows下使用HyperV，macOS下使用HyperKit)，
 相比使用VirtualBox更加高效。
 
-### 訪問Docker Desktop的HyperKit虛擬機（已過時）
+### 訪問Docker Desktop的虛擬機（HyperKit，已過時）
 在macOS下，Docker Desktop使用HyperKit啟動虛擬機，用以提供docker執行需要的Linux環境。
 通過訪問該虛擬機可以查看和配置docker運行的真實主機環境。
 
@@ -615,6 +615,23 @@ Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.
 
 Docker Registry僅提供了簡單的鏡像服務，且默認僅提供HTTP服務（多數運行時現在強制要求HTTPS），
 更完整的鏡像倉庫功能需要使用Habor等第三方項目。
+
+Docker現在要求鏡像服務支持HTTPS，使用HTTP服務的Docker Registry在推送鏡像時會得到錯誤：
+
+```
+The push refers to repository [x.x.x.x:5000/xxx]
+Get "https://x.x.x.x:5000/v2/": http: server gave HTTP response to HTTPS client
+```
+
+解決該類錯誤可修改Docker配置`~/.config/daemon.json`，將目標地址加入`insecure-registries`中：
+
+```json
+{
+	...
+	"insecure-registries" : ["x.x.x.x:5000"],
+	...
+}
+```
 
 ### Docker Hub
 Docker官方提供了鏡像託管服務`Docker Hub`。
@@ -1098,15 +1115,8 @@ $ docker login http://x.x.x.x
 
 現在Docker默認使用HTTPS協議訪問Habor（即使顯式指定了HTTP），
 若Habor未配置HTTPS會登入錯誤，要允許Docker以HTTP方式登入，
-則應修改Docker配置`~/.config/daemon.json`：
-
-```json
-{
-	...
-	"insecure-registries" : ["x.x.x.x:x"],
-	...
-}
-```
+則應修改Docker配置`~/.config/daemon.json`的`insecure-registries`配置，
+參考[Docker Registry Server](#docker-registry-server)中的對應內容。
 
 ### podman登入
 podman同樣使用`podman login`指令登入Habor：
