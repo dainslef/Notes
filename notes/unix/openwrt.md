@@ -59,6 +59,7 @@
 	- [SSH登入錯誤：no matching host key type found. Their offer: ssh-rsa](#ssh登入錯誤no-matching-host-key-type-found-their-offer-ssh-rsa)
 	- [免密不生效：debug1: send_pubkey_test: no mutual signature algorithm](#免密不生效debug1-send_pubkey_test-no-mutual-signature-algorithm)
 	- [Adblock啟動失敗: user.err adblock-xxx: coreutils sort not found or not executable](#adblock啟動失敗-usererr-adblock-xxx-coreutils-sort-not-found-or-not-executable)
+	- [GL-AXT1800原廠固件自動掛載存儲到 /tmp/mountd/](#gl-axt1800原廠固件自動掛載存儲到-tmpmountd)
 
 <!-- /TOC -->
 
@@ -1590,3 +1591,52 @@ luci-app-adblock提供的service依賴於GNU版本的`coreutils-sort`工具，
 ```
 # opkg install --force-reinstall coreutils-sort
 ```
+
+## GL-AXT1800原廠固件自動掛載存儲到 /tmp/mountd/
+問題說明：<br>
+GL-AXT1800原廠固件對於所有存儲會自動掛載到`/tmp/mountd`路徑下，
+即使配置了`/etc/config/fstab`，依舊會執行自動掛載操作。
+
+解決方案：<br>
+GL.iNET原廠固件的NAS相關功能導致了外置存儲的自動掛載。
+NAS工具包`gl-sdk4-nas-utils`提供了存儲自動掛載的相關工具：
+
+```
+# opkg files gl-sdk4-nas-utils
+Package gl-sdk4-nas-utils (git-2022.223.42091-f79e481) is installed on root and has the following files:
+/etc/init.d/gl_nas_diskmanager
+/etc/hotplug.d/block/30-mount
+/etc/init.d/gl_nas_sys_dl
+/usr/bin/gl_nas_diskmanager
+/etc/init.d/gl_nas_sys
+/usr/bin/gl_nas_sys
+/usr/bin/gl_nas_client
+/etc/gl_nas/nas_samba3
+/etc/gl_nas/nas_samba4
+/usr/bin/disk_get_label.sh
+/etc/samba/smb.conf.template3
+/etc/samba/smb.conf.template4
+/etc/init.d/gl_nas_sys_up
+/usr/bin/gl_nas_copy_exe
+```
+
+移除該工具包即可：
+
+```
+# opkg remove --autoremove gl-sdk4-nas-utils
+Removing package gl-sdk4-nas-utils from root...
+Removing rc.d symlink for gl-sdk4-nas-utils
+removeing gl-sdk4-nas-utils
+stop app = /usr/bin/gl_nas_diskmanager
+stop dl app = /usr/bin/gl_nas_sys
+Command failed: Not found
+stop app = /usr/bin/gl_nas_sys
+Command failed: Not found
+stop up app = /usr/bin/gl_nas_sys
+Command failed: Not found
+gl-sdk4-nas-utils remove successed !
+Updating database.
+Database update completed.
+```
+
+移除該工具包後，系統的NAS功能會出現異常，因此無必要不推薦該操作。
