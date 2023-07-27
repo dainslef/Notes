@@ -60,6 +60,7 @@
 	- [免密不生效：debug1: send_pubkey_test: no mutual signature algorithm](#免密不生效debug1-send_pubkey_test-no-mutual-signature-algorithm)
 	- [Adblock啟動失敗: user.err adblock-xxx: coreutils sort not found or not executable](#adblock啟動失敗-usererr-adblock-xxx-coreutils-sort-not-found-or-not-executable)
 	- [GL-AXT1800原廠固件自動掛載存儲到 /tmp/mountd/](#gl-axt1800原廠固件自動掛載存儲到-tmpmountd)
+	- [Mi Router 4A/4C 新閃存芯片 EN25QX128 不支持](#mi-router-4a4c-新閃存芯片-en25qx128-不支持)
 
 <!-- /TOC -->
 
@@ -1640,3 +1641,45 @@ Database update completed.
 ```
 
 移除該工具包後，系統的NAS功能會出現異常，因此無必要不推薦該操作。
+
+## Mi Router 4A/4C 新閃存芯片 EN25QX128 不支持
+問題說明：<br>
+Mi Router 4A/4C部分型號使用了EN25QX128閃存芯片，官方21.02的5.4內核未提供該芯片的支持，
+直接刷入官方固件會導致路由器無限循環重啟。
+
+解決方案：<br>
+參考[OpenWRT官方論壇](https://forum.openwrt.org/t/new-xiaomi-4c-cannot-install-openwrt-flash-chip-changed-to-en25qx128a/123634)對應問題，
+在內核補丁`476-mtd-spi-nor-add-eon-en25q128.patch`（不同版本OpenWRT內核補丁路徑略有不同）中添加新芯片支持，
+以`OpenWRT 21.02`為例，補丁路徑為：
+
+```
+$ find . -name 476-mtd-spi-nor-add-eon-en25q128.patch
+./target/linux/generic/pending-5.4/476-mtd-spi-nor-add-eon-en25q128.patch
+```
+
+修改補丁內容：
+
+```
+From: Piotr Dymacz <pepe2k@gmail.com>
+Subject: kernel/mtd: add support for EON EN25Q128
+
+Signed-off-by: Piotr Dymacz <pepe2k@gmail.com>
+---
+ drivers/mtd/spi-nor/spi-nor.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/mtd/spi-nor/spi-nor.c
++++ b/drivers/mtd/spi-nor/spi-nor.c
+@@ -2179,6 +2179,8 @@ static const struct flash_info spi_nor_i
+ 	{ "en25q32b",   INFO(0x1c3016, 0, 64 * 1024,   64, 0) },
+ 	{ "en25p64",    INFO(0x1c2017, 0, 64 * 1024,  128, 0) },
+ 	{ "en25q64",    INFO(0x1c3017, 0, 64 * 1024,  128, SECT_4K) },
++	{ "en25q128",   INFO(0x1c3018, 0, 64 * 1024,  256, SECT_4K) },
++	{ "en25qx128a",	INFO(0x1c7118, 0, 64 * 1024,  256, SECT_4K) },
+ 	{ "en25q80a",   INFO(0x1c3014, 0, 64 * 1024,   16,
+ 			SECT_4K | SPI_NOR_DUAL_READ) },
+ 	{ "en25qh32",   INFO(0x1c7016, 0, 64 * 1024,   64, 0) },
+```
+
+該補丁中，`+	{ "en25qx128a",	INFO(0x1c7118, 0, 64 * 1024,  256, SECT_4K) },`為新增行，
+同時，需要修改補丁中的變化行數。
