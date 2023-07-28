@@ -46,7 +46,8 @@
 - [動態代理](#動態代理)
 	- [代理模式](#代理模式)
 	- [實例](#實例-1)
-- [Default Method (接口默認方法)](#default-method-接口默認方法)
+- [NIO](#nio)
+- [Default Method（接口默認方法）](#default-method接口默認方法)
 - [Lambda](#lambda)
 	- [實現函數式接口](#實現函數式接口)
 	- [一般用法](#一般用法)
@@ -57,6 +58,7 @@
 - [DateTime API](#datetime-api)
 	- [java.util.Date](#javautildate)
 	- [java.time.LocalDateTime/ZonedDateTime](#javatimelocaldatetimezoneddatetime)
+	- [獲取時間差值](#獲取時間差值)
 		- [LocalDateTime處理日期](#localdatetime處理日期)
 		- [關於 Oracle JDK 8 在 yyyyMMddHHmmssSSS 時間格式下的 DateTimeParseException](#關於-oracle-jdk-8-在-yyyymmddhhmmsssss-時間格式下的-datetimeparseexception)
 	- [java.time.Instant](#javatimeinstant)
@@ -742,19 +744,19 @@ class TestClone implements Cloneable {
 
 
 # 泛型
-`Java 1.5`開始引入了汎型機制，定義類型時可為類型添加汎型參數，
-擁有汎型參數的類型在初始化時除了提供常規的構造器參數外還需要確定汎型類型。
+`Java 1.5`開始引入了泛型機制，定義類型時可為類型添加泛型參數，
+擁有泛型參數的類型在初始化時除了提供常規的構造器參數外還需要確定泛型類型。
 
 ## 類型擦除
-Java語言爲了保證Java Runtime的前向兼容性，采用了類型擦除的方式實現了汎型功能，
-Java中的泛型與.Net提供的汎型以及C++的Template機制有本質區別，編譯器不會為使用不同參數汎型類生成不同的代碼。
+Java語言爲了保證Java Runtime的前向兼容性，采用了類型擦除的方式實現了泛型功能，
+Java中的泛型與.Net提供的泛型以及C++的Template機制有本質區別，編譯器不會為使用不同參數泛型類生成不同的代碼。
 
-在編譯成字節碼后汎型會被直接擦除，變爲所有類型的基礎類型`java.lang.Object`類型。
-如`List<String>`在運行時汎型類型擦除后會變爲`List<Object>`，等價於Java 1.5之前的無汎型的List。
+在編譯成字節碼后泛型會被直接擦除，變爲所有類型的基礎類型`java.lang.Object`類型。
+如`List<String>`在運行時泛型類型擦除后會變爲`List<Object>`，等價於Java 1.5之前的無泛型的List。
 
 類型擦除機制實現的泛型導致JVM在運行期間並不能僅通過泛型參數得到該泛型參數對應的類型信息
-(例如不能憑藉泛型參數構建對應類型的實例，即無法`new T(...)`)，
-額外的泛型參數信息需要顯式地通過參數傳入(`Class<T>`類型)。
+（例如不能憑藉泛型參數構建對應類型的實例，即無法`new T(...)`），
+額外的泛型參數信息需要顯式地通過參數傳入（`Class<T>`類型——。
 其它基於JVM的靜態類型語言針對Java泛型機制的缺陷，都給出了對應的解決方案，
 如Scala的`implicit parameters + TypeTag`、Kotlin的`reified`。
 
@@ -765,8 +767,8 @@ Java中的泛型與.Net提供的汎型以及C++的Template機制有本質區別�
 Java中的泛型同樣支持獨立於類的泛型方法。與`C++`、`C#`等語言不同，
 Java在泛型方法中的類型聲明放在方法的修飾符(`public`、`static`、`final`、`abstract`等)之後，返回值聲明之前。
 
-Java中的泛型方法支持自動類型推導。
-也可手動顯式指定泛型類型，手動指定泛型類型時，與`C++`、`C#`等語言不同，類型參數寫在方法名稱**之前**。
+Java中的泛型方法支持自動類型推導，也可手動顯式指定泛型類型，
+手動指定泛型類型時，與`C++`、`C#`等語言不同，類型參數寫在方法名稱**之前**。
 
 如下代碼所示：
 
@@ -1779,7 +1781,8 @@ public T newInstance() throws InstantiationException, IllegalAccessException;
 ```
 
 `Class`類中沒有直接提供通過**有參構造函數**反射構建實例的方式。
-若需要反射調用類的有參構造方法，則需要先獲取其有參構造器(`Constructor`類型)，之後通過`Constructor`類的相關方法構造實例。
+若需要反射調用類的有參構造方法，則需要先獲取其有參構造器(`Constructor`類型)，
+之後通過`Constructor`類的相關方法構造實例。
 
 通過反射可以實現使用**非公有構造函數**構建對象。
 
@@ -1826,7 +1829,7 @@ public class Main {
 
 		// 獲取構造器對象
 		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
-		constructor.setAccessible(true); //對於私有構造器默認是無法訪問的，需要設置權限才能正常調用
+		constructor.setAccessible(true); // 對於私有構造器默認是無法訪問的，需要設置權限才能正常調用
 		constructor.newInstance(200).showNum();
 	}
 }
@@ -1842,14 +1845,16 @@ public class Main {
 ## 反射調用對象方法
 通過反射可以實現調用任意方法(包括**私有方法**)，方式與調用構造函數基本類似。
 
-首先獲取目標方法的`Method`對象，之後通過Method類的`invoke()`方法執行，第一個參數爲類的實例，之後的參數爲方法簽名中的參數。
+首先獲取目標方法的`Method`對象，之後通過Method類的`invoke()`方法執行，
+第一個參數爲類的實例，之後的參數爲方法簽名中的參數。
 
 ```java
 public Object invoke(Object var1, Object... var2)
 		throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 ```
 
-與`Constructor`類似，如果獲取到的`Method`對象代表的是非公有成員方法，則需要使用`setAccessible()`方法設置屬性爲可訪問才能正常調用。
+與`Constructor`類似，如果獲取到的`Method`對象代表的是非公有成員方法，
+則需要使用`setAccessible()`方法設置屬性爲可訪問才能正常調用。
 
 訪問一個全部成員**私有**的類，如下所示：
 
@@ -2216,7 +2221,31 @@ public class Main {
 
 
 
-# Default Method (接口默認方法)
+# NIO
+NIO(non-blocking IO)是對Java傳統IO API的補充，NIO主要經歷了兩個階段的發展：
+
+1. J2SE 1.4 (Java NIO)
+
+	初代NIO包括相關API位於`java.nio`包路徑下，
+	包含了NIO的核心抽象`Buffer`/`Channel`/`Selector`等，
+	並提供了常用的實現。
+
+1. Java SE 7 (Java NIO.2)
+
+	NIO.2主要改進了文件以及文件系統操作以及地址API，提供了相對更高層次的文件抽象。
+	相關API位於`java.nio.file`包路徑下。
+
+	NIO.2對NIO引入的核心抽象添加了更多實現，添加了異步API，
+	如`AsynchronousFileChannel`/`AsynchronousSocketChannel`等，
+	異步接口使用了Java SE 5中引入的Executor框架。
+
+Java IO在各個JDK版本的變化參見[官方文檔](https://docs.oracle.com/javase/8/docs/technotes/guides/io/enhancements.html)。
+
+NIO的實例教程參考博客[Java NIO Tutorial](http://tutorials.jenkov.com/java-nio/index.html)。
+
+
+
+# Default Method（接口默認方法）
 從`Java 8`開始，接口中允許定義帶有方法實現的默認方法，在方法前使用關鍵字`default`來區別於普通的抽象方法。
 
 - 一個接口可以定義**多個**默認方法。
@@ -2586,8 +2615,6 @@ res1: Process = java.lang.ProcessImpl@e3c36d
 `Java 5`后還提供了`java.util.ProcessBuilder`類，提供了更加完善的進程參數設定API，
 並且可將輸入/輸出流直接導入/導出到文件。
 
-
-
 示例：
 
 ```scala
@@ -2679,7 +2706,7 @@ time1.isEqual(time2);
 time.toEpochSecond(zone...);
 
 // 獲取當前時間
-LocalDateTime.now(); // 默認輸出時間精確到毫秒，格式為 2021-06-15T16:45:57.858870
+LocalDateTime.now(); // 默認輸出時間精確到微秒，格式為 2021-06-15T16:45:57.858870
 LocalDateTime.now().withNano(0); // 使用withNano(0)則去除毫秒信息，直接輸出秒級時間，格式為 2021-06-15T16:45:57
 ```
 
@@ -2690,6 +2717,7 @@ ZonedDateTime內部代理了一個LocalDateTime實例以及時區信息(ZoneOffs
 ZonedDateTime類型在使用LocalDateTime中原本需要傳入時區信息的API時不再需要傳入時區參數，
 如`toEpochSecond()`，在ZonedDateTime中是空參數方法。
 
+## 獲取時間差值
 使用Duration API可以獲取兩個時間的差值：
 
 ```java
@@ -2770,7 +2798,7 @@ new DateTimeFormatterBuilder()
 ```
 
 ## java.time.Instant
-`Instant`類型提供了時間戳與Java新老時間API(LocalDateTime/Date)相關類型的轉換。
+`Instant`類型提供了時間戳與Java新老時間API（LocalDateTime/Date）相關類型的轉換。
 該類型可作為新老時間API轉換的中間類型。
 
 `java.util.Date`類型與Instant類型相互轉換：
@@ -2990,7 +3018,7 @@ Timer Task 1 ...
 ```
 
 ### java.lang.IllegalStateException: Timer already cancelled.
-Timer調度器是**單線程**的，實際上僅存在**一個**任務執行線程(TimerThread)。
+Timer調度器是**單線程**的，實際上僅存在**一個**任務執行線程（TimerThread）。
 當執行的TimerTask中拋出InterruptedException以外的異常，
 會導致任務執行線程崩潰，進而使得整個Timer無法正常工作。
 
@@ -3275,7 +3303,8 @@ while (resultSet.next()) { // 使用 next() 方法將當前遊標移動到下一
 
 ## 與 Access 數據庫交互
 `JDK 1.7`之前，可以使用`JDBC-ODBC`橋接`Access`數據庫。
-在`JDK 1.8`之後，`JDBC-ODBC`橋被移除，只能使用專有的Access驅動來連接Access數據庫(驅動名稱：`Access_JDBC40.jar`)。
+在`JDK 1.8`之後，`JDBC-ODBC`橋被移除，只能使用專有的Access驅動來連接Access數據庫
+（驅動名稱：`Access_JDBC40.jar`）。
 
 連接Access數據庫：
 
