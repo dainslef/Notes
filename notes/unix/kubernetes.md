@@ -24,6 +24,8 @@
 		- [kubectl關閉證書驗證](#kubectl關閉證書驗證)
 - [集群架構](#集群架構)
 	- [Node](#node)
+	- [Control Plane](#control-plane)
+	- [Pod](#pod)
 
 <!-- /TOC -->
 
@@ -643,3 +645,47 @@ NAME  STATUS   ROLES           AGE   VERSION
 xxx   Ready    control-plane   24d   v1.26.3
 ...
 ```
+
+## Control Plane
+Control Plane（控制平面）負責管理集群中的Node節點，
+Control Plane可以部署在集群內的任何機器中，一個Control Plane節點中會運行下列組件：
+
+- `etcd` 鍵值數據庫，用於存儲集群中的數據
+- `kube-apiserver` 用於對外暴露Kubernetes API，是Control Plane的前端
+- `kube-scheduler` 用於將Pod分配到實際的Node中
+- `kube-controller-manager` 管理、執行各類控制器進程
+（常見的控制器包括Node/Job/ServiceAccount controller等，
+但Kubernetes將控制器統一編譯到一個`kube-controllers`二進制文件中）
+- `cloud-controller-manager` 用於在雲平台中特定的雲相關控制邏輯，如節點控制、服務控制、路由控制等
+
+通常而言，Control Plane節點應僅提供Node節點管理功能而不承擔工作負載，
+業務相關的Pod默認不會調度在Control Plane中；
+對於單節點場景，可通過去除Control Plane的Taints來允許調度業務Pods。
+
+## Pod
+Pod是Kubernetes中可創建和管理的最小部署單元。
+
+Pod可以包含一個或一組容器（通常Pod僅包含單個容器），
+同一個Pod內的容器使用相同的存儲和網絡，並且始終被調度在相同的宿主機上。
+
+創建容器API示例：
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: Pod名稱
+  namespace: 命名空間
+spec:
+  containers:
+    - name: 容器名稱
+      image: 鏡像
+    ... # 一個Pod可包含多個容器
+  ports:
+    - containerPort: 容器端口號
+    ...
+```
+
+容器端口配置`spec.ports.containerPort`僅作為提示信息使用，是否設置容器端口並不影響實際網絡通信。
+
+在實際生產環境下，通常不會直接創建容器，而是通過`Deployment`、`DaemonSet`等高級特性部署邏輯。
