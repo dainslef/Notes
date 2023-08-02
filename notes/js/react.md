@@ -34,6 +34,7 @@
 	- [Uncaught ReferenceError: $ is not defined](#uncaught-referenceerror--is-not-defined)
 	- [Target container is not a DOM element.](#target-container-is-not-a-dom-element)
 	- [Warning: Each child in an array or iterator should have a unique "key" prop.](#warning-each-child-in-an-array-or-iterator-should-have-a-unique-key-prop)
+	- [StrictMode](#strictmode)
 
 <!-- /TOC -->
 
@@ -56,30 +57,32 @@
 React項目需要使用的`JSX`擴展語法不能被瀏覽器原生支持，需要配置`Babel`轉譯爲普通的JavaScript代碼。
 
 ## create-react-app
-直接配置React項目較爲複雜，`Facebook`爲React項目提供了官方的項目創建工具`create-react-app`。
-使用`npm`安裝：
+直接配置React項目較爲複雜，Facebook爲React項目提供了官方的項目創建工具
+[`create-react-app`](https://github.com/facebook/create-react-app)。
 
+直接通過`npx`使用create-react-app創建React項目：
+
+```html
+$ npx create-react-app 項目名稱 <!-- 通過npx執行create-react-app，會自動安裝 -->
 ```
+
+亦可使用npm安裝後使用：
+
+```html
 $ npm install -g create-react-app
-```
-
-使用`create-react-app`指令創建React項目：
-
-```
-$ create-react-app [項目名稱] //若已配置 Node.js 相關環境變量，可直接使用 create-react-app 指令
-$ npx create-react-app [項目名稱] //亦可使用 npx 執行 create-react-app 指令
+$ create-react-app 項目名稱 <!-- 若已配置Node.js相關環境變量，可直接使用create-react-app指令 -->
 ```
 
 創建的React項目預置了以下npm指令：
 
-```
-$ npm start //啓動開發服務器，默認爲 3000 端口
-$ npm test //啓動測試服務器
-$ npm run build //構建項目的生產版本(Release)，輸出到項目根目錄的 build 路徑下
+```html
+$ npm start <!-- 啓動開發服務器，默認爲3000端口 -->
+$ npm test <!-- 啓動測試服務器 -->
+$ npm run build <!-- 構建項目的生產版本(Release)，輸出到項目根目錄的 build 路徑下 -->
 ```
 
 ## 項目結構
-使用`create-react-app`新創建的React項目具有以下結構：
+使用create-react-app新創建的React項目具有以下結構：
 
 ```
 項目根目錄
@@ -689,7 +692,7 @@ const refContainer = useRef(initialValue)
 useRef()的一個常用用法是獲取子組件的引用，用與在事件中操作子組件：
 
 ```js
-const Example() {
+const Example = () => {
 	const inputEl = useRef(null)
 	const onButtonClick = () => {
 		// `current` points to the mounted text input element
@@ -967,3 +970,18 @@ new webpack.ProvidePlugin({
 <Component2 key={"component2_key_xxx..."}/>,
 ...]
 ```
+
+## StrictMode
+[`StrictMode`](https://react.dev/reference/react/StrictMode)用於在開發中儘早發現BUG：
+
+```jsx
+<StrictMode>
+  <App />
+</StrictMode>
+```
+
+StrictMode下會啟用下列特性：
+
+- 組件會被額外宣染一次（用於發現impure rendering（非純淨宣染）相關的問題）
+- 組件會額外執行Effects一次（用於發現缺失Effect清理相關的問題）
+- 會檢查組件中使用的廢棄API
