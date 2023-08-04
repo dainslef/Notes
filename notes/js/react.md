@@ -23,6 +23,7 @@
 		- [組件更新](#組件更新)
 		- [Effect Hook 完整示例](#effect-hook-完整示例)
 	- [useRef()](#useref)
+	- [useImperativeHandle() & forwardRef()](#useimperativehandle--forwardref)
 - [路由](#路由)
 	- [安裝](#安裝)
 	- [Router](#router)
@@ -709,6 +710,48 @@ const Example = () => {
 useRef()會在組件的每次渲染中提供相同的對象引用，引用對象不會因為組件重新渲染而變化。
 useRef()同樣也不會在內部對象發生變化時發送通知，修改useRef()提供對象的內容也不會引起組件的重新渲染(區別於useState())。
 當組件內部存在一些可變屬性需要修改，但又不希望修改屬性造成組件重新渲染時可使用useRef()替代useState()。
+
+## useImperativeHandle() & forwardRef()
+通過useRef()可訪問子組件的引用，但對於函數式組件，
+僅獲取子組件引用無法如Class組件直接一樣訪問其內部方法；
+需要使用`useImperativeHandle()`為引用添加對外暴露的方法，
+同時將組件包含在`forwardRef()`方法中導出。
+
+示例：
+
+```js
+import {forwardRef, useImperativeHandle, useRef} from 'react'
+
+const Child = forwardRef((props, ref) => {
+  // 調用 useImperativeHandle() 函數為對象的引用創建外部訪問方法
+  useImperativeHandle(ref, () => ({
+    childFunction1() { ... },
+    childFunction2 = () => ...,
+  }))
+
+  return
+    <div>
+      <h2>child content</h2>
+    </div>
+})
+
+export default function Parent() {
+  const childRef = useRef(null)
+
+  const handleClick = () => {
+    // 通過引用的current對象訪問方法
+    childRef.current.childFunction1()
+    childRef.current.childFunction2()
+  }
+
+  return
+    <div>
+      <Child ref={childRef} />
+      <h2>parent content</h2>
+      <button onClick={handleClick}>Call child functions</button>
+    </div>
+}
+```
 
 
 
