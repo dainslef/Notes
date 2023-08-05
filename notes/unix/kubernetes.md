@@ -26,6 +26,9 @@
 	- [Node](#node)
 	- [Control Plane](#control-plane)
 	- [Pod](#pod)
+	- [Service](#service)
+		- [Service類型](#service類型)
+		- [Service代理模式](#service代理模式)
 
 <!-- /TOC -->
 
@@ -689,3 +692,32 @@ spec:
 容器端口配置`spec.ports.containerPort`僅作為提示信息使用，是否設置容器端口並不影響實際網絡通信。
 
 在實際生產環境下，通常不會直接創建容器，而是通過`Deployment`、`DaemonSet`等高級特性部署邏輯。
+
+## Service
+Service將一組相同的Pod組成服務，提供單一IP和域名。
+使用Kubernetes則系統不再需要使用額外的服務發現機制，
+Kubernetes會以環境變量的形式告知Pod內容器服務IP，並在組成服務的Pod之間負載均衡。
+
+### Service類型
+Service包括下列類型：
+
+- ClusterIP
+- NodePort
+- LoadBalance
+
+關於三種模式的網絡拓撲差異參考[官方文檔](https://kubernetes.io/docs/tutorials/services/source-ip/)。
+
+### Service代理模式
+kube-proxy負載均衡默認使用iptables實現，亦可手動配置為IPVS。
+
+配置kube-proxy模式可參考[StackOverflow](https://stackoverflow.com/questions/56493651/enable-ipvs-mode-in-kube-proxy-on-a-ready-kubernetes-local-cluster)上的相關問答。
+
+使用`ipvsadm`管理IPVS轉發規則：
+
+```html
+<!-- 查看當前的轉發規則 -->
+# ipvsadm -Ln
+```
+
+IPVS存在NodePort模式下無法使用本地地址（127.0.0.1）的問題，
+參考[GitHub Issues](https://github.com/kubernetes/kubernetes/issues/67730)。
