@@ -29,6 +29,7 @@
 	- [synchronized & Monitors](#synchronized--monitors)
 		- [synchronized語法](#synchronized語法)
 		- [synchronized工作機制](#synchronized工作機制)
+		- [synchronized可重入性](#synchronized可重入性)
 	- [Executor 框架](#executor-框架)
 - [Annotation (註解)](#annotation-註解)
 	- [內置註解](#內置註解)
@@ -1186,6 +1187,46 @@ thread2不能獲取counter對象的monitor所有權，因為該對象的monitor�
 thread2在monitor變為可被獲取所有權之前將暫停，當thread1釋放monitor所有權，
 thread2便能夠獲取所有權並繼續執行，完成方法的調用。
 
+### synchronized可重入性
+已獲得同步對象monitor所有權線程內部多次使用synchronized**不會**造成死鎖，
+只有最外層的synchronized結束才會釋放同步對象的monitor所有權。
+
+示例：
+
+```kt
+@Test
+fun testSynchronized() {
+    val objectLock = Object()
+    synchronized(objectLock) {
+        println("Start lock in ${Thread.currentThread()}")
+        Thread.sleep(1000)
+        synchronized(objectLock) {
+            println("Start second lock in ${Thread.currentThread()}")
+            Thread.sleep(1000)
+            println("End second lock in ${Thread.currentThread()}")
+        }
+        Thread.sleep(1000)
+        println("End lock in ${Thread.currentThread()}")
+    }
+    thread {
+        // 新線程
+        synchronized(objectLock) {
+            println("Get lock in ${Thread.currentThread()}")
+        }
+    }
+}
+```
+
+輸出結果：
+
+```
+Start lock in Thread[main,5,main]
+Start second lock in Thread[main,5,main]
+End second lock in Thread[main,5,main]
+End lock in Thread[main,5,main]
+Get lock in Thread[Thread-0,5,main]
+```
+
 ## Executor 框架
 `Thread`類功能簡單，僅僅提供了原始的線程抽象，在實際的開發中，往往會使用更高層次的API。
 
@@ -2224,13 +2265,13 @@ public class Main {
 # NIO
 NIO(non-blocking IO)是對Java傳統IO API的補充，NIO主要經歷了兩個階段的發展：
 
-1. J2SE 1.4 (Java NIO)
+1. J2SE 1.4（Java NIO）
 
 	初代NIO包括相關API位於`java.nio`包路徑下，
 	包含了NIO的核心抽象`Buffer`/`Channel`/`Selector`等，
 	並提供了常用的實現。
 
-1. Java SE 7 (Java NIO.2)
+1. Java SE 7（Java NIO 2）
 
 	NIO.2主要改進了文件以及文件系統操作以及地址API，提供了相對更高層次的文件抽象。
 	相關API位於`java.nio.file`包路徑下。
