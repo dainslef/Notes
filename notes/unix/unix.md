@@ -82,7 +82,9 @@
 		- [ifupdown（Ubuntu（17.10之前）/ Debian）](#ifupdownubuntu1710之前-debian)
 		- [Netplan（Ubuntu17.10之後）](#netplanubuntu1710之後)
 		- [NetworkManager](#networkmanager)
-	- [路由](#路由)
+	- [route（路由）](#route路由)
+		- [route](#route)
+		- [ip route](#ip-route)
 		- [路由轉發](#路由轉發)
 		- [追蹤路由](#追蹤路由)
 	- [Bonding](#bonding)
@@ -626,6 +628,8 @@ $ dmesg
 $ journalctl
 <!-- 倒序查看systemd日誌 -->
 $ journalctl -r
+<!-- 查看指定服務的日誌 -->
+$ journalctl -u 服務名稱
 ```
 
 ## BIOS信息
@@ -1928,7 +1932,7 @@ $ lsattr -R 目錄 <!-- 遞歸展示目錄下所有內容的屬性 -->
 	...
 	```
 
-	創建SWAP文件後設置`C`屬性則不再出現該錯誤：
+	删除原SWAP文件，重新创建，創建SWAP文件後設置`C`屬性則不再出現該錯誤：
 
 	```
 	# chattr +C swapfile
@@ -3247,9 +3251,65 @@ $ nmcli connection
 
 nmtui提供友好的TUI，可直接編輯、啟用、禁用連接。
 
-## 路由
-Linux提供了強大的路由功能，使用route（net-tools）或ip route（iproute2）進行管理。
+## route（路由）
+`route`是大多數Unix的默認路由管理工具。
 
+Linux同時支持`route`（net-tools）以及`ip route`（iproute2）用於管理路由。
+
+### route
+macOS/BSD等傳統Unix中，僅使用route指令管理路由，基本操作：
+
+```html
+<!-- 添加路由 -->
+# route add 網段/子網 網關
+# route add 網段/子網 -interface 網卡 <!-- 設置指定網段從特定網卡發送 -->
+
+<!-- 刪除路由 -->
+# route delete 網段/子網
+```
+
+Linux使用route指令默認會打印路由表信息：
+
+```
+$ route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         _gateway        0.0.0.0         UG    100    0        0 enp0s3
+10.0.0.0        0.0.0.0         255.255.255.0   U     0      0        0 enp1s0
+...
+```
+
+macOS/BSD中則默認輸出指令的幫助信息，查看路由表需要使用`netstat`指令：
+
+```html
+<!-- FreeBSD 13.2 -->
+$ route
+route: usage: route [-46dnqtv] command [[modifiers] args]
+
+<!-- macOS 13.4  -->
+$ route
+usage: route [-dnqtv] command [[modifiers] args]
+
+<!-- 使用 netstat 在macOS/BSD中查看路由表 -->
+$ netstat -rn
+Routing tables
+
+Internet:
+Destination        Gateway            Flags     Netif Expire
+default            10.0.0.1           UGS      vtnet0
+10.0.0.0/24        link#1             U        vtnet0
+...
+
+Internet6:
+Destination                       Gateway                       Flags     Netif Expire
+::/96                             ::1                           URS         lo0
+::1                               link#2                        UHS         lo0
+::ffff:0.0.0.0/96                 ::1                           URS         lo0
+fe80::/10                         ::1                           URS         lo0
+...
+```
+
+### ip route
 ip route常用指令：
 
 ```html
