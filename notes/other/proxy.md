@@ -11,6 +11,7 @@
 - [V2Ray](#v2ray)
 	- [安裝和配置V2Ray服務](#安裝和配置v2ray服務)
 	- [V2Ray使用`VMESS + TLS + WebSocket`模式](#v2ray使用vmess--tls--websocket模式)
+	- [V2Ray使用`VMESS + TLS + gRPC`模式](#v2ray使用vmess--tls--grpc模式)
 
 <!-- /TOC -->
 
@@ -375,6 +376,76 @@ server {
 		proxy_set_header Connection "upgrade";
 		proxy_set_header Host $http_host;
 		proxy_pass http://localhost:xxx;
+	}
+
+	# Redirect the other unmatched URLs to XXX.
+	location / {
+		rewrite ^/(.*) / break;
+		proxy_pass https://xxx.xxx;
+	}
+}
+```
+
+## V2Ray使用`VMESS + TLS + gRPC`模式
+V2Ray支持使用gRPC作為傳輸協議，
+該種傳輸方式可搭配CDN使用，以實現隱藏代理服務器真實IP的作用。
+
+V2Ray服務端配置：
+
+
+```json
+{
+  "inbound": {
+    "protocol": "vmess",
+    "port": 443,
+    "settings": { "clients": [ { "id": "xxx-xxx..." } ] },
+    "streamSettings": {
+      "network": "grpc",
+      "grpcSettings": { "serviceName": "xxx", "multiMode": true },
+      "security": "tls",
+      "tlsSettings": {
+        "certificates": [ {
+            "certificateFile": "/etc/v2ray/v2ray.crt",
+            "keyFile": "/etc/v2ray/v2ray.key"
+          } ]
+      }
+    }
+  },
+  "outbound": { "protocol": "freedom" }
+}
+```
+
+Clash客戶端配置：
+
+```yaml
+proxies:
+  - name: xxx
+    type: vmess
+    server: xxx_domain
+    port: 443
+    uuid: xxx-xxx... # UUID需要與服務端保持一致
+    alterId: 0 # V2Ray v4.28.1之後，alterId設置為0表示啟用VMessAEAD（服務端會自動適配）
+    cipher: auto
+    network: ws
+    tls: true
+    network: grpc
+    grpc-opts:
+      grpc-service-name: xxx # 需要匹配服務端配置中的serviceName
+  ...
+```
+
+gRPC需要使用HTTP/2傳輸，因此使用代理轉發gRPC時端口監聽協議為HTTP/2，
+對應Nginx轉發配置：
+
+```
+server {
+	listen xxxx ssl http2;
+	ssl_certificate .../tls.crt;
+	ssl_certificate_key .../tls.key;
+
+	# Forward GRPC to V2Ray.
+	location /xxx {
+		grpc_pass grpc://localhost:xxx;
 	}
 
 	# Redirect the other unmatched URLs to XXX.
