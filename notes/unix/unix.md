@@ -20,7 +20,7 @@
 - [FTP (File Transfer Protocol)](#ftp-file-transfer-protocol)
 	- [連接服務器](#連接服務器)
 	- [常用指令](#常用指令)
-- [SSH (Secure Shell)](#ssh-secure-shell)
+- [SSH（Secure Shell）](#sshsecure-shell)
 	- [遠程登錄](#遠程登錄)
 	- [SSH 配置](#ssh-配置)
 	- [配置免密登陸](#配置免密登陸)
@@ -939,14 +939,14 @@ ftp>
 
 
 
-# SSH (Secure Shell)
+# SSH（Secure Shell）
 `SSH`全稱`Secure Shell`，是一種加密的網絡傳輸協議。
-SSH通過在網絡中建立`Secure Channel`(安全通道)實現SSH客戶端與服務端之間的連接。
+SSH通過在網絡中建立`Secure Channel`（安全通道）實現SSH客戶端與服務端之間的連接。
 
 SSH常用在Unix系統中，用於傳輸命令行界面和遠程執行指令。
 相比使用明文傳輸的`Telnet`協議，SSH能夠保證網絡環境中信息加密完整可靠。
 
-SSH的主流實現是`OpenSSH`(全稱`OpenBSD Secure Shell`)。
+SSH的主流實現是`OpenSSH`（全稱`OpenBSD Secure Shell`）。
 
 ## 遠程登錄
 使用`ssh`指令遠程登錄配置了SSH服務的主機：
@@ -964,14 +964,16 @@ $ ssh 用戶名@主機名/IP -t shell類型
 ## SSH 配置
 SSH服務相關配置文件位於`/etc/ssh`路徑下：
 
-- `/etc/ssh/ssh_config` ssh指令使用的配置
-- `/etc/ssh/sshd_config` SSH服務使用的配置
+| 配置文件 | 簡介 | 配置項手冊 |
+| :- | :- | :- |
+| `/etc/ssh/ssh_config` | ssh指令使用的配置 | `man ssh_config` |
+| `/etc/ssh/sshd_config` | sshd服務使用的配置 | `man sshd_config` |
 
 常用SSH服務配置：
 
 - `PasswordAuthentication`
 
-	配置是否允許密碼登入。
+	配置是否允許密碼登入，公網環境建議關閉。
 
 	| 配置值 | 含義 |
 	| :- | :- |
@@ -980,7 +982,7 @@ SSH服務相關配置文件位於`/etc/ssh`路徑下：
 
 - `PermitRootLogin`
 
-	配置SSH服務是否允許root登陸。
+	配置SSH服務是否允許root登陸，公網環境建議關閉。
 
 	| 配置值 | 含義 |
 	| :- | :- |
@@ -998,6 +1000,24 @@ SSH服務相關配置文件位於`/etc/ssh`路徑下：
 	| :- | :- |
 	| yes | 開啓 |
 	| no | 關閉 |
+
+對於位於公網環境SSH服務器，為防止非法用戶暴力破解SSH密碼，建議調整下列配置：
+
+```yaml
+LoginGraceTime 5s # 服務端關閉未成功認證連接的時間，默認值2m
+MaxAuthTries 1 # 設置每個連接的最大認證嘗試次數，默認值6
+
+PermitRootLogin no # 默認值yes，公網環境不建議允許root用戶直接登入
+PasswordAuthentication no # 默認值yes，公網環境不建議允許密碼登入
+```
+
+公網環境下，防火牆可能會定期關閉不活躍的連接，會導致SSH連接被異常關閉，
+可通過配置心跳相關參數定期發送心跳包，避免SSH連接被防火牆異常關閉：
+
+```yaml
+TCPKeepAlive yes # 設置是否在空閒時自動發送心跳包，默認值yes，需要保證該配置開啟後續的心跳參數才會生效
+ClientAliveInterval 10s # 設置心跳包間隔（秒），默認值為0（不會自動發送心跳包），該間隔應小於防火牆關閉連接的時間，若值較大可能造成心跳包未發送連接就已被關閉
+```
 
 ## 配置免密登陸
 默認配置下，登陸SSH需要密碼，當部署一些依賴SSH協議的分佈式服務時(如`Hadoop`、`Zookeeper`、`Kafka`等)，
@@ -1038,7 +1058,7 @@ $ ssh-copy-id 目標用戶名@目標主機名或地址 -I 公鑰路徑
 若需要指定私鑰文件，可以添加`-i`參數：
 
 ```c
-$ ssh -i [指定私鑰路徑] [目標用戶名]@[目標主機地址/IP]
+$ ssh -i 私鑰路徑 目標用戶名@目標主機地址
 ```
 
 免密登錄失敗可查看相關日誌信息：
