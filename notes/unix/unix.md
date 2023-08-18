@@ -87,6 +87,7 @@
 		- [ip route](#ip-route)
 		- [路由轉發](#路由轉發)
 		- [追蹤路由](#追蹤路由)
+	- [ARP（Address Resolution Protocol，地址解析協議）](#arpaddress-resolution-protocol地址解析協議)
 	- [Bonding](#bonding)
 	- [netstat & ss](#netstat--ss)
 	- [mii-tool & ethtool](#mii-tool--ethtool)
@@ -3377,6 +3378,23 @@ default via 10.10.10.1 dev eno1 onlink
 10.10.10.0/24 dev eno1  proto kernel  scope link  src 10.10.10.253
 ```
 
+ip route默認輸出的路由表樣式可讀性較差，
+iproute2還提供了`routel`工具可更清晰地展示路由表：
+
+```html
+<!-- 打印路由表 -->
+$ routel
+         target            gateway          source    proto    scope    dev tbl
+    10.89.64.0/ 24                     10.89.64.64   kernel     link wlp3s0
+     224.0.0.0/ 4                                    static     link enp2s0
+    10.89.64.64              local     10.89.64.64   kernel     host wlp3s0 local
+            ::1                                      kernel              lo
+        fe80::/ 64                                   kernel          enp2s0
+        fe80::/ 64                                   kernel          wlp3s0
+            ::1              local                   kernel              lo local
+...
+```
+
 ### 路由轉發
 Linux具備路由轉發功能，作為路由器使用，在proc文件系統中查看系統路由功能是否開啟：
 
@@ -3431,6 +3449,34 @@ traceroute to www.a.shifen.com (39.156.66.14), 64 hops max, 52 byte packets
 
 Linux系統下iputils工具鏈還提供了`tracepath`工具作為traceroute的替代品，
 相比traceroute，tracepath的無須root權限，擁有更簡單的命令行參數。
+
+## ARP（Address Resolution Protocol，地址解析協議）
+傳統Unix使用和Linux的net-tools均使用`arp`指令查看系統ARP：
+
+```html
+<!-- Linux -->
+$ arp
+Address                  HWtype  HWaddress           Flags Mask            Iface
+192.168.198.99                   (incomplete)                              cali4dbaef0c8a4
+192.168.198.103          ether   1a:42:4a:ac:bb:1a   C                     cali873a04bdbec
+...
+
+<!-- macOS/BSD -->
+$ arp -a
+loaclhost (10.15.131.254) at 88:40:33:87:d9:5d on en6 ifscope [ethernet]
+loaclhost (10.15.131.255) at ff:ff:ff:ff:ff:ff on en6 ifscope [ethernet]
+? (172.20.10.1) at 6a:fe:f7:bb:e2:64 on en0 ifscope [ethernet]
+...
+```
+
+iproute2使用`ip neigh`子指令進行查看系統的ARP：
+
+```
+$ ip neigh
+192.168.198.99 dev cali4dbaef0c8a4  FAILED
+192.168.198.103 dev cali873a04bdbec lladdr 1a:42:4a:ac:bb:1a REACHABLE
+...
+```
 
 ## Bonding
 [Bonding](https://wiki.linuxfoundation.org/networking/bonding)可將兩個以上的物理網卡接口綁定為一個邏輯接口。
