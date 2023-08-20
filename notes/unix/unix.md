@@ -106,6 +106,7 @@
 	- [Load Averages](#load-averages)
 	- [ps](#ps)
 		- [自定義ps輸出內容格式](#自定義ps輸出內容格式)
+		- [使用ps查看進程狀態](#使用ps查看進程狀態)
 	- [procps](#procps)
 		- [top](#top)
 	- [iftop](#iftop)
@@ -4211,6 +4212,61 @@ COMMAND   PID   GID USER     TTY       %CPU %MEM PRI STAT      TIME
 ```
 
 Linux下的ps指令同樣支持BSD風格的參數，顯式格式與macOS/BSD下基本相同。
+
+### 使用ps查看進程狀態
+ps指令的輸出信息中STAT關鍵字代表進程的狀態，默認ps指令輸出中不包含該字段，
+Linux以及macOS/BSD下均可使用`ps x`展示進程狀態：
+
+```html
+<!-- Linux -->
+$ ps x
+PID TTY      STAT   TIME COMMAND
+  1 ?        Ss    11:01 /usr/lib/systemd/systemd --system --deserialize=72
+  2 ?        S      0:00 [kthreadd]
+  3 ?        I<     0:00 [rcu_gp]
+  4 ?        I<     0:00 [rcu_par_gp]
+  5 ?        I<     0:00 [slub_flushwq]
+  6 ?        I<     0:00 [netns]
+  8 ?        I<     0:00 [kworker/0:0H-events_highpri]
+ ...
+
+<!-- macOS/BSD -->
+$ ps x
+PID TT  STAT        TIME COMMAND
+  0  -  DLs      8:21.91 [kernel]
+  1  -  ILs      0:00.91 /sbin/init
+  2  -  DL       0:00.00 [KTLS]
+  3  -  DL       0:00.00 [crypto]
+  4  -  DL       1:41.77 [cam]
+  5  -  DL       6:38.46 [zfskern]
+  ...
+```
+
+亦可使用自定義關鍵字方式輸出該字段內容。
+
+進程狀態的含義可參考Linux中man手冊的描述：
+
+> Here are the different values that the s, stat and state output specifiers (header "STAT" or "S") will display
+> to describe the state of a process:
+>
+>         D    uninterruptible sleep (usually IO)
+>         I    Idle kernel thread
+>         R    running or runnable (on run queue)
+>         S    interruptible sleep (waiting for an event to complete)
+>         T    stopped by job control signal
+>         t    stopped by debugger during the tracing
+>         W    paging (not valid since the 2.6.xx kernel)
+>         X    dead (should never be seen)
+>         Z    defunct ("zombie") process, terminated but not reaped by its parent
+>
+> For BSD formats and when the stat keyword is used, additional characters may be displayed:
+>
+>         <    high-priority (not nice to other users)
+>         N    low-priority (nice to other users)
+>         L    has pages locked into memory (for real-time and custom IO)
+>         s    is a session leader
+>         l    is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)
+>         +    is in the foreground process group
 
 ## procps
 [`procps`](https://gitlab.com/procps-ng/procps)包提供了核心的性能監測工具套件，
