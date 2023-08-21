@@ -26,6 +26,7 @@
 	- [Docker Volumes（卷）](#docker-volumes卷)
 - [Docker端口映射](#docker端口映射)
 	- [Docker修改端口映射](#docker修改端口映射)
+- [Docker設置自定義Hosts](#docker設置自定義hosts)
 - [Habor](#habor)
 	- [部署Habor](#部署habor)
 	- [部署Helm Chart倉庫](#部署helm-chart倉庫)
@@ -411,8 +412,7 @@ docker commit僅會提交相對基礎鏡像變化的部分（OverlayFS）。
 
 早期的`docker-compose`為獨立的組件，需要單獨下載使用。
 自[`Docker Compose V2`](https://www.docker.com/blog/announcing-compose-v2-general-availability/)開始，
-Docker Compose已經與Docker一同提供，
-並可直接使用`docker compose`指令執行Compose相關操作。
+Docker Compose已經與Docker一同提供，並可直接使用`docker compose`指令執行Compose相關操作。
 
 部分發行版（如`ubuntu`）提供的Docker並未包含Compose，
 且軟件源中提供的`docker-compose`組件為Python實現的`Docker Compose 1.x`，
@@ -928,6 +928,22 @@ $ docker create -p 主機端口1:容器端口2 -p 主機端口2:容器端口2 ..
 		...
 	}
 	```
+
+
+
+# Docker設置自定義Hosts
+Docker在構建鏡像、常見容器時均可使用`--add-host`參數添加自定義主機映射：
+
+```html
+<!-- 構建容器時添加自定義Hosts -->
+$ docker build --add-host 主機名1:IP1 --add-host 主機名2:IP2 ...
+
+<!-- 創建容器時添加自定義Hosts -->
+$ docker run --add-host 主機名1:IP1 --add-host 主機名2:IP2 ...
+$ docker create --add-host 主機名1:IP1 --add-host 主機名2:IP2 ...
+```
+
+使用相關參數創建容器後，容器內的`/etc/hosts`文件中會添加相應的主機IP映射。
 
 
 
