@@ -107,6 +107,7 @@
 	- [ps](#ps)
 		- [自定義ps輸出內容格式](#自定義ps輸出內容格式)
 		- [使用ps查看進程狀態](#使用ps查看進程狀態)
+		- [查看LWP線程信息](#查看lwp線程信息)
 	- [procps](#procps)
 		- [top](#top)
 	- [iftop](#iftop)
@@ -4267,6 +4268,27 @@ PID TT  STAT        TIME COMMAND
 >         s    is a session leader
 >         l    is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)
 >         +    is in the foreground process group
+
+### 查看LWP線程信息
+Linux下默認ps指令僅展示進程，查看LWP線程信息：
+
+```html
+<!-- 使用 -L 參數展示LWP線程信息 -->
+$ ps -L
+$ ps -efL <!-- 與其它參數組合使用 -->
+```
+
+亦可通過使用`o/-o`參數指定輸出相關關鍵字：
+
+```html
+<!--
+lwp 為LWP線程ID
+psr 為當前使用的CPU核心編號
+
+查看LWP以及對應的CPU核心分佈
+-->
+$ ps -o cmd,pid,lwp,psr
+```
 
 ## procps
 [`procps`](https://gitlab.com/procps-ng/procps)包提供了核心的性能監測工具套件，
