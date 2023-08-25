@@ -20,6 +20,7 @@
 	- [Display Manager](#display-manager)
 - [磁盤分區管理](#磁盤分區管理)
 	- [調整分區和文件系統大小](#調整分區和文件系統大小)
+	- [修復GPT分區表](#修復gpt分區表)
 	- [proc文件系統](#proc文件系統)
 	- [掛載導入zfs分區](#掛載導入zfs分區)
 - [limits](#limits)
@@ -464,9 +465,9 @@ ada1
 
 ```html
 <!-- 使用分區後的所有可用空間 -->
-# gpart resize -i 分區編號 設備名稱
+# gpart resize -i 分區編號 磁盤設備名稱
 <!-- 擴展分區到指定大小 -->
-# gpart resize -i 分區編號 -s 分區大小 設備名稱
+# gpart resize -i 分區編號 -s 分區大小 磁盤設備名稱
 ```
 
 調整分區大小後調整文件系統大小：
@@ -474,6 +475,71 @@ ada1
 ```html
 # growfs 分區塊設備路徑 <!-- UFS -->
 # zpool online -e 存儲池名稱 分區塊設備名稱 <!-- ZFS -->
+```
+
+示例：
+
+```html
+<!-- 分區表結構如下所示，擴展編號4的分區，使之用完所有剩餘空間 -->
+$ gpart show
+=>       40  104857520  diskid/DISK-4491e576-c88c-4ad9-8  GPT  (50G)
+         40       1024                                 1  freebsd-boot  (512K)
+       1064      81920                                 2  efi  (40M)
+      82984    2097152                                 3  freebsd-swap  (1.0G)
+    2180136    3963824                                 4  freebsd-zfs  (1.9G)
+    6143960   98713600                                    - free -  (47G)
+
+<!-- 查看ZPool存儲池，確認分區大小 -->
+$ zpool list
+NAME    SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
+zroot  1.88G  1.18G   716M        -         -     8%    62%  1.00x    ONLINE  -
+
+<!-- 調整分區大小 -->
+# gpart resize -i 4 /dev/diskid/DISK-4491e576-c88c-4ad9-8
+diskid/DISK-4491e576-c88c-4ad9-8p4 resized
+
+<!-- 確認分區大小，可知此時編號4的分區大小已被調整 -->
+$ gpart show
+=>       40  104857520  diskid/DISK-4491e576-c88c-4ad9-8  GPT  (50G)
+         40       1024                                 1  freebsd-boot  (512K)
+       1064      81920                                 2  efi  (40M)
+      82984    2097152                                 3  freebsd-swap  (1.0G)
+    2180136  102677424                                 4  freebsd-zfs  (49G)
+
+<!-- ZPool存儲池未調整，大小并未變化 -->
+$ zpool list
+NAME    SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
+zroot  1.88G  1.18G   716M        -         -     8%    62%  1.00x    ONLINE  -
+
+<!-- 擴展ZPool存儲池大小 -->
+# zpool online -e zroot /dev/diskid/DISK-4491e576-c88c-4ad9-8p4
+
+<!-- 再次查看ZPool存儲池大小，已使用剩餘空間 -->
+$ zpool list
+NAME    SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
+zroot  48.9G  1.18G  47.7G        -         -     0%     2%  1.00x    ONLINE  -
+```
+
+## 修復GPT分區表
+當遭遇GPT分區表損壞的情形，可嘗試使用`gpart revocer`進行恢復：
+
+```
+$ gpart status /dev/diskid/DISK-4491e576-c88c-4ad9-8
+                              Name   Status  Components
+diskid/DISK-4491e576-c88c-4ad9-8p1  CORRUPT  diskid/DISK-4491e576-c88c-4ad9-8
+diskid/DISK-4491e576-c88c-4ad9-8p2  CORRUPT  diskid/DISK-4491e576-c88c-4ad9-8
+diskid/DISK-4491e576-c88c-4ad9-8p3  CORRUPT  diskid/DISK-4491e576-c88c-4ad9-8
+diskid/DISK-4491e576-c88c-4ad9-8p4  CORRUPT  diskid/DISK-4491e576-c88c-4ad9-8
+
+# gpart recover /dev/diskid/DISK-4491e576-c88c-4ad9-8
+diskid/DISK-4491e576-c88c-4ad9-8 recovered
+
+$ gpart status /dev/diskid/DISK-4491e576-c88c-4ad9-8
+                              Name  Status  Components
+diskid/DISK-4491e576-c88c-4ad9-8p1      OK  diskid/DISK-4491e576-c88c-4ad9-8
+diskid/DISK-4491e576-c88c-4ad9-8p2      OK  diskid/DISK-4491e576-c88c-4ad9-8
+diskid/DISK-4491e576-c88c-4ad9-8p3      OK  diskid/DISK-4491e576-c88c-4ad9-8
+diskid/DISK-4491e576-c88c-4ad9-8p4      OK  diskid/DISK-4491e576-c88c-4ad9-8
 ```
 
 ## proc文件系統
