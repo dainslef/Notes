@@ -104,6 +104,7 @@
 	- [Keepalived完整示例](#keepalived完整示例)
 - [性能監控與測試](#性能監控與測試)
 	- [Load Averages](#load-averages)
+	- [cpupower](#cpupower)
 	- [ps](#ps)
 		- [自定義ps輸出內容格式](#自定義ps輸出內容格式)
 		- [使用ps查看進程狀態](#使用ps查看進程狀態)
@@ -4084,6 +4085,68 @@ Load Averages數值大於`1`則說明系統過載，例如`1.05`表示系統過�
 macOS使用線程數計算系統負載，而不是Linux使用的進程數目，因而通常macOS系統下顯示的負載會高於1。
 macOS下的Load Averages介紹可參考[StackExchange](https://superuser.com/questions/370622/how-is-load-average-calculated-on-osx-it-seems-too-high-and-how-do-i-analyze)上的相關問答。
 macOS的進程模型具體可參考[Mach內核官方文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Architecture/Architecture.html)。
+
+## cpupower
+`cpupower`用於調整CPU的功耗模式，主要包括frequency（主頻策略）、idle（空閒策略）等。
+
+frequency相關指令：
+
+```html
+$ cpupower frequency-info <!-- 查看當前主頻策略，通常默認為 powersave 模式 -->
+# cpupower frequency-set -g performance <!-- 設置主頻策略為 performance 模式 -->
+# cpupower frequency-set -g powersave <!-- 設置主頻策略為 powersave 模式 -->
+```
+
+示例：
+
+```html
+$ cpupower frequency-info
+analyzing CPU 0:
+  driver: intel_pstate
+  CPUs which run at the same hardware frequency: 0
+  CPUs which need to have their frequency coordinated by software: 0
+  maximum transition latency:  Cannot determine or is not supported.
+  hardware limits: 1000 MHz - 4.00 GHz
+  available cpufreq governors: performance powersave
+  current policy: frequency should be within 1000 MHz and 4.00 GHz.
+                  The governor "powersave" may decide which speed to use
+                  within this range. <!-- 當前主頻策略為 powersave 模式 -->
+  current CPU frequency: 1000 MHz (asserted by call to hardware)
+  boost state support:
+    Supported: yes
+    Active: yes
+
+# cpupower frequency-set -g performance
+Setting cpu: 0
+Setting cpu: 1
+Setting cpu: 2
+Setting cpu: 3
+...
+
+$ cpupower frequency-info
+analyzing CPU 0:
+  driver: intel_pstate
+  CPUs which run at the same hardware frequency: 0
+  CPUs which need to have their frequency coordinated by software: 0
+  maximum transition latency:  Cannot determine or is not supported.
+  hardware limits: 1000 MHz - 4.00 GHz
+  available cpufreq governors: performance powersave
+  current policy: frequency should be within 1000 MHz and 4.00 GHz.
+                  The governor "performance" may decide which speed to use
+                  within this range. <!-- 當前主頻策略变更為 performance 模式 -->
+  current CPU frequency: 1.06 GHz (asserted by call to hardware)
+  boost state support:
+    Supported: yes
+    Active: yes
+```
+
+idle相關指令：
+
+```html
+$ cpupower idle-info <!-- 查看IDLE狀態 -->
+# cpupower idle-set -D 0 <!-- 禁用指定編號及以上的IDLE狀態，編號為0，則禁用所有IDLE狀態 -->
+# cpupower idle-set -E <!-- 啟用IDLE狀態 -->
+```
 
 ## ps
 `ps`指令是Unix下最常用的進程信息查看工具，可查看進程的CPU、內存等常見的資源使用情況。
