@@ -594,6 +594,24 @@ $ brew untap 倉庫名稱 <!--  禁用指令名稱的倉庫 -->
 倉庫本地目錄位於`$(brew --repo)/Library/Taps`路徑下，
 每個倉庫是獨立的git repo，切換源時需要為每個倉庫替換remote的origin分支路徑。
 
+從[`Homebrew 4.0`](https://brew.sh/2023/02/16/homebrew-4.0.0)開始，
+官方核心倉庫core和cask內的軟件包現在不再依賴tap倉庫，
+而是直接通過[Homebrew JSON API](https://formulae.brew.sh/docs/api)進行訪問：
+
+```html
+<!-- Formula API（原 homebrew/core 倉庫） -->
+GET https://formulae.brew.sh/api/formula.json
+
+<!-- Cask API（原 homebrew/cask 倉庫） -->
+GET https://formulae.brew.sh/api/cask.json
+```
+
+已經啟用這些倉庫的用戶可移除相關倉庫，可節省本地磁盤空間：
+
+```
+$ brew untap homebrew/core homebrew/cask
+```
+
 ### Homebrew Cask
 Homebrew提供了macOS專屬Bundle封裝應用的軟件倉庫`homebrew/cask`（原`caskroom/cask`倉庫）。
 啟用Homebrew Casks倉庫：
