@@ -4,7 +4,7 @@
 	- [管理 Android SDK](#管理-android-sdk)
 	- [Intel HAXM](#intel-haxm)
 - [Android Platform Tools](#android-platform-tools)
-	- [Android Debug Bridge (adb)](#android-debug-bridge-adb)
+	- [Android Debug Bridge（adb）](#android-debug-bridgeadb)
 	- [Fastboot](#fastboot)
 - [項目構建](#項目構建)
 	- [項目結構](#項目結構)
@@ -52,11 +52,12 @@
 
 
 # 環境搭建
-`Android`早期通過`Eclipse`外掛`ADT`(`Android Development Tools`)插件來進行開發。
+`Android`早期通過`Eclipse`外掛`ADT`（`Android Development Tools`）插件來進行開發。
 `Eclipse ADT`插件現在已停止更新，官方推薦開發環境遷移到`Android Studio`。
 
-`Android Studio`基於`IntelliJ IDEA Community`定製開發，
-`IntelliJ IDEA`的`Android Support`插件提供了`Android Studio`的核心功能，啓用該插件即可進行`Android`開發。
+Android Studio基於`IntelliJ IDEA Community`定製開發，
+IntelliJ IDEA的`Android Support`插件提供了Android Studio的核心功能，
+啓用該插件即可進行Android開發。
 
 ## 管理 Android SDK
 依次通過`Tools => Android => SDK Manager`進入`Android SDK`配置界面。
@@ -64,14 +65,15 @@
 - `SDK Platforms`界面勾選需要的`Android SDK`版本。
 - `SDK Tools`界面勾選需要的開發工具鏈。
 
-選擇`Android SDK`時，需要注意`IntelliJ IDEA`的`Android Support`插件與`Android Studio`版本的對應關係。
-如`IntelliJ IDEA 2017.2`的`Android Support`插件版本爲`10.2.3`，對應`Android Studio 2.3`，
-`Android Studio 2.3`發佈時的`Android SDK`最高版本爲`API 25 (Android 7.1.1 Nougat)`。
+選擇Android SDK時，需要注意IntelliJ IDEA的Android Support插件與Android Studio版本的對應關係。
+如`IntelliJ IDEA 2017.2`的Android Support插件版本爲`10.2.3`，對應`Android Studio 2.3`，
+`Android Studio 2.3`發佈時的Android SDK最高版本爲`API 25 (Android 7.1.1 Nougat)`。
 
-高版本的`Android SDK`在低版本的`Android Support`插件中僅顯示`API`級別，不顯示版本信息。
+高版本的Android SDK在低版本的Android Support插件中僅顯示`API`級別，不顯示版本信息。
 如`Android 8.0 Oreo`在`Android Support 10.2.3`中僅顯示爲`API 26`。
 
-不應使用與插件不匹配的高版本`Android SDK`(不顯示版本信息的版本)，高版本的`Android SDK`搭配低版本的`Android Support`插件可能會造成UI設計器、構建工具等出錯。
+不應使用與插件不匹配的高版本Android SDK（不顯示版本信息的版本），
+高版本的Android SDK搭配低版本的Android Support插件可能會造成UI設計器、構建工具等出錯。
 
 ## Intel HAXM
 **Android模擬器**需要`Intel HAXM`技術提供圖形加速支持，否則模擬器無法啓動。
@@ -106,9 +108,10 @@ Android Platform Tools可以獨立安裝，macOS/Linux通常在對應軟件倉�
 $ brew --cask install android-platform-tools
 ```
 
-## Android Debug Bridge (adb)
-[`Android Debug Bridge (adb)`](https://developer.android.com/studio/command-line/adb)工具用於與Android設備通信，
-可執行一系列設備操作，例如安裝和調試應用，adb工具還提供了Unix Shell讓開發者在設備上執行一系列的指令。
+## Android Debug Bridge（adb）
+[`Android Debug Bridge (adb)`](https://developer.android.com/studio/command-line/adb)
+工具用於與Android設備通信，可執行一系列設備操作，
+例如安裝和調試應用，adb工具還提供了Unix Shell讓開發者在設備上執行一系列的指令。
 
 adb工具為client-server架構，包含以下組件：
 
@@ -190,27 +193,27 @@ drwxr-xr-x  12 root   shell      4096 2009-01-01 08:00 vendor
 
 ```html
 <!-- 從開發機傳輸文件到目標設備 -->
-$ adb push [本地路徑] [目標路徑]
+$ adb push 本地路徑 目標路徑
 
 <!-- 從目標設備傳輸文件到開發機 -->
-$ adb pull [目標路徑] [本地路徑]
+$ adb pull 目標路徑 本地路徑
 ```
 
 使用adb對目標設備安裝包：
 
 ```html
-$ adb install [包]
-$ adb install -r [包] <!-- 替換掉已存在的包 -->
-$ adb install -d [包] <!-- 允許包降級 -->
+$ adb install 安裝包
+$ adb install -r 安裝包 <!-- 替換掉已存在的包 -->
+$ adb install -d 安裝包 <!-- 允許包降級 -->
 
-$ adb install-multiple [包...]
-$ adb install-multi-package [包...]
+$ adb install-multiple 安裝包...
+$ adb install-multi-package 安裝包...
 ```
 
-使用adb還可進行**卡刷**zip刷機包(需要recovery支持並開啟sideload)：
+使用adb還可進行**卡刷**zip刷機包（需要recovery支持並開啟sideload）：
 
 ```
-$ adb sideload [卡刷包]
+$ adb sideload 卡刷包
 ```
 
 ## Fastboot
@@ -234,7 +237,7 @@ fastboot工具可用於安裝設備鏡像。
 以安裝TWRP為例，從下載對應設備的官方鏡像，將設備重啟至fastboot模式，連接電腦後執行指令：
 
 ```
-$ fastboot flash recovery [鏡像路徑]
+$ fastboot flash recovery 鏡像路徑
 ```
 
 示例：
@@ -254,7 +257,7 @@ Anddroid項目使用`Gradle`做爲構建工具。
 ## 項目結構
 一個基本的Android項目具有以下目錄結構：
 
-```
+```sh
 項目名稱
 ├── build.gradle
 ├── settings.gradle
@@ -283,7 +286,7 @@ Anddroid項目使用`Gradle`做爲構建工具。
 ```
 
 ## 構建定義
-`Android`項目使用`Gradle`做爲構建工具，項目構建配置位於`app/build.gradle`。
+Android項目使用Gradle做爲構建工具，項目構建配置位於`app/build.gradle`。
 構建配置基本結構如下：
 
 ```groovy
@@ -321,7 +324,7 @@ repositories {
 ```
 
 ## 添加 Kotlin 支持
-在`Android`項目中添加`Kotlin`支持，需要以下步驟：
+在Android項目中添加`Kotlin`支持，需要以下步驟：
 
 1. 在`build.gradle`中追加以下內容：
 
@@ -349,9 +352,9 @@ repositories {
 # 資源
 資源是非代碼形式，如圖片、音頻、XML文件等。
 在Andorid項目中，所有的資源均位於`res`路徑下。
-`res`路徑下具有以下結構：
+res路徑下具有以下結構：
 
-```
+```sh
 res
  ├── drawable # 矢量圖
  │    ├── activity_main.xml
@@ -371,7 +374,9 @@ res
 ```
 
 ## 資源ID
-在Android項目構建時，`res`路徑下各類資源文件會被分配資源ID，在多數`Andorid API`中，均通過資源ID訪問資源。
+在Android項目構建時，res路徑下各類資源文件會被分配資源ID，
+在多數Andorid API中，均通過資源ID訪問資源。
+
 資源ID定義在靜態類`R`中(`R.java`文件)中：
 
 - 部分路徑會直接在`R`類型內生成對應名稱的**靜態內部類**：
@@ -459,15 +464,18 @@ Activity類似於`Swing`中的`JFrame`、`Qt`中的`QWindow`、`JavaFx`中的`St
 做爲應用的頂層窗口存在，一個應用可以由一個/多個Activity構成。
 
 多個Activity之間可相互跳轉，並傳遞信息。
-跳轉到新的Activity時，舊的Activity會停止並駐留在返回棧上，使用返回按鈕會銷燬新Activity，並恢復原Activity。
-啓動時呈現的Activity爲**主Activity(MainActivity)**，**主Activity**銷燬會退出應用。
+跳轉到新的Activity時，舊的Activity會停止並駐留在返回棧上，
+使用返回按鈕會銷燬新Activity，並恢復原Activity。
+啓動時呈現的Activity爲**主Activity(MainActivity)**，**主Activity**銷毀會退出應用。
 
 ## View (視圖)
 `android.view.View`及其子類用於爲`Activity`提供用戶界面。
 `View`類型存在子類`ViewGroup`，可做爲容器容納其它`View`。
 
 在Android項目使用`XML`語法描述視圖佈局，在`app/res/layout`路徑下添加視圖資源文件，
-重寫父類Activity的`onCreate()`方法，在其中調用`setContentView()`，傳入資源ID來設定Activity的視圖。
+重寫父類Activity的`onCreate()`方法，在其中調用`setContentView()`，
+傳入資源ID來設定Activity的視圖。
+
 如下所示：
 
 ```kotlin
@@ -485,7 +493,7 @@ class MainActivity : AppCompatActivity() {
 
 使用`setContentView()`將視圖資源設置到`Activity`後，
 視圖資源的描述的每一個容器、控件皆可由`findViewById()`方法通過視圖`ID`獲取對應的視圖實例
-(需要對應控件在`XML`定義中聲明瞭`android:id`屬性)。
+（需要對應控件在`XML`定義中聲明瞭`android:id`屬性）。
 如下所示，資源文件定義如下：
 
 ```
@@ -536,7 +544,7 @@ public class Activity extends ... {
 `intent`參數亦可附加傳遞數據、實例。
 如下所示：
 
-```kotlin
+```kt
 startActivity(Intent(this, OtherActicity::class.java))
 ```
 
@@ -593,7 +601,7 @@ Activity在下列事件發生時會重新構造：
 - 設備屏幕旋轉
 - 系統內存不足時被清理，再度主動打開
 
-重建的Activity狀態會被重置(重新構造Activity實例)。
+重建的Activity狀態會被重置（重新構造Activity實例）。
 若需要保存應用狀態，應重寫`onSaveInstanceState()`方法，相關定義如下：
 
 ```java
@@ -617,7 +625,8 @@ public class Activity extends ... {
 }
 ```
 
-Activity銷燬前存入`outState`參數中的字段可從`onRestoreInstanceState()`方法的`savedInstanceState`參數中取出，用於恢復Activity狀態。
+Activity銷燬前存入`outState`參數中的字段可從`onRestoreInstanceState()`方法的`savedInstanceState`參數中取出，
+用於恢復Activity狀態。
 
 
 
@@ -634,7 +643,7 @@ Fragment有獨立的事件處理、生命週期。
 - 宿主Activity銷燬時，包含的子Fragment都將被銷燬。
 
 ## Fragment View
-與`Activity`類似，Fragment可以使用XML資源文件描述UI佈局，在`app/res/layout`路徑下添加視圖資源文件，
+與Activity類似，Fragment可以使用XML資源文件描述UI佈局，在`app/res/layout`路徑下添加視圖資源文件，
 重寫父類Fragment的`onCreateView()`方法，在其中調用`LayoutInflater`實例的`inflate()`方法，
 傳入資源ID來設定Fragment的視圖。
 
@@ -744,8 +753,8 @@ public class Fragment implements ComponentCallbacks2, OnCreateContextMenuListene
 ```
 
 `Bundle`類型擁有一系列`getXxx()/setXxx()`方法用於**獲取/設置**指定類型的數據。
-與`Intent`類型類似，`Bundle`類型傳遞數據的方法`setXxx()`接收字符串和數據內容做爲參數(數據內容由字符串作爲`Key`)，
-獲取數據的相關方法`getXxx()`使用字符串標`Key`提取指定的數據。
+與`Intent`類型類似，`Bundle`類型傳遞數據的方法`setXxx()`接收字符串和數據內容做爲參數
+（數據內容由字符串作爲Key），獲取數據的相關方法`getXxx()`使用字符串標Key提取指定的數據。
 
 
 
@@ -788,7 +797,7 @@ public class Intent implements Parcelable, Cloneable {
 }
 ```
 
-可直接將實現了`Parcelable/Serializable`接口的實例做爲數據內容傳入(序列化)。
+可直接將實現了`Parcelable/Serializable`接口的實例做爲數據內容傳入（序列化）。
 
 `getXxxExtra()`系列方法針對不同類型的數據內容提供了獲取功能：
 
@@ -957,11 +966,11 @@ DISPLAY_SHOW_CUSTOM
 
 ```kotlin
 actionBar?.apply {
-    setDisplayHomeAsUpEnabled(true) //顯示返回按鈕
+    setDisplayHomeAsUpEnabled(true) // 顯示返回按鈕
     setDisplayShowCustomEnabled(true)
     setDisplayShowHomeEnabled(true)
     setDisplayShowTitleEnabled(true)
-    setDisplayUseLogoEnabled(true) //顯示 APP Logo
+    setDisplayUseLogoEnabled(true) // 顯示 APP Logo
 }
 ```
 
@@ -1175,9 +1184,9 @@ override fun onStart() {
 
 # Android Design Support Library
 `Android 5.0 (API Level 21)`之後官方發佈了`Android Design Support Library`。
-`Android Design Support Library`提供了更多現代的、符合的`Material Design`設計規範的控件。
+Android Design Support Library提供了更多現代的、符合的`Material Design`設計規範的控件。
 
-使用`Android Design Support Library`，在`app/build.gradle`文件中添加依賴：
+使用Android Design Support Library，在`app/build.gradle`文件中添加依賴：
 
 ```groovy
 dependencies {
@@ -1337,11 +1346,16 @@ AppBarLayout在`android.support.design.widget.CoordinatorLayout`佈局下，
 
 `app:layout_scrollFlags`屬性取值如下(取多個屬性值時用`|`操作符連接)：
 
-- `scroll` 需要響應滾動事件的組件需要設置該屬性，是其它滾動屬性的前置條件，默認優先滾動關聯組件
-- `snap` 彈性滾動效果，下滑/上滑時，組件要麼隱藏，要麼完全展現，滾動距離未達要求時，當前控件回彈到之前狀態
-- `enterAlways` 優先滾動當前控件，發生向下滾動行爲時，處於隱藏狀態的控件會立即出現，而不是等待關聯滾動組件滾動到頂部
-- `enterAlwaysCollapsed` enterAlways的附加選項，向下滾動時，當前控件先滾動到最小高度，之後再開始滾動關聯組件，關聯組件滾動到頂部時再滾動當前組件到最大值
-- `exitUntilCollapsed` enterAlways的附加選項，向上滾動時，當前組件縮小到最小高度，但不會完全隱藏
+- `scroll` 需要響應滾動事件的組件需要設置該屬性，
+是其它滾動屬性的前置條件，默認優先滾動關聯組件
+- `snap` 彈性滾動效果，下滑/上滑時，組件要麼隱藏，要麼完全展現，
+滾動距離未達要求時，當前控件回彈到之前狀態
+- `enterAlways` 優先滾動當前控件，發生向下滾動行爲時，
+處於隱藏狀態的控件會立即出現，而不是等待關聯滾動組件滾動到頂部
+- `enterAlwaysCollapsed` enterAlways的附加選項，向下滾動時，當前控件先滾動到最小高度，
+之後再開始滾動關聯組件，關聯組件滾動到頂部時再滾動當前組件到最大值
+- `exitUntilCollapsed` enterAlways的附加選項，
+向上滾動時，當前組件縮小到最小高度，但不會完全隱藏
 
 
 
