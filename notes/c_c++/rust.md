@@ -37,7 +37,7 @@
 
 # 概述
 [`Rust`](https://www.rust-lang.org/)是Molizza推出的系統編程語言，
-專注於性能(performance)、可靠性(reliability)、生產力(productivity)。
+專注於性能（performance）、可靠性（reliability）、生產力（productivity）。
 
 ## 開發環境
 Rust官方推薦的開發環境是[`Visual Studio Code`](https://code.visualstudio.com/)
@@ -84,7 +84,7 @@ $ cargo test <!-- 執行項目的測試 -->
 name = "項目名稱"
 version = "版本號"
 edition = "2021"
-authors = ["dainslef <dainslef@outlook.com>"]
+authors = ["用戶名 <郵箱>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -147,7 +147,8 @@ rustfmt默認會按照社區風格格式化代碼，VSCode自身配置的Rust代
 ```
 
 ## REPL
-Rust目前沒有官方的REPL實現，目前流行的REPL實現是Google提供的[`evcxr`](https://github.com/google/evcxr)。
+Rust目前沒有官方的REPL實現，目前流行的REPL實現是Google提供的
+[`evcxr`](https://github.com/google/evcxr)。
 
 evcxr可以直接通過cargo進行安裝：
 
@@ -388,7 +389,35 @@ impl const Not for bool {
 }
 ```
 
-與在Trait中添加泛型參數相比，使用Associated Types則意味著一個類型僅能impl時僅能擁有一種實現。
+與在Trait中添加泛型參數相比，Trait與每個不同的泛型參數均可構成互不衝突的impl實現，
+但使用Associated Types則意味著一個類型僅能impl時僅能擁有一種實現（Trait類型只有一個）。
+
+示例：
+
+```rs
+trait TraitWithGeneric<T> {
+  ...
+}
+
+impl TraitWithGeneric<Xxx1> for Xxx {
+  ...
+}
+impl TraitWithGeneric<Xxx2> for Xxx {
+  ...
+}
+
+...
+
+trait TraitWithAssociatedType {
+  type AssociatedType;
+  ...
+}
+
+// 無泛型參數，一個目標類型僅能實現一個impl
+impl TraitWithAssociatedType for Xxx {
+  ...
+}
+```
 
 ## Generic Associated Types
 自[`Rust 1.65`](https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html)版本開始，
@@ -471,7 +500,7 @@ Rust中的Map類型未提供多值初始化的構造器或宏（類似Vec類型�
 
 ## Rc / Box / Arc
 Rc/Box/Arc是Rust的智能指針類型，
-對應C++中的`std::shared_ptr`(Rc)和`std::unique_ptr`(Box)。
+對應C++中的`std::shared_ptr`（Rc）和`std::unique_ptr`（Box）。
 Rc/Arc共享所有權，支持複製指針；Box獨佔所有權，不可複製，僅支持移動對象。
 
 Box默認即實現了線程安全相關的trait（Send + Sync），
@@ -498,19 +527,19 @@ fn example() {
 
 ## Cell / RefCell
 `std::cell`mod下提供了對於可變內存區域的抽象。
-Cell/RefCell通常作為智能指針類型(Rc/Box)的泛型參數使用(如`Rc<RefCell<T>>`)，
+Cell/RefCell通常作為智能指針類型（Rc/Box）的泛型參數使用（如`Rc<RefCell<T>>`），
 由於rust中智能指針默認持有對象不可變，因此需要在持有的對象自身添加一層抽象，
-用於提供對象的可變操作(替換指針指向的內容)。
+用於提供對象的可變操作（替換指針指向的內容）。
 
-Cell類型提供了對內部持有對象進行整體安全替換(`Cell::replace()`)、
-交換兩個Cell對象的內容(`Cell::swap()`)的能力。
+Cell類型提供了對內部持有對象進行整體安全替換（`Cell::replace()`）、
+交換兩個Cell對象的內容（`Cell::swap()`）的能力。
 
-RefCell類型提供了對內部持有對象進行安全地只讀引用(`RefCell::borrow()`)、
-讀寫引用(`RefCell::borrow_mut()`)的能力。
+RefCell類型提供了對內部持有對象進行安全地只讀引用（`RefCell::borrow()`）、
+讀寫引用（`RefCell::borrow_mut()`）的能力。
 borrow()系列方法會在運行期間進行動態檢查，違反讀寫鎖規則時拋出異常，保證讀寫安全。
 
 Cell/RefCell均可通過`as_ptr()`方法獲取raw pointer，
-以使用unsafe在某些特殊情形下(如鏈表、二叉樹)繞過rust的所有權檢查。
+以使用unsafe在某些特殊情形下（如鏈表、二叉樹）繞過rust的所有權檢查。
 
 Cell/RefCell類型不是線程安全的，因此未實現Sync特質；
 若需要保證線程安全，需要搭配Mutex、RwLock等鎖類型。
@@ -523,7 +552,7 @@ static定義一個**地址恆定**的值，則const定義一個**常量**。
 
 相同點：
 
-- const/static定義的值均具有與程序相等的最長生命週期(`'static`)。
+- const/static定義的值均具有與程序相等的最長生命週期（`'static`）。
 - 在整個程序中，const/static定義的字段僅存在一個實例。
 - const/static字段只能接受常量或const函數進行初始化。
 - const/static字段均使用大寫下劃線命名法。
@@ -549,7 +578,8 @@ unsafe {
 
 ## const_item_mutation
 Rust中const字段不具備恆定地址，在定義一個內部可變的const字段時會得到
-[`const-item-mutation`](https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#const-item-mutation)錯誤。
+[`const-item-mutation`](https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#const-item-mutation)
+錯誤。
 
 const字段在調用時會被**內聯**，調用時會創建臨時值，訪問的只是臨時值的地址，
 因此修改不會印象原const值的內容，此類場景應使用static字段代替const字段。
