@@ -40,7 +40,7 @@
 - [JSON 類型](#json-類型)
 	- [基本JSON操作](#基本json操作)
 	- [查找與更新JSON節點](#查找與更新json節點)
-- [Index (索引)](#index-索引)
+- [Index（索引）](#index索引)
 	- [索引類型](#索引類型)
 	- [索引實現與優化](#索引實現與優化)
 - [Row Formats（行格式）](#row-formats行格式)
@@ -60,6 +60,9 @@
 	- [時間轉換](#時間轉換)
 	- [禁用 DNS 解析](#禁用-dns-解析)
 - [查看數據庫狀態](#查看數據庫狀態)
+- [性能測試](#性能測試)
+	- [mysqlslap](#mysqlslap)
+	- [寫入性能相關優化參數](#寫入性能相關優化參數)
 - [C API](#c-api)
 	- [連接數據庫](#連接數據庫)
 	- [執行SQL語句](#執行sql語句)
@@ -912,7 +915,7 @@ MySQL提供的JSON_REMOVE()函數基於索引刪除內容，而JSON_SEARCH()函�
 
 
 
-# Index (索引)
+# Index（索引）
 索引被用於快速查找包含特定列值的行。在無索引的情況下，MySQL會從首行開始讀取整張表來查找相關的行。
 查找的消耗會隨著表格的增大而增大。若表格查詢的列已建立索引，則MySQL能夠快速地找到數據文件中的位置，
 而不必查找所有數據，相比順序地讀取每一行要快得多。
@@ -1255,6 +1258,63 @@ skip-name-resolve
 | COLUMNS | 表格列信息 |
 | SCHEMA_PRIVILEGES | 數據庫權限信息(自mysql.db表獲取) |
 | USER_PRIVILEGES | 用戶權限信息(自mysql.user表獲取) |
+
+
+
+# 性能測試
+MySQL内置了`mysqlslap`工具可用於性能測試，`sysbench`亦提供了mysql數據庫的性能測試功能。
+
+## mysqlslap
+mysqlslap基本用法：
+
+```
+$ mysqlslap -h 主機地址 -u用戶 -p密碼 --iterations=測試輪數 --concurrency=客戶端數目 --number-of-queries=操作數目 --auto-generate-sql-load-type=測試類型 ...
+```
+
+mysqlslap工具的連接認證相關參數與mysql客戶端工具相同，其它常用參數說明：
+
+| 參數 | 說明 |
+| :- | :- |
+| --iterations | 測試輪數 |
+| --concurrency | 客戶端數目，設置多個客戶端時，mysqlslap會啟用多線程並行操作 |
+| --number-of-queries | 單次測試的操作數目 |
+| --auto-generate-sql-load-type | 測試類型，取值read/write等 |
+
+自動生成SQL寫入測試操作示例：
+
+```
+$ mysqlslap -h 主機地址 -u用戶 -p密碼 --auto-generate-sql --number-int-cols=數值列數 --number-char-cols=文本列數 --auto-generate-sql-load-type=write
+```
+
+## 寫入性能相關優化參數
+寫入性能優化參考[MySQL官方文檔 Optimizing InnoDB Disk I/O](https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-diskio.html)，
+主要分為幾大部分：
+
+- [`Redo Log`](`https://dev.mysql.com/doc/refman/en/innodb-redo-log.html`)
+
+	Redolog記錄數據庫的事務日誌，用於數據崩潰恢復，以及糾正未完成事務的數據寫入。
+
+	相關參數：
+
+	`innodb_flush_log_at_trx_commit` 設置日誌如何同步到磁盤
+
+	- 默認取值`1`，在每次事務均同步磁盤，高頻讀寫下會產生大量同步操作
+	- 取值為`0`，每秒集中同步事務到磁盤，能顯著提升IO性能
+
+- [`Binlog`](https://dev.mysql.com/doc/refman/en/binary-log.html)
+
+	Binlog記錄數據庫的所有變更記錄，用於數據恢復和主從節點數據複製；
+	對於單實例、數據可靠性要求不高的場景下可通過關閉Binlog提升寫入性能。
+
+	相關參數：
+
+	- `disable_log_bin/skip-log-bin` 無取值，使用該參數則關閉Binlog機制
+	- `sync_binlog` 設置寫入Binlog的頻率
+		- 默認取值為`1`，每次寫入操作都同步到Binlog
+		- 取值為`0`關閉Binlog寫入
+		- 取值大於1則**指定次數**操作後寫入Binlog
+
+需要注意，通過上述參數提升IO性能同時也會損失部分數據安全性。
 
 
 
