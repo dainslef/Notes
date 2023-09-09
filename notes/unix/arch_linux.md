@@ -11,6 +11,9 @@
 	- [配置顯卡驅動](#配置顯卡驅動)
 	- [DPI縮放](#dpi縮放)
 	- [字體配置](#字體配置)
+- [包管理](#包管理)
+	- [pacman](#pacman)
+		- [pacman操作](#pacman操作)
 
 <!-- /TOC -->
 
@@ -199,4 +202,41 @@ xft-dpi=120
 
 ```
 # pacman -S ttf-dejavu
+```
+
+
+
+# 包管理
+ArchLinux的包管理主要由預編譯包管理器`pacman`以及源碼構建系統`abs`構成。
+
+## pacman
+[`pacman`](https://wiki.archlinux.org/title/pacman)是ArchLinux的官方包管理器。
+
+相比傳統包管理器，pacman設計較爲簡單，僅管理預編譯包，速度更快；
+pacman同時包含包管理器前端和後端，相當於`apt + dpkg`或`yum/dnf/zypper + rpm`的組合。
+
+### pacman操作
+軟件包搜索、安裝、刪除：
+
+```html
+$ pacman -Ss 軟件包名稱 <!-- 搜索軟件包 -->
+# pacman -S 軟件包名稱 <!-- 安裝軟件包 -->
+
+<!-- 移除軟件包 -->
+# pacman -R 軟件包名稱 <!-- 移除指定軟件包，默認移除操作會保留軟件包配置 -->
+# pacman -Rn 軟件包名稱 <!-- 移除指定軟件包，不保存配置 -->
+# pacman -Rs 軟件包名稱 <!-- 遞歸刪除依賴 -->
+# pacman -Rnsc 軟件包名稱 <!-- 移除軟件包及其依賴 -->
+```
+
+查看和管理軟件包安裝原因：
+
+```html
+<!-- 查看手動安裝的軟件包 -->
+$ pacman -Qe
+$ pacman -Qeq <!-- 僅輸出軟件包，忽略版本號信息 -->
+
+<!-- 列出可被移除的軟件包（不被其它軟件包依賴，且自身作為依賴安裝的軟件包） -->
+$ pacman -Qdt
+$ pacman -Qdtt <!-- 輸出包括僅被可選依賴(Optional Deps)的軟件包 -->
 ```
