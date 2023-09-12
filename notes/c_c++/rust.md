@@ -15,6 +15,7 @@
 	- [結構體對齊](#結構體對齊)
 	- [PhantomData](#phantomdata)
 - [Trait（特質）](#trait特質)
+	- [Trait基本語法](#trait基本語法)
 	- [Dynamically Dispatched / Staic Dispatched](#dynamically-dispatched--staic-dispatched)
 	- [Associated Types](#associated-types)
 	- [Generic Associated Types](#generic-associated-types)
@@ -324,6 +325,50 @@ help: if you intended `T` to be a const parameter, use `const T: usize` instead
 # Trait（特質）
 `Trait（特質）`概念類似於Haskell中的Type Class，對標OOP語言中的Interface。
 由於Rust不支持繼承、重載，因此Trait系統是Rust語言中實現多態的主要方式。
+
+## Trait基本語法
+使用`trait`關鍵字定義Trait，使用`impl`關鍵字為既有類型實現Trait：
+
+```rs
+trait XxxTrait {
+  // this指針的表示方式與impl相同
+  fn trait_method_xxx(self);
+}
+
+impl XxxTrait for XxxStruct {
+  fn trait_method_xxx(self) {
+    ...
+  }
+}
+
+// 使用trait
+...
+let xxx_struct: XxxStruct = ...;
+xxx_struct.trait_method_xxx();
+...
+```
+
+Trait亦支持繼承：
+
+```rs
+trait XxxBaseTrait {
+  fn base_trait_method_xxx(self);
+}
+
+// XxxTrait在impl時需要同時實現XxxTrait和XxxBaseTrait定義的抽象方法
+trait XxxTrait: XxxBaseTrait {
+  fn trait_method_xxx(self);
+}
+
+trait XxxOtherTrait {
+  fn other_trait_method_xxx(self);
+}
+
+// Trait可以多重繼承
+trait XxxMultiExtendTrait: XxxTrait + XxxOtherTrait {
+  fn multi_trait_method_xxx(self);
+}
+```
 
 ## Dynamically Dispatched / Staic Dispatched
 Trait同時支持staic dispatched（靜態派發）和dynamically dispatched（動態派發）。
