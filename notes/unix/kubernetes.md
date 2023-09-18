@@ -29,6 +29,7 @@
 	- [Service](#service)
 		- [Service類型](#service類型)
 		- [Service代理模式](#service代理模式)
+		- [禁用流量轉發](#禁用流量轉發)
 
 <!-- /TOC -->
 
@@ -680,6 +681,7 @@ metadata:
   name: Pod名稱
   namespace: 命名空間
 spec:
+  hostNetwork: true # 默認false
   containers:
     - name: 容器名稱
       image: 鏡像
@@ -688,6 +690,10 @@ spec:
     - containerPort: 容器端口號
     ...
 ```
+
+使用`spec.hostNetwork`選項可控制Pod中的容器是否直接使用宿主機網絡，
+默認該選項值為false，開啟該選項則Kubernetes的網絡隔離對該Pod無效，
+容器內進程將直接使用宿主機端口，需要注意端口衝突問題。
 
 容器端口配置`spec.ports.containerPort`僅作為提示信息使用，是否設置容器端口並不影響實際網絡通信。
 
@@ -721,3 +727,45 @@ kube-proxy負載均衡默認使用iptables實現，亦可手動配置為IPVS。
 
 IPVS存在NodePort模式下無法使用本地地址（127.0.0.1）的問題，
 參考[GitHub Issues](https://github.com/kubernetes/kubernetes/issues/67730)。
+
+### 禁用流量轉發
+默認配置下訪問Service的流量會轉發流量到不同的節點上，
+即便使用127.0.0.1本地地址，亦會轉發到不同的節點上。
+
+若需配置流量的轉發策略，可在創建Service時配置下列參數：
+
+| 參數 | 取值 | 默認值 | 說明 |
+| :- | :- | :- | :- |
+| `internalTrafficPolicy` | Cluster/Local | Cluster | 設置集群內部流量的轉發策略 |
+| `externalTrafficPolicy` | Cluster/Local | Cluster | 設置集群外部流量的轉發策略 |
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  ...
+spec:
+  ...
+  internalTrafficPolicy: ...
+  externalTrafficPolicy: ...
+  ...
+```
+
+對與已創建的服務則執行：
+
+```
+$ kubectl patch services 服務名稱 -p '{"spec":{"internalTrafficPolicy":"Local"}}'
+$ kubectl patch services 服務名稱 -p '{"spec":{"externalTrafficPolicy":"Local"}}'
+```
+
+internalTrafficPolicy設置為Local後，
+外部流量進入集群，需要當前節點存在對應服務的pods，當前節點無服務pods則無法訪問服務。
+
+internalTrafficPolicy設置為Local同時對內部、外部流量生效，
+外部、內部流量均不再轉發（但依舊進行NAT轉換），容器內部收到數據包源IP為所在物理機節點IP。
+
+externalTrafficPolicy設置為Local則僅對外部流量生效，
+外部流量不再轉發（並且不進行NAT轉換），內部流量依舊轉發，容器內部收到數據包源IP為客戶端原始IP。
+
+internalTrafficPolicy與externalTrafficPolicy皆設置為Local時，
+行為與externalTrafficPolicy設置Local相同。
