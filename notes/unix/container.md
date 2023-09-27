@@ -11,6 +11,7 @@
 - [Docker基本使用](#docker基本使用)
 	- [Docker容器管理](#docker容器管理)
 		- [Docker容器自啟動](#docker容器自啟動)
+	- [Docker容器資源監控](#docker容器資源監控)
 		- [Docker容器生成鏡像](#docker容器生成鏡像)
 		- [Docker容器導入/導出](#docker容器導入導出)
 		- [Docker Compose](#docker-compose)
@@ -382,6 +383,26 @@ Docker中容器使用`--restart`參數設置重啟策略，可用在`create/run/
 | always | 始終重啟 |
 | unless-stopped | 與`always`類似，但容器被手動停止時則不會重啟 |
 
+## Docker容器資源監控
+使用`docker stats`可查看容器的資源消耗的概況，示例：
+
+```
+# docker stats
+CONTAINER ID   NAME        CPU %     MEM USAGE / LIMIT   MEM %     NET I/O          BLOCK I/O         PIDS
+6a54e81367f8   mangos-db   0.17%     364.3MiB / 16EiB    0.00%     625MB / 1.22GB   648MB / 29.8GB    32
+e89945756c87   mangosd     34.05%    4.736GiB / 16EiB    0.00%     39GB / 47.9GB    2.11GB / 1.36GB   46
+...
+```
+
+使用`docker top 容器名稱/ID`可查看容器內進程的運行狀況，示例：
+
+```
+# docker top mangos-db
+UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
+999                 8071                8050                0                   Sep16               pts/0               00:16:17            mariadbd
+...
+```
+
 ### Docker容器生成鏡像
 使用`docker commit`指令爲指定容器生成新的鏡像。
 
@@ -503,13 +524,6 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 
 <!-- 顯示鏡像詳情 -->
 # docker image inspect 鏡像ID/鏡像名稱
-```
-
-使用prune指令可清理無用鏡像：
-
-```html
-# docker image prune <!-- 清理無任何tag且不被使用的鏡像 -->
-# docker image prune -a <!-- 清理所有不被使用的鏡像 -->
 ```
 
 ### Docker鏡像源
