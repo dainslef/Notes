@@ -35,6 +35,7 @@
 	- [pkg](#pkg)
 	- [軟件路徑](#軟件路徑)
 - [文件系統](#文件系統)
+	- [.DS_Store](#ds_store)
 	- [掛載 NTFS 讀寫](#掛載-ntfs-讀寫)
 	- [diskutil](#diskutil)
 	- [NTFS-3G](#ntfs-3g)
@@ -795,6 +796,28 @@ macOS默認文件系統爲`HFS+`，此類文件系統同時支持區分大小寫
 在格式化時可以進行選擇。若選擇了區分大小寫形式的`HFS+`文件系統，則部分軟件將無法安裝(如`PhotoShop`等)。
 
 文件系統類型在安裝了macOS之後除了重裝系統之外無法更改，需要**慎重選擇**。
+
+## .DS_Store
+macOS的Finder會在文件系統的每一個路徑下創建隱藏文件`.DS_Store`，
+用於記錄**窗口大小**、**排序**、**瀏覽模式**等信息。
+
+對於網絡存儲以及USB存儲，macOS可以設置禁止生成DS_Store文件：
+
+```html
+<!-- 1為true，0為false -->
+
+<!-- 設置網絡存儲的DS_Store文件的寫入狀態 -->
+$ defaults write com.apple.desktopservices DSDontWriteNetworkStores 1
+<!-- 設置USB存儲的DS_Store文件的寫入狀態 -->
+$ defaults write com.apple.desktopservices DSDontWriteUSBStores 1
+```
+
+查看對應選項狀態：
+
+```
+$ defaults read com.apple.desktopservices DSDontWriteNetworkStores
+$ defaults read com.apple.desktopservices DSDontWriteUSBStores
+```
 
 ## 掛載 NTFS 讀寫
 默認情況下，macOS以**只讀**形式掛載`NTFS`文件系統，但`macOS`本身實現了對`NTFS`文件系統的寫入功能，
