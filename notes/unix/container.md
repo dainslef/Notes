@@ -8,6 +8,7 @@
 	- [docker-machine（已廢棄）](#docker-machine已廢棄)
 	- [Docker Desktop for macOS](#docker-desktop-for-macos)
 		- [訪問Docker Desktop的虛擬機（HyperKit，已過時）](#訪問docker-desktop的虛擬機hyperkit已過時)
+		- [訪問Docker Desktop的虛擬機（HVF）](#訪問docker-desktop的虛擬機hvf)
 - [Docker基本使用](#docker基本使用)
 	- [Docker容器管理](#docker容器管理)
 		- [Docker容器自啟動](#docker容器自啟動)
@@ -199,6 +200,26 @@ screen指令會創建窗口管理器，在窗口管理器中可直接與虛擬�
 - 普通指令與標準終端類似
 - 使用`Ctrl-A k`可退出會話
 - 使用`Ctrl-A Ctrl-D`掛起會話，使用`screen -r [pid]`恢復會話
+
+### 訪問Docker Desktop的虛擬機（HVF）
+Docker Desktop在macOS上的虛擬機實現從HyperKit遷移到了Apple原生的虛擬化框架
+[Hypervisor.Framework(HVF)](https://developer.apple.com/documentation/hypervisor)。
+
+使用HVF的Docker Desktop不存在`~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux`路徑，
+虛擬機位置變為`~/Library/Containers/com.docker.docker/Data/vms/0`，
+同時也不再提供虛擬機的tty設備（不可再通過screen訪問終端）。
+
+替代方案是創建特權容器，訪問容器宿主的虛擬機：
+
+```html
+<!-- 單次使用添加 --rm 參數，容器進程退出則刪除 -->
+$ docker run -it --rm --privileged --pid=host 鏡像 nsenter -m -u -n -t 1 -i sh
+
+<!-- 多次使用可為容器分配固定名稱 -->
+$ docker create -it --name=host-vm --privileged --pid=host 鏡像 nsenter -m -u -n -t 1 -i sh
+$ docker start host-vm
+$ docker exec -it host-vm sh <!-- 進入宿主虛擬機環境 -->
+```
 
 
 
