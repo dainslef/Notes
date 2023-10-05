@@ -45,6 +45,7 @@
 	- [CommandLineTools](#commandlinetools)
 	- [Developer Path](#developer-path)
 - [System Integrity Protection (SIP)](#system-integrity-protection-sip)
+- [OCLP](#oclp)
 - [常見問題](#常見問題)
 	- [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
 	- [更改默認應用程序](#更改默認應用程序)
@@ -1038,6 +1039,37 @@ csrutil: This tool needs to be executed from Recovery OS.
 ```
 
 修改系統的SIP狀態需要重啟Mac後使用`Command + R`組合鍵進入Recovery模式。
+
+
+
+# OCLP
+[`OCLP, OpenCore Legacy Patcher`](https://dortania.github.io/OpenCore-Legacy-Patcher)
+項目為Apple官方停止支持的Mac舊機型繼續提供最新版本的macOS支持。
+
+OpenCore是一套引導加載程序，用於在內存中注入、修改數據，
+以此令諸多不收Apple官方支持的舊Mac機型獲得接近原生的體驗。
+
+OLCP支持的機型查看官方[**支持列表**](https://dortania.github.io/OpenCore-Legacy-Patcher/MODELS.html)，
+較舊的機型會存在部分特性限制，而多數2012年之後的機型支持幾乎所有特性。
+
+OLCP可直接使用Homebrew安裝：
+
+```
+$ brew install opencore-patcher
+```
+
+1. 安裝完成後啟動`OpenCore-Patcher.app`，首先執行`Create macOS Installder`
+1. 選擇需要升級的macOS版本，下載對應macOS的鏡像，下載完成後安裝鏡像會以APP的形式出現在Launchpad中，
+（不受支持的設備直接點擊安裝會直接出現拒絕提示，無法繼續安裝流程）
+1. 之後執行`Build and Install OpenCore`，構建驅動以及環境補丁用於支持最新版macOS
+1. `Build and Install OpenCore`流程結束後會進入重啟流程
+1. 重啟後在系統引導時長按`Option`鍵，選擇OLCP生成的新引導項
+1. 通過新引導項進入系統後，點擊之前下載完成的系統安裝鏡像APP，此時已可正常繼續安裝流程
+1. 安裝完畢後再次重啟系統，進入升級後的新系統，新版本系統可能會出現部分硬件不兼容（如WI-FI、藍牙等）
+1. 再次啟動`OpenCore-Patcher.app`，選擇`Post-Install Root Patch`菜單，
+安裝新系統補丁，之後再次重啟系統，之後即可正常使用新版本系統
+
+升級系統完成後，系統鏡像APP會自動刪除，但Launchpad中可能會保留無效的APP圖標，常按刪除即可。
 
 
 
