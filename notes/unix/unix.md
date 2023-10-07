@@ -38,7 +38,7 @@
 	- [ulimit配置文件](#ulimit配置文件)
 	- [prlimit](#prlimit)
 	- [文件描述符限制](#文件描述符限制)
-- [Core Dump（核心轉儲）](#core-dump核心轉儲)
+	- [Core Dump（核心轉儲）](#core-dump核心轉儲)
 - [文件系統](#文件系統)
 	- [fdisk](#fdisk)
 	- [parted](#parted)
@@ -1508,9 +1508,7 @@ $ cat /proc/sys/fs/file-max
 # sysctl fs.file-max=值
 ```
 
-
-
-# Core Dump（核心轉儲）
+## Core Dump（核心轉儲）
 啓用核心轉儲後，則在進程執行異常退出時，會生成包含異常信息的錯誤轉儲文件。
 使用gdb可分析轉儲文件：
 
@@ -4179,6 +4177,92 @@ idle相關指令：
 $ cpupower idle-info <!-- 查看IDLE狀態 -->
 # cpupower idle-set -D 0 <!-- 禁用指定編號及以上的IDLE狀態，編號為0，則禁用所有IDLE狀態 -->
 # cpupower idle-set -E <!-- 啟用IDLE狀態 -->
+```
+
+示例：
+
+```html
+<!-- 查看當前IDLE狀態 -->
+$ cpupower idle-info
+CPUidle driver: intel_idle
+CPUidle governor: menu
+analyzing CPU 0:
+
+Number of idle states: 4 <!-- 當前系統支持IDLE狀態總數 -->
+Available idle states: POLL C1-SKX C1E-SKX C6-SKX <!-- 當前系統支持IDLE狀態列表 -->
+POLL:
+Flags/Description: CPUIDLE CORE POLL IDLE
+Latency: 0
+Usage: 7455646
+Duration: 60865137786
+C1-SKX:
+Flags/Description: MWAIT 0x00
+Latency: 2
+Usage: 83620840
+Duration: 16659764337
+C1E-SKX:
+Flags/Description: MWAIT 0x01
+Latency: 10
+Usage: 452511545
+Duration: 264177003930
+C6-SKX:
+Flags/Description: MWAIT 0x20
+Latency: 133
+Usage: 670636566
+Duration: 1480585205926
+
+<!-- 禁用IDLE -->
+# cpupower idle-set -D 0
+Idlestate 0 disabled on CPU 0
+Idlestate 1 disabled on CPU 0
+Idlestate 2 disabled on CPU 0
+Idlestate 3 disabled on CPU 0
+Idlestate 0 disabled on CPU 1
+Idlestate 1 disabled on CPU 1
+Idlestate 2 disabled on CPU 1
+Idlestate 3 disabled on CPU 1
+...
+
+<!-- 查看IDLE信息，可以看到 POLL C1-SKX C1E-SKX C6-SKX 等IDLE狀態已被禁用 -->
+$ cpupower idle-info
+CPUidle driver: intel_idle
+CPUidle governor: menu
+analyzing CPU 0:
+
+Number of idle states: 4
+Available idle states: POLL C1-SKX C1E-SKX C6-SKX
+POLL (DISABLED) : <!-- IDLE狀態已被禁用 -->
+Flags/Description: CPUIDLE CORE POLL IDLE
+Latency: 0
+Usage: 7148617
+Duration: 58800889384
+C1-SKX (DISABLED) :
+Flags/Description: MWAIT 0x00
+Latency: 2
+Usage: 83620815
+Duration: 16659760958
+C1E-SKX (DISABLED) :
+Flags/Description: MWAIT 0x01
+Latency: 10
+Usage: 452511088
+Duration: 264176360697
+C6-SKX (DISABLED) :
+Flags/Description: MWAIT 0x20
+Latency: 133
+Usage: 670636095
+Duration: 1480582639238
+
+<!-- 啟用IDLE -->
+# cpupower idle-set -E
+Idlestate 0 enabled on CPU 0
+Idlestate 1 enabled on CPU 0
+Idlestate 2 enabled on CPU 0
+Idlestate 3 enabled on CPU 0
+Idlestate 0 enabled on CPU 1
+Idlestate 1 enabled on CPU 1
+Idlestate 2 enabled on CPU 1
+Idlestate 3 enabled on CPU 1
+...
 ```
 
 ## ps
