@@ -12,6 +12,7 @@
 - [Docker基本使用](#docker基本使用)
 	- [Docker容器管理](#docker容器管理)
 		- [Docker容器自啟動](#docker容器自啟動)
+	- [Docker容器日誌](#docker容器日誌)
 	- [Docker容器資源監控](#docker容器資源監控)
 		- [Docker容器生成鏡像](#docker容器生成鏡像)
 		- [Docker容器導入/導出](#docker容器導入導出)
@@ -403,6 +404,31 @@ Docker中容器使用`--restart`參數設置重啟策略，可用在`create/run/
 | on-failure[:max-retries] | 僅在失敗時重啟，可選通過`max-retries`設置最大重啟次數 |
 | always | 始終重啟 |
 | unless-stopped | 與`always`類似，但容器被手動停止時則不會重啟 |
+
+## Docker容器日誌
+Docker容器的終端輸出會存儲在容器目錄下，以`容器ID-json.log`命名。
+
+默認Docker並未限制容器的終端輸出日誌大小，容器可以無限輸出日誌；
+創建容器時可使用`--log-opt max-size=日誌大小 -log-opt max-file=日誌數目`參數限制日誌大小、數目，
+參數示例：
+
+```html
+<!-- 限制日誌最大3個，單個大小10M -->
+# docker run -it --log-opt max-size=10m --log-opt max-file=3 容器...
+```
+
+若需要對所有創建的容器添加日誌限制，則可修改Docker服務配置`/etc/docker/daemon.json`，
+添加日誌配置項：
+
+```json
+{
+    ...,
+    "log-opts": {
+      "max-size": "10m",
+      "max-file": 3,
+    }
+}
+```
 
 ## Docker容器資源監控
 使用`docker stats`可查看容器的資源消耗的概況，示例：
