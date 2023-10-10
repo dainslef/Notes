@@ -4,6 +4,10 @@
 	- [開發環境](#開發環境)
 	- [F# Interactive（F#交互式環境）](#f-interactivef交互式環境)
 	- [與主流語言的語法差異](#與主流語言的語法差異)
+		- [相等性比較語法](#相等性比較語法)
+		- [逗號語法](#逗號語法)
+		- [位運算符語法](#位運算符語法)
+		- [泛型語法](#泛型語法)
 - [string（字符串）](#string字符串)
 	- [Triple Quoted Strings（三引號字符串）](#triple-quoted-strings三引號字符串)
 	- [String Interpolation（字符串插值器）](#string-interpolation字符串插值器)
@@ -77,72 +81,102 @@ $ dotnet fsi
 ## 與主流語言的語法差異
 F#繼承了大部分OCaml的設計，與主流語言存在一些差異。
 
-- 相等性比較運算符為`=`/`<>`，而不是其它語言中常見的`==`/`!=`。
+### 相等性比較語法
+相等性比較運算符為`=`/`<>`，而不是其它語言中常見的`==`/`!=`。
 
-	```fs
-	> if 1 = 1 then true else false;;
-	val it : bool = true
+```fs
+> if 1 = 1 then true else false;;
+val it : bool = true
 
-	> if 1 <> 1 then true else false;;
-	val it : bool = false
-	```
+> if 1 <> 1 then true else false;;
+val it : bool = false
+```
 
-- 逗號`,`語法高度一致，始終用與構成元組。
+### 逗號語法
+逗號`,`語法高度一致，始終用與構成元組。
 
-	在列表生成式中：
+在列表生成式中：
 
-	```fs
-	> 1, 2, 3;;
-	val it : int * int * int = (1, 2, 3)
+```fs
+> 1, 2, 3;;
+val it : int * int * int = (1, 2, 3)
 
-	> [1, 2, 3];;
-	val it : (int * int * int) list = [(1, 2, 3)]
-	```
+> [1, 2, 3];;
+val it : (int * int * int) list = [(1, 2, 3)]
+```
 
-	C#中的多參數函數在F#中亦被視作參數為一個多值元組。
+C#中的多參數函數在F#中亦被視作參數為一個多值元組。
 
-	在模式匹配、let綁定等場景下進行元組匹配不用像其它函數式語言那樣使用小括號：
+在模式匹配、let綁定等場景下進行元組匹配不用像其它函數式語言那樣使用小括號：
 
-	```fs
-	> match 1, 2, 3 with
-	- | a, b, c -> printfn $"{a}, {b}, {c}"
-	- ;;
-	1, 2, 3
-	val it : unit = ()
+```fs
+> match 1, 2, 3 with
+- | a, b, c -> printfn $"{a}, {b}, {c}"
+- ;;
+1, 2, 3
+val it : unit = ()
 
-	> let a, b = 1 + 2, "abc" + "cde"
-	- ;;
-	val b : string = "abccde"
-	val a : int = 3
-	```
+> let a, b = 1 + 2, "abc" + "cde"
+- ;;
+val b : string = "abccde"
+val a : int = 3
+```
 
-- 位運算符與主流語言不同。
+### 位運算符語法
+位運算符與主流語言不同。
 
-	邏輯與`&&&`、或`|||`、非`~~~`、異或`^^^`。
+邏輯與`&&&`、或`|||`、非`~~~`、異或`^^^`。
 
-	```fs
-	> 1 &&& 2;;
-	val it : int = 0
+```fs
+> 1 &&& 2;;
+val it : int = 0
 
-	> 1 ||| 2;;
-	val it : int = 3
+> 1 ||| 2;;
+val it : int = 3
 
-	> 1 ^^^ 2;;
-	val it : int = 3
+> 1 ^^^ 2;;
+val it : int = 3
 
-	> ~~~1;;
-	val it : int = -2
-	```
+> ~~~1;;
+val it : int = -2
+```
 
-	左移位`<<<`，右移位`>>>`。
+左移位`<<<`，右移位`>>>`。
 
-	```fs
-	> 1 <<< 1;;
-	val it : int = 2
+```fs
+> 1 <<< 1;;
+val it : int = 2
 
-	> 1 >>> 1;;
-	val it : int = 0
-	```
+> 1 >>> 1;;
+val it : int = 0
+```
+
+### 泛型語法
+早期F#直接使用OCaml的泛型語法，泛型參數前置，使用元組語法傳遞多個泛型參數；
+多參數泛型前置的語法在`F# 2.0`廢棄，在`F# 6.0`中正式被移除，參考微軟官方博客
+[What’s new in F# 6](https://devblogs.microsoft.com/dotnet/whats-new-in-fsharp-6/)。
+
+```fs
+> let l: int list = [1; 2; 3];;
+val l: int list = [1; 2; 3]
+
+> let m: (int,string) Map = Map [1, "1"; 2, "2"];;
+
+  let m: (int,string) Map = Map [1, "1"; 2, "2"];;
+  -------^^^^^^^^^^^^^^^^
+
+/Users/dainslef/stdin(36,8): error FS0062: This construct is deprecated. The use of multiple parenthesized type parameters before a generic type name such as '(int, int) Map' was deprecated in F# 2.0 and is no longer supported. You can enable this feature by using '--langversion:5.0' and '--mlcompatibility'.
+```
+
+現代F#則推薦使用C#風格的尖括號泛型語法：
+
+```fs
+> let l: list<int> = [1; 2; 3];;
+val l: int list = [1; 2; 3]
+
+> let m: Map<int, string> = Map [1, "1"; 2, "2"];;
+val m: Map<int,string> = map [(1, "1"); (2, "2")]
+```
 
 
 
