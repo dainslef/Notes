@@ -10,8 +10,8 @@
 	- [Trojan轉發流量](#trojan轉發流量)
 - [V2Ray](#v2ray)
 	- [安裝和配置V2Ray服務](#安裝和配置v2ray服務)
-	- [V2Ray使用`VMESS + TLS + WebSocket`模式](#v2ray使用vmess--tls--websocket模式)
-	- [V2Ray使用`VMESS + TLS + gRPC`模式](#v2ray使用vmess--tls--grpc模式)
+	- [V2Ray VMESS + TLS + WebSocket](#v2ray-vmess--tls--websocket)
+	- [V2Ray VMESS + TLS + gRPC](#v2ray-vmess--tls--grpc)
 
 <!-- /TOC -->
 
@@ -248,8 +248,21 @@ server {
 
 # V2Ray
 [V2Ray](https://github.com/v2fly/v2ray-core)
-是支持多種協議的網絡平台，可實現單服務多協議同時工作以及高定制化的入站、出站流量規則。
-相比Trojan，V2Ray性能稍差，但功能強大（較新版本的V2Ray亦支持Trojan協議）。
+是支持多種協議的通用網絡平台，可實現單服務多協議同時工作以及高定制化的入站、出站流量規則，
+使用V2Ray則無須再單獨安裝Shadowsocks、Trojan等軟件包。
+
+V2Ray最初主要支持VMESS協議，後續添加了多種協議支持，
+較新版本亦完整支持了Trojan協議，並添加了原版Trojan不支持的WebSocket/gRPC傳輸層支持。
+
+V2Ray支持多種傳輸協議與代理協議的組合，如：
+
+- Shadowsocks + TCP/UDP
+- VMESS + TCP + TLS
+- VMESS + WebSocket + TLS
+- VMESS + gRPC + TLS
+- Trojan + TCP + TLS
+- Trojan + WebSocket + TLS
+- Trojan + gRPC + TLS
 
 V2Ray官方頁面早期為[`v2ray.com`](https://www.v2ray.com)，
 但原作者後續不再活躍，社區並無相關網站和倉庫的權限，
@@ -312,7 +325,7 @@ spec:
             type: DirectoryOrCreate
 ```
 
-## V2Ray使用`VMESS + TLS + WebSocket`模式
+## V2Ray VMESS + TLS + WebSocket
 V2Ray支持使用WebSocket作為傳輸協議，
 該種傳輸方式可搭配CDN使用，以實現隱藏代理服務器真實IP的作用。
 
@@ -330,8 +343,8 @@ V2Ray支持使用WebSocket作為傳輸協議，
       "security": "tls",
       "tlsSettings": {
         "certificates": [ {
-            "certificateFile": "/etc/v2ray/v2ray.crt",
-            "keyFile": "/etc/v2ray/v2ray.key"
+            "certificateFile": "/opt/tls/tls.crt",
+            "keyFile": "/opt/tls/tls.key"
           } ]
       }
     }
@@ -386,12 +399,11 @@ server {
 }
 ```
 
-## V2Ray使用`VMESS + TLS + gRPC`模式
+## V2Ray VMESS + TLS + gRPC
 V2Ray支持使用gRPC作為傳輸協議，
 該種傳輸方式可搭配CDN使用，以實現隱藏代理服務器真實IP的作用。
 
 V2Ray服務端配置：
-
 
 ```json
 {
@@ -405,8 +417,8 @@ V2Ray服務端配置：
       "security": "tls",
       "tlsSettings": {
         "certificates": [ {
-            "certificateFile": "/etc/v2ray/v2ray.crt",
-            "keyFile": "/etc/v2ray/v2ray.key"
+            "certificateFile": "/opt/tls/tls.crt",
+            "keyFile": "/opt/tls/tls.key"
           } ]
       }
     }
