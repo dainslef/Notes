@@ -12,8 +12,6 @@
 - [Docker基本使用](#docker基本使用)
 	- [Docker容器管理](#docker容器管理)
 		- [Docker容器自啟動](#docker容器自啟動)
-	- [Docker容器日誌](#docker容器日誌)
-	- [Docker容器資源監控](#docker容器資源監控)
 		- [Docker容器生成鏡像](#docker容器生成鏡像)
 		- [Docker容器導入/導出](#docker容器導入導出)
 		- [Docker Compose](#docker-compose)
@@ -23,6 +21,9 @@
 		- [Docker鏡像構建](#docker鏡像構建)
 		- [Docker Registry Server](#docker-registry-server)
 		- [Docker Hub](#docker-hub)
+	- [Docker容器日誌](#docker容器日誌)
+	- [Docker容器資源監控](#docker容器資源監控)
+	- [Docker環境清理](#docker環境清理)
 - [Docker文件系統](#docker文件系統)
 	- [Docker文件傳輸](#docker文件傳輸)
 	- [Docker綁定掛載（Bind Mounts）](#docker綁定掛載bind-mounts)
@@ -405,51 +406,6 @@ Docker中容器使用`--restart`參數設置重啟策略，可用在`create/run/
 | always | 始終重啟 |
 | unless-stopped | 與`always`類似，但容器被手動停止時則不會重啟 |
 
-## Docker容器日誌
-Docker容器的終端輸出會存儲在容器目錄下，以`容器ID-json.log`命名。
-
-默認Docker並未限制容器的終端輸出日誌大小，容器可以無限輸出日誌；
-創建容器時可使用`--log-opt max-size=日誌大小 -log-opt max-file=日誌數目`參數限制日誌大小、數目，
-參數示例：
-
-```html
-<!-- 限制日誌最大3個，單個大小10M -->
-# docker run -it --log-opt max-size=10m --log-opt max-file=3 容器...
-```
-
-若需要對所有創建的容器添加日誌限制，則可修改Docker服務配置`/etc/docker/daemon.json`，
-添加日誌配置項：
-
-```json
-{
-    ...,
-    "log-opts": {
-      "max-size": "10m",
-      "max-file": 3,
-    }
-}
-```
-
-## Docker容器資源監控
-使用`docker stats`可查看容器的資源消耗的概況，示例：
-
-```
-# docker stats
-CONTAINER ID   NAME        CPU %     MEM USAGE / LIMIT   MEM %     NET I/O          BLOCK I/O         PIDS
-6a54e81367f8   mangos-db   0.17%     364.3MiB / 16EiB    0.00%     625MB / 1.22GB   648MB / 29.8GB    32
-e89945756c87   mangosd     34.05%    4.736GiB / 16EiB    0.00%     39GB / 47.9GB    2.11GB / 1.36GB   46
-...
-```
-
-使用`docker top 容器名稱/ID`可查看容器內進程的運行狀況，示例：
-
-```
-# docker top mangos-db
-UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
-999                 8071                8050                0                   Sep16               pts/0               00:16:17            mariadbd
-...
-```
-
 ### Docker容器生成鏡像
 使用`docker commit`指令爲指定容器生成新的鏡像。
 
@@ -720,6 +676,85 @@ dainslef/test_image     2333               9f0a1d72c464        9 minutes ago    
 
 ```
 $ docker push dainslef/test_image:2333
+```
+
+## Docker容器日誌
+Docker容器的終端輸出會存儲在容器目錄下，以`容器ID-json.log`命名。
+
+默認Docker並未限制容器的終端輸出日誌大小，容器可以無限輸出日誌；
+創建容器時可使用`--log-opt max-size=日誌大小 -log-opt max-file=日誌數目`參數限制日誌大小、數目，
+參數示例：
+
+```html
+<!-- 限制日誌最大3個，單個大小10M -->
+# docker run -it --log-opt max-size=10m --log-opt max-file=3 容器...
+```
+
+若需要對所有創建的容器添加日誌限制，則可修改Docker服務配置`/etc/docker/daemon.json`，
+添加日誌配置項：
+
+```json
+{
+    ...,
+    "log-opts": {
+      "max-size": "10m",
+      "max-file": 3,
+    }
+}
+```
+
+## Docker容器資源監控
+使用`docker stats`可查看容器的資源消耗的概況，示例：
+
+```
+# docker stats
+CONTAINER ID   NAME        CPU %     MEM USAGE / LIMIT   MEM %     NET I/O          BLOCK I/O         PIDS
+6a54e81367f8   mangos-db   0.17%     364.3MiB / 16EiB    0.00%     625MB / 1.22GB   648MB / 29.8GB    32
+e89945756c87   mangosd     34.05%    4.736GiB / 16EiB    0.00%     39GB / 47.9GB    2.11GB / 1.36GB   46
+...
+```
+
+使用`docker top 容器名稱/ID`可查看容器內進程的運行狀況，示例：
+
+```
+# docker top mangos-db
+UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
+999                 8071                8050                0                   Sep16               pts/0               00:16:17            mariadbd
+...
+```
+
+## Docker環境清理
+Docker中多數資源（`image`、`network`、`buildx`）可通過相應資源的`prune`子指令進行清理。
+
+以鏡像資源為例，使用`docker image prune`指令可清理無用鏡像：
+
+```html
+# docker image prune <!-- 清理無任何tag且不被使用的鏡像 -->
+# docker image prune -a <!-- 清理所有不被使用的鏡像 -->
+```
+
+使用`docker system prune`指令可一次性清理全部冗余資源：
+
+```html
+<!-- 清理所有停止的容器，未使用的網絡，無TAG的鏡像以及構建緩存 -->
+# docker system prune
+WARNING! This will remove:
+  - all stopped containers
+  - all networks not used by at least one container
+  - all dangling images
+  - all dangling build cache
+
+Are you sure you want to continue? [y/N]
+
+<!-- 清理鏡像時清理所有未被容器使用的鏡像 -->
+# docker system prune -a
+WARNING! This will remove:
+  - all stopped containers
+  - all networks not used by at least one container
+  - all images without at least one container associated to them
+  - all build cache
+
+Are you sure you want to continue? [y/N]
 ```
 
 
