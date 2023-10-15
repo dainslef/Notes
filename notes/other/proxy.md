@@ -12,6 +12,7 @@
 	- [安裝和配置V2Ray服務](#安裝和配置v2ray服務)
 	- [V2Ray VMESS + TLS + WebSocket](#v2ray-vmess--tls--websocket)
 	- [V2Ray VMESS + TLS + gRPC](#v2ray-vmess--tls--grpc)
+	- [V2Ray Trojan](#v2ray-trojan)
 
 <!-- /TOC -->
 
@@ -467,3 +468,39 @@ server {
 	}
 }
 ```
+
+## V2Ray Trojan
+V2Ray現在已提供了完善的Trojan協議支持，
+並擴充了原版Trojan的功能，支持選用WebSocket或gRPC作為傳輸協議。
+
+`Trojan + TCP + TLS`配置：
+
+```json
+{
+  "inbounds": [
+    {
+      "protocol": "trojan",
+      "port": 443,
+      "settings": {
+        "clients": [ { "password": "xxx..." } ],
+        "fallbacks": [ { "dest": 80 } ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "tls",
+        "tlsSettings": {
+          "certificates": [ {
+              "certificateFile": "/opt/tls/tls.crt",
+              "keyFile": "/opt/tls/tls.key"
+            } ]
+        }
+      }
+    }
+  ],
+  "outbound": { "protocol": "freedom" },
+  ...
+}
+```
+
+Trojan使用TCP作爲傳輸層時支持`Fallback`，可將非協議流量傳輸到其它服務或端口；
+其它傳輸協議如WebSocket、gRPC等均不支持該特性。
