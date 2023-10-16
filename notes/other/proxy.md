@@ -13,6 +13,7 @@
 	- [V2Ray VMESS + TLS + WebSocket](#v2ray-vmess--tls--websocket)
 	- [V2Ray VMESS + TLS + gRPC](#v2ray-vmess--tls--grpc)
 	- [V2Ray Trojan](#v2ray-trojan)
+	- [V2Ray Shadownsocks](#v2ray-shadownsocks)
 
 <!-- /TOC -->
 
@@ -504,3 +505,78 @@ V2Ray現在已提供了完善的Trojan協議支持，
 
 Trojan使用TCP作爲傳輸層時支持`Fallback`，可將非協議流量傳輸到其它服務或端口；
 其它傳輸協議如WebSocket、gRPC等均不支持該特性。
+
+`Trojan + WebSocket + TLS`配置：
+
+```json
+{
+  "inbounds": [
+    {
+      "protocol": "trojan",
+      "port": 443,
+      "settings": { "clients": [ { "password": "xxx..." } ] },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": { "path": "/xxx..." },
+        "security": "tls",
+        "tlsSettings": {
+          "certificates": [ {
+              "certificateFile": "/opt/tls/tls.crt",
+              "keyFile": "/opt/tls/tls.key"
+            } ]
+        }
+      }
+    }
+  ],
+  "outbound": { "protocol": "freedom" },
+  ...
+}
+```
+
+`Trojan + gRPC + TLS`配置：
+
+```json
+{
+  "inbounds": [
+    {
+      "protocol": "trojan",
+      "port": 443,
+      "settings": { "clients": [ { "password": "xxx..." } ] },
+      "streamSettings": {
+        "network": "grpc",
+        "grpcSettings": { "serviceName": "xxx", "multiMode": true },
+        "security": "tls",
+        "tlsSettings": {
+          "certificates": [ {
+              "certificateFile": "/opt/tls/tls.crt",
+              "keyFile": "/opt/tls/tls.key"
+            } ]
+        }
+      }
+    }
+  ],
+  "outbound": { "protocol": "freedom" },
+  ...
+}
+```
+
+## V2Ray Shadownsocks
+V2Ray亦支持Shadowsocks協議，配置：
+
+```json
+{
+  "inbounds": [
+    {
+      "protocol": "shadowsocks",
+      "port": 2053,
+      "settings": {
+        "network": "tcp,udp",
+        "password": "xxx...",
+        "method": "chacha20-ietf-poly1305"
+      }
+    }
+  ],
+  "outbound": { "protocol": "freedom" },
+  ...
+}
+```
