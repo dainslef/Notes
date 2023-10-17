@@ -9,6 +9,11 @@
 	- [升級OpenStack版本](#升級openstack版本)
 	- [Cinder（存儲配置）](#cinder存儲配置)
 	- [Octavia（負載均衡器配置）](#octavia負載均衡器配置)
+	- [Kolla Ansible部署問題](#kolla-ansible部署問題)
+		- [Python依賴](#python依賴)
+		- [網卡IP地址](#網卡ip地址)
+		- [清理部署環境](#清理部署環境)
+		- [RabbitMQ部署問題](#rabbitmq部署問題)
 
 <!-- /TOC -->
 
@@ -262,3 +267,57 @@ enable_octavia: yes # 默認Horizon會根據Octavia配置開啟前端面板
 ```
 # kolla-ansible -i ./all-in-one deploy --tags octavia
 ```
+
+## Kolla Ansible部署問題
+記錄部分部署中存在的問題。
+
+### Python依賴
+Debian發行版中，需要使用包管理器安裝`python3-docker`、`python3-dbus`等軟件包
+（確保系統Python環境中存在python3-docker、python3-dbus等模塊），
+使用venv中的pip安裝無法通過prechecks。
+
+### 網卡IP地址
+需要相關網卡的地址與配置文件中**完全對應**，若相關網卡存在多個IP地址，
+需要保證首IP的地址為配置文件中配置的地址，否則部署流程會出現各種異常。
+
+### 清理部署環境
+清理Kolla Ansible部署，除了刪除所有容器（`docker ps | xargs docker rm -f`），
+還需要刪除對應的卷（`docker volume ls | xargs docker volume rm`），
+Docker卷存儲了之前集群的數據，並不會刪除，
+在重複部署時會繼續使用這些的容器卷，進而造成各類錯誤。
+
+如mariadb容器繼續使用之前的卷會導致數據庫的密碼不匹配：
+
+```
+TASK [mariadb : Creating haproxy mysql user] ***************************************************************************************************************************
+fatal: [localhost]: FAILED! => {"changed": false, "msg": "unable to connect to database, check login_user and login_password are correct or /var/lib/ansible/.my.cnf has the credentials. Exception message: (1045, \"Access denied for user 'root'@'staczek' (using password: YES)\")"}
+```
+
+參考[Bug #1812927](https://bugs.launchpad.net/kolla-ansible/+bug/1812927)。
+
+若管理網絡地址發生變化，需要生成roles配置：
+
+```
+# kolla-ansible install-deps
+```
+
+否則會造成部分組件安裝檢查失敗，
+如[Bug #1946506](https://bugs.launchpad.net/kolla-ansible/+bug/1946506)。
+
+### RabbitMQ部署問題
+RabbitMQ服務需要保證`/etc/hosts`文件中正確填寫管理網卡IP到主機名的映射，
+否則部署RabbitMQ時會出現下列錯誤：
+
+```
+RUNNING HANDLER [rabbitmq : Waiting for rabbitmq to start on first node] ********************************************* fatal: [localhost]: FAILED! => {"changed": true, "cmd": "docker exec rabbitmq rabbitmqctl wait /var/lib/rabbitmq/mnesia/rabbitmq.pid", "delta": "0:00:00.380240", "end": "2019-09-16 10:40:17.794725", "msg": "non-zero return code", "rc": 126, "start": "2019-09-16 10:40:17.414485", "stderr": "", "stderr_lines": [], "stdout": "cannot exec in a stopped state: unknown", "stdout_lines": ["cannot exec in a stopped state: unknown"]}
+```
+
+同時RabbitMQ容器不停重啟，並輸出下列錯誤信息：
+
+```
+...
+ERROR: epmd error for host openStack: address (cannot connect to host/port)
+...
+```
+
+詳細問題參見[官方BUG Track](https://bugs.launchpad.net/kolla-ansible/+bug/1855935)。
