@@ -8,12 +8,13 @@
 	- [FreeBSD編譯安裝Trojan](#freebsd編譯安裝trojan)
 	- [配置Trojan服務](#配置trojan服務)
 	- [Trojan轉發流量](#trojan轉發流量)
-- [V2Ray](#v2ray)
-	- [安裝和配置V2Ray服務](#安裝和配置v2ray服務)
-	- [V2Ray VMESS + TLS + WebSocket](#v2ray-vmess--tls--websocket)
-	- [V2Ray VMESS + TLS + gRPC](#v2ray-vmess--tls--grpc)
-	- [V2Ray Trojan](#v2ray-trojan)
-	- [V2Ray Shadownsocks](#v2ray-shadownsocks)
+- [V2Ray & XRay](#v2ray--xray)
+	- [XRay](#xray)
+	- [安裝和配置V2Ray/XRay服務](#安裝和配置v2rayxray服務)
+	- [VMess + TLS + WebSocket](#vmess--tls--websocket)
+	- [VMess + TLS + gRPC](#vmess--tls--grpc)
+	- [V2Ray/XRay Trojan](#v2rayxray-trojan)
+	- [V2Ray/XRay Shadowsocks](#v2rayxray-shadowsocks)
 
 <!-- /TOC -->
 
@@ -248,20 +249,20 @@ server {
 
 
 
-# V2Ray
+# V2Ray & XRay
 [V2Ray](https://github.com/v2fly/v2ray-core)
 是支持多種協議的通用網絡平台，可實現單服務多協議同時工作以及高定制化的入站、出站流量規則，
 使用V2Ray則無須再單獨安裝Shadowsocks、Trojan等軟件包。
 
-V2Ray最初主要支持VMESS協議，後續添加了多種協議支持，
-較新版本亦完整支持了Trojan協議，並添加了原版Trojan不支持的WebSocket/gRPC傳輸層支持。
+V2Ray最初主要支持VMess協議，後續添加了多種協議支持，
+例如較新版本完整支持了Trojan協議，並添加了原版Trojan不支持的WebSocket/gRPC傳輸層支持。
 
 V2Ray支持多種傳輸協議與代理協議的組合，如：
 
 - Shadowsocks + TCP/UDP
-- VMESS + TCP + TLS
-- VMESS + WebSocket + TLS
-- VMESS + gRPC + TLS
+- VMess + TCP + TLS
+- VMess + WebSocket + TLS
+- VMess + gRPC + TLS
 - Trojan + TCP + TLS
 - Trojan + WebSocket + TLS
 - Trojan + gRPC + TLS
@@ -272,19 +273,42 @@ V2Ray官方頁面早期為[`v2ray.com`](https://www.v2ray.com)，
 官方提供的DockerHub帳號狀況類似，最初為[v2ray/official](https://hub.docker.com/r/v2ray/official)，
 後續由變為社區維護的[v2fly/v2fly-core](https://hub.docker.com/r/v2fly/v2fly-core)。
 
-## 安裝和配置V2Ray服務
+## XRay
+[XRay](https://github.com/XTLS/Xray-core)是V2Ray項目的分支，
+主要添加了VLESS協議以及XTLS相關的功能，
+XTLS相關功能因為[許可證問題](https://github.com/XTLS/Go/issues/9)被從V2Ray主分支中移除，
+後續單獨創建項目繼續開發，目前開發活躍，性能以及各類功能特性均超越原版V2Ray。
+
+XRay除原版功能外，提供了更多的協議組合，如：
+
+- VLESS + TCP + XTLS
+- VLESS + gRPC + XTLS
+- VLESS + TCP + REALITY
+
+XTLS拼接了代理外層TLS與流量內層TLS，使代理無需對HTTPS流量進行數據解密，性能更高。
+
+XTLS Vision特性解決了TLS in TLS的流量特徵問題，
+參見[GitHub Issues](https://github.com/XTLS/Xray-core/discussions/1295)。
+
+## 安裝和配置V2Ray/XRay服務
 V2Ray在各大發行版官方倉庫中均已包含，使用各大發行版的包管理器安裝即可：
 
 ```html
+<!-- 安裝V2Ray -->
 # apt install v2ray <!-- 大便係 -->
 # pacman -S v2ray <!-- Arch係 -->
+# pkg install v2ray <!-- FreeBSD -->
+
+<!-- 安裝XRay，因為許可證問題XRay未包含在Debian係倉庫中 -->
+# pacman -S xray <!-- Arch係 -->
+# pkg install xray-core <!-- FreeBSD -->
 ```
 
 管理服務：
 
 ```html
-# systemctl enable/disable v2ray <!-- 開啟/關閉V2Ray服務自啟動 -->
-# systemctl start/stop v2ray <!-- 啟動/停止V2Ray服務 -->
+# systemctl enable/disable v2ray/xray <!-- 開啟/關閉V2Ray/XRay服務自啟動 -->
+# systemctl start/stop v2ray/xray <!-- 啟動/停止V2Ray服務 -->
 ```
 
 [DockerHub](https://hub.docker.com/r/v2fly/v2fly-core)中提供了V2Ray的官方鏡像，
@@ -300,8 +324,8 @@ $ docker run -d -v /etc/v2ray:/etc/v2ray --network host --name v2ray v2fly/v2fly
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: v2ray-daemon
-  namespace: custom-components
+  name: v2ray
+  namespace: custom-apps
   labels:
     app: v2ray
 spec:
@@ -319,16 +343,23 @@ spec:
           image: v2fly/v2fly-core:版本號
           volumeMounts:
             - mountPath: /etc/v2ray
-              name: v2ray-config
+              name: v2ray
       volumes:
-        - name: v2ray-config
+        - name: v2ray
           hostPath:
             path: /etc/v2ray
             type: DirectoryOrCreate
 ```
 
-## V2Ray VMESS + TLS + WebSocket
-V2Ray支持使用WebSocket作為傳輸協議，
+XRay在DockerHub沒有官方組織，但可使用[teddysun/xray](https://hub.docker.com/r/teddysun/xray)鏡像，
+可直接創建容器使用：
+
+```
+$ docker run -d -v /etc/xray:/etc/xray --network host --name xray teddysun/xray:版本號
+```
+
+## VMess + TLS + WebSocket
+V2Ray/Xray支持使用WebSocket作為傳輸協議，
 該種傳輸方式可搭配CDN使用，以實現隱藏代理服務器真實IP的作用。
 
 服務端配置：
@@ -376,10 +407,10 @@ proxies:
   ...
 ```
 
-VMESS協議自身不帶有HTTP偽裝，因此通常在V2Ray前置一個Nginx做流量轉發和偽裝，
+VMess協議自身不帶有HTTP偽裝，因此通常前置一個Nginx做流量轉發和偽裝，
 Nginx轉發配置：
 
-```
+```conf
 server {
 	listen xxxx ssl;
 	ssl_certificate .../tls.crt;
@@ -401,8 +432,8 @@ server {
 }
 ```
 
-## V2Ray VMESS + TLS + gRPC
-V2Ray支持使用gRPC作為傳輸協議，
+## VMess + TLS + gRPC
+V2Ray/XRay支持使用gRPC作為傳輸協議，
 該種傳輸方式可搭配CDN使用，以實現隱藏代理服務器真實IP的作用。
 
 V2Ray服務端配置：
@@ -470,8 +501,8 @@ server {
 }
 ```
 
-## V2Ray Trojan
-V2Ray現在已提供了完善的Trojan協議支持，
+## V2Ray/XRay Trojan
+V2Ray/XRay現在已提供了完善的Trojan協議支持，
 並擴充了原版Trojan的功能，支持選用WebSocket或gRPC作為傳輸協議。
 
 `Trojan + TCP + TLS`配置：
@@ -560,8 +591,8 @@ Trojan使用TCP作爲傳輸層時支持`Fallback`，可將非協議流量傳輸�
 }
 ```
 
-## V2Ray Shadownsocks
-V2Ray亦支持Shadowsocks協議，配置：
+## V2Ray/XRay Shadowsocks
+V2Ray/XRay亦支持Shadowsocks協議，配置：
 
 ```json
 {
