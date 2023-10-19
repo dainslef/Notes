@@ -49,13 +49,13 @@ Shadowsocks擁有多個實現，最初使用Python實現，之後原作者慘遭
 
 ```json
 {
-    "server":["::1", "0.0.0.0"],
-    "mode":"tcp_and_udp",
-    "server_port":9999,
-    "local_port":1080,
-    "password":"custom_password",
-    "timeout":60,
-    "method":"chacha20-ietf-poly1305"
+    "server": ["::1", "0.0.0.0"],
+    "mode": "tcp_and_udp",
+    "server_port": 9999,
+    "local_port": 1080,
+    "password": "custom_password",
+    "timeout": 60,
+    "method": "xchacha20-ietf-poly1305"
 }
 ```
 
@@ -285,7 +285,8 @@ XRay除原版功能外，提供了更多的協議組合，如：
 - VLESS + gRPC + XTLS
 - VLESS + TCP + REALITY
 
-XTLS拼接了代理外層TLS與流量內層TLS，使代理無需對HTTPS流量進行數據解密，性能更高。
+XTLS將流量內層TLS直接拼接到代理外部，使代理無需對HTTPS流量進行數據解密，性能更高，
+參見[GitHub XTLS Release Tag](https://github.com/rprx/v2ray-vless/releases/tag/xtls)。
 
 XTLS Vision特性解決了TLS in TLS的流量特徵問題，
 參見[GitHub Issues](https://github.com/XTLS/Xray-core/discussions/1295)。
@@ -395,7 +396,7 @@ Clash客戶端配置：
 proxies:
   - name: xxx
     type: vmess
-    server: xxx_domain
+    server: xxx.xxx.domain
     port: 443
     uuid: xxx-xxx... # UUID需要與服務端保持一致
     alterId: 0 # V2Ray v4.28.1之後，alterId設置為0表示啟用VMessAEAD（服務端會自動適配）
@@ -466,7 +467,7 @@ Clash客戶端配置：
 proxies:
   - name: xxx
     type: vmess
-    server: xxx_domain
+    server: xxx.xxx.domain
     port: 443
     uuid: xxx-xxx... # UUID需要與服務端保持一致
     alterId: 0 # V2Ray v4.28.1之後，alterId設置為0表示啟用VMessAEAD（服務端會自動適配）
@@ -564,6 +565,21 @@ Trojan使用TCP作爲傳輸層時支持`Fallback`，可將非協議流量傳輸�
 }
 ```
 
+對應Clash配置：
+
+```yaml
+proxies:
+  - name: xxx
+    type: trojan
+    server: xxx.xxx.domain
+    port: 443
+    password: xxx...
+    network: ws
+    ws-opts:
+      path: /xxx-xxx...
+  ...
+```
+
 `Trojan + gRPC + TLS`配置：
 
 ```json
@@ -589,6 +605,21 @@ Trojan使用TCP作爲傳輸層時支持`Fallback`，可將非協議流量傳輸�
   "outbound": { "protocol": "freedom" },
   ...
 }
+```
+
+對應Clash配置：
+
+```yaml
+proxies:
+  - name: xxx
+    type: trojan
+    server: xxx.xxx.domain
+    port: 443
+    password: xxx...
+    network: grpc
+    grpc-opts:
+      grpc-service-name: xxx-xxx...
+  ...
 ```
 
 ## V2Ray/XRay Shadowsocks
