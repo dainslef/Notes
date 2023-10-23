@@ -83,6 +83,7 @@
 		- [ifupdown（Ubuntu（17.10之前）/ Debian）](#ifupdownubuntu1710之前-debian)
 		- [Netplan（Ubuntu17.10之後）](#netplanubuntu1710之後)
 		- [NetworkManager](#networkmanager)
+		- [systemd-networkd](#systemd-networkd)
 	- [route（路由）](#route路由)
 		- [route](#route)
 		- [ip route](#ip-route)
@@ -3305,6 +3306,43 @@ $ nmcli connection
 ```
 
 nmtui提供友好的TUI，可直接編輯、啟用、禁用連接。
+
+### systemd-networkd
+使用systemd的發行版亦可使用`systemd-networkd`管理網絡。
+
+使用systemd-networkd需要在systemd中啟用對應服務：
+
+```html
+# systemctl start systemd-networkd.service
+# systemctl enable systemd-networkd.service <!-- 設置服務自啟動 -->
+```
+
+systemd-networkd使用`networkctl`指令管理網絡：
+
+```html
+<!-- 展示網絡設備列表 -->
+# networkctl
+# networkctl list
+
+<!-- 展示網絡狀態 -->
+# networkctl status
+
+<!-- 啟用/停止指定網絡設備 -->
+# networkctl up/down 網卡設備
+```
+
+systemd-networkd的配置文件為`/etc/systemd/networkd.conf`，以及`/etc/systemd/network`路徑；
+
+```ini
+[Match]
+MACAddress=... # 通過MAC地址匹配設備
+
+[Network]
+Address=x.x.x.x/x
+Address=x.x.x.x/x
+... # 可配置多組IP地址
+Gateway=x.x.x.x
+```
 
 ## route（路由）
 `route`是大多數Unix的默認路由管理工具。
