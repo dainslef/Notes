@@ -408,6 +408,10 @@ fn f_static(t: &impl Trait) { ... }
 ```rust
 trait XxxTrait {
   type XxxAssociatedType;
+
+  // Associated Types 可添加泛型約束
+  type XxxAssociatedType1: XxxTrait;
+  type XxxAssociatedType1: XxxTrait1 + XxxTrait2;
   ...
 }
 
@@ -499,11 +503,20 @@ use前可使用權限字段修飾。
 
 示例：
 
-```rust
+```rs
 macro_rules! xxx {
   ...
 }
-pub use xxx; // 使用use關鍵字導出宏
+// 宏導出需要在宏定義之後
+use xxx; // 使用use關鍵字導出宏（默認內部訪問）
+pub(crate) use xxx; // 可定義為模塊內部公有訪問
+
+
+#[macro_export] // 對於使用pub修飾的宏導出，宏定義需要添加 #[macro_export]
+macro_rules! xxxx {
+  ...
+}
+pub use xxxx; // 使用pub導出外部
 ```
 
 
