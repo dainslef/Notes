@@ -16,6 +16,7 @@
 	- [PhantomData](#phantomdata)
 - [Trait（特質）](#trait特質)
 	- [Trait基本語法](#trait基本語法)
+	- [Trait衝突](#trait衝突)
 	- [Dynamically Dispatched / Staic Dispatched](#dynamically-dispatched--staic-dispatched)
 	- [Associated Types](#associated-types)
 	- [Generic Associated Types](#generic-associated-types)
@@ -370,6 +371,56 @@ trait XxxMultiExtendTrait: XxxTrait + XxxOtherTrait {
 }
 ```
 
+## Trait衝突
+在Rust中，並未限制為一個類型實現多個方法簽名可能衝突的Trait，
+當一個Trait試圖訪問衝突的方法時，會產生編譯錯誤：
+
+```rs
+trait A {
+  fn test(&self) -> String;
+}
+
+trait B {
+  fn test(&self) -> String;
+}
+
+struct Test<'a>(&'a str);
+
+impl A for Test<'_> {
+  fn test(&self) -> String {
+    self.0.to_string() + " (A)"
+  }
+}
+
+impl B for Test<'_> {
+  fn test(&self) -> String {
+    self.0.to_string() + " (B)"
+  }
+}
+
+#[test]
+fn test_trait() {
+  let t = Test("test");
+  println!("Print: {}", t.test());
+}
+```
+
+錯誤信息：
+
+```
+error[E0034]: multiple applicable items in scope
+...
+note: candidate #1 is defined in an impl of the trait `A` for the type `Test<'_>`
+...
+note: candidate #2 is defined in an impl of the trait `B` for the type `Test<'_>`
+...
+For more information about this error, try `rustc --explain E0034`.
+```
+
+對於接收self指針的方法，可通過對象類型推斷需要使用的Trait重載，
+因此直接使用`trait類型::衝突方法(對象)`調用可消除歧義；
+對於沒有self指針的普通方法，則需要通過`<類型 as Trait類型>::衝突方法()`的語法消除歧異。
+
 ## Dynamically Dispatched / Staic Dispatched
 Trait同時支持staic dispatched（靜態派發）和dynamically dispatched（動態派發）。
 
@@ -448,6 +499,7 @@ trait TraitWithGeneric<T> {
   ...
 }
 
+// 可提供任意多的泛型參數作為impl實現
 impl TraitWithGeneric<Xxx1> for Xxx {
   ...
 }
@@ -464,6 +516,7 @@ trait TraitWithAssociatedType {
 
 // 無泛型參數，一個目標類型僅能實現一個impl
 impl TraitWithAssociatedType for Xxx {
+  type AssociatedType = ...; // AssociatedType僅能提供一種類型
   ...
 }
 ```
