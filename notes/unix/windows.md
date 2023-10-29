@@ -9,6 +9,9 @@
 - [系統引導](#系統引導)
 - [Microsoft Office](#microsoft-office)
 	- [Office Deployment Tool](#office-deployment-tool)
+- [微軟輸入法](#微軟輸入法)
+	- [自定義短語](#自定義短語)
+	- [輸入法卡頓問題](#輸入法卡頓問題)
 - [常見問題記錄](#常見問題記錄)
 	- [Reply from ::1: time<1ms](#reply-from-1-time1ms)
 	- [Intel CPU機型會在C盤根目錄下創建空的Intel目錄](#intel-cpu機型會在c盤根目錄下創建空的intel目錄)
@@ -108,6 +111,7 @@ net和sc的詳細區別參考[StackExchange](https://superuser.com/questions/315
 ```
 
 ## 其它實用工具
+常用工具：
 
 ```html
 <!-- 查看系統進程列表 -->
@@ -256,6 +260,36 @@ Mode                 LastWriteTime         Length Name
 
 ```
 > .\setup.exe /configure .\configuration-Office2021Enterprise.xml
+```
+
+
+
+# 微軟輸入法
+微軟輸入法使用`Shift`切換中英文輸入。
+
+微軟輸入法提供了兩種特殊模式：
+
+- `v`模式，輸入v鍵后可進行時間、日期等常用輸入到漢字的轉換
+- `u`模式，輸入u鍵后可追加各類按鍵進行特殊標點（`uubd`）、特殊符號（`uuts`）等輸入。
+
+## 自定義短語
+微軟輸入法中并未直接提供**直角引號**的輸入方式，可通過添加自定義短語的方式添加快捷輸入，
+進入菜單：
+
+```
+Settings > Language & region > Microsoft Pinyin > Lexicon and self-learning > User defined phrases
+```
+
+在其中添加自定義短語快捷輸入方式。
+
+## 輸入法卡頓問題
+Windows 11内置的微軟拼音可能會出現跨語言輸入法切換卡頓的問題，
+從其它語言切換到微軟拼音后，輸入前幾個字符輸入提示框不會立即出現，而需要等待數秒。
+
+解決方案是清空個人輸入法配置，讓系統重新生成配置，刪除如下路徑中的内容：
+
+```
+C:\Users\用戶名​​\AppData\Roaming\Microsoft\InputMethod\Chs
 ```
 
 
