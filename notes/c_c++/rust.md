@@ -17,6 +17,7 @@
 - [Trait（特質）](#trait特質)
 	- [Trait基本語法](#trait基本語法)
 	- [Trait衝突](#trait衝突)
+	- [Coherence / Orphan Rule（Trait限制）](#coherence--orphan-ruletrait限制)
 	- [Dynamically Dispatched / Staic Dispatched](#dynamically-dispatched--staic-dispatched)
 	- [Associated Types](#associated-types)
 	- [Generic Associated Types](#generic-associated-types)
@@ -420,6 +421,44 @@ For more information about this error, try `rustc --explain E0034`.
 對於接收self指針的方法，可通過對象類型推斷需要使用的Trait重載，
 因此直接使用`trait類型::衝突方法(對象)`調用可消除歧義；
 對於沒有self指針的普通方法，則需要通過`<類型 as Trait類型>::衝突方法()`的語法消除歧異。
+
+## Coherence / Orphan Rule（Trait限制）
+雖然Rust中的Trait概念上來自Haskell的Type Class，
+但並不能如Haskell中的Type Class一般為任意類型實現任意Trait，
+需要Trait或類型二者之一為用戶定義，該限制被稱為`coherence`（一致性）或`orphan rule`（孤兒規則）；
+詳情參考[Rust Book](https://doc.rust-lang.org/book/ch10-02-traits.html#implementing-a-trait-on-a-type)。
+
+例如，不能為`Vec<T>`實現`ToString`特質，因為這兩者都定義在標準庫而非用戶代碼中，示例：
+
+```rs
+impl<T> ToString for Vec<T> {
+  fn to_string(&self) -> String {
+    "xxx".into()
+  }
+}
+```
+
+錯誤信息：
+
+```
+only traits defined in the current crate can be implemented for types defined outside of the crate
+define and implement a trait or new type insteadrustcClick for full compiler diagnostic
+...: `Vec` is not defined in the current crate
+```
+
+為外部類型實現外部Trait需要外部Trait帶有泛型參數，且泛型參數使用本地類型。
+
+示例，為自定義類型實現標準庫中的trait`Into`：
+
+```rs
+struct UserTrait(usize);
+
+impl Into<UserTrait> for usize {
+  fn into(self) -> UserTrait {
+    UserTrait(self)
+  }
+}
+```
 
 ## Dynamically Dispatched / Staic Dispatched
 Trait同時支持staic dispatched（靜態派發）和dynamically dispatched（動態派發）。
