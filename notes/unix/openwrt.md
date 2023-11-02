@@ -61,6 +61,7 @@
 	- [Adblock啟動失敗: user.err adblock-xxx: coreutils sort not found or not executable](#adblock啟動失敗-usererr-adblock-xxx-coreutils-sort-not-found-or-not-executable)
 	- [GL-AXT1800原廠固件自動掛載存儲到 /tmp/mountd/](#gl-axt1800原廠固件自動掛載存儲到-tmpmountd)
 	- [Mi Router 4A/4C 新閃存芯片 EN25QX128 不支持](#mi-router-4a4c-新閃存芯片-en25qx128-不支持)
+	- [`E1187: Failed to source defaults.vim`](#e1187-failed-to-source-defaultsvim)
 
 <!-- /TOC -->
 
@@ -330,29 +331,35 @@ opkg並未直接提供升級所有軟件包功能，可利用管道操作組合�
 ```html
 # opkg install
 <!-- 常用程序，所有設備均安裝 -->
-fish file lsblk htop iperf3 tcpdump nmap-full screen
-luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
+fish file lsblk btop iperf3 tcpdump screen luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
 <!-- 帶有USB接口的設備可作為下載服務器 -->
 luci-app-aria2 ariang luci-app-samba4 kmod-fs-exfat kmod-usb-storage-uas usbutils rsync
 <!-- 有SD卡插槽，需要手動配置Overlay的設備可安裝 -->
 block-mount fdisk
 
 <!--
-VIM編輯器，busybox自帶的vi功能簡陋，多數VIM常用指令都未實現，
-OpenWRT中vim分為三個版本vim/vim-full/vim-fuller，
-其中vim為tiny-build，關閉了大多數VIM特性，建議使用vim-full(normal-build)或更完整的vim-fuller(big-build)
+VIM編輯器，OpenWRT中内置的vi編輯器為busybox提供，功能簡陋，多數VIM常用指令都未實現，
+OpenWRT中VIM分為三個版本vim/vim-full/vim-fuller，
+其中vim為tiny-build，關閉了大多數VIM特性（如部分文件的語法高亮以及vimdiff等功能），
+建議使用vim-full(normal-build)或更完整的vim-fuller(big-build)
 -->
 vim-full
 <!-- 存儲空間足夠的設備可安裝全功能版本的VIM -->
 vim-fuller
+
+<!--
+與VIM類似，nmap/ncat等常用網絡工具亦存在普通版和完整功能版，
+存儲首先的設備僅安裝ncat即可，nmap普通版本亦有數M大小，開銷較大
+-->
+ncat
+<!-- 存儲空間充足的設備可安裝full版本 -->
+ncat-full nmap-full
 
 <!-- OpenWRT2020 主題 -->
 luci-theme-openwrt-2020
 
 <!-- ImmortalWRT 以及部分國產固件可直接從軟件源中安裝 OpenClash -->
 luci-app-openclash
-<!-- ImmortalWRT 不需要安裝溫度檢測器，UI直接提供處理器溫度展示，其它系統需要安裝用於查看處理器溫度 -->
-lm-sensors
 
 <!-- ARM64 架構的設備可安裝 Docker -->
 luci-app-dockerman
@@ -1163,7 +1170,7 @@ Collected errors:
 解決方案是將預裝的dnsmasq卸載：
 
 ```
-# opkg remove --autoremove dnsmasq
+# opkg remove dnsmasq
 ```
 
 安裝openclash後打開luci頁面會出現錯誤：
@@ -1683,3 +1690,12 @@ Signed-off-by: Piotr Dymacz <pepe2k@gmail.com>
 
 該補丁中，`+	{ "en25qx128a",	INFO(0x1c7118, 0, 64 * 1024,  256, SECT_4K) },`為新增行，
 同時，需要修改補丁中的變化行數。
+
+## `E1187: Failed to source defaults.vim`
+問題描述：<br>
+安裝OpenWRT的VIM編輯器`vim`或`vim-full`版本。每次執行指令后均出現上述警告提示（不影響實際使用）。
+
+解決方案：<br>
+出現該錯誤是因爲OpenWRT提供的`vim`/`vim-full`版本均精簡了VIM的默認配置文件`/usr/share/defaults.vim`，
+手動創建1該文件（無需填充内容）即可，亦可直接在家目錄下創建VIM配置（`~/.vimrc`），
+創建配置文件后，警告提示不再出現。
