@@ -1,7 +1,8 @@
 <!-- TOC -->
 
-- [Docker概述](#docker概述)
-	- [Docker與傳統虛擬機的區別](#docker與傳統虛擬機的區別)
+- [容器技術概述](#容器技術概述)
+	- [容器技術實現](#容器技術實現)
+	- [Docker容器與傳統虛擬機的區別](#docker容器與傳統虛擬機的區別)
 	- [容器相關技術架構](#容器相關技術架構)
 	- [Dockershim](#dockershim)
 - [Docker安裝與配置](#docker安裝與配置)
@@ -28,9 +29,10 @@
 	- [Docker文件傳輸](#docker文件傳輸)
 	- [Docker綁定掛載（Bind Mounts）](#docker綁定掛載bind-mounts)
 	- [Docker Volumes（卷）](#docker-volumes卷)
-- [Docker端口映射](#docker端口映射)
+- [Docker網絡](#docker網絡)
+	- [Docker端口映射](#docker端口映射)
 	- [Docker修改端口映射](#docker修改端口映射)
-- [Docker設置自定義Hosts](#docker設置自定義hosts)
+	- [Docker設置自定義Hosts](#docker設置自定義hosts)
 - [Habor](#habor)
 	- [部署Habor](#部署habor)
 	- [部署Helm Chart倉庫](#部署helm-chart倉庫)
@@ -42,6 +44,9 @@
 	- [登入Habor](#登入habor)
 		- [Docker登入](#docker登入)
 		- [podman登入](#podman登入)
+- [Lima](#lima)
+	- [Lima安裝](#lima安裝)
+	- [Lima環境配置](#lima環境配置)
 - [Podman](#podman)
 	- [Podman on macOS](#podman-on-macos)
 	- [Podman容器配置存儲](#podman容器配置存儲)
@@ -60,15 +65,29 @@
 
 
 
-# Docker概述
+# 容器技術概述
+容器技術將應用與依賴項一同打包放置在隔離的環境中執行，
+僅僅依賴宿主機的**內核**，簡化了應用的運帷與部署。
+
+與傳統虛擬機不同，容器屬於`OS-level virtualization`（操作系統層次的虛擬化），
+每個容器實例實際僅僅是獨立的用戶空間實例。
+
+## 容器技術實現
+主流的Unix系統均提供了不同的容器技術，以Linux和FreeBSD為例：
+
+- Linux容器基於[`namespaces(7)`](https://man7.org/linux/man-pages/man7/namespaces.7.html)
+
+	Linux的namespaces機制將資源劃分到不同命名空間中，不同命名空間內的進程資源相互隔離，
+	Linux的namespaces包含多個類別，包括Cgroup（根目錄隔離）、Network（網絡隔離）、PID（進程號隔離）等。
+
+- FreeBSD容器基於[`Jails`](https://docs.freebsd.org/en/books/handbook/jails/)
+
+	FreeBSD的Jails類似一個高級的`chroot`實現，普通chroot會共享宿主機除根路徑外的其它資源，
+	Jails在普通的chroot上添加了多種資源控制等高級功能。
+
+## Docker容器與傳統虛擬機的區別
 `Docker`是使用`Go`語言實現的開源容器引擎。
-Docker將應用與依賴項放置在容器中執行，僅僅依賴宿主機的內核，簡化了應用的運維與部署。
 
-與傳統虛擬機不同Docker屬於`OS-level virtualization`（操作系統層次的虛擬化），
-每個Docker實例實際僅僅是獨立的用戶空間實例，類似一個高級的`chroot`實現，
-在普通的chroot上添加了資源控制等高級功能。
-
-## Docker與傳統虛擬機的區別
 Docker基於容器技術，早期使用LinuX Containers（LXC）實現，之後切換到runC（libcontainer），
 直接使用Docker需要宿主機與容器同樣運行Linux系統，容器直接使用宿主機的內核。
 傳統虛擬機實例之間不能共享資源，而Docker實例可直接共享主機資源，
@@ -911,7 +930,13 @@ local               TestVolume
 
 
 
-# Docker端口映射
+# Docker網絡
+Docker容器默認與宿主機網絡隔離，容器內服務監聽的端口在宿主機不可直接訪問，
+需要添加**端口映射**才能將容器內的端口暴露到宿主機；
+通過添加`--network`參數設置網絡模式為`host`可讓容器直接使用宿主機網絡，
+使用host網絡模式的容器內服務監聽端口時直接使用宿主機端口。
+
+## Docker端口映射
 在docker中，在創建容器時可將容器內的端口映射到宿主機，宿主機可通過映射出的端口訪問容器提供的服務。
 
 創建容器時使用`-p`參數指定端口的映射信息：
@@ -1025,9 +1050,7 @@ $ docker create -p 主機端口1:容器端口2 -p 主機端口2:容器端口2 ..
 	}
 	```
 
-
-
-# Docker設置自定義Hosts
+## Docker設置自定義Hosts
 Docker在構建鏡像、常見容器時均可使用`--add-host`參數添加自定義主機映射：
 
 ```html
@@ -1248,6 +1271,41 @@ registries = ['x.x.x.x']
 # 需要重新顯式指定倉庫地址，否則拉取鏡像會失敗（會全部從配置的本地倉庫進行拉取）
 [registries.search]
 registries = ['docker.io', 'registry.access.redhat.com']
+```
+
+
+
+# Lima
+[Lima](https://github.com/lima-vm/lima)提供了macOS下開箱即用的Linux虛擬環境。
+Lima自動配置了文件共享，端口/指令轉發等功能，整體類似於Windows下的WSL2技術。
+
+## Lima安裝
+Homebrew中已經提供了Lima軟件包，可直接安裝：
+
+```
+$ brew install lima
+```
+
+Lima默認通過QEMU創建、管理虛擬機，因此Lima依賴於`qemu`軟件包。
+
+Lima軟件包包含`lima`和`limactl`指令：
+
+- `lima`指令用訪問虛擬機環境，以及轉發指令到虛擬機
+- `limactl`指令用於管理虛擬機
+
+## Lima環境配置
+安裝Lima軟件包之後，使用`limactl`指令創建虛擬機，基本指令：
+
+```html
+$ limactl start --name=虛擬機名稱 虛擬機配置模板
+```
+
+操作示例：
+
+```html
+<!-- 創建虛擬機 -->
+$ limactl start <!-- 首次執行會創建虛擬機，默認配置使用Ubuntu鏡像，創建名為default的虛擬機 -->
+$ limactl start --name=default /usr/local/share/lima/examples/archlinux.yaml <!-- 使用ArchLinux模板創建默認虛擬機 -->
 ```
 
 
