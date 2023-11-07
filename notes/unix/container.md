@@ -47,6 +47,7 @@
 - [Lima](#lima)
 	- [Lima安裝](#lima安裝)
 	- [Lima環境配置](#lima環境配置)
+	- [Lima的containerd支持](#lima的containerd支持)
 - [Podman](#podman)
 	- [Podman on macOS](#podman-on-macos)
 	- [Podman容器配置存儲](#podman容器配置存儲)
@@ -1307,6 +1308,45 @@ $ limactl start --name=虛擬機名稱 虛擬機配置模板
 $ limactl start <!-- 首次執行會創建虛擬機，默認配置使用Ubuntu鏡像，創建名為default的虛擬機 -->
 $ limactl start --name=default /usr/local/share/lima/examples/archlinux.yaml <!-- 使用ArchLinux模板創建默認虛擬機 -->
 ```
+
+創建虛擬機會在`~/.lima`路徑下根據虛擬機名稱生成虛擬機的對應配置，
+如default虛擬機，配置路徑即為`~/.lima/default`，主要的虛擬機配置為`~/.lima/default/lima.yaml`，
+虛擬機配置項可參考官方的[默認配置模板](https://github.com/lima-vm/lima/blob/master/examples/default.yaml)，
+其中較為重要的配置項如下：
+
+```yaml
+# 配置虛擬機雙核CPU、2G內存、100G磁盤
+cpus: 2 # 虛擬機核心數，默認配置為 min(4, host CPU cores)
+memory: 2G # 虛擬機內存，默認配置為 min("4GiB", half of host memory)
+disk: 100G # 虛擬機磁盤，默認配置為 100GiB
+
+# 設置虛擬機對macOS宿主機家目錄的寫入權限，出於安全考量，默認禁用寫入權限
+mounts:
+  ...
+  - location: "~"
+    writable: true
+```
+
+創建虛擬機完成後，可使用limactl指令查看、啟動、停止虛擬機：
+
+```html
+$ limactl list <!-- 查看已安裝的虛擬機 -->
+$ limactl start <!-- 啟動默認虛擬機（名為default的虛擬機），等價於 limactl start default，後續的其它操作類似 -->
+$ limactl start 虛擬機名稱 <!-- 啟動指定名稱的虛擬機 -->
+$ limactl stop 虛擬機名稱 <!-- 關閉指定名稱的虛擬機 -->
+$ limactl delete 虛擬機名稱 <!-- 刪除指定名稱的虛擬機 -->
+```
+
+## Lima的containerd支持
+Lima對`containerd`提供了直接支持，使用Lima創建虛擬機環境後，
+可直接在外部環境執行nerdctl指令，使用與Docker類似的指令管理容器。
+
+Lima不使用虛擬機發行版包管理提供的containerd軟件包，
+而是直接部署containerd的GitHub官方打包版本（保證不同發行版的容器環境一致），
+相關文件存放在`/usr/local/bin`路徑下。
+
+Lima使用sshfs將macOS宿主機的家目錄（`/Users/用戶名`）掛載到虛擬機內部的同名路徑下，
+以此支持宿主機路徑的容器綁定掛載，默認配置下宿主機的家目錄為只讀掛載，需要手動修改配置。
 
 
 
