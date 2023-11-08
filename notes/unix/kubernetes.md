@@ -30,6 +30,7 @@
 		- [Service類型](#service類型)
 		- [Service代理模式](#service代理模式)
 		- [禁用流量轉發](#禁用流量轉發)
+		- [NodePort開放端口](#nodeport開放端口)
 
 <!-- /TOC -->
 
@@ -769,3 +770,23 @@ externalTrafficPolicy設置為Local則僅對外部流量生效，
 
 internalTrafficPolicy與externalTrafficPolicy皆設置為Local時，
 行為與externalTrafficPolicy設置Local相同。
+
+### NodePort開放端口
+NodePort端口範圍默認為`30000-32767`，擴展端口範圍需要修改`kube-apiserver`的配置文件
+`/etc/kubernetes/manifests/kube-apiserver.yaml`：
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  ...
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    ...
+    # Custom Node Port range
+    - --service-node-port-range=1-65535
+```
+
+更改配置後，需要重啟kube-apiserver進程。
