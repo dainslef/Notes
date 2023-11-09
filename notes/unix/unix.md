@@ -17,7 +17,7 @@
 	- [Filesystem Hierarchy Standard](#filesystem-hierarchy-standard)
 - [PulseAudio](#pulseaudio)
 - [用戶管理](#用戶管理)
-- [FTP (File Transfer Protocol)](#ftp-file-transfer-protocol)
+- [FTP（File Transfer Protocol）](#ftpfile-transfer-protocol)
 	- [連接服務器](#連接服務器)
 	- [常用指令](#常用指令)
 - [SSH（Secure Shell）](#sshsecure-shell)
@@ -231,9 +231,11 @@ $ find 路徑 -exec 指令 \; <!-- 指令需要以分號結尾 -->
 ```
 
 exec參數執行的指令以`;`符號結尾，指令中可使用`{}`符號代表當前查找到的路徑，字符需要**轉義**。
-示例，查找當前路徑下所有文件(排除目錄)，並將權限設置爲`644`：
+
+示例：
 
 ```html
+<!-- 查找當前路徑下所有文件（排除目錄，並將權限設置爲644） -->
 $ find . -type f -exec chmod 644 \{\} \;
 ```
 
@@ -568,7 +570,7 @@ $ sed '3 d' test.txt
 `ps`指令用於查看進程狀態：
 
 ```html
-$ ps u -p [pid] <!-- 打印指定 pid 進程信息詳情 -->
+$ ps u -p 進程號 <!-- 打印指定 pid 進程信息詳情 -->
 $ ps au <!-- 打印當前所有進程信息詳情 -->
 $ ps ux <!-- 打印所有進程信息詳情 -->
 $ ps -o cmd,user,stat,pid,ppid,pgid,sid,tpgid,tty <!-- 輸出指定內容的進程信息 -->
@@ -577,10 +579,10 @@ $ ps -o cmd,user,stat,pid,ppid,pgid,sid,tpgid,tty <!-- 輸出指定內容的進�
 `kill`指令向進程發送信號：
 
 ```html
-# kill [pid] <!-- 向進程發送信號，默認發送的信號為 TERM(終止信號) -->
-# kill -9 [pid] <!-- 強制殺死進程(發送SIGKILL信號，該信號不可被忽略) -->
-# kill -[sig_num] [pid] <!-- 向指定進程發送指定編號的信號 -->
-# kill -s [sig_name] [pid] <!-- 向指定進程發送指定名稱的信號 -->
+# kill 進程號 <!-- 向進程發送信號，默認發送的信號為 TERM（終止信號） -->
+# kill -9 進程號 <!-- 強制殺死進程（發送SIGKILL信號，該信號不可被忽略） -->
+# kill -信號值 進程號 <!-- 向指定進程發送指定編號的信號 -->
+# kill -s 信號值 進程號 <!-- 向指定進程發送指定名稱的信號 -->
 $ kill -l <!-- 列出系統支持的信號 -->
 ```
 
@@ -588,35 +590,35 @@ $ kill -l <!-- 列出系統支持的信號 -->
 指令語法與kill指令類似：
 
 ```
-# killall [process_name]
-# killall -9 [process_name]
-# killall -[sig_num] [process_name]
+# killall 進程名
+# killall -9 進程名
+# killall -信號值 進程名
 
-# pkill [process_name]
-# pkill -9 [process_name]
-# pkill -[sig_num] [process_name]
+# pkill 進程名
+# pkill -9 進程名
+# pkill -信號值 進程名
 ```
 
 Linux和macOS(BSD)都提供了`pgrep`指令用於根據進程名稱查詢pid的功能，
 Linux的`sysvinit-tools`還提供了`pidof`工具，功能與pgrep類似：
 
 ```html
-$ pgrep [process_name] <!-- 查詢指定進程名稱的pid -->
-$ pgrep -l [process_name] <!-- 查詢指定進程的pid，同時輸出進程名稱 -->
-$ pidof [process_name]
+$ pgrep 進程名 <!-- 查詢指定進程名稱的pid -->
+$ pgrep -l 進程名 <!-- 查詢指定進程的pid，同時輸出進程名稱 -->
+$ pidof 進程名
 ```
 
 pidof/pgrep指令與kill指令組合，可實現類似pkill/killall指令的效果：
 
 ```
-# kill -9 $(pidof [process_name])
-# kill -9 $(pgrep [process_name])
+# kill -9 $(pidof 進程名)
+# kill -9 $(pgrep 進程名)
 ```
 
 pidof/pgrep等指令功能可使用管道組合指令模擬：
 
 ```
-$ ps A | grep [process_name] | awk '{print $1}'
+$ ps A | grep 進程名 | awk '{print $1}'
 ```
 
 ## 日誌記錄
@@ -663,10 +665,10 @@ $ dmidecode | grep "Product Name"
 
 
 # Linux Standard Base
-[Linux Standard Base(LSB)](https://refspecs.linuxfoundation.org/lsb.shtml)
+[Linux Standard Base（LSB）](https://refspecs.linuxfoundation.org/lsb.shtml)
 由某些Linux發行版在Linux基金會的組織下制定的Linux系統結構標準。
 
-LSB基於POSIX、 Single UNIX Specification(SUS)以及某些其它開放標準，
+LSB基於POSIX、 Single UNIX Specification（SUS）以及某些其它開放標準，
 同時在某些領域做了一些擴展。
 
 LSB的目標是開發和促成一組標準，以提升Linux發行版之間的兼容性，
@@ -674,7 +676,7 @@ LSB的目標是開發和促成一組標準，以提升Linux發行版之間的兼
 並且LSB將幫助協調和吸引軟件廠商來為Linux移植和編寫軟件產品。
 
 ## Filesystem Hierarchy Standard
-[Filesystem Hierarchy Standard(FHS)](https://www.pathname.com/fhs/)
+[Filesystem Hierarchy Standard（FHS）](https://www.pathname.com/fhs/)
 是LSB標準的一部分，定義了Linux的標準目錄結構。
 
 根路徑下應包含的子目錄：
@@ -706,7 +708,7 @@ LSB的目標是開發和促成一組標準，以提升Linux發行版之間的兼
 
 
 # PulseAudio
-`PulseAudio`是用於`POSIX`系統的音頻系統，是音頻程序的代理(proxy)。
+`PulseAudio`是用於`POSIX`系統的音頻系統，是音頻程序的代理（proxy）。
 PulseAudio允許用戶對音頻應用和音頻硬件之間傳遞的音頻數據執行高級操作。
 使用音頻服務可輕鬆實現諸如將音頻傳輸到另一臺機器上、改變樣本格式或通道數量、混合多種音頻等功能。
 
@@ -718,7 +720,7 @@ PulseAudio爲Linux系統設計，現在也被移植到了`Solaris`、`FreeBSD`�
 pactl提供了常用的功能：
 
 ```html
-<!-- 展示音頻輸出設備信息(簡短輸出) -->
+<!-- 展示音頻輸出設備信息（簡短輸出） -->
 $ pactl list sinks short
 <!-- 展示完整音頻設備信息 -->
 $ pactl list
@@ -836,22 +838,22 @@ $ pactl list sinks | awk '/Mute/ { print $2 }'
 
 ```html
 <!-- 創建用戶 -->
-# useradd [用戶名]
+# useradd 用戶名
 <!-- 創建用戶，併爲該用戶創建對應的同名家目錄 -->
-# useradd [用戶名] -m
+# useradd 用戶名 -m
 <!-- 創建用戶同時指定密碼 -->
-# useradd [用戶名] -p [密碼]
-<!-- 創建用戶時指定默認用戶組(默認會創建用戶名同名用戶組) -->
-# useradd [用戶名] -g [用戶組]
+# useradd 用戶名 -p 密碼
+<!-- 創建用戶時指定默認用戶組（默認會創建用戶名同名用戶組） -->
+# useradd 用戶名 -g 用戶組
 <!-- 創建用戶時指定默認Shell -->
-# useradd [用戶名] -s [Shell路徑]
+# useradd 用戶名 -s Shell路徑
 
 <!-- 刪除用戶 -->
-# userdel [用戶名]
+# userdel 用戶名
 <!-- 刪除用戶，並同時刪除該用戶的家目錄 -->
-# userdel -r [用戶名]
+# userdel -r 用戶名
 
-<!-- 修改用戶相關信息，如密碼、家目錄、登錄shell、用戶組等 -->
+<!-- 修改用戶相關信息，如密碼、家目錄、登錄Shell、用戶組等 -->
 # usermod
 ```
 
@@ -859,48 +861,48 @@ $ pactl list sinks | awk '/Mute/ { print $2 }'
 
 ```html
 <!-- 創建用戶組 -->
-# groupadd [用戶組名]
+# groupadd 用戶組名
 
 <!-- 刪除用戶組，用戶組需要爲空 -->
-# groupdel [用戶組名]
+# groupdel 用戶組名
 
 <!-- 將用戶添加到用戶組中 -->
-# usermod -a -G [用戶組] [用戶名]
+# usermod -a -G 用戶組 用戶名
 <!-- 強制設置用戶的用戶組，若原先用戶加入的組不在給出的組列表中，將被移除原先的組(用戶的主組除外) -->
-# usermod -G [用戶組1,用戶組2,...] [用戶名]
+# usermod -G 用戶組1,用戶組2,... 用戶名
 ```
 
 修改文件用戶、用戶組：
 
 ```html
 <!-- 更改指定文件所有者 -->
-$ chown [選項] [用戶名:用戶組] [文件名]
+$ chown 選項 用戶名:用戶組 文件名
 <!-- 遞歸更改路徑下所有文件歸屬 -->
-$ chown -R [用戶名:用戶組] [路徑]
+$ chown -R 用戶名:用戶組 路徑
 
 <!-- 更改指定文件所屬用戶組 -->
-$ chgrp [選項] [用戶組名] [文件名]
+$ chgrp 選項 用戶組名 文件名
 ```
 
 
 
-# FTP (File Transfer Protocol)
-`Windows`系統下提供了`ftp`命令行工具用於訪問`FTP`服務器進行交互。
+# FTP（File Transfer Protocol）
+Windows系統下提供了`ftp`命令行工具用於訪問FTP服務器進行交互。
 
 ## 連接服務器
 使用`ftp`指令與服務端建立連接：
 
 ```
-$ ftp [服務端IP地址]
+$ ftp 服務端IP地址
 ```
 
 成功建立連接後，會提示輸入FTP用戶名/密碼，如下所示：
 
 ```
-> ftp [服務端IP地址]
+> ftp 服務端IP地址
 連接到 [服務端IP地址]。
 ...
-用戶([IP地址]:(none)): Xxx
+用戶(IP地址:(none)): Xxx
 331 Password required for Xxx
 密碼:
 230 User Xxx logged in
@@ -917,10 +919,10 @@ ftp> ...
 在ftp shell中使用`open/close`指令建立/關閉連接，如下所示：
 
 ```
-ftp> open [服務端IP地址]
+ftp> open 服務端IP地址
 連接到 [服務端IP地址]。
 ...
-用戶([IP地址]:(none)): Xxx
+用戶(IP地址:(none)): Xxx
 331 Password required for Xxx
 密碼:
 230 User Xxx logged in
@@ -950,7 +952,7 @@ ftp>
 SSH通過在網絡中建立`Secure Channel`（安全通道）實現SSH客戶端與服務端之間的連接。
 
 SSH常用在Unix系統中，用於傳輸命令行界面和遠程執行指令。
-相比使用明文傳輸的`Telnet`協議，SSH能夠保證網絡環境中信息加密完整可靠。
+相比使用明文傳輸的Telnet協議，SSH能夠保證網絡環境中信息加密完整可靠。
 
 SSH的主流實現是`OpenSSH`（全稱`OpenBSD Secure Shell`）。
 
@@ -994,7 +996,7 @@ SSH服務相關配置文件位於`/etc/ssh`路徑下：
 	| :- | :- |
 	| yes（默認） | 允許root用戶登陸 |
 	| no | 不允許root用戶登陸 |
-	| without-password | 可登陸root用戶，但不能以密碼驗證的方式登陸(可用key驗證) |
+	| without-password | 可登陸root用戶，但不能以密碼驗證的方式登陸（可用key驗證） |
 	| forced-commands-only | 可登陸root用戶，但登陸後僅能執行指令後退出，不能交互 |
 
 - `UseDNS`
@@ -1026,7 +1028,7 @@ ClientAliveInterval 10s # 設置心跳包間隔（秒），默認值為0（不�
 ```
 
 ## 配置免密登陸
-默認配置下，登陸SSH需要密碼，當部署一些依賴SSH協議的分佈式服務時(如`Hadoop`、`Zookeeper`、`Kafka`等)，
+默認配置下，登陸SSH需要密碼，當部署一些依賴SSH協議的分佈式服務時（如`Hadoop`、`Zookeeper`、`Kafka`等），
 需要配置免密登陸。
 
 使用`ssh-keygen`工具生成公鑰和私鑰，如下所示：
@@ -1522,16 +1524,14 @@ $ gdb 進程文件 進程核心轉儲
 
 
 # 文件系統
-Unix系統遵循[`Everything is a file`](https://en.wikipedia.org/wiki/Everything_is_a_file)的設計哲學，
-任何資源、硬件在系統中均抽象為文件。
+Unix系統遵循[`Everything is a file`](https://en.wikipedia.org/wiki/Everything_is_a_file)
+設計哲學，任何資源、硬件在系統中均抽象為文件。
 
 硬盤在Linux中以塊設備（block）形式呈現，位於`/dev`路徑下，
 通常名稱為`sda`（塊設備路徑`/dev/sda`），
 存在多塊磁盤時，則按照次序命名為`sdb,sdc,sdd,...`，依此類推。
 
-每塊磁盤下的分區同樣會生成塊設備，
-按照分區編號命名為`sda1,sda2,sda3,...`，依此類推。
-
+每塊磁盤下的分區同樣會生成塊設備，按照分區編號命名為`sda1,sda2,sda3,...`，依此類推。
 磁盤塊設備根據發行版/平台環境差異，也可能使用`vda`等其它名稱。
 
 使用`lsblk`可查看當前系統的磁盤分區結構：
@@ -1641,8 +1641,8 @@ $ wipefs 塊設備
 
 	在會話中使用`g/G/o/s`指令創建不同類型的分區表，常見的分區表爲：
 
-	- `DOS`分區表(使用指令`o`創建，用於MBR舊式BIOS的機器，僅允許4個主分區)
-	- `EFI`分區表(使用指令`g`創建，用於EFI新式BIOS的機器，無分區限制)
+	- `DOS`分區表（使用指令`o`創建，用於MBR舊式BIOS的機器，僅允許4個主分區）
+	- `EFI`分區表（使用指令`g`創建，用於EFI新式BIOS的機器，無分區限制）
 
 - `n` 創建分區
 
@@ -1675,8 +1675,7 @@ $ wipefs 塊設備
 | `q` | 不保存改動退出 |
 
 ## parted
-`parted`是Linux下的另一種交互式分區工具，
-與`fdisk`相比，parted一直支持GPT分區表，
+`parted`是Linux下的另一種交互式分區工具，與`fdisk`相比，parted一直支持GPT分區表，
 並且在功能選項上更加豐富，但在交互上沒有fdisk便捷。
 
 與fdisk工具類似，執行具體的磁盤分區需要進入parted會話：
@@ -1808,9 +1807,10 @@ flock           14204 FLOCK   0B WRITE 0     0   0 /tmp/sleep.lock
 ...
 ```
 
-當使用flock執行指令時，若目標指令會創建子進程，則子進程會在flock結束後繼續持有鎖(文件描述符共享)，
+當使用flock執行指令時，若目標指令會創建子進程，則子進程會在flock結束後繼續持有鎖（文件描述符共享），
 該特性會導致只要之前該子進程不退出，鎖會一直被持有，直到創建的子進程結束。
 使用`-o, --close`參數可解決該問題，使用`-o`參數則flock在獲取鎖成功、執行目標指令前關閉鎖文件的描述符。
+
 示例：
 
 ```html
@@ -1830,13 +1830,13 @@ Unix文件系統中，除了常規的777讀寫權限外，還有部分特殊權�
 ### setuid / setgid / sticky
 Unix系統中擁有三類特殊權限標誌：
 
-| 權限標誌 | 含義(對可執行文件使用) | 含義(對目錄使用) |
+| 權限標誌 | 含義（對可執行文件使用） | 含義（對目錄使用） |
 | :- | :- | :- |
-| s(setuid) | 使文件在執行階段具有文件所有者的權限 | 在多數Unix實現(包括Linux)下，對目錄設置setuid會被忽略 |
+| s(setuid) | 使文件在執行階段具有文件所有者的權限 | 在多數Unix實現（包括Linux）下，對目錄設置setuid會被忽略 |
 | s(setgid) | 使文件在執行階段具有文件所屬組的權限 | 使目錄下的文件都具有和該目錄所屬組相同的權限 |
-| t(sticky) | 禁止文件被所屬用戶外的其它用戶刪除(不受寫權限約束，對root用戶無效) | 在Linux/macOS上均被忽略 |
+| t(sticky) | 禁止文件被所屬用戶外的其它用戶刪除（不受寫權限約束，對root用戶無效） | 在Linux/macOS上均被忽略 |
 
-使用8進制數值表示文件權限時，這些特殊權限佔有一組獨立的8進制位(位於傳統權限標誌位**之前**)。
+使用8進制數值表示文件權限時，這些特殊權限佔有一組獨立的8進制位（位於傳統權限標誌位**之前**）。
 如傳統文件的權限爲`777`，添加了特殊權限後使用`?777`表示，`?`即爲特殊權限的啓用情況。
 
 特殊權限的三個二進制位含義：
@@ -3018,11 +3018,11 @@ systemd還集成了常用的系統管理工具：
 | timedatectl | 時區時間配置 |
 | localectl | 語言編碼配置 |
 | networkctl | 網絡配置 |
+| resolvectl | DNS配置 |
 | coredumpctl | 核心轉儲查看 |
 | journalctl | 日誌查看工具 |
 | loginctl | 會話狀態管理 |
 | busctl | | D-Bus監控 |
-| resolvectl | 域名解析配置 |
 | userdbctl | 用戶管理 |
 | machinectl | 虛擬機/容器管理
 
@@ -3262,8 +3262,8 @@ network:
 
 ### NetworkManager
 `NetworkManager`是現代Linux發行版的主流網絡管理服務，
-NetworkManager服務用於管理網絡連接和其它網絡接口，如Ethernet、WiFi、Mobile Broadband，
-使網絡配置和操作變得盡可能自動化。
+NetworkManager服務用於管理網絡連接和其它網絡接口，
+如Ethernet、WiFi、Mobile Broadband，使網絡配置和操作變得盡可能自動化。
 
 NetworkManager最初由RedHat開發，之後由GNOME項目進行維護。
 紅帽系列發行版RHEL、CentOS、Fedora等均默認使用NetworkManager。
@@ -3331,9 +3331,10 @@ systemd-networkd使用`networkctl`指令管理網絡：
 # networkctl up/down 網卡設備
 ```
 
-systemd-networkd的配置文件為`/etc/systemd/networkd.conf`，以及`/etc/systemd/network`路徑；
+systemd-networkd的配置文件為`/etc/systemd/networkd.conf`，
+以及`/etc/systemd/network`路徑，配置靜態地址示例：
 
-```ini
+```conf
 [Match]
 MACAddress=... # 通過MAC地址匹配設備
 
@@ -3342,6 +3343,7 @@ Address=x.x.x.x/x
 Address=x.x.x.x/x
 ... # 可配置多組IP地址
 Gateway=x.x.x.x
+DNS=x.x.x.x
 ```
 
 ## route（路由）
@@ -3551,9 +3553,10 @@ $ ip neigh
 ```
 
 ## Bonding
-[Bonding](https://wiki.linuxfoundation.org/networking/bonding)可將兩個以上的物理網卡接口綁定為一個邏輯接口。
-使用Bonding可復用多塊網卡提升網絡IO並提高接口可靠性，組成Bonding的物理接口一部分發生故障時，
-整個接口依舊可以正常工作。
+[Bonding](https://wiki.linuxfoundation.org/networking/bonding)
+可將兩個以上的物理網卡接口綁定為一個邏輯接口。
+使用Bonding可復用多塊網卡提升網絡IO並提高接口可靠性，
+組成Bonding的物理接口一部分發生故障時，整個接口依舊可以正常工作。
 
 系統的Bonding信息可查看`/proc/net/bonding`路徑下的對應Bonding設備名稱。
 
@@ -3595,7 +3598,7 @@ bind-mode 3則會重複發包，可能會對上層業務產生影響（以ping�
 
 Linux/macOS均支持的netstat參數：
 
-- `-n` 禁用常用端口的名稱轉義，默認常用端口會直接轉換為協議名稱如`80`(http)
+- `-n` 禁用常用端口的名稱轉義，默認常用端口會直接轉換為協議名稱如`80`（http）
 - `-h` 展示幫助信息
 
 Linux平台的netstat的常用參數：
@@ -3771,8 +3774,9 @@ tcpdump數據過濾表達式可搭配or、and、not等邏輯操作符組合多�
 ```
 
 ## Netcat (nc)
-`nc`(netcat)是Unix環境下常用的TCP/UDP連接和監聽工具；
-可用於打開TCP連接，發送UDP數據包，監聽TCP/UDP端口，執行端口掃描，該工具同時支持IPv4和IPv6。
+`nc`（netcat）是Unix環境下常用的TCP/UDP連接和監聽工具；
+可用於打開TCP連接，發送UDP數據包，監聽TCP/UDP端口，執行端口掃描，
+該工具同時支持IPv4和IPv6。
 
 macOS/BSD、部分Linux發行版預裝了該工具，
 未預裝該工具的Linux可在發行版軟件倉庫中安裝該工具。
@@ -3865,7 +3869,7 @@ bbbb
 
 ## iptables/nftables (netfilter)
 iptables以及其繼任者nftables均來自[netfilter](https://www.netfilter.org/)項目，
-netfilter項目提供了包過濾、網絡地址/端口轉換(NAT)，包日誌、用戶態包查詢等功能。
+netfilter項目提供了包過濾、網絡地址/端口轉換（NAT），包日誌、用戶態包查詢等功能。
 
 netfilter hooks提供了在Linux內核中提供了框架，允許內核模塊在Linux網絡棧的不同位置註冊回調函數。
 
@@ -4307,9 +4311,9 @@ Idlestate 3 enabled on CPU 1
 `ps`指令是Unix下最常用的進程信息查看工具，可查看進程的CPU、內存等常見的資源使用情況。
 Linux與macOS/BSD系列指令參數有部分差異。
 
-ps指令支持多種參數風格，通常參數為短參數(單橫槓參數，如`-a,-A,-u,-v,-p,-o`)，
+ps指令支持多種參數風格，通常參數為短參數（單橫槓參數，如`-a,-A,-u,-v,-p,-o`），
 在BSD風格下部分短參數作為**首個參數**時可以省略單橫槓，Linux也部分支持該風格。
-部分參數在有/無單橫槓時含義不同，如`u`(特定顯示格式)和`-u [uid]`(顯示特定uid所屬進程)。
+部分參數在有/無單橫槓時含義不同，如`u`（特定顯示格式）和`-u [uid]`（顯示特定uid所屬進程）。
 
 通用用法：
 
@@ -4704,10 +4708,10 @@ $ iftop -o source/destination
 
 ```html
 <!-- 按照指定的時間間隔輸出間隔內的平均資源佔用，退出指令後會展示整個指令期間的平均資源佔用 -->
-$ pidstat -p [pid] [interval]
+$ pidstat -p 進程號 [interval]
 
 <!-- 統計指定次數後退出 -->
-$ pidstat -p [pid] [interval] [count]
+$ pidstat -p 進程號 [interval] [count]
 ```
 
 ### mpstat
@@ -4829,7 +4833,8 @@ $ fio --name 任務名稱 --filename 測試目標 --rw 測試操作 --bs 塊大�
 | direct | 使用非緩衝IO，對應`O_DIRECT`，取值可為`0`（使用緩衝IO，默認值），`1`（使用非緩衝IO） |
 | invalidate | 使現在文件IO生成的buffer/page cache無效化，取值可為`1`（默認）和`0` |
 
-fio的測試目標可以為**塊設備**或是文件系統中的**普通文件**，測試目標為塊設備則反映設備的裸盤性能。
+fio的測試目標可以為**塊設備**或是文件系統中的**普通文件**，
+測試目標為塊設備則反映設備的裸盤性能。
 
 測試目標已存在時可不設置size參數，fio會以測試目標自身大小作為測試數據大小；
 測試目標不存在時必須設置size參數，fio會創建對應大小的文件。
@@ -5033,16 +5038,16 @@ Dunst配置可參考[官方文檔](https://dunst-project.org/documentation/)，
 終端模擬器是GUI環境下常用的應用之一，用於在GUI環境下創建終端會話並進行交互。
 
 ## VTE
-`VTE`是`Gnome`項目提供的輕量級終端庫，許多終端軟件使用VTE實現，如`gnome-terminal`、`roxterm`等。
-VTE自身亦可做爲獨立的終端軟件使用。
+`VTE`是Gnome項目提供的輕量級終端庫，許多終端軟件使用VTE實現，
+如`gnome-terminal`、`roxterm`等。VTE自身亦可做爲獨立的終端軟件使用。
 
-相比其它終端模擬器，VTE提供了豐富的特性和較少的依賴(僅僅依賴`GTK+`)。
+相比其它終端模擬器，VTE提供了豐富的特性和較少的依賴（僅僅依賴`GTK+`）。
 
-VTE當前的主流版本爲基於`GTK+ 2`的`VTE2`和基於`GTK+ 3`的`VTE3`。
-在`Arch Linux`/`NixOS`等多數發行版的打包中，
+VTE當前的主流版本爲基於GTK2的VTE2和基於GTK3的VTE3。
+在Arch Linux/NixOS等多數發行版的打包中，
 VTE2的指令名稱爲`vte`，VTE3的指令名稱爲`vte-2.91`。
 
-VTE2現已停止維護，部分發行版(如Arch Linux)已經移除了其對應軟件包。
+VTE2現已停止維護，部分發行版（如Arch Linux）已經移除了其對應軟件包。
 
 ### VTE2
 VTE2開發時間較早，現已不支持部分終端顯示特性
@@ -5411,8 +5416,7 @@ apt包管理器默認未提供查找包內文件的功能，此類功能可通�
 ```
 
 add-apt-repository包含在`software-properties-common`軟件包中，
-通常Ubuntu及其衍生發行版會默認安裝該包，
-部分精簡鏡像（如ubuntu-core）未包含該工具，可手動安裝：
+通常Ubuntu及其衍生發行版會默認安裝該包，部分精簡鏡像（如ubuntu-core）未包含該工具，可手動安裝：
 
 ```
 # apt install software-properties-common
@@ -5506,8 +5510,7 @@ $ dpkg -L 軟件包名稱
 	`Architecture`為軟件包支持的CPU架構，與CPU架構無關的軟件包可填寫`all`，表示支持所有架構。
 
 	維護者腳本包括preinst、postinst、prerm、postrm等，
-	可用於在安裝過程的前後附加一些特殊操作，
-	這些腳本權限範圍需要在`0555`到`0775`之間。
+	可用於在安裝過程的前後附加一些特殊操作，這些腳本權限範圍需要在`0555`到`0775`之間。
 	維護者腳本詳細介紹可參考[官方文檔](https://www.debian.org/doc/debian-policy/ch-maintainerscripts.html)，
 	以及[Debian Wiki](https://wiki.debian.org/MaintainerScripts)。
 
