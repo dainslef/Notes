@@ -31,6 +31,8 @@
 		- [Service代理模式](#service代理模式)
 		- [禁用流量轉發](#禁用流量轉發)
 		- [NodePort開放端口](#nodeport開放端口)
+	- [ReplicaSet](#replicaset)
+	- [Deployment](#deployment)
 
 <!-- /TOC -->
 
@@ -790,3 +792,72 @@ spec:
 ```
 
 更改配置後，需要重啟kube-apiserver進程。
+
+## ReplicaSet
+ReplicaSet用於控制Pods的數目，保證指定Pods的複製實例數目在一個穩定的狀態。
+
+示例：
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+  labels:
+    app: guestbook
+    tier: frontend
+spec:
+  # Modify replicas according to your case.
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+        - name: php-redis
+          image: gcr.io/google_samples/gb-frontend:v3
+```
+
+## Deployment
+Deployment可用於管理Pods和ReplicaSets，提供滾動更新等部署功能。
+
+Deployment中同樣可使用replicas配置項定義Pods的複製數目，
+應用Deployment後會自動生成對應的ReplicaSets。
+
+Deployment可執行重啟操作，用於鏡像變化時更新Pods：
+
+```
+$ kubectl rollout restart deployment -n 命名空間 Deployment名稱
+```
+
+默認StrategyType為`RollingUpdate`，即逐個替換舊Pod。
+
+示例（使用Deployment部署Nginx）：
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+```
