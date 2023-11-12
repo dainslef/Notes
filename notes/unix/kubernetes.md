@@ -33,6 +33,8 @@
 		- [NodePort開放端口](#nodeport開放端口)
 	- [ReplicaSet](#replicaset)
 	- [Deployment](#deployment)
+	- [StatefulSet](#statefulset)
+	- [DaemonSet](#daemonset)
 
 <!-- /TOC -->
 
@@ -794,7 +796,8 @@ spec:
 更改配置後，需要重啟kube-apiserver進程。
 
 ## ReplicaSet
-ReplicaSet用於控制Pods的數目，保證指定Pods的複製實例數目在一個穩定的狀態。
+ReplicaSet用於控制Pods的數目，保證指定Pods的複製實例數目在一個穩定的狀態，
+當Pods異常退出時，Kubernetes會自動重新創建Pods維持指定的數目。
 
 示例：
 
@@ -860,4 +863,65 @@ spec:
         image: nginx:1.14.2
         ports:
         - containerPort: 80
+```
+
+## StatefulSet
+[StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset)
+用於管理存在狀態的集群服務，與Deployment相似，StatefulSet管理的一組Pods使用相同的容器規格，
+不同的是StatefulSet中各個Pods是不可互換的，每個Pod擁有獨立的標識符，
+StatefulSet會持久化Pod的標識符，在任何重編排（rescheduling）下均會保持該標識。
+
+StatefulSet適合下列需求：
+
+- 穩定、唯一的網絡標識
+- 穩定、持久化的存儲
+- 有序的部署和擴容
+- 有序、自動化的滾動更新
+
+Deployment適合用於無狀態的集群，StatefulSet適合部署依賴狀態的集群，
+如Zookeeper、Galera Cluster等。
+
+StatefulSet創建方式與Deployment基本相同，
+但StatefulSet在使用外部存儲時，必須使用PersistentVolume，
+Kubernetes會記錄每個PersistentVolume與StatefulSet内Pods的對應關係（persistent identifier），
+保證重編排時依舊維持該對應關係。
+
+## DaemonSet
+[DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
+用於每個Node固定啟動一個Pod的場景，創建DaemonSet後會自動根據集群規模生成數目匹配的Pods，
+擴充/刪除Node，Pods數目隨之改變。
+
+與Deployment類似，DaemonSet亦支持rollout相關操作。
+
+示例（使用DaemonSet部署V2Ray）：
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: v2ray-daemon
+  namespace: custom-components
+  labels:
+    app: v2ray
+spec:
+  selector:
+    matchLabels:
+      app: v2ray
+  template:
+    metadata:
+      labels:
+        app: v2ray
+    spec:
+      hostNetwork: true
+      containers:
+        - name: v2ray
+          image: v2fly/v2fly-core:v4.45.2
+          volumeMounts:
+            - mountPath: /etc/v2ray
+              name: v2ray-config
+      volumes:
+        - name: v2ray-config
+          hostPath:
+            path: /etc/v2ray
+            type: DirectoryOrCreate
 ```
