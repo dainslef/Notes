@@ -35,6 +35,8 @@
 	- [Deployment](#deployment)
 	- [StatefulSet](#statefulset)
 	- [DaemonSet](#daemonset)
+	- [Ingress](#ingress)
+		- [NGINX Igress Controller](#nginx-igress-controller)
 
 <!-- /TOC -->
 
@@ -925,3 +927,35 @@ spec:
             path: /etc/v2ray
             type: DirectoryOrCreate
 ```
+
+## Ingress
+[Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/)
+通過HTTP和HTTPS路由規劃外部流量到內部服務的訪問方式，路由規則在Ingress資源中定義。
+
+Ingress架構如下所示：
+
+![Kubernetes Ingress](../../images/kubernetes_ingress.svg)
+
+Ingress需要[Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/)
+提供服務才能生效，Ingress Controller擁有多種實現。
+OpenStack等雲平台中可使用對應平台的Ingress Controller；
+或者使用NGINX Igress Controller。
+
+默認集群配置下Ingress Controller並未自動安裝，
+需要開發者自行配置選擇合適的Ingress Controller實現。
+
+### NGINX Igress Controller
+[`NGINX Igress Controller`](https://github.com/kubernetes/ingress-nginx)
+是最常見的Igress Controller，使用NGINX作為反向代理於負載均衡器。
+
+NGINX Ingress Controller詳細使用方式參見[官方文檔](https://kubernetes.github.io/ingress-nginx/)。
+
+使用Helm安裝NGINX Igress Controller：
+
+```
+$ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+$ helm install ingress-nginx ingress-nginx/ingress-nginx
+```
+
+Ingress API參考
+[官方文檔](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/ingress-v1/)，
