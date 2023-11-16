@@ -37,6 +37,7 @@
 	- [DaemonSet](#daemonset)
 	- [Ingress](#ingress)
 		- [NGINX Igress Controller](#nginx-igress-controller)
+		- [Ingress 503](#ingress-503)
 
 <!-- /TOC -->
 
@@ -959,3 +960,73 @@ $ helm install ingress-nginx ingress-nginx/ingress-nginx
 
 Ingress API參考
 [官方文檔](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/ingress-v1/)，
+對象描述示例：
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: custom-ingress
+  namespace: custom-components
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  ingressClassName: ingress-nginx
+  rules:
+  - http:
+      paths:
+      - path: /prefix1
+        pathType: Prefix
+        backend:
+          service:
+            name: test1
+            port:
+              number: 443
+      - path: /prefix2/(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: test2
+            port:
+              number: 80
+        ...
+```
+
+NGINX Igress Controller會根據Ingress對象描述的規則
+在Igress Controller容器中生成對應的NGINX配置文件（容器中的`/etc/nginx/nginx.conf`）。
+
+NGINX Igress Controller在`spec.rules.http.paths.path`中支持使用正則表達式捕獲內容，
+捕獲的內容在`metadata.annotations.nginx.ingress.kubernetes.io/rewrite-target`
+中可使用`$1`、`$2`等變量名獲取對應位置的捕獲內容來構成轉發後的URL。
+
+使用`metadata.annotations.nginx.ingress.kubernetes.io/server-snippet`
+可直接向生成的nginx.conf中添加配置內容，示例：
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: custom-ingress
+  namespace: custom-components
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ~* ^/xxx/(.*) {
+        rewrite ^/xxx/(.*) /Xxx/xxx/$1 break;
+        proxy_pass https://xxx.xxx.xxx;
+      }
+spec:
+  ingressClassName: ingress-nginx
+  rules:
+    ...
+```
+
+NGINX Igress Controller中使用的路徑匹配和proxy_pass轉發與標準NGINX中存在一些差異，
+參見[StackOverflow](https://stackoverflow.com/questions/63275239/kubernetes-nginx-ingress-server-snippet-annotation-not-taking-effect)
+上的對應問題。
+
+### Ingress 503
+Ingress中轉發的目標服務需要與Ingress本體位於同一命名空間，否則會出現503錯誤。
+
+若需要強行轉發服務流量到不同命名空間的服務，可考慮使用完整服務域名，
+根據Igress Controller類型，編寫專屬規則配置。
