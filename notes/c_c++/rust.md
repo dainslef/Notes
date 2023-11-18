@@ -565,6 +565,27 @@ impl TraitWithAssociatedType for Xxx {
 Rust的Trait支持Generic Associated Types，
 參考[官方博客](https://blog.rust-lang.org/2022/10/28/gats-stabilization.html)。
 
+Rust當前並不支持`Higher Kinded Types`（高階類型），例如無法定義一個接收泛型參數的泛型類型：
+
+```rs
+// 該代碼不合法，無法通過編譯
+trait CsutomListAdd<C<V>> {
+  fn add(self, _: V) -> C<V>;
+}
+```
+
+在Rust引入Generic Associated Types後能夠一定程度實現部分需要HKT才能實現的特性，
+使用GAT定義出更具體的類型約束，限定結果為包含一個泛型參數的泛型類型：
+
+```rs
+// 合法代碼
+trait CsutomListAdd {
+  type V;
+  type C<V>;
+  fn add(self, _: Self::V) -> Self::C<Self::V>;
+}
+```
+
 
 
 # 訪問權限
