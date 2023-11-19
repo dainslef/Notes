@@ -38,6 +38,8 @@
 	- [Ingress](#ingress)
 		- [NGINX Igress Controller](#nginx-igress-controller)
 		- [Ingress 503](#ingress-503)
+- [DNS](#dns)
+	- [配置DNS策略](#配置dns策略)
 
 <!-- /TOC -->
 
@@ -1030,3 +1032,30 @@ Ingress中轉發的目標服務需要與Ingress本體位於同一命名空間，
 
 若需要強行轉發服務流量到不同命名空間的服務，可考慮使用完整服務域名，
 根據Igress Controller類型，編寫專屬規則配置。
+
+
+
+# DNS
+Kubernetes集群內的所有Pod、Service均可通過域名進行訪問，
+參考[Kubernetes官方文檔](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy)。
+
+以Service為例，Kubernetes會將Service的服務名稱註冊到的DNS中，
+在每一個Kubernetes集群內的Pod容器中均可使用**域名**訪問服務：
+
+- `服務名稱` 訪問同命名空間的服務
+- `服務名稱.命名空間` 訪問不同命名空間的服務
+- `服務名稱.命名空間.svc.cluster.local` 服務完整域名
+
+## 配置DNS策略
+使用`spec.dnsPolicy`可配置Pod內容器的DNS策略。
+
+對於使用host網絡的容器（啟用`spec.hostNetwork`），
+默認不會配置Kubernetes的DNS（無法以域名形式訪問Pod/Services），
+設置DNS策略為`ClusterFirstWithHostNet`即可如普通Pod一樣使用Kubernetes的DNS：
+
+```yaml
+spec:
+  ...
+  dnsPolicy: ClusterFirstWithHostNet
+  ...
+```
