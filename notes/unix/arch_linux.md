@@ -14,6 +14,8 @@
 - [包管理](#包管理)
 	- [pacman](#pacman)
 		- [pacman操作](#pacman操作)
+		- [pacman配置](#pacman配置)
+		- [pacman-contrib](#pacman-contrib)
 
 <!-- /TOC -->
 
@@ -31,7 +33,10 @@ Arch Linux官方僅提供純命令行鏡像，安裝較爲不便，
 安裝鏡像中預置的系統源在牆國可能無法訪問或速度過慢，
 編輯`/etc/pacman.d/mirrorlist`，在文件首部添加牆內源：
 
-```
+```html
+<!-- 清華源 -->
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
+<!-- 中科大源 -->
 Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
 ```
 
@@ -239,4 +244,43 @@ $ pacman -Qeq <!-- 僅輸出軟件包，忽略版本號信息 -->
 <!-- 列出可被移除的軟件包（不被其它軟件包依賴，且自身作為依賴安裝的軟件包） -->
 $ pacman -Qdt
 $ pacman -Qdtt <!-- 輸出包括僅被可選依賴(Optional Deps)的軟件包 -->
+```
+
+### pacman配置
+pacman配置文件為`/etc/pacman.conf`，使用ini配置語法，結構較為簡單。
+
+核心功能特性位於`[options]`區段中：
+
+```ini
+...
+[options]
+...
+Color # 彩色輸出
+VerbosePkgLists # 軟件包變更時列出變化詳情
+ILoveCandy # 吃豆人彩蛋
+...
+```
+
+軟件倉庫相關配置（以牆國ArchLinuxCN源為例）：
+
+```ini
+...
+[archlinuxcn]
+SigLevel = Optional TrustAll # 第三方倉庫跳過證書認證
+Server = https://repo.archlinuxcn.org/$arch
+...
+```
+
+### pacman-contrib
+pacman的一些社區提供的輔助脚本被單獨拆分到`pacman-contrib`包中，
+其中包含`pactree`等實用工具。
+
+pactree可用於遞歸展示指定軟件包的依賴樹：
+
+```html
+<!-- 查看軟件包的正向依賴 -->
+$ pactree 軟件包
+
+<!-- 查看軟件包的反向依賴 -->
+$ pactree -r 軟件包
 ```
