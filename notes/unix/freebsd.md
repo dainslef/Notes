@@ -14,6 +14,7 @@
 	- [Ports](#ports)
 	- [安裝系統更新](#安裝系統更新)
 	- [系統版本升級](#系統版本升級)
+	- [系統版本升級後pkg工具不可使用](#系統版本升級後pkg工具不可使用)
 - [Jails（容器）](#jails容器)
 	- [OCI](#oci)
 - [GUI](#gui)
@@ -137,14 +138,19 @@ FreeBSD中網卡配置直接寫在`/etc/rc.conf`中：
 ```sh
 # 配置DHCP
 ifconfig_網卡名稱="DHCP"
+ifconfig_網卡名稱="inet x.x.x.x DHCP" # 使用自定義的IP，但依舊使用DHCP分配的網關、DNS等信息
 
 # 配置固定地址
-ifconfig_網卡名稱="x.x.x.x/x" # 數值形式子網
 ifconfig_網卡名稱="inet x.x.x.x/x" # 同上
+ifconfig_網卡名稱="x.x.x.x/x" # 數值形式子網，省略inet
 ifconfig_網卡名稱="inet x.x.x.x netmask x.x.x.x" # 點分十進制子網
 
 # 配置多個IP
 ifconfig_網卡名稱_alias0="x.x.x.x/x" # 其它寫法與之前配置類似，不再贅述
+ifconfig_網卡名稱_alias1="x.x.x.x/x" # 添加多個地址，alias使用不同數值後綴
+
+# 可直接使用aliases在一行配置中添加多個地址，inet不可省略
+ifconfig_網卡名稱_aliases="inet x.x.x.x/x inet x.x.x.x/x ..."
 
 # 設置默認網關
 defaultrouter="x.x.x.x"
@@ -320,13 +326,30 @@ FreeBSD並非**滾動發行版**，系統有明確的版本劃分，
 以`FreeBSD 10.1`正式版為例，執行指令：
 
 ```
-# freebsd-update -r 10.1-RELEASE upgrade
+# freebsd-update upgrade -r 10.1-RELEASE
 ```
 
 之後系統會開始下載升級所需要的補丁，下載完成之後，執行更新指令：
 
 ```
 # freebsd-update install
+```
+
+## 系統版本升級後pkg工具不可使用
+問題說明：<br>
+系統版本升級後，FreeBSD的包管理器`pkg`可能會出現動態鏈接庫缺失的問題，錯誤信息如下：
+
+```
+ld-elf.so.1: Shared object "libssl.so.111" not found, required by "pkg"
+```
+
+相關討論參考[FreeBSD Forums](https://forums.freebsd.org/threads/pkg-not-working-ld-elf-so-1-shared-object-libssl-so-111-not-found-required-by-pkg.68078/)。
+
+解決方案：<br>
+FreeBSD提供了pkg工具的靜態編譯版本`pkg-static`，可使用該工具重新安裝pkg：
+
+```
+# pkg-static install -f pkg
 ```
 
 
