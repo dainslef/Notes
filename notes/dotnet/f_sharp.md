@@ -11,6 +11,7 @@
 - [string（字符串）](#string字符串)
 	- [Triple Quoted Strings（三引號字符串）](#triple-quoted-strings三引號字符串)
 	- [String Interpolation（字符串插值器）](#string-interpolation字符串插值器)
+	- [String Indexing and Slicing（字符串索引與切片）](#string-indexing-and-slicing字符串索引與切片)
 - [Function（函數）](#function函數)
 	- [可選參數](#可選參數)
 	- [參數默認值](#參數默認值)
@@ -240,6 +241,68 @@ val it: string = "String: Fuck CCP!"
 
 > $"String: %10s{s}";;
 val it: string = "String:  Fuck CCP!"
+```
+
+三引號字符串同樣支持插值器語法：
+
+```fs
+> let n = 8964;;
+val n: int = 8964
+
+> let s = "Fuck CCP!";;
+val s: string = "Fuck CCP!"
+
+> $"""
+- Number: {n + 190000}
+- String: {s}
+- """;;
+val it: string = "
+Number: 198964
+String: Fuck CCP!
+"
+```
+
+[F# RFC FS-1132 - Extended interpolation syntax for triple quoted string literals](https://github.com/fsharp/fslang-design/blob/main/RFCs/FS-1132-better-interpolated-triple-quoted-strings.md)
+定義了與`C# 11`中引入的雙$字符串插值類似的語法，`F# 8`版本中實現了該特性。
+
+C# 11中的雙$插值器將`{{}}`作為轉義符，單組`{}`不轉義，常用於JSON等花括號使用較多的文本：
+
+```cs
+$$"""
+{
+	"number": {{n}},
+	"string": {{s}}
+}
+"""
+```
+
+## String Indexing and Slicing（字符串索引與切片）
+F#早期使用`.[]`的索引語法，`F# 6.0`提案
+[`F# RFC FS-1110 - Allow expr[idx] as index/slice syntax`](https://github.com/fsharp/fslang-design/blob/main/FSharp-6.0/FS-1110-index-syntax.md)，
+支持了與C#相同的索引語法：
+
+```fs
+> let s = "Fuck CCP!";;
+val s: string = "Fuck CCP!"
+
+// 新索引語法
+> s[0];;
+val it: char = 'F'
+
+> s[1];;
+val it: char = 'u'
+
+// 新切片語法
+> s[0..3];;
+val it: string = "Fuck"
+
+// 舊索引語法
+> s.[0];;
+val it: char = 'F'
+
+// 舊切片語法
+> s.[0..3];;
+val it: string = "Fuck"
 ```
 
 
