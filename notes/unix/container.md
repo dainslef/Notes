@@ -33,6 +33,10 @@
 	- [Docker端口映射](#docker端口映射)
 	- [Docker修改端口映射](#docker修改端口映射)
 	- [Docker設置自定義Hosts](#docker設置自定義hosts)
+- [Docker Compose](#docker-compose-1)
+	- [安裝Docker Compose](#安裝docker-compose)
+	- [Docker Compose服務定義](#docker-compose服務定義)
+	- [Docker Compose指令](#docker-compose指令)
 - [Habor](#habor)
 	- [部署Habor](#部署habor)
 	- [部署Helm Chart倉庫](#部署helm-chart倉庫)
@@ -1064,6 +1068,74 @@ $ docker create --add-host 主機名1:IP1 --add-host 主機名2:IP2 ...
 ```
 
 使用相關參數創建容器後，容器內的`/etc/hosts`文件中會添加相應的主機IP映射。
+
+
+
+# Docker Compose
+[`Docker Compose`](https://docs.docker.com/compose)是Docker提供的輕量級容器部署工具，
+相比`Docker Swarm`、`Kubernetes`等容器編排服務，
+Docker Compose僅用於本地部署容器，不提供容器多節點集群部署。
+
+## 安裝Docker Compose
+Docker官方版本已集成了Docker Compose，直接使用`docker compose`或`docker-compose`指令即可。
+
+Linux發行版中打包的Docker通常不直接包含Docker Compose，需要單獨安裝：
+
+```html
+# pacman -S docker-compose <!-- Arch係 -->
+# apt install docker-compose <!-- Debian係 -->
+```
+
+## Docker Compose服務定義
+與Kubernetes類似，Docker Compose使用YAML文件描述服務
+（默認文件名為`compose.yaml`或`docker-compose.yaml`），
+文件規範參考[官方文檔](https://docs.docker.com/compose/compose-file/03-compose-file)。
+
+簡單的服務示例：
+
+```yaml
+services:
+  服務名稱:
+    container_name: 容器名稱
+    image: 鏡像:版本
+    network_mode: host
+    command: ...
+    configs:
+      - source: 配置名稱
+        target: 容器內路徑
+      ...
+    secrets:
+      - source: 配置名稱
+        target: 容器內路徑
+      ...
+    volumes:
+      - type: bind
+        source: 宿主機路徑
+        target: 容器內路徑
+secrets:
+  配置名稱:
+    file: 宿主機路徑
+  ...
+configs:
+  配置名稱:
+    file: 宿主機路徑
+  ...
+```
+
+## Docker Compose指令
+Docker Compose常用指令：
+
+```html
+<!-- 首次運行，創建容器並啟動服務 -->
+# docker compose up
+# docker compose up -d <!-- 啟動容器後掛到後台運行 -->
+
+# docker compose ls <!-- 查看容器運行狀態 -->
+
+<!-- 啟動/停止關聯容器 -->
+# docker compose start
+# docker compose stop
+```
 
 
 
