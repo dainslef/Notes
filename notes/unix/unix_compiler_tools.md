@@ -654,8 +654,18 @@ $ cmake 項目目錄 -B 構建信息生成路徑
 
 正確生成構建信息後，開始構建項目：
 
-```
+```html
 $ cmake --build 構建信息路徑
+
+<!-- 使用多綫程并行編譯 -->
+$ cmake --build 構建信息路徑 -j 綫程數目
+$ cmake --build 構建信息路徑 --parallel 綫程數目
+```
+
+若項目定義了install目標，則構建完成后，可執行安裝：
+
+```html
+$ cmake --install 構建信息路徑
 ```
 
 
