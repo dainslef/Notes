@@ -21,6 +21,7 @@
 	- [Dynamically Dispatched / Staic Dispatched](#dynamically-dispatched--staic-dispatched)
 	- [Associated Types](#associated-types)
 	- [Generic Associated Types](#generic-associated-types)
+- [Enum（枚舉）](#enum枚舉)
 - [訪問權限](#訪問權限)
 	- [模塊權限](#模塊權限)
 	- [結構體字段權限](#結構體字段權限)
@@ -585,6 +586,57 @@ trait CsutomListAdd {
   fn add(self, _: Self::V) -> Self::C<Self::V>;
 }
 ```
+
+
+
+# Enum（枚舉）
+Rust中的枚舉類型實際是Algebraic Data Types（ADT，代數數據類型），
+除了具備C/C++中提供枚舉值的基本功能，還可以添加類型構造器並用於模式匹配。
+
+使用參考[Rust Reference](https://doc.rust-lang.org/reference/items/enumerations.html)。
+
+枚舉最基本的使用與C/C++中類似，僅包含`unit variants`，稱為`unit-only enum`，
+枚舉對象會從零開始自動複製，或者使用等號手動複製，示例：
+
+```rs
+>> enum Enum {
+  Zero,
+  One,
+  Two,
+  Three,
+  Five = 5,
+}
+
+>> Enum::Zero as i32 // 枚舉可直接轉換為基本數值類型
+0
+>> Enum::Five as usize
+5
+```
+
+枚舉添加構造器可攜帶或不攜帶參數名稱，示例：
+
+```rs
+>> enum Animal {
+  Pig,
+  Dog(String, f64),
+  Cat { name: String, weight: f64 },
+}
+
+>> let mut a = Animal::Dog("Cocoa".to_string(), 37.2);
+>> a = Animal::Cat { name: "Spotty".to_string(), weight: 2.7 };
+
+>> Animal::Cat as i32
+[E0533] Error: expected value, found struct variant `Animal::Cat`
+   ╭─[command:1:1]
+   │
+ 1 │ Animal::Cat as i32
+   │ ─────┬─────
+   │      ╰─────── not a value
+───╯
+```
+
+上述例子中，Animal::Dog稱為`enum variant`（枚舉變體），
+而Animal::Cat稱為`struct-like enum variant`（類結構體枚舉變體）。
 
 
 
