@@ -12,6 +12,9 @@
 		- [排除依賴(Excluded Dependencies)](#排除依賴excluded-dependencies)
 		- [可選依賴(Optional Dependencies)](#可選依賴optional-dependencies)
 - [Language Level](#language-level)
+	- [JDK8及之前版本设置LanguageLevel](#jdk8及之前版本设置languagelevel)
+	- [JDK9及之前版本设置LanguageLevel](#jdk9及之前版本设置languagelevel)
+	- [啟用預覽特性](#啟用預覽特性)
 - [Sub Project](#sub-project)
 - [Package](#package)
 	- [打包時排除文件](#打包時排除文件)
@@ -305,12 +308,15 @@ Maven包含6類依賴域：
 
 
 # Language Level
-默認配置下，Maven項目使用的`Language Level`和`Java Compiler`爲`Java 5(JDK 1.5)`，
-該配置下Java5之後的語言特性如自定義註解(Java6)、try-with-resource(Java7)，Lambda(Java8)等諸多新特性無法使用。
+默認配置下，Maven項目使用的`Language Level`和`Java Compiler`爲`Java 5 / JDK 1.5`，
+該配置下Java5之後的語言特性如自定義註解（JDK1.6）、
+try-with-resource（JDK1.7），Lambda（JDK1.8/Java8）等諸多新特性無法使用。
 
-使用Idea導入Maven工程時，Maven項目的LanguageLevel還會覆蓋項目的配置，導致Idea中設置的項目LanguageLevel失效。
+使用Idea導入Maven工程時，Maven項目的LanguageLevel還會覆蓋項目的配置，
+導致Idea中設置的項目LanguageLevel失效。
 
-更改項目的LanguageLevel，在pom.xml中加入以下配置：
+## JDK8及之前版本设置LanguageLevel
+JDK8及之前更改項目的LanguageLevel，在pom.xml中加入以下配置：
 
 ```xml
 <project>
@@ -347,6 +353,67 @@ Maven包含6類依賴域：
 	...
 </project>
 ```
+
+## JDK9及之前版本设置LanguageLevel
+JDK9及之後版本更改項目的LanguageLevel，使用新的`maven.compiler.release`參數代替
+
+```xml
+<properties>
+	...
+	<maven.compiler.release>9</maven.compiler.release>
+	...
+</properties>
+```
+
+同樣可以在`maven-compiler-plugin`中設置：
+
+```xml
+<project>
+	...
+	<build>
+		...
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<release>9</release>
+				</configuration>
+			</plugin>
+		</plugins>
+		...
+	</build>
+	...
+</project>
+```
+
+## 啟用預覽特性
+OpenJDK主導Java開發後，通常部分Java版本會引入一些當前版本並未穩定的預覽特性，
+默認編譯器不會啟用這些特性，可使用`--enable-preview`參數開啟相關特性，
+在Maven中，使用`maven-compiler-plugin`的`compilerArgs`參數啟用：
+
+```xml
+<project>
+	...
+	<build>
+		...
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<compilerArgs>--enable-preview</compilerArgs>
+				</configuration>
+			</plugin>
+		</plugins>
+		...
+	</build>
+	...
+</project>
+```
+
 
 
 
