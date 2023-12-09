@@ -15,7 +15,9 @@
 	- [BIOS信息](#bios信息)
 - [Linux Standard Base](#linux-standard-base)
 	- [Filesystem Hierarchy Standard](#filesystem-hierarchy-standard)
-- [PulseAudio](#pulseaudio)
+- [Linux音頻架構](#linux音頻架構)
+	- [ALSA](#alsa)
+	- [PulseAudio](#pulseaudio)
 - [用戶管理](#用戶管理)
 - [FTP（File Transfer Protocol）](#ftpfile-transfer-protocol)
 	- [連接服務器](#連接服務器)
@@ -707,7 +709,57 @@ LSB的目標是開發和促成一組標準，以提升Linux發行版之間的兼
 
 
 
-# PulseAudio
+# Linux音頻架構
+Linux的音頻子系統早期為`OSS`（Open Sound System），
+因為許可證問題之後被替換為ALSA（Advanced Linux Sound Architecture）。
+
+## ALSA
+`ALSA`是內核內置的模塊，無需額外安裝，[`alsa-utils`](https://github.com/alsa-project/alsa-utils)
+項目提供了ALSA的用戶態工具，常用工具包括`amixer`和`alsamixer`等。
+
+alsamixer是TUI的音量配置工具，支持終端下的TUI交互。
+
+amixer命令行音量配置工具，常用指令如下：
+
+```html
+<!-- 基本指令語法 -->
+$ amixer 操作 音頻通道 <!-- 通常通道設置為Master -->
+
+$ amixer get Master <!-- 獲取音量 -->
+$ amixer set Master 百分比 <!-- 設置音量百分比，如 10%（需要寫出百分號） -->
+$ amixer set Master 百分比+/- <!-- 按百分比增減音量 -->
+```
+
+amxier與alsamixer默認使用不同的音量比例計算方式，
+amixer默認使用當前音量數值除以音量數值上限直接計算百分比，
+alsamixer則使用另一套對更符合聽覺的算法計算音量百分比；
+添加`-M`參數則會使amixer採用與alsamixer相同的音量計算方式：
+
+```
+$ amixer set/get -M Master ...
+```
+
+輸出信息示例：
+
+```html
+<!-- 查看音量輸出 -->
+$ amixer get Master
+Simple mixer control 'Master',0
+  Capabilities: pvolume pvolume-joined pswitch pswitch-joined
+  Playback channels: Mono
+  Limits: Playback 0 - 87
+  Mono: Playback 77 [89%] [-7.50dB] [on]
+
+<!-- 使用正則提取音量輸出的百分比數值 -->
+$ amixer get Master | grep -Po '\d+(?=%)'
+89
+
+<!-- 使用正則抓取音頻狀態 -->
+$ amixer get Master | grep -Po "\[o\S+(?!])" | grep -Po "\w+"
+on
+```
+
+## PulseAudio
 `PulseAudio`是用於`POSIX`系統的音頻系統，是音頻程序的代理（proxy）。
 PulseAudio允許用戶對音頻應用和音頻硬件之間傳遞的音頻數據執行高級操作。
 使用音頻服務可輕鬆實現諸如將音頻傳輸到另一臺機器上、改變樣本格式或通道數量、混合多種音頻等功能。
