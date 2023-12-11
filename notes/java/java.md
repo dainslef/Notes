@@ -31,7 +31,7 @@
 		- [synchronized工作機制](#synchronized工作機制)
 		- [synchronized可重入性](#synchronized可重入性)
 	- [Executor 框架](#executor-框架)
-- [Annotation (註解)](#annotation-註解)
+- [Annotation（註解）](#annotation註解)
 	- [內置註解](#內置註解)
 	- [元註解](#元註解)
 	- [自定義註解](#自定義註解)
@@ -1237,7 +1237,8 @@ Get lock in Thread[Thread-0,5,main]
 `Thread`類功能簡單，僅僅提供了原始的線程抽象，在實際的開發中，往往會使用更高層次的API。
 
 `Java 5`之後提供了`Executor`框架，用於創建、管理與執行線程。
-`Executor`框架主要包含`Executor`、`Executors`、`ExecutorService`、`CompletionService`、`Future`、`Callable`等類型。
+`Executor`框架主要包含`Executor`、`Executors`、
+`ExecutorService`、`CompletionService`、`Future`、`Callable`等類型。
 
 `Runnable`、`Callable`、`Future`接口是Java中對於異步操作的抽象。
 
@@ -1251,8 +1252,7 @@ public interface Runnable {
 
 除了`Runnable`接口是Java早期版本就已包含的之外，其餘的接口/類定義都在`java.util.concurrent`包中。
 
-`Callable`接口用於表示帶有返回值的異步操作。
-定義如下：
+`Callable`接口用於表示帶有返回值的異步操作，定義如下：
 
 ```java
 public interface Callable<V> {
@@ -1261,6 +1261,7 @@ public interface Callable<V> {
 ```
 
 `Future`接口用於表示一個異步操作的結果。
+
 定義如下：
 
 ```java
@@ -1280,8 +1281,7 @@ public interface Future<V> {
 }
 ```
 
-`Executor`接口是框架中最基礎的部分，僅包含一個執行`Runnable`的`execute()`的抽象方法。
-定義如下：
+`Executor`接口是框架中最基礎的部分，僅包含一個執行`Runnable`的`execute()`的抽象方法，定義如下：
 
 ```java
 public interface Executor {
@@ -1291,6 +1291,7 @@ public interface Executor {
 
 `Executor`接口沒有直接子類，但擁有子接口`ExecutorService`。
 `ExecutorService`接口定義了一系列終止、提交、跟蹤任務狀態的抽象方法，是整個庫的核心接口。
+
 定義如下：
 
 ```java
@@ -1397,8 +1398,10 @@ public class Main {
 
 使用`ExecutorService`在處理任務返回結果時，有以下缺陷：
 
-- 直接使用`get()`從`Future`中同步獲取返回值需要對任務的執行時間有大致的估算，否則可能造成在某一個執行耗時高的任務中阻塞較長時間。
-- 使用`get(long timeout, TimeUnit unit)`限定了等待時間，但任務未必會在限定時間內完成，可能需要多次輪詢才能獲取到所有`Future`的結果。
+- 直接使用`get()`從`Future`中同步獲取返回值需要對任務的執行時間有大致的估算，
+否則可能造成在某一個執行耗時高的任務中阻塞較長時間。
+- 使用`get(long timeout, TimeUnit unit)`限定了等待時間，
+但任務未必會在限定時間內完成，可能需要多次輪詢才能獲取到所有`Future`的結果。
 
 處理多個任務返回結果應該使用`CompletionService`接口。
 `CompletionService`接口定義了將已完成的任務與新提交的任務分離的方法。
@@ -1476,11 +1479,11 @@ public class Main {
 
 
 
-# Annotation (註解)
-註解(元數據)是`Java 5`之後引入的機制，從`Java 6`開始支持**自定義註解**。
+# Annotation（註解）
+註解（元數據）是`Java 5`之後引入的機制，從`Java 6`開始支持**自定義註解**。
 
-註解可以聲明在**包**、**類**、**字段**、**方法**、**局部變量**、**方法參數**等之前，用來對這些元素進行說明和註釋。
-註解的相關內容在包`java.lang.annotation`中。
+註解可以聲明在**包**、**類**、**字段**、**方法**、**局部變量**、**方法參數**等之前，
+用來對這些元素進行說明和註釋。註解的相關內容在包`java.lang.annotation`中。
 
 註解的基本語法爲：
 
@@ -1501,7 +1504,7 @@ Java中提供了一系列**內置註解**，常用的有：
 **元註解**專門用來修飾其它註解，用於**自定義註解**。
 **元註解**有以下4類：
 
-1. `@Target`用於限制註解的範圍，參數爲註解範圍的數組(可以同時設定多個註解範圍，用花括號包裹)，取值如下所示：
+1. `@Target`用於限制註解的範圍，參數爲註解範圍的數組（可以同時設定多個註解範圍，用花括號包裹），取值如下所示：
 
 	- `ElementType.CONSTRUCTOR` 描述構造器
 	- `ElementType.FIELD` 描述域
@@ -1532,8 +1535,12 @@ Java中提供了一系列**內置註解**，常用的有：
 
 1. `@Inherited`爲**標記註解**，用於設置註解的繼承性：
 
-	被改註解修飾的註解用在類中是**可繼承的**，但類不從它所實現的接口繼承註解，方法並不從它所重載的方法繼承註解。
-	對於設置了`@Inherited`和`@Retention`元註解的註解，並且聲明週期設爲`RetentionPolicy.RUNTIME`時，則使用`反射`機制來獲取元素註解，且檢查不到該註解時，會一直沿着繼承樹向上搜索，直到查找到了該註解或到達類繼承結構的頂層。
+	被改註解修飾的註解用在類中是**可繼承的**，
+	但類不從它所實現的接口繼承註解，方法並不從它所重載的方法繼承註解。
+	對於設置了`@Inherited`和`@Retention`元註解的註解，
+	並且聲明週期設爲`RetentionPolicy.RUNTIME`時，
+	則使用`反射`機制來獲取元素註解，且檢查不到該註解時，
+	會一直沿着繼承樹向上搜索，直到查找到了該註解或到達類繼承結構的頂層。
 
 1. `@Documented`設置在使用`javadoc`生成API時記錄註解信息。
 	默認情況下，`javadoc`**不會**記錄註解信息。
@@ -1544,7 +1551,7 @@ Java中提供了一系列**內置註解**，常用的有：
 - 使用`@interface`自定義註解，自定義註解繼承了`java.lang.annotation.Annotation`接口。
 - 定義註解時，**不能**繼承其他的註解或接口。
 - 定義註解時，每一個方法實際上是定義了一個配置參數。
-	方法的名稱就是參數的名稱，返回值類型就是參數的類型。可以通過`default`關鍵字來設置參數**默認值**。
+方法的名稱就是參數的名稱，返回值類型就是參數的類型。可以通過`default`關鍵字來設置參數**默認值**。
 - 定義註解時，使用`value`做爲註解參數名稱，則使用註解時參數名稱可省略。
 - 定義註解時，參數的訪問權限只能爲`public`或**默認**權限。
 - 註解參數支持的數據類型：
