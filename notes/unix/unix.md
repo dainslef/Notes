@@ -86,6 +86,7 @@
 		- [Netplan（Ubuntu17.10之後）](#netplanubuntu1710之後)
 		- [NetworkManager](#networkmanager)
 		- [systemd-networkd](#systemd-networkd)
+		- [`Failed to configure DHCPv4 client: No such file or directory`](#failed-to-configure-dhcpv4-client-no-such-file-or-directory)
 	- [route（路由）](#route路由)
 		- [route](#route)
 		- [ip route](#ip-route)
@@ -3397,6 +3398,37 @@ Address=x.x.x.x/x
 Gateway=x.x.x.x
 DNS=x.x.x.x
 ```
+
+DHCP則可直接使用：
+
+```conf
+[Match]
+MACAddress=... # 通過MAC地址匹配設備
+
+[Network]
+DHCP=yes # DHCP會自動配置網關、DNS
+# Address=x.x.x.x/x # DHCP亦可設置靜態地址
+```
+
+### `Failed to configure DHCPv4 client: No such file or directory`
+問題描述：<br>
+systemd-networkd開啟DHCP配置，出現下列錯誤，導致網卡獲取IP失敗：
+
+```
+...
+systemd-networkd[850]: enp2s0: Cinfiguring with /etc/systemd/network/enp2s0.network
+systemd-networkd[850]: enp2s0: Failed to configure DHCPv4 client: No such file or directory
+...
+```
+
+解決方案：<br>
+systemd-networkd需要正確生成`/etc/machine-id`文件，生成該文件：
+
+```
+# systemd-machine-id-setup
+```
+
+之後重啟systemd-networkd服務網絡即可恢復正常。
 
 ## route（路由）
 `route`是大多數Unix的默認路由管理工具。
