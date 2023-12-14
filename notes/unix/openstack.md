@@ -122,16 +122,16 @@ Kolla Ansible實際支持的版本參見官方
 ```html
 <!-- 安裝 venv，創建並進入虛擬環境 -->
 # apt install python3-venv
-# python3 -m venv /opt/openstack-venv
-# source /opt/openstack-venv/bin/activate.fish
+# python3 -m venv /opt/openstack/openstack-venv-2023.1
+# source /opt/openstack/openstack-venv-2023.1/bin/activate.fish
 ```
 
 之後安裝Ansible（需要注意Ansible版本，不能直接使用最新版本，
-不同版本Kolla依賴的Ansible版本也有所差異，參考對應版本的部署文檔，當前以`Zed`版本為例）：
+不同版本Kolla依賴的Ansible版本也有所差異，參考對應版本的部署文檔，當前以`2023.1`版本為例）：
 
 ```
 # pip install -U pip
-# pip install "ansible>=4,<6"
+# pip install "ansible>=6,<8"
 ```
 
 安裝Kolla Ansible（使用的Kolla分支需要匹配OpenStack的部署目標版本）：
@@ -185,6 +185,7 @@ glance, keystone, neutron, nova, heat, horizon
 
 <!-- 順利通過檢查後可執行部署操作 -->
 # kolla-ansible -i ./all-in-one deploy
+# kolla-ansible -i ./all-in-one deploy --tags 組建名稱 <!-- 可單獨部署部分內容 -->
 
 <!-- 部署操作順利完成後，執行後置部署操作 -->
 # kolla-ansible -i ./all-in-one post-deploy <!-- 會在 /etc/kolla 路徑下生成 admin-openrc.sh 以及clouds.yaml 文件 -->
@@ -206,13 +207,15 @@ Kolla Ansible支持版本升級，基本升級流程：
 
 1. 升級前首先創建新的venv環境
 1. 參考新版本的安裝文檔，在新的venv環境中安裝ansible和kolla-ansible軟件包
-1. 對比`globals.yaml`配置，合併新版本的配置變化
+1. 對比`globals.yml`、`passwords.yml`等配置，合併新版本的配置變化
+（注意passwords文件中若存在新增項則應為新增項生成密碼後加入）
 1. 按照部署模式對比inventory配置（all-in-one/multinode）
 1. 部署新的依賴
 
-	```
+	```html
+	# kolla-ansible install-deps <!-- 安裝/升級新的依賴 -->
 	# kolla-ansible -i ./all-in-one bootstrap-servers
-	# kolla-ansible -i ./all-in-one install-deps
+	# kolla-ansible -i ./all-in-one prechecks <!-- 升級部署前執行檢查 -->
 	```
 
 1. 執行`upgrade`操作
@@ -222,7 +225,8 @@ Kolla Ansible支持版本升級，基本升級流程：
 	```
 
 根據實際組件的版本差異和部署情況，可能部分組件會存在升級失敗的情況，
-此時可嘗試手動對比配置、清理相關容器Docker卷等操作。
+此時可嘗試手動對比配置、清理相關容器Docker卷等操作，
+如果清理配置、容器後仍升級失敗，則可考慮單獨重新deploy該問題組件。
 
 ## Cinder（存儲配置）
 Kolla默認配置中未開啟存儲功能，開啟存儲需要在globals.yml中啟用`enable_cinder`配置：
