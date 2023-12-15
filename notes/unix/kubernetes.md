@@ -131,7 +131,7 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 ```
 
 ## 官方源部署
-在牆國之外或使用代理可直接訪問Google源環境的環境下，配置官方源：
+在牆國之外或使用代理可直接訪問Google源環境的環境下，配置官方源（舊）：
 
 ```html
 <!-- 導入倉庫籤名，Ubuntu 22.04 之後推薦將 key 放置在 /etc/apt/keyrings 路徑下 -->
@@ -139,6 +139,20 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 
 <!-- 添加 Kubernetes 倉庫 -->
 # echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+```
+
+從2023-8-15開始，Kubernetes使用新的軟件源，參考官方博客
+[pkgs.k8s.io: Introducing Kubernetes Community-Owned Package Repositories](https://kubernetes.io/blog/2023/08/15/pkgs-k8s-io-introduction/)。
+新的軟件源`pkgs.k8s.io`在統一的域名下根據deb/rpm等不同打包方式提供倉庫，不再區分發行版版本；
+同時為每個版本設置獨立倉庫，更加易於維護。
+以1.28版本為例，配置軟件源：
+
+```html
+<!-- 導入倉庫簽名 -->
+# curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+<!-- 添加 Kubernetes 倉庫 -->
+# echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 ```
 
 ## 牆國源部署
@@ -398,54 +412,7 @@ _____________________________________________________________________
 [upgrade] Are you sure you want to proceed? [y/N]: y
 [upgrade/prepull] Pulling images required for setting up a Kubernetes cluster
 [upgrade/prepull] This might take a minute or two, depending on the speed of your internet connection
-[upgrade/prepull] You can also perform this action in beforehand using 'kubeadm config images pull'
-[upgrade/apply] Upgrading your Static Pod-hosted control plane to version "v1.25.5" (timeout: 5m0s)...
-[upgrade/etcd] Upgrading to TLS for etcd
-[upgrade/staticpods] Preparing for "etcd" upgrade
-[upgrade/staticpods] Renewing etcd-server certificate
-[upgrade/staticpods] Renewing etcd-peer certificate
-[upgrade/staticpods] Renewing etcd-healthcheck-client certificate
-[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/etcd.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2022-12-09-15-50-04/etcd.yaml"
-[upgrade/staticpods] Waiting for the kubelet to restart the component
-[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
-[apiclient] Found 1 Pods for label selector component=etcd
-[upgrade/staticpods] Component "etcd" upgraded successfully!
-[upgrade/etcd] Waiting for etcd to become available
-[upgrade/staticpods] Writing new Static Pod manifests to "/etc/kubernetes/tmp/kubeadm-upgraded-manifests3205360824"
-[upgrade/staticpods] Preparing for "kube-apiserver" upgrade
-[upgrade/staticpods] Renewing apiserver certificate
-[upgrade/staticpods] Renewing apiserver-kubelet-client certificate
-[upgrade/staticpods] Renewing front-proxy-client certificate
-[upgrade/staticpods] Renewing apiserver-etcd-client certificate
-[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-apiserver.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2022-12-09-15-50-04/kube-apiserver.yaml"
-[upgrade/staticpods] Waiting for the kubelet to restart the component
-[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
-[apiclient] Found 1 Pods for label selector component=kube-apiserver
-[upgrade/staticpods] Component "kube-apiserver" upgraded successfully!
-[upgrade/staticpods] Preparing for "kube-controller-manager" upgrade
-[upgrade/staticpods] Renewing controller-manager.conf certificate
-[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-controller-manager.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2022-12-09-15-50-04/kube-controller-manager.yaml"
-[upgrade/staticpods] Waiting for the kubelet to restart the component
-[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
-[apiclient] Found 1 Pods for label selector component=kube-controller-manager
-[upgrade/staticpods] Component "kube-controller-manager" upgraded successfully!
-[upgrade/staticpods] Preparing for "kube-scheduler" upgrade
-[upgrade/staticpods] Renewing scheduler.conf certificate
-[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-scheduler.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2022-12-09-15-50-04/kube-scheduler.yaml"
-[upgrade/staticpods] Waiting for the kubelet to restart the component
-[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
-[apiclient] Found 1 Pods for label selector component=kube-scheduler
-[upgrade/staticpods] Component "kube-scheduler" upgraded successfully!
-[upgrade/postupgrade] Removing the old taint &Taint{Key:node-role.kubernetes.io/master,Value:,Effect:NoSchedule,TimeAdded:<nil>,} from all control plane Nodes. After this step only the &Taint{Key:node-role.kubernetes.io/control-plane,Value:,Effect:NoSchedule,TimeAdded:<nil>,} taint will be present on control plane Nodes.
-[upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
-[kubelet] Creating a ConfigMap "kubelet-config" in namespace kube-system with the configuration for the kubelets in the cluster
-[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
-[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to get nodes
-[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
-[bootstrap-token] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
-[bootstrap-token] Configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
-[addons] Applied essential addon: CoreDNS
-[addons] Applied essential addon: kube-proxy
+...
 
 [upgrade/successful] SUCCESS! Your cluster was upgraded to "v1.25.5". Enjoy!
 
@@ -453,10 +420,15 @@ _____________________________________________________________________
 ```
 
 輸出`[upgrade/successful] SUCCESS! Your cluster was upgraded to "xxx". Enjoy!`則代表升級成功。
+
 升級完成後，`kube-system`命名空間下的pods會被全部替換，
 位於`/etc/kubernetes/manifests`路徑下的配置會替換為新版本，
-同時舊的配置會被備份到`/etc/kubernetes/tmp`路徑下，
-若對其中內容進行過修改，則應手動比較配置差異，重新添加配置。
+舊的配置會被備份到`/etc/kubernetes/tmp`路徑下，
+若對其中內容進行過修改，則應手動比較配置差異，重新添加配置
+（常用配置如修改NodePort範圍，需要恢復`/etc/kubernetes/manifests/kube-apiserver.yaml`文件）。
+
+目前Kubernetes僅支持升級到N+1版本，升級到更高版本需要逐次一一升級；
+若使用ArchLinux等滾動發行版，新版本發佈時應儘快升級，避免源內的kubeadm軟件包高與集群版本過多導致無法升級。
 
 ## 清理集群容器
 Kubernetes默認**不會**刪除不再使用的容器，使用crictl可以看到不再使用的容器：
@@ -646,7 +618,7 @@ Node可以是物理機或虛擬機。每個Node均由Control Plane管理，並�
 一個Node中包含下列組件：
 
 - `kubelet` 用於確保由Kubernetes創建的容器正確地運行在Pod中
-- `kube-proxy` 管理節點的網絡規則（如iptables、ipvs等）
+- `kube-proxy` 管理節點的網絡規則（如iptables、IPVS等）
 - `容器運行時（通常是containerd）` 用於運行容器
 
 通常在集群中會存在多個Nodes，在某些資源受限或學習環境下，才會僅存在單個Node。
@@ -873,7 +845,7 @@ spec:
 ## StatefulSet
 [StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset)
 用於管理存在狀態的集群服務，與Deployment相似，StatefulSet管理的一組Pods使用相同的容器規格，
-不同的是StatefulSet中各個Pods是不可互換的，每個Pod擁有獨立的標識符，
+不同在於StatefulSet中各個Pods是不可互換的，每個Pod擁有獨立的標識符，
 StatefulSet會持久化Pod的標識符，在任何重編排（rescheduling）下均會保持該標識。
 
 StatefulSet適合下列需求：
@@ -890,6 +862,17 @@ StatefulSet創建方式與Deployment基本相同，
 但StatefulSet在使用外部存儲時，必須使用PersistentVolume，
 Kubernetes會記錄每個PersistentVolume與StatefulSet内Pods的對應關係（persistent identifier），
 保證重編排時依舊維持該對應關係。
+
+使用StatefulSet創建的集群，每個Pod均會擁有獨立的網絡標識，
+默認命名規則為`服務名稱-Pod編號`，Pod編號從`0`開始到`replicas - 1`結束，
+借助該機制，在編排容器時即可確定所有Pod的域名，分布式服務以此配置實現集群通信。
+
+示例，假設`tiananmen8964`命名空間下存在名為`fuckccp`的服務，
+replicas為3，則生成的3個Pod域名分別為：
+
+1. `fuckccp-0.tiananmen8964`
+1. `fuckccp-1.tiananmen8964`
+1. `fuckccp-2.tiananmen8964`
 
 ## DaemonSet
 [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
