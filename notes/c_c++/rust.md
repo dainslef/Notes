@@ -11,6 +11,7 @@
 	- [musl-gcc](#musl-gcc)
 - [單元測試](#單元測試)
 	- [async函數單元測試](#async函數單元測試)
+	- [error: test failed, to rerun pass `-p xxx --bin xxx`](#error-test-failed-to-rerun-pass--p-xxx---bin-xxx)
 - [Struct（結構體）](#struct結構體)
 	- [結構體對齊](#結構體對齊)
 	- [PhantomData](#phantomdata)
@@ -263,6 +264,29 @@ $ cargo test -- --nocapture 單元測試函數完整路徑
 async fn xxx_test() {
   // Aysnc code...
 }
+```
+
+## error: test failed, to rerun pass `-p xxx --bin xxx`
+當測試中包含`std::process::exit()`調用時會產生該異常：
+
+```rs
+#[test]
+fn exit_test() {
+  std::process::exit(-1);
+}
+```
+
+輸出結果：
+
+```
+running 1 test
+error: test failed, to rerun pass `-p xxx --bin xxx`
+
+Caused by:
+  process didn't exit successfully: `xxx exit_test --exact --nocapture` (exit status: 255)
+
+ *  The terminal process "cargo 'test', '--package', 'xxx', '--bin', 'xxx', '--', 'exit_test', '--exact', '--nocapture'" terminated with exit code: 255.
+ *  Terminal will be reused by tasks, press any key to close it.
 ```
 
 
