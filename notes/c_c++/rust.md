@@ -23,6 +23,7 @@
 	- [Associated Types](#associated-types)
 	- [Generic Associated Types](#generic-associated-types)
 - [Enum（枚舉）](#enum枚舉)
+	- [strum庫（枚舉功能增強）](#strum庫枚舉功能增強)
 - [訪問權限](#訪問權限)
 	- [模塊權限](#模塊權限)
 	- [結構體字段權限](#結構體字段權限)
@@ -661,6 +662,92 @@ Rust中的枚舉類型實際是Algebraic Data Types（ADT，代數數據類型�
 
 上述例子中，Animal::Dog稱為`enum variant`（枚舉變體），
 而Animal::Cat稱為`struct-like enum variant`（類結構體枚舉變體）。
+
+包含枚舉變體的枚舉類型不再能夠直接轉換為基本數值類型，強制轉換代碼無法通過編譯。
+雖然無法直接將枚舉變體轉換為基本數值類型，但可通過unsafe的指針操作強制進行轉換：
+
+```rs
+>> impl Animal {
+  fn value(&self) -> u8 {
+      unsafe { *(self as *const Self as *const u8) }
+  }
+}
+
+>> Animal::Dog("FuckCCP!".into(), 89.64).value()
+1
+```
+
+枚舉轉換為數值被稱作[`discriminant`](https://doc.rust-lang.org/std/mem/fn.discriminant.html)。
+
+可將數值轉換操作編寫為trait，供其它枚舉類型使用：
+
+```rs
+/// Enum variant can't transform to a primitive value directly.
+/// Transform to a primitive value via unsafe pointer casting.
+pub trait EnumValue {
+  type Repr: Copy; // Target type need implement the Copy trait.
+
+  /// Transform enum variant to a primitive value.
+  fn value(&self) -> Self::Repr {
+    // SAFETY: Because `Self` is marked `repr(Repr)`, its layout is a `repr(C)` `union`
+    // between `repr(C)` structs, each of which has the `Repr` discriminant as its first
+    // field, so we can read the discriminant without offsetting the pointer.
+    unsafe { *(self as *const Self as *const Self::Repr) }
+  }
+}
+```
+
+## strum庫（枚舉功能增強）
+使用[`strum`](https://github.com/Peternator7/strum)庫可用於增強系統枚舉功能，
+在項目Cargo.toml中引入依賴：
+
+```toml
+[dependencies]
+strum = { version = "*", features = ["derive"] } # 開啟 derive 特性
+```
+
+枚舉通過添加`#[derive(strum::Display)]`屬性為枚舉提供到文本的轉換：
+
+```rs
+#[derive(strum::Display)]
+pub enum Language {
+  Chinese,
+  Taiwanese,
+}
+
+#[test]
+fn enum_test() {
+  println!("Language: {}", Language::Chinese);
+  println!("Language: {}", Language::Taiwanese);
+}
+```
+
+輸出結果：
+
+```
+Language: Chinese
+Language: Taiwanese
+```
+
+使用strum庫提供的相關屬性可定製枚舉的文本轉換規則：
+
+```rs
+#[derive(strum::Display)]
+#[strum(serialize_all = "snake_case")] // 可按照給定配置將枚舉名稱轉換為其它命名風格
+pub enum Language {
+  #[strum(to_string = "chinazi")] // 手動指定特定枚舉項的顯示文本
+  Chinese,
+  Japanese,
+  Taiwanese,
+  TaiwaneseAndJapanese,
+}
+```
+
+此外，strum庫還提供了一系列derive：
+
+- `derive(strum::EnumString)`（實現`std::str::FromStr`，用於從文本轉換為枚舉）
+- `derive(strum::FromRepr)`（實現枚舉數值到枚舉類型的轉換）
+- `derive(strum::EnumIter)`（實現枚舉項的迭代）
 
 
 
