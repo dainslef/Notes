@@ -12,6 +12,7 @@
 - [微軟輸入法](#微軟輸入法)
 	- [自定義短語](#自定義短語)
 	- [輸入法卡頓問題](#輸入法卡頓問題)
+- [文件共享（SMB服務）](#文件共享smb服務)
 - [常見問題記錄](#常見問題記錄)
 	- [Reply from ::1: time<1ms](#reply-from-1-time1ms)
 	- [Intel CPU機型會在C盤根目錄下創建空的Intel目錄](#intel-cpu機型會在c盤根目錄下創建空的intel目錄)
@@ -259,7 +260,7 @@ Mode                 LastWriteTime         Length Name
 下載完成后，會在對應路徑下生成Office子路徑，即爲離綫安裝所需資源，執行安裝操作：
 
 ```
-> .\setup.exe /configure .\configuration-Office2021Enterprise.xml
+> setup.exe /configure .\configuration-Office2021Enterprise.xml
 ```
 
 
@@ -291,6 +292,44 @@ Windows 11内置的微軟拼音可能會出現跨語言輸入法切換卡頓的�
 ```
 C:\Users\用戶名​​\AppData\Roaming\Microsoft\InputMethod\Chs
 ```
+
+
+
+# 文件共享（SMB服務）
+Windows系統内置了文件共享功能（基於SMB協議），在文件管理器的右鍵菜單中選擇：
+
+```
+Properties > Sharing > Share...
+```
+
+完整的共享管理可通過`Computer Managenment`功能管理：
+
+```
+> WinMgmt.exe
+```
+
+相關選項説明：
+
+```html
+<!-- 配置和管理的共享路徑 -->
+Computer Management > System Tools > Shared Folders
+
+<!-- 設置和管理授權用戶 -->
+Computer Management > System Tools > Shared Folders > 選擇共享路徑（點擊右鍵） > Properties > Share Permissions
+
+<!-- 管理Windows用戶，文件共享通過Windows的賬戶體系進行認證 -->
+Computer Management > System Tools > Local Users and Groups
+```
+
+對於MicrosoftAccount（微軟帳戶），文件共享的認證信息為：
+
+- 用戶：MicrosoftAccount\用戶名@郵箱後綴
+- 密碼：MicrosoftAccount密碼
+
+相關問題討論參考[StackExchange](https://superuser.com/questions/740375/how-to-login-to-network-share-when-microsoft-account-is-tied-to-windows-login)。
+
+由於文件共享功能使用Windows帳戶體系，用於文件共享的用戶同樣會出現在登入介面中，
+若需避免該用戶出現在登入介面中，可在用戶管理中將該用戶的用戶組設置中移除`Users`用戶組。
 
 
 
