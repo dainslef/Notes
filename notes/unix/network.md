@@ -10,6 +10,9 @@
 		- [VLAN配置trunk接口](#vlan配置trunk接口)
 	- [VLANIF配置](#vlanif配置)
 		- [VLANIF設置192.168.1.1地址失敗](#vlanif設置19216811地址失敗)
+- [ZTE](#zte)
+	- [interface（接口配置）](#interface接口配置)
+	- [switchvlan-configuration（VLAN配置）](#switchvlan-configurationvlan配置)
 
 <!-- /TOC -->
 
@@ -214,4 +217,77 @@ interface MEth0/0/1
 #
 return
 [App_E_Switch_01-MEth0/0/1] ip address 192.168.255.1 24
+```
+
+
+
+# ZTE
+進入特權模式：
+
+```
+> enable
+Password:
+#
+```
+
+默認密碼`zxr10`，部分型號為`Zxr10_IPTN`。
+
+在特權模式下可保存配置：
+
+```
+# write
+```
+
+進入配置模式：
+
+```
+# configure terminal
+Enter configuration commands, one per line.  End with CTRL/Z.
+(config)#
+```
+
+## interface（接口配置）
+查看接口狀態：
+
+```
+(config)# show interface
+```
+
+## switchvlan-configuration（VLAN配置）
+進入VLAN配置模式：
+
+```
+(config)# switchvlan-configuration
+(config-swvlan)#
+```
+
+查看VLAN信息：
+
+```html
+(config-swvlan)# show this <!-- 查看完整vlan信息 -->
+(config-swvlan)# show vlan
+```
+
+進入指定VLAN：
+
+```html
+(config-swvlan)# vlan 編號
+(config-swvlan-sub-編號)# switchport pvid 接口編號起始-結束
+<!-- 示例：
+(config-swvlan-sub-132)# switchport pvid gei-0/1/1/11-12
+將 gei-0/1/1/11-12 的接口設置 PVID 為 132
+設置 PVID 時會默認將接口設置為 ACCESS 模式
+-->
+```
+
+配置接口的訪問屬性需要先進入VLAN配置模式，之後進入VLAN接口配置模式：
+
+```html
+(config)# switchvlan-configuration
+(config-swvlan)# interface <interface-name>
+(config-swvlan-if-ifname)# switchport mode { access| hybrid | trunk }
+<!-- 設置 VLAN ID，若 VLAN ID 不存在則創建 -->
+(config-swvlan-if-ifname)# switchport access vlan <vlan_id>
+(config-swvlan-if-ifname)# switchport trunk native vlan <vlan_id>
+(config-swvlan-if-ifname)# switchport hybrid native vlan <vlan_id>
 ```
