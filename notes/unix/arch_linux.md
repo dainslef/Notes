@@ -16,6 +16,7 @@
 		- [pacman操作](#pacman操作)
 		- [pacman配置](#pacman配置)
 		- [pacman-contrib](#pacman-contrib)
+	- [降級軟件包](#降級軟件包)
 
 <!-- /TOC -->
 
@@ -284,3 +285,21 @@ $ pactree 軟件包
 <!-- 查看軟件包的反向依賴 -->
 $ pactree -r 軟件包
 ```
+
+## 降級軟件包
+ArchLinux作為滾動發行版，並未提供完善的軟件包多版本共存機制，相同軟件包在源中僅能存在**單一**版本。
+若需要降級軟件包，可查看系統本地`/var/cache/pacman/pkg/`路徑下的舊版本軟件包緩存。
+
+若本地的舊版本軟件包已被清理，
+則需使用[ArchLinux Archive Mirror](https://archive.archlinux.org/repos/)，
+可根據日期查找需要的舊版本軟件包，
+
+找到需要的舊版本軟件包後，本地覆蓋安裝實現版本降級：
+
+```
+# pacman -U 軟件包文件路徑
+```
+
+更多細節參見[Arch Linux Wiki](https://wiki.archlinux.org/title/downgrading_packages)。
+
+ArchLinux ARM也提供了與官方版本類似的[Archive鏡像](http://tardis.tiny-vps.com)。
