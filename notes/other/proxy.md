@@ -1,5 +1,7 @@
 <!-- TOC -->
 
+- [BBR](#bbr)
+	- [Linux中開啟BBR](#linux中開啟bbr)
 - [Shadowsocks](#shadowsocks)
 	- [shadowsocks-libev](#shadowsocks-libev)
 - [生成TLS證書以及密鑰](#生成tls證書以及密鑰)
@@ -11,12 +13,43 @@
 - [V2Ray & XRay](#v2ray--xray)
 	- [XRay](#xray)
 	- [安裝和配置V2Ray/XRay服務](#安裝和配置v2rayxray服務)
-	- [VMess + TLS + WebSocket](#vmess--tls--websocket)
-	- [VMess + TLS + gRPC](#vmess--tls--grpc)
+	- [V2Ray/XRay VMess + TLS + WebSocket](#v2rayxray-vmess--tls--websocket)
+	- [V2Ray/XRay VMess + TLS + gRPC](#v2rayxray-vmess--tls--grpc)
 	- [V2Ray/XRay Trojan](#v2rayxray-trojan)
 	- [V2Ray/XRay Shadowsocks](#v2rayxray-shadowsocks)
 
 <!-- /TOC -->
+
+
+
+# BBR
+[`BBR, Bottleneck Bandwidth and RTT`](https://github.com/google/bbr)
+是Google開發的TCP流量擁塞控制算法，
+使用BBR算法能提升代理服務器的流量轉發能力。
+
+## Linux中開啟BBR
+自Linux 4.9版本開始加入內核，但並非所有內核都在編譯時啟用了該算法，
+查看當前內核支持的算法：
+
+```
+$ sysctl net.ipv4.tcp_allowed_congestion_control
+net.ipv4.tcp_allowed_congestion_control = reno cubic bbr
+```
+
+若輸出內容中不包含bbr，則需要更換內核。
+
+將擁塞控制算法切換為BBR：
+
+```html
+<!-- 查看當前使用的算法，通常默認為cubic -->
+$ sysctl net.ipv4.tcp_congestion_control
+net.ipv4.tcp_congestion_control = cubic
+
+<!-- 切換為bbr -->
+# sysctl net.ipv4.tcp_congestion_control=bbr
+```
+
+要使配置永久生效需要修改`/etc/sysctl.conf`配置或再`/etc/sysctl.d`路徑下創建配置。
 
 
 
@@ -359,7 +392,7 @@ XRay在DockerHub沒有官方組織，但可使用[teddysun/xray](https://hub.doc
 $ docker run -d -v /etc/xray:/etc/xray --network host --name xray teddysun/xray:版本號
 ```
 
-## VMess + TLS + WebSocket
+## V2Ray/XRay VMess + TLS + WebSocket
 V2Ray/Xray支持使用WebSocket作為傳輸協議，
 該種傳輸方式可搭配CDN使用，以實現隱藏代理服務器真實IP的作用。
 
@@ -433,7 +466,7 @@ server {
 }
 ```
 
-## VMess + TLS + gRPC
+## V2Ray/XRay VMess + TLS + gRPC
 V2Ray/XRay支持使用gRPC作為傳輸協議，
 該種傳輸方式可搭配CDN使用，以實現隱藏代理服務器真實IP的作用。
 
