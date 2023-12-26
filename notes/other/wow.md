@@ -4,6 +4,8 @@
 	- [MaNGOS服務說明](#mangos服務說明)
 	- [部署MaNGOS數據庫](#部署mangos數據庫)
 	- [MaNGOS目錄結構](#mangos目錄結構)
+	- [部署MaNGOS核心服務](#部署mangos核心服務)
+	- [修改配置](#修改配置)
 
 <!-- /TOC -->
 
@@ -88,4 +90,59 @@ MaNGOS游戲服務部署目錄結構：
     ├── database
     ├── build
     └── server
+```
+
+## 部署MaNGOS核心服務
+安裝必要依賴：
+
+```
+# apt install git cmake build-essential default-libmysqlclient-dev libbz2-dev
+```
+
+以ZERO版本爲例，克隆倉庫源碼並編譯：
+
+```html
+<!-- 創建目錄，克隆倉庫源碼 -->
+$ mkdir -p /opt/mangos/zero/source
+$ cd /opt/mangos/zero/source
+$ git clone https://github.com/mangoszero/server.git --recursive --depth 1
+
+<!-- 生成構建信息 -->
+$ cmake /opt/mangos/zero/source/server -B /opt/mangos/zero/source/build
+
+<!-- 構建項目 -->
+$ cmake --build /opt/mangos/zero/source/build -j 綫程數目
+
+<!-- 安裝生成的構建文件 -->
+$ cmake --install /opt/mangos/zero/source/build
+```
+
+登入服務所有游戲版本通用，在編譯任意版本的主服務過程中會一并編譯，
+生成的安裝内容位於`/opt/mangos/zero/source/build/install/bin`路徑下。
+
+## 修改配置
+mangosd配置文件修改下列內容：
+
+```
+$ diff mangosd.conf.dist mangosd.conf
+66,68c66,68
+< LoginDatabaseInfo            = "127.0.0.1;3306;root;mangos;realmd"
+< WorldDatabaseInfo            = "127.0.0.1;3306;root;mangos;mangos0"
+< CharacterDatabaseInfo        = "127.0.0.1;3306;root;mangos;character0"
+---
+> LoginDatabaseInfo            = "10.4.0.1;3306;root;mangos;realmd"
+> WorldDatabaseInfo            = "10.4.0.1;3306;root;mangos;mangos0"
+> CharacterDatabaseInfo        = "10.4.0.1;3306;root;mangos;character0"
+391c391
+< LogLevel                     = 3
+---
+> LogLevel                     = 1
+395c395
+< LogFileLevel                 = 0
+---
+> LogFileLevel                 = 3
+1743c1743
+< Warden.WinEnabled            = 1
+---
+> Warden.WinEnabled            = 0
 ```
