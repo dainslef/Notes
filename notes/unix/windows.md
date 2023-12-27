@@ -13,6 +13,8 @@
 	- [自定義短語](#自定義短語)
 	- [輸入法卡頓問題](#輸入法卡頓問題)
 - [文件共享（SMB服務）](#文件共享smb服務)
+	- [SMB命令行](#smb命令行)
+	- [優化SMB服務性能](#優化smb服務性能)
 - [常見問題記錄](#常見問題記錄)
 	- [Reply from ::1: time<1ms](#reply-from-1-time1ms)
 	- [Intel CPU機型會在C盤根目錄下創建空的Intel目錄](#intel-cpu機型會在c盤根目錄下創建空的intel目錄)
@@ -330,6 +332,41 @@ Computer Management > System Tools > Local Users and Groups
 
 由於文件共享功能使用Windows帳戶體系，用於文件共享的用戶同樣會出現在登入介面中，
 若需避免該用戶出現在登入介面中，可在用戶管理中將該用戶的用戶組設置中移除`Users`用戶組。
+
+## SMB命令行
+Windows的共享功能使用SMB協議實現，其它非Windows系統亦可通過SMB客戶端訪問，
+可在PowerShell中查看SMB服務狀態與配置：
+
+```html
+<!-- 查看SMB服務配置 -->
+> Get-SmbServerConfiguration
+
+<!-- 查看SMB客戶端配置 -->
+> Get-SmbClientConfiguration
+
+<!-- 查看SMB連接 -->
+> Get-SmbConnection
+```
+
+## 優化SMB服務性能
+Windows默認的共享配置并未最大化傳輸速率，參考微軟官方文檔
+[Slow SMB files transfer speed](https://learn.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/slow-file-transfer)
+以及
+[Performance tuning for SMB file servers](https://learn.microsoft.com/en-us/windows-server/administration/performance-tuning/role/file-server/smb-file-server)。
+
+關閉SMB客戶端的一些性能限制：
+
+```html
+<!--
+EnableBandwidthThrottling 0 關閉帶寬節流
+EnableLargeMtu 1 使用大MTU
+-->
+> Set-SmbClientConfiguration -EnableBandwidthThrottling 0 -EnableLargeMtu 1
+```
+
+此外，若系統啓用了HyperV功能，且HyperV的虛擬交換機配置了橋接外部網絡，
+則被橋接的網卡提供SMB服務時連接速率會**大大受限**，
+應切換HyperV虛擬交換機的外部橋接網卡，或直接禁用外部網卡橋接。
 
 
 
