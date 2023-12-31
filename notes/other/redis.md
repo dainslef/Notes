@@ -1,6 +1,9 @@
 <!-- TOC -->
 
-- [Redis keyspace notifications](#redis-keyspace-notifications)
+- [Redis安裝和維護](#redis安裝和維護)
+	- [查看狀態](#查看狀態)
+	- [性能測試](#性能測試)
+- [Redis Keyspace Notifications](#redis-keyspace-notifications)
 	- [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
 - [問題註記](#問題註記)
 	- [WARNING you have Transparent Huge Pages (THP) support enabled in your kernel.](#warning-you-have-transparent-huge-pages-thp-support-enabled-in-your-kernel)
@@ -9,8 +12,74 @@
 
 
 
-# Redis keyspace notifications
-Redis提供了[Redis keyspace notifications](https://redis.io/docs/manual/keyspace-notifications/)
+# Redis安裝和維護
+Redis在各大發行版倉庫中均已收錄，直接使用發行版內置的包管理器安裝即可：
+
+```html
+# pacman -S redis <!-- Arch係 -->
+# apt install redis-server <!-- Debian係 -->
+```
+
+## 查看狀態
+使用`INFO`指令可查看Redis服務的各類狀態。
+
+示例：
+
+```html
+<!-- 查看客戶端狀態 -->
+> INFO clients
+# Clients
+connected_clients:13
+cluster_connections:0
+maxclients:10000
+client_recent_max_input_buffer:257
+client_recent_max_output_buffer:0
+blocked_clients:2
+tracking_clients:0
+clients_in_timeout_table:2
+```
+
+## 性能測試
+Redis內置了性能測試工具`redis-benchmark`。
+
+redis-benchmark多數參數與redis-cli類似，支持一些測試相關參數：
+
+```html
+$ redis-benchmark -t 測試類型 <!-- 測試指定類型，辱 ping,set,get 等 -->
+$ redis-benchmark -n 請求數目 <!-- 測試的總請求數目 -->
+```
+
+實例：
+
+```html
+<!-- 測試 10000 請求下的查詢性能 -->
+$ redis-benchmark -q
+PING_INLINE: 71428.57 requests per second, p50=0.295 msec
+PING_MBULK: 86206.90 requests per second, p50=0.287 msec
+SET: 85470.09 requests per second, p50=0.287 msec
+GET: 89285.71 requests per second, p50=0.295 msec
+INCR: 90090.09 requests per second, p50=0.295 msec
+LPUSH: 88495.58 requests per second, p50=0.311 msec
+RPUSH: 81300.81 requests per second, p50=0.375 msec
+LPOP: 81300.81 requests per second, p50=0.383 msec
+RPOP: 84745.77 requests per second, p50=0.295 msec
+SADD: 89285.71 requests per second, p50=0.287 msec
+HSET: 88495.58 requests per second, p50=0.287 msec
+SPOP: 86206.90 requests per second, p50=0.295 msec
+ZADD: 90090.09 requests per second, p50=0.287 msec
+ZPOPMIN: 93457.95 requests per second, p50=0.287 msec
+LPUSH (needed to benchmark LRANGE): 52631.58 requests per second, p50=0.311 msec
+LRANGE_100 (first 100 elements): 39525.69 requests per second, p50=0.623 msec
+LRANGE_300 (first 300 elements): 19267.82 requests per second, p50=1.279 msec
+LRANGE_500 (first 500 elements): 12642.22 requests per second, p50=1.895 msec
+LRANGE_600 (first 600 elements): 11441.65 requests per second, p50=2.167 msec
+MSET (10 keys): 86206.90 requests per second, p50=0.391 msec
+```
+
+
+
+# Redis Keyspace Notifications
+Redis提供了[Redis Keyspace Notifications](https://redis.io/docs/manual/keyspace-notifications/)
 機制會生成Redis中各類變更事件，如指令、創建、刪除、過期等，
 開發者而通過監聽對應頻道消息實現特定業務邏輯。
 
