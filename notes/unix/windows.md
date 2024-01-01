@@ -3,10 +3,10 @@
 - [Windows CMD](#windows-cmd)
 	- [文件操作](#文件操作)
 	- [服務管理](#服務管理)
-	- [電源管理](#電源管理)
 	- [其它實用工具](#其它實用工具)
 - [文件/目錄鏈接](#文件目錄鏈接)
 - [系統引導](#系統引導)
+- [電源管理](#電源管理)
 - [Microsoft Office](#microsoft-office)
 	- [Office Deployment Tool](#office-deployment-tool)
 - [微軟輸入法](#微軟輸入法)
@@ -100,18 +100,6 @@ Windows在控制面板中提供了直觀的GUI服務管理，但亦可通過指�
 就實現機制而言，net指令為**同步**執行，指令會阻塞直到服務完全啟動；
 而sc指令為**異步**執行，指令不會等待服務指令執行完畢。
 net和sc的詳細區別參考[StackExchange](https://superuser.com/questions/315166/net-start-service-and-sc-start-what-is-the-difference)上的相關討論。
-
-## 電源管理
-常用的電源管理指令。
-
-```html
-> powercfg
-
-<!-- 開啓休眠 -->
-> powercfg /h on
-<!-- 禁用休眠 -->
-> powercfg /h off
-```
 
 ## 其它實用工具
 常用工具：
@@ -227,6 +215,62 @@ DISKPART > list volume <!-- 列出分區結構 -->
 ```html
 DISKPART > select volume 分區索引 <!-- 選定當前操作分區 -->
 DISKPART > assign letter=字母 <!-- 給指定分區分配磁盤盤符 -->
+```
+
+
+
+# 電源管理
+Windows使用`powercfg`指令管理電源計劃（電源策略），
+指令使用説明參考[MSDN](https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options#option_list)。
+
+常用操作：
+
+```html
+<!-- 列出所有電源計劃 -->
+> powercfg /l
+
+<!-- 查看所有電源計劃配置 -->
+> powercfg /q
+> powercfg /q 電源計劃GUID <!-- 查看指定電源計劃配置 -->
+```
+
+若系統已設置Sleep時間為Never，但系統依舊進入睡眠，
+則可能是因爲`Hibernate`并未禁用，檢查睡眠相關配置：
+
+```html
+<!-- 查看睡眠狀態 -->
+> powercfg /a
+
+<!-- 禁用Hibernate -->
+> powercfg /h off
+```
+
+若系統已開啓休眠，則輸出中會包含下列内容：
+
+```html
+> powercfg /a
+The following sleep states are available on this system:
+    Standby (S0 Low Power Idle) Network Connected
+    Hibernate <!-- 當前睡眠狀態中包含 Hibernate -->
+...
+```
+
+成功禁用Hibernate后，查看睡眠狀態會出現下列輸出：
+
+```html
+> powercfg /a
+The following sleep states are available on this system: <!-- 當前睡眠狀態中不再包含 Hibernate -->
+    Standby (S0 Low Power Idle) Network Connected
+...
+
+    Hibernate
+        Hibernation has not been enabled.
+
+    Hybrid Sleep
+        Standby (S3) is not available.
+        Hibernation is not available. <!-- 提示 Hibernate 未被啓用 -->
+        The hypervisor does not support this standby state.
+...
 ```
 
 
