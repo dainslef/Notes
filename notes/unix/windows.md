@@ -7,6 +7,7 @@
 - [文件/目錄鏈接](#文件目錄鏈接)
 - [系統引導](#系統引導)
 - [電源管理](#電源管理)
+	- [Modern Standby](#modern-standby)
 - [Microsoft Office](#microsoft-office)
 	- [Office Deployment Tool](#office-deployment-tool)
 - [微軟輸入法](#微軟輸入法)
@@ -271,6 +272,38 @@ The following sleep states are available on this system: <!-- 當前睡眠狀態
         Hibernation is not available. <!-- 提示 Hibernate 未被啓用 -->
         The hypervisor does not support this standby state.
 ...
+```
+
+## Modern Standby
+[`Modern Standby`](https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/modern-standby)
+是Windows 10開始引入的新休眠機制，與傳統S3對比參見
+[`Modern Standby vs S3`](https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/modern-standby-vs-s3)。
+
+啓用Modern Standby可能會導致系統在空閑時關閉網絡（即使睡眠時間設置為Never），
+導致部分需要網絡的服務無法正常運行（如SMB文件共享）；
+禁用Modern Standby，恢復傳統的S3模式則不會出現此類問題。
+
+禁用與啓用Modern Standby使用指令（需要重啓生效）：
+
+```html
+<!-- 禁用 Modern Standby -->
+> reg add HKLM\System\CurrentControlSet\Control\Power /v PlatformAoAcOverride /t REG_DWORD /d 0
+<!-- 啓用 Modern Standby -->
+> reg delete HKLM\System\CurrentControlSet\Control\Power /v PlatformAoAcOverride /f
+```
+
+對應睡眠狀態輸出：
+
+```html
+<!-- 啓用 Modern Standby -->
+> powercfg /a
+The following sleep states are available on this system:
+    Standby (S0 Low Power Idle) Network Connected
+
+<!-- 禁用 Modern Standby -->
+> powercfg /a
+The following sleep states are available on this system:
+    Standby (S3)
 ```
 
 
