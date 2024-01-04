@@ -3871,14 +3871,14 @@ nc工具可以選擇運行在客戶端/服務端模式。
 作為服務端，可使用nc監聽指定端口：
 
 ```html
-$ nc -l [ip/hostname] [port]
-$ nc -l [port] <!-- 監聽時可省略主機/ip，默認監聽127.0.0.1/localhost -->
+$ nc -l 地址 端口
+$ nc -l 地址 <!-- 監聽時可省略主機/IP，默認監聽127.0.0.1/localhost -->
 ```
 
 作為客戶端，可使用nc向指定端口發送數據：
 
 ```
-$ nc [ip/hostname] [port]
+$ nc 地址 端口
 ```
 
 客戶端/服務端添加`-v`參數均可輸出額外的提示信息。
@@ -3886,53 +3886,63 @@ $ nc [ip/hostname] [port]
 
 ```html
 <!-- 服務端-->
-$ nc -lu [port]
-$ nc -lu [ip/hostname] [port]
+$ nc -lu 端口
+$ nc -lu 地址 端口
 
 <!-- 客戶端 -->
-$ nc [ip/hostname] [port]
+$ nc 地址 端口
 ```
 
 默認服務端僅能接受**一個**連接，客戶端或服務端使用`Ctrl + C`結束會話後，客戶端、服務端均會關閉。
 可使用`-k`可實現僅關閉連接而不退出進程：
 
 ```html
-$ nc -lk [port] <!-- 在客戶端連接關閉後可繼續接受新連接 -->
+$ nc -lk 端口 <!-- 在客戶端連接關閉後可繼續接受新連接 -->
 ```
 
 可使用`-w`參數設定連接的存活時間，超過存活時間的連接會被斷開：
 
 ```html
-$ nc -lw [timeout] [port] <!-- 存活時間單位為：秒 -->
-$ nc -lw [timeout] [ip/hostname] [port] <!-- 多個參數組合時，-w需要放在最後，否則存在參數解析錯誤 -->
+$ nc -lw 時間數值 端口 <!-- 存活時間單位為：秒 -->
+$ nc -lw 時間數值 地址 端口 <!-- 多個參數組合時，-w需要放在最後，否則存在參數解析錯誤 -->
 ```
 
-監聽連接時，省略主機/ip信息**默認**監聽`127.0.0.1/localhost`，
-macOS的nc客戶端在UDP模式下使用localhost無法正常通信，改為ip連接即可。
+監聽連接時，省略主機/IP信息**默認**監聽`127.0.0.1/localhost`，
+macOS的nc客戶端在UDP模式下使用localhost無法正常通信，改為IP連接即可。
+
+可使用`-z`參數對指定端口進行活躍性檢測，示例：
+
+```
+$ nc -z 127.0.0.1 3306
+Connection to 127.0.0.1 port 3306 [tcp/mysql] succeeded!
+$ nc -uz 127.0.0.1 3306
+Connection to 127.0.0.1 port 3306 [udp/mysql] succeeded!
+```
 
 ### 數據傳送
 默認模式下，nc直接在命令行中進行標準輸入輸出。
 與大多數Unix工具類似，可使用管道、重定向來傳送數據量較大的數據，
 或者將接收到的數據寫入文件中。
 
-```c
-// 重定向輸入數據
-$ nc -l [port] > [output_file]
+```html
+<!-- 重定向輸入數據 -->
+$ nc -l 端口 > 輸出文件
 
-// 基於文件重定向發送數據
-$ nc [hostname/ip] [port] < [input_file]
-// 基於管道發送數據
-$ echo [content] | nc [hostname/ip] [port]
+<!-- 基於文件重定向發送數據 -->
+$ nc 地址 端口 < 輸入文件
+<!-- 基於管道發送數據 -->
+$ echo 傳輸內容 | nc 地址 端口
 ```
 
 當數據發送完畢，連接將會關閉。
 
 ### Ncat
 [Ncat(nmap-ncat)](https://nmap.org/ncat/)是Nmap項目提供的一個現代netcat實現，
-ncat兼容大多數nc參數，同時提供了更多強大的特性：
+ncat兼容絕大多數nc參數，同時提供了更多強大的特性：
 
-- 多連接支持。原版nc作為服務端僅支持單一連接，而ncat做為服務端支持多客戶端連接。
-- 更多協議支持。添加了更多現代協議如SSL、SOCKS4、HTTP等的支持。
+- 多連接支持；原版nc作為服務端僅支持單一連接，而ncat做為服務端支持多客戶端連接。
+- 更多協議支持；添加了更多現代協議如SSL、SOCKS4、HTTP等的支持。
+- 更詳細的日誌輸出；支持通過添加多個`-v`參數展示不同級別的日誌輸出，包括函數調用等細節信息。
 
 ncat使用`-k`參數可接受多個客戶端的連接：
 
@@ -5347,11 +5357,14 @@ apt的常用指令：
 <!-- 更新所有軟件包 -->
 # apt-get dist-upgrade
 
-<!-- 安裝/卸載軟件包 -->
-# apt-get install/remove 軟件包名稱
+<!-- 安裝軟件包 -->
+# apt-get install 軟件包名稱
 # apt-get install 軟件包名稱/倉庫名稱 <!-- 安裝指定倉庫中的軟件包（在軟件包同時存在與多個倉庫時） -->
-<!-- 卸載軟件包時同時刪除配置 -->
-# apt-get remove --purge 軟件包名稱
+# apt-get install 軟件包名稱=版本號 <!-- 安裝指定版本的軟件包（可用於降級版本） -->
+
+<!-- 卸載軟件包 -->
+# apt-get remove 軟件包名稱
+# apt-get remove --purge 軟件包名稱 <!-- 卸載軟件包時同時刪除配置 -->
 
 <!-- 清理無用依賴 -->
 # apt-get autoremove
