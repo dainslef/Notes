@@ -6,6 +6,8 @@
 	- [MaNGOS目錄結構](#mangos目錄結構)
 	- [部署MaNGOS核心服務](#部署mangos核心服務)
 	- [修改配置](#修改配置)
+	- [啓用資料片](#啓用資料片)
+	- [國際化](#國際化)
 
 <!-- /TOC -->
 
@@ -145,4 +147,40 @@ $ diff mangosd.conf.dist mangosd.conf
 < Warden.WinEnabled            = 1
 ---
 > Warden.WinEnabled            = 0
+```
+
+## 啓用資料片
+默認創建的用戶并未啓用資料片，修改realmd數據庫的account表，
+將其中的expansion字段修改為對應數值即可：
+
+- 0，默認，香草版本
+- 1，燃燒的遠征
+- 2，巫妖王之怒
+
+## 國際化
+默認數據庫中僅提供英文文本，因此無論使用何種語言客戶端登入，任務、NPC信息等均爲英文。
+
+需要導入對應客戶端語言的數據庫，相關内容位於
+[MangosExtras](https://github.com/MangosExtras)項目中。
+
+以MaNGOS Zero版本爲例，應克隆對應版本倉庫：
+
+```
+$ git clone https://github.com/MangosExtras/MangosZero_Localised
+```
+
+在克隆數據庫倉庫時若已經使用了`--recursive`參數，則不必再次單獨拉取該倉庫，
+國際化內容位於數據庫倉庫的`Translations`路徑下。
+
+之後導入相關數據庫文件：
+
+```html
+<!-- 導入基礎信息，數據庫名稱需要與MaNGOS版本對應 -->
+$ mysql -h數據庫地址 -u數據庫用戶名 -p數據庫密碼 mangos0 < 1_LocaleTablePrepare.sql
+
+<!-- 進入對應語言路徑 -->
+$ cd Translations/語言
+
+<!-- 循環導入對應語言的數據信息 -->
+$ for i in (ls *.sql); mysql -h數據庫地址 -u數據庫用戶名 -p數據庫密碼 mangos0 < $i; end
 ```
