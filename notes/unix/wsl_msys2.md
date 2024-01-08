@@ -14,6 +14,8 @@
 		- [WSL](#wsl)
 		- [WSL2](#wsl2)
 - [Linux Subsystem 與 MSYS2 比較](#linux-subsystem-與-msys2-比較)
+	- [Linux Subsystem優劣](#linux-subsystem優劣)
+	- [Msys2優劣](#msys2優劣)
 - [Wine](#wine)
 	- [安裝和配置Wine](#安裝和配置wine)
 	- [中文字體問題](#中文字體問題)
@@ -26,7 +28,7 @@
 
 # MSYS2
 `MSYS2`基於`Cygwin`，解決了Cygwin包升級、管理不便的問題。
-MSYS2採用`ArchLinux`的`pacman`作爲包管理器，能夠方便、簡單地升級、管理已安裝的軟件包。
+MSYS2採用ArchLinux的`pacman`作爲包管理器，能夠方便、簡單地升級、管理已安裝的軟件包。
 
 ## 下載與安裝
 從`http://www.msys2.org/`頁面下載安裝包。
@@ -63,15 +65,15 @@ Server = http://mirrors.ustc.edu.cn/msys2/mingw/x86_64 # mirrorlist.mingw64
 
 安裝一些常用的包：
 
-```
-> pacman -S nano gcc gdb grep gawk make python ruby git diffutils ctags wget whois nasm sqlite tree
-//vim、tar、python2、binutils、openssh 會作爲依賴自動安裝
+```html
+> pacman -S nano gcc gdb grep gawk make python git diffutils nasm sqlite tree
+<!-- vim、tar、python2、binutils、openssh 會作爲依賴自動安裝 -->
 ```
 
 安裝`man`手冊：
 
-```
-> pacman -S man-pages-posix //安裝Unix API的文檔man手冊
+```html
+> pacman -S man-pages-posix <!-- 安裝Unix API的文檔man手冊 -->
 ```
 
 刪除一些用不到的默認包：
@@ -97,7 +99,7 @@ MSYS2中默認的語言環境是`C`，需要自行設置正確的`locale`，設�
 在更新`msys2-keyring`時，會調用更新腳本`pacman-key`，該腳本默認使用bash執行，
 若等使用Linux Subsystem提供的bash會因環境不匹配而導致執行失敗。
 
-`pacman`指令會因爲密鑰庫更新失敗不能正常地更新倉庫信息。
+pacman指令會因爲密鑰庫更新失敗不能正常地更新倉庫信息。
 解決方案是安裝`zsh`，將pacman-key腳本的執行Shell切換到`zsh`。
 編輯`[MSYS根路徑]/usr/bin/pacman-key`文件，原內容：
 
@@ -137,8 +139,8 @@ Windows NT初版開始提供了[`Microsoft POSIX subsystem`](https://en.wikipedi
 SFU後續亦停止更新，Windows 10之後開始引入WSL，作爲新的Windows POSIX子系統。
 
 ## Windows Linux Subsystem
-在`Windows 10`週年更新`Version 1607`中引入了`Linux Subsystem`(簡稱`LXSS`)，
-之後`Version 1709`中正式發布定名`Windows Subsystem for Linux`(簡稱`WSL`)。
+在`Windows 10`週年更新`Version 1607`中引入了`Linux Subsystem`（簡稱`LXSS`），
+之後`Version 1709`中正式發布定名`Windows Subsystem for Linux`（簡稱`WSL`）。
 
 ### LXSS
 啓用LXSS需要執行以下步驟：
@@ -162,7 +164,7 @@ LXSS使用`lxrun`工具管理環境：
 ```
 
 ### WSL
-從`Windows Version 1709`(2017秋季創意者更新)開始，LXSS正式脫離Beta版本，正式名稱為WSL。
+從`Windows Version 1709`（2017秋季創意者更新）開始，LXSS正式脫離Beta版本，正式名稱為WSL。
 從1709版本開始，應用商店中直接提供WSL發行版應用下載。
 同時，WSL也不僅限於`Ubuntu`發行版，還提供了`openSUSE`和`SUSE Linux Enterprise Server`。
 
@@ -181,15 +183,15 @@ WSL基於API轉發，詳細實現機制參考博客[Windows for Linux Nerds](htt
 ### WSL2
 WSL基於API轉發的實現存在一系列問題：
 
-- 文件系統性能(file system performance)
-- 完整的系統調用兼容性(full system call compatibility)
+- file system performance（文件系統性能）
+- full system call compatibility（完整的系統調用兼容性）
 
 為了改善這些問題，微軟提出了基於虛擬化技術的WSL2。
 WSL2需要`Windows Version 1903`或更高的版本。
 
 關於WSL/WSL2的對比，參見[微軟官方文檔](https://docs.microsoft.com/en-us/windows/wsl/compare-versions)。
 
-WSL2不在作爲Windows Features提供（Windows Features中的WSL依舊存在，但不必開啓），
+WSL2不再作爲Windows Features提供（Windows Features中的WSL依舊存在，但不必開啓），
 而是直接以應用形式提供（不在綁定系統，便於快速更新）；
 lxrun工具現在亦已被移除，現在使用`wsl`指令進行管理WSL環境：
 
@@ -203,8 +205,7 @@ lxrun工具現在亦已被移除，現在使用`wsl`指令進行管理WSL環境�
 > wsl -d/--distribution <!-- 進入指定發行版 -->
 ```
 
-WSL2的各類發行版均運行在微軟的`Common Base Linux Mariner`上，
-進入該環境，執行：
+WSL2的各類發行版均運行在微軟的`Common Base Linux Mariner`上，進入該環境，執行：
 
 ```
 > wsl --system
@@ -226,33 +227,31 @@ WSL2的各類發行版均運行在微軟的`Common Base Linux Mariner`上，
 systemd=true
 ```
 
-之後重啓WSL虛擬機，重新進入WSL環境即可。
+之後關閉WSL虛擬機（`wsl --shutdown`），重新進入WSL環境即可。
 
 
 
 # Linux Subsystem 與 MSYS2 比較
 `Linux Subsystem`與`Msys`等有着本質區別：
 
-- `MSYS2`是傳統的Unix工具鏈的Windows版本移植，工具均爲Windows二進制格式(`PE32/PE32+`)的程序。
-- `Linux Subsystem`是運行在Windows內核上的完整Linux子系統，軟件包均爲原生Linux二進制格式(`ELF`)程序。
+- `MSYS2`是傳統的Unix工具鏈的Windows版本移植，工具均爲`PE32/PE32+`（Windows二進制格式）的程序。
+- `Linux Subsystem`是運行在Windows內核上的完整Linux子系統，軟件包均爲`ELF`（原生Linux二進制格式）程序。
 
-`Linux Subsystem`優劣
-
+## Linux Subsystem優劣
 - 優勢：
 
-	`Linux Subsystem`是**完整的**`Linux`發行版(`Bulid 14393.10`內置的子系統基於`Ubuntu 14.04`)。
-	`Linux Subsystem`直接使用Ubuntu官方源，能夠使用幾乎所有Ubuntu軟件包。
+	Linux Subsystem是**完整的**Linux發行版（`Bulid 14393.10`內置的子系統基於`Ubuntu 14.04`）。
+	Linux Subsystem直接使用Ubuntu官方源，能夠使用幾乎所有Ubuntu軟件包。
 
 - 劣勢：
 
-	`Linux Subsystem`需要使用`Bash Launcher`進入獨立的Linux環境。
-	`Linux Subsystem`環境與Windows環境相互獨立存在，
-	早期的LXSS幾乎與宿主的Windows系統幾乎不存在任何交互；
+	Linux Subsystem需要使用`Bash Launcher`進入獨立的Linux環境。
+	Linux Subsystem環境與Windows環境相互獨立存在，
+	早期的LXSS與宿主的Windows系統幾乎不存在任何交互；
 	1709版本之後有部分改進，WSL的Linux Shell可訪問Windows程序，但依舊存在較多限制。
-	`Linux Subsystem`下的Unix工具如同Linux原生程序一樣區分大小寫、不支持Windows格式的路徑。
+	Linux Subsystem下的Unix工具如同Linux原生程序一樣區分大小寫、不支持Windows格式的路徑。
 
-`Msys2`優劣
-
+## Msys2優劣
 - 優勢：
 
 	`MSYS2`將傳統Unix工具直接編譯爲`Windows PE32/PE32+`可執行格式，可直接在`CMD`中調用。
