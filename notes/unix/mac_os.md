@@ -46,6 +46,7 @@
 	- [Developer Path](#developer-path)
 - [System Integrity Protection (SIP)](#system-integrity-protection-sip)
 - [OCLP](#oclp)
+	- [OLCP休眠問題](#olcp休眠問題)
 - [常見問題](#常見問題)
 	- [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
 	- [更改默認應用程序](#更改默認應用程序)
@@ -73,7 +74,7 @@
 	- [macOS下Chrome的 NET::ERR_CERT_INVALID](#macos下chrome的-neterr_cert_invalid)
 	- [macOS默認終端下Powerline字體色彩顯示異常](#macos默認終端下powerline字體色彩顯示異常)
 	- [Launchpad無效圖標](#launchpad無效圖標)
-	- [Wireshark](#wireshark)
+	- [Wireshark無法抓包](#wireshark無法抓包)
 
 <!-- /TOC -->
 
@@ -1073,6 +1074,18 @@ $ brew install opencore-patcher
 
 升級系統完成後，系統鏡像APP會自動刪除，但Launchpad中可能會保留無效的APP圖標，常按刪除即可。
 
+## OLCP休眠問題
+安裝OLCP補丁後，系統休眠（通常默認使用`hibernatemode 3`）喚醒時可能異常，導致喚醒失敗直接關機，
+參考[GitHub Issues](https://github.com/dortania/OpenCore-Legacy-Patcher/issues/72)。
+
+有評論提出解決方法是使用`hibernatemode 0`休眠：
+
+```
+# pmset -a hibernatemode 0
+```
+
+但實際測試無效。。。
+
 
 
 # 常見問題
@@ -1325,14 +1338,14 @@ AC Power:
 tcpkeepalive選項值爲`1`代表改特性已啓用，啓用該特性會導致合蓋WIFI不關閉，進而休眠失敗。
 禁用tcpkeepalive特性：
 
-```c
-// 禁用電池供電時的tcpkeepalive特性
+```html
+<!-- 禁用電池供電時的tcpkeepalive特性 -->
 # pmset -b tcpkeepalive 0
 
-// 禁用電源供電時的tcpkeepalive特性
+<!-- 禁用電源供電時的tcpkeepalive特性 -->
 # pmset -c tcpkeepalive 0
 
-// 禁用所有電源策略下的tcpkeepalive特性
+<!-- 禁用所有電源策略下的tcpkeepalive特性 -->
 # pmset -a tcpkeepalive 0
 ```
 
@@ -1557,7 +1570,7 @@ macOS自帶終端顯示Powerline字體色彩問題暫無直接解決方案，
 
 點擊刪除按鈕即可刪除圖標。
 
-## Wireshark
+## Wireshark無法抓包
 問題描述：<br>
 安裝Wireshark，啟動後無法抓包，提示錯誤信息：
 
