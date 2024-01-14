@@ -1808,6 +1808,13 @@ $ source 虛擬環境路徑/bin/activate.fish
 
 若需要直接使用虛擬環境下的安裝的Python工具，可直接將虛擬環境下的bin子路徑加入PATH。
 
+進入venv環境後，使用`deactivate`指令可退出環境：
+
+```
+(venv) $ deactivate
+$
+```
+
 ## NixOS下venv模塊的軟連接問題
 NixOS下使用venv模塊創建虛擬環境，
 `$VENV_ROOT_PATH/bin/python3`會使用符號鏈接直接鏈接到具體的Nix軟件包路徑，

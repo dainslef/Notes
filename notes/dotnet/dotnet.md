@@ -155,8 +155,9 @@ dotnet工具支持.Net下的主流測試框架如`NUnit`、`xUnit`、`MSTest`等
 以MSTest為例，在項目中使用MSTest首先需要安裝相關依賴：
 
 ```
-$ dotnet add package MSTest.TestAdapter
 $ dotnet add package MSTest.TestFramework
+$ dotnet add package MSTest.TestAdapter
+$ dotnet add package Microsoft.NET.Test.Sdk
 ```
 
 測試代碼通常需要在解決方案中創建獨立的測試項目，以F#項目為例，使用了MSTest測試框架後，
