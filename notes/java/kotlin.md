@@ -9,6 +9,8 @@
 - [Function](#function)
 	- [函數參數默認值](#函數參數默認值)
 	- [參數默認值兼容Java重載（`@JvmOverloads`）](#參數默認值兼容java重載jvmoverloads)
+- [特色語法](#特色語法)
+	- [Lambda Receiver](#lambda-receiver)
 
 <!-- /TOC -->
 
@@ -250,3 +252,51 @@ public static final void kotlinOverload(float test3) {
    kotlinOverload$default((String)null, 0L, test3, 3, (Object)null);
 }
 ```
+
+
+
+# 特色語法
+Kotlin整體語言設計來自Scala2（子集），但依舊提供了一些特色功能。
+
+## Lambda Receiver
+Kotlin的Lambda簽名中可以限定Lambda的執行者類型，
+稱為[`Lambda Receiver`](https://kotlinlang.org/docs/lambdas.html#function-literals-with-receiver)，
+語法如下：
+
+```kt
+lamdba: Type.(ArgTypes...) -> ReturnType
+```
+
+使用此語法定義的Lambda只能用於在Receiver類型的對象上執行，
+同時Lambda內的this指針會被替換為Receiver對象。
+
+示例：
+
+```kt
+val lambda: StringBuilder.(String) -> String = {
+    // 作用域內this指針類型為StringBuilder
+    appendln() // 可直接調用StringBuilder的成員方法(僅可訪問共有成員)
+    appendln("One")
+    appendln("Two")
+    appendln("Three")
+    appendln(it)
+    toString()
+}
+StringBuilder("Start:").lambda("End.")
+```
+
+輸出內容：
+
+```
+Start:
+One
+Two
+Three
+End.
+```
+
+Lambda Receiver使得Kotlin擁有比Scala更強的DSL能力，
+是Kotlin中少數相比Scala設計更加優秀的特性。
+
+Scala3採用**隱式參數**的方式提供了近似Lambda Receiver的DSL能力，
+但從結構設計來看，概念和語法更加複雜，使用亦較為不便，不如Kotlin的Lambda Receiver簡潔直觀。
