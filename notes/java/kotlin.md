@@ -11,6 +11,8 @@
 	- [參數默認值兼容Java重載（`@JvmOverloads`）](#參數默認值兼容java重載jvmoverloads)
 - [特色語法](#特色語法)
 	- [Lambda Receiver](#lambda-receiver)
+	- [Scope Functions（作用域函數）](#scope-functions作用域函數)
+	- [其它輔助擴展函數](#其它輔助擴展函數)
 
 <!-- /TOC -->
 
@@ -300,3 +302,59 @@ Lambda Receiver使得Kotlin擁有比Scala更強的DSL能力，
 
 Scala3採用**隱式參數**的方式提供了近似Lambda Receiver的DSL能力，
 但從結構設計來看，概念和語法更加複雜，使用亦較為不便，不如Kotlin的Lambda Receiver簡潔直觀。
+
+## Scope Functions（作用域函數）
+基於Extension Functions和Lambda Receiver特性，Kotlin標準庫中進一步提供了一系列
+[Scope Functions（作用域函數）](https://kotlinlang.org/docs/scope-functions.html)。
+
+相關函數定義：
+
+```kt
+public inline fun <T, R> with(receiver: T, block: T.() -> R): R { ... }
+public inline fun <T> T.apply(block: T.() -> Unit): T { ... }
+public inline fun <T> T.also(block: (T) -> Unit): T { ... }
+public inline fun <T, R> T.run(block: T.() -> R): R { ... }
+public inline fun <T, R> T.let(block: (T) -> R): R { ... }
+```
+
+作用域函數主要分為三組:
+
+- `apply()/also()`
+
+	apply()以及also()函數返回調用者本體。
+
+	apply()的參數Lambda表達式中，調用者作為Lambda Receiver傳入；
+	also()的參數Lambda表達式中，調用者以普通參數傳入。
+
+- `run()/let()`
+
+	run()以及let()函數返回Lambda的執行結果。
+
+	run()的參數Lambda表達式中，調用者作為Lambda Receiver傳入；
+	let()的參數Lambda表達式中，調用者以普通參數傳入。
+
+- `with()`
+
+	with()函數則復刻了JavaScript中
+	[`with`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/with)
+	關鍵字的用法。
+
+作用域函數提升了Kotlin語法的表現力，使用作用域函數，可使得代碼更加簡潔、緊湊。
+
+## 其它輔助擴展函數
+Kotlin標準庫還提供了替代try with resource語法的`use()`擴展函數：
+
+```kt
+inline fun <T : Closeable?, R> T.use(block: (T) -> R): R
+```
+
+以及簡化鎖使用的lock()系列函數：
+
+```kt
+// 類似C++的RAII，在Scope內持有鎖，出作用域釋放
+inline fun <T> Lock.withLock(action: () -> T): T
+
+// 簡化讀寫鎖操作
+fun <T> ReentrantReadWriteLock.read(action: () -> T): T
+fun <T> ReentrantReadWriteLock.write(action: () -> T): T
+```
