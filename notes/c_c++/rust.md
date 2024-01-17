@@ -36,6 +36,7 @@
 	- [Cell / RefCell](#cell--refcell)
 - [全局變量](#全局變量)
 	- [const_item_mutation](#const_item_mutation)
+	- [Lazy類型（單例）](#lazy類型單例)
 
 <!-- /TOC -->
 
@@ -971,3 +972,40 @@ CONST_DATA: []
 STATIC_DATA: []
 STATIC_DATA: [100]
 ```
+
+## Lazy類型（單例）
+Rust標準庫中早期並未提供Lazy類型的直接支持，
+早期多使用[`lazy_static`](https://crates.io/crates/lazy_static)庫；
+之後逐漸被[`once_cell`](https://github.com/matklad/once_cell)庫取代，
+once_cell相比lazy_static，不使用宏，而是直接使用Lambda進行初始化操作，更加簡潔明瞭。
+之後once_cell被吸收進標準庫，但目前（`Rust 1.66`）仍處於Nightly狀態。
+
+once_cell中的Lazy類型分為線程安全/非安全版本，且在標準庫中的類型名稱有所變化：
+
+- `once_cell::sync::Lazy`，線程安全版本，在標準庫中為`std::sync::LazyLock`
+- `once_cell::unsync::Lazy`，非線程安全版本，在標準庫中為`std::cell::LazyCell`
+
+基本操作如下：
+
+```rust
+use once_cell::sync::Lazy;
+
+static HASHMAP: Lazy<String> = Lazy::new(|| { "FuckCCP!".into() });
+```
+
+Lazy類型簽名為`Lazy<T, F = fn() -> T>`，構造器定義為：
+
+```rs
+impl<T, F> Lazy<T, F> {
+  ...
+  /// Creates a new lazy value with the given initializing
+  /// function.
+  pub const fn new(f: F) -> Lazy<T, F> {
+      Lazy { cell: OnceCell::new(), init: Cell::new(Some(f)) }
+  }
+  ...
+}
+```
+
+構造器僅能接收無参普通函數，並不能接收閉包；
+Lazy的new()函數為const函數，但作為參數的構造器函數並無限制，函數返回值可以為普通類型。
