@@ -295,24 +295,26 @@ mysql> create user 用戶名;
 mysql> create user 用戶名@'%';
 ```
 
-创建用户时可以指定密码：
-
-```sql
-mysql> create user 用戶名@'%' identified by '密码';
-```
-
 創建本地用戶：
 
 ```sql
 mysql> create user 用戶名@localhost;
 ```
 
+创建用户时可以指定密码：
+
+```sql
+mysql> create user 用戶名@'主機' identified by '密码';
+# 修改用戶密碼操作類似
+mysql> alter user 用戶名@'主機' identified by '新密碼';
+```
+
 MySQL中同名本地用戶與遠程用戶間沒有關聯，本地用戶與遠程用戶密碼、權限等各自獨立。
 
 刪除用戶操作類似，使用`drop user`指令：
 
-```
-mysql> drop user 用戶名@主機名/主機地址;
+```sql
+mysql> drop user 用戶名@'主機';
 ```
 
 ### 授權用戶
@@ -381,21 +383,21 @@ Use: "mysqladmin flush-privileges password '*'" instead
 $ mysqladmin -u 用戶名 -p flush-privileges password '密碼內容'
 ```
 
-用戶密碼存儲在`mysql.user`表中，因此還可采用更新表字段的方式來更新密碼。
-登入數據庫之後，在數據庫命令行中輸入：
+亦可直接在數據庫中執行指令修改密碼：
+
+```sql
+mysql> alter user 用戶名@'主機' identified by '新密碼';
+```
+
+在`MySQL 8.0`之前，可使用`set password`指令修改密碼：
 
 ```sql
 mysql> set password = password('密碼內容')
 ```
 
-在`MySQL 8.0`之後，密碼不可使用`set password = password('xxx')`的方式修改，但新增了如下修改方式：
-
-```sql
-mysql> use mysql;
-mysql> alter user '用戶名'@'主機' identified with mysql_native_password by '新密碼';
-```
-
-在`MySQL 5.6`及以下版本，密碼列名稱為`password`，`MySQL 5.7`及之後版本密碼列為`authentication_string`。
+用戶密碼存儲在`mysql.user`表中，因此還可采用更新表字段的方式來更新密碼；
+`MySQL 5.6`及以下版本，密碼列名稱為`password`，
+`MySQL 5.7`及之後版本密碼列為`authentication_string`。
 
 ```sql
 -- MySQL 5.6-
@@ -809,7 +811,17 @@ DATETIME/TIMESTAMP標準時間格式為`YYYY-MM-DD hh:mm:ss[.fraction]`，
 DATETIME時間範圍為`1000-01-01 00:00:00`到`9999-12-31 23:59:59`，
 TIMESTAMP時間範圍為`1970-01-01 00:00:01`到`2038-01-19 03:14:07`。
 
-二者均支持使用CURRENT_TIMESTAMP設置默認值，並可設置自動更新：
+二者均支持使用CURRENT_TIMESTAMP設置默認值：
+
+```sql
+CREATE TABLE t1 (
+  ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
+  dt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+僅設置默認值會在數據插入時設置時間戳（之後更新操作時不再變化），
+可設置時間隨更新操作自動更新：
 
 ```sql
 CREATE TABLE t1 (
@@ -840,7 +852,7 @@ TIMESTAMP(6)
 ```
 
 使用CURRENT_TIMESTAMP為時間設置默認值時，需要與時間精度匹配，
-即DATETIME(3)對應使用CURRENT_TIMESTAMP(3)，TIMESTAMP(6)對應使用CURRENT_TIMESTAMP(6)。
+即DATETIME(3)對應使用`CURRENT_TIMESTAMP(3)`，TIMESTAMP(6)對應使用`CURRENT_TIMESTAMP(6)`。
 
 
 
