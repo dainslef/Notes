@@ -50,6 +50,8 @@
 - [FEDERATED 存儲引擎](#federated-存儲引擎)
 	- [啟用FEDERATED引擎](#啟用federated引擎)
 	- [創建FEDERATED表](#創建federated表)
+- [Data-at-Rest Encryption（靜態加密）](#data-at-rest-encryption靜態加密)
+	- [啟用keyring_file插件](#啟用keyring_file插件)
 - [常用功能和配置](#常用功能和配置)
 	- [導出數據](#導出數據)
 	- [導入數據](#導入數據)
@@ -1063,6 +1065,50 @@ scheme://user_name[:password]@host_name[:port_num]/db_name/tbl_name
 - `port_num`（可選） 遠程數據庫實例監聽的端口號
 - `db_name` 遠程表所處的遠程數據庫名稱
 - `tbl_name` 遠程表的表名，本地表與關聯的遠程表表名稱不需要一致
+
+
+
+# Data-at-Rest Encryption（靜態加密）
+`MySQL 5.7`開始支持InnoDB存儲引擎的靜態加密，
+詳細說明可參考[官方文檔](https://dev.mysql.com/doc/refman/en/innodb-data-encryption.html#innodb-schema-tablespace-encryption-default)。
+
+InnoDB使用兩層加密架構，包括**主加密密鑰（master encryption key）**和**表空間密鑰（tablespace keys）**。
+當一個表空間被加密，表空間密鑰被加密存儲在**表空間頭(tablespace header)**中。
+當應用或認證的用戶訪問加密數據時，InnoDB使用主加密密鑰解密表空間密鑰。
+解密後的表空間密鑰不會改變，但主加密密鑰可按需求更改，更改操作被稱為**主密鑰輪換（master key rotation）**。
+
+MySQL的靜態加密特性依賴與密鑰插件（keyring plugin）進行主密鑰加密管理。
+
+所有版本的MySQL均提供了`keyring_file`插件，將密鑰數據存儲在服務端的本地文件中。
+企業版的MySQL額外提供了`keyring_encrypted_file`、`keyring_okv`、`keyring_aws`等插件。
+
+數據靜態加密特性支持AES（Advanced Encryption Standard）加密算法。
+
+## 啟用keyring_file插件
+`keyring_file`插件默認已被包含在MySQL中，但默認不啟用，
+在MySQL配置的`[mysqld]`配置段中添加下列配置：
+
+```ini
+[mysqld]
+early-plugin-load = keyring_file.so # 設定加載keyring_file插件
+keyring_file_data = /var/lib/mysql-keyring/keyring # Debian係發行版key默認存放該位置，可替換為其它路徑
+```
+
+配置需要重啟MySQL服務生效。重啟服務後，查詢插件的啟用狀態：
+
+```sql
+mysql> SELECT PLUGIN_NAME, PLUGIN_STATUS, PLUGIN_LIBRARY FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME LIKE 'keyring%';
++--------------+---------------+-----------------+
+| PLUGIN_NAME  | PLUGIN_STATUS | PLUGIN_LIBRARY  |
++--------------+---------------+-----------------+
+| keyring_file | ACTIVE        | keyring_file.so |
++--------------+---------------+-----------------+
+1 row in set (0.00 sec)
+```
+
+keyring_file的PLUGIN_STATUS為ACTIVE則代表插件已成功啟用。
+
+關於keyring_file插件更詳細的說明參考[官方文檔](https://dev.mysql.com/doc/refman/en/keyring-file-plugin.html)
 
 
 
