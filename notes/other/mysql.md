@@ -52,6 +52,8 @@
 	- [創建FEDERATED表](#創建federated表)
 - [Data-at-Rest Encryption（靜態加密）](#data-at-rest-encryption靜態加密)
 	- [啟用keyring_file插件](#啟用keyring_file插件)
+	- [啟用/禁用表格加密](#啟用禁用表格加密)
+	- [Master Key Rotation（主密鑰輪換）](#master-key-rotation主密鑰輪換)
 - [常用功能和配置](#常用功能和配置)
 	- [導出數據](#導出數據)
 	- [導入數據](#導入數據)
@@ -1109,6 +1111,52 @@ mysql> SELECT PLUGIN_NAME, PLUGIN_STATUS, PLUGIN_LIBRARY FROM INFORMATION_SCHEMA
 keyring_file的PLUGIN_STATUS為ACTIVE則代表插件已成功啟用。
 
 關於keyring_file插件更詳細的說明參考[官方文檔](https://dev.mysql.com/doc/refman/en/keyring-file-plugin.html)
+
+## 啟用/禁用表格加密
+在創建表格時，添加`ENCRYPTION = 'Y'`參數即可開啟加密支持：
+
+```sql
+-- 創建加密表格
+mysql> CREATE TABLE Test.test (c1 INT) ENCRYPTION = 'Y';
+Query OK, 0 rows affected (0.03 sec)
+
+-- 查詢表格的加密狀態
+mysql> SELECT TABLE_SCHEMA, TABLE_NAME, CREATE_OPTIONS FROM INFORMATION_SCHEMA.TABLES WHERE CREATE_OPTIONS LIKE '%ENCRYPTION%';
++--------------+------------+----------------+
+| TABLE_SCHEMA | TABLE_NAME | CREATE_OPTIONS |
++--------------+------------+----------------+
+| Test         | test       | ENCRYPTION="Y" |
++--------------+------------+----------------+
+1 row in set (0.01 sec)
+```
+
+修改已存在表格的加密狀態：
+
+```sql
+-- 啟用表格加密
+mysql> ALTER TABLE Test.test ENCRYPTION = 'Y';
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+-- 禁用表格加密
+mysql> ALTER TABLE Test.test ENCRYPTION = 'N';
+Query OK, 0 rows affected (0.03 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+```
+
+`MySQL 5.7`僅支持單表加密（file-per-table tablespaces），
+`MySQL 8.0`中引入了數據庫加密，全局加密等機制。
+
+## Master Key Rotation（主密鑰輪換）
+當懷疑主加密密鑰被洩露時，密鑰應該被定期輪換，執行操作：
+
+```sql
+mysql> ALTER INSTANCE ROTATE INNODB MASTER KEY;
+Query OK, 0 rows affected (0.01 sec)
+```
+
+主加密密鑰輪換是原子性（atomic）、實例級（instance-level）的操作。
+每次主密鑰輪換，所有表空間密鑰會重新生成，並保存到對應的表空間頭中。
 
 
 
