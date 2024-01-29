@@ -37,6 +37,8 @@
 - [全局變量](#全局變量)
 	- [const_item_mutation](#const_item_mutation)
 	- [Lazy類型（單例）](#lazy類型單例)
+- [格式化輸出](#格式化輸出)
+	- [字符串插值](#字符串插值)
 
 <!-- /TOC -->
 
@@ -1009,3 +1011,75 @@ impl<T, F> Lazy<T, F> {
 
 構造器僅能接收無参普通函數，並不能接收閉包；
 Lazy的new()函數為const函數，但作為參數的構造器函數並無限制，函數返回值可以為普通類型。
+
+
+
+# 格式化輸出
+Rust中格式化輸出相關內容位於[`std::fmt`](https://doc.rust-lang.org/std/fmt/)。
+
+常用格式化方式如下：
+
+- `{}` 需要目標實現`std::fmt::Display`特質
+- `{:?}` 需要目標實現`std::fmt::Debug`特質
+- `{:#?}` 需要目標實現`std::fmt::Debug`特質，美化輸出（輸出內容換行、縮緊）
+
+格式化可用於`format!`、`println!`等標準庫中的宏，以及日誌庫`log`，示例：
+
+```rs
+format!("Hello");                 // => "Hello"
+format!("Hello, {}!", "world");   // => "Hello, world!"
+format!("The number is {}", 1);   // => "The number is 1"
+format!("{:?}", (3, 4));          // => "(3, 4)"
+format!("{value}", value=4);      // => "4"
+let people = "Rustaceans";
+format!("Hello {people}!");       // => "Hello Rustaceans!"
+format!("{} {}", 1, 2);           // => "1 2"
+format!("{:04}", 42);             // => "0042" with leading zeros
+format!("{:#?}", (100, 200));     // => "(
+                                  //       100,
+                                  //       200,
+                                  //     )"
+```
+
+## 字符串插值
+自[`Rust 1.58`](https://blog.rust-lang.org/2022/01/13/Rust-1.58.0.html)開始，
+Rust部分支持字符串插值特性。
+
+與傳統語言的字符串插值實現不同，Rust中的插值特性被稱為`Captured Identifiers`，
+僅支持在格式化輸出相關的宏（`println!`、`format!`等）中使用，而非直接支持任意位置的字符串插值。
+
+Rust的插值特性示例：
+
+```rust
+>> let t = "test";
+>> println!("test: {t}");
+>> test: test
+// 不支持在插值語句中使用表達式，僅能直接捕獲字段
+>> println!("test: {t.to_string()}");
+                      expected `}` in format string
+                   ^ because of this opening brace
+invalid format string: expected `'}'`, found `'.'`
+
+>> #[derive(Debug)] struct Test(String);
+>> let t = Test("test".into());
+// 僅能輸出實現了Display特質的變量，實現Debug特質的類型不可直接使用該語法輸出
+>> println!("test: {t}");
+                   ^^^ `Test` cannot be formatted with the default formatter
+`Test` doesn't implement `std::fmt::Display`
+help: the trait `std::fmt::Display` is not implemented for `Test`
+// 實現Debug特質的類型需要在插值字段之後添加與酒語法類似的格式化字符
+>> println!("test: {t:?}");
+test: Test("test")
+```
+
+Rust的插值特性不支持表達式插值：
+
+```rust
+>> let n = 1;
+>> println!("n: {n}");
+>> n: 1
+>> println!("n + 1: {n + 1}");
+                        expected `}` in format string
+                    ^ because of this opening brace
+invalid format string: expected `'}'`, found `'+'`
+```
