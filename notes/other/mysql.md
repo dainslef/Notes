@@ -54,6 +54,8 @@
 	- [啟用keyring_file插件](#啟用keyring_file插件)
 	- [啟用/禁用表格加密](#啟用禁用表格加密)
 	- [Master Key Rotation（主密鑰輪換）](#master-key-rotation主密鑰輪換)
+- [MySQL高可用](#mysql高可用)
+	- [Replication（複製）](#replication複製)
 - [常用功能和配置](#常用功能和配置)
 	- [導出數據](#導出數據)
 	- [導入數據](#導入數據)
@@ -1157,6 +1159,140 @@ Query OK, 0 rows affected (0.01 sec)
 
 主加密密鑰輪換是原子性（atomic）、實例級（instance-level）的操作。
 每次主密鑰輪換，所有表空間密鑰會重新生成，並保存到對應的表空間頭中。
+
+
+
+# MySQL高可用
+MySQL提供了多種高可用方案，包括Galera Cluster、Replication、Group Replication等。
+
+## Replication（複製）
+[Replication](https://dev.mysql.com/doc/refman/en/replication.html)是MySQL中傳統的數據同步機制。
+相關配置項參見[官方文檔](https://dev.mysql.com/doc/refman/en/replication-options-binary-log.html)。
+
+MySQL中的複製基於binlog機制（默認已開啟，除非顯式使用skip_log_bin關閉），
+需要為每個源設置唯一的server ID，配置項：
+
+```ini
+[mysqld]
+...
+server_id = 1 # 每個MySQL實例需要不同的ID
+log-bin = /var/log/mysql/mysql-bin.log # 自定義binlog基礎名稱，可以為路徑
+...
+```
+
+MySQL默認會啟用`log_slave_updates`（MySQL 8.0.26後改為`log_replica_updates`），
+該配置用於控制replica server收到的更新是否應該寫入自身的binlog。
+
+根據業務需求配置需要同步的數據庫/表：
+
+```ini
+[mysqld]
+# Master設置哪些數據庫寫入binlog
+binlog-do-db = ...
+binlog-ignore-db = ...
+
+# Slave設置接收哪些binlog數據
+replicate-do-db = ...
+replicate-do-table = ...
+replicate-ignore-db = ...
+replicate-ignore-table = ...
+```
+
+注意binlog-do-db/replicate-do-db等參數每行僅能添加單個數據庫/表名稱，
+配置多個數據庫/表需要多行寫入配置。
+
+之後在作為備份的數據庫（Slave）中設置複製來源（Master），並將本機啟動為slave：
+
+```sql
+-- 備機配置數據的複製目標
+-- 用於傳輸數據的帳號需要具有 REPLICATION SLAVE 權限
+mysql> change master to master_host='x.x.x.x', master_user='user', master_password='password';
+
+-- 將本機啟動為slave
+mysql> start slave;
+
+-- 查看slave狀態
+-- 直接使用 show master status; 會以表格輸出結果，但不便於觀看
+mysql> show slave status\G
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: x.x.x.x
+                  Master_User: user
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000007
+          Read_Master_Log_Pos: 1226609
+               Relay_Log_File: tsc1-relay-bin.000019
+                Relay_Log_Pos: 21531
+        Relay_Master_Log_File: mysql-bin.000007
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB: aaa,bbb,ccc
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 1226609
+              Relay_Log_Space: 21903
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 2
+                  Master_UUID: 29084997-6989-11ec-8437-3868dd696de8
+             Master_Info_File: /opt/mysql/master.info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind:
+      Last_IO_Error_Timestamp:
+     Last_SQL_Error_Timestamp:
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Master_TLS_Version:
+1 row in set (0.01 sec)
+
+-- 展示master狀態
+mysql> show master status\G
+*************************** 1. row ***************************
+             File: mysql-bin.000010
+         Position: 1262268
+     Binlog_Do_DB: MDM_Common,MDM_AppStore,MDM_TerminalControl
+ Binlog_Ignore_DB:
+Executed_Gtid_Set:
+1 row in set (0.00 sec)
+```
+
+master機器信息亦可配置在數據庫配置中：
+
+```ini
+[mysqld]
+master-host = x.x.x.x
+master-user = user
+master-password = password
+```
 
 
 
