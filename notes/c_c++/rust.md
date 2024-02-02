@@ -39,6 +39,11 @@
 	- [Lazy類型（單例）](#lazy類型單例)
 - [格式化輸出](#格式化輸出)
 	- [字符串插值](#字符串插值)
+- [錯誤處理](#錯誤處理)
+	- [Option](#option)
+	- [Result](#result)
+		- [Result::expect()](#resultexpect)
+		- [std::error::Error](#stderrorerror)
 
 <!-- /TOC -->
 
@@ -1083,3 +1088,45 @@ Rust的插值特性不支持表達式插值：
                     ^ because of this opening brace
 invalid format string: expected `'}'`, found `'+'`
 ```
+
+
+
+# 錯誤處理
+Rust中將程序運行中的異常、錯誤劃分為幾類，分別對應不同的處理方式：
+（參考[The Rustonomicon](https://doc.rust-lang.org/nomicon/unwinding.html)）
+
+- `Option` 用於某些值可能不存在的場景
+- `Result` 用於原因明確可處理的錯誤
+- `panic!` 用於無法處理的錯誤
+
+對於Option/Result類型，Rust中提供了語法糖
+[`?`操作符](https://doc.rust-lang.org/rust-by-example/std/result/question_mark.html)，
+可簡化值檢查的相關表達。
+
+`?`操作符目前僅支持標準庫中的Option/Result類型，
+未來版本可通過實現[`std::ops::Try`](https://doc.rust-lang.org/std/ops/trait.Try.html)
+添加自定義類型的實現（目前尚未Stable）。
+
+## Option
+Option表示可能不存在的值，Rust默認類型**不可**為空值，Safe模式下所有可空的類型都要顯式標註，
+相比傳統語言隱式可空，Rust的處理方式更加安全。
+
+Rust中的Option類型概念來自Scala、Haskell等函數式語言，用法類似。
+
+## Result
+Rust不使用傳統OOP語言的異常機制傳遞錯誤，
+而是使用函數風格的`Result<T, E>`結構來直接描述可能產生錯誤的結果，
+T代表正常返回值，E代表產生的錯誤。
+
+### Result::expect()
+Option和Result均提供了expect()方法，用於提取包裝的值，
+當目標值不存在時，panic當前線程，並打印錯誤信息。
+
+anyhow庫提供了更好的提取方式，不panic線程而是重新生成一致的anyhow錯誤，
+參考[anyhow Content](#anyhow-content)。
+
+### std::error::Error
+Rust中提供了標準異常特質[std::error::Error](https://doc.rust-lang.org/std/error/trait.Error.html)，
+規範了異常結構需要實現的方法。
+
+默認Rust會關閉異常的調用棧信息，可設置環境變量`RUST_BACKTRACE`為`1`開啟異常調用棧。
