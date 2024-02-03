@@ -44,6 +44,10 @@
 	- [Result](#result)
 		- [Result::expect()](#resultexpect)
 		- [std::error::Error](#stderrorerror)
+	- [anyhow](#anyhow)
+		- [anyhow基本使用](#anyhow基本使用)
+		- [anyhow! bail!](#anyhow-bail)
+		- [anyhow Content](#anyhow-content)
 
 <!-- /TOC -->
 
@@ -1130,3 +1134,86 @@ Rust中提供了標準異常特質[std::error::Error](https://doc.rust-lang.org/
 規範了異常結構需要實現的方法。
 
 默認Rust會關閉異常的調用棧信息，可設置環境變量`RUST_BACKTRACE`為`1`開啟異常調用棧。
+
+## anyhow
+Result機制的一大缺陷是不同第三方庫通常提供不同的錯誤類型，多數場景下需要手動轉換，較爲不便。
+[`anyhow`](https://github.com/dtolnay/anyhow)可將任意Result類型轉化爲anyhow提供的anyhow::Result類型。
+
+`anyhow::Result`的定義為：
+
+```rs
+pub type Result<T, E = Error> = core::result::Result<T, E>;
+```
+
+anyhow::Result是標準庫中Result的別名，但錯誤類型綁定為`anyhow::Error`結構體，
+anyhow::Error結構體實現了`std::error::Error`特質。
+
+### anyhow基本使用
+將函數的返回值替換為`anyhow::Result<...>`，
+則其它Error實現了`std::error::Error`的Result類型均可使用`?`操作符轉換：
+
+```rs
+use anyhow::Result;
+
+fn get_cluster_info() -> Result<ClusterMap> {
+  let config = std::fs::read_to_string("cluster.json")?;
+  let map: ClusterMap = serde_json::from_str(&config)?;
+  Ok(map)
+}
+```
+
+anyhow內置了`std::backtrace`支持，可獲取錯誤信息堆棧，方便定位錯誤產生的原始位置。
+
+### anyhow! bail!
+anyhow提供了兩個常用宏，`anyhow!`用於生成`anyhow::Error`類型的錯誤信息，可放置在`anyhow::Result`中：
+
+```rs
+anyhow::Err(anyhow!("Find xxx error ..."))
+```
+
+`bail!`宏用於立即返回錯誤：
+
+```rs
+bail!("Find xxx error ...");
+
+// 等價於
+return Err(anyhow!("Find xxx error ..."));
+```
+
+### anyhow Content
+anyhow為標準庫的`Option`和`Result`類型實現了
+[Content](https://docs.rs/anyhow/latest/anyhow/trait.Context.html#)
+特質，可用於Option/Result結果的內容提取，提取失敗時設置錯誤訊息：
+
+```rs
+#[test]
+fn test_error() {
+  use anyhow::{Context, Ok};
+
+  fn error1() -> anyhow::Result<()> {
+    let some: Option<usize> = None;
+    let _ = some.context(format!("Error1: {some:?}"))?; // 設置錯誤訊息
+    Ok(())
+  }
+
+  fn error2() -> anyhow::Result<()> {
+    let some: Option<usize> = None;
+    let _ = some.with_context(|| format!("Error2: {some:?}"))?;
+    Ok(())
+  }
+
+  let (e1, e2) = (error1(), error2());
+  println!("{e1:?}");
+  println!("{e2:?}");
+}
+```
+
+執行測試，並輸出結果：
+
+```
+$ cargo test -- --nocapture test_error
+running 1 test
+Err(Error1: None)
+Err(Error2: None)
+test common::test_error ... ok
+```
