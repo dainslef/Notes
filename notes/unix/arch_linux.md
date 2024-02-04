@@ -16,6 +16,7 @@
 		- [pacman操作](#pacman操作)
 		- [pacman配置](#pacman配置)
 		- [pacman-contrib](#pacman-contrib)
+		- [無效密鑰問題](#無效密鑰問題)
 	- [降級軟件包](#降級軟件包)
 
 <!-- /TOC -->
@@ -284,6 +285,31 @@ $ pactree 軟件包
 
 <!-- 查看軟件包的反向依賴 -->
 $ pactree -r 軟件包
+```
+
+### 無效密鑰問題
+在更新系統時，有時會出現軟件包密鑰無效提示：
+
+```
+...
+error: zlib: signature from "xxx <xxx@xxx.com>" is unknown trust
+:: File /var/cache/pacman/pkg/xxx.pkg.tar.zst is corrupted (invalid or corrupted package (PGP signature)).
+Do you want to delete it? [Y/n]
+...
+```
+
+通常是由於ArchLinux自身軟件倉庫的密鑰變更造成的，
+更新內容中通常包含`archlinux-keyring`軟件包，
+解決方案是優先單獨升級該軟件包：
+
+```
+# pacman -Su archlinux-keyring
+```
+
+若archlinux-keyring軟件包已為最新，則可嘗試重新加載key：
+
+```
+# pacman-key --populate
 ```
 
 ## 降級軟件包
