@@ -37,6 +37,7 @@
 	- [DaemonSet](#daemonset)
 	- [Ingress](#ingress)
 		- [NGINX Igress Controller](#nginx-igress-controller)
+	- [server-snippet](#server-snippet)
 		- [Ingress 503](#ingress-503)
 - [DNS](#dns)
 	- [配置DNS策略](#配置dns策略)
@@ -984,6 +985,7 @@ NGINX Igress Controller在`spec.rules.http.paths.path`中支持使用正則表�
 捕獲的內容在`metadata.annotations.nginx.ingress.kubernetes.io/rewrite-target`
 中可使用`$1`、`$2`等變量名獲取對應位置的捕獲內容來構成轉發後的URL。
 
+## server-snippet
 使用`metadata.annotations.nginx.ingress.kubernetes.io/server-snippet`
 可直接向生成的nginx.conf中添加配置內容，示例：
 
@@ -1009,6 +1011,13 @@ spec:
 NGINX Igress Controller中使用的路徑匹配和proxy_pass轉發與標準NGINX中存在一些差異，
 參見[StackOverflow](https://stackoverflow.com/questions/63275239/kubernetes-nginx-ingress-server-snippet-annotation-not-taking-effect)
 上的對應問題。
+
+從`NGINX Igress Controller 1.9`版本開始，默認禁用了server-snippet，
+需要設置`allow-snippet-annotations`才能使用，
+相關問題參見[GitHub Issues](https://github.com/kubernetes/ingress-nginx/issues/10452)；
+相關配置參見[GitHub文檔](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/configmap.md#allow-snippet-annotations)。
+
+使用Helm安裝NGINX Igress Controller需要搭配使用`--set controller.allowSnippetAnnotations=true`參數。
 
 ### Ingress 503
 Ingress中轉發的目標服務需要與Ingress本體位於同一命名空間，否則會出現503錯誤。
