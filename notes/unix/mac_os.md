@@ -1078,13 +1078,19 @@ $ brew install opencore-patcher
 安裝OLCP補丁後，系統休眠（通常默認使用`hibernatemode 3`）喚醒時可能異常，導致喚醒失敗直接關機，
 參考[GitHub Issues](https://github.com/dortania/OpenCore-Legacy-Patcher/issues/72)。
 
-有評論提出解決方法是使用`hibernatemode 0`休眠：
+相關解決方案參考
+[官方文檔](https://dortania.github.io/OpenCore-Post-Install/universal/sleep.html#preparations)，
+修改下述配置項：
 
-```
-# pmset -a hibernatemode 0
+```html
+# pmset autopoweroff 0 <!-- 設置休眠模式 -->
+# pmset powernap 0 <!-- 禁用週期性喚醒 -->
+# pmset standby 0 <!-- 禁用週期性睡眠和休眠 -->
+# pmset proximitywake 0 <!-- 禁用來自iPhone/iWatch等設備的喚醒 -->
+# pmset tcpkeepalive 0 <!-- 禁用TCP Keep Alive的喚醒 -->
 ```
 
-但實際測試無效。。。
+實測有效。
 
 
 
