@@ -12,6 +12,7 @@
 	- [Kolla Ansible部署問題](#kolla-ansible部署問題)
 		- [Python依賴](#python依賴)
 		- [網卡IP地址](#網卡ip地址)
+		- [清理指定組件](#清理指定組件)
 		- [清理部署環境](#清理部署環境)
 		- [RabbitMQ部署問題](#rabbitmq部署問題)
 
@@ -185,7 +186,7 @@ glance, keystone, neutron, nova, heat, horizon
 
 <!-- 順利通過檢查後可執行部署操作 -->
 # kolla-ansible -i ./all-in-one deploy
-# kolla-ansible -i ./all-in-one deploy --tags 組建名稱 <!-- 可單獨部署部分內容 -->
+# kolla-ansible -i ./all-in-one deploy --tags 組件名稱 <!-- 可單獨部署部分內容 -->
 
 <!-- 部署操作順利完成後，執行後置部署操作 -->
 # kolla-ansible -i ./all-in-one post-deploy <!-- 會在 /etc/kolla 路徑下生成 admin-openrc.sh 以及clouds.yaml 文件 -->
@@ -284,10 +285,35 @@ Debian發行版中，需要使用包管理器安裝`python3-docker`、`python3-d
 需要相關網卡的地址與配置文件中**完全對應**，若相關網卡存在多個IP地址，
 需要保證首IP的地址為配置文件中配置的地址，否則部署流程會出現各種異常。
 
+### 清理指定組件
+從部署中清理指定組件，需要刪除對應組件的相關內容：
+
+- 容器
+- 容器卷
+- 組件配置目錄（`/etc/kolla/組件名稱`）
+- 組件日誌目錄（`/var/log/kolla/組件名稱`）
+- 數據庫中對應組件的Schema
+
+清理相關組件的上述內容後，編輯globals.yml，取消對應組件的相關配置（enable_xxx等），
+之後reconfigure集群。
+
 ### 清理部署環境
-清理Kolla Ansible部署，除了刪除所有容器（`docker ps | xargs docker rm -f`），
-還需要刪除對應的卷（`docker volume ls | xargs docker volume rm`），
-Docker卷存儲了之前集群的數據，並不會刪除，
+完整清理Kolla Ansible部署環境，除了刪除所有容器，還需要刪除對應的卷，
+以及生成的配置和日誌和對應的MariaDB數據庫：
+
+```html
+<!-- 移除全部容器 -->
+# docker ps -a --format "{{.Names}}" | xargs docker rm -f
+<!-- 移除全部卷 -->
+# docker volume ls --format "{{.Name}}" | xargs docker volume rm
+
+<!-- 移除配置文件（保留配置和密碼文件如globals.yml以及passwords.yml） -->
+# rm -rf /etc/kolla/*
+<!-- 移除日誌 -->
+# rm -rf /var/log/kolla/*
+```
+
+Docker卷存儲了之前集群的數據，並不會刪除。
 在重複部署時會繼續使用這些的容器卷，進而造成各類錯誤。
 
 如mariadb容器繼續使用之前的卷會導致數據庫的密碼不匹配：
