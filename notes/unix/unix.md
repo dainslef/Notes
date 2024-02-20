@@ -3012,8 +3012,11 @@ systemd提供了一系列工具用於查看查看、分析各類服務狀態。
 
 
 ```html
-$ systemctl status <!-- 列出系統服務依賴樹 -->
+<!-- 列出當前系統服務依賴樹 -->
+$ systemctl status
 
+<!-- 查看各類服務狀態 -->
+$ systemctl list-jobs <!-- 列出當前正在執行的作業 -->
 $ systemctl list-units <!-- 列出已加載的服務單元信息 -->
 $ systemctl list-dependencies <!-- 列出已加載服務單元的依賴關係 -->
 $ systemctl list-timers <!-- 列出定時任務 -->
@@ -3029,6 +3032,17 @@ $ systemctl list-units -t 服務類型 <!-- 查看指定類型的服務信息 --
 $ systemd-analyze <!-- 顯示系統的啓動耗時 -->
 $ systemd-analyze blame <!-- 列出所有的啓動單元，按照啓動耗時的高低進行排序 -->
 ```
+
+服務問題分析：
+
+1. 首先使用`systemctl status`查看當前系統服務依賴樹，觀察`State`狀態，
+正常啟動完畢的系統狀態為`runing`，正在啟動中的系統狀態為`starting`。
+2. 若系統狀態長時間處於starting狀態，則可能是某一關鍵依賴服務阻塞了整個服務樹。
+使用`systemctl list-jobs`指令查看正在運行的作業，
+通常啟動完畢的系統不會存在正在執行的作業（`No jobs running.`）；
+若存在正在執行的作業，則通常包含阻塞的關鍵服務，
+等待執行的作業狀態為`waiting`，阻塞的作業狀態為`running`。
+3. 查看阻塞的服務狀態和日誌，排查原因。
 
 ## 編寫systemd服務
 一個基本的systemd服務結構如下：
@@ -4015,8 +4029,11 @@ SNAT       all  --  10.8.0.0/24          anywhere             to:192.168.110.181
 
 ```html
 <!-- SNAT -->
+<!-- 直接將指定源網段的數據用目標網卡替換源地址，替換後由指定網卡發送 -->
 # iptables -t nat -A POSTROUTING -s 源網段/地址 -o 網卡 -j MASQUERADE
+<!-- 替換指定源網段的數據包地址，替換後由指定網卡發送 -->
 # iptables -t nat -A POSTROUTING -s 源網段/地址 -o 網卡 -j SNAT --to-source 需要轉換成的地址
+
 <!-- DNAT -->
 # iptables -t nat -A PREROUTING -d 目標網段/地址 -o 網卡 -j DNAT --to-destination 需要轉換成的地址
 
