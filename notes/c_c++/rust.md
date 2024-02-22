@@ -48,6 +48,10 @@
 		- [anyhow基本使用](#anyhow基本使用)
 		- [anyhow! bail!](#anyhow-bail)
 		- [anyhow Content](#anyhow-content)
+	- [thiserror](#thiserror)
+	- [Panic](#panic)
+		- [std::panic::catch_unwind](#stdpaniccatch_unwind)
+		- [C-unwind ABI](#c-unwind-abi)
 
 <!-- /TOC -->
 
@@ -1217,3 +1221,39 @@ Err(Error1: None)
 Err(Error2: None)
 test common::test_error ... ok
 ```
+
+## thiserror
+[`thiserror`](https://github.com/dtolnay/thiserror)
+用於為自定義結構實現標準異常特質，常與anyhow搭配使用。
+
+thiserror提供了derive實現`thiserror::Error`，
+為結構體添加`#[derive(thiserror::Error)]`即可使結構體實現`std::error::Error`，
+使結構體可與anyhow組合使用。
+
+## Panic
+[Panic](https://doc.rust-lang.org/book/ch09-03-to-panic-or-not-to-panic.html)
+在Rust中用於一些無法恢復的錯誤。
+
+可在`Cargo.toml`中配置panic的行為（通過dev/release兩種profile分別設置不同場景下的行為）：
+
+- unwind（默認行為），此時僅中斷觸發panic的線程，子線程的panic可被父線程處理，主線程panic則程序中止。
+- abort，觸發panic直接中斷整個進程。
+
+示例：
+
+```toml
+# Cargo.toml
+[profile]
+dev.panic = "abort"
+release.panic = "unwind"
+```
+
+### std::panic::catch_unwind
+[`std::panic::catch_unwind`](https://doc.rust-lang.org/std/panic/fn.catch_unwind.html)
+用於設置指定線程panic後的處理邏輯。
+
+### C-unwind ABI
+[Rust 1.71](https://blog.rust-lang.org/2023/07/13/Rust-1.71.0.html)
+中穩定了`C-unwind ABI`，可在觸發panic時向其它語言提供異常信息而非直接終止程序。
+
+相關內容詳見[RFC2945](https://github.com/rust-lang/rfcs/blob/master/text/2945-c-unwind-abi.md)。
