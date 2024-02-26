@@ -8,6 +8,9 @@
 	- [修改配置](#修改配置)
 	- [啓用資料片](#啓用資料片)
 	- [國際化](#國際化)
+- [CMaNGOS](#cmangos)
+	- [CMaNGOS編譯安裝](#cmangos編譯安裝)
+	- [清除角色BUFF](#清除角色buff)
 
 <!-- /TOC -->
 
@@ -184,3 +187,25 @@ $ cd Translations/語言
 <!-- 循環導入對應語言的數據信息 -->
 $ for i in (ls *.sql); mysql -h數據庫地址 -u數據庫用戶名 -p數據庫密碼 mangos0 < $i; end
 ```
+
+
+
+# CMaNGOS
+[CMaNGOS](https://github.com/cmangos)是MaNGOS團隊分裂之後的獨立分支，相比原版開發更加活躍。
+
+## CMaNGOS編譯安裝
+CMaNGOS部署方法與MaNGOS類似，克隆倉庫：
+
+```html
+<!--
+CMaNGOS默認安裝到/usr/local/bin路徑下，
+使用 CMAKE_INSTALL_PREFIX 指定部署路徑，
+默認編譯不包含地圖資源生成工具，
+使用 BUILD_EXTRACTORS 開啓相關工具編譯
+-->
+$ cmake 源碼倉庫 -B build -DCMAKE_INSTALL_PREFIX=部署路徑 -DBUILD_EXTRACTORS=ON
+```
+
+## 清除角色BUFF
+角色的BUFF技能狀態存儲在`character_aura`表中，部分GM的BUFF技能狀態無法停止，
+退出角色，之後清空該表中的内容，可解除角色的所有BUFF狀態。
