@@ -53,7 +53,7 @@
 		- [共享內存獲取](#共享內存獲取)
 		- [共享內存分離](#共享內存分離)
 	- [共享內存控制](#共享內存控制)
-	- [Semaphore (SystemV 信號量)](#semaphore-systemv-信號量)
+	- [Semaphore（SystemV 信號量）](#semaphoresystemv-信號量)
 		- [信號量創建/獲取](#信號量創建獲取)
 		- [改變信號量值](#改變信號量值)
 		- [信號量信息設置](#信號量信息設置)
@@ -271,8 +271,7 @@ int openat(int dirfd, const char *pathname, int flags);
 int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 ```
 
-`creat()`函數用於創建文件；
-`open()`函數既可用於創建文件(**flags**取`O_CREAT`)，
+`creat()`函數用於創建文件；`open()`函數既可用於創建文件(**flags**取`O_CREAT`)，
 也可用於打開文件，打開的對象可以是**目錄**。
 
 - `pathname`參數：
@@ -428,6 +427,7 @@ int dup2(int oldfd, int newfd);
 
 ## dup()
 `dup()`系列函數最常見的用途之一就是重定向標準、錯誤輸出到指定文件。
+
 示例：
 
 ```c
@@ -560,7 +560,7 @@ void closelog(void);
 標準的日誌格式如下：
 
 ```
-[日誌時間] [主機名稱/主機ip] [ident] [facility]: [消息內容]
+日誌時間 主機名稱或主機IP [ident] [facility]: 消息內容
 ```
 
 在使用純文本日誌的發行版中，默認日誌輸出到文件`/var/log/syslog`，
@@ -800,7 +800,8 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 
 	system()函數的特點：
 
-	- system()函數運行以字符串參數的形式傳遞給它的命令，並等待該命令完成（效果類似於在Shell中使用對應命令）。
+	- system()函數運行以字符串參數的形式傳遞給它的命令，
+	並等待該命令完成（效果類似於在Shell中使用對應命令）。
 	- 與exec()函數不同，system()函數會創建Shell來執行命令。
 	- 若無法啓動Shell來運行這個命令，system()函數將返回錯誤代碼`127`；
 	其它錯誤返回`-1`，否則system()函數將返回該命令的退出碼（通常為`0`）。
@@ -893,10 +894,10 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 	```
 
 	由結果可知，fork()函數之前的`system("whoami")`函數只執行了一遍，
-	因此shell指令`whoami`也只執行一遍。但在fork()函數之後的代碼都執行了兩遍，
+	因此shell指令whoami也只執行一遍。但在fork()函數之後的代碼都執行了兩遍，
 	分別來自父進程和子進程的`printf()`函數向屏幕打印了兩次`End!`。
-	由`system("ps")`函數中執行的shell指令`ps`向屏幕中輸出的結果可以看出，
-	父進程的`ppid`是啓動這個進程的shell的`pid`，而**子進程**的`ppid`就是**父進程**的`pid`。
+	由`system("ps")`函數中執行的Shell指令ps向屏幕中輸出的結果可以看出，
+	父進程的`ppid`是啓動這個進程的Shell的`pid`，而**子進程**的`ppid`就是**父進程**的`pid`。
 
 - `vfork()` 函數
 
@@ -908,12 +909,12 @@ cmdline     exe              loginuid  mountstats  oom_score_adj  sessionid    s
 
 	相比fork()調用，`vfork()`有以下不同之處：
 
-	- fork()子進程拷貝父進程中的數據段和代碼段，`vfork()`中子進程與父進程共享數據段。
+	- fork()子進程拷貝父進程中的數據段和代碼段，vfork()中子進程與父進程共享數據段。
 	- fork()調用之後父子進程執行順序是**隨機**的，
-	`vfork()`中子進程在調用exec()或`exit()`之前與父進程數據共享，
-	而父進程在子進程調用了exec()或`exit()`之前會一直**阻塞**。
+	vfork()中子進程在調用exec()或exit()之前與父進程數據共享，
+	而父進程在子進程調用了exec()或exit()之前會一直**阻塞**。
 
-	在Linux中，fork()與`vfork()`最終的內部實現都使用`do_fork()`。
+	在Linux中，fork()與vfork()最終的內部實現都使用`do_fork()`。
 
 - `exec()` 函數
 
@@ -1650,32 +1651,36 @@ int pthread_sigmask(int how, const sigset_t *restrict set, sigset_t *restrict os
 在Unix系統中，多線程開發相關函數定義在頭文件`pthread.h`中。
 在Linux中編譯使用了線程庫的程序時，需要鏈接`pthread`庫，編譯指令如下：
 
-```sh
-$ cc -lpthread [源碼文件]
+```
+$ cc -lpthread 源碼文件
 ```
 
 在`FreeBSD`以及`macOS`中，編譯使用了線程庫的程序**無需**鏈接`pthread`庫。
 
 ## Linux下的線程實現
-`Linux Kernel 2.6`之後，線程的實現爲`NPTL`，即**本地POSIX線程庫**`Native POSIX Thread Library`。
+`Linux Kernel 2.6`之後，線程的實現爲`NPTL`，全稱`Native POSIX Thread Library`（**本地POSIX線程庫**）。
 
 - 在Linux內核中，線程和進程都使用`task_struct`結構體表示，
-線程僅是一類特殊的進程(創建時使用不同的`clone`標識組合)。
-- Linux提供了`clone()`調用，使用`clone()`創建子進程時，
-可以選擇性地共享父進程的資源，創建出的子進程被稱爲**輕量級進程**(`LWP, Low Weight Process`)。
-- 早期的Linux(`Linux Kernel 2.6`之前)使用`Linux Threads`線程庫，即通過**輕量級進程**來實現線程。
-- `Linux Threads`庫沒有實現POSIX的線程定義，每個線程在ps指令下顯示爲進程，
-並且不同線程使用`getpid()`返回的進程pid也不相同，在現代Linux(採用NPTL之後的Linux)已經**不會**出現此類情況。
-- 在`Linux Kernel 2.6`之後，內核中有了**線程組**的概念，
+線程僅是一類特殊的進程(創建時使用不同的clone標識組合)。
+- Linux提供了`clone()`調用，使用clone()創建子進程時，
+可以選擇性地共享父進程的資源，創建出的子進程被稱爲`LWP, Low Weight Process`（**輕量級進程**）。
+- 早期的Linux（Linux Kernel 2.6之前）使用Linux Threads線程庫，即通過**輕量級進程**來實現線程。
+- Linux Threads庫沒有實現POSIX的線程定義，每個線程在ps指令下顯示爲進程，
+並且不同線程使用`getpid()`返回的進程pid也不相同，
+現代Linux（採用NPTL之後的Linux）**不會**出現此類情況。
+- Linux Kernel 2.6之後，內核中存在**線程組**的概念，
 `task_struct`結構中增加了`tgid(thread group id)`字段，
-若某個`task_struct`是**主線程**, 則它的`tgid`等於`pid`，否則`tgid`等於進程的`pid`(即主線程的`pid`)。
-此外，每個線程依舊是一個`task_struct`，依然有自己的`pid`。
-- 在`Linux Kernel 2.6`之後，使用`getpid()`獲取的是`tgid`，
-因而進程中的每個線程使用`getpid()`返回值相同(主線程`pid`)。
-獲取線程自身的`pid`需要用到系統調用`gettid()`，`gettid()`是Linux特有的系統調用，
-在其它Unix中並不存在，`glibc`沒有提供`gettid()`的封裝，使用`gettid()`需要通過`syscall()`調用。
-- `NPTL`的實現依賴於`Linux Kernel 2.6`內核的`task_struct`改動，
-因此在`2.4`、`2.2`等舊版本的內核上無法使用`NPTL`，在採用了`NPTL`的Linux上，線程的行爲與其它Unix更爲相似。
+若某個task_struct是**主線程**, 則它的tgid等於pid，
+否則tgid等於進程的pid（即主線程pid）。
+此外，每個線程依舊是一個task_struct，依然有自己的pid。
+- 在Linux Kernel 2.6之後，使用`getpid()`獲取的是tgid，
+因而進程中的每個線程使用getpid()返回值相同（主線程pid）。
+獲取線程自身的pid需要用到系統調用`gettid()`，
+gettid()是Linux特有的系統調用，在其它Unix中並不存在，
+glibc沒有提供gettid()的封裝，使用gettid()需要通過syscall()調用。
+- NPTL的實現依賴於Linux Kernel 2.6內核的task_struct改動，
+因此在`2.4`、`2.2`等舊版本的內核上無法使用NPTL，
+在採用了NPTL的Linux上，線程的行爲與其它Unix更爲相似。
 
 ## 線程創建
 創建線程使用`pthread_create()`函數。
@@ -1684,13 +1689,14 @@ $ cc -lpthread [源碼文件]
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine)(void *), void *arg);
 ```
 
-- `thread`參數爲將新建線程的線程標誌符寫入所給的地址(注意線程標識符的類型爲`pthread_t`，使用`int`型編譯器會提示**不兼容**)。
-- `attr`參數爲啓動線程時設置**特殊屬性**(一般情況下用不到，填`NULL`即可)。
+- `thread`參數爲將新建線程的線程標誌符寫入所給的地址
+（注意線程標識符的類型爲`pthread_t`，使用int型編譯器會提示**不兼容**）。
+- `attr`參數爲啓動線程時設置**特殊屬性**（一般情況下用不到，填`NULL`即可）。
 - `start_routine`參數爲一個指向返回值和參數都爲void*類型的函數的函數指針，該指針指向的函數即爲新線程要執行的函數。
-- `arg`參數爲要傳遞到`start_routine`所指向函數的值(如果沒有需要傳遞的參數，可以填**NULL**)。
+- `arg`參數爲要傳遞到`start_routine`所指向函數的值（若無傳遞的參數，可置**NULL**）。
 
-需要注意的是，`thread`參數必須要填入**有效**的地址，填`NULL`會引起程序崩潰。
-創建新線程成功則返回`0`，未創建成功返回**錯誤代碼**(**不一定**是`-1`)，可根據man手冊查看錯誤代碼判斷錯誤類型。
+`thread`參數必須要填入**有效**的地址，填`NULL`會引起程序崩潰。
+創建新線程成功則返回`0`，未創建成功返回**錯誤代碼**，可根據手冊查看錯誤代碼判斷錯誤類型。
 
 ## 線程等待
 等待線程使用`pthread_join()`函數。
@@ -1700,10 +1706,10 @@ int pthread_join(pthread_t thread, void **retval);
 ```
 
 - `thread`參數爲要等待的線程的**線程描述符**。
-- `retval`參數爲要等待的線程的返回值的地址(不使用線程返回值則可以填`NULL`)。
+- `retval`參數爲要等待的線程的返回值的地址（不使用線程返回值可置`NULL`）。
 
 該函數爲**阻塞**函數。
-需要注意的是，`pthread_join()`函數只會等待指定線程標識符對應的線程，對其它線程不會造成影響，依然是併發執行。
+`pthread_join()`函數只會等待指定線程標識符對應的線程，對其它線程不會造成影響，依然是併發執行。
 
 默認情況下，主程序是不會等待線程執行的，無論線程是否執行完畢，主程序都會依次執行直到結束。
 由於線程資源共享，一旦主程序結束，該程序創建的線程無論是否執行完畢都會立即被關閉。
@@ -1718,7 +1724,7 @@ int pthread_cancel(pthread_t thread);
 
 - `thread`參數爲需要取消的線程的**線程描述符**。
 
-取消線程成功返回值爲`0`，取消線程失敗返回一個非`0`的**錯誤代碼**(不一定是-1)。
+取消線程成功返回值爲`0`，取消線程失敗返回一個非`0`的**錯誤代碼**。
 
 ## 線程終止
 退出、終止一個線程使用`pthread_exit()`函數。
@@ -1729,9 +1735,9 @@ void pthread_exit(void *retval);
 
 線程調用該函數終止自身，如同進程的`exit(num)`函數一樣。
 
-`pthread_exit()`函數的參數爲線程的返回內容，需要注意的是，不要將`retval`指向一個**局部變量**，
-因爲調用`pthread_exit()`函數之後線程會結束，線程函數內的局部變量(棧變量)將會被**刪除**。
-與其它函數一樣，線程也可以使用`return`提供返回值。
+`pthread_exit()`函數的參數爲線程的返回內容，不要將`retval`指向一個**局部變量**，
+因爲調用`pthread_exit()`函數之後線程會結束，線程函數內的局部變量（棧變量）將會被**刪除**。
+與其它函數類似，線程也可以使用`return`提供返回值。
 
 ## 互斥量
 pthread同樣提供了**互斥量**進行線程同步。
@@ -2017,7 +2023,7 @@ $ ipcrm { shm | msg | sem } id
 ```
 
 ## SystemV 共享內存
-共享內存是一種進程間通信(IPC, Inter-Process Communication)機制，屬於三類`XSI IPC`之一。
+共享內存是一種`IPC, Inter-Process Communication`（進程間通信）機制，屬於三類`XSI IPC`之一。
 相比信號量等IPC機制，共享內存有着最高的效率，因爲共享內存不涉及複製操作。
 
 共享內存的相關函數定義在`sys/shm.h`中。
@@ -2035,10 +2041,12 @@ int shmget(key_t key, size_t size, int shmflg);
 若傳入的**key值**對應的共享內存**未創建**，則調用**失敗**。
 
 創建共享內存使用`IPC_CREAT`標識，創建的同時可以手動設定共享內存的讀寫權限如`IPC_CREAT | 0660`。
-使用`IPC_CREAT`標識時，若傳入**key值**對應的共享內存已經存在，
+使用IPC_CREAT標識時，若傳入**key值**對應的共享內存已經存在，
 不會調用失敗，而是忽略該標識，返回已存在的共享內存的描述符。
+
 若需要創建一塊**唯一**的共享內存，則使用`IPC_CREAT | IPC_EXCL`。
 使用`IPC_CREAT | IPC_EXCL`標識時，若傳入`key`參數對應的共享內存已存在，則創建**失敗**。
+
 `IPC_PRIVATE`標誌用於創建一個只屬於創建進程的共享內存。
 共享內存創建成功時返回**共享內存描述符**（非負整數），失敗時返回`-1`。
 
@@ -2078,15 +2086,14 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 
 - `shmid`參數爲共享內存描述符。
 - `command`參數爲要對共享內存發出的指令，常用的指令爲`IPC_RMID`，
-用於**刪除**共享內存，執行刪除操作時- `buf`參數可以取值`NULL`。
+用於**刪除**共享內存，執行刪除操作時- `buf`參數可以取值NULL。
 
 函數調用成功返回`0`，失敗返回`-1`。
 
-與信號量機制類似，如果`shmget()`函數以`IPC_CREAT | IPC_EXCL`的形式創建**唯一**共享內存的話，
-若沒有在進程結束前將共享內存刪除，
-則下次程序執行時將**不能**夠再以`IPC_CREAT | IPC_EXCL`的形式創建**key值**相同的共享內存。
+與信號量機制類似，若`shmget()`函數以`IPC_CREAT | IPC_EXCL`的形式創建**唯一**共享內存，
+若沒有在進程結束前將共享內存刪除，則下次程序執行時將**不能**再以该形式創建**key值**相同的共享內存。
 
-## Semaphore (SystemV 信號量)
+## Semaphore（SystemV 信號量）
 信號量是一種進程間通信(`IPC, Inter-Process Communication`)機制，屬於三類`XSI IPC`之一。
 信號量用於控制進程對資源的訪問，但信號量也可以用於線程。
 在進程開發中，常用的信號量函數定義在`sys/sem.h`文件中。
@@ -2120,7 +2127,7 @@ int semop(int sem_id, struct sembuf *sem_ops, size_t num_sem_ops);
 ```
 
 - `sem_id`參數爲信號描述符，由`semget()`函數得到。
-- `sem_ops`參數爲指向`sembuf`結構體的指針(有多個信號量時可以指向`sembuf`結構體數組)。
+- `sem_ops`參數爲指向`sembuf`結構體的指針（多個信號量時可以指向sembuf結構體數組）。
 - `num_sem_ops`參數爲`sembuf`結構體的數量，一般爲`1`。
 
 `sembuf`結構體的定義爲：
@@ -2131,7 +2138,7 @@ struct sembuf
 	unsigned short sem_num; // 信號量的編號，在沒有使用多個信號量的情況下，一般爲0
 	short sem_op; // 信號量操作，一般可以取-1或是+1，分別對應P(請求)、V(釋放)操作
 	short sem_flg; // 操作標誌符，一般取SEM_UNDO
-}
+};
 ```
 
 函數調用成功返回`0`，調用失敗返回`-1`並置**errno**。
@@ -2148,7 +2155,7 @@ int semctl(int sem_id, int sem_num, int command, ...);
 - `command`參數爲要執行的操作的標誌位。
 
 `command`參數可以有很多不同的值，常用的有`IPC_RMID`，
-用於刪除一個信號量(如果信號創建方式是`IPC_CREAT | IPC_EXCL`，則務必要在程序結束時刪除信號量)。
+用於刪除一個信號量（若信號創建方式是`IPC_CREAT | IPC_EXCL`，則務必要在程序結束時刪除信號量）。
 `command`設置爲`SETVAL`，則用於**初始化**一個信號量，此時函數需要有第四個參數，聯合體`union semun`，
 通過設置`semun`的`val`成員的值來初始化信號量。
 
@@ -2277,7 +2284,7 @@ int main(void)
 最後向`Semphore_After`發送`SIGINT`信號，讓其刪除信號量並結束進程。
 
 ## XSI Message Queue (SystemV 消息隊列)
-消息隊列是一種進程間通信(IPC, Inter-Process Communication)機制，屬於三類`XSI IPC`之一。
+消息隊列是一種`IPC, Inter-Process Communication`（進程間通信）機制，屬於三類`XSI IPC`之一。
 以下描述引用自`<<Unix網絡編程 卷2>>`：
 
 消息隊列是一個**消息鏈表**，有足夠**寫權限**的線程可以向消息隊列中添加消息，
@@ -2302,8 +2309,9 @@ int msgget(key_t key, int msgflg);
 
 `msgflg`取`IPC_CREAT`創建一個消息隊列（消息隊列已存在則忽略此標誌位），
 取`IPC_CREAT | IPC_EXCL`創建一個新的消息隊列（消息隊列已存在則函數執行失敗）。
-創建消息隊列時，若需要對消息隊列進行**讀寫操作**需要在`msgflg`參數後追加讀寫權限，
-如`0600`（等價於`S_IRUSR | S_IWUSR`），但打開消息隊列時不需要設定（打開的消息隊列由創建者決定訪問權限）。
+創建消息隊列時，若需要對消息隊列進行**讀寫操作**，
+需要在`msgflg`參數後追加讀寫權限，如`0600`（等價於`S_IRUSR | S_IWUSR`），
+但打開消息隊列時不需要設定（打開的消息隊列由創建者決定訪問權限）。
 
 ### 向消息隊列中添加消息
 使用`msgsnd()`向消息隊列中添加消息：
@@ -2315,8 +2323,10 @@ int msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg);
 - `msqid`參數爲`msgget()`函數返回的消息隊列文件描述符。
 - `msgp`參數爲指向要發送消息的指針。
 - `msgsz`參數爲發送消息的大小（不包括消息類型大小）。
-- `msgflg`參數爲消息標誌位，默認情況下以阻塞方式發送消息（消息隊列已滿時`msgsnd()`函數會阻塞線程），
-取值`IPC_NOWAIT`表示以非阻塞形式發送消息，隊列已滿則直接返回錯誤。
+- `msgflg`參數爲消息標誌位，默認情況下以阻塞方式發送消息，
+消息隊列已滿時`msgsnd()`函數會阻塞線程，
+取值`IPC_NOWAIT`表示以非阻塞形式發送消息，
+隊列已滿則直接返回錯誤。
 
 函數執行成功返回`0`，執行失敗返回`-1`並置`errno`。
 
@@ -2327,7 +2337,7 @@ struct mymsg
 {
 	long mtype; /* Message type. */
 	char mtext[1]; /* Message text. */
-}
+};
 ```
 
 消息結構中的首個成員需要爲`long`型，用於指示消息的**類型**（之後的`msgrcv()`函數會用到），
@@ -2342,12 +2352,13 @@ ssize_t msgrcv(int msqid, void *msgp, size_t msgsz, long msgtyp, int msgflg);
 ```
 
 - `msqid`、`msgsz`參數作用與`msgsnd()`函數中類似。
-- `msgp`參數指向用戶緩衝區，成功收到消息後會將消息從隊列中拷貝到用戶緩衝區，之後移除隊列中被接收的消息。
+- `msgp`參數指向用戶緩衝區，
+成功收到消息後會將消息從隊列中拷貝到用戶緩衝區，之後移除隊列中被接收的消息。
 - `msgtyp`參數爲目標接受消息的類型。
 默認情況下，取值`0`表示接受消息隊列中的第一個消息（任意類型）；
 取值爲**正數**時表示接受第一個**類型與`msgtyp`相同**的消息；
 取**負值**表示接受**絕對值**小於等於`msgtyp`的消息。
-- `msgflg`參數爲消息標誌位，默認以阻塞方式接受消息（若消息隊列爲空，則`msgrcv()`函數阻塞），
+- `msgflg`參數爲消息標誌位，默認以阻塞方式接受消息（若消息隊列爲空，則函數阻塞），
 使用`IPC_NOWAIT`標誌表示以非阻塞形式接收消息，隊列爲空則直接返回錯誤；
 使用`MSG_EXCEPT`標誌時排除接收類型等於`msgtyp`的消息；
 使用`MSG_NOERROR`標誌複製消息時捨棄大於`msgsz`參數值的消息。
@@ -2614,8 +2625,10 @@ mqd_t mq_open(const char *name, int oflag, mode_t mode, struct mq_attr *attr);
 
 - `name`參數爲POSIX IPC名稱。
 - `oflag`參數爲標誌位，類似於`open()`調用中的`flags`參數。
-	1. 可取`O_RDONLY`、`O_WRONLY`、`O_RDWR`（三選一），分別表示以**只讀**、**只寫**、**讀寫**的方式打開POSIX消息隊列。
-	1. 可取`O_CREAT`，表示不存在消息隊列時創建，可追加`O_EXCL`標誌，若消息隊列已存在函數返回`EEXIST`錯誤。
+	1. 可取`O_RDONLY`、`O_WRONLY`、`O_RDWR`（三選一），
+	分別表示以**只讀**、**只寫**、**讀寫**的方式打開POSIX消息隊列。
+	1. 可取`O_CREAT`，表示不存在消息隊列時創建，可追加`O_EXCL`標誌，
+	若消息隊列已存在函數返回`EEXIST`錯誤。
 	1. 可取`O_NONBLOCK`，表示以**非阻塞**的形式打開消息隊列。
 - `mode`參數僅當`oflag`參數中使用了`O_CREAT`標誌時需要使用，
 參數內容爲創建的消息隊列的權限，格式與文件權限相同（八進制，如`0600`）。
@@ -2927,7 +2940,7 @@ MQ_OPEN_MAX: -1
 MQ_RPIO_MAX: 32768
 ```
 
-之後運行消息接受進程，優先級(type)高的消息先被接收：
+之後運行消息接受進程，type（優先級）高的消息先被接收：
 
 ```
 Num: 1
@@ -3044,8 +3057,8 @@ while(1)
 
 使用select()的一些注意事項：
 
-- select()處於阻塞狀態時會被信號中斷(當select()所處線程是信號處理線程時)。
-- 每次調用select()前都需要重設描述符集合(執行`FD_ZERO`和`FD_SET`宏)。
+- select()處於阻塞狀態時會被信號中斷（當select()所處線程是信號處理線程時）。
+- 每次調用select()前都需要重設描述符集合（執行`FD_ZERO`和`FD_SET`宏）。
 - `timeval`結構體會在select()運行時被修改，因此，在需要設置超時時間的情況下，
 循環中每次調用select()之前都需要重新設置`timeval`結構體。
 - 對於**普通文件**描述符，無論**讀、寫、異常狀態**，都是**始終準備好**的，
@@ -3064,7 +3077,8 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_se
 
 - 前**4個**參數與select()中含義完全相同。
 - `sigmask`參數爲需要屏蔽信號的集合。
-- `timeout`參數爲超時等待的時間，類型爲`timespec`，精確到納秒，與select()函數中精確到毫秒的`timeval`不同。
+- `timeout`參數爲超時等待的時間，類型爲`timespec`，
+精確到**納秒**，與select()函數中精確到毫秒的`timeval`不同。
 
 信號集合參數`sigmask`使用前需要兩個步驟：
 
@@ -3242,8 +3256,8 @@ int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 ```
 
 - `epfd`參數爲`epoll_create()`得到的epoll描述符。
-- `op`參數爲要執行的操作，可取宏`EPOLL_CTL_ADD`(添加監聽描述符)、
-`EPOLL_CTL_MOD`(修改描述符操作)、`EPOLL_CTL_DEL`(刪除監聽描述符)。
+- `op`參數爲要執行的操作，可取宏`EPOLL_CTL_ADD`（添加監聽描述符）、
+`EPOLL_CTL_MOD`（修改描述符操作）、`EPOLL_CTL_DEL`（刪除監聽描述符）。
 - `fd`參數爲被操作的描述符。
 - `event`參數爲描述符`fd`對應的事件，不能取值`NULL`。
 
@@ -3305,10 +3319,10 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 - `epoll_create()`中的`size`參數雖然是被忽略的，但不要取`0`和**負值**，會得到`Bad file desriptor`錯誤。
 
 ## LT/ET
-epoll擁有兩種工作模式，分別爲`Level Triggered`(LT，水平觸發)和`Edge Triggered`(ET，邊緣觸發)模式。
+epoll擁有兩種工作模式，分別爲`Level Triggered`（LT，水平觸發）和`Edge Triggered`（ET，邊緣觸發）模式。
 
 - `LT`模式爲epoll的默認工作模式，在該模式下，只要有數據可讀/寫，使用`epoll_wait()`都會返回。
-- `ET`模式只有描述符狀態變化(從不可讀/寫變爲可讀/寫)時纔會另`epoll_wait()`返回，相比之下，ET模式更爲高效。
+- `ET`模式只有描述符狀態變化（從不可讀/寫變爲可讀/寫）時纔會另`epoll_wait()`返回，相比之下，ET模式更爲高效。
 
 LT模式下，由於只要有數據讀寫就會觸發事件，因此**不必**在一次epoll循環中嘗試讀盡所有的數據，
 有數據未讀會繼續觸發觸發事件，在下次觸發的事件中讀盡數據即可。

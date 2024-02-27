@@ -328,7 +328,7 @@ Rust中結構體存在以下與C++類似，與C不同的特徵：
 
 示例：
 
-```rust
+```rs
 struct Number(i32);
 
 assert_eq!(std::mem::align_of::<Number>(), 4);
@@ -344,7 +344,7 @@ assert_eq!(std::mem::size_of::<Align16>(), 16);
 ## PhantomData
 Rust中的結構體不支持定義未使用的泛型參數，否則會報錯：
 
-```rust
+```rs
 >> struct Test<T>();
                ^ unused parameter
 parameter `T` is never used
@@ -354,7 +354,7 @@ help: if you intended `T` to be a const parameter, use `const T: usize` instead
 
 根據錯誤信息提示，可使用`std::marker::PhantomData`類型提供一個佔位符：
 
-```rust
+```rs
 >> use std::marker::PhantomData;
 >> struct Test<T>(PhantomData<T>);
 >> use std::mem::size_of;
@@ -537,7 +537,7 @@ fn f_static(t: &impl Trait) { ... }
 [Associated Types](https://doc.rust-lang.org/book/ch19-03-advanced-traits.html#specifying-placeholder-types-in-trait-definitions-with-associated-types)
 提供了類型佔位符特性，語法：
 
-```rust
+```rs
 trait XxxTrait {
   type XxxAssociatedType;
 
@@ -556,7 +556,7 @@ impl XxxTrait for Xxx {
 
 例如，Rust標準庫中的否定操作符特質定義中便使用了Associated Types特性：
 
-```rust
+```rs
 pub trait Not {
   type Output;
   fn not(self) -> Self::Output;
@@ -828,7 +828,7 @@ libstd包含libcore中的所有內容，對於二者重合的部分，libstd僅�
 Rust中的Map類型未提供多值初始化的構造器或宏（類似Vec類型的`vec![]`宏），
 但可通過元組數組進行構建：
 
-```rust
+```rs
 >> let data: BTreeMap<usize, usize> = vec![(1, 1), (2, 2), (3, 3)].into_iter().collect();
 >> data
 {1: 1, 2: 2, 3: 3}
@@ -837,7 +837,7 @@ Rust中的Map類型未提供多值初始化的構造器或宏（類似Vec類型�
 自`Rust 1.56`開始，Map類型支持`std_collections_from_array`特性，
 提供了數組類型到Map類型的From特質，因此可以直接將數組轉換為對應Map類型：
 
-```rust
+```rs
 >> let data: BTreeMap<usize, usize> = [(1, 1), (2, 2), (3, 3)].into();
 >> data
 {1: 1, 2: 2, 3: 3}
@@ -861,7 +861,7 @@ Box默認即實現了線程安全相關的trait（Send + Sync），
 
 典型場景示例：
 
-```rust
+```rs
 /**
 一個對象需要共享給兩個線程使用，若使用棧變量，
 則一個對象無法移動到兩個線程中（所有權衝突），
@@ -914,7 +914,7 @@ static定義一個**地址恆定**的值，則const定義一個**常量**。
 
 示例：
 
-```rust
+```rs
 const C_N: i32 = 5;
 static S_N: i32 = 5;
 
@@ -936,7 +936,7 @@ const字段在調用時會被**內聯**，調用時會創建臨時值，訪問�
 
 示例：
 
-```rust
+```rs
 const CONST_DATA: Vec<usize> = vec![];
 static mut STATIC_DATA: Vec<usize> = vec![];
 
@@ -1002,7 +1002,7 @@ once_cell中的Lazy類型分為線程安全/非安全版本，且在標準庫中
 
 基本操作如下：
 
-```rust
+```rs
 use once_cell::sync::Lazy;
 
 static HASHMAP: Lazy<String> = Lazy::new(|| { "FuckCCP!".into() });
@@ -1063,7 +1063,7 @@ Rust部分支持字符串插值特性。
 
 Rust的插值特性示例：
 
-```rust
+```rs
 >> let t = "test";
 >> println!("test: {t}");
 >> test: test
@@ -1087,7 +1087,7 @@ test: Test("test")
 
 Rust的插值特性不支持表達式插值：
 
-```rust
+```rs
 >> let n = 1;
 >> println!("n: {n}");
 >> n: 1
