@@ -46,6 +46,7 @@
 		- [Termux使用Bionic libc](#termux使用bionic-libc)
 		- [Termux僅支持單用戶](#termux僅支持單用戶)
 		- [包管理器限制](#包管理器限制)
+	- [關於Termux在Play Store中停止更新](#關於termux在play-store中停止更新)
 
 <!-- /TOC -->
 
@@ -1481,3 +1482,17 @@ Termux作為Android App運行，雖然使用apt作為包管理器，但同樣存
 - 僅能支持單一架構，不能同時使用32位、64位軟件包。
 - apt的使用被限制在Android中/data下的App路徑內。
 - 不支持軟件降級，為了節約存儲，Termux並不保留軟件包的版本歷史。
+
+## 關於Termux在Play Store中停止更新
+截止到目前（2021-12-30），Google Play Store中的Termux App版本依舊停留在（最後更新時間：2020-9-20）。
+原因是在Android 10（SDK Level 29）中引入了更加嚴格的權限限制，
+使用SELinux限制了`execve()`系統調用，導致Termux的apt包管理器apt無法執行，
+詳情參考[Termux Wiki](https://wiki.termux.com/wiki/Termux_Google_Play)與
+[GitHub Issue](https://github.com/termux/termux-app/issues/1072)。
+
+現在Termux主要在[GitHub](https://github.com/termux/termux-app/releases)與
+[F-Droid](https://f-droid.org/en/packages/com.termux/)中發布。
+
+Android 13版本升級進一步限制了`/proc/net/dev`目錄的訪問以及網絡相關調用的權限，
+導致Termux中的`ip`指令無法執行，`ifconfig`指令無法輸出完整網絡信息，
+參考對應[GitHub Issue](https://github.com/termux/termux-app/issues/2993)，
