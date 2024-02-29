@@ -2,6 +2,7 @@
 
 - [BBR](#bbr)
 	- [Linux中開啟BBR](#linux中開啟bbr)
+	- [FreeBSD中開啟BBR](#freebsd中開啟bbr)
 - [Shadowsocks](#shadowsocks)
 	- [shadowsocks-libev](#shadowsocks-libev)
 - [生成TLS證書以及密鑰](#生成tls證書以及密鑰)
@@ -50,6 +51,35 @@ net.ipv4.tcp_congestion_control = cubic
 ```
 
 要使配置永久生效需要修改`/etc/sysctl.conf`配置或再`/etc/sysctl.d`路徑下創建配置。
+
+## FreeBSD中開啟BBR
+FreeBSD內核默認並未包含BBR，查看默認算法：
+
+```html
+<!-- FreeBSD的默認算法為freebsd -->
+$ sysctl net.inet.tcp.functions_default
+net.inet.tcp.functions_default: freebsd
+```
+
+啟用BBR需要啟用下列內核配置重新編譯內核：
+
+```
+options TCPHPTS
+```
+
+之後加載對應內核模塊，編輯`/boot/loader.conf`，添加：
+
+```conf
+# For BBR.
+tcp_bbr_load="YES"
+```
+
+之後修改`/etc/sysctl.conf`，添加：
+
+```conf
+# For BBR.
+net.inet.tcp.functions_default = bbr
+```
 
 
 
