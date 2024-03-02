@@ -38,12 +38,12 @@
 	- [Docker Compose服務定義](#docker-compose服務定義)
 	- [Docker Compose指令](#docker-compose指令)
 - [Habor](#habor)
-	- [部署Habor](#部署habor)
-	- [部署Helm Chart倉庫](#部署helm-chart倉庫)
-	- [部署Https访问](#部署https访问)
-		- [Harbor服務端證書配置](#harbor服務端證書配置)
+	- [部署Habor（Docker Compose）](#部署habordocker-compose)
+		- [部署Helm Chart倉庫](#部署helm-chart倉庫)
+		- [部署Https访问](#部署https访问)
 		- [Docker客戶端證書配置](#docker客戶端證書配置)
-	- [Habor服務管理](#habor服務管理)
+		- [Habor服務管理](#habor服務管理)
+	- [部署Habor（Helm）](#部署haborhelm)
 	- [從其它Harbor倉庫導入鏡像](#從其它harbor倉庫導入鏡像)
 	- [登入Habor](#登入habor)
 		- [Docker登入](#docker登入)
@@ -1100,14 +1100,17 @@ services:
     image: 鏡像:版本
     network_mode: host
     command: ...
+    # 引用配置，掛載到容器內
     configs:
       - source: 配置名稱
         target: 容器內路徑
       ...
+    # 引用Secrets
     secrets:
       - source: 配置名稱
         target: 容器內路徑
       ...
+    # 掛載卷
     volumes:
       - type: bind
         source: 宿主機路徑
@@ -1142,7 +1145,7 @@ Docker Compose常用指令：
 # Habor
 Habor是基於Docker的離線鏡像管理倉庫。
 
-## 部署Habor
+## 部署Habor（Docker Compose）
 從[官方Release頁面](https://github.com/goharbor/harbor/releases)下載對應版本的Habor壓縮包，
 在服務端解壓；復制配置模板`harbor.yml.tmpl`到`harbor.yml`文件，修改文件中的下列內容：
 
@@ -1169,14 +1172,14 @@ docker-compose官方倉庫中的版本可能不滿足Habor的要求，
 
 執行安裝腳本後會自動啟動Habor服務。
 
-## 部署Helm Chart倉庫
+### 部署Helm Chart倉庫
 Harbor支持Helm Chart倉庫，開啟該功能可在安裝Harbor時使用下列參數：
 
 ```
 # ./install.sh --with-chartmuseum
 ```
 
-## 部署Https访问
+### 部署Https访问
 若需要部署HTTPS訪問，則需要生成或獲取對應域名的證書。
 
 Https證書的生成流程：
@@ -1187,7 +1190,6 @@ Https證書的生成流程：
 1. 證書申請者在自身站點配置**域名密鑰**和**域名證書**。
 1. 用戶導入根證書簽名者提供的**根證書**即可合法認證訪問使用**域名證書**加密的站點。
 
-### Harbor服務端證書配置
 可使用`openssl`工具生成對應私有根證書和私鑰：
 
 ```
@@ -1291,13 +1293,34 @@ https:
 # systemctl restart docker
 ```
 
-## Habor服務管理
+### Habor服務管理
 Habor使用docker-compose管理服務：
 
 ```html
 # docker-compose stop --project-directory harbor安裝路徑 <!-- 停止服務 -->
 # docker-compose start --project-directory harbor安裝路徑 <!-- 啟動服務 -->
 ```
+
+## 部署Habor（Helm）
+若使用Kubernetes環境，可使用Helm部署Habor，操作較為簡單：
+
+```
+$ helm repo add harbor https://helm.goharbor.io
+$ helm install --set 配置=值... -n 命名空間 harbor harbor/harbor
+```
+
+相關配置參考[GitHub頁面](https://github.com/goharbor/harbor-helm)，
+較為重要的配置：
+
+- `expose.type` 控制如何對外暴露服務，默認為`ingress`，簡單配置可使用`nodePort`
+- `expose.tls.enabled` 控制是否啟用TLS，默認為`true`，簡單配置可使用`false`
+- `expose.nodePort` 控制NodePort導出端口相關配置
+- `externalURL` 控制docker login等命令行登入的URL
+- `harborAdminPassword` Harbor管理員admin用戶密碼，默認為`Harbor12345`
+
+使用NodePort導出時externalURL應使用實際NodePort端口和對應節點IP，
+示例關閉TLS，Kubernetes節點IP為10.89.64.64，NodePort端口為30002，
+則externalURL應填寫：`http://10.89.64.64:30002`。
 
 ## 從其它Harbor倉庫導入鏡像
 登入Harbor管理頁面，選擇`Administration - Registries - NEW ENDPOINT`菜單，
@@ -1323,7 +1346,7 @@ $ docker login http://x.x.x.x
 
 現在Docker默認使用HTTPS協議訪問Habor（即使顯式指定了HTTP），
 若Habor未配置HTTPS會登入錯誤，要允許Docker以HTTP方式登入，
-則應修改Docker配置`~/.config/daemon.json`的`insecure-registries`配置，
+則應修改Docker配置`~/.docker/daemon.json`的`insecure-registries`配置，
 參考[Docker Registry Server](#docker-registry-server)中的對應內容。
 
 ### podman登入
