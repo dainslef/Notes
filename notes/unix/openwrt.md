@@ -43,6 +43,8 @@
 - [OpenWRT Clash](#openwrt-clash)
 	- [luci-app-clash](#luci-app-clash)
 	- [OpenClash](#openclash)
+		- [OpenClash常用配置項](#openclash常用配置項)
+		- [OpenClash排查錯誤](#openclash排查錯誤)
 - [OpenWRT衍生固件](#openwrt衍生固件)
 	- [ImmortalWrt](#immortalwrt)
 	- [FriendlyWrt](#friendlywrt)
@@ -1239,6 +1241,42 @@ stack traceback:
 若已安裝`luci-app-aria2`或`luci-app-dockerman`則無需手動安裝該依賴
 （OpenWRT 22.03開始luci-app-aria2已不再依賴luci-compat，需要手動安裝），
 luci-compat會作為該插件的依賴安裝。
+
+### OpenClash常用配置項
+OpenClash功能強大，但部分配置若未合理配置會導致無法聯網。
+
+常用配置說明：
+
+- `Plugin Settings`
+	- `Operation Mode`
+		- `Enable Meta Core` 是否啟用Meta內核，通常啟用
+		- `Select Mode` （重要）代理模式，通常使用`redir-host(tun mode)`
+		- `Select Stack Type` （重要！）DNS棧，通常使用`System`（比`gVisor`模式性能更好，但可能存在兼容性問題導致無法聯網）
+	- `Traffic Control`
+		- `Router-Self Proxy` 禁用，通常搭配`Stream Enhance Tag`功能使用，未使用相關功能不必開啟
+		- `Disable QUIC` （重要！）禁用，禁止443端口的UDP流量（禁用HTTP3/QUIC協議，UDP在支那丟包嚴重）
+		- `Common Ports Proxy Mode` （重要！）設置為`Default Common Ports`，若設置為`Disable`可能導致無法連接外網
+		- `China IP Route` （重要）禁用，允許直接通過支那IP可能會導致部分用戶規則不生效
+	- `DNS Settings`
+		- `Disable Dnsmasq's DNS Cache` （重要！）啟用，Dnsmasq Cache可能導致切換模式時域名地址不更新，導致無法聯網
+- `Overwrite Settings`
+	- `DNS Setting` （重要！）子選項全部禁用，`Custom DNS Setting`等選項在tun模式下可能導致tun接口啟動失敗
+	- `Rules Setting` 子選項全部禁用，啟用相關規則可能干擾用戶規則
+
+修改/更新配置後，若直接Apply Setting導致無法聯網，
+可嘗試重新`Enable OpenClash`，會重新執行完整的啟動流程。
+
+若出現牆內流量正常，牆外流量無法訪問的情況，
+可考慮重啟WAN口以及重新插入WAN口網線。
+
+### OpenClash排查錯誤
+首先排查日誌：
+
+- OpenClash服務日誌：`Server Logs > OpenClash Log`
+- 內核日誌：`Server Logs > OpenClash Log`
+
+若日誌正常，可使用`Plugin Settings > Debug Logs`對指定域名進行測試；
+使用`Plugin Settings > Debug Logs > Generate Logs`生成當前環境的配置概要。
 
 
 
