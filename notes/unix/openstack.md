@@ -15,6 +15,7 @@
 		- [清理指定組件](#清理指定組件)
 		- [清理部署環境](#清理部署環境)
 		- [RabbitMQ部署問題](#rabbitmq部署問題)
+		- [恢復MariaDB數據庫](#恢復mariadb數據庫)
 
 <!-- /TOC -->
 
@@ -351,3 +352,22 @@ ERROR: epmd error for host openStack: address (cannot connect to host/port)
 ```
 
 詳細問題參見[官方BUG Track](https://bugs.launchpad.net/kolla-ansible/+bug/1855935)。
+
+### 恢復MariaDB數據庫
+OpenStack部署多個計算節點時，數據庫組件MariaDB會以集群模式（Galera Cluster）運行，
+集群掉電重啟後可能會出現同步異常導致數據庫容器反覆重啟。
+
+恢復步驟：
+
+1. 選擇數據最新的計算節點作為恢復節點
+1. 編輯`/var/lib/docker/volumes/mariadb/_data/grastate.dat`文件，
+將`safe_to_bootstrap`值修改為`1`
+1. 編輯`/etc/kolla/mariadb/config.json`文件，
+將`"command": "/usr/bin/mariadbd-safe"`修改為
+`"command":"/usr/bin/mysqld_safe --wsrep-new-cluster"`
+1. 之後重啟該節點的MariaDB容器
+1. 觀察其它計算節點的MariaDB容器恢復正常運行，
+若狀態正常則將之前修改的`/etc/kolla/mariadb/config.json`文件恢復默認內容。
+
+使用docker logs指令並不能直接查看到MariaDB數據庫服務的運行日誌，
+服務運行日誌位於`/var/lib/docker/volumes/kolla_logs/_data/mariadb/mariadb.log`文件。
