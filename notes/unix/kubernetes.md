@@ -699,13 +699,22 @@ Service包括下列類型：
 ### Service代理模式
 kube-proxy負載均衡默認使用iptables實現，亦可手動配置為IPVS。
 
-配置kube-proxy模式可參考[StackOverflow](https://stackoverflow.com/questions/56493651/enable-ipvs-mode-in-kube-proxy-on-a-ready-kubernetes-local-cluster)上的相關問答。
+編輯kube-proxy的configmap，設置`mode`參數為`ipvs`：
+
+```html
+<!-- 默認 mode 參數為設置值（默認使用iptables），將其修改為 ipvs -->
+$ kubectl edit configmap -n kube-system kube-proxy
+<!--  -->
+$ kubectl rollout restart daemonset -n kube-system kube-proxy
+```
+
+詳情參考[StackOverflow](https://stackoverflow.com/questions/56493651/enable-ipvs-mode-in-kube-proxy-on-a-ready-kubernetes-local-cluster)上的相關問答。
 
 使用`ipvsadm`管理IPVS轉發規則：
 
 ```html
 <!-- 查看當前的轉發規則 -->
-# ipvsadm -Ln
+# ipvsadm -ln
 ```
 
 IPVS存在NodePort模式下無法使用本地地址（127.0.0.1）的問題，
