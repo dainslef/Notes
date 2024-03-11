@@ -59,6 +59,7 @@
 		- [Thinly-Provisioned Logical Volumes（精簡邏輯卷）](#thinly-provisioned-logical-volumes精簡邏輯卷)
 		- [邏輯卷狀態和塊設備不顯示問題](#邏輯卷狀態和塊設備不顯示問題)
 - [時間管理](#時間管理)
+	- [timedatectl](#timedatectl)
 	- [硬件時間](#硬件時間)
 	- [NTP (Network Time Protocol)](#ntp-network-time-protocol)
 		- [ntp服務配置](#ntp服務配置)
@@ -423,6 +424,7 @@ sed支持按行截取命令行輸出：
 <!-- 行數從 1 開始計數 -->
 $ sed -n 行號p <!-- 截取指定行的輸出 -->
 $ sed -n 起始行,結束行p <!-- 截取指定起止範圍的行-->
+$ sed -n '起始行,$p' <!-- 截取起始行到最後一行 -->
 ```
 
 示例：
@@ -2316,7 +2318,16 @@ Mon Mar  6 16:42:16 CST 2023
 # date '時間' <!-- 設置系統時間 -->
 ```
 
-使用systemd的現代Linux發行版中，時間管理亦可使用`timedatectl`工具：
+## timedatectl
+使用systemd的現代Linux發行版中，通常時間同步由`systemd-timesyncd`提供，
+查看系統是否使用了該時間服務：
+
+```
+$ systemctl status systemd-timesyncd.service
+```
+
+若服務存在且已正常啟動，則系統由systemd-timesyncd管理，
+可使用`timedatectl`工具：
 
 ```html
 $ timedatectl
@@ -2330,7 +2341,13 @@ System clock synchronized: yes
 
 $ timedatectl list-timezones <!-- 查看支持的時區 -->
 # timedatectl set-timezone 時區 <!-- 設置時區 -->
+
+<!-- 查看時間同步配置 -->
+$ timedatectl show-timesync
+$ timedatectl show-timesync --all
 ```
+
+systemd-timesyncd的配置文件為`/etc/systemd/timesyncd.conf`。
 
 ## 硬件時間
 使用`hwclock`指令查看系統的硬件時間：
@@ -3096,7 +3113,9 @@ systemd還集成了常用的系統管理工具：
 | loginctl | 會話狀態管理 |
 | busctl | | D-Bus監控 |
 | userdbctl | 用戶管理 |
-| machinectl | 虛擬機/容器管理
+| machinectl | 虛擬機/容器管理 |
+
+各類其它systemd相關服務的配置均位於`/etc/systemd`路徑下。
 
 ### loginctl
 `loginctl`用於配置systemd的登入管理器，loginctl自身服務為`systemd-logind.service`。
