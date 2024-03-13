@@ -1,8 +1,9 @@
 <!-- TOC -->
 
 - [Redis安裝和維護](#redis安裝和維護)
-	- [查看狀態](#查看狀態)
 	- [性能測試](#性能測試)
+- [Redis通用功能](#redis通用功能)
+	- [Replication（主從複製）](#replication主從複製)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
 	- [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
 - [問題註記](#問題註記)
@@ -20,23 +21,14 @@ Redis在各大發行版倉庫中均已收錄，直接使用發行版內置的包
 # apt install redis-server <!-- Debian係 -->
 ```
 
-## 查看狀態
-使用`INFO`指令可查看Redis服務的各類狀態。
+Redis官方提供了功能完善的GUI客戶端[Redis Insight](https://redis.com/redis-enterprise/redis-insight)，
+Redis Insight使用Electron實現，源碼託管在[GitHub](https://github.com/RedisInsight/RedisInsight)上。
 
-示例：
+Linux多數發行版官方倉庫尚未收錄該軟件包，
+macOS可直接通過Homebrew安裝：
 
-```html
-<!-- 查看客戶端狀態 -->
-> INFO clients
-# Clients
-connected_clients:13
-cluster_connections:0
-maxclients:10000
-client_recent_max_input_buffer:257
-client_recent_max_output_buffer:0
-blocked_clients:2
-tracking_clients:0
-clients_in_timeout_table:2
+```
+$ brew install redisinsight
 ```
 
 ## 性能測試
@@ -75,6 +67,83 @@ LRANGE_500 (first 500 elements): 12642.22 requests per second, p50=1.895 msec
 LRANGE_600 (first 600 elements): 11441.65 requests per second, p50=2.167 msec
 MSET (10 keys): 86206.90 requests per second, p50=0.391 msec
 ```
+
+
+
+# Redis通用功能
+Redis與數據結構無關的通用功能。
+
+- `HELP` 查看目標指令的幫助信息。
+- `INFO` 查看服務狀態，默認輸出所有狀態信息參數可添加不同類別。
+- `KEYS` 查找KEY，支持按照模式匹配出所有滿足條件的KEY。
+- `TYPE` 查看指定Key的數據結構類型。
+- `FLUSHALL` / `FLUSHDB` 清理所有數據。
+FLUSHALL清理所有數據庫中的內容，FLUSHDB清理當前數據庫的內容。
+- `EXPIRE` 設置KEY過期時間。
+Redis中的數據默認永久生效，需要使用EXPIRE為數據設定過期時間。
+
+## Replication（主從複製）
+Redis通過`REPLICAOF`指令設置主從複製，在從節點執行該指令即可同步主節點的數據：
+
+```html
+<!-- 建立同步關係（進入同步模式） -->
+> REPLICAOF 主節點地址 主節點端口
+
+<!-- 解除同步關係（退出同步模式） -->
+> REPLICAOF NO ONE
+```
+
+執行該指令後，若建立同步關係成功，作為從節點的當前節點舊數據會被清除替換為主節點的數據。
+進入同步模式後，從節點會持續從主節點同步數據，在網絡中斷後也會自動重新開始同步。
+在同步後，默認從節點會進入**只讀模式**（不可執行涉及數據寫入的指令），查看同步狀態信息：
+
+```html
+<!-- 主節點同步信息示例 -->
+> INFO REPLICATION
+# Replication
+role:master <!-- 節點角色 -->
+connected_slaves:xxx <!-- 連結的從節點數目 -->
+slave0:ip=x.x.x.x,port=6379,state=online,offset=xxx,lag=x
+master_replid:xxx
+master_replid2:xxx
+master_repl_offset:xxx
+second_repl_offset:xxx
+repl_backlog_active:x
+repl_backlog_size:xxx
+repl_backlog_first_byte_offset:xxx
+repl_backlog_histlen:xxx
+
+<!-- 從節點同步信息示例 -->
+> INFO REPLICATION
+# Replication
+role:slave <!-- 節點角色 -->
+master_host:x.x.x.x <!-- 主節點地址 -->
+master_port:6379 <!-- 主節點端口 -->
+master_link_status:up <!-- 主節點狀態 -->
+master_last_io_seconds_ago:0 <!-- 最近同步時間 -->
+master_sync_in_progress:0 <!-- 當前正在進行的同步操作數目 -->
+slave_repl_offset:xxx
+slave_priority:100
+slave_read_only:1 <!-- 從節點是否只讀 -->
+connected_slaves:0
+master_replid:xxx
+master_replid2:xxx
+master_repl_offset:xxx
+second_repl_offset:xxx
+repl_backlog_active:x
+repl_backlog_size:xxx
+repl_backlog_first_byte_offset:xxx
+repl_backlog_histlen:xxx
+```
+
+通過指令創建的主從同步關係在節點重啟後不會保存，
+要使Redis服務在啟動時保持同步關係，需要在redis.conf中加入：
+
+```
+replicaof 主節點地址 主節點端口
+```
+
+配置項與命令行下的同步指令相同。
 
 
 
