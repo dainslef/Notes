@@ -16,6 +16,9 @@
 		- [清理部署環境](#清理部署環境)
 		- [RabbitMQ部署問題](#rabbitmq部署問題)
 		- [恢復MariaDB數據庫](#恢復mariadb數據庫)
+- [Horizon](#horizon)
+	- [部署Horizon開發環境](#部署horizon開發環境)
+	- [編寫Horizon插件](#編寫horizon插件)
 
 <!-- /TOC -->
 
@@ -29,6 +32,7 @@ OpenStack的常用功能菜單。
 | Project - Compute - Overview | 當前項目的資源配額 |
 | Identity - Projects - Modify Quotas | 修改當前項目配額 |
 | Admin - Compute - Hypervisors | 集群所有節點實際資源分佈 |
+| Admin - Compute - Flavors | 管理虛擬機規格 |
 
 
 
@@ -371,3 +375,50 @@ OpenStack部署多個計算節點時，數據庫組件MariaDB會以集群模式�
 
 使用docker logs指令並不能直接查看到MariaDB數據庫服務的運行日誌，
 服務運行日誌位於`/var/lib/docker/volumes/kolla_logs/_data/mariadb/mariadb.log`文件。
+
+
+
+# Horizon
+[Horizon](https://docs.openstack.org/horizon/latest/)是OpenStack管理面板的官方實現。
+
+## 部署Horizon開發環境
+構建Horizon的開發環境，參考
+[Horizon貢獻者Quickstart](https://docs.openstack.org/horizon/latest/contributor/quickstart.html)。
+
+首先確認目標環境的OpenStack版本，從[Horizon官方倉庫](https://github.com/openstack/horizon)中
+拉取對應分支的代碼，從`setup.cfg`中查看該Horizon版本支持的Python版本，準備對應版本的Python環境。
+
+Horizon運行需要`gettext`工具，默認配置還會啟用用`memcached`作為緩存（未運行memcached會出現錯誤訊息
+[`RuntimeError("Unable to create a new session key.")`](https://stackoverflow.com/questions/6869198/how-can-i-prevent-runtimeerrorunable-to-create-a-new-session-key)），
+以Debian係發行版為例，安裝上述軟件包，並運行memcached：
+
+```
+# apt install gettext memcached
+$ memcached &
+```
+
+使用pip安裝`tox`工具：
+
+```
+$ pip install -U pip tox
+```
+
+使用tox在OpenStack源碼根路徑下執行：
+
+```html
+$ tox -e runserver <!-- 默認監聽 127.0.0.1:8000 -->
+$ tox -e runserver -- 0.0.0.0:8000 <!-- 自定義地址 -->
+```
+
+Horizon使用Django框架開發，因此遵循其文件佈局和配置方法。
+
+## 編寫Horizon插件
+插件編寫可參考官方[Horizon插件教程](https://docs.openstack.org/horizon/latest/contributor/tutorials/plugin.html)，
+以及[Horizon面板構建教程](https://docs.openstack.org/horizon/latest/contributor/tutorials/dashboard.html)。
+
+Horizon的組件按層級分為：
+
+1. Dashboard，頂層菜單，如`Project/Admin/Identity...`
+1. Panel Group，面板組，如`Project - Compute/Volumes/Network...`
+1. Panel，面板，如`Project - Compute - Overview/Instances/Images...`
+1. Tab，面板標籤頁，如`Project - Network - Network Topology - Topology/Graph`
