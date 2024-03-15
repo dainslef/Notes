@@ -5,9 +5,12 @@
 	- [現代macOS](#現代macos)
 - [常用功能](#常用功能)
 	- [常用快捷鍵](#常用快捷鍵)
-	- [常用命令行指令](#常用命令行指令)
+	- [常用功能配置](#常用功能配置)
+		- [主機信息](#主機信息)
+		- [托盤圖標](#托盤圖標)
+		- [鍵盤亮度](#鍵盤亮度)
+		- [顯示/取消顯示隱藏文件](#顯示取消顯示隱藏文件)
 	- [常用軟件](#常用軟件)
-	- [托盤圖標](#托盤圖標)
 	- [特殊目錄](#特殊目錄)
 	- [垃圾清理](#垃圾清理)
 	- [使用 Touch ID 代替命令行密碼驗證](#使用-touch-id-代替命令行密碼驗證)
@@ -18,6 +21,8 @@
 	- [禁用翻蓋自啓](#禁用翻蓋自啓)
 - [包管理](#包管理)
 	- [Homebrew](#homebrew)
+		- [Homebrew文件佈局（x86架構）](#homebrew文件佈局x86架構)
+		- [Homebrew文件佈局（ARM架構）](#homebrew文件佈局arm架構)
 		- [配置與安裝](#配置與安裝)
 		- [基本指令](#基本指令)
 		- [路徑信息](#路徑信息)
@@ -65,7 +70,6 @@
 	- [Shadowsocks](#shadowsocks)
 	- [V2Ray](#v2ray)
 - [問題記錄](#問題記錄)
-	- [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
 	- ["Xxx.app" is damaged and can't be opened. You should move it to the Trash.](#xxxapp-is-damaged-and-cant-be-opened-you-should-move-it-to-the-trash)
 	- [Error: Your CLT does not support macOS 11.0.](#error-your-clt-does-not-support-macos-110)
 	- [LaunchPad內出現無效的`Install macOS xxx`圖標](#launchpad內出現無效的install-macos-xxx圖標)
@@ -74,6 +78,7 @@
 	- [macOS下Chrome的 NET::ERR_CERT_INVALID](#macos下chrome的-neterr_cert_invalid)
 	- [macOS默認終端下Powerline字體色彩顯示異常](#macos默認終端下powerline字體色彩顯示異常)
 	- [Launchpad無效圖標](#launchpad無效圖標)
+	- [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
 	- [Wireshark無法抓包](#wireshark無法抓包)
 
 <!-- /TOC -->
@@ -141,29 +146,45 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 | Spotlight | Command + Space |
 | 跳轉到字典(Spotlight搜索中) | Command + L |
 
-## 常用命令行指令
-macOS中的一些配置項沒有提供圖形化的配置方式，需要通過命令行進行配置。
+## 常用功能配置
+常用功能配置說明。
 
-- 主機信息相關
+### 主機信息
+在`System Settings - General - Sharing - Local hostname`中配置本地主機名稱，
+本地主機名稱在本地網絡共享時使用，對命令行環境下無效。
 
-	設置主機名稱：
+配置命令行環境下的主機名稱：
 
-	```
-	# scutil --set HostName [主機名]
-	```
+```html
+# hostname <!-- 查看主機名稱 -->
+# hostname 主機名稱 <!-- 設置主機名稱 -->
+```
 
-	設置主機共享名稱：
+### 托盤圖標
+macOS下托盤圖標可以使用`Command + 鼠標左鍵`點選，拖動進行排序。
 
-	```
-	# scutil --set ComputerName [主機共享名稱]
-	```
+默認配置下，macOS有部分常用托盤圃標默認處於隱藏狀態，如音量、藍牙等，
+在`System Settings - Control Center`（控制中心設置）中可配置各類托盤圖標的顯示狀態。
 
-- 顯示/取消顯示隱藏文件：
+鎖屏托盤圖標無法直接在系統設置中調出，需要打開`Keychain Access.app`，
+在`Reference`中勾選`Show keychain status in menu bar`選項。
+（從macOS 10.13 High Sierra版本開始，該設置項被移除，已無法再調出鎖屏托盤圖標）
 
-	```html
-	<!-- 現在版本的macOS可直接使用 "Command + Shift + ." 快捷鍵開關隱藏文件顯示 -->
-	$ defaults write com.apple.finder AppleShowAllFiles YES/NO <!-- 重新登陸賬戶後生效 -->
-	```
+### 鍵盤亮度
+基於Apple Sillicon平臺的新MacBook使用了新鍵盤佈局，
+功能鍵中去掉了控制鍵盤亮度的功能鍵（被搜索等功能鍵替代）。
+
+可在`System Settings - Control Center`（控制中心設置）中，
+開啟`Keyboard Brightness`使其顯示在控制中心或托盤圖標中。
+
+### 顯示/取消顯示隱藏文件
+早期版本的macOS Finder不支持切換/顯示隱藏文件，需要使用指令配置：
+
+```html
+$ defaults write com.apple.finder AppleShowAllFiles YES/NO <!-- 重新登陸賬戶後生效 -->
+```
+
+現在版本的macOS可直接使用`Command + Shift + .`快捷鍵開關隱藏文件顯示。
 
 ## 常用軟件
 macOS常用軟件：
@@ -175,15 +196,10 @@ macOS常用軟件：
 | `AppCleaner` | APP卸載工具 |
 | `Xcode` | 集成開發環境 |
 | `iTerm2` | 終端模擬器，相比自帶終端擁有更多高級特性 |
-| `ClashX Pro` | Clash在macOS上的客戶端 |
+| `Kitty` | 終端模擬器，相比自帶終端擁有更多高級特性，比iTerm2易於配置 |
+| `Clash Verge` | Clash在macOS上的客戶端 |
 | `Android File Transfer` | Android文件傳輸客戶端 |
 | `OmniDiskSweeper` | 計算文件系統下各個路徑的大小，用於清理垃圾 |
-
-## 托盤圖標
-`macOS`下托盤圖標可以使用`Command + 鼠標左鍵`點選，拖動進行排序。
-
-鎖屏托盤圖標無法直接在系統設置中調出，需要打開`Keychain Access.app`，
-在`Reference`中勾選`Show keychain status in menu bar`選項。
 
 ## 特殊目錄
 系統中特定功能相關的路徑介紹。
@@ -336,30 +352,42 @@ Note that arguments and options are executed in order.
 二者之間的差異：
 
 - Homebrew基於Git，是輕量級的包管理器，傾向於最大化利用macOS自帶的Unix組件。
-- MacPorts是FreeBSD中`Ports`系統的移植，使用源碼編譯軟件，不依賴原有macOS中的軟件包，而是獨立構建出一套環境。
-- Homebrew中軟件包多數以二進制形式提供，默認安裝路徑爲`/usr/local`。
+- MacPorts是FreeBSD中`Ports`系統的移植，
+使用源碼編譯軟件，不依賴原有macOS中的軟件包，而是獨立構建出一套環境。
+- Homebrew中軟件包多數以二進制形式提供，Intel平台下默認安裝路徑爲`/usr/local`。
 - MacPorts編譯的軟件包一般安裝在`/opt`目錄下。
 
 ## Homebrew
 Homebrew使用`Ruby`語言實現。
-
 與傳統的包管理器不同，使用Homebrew並不需要使用root用戶，管理員權限用戶即可。
-Homebrew將軟件包安裝在`/usr/local`目錄下，在macOS中該目錄默認情況下爲**空**，
-因此當用戶不再需要使用Homebrew時，只需完整刪除`/usr/local`目錄下的所有內容即可。
-（某些非Bundle形式安裝的軟件亦會將一些內容安裝在`/usr/local`目錄下，如VirtualBox。
+
+### Homebrew文件佈局（x86架構）
+Intel平台下Homebrew的基礎目錄為`/usr/local`，在macOS中該目錄默認情況下爲**空**。
+
+Homebrew將軟件包安裝在/usr/local目錄下，當用戶不再需要使用Homebrew時，
+只需完整刪除`/usr/local`目錄下的所有內容即可。
+（某些非Bundle形式安裝的軟件亦會將一些內容安裝在`/usr/local`目錄下，如VirtualBox、Docker Desktop等。
 若安裝了此類軟件，清理`/usr/local`目錄時需要仔細辨別）
 
 默認情況下，在macOS中，`/usr/local`的所有者爲`root`，用戶組爲`wheel`，安裝Homebrew時，
 安裝腳本會將該目錄所有者會更改爲**當前管理員用戶**，並將用戶組改爲`admin`。
 
+### Homebrew文件佈局（ARM架構）
+Apple Silicon平台下Homebrew的主目錄為`/opt/homebrew`，
+相比Intel時代，新的目錄完全由Homebrew使用，不會出現與其它軟件安裝路徑重疊的問題。
+
 ### 配置與安裝
 Homebrew採用Ruby語言開發，macOS中默認已經集成了Ruby環境。
-Homebrew需要用到Git等工具，在安裝Homebrew之前需要先安裝**Xcode命令行**工具（或者直接完整安裝Xcode）。
+Homebrew需要用到Git等工具，在安裝Homebrew之前需要先安裝**Xcode命令行**工具：
+
+```
+$ xcode-select --install
+```
 
 之後在終端內執行：
 
-```sh
-$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 ```
 
 ### 基本指令
@@ -524,11 +552,11 @@ freetype	libevent	mysql		opencc		pkcs11-helper	scala
 haskell-stack	libpng		nasm		openjdk		postgresql	six
 
 ==> Casks
-android-file-transfer	docker			microsoft-office	tencent-meeting		vlc
-android-platform-tools	dotnet-sdk		mysqlworkbench		the-unarchiver		wechat
+android-file-transfer	docker			microsoft-office	vlc
+android-platform-tools	mysqlworkbench		the-unarchiver		wechat
 appcleaner		gimp			neteasemusic		virtualbox		wireshark
 blender			google-chrome		qq			visual-studio-code
-clashx-pro		intellij-idea		steam			visualvm
+intellij-idea		steam			visualvm 	omnidisksweeper
 ```
 
 使用`brew list 包名`：
@@ -1345,14 +1373,15 @@ tcpkeepalive選項值爲`1`代表改特性已啓用，啓用該特性會導致�
 禁用tcpkeepalive特性：
 
 ```html
+<!-- 禁用所有電源策略下的tcpkeepalive特性 -->
+# pmset tcpkeepalive 0 <!-- 默認操作對所有場景生效 -->
+# pmset -a tcpkeepalive 0
+
 <!-- 禁用電池供電時的tcpkeepalive特性 -->
 # pmset -b tcpkeepalive 0
 
 <!-- 禁用電源供電時的tcpkeepalive特性 -->
 # pmset -c tcpkeepalive 0
-
-<!-- 禁用所有電源策略下的tcpkeepalive特性 -->
-# pmset -a tcpkeepalive 0
 ```
 
 禁用tcpkeepalive特性需要以root權限執行pmset指令。
@@ -1424,28 +1453,6 @@ V2Ray支持以下特性：
 
 # 問題記錄
 記錄macOS下遇到的一些問題的解決方案。
-
-## <W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'
-問題描述：<br>
-使用Homebrew Cask安裝Wireshark後，普通用戶使用fish shell啟動時會出現該錯誤。
-
-解決方案：<br>
-出現該錯誤信息的原因是Wireshark安裝過程中創建了`/etc/path.d/Wireshark`文件。
-該文件創建時的權限為`600`：
-
-```
-# ls -al /etc/paths.d/Wireshark
--rw-------  1 root  wheel  43 Nov 21 07:19 /etc/paths.d/Wireshark
-```
-
-普通用戶所屬的用戶組不具備讀取權限，而fish shell的補全功能需要訪問該文件。
-修改權限為`644`後，普通用戶fish shell不再出現該錯誤信息：
-
-```
-# chmod +r /etc/paths.d/Wireshark
-# ls -al /etc/paths.d/Wireshark
--rw-r--r--  1 root  wheel  43 Nov 21 07:19 /etc/paths.d/Wireshark
-```
 
 ## "Xxx.app" is damaged and can't be opened. You should move it to the Trash.
 問題描述：<br>
@@ -1575,6 +1582,28 @@ macOS自帶終端顯示Powerline字體色彩問題暫無直接解決方案，
 ![Launchpad異常圖標刪除](../../images/mac_os_launchpad_icon_error.png)
 
 點擊刪除按鈕即可刪除圖標。
+
+## <W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'
+問題描述：<br>
+使用Homebrew Cask安裝Wireshark後，普通用戶使用fish shell啟動時會出現該錯誤。
+
+解決方案：<br>
+出現該錯誤信息的原因是Wireshark安裝過程中創建了`/etc/path.d/Wireshark`文件。
+該文件創建時的權限為`600`：
+
+```
+# ls -al /etc/paths.d/Wireshark
+-rw-------  1 root  wheel  43 Nov 21 07:19 /etc/paths.d/Wireshark
+```
+
+普通用戶所屬的用戶組不具備讀取權限，而fish shell的補全功能需要訪問該文件。
+修改權限為`644`後，普通用戶fish shell不再出現該錯誤信息：
+
+```
+# chmod +r /etc/paths.d/Wireshark
+# ls -al /etc/paths.d/Wireshark
+-rw-r--r--  1 root  wheel  43 Nov 21 07:19 /etc/paths.d/Wireshark
+```
 
 ## Wireshark無法抓包
 問題描述：<br>
