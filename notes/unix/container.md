@@ -44,10 +44,11 @@
 		- [Docker客戶端證書配置](#docker客戶端證書配置)
 		- [Habor服務管理](#habor服務管理)
 	- [部署Habor（Helm）](#部署haborhelm)
-	- [從其它Harbor倉庫導入鏡像](#從其它harbor倉庫導入鏡像)
 	- [登入Habor](#登入habor)
 		- [Docker登入](#docker登入)
 		- [podman登入](#podman登入)
+		- [containerd登入](#containerd登入)
+	- [從其它Harbor倉庫導入鏡像](#從其它harbor倉庫導入鏡像)
 - [Lima](#lima)
 	- [Lima安裝](#lima安裝)
 	- [Lima環境配置](#lima環境配置)
@@ -1322,17 +1323,6 @@ $ helm install --set 配置=值... -n 命名空間 harbor harbor/harbor
 示例關閉TLS，Kubernetes節點IP為10.89.64.64，NodePort端口為30002，
 則externalURL應填寫：`http://10.89.64.64:30002`。
 
-## 從其它Harbor倉庫導入鏡像
-登入Harbor管理頁面，選擇`Administration - Registries - NEW ENDPOINT`菜單，
-登記作為導入源的Harbor倉庫地址。
-
-選擇`Administration - Replications - NEW REPLICATION RULE`菜單，添加鏡像複製規則。
-複製規則菜單中，`Replication mode`設置為`Pull-based`才是從其它倉庫拉取鏡像；
-`Source resource filter`配置項下，`Name`配置項可配置基於鏡像名稱的過濾，
-並支持使用`*`通配符，如`library/*`即為拉取library倉庫下的所有鏡像。
-
-複製規則創建完成後，選中規則點擊`REPLICATE`可手動開始同步操作。
-
 ## 登入Habor
 Habor默認用戶為`admin`，密碼為部署時配置文件中`harbor_admin_password`字段的內容。
 容器服務需要登入Habor方可上傳鏡像。
@@ -1368,6 +1358,36 @@ registries = ['x.x.x.x']
 [registries.search]
 registries = ['docker.io', 'registry.access.redhat.com']
 ```
+
+### containerd登入
+使用containerd從Harbor拉取鏡像需要禁用TLS加密或添加倉庫認證信息，
+則需修改`/etc/containerd/config.toml`下列配置：
+
+```toml
+# 使用HTTP協議
+[plugins."io.containerd.grpc.v1.cri".registry.mirrors."xxx.xxx.xxx:端口"]
+endpoint = ["http://xxx.xxx.xxx:端口"] # 默認拉取鏡像使用HTTPS協議，使用HTTP協議拉取鏡像需要手動配置端點
+
+# 禁用TLS證書驗證
+[plugins."io.containerd.grpc.v1.cri".registry.configs."xxx.xxx.xxx:端口".tls]
+insecure_skip_verify = true
+
+# 設置認證信息
+[plugins."io.containerd.grpc.v1.cri".registry.configs."xxx.xxx.xxx:端口".auth]
+username = "xxx"
+password = "xxx"
+```
+
+## 從其它Harbor倉庫導入鏡像
+登入Harbor管理頁面，選擇`Administration - Registries - NEW ENDPOINT`菜單，
+登記作為導入源的Harbor倉庫地址。
+
+選擇`Administration - Replications - NEW REPLICATION RULE`菜單，添加鏡像複製規則。
+複製規則菜單中，`Replication mode`設置為`Pull-based`才是從其它倉庫拉取鏡像；
+`Source resource filter`配置項下，`Name`配置項可配置基於鏡像名稱的過濾，
+並支持使用`*`通配符，如`library/*`即為拉取library倉庫下的所有鏡像。
+
+複製規則創建完成後，選中規則點擊`REPLICATE`可手動開始同步操作。
 
 
 
@@ -1410,10 +1430,11 @@ $ limactl start --name=default /usr/local/share/lima/examples/archlinux.yaml <!-
 其中較為重要的配置項如下：
 
 ```yaml
-# 配置虛擬機雙核CPU、2G內存、100G磁盤
+# 配置虛擬機雙核CPU、2G內存、50G磁盤
 cpus: 2 # 虛擬機核心數，默認配置為 min(4, host CPU cores)
 memory: 2G # 虛擬機內存，默認配置為 min("4GiB", half of host memory)
-disk: 100G # 虛擬機磁盤，默認配置為 100GiB
+disk: 50G # 虛擬機磁盤，默認配置為 100GiB
+mount-type: 9p # 宿主機文件系統掛載模式，默認使用 reverse-sshfs 模式，存在長時間使用自動丟失掛載的問題
 
 # 設置虛擬機對macOS宿主機家目錄的寫入權限，出於安全考量，默認禁用寫入權限
 mounts:
