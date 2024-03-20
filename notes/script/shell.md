@@ -118,16 +118,16 @@ drwxr-xr-x+  7 dainslef  staff   238 Aug 22 23:28 Public
 
 使用`$?`可以獲取**上一條**指令的**執行結果**(`bash/zsh`中支持該指令，`fish`不支持)：
 
-```sh
+```html
 $ ls
 Applications	Documents	Library		Music		Public
 Desktop		Downloads	Movies		Pictures
 $ echo $?
-0 # 指令執行成功，返回 0
-$ abc # 執行一條不存在的指令，執行失敗
-bash: abc: command not found
+0 <!-- 指令執行成功，返回 0 -->
+$ abc
+bash: abc: command not found <!-- 執行一條不存在的指令，執行失敗 -->
 $ echo $?
-127 # 指令執行失敗，返回 127
+127 <!-- 指令執行失敗，返回 127 -->
 ```
 
 ## 調試信息
@@ -1042,6 +1042,12 @@ if ![ 條件 ]; then # 錯誤
 fi
 ```
 
+多個條件之間的邏輯疊加除了使用傳統的`&&`、`||`等邏輯運算符外，
+亦可直接在test指令內部使用`-a`、`-o`操作進行拼接：
+
+- `[ 條件1 -a 條件2 ]` 邏輯與，條件1與條件2皆為true時為true
+- `[ 條件1 -o 條件2 ]` 邏輯或，條件1或條件2為true時為true
+
 `[ 條件 ]`用於**字符**判斷：
 
 - `[ 字符1 = 字符2 ]` 字符相同
@@ -1081,7 +1087,7 @@ fi
 - `case`語句（bash/zsh語法）
 - `switch`語句（fish語法）
 
-`if`分支結構語法：
+bash/zsh的if分支結構語法結構類似：
 
 ```sh
 # bash/zsh 分支語法
@@ -1095,14 +1101,17 @@ else
 	...
 fi
 
-# 多個條件可以使用邏輯運算符連接
+# bash/zsh 多個條件可以使用邏輯運算符連接
 if [ 條件1 ] && [ 條件2 ] || [ 條件3 ]; then
 fi
 # 否定條件
 if ! [ 條件1 ]; then
 fi
+```
 
-# fish 分支語法更近似現代腳本語言
+fish的if分支語法更近似現代腳本語言：
+
+```fish
 if [ 條件1 ]
 	...
 else if [ 條件2 ]
@@ -1111,7 +1120,7 @@ else
 	...
 end
 
-# 在 fish 中，條件邏輯操作符除了可以使用 bash/zsh 的 !、&&、|| 等
+# fish 條件邏輯操作符除了可以使用 bash/zsh 的 !、&&、|| 等
 # 也支持使用 not、and、or 等關鍵字作為邏輯操作符
 # 使用 and、or 操作符連接多個條件時，若多個條件寫在同一行，應使用分號 ; 進行分隔
 if [ 條件1 ]; and [ 條件2 ]; or [ 條件3 ]
@@ -1125,7 +1134,7 @@ if not [ 條件 ]
 end
 ```
 
-模式匹配語法：
+bash/zsh模式匹配語法：
 
 ```sh
 # bash/zsh 使用 case 語句進行模式匹配
@@ -1137,8 +1146,11 @@ case ... in
 	*) # 沒有匹配到內容跳轉到默認分支
 		... ;;
 esac
+```
 
-# fish 使用 switch 語句進行模式匹配
+fish使用`switch`語句進行模式匹配：
+
+```fish
 switch ...
 	case xxx1
 		...
@@ -1256,7 +1268,7 @@ while true
 end
 ```
 
-實例，打印`1~10`範圍的數值：
+實例，打印`1~10`範圍的數值，bash/zsh示例：
 
 ```sh
 # bash/zsh C風格
@@ -1275,7 +1287,11 @@ while [ i -le 10 ]; do
 	echo $i
 	i=$[$i+1]
 done
+```
 
+fish示例：
+
+```fish
 # fish for語句
 for i in (seq 1 10)
 	echo $i
@@ -1303,7 +1319,7 @@ done
 fish中沒有提供select結構同等的語法。
 
 ## 輸出內容
-Shell中使用`echo`函數用於向標準輸出(`stdout`)打印文本，
+Shell中使用`echo`函數用於向`stdout`（標準輸出）打印文本，
 類似於高級語言中的`print()`函數。
 
 echo函數可選參數：
@@ -1312,7 +1328,7 @@ echo函數可選參數：
 - `-n` 不打印換行符
 
 不同Shell對於轉義字符的默認處理方式不同。
-對於使用**引號**(`'`或`"`)包含的文本：
+對於使用**引號**（`'`或`"`）包含的文本：
 
 - bash/fish默認不處理轉義字符，將轉義字符作爲普通文本輸出
 - zsh默認處理轉義字符，相當於使用`echo -e`指令
@@ -1324,35 +1340,35 @@ echo函數可選參數：
 
 示例：
 
-```sh
-# bash
+```html
+<!-- bash -->
 $ echo abc\n
-abcn # bash 普通文本轉義字符被忽略
+abcn <!-- bash 普通文本轉義字符被忽略 -->
 $ echo 'abc\n'
-abc\n # bash 使用引號轉義字符被作爲普通文本輸出
+abc\n <!-- bash 使用引號轉義字符被作爲普通文本輸出 -->
 $ echo -e 'abc\n'
 abc
- # 轉義字符有效，正常輸出換行符
+<!-- 轉義字符有效，正常輸出換行符 -->
 
-# zsh
+<!-- zsh -->
 $ echo abc\n
-abcn # 忽略、隱藏轉義字符
+abcn <!-- zsh 普通文本轉義字符被忽略 -->
 $ echo 'abc\n'
 abc
- # zsh 使用引號正常輸出轉義字符
+<!-- 轉義字符有效，正常輸出換行符 -->
 $ echo -e 'abc\n'
 abc
- # 轉義字符有效，正常輸出換行符
+<!-- 轉義字符有效，正常輸出換行符 -->
 
-# fish
+<!-- fish -->
 $ echo abc\n
 abc
- # 轉義字符有效，正常輸出換行符
+<!-- 轉義字符有效，正常輸出換行符 -->
 $ echo 'abc\n'
-abc\n # fish 使用引號，轉義字符被視爲普通文本輸出
+abc\n <!-- fish 使用引號，轉義字符被視爲普通文本輸出 -->
 $ echo -e 'abc\n'
 abc
- # 轉義字符有效，正常輸出換行符
+<!-- 轉義字符有效，正常輸出換行符 -->
 ```
 
 ### 刷新輸出
@@ -1374,7 +1390,7 @@ $ echo -ne "test1\r"; sleep 1; echo "test2"
 ```
 
 ## 輸入內容
-Shell中使用`read`函數讀取用戶在標準輸入（`stdin`）中鍵入的內容。
+Shell中使用`read`函數讀取用戶在`stdin`（標準輸入）中鍵入的內容。
 read函數是Shell的**內置函數**，bash/zsh/fish中基本語法類似：
 
 ```
@@ -1420,7 +1436,7 @@ yes
 ## 自定義函數
 函數用於封裝一段需要重複調用的邏輯。
 
-定義函數語法：
+bash/zsh函數定義語法：
 
 ```sh
 # bash/zsh
@@ -1434,12 +1450,22 @@ function 函數名() {
 	...
 	return 返回值
 }
+```
 
-# fish
+fish函數定義：
+
+```fish
 function 函數名
 	...
 	return 返回值
 end
+```
+
+fish提供了`functions`指令進行函數管理：
+
+```html
+$ functions <!-- 默認打印出當前環境定義的函數 -->
+$ functions -e 函數名1 函數名2 ... <!-- 移除函數 -->
 ```
 
 ### 函數參數處理
@@ -1637,7 +1663,7 @@ bash/zsh/fish均內置了生成隨機數的功能。
 	`random`函數輸入隨機數的起止範圍作爲參數。
 
 ## Fork Bomb
-`Fork Bomb`(**Fork炸彈**)是bash/zsh中存在的經典惡意腳本：
+`Fork Bomb`（**Fork炸彈**）是bash/zsh中存在的經典惡意腳本：
 
 ```sh
 :(){ :|:& };:
@@ -1655,7 +1681,7 @@ Fork炸彈利用bash/zsh中簡短的函數語法，使用符號`:`或`.`作爲�
 ```sh
 :() { # 定義函數
 	: | :& # 函數體內部遞歸併通過管道創建新進程在後台運行
-};
+}
 : # 調用函數
 ```
 
