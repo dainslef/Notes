@@ -100,6 +100,7 @@
 	- [tcpdump](#tcpdump)
 	- [Netcat (nc)](#netcat-nc)
 		- [客戶端/服務端模式](#客戶端服務端模式)
+		- [Unix Domain Socket](#unix-domain-socket)
 		- [數據傳送](#數據傳送)
 		- [Ncat](#ncat)
 	- [iptables/nftables (netfilter)](#iptablesnftables-netfilter)
@@ -3956,6 +3957,45 @@ Connection to 127.0.0.1 port 3306 [tcp/mysql] succeeded!
 $ nc -uz 127.0.0.1 3306
 Connection to 127.0.0.1 port 3306 [udp/mysql] succeeded!
 ```
+
+### Unix Domain Socket
+Unix系統中部分服務會使用Unix Domain Socket作為IPC，
+會創建以sock為後綴的socket通信文件：
+
+```
+$ file xxx.sock
+xxx.sock: socket
+```
+
+nc使用`-U`參數可與sock文件交互：
+
+```html
+<!-- 與使用SOCK_STREAM（類TCP）的sock交互 -->
+$ nc -U xxx.sock
+
+<!-- 與使用SOCK_DGRAM（類UDP）的sock交互 -->
+$ nc -uU xxx.sock
+```
+
+監聽sock（會創建sock文件）：
+
+```html
+<!-- 創建並監聽SOCK_STREAM類型sock -->
+$ nc -lU xxx.sock
+
+<!-- 創建並監聽SOCK_DGRAM類型sock -->
+$ nc -luU xxx.sock
+```
+
+macOS自帶的nc不支持SOCK_DGRAM類型的Unix Domain Socket，
+會出現錯誤信息：
+
+```
+$ nc -luU xxx.sock
+nc: cannot use -u and -U
+```
+
+使用ncat則無此限制。
 
 ### 數據傳送
 默認模式下，nc直接在命令行中進行標準輸入輸出。
