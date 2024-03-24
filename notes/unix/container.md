@@ -723,7 +723,7 @@ Docker容器的終端輸出會存儲在容器目錄下，以`容器ID-json.log`�
     ...,
     "log-opts": {
       "max-size": "10m",
-      "max-file": 3,
+      "max-file": "3"
     }
 }
 ```
@@ -1368,9 +1368,14 @@ registries = ['docker.io', 'registry.access.redhat.com']
 [plugins."io.containerd.grpc.v1.cri".registry.mirrors."xxx.xxx.xxx:端口"]
 endpoint = ["http://xxx.xxx.xxx:端口"] # 默認拉取鏡像使用HTTPS協議，使用HTTP協議拉取鏡像需要手動配置端點
 
-# 禁用TLS證書驗證
+# HTTPS證書相關配置
 [plugins."io.containerd.grpc.v1.cri".registry.configs."xxx.xxx.xxx:端口".tls]
+# 禁用TLS證書驗證
 insecure_skip_verify = true
+# 私有證書相關配置
+ca_file = "..." # 根證書
+cert_file = "..." # 域名證書
+key_file = "..." # 證書密鑰
 
 # 設置認證信息
 [plugins."io.containerd.grpc.v1.cri".registry.configs."xxx.xxx.xxx:端口".auth]
@@ -1434,7 +1439,7 @@ $ limactl start --name=default /usr/local/share/lima/examples/archlinux.yaml <!-
 cpus: 2 # 虛擬機核心數，默認配置為 min(4, host CPU cores)
 memory: 2G # 虛擬機內存，默認配置為 min("4GiB", half of host memory)
 disk: 50G # 虛擬機磁盤，默認配置為 100GiB
-mount-type: 9p # 宿主機文件系統掛載模式，默認使用 reverse-sshfs 模式，存在長時間使用自動丟失掛載的問題
+mountType: 9p # 宿主機文件系統掛載模式，默認使用 reverse-sshfs 模式，存在長時間使用自動丟失掛載的問題
 
 # 設置虛擬機對macOS宿主機家目錄的寫入權限，出於安全考量，默認禁用寫入權限
 mounts:
