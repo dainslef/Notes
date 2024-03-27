@@ -19,6 +19,7 @@
 	- [Kubernetes API](#kubernetes-api)
 - [kubectl](#kubectl)
 	- [kubectl常用操作](#kubectl常用操作)
+	- [kubectl訪問容器](#kubectl訪問容器)
 	- [kubectl配置](#kubectl配置)
 		- [kubectl配置結構](#kubectl配置結構)
 		- [kubectl關閉證書驗證](#kubectl關閉證書驗證)
@@ -130,6 +131,9 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 ```
 # systemctl restart containerd
 ```
+
+若Kubernetes需要使用本地倉庫（如Harbor等）需要禁用TLS加密或添加倉庫認證信息。
+參考[containerd的Harbor接入配置](../unix/container.md#containerd登入)。
 
 ## 官方源部署
 在牆國之外或使用代理可直接訪問Google源環境的環境下，配置官方源（舊）：
@@ -545,6 +549,29 @@ $ kubectl edit 資源類型 對象名稱
 $ kubectl patch 資源類型 對象名稱 -p '更新內容' <!-- 更新內容使用JSON語法 -->
 ```
 
+kubectl在執行edit指令時，會讀取環境變量`$EDITOR`作為編輯器，
+可通過設置$EDITOR使用功能更強的編輯器，以fish shell下使用VSCode為例：
+
+```fish
+set -xg EDITOR "code --wait"
+```
+
+## kubectl訪問容器
+kubectl支持與docker類似的exec指令用於在容器內執行指令。
+
+```html
+$ kubectl exec -n 命名空間 Pod名稱 -- 指令
+
+<!-- 進入容器Shell環境 -->
+$ kubectl exec -it -n 命名空間 pod名稱 -- sh
+```
+
+對於多容器Pod，可使用`-c`參數指定進入的容器名稱：
+
+```
+$ kubectl exec -n 命名空間 pod名稱 -c 容器名稱 -- 指令
+```
+
 ## kubectl配置
 kubeclt默認配置路徑為`~/.kube/config`。
 
@@ -865,24 +892,25 @@ StatefulSet適合下列需求：
 - 有序的部署和擴容
 - 有序、自動化的滾動更新
 
-Deployment適合用於無狀態的集群，StatefulSet適合部署依賴狀態的集群，
-如Zookeeper、Galera Cluster等。
+Deployment適合用於無狀態的集群，StatefulSet適合部署依賴狀態的集群，如Zookeeper、Galera Cluster等。
 
-StatefulSet創建方式與Deployment基本相同，
-但StatefulSet在使用外部存儲時，必須使用PersistentVolume，
+StatefulSet創建方式與Deployment基本相同，但StatefulSet在使用外部存儲時，必須使用PersistentVolume，
 Kubernetes會記錄每個PersistentVolume與StatefulSet内Pods的對應關係（persistent identifier），
 保證重編排時依舊維持該對應關係。
 
-使用StatefulSet創建的集群，每個Pod均會擁有獨立的網絡標識，
+使用傳統的Deployment部署時，Pod名稱會隨機生成後綴，重新編排時Pod名稱會發生變化；
+使用StatefulSet則Pod名稱不會變化。
+
+使用StatefulSet創建的集群，每個Pod均會擁有獨立、固定的名稱及網絡標識，
 默認命名規則為`服務名稱-Pod編號`，Pod編號從`0`開始到`replicas - 1`結束，
-借助該機制，在編排容器時即可確定所有Pod的域名，分布式服務以此配置實現集群通信。
+借助該機制，在編排容器時即可確定所有Pod的域名，分布式服務以此配置實現集群通信；
 
 示例，假設`tiananmen8964`命名空間下存在名為`fuckccp`的服務，
 replicas為3，則生成的3個Pod域名分別為：
 
-1. `fuckccp-0.tiananmen8964`
-1. `fuckccp-1.tiananmen8964`
-1. `fuckccp-2.tiananmen8964`
+1. `fuckccp-0.fuckccp.tiananmen8964.svc.cluster.local`
+1. `fuckccp-1.fuckccp.tiananmen8964.svc.cluster.local`
+1. `fuckccp-2.fuckccp.tiananmen8964.svc.cluster.local`
 
 ## DaemonSet
 [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
