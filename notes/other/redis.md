@@ -4,6 +4,7 @@
 	- [性能測試](#性能測試)
 - [Redis通用功能](#redis通用功能)
 	- [Replication（主從複製）](#replication主從複製)
+	- [Sentinel（哨兵）](#sentinel哨兵)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
 	- [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
 - [問題註記](#問題註記)
@@ -144,6 +145,57 @@ replicaof 主節點地址 主節點端口
 ```
 
 配置項與命令行下的同步指令相同。
+
+## Sentinel（哨兵）
+Redis的主從複製機制解決了數據同步問題，但從節點在主節點故障時**不會**自動切換，
+需要使用哨兵機制實現故障時主節點自動切換（高可用）。
+
+哨兵機制需要`redis-sentinel`工具，在Debian等發行版中，
+該工具並未包含在redis-server/redis-tools中，需要單獨安裝：
+
+```
+# apt install redis-sentinel
+```
+
+redis-sentinel配置文件位於`/etc/redis/sentinel.conf`中，核心配置項：
+
+```conf
+bind 哨兵地址
+port 哨兵端口
+
+sentinel monitor 集群名稱 主節點地址 主節點端口 最少發現故障的哨兵數目
+sentinel down-after-milliseconds 集群名稱 下線時間（毫秒）
+sentinel failover-timeout 集群名稱 故障切換超時時間（毫秒）
+sentinel parallel-syncs 集群名稱 併行同步數目
+```
+
+哨兵通過集群名稱區分不同的監控集群，集群名稱相同的哨兵節點會使用Redis的Pub/Sub通信自動相互發現。
+
+哨兵進程獨立於Redis服務進程，在主節點故障後，若發現故障的哨兵數目大於monitor配置中的最小數目，
+各個哨兵會進行投票，半數以上的哨兵確認主節點故障則開始災難恢復，
+從原主節點的從節點中選取一個作為新的主節點，為集群保證可靠性，至少需要3個哨兵節點。
+
+parallel-syncs配置控制當災難發生時，有多少備用節點可同時被配置到指向新的主節點，
+數值越小，則災難恢復時間越長，但數值設置太大會導致主節點的網絡與IO開銷增加。
+
+哨兵進程會自動更新配置，新的哨兵節點加入後，會自動添加發現的其它哨兵節點的信息，
+在主節點發生切換後，還會自動更新Redis服務配置，保證後續啟動新的節點關係不變。
+
+哨兵節點亦可使用redis-cli工具連接管理：
+
+```html
+<!-- 連接方式相同 -->
+$ redis-cli -h 哨兵地址 -p 哨兵端口
+
+<!-- 查看哨兵狀態 -->
+> INFO Sentinel
+sentinel_masters:1
+sentinel_tilt:0
+sentinel_running_scripts:0
+sentinel_scripts_queue_length:0
+sentinel_simulate_failure_flags:0
+master0:name=mymaster,status=ok,address=x.x.x.x:6379,slaves=1,sentinels=3
+```
 
 
 
