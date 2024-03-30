@@ -18,6 +18,7 @@
 		- [pacman-contrib](#pacman-contrib)
 		- [無效密鑰問題](#無效密鑰問題)
 	- [降級軟件包](#降級軟件包)
+	- [Arch build system（ABS）](#arch-build-systemabs)
 
 <!-- /TOC -->
 
@@ -329,3 +330,15 @@ ArchLinux作為滾動發行版，並未提供完善的軟件包多版本共存�
 更多細節參見[Arch Linux Wiki](https://wiki.archlinux.org/title/downgrading_packages)。
 
 ArchLinux ARM也提供了與官方版本類似的[Archive鏡像](http://tardis.tiny-vps.com)。
+
+## Arch build system（ABS）
+[`Arch build system (ABS)`](https://wiki.archlinux.org/title/Arch_Build_System)
+是ArchLinux的源碼構建機制，來自BSD系列的ports系統，例如
+[`https://www.freebsd.org/ports/`](https://www.freebsd.org/ports/)。
+
+早期ABS系統使用`abs`工具進行操作，
+但該工具已在[2017年中旬正式廢棄](https://archlinux.org/news/deprecation-of-abs/)；
+之後被[`asp`](https://github.com/archlinux/asp)工具替代，
+隨後由於ArchLinux倉庫由[SVN遷移到Git](https://archlinux.org/news/git-migration-announcement/)，
+依賴svn2git mirror的asp工具在`2023-11-28`亦被廢棄，
+現在使用[`pkgctl`](https://gitlab.archlinux.org/archlinux/devtools)。
