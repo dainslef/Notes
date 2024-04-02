@@ -123,6 +123,24 @@ authors = ["用戶名 <郵箱>"]
 與Sbt等構建工具不同，在Cargo中依賴項的關聯依賴在項目中**不可見**，
 有且只有**顯式導入**的依賴才可訪問。
 
+Cargo支持針對不同編譯器target設置不同配置：
+
+```toml
+[target.平台目標.配置項]
+...
+```
+
+以Linux平台下的MUSL為例，定製MUSL使用的依賴：
+
+```toml
+[target.x86_64-unknown-linux-musl.dependencies]
+依賴項 = "版本號"
+依賴項 = { version = "版本號", features = ["開啟的特性"], ... }
+...
+```
+
+若出現相同的配置，target中的配置會覆蓋原配置。
+
 ### rustup
 [`rustup`](https://rustup.rs/)是Rust官方推出的編譯套件管理工具，
 可以方便地進行Rust編譯器套件的更新、升級、版本切換、多版本管理等功能。
