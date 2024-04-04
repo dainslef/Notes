@@ -1025,9 +1025,21 @@ $ ssh 用戶名@主機名/IP -p 端口
 $ ssh 用戶名@主機名/IP 指令
 <!-- 可執行多條指令 -->
 $ ssh 用戶名@主機名/IP "指令1; 指令2; ..."
+```
 
-<!-- 使用 -t 參數分配偽終端，可用於執行各類交互指令，如使用的指定Shell（bash/zsh/fish等） -->
-$ ssh 用戶名@主機名/IP -t Shell指令
+默認ssh執行指令時不會分配偽終端，對於存在命令行交互的指令（如各類Shell，zsh/fish等，以及編輯，vim/nano等），
+需要使用`-t`參數分配偽終端進行交互：
+
+```
+$ ssh 用戶名@主機名/IP -t 交互指令
+```
+
+若不分配偽終端，指令交互會出現異常，如命令行回顯錯亂、編輯器光標位置不正確等；
+vim指令會出現警告信息：
+
+```
+Vim: Warning: Output is not to a terminal
+Vim: Warning: Input is not from a terminal
 ```
 
 ## SSH 配置
@@ -1035,8 +1047,13 @@ SSH服務相關配置文件位於`/etc/ssh`路徑下：
 
 | 配置文件 | 簡介 | 配置項手冊 |
 | :- | :- | :- |
-| `/etc/ssh/ssh_config` | ssh指令使用的配置 | `man ssh_config` |
-| `/etc/ssh/sshd_config` | sshd服務使用的配置 | `man sshd_config` |
+| `/etc/ssh/ssh_config` / `/etc/ssh/ssh_config.d/*` | ssh指令使用的配置 | `man ssh_config` |
+| `/etc/ssh/sshd_config` / `/etc/ssh/sshd_config.d/*` | sshd服務使用的配置 | `man sshd_config` |
+
+`/etc/ssh/sshd_config.d/*`路徑下的配置優先級高於`/etc/ssh/sshd_config`，
+部分發行版可能會在此類路徑中寫入部分配置，導致直接修改sshd_config的配置不生效
+（如Ubuntu Cloud Image創建了`/etc/ssh/sshd_config.d/60-cloudimg-settings.conf`文件，
+加入了`PasswordAuthentication no`配置，導致直接修改sshd_config不生效）。
 
 常用SSH服務配置：
 
@@ -1073,8 +1090,9 @@ SSH服務相關配置文件位於`/etc/ssh`路徑下：
 對於位於公網環境SSH服務器，為防止非法用戶暴力破解SSH密碼，建議調整下列配置：
 
 ```yaml
-LoginGraceTime 5s # 服務端關閉未成功認證連接的時間，默認值2m
+LoginGraceTime 10s # 服務端關閉未成功認證連接的時間，默認值2m
 MaxAuthTries 1 # 設置每個連接的最大認證嘗試次數，默認值6
+MaxSessions 3 # 設置最大會話數目，避免同時接受大量SSH連接
 
 PermitRootLogin no # 默認值yes，公網環境不建議允許root用戶直接登入
 PasswordAuthentication no # 默認值yes，公網環境不建議允許密碼登入
@@ -5561,6 +5579,14 @@ APT::AutoRemove::SuggestsImportant "true"; # 不清理 Suggests 依賴
 要使清理依賴規則與安裝時匹配，應在清理時不保留Suggests，添加配置：
 
 ```sh
+APT::AutoRemove::SuggestsImportant "false";
+```
+
+最小化依賴的安裝/清理規則：
+
+```sh
+APT::Install-Recommends "false";
+APT::AutoRemove::RecommendsImportant "false";
 APT::AutoRemove::SuggestsImportant "false";
 ```
 
