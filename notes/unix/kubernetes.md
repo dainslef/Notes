@@ -42,6 +42,7 @@
 		- [Ingress 503](#ingress-503)
 - [DNS](#dns)
 	- [配置DNS策略](#配置dns策略)
+- [Labels 與 Selectors](#labels-與-selectors)
 
 <!-- /TOC -->
 
@@ -808,6 +809,7 @@ spec:
 ```
 
 更改配置後，需要重啟kube-apiserver進程。
+若Kubernetes使用kubeadm或KubeSphere創建，kube-apiserver以Pods形式部署，Pod會自動重啟。
 
 ## ReplicaSet
 ReplicaSet用於控制Pods的數目，保證指定Pods的複製實例數目在一個穩定的狀態，
@@ -1084,7 +1086,54 @@ Kubernetes集群內的所有Pod、Service均可通過域名進行訪問，
 
 ```yaml
 spec:
-  ...
+  hostNetwork: true
   dnsPolicy: ClusterFirstWithHostNet
   ...
 ```
+
+
+
+# Labels 與 Selectors
+Labels（標籤）用於為特定的資源打上相關標籤，便於為資源歸類。
+通常在`metadata`中使用`labels`為指定資源添加標籤：
+
+```yaml
+...
+metadata:
+  name: xxx
+  labels:
+    key1: value1
+    key2: value2
+    ...
+...
+```
+
+標籤常用於
+在API中使用`selector`：
+
+```yaml
+...
+selector:
+  matchLabels:
+    key1: value1
+    key2: value2
+    ...
+  matchExpressions:
+    - {key: key3, operator: In, values: [value1, value2, ...]}
+    - {key: key4, operator: NotIn, values: [value1, value2, ...]}
+    - ...
+...
+```
+
+`selector`支持`matchLabels`（等值匹配）與`matchExpressions`（表達式匹配），
+多個條件之間是`&&`（and，邏輯與）關係。
+
+kubectl命令行亦可使用`-l`參數指定標籤實現**批量操作**：
+
+```html
+<!-- 刪除所有標籤為 key=value 的xxx資源 -->
+$ kubectl delete xxx -l "key=value"
+```
+
+完整的Labels和Selectors說明參考
+[官方文檔](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)。
