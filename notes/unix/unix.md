@@ -12,6 +12,7 @@
 		- [插入/刪除/編輯指定行數的文本](#插入刪除編輯指定行數的文本)
 	- [進程管理](#進程管理)
 	- [日誌記錄](#日誌記錄)
+	- [用戶登入信息](#用戶登入信息)
 	- [BIOS信息](#bios信息)
 - [Linux Standard Base](#linux-standard-base)
 	- [Filesystem Hierarchy Standard](#filesystem-hierarchy-standard)
@@ -632,10 +633,7 @@ $ ps A | grep 進程名 | awk '{print $1}'
 使用systemd服務的Linux發行版日誌使用二進制格式記錄，通過`journalctl`工具查看。
 
 ```html
-<!-- 查看登錄記錄、開關機記錄 -->
-$ last
-
-<!-- 輸出內核信息 -->
+<!-- 輸出內核日誌信息 -->
 $ dmesg
 
 <!-- 查看systemd日誌 -->
@@ -645,6 +643,25 @@ $ journalctl -r
 <!-- 查看指定服務的日誌 -->
 $ journalctl -u 服務名稱
 ```
+
+## 用戶登入信息
+使用`last`指令查看用戶認證成功的登入信息：
+
+```html
+$ last <!-- 默認展示最近紀錄 -->
+$ last -a <!-- 列出所有紀錄 -->
+```
+
+last指令對應日誌文件位於`/var/log/wtmp`文件中。
+
+使用`lastb`指令查看用戶認證失敗被阻攔的登入信息：
+
+```html
+$ lastb <!-- 默認展示最近紀錄 -->
+$ lastb -a <!-- 列出所有紀錄 -->
+```
+
+lastb指令對應日誌文件位於`/var/log/btmp`文件中。
 
 ## BIOS信息
 使用`dmidecode`指令輸出機器的DMI（SMBIOS）表，並以人類可讀的形式展示：
