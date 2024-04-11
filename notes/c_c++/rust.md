@@ -9,6 +9,7 @@
 	- [REPL](#repl)
 - [靜態構建](#靜態構建)
 	- [musl-gcc](#musl-gcc)
+	- [openssl](#openssl)
 - [單元測試](#單元測試)
 	- [async函數單元測試](#async函數單元測試)
 	- [error: test failed, to rerun pass `-p xxx --bin xxx`](#error-test-failed-to-rerun-pass--p-xxx---bin-xxx)
@@ -267,6 +268,23 @@ Copyright (C) 2021 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ```
+
+## openssl
+[`openssl`](https://github.com/sfackler/rust-openssl)
+Rust中的openssl是C語言openssl庫的binding，是多數Rust庫中常見的C依賴庫。
+
+使用MUSL靜態鏈接openssl時，建議開啟`vendored`特性：
+
+```toml
+# Custom dependencies under different targets.
+[target.x86_64-unknown-linux-musl.dependencies]
+# Use openssl "vendored" feature for MUSL.
+openssl = { version = "*", features = ["vendored"] }
+```
+
+使用該特性openssl會獨立構建，否則需要依賴系統環境的openssl庫，
+使用系統環境的openssl在與MUSL靜態鏈接時可能會產生各種符號衝突，
+以Debian發行版為例，系統的openssl使用GCC編譯，使用MUSL鏈接時會出現部分函數找不到符號表。
 
 
 
