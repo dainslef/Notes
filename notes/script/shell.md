@@ -20,9 +20,9 @@
 	- [交互快捷鍵](#交互快捷鍵)
 	- [fish_config](#fish_config)
 - [Shell 語法](#shell-語法)
-	- [Shebang (`#!`)](#shebang-)
+	- [Shebang（`#!`）](#shebang)
 	- [變量](#變量)
-		- [本地變量](#本地變量)
+		- [變量作用域](#變量作用域)
 		- [環境變量](#環境變量)
 		- [文本轉義](#文本轉義)
 	- [指令](#指令)
@@ -691,10 +691,10 @@ $ fish_config prompt save 提示符主題名稱
 
 
 # Shell 語法
-Unix中，Shell腳本通常以`sh`作爲後綴名(`bash/zsh`等)。
+Unix中，Shell腳本通常以`sh`作爲後綴名（`bash/zsh`等）。
 fish由於不兼容bash語法，通常使用`fish`作爲腳本後綴。
 
-## Shebang (`#!`)
+## Shebang（`#!`）
 對於以可執行文件形式執行的腳本，腳本首行需要使用shebang語法（`#!`）聲明使用的解析器，
 以zsh爲例：
 
@@ -727,13 +727,10 @@ exec: Failed to execute process 'xxx.fish': The file specified the interpreter '
 ## 變量
 bash/zsh變量相關語法基本相同，fish與其有較大差異。
 
-定義、修改變量：
+bash/zsh定義、修改變量：
 
-- `變量名=值` 定義變量，`bash/zsh`語法，但等號兩邊**不能**帶有空格
-- `set 變量名 內容` 定義變量，`fish`語法
-- `變量名+=內容` 向變量添加內容，`bash/zsh`語法，`fish`不支持該操作
-
-示例：
+- `變量名=值` 定義變量，bash/zsh語法，等號兩邊**不能**帶有空格
+- `變量名+=內容` 向變量添加內容，bash/zsh語法
 
 ```sh
 # bash/zsh
@@ -743,7 +740,15 @@ $ echo $num # 訪問變量 num
 $ num+=1 # 拼接文本 233 和 1
 $ echo $num
 2331 # 輸出 2331
+```
 
+fish定義、修改變量：
+
+- `set 變量名 內容` 定義變量，fish語法
+- `set -a 變量名 內容` 將變量視為列表向尾部追加內容，fish語法
+- `set -p 變量名 內容` 將變量視為列表向頭部追加內容，fish語法
+
+```fish
 # fish
 $ set num 233
 $ echo $num # 輸出 233
@@ -756,10 +761,10 @@ $ echo $num
 
 - `$變量名` 獲取變量內容
 - `set` 列出已定義的變量
-- `unset 變量名` 刪除指定名稱的變量(bash/zsh語法)
-- `set -e 變量名` 刪除指定名稱的變量(fish語法)
+- `unset 變量名` 刪除指定名稱的變量（bash/zsh語法）
+- `set -e 變量名` 刪除指定名稱的變量（fish語法）
 
-### 本地變量
+### 變量作用域
 Shell中修改變量與定義變量語法相同，需要使用額外的作用域關鍵字區分訪問外部變量或是新定義本地變量。
 
 bash/zsh中使用`local`關鍵字定義**本地變量**。
@@ -768,18 +773,18 @@ bash/zsh中使用`local`關鍵字定義**本地變量**。
 ```sh
 num=1
 
-setValue() {
+set_value() {
 	num=2 # 直接使用變量名相當於修改外部變量
 }
 
-setLocalValue() {
+set_local_value() {
 	local num=3 # 使用 local 關鍵字修飾，創建本地變量，不影響外部變量的值
 }
 
 echo $num
-setValue
+set_value
 echo $num
-setLocalValue
+set_local_value
 echo $num
 ```
 
@@ -795,7 +800,62 @@ bash中本地變量僅能在函數中定義。
 zsh擴展了local關鍵字的用法，可以在任意區域使用local關鍵字定義變量，
 使用local定義的變量之前若存在非local形式的定義，則隱藏之前的定義而非改寫其值。
 
-fish中使用`set`函數定義變量，使用`set -l`定義**本地變量**。
+fish中使用`set`函數定義變量，fish中支持更多變量作用域：
+
+- `set -l/--local`
+
+	**本地變量**，在語法塊（如if、for、while等語句）內生效；在語法塊外部使用等價於`-f`。
+
+- `set -f/--function`
+
+	**函數變量**，在整個函數內生效。
+
+- `set -g/--global`
+
+	**全局變量**，對整個fish會話以及後續該會話執行的腳本生效。
+
+- `set -U/--universal`
+
+	**通用變量**，對本機所有fish生效。
+
+	使用該參數會持久化設置的變量，每次fish啟動均會設置該變量，
+	變量會寫入`~/.config/fish/fish_variables`中。
+
+對於不顯式指定作用域的set指令，若變量名之前已經定義且在當前作用域可見，則復用之前的作用域；
+若變量名不存在或當前作用域不可見，則創建變量時作用域設置為當前作用域。
+
+在函數外部創建不指定作用域的set變量作用域類似`-g/--global`，函數內則作用域類似`-l/--local`。
+在函數外部創建不指定作用域的set變量與使用`-l/--local`作用域的變量行為存在差異：
+
+- 外部不指定作用域的set變量可以在函數內訪問和修改
+
+	```fish
+	$ set normal_value normal_value_out
+	$ function test_normal_value
+	    echo "read normal_value: $normal_value"
+	    set normal_value normal_value_inner
+	end
+	$ test_normal_value
+	read normal_value: normal_value_out # 外部變量值可被訪問
+	$ echo $normal_value
+	normal_value_inner # 外部變量值已被修改
+	```
+
+- 外部變量指定`-l/--local`作用域，無法在函數內訪問與修改
+
+	```fish
+	$ set -l local_value local_value_out
+	$ function test_local_value
+	    echo "read local_value: $local_value"
+	    set local_value local_value_inner
+	end
+	$ test_local_value
+	read local_value: # 外部變量值無法訪問
+	$ echo $local_value
+	local_value_out # 外部變量值未被修改
+	```
+
+更詳細的set指令說明參考[fish官方文檔](https://fishshell.com/docs/current/cmds/set.html)。
 
 ### 環境變量
 **環境變量**(environment variable)是Unix系統中的一類全局配置，部分程序會通過讀取環境變量改變自身行為。
