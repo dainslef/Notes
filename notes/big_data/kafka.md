@@ -9,7 +9,8 @@
 	- [分區擴展](#分區擴展)
 		- [分區數據均衡](#分區數據均衡)
 - [Topic & Partition](#topic--partition)
-	- [存儲機制](#存儲機制)
+	- [分區消息順序](#分區消息順序)
+	- [分區存儲機制](#分區存儲機制)
 	- [話題操作](#話題操作)
 	- [話題刪除](#話題刪除)
 - [Kafka Connect](#kafka-connect)
@@ -280,11 +281,11 @@ Reassignment of partition [foo2,2] completed successfully
 
 
 # Topic & Partition
-Kafka爲一連串的記錄提供了抽象：`Topic`(話題)。
-Topic作爲記錄發佈時的類別/服務名稱，Topic在Kafka中總是`multi-subscriber`(多訂閱者)的，
-一個Topic可以擁有任意數量的訂閱者(零個或多個)，數據會推送給訂閱者。
+Kafka爲一連串的記錄提供了抽象：`Topic`（話題）。
+Topic作爲記錄發佈時的類別/服務名稱，Topic在Kafka中總是`multi-subscriber`（多訂閱者）的，
+一個Topic可以擁有任意數量的訂閱者（零個或多個），數據會推送給訂閱者。
 
-一個Topic的數據由一個或多個`Partition`組成(可配置)，多個Partition會優先分配在不同的物理節點中。
+一個Topic的數據由一個或多個`Partition`組成（可配置），多個Partition會優先分配在不同的物理節點中。
 Producer向Topic寫入數據時，數據會記錄在不同的Partition中，避免單一節點承載過多的IO請求。
 
 使用`kafka-topics --describe`指令查看某個話題的詳情，輸出內容如下：
@@ -305,13 +306,22 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
 
 多個Consumer之間通過`Group`分組，一條發佈到話題中的數據會發往每一個Group，
 但同一Group中只有**一個**Consumer實例會收到數據。
-當一個Group中存在多個Consumer時，Topic內的不同Partition會關聯到不同的Consumer，當一個Partition中寫入數據時，
-只有與該Partition關聯的Consumer會收到數據。
+當一個Group中存在多個Consumer時，Topic內的不同Partition會關聯到不同的Consumer，
+當一個Partition中寫入數據時，只有與該Partition關聯的Consumer會收到數據。
 
-一個Partition在一個Group內僅會關聯一個Consumer，因此當同一Group下的Consumer數目**大於**Partition數目時，
+一個Partition在一個Group內僅會關聯一個Consumer，
+因此當同一Group下的Consumer數目**大於**Partition數目時，
 會有Consumer因爲未關聯到Partition而收不到數據。
 
-## 存儲機制
+## 分區消息順序
+在Kafka中，每個分區使用獨立的偏移量，因此僅保證**同一分區**內的消息順序，而**不保證**全局消息順序。
+
+若需要保證話題全局消息順序，則可使用如下機制：
+
+- 使用單一消費者消費一個話題的所有分區
+- 發送數據時手動指定消息分區，將需要保證數據的消息發送至同一分區
+
+## 分區存儲機制
 Kafka將消息數據存儲在`$KAFKA_HOME/etc/kafka/server.properties`文件中的`log.dirs`配置項設定的路徑下。
 Kafka根據Topic和Partition在消息存儲路徑下以`[話題名稱]-[分區編號]`的命名規則創建子路徑，記錄每個話題的數據。
 例如，Topic爲`test`，Partition爲`3`，則會生成以下子路徑：
