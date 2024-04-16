@@ -20,6 +20,8 @@
 	- [ALSA](#alsa)
 	- [PulseAudio](#pulseaudio)
 - [用戶管理](#用戶管理)
+	- [用戶密碼](#用戶密碼)
+	- [用戶組管理](#用戶組管理)
 - [FTP（File Transfer Protocol）](#ftpfile-transfer-protocol)
 	- [連接服務器](#連接服務器)
 	- [常用指令](#常用指令)
@@ -907,7 +909,7 @@ $ pactl list sinks | awk '/Mute/ { print $2 }'
 | /etc/shadow | 保存用戶密碼的加密信息 | root:shadow | 640 |
 | /etc/gshadow | 保存用戶組密碼的加密信息 | root:shadow | 640 |
 
-用戶管理：
+使用usermod/useradd/usermod等指令管理系統用戶。
 
 ```html
 <!-- 創建用戶 -->
@@ -930,19 +932,52 @@ $ pactl list sinks | awk '/Mute/ { print $2 }'
 # usermod
 ```
 
-用戶組管理：
+## 用戶密碼
+Linux用戶密碼信息早期存儲在`/etc/passwd`中，但不安全，
+後續將密碼信息移動到了`/etc/shadow`中，shadow文件默認權限為`000`（僅root用戶可訪問）。
+
+使用`passwd`指令修改密碼信息：
 
 ```html
+# passwd
+# passwd 用戶名 <!-- 修改指定用戶的密碼 -->
+```
+
+`/etc/security/pwquality.conf`配置中可設置系統需要的密碼強度，常用配置：
+
+```conf
+# 最小密碼長度
+minlen = 8
+
+# 密碼字符種類（數字、小寫字母、大寫字母、其它）
+minclass = 3
+```
+
+## 用戶組管理
+查看和管理用戶組：
+
+```html
+<!-- 查看當前用戶所屬的用戶組 -->
+$ groups
+<!-- 查看用戶組內包含的用戶 -->
+$ groupmems 用戶組名稱
+
 <!-- 創建用戶組 -->
-# groupadd 用戶組名
-
+# groupadd 用戶組名稱
 <!-- 刪除用戶組，用戶組需要爲空 -->
-# groupdel 用戶組名
+# groupdel 用戶組名稱
 
+<!-- 修改用戶組相關信息，如GID、密碼、CHROOT目錄等 -->
+# groupmod
+```
+
+設置用戶的所屬用戶組：
+
+```html
 <!-- 將用戶添加到用戶組中 -->
-# usermod -a -G 用戶組 用戶名
+# usermod -a -G 用戶組 用戶
 <!-- 強制設置用戶的用戶組，若原先用戶加入的組不在給出的組列表中，將被移除原先的組(用戶的主組除外) -->
-# usermod -G 用戶組1,用戶組2,... 用戶名
+# usermod -G 用戶組1,用戶組2,... 用戶
 ```
 
 修改文件用戶、用戶組：
