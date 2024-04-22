@@ -85,9 +85,10 @@
 	- [其它systemd系統管理工具](#其它systemd系統管理工具)
 		- [loginctl](#loginctl)
 - [網絡](#網絡)
-	- [網絡配置](#網絡配置)
-		- [ifupdown（Ubuntu（17.10之前）/ Debian）](#ifupdownubuntu1710之前-debian)
-		- [Netplan（Ubuntu17.10之後）](#netplanubuntu1710之後)
+	- [網絡參數與信息](#網絡參數與信息)
+	- [網絡配置工具](#網絡配置工具)
+		- [ifupdown（Ubuntu 17.10 之前）/ Debian）](#ifupdownubuntu-1710-之前-debian)
+		- [Netplan（Ubuntu 17.10 之後）](#netplanubuntu-1710-之後)
 		- [NetworkManager](#networkmanager)
 		- [systemd-networkd](#systemd-networkd)
 		- [`Failed to configure DHCPv4 client: No such file or directory`](#failed-to-configure-dhcpv4-client-no-such-file-or-directory)
@@ -3305,6 +3306,23 @@ $ loginctl disable-linger 用戶名/用戶ID
 
 
 # 網絡
+Linux各大發行版的網絡配置差異較大，同一發行版的不同版本網絡配置也不盡相同。
+
+## 網絡參數與信息
+Linux的proc文件系統在`/proc/net`路徑下提供大量網絡相關信息：
+
+```
+$ ls /proc/net/
+anycast6   fib_triestat   ip6_mr_vif         mcfilter   psched     rt_cache      tcp       wireless
+arp        icmp           ip_mr_cache        mcfilter6  ptype      snmp          tcp6      xfrm_stat
+connector  if_inet6       ip_mr_vif          netfilter  raw        snmp6         udp
+dev        igmp           ip_tables_matches  netlink    raw6       sockstat      udp6
+dev_mcast  igmp6          ip_tables_names    netstat    route      sockstat6     udplite
+dev_snmp6  ip6_flowlabel  ip_tables_targets  packet     rt6_stats  softnet_stat  udplite6
+fib_trie   ip6_mr_cache   ipv6_route         protocols  rt_acct    stat          unix
+```
+
+## 網絡配置工具
 Linux下網絡工具主要包括老式的net-tools系列和新的iproute2系列工具。
 
 [`net-tools`](https://sourceforge.net/projects/net-tools)套件歷史悠久，
@@ -3340,23 +3358,7 @@ $ ip 子指令 help <!-- 展示特定子指令的用法 -->
 # ip addr flush 網卡設備 <!-- 重置網卡配置的地址 -->
 ```
 
-Linux的proc文件系統在`/proc/net`路徑下也提供大量網絡相關信息：
-
-```
-$ ls /proc/net/
-anycast6   fib_triestat   ip6_mr_vif         mcfilter   psched     rt_cache      tcp       wireless
-arp        icmp           ip_mr_cache        mcfilter6  ptype      snmp          tcp6      xfrm_stat
-connector  if_inet6       ip_mr_vif          netfilter  raw        snmp6         udp
-dev        igmp           ip_tables_matches  netlink    raw6       sockstat      udp6
-dev_mcast  igmp6          ip_tables_names    netstat    route      sockstat6     udplite
-dev_snmp6  ip6_flowlabel  ip_tables_targets  packet     rt6_stats  softnet_stat  udplite6
-fib_trie   ip6_mr_cache   ipv6_route         protocols  rt_acct    stat          unix
-```
-
-## 網絡配置
-各大發行版的網絡配置差異較大，同一發行版的不同版本網絡配置也不盡相同。
-
-### ifupdown（Ubuntu（17.10之前）/ Debian）
+### ifupdown（Ubuntu 17.10 之前）/ Debian）
 Ubuntu與Debian早期默認使用`ifupdown`軟件包管理網絡配置。
 
 ifupdown配置文件位於`/etc/network`路徑下，核心配置文件爲`/etc/network/interfaces`：
@@ -3393,7 +3395,7 @@ gateway x.x.x.x
 # resolvconf -u
 ```
 
-### Netplan（Ubuntu17.10之後）
+### Netplan（Ubuntu 17.10 之後）
 Ubuntu 17.10後，爲了簡化網絡配置，不再使用Debian的網絡配置方式，
 而是引入了新的網絡配置工具Netplan。
 
@@ -4855,7 +4857,13 @@ top -hv|-bcHiOSs -d secs -n max -u|U user -p pid -o fld -w [cols]
 - 展示每個核心的消耗
 
 	默認top指令展示的是所有CPU的總體資源消耗。
-	Linux下載top介面中輸入`1`即可展示每個CPU核心各自的資源消耗，再次輸入則關閉。
+	Linux下可在top介面中輸入`1`切換為展示每個CPU核心各自的資源消耗，再次輸入則關閉。
+
+- 切換展示模式
+
+	默認top指令展示CPU的Load Average。
+	Linux下可在交互介面中使用`t`鍵切換成進度條形式的CPU使用比例，
+	並在進度條左側提供用戶/系統各使用的CPU佔比。
 
 ## iftop
 `iftop`是常用的網絡IO監控工具，通常發行版中並未直接包含，需要從倉庫中安裝：
