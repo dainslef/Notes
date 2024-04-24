@@ -1,6 +1,7 @@
 <!-- TOC -->
 
 - [Redis安裝和維護](#redis安裝和維護)
+	- [容器化部署](#容器化部署)
 	- [性能測試](#性能測試)
 - [Redis通用功能](#redis通用功能)
 	- [Replication（主從複製）](#replication主從複製)
@@ -31,6 +32,26 @@ macOS可直接通過Homebrew安裝：
 ```
 $ brew install redisinsight
 ```
+
+## 容器化部署
+[Docker Hub](https://hub.docker.com/_/redis)
+提供了官方的Redis鏡像，使用官方Docker鏡像時需要注意：
+
+- 避免開啟後台服務
+
+	配置項中不應使用`daemonize yes`，
+	在Docker容器中開啟進程服務化執行會導致容器啟動後立即退出。
+
+- 外部存儲權限
+
+	容器默認的工作目錄為`/data`，外部存儲可掛載在該路徑下。
+	外部存儲在宿主機需要設置用戶與用戶組為`999`：
+
+	```
+	# chown -R 999:999 外置路徑
+	```
+
+	外部存儲使用root用戶容器可能無權限創建文件。
 
 ## 性能測試
 Redis內置了性能測試工具`redis-benchmark`。
