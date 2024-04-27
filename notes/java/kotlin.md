@@ -1,6 +1,7 @@
 <!-- TOC -->
 
 - [REPL](#repl)
+- [編譯器配置](#編譯器配置)
 - [Enum](#enum)
 	- [枚舉構造器和成員方法](#枚舉構造器和成員方法)
 - [Class](#class)
@@ -62,6 +63,46 @@ $ jupyter kernelspec install ~/Library/Python/3.8/share/jupyter/kernels/kotlin
 
 該文件中配置的啟動參數使用了python指令(第6行)，但在macOS下，python指令默認啟動Python2，
 因此會出現異常，修改啟動參數為python3即可正常啟動
+
+
+
+# 編譯器配置
+在Maven中使用Kotlin需要配置編譯器插件`kotlin-maven-plugin`：
+
+```xml
+<project>
+    ...
+    <build>
+        <plugins>
+            <!-- Compiler plugin for Kotlin. -->
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <configuration>
+                    <!-- Set up the byte code target JVM version. -->
+                    <jvmTarget>${maven.compiler.release}</jvmTarget>
+                    <!-- Used to enable the Java 8 default method feature when generating byte code. -->
+                    <args>-Xjvm-default=all</args>
+                    <compilerPlugins>
+                        <plugin>spring</plugin> <!-- Spring support for Kotlin. -->
+                        <plugin>jpa</plugin> <!-- JPA support for Kotlin. -->
+                    </compilerPlugins>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    ...
+</project>
+```
+
+- `<jvmTarget/>`用於設置生成字節碼的目標JVM版本，可使優化編譯器生成的字節碼。
+- `<args/>`用於設置編譯器使用的命令行編譯參數，
+`-Xjvm-default=all`參數用於告知編譯器在生成接口默認方法時直接使用Java8的Default Method特性
+（默認Kotlin在生成字節碼時會考慮兼容性而採用輔助工具類的實現方式）。
+- 針對Spring項目kotlin-maven-plugin插件提供了`spring`插件，
+啟用後對於Spring相關註解修飾的類可自動設置為open類（類似存在一定限制的`kotlin-maven-allopen`插件）。
+- 針對JPA項目kotlin-maven-plugin插件提供了`jpa`插件。
 
 
 
