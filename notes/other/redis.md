@@ -6,6 +6,9 @@
 - [Redis通用功能](#redis通用功能)
 	- [Replication（主從複製）](#replication主從複製)
 	- [Sentinel（哨兵）](#sentinel哨兵)
+	- [Cluster（集群）](#cluster集群)
+		- [Slot](#slot)
+		- [創建Redis集群](#創建redis集群)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
 	- [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
 - [問題註記](#問題註記)
@@ -217,6 +220,134 @@ sentinel_scripts_queue_length:0
 sentinel_simulate_failure_flags:0
 master0:name=mymaster,status=ok,address=x.x.x.x:6379,slaves=1,sentinels=3
 ```
+
+## Cluster（集群）
+Redis的哨兵機制解決了節點高可用的問題，但哨兵模式不支持水平擴展，
+Redis提供了Cluster（集群模式）可將數據按照KEY進行HASH，自動分攤到不同的節點上。
+
+### Slot
+Redis集群使用`16384`個Slot（槽），集群按照節點規模均分攤槽範圍。
+
+以3節點集群為例，通常的Slot分佈：
+
+- 節點1：0-5460
+- 節點2：5461-10922
+- 節點3：10923-16383
+
+Redis的數據KEY通過計算CRC16值與16384取模得到數據的Slot，
+再根據Slot分佈寫入對應節點。
+
+Redis可使用花括號語法`{}`在計算KEY的CRC16時僅計算花括號內部的局部內容，
+使開發者可控制同類KEY的節點分佈，示例：
+
+```html
+<!-- user:1:name 與 user:1:password 的HASH結果不同 -->
+> SET user:1:name fuckccp
+(error) MOVED 12440 10.22.2.46:6379
+> SET user:1:password fuckccp
+OK
+
+<!-- 使用花括號語法，{user:1}:name 與 {user:1}:password 皆以 user:1 計算HASH，最後分配到相同節點 -->
+> SET {user:1}:name fuckccp
+(error) MOVED 10778 10.22.2.71:6379
+> SET {user:1}:password fuckccp
+(error) MOVED 10778 10.22.2.71:6379
+```
+
+### 創建Redis集群
+Redis集群模式不需要額外的命令行工具，但需要針對集群節點創建不同的配置文件，
+集群模式下多數配置不變，主要配置：
+
+```sh
+bind 0.0.0.0 ::1
+port 端口 # 服務端口
+daemonize yes # 設置進程為服務模式，啟動後直接靜默掛入後台
+dir /xxx-redis/db # 設置Redis工作路徑，DB dump文件會寫入該路徑，默認工作路徑為/var/lib/redis
+logfile /xxx-redis/temp/nodes-端口.log # 設置日誌路徑，避免多節點日誌衝突
+cluster-config-file /xxx-redis/temp/nodes-端口.conf # 設置集群節點配置路徑
+cluster-enabled yes # 以集群模式運行
+...
+cluster-port 端口 # 集群通信端口，默認為“服務端口 + 10000”
+...
+```
+
+集群模式下，節點配置名稱建議以端口號區分，集群節點除了服務端口外，
+還會監聽集群通信端口（默認為`服務端口號 + 10000`，使用`cluster-port`參數手動配置），
+以集群模式運行的Redis進程在進程名稱中會包含`[cluster]`標識：
+
+```
+$ ps -ef | grep redis
+...
+root     12887     1  0 11:58 ?        00:00:00 redis-server 0.0.0.0:6379 [cluster]
+root     12889     1  0 11:58 ?        00:00:00 redis-server 0.0.0.0:6380 [cluster]
+...
+```
+
+將各個節點啟動後，使用`redis-cli --cluster`創建集群關係：
+
+```
+$ redis-cli --cluster create --cluster-replicas 備份數目 節點1地址:端口1 節點1地址:端口2 節點2地址:端口1 節點2地址:端口2 ...
+```
+
+Redis會根據傳入的節點信息以及備份節點數目規劃集群，生成集群規劃信息。
+創建一個3主3從的Redis集群，示例：
+
+```
+$ redis-cli --cluster create x.x.x.1:6379 x.x.x.2:6379 x.x.x.3:6379 x.x.x.1:6380 x.x.x.2:6380 x.x.x.3:6380 --cluster-replicas 1
+>>> Performing hash slots allocation on 6 nodes...
+Master[0] -> Slots 0 - 5460
+Master[1] -> Slots 5461 - 10922
+Master[2] -> Slots 10923 - 16383
+Adding replica x.x.x.2:6380 to x.x.x.1:6379
+Adding replica x.x.x.3:6380 to x.x.x.2:6379
+Adding replica x.x.x.1:6380 to x.x.x.3:6379
+M: ... x.x.x.1:6379
+   slots:[0-5460] (5461 slots) master
+M: ... x.x.x.2:6379
+   slots:[5461-10922] (5462 slots) master
+M: ... x.x.x.3:6379
+   slots:[10923-16383] (5461 slots) master
+S: ... x.x.x.1:6380
+   replicates ...
+S: ... x.x.x.2:6380
+   replicates ...
+S: ... x.x.x.3:6380
+   replicates ...
+Can I set the above configuration? (type 'yes' to accept): yes
+>>> Nodes configuration updated
+>>> Assign a different config epoch to each node
+>>> Sending CLUSTER MEET messages to join the cluster
+Waiting for the cluster to join
+.....
+>>> Performing Cluster Check (using node x.x.x.1:6379)
+M: ... x.x.x.1:6379
+   slots:[0-5460] (5461 slots) master
+   1 additional replica(s)
+M: ... x.x.x.2:6379
+   slots:[5461-10922] (5462 slots) master
+   1 additional replica(s)
+M: ... x.x.x.3:6379
+   slots:[10923-16383] (5461 slots) master
+   1 additional replica(s)
+S: ... x.x.x.1:6380
+   slots: (0 slots) slave
+   replicates ...
+S: ... x.x.x.2:6380
+   slots: (0 slots) slave
+   replicates ...
+S: ... x.x.x.3:6380
+   slots: (0 slots) slave
+   replicates ...
+[OK] All nodes agree about slots configuration.
+>>> Check for open slots...
+>>> Check slots coverage...
+[OK] All 16384 slots covered.
+```
+
+Redis集群關係建立後會在cluster-config-file配置設置的文件中寫入集群關係。
+
+Redis不支持使用域名創建集群，必須使用IP地址，相關問題參考
+[GitHub Issues](https://github.com/redis/redis/issues/2071)。
 
 
 
