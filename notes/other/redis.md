@@ -9,6 +9,7 @@
 	- [Cluster（集群）](#cluster集群)
 		- [Slot](#slot)
 		- [創建Redis集群](#創建redis集群)
+		- [訪問Redis集群](#訪問redis集群)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
 	- [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
 - [問題註記](#問題註記)
@@ -348,6 +349,62 @@ Redis集群關係建立後會在cluster-config-file配置設置的文件中寫�
 
 Redis不支持使用域名創建集群，必須使用IP地址，相關問題參考
 [GitHub Issues](https://github.com/redis/redis/issues/2071)。
+
+### 訪問Redis集群
+訪問Redis集群與訪問普通Redis服務操作類似，直接使用redis-cli連接；
+但由於集群模式下，每個節點僅承載部分數據，Redis指令僅能操作當前節點的數據。
+
+```html
+$ redis-cli
+<!-- 操作的Key不在本節點，會得到錯誤信息，指令需要在其它節點執行 -->
+127.0.0.1:6379> set test test
+(error) MOVED 6918 10.22.2.71:6379
+```
+
+使用`-c`參數可在需要MOVE時自動跳轉到其它節點執行：
+
+```html
+$ redis-cli -c
+<!-- 操作的Key不在本節點，指令自動跳轉到其它節點執行 -->
+127.0.0.1:6379> set test test
+-> Redirected to slot [6918] located at 10.22.2.71:6379
+OK
+<!-- 執行指令後，命令行環境切換到新節點 -->
+10.22.2.71:6379>
+```
+
+使用Redis的`CLUSTER`系列指令可查看集群狀態：
+
+```
+> CLUSTER INFO
+cluster_state:ok
+cluster_slots_assigned:16384
+cluster_slots_ok:16384
+cluster_slots_pfail:0
+cluster_slots_fail:0
+cluster_known_nodes:6
+cluster_size:3
+cluster_current_epoch:6
+cluster_my_epoch:2
+cluster_stats_messages_ping_sent:15981
+cluster_stats_messages_pong_sent:14837
+cluster_stats_messages_meet_sent:2
+cluster_stats_messages_publish_sent:39346
+cluster_stats_messages_sent:70166
+cluster_stats_messages_ping_received:14833
+cluster_stats_messages_pong_received:15983
+cluster_stats_messages_meet_received:4
+cluster_stats_messages_publish_received:15743
+cluster_stats_messages_received:46563
+
+> CLUSTER NODES
+d89cb8b5a4896ba1cfdbfc4a5c09fb39354c732a x.x.x.3:6380@16380 slave c481a3bf6486a98bae6e8e006336a42b12719e6a 0 1711701982978 6 connected
+4b96a599804ec7bda1d37784f5501e2361dc9262 x.x.x.3:6379@16379 master - 0 1711701979000 3 connected 10923-16383
+c6d6ecdaec9e6287bb56372e0a057881dada7963 x.x.x.1:6379@16379 master - 0 1711701980968 1 connected 0-5460
+9bd26ed36fd2765f30cd8363011e836aa9c679c0 x.x.x.1:6380@16380 slave 4b96a599804ec7bda1d37784f5501e2361dc9262 0 1711701981972 4 connected
+00fe73fe83d28ff2329027e49d5d3c5db0c9c00b x.x.x.2:6380@16380 slave c6d6ecdaec9e6287bb56372e0a057881dada7963 0 1711701980000 5 connected
+c481a3bf6486a98bae6e8e006336a42b12719e6a x.x.x.2:6379@16379 myself,master - 0 1711701981000 2 connected 5461-10922
+```
 
 
 
