@@ -89,6 +89,20 @@ $ jupyter kernelspec install ~/Library/Python/3.8/share/jupyter/kernels/kotlin
                         <plugin>jpa</plugin> <!-- JPA support for Kotlin. -->
                     </compilerPlugins>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <!-- For Kotlin Spring Plugin. -->
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-allopen</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                    <dependency>
+                        <!-- For Kotlin JPA Plugin. -->
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-noarg</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
@@ -96,13 +110,19 @@ $ jupyter kernelspec install ~/Library/Python/3.8/share/jupyter/kernels/kotlin
 </project>
 ```
 
+編譯器參數相關：
+
 - `<jvmTarget/>`用於設置生成字節碼的目標JVM版本，可使優化編譯器生成的字節碼。
 - `<args/>`用於設置編譯器使用的命令行編譯參數，
 `-Xjvm-default=all`參數用於告知編譯器在生成接口默認方法時直接使用Java8的Default Method特性
 （默認Kotlin在生成字節碼時會考慮兼容性而採用輔助工具類的實現方式）。
+
+編譯器插件相關：
+
 - 針對Spring項目kotlin-maven-plugin插件提供了`spring`插件，
 啟用後對於Spring相關註解修飾的類可自動設置為open類（類似存在一定限制的`kotlin-maven-allopen`插件）。
 - 針對JPA項目kotlin-maven-plugin插件提供了`jpa`插件。
+- spring與jpa插件均需要引用對應的Kotlin編譯器插件依賴，否則構建時會產生編譯錯誤。
 
 
 
