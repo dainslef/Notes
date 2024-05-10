@@ -11,8 +11,8 @@
 	- [import static 語法](#import-static-語法)
 	- [實例](#實例)
 	- [引用依賴](#引用依賴)
-- [Container (容器)](#container-容器)
-- [Enum (枚舉)](#enum-枚舉)
+- [Container（容器）](#container容器)
+- [Enum（枚舉）](#enum枚舉)
 - [對象相等性](#對象相等性)
 	- [equals() 方法](#equals-方法)
 	- [hashCode() 方法](#hashcode-方法)
@@ -56,6 +56,7 @@
 	- [標準庫中的函數式接口 (java.util.function)](#標準庫中的函數式接口-javautilfunction)
 - [Process API](#process-api)
 	- [ProcessBuilder](#processbuilder)
+	- [進程API調用權限錯誤](#進程api調用權限錯誤)
 - [DateTime API](#datetime-api)
 	- [java.util.Date](#javautildate)
 	- [java.time.LocalDateTime/ZonedDateTime](#javatimelocaldatetimezoneddatetime)
@@ -453,7 +454,7 @@ $ java -Djava.ext.dirs=第三方庫所在的目錄 類名
 
 
 
-# Container (容器)
+# Container（容器）
 與常見的編程語言相同，Java中的常見的**容器類型**爲`List`、`Set`、`Map`。
 
 | 容器 | 特點 |
@@ -496,8 +497,8 @@ Map<Type, Value> map = new HashMap<>();
 不使用菱形推斷時，集合庫會使用Object類型做爲類型參數：
 
 ```java
-List list = new ArrayList(); //List<Object>
-Map map = new HashMap(); //Map<Object, Object>
+List list = new ArrayList(); // List<Object>
+Map map = new HashMap(); // Map<Object, Object>
 ```
 
 `Set`和`List`都可以得到一個迭代器用於迭代：
@@ -519,7 +520,7 @@ Iterator iteratorSet = set.iterator();
 
 
 
-# Enum (枚舉)
+# Enum（枚舉）
 Java中使用`enum`關鍵字來定義一個枚舉類。
 
 基本的枚舉與`C`語言中的語法類似：
@@ -593,7 +594,8 @@ Java**不支持**操作符重載，Java中相等性比較運算符`==`的含義�
 
 ## equals() 方法
 對於引用類型而言，比較兩個對象是否相等應使用`equals()`方法。
-equals()方法定義在Object類型中，默認實現默認語義與==操作符相同(引用比較)，需要實現值比較語義的類型應自行重寫equals()方法。
+equals()方法定義在Object類型中，默認實現默認語義與==操作符相同（引用比較），
+需要實現值比較語義的類型應自行重寫equals()方法。
 
 以一個包含3個成員的自定義類型爲例：
 
@@ -667,7 +669,7 @@ public class TestEquals {
 
 # 淺複製與深複製
 Java中**基礎類型**如`int`、`double`等在複製時進行**值拷貝**，而對於**引用類型**，
-則默認拷貝的只是一個對象的**引用**(類似與C/C++中的**指針**)，對象本體**並未**被複制。
+則默認僅拷貝對象**引用**（類似與C/C++中的**指針**），對象本體**並未**被複制。
 
 ## 淺複製
 要想讓一個類能夠被複制，則類需要實現`Cloneable`接口，並重寫`clone()`方法。
@@ -2686,6 +2688,24 @@ val res7: ProcessBuilder = java.lang.ProcessBuilder@4e51eda7
 scala> processBuilder.start()
 val res8: Process = Process[pid=80786, exitValue="not exited"]
 ```
+
+## 進程API調用權限錯誤
+問題說明：<br>
+使用OpenJDK官網直接下載的安裝包解壓部署後，使用Process API可能會得到下列異常信息：
+
+```
+Caused by: java.io.IOException: Cannot run program "xxx" (in directory "..."): error=13, Permission denied
+...
+```
+
+解決方案：<br>
+該問題是OpenJDK官方提供的壓縮包並未給部分二進制文件設置可執行權限，正確設置權限即可：
+
+```
+# chmod +x $JRE_HOME/lib/jspawnhelper
+```
+
+相關討論參考[Ask Ubuntu](https://askubuntu.com/questions/1480995/permission-denied-trying-to-start-a-new-process-from-a-java-application-as-root)。
 
 
 
