@@ -60,28 +60,51 @@ export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
 	Kafka服務的核心啓動配置項。
 	做爲集羣啓動時需要指定以下配置：
 
-	```sh
-	broker.id = 服務編號(數值，集羣中每個Kafka服務需要使用不同的ID)
-	# 示例： broker.id = 1
+	```conf
+	broker.id = 服務編號（數值，集羣中每個Kafka服務需要使用不同的ID）
+	# 示例：broker.id = 1
 
 	zookeeper.connect = Zookeeper集羣的地址:端口
-	# 示例： zookeeper.connect = spark-master:2181, spark-slave0:2181, spark-slave1:2181
+	# 示例：zookeeper.connect = spark-master:2181, spark-slave0:2181, spark-slave1:2181
 
 	listeners = Kafka服務監聽協議://監聽地址:監聽端口
 	# 設定Kafka主服務的監聽地址和端口號，默認端口爲9092
-	# 示例： listeners = PLAINTEXT://spark-master:9092
+	# 示例：listeners = PLAINTEXT://spark-master:9092
+	```
+
+	對於使用KRaft機制的Kafka，不再需要ZooKeeper配置，需要修改進程角色和監聽地址：
+
+	```conf
+	# 進程角色，使用KRaft進程角色添加controller
+	process.roles=broker,controller
+
+	# 設置所有KRaft地址
+	controller.quorum.voters=服務編號@集群地址:KRaft端口,...
+	# 示例：controller.quorum.voters=1@192.168.1.1:9093,2@192.168.1.2:9093,3@192.168.1.3:9093
+
+	# 設置監聽地址，使用KRaft默認監聽9093端口
+	listeners=PLAINTEXT://:9092,CONTROLLER://:9093
+	```
+
+	客戶端若未配置Kafka主機名連接時可能產生錯誤，
+	通過配置告知客戶端正確的連接地址：
+
+	```conf
+	# 告知客戶端監聽的地址與端口，若未配置則使用listeners的值
+	advertised.listeners=PLAINTEXT://外部訪問地址:服務端口
+	# 示例：advertised.listeners=PLAINTEXT://192.168.1.1:9092
 	```
 
 	消息大小上限相關配置：
 
-	```sh
+	```conf
 	message.max.bytes = 消息最大字節數
 	# 默認值爲1000000，取值應小於Consumer端的 fetch.message.max.bytes 配置
-	# 示例： message.max.bytes = 5000000
+	# 示例：message.max.bytes = 5000000
 
 	replica.fetch.max.bytes = 可複製最大字節數
 	# 取值應大於 message.max.bytes ，否則會造成接收到的消息複製失敗
-	# 示例： replica.fetch.max.bytes = 5001000
+	# 示例：replica.fetch.max.bytes = 5001000
 	```
 
 	話題相關配置：
