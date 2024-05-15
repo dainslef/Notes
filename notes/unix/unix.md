@@ -16,6 +16,8 @@
 	- [BIOS信息](#bios信息)
 - [Linux Standard Base](#linux-standard-base)
 	- [Filesystem Hierarchy Standard](#filesystem-hierarchy-standard)
+	- [procfs（process file system，進程文件系統）](#procfsprocess-file-system進程文件系統)
+	- [sysfs（system file system，系統文件系統）](#sysfssystem-file-system系統文件系統)
 - [Linux音頻架構](#linux音頻架構)
 	- [ALSA](#alsa)
 	- [PulseAudio](#pulseaudio)
@@ -730,6 +732,33 @@ LSB的目標是開發和促成一組標準，以提升Linux發行版之間的兼
 | home | User home directories (optional) |
 | lib<qual> | Alternate format essential shared libraries (optional) |
 | root | Home directory for the root user (optional) |
+
+## procfs（process file system，進程文件系統）
+[`/proc`文件系統](https://docs.kernel.org/filesystems/proc.html)
+是包含進程信息以及部分其它數據的虛擬文件系統。
+
+/proc文件系統最初來自於`System V Unix`，僅包含進程信息，
+後續Linux和FreeBSD也實現了該文件系統。
+
+FreeBSD默認**不啟用**/proc，功能與System V中基本類似，僅包含進程信息；
+Linux默認啟用/proc，並大量擴展了/proc的功能，提供了多種其它信息，
+後續Linux發展中將大部分進程無關的信息剝離到了/sys（sysfs）中。
+
+## sysfs（system file system，系統文件系統）
+[sysfs](https://en.wikipedia.org/wiki/Sysfs)
+用於展示內核中關於硬件設備以及關聯的設備驅動相關信息，
+Linux下的`udev`、`HAL`等機制均會使用sysfs。
+
+sysfs為Linux**專屬**，其它Unix不包含該路徑。
+
+早期版本的Linux（Linux 2.4及之前），不存在獨立的sysfs，而是以`/proc/sys`作為procfs的一部分存在；
+自Linux 2.5開始，sysfs拆分為獨立的虛擬文件系統，掛載在`/sys`，主要改進了下列問題：
+
+- 添加統一的驅動設備表示方法
+- 實現通用的hotplug（熱插拔）機制
+- 避免procfs愈加混亂（過多與進程信息無關內容）
+
+關於sysfs的詳細說明參見[論文](https://mirrors.edge.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf)。
 
 
 
