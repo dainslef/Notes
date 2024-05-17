@@ -109,7 +109,7 @@ export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
 
 	話題相關配置：
 
-	```sh
+	```conf
 	# 允許刪除話題
 	delete.topic.enable = true
 	# 禁用話題自動創建
@@ -119,7 +119,7 @@ export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
 	Kafka會緩存所有消息，無論消息是否被消費，可通過配置設定消息的緩存清理策略。
 	消息存儲相關配置：
 
-	```sh
+	```conf
 	num.partitions = 分區數量
 	# 決定默認配置下創建的話題擁有的分區數量，多個分區會分佈在集羣內不同的機器中
 	# 默認值爲 1
@@ -147,7 +147,7 @@ export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
 	消費者配置。
 	修改消費端消息大小：
 
-	```sh
+	```conf
 	max.partition.fetch.bytes = 服務器每個 partition 返回的最大數據大小
 	# 在批量返回的時候，如果第一批次比這個值大，也會繼續返回後面的批次。
 	# 此配置需要與 broker 的 message.max.bytes，producer 的 max.request.size 配合使用。
@@ -163,7 +163,7 @@ export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
 	生產者配置。
 	修改生產者端消息大小：
 
-	```sh
+	```conf
 	max.request.size = 發送消息的請求最大字節數
 	# kakfa服務端使用此配置限制消息大小，部分client端也會通過這個參數限制消息大小。
 	# 示例： max.request.size = 5000000
@@ -174,11 +174,11 @@ Kafka相關CLI工具位於`$KAFKA_HOME/bin`路徑下。
 
 主服務啓動、停止相關指令：
 
-```c
-// 啓動服務
+```html
+<!-- 啓動服務 -->
 $ kafka-server-start -daemon $KAFKA_HOME/etc/kafka/server.properties
 
-// 停止服務
+<!-- 停止服務 -->
 $ kafka-server-stop
 ```
 
@@ -187,30 +187,35 @@ $ kafka-server-stop
 ## 消費數據
 命令行端數據生產/消費相關指令：
 
-```c
-// 消費數據
-// 使用 --from-beginning 參數輸出該話題從創建開始後的消息
-// 使用 --consumer.config 參數指定消費端使用的配置文件
-// 使用 --offset [偏移量] --partion [分區編號] 參數自定義讀取消息時的偏移量
-$ kafka-console-consumer --bootstrap-server [listeners IP:端口] --topic [話題名稱]
+```html
+<!--
+消費數據
+使用 --from-beginning 參數輸出該話題從創建開始後的消息
+使用 --consumer.config 參數指定消費端使用的配置文件
+使用 --offset [偏移量] --partion [分區編號] 參數自定義讀取消息時的偏移量
+-->
+$ kafka-console-consumer --bootstrap-server Broker地址:端口 --topic 話題名稱
 
-// 生產數據
-// 使用 --producer.config 參數指定生產者端使用的配置文件
-$ kafka-console-producer --broker-list [listeners IP:端口] --topic [話題名稱]
+<!--
+生產數據
+使用 --producer.config 參數指定生產者端使用的配置文件
+-->
+$ kafka-console-producer --broker-list [listeners IP:端口] --topic 話題名稱
 ```
 
 ## 分區擴展
 一個話題的分區數目可以動態增加，使用`--partitions`參數增加分區數目：
 
 ```
-$ kafka-topics --zookeeper [zookeeper_ip:port] --alter --topic [topic_name] --partitions [partition_count]
+$ kafka-topics --bootstrap-server Broker地址:端口 --alter --topic 話題名稱 --partitions 分區數目
 ```
 
 分區擴展需要謹慎，因為Kafka僅支持話題的分區擴展，但不支持縮減分區，一旦分區增加了便無法撤消。
 
 ### 分區數據均衡
 使用分區擴展指令後，分區數目會立即增加，但已存在的數目並未均衡到新的分區，
-需要手動執行`kafka-reassign-partitions`工具來遷移已存在的數據，詳細使用說明參考[官方文檔](https://kafka.apache.org/documentation/#basic_ops_cluster_expansion)。
+需要手動執行`kafka-reassign-partitions`工具來遷移已存在的數據，
+詳細使用說明參考[官方文檔](https://kafka.apache.org/documentation/#basic_ops_cluster_expansion)。
 
 首先需要編寫JSON配置指定需要數據遷移的話題，格式如下：
 
@@ -233,8 +238,8 @@ $ kafka-reassign-partitions --zookeeper [zookeeper_ip:port] --generate --topics-
 
 執行執行指令：
 
-```c
-// 生成配置，計畫將話題的原數據遷移到 broker 5,6 上
+```html
+<!-- 生成配置，計畫將話題的原數據遷移到 broker 5,6 上 -->
 $ kafka-reassign-partitions.sh --zookeeper localhost:2181 --topics-to-move-json-file topics-to-move.json --broker-list "5,6" --generate
 Current partition replica assignment
 
@@ -261,8 +266,8 @@ Proposed partition reassignment configuration
 
 工具自動生成了默認的新的分區分配信息，保存分區配置到文件中，修改不滿足需求的部分，確認合理後執行數據遷移：
 
-```c
-// 執行數據遷移操作
+```html
+<!-- 執行數據遷移操作 -->
 $ kafka-reassign-partitions --zookeeper localhost:2181 --reassignment-json-file expand-cluster-reassignment.json --execute
 Current partition replica assignment
 
@@ -289,8 +294,8 @@ Successfully started reassignment of partitions
 
 使用`--verify`參數可用於確認分區的遷移進度：
 
-```c
-// 注意，執行該指令時的分區配置需要與執行--execute指令時的分區配置相同
+```html
+<!-- 注意，執行該指令時的分區配置需要與執行--execute指令時的分區配置相同 -->
 $ kafka-reassign-partitions --zookeeper localhost:2181 --reassignment-json-file expand-cluster-reassignment.json --verify
 Status of partition reassignment:
 Reassignment of partition [foo1,0] completed successfully
@@ -375,22 +380,22 @@ Error while executing topic command : Replication factor: 2 larger than availabl
 使用 --partitions 參數指定話題的分區數量
 使用 --replication-factor 參數指定話題數據備份數量
 -->
-$ kafka-topics --create --zookeeper Zookeeper集羣IP:端口 --topic 話題名稱
+$ kafka-topics --create --bootstrap-server Broker地址:端口 --topic 話題名稱
 
 <!-- 列出話題 -->
-$ kafka-topics --list --zookeeper [Zookeeper集羣IP:端口]
+$ kafka-topics --list --bootstrap-server Broker地址:端口
 
 <!-- 移除話題，若移除話題失敗需要在Kafka服務端配置中添加設定 delete.topic.enble = true -->
-$ kafka-topics --delete --topic 話題名稱 --zookeeper Zookeeper集羣IP:端口
+$ kafka-topics --delete --topic 話題名稱 --bootstrap-server Broker地址:端口
 
 <!--
 查看話題描述(包括話題的 Partition、PartitionCount、ReplicationFactor 等信息)
 不使用 --topic 參數時展示所有話題的信息
 -->
-$ kafka-topics --describe --topic 話題名稱 --zookeeper Zookeeper集羣IP:端口
+$ kafka-topics --describe --topic 話題名稱 --bootstrap-server Broker地址:端口
 ```
 
-使用的Zookeeper集羣IP可以是connect參數中配置的任意IP。
+使用的Broker地址可以是connect參數中配置的任意IP。
 在Kafka中，已創建的話題配置可以動態修改：
 
 ```html
@@ -400,19 +405,19 @@ log.retention.hours 話題消息保存時間
 replication-factor 分區副本數目
 partitions 分區數目
 -->
-$ kafka-topics --alter --config 鍵=值 --topic 話題名稱 --zookeeper zookeeper地址:端口
+$ kafka-topics --alter --config 鍵=值 --topic 話題名稱 --bootstrap-server Broker地址:端口
 ```
 
 從`Kafka 0.9.x`開始，Kafka引入了獨立的配置管理工具`kafka-configs.sh`，
 原有`kafka-topics.sh`中話題管理功能提示會在今後的版本中被廢棄。
 kafka-configs使用示例：
 
-```c
-// 添加/更新配置
-$ kafka-configs --alter --add-config [xxx.xxx.xxx=xxx] --zookeeper spark-master --entity-type topics  --entity-name [topic_name]
+```html
+<!-- 添加/更新配置 -->
+$ kafka-configs --alter --add-config 配置項=配置值 --bootstrap-server spark-master --entity-type topics --entity-name 話題名稱
 
-// 移除配置
-$ kafka-configs --alter --delete-config [xxx.xxx.xxx] --zookeeper spark-master --entity-type topics  --entity-name [topic_name]
+<!-- 移除配置 -->
+$ kafka-configs --alter --delete-config 配置項 --bootstrap-server spark-master --entity-type topics --entity-name 話題名稱
 ```
 
 ## 話題刪除
@@ -425,8 +430,8 @@ delete.topic.enable = true
 
 之後再使用話題刪除指令：
 
-```c
-$ kafka-topics --delete --topics [話題名稱] --zookeeper [Zookeeper集羣IP:端口]
+```
+$ kafka-topics --delete --topics 話題名稱 --bootstrap-server Broker地址:端口
 ```
 
 若未啟用`delete.topic.enable`參數，則執行刪除指令不會真正刪除話題，僅為話題打上刪除標記。
@@ -434,22 +439,22 @@ $ kafka-topics --delete --topics [話題名稱] --zookeeper [Zookeeper集羣IP:�
 
 - 刪除話題數據目錄：
 
-	```c
-	// 刪除話題對應的所有分區目錄
+	```html
+	<!-- 刪除話題對應的所有分區目錄 -->
 	$ rm -rf $KAFKA_LOGS/[話題名稱]*
 	```
 
 - 刪除ZooKeeper中對應話題的相關記錄：
 
-	```c
-	// 進入ZooKeeper命令行環境
+	```html
+	<!-- 進入ZooKeeper命令行環境 -->
 	$ zkCli.sh
 
-	// 刪除對應話題相關信息
+	<!-- 刪除對應話題相關信息 -->
 	[zk...] rmr /brokers/topics/[話題名稱]
-	// 刪除對應話題相關配置
+	<!-- 刪除對應話題相關配置 -->
 	[zk...] rmr /config/topics/[話題名稱]
-	// 刪除話題的delete標記信息
+	<!-- 刪除話題的delete標記信息 -->
 	[zk...] rmr /admin/delete_topics/[話題名稱]
 	```
 
@@ -467,7 +472,7 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 	SchemaRegistry服務提供了對出入Kafka的消息的監控，並對數據進行序列化/反序列化處理。
 	服務配置文件爲`$KAFKA_HOME/etc/schema-registry/schema-registry.properties`，配置說明：
 
-	```sh
+	```conf
 	listeners = http://服務地址:服務端口
 	# 設置 Schema Registry 服務綁定的地址與服務端口，默認端口8081
 	# 示例： listeners = http://spark-master:8081
@@ -500,7 +505,7 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 	但若該服務的默認端口喔被佔用，則依舊需要修改相關配置。
 	服務配置文件爲`$KAFKA_HOME/etc/kafka-rest/kafka-rest.properties`，配置說明：
 
-	```sh
+	```conf
 	id = 服務ID
 	# 示例： id = kafka-rest-server
 
@@ -543,7 +548,7 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 	連接配置文件爲`$KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties`。
 	配置項說明：
 
-	```sh
+	```conf
 	bootstrap.servers = Kafka服務監監聽地址:監聽端口
 	# 對應 $KAFKA_HOME/etc/kafka/server.properties 中設定的 listeners 配置，僅需要服務地址、端口
 	# 示例： bootstrap.servers = spark-master:9092
@@ -565,7 +570,7 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 	創建配置`$KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties`。
 	配置項說明：
 
-	```sh
+	```conf
 	name = 連接名稱
 	# 示例： name = kafka-connector-mysql
 
@@ -607,7 +612,7 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 
 	使用`connect-standalone`工具創建數據連接服務，使用之前修改的連接配置和創建的數據源配置：
 
-	```c
+	```
 	$ connect-standalone -daemon $KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties $KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties
 	```
 
@@ -619,7 +624,7 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 應使用`kafka-avro-console-consumer`工具消費數據：
 
 ```
-$ kafka-avro-console-consumer --bootstrap-server [listeners IP:端口] --from-beginning --topic [話題名稱] --property schema.registry.url=[http://SchemaRegistry服務地址:端口]
+$ kafka-avro-console-consumer --bootstrap-server Broker地址:端口 --from-beginning --topic 話題名稱 --property schema.registry.url=http://SchemaRegistry服務地址:端口
 ```
 
 JDBC Source Connector提供了多種數據源導入/監控模式：
