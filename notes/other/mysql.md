@@ -58,6 +58,8 @@
 	- [Master Key Rotation（主密鑰輪換）](#master-key-rotation主密鑰輪換)
 - [MySQL高可用](#mysql高可用)
 	- [Replication（複製）](#replication複製)
+		- [解決數據衝突](#解決數據衝突)
+		- [Binlog位置錯誤](#binlog位置錯誤)
 - [常用功能和配置](#常用功能和配置)
 	- [導出數據](#導出數據)
 	- [導入數據](#導入數據)
@@ -1327,6 +1329,101 @@ master機器信息亦可配置在數據庫配置中：
 master-host = x.x.x.x
 master-user = user
 master-password = password
+```
+
+### 解決數據衝突
+當MySQL出現binlog數據同步衝突時，使用`show slave status\G`查看同步狀態，
+輸出內容中的`Slave_SQL_Running_State`、`Last_Error`等項目說明當前同步狀態，正常和異常的輸出示例：
+
+```html
+<!-- 正常同步 -->
+Last_Errno: 0
+Last_Error:
+Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+
+<!-- 同步失敗 -->
+Last_Errno: 1032
+Last_Error: Could not execute Delete_rows event on table xxx; Can't find record in 'xxx', Error_code: 1032; handler error HA_ERR_KEY_NOT_FOUND; the event's master log mysql-bin.000011, end_log_pos 21792122
+Slave_SQL_Running_State:
+```
+
+Last_Errno說明了同步的錯誤編號，常見的錯誤如`1062`（重複主鍵）、`1032`（刪除目標記錄不存在）。
+
+刪除衝突的數據內容即可恢復同步狀態，亦可在MySQL配置中添加`slave-skip-errors`配置項，
+用於忽略特定類型的錯誤：
+
+```ini
+[mysqld]
+slave-skip-errors=1062,1032 # 跳過指定類型的錯誤
+# slave-skip-errors=all # 忽略所有同步錯誤
+```
+
+對於常見的重複主鍵錯誤，可採用不同主鍵自增偏移量的方案。
+示例，對於雙主的MySQL集群，兩台主機可分別加入配置：
+
+```ini
+# 主機1，主鍵按照1，3，5生成
+[mysqld]
+auto_increment_offset = 1
+auto_increment_increment = 2
+
+# 主機2，主鍵按照2，4，6生成
+[mysqld]
+auto_increment_offset = 2
+auto_increment_increment = 2
+```
+
+通過主鍵自增偏移量僅能解決多Master節點寫入數據的主鍵衝突，
+對於UNIQUE KEY等其它衝突，依舊需要使用額外的機制。
+
+### Binlog位置錯誤
+MySQL會定期清理Binlog文件，當數據庫服務器長時間未啟動，
+則之前同步的Binlog文件可能在下次啟動服務時被清除。
+當設置同步的Binlog文件不存在，則查看同步狀態時會得到下列錯誤：
+
+```sql
+mysql> show slave status\G
+...
+Last_IO_Errno: 1236
+Last_IO_Error: Got fatal error 1236 from master when reading data from binary log: 'Could not find first log file name in binary log index file'
+...
+```
+
+解決此問題需要查看對應Master主機當前的Binlog文件：
+
+```sql
+mysql> show master logs
++------------------+-----------+
+| Log_name         | File_size |
++------------------+-----------+
+| mysql-bin.000020 | 154       |
+| mysql-bin.000021 | 154       |
+| mysql-bin.000022 | 1320      |
+| mysql-bin.000023 | 4062986   |
++------------------+-----------+
+4 rows in set
+Time: 0.008s
+```
+
+Binlog文件亦可在Master主機的`/var/log/mysql`路徑下查找到：
+
+```html
+<!-- 以Ubuntu系統下的MySQL默認配置為例 -->
+$ ls -al /var/log/mysql/
+total 132
+drwxr-x---  2 mysql adm     4096 Feb 10 15:15 .
+drwxrwxr-x 11 root  syslog  4096 Jan 28 06:25 ..
+-rw-r-----  1 mysql adm    20985 Feb 10 15:25 error.log
+-rw-r-----  1 mysql adm        0 Jan 27 06:25 error.log.1
+-rw-r-----  1 mysql mysql    539 Feb 10 15:15 mysql-bin.000014
+-rw-r-----  1 mysql mysql  87612 Feb 10 15:32 mysql-bin.000015
+-rw-r-----  1 mysql mysql     64 Feb 10 15:15 mysql-bin.index
+```
+
+之後重新設置master_file：
+
+```sql
+mysql> change master to master_log_file='mysql-bin.000014', master_log_pos=1;
 ```
 
 
