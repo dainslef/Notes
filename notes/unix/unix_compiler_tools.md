@@ -597,36 +597,47 @@ CMake通過分析CMakeLists.txt生成makefile進行項目構建。
 基本的CMakeLists.txt結構：
 
 ```cmake
-# Set the mini version of CMake
+# 設置最低CMake版本
 cmake_minimum_required(VERSION 3.0)
 
-# Set the project name
-project(ProjectNameXXX)
+# 設置項目名稱
+project(project-xxx-name)
 
-# Set the C/CPP standard
+# 設置C/C++標準
 set(CMAKE_CXX_STANDARD 17)
 
-# Include the system header file path
+# 設置頭文件路徑
 include_directories(SYSTEM /usr/include/xxx ...)
 
-# Add the source paths
+# 設置庫文件路徑
+link_directories(/path/to/libraries ...)
+
+# 添加源碼路徑
 aux_source_directory(./src SRC1)
 aux_source_directory(./tools SRC2)
 aux_source_directory(./libxxx_src XXXLIB)
 ...
 
-# Add the executable
+# 定義編譯生成的可執行文件
 add_executable(test_exec ./main.cc ${SRC1} ${SRC2} ...)
 ...
 
-# Set up the custom library
-add_library(xxx_lib STATIC ${XXXLIB})
-set_target_properties(xxx_lib PROPERTIES LINKER_LANGUAGE CXX)
+# 添加其它CMake管理的子項目
+add_subdirectory(xxx_subpath)
 ...
 
-# Link library
+# 添加其它庫（源碼引入）
+add_library(xxx_lib STATIC ${XXXLIB}) # 靜態庫，多文件
+set_target_properties(xxx_lib PROPERTIES LINKER_LANGUAGE CXX)
+add_library(xxx_dynamic_lib SHARED ${XXXLIB}) # 動態庫
+add_library(xxx_src_lib STATIC xxx_src_file.cpp) # 單文件
+...
+
+# 鏈接庫
+target_link_libraries(test_exec 庫名1 庫名2 ...) # 鏈接動態庫
 target_link_libraries(test_exec xxx_lib)
 target_link_libraries(test_exec -lpthread -ldl -lrt ...)
+target_link_libraries(test_exec libxxx1.a libxxx2.a ...) # 鏈接靜態庫
 ...
 ```
 
@@ -650,6 +661,7 @@ CMakeFiles (目錄)
 使用 -B 參數指定構建信息生成路徑
 -->
 $ cmake 項目目錄 -B 構建信息生成路徑
+$ cmake 項目目錄 -D構建屬性=值 -D... -B 構建信息生成路徑
 ```
 
 正確生成構建信息後，開始構建項目：
