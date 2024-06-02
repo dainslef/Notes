@@ -43,6 +43,7 @@
 - [DNS](#dns)
 	- [配置DNS策略](#配置dns策略)
 - [Labels 與 Selectors](#labels-與-selectors)
+- [ConfigMap 與 Secret](#configmap-與-secret)
 
 <!-- /TOC -->
 
@@ -1137,3 +1138,105 @@ $ kubectl delete xxx -l "key=value"
 
 完整的Labels和Selectors說明參考
 [官方文檔](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)。
+
+
+
+# ConfigMap 與 Secret
+[`ConfigMap`](https://kubernetes.io/docs/concepts/configuration/configmap)
+用於存儲配置數據供Pod中掛載使用，API說明：
+
+```yaml
+---
+# 定義配置
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 配置名稱
+  namespace: 命名空間
+data:
+  配置項1: |
+    ...
+  配置項2: |
+    ...
+  ...
+
+---
+# 創建Pod時使用配置
+apiVersion: v1
+kind: Pod
+metadata:
+  name: Pod名稱
+  namespace: 命名空間
+spec:
+  containers:
+    - name: 容器名稱
+      image: 鏡像
+      volumeMounts:
+        - mountPath: 配置掛載到容器的路徑
+          name: 引用配置（與volumes中對應）
+      volumes:
+        - name: 配置名稱（由容器引用）
+          configMap:
+            name: ConfigMap配置名稱
+            # 自定義配置配置項的掛載文件名，若使用配置項默認名稱，則無須自定義
+            items:
+              - key: ConfigMap指定配置名稱下的配置項
+                path: 掛載為配置文件的名稱
+```
+
+[`Secret`](https://kubernetes.io/docs/concepts/configuration/secret)
+與ConfigMap作用類似，但用於存儲加密數據，API說明：
+
+```yaml
+---
+# 定義Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: Secret名稱
+  namespace: 命名空間
+type: Opaque
+data:
+  # 作為環境變量引入
+  加密數據1: ...
+  加密數據2: ...
+  ...
+stringData:
+  # 作為文件引入
+  加密文件1: |
+    ...
+  加密文件2: |
+    ...
+  ...
+
+---
+# 創建Pod時使用Secret
+apiVersion: v1
+kind: Pod
+...
+spec:
+  containers:
+    - name: 容器名稱
+      image: 鏡像
+      volumeMounts:
+        ...
+      volumes:
+        - name: ...
+          secret:
+            secretName: Secret名稱
+            ...
+      env:
+        - name: 環境變量名稱
+          valueFrom:
+            secretKeyRef:
+              name: Secret名稱
+              key: 指定加密數據的Key
+```
+
+Secret使用方法與ConfigMap基本類似，但存在下列區別：
+
+- Secret存在多種類型，默認類型為`Opaque`，
+存儲任意的用戶定義加密數據，根據加密數據類型的不同，可使用對應的細分類型
+- Secret存儲的數據亦分為兩種類型：
+	- `data` 作為環境變量寫入容器中
+	- `stringData` 作為文件掛載到容器中
