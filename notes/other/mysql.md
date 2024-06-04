@@ -60,6 +60,9 @@
 	- [Replication（複製）](#replication複製)
 		- [解決數據衝突](#解決數據衝突)
 		- [Binlog位置錯誤](#binlog位置錯誤)
+	- [Galera Cluster](#galera-cluster)
+		- [安裝Galera Cluster](#安裝galera-cluster)
+		- [配置Galera集群](#配置galera集群)
 - [常用功能和配置](#常用功能和配置)
 	- [導出數據](#導出數據)
 	- [導入數據](#導入數據)
@@ -1424,6 +1427,86 @@ drwxrwxr-x 11 root  syslog  4096 Jan 28 06:25 ..
 
 ```sql
 mysql> change master to master_log_file='mysql-bin.000014', master_log_pos=1;
+```
+
+## Galera Cluster
+[`Galera Cluster`](https://galeracluster.com/)是MySQL/MariaDB下的另一種常見的集群同步機制，
+相比Replication的傳統主被複製模式，Galera Cluster支持多主多活（Multi-master,  Active-Active Cluster）同時讀寫。
+
+Galera Cluster已包含在MariaDB官方發行中，但未包含在MySQL中，使用MySQL需要下載Galera提供的Patch版本。
+
+### 安裝Galera Cluster
+從[MariaDB官網](https://downloads.mariadb.org/mariadb/repositories)中生成對應發行版的軟件源。
+以`Ubuntu 16.04 Xenial`爲例，默認MariaDB版本爲`10.0`，添加`10.5`版本：
+
+```html
+<!-- 添加倉庫密鑰 -->
+# apt-key adv --fetch-keys 'http://mariadb.org/mariadb_release_signing_key.asc'
+<!-- 添加軟件倉庫 -->
+# add-apt-repository 'deb https://mirrors.aliyun.com/mariadb/repo/10.5/ubuntu xenial main'
+<!-- 安裝MariaDB Server -->
+# apt update && apt install mariadb-server
+```
+
+若使用其它版本的MariaDB，則修改對應源的系統版本（如`xenial`變為`focal`），
+以及數據庫版本號（如`10.5`變為`10.7`）。
+
+### 配置Galera集群
+配置Galera集群，參考[MariaDB官方文檔](https://mariadb.com/kb/en/getting-started-with-mariadb-galera-cluster/)，
+以及對應[配置說明](https://mariadb.com/kb/en/configuring-mariadb-galera-cluster/)。
+
+MariaDB默認未開啟Galera，但生成了對應配置模板`/etc/mysql/mariadb.conf.d/60-galera.cnf`，
+**複製**該文件到`/etc/mysql/conf.d/galera.cnf`，開啟Galera集群功能，並配置集群地址。
+
+```
+# cp /etc/mysql/mariadb.conf.d/60-galera.cnf /etc/mysql/conf.d/galera.cnf
+```
+
+必要配置：
+
+```ini
+[galera]
+# Enable cluster.
+wsrep_on = ON
+wsrep_provider = /usr/lib/galera/libgalera_smm.so
+
+# Setup cluster info.
+wsrep_cluster_name = "MariaDB Galera Cluster"
+wsrep_cluster_address = gcomm://x.x.x.x,x.x.x.x,x.x.x.x,...
+
+binlog_format = row # Need to setup binlog format, only row type is supported.
+bind-address = 0.0.0.0 # Allow remote access.
+```
+
+默認生成的配置文件中缺少`wsrep_provider`，該配置項必備，
+否則數據庫實例不會以Galera集群模式啟動。
+
+Galera會自動讀取主機名稱以及網卡信息決定節點名稱和IP，亦可手動配置（非必要）：
+
+```ini
+[galera]
+# Need to setup node info.
+wsrep_node_address = x.x.x.x
+wsrep_node_name = node_name_xxx
+```
+
+在所有數據庫節點創建配置，選取一個節點作為啟動節點，執行集群初始化指令：
+
+```
+# galera_new_cluster
+```
+
+之後在其它節點啟動數據庫服務：
+
+```
+# systemctl start mariadb
+```
+
+若集群初始化失敗或是添加節點失敗，可嘗試重新初始化數據庫：
+
+```
+# rm -rf /var/lib/mysql
+# mariadb-install-db
 ```
 
 
