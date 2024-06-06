@@ -9,7 +9,7 @@
 	- [分區擴展](#分區擴展)
 		- [分區數據均衡](#分區數據均衡)
 - [Topic & Partition](#topic--partition)
-	- [分區消息順序](#分區消息順序)
+	- [分區消息順序與偏移量](#分區消息順序與偏移量)
 	- [分區存儲機制](#分區存儲機制)
 	- [話題操作](#話題操作)
 	- [話題刪除](#話題刪除)
@@ -39,7 +39,7 @@ Kafka通常用於以下兩大類應用：
 ## 下載
 Kafka主要版本包括：
 
-- [原生版本Kafka](http://kafka.apache.org/downloads)，由`Apache`基金會維護。
+- [原生版本Kafka](http://kafka.apache.org/downloads)，由Apache基金會維護。
 - [Confluent Kafka](https://www.confluent.io/download)，
 由前`LinkedIn`的Kafka核心開發者創立的商業公司`Confluent`維護，在原生Kafka的基礎上提供了一系列的擴展功能。
 
@@ -129,14 +129,14 @@ export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
 	# 示例： log.dirs = /home/data/kafka/kafka_messages
 
 	log.cleanup.policy = 消息清理策略
-	# 默認值爲 delete，可選值爲 compact(壓縮)、delete(刪除)
+	# 默認值爲 delete，可選值爲 compact（壓縮）、delete（刪除）
 
 	log.retention.minutes = 消息保存分鐘
 	log.retention.hours = 消息保存小時
-	# 默認保存 168 小時(一週)的消息，超過時間的消息會按照配置的清理策略(壓縮、刪除)進行處理
+	# 默認保存 168 小時（一週）的消息，超過時間的消息會按照配置的清理策略（壓縮、刪除）進行處理
 
 	log.retention.bytes = 一個 topic 中每個 partition 保存消息的最大大小
-	# 默認值爲 -1(不清理)，超過大小的消息會按照清理策略被處理
+	# 默認值爲 -1（不清理），超過大小的消息會按照清理策略被處理
 	# 消息緩存大小上限： partition數量 x 每個partition的消息大小上限
 	```
 
@@ -200,7 +200,7 @@ $ kafka-console-consumer --bootstrap-server Broker地址:端口 --topic 話題�
 生產數據
 使用 --producer.config 參數指定生產者端使用的配置文件
 -->
-$ kafka-console-producer --broker-list [listeners IP:端口] --topic 話題名稱
+$ kafka-console-producer --broker-list 監聽IP:端口 --topic 話題名稱
 ```
 
 ## 分區擴展
@@ -341,13 +341,23 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
 因此當同一Group下的Consumer數目**大於**Partition數目時，
 會有Consumer因爲未關聯到Partition而收不到數據。
 
-## 分區消息順序
+## 分區消息順序與偏移量
 在Kafka中，每個分區使用獨立的偏移量，因此僅保證**同一分區**內的消息順序，而**不保證**全局消息順序。
 
 若需要保證話題全局消息順序，則可使用如下機制：
 
 - 使用單一消費者消費一個話題的所有分區
 - 發送數據時手動指定消息分區，將需要保證數據的消息發送至同一分區
+
+查看偏移量：
+
+```html
+<!-- 查看指定消費組的偏移量 -->
+$ kafka-consumer-groups.sh --bootstrap-server Broker地址:端口 --group 消費組 --describe
+
+<!-- 查看全部消費組的偏移量 -->
+$ kafka-consumer-groups.sh --bootstrap-server Broker地址:端口 --all-groups --describe
+```
 
 ## 分區存儲機制
 Kafka將消息數據存儲在`$KAFKA_HOME/etc/kafka/server.properties`文件中的`log.dirs`配置項設定的路徑下。
@@ -389,7 +399,7 @@ $ kafka-topics --list --bootstrap-server Broker地址:端口
 $ kafka-topics --delete --topic 話題名稱 --bootstrap-server Broker地址:端口
 
 <!--
-查看話題描述(包括話題的 Partition、PartitionCount、ReplicationFactor 等信息)
+查看話題描述（包括話題的 Partition、PartitionCount、ReplicationFactor 等信息）
 不使用 --topic 參數時展示所有話題的信息
 -->
 $ kafka-topics --describe --topic 話題名稱 --bootstrap-server Broker地址:端口
@@ -441,7 +451,7 @@ $ kafka-topics --delete --topics 話題名稱 --bootstrap-server Broker地址:�
 
 	```html
 	<!-- 刪除話題對應的所有分區目錄 -->
-	$ rm -rf $KAFKA_LOGS/[話題名稱]*
+	$ rm -rf $KAFKA_LOGS/話題名稱*
 	```
 
 - 刪除ZooKeeper中對應話題的相關記錄：
@@ -451,11 +461,11 @@ $ kafka-topics --delete --topics 話題名稱 --bootstrap-server Broker地址:�
 	$ zkCli.sh
 
 	<!-- 刪除對應話題相關信息 -->
-	[zk...] rmr /brokers/topics/[話題名稱]
+	[zk...] rmr /brokers/topics/話題名稱
 	<!-- 刪除對應話題相關配置 -->
-	[zk...] rmr /config/topics/[話題名稱]
+	[zk...] rmr /config/topics/話題名稱
 	<!-- 刪除話題的delete標記信息 -->
-	[zk...] rmr /admin/delete_topics/[話題名稱]
+	[zk...] rmr /admin/delete_topics/話題名稱
 	```
 
 
@@ -467,7 +477,7 @@ Kafka Connect使得向Kafka輸入、輸出數據變得簡單。
 ## 依賴服務配置
 Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓動以下服務：
 
-- `Schema Registry` (必備)
+- `Schema Registry`（必備）
 
 	SchemaRegistry服務提供了對出入Kafka的消息的監控，並對數據進行序列化/反序列化處理。
 	服務配置文件爲`$KAFKA_HOME/etc/schema-registry/schema-registry.properties`，配置說明：
@@ -498,7 +508,7 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 	$ schema-registry-start -daemon $KAFKA_HOME/etc/schema-registry/schema-registry.properties
 	```
 
-- `Kafka Rest` (可選)
+- `Kafka Rest`（可選）
 
 	KafkaRest服務爲Kafka提供了`Rest API`支持，使Kafka可以通過HTTP請求進行互操作。
 	通常該服務不必修改配置，JDBC Source Connector會在啟動時自動啟動該服務，
@@ -620,7 +630,8 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 
 數據監控服務正常啓動後，會按照數據源配置項`topic.prefix`以`話題前綴 + 表格名稱`的規則自動創建話題，
 在話題中以JSON形式輸出表格新增的數據。
-話題中輸出的數據以`Apache Avro`做爲數據交互格式，直接使用`kafka-console-consumer`獲取話題中的數據得到的信息不具備可讀性。
+話題中輸出的數據以`Apache Avro`做爲數據交互格式，
+直接使用`kafka-console-consumer`獲取話題中的數據得到的信息不具備可讀性。
 應使用`kafka-avro-console-consumer`工具消費數據：
 
 ```
