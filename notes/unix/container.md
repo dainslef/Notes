@@ -236,7 +236,13 @@ Docker Desktop在macOS上的虛擬機實現從HyperKit遷移到了Apple原生的
 虛擬機位置變為`~/Library/Containers/com.docker.docker/Data/vms/0`，
 同時也不再提供虛擬機的tty設備（不可再通過screen訪問終端）。
 
-替代方案是創建特權容器，訪問容器宿主的虛擬機：
+替代方案是訪問`debug-shell.sock`文件：
+
+```
+$ nc -U ~/Library/Containers/com.docker.docker/Data/debug-shell.sock
+```
+
+亦可創建特權容器，訪問容器宿主的虛擬機：
 
 ```html
 <!-- 單次使用添加 --rm 參數，容器進程退出則刪除 -->
@@ -681,26 +687,26 @@ Docker官方提供了鏡像託管服務`Docker Hub`。
 將本地的個人鏡像上傳到Docker Hub：
 
 ```
-$ docker push [鏡像名稱]
+$ docker push 鏡像名稱
 ```
 
 個人鏡像的鏡像名稱中`REPOSITORY`部分應以**Docker Hub ID**加**正斜槓**起始，鏡像名稱格式如下：
 
 ```
-[Docker Hub ID]/Xxx:[鏡像TAG]
+[Docker Hub ID]/Xxx:鏡像TAG
 ```
 
-假設個人`Docker ID`爲`danslef`，本地測試鏡像信息如下：
+假設個人`Docker ID`爲`test`，本地測試鏡像信息如下：
 
 ```
 REPOSITORY              TAG                 IMAGE ID            CREATED            SIZE
-dainslef/test_image     2333               9f0a1d72c464        9 minutes ago       538MB
+test/test_image     2333               9f0a1d72c464        9 minutes ago       538MB
 ```
 
 將測試鏡像上傳到Docker Hub：
 
 ```
-$ docker push dainslef/test_image:2333
+$ docker push test/test_image:2333
 ```
 
 ## Docker容器日誌
@@ -816,8 +822,8 @@ $ docker cp 容器ID/容器名稱:絕對路徑 宿主機文件/目錄
 如下所示：
 
 ```
-$ docker create -v [宿主機路徑:容器內路徑] [其它容器參數...] [鏡像] [啓動進程] [進程參數...]
-$ docker create --mount [宿主機路徑:容器內路徑] [其它容器參數...] [鏡像] [啓動進程] [進程參數...]
+$ docker create -v 宿主機路徑:容器內路徑 其它容器參數... 鏡像 啓動進程 進程參數...
+$ docker create --mount 宿主機路徑:容器內路徑 其它容器參數... 鏡像 啓動進程 進程參數...
 ```
 
 使用綁定掛載時，宿主機路徑、容器內路徑需要爲**絕對路徑**：
@@ -871,12 +877,12 @@ $ docker create --mount [宿主機路徑:容器內路徑] [其它容器參數...
 
 ```html
 <!-- 創建卷時不指定卷名稱會隨機生成名稱 -->
-$ docker create -v [容器內路徑] [其它容器參數...] [鏡像] [啓動進程] [進程參數...]
-$ docker create --mount [容器內路徑] [其它容器參數...] [鏡像] [啓動進程] [進程參數...]
+$ docker create -v 容器內路徑 其它容器參數... 鏡像 啓動進程 進程參數...
+$ docker create --mount 容器內路徑 其它容器參數... 鏡像 啓動進程 進程參數...
 
 <!-- 指定卷名稱 -->
-$ docker create -v [卷名稱:容器內路徑] [其它容器參數...] [鏡像] [啓動進程] [進程參數...]
-$ docker create --mount [卷名稱:容器內路徑] [其它容器參數...] [鏡像] [啓動進程] [進程參數...]
+$ docker create -v 卷名稱:容器內路徑 其它容器參數... 鏡像 啓動進程 進程參數...
+$ docker create --mount 卷名稱:容器內路徑 其它容器參數... 鏡像 啓動進程 進程參數...
 ```
 
 卷的物理路徑在宿主機的`/var/lib/docker/volumes/[卷名稱]/_data`路徑下。
@@ -889,9 +895,9 @@ $ docker create --mount [卷名稱:容器內路徑] [其它容器參數...] [鏡
 $ docker volume ls
 
 <!-- 通過卷名稱/卷ID刪除指定卷 -->
-$ docker volume rm [卷名稱/卷ID]
+$ docker volume rm 卷名稱或卷ID
 
-<!-- 刪除所有未被使用(未跟容器關聯)的卷 -->
+<!-- 刪除所有未被使用（未跟容器關聯）的卷 -->
 $ docker volume prune
 ```
 
@@ -1318,9 +1324,10 @@ $ helm install --set 配置=值... -n 命名空間 harbor harbor/harbor
 - `expose.nodePort` 控制NodePort導出端口相關配置
 - `externalURL` 控制docker login等命令行登入的URL
 - `harborAdminPassword` Harbor管理員admin用戶密碼，默認為`Harbor12345`
+- `persistence.persistentVolumeClaim.registry.size` 配置鏡像存儲卷的大小，默認`5GB`
 
-使用NodePort導出時externalURL應使用實際NodePort端口和對應節點IP，
-示例關閉TLS，Kubernetes節點IP為10.89.64.64，NodePort端口為30002，
+使用NodePort導出時externalURL應使用實際NodePort端口和對應節點IP。
+以關閉TLS，Kubernetes節點IP為10.89.64.64，NodePort端口為30002为例，
 則externalURL應填寫：`http://10.89.64.64:30002`。
 
 ## 登入Habor
