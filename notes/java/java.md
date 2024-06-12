@@ -19,6 +19,7 @@
 - [淺複製與深複製](#淺複製與深複製)
 	- [淺複製](#淺複製)
 	- [深複製](#深複製)
+- [構造順序](#構造順序)
 - [泛型](#泛型)
 	- [類型擦除](#類型擦除)
 	- [泛型方法](#泛型方法)
@@ -748,6 +749,95 @@ class TestClone implements Cloneable {
 
 需要注意的是，`String`類型是**特例**，雖然其爲**引用類型**，但String內部重新實現了自身的`clone()`，
 重寫當前類`clone()`方法時可以將其視爲基本類型（不必顯式構建）。
+
+
+
+# 構造順序
+Java中一個類內的內容按照下列順序初始化：
+
+1. 靜態內容
+	1. 靜態變量
+	1. 靜態代碼塊
+1. 非靜態內容
+	1. 非靜態變量
+	1. 非靜態代碼塊
+	1. 構造函數
+
+存在繼承的場景下，按照下列順序初始化：
+
+1. 父類靜態內容
+1. 子類靜態內容
+1. 父類非靜態內容
+1. 子類非靜態內容
+
+示例：
+
+```java
+import org.junit.jupiter.api.Test;
+import static java.lang.StringTemplate.STR;
+
+class Member {
+    Member(boolean isParent, boolean isStatic) {
+        System.out.println(STR."Member Constructor(parent: \{isParent}, static: \{isStatic})");
+    }
+}
+
+class Parent {
+    static Member staticMember = new Member(true, true);
+    Member member = new Member(true, false);
+
+    static {
+        System.out.println("Static Parent Initializer Block");
+    }
+
+    {
+        System.out.println("Parent Initializer Block");
+    }
+
+    Parent() {
+        System.out.println("Parent Constructor");
+    }
+}
+
+class Child extends Parent {
+    static Member staticMember = new Member(false, true);
+    Member member = new Member(false, false);
+
+    static {
+        System.out.println("Static Child Initializer Block");
+    }
+
+    {
+        System.out.println("Child Initializer Block");
+    }
+
+    Child() {
+        System.out.println("Child Constructor");
+    }
+}
+
+public class TestJava {
+    @Test
+    public void testInit() {
+        new Child();
+    }
+}
+```
+
+輸出結果（macOS 14.1.1 && openjdk 21.0.1）：
+
+```
+Member Constructor(parent: true, static: true)
+Static Parent Initializer Block
+Member Constructor(parent: false, static: true)
+Static Child Initializer Block
+Member Constructor(parent: true, static: false)
+Parent Initializer Block
+Parent Constructor
+Member Constructor(parent: false, static: false)
+Child Initializer Block
+Child Constructor
+```
 
 
 
