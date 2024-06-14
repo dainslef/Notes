@@ -49,6 +49,9 @@
 		- [podman登入](#podman登入)
 		- [containerd登入](#containerd登入)
 	- [從其它Harbor倉庫導入鏡像](#從其它harbor倉庫導入鏡像)
+- [containerd](#containerd)
+	- [containerd配置](#containerd配置)
+	- [nerdctl](#nerdctl)
 - [Lima](#lima)
 	- [Lima安裝](#lima安裝)
 	- [Lima環境配置](#lima環境配置)
@@ -1400,6 +1403,41 @@ password = "xxx"
 並支持使用`*`通配符，如`library/*`即為拉取library倉庫下的所有鏡像。
 
 複製規則創建完成後，選中規則點擊`REPLICATE`可手動開始同步操作。
+
+
+
+# containerd
+[containerd](https://containerd.io/)是目前主流的CRI實現，Docker亦使用了該實現。
+
+## containerd配置
+ctr的配置文件位於`/etc/containerd/config.toml`，配置項參考
+[官方Readme](https://github.com/containerd/containerd/blob/main/docs/man/containerd-config.toml.5.md)。
+可使用man查看該配置手冊：
+
+```
+$ man containerd-config.toml
+```
+
+默認該配置未被創建，可使用`containerd config default`指令生成默認配置。
+
+## nerdctl
+containerd自帶了命令行管理工具`ctr`用於容器管理，
+但指令格式與主流的`docker`指令差異過大，且部分指令設計不夠合理。
+
+[nerdctl](https://github.com/containerd/nerdctl)工具可以使用與docker相同的指令與containerd進行交互。
+nerdctl支持幾乎所有的docker指令（包括docker compose），
+指令參數與docker幾乎完全一致，部分命令行輸出樣式略有差異（如進度條等）。
+
+nerdctl目前並未被所有發行版收錄，在ArchLinux、macOS、FreeBSD中可直接安裝：
+
+```
+# pacman -S nerdctl
+$ brew install nerdctl
+# pkg install nerdctl
+```
+
+其它官方軟件源未收錄發行版（如Debian係）中需要從官方發布頁面下載，
+nerdctl採用Golang編寫，僅需根據環境選擇正確的平台、架構即可，無須安裝其它依賴。
 
 
 
