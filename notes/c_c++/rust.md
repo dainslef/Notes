@@ -55,6 +55,9 @@
 	- [Panic](#panic)
 		- [std::panic::catch_unwind](#stdpaniccatch_unwind)
 		- [C-unwind ABI](#c-unwind-abi)
+- [命令行參數處理](#命令行參數處理)
+	- [Clap庫](#clap庫)
+		- [基於屬性生成命令行參數](#基於屬性生成命令行參數)
 
 <!-- /TOC -->
 
@@ -1340,3 +1343,47 @@ release.panic = "unwind"
 中穩定了`C-unwind ABI`，可在觸發panic時向其它語言提供異常信息而非直接終止程序。
 
 相關內容詳見[RFC2945](https://github.com/rust-lang/rfcs/blob/master/text/2945-c-unwind-abi.md)。
+
+
+
+# 命令行參數處理
+Rust標準庫中提供了基本的命令行參數處理功能。
+
+Rust中的命令行參數不通過main函數參數傳入，
+而是使用[`std::env::args()`](https://doc.rust-lang.org/std/env/fn.args.html)函數獲取。
+該函數返回值類型為[`std::env::Args`](https://doc.rust-lang.org/std/env/struct.Args.html)，
+該類型實現了Iterator，可通過遍歷的方式訪問所有命令行參數：
+
+```rs
+for argument in env::args() {
+  ...
+}
+```
+
+## Clap庫
+[`Clap`](https://github.com/clap-rs/clap)
+是功能強大的命令行參數處理庫，支持從結構體定義生成命令行參數。
+
+### 基於屬性生成命令行參數
+Clap庫通常使用屬性標註結構體的方式生成命令行參數：
+
+```rs
+#[derive(clap::Parser, Debug)]
+#[command(
+  version,
+  about = "Short help about will show with -h argument",
+  long_about = "Long help about will show with --help argument"
+)]
+pub struct CommandLine {
+  pub input1: String,
+  pub inpit2: u32,
+  /// Set up the long argument
+  #[arg(long, default_value = "127.0.0.1")]
+  pub arg1: String,
+  /// Set up the short and long argument
+  #[arg(short, long)]
+  pub arg2: Option<String>,
+}
+```
+
+命令行結構體derive了`clap::Parser`特質，使用`類型::parse()`方法可解析命令行參數。
