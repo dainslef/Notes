@@ -28,8 +28,9 @@
 - [LuCI](#luci)
 	- [實用LuCI插件](#實用luci插件)
 	- [LuCI頁面緩存問題](#luci頁面緩存問題)
-- [防火牆](#防火牆)
-	- [防火牆配置](#防火牆配置)
+	- [DHCP與DNS](#dhcp與dns)
+	- [防火牆](#防火牆)
+		- [防火牆配置](#防火牆配置)
 - [文件系統與存儲機制](#文件系統與存儲機制)
 	- [存儲掛載](#存儲掛載)
 		- [掛載USB存儲](#掛載usb存儲)
@@ -876,9 +877,18 @@ luci-modulecache/
 # rm /tmp/luci-*
 ```
 
+## DHCP與DNS
+LUCI介面提供了完善的DHCP與DNS相關功能配置，相關菜單位於`Network - DHCP and DNS`中。
 
+設置特定域名IP除了傳統Linux下修改hosts文件方式外，還可在LUCI的對應菜單中直接配置：
 
-# 防火牆
+```
+Network - DHCP and DNS - CFG01411C - Hostnames
+```
+
+若配置的域名是公網中存在的域名，本地配置IP的優先級高於公網DNS提供的IP。
+
+## 防火牆
 OpenWRT提供了完善的防火牆功能，早期防火牆基於
 [iptables](https://www.netfilter.org/projects/iptables/index.html)實現，
 由於iptables已被廢棄，
@@ -886,7 +896,7 @@ OpenWRT提供了完善的防火牆功能，早期防火牆基於
 防火牆新版本（Firewall4以及之後版本）的實現切換到
 [nftables](https://www.netfilter.org/projects/nftables/index.html)。
 
-## 防火牆配置
+### 防火牆配置
 防火牆相關功能位於LUCI的`Network - Firewall`菜單中。
 默認防火牆策略下會禁用幾乎所有的WAN口輸入，但保留了Ping以及DHCP等基本輸入規則。
 
@@ -1266,8 +1276,8 @@ OpenClash功能強大，但部分配置若未合理配置會導致無法聯網�
 修改/更新配置後，若直接Apply Setting導致無法聯網，
 可嘗試重新`Enable OpenClash`，會重新執行完整的啟動流程。
 
-若出現牆內流量正常，牆外流量無法訪問的情況，
-可考慮重啟WAN口以及重新插入WAN口網線。
+若出現牆內流量正常，牆外流量無法訪問的情況，可考慮重啟WAN口以及重新插入WAN口網線
+（重啟WAN口或重新插入WAN口網線均會觸發OpenClash重新設置nftables規則）。
 
 ### OpenClash排查錯誤
 首先排查日誌：
