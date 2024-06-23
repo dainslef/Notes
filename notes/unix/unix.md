@@ -1319,6 +1319,16 @@ SSH客戶端（監聽本地映射端口） =======> SSH服務端（中轉主機�
 
 實際目標地址可以與中轉主機相同，亦可不同，僅需要中轉主機能訪問到即可。
 
+啟用端口轉發功能需要SSH服務端需要開啟配置：
+
+```conf
+AllowTcpForwarding yes
+```
+
+通常該配置默認開啟，但部分發行版會禁用該配置。
+該配置未正常開啟會影響一些常見應用的功能，如VSCode的
+[Failed to set up socket for dynamic port forward](https://github.com/microsoft/vscode-remote-release/issues/8132)。
+
 
 
 # Linux引導配置
@@ -2847,6 +2857,7 @@ curl同樣可用於在基於HTTP協議的文件下載，相關參數說明：
 | -O, --remote-name | Write output to a local file named like the remote file we get | `-O` |
 | -L, --location | Download file from new location (for 302 response) | `-L` |
 | -s, --silent | Silent or quiet mode | `-s` |
+| -C, --continue-at <offset> | Continue/Resume a previous file transfer at the given offset. | `-C -` |
 
 使用`-o`參數可將請求回應內容重定向到文件中，即實現下載效果：
 
@@ -2863,6 +2874,10 @@ $ curl -O http://example.com
 -->
 $ curl -OL http://example.com
 ```
+
+curl通過`-C`參數啟用斷點續傳功能（需要服務端亦支持斷點續傳特性），
+可指示服務端從指定位置開始傳輸而非重新從頭下載；
+使用`-C -`可根據已下載的內容自動計算位置。
 
 默認下載會展示如下樣式的進度指示器：
 
@@ -3546,8 +3561,9 @@ systemd-networkd使用`networkctl`指令管理網絡：
 # networkctl up/down 網卡設備
 ```
 
-systemd-networkd的配置文件為`/etc/systemd/networkd.conf`，
-以及`/etc/systemd/network`路徑，配置靜態地址示例：
+systemd-networkd的全局配置文件為`/etc/systemd/networkd.conf`。
+配置特定網絡設備的配置文件需要使用`network`後綴（使用`conf`配置無法被識別），
+路徑為`/etc/systemd/network/*.network`，配置靜態地址示例：
 
 ```conf
 [Match]
@@ -3571,6 +3587,13 @@ DHCP則可直接使用：
 [Network]
 DHCP=yes # DHCP會自動配置網關、DNS
 # Address=x.x.x.x/x # DHCP亦可設置靜態地址
+```
+
+DHCP相關功能通常配合`systemd-resolved`服務：
+
+```
+# systemctl start systemd-resolved.service
+# systemctl enable systemd-resolved.service
 ```
 
 ### `Failed to configure DHCPv4 client: No such file or directory`
@@ -6227,9 +6250,10 @@ GitHub上的[brunch](https://github.com/sebanc/brunch)項目提供了通用的x8
 
 | 代號 | 支持平台 |
 | :- | :- |
-| rammus | Intel CPU 1th ~ 9th |
-| volteer | Intel Core CPU 10th & 11th |
-| zork | AMD Ryzen CPU |
+| shyvana | Intel CPU 8th ~ 9th |
+| jinlon | Intel Core CPU 10th |
+| voxel | Intel Core CPU 11th+ |
+| gumboz | AMD Ryzen CPU |
 
 製作一個主流Linux發行版的USB安裝盤，將brunch框架和通用鏡像拷貝到安裝盤中，
 考慮到鏡像大小，建議使用16GB以上的U盤。
@@ -6249,6 +6273,8 @@ $ sudo bash chromeos-install.sh -src ChromeOSx64鏡像(xxx.bin) -dst 磁盤設�
 ```
 $ sudo chromeos-update -r 更新鏡像 -f 磁盤路徑
 ```
+
+更詳細的安裝步驟參考[brunch官方文檔](https://github.com/sebanc/brunch/blob/main/Readme/install-with-linux.md)。
 
 ## Linux容器問題
 在`Brunch r91 stable 20210620`版本中，默認配置下安裝Linux環境會存在問題，提示：
