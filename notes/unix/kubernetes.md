@@ -44,6 +44,7 @@
 	- [配置DNS策略](#配置dns策略)
 - [Labels 與 Selectors](#labels-與-selectors)
 - [ConfigMap 與 Secret](#configmap-與-secret)
+- [Taints（污点）](#taints污点)
 
 <!-- /TOC -->
 
@@ -1240,3 +1241,42 @@ Secret使用方法與ConfigMap基本類似，但存在下列區別：
 - Secret存儲的數據亦分為兩種類型：
 	- `data` 作為環境變量寫入容器中
 	- `stringData` 作為文件掛載到容器中
+
+
+
+# Taints（污点）
+Taints特性會影響pod對運行node的選擇策略。
+
+更改節點的污染：
+
+```html
+$ kubectl taint nodes 節點名稱 污點 <!-- 為指定node添加taint -->
+$ kubectl taint nodes 節點名稱 污點- <!-- 為指定node去除taint -->
+```
+
+修改污點不會影響已經部署的pods，重新啟動pods才會再次匹配污點策略。
+
+默認Kubernetes的master節點中使用了污點`node-role.kubernetes.io/master:NoSchedule`，
+該污點使得在master節點上不能部署用戶pods。
+
+```
+$ kubectl describe nodes master節點名稱
+...
+Taints:             node-role.kubernetes.io/master:NoSchedule
+...
+```
+
+禁止在master節點中調度pods，通過刪除污點可解除該限制：
+
+```html
+<!-- 移除污點 -->
+$ kubectl taint nodes --all node-role.kubernetes.io/master-
+
+<!-- 恢復污點 -->
+$ kubectl taint node 節點名稱 node-role.kubernetes.io/master:NoSchedule
+```
+
+解除該污點後，需要重新重啟對應被暫停調度的pods。
+
+若master節點同時帶有角色`control-plane`，
+則還需要解除`node-role.kubernetes.io/control-plane:NoSchedule`污點，操作類似。
