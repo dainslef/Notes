@@ -12,6 +12,7 @@
 	- [實例](#實例)
 	- [引用依賴](#引用依賴)
 - [Container（容器）](#container容器)
+	- [併發容器（Concurrent Containers）](#併發容器concurrent-containers)
 - [Enum（枚舉）](#enum枚舉)
 - [對象相等性](#對象相等性)
 	- [equals() 方法](#equals-方法)
@@ -464,7 +465,7 @@ $ java -Djava.ext.dirs=第三方庫所在的目錄 類名
 | Map | 元素按鍵值對存儲，Key**不可重複** |
 | Set | 元素**不可重複** |
 
-在Java中，這三種集合類型都是以接口形式存在的，不能直接使用，要使用這三種類型可以使用其實現類：
+在Java中，這三種集合類型均以接口形式存在，對應實現類：
 
 | 接口 | 實現類 |
 | :- | :- |
@@ -472,12 +473,18 @@ $ java -Djava.ext.dirs=第三方庫所在的目錄 類名
 | Set | HashSet、LinkedHashSet |
 | Map | HashMap、HashTable、LinkeHashMap、TreeMap |
 
-這些實現類各有優缺點：
+List容器對比：
 
-- `ArrayList`**非線程安全**，效率**高**。
-- `Vector`**線程安全**，效率**低**。
-- `HashMap`**非線程安全**，高效，**支持**null。
-- `HashTable`**線程安全**，低效，**不支持**null 。
+- `ArrayList` **非線程安全**，動態數組實現，效率高，適合大多數場景使用。
+- `LinkedList` **非線程安全**，雙向鏈表實現，相比ArrayList效率較低，通常不使用。
+- `Vector` **線程安全**，效率低（使用同步鎖）。
+
+Map容器對比：
+
+- `HashMap` **非線程安全**，效率高，**支持**null，不支持Key插入順序。
+- `HashTable` **線程安全**，與HashMap實現類似，但性能較低（使用同步鎖），**不支持**null 。
+- `LinkedHashMap` **非線程安全**，雙鏈表實現，支持null，支持Key插入順序
+- `TreeMap` **非線程安全**，紅黑樹實現，Key按照自身自然順序排序，不支持null Key，支持null值
 
 語法：
 
@@ -488,7 +495,7 @@ Map<Key, Type>  map = new HashMap<Key, Type>();
 map.put(key, type);
 ```
 
-Java支持泛型`<>`**菱形推斷**，實例化時類型可以省略(`Java 1.7`新特性)，上面的語句實例化可以簡寫爲：
+Java支持泛型`<>`**菱形推斷**，實例化時類型可以省略（`Java 1.7`新特性），上述語句實例化可以簡寫爲：
 
 ```java
 List<Type> list = new ArrayList<>();
@@ -502,14 +509,14 @@ List list = new ArrayList(); // List<Object>
 Map map = new HashMap(); // Map<Object, Object>
 ```
 
-`Set`和`List`都可以得到一個迭代器用於迭代：
+`Set`和`List`均可生成迭代器用於遍歷內容：
 
 ```java
 Iterator iteratorList = list.iterator();
 Iterator iteratorSet = set.iterator();
 ```
 
-`Map`的`Key`就是一個`Set`，可以得到`Key`的集合再迭代：
+`Map`的`Key`為`Set`類型，可以得到`Key`的集合再迭代：
 
 ```java
 Set set = map.keySet();
@@ -517,7 +524,24 @@ Iterator iteratorSet = set.iterator();
 ```
 
 `Map`使用`get(key)`可以得到對應Key的Value。
-`HashMap`之類的容器只能一個鍵對應**一個**鍵值，如果需要一個鍵綁定多個鍵值可以使用`IdentityHashMap`。
+`HashMap`等容器只能一個鍵對應**一個**鍵值，若需要一個鍵綁定多個鍵值可以使用`IdentityHashMap`。
+
+## 併發容器（Concurrent Containers）
+自`JDK 1.5`開始，JDK陸續引入了一系列支持併發操作的容器，位於`java.util.concurrent`包中。
+
+與早年存在於JDK的`java.util.Vector`等同步鎖容器不同，
+新的併發容器在保證線程安全的同時最大程度保證性能，而非簡單使用同步鎖。
+
+List容器的並行版本：
+
+- `CopyOnWriteArrayList` 支持寫時複製的數組容器，在大量讀少量寫入時具有較好性能
+- `ConcurrentLinkedQueue` 鏈表容器，支持多線程同時添加、移除元素
+- `BlockingQueue` 阻塞隊列，用於生產者/消費者模型
+
+Map容器的並行版本：
+
+- `ConcurrentHashMap` 線程安全的Map實現，允許多線程並行讀寫而不相互阻塞，不支持Key插入順序
+- `ConcurrentSkipListMap` 基於Skip List（跳表）的Map實現，支持Key插入順序
 
 
 
