@@ -45,6 +45,34 @@
 - [Labels 與 Selectors](#labels-與-selectors)
 - [ConfigMap 與 Secret](#configmap-與-secret)
 - [Taints（污点）](#taints污点)
+- [證書（PKI certificates）](#證書pki-certificates)
+	- [組件證書自動更新](#組件證書自動更新)
+	- [根證書更新](#根證書更新)
+- [Dashboard](#dashboard)
+	- [創建Dashboard用戶](#創建dashboard用戶)
+	- [Kubernetes 1.24 版本手動創建Token](#kubernetes-124-版本手動創建token)
+	- [清理serviceaccount與clusterrolebindings資源](#清理serviceaccount與clusterrolebindings資源)
+	- [添加Token到配置中](#添加token到配置中)
+- [CRI（Container Runtime Interface）](#cricontainer-runtime-interface)
+	- [containerd](#containerd)
+	- [crictl](#crictl)
+		- [crictl運行時配置](#crictl運行時配置)
+		- [crictl清理鏡像](#crictl清理鏡像)
+- [Helm](#helm)
+	- [Helm倉庫管理](#helm倉庫管理)
+	- [Helm部署應用](#helm部署應用)
+	- [Helm查看部署應用](#helm查看部署應用)
+	- [Helm版本回退](#helm版本回退)
+	- [使用Helm部署常用的應用](#使用helm部署常用的應用)
+- [KubKey](#kubkey)
+	- [下載KubeKey](#下載kubekey)
+	- [使用KubeKey部署集群](#使用kubekey部署集群)
+	- [KubeKey集群刷新證書](#kubekey集群刷新證書)
+	- [KubeSphere管理面板](#kubesphere管理面板)
+- [問題記錄](#問題記錄)
+	- [error: unable to launch the editor "vi"](#error-unable-to-launch-the-editor-vi)
+	- [run.go:74 "command failed" err="failed to run Kubelet: validate service connection: CRI v1 ...](#rungo74-command-failed-errfailed-to-run-kubelet-validate-service-connection-cri-v1-)
+	- [Calico網絡插件MTU問題](#calico網絡插件mtu問題)
 
 <!-- /TOC -->
 
@@ -1280,3 +1308,44 @@ $ kubectl taint node 節點名稱 node-role.kubernetes.io/master:NoSchedule
 
 若master節點同時帶有角色`control-plane`，
 則還需要解除`node-role.kubernetes.io/control-plane:NoSchedule`污點，操作類似。
+
+
+
+# 證書（PKI certificates）
+Kubernetes使用PKI certificates用於TLS認證，
+證書相關完整內容參考[官方文檔](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/)。
+
+證書位於`/etc/kubernetes/pki`路徑下，
+默認根證書有效期10年，各組件證書有效期1年；
+使用`kubeadm certs`相關指令查看證書有效期和更新證書：
+
+```html
+<!-- 檢查證書有效期 -->
+# kubeadm certs check-expiration
+
+<!-- 手動更新所有證書 -->
+# kubeadm certs renew all
+```
+
+KubeKey集群刷新證書[參考KubeKey章節](#KubeKey集群刷新證書)。
+
+## 組件證書自動更新
+kubelet內置了組件證書的自動刷新證書機制並已默認開啟，會在證書過期前自動刷新。
+
+查看證書刷新機制是否啟用：
+
+```
+$ cat /var/lib/kubelet/config.yaml | grep rotate
+```
+
+關閉該機制可在集群升級時傳入`--certificate-renewal=false`參數：
+
+```
+# kubeadm upgrade apply --certificate-renewal=false
+```
+
+## 根證書更新
+Kubernetes不支持根證書自動更新，也未提供根證書的更新工具指令，
+根證書更新步驟參考[官方文檔](https://kubernetes.io/docs/tasks/tls/manual-rotation-of-ca-certificates/)。
+
+證書說明和要求參考[官方文檔](https://kubernetes.io/docs/setup/best-practices/certificates/)。
