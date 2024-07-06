@@ -28,6 +28,7 @@
 - [LuCI](#luci)
 	- [實用LuCI插件](#實用luci插件)
 	- [LuCI頁面緩存問題](#luci頁面緩存問題)
+	- [LuCI會話保持時間](#luci會話保持時間)
 	- [DHCP與DNS](#dhcp與dns)
 	- [防火牆](#防火牆)
 		- [防火牆配置](#防火牆配置)
@@ -783,7 +784,7 @@ config system
 OpenWRT查看內核日誌與標準Linux類似：
 
 ```
-$ dmesg
+# dmesg
 ```
 
 
@@ -875,6 +876,24 @@ luci-modulecache/
 
 ```
 # rm /tmp/luci-*
+```
+
+## LuCI會話保持時間
+默認配置下，LuCI登入後若一段時間無操作用戶會被自動登出，
+相關配置位於`/etc/config/luci`的`sauth`配置項：
+
+```
+config internal 'sauth'
+	option sessionpath '/tmp/luci-sessions'
+	option sessiontime '3600'
+```
+
+`sessiontime`即為會話維持時間，單位為**秒**，
+默認配置3600秒（1小時），將其修改為`0`即可使登入會話不再超時；
+修改配置後，需要重啟uhttpd服務事之生效：
+
+```
+# service uhttpd restart
 ```
 
 ## DHCP與DNS
