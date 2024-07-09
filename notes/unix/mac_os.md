@@ -11,6 +11,7 @@
 		- [托盤圖標](#托盤圖標)
 		- [鍵盤亮度](#鍵盤亮度)
 		- [顯示/取消顯示隱藏文件](#顯示取消顯示隱藏文件)
+		- [開啟iCloud目錄同步](#開啟icloud目錄同步)
 	- [常用軟件](#常用軟件)
 	- [特殊目錄](#特殊目錄)
 	- [垃圾清理](#垃圾清理)
@@ -127,13 +128,13 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 
 | 功能 | 快捷鍵 |
 | :- | :- |
-| 鎖屏 | Control + Shift + Power |
+| 鎖屏 | Command + Control + Q |
 | 全屏截圖 | Shift + Command + 3 |
 | 指定位置截圖 | Shift + Command + 4 |
-| 指定窗口截圖 | Shift + Command + 4然後將光標放在需要截圖的窗口上，按Space確認 |
+| 指定窗口截圖 | Shift + Command + 4，之後將光標放在需要截圖的窗口上，按Space確認 |
 | 保存 | Command + S |
 | 全選 | Command + A |
-| 行首/行尾 | Control + A/E(僅默認終端) |
+| 行首/行尾 | Control + A/E（僅默認終端） |
 | Home/End/PageDown/PageUp | Fn + Left/Right/Down/Up |
 | 複製/粘貼文件 | Command + C/V |
 | 剪切文件 | Command + Option + V |
@@ -142,10 +143,9 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 | 退出程序 | Command + Q |
 | 關閉當前窗口 | Command + W |
 | 最小化窗口 | Command + M |
-| 立即息屏進入睡眠 | Command + Alt + Power |
 | 切換Finder是否顯示隱藏文件： | Command + Shift + . |
 | Spotlight | Command + Space |
-| 跳轉到字典(Spotlight搜索中) | Command + L |
+| 跳轉到字典（Spotlight搜索中） | Command + L |
 
 ## 常用功能配置
 常用功能配置說明。
@@ -169,6 +169,12 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 ```html
 <!-- 直接使用 hostname 指令設置主機名稱能短暫生效，但會被系統重新覆蓋 -->
 # scutil --set LocalHostName 主機名稱
+```
+
+查看主機名稱：
+
+```
+$ scutil --get LocalHostName
 ```
 
 ### 托盤圖標
@@ -195,7 +201,11 @@ macOS下托盤圖標可以使用`Command + 鼠標左鍵`點選，拖動進行排
 $ defaults write com.apple.finder AppleShowAllFiles YES/NO <!-- 重新登陸賬戶後生效 -->
 ```
 
-現在版本的macOS可直接使用`Command + Shift + .`快捷鍵開關隱藏文件顯示。
+新版本macOS可直接使用`Command + Shift + .`快捷鍵開關隱藏文件顯示。
+
+### 開啟iCloud目錄同步
+開啟`Apple ID - iCloud - iCloud Drive - Desktop & Documents Folders`選項，
+可使macOS的家目錄下的`Desktop`與`Documents`目錄下的內容自動同步至iCloud中。
 
 ## 常用軟件
 macOS常用軟件：
@@ -295,7 +305,7 @@ Mac機與常規的PC有較大的差異，需要一個適應過程。
 	- `Windows/Linux`中的`Alt`鍵在macOS中名稱爲`Option`鍵。
 
 ## Darwin 與 GNU/Linux 的差異
-`Darwin`提供的Unix環境基於`FreeBSD`，與傳統`GNU/Linux`有較大差異。
+`Darwin`的Unix環境來自`FreeBSD`，與傳統`GNU/Linux`有較大差異。
 
 1. Darwin爲混合內核架構，Linux爲宏內核架構。
 1. Linux中普通用戶UID從`1000`開始，macOS中UID從`500`開始。
@@ -305,19 +315,19 @@ Mac機與常規的PC有較大的差異，需要一個適應過程。
 1. Darwin沒有提供原生的包管理器。
 1. Darwin的PATH環境變量記錄在文件`/etc/paths`中。
 1. Darwin的微內核Mach使用`Mach-O`作爲二進制格式，而傳統的Linux/Unix使用`EFL`作爲二進制格式。
-1. Darwin中動態鏈接庫後綴名爲`dylib`，傳統Unix中一般爲`so`，靜態庫後綴名與傳統Unix相同，皆爲`a`。
-1. Darwin不使用GNU工具鏈，默認工具鏈爲FreeBSD工具鏈。
-1. macOS採用`Aqua`作爲GUI實現，傳統Unix使用`X11`。
+1. Darwin中動態鏈接庫後綴名爲`dylib`，傳統Unix中通常爲`so`，靜態庫後綴名與傳統Unix相同，皆爲`a`。
+1. Darwin不使用GNU工具鏈，默認使用FreeBSD工具鏈。
+1. macOS採用`Aqua`作爲GUI實現，傳統Unix使用`X11/Wayland`。
 
 Mach內核的技術細節可參見[Darwin內核開發者文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Mach/Mach.html)。
 
 
 
 # NVRAM
-`NVRAM`全稱`Non-volatile random-access memory`(非易失性隨機訪問存儲器)，用於在關機狀態下保存信息。
+`NVRAM`全稱`Non-volatile random-access memory`（非易失性隨機訪問存儲器），用於在關機狀態下保存信息。
 Mac使用NVRAM存儲音量、顯示屏分辨率、啓動磁盤選擇、時區，內核崩潰轉儲等信息。
 
-在`macOS`中使用`nvram`指令操作NVRAM相關功能：
+在macOS中使用`nvram`指令操作NVRAM相關功能：
 
 ```
 nvram: (usage: no such option as -h)
@@ -332,6 +342,11 @@ nvram [-x] [-p] [-f filename] [-d name] [-c] name[=value] ...
 	name       print variable
 Note that arguments and options are executed in order.
 ```
+
+注意，修改NVRAM選項僅適合在Intel平台的Mac中使用；
+**不要**在使用Apple Silicon芯片的新Mac中修改NVRAM選項，
+Apple Silicon平台的Mac修改NVRAM選項會導致無法開機，
+需要進入恢復模式修復方可重新啟動。
 
 ## 重置 NVRAM
 啓動配置異常時，可嘗試重置NVRAM。
