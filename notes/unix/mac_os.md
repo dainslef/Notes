@@ -16,7 +16,7 @@
 	- [特殊目錄](#特殊目錄)
 	- [垃圾清理](#垃圾清理)
 	- [使用 Touch ID 代替命令行密碼驗證](#使用-touch-id-代替命令行密碼驗證)
-- [與常規PC的不同之處](#與常規pc的不同之處)
+- [Mac與PC差异](#mac與pc差异)
 	- [Darwin 與 GNU/Linux 的差異](#darwin-與-gnulinux-的差異)
 - [NVRAM](#nvram)
 	- [重置 NVRAM](#重置-nvram)
@@ -64,13 +64,11 @@
 	- [安裝 mysql/mariadb](#安裝-mysqlmariadb)
 	- [JDK](#jdk)
 		- [OpenJDK](#openjdk)
-		- [刪除JDK](#刪除jdk)
+		- [刪除 Oracle JDK](#刪除-oracle-jdk)
 	- [刪除 GarageBand](#刪除-garageband)
 	- [MacBook 合蓋無法正常休眠](#macbook-合蓋無法正常休眠)
 - [VPN](#vpn)
 	- [IKEv2](#ikev2)
-	- [Shadowsocks](#shadowsocks)
-	- [V2Ray](#v2ray)
 - [問題記錄](#問題記錄)
 	- ["Xxx.app" is damaged and can't be opened. You should move it to the Trash.](#xxxapp-is-damaged-and-cant-be-opened-you-should-move-it-to-the-trash)
 	- [Error: Your CLT does not support macOS 11.0.](#error-your-clt-does-not-support-macos-110)
@@ -221,6 +219,7 @@ macOS常用軟件：
 | `Clash Verge` | Clash在macOS上的客戶端 |
 | `Android File Transfer` | Android文件傳輸客戶端 |
 | `OmniDiskSweeper` | 計算文件系統下各個路徑的大小，用於清理垃圾 |
+| `UTM` | 虛擬機 |
 
 ## 特殊目錄
 系統中特定功能相關的路徑介紹。
@@ -281,7 +280,7 @@ auth sufficient pam_tid.so
 
 
 
-# 與常規PC的不同之處
+# Mac與PC差异
 Mac機與常規的PC有較大的差異，需要一個適應過程。
 
 基本操作差異:
@@ -305,7 +304,7 @@ Mac機與常規的PC有較大的差異，需要一個適應過程。
 	- `Windows/Linux`中的`Alt`鍵在macOS中名稱爲`Option`鍵。
 
 ## Darwin 與 GNU/Linux 的差異
-`Darwin`的Unix環境來自`FreeBSD`，與傳統`GNU/Linux`有較大差異。
+`Darwin`的Unix環境基于FreeBSD，内核基于Mach，與傳統GNU/Linux有較大差異。
 
 1. Darwin爲混合內核架構，Linux爲宏內核架構。
 1. Linux中普通用戶UID從`1000`開始，macOS中UID從`500`開始。
@@ -849,8 +848,12 @@ $ brew services cleanup <!-- 清理未被使用的服務 -->
 
 
 # 文件系統
-macOS默認文件系統爲`HFS+`，此類文件系統同時支持區分大小寫(`Case-Sensitive`)和忽略大小寫兩種類型，
-在格式化時可以進行選擇。若選擇了區分大小寫形式的`HFS+`文件系統，則部分軟件將無法安裝(如`PhotoShop`等)。
+macOS早年默認文件系統爲`HFS+`，後切換到`APFS`。
+
+macOS的文件系統同時支持`Case-Sensitive`（區分大小寫）、
+`Case-Insensitive`（忽略大小寫）兩種類型，在格式化時可以進行選擇；
+新購買的Mac設備默認使用Case-Insensitive文件系統，用戶無特殊需求也推薦選擇該類型，
+若使用區分大小寫形式的文件系統，會導致部分軟件無法安裝（如`PhotoShop`等）。
 
 文件系統類型在安裝了macOS之後除了重裝系統之外無法更改，需要**慎重選擇**。
 
@@ -877,7 +880,7 @@ $ defaults read com.apple.desktopservices DSDontWriteUSBStores
 ```
 
 ## 掛載 NTFS 讀寫
-默認情況下，macOS以**只讀**形式掛載`NTFS`文件系統，但`macOS`本身實現了對`NTFS`文件系統的寫入功能，
+默認情況下，macOS以**只讀**形式掛載`NTFS`文件系統，但macOS本身實現了對NTFS文件系統的寫入功能，
 創建`/etc/fstab`文件，在其中添加掛載選項：
 
 ```
@@ -886,7 +889,7 @@ LABEL=[label_name] none ntfs rw,auto,nobrowse
 
 - `label_name`爲分區的名稱。
 - `rw`參數表示以**讀寫**的方式掛載分區。
-- `nobrowse`參數表示分區不直接顯示在Finder中，`rw`參數必須與`nobrowse`參數搭配，否則無法掛載`NTFS`分區。
+- `nobrowse`參數表示分區不直接顯示在Finder中，`rw`參數必須與`nobrowse`參數搭配，否則無法掛載NTFS分區。
 
 使用`open`指令可以在`Finder.app`中查看設置了`nobrowse`屬性的分區：
 
@@ -894,7 +897,7 @@ LABEL=[label_name] none ntfs rw,auto,nobrowse
 $ open /Volumes
 ```
 
-在`macOS 10.14 (Darwin Kernel Version 18.7.0)`上，使用此方法對NTFS讀寫無效。
+在較新版本的macOS上此方法無效。
 
 ## diskutil
 macOS中自帶的`fdisk`工具為BSD版本，與Linux版本有較大差異。
@@ -905,7 +908,7 @@ macOS中自帶的`fdisk`工具為BSD版本，與Linux版本有較大差異。
 ```html
 <!-- 列出所有分區信息 -->
 $ diskutil list
-<!-- 列出指定分區的詳細信息(包含文件系統等) -->
+<!-- 列出指定分區的詳細信息（包含文件系統等） -->
 $ diskutil info 分區路徑
 
 <!-- 監視磁盤分區變化 -->
@@ -977,8 +980,8 @@ $ diskutil list
 
 確認U盤的NTFS分區的設備名稱後，使用`ntfs-3g`指令進行掛載：
 
-```c
-// 示例： ntfs-3g /dev/disk2s1 /Volumes/ntfs_device
+```html
+<!-- 示例： ntfs-3g /dev/disk2s1 /Volumes/ntfs_device -->
 # ntfs-3g /dev/分區對應磁盤設備 /Volumes/分區掛載設備
 ```
 
@@ -987,7 +990,7 @@ $ diskutil list
 
 
 # Xcode
-[`Xcode`](https://developer.apple.com/xcode/)是Apple提供的macOS下的官方IDE(集成開發環境)，
+[`Xcode`](https://developer.apple.com/xcode/)是Apple提供的macOS下的官方IDE（集成開發環境），
 提供了macOS、iOS等所有Apple係產品的App開發平台，地位相當於Windows下Microsoft官方推出的Visual Studio。
 
 ## CommandLineTools
@@ -995,7 +998,7 @@ Xcode中附帶了一系列命令行工具如`clang`、`git`等，
 一些依賴Unix工具鏈的程序(如Homebrew)的安裝依賴於這些命令行工具。
 
 完整的Xcode在安裝完成首次啟動時，會提示是否安裝命令行工具；
-Apple對Xcode附帶的命令行工具部分可以通過獨立的安裝包安裝(不必安裝完整的Xcode)；
+Apple對Xcode附帶的命令行工具部分可以通過獨立的安裝包安裝（不必安裝完整的Xcode）；
 可主動執行Xcode命令行工具的安裝：
 
 ```
@@ -1053,13 +1056,13 @@ $ xcode-select -p
 ```
 
 若該變了Xcode.app的位置，即使使用xcode-select重新設定Xocde.app的路徑，
-通過Homebrew安裝的編譯器(如`gcc`)依然會出現找不到頭文件的情況，此時需要重新安裝包。
+通過Homebrew安裝的編譯器（如GCC）依然會出現找不到頭文件的情況，此時需要重新安裝包。
 
 
 
 # System Integrity Protection (SIP)
-從`macOS El Capitan`(Mac OS X 10.11)開始，
-macOS引入了`System Integrity Protection`(系統安全保護模式，簡稱SIP)。
+從`macOS El Capitan`（Mac OS X 10.11）開始，
+macOS引入了`System Integrity Protection`（系統安全保護模式，簡稱SIP）。
 
 SIP是一項安全技術，用於防止潛在的惡意軟件修改Mac中受保護的文件和目錄。
 SIP技術限制了root用戶在macOS中受保護部分的操作權限。
@@ -1088,11 +1091,11 @@ SIP技術將保護以下系統路徑和內容：
 
 El Capitan版本之後的macOS提供了`csrutil`工具用以查看和變更系統的SIP狀態：
 
-```c
-$ csrutil status // 查看SIP狀態不需要root權限
+```html
+$ csrutil status <!-- 查看SIP狀態不需要root權限 -->
 System Integrity Protection status: enabled.
 
-# csrutil disable // 啟動/關閉SIP在Recovery模式下進行，使用root權限也無法直接更改
+# csrutil disable <!-- 啟動/關閉SIP在Recovery模式下進行，使用root權限也無法直接更改 -->
 csrutil: This tool needs to be executed from Recovery OS.
 ```
 
@@ -1161,13 +1164,13 @@ $ brew install opencore-patcher
 ```
 
 登陸界面的分辨率/語言未發生變化是由於登陸界面的數據未更新，
-使用`root`權限執行`languagesetup`重設語言即會刷新登陸界面信息。
+使用root權限執行`languagesetup`重設語言即會刷新登陸界面信息。
 
 ## 更改默認應用程序
 macOS沒有為默認程序提供統一的配置面板，除了瀏覽器可直接在System Preferences的General面板中設置外，
 其它文件類型需要在Finder中找到對應類型的文件進行設置：
 
-1. 使用`Command + i`查看目標文件的詳細信息(或在文件上點擊右鍵選擇`Get Info`)。
+1. 使用`Command + i`查看目標文件的詳細信息（或在文件上點擊右鍵選擇`Get Info`）。
 1. 在`Open With:`條目中可以選擇打開此文件使用的默認程序，修改爲需要的程序。
 1. 選擇`Change All...`將所有此類文件全部修改爲自定義的程序。
 
@@ -1177,39 +1180,39 @@ macOS沒有為默認程序提供統一的配置面板，除了瀏覽器可直接
 
 具體解決方法：
 
-- 使用`Windows`自帶的`diskpart`分區工具更改`Type UUID`。
+- 使用Windows自帶的`diskpart`分區工具更改`Type UUID`。
 
 	在`CMD`下執行以下指令：
 
 	- `> diskpart` 進入diskpart分區工具
 	- `> list disk` 列出所有磁盤
-	- `> select disk [磁盤號]` 指定正在使用的磁盤
+	- `> select disk 磁盤號` 指定正在使用的磁盤
 	- `> list partition` 列出所選磁盤中的所有分區
-	- `> select partition [分區號]` 指明macOS所在的分區號
+	- `> select partition 分區號` 指明macOS所在的分區號
 	- `> set id=48465300-0000-11AA-AA11-00306543ECAC` 設置分區的`Type UUID`
 
-- 在`Linux/Unix`系統中，亦可使用`parted`工具進行分區類型ID變更。
+- 在Linux/Unix系統中，亦可使用`parted`工具進行分區類型ID變更。
 
-	在分區標識中去掉`msdata`(Windows分區標誌)：
+	在分區標識中去掉`msdata`（Windows分區標誌）：
 
 	```html
-	# parted [磁盤路徑] print all <!-- 查看所有磁盤信息，確認分區編號 -->
-	# parted [磁盤路徑] set [分區號] msdata on/off <!-- 移除msdata分區標誌 -->
+	# parted 磁盤路徑 print all <!-- 查看所有磁盤信息，確認分區編號 -->
+	# parted 磁盤路徑 set 分區號 msdata on/off <!-- 移除msdata分區標誌 -->
 	```
 
 ## 引導 Linux
 使用默認的bootloader可以直接引導Linux系統。
-需要創建一個`100MB`左右的分區(其實可以更小)，在分區的中創建`System/Library/CoreServices`目錄：
+需要創建一個`100MB`左右的分區，在分區的中創建`System/Library/CoreServices`目錄：
 
 ```
-$ mkdir -p /Volumes/[啓動分區名稱]/System/Library/CoreServices
+$ mkdir -p /Volumes/啓動分區名稱/System/Library/CoreServices
 ```
 
-並在該目錄中放入`Linux`的`efi`啓動文件。
+並在該目錄中放入Linux的efi啓動文件。
 同時創建系統描述文件：
 
 ```
-$ nano /Volumes/[啓動分區名稱]/System/Library/CoreServices/SystemVersion.plist
+$ nano /Volumes/啓動分區名稱/System/Library/CoreServices/SystemVersion.plist
 ```
 
 在描述文件中添加以下內容：
@@ -1231,14 +1234,13 @@ $ nano /Volumes/[啓動分區名稱]/System/Library/CoreServices/SystemVersion.p
 然後使用macOS系統的啓動管理器`bless`來創建啓動項，執行指令：
 
 ```
-# bless --folder=/Volumes/[啓動分區名稱]/System/Library/CoreServices/ --file=/Volumes/[啓動分區名稱]/System/Library/CoreServices/boot.efi --setBoot
+# bless --folder=/Volumes/啓動分區名稱/System/Library/CoreServices/ --file=/Volumes/啓動分區名稱/System/Library/CoreServices/boot.efi --setBoot
 ```
 
 ## 重置 Launchpad
 `Launchpad`中數據保存在`~/Library/Application Support/Dock`路徑下，
-若Launchpad圖標出現異常(如已刪除軟件圖標依然存在)，可以嘗試清空其中的數據。
-刪除該目錄之後，Launchpad會在下次開機之後重置圖標佈局，
-恢復成默認的樣式(Apple自帶的軟件佔一頁，用戶自行安裝的軟件從第二頁開始)。
+若Launchpad圖標出現異常（如已刪除軟件圖標依然存在），可以嘗試清空其中的數據。
+刪除該目錄之後，Launchpad會在下次開機之後重置圖標佈局，恢復成默認的樣式。
 
 現在macOS可通過Launchpad長按的方式清除異常圖標，
 多數場景下已無必要通過清除數據的方式來清理Launchpad中的異常圖標。
@@ -1283,14 +1285,15 @@ mariadb/mysql使用`mysql.server`指令管理服務：
 亦可通過`brew services`相關指令管理管理服務。
 
 ## JDK
-早期版本(`Mac OS X 10.6`以及更早的版本)中的macOS曾經自帶了Oracle JDK，
+早期版本（`Mac OS X 10.6`以及更早的版本）中的macOS曾經自帶了Oracle JDK，
 從`Mac OS X 10.7 (Lion)`開始，macOS不再預置JDK，JDK需要手動安裝，
 現在的macOS中，存放JDK的路徑`/Library/Java/JavaVirtualMachines/`為空，
-macOS系統依舊保留了一套空的java工具鏈(位於`/usr/bin`路徑下)，該工具鏈並未綁定實際的JDK，
+macOS系統依舊保留了一套空的java工具鏈（位於`/usr/bin`路徑下），該工具鏈並未綁定實際的JDK，
 執行時會產生錯誤信息，提示需要下載JDK。
 
 早期Homebrew Cask中提供了OracleJDK軟件包，可以直接安裝；
-自從Oracle更改了OracleJDK的分發協議，多數Linux發行版以及Homebrew軟件源中都取消了Oracle JDK的軟件包的分發。
+自從Oracle更改了OracleJDK的分發協議，
+多數Linux發行版以及Homebrew軟件源中都取消了Oracle JDK的軟件包的分發。
 
 ### OpenJDK
 現在多使用OpenJDK代替Oracle JDK，相比Oracle JDK，OpenJDK完全開源，允許自由分發。
@@ -1308,7 +1311,7 @@ Homebrew中直接安裝的OpenJDK緊緊作為一個庫安裝，並未綁定到ma
 $ sudo ln -sfn /usr/local/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
 ```
 
-默認Homebrew中提供了各個LTS版本的JDK(openjdk@8、openjdk@11)以及最新版本的JDK，
+默認Homebrew中提供了各個LTS版本的JDK（openjdk@8、openjdk@11）以及最新版本的JDK，
 若需要更多歷史版本的JDK，可考慮[AdoptOpenJDK](https://adoptopenjdk.net/)；
 AdoptOpenJDK提供了多個版本OpenJDK的預編譯包。
 `homebrew/cask-versions`中提供了AdoptOpenJDK項目的所有版本的預編譯包，可直接安裝：
@@ -1319,8 +1322,8 @@ $ brew install --cask adoptopenjdk <!-- 最新版本JDK -->
 $ brew install --cask adoptopenjdk8 <!-- 使用頻率最高的JDK8 -->
 ```
 
-### 刪除JDK
-`JDK`需要自行手工刪除，相關文件位於以下路徑：
+### 刪除 Oracle JDK
+`Oracle JDK`需要自行手工刪除，相關文件位於以下路徑：
 
 1. `/Library/Java/JavaVirtualMachines/*`
 1. `/Library/Internet Plug-Ins/JavaAppletPlugin.plugin`
@@ -1348,12 +1351,12 @@ macOS預裝了音頻編輯軟件`GarageBand`，卸載時需要刪除以下路徑
 
 ## MacBook 合蓋無法正常休眠
 MacBook可能會因爲`tcpkeepalive`配置問題導致合蓋時WIFI不關閉，進而機器不進入休眠狀態，
-導致合蓋後電量消耗過大(一晚15%電量左右，正常休眠一晚消耗1% ~ 3%電量)。
+導致合蓋後電量消耗過大（以2020款Macbook Pro 13為例，一晚15%電量左右，正常休眠一晚消耗1% ~ 3%電量）。
 
 使用`pmset`工具查看、管理電源配置：
 
-```c
-// 列出使用的電源配置
+```html
+<!-- 列出使用的電源配置 -->
 $ pmset -g custom
 Battery Power:
  lidwake              1
@@ -1419,7 +1422,7 @@ Warning: This option disables TCP Keep Alive mechanism when sytem is sleeping. T
 ```
 
 需要注意，在`System Reference`的`Energy Saver`中選擇`Restore Defaults`將電源管理策略重置爲默認值時，
-tcpkeepalive配置也會被重置爲默認值(`1`)，會重新導致休眠失敗。
+tcpkeepalive配置也會被重置爲默認值（`1`），會重新導致休眠失敗。
 
 
 
@@ -1431,50 +1434,18 @@ macOS原生支持`IKEv2/L2TP over IPSec/Cisco IPSec`等多種VPN協議，如下�
 
 ## IKEv2
 `IKEv2(Internet Key Exchange version 2)`是一種處理請求/響應行為的VPN加密協議。
-該協議通過在安全套件(通常是IPSec，從IKEv2開始基於並內置了此協議)中建立和處理SA(Security Association)屬性來確保數據傳輸安全。
+該協議通過在安全套件（通常是IPSec，從IKEv2開始基於並內置了此協議）中建立和處理SA（Security Association）屬性來確保數據傳輸安全。
 
-配置IKEv2的VPN需要**服務器地址**(Server Address)、**遠程ID**(Remote ID)等信息，對於需要身份驗證的VPN提供商，
+配置IKEv2的VPN需要Server Address、Remote ID等信息，對於需要身份驗證的VPN提供商，
 還需要額外的用戶名和密碼信息，如下圖所示：
 
 ![NordVPN](../../images/mac_os_vpn_ikev2.png)
 
-部分VPN(如`NordVPN`)還需要導入VPN提供商的根證書，否則無法進行身份驗證。
+部分VPN（如`NordVPN`）還需要導入VPN提供商的根證書，否則無法進行身份驗證。
 NordVPN官方沒有提供macOS版的配置教程，但可參照[iOS版本教程](https://nordvpn.com/tutorials/ios/ikev2)。
 下載並導入根證書到`System Keychans`中，並設置證書的信任級別：
 
 ![NordVPN Root CA](../../images/mac_os_vpn_root_certificate_authority.png)
-
-## Shadowsocks
-`Shadowsocks`是專為解決牆國`Great Fire Wall (GFW)`而誕生的協議，解決了傳統VPN的在翻牆這一特殊應用場景下的一些缺陷：
-
-- 定向流量代理，Shadowsocks為不同流向選擇不同的路徑，對於牆內站點直連，僅代理牆外流量；VPN僅能全局代理。
-- 速度更快，Shadowsocks能同時在工作在多個TCP連接下。
-- 流量偽裝，Shadowsocks會偽裝牆外流量以繞過GFW，Shadowsocks偽裝後的數據難以識別和攔截；傳統VPN則很容易被GFW識別。
-
-Shadowsocks目前託管在[GitHub](https://github.com/shadowsocks)上，由於TG追殺，
-最初的Python實現已被原作者刪除，目前主流的實現是C語言，亦有Rust、Golang等語言的實現。
-
-在macOS下，主流的Shadowsocks客戶端為[ShadowsocksX-NG](https://github.com/shadowsocks/ShadowsocksX-NG)
-(受TG追殺，其它客戶端作者相繼慘遭喝茶，幾乎已全部停止開發)，可以使用Homebrew直接安裝：
-
-```c
-$ brew cask install shadowsocksx-ng
-```
-
-目前ShadowsocksX-NG缺少**訂閱**功能，管理多個連接地址較為不便。
-
-## V2Ray
-[`V2Ray`](https://github.com/v2ray/v2ray-core)是`Project V`項目的核心，負責網絡協議和通信。
-V2Ray支持以下特性：
-
-- 內置多種主流協議的支持：包括Socks、HTTP、Shadowsocks、VMess等等。
-- 支持多種協議的輸入/輸出：一個V2Ray進程可同時支持多種輸入、輸出協議，同時這些協議可各自獨立運行。
-- 自定義路由：基於配置(如：域名、IP地址)對輸入的流量可分發到不同出口。
-- 流量混淆：V2Ray內置了流量混淆機制，將流量隱藏在TLS協議中，
-同時與Web服務器一併運行，能實現更好的流量偽裝，以規避GFW的流量探測。
-
-在macOS下，常用V2Ray客戶端是[V2rayu](https://github.com/yanue/V2rayU)，
-採用Swift語言編寫，支持節點訂閱功能。
 
 
 
@@ -1503,18 +1474,22 @@ $ xattr /Applications/Visual\ Studio\ Code.app
 
 因此，可嘗試使用xattr清除`com.apple.quarantine`屬性：
 
-```c
-// -r 代表遞歸設置屬性
-// -d 代表清除指定名稱的屬性
+```html
+<!--
+-r 代表遞歸設置屬性
+-d 代表清除指定名稱的屬性
+-->
 # xattr -rd com.apple.quarantine /Applications/V2rayU.app
 
-// -c 表示清除所有屬性
+<!--
+-c 表示清除所有屬性
+-->
 # xattr -rc /Applications/V2rayU.app
 ```
 
 ## Error: Your CLT does not support macOS 11.0.
 問題描述：<br>
-macOS大版本更新，但Xcode(CommandLineTools SDK)未同步更新到匹配的版本；
+macOS大版本更新，但Xcode（CommandLineTools SDK）未同步更新到匹配的版本；
 使用Homebrew安裝部分軟件包時出現如下錯誤：
 
 ```
