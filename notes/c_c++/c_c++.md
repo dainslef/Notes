@@ -1,118 +1,119 @@
 <!-- TOC -->
 
 - [內存區](#內存區)
-	- [數值變量初始化](#數值變量初始化)
+    - [數值變量初始化](#數值變量初始化)
+    - [全局變量/全局靜態變量初始化順序](#全局變量全局靜態變量初始化順序)
 - [C/C++中函數定義的區別](#cc中函數定義的區別)
 - [`static`關鍵字](#static關鍵字)
-	- [static（C++）](#staticc)
+    - [static（C++）](#staticc)
 - [`const`關鍵字](#const關鍵字)
-	- [const用於變量初始化](#const用於變量初始化)
-	- [const變量作爲數組長度](#const變量作爲數組長度)
+    - [const用於變量初始化](#const用於變量初始化)
+    - [const變量作爲數組長度](#const變量作爲數組長度)
 - [運算精度](#運算精度)
 - [8進制與16進制](#8進制與16進制)
 - [sizeof 運算符](#sizeof-運算符)
 - [列表初始化](#列表初始化)
-	- [數組初始化](#數組初始化)
-	- [designated initializers (C99)](#designated-initializers-c99)
-	- [二維數組初始化](#二維數組初始化)
-	- [類/結構體列表初始化 (C++98)](#類結構體列表初始化-c98)
-	- [統一初始化 (C++11)](#統一初始化-c11)
-	- [std::initializer_list<T> (C++11)](#stdinitializer_listt-c11)
+    - [數組初始化](#數組初始化)
+    - [designated initializers (C99)](#designated-initializers-c99)
+    - [二維數組初始化](#二維數組初始化)
+    - [類/結構體列表初始化 (C++98)](#類結構體列表初始化-c98)
+    - [統一初始化 (C++11)](#統一初始化-c11)
+    - [std::initializer_list<T> (C++11)](#stdinitializer_listt-c11)
 - [結構體對齊](#結構體對齊)
-	- [指定結構體對齊大小](#指定結構體對齊大小)
+    - [指定結構體對齊大小](#指定結構體對齊大小)
 - [變長參數](#變長參數)
-	- [自定義變長參數函數](#自定義變長參數函數)
-	- [通過地址獲取變長參數內容](#通過地址獲取變長參數內容)
-	- [變長參數宏](#變長參數宏)
+    - [自定義變長參數函數](#自定義變長參數函數)
+    - [通過地址獲取變長參數內容](#通過地址獲取變長參數內容)
+    - [變長參數宏](#變長參數宏)
 - [自增自減運算符的優先級](#自增自減運算符的優先級)
 - [編譯器自動生成的成員函數](#編譯器自動生成的成員函數)
-	- [控制默認生成的成員函數](#控制默認生成的成員函數)
+    - [控制默認生成的成員函數](#控制默認生成的成員函數)
 - [繼承](#繼承)
 - [指針運算](#指針運算)
-	- [數組名的含義](#數組名的含義)
-	- [指針數組與數組指針](#指針數組與數組指針)
+    - [數組名的含義](#數組名的含義)
+    - [指針數組與數組指針](#指針數組與數組指針)
 - [C++對象模型](#c對象模型)
-	- [成員函數](#成員函數)
-	- [虛函數](#虛函數)
+    - [成員函數](#成員函數)
+    - [虛函數](#虛函數)
 - [參數默認值](#參數默認值)
 - [函數定義嵌套](#函數定義嵌套)
 - [lvalue reference (左值引用) / rvalue reference (右值引用)](#lvalue-reference-左值引用--rvalue-reference-右值引用)
-	- [rvalue reference (右值引用)](#rvalue-reference-右值引用)
-	- [universal reference (通用引用)](#universal-reference-通用引用)
-	- [reference collapsing (引用摺疊)](#reference-collapsing-引用摺疊)
-	- [move semantics (移動語義)](#move-semantics-移動語義)
-	- [std::move()](#stdmove)
-	- [std::forward](#stdforward)
-	- [注意事項](#注意事項)
-	- [成員函數的引用限定](#成員函數的引用限定)
+    - [rvalue reference (右值引用)](#rvalue-reference-右值引用)
+    - [universal reference (通用引用)](#universal-reference-通用引用)
+    - [reference collapsing (引用摺疊)](#reference-collapsing-引用摺疊)
+    - [move semantics (移動語義)](#move-semantics-移動語義)
+    - [std::move()](#stdmove)
+    - [std::forward](#stdforward)
+    - [注意事項](#注意事項)
+    - [成員函數的引用限定](#成員函數的引用限定)
 - [引用與指針](#引用與指針)
 - [函數指針](#函數指針)
-	- [成員指針](#成員指針)
+    - [成員指針](#成員指針)
 - [template (模板)](#template-模板)
-	- [模版編譯](#模版編譯)
-	- [模版定義與聲明分離](#模版定義與聲明分離)
-	- [模版的高級用法](#模版的高級用法)
-	- [模版形參默認值](#模版形參默認值)
-	- [模板與重載](#模板與重載)
-	- [模版特化](#模版特化)
-	- [模版遞歸](#模版遞歸)
-	- [變長模版 (C++11)](#變長模版-c11)
-	- [禁止特定類型的模板參數](#禁止特定類型的模板參數)
+    - [模版編譯](#模版編譯)
+    - [模版定義與聲明分離](#模版定義與聲明分離)
+    - [模版的高級用法](#模版的高級用法)
+    - [模版形參默認值](#模版形參默認值)
+    - [模板與重載](#模板與重載)
+    - [模版特化](#模版特化)
+    - [模版遞歸](#模版遞歸)
+    - [變長模版 (C++11)](#變長模版-c11)
+    - [禁止特定類型的模板參數](#禁止特定類型的模板參數)
 - [_Generic (C11)](#_generic-c11)
 - [assert (斷言)](#assert-斷言)
-	- [斷言宏](#斷言宏)
-	- [靜態斷言 (C11)](#靜態斷言-c11)
-	- [靜態斷言 (C++11)](#靜態斷言-c11)
+    - [斷言宏](#斷言宏)
+    - [靜態斷言 (C11)](#靜態斷言-c11)
+    - [靜態斷言 (C++11)](#靜態斷言-c11)
 - [auto 類型推導](#auto-類型推導)
-	- [Lambda](#lambda)
-	- [複用 Lambda](#複用-lambda)
-	- [變量捕獲](#變量捕獲)
-	- [C++14 中的 Lambda 新特性](#c14-中的-lambda-新特性)
+    - [Lambda](#lambda)
+    - [複用 Lambda](#複用-lambda)
+    - [變量捕獲](#變量捕獲)
+    - [C++14 中的 Lambda 新特性](#c14-中的-lambda-新特性)
 - [STL 容器](#stl-容器)
-	- [迭代器](#迭代器)
-	- [序列式容器](#序列式容器)
-	- [關聯式容器](#關聯式容器)
+    - [迭代器](#迭代器)
+    - [序列式容器](#序列式容器)
+    - [關聯式容器](#關聯式容器)
 - [Smart Pointer (智能指針)](#smart-pointer-智能指針)
-	- [智能指針的一般性用法](#智能指針的一般性用法)
-	- [智能指針的轉型](#智能指針的轉型)
-	- [改變做爲形參傳入的智能指針所指向的內容](#改變做爲形參傳入的智能指針所指向的內容)
+    - [智能指針的一般性用法](#智能指針的一般性用法)
+    - [智能指針的轉型](#智能指針的轉型)
+    - [改變做爲形參傳入的智能指針所指向的內容](#改變做爲形參傳入的智能指針所指向的內容)
 - [std::bind()](#stdbind)
-	- [bind() 綁定普通函數](#bind-綁定普通函數)
-	- [bind() 綁定非靜態成員函數](#bind-綁定非靜態成員函數)
+    - [bind() 綁定普通函數](#bind-綁定普通函數)
+    - [bind() 綁定非靜態成員函數](#bind-綁定非靜態成員函數)
 - [boost::signals2](#boostsignals2)
-	- [定義信號](#定義信號)
-	- [連接槽函數](#連接槽函數)
-	- [取消連接](#取消連接)
-	- [獲取信號返回值](#獲取信號返回值)
+    - [定義信號](#定義信號)
+    - [連接槽函數](#連接槽函數)
+    - [取消連接](#取消連接)
+    - [獲取信號返回值](#獲取信號返回值)
 - [Boost 時間庫](#boost-時間庫)
-	- [獲取當前時間](#獲取當前時間)
-	- [獲取時間間隔](#獲取時間間隔)
+    - [獲取當前時間](#獲取當前時間)
+    - [獲取時間間隔](#獲取時間間隔)
 - [std::chrono (標準時間庫)](#stdchrono-標準時間庫)
-	- [std::chrono::duration](#stdchronoduration)
-	- [std::time_point](#stdtime_point)
-	- [時鐘類型](#時鐘類型)
-	- [基本用法示例](#基本用法示例)
+    - [std::chrono::duration](#stdchronoduration)
+    - [std::time_point](#stdtime_point)
+    - [時鐘類型](#時鐘類型)
+    - [基本用法示例](#基本用法示例)
 - [C/C++中一些編碼中遇到的錯誤](#cc中一些編碼中遇到的錯誤)
-	- [multiple definition of](#multiple-definition-of)
-	- [在 switch 的 case 語句中定義局部變量](#在-switch-的-case-語句中定義局部變量)
+    - [multiple definition of](#multiple-definition-of)
+    - [在 switch 的 case 語句中定義局部變量](#在-switch-的-case-語句中定義局部變量)
 - [常用的C標準庫函數](#常用的c標準庫函數)
-	- [memset()](#memset)
-	- [memcpy()](#memcpy)
-	- [strcpy() 函數](#strcpy-函數)
-	- [setjmp() / longjmp()](#setjmp--longjmp)
-	- [sigsetjmp() / siglongjmp()](#sigsetjmp--siglongjmp)
-	- [getopt() / getopt_long()](#getopt--getopt_long)
+    - [memset()](#memset)
+    - [memcpy()](#memcpy)
+    - [strcpy() 函數](#strcpy-函數)
+    - [setjmp() / longjmp()](#setjmp--longjmp)
+    - [sigsetjmp() / siglongjmp()](#sigsetjmp--siglongjmp)
+    - [getopt() / getopt_long()](#getopt--getopt_long)
 - [一些關鍵字、特殊值的含義/用法](#一些關鍵字特殊值的含義用法)
-	- [explicit 關鍵字](#explicit-關鍵字)
-	- [restrict 關鍵字](#restrict-關鍵字)
-	- [mutable 關鍵字](#mutable-關鍵字)
-	- [volatile 關鍵字](#volatile-關鍵字)
-	- [using 關鍵字](#using-關鍵字)
-	- [移位運算符](#移位運算符)
-	- [npos 成員](#npos-成員)
+    - [explicit 關鍵字](#explicit-關鍵字)
+    - [restrict 關鍵字](#restrict-關鍵字)
+    - [mutable 關鍵字](#mutable-關鍵字)
+    - [volatile 關鍵字](#volatile-關鍵字)
+    - [using 關鍵字](#using-關鍵字)
+    - [移位運算符](#移位運算符)
+    - [npos 成員](#npos-成員)
 - [常見錯誤](#常見錯誤)
-	- [error: jump to case label](#error-jump-to-case-label)
-	- [warning: `...` will be initialized after [-Wreorder] ...](#warning--will-be-initialized-after--wreorder-)
+    - [error: jump to case label](#error-jump-to-case-label)
+    - [warning: `...` will be initialized after [-Wreorder] ...](#warning--will-be-initialized-after--wreorder-)
 
 <!-- /TOC -->
 
@@ -123,7 +124,7 @@ C/C++中，內存分爲5個區，分別是**堆區**，**棧區**，**靜態區*
 
 | 名稱 | 含義 |
 | :- | :- |
-| 棧區(stack) | 由編譯器自動分配釋放，存放函數的參數值，局部變量的值等。其操作方式類似於數據結構中的棧，地址由高到低。 |
+| stack（棧區） | 由編譯器自動分配釋放，存放函數的參數值，局部變量的值等。其操作方式類似於數據結構中的棧，地址由高到低。 |
 | 堆區(heap) | 由`malloc`/`new`分配的空間，地址由低向高增長，需要程序員手動釋放(`free`/`delete`)，否則程序結束時可能由OS回收。堆區與數據結構中的堆不同，分配方式類似於鏈表。 |
 | 全局/靜態變量區(static) | 全局變量和靜態變量存儲在此區域，已初始化的全局變量和靜態變量在一塊區域，未初始化的全局變量和未初始化的靜態變量在相鄰的另一塊區域，程序結束後由系統釋放。 |
 | 文字常量區 | 常量字符串存放在此區域，程序結束後由系統釋放。 |
@@ -137,14 +138,14 @@ char* p1; // 全局未初始化區
 
 int main()
 {
-	int b; // 棧區
-	char s[] = "abc"; // 棧區
-	char* p2; // 棧區
-	char* p3 = "123456"; // "123456"在常量區，p3在棧區
-	static int c = 0; // 全局/靜態已初始化區
-	p2 = (char*) malloc(10); // malloc分配得來得10字節的區域就在堆區
-	strcpy(p1, "123456"); // "123456"放在常量區，編譯器可能會將它與p3所指向的"123456"優化到一塊區域
-	return 0;
+    int b; // 棧區
+    char s[] = "abc"; // 棧區
+    char* p2; // 棧區
+    char* p3 = "123456"; // "123456"在常量區，p3在棧區
+    static int c = 0; // 全局/靜態已初始化區
+    p2 = (char*) malloc(10); // malloc分配得來得10字節的區域就在堆區
+    strcpy(p1, "123456"); // "123456"放在常量區，編譯器可能會將它與p3所指向的"123456"優化到一塊區域
+    return 0;
 }
 ```
 
@@ -159,18 +160,48 @@ int b; // 全局未初始化區，自動初始化為0
 int main()
 {
     int i; // 棧區，未定義行為
-    static int j; // 全局未初始化區，自動初始化為0
+    static int j; // 全局未初始化區，首次進入函數自動初始化為0
     return 0;
 }
 ```
+
+## 全局變量/全局靜態變量初始化順序
+C/C++在在一個編譯單元內遵循下列初始化順序：
+
+1. Zero Initialization（零值初始化，C/C++通用）
+
+    所有未顯式賦初值的全局變量/全局靜態變量進行零值初始化。
+
+2. Static Initialization（靜態初始化，C/C++通用）
+
+    以給定的常量表達式初始化顯式設定初值的全局變量/全局靜態變量；
+    該初始化發生在所有代碼執行之前。
+
+3. Dynamic Initialization（動態初始化，僅C++）
+
+    C++支持動態初始化，全局變量/全局靜態變量可通過代碼塊（構造函數/全局函數/非常量表達式等）進行初始化；
+    全局初始化發生在main函數執行之前。
+
+    C語言**不支持**動態初始化，僅可使用compile-time constant（編譯時常量）進行初始化。
+
+全局初始化順序保證：
+
+- 在一個編譯單元內，按照定義順序進行初始化
+- 在不同編譯單元間，初始化順序**無保證**，
+動態初始化時依賴其它編譯單元的全局變量，為**未定義行為**，可能導致錯誤
 
 
 
 # C/C++中函數定義的區別
 C語言不支持**函數重載**而C++支持，導致C/C++對無參函數的意義有不同的解釋。
 
+參數名：
+
 - 在C語言中，函數的定義中，參數**不能**只寫參數類型而沒有參數名。
 - 在C++中，函數的定義裏，參數**允許**只寫參數類型而沒有參數名。
+
+空參列表含義：
+
 - 在C語言中，`function()`參數表爲空代表這個函數可以接收**任意個**參數，
 而`function(void)`才代表函數不接收參數，因此，對於任意參數的函數，
 都可以用空參數表的形式做函數聲明（C語言不支持函數重載，一個函數名對應的函數實現只會有一個）。
