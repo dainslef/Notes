@@ -1,85 +1,85 @@
 <!-- TOC -->
 
 - [macOS 與 Unix](#macos-與-unix)
-	- [A/UX](#aux)
-	- [現代macOS](#現代macos)
+    - [A/UX](#aux)
+    - [現代macOS](#現代macos)
 - [常用功能](#常用功能)
-	- [常用快捷鍵](#常用快捷鍵)
-	- [常用功能配置](#常用功能配置)
-		- [電源選項](#電源選項)
-		- [主機信息](#主機信息)
-		- [托盤圖標](#托盤圖標)
-		- [鍵盤亮度](#鍵盤亮度)
-		- [顯示/取消顯示隱藏文件](#顯示取消顯示隱藏文件)
-		- [開啟iCloud目錄同步](#開啟icloud目錄同步)
-	- [常用軟件](#常用軟件)
-	- [特殊目錄](#特殊目錄)
-	- [垃圾清理](#垃圾清理)
-	- [使用 Touch ID 代替命令行密碼驗證](#使用-touch-id-代替命令行密碼驗證)
+    - [常用快捷鍵](#常用快捷鍵)
+    - [常用功能配置](#常用功能配置)
+        - [電源選項](#電源選項)
+        - [主機信息](#主機信息)
+        - [托盤圖標](#托盤圖標)
+        - [鍵盤亮度](#鍵盤亮度)
+        - [顯示/取消顯示隱藏文件](#顯示取消顯示隱藏文件)
+        - [開啟iCloud目錄同步](#開啟icloud目錄同步)
+    - [常用軟件](#常用軟件)
+    - [特殊目錄](#特殊目錄)
+    - [垃圾清理](#垃圾清理)
+    - [使用 Touch ID 代替命令行密碼驗證](#使用-touch-id-代替命令行密碼驗證)
 - [Mac與PC差异](#mac與pc差异)
-	- [Darwin 與 GNU/Linux 的差異](#darwin-與-gnulinux-的差異)
-- [NVRAM](#nvram)
-	- [重置 NVRAM](#重置-nvram)
-	- [禁用翻蓋自啓](#禁用翻蓋自啓)
+    - [Darwin 與 GNU/Linux 的差異](#darwin-與-gnulinux-的差異)
 - [包管理](#包管理)
-	- [Homebrew](#homebrew)
-		- [Homebrew文件佈局（x86架構）](#homebrew文件佈局x86架構)
-		- [Homebrew文件佈局（ARM架構）](#homebrew文件佈局arm架構)
-		- [配置與安裝](#配置與安裝)
-		- [基本指令](#基本指令)
-		- [路徑信息](#路徑信息)
-		- [安裝參數](#安裝參數)
-		- [bottled](#bottled)
-		- [依賴管理](#依賴管理)
-		- [展示安裝包信息](#展示安裝包信息)
-		- [多版本管理](#多版本管理)
-		- [Homebrew Taps](#homebrew-taps)
-		- [Homebrew Cask](#homebrew-cask)
-		- [Homebrew Services](#homebrew-services)
-		- [配置國內源](#配置國內源)
+    - [Homebrew](#homebrew)
+        - [Homebrew文件佈局（x86架構）](#homebrew文件佈局x86架構)
+        - [Homebrew文件佈局（ARM架構）](#homebrew文件佈局arm架構)
+        - [配置與安裝](#配置與安裝)
+        - [基本指令](#基本指令)
+        - [路徑信息](#路徑信息)
+        - [安裝參數](#安裝參數)
+        - [bottled](#bottled)
+        - [依賴管理](#依賴管理)
+        - [展示安裝包信息](#展示安裝包信息)
+        - [多版本管理](#多版本管理)
+        - [Homebrew Taps](#homebrew-taps)
+        - [Homebrew Cask](#homebrew-cask)
+        - [Homebrew Services](#homebrew-services)
+        - [配置國內源](#配置國內源)
 - [macOS軟件格式](#macos軟件格式)
-	- [Bundle](#bundle)
-	- [pkg](#pkg)
-	- [軟件路徑](#軟件路徑)
+    - [Bundle](#bundle)
+    - [pkg](#pkg)
+    - [軟件路徑](#軟件路徑)
 - [文件系統](#文件系統)
-	- [.DS_Store](#ds_store)
-	- [掛載 NTFS 讀寫](#掛載-ntfs-讀寫)
-	- [diskutil](#diskutil)
-	- [NTFS-3G](#ntfs-3g)
-		- [安裝配置](#安裝配置)
-		- [使用 NTFS-3G](#使用-ntfs-3g)
+    - [.DS_Store](#ds_store)
+    - [掛載 NTFS 讀寫](#掛載-ntfs-讀寫)
+    - [diskutil](#diskutil)
+    - [NTFS-3G](#ntfs-3g)
+        - [安裝配置](#安裝配置)
+        - [使用 NTFS-3G](#使用-ntfs-3g)
 - [Xcode](#xcode)
-	- [CommandLineTools](#commandlinetools)
-	- [Developer Path](#developer-path)
-- [System Integrity Protection (SIP)](#system-integrity-protection-sip)
+    - [CommandLineTools](#commandlinetools)
+    - [Developer Path](#developer-path)
+- [NVRAM](#nvram)
+    - [重置 NVRAM](#重置-nvram)
+    - [禁用翻蓋自啓](#禁用翻蓋自啓)
+- [System Integrity Protection（系統安全保護模式，SIP）](#system-integrity-protection系統安全保護模式sip)
 - [OCLP](#oclp)
-	- [OLCP休眠問題](#olcp休眠問題)
+    - [OLCP休眠問題](#olcp休眠問題)
 - [常見問題](#常見問題)
-	- [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
-	- [更改默認應用程序](#更改默認應用程序)
-	- [在BootCamp安裝的Windows中調整分區，重啓後Mac分區在啓動頁中消失](#在bootcamp安裝的windows中調整分區重啓後mac分區在啓動頁中消失)
-	- [引導 Linux](#引導-linux)
-	- [重置 Launchpad](#重置-launchpad)
-	- [簽名 GDB](#簽名-gdb)
-	- [安裝 mysql/mariadb](#安裝-mysqlmariadb)
-	- [JDK](#jdk)
-		- [OpenJDK](#openjdk)
-		- [刪除 Oracle JDK](#刪除-oracle-jdk)
-	- [刪除 GarageBand](#刪除-garageband)
-	- [MacBook 合蓋無法正常休眠](#macbook-合蓋無法正常休眠)
+    - [切換分辨率/語言時，登陸界面的分辨率/語言依然不變](#切換分辨率語言時登陸界面的分辨率語言依然不變)
+    - [更改默認應用程序](#更改默認應用程序)
+    - [在BootCamp安裝的Windows中調整分區，重啓後Mac分區在啓動頁中消失](#在bootcamp安裝的windows中調整分區重啓後mac分區在啓動頁中消失)
+    - [引導 Linux](#引導-linux)
+    - [重置 Launchpad](#重置-launchpad)
+    - [簽名 GDB](#簽名-gdb)
+    - [安裝 mysql/mariadb](#安裝-mysqlmariadb)
+    - [JDK](#jdk)
+        - [OpenJDK](#openjdk)
+        - [刪除 OracleJDK](#刪除-oraclejdk)
+    - [刪除 GarageBand](#刪除-garageband)
+    - [MacBook 合蓋無法正常休眠](#macbook-合蓋無法正常休眠)
 - [VPN](#vpn)
-	- [IKEv2](#ikev2)
+    - [IKEv2](#ikev2)
 - [問題記錄](#問題記錄)
-	- ["Xxx.app" is damaged and can't be opened. You should move it to the Trash.](#xxxapp-is-damaged-and-cant-be-opened-you-should-move-it-to-the-trash)
-	- [Error: Your CLT does not support macOS 11.0.](#error-your-clt-does-not-support-macos-110)
-	- [LaunchPad內出現無效的`Install macOS xxx`圖標](#launchpad內出現無效的install-macos-xxx圖標)
-	- [The folder ... can't be opened because you don't have permission to see its contents.](#the-folder--cant-be-opened-because-you-dont-have-permission-to-see-its-contents)
-	- [Your network preferences prevent content from loading privately](#your-network-preferences-prevent-content-from-loading-privately)
-	- [macOS下Chrome的 NET::ERR_CERT_INVALID](#macos下chrome的-neterr_cert_invalid)
-	- [macOS默認終端下Powerline字體色彩顯示異常](#macos默認終端下powerline字體色彩顯示異常)
-	- [Launchpad無效圖標](#launchpad無效圖標)
-	- [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
-	- [Wireshark無法抓包](#wireshark無法抓包)
+    - ["Xxx.app" is damaged and can't be opened. You should move it to the Trash.](#xxxapp-is-damaged-and-cant-be-opened-you-should-move-it-to-the-trash)
+    - [Error: Your CLT does not support macOS 11.0.](#error-your-clt-does-not-support-macos-110)
+    - [LaunchPad內出現無效的`Install macOS xxx`圖標](#launchpad內出現無效的install-macos-xxx圖標)
+    - [The folder ... can't be opened because you don't have permission to see its contents.](#the-folder--cant-be-opened-because-you-dont-have-permission-to-see-its-contents)
+    - [Your network preferences prevent content from loading privately](#your-network-preferences-prevent-content-from-loading-privately)
+    - [macOS下Chrome的 NET::ERR_CERT_INVALID](#macos下chrome的-neterr_cert_invalid)
+    - [macOS默認終端下Powerline字體色彩顯示異常](#macos默認終端下powerline字體色彩顯示異常)
+    - [Launchpad無效圖標](#launchpad無效圖標)
+    - [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
+    - [Wireshark無法抓包](#wireshark無法抓包)
 
 <!-- /TOC -->
 
@@ -110,8 +110,8 @@ Apple當前使用的macOS同樣基於Unix，從NeXTSTEP發展而來。
 
 - `Darwin`包含內核`XNU`（對應`Linux Kernel`）以及Shell環境（對應`GNU Tools`）。
 - `XNU`內核由微內核`Mach`和`BSD`層以及一些其它組件（主要爲驅動層IoKit）構成。
-	- `Mach`微內核提供了基本的硬件抽象，提供了一套獨有的`Mach Trap`（Mach系統調用）。
-	- `BSD`層提供了文件系統抽象以及POSIX調用。
+    - `Mach`微內核提供了基本的硬件抽象，提供了一套獨有的`Mach Trap`（Mach系統調用）。
+    - `BSD`層提供了文件系統抽象以及POSIX調用。
 - `macOS`在文件佈局以及配置方式上與傳統的Linux發行版**有較大不同**。
 
 macOS系統架構可參考[Apple官方內核架構文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Architecture/Architecture.html)。
@@ -236,7 +236,7 @@ macOS常用軟件：
 | ~/Library/Preferences | 用戶程序配置目錄 |
 | ~/Library/Saved Application State | 用戶程序狀態目錄 |
 | ~/Library/VirtualBox | VirtualBox的配置文件目錄，刪除則VirtualBox恢復初始狀態，需要重新添加虛擬機 |
-| /Library/InstallerSandboxes | 子路徑：系統軟件(`.PKInstallSandboxManager-SystemSoftware`)；App Store軟件(`.PKInstallSandboxManager`)更新緩存路徑。當更新大型軟件失敗(如XCode)時，該路徑下會保存大量安裝文件且不自動清理 |
+| /Library/InstallerSandboxes | 更新緩存。子路徑：`.PKInstallSandboxManager-SystemSoftware`（系統軟件）；`.PKInstallSandboxManager`（App Store軟件）。當更新大型軟件失敗（如XCode）時，該路徑下會保存大量安裝文件且不自動清理 |
 
 刪除一個應用後，通常需要檢查Library路徑下的`Caches`、`Preferences`、`Application Support`、
 `Saved Application State`等路徑，清理軟件的殘餘配置；
@@ -287,21 +287,21 @@ Mac機與常規的PC有較大的差異，需要一個適應過程。
 
 1. 缺少一些常用按鍵，且**按鍵邏輯不統一**：
 
-	- 沒有`Home`、`End`、`PageDown`、`PageUp`等按鍵，
-	需要通過`Fn`搭配**方向鍵**等組合鍵才能實現行首、行尾、翻頁等操作。
-	- 在部分編輯器以及終端中，跳轉到**行首/行尾**需要通過`Control + A/E`等按鍵完成。
-	- 在部分開發環境中，行首行尾的快捷鍵不使用系統方案，
-	而由程序自身定義（如在Eclipse中，行首/行尾爲`Command + 方向鍵左/右`）。
+    - 沒有`Home`、`End`、`PageDown`、`PageUp`等按鍵，
+    需要通過`Fn`搭配**方向鍵**等組合鍵才能實現行首、行尾、翻頁等操作。
+    - 在部分編輯器以及終端中，跳轉到**行首/行尾**需要通過`Control + A/E`等按鍵完成。
+    - 在部分開發環境中，行首行尾的快捷鍵不使用系統方案，
+    而由程序自身定義（如在Eclipse中，行首/行尾爲`Command + 方向鍵左/右`）。
 
 1. `Finder.app`缺少必備的功能：
 
-	- `Finder.app`右鍵菜單中沒有創建文件的選項，甚至新建文件都需要使用`touch`指令。
-	- `Finder.app`右鍵菜單沒有剪切功能，通過組合鍵能實現類似效果。
+    - `Finder.app`右鍵菜單中沒有創建文件的選項，甚至新建文件都需要使用`touch`指令。
+    - `Finder.app`右鍵菜單沒有剪切功能，通過組合鍵能實現類似效果。
 
 1. 主要按鍵名稱與`PC`機不同：
 
-	- `Windows/Linux`中以`Control`作爲組合鍵觸發的一些快捷操作在macOS中全部使用`Command`鍵進行觸發。
-	- `Windows/Linux`中的`Alt`鍵在macOS中名稱爲`Option`鍵。
+    - `Windows/Linux`中以`Control`作爲組合鍵觸發的一些快捷操作在macOS中全部使用`Command`鍵進行觸發。
+    - `Windows/Linux`中的`Alt`鍵在macOS中名稱爲`Option`鍵。
 
 ## Darwin 與 GNU/Linux 的差異
 `Darwin`的Unix環境基于FreeBSD，内核基于Mach，與傳統GNU/Linux有較大差異。
@@ -319,54 +319,6 @@ Mac機與常規的PC有較大的差異，需要一個適應過程。
 1. macOS採用`Aqua`作爲GUI實現，傳統Unix使用`X11/Wayland`。
 
 Mach內核的技術細節可參見[Darwin內核開發者文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Mach/Mach.html)。
-
-
-
-# NVRAM
-`NVRAM`全稱`Non-volatile random-access memory`（非易失性隨機訪問存儲器），用於在關機狀態下保存信息。
-Mac使用NVRAM存儲音量、顯示屏分辨率、啓動磁盤選擇、時區，內核崩潰轉儲等信息。
-
-在macOS中使用`nvram`指令操作NVRAM相關功能：
-
-```
-nvram: (usage: no such option as -h)
-nvram [-x] [-p] [-f filename] [-d name] [-c] name[=value] ...
-	-x         use XML format for printing or reading variables
-	           (must appear before -p or -f)
-	-p         print all firmware variables
-	-f         set firmware variables from a text file
-	-d         delete the named variable
-	-c         delete all variables
-	name=value set named variable
-	name       print variable
-Note that arguments and options are executed in order.
-```
-
-注意，修改NVRAM選項僅適合在Intel平台的Mac中使用；
-**不要**在使用Apple Silicon芯片的新Mac中修改NVRAM選項，
-Apple Silicon平台的Mac修改NVRAM選項會導致無法開機，
-需要進入恢復模式修復方可重新啟動。
-
-## 重置 NVRAM
-啓動配置異常時，可嘗試重置NVRAM。
-開機時按下組合鍵`Option + Command + P + R`，按住組合鍵20秒後可鬆開。
-在此期間Mac可能看似在重新啓動。
-
-## 禁用翻蓋自啓
-從`New MacBook`和`MacBook Pro 2016`開始，MacBook會在翻蓋後自動開機。
-可通過修改NVRAM參數關閉此特性：
-
-```
-# nvram AutoBoot=%00
-```
-
-禁用翻蓋自動開機特性後，翻蓋後機器會短暫地在屏幕顯示電量信息。
-
-恢復翻蓋自動開機特性：
-
-```
-# nvram AutoBoot=%03
-```
 
 
 
@@ -466,11 +418,11 @@ neofetch: ...
 Recommended: screenresolution ✘, imagemagick ✘
 ==> Options
 --without-imagemagick
-	Build without imagemagick support
+    Build without imagemagick support
 --without-screenresolution
-	Build without screenresolution support
+    Build without screenresolution support
 --HEAD
-	Install HEAD version
+    Install HEAD version
 ```
 
 neofetch需要兩個可選依賴包`screenresolution`、`imagemagick`，默認安裝時會同時安裝依賴包。
@@ -530,20 +482,20 @@ $ brew leaves
 
 - [Add autoremove #9047](https://github.com/Homebrew/brew/pull/9047)
 
-	該提交實現了類似Debian係發行版`apt autoremove`的功能，可直接清理不必要的依賴：
+    該提交實現了類似Debian係發行版`apt autoremove`的功能，可直接清理不必要的依賴：
 
-	```
-	$ brew autoremove
-	```
+    ```
+    $ brew autoremove
+    ```
 
 - [Add leaves --installed-on-request and --installed-as-dependency flags #11368](https://github.com/Homebrew/brew/pull/11368)
 
-	該提交為`brew leaves`指令實現了區分安裝原因的功能：
+    該提交為`brew leaves`指令實現了區分安裝原因的功能：
 
-	```html
-	$ brew leaves --installed-on-request <!-- 列出主動安裝的孤立軟件包 -->
-	$ brew leaves --installed-as-dependency <!-- 列出作為依賴安裝的孤立軟件包（可被清理） -->
-	```
+    ```html
+    $ brew leaves --installed-on-request <!-- 列出主動安裝的孤立軟件包 -->
+    $ brew leaves --installed-as-dependency <!-- 列出作為依賴安裝的孤立軟件包（可被清理） -->
+    ```
 
 其它依賴管理相關指令：
 
@@ -730,90 +682,90 @@ $ brew services cleanup <!-- 清理未被使用的服務 -->
 
 - 替換更新數據源：
 
-	TUNA源提供了Homebrew本體、以及部分Tap倉庫(core、cask)等。
+    TUNA源提供了Homebrew本體、以及部分Tap倉庫(core、cask)等。
 
-	```html
-	<!--
-		亦可使用USTC(中科大源)地址替換：
-		"brew --repo" https://mirrors.ustc.edu.cn/brew.git
-		"brew --repo homebrew/core" https://mirrors.ustc.edu.cn/homebrew-core.git
-		"brew --repo homebrew/cask" https://mirrors.ustc.edu.cn/homebrew-cask.git
-		"brew --repo homebrew/cask-versions" https://mirrors.ustc.edu.cn/homebrew-cask-versions.git
-	-->
+    ```html
+    <!--
+        亦可使用USTC(中科大源)地址替換：
+        "brew --repo" https://mirrors.ustc.edu.cn/brew.git
+        "brew --repo homebrew/core" https://mirrors.ustc.edu.cn/homebrew-core.git
+        "brew --repo homebrew/cask" https://mirrors.ustc.edu.cn/homebrew-cask.git
+        "brew --repo homebrew/cask-versions" https://mirrors.ustc.edu.cn/homebrew-cask-versions.git
+    -->
 
-	<!-- bash -->
-	$ git -C "$(brew --repo)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
-	$ git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
-	$ git -C "$(brew --repo homebrew/cask)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
+    <!-- bash -->
+    $ git -C "$(brew --repo)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+    $ git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+    $ git -C "$(brew --repo homebrew/cask)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
 
-	<!-- fish -->
-	$ git -C (brew --repo) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
-	$ git -C (brew --repo homebrew/core) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
-	$ git -C (brew --repo homebrew/cask) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
-	```
+    <!-- fish -->
+    $ git -C (brew --repo) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+    $ git -C (brew --repo homebrew/core) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+    $ git -C (brew --repo homebrew/cask) remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
+    ```
 
-	替換源地址後，需要執行`brew update-reset`重新拉取倉庫信息。
-	替換更新源完成後，可使用查看各個倉庫的信息：
+    替換源地址後，需要執行`brew update-reset`重新拉取倉庫信息。
+    替換更新源完成後，可使用查看各個倉庫的信息：
 
-	```html
-	<!-- Homebrew自身 -->
-	$ git -C (brew --repo) remote show origin
-	* remote origin
-	  Fetch URL: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
-	  Push  URL: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
-	  HEAD branch: master
-	  Remote branches:
-	    dependabot/bundler/Library/Homebrew/rubocop-0.89.1 new (next fetch will store in remotes/origin)
-	    master                                             tracked
-	    test-automate-tapioca-update                       new (next fetch will store in remotes/origin)
-	  Local branch configured for 'git pull':
-	    master merges with remote master
-	  Local ref configured for 'git push':
-	    master pushes to master (up to date)
+    ```html
+    <!-- Homebrew自身 -->
+    $ git -C (brew --repo) remote show origin
+    * remote origin
+      Fetch URL: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+      Push  URL: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+      HEAD branch: master
+      Remote branches:
+        dependabot/bundler/Library/Homebrew/rubocop-0.89.1 new (next fetch will store in remotes/origin)
+        master                                             tracked
+        test-automate-tapioca-update                       new (next fetch will store in remotes/origin)
+      Local branch configured for 'git pull':
+        master merges with remote master
+      Local ref configured for 'git push':
+        master pushes to master (up to date)
 
-	<!-- Homebrew軟件倉庫 -->
-	$ brew tap-info --installed
-	homebrew/cask: 1 command, 3636 casks
-	/usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask (4,753 files, 1.3GB)
-	From: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
+    <!-- Homebrew軟件倉庫 -->
+    $ brew tap-info --installed
+    homebrew/cask: 1 command, 3636 casks
+    /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask (4,753 files, 1.3GB)
+    From: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
 
-	homebrew/core: 2 commands, 5184 formulae
-	/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core (5,748 files, 1.1GB)
-	From: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+    homebrew/core: 2 commands, 5184 formulae
+    /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core (5,748 files, 1.1GB)
+    From: https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
 
-	homebrew/services: 1 command
-	/usr/local/Homebrew/Library/Taps/homebrew/homebrew-services (488 files, 470.5KB)
-	From: https://github.com/Homebrew/homebrew-services
-	```
+    homebrew/services: 1 command
+    /usr/local/Homebrew/Library/Taps/homebrew/homebrew-services (488 files, 470.5KB)
+    From: https://github.com/Homebrew/homebrew-services
+    ```
 
 - 替換`Bottles`源：
 
-	Homebrew在Bottles源中提供了常用包的預編譯二進制包。
-	在默認Shell的**配置文件**中設置`HOMEBREW_BOTTLE_DOMAIN`環境變量：
+    Homebrew在Bottles源中提供了常用包的預編譯二進制包。
+    在默認Shell的**配置文件**中設置`HOMEBREW_BOTTLE_DOMAIN`環境變量：
 
-	```
-	export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/
-	```
+    ```
+    export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/
+    ```
 
 - 恢復官方源：
 
-	恢復官方源操作與設置第三方源相反：
+    恢復官方源操作與設置第三方源相反：
 
-	```html
-	<!-- bash / zsh -->
-	$ git -C "$(brew --repo)" remote set-url origin https://github.com/Homebrew/brew
-	$ git -C "$(brew --repo homebrew/core)" remote set-url origin https://github.com/Homebrew/homebrew-core
-	$ git -C "$(brew --repo homebrew/cask)" remote set-url origin https://github.com/Homebrew/homebrew-cask
-	$ git -C "$(brew --repo homebrew/cask-versions)" remote set-url origin https://github.com/Homebrew/homebrew-cask-versions
+    ```html
+    <!-- bash / zsh -->
+    $ git -C "$(brew --repo)" remote set-url origin https://github.com/Homebrew/brew
+    $ git -C "$(brew --repo homebrew/core)" remote set-url origin https://github.com/Homebrew/homebrew-core
+    $ git -C "$(brew --repo homebrew/cask)" remote set-url origin https://github.com/Homebrew/homebrew-cask
+    $ git -C "$(brew --repo homebrew/cask-versions)" remote set-url origin https://github.com/Homebrew/homebrew-cask-versions
 
-	<!-- fish -->
-	$ git -C (brew --repo) remote set-url origin https://github.com/Homebrew/brew
-	$ git -C (brew --repo homebrew/core) remote set-url origin https://github.com/Homebrew/homebrew-core
-	$ git -C (brew --repo homebrew/cask) remote set-url origin https://github.com/Homebrew/homebrew-cask
-	$ git -C (brew --repo homebrew/cask-versions) remote set-url origin https://github.com/Homebrew/homebrew-cask-versions
-	```
+    <!-- fish -->
+    $ git -C (brew --repo) remote set-url origin https://github.com/Homebrew/brew
+    $ git -C (brew --repo homebrew/core) remote set-url origin https://github.com/Homebrew/homebrew-core
+    $ git -C (brew --repo homebrew/cask) remote set-url origin https://github.com/Homebrew/homebrew-cask
+    $ git -C (brew --repo homebrew/cask-versions) remote set-url origin https://github.com/Homebrew/homebrew-cask-versions
+    ```
 
-	恢復官方源後，也應使用`brew update-reset`重新拉取倉庫信息。
+    恢復官方源後，也應使用`brew update-reset`重新拉取倉庫信息。
 
 
 
@@ -1060,8 +1012,56 @@ $ xcode-select -p
 
 
 
-# System Integrity Protection (SIP)
-從`macOS El Capitan`（Mac OS X 10.11）開始，
+# NVRAM
+`NVRAM`全稱`Non-volatile random-access memory`（非易失性隨機訪問存儲器），用於在關機狀態下保存信息。
+Mac使用NVRAM存儲音量、顯示屏分辨率、啓動磁盤選擇、時區，內核崩潰轉儲等信息。
+
+在macOS中使用`nvram`指令操作NVRAM相關功能：
+
+```
+nvram: (usage: no such option as -h)
+nvram [-x] [-p] [-f filename] [-d name] [-c] name[=value] ...
+    -x         use XML format for printing or reading variables
+               (must appear before -p or -f)
+    -p         print all firmware variables
+    -f         set firmware variables from a text file
+    -d         delete the named variable
+    -c         delete all variables
+    name=value set named variable
+    name       print variable
+Note that arguments and options are executed in order.
+```
+
+注意，修改NVRAM選項僅適合在Intel平台的Mac中使用；
+**不要**在使用Apple Silicon芯片的新Mac中修改NVRAM選項，
+Apple Silicon平台的Mac修改NVRAM選項會導致**無法開機**，
+需要進入恢復模式修復方可重新啟動。
+
+## 重置 NVRAM
+啓動配置異常時，可嘗試重置NVRAM。
+開機時按下組合鍵`Option + Command + P + R`，按住組合鍵20秒後可鬆開。
+在此期間Mac可能看似在重新啓動。
+
+## 禁用翻蓋自啓
+從`New MacBook`和`MacBook Pro 2016`開始，MacBook會在翻蓋後自動開機。
+可通過修改NVRAM參數關閉此特性：
+
+```
+# nvram AutoBoot=%00
+```
+
+禁用翻蓋自動開機特性後，翻蓋後機器會短暫地在屏幕顯示電量信息。
+
+恢復翻蓋自動開機特性：
+
+```
+# nvram AutoBoot=%03
+```
+
+
+
+# System Integrity Protection（系統安全保護模式，SIP）
+自`macOS El Capitan`（Mac OS X 10.11）開始，
 macOS引入了`System Integrity Protection`（系統安全保護模式，簡稱SIP）。
 
 SIP是一項安全技術，用於防止潛在的惡意軟件修改Mac中受保護的文件和目錄。
@@ -1182,23 +1182,23 @@ macOS沒有為默認程序提供統一的配置面板，除了瀏覽器可直接
 
 - 使用Windows自帶的`diskpart`分區工具更改`Type UUID`。
 
-	在`CMD`下執行以下指令：
+    在`CMD`下執行以下指令：
 
-	- `> diskpart` 進入diskpart分區工具
-	- `> list disk` 列出所有磁盤
-	- `> select disk 磁盤號` 指定正在使用的磁盤
-	- `> list partition` 列出所選磁盤中的所有分區
-	- `> select partition 分區號` 指明macOS所在的分區號
-	- `> set id=48465300-0000-11AA-AA11-00306543ECAC` 設置分區的`Type UUID`
+    - `> diskpart` 進入diskpart分區工具
+    - `> list disk` 列出所有磁盤
+    - `> select disk 磁盤號` 指定正在使用的磁盤
+    - `> list partition` 列出所選磁盤中的所有分區
+    - `> select partition 分區號` 指明macOS所在的分區號
+    - `> set id=48465300-0000-11AA-AA11-00306543ECAC` 設置分區的`Type UUID`
 
 - 在Linux/Unix系統中，亦可使用`parted`工具進行分區類型ID變更。
 
-	在分區標識中去掉`msdata`（Windows分區標誌）：
+    在分區標識中去掉`msdata`（Windows分區標誌）：
 
-	```html
-	# parted 磁盤路徑 print all <!-- 查看所有磁盤信息，確認分區編號 -->
-	# parted 磁盤路徑 set 分區號 msdata on/off <!-- 移除msdata分區標誌 -->
-	```
+    ```html
+    # parted 磁盤路徑 print all <!-- 查看所有磁盤信息，確認分區編號 -->
+    # parted 磁盤路徑 set 分區號 msdata on/off <!-- 移除msdata分區標誌 -->
+    ```
 
 ## 引導 Linux
 使用默認的bootloader可以直接引導Linux系統。
@@ -1221,12 +1221,12 @@ $ nano /Volumes/啓動分區名稱/System/Library/CoreServices/SystemVersion.pli
 <?xml version="1.0" encoding="utf-8"?>
 <plist version="1.0">
 <dict>
-	<key>ProductBuildVersion</key>
-	<string></string>
-	<key>ProductName</key>
-	<string>Linux</string>
-	<key>ProductVersion</key>
-	<string>Arch Linux</string>
+    <key>ProductBuildVersion</key>
+    <string></string>
+    <key>ProductName</key>
+    <string>Linux</string>
+    <key>ProductVersion</key>
+    <string>Arch Linux</string>
 </dict>
 </plist>
 ```
@@ -1322,8 +1322,8 @@ $ brew install --cask adoptopenjdk <!-- 最新版本JDK -->
 $ brew install --cask adoptopenjdk8 <!-- 使用頻率最高的JDK8 -->
 ```
 
-### 刪除 Oracle JDK
-`Oracle JDK`需要自行手工刪除，相關文件位於以下路徑：
+### 刪除 OracleJDK
+`OracleJDK`需要自行手工刪除，相關文件位於以下路徑：
 
 1. `/Library/Java/JavaVirtualMachines/*`
 1. `/Library/Internet Plug-Ins/JavaAppletPlugin.plugin`
