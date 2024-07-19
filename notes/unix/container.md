@@ -1,74 +1,74 @@
 <!-- TOC -->
 
 - [容器技術概述](#容器技術概述)
-	- [容器技術實現](#容器技術實現)
-	- [Docker容器與傳統虛擬機的區別](#docker容器與傳統虛擬機的區別)
-	- [容器相關技術架構](#容器相關技術架構)
-	- [Dockershim](#dockershim)
+    - [容器技術實現](#容器技術實現)
+    - [Docker容器與傳統虛擬機的區別](#docker容器與傳統虛擬機的區別)
+    - [容器相關技術架構](#容器相關技術架構)
+    - [Dockershim](#dockershim)
 - [Docker安裝與配置](#docker安裝與配置)
-	- [docker-machine（已廢棄）](#docker-machine已廢棄)
-	- [Docker Desktop for macOS](#docker-desktop-for-macos)
-		- [訪問Docker Desktop的虛擬機（HyperKit，已過時）](#訪問docker-desktop的虛擬機hyperkit已過時)
-		- [訪問Docker Desktop的虛擬機（HVF）](#訪問docker-desktop的虛擬機hvf)
+    - [docker-machine（已廢棄）](#docker-machine已廢棄)
+    - [Docker Desktop for macOS](#docker-desktop-for-macos)
+        - [訪問Docker Desktop的虛擬機（HyperKit，已過時）](#訪問docker-desktop的虛擬機hyperkit已過時)
+        - [訪問Docker Desktop的虛擬機（HVF）](#訪問docker-desktop的虛擬機hvf)
 - [Docker基本使用](#docker基本使用)
-	- [Docker容器管理](#docker容器管理)
-		- [Docker容器自啟動](#docker容器自啟動)
-		- [Docker容器生成鏡像](#docker容器生成鏡像)
-		- [Docker容器導入/導出](#docker容器導入導出)
-		- [Docker Compose](#docker-compose)
-	- [Docker鏡像管理](#docker鏡像管理)
-		- [Docker鏡像源](#docker鏡像源)
-		- [Docker鏡像導入/導出](#docker鏡像導入導出)
-		- [Docker鏡像構建](#docker鏡像構建)
-		- [Docker Registry Server](#docker-registry-server)
-		- [Docker Hub](#docker-hub)
-	- [Docker容器日誌](#docker容器日誌)
-	- [Docker容器資源監控](#docker容器資源監控)
-	- [Docker環境清理](#docker環境清理)
+    - [Docker容器管理](#docker容器管理)
+        - [Docker容器自啟動](#docker容器自啟動)
+        - [Docker容器生成鏡像](#docker容器生成鏡像)
+        - [Docker容器導入/導出](#docker容器導入導出)
+        - [Docker Compose](#docker-compose)
+    - [Docker鏡像管理](#docker鏡像管理)
+        - [Docker鏡像源](#docker鏡像源)
+        - [Docker鏡像導入/導出](#docker鏡像導入導出)
+        - [Docker鏡像構建](#docker鏡像構建)
+        - [Docker Registry Server](#docker-registry-server)
+        - [Docker Hub](#docker-hub)
+    - [Docker容器日誌](#docker容器日誌)
+    - [Docker容器資源監控](#docker容器資源監控)
+    - [Docker環境清理](#docker環境清理)
 - [Docker文件系統](#docker文件系統)
-	- [Docker文件傳輸](#docker文件傳輸)
-	- [Docker綁定掛載（Bind Mounts）](#docker綁定掛載bind-mounts)
-	- [Docker Volumes（卷）](#docker-volumes卷)
+    - [Docker文件傳輸](#docker文件傳輸)
+    - [Docker綁定掛載（Bind Mounts）](#docker綁定掛載bind-mounts)
+    - [Docker Volumes（卷）](#docker-volumes卷)
 - [Docker網絡](#docker網絡)
-	- [Docker端口映射](#docker端口映射)
-	- [Docker修改端口映射](#docker修改端口映射)
-	- [Docker設置自定義Hosts](#docker設置自定義hosts)
+    - [Docker端口映射](#docker端口映射)
+    - [Docker修改端口映射](#docker修改端口映射)
+    - [Docker設置自定義Hosts](#docker設置自定義hosts)
 - [Docker Compose](#docker-compose-1)
-	- [安裝Docker Compose](#安裝docker-compose)
-	- [Docker Compose服務定義](#docker-compose服務定義)
-	- [Docker Compose指令](#docker-compose指令)
+    - [安裝Docker Compose](#安裝docker-compose)
+    - [Docker Compose服務定義](#docker-compose服務定義)
+    - [Docker Compose指令](#docker-compose指令)
 - [Habor](#habor)
-	- [部署Habor（Docker Compose）](#部署habordocker-compose)
-		- [部署Helm Chart倉庫](#部署helm-chart倉庫)
-		- [部署Https访问](#部署https访问)
-		- [Docker客戶端證書配置](#docker客戶端證書配置)
-		- [Habor服務管理](#habor服務管理)
-	- [部署Habor（Helm）](#部署haborhelm)
-	- [登入Habor](#登入habor)
-		- [Docker登入](#docker登入)
-		- [podman登入](#podman登入)
-		- [containerd登入](#containerd登入)
-	- [從其它Harbor倉庫導入鏡像](#從其它harbor倉庫導入鏡像)
+    - [部署Habor（Docker Compose）](#部署habordocker-compose)
+        - [部署Helm Chart倉庫](#部署helm-chart倉庫)
+        - [部署Https访问](#部署https访问)
+        - [Docker客戶端證書配置](#docker客戶端證書配置)
+        - [Habor服務管理](#habor服務管理)
+    - [部署Habor（Helm）](#部署haborhelm)
+    - [登入Habor](#登入habor)
+        - [Docker登入](#docker登入)
+        - [podman登入](#podman登入)
+        - [containerd登入](#containerd登入)
+    - [從其它Harbor倉庫導入鏡像](#從其它harbor倉庫導入鏡像)
 - [containerd](#containerd)
-	- [containerd配置](#containerd配置)
-	- [nerdctl](#nerdctl)
+    - [containerd配置](#containerd配置)
+    - [nerdctl](#nerdctl)
 - [Lima](#lima)
-	- [Lima安裝](#lima安裝)
-	- [Lima環境配置](#lima環境配置)
-	- [Lima的containerd支持](#lima的containerd支持)
+    - [Lima安裝](#lima安裝)
+    - [Lima環境配置](#lima環境配置)
+    - [Lima的containerd支持](#lima的containerd支持)
 - [Podman](#podman)
-	- [Podman on macOS](#podman-on-macos)
-	- [Podman容器配置存儲](#podman容器配置存儲)
-	- [Podman與Docker差異](#podman與docker差異)
-		- [容器服務架構](#容器服務架構)
-		- [systemd容器](#systemd容器)
-		- [Podman構建tag與Docker的差異](#podman構建tag與docker的差異)
+    - [Podman on macOS](#podman-on-macos)
+    - [Podman容器配置存儲](#podman容器配置存儲)
+    - [Podman與Docker差異](#podman與docker差異)
+        - [容器服務架構](#容器服務架構)
+        - [systemd容器](#systemd容器)
+        - [Podman構建tag與Docker的差異](#podman構建tag與docker的差異)
 - [LXC/LXD](#lxclxd)
-	- [LXD於Docker/Podman的差異](#lxd於dockerpodman的差異)
-	- [LXD初始化](#lxd初始化)
-	- [LXD基本操作](#lxd基本操作)
-	- [LXD容器特權模式](#lxd容器特權模式)
-	- [LXD文件傳輸/目錄共享](#lxd文件傳輸目錄共享)
+    - [LXD於Docker/Podman的差異](#lxd於dockerpodman的差異)
+    - [LXD初始化](#lxd初始化)
+    - [LXD基本操作](#lxd基本操作)
+    - [LXD容器特權模式](#lxd容器特權模式)
+    - [LXD文件傳輸/目錄共享](#lxd文件傳輸目錄共享)
 
 <!-- /TOC -->
 
@@ -86,13 +86,13 @@
 
 - Linux容器基於[`namespaces(7)`](https://man7.org/linux/man-pages/man7/namespaces.7.html)
 
-	Linux的namespaces機制將資源劃分到不同命名空間中，不同命名空間內的進程資源相互隔離，
-	Linux的namespaces包含多個類別，包括Cgroup（根目錄隔離）、Network（網絡隔離）、PID（進程號隔離）等。
+    Linux的namespaces機制將資源劃分到不同命名空間中，不同命名空間內的進程資源相互隔離，
+    Linux的namespaces包含多個類別，包括Cgroup（根目錄隔離）、Network（網絡隔離）、PID（進程號隔離）等。
 
 - FreeBSD容器基於[`Jails`](https://docs.freebsd.org/en/books/handbook/jails/)
 
-	FreeBSD的Jails類似一個高級的`chroot`實現，普通chroot會共享宿主機除根路徑外的其它資源，
-	Jails在普通的chroot上添加了多種資源控制等高級功能。
+    FreeBSD的Jails類似一個高級的`chroot`實現，普通chroot會共享宿主機除根路徑外的其它資源，
+    Jails在普通的chroot上添加了多種資源控制等高級功能。
 
 ## Docker容器與傳統虛擬機的區別
 `Docker`是使用`Go`語言實現的開源容器引擎。
@@ -115,23 +115,23 @@ Docker被設計用於提供單個進程/服務運行的最小環境，通常容�
 
 - `Container Runtime Interface (CRI)`
 
-	CRI是Kubernetes定義的、與容器運行時交互的API。
-	Kubernetes通過該API對符合標準的容器運行時進行操作，
-	主流的容器運行時如`containerd`、`CRI-O`等均實現了該API。
+    CRI是Kubernetes定義的、與容器運行時交互的API。
+    Kubernetes通過該API對符合標準的容器運行時進行操作，
+    主流的容器運行時如`containerd`、`CRI-O`等均實現了該API。
 
 - [`Open Container Initiative (OCI)`](https://opencontainers.org/)
 
-	OCI是Linux基金會下的子項目，目標是創建容器格式、容器運行時的行業標準。
-	OCI在2015年6月由Docker和其它行業領導者創建，當前OCI主要包括兩大規範：
+    OCI是Linux基金會下的子項目，目標是創建容器格式、容器運行時的行業標準。
+    OCI在2015年6月由Docker和其它行業領導者創建，當前OCI主要包括兩大規範：
 
-	1. `Runtime Specification (runtime-spec)` 容器運行時規範
-	1. `Image Specification (image-spec)` 容器鏡像規範
+    1. `Runtime Specification (runtime-spec)` 容器運行時規範
+    1. `Image Specification (image-spec)` 容器鏡像規範
 
-	容器運行時規範描述如何執行一個在磁盤上解包後的「Filesystem Bundle」。
-	OCI實現下載OCI鏡像，將其解包為「OCI Runtime Filesystem Bundle」，
-	然後由「OCI Runtime」執行「OCI Runtime Bundle」。
+    容器運行時規範描述如何執行一個在磁盤上解包後的「Filesystem Bundle」。
+    OCI實現下載OCI鏡像，將其解包為「OCI Runtime Filesystem Bundle」，
+    然後由「OCI Runtime」執行「OCI Runtime Bundle」。
 
-	OCI的主要實現是[runc](https://github.com/opencontainers/runc)。
+    OCI的主要實現是[runc](https://github.com/opencontainers/runc)。
 
 體系結構圖示：
 
@@ -576,9 +576,9 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 
 ```json
 {
-	...
-	"registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"],
-	...
+    ...
+    "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"],
+    ...
 }
 ```
 
@@ -678,9 +678,9 @@ Get "https://x.x.x.x:5000/v2/": http: server gave HTTP response to HTTPS client
 
 ```json
 {
-	...
-	"insecure-registries" : ["x.x.x.x:5000"],
-	...
+    ...
+    "insecure-registries" : ["x.x.x.x:5000"],
+    ...
 }
 ```
 
@@ -1014,56 +1014,56 @@ $ docker create -p 主機端口1:容器端口2 -p 主機端口2:容器端口2 ..
 
 - `/var/lib/docker/containers/[容器ID]/hostconfig.json`
 
-	修改`PortBindings`配置段：
+    修改`PortBindings`配置段：
 
-	```json
-	{
-		...
-		"PortBindings": {
-			"22/tcp": [
-				{
-					"HostIp": "",
-					"HostPort": "22"
-				}
-			],
-			...
-		},
-		...
-	}
-	```
+    ```json
+    {
+        ...
+        "PortBindings": {
+            "22/tcp": [
+                {
+                    "HostIp": "",
+                    "HostPort": "22"
+                }
+            ],
+            ...
+        },
+        ...
+    }
+    ```
 
 - `/var/lib/docker/containers/[容器ID]/config.v2.json`
 
-	修改`Config.ExposedPorts`和`NetworkSettings.Ports`配置段：
+    修改`Config.ExposedPorts`和`NetworkSettings.Ports`配置段：
 
-	```json
-	{
-		...
-		"Config": {
-			...
-			"ExposedPorts": {
-				"22/tcp": {},
-				...
-			},
-			...
-		},
-		...
-		"NetworkSettings": {
-			...
-			"Ports": {
-				"22/tcp": [
-					{
-						"HostIp": "0.0.0.0",
-						"HostPort": "22"
-					}
-				],
-				...
-			},
-			...
-		}
-		...
-	}
-	```
+    ```json
+    {
+        ...
+        "Config": {
+            ...
+            "ExposedPorts": {
+                "22/tcp": {},
+                ...
+            },
+            ...
+        },
+        ...
+        "NetworkSettings": {
+            ...
+            "Ports": {
+                "22/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "22"
+                    }
+                ],
+                ...
+            },
+            ...
+        }
+        ...
+    }
+    ```
 
 ## Docker設置自定義Hosts
 Docker在構建鏡像、常見容器時均可使用`--add-host`參數添加自定義主機映射：
@@ -1200,65 +1200,65 @@ Https證書的生成流程：
 1. 證書申請者在自身站點配置**域名密鑰**和**域名證書**。
 1. 用戶導入根證書簽名者提供的**根證書**即可合法認證訪問使用**域名證書**加密的站點。
 
+HTTPS配置的完整說明參考[Harbor官方文檔](https://goharbor.io/docs/2.0.0/install-config/configure-https/)。
+
 可使用`openssl`工具生成對應私有根證書和私鑰：
 
 ```
 $ openssl req -new -newkey rsa -x509 -sha512 -days 有效日期數 -nodes -subj "/C=JP/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxxdomain.xxx" -out ca.crt -keyout ca.key
 ```
 
-HTTPS配置的完整說明參考[Harbor官方文檔](https://goharbor.io/docs/2.0.0/install-config/configure-https/)。
-
 用私有證書生成特定域名的簽名證書：
 
 1. 生成私有密鑰：
 
-	```
-	$ openssl genrsa -out xxxdomain.xxx.key 4096
-	```
+    ```
+    $ openssl genrsa -out xxxdomain.xxx.key 4096
+    ```
 
 1. 生成域名的認證簽名請求（Certificate Signing Request，CSR）：
 
-	```
-	$ openssl req -sha512 -new \
-	-subj "/C=CN/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxxdomain.xxx" \
-	-key xxxdomain.xxx.key \
-	-out xxxdomain.xxx.csr
-	```
+    ```
+    $ openssl req -sha512 -new \
+    -subj "/C=CN/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=xxxdomain.xxx" \
+    -key xxxdomain.xxx.key \
+    -out xxxdomain.xxx.csr
+    ```
 
 1. 生成自簽名證書擴展（x509 v3 extension）：
 
-	```html
-	$ cat > v3.ext <<-EOF
-	authorityKeyIdentifier=keyid,issuer
-	basicConstraints=CA:FALSE
-	keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-	extendedKeyUsage = serverAuth
-	subjectAltName = @alt_names
+    ```html
+    $ cat > v3.ext <<-EOF
+    authorityKeyIdentifier=keyid,issuer
+    basicConstraints=CA:FALSE
+    keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+    extendedKeyUsage = serverAuth
+    subjectAltName = @alt_names
 
-	[alt_names]
-	DNS.1=xxxdomain.xxx
-	DNS.2=xxxdomain
-	DNS.3=hostname
-	IP.1=xxx.xxx.xxx.xxx <!-- 支持證書綁定IP -->
-	IP.2=xxx.xxx.xxx.xxx <!-- 證書綁定IP需要Harbor對應的host配置也使用相同的IP -->
-	EOF
-	```
+    [alt_names]
+    DNS.1=xxxdomain.xxx
+    DNS.2=xxxdomain
+    DNS.3=hostname
+    IP.1=xxx.xxx.xxx.xxx <!-- 支持證書綁定IP -->
+    IP.2=xxx.xxx.xxx.xxx <!-- 證書綁定IP需要Harbor對應的host配置也使用相同的IP -->
+    EOF
+    ```
 
 1. 使用自簽名擴展`v3.ext`和先前創建的CSR生成證書：
 
-	```
-	$ openssl x509 -req -sha512 -days 3650 \
-	-extfile v3.ext \
-	-CA ca.crt -CAkey ca.key -CAcreateserial \
-	-in xxxdomain.xxx.csr \
-	-out xxxdomain.xxx.crt
-	```
+    ```
+    $ openssl x509 -req -sha512 -days 3650 \
+    -extfile v3.ext \
+    -CA ca.crt -CAkey ca.key -CAcreateserial \
+    -in xxxdomain.xxx.csr \
+    -out xxxdomain.xxx.crt
+    ```
 
-1. 將證書轉換為Docker使用的證書（可選，僅當Harbor未指定證書路徑時使用）：
+1. 將證書轉換為Docker使用的公鑰（可選，僅當Harbor未指定證書路徑時使用）：
 
-	```
-	$ openssl x509 -inform PEM -in xxxdomain.xxx.crt -out xxxdomain.xxx.cert
-	```
+    ```
+    $ openssl x509 -inform PEM -in xxxdomain.xxx.crt -out xxxdomain.xxx.pem
+    ```
 
 生成證書後，修改下列配置：
 
