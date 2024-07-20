@@ -373,8 +373,8 @@ Main fuckccp: 1984
 class A
 {
 public:
-	static int a;
-	static int b;
+    static int a;
+    static int b;
 };
 
 int A::a = 1; // 錯誤，普通類頭文件內進行靜態成員定義造成多重定義錯誤
@@ -383,10 +383,10 @@ template <class T>
 class B
 {
 public:
-	static int a;
-	static int b;
-	static int c;
-	static int d;
+    static int a;
+    static int b;
+    static int c;
+    static int d;
 };
 
 template <class T>
@@ -421,15 +421,15 @@ using namespace std;
 
 int main(void)
 {
-	cout << A::a << endl;
-	cout << A::b << endl;
+    cout << A::a << endl;
+    cout << A::b << endl;
 
-	cout << B<int>::a << endl;
-	cout << B<int>::b << endl;
-	cout << B<int>::c << endl;
-	cout << B<int>::d << endl;
+    cout << B<int>::a << endl;
+    cout << B<int>::b << endl;
+    cout << B<int>::c << endl;
+    cout << B<int>::d << endl;
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -495,22 +495,22 @@ printf("%f\n", num);
 
 - 表示**8進制**數值，在數值前加`0`：
 
-	示例：
+    示例：
 
-	```c
-	int num0 = 011; // 等於10進制數 "9"
-	// int num1 = 089; // 編譯報錯，8進制數中不能出現大於等於 "8" 的數值
-	```
+    ```c
+    int num0 = 011; // 等於10進制數 "9"
+    // int num1 = 089; // 編譯報錯，8進制數中不能出現大於等於 "8" 的數值
+    ```
 
 - 表示**16進制**數值，在數值前加`0x`：
 
-	示例：
+    示例：
 
-	```c
-	int num0 = 0x11; // 等於10進制數 "17"
-	int num1 = 0xab; // 等於10進制數 "171"
-	// int num2 = 0xgh; // 編譯報錯，16進制數中不能出現大於等於"f"的數值
-	```
+    ```c
+    int num0 = 0x11; // 等於10進制數 "17"
+    int num1 = 0xab; // 等於10進制數 "171"
+    // int num2 = 0xgh; // 編譯報錯，16進制數中不能出現大於等於"f"的數值
+    ```
 
 C/C++中，**沒有**提供表示2進制數值字面量的方式。
 
@@ -531,10 +531,10 @@ C/C++中，**沒有**提供表示2進制數值字面量的方式。
 
 int main(void)
 {
-	char* str = "12345";
-	char chars[5] = "12345";
-	printf("%d %d\n", sizeof(str), sizeof(chars));
-	return 0;
+    char* str = "12345";
+    char chars[5] = "12345";
+    printf("%d %d\n", sizeof(str), sizeof(chars));
+    return 0;
 }
 ```
 
@@ -567,22 +567,22 @@ type array_name[size] = { value0, value1, ... }; //指定數組長度
 // 實際數組內容爲" 1,1,1,1,2,2,0,3,3,3 "，沒有初始化的部分依然爲默認值
 int nums[10] =
 {
-	[0 ... 3] = 1,
-	[4 ... 5] = 2,
-	[7 ... 9] = 3
+    [0 ... 3] = 1,
+    [4 ... 5] = 2,
+    [7 ... 9] = 3
 };
 
 struct Student
 {
-	int class;
-	int grade;
+    int class;
+    int grade;
 };
 
 // 指定範圍初始化用在結構體中，數組長度由初始化語句推斷爲6
 struct Student students[] =
 {
-	[0 ... 3].class = 1,
-	[4 ... 5].grade = 2
+    [0 ... 3].class = 1,
+    [4 ... 5].grade = 2
 };
 ```
 
@@ -619,25 +619,25 @@ char s3[2][3] = { '1', '2', '3', '4', '5', '6' }; // 順序初始化
 ```cpp
 struct S
 {
-	int num1;
-	int num2;
-	int num3;
+    int num1;
+    int num2;
+    int num3;
 };
 
 class C
 {
 public:
-	int num1;
-	int num2;
-	int num3;
+    int num1;
+    int num2;
+    int num3;
 };
 
 int main(void)
 {
-	S s = { 1, 2, 3 };
-	C c = { 1, 2, 3 };
+    S s = { 1, 2, 3 };
+    C c = { 1, 2, 3 };
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -646,32 +646,32 @@ int main(void)
 ```cpp
 struct S
 {
-	// 編譯時報錯，提示"error: in C++98 ‘s’ must be initialized by constructor, not by ‘{...}’"
-	S(int num1, int num2, int num3) : num1(num1), num2(num2), num3(num3) {};
+    // 編譯時報錯，提示"error: in C++98 ‘s’ must be initialized by constructor, not by ‘{...}’"
+    S(int num1, int num2, int num3) : num1(num1), num2(num2), num3(num3) {};
 
-	int num1, num2, num3;
+    int num1, num2, num3;
 };
 
 class C
 {
 public:
-	int num1;
+    int num1;
 
 // 編譯報錯，錯誤信息：
 // error: could not convert ‘{1, 2, 3}’ from ‘<brace-enclosed initializer list>’ to ‘C’
 protected:
-	int num2;
+    int num2;
 
 private:
-	int num3;
+    int num3;
 };
 
 int main(void)
 {
-	S s = { 1, 2, 3 };
-	C c = { 1, 2, 3 };
+    S s = { 1, 2, 3 };
+    C c = { 1, 2, 3 };
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -685,21 +685,21 @@ int main(void)
 // error: in C++98 ‘s’ must be initialized by constructor, not by ‘{...}’
 struct S
 {
-	S(int num1, int num2) : num1(num1), num2(num2), num3(num2) {}
+    S(int num1, int num2) : num1(num1), num2(num2), num3(num2) {}
 
-	int num1;
+    int num1;
 
 protected:
-	int num2;
+    int num2;
 
 private:
-	int num3;
+    int num3;
 };
 
 int main(void)
 {
-	S s = { 1, 2 };
-	return 0;
+    S s = { 1, 2 };
+    return 0;
 }
 ```
 
@@ -744,14 +744,14 @@ using namespace std;
 
 struct Test
 {
-	int num = 0;
-	string name = "";
+    int num = 0;
+    string name = "";
 };
 
 int main(void)
 {
-	Test t { 2333, "2333" };
-	return 0;
+    Test t { 2333, "2333" };
+    return 0;
 }
 ```
 
@@ -785,20 +785,20 @@ template <class T>
 class Init
 {
 public:
-	Init(const std::initializer_list<T>& l)
-	{
-		for (const T& i : l)
-			std::cout << i << " ";
-		std::cout << std::endl;
-	}
+    Init(const std::initializer_list<T>& l)
+    {
+        for (const T& i : l)
+            std::cout << i << " ";
+        std::cout << std::endl;
+    }
 };
 
 int main(void)
 {
-	Init<int> { 1 };
-	Init<int> { 1, 2, 3 };
-	Init<std::string> { "One", "Two", "Three" };
-	return 0;
+    Init<int> { 1 };
+    Init<int> { 1, 2, 3 };
+    Init<std::string> { "One", "Two", "Three" };
+    return 0;
 }
 ```
 
@@ -819,31 +819,31 @@ One Two Three
 class Init0
 {
 public:
-	Init0(int num0, int num1)
-	{
-		std::cout << "Init0: Call for normal..." << std::endl;
-	}
+    Init0(int num0, int num1)
+    {
+        std::cout << "Init0: Call for normal..." << std::endl;
+    }
 };
 
 class Init1
 {
 public:
-	Init1(const std::initializer_list<int>& l)
-	{
-		std::cout << "Init1: Call for initializer_list..." << std::endl;
-	}
-	Init1(int num0, int num1)
-	{
-		std::cout << "Init1: Call for normal..." << std::endl;
-	}
+    Init1(const std::initializer_list<int>& l)
+    {
+        std::cout << "Init1: Call for initializer_list..." << std::endl;
+    }
+    Init1(int num0, int num1)
+    {
+        std::cout << "Init1: Call for normal..." << std::endl;
+    }
 };
 
 int main(void)
 {
-	Init0 { 1, 2 }; //可用統一初始化語法調用普通構造方法
-	Init1 { 1, 2 }; //當存在接收std::initializer_list<T>參數的構造方法時，統一初始化語法優先調用該構造方法
+    Init0 { 1, 2 }; //可用統一初始化語法調用普通構造方法
+    Init1 { 1, 2 }; //當存在接收std::initializer_list<T>參數的構造方法時，統一初始化語法優先調用該構造方法
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -869,8 +869,8 @@ Init1: Call for initializer_list...
 ```cpp
 struct A
 {
-	int a;
-	char b;
+    int a;
+    char b;
 };
 ```
 
@@ -881,9 +881,9 @@ struct A
 ```cpp
 struct B
 {
-	int a;
-	char b;
-	char c;
+    int a;
+    char b;
+    char c;
 };
 ```
 
@@ -893,9 +893,9 @@ struct B
 ```cpp
 struct C
 {
-	char b;
-	int a;
-	char c;
+    char b;
+    int a;
+    char c;
 };
 ```
 
@@ -915,16 +915,16 @@ struct C
 
 struct A
 {
-	int a;
-	char b;
+    int a;
+    char b;
 }; // 結構體大小爲5
 
 #pragma pack(2) // 結構體大小按2對齊
 
 struct B
 {
-	int a;
-	char b;
+    int a;
+    char b;
 }; // 結構體大小爲6
 
 #pragma pack() // 無數值時表示後續內容恢復默認對齊方式
@@ -936,8 +936,8 @@ struct B
 // 編譯器爲 GCC/Clang
 struct A
 {
-	int a;
-	char b;
+    int a;
+    char b;
 } __attribute__((packed)); // 結構體大小爲5
 ```
 
@@ -950,15 +950,15 @@ struct A
 __declspec(align(16)) // 對齊大小數值必須爲2的冪
 struct A
 {
-	int a;
-	char b;
+    int a;
+    char b;
 }; // 結構體大小16，對齊大小被提升至16
 
 __declspec(align(1)) // 對齊大小小於默認對齊大小，不生效
 struct A
 {
-	int a;
-	char b;
+    int a;
+    char b;
 }; // 結構體大小8，設置的對齊大小未生效
 ```
 
@@ -1001,18 +1001,18 @@ void va_end(va_list ap);
 
 int get(int s, ...)
 {
-	va_list arg;
-	va_start(arg, s); //初始化arg
-	printf("%d ", va_arg(arg, int)); //第一次運行宏得到第二個參數的值
-	printf("%d ", va_arg(arg, int)); //第二次運行宏得到第三個參數的值
-	va_end(arg);
-	return 0;
+    va_list arg;
+    va_start(arg, s); //初始化arg
+    printf("%d ", va_arg(arg, int)); //第一次運行宏得到第二個參數的值
+    printf("%d ", va_arg(arg, int)); //第二次運行宏得到第三個參數的值
+    va_end(arg);
+    return 0;
 }
 
 int main(void)
 {
-	get(5, 30, 40);
-	return 0;
+    get(5, 30, 40);
+    return 0;
 }
 ```
 
@@ -1035,13 +1035,13 @@ int main(void)
 
 void get(float a, ...)
 {
-	printf("%f %c %d\n", a, *(char*)(&a + 1), *(int*)(&a + 2));
+    printf("%f %c %d\n", a, *(char*)(&a + 1), *(int*)(&a + 2));
 }
 
 int main(void)
 {
-	get(9.9, 'b', 888);
-	return 0;
+    get(9.9, 'b', 888);
+    return 0;
 }
 ```
 
@@ -1121,7 +1121,7 @@ int* c = a;
 int* d = b;
 while (*d++ = *c++);
 for (int i = 0; i < 5; i++)
-	printf("%d ", b[i]);
+    printf("%d ", b[i]);
 ```
 
 輸出結果：
@@ -1177,14 +1177,14 @@ class Empty { };
 class Empty
 {
 public:
-	Empty(); //默認的空構造函數
-	Empty(const Empty&); //複製構造函數
-	Empty(Empty&&); //C++11，移動構造函數
-	~Empty(); //默認的析構函數
-	Empty* operator&(); //重載取地址運算符
-	const Empty* operator&() const; //帶const的取址運算符
-	Empty& operator=(const Empty&); //重載等號爲對象內容複製
-	Empty& operator=(Empty&&); //C++11，重載等號爲移動對象
+    Empty(); //默認的空構造函數
+    Empty(const Empty&); //複製構造函數
+    Empty(Empty&&); //C++11，移動構造函數
+    ~Empty(); //默認的析構函數
+    Empty* operator&(); //重載取地址運算符
+    const Empty* operator&() const; //帶const的取址運算符
+    Empty& operator=(const Empty&); //重載等號爲對象內容複製
+    Empty& operator=(Empty&&); //C++11，重載等號爲移動對象
 };
 ```
 
@@ -1197,9 +1197,9 @@ public:
 class Test
 {
 public:
-	Test() = delete; //禁止默認的構造函數
-	Test(const Test&) = delete; //禁止默認的複製構造函數
-	... 其它類似
+    Test() = delete; //禁止默認的構造函數
+    Test(const Test&) = delete; //禁止默認的複製構造函數
+    ... 其它類似
 };
 ```
 
@@ -1210,8 +1210,8 @@ public:
 class Test
 {
 public:
-	Test(int) {};
-	Test() = default; //使用default關鍵字合成默認無參構造函數
+    Test(int) {};
+    Test() = default; //使用default關鍵字合成默認無參構造函數
 };
 ```
 
@@ -1240,19 +1240,19 @@ using namesapce std;
 class A
 {
 public:
-	virtual int get() { return 100; }
+    virtual int get() { return 100; }
 };
 
 class B : A
 {
 private:
-	int get() { return A::get() + 100; }
+    int get() { return A::get() + 100; }
 };
 
 int main(void)
 {
-	A* a = new B; //報錯，提示 " 'A' is an inaccessible base of 'B' "
-	return 0;
+    A* a = new B; //報錯，提示 " 'A' is an inaccessible base of 'B' "
+    return 0;
 }
 
 // 向上轉型訪問子類私有實現
@@ -1263,21 +1263,21 @@ using namesapce std;
 class A
 {
 public:
-	virtual int get() { return 100; }
+    virtual int get() { return 100; }
 };
 
 class B : public A
 {
 private:
-	int get() { return A::get() + 100; }
+    int get() { return A::get() + 100; }
 };
 
 int main(void)
 {
-	A* a = new B;
-	cout << a->get() << endl; //正確，調用子類實現，輸出200
-	cout << B().get() << endl; //錯誤，提示"within this context"
-	return 0;
+    A* a = new B;
+    cout << a->get() << endl; //正確，調用子類實現，輸出200
+    cout << B().get() << endl; //錯誤，提示"within this context"
+    return 0;
 }
 ```
 
@@ -1294,11 +1294,11 @@ int main(void)
 
 int main(void)
 {
-	long* a = (long*)0x1; //內存地址賦值給指針之前需要進行強制類型轉換，否則編譯器不知道內存的類型
-	printf("%p\n", a + 1); //打印指針使用%p，會以"0x...."的格式輸出
-	int b[] = { 1, 2, 3 };
-	printf("%d, %d", *(b + 1), *((int*)(&b + 1) - 1));
-	return 0;
+    long* a = (long*)0x1; //內存地址賦值給指針之前需要進行強制類型轉換，否則編譯器不知道內存的類型
+    printf("%p\n", a + 1); //打印指針使用%p，會以"0x...."的格式輸出
+    int b[] = { 1, 2, 3 };
+    printf("%d, %d", *(b + 1), *((int*)(&b + 1) - 1));
+    return 0;
 }
 ```
 
@@ -1343,13 +1343,13 @@ type (*array_point)[size];
 
 int main(void)
 {
-	int num_1 = 1, num_2 = 2, num_3 = 3;
+    int num_1 = 1, num_2 = 2, num_3 = 3;
 
-	int array[] = { num_1, num_2, num_3 };
-	int* point_array[] = { &num_1, &num_2, &num_3 }; //指針數組
-	int (*array_point)[] = &array; //數組指針
+    int array[] = { num_1, num_2, num_3 };
+    int* point_array[] = { &num_1, &num_2, &num_3 }; //指針數組
+    int (*array_point)[] = &array; //數組指針
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -1406,103 +1406,103 @@ using namespace std;
 // 類A有兩個虛函數和一個成員變量，由於內存對齊，類A的大小爲16(虛表大小8，變量對齊到8)
 class A
 {
-	virtual int get(int);
-	virtual int get();
-	char a = 'A';
+    virtual int get(int);
+    virtual int get();
+    char a = 'A';
 };
 
 // 單一繼承的情況
 class B : A
 {
-	virtual int get1();
+    virtual int get1();
 };
 
 class C
 {
-	char c = 'C';
-	virtual int get();
+    char c = 'C';
+    virtual int get();
 };
 
 // 多重繼承的情況
 class D : A, C
 {
-	char d = 'D';
-	virtual int get2();
+    char d = 'D';
+    virtual int get2();
 };
 
 // 單一繼承併發生override的情況
 class E : public A
 {
-	int get();
+    int get();
 };
 
 int A::get(int)
 {
-	cout << "A::get(int)" << endl;
-	return 0;
+    cout << "A::get(int)" << endl;
+    return 0;
 }
 
 int A::get()
 {
-	cout << "A::get()" << endl;
-	return 0;
+    cout << "A::get()" << endl;
+    return 0;
 }
 
 int B::get1()
 {
-	cout << "B::get1()" << endl;
-	return 0;
+    cout << "B::get1()" << endl;
+    return 0;
 }
 
 int C::get()
 {
-	cout << "C::get()" << endl;
-	return 0;
+    cout << "C::get()" << endl;
+    return 0;
 }
 
 int D::get2()
 {
-	cout << "D::get2()" << endl;
-	return 0;
+    cout << "D::get2()" << endl;
+    return 0;
 }
 
 int E::get()
 {
-	cout << "E::get()" << endl;
-	return 0;
+    cout << "E::get()" << endl;
+    return 0;
 }
 
 int main(void)
 {
-	A* a = new E;
-	B b;
-	D d;
+    A* a = new E;
+    B b;
+    D d;
 
-	// 在64bit的Linux中，普通指針的大小爲8B，故需要轉換爲一個佔有8個字節的類型來保存內容，否則可能會發生截斷
-	cout << "調用類A的get(int)函數 ";
-	((int (*)())*(long*)*(long*)&d)();
-	cout << "調用類A的get()函數 ";
-	((int (*)())*((long*)*(long*)&d + 1))();
-	cout << "調用類D的get2()函數 ";
-	((int (*)())*((long*)*(long*)&d + 2))();
+    // 在64bit的Linux中，普通指針的大小爲8B，故需要轉換爲一個佔有8個字節的類型來保存內容，否則可能會發生截斷
+    cout << "調用類A的get(int)函數 ";
+    ((int (*)())*(long*)*(long*)&d)();
+    cout << "調用類A的get()函數 ";
+    ((int (*)())*((long*)*(long*)&d + 1))();
+    cout << "調用類D的get2()函數 ";
+    ((int (*)())*((long*)*(long*)&d + 2))();
 
-	cout << "類A的變量a的值 " << (char)*((long*)&d + 1) << endl;
-	cout << "類C的變量a的值 " << *(char*)((long*)&d + 3) << endl;
+    cout << "類A的變量a的值 " << (char)*((long*)&d + 1) << endl;
+    cout << "類C的變量a的值 " << *(char*)((long*)&d + 3) << endl;
 
-	// 類D繼承於類A和C，D的虛函數添加到了類A虛表的末尾，因而類D中的變量a處於類C中的變量a的下一個位置
-	cout << "類D的變量a的值 " << *((char*)((long*)&d + 3) + 1) << endl;
+    // 類D繼承於類A和C，D的虛函數添加到了類A虛表的末尾，因而類D中的變量a處於類C中的變量a的下一個位置
+    cout << "類D的變量a的值 " << *((char*)((long*)&d + 3) + 1) << endl;
 
-	cout << "調用類B的get1()函數 ";
-	((int (*)())*((long*)*(long*)&b + 2))();
-	cout << "調用類C的get()函數 ";
-	((int (*)())*(long*)*((long*)&d + 2))();
-	cout << "調用類A的get(int)函數 ";
-	((int (*)())*((long*)*(long*)&*a))();
+    cout << "調用類B的get1()函數 ";
+    ((int (*)())*((long*)*(long*)&b + 2))();
+    cout << "調用類C的get()函數 ";
+    ((int (*)())*(long*)*((long*)&d + 2))();
+    cout << "調用類A的get(int)函數 ";
+    ((int (*)())*((long*)*(long*)&*a))();
 
-	cout << "向上轉型使用A類指針調用類E的get()函數 ";
-	((int (*)())*((long*)*(long*)&*a + 1))();
+    cout << "向上轉型使用A類指針調用類E的get()函數 ";
+    ((int (*)())*((long*)*(long*)&*a + 1))();
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -1561,31 +1561,31 @@ int got(int a = 3);
 
 int got(int a = 3) //編譯報錯，默認參數只能出現在定義或是聲明中的其中一處
 {
-	return a;
+    return a;
 }
 
 int get(int b = 3, int a) //編譯報錯，一旦有一個參數帶有默認值，後面的參數都應擁有默認值
 {
-	return b;
+    return b;
 }
 
 int get(int b = 3)
 {
-	return b;
+    return b;
 }
 
 int get()
 {
-	return a;
+    return a;
 }
 
 int main(void)
 {
-	get(); //編譯報錯，有兩個函數都符合要求。
-	int (*p)(int) = got;
-	p(); //編譯報錯，參數過少。
-	p(100); //正常。
-	return 0;
+    get(); //編譯報錯，有兩個函數都符合要求。
+    int (*p)(int) = got;
+    p(); //編譯報錯，參數過少。
+    p(100); //正常。
+    return 0;
 }
 ```
 
@@ -1602,17 +1602,17 @@ int main(void)
 
 int got(int num)
 {
-	int got(int num)
-	{
-		return num;
-	}
-	return got(num);
+    int got(int num)
+    {
+        return num;
+    }
+    return got(num);
 }
 
 int main(void)
 {
-	printf("%d\n", got(100));
-	return 0;
+    printf("%d\n", got(100));
+    return 0;
 }
 ```
 
@@ -1654,103 +1654,103 @@ int&& = 23333;
 
 - `auto declaration` (auto聲明)
 
-	`auto&&`能綁定任意左值/右值，示例：
+    `auto&&`能綁定任意左值/右值，示例：
 
-	```cpp
-	auto&& num0 = 2333; //綁定右值，推斷爲 int&&
-	auto&& num1 = num0; //綁定左值，推斷爲 int&
-	```
+    ```cpp
+    auto&& num0 = 2333; //綁定右值，推斷爲 int&&
+    auto&& num1 = num0; //綁定左值，推斷爲 int&
+    ```
 
 - `function template parameters` (模版函數參數)
 
-	模版函數的參數爲`T&&`形式時，會根據實際傳入參數推斷引用類型，示例：
+    模版函數的參數爲`T&&`形式時，會根據實際傳入參數推斷引用類型，示例：
 
-	```cpp
-	template <class T>
-	void ref(T&&) { } //模版參數表爲 T&& 形式時，爲通用引用
+    ```cpp
+    template <class T>
+    void ref(T&&) { } //模版參數表爲 T&& 形式時，爲通用引用
 
-	int main(void)
-	{
-		const int& r_ref = 2333;
-		int&& l_ref = 2333;
+    int main(void)
+    {
+        const int& r_ref = 2333;
+        int&& l_ref = 2333;
 
-		ref(r_ref); //右值引用 => 左值 => 模版參數類型 T&
-		ref(l_ref); //const左值引用 => 左值 => 模版參數類型 T&
-		ref(2333); //右值 => 模版參數類型 T&&
+        ref(r_ref); //右值引用 => 左值 => 模版參數類型 T&
+        ref(l_ref); //const左值引用 => 左值 => 模版參數類型 T&
+        ref(2333); //右值 => 模版參數類型 T&&
 
-		return 0;
-	}
-	```
+        return 0;
+    }
+    ```
 
-	模版函數的返回值爲`T&&`形式並不構成通用引用，示例：
+    模版函數的返回值爲`T&&`形式並不構成通用引用，示例：
 
-	```cpp
-	template <class T>
-	T&& ref(T&& t)
-	{
-		return t;
-	}
+    ```cpp
+    template <class T>
+    T&& ref(T&& t)
+    {
+        return t;
+    }
 
-	int main(void)
-	{
-		ref(2333);
-		return 0;
-	}
-	```
+    int main(void)
+    {
+        ref(2333);
+        return 0;
+    }
+    ```
 
-	編譯出錯，提示：(clang-802.0.42 && macOS 10.12.6)
+    編譯出錯，提示：(clang-802.0.42 && macOS 10.12.6)
 
-	```
-	ref.cc:4:9: error: rvalue reference to type 'int' cannot bind to lvalue of 	type 'int'
-	        return t;
-	               ^
-	ref.cc:9:2: note: in instantiation of function template specialization 	'ref<int>' requested here
-	        ref(2333);
-	        ^
-	1 error generated.
-	```
+    ```
+    ref.cc:4:9: error: rvalue reference to type 'int' cannot bind to lvalue of 	type 'int'
+            return t;
+                   ^
+    ref.cc:9:2: note: in instantiation of function template specialization 	'ref<int>' requested here
+            ref(2333);
+            ^
+    1 error generated.
+    ```
 
-	模版類的成員函數參數表中帶有`T&&`形式的模版參數時，並不是通用引用。
-	模版類在構造時模版參數已經確定，並不由推導得到，示例：
+    模版類的成員函數參數表中帶有`T&&`形式的模版參數時，並不是通用引用。
+    模版類在構造時模版參數已經確定，並不由推導得到，示例：
 
-	```cpp
-	template <class T>
-	class Ref
-	{
-	public:
-		void ref(T&&) { } //使用 int 作爲模版參數時，參數表已被確定爲 void ref(int&&) 故僅能接受右值參數
-	};
+    ```cpp
+    template <class T>
+    class Ref
+    {
+    public:
+        void ref(T&&) { } //使用 int 作爲模版參數時，參數表已被確定爲 void ref(int&&) 故僅能接受右值參數
+    };
 
-	int main(void)
-	{
-		const int& r_ref = 2333;
-		int&& l_ref = 2333;
+    int main(void)
+    {
+        const int& r_ref = 2333;
+        int&& l_ref = 2333;
 
-		Ref<int>().ref(r_ref); //編譯報錯，參數類型不匹配(需要右值)
-		Ref<int>().ref(l_ref); //編譯報錯，參數類型不匹配(需要右值)
-		Ref<int>().ref(2333); //編譯通過
+        Ref<int>().ref(r_ref); //編譯報錯，參數類型不匹配(需要右值)
+        Ref<int>().ref(l_ref); //編譯報錯，參數類型不匹配(需要右值)
+        Ref<int>().ref(2333); //編譯通過
 
-		return 0;
-	}
-	```
+        return 0;
+    }
+    ```
 
-	編譯出錯，提示：(clang-802.0.42 && macOS 10.12.6)
+    編譯出錯，提示：(clang-802.0.42 && macOS 10.12.6)
 
-	```
-	ref.cc:13:17: error: binding value of type 'const int' to reference to type 'int' drops 'const' qualifier
-	        Ref<int>().ref(r_ref);
-	                       ^~~~~
-	ref.cc:5:14: note: passing argument to parameter here
-	        void ref(T&&) { }
-	                    ^
-	ref.cc:14:17: error: rvalue reference to type 'int' cannot bind to lvalue of 	type 'int'
-	        Ref<int>().ref(l_ref);
-	                       ^~~~~
-	ref.cc:5:14: note: passing argument to parameter here
-	        void ref(T&&) { }
-	                    ^
-	2 errors generated.
-	```
+    ```
+    ref.cc:13:17: error: binding value of type 'const int' to reference to type 'int' drops 'const' qualifier
+            Ref<int>().ref(r_ref);
+                           ^~~~~
+    ref.cc:5:14: note: passing argument to parameter here
+            void ref(T&&) { }
+                        ^
+    ref.cc:14:17: error: rvalue reference to type 'int' cannot bind to lvalue of 	type 'int'
+            Ref<int>().ref(l_ref);
+                           ^~~~~
+    ref.cc:5:14: note: passing argument to parameter here
+            void ref(T&&) { }
+                        ^
+    2 errors generated.
+    ```
 
 ## reference collapsing (引用摺疊)
 對於參數即爲引用類型的模版函數，若傳入模版參數時使用引用形式的模版參數，則會產生**引用摺疊**。
@@ -1786,28 +1786,28 @@ using namespace std;
 template <class T>
 void test_(T& t)
 {
-	cout << "T&" << endl;
+    cout << "T&" << endl;
 }
 
 template <class T>
 void test__(T&& t)
 {
-	cout << "T&&" << endl;
+    cout << "T&&" << endl;
 }
 
 int main(void)
 {
-	int num = 2333;
+    int num = 2333;
 
-	test_<int>(num); // T& + T => T& 接收左值
-	test_<int&>(num); // T& + T& => T& 接收左值
-	test_<int&&>(num); // T& + T&& => T& 接收左值
+    test_<int>(num); // T& + T => T& 接收左值
+    test_<int&>(num); // T& + T& => T& 接收左值
+    test_<int&&>(num); // T& + T&& => T& 接收左值
 
-	test__<int>(2333); // T&& + T => T&& 接收右值
-	test__<int&>(num); // T&& + T& => T& 接收左值
-	test__<int&&>(2333); // T&& + T&& => T&& 接收右值
+    test__<int>(2333); // T&& + T => T&& 接收右值
+    test__<int&>(num); // T&& + T& => T& 接收左值
+    test__<int&&>(2333); // T&& + T&& => T&& 接收右值
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -1817,7 +1817,7 @@ int main(void)
 ```cpp
 class Type
 {
-	Type(const Type&);
+    Type(const Type&);
 }
 ```
 
@@ -1832,7 +1832,7 @@ class Type
 ```cpp
 class Type
 {
-	Type(T&&);
+    Type(T&&);
 };
 ```
 
@@ -1854,20 +1854,20 @@ using namespace std;
 
 void ref(int&)
 {
-	cout << "Left reference." << endl;
+    cout << "Left reference." << endl;
 }
 
 void ref(int&&)
 {
-	cout << "Right reference." << endl;
+    cout << "Right reference." << endl;
 }
 
 int main(void)
 {
-	int&& r_ref = 2333;
-	ref(r_ref);
+    int&& r_ref = 2333;
+    ref(r_ref);
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -1901,20 +1901,20 @@ using namespace std;
 
 void ref(int&)
 {
-	cout << "Left reference." << endl;
+    cout << "Left reference." << endl;
 }
 
 void ref(int&&)
 {
-	cout << "Right reference." << endl;
+    cout << "Right reference." << endl;
 }
 
 int main(void)
 {
-	int&& r_ref = 2333;
-	ref(std::move(r_ref));
+    int&& r_ref = 2333;
+    ref(std::move(r_ref));
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -1954,22 +1954,22 @@ using namespace std;
 
 void ref(int&)
 {
-	cout << "Left reference." << endl;
+    cout << "Left reference." << endl;
 }
 
 void ref(int&&)
 {
-	cout << "Right reference." << endl;
+    cout << "Right reference." << endl;
 }
 
 int main(void)
 {
-	int n = 2333;
-	int& l_ref = n;
-	ref(std::forward<int&>(l_ref));
-	ref(std::forward<int&&>(2333));
+    int n = 2333;
+    int& l_ref = n;
+    ref(std::forward<int&>(l_ref));
+    ref(std::forward<int&&>(2333));
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -1990,28 +1990,28 @@ using namespace std;
 
 void ref(int&)
 {
-	cout << "Left reference." << endl;
+    cout << "Left reference." << endl;
 }
 
 void ref(int&&)
 {
-	cout << "Right reference." << endl;
+    cout << "Right reference." << endl;
 }
 
 template <class T>
 void call_ref(T&& t)
 {
-	ref(std::forward<T>(t));
+    ref(std::forward<T>(t));
 }
 
 int main(void)
 {
-	int n = 2333;
-	int& l_ref = n;
-	call_ref(l_ref);
-	call_ref(2333);
+    int n = 2333;
+    int& l_ref = n;
+    call_ref(l_ref);
+    call_ref(2333);
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -2069,19 +2069,19 @@ using namespace std;
 class Test
 {
 public:
-	void show() & { cout << "&" << endl; }
-	void show() && { cout << "&&" << endl; }
-	//void show() { /* code */ } //錯誤，定義了帶有引用限定符的成員函數，則不能再定義該函數的無引用限定符版本
-	//static void show() & { /* code */ } //錯誤，靜態成員函數不能帶有引用限定符
-	virtual test() const & final {} //當引用限定符與後置const、final等關鍵字一同使用時需要注意位置
+    void show() & { cout << "&" << endl; }
+    void show() && { cout << "&&" << endl; }
+    //void show() { /* code */ } //錯誤，定義了帶有引用限定符的成員函數，則不能再定義該函數的無引用限定符版本
+    //static void show() & { /* code */ } //錯誤，靜態成員函數不能帶有引用限定符
+    virtual test() const & final {} //當引用限定符與後置const、final等關鍵字一同使用時需要注意位置
 };
 
 int main(void)
 {
-	Test t;
-	t.show(); //左值對象調用的函數爲"void show() &"
-	Test().show(); //右值對象調用的函數爲"void show() &&"
-	return 0;
+    Test t;
+    t.show(); //左值對象調用的函數爲"void show() &"
+    Test().show(); //右值對象調用的函數爲"void show() &&"
+    return 0;
 }
 ```
 
@@ -2143,23 +2143,23 @@ const int* const&& x = std::move(g); //對於指向const變量的const指針的�
 
 - 一般函數指針
 
-	```cpp
-	// 定義
-	返回類型 (*指針名)(參數類型) = 函數名;
+    ```cpp
+    // 定義
+    返回類型 (*指針名)(參數類型) = 函數名;
 
-	// 使用
-	指針名(參數);
-	```
+    // 使用
+    指針名(參數);
+    ```
 
 - 返回函數指針的函數
 
-	```cpp
-	// 定義
-	所指向函數的返回類型 (*函數名(函數參數表))(所指向函數的參數表);
+    ```cpp
+    // 定義
+    所指向函數的返回類型 (*函數名(函數參數表))(所指向函數的參數表);
 
-	// 使用
-	符合所指向函數的函數原型的函數指針 = 函數名(實參);
-	```
+    // 使用
+    符合所指向函數的函數原型的函數指針 = 函數名(實參);
+    ```
 
 函數指針語法較爲複雜，可使用`typedef`/`#define`等語法簡化函數指針的表達：
 
@@ -2171,7 +2171,7 @@ const int* const&& x = std::move(g); //對於指向const變量的const指針的�
 ```cpp
 int getNum(int a)
 {
-	reuturn a;
+    reuturn a;
 }
 
 // 直接定義函數指針
@@ -2197,25 +2197,25 @@ P3(p3) = getNum;
 
 - C++普通成員函數指針
 
-	```cpp
-	// 定義
-	返回類型 (類名::*指針名)(參數表) = &類名::函數名;
+    ```cpp
+    // 定義
+    返回類型 (類名::*指針名)(參數表) = &類名::函數名;
 
-	// 使用
-	(類實例名.*指針名)(實參);
-	```
+    // 使用
+    (類實例名.*指針名)(實參);
+    ```
 
 - C++靜態成員函數指針(類似於普通函數指針)
 
-	```cpp
-	// 定義
-	返回類型 (*指針名)(參數表) = &類名::函數名;
-	返回類型 (*指針名)(參數表) = &(類名::函數名)
+    ```cpp
+    // 定義
+    返回類型 (*指針名)(參數表) = &類名::函數名;
+    返回類型 (*指針名)(參數表) = &(類名::函數名)
 
-	// 使用
-	指針名(實參);
-	(*指針名)(實參);
-	```
+    // 使用
+    指針名(實參);
+    (*指針名)(實參);
+    ```
 
 示例：
 
@@ -2227,35 +2227,35 @@ using namespace std;
 class A
 {
 public:
-	int m = 100;
-	int getNum(int);
-	static int getZero(int);
+    int m = 100;
+    int getNum(int);
+    static int getZero(int);
 };
 
 int A::getNum(int num)
 {
-	return num;
+    return num;
 }
 
 int A::getZero(int)
 {
-	return 0;
+    return 0;
 }
 
 int getOne(int)
 {
-	return 1;
+    return 1;
 }
 
 int main()
 {
-	A a;
-	P p = getOne;
-	T(s) = A::getZero;
-	int (A::*x)(int) = &A::getNum;
-	cout << p(0) << " " << s(0) << " " << (a.*x)(123) << endl;
-	cout << sizeof(p) << " " << sizeof(s) << " " << sizeof(x) << endl;
-	return 0;
+    A a;
+    P p = getOne;
+    T(s) = A::getZero;
+    int (A::*x)(int) = &A::getNum;
+    cout << p(0) << " " << s(0) << " " << (a.*x)(123) << endl;
+    cout << sizeof(p) << " " << sizeof(s) << " " << sizeof(x) << endl;
+    return 0;
 }
 ```
 
@@ -2289,31 +2289,31 @@ VS中多倍函數指針大小的詳情：
 
 - 單倍指針
 
-	對於非派生類、單繼承類，類成員函數指針保存的就是成員函數的內存起始地址。
+    對於非派生類、單繼承類，類成員函數指針保存的就是成員函數的內存起始地址。
 
 - 雙倍指針
 
-	對於多重繼承類，類成員函數指針保存的是成員函數的內存起始地址與this指針調整值。(GCC/Clang對於所有函數指針採用此類處理方式)
-	因爲對於多繼承類的類成員函數指針，可能對應於該類自身的成員函數，或者最左基類的成員函數，這兩種情形都不需要調整this指針。
-	如果類成員函數指針保存的其他的非最左基類的成員函數的地址，
-	根據C++標準，非最左基類實例的開始地址與派生類實例的開始地址肯定不同，所以需要調整this指針，使其指向非最左基類實例。
+    對於多重繼承類，類成員函數指針保存的是成員函數的內存起始地址與this指針調整值。(GCC/Clang對於所有函數指針採用此類處理方式)
+    因爲對於多繼承類的類成員函數指針，可能對應於該類自身的成員函數，或者最左基類的成員函數，這兩種情形都不需要調整this指針。
+    如果類成員函數指針保存的其他的非最左基類的成員函數的地址，
+    根據C++標準，非最左基類實例的開始地址與派生類實例的開始地址肯定不同，所以需要調整this指針，使其指向非最左基類實例。
 
 - 三倍指針
 
-	對於多重繼承且虛繼承的類，類成員函數指針保存的就是成員函數的內存起始地址、this指針調整值、虛基類調整值在虛基表(vbtable)中的位置共計3項。
-	以常見的"菱形虛繼承"爲例。最派生類多重繼承了兩個類，稱爲左父類、右父類；兩個父類共享繼承了一個虛基類。
-	派生類的成員函數指針可能保存了這四個類的成員函數的內存地址。
-	如果成員函數指針保存了派生類或左父類的成員函數地址，則不需要調整this指針值。
-	如果如果成員函數指針保存了右父類的成員函數地址，則this指針值要加上一個偏移值，指向右父類實例的地址。
-	如果成員函數指針保存了虛基類的成員函數地址，由於C++類繼承的複雜多態性質，
-	必須到派生類虛基表的相應條目查出虛基類地址的偏移值，依此來調整this指針指向虛基類。
+    對於多重繼承且虛繼承的類，類成員函數指針保存的就是成員函數的內存起始地址、this指針調整值、虛基類調整值在虛基表(vbtable)中的位置共計3項。
+    以常見的"菱形虛繼承"爲例。最派生類多重繼承了兩個類，稱爲左父類、右父類；兩個父類共享繼承了一個虛基類。
+    派生類的成員函數指針可能保存了這四個類的成員函數的內存地址。
+    如果成員函數指針保存了派生類或左父類的成員函數地址，則不需要調整this指針值。
+    如果如果成員函數指針保存了右父類的成員函數地址，則this指針值要加上一個偏移值，指向右父類實例的地址。
+    如果成員函數指針保存了虛基類的成員函數地址，由於C++類繼承的複雜多態性質，
+    必須到派生類虛基表的相應條目查出虛基類地址的偏移值，依此來調整this指針指向虛基類。
 
 - 四倍指針
 
-	C++標準允許一個僅僅是聲明但沒有定義的類(forward declaration)的成員函數指針，
-	可以被定義、被調用。這種情況下，實際上對該類一無所知。這稱作未知類型(unknown)的成員函數指針。
-	該類的成員函數指針需要留出4項數據位置，分別用於保存成員函數的內存起始地址、this指針調整值、
-	虛基表到類的開始地址的偏移值(vtordisp)、虛基類調整值在虛基表(vbtable)中的位置，共計4項。
+    C++標準允許一個僅僅是聲明但沒有定義的類(forward declaration)的成員函數指針，
+    可以被定義、被調用。這種情況下，實際上對該類一無所知。這稱作未知類型(unknown)的成員函數指針。
+    該類的成員函數指針需要留出4項數據位置，分別用於保存成員函數的內存起始地址、this指針調整值、
+    虛基表到類的開始地址的偏移值(vtordisp)、虛基類調整值在虛基表(vbtable)中的位置，共計4項。
 
 
 
@@ -2334,26 +2334,26 @@ using namesapce std;
 template <class T>
 T get(T t, T c)
 {
-	return t;
+    return t;
 }
 
 int main(void)
 {
-	// 正確，顯式指定模版函數的模版類型爲int
-	cout << get<int>(123, 123) << endl;
+    // 正確，顯式指定模版函數的模版類型爲int
+    cout << get<int>(123, 123) << endl;
 
-	// 正確，根據調用函數時傳入的參數推導出模版類型爲int
-	cout << get(123, 123) << endl;
+    // 正確，根據調用函數時傳入的參數推導出模版類型爲int
+    cout << get(123, 123) << endl;
 
-	// 錯誤，沒有顯式指定模版類型時，對於同一個類型傳入模版的參數必須類型完全相同，
-	// 而 get(123, 12.3) 會讓編譯器推導爲 get(int, double)
-	//cout << get(123, 12.3) << endl;
+    // 錯誤，沒有顯式指定模版類型時，對於同一個類型傳入模版的參數必須類型完全相同，
+    // 而 get(123, 12.3) 會讓編譯器推導爲 get(int, double)
+    //cout << get(123, 12.3) << endl;
 
-	// 正確，如果在調用模版函數時顯式指定了模版類型，則對於同一個模版類型可以使用兼容的參數類型(不一定要完全相同)，
-	// 編譯器會自動進行隱式的強制類型轉換
-	cout << get<int>(123, 12.3) << endl;
+    // 正確，如果在調用模版函數時顯式指定了模版類型，則對於同一個模版類型可以使用兼容的參數類型(不一定要完全相同)，
+    // 編譯器會自動進行隱式的強制類型轉換
+    cout << get<int>(123, 12.3) << endl;
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -2386,10 +2386,10 @@ template <class T>
 class Test
 {
 public:
-	T get();
+    T get();
 
-	template <class V>
-	V get(V v);
+    template <class V>
+    V get(V v);
 };
 ```
 
@@ -2406,14 +2406,14 @@ template int Test<int>::get(int num);
 template <class T>
 T Test<T>::get()
 {
-	return 100;
+    return 100;
 }
 
 template <class T>
 template <class S>
 S Test<T>::get(S s)
 {
-	return s;
+    return s;
 }
 ```
 
@@ -2427,12 +2427,12 @@ using namespace std;
 
 int main(void)
 {
-	cout << Test<int>().get() << endl; //正確
-	cout << Test<double>().get() << endl; //編譯報錯，提示 undefined reference to `Test<double>::get()'
-	cout << Test<int>().get(100) << endl; //正確
-	cout << Test<int>().get(100.0) << endl; //編譯報錯，提示 undefined reference to `double Test<int>::get<double>(double)'
-	cout << Test<double>().get(100) << endl; //編譯報錯，提示 undefined reference to `int Test<double>::get<int>(int)'
-	return 0;
+    cout << Test<int>().get() << endl; //正確
+    cout << Test<double>().get() << endl; //編譯報錯，提示 undefined reference to `Test<double>::get()'
+    cout << Test<int>().get(100) << endl; //正確
+    cout << Test<int>().get(100.0) << endl; //編譯報錯，提示 undefined reference to `double Test<int>::get<double>(double)'
+    cout << Test<double>().get(100) << endl; //編譯報錯，提示 undefined reference to `int Test<double>::get<int>(int)'
+    return 0;
 }
 ```
 
@@ -2461,68 +2461,68 @@ C++作爲編譯性語言，模板是在編譯期實現的，屬於編譯時多�
 
 - 類模板與重載
 
-	對於模板類而言，如果一個模板類成員函數(無論是否靜態)在確定了類型之後與原有的成員函數原型發生衝突則在編譯時就會報錯。
-	若模板類成員函數在使用某種類型時**可能**與已有的函數原型發生衝突，但只要沒使用該類型，就能通過編譯。
-	如下代碼所示：
+    對於模板類而言，如果一個模板類成員函數(無論是否靜態)在確定了類型之後與原有的成員函數原型發生衝突則在編譯時就會報錯。
+    若模板類成員函數在使用某種類型時**可能**與已有的函數原型發生衝突，但只要沒使用該類型，就能通過編譯。
+    如下代碼所示：
 
-	文件`test.h`
+    文件`test.h`
 
-	```cpp
-	template <class T>
-	class Test
-	{
-	public:
-		T get(T t1, T t2) { return t1 + t2; }
-		int get(int num1, int num2) { return num1 + num2 + 1; }
-	};
-	```
+    ```cpp
+    template <class T>
+    class Test
+    {
+    public:
+        T get(T t1, T t2) { return t1 + t2; }
+        int get(int num1, int num2) { return num1 + num2 + 1; }
+    };
+    ```
 
-	文件`test.cc`
+    文件`test.cc`
 
-	```cpp
-	#include "test.h"
+    ```cpp
+    #include "test.h"
 
-	int main(void)
-	{
-		Test<int> t; //編譯報錯，提示"error: ‘int Test<T>::get(int, int) [with T = int]’ cannot be overloaded"
-	}
-	```
+    int main(void)
+    {
+        Test<int> t; //編譯報錯，提示"error: ‘int Test<T>::get(int, int) [with T = int]’ cannot be overloaded"
+    }
+    ```
 
-	當`Test`類使用`int`型作爲模板實例化類型時，與原有函數原型發生衝突。
+    當`Test`類使用`int`型作爲模板實例化類型時，與原有函數原型發生衝突。
 
 - 成員函數模板與重載
 
-	對於成員函數模板而言，**允許**成員模板函數與原有的類內成員函數具有**完全相同**的函數原型。
-	調用時，默認優先調用普通成員函數，但可以通過顯式寫明模板參數的形式調用成員模板函數。
-	示例：
+    對於成員函數模板而言，**允許**成員模板函數與原有的類內成員函數具有**完全相同**的函數原型。
+    調用時，默認優先調用普通成員函數，但可以通過顯式寫明模板參數的形式調用成員模板函數。
+    示例：
 
-	文件`test.h`
+    文件`test.h`
 
-	```cpp
-	class Test
-	{
-	public:
-		template <class T>
-		T get(T t1, T t2) { return t1 + t2; }
-		int get(int num1, int num2) { return num1 + num2 + 1; }
-	};
-	```
+    ```cpp
+    class Test
+    {
+    public:
+        template <class T>
+        T get(T t1, T t2) { return t1 + t2; }
+        int get(int num1, int num2) { return num1 + num2 + 1; }
+    };
+    ```
 
-	文件`test.cc`
+    文件`test.cc`
 
-	```cpp
-	#include "test.h"
-	#include <iostream>
+    ```cpp
+    #include "test.h"
+    #include <iostream>
 
-	using namesapce std;
+    using namesapce std;
 
-	int main(void)
-	{
-		Test t; //帶有成員模板函數的類實例化方式與普通類完全相同
-		cout << t.get(100, 100) << endl; //輸出201，默認調用非模板函數
-		cout << t.get<int>(100, 100) << endl; //輸出200，顯式指定模板參數時調用模板函數
-	}
-	```
+    int main(void)
+    {
+        Test t; //帶有成員模板函數的類實例化方式與普通類完全相同
+        cout << t.get(100, 100) << endl; //輸出201，默認調用非模板函數
+        cout << t.get<int>(100, 100) << endl; //輸出200，顯式指定模板參數時調用模板函數
+    }
+    ```
 
 ## 模版特化
 C++支持`模版特化`，即對於特定的模版參數類型可以指定其實現。
@@ -2532,7 +2532,7 @@ C++支持`模版特化`，即對於特定的模版參數類型可以指定其實
 template <class T, class S>
 class Template
 {
-	/* code */
+    /* code */
 };
 ```
 
@@ -2542,7 +2542,7 @@ class Template
 template <>
 class Template<int, int>
 {
-	/* code */
+    /* code */
 };
 ```
 
@@ -2552,7 +2552,7 @@ class Template<int, int>
 template <class T>
 class Template<T, int>
 {
-	/* code */
+    /* code */
 };
 ```
 
@@ -2565,7 +2565,7 @@ class Template<T, int>
 template <class T, class S>
 T func(T t, S s)
 {
-	/* code */
+    /* code */
 }
 ```
 
@@ -2575,7 +2575,7 @@ T func(T t, S s)
 template <>
 int func<int, int>(int t, int s)
 {
-	/* code */
+    /* code */
 }
 ```
 
@@ -2585,7 +2585,7 @@ int func<int, int>(int t, int s)
 template <>
 int func(int t, int s)
 {
-	/* code */
+    /* code */
 }
 ```
 
@@ -2595,7 +2595,7 @@ int func(int t, int s)
 template <class T>
 T func<T, int>(T t, int s) //error
 {
-	/* code */
+    /* code */
 }
 ```
 
@@ -2612,25 +2612,25 @@ C++中，模版函數與模版類皆可正常進行遞歸展開，模版遞歸�
 template <int num>
 int fibonacci()
 {
-	return fibonacci<num - 1>() + fibonacci<num - 2>();
+    return fibonacci<num - 1>() + fibonacci<num - 2>();
 }
 
 template <>
 int fibonacci<0>()
 {
-	return 0;
+    return 0;
 }
 
 template <>
 int fibonacci<1>()
 {
-	return 1;
+    return 1;
 }
 
 int main(void)
 {
-	std::cout << fibonacci<10>() << std::endl;
-	return 0;
+    std::cout << fibonacci<10>() << std::endl;
+    return 0;
 }
 ```
 
@@ -2645,9 +2645,9 @@ template <int num>
 class Fibonacci
 {
 public:
-	// 利用靜態變量保存計算結果，靜態變量值在編譯時計算完成
-	// 也可以使用"const static"變量，初始化代碼可以直接寫在類的內部
-	static int value;
+    // 利用靜態變量保存計算結果，靜態變量值在編譯時計算完成
+    // 也可以使用"const static"變量，初始化代碼可以直接寫在類的內部
+    static int value;
 };
 
 template <int num>
@@ -2657,7 +2657,7 @@ template <>
 class Fibonacci<0>
 {
 public:
-	static int value;
+    static int value;
 };
 int Fibonacci<0>::value = 0;
 
@@ -2665,16 +2665,16 @@ template <>
 class Fibonacci<1>
 {
 public:
-	static int value;
+    static int value;
 };
 int Fibonacci<1>::value = 1;
 
 int main(void)
 {
-	// 使用g++能正常輸出結果：55，但clang++並沒有在編譯時確定靜態變量的值，輸出結果：0
-	// 靜態成員變量value的值在編譯時已經確定，不在運行時計算，更高效
-	std::cout << Fibonacci<10>::value << std::endl;
-	return 0;
+    // 使用g++能正常輸出結果：55，但clang++並沒有在編譯時確定靜態變量的值，輸出結果：0
+    // 靜態成員變量value的值在編譯時已經確定，不在運行時計算，更高效
+    std::cout << Fibonacci<10>::value << std::endl;
+    return 0;
 }
 ```
 
@@ -2695,22 +2695,22 @@ using namespace std;
 template <class T>
 T sum(const T& t)
 {
-	return t;
+    return t;
 }
 
 template <class T, class... Args>
 T sum(const T& t, const Args&... args)
 {
-	return sum(args...) + t;
+    return sum(args...) + t;
 }
 
 int main(void)
 {
-	cout << sum(100) << endl;
-	cout << sum(100, 200) << endl;
-	cout << sum(100, 200, 300) << endl;
-	cout << sum(100, 200, 300, 400) << endl;
-	return 0;
+    cout << sum(100) << endl;
+    cout << sum(100, 200) << endl;
+    cout << sum(100, 200, 300) << endl;
+    cout << sum(100, 200, 300, 400) << endl;
+    return 0;
 }
 ```
 
@@ -2730,7 +2730,7 @@ C++11之後，可以禁止接受某種類型做爲模板參數，使用`delete`�
 template <class T>
 T test(T&& t)
 {
-	return t;
+    return t;
 }
 
 template <>
@@ -2786,45 +2786,45 @@ printf("%d\n", G(s)); //報錯 error: ‘_Generic’ selector of type ‘float�
 
 struct T
 {
-	int data;
+    int data;
 };
 
 _Bool max_int(const int num_1, const int num_2)
 {
-	printf("call max_int\n");
-	return num_1 > num_2;
+    printf("call max_int\n");
+    return num_1 > num_2;
 }
 
 _Bool max_double(const double num_1, const double num_2)
 {
-	printf("call max_double\n");
-	return num_1 > num_2;
+    printf("call max_double\n");
+    return num_1 > num_2;
 }
 
 _Bool max_T(const struct T t_1, const struct T t_2)
 {
-	printf("call max_T\n");
-	return t_1.data > t_2.data;
+    printf("call max_T\n");
+    return t_1.data > t_2.data;
 }
 
 // 若x大於y，返回1，否則返回0
 #define MAX(x, y) \
-	_Generic(x, int: max_int, double: max_double, struct T: max_T)(x, y)
+    _Generic(x, int: max_int, double: max_double, struct T: max_T)(x, y)
 
 int main(int argc, char** argv)
 {
-	// MAX宏根據不同的具體參數類型選擇不同的實現
-	if (MAX(200, 100))
-		printf("True\n");
+    // MAX宏根據不同的具體參數類型選擇不同的實現
+    if (MAX(200, 100))
+        printf("True\n");
 
-	if (MAX(200.0, 100.0))
-		printf("True\n");
+    if (MAX(200.0, 100.0))
+        printf("True\n");
 
-	// 傳統的宏能夠實現基礎類型的比較，但對於自定義結構類型無能爲力
-	if (MAX((struct T){ 200 }, (struct T){ 100 }))
-		printf("True\n");
+    // 傳統的宏能夠實現基礎類型的比較，但對於自定義結構類型無能爲力
+    if (MAX((struct T){ 200 }, (struct T){ 100 }))
+        printf("True\n");
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -2870,42 +2870,42 @@ C++11中同樣引入了**靜態斷言**關鍵字`static_assert`，用法與C11�
 
 - 使用靜態斷言實現範型約束
 
-	**靜態斷言**搭配標準庫中的模版類`std::is_base_of<Base, Der>`，
-	能夠實現類似`Java`、`C#`等高級語言中的範型約束效果。
-	示例：
+    **靜態斷言**搭配標準庫中的模版類`std::is_base_of<Base, Der>`，
+    能夠實現類似`Java`、`C#`等高級語言中的範型約束效果。
+    示例：
 
-	```cpp
-	#include <iostream>
+    ```cpp
+    #include <iostream>
 
-	using namespace std;
+    using namespace std;
 
-	class Base { };
+    class Base { };
 
-	class Der : public Base { };
+    class Der : public Base { };
 
-	class Private : Base { };
+    class Private : Base { };
 
-	class Other { };
+    class Other { };
 
-	int main(void)
-	{
-		// Right
-		static_assert(is_base_of<Base, Der>::value, "Need class Base.");
+    int main(void)
+    {
+        // Right
+        static_assert(is_base_of<Base, Der>::value, "Need class Base.");
 
-		// Right
-		static_assert(is_base_of<Base, Private>::value, "Need class Base.");
+        // Right
+        static_assert(is_base_of<Base, Private>::value, "Need class Base.");
 
-		// error: static_assert failed "Need class Base."
-		static_assert(is_base_of<Base, Other>::value, "Need class Base.");
+        // error: static_assert failed "Need class Base."
+        static_assert(is_base_of<Base, Other>::value, "Need class Base.");
 
-		return 0;
-	}
-	```
+        return 0;
+    }
+    ```
 
-	通過靜態成員`std::is_base_of<Base, Der>::value`來判定作爲參數的兩個類是否存在繼承關係。
-	類`Base`與`Der`存在繼承關係，因而編譯通過，但類`Other`與`Base`不存在繼承關係，因而編譯報錯。
+    通過靜態成員`std::is_base_of<Base, Der>::value`來判定作爲參數的兩個類是否存在繼承關係。
+    類`Base`與`Der`存在繼承關係，因而編譯通過，但類`Other`與`Base`不存在繼承關係，因而編譯報錯。
 
-	需要注意的是，**私有繼承**雖然不支持轉型操作，但繼承關係依然存在，能夠通過繼承關係檢測。
+    需要注意的是，**私有繼承**雖然不支持轉型操作，但繼承關係依然存在，能夠通過繼承關係檢測。
 
 
 
@@ -2964,11 +2964,11 @@ using namespace std;
 
 int main(void)
 {
-	function<void()> func;
-	cout << (func ? "true" : "false") << endl; //輸出"false"
-	func = [] {};
-	cout << (func ? "true" : "false") << endl; //輸出"true"
-	return 0;
+    function<void()> func;
+    cout << (func ? "true" : "false") << endl; //輸出"false"
+    func = [] {};
+    cout << (func ? "true" : "false") << endl; //輸出"true"
+    return 0;
 }
 ```
 
@@ -2997,18 +2997,18 @@ using namespace std;
 
 int main(void)
 {
-	int a = 1;
-	int b = 2;
-	function<int(int, int)> test = // 可以直接使用auto類型推斷
-			[=, &a](int x, int y) { return a = x + y + b; };
-	test(1, 1);
-	cout << a << endl;
+    int a = 1;
+    int b = 2;
+    function<int(int, int)> test = // 可以直接使用auto類型推斷
+            [=, &a](int x, int y) { return a = x + y + b; };
+    test(1, 1);
+    cout << a << endl;
 
-	// 未捕獲變量的Lambda可以轉化爲函數指針
-	int (*get_num)(int) = [](int num) { return num; };
-	cout << "Run lambda function point:" << get_num(100) << endl;
+    // 未捕獲變量的Lambda可以轉化爲函數指針
+    int (*get_num)(int) = [](int num) { return num; };
+    cout << "Run lambda function point:" << get_num(100) << endl;
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -3038,27 +3038,27 @@ using namespace std;
 
 int main(void)
 {
-	// 模版Lambda表達式
-	auto lambda1 = [](auto num) { return num; };
-	cout << "Use int as args: " << lambda1(100) << endl;
-	cout << "Use string as args: " << lambda1("string") << endl;
+    // 模版Lambda表達式
+    auto lambda1 = [](auto num) { return num; };
+    cout << "Use int as args: " << lambda1(100) << endl;
+    cout << "Use string as args: " << lambda1("string") << endl;
 
-	// Lambda表達式支持表達式捕獲
-	int a = 100, b = 200, c = 300;
+    // Lambda表達式支持表達式捕獲
+    int a = 100, b = 200, c = 300;
 
-	// 以捕獲值的方式捕獲變量a，並用a的值加上50並命名爲num1，然後將b的引用命名爲num2
-	auto lambda2 = [=, num1 = a + 50, &num2 = b]() { num2 = num1 + c; };
-	lambda2();
-	cout << "After run lambda2, the value b is: " << b << endl;
+    // 以捕獲值的方式捕獲變量a，並用a的值加上50並命名爲num1，然後將b的引用命名爲num2
+    auto lambda2 = [=, num1 = a + 50, &num2 = b]() { num2 = num1 + c; };
+    lambda2();
+    cout << "After run lambda2, the value b is: " << b << endl;
 
-	// 捕獲變量名稱可以與原始變量相同(局部變量掩蓋原則)
-	// 捕獲表達式中可以使用C++11中引入的統一初始化語法
-	// lambda2與lambda3等價
-	auto lambda3 = [=, a{ a + 50 }, &b = b] { b = a + c; };
-	lambda3();
-	cout << "After run lambda3, the value b is: " << b << endl;
+    // 捕獲變量名稱可以與原始變量相同(局部變量掩蓋原則)
+    // 捕獲表達式中可以使用C++11中引入的統一初始化語法
+    // lambda2與lambda3等價
+    auto lambda3 = [=, a{ a + 50 }, &b = b] { b = a + c; };
+    lambda3();
+    cout << "After run lambda3, the value b is: " << b << endl;
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -3143,29 +3143,29 @@ vector(input_iterator start, input_iterator end); //使用某個已存在的vect
 
 - *vector* 容器特點
 
-	`vector`容器是數組式的容器類型。
-	`vector`容器中存儲的數據元素被放在一塊連續的內存中。
-	`vector`容器支持**隨機存取**，可以通過數組式的下標(即`[]`操作符)進行元素訪問、修改。
+    `vector`容器是數組式的容器類型。
+    `vector`容器中存儲的數據元素被放在一塊連續的內存中。
+    `vector`容器支持**隨機存取**，可以通過數組式的下標(即`[]`操作符)進行元素訪問、修改。
 
-	`vector`容器雖支持`insert()`等函數來進行插入操作，
-	但由於內部採用線性結構，因而`insert()`函數在頭部或是中間插入元素時需要進行大量複製操作，
-	插入效率很低，在執行頭部、中部刪除元素操作時也同樣效率低。
+    `vector`容器雖支持`insert()`等函數來進行插入操作，
+    但由於內部採用線性結構，因而`insert()`函數在頭部或是中間插入元素時需要進行大量複製操作，
+    插入效率很低，在執行頭部、中部刪除元素操作時也同樣效率低。
 
 - *list* 容器特點
 
-	`list`容器採用**雙向鏈表**實現。
-	`list`容器存儲的元素所處的內存空間不連續。
-	由於鏈表的特性，元素之間是通過指針相連的，因而`list`容器在任意位置插入和刪除元素時效率都很高。
+    `list`容器採用**雙向鏈表**實現。
+    `list`容器存儲的元素所處的內存空間不連續。
+    由於鏈表的特性，元素之間是通過指針相連的，因而`list`容器在任意位置插入和刪除元素時效率都很高。
 
-	`list`容器**不支持**隨機存取，不可使用`[]`操作符訪問元素，同時相比`vector`容器消耗的內存更多。
-	`list`容器有着一些`vector`沒有的方法，比如`pop_front()`、`push_front(const T &x)`、`remove(const T &value)`等。
-	使用`remove()`方法可以移除容器中所有值爲`value`的元素。
+    `list`容器**不支持**隨機存取，不可使用`[]`操作符訪問元素，同時相比`vector`容器消耗的內存更多。
+    `list`容器有着一些`vector`沒有的方法，比如`pop_front()`、`push_front(const T &x)`、`remove(const T &value)`等。
+    使用`remove()`方法可以移除容器中所有值爲`value`的元素。
 
 - *deque* 容器特點
 
-	`deque`容器爲**雙向隊列**。
-	`deque`兼顧了`list`和`vector`的優點，能夠方便地增加、刪除元素，也能夠使用`[]`操作符隨機存取元素。
-	`deque`的缺點是需要消耗較高的內存。
+    `deque`容器爲**雙向隊列**。
+    `deque`兼顧了`list`和`vector`的優點，能夠方便地增加、刪除元素，也能夠使用`[]`操作符隨機存取元素。
+    `deque`的缺點是需要消耗較高的內存。
 
 ## 關聯式容器
 關聯式容器通過鍵值`key`來存取元素，元素次序與插入順序**無關**。
@@ -3178,24 +3178,24 @@ vector(input_iterator start, input_iterator end); //使用某個已存在的vect
 
 - *set*、*multiset* 容器特點
 
-	`set/multiset`容器保存鍵值，對應數學概念中的`集合`。
-	`set/multiset`的實現採用的平衡二叉搜索樹，插入、查詢、刪除等操作時間複雜度均爲`O(lgN)`。
-	`set`不允許重複值，但`multiset`允許重複值。
+    `set/multiset`容器保存鍵值，對應數學概念中的`集合`。
+    `set/multiset`的實現採用的平衡二叉搜索樹，插入、查詢、刪除等操作時間複雜度均爲`O(lgN)`。
+    `set`不允許重複值，但`multiset`允許重複值。
 
 - *map*、*multimap* 容器特點
 
-	`map/multimap`容器同時保存鍵值和實際值，每一個元素都是一個`pair<key, value>`類型。
-	`map`容器不允許相同鍵值`key`的元素，但`multimap`允許。
-	`map`容器可以使用數組下標形式(`[]`操作符)來獲取指定鍵值的元素中的實際值。
-	`multimap`由於鍵值可以重複，一個鍵值可以對應多個實際值，因而不能採用下標的形式獲取實際值。
+    `map/multimap`容器同時保存鍵值和實際值，每一個元素都是一個`pair<key, value>`類型。
+    `map`容器不允許相同鍵值`key`的元素，但`multimap`允許。
+    `map`容器可以使用數組下標形式(`[]`操作符)來獲取指定鍵值的元素中的實際值。
+    `multimap`由於鍵值可以重複，一個鍵值可以對應多個實際值，因而不能採用下標的形式獲取實際值。
 
-	`pair`類型中有兩個成員，`first`和`second`，分別保存鍵值和實際數據。
-	通過訪問`first`和`second`兩個成員可以獲取鍵值和實際數據。
-	使用`find()`函數可以查找某個鍵值，返回一個迭代器，通過遍歷該迭代器可以獲取某個鍵值的所有對應值。
+    `pair`類型中有兩個成員，`first`和`second`，分別保存鍵值和實際數據。
+    通過訪問`first`和`second`兩個成員可以獲取鍵值和實際數據。
+    使用`find()`函數可以查找某個鍵值，返回一個迭代器，通過遍歷該迭代器可以獲取某個鍵值的所有對應值。
 
-	可以通過`lower_bound()`、`upper_bound()`等函數獲取迭代器，用於遍歷元素。
-	與`STL`的迭代器相同，`lower_bound()`返回指向參數鍵值的第一個元素位置的迭代器，
-	而`upper_bound()`返回指向參數鍵值最後一個元素的下一個元素位置的迭代器。
+    可以通過`lower_bound()`、`upper_bound()`等函數獲取迭代器，用於遍歷元素。
+    與`STL`的迭代器相同，`lower_bound()`返回指向參數鍵值的第一個元素位置的迭代器，
+    而`upper_bound()`返回指向參數鍵值最後一個元素的下一個元素位置的迭代器。
 
 `map`使用注意事項：
 
@@ -3249,30 +3249,30 @@ ptr0 == nullptr ? true : false; // false
 
 - `std::auto_ptr`(已過時)
 
-	一塊動態內存只能綁定一個`auto_ptr`，若將一個綁定了動態內存的`auto_ptr`複製給另一個`auto_ptr`則動態內存的所有權會被轉移到新的`auto_ptr`上，
-	舊的`auto_ptr`不再指向原先的動態內存。
+    一塊動態內存只能綁定一個`auto_ptr`，若將一個綁定了動態內存的`auto_ptr`複製給另一個`auto_ptr`則動態內存的所有權會被轉移到新的`auto_ptr`上，
+    舊的`auto_ptr`不再指向原先的動態內存。
 
 - `std::unique_ptr`
 
-	來自於`boost::scoped_ptr`，類似於`auto_ptr`，但`unique_ptr`的限制更多，
-	一塊動態內存只能綁定一個`unique_ptr`，同時`unique_ptr`不能進行復制。
+    來自於`boost::scoped_ptr`，類似於`auto_ptr`，但`unique_ptr`的限制更多，
+    一塊動態內存只能綁定一個`unique_ptr`，同時`unique_ptr`不能進行復制。
 
 - `std::shared_ptr`
 
-	來自於`boost::shared_ptr`，基於**引用計數**的共享智能指針。
-	一塊動態內存可以被多個`shared_ptr`綁定。
-	每增加一個智能指針的綁定，則引用計數加1，當引用計數爲0時釋放指向的動態內存。
-	`shared_ptr`的內存管理完全交由編譯器完成，不能手動釋放`shared_ptr`管理的動態內存(沒有`release()`成員函數)。
+    來自於`boost::shared_ptr`，基於**引用計數**的共享智能指針。
+    一塊動態內存可以被多個`shared_ptr`綁定。
+    每增加一個智能指針的綁定，則引用計數加1，當引用計數爲0時釋放指向的動態內存。
+    `shared_ptr`的內存管理完全交由編譯器完成，不能手動釋放`shared_ptr`管理的動態內存(沒有`release()`成員函數)。
 
-	`shared_ptr`使用`make_shared<T>(args)`函數進行構造。
-	使用`reset()`成員函數會將當前智能指針管理的動態內存引用計數減1，如果引用計數爲0則釋放動態內存。
-	`shared_ptr`的`reset()`成員函數可以帶有參數，參數可以是`new`構造函數或是對象指針，
-	作用是將原先的託管對象引用計數減1然後管理新的對象(新對象引用計數加1)。
+    `shared_ptr`使用`make_shared<T>(args)`函數進行構造。
+    使用`reset()`成員函數會將當前智能指針管理的動態內存引用計數減1，如果引用計數爲0則釋放動態內存。
+    `shared_ptr`的`reset()`成員函數可以帶有參數，參數可以是`new`構造函數或是對象指針，
+    作用是將原先的託管對象引用計數減1然後管理新的對象(新對象引用計數加1)。
 
 - `std::weak_ptr`
 
-	來自於`boost::weak_ptr`，爲了解決`shared_ptr`中的**循環引用**問題而引入的**弱引用**智能指針。
-	`weak_ptr`不能單獨綁定一塊動態內存(即不能新建動態內存初始化`weak_ptr`)，而是由`shared_ptr`轉化而來。
+    來自於`boost::weak_ptr`，爲了解決`shared_ptr`中的**循環引用**問題而引入的**弱引用**智能指針。
+    `weak_ptr`不能單獨綁定一塊動態內存(即不能新建動態內存初始化`weak_ptr`)，而是由`shared_ptr`轉化而來。
 
 `shared_ptr/weak_ptr`使用：
 
@@ -3307,18 +3307,18 @@ using namespace std;
 
 void init(shared_ptr<int> temp) //如果需要函數改變傳入的未初始化的智能指針，正確的方法是傳入引用或是傳入智能指針的地址(指針)
 {
-	shared_ptr<int> num(new int);
-	*num = 100;
-	temp = num;
+    shared_ptr<int> num(new int);
+    *num = 100;
+    temp = num;
 }
 
 int main(void)
 {
-	shared_ptr<int> temp;
-	init(temp);
-	cout << *temp << endl; //錯誤，運行init()函數之後，外部的智能指針temp實際上並未發生變化，依然處於未初始化狀態，試圖訪問其內容會報錯
-	system("pause");
-	return 0;
+    shared_ptr<int> temp;
+    init(temp);
+    cout << *temp << endl; //錯誤，運行init()函數之後，外部的智能指針temp實際上並未發生變化，依然處於未初始化狀態，試圖訪問其內容會報錯
+    system("pause");
+    return 0;
 }
 ```
 
@@ -3365,47 +3365,47 @@ using namespace std;
 
 int get0(int a)
 {
-	return a;
+    return a;
 }
 
 class A
 {
 public:
-	A(int num) : num(num) {};
-	int get(int, int);
-	int num;
+    A(int num) : num(num) {};
+    int get(int, int);
+    int num;
 };
 
 int A::get(int a, int b)
 {
-	return num = a;
+    return num = a;
 }
 
 int main(void)
 {
-	A a1(888);
-	A* a2 = new A(888);
-	shared_ptr<A> a3 = make_shared<A>(888);
+    A a1(888);
+    A* a2 = new A(888);
+    shared_ptr<A> a3 = make_shared<A>(888);
 
-	function<int()> p0 = bind(get0, 100);
-	function<int(int)> p1 = bind(A::get, a1, 1, placeholders::_1);
-	function<int(int)> p2 = bind(A::get, a2, 2, placeholders::_1);
-	auto p3 = bind(A::get, a3, 3, placeholders::_1);
-	auto p4 = bind(A::get, ref(a1), 1, placeholders::_1);
+    function<int()> p0 = bind(get0, 100);
+    function<int(int)> p1 = bind(A::get, a1, 1, placeholders::_1);
+    function<int(int)> p2 = bind(A::get, a2, 2, placeholders::_1);
+    auto p3 = bind(A::get, a3, 3, placeholders::_1);
+    auto p4 = bind(A::get, ref(a1), 1, placeholders::_1);
 
-	cout << p0() << endl;
-	cout << p1(0) << " p1()調用後num的值：";
-	cout << a1.num << endl;
-	cout << p2(0) << " p2()調用後num的值：";
-	cout << a2->num << endl;
-	cout << p3(0) << " p3()調用後num的值：";
-	cout << a3->num << endl;
-	cout << p4(0) << " p4()調用後num的值：";
-	cout << a1.num << endl;
+    cout << p0() << endl;
+    cout << p1(0) << " p1()調用後num的值：";
+    cout << a1.num << endl;
+    cout << p2(0) << " p2()調用後num的值：";
+    cout << a2->num << endl;
+    cout << p3(0) << " p3()調用後num的值：";
+    cout << a3->num << endl;
+    cout << p4(0) << " p4()調用後num的值：";
+    cout << a1.num << endl;
 
-	delete a2;
+    delete a2;
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -3445,24 +3445,24 @@ connection connect(const group_type& group, const slot_type& slot, connect_posit
 
 - 連接槽函數時改變簽名
 
-	被連接的槽函數必須要符合信號定義時的模板參數中的函數原型，必須函數原型參數個數完全相同且類型兼容(由於綁定槽函數時是傳遞槽函數的地址，
-	因此函數默認參數被忽略，因而參數個數必須完全相同)。
-	若需要綁定的函數參數表與信號定義的參數表數目不同，可以採用`std::bind()`生成具有新參數表的函數進行連接。
+    被連接的槽函數必須要符合信號定義時的模板參數中的函數原型，必須函數原型參數個數完全相同且類型兼容(由於綁定槽函數時是傳遞槽函數的地址，
+    因此函數默認參數被忽略，因而參數個數必須完全相同)。
+    若需要綁定的函數參數表與信號定義的參數表數目不同，可以採用`std::bind()`生成具有新參數表的函數進行連接。
 
-	若需要連接的槽函數爲一個類的非靜態成員函數，則也需要通過`std::bind()`將非靜態成員函數綁定一個類實例之後再進行連接，
-	否則會連接失敗(沒有實例無法訪問非靜態成員函數)。
+    若需要連接的槽函數爲一個類的非靜態成員函數，則也需要通過`std::bind()`將非靜態成員函數綁定一個類實例之後再進行連接，
+    否則會連接失敗(沒有實例無法訪問非靜態成員函數)。
 
-	若被連接的槽函數有多個重載，則需要進行強制類型轉換來轉換爲無歧義函數指針才能進行連接。
+    若被連接的槽函數有多個重載，則需要進行強制類型轉換來轉換爲無歧義函數指針才能進行連接。
 
 - `connect()`組別
 
-	使用`connect()`函數的第二個重載進行槽函數連接時，可以在第一個參數的位置設置槽函數的組別，
-	組別可以是一個整型數值(可以爲負數)，不同組別之間的槽函數按照組號由小到大的順序執行。
+    使用`connect()`函數的第二個重載進行槽函數連接時，可以在第一個參數的位置設置槽函數的組別，
+    組別可以是一個整型數值(可以爲負數)，不同組別之間的槽函數按照組號由小到大的順序執行。
 
 - `connect()`優先級
 
-	`connect()`成員函數的最後一個參數用於設定槽函數的組內優先級，默認情況下取值爲`boost::signals2::at_back`，
-	多個槽函數連接時返回值爲最後一個連接的槽函數的返回值，需要優先執行的槽函數可以設定爲`boost::signals2::at_front`。
+    `connect()`成員函數的最後一個參數用於設定槽函數的組內優先級，默認情況下取值爲`boost::signals2::at_back`，
+    多個槽函數連接時返回值爲最後一個連接的槽函數的返回值，需要優先執行的槽函數可以設定爲`boost::signals2::at_front`。
 
 ## 取消連接
 取消連接使用`disconnect()`成員函數，該函數有兩個重載，定義如下：
@@ -3500,53 +3500,53 @@ using namespace std;
 class A
 {
 public:
-	boost::signals2::signal<int(int)> sig;
+    boost::signals2::signal<int(int)> sig;
 };
 
 class B
 {
 public:
-	int slot1(int, char);
-	int slot1(int, int, int);
-	int slot2(double, int);
+    int slot1(int, char);
+    int slot1(int, int, int);
+    int slot2(double, int);
 };
 
 int B::slot1(int, char)
 {
-	cout << "This is slot1(int, char)." << endl;
-	return 100;
+    cout << "This is slot1(int, char)." << endl;
+    return 100;
 }
 
 int B::slot1(int, int, int)
 {
-	cout << "This is slot1(int, int, int)." << endl;
-	return 200;
+    cout << "This is slot1(int, int, int)." << endl;
+    return 200;
 }
 
 int B::slot2(double, int)
 {
-	cout << "This is slot2." << endl;
-	return 300;
+    cout << "This is slot2." << endl;
+    return 300;
 }
 
 int main(void)
 {
-	A a;
-	B b;
+    A a;
+    B b;
 
-	a.sig.connect(1, boost::bind(&B::slot1, b, _1, 'a'));
-	boost::signals2::connection link =
-		a.sig.connect(1, boost::bind(&B::slot1, b, _1, 1, 2),
-		boost::signals2::at_front);
-	a.sig.connect(2, boost::bind(&B::slot2, b, 1.0, _1));
+    a.sig.connect(1, boost::bind(&B::slot1, b, _1, 'a'));
+    boost::signals2::connection link =
+        a.sig.connect(1, boost::bind(&B::slot1, b, _1, 1, 2),
+        boost::signals2::at_front);
+    a.sig.connect(2, boost::bind(&B::slot2, b, 1.0, _1));
 
-	cout << *a.sig(0) << endl;
-	cout << "\nDisconnect slot1(int, int, int)." << endl;
+    cout << *a.sig(0) << endl;
+    cout << "\nDisconnect slot1(int, int, int)." << endl;
 
-	link.disconnect(); //取消槽函數slot1(int, int, int)的連接
+    link.disconnect(); //取消槽函數slot1(int, int, int)的連接
 
-	cout << a.sig(1).value() << endl; //調用value()成員函數獲取合併器返回值
-	return 0;
+    cout << a.sig(1).value() << endl; //調用value()成員函數獲取合併器返回值
+    return 0;
 }
 ```
 
@@ -3607,84 +3607,84 @@ struct duration;
 
 - 類型`std::radio`
 
-	`std::ratio`類型用於描述換算比，基本定義如下：
+    `std::ratio`類型用於描述換算比，基本定義如下：
 
-	```cpp
-	template<intmax_t _Num, intmax_t _Den = 1>
-	struct ratio
-	{
-		...
-	};
-	```
+    ```cpp
+    template<intmax_t _Num, intmax_t _Den = 1>
+    struct ratio
+    {
+        ...
+    };
+    ```
 
-	模板參數均爲數值，`_Num`爲分子，`_Den`爲分母。
-	`std::ratio<1, 1>`表示`1/1`即`1`，`std::ratio<200, -1>`表示`200/-1`即`-200`。
+    模板參數均爲數值，`_Num`爲分子，`_Den`爲分母。
+    `std::ratio<1, 1>`表示`1/1`即`1`，`std::ratio<200, -1>`表示`200/-1`即`-200`。
 
 - 時間單位
 
-	標準庫時間以秒爲換算基礎(即將**秒**定義爲`std::radio<1, 1>`)，定義了其它標準時間單位：
+    標準庫時間以秒爲換算基礎(即將**秒**定義爲`std::radio<1, 1>`)，定義了其它標準時間單位：
 
-	```cpp
-	/// nanoseconds
-	typedef duration<int64_t, nano> nanoseconds;
-	/// microseconds
-	typedef duration<int64_t, micro> microseconds;
-	/// milliseconds
-	typedef duration<int64_t, milli> milliseconds;
-	/// seconds
-	typedef duration<int64_t> seconds;
-	/// minutes
-	typedef duration<int64_t, ratio<60>> minutes;
-	/// hours
-	typedef duration<int64_t, ratio<3600>> hours;
-	```
+    ```cpp
+    /// nanoseconds
+    typedef duration<int64_t, nano> nanoseconds;
+    /// microseconds
+    typedef duration<int64_t, micro> microseconds;
+    /// milliseconds
+    typedef duration<int64_t, milli> milliseconds;
+    /// seconds
+    typedef duration<int64_t> seconds;
+    /// minutes
+    typedef duration<int64_t, ratio<60>> minutes;
+    /// hours
+    typedef duration<int64_t, ratio<3600>> hours;
+    ```
 
-	其中，`nano`、`micro`、`milli`的定義在`radio`頭文件中：
+    其中，`nano`、`micro`、`milli`的定義在`radio`頭文件中：
 
-	```cpp
-	typedef ratio<1, 1000000000> nano;
-	typedef ratio<1, 1000000> micro;
-	typedef ratio<1, 1000> milli;
-	```
+    ```cpp
+    typedef ratio<1, 1000000000> nano;
+    typedef ratio<1, 1000000> micro;
+    typedef ratio<1, 1000> milli;
+    ```
 
 - 時間轉換
 
-	不同的時間單位之間相互轉換使用`std::chrono::duration_cast()`函數，該函數定義如下：
+    不同的時間單位之間相互轉換使用`std::chrono::duration_cast()`函數，該函數定義如下：
 
-	```cpp
-	/// duration_cast
-	template<typename _ToDur, typename _Rep, typename _Period>
-	constexpr typename enable_if<__is_duration<_ToDur>::value, _ToDur>::type
-	duration_cast(const duration<_Rep, _Period>& __d)
-	{
-		...
-	}
-	```
+    ```cpp
+    /// duration_cast
+    template<typename _ToDur, typename _Rep, typename _Period>
+    constexpr typename enable_if<__is_duration<_ToDur>::value, _ToDur>::type
+    duration_cast(const duration<_Rep, _Period>& __d)
+    {
+        ...
+    }
+    ```
 
-	模板參數`_ToDur`表示需要轉換成的目標時間單位，`_Rep`、`_Period`用於表示被轉換時間的單位。
-	簡單的用法示例：
+    模板參數`_ToDur`表示需要轉換成的目標時間單位，`_Rep`、`_Period`用於表示被轉換時間的單位。
+    簡單的用法示例：
 
-	```cpp
-	#include <iostream>
-	#include <chrono>
+    ```cpp
+    #include <iostream>
+    #include <chrono>
 
-	int main(void)
-	{
-		std::chrono::hours hour(1); //一個小時的時間間隔
-		std::chrono::minutes mintue = std::chrono::duration_cast<std::chrono::minutes>(hour); //轉換爲分鐘
-		std::cout << "Hour: " << hour.count() << std::endl;
-		std::cout << "Mintue: " << mintue.count() << std::endl;
+    int main(void)
+    {
+        std::chrono::hours hour(1); //一個小時的時間間隔
+        std::chrono::minutes mintue = std::chrono::duration_cast<std::chrono::minutes>(hour); //轉換爲分鐘
+        std::cout << "Hour: " << hour.count() << std::endl;
+        std::cout << "Mintue: " << mintue.count() << std::endl;
 
-		return 0;
-	}
-	```
+        return 0;
+    }
+    ```
 
-	輸出結果：(GCC 6.2.1 && ArchLinux x64)
+    輸出結果：(GCC 6.2.1 && ArchLinux x64)
 
-	```
-	Hour: 1
-	Mintue: 60
-	```
+    ```
+    Hour: 1
+    Mintue: 60
+    ```
 
 ## std::time_point
 `std::chrono::time_point`表示某一個時間點，基本定義如下：
@@ -3693,7 +3693,7 @@ struct duration;
 template<typename _Clock, typename _Dur>
 struct time_point
 {
-	...
+    ...
 };
 ```
 
@@ -3725,33 +3725,33 @@ using namespace std;
 
 int main(void)
 {
-	// 獲取當前系統時間
-	chrono::time_point<chrono::system_clock, chrono::nanoseconds> now = chrono::system_clock::now();
+    // 獲取當前系統時間
+    chrono::time_point<chrono::system_clock, chrono::nanoseconds> now = chrono::system_clock::now();
 
-	// 轉換爲POSIX標準單位
-	time_t time_now = chrono::system_clock::to_time_t(now);
+    // 轉換爲POSIX標準單位
+    time_t time_now = chrono::system_clock::to_time_t(now);
 
-	// 輸出時間內容
-	tm* st_tm = localtime(&time_now);
-	cout << "Year: " << st_tm->tm_year << endl;
-	cout << "Month: " << st_tm->tm_mon << endl;
-	cout << "Hour: " << st_tm->tm_hour << endl;
-	cout << "Minute: " << st_tm->tm_min << endl;
+    // 輸出時間內容
+    tm* st_tm = localtime(&time_now);
+    cout << "Year: " << st_tm->tm_year << endl;
+    cout << "Month: " << st_tm->tm_mon << endl;
+    cout << "Hour: " << st_tm->tm_hour << endl;
+    cout << "Minute: " << st_tm->tm_min << endl;
 
-	// 以標準格式打印當前時間
-	cout << "\nAsctime: " << std::ctime(&time_now) << endl;
+    // 以標準格式打印當前時間
+    cout << "\nAsctime: " << std::ctime(&time_now) << endl;
 
-	// 當前時間添加一小時時間間隔
-	chrono::time_point<chrono::system_clock, chrono::nanoseconds> now_after_hour = now + chrono::hours(1);
-	time_t time_after_hour = chrono::system_clock::to_time_t(now_after_hour);
+    // 當前時間添加一小時時間間隔
+    chrono::time_point<chrono::system_clock, chrono::nanoseconds> now_after_hour = now + chrono::hours(1);
+    time_t time_after_hour = chrono::system_clock::to_time_t(now_after_hour);
 
-	// 輸出添加間隔後的時間
-	cout << "After one hour: " << ctime(&time_after_hour) << endl;
+    // 輸出添加間隔後的時間
+    cout << "After one hour: " << ctime(&time_after_hour) << endl;
 
-	// 反向計算間隔，並以分鐘爲單位輸出
-	cout << "Minutes: " << chrono::duration_cast<chrono::minutes>(now_after_hour - now).count() << endl;
+    // 反向計算間隔，並以分鐘爲單位輸出
+    cout << "Minutes: " << chrono::duration_cast<chrono::minutes>(now_after_hour - now).count() << endl;
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -3792,13 +3792,13 @@ Minutes: 60
 // 頭文件 xxx.h
 namespace A
 {
-	extern int a;
+    extern int a;
 }
 
 // 代碼文件 xxx.cc
 namespace A
 {
-	int a = 0;
+    int a = 0;
 }
 ```
 
@@ -3810,8 +3810,8 @@ int a = 0;
 switch (a)
 {
 case 0:
-	int b = 0;
-	break;
+    int b = 0;
+    break;
 }
 ```
 
@@ -3825,9 +3825,9 @@ int a = 0;
 switch (a)
 {
 case 0:
-	int b;
-	b = 0;
-	break;
+    int b;
+    b = 0;
+    break;
 }
 ```
 
@@ -3842,10 +3842,10 @@ int a = 0;
 switch (a)
 {
 case 0:
-	{
-		int b = 0;
-		break;
-	}
+    {
+        int b = 0;
+        break;
+    }
 }
 ```
 
@@ -3930,25 +3930,25 @@ jmp_buf env; //env變量用於保存函數棧信息
 
 void func(void)
 {
-	printf("Call func()\n");
-	longjmp(env, 1); //跳轉回setjmp()的位置，setjmp()的返回值爲-1
-	printf("After longjmp()\n"); //longjmp()之後的代碼沒有執行
+    printf("Call func()\n");
+    longjmp(env, 1); //跳轉回setjmp()的位置，setjmp()的返回值爲-1
+    printf("After longjmp()\n"); //longjmp()之後的代碼沒有執行
 }
 
 int main(void)
 {
-	switch(setjmp(env)) //跨函數跳轉
-	{
-	case 0:
-		printf("First\n");
-		func();
-		break;
-	case 1:
-		printf("Second\n");
-		break;
-	}
+    switch(setjmp(env)) //跨函數跳轉
+    {
+    case 0:
+        printf("First\n");
+        func();
+        break;
+    case 1:
+        printf("Second\n");
+        break;
+    }
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -3989,27 +3989,27 @@ jmp_buf env; //env變量用於保存函數棧信息
 
 void deal_signal(int sig_num)
 {
-	printf("Deal signal!\n");
-	siglongjmp(env, 1);
+    printf("Deal signal!\n");
+    siglongjmp(env, 1);
 }
 
 int main(void)
 {
-	signal(SIGINT, deal_signal);
+    signal(SIGINT, deal_signal);
 
-	switch(sigsetjmp(env, 0)) //不保存信號數據則跳轉回此處時原先註冊的信號處理函數失效
-	{
-	case 0:
-		printf("First\n");
-		break;
-	case 1:
-		printf("Second\n");
-		break;
-	}
+    switch(sigsetjmp(env, 0)) //不保存信號數據則跳轉回此處時原先註冊的信號處理函數失效
+    {
+    case 0:
+        printf("First\n");
+        break;
+    case 1:
+        printf("Second\n");
+        break;
+    }
 
-	sleep(5);
+    sleep(5);
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -4050,9 +4050,9 @@ extern int optind, opterr, optopt;
 
 #include <getopt.h>
 int getopt_long(int argc, char* const argv[],
-		const char* optstring, const struct option* longopts, int* longindex);
+        const char* optstring, const struct option* longopts, int* longindex);
 int getopt_long_only(int argc, char* const argv[], const char* optstring,
-		const struct option* longopts, int* longindex);
+        const struct option* longopts, int* longindex);
 ```
 
 使用`getopt()`函數處理單字符參數，如`-v/-x/-h`等：
@@ -4080,24 +4080,24 @@ int getopt_long_only(int argc, char* const argv[], const char* optstring,
 
 int main(int argc, char* argv[])
 {
-	char arg = 0;
-	while ((arg = getopt(argc, argv, "ab:c::")) > 0)
-	{
-		switch (arg)
-		{
-		case 'a':
-			printf("Receive arg: -a\n");
-			break;
-		case 'b':
-			printf("Receive arg: -b, content: %s\n", optarg);
-			break;
-		case 'c':
-			printf("Receive arg: -c, content: %s\n", optarg);
-			break;
-		}
-	}
+    char arg = 0;
+    while ((arg = getopt(argc, argv, "ab:c::")) > 0)
+    {
+        switch (arg)
+        {
+        case 'a':
+            printf("Receive arg: -a\n");
+            break;
+        case 'b':
+            printf("Receive arg: -b, content: %s\n", optarg);
+            break;
+        case 'c':
+            printf("Receive arg: -c, content: %s\n", optarg);
+            break;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -4142,18 +4142,18 @@ Receive arg: -c, content: cccc
 ```c
 struct option
 {
-	const char* name;
-	int has_arg;
-	int* flag;
-	int val;
+    const char* name;
+    int has_arg;
+    int* flag;
+    int val;
 };
 ```
 
 - `name`成員爲長參數的名稱，不包含`--`部分。
 - `has_arg`成員標識參數是否帶有參數內容，`getopt.h`頭文件中定義了以下行爲：
-	- `no_argument` 不包含參數
-	- `required_argument` 要求參數內容
-	- `optional_argument` 可選參數內容
+    - `no_argument` 不包含參數
+    - `required_argument` 要求參數內容
+    - `optional_argument` 可選參數內容
 - `flag`成員用於決定函數的返回行爲，取值`nullptr`時函數返回`val`成員的值，否則函數返回`0`，並將`val`內容寫入該地址。
 - `val`成員在`flag`取值`nullptr`時做爲函數的返回值。
 
@@ -4165,36 +4165,36 @@ struct option
 
 int main(int argc, char* argv[])
 {
-	int arg, index, flag = -1;
+    int arg, index, flag = -1;
 
-	struct option opts[] =
-	{
-		{ "aaa", no_argument, NULL, 'a' },
-		{ "bbb", required_argument, NULL, 'b' },
-		{ "ccc", optional_argument, NULL, 'c' },
-		{ "23", no_argument, &flag, 2333 }
-	};
+    struct option opts[] =
+    {
+        { "aaa", no_argument, NULL, 'a' },
+        { "bbb", required_argument, NULL, 'b' },
+        { "ccc", optional_argument, NULL, 'c' },
+        { "23", no_argument, &flag, 2333 }
+    };
 
-	while ((arg = getopt_long(argc, argv, "ab:c::", (struct option*)&opts, &index)) >= 0)
-	{
-		switch (arg)
-		{
-		case 'a':
-			printf("Receive arg: -a, index: %d\n", index);
-			break;
-		case 'b':
-			printf("Receive arg: -b, content: %s, index: %d\n", optarg, index);
-			break;
-		case 'c':
-			printf("Receive arg: -c, content: %s, index: %d\n", optarg, index);
-			break;
-		case 0:
-			printf("Receive arg: --23, index: %d, flag: %d\n", index, flag);
-			break;
-		}
-	}
+    while ((arg = getopt_long(argc, argv, "ab:c::", (struct option*)&opts, &index)) >= 0)
+    {
+        switch (arg)
+        {
+        case 'a':
+            printf("Receive arg: -a, index: %d\n", index);
+            break;
+        case 'b':
+            printf("Receive arg: -b, content: %s, index: %d\n", optarg, index);
+            break;
+        case 'c':
+            printf("Receive arg: -c, content: %s, index: %d\n", optarg, index);
+            break;
+        case 0:
+            printf("Receive arg: --23, index: %d, flag: %d\n", index, flag);
+            break;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 ```
 
