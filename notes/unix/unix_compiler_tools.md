@@ -1,36 +1,37 @@
 <!-- TOC -->
 
 - [編譯流程](#編譯流程)
-	- [Preproceessing（預處理）](#preproceessing預處理)
-	- [Compilation（編譯）](#compilation編譯)
-	- [Assembly（彙編）](#assembly彙編)
-	- [Linking（鏈接）](#linking鏈接)
+    - [Preproceessing（預處理）](#preproceessing預處理)
+    - [Compilation（編譯）](#compilation編譯)
+    - [Assembly（彙編）](#assembly彙編)
+    - [Linking（鏈接）](#linking鏈接)
 - [編譯器](#編譯器)
-	- [基本編譯操作](#基本編譯操作)
-	- [庫文件](#庫文件)
-	- [靜態鏈接與動態鏈接](#靜態鏈接與動態鏈接)
-	- [符號信息](#符號信息)
-	- [頭文件/庫文件路徑](#頭文件庫文件路徑)
-	- [優化級別](#優化級別)
-	- [其它編譯器參數](#其它編譯器參數)
-	- [Objective-C編譯](#objective-c編譯)
-		- [安裝Objective-C庫](#安裝objective-c庫)
-		- [Objective-C編譯參數](#objective-c編譯參數)
+    - [基本編譯操作](#基本編譯操作)
+    - [庫文件](#庫文件)
+    - [靜態鏈接與動態鏈接](#靜態鏈接與動態鏈接)
+    - [符號信息](#符號信息)
+    - [頭文件/庫文件路徑](#頭文件庫文件路徑)
+    - [優化級別](#優化級別)
+    - [其它編譯器參數](#其它編譯器參數)
+    - [Objective-C編譯](#objective-c編譯)
+        - [安裝Objective-C庫](#安裝objective-c庫)
+        - [Objective-C編譯參數](#objective-c編譯參數)
 - [反編譯](#反編譯)
-	- [otool](#otool)
-	- [radare2](#radare2)
+    - [otool](#otool)
+    - [radare2](#radare2)
 - [Make](#make)
-	- [Make基本語法](#make基本語法)
-	- [Make自動變量](#make自動變量)
-	- [Make推斷依賴關係](#make推斷依賴關係)
+    - [Make基本語法](#make基本語法)
+    - [Make自動變量](#make自動變量)
+    - [Make推斷依賴關係](#make推斷依賴關係)
 - [CMake](#cmake)
-	- [CMake基本使用](#cmake基本使用)
+    - [CMake基本使用](#cmake基本使用)
+    - [CMakeLists.txt](#cmakeliststxt)
 - [GDB](#gdb)
-	- [交互式使用GDB](#交互式使用gdb)
-	- [GDB基本操作](#gdb基本操作)
-	- [調試子進程](#調試子進程)
-	- [設置源碼目錄](#設置源碼目錄)
-	- [調試核心轉儲](#調試核心轉儲)
+    - [交互式使用GDB](#交互式使用gdb)
+    - [GDB基本操作](#gdb基本操作)
+    - [調試子進程](#調試子進程)
+    - [設置源碼目錄](#設置源碼目錄)
+    - [調試核心轉儲](#調試核心轉儲)
 
 <!-- /TOC -->
 
@@ -591,57 +592,7 @@ $ cc -MM -MD 源码文件 <!-- 默认导出的依赖会包含系统头文件，�
 CMake相比傳統make工具功能更加強大，配置編寫更加簡單。
 
 ## CMake基本使用
-CMake的構建定義文件為`CMakeLists.txt`，作用類似於makefile，
-CMake通過分析CMakeLists.txt生成makefile進行項目構建。
-
-基本的CMakeLists.txt結構：
-
-```cmake
-# 設置最低CMake版本
-cmake_minimum_required(VERSION 3.0)
-
-# 設置項目名稱
-project(project-xxx-name)
-
-# 設置C/C++標準
-set(CMAKE_CXX_STANDARD 17)
-
-# 設置頭文件路徑
-include_directories(SYSTEM /usr/include/xxx ...)
-
-# 設置庫文件路徑
-link_directories(/path/to/libraries ...)
-
-# 添加源碼路徑
-aux_source_directory(./src SRC1)
-aux_source_directory(./tools SRC2)
-aux_source_directory(./libxxx_src XXXLIB)
-...
-
-# 定義編譯生成的可執行文件
-add_executable(test_exec ./main.cc ${SRC1} ${SRC2} ...)
-...
-
-# 添加其它CMake管理的子項目
-add_subdirectory(xxx_subpath)
-...
-
-# 添加其它庫（源碼引入）
-add_library(xxx_lib STATIC ${XXXLIB}) # 靜態庫，多文件
-set_target_properties(xxx_lib PROPERTIES LINKER_LANGUAGE CXX)
-add_library(xxx_dynamic_lib SHARED ${XXXLIB}) # 動態庫
-add_library(xxx_src_lib STATIC xxx_src_file.cpp) # 單文件
-...
-
-# 鏈接庫
-target_link_libraries(test_exec 庫名1 庫名2 ...) # 鏈接動態庫
-target_link_libraries(test_exec xxx_lib)
-target_link_libraries(test_exec -lpthread -ldl -lrt ...)
-target_link_libraries(test_exec libxxx1.a libxxx2.a ...) # 鏈接靜態庫
-...
-```
-
-編寫CMakeLists.txt完成後，使用`cmake`指令指定項目路徑生成構建信息：
+對於CMake項目，使用`cmake`指令指定項目路徑生成構建信息：
 
 ```html
 <!--
@@ -662,7 +613,19 @@ CMakeFiles (目錄)
 -->
 $ cmake 項目目錄 -B 構建信息生成路徑
 $ cmake 項目目錄 -D構建屬性=值 -D... -B 構建信息生成路徑
+$ cmake 項目目錄 -D構建屬性="值1;值2;..." -D... -B 構建信息生成路徑
 ```
+
+CMake提供一些預定義屬性用於控制常見的編譯部署行為：
+
+- `CMAKE_C_FLAGS` 控制C編譯參數
+- `CMAKE_CXX_FLAGS` 控制C++編譯參數
+- `CMAKE_INSTALL_PREFIX` 控制部署路徑
+- `CMAKE_INSTALL_INCLUDEDIR` 單獨控制頭文件的部署路徑
+- `CMAKE_INSTALL_BINDIR` 控制二進制文件的部署路徑
+- `CMAKE_INSTALL_LIBDIR` 控制庫文件的部署路徑
+- `PROJECT_SOURCE_DIR` 項目源碼路徑
+- `PROJECT_BINARY_DIR` 項目構建路徑
 
 正確生成構建信息後，開始構建項目：
 
@@ -678,6 +641,63 @@ $ cmake --build 構建信息路徑 --parallel 綫程數目
 
 ```html
 $ cmake --install 構建信息路徑
+```
+
+## CMakeLists.txt
+CMake的構建定義文件為`CMakeLists.txt`，作用類似於makefile，
+CMake通過分析該文件生成makefile進行項目構建。
+
+CMakeLists.txt基本結構：
+
+```cmake
+# 設置最低CMake版本，需要寫在文件起始位置，否則會產生Warning
+cmake_minimum_required(VERSION 3.10)
+
+# 設置項目名稱
+project(project-xxx-name VERSION 版本號)
+
+# 設置C/C++標準
+set(CMAKE_CXX_STANDARD 17)
+
+# 設置頭文件路徑
+include_directories(SYSTEM /usr/include/xxx ...)
+
+# 設置庫文件路徑
+link_directories(/path/to/libraries ...)
+
+# 添加源碼路徑（aux_source_directory()函數不再推薦使用）
+# 可使用 ${CMAKE_CURRENT_SOURCE_DIR} 得到項目目錄的絕對路徑
+file(GLOB SRC1 src1/*.cc) # file()函數GLOB模式匹配收集匹配的文件
+file(GLOB_RECURSE SRC2 src2/*.pp) # GLOB_RECURSE模式遞歸匹配文件
+file(GLOB_RECURSE HEADERS src/*.h)
+...
+
+# 定義編譯生成的可執行文件
+add_executable(${PROJECT_NAME} ${HEADERS} ${SRC1} ${SRC2} ...)
+add_executable(test_exec ${HEADERS} ${SRC1} ${SRC2} ...)
+...
+
+# 添加其它CMake管理的子項目
+add_subdirectory(xxx_subpath)
+...
+
+# 添加其它庫（源碼引入）
+add_library(xxx_lib STATIC ${XXXLIB}) # 靜態庫，多文件
+set_target_properties(xxx_lib PROPERTIES LINKER_LANGUAGE CXX)
+add_library(xxx_dynamic_lib SHARED ${XXXLIB}) # 動態庫
+add_library(xxx_src_lib STATIC xxx_src_file.cpp) # 單文件
+...
+
+# 鏈接庫
+target_link_libraries(test_exec 庫名1 庫名2 ...) # 鏈接動態庫
+target_link_libraries(test_exec xxx_lib)
+target_link_libraries(test_exec -lpthread -ldl -lrt ...)
+target_link_libraries(test_exec libxxx1.a libxxx2.a ...) # 鏈接靜態庫
+...
+
+# 打印輸出信息
+message(...)
+message(STATUS ...) # 可使用預定義的格式
 ```
 
 
