@@ -1,19 +1,19 @@
 <!-- TOC -->
 
 - [Redis安裝和維護](#redis安裝和維護)
-	- [容器化部署](#容器化部署)
-	- [性能測試](#性能測試)
+    - [容器化部署](#容器化部署)
+    - [性能測試](#性能測試)
 - [Redis通用功能](#redis通用功能)
-	- [Replication（主從複製）](#replication主從複製)
-	- [Sentinel（哨兵）](#sentinel哨兵)
-	- [Cluster（集群）](#cluster集群)
-		- [Slot](#slot)
-		- [創建Redis集群](#創建redis集群)
-		- [訪問Redis集群](#訪問redis集群)
+    - [Replication（主從複製）](#replication主從複製)
+    - [Sentinel（哨兵）](#sentinel哨兵)
+    - [Cluster（集群）](#cluster集群)
+        - [Slot](#slot)
+        - [創建Redis集群](#創建redis集群)
+        - [訪問Redis集群](#訪問redis集群)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
-	- [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
+    - [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
 - [問題註記](#問題註記)
-	- [WARNING you have Transparent Huge Pages (THP) support enabled in your kernel.](#warning-you-have-transparent-huge-pages-thp-support-enabled-in-your-kernel)
+    - [WARNING you have Transparent Huge Pages (THP) support enabled in your kernel.](#warning-you-have-transparent-huge-pages-thp-support-enabled-in-your-kernel)
 
 <!-- /TOC -->
 
@@ -92,6 +92,26 @@ LRANGE_300 (first 300 elements): 19267.82 requests per second, p50=1.279 msec
 LRANGE_500 (first 500 elements): 12642.22 requests per second, p50=1.895 msec
 LRANGE_600 (first 600 elements): 11441.65 requests per second, p50=2.167 msec
 MSET (10 keys): 86206.90 requests per second, p50=0.391 msec
+```
+
+Redis會記錄慢查詢日誌，查看該日誌：
+
+```
+> SLOWLOG GET 日誌數目
+```
+
+慢查詢相關配置：
+
+```html
+<!-- 慢查詢的時間標準，單位為微秒，默認記錄大於10ms的操作 -->
+> CONFIG GET slowlog-log-slower-than
+1) "slowlog-log-slower-than"
+2) "10000"
+
+<!-- 最大日誌長度，默認保存128條 -->
+> CONFIG GET slowlog-max-len
+1) "slowlog-max-len"
+2) "128"
 ```
 
 
