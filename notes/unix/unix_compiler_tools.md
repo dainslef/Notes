@@ -11,6 +11,7 @@
     - [靜態鏈接與動態鏈接](#靜態鏈接與動態鏈接)
     - [符號信息](#符號信息)
     - [頭文件/庫文件路徑](#頭文件庫文件路徑)
+    - [警告級別](#警告級別)
     - [優化級別](#優化級別)
     - [其它編譯器參數](#其它編譯器參數)
     - [Objective-C編譯](#objective-c編譯)
@@ -26,6 +27,7 @@
 - [CMake](#cmake)
     - [CMake基本使用](#cmake基本使用)
     - [CMakeLists.txt](#cmakeliststxt)
+    - [CMake生成項目構建信息](#cmake生成項目構建信息)
 - [GDB](#gdb)
     - [交互式使用GDB](#交互式使用gdb)
     - [GDB基本操作](#gdb基本操作)
@@ -357,6 +359,13 @@ gcc/g++會將對應環境變量下的路徑視為附加的系統頭文件/庫文
 使用`--sysroot`參數可以重設頭文件/庫文件的邏輯根目錄，使用此參數，默認的頭文件/庫文件路徑均會隨之改變。
 如設定`--sysroot=dir`，則默認頭文件路徑變為`dir/usr/include`，默認庫文件路徑變為`dir/usr/lib`。
 
+## 警告級別
+編譯器可通過參數開啟更多檢查和告警信息：
+
+- `-Wall` 啟用大部分通用告警與檢查（如未被使用的字段、函數等）
+- `-Wextra` 啟用未被-Wall開啟的額外檢查
+- `-pedantic` 強制遵循ISO C/C++標準，對於非標準用法告警
+
 ## 優化級別
 在編譯程序時，可以為程序添加代碼優化選項來提升程序的運行效率。
 
@@ -367,7 +376,6 @@ gcc/clang有`O1`、`O2`、`O3`三個代碼優化級別，`O1`最低，`O3`優化
 ## 其它編譯器參數
 其它常用的編譯器參數如下：
 
-- `-W` 警告選項，常用的是`-Wall`，開啟所有警告。
 - `-M` 將文件依賴關係輸出到標準輸出，輸出的文件依賴可以被構建工具`make`使用。
 	1. `-M` 默認會輸出所有的頭文件路徑，包括`#include<>`和`#include""`。
 	1. `-MM` 僅輸出`#include""`的頭文件路徑。
@@ -669,12 +677,11 @@ link_directories(/path/to/libraries ...)
 # 可使用 ${CMAKE_CURRENT_SOURCE_DIR} 得到項目目錄的絕對路徑
 file(GLOB SRC1 src1/*.cc) # file()函數GLOB模式匹配收集匹配的文件
 file(GLOB_RECURSE SRC2 src2/*.pp) # GLOB_RECURSE模式遞歸匹配文件
-file(GLOB_RECURSE HEADERS src/*.h)
 ...
 
 # 定義編譯生成的可執行文件
-add_executable(${PROJECT_NAME} ${HEADERS} ${SRC1} ${SRC2} ...)
-add_executable(test_exec ${HEADERS} ${SRC1} ${SRC2} ...)
+add_executable(${PROJECT_NAME} ${SRC1} ${SRC2} ...)
+add_executable(test_exec ${SRC1} ${SRC2} ...)
 ...
 
 # 添加其它CMake管理的子項目
@@ -695,10 +702,52 @@ target_link_libraries(test_exec -lpthread -ldl -lrt ...)
 target_link_libraries(test_exec libxxx1.a libxxx2.a ...) # 鏈接靜態庫
 ...
 
+# 添加全局編譯器參數
+add_compile_options(...)
+# 對指定目標添加編譯器參數
+target_compile_options(test_exec PUBLIC/PRIVATE/INTERFACE ...)
+...
+
 # 打印輸出信息
 message(...)
 message(STATUS ...) # 可使用預定義的格式
 ```
+
+## CMake生成項目構建信息
+CMake支持將構建定義中的版本信息等輸出到文件中。
+
+編寫模板文件，將構建信息定義為宏：
+
+```h
+// 文件名 version.h.in
+#pragma once
+
+#define PROJECT_VERSION "@PROJECT_VERSION@"
+#define PROJECT_VERSION_MAJOR "@PROJECT_VERSION_MAJOR@"
+#define PROJECT_VERSION_MINOR "@PROJECT_VERSION_MINOR@"
+#define PROJECT_VERSION_PATCH "@PROJECT_VERSION_PATCH@"
+#define BUILD_TIME "@BUILD_TIME@"
+```
+
+在CMakeLists.txt中添加下列內容：
+
+```cmake
+# 設置項目名稱與版本，版本號推薦使用 x.x.x 形式
+project(項目名稱 VERSION 版本號)
+
+# 記錄項目構建時間到 BUILD_TIME 變量中
+string(TIMESTAMP BUILD_TIME "%Y%m%d-%H%M%S")
+
+# 設置模板路徑與生成的源碼路徑
+configure_file(
+  "${PROJECT_SOURCE_DIR}/src/xxx/version.h.in"
+  "${PROJECT_BINARY_DIR}/generate/version.h"
+)
+# 包含源碼生成路徑
+include_directories("${PROJECT_BINARY_DIR}/generate")
+```
+
+使用VSCode的CMake插件，啟動構建後可自動生成源碼，並在編輯器中索引到生成的源碼文件。
 
 
 
