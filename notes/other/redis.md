@@ -4,6 +4,7 @@
     - [容器化部署](#容器化部署)
     - [性能測試](#性能測試)
 - [Redis通用功能](#redis通用功能)
+    - [清理Key](#清理key)
     - [Replication（主從複製）](#replication主從複製)
     - [Sentinel（哨兵）](#sentinel哨兵)
     - [Cluster（集群）](#cluster集群)
@@ -123,10 +124,26 @@ Redis與數據結構無關的通用功能。
 - `INFO` 查看服務狀態，默認輸出所有狀態信息參數可添加不同類別。
 - `KEYS` 查找KEY，支持按照模式匹配出所有滿足條件的KEY。
 - `TYPE` 查看指定Key的數據結構類型。
-- `FLUSHALL` / `FLUSHDB` 清理所有數據。
-FLUSHALL清理所有數據庫中的內容，FLUSHDB清理當前數據庫的內容。
-- `EXPIRE` 設置KEY過期時間。
-Redis中的數據默認永久生效，需要使用EXPIRE為數據設定過期時間。
+
+## 清理Key
+Redis中清理Key可通過DEL/FLUSH相關指令或設置過期時間自動清理。
+
+- `DEL` 刪除指定Key（支持多個）
+- `EXPIRE` 設置KEY過期時間。Redis中的數據默認永久生效，需要使用EXPIRE為數據設定過期時間
+- `FLUSHALL` / `FLUSHDB` 清理所有數據。FLUSHALL清理所有數據庫中的內容，FLUSHDB清理當前數據庫的內容
+
+Redis並未提供按照指定規則清理Key的指令，通常使用管道組合xargs指令將查找到的KEY組合成數組參數：
+
+```sh
+$ redis-cli KEYS "*匹配關鍵字*" | xargs redis-cli DEL
+```
+
+對於Redis Cluster集群，Key分佈在不同Slot上，不可通過單條DEL指令刪除，
+可使用xargs按行切割，每行單獨執行刪除指令：
+
+```sh
+$ redis-cli -c -h 主機 KEYS "*匹配關鍵字*" | xargs -n 1 redis-cli -c -h 主機 DEL
+```
 
 ## Replication（主從複製）
 Redis通過`REPLICAOF`指令設置主從複製，在從節點執行該指令即可同步主節點的數據：
