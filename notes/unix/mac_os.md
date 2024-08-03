@@ -3,6 +3,8 @@
 - [macOS 與 Unix](#macos-與-unix)
     - [A/UX](#aux)
     - [現代macOS](#現代macos)
+    - [Darwin 與 GNU/Linux 的差異](#darwin-與-gnulinux-的差異)
+- [Mac 與 PC 差异](#mac-與-pc-差异)
 - [常用功能](#常用功能)
     - [常用快捷鍵](#常用快捷鍵)
     - [常用功能配置](#常用功能配置)
@@ -16,8 +18,6 @@
     - [特殊目錄](#特殊目錄)
     - [垃圾清理](#垃圾清理)
     - [使用 Touch ID 代替命令行密碼驗證](#使用-touch-id-代替命令行密碼驗證)
-- [Mac與PC差异](#mac與pc差异)
-    - [Darwin 與 GNU/Linux 的差異](#darwin-與-gnulinux-的差異)
 - [包管理](#包管理)
     - [Homebrew](#homebrew)
         - [Homebrew文件佈局（x86架構）](#homebrew文件佈局x86架構)
@@ -87,7 +87,7 @@
 
 # macOS 與 Unix
 [Classic Mac OS（Mac OS 9及之前版本）](https://en.wikipedia.org/wiki/Classic_Mac_OS)
-是早期Mac電腦使用的操作系統。
+為最初Mac電腦使用的操作系統。
 Classic Mac OS設計簡陋（原始的內存管理機制，缺少內存保護、權限控制、多任務），
 缺少大量現代OS的特性，因此Apple曾多次嘗試將Mac OS與將功能強大的Unix進行整合。
 
@@ -115,6 +115,48 @@ Apple當前使用的macOS同樣基於Unix，從NeXTSTEP發展而來。
 - `macOS`在文件佈局以及配置方式上與傳統的Linux發行版**有較大不同**。
 
 macOS系統架構可參考[Apple官方內核架構文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Architecture/Architecture.html)。
+
+## Darwin 與 GNU/Linux 的差異
+`Darwin`的Unix環境基于FreeBSD，内核基于Mach，與傳統GNU/Linux有較大差異。
+
+1. Darwin爲混合內核架構，Linux爲宏內核架構。
+1. Linux中普通用戶UID從`1000`開始，macOS中UID從`500`開始。
+1. 家目錄與Linux/BSD中不同，macOS中的`/home`目錄默認爲**空**，用戶家目錄的位置爲`/Users`。
+1. root用戶家目錄與Linux中不同，位於`/var/root`。
+1. Darwin沒有用於展示系統運行狀態的`/proc`文件系統。
+1. Darwin沒有提供原生的包管理器。
+1. Darwin的PATH環境變量記錄在文件`/etc/paths`中。
+1. Darwin的微內核Mach使用`Mach-O`作爲二進制格式，而傳統的Linux/Unix使用`EFL`作爲二進制格式。
+1. Darwin中動態鏈接庫後綴名爲`dylib`，傳統Unix中通常爲`so`，靜態庫後綴名與傳統Unix相同，皆爲`a`。
+1. Darwin不使用GNU工具鏈，默認使用FreeBSD工具鏈。
+1. macOS採用`Aqua`作爲GUI實現，傳統Unix使用`X11/Wayland`。
+
+Mach內核的技術細節可參見[Darwin內核開發者文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Mach/Mach.html)。
+
+
+
+# Mac 與 PC 差异
+Mac機與常規的PC有較大的差異，需要一個適應過程。
+
+基本操作差異:
+
+1. 缺少一些常用按鍵，且**按鍵邏輯不統一**：
+
+    - 沒有`Home`、`End`、`PageDown`、`PageUp`等按鍵，
+    需要通過`Fn`搭配**方向鍵**等組合鍵才能實現行首、行尾、翻頁等操作。
+    - 在部分編輯器以及終端中，跳轉到**行首/行尾**需要通過`Control + A/E`等按鍵完成。
+    - 在部分開發環境中，行首行尾的快捷鍵不使用系統方案，
+    而由程序自身定義（如在Eclipse中，行首/行尾爲`Command + 方向鍵左/右`）。
+
+1. `Finder.app`缺少必備的功能：
+
+    - `Finder.app`右鍵菜單中沒有創建文件的選項，甚至新建文件都需要使用`touch`指令。
+    - `Finder.app`右鍵菜單沒有剪切功能，通過組合鍵能實現類似效果。
+
+1. 主要按鍵名稱與`PC`機不同：
+
+    - `Windows/Linux`中以`Control`作爲組合鍵觸發的一些快捷操作在macOS中全部使用`Command`鍵進行觸發。
+    - `Windows/Linux`中的`Alt`鍵在macOS中名稱爲`Option`鍵。
 
 
 
@@ -277,48 +319,6 @@ auth sufficient pam_tid.so
 
 該文件中的每行均代表一種認證方式，
 添加的`pam_tid.so`（Touch ID）需要放在文件**行首**才會優先使用該認證方式。
-
-
-
-# Mac與PC差异
-Mac機與常規的PC有較大的差異，需要一個適應過程。
-
-基本操作差異:
-
-1. 缺少一些常用按鍵，且**按鍵邏輯不統一**：
-
-    - 沒有`Home`、`End`、`PageDown`、`PageUp`等按鍵，
-    需要通過`Fn`搭配**方向鍵**等組合鍵才能實現行首、行尾、翻頁等操作。
-    - 在部分編輯器以及終端中，跳轉到**行首/行尾**需要通過`Control + A/E`等按鍵完成。
-    - 在部分開發環境中，行首行尾的快捷鍵不使用系統方案，
-    而由程序自身定義（如在Eclipse中，行首/行尾爲`Command + 方向鍵左/右`）。
-
-1. `Finder.app`缺少必備的功能：
-
-    - `Finder.app`右鍵菜單中沒有創建文件的選項，甚至新建文件都需要使用`touch`指令。
-    - `Finder.app`右鍵菜單沒有剪切功能，通過組合鍵能實現類似效果。
-
-1. 主要按鍵名稱與`PC`機不同：
-
-    - `Windows/Linux`中以`Control`作爲組合鍵觸發的一些快捷操作在macOS中全部使用`Command`鍵進行觸發。
-    - `Windows/Linux`中的`Alt`鍵在macOS中名稱爲`Option`鍵。
-
-## Darwin 與 GNU/Linux 的差異
-`Darwin`的Unix環境基于FreeBSD，内核基于Mach，與傳統GNU/Linux有較大差異。
-
-1. Darwin爲混合內核架構，Linux爲宏內核架構。
-1. Linux中普通用戶UID從`1000`開始，macOS中UID從`500`開始。
-1. 家目錄與Linux/BSD中不同，macOS中的`/home`目錄默認爲**空**，用戶家目錄的位置爲`/Users`。
-1. root用戶家目錄與Linux中不同，位於`/var/root`。
-1. Darwin沒有用於展示系統運行狀態的`/proc`文件系統。
-1. Darwin沒有提供原生的包管理器。
-1. Darwin的PATH環境變量記錄在文件`/etc/paths`中。
-1. Darwin的微內核Mach使用`Mach-O`作爲二進制格式，而傳統的Linux/Unix使用`EFL`作爲二進制格式。
-1. Darwin中動態鏈接庫後綴名爲`dylib`，傳統Unix中通常爲`so`，靜態庫後綴名與傳統Unix相同，皆爲`a`。
-1. Darwin不使用GNU工具鏈，默認使用FreeBSD工具鏈。
-1. macOS採用`Aqua`作爲GUI實現，傳統Unix使用`X11/Wayland`。
-
-Mach內核的技術細節可參見[Darwin內核開發者文檔](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Mach/Mach.html)。
 
 
 
