@@ -1,78 +1,58 @@
 <!-- TOC -->
 
 - [Kubernetes部署](#kubernetes部署)
-	- [前置環境配置](#前置環境配置)
-		- [內核及網絡配置](#內核及網絡配置)
-		- [containerd配置](#containerd配置)
-	- [官方源部署](#官方源部署)
-	- [牆國源部署](#牆國源部署)
-	- [安裝Kubernetes軟件包](#安裝kubernetes軟件包)
-	- [初始化集群](#初始化集群)
-	- [向集群添加/移除節點](#向集群添加移除節點)
-		- [排查集群錯誤](#排查集群錯誤)
-		- [重置集群節點](#重置集群節點)
-	- [CNI（Container Network Interface）](#cnicontainer-network-interface)
-		- [使用helm部署網絡插件](#使用helm部署網絡插件)
-	- [升級集群](#升級集群)
-	- [清理集群容器](#清理集群容器)
+    - [前置環境配置](#前置環境配置)
+        - [內核及網絡配置](#內核及網絡配置)
+        - [containerd配置](#containerd配置)
+    - [官方源部署](#官方源部署)
+    - [牆國源部署](#牆國源部署)
+    - [安裝Kubernetes軟件包](#安裝kubernetes軟件包)
+    - [初始化集群](#初始化集群)
+    - [向集群添加/移除節點](#向集群添加移除節點)
+        - [排查集群錯誤](#排查集群錯誤)
+        - [重置集群節點](#重置集群節點)
+    - [CNI（Container Network Interface）](#cnicontainer-network-interface)
+        - [使用helm部署網絡插件](#使用helm部署網絡插件)
+    - [升級集群](#升級集群)
+    - [清理集群容器](#清理集群容器)
 - [Kubernetes對象](#kubernetes對象)
-	- [Kubernetes API](#kubernetes-api)
+    - [Kubernetes API](#kubernetes-api)
 - [kubectl](#kubectl)
-	- [kubectl常用操作](#kubectl常用操作)
-	- [kubectl訪問容器](#kubectl訪問容器)
-	- [kubectl配置](#kubectl配置)
-		- [kubectl配置結構](#kubectl配置結構)
-		- [kubectl關閉證書驗證](#kubectl關閉證書驗證)
+    - [kubectl常用操作](#kubectl常用操作)
+    - [kubectl訪問容器](#kubectl訪問容器)
+    - [kubectl配置](#kubectl配置)
+        - [kubectl配置結構](#kubectl配置結構)
+        - [kubectl關閉證書驗證](#kubectl關閉證書驗證)
 - [集群架構](#集群架構)
-	- [Node](#node)
-	- [Control Plane](#control-plane)
-	- [Pod](#pod)
-	- [Service](#service)
-		- [Service類型](#service類型)
-		- [Service代理模式](#service代理模式)
-		- [禁用流量轉發](#禁用流量轉發)
-		- [NodePort開放端口](#nodeport開放端口)
-	- [ReplicaSet](#replicaset)
-	- [Deployment](#deployment)
-	- [StatefulSet](#statefulset)
-	- [DaemonSet](#daemonset)
-	- [Ingress](#ingress)
-		- [NGINX Igress Controller](#nginx-igress-controller)
-	- [server-snippet](#server-snippet)
-		- [Ingress 503](#ingress-503)
+    - [Node](#node)
+    - [Control Plane](#control-plane)
+    - [Pod](#pod)
+    - [Service](#service)
+        - [Service類型](#service類型)
+        - [Service代理模式](#service代理模式)
+        - [禁用流量轉發](#禁用流量轉發)
+        - [NodePort開放端口](#nodeport開放端口)
+    - [ReplicaSet](#replicaset)
+    - [Deployment](#deployment)
+    - [StatefulSet](#statefulset)
+    - [DaemonSet](#daemonset)
+    - [Ingress](#ingress)
+        - [NGINX Igress Controller](#nginx-igress-controller)
+    - [server-snippet](#server-snippet)
+        - [Ingress 503](#ingress-503)
 - [DNS](#dns)
-	- [配置DNS策略](#配置dns策略)
+    - [配置DNS策略](#配置dns策略)
 - [Labels 與 Selectors](#labels-與-selectors)
 - [ConfigMap 與 Secret](#configmap-與-secret)
 - [Taints（污点）](#taints污点)
 - [證書（PKI certificates）](#證書pki-certificates)
-	- [組件證書自動更新](#組件證書自動更新)
-	- [根證書更新](#根證書更新)
+    - [組件證書自動更新](#組件證書自動更新)
+    - [根證書更新](#根證書更新)
 - [Dashboard](#dashboard)
-	- [創建Dashboard用戶](#創建dashboard用戶)
-	- [Kubernetes 1.24 版本手動創建Token](#kubernetes-124-版本手動創建token)
-	- [清理serviceaccount與clusterrolebindings資源](#清理serviceaccount與clusterrolebindings資源)
-	- [添加Token到配置中](#添加token到配置中)
-- [CRI（Container Runtime Interface）](#cricontainer-runtime-interface)
-	- [containerd](#containerd)
-	- [crictl](#crictl)
-		- [crictl運行時配置](#crictl運行時配置)
-		- [crictl清理鏡像](#crictl清理鏡像)
-- [Helm](#helm)
-	- [Helm倉庫管理](#helm倉庫管理)
-	- [Helm部署應用](#helm部署應用)
-	- [Helm查看部署應用](#helm查看部署應用)
-	- [Helm版本回退](#helm版本回退)
-	- [使用Helm部署常用的應用](#使用helm部署常用的應用)
-- [KubKey](#kubkey)
-	- [下載KubeKey](#下載kubekey)
-	- [使用KubeKey部署集群](#使用kubekey部署集群)
-	- [KubeKey集群刷新證書](#kubekey集群刷新證書)
-	- [KubeSphere管理面板](#kubesphere管理面板)
-- [問題記錄](#問題記錄)
-	- [error: unable to launch the editor "vi"](#error-unable-to-launch-the-editor-vi)
-	- [run.go:74 "command failed" err="failed to run Kubelet: validate service connection: CRI v1 ...](#rungo74-command-failed-errfailed-to-run-kubelet-validate-service-connection-cri-v1-)
-	- [Calico網絡插件MTU問題](#calico網絡插件mtu問題)
+    - [創建Dashboard用戶](#創建dashboard用戶)
+    - [Kubernetes 1.24 版本手動創建Token](#kubernetes-124-版本手動創建token)
+    - [清理serviceaccount與clusterrolebindings資源](#清理serviceaccount與clusterrolebindings資源)
+    - [添加Token到配置中](#添加token到配置中)
 
 <!-- /TOC -->
 
@@ -1349,3 +1329,135 @@ Kubernetes不支持根證書自動更新，也未提供根證書的更新工具�
 根證書更新步驟參考[官方文檔](https://kubernetes.io/docs/tasks/tls/manual-rotation-of-ca-certificates/)。
 
 證書說明和要求參考[官方文檔](https://kubernetes.io/docs/setup/best-practices/certificates/)。
+
+
+
+# Dashboard
+Kubernetes提供了基於WEB-UI的控制面板，
+參考[官方文檔](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/)。
+
+部署面板：
+
+```html
+$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/版本號/aio/deploy/recommended.yaml
+<!-- 示例： kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.1/aio/deploy/recommended.yaml -->
+```
+
+部署Pod完成後，在需要使用面板的機器執行：
+
+```
+$ kubectl proxy
+```
+
+之後可訪問面板的Web地址：
+
+```
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+```
+
+對於使用Helm部署的Dashboard，訪問地址需要替換命名空間：
+
+```
+http://localhost:8001/api/v1/namespaces/命名空間/services/https:kubernetes-dashboard:https/proxy/
+```
+
+## 創建Dashboard用戶
+部署面板後需要創建服務帳戶（参考[官方GitHub](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md)）：
+
+```yaml
+# 創建ServiceAccount，命名空間 kubernetes-dashboard，用戶名 custom-kubernetes-dashboard-admin
+# 若不創建用戶亦可使用內置用戶 kubernetes-dashboard
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: custom-kubernetes-dashboard-admin
+  namespace: kubernetes-dashboard
+
+---
+# 創建ClusterRoleBinding，為之前創建的 custom-kubernetes-dashboard-admin 用戶綁定 cluster-admin 角色
+# 若未綁定 cluster-admin 角色，則對應用戶生成的Token無權限查看集群信息
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding # ClusterRoleBinding類別的資源無命名空間
+metadata:
+  name: custom-cluster-admin-role-binding-for-kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: custom-kubernetes-dashboard-admin
+  namespace: kubernetes-dashboard
+```
+
+創建角色後，可查看Token：
+
+```html
+<!-- 獲取 Token（1.24版本前） -->
+$ kubectl -n kubernetes-dashboard describe serviceaccount custom-kubernetes-dashboard-admin <!-- 查看默認Token -->
+$ kubectl -n kubernetes-dashboard describe secrets xxxtoken
+```
+
+亦可不創建serviceaccount，直接復用kubernetes-dashboard內置的`kubernetes-dashboard`用户，
+操作類似，為其綁定`cluster-admin`角色即可。
+
+## Kubernetes 1.24 版本手動創建Token
+`Kubernetes 1.24`版本後，ServiceAccount不再自動生成Token，可手動創建臨時Token：
+
+```
+$ kubectl -n kubernetes-dashboard create token custom-kubernetes-dashboard-admin
+```
+
+亦可創建帳戶對應的Secret資源（低版本不需要）：
+
+```yaml
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: custom-secret-for-kubernetes-dashboard
+  namespace: kubernetes-dashboard
+  annotations:
+    kubernetes.io/service-account.name: custom-kubernetes-dashboard-admin
+    kubernetes.io/service-account.namespace: kubernetes-dashboard
+```
+
+手動創建Secret後，直接查看對應資源即可得到Token信息：
+
+```html
+$ kubectl -n kubernetes-dashboard describe secrets custom-secret-for-kubernetes-dashboard
+```
+
+## 清理serviceaccount與clusterrolebindings資源
+若不再使用Token，則應清理對應資源：
+
+```html
+<!-- 刪除 serviceaccount，生成的 secret 會對應刪除 -->
+$ kubectl delete serviceaccount -n kubernetes-dashboard custom-kubernetes-dashboard-admin
+<!-- 刪除 clusterrolebindings（該類資源無命名空間） -->
+$ kubectl delete clusterrolebindings custom-cluster-admin-role-binding-for-kubernetes-dashboard
+```
+
+直接刪除secrets系統依舊會自動重新創建。
+
+## 添加Token到配置中
+若需要經常使用Dashboard，每次通過命令行查看secrets對應Token較為不便，
+可直接將Token加入`~/.kube/config`配置中，之後認真僅需要選取該文件即可。
+
+配置示例：
+
+```yaml
+apiVersion: v1
+clusters:
+...
+contexts:
+...
+current-context: kubernetes-admin@kubernetes
+kind: Config
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: ...
+    client-key-data: ...
+    token: tokenxxx... # token填寫到該位置
+```
