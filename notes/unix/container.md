@@ -582,7 +582,7 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 }
 ```
 
-該配置項為數組結構，內容為文本數組(可添加多個鏡像地址)。
+該配置項為數組結構，內容為文本數組（可添加多個鏡像地址）。
 
 ### Docker鏡像導入/導出
 使用`docker save`指令將鏡像導出為`*.tar`格式的壓縮文件：
@@ -646,7 +646,7 @@ Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.
 執行指令：
 
 ```
-# docker run -d -p 5000:5000 --name registry registry:2
+# docker run -d -p 5000:5000 --name registry registry
 ```
 
 執行指令後會在本地的5000端口創建本地鏡像服務，
@@ -661,7 +661,7 @@ Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.
 若需要保留提交內容，則應將鏡像存儲路徑掛載到外部目錄：
 
 ```
-# docker run -d -p 5000:5000 --name registry -v /mnt/registry:/var/lib/registry registry:2
+# docker run -d -p 5000:5000 --name registry -v /mnt/registry:/var/lib/registry registry
 ```
 
 Docker Registry僅提供了簡單的鏡像服務，且默認僅提供HTTP服務（多數運行時現在強制要求HTTPS），
@@ -683,6 +683,14 @@ Get "https://x.x.x.x:5000/v2/": http: server gave HTTP response to HTTPS client
     ...
 }
 ```
+
+Docker推送鏡像時默認使用HTTP相關端口，普通Registry使用80端口，因此創建registry容器時可將其影射到80端口：
+
+```
+# docker run -d -p 80:5000 --name registry -v /mnt/registry:/var/lib/registry registry
+```
+
+使用80端口則填寫地址/鏡像設置TAG時不再需要顯式指定端口。
 
 ### Docker Hub
 Docker官方提供了鏡像託管服務`Docker Hub`。
@@ -1484,7 +1492,8 @@ $ limactl start --name=default /usr/local/share/lima/examples/archlinux.yaml <!-
 cpus: 2 # 虛擬機核心數，默認配置為 min(4, host CPU cores)
 memory: 2G # 虛擬機內存，默認配置為 min("4GiB", half of host memory)
 disk: 50G # 虛擬機磁盤，默認配置為 100GiB
-mountType: 9p # 宿主機文件系統掛載模式，默認使用 reverse-sshfs 模式，存在長時間使用自動丟失掛載的問題
+type: ... # 虛擬機類型（見下文）
+mountType: ... # 掛載類型（見下文）
 
 # 設置虛擬機對macOS宿主機家目錄的寫入權限，出於安全考量，默認禁用寫入權限
 mounts:
@@ -1492,6 +1501,24 @@ mounts:
   - location: "~"
     writable: true
 ```
+
+Lima支持兩種虛擬機模式，不同虛擬機模式需要使用匹配的掛載類型：
+
+- `qemu` 使用qemu運行虛擬機，功能更加成熟、完善，但速度相對較慢
+
+    配置項：
+
+    ```yaml
+    type: qemu
+    mountType: 9p # 宿主機文件系統掛載模式，默認使用reverse-sshfs模式，存在長時間使用自動丟失掛載的問題
+    ```
+
+- `vz` 使用macOS的Virtualization.Framework運行虛擬機（更輕量）
+
+    ```yaml
+    type: vz
+    mountType: virtiofs # vz模式僅支持該掛載模式
+    ```
 
 創建虛擬機完成後，可使用limactl指令查看、啟動、停止虛擬機：
 
