@@ -1,63 +1,65 @@
 <!-- TOC -->
 
 - [概述](#概述)
-	- [開發環境](#開發環境)
+    - [與C++對比](#與c對比)
 - [工具鏈](#工具鏈)
-	- [Cargo](#cargo)
-		- [依賴配置](#依賴配置)
-		- [features（特性）](#features特性)
-	- [rustup](#rustup)
-	- [rustfmt](#rustfmt)
-	- [REPL](#repl)
+    - [開發環境](#開發環境)
+    - [Cargo](#cargo)
+        - [依賴配置](#依賴配置)
+        - [features（特性）](#features特性)
+    - [rustup](#rustup)
+    - [rustfmt](#rustfmt)
+    - [REPL](#repl)
 - [靜態構建](#靜態構建)
-	- [musl-gcc](#musl-gcc)
-	- [openssl](#openssl)
+    - [macOS交叉編譯](#macos交叉編譯)
+    - [musl-gcc](#musl-gcc)
+    - [openssl](#openssl)
 - [單元測試](#單元測試)
-	- [async函數單元測試](#async函數單元測試)
-	- [error: test failed, to rerun pass `-p xxx --bin xxx`](#error-test-failed-to-rerun-pass--p-xxx---bin-xxx)
+    - [async函數單元測試](#async函數單元測試)
+    - [error: test failed, to rerun pass `-p xxx --bin xxx`](#error-test-failed-to-rerun-pass--p-xxx---bin-xxx)
 - [Struct（結構體）](#struct結構體)
-	- [結構體對齊](#結構體對齊)
-	- [PhantomData](#phantomdata)
+    - [結構體對齊](#結構體對齊)
+    - [PhantomData](#phantomdata)
 - [Trait（特質）](#trait特質)
-	- [Trait基本語法](#trait基本語法)
-	- [Trait衝突](#trait衝突)
-	- [Coherence / Orphan Rule（Trait限制）](#coherence--orphan-ruletrait限制)
-	- [Dynamically Dispatched / Staic Dispatched](#dynamically-dispatched--staic-dispatched)
-	- [Associated Types](#associated-types)
-	- [Generic Associated Types](#generic-associated-types)
+    - [Trait基本語法](#trait基本語法)
+    - [Trait衝突](#trait衝突)
+    - [Coherence / Orphan Rule（Trait限制）](#coherence--orphan-ruletrait限制)
+    - [Dynamically Dispatched / Staic Dispatched](#dynamically-dispatched--staic-dispatched)
+    - [Associated Types](#associated-types)
+    - [Generic Associated Types](#generic-associated-types)
 - [Enum（枚舉）](#enum枚舉)
-	- [strum庫（枚舉功能增強）](#strum庫枚舉功能增強)
+    - [strum庫（枚舉功能增強）](#strum庫枚舉功能增強)
 - [訪問權限](#訪問權限)
-	- [模塊權限](#模塊權限)
-	- [結構體字段權限](#結構體字段權限)
-	- [宏訪問權限](#宏訪問權限)
+    - [模塊權限](#模塊權限)
+    - [結構體字段權限](#結構體字段權限)
+    - [宏訪問權限](#宏訪問權限)
 - [標準庫](#標準庫)
-	- [std::collections](#stdcollections)
-		- [HashMap/BTreeMap](#hashmapbtreemap)
+    - [std::collections](#stdcollections)
+        - [HashMap/BTreeMap](#hashmapbtreemap)
 - [智能指針](#智能指針)
-	- [Rc / Box / Arc](#rc--box--arc)
-	- [Cell / RefCell](#cell--refcell)
+    - [Rc / Box / Arc](#rc--box--arc)
+    - [Cell / RefCell](#cell--refcell)
 - [全局變量](#全局變量)
-	- [const_item_mutation](#const_item_mutation)
-	- [Lazy類型（單例）](#lazy類型單例)
+    - [const_item_mutation](#const_item_mutation)
+    - [Lazy類型（單例）](#lazy類型單例)
 - [格式化輸出](#格式化輸出)
-	- [字符串插值](#字符串插值)
+    - [字符串插值](#字符串插值)
 - [錯誤處理](#錯誤處理)
-	- [Option](#option)
-	- [Result](#result)
-		- [Result::expect()](#resultexpect)
-		- [std::error::Error](#stderrorerror)
-	- [anyhow](#anyhow)
-		- [anyhow基本使用](#anyhow基本使用)
-		- [anyhow! bail!](#anyhow-bail)
-		- [anyhow Content](#anyhow-content)
-	- [thiserror](#thiserror)
-	- [Panic](#panic)
-		- [std::panic::catch_unwind](#stdpaniccatch_unwind)
-		- [C-unwind ABI](#c-unwind-abi)
+    - [Option](#option)
+    - [Result](#result)
+        - [Result::expect()](#resultexpect)
+        - [std::error::Error](#stderrorerror)
+    - [anyhow](#anyhow)
+        - [anyhow基本使用](#anyhow基本使用)
+        - [anyhow! bail!](#anyhow-bail)
+        - [anyhow Content](#anyhow-content)
+    - [thiserror](#thiserror)
+    - [Panic](#panic)
+        - [std::panic::catch_unwind](#stdpaniccatch_unwind)
+        - [C-unwind ABI](#c-unwind-abi)
 - [命令行參數處理](#命令行參數處理)
-	- [Clap庫](#clap庫)
-		- [基於屬性生成命令行參數](#基於屬性生成命令行參數)
+    - [Clap庫](#clap庫)
+        - [基於屬性生成命令行參數](#基於屬性生成命令行參數)
 
 <!-- /TOC -->
 
@@ -66,6 +68,113 @@
 # 概述
 [`Rust`](https://www.rust-lang.org/)是Molizza推出的系統編程語言，
 專注於性能（performance）、可靠性（reliability）、生產力（productivity）。
+
+## 與C++對比
+Rust的主要設計目標之一是作為C++的安全替代。
+
+相比C++，Rust具備下列優勢：
+
+- 可靠性
+
+    Rust提供了編譯器層面的所有權語義檢查，保證無額外性能開銷（GC等）前提下的內存安全。
+
+    Safe Rust默認不允許空指針，而是使用更加現代化的`Option<T>`類型顯式標注可空類型。
+
+- 統一的語法與編碼風格
+
+    C++至今未有社區廣泛達成共識的編碼風格，STL/Boost等使用`snake_case`風格命名類型和方法，
+    但多數社區並不遵循該風格，Microsoft/Google的編碼規範中多使用`CamelCase`命名類型與方法。
+
+    C++歷史悠久，歷經數次標準更替，存在大量為了兼容而存在的冗余語法。
+    以初始化語法為例：
+
+    ```cpp
+    T t; // 默認構造函數
+    T t(...); // 顯式初始化
+    T t = ...; // 拷貝初始化
+    T t = {...,...,...}; // 列表初始化
+    T t{...}; // C++11統一初始化
+    ```
+
+    Rust具備一致的編碼風格（類型`CamelCase`，方法名稱`snake_case`）。
+
+    Rust的語法來自Ocaml/Haskell/Scala等學術界語言，具備良好的設計，
+    同時多數功能取捨又吸取了工業界的最佳實踐：
+
+    - 捨棄構造函數，支持模式匹配，構造語法與解構語法對應
+    - 捨棄繼承，使用Trait作為接口，結構清晰，易於擴展
+    - 基於Trait的動態/靜態派發
+    - 基於Trait的操作符重載，更加規範
+    - 基於表達式的語法，表現力更強
+    - 默認使用移動構造，降低編碼疏忽造成的潛在性能損失
+
+- 現代化的構建系統
+
+    Rust具備現代化的模塊系統；
+    C++長期使用繼承自C編譯模型，C++20的modules才初步具備現代化語言的模塊系統。
+
+    Rust項目統一使用Cargo構建項目、處理依賴關係，且具備統一的託管中心倉庫，
+    Cargo使用簡單，開發者無需了解構建細節；
+    C++無統一的構建工具，早期Unix平台使用make構建，需要編寫複雜的makefile控制構建流程，
+    後來社區逐步普及了CMake，簡化了構建流程，但依舊未能解決依賴問題，
+    現有的依賴解決方案如Cannon等依舊不夠完善，也無統一的中心倉庫。
+
+    C++構建系統對於依賴管理的缺陷導致C++社區不能很好地復用社區資源，
+    各類C++開源庫都儘量避免引入其它依賴。
+
+- 現代化的標準庫設計
+
+    Rust標準庫具備更加現代化的API設計，設計清晰，使用簡單。
+
+    C++ STL為上世紀設計，接口複雜，使用繁瑣；不少數據結構缺少常用方法；
+    早期標準庫功能亦有大量缺失（線程、時間、文件系統等），C++11之後才逐步完善。
+    C++作為多範式語言，標準庫API風格不一致，且部分API存在過度設計（如`iostream`）以及性能問題。
+
+- 元數據與宏
+
+    C++缺少自定義註解/屬性等安全地為代碼附加元數據、生成代碼，並由類庫自由解析的相關功能，
+    導致C++依舊使用繼承自C的文本宏作為生成代碼的方式。
+
+    Rust支持derive機制和自定義屬性，並提供API可由類庫解析並安全地在編譯時生成代碼，
+    增強了各類社區庫的表現力與API設計。
+    Rust提供的聲明式宏相比C/C++也更加規範和安全。
+
+- 更友好的編譯器提示
+
+    C++模板系統早期無有效的類型約束，導致模板編譯出錯的錯誤信息難以理解，
+    自C++20開始引入`Constraints and Concepts`才有了正式的模板類型約束緩解該問題。
+
+    Rust自1.0開始便支持基於Trait的類型約束，使泛型錯誤信息友好易懂。
+    Rust嚴格的語義以及所有權機制使編譯器在編譯階段做出更多檢查並提供友好的提示信息。
+
+C++相比Rust的便利性功能缺陷：
+
+1. 字符串處理
+
+    Rust 1.0時期標準庫就提供了`std::fmt`，
+    後續在2022年的[1.58](https://blog.rust-lang.org/2022/01/13/Rust-1.58.0.html)版本支持字符串插值。
+
+    C++直到C++20才標準庫才提供`std::format`，
+    之前只能使用C標準庫的`sprintf()`或其它社區庫，如Boost Format。
+    至今（C++23）依舊不支持字符串插值。
+
+2. 調試輸出
+
+    Rust標準庫多數類型均實現了通用的Debug Trait（支持文本輸出）。
+
+    C++標準庫數據結構長期不支持輸出文本，需要使用fmtlib，
+    到近期C++20/23後引入`<format>`以及`<print>`才具備標準庫數據結構的打印輸出能力。
+
+3. 類型轉換
+
+    Rust提供了通用的類型轉換Trait，標準庫與社區庫通常遵循這些Trait提供通用的類型轉換接口。
+
+    C++無標準類型轉發接口，各類庫提供接口不一致，或者使用存在風險的構造函數隱式轉換。
+
+
+
+# 工具鏈
+Rust提供了一系列完備的工具鏈用於簡化開發流程。
 
 ## 開發環境
 Rust官方推薦的開發環境是[`Visual Studio Code`](https://code.visualstudio.com/)
@@ -77,11 +186,6 @@ VSCode的Rust插件雖為官方插件，
 功能較為簡陋，性能較差，部分BUG一直未修復。
 而下一代的[`rust-analyzer`](https://github.com/rust-analyzer/rust-analyzer)目前處於活躍開發中，
 功能更加完備，對新特性支持較好，推薦使用。
-
-
-
-# 工具鏈
-Rust提供了一系列完備的工具鏈用於簡化開發流程。
 
 ## Cargo
 `Cargo`類似Scala的Sbt、Haskell的Cabal等工具，負責Rust項目依賴管理和項目構建。
@@ -291,6 +395,25 @@ $ cargo build --target x86_64-unknown-linux-musl
 ```
 
 使用`x86_64-unknown-linux-musl`構建生成的文件位於`$PROJECT/x86_64-unknown-linux-musl`路徑下。
+
+## macOS交叉編譯
+在macOS下亦可啟用x86_64-unknown-linux-musl實現跨平台交叉編譯，
+macOS默認的Apple Clang工具鏈在鏈接時會出現錯誤，需要安裝musl工具鏈：
+
+```
+$ brew install filosottile/musl-cross/musl-cross
+```
+
+之後在項目中創建`.cargo/config.toml`，添加鏈接器配置：
+
+```toml
+[target.x86_64-unknown-linux-musl]
+linker = "x86_64-linux-musl-gcc"
+```
+
+鏈接器配置直接寫在項目中的Cargo.toml中會被忽略
+（`warning: unused manifest key: target.x86_64-unknown-linux-musl.linker`），
+Cargo.toml僅用來配置構建依賴相關內容。
 
 ## musl-gcc
 部分使用CFFI的Rust庫需要用到C編譯器的對應musl版本（musl-gcc），
@@ -1079,7 +1202,9 @@ Rust標準庫中早期並未提供Lazy類型的直接支持，
 早期多使用[`lazy_static`](https://crates.io/crates/lazy_static)庫；
 之後逐漸被[`once_cell`](https://github.com/matklad/once_cell)庫取代，
 once_cell相比lazy_static，不使用宏，而是直接使用Lambda進行初始化操作，更加簡潔明瞭。
-之後once_cell被吸收進標準庫，但目前（`Rust 1.66`）仍處於Nightly狀態。
+之後once_cell被吸收進標準庫，在
+[Rust 1.80](https://blog.rust-lang.org/2024/07/25/Rust-1.80.0.html)
+版本中已經正式成為Stable API。
 
 once_cell中的Lazy類型分為線程安全/非安全版本，且在標準庫中的類型名稱有所變化：
 
