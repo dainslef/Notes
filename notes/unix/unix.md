@@ -1176,7 +1176,6 @@ LoginGraceTime 10s # 服務端關閉未成功認證連接的時間，默認值2m
 MaxAuthTries 2 # 設置每個連接的最大認證嘗試次數，默認值6
 MaxSessions 3 # 設置最大會話數目，避免同時接受大量SSH連接
 
-UsePAM no # 默認值no，部分發行版會設置yes，PAM認證會根據配置引入額外的認證流程，公網環境不建議開啟
 PermitRootLogin no # 默認值yes，公網環境不建議允許root用戶直接登入
 PasswordAuthentication no # 默認值yes，公網環境不建議允許密碼登入
 ```
@@ -1693,8 +1692,51 @@ $ gdb 進程文件 進程核心轉儲
 
 進入gdb shell之後，使用`bt`指令查看調用堆棧。
 
-不同發行版的核心轉儲的位置可能不同，通常為`/var/crash`，
-使用`systemd-coredump`的發行版為`/var/lib/systemd/coredump`。
+不同發行版的核心轉儲的位置可能不同，通常為`/var/crash`；
+現代systemd發行版核心轉儲包存在`/var/lib/systemd/coredump`路徑下。
+
+systemd發行版的核心轉儲通常保存為`zst`壓縮格式：
+
+```
+$ ls /var/lib/systemd/coredump/
+core.sleep.0.78dd6f8ba0e943de824cd8708d36c940.1949817.1721404646000000.zst
+```
+
+zst格式為[Zstandard](https://github.com/facebook/zstd)，是Facebook開發的高效壓縮格式，
+gdb無法直接讀取該格式，需要使用`zstd`工具解壓後方可識別：
+
+```html
+<!-- 解壓後得到 core.xxx 文件 -->
+# zstd -d /var/lib/systemd/coredump/core.xxx.zst <!-- 解壓到當前路徑，文件名不變（去除後綴） -->
+# zstd -d /var/lib/systemd/coredump/core.xxx.zst -o xxx <!-- 自定義解壓文件名稱與路徑 -->
+
+<!-- 之後操作與普通核心轉儲一致 -->
+$ gdb 進程文件 core.xxx
+```
+
+systemd發行版可使用`coredumpctl`工具管理核心轉儲：
+
+```html
+$ coredumpctl list <!-- 查看核心轉儲列表 -->
+$ coredumpctl info <!-- 查看所有核心轉儲的詳情 -->
+
+<!-- 查看指定核心轉儲 -->
+$ coredumpctl dump
+$ coredumpctl dump 核心轉儲進程號 <!-- 查看指定核心轉儲的詳情 -->
+
+<!-- 調試指定核心轉儲，需要安裝gdb -->
+$ coredumpctl debug 核心轉儲進程號
+```
+
+ArchLinux的systemd包中已直接包含了coredumpctl，但Debian係發行版拆包較細，
+需要單獨安裝`systemd-coredump`包才會提供coredumpctl工具：
+
+```
+# apt install systemd-coredump
+```
+
+未安裝systemd-coredump不影響生成核心轉儲功能，生成的核心轉儲路徑不變，
+但不再使用zst壓縮格式，名稱固定為`core`。
 
 
 
@@ -2873,7 +2915,7 @@ $ curl -O http://example.com
 部分下載地址並不直接提供資源，而是提供一個包含實際資源地址的30x系列回復，
 此時使用-L參數會繼續向實際資源地址發起下載請求
 -->
-$ curl -OL http://example.com
+$ curl -LO http://example.com
 ```
 
 curl通過`-C`參數啟用斷點續傳功能（需要服務端亦支持斷點續傳特性），
@@ -3258,6 +3300,7 @@ systemd還集成了常用的系統管理工具：
 
 ### loginctl
 `loginctl`用於配置systemd的登入管理器，loginctl自身服務為`systemd-logind.service`。
+loginctl相關功能需要用戶使用PAM登入，否則會導致相關功能無法使用。
 
 使用loginctl可查看當前的會話狀態：
 
