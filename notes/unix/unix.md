@@ -64,7 +64,7 @@
         - [Thinly-Provisioned Logical Volumes（精簡邏輯卷）](#thinly-provisioned-logical-volumes精簡邏輯卷)
         - [邏輯卷狀態和塊設備不顯示問題](#邏輯卷狀態和塊設備不顯示問題)
 - [時間管理](#時間管理)
-    - [timedatectl](#timedatectl)
+    - [systemd-timesyncd](#systemd-timesyncd)
     - [硬件時間](#硬件時間)
     - [NTP (Network Time Protocol)](#ntp-network-time-protocol)
         - [ntp服務配置](#ntp服務配置)
@@ -86,6 +86,7 @@
     - [編寫systemd服務](#編寫systemd服務)
     - [其它systemd系統管理工具](#其它systemd系統管理工具)
         - [loginctl](#loginctl)
+    - [run0](#run0)
 - [網絡](#網絡)
     - [網絡參數與信息](#網絡參數與信息)
     - [網絡配置工具](#網絡配置工具)
@@ -2494,7 +2495,7 @@ Mon Mar  6 16:42:16 CST 2023
 # date '時間' <!-- 設置系統時間 -->
 ```
 
-## timedatectl
+## systemd-timesyncd
 使用systemd的現代Linux發行版中，通常時間同步由`systemd-timesyncd`提供，
 查看系統是否使用了該時間服務：
 
@@ -2524,6 +2525,9 @@ $ timedatectl show-timesync --all
 ```
 
 systemd-timesyncd的配置文件為`/etc/systemd/timesyncd.conf`。
+
+相比傳統的ntp服務，systemd-timesyncd僅提供ntp client功能，
+提供ntp server依舊需要使用傳統ntp服務。
 
 ## 硬件時間
 使用`hwclock`指令查看系統的硬件時間：
@@ -3411,6 +3415,30 @@ $ loginctl enable-linger/disable-linger
 <!-- 啟用/禁用特定用戶的Linger -->
 $ loginctl enable-linger 用戶名/用戶ID
 $ loginctl disable-linger 用戶名/用戶ID
+```
+
+## run0
+[run0](https://www.freedesktop.org/software/systemd/man/devel/run0.html)
+是systemd（version 256）之後引入的sudo替代方案，可以特權模式執行指定指令。
+
+使用方式與sudo類似：
+
+```
+$ run0 指令...
+```
+
+run0需要使用[polkit](https://github.com/polkit-org/polkit)驗證用戶權限，系統需要安裝該軟件包，
+並正確配置規則，在`/etc/polkit-1/rules.d`路徑下添加規則：
+
+```conf
+# 文件名 xxx.rules
+
+# 驗證操作發起者為指定用戶或處於指定用戶組中
+polkit.addRule(function(action, subject) {
+    if (subject.user == "xxx" || subject.isInGroup("xxx")) {
+        return polkit.Result.YES;
+    }
+});
 ```
 
 
