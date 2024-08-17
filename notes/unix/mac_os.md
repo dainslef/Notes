@@ -45,6 +45,10 @@
     - [NTFS-3G](#ntfs-3g)
         - [安裝配置](#安裝配置)
         - [使用 NTFS-3G](#使用-ntfs-3g)
+- [虛擬化](#虛擬化)
+    - [QEMU](#qemu)
+    - [UTM](#utm)
+        - [UTM虛擬機共享路徑](#utm虛擬機共享路徑)
 - [Xcode](#xcode)
     - [CommandLineTools](#commandlinetools)
     - [Developer Path](#developer-path)
@@ -938,6 +942,39 @@ $ diskutil list
 ```
 
 取消U盤掛載使用umount指令而不是直接彈出U盤，彈出U盤會斷開系統的鏈接，無法再使用ntfs-3g指令掛載。
+
+
+
+# 虛擬化
+自`macOS 10.10`版本開始，macOS引入了[`Hypervisor Framework`](https://developer.apple.com/documentation/hypervisor)，
+Hypervisor Framework提供了輕量級的虛擬化解決方案，不再依賴於第三方的內核擴展。
+
+## QEMU
+QEMU從[2.12](https://wiki.qemu.org/ChangeLog/2.12)版本開始實驗性支持Hypervisor Framework，
+通過`-accel hvf`參數開啟，官方ChangeLog：
+
+```
+Host support
+Experimental support for two new virtualization accelerators: Apple's Hypervisor.framework ("-accel hvf") and Microsoft's Windows Hypervisor Platform Extensions ("-accel whpx")
+```
+
+## UTM
+[`UTM`](https://github.com/utmapp/UTM)是macOS下虛擬機客戶端，支持Hypervisor Framework和QEMU。
+
+與其它主流虛擬化軟件比較：
+
+- 相比VirtualBox，UTM使用Swift語言編寫，專為macOS設計，具備更好的UI與操作體驗。
+- 相比ParallelsDesktop，UTM為開源軟件，無須付費。
+
+### UTM虛擬機共享路徑
+UTM使用Hypervisor Framework創建的虛擬機支持通過`VirtioFS`將宿主機的路徑共享到虛擬機內部，
+在虛擬機內可直接掛載路徑：
+
+```
+# mount -t virtiofs share 掛載點
+```
+
+完整內容參考[UTM官方文檔](https://docs.getutm.app/guest-support/linux/#macos-virtiofs)。
 
 
 
