@@ -1,18 +1,19 @@
 <!-- TOC -->
 
 - [VLAN](#vlan)
-	- [VLAN接口類型](#vlan接口類型)
+    - [VLAN接口類型](#vlan接口類型)
 - [Huawei](#huawei)
-	- [端口組](#端口組)
-	- [description（備註信息）](#description備註信息)
-	- [vlan（VLAN配置）](#vlanvlan配置)
-		- [VLAN配置access接口](#vlan配置access接口)
-		- [VLAN配置trunk接口](#vlan配置trunk接口)
-	- [VLANIF配置](#vlanif配置)
-		- [VLANIF設置192.168.1.1地址失敗](#vlanif設置19216811地址失敗)
+    - [interface（接口）](#interface接口)
+    - [port-group（端口組）](#port-group端口組)
+    - [description（備註信息）](#description備註信息)
+    - [vlan（VLAN配置）](#vlanvlan配置)
+        - [VLAN配置access接口](#vlan配置access接口)
+        - [VLAN配置trunk接口](#vlan配置trunk接口)
+    - [VLANIF配置](#vlanif配置)
+        - [VLANIF設置192.168.1.1地址失敗](#vlanif設置19216811地址失敗)
 - [ZTE](#zte)
-	- [interface（接口配置）](#interface接口配置)
-	- [switchvlan-configuration（VLAN配置）](#switchvlan-configurationvlan配置)
+    - [interface（接口配置）](#interface接口配置)
+    - [switchvlan-configuration（VLAN配置）](#switchvlan-configurationvlan配置)
 
 <!-- /TOC -->
 
@@ -59,15 +60,35 @@ Enter system view, return user view with Ctrl+Z.
 <Huawei> display version <!-- 查看系統信息，包括開機時間等 -->
 <Huawei> display ip routing-table <!-- 查看路由表 -->
 
-<Huawei> display interface <!-- 查看接口 -->
+<Huawei> display this <!-- 查看當前視圖的配置 -->
 <Huawei> display current-configuration <!-- 查看當前配置 -->
+```
+
+## interface（接口）
+接口是交換機基本操作。
+
+```html
+<!-- 查看接口 -->
+<Huawei> display interface
+<Huawei> display interface brief <!-- 查看接口信息概覽 -->
 
 <!-- 進入特定接口視圖 -->
 [Huawei] interface GigabitEthernet x/x/x
 [Huawei] interface XGigabitEthernet x/x/x <!-- 光纖接口 -->
 ```
 
-## 端口組
+使用interface指令進入接口視圖後，可禁用/啟用接口：
+
+```html
+<!-- 進入特定接口視圖 -->
+[Huawei] interface GigabitEthernet x/x/x
+<!-- 禁用接口 -->
+[Huawei-GigabitEthernetx/x/x] shutdown
+<!-- 解除接口禁用 -->
+[Huawei-GigabitEthernetx/x/x] undo shutdown
+```
+
+## port-group（端口組）
 端口組用於將一組端口加入分組中，便於批量執行操作。
 
 ```
@@ -106,12 +127,16 @@ Enter system view, return user view with Ctrl+Z.
 [Huawei] undo vlan 100 <!-- 刪除指定VLAN，需要退出VLAN配置視圖 -->
 ```
 
+注意，添加VLAN配置前首先需要**創建**對應VLAN，否則配置**不會**真正生效；
+若對應VLAN未創建，使用`display port vlan`雖然能夠看到VLAN配置，
+但使用`display port vlan active`則不會展示該VLAN。
+
 ### VLAN配置access接口
 將接口配置為access，並設置VLAN：
 
-1. 執行命令`interface interface-type interface-number`，進入需要加入VLAN的以太網接口視圖。
+1. 執行命令`interface 接口類型 接口編號`，進入需要加入VLAN的以太網接口視圖。
 1. 執行命令`port link-type access`，配置接口類型為access。
-1. 執行命令`port default vlan vlan-id`，配置接口的缺省VLAN並將接口加入到指定VLAN。
+1. 執行命令`port default vlan VLAN編號`，配置接口的缺省VLAN並將接口加入到指定VLAN。
 
 ```
 [HUAWEI] interface gigabitethernet 1/0/1
@@ -127,10 +152,10 @@ GigabitEthernet1/0/1        access       100   -
 ### VLAN配置trunk接口
 將接口配置為trunk，並允許特定VLAN：
 
-1. 執行命令`interface interface-type interface-number`，進入需要加入VLAN的以太網接口視圖。
+1. 執行命令`interface 接口類型 接口編號`，進入需要加入VLAN的以太網接口視圖。
 1. 執行命令`port link-type trunk`，配置接口類型為trunk。
 1. 執行命令`port trunk allow-pass vlan { { vlan-id1 [ to vlan-id2 ] } &<1-10> | all }`，將接口加入到指定的VLAN中。
-1. 執行命令`port trunk pvid vlan vlan-id`，配置Trunk接口的缺省VLAN（可選）。
+1. 執行命令`port trunk pvid vlan VLAN編號`，配置Trunk接口的缺省VLAN（可選）。
 
 > 當接口下通過的VLAN為接口的缺省VLAN時，該VLAN對應的報文將以Untagged方式進行轉發。
 > 也就是說接口是以Untagged方式加入該VLAN的。
@@ -165,6 +190,12 @@ VLANIF的配置參考華爲[官方文檔](https://support.huawei.com/enterprise/
 [HUAWEI] interface vlanif 20
 [HUAWEI-Vlanif20] ip address 10.10.10.1 24
 [HUAWEI-Vlanif20] quit
+```
+
+刪除VLANIF接口使用undo操作：
+
+```
+[HUAWEI] undo interface vlanif 10
 ```
 
 ### VLANIF設置192.168.1.1地址失敗
