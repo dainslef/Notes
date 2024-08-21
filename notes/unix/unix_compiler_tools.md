@@ -166,12 +166,12 @@ int main(void)
 {
 
 #ifdef __TEST__
-	printf("Use macro __TEST__.");
+    printf("Use macro __TEST__.");
 #else
-	printf("Dont't use macro.");
+    printf("Dont't use macro.");
 #endif
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -190,8 +190,8 @@ Use macro __TEST__.
 ## 庫文件
 在Unix環境中，系統的庫文件一般存放在`/lib`、`/lib64`、`/usr/lib`等路徑下，庫文件分為以下兩種類型：
 
-- **動態鏈接庫**，後綴名為`so`意為`share object`(共享對象)。
-- **靜態庫**，後綴名為`a`意為`archive`(檔案文件)。
+- **動態鏈接庫**，後綴名為`so`意為`share object`（共享對象）。
+- **靜態庫**，後綴名為`a`意為`archive`（檔案文件）。
 
 在Unix環境中，庫的命名方式一般為`lib庫名`，如動態庫名稱為`libssl.so`，則鏈接時的庫名稱為`ssl`。
 使用`ldd`命令可以查看可執行文件鏈接了哪些動態鏈接庫：
@@ -208,67 +208,67 @@ $ ldconfig -p
 
 - 鏈接庫文件
 
-	在編譯時如果需要使用鏈接庫，需要`-l`參數直接加**庫名**而不需要寫完整的庫文件名字：
+    在編譯時如果需要使用鏈接庫，需要`-l`參數直接加**庫名**而不需要寫完整的庫文件名字：
 
-	```
-	$ cc 源碼文件 -l庫名
-	```
+    ```
+    $ cc 源碼文件 -l庫名
+    ```
 
-	若庫的位置不在環境變量中，則需要用`-L`參數指定庫所在路徑：
+    若庫的位置不在環境變量中，則需要用`-L`參數指定庫所在路徑：
 
-	```
-	$ cc 源碼文件 -L庫所在目錄 -l庫名
-	```
+    ```
+    $ cc 源碼文件 -L庫所在目錄 -l庫名
+    ```
 
-	若源碼中引用的頭文件位置不在環境變量中，則需要用`-I`參數手動指定頭文件所在路徑：
+    若源碼中引用的頭文件位置不在環境變量中，則需要用`-I`參數手動指定頭文件所在路徑：
 
-	```
-	$ cc 源碼文件 -I頭文件路徑
-	```
+    ```
+    $ cc 源碼文件 -I頭文件路徑
+    ```
 
-	編譯器在鏈接庫時優先使用動態鏈接庫，若需使用靜態鏈接，使用`-static`參數強制編譯器使用靜態庫：
+    編譯器在鏈接庫時優先使用動態鏈接庫，若需使用靜態鏈接，使用`-static`參數強制編譯器使用靜態庫：
 
-	```
-	$ cc -static 源碼文件 -l庫名
-	```
+    ```
+    $ cc -static 源碼文件 -l庫名
+    ```
 
-	連接目標文件(*.o)和庫時使用`ld`命令：
+    連接目標文件(*.o)和庫時使用`ld`命令：
 
-	```
-	$ ld 目標文件 -l庫名
-	```
+    ```
+    $ ld 目標文件 -l庫名
+    ```
 
 - 生成庫文件
 
-	動態鏈接庫可以由編譯器生成：
+    動態鏈接庫可以由編譯器生成：
 
-	```
-	$ cc -shared -fPIC 源碼文件 -o 生成動態庫
-	```
+    ```
+    $ cc -shared -fPIC 源碼文件 -o 生成動態庫
+    ```
 
-	靜態庫使用`ar`指令創建。
-	需要先將源碼編譯成目標文件，再使用`ar`命令：
+    靜態庫使用`ar`指令創建。
+    需要先將源碼編譯成目標文件，再使用`ar`命令：
 
-	```
-	$ ar crs 生成靜態庫 目標文件
-	```
+    ```
+    $ ar crs 生成靜態庫 目標文件
+    ```
 
-	也可使用`libtool`工具生成動態庫和靜態庫。
+    也可使用`libtool`工具生成動態庫和靜態庫。
 
 - 庫文件環境變量
 
-	若程序使用了非系統提供的動態鏈接庫，需要將自己的動態鏈接庫位置加入環境變量中，
-	否則在運行程序時會提示找不到動態鏈接庫。
+    若程序使用了非系統提供的動態鏈接庫，需要將自己的動態鏈接庫位置加入環境變量中，
+    否則在運行程序時會提示找不到動態鏈接庫。
 
-	與Windows不同，Linux/Unix系統默認不會在可執行文件所處的路徑中尋找動態鏈接庫。
-	若需要可執行文件加載當前路徑下的動態庫，則需要將當前路徑加入`LD_LIBRARY_PATH`環境變量中：
+    與Windows不同，Linux/Unix系統默認不會在可執行文件所處的路徑中尋找動態鏈接庫。
+    若需要可執行文件加載當前路徑下的動態庫，則需要將當前路徑加入`LD_LIBRARY_PATH`環境變量中：
 
-	```
-	$ export LD_LIBRARY_PATH=./
-	```
+    ```
+    $ export LD_LIBRARY_PATH=./
+    ```
 
-	需要注意的是，該命令會在`logout`之後失效，長期使用可已考慮寫入`.xprofile`或`.profile`文件中。
-	靜態鏈接庫由於在編譯階段已經將庫文件包含在可執行文件中，故不會出現類似問題。
+    需要注意的是，該命令會在`logout`之後失效，長期使用可已考慮寫入`.xprofile`或`.profile`文件中。
+    靜態鏈接庫由於在編譯階段已經將庫文件包含在可執行文件中，故不會出現類似問題。
 
 ## 靜態鏈接與動態鏈接
 動態鏈接和靜態鏈接程序的比較：
@@ -313,8 +313,8 @@ $ ldd a.out
 ./a.out: error while loading shared libraries: /usr/lib/x86_64-linux-gnu/libc.so: invalid ELF header
 <!-- 應使用 musl-ldd 方可正常展示動態鏈接庫 -->
 $ musl-ldd a.out
-	/lib/ld-musl-x86_64.so.1 (0x7fab864c4000)
-	libc.so => /lib/ld-musl-x86_64.so.1 (0x7fab864c4000)
+    /lib/ld-musl-x86_64.so.1 (0x7fab864c4000)
+    libc.so => /lib/ld-musl-x86_64.so.1 (0x7fab864c4000)
 ```
 
 ## 符號信息
@@ -377,9 +377,9 @@ gcc/clang有`O1`、`O2`、`O3`三個代碼優化級別，`O1`最低，`O3`優化
 其它常用的編譯器參數如下：
 
 - `-M` 將文件依賴關係輸出到標準輸出，輸出的文件依賴可以被構建工具`make`使用。
-	1. `-M` 默認會輸出所有的頭文件路徑，包括`#include<>`和`#include""`。
-	1. `-MM` 僅輸出`#include""`的頭文件路徑。
-	1. `-MD` 將依賴關係輸出重定向到依賴關係文件`[文件名].d`，通常與`-M`或`-MM`一同使用。
+    1. `-M` 默認會輸出所有的頭文件路徑，包括`#include<>`和`#include""`。
+    1. `-MM` 僅輸出`#include""`的頭文件路徑。
+    1. `-MD` 將依賴關係輸出重定向到依賴關係文件`[文件名].d`，通常與`-M`或`-MM`一同使用。
 
 ## Objective-C編譯
 主流的編譯器同樣支持`Objective-C`語言，Objective-C語言的源碼為`*.m`。
@@ -429,10 +429,10 @@ $ clang -fconstant-string-class=NSConstantString -lgnustep-base -lobjc -I/usr/li
 # pacman -S binutils
 ```
 
-`objdump`工具的常見參數：
+objdump工具的常見參數：
 
 - `-a` 查看檔案文件(`*.a`靜態庫)的詳細信息
-- `-C` 將底層符號名解碼成用戶級名稱，讓`C++`函數名以能夠被理解的方式顯示出來
+- `-C` 將底層符號名解碼成用戶級名稱，讓C++函數名以能夠被理解的方式顯示出來
 - `-d` 查看二進制文件的反彙編代碼
 - `-D` 查看二進制文件的反彙編代碼，包括所有`section`
 - `-g` 顯示調試信息
@@ -496,7 +496,7 @@ makefile文件的基本格式为：
 
 ```
 target(目标文件): dependency(依赖文件),....
-	command(执行指令)
+    command(执行指令)
 ```
 
 `target`代表最终生成的目标文件（有一些常见的伪目标比如all、clean、.PHONY）。
@@ -519,9 +519,9 @@ makefile中注释跟Bash脚本一样，采用`#`进行单行注释。
 ```make
 c++ = g++ -std=c++11
 a.out: example.o
-	$(c++) example.o # 展开后相当与 g++ -std=c++11 example.o
+    $(c++) example.o # 展开后相当与 g++ -std=c++11 example.o
 example.o: example.cc
-	$(c++) -c example.cc
+    $(c++) -c example.cc
 ```
 
 makefile中的最终目标也可以是伪目标，如伪目标all代表所有目标的目标。
@@ -676,7 +676,8 @@ link_directories(/path/to/libraries ...)
 # 添加源碼路徑（aux_source_directory()函數不再推薦使用）
 # 可使用 ${CMAKE_CURRENT_SOURCE_DIR} 得到項目目錄的絕對路徑
 file(GLOB SRC1 src1/*.cc) # file()函數GLOB模式匹配收集匹配的文件
-file(GLOB_RECURSE SRC2 src2/*.pp) # GLOB_RECURSE模式遞歸匹配文件
+file(GLOB_RECURSE SRC2 src2/*.cpp) # GLOB_RECURSE模式遞歸匹配文件
+file(GLOB_RECURSE CONFIG src2/*.yaml) # GLOB_RECURSE模式遞歸匹配文件
 ...
 
 # 定義編譯生成的可執行文件
@@ -696,9 +697,9 @@ add_library(xxx_src_lib STATIC xxx_src_file.cpp) # 單文件
 ...
 
 # 鏈接庫
-target_link_libraries(test_exec 庫名1 庫名2 ...) # 鏈接動態庫
-target_link_libraries(test_exec xxx_lib)
-target_link_libraries(test_exec -lpthread -ldl -lrt ...)
+target_link_libraries(test_exec 庫名1 庫名2 ...) # 自動識別庫類型
+target_link_libraries(test_exec xxx_lib) # 鏈接項目依賴庫
+target_link_libraries(test_exec libxxx1.so libxxx2.so ...) # 鏈接動態庫
 target_link_libraries(test_exec libxxx1.a libxxx2.a ...) # 鏈接靜態庫
 ...
 
@@ -707,6 +708,10 @@ add_compile_options(...)
 # 對指定目標添加編譯器參數
 target_compile_options(test_exec PUBLIC/PRIVATE/INTERFACE ...)
 ...
+
+# 定義安裝邏輯（--install指令參數）
+install(FILES ${CONFIG} DESTINATION xxx/xxx...) # 默認安裝路徑為/usr/local，可在指令中設置CMAKE_INSTALL_PREFIX控制
+install(TARGETS ${PROJECT_NAME}) # 構建TARGET會安裝到$CMAKE_INSTALL_PREFIX/bin，默認為/usr/local/bin
 
 # 打印輸出信息
 message(...)
