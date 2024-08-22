@@ -56,6 +56,10 @@
         - [setuid / setgid / sticky](#setuid--setgid--sticky)
         - [lsattr / chattr](#lsattr--chattr)
         - [chflags](#chflags)
+    - [btrfs](#btrfs)
+        - [btrfs指令操作](#btrfs指令操作)
+        - [BTRFS文件系統中創建SWAP](#btrfs文件系統中創建swap)
+        - [WARNING: failed to open /dev/btrfs-control, skipping device registration: No such file or directory](#warning-failed-to-open-devbtrfs-control-skipping-device-registration-no-such-file-or-directory)
     - [LVM (Logical Volume Manager)](#lvm-logical-volume-manager)
         - [LVM基本操作](#lvm基本操作)
         - [Physical Volume（PV，物理卷）](#physical-volumepv物理卷)
@@ -2335,6 +2339,57 @@ macOS/BSD下常用的特殊屬性：
 	override rw-r--r-- dainslef/staff uchg for test? y
 	```
 
+## btrfs
+BTRFS文件系統是Linux下的現代文件系統，對標ZFS。
+
+### btrfs指令操作
+BTRFS文件系統使用btrfs指令進行管理，安裝該工具：
+
+```html
+# pacman -S btrfs-progs <!-- Arch係 -->
+# apt install btrfs-progs <!-- 大便係 -->
+```
+
+btrfs指令常用操作：
+
+```html
+<!-- 文件系統設備相關操作 -->
+# btrfs device
+# btrfs device add 磁盤設備 掛載點 <!-- 將指定磁盤設備添加到目標掛載點 -->
+# btrfs device delete/remove 磁盤設備 掛載點 <!-- 從目標掛載點移除指定的磁盤設備 -->
+# btrfs device usage 掛載點 <!-- 查看指定掛載點使用的磁盤設備 -->
+
+<!-- 文件系統管理操作 -->
+# btrfs filesystem
+# btrfs filesystem df 掛載點 <!-- 查看指定掛載點的數據、元數據大小 -->
+# btrfs filesystem usage 掛載點 <!-- 查看指定掛載點的磁盤設備使用情況 -->
+# btrfs filesystem show 掛載點 <!-- 查看指定掛載點的分區ID、存儲、磁盤設備等信息 -->
+```
+
+### BTRFS文件系統中創建SWAP
+在BTRFS文件系統中創建SWAP文件使用指令：
+
+```html
+<!--
+BTRFS文件系統中普通文件默認會啟用COW，直接用作SWAP會產生錯誤
+使用btrfs filesystem mkswapfile指令創建的文件則不會啟用COW
+-->
+# btrfs filesystem mkswapfile 文件
+```
+
+或者使用[前文所述](#lsattr--chattr)的方法，使用`chattr +C`的方式直接禁用文件的COW。
+
+### WARNING: failed to open /dev/btrfs-control, skipping device registration: No such file or directory
+創建BTRFS分區時出現該錯誤，該錯誤會導致創建的分區無法挂載。
+
+需要使用mknod指令創建文件系統節點：
+
+```
+# mknod /dev/btrfs-control c 10 234
+```
+
+之後重新格式化分區便不會產生上述錯誤，格式化后的分區可以正常挂載。
+
 ## LVM (Logical Volume Manager)
 `LVM (Logical Volume Manager)`，邏輯卷管理，是Linux環境下對磁盤分區進行管理的一種機制。
 
@@ -3540,7 +3595,6 @@ Ubuntu 17.10後，爲了簡化網絡配置，不再使用Debian的網絡配置�
 Netplan配置文件位於`/etc/netplan/xx_config.yaml`：
 
 ```yaml
-
 network:
   version: 2
   renderer: networkd
