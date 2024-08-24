@@ -1,48 +1,49 @@
 <!-- TOC -->
 
 - [Nix Package Manager](#nix-package-manager)
-	- [多版本管理](#多版本管理)
-	- [依賴分析](#依賴分析)
-	- [Nix User Environments](#nix-user-environments)
-	- [Nix Channel](#nix-channel)
-	- [Unfree](#unfree)
-	- [Insecure](#insecure)
+    - [多版本管理](#多版本管理)
+    - [依賴分析](#依賴分析)
+    - [Nix User Environments](#nix-user-environments)
+    - [Nix Channel](#nix-channel)
+    - [Unfree](#unfree)
+    - [Insecure](#insecure)
 - [NixOS](#nixos)
-	- [查看文檔](#查看文檔)
-	- [Nix語言](#nix語言)
-	- [安裝NixOS](#安裝nixos)
-	- [chroot安裝環境](#chroot安裝環境)
-	- [配置管理](#配置管理)
-		- [版本升級與回退](#版本升級與回退)
-		- [Binary Cache](#binary-cache)
-	- [內核配置](#內核配置)
-	- [系統軟件包與服務配置](#系統軟件包與服務配置)
-	- [顯卡驅動配置](#顯卡驅動配置)
-	- [systemd服務](#systemd服務)
-		- [創建自定義systemd服務](#創建自定義systemd服務)
-	- [用戶配置](#用戶配置)
-	- [Shell配置](#shell配置)
-		- [Shell兼容性](#shell兼容性)
-	- [字體配置](#字體配置)
-	- [音頻配置](#音頻配置)
-	- [指紋設備配置](#指紋設備配置)
-	- [輸入法配置](#輸入法配置)
-	- [桌面配置](#桌面配置)
-		- [DPI縮放](#dpi縮放)
-		- [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
-		- [Qt5主題配置](#qt5主題配置)
+    - [查看文檔](#查看文檔)
+    - [Nix語言](#nix語言)
+    - [安裝NixOS](#安裝nixos)
+    - [chroot安裝環境](#chroot安裝環境)
+    - [配置管理](#配置管理)
+        - [版本升級與回退](#版本升級與回退)
+        - [Binary Cache](#binary-cache)
+    - [內核配置](#內核配置)
+    - [系統軟件包與服務配置](#系統軟件包與服務配置)
+    - [顯卡驅動配置](#顯卡驅動配置)
+    - [systemd服務](#systemd服務)
+        - [創建自定義systemd服務](#創建自定義systemd服務)
+    - [用戶配置](#用戶配置)
+    - [Shell配置](#shell配置)
+        - [Shell兼容性](#shell兼容性)
+    - [字體配置](#字體配置)
+    - [音頻配置](#音頻配置)
+    - [指紋設備配置](#指紋設備配置)
+    - [輸入法配置](#輸入法配置)
+    - [桌面配置](#桌面配置)
+        - [DPI縮放](#dpi縮放)
+        - [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
+        - [Qt5主題配置](#qt5主題配置)
 - [模塊（Module）](#模塊module)
-	- [模塊結構](#模塊結構)
-	- [引用函數](#引用函數)
-	- [自定義屬性](#自定義屬性)
+    - [模塊結構](#模塊結構)
+    - [引用函數](#引用函數)
+    - [自定義屬性](#自定義屬性)
 - [問題紀錄](#問題紀錄)
-	- [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
-	- [No output backlight property](#no-output-backlight-property)
-	- [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
-	- [DisplayManager不展示用戶列表](#displaymanager不展示用戶列表)
-	- [Console介面下字體縮放異常](#console介面下字體縮放異常)
-	- [XDG Autostart服務未自啓動](#xdg-autostart服務未自啓動)
-	- [musl未直接導出musl-gcc/musl-clang等工具鏈](#musl未直接導出musl-gccmusl-clang等工具鏈)
+    - [Failed to start Network Time Synchronization.](#failed-to-start-network-time-synchronization)
+    - [No output backlight property](#no-output-backlight-property)
+    - [systemd-boot not installed in ESP.](#systemd-boot-not-installed-in-esp)
+    - [EFI stub: Loaded initrd from LINUX_EFI_INITRD_MEDIA_GUID device path](#efi-stub-loaded-initrd-from-linux_efi_initrd_media_guid-device-path)
+    - [DisplayManager不展示用戶列表](#displaymanager不展示用戶列表)
+    - [Console介面下字體縮放異常](#console介面下字體縮放異常)
+    - [XDG Autostart服務未自啓動](#xdg-autostart服務未自啓動)
+    - [musl未直接導出musl-gcc/musl-clang等工具鏈](#musl未直接導出musl-gccmusl-clang等工具鏈)
 
 <!-- /TOC -->
 
@@ -384,7 +385,7 @@ boot.loader = {
   # 該配置與GRUB不必同時啟用
   systemd-boot.enable = true;
 
-  # 啟用GRUB引導器，使用UEFI+GPT的設備無需指定GRUB引導器位置，MBR的舊式設備則需要指定(如"/dev/sda"等)
+  # 啟用GRUB引導器，使用UEFI+GPT的設備無需指定GRUB引導器位置，MBR的舊式設備則需要指定（如 "/dev/sda" 等）
   # 該配置與systemd-boot不必同時啟用
   # grub {
   #   device = "nodev";
@@ -400,7 +401,7 @@ boot.loader = {
 則應替換默認channel，添加對應新channel：
 
 ```html
-<!-- 以USTC源為例 -->
+<!-- 以清華源為例 -->
 # nix-channel --add https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixos-unstable
 ```
 
@@ -446,19 +447,25 @@ $ nixos-enter
 每次rebuild生成的配置會以啟動項的方式顯示在GRUB菜單中，
 想要恢復之前配置環境僅需重啓進入GRUB進入對應菜單即可。
 
-列出所有的配置：
+列出與回滾系統配置：
 
-```
-# nix-env --list-generations
+```html
+<!-- 列出channel下的所有配置 -->
+# nix-channel --list-generations
+<!-- 回滾到指定配置 -->
+# nix-channel --rollback 配置編號
+
+<!-- 列出指定用戶的配置 -->
+# nix-env -p /nix/var/nix/profiles/per-user/用戶名/channels --list-generations
 ```
 
 執行清理操作：
 
 ```html
 <!-- 刪除指定編號的配置 -->
-# nix-env --delete-generations [配置編號...]
+# nix-env -p /nix/var/nix/profiles/per-user/用戶名/channels --delete-generations 配置編號...
 <!-- 刪除所有舊配置 -->
-# nix-env --delete-generations old
+# nix-env -p /nix/var/nix/profiles/per-user/用戶名/channels --delete-generations old
 
 <!-- 清理所有非激活配置和過時軟件包 -->
 # nix-collect-garbage -d
@@ -671,7 +678,7 @@ systemd.user.services.clash = {
 在`users.users`配置項中設定用戶相關配置。
 
 ```nix
-users.users.[用戶名] = {
+users.users.用戶名 = {
   isNormalUser = true; # 設定是否爲普通用戶，普通用戶才擁有獨立的家目錄和用戶組
   home = "家目錄"; # 默認家目錄爲"/home/用戶名"，有特殊需求可使用此配置指定家目錄
   description = "用戶簡介";
@@ -682,8 +689,8 @@ users.users.[用戶名] = {
 要使用戶能使用`sudo`，需要將用戶加入`wheel`(管理員)用戶組中。
 
 ## Shell配置
-默認配置下使用`bash`做爲普通用戶的默認shell，
-使用其它shell需要修改configuration.nix中的**用戶配置**。
+默認配置下使用`bash`做爲普通用戶的默認Shell，
+使用其它Shell需要修改configuration.nix中的**用戶配置**。
 以fish爲例：
 
 ```nix
@@ -693,8 +700,8 @@ users.users.[用戶名] = {
 };
 ```
 
-使用bash之外的默認shell會導致用戶在DisplayManager的候選列表中不展示，
-使用不同shell需要啓用對應shell配置，以fish爲例，需要開啓`programs.fish.enable`配置：
+使用bash之外的默認Shell會導致用戶在DisplayManager的候選列表中不展示，
+使用不同Shell需要啓用對應shell配置，以fish爲例，需要開啓`programs.fish.enable`配置：
 
 ```nix
 # Enable fish feature will set up environment shells (/etc/shells) for Account Service.
@@ -1149,6 +1156,21 @@ Created EFI boot entry "Linux Boot Manager".
 
 正確安裝了引導器會出現`Created EFI boot entry "Linux Boot Manager".`文本提示，
 在BIOS中的啟動項管理頁面可看到對應引導器並進行配置。
+
+## EFI stub: Loaded initrd from LINUX_EFI_INITRD_MEDIA_GUID device path
+問題說明：<br>
+在Oracle Cloud中，創建規格為`VM.Standard.E2.1.Micro`的實例，
+默認配置下，使用EFI模式啟動實例，出現上述提示信息後系統再無輸出。
+
+解決方案：<br>
+該問題出現的原因是未開啟內核串口輸出，修改configuration.nix，加入下列配置：
+
+```nix
+boot.kernelParams = [ "console=ttyS0" ]; # Enable serial console.
+```
+
+更多說明參考[GitHub Issues](https://github.com/netbootxyz/netboot.xyz/issues/1232)以及
+[相關文檔](https://netboot.xyz/docs/kb/providers/oci/#x86_64---console-quirks-linux)。
 
 ## DisplayManager不展示用戶列表
 問題說明：<br>
