@@ -1,95 +1,97 @@
 <!-- TOC -->
 
 - [初始化與基本配置](#初始化與基本配置)
-	- [數據庫初始化 (MySQL 5.7+)](#數據庫初始化-mysql-57)
-	- [數據庫初始化 (MariaDB & MySQL 5.7-)](#數據庫初始化-mariadb--mysql-57-)
-	- [手動配置](#手動配置)
-	- [使用指定配置啓動](#使用指定配置啓動)
-	- [驅動配置](#驅動配置)
+    - [數據庫初始化 (MySQL 5.7+)](#數據庫初始化-mysql-57)
+    - [數據庫初始化 (MariaDB & MySQL 5.7-)](#數據庫初始化-mariadb--mysql-57-)
+    - [手動配置](#手動配置)
+    - [使用指定配置啓動](#使用指定配置啓動)
+    - [驅動配置](#驅動配置)
 - [服務管理](#服務管理)
-	- [管理數據庫服務（Windows）](#管理數據庫服務windows)
-	- [管理數據庫服務（Linux SystemD）](#管理數據庫服務linux-systemd)
-	- [管理數據庫服務（BSD/Linux SysV）](#管理數據庫服務bsdlinux-sysv)
+    - [管理數據庫服務（Windows）](#管理數據庫服務windows)
+    - [管理數據庫服務（Linux SystemD）](#管理數據庫服務linux-systemd)
+    - [管理數據庫服務（BSD/Linux SysV）](#管理數據庫服務bsdlinux-sysv)
 - [用戶登入與管理](#用戶登入與管理)
-	- [管理用戶](#管理用戶)
-		- [創建用戶](#創建用戶)
-		- [授權用戶](#授權用戶)
-		- [修改用戶密碼](#修改用戶密碼)
-	- [跳過登入驗證](#跳過登入驗證)
-	- [關於密碼策略](#關於密碼策略)
+    - [管理用戶](#管理用戶)
+        - [創建用戶](#創建用戶)
+        - [授權用戶](#授權用戶)
+        - [修改用戶密碼](#修改用戶密碼)
+    - [跳過登入驗證](#跳過登入驗證)
+    - [關於密碼策略](#關於密碼策略)
 - [基本操作](#基本操作)
-	- [基本SQL語句](#基本sql語句)
-		- [CASE 與 IF](#case-與-if)
-	- [內置函數](#內置函數)
-	- [系統變量](#系統變量)
-	- [複製表格](#複製表格)
-	- [主鍵自增](#主鍵自增)
-	- [外鍵約束](#外鍵約束)
-		- [排查外鍵錯誤信息](#排查外鍵錯誤信息)
-		- [臨時禁用/恢復外鍵約束](#臨時禁用恢復外鍵約束)
+    - [基本SQL語句](#基本sql語句)
+        - [CASE 與 IF](#case-與-if)
+    - [內置函數](#內置函數)
+    - [系統變量](#系統變量)
+    - [複製表格](#複製表格)
+    - [主鍵自增](#主鍵自增)
+    - [外鍵約束](#外鍵約束)
+        - [排查外鍵錯誤信息](#排查外鍵錯誤信息)
+        - [臨時禁用/恢復外鍵約束](#臨時禁用恢復外鍵約束)
 - [表格優化與修復](#表格優化與修復)
-	- [optimize](#optimize)
-	- [repair](#repair)
+    - [optimize](#optimize)
+    - [repair](#repair)
 - [文本類型](#文本類型)
-	- [CHAR相關類型與TEXT相關類型的區別](#char相關類型與text相關類型的區別)
-	- [字符集](#字符集)
-	- [字符類型自動轉換](#字符類型自動轉換)
-	- [枚舉類型](#枚舉類型)
+    - [CHAR相關類型與TEXT相關類型的區別](#char相關類型與text相關類型的區別)
+    - [字符集](#字符集)
+    - [字符類型自動轉換](#字符類型自動轉換)
+    - [枚舉類型](#枚舉類型)
 - [時間類型](#時間類型)
-	- [毫秒/微秒支持](#毫秒微秒支持)
+    - [毫秒/微秒支持](#毫秒微秒支持)
 - [JSON 類型](#json-類型)
-	- [基本JSON操作](#基本json操作)
-	- [查找與更新JSON節點](#查找與更新json節點)
+    - [基本JSON操作](#基本json操作)
+    - [查找與更新JSON節點](#查找與更新json節點)
 - [Index（索引）](#index索引)
-	- [索引類型](#索引類型)
-	- [索引實現與優化](#索引實現與優化)
-	- [索引離散性](#索引離散性)
-	- [翻頁查詢優化](#翻頁查詢優化)
+    - [索引類型](#索引類型)
+    - [索引實現與優化](#索引實現與優化)
+    - [索引離散性](#索引離散性)
+    - [翻頁查詢優化](#翻頁查詢優化)
 - [Row Formats（行格式）](#row-formats行格式)
-	- [REDUNDANT Row Format](#redundant-row-format)
-	- [COMPACT Row Format](#compact-row-format)
-	- [DYNAMIC Row Format](#dynamic-row-format)
+    - [REDUNDANT Row Format](#redundant-row-format)
+    - [COMPACT Row Format](#compact-row-format)
+    - [DYNAMIC Row Format](#dynamic-row-format)
 - [FEDERATED 存儲引擎](#federated-存儲引擎)
-	- [啟用FEDERATED引擎](#啟用federated引擎)
-	- [創建FEDERATED表](#創建federated表)
+    - [啟用FEDERATED引擎](#啟用federated引擎)
+    - [創建FEDERATED表](#創建federated表)
 - [Data-at-Rest Encryption（靜態加密）](#data-at-rest-encryption靜態加密)
-	- [啟用keyring_file插件](#啟用keyring_file插件)
-	- [啟用/禁用表格加密](#啟用禁用表格加密)
-	- [Master Key Rotation（主密鑰輪換）](#master-key-rotation主密鑰輪換)
+    - [啟用keyring_file插件](#啟用keyring_file插件)
+    - [啟用/禁用表格加密](#啟用禁用表格加密)
+    - [Master Key Rotation（主密鑰輪換）](#master-key-rotation主密鑰輪換)
 - [MySQL高可用](#mysql高可用)
-	- [Replication（複製）](#replication複製)
-		- [解決數據衝突](#解決數據衝突)
-		- [Binlog位置錯誤](#binlog位置錯誤)
-	- [Galera Cluster](#galera-cluster)
-		- [安裝Galera Cluster](#安裝galera-cluster)
-		- [配置Galera集群](#配置galera集群)
+    - [Replication（複製）](#replication複製)
+        - [解決數據衝突](#解決數據衝突)
+        - [Binlog位置錯誤](#binlog位置錯誤)
+    - [Galera Cluster](#galera-cluster)
+        - [安裝Galera Cluster](#安裝galera-cluster)
+        - [配置Galera集群](#配置galera集群)
+        - [檢查Galera集群狀態](#檢查galera集群狀態)
+        - [恢復Galera集群](#恢復galera集群)
 - [常用功能和配置](#常用功能和配置)
-	- [導出數據](#導出數據)
-	- [導入數據](#導入數據)
-	- [設置中文編碼](#設置中文編碼)
-	- [二進制數據](#二進制數據)
-	- [JSP編碼設置](#jsp編碼設置)
-	- [時區問題](#時區問題)
-	- [時間轉換](#時間轉換)
-	- [禁用 DNS 解析](#禁用-dns-解析)
+    - [導出數據](#導出數據)
+    - [導入數據](#導入數據)
+    - [設置中文編碼](#設置中文編碼)
+    - [二進制數據](#二進制數據)
+    - [JSP編碼設置](#jsp編碼設置)
+    - [時區問題](#時區問題)
+    - [時間轉換](#時間轉換)
+    - [禁用 DNS 解析](#禁用-dns-解析)
 - [查看數據庫狀態](#查看數據庫狀態)
 - [性能測試](#性能測試)
-	- [mysqlslap](#mysqlslap)
-	- [寫入性能相關優化參數](#寫入性能相關優化參數)
+    - [mysqlslap](#mysqlslap)
+    - [寫入性能相關優化參數](#寫入性能相關優化參數)
 - [C API](#c-api)
-	- [連接數據庫](#連接數據庫)
-	- [執行SQL語句](#執行sql語句)
-	- [處理查詢結果](#處理查詢結果)
-	- [切換當前數據庫](#切換當前數據庫)
-	- [關閉數據庫連接](#關閉數據庫連接)
+    - [連接數據庫](#連接數據庫)
+    - [執行SQL語句](#執行sql語句)
+    - [處理查詢結果](#處理查詢結果)
+    - [切換當前數據庫](#切換當前數據庫)
+    - [關閉數據庫連接](#關閉數據庫連接)
 - [問題註記](#問題註記)
-	- [MySQL error: sql_mode=only_full_group_by](#mysql-error-sql_modeonly_full_group_by)
-	- [Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column To disable safe mode, toggle the option in Preferences -> SQL Queries and reconnect.](#error-code-1175-you-are-using-safe-update-mode-and-you-tried-to-update-a-table-without-a-where-that-uses-a-key-column-to-disable-safe-mode-toggle-the-option-in-preferences---sql-queries-and-reconnect)
-	- [[42000][1071] Specified key was too long; max key length is 3072 bytes](#420001071-specified-key-was-too-long-max-key-length-is-3072-bytes)
-	- [[ERROR] [MY-010123] [Server] Fatal error: Please read "Security" section of the manual to find out how to run mysqld as root!](#error-my-010123-server-fatal-error-please-read-security-section-of-the-manual-to-find-out-how-to-run-mysqld-as-root)
-		- [ERROR 1396 (HY000): Operation CREATE USER failed for 'root'@'xxx'](#error-1396-hy000-operation-create-user-failed-for-rootxxx)
-		- [MySQL reset auto_increment value in Innodb after server restart](#mysql-reset-auto_increment-value-in-innodb-after-server-restart)
-		- [mysqld: Can't create directory 'xxx' (Errcode: 13 - Permission denied)](#mysqld-cant-create-directory-xxx-errcode-13---permission-denied)
+    - [MySQL error: sql_mode=only_full_group_by](#mysql-error-sql_modeonly_full_group_by)
+    - [Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column To disable safe mode, toggle the option in Preferences -> SQL Queries and reconnect.](#error-code-1175-you-are-using-safe-update-mode-and-you-tried-to-update-a-table-without-a-where-that-uses-a-key-column-to-disable-safe-mode-toggle-the-option-in-preferences---sql-queries-and-reconnect)
+    - [[42000][1071] Specified key was too long; max key length is 3072 bytes](#420001071-specified-key-was-too-long-max-key-length-is-3072-bytes)
+    - [[ERROR] [MY-010123] [Server] Fatal error: Please read "Security" section of the manual to find out how to run mysqld as root!](#error-my-010123-server-fatal-error-please-read-security-section-of-the-manual-to-find-out-how-to-run-mysqld-as-root)
+        - [ERROR 1396 (HY000): Operation CREATE USER failed for 'root'@'xxx'](#error-1396-hy000-operation-create-user-failed-for-rootxxx)
+        - [MySQL reset auto_increment value in Innodb after server restart](#mysql-reset-auto_increment-value-in-innodb-after-server-restart)
+        - [mysqld: Can't create directory 'xxx' (Errcode: 13 - Permission denied)](#mysqld-cant-create-directory-xxx-errcode-13---permission-denied)
 
 <!-- /TOC -->
 
@@ -1508,6 +1510,93 @@ wsrep_node_name = node_name_xxx
 # rm -rf /var/lib/mysql
 # mariadb-install-db
 ```
+
+### 檢查Galera集群狀態
+Galera的集群狀態以MySQL環境變量的形式保存：
+
+```sql
+mysql> SHOW GLOBAL STATUS LIKE 'wsrep_%';
++------------------------------+----------------------------------------------------------------+
+| Variable_name                | Value                                                          |
++------------------------------+----------------------------------------------------------------+
+| wsrep_apply_oooe             | 0.000000                                                       |
+| wsrep_apply_oool             | 0.000000                                                       |
+| wsrep_apply_window           | 1.000000                                                       |
+| wsrep_causal_reads           | 0                                                              |
+| wsrep_cert_deps_distance     | 1.000000                                                       |
+| wsrep_cert_index_size        | 5                                                              |
+| wsrep_cert_interval          | 0.000000                                                       |
+| wsrep_cluster_conf_id        | 4                                                              |
+| wsrep_cluster_size           | 2                                                              |
+| wsrep_cluster_state_uuid     | 5443cad7-cd19-11ec-95d7-8e1ca973ed7b                           |
+| wsrep_cluster_status         | Primary                                                        |
+| wsrep_cluster_weight         | 2                                                              |
+| wsrep_commit_oooe            | 0.000000                                                       |
+| wsrep_commit_oool            | 0.000000                                                       |
+| wsrep_commit_window          | 1.000000                                                       |
+| wsrep_connected              | ON                                                             |
+| wsrep_desync_count           | 0                                                              |
+| wsrep_evs_delayed            | 5441e247-cd19-11ec-a873-c3e6e1427388:tcp://10.21.21.157:4567:1 |
+| wsrep_evs_evict_list         |                                                                |
+| wsrep_evs_repl_latency       | 0/0/0/0/0                                                      |
+| wsrep_evs_state              | OPERATIONAL                                                    |
+| wsrep_flow_control_paused    | 0.000000                                                       |
+| wsrep_flow_control_paused_ns | 0                                                              |
+| wsrep_flow_control_recv      | 0                                                              |
+| wsrep_flow_control_sent      | 0                                                              |
+| wsrep_gcomm_uuid             | f50c1a22-cd19-11ec-b42a-f742d44661fe                           |
+| wsrep_incoming_addresses     | 10.21.21.181:3306,10.21.21.218:3306                            |
+| wsrep_last_committed         | 6                                                              |
+| wsrep_local_bf_aborts        | 0                                                              |
+| wsrep_local_cached_downto    | 1                                                              |
+| wsrep_local_cert_failures    | 0                                                              |
+| wsrep_local_commits          | 0                                                              |
+| wsrep_local_index            | 1                                                              |
+| wsrep_local_recv_queue       | 0                                                              |
+| wsrep_local_recv_queue_avg   | 0.000000                                                       |
+| wsrep_local_recv_queue_max   | 1                                                              |
+| wsrep_local_recv_queue_min   | 0                                                              |
+| wsrep_local_replays          | 0                                                              |
+| wsrep_local_send_queue       | 0                                                              |
+| wsrep_local_send_queue_avg   | 0.333333                                                       |
+| wsrep_local_send_queue_max   | 2                                                              |
+| wsrep_local_send_queue_min   | 0                                                              |
+| wsrep_local_state            | 4                                                              |
+| wsrep_local_state_comment    | Synced                                                         |
+| wsrep_local_state_uuid       | 5443cad7-cd19-11ec-95d7-8e1ca973ed7b                           |
+| wsrep_open_connections       | 0                                                              |
+| wsrep_open_transactions      | 0                                                              |
+| wsrep_protocol_version       | 9                                                              |
+| wsrep_provider_name          | Galera                                                         |
+| wsrep_provider_vendor        | Codership Oy <info@codership.com>                              |
+| wsrep_provider_version       | 25.3.28(r3875)                                                 |
+| wsrep_ready                  | ON                                                             |
+| wsrep_received               | 10                                                             |
+| wsrep_received_bytes         | 3282                                                           |
+| wsrep_repl_data_bytes        | 0                                                              |
+| wsrep_repl_keys              | 0                                                              |
+| wsrep_repl_keys_bytes        | 0                                                              |
+| wsrep_repl_other_bytes       | 0                                                              |
+| wsrep_replicated             | 0                                                              |
+| wsrep_replicated_bytes       | 0                                                              |
+| wsrep_thread_count           | 9                                                              |
++------------------------------+----------------------------------------------------------------+
+61 rows in set (0.01 sec)
+```
+
+`wsrep_local_state_comment`字段反映了當前集群的同步狀態。
+
+### 恢復Galera集群
+通常Galera集群中一兩個節點進程崩潰只需在對應崩潰的節點使用systemctl重新啟動服務即可，
+若集群中所有的節點均進程崩潰，此時需要手動恢復集群，
+查找每個節點的`/var/lib/mysql/grastate.dat`文件，
+找到`safe_to_bootstrap`值為1的節點，在該節點重新初始化集群：
+
+```
+# galera_new_cluster
+```
+
+之後在其它節點繼續使用systemctl啟動節點。
 
 
 
