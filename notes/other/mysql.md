@@ -65,6 +65,10 @@
         - [配置Galera集群](#配置galera集群)
         - [檢查Galera集群狀態](#檢查galera集群狀態)
         - [恢復Galera集群](#恢復galera集群)
+- [OceanBase](#oceanbase)
+    - [OceanBase all-in-one 部署](#oceanbase-all-in-one-部署)
+    - [OceanBase集群管理](#oceanbase集群管理)
+    - [OceanBase常見配置問題](#oceanbase常見配置問題)
 - [常用功能和配置](#常用功能和配置)
     - [導出數據](#導出數據)
     - [導入數據](#導入數據)
@@ -1597,6 +1601,64 @@ mysql> SHOW GLOBAL STATUS LIKE 'wsrep_%';
 ```
 
 之後在其它節點繼續使用systemctl啟動節點。
+
+
+
+# OceanBase
+[`OceanBase`](https://www.oceanbase.com/)
+是阿里巴巴開發的國產數據庫替代，OceanBase支持以MySQL或Oracle模式工作。
+
+## OceanBase all-in-one 部署
+OceanBase提供免費的社區版[OceanBase All in One](https://www.oceanbase.com/softwarecenter)，
+按平台下載解壓後，配置[OBD工具](https://www.oceanbase.com/docs/community-obd-cn-1000000000774257)。
+
+```
+$ tar -xzf oceanbase-all-in-one-*.tar.gz
+$ cd oceanbase-all-in-one/bin/
+$ ./install.sh
+$ source ~/.oceanbase-all-in-one/bin/env.sh
+
+$ obd web
+start OBD WEB in 0.0.0.0:8680
+please open http://x.x.x.x:8680
+```
+
+通過OBD啟動WEB頁面白屏部署OceanBase，參考
+[官方文檔](https://www.oceanbase.com/docs/community-obd-cn-1000000000774258)。
+
+## OceanBase集群管理
+obd工具用於集群管理：
+
+```html
+ <!-- 列出集群 -->
+$ obd cluster list
+
+<!-- 啟動/停止集群 -->
+$ obd cluster start 集群名稱
+$ obd cluster stop 集群名稱
+$ obd cluster restart 集群名稱
+
+<!-- 修改集群配置 -->
+$ obd cluster edit-config 集群名稱
+<!-- 部分配置修改需要整個集群重新部署，重新部署不會變更集群的密碼等信息 -->
+$ obd cluster redeploy 集群名稱
+```
+
+## OceanBase常見配置問題
+OceanBase默認會預分配存儲，佔用數據盤的所有存儲空間，
+初始化時需要使用`datafile_size`配置限制預分配存儲的大小。
+
+OceanBase創建租戶時默認使用`lower_case_table_names = 1`，
+該選項會將字段、表名均轉換為小寫字母存儲，比較字段名稱時會忽略大小寫；
+lower_case_table_names取值：
+
+- `0` 大小寫敏感，表名、字段保留大小寫
+- `1` 大小寫不敏感，表名、字段按小寫存儲
+- `2` 大小寫不敏感，表名、字段保留大小寫
+
+lower_case_table_names僅可在創建租戶時指定，租戶創建完成後不可修改。
+
+為**兼容MySQL默認配置**，應使用`lower_case_table_names = 2`。
 
 
 
