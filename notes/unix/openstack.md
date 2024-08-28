@@ -2,23 +2,23 @@
 
 - [OpenStack面板常用功能](#openstack面板常用功能)
 - [OpenStackClient](#openstackclient)
-	- [配置OpenStack認證](#配置openstack認證)
-	- [OpenStackClient配置文件](#openstackclient配置文件)
+    - [配置OpenStack認證](#配置openstack認證)
+    - [OpenStackClient配置文件](#openstackclient配置文件)
 - [Kolla Ansible](#kolla-ansible)
-	- [Debian Stable部署流程](#debian-stable部署流程)
-	- [升級OpenStack版本](#升級openstack版本)
-	- [Cinder（存儲配置）](#cinder存儲配置)
-	- [Octavia（負載均衡器配置）](#octavia負載均衡器配置)
-	- [Kolla Ansible部署問題](#kolla-ansible部署問題)
-		- [Python依賴](#python依賴)
-		- [網卡IP地址](#網卡ip地址)
-		- [清理指定組件](#清理指定組件)
-		- [清理部署環境](#清理部署環境)
-		- [RabbitMQ部署問題](#rabbitmq部署問題)
-		- [恢復MariaDB數據庫](#恢復mariadb數據庫)
+    - [Debian Stable部署流程](#debian-stable部署流程)
+    - [升級OpenStack版本](#升級openstack版本)
+    - [Cinder（存儲配置）](#cinder存儲配置)
+    - [Octavia（負載均衡器配置）](#octavia負載均衡器配置)
+    - [Kolla Ansible部署問題](#kolla-ansible部署問題)
+        - [Python依賴](#python依賴)
+        - [網卡IP地址](#網卡ip地址)
+        - [清理指定組件](#清理指定組件)
+        - [清理部署環境](#清理部署環境)
+        - [RabbitMQ部署問題](#rabbitmq部署問題)
+        - [恢復MariaDB數據庫](#恢復mariadb數據庫)
 - [Horizon](#horizon)
-	- [部署Horizon開發環境](#部署horizon開發環境)
-	- [編寫Horizon插件](#編寫horizon插件)
+    - [部署Horizon開發環境](#部署horizon開發環境)
+    - [編寫Horizon插件](#編寫horizon插件)
 
 <!-- /TOC -->
 
@@ -361,9 +361,66 @@ ERROR: epmd error for host openStack: address (cannot connect to host/port)
 OpenStack部署多個計算節點時，數據庫組件MariaDB會以集群模式（Galera Cluster）運行，
 集群掉電重啟後可能會出現同步異常導致數據庫容器反覆重啟。
 
-恢復步驟：
+首先需要確認數據的主節點，查看MariaDB的WSREP同步信息（在mariadb.log中會定期輸出），通常結構如下：
 
-1. 選擇數據最新的計算節點作為恢復節點
+```
+...
+2024-08-13 10:32:26 0 [Warning] WSREP: Quorum: No node with complete state:
+
+	Version      : 4
+	Flags        : 0x1
+	Protocols    : 0 / 8 / 3
+	State        : NON-PRIMARY
+	Desync count : 0
+	Prim state   : NON-PRIMARY
+	Prim UUID    : 00000000-0000-0000-0000-000000000000
+	Prim  seqno  : -1
+	First seqno  : -1
+	Last  seqno  : 40342010
+	Prim JOINED  : 0
+	State UUID   : 4704f897-591c-11ef-8fcb-5f019917158e
+	Group UUID   : dfb9d6d3-a91c-11ed-8b26-9a72676f2337
+	Name         : 'nmssuperf03'
+	Incoming addr: '10.21.22.13:3306'
+
+	Version      : 4
+	Flags        : 00
+	Protocols    : 0 / 8 / 3
+	State        : NON-PRIMARY
+	Desync count : 0
+	Prim state   : NON-PRIMARY
+	Prim UUID    : 00000000-0000-0000-0000-000000000000
+	Prim  seqno  : -1
+	First seqno  : -1
+	Last  seqno  : 40342010
+	Prim JOINED  : 0
+	State UUID   : 4704f897-591c-11ef-8fcb-5f019917158e
+	Group UUID   : dfb9d6d3-a91c-11ed-8b26-9a72676f2337
+	Name         : 'nmssuperf02'
+	Incoming addr: '10.21.22.12:3306'
+
+	Version      : 4
+	Flags        : 0x2
+	Protocols    : 0 / 8 / 3
+	State        : NON-PRIMARY
+	Desync count : 0
+	Prim state   : SYNCED
+	Prim UUID    : 41a589ae-591c-11ef-9eb5-72d652d8a8e4
+	Prim  seqno  : 19
+	First seqno  : -1
+	Last  seqno  : 40341907
+	Prim JOINED  : 1
+	State UUID   : 4704f897-591c-11ef-8fcb-5f019917158e
+	Group UUID   : dfb9d6d3-a91c-11ed-8b26-9a72676f2337
+	Name         : 'nmssuperf01'
+	Incoming addr: '10.21.22.11:3306'
+```
+
+通常`Last  seqno`數值最大的節點即為數據最新的節點。
+
+之後開始下列恢復步驟：
+
+1. 選擇數據最新的計算節點作為恢復節點，停止該節點的MariaDB容器
 1. 編輯`/var/lib/docker/volumes/mariadb/_data/grastate.dat`文件，
 將`safe_to_bootstrap`值修改為`1`
 1. 編輯`/etc/kolla/mariadb/config.json`文件，
@@ -374,7 +431,8 @@ OpenStack部署多個計算節點時，數據庫組件MariaDB會以集群模式�
 若狀態正常則將之前修改的`/etc/kolla/mariadb/config.json`文件恢復默認內容。
 
 使用docker logs指令並不能直接查看到MariaDB數據庫服務的運行日誌，
-服務運行日誌位於`/var/lib/docker/volumes/kolla_logs/_data/mariadb/mariadb.log`文件。
+服務運行日誌位於`/var/lib/docker/volumes/kolla_logs/_data/mariadb/mariadb.log`文件
+（可使用Kolla的符號鏈接路徑`/var/log/kolla/mariadb/mariadb.log`）。
 
 
 
