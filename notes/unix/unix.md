@@ -30,6 +30,7 @@
 - [SSH（Secure Shell）](#sshsecure-shell)
     - [遠程登錄](#遠程登錄)
     - [SSH 配置](#ssh-配置)
+    - [UsePAM](#usepam)
     - [配置免密登陸](#配置免密登陸)
     - [關閉主機Key檢測](#關閉主機key檢測)
     - [SSH Tunnel（SSH隧道）](#ssh-tunnelssh隧道)
@@ -1192,6 +1193,26 @@ PasswordAuthentication no # 默認值yes，公網環境不建議允許密碼登�
 TCPKeepAlive yes # 設置是否在空閒時自動發送心跳包，默認值yes，需要保證該配置開啟後續的心跳參數才會生效
 ClientAliveInterval 10s # 設置心跳包間隔（秒），默認值為0（不會自動發送心跳包），該間隔應小於防火牆關閉連接的時間，若值較大可能造成心跳包未發送連接就已被關閉
 ```
+
+## UsePAM
+PAM是Unix系統的認證模塊，SSH可選擇是否使用PAM認證並登入用戶：
+
+```yaml
+UsePAM no # 默認值no，部分發行版會設置yes，PAM認證會根據配置引入額外的認證流程
+```
+
+Linux下systemd、dbus相關功能需要啓用PAM，
+若禁用了PAM會導致部分systemd指令異常：
+
+```
+$ systemctl --user
+Failed to connect to bus: No medium found
+
+$ loginctl session-status
+Failed to get path for session 'auto': Caller does not belong to any known session and doesn't own any suitable session.
+```
+
+正常PAM登入會在`/run/user`路徑下生成用戶登入相關信息，關閉PAM登入后則不會生成相關信息。
 
 ## 配置免密登陸
 默認配置下，登陸SSH需要密碼，當部署一些依賴SSH協議的分佈式服務時（如`Hadoop`、`Zookeeper`、`Kafka`等），
@@ -3883,7 +3904,7 @@ $ cat /proc/sys/net/ipv4/ip_forward <!-- 直接查看proc文件系統 -->
 
 通過編輯配置`/etc/sysctl.cnf`可永久開啟路由轉發功能：
 
-```
+```sh
 # Kernel sysctl configuration file for ...
 #
 # For binary values, 0 is disabled, 1 is enabled.  See sysctl(8) and
