@@ -3,12 +3,15 @@
 - [基本安裝流程](#基本安裝流程)
     - [解壓並切換至Stage環境](#解壓並切換至stage環境)
     - [配置Portage](#配置portage)
-    - [配置編譯參數](#配置編譯參數)
+    - [配置portage參數](#配置portage參數)
     - [配置内核](#配置内核)
         - [編譯内核](#編譯内核)
         - [安裝編譯內核](#安裝編譯內核)
     - [安裝引導器](#安裝引導器)
-- [emerge](#emerge)
+- [包管理](#包管理)
+    - [emerge](#emerge)
+    - [portage-utils](#portage-utils)
+    - [gentoolkit](#gentoolkit)
     - [package.use](#packageuse)
     - [equery](#equery)
     - [包組列表](#包組列表)
@@ -97,7 +100,7 @@ chroot到Gentoo Stage環境。
 # eselect profile set 配置編號
 ```
 
-## 配置編譯參數
+## 配置portage參數
 編輯`/etc/portage/make.conf`文件，該文件用於配置系統構建（内核、軟件包編譯）的全局編譯參數，
 通常使用默認配置即可。
 
@@ -357,9 +360,12 @@ Gentoo下GRUB默認使用`/boot/efi`路徑作爲ESP挂載點，
 ```
 
 
+# 包管理
+Gentoo使用`emerge`作爲包管理器，以及其它輔助工具如
+`app-portage/portage-utils`、`app-portage/gentoolkit`、`app-portage/eix`等。
 
-# emerge
-Gentoo使用`emerge`作爲包管理器，常用參數説明：
+## emerge
+`emerge`是Gentoo的默認包管理器，包含在默認環境中，常用參數説明：
 
 ```
 -p pretend 預覽
@@ -392,21 +398,45 @@ Gentoo使用`emerge`作爲包管理器，常用參數説明：
 ```html
 # emerge --sync <!-- 同步portage樹 -->
 # emerge -e world <!-- 更換全局USE之後重新編譯所有包 -->
-# emerge -u system <!-- 升級系統軟件 -->
-# emerge -u world <!-- 升級整個系統 -->
-# emerge -auvDN system world <!-- 完整升級系統 -->
+# emerge -u system <!-- 更新系統軟件 -->
+# emerge -u world <!-- 更新整個系統 -->
+# emerge -auvDN system world <!-- 完整更新系統 -->
 
 # emerge -pv 包名 <!-- 查看某個包的可用USE -->
 # emerge --udpate --newuse 包名 <!-- 更新USE之後安裝包刷新依賴關係 -->
 # emerge --depclean <!-- 清理無用依賴 -->
 # emerge -a <!-- 執行操作前詢問 -->
-# eclean distfiles <!-- 清理包文件(請先 emerge gentoolkit) -->
 
 <!-- 查看系統構建信息 -->
 $ emerge --info
 $ emerge --info 包名 <!-- 查看系統構建信息以及指定已安裝軟件包的構建標記 -->
+```
 
+## portage-utils
+`app-portage/portage-utils`提供了emerge缺失的部分高級包管理功能，
+包括qlist、qfile、qdepends、qkeyword等工具。
+
+該套件由C語言實現，默認已安裝在系統中。
+
+```html
+$ qlist 包名 <!-- 查看包裏有哪些文件 -->
 $ qfile 文件名/路徑名 <!-- 查看文件屬於哪個包 -->
+```
+
+## gentoolkit
+`app-portage/gentoolkit`提供了emerge缺失的部分高級包管理功能，
+包括equery、eclean、ekeyword等工具。
+
+該套件由Python實現，默認不包含在系統中，需要自行安裝。
+
+```html
+$ equery list 包名 <!-- 列出對應包名的包安裝了哪些版本 -->
+$ equery files 包名 <!-- 查看包裏有哪些文件 -->
+$ equery belongs 文件路徑 <!-- 查看文件屬於哪個包 -->
+$ equery depends 包名 <!-- 查看某個包的依賴 -->
+$ equery uses 包名 <!-- 查看一個已經安裝的包使用了哪些USE -->
+
+# eclean distfiles <!-- 清理包文件 -->
 ```
 
 ## package.use
