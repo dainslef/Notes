@@ -25,6 +25,7 @@
         - [Shell兼容性](#shell兼容性)
     - [字體配置](#字體配置)
     - [音頻配置](#音頻配置)
+        - [Pulse Audio](#pulse-audio)
     - [指紋設備配置](#指紋設備配置)
     - [輸入法配置](#輸入法配置)
     - [桌面配置](#桌面配置)
@@ -743,10 +744,19 @@ fonts.fontconfig.defaultFonts = {
 取代該路徑的用戶字體路徑是`$XDG_DATA_HOME/fonts`，實際對應路徑爲`~/.local/share/fonts`。
 
 ## 音頻配置
-默認配置下不會開啟音頻，需要手動開啟配置：
+默認配置下不會開啟音頻，開啟音頻啟用配置：
 
 ```nix
-# 開啟PulseAudio服務，sound.enable配置會隨著該配置自動啟用，因此不必顯式配置
+sound.enable = true;
+```
+
+開啟音頻會啟用ALSA，包含alsamixer等相關工具。
+
+### Pulse Audio
+使用Pulse Audio需要開啟配置：
+
+```nix
+# 開啟PulseAudio服務，sound.enable配置會隨著該配置自動啟用，因此不必再顯式配置
 hardware.pulseaudio.enable = true;
 ```
 
@@ -1264,7 +1274,13 @@ services.xserver.desktopManager.runXdgAutostartIfNone = true;
 NixOS中的`musl`包並未如常規Linux發行版一般將musl的編譯器工具導出到PATH環境變量中。
 
 解決方案：<br>
-NixOS安裝musl包時會將musl-dev作為依賴安裝（但musl-dev不可直接安裝），示例：
+使用nix-shell執行musl，環境中會直接提供musl工具鏈：
+
+```
+$ nix-shell -p musl
+```
+
+或者使用手動創建鏈接的方式，安裝musl包時會將musl-dev作為依賴安裝（但musl-dev不可直接安裝），示例：
 
 ```
 $ nix-env -i musl
