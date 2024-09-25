@@ -11,6 +11,7 @@
         - [Slot](#slot)
         - [創建Redis集群](#創建redis集群)
         - [訪問Redis集群](#訪問redis集群)
+- [Redis Pipelining and Transactions（管道/事務）](#redis-pipelining-and-transactions管道事務)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
     - [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
 - [問題註記](#問題註記)
@@ -442,6 +443,84 @@ c6d6ecdaec9e6287bb56372e0a057881dada7963 x.x.x.1:6379@16379 master - 0 171170198
 00fe73fe83d28ff2329027e49d5d3c5db0c9c00b x.x.x.2:6380@16380 slave c6d6ecdaec9e6287bb56372e0a057881dada7963 0 1711701980000 5 connected
 c481a3bf6486a98bae6e8e006336a42b12719e6a x.x.x.2:6379@16379 myself,master - 0 1711701981000 2 connected 5461-10922
 ```
+
+
+
+# Redis Pipelining and Transactions（管道/事務）
+Redis中管道是**客戶端**行為，不改變服務端的處理機制，將多個指令在一次網絡請求中一併發送，
+能減少Round-Trip Time（RTT），提升性能，節省網絡開銷。
+
+Redis中事務是**服務端**機制，事務中可包含多條指令，指令會被作為一個整體一併執行。
+Redis使用`MULTI`開啟事務，`DISCARD/EXEC`取消/執行事務，
+開啟事務前可使用`WATCH`設置樂觀鎖（CAS）監控指定Key，
+在EXEC時若監控的Key發生了修改，則MULTI事務內的語句不實際執行，返回nil。
+無論EXEC是否正常執行，均會UNWATCH之前WATCH的Key。
+
+示例：
+
+```html
+> SET test1 1
+OK
+> SET test2 1
+OK
+
+<!-- 設置監控Key -->
+> WATCH test1 test2
+OK
+<!-- 開啟事務 -->
+> MULTI
+OK
+(TX)> SET test1 2
+QUEUED
+(TX)> SET test2 2
+QUEUED
+<!-- 執行事務，正常執行 -->
+(TX)> EXEC
+1) OK
+2) OK
+> MGET test1 test2
+1) "2"
+2) "2"
+
+> WATCH test1 test2
+OK
+> MULTI
+OK
+(TX)> SET test1 3
+QUEUED
+(TX)> SET test2 3
+QUEUED
+<!-- 執行事務，執行失敗 -->
+(TX)> EXEC
+(nil)
+<!-- 在事務執行期間監控的Key被其它Client修改 -->
+> MGET test1 test2
+1) "8964"
+2) "2"
+```
+
+MULTI期間所有的指令返回結果均為QUEUED（包括查詢指令），
+若需要查詢內容，則應放在MULTI之前，WATCH添加的監視生效為指令執行時，而非MULTI開始時，
+只要WATCH的Key被任意指令修改（包括當前會話在MULTI之外的修改），後續的MULTI均會失敗，示例：
+
+```html
+> SET test1 1
+OK
+> WATCH test1
+OK
+> SET test1 2
+OK
+> MULTI
+OK
+(TX)> SET test1 3
+QUEUED
+(TX)> EXEC
+(nil)
+> GET test1
+"2"
+```
+
+若事務執行失敗，則事務內的語句不會生效。
 
 
 
