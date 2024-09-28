@@ -13,7 +13,8 @@
     - [portage-utils](#portage-utils)
     - [gentoolkit](#gentoolkit)
     - [package.use](#packageuse)
-    - [equery](#equery)
+    - [package.mask / package.unmask](#packagemask--packageunmask)
+    - [package.accept_keywords / package.license](#packageaccept_keywords--packagelicense)
     - [包組列表](#包組列表)
     - [多版本包管理（slot機制）](#多版本包管理slot機制)
     - [overlay](#overlay)
@@ -452,16 +453,63 @@ $ equery uses 包名 <!-- 查看一個已經安裝的包使用了哪些USE -->
 軟件包 啓用標簽 -禁用標簽
 ```
 
-## equery
-查詢系統內已安裝的包的信息需要安裝額外的工具`app-portage/gentoolkit`，
-該包含有eclean、equery等工具。
+## package.mask / package.unmask
+Gentoo的Mask機制可用於控制系統的軟件包版本，
+將特定版本的軟件包Mask，可避免系統計算依賴時引入不希望使用的版本。
 
-```html
-$ equery list 包名 <!-- 列出對應包名的包安裝了哪些版本 -->
-$ equery files 包名 <!-- 查看包裏有哪些文件 -->
-$ equery belongs 文件路徑 <!-- 查看文件屬於哪個包 -->
-$ equery depends 包名 <!-- 查看某個包的依賴 -->
-$ equery uses 包名 <!-- 查看一個已經安裝的包使用了哪些USE -->
+將需要排除的特定版本的軟件包寫入`/etc/portage/package.mask`文件中：
+
+```sh
+# 排除整個軟件包所有版本
+軟件包
+
+# 排除特定版本，使用比較運算符表示版本
+=軟件包-版本號
+>軟件包-版本號
+>=軟件包-版本號
+<軟件包-版本號
+<=軟件包-版本號
+
+# 示例，排除1.31版本及以上的Kubernetes軟件包
+>sys-cluster/kubeadm-1.31
+>sys-cluster/kubectl-1.31
+>sys-cluster/kubelet-1.31
+```
+
+`/etc/portage/package.unmask`與package.mask作用相反，用於解除特定版本的Mask，
+通常組合使用（如在package.mask禁用整個軟件包，在package.unmask中解禁部分版本）。
+
+## package.accept_keywords / package.license
+Gentoo使用Mask機制將存在潛在問題的軟件包以Keyword（關鍵字）進行標記，被標記的軟件包不可直接安裝。
+
+軟件包被標記的常見原因；
+
+- 許可證，關鍵字為許可證名稱
+- 軟件包穩定性，關鍵字為`~架構`，如`~amd64`、`~arm64`
+- 其它原因，關鍵字`missing keyword`
+
+允許指定軟件包的關鍵字可寫入`/etc/portage/package.accept_keywords`文件中：
+
+```sh
+軟件包 關鍵字
+
+# 示例
+sys-cluster/kubeadm ~arm64
+sys-cluster/kubelet ~arm64
+sys-cluster/kubectl ~arm64
+# 允許 missing keyword 軟件包
+sys-cluster/ipvsadm **
+app-containers/nerdctl **
+```
+
+可在`/etc/portage/make.conf`中根據平台添加全局允許關鍵字：
+
+```sh
+# x64平台
+ACCEPT_KEYWORDS="~arm64"
+
+# ARM64平台
+ACCEPT_KEYWORDS="~arm64"
 ```
 
 ## 包組列表
