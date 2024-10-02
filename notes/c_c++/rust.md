@@ -60,6 +60,8 @@
 - [命令行參數處理](#命令行參數處理)
     - [Clap庫](#clap庫)
         - [基於屬性生成命令行參數](#基於屬性生成命令行參數)
+        - [訪問Command對象](#訪問command對象)
+        - [Clap v4版本變化](#clap-v4版本變化)
 
 <!-- /TOC -->
 
@@ -96,7 +98,8 @@ Rust的主要設計目標之一是作為C++的安全替代。
     T t{...}; // C++11統一初始化
     ```
 
-    Rust具備一致的編碼風格（類型`CamelCase`，方法名稱`snake_case`）。
+    Rust具備一致的編碼風格（類型`CamelCase`，方法名稱`snake_case`），
+    標準工具鏈中提供了`rustfmt`，可自動將代碼格式化為相同風格。
 
     Rust的語法來自Ocaml/Haskell/Scala等學術界語言，具備良好的設計，
     同時多數功能取捨又吸取了工業界的最佳實踐：
@@ -107,6 +110,7 @@ Rust的主要設計目標之一是作為C++的安全替代。
     - 基於Trait的操作符重載，更加規範
     - 基於表達式的語法，表現力更強
     - 默認使用移動構造，降低編碼疏忽造成的潛在性能損失
+    - 顯式的複製操作（Clone），讓存在性能開銷的複製操作更加明確
 
 - 現代化的構建系統
 
@@ -158,14 +162,14 @@ C++相比Rust的便利性功能缺陷：
     之前只能使用C標準庫的`sprintf()`或其它社區庫，如Boost Format。
     至今（C++23）依舊不支持字符串插值。
 
-2. 調試輸出
+1. 調試輸出
 
     Rust標準庫多數類型均實現了通用的Debug Trait（支持文本輸出）。
 
     C++標準庫數據結構長期不支持輸出文本，需要使用fmtlib，
     到近期C++20/23後引入`<format>`以及`<print>`才具備標準庫數據結構的打印輸出能力。
 
-3. 類型轉換
+1. 類型轉換
 
     Rust提供了通用的類型轉換Trait，標準庫與社區庫通常遵循這些Trait提供通用的類型轉換接口。
 
@@ -1512,3 +1516,25 @@ pub struct CommandLine {
 ```
 
 命令行結構體derive了`clap::Parser`特質，使用`類型::parse()`方法可解析命令行參數。
+
+### 訪問Command對象
+`clap::Parser`特質繼承了`clap::CommandFactory`特質，
+該特質提供了`fn command() -> Command`方法用於生成命令行參數的`clap::builder::Command`結構體。
+
+Command結構體中提供了大量指令控制方法，如：
+
+- `pub fn print_help(&mut self) -> Result<()>` 打印短幫助信息
+- `pub fn print_long_help(&mut self) -> Result<()>` 打印長幫助信息
+
+### Clap v4版本變化
+Clap 4.x版本中命令行幫助信息`-h/--help`的樣式出現了較大變化：
+
+- 彩色輸出變為更符合Unix慣例的加粗字體和下劃線樣式
+- 幫助信息中不再展示author、version等信息（展示這些信息需要通過`clap::Command::help_template()`自定義）
+
+4.x版本中，原先統一使用的`#[clap(...)]`屬性進行了拆分：
+
+- 標註在結構體上，使用`#[command()]`屬性，屬性參數對應`clap::Command`的相關方法
+- 標註在參數（結構體成員）上，使用`#[arg()]`屬性，屬性參數對應`clap::Arg`的相關方法
+
+詳情參考[GitHub Issues](https://github.com/clap-rs/clap/issues/4132)。
