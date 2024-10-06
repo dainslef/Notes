@@ -62,6 +62,10 @@
         - [基於屬性生成命令行參數](#基於屬性生成命令行參數)
         - [訪問Command對象](#訪問command對象)
         - [Clap v4版本變化](#clap-v4版本變化)
+- [類型轉換](#類型轉換)
+    - [From / Into](#from--into)
+    - [TryFrom / TryInto](#tryfrom--tryinto)
+    - [FromStr（文本轉換）](#fromstr文本轉換)
 
 <!-- /TOC -->
 
@@ -1538,3 +1542,71 @@ Clap 4.x版本中命令行幫助信息`-h/--help`的樣式出現了較大變化�
 - 標註在參數（結構體成員）上，使用`#[arg()]`屬性，屬性參數對應`clap::Arg`的相關方法
 
 詳情參考[GitHub Issues](https://github.com/clap-rs/clap/issues/4132)。
+
+
+
+# 類型轉換
+Rust中基礎類型轉換使用`as`關鍵字：
+
+```rs
+>> let n: i32 = 100;
+>> n as i16
+100
+>> n as u16
+100
+```
+
+as關鍵字僅能用於primitive types以及部分trait object的強制轉換，
+其它類型轉換需要實現From/Into等trait。
+
+```rs
+>> let n: i32 = 100;
+>> struct CustomNum { n: i32 }
+>> n as CustomNum;
+   ^^^^^^^^^^^^^^ an `as` expression can only be used to convert between primitive types or to coerce to a specific trait object
+non-primitive cast: `i32` as `CustomNum`
+```
+
+## From / Into
+標準庫中提供了一對特質`From / Into`作為標準的類型轉換接口，用於在兩個獨立類型間實現顯示的轉換關係。
+相關特質定義：
+
+```rs
+pub trait From<T> {
+  fn from(T) -> Self;
+}
+
+pub trait Into<T> {
+  fn into(self) -> T;
+}
+```
+
+所有實現了From特質的類型會自動實現Into特質。
+
+## TryFrom / TryInto
+對於可能產生錯誤的類型轉換，使用`TryFrom / TryInto`特質提供轉換邏輯。
+相關特質定義：
+
+```rs
+pub trait TryFrom<T>: Sized {
+  type Error;
+  fn try_from(value: T) -> Result<Self, Self::Error>;
+}
+
+pub trait TryInto<T>: Sized {
+  type Error;
+  fn try_into(self) -> Result<T, Self::Error>;
+}
+```
+
+與From類似，實現了TryFrom特質的類型自動實現TryInto特質。
+
+## FromStr（文本轉換）
+標準庫中提供了`std::str::FromStr`特質用於文本到任意目標類型的轉換：
+
+```rs
+pub trait FromStr {
+  type Err;
+  fn from_str(s: &str) -> Result<Self, Self::Err>;
+}
+```
