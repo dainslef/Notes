@@ -53,6 +53,11 @@
     - [Kubernetes 1.24 版本手動創建Token](#kubernetes-124-版本手動創建token)
     - [清理serviceaccount與clusterrolebindings資源](#清理serviceaccount與clusterrolebindings資源)
     - [添加Token到配置中](#添加token到配置中)
+- [CRI（Container Runtime Interface）](#cricontainer-runtime-interface)
+    - [containerd](#containerd)
+    - [crictl](#crictl)
+        - [crictl運行時配置](#crictl運行時配置)
+        - [crictl清理鏡像](#crictl清理鏡像)
 
 <!-- /TOC -->
 
@@ -209,7 +214,7 @@ Kubernetes現在默認使用containerd，在牆國由於Kubernetes官方鏡像�
 # kubeadm init 其它參數...
 ```
 
-初始化集群時可設定各類參數（如calico插件需要使用`--pod-network-cidr=...`配置pod網段）。
+初始化集群時可設定各類參數（如calico插件需要使用`--pod-network-cidr=192.168.0.0/16`配置pod網段）。
 強國部署需要設置阿裏鏡像源，否則無法完成初始化：
 
 ```
@@ -1460,4 +1465,132 @@ users:
     client-certificate-data: ...
     client-key-data: ...
     token: tokenxxx... # token填寫到該位置
+```
+
+
+
+# CRI（Container Runtime Interface）
+[CRI](https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes/)
+是Kubernetes在1.5版本中引入的標準容器運行時接口。
+
+該接口屏蔽了底層容器運行時的差異，使得Kubernetes架構中，容器運行時成為可替換的部分。
+
+## containerd
+[containerd](https://containerd.io/)是目前主流的CRI實現，Docker亦使用了該實現。
+containerd提供了自身的命令行管理工具`ctr`。
+
+由於Kubernetes的鏡像、容器不在默認命名空間，因此默認指令不會輸出Kubernetes相關內容，
+指定命名空間後可正常輸出：
+
+```
+$ ctr --namespace k8s.io container ls
+CONTAINER                                                           IMAGE                                            RUNTIME
+0cca207bef4f47844f5befc9e66bd6e0637fe8b163f85f8f11b08698bc54186e    k8s.gcr.io/pause:3.5                             io.containerd.runc.v2
+...
+```
+
+containerd配置位於路徑`/etc/containerd/config.toml`，
+修改配置需要重啟服務，可以使用crictl確認配置的生效情況：
+
+```
+$ crictl info
+```
+
+## crictl
+Kubernetes提供了
+[`crictl`](https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md)
+工具用於管理容器，crictl通過標準的`CRI`接口管理容器，
+提供了與docker類似的命令行接口：
+
+```
+$ crictl
+NAME:
+   crictl - client for CRI
+
+USAGE:
+   crictl [global options] command [command options] [arguments...]
+
+VERSION:
+   v1.19.0
+
+COMMANDS:
+   attach              Attach to a running container
+   create              Create a new container
+   exec                Run a command in a running container
+   version             Display runtime version information
+   images, image, img  List images
+   inspect             Display the status of one or more containers
+   inspecti            Return the status of one or more images
+   imagefsinfo         Return image filesystem info
+   inspectp            Display the status of one or more pods
+   logs                Fetch the logs of a container
+   port-forward        Forward local port to a pod
+   ps                  List containers
+   pull                Pull an image from a registry
+   run                 Run a new container inside a sandbox
+   runp                Run a new pod
+   rm                  Remove one or more containers
+   rmi                 Remove one or more images
+   rmp                 Remove one or more pods
+   pods                List pods
+   start               Start one or more created containers
+   info                Display information of the container runtime
+   stop                Stop one or more running containers
+   stopp               Stop one or more running pods
+   update              Update one or more running containers
+   config              Get and set crictl client configuration options
+   stats               List container(s) resource usage statistics
+   completion          Output shell completion code
+   help, h             Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --config value, -c value            Location of the client config file. If not specified and the default does not exist, the program's directory is searched as well (default: "/etc/crictl.yaml") [$CRI_CONFIG_FILE]
+   --debug, -D                         Enable debug mode (default: false)
+   --image-endpoint value, -i value    Endpoint of CRI image manager service (default: uses 'runtime-endpoint' setting) [$IMAGE_SERVICE_ENDPOINT]
+   --runtime-endpoint value, -r value  Endpoint of CRI container runtime service (default: uses in order the first successful one of [unix:///var/run/dockershim.sock unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock]). Default is now deprecated and the endpoint should be set instead. [$CONTAINER_RUNTIME_ENDPOINT]
+   --timeout value, -t value           Timeout of connecting to the server in seconds (e.g. 2s, 20s.). 0 or less is set to default (default: 2s)
+   --help, -h                          show help (default: false)
+   --version, -v                       print the version (default: false)
+```
+
+### crictl運行時配置
+crictl執行需要root權限，默認配置下會按照下列數序查找支持的運行時：
+
+1. unix:///var/run/dockershim.sock (dockershim)
+1. unix:///run/containerd/containerd.sock (containerd)
+1. unix:///run/crio/crio.sock (cri-o)
+1. unix:///var/run/cri-dockerd.sock (cri-dockerd)
+
+若docker不是當前使用的運行時，則會輸出告警信息：
+
+```
+# crictl ps -a
+WARN[0000] runtime connect using default endpoints: [unix:///var/run/dockershim.sock unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock]. As the default settings are now deprecated, you should set the endpoint instead.
+ERRO[0002] connect endpoint 'unix:///var/run/dockershim.sock', make sure you are running as root and the endpoint has been started: context deadline exceeded
+WARN[0002] image connect using default endpoints: [unix:///var/run/dockershim.sock unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock]. As the default settings are now deprecated, you should set the endpoint instead.
+ERRO[0004] connect endpoint 'unix:///var/run/dockershim.sock', make sure you are running as root and the endpoint has been started: context deadline exceeded
+...
+```
+
+修改配置`/etc/crictl.yaml`（默認不存在該文件，需要手動創建），加入當前使用的運行時，以containerd為例：
+
+```
+# echo -e "runtime-endpoint: unix:///run/containerd/containerd.sock\nimage-endpoint: unix:///run/containerd/containerd.sock" > /etc/crictl.yaml
+```
+
+其它常用配置：
+
+```yaml
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+timeout: 2
+debug: false
+pull-image-on-create: false
+```
+
+### crictl清理鏡像
+與Docker類似，crictl支持prune操作清理不再使用的鏡像：
+
+```
+# crictl rmi --prune
 ```
