@@ -58,6 +58,9 @@
     - [crictl](#crictl)
         - [crictl運行時配置](#crictl運行時配置)
         - [crictl清理鏡像](#crictl清理鏡像)
+- [Helm](#helm)
+    - [Helm倉庫管理](#helm倉庫管理)
+    - [Helm部署應用](#helm部署應用)
 
 <!-- /TOC -->
 
@@ -823,7 +826,7 @@ spec:
     - --service-node-port-range=1-65535
 ```
 
-更改配置後，需要重啟kube-apiserver進程。
+需要修改每一個運行kube-apiserver節點的配置，更改配置後，需要重啟該進程。
 若Kubernetes使用kubeadm或KubeSphere創建，kube-apiserver以Pods形式部署，Pod會自動重啟。
 
 ## ReplicaSet
@@ -1593,4 +1596,74 @@ pull-image-on-create: false
 
 ```
 # crictl rmi --prune
+```
+
+
+
+# Helm
+[Helm](https://helm.sh/)是Kubernetes的包管理器，可簡化應用在Kubernetes環境下的部署和管理。
+
+## Helm倉庫管理
+Helm在部署應用前需要添加倉庫，倉庫相關操作：
+
+```html
+$ helm repo add 倉庫名稱 倉庫地址
+$ helm repo add --insecure-skip-tls-verify 倉庫名稱 倉庫地址 <!-- 添加證書無效的HTTPS倉庫時跳過驗證 -->
+$ helm repo remove 倉庫名稱
+$ helm repo list <!-- 列出倉庫 -->
+$ helm repo update <!-- 更新倉庫 -->
+```
+
+## Helm部署應用
+部署應用相關操作：
+
+```html
+<!-- 安裝應用 -->
+$ helm install 應用安裝名稱 倉庫名稱/應用名稱 -n 命名空間
+$ helm install 倉庫名稱/應用名稱 -n 命名空間 --generate-name <!-- 自動生成應用的安裝名稱 -->
+$ helm install 應用安裝名稱 倉庫名稱/應用名稱 -n 命名空間 --version 版本號 <!-- 指定部署版本 -->
+
+<!-- 移除應用 -->
+$ helm uninstall 應用安裝名稱 -n 命名空間
+
+<!-- 升級應用 -->
+$ helm repo update <!-- 升級之前首先刷新倉庫 -->
+$ helm upgrade --install 應用安裝名稱 倉庫名稱/應用名稱
+```
+
+安裝、升級應用時通過`--set`參數控制部署配置：
+
+```html
+<!-- 安裝應用時設置配置參數 -->
+$ helm install --set key1=value1,key2=value2,... -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
+<!-- 對於升級操作類似，需要使用與之前安裝相同的參數 -->
+$ helm upgrade --install --set key1=value1,key2=value2,... -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
+
+<!--
+對與數組結構的value，使用花括號語法：
+--set key={xxx1,xxx2}
+轉換為yaml結構為：
+key:
+- xxx1
+- xxx2
+-->
+$ helm install --set key={xxx1,xxx2,...} -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
+```
+
+自定義部署配置亦可使用yaml格式寫在文件中，使用`-f`參數指定部署配置：
+
+```
+$ helm install 應用安裝名稱 倉庫名稱/應用名稱 -f 自定義配置.yaml
+```
+
+應用的配置可從項目的[`ArtifactHub`](https://artifacthub.io/)中查詢得到。
+
+其它配置相關操作：
+
+```html
+<!-- 查看當前使用的配置參數 -->
+$ helm get values -n 命名空間 應用安裝名稱
+
+<!-- 在應用安裝完成後更新指定參數 -->
+$ helm ugrade --set key=xxx -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
 ```
