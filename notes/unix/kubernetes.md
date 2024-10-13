@@ -61,6 +61,8 @@
 - [Helm](#helm)
     - [Helm倉庫管理](#helm倉庫管理)
     - [Helm部署應用](#helm部署應用)
+    - [Helm查看部署應用](#helm查看部署應用)
+    - [Helm版本回退](#helm版本回退)
 
 <!-- /TOC -->
 
@@ -1666,4 +1668,46 @@ $ helm get values -n 命名空間 應用安裝名稱
 
 <!-- 在應用安裝完成後更新指定參數 -->
 $ helm ugrade --set key=xxx -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
+```
+
+## Helm查看部署應用
+查看已部署的應用：
+
+```html
+<!-- 列出部署的應用 -->
+$ helm list
+$ helm list -n 命名空間 <!-- 列出指定命名空間下的應用 -->
+$ helm list -A <!-- 列出所有命名空間的應用 -->
+
+<!-- 查看部署指定應用的詳情 -->
+$ helm status -n 命名空間 應用安裝名稱
+```
+
+對於多套集群環境，helm支持與kubectl類似的`--kube-context`參數來選擇集群。
+
+## Helm版本回退
+使用Helm部署/升級應用每次操作均會增加應用的`REVISION`值（修訂編號），
+若升級後的應用出現問題可回退到之前的REVISION版本：
+
+```html
+<!-- 查看應用變更歷史，包含每個編號和對應版本 -->
+$ helm history -n 命名空間 應用安裝名稱
+<!-- 將應用版本回退到指定修訂編號對應的版本 -->
+$ helm rollback -n 命名空間 應用安裝名稱 目標修訂編號
+```
+
+示例：
+
+```html
+<!--
+以 tigera-operator 為例，最初部署版本為v3.26.1，後續經過多次升級至版本v3.27.2，
+查看版本變更歷史
+-->
+$ helm history -n helm-charts tigera-operator
+REVISION	UPDATED                 	STATUS    	CHART                  	APP VERSION	DESCRIPTION
+1       	Tue Sep  5 17:11:05 2023	superseded	tigera-operator-v3.26.1	v3.26.1    	Install complete
+2       	Fri Dec 15 13:02:11 2023	superseded	tigera-operator-v3.26.4	v3.26.4    	Upgrade complete
+3       	Fri Feb 23 15:38:14 2024	superseded	tigera-operator-v3.27.2	v3.27.2    	Upgrade complete
+
+<!-- v3.27.2 版本存在BUG -->
 ```
