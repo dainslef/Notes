@@ -63,6 +63,7 @@
     - [Helm部署應用](#helm部署應用)
     - [Helm查看部署應用](#helm查看部署應用)
     - [Helm版本回退](#helm版本回退)
+    - [使用Helm部署常用的應用](#使用helm部署常用的應用)
 
 <!-- /TOC -->
 
@@ -1711,3 +1712,60 @@ REVISION	UPDATED                 	STATUS    	CHART                  	APP VERSION
 
 <!-- v3.27.2 版本存在BUG -->
 ```
+
+## 使用Helm部署常用的應用
+與DockerHub類似，Helm也提供了[`ArtifactHub`](https://artifacthub.io)，
+多數項目均可使用Helm部署。
+
+```html
+$ kubectl create namespace helm-charts
+
+<!--
+Calico CNI
+(Need init kubeadm with parameters: kubeadm init --pod-network-cidr=192.168.0.0/16)
+-->
+$ helm repo add tigera-operator https://projectcalico.docs.tigera.io/charts
+$ helm install -n helm-charts tigera-operator tigera-operator/tigera-operator
+
+<!-- kubernetes-dashboard -->
+$ helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard
+$ helm install -n helm-charts kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+
+<!-- metrics-server -->
+$ helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
+$ helm install -n helm-charts metrics-server metrics-server/metrics-server --set 'args={--kubelet-insecure-tls=true}'
+
+<!--
+Prometheus + Grafana
+
+Use kubectl to get the default Grafana admin password:
+$ kubectl get secret -n helm-charts -o jsonpath='{.data.admin-password}' kube-prometheus-stack-grafana | base64 --decode
+
+Setup the root path for reverse proxy:
+grafana:
+  grafana.ini:
+    server:
+      root_url: http://0.0.0.0/grafana
+      serve_from_sub_path: true
+-->
+$ helm repo add kube-prometheus-stack https://prometheus-community.github.io/helm-charts
+$ helm install -n helm-charts kube-prometheus-stack kube-prometheus-stack/kube-prometheus-stack --set 'grafana.adminPassword=自定義默認密碼' --set 'grafana.grafana\.ini.server.root_url=http://0.0.0.0/grafana,grafana.grafana\.ini.server.serve_from_sub_path=true'
+
+<!--
+Nginx Ingress Controller
+
+!!! attention Since version 1.9.0, "server-snippet" annotation is disabled by default and has to be explicitly enabled, see allow-snippet-annotations.
+See https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/configmap.md#allow-snippet-annotations
+-->
+$ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+$ helm install -n helm-charts ingress-nginx ingress-nginx/ingress-nginx --set controller.allowSnippetAnnotations=true
+
+<!--
+Harbor
+Harbor并未提供ARM64架構的鏡像，ARM平臺服務器不要使用Helm部署Harbor
+-->
+$ helm repo add harbor https://helm.goharbor.io
+$ helm install -n helm-charts harbor harbor/harbor
+```
+
+升級Helm包與安裝類似，將`helm install`替換為`helm upgrade --install`，其它參數保持不變。
