@@ -4,6 +4,8 @@
     - [解壓並切換至Stage環境](#解壓並切換至stage環境)
     - [配置Portage](#配置portage)
     - [配置portage參數](#配置portage參數)
+        - [二進制源](#二進制源)
+        - [Python版本](#python版本)
     - [配置内核](#配置内核)
         - [編譯内核](#編譯内核)
         - [安裝編譯內核](#安裝編譯內核)
@@ -118,6 +120,7 @@ MAKEOPTS="-j3 -l4"
 USE="xxx -xxx"
 ```
 
+### 二進制源
 Gentoo在2023年底正式提供二進制源，參考
 [Gentoo goes Binary!](https://www.gentoo.org/news/2023/12/29/Gentoo-binary.html)，
 啓用二進制源在make.conf中添加：
@@ -139,6 +142,22 @@ FEATURES="${FEATURES} binpkg-request-signature"
 -g參數實現了-k/--usepkg參數，會在可用時優先使用二進制包
 -->
 # emerge -auvgDN @world
+```
+
+### Python版本
+Gentoo會不定期更新默認的Python版本，
+如[Python 3.12 to become the default on 2024-06-01](https://www.gentoo.org/support/news-items/2024-05-09-python3-12.html)。
+
+在make.conf中可以手動指定Python版本：
+
+```sh
+PYTHON_TARGETS="python3_13"
+```
+
+make.conf中的`PYTHON_TARGETS`配置等價於在package.use中為所有軟件包配置：
+
+```sh
+xxx/xxx: python_targets_python3_13
 ```
 
 ## 配置内核
@@ -506,7 +525,7 @@ app-containers/nerdctl **
 
 ```sh
 # x64平台
-ACCEPT_KEYWORDS="~arm64"
+ACCEPT_KEYWORDS="~amd64"
 
 # ARM64平台
 ACCEPT_KEYWORDS="~arm64"
