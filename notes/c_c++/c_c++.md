@@ -44,7 +44,7 @@
     - [reference collapsing (引用摺疊)](#reference-collapsing-引用摺疊)
     - [move semantics (移動語義)](#move-semantics-移動語義)
     - [std::move()](#stdmove)
-    - [std::forward](#stdforward)
+    - [std::forward()](#stdforward)
     - [注意事項](#注意事項)
     - [成員函數的引用限定](#成員函數的引用限定)
 - [引用與指針](#引用與指針)
@@ -164,6 +164,31 @@ int main()
     static int j; // 全局未初始化區，首次進入函數自動初始化為0
     return 0;
 }
+```
+
+結構體內的成員字段遵循相同規則：
+
+```c
+#include <stdio.h>
+
+struct Test
+{
+    int64_t data;
+} t_global; // 全局區，結構體內數值字段自動初始化為0
+
+int main(void)
+{
+    static struct Test t_static; // 靜態區，結構體內數值字段自動初始化為0
+    struct Test t; // 棧區，結構體內字段未初始化（隨機值）
+    printf("global data: %lld, static data: %lld, data: %lld\n", t_global.data, t_static.data, t.data);
+    return 0;
+}
+```
+
+測試輸出結果（macOS Sonoma 14.4.1 x86_64 && Apple clang version 15.0.0）：
+
+```
+global data: 0, static data: 0, data: 140702018114880
 ```
 
 ## 全局變量/全局靜態變量初始化順序
@@ -473,7 +498,7 @@ int array[length];
 ```
 
 在部分C語言編譯器中會報錯，但在C++中正確。
-`C99`開始支持變量作爲數組長度定義，但不是所有編譯器都支持這個特（GCC能夠支持）。
+`C99`開始支持變量作爲數組長度定義，但並非所有編譯器都支持這個特（GCC能夠支持）。
 `ANSI C`中，數組的長度只能由常量定義，即使`const`變量的值不會發生變化，但仍然**不是**常量。
 
 
@@ -1942,7 +1967,7 @@ int main(void)
 Right reference.
 ```
 
-## std::forward
+## std::forward()
 `std::move()`會無視傳入值的左右值類型統一轉換爲右值。
 對於需要保留參數左右值類型的場景，應使用`std::forward()`。以`GCC 7.1`爲例，實現如下：
 
