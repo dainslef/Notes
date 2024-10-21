@@ -1,24 +1,24 @@
 <!-- TOC -->
 
 - [ArchLinux安裝](#archlinux安裝)
-	- [安裝鏡像](#安裝鏡像)
-	- [修改系統預置源](#修改系統預置源)
-	- [配置ArchLinuxCN源](#配置archlinuxcn源)
-	- [系統分區](#系統分區)
-	- [安裝基礎軟件包](#安裝基礎軟件包)
-	- [配置安裝環境](#配置安裝環境)
+    - [安裝鏡像](#安裝鏡像)
+    - [修改系統預置源](#修改系統預置源)
+    - [配置ArchLinuxCN源](#配置archlinuxcn源)
+    - [系統分區](#系統分區)
+    - [安裝基礎軟件包](#安裝基礎軟件包)
+    - [配置安裝環境](#配置安裝環境)
 - [桌面環境配置](#桌面環境配置)
-	- [配置顯卡驅動](#配置顯卡驅動)
-	- [DPI縮放](#dpi縮放)
-	- [字體配置](#字體配置)
+    - [配置顯卡驅動](#配置顯卡驅動)
+    - [DPI縮放](#dpi縮放)
+    - [字體配置](#字體配置)
 - [包管理](#包管理)
-	- [pacman](#pacman)
-		- [pacman操作](#pacman操作)
-		- [pacman配置](#pacman配置)
-		- [pacman-contrib](#pacman-contrib)
-		- [無效密鑰問題](#無效密鑰問題)
-	- [降級軟件包](#降級軟件包)
-	- [Arch build system（ABS）](#arch-build-systemabs)
+    - [pacman](#pacman)
+        - [pacman操作](#pacman操作)
+        - [pacman配置](#pacman配置)
+        - [pacman-contrib](#pacman-contrib)
+        - [無效密鑰問題](#無效密鑰問題)
+    - [降級軟件包](#降級軟件包)
+    - [Arch build system（ABS）](#arch-build-systemabs)
 
 <!-- /TOC -->
 
@@ -247,6 +247,18 @@ $ pacman -Qeq <!-- 僅輸出軟件包，忽略版本號信息 -->
 <!-- 列出可被移除的軟件包（不被其它軟件包依賴，且自身作為依賴安裝的軟件包） -->
 $ pacman -Qdt
 $ pacman -Qdtt <!-- 輸出包括僅被可選依賴(Optional Deps)的軟件包 -->
+```
+
+查找軟件包文件：
+
+```html
+<!-- pacman -Q 系列指令用於查找本地已安裝軟件包的信息 -->
+$ pacman -Qo 文件路徑/目錄 <!-- 查看指定文件/目錄屬於哪些軟件包 -->
+$ pacman -Ql 軟件包 <!-- 列出軟件包內容 -->
+
+<!-- pacman -F 系列指令用於查找整個倉庫軟件包的信息 -->
+# pacman -Fy <!-- 更新軟件包文件數據庫 -->
+$ pacman -F 文件 <!-- 查看哪些軟件包包含指定文件 -->
 ```
 
 ### pacman配置
