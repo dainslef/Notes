@@ -584,6 +584,12 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 
 該配置項為數組結構，內容為文本數組（可添加多個鏡像地址）。
 
+自2024年6月開始，牆國各大高校第三方Docker鏡像源相繼被黨國封殺，
+目前僅存在部分自建Docker鏡像源可用：
+
+- `https://dockerpull.com`
+- `https://dockerproxy.cn`
+
 ### Docker鏡像導入/導出
 使用`docker save`指令將鏡像導出為`*.tar`格式的壓縮文件：
 
@@ -638,6 +644,10 @@ FROM 原始鏡像 as 構建目標2
 ```
 $ docker build -t 生成的鏡像tag --target 構建目標 -f 指定dockerfile路徑 當前工作路徑
 ```
+
+現代版本Docker默認使用BuildKit構建鏡像，指定構建目標時，會智能忽略與構建目標無關的內容；
+早期版本Docker構建不支持該特性，會直接構建dockerfile第一行執行到構建目標為止的所有內容；
+部分默認使用傳統Docker構建的老版本可使用`DOCKER_BUILDKIT=1`環境變量強制使用BuildKit構建鏡像。
 
 ### Docker Registry Server
 Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.com/registry/)，
