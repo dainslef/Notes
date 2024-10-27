@@ -11,6 +11,11 @@
         - [Slot](#slot)
         - [創建Redis集群](#創建redis集群)
         - [訪問Redis集群](#訪問redis集群)
+        - [集群模式限制](#集群模式限制)
+- [Redis數據結構](#redis數據結構)
+    - [Strings（字符串）](#strings字符串)
+        - [SETNX（分佈式鎖）](#setnx分佈式鎖)
+        - [INCR（計數器）](#incr計數器)
 - [Redis Pipelining and Transactions（管道/事務）](#redis-pipelining-and-transactions管道事務)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
     - [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
@@ -442,6 +447,75 @@ c6d6ecdaec9e6287bb56372e0a057881dada7963 x.x.x.1:6379@16379 master - 0 171170198
 9bd26ed36fd2765f30cd8363011e836aa9c679c0 x.x.x.1:6380@16380 slave 4b96a599804ec7bda1d37784f5501e2361dc9262 0 1711701981972 4 connected
 00fe73fe83d28ff2329027e49d5d3c5db0c9c00b x.x.x.2:6380@16380 slave c6d6ecdaec9e6287bb56372e0a057881dada7963 0 1711701980000 5 connected
 c481a3bf6486a98bae6e8e006336a42b12719e6a x.x.x.2:6379@16379 myself,master - 0 1711701981000 2 connected 5461-10922
+```
+
+### 集群模式限制
+集群模式下，Redis不支持切換數據庫，僅能使用默認的db0:
+
+```
+> SELECT 1
+(error) ERR SELECT is not allowed in cluster mode
+```
+
+集群模式下，使用涉及多Key的指令（如MGET，事務等）時，需要保證相關Key均位於同一Slot中；
+可使用`{}`語法來控制Key的Slot分佈。
+
+
+
+# Redis數據結構
+Redis的常用數據結構包括：
+
+- Strings（字符串）
+- Lists（隊列）
+- Sets（集合）
+- Sorted Sets（有序集合）
+- Hashes（哈希表）
+- Streams（流）
+
+Redis中多數數據結構的SET系列方法均會在KEY不存在時自動創建KEY，
+並且在KEY已經存在時更新對應的內容；
+多數操作提供了NX以及X的變種版本，NX後綴的操作通常僅在KEY不存在時生效，
+
+## Strings（字符串）
+字符串是最基本、最常用的數據結構。
+
+字符串有部分擴展用法，如使用SETNX實現分布式鎖，INCR實現計數器。
+
+### SETNX（分佈式鎖）
+SETNX指令用於設置一個值，僅在Key不存在時生效。
+由於Redis中單條指令具備原子性，因而可用於實現分佈式鎖。
+
+指令：
+
+```
+> SETNX key value
+```
+
+示例：
+
+```html
+> SETNX test_setnx 1
+(integer) 1 <!-- 當Key不存在時，設置值成功（返回值1） -->
+> SETNX test_setnx 2
+(integer) 0 <!-- 當Key存在時，設置值失敗（返回值0） -->
+> GET test_setnx
+"1" <!-- 獲取值，得到的值是Key不存在時設置的內容，之後設置的內容無效 -->
+```
+
+### INCR（計數器）
+當Key不存在時創建Key並置0，每次執行增加1。
+
+Redis不存在數值類型，實際使用`base-10 64 bit signed integer`來實現操作。
+
+示例：
+
+```
+> incr test_incr
+(integer) 1
+> incr test_incr
+(integer) 2
+> incr test_incr
+(integer) 3
 ```
 
 
