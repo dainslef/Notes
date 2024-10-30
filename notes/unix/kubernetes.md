@@ -832,6 +832,22 @@ spec:
 需要修改每一個運行kube-apiserver節點的配置，更改配置後，需要重啟該進程。
 若Kubernetes使用kubeadm或KubeSphere創建，kube-apiserver以Pods形式部署，Pod會自動重啟。
 
+對於使用KubeKey部署的集群，可直接在部署配置中添加端口範圍配置：
+
+```yaml
+apiVersion: kubekey.kubesphere.io/v1alpha2
+kind: Cluster
+metadata:
+  name: xxx
+spec:
+  ...
+  kubernetes:
+    version: ...
+    clusterName: ...
+    apiserverArgs:
+    - service-node-port-range=0-65535
+```
+
 ## ReplicaSet
 ReplicaSet用於控制Pods的數目，保證指定Pods的複製實例數目在一個穩定的狀態，
 當Pods異常退出時，Kubernetes會自動重新創建Pods維持指定的數目。
@@ -1641,6 +1657,14 @@ $ helm upgrade --install 應用安裝名稱 倉庫名稱/應用名稱
 $ helm install --set key1=value1,key2=value2,... -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
 <!-- 對於升級操作類似，需要使用與之前安裝相同的參數 -->
 $ helm upgrade --install --set key1=value1,key2=value2,... -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
+
+<!--
+若參數中包含逗號，需要用引號並轉義：
+--set key='xxx1:x1\,xxx2:x2'
+轉換為yaml結構為：
+key: xxx1:x1,xxx2:x2
+-->
+$ helm install --set key='xxx1:x1\,xxx2:x2' -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
 
 <!--
 對與數組結構的value，使用花括號語法：
