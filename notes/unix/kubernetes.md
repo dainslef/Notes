@@ -42,6 +42,7 @@
         - [Ingress 503](#ingress-503)
 - [DNS](#dns)
     - [配置DNS策略](#配置dns策略)
+    - [自定義域名](#自定義域名)
 - [Labels 與 Selectors](#labels-與-selectors)
 - [ConfigMap 與 Secret](#configmap-與-secret)
 - [Taints（污点）](#taints污点)
@@ -1126,6 +1127,66 @@ spec:
   hostNetwork: true
   dnsPolicy: ClusterFirstWithHostNet
   ...
+```
+
+## 自定義域名
+宿主機的`/etc/hosts`文件中定義的域名對Kubernetes內的容器無效，
+若需要添加自定義域名，單個服務可直接使用
+[`hostAliases`](https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods)：
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostaliases-pod
+spec:
+  hostAliases:
+  - ip: 10.89.64.1
+    hostnames:
+    - fuckcpp.org
+    - fuckccp8964.org
+  - ip: x.x.x.x
+    hostnames:
+    - xxx.xxx1
+    - xxx.xxx2
+    - ...
+  containers:
+    ...
+```
+
+若需要在Kubernetes全局增加自定義域名映射，則可
+[自定義CoreDNS配置](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/)。
+編輯coredns的configmaps：
+
+```
+$ kubectl -n kube-system edit configmaps coredns
+```
+
+修改`Corefile`內容，添加自定義hosts區段：
+
+```yaml
+apiVersion: v1
+data:
+  Corefile: |
+    .:53 {
+        ...
+        hosts {
+            10.89.64.1 fuckcpp.local fuckccp8964.local
+            x.x.x.x xxx.xxx1 xxx.xxx2 ...
+            ...
+            fallthrough
+        }
+        ...
+    }
+kind: ConfigMap
+metadata:
+  ...
+```
+
+之後重啟coredns服務：
+
+```
+$ kubectl -n kube-system rollout restart deployment coredns
 ```
 
 
