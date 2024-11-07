@@ -19,7 +19,7 @@
     - [Kubernetes API](#kubernetes-api)
 - [kubectl](#kubectl)
     - [kubectl常用操作](#kubectl常用操作)
-    - [kubectl訪問容器](#kubectl訪問容器)
+    - [kubectl容器操作](#kubectl容器操作)
     - [kubectl配置](#kubectl配置)
         - [kubectl配置結構](#kubectl配置結構)
         - [kubectl關閉證書驗證](#kubectl關閉證書驗證)
@@ -38,7 +38,7 @@
     - [DaemonSet](#daemonset)
     - [Ingress](#ingress)
         - [NGINX Igress Controller](#nginx-igress-controller)
-    - [server-snippet](#server-snippet)
+        - [server-snippet](#server-snippet)
         - [Ingress 503](#ingress-503)
 - [DNS](#dns)
     - [配置DNS策略](#配置dns策略)
@@ -222,7 +222,7 @@ Kubernetes現在默認使用containerd，在牆國由於Kubernetes官方鏡像�
 ```
 
 初始化集群時可設定各類參數（如calico插件需要使用`--pod-network-cidr=192.168.0.0/16`配置pod網段）。
-強國部署需要設置阿裏鏡像源，否則無法完成初始化：
+牆國部署需要設置阿裏鏡像源，否則無法完成初始化：
 
 ```
 # kubeadm init --image-repository='registry.cn-hangzhou.aliyuncs.com/google_containers'
@@ -579,7 +579,7 @@ kubectl在執行edit指令時，會讀取環境變量`$EDITOR`作為編輯器，
 set -xg EDITOR "code --wait"
 ```
 
-## kubectl訪問容器
+## kubectl容器操作
 kubectl支持與docker類似的exec指令用於在容器內執行指令。
 
 ```html
@@ -778,7 +778,7 @@ IPVS存在NodePort模式下無法使用本地地址（127.0.0.1）的問題，
 
 | 參數 | 取值 | 默認值 | 說明 |
 | :- | :- | :- | :- |
-| `internalTrafficPolicy` | Cluster/Local | Cluster | 設置集群內部流量的轉發策略 |
+| `internalTrafficPolicy` | Cluster/Local | Cluster | 設置集群內部流量（Pod間相互訪問）的轉發策略 |
 | `externalTrafficPolicy` | Cluster/Local | Cluster | 設置集群外部流量的轉發策略 |
 
 ```yaml
@@ -1062,7 +1062,7 @@ NGINX Igress Controller在`spec.rules.http.paths.path`中支持使用正則表�
 捕獲的內容在`metadata.annotations.nginx.ingress.kubernetes.io/rewrite-target`
 中可使用`$1`、`$2`等變量名獲取對應位置的捕獲內容來構成轉發後的URL。
 
-## server-snippet
+### server-snippet
 使用`metadata.annotations.nginx.ingress.kubernetes.io/server-snippet`
 可直接向生成的nginx.conf中添加配置內容，示例：
 
@@ -1431,7 +1431,10 @@ $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/版本
 <!-- 示例： kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.1/aio/deploy/recommended.yaml -->
 ```
 
-部署Pod完成後，在需要使用面板的機器執行：
+部署面板完成後，需要為面板創建代理方可訪問，
+參考[GitHub README](https://github.com/kubernetes/dashboard/blob/master/docs/user/accessing-dashboard/README.md)。
+
+在需要使用面板的機器執行：
 
 ```
 $ kubectl proxy
@@ -1443,10 +1446,14 @@ $ kubectl proxy
 http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 ```
 
-對於使用Helm部署的Dashboard，訪問地址需要替換命名空間：
+對於使用Helm部署的Dashboard，會生成多個service，
+可使用`kubernetes-dashboard-web (HTTP, 8000)`或`kubernetes-dashboard-kong-proxy (HTTPS，443)`訪問：
 
-```
-http://localhost:8001/api/v1/namespaces/命名空間/services/https:kubernetes-dashboard:https/proxy/
+```html
+<!-- kubernetes-dashboard-web -->
+http://localhost:8001/api/v1/namespaces/命名空間/services/http:kubernetes-dashboard-web:8000/proxy/
+<!-- kubernetes-dashboard-kong-proxy -->
+http://localhost:8001/api/v1/namespaces/命名空間/services/https:kubernetes-dashboard-kong-proxy:443/proxy/
 ```
 
 ## 創建Dashboard用戶
@@ -1700,6 +1707,7 @@ $ helm repo update <!-- 更新倉庫 -->
 ```html
 <!-- 安裝應用 -->
 $ helm install 應用安裝名稱 倉庫名稱/應用名稱 -n 命名空間
+$ helm install 應用安裝名稱 倉庫名稱/應用名稱 -n 命名空間 --create-namespace <!-- 命名空間不存在時自動創建命名空間 -->
 $ helm install 倉庫名稱/應用名稱 -n 命名空間 --generate-name <!-- 自動生成應用的安裝名稱 -->
 $ helm install 應用安裝名稱 倉庫名稱/應用名稱 -n 命名空間 --version 版本號 <!-- 指定部署版本 -->
 
@@ -1815,6 +1823,11 @@ $ helm install -n helm-charts tigera-operator tigera-operator/tigera-operator
 <!-- kubernetes-dashboard -->
 $ helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard
 $ helm install -n helm-charts kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+<!--
+In minikube, add some config to avoid the 8444 port confliction,
+see GitHub https://github.com/kubernetes/dashboard/issues/8765
+-->
+$ helm install -n helm-charts kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --set kong.admin.tls.enabled=false
 
 <!-- metrics-server -->
 $ helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
