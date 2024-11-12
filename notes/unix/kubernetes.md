@@ -20,6 +20,7 @@
 - [kubectl](#kubectl)
     - [kubectl常用操作](#kubectl常用操作)
     - [kubectl容器操作](#kubectl容器操作)
+    - [kubectl代理和端口轉發](#kubectl代理和端口轉發)
     - [kubectl配置](#kubectl配置)
         - [kubectl配置結構](#kubectl配置結構)
         - [kubectl關閉證書驗證](#kubectl關閉證書驗證)
@@ -594,6 +595,34 @@ $ kubectl exec -it -n 命名空間 pod名稱 -- sh
 ```
 $ kubectl exec -n 命名空間 pod名稱 -c 容器名稱 -- 指令
 ```
+
+使用kubectl可直接創建容器Pod：
+
+```
+$ kubectl run -it pod名稱 --image=鏡像 -- 指令
+```
+
+## kubectl代理和端口轉發
+使用kubectl可為服務在本地端口創建代理：
+
+```html
+<!-- 未設定本地端口時默認值8001 -->
+$ kubectl proxy --port=本地端口
+```
+
+啟動代理後，可使用下列地址規則訪問HTTP(S)服務端口：
+
+```
+http://localhost:本地端口/api/v1/namespaces/命名空間/services/https:服務名稱:服務端口/proxy
+```
+
+kubectl亦支持端口轉發指定服務：
+
+```
+$ kubectl port-forward -n 命名空間 services/服務名稱 本地端口:服務端口
+```
+
+啟動指定服務端口轉發後，直接使用對應協議訪問本地端口即可。
 
 ## kubectl配置
 kubeclt默認配置路徑為`~/.kube/config`。
