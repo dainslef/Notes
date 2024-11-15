@@ -324,6 +324,27 @@ auth sufficient pam_tid.so
 該文件中的每行均代表一種認證方式，
 添加的`pam_tid.so`（Touch ID）需要放在文件**行首**才會優先使用該認證方式。
 
+/etc/pam.d/sudo文件的修改在每次系統升級均會被還原，
+自`macOS Sonoma`開始，該配置文件默認變為：
+
+```
+# sudo: auth account password session
+auth       include        sudo_local
+...
+```
+
+會優先讀取同路徑下的`sudo_local`文件，
+sudo_local文件系統並未直接提供，但提供了`sudo_local.template`：
+
+```
+# sudo_local: local config file which survives system update and is included for sudo
+# uncomment following line to enable Touch ID for sudo
+#auth       sufficient     pam_tid.so
+```
+
+將sudo_local.template複製为同路徑下的sudo_local，去掉文件内的注释即可；
+sudo_local文件不會因為系統升級失效。
+
 
 
 # 包管理
