@@ -6,19 +6,20 @@
     - [配置portage參數](#配置portage參數)
         - [二進制源](#二進制源)
         - [Python版本](#python版本)
+    - [配置時區](#配置時區)
     - [配置内核](#配置内核)
         - [編譯内核](#編譯内核)
         - [安裝編譯內核](#安裝編譯內核)
     - [安裝引導器](#安裝引導器)
 - [包管理](#包管理)
     - [emerge](#emerge)
+    - [包組列表](#包組列表)
+    - [多版本包管理（slot機制）](#多版本包管理slot機制)
     - [portage-utils](#portage-utils)
     - [gentoolkit](#gentoolkit)
     - [package.use](#packageuse)
     - [package.mask / package.unmask](#packagemask--packageunmask)
     - [package.accept_keywords / package.license](#packageaccept_keywords--packagelicense)
-    - [包組列表](#包組列表)
-    - [多版本包管理（slot機制）](#多版本包管理slot機制)
     - [overlay](#overlay)
 - [OpenRC](#openrc)
 - [其他配置](#其他配置)
@@ -158,6 +159,19 @@ make.conf中的`PYTHON_TARGETS`配置等價於在package.use中為所有軟件�
 
 ```sh
 xxx/xxx: python_targets_python3_13
+```
+
+## 配置時區
+對於使用systemd的Gentoo，與其它使用systemd的發行版相同，使用timedatectl配置時區；
+對於使用OpenRC的Gentoo，將時區信息寫入`/etc/timezone`中後重新配置timezone-data：
+
+```html
+<!--
+時區格式與systemd中相同，如中華民國時區為 Asia/Taipei
+支那國標準時區為 Asia/Shanghai 而非 Asia/Beijing
+-->
+# echo "時區" > /etc/timezone
+# emerge --config sys-libs/timezone-data
 ```
 
 ## 配置内核
@@ -432,6 +446,34 @@ $ emerge --info
 $ emerge --info 包名 <!-- 查看系統構建信息以及指定已安裝軟件包的構建標記 -->
 ```
 
+## 包組列表
+系統默認的包組有`system`和`world`，system列表爲系統成員組件，不可更改（由選擇的profile決定）；
+world包組成員列表記錄在`/var/lib/portage/world`文件中，可自行更改。
+
+包組及其依賴包被保護，其餘包被視爲孤立包，執行清理依賴命令時孤立包會被移除。
+
+通常手動執行emerge安裝某個包時，該包的包名會被加入world文件（即主動安裝的包不會被清理，除非主動移除）；
+使用`emerge --oneshot`安裝的包不會被加入world列表中。
+
+## 多版本包管理（slot機制）
+對於Python，JDK等多版本共存軟件，使用select命令選取一個默認版本：
+
+```
+# eselect 軟件名 set 軟件版本
+```
+
+例如使用Python2.7爲默認版本：
+
+```html
+# eselect python set python2.7 <!-- 版本必須是在環境變量定義下可尋的二進制文件名 -->
+```
+
+使用help參數可以查看詳情：
+
+```
+$ eselect help
+```
+
 ## portage-utils
 `app-portage/portage-utils`提供了emerge缺失的部分高級包管理功能，
 包括qlist、qfile、qdepends、qkeyword等工具。
@@ -529,33 +571,6 @@ ACCEPT_KEYWORDS="~amd64"
 
 # ARM64平台
 ACCEPT_KEYWORDS="~arm64"
-```
-
-## 包組列表
-系統默認的包組有`system`和`world`，system列表爲系統成員組件，不可更改（由選擇的profile決定）；
-world包組成員列表記錄在`/var/lib/portage/world`文件中，可自行更改。
-相關包及其依賴包被保護，其餘包被視爲孤立包，執行清理依賴命令時孤立包會被移除。
-
-一般手動執行安裝某個包時，該包的包名會被加入world文件（即主動安裝的包不會被清理，除非主動移除）。
-使用`--oneshot`指令安裝的包不會被加入world列表中。
-
-## 多版本包管理（slot機制）
-對於Python，JDK等多版本共存軟件，使用select命令選取一個默認版本：
-
-```
-# eselect 軟件名 set 軟件版本
-```
-
-例如使用Python2.7爲默認版本：
-
-```html
-# eselect python set python2.7 <!-- 版本必須是在環境變量定義下可尋的二進制文件名 -->
-```
-
-使用help參數可以查看詳情：
-
-```
-$ eselect help
 ```
 
 ## overlay
