@@ -3561,6 +3561,8 @@ ip指令的基本使用：
 
 ```html
 $ ip <!-- 展示指令基本用法 -->
+$ ip -c <!-- 啟用彩色命令行輸出 -->
+
 $ ip 子指令 help <!-- 展示特定子指令的用法 -->
 
 <!-- 設置/移除ip -->
@@ -3577,7 +3579,7 @@ Ubuntu與Debian早期默認使用`ifupdown`軟件包管理網絡配置。
 
 ifupdown配置文件位於`/etc/network`路徑下，核心配置文件爲`/etc/network/interfaces`：
 
-```shell
+```sh
 # The loopback network interface
 auto lo
 iface lo inet loopback
@@ -5597,7 +5599,7 @@ Kitty的組合鍵使用`ctrl + shift`組合其它按鍵，常用快捷鍵：
 | 快捷鍵 | 說明 |
 | :- | :- |
 | `ctrl + shift` + `t` | 創建新標籤頁 |
-| `ctrl + shift` + `q` | 關閉當前標籤頁 |
+| `ctrl + shift` + `q` / `w` | 關閉當前標籤頁 |
 | `ctrl + shift` + `left` / `right` | 切換當前標籤頁 |
 | `ctrl + shift` + `,` / `.` | 移動當前標籤頁 |
 | `ctrl + shift` + `w` | 關閉終端程序 |
@@ -5974,7 +5976,7 @@ $ dpkg -L 軟件包名稱
 ## deb打包 (Binary packages)
 一個二進制deb包的結構如下所示(假設當前路徑為deb包的根路徑)：
 
-```
+```sh
 .
 ├── DEBIAN
 │   ├── control
@@ -5984,7 +5986,8 @@ $ dpkg -L 軟件包名稱
 │   ├── postrm
 │   ├── templates
 │   └── ...
-└── files...
+├── ... # Files in deb package ...
+└── ...
 ```
 
 主要內容說明：
