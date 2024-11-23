@@ -39,7 +39,8 @@
     - [DaemonSet](#daemonset)
     - [Ingress](#ingress)
         - [NGINX Igress Controller](#nginx-igress-controller)
-        - [server-snippet](#server-snippet)
+        - [ingress-nginx server-snippet](#ingress-nginx-server-snippet)
+        - [ingress-nginx對其它協議的支持](#ingress-nginx對其它協議的支持)
         - [Ingress 503](#ingress-503)
 - [DNS](#dns)
     - [配置DNS策略](#配置dns策略)
@@ -1038,12 +1039,14 @@ OpenStack等雲平台中可使用對應平台的Ingress Controller；
 需要開發者自行配置選擇合適的Ingress Controller實現。
 
 ### NGINX Igress Controller
-[`NGINX Igress Controller`](https://github.com/kubernetes/ingress-nginx)
-是最常見的Igress Controller，使用NGINX作為反向代理於負載均衡器。
+基於NGINX的Igress Controller存在兩個項目，分別為Kubernetes社區提供的
+[`ingress-nginx`](https://github.com/kubernetes/ingress-nginx)
+以及NGINX官方提供的[`kubernetes-ingress`](https://github.com/nginxinc/kubernetes-ingress)
 
-NGINX Ingress Controller詳細使用方式參見[官方文檔](https://kubernetes.github.io/ingress-nginx/)。
+ingress-nginx是最常用的Igress Controller，使用NGINX作為反向代理於負載均衡器。
+ingress-nginx詳細使用方式參見[官方文檔](https://kubernetes.github.io/ingress-nginx/)。
 
-使用Helm安裝NGINX Igress Controller：
+使用Helm安裝ingress-nginx：
 
 ```
 $ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -1084,14 +1087,14 @@ spec:
         ...
 ```
 
-NGINX Igress Controller會根據Ingress對象描述的規則
-在Igress Controller容器中生成對應的NGINX配置文件（容器中的`/etc/nginx/nginx.conf`）。
+ingress-nginx會根據Ingress對象描述的規則在ingress-nginx-controller容器中生成對應的NGINX配置文件
+（容器中的`/etc/nginx/nginx.conf`）。
 
-NGINX Igress Controller在`spec.rules.http.paths.path`中支持使用正則表達式捕獲內容，
+ingress-nginx在`spec.rules.http.paths.path`中支持使用正則表達式捕獲內容，
 捕獲的內容在`metadata.annotations.nginx.ingress.kubernetes.io/rewrite-target`
 中可使用`$1`、`$2`等變量名獲取對應位置的捕獲內容來構成轉發後的URL。
 
-### server-snippet
+### ingress-nginx server-snippet
 使用`metadata.annotations.nginx.ingress.kubernetes.io/server-snippet`
 可直接向生成的nginx.conf中添加配置內容，示例：
 
@@ -1124,6 +1127,26 @@ NGINX Igress Controller中使用的路徑匹配和proxy_pass轉發與標準NGINX
 相關配置參見[GitHub文檔](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/configmap.md#allow-snippet-annotations)。
 
 使用Helm安裝NGINX Igress Controller需要搭配使用`--set controller.allowSnippetAnnotations=true`參數。
+
+### ingress-nginx對其它協議的支持
+NGINX Igress Controller生成的轉發規則中默認已支持WebSocket協議，
+無需添加其它配置即可直接轉發WebSocket.
+
+對於GRPC，則需要添加`nginx.ingress.kubernetes.io/backend-protocol`註解：
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: custom-ingress
+  namespace: custom-components
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+spec:
+  ingressClassName: ingress-nginx
+  rules:
+    ...
+```
 
 ### Ingress 503
 Ingress中轉發的目標服務需要與Ingress本體位於同一命名空間，否則會出現503錯誤。
