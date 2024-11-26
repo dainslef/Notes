@@ -45,6 +45,7 @@
 - [DNS](#dns)
     - [配置DNS策略](#配置dns策略)
     - [自定義域名](#自定義域名)
+    - [自定義域名與NodeLocal DNSCache](#自定義域名與nodelocal-dnscache)
 - [Labels 與 Selectors](#labels-與-selectors)
 - [ConfigMap 與 Secret](#configmap-與-secret)
 - [Taints（污点）](#taints污点)
@@ -1239,6 +1240,86 @@ metadata:
 
 ```
 $ kubectl -n kube-system rollout restart deployment coredns
+```
+
+## 自定義域名與NodeLocal DNSCache
+對於規模較大的集群，DNS查詢壓力較大，通常會啟用
+[NodeLocal DNSCache](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/)，
+NodeLocal DNS以DaemonSet編排，以Cache模式運行在每個節點，
+Pods內的DNS請求實際由各個節點本地的NodeLocalDNS處理，
+僅在域名不存在時轉發至上級DNS。
+
+默認NodeLocalDNS僅會轉發特定二級域名的請求到上級DNS，示例：
+
+```html
+<!-- CoreDNS服務地址為 10.233.0.3 -->
+$ kubectl -n kube-system get services coredns
+NAME      TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
+coredns   ClusterIP   10.233.0.3   <none>        53/UDP,53/TCP,9153/TCP   162d
+
+<!-- 僅轉發 cluster.local、in-addr.arpa 等二級域名 -->
+$ kubectl -n kube-system describe configmaps nodelocaldns
+Name:         nodelocaldns
+Namespace:    kube-system
+Labels:       addonmanager.kubernetes.io/mode=EnsureExists
+Annotations:  <none>
+
+Data
+====
+Corefile:
+----
+cluster.local:53 {
+    errors
+    cache {
+        success 9984 30
+        denial 9984 5
+    }
+    reload
+    loop
+    bind 169.254.25.10
+    forward . 10.233.0.3 {
+        force_tcp
+    }
+    prometheus :9253
+    health 169.254.25.10:9254
+}
+in-addr.arpa:53 {
+    errors
+    cache 30
+    reload
+    loop
+    bind 169.254.25.10
+    forward . 10.233.0.3 {
+        force_tcp
+    }
+    prometheus :9253
+}
+ip6.arpa:53 {
+    errors
+    cache 30
+    reload
+    loop
+    bind 169.254.25.10
+    forward . 10.233.0.3 {
+        force_tcp
+    }
+    prometheus :9253
+}
+.:53 {
+    errors
+    cache 30
+    reload
+    loop
+    bind 169.254.25.10
+    forward . /etc/resolv.conf
+    prometheus :9253
+}
+
+
+BinaryData
+====
+
+Events:  <none>
 ```
 
 
