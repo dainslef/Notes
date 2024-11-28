@@ -1,17 +1,17 @@
 <!-- TOC -->
 
 - [OpenVPN](#openvpn)
-	- [基本安裝與配置](#基本安裝與配置)
-	- [設置證書密鑰](#設置證書密鑰)
-	- [連接檢測](#連接檢測)
-	- [下發路由](#下發路由)
-	- [網關服務器](#網關服務器)
-	- [iroute](#iroute)
-	- [ifconfig-push](#ifconfig-push)
-	- [設置腳本認證](#設置腳本認證)
+    - [基本安裝與配置](#基本安裝與配置)
+    - [設置證書密鑰](#設置證書密鑰)
+    - [連接檢測](#連接檢測)
+    - [下發路由](#下發路由)
+    - [網關服務器](#網關服務器)
+    - [iroute](#iroute)
+    - [ifconfig-push](#ifconfig-push)
+    - [設置腳本認證](#設置腳本認證)
 - [OpenVPN問題記錄](#openvpn問題記錄)
-	- [OPTIONS ERROR: failed to negotiate cipher with server. Add the server's cipher ('BF-CBC') to --data-ciphers (currently 'AES-256-GCM:AES-128-GCM:AES-128-CBC') if you want to connect to this server.](#options-error-failed-to-negotiate-cipher-with-server-add-the-servers-cipher-bf-cbc-to---data-ciphers-currently-aes-256-gcmaes-128-gcmaes-128-cbc-if-you-want-to-connect-to-this-server)
-	- [TCP/UDP: Incoming packet rejected from [AF_INET]10.10.10.252:1200[2], expected peer address: [AF_INET]10.21.26.4:1200 (allow this incoming source address/port by removing --remote or adding --float)](#tcpudp-incoming-packet-rejected-from-af_inet10101025212002-expected-peer-address-af_inet10212641200-allow-this-incoming-source-addressport-by-removing---remote-or-adding---float)
+    - [OPTIONS ERROR: failed to negotiate cipher with server. Add the server's cipher ('BF-CBC') to --data-ciphers (currently 'AES-256-GCM:AES-128-GCM:AES-128-CBC') if you want to connect to this server.](#options-error-failed-to-negotiate-cipher-with-server-add-the-servers-cipher-bf-cbc-to---data-ciphers-currently-aes-256-gcmaes-128-gcmaes-128-cbc-if-you-want-to-connect-to-this-server)
+    - [TCP/UDP: Incoming packet rejected from [AF_INET]10.10.10.252:1200[2], expected peer address: [AF_INET]10.21.26.4:1200 (allow this incoming source address/port by removing --remote or adding --float)](#tcpudp-incoming-packet-rejected-from-af_inet10101025212002-expected-peer-address-af_inet10212641200-allow-this-incoming-source-addressport-by-removing---remote-or-adding---float)
 
 <!-- /TOC -->
 
@@ -45,7 +45,56 @@ OpenVPN的命令行工具為`openvpn`，根據配置文件的不同，可運行�
 多數命令行參數去掉`--`後即可寫入配置文件中。
 
 ## 設置證書密鑰
-詳情參考[官方文檔](https://openvpn.net/community-resources/setting-up-your-own-certificate-authority-ca/)。
+證書說明參考[官方文檔](https://openvpn.net/community-resources/setting-up-your-own-certificate-authority-ca/)。
+
+通過openssl工具生成證書參考[社區文檔](https://community.openvpn.net/openvpn/wiki/GettingStartedwithOVPN)。
+RSA相關證書生成流程參考HTTPS證書簽名流程：
+
+```html
+<!-- 創建根證書 -->
+# openssl req -new -newkey rsa -x509 -sha512 -days 有效日期數 -nodes -subj "/C=JP/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=openvpn.local" -out ca.crt -keyout ca.key
+
+<!-- 創建服務端證書密鑰 -->
+# openssl genrsa -out server.key 4096
+
+<!-- 創建服務端證書簽名請求 -->
+# openssl req -sha512 -new \
+    -subj "/C=CN/ST=Tokyo/L=Tokyo/O=Company/OU=Personal/CN=openvpn.local" \
+    -key server.key \
+    -out server.csr
+
+<!-- 創建服務端證書 -->
+# openssl x509 -req -sha512 -days 有效日期數 \
+    -extfile v3.ext \
+    -CA ca.crt -CAkey ca.key -CAcreateserial \
+    -in server.csr \
+    -out server.crt
+```
+
+注意OpenVPN在生成`server.crt`時需要添加具備下列內容的`v3.ext`擴展：
+
+```
+basicConstraints        = critical, CA:FALSE
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always, issuer:always
+keyUsage                = critical, digitalSignature, keyEncipherment, keyAgreement
+extendedKeyUsage        = critical, serverAuth
+```
+
+若server.key未正確配置擴展，則連接時會出現下列錯誤：
+
+```
+...
+2024-11-25 10:30:00 Certificate does not have key usage extension
+2024-11-25 10:30:00 VERIFY KU ERROR
+...
+```
+
+dhparam證書同樣使用openssl工具創建：
+
+```
+$ openssl dhparam -out dh2048.pem 2048
+```
 
 ## 連接檢測
 通過`keepalive`參數設置連接心跳和超時斷開時間，單位為**秒**：
