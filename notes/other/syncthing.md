@@ -1,15 +1,16 @@
 <!-- TOC -->
 
 - [概述](#概述)
-	- [服務安裝](#服務安裝)
-	- [容器部署](#容器部署)
-	- [服務管理](#服務管理)
-	- [FreeBSD環境配置](#freebsd環境配置)
+    - [服務安裝](#服務安裝)
+    - [容器部署](#容器部署)
+    - [服務配置](#服務配置)
+        - [FreeBSD環境配置](#freebsd環境配置)
+        - [文件數據庫](#文件數據庫)
 - [文件同步規則](#文件同步規則)
 - [同步類型](#同步類型)
 - [問題註記](#問題註記)
-	- [Syncthing服務僅在與服務器存在SSH連接時正常連接，否則連接斷開](#syncthing服務僅在與服務器存在ssh連接時正常連接否則連接斷開)
-	- [同步狀態為`Up to Date`，但Local State與Global State文件統計不同](#同步狀態為up-to-date但local-state與global-state文件統計不同)
+    - [Syncthing服務僅在與服務器存在SSH連接時正常連接，否則連接斷開](#syncthing服務僅在與服務器存在ssh連接時正常連接否則連接斷開)
+    - [同步狀態為`Up to Date`，但Local State與Global State文件統計不同](#同步狀態為up-to-date但local-state與global-state文件統計不同)
 
 <!-- /TOC -->
 
@@ -76,15 +77,20 @@ Syncthing容器默認使用`/var/syncthing`作為存儲跟路徑，將宿主機�
 # docker run -dv /opt/syncthing:/var/syncthing --network host --name syncthing syncthing/syncthing:版本號
 ```
 
-## 服務管理
+## 服務配置
 默認配置下，服務安裝啟動後，會在`8384`端口提供Web管理頁面，服務數據通信使用`22000`端口，
 部署在雲環境上，對應端口均需要開放TCP協議。
 
-首次啟動服務，Syncthing會在`～/.config/syncthing`(Linux)或
-`~/Library/Application Support/Syncthing`(macOS)下創建默認配置。
+服務配置路徑：
+
+- `～/.config/syncthing`（Linux）
+- `~/Library/Application Support/Syncthing`（macOS）
+- `%LOCALAPPDATA%\Syncthing`（Windows）
+
+首次啟動服務，Syncthing會在配置路徑下創建默認配置；
 默認配置下，Web管理頁面僅本機地址可訪問，可修改`configuration.gui.address`節點，改成需要的地址。
 
-## FreeBSD環境配置
+### FreeBSD環境配置
 FreeBSD下，Syncthing的配置文件位於`/usr/local/etc/syncthing/config.xml`。
 
 FreeBSD中的Syncthing服務默認以`syncthing`用戶啟動（即使在root用戶下），
@@ -95,6 +101,18 @@ FreeBSD中的Syncthing服務默認以`syncthing`用戶啟動（即使在root用�
 # mkdir /media/syncthing
 # chown syncthing:syncthing /media/syncthing
 ```
+
+### 文件數據庫
+在Syncthing配置路徑下存在`index-xxx.db`數據庫目錄，存儲同步文件的元數據信息。
+
+若同步狀態異常，可嘗試重置文件數據庫：
+
+```
+$ syncthing --reset-database
+```
+
+使用`--reset-database`參數會清除現有的文件數據庫，為不存在`.stfolder`的同步路徑創建該目錄，
+強制全量掃描同步目錄，重新生成文件數據庫，並重新同步。
 
 
 
