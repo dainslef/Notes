@@ -12,6 +12,7 @@
     - [Nix語言](#nix語言)
     - [安裝NixOS](#安裝nixos)
     - [chroot安裝環境](#chroot安裝環境)
+        - [修復引導項](#修復引導項)
     - [配置管理](#配置管理)
         - [版本升級與回退](#版本升級與回退)
         - [Binary Cache](#binary-cache)
@@ -419,7 +420,7 @@ NixOS提供了與ArchLinux的`arch-chroot`類似的工具，分區正確掛載�
 
 ```html
 <!-- 默認新系統的掛載路徑爲 /mnt -->
-$ nixos-enter
+# nixos-enter
 ```
 
 亦可使用Linux的標準chroot指令進行掛載：
@@ -430,6 +431,37 @@ $ nixos-enter
 # mount -o bind /sys /mnt/sys
 # chroot /mnt /nix/var/nix/profiles/system/activate
 # chroot /mnt /run/current-system/sw/bin/bash
+```
+
+### 修復引導項
+若系統引導損壞，可使用NixOS的LiveCD通過nixos-enter進入原系統，
+重新生成配置並再次安裝引導器：
+
+```html
+<!-- 掛載並進入原系統的chroot環境 -->
+# mount ...
+# nixos-enter
+
+<!-- 生成配置時使用 --install-bootloader 參數重新安裝引導器 -->
+# nixos-rebuild switch --install-bootloader
+```
+
+在nixos-enter的chroot環境中使用nixos-rebuild可能會出現下列錯誤信息：
+
+```
+sudo: PAM account management error: Authentication service cannot retrieve authentication info sudo: a password is required
+```
+
+相關問題討論參見[NixOS官方論壇](https://discourse.nixos.org/t/nixos-rebuild-failing-while-chrooted/40176)，
+解決方案是修改`/etc/pam.d/sudo`配置：
+
+```sh
+auth        sufficient  pam_rootok.so
+#auth       required    pam_unix.so
+auth        required    pam_permit.so
+#account    required    pam_unix.so
+account     required    pam_permit.so
+...
 ```
 
 ## 配置管理
