@@ -69,6 +69,7 @@
     - [OceanBase all-in-one 部署](#oceanbase-all-in-one-部署)
     - [OceanBase集群管理](#oceanbase集群管理)
     - [OceanBase常見配置問題](#oceanbase常見配置問題)
+    - [OceanBase日誌](#oceanbase日誌)
 - [常用功能和配置](#常用功能和配置)
     - [導出數據](#導出數據)
     - [導入數據](#導入數據)
@@ -1659,6 +1660,12 @@ lower_case_table_names取值：
 lower_case_table_names僅可在創建租戶時指定，租戶創建完成後不可修改。
 
 為**兼容MySQL默認配置**，應使用`lower_case_table_names = 2`。
+
+## OceanBase日誌
+OceanBase的日誌按照租戶存儲，日誌位於`數據目錄/租戶名稱/組件名稱/log`下，常用日誌包括：
+
+- `數據目錄/租戶名稱/oceanbase/log/observer.log` 服務主進程日誌
+- `數據目錄/租戶名稱/ocpexpress/log/ocp-express.log` Web面板及監控日誌
 
 
 

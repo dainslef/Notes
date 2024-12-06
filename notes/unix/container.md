@@ -587,8 +587,8 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 自2024年6月開始，牆國各大高校第三方Docker鏡像源相繼被黨國封殺，
 目前僅存在部分自建Docker鏡像源可用：
 
-- `https://dockerpull.com`
-- `https://dockerproxy.cn`
+- `https://dockerpull.org`
+- `https://docker.m.daocloud.io`（来自项目[`DaoCloud/public-image-mirror`](https://github.com/DaoCloud/public-image-mirror)）
 
 ### Docker鏡像導入/導出
 使用`docker save`指令將鏡像導出為`*.tar`格式的壓縮文件：
