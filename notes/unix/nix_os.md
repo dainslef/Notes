@@ -9,6 +9,8 @@
     - [Insecure](#insecure)
 - [NixOS](#nixos)
     - [查看文檔](#查看文檔)
+    - [NixOS版本](#nixos版本)
+        - [在NixOS Stable中Unstable軟件包](#在nixos-stable中unstable軟件包)
     - [Nix語言](#nix語言)
     - [安裝NixOS](#安裝nixos)
     - [chroot安裝環境](#chroot安裝環境)
@@ -314,6 +316,54 @@ NixOS自帶了對應版本的手冊，執行`nixos-help`指令會調用系統默
 NixOS更多資料可查看[官方Wiki](https://nixos.wiki)。
 官方Wiki中提供了[Cheatsheet](https://nixos.wiki/wiki/Cheatsheet)，
 羅列了與Ubuntu的常用功能對照。
+
+## NixOS版本
+NixOS分為`Stable`與`Unstable`兩種發佈策略，Stable版本每半年發佈一個版本
+（每年5月、11月發佈，與年份組合形成版本號，如23年上半年版本為`23.05`，下半年版本為`23.11`）,
+Stable版本與其它傳統發行版類似，版本發佈後僅發佈安全更新，軟件包主版本不再變化；
+Unstable版本為滾動發行版，無固定版本號（版本始終指向下一個待發佈的穩定版），軟件包一直保持更新。
+
+### 在NixOS Stable中Unstable軟件包
+對於VSCode、Chrome、IDEA桌面軟件包通常需要一直保持更新，而使用NixOS Stable時會固定軟件包主版本。
+NixOS支持在Stable版本中指定特定軟件包使用Unstable版本，使其一直保持更新。
+
+```nix
+let
+  # 將unstable channel定義為變量，allowUnfree等變量需要單獨設定，寫在全局位置無效
+  unstablePkgs = import <nixos-unstable> { ... };
+in
+{
+  environment.systemPackages = with unstablePkgs; [
+    vscode
+    jetbrains.idea-ultimate
+    google-chrome
+  ];
+  ...
+}
+```
+
+使用unstablePkgs時原`nixpkgs.config.*`下的配置項無效，相關配置需要在import語句中單獨設置：
+
+```nix
+let
+  # 將unstable channel定義為變量，allowUnfree等變量需要單獨設定，寫在全局位置無效
+  unstablePkgs = import <nixos-unstable> {
+    config = {
+      allowUnfree = true;
+      allowInsecurePredicate = pkg: true; # Allow all insecure packages (Who care insecure?).
+      packageOverrides = pkgs: {
+        # Add NUR repo.
+        nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
+          inherit pkgs;
+        };
+      };
+    };
+  };
+in
+{
+  ...
+}
+```
 
 ## Nix語言
 [Nix Expression Language](https://nixos.wiki/wiki/Nix_Expression_Language)是NixOS配置使用的語言。
