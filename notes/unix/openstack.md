@@ -19,6 +19,11 @@
 - [Horizon](#horizon)
     - [部署Horizon開發環境](#部署horizon開發環境)
     - [編寫Horizon插件](#編寫horizon插件)
+- [問題記錄](#問題記錄)
+    - [虛擬機綁定浮動IP無法選取分配端口](#虛擬機綁定浮動ip無法選取分配端口)
+    - [虛擬機配置的VIP無法通信](#虛擬機配置的vip無法通信)
+    - [虛擬機進入Error狀態](#虛擬機進入error狀態)
+    - [InstanceNotFound: Instance xxx-xxx-... could not be found.](#instancenotfound-instance-xxx-xxx--could-not-be-found)
 
 <!-- /TOC -->
 
@@ -480,3 +485,47 @@ Horizon的組件按層級分為：
 1. Panel Group，面板組，如`Project - Compute/Volumes/Network...`
 1. Panel，面板，如`Project - Compute - Overview/Instances/Images...`
 1. Tab，面板標籤頁，如`Project - Network - Network Topology - Topology/Graph`
+
+
+
+# 問題記錄
+記錄一些OpenStack中遇到的問題。
+
+## 虛擬機綁定浮動IP無法選取分配端口
+檢查虛擬機所在的網絡是否為共享網絡，若非共享網絡則需配置為共享網絡。
+
+浮動IP網絡與虛擬機網絡之間需要創建虛擬路由器，
+浮动IP所在的網絡設置為網關，並開啟SNAT。
+
+## 虛擬機配置的VIP無法通信
+需要在虛擬機的接口配置中添加VIP的綁定地址對：
+
+```
+Project -> Compute -> Instances -> 目標網絡接口 -> Allowed Address Pairs
+```
+
+在地址對中填寫VIP地址和接口的Mac地址；
+或者直接關閉接口安全選項（不推薦）。
+
+## 虛擬機進入Error狀態
+當虛擬機部分操作失敗時會進入Error狀態，此時無法啟動虛擬機，
+通常進入Error狀態並不意味著虛擬機被損壞，可通過指令重置虛擬機狀態後重啟虛擬機：
+
+```
+$ openstack server set --state active 虛擬機ID
+$ openstack server reboot 虛擬機ID
+```
+
+通常虛擬機在重啟後會恢復正常。
+
+## InstanceNotFound: Instance xxx-xxx-... could not be found.
+當虛擬機遷移失敗等操作造成虛擬機數據庫中部分數據失效時可能會產生該錯誤信息。
+
+首先可嘗試重置虛擬機狀態後重啟虛擬機，若重啟虛擬機後依舊出現相同錯誤，
+則可嘗試使用創建虛擬機時使用的鏡像Rebuild虛擬機，菜單路徑：
+
+```
+Admin - Compute - Instances - 虛擬機 - Rebuild Instance
+```
+
+若虛擬機硬盤數據正常，則通常可恢復。
