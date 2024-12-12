@@ -156,6 +156,8 @@
     - [字體配置](#字體配置)
 - [Debian系列發行版包管理](#debian系列發行版包管理)
     - [apt](#apt)
+        - [apt配置](#apt配置)
+        - [apt禁用交互](#apt禁用交互)
         - [apt下載依賴](#apt下載依賴)
         - [apt依賴類型](#apt依賴類型)
         - [apt-file](#apt-file)
@@ -5830,6 +5832,24 @@ $ apt-cache rdepends iproute2 | grep "|"
  |Depends: vpnc-scripts
  |Depends: tcllib
  ...
+```
+
+### apt配置
+apt的配置文件為`/etc/apt/apt.conf`以及`/etc/apt/apt.conf.d`路徑。
+
+輸出當前環境的apt配置：
+
+```
+$ apt-config dump
+```
+
+### apt禁用交互
+apt安裝軟件包時，部分軟件包可能會彈出交互對話框（如MySQL），
+在腳本環境下，可通過設置`DEBIAN_FRONTEND`環境變量禁止交互：
+
+```sh
+export DEBIAN_FRONTEND=noninteractive
+apt install -y package...
 ```
 
 ### apt下載依賴
