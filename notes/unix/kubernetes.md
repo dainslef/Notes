@@ -15,6 +15,7 @@
         - [使用helm部署網絡插件](#使用helm部署網絡插件)
     - [升級集群](#升級集群)
     - [清理集群容器](#清理集群容器)
+    - [IPv6配置](#ipv6配置)
 - [Kubernetes對象](#kubernetes對象)
     - [Kubernetes API](#kubernetes-api)
 - [kubectl](#kubectl)
@@ -483,6 +484,57 @@ kubelet具備自動清理冗余容器的功能，通過配置kubelet的命令行
 修改參數後重啟kubelet服務即可。
 
 鏡像清理參考[crictl](#crictl清理鏡像)對應章節內容。
+
+## IPv6配置
+自Kubernetes 1.21版本開始支持IPv4/IPv6雙棧，該版本開始默認已啓用了
+[IPv6相關配置](https://kubernetes.io/docs/concepts/services-networking/dual-stack/#enable-ipv4-ipv6-dual-stack)。
+
+IPv6相關sysctl配置：
+
+```conf
+net.ipv6.conf.all.forwarding = 1 # 啓用IPv6路由轉發
+```
+
+IPv6相關Kubernetes組件配置：
+
+- `/etc/kubernetes/manifests/kube-apiserver.yaml`
+
+    ```yaml
+    ...
+    spec:
+      containers:
+      - command:
+        ...
+        # 配置service的地址範圍，IPv6需要使用108以上的子網，否則範圍過大會導致kube-apiserver啓動失敗
+        - --service-cluster-ip-range=10.96.0.0/12,fd00:abcd::/108
+        ...
+    ```
+
+- `/etc/kubernetes/manifests/kube-controller-manager.yaml`
+
+    ```yaml
+    ...
+    spec:
+      containers:
+      - command:
+        ...
+        # Calico網絡插件需要設置特定的CIDR地址段
+        - --cluster-cidr=192.168.0.0/16,fd00:1234::/64
+        ...
+    ```
+
+創建service時，設置IPv4/IPv6雙棧支持：
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  ...
+spec:
+  ...
+  ipFamilyPolicy: PreferDualStack
+  ...
+```
 
 
 
