@@ -16,6 +16,7 @@
     - [Strings（字符串）](#strings字符串)
         - [SETNX（分佈式鎖）](#setnx分佈式鎖)
         - [INCR（計數器）](#incr計數器)
+    - [Sorted Sets（有序集合）](#sorted-sets有序集合)
 - [Redis Pipelining and Transactions（管道/事務）](#redis-pipelining-and-transactions管道事務)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
     - [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
@@ -517,6 +518,47 @@ Redis不存在數值類型，實際使用`base-10 64 bit signed integer`來實�
 > incr test_incr
 (integer) 3
 ```
+
+## Sorted Sets（有序集合）
+Redis亦提供了有序集合[ZSET](https://redis.io/glossary/redis-sorted-sets/)。
+ZSET中每個元素均帶有一個數值（score，得分）表示元素在集合內所處的位置。
+
+基本操作：
+
+- `ZADD` 添加元素（可添加多個元素）
+
+    ```
+    > ZADD KEY名稱 元素1 得分1 元素2 得分2 ...
+    ```
+
+- `ZREM` 移除元素
+
+    ```
+    > ZREM KEY名稱 元素1 元素2 ...
+    ```
+
+- `ZRANGE` 查找特定範圍的元素
+
+    ```html
+    > ZRANGE KEY名稱 起始位置 結束位置 <!-- 默認按照元素位置範圍查找元素，僅輸出元素內容 -->
+    > ZRANGE KEY名稱 起始位置 結束位置 WITHSCORES <!-- 添加WITHSCORES參數輸出元素內容和得分 -->
+    > ZRANGE KEY名稱 起始位置 結束位置 LIMIT 偏移量 數目 <!-- 添加LIMIT參數設置輸出元素的起始位置並限制數目 -->
+    > ZRANGE KEY名稱 0 -1 <!-- 輸出所有元素 -->
+    > ZRANGE KEY名稱 起始得分 結束得分 BYSCORE <!-- 按照得分範圍查找元素 -->
+    ```
+
+    ZRANGE支持倒序查找內容，可用於查找最靠近目標值的內容：
+
+    ```html
+    > ZRANGE KEY名稱 結束得分 起始得分 REV BYSCORE <!-- 倒序查找時結束位置在前 -->
+    ```
+
+- `ZRANK/ZSCORE` 查看元素的排名（索引位置）和得分
+
+    ```html
+    > ZRANK KEY名稱 元素 <!-- 返回元素的索引 -->
+    > ZSCORE KEY名稱 元素 <!-- 返回元素的得分 -->
+    ```
 
 
 
