@@ -1,23 +1,23 @@
 <!-- TOC -->
 
 - [BBR](#bbr)
-	- [Linux中開啟BBR](#linux中開啟bbr)
-	- [FreeBSD中開啟BBR](#freebsd中開啟bbr)
+    - [Linux中開啟BBR](#linux中開啟bbr)
+    - [FreeBSD中開啟BBR](#freebsd中開啟bbr)
 - [Shadowsocks](#shadowsocks)
-	- [shadowsocks-libev](#shadowsocks-libev)
+    - [shadowsocks-libev](#shadowsocks-libev)
 - [生成TLS證書以及密鑰](#生成tls證書以及密鑰)
 - [Trojan](#trojan)
-	- [Linux安裝和管理Trojan服務](#linux安裝和管理trojan服務)
-	- [FreeBSD編譯安裝Trojan](#freebsd編譯安裝trojan)
-	- [配置Trojan服務](#配置trojan服務)
-	- [Trojan轉發流量](#trojan轉發流量)
+    - [Linux安裝和管理Trojan服務](#linux安裝和管理trojan服務)
+    - [FreeBSD編譯安裝Trojan](#freebsd編譯安裝trojan)
+    - [配置Trojan服務](#配置trojan服務)
+    - [Trojan轉發流量](#trojan轉發流量)
 - [V2Ray & XRay](#v2ray--xray)
-	- [XRay](#xray)
-	- [安裝和配置V2Ray/XRay服務](#安裝和配置v2rayxray服務)
-	- [V2Ray/XRay VMess + TLS + WebSocket](#v2rayxray-vmess--tls--websocket)
-	- [V2Ray/XRay VMess + TLS + gRPC](#v2rayxray-vmess--tls--grpc)
-	- [V2Ray/XRay Trojan](#v2rayxray-trojan)
-	- [V2Ray/XRay Shadowsocks](#v2rayxray-shadowsocks)
+    - [XRay](#xray)
+    - [安裝和配置V2Ray/XRay服務](#安裝和配置v2rayxray服務)
+    - [V2Ray/XRay VMess + TLS + WebSocket](#v2rayxray-vmess--tls--websocket)
+    - [V2Ray/XRay VMess + TLS + gRPC](#v2rayxray-vmess--tls--grpc)
+    - [V2Ray/XRay Trojan](#v2rayxray-trojan)
+    - [V2Ray/XRay Shadowsocks](#v2rayxray-shadowsocks)
 
 <!-- /TOC -->
 
@@ -430,7 +430,7 @@ V2Ray/Xray支持使用WebSocket作為傳輸協議，
 
 ```json
 {
-  "inbound": {
+  "inbounds": [{
     "protocol": "vmess",
     "port": 443,
     "settings": { "clients": [ { "id": "xxx-xxx..." } ] },
@@ -445,8 +445,8 @@ V2Ray/Xray支持使用WebSocket作為傳輸協議，
           } ]
       }
     }
-  },
-  "outbound": { "protocol": "freedom" }
+  }],
+  "outbounds": [{ "protocol": "freedom" }]
 }
 ```
 
@@ -504,7 +504,7 @@ V2Ray服務端配置：
 
 ```json
 {
-  "inbound": {
+  "inbounds": [{
     "protocol": "vmess",
     "port": 443,
     "settings": { "clients": [ { "id": "xxx-xxx..." } ] },
@@ -519,8 +519,8 @@ V2Ray服務端配置：
           } ]
       }
     }
-  },
-  "outbound": { "protocol": "freedom" }
+  }],
+  "outbounds": [{ "protocol": "freedom" }]
 }
 ```
 
@@ -593,7 +593,7 @@ V2Ray/XRay現在已提供了完善的Trojan協議支持，
       }
     }
   ],
-  "outbound": { "protocol": "freedom" },
+  "outbounds": [{ "protocol": "freedom" }],
   ...
 }
 ```
@@ -623,7 +623,7 @@ Trojan使用TCP作爲傳輸層時支持`Fallback`，可將非協議流量傳輸�
       }
     }
   ],
-  "outbound": { "protocol": "freedom" },
+  "outbounds": [{ "protocol": "freedom" }],
   ...
 }
 ```
@@ -665,7 +665,7 @@ proxies:
       }
     }
   ],
-  "outbound": { "protocol": "freedom" },
+  "outbounds": [{ "protocol": "freedom" }],
   ...
 }
 ```
@@ -701,7 +701,7 @@ V2Ray/XRay亦支持Shadowsocks協議，配置：
       }
     }
   ],
-  "outbound": { "protocol": "freedom" },
+  "outbound": [{ "protocol": "freedom" }],
   ...
 }
 ```
