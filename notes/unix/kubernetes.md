@@ -69,6 +69,7 @@
     - [Helm查看部署應用](#helm查看部署應用)
     - [Helm版本回退](#helm版本回退)
     - [使用Helm部署常用的應用](#使用helm部署常用的應用)
+    - [Helm Charts（包結構）](#helm-charts包結構)
 
 <!-- /TOC -->
 
@@ -2052,3 +2053,71 @@ $ helm install -n helm-charts harbor harbor/harbor
 ```
 
 升級Helm包與安裝類似，將`helm install`替換為`helm upgrade --install`，其它參數保持不變。
+
+## Helm Charts（包結構）
+Helm包被稱為Charts，基本結構如下：
+
+```sh
+xxx/
+  Chart.yaml          # A YAML file containing information about the chart
+  LICENSE             # OPTIONAL: A plain text file containing the license for the chart
+  README.md           # OPTIONAL: A human-readable README file
+  values.yaml         # The default configuration values for this chart
+  values.schema.json  # OPTIONAL: A JSON Schema for imposing a structure on the values.yaml file
+  charts/             # A directory containing any charts upon which this chart depends.
+  crds/               # Custom Resource Definitions
+  templates/          # A directory of templates that, when combined with values,
+                      # will generate valid Kubernetes manifest files.
+  templates/NOTES.txt # OPTIONAL: A plain text file containing short usage notes
+```
+
+`Chart.yaml`包含了Chart信息，主要包含下列內容：
+
+```yaml
+apiVersion: v2 # Chart API版本，有v1/v2兩種，v2新增了type，並修改了dependencies定義
+name: xxx-xxx
+description: ... # 描述信息
+type: ... # 項目類型，可取值application或library
+version: 0.0.0 # Chart版本
+appVersion: 0.0.0 # 部署應用的版本
+```
+
+`values.yaml`用於定義可變參數，
+參數內容可在執行helm install時通過指令參數`--set xxx=xxx`設置參數內容。
+
+`templates`路徑下存放容器的Kubernetes對象描述YAML模板，
+模板使用Golang模板語法，可從values.yaml中讀取配置後渲染模板內容；
+Golang模板參數不支持中橫線命名如`xxx-xxx`，參數名稱通常參照Kubernetes API風格使用小駝峰命名法。
+
+示例：
+
+```yaml
+---
+# values.yaml
+testKey: xxx-value
+image: xxx
+replicaCount: 3
+
+---
+# templates/test-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    deploy: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: {{ .Values.image }}
+          command: [ {{ .Values.testKey }} ]
+```
