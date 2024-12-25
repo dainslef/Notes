@@ -1,36 +1,36 @@
 <!-- TOC -->
 
 - [概述](#概述)
-	- [與 Linux 的比較](#與-linux-的比較)
+    - [與 Linux 的比較](#與-linux-的比較)
 - [安裝與配置](#安裝與配置)
-	- [UEFI引導](#uefi引導)
-	- [GRUB2引導](#grub2引導)
+    - [UEFI引導](#uefi引導)
+    - [GRUB2引導](#grub2引導)
 - [網絡](#網絡)
-	- [網卡配置](#網卡配置)
-	- [無線網絡配置](#無線網絡配置)
+    - [網卡配置](#網卡配置)
+    - [無線網絡配置](#無線網絡配置)
 - [服務管理](#服務管理)
 - [包管理](#包管理)
-	- [pkg](#pkg)
-	- [Ports](#ports)
-	- [安裝系統更新](#安裝系統更新)
-	- [系統版本升級](#系統版本升級)
-	- [系統版本升級後pkg工具不可使用](#系統版本升級後pkg工具不可使用)
+    - [pkg](#pkg)
+    - [Ports](#ports)
+    - [安裝系統更新](#安裝系統更新)
+    - [系統版本升級](#系統版本升級)
+    - [系統版本升級後pkg工具不可使用](#系統版本升級後pkg工具不可使用)
 - [Jails（容器）](#jails容器)
-	- [OCI](#oci)
+    - [OCI](#oci)
 - [GUI](#gui)
-	- [Display Manager](#display-manager)
+    - [Display Manager](#display-manager)
 - [磁盤分區管理](#磁盤分區管理)
-	- [調整分區和文件系統大小](#調整分區和文件系統大小)
-	- [修復GPT分區表](#修復gpt分區表)
-	- [proc文件系統](#proc文件系統)
-	- [掛載導入zfs分區](#掛載導入zfs分區)
+    - [調整分區和文件系統大小](#調整分區和文件系統大小)
+    - [修復GPT分區表](#修復gpt分區表)
+    - [proc文件系統](#proc文件系統)
+    - [掛載導入zfs分區](#掛載導入zfs分區)
 - [limits](#limits)
-	- [文件描述符數目限制](#文件描述符數目限制)
+    - [文件描述符數目限制](#文件描述符數目限制)
 - [常用工具指令](#常用工具指令)
-	- [PCI設備](#pci設備)
-	- [chroot](#chroot)
-	- [查看端口狀態](#查看端口狀態)
-	- [查看時間與設置時區](#查看時間與設置時區)
+    - [PCI設備](#pci設備)
+    - [chroot](#chroot)
+    - [查看端口狀態](#查看端口狀態)
+    - [查看時間與設置時區](#查看時間與設置時區)
 
 <!-- /TOC -->
 
@@ -38,7 +38,7 @@
 
 # 概述
 `FreeBSD`是**開源**、**自由**的`Unix Like`操作系統。
-FreeBSD繼承自`BSD`(`Berkeley Software Distribution`)系列，
+FreeBSD繼承自`BSD`（`Berkeley Software Distribution`，伯克利軟件發行版）系列，
 是正統的Unix分支，由於法律原因，FreeBSD不能稱爲Unix；
 但內核中部分使用了FreeBSD的macOS(Darwin/XNU)，獲得了`UNIX 03`認證。
 
@@ -73,7 +73,7 @@ FreeBSD繼承自`BSD`(`Berkeley Software Distribution`)系列，
 鏡像命名規則如下：
 
 ```
-FreeBSD-[版本號]-RELEASE-[CPU架構]-[鏡像類型].img/iso
+FreeBSD-版本號-RELEASE-CPU架構-鏡像類型.img/iso
 ```
 
 鏡像類型分爲以下幾類：
@@ -88,7 +88,7 @@ FreeBSD-[版本號]-RELEASE-[CPU架構]-[鏡像類型].img/iso
 刻錄鏡像使用`dd`指令，並需要添加部分參數，以`amd64`架構的`memstick-mini`鏡像爲例，刻錄指令如下：
 
 ```
-# dd if='FreeBSD-[版本]-RELEASE-amd64-memstick-mini.img' of='/dev/[磁盤id]' bs=1M conv=sync
+# dd if='FreeBSD-版本號-RELEASE-amd64-memstick-mini.img' of='/dev/磁盤塊設備' bs=1M conv=sync
 ```
 
 ## UEFI引導
@@ -130,7 +130,8 @@ menuentry 'FreeBSD' {
 
 
 # 網絡
-FreeBSD中使用傳統的`ifconfig`工具管理網絡，FreeBSD並不支持Linux的新一代網絡工具鏈`iproute2`。
+FreeBSD中使用Unix傳統的`ifconfig`工具管理網絡；
+FreeBSD不支持Linux的新一代網絡工具鏈`iproute2`。
 
 ## 網卡配置
 FreeBSD中網卡配置直接寫在`/etc/rc.conf`中：
@@ -163,9 +164,9 @@ defaultrouter="x.x.x.x"
 
 ```sh
 network={
-	# scan_ssid=1 # 當連接隱藏的無線熱點時需要額外添加該參數
-	ssid="無線網ssid"
-	psk="密碼"
+    # scan_ssid=1 # 當連接隱藏的無線熱點時需要額外添加該參數
+    ssid="無線網ssid"
+    psk="密碼"
 }
 ```
 
@@ -200,7 +201,7 @@ ifconfig_wlan0="WPA DHCP"
 
 ```
 wlans_iwm0="wlan0"
-ifconfig_wlan0="ssid [無線網ssid] DHCP"
+ifconfig_wlan0="ssid 無線網SSID名稱 DHCP"
 ```
 
 
@@ -311,6 +312,9 @@ FreeBSD使用`freebsd-update`獲取和安裝系統補丁：
 # freebsd-update install
 ```
 
+FreeBSD常規系統更新僅接收當前版本號內的補丁性質更新，
+普通系統更新**不會**改變主版本號以及副版本號。
+
 ## 系統版本升級
 FreeBSD並非**滾動發行版**，系統有明確的版本劃分，
 升級系統版本同樣使用更新工具`freebsd-update`。
@@ -337,7 +341,7 @@ FreeBSD並非**滾動發行版**，系統有明確的版本劃分，
 
 ## 系統版本升級後pkg工具不可使用
 問題說明：<br>
-系統版本升級後，FreeBSD的包管理器`pkg`可能會出現動態鏈接庫缺失的問題，錯誤信息如下：
+系統版本升級後，FreeBSD的包管理器pkg可能會出現動態鏈接庫缺失的問題，錯誤信息如下：
 
 ```
 ld-elf.so.1: Shared object "libssl.so.111" not found, required by "pkg"
@@ -426,7 +430,7 @@ sddm_enable="YES" # SDDM
 
 
 # 磁盤分區管理
-FreeBSD中使用`fdisk`、`gpart`等工具管理磁盤。
+FreeBSD中使用`fdisk`、`gpart`等工具管理磁盤；
 使用`geom`、`diskinfo`等工具查看磁盤、分區信息。
 
 FreeBSD中磁盤設備的命名規則也與Linux不同，
@@ -466,21 +470,21 @@ $ gpart show
 diskinfo工具則用於展示更詳盡的磁盤信息：
 
 ```
-$ diskinfo -v ada1
-ada1
-	512         	# sectorsize
-	6001175126016	# mediasize in bytes (5.5T)
-	11721045168 	# mediasize in sectors
-	4096        	# stripesize
-	0           	# stripeoffset
-	11628021    	# Cylinders according to firmware.
-	16          	# Heads according to firmware.
-	63          	# Sectors according to firmware.
-	HGST HDN726060ALE614	# Disk descr.
-	K1JVDUGD    	# Disk ident.
-	No          	# TRIM/UNMAP support
-	7200        	# Rotation rate in RPM
-	Not_Zoned   	# Zone Mode
+$ diskinfo -v /dev/ada1
+/dev/ada1
+    512         	# sectorsize
+    6001175126016	# mediasize in bytes (5.5T)
+    11721045168 	# mediasize in sectors
+    4096        	# stripesize
+    0           	# stripeoffset
+    11628021    	# Cylinders according to firmware.
+    16          	# Heads according to firmware.
+    63          	# Sectors according to firmware.
+    HGST HDN726060ALE614	# Disk descr.
+    K1JVDUGD    	# Disk ident.
+    No          	# TRIM/UNMAP support
+    7200        	# Rotation rate in RPM
+    Not_Zoned   	# Zone Mode
 ```
 
 ## 調整分區和文件系統大小
@@ -636,17 +640,17 @@ $ limits -P 進程號 <!-- 查看指定進程的限制 -->
 
 ```
 default:\
-	...
-	:filesize=unlimited:\
-	:coredumpsize=unlimited:\
-	:openfiles=unlimited:\
-	:maxproc=unlimited:\
-	...
+    ...
+    :filesize=unlimited:\
+    :coredumpsize=unlimited:\
+    :openfiles=unlimited:\
+    :maxproc=unlimited:\
+    ...
 
 root:\
-	:ignorenologin:\
-	:memorylocked=unlimited:\
-	:tc=default:
+    :ignorenologin:\
+    :memorylocked=unlimited:\
+    :tc=default:
 
 ...
 ```
