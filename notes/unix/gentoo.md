@@ -8,9 +8,12 @@
         - [Python版本](#python版本)
     - [配置時區](#配置時區)
     - [配置内核](#配置内核)
+        - [預編譯內核](#預編譯內核)
         - [編譯内核](#編譯内核)
         - [安裝編譯內核](#安裝編譯內核)
+        - [清理內核](#清理內核)
     - [安裝引導器](#安裝引導器)
+    - [桌面環境配置](#桌面環境配置)
 - [包管理](#包管理)
     - [emerge](#emerge)
     - [包組列表](#包組列表)
@@ -79,7 +82,7 @@ chroot到Gentoo Stage環境。
 
 若當前環境shell並非bash，
 則需要顯式指定chroot shell爲bash，
-否則會提示shell不存在(stage3中僅包含bash)
+否則會提示shell不存在（stage3中僅包含bash）
 -->
 # chroot /mnt /bin/bash
 ```
@@ -175,12 +178,17 @@ xxx/xxx: python_targets_python3_13
 ```
 
 ## 配置内核
+Gentoo支持通過源碼編譯內核或直接安裝預編譯二進制內核。
+
+### 預編譯內核
 Gentoo提供了預編譯内核`sys-kernel/gentoo-kernel-bin`，
 無特殊需求可直接使用該內核，節省大量編譯內核的時間。
 
 ```
 # emerge -a sys-kernel/gentoo-kernel-bin
 ```
+
+默認預編譯內核使用**LTS版本**，可通過調整ACCEPT_KEYWORDS使用最新版本的內核。
 
 ### 編譯内核
 需要定制内核功能可源碼編譯内核，安裝內核源碼：
@@ -347,6 +355,54 @@ Gentoo提供了預編譯内核`sys-kernel/gentoo-kernel-bin`，
 # make modules_install
 ```
 
+### 清理內核
+Gentoo升級內核時**不會**自動清理舊的內核文件，
+長期使用多次升級內核版本後會產生大量舊版本的內核文件，佔用磁盤空間。
+
+清理舊內核可移除下列路徑下的內容：
+
+- `/boot`
+
+    該路徑存放內核配置與內核鏡像文件，可清理下列文件：
+
+    ```
+    System.map-內核版本號-gentoo-dist
+    config-內核版本號-gentoo-dist
+    initramfs-內核版本號-gentoo-dist.img
+    vmlinuz-內核版本號-gentoo-dist
+    ```
+
+- `/usr/lib/modules`
+
+    該路徑存放內核模塊，可按目錄清理：
+
+    ```
+    內核版本號-gentoo-dist/
+    ```
+
+清理完成後需要重新生成GRUB引導菜單，避免啟動項中引用已被清理的內核。
+
+## 安裝引導器
+内核配置完成后，安裝GRUB引導器：
+
+```
+# emerge -a grub
+```
+
+Gentoo下GRUB默認使用`/boot/efi`路徑作爲ESP挂載點，
+挂載ESP分區至該路徑下。生成GRUB配置，並安裝引導文件：
+
+```html
+<!-- 生成GRUB配置 -->
+# grub-mkconfig -o /boot/grub/grub.cfg
+
+<!-- 安裝Gentoo引導文件 -->
+# grub-install
+<!-- Gentoo生成引導文件時不會自動生成默認引導文件EFI/BOOT/BOOTAA64.EFI，需要手動生成 -->
+# grub-install --removable
+```
+
+## 桌面環境配置
 根據桌面環境選擇默認的配置文件集：
 
 ```
@@ -373,25 +429,6 @@ openRC服務下更換顯示管理器，編輯`/etc/conf.d/xdm`文件，
 # rc-update add bluetooth <!-- 沒寫運行級別會默認加入default運行級別 -->
 ```
 
-## 安裝引導器
-内核配置完成后，安裝GRUB引導器：
-
-```
-# emerge -a grub
-```
-
-Gentoo下GRUB默認使用`/boot/efi`路徑作爲ESP挂載點，
-挂載ESP分區至該路徑下。生成GRUB配置，並安裝引導文件：
-
-```html
-<!-- 生成GRUB配置 -->
-# grub-mkconfig -o /boot/grub/grub.cfg
-
-<!-- 安裝Gentoo引導文件 -->
-# grub-install
-<!-- Gentoo生成引導文件時不會自動生成默認引導文件EFI/BOOT/BOOTAA64.EFI，需要手動生成 -->
-# grub-install --removable
-```
 
 
 # 包管理
@@ -430,6 +467,8 @@ Gentoo使用`emerge`作爲包管理器，以及其它輔助工具如
 常用操作説明：
 
 ```html
+# emerge -a <!-- 執行操作前詢問，與其它參數組合使用 -->
+
 # emerge --sync <!-- 同步portage樹 -->
 # emerge -e world <!-- 更換全局USE之後重新編譯所有包 -->
 # emerge -u system <!-- 更新系統軟件 -->
@@ -439,7 +478,6 @@ Gentoo使用`emerge`作爲包管理器，以及其它輔助工具如
 # emerge -pv 包名 <!-- 查看某個包的可用USE -->
 # emerge --udpate --newuse 包名 <!-- 更新USE之後安裝包刷新依賴關係 -->
 # emerge --depclean <!-- 清理無用依賴 -->
-# emerge -a <!-- 執行操作前詢問 -->
 
 <!-- 查看系統構建信息 -->
 $ emerge --info
@@ -483,6 +521,10 @@ $ eselect help
 ```html
 $ qlist 包名 <!-- 查看包裏有哪些文件 -->
 $ qfile 文件名/路徑名 <!-- 查看文件屬於哪個包 -->
+
+<!-- 查詢指定軟件包的依賴信息 -->
+$ qdepends 包名 <!-- 默認輸出正向依賴 -->
+$ qdepends -Q 包名 <!-- 查詢被哪些包依賴 -->
 ```
 
 ## gentoolkit
@@ -495,7 +537,7 @@ $ qfile 文件名/路徑名 <!-- 查看文件屬於哪個包 -->
 $ equery list 包名 <!-- 列出對應包名的包安裝了哪些版本 -->
 $ equery files 包名 <!-- 查看包裏有哪些文件 -->
 $ equery belongs 文件路徑 <!-- 查看文件屬於哪個包 -->
-$ equery depends 包名 <!-- 查看某個包的依賴 -->
+$ equery depends 包名 <!-- 查看指定軟件包的依賴 -->
 $ equery uses 包名 <!-- 查看一個已經安裝的包使用了哪些USE -->
 
 # eclean distfiles <!-- 清理包文件 -->
