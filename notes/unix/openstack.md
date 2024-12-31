@@ -7,6 +7,7 @@
 - [Kolla Ansible](#kolla-ansible)
     - [Debian Stable部署流程](#debian-stable部署流程)
     - [升級OpenStack版本](#升級openstack版本)
+        - [升級 Kolla Ansible 2024.2](#升級-kolla-ansible-20242)
     - [Cinder（存儲配置）](#cinder存儲配置)
     - [Octavia（負載均衡器配置）](#octavia負載均衡器配置)
     - [Kolla Ansible部署問題](#kolla-ansible部署問題)
@@ -238,6 +239,31 @@ Kolla Ansible支持版本升級，基本升級流程：
 根據實際組件的版本差異和部署情況，可能部分組件會存在升級失敗的情況，
 此時可嘗試手動對比配置、清理相關容器Docker卷等操作，
 如果清理配置、容器後仍升級失敗，則可考慮單獨重新deploy該問題組件。
+
+### 升級 Kolla Ansible 2024.2
+從`kolla-ansible 2024.2`版本開始kolla-ansible存在較大變化，
+不再使用bash脚本實現，改爲Python脚本實現，部分參數結構存在變化，
+如`-i`參數現在應放在特定操作之後（舊版本-i參數放在操作之前）：
+
+```
+# kolla-ansible prechecks -i ./all-in-one
+# kolla-ansible deploy -i ./all-in-one
+# kolla-ansible upgrade -i ./all-in-one
+```
+
+早期版本中部分Python API依賴需要通過系統包管理器安裝如`docker`、`dbus-python`等，
+自2024.2版本開始系統包管理器安裝的依賴無法識別，需要改爲統一使用pip安裝：
+
+```
+# pip install docker dbus-python
+```
+
+在Debian發行版中，使用pip安裝dbus-python需要編譯，
+需要額外使用apt安裝下列依賴才能正常完成編譯流程：
+
+```
+# apt install cmake pkg-config libdbus-1-dev libglib2.0-dev
+```
 
 ## Cinder（存儲配置）
 Kolla默認配置中未開啟存儲功能，開啟存儲需要在globals.yml中啟用`enable_cinder`配置：
