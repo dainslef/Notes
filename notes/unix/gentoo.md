@@ -22,7 +22,7 @@
     - [gentoolkit](#gentoolkit)
     - [package.use](#packageuse)
     - [package.mask / package.unmask](#packagemask--packageunmask)
-    - [package.accept_keywords / package.license](#packageaccept_keywords--packagelicense)
+    - [package.license / package.accept_keywords](#packagelicense--packageaccept_keywords)
     - [overlay](#overlay)
 - [OpenRC](#openrc)
 - [其他配置](#其他配置)
@@ -582,36 +582,55 @@ Gentoo的Mask機制可用於控制系統的軟件包版本，
 `/etc/portage/package.unmask`與package.mask作用相反，用於解除特定版本的Mask，
 通常組合使用（如在package.mask禁用整個軟件包，在package.unmask中解禁部分版本）。
 
-## package.accept_keywords / package.license
-Gentoo使用Mask機制將存在潛在問題的軟件包以Keyword（關鍵字）進行標記，被標記的軟件包不可直接安裝。
+## package.license / package.accept_keywords
+Gentoo會將存在潛在問題的軟件包進行標記，被標記的軟件包不可直接安裝。
 
 軟件包被標記的常見原因；
 
-- 許可證，關鍵字為許可證名稱
-- 軟件包穩定性，關鍵字為`~架構`，如`~amd64`、`~arm64`
-- 其它原因，關鍵字`missing keyword`
+- 許可證
 
-允許指定軟件包的關鍵字可寫入`/etc/portage/package.accept_keywords`文件中：
+    部分軟件許可證默認不被Linux接受，
+    允許指定軟件包的許可證可寫入`/etc/portage/package.license`文件中，
+    文件示例：
+
+    ```sh
+    軟件包 許可證名稱
+
+    # 示例
+    app-arch/7zip unRAR
+    ```
+
+- 關鍵字
+
+    常見關鍵字類型：
+
+    - 軟件包穩定性，關鍵字為`~架構`，如`~amd64`、`~arm64`
+    - 其它原因，關鍵字`missing keyword`
+
+    允許指定軟件包的關鍵字可寫入`/etc/portage/package.accept_keywords`文件中，
+    文件示例：
+
+    ```sh
+    軟件包 關鍵字
+
+    # 示例
+    sys-cluster/kubeadm ~arm64
+    sys-cluster/kubelet ~arm64
+    sys-cluster/kubectl ~arm64
+    # 允許 missing keyword 軟件包
+    sys-cluster/ipvsadm **
+    app-containers/nerdctl **
+    ```
+
+可在`/etc/portage/make.conf`中根據平台添加全局允許關鍵字、許可證：
 
 ```sh
-軟件包 關鍵字
+# 全局允許unRAR許可證
+ACCEPT_LICENSE="unRAR"
 
-# 示例
-sys-cluster/kubeadm ~arm64
-sys-cluster/kubelet ~arm64
-sys-cluster/kubectl ~arm64
-# 允許 missing keyword 軟件包
-sys-cluster/ipvsadm **
-app-containers/nerdctl **
-```
-
-可在`/etc/portage/make.conf`中根據平台添加全局允許關鍵字：
-
-```sh
-# x64平台
+# 全局允許x64平台的不穩定軟件包
 ACCEPT_KEYWORDS="~amd64"
-
-# ARM64平台
+# 全局允許ARM64平台的不穩定軟件包
 ACCEPT_KEYWORDS="~arm64"
 ```
 
