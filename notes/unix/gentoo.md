@@ -227,118 +227,117 @@ Gentoo提供了預編譯内核`sys-kernel/gentoo-kernel-bin`，
 
 部分重要的內核選項：
 
-
 - 處理器：(Intel CPU可關閉AMD CPU特性)
 
-	```html
-	Processor type and features  ——>
-		[ ] Enable MPS table <!-- 支持ACPI的電腦都不選 -->
-		[ ] Support for extended (non-PC) x86 platforms <!-- 關閉PC平臺以外的支持 -->
-		Processor family (Core 2/newer Xeon)
-		[ ] Linux guest support  ---- <!-- 安裝在虛擬機裏才需要 -->
-		[*] Multi-core scheduler support <!-- 開啓多核心支持 -->
-		[*] SMT (Hyperthreading) scheduler support <!-- SMT超線程開啓 -->
-		[*] Intel Low Power Subsystem Support <!-- haswell以上可選 -->
-		[ ] kexec system call
-		[ ] Build a relocatable kernel
-		[*] EFI runtime service support <!-- EFI主板開啓 -->
-		[ ] EFI stub support <!-- 用不到 -->
-		Preemption Model --->
-			(X) Preemptible Kernel (Low-Latency Desktop) <!-- 低延時模式 -->
-	```
+    ```html
+    Processor type and features  ——>
+        [ ] Enable MPS table <!-- 支持ACPI的電腦都不選 -->
+        [ ] Support for extended (non-PC) x86 platforms <!-- 關閉PC平臺以外的支持 -->
+        Processor family (Core 2/newer Xeon)
+        [ ] Linux guest support  ---- <!-- 安裝在虛擬機裏才需要 -->
+        [*] Multi-core scheduler support <!-- 開啓多核心支持 -->
+        [*] SMT (Hyperthreading) scheduler support <!-- SMT超線程開啓 -->
+        [*] Intel Low Power Subsystem Support <!-- haswell以上可選 -->
+        [ ] kexec system call
+        [ ] Build a relocatable kernel
+        [*] EFI runtime service support <!-- EFI主板開啓 -->
+        [ ] EFI stub support <!-- 用不到 -->
+        Preemption Model --->
+            (X) Preemptible Kernel (Low-Latency Desktop) <!-- 低延時模式 -->
+    ```
 
 - 設備驅動相關：
 
-	```html
-	Device Drivers  --->
-		[ ] Multiple devices driver support (RAID and LVM)  ---- <!-- 關閉磁盤陣列 -->
-		Graphics support  --->
-			[ ] Bootup logo		//關了，啓動動畫沒用
-			[*] Laptop Hybrid Graphics - GPU switching support <!-- 雙顯卡切換支持 -->
-			Direct Rendering Manager  --->
-				<*> Direct Rendering Manager
-				<*> Intel 8xx/9xx/G3x/G4x/HD Graphics
-			Frame buffer Devices  --->
-				[*] Simple framebuffer support
-		<*> Serial ATA and Parallel ATA drivers (libata)  --->
-			[ ] ATA SFF support (for legacy IDE and PATA) <!-- 關了，老式硬盤才需要 -->
-		[*] Network device support  ---> <!-- 取消除了自身硬件之外的全部選項 -->
-			[*] Ethernet driver support  ---> <!-- 選擇有線驅動 -->
-				[*] Broadcom devices (NEW)
-				<*> Broadcom Tigon3 support <!-- BCM57786的驅動是這個 -->
-			[*] Wireless LAN  ---> <!-- 選擇無線驅動 -->
-				Atheros Wireless Cards  --->
-					 [*] Atheros bluetooth coexistence support
-					 <*> Atheros 802.11n wireless cards support
-					 [*] Atheros ath9k PCI/PCIe bus support (NEW)
-		Input device support  --->
-			[ ] Touchscreens  ---- <!-- 非觸摸屏電腦關閉觸屏支持 -->
-			[ ] Miscellaneous devices  ----
-			[ ] Joysticks/Gamepads  ----
-			(1366)  Horizontal screen resolution
-			(768)   Vertical screen resolution <!-- 設置分辨率 -->
-		[*] USB support  --->
-			<*> xHCI HCD (USB 3.0) support <!-- 打開USB3.0支持 -->
-		<*> MMC/SD/SDIO card support  --->
-			<*> USB SD Host Controller (USHC) support
-		[ ] LED Support  ---- <!-- 關閉LED驅動 -->
-	```
+    ```html
+    Device Drivers  --->
+        [ ] Multiple devices driver support (RAID and LVM)  ---- <!-- 關閉磁盤陣列 -->
+        Graphics support  --->
+            [ ] Bootup logo		//關了，啓動動畫沒用
+            [*] Laptop Hybrid Graphics - GPU switching support <!-- 雙顯卡切換支持 -->
+            Direct Rendering Manager  --->
+                <*> Direct Rendering Manager
+                <*> Intel 8xx/9xx/G3x/G4x/HD Graphics
+            Frame buffer Devices  --->
+                [*] Simple framebuffer support
+        <*> Serial ATA and Parallel ATA drivers (libata)  --->
+            [ ] ATA SFF support (for legacy IDE and PATA) <!-- 關了，老式硬盤才需要 -->
+        [*] Network device support  ---> <!-- 取消除了自身硬件之外的全部選項 -->
+            [*] Ethernet driver support  ---> <!-- 選擇有線驅動 -->
+                [*] Broadcom devices (NEW)
+                <*> Broadcom Tigon3 support <!-- BCM57786的驅動是這個 -->
+            [*] Wireless LAN  ---> <!-- 選擇無線驅動 -->
+                Atheros Wireless Cards  --->
+                     [*] Atheros bluetooth coexistence support
+                     <*> Atheros 802.11n wireless cards support
+                     [*] Atheros ath9k PCI/PCIe bus support (NEW)
+        Input device support  --->
+            [ ] Touchscreens  ---- <!-- 非觸摸屏電腦關閉觸屏支持 -->
+            [ ] Miscellaneous devices  ----
+            [ ] Joysticks/Gamepads  ----
+            (1366)  Horizontal screen resolution
+            (768)   Vertical screen resolution <!-- 設置分辨率 -->
+        [*] USB support  --->
+            <*> xHCI HCD (USB 3.0) support <!-- 打開USB3.0支持 -->
+        <*> MMC/SD/SDIO card support  --->
+            <*> USB SD Host Controller (USHC) support
+        [ ] LED Support  ---- <!-- 關閉LED驅動 -->
+    ```
 
 - 電源管理和ACPI：
 
-	```html
-	Power management and ACPI options  --->
-		[*] Suspend to RAM and standby <!-- 睡眠功能 -->
-		[*] Hibernation (aka 'suspend to disk') <!-- 休眠功能 -->
-		[ ] Power Management Debug Support <!-- 不需要調試電源 -->
-		[*] ACPI (Advanced Configuration and Power Interface) Support  --->
-			<*> Battery <!-- 筆記本開啓電池相關支持 -->
-			<*> Smart Battery System
-		CPU Frequency scaling  --->
-			Default CPUFreq governor (ondemand)  --->
-				(X) ondemand
-			< > 'userspace' governor for userspace frequency scaling <!-- 關閉userspace調度器 -->
-			x86 CPU frequency scaling drivers  --->
-				[*] Intel P state control
-	```
+    ```html
+    Power management and ACPI options  --->
+        [*] Suspend to RAM and standby <!-- 睡眠功能 -->
+        [*] Hibernation (aka 'suspend to disk') <!-- 休眠功能 -->
+        [ ] Power Management Debug Support <!-- 不需要調試電源 -->
+        [*] ACPI (Advanced Configuration and Power Interface) Support  --->
+            <*> Battery <!-- 筆記本開啓電池相關支持 -->
+            <*> Smart Battery System
+        CPU Frequency scaling  --->
+            Default CPUFreq governor (ondemand)  --->
+                (X) ondemand
+            < > 'userspace' governor for userspace frequency scaling <!-- 關閉userspace調度器 -->
+            x86 CPU frequency scaling drivers  --->
+                [*] Intel P state control
+    ```
 
 - 文件系統(記得開啓vfat、NTFS支持，另文件系統不建議編譯成模塊)：
 
-	```html
-	File systems --->
-		<*> FUSE (Filesystem in Userspace) support <!-- 無此選項掛載Win分區會失敗 -->
-		CD-ROM/DVD Filesystems  --->
-			<*> ISO 9660 CDROM file system support
-			<*> UDF file system support <!-- 刻盤可能會用到 -->
-		DOS/FAT/NT Filesystems  --->
-			<*> MSDOS fs support
-			<*> VFAT (Windows-95) fs support
-			<*> NTFS file system support <!-- NTFS文件系統支持不打開無法掛載win分區 -->
-		-*- Native language support  --->
-			<*> Simplified Chinese charset (CP936, GB2312) <!-- fat32的原生中文支持 -->
-	```
+    ```html
+    File systems --->
+        <*> FUSE (Filesystem in Userspace) support <!-- 無此選項掛載Win分區會失敗 -->
+        CD-ROM/DVD Filesystems  --->
+            <*> ISO 9660 CDROM file system support
+            <*> UDF file system support <!-- 刻盤可能會用到 -->
+        DOS/FAT/NT Filesystems  --->
+            <*> MSDOS fs support
+            <*> VFAT (Windows-95) fs support
+            <*> NTFS file system support <!-- NTFS文件系統支持不打開無法掛載win分區 -->
+        -*- Native language support  --->
+            <*> Simplified Chinese charset (CP936, GB2312) <!-- fat32的原生中文支持 -->
+    ```
 
 - 可執行文件：
 
-	```html
-	Executable file formats / Emulations  --->
-		[ ] IA32 Emulation <!-- 不需要32位模擬 -->
-	```
+    ```html
+    Executable file formats / Emulations  --->
+        [ ] IA32 Emulation <!-- 不需要32位模擬 -->
+    ```
 
 - 虛擬化：
 
-	```html
-	[*] Virtualization  --->
-		<*> Kernel-based Virtual Machine (KVM) support
-			<*> KVM for Intel processors support <!-- VirtualBox使用該特性 -->
-	```
+    ```html
+    [*] Virtualization  --->
+        <*> Kernel-based Virtual Machine (KVM) support
+            <*> KVM for Intel processors support <!-- VirtualBox使用該特性 -->
+    ```
 
 - 內核安全與內核調試：
 
-	```html
-	Kernel hacking  --->
-	Security options  ---> <!-- 關閉非必選項-->
-	```
+    ```html
+    Kernel hacking  --->
+    Security options  ---> <!-- 關閉非必選項-->
+    ```
 
 ### 安裝編譯內核
 確認配置無誤之後，執行make指令開始根據makefile進行編譯。
