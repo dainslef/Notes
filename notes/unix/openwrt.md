@@ -68,6 +68,7 @@
     - [GL-AXT1800原廠固件自動掛載存儲到 /tmp/mountd/](#gl-axt1800原廠固件自動掛載存儲到-tmpmountd)
     - [Mi Router 4A/4C 新閃存芯片 EN25QX128 不支持](#mi-router-4a4c-新閃存芯片-en25qx128-不支持)
     - [`E1187: Failed to source defaults.vim`](#e1187-failed-to-source-defaultsvim)
+    - [Cudy TR3000設備WAN口無法獲取地址](#cudy-tr3000設備wan口無法獲取地址)
 
 <!-- /TOC -->
 
@@ -1799,3 +1800,24 @@ Signed-off-by: Piotr Dymacz <pepe2k@gmail.com>
 出現該錯誤是因爲OpenWRT提供的`vim`/`vim-full`版本均精簡了VIM的默認配置文件`/usr/share/defaults.vim`，
 手動創建1該文件（無需填充内容）即可，亦可直接在家目錄下創建VIM配置（`~/.vimrc`），
 創建配置文件后，警告提示不再出現。
+
+## Cudy TR3000設備WAN口無法獲取地址
+問題描述：<br>
+Cudy TR3000使用`OpenWRT 23.05`固件WAN口插入網線指示燈正常亮起，接口狀態可被系統正常識別，
+但無法通過DHCP在WAN口獲取到地址。
+
+問題詳情參考[GitHub Issues](https://github.com/openwrt/openwrt/issues/16448)，
+OpenWRT 23.05版本對該設備使用的`RTL8221B-VB-CG`網卡驅動支持不完善，
+啟動時內核會輸出相關錯誤信息：
+
+```
+[   15.606166] RTL8221B-VB-CG 2.5Gbps PHY (C45) mdio-bus:01: rtl822xb_config_init failed: -110
+[   15.725591] mtk_soc_eth 15100000.ethernet eth0: mtk_open: could not attach PHY: -110
+```
+
+解決方案：<br>
+可在系統啟動後手動重啟網絡服務以修復該問題：
+
+```
+# service network restart
+```
