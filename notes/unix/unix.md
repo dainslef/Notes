@@ -1537,38 +1537,54 @@ Unix系統中傳統的檔案文件格式爲`tar archives`，可將多個文件�
 
 `tar`指令常見用法：
 
-```c
-// 生成 tar 包
-$ tar cvf [tar文件] [被壓縮文件...]
-// 使用 gzip 壓縮文件
-$ tar cvzf [tar文件] [被壓縮文件...]
+```html
+<!-- 創建 tar 包 -->
+$ tar cvf tar文件 被壓縮文件...
+<!-- 使用 gzip 壓縮文件 -->
+$ tar cvzf tar文件 被壓縮文件...
 
-// 解壓文件
-$ tar xvf [tar文件]
-// 使用 gzip 解壓
-$ tar xzvf [tar.gz文件]
-// 使用 bzip2 解壓
-$ tar xjvf [tar.bz2文件]
+<!-- 解壓文件 -->
+$ tar xvf tar文件
+<!-- 使用 gzip 解壓 -->
+$ tar xzvf tar.gz文件
+<!-- 使用 bzip2 解壓 -->
+$ tar xjvf tar.bz2文件
 
-// 解壓文件到指定路徑
-$ tar xvf [tar文件] -C [輸出路徑]
-$ tar xzvf [tar.gz文件] -C [輸出路徑]
-$ tar xjvf [tar.bz2文件] -C [輸出路徑]
+<!-- 解壓文件到指定路徑 -->
+$ tar xvf tar文件 -C 輸出路徑
+$ tar xzvf tar.gz文件 -C 輸出路徑
+$ tar xjvf tar.bz2文件 -C 輸出路徑
 ```
 
 ## 7z
 `7z`是開源的壓縮工具，支持多種壓縮格式，其特有的7z格式具有較高的壓縮比。
 
-```c
-// 生成指定類型的壓縮文件
-// 類型可以是 7z zip tar bzip2 gzip 等
-$ 7z a -t{類型} [生成文件] [被壓縮文件...]
+```html
+<!--
+生成指定類型的壓縮文件
+類型可以是 7z zip tar bzip2 gzip 等
+-->
+$ 7z a -t類型 生成文件 被壓縮文件...
 
-// 解壓文件到指定路徑
-$ 7z x [待解壓文件] -o[輸出路徑]
+<!-- 解壓文件到指定路徑 -->
+$ 7z x 待解壓文件 -o輸出路徑
 
-// 列出壓縮包的內容
-$ 7z l [壓縮文件]
+<!-- 列出壓縮包的內容 -->
+$ 7z l 壓縮文件
+```
+
+早期Linux沒有原生的7z支持，[p7zip](https://github.com/p7zip-project/p7zip)
+項目提供了Linux版本移植，在Debian係發行版安裝p7zip：
+
+```
+# apt install p7zip-full
+```
+
+後續7zip項目官方已直接支持Linux平臺，p7zip亦不再維護，
+現在Debian係發行版可直接安裝官方版本的7zip：
+
+```
+# apt install 7zip-rar
 ```
 
 
