@@ -13,6 +13,7 @@
     - [Trojan轉發流量](#trojan轉發流量)
 - [V2Ray & XRay](#v2ray--xray)
     - [XRay](#xray)
+    - [XRay版本號規則變更與廢棄配置移除](#xray版本號規則變更與廢棄配置移除)
     - [安裝和配置V2Ray/XRay服務](#安裝和配置v2rayxray服務)
     - [V2Ray/XRay VMess + TLS + WebSocket](#v2rayxray-vmess--tls--websocket)
     - [V2Ray/XRay VMess + TLS + gRPC](#v2rayxray-vmess--tls--grpc)
@@ -353,6 +354,14 @@ XTLS將流量內層TLS直接拼接到代理外部，使代理無需對HTTPS流�
 
 XTLS Vision特性解決了TLS in TLS的流量特徵問題，
 參見[GitHub Issues](https://github.com/XTLS/Xray-core/discussions/1295)。
+
+## XRay版本號規則變更與廢棄配置移除
+XRay早期使用傳統版本號，最後一個版本為`Xray-core v1.8.24`，
+從`Xray-core v24.9.7`開始切換爲日期版本號。
+
+從新版本規則開始，XRay移除了部分從V2Ray時代繼承的廢棄配置參數，
+如`inbounds/outbounds`配置存在單數版本`inbound/outbound`，
+可用於配置單個目標，在該版本中已移除。
 
 ## 安裝和配置V2Ray/XRay服務
 V2Ray在各大發行版官方倉庫中均已包含，使用各大發行版的包管理器安裝即可：
@@ -701,7 +710,7 @@ V2Ray/XRay亦支持Shadowsocks協議，配置：
       }
     }
   ],
-  "outbound": [{ "protocol": "freedom" }],
+  "outbounds": [{ "protocol": "freedom" }],
   ...
 }
 ```
