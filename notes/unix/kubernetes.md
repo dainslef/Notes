@@ -1171,16 +1171,30 @@ spec:
     ...
 ```
 
-NGINX Igress Controller中使用的路徑匹配和proxy_pass轉發與標準NGINX中存在一些差異，
+ingress-nginx中使用的路徑匹配和proxy_pass轉發與標準NGINX中存在一些差異，
 參見[StackOverflow](https://stackoverflow.com/questions/63275239/kubernetes-nginx-ingress-server-snippet-annotation-not-taking-effect)
 上的對應問題。
 
-從`NGINX Igress Controller 1.9`版本開始，默認禁用了server-snippet，
+從`ingress-nginx 1.9`版本開始，默認禁用了server-snippet，
 需要設置`allow-snippet-annotations`才能使用，
 相關問題參見[GitHub Issues](https://github.com/kubernetes/ingress-nginx/issues/10452)；
 相關配置參見[GitHub文檔](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/configmap.md#allow-snippet-annotations)。
 
-使用Helm安裝NGINX Igress Controller需要搭配使用`--set controller.allowSnippetAnnotations=true`參數。
+使用Helm安裝ingress-nginx需要搭配使用`--set controller.allowSnippetAnnotations=true`參數。
+
+從`ingress-nginx 1.12`版本開始，引入了新的
+[`annotations-risk-level`](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations-risk.md)
+機制用戶提升安全性，需要設置`annotations-risk-level: Critical`方可正常創建包含server-snippet的ingress，
+否則在創建ingress時會得到下列錯誤信息：
+
+```
+Error from server (BadRequest): error when creating "...": admission webhook "validate.nginx.ingress.kubernetes.io" denied the request: annotation group ServerSnippet contains risky annotation based on ingress configuration
+```
+
+相關問題討論參見[GitHub Issues](https://github.com/kubernetes/ingress-nginx/issues/12618)。
+
+目前版本的官方Helm Charts沒有直接提供annotations-risk-level的配置參數，
+需要在`controller.config`中配置，参数为`--set controller.config.annotations-risk-level=Critical`。
 
 ### ingress-nginx對其它協議的支持
 NGINX Igress Controller生成的轉發規則中默認已支持WebSocket協議，
