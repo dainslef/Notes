@@ -15,7 +15,7 @@
         - [使用helm部署網絡插件](#使用helm部署網絡插件)
     - [升級集群](#升級集群)
     - [清理集群容器](#清理集群容器)
-    - [IPv6配置](#ipv6配置)
+    - [IPv4/IPv6雙棧](#ipv4ipv6雙棧)
 - [Kubernetes對象](#kubernetes對象)
     - [Kubernetes API](#kubernetes-api)
 - [kubectl](#kubectl)
@@ -226,7 +226,14 @@ Kubernetes現在默認使用containerd，在牆國由於Kubernetes官方鏡像�
 # kubeadm init 其它參數...
 ```
 
-初始化集群時可設定各類參數（如calico插件需要使用`--pod-network-cidr=192.168.0.0/16`配置pod網段）。
+初始化集群時可設定各類參數。
+
+部署時指定Pod與Service的地址範圍：
+
+```
+# kubeadm init --pod-network-cidr=... --service-cidr=...
+```
+
 牆國部署需要設置阿裏鏡像源，否則無法完成初始化：
 
 ```
@@ -347,10 +354,15 @@ kube-system   kube-scheduler-ubuntu-arch64-tokyo            1/1     Running   11
 基本操作：
 
 ```html
-<!-- 使用 helm 部署 calico 時，假定 kubeadm 已使用 --pod-network-cidr=192.168.0.0/16 參數初始化 -->
 $ kubectl create namespace xxx-namespace
 $ helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
 $ helm install tigera-operator projectcalico/tigera-operator --namespace xxx-namespace
+```
+
+若在kubeadm初始化集群時使用了自定義CIDR，則在tigera-operator安裝時需要指定匹配的CIDR：
+
+```
+$ helm install tigera-operator projectcalico/tigera-operator --namespace xxx-namespace --set installation.calicoNetwork.ipPools[0].cidr=...,installation.calicoNetwork.ipPools[1].cidr=...
 ```
 
 ## 升級集群
@@ -486,9 +498,9 @@ kubelet具備自動清理冗余容器的功能，通過配置kubelet的命令行
 
 鏡像清理參考[crictl](#crictl清理鏡像)對應章節內容。
 
-## IPv6配置
+## IPv4/IPv6雙棧
 自Kubernetes 1.21版本開始支持IPv4/IPv6雙棧，該版本開始默認已啓用了
-[IPv6相關配置](https://kubernetes.io/docs/concepts/services-networking/dual-stack/#enable-ipv4-ipv6-dual-stack)。
+[IPv6相關配置](https://kubernetes.io/docs/concepts/services-networking/dual-stack/#configure-ipv4-ipv6-dual-stack)。
 
 IPv6相關sysctl配置：
 
@@ -496,7 +508,13 @@ IPv6相關sysctl配置：
 net.ipv6.conf.all.forwarding = 1 # 啓用IPv6路由轉發
 ```
 
-IPv6相關Kubernetes組件配置：
+使用kubeadm創建集群時相關參數指定地址池（默認生成的地址池不包含IPv6地址）：
+
+```
+# kubeadm init --pod-network-cidr=10.64.0.0/16,fd00:64::/64 --service-cidr=10.89.64.0/24,fd00:8964::/108
+```
+
+使用自定義CIDR，相關配置中會自動生成地址段配置：
 
 - `/etc/kubernetes/manifests/kube-apiserver.yaml`
 
@@ -506,8 +524,9 @@ IPv6相關Kubernetes組件配置：
       containers:
       - command:
         ...
-        # 配置service的地址範圍，IPv6需要使用108以上的子網，否則範圍過大會導致kube-apiserver啓動失敗
-        - --service-cluster-ip-range=10.96.0.0/12,fd00:abcd::/108
+        # 配置service的地址範圍，IPv6需要使用108以內的子網，否則範圍過大會導致 kube-apiserver 啓動失敗
+        # 對應kubeadm的 --service-cidr
+        - --service-cluster-ip-range=10.89.64.0/24,fd00:8964:/108
         ...
     ```
 
@@ -519,8 +538,10 @@ IPv6相關Kubernetes組件配置：
       containers:
       - command:
         ...
-        # Calico網絡插件需要設置特定的CIDR地址段
-        - --cluster-cidr=192.168.0.0/16,fd00:1234::/64
+        # 對應kubeadm的 --pod-network-cidr
+        - --cluster-cidr=10.64.0.0/16,fd00:64::/64
+        # 對應kubeadm的 --service-cidr
+        - --service-cluster-ip-range=10.89.64.0/16,fd00:89:64:/108
         ...
     ```
 
@@ -535,6 +556,19 @@ spec:
   ...
   ipFamilyPolicy: PreferDualStack
   ...
+```
+
+使用helm部署Calico網絡插件時通常會自動識別kubeadm初始化時使用的CIDR地址，
+但部分非標準發行版（如k3s）可能存在地址無效的問題，需要在安裝時通過參數手動指定CIDR：
+
+```
+$ helm install -n helm-charts --create-namespace tigera-operator tigera-operator/tigera-operator --set installation.calicoNetwork.ipPools[0].cidr=10.64.0.0/16,installation.calicoNetwork.ipPools[1].cidr=fd00:64::/64
+```
+
+使用Calico網絡插件時，可查看插件配置的地址池：
+
+```
+$ kubectl get installations.operator.tigera.io default -o yaml
 ```
 
 
