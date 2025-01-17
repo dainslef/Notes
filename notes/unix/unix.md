@@ -6201,6 +6201,31 @@ deb-src 軟件源地址 版本號 倉庫類型
 
 `Ubuntu`與`Debian`的版本號、倉庫類型分類完全不同。
 
+## 新版apt軟件源格式
+從`Debian 12`開始，apt引入了新的軟件源格式，配置文件為`/etc/apt/sources.list.d/debian.sources`。
+
+格式結構如下：
+
+```sh
+Types: 包類型
+URIs: 軟件源地址
+Suites: 版本倉庫...
+Components: 倉庫類型...
+Signed-By: 簽名...
+```
+
+參數與舊格式意義相同，新版格式添加了`Signed-By`字段，需要指定簽名位置，
+否則更新時會產生下列告警：
+
+```
+Missing Signed-By in the sources.list(5) entry for ...
+```
+
+需要根據系統添加匹配的簽名路徑：
+
+- Debian為`/usr/share/keyrings/debian-archive-keyring.gpg`
+- Ubuntu為`/usr/share/keyrings/ubuntu-archive-keyring.gpg`
+
 ### Debian源
 `Debian`版本號有兩類：
 
@@ -6243,10 +6268,26 @@ Do you want to accept these changes and continue updating from this repository? 
 以**中科大鏡像源**爲例，`Debian Stable`的`sources.list`配置：
 
 ```sh
-deb https://mirrors.ustc.edu.cn/debian/ stable main contrib non-free
-deb https://mirrors.ustc.edu.cn/debian/ stable-updates main contrib non-free
-deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free
-deb https://mirrors.ustc.edu.cn/debian-security/ stable-security main non-free contrib
+deb https://mirrors.ustc.edu.cn/debian/ stable main contrib non-free non-free-firmware
+deb https://mirrors.ustc.edu.cn/debian/ stable-updates main contrib non-free non-free-firmware
+deb https://mirrors.ustc.edu.cn/debian/ stable-backports main contrib non-free non-free-firmware
+deb https://mirrors.ustc.edu.cn/debian-security/ stable-security main contrib non-free non-free-firmware
+```
+
+使用新版格式的`debian.sources`配置：
+
+```sh
+Types: deb
+URIs: https://mirrors.ustc.edu.cn/debian/
+Suites: stable stable-updates stable-backports
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+Types: deb
+URIs: https://mirrors.ustc.edu.cn/debian-security/
+Suites: stable-security
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
 ```
 
 ### Ubuntu源
