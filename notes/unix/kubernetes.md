@@ -2047,12 +2047,14 @@ REVISION	UPDATED                 	STATUS    	CHART                  	APP VERSION
 ```html
 $ kubectl create namespace helm-charts
 
-<!--
-Calico CNI
-(Need init kubeadm with parameters: kubeadm init --pod-network-cidr=192.168.0.0/16)
--->
+<!-- Calico CNI -->
 $ helm repo add tigera-operator https://projectcalico.docs.tigera.io/charts
 $ helm install -n helm-charts tigera-operator tigera-operator/tigera-operator
+<!--
+Use Calico CNI with custom CIDR, init kubeadm with custom parameters:
+kubeadm init --pod-network-cidr=10.64.0.0/16,fd00:64::/64 --service-cidr=10.89.64.0/24,fd00:8964::/108
+-->
+$ helm install -n helm-charts --create-namespace tigera-operator tigera-operator/tigera-operator --set installation.calicoNetwork.ipPools[0].cidr=10.64.0.0/16,installation.calicoNetwork.ipPools[1].cidr=fd00:64::/64
 
 <!-- kubernetes-dashboard -->
 $ helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard
@@ -2081,16 +2083,19 @@ grafana:
       serve_from_sub_path: true
 -->
 $ helm repo add kube-prometheus-stack https://prometheus-community.github.io/helm-charts
-$ helm install -n helm-charts kube-prometheus-stack kube-prometheus-stack/kube-prometheus-stack --set 'grafana.adminPassword=自定義默認密碼' --set 'grafana.grafana\.ini.server.root_url=http://0.0.0.0/grafana,grafana.grafana\.ini.server.serve_from_sub_path=true'
+$ helm install -n helm-charts kube-prometheus-stack kube-prometheus-stack/kube-prometheus-stack --set 'grafana.adminPassword=自定義默認密碼,grafana.grafana\.ini.server.root_url=http://0.0.0.0/grafana,grafana.grafana\.ini.server.serve_from_sub_path=true'
 
 <!--
 Nginx Ingress Controller
 
 !!! attention Since version 1.9.0, "server-snippet" annotation is disabled by default and has to be explicitly enabled, see allow-snippet-annotations.
 See https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/configmap.md#allow-snippet-annotations
+
+!!! Since version 1.12, "server-snippet" annotation also need "annotations-risk-level=Critical".
+See https://github.com/kubernetes/ingress-nginx/issues/12621
 -->
 $ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-$ helm install -n helm-charts ingress-nginx ingress-nginx/ingress-nginx --set controller.allowSnippetAnnotations=true
+$ helm install -n helm-charts ingress-nginx ingress-nginx/ingress-nginx --set controller.allowSnippetAnnotations=true,controller.config.annotations-risk-level=Critical
 
 <!--
 Harbor
