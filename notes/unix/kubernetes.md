@@ -872,7 +872,7 @@ kube-proxy負載均衡默認使用iptables實現，亦可手動配置為IPVS。
 ```html
 <!-- 默認 mode 參數為設置值（默認使用iptables），將其修改為 ipvs -->
 $ kubectl edit configmap -n kube-system kube-proxy
-<!--  -->
+<!-- 重啟 kube-proxy 組件，使之生效 -->
 $ kubectl rollout restart daemonset -n kube-system kube-proxy
 ```
 
@@ -964,7 +964,7 @@ spec:
     version: ...
     clusterName: ...
     apiserverArgs:
-    - service-node-port-range=0-65535
+    - service-node-port-range=1-65535
 ```
 
 ## ReplicaSet
@@ -1958,8 +1958,8 @@ $ helm upgrade --install 應用安裝名稱 倉庫名稱/應用名稱
 ```html
 <!-- 安裝應用時設置配置參數 -->
 $ helm install --set key1=value1,key2=value2,... -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
-<!-- 對於升級操作類似，需要使用與之前安裝相同的參數 -->
-$ helm upgrade --install --set key1=value1,key2=value2,... -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
+<!-- 在應用安裝完成後更新指定參數 -->
+$ helm upgrade --set key=xxx -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
 
 <!--
 若參數中包含逗號，需要用引號並轉義：
@@ -1986,16 +1986,13 @@ $ helm install --set key={xxx1,xxx2,...} -n 命名空間 應用安裝名稱 倉�
 $ helm install 應用安裝名稱 倉庫名稱/應用名稱 -f 自定義配置.yaml
 ```
 
-應用的配置可從項目的[`ArtifactHub`](https://artifacthub.io/)中查詢得到。
-
-其它配置相關操作：
+應用的配置可從項目的[`ArtifactHub`](https://artifacthub.io/)中查詢得到，
+亦可通過命令行查詢得到：
 
 ```html
-<!-- 查看當前使用的配置參數 -->
-$ helm get values -n 命名空間 應用安裝名稱
-
-<!-- 在應用安裝完成後更新指定參數 -->
-$ helm ugrade --set key=xxx -n 命名空間 應用安裝名稱 倉庫名稱/應用名稱
+<!-- 查看配置參數 -->
+$ helm show values 倉庫名稱/應用名稱 <!-- 查看應用的全部配置及默認值 -->
+$ helm get values -n 命名空間 應用安裝名稱 <!-- 查看應用安裝時使用的配置 -->
 ```
 
 ## Helm查看部署應用
