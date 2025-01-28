@@ -6,8 +6,9 @@
     - [OpenStackClient配置文件](#openstackclient配置文件)
 - [Kolla Ansible](#kolla-ansible)
     - [Debian Stable部署流程](#debian-stable部署流程)
+    - [Kolla Ansible鏡像](#kolla-ansible鏡像)
     - [升級OpenStack版本](#升級openstack版本)
-        - [升級 Kolla Ansible 2024.2](#升級-kolla-ansible-20242)
+        - [Kolla Ansible 2024.2](#kolla-ansible-20242)
     - [Cinder（存儲配置）](#cinder存儲配置)
     - [Octavia（負載均衡器配置）](#octavia負載均衡器配置)
     - [Kolla Ansible部署問題](#kolla-ansible部署問題)
@@ -214,6 +215,27 @@ glance, keystone, neutron, nova, heat, horizon
 # kolla-ansible -i ./all-in-one deploy-containers <!-- 啟動集群容器 -->
 ```
 
+## Kolla Ansible鏡像
+Kolla Ansible在部署時會根據部署與發行版配置拉取對應的OpenStack組件鏡像，
+鏡像tag命名規則為：
+
+```
+OpenStack版本-操作系統-操作系統版本
+```
+
+示例，`OpenStack 2024.2`版本，使用`Ubuntu 24.04`基礎鏡像，則鏡像tag為：
+
+```
+2024.2-ubuntu-noble
+```
+
+組件鏡像託管在[RED HAT Quay.io](https://quay.io/organization/openstack.kolla)。
+在同一個OpenStack大版本內，鏡像也會定期更新，單獨更新鏡像可手動pull對應鏡像之後重新配置組件：
+
+```
+# kolla-ansible reconfigure -i ./all-in-one -t 組件名稱
+```
+
 ## 升級OpenStack版本
 Kolla Ansible支持版本升級，基本升級流程：
 
@@ -240,7 +262,7 @@ Kolla Ansible支持版本升級，基本升級流程：
 此時可嘗試手動對比配置、清理相關容器Docker卷等操作，
 如果清理配置、容器後仍升級失敗，則可考慮單獨重新deploy該問題組件。
 
-### 升級 Kolla Ansible 2024.2
+### Kolla Ansible 2024.2
 從`kolla-ansible 2024.2`版本開始kolla-ansible存在較大變化，
 不再使用bash脚本實現，改爲Python脚本實現，部分參數結構存在變化，
 如`-i`參數現在應放在特定操作之後（舊版本-i參數放在操作之前）：
@@ -258,12 +280,18 @@ Kolla Ansible支持版本升級，基本升級流程：
 # pip install docker dbus-python
 ```
 
-在Debian發行版中，使用pip安裝dbus-python需要編譯，
+在Debian發行版中，使用pip安裝dbus-python可能需要編譯，
 需要額外使用apt安裝下列依賴才能正常完成編譯流程：
 
 ```
 # apt install cmake pkg-config libdbus-1-dev libglib2.0-dev
 ```
+
+2024.2版本中，Nova/Cinder/Glance等數據庫同樣存在一定變化，
+升級後可能會出現下列問題：
+
+- 無法啓動虛擬機（iscsid服務錯誤，找不到磁盤）
+- 無法創建鏡像（Cinder/Glance數據庫結構變化，添加了SWAP等配置）
 
 ## Cinder（存儲配置）
 Kolla默認配置中未開啟存儲功能，開啟存儲需要在globals.yml中啟用`enable_cinder`配置：
