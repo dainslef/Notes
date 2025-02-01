@@ -19,9 +19,10 @@
     - [Docker鏡像管理](#docker鏡像管理)
         - [Docker鏡像源](#docker鏡像源)
         - [Docker鏡像導入/導出](#docker鏡像導入導出)
-        - [Docker鏡像構建](#docker鏡像構建)
         - [Docker Registry Server](#docker-registry-server)
         - [Docker Hub](#docker-hub)
+    - [Docker鏡像構建](#docker鏡像構建)
+        - [Docker鏡像構建傳入環境變量](#docker鏡像構建傳入環境變量)
     - [Docker容器日誌](#docker容器日誌)
     - [Docker容器資源監控](#docker容器資源監控)
     - [Docker環境清理](#docker環境清理)
@@ -605,50 +606,6 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 # docker load < 備份tar文件
 ```
 
-### Docker鏡像構建
-Docker使用dockerfile描述鏡像，使用`docker build`指令通過描述文件構建鏡像。
-
-關於Docker鏡像構建，可參考[官方最佳實踐](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)，
-dockerfile詳細說明參考[Dockerfile reference](https://docs.docker.com/engine/reference/builder/)。
-
-典型的dockerfile結構：
-
-```dockerfile
-FROM 原始鏡像 as 構建目標1
-# 構建時在容器內執行自定義指令
-RUN xxx
-RUN xxx
-...
-# 構建時從外部複製資源到容器內
-COPY xxx xxx
-...
-# 導出端口
-EXPOSE xxx
-# 導出TCP端口
-EXPOSE xxx/tcp
-# 導出UDP端口
-EXPOSE xxx/udp
-...
-# 容器啟動指令
-CMD ["xxx", "xxx", ...]
-
-
-
-# 一個dockerfile內可包含多個鏡像的構建邏輯，構建時使用--target指定構建目標區分構建內容
-FROM 原始鏡像 as 構建目標2
-...
-```
-
-鏡像構建指令：
-
-```
-$ docker build -t 生成的鏡像tag --target 構建目標 -f 指定dockerfile路徑 當前工作路徑
-```
-
-現代版本Docker默認使用BuildKit構建鏡像，指定構建目標時，會智能忽略與構建目標無關的內容；
-早期版本Docker構建不支持該特性，會直接構建dockerfile第一行執行到構建目標為止的所有內容；
-部分默認使用傳統Docker構建的老版本可使用`DOCKER_BUILDKIT=1`環境變量強制使用BuildKit構建鏡像。
-
 ### Docker Registry Server
 Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.com/registry/)，
 可讓其它Docker實例訪問本機的本地鏡像。
@@ -729,6 +686,64 @@ test/test_image     2333               9f0a1d72c464        9 minutes ago       5
 ```
 $ docker push test/test_image:2333
 ```
+
+## Docker鏡像構建
+Docker使用dockerfile描述鏡像，使用`docker build`指令通過描述文件構建鏡像。
+
+關於Docker鏡像構建，可參考[官方最佳實踐](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)，
+dockerfile詳細說明參考[Dockerfile reference](https://docs.docker.com/engine/reference/builder/)。
+
+典型的dockerfile結構：
+
+```dockerfile
+FROM 原始鏡像 as 構建目標1
+# 構建時在容器內執行自定義指令
+RUN xxx
+RUN xxx
+...
+# 構建時從外部複製資源到容器內
+COPY xxx xxx
+...
+# 導出端口
+EXPOSE xxx
+# 導出TCP端口
+EXPOSE xxx/tcp
+# 導出UDP端口
+EXPOSE xxx/udp
+...
+# 容器啟動指令
+CMD ["xxx", "xxx", ...]
+
+
+
+# 一個dockerfile內可包含多個鏡像的構建邏輯，構建時使用--target指定構建目標區分構建內容
+FROM 原始鏡像 as 構建目標2
+...
+```
+
+鏡像構建指令：
+
+```
+$ docker build -t 生成的鏡像tag --target 構建目標 -f 指定dockerfile路徑 當前工作路徑
+```
+
+現代版本Docker默認使用BuildKit構建鏡像，指定構建目標時，會智能忽略與構建目標無關的內容；
+早期版本Docker構建不支持該特性，會直接構建dockerfile第一行執行到構建目標為止的所有內容；
+部分默認使用傳統Docker構建的老版本可使用`DOCKER_BUILDKIT=1`環境變量強制使用BuildKit構建鏡像。
+
+### Docker鏡像構建傳入環境變量
+dockerfile中可通過`ENV`指令定義環境變量：
+
+```dockerfile
+FROM 原始鏡像 as 構建目標1
+ENV XXX_ENV xxx
+...
+# 容器啟動指令
+CMD ["sh", "-c", "xxx --xxx=$XXX_ENV -x ..."]
+```
+
+dockerfile中直接使用CMD執行指令時**不會**讀取環境變量，
+需要組合Shell操作，將指令以腳本參數形式傳入Shell中。
 
 ## Docker容器日誌
 Docker容器的終端輸出會存儲在容器目錄下，以`容器ID-json.log`命名。
