@@ -163,10 +163,11 @@
         - [apt-file](#apt-file)
         - [add-apt-repository](#add-apt-repository)
     - [dpkg](#dpkg)
-    - [deb打包 (Binary packages)](#deb打包-binary-packages)
+    - [deb](#deb)
         - [debconf](#debconf)
         - [dpkg-divert](#dpkg-divert)
     - [apt軟件源配置](#apt軟件源配置)
+    - [新版apt軟件源格式](#新版apt軟件源格式)
         - [Debian源](#debian源)
         - [Ubuntu源](#ubuntu源)
     - [backports倉庫與倉庫優先級](#backports倉庫與倉庫優先級)
@@ -6009,8 +6010,10 @@ $ dpkg -s 軟件包名稱
 $ dpkg -L 軟件包名稱
 ```
 
-## deb打包 (Binary packages)
-一個二進制deb包的結構如下所示(假設當前路徑為deb包的根路徑)：
+## deb
+deb軟件包分爲二進制軟件包與源碼包。
+
+一個二進制deb包的結構如下所示（假設當前路徑為deb包的根路徑）：
 
 ```sh
 .
@@ -6140,11 +6143,13 @@ $ debconf-show mysql-community-server
 清空對應模板在deconf數據庫中的記錄後，下次執行模板則會正確展示模板問題的交互TUI。
 
 ### dpkg-divert
-dpkg不允許兩個不同的deb包管理相同路徑的文件，因此在打包時需要注意避免與其它deb的文件衝突。
+dpkg不允許兩個不同的deb包管理相同路徑的文件，
+因此在打包時需要注意避免與其它deb的文件衝突。
+
 對於部分場景，可能需要用自己構建的deb包替換掉一些由系統deb包管理的文件，
 此時可使用`dpkg-divert`提供的文件重命名機制，
-將原本衝突的文件路徑(origin_conflict_path，打包時的路徑)在dpkg數據庫中
-重命名為另一個路徑(renamed_path，該路徑在磁盤中實際不存在)，從而避免造成衝突；
+將原本衝突的文件路徑（origin_conflict_path，打包時的路徑）在dpkg數據庫中
+重命名為另一個路徑（renamed_path，該路徑在磁盤中實際不存在），從而避免造成衝突；
 但自身deb包內文件的實際路徑不變，因此可用於替換受其它deb包管理的文件。
 
 關於使用dpkg-divert，可參考
@@ -6177,22 +6182,22 @@ $ dpkg-divert --remove --package [packaage_name] [origin_conflict_path]
 ```
 
 ## apt軟件源配置
-使用`apt`工具需要正確配置鏡像源地址，配置文件爲`/etc/apt/sources.list`。
+使用apt工具需要正確配置鏡像源地址，配置文件爲`/etc/apt/sources.list`。
 
-`Debian`系列發行版軟件源格式爲：
+Debian系列發行版軟件源格式爲：
 
 ```sh
 # 二進制包
-deb 軟件源地址 版本號 倉庫類型
+deb 軟件源地址 版本倉庫 倉庫類型
 
 # 源碼包
-deb-src 軟件源地址 版本號 倉庫類型
+deb-src 軟件源地址 版本倉庫 倉庫類型
 ```
 
 其中：
 
-- `軟件源地址` 爲有效的`URL`，可以是某個提供鏡像源服務的站點地址，也可以是本地源路徑
-- `版本號` 爲發行版的版本代號，一行只能填寫一個版本號
+- `軟件源地址` 爲有效的URL，可為某鏡像源站點地址，亦可為本地源路徑
+- `版本倉庫` 爲發行版的版本倉庫，一行只能填寫一個
 - `倉庫類型` 爲按照授權類型劃分的倉庫類別，可以一行同時添加多個倉庫類型
 
 軟件源地址使用`http`或`https`協議，具體支持的協議類型視軟件源自身而定，
