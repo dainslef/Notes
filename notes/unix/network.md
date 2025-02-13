@@ -2,7 +2,9 @@
 
 - [VLAN](#vlan)
     - [VLAN接口類型](#vlan接口類型)
-- [Huawei](#huawei)
+- [光網絡](#光網絡)
+    - [光模塊](#光模塊)
+- [Huawei交換機](#huawei交換機)
     - [interface（接口）](#interface接口)
     - [port-group（端口組）](#port-group端口組)
     - [description（備註信息）](#description備註信息)
@@ -35,7 +37,57 @@ VLAN接口可分為下列類型：
 
 
 
-# Huawei
+# 光網絡
+光接入網絡主要分爲三個部分：
+
+- ODN（Optical Distribution Network，光配綫網絡）
+
+    包含光纖光纜、光連接器、光分路器等。
+
+- OLT（Optical Line Terminal，光綫路終端）
+
+    局端設備，與ONU設備交互，向ONU下發業務。
+
+- ONU（Optical Network Unit，光網絡單元）
+
+    接入端設備，與OLT交互。
+
+- ONT（Optical Network Terminal，光網絡終端）
+
+    用戶真正接觸到的網絡終端，即光貓。
+
+FTTx網絡根據組網方式分爲：
+
+- FTTC（Fiber To The Curb）ONU位於小區中心機房
+- FTTC（Fiber To The Building）ONU位於小區樓道接綫箱
+- FTTH（Fiber To The Home）ONU直接放置在家庭用戶中
+
+## 光模塊
+光模塊需要注意以下參數：
+
+- 網絡類型
+
+    GPON/EPON
+
+- 接口類型
+
+    SC 藍色大方口，多用於光貓ONU光模塊
+    LC 小方口，多用於交換機設備SFP光模塊
+    其它FC/ST/MPO等接口不常見
+
+- 波長
+
+    單模光模塊，分爲A端B端，發送端/接收端波長各自相反組成一對；
+    雙模光模塊同類位置相反即可。
+
+    對於GPON OLT/ONU，常見波長組合為：
+
+    - ONU RX 1490nm TX 1310nm
+    - OLT 波長相反
+
+
+
+# Huawei交換機
 進入/退出系統模式：
 
 ```
