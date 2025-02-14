@@ -480,10 +480,30 @@ Redis中多數數據結構的SET系列方法均會在KEY不存在時自動創建
 ## Strings（字符串）
 字符串是最基本、最常用的數據結構。
 
+常用操作：
+
+- `SET key value` 設置指定KEY的值，KEY不存在時創建KEY，KEY存在時更新值
+
+    SET指令支持多種參數：
+
+    ```
+    SET key value [NX|XX] [GET] [EX seconds|PX milliseconds|EXAT unix-time-seconds|PXAT unix-time-milliseconds|KEEPTTL]
+    ```
+
+    - `NX` 僅在值不存在時設置值，功能同SETNX
+    - `XX` 僅在值已存在時設置值
+    - `GET` 設置新內容時返回舊值，不存在時返回nil
+    - `EX/PX` 設置值的過期時間，單位為秒/毫秒
+    - `KEEPTTL` 設置值時保留已設置的過期時間
+
+- `GET key` 獲取指定KEY對應文本
+- `DEL key` 刪除指定KEY對應內容
+- `GETDEL key` 獲取KEY對應內容並刪除目標（需要`Redis 6.2`版本以上）
+
 字符串有部分擴展用法，如使用SETNX實現分布式鎖，INCR實現計數器。
 
 ### SETNX（分佈式鎖）
-SETNX指令用於設置一個值，僅在Key不存在時生效。
+SETNX指令用於設置一個值，僅在KEY不存在時生效。
 由於Redis中單條指令具備原子性，因而可用於實現分佈式鎖。
 
 指令：
