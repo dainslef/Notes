@@ -70,6 +70,9 @@
     - [Helm版本回退](#helm版本回退)
     - [使用Helm部署常用的應用](#使用helm部署常用的應用)
     - [Helm Charts（包結構）](#helm-charts包結構)
+        - [Helm模板內置對象](#helm模板內置對象)
+        - [Helm安裝輸出信息](#helm安裝輸出信息)
+        - [Helm模板控制語句](#helm模板控制語句)
 
 <!-- /TOC -->
 
@@ -2171,3 +2174,53 @@ spec:
           image: {{ .Values.image }}
           command: [ {{ .Values.testKey }} ]
 ```
+
+### Helm模板內置對象
+除了使用``.Values`API讀取values.yaml中的內容，Helm模板還提供了下列對象：
+
+- Chart
+
+    Chart對象用於訪問Helm Chart的元數據信息：
+
+    - `{{ .Chart.Name }}` Chart名稱
+    - `{{ .Chart.Version }}` Chart版本
+
+- Release
+
+    - `{{ .Release.Name }}` Chart部署名稱
+    - `{{ .Release.Namespace }}` Chart部署時使用的命名空間
+
+- Files：
+
+    - `{{ .Files.Get "xxx/xxx" }}` 讀取Helm包内指定路徑文件的内容
+
+### Helm安裝輸出信息
+`templates/NOTES.txt`文件用於設置Chart安裝成功后的輸出信息，示例：
+
+```
+Deploy {{ .Chart.Name }}-{{ .Chart.Version }}: {{ .Release.Name }} success, current config:
+
+{{ toYaml .Values }}
+```
+
+### Helm模板控制語句
+Helm模板提供了常用的[控制語句](https://helm.sh/docs/chart_template_guide/control_structures/)，
+可實現條件判斷、循環等常見邏輯。
+
+條件示例：
+
+```yaml
+# 使用if判斷內容
+xxx1: {{ if .Values.xxx }}xxx...{{ else if .Values.xxx }}xxx...{{ end }}
+
+# 邏輯或語句，在前一語句為false時提供默認值
+xxx2: {{ .Values.xxx | default "xxx..." }}
+```
+
+在Helm模板中，下列內容均被視為false：
+
+- 布爾值false
+- 數值0
+- 空字符串
+- nil（empty or null）
+- 空集合（map/slice/tuple/dict/array）
