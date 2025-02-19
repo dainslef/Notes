@@ -19,6 +19,8 @@
     - [V2Ray/XRay VMess + TLS + gRPC](#v2rayxray-vmess--tls--grpc)
     - [V2Ray/XRay Trojan](#v2rayxray-trojan)
     - [V2Ray/XRay Shadowsocks](#v2rayxray-shadowsocks)
+- [SNI分流](#sni分流)
+    - [NGINX SNI](#nginx-sni)
 
 <!-- /TOC -->
 
@@ -712,5 +714,49 @@ V2Ray/XRay亦支持Shadowsocks協議，配置：
   ],
   "outbounds": [{ "protocol": "freedom" }],
   ...
+}
+```
+
+
+
+# SNI分流
+SNI分流是實現HTTPS端口復用的一種方案，根據HTTPS協議握手中携帶的SNI信息（域名）將流量轉發到不同服務。
+
+## NGINX SNI
+NGINX可使用[Stream相關模塊](https://nginx.org/en/docs/stream/ngx_stream_ssl_preread_module.html)實現SNI分流，
+NGINIX編譯時默認不包含相關模塊，需要使用`--with-stream --with-stream_ssl_preread_module ...`等一系列編譯參數開啓；
+查看NGINX開啓的編譯參數：
+
+```
+$ nginx -V
+nginx version: nginx/1.25.5
+built by gcc 14.2.0 (Alpine 14.2.0)
+built with OpenSSL 3.3.2 3 Sep 2024
+TLS SNI support enabled
+configure arguments: ... --with-stream --with-stream_ssl_module --with-stream_realip_module --with-stream_ssl_preread_module ...
+```
+
+NGINX SNI分流示例：
+
+```js
+map $ssl_preread_server_name $name {
+    backend.example.com      backend;
+    default                  backend2;
+}
+
+upstream backend {
+    server 192.168.0.1:12345;
+    server 192.168.0.2:12345;
+}
+
+upstream backend2 {
+    server 192.168.0.3:12345;
+    server 192.168.0.4:12345;
+}
+
+server {
+    listen      12346;
+    proxy_pass  $name;
+    ssl_preread on;
 }
 ```
