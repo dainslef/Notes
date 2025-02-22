@@ -2224,3 +2224,34 @@ xxx2: {{ .Values.xxx | default "xxx..." }}
 - 空字符串
 - nil（empty or null）
 - 空集合（map/slice/tuple/dict/array）
+
+### Helm模板函數
+Helm模板提供了大量[內置函數](https://helm.sh/docs/chart_template_guide/function_list/)，
+涵蓋了各類常用功能，如文件、數學、列表、時間等。
+
+函數調用操作使用雙重花括號，示例：
+
+```yaml
+time: {{ now }} # 獲取當前時間
+```
+
+### 測試Helm模板
+測試模板的渲染內容，將渲染後的內容輸出：
+
+```
+$ helm template Chart目錄 --debug
+```
+
+整個項目模擬安裝測試（不實際安裝）：
+
+```
+$ helm install --dry-run --debug 安裝名稱 Chart目錄
+```
+
+### Helm打包
+Helm Chart目錄可打包為Helm安裝包：
+
+```html
+<!-- 打包Chart目錄為安裝包，默認按照目錄名稱與Chart版本生成”Chart目錄-版本.tgz“文件 -->
+$ helm package Chart目錄
+```
