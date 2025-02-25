@@ -1,22 +1,23 @@
 <!-- TOC -->
 
 - [簡介](#簡介)
-	- [ECMA Script](#ecma-script)
+    - [ECMA Script](#ecma-script)
 - [作用域](#作用域)
-	- [塊作用域 (ES6)](#塊作用域-es6)
+    - [塊作用域 (ES6)](#塊作用域-es6)
 - [for 語句](#for-語句)
-	- [for-in](#for-in)
-	- [for-of](#for-of)
-	- [迭代變量作用域](#迭代變量作用域)
+    - [for-in](#for-in)
+    - [for-of](#for-of)
+    - [迭代變量作用域](#迭代變量作用域)
 - [this](#this)
-	- [Function's this](#functions-this)
-	- [Arrow Function's this](#arrow-functions-this)
-	- [Node.js環境中的 this](#nodejs環境中的-this)
+    - [Function's this](#functions-this)
+    - [Arrow Function's this](#arrow-functions-this)
+    - [Node.js環境中的 this](#nodejs環境中的-this)
 - [Prototype (原型)](#prototype-原型)
-	- [原型鏈](#原型鏈)
-	- [原型繼承](#原型繼承)
-- [屬性訪問器](#屬性訪問器)
-	- [訪問器屬性](#訪問器屬性)
+    - [原型鏈](#原型鏈)
+    - [原型繼承](#原型繼承)
+- [JavaScript對象](#javascript對象)
+    - [設置對象內容](#設置對象內容)
+    - [訪問器屬性](#訪問器屬性)
 
 <!-- /TOC -->
 
@@ -732,14 +733,44 @@ Child name: Test Child
 
 
 
-# 屬性訪問器
-在JavaScript中，對象可爲自身屬性定義訪問器(`get()/set()`方法)，在訪問屬性時，實際會調用對應的訪問器方法。
+# JavaScript對象
+在JavaScript使用花闊號語法（`{ key: value, ... }`）定義對象。
+
+## 設置對象內容
+對於已存在的對象，可使用數組語法向其中添加內容：
+
+```js
+> obj = {}
+{}
+> obj["fuck"] = "CCP"
+'CCP'
+> let f = "fuck2"
+undefined
+> obj[f] = "CCP2" // 可使用變量向其中添加內容
+'CCP2'
+> obj
+{ fuck: 'CCP', fuck2: 'CCP2' }
+```
+
+ES6之後提供了新語法支持直接向對象中通過變量添加內容：
+
+```js
+> let f = "fuck"
+undefined
+> obj = {
+... [f]: "CCP"
+... }
+{ fuck: 'CCP' }
+```
 
 ## 訪問器屬性
+在JavaScript中，對象可爲自身屬性定義訪問器（`get()/set()`方法），
+在訪問屬性時，實際會調用對應的訪問器方法。
+
 訪問器屬性相關內容見`ECMAScript 2015`規範`6.1.7`節`The Object Type`。
 
-使用Object對象的內置方法`Object.defineProperty()`定義屬性時，可爲屬性設定屬性描述對象(`PropertyDescriptor`)，
-在該對象中定義對應的`get()/set()`方法。
+使用Object對象的內置方法`Object.defineProperty()`定義屬性時，
+可爲屬性設定屬性描述對象（`PropertyDescriptor`），在該對象中定義對應的`get()/set()`方法。
 示例：
 
 ```js
