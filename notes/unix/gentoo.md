@@ -16,6 +16,7 @@
     - [桌面環境配置](#桌面環境配置)
 - [包管理](#包管理)
     - [emerge](#emerge)
+    - [清理依賴](#清理依賴)
     - [包組列表](#包組列表)
     - [多版本包管理（slot機制）](#多版本包管理slot機制)
     - [portage-utils](#portage-utils)
@@ -482,6 +483,25 @@ Gentoo使用`emerge`作爲包管理器，以及其它輔助工具如
 $ emerge --info
 $ emerge --info 包名 <!-- 查看系統構建信息以及指定已安裝軟件包的構建標記 -->
 ```
+
+## 清理依賴
+emerge使用`--depclean`清理不再使用的依賴：
+
+```
+# emerge --depclean
+```
+
+清理依賴時，emerge會根據當前環境的profile與world列表計算環境依賴，
+清理掉不再需要的孤立包；
+默認--depclean參數不會清理構建依賴，清理構建依賴需要搭配`--with-bdeps`參數：
+
+```html
+# emerge --depclean --with-bdeps=y <!-- 等價於不使用 --with-bdeps 參數 -->
+# emerge --depclean --with-bdeps=n <!-- 清理無效依賴時同時清理構建依賴-->
+```
+
+通常不建議清理構建依賴，因為後續使用這些構建依賴的相關軟件包升級時需要重新安裝並構建對應依賴包，
+重複編譯構建依賴會浪費大量時間以及CPU算力。
 
 ## 包組列表
 系統默認的包組有`system`和`world`，system列表爲系統成員組件，不可更改（由選擇的profile決定）；
