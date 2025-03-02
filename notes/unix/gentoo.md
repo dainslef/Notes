@@ -439,19 +439,21 @@ Gentoo使用`emerge`作爲包管理器，以及其它輔助工具如
 `emerge`是Gentoo的默認包管理器，包含在默認環境中，常用參數説明：
 
 ```
--p pretend 預覽
--a ask 先予詢問
--c clean 清理系統
+-p/--pretend 預覽操作（不實際執行）
+-a/--ask 先予詢問
+--clean 清理舊安裝包
+-c/--depclean 清理依賴
 -C unmerge 卸載，與emerge相反
 --deselect 將指定軟件包從world包組中除名（但不立即移除，執行--depclean時才移除）
 --depclean 計算當前系統依賴，清理不被需要的軟件包
--h help 幫助文件
--v verbose 詳細內容
--s search 查找
--S searchdesc 從文件名和描述中查找，效率低
--u update 升級軟件包
--U upgradeonly 僅僅升級，不降級軟件包
--D deep 計算整個系統的依賴關係
+-h/--help 展示幫助信息
+-v/--verbose 展示操作詳細信息
+-s/--search 搜索軟件包
+-S/--searchdesc 從文件名和描述中查找，效率低
+-u/--update 升級軟件包
+-U/--changed-use 在軟件包USE發生變化時重新編譯安裝軟件包（不包括用戶添加/移除的USE）
+-N/--newuse 在使用的USE發生變化時重新編譯安裝軟件包（包含用戶配置的USE）
+-D/--deep 計算整個系統的依賴關係
 -e emptytree 清空依賴樹，重新構建某個包/系統整個依賴樹
 -1 oneshot 一次性安裝，不將其信息加入系統目錄樹
 -o onlydeps 只安裝其依賴關係，而不安裝軟件本身
@@ -464,7 +466,7 @@ Gentoo使用`emerge`作爲包管理器，以及其它輔助工具如
 -n noreplace 更新system，但先前安裝的軟件不予覆蓋
 ```
 
-常用操作説明：
+常用操作示例：
 
 ```html
 # emerge -a <!-- 執行操作前詢問，與其它參數組合使用 -->
@@ -473,11 +475,10 @@ Gentoo使用`emerge`作爲包管理器，以及其它輔助工具如
 # emerge -e world <!-- 更換全局USE之後重新編譯所有包 -->
 # emerge -u system <!-- 更新系統軟件 -->
 # emerge -u world <!-- 更新整個系統 -->
-# emerge -auvDN system world <!-- 完整更新系統 -->
+# emerge -avuDN @system @world <!-- 完整更新系統 -->
 
 # emerge -pv 包名 <!-- 查看某個包的可用USE -->
 # emerge --udpate --newuse 包名 <!-- 更新USE之後安裝包刷新依賴關係 -->
-# emerge --depclean <!-- 清理無用依賴 -->
 
 <!-- 查看系統構建信息 -->
 $ emerge --info
@@ -485,10 +486,14 @@ $ emerge --info 包名 <!-- 查看系統構建信息以及指定已安裝軟件�
 ```
 
 ## 清理依賴
-emerge使用`--depclean`清理不再使用的依賴：
+emerge使用`-c/--depclean`清理不再使用的依賴：
 
-```
+```html
+# emerge -c
 # emerge --depclean
+
+<!-- 搭配 -v/--verbose 參數可展示依賴樹 -->
+# emerge -cv
 ```
 
 清理依賴時，emerge會根據當前環境的profile與world列表計算環境依賴，
