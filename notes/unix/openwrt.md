@@ -67,6 +67,7 @@
     - [Adblock啟動失敗: user.err adblock-xxx: coreutils sort not found or not executable](#adblock啟動失敗-usererr-adblock-xxx-coreutils-sort-not-found-or-not-executable)
     - [GL-AXT1800原廠固件自動掛載存儲到 /tmp/mountd/](#gl-axt1800原廠固件自動掛載存儲到-tmpmountd)
     - [Mi Router 4A/4C 新閃存芯片 EN25QX128 不支持](#mi-router-4a4c-新閃存芯片-en25qx128-不支持)
+    - [BPI-R3刷機](#bpi-r3刷機)
     - [`E1187: Failed to source defaults.vim`](#e1187-failed-to-source-defaultsvim)
     - [Cudy TR3000設備WAN口無法獲取地址](#cudy-tr3000設備wan口無法獲取地址)
 
@@ -368,11 +369,11 @@ ncat-full nmap-full
 <!-- OpenWRT2020 主題 -->
 luci-theme-openwrt-2020
 
+<!-- ARM64/X86架構的設備可安裝 Docker -->
+luci-app-dockerman dockerd
+
 <!-- ImmortalWRT 以及部分國產固件可直接從軟件源中安裝 OpenClash -->
 luci-app-openclash
-
-<!-- ARM64/X86架構的設備可安裝 Docker -->
-luci-app-dockerman
 ```
 
 MT762x系列芯片若未識別出SD卡，則可嘗試安裝SD卡驅動（SD卡正常識別則無需安裝）：
@@ -1791,6 +1792,58 @@ Signed-off-by: Piotr Dymacz <pepe2k@gmail.com>
 
 該補丁中，`+	{ "en25qx128a",	INFO(0x1c7118, 0, 64 * 1024,  256, SECT_4K) },`為新增行，
 同時，需要修改補丁中的變化行數。
+
+## BPI-R3刷機
+問題描述：<br>
+BPI-R3（Banana Pi R3）設備將固件刷入ROM的方式較爲複雜。
+
+解決方案：<br>
+BPI-R3提供了3種存儲器：
+
+- SPI-NOR 32MB
+- SPI-NAND 128MB
+- eMMC 8GB
+
+支持多種啓動方式，通過機身側面的開關控制啓動方式：
+
+top	bottom  sw1/A   sw2/B(spi/mmc)   sw5/C(nor/nand)    sw6/D(sd/emmc)
+spim-nor    low	    low	                low	            x
+spim-nand   high    low	                high	        x
+emmc        low	    high	            x	            low
+sd	        high    high                x               high
+
+x標志位為該啓動模式下可選的存儲搭配（1為high，0為low）：
+
+- SD卡啓動為11x1，搭配NOR存儲為1101，搭配NAND存儲為1111
+- NOR啓動為000x，搭配eMMC存儲為0000，搭配SD卡存儲為0001
+
+NOR/NAND存儲之間僅可二選一，SD卡/eMMC存儲類似。
+
+固件刷入SD卡方式較爲簡單，直接將固件寫入SD卡中，
+調整開關至SD卡模式（1111/1101），即可令設備從SD卡中啓動。
+
+在SD卡啓動模式下，可將固件刷入其它存儲器，步驟如下：
+
+1. 開關調整至與刷機的目標存儲器匹配（如需將固件刷入NOR，則開關應設置為1101）。
+1. 將固件拷貝至U盤中（U盤推薦使用EXT4文件系統）插入路由器的USB口。
+1. 通過串口訪問路由器，啓動時，設備會進入U-Boot菜單，通過U-Boot菜單選擇對應的刷機操作（菜單7/8）。
+
+若無法訪問串口界面，可通過指令配置下次啓動時的菜單操作：
+
+```html
+<!-- 配置下次啓動的操作（固件寫入NOR） -->
+# fw_setenv bootcmd "env default bootcmd ; saveenv ; run nor_init ; bootmenu 7"
+
+<!-- 配置下次啓動的操作（固件寫入NAND） -->
+# fw_setenv bootcmd "env default bootcmd ; saveenv ; run ubi_init ; bootmenu 8"
+```
+
+重啓后會設備會按照上次設定的U-Boot菜單選項從U盤中讀取匹配的固件執行相應的刷機操作
+（刷機操作耗時稍長，設備啓動時為全紅燈，等待綠燈閃爍，再次進入SD卡系統時刷機完畢）；
+刷機完成後，將開關調至相應擋位，重啓設備（涉及切換開關位置的重啓需要關閉電源，僅使用reboot可能無法正常啓動）
+即可從對應模式下使用刷入的固件啓動。
+
+SD卡的系統需要能正常識別U盤以及U盤的文件系統（建議測試文件系統挂載）。
 
 ## `E1187: Failed to source defaults.vim`
 問題描述：<br>
