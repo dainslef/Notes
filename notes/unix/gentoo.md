@@ -6,7 +6,8 @@
     - [配置portage參數](#配置portage參數)
         - [二進制源](#二進制源)
         - [Python版本](#python版本)
-    - [配置時區](#配置時區)
+    - [時鐘同步](#時鐘同步)
+        - [時區配置](#時區配置)
     - [配置内核](#配置内核)
         - [預編譯內核](#預編譯內核)
         - [編譯内核](#編譯内核)
@@ -165,7 +166,31 @@ make.conf中的`PYTHON_TARGETS`配置等價於在package.use中為所有軟件�
 xxx/xxx: python_targets_python3_13
 ```
 
-## 配置時區
+## 時鐘同步
+對於時鐘同步客戶端，使用systemd的Gentoo，可直接使用`systemd-timesyncd.service`；
+使用OpenRC的Gentoo則需要安裝NTP服務：
+
+```
+# emerge -a net-misc/ntp
+```
+
+`net-misc/ntp`提供了兩種服務：
+
+- `ntp-client`
+
+    在每次服務器啟動時執行`ntpdate`工具手動同步時間，
+    配置文件為`/etc/conf.d/ntp-client`。
+
+- `ntpd`
+
+    通過NTP協議協調時鐘，配置文件為`/etc/ntp.conf`。
+    查看同步狀態可使用`ntpq -p`。
+
+默認安裝ntp軟件包後會自動啟動服務並將服務加入自啟動，
+若僅作為NTP客戶端使用，通常默認配置文件無需改動；
+Gentoo的NTP默認配置使用`gentoo.pool.ntp.org`作為時鐘同步地址，可自行替換為需要的地址。
+
+### 時區配置
 對於使用systemd的Gentoo，與其它使用systemd的發行版相同，使用timedatectl配置時區；
 對於使用OpenRC的Gentoo，將時區信息寫入`/etc/timezone`中後重新配置timezone-data：
 
