@@ -1581,12 +1581,16 @@ $ 7z l 壓縮文件
 # apt install p7zip-full
 ```
 
-後續7zip項目官方已直接支持Linux平臺，p7zip亦不再維護，
-現在Debian係發行版可直接安裝官方版本的7zip：
+後續7zip項目官方已直接支持Linux/macOS平臺，p7zip亦不再維護，
+現各類發行版的倉庫中已包含官方版本的7zip：
 
 ```
+# brew install 7zip
 # apt install 7zip-rar
+# pacman -S 7zip
 ```
+
+為避免與舊版本衝突，部分平臺（如macOS/Gentoo）下官方版本的7zip使用`7zz`代替7z作為指令名稱。
 
 
 
