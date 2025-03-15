@@ -1,25 +1,27 @@
 <!-- TOC -->
 
 - [Windows CMD](#windows-cmd)
-	- [文件操作](#文件操作)
-	- [服務管理](#服務管理)
-	- [其它實用工具](#其它實用工具)
+    - [文件操作](#文件操作)
+    - [服務管理](#服務管理)
+    - [其它實用工具](#其它實用工具)
 - [文件/目錄鏈接](#文件目錄鏈接)
 - [系統引導](#系統引導)
 - [電源管理](#電源管理)
-	- [Modern Standby](#modern-standby)
+    - [Modern Standby](#modern-standby)
 - [Microsoft Office](#microsoft-office)
-	- [Office Deployment Tool](#office-deployment-tool)
+    - [Office Deployment Tool](#office-deployment-tool)
 - [微軟輸入法](#微軟輸入法)
-	- [自定義短語](#自定義短語)
-	- [輸入法卡頓問題](#輸入法卡頓問題)
+    - [自定義短語](#自定義短語)
+    - [輸入法卡頓問題](#輸入法卡頓問題)
 - [文件共享（SMB服務）](#文件共享smb服務)
-	- [SMB命令行](#smb命令行)
-	- [優化SMB服務性能](#優化smb服務性能)
+    - [SMB命令行](#smb命令行)
+    - [優化SMB服務性能](#優化smb服務性能)
+    - [連接局域網中的SMB服務器](#連接局域網中的smb服務器)
+    - [允許連接無密碼的SMB服務器](#允許連接無密碼的smb服務器)
 - [常見問題記錄](#常見問題記錄)
-	- [Reply from ::1: time<1ms](#reply-from-1-time1ms)
-	- [Intel CPU機型會在C盤根目錄下創建空的Intel目錄](#intel-cpu機型會在c盤根目錄下創建空的intel目錄)
-	- [非中文環境下中文非Unicode編碼程序亂碼](#非中文環境下中文非unicode編碼程序亂碼)
+    - [Reply from ::1: time<1ms](#reply-from-1-time1ms)
+    - [Intel CPU機型會在C盤根目錄下創建空的Intel目錄](#intel-cpu機型會在c盤根目錄下創建空的intel目錄)
+    - [非中文環境下中文非Unicode編碼程序亂碼](#非中文環境下中文非unicode編碼程序亂碼)
 
 <!-- /TOC -->
 
@@ -444,6 +446,30 @@ EnableLargeMtu 1 使用大MTU
 此外，若系統啓用了HyperV功能，且HyperV的虛擬交換機配置了橋接外部網絡，
 則被橋接的網卡提供SMB服務時連接速率會**大大受限**，
 應切換HyperV虛擬交換機的外部橋接網卡，或直接禁用外部網卡橋接。
+
+## 連接局域網中的SMB服務器
+連接SMB服務直接在地址欄中輸入：
+
+```
+\\SMB服務IP地址\共享名稱
+```
+
+`\\`即代表SMB協議。
+
+## 允許連接無密碼的SMB服務器
+Windows默認不允許連接無密碼的SMB服務，連接時會出現下列錯誤信息：
+
+```
+You can't access this shared folder because your organization's security policies block unauthenticated guest access.
+```
+
+解決該問題需要在PowerShell中配置：
+
+```html
+> Set-SmbClientConfiguration -EnableInsecureGuestLogons $true -Force
+> Set-SmbClientConfiguration -RequireSecuritySignature $false -Force
+> Set-SmbServerConfiguration -RequireSecuritySignature $false -Force
+```
 
 
 
