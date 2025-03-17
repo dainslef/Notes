@@ -19,8 +19,9 @@
     - [Docker鏡像管理](#docker鏡像管理)
         - [Docker鏡像源](#docker鏡像源)
         - [Docker鏡像導入/導出](#docker鏡像導入導出)
-        - [Docker Registry Server](#docker-registry-server)
-        - [Docker Hub](#docker-hub)
+    - [Docker Registry](#docker-registry)
+        - [Docker Registry 配置](#docker-registry-配置)
+    - [Docker Hub](#docker-hub)
     - [Docker鏡像構建](#docker鏡像構建)
         - [Docker鏡像構建傳入環境變量](#docker鏡像構建傳入環境變量)
     - [Docker容器日誌](#docker容器日誌)
@@ -606,7 +607,7 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 # docker load < 備份tar文件
 ```
 
-### Docker Registry Server
+## Docker Registry
 Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.com/registry/)，
 可讓其它Docker實例訪問本機的本地鏡像。
 
@@ -630,9 +631,6 @@ Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.
 ```
 # docker run -d -p 5000:5000 --name registry -v /mnt/registry:/var/lib/registry registry
 ```
-
-Docker Registry僅提供了簡單的鏡像服務，且默認僅提供HTTP服務（多數運行時現在強制要求HTTPS），
-更完整的鏡像倉庫功能需要使用Habor等第三方項目。
 
 Docker現在要求鏡像服務支持HTTPS，使用HTTP服務的Docker Registry在推送鏡像時會得到錯誤：
 
@@ -659,7 +657,54 @@ Docker推送鏡像時默認使用HTTP相關端口，普通Registry使用80端口
 
 使用80端口則填寫地址/鏡像設置TAG時不再需要顯式指定端口。
 
-### Docker Hub
+### Docker Registry 配置
+Docker Registry默認僅提供了簡單的鏡像服務，
+完整功能配置參考[官方文檔](https://distribution.github.io/distribution/about/configuration/)。
+更完整的鏡像倉庫功能還可使用Habor等第三方項目。
+
+Docker Registry官方鏡像中配置位於`/etc/distribution/config.yml`，
+默認內容如下：
+
+```yaml
+version: 0.1
+log:
+  fields:
+    service: registry
+storage:
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+http:
+  addr: :5000
+  headers:
+    X-Content-Type-Options: [nosniff]
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+```
+
+Docker Registry可在本地鏡像不存在時向上游代理獲取鏡像，
+可通過環境變量`REGISTRY_PROXY_REMOTEURL`配置上游代理：
+
+```
+# docker run -d -p 5000:5000 -e REGISTRY_PROXY_REMOTEURL="https://registry-1.docker.io" --name registry registry
+```
+
+亦可在配置文件中配置：
+
+```yaml
+...
+proxy:
+  remoteurl: https://registry-1.docker.io
+...
+```
+
+
+
+## Docker Hub
 Docker官方提供了鏡像託管服務`Docker Hub`。
 在`https://hub.docker.com`中註冊，在本機使用`docker login`登陸賬戶後即可使用鏡像託管服務。
 將本地的個人鏡像上傳到Docker Hub：
