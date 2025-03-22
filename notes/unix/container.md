@@ -702,6 +702,38 @@ proxy:
 ...
 ```
 
+將Docker Registry配置為鏡像代理，示例：
+
+```yaml
+version: 0.1
+log:
+  level: info
+storage:
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+http:
+  addr: :5000
+  tls:
+    certificate: /opt/tls/tls.crt
+    key: /opt/tls/tls.key
+maintenance:
+  uploadpurging:
+    enabled: true # Enable auto clean function.
+    age: 1h # Delete content that old than this age.
+    interval: 1h # Delete task execute interval.
+  readonly:
+    enabled: true # Enable read only mode which doesn't allow upload image.
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+proxy:
+  remoteurl: https://registry-1.docker.io
+```
+
 
 
 ## Docker Hub
