@@ -3,12 +3,14 @@
 - [Ansible Config](#ansible-config)
 - [Ansible Inventory](#ansible-inventory)
 - [Ansible Module](#ansible-module)
-	- [模塊分發](#模塊分發)
-	- [Command && Shell](#command--shell)
-	- [Ansible Console](#ansible-console)
+    - [模塊分發](#模塊分發)
+    - [Command && Shell](#command--shell)
+    - [Ansible Console](#ansible-console)
 - [Ansible Playbook](#ansible-playbook)
-	- [Block](#block)
-	- [Tags](#tags)
+    - [Block](#block)
+    - [Tags](#tags)
+    - [Gathering Facts](#gathering-facts)
+    - [loop](#loop)
 
 <!-- /TOC -->
 
@@ -344,4 +346,50 @@ tags可添加在task、block、play等作用域：
 
 ```
 $ ansible Playbook文件 -t tags內容
+```
+
+## Gathering Facts
+默認配置下，Ansible執行Playbook時首先會執行`TASK [Gathering Facts]`，
+該任務會收集目標主機的系統信息，以JSON結構存儲在`ansible_facts`變量中。
+
+當主機數目眾多時，Gathering Facts任務會消耗較多時間，
+若未使用ansible_facts，則可使用`gather_facts: false`關閉該任務：
+
+```yaml
+- name: Playbook name 1
+  hosts: xxx host
+  remote_user: user name
+  gather_facts: false # 關閉 Gathering Facts
+```
+
+## loop
+`Ansible 2.5`版本開始引入了[`loop`](https://docs.ansible.com/ansible/latest/user_guide/playbooks_loops.html)，
+是原先`with_<lookup>`系列語法的通用替代。
+
+示例，使用`with_items`語法：
+
+```yaml
+- name: Install packages
+  apt: { name: "{{ item }}" }
+  with_items: ["openvpn", "iperf3", "qperf"]
+```
+
+可轉寫為loop語法：
+
+```yaml
+- name: Install packages
+  apt: { name: "{{ item }}" }
+  loop: ["openvpn", "iperf3", "qperf"]
+```
+
+對於包含子數組的內容，轉換為loop需要使用`flatten()`函數：
+
+```yaml
+with_items:
+  - 1
+  - [2,3]
+  - 4
+
+# 等價loop語法
+loop: "{{ [1, [2, 3], 4] | flatten(1) }}"
 ```
