@@ -1,28 +1,28 @@
 <!-- TOC -->
 
 - [概述](#概述)
-	- [下載](#下載)
-	- [環境變量配置](#環境變量配置)
-	- [主服務配置](#主服務配置)
-	- [服務啟動](#服務啟動)
-	- [消費數據](#消費數據)
-	- [分區擴展](#分區擴展)
-		- [分區數據均衡](#分區數據均衡)
+    - [下載](#下載)
+    - [環境變量配置](#環境變量配置)
+    - [主服務配置](#主服務配置)
+    - [服務啟動](#服務啟動)
+    - [消費數據](#消費數據)
+    - [分區擴展](#分區擴展)
+        - [分區數據均衡](#分區數據均衡)
 - [Topic & Partition](#topic--partition)
-	- [分區消息順序與偏移量](#分區消息順序與偏移量)
-	- [分區存儲機制](#分區存儲機制)
-	- [話題操作](#話題操作)
-	- [話題刪除](#話題刪除)
+    - [分區消息順序與偏移量](#分區消息順序與偏移量)
+    - [分區存儲機制](#分區存儲機制)
+    - [話題操作](#話題操作)
+    - [話題刪除](#話題刪除)
 - [Kafka Connect](#kafka-connect)
-	- [依賴服務配置](#依賴服務配置)
-	- [JDBC Source Connector](#jdbc-source-connector)
-		- [单机多实例](#单机多实例)
-		- [堆溢出問題](#堆溢出問題)
+    - [依賴服務配置](#依賴服務配置)
+    - [JDBC Source Connector](#jdbc-source-connector)
+        - [单机多实例](#单机多实例)
+        - [堆溢出問題](#堆溢出問題)
 - [問題記錄](#問題記錄)
-	- [org.apache.kafka.clients.NetworkClient: Connection to node -1 could not be established. Broker may not be available.](#orgapachekafkaclientsnetworkclient-connection-to-node--1-could-not-be-established-broker-may-not-be-available)
-	- [org.apache.kafka.common.errors.TimeoutException: Expiring 1 record(s) for xxx-topic-0: 30056 ms has passed since batch creation plus linger time](#orgapachekafkacommonerrorstimeoutexception-expiring-1-records-for-xxx-topic-0-30056-ms-has-passed-since-batch-creation-plus-linger-time)
-	- [org.apache.kafka.common.errors.TimeoutException: Failed to update metadata after 60000 ms](#orgapachekafkacommonerrorstimeoutexception-failed-to-update-metadata-after-60000-ms)
-	- [Error shile writing to checkpoint file ... Caused by: java.io.FileNotFoundException: ... (Too many open files)](#error-shile-writing-to-checkpoint-file--caused-by-javaiofilenotfoundexception--too-many-open-files)
+    - [org.apache.kafka.clients.NetworkClient: Connection to node -1 could not be established. Broker may not be available.](#orgapachekafkaclientsnetworkclient-connection-to-node--1-could-not-be-established-broker-may-not-be-available)
+    - [org.apache.kafka.common.errors.TimeoutException: Expiring 1 record(s) for xxx-topic-0: 30056 ms has passed since batch creation plus linger time](#orgapachekafkacommonerrorstimeoutexception-expiring-1-records-for-xxx-topic-0-30056-ms-has-passed-since-batch-creation-plus-linger-time)
+    - [org.apache.kafka.common.errors.TimeoutException: Failed to update metadata after 60000 ms](#orgapachekafkacommonerrorstimeoutexception-failed-to-update-metadata-after-60000-ms)
+    - [Error shile writing to checkpoint file ... Caused by: java.io.FileNotFoundException: ... (Too many open files)](#error-shile-writing-to-checkpoint-file--caused-by-javaiofilenotfoundexception--too-many-open-files)
 
 <!-- /TOC -->
 
@@ -57,117 +57,119 @@ export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
 
 - `$KAFKA_HOME/etc/kafka/server.properties`
 
-	Kafka服務的核心啓動配置項。
-	做爲集羣啓動時需要指定以下配置：
+    Kafka服務的核心啓動配置項。
+    做爲集羣啓動時需要指定以下配置：
 
-	```conf
-	broker.id = 服務編號（數值，集羣中每個Kafka服務需要使用不同的ID）
-	# 示例：broker.id = 1
+    ```conf
+    broker.id = 服務編號（數值，集羣中每個Kafka服務需要使用不同的ID）
+    # 示例：broker.id = 1
 
-	zookeeper.connect = Zookeeper集羣的地址:端口
-	# 示例：zookeeper.connect = spark-master:2181, spark-slave0:2181, spark-slave1:2181
+    zookeeper.connect = Zookeeper集羣的地址:端口
+    # 示例：zookeeper.connect = spark-master:2181, spark-slave0:2181, spark-slave1:2181
 
-	listeners = Kafka服務監聽協議://監聽地址:監聽端口
-	# 設定Kafka主服務的監聽地址和端口號，默認端口爲9092
-	# 示例：listeners = PLAINTEXT://spark-master:9092
-	```
+    listeners = Kafka服務監聽協議://監聽地址:監聽端口
+    # 設定Kafka主服務的監聽地址和端口號，默認端口爲9092
+    # 示例：listeners = PLAINTEXT://spark-master:9092
+    ```
 
-	對於使用KRaft機制的Kafka，不再需要ZooKeeper配置，需要修改進程角色和監聽地址：
+    對於使用KRaft機制的Kafka，不再需要ZooKeeper配置，需要修改進程角色和監聽地址：
 
-	```conf
-	# 進程角色，使用KRaft進程角色添加controller
-	process.roles=broker,controller
+    ```conf
+    # 進程角色，使用KRaft進程角色添加controller
+    process.roles=broker,controller
 
-	# 設置所有KRaft地址
-	controller.quorum.voters=服務編號@集群地址:KRaft端口,...
-	# 示例：controller.quorum.voters=1@192.168.1.1:9093,2@192.168.1.2:9093,3@192.168.1.3:9093
+    # 設置所有KRaft地址
+    controller.quorum.voters=服務編號@集群地址:KRaft端口,...
+    # 示例：controller.quorum.voters=1@192.168.1.1:9093,2@192.168.1.2:9093,3@192.168.1.3:9093
 
-	# 設置監聽地址，使用KRaft默認監聽9093端口
-	listeners=PLAINTEXT://:9092,CONTROLLER://:9093
-	```
+    # 設置監聽地址，使用KRaft默認監聽9093端口
+    listeners=PLAINTEXT://:9092,CONTROLLER://:9093
+    ```
 
-	客戶端若未配置Kafka主機名連接時可能產生錯誤，
-	通過配置告知客戶端正確的連接地址：
+    客戶端若未配置Kafka主機名連接時可能產生錯誤，
+    通過配置告知客戶端正確的連接地址：
 
-	```conf
-	# 告知客戶端監聽的地址與端口，若未配置則使用listeners的值
-	advertised.listeners=PLAINTEXT://外部訪問地址:服務端口
-	# 示例：advertised.listeners=PLAINTEXT://192.168.1.1:9092
-	```
+    ```conf
+    # 告知客戶端監聽的地址與端口，若未配置則使用listeners的值
+    advertised.listeners=PLAINTEXT://外部訪問地址:服務端口
+    # 示例：advertised.listeners=PLAINTEXT://192.168.1.1:9092
+    ```
 
-	消息大小上限相關配置：
+    消息大小上限相關配置：
 
-	```conf
-	message.max.bytes = 消息最大字節數
-	# 默認值爲1000000，取值應小於Consumer端的 fetch.message.max.bytes 配置
-	# 示例：message.max.bytes = 5000000
+    ```conf
+    message.max.bytes = 消息最大字節數
+    # 默認值爲1000000，取值應小於Consumer端的 fetch.message.max.bytes 配置
+    # 示例：message.max.bytes = 5000000
 
-	replica.fetch.max.bytes = 可複製最大字節數
-	# 取值應大於 message.max.bytes ，否則會造成接收到的消息複製失敗
-	# 示例：replica.fetch.max.bytes = 5001000
-	```
+    replica.fetch.max.bytes = 可複製最大字節數
+    # 取值應大於 message.max.bytes ，否則會造成接收到的消息複製失敗
+    # 示例：replica.fetch.max.bytes = 5001000
+    ```
 
-	話題相關配置：
+    話題相關配置：
 
-	```conf
-	# 允許刪除話題
-	delete.topic.enable = true
-	# 禁用話題自動創建
-	auto.create.topics.enable = true
-	```
+    ```conf
+    # 允許刪除話題
+    delete.topic.enable = true
+    # 禁用話題自動創建
+    auto.create.topics.enable = true
+    # 默認副本數量（默認值為1）
+    default.replication.factor = 話題備份數目
+    ```
 
-	Kafka會緩存所有消息，無論消息是否被消費，可通過配置設定消息的緩存清理策略。
-	消息存儲相關配置：
+    Kafka會緩存所有消息，無論消息是否被消費，可通過配置設定消息的緩存清理策略。
+    消息存儲相關配置：
 
-	```conf
-	num.partitions = 分區數量
-	# 決定默認配置下創建的話題擁有的分區數量，多個分區會分佈在集羣內不同的機器中
-	# 默認值爲 1
+    ```conf
+    num.partitions = 分區數量
+    # 決定默認配置下創建的話題擁有的分區數量，多個分區會分佈在集羣內不同的機器中
+    # 默認值爲 1
 
-	log.dirs = 消息存儲路徑
-	# 默認路徑爲 /tmp/kafka-logs ，路徑可以爲多個，多個路徑之間使用逗號分隔
-	# 示例： log.dirs = /home/data/kafka/kafka_messages
+    log.dirs = 消息存儲路徑
+    # 默認路徑爲 /tmp/kafka-logs ，路徑可以爲多個，多個路徑之間使用逗號分隔
+    # 示例： log.dirs = /home/data/kafka/kafka_messages
 
-	log.cleanup.policy = 消息清理策略
-	# 默認值爲 delete，可選值爲 compact（壓縮）、delete（刪除）
+    log.cleanup.policy = 消息清理策略
+    # 默認值爲 delete，可選值爲 compact（壓縮）、delete（刪除）
 
-	log.retention.minutes = 消息保存分鐘
-	log.retention.hours = 消息保存小時
-	# 默認保存 168 小時（一週）的消息，超過時間的消息會按照配置的清理策略（壓縮、刪除）進行處理
+    log.retention.minutes = 消息保存分鐘
+    log.retention.hours = 消息保存小時
+    # 默認保存 168 小時（一週）的消息，超過時間的消息會按照配置的清理策略（壓縮、刪除）進行處理
 
-	log.retention.bytes = 一個 topic 中每個 partition 保存消息的最大大小
-	# 默認值爲 -1（不清理），超過大小的消息會按照清理策略被處理
-	# 消息緩存大小上限： partition數量 x 每個partition的消息大小上限
-	```
+    log.retention.bytes = 一個 topic 中每個 partition 保存消息的最大大小
+    # 默認值爲 -1（不清理），超過大小的消息會按照清理策略被處理
+    # 消息緩存大小上限： partition數量 x 每個partition的消息大小上限
+    ```
 
-	Kafka提供了基於**時間**、**存儲大小**兩個維度來設定消息日誌的清理策略。
+    Kafka提供了基於**時間**、**存儲大小**兩個維度來設定消息日誌的清理策略。
 
 - `$KAFKA_HOME/etc/kafka/consumer.properties`
 
-	消費者配置。
-	修改消費端消息大小：
+    消費者配置。
+    修改消費端消息大小：
 
-	```conf
-	max.partition.fetch.bytes = 服務器每個 partition 返回的最大數據大小
-	# 在批量返回的時候，如果第一批次比這個值大，也會繼續返回後面的批次。
-	# 此配置需要與 broker 的 message.max.bytes，producer 的 max.request.size 配合使用。
-	# 示例： max.partition.fetch.bytes = 5000000
+    ```conf
+    max.partition.fetch.bytes = 服務器每個 partition 返回的最大數據大小
+    # 在批量返回的時候，如果第一批次比這個值大，也會繼續返回後面的批次。
+    # 此配置需要與 broker 的 message.max.bytes，producer 的 max.request.size 配合使用。
+    # 示例： max.partition.fetch.bytes = 5000000
 
-	fetch.message.max.bytes = 消費者一次獲取請求能取得的數據最大值
-	# 數據被讀入到內存中，可用來控制消費者的內存使用，必須大於等於最大消息長度。
-	# 示例： fetch.message.max.bytes = 5000000
-	```
+    fetch.message.max.bytes = 消費者一次獲取請求能取得的數據最大值
+    # 數據被讀入到內存中，可用來控制消費者的內存使用，必須大於等於最大消息長度。
+    # 示例： fetch.message.max.bytes = 5000000
+    ```
 
 - `$KAFKA_HOME/etc/kafka/producer.properties`
 
-	生產者配置。
-	修改生產者端消息大小：
+    生產者配置。
+    修改生產者端消息大小：
 
-	```conf
-	max.request.size = 發送消息的請求最大字節數
-	# kakfa服務端使用此配置限制消息大小，部分client端也會通過這個參數限制消息大小。
-	# 示例： max.request.size = 5000000
-	```
+    ```conf
+    max.request.size = 發送消息的請求最大字節數
+    # kakfa服務端使用此配置限制消息大小，部分client端也會通過這個參數限制消息大小。
+    # 示例： max.request.size = 5000000
+    ```
 
 ## 服務啟動
 Kafka相關CLI工具位於`$KAFKA_HOME/bin`路徑下。
@@ -221,12 +223,12 @@ $ kafka-topics --bootstrap-server Broker地址:端口 --alter --topic 話題名�
 
 ```json
 {
-	"version": 1,
-	"topics": [
-		{ "topic": "topic_name_1" },
-		{ "topic": "topic_name_2" },
-		...
-	]
+    "version": 1,
+    "topics": [
+        { "topic": "topic_name_1" },
+        { "topic": "topic_name_2" },
+        ...
+    ]
 }
 ```
 
@@ -327,10 +329,10 @@ Topic:spark-streaming-test      PartitionCount:2        ReplicationFactor:1     
 - `PartitionCount` 話題分區數量
 - `ReplicationFactor` 話題備份數量
 - `Configs` 包含每個Partition的詳細配置信息
-	- `Partition` 分區編號
-	- `Leader` 負責讀寫該分區的broker編號
-	- `Replicas` 分區備份的broker編號，ReplicationFactor大於1時會有多個broker編號
-	- `Isr` 當前處於活躍狀態的broker編號，是Replicas中分區編號的子集
+    - `Partition` 分區編號
+    - `Leader` 負責讀寫該分區的broker編號
+    - `Replicas` 分區備份的broker編號，ReplicationFactor大於1時會有多個broker編號
+    - `Isr` 當前處於活躍狀態的broker編號，是Replicas中分區編號的子集
 
 多個Consumer之間通過`Group`分組，一條發佈到話題中的數據會發往每一個Group，
 但同一Group中只有**一個**Consumer實例會收到數據。
@@ -449,24 +451,24 @@ $ kafka-topics --delete --topics 話題名稱 --bootstrap-server Broker地址:�
 
 - 刪除話題數據目錄：
 
-	```html
-	<!-- 刪除話題對應的所有分區目錄 -->
-	$ rm -rf $KAFKA_LOGS/話題名稱*
-	```
+    ```html
+    <!-- 刪除話題對應的所有分區目錄 -->
+    $ rm -rf $KAFKA_LOGS/話題名稱*
+    ```
 
 - 刪除ZooKeeper中對應話題的相關記錄：
 
-	```html
-	<!-- 進入ZooKeeper命令行環境 -->
-	$ zkCli.sh
+    ```html
+    <!-- 進入ZooKeeper命令行環境 -->
+    $ zkCli.sh
 
-	<!-- 刪除對應話題相關信息 -->
-	[zk...] rmr /brokers/topics/話題名稱
-	<!-- 刪除對應話題相關配置 -->
-	[zk...] rmr /config/topics/話題名稱
-	<!-- 刪除話題的delete標記信息 -->
-	[zk...] rmr /admin/delete_topics/話題名稱
-	```
+    <!-- 刪除對應話題相關信息 -->
+    [zk...] rmr /brokers/topics/話題名稱
+    <!-- 刪除對應話題相關配置 -->
+    [zk...] rmr /config/topics/話題名稱
+    <!-- 刪除話題的delete標記信息 -->
+    [zk...] rmr /admin/delete_topics/話題名稱
+    ```
 
 
 
@@ -479,67 +481,67 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 
 - `Schema Registry`（必備）
 
-	SchemaRegistry服務提供了對出入Kafka的消息的監控，並對數據進行序列化/反序列化處理。
-	服務配置文件爲`$KAFKA_HOME/etc/schema-registry/schema-registry.properties`，配置說明：
+    SchemaRegistry服務提供了對出入Kafka的消息的監控，並對數據進行序列化/反序列化處理。
+    服務配置文件爲`$KAFKA_HOME/etc/schema-registry/schema-registry.properties`，配置說明：
 
-	```conf
-	listeners = http://服務地址:服務端口
-	# 設置 Schema Registry 服務綁定的地址與服務端口，默認端口8081
-	# 示例： listeners = http://spark-master:8081
+    ```conf
+    listeners = http://服務地址:服務端口
+    # 設置 Schema Registry 服務綁定的地址與服務端口，默認端口8081
+    # 示例： listeners = http://spark-master:8081
 
-	kafkastore.connection.url = Zookeeper集羣地址:端口
-	# 示例： kafkastore.connection.url = spark-master:2181, spark-slave0:2181, spark-slave1:2181
+    kafkastore.connection.url = Zookeeper集羣地址:端口
+    # 示例： kafkastore.connection.url = spark-master:2181, spark-slave0:2181, spark-slave1:2181
 
-	kafkastore.bootstrap.servers = Kafka服務監聽協議://監聽地址:監聽端口
-	# 對應 $KAFKA_HOME/etc/kafka/server.properties 中設定的 listeners 配置
-	# 示例： kafkastore.bootstrap.servers = PLAINTEXT://spark-master:9092
+    kafkastore.bootstrap.servers = Kafka服務監聽協議://監聽地址:監聽端口
+    # 對應 $KAFKA_HOME/etc/kafka/server.properties 中設定的 listeners 配置
+    # 示例： kafkastore.bootstrap.servers = PLAINTEXT://spark-master:9092
 
-	kafkastore.topic = 話題名稱
-	# Schema Registry 服務存儲內部信息使用的 topic，默認話題名稱爲 _schemas
-	# 示例： kafkastore.topic = _schemas
+    kafkastore.topic = 話題名稱
+    # Schema Registry 服務存儲內部信息使用的 topic，默認話題名稱爲 _schemas
+    # 示例： kafkastore.topic = _schemas
 
-	debug = 是否開啓調試模式
-	# 示例： debug = false
-	```
+    debug = 是否開啓調試模式
+    # 示例： debug = false
+    ```
 
-	啓動服務：
+    啓動服務：
 
-	```
-	$ schema-registry-start -daemon $KAFKA_HOME/etc/schema-registry/schema-registry.properties
-	```
+    ```
+    $ schema-registry-start -daemon $KAFKA_HOME/etc/schema-registry/schema-registry.properties
+    ```
 
 - `Kafka Rest`（可選）
 
-	KafkaRest服務爲Kafka提供了`Rest API`支持，使Kafka可以通過HTTP請求進行互操作。
-	通常該服務不必修改配置，JDBC Source Connector會在啟動時自動啟動該服務，
-	但若該服務的默認端口喔被佔用，則依舊需要修改相關配置。
-	服務配置文件爲`$KAFKA_HOME/etc/kafka-rest/kafka-rest.properties`，配置說明：
+    KafkaRest服務爲Kafka提供了`Rest API`支持，使Kafka可以通過HTTP請求進行互操作。
+    通常該服務不必修改配置，JDBC Source Connector會在啟動時自動啟動該服務，
+    但若該服務的默認端口喔被佔用，則依舊需要修改相關配置。
+    服務配置文件爲`$KAFKA_HOME/etc/kafka-rest/kafka-rest.properties`，配置說明：
 
-	```conf
-	id = 服務ID
-	# 示例： id = kafka-rest-server
+    ```conf
+    id = 服務ID
+    # 示例： id = kafka-rest-server
 
-	listeners = http://服務地址:服務端口
-	# 設置 Kafka Rest 服務綁定的地址與服務端口，默認端口爲8082
-	# 示例： listeners = http://spark-master:8082
+    listeners = http://服務地址:服務端口
+    # 設置 Kafka Rest 服務綁定的地址與服務端口，默認端口爲8082
+    # 示例： listeners = http://spark-master:8082
 
-	schema.registry.url = SchemaRegistry服務地址:端口
-	# 對應 $KAFKA_HOME/etc/schema-registry/schema-registry.properties 中設定的 listeners 配置
-	# 示例： schema.registry.url = http://spark-master:8081
+    schema.registry.url = SchemaRegistry服務地址:端口
+    # 對應 $KAFKA_HOME/etc/schema-registry/schema-registry.properties 中設定的 listeners 配置
+    # 示例： schema.registry.url = http://spark-master:8081
 
-	zookeeper.connect = Zookeeper集羣地址:端口
-	# 示例： zookeeper.connect = spark-master:2181, spark-slave0:2181, spark-slave1:2181
+    zookeeper.connect = Zookeeper集羣地址:端口
+    # 示例： zookeeper.connect = spark-master:2181, spark-slave0:2181, spark-slave1:2181
 
-	bootstrap.servers = Kafka服務監聽協議://監聽地址:監聽端口
-	# 對應 $KAFKA_HOME/etc/kafka/server.properties 中設定的 listeners 配置
-	# 示例： bootstrap.servers = PLAINTEXT://spark-master:9092
-	```
+    bootstrap.servers = Kafka服務監聽協議://監聽地址:監聽端口
+    # 對應 $KAFKA_HOME/etc/kafka/server.properties 中設定的 listeners 配置
+    # 示例： bootstrap.servers = PLAINTEXT://spark-master:9092
+    ```
 
-	啓動服務：
+    啓動服務：
 
-	```
-	$ kafka-rest-start -daemon $KAFKA_HOME/etc/kafka-rest/kafka-rest.properties
-	```
+    ```
+    $ kafka-rest-start -daemon $KAFKA_HOME/etc/kafka-rest/kafka-rest.properties
+    ```
 
 ## JDBC Source Connector
 `JDBC Source Connector`可以實現通過Kafka監控數據庫變化，通過Kafka導入、導出數據，
@@ -549,84 +551,84 @@ Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓�
 
 1. 確保所連接數據庫的驅動存在。
 
-	連接`MySQL`數據庫時，需要提供額外的`JDBC Driver`。
-	從`https://www.mysql.com/downloads/`或`Maven`下載MySQL對應的JDBC驅動Jar包。
-	將`mysql-connector-java-x.x.xx.jar`放置在`$KAFKA_HOME/share/java/kafka-connect-jdbc`路徑下。
+    連接`MySQL`數據庫時，需要提供額外的`JDBC Driver`。
+    從`https://www.mysql.com/downloads/`或`Maven`下載MySQL對應的JDBC驅動Jar包。
+    將`mysql-connector-java-x.x.xx.jar`放置在`$KAFKA_HOME/share/java/kafka-connect-jdbc`路徑下。
 
 1. 修改連接配置：
 
-	連接配置文件爲`$KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties`。
-	配置項說明：
+    連接配置文件爲`$KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties`。
+    配置項說明：
 
-	```conf
-	bootstrap.servers = Kafka服務監監聽地址:監聽端口
-	# 對應 $KAFKA_HOME/etc/kafka/server.properties 中設定的 listeners 配置，僅需要服務地址、端口
-	# 示例： bootstrap.servers = spark-master:9092
+    ```conf
+    bootstrap.servers = Kafka服務監監聽地址:監聽端口
+    # 對應 $KAFKA_HOME/etc/kafka/server.properties 中設定的 listeners 配置，僅需要服務地址、端口
+    # 示例： bootstrap.servers = spark-master:9092
 
-	key.converter.schema.registry.url = SchemaRegistry服務地址:端口
-	value.converter.schema.registry.url = SchemaRegistry服務地址:端口
-	# 對應 $KAFKA_HOME/etc/schema-registry/schema-registry.properties 中設定的 listeners 配置
-	# 示例： schema.registry.url = http://spark-master:8081
+    key.converter.schema.registry.url = SchemaRegistry服務地址:端口
+    value.converter.schema.registry.url = SchemaRegistry服務地址:端口
+    # 對應 $KAFKA_HOME/etc/schema-registry/schema-registry.properties 中設定的 listeners 配置
+    # 示例： schema.registry.url = http://spark-master:8081
 
-	rest.host.name = Kafka Rest 服務地址
-	rest.port = Rest 监听端口
-	# 示例：
-	# rest.host.name = spark-master
-	# rest.port = 8083
-	```
+    rest.host.name = Kafka Rest 服務地址
+    rest.port = Rest 监听端口
+    # 示例：
+    # rest.host.name = spark-master
+    # rest.port = 8083
+    ```
 
 1. 創建數據源配置。
 
-	創建配置`$KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties`。
-	配置項說明：
+    創建配置`$KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties`。
+    配置項說明：
 
-	```conf
-	name = 連接名稱
-	# 示例： name = kafka-connector-mysql
+    ```conf
+    name = 連接名稱
+    # 示例： name = kafka-connector-mysql
 
-	connector.class = 連接驅動類
-	# 示例： connector.class = io.confluent.connect.jdbc.JdbcSourceConnector
+    connector.class = 連接驅動類
+    # 示例： connector.class = io.confluent.connect.jdbc.JdbcSourceConnector
 
-	connection.url = 數據庫連接的 JDBC URL
-	# 示例： connection.url = jdbc:mysql://xxx.xxx.xxx.xxx:3306/Xxx?user=xxx&password=xxx
+    connection.url = 數據庫連接的 JDBC URL
+    # 示例： connection.url = jdbc:mysql://xxx.xxx.xxx.xxx:3306/Xxx?user=xxx&password=xxx
 
-	topic.prefix = 生成話題的前綴
-	# 示例： topic.prefix = mysql-
+    topic.prefix = 生成話題的前綴
+    # 示例： topic.prefix = mysql-
 
-	mode = 模式
-	# 設置 JDBC Connector 的工作模式，支持 incrementing(自增)、timestamp(時間戳)、bulk(直接導入) 等模式
-	# 示例：
-	# mode = incrementing
-	# mode = timestamp
-	# mode = bulk
-	# mode = timestamp+incrementing
+    mode = 模式
+    # 設置 JDBC Connector 的工作模式，支持 incrementing(自增)、timestamp(時間戳)、bulk(直接導入) 等模式
+    # 示例：
+    # mode = incrementing
+    # mode = timestamp
+    # mode = bulk
+    # mode = timestamp+incrementing
 
-	timestamp.column.name = 監控的列名
-	# 根據監控列的變化返回數據，僅在 timestamp/timestamp+incrementing 模式下有效
-	# 示例： timestamp.column.name = id
+    timestamp.column.name = 監控的列名
+    # 根據監控列的變化返回數據，僅在 timestamp/timestamp+incrementing 模式下有效
+    # 示例： timestamp.column.name = id
 
-	incrementing.column.name = 監控的列名
-	# 根據監控列的變化返回數據，僅在 incrementing 模式下有效
-	# incrementing.column.name = id
+    incrementing.column.name = 監控的列名
+    # 根據監控列的變化返回數據，僅在 incrementing 模式下有效
+    # incrementing.column.name = id
 
-	table.whitelist = 需要監控的表格白名單
-	# 默認配置下，JDBC Connector 會嘗試監控數據庫內所有表格，使用白名單配置需要監控的表格名稱
-	# 示例： table.whitelist = testTable1, testTable2
+    table.whitelist = 需要監控的表格白名單
+    # 默認配置下，JDBC Connector 會嘗試監控數據庫內所有表格，使用白名單配置需要監控的表格名稱
+    # 示例： table.whitelist = testTable1, testTable2
 
-	query = 查詢SQL語句
-	# mode 配置項爲查詢模式時纔有效，用於自定義返回數據的查詢邏輯
-	# 示例： query = select * from testTable1 order by id desc limit 1
-	```
+    query = 查詢SQL語句
+    # mode 配置項爲查詢模式時纔有效，用於自定義返回數據的查詢邏輯
+    # 示例： query = select * from testTable1 order by id desc limit 1
+    ```
 
 1. 啓動數據連接服務：
 
-	使用`connect-standalone`工具創建數據連接服務，使用之前修改的連接配置和創建的數據源配置：
+    使用`connect-standalone`工具創建數據連接服務，使用之前修改的連接配置和創建的數據源配置：
 
-	```
-	$ connect-standalone -daemon $KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties $KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties
-	```
+    ```
+    $ connect-standalone -daemon $KAFKA_HOME/etc/schema-registry/connect-avro-standalone.properties $KAFKA_HOME/etc/kafka-connect-jdbc/test-mysql.properties
+    ```
 
-	執行connect-standalone指令時，當前路徑需要為$KAFKA_HOME。
+    執行connect-standalone指令時，當前路徑需要為$KAFKA_HOME。
 
 數據監控服務正常啓動後，會按照數據源配置項`topic.prefix`以`話題前綴 + 表格名稱`的規則自動創建話題，
 在話題中以JSON形式輸出表格新增的數據。
