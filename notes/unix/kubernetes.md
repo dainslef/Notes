@@ -73,6 +73,12 @@
         - [Helm模板內置對象](#helm模板內置對象)
         - [Helm安裝輸出信息](#helm安裝輸出信息)
         - [Helm模板控制語句](#helm模板控制語句)
+        - [Helm模板函數](#helm模板函數)
+        - [測試Helm模板](#測試helm模板)
+        - [Helm打包](#helm打包)
+- [KubKey](#kubkey)
+    - [下載KubeKey](#下載kubekey)
+    - [使用KubeKey部署集群](#使用kubekey部署集群)
 
 <!-- /TOC -->
 
@@ -125,7 +131,8 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 # containerd config default > /etc/containerd/config.toml
 ```
 
-將`SystemdCgroup`配置項設置為true（缺少該配置會導致容器反覆重啟）：
+將`SystemdCgroup`配置項設置為true
+（缺少該配置會導致容器反覆重啟，詳情參考[Kubernetes官方文檔](https://kubernetes.io/docs/setup/production-environment/container-runtimes/#containerd)）：
 
 ```toml
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
@@ -135,7 +142,7 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 ```
 
 **牆國**內還需要配置containerd鏡像源，
-修改配置的`sandbox_image`（該項配置默認爲`"k8s.gcr.io/pause:3.5"`，強國無法訪問，需要修改）
+修改配置的`sandbox_image`（該項配置默認爲`"k8s.gcr.io/pause:3.10"`，強國無法訪問，需要修改）
 以及`[plugins."io.containerd.grpc.v1.cri".registry.mirrors]`部分
 （該配置項默認已創建，但默認爲空，早期版本的containerd該項配置可能名稱爲`[plugins.io]`）：
 
@@ -145,7 +152,7 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
   ...
   # 較早期的containerd版本（如1.2x）該配置項可能爲[plugins.cri]
   [plugins."io.containerd.grpc.v1.cri"]
-    sandbox_image = "registry.aliyuncs.com/k8sxio/pause:3.5"
+    sandbox_image = "registry.aliyuncs.com/k8sxio/pause:3.10"
     ...
     # 若上述配置配置名稱爲[plugins.cri]，則後續該項下的所有子配置均使用該名稱做前綴
     [plugins."io.containerd.grpc.v1.cri".registry]
@@ -852,6 +859,12 @@ spec:
 容器端口配置`spec.ports.containerPort`僅作為提示信息使用，是否設置容器端口並不影響實際網絡通信。
 
 在實際生產環境下，通常不會直接創建容器，而是通過`Deployment`、`DaemonSet`等高級特性部署邏輯。
+
+使用delete指令刪除Pod時，可添加`--force`參數強制刪除：
+
+```
+$ kubectl delete pods --force Pod名稱
+```
 
 ## Service
 Service將一組相同的Pod組成服務，提供單一IP和域名。
@@ -2051,7 +2064,7 @@ $ kubectl create namespace helm-charts
 $ helm repo add tigera-operator https://projectcalico.docs.tigera.io/charts
 $ helm install -n helm-charts tigera-operator tigera-operator/tigera-operator
 <!--
-Use Calico CNI with custom CIDR, init kubeadm with custom parameters:
+Use Calico CNI with custom CIDR(and IPv6 Pool), init kubeadm with custom parameters:
 kubeadm init --pod-network-cidr=10.64.0.0/16,fd00:64::/64 --service-cidr=10.89.64.0/24,fd00:8964::/108
 -->
 $ helm install -n helm-charts --create-namespace tigera-operator tigera-operator/tigera-operator --set installation.calicoNetwork.ipPools[0].cidr=10.64.0.0/16,installation.calicoNetwork.ipPools[1].cidr=fd00:64::/64
@@ -2255,3 +2268,57 @@ Helm Chart目錄可打包為Helm安裝包：
 <!-- 打包Chart目錄為安裝包，默認按照目錄名稱與Chart版本生成”Chart目錄-版本.tgz“文件 -->
 $ helm package Chart目錄
 ```
+
+
+
+# KubKey
+KubeKey是KubeSphere提供的Kubernetes快速部署工具，極大簡化了Kubernetes的部署流程。
+
+在牆國環境下，部署前首先設置環境變量，用於指定下載源到國內：
+
+```
+$ export KKZONE=cn
+```
+
+## 下載KubeKey
+下載KubeKey二進制文件：
+
+```html
+<!--
+最新版本查詢KubeSphere官網
+https://kubesphere.io/docs/installing-on-linux/introduction/kubekey
+-->
+$ curl -sfL https://get-kk.kubesphere.io | VERSION=xxx bash -
+```
+
+下載完成後包含下列內容：
+
+- 二進制文件 `kk`
+- 對應版本平台相關的安裝包 `kubekey-xxx-linux-amd64.tar.gz`
+
+查看版本信息（KubeKey僅支持特定Kubernetes版本，需要使用支持的版本）：
+
+```html
+$ kk version <!-- 查看KubeKey版本 -->
+$ kk version --show-supported-k8s <!-- 查看支持的Kubernetes版本 -->
+```
+
+## 使用KubeKey部署集群
+創建配置文件：
+
+```html
+<!-- 創建配置 -->
+$ kk create config <!-- 默認創建不包含KubeSphere的配置，輸出到當前路徑下的 config-sample.yaml 文件中 -->
+$ kk create config -f /xxx/xxx.yaml <!-- 創建配置到指定路徑下 -->
+$ kk create config -f /xxx/xxx.yaml --with-kubesphere <!-- 創建包含KubeSphere的配置，默認使用最新版本KubeSphere -->
+<!-- 創建指定Kubernetes和KubeSphere版本的配置 -->
+$ kk create config -f /xxx/xxx.yaml --with-kubernetes 版本號 --with-kubesphere 版本號
+
+<!-- 安裝Kubernetes -->
+$ kk create cluster <!-- 不指定配置文件，默認使用All-In—One模式安裝 -->
+$ kk create cluster -f /xxx/xxx.yaml
+```
+
+默認創建的配置僅包含標準Kubernetes，
+需要`--with-kubesphere`參數才會生成KubeSphere相關配置，配置說明參考官方
+[config-example.md](https://github.com/kubesphere/kubekey/blob/master/docs/config-example.md)。
