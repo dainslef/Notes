@@ -2322,3 +2322,85 @@ $ kk create cluster -f /xxx/xxx.yaml
 默認創建的配置僅包含標準Kubernetes，
 需要`--with-kubesphere`參數才會生成KubeSphere相關配置，配置說明參考官方
 [config-example.md](https://github.com/kubesphere/kubekey/blob/master/docs/config-example.md)。
+
+常用配置項：
+
+```yaml
+# 通用配置
+apiVersion: kubekey.kubesphere.io/v1alpha2
+kind: Cluster
+metadata:
+  name: xxx
+spec:
+  hosts:
+  - ...
+  roleGroups:
+    etcd:
+    - ...
+    control-plane:
+    - ...
+    worker:
+    - ...
+  controlPlaneEndpoint:
+    internalLoadbalancer: haproxy # 設置負載均衡
+    domain: lb.kubesphere.local
+    address: ""
+    port: 6443
+  kubernetes:
+    version: v1.27.2 # 設置Kubernetes版本
+    clusterName: cluster.local
+    autoRenewCerts: true
+    containerManager: containerd # 設置容器運行時
+    apiserverArgs:
+    - service-node-port-range=0-65535 # 開放NodePort端口
+  registry:
+    privateRegistry: ""
+    namespaceOverride: ""
+    registryMirrors: [] # 設置第三方DockerHub鏡像源，牆國現已封殺Docker官方源，需要進行替換
+    insecureRegistries: []
+  ...
+
+# KubeSphere配置
+apiVersion: installer.kubesphere.io/v1alpha1
+kind: ClusterConfiguration
+metadata:
+  ...
+spec:
+  ...
+  common:
+    ...
+    metrics_server:
+      enabled: true # 監控指標
+  openpitrix:
+    store:
+      enabled: true # 應用商店
+```
+
+修改生成的配置文件之後，部署集群：
+
+```html
+<!-- 創建集群配置時若已使用 --with-kubesphere 參數，則無須在應用配置時使用該參數 -->
+$ kk create cluster -f /xxx/xxx.yaml
+
+<!--
+若生成配置文件時未使用 --with-kubesphere 參數生成KubeSphere相關配置項，
+在創建集群時使用 --with-kubesphere 參數亦可創建包含KubeSphere的集群，
+創建的集群使用默認配置，會忽略yaml中KubeSphere專用組件相關的配置項
+-->
+$ kk create cluster --with-kubesphere -f /xxx/xxx.yaml
+<!-- 指定版本KubeSphere版本 -->
+$ kk create cluster --with-kubesphere 版本號 -f /xxx/xxx.yaml
+
+<!-- 卸載集群，完整卸載集群還應移除 kubekey 路徑下以節點名稱命名的路徑 -->
+$ kk delete cluster -f /xxx/xxx.yaml
+```
+
+卸載集群時部分安裝的內容不會清除，如：
+
+- 二進制文件，如`containerd`、`crictl`、`helm`等
+- 二進制文件對應的配置，如containerd的配置`/etc/containerd/config.toml`
+- `kubekey`路徑下生成的各個節點相關配置
+
+KubeKey的部分部署流程會以二進制文件的存在與否作為判斷流程是否重新觸發的標誌，
+如containerd，若不移除`/usr/bin/containerd`則不會重新觸發containerd部署流程，
+即使containerd的配置被刪除，刪除集群並重新部署也不會再次生成該文件。
