@@ -11,6 +11,8 @@
     - [Tags](#tags)
     - [Gathering Facts](#gathering-facts)
     - [loop](#loop)
+    - [任務重試](#任務重試)
+    - [任務狀態輪詢和異步任務](#任務狀態輪詢和異步任務)
 
 <!-- /TOC -->
 
@@ -393,3 +395,39 @@ with_items:
 # 等價loop語法
 loop: "{{ [1, [2, 3], 4] | flatten(1) }}"
 ```
+
+## 任務重試
+使用`retries`參數設置任務的重試次數，通常搭配`register`和`until`參數，
+註冊指令輸出內容，根據指令輸出內容判斷指令執行是否成功，是否需要重試。
+
+```yaml
+- name: Retry a task until a certain condition is met
+  ansible.builtin.shell: xxx_command
+  register: result
+  until: result.stdout.find("xxx_result") != -1
+  retries: 5
+  delay: 10
+```
+
+## 任務狀態輪詢和異步任務
+默認配置下，Ansible會同步執行任務，等待當前任務執行完畢後才會執行下一個任務。
+
+使用`async`和`poll`參數控制任務狀態輪詢：
+
+- async：配置任務的最長等待時間
+- poll：配置任務的狀態輪詢週期
+
+async、poll參數用在task中：
+
+```yaml
+- name: playbook name 1
+  hosts: xxx host
+  remote_user: user name
+  tasks:
+  - name: task name 1
+    模塊名稱: 參數
+    async: 100 # 任務超過 100s 則失敗
+    poll: 5 # 每過 5s 查詢任務狀態
+```
+
+當poll參數設置為`0`時，任務會**異步**執行，未執行完成的任務不再阻塞下一個任務。
