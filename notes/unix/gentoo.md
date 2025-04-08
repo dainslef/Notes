@@ -120,7 +120,7 @@ chroot到Gentoo Stage環境。
 # 默認會通過nproc設置該參數，為充分利用資源，可略高於系統配置
 MAKEOPTS="-j3 -l4"
 
-# 配置USE標記，可控制軟件包開啓/關閉某些特性
+# 配置全局USE標記，可控制軟件包開啓/關閉某些特性
 # 例如，對於服務端，可關閉GUI相關標記
 # USE="-X -alsa -gtk -gnome -qt -kde"
 USE="xxx -xxx"
@@ -534,8 +534,16 @@ emerge使用`-c/--depclean`清理不再使用的依賴：
 重複編譯構建依賴會浪費大量時間以及CPU算力。
 
 ## 包組列表
-系統默認的包組有`system`和`world`，system列表爲系統成員組件，不可更改（由選擇的profile決定）；
-world包組成員列表記錄在`/var/lib/portage/world`文件中，可自行更改。
+系統默認的包組有`system`和`world`：
+
+- system列表爲系統成員組件，不可更改（由選擇的profile決定）。
+- world包組成員列表記錄在`/var/lib/portage/world`文件中，可自行更改。
+
+查看包組内容：
+
+```
+$ emerge --pretend @包組名稱
+```
 
 包組及其依賴包被保護，其餘包被視爲孤立包，執行清理依賴命令時孤立包會被移除。
 
