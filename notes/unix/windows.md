@@ -22,6 +22,7 @@
     - [Reply from ::1: time<1ms](#reply-from-1-time1ms)
     - [Intel CPU機型會在C盤根目錄下創建空的Intel目錄](#intel-cpu機型會在c盤根目錄下創建空的intel目錄)
     - [非中文環境下中文非Unicode編碼程序亂碼](#非中文環境下中文非unicode編碼程序亂碼)
+    - [驅動缺少數字簽名](#驅動缺少數字簽名)
 
 <!-- /TOC -->
 
@@ -556,3 +557,28 @@ Language for non-Unicode program
 ```
 
 設置`Current language for non-Unicode program`為`Chinese (Simplified)`。
+
+## 驅動缺少數字簽名
+問題描述：<br>
+Windows會拒絕無數字簽名的驅動安裝，並提示下列錯誤信息：
+
+```
+The third-party INF does not contain digital signature information.
+```
+
+解決方案：<br>
+可通過注冊表關閉系統驅動數字簽名驗證，在管理員權限的命令提示符下執行：
+
+```
+> bcdedit /set loadoptions DDISABLE_INTEGRITY_CHECKS & bcdedit /set testsigning on
+```
+
+之後重啓系統即可。
+
+相關問題參考[Windows社區提問](https://answers.microsoft.com/en-us/windows/forum/all/how-to-install-a-driver-that-does-not-contain/7c3f299b-3483-4c96-8c44-87c7451af222)。
+
+在Windows 11系統下若關閉簽名後依舊無法安裝，
+則可嘗試使用高級模式重啟（選擇`System > Recovery > Advanced startup > Restart now`），
+在啟動選單中嘗試以禁用驅動簽名模式啟動。
+
+安裝無數字簽名的驅動存在風險，可能導致系統無法啟動。
