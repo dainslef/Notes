@@ -1,108 +1,232 @@
 <!-- TOC -->
 
+- [JVM工具鏈](#jvm工具鏈)
+    - [java](#java)
+    - [jshell](#jshell)
+    - [jinfo](#jinfo)
+    - [jstack](#jstack)
+    - [jmap](#jmap)
+    - [VisualVM](#visualvm)
+        - [jstatd](#jstatd)
+        - [JMX](#jmx)
+    - [JProfiler](#jprofiler)
 - [基礎類型](#基礎類型)
-	- [Literal number (字面值)](#literal-number-字面值)
-	- [char (字符類型)](#char-字符類型)
-	- [格式化](#格式化)
-	- [有符號數轉換無符號數](#有符號數轉換無符號數)
-	- [字符串、數值轉換](#字符串數值轉換)
+    - [Literal number (字面值)](#literal-number-字面值)
+    - [char (字符類型)](#char-字符類型)
+    - [格式化](#格式化)
+    - [有符號數轉換無符號數](#有符號數轉換無符號數)
+    - [字符串、數值轉換](#字符串數值轉換)
 - [Package](#package)
-	- [import 關鍵字](#import-關鍵字)
-	- [import static 語法](#import-static-語法)
-	- [實例](#實例)
-	- [引用依賴](#引用依賴)
+    - [import 關鍵字](#import-關鍵字)
+    - [import static 語法](#import-static-語法)
+    - [實例](#實例)
+    - [引用依賴](#引用依賴)
 - [Container（容器）](#container容器)
-	- [併發容器（Concurrent Containers）](#併發容器concurrent-containers)
+    - [Concurrent Containers（併發容器）](#concurrent-containers併發容器)
 - [Enum（枚舉）](#enum枚舉)
 - [對象相等性](#對象相等性)
-	- [equals() 方法](#equals-方法)
-	- [hashCode() 方法](#hashcode-方法)
+    - [equals() 方法](#equals-方法)
+    - [hashCode() 方法](#hashcode-方法)
 - [淺複製與深複製](#淺複製與深複製)
-	- [淺複製](#淺複製)
-	- [深複製](#深複製)
+    - [淺複製](#淺複製)
+    - [深複製](#深複製)
 - [構造順序](#構造順序)
 - [泛型](#泛型)
-	- [類型擦除](#類型擦除)
-	- [泛型方法](#泛型方法)
+    - [類型擦除](#類型擦除)
+    - [泛型方法](#泛型方法)
 - [Nested Classes (嵌套類)](#nested-classes-嵌套類)
 - [併發編程](#併發編程)
-	- [Thread / Runnable](#thread--runnable)
-		- [Daemon Thread](#daemon-thread)
-	- [synchronized & Monitors](#synchronized--monitors)
-		- [synchronized語法](#synchronized語法)
-		- [synchronized工作機制](#synchronized工作機制)
-		- [synchronized可重入性](#synchronized可重入性)
-	- [Executor 框架](#executor-框架)
+    - [Thread / Runnable](#thread--runnable)
+        - [Daemon Thread](#daemon-thread)
+    - [synchronized & Monitors](#synchronized--monitors)
+        - [synchronized語法](#synchronized語法)
+        - [synchronized工作機制](#synchronized工作機制)
+        - [synchronized可重入性](#synchronized可重入性)
+    - [Executor 框架](#executor-框架)
 - [Annotation（註解）](#annotation註解)
-	- [內置註解](#內置註解)
-	- [元註解](#元註解)
-	- [自定義註解](#自定義註解)
+    - [內置註解](#內置註解)
+    - [元註解](#元註解)
+    - [自定義註解](#自定義註解)
 - [Reflection (反射)](#reflection-反射)
-	- [反射機制的相關類型](#反射機制的相關類型)
-	- [Class 類型](#class-類型)
-	- [反射獲取成員信息](#反射獲取成員信息)
-	- [反射構建實例](#反射構建實例)
-	- [反射調用對象方法](#反射調用對象方法)
-	- [反射修改字段](#反射修改字段)
-	- [反射判定繼承關係](#反射判定繼承關係)
-	- [ClassLoader (類加載器)](#classloader-類加載器)
+    - [反射機制的相關類型](#反射機制的相關類型)
+    - [Class 類型](#class-類型)
+    - [反射獲取成員信息](#反射獲取成員信息)
+    - [反射構建實例](#反射構建實例)
+    - [反射調用對象方法](#反射調用對象方法)
+    - [反射修改字段](#反射修改字段)
+    - [反射判定繼承關係](#反射判定繼承關係)
+    - [ClassLoader (類加載器)](#classloader-類加載器)
 - [動態代理](#動態代理)
-	- [代理模式](#代理模式)
-	- [實例](#實例-1)
+    - [代理模式](#代理模式)
+    - [實例](#實例-1)
 - [NIO](#nio)
 - [Default Method（接口默認方法）](#default-method接口默認方法)
 - [Lambda](#lambda)
-	- [實現函數式接口](#實現函數式接口)
-	- [一般用法](#一般用法)
-	- [Method Reference (方法引用)](#method-reference-方法引用)
-	- [標準庫中的函數式接口 (java.util.function)](#標準庫中的函數式接口-javautilfunction)
+    - [實現函數式接口](#實現函數式接口)
+    - [一般用法](#一般用法)
+    - [Method Reference (方法引用)](#method-reference-方法引用)
+    - [標準庫中的函數式接口 (java.util.function)](#標準庫中的函數式接口-javautilfunction)
 - [Process API](#process-api)
-	- [ProcessBuilder](#processbuilder)
-	- [進程API調用權限錯誤](#進程api調用權限錯誤)
+    - [ProcessBuilder](#processbuilder)
+    - [進程API調用權限錯誤](#進程api調用權限錯誤)
 - [DateTime API](#datetime-api)
-	- [java.util.Date](#javautildate)
-	- [java.time.LocalDateTime/ZonedDateTime](#javatimelocaldatetimezoneddatetime)
-	- [獲取時間差值](#獲取時間差值)
-		- [LocalDateTime處理日期](#localdatetime處理日期)
-		- [關於 Oracle JDK 8 在 yyyyMMddHHmmssSSS 時間格式下的 DateTimeParseException](#關於-oracle-jdk-8-在-yyyymmddhhmmsssss-時間格式下的-datetimeparseexception)
-	- [java.time.Instant](#javatimeinstant)
-		- [Caused by: java.time.DateTimeException: Unable to obtain LocalDate from TemporalAccessor: 2020-05-14T03:08:24.322080Z of type java.time.Instant](#caused-by-javatimedatetimeexception-unable-to-obtain-localdate-from-temporalaccessor-2020-05-14t030824322080z-of-type-javatimeinstant)
-		- [Caused by: java.time.temporal.UnsupportedTemporalTypeException: Unsupported field: InstantSeconds](#caused-by-javatimetemporalunsupportedtemporaltypeexception-unsupported-field-instantseconds)
+    - [java.util.Date](#javautildate)
+    - [java.time.LocalDateTime/ZonedDateTime](#javatimelocaldatetimezoneddatetime)
+    - [獲取時間差值](#獲取時間差值)
+        - [LocalDateTime處理日期](#localdatetime處理日期)
+        - [關於 Oracle JDK 8 在 yyyyMMddHHmmssSSS 時間格式下的 DateTimeParseException](#關於-oracle-jdk-8-在-yyyymmddhhmmsssss-時間格式下的-datetimeparseexception)
+    - [java.time.Instant](#javatimeinstant)
+        - [Caused by: java.time.DateTimeException: Unable to obtain LocalDate from TemporalAccessor: 2020-05-14T03:08:24.322080Z of type java.time.Instant](#caused-by-javatimedatetimeexception-unable-to-obtain-localdate-from-temporalaccessor-2020-05-14t030824322080z-of-type-javatimeinstant)
+        - [Caused by: java.time.temporal.UnsupportedTemporalTypeException: Unsupported field: InstantSeconds](#caused-by-javatimetemporalunsupportedtemporaltypeexception-unsupported-field-instantseconds)
 - [定時任務](#定時任務)
-	- [Timer API](#timer-api)
-		- [Timer任務調度](#timer任務調度)
-		- [java.lang.IllegalStateException: Timer already cancelled.](#javalangillegalstateexception-timer-already-cancelled)
-	- [ScheduledThreadPoolExecutor](#scheduledthreadpoolexecutor)
+    - [Timer API](#timer-api)
+        - [Timer任務調度](#timer任務調度)
+        - [java.lang.IllegalStateException: Timer already cancelled.](#javalangillegalstateexception-timer-already-cancelled)
+    - [ScheduledThreadPoolExecutor](#scheduledthreadpoolexecutor)
 - [JDBC](#jdbc)
-	- [連接數據庫](#連接數據庫)
-	- [數據庫操作](#數據庫操作)
-	- [獲取時間](#獲取時間)
-	- [與 Access 數據庫交互](#與-access-數據庫交互)
-	- [com.mysql.jdbc.MysqlDataTruncation: Data truncation: Data too long for column 'column_name'](#commysqljdbcmysqldatatruncation-data-truncation-data-too-long-for-column-column_name)
+    - [連接數據庫](#連接數據庫)
+    - [數據庫操作](#數據庫操作)
+    - [獲取時間](#獲取時間)
+    - [與 Access 數據庫交互](#與-access-數據庫交互)
+    - [com.mysql.jdbc.MysqlDataTruncation: Data truncation: Data too long for column 'column_name'](#commysqljdbcmysqldatatruncation-data-truncation-data-too-long-for-column-column_name)
 - [Eclipse 使用註記](#eclipse-使用註記)
-	- [Marketplace](#marketplace)
-	- [查看源碼](#查看源碼)
-	- [編輯器自動換行](#編輯器自動換行)
+    - [Marketplace](#marketplace)
+    - [查看源碼](#查看源碼)
+    - [編輯器自動換行](#編輯器自動換行)
 - [IntelliJ IDEA 使用註記](#intellij-idea-使用註記)
-	- [功能面板](#功能面板)
-	- [顯示行號和不可見空白](#顯示行號和不可見空白)
-	- [字段類型推斷、參數名稱提示](#字段類型推斷參數名稱提示)
-	- [列邊界提示](#列邊界提示)
-	- [縮進](#縮進)
-	- [包路徑摺疊](#包路徑摺疊)
-	- [其它常用選項](#其它常用選項)
-	- [項目打包](#項目打包)
-	- [多模塊項目](#多模塊項目)
-	- [IDEA HTTP Client](#idea-http-client)
-		- [文件上傳請求](#文件上傳請求)
+    - [功能面板](#功能面板)
+    - [顯示行號和不可見空白](#顯示行號和不可見空白)
+    - [字段類型推斷、參數名稱提示](#字段類型推斷參數名稱提示)
+    - [列邊界提示](#列邊界提示)
+    - [縮進](#縮進)
+    - [包路徑摺疊](#包路徑摺疊)
+    - [其它常用選項](#其它常用選項)
+    - [項目打包](#項目打包)
+    - [多模塊項目](#多模塊項目)
+    - [IDEA HTTP Client](#idea-http-client)
+        - [文件上傳請求](#文件上傳請求)
 - [常見問題記錄](#常見問題記錄)
-	- [String.split()](#stringsplit)
-	- [String.format()](#stringformat)
-	- [String.getProperty()](#stringgetproperty)
-	- [java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXrender.so.1: cannot open shared object file: No such file or directory](#javalangunsatisfiedlinkerror-jrelibamd64libawt_xawtso-libxrenderso1-cannot-open-shared-object-file-no-such-file-or-directory)
-	- [java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory](#javalangunsatisfiedlinkerror-jrelibamd64libawt_xawtso-libxtstso6-cannot-open-shared-object-file-no-such-file-or-directory)
+    - [String.split()](#stringsplit)
+    - [String.format()](#stringformat)
+    - [String.getProperty()](#stringgetproperty)
+    - [java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXrender.so.1: cannot open shared object file: No such file or directory](#javalangunsatisfiedlinkerror-jrelibamd64libawt_xawtso-libxrenderso1-cannot-open-shared-object-file-no-such-file-or-directory)
+    - [java.lang.UnsatisfiedLinkError: */jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory](#javalangunsatisfiedlinkerror-jrelibamd64libawt_xawtso-libxtstso6-cannot-open-shared-object-file-no-such-file-or-directory)
 
 <!-- /TOC -->
+
+
+
+# JVM工具鏈
+Java提供了完善的[工具鏈](https://docs.oracle.com/en/java/javase/21/docs/specs/man/index.html)。
+
+## java
+java命令是JVM的基礎工具，用於執行jar包、class文件等。
+
+常用參數說明：
+
+```html
+<!-- 執行Java程序 -->
+$ java 主類名稱
+$ java -jar 程序名稱.jar
+
+<!--
+執行程序時控制內存分配，默認配置下JVM會根據系統配置自動分配內存，
+64位操作系統最大內存為物理內存的1/4。
+
+-Xms/-Xmx參數支持g/m/k等單位，如：
+-Xms512m 設置初始內存為512MB
+-Xmx2g 設置最大內存為2GB
+-->
+$ java -Xms初始內存 -Xmx最大內存 -jar 程序名稱.jar
+```
+
+查看JVM的默认环境信息：
+
+```
+$ java -XX:+PrintFlagsFinal -version
+```
+
+## jshell
+從JDK9開始，Java提供了與其它JVM平台語言（如Scala、Kotlin等）類似的交互式執行工具
+[jshell](https://docs.oracle.com/en/java/javase/21/docs/specs/man/jshell.html)。
+
+jshell交互操作與Scala/Kotlin REPL不同，使用`/`作為指令前綴，常用指令：
+
+```html
+<!-- 查看幫助信息 -->
+jshell> /?
+jshell> /help <!-- 作用與 /? 相同 -->
+jshell> /help 指令名稱 <!-- 查看指定指令的幫助信息 -->
+
+<!-- 刪除指定內容，如變量、類型定義等 -->
+jshell> /drop 刪除內容名稱
+
+<!-- 重複執行最近一條指令 -->
+jshell> /!
+
+<!-- 列出執行過的操作 -->
+jshell> /list
+
+<!-- 退出jshell -->
+jshell> /exit
+```
+
+## jinfo
+使用`jinfo`查看指定JVM進程的各類參數和JVM配置信息：
+
+```
+$ jinfo 進程號
+```
+
+## jstack
+使用`jstack`查看指定JVM進程的所有線程堆棧：
+
+```html
+$ jstack 進程號
+$ jstack -l 進程號 <!-- 額外輸出鎖相關信息 -->
+```
+
+## jmap
+使用`jmap`查看和導出指定JVM進程的內存狀態，常用於排查內存洩漏：
+
+```html
+<!-- 查看活躍對象數目與消耗內存的統計 -->
+$ jmap -histo:live 進程號
+
+<!-- 將指定進程的Heap Dump導出至文件 -->
+$ jmap -dump:file=/xxx/xxx.dump 進程號
+```
+
+導出的Heap Dump可使用Java官方提供的VisualVM等GUI工具進行分析。
+
+## VisualVM
+[VisualVM](https://visualvm.github.io/)是Oracle官方提供的Java程序可視化分析工具。
+
+對於本機的運行的Java程序，VisualVM通常可以直接查看程序信息。
+
+對於遠端運行的程序，則可通過JMX、jstatd等方式在服務端提供Java程序信息的遠程訪問。
+
+### jstatd
+`jstatd`服務可提供當前服務器所有Java進程的狀態信息，可用於VisualVM等GUI工具連接查看。
+
+啟動服務：
+
+```
+# jstatd
+```
+
+直接使用jstatd可提供的信息較少，完整的服務信息需要對應服務開啟JMX。
+
+### JMX
+JMX可為VisualVM提供完整的程序信息，在啟動Java程序時添加下列參數：
+
+```
+$ java -Dcom.sun.management.jmxremote.port=JMX端口 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false ...
+```
+
+## JProfiler
+[JProfiler](https://www.ej-technologies.com/jprofiler)
+是一款功能豐富的Java性能分析工具，可對Java程序進行CPU、內存、GC、IO等方面的性能分析。
 
 
 
@@ -470,13 +594,13 @@ $ java -Djava.ext.dirs=第三方庫所在的目錄 類名
 | 接口 | 實現類 |
 | :- | :- |
 | List | LinkedList、ArrayList、Vector |
-| Set | HashSet、LinkedHashSet |
+| Set | HashSet、LinkedHashSet、TreeSet |
 | Map | HashMap、HashTable、LinkeHashMap、TreeMap |
 
 List容器對比：
 
 - `ArrayList` **非線程安全**，動態數組實現，效率高，適合大多數場景使用。
-- `LinkedList` **非線程安全**，雙向鏈表實現，相比ArrayList效率較低，通常不使用。
+- `LinkedList` **非線程安全**，雙向鏈表實現，相比ArrayList效率較低，通常不使用，需要頻繁頭尾插入場景應使用`ArrayDeque`。
 - `Vector` **線程安全**，效率低（使用同步鎖）。
 
 Map容器對比：
@@ -526,7 +650,7 @@ Iterator iteratorSet = set.iterator();
 `Map`使用`get(key)`可以得到對應Key的Value。
 `HashMap`等容器只能一個鍵對應**一個**鍵值，若需要一個鍵綁定多個鍵值可以使用`IdentityHashMap`。
 
-## 併發容器（Concurrent Containers）
+## Concurrent Containers（併發容器）
 自`JDK 1.5`開始，JDK陸續引入了一系列支持併發操作的容器，位於`java.util.concurrent`包中。
 
 與早年存在於JDK的`java.util.Vector`等同步鎖容器不同，
