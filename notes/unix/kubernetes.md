@@ -34,15 +34,17 @@
         - [Service代理模式](#service代理模式)
         - [禁用流量轉發](#禁用流量轉發)
         - [NodePort開放端口](#nodeport開放端口)
+- [服務編排](#服務編排)
     - [ReplicaSet](#replicaset)
     - [Deployment](#deployment)
     - [StatefulSet](#statefulset)
     - [DaemonSet](#daemonset)
-    - [Ingress](#ingress)
-        - [NGINX Igress Controller](#nginx-igress-controller)
+    - [調整服務規模](#調整服務規模)
+- [Ingress](#ingress)
+    - [NGINX Igress Controller](#nginx-igress-controller)
         - [ingress-nginx server-snippet](#ingress-nginx-server-snippet)
-        - [ingress-nginx對其它協議的支持](#ingress-nginx對其它協議的支持)
-        - [Ingress 503](#ingress-503)
+        - [ingress-nginx 其它協議支持](#ingress-nginx-其它協議支持)
+    - [Ingress 503](#ingress-503)
 - [DNS](#dns)
     - [配置DNS策略](#配置dns策略)
     - [自定義域名](#自定義域名)
@@ -983,6 +985,12 @@ spec:
     - service-node-port-range=1-65535
 ```
 
+
+
+# 服務編排
+服務編排是Kubernetes的核心功能，支持Deployment、StatefulSet、DaemonSet等多種編排模式，
+可滿足不同種類服務的部署需求。
+
 ## ReplicaSet
 ReplicaSet用於控制Pods的數目，保證指定Pods的複製實例數目在一個穩定的狀態，
 當Pods異常退出時，Kubernetes會自動重新創建Pods維持指定的數目。
@@ -1126,7 +1134,19 @@ spec:
             type: DirectoryOrCreate
 ```
 
-## Ingress
+## 調整服務規模
+對於使用Deployment、StatefulSet編排的服務，可在線調整服務規模（Pod數目）：
+
+```
+$ kubectl scale deployment -n 命名空間 部署名稱 --replicas Pod數目
+$ kubectl scale statefulset -n 命名空間 部署名稱 --replicas Pod數目
+```
+
+Pod數目調整為0時，效果等同於停止服務。
+
+
+
+# Ingress
 [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 通過HTTP和HTTPS路由規劃外部流量到內部服務的訪問方式，路由規則在Ingress資源中定義。
 
@@ -1142,7 +1162,7 @@ OpenStack等雲平台中可使用對應平台的Ingress Controller；
 默認集群配置下Ingress Controller並未自動安裝，
 需要開發者自行配置選擇合適的Ingress Controller實現。
 
-### NGINX Igress Controller
+## NGINX Igress Controller
 基於NGINX的Igress Controller存在兩個項目，分別為Kubernetes社區提供的
 [`ingress-nginx`](https://github.com/kubernetes/ingress-nginx)
 以及NGINX官方提供的[`kubernetes-ingress`](https://github.com/nginxinc/kubernetes-ingress)
@@ -1246,7 +1266,7 @@ Error from server (BadRequest): error when creating "...": admission webhook "va
 目前版本的官方Helm Charts沒有直接提供annotations-risk-level的配置參數，
 需要在`controller.config`中配置，参数为`--set controller.config.annotations-risk-level=Critical`。
 
-### ingress-nginx對其它協議的支持
+### ingress-nginx 其它協議支持
 NGINX Igress Controller生成的轉發規則中默認已支持WebSocket協議，
 無需添加其它配置即可直接轉發WebSocket.
 
@@ -1266,7 +1286,7 @@ spec:
     ...
 ```
 
-### Ingress 503
+## Ingress 503
 Ingress中轉發的目標服務需要與Ingress本體位於同一命名空間，否則會出現503錯誤。
 
 若需要強行轉發服務流量到不同命名空間的服務，可考慮使用完整服務域名，
