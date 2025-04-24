@@ -81,6 +81,8 @@
 - [KubKey](#kubkey)
     - [下載KubeKey](#下載kubekey)
     - [使用KubeKey部署集群](#使用kubekey部署集群)
+    - [KubeKey安裝問題](#kubekey安裝問題)
+        - [卸載配置清理](#卸載配置清理)
 
 <!-- /TOC -->
 
@@ -2324,7 +2326,7 @@ $ kk version --show-supported-k8s <!-- 查看支持的Kubernetes版本 -->
 ```
 
 ## 使用KubeKey部署集群
-創建配置文件：
+部署集群前先生成配置文件：
 
 ```html
 <!-- 創建配置 -->
@@ -2333,10 +2335,6 @@ $ kk create config -f /xxx/xxx.yaml <!-- 創建配置到指定路徑下 -->
 $ kk create config -f /xxx/xxx.yaml --with-kubesphere <!-- 創建包含KubeSphere的配置，默認使用最新版本KubeSphere -->
 <!-- 創建指定Kubernetes和KubeSphere版本的配置 -->
 $ kk create config -f /xxx/xxx.yaml --with-kubernetes 版本號 --with-kubesphere 版本號
-
-<!-- 安裝Kubernetes -->
-$ kk create cluster <!-- 不指定配置文件，默認使用All-In—One模式安裝 -->
-$ kk create cluster -f /xxx/xxx.yaml
 ```
 
 默認創建的配置僅包含標準Kubernetes，
@@ -2364,20 +2362,27 @@ spec:
   controlPlaneEndpoint:
     internalLoadbalancer: haproxy # 設置負載均衡
     domain: lb.kubesphere.local
-    address: ""
+    address: "負載均衡地址"
     port: 6443
   kubernetes:
-    version: v1.27.2 # 設置Kubernetes版本
+    version: v1.23.10 # 設置Kubernetes版本，需要精確到子版本，若版本不支持會自動使用默認版本（視KubeKey版本而定）
     clusterName: cluster.local
-    autoRenewCerts: true
+    autoRenewCerts: true # 自動刷新證書
     containerManager: containerd # 設置容器運行時
     apiserverArgs:
-    - service-node-port-range=0-65535 # 開放NodePort端口
+    - service-node-port-range=1-65535 # 開放NodePort端口
   registry:
     privateRegistry: ""
     namespaceOverride: ""
     registryMirrors: [] # 設置第三方DockerHub鏡像源，牆國現已封殺Docker官方源，需要進行替換
     insecureRegistries: []
+  network:
+    plugin: calico # 網絡插件
+    kubePodsCIDR: 10.233.64.0/18,fc00::/48 # 指定容器網段（IPv6 CIDR需要KubeKey 3.1版本）
+    kubeServiceCIDR: 10.233.0.0/18,fd00::/108 # 指定服務網段
+  storage:
+    openebs:
+      basePath: /var/openebs/local # 指定PV的主機存儲路徑
   ...
 
 # KubeSphere配置
@@ -2399,8 +2404,13 @@ spec:
 修改生成的配置文件之後，部署集群：
 
 ```html
+<!-- 不指定配置文件，默認使用All-In—One模式安裝 -->
+$ kk create cluster
+
 <!-- 創建集群配置時若已使用 --with-kubesphere 參數，則無須在應用配置時使用該參數 -->
 $ kk create cluster -f /xxx/xxx.yaml
+<!-- 使用更高的日誌級別輸出，用於排查部署失敗流程 -->
+$ kk create cluster --debug -f /xxx/xxx.yaml
 
 <!--
 若生成配置文件時未使用 --with-kubesphere 參數生成KubeSphere相關配置項，
@@ -2415,10 +2425,39 @@ $ kk create cluster --with-kubesphere 版本號 -f /xxx/xxx.yaml
 $ kk delete cluster -f /xxx/xxx.yaml
 ```
 
+## KubeKey安裝問題
+KubeKey安裝過程中可能會存在各類問題，常見的排查流程：
+
+- 檢查etcd狀態及日誌
+
+    ```
+    # systemctl status etcd
+    # journalctl -ru etcd
+    ```
+
+- 檢查容器狀態及日誌
+
+    ```html
+    <!-- 使用Docker運行時則查看docker狀態 -->
+    # systemctl status contianerd
+    # journalctl -ru contianerd
+    ```
+
+- 檢查kubelet狀態及日誌
+
+    ```
+    # systemctl status kubelet
+    # journalctl -ru kubelet
+    ```
+
+### 卸載配置清理
 卸載集群時部分安裝的內容不會清除，如：
 
-- 二進制文件，如`containerd`、`crictl`、`helm`等
+- 二進制文件，如`/usr/bin/containerd`、`/usr/bin/crictl`、`/usr/bin/ctr`、`/usr/local/bin/*`（包括etcd相關、kube相關）等
 - 二進制文件對應的配置，如containerd的配置`/etc/containerd/config.toml`
+- 容器相關數據`/var/lib/contianerd`、容器服務`/etc/systemd/system/containerd.service`
+- 網絡插件工具`/opt/cni/bin/*`
+- kubectl配置`~/.kube/config`
 - `kubekey`路徑下生成的各個節點相關配置
 
 KubeKey的部分部署流程會以二進制文件的存在與否作為判斷流程是否重新觸發的標誌，
