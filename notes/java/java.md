@@ -324,23 +324,23 @@ char c2 = '\u0000'; // 正確
 ```java
 public class Main {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		System.out.println("99:");
-		System.out.printf("%%s: %s %n", 99);
-		System.out.printf("%%c: %c %n", 99);
-		System.out.printf("%%b: %b %n", 99);
-		System.out.printf("%%d: %d %n", 99);
-		System.out.printf("%%x: %x %n", 99);
-		System.out.printf("%%o: %o %n", 99);
-		System.out.printf("%%h: %h %n", 99);
+        System.out.println("99:");
+        System.out.printf("%%s: %s %n", 99);
+        System.out.printf("%%c: %c %n", 99);
+        System.out.printf("%%b: %b %n", 99);
+        System.out.printf("%%d: %d %n", 99);
+        System.out.printf("%%x: %x %n", 99);
+        System.out.printf("%%o: %o %n", 99);
+        System.out.printf("%%h: %h %n", 99);
 
-		System.out.println("\n99.99:");
-		System.out.printf("%%f: %f %n", 99.99);
-		System.out.printf("%%a: %a %n", 99.99);
-		System.out.printf("%%e: %e %n", 99.99);
-		System.out.printf("%%g: %g %n", 99.99);
-	}
+        System.out.println("\n99.99:");
+        System.out.printf("%%f: %f %n", 99.99);
+        System.out.printf("%%a: %a %n", 99.99);
+        System.out.printf("%%e: %e %n", 99.99);
+        System.out.printf("%%g: %g %n", 99.99);
+    }
 
 }
 ```
@@ -389,26 +389,26 @@ Java中無內置的無符號類型，則在表示大於`2 ^ 位寬 - 1`的數值
 
 1. `byte`類型數值`-11`，原碼爲：
 
-	`10001011`
+    `10001011`
 
-	計算機內部數值以補碼存儲，補碼表示爲：
+    計算機內部數值以補碼存儲，補碼表示爲：
 
-	`11110101` 對應無符號數值`245`（首位不視爲符號位）
+    `11110101` 對應無符號數值`245`（首位不視爲符號位）
 
 1. `byte`類型數值`-11`提升到`short`型，編譯器會保留數值含義（數值`-11`）不變，原碼爲：
 
-	`1000000000001011`
+    `1000000000001011`
 
-	在計算機中存儲的補碼爲：
+    在計算機中存儲的補碼爲：
 
-	`1111111111110101`
+    `1111111111110101`
 
-	若保留原先的無符號值含義（數值`245`），則原碼/補碼均應爲：
+    若保留原先的無符號值含義（數值`245`），則原碼/補碼均應爲：
 
-	`0000000011110101`
+    `0000000011110101`
 
-	對比可知**低8位**對應原先的數值，則應保留低8位數值，將高8位**置零**，
-	再與`0xFF`進行**邏輯與**操作可達到此效果。
+    對比可知**低8位**對應原先的數值，則應保留低8位數值，將高8位**置零**，
+    再與`0xFF`進行**邏輯與**操作可達到此效果。
 
 ## 字符串、數值轉換
 基礎數值類型存在`OOP`的封裝，用於在泛型中使用。
@@ -512,9 +512,9 @@ A.java:
 import b.B;
 
 public class A {
-	public static void main(String[] args) {
-		B.getNow();
-	}
+    public static void main(String[] args) {
+        B.getNow();
+    }
 }
 ```
 
@@ -524,9 +524,9 @@ B.java:
 package b;
 
 public class B {
-	public static void getNow() {
-		System.out.println("Success!");
-	}
+    public static void getNow() {
+        System.out.println("Success!");
+    }
 }
 ```
 
@@ -538,9 +538,9 @@ A.java:
 import static b.B.getNow;
 
 public class A {
-	public static void main(String[] args) {
-		getNow();
-	}
+    public static void main(String[] args) {
+        getNow();
+    }
 }
 ```
 
@@ -550,9 +550,9 @@ B.java:
 package b;
 
 public class B {
-	public static void getNow() {
-		System.out.println("Success!");
-	}
+    public static void getNow() {
+        System.out.println("Success!");
+    }
 }
 ```
 
@@ -676,11 +676,11 @@ Java中使用`enum`關鍵字來定義一個枚舉類。
 
 ```
 enum Enum {
-	ENUM_MEMBER_1,
-	ENUM_MEMBER_2,
-	ENUM_MEMBER_3,
-	ENUM_MEMBER_4,
-	...
+    ENUM_MEMBER_1,
+    ENUM_MEMBER_2,
+    ENUM_MEMBER_3,
+    ENUM_MEMBER_4,
+    ...
 }
 ```
 
@@ -699,37 +699,37 @@ enum Enum {
 ```java
 enum Enum {
 
-	// 定義枚舉成員，以分號做爲結束標誌
-	ENUM_MEMBER_1("member1") {
-		// 枚舉類成員內可以重寫枚舉類內定義的方法
-		@Override
-		int index() { return 1; }
-	},
-	ENUM_MEMBER_2("member2") {
-		@Override
-		int index() { return 2; }
-	},
-	ENUM_MEMBER_3("member3") {
-		@Override
-		int index() { return 3; }
-	},
-	ENUM_MEMBER_4("member4") {
+    // 定義枚舉成員，以分號做爲結束標誌
+    ENUM_MEMBER_1("member1") {
+        // 枚舉類成員內可以重寫枚舉類內定義的方法
+        @Override
+        int index() { return 1; }
+    },
+    ENUM_MEMBER_2("member2") {
+        @Override
+        int index() { return 2; }
+    },
+    ENUM_MEMBER_3("member3") {
+        @Override
+        int index() { return 3; }
+    },
+    ENUM_MEMBER_4("member4") {
 
-		@Override
-		int index() { return 4; }
+        @Override
+        int index() { return 4; }
 
-		// 枚舉類內可以定義新的方法，但該方法無法被訪問，因而沒有意義
-		public int size() { return 4; }
-	};
+        // 枚舉類內可以定義新的方法，但該方法無法被訪問，因而沒有意義
+        public int size() { return 4; }
+    };
 
-	// 自定義枚舉類的構造函數
-	Enum(String name) { this.name = name; }
+    // 自定義枚舉類的構造函數
+    Enum(String name) { this.name = name; }
 
-	String getName() { return name; }
+    String getName() { return name; }
 
-	int index() { return 0; }
+    int index() { return 0; }
 
-	private String name;
+    private String name;
 }
 ```
 
@@ -751,21 +751,21 @@ equals()方法定義在Object類型中，默認實現默認語義與==操作符�
 ```java
 public class TestEquals {
 
-	public int num;
-	public String str;
-	public Xxx xxx;
+    public int num;
+    public String str;
+    public Xxx xxx;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this) return true;
-		if (obj != null && obj instanceof TestEquals) {
-			TestEquals o = (TestEquals) obj;
-			return num == o.num &&
-				str == o.str &&
-				xxx.equals(o.xxx);
-		}
-		return false;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj != null && obj instanceof TestEquals) {
+            TestEquals o = (TestEquals) obj;
+            return num == o.num &&
+                str == o.str &&
+                xxx.equals(o.xxx);
+        }
+        return false;
+    }
 
 }
 ```
@@ -779,18 +779,18 @@ public class TestEquals {
 ```java
 public class TestEquals {
 
-	public int num;
-	public String str;
-	public Xxx xxx;
+    public int num;
+    public String str;
+    public Xxx xxx;
 
-	...
+    ...
 
-	@Override
-	public int hashCode() {
-		return 31 * num +
-				(str != null ? str.hashCode() : 0) +
-				(xxx != null ? xxx.hashCode() : 0);
-	}
+    @Override
+    public int hashCode() {
+        return 31 * num +
+                (str != null ? str.hashCode() : 0) +
+                (xxx != null ? xxx.hashCode() : 0);
+    }
 
 }
 ```
@@ -800,16 +800,16 @@ public class TestEquals {
 ```java
 public class TestEquals {
 
-	public int num;
-	public String str;
-	public Xxx xxx;
+    public int num;
+    public String str;
+    public Xxx xxx;
 
-	...
+    ...
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(num, str, xxx);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(num, str, xxx);
+    }
 
 }
 ```
@@ -828,19 +828,19 @@ Java中**基礎類型**如`int`、`double`等在複製時進行**值拷貝**，�
 ```java
 class TestClone implements Cloneable {
 
-	StringBuffer str = new StringBuffer("str");
+    StringBuffer str = new StringBuffer("str");
 
-	//重寫clone()方法
-	@Override
-	public TestClone clone() {
-		TestClone clone = null;
-		try {
-			clone = (TestClone) super.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return clone;
-	}
+    //重寫clone()方法
+    @Override
+    public TestClone clone() {
+        TestClone clone = null;
+        try {
+            clone = (TestClone) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return clone;
+    }
 }
 ```
 
@@ -851,12 +851,12 @@ class TestClone implements Cloneable {
 
 ```java
 public class Main {
-	public static void main(String[] args) {
-		TestClone test = new TestClone();
-		TestClone testClone = test.clone();
-		test.str.append("New");
-		System.out.println(testClone.str);
-	}
+    public static void main(String[] args) {
+        TestClone test = new TestClone();
+        TestClone testClone = test.clone();
+        test.str.append("New");
+        System.out.println(testClone.str);
+    }
 }
 ```
 
@@ -875,19 +875,19 @@ strNew
 ```java
 class TestClone implements Cloneable {
 
-	StringBuffer str = new StringBuffer("str");
+    StringBuffer str = new StringBuffer("str");
 
-	@Override
-	public TestClone clone() {
-		TestClone clone = null;
-		try {
-			clone = (TestClone) super.clone();
-			clone.str = new StringBuffer(str); //構建新的StringBuffer對象
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return clone;
-	}
+    @Override
+    public TestClone clone() {
+        TestClone clone = null;
+        try {
+            clone = (TestClone) super.clone();
+            clone.str = new StringBuffer(str); //構建新的StringBuffer對象
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return clone;
+    }
 }
 ```
 
@@ -904,12 +904,12 @@ class TestClone implements Cloneable {
 Java中一個類內的內容按照下列順序初始化：
 
 1. 靜態內容
-	1. 靜態變量
-	1. 靜態代碼塊
+    1. 靜態變量
+    1. 靜態代碼塊
 1. 非靜態內容
-	1. 非靜態變量
-	1. 非靜態代碼塊
-	1. 構造函數
+    1. 非靜態變量
+    1. 非靜態代碼塊
+    1. 構造函數
 
 存在繼承的場景下，按照下列順序初始化：
 
@@ -1021,18 +1021,18 @@ Java中的泛型方法支持自動類型推導，也可手動顯式指定泛型�
 
 ```java
 public class Test {
-	public static void main(String[] args) {
-		Func t = new Func();
-		System.out.println(t.getType(123));
-		System.out.println(t.getType("Test"));
-		System.out.println(t.<Double>getType(25.672)); //類型參數寫在方法名稱之前
-	}
+    public static void main(String[] args) {
+        Func t = new Func();
+        System.out.println(t.getType(123));
+        System.out.println(t.getType("Test"));
+        System.out.println(t.<Double>getType(25.672)); //類型參數寫在方法名稱之前
+    }
 }
 
 class Func {
-	public <T> T getType(T t) {
-		return t;
-	}
+    public <T> T getType(T t) {
+        return t;
+    }
 }
 ```
 
@@ -1054,18 +1054,18 @@ Test
 
 1. `member nested class`(成員嵌套類)：
 
-	成員嵌套類是作爲`enclosing class`的成員定義的，成員嵌套類有`enclosing class`屬性。
-	成員嵌套類可以使用訪問控制符，也可以用`static`、`final`關鍵字修飾。
+    成員嵌套類是作爲`enclosing class`的成員定義的，成員嵌套類有`enclosing class`屬性。
+    成員嵌套類可以使用訪問控制符，也可以用`static`、`final`關鍵字修飾。
 
 1. `local nested class`(局部嵌套類)：
 
-	局部嵌套類定義在方法裏面，局部嵌套類有`enclosing class`屬性和`enclosing method`。
-	局部嵌套類可以使用`final`關鍵字。
+    局部嵌套類定義在方法裏面，局部嵌套類有`enclosing class`屬性和`enclosing method`。
+    局部嵌套類可以使用`final`關鍵字。
 
 1. `anonymous nested class`(匿名嵌套類)：
 
-	匿名嵌套類沒有顯示的定義一個類，直接通過`new`操作符構造。
-	匿名嵌套類不使用任何關鍵字和訪問控制符。
+    匿名嵌套類沒有顯示的定義一個類，直接通過`new`操作符構造。
+    匿名嵌套類不使用任何關鍵字和訪問控制符。
 
 普通嵌套類內部不能定義`static`關鍵字修飾的成員，只有**靜態嵌套類**(`static nested class`)內部才能定義`static`成員。
 靜態嵌套類之外的所有嵌套類又被稱爲**內部類**(`inner class`)。
@@ -1076,33 +1076,33 @@ Test
 ```java
 class EnclosingClass {
 
-	// 成員嵌套類
-	class MemberNestedClass {
+    // 成員嵌套類
+    class MemberNestedClass {
 
-		//static int a; //錯誤，只有靜態嵌套類才能在內部定義靜態成員
+        //static int a; //錯誤，只有靜態嵌套類才能在內部定義靜態成員
 
-	}
+    }
 
-	// 使用static關鍵字修飾的成員嵌套類爲靜態嵌套類
-	static class StaticMemberNestedClass {
+    // 使用static關鍵字修飾的成員嵌套類爲靜態嵌套類
+    static class StaticMemberNestedClass {
 
-		static int a; //正確，可以正常定義靜態成員
+        static int a; //正確，可以正常定義靜態成員
 
-	}
+    }
 
-	void showLocalNestedClass() {
+    void showLocalNestedClass() {
 
-		// 局部嵌套類
-		class LocalNestedClass {
-		}
+        // 局部嵌套類
+        class LocalNestedClass {
+        }
 
-	}
+    }
 
-	// 匿名嵌套類
-	XXX xxx = new XXX {
-		@Override
-		...
-	};
+    // 匿名嵌套類
+    XXX xxx = new XXX {
+        @Override
+        ...
+    };
 
 }
 ```
@@ -1116,7 +1116,7 @@ class EnclosingClass {
 使用`Thread`創建線程的兩種方式：
 
 1. `Runnable`接口定義了`run()`方法，實現該接口，將需要併發執行的內容寫在`run()`方法中。
-	將實現`Runnable`的實例作爲參數構造`Thread`實例。
+    將實現`Runnable`的實例作爲參數構造`Thread`實例。
 1. `Thread`類實現了`Runnable`接口，因此也可以直接繼承`Thread`類重寫其`run()`方法。
 
 完成`Thread`對象的構建後，再調用其成員函數`start()`便會開啓線程執行`run()`中的代碼。
@@ -1130,26 +1130,26 @@ class EnclosingClass {
 
 ```java
 class TestThread extends Thread {
-	@Override
-	public void run() {
-		/* do something */
-	}
+    @Override
+    public void run() {
+        /* do something */
+    }
 }
 
 public class Main {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		Runnable runnable = () -> {
-			/* do something */
-		}
+        Runnable runnable = () -> {
+            /* do something */
+        }
 
-		// 使用繼承的線程類啓動線程
-		new TestThread().start();
+        // 使用繼承的線程類啓動線程
+        new TestThread().start();
 
-		// 使用Runnable實例構造Thread類啓動線程
-		new Thread(runnable).start();
-	}
+        // 使用Runnable實例構造Thread類啓動線程
+        new Thread(runnable).start();
+    }
 
 }
 ```
@@ -1183,41 +1183,41 @@ public static native void sleep(long millis) throws InterruptedException;
 ```java
 public
 class Thread implements Runnable {
-	...
-	/* Whether or not the thread is a daemon thread. */
-	private boolean     daemon = false;
-	...
+    ...
+    /* Whether or not the thread is a daemon thread. */
+    private boolean     daemon = false;
+    ...
 
-	/**
-	 * Marks this thread as either a {@linkplain #isDaemon daemon} thread
-	 * or a user thread. The Java Virtual Machine exits when the only
-	 * threads running are all daemon threads.
-	 *
-	 * <p> This method must be invoked before the thread is started.
-	 *
-	 * @param  on
-	 *         if {@code true}, marks this thread as a daemon thread
-	 *
-	 * @throws  IllegalThreadStateException
-	 *          if this thread is {@linkplain #isAlive alive}
-	 *
-	 * @throws  SecurityException
-	 *          if {@link #checkAccess} determines that the current
-	 *          thread cannot modify this thread
-	 */
-	public final void setDaemon(boolean on) { ... }
+    /**
+     * Marks this thread as either a {@linkplain #isDaemon daemon} thread
+     * or a user thread. The Java Virtual Machine exits when the only
+     * threads running are all daemon threads.
+     *
+     * <p> This method must be invoked before the thread is started.
+     *
+     * @param  on
+     *         if {@code true}, marks this thread as a daemon thread
+     *
+     * @throws  IllegalThreadStateException
+     *          if this thread is {@linkplain #isAlive alive}
+     *
+     * @throws  SecurityException
+     *          if {@link #checkAccess} determines that the current
+     *          thread cannot modify this thread
+     */
+    public final void setDaemon(boolean on) { ... }
 
-	/**
-	 * Tests if this thread is a daemon thread.
-	 *
-	 * @return  <code>true</code> if this thread is a daemon thread;
-	 *          <code>false</code> otherwise.
-	 * @see     #setDaemon(boolean)
-	 */
-	public final boolean isDaemon() {
-		return daemon;
-	}
-	...
+    /**
+     * Tests if this thread is a daemon thread.
+     *
+     * @return  <code>true</code> if this thread is a daemon thread;
+     *          <code>false</code> otherwise.
+     * @see     #setDaemon(boolean)
+     */
+    public final boolean isDaemon() {
+        return daemon;
+    }
+    ...
 }
 ```
 
@@ -1229,130 +1229,130 @@ class Thread implements Runnable {
 
 1. `synchronized`塊
 
-	基本語法如下：
+    基本語法如下：
 
-	```java
-	synchronized (object) {
-		/* do something */
-	}
-	```
+    ```java
+    synchronized (object) {
+        /* do something */
+    }
+    ```
 
-	其中，同步變量object可以是實例、this引用或是類型(`XXX.class`)。
+    其中，同步變量object可以是實例、this引用或是類型(`XXX.class`)。
 
-	以相同object爲同步對象的多個synchronized塊在同一時刻只能有一個synchronized塊被一個線程執行。
-	在該線程離開synchronized塊之前，其餘線程都會處於等待狀態。
+    以相同object爲同步對象的多個synchronized塊在同一時刻只能有一個synchronized塊被一個線程執行。
+    在該線程離開synchronized塊之前，其餘線程都會處於等待狀態。
 
-	- `object`爲實例時：
+    - `object`爲實例時：
 
-		同步變量需要爲**引用類型**(基礎類型如`int`、`float`等不能使用synchronized關鍵字進行同步)。
-		同步變量**不能**爲`null`。
-		同步變量爲類的實例成員時，需要注意同一個類的不同實例的相同實例成員是不同的。
-		同步變量爲類的靜態成員時，一個類的所有實例共享靜態成員，此時效果類似於同步類型(`XXX.class`)。
+        同步變量需要爲**引用類型**(基礎類型如`int`、`float`等不能使用synchronized關鍵字進行同步)。
+        同步變量**不能**爲`null`。
+        同步變量爲類的實例成員時，需要注意同一個類的不同實例的相同實例成員是不同的。
+        同步變量爲類的靜態成員時，一個類的所有實例共享靜態成員，此時效果類似於同步類型(`XXX.class`)。
 
-	- `object`爲`this`引用時：
+    - `object`爲`this`引用時：
 
-		同一實例中以`this`爲同步變量的代碼塊同時只能被一個線程執行。
-		不同實例之間以`this`爲同步對象的代碼塊無影響。
+        同一實例中以`this`爲同步變量的代碼塊同時只能被一個線程執行。
+        不同實例之間以`this`爲同步對象的代碼塊無影響。
 
-	- `object`爲類型時，所有以此爲同步變量的代碼塊都只能被一個線程執行。
+    - `object`爲類型時，所有以此爲同步變量的代碼塊都只能被一個線程執行。
 
 1. `synchronized`方法
 
-	`synchronized`關鍵字用於修飾方法，語法如下：
+    `synchronized`關鍵字用於修飾方法，語法如下：
 
-	```java
-	synchronized Type methodName(Type args...) {
-		/* do something */
-	}
-	```
+    ```java
+    synchronized Type methodName(Type args...) {
+        /* do something */
+    }
+    ```
 
-	被`synchronized`修飾的方法不可重入(同時只能被**一個**線程訪問)：
+    被`synchronized`修飾的方法不可重入(同時只能被**一個**線程訪問)：
 
-	- 修飾的方法爲**實例方法**時：
+    - 修飾的方法爲**實例方法**時：
 
-		同一實例的synchronized方法同時只能有一個被執行(不同實例則互不影響)。
-		等價於將整個方法體的內容寫在`synchronized (this) { ... }`中。
+        同一實例的synchronized方法同時只能有一個被執行(不同實例則互不影響)。
+        等價於將整個方法體的內容寫在`synchronized (this) { ... }`中。
 
-	- 修飾的方法爲**靜態方法**時：
+    - 修飾的方法爲**靜態方法**時：
 
-		所有該類中的靜態synchronized方法同時只能有一個被執行。
-		等價於將整個方法體的內容寫在`synchronized (類名.class) { ... }`中。
+        所有該類中的靜態synchronized方法同時只能有一個被執行。
+        等價於將整個方法體的內容寫在`synchronized (類名.class) { ... }`中。
 
-	一個類中被synchronized修飾的**實例方法**和被synchronized修飾的**靜態方法**的同步對象不同，因而不會相互同步。
+    一個類中被synchronized修飾的**實例方法**和被synchronized修飾的**靜態方法**的同步對象不同，因而不會相互同步。
 
-	示例：
+    示例：
 
-	```java
-	import static java.lang.Thread.sleep;
+    ```java
+    import static java.lang.Thread.sleep;
 
-	class Example {
+    class Example {
 
-		private static void show(String name) {
-			for (int i = 0; i < 5; i++) {
-				String threadName = Thread.currentThread().getName();
-				System.out.println(threadName + ": " + name);
-				try {
-					sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+        private static void show(String name) {
+            for (int i = 0; i < 5; i++) {
+                String threadName = Thread.currentThread().getName();
+                System.out.println(threadName + ": " + name);
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
-		public synchronized void showOne() {
-			show("showOne()");
-		}
+        public synchronized void showOne() {
+            show("showOne()");
+        }
 
-		public synchronized void showTwo() {
-			show("showTwo()");
-		}
+        public synchronized void showTwo() {
+            show("showTwo()");
+        }
 
-		public static synchronized void showStatic() {
-			show("showStatic()");
-		}
-	}
+        public static synchronized void showStatic() {
+            show("showStatic()");
+        }
+    }
 
-	public class Main {
+    public class Main {
 
-		public static void main(String[] args) {
+        public static void main(String[] args) {
 
-			Example example = new Example();
+            Example example = new Example();
 
-			new Thread(() -> example.showOne(), "Thread One").start();
-			new Thread(() -> example.showTwo(), "Thread Two").start();
-			new Thread(() -> Example.showStatic(), "Thread Three").start();
-		}
+            new Thread(() -> example.showOne(), "Thread One").start();
+            new Thread(() -> example.showTwo(), "Thread Two").start();
+            new Thread(() -> Example.showStatic(), "Thread Three").start();
+        }
 
-	}
-	```
+    }
+    ```
 
-	輸出結果：
+    輸出結果：
 
-	```
-	Thread One: showOne()
-	Thread Three: showStatic()
-	Thread One: showOne()
-	Thread Three: showStatic()
-	Thread One: showOne()
-	Thread Three: showStatic()
-	Thread Three: showStatic()
-	Thread One: showOne()
-	Thread One: showOne()
-	Thread Three: showStatic()
-	Thread Two: showTwo()
-	Thread Two: showTwo()
-	Thread Two: showTwo()
-	Thread Two: showTwo()
-	Thread Two: showTwo()
-	```
+    ```
+    Thread One: showOne()
+    Thread Three: showStatic()
+    Thread One: showOne()
+    Thread Three: showStatic()
+    Thread One: showOne()
+    Thread Three: showStatic()
+    Thread Three: showStatic()
+    Thread One: showOne()
+    Thread One: showOne()
+    Thread Three: showStatic()
+    Thread Two: showTwo()
+    Thread Two: showTwo()
+    Thread Two: showTwo()
+    Thread Two: showTwo()
+    Thread Two: showTwo()
+    ```
 
-	輸出結果分析：
+    輸出結果分析：
 
-	`Example`類中的三個成員方法都使用了`synchronized`關鍵字進行修飾。
-	`showOne()`、`showTwo()`爲實例方法，`showStatic()`爲靜態方法。
+    `Example`類中的三個成員方法都使用了`synchronized`關鍵字進行修飾。
+    `showOne()`、`showTwo()`爲實例方法，`showStatic()`爲靜態方法。
 
-	來自同一個實例在不同線程中的兩個實例方法**沒有**併發執行：`showTwo()`一直等到`showOne()`結束纔開始執行。
-	靜態方法與實例方法同步對象不同，正常併發執行：`showOne()`與`showStatic()`交錯打印輸出。
+    來自同一個實例在不同線程中的兩個實例方法**沒有**併發執行：`showTwo()`一直等到`showOne()`結束纔開始執行。
+    靜態方法與實例方法同步對象不同，正常併發執行：`showOne()`與`showStatic()`交錯打印輸出。
 
 ### synchronized工作機制
 Java為每個對象分配了一個monitor，monitor會強制排它性訪問一個對象的synchronized方法/代碼塊，
@@ -1368,11 +1368,11 @@ Java為每個對象分配了一個monitor，monitor會強制排它性訪問一�
 ```java
 class Counter
 {
-	private int count = 0;
-	public void increment() {
-		int n = count;
-		count = n + 1;
-	}
+    private int count = 0;
+    public void increment() {
+        int n = count;
+        count = n + 1;
+    }
 }
 ```
 
@@ -1404,11 +1404,11 @@ counter.increment();
 ```java
 class Counter
 {
-	private int count = 0;
-	public synchronized void increment() {
-		int n = count;
-		count = n + 1;
-	}
+    private int count = 0;
+    public synchronized void increment() {
+        int n = count;
+        count = n + 1;
+    }
 }
 ```
 
@@ -1486,7 +1486,7 @@ Get lock in Thread[Thread-0,5,main]
 
 ```java
 public interface Runnable {
-	void run();
+    void run();
 }
 ```
 
@@ -1496,7 +1496,7 @@ public interface Runnable {
 
 ```java
 public interface Callable<V> {
-	V call() throws Exception;
+    V call() throws Exception;
 }
 ```
 
@@ -1507,17 +1507,17 @@ public interface Callable<V> {
 ```java
 public interface Future<V> {
 
-	// 嘗試取消任務的執行，參數mayInterruptIfRunning表示是否允許中斷，返回是否取消了任務
-	boolean cancel(boolean mayInterruptIfRunning);
+    // 嘗試取消任務的執行，參數mayInterruptIfRunning表示是否允許中斷，返回是否取消了任務
+    boolean cancel(boolean mayInterruptIfRunning);
 
-	// 獲取任務的取消/執行狀態
-	boolean isCancelled();
-	boolean isDone();
+    // 獲取任務的取消/執行狀態
+    boolean isCancelled();
+    boolean isDone();
 
-	// 獲取結果
-	V get() throws InterruptedException, ExecutionException;
-	V get(long timeout, TimeUnit unit)
-		throws InterruptedException, ExecutionException, TimeoutException;
+    // 獲取結果
+    V get() throws InterruptedException, ExecutionException;
+    V get(long timeout, TimeUnit unit)
+        throws InterruptedException, ExecutionException, TimeoutException;
 }
 ```
 
@@ -1525,7 +1525,7 @@ public interface Future<V> {
 
 ```java
 public interface Executor {
-	void execute(Runnable command);
+    void execute(Runnable command);
 }
 ```
 
@@ -1537,46 +1537,46 @@ public interface Executor {
 ```java
 public interface ExecutorService extends Executor {
 
-	// 關閉ExecutorService，調用後之前已接收的任務繼續執行，但不再接收新的任務
-	// 線程池使用完畢需要調用該方法關閉線程池
-	void shutdown();
+    // 關閉ExecutorService，調用後之前已接收的任務繼續執行，但不再接收新的任務
+    // 線程池使用完畢需要調用該方法關閉線程池
+    void shutdown();
 
-	// 嘗試終止所有正在執行的任務，並終止等待執行的任務並返回這些任務的列表
-	List<Runnable> shutdownNow();
+    // 嘗試終止所有正在執行的任務，並終止等待執行的任務並返回這些任務的列表
+    List<Runnable> shutdownNow();
 
-	// 返回是否showdown
-	boolean isShutdown();
+    // 返回是否showdown
+    boolean isShutdown();
 
-	// 返回shutdown()後所有剩餘任務是否執行完畢
-	boolean isTerminated();
+    // 返回shutdown()後所有剩餘任務是否執行完畢
+    boolean isTerminated();
 
-	// shutdown()後等待剩餘任務執行一定時間，在指定時間結束後返回所有任務是否執行完畢
-	boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
+    // shutdown()後等待剩餘任務執行一定時間，在指定時間結束後返回所有任務是否執行完畢
+    boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
 
-	// 提交任務，返回該任務的Future，非阻塞
-	<T> Future<T> submit(Callable<T> task);
-	<T> Future<T> submit(Runnable task, T result);
-	Future<?> submit(Runnable task);
+    // 提交任務，返回該任務的Future，非阻塞
+    <T> Future<T> submit(Callable<T> task);
+    <T> Future<T> submit(Runnable task, T result);
+    Future<?> submit(Runnable task);
 
-	// 執行給定的任務集合，同步等待集合中所有的任務完成，並返回這些任務的Future
-	<T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException;
-	/*
-		執行給定的任務集合，等待指定時間，超過等待時間則終止尚未完成的任務。
-		返回給定時間內已完成的任務的Future，若在等待時間結束前所有任務都已完成，則方法提前返回。
-	*/
-	<T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
-		long timeout, TimeUnit unit) throws InterruptedException;
+    // 執行給定的任務集合，同步等待集合中所有的任務完成，並返回這些任務的Future
+    <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException;
+    /*
+        執行給定的任務集合，等待指定時間，超過等待時間則終止尚未完成的任務。
+        返回給定時間內已完成的任務的Future，若在等待時間結束前所有任務都已完成，則方法提前返回。
+    */
+    <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
+        long timeout, TimeUnit unit) throws InterruptedException;
 
-	// 執行給定的任務集合，同步等待，直到有任意任務完成時，方法返回該任務的執行結果，同時停止執行其它仍在執行的任務
-	<T> T invokeAny(Collection<? extends Callable<T>> tasks)
-		throws InterruptedException, ExecutionException;
-	/*
-		執行給定的任務集合，等待指定時間。
-		在指定時間內有任意任務完成，則返回該任務的執行結果，同時停止其它正在執行的任務。
-		若沒有任何任務完成則拋出TimeoutException異常。
-	*/
-	<T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
-		throws InterruptedException, ExecutionException, TimeoutException;
+    // 執行給定的任務集合，同步等待，直到有任意任務完成時，方法返回該任務的執行結果，同時停止執行其它仍在執行的任務
+    <T> T invokeAny(Collection<? extends Callable<T>> tasks)
+        throws InterruptedException, ExecutionException;
+    /*
+        執行給定的任務集合，等待指定時間。
+        在指定時間內有任意任務完成，則返回該任務的執行結果，同時停止其它正在執行的任務。
+        若沒有任何任務完成則拋出TimeoutException異常。
+    */
+    <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+        throws InterruptedException, ExecutionException, TimeoutException;
 }
 ```
 
@@ -1601,37 +1601,37 @@ public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize);
 ```java
 public class Main {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		// 創建併發任務
-		Callable<XXX> callable1 = () -> {
-			/* do something... */
-			return xxx;
-		};
-		Callable<XXX> callable2 = () -> {
-			/* do something... */
-			return xxx;
-		};
-		// create more tasks...
+        // 創建併發任務
+        Callable<XXX> callable1 = () -> {
+            /* do something... */
+            return xxx;
+        };
+        Callable<XXX> callable2 = () -> {
+            /* do something... */
+            return xxx;
+        };
+        // create more tasks...
 
-		// 創建線程池
-		ExecutorService service = Executors.newCachedThreadPool();
+        // 創建線程池
+        ExecutorService service = Executors.newCachedThreadPool();
 
-		// 提交任務，獲取結果Future
-		List<Future<XXX>> results = new ArrayList();
-		results.add(service.submit(callable1));
-		results.add(service.submit(callable2));
-		// add more tasks...
+        // 提交任務，獲取結果Future
+        List<Future<XXX>> results = new ArrayList();
+        results.add(service.submit(callable1));
+        results.add(service.submit(callable2));
+        // add more tasks...
 
-		// 處理任務結果
-		for (Future<XXX> result : results) {
-			XXX xxx = result.get();
-			/* do something... */
-		}
+        // 處理任務結果
+        for (Future<XXX> result : results) {
+            XXX xxx = result.get();
+            /* do something... */
+        }
 
-		// 關閉線程池，沒有關閉線程池的操作main函數會一直不返回，程序也不會退出
-		service.shutdown();
-	}
+        // 關閉線程池，沒有關閉線程池的操作main函數會一直不返回，程序也不會退出
+        service.shutdown();
+    }
 
 }
 ```
@@ -1650,18 +1650,18 @@ public class Main {
 ```java
 public interface CompletionService<V> {
 
-	// 提交任務
-	Future<V> submit(Callable<V> task);
-	Future<V> submit(Runnable task, V result);
+    // 提交任務
+    Future<V> submit(Callable<V> task);
+    Future<V> submit(Runnable task, V result);
 
-	// 獲取下一個完成的任務的結果Future，若沒有任務完成，則會同步等待直至有任務完成
-	Future<V> take() throws InterruptedException;
+    // 獲取下一個完成的任務的結果Future，若沒有任務完成，則會同步等待直至有任務完成
+    Future<V> take() throws InterruptedException;
 
-	// 獲取下一個完成的任務的結果Future，若沒有任務完成，則返回null
-	Future<V> poll();
+    // 獲取下一個完成的任務的結果Future，若沒有任務完成，則返回null
+    Future<V> poll();
 
-	// 獲取下一個完成的任務的結果Future，若沒有任務，則等待指定時間，指定時間結束後仍沒有任務完成則返回null
-	Future<V> poll(long timeout, TimeUnit unit) throws InterruptedException;
+    // 獲取下一個完成的任務的結果Future，若沒有任務，則等待指定時間，指定時間結束後仍沒有任務完成則返回null
+    Future<V> poll(long timeout, TimeUnit unit) throws InterruptedException;
 }
 ```
 
@@ -1676,43 +1676,43 @@ public ExecutorCompletionService(Executor executor);
 ```java
 public class Main {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		// 創建併發任務
-		Callable<XXX> callable1 = () -> {
-			/* do something... */
-			return xxx;
-		};
-		Callable<XXX> callable2 = () -> {
-			/* do something... */
-			return xxx;
-		};
-		// create more tasks...
+        // 創建併發任務
+        Callable<XXX> callable1 = () -> {
+            /* do something... */
+            return xxx;
+        };
+        Callable<XXX> callable2 = () -> {
+            /* do something... */
+            return xxx;
+        };
+        // create more tasks...
 
-		// 創建線程池
-		ExecutorService service = Executors.newCachedThreadPool();
+        // 創建線程池
+        ExecutorService service = Executors.newCachedThreadPool();
 
-		// 使用ExecutorService構建CompletionService實例
-		CompletionService<XXX> completionService = new ExecutorCompletionService(service);
+        // 使用ExecutorService構建CompletionService實例
+        CompletionService<XXX> completionService = new ExecutorCompletionService(service);
 
-		// 提交任務
-		completionService.submit(callable1);
-		completionService.submit(callable2);
-		// add more tasks...
+        // 提交任務
+        completionService.submit(callable1);
+        completionService.submit(callable2);
+        // add more tasks...
 
-		// 處理任務結果
-		for (int i = 0; i < 任務數量; i++) {
-			/*
-				使用take()/pull()等方法獲取下一個執行完畢任務結果。
-				使用take()方法獲取結果時只要服務中提交的任意任務完成方法就會返回，不必擔心在某一個任務上等待時間過長。
-			*/
-			XXX xxx = completionService.take().get();
-			/* do something... */
-		}
+        // 處理任務結果
+        for (int i = 0; i < 任務數量; i++) {
+            /*
+                使用take()/pull()等方法獲取下一個執行完畢任務結果。
+                使用take()方法獲取結果時只要服務中提交的任意任務完成方法就會返回，不必擔心在某一個任務上等待時間過長。
+            */
+            XXX xxx = completionService.take().get();
+            /* do something... */
+        }
 
-		// 關閉線程池，CompletionService一樣需要通過ExecutorService關閉線程池
-		service.shutdown();
-	}
+        // 關閉線程池，CompletionService一樣需要通過ExecutorService關閉線程池
+        service.shutdown();
+    }
 
 }
 ```
@@ -1746,44 +1746,44 @@ Java中提供了一系列**內置註解**，常用的有：
 
 1. `@Target`用於限制註解的範圍，參數爲註解範圍的數組（可以同時設定多個註解範圍，用花括號包裹），取值如下所示：
 
-	- `ElementType.CONSTRUCTOR` 描述構造器
-	- `ElementType.FIELD` 描述域
-	- `ElementType.LOCAL_VARIABLE` 描述局部變量
-	- `ElementType.METHOD` 描述方法
-	- `ElementType.PACKAGE` 描述包
-	- `ElementType.PARAMETER` 描述參數
-	- `ElementType.TYPE` 描述類、接口(包括註解類型)或`enum`聲明
+    - `ElementType.CONSTRUCTOR` 描述構造器
+    - `ElementType.FIELD` 描述域
+    - `ElementType.LOCAL_VARIABLE` 描述局部變量
+    - `ElementType.METHOD` 描述方法
+    - `ElementType.PACKAGE` 描述包
+    - `ElementType.PARAMETER` 描述參數
+    - `ElementType.TYPE` 描述類、接口(包括註解類型)或`enum`聲明
 
 1. `@Retention`設置註解的**生命週期**，取值如下所示：
 
-	- `RetentionPolicy.SOURCE`
+    - `RetentionPolicy.SOURCE`
 
-		註解在編譯階段丟棄。
-		被修飾的註解在編譯結束之後就不再有任何意義，不會寫入字節碼。
-		`@Override`、`@SuppressWarnings`屬於此類註解。
+        註解在編譯階段丟棄。
+        被修飾的註解在編譯結束之後就不再有任何意義，不會寫入字節碼。
+        `@Override`、`@SuppressWarnings`屬於此類註解。
 
-	- `RetentionPolicy.CLASS`
+    - `RetentionPolicy.CLASS`
 
-		在類加載的時候丟棄註解信息。
-		在字節碼文件的處理中有用。註解**默認使用**這種方式。
+        在類加載的時候丟棄註解信息。
+        在字節碼文件的處理中有用。註解**默認使用**這種方式。
 
-	- `RetentionPolicy.RUNTIME`
+    - `RetentionPolicy.RUNTIME`
 
-		不丟棄註解信息。
-		運行期也保留該註解，可以使用反射機制讀取該註解的信息。
-		**自定義註解**通常使用這種方式。
+        不丟棄註解信息。
+        運行期也保留該註解，可以使用反射機制讀取該註解的信息。
+        **自定義註解**通常使用這種方式。
 
 1. `@Inherited`爲**標記註解**，用於設置註解的繼承性：
 
-	被改註解修飾的註解用在類中是**可繼承的**，
-	但類不從它所實現的接口繼承註解，方法並不從它所重載的方法繼承註解。
-	對於設置了`@Inherited`和`@Retention`元註解的註解，
-	並且聲明週期設爲`RetentionPolicy.RUNTIME`時，
-	則使用`反射`機制來獲取元素註解，且檢查不到該註解時，
-	會一直沿着繼承樹向上搜索，直到查找到了該註解或到達類繼承結構的頂層。
+    被改註解修飾的註解用在類中是**可繼承的**，
+    但類不從它所實現的接口繼承註解，方法並不從它所重載的方法繼承註解。
+    對於設置了`@Inherited`和`@Retention`元註解的註解，
+    並且聲明週期設爲`RetentionPolicy.RUNTIME`時，
+    則使用`反射`機制來獲取元素註解，且檢查不到該註解時，
+    會一直沿着繼承樹向上搜索，直到查找到了該註解或到達類繼承結構的頂層。
 
 1. `@Documented`設置在使用`javadoc`生成API時記錄註解信息。
-	默認情況下，`javadoc`**不會**記錄註解信息。
+    默認情況下，`javadoc`**不會**記錄註解信息。
 
 ## 自定義註解
 `Java`中的註解實際上是**接口**(`interface`)。
@@ -1795,12 +1795,12 @@ Java中提供了一系列**內置註解**，常用的有：
 - 定義註解時，使用`value`做爲註解參數名稱，則使用註解時參數名稱可省略。
 - 定義註解時，參數的訪問權限只能爲`public`或**默認**權限。
 - 註解參數支持的數據類型：
-	1. 所有基本數據類型(`int`、`float`、`boolean`、`byte`、`double`、`char`、`long`、`short`)。
-	1. `String`類型。
-	1. `Class`類型。
-	1. `enum`類型。
-	1. `Annotation`類型。
-	1. 上述類型的**一維**數組。
+    1. 所有基本數據類型(`int`、`float`、`boolean`、`byte`、`double`、`char`、`long`、`short`)。
+    1. `String`類型。
+    1. `Class`類型。
+    1. `enum`類型。
+    1. `Annotation`類型。
+    1. 上述類型的**一維**數組。
 
 示例：
 
@@ -1811,9 +1811,9 @@ import java.lang.annotation.*;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @interface Test {
-	String value();
-	String test() default "Test";
-	int[] numbers() default { 0, 0, 0 };
+    String value();
+    String test() default "Test";
+    int[] numbers() default { 0, 0, 0 };
 }
 
 @Test(value = "TestValue", test = "Schwarzes marken", numbers = { 6, 6, 6 })
@@ -1823,11 +1823,11 @@ class TestAnnotation extends A {}
 
 public class Main {
 
-	public static void main(String[] args) {
-		//註解無需實例，可直接通過Class類獲得
-		Test test = TestAnnotation.class.getAnnotation(Test.class);
-		System.out.println(test.value() + ": " + test.test() + " " + test.numbers()[0]);
-	}
+    public static void main(String[] args) {
+        //註解無需實例，可直接通過Class類獲得
+        Test test = TestAnnotation.class.getAnnotation(Test.class);
+        System.out.println(test.value() + ": " + test.test() + " " + test.numbers()[0]);
+    }
 
 }
 ```
@@ -1879,70 +1879,70 @@ TestValue: Schwarzes marken 6
 
 1. 獲取類型**完整路徑**：
 
-	`Class`類型的`getName()`方法返回類型的完整路徑：
+    `Class`類型的`getName()`方法返回類型的完整路徑：
 
-	```java
-	Xxx.class.getName();
-	```
+    ```java
+    Xxx.class.getName();
+    ```
 
 1. 獲取類型的**成員變量**：
 
-	獲取所有成員字段信息：
+    獲取所有成員字段信息：
 
-	```java
-	public Field[] getFields() throws SecurityException;
-	public Field[] getDeclaredFields() throws SecurityException;
-	```
+    ```java
+    public Field[] getFields() throws SecurityException;
+    public Field[] getDeclaredFields() throws SecurityException;
+    ```
 
-	通過字段名稱獲取指定字段的成員信息：
+    通過字段名稱獲取指定字段的成員信息：
 
-	```java
-	public Field getField(String name) throws NoSuchFieldException, SecurityException;
-	public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException;
-	```
+    ```java
+    public Field getField(String name) throws NoSuchFieldException, SecurityException;
+    public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException;
+    ```
 
 1. 獲取類型的**成員方法**：
 
-	獲取所有成員方法信息：
+    獲取所有成員方法信息：
 
-	```java
-	public Method[] getMethods() throws SecurityException;
-	public Method[] getDeclaredMethods() throws SecurityException;
-	```
+    ```java
+    public Method[] getMethods() throws SecurityException;
+    public Method[] getDeclaredMethods() throws SecurityException;
+    ```
 
-	獲取指定參數的方法信息，`name`參數爲方法名稱，`parameterTypes`參數爲方法參數類型(變長參數)：
+    獲取指定參數的方法信息，`name`參數爲方法名稱，`parameterTypes`參數爲方法參數類型(變長參數)：
 
-	```java
-	public Method getMethod(String name, Class<?>... parameterTypes)
-			throws NoSuchMethodException, SecurityException;
-	public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
-			throws NoSuchMethodException, SecurityException;
-	```
+    ```java
+    public Method getMethod(String name, Class<?>... parameterTypes)
+            throws NoSuchMethodException, SecurityException;
+    public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
+            throws NoSuchMethodException, SecurityException;
+    ```
 
 1. 獲取類型的**構造方法**
 
-	獲取所有的構造方法信息：
+    獲取所有的構造方法信息：
 
-	```java
-	// 構造方法不存在繼承關係，getConstructors()/getgetDeclaredConstructors()區別僅在於獲取構造方法的訪問權限不同
-	public Constructor<?>[] getConstructors() throws SecurityException;
-	public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
-	```
+    ```java
+    // 構造方法不存在繼承關係，getConstructors()/getgetDeclaredConstructors()區別僅在於獲取構造方法的訪問權限不同
+    public Constructor<?>[] getConstructors() throws SecurityException;
+    public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
+    ```
 
-	獲取指定參數的構造方法信息，`parameterTypes`參數爲方法參數類型(變長參數)：
+    獲取指定參數的構造方法信息，`parameterTypes`參數爲方法參數類型(變長參數)：
 
-	```java
-	public Constructor<T> getConstructor(Class<?>... parameterTypes)
-			throws NoSuchMethodException, SecurityException;
-	public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
-			throws NoSuchMethodException, SecurityException;
-	```
+    ```java
+    public Constructor<T> getConstructor(Class<?>... parameterTypes)
+            throws NoSuchMethodException, SecurityException;
+    public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
+            throws NoSuchMethodException, SecurityException;
+    ```
 
-	內部類獲取外部類的構造方法(非內部類返回`null`)：
+    內部類獲取外部類的構造方法(非內部類返回`null`)：
 
-	```java
-	public Constructor<?> getEnclosingConstructor() throws SecurityException;
-	```
+    ```java
+    public Constructor<?> getEnclosingConstructor() throws SecurityException;
+    ```
 
 示例：
 
@@ -1955,87 +1955,87 @@ import java.lang.reflect.Method;
 
 class Base {
 
-	public int num = 666;
+    public int num = 666;
 
-	public Base() {}
+    public Base() {}
 
-	public int getNum() {
-		return num;
-	}
+    public int getNum() {
+        return num;
+    }
 
 }
 
 class Test extends Base {
 
-	public int num0 = 0;
-	protected int num1 = 1;
-	private int num2 = 2;
+    public int num0 = 0;
+    protected int num1 = 1;
+    private int num2 = 2;
 
-	public Test() {}
+    public Test() {}
 
-	private Test(int num0, int num1, int num2) {
-		this.num0 = num0;
-		this.num1 = num1;
-		this.num2 = num2;
-	}
+    private Test(int num0, int num1, int num2) {
+        this.num0 = num0;
+        this.num1 = num1;
+        this.num2 = num2;
+    }
 
-	public int getNum0() {
-		return num0;
-	}
+    public int getNum0() {
+        return num0;
+    }
 
-	protected int getNum1() {
-		return num1;
-	}
+    protected int getNum1() {
+        return num1;
+    }
 
-	private int getNum2() {
-		return num2;
-	}
+    private int getNum2() {
+        return num2;
+    }
 
-	private void getNum2(int num1, int num2) {
-		System.out.println(num1 + " " + num2);
-	}
+    private void getNum2(int num1, int num2) {
+        System.out.println(num1 + " " + num2);
+    }
 }
 
 public class Main {
 
-	public static void main(String[] args) throws ClassNotFoundException {
+    public static void main(String[] args) throws ClassNotFoundException {
 
-		Class classTest = Class.forName("com.dainslef.Test");
+        Class classTest = Class.forName("com.dainslef.Test");
 
-		System.out.println("Class Full Name:");
-		System.out.print(classTest.getName());
+        System.out.println("Class Full Name:");
+        System.out.print(classTest.getName());
 
-		System.out.println("\n\nPublic Fileds:");
-		for (Field field : classTest.getFields())
-			System.out.print(field.getName() + " ");
+        System.out.println("\n\nPublic Fileds:");
+        for (Field field : classTest.getFields())
+            System.out.print(field.getName() + " ");
 
-		System.out.println("\n\nAll Fileds: ");
-		for (Field field : classTest.getDeclaredFields())
-			System.out.print(field.getName() + " ");
+        System.out.println("\n\nAll Fileds: ");
+        for (Field field : classTest.getDeclaredFields())
+            System.out.print(field.getName() + " ");
 
-		// 獲取到了繼承的方法
-		System.out.println("\n\nPublic Methods:");
-		for (Method method : classTest.getMethods())
-			System.out.print(method.getName() + " ");
+        // 獲取到了繼承的方法
+        System.out.println("\n\nPublic Methods:");
+        for (Method method : classTest.getMethods())
+            System.out.print(method.getName() + " ");
 
-		// 獲取內容不包括繼承方法，但包含定義的保護/私有方法
-		System.out.println("\n\nAll Methods:");
-		for (Method method : classTest.getDeclaredMethods())
-			System.out.print(method.getName() + " ");
+        // 獲取內容不包括繼承方法，但包含定義的保護/私有方法
+        System.out.println("\n\nAll Methods:");
+        for (Method method : classTest.getDeclaredMethods())
+            System.out.print(method.getName() + " ");
 
-		// 構造方法不存在繼承的概念，因而只獲取到當前類公有構造器
-		System.out.println("\n\nPublic Constructor:");
-		for (Constructor constructor : classTest.getConstructors())
-			System.out.print(constructor.getName() + " ");
+        // 構造方法不存在繼承的概念，因而只獲取到當前類公有構造器
+        System.out.println("\n\nPublic Constructor:");
+        for (Constructor constructor : classTest.getConstructors())
+            System.out.print(constructor.getName() + " ");
 
-		System.out.println("\n\nAll Constructor:");
-		for (Constructor constructor : classTest.getDeclaredConstructors())
-			System.out.print(constructor.getName() + " ");
+        System.out.println("\n\nAll Constructor:");
+        for (Constructor constructor : classTest.getDeclaredConstructors())
+            System.out.print(constructor.getName() + " ");
 
-		// 對於非內部類，獲取外部類的構造函數返回null
-		System.out.println("\n\nEnclosing Constructor:");
-		System.out.println(classTest.getEnclosingConstructor());
-	}
+        // 對於非內部類，獲取外部類的構造函數返回null
+        System.out.println("\n\nEnclosing Constructor:");
+        System.out.println(classTest.getEnclosingConstructor());
+    }
 }
 ```
 
@@ -2083,7 +2083,7 @@ public T newInstance() throws InstantiationException, IllegalAccessException;
 ```java
 public Constructor<?>[] getDeclaredConstructors() throws SecurityException;
 public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
-		throws NoSuchMethodException, SecurityException;
+        throws NoSuchMethodException, SecurityException;
 ```
 
 實例如下代碼所示：
@@ -2096,36 +2096,36 @@ import java.lang.reflect.InvocationTargetException;
 
 class Test {
 
-	int num = 0;
+    int num = 0;
 
-	public Test() {}
+    public Test() {}
 
-	private Test(int num) {
-		this.num = num;
-	}
+    private Test(int num) {
+        this.num = num;
+    }
 
-	public void showNum() {
-		System.out.println(num);
-	}
+    public void showNum() {
+        System.out.println(num);
+    }
 
 }
 
 public class Main {
 
-	public static void main(String[] args) throws
-			IllegalAccessException,
-			InstantiationException,
-			NoSuchMethodException,
-			InvocationTargetException {
+    public static void main(String[] args) throws
+            IllegalAccessException,
+            InstantiationException,
+            NoSuchMethodException,
+            InvocationTargetException {
 
-		// 直接通過Class類調用無參構造函數
-		Test.class.newInstance().showNum();
+        // 直接通過Class類調用無參構造函數
+        Test.class.newInstance().showNum();
 
-		// 獲取構造器對象
-		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
-		constructor.setAccessible(true); // 對於私有構造器默認是無法訪問的，需要設置權限才能正常調用
-		constructor.newInstance(200).showNum();
-	}
+        // 獲取構造器對象
+        Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
+        constructor.setAccessible(true); // 對於私有構造器默認是無法訪問的，需要設置權限才能正常調用
+        constructor.newInstance(200).showNum();
+    }
 }
 ```
 
@@ -2144,7 +2144,7 @@ public class Main {
 
 ```java
 public Object invoke(Object var1, Object... var2)
-		throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+        throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 ```
 
 與`Constructor`類似，如果獲取到的`Method`對象代表的是非公有成員方法，
@@ -2161,35 +2161,35 @@ import java.lang.reflect.Method;
 
 class Test {
 
-	private int num = 0;
+    private int num = 0;
 
-	private Test(int num) {
-		this.num = num;
-	}
+    private Test(int num) {
+        this.num = num;
+    }
 
-	private void showNum(int num) {
-		System.out.println(this.num + num);
-	}
+    private void showNum(int num) {
+        System.out.println(this.num + num);
+    }
 
 }
 
 public class Main {
 
-	public static void main(String[] args) throws
-			IllegalAccessException,
-			InstantiationException,
-			NoSuchMethodException,
-			InvocationTargetException {
+    public static void main(String[] args) throws
+            IllegalAccessException,
+            InstantiationException,
+            NoSuchMethodException,
+            InvocationTargetException {
 
-		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
-		constructor.setAccessible(true); //設置私有構造器可訪問
+        Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
+        constructor.setAccessible(true); //設置私有構造器可訪問
 
-		Test test = constructor.newInstance(200); //通過私有構造器構造對象，並傳入初值
+        Test test = constructor.newInstance(200); //通過私有構造器構造對象，並傳入初值
 
-		Method method = Test.class.getDeclaredMethod("showNum", int.class);
-		method.setAccessible(true); //設置方法的訪問權限
-		method.invoke(test, 100); //調用私有方法showNum()
-	}
+        Method method = Test.class.getDeclaredMethod("showNum", int.class);
+        method.setAccessible(true); //設置方法的訪問權限
+        method.invoke(test, 100); //調用私有方法showNum()
+    }
 }
 ```
 
@@ -2225,37 +2225,37 @@ import java.lang.reflect.InvocationTargetException;
 
 class Test {
 
-	private int num = 0;
+    private int num = 0;
 
-	private Test(int num) {
-		this.num = num;
-	}
+    private Test(int num) {
+        this.num = num;
+    }
 
-	private void showNum(int num) {
-		System.out.println(this.num + num);
-	}
+    private void showNum(int num) {
+        System.out.println(this.num + num);
+    }
 
 }
 
 public class Main {
 
-	public static void main(String[] args) throws
-			IllegalAccessException,
-			InstantiationException,
-			NoSuchMethodException,
-			InvocationTargetException,
-			NoSuchFieldException {
+    public static void main(String[] args) throws
+            IllegalAccessException,
+            InstantiationException,
+            NoSuchMethodException,
+            InvocationTargetException,
+            NoSuchFieldException {
 
-		Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
-		constructor.setAccessible(true);
-		Test test = constructor.newInstance(200);
+        Constructor<Test> constructor = Test.class.getDeclaredConstructor(int.class);
+        constructor.setAccessible(true);
+        Test test = constructor.newInstance(200);
 
-		Field field = Test.class.getDeclaredField("num");
-		field.setAccessible(true);
-		System.out.println(field.getInt(test));
-		field.set(test, 300);
-		System.out.println(field.getInt(test));
-	}
+        Field field = Test.class.getDeclaredField("num");
+        field.setAccessible(true);
+        System.out.println(field.getInt(test));
+        field.set(test, 300);
+        System.out.println(field.getInt(test));
+    }
 
 }
 ```
@@ -2277,11 +2277,11 @@ class B implements A { }
 class C extends B { }
 
 class Main {
-	public static void main(String[] args) {
-		System.out.println(A.class.isAssignableFrom(B.class));
-		System.out.println(A.class.isAssignableFrom(C.class));
-		System.out.println(B.class.isAssignableFrom(C.class));
-	}
+    public static void main(String[] args) {
+        System.out.println(A.class.isAssignableFrom(B.class));
+        System.out.println(A.class.isAssignableFrom(C.class));
+        System.out.println(B.class.isAssignableFrom(C.class));
+    }
 }
 ```
 
@@ -2315,18 +2315,18 @@ class Test {
 
 public class Main {
 
-	public static void main(String[] args) throws
-			IllegalAccessException,
-			InstantiationException,
-			NoSuchMethodException,
-			InvocationTargetException,
-			NoSuchFieldException,
-			ClassNotFoundException {
+    public static void main(String[] args) throws
+            IllegalAccessException,
+            InstantiationException,
+            NoSuchMethodException,
+            InvocationTargetException,
+            NoSuchFieldException,
+            ClassNotFoundException {
 
-		System.out.println(Main.class.getClassLoader().getClass().getName());
-		System.out.println(Class.forName("com.dainslef.Test").getClassLoader().getClass().getName());
+        System.out.println(Main.class.getClassLoader().getClass().getName());
+        System.out.println(Class.forName("com.dainslef.Test").getClassLoader().getClass().getName());
 
-	}
+    }
 }
 ```
 
@@ -2363,8 +2363,8 @@ sun.misc.Launcher$AppClassLoader
 
 ```java
 interface File {
-	String getName();
-	int getSize();
+    String getName();
+    int getSize();
 }
 ```
 
@@ -2373,19 +2373,19 @@ interface File {
 ```java
 class FileImpl implements File {
 
-	@Override
-	public String getName() {
-		/*
-			Implements code...
-		*/
-	}
+    @Override
+    public String getName() {
+        /*
+            Implements code...
+        */
+    }
 
-	@Override
-	public int getSize() {
-		/*
-			Implements code...
-		*/
-	}
+    @Override
+    public int getSize() {
+        /*
+            Implements code...
+        */
+    }
 }
 ```
 
@@ -2399,35 +2399,35 @@ class FileImpl implements File {
 ```java
 class FileProxy implements File {
 
-	File file = null;
+    File file = null;
 
-	public FileProxy(File file) {
-		this.file = file;
-	}
+    public FileProxy(File file) {
+        this.file = file;
+    }
 
-	@Override
-	public String getName() {
-		/*
-			do something before...
-		*/
-		String name = file.getName();
-		/*
-			do something after...
-		*/
-		return name;
-	}
+    @Override
+    public String getName() {
+        /*
+            do something before...
+        */
+        String name = file.getName();
+        /*
+            do something after...
+        */
+        return name;
+    }
 
-	@Override
-	public int getSize() {
-		/*
-			do something before...
-		*/
-		int size = file.getName();
-		/*
-			do something after...
-		*/
-		return size;
-	}
+    @Override
+    public int getSize() {
+        /*
+            do something before...
+        */
+        int size = file.getName();
+        /*
+            do something after...
+        */
+        return size;
+    }
 }
 ```
 
@@ -2440,7 +2440,7 @@ class FileProxy implements File {
 
 ```java
 public static Object newProxyInstance(ClassLoader loader,
-		Class<?>[] interfaces, InvocationHandler h) throws IllegalArgumentException;
+        Class<?>[] interfaces, InvocationHandler h) throws IllegalArgumentException;
 ```
 
 - `loader`參數爲動態代理類的類加載器。
@@ -2451,7 +2451,7 @@ public static Object newProxyInstance(ClassLoader loader,
 
 ```java
 public interface InvocationHandler {
-	Object invoke(Object proxy, Method method, Object[] args) throws Throwable;
+    Object invoke(Object proxy, Method method, Object[] args) throws Throwable;
 }
 ```
 
@@ -2465,50 +2465,50 @@ public interface InvocationHandler {
 ```java
 class InvocationHandlerImpl implements InvocationHandler {
 
-	File file = null;
+    File file = null;
 
-	public InvocationHandlerImpl(File file) {
-		this.file = file;
-	}
+    public InvocationHandlerImpl(File file) {
+        this.file = file;
+    }
 
-	// 多個接口方法的代理擴展代碼全部寫在一個invoke()方法中
-	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    // 多個接口方法的代理擴展代碼全部寫在一個invoke()方法中
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-		/*
-			do something before...
-		*/
+        /*
+            do something before...
+        */
 
-		// 判斷是否爲靜態方法，並使用不同的調用方式
-		Object object = Modifier.isStatic(method.getModifiers()) ?
-				method.invoke(args) : method.invoke(file, args);
+        // 判斷是否爲靜態方法，並使用不同的調用方式
+        Object object = Modifier.isStatic(method.getModifiers()) ?
+                method.invoke(args) : method.invoke(file, args);
 
-		/*
-			do something after...
-		*/
+        /*
+            do something after...
+        */
 
-		return object;
-	}
+        return object;
+    }
 }
 
 public class Main {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		//類實現
-		File fileImpl = new FileImpl();
+        //類實現
+        File fileImpl = new FileImpl();
 
-		//代理規則
-		InvocationHandler invocationHandler = new InvocationHandlerImpl(fileImpl);
+        //代理規則
+        InvocationHandler invocationHandler = new InvocationHandlerImpl(fileImpl);
 
-		//生成動態代理對象
-		File file = (File)Proxy.newProxyInstance(fileImpl.getClass().getClassLoader(),
-			new Class[] { File.class }, invocationHandler);
+        //生成動態代理對象
+        File file = (File)Proxy.newProxyInstance(fileImpl.getClass().getClassLoader(),
+            new Class[] { File.class }, invocationHandler);
 
-		//通過動態代理對象調用方法
-		file.getName();
-		file.getSize();
-	}
+        //通過動態代理對象調用方法
+        file.getName();
+        file.getSize();
+    }
 
 }
 ```
@@ -2520,18 +2520,18 @@ NIO(non-blocking IO)是對Java傳統IO API的補充，NIO主要經歷了兩個�
 
 1. J2SE 1.4（Java NIO）
 
-	初代NIO包括相關API位於`java.nio`包路徑下，
-	包含了NIO的核心抽象`Buffer`/`Channel`/`Selector`等，
-	並提供了常用的實現。
+    初代NIO包括相關API位於`java.nio`包路徑下，
+    包含了NIO的核心抽象`Buffer`/`Channel`/`Selector`等，
+    並提供了常用的實現。
 
 1. Java SE 7（Java NIO 2）
 
-	NIO.2主要改進了文件以及文件系統操作以及地址API，提供了相對更高層次的文件抽象。
-	相關API位於`java.nio.file`包路徑下。
+    NIO.2主要改進了文件以及文件系統操作以及地址API，提供了相對更高層次的文件抽象。
+    相關API位於`java.nio.file`包路徑下。
 
-	NIO.2對NIO引入的核心抽象添加了更多實現，添加了異步API，
-	如`AsynchronousFileChannel`/`AsynchronousSocketChannel`等，
-	異步接口使用了Java SE 5中引入的Executor框架。
+    NIO.2對NIO引入的核心抽象添加了更多實現，添加了異步API，
+    如`AsynchronousFileChannel`/`AsynchronousSocketChannel`等，
+    異步接口使用了Java SE 5中引入的Executor框架。
 
 Java IO在各個JDK版本的變化參見[官方文檔](https://docs.oracle.com/javase/8/docs/technotes/guides/io/enhancements.html)。
 
@@ -2551,23 +2551,23 @@ NIO的實例教程參考博客[Java NIO Tutorial](http://tutorials.jenkov.com/ja
 
 ```java
 interface A {
-	default void show() { System.out.println("A"); }
-	default void showA() { System.out.println("showA"); }
+    default void show() { System.out.println("A"); }
+    default void showA() { System.out.println("showA"); }
 }
 
 class B implements A {
-	@Override
-	public void show() { System.out.println("B"); }
+    @Override
+    public void show() { System.out.println("B"); }
 }
 
 class Main {
-	public static void main(String[] args) {
-		// A.show(); //編譯錯誤
-		B b = new B();
-		b.show();
-		A a = b;
-		a.show();
-	}
+    public static void main(String[] args) {
+        // A.show(); //編譯錯誤
+        B b = new B();
+        b.show();
+        A a = b;
+        a.show();
+    }
 }
 ```
 
@@ -2586,25 +2586,25 @@ B
 ```java
 // 接口 Test1 中含有默認方法 int test(int a)
 interface Test1 {
-	default int test(int a) {
-		return a;
-	}
+    default int test(int a) {
+        return a;
+    }
 }
 
 // 接口 Test2 中也含有默認方法 int test(int a)
 interface Test2 {
-	default int test(int a) {
-		return a;
-	}
+    default int test(int a) {
+        return a;
+    }
 }
 
 // 類 Test 同時實現接口 Test1 和 Test2
 class Test implements Test1, Test2 {
-	@Override
-	public int abc(int a) {
-		......
-		return ...
-	}
+    @Override
+    public int abc(int a) {
+        ......
+        return ...
+    }
 }
 ```
 
@@ -2615,10 +2615,10 @@ class Test implements Test1, Test2 {
 // 類中的 int test(int a) 方法採用 Test1 接口中的默認方法實現
 class Test implements Test1, Test2 {
 
-	@Override
-	public int test(int a) {
-		return Test1.super.test(a);
-	}
+    @Override
+    public int test(int a) {
+        return Test1.super.test(a);
+    }
 
 }
 ```
@@ -2640,8 +2640,8 @@ class Test implements Test1, Test2 {
 // 編譯報錯
 @FunctionalInterface
 interface Test {
-	void test1();
-	int test2(int a);
+    void test1();
+    int test2(int a);
 }
 ```
 
@@ -2649,8 +2649,8 @@ interface Test {
 
 ```
 Error: java: Unexpected @FunctionalInterface annotation
-	Test is not a functional interface
-		multiple non-overriding abstract methods found in interface Test
+    Test is not a functional interface
+        multiple non-overriding abstract methods found in interface Test
 ```
 
 對於**函數接口**，只能帶有一個**抽象方法**，但可以帶有任意數量的**默認方法**。
@@ -2661,15 +2661,15 @@ Error: java: Unexpected @FunctionalInterface annotation
 @FunctionalInterface
 interface Test {
 
-	int test1(int a);
+    int test1(int a);
 
-	default int test2(int a) {
-		return a;
-	}
+    default int test2(int a) {
+        return a;
+    }
 
-	default int test3(int a) {
-		return a;
-	}
+    default int test3(int a) {
+        return a;
+    }
 
 }
 ```
@@ -2679,14 +2679,14 @@ Java8之前，實現一個接口，通常使用**匿名類**語法：
 ```java
 @FunctionalInterface
 interface Test {
-	int test(int a);
+    int test(int a);
 }
 
 Test t = new Test() {
-	@Override
-	public int test(int a) {
-		return a;
-	}
+    @Override
+    public int test(int a) {
+        return a;
+    }
 };
 ```
 
@@ -2701,8 +2701,8 @@ Test t = (int a) -> a;
 
 ```java
 返回類型 函數名(參數列表) {
-	// 函數內容
-	return 返回值;
+    // 函數內容
+    return 返回值;
 }
 ```
 
@@ -2710,8 +2710,8 @@ Test t = (int a) -> a;
 
 ```java
 (參數列表) -> {
-	// 函數內容
-	return 返回值;
+    // 函數內容
+    return 返回值;
 }
 ```
 
@@ -2725,7 +2725,7 @@ Test t = (int a) -> a;
 
 ```java
 int test(int a) {
-	return 2 * a;
+    return 2 * a;
 }
 ```
 
@@ -2756,17 +2756,17 @@ C++可以控制外部變量的捕獲方式，對於**引用捕獲**的變量，�
 ```java
 @FunctionalInterface
 interface A {
-	void get();
+    void get();
 }
 
 class B {
 
-	A a = this::test;
+    A a = this::test;
 
-	private int test() {
-		System.out.println("Test!");
-		return 0;
-	}
+    private int test() {
+        System.out.println("Test!");
+        return 0;
+    }
 
 }
 ```
@@ -2782,17 +2782,17 @@ class B {
 
 - `*Function`
 
-	Function系列的函數接口表示帶有返回值的函數，類似於**C#**中的`Func`類：
+    Function系列的函數接口表示帶有返回值的函數，類似於**C#**中的`Func`類：
 
-	- `Function<T, R>` 接收兩個泛型參數，`T`表示參數類型，`R`表示返回值類型
-	- `BiFunction<T, U, R>` 接收三個泛型參數，`T`、`U`表示參數類型，`R`表示返回值類型
+    - `Function<T, R>` 接收兩個泛型參數，`T`表示參數類型，`R`表示返回值類型
+    - `BiFunction<T, U, R>` 接收三個泛型參數，`T`、`U`表示參數類型，`R`表示返回值類型
 
 - `*Consumer`
 
-	Consumer系列的函數接口表示無返回值(`void`)的函數，類似於**C#**中的`Action`類型：
+    Consumer系列的函數接口表示無返回值(`void`)的函數，類似於**C#**中的`Action`類型：
 
-	- `Consumer<T>` 接收參數類型作爲泛型參數
-	- `BiConsumer<T, U>` 接收兩個泛型參數，均爲參數類型
+    - `Consumer<T>` 接收參數類型作爲泛型參數
+    - `BiConsumer<T, U>` 接收兩個泛型參數，均爲參數類型
 
 預定義的函數接口僅包含**單個參數**、**兩個參數**的情形，若需要**三個或以上**參數的函數接口則需自行定義。
 
@@ -2810,25 +2810,25 @@ import java.util.function.*;
 
 public class Main {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		// 實例化函數接口對象
-		// 使用 IntFunction<Integer> 代替 Function<Integer, Integer>
-		Function<Integer, Integer> function = in -> 2 * in;
-		IntFunction<Integer> intFunction = in -> 2 * in;
+        // 實例化函數接口對象
+        // 使用 IntFunction<Integer> 代替 Function<Integer, Integer>
+        Function<Integer, Integer> function = in -> 2 * in;
+        IntFunction<Integer> intFunction = in -> 2 * in;
 
-		// 使用 IntConsumer 代替 Consumer<Integer>
-		Consumer<Integer> consumer = in -> System.out.println(in);
-		IntConsumer intConsumer = in -> System.out.println(in);
+        // 使用 IntConsumer 代替 Consumer<Integer>
+        Consumer<Integer> consumer = in -> System.out.println(in);
+        IntConsumer intConsumer = in -> System.out.println(in);
 
-		/*
-			使用函數接口對象，仍然需要明確調用函數接口中的方法。
-			Function系列的有返回值的接口調用方法apply()
-			Consumer系列的無返回值的接口調用方法accept()
-		*/
-		System.out.println(function.apply(100));
-		consumer.accept(200);
-	}
+        /*
+            使用函數接口對象，仍然需要明確調用函數接口中的方法。
+            Function系列的有返回值的接口調用方法apply()
+            Consumer系列的無返回值的接口調用方法accept()
+        */
+        System.out.println(function.apply(100));
+        consumer.accept(200);
+    }
 
 }
 ```
@@ -2842,14 +2842,14 @@ Java提供了`java.util.Process`類作爲對進程模型的抽象。
 
 ```java
 public class Runtime {
-	...
-	// 執行給定指令
-	public Process exec(String command) throws IOException;
-	// 在給定的環境變量參數下執行給定指令
-	public Process exec(String command, String[] envp) throws IOException;
-	// 在給定的環境變量和工作路徑下執行指令
-	public Process exec(String command, String[] envp, File dir);
-	...
+    ...
+    // 執行給定指令
+    public Process exec(String command) throws IOException;
+    // 在給定的環境變量參數下執行給定指令
+    public Process exec(String command, String[] envp) throws IOException;
+    // 在給定的環境變量和工作路徑下執行指令
+    public Process exec(String command, String[] envp, File dir);
+    ...
 }
 ```
 
@@ -2857,24 +2857,24 @@ Process類型為抽象類，包含基本進程相關方法：
 
 ```java
 public abstract class Process {
-	...
-	// 獲取進程的標準輸出、標準輸入、錯誤輸出
-	public abstract OutputStream getOutputStream();
-	public abstract InputStream getInputStream();
-	public abstract InputStream getErrorStream();
+    ...
+    // 獲取進程的標準輸出、標準輸入、錯誤輸出
+    public abstract OutputStream getOutputStream();
+    public abstract InputStream getInputStream();
+    public abstract InputStream getErrorStream();
 
-	// 等待進程結束
-	public abstract int waitFor() throws InterruptedException;
-	// 等待進程指定時間
-	public boolean waitFor(long timeout, TimeUnit unit) throws InterruptedException;
+    // 等待進程結束
+    public abstract int waitFor() throws InterruptedException;
+    // 等待進程指定時間
+    public boolean waitFor(long timeout, TimeUnit unit) throws InterruptedException;
 
-	// 獲取進程結束返回值
-	public abstract int exitValue();
-	// 銷毀進程
-	public abstract void destroy();
-	// 檢查進程是否存活
-	public boolean isAlive();
-	...
+    // 獲取進程結束返回值
+    public abstract int exitValue();
+    // 銷毀進程
+    public abstract void destroy();
+    // 檢查進程是否存活
+    public boolean isAlive();
+    ...
 }
 ```
 
@@ -2882,17 +2882,17 @@ JVM啓動進程需要藉助對應平臺的shell：
 
 - Widnows平臺下，使用`cmd.exe`啓動進程：
 
-	```scala
-	scala> Runtime.getRuntime().exec("cmd /c xxx")
-	res1: Process = java.lang.ProcessImpl@e3c36d
-	```
+    ```scala
+    scala> Runtime.getRuntime().exec("cmd /c xxx")
+    res1: Process = java.lang.ProcessImpl@e3c36d
+    ```
 
 - Linux/macOS平臺下使用`bash`或其他已安裝的shell啓動進程：
 
-	```scala
-	scala> Runtime.getRuntime().exec("bash -c xxx")
-	res2: Process = java.lang.ProcessImpl@2fca282c
-	```
+    ```scala
+    scala> Runtime.getRuntime().exec("bash -c xxx")
+    res2: Process = java.lang.ProcessImpl@2fca282c
+    ```
 
 JVM啓動的子進程后不會阻塞當前環境，子進程的運行與父進程無關。
 需要注意，默認配置下，子進程啓動后會將標準輸出寫入輸出流，輸出流中的内容需要及時取出，
@@ -3068,9 +3068,9 @@ Exception in thread "main" java.time.format.DateTimeParseException:
 Text '20140218' could not be parsed:
 Unable to obtain LocalDateTime from TemporalAccessor:
 {},ISO resolved to 2014-02-18 of type java.time.format.Parsed
-	at java.time.format.DateTimeFormatter.createError(DateTimeFormatter.java:1918)
-	at java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:1853)
-	at java.time.LocalDateTime.parse(LocalDateTime.java:492)
+    at java.time.format.DateTimeFormatter.createError(DateTimeFormatter.java:1918)
+    at java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:1853)
+    at java.time.LocalDateTime.parse(LocalDateTime.java:492)
 ```
 
 原因是LocalDateTime類型不能接收一個純日期時間，正確的做法是使用LocalDate類型處理日期，之後在轉換為LocalDateTime：
@@ -3090,10 +3090,10 @@ DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").parse("20180301050630663");
 
 // exception stack info
 Exception in thread "main" java.time.format.DateTimeParseException: Text '20180301050630663' could not be parsed at index 0
-	at java.time.format.DateTimeFormatter.parseResolved0(DateTimeFormatter.java:1947)
-	at java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:1849)
-	at java.time.LocalDateTime.parse(LocalDateTime.java:492)
-	...
+    at java.time.format.DateTimeFormatter.parseResolved0(DateTimeFormatter.java:1947)
+    at java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:1849)
+    at java.time.LocalDateTime.parse(LocalDateTime.java:492)
+    ...
 ```
 
 該BUG是Oracle JDK 8自身的BUG，收錄在[甲骨文官方BUG數據庫(JDK-8031085)](https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8031085)中，
@@ -3104,9 +3104,9 @@ Exception in thread "main" java.time.format.DateTimeParseException: Text '201803
 
 ```java
 new DateTimeFormatterBuilder()
-	.appendPattern("yyyyMMddHHmmss")
-	.appendValue(ChronoField.MILLI_OF_SECOND, 3)
-	.toFormatter();
+    .appendPattern("yyyyMMddHHmmss")
+    .appendValue(ChronoField.MILLI_OF_SECOND, 3)
+    .toFormatter();
 ```
 
 ## java.time.Instant
@@ -3159,26 +3159,26 @@ Caused by: java.time.DateTimeException: Unable to obtain LocalDate from Temporal
 
 ```java
 public final class LocalDateTime
-		implements Temporal, TemporalAdjuster, ChronoLocalDateTime<LocalDate>, Serializable {
-	...
-	public static LocalDateTime from(TemporalAccessor temporal) {
-		if (temporal instanceof LocalDateTime) {
-			return (LocalDateTime) temporal;
-		} else if (temporal instanceof ZonedDateTime) {
-			return ((ZonedDateTime) temporal).toLocalDateTime();
-		} else if (temporal instanceof OffsetDateTime) {
-			return ((OffsetDateTime) temporal).toLocalDateTime();
-		}
-		try {
-			LocalDate date = LocalDate.from(temporal);
-			LocalTime time = LocalTime.from(temporal);
-			return new LocalDateTime(date, time);
-		} catch (DateTimeException ex) {
-			throw new DateTimeException("Unable to obtain LocalDateTime from TemporalAccessor: " +
-					temporal + " of type " + temporal.getClass().getName(), ex);
-		}
-	}
-	...
+        implements Temporal, TemporalAdjuster, ChronoLocalDateTime<LocalDate>, Serializable {
+    ...
+    public static LocalDateTime from(TemporalAccessor temporal) {
+        if (temporal instanceof LocalDateTime) {
+            return (LocalDateTime) temporal;
+        } else if (temporal instanceof ZonedDateTime) {
+            return ((ZonedDateTime) temporal).toLocalDateTime();
+        } else if (temporal instanceof OffsetDateTime) {
+            return ((OffsetDateTime) temporal).toLocalDateTime();
+        }
+        try {
+            LocalDate date = LocalDate.from(temporal);
+            LocalTime time = LocalTime.from(temporal);
+            return new LocalDateTime(date, time);
+        } catch (DateTimeException ex) {
+            throw new DateTimeException("Unable to obtain LocalDateTime from TemporalAccessor: " +
+                    temporal + " of type " + temporal.getClass().getName(), ex);
+        }
+    }
+    ...
 }
 ```
 
@@ -3236,14 +3236,14 @@ Timer API包括兩個類：
 
 ```java
 public abstract class TimerTask implements Runnable {
-	...
-	// 需要被重寫的抽象方法
-	public abstract void run();
+    ...
+    // 需要被重寫的抽象方法
+    public abstract void run();
 
-	// 取消本定時任務，對於僅執行一次的定時任務無需調用此方法
-	// 重複執行的定時任務在調用此方法後該任務不再會被執行
-	public boolean cancel() { ... }
-	...
+    // 取消本定時任務，對於僅執行一次的定時任務無需調用此方法
+    // 重複執行的定時任務在調用此方法後該任務不再會被執行
+    public boolean cancel() { ... }
+    ...
 }
 ```
 
@@ -3255,23 +3255,23 @@ TimerTask是**抽象類**，主要API包括抽象方法`run()`(用於重寫提�
 ```java
 public class Timer {
 
-	// 定時任務隊列，定時任務線程共享該數據結構，
-	// Timer通過各類調度方法添加任務到隊列中，再由定時任務執行線程執行
-	private final TaskQueue queue = new TaskQueue();
+    // 定時任務隊列，定時任務線程共享該數據結構，
+    // Timer通過各類調度方法添加任務到隊列中，再由定時任務執行線程執行
+    private final TaskQueue queue = new TaskQueue();
 
-	// 定時任務執行線程
-	private final TimerThread thread = new TimerThread(queue);
-	...
-	// 構造定時器時可設置執行線程的一些屬性
-	public Timer(boolean isDaemon) { ... }
-	...
-	// 調度任務，在指定延遲時間後執行一次
-	public void schedule(TimerTask task, long delay) { ... }
-	// 調度任務，在指定延遲後以指定間隔循環執行
-	public void schedule(TimerTask task, long delay, long period) { ... }
-	// 調度任務，保證重複任務的執行速率
-	public void scheduleAtFixedRate(TimerTask task, long delay, long period) { ... }
-	...
+    // 定時任務執行線程
+    private final TimerThread thread = new TimerThread(queue);
+    ...
+    // 構造定時器時可設置執行線程的一些屬性
+    public Timer(boolean isDaemon) { ... }
+    ...
+    // 調度任務，在指定延遲時間後執行一次
+    public void schedule(TimerTask task, long delay) { ... }
+    // 調度任務，在指定延遲後以指定間隔循環執行
+    public void schedule(TimerTask task, long delay, long period) { ... }
+    // 調度任務，保證重複任務的執行速率
+    public void scheduleAtFixedRate(TimerTask task, long delay, long period) { ... }
+    ...
 }
 ```
 
@@ -3289,33 +3289,33 @@ import org.junit.Test
 
 class TestTimer {
 
-	@Test
-	fun testTimer() {
+    @Test
+    fun testTimer() {
 
-		// 創建Timer
-		val timer = Timer(true)
+        // 創建Timer
+        val timer = Timer(true)
 
-		// 重寫run()方法，創建TimerTask
-		val timerTask1 = object: TimerTask() {
-			var executeCount = 0
-			override fun run() {
-				println("Timer Task 1 ...")
-				executeCount += 1
-				if (executeCount >= 3) cancel() // 取消Task的執行
-			}
-		}
-		// Kotlin提供了對TimerTask的封裝函數
-		val timerTask2 = timerTask {
-			println("Timer Task 2 ...")
-		}
+        // 重寫run()方法，創建TimerTask
+        val timerTask1 = object: TimerTask() {
+            var executeCount = 0
+            override fun run() {
+                println("Timer Task 1 ...")
+                executeCount += 1
+                if (executeCount >= 3) cancel() // 取消Task的執行
+            }
+        }
+        // Kotlin提供了對TimerTask的封裝函數
+        val timerTask2 = timerTask {
+            println("Timer Task 2 ...")
+        }
 
-		// 調度任務
-		timer.scheduleAtFixedRate(timerTask1, 0, 1000) // 重複執行
-		timer.schedule(timerTask2, 1000) // 僅調度一次
+        // 調度任務
+        timer.scheduleAtFixedRate(timerTask1, 0, 1000) // 重複執行
+        timer.schedule(timerTask2, 1000) // 僅調度一次
 
-		readLine()
-		timer.cancel() // 取消定時器
-	}
+        readLine()
+        timer.cancel() // 取消定時器
+    }
 
 }
 ```
@@ -3343,48 +3343,48 @@ Timer調度器是**單線程**的，實際上僅存在**一個**任務執行線�
  */
 class TimerThread extends Thread {
 
-	// 標記是否存在剩餘未被執行的任務
-	boolean newTasksMayBeScheduled = true;
+    // 標記是否存在剩餘未被執行的任務
+    boolean newTasksMayBeScheduled = true;
 
-	// Timer的任務隊列
-	private TaskQueue queue;
+    // Timer的任務隊列
+    private TaskQueue queue;
 
-	TimerThread(TaskQueue queue) {
-		this.queue = queue;
-	}
+    TimerThread(TaskQueue queue) {
+        this.queue = queue;
+    }
 
-	public void run() {
-		try {
-			mainLoop();
-		} finally {
-			// 因為某些原因線程被殺死時，表現為Timer被取消
-			synchronized(queue) {
-				newTasksMayBeScheduled = false;
-				queue.clear();  // 清除廢棄的引用
-			}
-		}
-	}
+    public void run() {
+        try {
+            mainLoop();
+        } finally {
+            // 因為某些原因線程被殺死時，表現為Timer被取消
+            synchronized(queue) {
+                newTasksMayBeScheduled = false;
+                queue.clear();  // 清除廢棄的引用
+            }
+        }
+    }
 
-	// 主循環
-	private void mainLoop() {
-		while (true) {
-			try {
-				TimerTask task;
-				boolean taskFired;
-				synchronized(queue) {
-					// 等待隊列變為非空
-					while (queue.isEmpty() && newTasksMayBeScheduled)
-						queue.wait();
-					if (queue.isEmpty())
-						break; // 任務隊列為空則說明會導致死循環
-					... // 任務調度時間相關計算邏輯，省略
-				}
-				if (taskFired)  // 任務到達執行時間，在不持有鎖的情況下執行任務
-					task.run();
-			} catch(InterruptedException e) {
-			}
-		}
-	}
+    // 主循環
+    private void mainLoop() {
+        while (true) {
+            try {
+                TimerTask task;
+                boolean taskFired;
+                synchronized(queue) {
+                    // 等待隊列變為非空
+                    while (queue.isEmpty() && newTasksMayBeScheduled)
+                        queue.wait();
+                    if (queue.isEmpty())
+                        break; // 任務隊列為空則說明會導致死循環
+                    ... // 任務調度時間相關計算邏輯，省略
+                }
+                if (taskFired)  // 任務到達執行時間，在不持有鎖的情況下執行任務
+                    task.run();
+            } catch(InterruptedException e) {
+            }
+        }
+    }
 }
 ```
 
@@ -3404,46 +3404,46 @@ ScheduledThreadPoolExecutor提供了與Timer類似的調度API：
 
 ```java
 public class ScheduledThreadPoolExecutor
-		extends ThreadPoolExecutor
-		implements ScheduledExecutorService {
+        extends ThreadPoolExecutor
+        implements ScheduledExecutorService {
 
-	...
+    ...
 
-	// ScheduledThreadPoolExecutor 提供了自定義的Future作為調度任務的返回值
-	// 可通過該類型取消重複任務、延遲執行的任務
-	private class ScheduledFutureTask<V>
-		extends FutureTask<V> implements RunnableScheduledFuture<V> {
-		...
-		// 通過 cancel() 方法可終止未開始執行的延遲任務，以及任務的重複執行
-		public boolean cancel(boolean mayInterruptIfRunning) { ... }
-		...
-	}
+    // ScheduledThreadPoolExecutor 提供了自定義的Future作為調度任務的返回值
+    // 可通過該類型取消重複任務、延遲執行的任務
+    private class ScheduledFutureTask<V>
+        extends FutureTask<V> implements RunnableScheduledFuture<V> {
+        ...
+        // 通過 cancel() 方法可終止未開始執行的延遲任務，以及任務的重複執行
+        public boolean cancel(boolean mayInterruptIfRunning) { ... }
+        ...
+    }
 
-	...
+    ...
 
-	// 構造實例，傳入核心線程池的大小
-	public ScheduledThreadPoolExecutor(int corePoolSize) { ... }
+    // 構造實例，傳入核心線程池的大小
+    public ScheduledThreadPoolExecutor(int corePoolSize) { ... }
 
-	// 提供任務延遲執行功能，通過Runnable/Callable接口分別支持無/有返回值的任務
-	public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) { ... }
-	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) { ... }
+    // 提供任務延遲執行功能，通過Runnable/Callable接口分別支持無/有返回值的任務
+    public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) { ... }
+    public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) { ... }
 
-	// 提供任務的重複執行功能
-	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) { ... }
-	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) { ... }
+    // 提供任務的重複執行功能
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) { ... }
+    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) { ... }
 
-	// 終止本Executor
-	public void shutdown() { ... }
-	public List<Runnable> shutdownNow() { ... }
+    // 終止本Executor
+    public void shutdown() { ... }
+    public List<Runnable> shutdownNow() { ... }
 
-	// 訪問執行器的任務隊列
-	public BlockingQueue<Runnable> getQueue() { ... }
+    // 訪問執行器的任務隊列
+    public BlockingQueue<Runnable> getQueue() { ... }
 
-	// 提供ScheduledThreadPoolExecutor的默認BlockingQueue實現
-	static class DelayedWorkQueue extends AbstractQueue<Runnable>
-		implements BlockingQueue<Runnable> { ... }
+    // 提供ScheduledThreadPoolExecutor的默認BlockingQueue實現
+    static class DelayedWorkQueue extends AbstractQueue<Runnable>
+        implements BlockingQueue<Runnable> { ... }
 
-	...
+    ...
 }
 ```
 
@@ -3545,10 +3545,10 @@ val future2: java.util.concurrent.ScheduledFuture[_] = java.util.concurrent.Sche
 String connectUrl = "jdbc:數據庫類型://連接地址...";
 
 try {
-	Connection connection = DriverManager.getConnection(connectUrl); //獲取數據庫連接
-	Statement statement = connection.createStatement()
+    Connection connection = DriverManager.getConnection(connectUrl); //獲取數據庫連接
+    Statement statement = connection.createStatement()
 } catch (SQLException ex) {
-	...
+    ...
 }
 ```
 
@@ -3594,8 +3594,8 @@ public void moveToCurrentRow() throws SQLException;
 ```java
 ResultSet resultSet = statement.executeQuery("SQL查詢語句...");
 while (resultSet.next()) { // 使用 next() 方法將當前遊標移動到下一行
-	resultSet.getInt(...); // 獲取數據，支持使用列號/列名進行獲取
-	resultSet.getString(...);
+    resultSet.getInt(...); // 獲取數據，支持使用列號/列名進行獲取
+    resultSet.getString(...);
 }
 ```
 
@@ -3632,8 +3632,8 @@ Class.forName("com.hxtt.sql.access.AccessDriver");
 // 創建連接
 Connection connection = DriverManager.getConnection(connectUrl);
 Statement statement = connection
-	.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-	// 後兩個參數是爲了得到resultSet集能夠進行last()操作
+    .createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+    // 後兩個參數是爲了得到resultSet集能夠進行last()操作
 ```
 
 Access數據庫的一些小常識：
@@ -3813,34 +3813,34 @@ Module "xxx" must not contain source root "xxx". The root already belongs to mod
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <module external.linked.project.id="Xxx" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
-	<component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
 
-		<output url="file://$MODULE_DIR$/../../target/scala-2.12/classes" />
-		<output-test url="file://$MODULE_DIR$/../../target/scala-2.12/test-classes" />
-		<exclude-output />
-		<content url="file://$MODULE_DIR$/../..">
+        <output url="file://$MODULE_DIR$/../../target/scala-2.12/classes" />
+        <output-test url="file://$MODULE_DIR$/../../target/scala-2.12/test-classes" />
+        <exclude-output />
+        <content url="file://$MODULE_DIR$/../..">
 
-		<!-- 子模塊源碼目錄被包含 -->
-		<sourceFolder url="file://$MODULE_DIR$/../../Common/src" isTestSource="false" />
-		<sourceFolder url="file://$MODULE_DIR$/../../ExcelConverter/src" isTestSource="false" />
-		<sourceFolder url="file://$MODULE_DIR$/../../ReportGenerator/src" isTestSource="false" />
+        <!-- 子模塊源碼目錄被包含 -->
+        <sourceFolder url="file://$MODULE_DIR$/../../Common/src" isTestSource="false" />
+        <sourceFolder url="file://$MODULE_DIR$/../../ExcelConverter/src" isTestSource="false" />
+        <sourceFolder url="file://$MODULE_DIR$/../../ReportGenerator/src" isTestSource="false" />
 
-		...
+        ...
 
-		<sourceFolder url="file://$MODULE_DIR$/../../src/main/java" isTestSource="false" />
-		<sourceFolder url="file://$MODULE_DIR$/../../src/main/scala" isTestSource="false" />
-		<sourceFolder url="file://$MODULE_DIR$/../../src/main/scala-2.12" isTestSource="false" />
-		<sourceFolder url="file://$MODULE_DIR$/../../src/test/java" isTestSource="true" />
-		<sourceFolder url="file://$MODULE_DIR$/../../src/test/scala" isTestSource="true" />
-		<sourceFolder url="file://$MODULE_DIR$/../../src/test/scala-2.12" isTestSource="true" />
+        <sourceFolder url="file://$MODULE_DIR$/../../src/main/java" isTestSource="false" />
+        <sourceFolder url="file://$MODULE_DIR$/../../src/main/scala" isTestSource="false" />
+        <sourceFolder url="file://$MODULE_DIR$/../../src/main/scala-2.12" isTestSource="false" />
+        <sourceFolder url="file://$MODULE_DIR$/../../src/test/java" isTestSource="true" />
+        <sourceFolder url="file://$MODULE_DIR$/../../src/test/scala" isTestSource="true" />
+        <sourceFolder url="file://$MODULE_DIR$/../../src/test/scala-2.12" isTestSource="true" />
 
-		...
+        ...
 
-		</content>
-		<orderEntry type="inheritedJdk" />
-		<orderEntry type="sourceFolder" forTests="false" />
+        </content>
+        <orderEntry type="inheritedJdk" />
+        <orderEntry type="sourceFolder" forTests="false" />
 
-	</component>
+    </component>
 </module>
 ```
 
