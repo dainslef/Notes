@@ -70,6 +70,7 @@
     - [OceanBase集群管理](#oceanbase集群管理)
     - [OceanBase常見配置問題](#oceanbase常見配置問題)
     - [OceanBase日誌](#oceanbase日誌)
+    - [OceanBase組件運行失敗](#oceanbase組件運行失敗)
 - [常用功能和配置](#常用功能和配置)
     - [導出數據](#導出數據)
     - [導入數據](#導入數據)
@@ -1627,6 +1628,13 @@ please open http://x.x.x.x:8680
 通過OBD啟動WEB頁面白屏部署OceanBase，參考
 [官方文檔](https://www.oceanbase.com/docs/community-obd-cn-1000000000774258)。
 
+常見部署內容概念：
+
+- ZONE：邏輯概念，用於實現容災，以機房/區域為單位，同一機房/區域的節點應視為同一Zone
+- OBExpress：數據庫管理面板服務
+- OBServer：數據庫服務進程
+- OBProxy：代理進程，客戶端通常不直接與OBServer建立連接，而是通過OBProxy轉發請求到最合適的節點
+
 ## OceanBase集群管理
 obd工具用於集群管理：
 
@@ -1639,15 +1647,24 @@ $ obd cluster start 集群名稱
 $ obd cluster stop 集群名稱
 $ obd cluster restart 集群名稱
 
-<!-- 修改集群配置 -->
+<!-- 創建/修改集群配置（當配置不存在時創建配置） -->
 $ obd cluster edit-config 集群名稱
 <!-- 部分配置修改需要整個集群重新部署，重新部署不會變更集群的密碼等信息 -->
 $ obd cluster redeploy 集群名稱
 ```
 
+示例配置文件位於`/usr/obd/example`路徑下，常用配置範例：
+
+- `all-components.yaml` 所有組件配置（佔用最大資源）
+- `all-components-min.yaml` 所有組件配置（佔用最小資源）
+
 ## OceanBase常見配置問題
-OceanBase默認會預分配存儲，佔用數據盤的所有存儲空間，
-初始化時需要使用`datafile_size`配置限制預分配存儲的大小。
+OceanBase使用`最大佔用`模式時默認會預分配存儲，佔用數據盤的所有存儲空間，
+白屏部署時在`集群配置`頁面勾選`更多配置`，使用以下參數組合配置限制預分配存儲的大小：
+
+- `datafile_size`，初始數據文件大小，默認值0（佔用所有空間）
+- `datafile_maxsize`，最大數據文件大小，默認值0（無佔用空間限制）
+- `datafile_next`，當存儲空間不足時，每次數據文件擴展的大小，默認值0（直接擴展到datafile_maxsize限制）
 
 OceanBase創建租戶時默認使用`lower_case_table_names = 1`，
 該選項會將字段、表名均轉換為小寫字母存儲，比較字段名稱時會忽略大小寫；
@@ -1666,6 +1683,11 @@ OceanBase的日誌按照租戶存儲，日誌位於`數據目錄/租戶名稱/�
 
 - `數據目錄/租戶名稱/oceanbase/log/observer.log` 服務主進程日誌
 - `數據目錄/租戶名稱/ocpexpress/log/ocp-express.log` Web面板及監控日誌
+
+## OceanBase組件運行失敗
+服務器重啟後，OceanBase的部分組件可能會啟動失敗（如`obagent`），
+除了常見的查看日誌操作外，可嘗試清空`數據目錄/租戶名稱/組件名稱/run`路徑下的內容
+（不可刪除該目錄，否則集群啟動檢查失敗）。
 
 
 
