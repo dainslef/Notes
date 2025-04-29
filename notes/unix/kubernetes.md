@@ -2138,6 +2138,8 @@ Harbor并未提供ARM64架構的鏡像，ARM平臺服務器不要使用Helm部�
 -->
 $ helm repo add harbor https://helm.goharbor.io
 $ helm install -n helm-charts harbor harbor/harbor
+<!-- 默認使用 ingress 方式提供訪問，若需要 nodeport，則需要修改參數 -->
+$ helm install -n helm-charts harbor harbor/harbor --set expose.type=nodePort,expose.tls.enabled=false,persistence.persistentVolumeClaim.registry.size=xxxGi,externalURL=http://x.x.x.x:30002
 ```
 
 升級Helm包與安裝類似，將`helm install`替換為`helm upgrade --install`，其它參數保持不變。
@@ -2460,6 +2462,40 @@ KubeKey安裝過程中可能會存在各類問題，常見的排查流程：
 - kubectl配置`~/.kube/config`
 - `kubekey`路徑下生成的各個節點相關配置
 
-KubeKey的部分部署流程會以二進制文件的存在與否作為判斷流程是否重新觸發的標誌，
-如containerd，若不移除`/usr/bin/containerd`則不會重新觸發containerd部署流程，
-即使containerd的配置被刪除，刪除集群並重新部署也不會再次生成該文件。
+完整清理容器殘餘環境指令：
+
+```
+# systemctl stop docker containerd
+# rm -rf /opt/cni/bin/* /usr/bin/crictl /usr/bin/ctr /usr/bin/docker* /usr/bin/containerd* /usr/local/bin/* /var/lib/containerd /var/lib/docker /etc/docker /etc/containerd /etc/systemd/system/containerd.service /etc/systemd/system/docker.service
+```
+
+KubeKey的部分部署流程會以二進制文件以及運行時sock文件的存在與否作為判斷流程是否重新觸發的標誌，如containerd，
+若不移除`/usr/bin/containerd`和停止containerd服務並刪除服務（刪除`containerd.service`，服務停止自動清除`containerd.sock`），
+則不會重新觸發containerd部署流程，
+即使containerd的配置被刪除，刪除集群並重新部署也不會再次生成該文件；
+以`KubeKey 3.1`為例，相關源碼參見[prepares.go ContainerdExist.PreCheck](https://github.com/kubesphere/kubekey/blob/release-3.1/cmd/kk/pkg/container/prepares.go#L99)：
+
+```go
+...
+
+type ContainerdExist struct {
+	common.KubePrepare
+	Not bool
+}
+
+func (c *ContainerdExist) PreCheck(runtime connector.Runtime) (bool, error) {
+	output, err := runtime.GetRunner().SudoCmd(
+		"if [ -z $(command -v containerd) ] || [ ! -e /run/containerd/containerd.sock ]; "+
+			"then echo 'not exist'; "+
+			"fi", false)
+	if err != nil {
+		return false, err
+	}
+	if strings.Contains(output, "not exist") {
+		return c.Not, nil
+	}
+	return !c.Not, nil
+}
+
+...
+```
