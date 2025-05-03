@@ -410,7 +410,9 @@ Computer Management > System Tools > Local Users and Groups
 
 相關問題討論參考[StackExchange](https://superuser.com/questions/740375/how-to-login-to-network-share-when-microsoft-account-is-tied-to-windows-login)。
 
-由於文件共享功能使用Windows帳戶體系，用於文件共享的用戶同樣會出現在登入介面中，
+若使用本地賬戶登入的微軟賬戶，則依舊使用本地賬戶的用戶名密碼來訪問文件共享。
+
+由於文件共享功能使用Windows帳戶體系，創建的用戶用於文件共享的用戶同樣會出現在登入介面中，
 若需避免該用戶出現在登入介面中，可在用戶管理中將該用戶的用戶組設置中移除`Users`用戶組。
 
 ## SMB命令行
@@ -507,30 +509,30 @@ Approximate round trip times in milli-seconds:
 
 1. 在控制面版中禁用對應網卡的IPv6協議（`Control Panel\Network and Internet\Network Connections`）。
 1. 參考[微軟官方文檔](https://support.microsoft.com/en-us/help/929852/guidance-for-configuring-ipv6-in-windows-for-advanced-users)，
-	從注冊表中禁用或優先選擇IPv4網絡：
+    從注冊表中禁用或優先選擇IPv4網絡：
 
-	```html
-	> reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD /d <value> /f
-	```
+    ```html
+    > reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD /d <value> /f
+    ```
 
-	常用的取值及含義：
+    常用的取值及含義：
 
-	| 值 | 含義 |
-	| :- | :- |
-	| 0x20 | Prefer IPv4 over IPv6 |
-	| 0xff | Disable IPv6 |
+    | 值 | 含義 |
+    | :- | :- |
+    | 0x20 | Prefer IPv4 over IPv6 |
+    | 0xff | Disable IPv6 |
 
 1. 查看IPv6路由表：
 
-	```c
-	> netsh interface ipv6 show route
-	```
+    ```c
+    > netsh interface ipv6 show route
+    ```
 
-	移除`::1`地址相關的路由：
+    移除`::1`地址相關的路由：
 
-	```c
-	> netsh interface ipv6 delete route "route..."
-	```
+    ```c
+    > netsh interface ipv6 delete route "route..."
+    ```
 
 ## Intel CPU機型會在C盤根目錄下創建空的Intel目錄
 問題描述：<br>
