@@ -3693,18 +3693,45 @@ $ nmcli device <!-- 查看接口狀態 -->
 <!-- 列出無線網絡列表 -->
 $ nmcli device wifi list
 <!-- 連接指定無線網絡 -->
-# nmcli device wifi connect [SSID] password [password]
-# nmcli device wifi connect [SSID] password [password] hidden yes
+# nmcli device wifi connect 無線網絡名稱 password 密碼
+# nmcli device wifi connect 無線網絡名稱 password 密碼 hidden yes <!-- 無線網絡密碼 -->
 <!-- 關閉無線網卡 -->
 # nmcli radio wifi off
 
-<!-- 連接管理相關 -->
-$ nmcli connection show
-# nmcli connection up [name/uuid]
-# nmcli connection delete [name/uuid]
-
 <!-- 列出網絡連接信息 -->
 $ nmcli connection
+
+<!-- 連接管理相關 -->
+$ nmcli connection show <!-- 查看所有連接概況 -->
+$ nmcli connection show 連接名稱 <!-- 查看指定連接詳情（包含所有可配置的屬性） -->
+# nmcli connection modify 連接名稱 屬性名稱 屬性值 ... <!-- 修改指定連接的屬性（可一次性修改多個屬性） -->
+# nmcli connection up 連接名稱
+# nmcli connection delete 連接名稱
+```
+
+nmcli配置連接IP地址相關：
+
+```html
+<!-- 配置IPv6地址時將ipv4.xxx改為ipv6.xxx即可 -->
+# nmcli connection modify 連接名稱 connection.autoconnect yes ipv4.method manual ipv4.addresses x.x.x.x/x ipv4.gateway x.x.x.x ipv4.dns "x.x.x.x x.x.x.x ..."
+```
+
+nmcli配置bond：
+
+```html
+<!--
+創建bond，bond模式可取值：
+balance-rr (mode 0): Round-robin. Transmits packets in sequential order from the first available slave to the last.
+active-backup (mode 1): Only one slave is active at a time. Another slave becomes active only if the active slave fails. Provides redundancy.
+balance-xor (mode 2): Transmits based on a XOR of source and destination MAC addresses or IP addresses.
+broadcast (mode 3): Transmits everything on all slave interfaces. Provides fault tolerance but is inefficient.
+802.3ad (mode 4): LACP (Link Aggregation Control Protocol). Requires a compatible switch. Provides dynamic link aggregation.
+balance-tlb (mode 5): Adaptive transmit load balancing. Outgoing traffic is distributed based on the current load of each slave. Incoming traffic is received by the current slave.
+balance-alb (mode 6): Adaptive load balancing. Includes balance-tlb plus receive load balancing 1 for IPv4 traffic, achieved by ARP negotiation.
+-->
+# nmcli connection add type bond con-name bond名稱 ifname bond接口名稱 mode bond模式
+<!-- 向bond中加入子接口 -->
+# nmcli connection add type ethernet con-name bond連接名稱 ifname 子網卡接口名稱 master bond接口名稱
 ```
 
 nmtui提供友好的TUI，可直接編輯、啟用、禁用連接。
