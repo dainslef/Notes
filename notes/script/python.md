@@ -1761,6 +1761,38 @@ $ pip-autoremove -l <!-- 列出未被使用的依賴（可以被清理的依賴�
 $ pip-autoremove -L <!-- 列出不被其它包依賴的包（主動安裝的包） -->
 ```
 
+## pipx
+[pipx](https://github.com/pypa/pipx)
+pipx結合了pip與venv，將Python包安裝到獨立的虛擬環境中，
+可避免在安裝Python包時對既有Python環境造成影響。
+
+各大發行版均提供了pipx包：
+
+```
+# apt install pipx
+# dnf install pipx
+# brew install pipx
+```
+
+不推薦使用pipx來安裝pipx，會有一些[限制](https://github.com/mattsb42-meta/pipx-in-pipx)。
+
+pipx常用操作：
+
+```
+$ pipx install 包名
+$ pipx uninstall 包名
+```
+
+pipx安裝的包位於`~/.local/share/pipx/venvs`中，
+並會在`～/.local/bin`路徑下創建可執行腳本。
+
+執行pipx時會檢測已安裝的包是否有效，失效是會給出提示；
+若Python版本升級導致已安裝的pip包失效，可重新安裝所有包：
+
+```
+$ pipx reinstall-all
+```
+
 
 
 # venv
