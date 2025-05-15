@@ -1,26 +1,26 @@
 <!-- TOC -->
 
 - [MSYS2](#msys2)
-	- [下載與安裝](#下載與安裝)
-	- [配置倉庫與源](#配置倉庫與源)
-	- [包管理](#包管理)
-	- [設置中文LC](#設置中文lc)
-	- [pacman-key/msys2-keyring更新錯誤](#pacman-keymsys2-keyring更新錯誤)
+    - [下載與安裝](#下載與安裝)
+    - [配置倉庫與源](#配置倉庫與源)
+    - [包管理](#包管理)
+    - [設置中文LC](#設置中文lc)
+    - [pacman-key/msys2-keyring更新錯誤](#pacman-keymsys2-keyring更新錯誤)
 - [POSIX](#posix)
-	- [Microsoft POSIX subsystem](#microsoft-posix-subsystem)
-	- [Windows Services for UNIX](#windows-services-for-unix)
-	- [Windows Linux Subsystem](#windows-linux-subsystem)
-		- [LXSS](#lxss)
-		- [WSL](#wsl)
-		- [WSL2](#wsl2)
+    - [Microsoft POSIX subsystem](#microsoft-posix-subsystem)
+    - [Windows Services for UNIX](#windows-services-for-unix)
+    - [Windows Linux Subsystem](#windows-linux-subsystem)
+        - [LXSS](#lxss)
+        - [WSL](#wsl)
+        - [WSL2](#wsl2)
 - [Linux Subsystem 與 MSYS2 比較](#linux-subsystem-與-msys2-比較)
-	- [Linux Subsystem優劣](#linux-subsystem優劣)
-	- [Msys2優劣](#msys2優劣)
+    - [Linux Subsystem優劣](#linux-subsystem優劣)
+    - [Msys2優劣](#msys2優劣)
 - [Wine](#wine)
-	- [安裝和配置Wine](#安裝和配置wine)
-	- [中文字體問題](#中文字體問題)
-	- [Wine64](#wine64)
-	- [Bottles](#bottles)
+    - [安裝和配置Wine](#安裝和配置wine)
+    - [中文字體問題](#中文字體問題)
+    - [Wine64](#wine64)
+    - [Bottles](#bottles)
 
 <!-- /TOC -->
 
@@ -201,9 +201,15 @@ lxrun工具現在亦已被移除，現在使用`wsl`指令進行管理WSL環境�
 > wsl --update <!-- 更新WSL -->
 > wsl --shutdown <!-- 關閉WSL虛擬機 -->
 
-> wsl -l/--list
+> wsl -l/--list <!-- 列出已安裝的發行版 -->
+> wsl -l/--list -o/--online <!-- 列出可安裝的發行版 -->
 > wsl -d/--distribution <!-- 進入指定發行版 -->
+> wsl --set-default 發行版名稱 <!-- 設置默認發行版 -->
+> wsl --unregister 發行版名稱 <!-- 卸載指定的已安裝發行版 -->
+> wsl --manage 發行版 --set-default-user 用戶名 <!-- 設置指定發行版的默認用戶 -->
 ```
+
+完整的wsl指令操作參見[官方文檔](https://learn.microsoft.com/en-us/windows/wsl/basic-commands)。
 
 WSL2的各類發行版均運行在微軟的`Common Base Linux Mariner`上，進入該環境，執行：
 
@@ -212,11 +218,7 @@ WSL2的各類發行版均運行在微軟的`Common Base Linux Mariner`上，進�
 ```
 
 通過應用商店安裝的WSL環境，在刪除WSL APP后，對應發行版的文件系統存儲依舊會保留，
-完全移除指定發行版的文件系統存儲，執行：
-
-```
-> wsl --unregister 發行版名稱
-```
+需要執行`wsl --unregister`完全移除指定發行版的文件系統存儲。
 
 [WSL version 0.67.6](https://devblogs.microsoft.com/commandline/systemd-support-is-now-available-in-wsl/)
 開始支持systemd，應用商店中的Ubuntu發行版已直接開啓了systemd支持，
@@ -229,6 +231,14 @@ systemd=true
 
 之後關閉WSL虛擬機（`wsl --shutdown`），重新進入WSL環境即可。
 
+修改發行版的默認登入用戶，在`/etc/wsl.conf`配置文件中添加：
+
+```ini
+[user]
+default=用戶名
+```
+
+更多`wsl.conf`配置參見[官方文檔](https://learn.microsoft.com/en-us/windows/wsl/wsl-config#configuration-file-wslconf).
 
 
 # Linux Subsystem 與 MSYS2 比較
