@@ -46,6 +46,7 @@
         - [Docker客戶端證書配置](#docker客戶端證書配置)
         - [Habor服務管理](#habor服務管理)
     - [部署Habor（Helm）](#部署haborhelm)
+        - [Helm與Harbor版本兼容性問題](#helm與harbor版本兼容性問題)
     - [登入Habor](#登入habor)
         - [Docker登入](#docker登入)
         - [podman登入](#podman登入)
@@ -1427,6 +1428,8 @@ Habor使用docker-compose管理服務：
 ```
 $ helm repo add harbor https://helm.goharbor.io
 $ helm install --set 配置=值... -n 命名空間 harbor harbor/harbor
+
+$ helm install -n harbor harbor harbor/harbor --set expose.type=nodePort,expose.tls.enabled=false,persistence.persistentVolumeClaim.registry.size=XxxGi,externalURL=http://x.x.x.x:30002
 ```
 
 相關配置參考[GitHub頁面](https://github.com/goharbor/harbor-helm)，
@@ -1442,6 +1445,16 @@ $ helm install --set 配置=值... -n 命名空間 harbor harbor/harbor
 使用NodePort導出時externalURL應使用實際NodePort端口和對應節點IP。
 以關閉TLS，Kubernetes節點IP為10.89.64.64，NodePort端口為30002为例，
 則externalURL應填寫：`http://10.89.64.64:30002`。
+
+### Helm與Harbor版本兼容性問題
+harbor-helm從`1.14.0`開始要求helm最低版本為`3.10.0`，
+使用低版本helm部署harbor-helm時會得到錯誤信息：
+
+```
+Error: INSTALLATION FAILED: template: harbor/templates/registry/registry-secret.yaml:12:62: executing "harbor/templates/registry/registry-secret.yaml" at <include "harbor.secretKeyHelper" (dict "key" "REGISTRY_HTTP_SECRET" "data" $existingSecret.data)>: error calling include: template: harbor/templates/_helpers.tpl:59:41: executing "harbor.secretKeyHelper" at <.data>: wrong type for value; expected map[string]interface {}; got interface {}
+```
+
+支持低版本helm最後的harbor-helm版本為`1.13.5`。
 
 ## 登入Habor
 Habor默認用戶為`admin`，密碼為部署時配置文件中`harbor_admin_password`字段的內容。
