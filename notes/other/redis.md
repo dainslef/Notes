@@ -209,11 +209,17 @@ repl_backlog_histlen:xxx
 通過指令創建的主從同步關係在節點重啟後不會保存，
 要使Redis服務在啟動時保持同步關係，需要在redis.conf中加入：
 
-```
+```sh
 replicaof 主節點地址 主節點端口
 ```
 
 配置項與命令行下的同步指令相同。
+
+若主節點配置了密碼訪問（配置了requirepass），則同步配置應對應添加`masterauth`參數：
+
+```sh
+masterauth 密碼
+```
 
 ## Sentinel（哨兵）
 Redis的主從複製機制解決了數據同步問題，但從節點在主節點故障時**不會**自動切換，
@@ -228,14 +234,19 @@ Redis的主從複製機制解決了數據同步問題，但從節點在主節點
 
 redis-sentinel配置文件位於`/etc/redis/sentinel.conf`中，核心配置項：
 
-```conf
-bind 哨兵地址
-port 哨兵端口
+```sh
+bind 服務綁定地址 # 本機訪問使用127.0.0.1，對外訪問可使用指定IP或0.0.0.0
+port 哨兵端口 # 默認端口 26379
 
 sentinel monitor 集群名稱 主節點地址 主節點端口 最少發現故障的哨兵數目
 sentinel down-after-milliseconds 集群名稱 下線時間（毫秒）
 sentinel failover-timeout 集群名稱 故障切換超時時間（毫秒）
 sentinel parallel-syncs 集群名稱 併行同步數目
+
+# 可選配置
+sentinel auth-pass 集群名稱 密碼 # 若主節點配置了密碼訪問，則哨兵進程同樣需要設置訪問密碼
+sentinel resolve-hostnames yes # 啟用域名解析
+sentinel announce-hostnames yes # 啟用域名宣告
 ```
 
 哨兵通過集群名稱區分不同的監控集群，集群名稱相同的哨兵節點會使用Redis的Pub/Sub通信自動相互發現。
@@ -264,6 +275,11 @@ sentinel_running_scripts:0
 sentinel_scripts_queue_length:0
 sentinel_simulate_failure_flags:0
 master0:name=mymaster,status=ok,address=x.x.x.x:6379,slaves=1,sentinels=3
+
+<!-- 獲取當前的master節點信息 -->
+> SENTINEL GET-MASTER-ADDR-BY-NAME 集群名稱
+1) "x.x.x.x"
+2) "xxxx"
 ```
 
 ## Cluster（集群）
