@@ -4139,11 +4139,12 @@ $ mii-tool eno2
 eno2: negotiated 1000baseT-FD flow-control, link ok
 ```
 
-`ethtool`可用於查看網卡的性能參數，包括帶寬等信息。
-基本指令格式：
+`ethtool`可用於查看網卡的性能參數，包括帶寬等信息；基本指令格式：
 
-```
-# ethtool devname
+```html
+# ethtool 接口名稱 <!-- 查看接口的性能、狀態參數 -->
+# ethtool -i 接口名稱 <!-- 查看接口的固件參數 -->
+# ethtool -m 接口名稱 <!-- 查看光模塊接口的運行參數（需要EEPROM支持） -->
 ```
 
 實例：
@@ -4176,6 +4177,14 @@ Settings for enp1s0:
 	Current message level: 0x00000033 (51)
 			       drv probe ifdown ifup
 	Link detected: yes
+```
+
+在擁有多張網卡的服務器中，ethtool可用於點亮網卡，快速測試網卡與操作系統內邏輯名稱的對應關係：
+
+```html
+# ethtool -p 接口名稱 <!-- 點亮指定網卡，持續時間無限，直至主動中斷指令 -->
+# ethtool -p 接口名稱 持續秒數 <!-- 點亮指定網卡，持續指定秒數 -->
+# ethtool --identify 接口名稱 持續秒數
 ```
 
 ## tcpdump
