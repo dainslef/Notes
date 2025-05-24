@@ -174,6 +174,10 @@
     - [apt-mirror](#apt-mirror)
         - [apt-mirror本地源配置](#apt-mirror本地源配置)
         - [使用apt-mirror本地源](#使用apt-mirror本地源)
+- [RedHat系發行版及包管理](#redhat系發行版及包管理)
+    - [yum/dnf](#yumdnf)
+    - [rpm](#rpm)
+        - [rpm包結構](#rpm包結構)
 - [OpenCC](#opencc)
     - [命令行工具opencc](#命令行工具opencc)
 - [Chrome OS](#chrome-os)
@@ -6453,6 +6457,87 @@ deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-security main restricte
 deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-updates main restricted universe multiverse
 deb file:///home/Xxx/Public/Mirrors/mirror/ubuntu xenial-backports main restricted universe muitiverse
 ```
+
+
+
+# RedHat系發行版及包管理
+`RedHat`系發行版使用`rpm`做為軟件包的打包、分發格式；
+使用`yum/dnf`（前端、依賴管理）和`rpm`（後端、包處理）進行管理。
+
+## yum/dnf
+`yum`為RedHat系列發行版早期的前端依賴管理工具，使用Python語言實現。
+之後yum作者去世，`dnf`做為新的前端在`Fedora 18`中首次引入取代了yum，
+後續所有的RedHat系列發行版均開始轉向dnf。
+
+dnf提供了與yum幾本相似的命令行操作：
+
+```html
+# yum/dnf install 包名
+# yum/dnf remove 包名
+# yum/dnf info 包名 <!-- 展示指定軟件包信息 -->
+```
+
+僅下載軟件包：
+
+```html
+<!-- 下載指定軟件包及其當前環境下的依賴到指定路徑，需要目標軟件包在當前環境未安裝 -->
+# yum install --downloadonly --downloaddir=下載路徑 包名
+<!-- 下載指定軟件包（無論目標軟件包是否安裝） -->
+# yum/dnf download 包名
+```
+
+## rpm
+`rpm`是RedHat系發行版中用於管理軟件包的後端包處理工具，使用C語言實現。
+
+使用`rpm`命令行工具進行包管理：
+
+```html
+<!-- 安裝指定rpm包 -->
+# rpm -ivh 軟件包rpm文件
+# rpm -ivh --nodeps 軟件包rpm文件 <!-- 安裝軟件包時忽略依賴檢查 -->
+
+# rpm -e 包名 <!-- 移除包 -->
+# rpm -q 包名 <!-- 查詢包信息 -->
+# rpm -qa <!-- 查詢所有已安裝的包 -->
+```
+
+與dpkg指令不同，`rpm -ivh --nodeps *.rpm`並不能安裝當前路徑下的所有rpm包，
+要實現該效果需要手動編寫循環：
+
+```
+# for i in $(ls *.rpm); do rpm -ivh --nodeps $i; done
+```
+
+### rpm包結構
+rpm包結構如下：
+
+```sh
+.
+├── rpm
+│   ├── BINARY
+│   ├── SOURCE
+│   ├── RPMS
+│   ├── SRPMS
+│   ├── PREIN
+│   ├── PREUN
+│   ├── POSTIN
+│   ├── POSTUN
+│   └── TRANS
+├── ...
+└── ...
+```
+
+rpm包的主要內容如下：
+
+- `BINARY` 存放rpm包的二進制文件，包括rpm包的元數據、文件資源等。
+- `SOURCE` 存放源代碼包，rpm包的源代碼包。
+- `RPMS` 存放rpm包的二進制文件，包括rpm包的元數據、文件資源等。
+- `SRPMS` 存放源代碼包，rpm包的源代碼包。
+- `PREIN` 存放rpm包安裝前的腳本。
+- `PREUN` 存放rpm包卸載前的腳本。
+- `POSTIN` 存放rpm包安裝後的腳本。
+- `POSTUN` 存放rpm包卸載後的腳本。
+- `TRANS` 存放rpm包的轉換腳本。
 
 
 
