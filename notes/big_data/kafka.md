@@ -4,6 +4,7 @@
     - [下載](#下載)
     - [環境變量配置](#環境變量配置)
     - [主服務配置](#主服務配置)
+    - [IPv4/IPv6雙棧](#ipv4ipv6雙棧)
     - [服務啟動](#服務啟動)
     - [消費數據](#消費數據)
     - [分區擴展](#分區擴展)
@@ -58,7 +59,8 @@ export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
 - `$KAFKA_HOME/etc/kafka/server.properties`
 
     Kafka服務的核心啓動配置項。
-    做爲集羣啓動時需要指定以下配置：
+
+    使用Zookeeper作為分布式協調服務時，啓動前需要指定以下配置：
 
     ```conf
     broker.id = 服務編號（數值，集羣中每個Kafka服務需要使用不同的ID）
@@ -171,6 +173,34 @@ export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
     # 示例： max.request.size = 5000000
     ```
 
+## IPv4/IPv6雙棧
+Kafka默認配置僅提供一類地址，要使服務可通過IPv4和IPv6雙棧地址訪問，需要修改下列配置：
+
+```conf
+# 創建新的協議別名PLAINTEXT_V4，並將其映射到PLAINTEXT
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL,PLAINTEXT_V4:PLAINTEXT
+
+# listeners中不可出現同名協議，使用新創建的協議別名PLAINTEXT_V4綁定IPv4地址，默認PLAINTEXT綁定IPv6地址
+listeners=PLAINTEXT://[IPv6地址]:9092,CONTROLLER://:9093,PLAINTEXT_V4://IPv4地址:9092
+
+# 使用自定義的別名宣告IPv4地址
+advertised.listeners=PLAINTEXT://[IPv6地址]:9092,PLAINTEXT_V4://IPv4地址:9092
+```
+
+若不指定地址listeners中使用相同端口會出現端口衝突；
+若不要求IPv4、IPv6地址使用相同端口，則可簡化配置：
+
+```conf
+# 創建新的協議別名PLAINTEXT_V4，並將其映射到PLAINTEXT
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL,PLAINTEXT_V4:PLAINTEXT
+
+# listeners中不可出現同名協議，使用新創建的協議別名綁定新端口9091，此時無需顯式指定端口
+listeners=PLAINTEXT://:9092,CONTROLLER://:9093,PLAINTEXT_V4://:9091
+
+# 使用自定義的別名和新端口宣告IPv4地址
+advertised.listeners=PLAINTEXT://[IPv6地址]:9092,PLAINTEXT_V4://IPv4地址:9091
+```
+
 ## 服務啟動
 Kafka相關CLI工具位於`$KAFKA_HOME/bin`路徑下。
 
@@ -195,6 +225,9 @@ $ kafka-server-stop
 使用 --from-beginning 參數輸出該話題從創建開始後的消息
 使用 --consumer.config 參數指定消費端使用的配置文件
 使用 --offset [偏移量] --partion [分區編號] 參數自定義讀取消息時的偏移量
+
+早期版本Kafka使用 --zookeeper 參數指定Zookeeper集群地址端口；
+現在已被棄用，改為使用 --bootstrap-server 參數指定Broker地址端口。
 -->
 $ kafka-console-consumer --bootstrap-server Broker地址:端口 --topic 話題名稱
 
@@ -684,6 +717,7 @@ fi
 
 
 # 問題記錄
+記錄一些Kafka常見問題。
 
 ## org.apache.kafka.clients.NetworkClient: Connection to node -1 could not be established. Broker may not be available.
 Kafka配置中`listeners`不能使用IP地址，只能使用主機名稱。listeners設置為localhost時，則不能被外網訪問。
