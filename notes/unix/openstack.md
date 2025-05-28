@@ -129,14 +129,29 @@ Kolla Ansible部署流程視使用版本而異，部署時需要訪問對應版�
 Kolla Ansible實際支持的版本參見官方
 [`Kolla Images Support Matrix`](https://docs.openstack.org/kolla/latest/support_matrix.html)。
 
+Kolla Ansible的官方鏡像托管在紅帽的鏡像平臺[Quay.io](https://quay.io/organization/openstack.kolla)中，
+部分版本的用Kolla Ansible在發佈時鏡像可能未同步更新（如2024.2初版），
+升級版本前需檢查對應版本的Docker鏡像是否已更新到托管平臺。
+
 ## Debian Stable部署流程
 以當前的Debian係發行版為例，首先安裝Python venv，並進入虛擬環境：
 
 ```html
 <!-- 安裝 venv，創建並進入虛擬環境 -->
+以Debian Stable版本與Kolla Ansible部署OpenStack All in One，
+選用netinst.iso鏡像並配置最小化依賴，保留下列軟件包即可：
+
+```
+# apt install 7zip apparmor apt-file bind9-dnsutils btop btrfs-progs build-essential cmake curl docker.io ethtool fish git grub-efi-amd64 iproute2 iputils-ping locales lvm2 manpages-dev ncat network-manager nmap openssh-server parted pciutils python3-venv screen sysbench systemd-timesyncd tzdata usbutils vim wpasupplicant
+```
+
+以當前的Debian係發行版為例，首先安裝Python venv，並進入虛擬環境：
+
+```html
+<!-- 安裝 venv，創建並進入虛擬環境 -->
 # apt install python3-venv
-# python3 -m venv /opt/openstack/openstack-venv-2023.1
-# source /opt/openstack/openstack-venv-2023.1/bin/activate.fish
+# python3 -m venv /opt/openstack/openstack-venv-版本號
+# source /opt/openstack/openstack-venv-版本號/bin/activate.fish
 ```
 
 之後安裝Ansible（需要注意Ansible版本，不能直接使用最新版本，
@@ -150,22 +165,23 @@ Kolla Ansible實際支持的版本參見官方
 安裝Kolla Ansible（使用的Kolla分支需要匹配OpenStack的部署目標版本）：
 
 ```html
-<!-- 對應Master，當前開發版 -->
-# pip install git+https://opendev.org/openstack/kolla-ansible@master
-
+<!-- 穩定版本 -->
+# pip install git+https://opendev.org/openstack/kolla-ansible@stable/版本號
 <!-- 對應 OpenStack Zed 版本，其它版本類似，需要使用Kolla Ansible的對應分支 -->
 # pip install git+https://opendev.org/openstack/kolla-ansible@stable/zed
-<!-- Zedz之後的版本使用年月份作爲版本名稱 -->
+<!-- Zed之後的版本使用年月份作爲版本名稱 -->
 # pip install git+https://opendev.org/openstack/kolla-ansible@stable/2023.1
 ...
+<!-- 對應Master，當前開發版 -->
+# pip install git+https://opendev.org/openstack/kolla-ansible@master
 ```
 
 複製默認配置：
 
 ```html
 # mkdir -p /etc/kolla
-# cp /opt/openstack-venv/share/kolla-ansible/etc_examples/kolla/* /etc/kolla
-# cp /opt/openstack-venv/share/kolla-ansible/ansible/inventory/all-in-one . <!-- 使用all-in-one安裝-->
+# cp /opt/openstack/openstack-venv-版本/share/kolla-ansible/etc_examples/kolla/* /etc/kolla
+# cp /opt/openstack/openstack-venv-版本/share/kolla-ansible/ansible/inventory/all-in-one . <!-- 使用all-in-one安裝-->
 ```
 
 編輯配置文件`/etc/kolla/globals.yml`，核心配置內容：
