@@ -134,10 +134,6 @@ Kolla Ansible的官方鏡像托管在紅帽的鏡像平臺[Quay.io](https://quay
 升級版本前需檢查對應版本的Docker鏡像是否已更新到托管平臺。
 
 ## Debian Stable部署流程
-以當前的Debian係發行版為例，首先安裝Python venv，並進入虛擬環境：
-
-```html
-<!-- 安裝 venv，創建並進入虛擬環境 -->
 以Debian Stable版本與Kolla Ansible部署OpenStack All in One，
 選用netinst.iso鏡像並配置最小化依賴，保留下列軟件包即可：
 
@@ -192,8 +188,12 @@ kolla_base_distro: "ubuntu" # 設置鏡像基於的發行版，基於Ubuntu的�
 openstack_release: "zed" # 指定部署的OpenStack版本，默認的master為開發中版本，不穩定，不推薦使用
 ...
 network_interface: "網卡設備" # 管理網
-kolla_internal_vip_address: "x.x.x.x" # VIP地址
+kolla_internal_vip_address: "x.x.x.x" # VIP地址，若禁用haproxy/proxysql，則填寫管理網網卡地址
 neutron_external_interface: "網卡設備" # 虛擬機業務網
+enable_haproxy: "no" # 是否啓用HAProxy，默認啓用，All in One部署無需開啟
+enable_proxysql: "no" # 是否啓用ProxySQL，默認啓用，All in One部署無需開啟
+...
+# 存儲配置部分查看Cinder相關段落
 ...
 ```
 
@@ -209,16 +209,47 @@ glance, keystone, neutron, nova, heat, horizon
 # kolla-ansible install-deps <!-- 生成各類roles配置（～/.ansible/collections/ansible_collections/openstack/kolla） -->
 # kolla-genpwd <!-- 生成密碼（/etc/kolla/password.yml文件） -->
 
-# kolla-ansible -i ./all-in-one bootstrap-servers <!-- 安裝依賴軟件包 -->
-# kolla-ansible -i ./all-in-one prechecks <!-- 部署檢查 -->
+<!-- 檢查並安裝依賴軟件包，創建/etc/hosts域名映射，禁用防火墻、配置docker等 -->
+# kolla-ansible bootstrap-servers -i ./all-in-one
+
+<!-- 部署檢查 -->
+# kolla-ansible prechecks -i ./all-in-one
 
 <!-- 順利通過檢查後可執行部署操作 -->
-# kolla-ansible -i ./all-in-one deploy
-# kolla-ansible -i ./all-in-one deploy --tags 組件名稱 <!-- 可單獨部署部分內容 -->
+# kolla-ansible deploy -i ./all-in-one
+# kolla-ansible deploy -i ./all-in-one --tags 組件名稱 <!-- 可單獨部署部分內容 -->
 
 <!-- 部署操作順利完成後，執行後置部署操作 -->
-# kolla-ansible -i ./all-in-one post-deploy <!-- 會在 /etc/kolla 路徑下生成 admin-openrc.sh 以及clouds.yaml 文件 -->
+# kolla-ansible post-deploy -i ./all-in-one <!-- 會在 /etc/kolla 路徑下生成 admin-openrc.sh 以及clouds.yaml 文件 -->
 ```
+
+`bootstrap-servers`操作不是必要的，相關的軟件包安裝、環境配置可以手動執行；
+2024.2版本之後的kolla-ansible工具改為了Python實現，部分依賴轉移到了venv環境中，
+但bootstrap-servers依舊在系統環境安裝依賴，導致依賴配置不正確，且安裝了大量不必要依賴；
+手動配置步驟：
+
+- 添加host主機名映射
+- 在venv環境中安裝Python依賴
+
+    ```
+    # pip install docker dbus-python
+    ```
+
+-  手動配置docker，
+
+    創建`/etc/docker/daemon.json`，關閉docker網橋、IP轉發功能，並添加日誌限制：
+
+    ```json
+    {
+        "bridge": "none",
+        "ip-forward": false,
+        "iptables": false,
+        "log-opts": {
+            "max-file": "5",
+            "max-size": "50m"
+        }
+    }
+    ```
 
 `kolla-genpwd`生成密碼需要`/etc/kolla/password.yml`文件已存在，password.yml文件中，
 `keystone_admin_password`配置控制Horizon網管頁面以及openstack命令行工具的密碼；
@@ -227,8 +258,8 @@ glance, keystone, neutron, nova, heat, horizon
 集群部署完成後，常用管理操作：
 
 ```html
-# kolla-ansible -i ./all-in-one stop <!-- 關閉服務容器 -->
-# kolla-ansible -i ./all-in-one deploy-containers <!-- 啟動集群容器 -->
+# kolla-ansible stop -i ./all-in-one  <!-- 關閉服務容器 -->
+# kolla-ansible deploy-containers -i ./all-in-one <!-- 啟動集群容器 -->
 ```
 
 ## Kolla Ansible鏡像
@@ -259,19 +290,19 @@ Kolla Ansible支持版本升級，基本升級流程：
 1. 參考新版本的安裝文檔，在新的venv環境中安裝ansible和kolla-ansible軟件包
 1. 對比`globals.yml`、`passwords.yml`等配置，合併新版本的配置變化
 （注意passwords文件中若存在新增項則應為新增項生成密碼後加入）
-1. 按照部署模式對比inventory配置（all-in-one/multinode）
+1. 按照部署模式對比inventory配置（`all-in-one`或`multinode`）
 1. 部署新的依賴
 
 	```html
 	# kolla-ansible install-deps <!-- 安裝/升級新的依賴 -->
-	# kolla-ansible -i ./all-in-one bootstrap-servers
-	# kolla-ansible -i ./all-in-one prechecks <!-- 升級部署前執行檢查 -->
+	# kolla-ansible bootstrap-servers -i ./all-in-one
+	# kolla-ansible prechecks -i ./all-in-one <!-- 升級部署前執行檢查 -->
 	```
 
 1. 執行`upgrade`操作
 
 	```
-	# kolla-ansible -i ./all-in-one upgrade
+	# kolla-ansible upgrade -i ./all-in-one
 	```
 
 根據實際組件的版本差異和部署情況，可能部分組件會存在升級失敗的情況，
@@ -300,8 +331,10 @@ Kolla Ansible支持版本升級，基本升級流程：
 需要額外使用apt安裝下列依賴才能正常完成編譯流程：
 
 ```
-# apt install cmake pkg-config libdbus-1-dev libglib2.0-dev
+# apt install cmake python3-dev pkg-config libdbus-1-dev libglib2.0-dev
 ```
+
+部署完成後這些依賴不再需要，可以移除（但升級OpenStack版本時需要再次安裝）。
 
 2024.2版本中，Nova/Cinder/Glance等數據庫同樣存在一定變化，
 升級後可能會出現下列問題：
