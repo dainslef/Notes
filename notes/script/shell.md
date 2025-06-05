@@ -3,22 +3,23 @@
 - [概述](#概述)
 - [切換默認 Shell](#切換默認-shell)
 - [Shell 交互](#shell-交互)
-	- [調試信息](#調試信息)
-	- [訪問歷史路徑](#訪問歷史路徑)
-	- [匹配規則](#匹配規則)
-	- [字符串截取](#字符串截取)
-	- [任務管理](#任務管理)
-	- [`screen`（會話管理）](#screen會話管理)
-	- [`script`（終端屏幕錄製）](#script終端屏幕錄製)
-	- [管道](#管道)
-	- [重定向](#重定向)
-	- [bash/zsh擴展重定向語法](#bashzsh擴展重定向語法)
-		- [here-document](#here-document)
-		- [here-string](#here-string)
-		- [process-substitution](#process-substitution)
-	- [標準輸入輸出](#標準輸入輸出)
-	- [交互快捷鍵](#交互快捷鍵)
-	- [fish_config](#fish_config)
+    - [調試信息](#調試信息)
+    - [訪問歷史路徑](#訪問歷史路徑)
+    - [匹配規則](#匹配規則)
+    - [字符串截取](#字符串截取)
+    - [任務管理](#任務管理)
+    - [`screen`（會話管理）](#screen會話管理)
+    - [`tmux`（終端會話管理）](#tmux終端會話管理)
+    - [`script`（終端屏幕錄製）](#script終端屏幕錄製)
+    - [管道](#管道)
+    - [重定向](#重定向)
+    - [bash/zsh擴展重定向語法](#bashzsh擴展重定向語法)
+        - [here-document](#here-document)
+        - [here-string](#here-string)
+        - [process-substitution](#process-substitution)
+    - [標準輸入輸出](#標準輸入輸出)
+    - [交互快捷鍵](#交互快捷鍵)
+    - [fish_config](#fish_config)
 - [Shell 語法](#shell-語法)
 	- [Shebang（`#!`）](#shebang)
 	- [變量](#變量)
@@ -367,6 +368,74 @@ screen窗口支持切分，相關操作快捷鍵：
 | ctrl + a X | 關閉當前切分窗口 |
 | crrl + a Q | 關閉所有切分窗口 |
 | ctrl + a i | 在子窗口間切換 |
+
+## `tmux`（終端會話管理）
+`tmux`與screen類似，但設計更加現代化，功能更加完善。
+
+tmux通常需要單獨安裝，但通常macOS、FreeBSD以及各大Linux發行版均倉庫中均包含tmux，
+可直接通過内置包管理器進行安裝：
+
+```html
+# pacman -S tmux
+# apt install tmux
+# brew install tmux
+# pkg install tmux
+```
+
+tmux包括**會話**（`session`）與**窗口**（`window`）概念：
+
+- session代表整個終端窗口，與screen工具中的會話概念相同，可**連接**（`attach`）與**分離**（`detach`）。
+- window代表終端窗口内的標籤頁，類似其它終端模擬器的tab概念。
+
+常用參數示例：
+
+```html
+<!-- 直接使用tmux指令為創建一個新的會話窗口，默認會直接進入該會話 -->
+$ tmux
+$ tmux new/new-session <!-- 與默認操作相同 -->
+$ tmux new -s 會話名稱 <!-- 創建指定名稱的會話 -->
+
+<!-- 創建會話並執行指令 -->
+$ tmux new 指令 <!-- 創建新會話並進入新會話執行指令 -->
+$ tmux new -d 指令 <!-- 在後台創建新會話執行指令 -->
+
+<!-- 列出當前存在的tmux會話 -->
+$ tmux ls
+
+<!-- 恢復會話 -->
+$ tmux a/attach/attach-session <!-- 回復最近的會話 -->
+$ tmux a -t 會話編號 <!-- 恢復指定編號的會話，無論會話是否占用均會連接到該會話 -->
+```
+
+與screen類似，tmux在進入會話后使用快捷鍵`ctrl + b`觸發各類操作。
+
+常用快捷鍵：
+
+| 快捷鍵 | 説明 |
+| :- | :- |
+| ctrl + b ? | 展示所有快捷鍵 |
+| ctrl + b d | 分離當前會話 |
+| ctrl + b s | 展示會話列表 |
+
+窗口管理相關快捷鍵：
+
+| 快捷鍵 | 説明 |
+| :- | :- |
+| ctrl + b w | 展示窗口列表 |
+| ctrl + b c | 在當前會話中創建新窗口 |
+| ctrl + b 編號 | 進入指定編號的窗口 |
+| ctrl + b n/p | 切換到下一個/前一個窗口 |
+
+面板管理相關快捷鍵：
+
+| 快捷鍵 | 説明 |
+| :- | :- |
+| ctrl + b % | 水平創建面板 |
+| ctrl + b " | 垂直創建面板 |
+| ctrl + b x | 關閉面板/窗口/會話 |
+| ctrl + b 方向鍵 | 切換面板 |
+
+
 
 ## `script`（終端屏幕錄製）
 Linux/macOS(BSD)中均提供了`script`工具用於終端環境下的指令錄製與回放，
