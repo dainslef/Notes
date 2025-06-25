@@ -80,8 +80,8 @@ FreeBSD-版本號-RELEASE-CPU架構-鏡像類型.img/iso
 
 鏡像類型分爲以下幾類：
 
-- `bootonly` 後綴名爲`iso`，僅供啓動引導使用
-- `disc1` 後綴名爲`iso`，基本鏡像，包含基本軟件包
+- `bootonly` 後綴名爲`iso`，僅供啓動引導使用，用作安裝鏡像時需要聯網
+- `disc1` 後綴名爲`iso`，基本鏡像，包含基本軟件包（常用）
 - `dvd1` 後綴名爲`iso`，包含大量常用軟件包
 - `memstick` 後綴名`img`，刻錄使用鏡像，包含基本軟件包
 - `memstick-mini` 後綴名`img`，刻錄使用鏡像，包含核心軟件包，最小化安裝使用
@@ -148,15 +148,21 @@ ifconfig_網卡名稱="inet x.x.x.x/x" # 同上
 ifconfig_網卡名稱="x.x.x.x/x" # 數值形式子網，省略inet
 ifconfig_網卡名稱="inet x.x.x.x netmask x.x.x.x" # 點分十進制子網
 
+# 配置IPv6地址
+ifconfig_網卡名稱_ipv6="DHCP"
+ifconfig_網卡名稱_ipv6="xxxx::xxxx/xx"
+ifconfig_網卡名稱_ipv6="inet6 xxxx::xxxx prefixlen xx"
+
 # 配置多個IP
 ifconfig_網卡名稱_alias0="x.x.x.x/x" # 其它寫法與之前配置類似，不再贅述
 ifconfig_網卡名稱_alias1="x.x.x.x/x" # 添加多個地址，alias使用不同數值後綴
 
 # 可直接使用aliases在一行配置中添加多個地址，inet不可省略
-ifconfig_網卡名稱_aliases="inet x.x.x.x/x inet x.x.x.x/x ..."
+ifconfig_網卡名稱_aliases="inet x.x.x.x/x inet x.x.x.x/x inet6 xxxx::xxxx/xx ..."
 
 # 設置默認網關
 defaultrouter="x.x.x.x"
+ipv6_defaultrouter="xxxx::xxxx"
 ```
 
 ## 無線網絡配置
@@ -214,6 +220,7 @@ FreeBSD採用傳統的BSD風格的init系統，服務項在`/etc/rc.d`目錄下�
 
 ```html
 # service -l <!-- 列出所有服務 -->
+# service -e <!-- 列出啟用的服務 -->
 # service 服務名稱 onestart/onerestart/onestop <!-- 啟動/重啟/關閉服務 -->
 # service 服務名稱 enable/disable <!-- 啟用/禁用開機服務自啟動 -->
 ```
