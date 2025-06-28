@@ -2262,6 +2262,36 @@ xxx2: {{ .Values.xxx | default "xxx..." }}
 - nil（empty or null）
 - 空集合（map/slice/tuple/dict/array）
 
+控制語句單獨佔用一行時，默認輸出內容也會生成空白行：
+
+```yaml
+{{ if .Values.xxx }}
+xxx: {{ .Values.xxx }}
+{{ end }}
+```
+
+輸出內容：
+
+```
+
+xxx: xxx
+
+```
+
+可使用`{{-`語法去除空白行：
+
+```yaml
+{{- if .Values.xxx }}
+xxx: {{ .Values.xxx }}
+{{- end }}
+```
+
+輸出內容：
+
+```
+xxx: xxx
+```
+
 ### Helm模板函數
 Helm模板提供了大量[內置函數](https://helm.sh/docs/chart_template_guide/function_list/)，
 涵蓋了各類常用功能，如文件、數學、列表、時間等。
