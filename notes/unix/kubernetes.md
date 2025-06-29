@@ -2296,7 +2296,33 @@ xxx: xxx
 Helm模板提供了大量[內置函數](https://helm.sh/docs/chart_template_guide/function_list/)，
 涵蓋了各類常用功能，如文件、數學、列表、時間等。
 
-函數調用操作使用雙重花括號，示例：
+Helm提供了比較函數可搭配控制語句使用：
+
+- `not` 否定條件
+
+    ```yaml
+    {{- if not .Values.xxx }}
+    ...
+    {{- end }}
+    ```
+
+- `eq` 比較內容是否相等
+
+    ```yaml
+    {{- if eq .Values.xxx "xxx" }}
+    ...
+    {{- end }}
+    ```
+
+- `ne` 比較內容是否不同
+
+    ```yaml
+    {{- if ne .Values.xxx "xxx" }}
+    ...
+    {{- end }}
+    ```
+
+單獨調用函數使用雙重花括號，示例：
 
 ```yaml
 time: {{ now }} # 獲取當前時間
