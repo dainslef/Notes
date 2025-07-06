@@ -235,9 +235,13 @@ Redis的主從複製機制解決了數據同步問題，但從節點在主節點
 redis-sentinel配置文件位於`/etc/redis/sentinel.conf`中，核心配置項：
 
 ```sh
-bind 服務綁定地址 # 本機訪問使用127.0.0.1，對外訪問可使用指定IP或0.0.0.0
+# 本機訪問使用 127.0.0.1 ，對外訪問可使用指定IP或 0.0.0.0
+# IPv6本機訪問使用 ::1 ，對外訪問可使用 ::
+bind 服務綁定地址 # bind 0.0.0.0 ::
 port 哨兵端口 # 默認端口 26379
 
+# 哨兵支持IPv6地址，使用IPv6地址時無需添加中括號
+# 同一集群內的各個節點需要使用相同的主節點地址
 sentinel monitor 集群名稱 主節點地址 主節點端口 最少發現故障的哨兵數目
 sentinel down-after-milliseconds 集群名稱 下線時間（毫秒）
 sentinel failover-timeout 集群名稱 故障切換超時時間（毫秒）
@@ -246,10 +250,16 @@ sentinel parallel-syncs 集群名稱 併行同步數目
 # 可選配置
 sentinel auth-pass 集群名稱 密碼 # 若主節點配置了密碼訪問，則哨兵進程同樣需要設置訪問密碼
 sentinel resolve-hostnames yes # 啟用域名解析
-sentinel announce-hostnames yes # 啟用域名宣告
+sentinel announce-hostname xxx # 將當前節點宣告為特定主機名稱
+sentinel announce-ip x.x.x.x # 若節點位於NAT網絡中，可自定義宣告地址
+sentinel announce-ip xxxx:xxxx::xxxx # 宣告IPv6地址
 ```
 
-哨兵通過集群名稱區分不同的監控集群，集群名稱相同的哨兵節點會使用Redis的Pub/Sub通信自動相互發現。
+哨兵通過集群名稱區分不同的監控集群，同子網內集群名稱相同的哨兵節點會使用Redis的Pub/Sub通信自動相互發現；
+在同一個子網中，不通哨兵集群需要使用不同的哨兵名稱，否則節點會狀態混亂；
+相同集群的各個節點應使用相同的主節點地址，否則會造成集群腦裂，存在多個主節點；
+首次初始化集群時，需要手動設置作為備用的Redis節點，
+在配置文件中添加或直接在備用的節點中執行REPLICAOF指令，使備用節點同步主節點。
 
 哨兵進程獨立於Redis服務進程，在主節點故障後，若發現故障的哨兵數目大於monitor配置中的最小數目，
 各個哨兵會進行投票，半數以上的哨兵確認主節點故障則開始災難恢復，
