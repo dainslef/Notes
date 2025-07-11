@@ -67,6 +67,7 @@
         - [恢復Galera集群](#恢復galera集群)
 - [OceanBase](#oceanbase)
     - [OceanBase all-in-one 部署](#oceanbase-all-in-one-部署)
+    - [OceanBase all-in-one 卸載](#oceanbase-all-in-one-卸載)
     - [OceanBase集群管理](#oceanbase集群管理)
     - [OceanBase常見配置問題](#oceanbase常見配置問題)
     - [OceanBase日誌](#oceanbase日誌)
@@ -1635,6 +1636,22 @@ please open http://x.x.x.x:8680
 - OBServer：數據庫服務進程
 - OBProxy：代理進程，客戶端通常不直接與OBServer建立連接，而是通過OBProxy轉發請求到最合適的節點
 
+## OceanBase all-in-one 卸載
+若已部署集群，首先移除集群：
+
+```
+$ obd cluster destroy 集群名稱
+```
+
+之後找到OceanBase all-in-one安裝包路徑，執行卸載腳本即可：
+
+```
+$ cd /root/.oceanbase-all-in-one/bin/
+# ./uninstall.sh
+```
+
+若部署新版本失敗，還需要清理`/root/.obd`以及`/root/.oceanbase-all-in-one`等路徑。
+
 ## OceanBase集群管理
 obd工具用於集群管理：
 
@@ -1688,6 +1705,10 @@ OceanBase的日誌按照租戶存儲，日誌位於`數據目錄/租戶名稱/�
 服務器重啟後，OceanBase的部分組件可能會啟動失敗（如`obagent`），
 除了常見的查看日誌操作外，可嘗試清空`數據目錄/租戶名稱/組件名稱/run`路徑下的內容
 （不可刪除該目錄，否則集群啟動檢查失敗）。
+
+obagent進程啓動時會在.../run路徑下創建sock文件用於進程通信，
+啓動進程時若該路徑下已經存在舊的sock文件，會導致obagent的狀態異常，
+導致進程無法通過健康狀態檢查（sock狀態），進而導致後續組件啓動失敗。
 
 
 
