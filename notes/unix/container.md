@@ -15,18 +15,17 @@
         - [Docker容器自啟動](#docker容器自啟動)
         - [Docker容器生成鏡像](#docker容器生成鏡像)
         - [Docker容器導入/導出](#docker容器導入導出)
-        - [Docker Compose](#docker-compose)
     - [Docker鏡像管理](#docker鏡像管理)
-        - [Docker鏡像源](#docker鏡像源)
         - [Docker鏡像導入/導出](#docker鏡像導入導出)
-    - [Docker Registry](#docker-registry)
-        - [Docker Registry 配置](#docker-registry-配置)
-    - [Docker Hub](#docker-hub)
-    - [Docker鏡像構建](#docker鏡像構建)
+        - [Docker鏡像構建](#docker鏡像構建)
         - [Docker鏡像構建傳入環境變量](#docker鏡像構建傳入環境變量)
     - [Docker容器日誌](#docker容器日誌)
     - [Docker容器資源監控](#docker容器資源監控)
     - [Docker環境清理](#docker環境清理)
+- [Docker Hub](#docker-hub)
+    - [Docker鏡像源](#docker鏡像源)
+    - [Docker Registry](#docker-registry)
+    - [Docker Registry 配置](#docker-registry-配置)
 - [Docker文件系統](#docker文件系統)
     - [Docker文件傳輸](#docker文件傳輸)
     - [Docker綁定掛載（Bind Mounts）](#docker綁定掛載bind-mounts)
@@ -35,7 +34,7 @@
     - [Docker端口映射](#docker端口映射)
     - [Docker修改端口映射](#docker修改端口映射)
     - [Docker設置自定義Hosts](#docker設置自定義hosts)
-- [Docker Compose](#docker-compose-1)
+- [Docker Compose](#docker-compose)
     - [安裝Docker Compose](#安裝docker-compose)
     - [Docker Compose服務定義](#docker-compose服務定義)
     - [Docker Compose指令](#docker-compose指令)
@@ -375,6 +374,13 @@ $ docker create -it --name Nix nixos/nix sh
 # docker exec -itu root 容器ID/容器名稱 bash
 ```
 
+部分容器可能會在docker鏡像中直接啟動特定指令，此類容器不能接收啟動進程名稱，而是將所有追加內容均視為參數。
+對於此類容器，進入Shell環境需要使用`--entrypoint`參數：
+
+```html
+# docker exec -it --entrypoint /bin/bash 容器ID/容器名稱
+```
+
 查看容器進程的輸出日志：
 
 ```html
@@ -468,29 +474,6 @@ docker commit僅會提交相對基礎鏡像變化的部分（OverlayFS）。
 
 導入鏡像時`鏡像倉庫:鏡像TAG`參數可以省略，省略該參數時，導入鏡像的REPOSITORY與TAG均爲`<none>`。
 
-### Docker Compose
-[`Compose`](https://docs.docker.com/compose)是Docker官方提供的單機容器編排技術。
-
-早期的`docker-compose`為獨立的組件，需要單獨下載使用。
-自[`Docker Compose V2`](https://www.docker.com/blog/announcing-compose-v2-general-availability/)開始，
-Docker Compose已經與Docker一同提供，並可直接使用`docker compose`指令執行Compose相關操作。
-
-部分發行版（如`ubuntu`）提供的Docker並未包含Compose，
-且軟件源中提供的`docker-compose`組件為Python實現的`Docker Compose 1.x`，
-因此，需要手動從GitHub下載安裝：
-
-```html
-<!-- 安裝到全局路徑 -->
-# mkdir -p /usr/local/lib/docker/cli-plugins
-# curl -SL https://github.com/docker/compose/releases/download/v2.x.x/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
-# chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-
-<!-- 安裝到用戶路徑 -->
-$ mkdir -p ~/.docker/cli-plugins/
-$ curl -SL https://github.com/docker/compose/releases/download/v2.x.x/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-$ chmod +x ~/.docker/cli-plugins/docker-compose
-```
-
 ## Docker鏡像管理
 鏡像包含一個定製的Linux環境，提供創建容器所需的文件。
 
@@ -566,33 +549,6 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 # docker image inspect 鏡像ID/鏡像名稱
 ```
 
-### Docker鏡像源
-默認Docker會從[**官方源**](https://production.cloudflare.docker.com)中拉取鏡像，
-在牆國通常無法連接或下載龜速。
-
-相關配置文件為`daemon.json`，在不同OS和不同Docker發行版下路徑有所差異：
-
-- macOS下，安裝`Docker Desktop`，則配置路徑為`~/.docker/daemon.json`
-- Linux下，通過發行版默認包管理器安裝，則配置路徑通常為`/etc/docker/daemon.json`
-
-在該配置中添加`registry-mirrors`配置項（以中科大USTC鏡像源為例）：
-
-```json
-{
-    ...
-    "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"],
-    ...
-}
-```
-
-該配置項為數組結構，內容為文本數組（可添加多個鏡像地址）。
-
-自2024年6月開始，牆國各大高校第三方Docker鏡像源相繼被黨國封殺，
-目前僅存在部分自建Docker鏡像源可用：
-
-- `https://dockerpull.org`
-- `https://docker.m.daocloud.io`（来自项目[`DaoCloud/public-image-mirror`](https://github.com/DaoCloud/public-image-mirror)）
-
 ### Docker鏡像導入/導出
 使用`docker save`指令將鏡像導出為`*.tar`格式的壓縮文件：
 
@@ -608,164 +564,7 @@ nixos/nix           latest              3513b310c613        5 weeks ago         
 # docker load < 備份tar文件
 ```
 
-## Docker Registry
-Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.com/registry/)，
-可讓其它Docker實例訪問本機的本地鏡像。
-
-執行指令：
-
-```
-# docker run -d -p 5000:5000 --name registry registry
-```
-
-執行指令後會在本地的5000端口創建本地鏡像服務，
-可將需要提交到該服務的鏡像添加tag，之後進行提交：
-
-```
-# docker tag 源鏡像 localhost:5000/鏡像名稱
-# docker push localhost:5000/鏡像名稱
-```
-
-默認提交的鏡像存儲在容器內部，刪除容器會一併刪除提交的內容，
-若需要保留提交內容，則應將鏡像存儲路徑掛載到外部目錄：
-
-```
-# docker run -d -p 5000:5000 --name registry -v /mnt/registry:/var/lib/registry registry
-```
-
-Docker現在要求鏡像服務支持HTTPS，使用HTTP服務的Docker Registry在推送鏡像時會得到錯誤：
-
-```
-The push refers to repository [x.x.x.x:5000/xxx]
-Get "https://x.x.x.x:5000/v2/": http: server gave HTTP response to HTTPS client
-```
-
-解決該類錯誤可修改Docker配置`~/.config/daemon.json`，將目標地址加入`insecure-registries`中：
-
-```json
-{
-    ...
-    "insecure-registries" : ["x.x.x.x:5000"],
-    ...
-}
-```
-
-Docker推送鏡像時默認使用HTTP相關端口，普通Registry使用80端口，因此創建registry容器時可將其影射到80端口：
-
-```
-# docker run -d -p 80:5000 --name registry -v /mnt/registry:/var/lib/registry registry
-```
-
-使用80端口則填寫地址/鏡像設置TAG時不再需要顯式指定端口。
-
-### Docker Registry 配置
-Docker Registry默認僅提供了簡單的鏡像服務，
-完整功能配置參考[官方文檔](https://distribution.github.io/distribution/about/configuration/)。
-更完整的鏡像倉庫功能還可使用Habor等第三方項目。
-
-Docker Registry官方鏡像中配置位於`/etc/distribution/config.yml`，
-默認內容如下：
-
-```yaml
-version: 0.1
-log:
-  fields:
-    service: registry
-storage:
-  cache:
-    blobdescriptor: inmemory
-  filesystem:
-    rootdirectory: /var/lib/registry
-http:
-  addr: :5000
-  headers:
-    X-Content-Type-Options: [nosniff]
-health:
-  storagedriver:
-    enabled: true
-    interval: 10s
-    threshold: 3
-```
-
-Docker Registry可在本地鏡像不存在時向上游代理獲取鏡像，
-可通過環境變量`REGISTRY_PROXY_REMOTEURL`配置上游代理：
-
-```
-# docker run -d -p 5000:5000 -e REGISTRY_PROXY_REMOTEURL="https://registry-1.docker.io" --name registry registry
-```
-
-亦可在配置文件中配置：
-
-```yaml
-...
-proxy:
-  remoteurl: https://registry-1.docker.io
-...
-```
-
-將Docker Registry配置為鏡像代理，示例：
-
-```yaml
-version: 0.1
-log:
-  level: info
-storage:
-  cache:
-    blobdescriptor: inmemory
-  filesystem:
-    rootdirectory: /var/lib/registry
-http:
-  addr: :5000
-  tls:
-    certificate: /opt/tls/tls.crt
-    key: /opt/tls/tls.key
-maintenance:
-  uploadpurging:
-    enabled: true # Enable auto clean function.
-    age: 1h # Delete content that old than this age.
-    interval: 1h # Delete task execute interval.
-  readonly:
-    enabled: true # Enable read only mode which doesn't allow upload image.
-health:
-  storagedriver:
-    enabled: true
-    interval: 10s
-    threshold: 3
-proxy:
-  remoteurl: https://registry-1.docker.io
-```
-
-
-
-## Docker Hub
-Docker官方提供了鏡像託管服務`Docker Hub`。
-在`https://hub.docker.com`中註冊，在本機使用`docker login`登陸賬戶後即可使用鏡像託管服務。
-將本地的個人鏡像上傳到Docker Hub：
-
-```
-$ docker push 鏡像名稱
-```
-
-個人鏡像的鏡像名稱中`REPOSITORY`部分應以**Docker Hub ID**加**正斜槓**起始，鏡像名稱格式如下：
-
-```
-[Docker Hub ID]/Xxx:鏡像TAG
-```
-
-假設個人`Docker ID`爲`test`，本地測試鏡像信息如下：
-
-```
-REPOSITORY              TAG                 IMAGE ID            CREATED            SIZE
-test/test_image     2333               9f0a1d72c464        9 minutes ago       538MB
-```
-
-將測試鏡像上傳到Docker Hub：
-
-```
-$ docker push test/test_image:2333
-```
-
-## Docker鏡像構建
+### Docker鏡像構建
 Docker使用dockerfile描述鏡像，使用`docker build`指令通過描述文件構建鏡像。
 
 關於Docker鏡像構建，可參考[官方最佳實踐](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)，
@@ -900,6 +699,192 @@ WARNING! This will remove:
   - all build cache
 
 Are you sure you want to continue? [y/N]
+```
+
+
+
+# Docker Hub
+Docker官方提供了鏡像託管服務`Docker Hub`。
+在`https://hub.docker.com`中註冊，在本機使用`docker login`登陸賬戶後即可使用鏡像託管服務。
+將本地的個人鏡像上傳到Docker Hub：
+
+```
+$ docker push 鏡像名稱
+```
+
+個人鏡像的鏡像名稱中`REPOSITORY`部分應以**Docker Hub ID**加**正斜槓**起始，鏡像名稱格式如下：
+
+```
+[Docker Hub ID]/Xxx:鏡像TAG
+```
+
+假設個人`Docker ID`爲`test`，本地測試鏡像信息如下：
+
+```
+REPOSITORY              TAG                 IMAGE ID            CREATED            SIZE
+test/test_image     2333               9f0a1d72c464        9 minutes ago       538MB
+```
+
+將測試鏡像上傳到Docker Hub：
+
+```
+$ docker push test/test_image:2333
+```
+
+## Docker鏡像源
+默認Docker會從[**官方源**](https://registry-1.docker.io)中拉取鏡像，
+在牆國通常無法連接或下載龜速。
+
+相關配置文件為`daemon.json`，在不同OS和不同Docker發行版下路徑有所差異：
+
+- macOS下，安裝`Docker Desktop`，則配置路徑為`~/.docker/daemon.json`
+- Linux下，通過發行版默認包管理器安裝，則配置路徑通常為`/etc/docker/daemon.json`
+
+在該配置中添加`registry-mirrors`配置項（以中科大USTC鏡像源為例）：
+
+```json
+{
+    ...
+    "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"],
+    ...
+}
+```
+
+該配置項為數組結構，內容為文本數組（可添加多個鏡像地址）。
+
+自2024年6月開始，牆國各大高校第三方Docker鏡像源相繼被黨國封殺，
+目前僅存在部分自建Docker鏡像源可用：
+
+- `https://dockerpull.org`
+- `https://docker.m.daocloud.io`（来自项目[`DaoCloud/public-image-mirror`](https://github.com/DaoCloud/public-image-mirror)）
+
+目前墻國在持續封殺各類第三方Docker鏡像源，需要穩定的Docker鏡像源可使用自建Docker Registry。
+
+## Docker Registry
+Docker提供了內置的本地鏡像服務[Docker Registry](https://docs.docker.com/registry/)，
+可讓其它Docker實例訪問本機的本地鏡像。
+
+執行指令：
+
+```
+# docker run -d -p 5000:5000 --name registry registry
+```
+
+執行指令後會在本地的5000端口創建本地鏡像服務，
+可將需要提交到該服務的鏡像添加tag，之後進行提交：
+
+```
+# docker tag 源鏡像 localhost:5000/鏡像名稱
+# docker push localhost:5000/鏡像名稱
+```
+
+默認提交的鏡像存儲在容器內部，刪除容器會一併刪除提交的內容，
+若需要保留提交內容，則應將鏡像存儲路徑掛載到外部目錄：
+
+```
+# docker run -d -p 5000:5000 --name registry -v /mnt/registry:/var/lib/registry registry
+```
+
+Docker現在要求鏡像服務支持HTTPS，使用HTTP服務的Docker Registry在推送鏡像時會得到錯誤：
+
+```
+The push refers to repository [x.x.x.x:5000/xxx]
+Get "https://x.x.x.x:5000/v2/": http: server gave HTTP response to HTTPS client
+```
+
+解決該類錯誤可修改Docker配置`~/.config/daemon.json`，將目標地址加入`insecure-registries`中：
+
+```json
+{
+    ...
+    "insecure-registries" : ["x.x.x.x:5000"],
+    ...
+}
+```
+
+Docker推送鏡像時默認使用HTTP相關端口，普通Registry使用80端口，因此創建registry容器時可將其影射到80端口：
+
+```
+# docker run -d -p 80:5000 --name registry -v /mnt/registry:/var/lib/registry registry
+```
+
+使用80端口則填寫地址/鏡像設置TAG時不再需要顯式指定端口。
+
+## Docker Registry 配置
+Docker Registry默認僅提供了簡單的鏡像服務，
+完整功能配置參考[官方文檔](https://distribution.github.io/distribution/about/configuration/)。
+更完整的鏡像倉庫功能還可使用Habor等第三方項目。
+
+Docker Registry官方鏡像中配置位於`/etc/distribution/config.yml`，
+默認內容如下：
+
+```yaml
+version: 0.1
+log:
+  fields:
+    service: registry
+storage:
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+http:
+  addr: :5000
+  headers:
+    X-Content-Type-Options: [nosniff]
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+```
+
+Docker Registry可在本地鏡像不存在時向上游代理獲取鏡像，
+可通過環境變量`REGISTRY_PROXY_REMOTEURL`配置上游代理：
+
+```
+# docker run -d -p 5000:5000 -e REGISTRY_PROXY_REMOTEURL="https://registry-1.docker.io" --name registry registry
+```
+
+亦可在配置文件中配置：
+
+```yaml
+...
+proxy:
+  remoteurl: https://registry-1.docker.io
+...
+```
+
+將Docker Registry配置為鏡像代理，示例：
+
+```yaml
+version: 0.1
+log:
+  level: info
+storage:
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+http:
+  addr: :5000
+  tls:
+    certificate: /opt/tls/tls.crt
+    key: /opt/tls/tls.key
+maintenance:
+  uploadpurging:
+    enabled: true # Enable auto clean function.
+    age: 1h # Delete content that old than this age.
+    interval: 1h # Delete task execute interval.
+  readonly:
+    enabled: true # Enable read only mode which doesn't allow upload image.
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+proxy:
+  remoteurl: https://registry-1.docker.io
 ```
 
 
@@ -1197,6 +1182,10 @@ $ docker create --add-host 主機名1:IP1 --add-host 主機名2:IP2 ...
 相比`Docker Swarm`、`Kubernetes`等容器編排服務，
 Docker Compose僅用於本地部署容器，不提供容器多節點集群部署。
 
+早期的`docker-compose`為獨立的組件，需要單獨下載使用。
+自[`Docker Compose V2`](https://www.docker.com/blog/announcing-compose-v2-general-availability/)開始，
+Docker Compose已經與Docker一同提供，並可直接使用`docker compose`指令執行Compose相關操作。
+
 ## 安裝Docker Compose
 Docker官方版本已集成了Docker Compose，直接使用`docker compose`或`docker-compose`指令即可。
 
@@ -1205,6 +1194,22 @@ Linux發行版中打包的Docker通常不直接包含Docker Compose，需要單�
 ```html
 # pacman -S docker-compose <!-- Arch係 -->
 # apt install docker-compose <!-- Debian係 -->
+```
+
+部分發行版（如`ubuntu`）提供的Docker並未包含Compose，
+且軟件源中提供的`docker-compose`組件為Python實現的`Docker Compose 1.x`，
+因此，需要手動從GitHub下載安裝：
+
+```html
+<!-- 安裝到全局路徑 -->
+# mkdir -p /usr/local/lib/docker/cli-plugins
+# curl -SL https://github.com/docker/compose/releases/download/v2.x.x/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+# chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+<!-- 安裝到用戶路徑 -->
+$ mkdir -p ~/.docker/cli-plugins/
+$ curl -SL https://github.com/docker/compose/releases/download/v2.x.x/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+$ chmod +x ~/.docker/cli-plugins/docker-compose
 ```
 
 ## Docker Compose服務定義
@@ -1501,7 +1506,7 @@ registries = ['docker.io', 'registry.access.redhat.com']
 [plugins."io.containerd.grpc.v1.cri".registry.mirrors."xxx.xxx.xxx:端口"]
 endpoint = ["http://xxx.xxx.xxx:端口"] # 默認拉取鏡像使用HTTPS協議，使用HTTP協議拉取鏡像需要手動配置端點
 
-# HTTPS證書相關配置
+# 若依舊使用HTTPS協議，則可自定義HTTPS證書相關配置
 [plugins."io.containerd.grpc.v1.cri".registry.configs."xxx.xxx.xxx:端口".tls]
 # 禁用TLS證書驗證
 insecure_skip_verify = true
