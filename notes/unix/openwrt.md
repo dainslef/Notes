@@ -23,6 +23,7 @@
     - [無線網絡功能配置](#無線網絡功能配置)
     - [系統日誌](#系統日誌)
     - [內核日誌](#內核日誌)
+    - [NAT6](#nat6)
 - [UCI](#uci)
     - [UCI基本操作](#uci基本操作)
 - [LuCI](#luci)
@@ -339,7 +340,7 @@ opkg並未直接提供升級所有軟件包功能，可利用管道操作組合�
 ```html
 # opkg install
 <!-- 常用程序，所有設備均安裝 -->
-fish file lsblk btop iperf3 tcpdump screen luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
+fish file lsblk btop iperf3 tcpdump tmux luci-app-adblock luci-app-ddns luci-app-nlbwmon luci-app-ttyd
 <!-- 帶有USB接口的設備可作為下載服務器 -->
 luci-app-aria2 ariang kmod-fs-exfat kmod-usb-storage-uas usbutils rsync block-mount parted
 <!--
@@ -791,6 +792,29 @@ OpenWRT查看內核日誌與標準Linux類似：
 ```
 # dmesg
 ```
+
+## NAT6
+OpenWRT默認開啟了IPv4的WAN口NAT功能（NAT4），
+對於IPv6的WAN口的NAT功能（NAT6）默認不開啟（通常IPv6地址充裕，無NAT需求）；
+可通過UCI手動配置NAT6功能，
+參考[OpenWRT官方文檔](https://openwrt.org/docs/guide-user/firewall/fw3_configurations/fw3_nat#ipv6_nat)：
+
+```html
+<!-- Enable IPv6 masquerading aka NAT66 on the WAN zone.  -->
+# uci set firewall.@zone[0].masq6=1
+<!-- Announce IPv6 default route for the ULA prefix.  -->
+# uci set dhcp.lan.ra_default="1"
+<!-- Disable IPv6 source filter on the upstream interface.  -->
+# uci set network.wan6.sourcefilter="0"
+
+<!-- Commit config change and restart service. -->
+# uci commit
+# service firewall restart
+# service odhcpd restart
+# service network restart
+```
+
+要使IPv6 NAT功能正常，需要路由器的lan網橋接口處於RA及NDP的Server模式。
 
 
 
