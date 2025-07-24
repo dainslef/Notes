@@ -795,12 +795,19 @@ OpenWRT查看內核日誌與標準Linux類似：
 
 ## NAT6
 OpenWRT默認開啟了IPv4的WAN口NAT功能（NAT4），
-對於IPv6的WAN口的NAT功能（NAT6）默認不開啟（通常IPv6地址充裕，無NAT需求）；
+對於IPv6的WAN口的NAT功能（NAT6）默認不開啟（通常IPv6地址充裕，無NAT需求）。
+
+開啟NAT6功能，需要在LuCI的`Network - Firewall - Zone Settings - Advanced Settings`
+中勾選`Enable IPv6 NAT`選項；要使IPv6 NAT功能正常，
+需要路由器的lan網橋接口**取消勾選**`IPv6 Settings - Designated master`選項，
+並設置IPv6默認路由`IPv6 RA Settings - Default router`（取值`on available prefix`/`forced`均可），
+同時關閉IPv6的源地址過濾（未關閉源地址過濾會導致ping單通）。
+
 可通過UCI手動配置NAT6功能，
 參考[OpenWRT官方文檔](https://openwrt.org/docs/guide-user/firewall/fw3_configurations/fw3_nat#ipv6_nat)：
 
 ```html
-<!-- Enable IPv6 masquerading aka NAT66 on the WAN zone.  -->
+<!-- Enable IPv6 masquerading aka NAT66 on the WAN zone (Should check if WAN is in zone 0). -->
 # uci set firewall.@zone[0].masq6=1
 <!-- Announce IPv6 default route for the ULA prefix.  -->
 # uci set dhcp.lan.ra_default="1"
@@ -810,7 +817,6 @@ OpenWRT默認開啟了IPv4的WAN口NAT功能（NAT4），
 <!-- Commit config change and restart service. -->
 # uci commit
 # service firewall restart
-# service odhcpd restart
 # service network restart
 ```
 
