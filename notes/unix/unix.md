@@ -4524,21 +4524,22 @@ SNAT       all  --  10.8.0.0/24          anywhere             to:192.168.110.181
 `vrrp_instance`是Keepalived的核心功能，
 基於[VRRP](https://en.wikipedia.org/wiki/Virtual_Router_Redundancy_Protocol)協議提供浮動IP。
 
-```sh
+```conf
 vrrp_instance VI {
-	state MASTER # or BACKUP，設置默認的主備狀態
-	interface 網卡設備
-	priority 100 # 優先級
-	advert_int 1 # 檢測間隔（秒）
-	virtual_router_id 51 # 虛擬路由ID，用於區分不同VRRP實例，相同浮動IP的成員應使用相同ID
-	authentication {
-		auth_type PASS
-		auth_pass xxxx
-	}
-	virtual_ipaddress {
-		X.X.X.X/X
-		X.X.X.X/X dev 網卡設備 # 將虛擬IP綁定到指定網卡設備
-	}
+    state MASTER # or BACKUP，設置默認的主備狀態
+    interface 網卡設備
+    priority 100 # 優先級
+    advert_int 1 # 檢測間隔（秒）
+    virtual_router_id 51 # 虛擬路由ID，用於區分不同VRRP實例，相同浮動IP的成員應使用相同ID
+    # VRRP認證機制在V3中已不推薦使用
+    # authentication {
+    #   auth_type PASS
+    #   auth_pass xxxx
+    # }
+    virtual_ipaddress {
+    	X.X.X.X/X
+    	X.X.X.X/X dev 網卡設備 # 將虛擬IP綁定到指定網卡設備
+    }
 }
 ```
 
