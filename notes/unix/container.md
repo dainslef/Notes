@@ -22,6 +22,7 @@
     - [Docker容器日誌](#docker容器日誌)
     - [Docker容器資源監控](#docker容器資源監控)
     - [Docker環境清理](#docker環境清理)
+    - [Docker AppArmor](#docker-apparmor)
 - [Docker Hub](#docker-hub)
     - [Docker鏡像源](#docker鏡像源)
     - [Docker Registry](#docker-registry)
@@ -699,6 +700,25 @@ WARNING! This will remove:
   - all build cache
 
 Are you sure you want to continue? [y/N]
+```
+
+## Docker AppArmor
+Docker容器默認啟用AppArmor安全機制，限制容器內部進程的權限。
+
+若宿主機未安裝AppArmor，會導致Docker容器無法啓動，會得到下列錯誤輸出：
+
+```
+...
+Error response from daemon: AppArmor enabled but no profiles are loaded.
+...
+```
+
+可通過修改GRUB配置文件`/etc/default/grub`，在`GRUB_CMDLINE_LINUX_DEFAULT`中添加`apparmor=0`參數禁用AppArmor：
+
+```conf
+...
+GRUB_CMDLINE_LINUX_DEFAULT="... apparmor=0"
+...
 ```
 
 
