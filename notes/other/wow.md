@@ -1,16 +1,17 @@
 <!-- TOC -->
 
 - [MaNGOS](#mangos)
-	- [MaNGOS服務說明](#mangos服務說明)
-	- [部署MaNGOS數據庫](#部署mangos數據庫)
-	- [MaNGOS目錄結構](#mangos目錄結構)
-	- [部署MaNGOS核心服務](#部署mangos核心服務)
-	- [修改配置](#修改配置)
-	- [啓用資料片](#啓用資料片)
-	- [國際化](#國際化)
+    - [MaNGOS服務說明](#mangos服務說明)
+    - [部署MaNGOS數據庫](#部署mangos數據庫)
+    - [MaNGOS目錄結構](#mangos目錄結構)
+    - [構建與部署MaNGOS核心服務](#構建與部署mangos核心服務)
+    - [構建MaNGOS資源文件](#構建mangos資源文件)
+    - [修改配置](#修改配置)
+    - [啓用資料片](#啓用資料片)
+    - [國際化](#國際化)
 - [CMaNGOS](#cmangos)
-	- [CMaNGOS編譯安裝](#cmangos編譯安裝)
-	- [清除角色BUFF](#清除角色buff)
+    - [CMaNGOS編譯安裝](#cmangos編譯安裝)
+    - [清除角色BUFF](#清除角色buff)
 
 <!-- /TOC -->
 
@@ -92,16 +93,19 @@ MaNGOS游戲服務部署目錄結構：
 │   ├── vmaps
 │   └── mangosd.conf
 └── source
+    ├── gamedata
     ├── database
     ├── build
     └── server
 ```
 
-## 部署MaNGOS核心服務
+## 構建與部署MaNGOS核心服務
+構建與部署MaNGOS可參考[官方論壇帖子](https://www.getmangos.eu/wiki/documentation/installation-guides/guideslinux/installing-mangos-on-ubuntu-server-2204-r40014/)。
+
 安裝必要依賴：
 
 ```
-# apt install git cmake build-essential default-libmysqlclient-dev libbz2-dev
+# apt install git cmake build-essential default-libmysqlclient-dev libbz2-dev liblua5.2-dev
 ```
 
 以ZERO版本爲例，克隆倉庫源碼並編譯：
@@ -110,10 +114,10 @@ MaNGOS游戲服務部署目錄結構：
 <!-- 創建目錄，克隆倉庫源碼 -->
 $ mkdir -p /opt/mangos/zero/source
 $ cd /opt/mangos/zero/source
-$ git clone https://github.com/mangoszero/server.git --recursive --depth 1
+$ git clone https://github.com/mangoszero/server.git --recursive --depth 1 --tags 版本號
 
 <!-- 生成構建信息 -->
-$ cmake /opt/mangos/zero/source/server -B /opt/mangos/zero/source/build
+$ cmake /opt/mangos/zero/source/版本號 -B /opt/mangos/zero/source/build
 
 <!-- 構建項目 -->
 $ cmake --build /opt/mangos/zero/source/build -j 綫程數目
@@ -124,6 +128,30 @@ $ cmake --install /opt/mangos/zero/source/build
 
 登入服務所有游戲版本通用，在編譯任意版本的主服務過程中會一并編譯，
 生成的安裝内容位於`/opt/mangos/zero/source/build/install/bin`路徑下。
+
+## 構建MaNGOS資源文件
+除主程序外，還需要基於對應版本的客戶端生成游戲數據，包括地圖、DBC等文件等；
+游戲數據文件體積較大，但通常兼容數個服務端版本，更新服務端版本時不必每次重新生成。
+
+將客戶端中的`Data`目錄及`Wow.exe`可執行文件拷貝到gamedata目錄下：
+
+```html
+$ cp -r wow_client_zero/Data /opt/mangos/zero/source/gamedata
+$ cp wow_client_zero/Wow.exe /opt/mangos/zero/source/gamedata
+```
+
+將編譯生成的資源工具拷貝至gamedata目錄下：
+
+```html
+$ cp /opt/mangos/zero/source/build/install/bin/* /opt/mangos/zero/source/gamedata
+```
+
+執行資源生成脚本：
+
+```html
+$ cd /opt/mangos/zero/source/gamedata
+$ bash ExtractResources.sh
+```
 
 ## 修改配置
 mangosd配置文件修改下列內容：
