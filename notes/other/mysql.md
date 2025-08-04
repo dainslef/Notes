@@ -72,6 +72,7 @@
     - [OceanBase常見配置問題](#oceanbase常見配置問題)
     - [OceanBase日誌](#oceanbase日誌)
     - [OceanBase組件運行失敗](#oceanbase組件運行失敗)
+    - [OceanBase默認Shell](#oceanbase默認shell)
 - [常用功能和配置](#常用功能和配置)
     - [導出數據](#導出數據)
     - [導入數據](#導入數據)
@@ -1618,7 +1619,7 @@ OceanBase提供免費的社區版[OceanBase All in One](https://www.oceanbase.co
 ```
 $ tar -xzf oceanbase-all-in-one-*.tar.gz
 $ cd oceanbase-all-in-one/bin/
-$ ./install.sh
+# ./install.sh
 $ source ~/.oceanbase-all-in-one/bin/env.sh
 
 $ obd web
@@ -1710,6 +1711,21 @@ obagent進程啓動時會在.../run路徑下創建sock文件用於進程通信�
 啓動進程時若該路徑下已經存在舊的sock文件，會導致obagent的狀態異常，
 導致進程無法通過健康狀態檢查（sock狀態），進而導致後續組件啓動失敗。
 
+## OceanBase默認Shell
+OceanBase管理工具obd中部分功能使用bash脚本實現，但并未指定bash作爲默認Shell，
+導致當前系統默認Shell不是bash時，obd工具無法正常運行。
+
+錯誤信息示例：
+
+```
+...
+[ERROR] oceanbase-ce-py_script_start_check-4.2.2.0 RuntimeError: 'NoneType' object is not iterable
+[ERROR] OBD-4300: 10.106.48.20: failed to query java version, you may not have java installed
+[ERROR] ocp-express-py_script_start_check-4.2.1 RuntimeError: 'ip'
+[ERROR] OBD-1005: Some of the servers in the cluster have been stopped
+...
+```
+
 
 
 # 常用功能和配置
@@ -1719,25 +1735,30 @@ obagent進程啓動時會在.../run路徑下創建sock文件用於進程通信�
 使用`mysqldump`工具可以導出數據庫的內容，基本操作指令如下：
 
 ```html
-$ mysqldump -u"用戶名" -p"密碼" -A <!-- 導出所有數據庫 -->
-$ mysqldump -u"用戶名" -p"密碼" 備份數據庫 <!-- 導出指定數據庫 -->
-$ mysqldump -u"用戶名" -p"密碼" 備份數據庫 備份表 <!-- 導出指定數據庫中的指定表的內容 -->
+$ mysqldump -u用戶名 -p密碼 -A <!-- 導出所有數據庫 -->
+$ mysqldump -u用戶名 -p密碼 備份數據庫 <!-- 導出指定數據庫 -->
+$ mysqldump -u用戶名 -p密碼 備份數據庫 備份表... <!-- 導出指定數據庫中的指定表的內容（數據表可為多張） -->
 ```
 
 默認情況下，mysqldump工具會將導出的數據以SQL語句的形式輸出到終端，可以使用重定向將導出的內容寫入文本中：
 
 ```html
-$ mysqldump -u"用戶名" -p"密碼" -A > xxx.sql <!-- 導出的內容寫入 xxx.sql 文件中 -->
+$ mysqldump -u用戶名 -p密碼 -A > xxx.sql <!-- 導出的內容寫入 xxx.sql 文件中 -->
 ```
 
-mysqldump支持根據條件導出指定的內容（使用`-w`參數）：
+mysqldump支持根據條件導出指定的內容（使用`-w/--where`參數）：
 
 ```
-$ mysqldump -u"用戶名" -p"密碼" -w"限制條件" 數據庫名 表名
+$ mysqldump -u用戶名 -p密碼 -w"字段='目標值'" 數據庫名 表名
 ```
 
-導出內容時支持設定只導出數據（`-t`）或只導出表結構（`-d`）。
-導出指定數據庫時，默認不會生成`USE xxx_db`語句，若需要生成該語句，則使用`-B`參數。
+其它常用參數：
+
+- `--no-create-info` 僅導出數據，不導出表結構
+- `-d/--no-data` 僅導出表結構，不導出數據
+- `-B/--databases` 導出數據庫時，生成USE xxx_db語句
+- `--ssl` 使用SSL加密連接
+- `--skip-ssl` 不使用SSL加密連接
 
 ## 導入數據
 導入數據需要在數據庫命令行中使用`source`指令：
