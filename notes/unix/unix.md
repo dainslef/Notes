@@ -167,7 +167,7 @@
         - [debconf](#debconf)
         - [dpkg-divert](#dpkg-divert)
     - [apt軟件源配置](#apt軟件源配置)
-    - [新版apt軟件源格式](#新版apt軟件源格式)
+        - [新版apt軟件源格式](#新版apt軟件源格式)
         - [Debian源](#debian源)
         - [Ubuntu源](#ubuntu源)
     - [backports倉庫與倉庫優先級](#backports倉庫與倉庫優先級)
@@ -316,7 +316,7 @@ rsync支持增量同步，默認會使用一套快速檢查算法，
 若之前使用`-r/--recursive`參數同步，則再次執行指令依舊會執行全量同步；
 為避免重複同步相同的文件，可使用下列參數：
 
-- 使用`-c/--checksum`參數將文件的檢查算法改爲文件校檢來：
+- 使用`-c/--checksum`參數將文件的檢查算法改爲文件校檢：
 
     ```html
     $ rsync -Prc 源路徑 目標路徑
@@ -569,6 +569,7 @@ ccbbcc
 
 需要注意，sed在不同Unix中的實現功能參數有所不同，以BSD的sed為例，
 `-i`參數設置後綴，將輸出內容保存到現有文件，同時備份原內容到添加後綴的文件中。
+
 示例：
 
 ```html
@@ -3052,7 +3053,8 @@ curl同樣可用於在基於HTTP協議的文件下載，相關參數說明：
 | -O, --remote-name | Write output to a local file named like the remote file we get | `-O` |
 | -L, --location | Download file from new location (for 302 response) | `-L` |
 | -s, --silent | Silent or quiet mode | `-s` |
-| -C, --continue-at <offset> | Continue/Resume a previous file transfer at the given offset. | `-C -` |
+| -C, --continue-at <offset> | Continue/Resume a previous file transfer at the given offset | `-C -` |
+| --retry <num> | Retry the download if it fails | `--retry 3` |
 
 使用`-o`參數可將請求回應內容重定向到文件中，即實現下載效果：
 
@@ -3071,8 +3073,13 @@ $ curl -LO http://example.com
 ```
 
 curl通過`-C`參數啟用斷點續傳功能（需要服務端亦支持斷點續傳特性），
-可指示服務端從指定位置開始傳輸而非重新從頭下載；
-使用`-C -`可根據已下載的內容自動計算位置。
+可指示服務端從指定位置開始傳輸而非重新從頭下載；使用`-C -`可根據已下載的內容自動計算位置。
+使用斷點續傳與其它常用參數組合：
+
+```
+$ curl --retry 8964 -LOC - http://fuckccp.com/fuckccp.file
+$ curl -L http://fuckccp.com/fuckccp.file -oC - fuckccp8964.file
+```
 
 默認下載會展示如下樣式的進度指示器：
 
@@ -3747,9 +3754,6 @@ $ nmcli device wifi list
 <!-- 關閉無線網卡 -->
 # nmcli radio wifi off
 
-<!-- 列出網絡連接信息 -->
-$ nmcli connection
-
 <!-- 連接管理相關 -->
 $ nmcli connection show <!-- 查看所有連接概況 -->
 $ nmcli connection show 連接名稱 <!-- 查看指定連接詳情（包含所有可配置的屬性） -->
@@ -3833,7 +3837,7 @@ DHCP則可直接使用：
 ...
 
 [Network]
-DHCP=yes # DHCP會自動配置網關、DNS
+DHCP=yes # DHCP會自動獲取IPv4/v6地址、配置網關、DNS
 # Address=x.x.x.x/x # DHCP亦可設置靜態地址
 ```
 
@@ -3928,12 +3932,17 @@ ip route常用指令：
 ```html
 <!-- 打印路由表 -->
 $ ip route
+$ ip -6 route <!-- 打印IPv6路由表 -->
+
+<!-- 查找指定網段匹配到的路由 -->
+$ ip route get 網段
 
 <!-- 添加路由 -->
 # ip route add 網段 via 網關
 # ip route add 網段 via 網關 src 源地址 <!-- 設置指定源地址的路由 -->
 # ip route add 網段 dev 網卡設備
-# ip route add 網段 dev 網卡設備 via 網關 <!-- 同時指定設備和網關 -->
+# ip route add 網段 dev 網卡設備 via 網關 src 源地址 <!-- 同時指定設備和網關 -->
+# ip route add 網段 dev 網卡設備 mtu MTU值 <!-- 設置路由時同時指定MTU值 -->
 
 <!-- 刪除路由 -->
 # ip route del 網段
@@ -6006,6 +6015,7 @@ APT::AutoRemove::SuggestsImportant "false";
 
 ```sh
 APT::Install-Recommends "false";
+APT::Install-Suggests "false";
 APT::AutoRemove::RecommendsImportant "false";
 APT::AutoRemove::SuggestsImportant "false";
 ```
@@ -6296,7 +6306,12 @@ deb-src 軟件源地址 版本倉庫 倉庫類型
 
 `Ubuntu`與`Debian`的版本號、倉庫類型分類完全不同。
 
-## 新版apt軟件源格式
+常用墻國軟件源為：
+
+- 清華大學鏡像源（`TUNA`）`https://mirrors.tuna.tsinghua.edu.cn/發行版名稱/`
+- 中科大鏡像源（`USTC`）`https://mirrors.ustc.edu.cn/發行版名稱/`
+
+### 新版apt軟件源格式
 從`Debian 12`開始，apt引入了新的軟件源格式，配置文件為`/etc/apt/sources.list.d/debian.sources`。
 
 格式結構如下：
