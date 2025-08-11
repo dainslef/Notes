@@ -3,6 +3,7 @@
 - [OpenWRT的安裝和升級](#openwrt的安裝和升級)
     - [系統安裝](#系統安裝)
     - [系統升級](#系統升級)
+    - [UBoot](#uboot)
 - [Breed](#breed)
     - [Breed Web UI](#breed-web-ui)
     - [Redmi Router AC2100](#redmi-router-ac2100)
@@ -187,8 +188,37 @@ OpenWRT的系統升級會清空整個根文件系統（根據配置項可保留`
 需要注意，系統升級前若修改了`/etc/passwd`設置了非預裝的shell作為默認shell，
 則升級前應修改回默認的`/bin/ash`，否則升級後因為軟件包重置、shell不存在，而導致ssh無法連接。
 
+## UBoot
+部分默認分區不合理的設備會提供UBoot Layout固件，常見UBoot Layout固件分區示例：
 
+```html
+<!-- Cudy TR3000, OpenWrt UBoot Firmware -->
+$ cat /proc/mtd
+dev:    size   erasesize  name
+mtd0: 00100000 00020000 "BL2"
+mtd1: 00080000 00020000 "u-boot-env"
+mtd2: 00200000 00020000 "Factory"
+mtd3: 00040000 00020000 "bdinfo"
+mtd4: 00200000 00020000 "FIP"
+mtd5: 07a40000 00020000 "ubi"
+```
 
+UBoot固件通常包含下列文件：
+
+```
+xxx-ubootmod-bl31-uboot.fip
+xxx-ubootmod-initramfs-recovery.itb
+xxx-ubootmod-preloader.bin
+xxx-ubootmod-squashfs-sysupgrade.itb
+```
+
+- `ubootmod-preloader.bin`文件為UBoot預加載程序，寫入`BL2`分區。
+- `ubootmod-bl31-uboot.fip`文件為UBoot的BL31固件，用於引導Linux内核，寫入`FIP`分區。
+- `ubootmod-initramfs-recovery.itb`文件為UBoot的initramfs固件，寫入`Factory`分區；
+首次切換到UBoot分區時，應配置TFTPD服務器，由路由器網絡加載ubootmod-initramfs-recovery.itb文件
+（配置192.168.1.1/24網段，固件放置於TFTP根目錄下，且固件名稱中需要移除版本號）；
+啓動後系統為固件加載至内存的維護模式，需要再次刷入sysupgrade固件。
+- `ubootmod-squashfs-sysupgrade.itb`文件為UBoot的sysupgrade固件，用於sysupgrade指令以及WEB UI刷機。
 
 # Breed
 [Breed](https://breed.hackpascal.net/)是由[hackpascal](https://github.com/hackpascal)
