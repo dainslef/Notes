@@ -151,6 +151,10 @@
         - [VTE3](#vte3)
         - [複製粘貼快捷鍵](#複製粘貼快捷鍵)
     - [Kitty](#kitty)
+- [Samba](#samba)
+    - [Samba容器部署](#samba容器部署)
+    - [Samba用戶管理](#samba用戶管理)
+    - [Samba配置](#samba配置)
 - [Linux字體（fontconfig）](#linux字體fontconfig)
     - [管理字體](#管理字體)
     - [字體配置](#字體配置)
@@ -5722,6 +5726,70 @@ Kitty的組合鍵使用`ctrl + shift`組合其它按鍵，常用快捷鍵：
 | `ctrl + shift` + `,` / `.` | 移動當前標籤頁 |
 | `ctrl + shift` + `w` | 關閉終端程序 |
 | `ctrl + shift` + `h` | 進入搜索模式，搜索模式下輸入`/`進行後向搜索，輸入`?`進行前向搜索 |
+
+
+
+# Samba
+[Samba](https://www.samba.org/)是常用的文件共享服務。
+
+## Samba容器部署
+Samba目前并未提供官方容器，推薦使用[dockurr/samba](https://github.com/dockur/samba)容器部署Samba：
+
+```
+$ nerdctl run --restart=unless-stopped --name samba -tdp 445:445 -e "USER=用戶名" -e "PASS=密碼" -v 宿主機路徑:/storage dockurr/samba:版本
+```
+
+## Samba用戶管理
+Samba使用操作系統的賬戶體系，但Linux/Unix系統中的Samba使用獨立的密碼。
+
+Samba用戶管理命令：
+
+```html
+<!-- 列出Samba賬戶 -->
+# pdbedit -L
+
+<!-- 添加Samba賬戶並設置密碼（賬戶需要為操作系統中已存在的用戶） -->
+# smbpasswd -a 用戶名
+ <!-- 刪除Samba賬戶 -->
+# smbpasswd -x 用戶名
+
+<!-- 修改Samba賬戶密碼 -->
+# smbpasswd 用戶名
+
+<!-- 啓用/禁用Samba賬戶 -->
+# smbpasswd -e 用戶名 <!-- 啓用Samba賬戶 -->
+# smbpasswd -n 用戶名 <!-- 禁用Samba賬戶 -->
+```
+
+## Samba配置
+Samba的配置文件位於`/etc/samba/smb.conf`，采用`ini`格式，
+詳細配置説明參考[官方文檔](https://www.samba.org/samba/docs/current/man-html/smb.conf.5.html)。
+
+全局配置位於`[global]`區塊中，常用配置如下：
+
+```conf
+[global]
+    workgroup = WORKGROUP # 工作組名稱
+    server string = Samba Server %v # 服務器描述
+    netbios name = samba # Samba服務器名稱
+    invalid users = root # 禁止root用戶訪問Samba服務
+    guest account = nobody # 設置來賓用戶
+    security = user # 設置安全模式，user模式下需要用戶名和密碼登錄
+    ...
+```
+
+配置挂載路徑：
+
+```ini
+[存儲名稱]
+    path = /xxx # 存儲本地路徑
+    valid users = root # 允許訪問的Samba用戶
+    create mask = 0644 # 文件權限
+    directory mask = 0755 # 目錄權限
+    read only = no # 是否只讀
+    guest ok = no # 是否允許訪問的來賓用戶
+    inherit owner = yes # 是否繼承文件擁有者
+```
 
 
 
