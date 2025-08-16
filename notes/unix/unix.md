@@ -152,9 +152,9 @@
         - [複製粘貼快捷鍵](#複製粘貼快捷鍵)
     - [Kitty](#kitty)
 - [Samba](#samba)
-    - [Samba容器部署](#samba容器部署)
     - [Samba用戶管理](#samba用戶管理)
     - [Samba配置](#samba配置)
+    - [Samba容器部署](#samba容器部署)
 - [Linux字體（fontconfig）](#linux字體fontconfig)
     - [管理字體](#管理字體)
     - [字體配置](#字體配置)
@@ -5789,6 +5789,25 @@ Samba的配置文件位於`/etc/samba/smb.conf`，采用`ini`格式，
     read only = no # 是否只讀
     guest ok = no # 是否允許訪問的來賓用戶
     inherit owner = yes # 是否繼承文件擁有者
+```
+
+## Samba容器部署
+Samba目前并未提供官方容器，推薦使用[dockurr/samba](https://github.com/dockur/samba)容器部署Samba：
+
+```
+$ nerdctl run --restart=unless-stopped --name samba -tdp 445:445 -e "USER=用戶名" -e "PASS=密碼" -v 宿主機路徑:/storage dockurr/samba:版本
+```
+
+dockurr/samba容器創建時默認采用允許讀寫的方式創建Samba用戶，
+若需要只讀用戶，則創建容器時添加環境變量`RW=false`。
+
+dockurr/samba容器默認對容器内的Samba文件系統使用UID 1000、GID 1000；
+對於exfat、fat32等文件系統，Linux默認會以root用戶與0755權限挂載，
+該權限導致容器内的Samba服務無寫入權限；
+解決方法是在挂載目錄到宿主機路徑時指定挂載用戶ID：
+
+```
+# mount -o uid=1000,gid=1000 塊設備 掛載點
 ```
 
 
