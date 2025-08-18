@@ -308,6 +308,24 @@ $ brew install omnidisksweeper
 $ sudo /Applications/OmniDiskSweeper.app/Contents/MacOS/OmniDiskSweeper
 ```
 
+此外，亦可使用命令行工具[`ncdu`](https://dev.yorhel.nl/ncdu)分析存儲佔用情況，
+ncdu提供了友好的TUI介面，可視化顯示磁碟使用情況，方便用戶快速定位佔用空間的文件或目錄。
+
+Homebrew中已收錄該軟件包，可直接安裝：
+
+```
+$ brew install ncdu
+```
+
+使用ncdu分析存儲佔用情況：
+
+```html
+<!-- 分析指定目錄下的存儲佔用情況 -->
+$ ncdu 目錄
+<!-- 分析根目錄下的存儲佔用情況 -->
+$ sudo ncdu /
+```
+
 ## 使用 Touch ID 代替命令行密碼驗證
 對於支持[`Touch ID`](https://support.apple.com/en-sg/guide/mac-help/mchl16fbf90a/mac)的機型，
 命令行工具可配置為使用Touch ID代替手動輸入密碼進行認證。
