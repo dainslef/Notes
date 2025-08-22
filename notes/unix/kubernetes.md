@@ -2084,25 +2084,19 @@ $ kubectl create namespace helm-charts
 
 <!-- Calico CNI -->
 $ helm repo add tigera-operator https://projectcalico.docs.tigera.io/charts
-$ helm install -n helm-charts tigera-operator tigera-operator/tigera-operator
+<!--
+Prior to release v3.23, the Calico helm chart itself deployed the tigera-operator namespace and required that the helm release was installed in the default namespace. Newer releases properly defer creation of the tigera-operator namespace to the user and allow installation of the chart into the tigera-operator namespace.
+-->
+$ helm install --create-namespace -n tigera-operator tigera-operator tigera-operator/tigera-operator
 <!--
 Use Calico CNI with custom CIDR(and IPv6 Pool), init kubeadm with custom parameters:
-kubeadm init --pod-network-cidr=10.64.0.0/16,fd00:64::/64 --service-cidr=10.89.64.0/24,fd00:8964::/108
+kubeadm init --pod-network-cidr=10.64.0.0/16,fd64::/64 --service-cidr=10.89.64.0/24,fd89:64::/108
 -->
-$ helm install -n helm-charts --create-namespace tigera-operator tigera-operator/tigera-operator --set installation.calicoNetwork.ipPools[0].cidr=10.64.0.0/16,installation.calicoNetwork.ipPools[1].cidr=fd00:64::/64
-
-<!-- kubernetes-dashboard -->
-$ helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard
-$ helm install -n helm-charts kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
-<!--
-In minikube, add some config to avoid the 8444 port confliction,
-see GitHub https://github.com/kubernetes/dashboard/issues/8765
--->
-$ helm install -n helm-charts kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --set kong.admin.tls.enabled=false
+$ helm install --create-namespace -n tigera-operator tigera-operator tigera-operator/tigera-operator --set installation.calicoNetwork.ipPools[0].cidr=10.64.0.0/16,installation.calicoNetwork.ipPools[1].cidr=fd64::/64
 
 <!-- metrics-server -->
 $ helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
-$ helm install -n helm-charts metrics-server metrics-server/metrics-server --set 'args={--kubelet-insecure-tls=true}'
+$ helm install --create-namespace -n helm-charts metrics-server metrics-server/metrics-server --set 'args={--kubelet-insecure-tls=true}'
 
 <!--
 Prometheus + Grafana
@@ -2131,6 +2125,15 @@ See https://github.com/kubernetes/ingress-nginx/issues/12621
 -->
 $ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 $ helm install -n helm-charts ingress-nginx ingress-nginx/ingress-nginx --set controller.allowSnippetAnnotations=true,controller.config.annotations-risk-level=Critical
+
+<!-- kubernetes-dashboard, too much bugs since it uses kong ingress, not recommend anymore -->
+$ helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard
+$ helm install -n helm-charts kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+<!--
+In minikube, add some config to avoid the 8444 port confliction,
+see GitHub https://github.com/kubernetes/dashboard/issues/8765
+-->
+$ helm install -n helm-charts kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --set kong.admin.tls.enabled=false
 
 <!--
 Harbor
