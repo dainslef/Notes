@@ -25,6 +25,7 @@
     - [系統日誌](#系統日誌)
     - [內核日誌](#內核日誌)
     - [NAT6](#nat6)
+    - [ZONE](#zone)
 - [UCI](#uci)
     - [UCI基本操作](#uci基本操作)
 - [LuCI](#luci)
@@ -51,6 +52,7 @@
         - [OpenClash排查錯誤](#openclash排查錯誤)
 - [OpenWRT衍生固件](#openwrt衍生固件)
     - [ImmortalWrt](#immortalwrt)
+        - [移除支那語](#移除支那語)
     - [FriendlyWrt](#friendlywrt)
         - [修改FriendlyWrt的Overlay配置](#修改friendlywrt的overlay配置)
         - [Docker服務未自啟動](#docker服務未自啟動)
@@ -400,8 +402,8 @@ ncat-full nmap-full
 <!-- OpenWRT2020 主題 -->
 luci-theme-openwrt-2020
 
-<!-- ARM64/X86架構的設備可安裝 Docker -->
-luci-app-dockerman dockerd
+<!-- ARM64/X86架構的設備可安裝 Docker，dockerd會作爲依賴自動安裝 -->
+luci-app-dockerman
 
 <!-- ImmortalWRT 以及部分國產固件可直接從軟件源中安裝 OpenClash -->
 luci-app-openclash
@@ -850,7 +852,29 @@ OpenWRT默認開啟了IPv4的WAN口NAT功能（NAT4），
 # service network restart
 ```
 
-要使IPv6 NAT功能正常，需要路由器的lan網橋接口處於RA及NDP的Server模式。
+## ZONE
+OpenWRT的防火牆使用`ZONE`概念來劃分網絡區域，ZONE之間的流量通過防火牆規則進行控制。
+
+通過將網絡接口劃分至不同的ZONE中，OpenWRT可以實現不同的網絡區域之間的隔離；
+在OpenWRT的默認配置中，已經劃分了`lan`、`wan`等ZONE：
+
+- `lan`：本地區域網絡，允許輸入、輸出、轉發。
+- `wan`：廣域網絡，進允許輸出，禁止輸入、轉發，出向IPv4流量默認開啟NAT。
+
+LuCI中提供了ZONE的管理與配置功能：
+
+- `Network - Firewall - General Settings - Zones`頁面中可以查看和管理各個ZONE。
+
+    在接口頁面可將指定接口加入ZONE。
+
+- `Network - Firewall - Traffic Rules`頁面中可以查看和管理ZONE之間的防火牆規則。
+
+    Traffic Rules中的規則可設置源、目標、協議類型、端口等；
+    源與目標可以是ZONE、IP地址段、設備（INPUT/OUTPUT）等。
+
+    當源與目標均為ZONE時，規則適用於ZONE之間的轉發流量；
+    當源為ZONE，目標為IP地址段或設備時，規則適用於ZONE到指定IP地址段或設備的流量；
+    當源為IP地址段或設備，目標為ZONE時，規則適用於指定IP地址段或設備到ZONE的流量。
 
 
 
@@ -882,10 +906,11 @@ UCI中的配置項均以`Key = Value`的格式呈現，Key的結構為`a.b.c...`
 # uci show 配置前綴
 ```
 
-設置系統配置：
+管理系統配置：
 
 ```html
 # uci set 配置鍵=配置值
+# uci delete 配置鍵
 
 <!-- 列出當前修改的配置內容 -->
 # uci changes
@@ -1387,6 +1412,13 @@ ImmortalWrt固件可從[官方下載頁面](https://downloads.immortalwrt.org)�
 
 ImmortalWrt基於OpenWRT官方分支開發，但僅在大版本上保持一致，小版本號為自己定義，並使用獨立的軟件源。
 ImmortalWrt版本通常會落後於官方版本一個大版本以上，僅在官方版本足夠穩定時才跟進。
+
+### 移除支那語
+ImmortalWrt默認包含支那語支持，若不需要支那語可移除支語翻譯包：
+
+```html
+# opkg remove --autoremove default-settings-chn luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn luci-i18n-package-manager-zh-cn luci-i18n-attendedsysupgrade-zh-cn
+```
 
 ## FriendlyWrt
 `FriendlyWrt`是[`FRIENDLY ELEC`](https://friendlyelec.com/)公司為旗下設備提供的定製版OpenWRT，
