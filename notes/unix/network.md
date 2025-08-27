@@ -13,7 +13,8 @@
         - [VLAN配置trunk接口](#vlan配置trunk接口)
     - [VLANIF配置](#vlanif配置)
         - [VLANIF設置192.168.1.1地址失敗](#vlanif設置19216811地址失敗)
-- [ZTE](#zte)
+    - [NTP配置](#ntp配置)
+- [ZTE交換機](#zte交換機)
     - [interface（接口配置）](#interface接口配置)
     - [switchvlan-configuration（VLAN配置）](#switchvlan-configurationvlan配置)
 
@@ -300,6 +301,33 @@ interface MEth0/0/1
 #
 return
 [App_E_Switch_01-MEth0/0/1] ip address 192.168.255.1 24
+```
+
+## NTP配置
+NTP配置步驟如下所示：
+
+```html
+<Huawei> system-view
+
+<!-- 配置IPv4地址的NTP -->
+[Huawei] ntp unicast-server IPv4時鐘源地址 <!-- 配置NTP時鐘源 -->
+[Huawei] ntp server source-address NTP服務IPv4地址 <!-- 配置當前交換機提供的NTP服務地址（在指定地址提供服務） -->
+[Huawei] undo ntp server disable <!-- 開啟NTP服務 -->
+
+<!-- 配置IPv6地址的NTP -->
+[Huawei] ntp unicast-server ipv6 IPv6時鐘源地址
+[Huawei] ntp ipv6 server source-address NTP服務IPv6地址
+[Huawei] undo ntp ipv6 server disable
+
+<!-- 若不限制NTP服務綁定地址，可直接開啟所有接口 -->
+[Huawei] undo ntp server source interface all disable
+[Huawei] undo ntp ipv6 server source interface all disable
+```
+
+查看交換機的NTP狀態：
+
+```
+<Huawei> display ntp status
 ```
 
 
