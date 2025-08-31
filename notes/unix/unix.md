@@ -77,6 +77,10 @@
             - [ntp服務端配置](#ntp服務端配置)
             - [ntp服務管理指令](#ntp服務管理指令)
     - [chrony時間服務](#chrony時間服務)
+        - [chrony配置](#chrony配置)
+        - [chrony日誌](#chrony日誌)
+        - [chrony時間同步模式](#chrony時間同步模式)
+        - [chrony服務管理和指令](#chrony服務管理和指令)
 - [curl](#curl)
     - [HTTP請求](#http請求)
         - [HTTP文件下載](#http文件下載)
@@ -2871,6 +2875,7 @@ clrtrap      exit         keyid        pstats       sysstats
 自`CentOS 7/RHEL 7`開始，RedHat使用`chrony`代替了傳統的ntpd作為時間同步服務。
 相比傳統的ntpd，chrony具有以下優勢：
 
+1. 功能更強大，支持更多靈活配置（如slew/step同步）。
 1. 更快的同步速度。
 1. 能更好地響應時鐘頻率的快速變化，對於不穩定的虛擬機環境或使用不穩定始終的低功耗場景下更有效。
 1. 在初始化同步之後不再計時。
@@ -2889,10 +2894,17 @@ chrony詳細介紹可參考[官方網站](https://chrony.tuxfamily.org/index.htm
 # yum install chrony
 ```
 
+### chrony配置
 chrony配置文件為`/etc/chrony.conf`，核心配置如下：
 
 ```sh
-server [主機名稱/IP地址] [參數] # 設置用於同步的服務端
+# 設置用於同步的服務端
+# 常用參數：
+# prefer 設置為主時鐘源
+# iburst 設置快速初始同步
+# minpoll 設置最小輪詢間隔（2^minpoll秒，默認值：2^6=64秒）
+# maxpoll 設置最大輪詢間隔（2^maxpoll秒，默認值：2^10=1024秒）
+server 主機名稱/IP地址 參數...
 
 # 設置允許從該機同步的客戶端，支持以下類型的IP限制
 # allow 1.2.3.4
@@ -2904,7 +2916,10 @@ server [主機名稱/IP地址] [參數] # 設置用於同步的服務端
 # allow 0/0
 # allow ::/0
 # allow all             # 允許任意主機同步
-allow [IP地址]/[子網]
+allow IP地址/子網
+
+# 設置時間同步後寫入硬件時鐘
+rtcsync
 ```
 
 在局域網環境下，可將一台服務器作為時鐘同步源，允許主機從自身同步：
@@ -2913,11 +2928,48 @@ allow [IP地址]/[子網]
 local # 允許主機以本地時間作為時鐘源
 ```
 
+多台同級NTP服務器之間可開啟對等同步：
+
+```sh
+peer 地址1 參數...
+peer 地址2 ...
+...
+```
+
+### chrony日誌
+默認chrony**不會**記錄日誌，開啟日誌需要在配置文件中開啟相關配置：
+
+```sh
+# 設置日誌目錄
+logdir /var/log/chrony
+
+# 設置日誌類型
+log measurements statistics tracking # 記錄時間測量信息、統計信息、跟蹤信息
+```
+
+### chrony時間同步模式
+chrony支持兩種時間同步模式：
+
+- 時間差異較小時使用slew（偏轉）同步，chrony會調整當前服務器的時間流速使服務器時間緩緩調整至正確值。
+- 時間差異較大時使用step（跳躍）同步，chrony會立即將服務器時間調整至正確值。
+
+配置跳躍觸發時差與跳躍限制次數：
+
+```sh
+# 觸發跳躍同步的時差間隔（單位：秒）、最大允許時間跳躍的次數
+makestep 時間間隔 最大跳躍次數 參數...
+
+# 配置示例：
+# 設置在時差大於1秒時跳躍糾正時間，不限制跳躍次數，且時間寫入硬件時鐘
+makestep 1 -1
+```
+
+### chrony服務管理和指令
 服務管理(以systemD發行版為例)：
 
-```c
-# systemctl enbale/disable chronyd // 開啟/關閉chrony自啟動
-# systemctl start/stop chronyd // 啟動/停止chrony
+```html
+# systemctl enbale/disable chronyd <!-- 開啟/關閉chrony自啟動 -->
+# systemctl start/stop chronyd <!-- 啟動/停止chrony -->
 ```
 
 chrony核心的工具指令包括`chronyc`(管理指令)/`chronyd`(服務進程)。
