@@ -2,6 +2,7 @@
 
 - [概述](#概述)
     - [服務安裝](#服務安裝)
+    - [Windows服務安裝](#windows服務安裝)
     - [容器部署](#容器部署)
     - [服務配置](#服務配置)
         - [FreeBSD環境配置](#freebsd環境配置)
@@ -61,6 +62,23 @@ $ brew services start/stop syncthing
 ```
 
 更多Syncthing服務配置說明可參考[官方文檔](https://docs.syncthing.net/users/autostart.html)。
+
+## Windows服務安裝
+Windows系統下直接從官方下載Syncthing可執行文件，解壓后即可。
+
+Windows版本的Syncthing并未直接提供服務自啓動功能，自啓動配置參考
+[Syncthing官方文檔](https://docs.syncthing.net/users/autostart.html)。
+
+常見的自啓動配置方式包括：創建Windows服務或創建自啓動項，
+創建自啓動項操作較為簡單：
+
+在自啓動目錄`%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup`中創建快捷方式，
+在`Type the location of the item:`中填寫Syncthing可執行文件的路徑，
+並在尾部添加`--no-console --no-browser`參數，
+快捷方式創建后還需要在Properties中設置`Run`為`Minimized`（啓動窗口最小化），
+否則Syncthing開機自啓動時會彈出窗口。
+
+創建快捷方式后，可在任務管理器的自啓動選項中開啓/禁用Syncthing啓動項。
 
 ## 容器部署
 對於RedHat、CentOS、Ubuntu LTS等穩定版OS，通常內置軟件倉庫中的Syncthing軟件包版本遠低於最新版本，
