@@ -4562,6 +4562,21 @@ SNAT       all  --  10.8.0.0/24          anywhere             to:192.168.110.181
 -->
 ```
 
+添加與刪除規則：
+
+```html
+<!--
+添加規則
+-A 可取值 INPUT、FORWARD、OUTPUT 等
+-j 可取值 ACCEPT、DROP、REJECT 等
+-->
+# iptables -A 規則類型 -p 協議 -s 源地址/網段 -d 目標地址/網段 --dport 訪問端口 -j 操作
+
+<!-- 刪除規則 -->
+# iptables -D 規則類型 規則編號 <!-- 依據編號刪除指定規則 -->
+# iptables -D 規則類型 -p 協議 -s 源地址/網段 -d 目標地址/網段 --dport 訪問端口 -j 操作 <!-- 刪除指定規則 -->
+```
+
 添加和刪除NAT規則：
 
 ```html
