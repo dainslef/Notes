@@ -2686,29 +2686,7 @@ systemd-timesyncd的配置文件為`/etc/systemd/timesyncd.conf`。
 相比傳統的ntp服務，systemd-timesyncd僅提供ntp client功能，
 提供ntp server依舊需要使用傳統ntp服務。
 
-## 硬件時間
-使用`hwclock`指令查看系統的硬件時間：
-
-```html
-$ hwclock
-
-<!-- 輸出詳情 -->
-$ hwclock -v
-
-<!-- 同步系統時間與硬件時間 -->
-# hwclock -s/--hctosys <!-- 硬件時間寫入系統時間 -->
-# hwclock -w/--systohc <!-- 系統時間寫入硬件時間 -->
-```
-
-## NTP (Network Time Protocol)
-`NTP(Network Time Protocol)`是用於在多台計算機之間同步時鐘信息的網絡協議。
-
-NTP目前主要有兩類實現：
-
-- [`ntp`](https://ntp.org) NTP官方標準實現
-- [`chrony`](https://chrony.tuxfamily.org/) 輕量級的NTP實現，主要用在紅帽係發行版中
-
-### ntp服務配置
+## ntp服務配置
 配置NTP服務前需要在系統中安裝ntp軟件包，
 各大Linux發行版的軟件源中均包含了ntp軟件包，
 以ArchLinux為例，安裝ntp：
@@ -2725,20 +2703,23 @@ NTP配置文件為`/etc/ntp.conf`。
 # systemctl start ntpd
 ```
 
-#### ntp客戶端配置
+### ntp客戶端配置
 將服務器配置為ntp客戶端，需要在配置中添加同步目標主機。
 添加`server`配置段：
 
 ```sh
 ...
-# 配置格式 server [版本號].[需要同步的主機地址]
+# 配置時鐘源
+server [版本號.]時鐘源域名或地址 參數...
 server time.stdtime.gov.tw prefer # 設置具有更高優先級的主機
+server time.stdtime.gov.tw iburst # 設置快速初始同步
+server time.stdtime.gov.tw minpoll 6 maxpoll 10 # 設置拉取時間的間隔，最小2^minpoll，最大2^maxpoll
 server 0.xxx
 server 1.xxx
 ...
 ```
 
-#### ntp服務端配置
+### ntp服務端配置
 配置了NTP服務的主機可以允許同一網絡下的其它ntp客戶端同步此服務器。
 添加`restrict`配置段：
 
@@ -2764,14 +2745,25 @@ restrict配置段的參數簡介：
 
 若在局域網中使用NTP時，則應考慮將某一台服務器作為基準時間，在該台服務器的配置中添加：
 
-```
+```sh
 server 127.127.1.0
 fudge 127.127.1.0
 ```
 
 該服務器向自身進行同步，自身作為時鐘同步源。
 
-#### ntp服務管理指令
+### ntpd同步模式配置
+ntpd與chrony不同，**不支持**在配置文件中直接配置slew/step配置，
+相關參數需要在服務命令行參數中配置：
+
+- `-g`：啟用slew模式，ntpd在時間偏差大於128ms時使用step模式調整時間，否則使用slew模式調整時間
+- `-x`：啟用step模式，ntpd始終使用slew模式調整時間
+
+多數現代發行版中，ntpd默認會以`-g`模式運行。
+
+若時間差過大（大於`tinker panic`配置），則ntpd服務會退出。
+
+### ntp服務管理指令
 使用`ntpstat`指令查看NTP服務狀態：
 
 ```
