@@ -69,13 +69,15 @@
         - [Thinly-Provisioned Logical Volumes（精簡邏輯卷）](#thinly-provisioned-logical-volumes精簡邏輯卷)
         - [邏輯卷狀態和塊設備不顯示問題](#邏輯卷狀態和塊設備不顯示問題)
 - [時間管理](#時間管理)
-    - [systemd-timesyncd](#systemd-timesyncd)
     - [硬件時間](#硬件時間)
-    - [NTP (Network Time Protocol)](#ntp-network-time-protocol)
-        - [ntp服務配置](#ntp服務配置)
-            - [ntp客戶端配置](#ntp客戶端配置)
-            - [ntp服務端配置](#ntp服務端配置)
-            - [ntp服務管理指令](#ntp服務管理指令)
+    - [timedatectl](#timedatectl)
+- [NTP (Network Time Protocol)](#ntp-network-time-protocol)
+    - [systemd-timesyncd](#systemd-timesyncd)
+    - [ntp服務配置](#ntp服務配置)
+        - [ntp客戶端配置](#ntp客戶端配置)
+        - [ntp服務端配置](#ntp服務端配置)
+        - [ntpd同步模式配置](#ntpd同步模式配置)
+        - [ntp服務管理指令](#ntp服務管理指令)
     - [chrony時間服務](#chrony時間服務)
         - [chrony配置](#chrony配置)
         - [chrony日誌](#chrony日誌)
@@ -2649,8 +2651,47 @@ LVM中一個邏輯分區在物理結構上可能由多個磁盤組成，添加�
 $ date <!-- 查看當前時間 -->
 Mon Mar  6 16:42:16 CST 2023
 
-# date '時間' <!-- 設置系統時間 -->
+# date "時間" <!-- 設置系統時間，時間需要為 MMDDhhmmp[CC]YY][.ss] 格式 -->
+# date -s "時間文本" <!-- 設置系統時間，時間為與輸出相應的文本格式 -->
 ```
+
+## 硬件時間
+使用`hwclock`指令查看系統的硬件時間：
+
+```html
+$ hwclock
+
+<!-- 輸出詳情 -->
+$ hwclock -v
+
+<!-- 同步系統時間與硬件時間 -->
+# hwclock -s/--hctosys <!-- 硬件時間寫入系統時間 -->
+# hwclock -w/--systohc <!-- 系統時間寫入硬件時間 -->
+```
+
+## timedatectl
+timedatectl是systemd提供的時間管理工具，可方便得查看、修改系統時間、時區：
+
+```html
+<!-- 輸出系統時間相關信息 -->
+$ timedatectl
+
+<!-- 修改系統時間相關配置 -->
+# timedatectl set-time 時間文本
+# timedatectl set-timezone 時區
+# timedatectl set-ntp true/false
+```
+
+
+
+# NTP (Network Time Protocol)
+`NTP(Network Time Protocol)`是用於在多台計算機之間同步時鐘信息的網絡協議。
+
+NTP目前主要有兩類實現：
+
+- [`systemd-timesyncd`](https://www.freedesktop.org/software/systemd/man/latest/systemd-timesyncd.service.html) systemd內置的輕量級NTP客戶端實現
+- [`ntp`](https://ntp.org) 傳統的NTP官方標準實現
+- [`chrony`](https://chrony.tuxfamily.org/) 輕量級的NTP實現，主要用在紅帽係發行版中
 
 ## systemd-timesyncd
 使用systemd的現代Linux發行版中，通常時間同步由`systemd-timesyncd`提供，
