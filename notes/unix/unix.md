@@ -109,6 +109,7 @@
     - [route（路由）](#route路由)
         - [route](#route)
         - [ip route](#ip-route)
+        - [Policy Routing（策略路由）](#policy-routing策略路由)
         - [路由轉發](#路由轉發)
         - [追蹤路由](#追蹤路由)
     - [ARP（Address Resolution Protocol，地址解析協議）](#arpaddress-resolution-protocol地址解析協議)
@@ -4083,6 +4084,56 @@ $ routel
         fe80::/ 64                                   kernel          wlp3s0
             ::1              local                   kernel              lo local
 ...
+```
+
+### Policy Routing（策略路由）
+Linux支持Policy Routing（策略路由），
+允許根據不同的條件（如源地址、目的地址、協議類型等）來決定路由的選擇。
+
+配置策略路由需要下列步驟：
+
+- 在`/etc/iproute2/rt_tables`定義路由表名稱和ID
+
+    ```conf
+    ...
+    路由表ID 路由表名稱
+
+    64 fuckccp # 示例
+    ...
+    ```
+
+- 使用`ip route`添加路由到指定路由表
+
+    ```html
+    <!-- 添加路由到指定路由表，語法與添加普通路由相同，僅需添加table參數表明路由是添加到特定路由表中 -->
+    # ip route add 網段 via 網關 dev 網卡設備 table 路由表名稱
+    ```
+
+- 使用`ip rule`添加策略路由規則
+
+    ```html
+    <!-- 添加策略路由規則，默認添加規則適用於IPv4 -->
+    # ip rule add from 源地址 table 路由表名稱 <!-- 根據源地址選擇路由表 -->
+    # ip rule add to 目的地址 table 路由表名稱 <!-- 根據目的地址選擇路由表 -->
+    # ip rule add sport 源端口 table 路由表名稱 <!-- 根據源端口選擇路由表 -->
+    # ip rule add dport 目的端口 table 路由表名稱 <!-- 根據目的端口選擇路由表 -->
+
+    <!-- 添加IPv6策略路由規則 -->
+    # ip -6 rule ... table 路由表名稱
+    ```
+
+策略路由管理：
+
+```html
+<!-- 查看當前策略路由規則 -->
+# ip rule
+# ip -6 rule
+
+<!-- 刪除路由規則 -->
+# ip rule del 規則ID <!-- 刪除指定規則 -->
+# ip -6 rule del 規則ID <!-- 刪除指定IPv6規則 -->
+# ip rule flush <!-- 清除所有規則，注意清除所有路由規則會導致默認路由不生效，無法遠程訪問 -->
+# ip -6 rule flush <!-- 清除所有IPv6規則 -->
 ```
 
 ### 路由轉發
