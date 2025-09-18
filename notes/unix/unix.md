@@ -45,6 +45,7 @@
 - [ulimit](#ulimit)
     - [ulimit配置文件](#ulimit配置文件)
     - [prlimit](#prlimit)
+    - [進程/線程數目限制](#進程線程數目限制)
     - [文件描述符限制](#文件描述符限制)
     - [Core Dump（核心轉儲）](#core-dump核心轉儲)
 - [文件系統](#文件系統)
@@ -1771,6 +1772,25 @@ $ prlimit -p 進程號
 
 <!-- 設置進程的資源限制 -->
 $ prlimit -p 進程號 --類別=軟限制數值:硬限制數值
+```
+
+## 進程/線程數目限制
+進程數目限制由`ulimit -u`設置，對應字段為`nproc`。
+
+進程/線程數目限制還受操作系統內核參數限制：
+
+```html
+<!-- 查看內核最大進程數目限制 -->
+$ sysctl kernel.pid_max
+kernel.pid_max = 4194304
+$ cat /proc/sys/kernel/pid_max
+4194304
+
+<!-- 查看內核中單個進程的最大線程數目限制 -->
+$ sysctl kernel.threads-max
+kernel.threads-max = 126888
+$ cat /proc/sys/kernel/threads-max
+126888
 ```
 
 ## 文件描述符限制
