@@ -3064,6 +3064,16 @@ Hostname                      NTP   Drop Int IntL Last     Cmd   Drop Int  Last
 spark-master                   11      0  7     -   67       0      0   -     -
 ```
 
+默認chronyc相關指令展示源地址時會優先以域名顯示，若無法解析則顯示IP地址，
+禁用域名解析可使用`-n`參數：
+
+```html
+$ chronyc -n sources
+$ chronyc -n clients
+```
+
+注意，`-n`參數**不可**寫在子指令之後（如`chronyc sources -n`），否則該參數不生效。
+
 
 
 # curl
@@ -5972,10 +5982,11 @@ $ nerdctl run --restart=unless-stopped --name samba -tdp 445:445 -e "USER=用戶
 dockurr/samba容器創建時默認采用允許讀寫的方式創建Samba用戶，
 若需要只讀用戶，則創建容器時添加環境變量`RW=false`。
 
-dockurr/samba容器默認對容器内的Samba文件系統使用UID 1000、GID 1000；
+dockurr/samba容器默認對容器内的Samba文件系統使用UID 1000、GID 1000（通常為首個自定義用戶）；
 對於exfat、fat32等文件系統，Linux默認會以root用戶與0755權限挂載，
 該權限導致容器内的Samba服務無寫入權限；
-解決方法是在挂載目錄到宿主機路徑時指定挂載用戶ID：
+exfat、fat32文件系統下的目錄、文件**不支持**以chmod、chown等常規方式設置權限，
+解決方案是在挂載目錄至宿主機路徑時指定挂載用戶ID：
 
 ```
 # mount -o uid=1000,gid=1000 塊設備 掛載點
