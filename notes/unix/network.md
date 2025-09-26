@@ -8,6 +8,7 @@
     - [interface（接口）](#interface接口)
     - [port-group（端口組）](#port-group端口組)
     - [description（備註信息）](#description備註信息)
+    - [stack（堆疊）](#stack堆疊)
     - [vlan（VLAN配置）](#vlanvlan配置)
         - [VLAN配置access接口](#vlan配置access接口)
         - [VLAN配置trunk接口](#vlan配置trunk接口)
@@ -33,7 +34,7 @@ VLAN接口可分為下列類型：
 | VLAN類型 | 入口 | 出口 | 説明 |
 | :- | :- | :- | :- |
 | access | 接受無TAG數據，添加PVID作為TAG | TAG數據與PVID相同則去除TAG發出，否則丟棄 | 用於接入鏈路 |
-| trunk | 接收無TAG數據添加PVID，接受有TAG數據判斷是否在允許列表中 | TAG數據與PVID相同則去除TAG發出，不同則直接轉發 | 用於幹道鏈路 |
+| trunk | 接收無TAG數據時視具體交換機的行為而定（Native VLAN或不添加TAG），接受有TAG數據判斷是否在允許列表中 | TAG數據與PVID相同則去除TAG發出，不同則直接轉發 | 用於幹道鏈路 |
 | hybrid | 自行控制 | 自行控制 | 混合鏈路 |
 
 
@@ -78,13 +79,20 @@ FTTx網絡根據組網方式分爲：
 
 - 波長
 
-    單模光模塊，分爲A端B端，發送端/接收端波長各自相反組成一對；
-    雙模光模塊同類位置相反即可。
+    單孔光模塊，分爲A端B端，發送端/接收端波長各自相反組成一對；
+    双孔光模塊同類位置相反即可。
 
     對於GPON OLT/ONU，常見波長組合為：
 
     - ONU RX 1490nm TX 1310nm
-    - OLT 波長相反
+    - OLT 波長與ONU相反
+
+- 模式
+
+    根據支持的波長，光模塊/光纖分為單模與多模。
+    單孔光模塊通常為單模，多孔光模塊可能為單模或多模。
+
+    多模成本較低，適用於距離較近的傳輸；單模成本較高，適用於遠距離傳輸。
 
 
 
@@ -158,6 +166,20 @@ Enter system view, return user view with Ctrl+Z.
 ```
 [Huawei] interface GigabitEthernet x/x/x
 [Huawei-GigabitEthernetx/x/x] description xxx...
+```
+
+## stack（堆疊）
+級聯與堆疊是常見的多台交換機組合方式。
+
+堆疊是將多臺交換機組成一個邏輯交換機的技術，便於管理與維護。
+
+查看堆疊信息：
+
+```html
+<HUAWEI> display stack <!-- 查看堆疊信息 -->
+<HUAWEI> display stack configuration <!-- 展示堆疊配置 -->
+<HUAWEI> display stack port <!-- 展示堆疊接口狀態 -->
+<HUAWEI> display stack port brief
 ```
 
 ## vlan（VLAN配置）
@@ -332,7 +354,7 @@ NTP配置步驟如下所示：
 
 
 
-# ZTE
+# ZTE交換機
 進入特權模式：
 
 ```
