@@ -7,6 +7,8 @@
     - [清理Key](#清理key)
     - [Replication（主從複製）](#replication主從複製)
     - [Sentinel（哨兵）](#sentinel哨兵)
+        - [NAT、單網卡多IP環境下的哨兵配置](#nat單網卡多ip環境下的哨兵配置)
+        - [訪問哨兵節點](#訪問哨兵節點)
     - [Cluster（集群）](#cluster集群)
         - [Slot](#slot)
         - [創建Redis集群](#創建redis集群)
@@ -211,6 +213,7 @@ repl_backlog_histlen:xxx
 
 ```sh
 replicaof 主節點地址 主節點端口
+replica-announce-ip 本節點IP地址 # 可選配置，若節點位於多IP或NAT網絡中，需設置該參數
 ```
 
 配置項與命令行下的同步指令相同。
@@ -271,7 +274,21 @@ parallel-syncs配置控制當災難發生時，有多少備用節點可同時被
 哨兵進程會自動更新配置，新的哨兵節點加入後，會自動添加發現的其它哨兵節點的信息，
 在主節點發生切換後，還會自動更新Redis服務配置，保證後續啟動新的節點關係不變。
 
-哨兵節點亦可使用redis-cli工具連接管理：
+### NAT、單網卡多IP環境下的哨兵配置
+在浮動IP、單網卡多IP以及NAT等組網場景下，為避免多IP地址造成哨兵集群狀態混亂，
+應啟用下列配置：
+
+- 在哨兵配置中使用`sentinel announce-ip`宣告每個節點的實際IP地址
+- 在哨兵配置中，`sentinel monitor`配置的主節點地址應從`sentinel announce-ip`宣告的地址中選取；
+避免使用其它地址以及VIP，會導致哨兵發現多餘的地址，影響節點選舉
+- 在Redis服務配置中使用`replica-announce-ip`配置宣告從節點的實際IP地址
+
+節點IP混亂會影響節點選舉，一個節點的多個地址可能均被視為有效的節點，
+選舉節點時可能出現同一實際節點的多個IP既為主又為備，
+導致節點配置被不斷修改，角色狀態在主備間不停切換。
+
+### 訪問哨兵節點
+哨兵節點亦使用redis-cli工具連接：
 
 ```html
 <!-- 連接方式相同 -->
@@ -330,16 +347,19 @@ Redis集群模式不需要額外的命令行工具，但需要針對集群節點
 集群模式下多數配置不變，主要配置：
 
 ```sh
-bind 0.0.0.0 ::1
+bind 0.0.0.0 :: # 設置綁定地址（V4/V6）
 port 端口 # 服務端口
 daemonize yes # 設置進程為服務模式，啟動後直接靜默掛入後台
 dir /xxx-redis/db # 設置Redis工作路徑，DB dump文件會寫入該路徑，默認工作路徑為/var/lib/redis
-logfile /xxx-redis/temp/nodes-端口.log # 設置日誌路徑，避免多節點日誌衝突
+logfile "" # 禁用日誌文件，直接輸出日誌到終端
 cluster-config-file /xxx-redis/temp/nodes-端口.conf # 設置集群節點配置路徑
 cluster-enabled yes # 以集群模式運行
 ...
 cluster-port 端口 # 集群通信端口，默認為“服務端口 + 10000”
 ...
+# 可選密碼配置
+requirepass 密碼 # 主節點設置訪問密碼
+masterauth 密碼 # 作為從節點同步時需要主節點密碼，在cluster中需要與主密碼一致
 ```
 
 集群模式下，節點配置名稱建議以端口號區分，集群節點除了服務端口外，
