@@ -19,6 +19,7 @@
         - [RabbitMQ部署問題](#rabbitmq部署問題)
         - [恢復MariaDB數據庫](#恢復mariadb數據庫)
 - [Horizon](#horizon)
+    - [VIP](#vip)
     - [部署Horizon開發環境](#部署horizon開發環境)
     - [編寫Horizon插件](#編寫horizon插件)
 - [問題記錄](#問題記錄)
@@ -293,17 +294,17 @@ Kolla Ansible支持版本升級，基本升級流程：
 1. 按照部署模式對比inventory配置（`all-in-one`或`multinode`）
 1. 部署新的依賴
 
-	```html
-	# kolla-ansible install-deps <!-- 安裝/升級新的依賴 -->
-	# kolla-ansible bootstrap-servers -i ./all-in-one
-	# kolla-ansible prechecks -i ./all-in-one <!-- 升級部署前執行檢查 -->
-	```
+    ```html
+    # kolla-ansible install-deps <!-- 安裝/升級新的依賴 -->
+    # kolla-ansible bootstrap-servers -i ./all-in-one
+    # kolla-ansible prechecks -i ./all-in-one <!-- 升級部署前執行檢查 -->
+    ```
 
 1. 執行`upgrade`操作
 
-	```
-	# kolla-ansible upgrade -i ./all-in-one
-	```
+    ```
+    # kolla-ansible upgrade -i ./all-in-one
+    ```
 
 根據實際組件的版本差異和部署情況，可能部分組件會存在升級失敗的情況，
 此時可嘗試手動對比配置、清理相關容器Docker卷等操作，
@@ -475,53 +476,53 @@ OpenStack部署多個計算節點時，數據庫組件MariaDB會以集群模式�
 ...
 2024-08-13 10:32:26 0 [Warning] WSREP: Quorum: No node with complete state:
 
-	Version      : 4
-	Flags        : 0x1
-	Protocols    : 0 / 8 / 3
-	State        : NON-PRIMARY
-	Desync count : 0
-	Prim state   : NON-PRIMARY
-	Prim UUID    : 00000000-0000-0000-0000-000000000000
-	Prim  seqno  : -1
-	First seqno  : -1
-	Last  seqno  : 40342010
-	Prim JOINED  : 0
-	State UUID   : 4704f897-591c-11ef-8fcb-5f019917158e
-	Group UUID   : dfb9d6d3-a91c-11ed-8b26-9a72676f2337
-	Name         : 'nmssuperf03'
-	Incoming addr: '10.21.22.13:3306'
+    Version      : 4
+    Flags        : 0x1
+    Protocols    : 0 / 8 / 3
+    State        : NON-PRIMARY
+    Desync count : 0
+    Prim state   : NON-PRIMARY
+    Prim UUID    : 00000000-0000-0000-0000-000000000000
+    Prim  seqno  : -1
+    First seqno  : -1
+    Last  seqno  : 40342010
+    Prim JOINED  : 0
+    State UUID   : 4704f897-591c-11ef-8fcb-5f019917158e
+    Group UUID   : dfb9d6d3-a91c-11ed-8b26-9a72676f2337
+    Name         : 'nmssuperf03'
+    Incoming addr: '10.21.22.13:3306'
 
-	Version      : 4
-	Flags        : 00
-	Protocols    : 0 / 8 / 3
-	State        : NON-PRIMARY
-	Desync count : 0
-	Prim state   : NON-PRIMARY
-	Prim UUID    : 00000000-0000-0000-0000-000000000000
-	Prim  seqno  : -1
-	First seqno  : -1
-	Last  seqno  : 40342010
-	Prim JOINED  : 0
-	State UUID   : 4704f897-591c-11ef-8fcb-5f019917158e
-	Group UUID   : dfb9d6d3-a91c-11ed-8b26-9a72676f2337
-	Name         : 'nmssuperf02'
-	Incoming addr: '10.21.22.12:3306'
+    Version      : 4
+    Flags        : 00
+    Protocols    : 0 / 8 / 3
+    State        : NON-PRIMARY
+    Desync count : 0
+    Prim state   : NON-PRIMARY
+    Prim UUID    : 00000000-0000-0000-0000-000000000000
+    Prim  seqno  : -1
+    First seqno  : -1
+    Last  seqno  : 40342010
+    Prim JOINED  : 0
+    State UUID   : 4704f897-591c-11ef-8fcb-5f019917158e
+    Group UUID   : dfb9d6d3-a91c-11ed-8b26-9a72676f2337
+    Name         : 'nmssuperf02'
+    Incoming addr: '10.21.22.12:3306'
 
-	Version      : 4
-	Flags        : 0x2
-	Protocols    : 0 / 8 / 3
-	State        : NON-PRIMARY
-	Desync count : 0
-	Prim state   : SYNCED
-	Prim UUID    : 41a589ae-591c-11ef-9eb5-72d652d8a8e4
-	Prim  seqno  : 19
-	First seqno  : -1
-	Last  seqno  : 40341907
-	Prim JOINED  : 1
-	State UUID   : 4704f897-591c-11ef-8fcb-5f019917158e
-	Group UUID   : dfb9d6d3-a91c-11ed-8b26-9a72676f2337
-	Name         : 'nmssuperf01'
-	Incoming addr: '10.21.22.11:3306'
+    Version      : 4
+    Flags        : 0x2
+    Protocols    : 0 / 8 / 3
+    State        : NON-PRIMARY
+    Desync count : 0
+    Prim state   : SYNCED
+    Prim UUID    : 41a589ae-591c-11ef-9eb5-72d652d8a8e4
+    Prim  seqno  : 19
+    First seqno  : -1
+    Last  seqno  : 40341907
+    Prim JOINED  : 1
+    State UUID   : 4704f897-591c-11ef-8fcb-5f019917158e
+    Group UUID   : dfb9d6d3-a91c-11ed-8b26-9a72676f2337
+    Name         : 'nmssuperf01'
+    Incoming addr: '10.21.22.11:3306'
 ```
 
 通常`Last  seqno`數值最大的節點即為數據最新的節點。
@@ -546,6 +547,14 @@ OpenStack部署多個計算節點時，數據庫組件MariaDB會以集群模式�
 
 # Horizon
 [Horizon](https://docs.openstack.org/horizon/latest/)是OpenStack管理面板的官方實現。
+
+## VIP
+Kolla Ansible默認啟用了VIP配置，All in One部署時不需要VIP，
+可禁用VIP（禁用enable_haproxy/enable_proxysql）；
+若繼續使用VIP，則訪問Horizon管理面板時需要使用VIP地址。
+
+直接使用管理網地址依舊可以訪問Horizon管理面板，
+但部分功能可能會出現各類錯誤（如Glance服務鏡像上傳問題）。
 
 ## 部署Horizon開發環境
 構建Horizon的開發環境，參考
