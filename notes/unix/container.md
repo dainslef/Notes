@@ -721,6 +721,13 @@ GRUB_CMDLINE_LINUX_DEFAULT="... apparmor=0"
 ...
 ```
 
+修改配置後需要重新生成GRUB配置，並重啓服務器使之生效：
+
+```
+# grub-mkconfig -o /boot/grub/grub.cfg
+# reboot
+```
+
 
 
 # Docker Hub
@@ -1077,6 +1084,19 @@ $ docker create -p 主機端口:容器端口 鏡像 啓動進程 進程參數...
 
 <!-- 映射多個端口需要多次使用 -p 參數 -->
 $ docker create -p 主機端口1:容器端口2 -p 主機端口2:容器端口2 ...
+```
+
+docker亦支持基於範圍的端口映射，可將一個範圍的端口批量映射到宿主機：
+
+```html
+$ docker create -p 主機起始端口-主機結束端口:容器起始端口-容器結束端口 鏡像 啓動進程 進程參數...
+```
+
+未指定協議類型時，默認映射TCP端口，亦可顯式指定協議類型：
+
+```html
+$ docker create -p 主機端口:容器端口/tcp 鏡像 啓動進程 進程參數...
+$ docker create -p 主機端口:容器端口/udp 鏡像 啓動進程 進程參數...
 ```
 
 ## Docker修改端口映射
@@ -1712,6 +1732,9 @@ Podman雖號稱最大程度兼容Docker，但技術架構與Docker存在較大�
 ### 容器服務架構
 Docker服務需要在後端常駐Daemon服務（Client-Server架構），
 Podman則不依賴Deamon服務（Daemon-Less架構）。
+
+Podman自身不需要Daemon服務，但通過systemd實現必要的容器管理功能，
+如通過systemd服務實現容器自啓動相關功能。
 
 ### systemd容器
 Podman原生支持systemd容器，創建容器時，將容器的默認啟動進程設置為`/sbin/init`，
