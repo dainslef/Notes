@@ -1,8 +1,8 @@
 <!-- TOC -->
 
 - [OpenWRT的安裝和升級](#openwrt的安裝和升級)
-    - [系統安裝](#系統安裝)
-    - [系統升級](#系統升級)
+    - [mtd（固件刷寫）](#mtd固件刷寫)
+    - [sysupgrade（系統升級）](#sysupgrade系統升級)
     - [UBoot](#uboot)
 - [Breed](#breed)
     - [Breed Web UI](#breed-web-ui)
@@ -83,7 +83,7 @@
 在[OpenWRT官方下載頁面](https://downloads.openwrt.org)可下載官方固件。
 OpenWRT對各路由器機型的支持參考[OpenWRT Wiki](https://openwrt.org/toh/start)。
 
-## 系統安裝
+## mtd（固件刷寫）
 `mtd`是路由器刷機使用的固件寫入工具，用於向路由器中刷寫操作系統。
 
 路由器的分區信息寫在`/proc/mtd`文件中，不同機型不同固件會有不同的分區信息，示例：
@@ -138,6 +138,13 @@ mtd8: 00400000 00020000 "kernel"
 mtd9: 07580000 00020000 "ubi"
 ```
 
+默認mtd分區不可寫入，獲取寫入權限需要執行下列操作：
+
+```
+# opkg update && opkg install kmod-mtd-rw
+# insmod mtd-rw i_want_a_brick=1
+```
+
 使用mtd將固件寫入目標分區：
 
 ```
@@ -153,7 +160,7 @@ mtd9: 07580000 00020000 "ubi"
 # mtd erase rootfs_data
 ```
 
-## 系統升級
+## sysupgrade（系統升級）
 在LuCI的`System - Backup / Flash Firmware`介面選擇`Flash new firmware image`菜單進行系統升級；
 亦可使用`sysupgrade`工具進行系統升級：
 
@@ -221,6 +228,8 @@ xxx-ubootmod-squashfs-sysupgrade.itb
 （配置192.168.1.1/24網段，固件放置於TFTP根目錄下，且固件名稱中需要移除版本號）；
 啓動後系統為固件加載至内存的維護模式，需要再次刷入sysupgrade固件。
 - `ubootmod-squashfs-sysupgrade.itb`文件為UBoot的sysupgrade固件，用於sysupgrade指令以及WEB UI刷機。
+
+
 
 # Breed
 [Breed](https://breed.hackpascal.net/)是由[hackpascal](https://github.com/hackpascal)
