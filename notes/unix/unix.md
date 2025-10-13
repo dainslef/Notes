@@ -3859,6 +3859,16 @@ $ systemctl status NetworkManager
 
 NetworkManager提供了基於命令行的網絡配置工具`nmcli`和基於TUI的`nmtui`。
 
+nmtui的TUI界面可便捷地管理網絡配置；
+可直接搜索並連接Wifi網絡，Wifi相關功能需要安裝`wpasupplicant`軟件包。
+
+nmcli修改配置基本操作：
+
+```html
+$ nmcli connection modify 連接名稱 屬性名稱1 屬性值 屬性名稱2 屬性值1,屬性值2 ... <!-- 支持同時修改多個屬性 -->
+$ nmcli connection modify 連接名稱 -屬性名稱 屬性值 +屬性名稱 屬性值 ... <!-- 刪除/添加屬性內容（常用於配置多個IP地址等） -->
+```
+
 nmcli常用指令：
 
 ```html
@@ -3866,8 +3876,8 @@ nmcli常用指令：
 $ nmcli device <!-- 查看接口狀態 -->
 # nmcli device reapply 接口名稱 <!-- 修改網絡配置後，重新加載指定接口的配置 -->
 
-<!-- 列出無線網絡列表 -->
-$ nmcli device wifi list
+<!-- 無線網絡相關 -->
+$ nmcli device wifi list <!-- 列出可用的無線網絡 -->
 <!-- 連接指定無線網絡 -->
 # nmcli device wifi connect 無線網絡名稱 password 密碼
 # nmcli device wifi connect 無線網絡名稱 password 密碼 hidden yes <!-- 無線網絡密碼 -->
@@ -3875,11 +3885,18 @@ $ nmcli device wifi list
 # nmcli radio wifi off
 
 <!-- 連接管理相關 -->
+$ nmcli connection <!-- 列出網絡連接信息 -->
 $ nmcli connection show <!-- 查看所有連接概況 -->
 $ nmcli connection show 連接名稱 <!-- 查看指定連接詳情（包含所有可配置的屬性） -->
 # nmcli connection modify 連接名稱 屬性名稱 屬性值 ... <!-- 修改指定連接的屬性（可一次性修改多個屬性） -->
 # nmcli connection up 連接名稱
 # nmcli connection delete 連接名稱
+
+<!-- 路由管理相關 -->
+$ nmcli connection show 連接名稱 ipv4.routes <!-- 查看指定連接的IPv4路由 -->
+$ nmcli connection show 連接名稱 ipv6.routes <!-- 查看指定連接的IPv6路由 -->
+# nmcli connection modify 連接名稱 ipv4.never-default yes <!-- 設置指定連接的IPv4路由不作爲默認路由 -->
+# nmcli connection modify 連接名稱 ipv6.never-default yes <!-- 設置指定連接的IPv6路由不作爲默認路由 -->
 ```
 
 nmcli配置連接IP地址相關：
