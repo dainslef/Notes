@@ -3,6 +3,8 @@
 - [MaNGOS](#mangos)
     - [MaNGOS服務說明](#mangos服務說明)
     - [部署MaNGOS數據庫](#部署mangos數據庫)
+        - [realmd數據庫配置](#realmd數據庫配置)
+        - [國際化](#國際化)
     - [MaNGOS目錄結構](#mangos目錄結構)
     - [構建與部署MaNGOS核心服務](#構建與部署mangos核心服務)
     - [構建MaNGOS資源文件](#構建mangos資源文件)
@@ -63,6 +65,45 @@ $ ./InstallDatabases.sh
 ```
 
 在脚本中可設置需要部署哪些數據庫，以及數據的訪問方式，創建數據庫的名稱等。
+
+### realmd數據庫配置
+創建數據庫后，需要修改`realmd`數據庫中的`realmlist`表，
+修改`address`字段爲服務器的IP地址或域名，否則無法登入。
+
+MaNGOS的realmd支持多個版本的服務器，多版本服務部署在同一服務器上需要使用不同端口，
+並在`realmlist`表中修改對應的`port`字段；
+注意，需要在mangosd.conf配置文件中修改對應的端口信息（容器部署時只需修改映射端口），
+多版本服務器各自的mangosd.conf配置中的RealmID需要匹配`realmlist`表中的`id`字段，
+否則realmd服務無法正確識別mangosd服務，導致服務器列表狀態異常。
+
+### 國際化
+默認數據庫中僅提供英文文本，因此無論使用何種語言客戶端登入，任務、NPC信息等均爲英文。
+
+需要導入對應客戶端語言的數據庫，相關内容位於
+[MangosExtras](https://github.com/MangosExtras)項目中；
+MangosExtras倉庫後期已被合并至主倉庫中，但國際化內容仍然獨立維護。
+
+以MaNGOS Zero版本爲例，應克隆對應版本倉庫：
+
+```
+$ git clone https://github.com/MangosExtras/MangosZero_Localised
+```
+
+在克隆數據庫倉庫時若已經使用了`--recursive`參數，則不必再次單獨拉取該倉庫，
+國際化內容位於數據庫倉庫的`Translations`路徑下。
+
+之後導入相關數據庫文件：
+
+```html
+<!-- 導入基礎信息，數據庫名稱需要與MaNGOS版本對應 -->
+$ mysql -h數據庫地址 -u數據庫用戶名 -p數據庫密碼 mangos0 < 1_LocaleTablePrepare.sql
+
+<!-- 進入對應語言路徑 -->
+$ cd Translations/語言
+
+<!-- 循環導入對應語言的數據信息 -->
+$ for i in (ls *.sql); mysql -h數據庫地址 -u數據庫用戶名 -p數據庫密碼 mangos0 < $i; end
+```
 
 ## MaNGOS目錄結構
 項目整體部署結構：
