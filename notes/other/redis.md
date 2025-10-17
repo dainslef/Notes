@@ -18,6 +18,8 @@
     - [Strings（字符串）](#strings字符串)
         - [SETNX（分佈式鎖）](#setnx分佈式鎖)
         - [INCR（計數器）](#incr計數器)
+    - [Lists（隊列）](#lists隊列)
+    - [Sets（集合）](#sets集合)
     - [Sorted Sets（有序集合）](#sorted-sets有序集合)
 - [Redis Pipelining and Transactions（管道/事務）](#redis-pipelining-and-transactions管道事務)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
@@ -584,6 +586,85 @@ Redis不存在數值類型，實際使用`base-10 64 bit signed integer`來實�
 > incr test_incr
 (integer) 3
 ```
+
+## Lists（隊列）
+Redis中的隊列為雙端隊列，從兩側添加、刪除元素均為`O(1)`時間複雜度。
+
+基本操作：
+
+- `LPUSH/RPUSH/LPOP/RPOP` 從兩端添加刪除內容
+
+    ```html
+    > LPUSH 列表名稱 元素1 元素2 ... <!-- 從左側添加元素 -->
+    > RPUSH 列表名稱 元素1 元素2 ... <!-- 從右側添加元素 -->
+    > LPOP 列表名稱 <!-- 從左側刪除元素並返回刪除內容 -->
+    > RPOP 列表名稱 <!-- 從右側刪除元素並返回刪除內容 -->
+    ```
+
+- `LRANGE` 獲取指定範圍範圍的內容（`LRANGE 列表名稱 0 -1`返回所有內容）
+
+    ```html
+    > LRANGE 列表名稱 起始位置 結束位置
+    ```
+
+- `LINDEX` 訪問指定索引的內容
+
+    ```html
+    > LINDEX 列表名稱 索引位置 <!-- 支持負數索引，-1表示最後一個元素 -->
+    ```
+
+- `LLEN` 獲取列表長度
+
+    ```html
+    > LLEN 列表名稱
+    ```
+
+- `LSET` 在特定位置更新元素（`O(N)`時間複雜度）
+
+    ```html
+    > LSET 列表名稱 索引位置 新元素內容
+    ```
+
+## Sets（集合）
+Redis中的集合為無序、唯一的數據集。
+
+基本操作：
+
+- `SADD/SREM` 向集合添加新內容/從集合移除內容
+
+    ```html
+    > SADD 集合名稱 元素1 元素2 ... <!-- 添加元素 -->
+    > SREM 集合名稱 元素1 元素2 ... <!-- 移除元素 -->
+    ```
+
+- `SMEMBERS/SISMEMBER` 列出集合的所有內容/確認目標是否為集合內容
+
+    ```html
+    > SMEMBERS 集合名稱 <!-- 列出集合的所有內容 -->
+    > SISMEMBER 集合名稱 元素 <!-- 確認元素是否為集合內容，返回1表示是，0表示否 -->
+    ```
+
+- `SSCAN` 查詢集合內容
+
+    ```html
+    > SSCAN 集合名稱 游標 [MATCH 模式] [COUNT 數目]
+    ```
+
+    SSCAN指令用於遍歷集合內容，返回指定數目的內容以及下一次查詢的游標位置。
+    使用MATCH參數可按照模式匹配內容，使用COUNT參數可設置每次返回的內容數目。
+
+- `SINTER/SUNION` 取兩個集合的交集/並集
+
+    ```html
+    > SINTER 集合名稱1 集合名稱2 ... <!-- 取多個集合的交集 -->
+    > SUNION 集合名稱1 集合名稱2 ... <!-- 取多個集合的並集 -->
+    ```
+
+- `SCARD` 返回集合的大小
+
+    ```html
+    > SCARD 集合名稱
+    ```
 
 ## Sorted Sets（有序集合）
 Redis亦提供了有序集合[ZSET](https://redis.io/glossary/redis-sorted-sets/)。
