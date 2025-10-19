@@ -118,6 +118,7 @@
     - [netstat & ss](#netstat--ss)
     - [mii-tool & ethtool](#mii-tool--ethtool)
     - [tcpdump](#tcpdump)
+        - [text2pcap](#text2pcap)
     - [Netcat (nc)](#netcat-nc)
         - [客戶端/服務端模式](#客戶端服務端模式)
         - [Unix Domain Socket](#unix-domain-socket)
@@ -4503,6 +4504,35 @@ tcpdump數據過濾表達式可搭配or、and、not等邏輯操作符組合多�
 
 <!-- 可通過括號設置條件優先級（表達式需要加引號） -->
 # tcpdump "net a.b.c.d/子網 and (port 80 or port 443)"
+```
+
+### text2pcap
+text2pcap是tcpdump工具鏈之一，可將文本格式十六進制數據轉換為PCAP文件。
+
+基本用法：
+
+```html
+# text2pcap [參數] 輸入文件 輸出文件
+```
+
+輸入的十六進制數據的格式示例：
+
+```
+0000  00 0c 29 3e 5b 8e 00 50 56 c0 00 08 08 00 45 00
+0010  00 3c 1c 46 40 00 40 ...
+```
+
+可根據實際數據內容添加模擬的鏈路層、IP層信息：
+
+```html
+<!-- 添加以太網頭（指定類型為IPv4） -->
+# text2pcap -e 0x0800 輸入文件 輸出文件
+<!-- 添加以太網頭（指定類型為IPv6） -->
+# text2pcap -e 0x86dd 輸入文件 輸出文件
+
+<!-- 添加IPv4/IPv6頭 -->
+# text2pcap -i 4 輸入文件 輸出文件
+# text2pcap -i 6 輸入文件 輸出文件
 ```
 
 ## Netcat (nc)
