@@ -29,8 +29,6 @@
 - [OpenRC](#openrc)
 - [其他配置](#其他配置)
     - [內核模塊](#內核模塊)
-    - [軟件包Masked](#軟件包masked)
-    - [軟件包配置衝突](#軟件包配置衝突)
     - [MySQL初始化](#mysql初始化)
     - [修改主機名](#修改主機名)
     - [安裝JDK](#安裝jdk)
@@ -110,12 +108,14 @@ chroot到Gentoo Stage環境。
 ```
 
 ## 配置portage參數
-編輯`/etc/portage/make.conf`文件，該文件用於配置系統構建（内核、軟件包編譯）的全局編譯參數，
-通常使用默認配置即可。
+編輯`/etc/portage/make.conf`文件，該文件用於配置系統構建（内核、軟件包編譯）的全局編譯參數。
 
 常見配置項説明：
 
 ```sh
+# 配置語言
+LC_MESSAGES="en_US.UTF-8"
+
 # 參數j(jobs)表示并行任務數目，l(load-average)表示系統負載
 # 默認會通過nproc設置該參數，為充分利用資源，可略高於系統配置
 MAKEOPTS="-j3 -l4"
@@ -125,6 +125,9 @@ MAKEOPTS="-j3 -l4"
 # USE="-X -alsa -gtk -gnome -qt -kde"
 USE="xxx -xxx"
 ```
+
+全局的USE、LICENSE、ACCEPT_KEYWORDS等配置均可在該文件中設置，
+未配置參數時系統會提供默認值，默認配置內容位於`/usr/share/portage/config/make.globals`。
 
 ### 二進制源
 Gentoo在2023年底正式提供二進制源，參考
@@ -383,6 +386,8 @@ Gentoo提供了預編譯内核`sys-kernel/gentoo-kernel-bin`，
 ### 清理內核
 Gentoo升級內核時**不會**自動清理舊的內核文件，
 長期使用多次升級內核版本後會產生大量舊版本的內核文件，佔用磁盤空間。
+
+内核清理相關内容參考[Gentoo Wiki](https://wiki.gentoo.org/wiki/Kernel/Removal)。
 
 清理舊內核可移除下列路徑下的內容：
 
@@ -753,26 +758,6 @@ openRC系統的服務模塊位於`/etc/conf.d`目錄下，可以根據需求自�
 可以使模塊開機自啓動(後綴名`*.ko`可省略)。
 配置文件中的內核模塊不能寫alisa名稱，而是要寫清模塊文件的名字。
 如果使用systemd作爲服務管理，則將需要開機啓動的模塊寫入`/etc/modprobe.d/`中的任意文件。
-
-## 軟件包Masked
-包被Masked的原因很多，因爲許可證被Masked，
-需要將接受的許可證級別的寫在`/etc/portage/package.license`中，
-部分軟件穩定性不達標會被Masked，若需要安裝，
-則將對應的包名和穩定性級別加入`/etc/portage/package.accept_keywords`中。
-若安裝很多穩定性級別不夠的包，一一加入較為不便，
-可在`/etc/portage/make.conf`中使用全局關鍵字`ACCEPT_KEYWORDS="~amd64"`，
-通常不推薦此選項，這會降低系統穩定性。
-
-## 軟件包配置衝突
-有時包更新帶來新的配置文件便會產生文件衝突，
-新加入的配置文件會以`.cfg00xx_[原配置文件名]`命名，
-查找此類衝突配置文件可使用指令：
-
-```
-# find /etc -name '*._cfg*'
-```
-
-比較文件內容後，自行決定取捨。
 
 ## MySQL初始化
 默認情況下，安裝完MySQL/MariaDB數據庫並未進行初始化配置，
