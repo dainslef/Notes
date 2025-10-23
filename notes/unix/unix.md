@@ -4761,6 +4761,20 @@ SNAT       all  --  10.8.0.0/24          anywhere             to:192.168.110.181
 [Keepalived](https://www.keepalived.org)在Linux系統上提供浮動IP、高可用等特性。
 詳細特性參見[官方文檔](https://www.keepalived.org/manpage.html)。
 
+## global_defs
+`global_defs`用於配置Keepalived的全局參數：
+
+```conf
+global_defs {
+    router_id 主機標識符 # 用於區分不同的Keepalived實例
+    vrrp_version 3 # VRRP協議版本
+    #enable_script_security # 啟用腳本安全檢查
+}
+```
+
+`enable_script_security`用於啟用腳本安全檢查，會檢查腳本的擁有者和權限，
+對於需要執行高權限指令的腳本不建議開啟，會導致腳本執行失敗。
+
 ## vrrp_instance
 `vrrp_instance`是Keepalived的核心功能，
 基於[VRRP](https://en.wikipedia.org/wiki/Virtual_Router_Redundancy_Protocol)協議提供浮動IP。
@@ -4781,6 +4795,10 @@ vrrp_instance VI {
     	X.X.X.X/X
     	X.X.X.X/X dev 網卡設備 # 將虛擬IP綁定到指定網卡設備
     }
+    # 接口狀態變化時可配置觸發腳本
+    notify_master "xxx.sh"
+    notify_backup "xxx.sh"
+    notify_fault "xxx.sh"
 }
 ```
 
@@ -4813,20 +4831,24 @@ $ ip addr
 早期官方文檔提供的[vrrp_sync_group示例](https://keepalived.readthedocs.io/en/latest/case_study_failover.html#architecture-specification)存在錯誤，
 參考[GitHub issue](https://github.com/voxpupuli/puppet-keepalived/issues/129)。
 
-```
+```conf
 vrrp_sync_group VG {
-	group {
-		VI_1
-		VI_2
-	}
+    group {
+        VI_1
+        VI_2
+    }
+    # 接口狀態變化觸發腳本可統一配置在vrrp_sync_group中
+    notify_master "xxx.sh"
+    notify_backup "xxx.sh"
+    notify_fault "xxx.sh"
 }
 
 vrrp_instance VI_1 {
-	...
+    ...
 }
 
 vrrp_instance VI_2 {
-	...
+    ...
 }
 ```
 
@@ -4835,8 +4857,8 @@ vrrp_instance VI_2 {
 假設存在兩台主機，每台主機各自擁有`10.0.0.*`和`192.168.0.*`網段的網口，
 要使主機網口的任意一個發生故障都整組網口一併切換，配置示例：
 
-```html
-<!-- 主節點 -->
+```conf
+# main node
 vrrp_sync_group VG {
     group {
         VI_MAIN
@@ -4850,10 +4872,11 @@ vrrp_instance VI_MAIN {
     priority 2 # master should have higer priority
     advert_int 1 # check time time intervel
     interface eno1 # bind interface need be generated
-    authentication {
-        auth_type PASS
-        auth_pass pass_xxx_main
-    }
+    # VRRP V3 does not recommend using authentication
+    ; authentication {
+    ;     auth_type PASS
+    ;     auth_pass pass_xxx_main
+    ; }
     virtual_ipaddress {
         10.0.0.100/24
     }
@@ -4874,7 +4897,7 @@ vrrp_instance VI_INNER {
     }
 }
 
-<!-- 備節點 -->
+# backup node
 vrrp_sync_group VG {
     group {
         VI_MAIN
