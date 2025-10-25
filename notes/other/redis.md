@@ -21,6 +21,7 @@
     - [Lists（隊列）](#lists隊列)
     - [Sets（集合）](#sets集合)
     - [Sorted Sets（有序集合）](#sorted-sets有序集合)
+    - [Hashes（哈希表）](#hashes哈希表)
 - [Redis Pipelining and Transactions（管道/事務）](#redis-pipelining-and-transactions管道事務)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
     - [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
@@ -705,6 +706,38 @@ ZSET中每個元素均帶有一個數值（score，得分）表示元素在集�
     ```html
     > ZRANK KEY名稱 元素 <!-- 返回元素的索引 -->
     > ZSCORE KEY名稱 元素 <!-- 返回元素的得分 -->
+    ```
+
+## Hashes（哈希表）
+Redis中Hashes與主流編程語言中功能類似，用於存儲鍵值對；
+設置、刪除、獲取單個鍵值均為`O(1)`時間複雜度。
+
+基本操作：
+
+- `HSET/HDEL` 設置/刪除鍵值對
+
+    ```html
+    > HSET 哈希名稱 鍵 值 <!-- 設置哈希表中的鍵值對 -->
+    > HDEL 哈希名稱 鍵 <!-- 刪除哈希表中指定鍵的值 -->
+    ```
+
+- `HGET/HMGET` 獲取指定鍵值
+
+    ```html
+    > HGET 哈希名稱 鍵  <!-- 獲取哈希表中指定鍵的值 -->
+    > HMGET 哈希名稱 鍵1 鍵2 ... <!-- 獲取哈希表中多個鍵的值 -->
+    ```
+
+- `HGETALL` 獲取目標哈希的所有內容
+
+    ```html
+    > HGETALL 哈希名稱
+    ```
+
+- `HINCRBY` 目標值增加指定大小，並返回新結果（`O(1)`時間複雜度）
+
+    ```html
+    > HINCRBY 哈希名稱 鍵 增加大小 <!-- 增加指定鍵的值，常用於計數器，需要目標鍵值為數值類型 -->
     ```
 
 
