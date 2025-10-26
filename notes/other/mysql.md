@@ -24,6 +24,7 @@
     - [系統變量](#系統變量)
     - [複製表格](#複製表格)
     - [主鍵自增](#主鍵自增)
+    - [INDEX（索引）](#index索引)
     - [外鍵約束](#外鍵約束)
         - [排查外鍵錯誤信息](#排查外鍵錯誤信息)
         - [臨時禁用/恢復外鍵約束](#臨時禁用恢復外鍵約束)
@@ -531,7 +532,7 @@ END;
 if用於單一條件判斷：
 
 ```sql
-IF(expression, expr_true, expr_false);
+IF (expression, expr_true, expr_false);
 ```
 
 case與if可用於多種場景，如查詢、排序、更新中：
@@ -546,7 +547,7 @@ END
 FROM OrderDetails;
 
 SELECT OrderID, Quantity,
-IF(Quantity > 30, "The quantity is greater than 30", "The quantity is under 30")
+IF (Quantity > 30, "The quantity is greater than 30", "The quantity is under 30")
 FROM OrderDetails;
 
 # 數據排序
@@ -560,10 +561,10 @@ END;
 
 SELECT CustomerName, City, Country
 FROM Customers
-ORDER BY IF(City IS NULL, Country, City);
+ORDER BY IF (City IS NULL, Country, City);
 
 # 數據更新
-UPDATE OrderDetails SET Quantity = IF(Quantity > 0, Quantity, -1);
+UPDATE OrderDetails SET Quantity = IF (Quantity > 0, Quantity, -1);
 UPDATE OrderDetails SET Quantity = CASE WHEN Quantity > 0 THEN Quantity ELSE -1 END;
 ```
 
@@ -653,7 +654,7 @@ alter table 表名 change 列名 列名 屬性;
 
 可配置數據庫全局的自增起始值和自增步長，查看相關配置：
 
-```
+```sql
 mysql> show global variables like "auto_increment%";
 +--------------------------+-------+
 | Variable_name            | Value |
@@ -669,6 +670,23 @@ mysql> show global variables like "auto_increment%";
 
 默認的自增偏移和自增步長均爲1，
 可通過`SET GLOBAL auto_increment_increment/auto_increment_offset = xxx`進行修改。
+
+## INDEX（索引）
+索引是數據庫中用於加速查詢的數據結構，MySQL支持多種索引類型。
+索引的使用可以顯著提高查詢性能，但也會增加數據庫的存儲空間和維護成本。
+
+索引常用操作：
+
+```sql
+-- 查看索引
+show index from 表名;
+
+-- 創建索引
+alter table 表名 add 索引類型 索引名稱 (列名1, 列名2, ...); -- 索引類型可以為 unique、fulltext、spatial 等
+
+-- 刪除索引
+alter table 表名 drop 索引名稱;
+```
 
 ## 外鍵約束
 InnoDB引擎支持外鍵約束，從表可引用主表的鍵/主鍵作爲外鍵，外鍵字段的值必須爲主表中對應字段已存在的值。
