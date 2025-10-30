@@ -13,6 +13,7 @@
         - [重置集群節點](#重置集群節點)
     - [CNI（Container Network Interface）](#cnicontainer-network-interface)
         - [使用helm部署網絡插件](#使用helm部署網絡插件)
+        - [卸載tigera-operator](#卸載tigera-operator)
     - [升級集群](#升級集群)
     - [清理集群容器](#清理集群容器)
     - [IPv4/IPv6雙棧](#ipv4ipv6雙棧)
@@ -109,8 +110,8 @@ Kubernetes需要開啓`br_netfilter`內核模塊：
 
 開啓iptables配置：
 
-```
-# echo -e 'net.bridge.bridge-nf-call-ip6tables=1\nnet.bridge.bridge-nf-call-iptables=1\nnet.ipv4.ip_forward=1' > /etc/sysctl.d/k8s.conf
+```html
+# echo -e 'net.bridge.bridge-nf-call-ip6tables=1\nnet.bridge.bridge-nf-call-iptables=1\nnet.ipv4.ip_forward=1\nnet.ipv6.conf.default.forwarding=1' > /etc/sysctl.d/k8s.conf
 # sysctl --system
 ```
 
@@ -146,7 +147,7 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 ```
 
 **牆國**內還需要配置containerd鏡像源，
-修改配置的`sandbox_image`（該項配置默認爲`"k8s.gcr.io/pause:3.10"`，強國無法訪問，需要修改）
+修改配置的`sandbox_image`（該項配置默認爲`"k8s.gcr.io/pause:3.9"`，牆國無法訪問，需要修改）
 以及`[plugins."io.containerd.grpc.v1.cri".registry.mirrors]`部分
 （該配置項默認已創建，但默認爲空，早期版本的containerd該項配置可能名稱爲`[plugins.io]`）：
 
@@ -156,7 +157,7 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
   ...
   # 較早期的containerd版本（如1.2x）該配置項可能爲[plugins.cri]
   [plugins."io.containerd.grpc.v1.cri"]
-    sandbox_image = "registry.aliyuncs.com/k8sxio/pause:3.10"
+    sandbox_image = "registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.9"
     ...
     # 若上述配置配置名稱爲[plugins.cri]，則後續該項下的所有子配置均使用該名稱做前綴
     [plugins."io.containerd.grpc.v1.cri".registry]
@@ -165,7 +166,7 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
           endpoint = ["https://bqr1dr1n.mirror.aliyuncs.com"]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."k8s.gcr.io"]
-          endpoint = ["https://registry.aliyuncs.com/k8sxio"]
+          endpoint = ["https://registry.cn-hangzhou.aliyuncs.com/google_containers"]
 ```
 
 修改containerd配置后，需要重啓服務使配置生效：
@@ -173,6 +174,9 @@ Kubernetes可使用containerd作為運行時，各大發行版可直接從軟件
 ```
 # systemctl restart containerd
 ```
+
+需要注意k8s.gcr.io/pause鏡像的版本需要與集群版本匹配，觀察初始化日誌中輸出的版本信息，
+使用錯誤的版本會導致集群初始化失敗。
 
 若Kubernetes需要使用本地倉庫（如Harbor等）需要禁用TLS加密或添加倉庫認證信息。
 參考[containerd的Harbor接入配置](../unix/container.md#containerd登入)。
@@ -220,6 +224,16 @@ Kubernetes可能並未提供與操作系統版本匹配的倉庫
 由於Kubernetes使用Golang實現，因而對操作系統依賴較少，
 在版本較新的操作系統中使用舊版本的Kubernetes倉庫通常不會有問題，
 但推薦使用與安裝包完全匹配的系統版本，避免出現潛在的問題。
+
+新版本Kubernetes軟件源`pkgs.k8s.io`同樣提供了國內鏡像，以1.28版本爲例：
+
+```html
+<!-- 導入倉庫簽名 -->
+# curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/kubernetes/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+<!-- 使用牆國USTC源 -->
+# echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://mirrors.tuna.tsinghua.edu.cn/kubernetes/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+```
 
 ## 安裝Kubernetes軟件包
 軟件源配置完畢後，直接使用對應包管理器安裝kubeadm即可：
@@ -368,15 +382,28 @@ kube-system   kube-scheduler-ubuntu-arch64-tokyo            1/1     Running   11
 基本操作：
 
 ```html
-$ kubectl create namespace xxx-namespace
-$ helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
-$ helm install tigera-operator projectcalico/tigera-operator --namespace xxx-namespace
+<!-- 創建命名空間，早期版本tigera-operator支持任意命名空間，3.23版本後必須使用tigera-operator命名空間 -->
+$ kubectl create namespace tigera-operator
+$ helm repo add tigera-operator https://projectcalico.docs.tigera.io/charts
+$ helm install tigera-operator tigera-operator/tigera-operator --namespace tigera-operator
 ```
 
 若在kubeadm初始化集群時使用了自定義CIDR，則在tigera-operator安裝時需要指定匹配的CIDR：
 
 ```
-$ helm install tigera-operator projectcalico/tigera-operator --namespace xxx-namespace --set installation.calicoNetwork.ipPools[0].cidr=...,installation.calicoNetwork.ipPools[1].cidr=...
+$ helm install tigera-operator tigera-operator/tigera-operator --namespace tigera-operator --set installation.calicoNetwork.ipPools[0].cidr=...,installation.calicoNetwork.ipPools[1].cidr=...
+```
+
+### 卸載tigera-operator
+使用tigera-operator部署calico網絡插件升級版本時，大版本常常伴隨破壞性更新導致升級失敗，
+此時可卸載tigera-operator后重新安裝。
+
+默認helm卸載tigera-operator時不會清除crd，殘留的crds可能會導致安裝新版本失敗，
+可嘗試手動清理crd：
+
+```
+$ kubectl get crds | grep projectcalico | awk '{print $1}' | xargs kubectl delete crds
+$ kubectl get crds | grep tigera | awk '{print $1}' | xargs kubectl delete crds
 ```
 
 ## 升級集群
