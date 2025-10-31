@@ -10,10 +10,10 @@
     - [構建MaNGOS資源文件](#構建mangos資源文件)
     - [修改配置](#修改配置)
     - [啓用資料片](#啓用資料片)
-    - [國際化](#國際化)
 - [CMaNGOS](#cmangos)
     - [CMaNGOS編譯安裝](#cmangos編譯安裝)
     - [清除角色BUFF](#清除角色buff)
+- [GM指令](#gm指令)
 
 <!-- /TOC -->
 
@@ -197,29 +197,22 @@ $ bash ExtractResources.sh
 ## 修改配置
 mangosd配置文件修改下列內容：
 
+```ini
+RealmID                      = 實際數據庫中的服務器編號
+LoginDatabaseInfo            = "數據庫實際地址;3306;root;mangos;realmd"
+WorldDatabaseInfo            = "數據庫實際地址;3306;root;mangos;mangos0"
+CharacterDatabaseInfo        = "數據庫實際地址;3306;root;mangos;character0"
+LogLevel                     = 0
+LogFileLevel                 = 1
+Warden.WinEnabled            = 0
 ```
-$ diff mangosd.conf.dist mangosd.conf
-66,68c66,68
-< LoginDatabaseInfo            = "127.0.0.1;3306;root;mangos;realmd"
-< WorldDatabaseInfo            = "127.0.0.1;3306;root;mangos;mangos0"
-< CharacterDatabaseInfo        = "127.0.0.1;3306;root;mangos;character0"
----
-> LoginDatabaseInfo            = "10.4.0.1;3306;root;mangos;realmd"
-> WorldDatabaseInfo            = "10.4.0.1;3306;root;mangos;mangos0"
-> CharacterDatabaseInfo        = "10.4.0.1;3306;root;mangos;character0"
-391c391
-< LogLevel                     = 3
----
-> LogLevel                     = 1
-395c395
-< LogFileLevel                 = 0
----
-> LogFileLevel                 = 3
-1743c1743
-< Warden.WinEnabled            = 1
----
-> Warden.WinEnabled            = 0
-```
+
+日志級別分爲：
+
+- 0：無日志輸出
+- 1：僅錯誤日志
+- 2：包含普通日志
+- 3：包含調試日志在内的完整日志
 
 ## 啓用資料片
 默認創建的用戶并未啓用資料片，修改realmd數據庫的account表，
@@ -229,32 +222,10 @@ $ diff mangosd.conf.dist mangosd.conf
 - 1，燃燒的遠征
 - 2，巫妖王之怒
 
-## 國際化
-默認數據庫中僅提供英文文本，因此無論使用何種語言客戶端登入，任務、NPC信息等均爲英文。
-
-需要導入對應客戶端語言的數據庫，相關内容位於
-[MangosExtras](https://github.com/MangosExtras)項目中。
-
-以MaNGOS Zero版本爲例，應克隆對應版本倉庫：
+可通過GM指令啓用資料片：
 
 ```
-$ git clone https://github.com/MangosExtras/MangosZero_Localised
-```
-
-在克隆數據庫倉庫時若已經使用了`--recursive`參數，則不必再次單獨拉取該倉庫，
-國際化內容位於數據庫倉庫的`Translations`路徑下。
-
-之後導入相關數據庫文件：
-
-```html
-<!-- 導入基礎信息，數據庫名稱需要與MaNGOS版本對應 -->
-$ mysql -h數據庫地址 -u數據庫用戶名 -p數據庫密碼 mangos0 < 1_LocaleTablePrepare.sql
-
-<!-- 進入對應語言路徑 -->
-$ cd Translations/語言
-
-<!-- 循環導入對應語言的數據信息 -->
-$ for i in (ls *.sql); mysql -h數據庫地址 -u數據庫用戶名 -p數據庫密碼 mangos0 < $i; end
+> account set addon 賬號ID/賬號名稱 資料片數值
 ```
 
 
@@ -278,3 +249,53 @@ $ cmake 源碼倉庫 -B build -DCMAKE_INSTALL_PREFIX=部署路徑 -DBUILD_EXTRAC
 ## 清除角色BUFF
 角色的BUFF技能狀態存儲在`character_aura`表中，部分GM的BUFF技能狀態無法停止，
 退出角色，之後清空該表中的内容，可解除角色的所有BUFF狀態。
+
+
+
+# GM指令
+MaNGOS/CMaNGOS均支持GM指令，不同版本的GM指令略有不同，
+MaNGOS的GM指令可參考[GitHub](https://github.com/dkpminus/mangos-gm-commands)。
+
+使用前需要將賬號權限提升爲GM等級，提升賬號權限：
+
+```
+> account set gmlevel 賬號ID/賬號名稱 3
+```
+
+常用GM指令：
+
+```sh
+# 列出當前在線賬號
+> account list
+# 啓用資料片
+> account set addon 賬號ID/賬號名稱 資料片數值
+# 修改賬號密碼
+> account set password 賬號ID/賬號名稱 新密碼
+# 修改角色名稱
+> character rename 角色ID 新名稱
+# 刪除角色
+> character delete 角色ID
+# 列出當前在線角色
+> character list
+```
+
+道具相關：
+
+```sh
+# 增加指定編號的物品指定數目，數目可省略，默認增加1件，數值可為負數，效果為減少指定物品數目
+$ .additem 物品編號 數目
+
+# 常用物品編號
+#
+# 正義徽章 29434
+# 英勇紋章 40752
+# 寒冰紋章 49426
+# 勇氣紋章 40753
+# 凱旋紋章 47241
+# 征服紋章 45624
+#
+# 原始月布包 21876
+#
+# 霜之哀傷（藍色） 33350
+# 霜之哀傷（橙色） 33475
+```
