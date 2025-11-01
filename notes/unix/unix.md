@@ -3827,8 +3827,12 @@ network:
       dhcp4: true
     # The static network interface
     eth0:
-      addresses: [x.x.x.x/x, x.x.x.x/x]
+      addresses: [x.x.x.x/x, x.x.x.x/x, x:x::xx/x]
       gateway4: x.x.x.x
+      #gateway6: x:x::x # deprecated
+      routes:
+        - to: default
+          via: x:x::xx # IPv6 gateway, but IPv6 often use link-local address as gateway automatically
       nameservers:
         addresses: [x.x.x.x]
 ```
@@ -3838,6 +3842,9 @@ network:
 ```
 # netplan apply
 ```
+
+netplan早期使用`gateway6`配置IPv6網關，但該選項已被棄用（通常IPv6使用鏈路本地地址作爲網關），
+現在可通過`routes`選項配置IPv6網關。
 
 ### NetworkManager
 `NetworkManager`是現代Linux發行版的主流網絡管理服務，
