@@ -55,6 +55,7 @@
 - [containerd](#containerd)
     - [containerd配置](#containerd配置)
     - [nerdctl](#nerdctl)
+    - [nerdctl IPv6網絡配置](#nerdctl-ipv6網絡配置)
 - [Lima](#lima)
     - [Lima安裝](#lima安裝)
     - [Lima環境配置](#lima環境配置)
@@ -842,7 +843,10 @@ Docker Registry默認僅提供了簡單的鏡像服務，
 完整功能配置參考[官方文檔](https://distribution.github.io/distribution/about/configuration/)。
 更完整的鏡像倉庫功能還可使用Habor等第三方項目。
 
-Docker Registry官方鏡像中配置位於`/etc/distribution/config.yml`，
+Docker Registry主要版本為2和3，配置結構基本相同，但配置文件路徑不同，
+Registry 2官方鏡像中配置位於`/etc/docker/registry/config.yml`，
+Registry 3配置路徑變為`/etc/distribution/config.yml`。
+
 默認內容如下：
 
 ```yaml
@@ -1606,6 +1610,88 @@ $ brew install nerdctl
 
 其它官方軟件源未收錄發行版（如Debian係）中需要從官方發布頁面下載，
 nerdctl採用Golang編寫，僅需根據環境選擇正確的平台、架構即可，無須安裝其它依賴。
+
+## nerdctl IPv6網絡配置
+nerdctl依賴cni-plugins提供網絡功能，未安裝則無法使用容器端口映射等功能。
+cni-plugins在首次運行時會在創建默認配置文件`/etc/cni/net.d/nerdctl-bridge.conflist`，
+默認配置文件中通常不包含IPv6地址配置，需要添加下列内容：
+
+- `plugins.ipam.ranges`中添加IPv6地址段配置
+- `plugins.ipam.routes`中添加IPv6路由配置
+
+包含IPv6網絡的配置文件完整示例：
+
+```json
+{
+  "cniVersion": "1.0.0",
+  "name": "bridge",
+  "nerdctlID": "...",
+  "nerdctlLabels": {
+    "nerdctl/default-network": "true"
+  },
+  "plugins": [
+    {
+      "type": "bridge",
+      "bridge": "nerdctl0",
+      "isGateway": true,
+      "ipMasq": true,
+      "hairpinMode": true,
+      "ipam": {
+        "ranges": [
+          [
+            {
+              "gateway": "10.4.0.1",
+              "subnet": "10.4.0.0/24"
+            }
+          ],
+          [
+            // 添加IPv6地址段配置
+            {
+              "gateway": "fd00:4::1",
+              "subnet": "fd00:4::/64"
+            }
+          ]
+        ],
+        "routes": [
+          {
+            "dst": "0.0.0.0/0"
+          },
+          // 添加IPv6路由配置
+          {
+            "dst": "::/0"
+          }
+        ],
+        "type": "host-local"
+      }
+    },
+    {
+      "type": "portmap",
+      "capabilities": {
+        "portMappings": true
+      }
+    },
+    {
+      "type": "firewall",
+      "ingressPolicy": "same-bridge"
+    },
+    {
+      "type": "tuning"
+    }
+  ]
+}
+```
+
+nerdctl創建容器使用`-p`參數映射端口時，默認僅啓用IPv4地址映射，不會監聽IPv6地址；
+若需要同時監聽IPv4/IPv6地址，則需要創建容器映射端口時指明映射IPv6地址：
+
+```html
+<!-- 僅映射IPv4地址 -->
+$ nerdctl run -p 主機端口:容器端口 ...
+<!-- 僅映射IPv6地址 -->
+$ nerdctl run -p [::]:主機端口:容器端口 ...
+<!-- 同時映射IPv4/IPv6地址 -->
+$ nerdctl run -p 主機端口:容器端口,[::]:主機端口:容器端口 ...
+```
 
 
 
