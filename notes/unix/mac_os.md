@@ -34,6 +34,9 @@
         - [Homebrew Cask](#homebrew-cask)
         - [Homebrew Services](#homebrew-services)
         - [配置國內源](#配置國內源)
+- [macOS安裝鏡像](#macos安裝鏡像)
+    - [創建USB安裝盤](#創建usb安裝盤)
+    - [使用USB安裝盤](#使用usb安裝盤)
 - [macOS軟件格式](#macos軟件格式)
     - [Bundle](#bundle)
     - [pkg](#pkg)
@@ -212,13 +215,13 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 
 ```html
 <!-- 直接使用 hostname 指令設置主機名稱能短暫生效，但會被系統重新覆蓋 -->
-# scutil --set LocalHostName 主機名稱
+# scutil --set HostName 主機名稱
 ```
 
 查看主機名稱：
 
 ```
-$ scutil --get LocalHostName
+$ scutil --get HostName
 ```
 
 ### 托盤圖標
@@ -809,6 +812,39 @@ $ brew services cleanup <!-- 清理未被使用的服務 -->
     ```
 
     恢復官方源後，也應使用`brew update-reset`重新拉取倉庫信息。
+
+
+
+# macOS安裝鏡像
+macOS的安裝鏡像通常以`dmg`格式保存，早期版本可通過蘋果官方網站直接下載安裝鏡像；
+較新的版本需要使用macOS App Store下載安裝程序（APP）；
+詳情參考Apple官網[How to download and install macOS](https://support.apple.com/en-us/102662)。
+
+## 創建USB安裝盤
+對於已經無法正常進入操作系統的Mac設備，可通過創建USB安裝盤進行系統重裝。
+
+創建USB安裝盤需要準備一個**8GB及以上容量**的U盤，並下載對應版本的macOS安裝APP，
+使用對應版本的macOS安裝APP中提供的命令行工具`createinstallmedia`創建USB安裝盤，
+詳情參考Apple官網[Create a bootable installer for macOS](https://support.apple.com/en-us/HT201372)。
+
+以`macOS Catalina`為例，通過命令行創建USB安裝盤：
+
+```
+$ sudo /Applications/Install\ macOS\ Catalina.app/Contents/Resources/createinstallmedia --volume /Volumes/Untitled/
+Ready to start.
+To continue we need to erase the volume at /Volumes/Untitled/.
+If you wish to continue type (Y) then press return: y
+Erasing disk: 0%... 10%... 20%... 30%... 100%
+Copying to disk: 0%... 10%... 20%... 30%... 40%... 50%... 60%... 70%... 80%... 90%... 100%
+Making disk bootable...
+Copying boot files...
+Install media now available at "/Volumes/Install macOS Catalina"
+```
+
+## 使用USB安裝盤
+將創建好的USB安裝盤插入需要重裝系統的Mac設備中，
+Mac電腦啓動時按下`Option(Alt)`鍵可進入啓動管理器，
+選擇USB安裝盤進行系統安裝。
 
 
 
