@@ -22,6 +22,8 @@
     - [Sets（集合）](#sets集合)
     - [Sorted Sets（有序集合）](#sorted-sets有序集合)
     - [Hashes（哈希表）](#hashes哈希表)
+    - [Streams（流/消息隊列）](#streams流消息隊列)
+        - [管理Stream話題、消費組](#管理stream話題消費組)
 - [Redis Pipelining and Transactions（管道/事務）](#redis-pipelining-and-transactions管道事務)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
     - [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
@@ -739,6 +741,43 @@ Redis中Hashes與主流編程語言中功能類似，用於存儲鍵值對；
     ```html
     > HINCRBY 哈希名稱 鍵 增加大小 <!-- 增加指定鍵的值，常用於計數器，需要目標鍵值為數值類型 -->
     ```
+
+## Streams（流/消息隊列）
+Streams是`Redis 5`後引入的新數據結構，相比PubSub，
+Streams支持複雜的消費策略（消費組），並保證可靠性（檢測ACK，指定時間未收到ACK重新發送）。
+
+Streams中消息ID由兩部分構成：`時間戳-序列號`；
+時間戳部分為精確到毫秒級別的Unix時間戳，序列號為同一時刻消息的編號。
+消息ID可以手動指定，未指定消息（使用`*`指代）時則按照當前時間生成Key。
+
+### 管理Stream話題、消費組
+使用XGROUP相關指令管理話題和消費組：
+
+```html
+<!--
+創建消費組
+XGROUP CREATE key group id|$ [MKSTREAM] [ENTRIESREAD entries-read]
+-->
+> XGROUP CREATE 話題 消費組 起始消息ID <!-- 默認創建消費組操作需要話題已存在 -->
+> XGROUP CREATE 話題 消費組 起始消息ID MKSTREAM <!-- 使用MKSTREAM參數，創建消費組時話題不存在自動創建話題 -->
+
+<!--
+創建消費者
+XGROUP CREATECONSUMER key group consumer
+-->
+> XGROUP CREATECONSUMER 話題 消費組 消費者名稱
+
+<!-- 刪除消費組/消費者 -->
+> XGROUP DELCONSUMER 話題 消費組 消費者名稱
+> XGROUP DESTROY 話題 消費組
+```
+
+起始消息ID常見取值：
+
+- `0-0` 從頭開始消費
+- `$` 從最新消息開始消費
+
+刪除話題可直接使用DEL指令刪除Stream對應的Key。
 
 
 
