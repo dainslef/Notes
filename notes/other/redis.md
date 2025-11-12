@@ -24,6 +24,8 @@
     - [Hashes（哈希表）](#hashes哈希表)
     - [Streams（流/消息隊列）](#streams流消息隊列)
         - [管理Stream話題、消費組](#管理stream話題消費組)
+        - [Stream發送、消費消息](#stream發送消費消息)
+        - [Stream查看話題相關信息](#stream查看話題相關信息)
 - [Redis Pipelining and Transactions（管道/事務）](#redis-pipelining-and-transactions管道事務)
 - [Redis Keyspace Notifications](#redis-keyspace-notifications)
     - [Redis keyspace notifications 缺陷](#redis-keyspace-notifications-缺陷)
@@ -778,6 +780,68 @@ XGROUP CREATECONSUMER key group consumer
 - `$` 從最新消息開始消費
 
 刪除話題可直接使用DEL指令刪除Stream對應的Key。
+
+### Stream發送、消費消息
+使用XADD指令發送消息：
+
+```html
+<!--
+發送消息
+XADD key [NOMKSTREAM] [MAXLEN|MINID [=|~] threshold [LIMIT count]] *|id field value [field value ...]
+-->
+> XADD 話題 起始消息ID 字段 字段值
+```
+
+起始消息ID使用`*`可自動生成，消息字段和消息值成對傳入，可傳入多組。
+
+使用XREAD/XREADGROUP指令消費消息：
+
+```html
+<!--
+讀取消息
+XREAD [COUNT count] [BLOCK milliseconds] STREAMS key [key ...] id [id ...]
+-->
+> XREAD STREAMS 話題 起始消息ID
+
+<!--
+使用指定消費組讀取消息
+XREADGROUP GROUP group consumer [COUNT count] [BLOCK milliseconds] [NOACK] STREAMS key [key ...] id [id ...]
+-->
+> XREADGROUP GROUP 消息組 消費者 STREAMS 話題 起始消息ID
+```
+
+XREAD指令起始消息ID使用`$`接收最新消息，話題可傳入多個，對應消費ID也需要傳入多個；
+XREADGROUP指令起始消息ID使用`>`接收該消費組中尚未消費的消息（指定消費組時不支持使用`$`作為消息ID）。
+
+使用XREADGROUP指令消費消息時，默認會自動在消息收到時ACK，
+可使用`NOACK`參數在消費消息是不設置ACK，而使用`XACK`指令手動設置ACK：
+
+```html
+<!--
+XACK key group id [id ...]
+-->
+> XACK 話題 消費組 消息ID ...
+```
+
+指令支持一次性ACK多條消息。
+
+### Stream查看話題相關信息
+使用XINFO等指令可查看話題相關信息：
+
+```html
+<!-- 查看話題消息數目 -->
+> XLEN 話題
+
+<!--
+展示話題消息內容
+XRANGE key start end [COUNT count]
+
+起始消息ID可使用 -
+結束消息ID可使用 +
+表示整個話題範圍內的消息
+-->
+> XRANGE 話題 起始消息ID 結束消息ID
+```
 
 
 
