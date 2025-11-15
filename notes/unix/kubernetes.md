@@ -552,7 +552,7 @@ net.ipv6.conf.all.forwarding = 1 # 啓用IPv6路由轉發
 使用kubeadm創建集群時相關參數指定地址池（默認生成的地址池不包含IPv6地址）：
 
 ```
-# kubeadm init --pod-network-cidr=10.64.0.0/16,fd00:64::/64 --service-cidr=10.89.64.0/24,fd00:8964::/108
+# kubeadm init --pod-network-cidr=10.64.0.0/16,fd64::/64 --service-cidr=10.89.64.0/24,fd89:64::/108
 ```
 
 使用自定義CIDR，相關配置中會自動生成地址段配置：
@@ -567,7 +567,7 @@ net.ipv6.conf.all.forwarding = 1 # 啓用IPv6路由轉發
         ...
         # 配置service的地址範圍，IPv6需要使用108以內的子網，否則範圍過大會導致 kube-apiserver 啓動失敗
         # 對應kubeadm的 --service-cidr
-        - --service-cluster-ip-range=10.89.64.0/24,fd00:8964:/108
+        - --service-cluster-ip-range=10.89.64.0/24,fd89:64:/108
         ...
     ```
 
@@ -580,9 +580,9 @@ net.ipv6.conf.all.forwarding = 1 # 啓用IPv6路由轉發
       - command:
         ...
         # 對應kubeadm的 --pod-network-cidr
-        - --cluster-cidr=10.64.0.0/16,fd00:64::/64
+        - --cluster-cidr=10.64.0.0/16,fd64::/64
         # 對應kubeadm的 --service-cidr
-        - --service-cluster-ip-range=10.89.64.0/16,fd00:89:64:/108
+        - --service-cluster-ip-range=10.89.64.0/16,fd89:64:/108
         ...
     ```
 
@@ -603,7 +603,7 @@ spec:
 但部分非標準發行版（如k3s）可能存在地址無效的問題，需要在安裝時通過參數手動指定CIDR：
 
 ```
-$ helm install -n helm-charts --create-namespace tigera-operator tigera-operator/tigera-operator --set installation.calicoNetwork.ipPools[0].cidr=10.64.0.0/16,installation.calicoNetwork.ipPools[1].cidr=fd00:64::/64
+$ helm install --create-namespace -n tigera-operator tigera-operator tigera-operator/tigera-operator --set installation.calicoNetwork.ipPools[0].cidr=10.64.0.0/16,installation.calicoNetwork.ipPools[1].cidr=fd64::/64
 ```
 
 使用Calico網絡插件時，可查看插件配置的地址池：
@@ -2110,16 +2110,16 @@ REVISION	UPDATED                 	STATUS    	CHART                  	APP VERSION
 $ kubectl create namespace helm-charts
 
 <!-- Calico CNI -->
-$ helm repo add tigera-operator https://projectcalico.docs.tigera.io/charts
+$ helm repo add projectcalico https://docs.projectcalico.org/charts
 <!--
 Prior to release v3.23, the Calico helm chart itself deployed the tigera-operator namespace and required that the helm release was installed in the default namespace. Newer releases properly defer creation of the tigera-operator namespace to the user and allow installation of the chart into the tigera-operator namespace.
 -->
-$ helm install --create-namespace -n tigera-operator tigera-operator tigera-operator/tigera-operator
+$ helm install --create-namespace -n tigera-operator tigera-operator projectcalico/tigera-operator
 <!--
 Use Calico CNI with custom CIDR(and IPv6 Pool), init kubeadm with custom parameters:
 kubeadm init --pod-network-cidr=10.64.0.0/16,fd64::/64 --service-cidr=10.89.64.0/24,fd89:64::/108
 -->
-$ helm install --create-namespace -n tigera-operator tigera-operator tigera-operator/tigera-operator --set installation.calicoNetwork.ipPools[0].cidr=10.64.0.0/16,installation.calicoNetwork.ipPools[1].cidr=fd64::/64
+$ helm install --create-namespace -n tigera-operator tigera-operator projectcalico/tigera-operator --set installation.calicoNetwork.ipPools[0].cidr=10.64.0.0/16,installation.calicoNetwork.ipPools[1].cidr=fd64::/64
 
 <!-- metrics-server -->
 $ helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
@@ -2138,8 +2138,8 @@ grafana:
       root_url: http://0.0.0.0/grafana
       serve_from_sub_path: true
 -->
-$ helm repo add kube-prometheus-stack https://prometheus-community.github.io/helm-charts
-$ helm install -n helm-charts kube-prometheus-stack kube-prometheus-stack/kube-prometheus-stack --set 'grafana.adminPassword=自定義默認密碼,grafana.grafana\.ini.server.root_url=http://0.0.0.0/grafana,grafana.grafana\.ini.server.serve_from_sub_path=true'
+$ helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+$ helm install -n helm-charts kube-prometheus-stack prometheus-community/kube-prometheus-stack --set 'grafana.adminPassword=自定義默認密碼,grafana.grafana\.ini.server.root_url=http://0.0.0.0/grafana,grafana.grafana\.ini.server.serve_from_sub_path=true'
 
 <!--
 Nginx Ingress Controller
@@ -2162,14 +2162,18 @@ see GitHub https://github.com/kubernetes/dashboard/issues/8765
 -->
 $ helm install -n helm-charts kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --set kong.admin.tls.enabled=false
 
+<!-- local-path-provisioner for local storage -->
+$ helm repo add containeroo https://charts.containeroo.ch
+$ helm install -n helm-charts local-path-provisioner containeroo/local-path-provisioner --set storageClass.defaultClass=true,nodePathMap=/opt/kubernetes/local-path-provisioner
+
 <!--
 Harbor
 Harbor并未提供ARM64架構的鏡像，ARM平臺服務器不要使用Helm部署Harbor
 -->
-$ helm repo add harbor https://helm.goharbor.io
-$ helm install -n helm-charts harbor harbor/harbor
+$ helm repo add goharbor https://helm.goharbor.io
+$ helm install -n helm-charts harbor goharbor/harbor
 <!-- 默認使用 ingress 方式提供訪問，若需要 nodeport，則需要修改參數 -->
-$ helm install -n helm-charts harbor harbor/harbor --set expose.type=nodePort,expose.tls.enabled=false,persistence.persistentVolumeClaim.registry.size=xxxGi,externalURL=http://x.x.x.x:30002
+$ helm install -n helm-charts harbor goharbor/harbor --set expose.type=nodePort,expose.tls.enabled=false,persistence.persistentVolumeClaim.registry.size=xxxGi,externalURL=http://x.x.x.x:30002
 ```
 
 升級Helm包與安裝類似，將`helm install`替換為`helm upgrade --install`，其它參數保持不變。
