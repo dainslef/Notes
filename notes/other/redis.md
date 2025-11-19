@@ -4,6 +4,7 @@
     - [容器化部署](#容器化部署)
     - [性能測試](#性能測試)
 - [Redis通用功能](#redis通用功能)
+    - [配置管理](#配置管理)
     - [清理Key](#清理key)
     - [Replication（主從複製）](#replication主從複製)
     - [Sentinel（哨兵）](#sentinel哨兵)
@@ -141,6 +142,20 @@ Redis與數據結構無關的通用功能。
 - `KEYS` 查找KEY，支持按照模式匹配出所有滿足條件的KEY。
 - `TYPE` 查看指定Key的數據結構類型。
 
+## 配置管理
+Redis使用`CONFIG`指令管理配置，使用`CONFIG GET`查看配置，使用`CONFIG SET`設置配置：
+
+```html
+<!-- 設置指定配置 -->
+> CONFIG SET 配置名稱 配置值
+<!-- 查看指定配置 -->
+> CONFIG GET 配置名稱
+<!-- 查看所有配置 -->
+> CONFIG GET *
+<!-- 支持使用模糊匹配查詢配置 -->
+> CONFIG GET 配置前綴*
+```
+
 ## 清理Key
 Redis中清理Key可通過DEL/FLUSH相關指令或設置過期時間自動清理。
 
@@ -159,6 +174,24 @@ $ redis-cli KEYS "*匹配關鍵字*" | xargs redis-cli DEL
 
 ```sh
 $ redis-cli -c -h 主機 KEYS "*匹配關鍵字*" | xargs -n 1 redis-cli -c -h 主機 DEL
+```
+
+Redis支持配置內存使用上限，達到內存上限時按照配置的回收策略進行數據清理：
+
+```html
+<!-- 查看當前內存上限，默認為0，表示不限制內存使用 -->
+> CONFIG GET maxmemory
+1) "maxmemory"
+2) "0"
+<!-- 設置內存上限為約1GB -->
+> CONFIG SET maxmemory 1G
+
+<!-- 查看當前回收策略，默認策略為noeviction，該策略下不會驅逐任何鍵 -->
+> CONFIG GET maxmemory-policy
+1) "maxmemory-policy"
+2) "noeviction"
+<!-- 修改策略為allkeys-lru，該策略下會驅逐最少使用的鍵 -->
+> CONFIG SET maxmemory-policy allkeys-lru
 ```
 
 ## Replication（主從複製）
