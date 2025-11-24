@@ -21,28 +21,29 @@
     - [交互快捷鍵](#交互快捷鍵)
     - [fish_config](#fish_config)
 - [Shell 語法](#shell-語法)
-	- [Shebang（`#!`）](#shebang)
-	- [變量](#變量)
-		- [變量作用域](#變量作用域)
-		- [環境變量](#環境變量)
-		- [文本轉義](#文本轉義)
-	- [指令](#指令)
-	- [數組](#數組)
-	- [數值計算](#數值計算)
-	- [條件語法](#條件語法)
-	- [if/switch/case（分支語法）](#ifswitchcase分支語法)
-	- [三目運算符](#三目運算符)
-	- [for/while（循環語法）](#forwhile循環語法)
-	- [select 語句](#select-語句)
-	- [輸出內容](#輸出內容)
-		- [刷新輸出](#刷新輸出)
-	- [輸入內容](#輸入內容)
-	- [自定義函數](#自定義函數)
-		- [函數參數處理](#函數參數處理)
-		- [函數返回值](#函數返回值)
+    - [Shebang（`#!`）](#shebang)
+    - [變量](#變量)
+        - [變量作用域](#變量作用域)
+        - [環境變量](#環境變量)
+        - [文本轉義](#文本轉義)
+    - [指令](#指令)
+    - [數組](#數組)
+    - [數值計算](#數值計算)
+    - [條件語法](#條件語法)
+    - [if/switch/case（分支語法）](#ifswitchcase分支語法)
+    - [三目運算符](#三目運算符)
+    - [for/while（循環語法）](#forwhile循環語法)
+    - [select 語句](#select-語句)
+    - [輸出內容](#輸出內容)
+        - [刷新輸出](#刷新輸出)
+    - [輸入內容](#輸入內容)
+    - [自定義函數](#自定義函數)
+        - [函數參數處理](#函數參數處理)
+        - [函數返回值](#函數返回值)
+    - [命令行參數處理](#命令行參數處理)
 - [其它 Shell 特性](#其它-shell-特性)
-	- [隨機數](#隨機數)
-	- [Fork Bomb](#fork-bomb)
+    - [隨機數](#隨機數)
+    - [Fork Bomb](#fork-bomb)
 
 <!-- /TOC -->
 
@@ -199,17 +200,17 @@ $ 1 # 使用編號作爲指令跳轉到對應路徑
 $ cd Downloads
 $ dirh
  1) /Users/dainslef
-	/Users/dainslef/Downloads
+    /Users/dainslef/Downloads
 
 $ prevd 1 # 跳轉到之前的指定路徑
 $ dirh
-	/Users/dainslef
+    /Users/dainslef
  1) /Users/dainslef/Downloads
 
 $ nextd 1 # 跳轉到之後的指定路徑
 $ dirh
  1) /Users/dainslef
-	/Users/dainslef/Downloads
+    /Users/dainslef/Downloads
 ```
 
 ## 匹配規則
@@ -414,6 +415,7 @@ $ tmux a -t 會話編號 <!-- 恢復指定編號的會話，無論會話是否�
 | 快捷鍵 | 説明 |
 | :- | :- |
 | ctrl + b ? | 展示所有快捷鍵 |
+| ctrl + b [ | 進入複製模式，該模式下可使用PgUp/PgDn進行翻頁瀏覽，還可使用Ctrl + S搜索內容 |
 | ctrl + b d | 分離當前會話 |
 | ctrl + b s | 展示會話列表 |
 
@@ -446,53 +448,53 @@ script工具在不同系統下的參數和機制略有不同。
 
 - 錄製指令
 
-	錄製指令語法基本類似，macOS/BSD僅支持短參數，Linux支持長參數，且功能更加豐富。
-	通用指令語法：
+    錄製指令語法基本類似，macOS/BSD僅支持短參數，Linux支持長參數，且功能更加豐富。
+    通用指令語法：
 
-	```html
-	<!-- 通用用法 -->
-	$ script <!-- 無參數時命令記錄寫入當前路徑下的 typescript 文件中 -->
-	$ script 記錄文件 <!-- 將命令記錄寫入指定的文件中，而非默認的typescript文件 -->
-	$ script -a <!-- 採用追加模式寫入文件，而非默認的覆蓋模式寫入 -->
-	```
+    ```html
+    <!-- 通用用法 -->
+    $ script <!-- 無參數時命令記錄寫入當前路徑下的 typescript 文件中 -->
+    $ script 記錄文件 <!-- 將命令記錄寫入指定的文件中，而非默認的typescript文件 -->
+    $ script -a <!-- 採用追加模式寫入文件，而非默認的覆蓋模式寫入 -->
+    ```
 
-	默認參數下僅錄製指令的輸入輸出，不包含指令時間信息，
-	記錄文件直接使用cat指令查看即可實現回放先前輸入輸出（一次性全部輸出）；
-	但要使指令能動態回放，需要額外保存指令時間信息。
+    默認參數下僅錄製指令的輸入輸出，不包含指令時間信息，
+    記錄文件直接使用cat指令查看即可實現回放先前輸入輸出（一次性全部輸出）；
+    但要使指令能動態回放，需要額外保存指令時間信息。
 
-	macOS/BSD與Linux對時間信息的處理方式略有不同：
-	- macOS/BSD下script指令直接將指令時間一併寫入指令輸入輸出文件中
-	- Linux下script指令則將時間信息存儲到獨立的文件中
+    macOS/BSD與Linux對時間信息的處理方式略有不同：
+    - macOS/BSD下script指令直接將指令時間一併寫入指令輸入輸出文件中
+    - Linux下script指令則將時間信息存儲到獨立的文件中
 
-	指令語法：
+    指令語法：
 
-	```html
-	<!-- macOS/BSD -->
-	$ script -r 記錄文件 <!-- 使用 -r 參數，生成的命令記錄文件中會包含時間戳信息 -->
+    ```html
+    <!-- macOS/BSD -->
+    $ script -r 記錄文件 <!-- 使用 -r 參數，生成的命令記錄文件中會包含時間戳信息 -->
 
-	<!-- Linux -->
-	$ script -T 時間記錄文件 指令記錄文件 <!-- 使用 -T 參數將指令時間信息保存到單獨的文件中 -->
-	```
+    <!-- Linux -->
+    $ script -T 時間記錄文件 指令記錄文件 <!-- 使用 -T 參數將指令時間信息保存到單獨的文件中 -->
+    ```
 
 - 回放指令
 
-	回放指令在Linux下為獨立工具`scriptreplay`，在macOS/BSD中則使用`script -p`參數；
-	回放指令需要在錄製輸入內容時保存時間戳信息。
+    回放指令在Linux下為獨立工具`scriptreplay`，在macOS/BSD中則使用`script -p`參數；
+    回放指令需要在錄製輸入內容時保存時間戳信息。
 
-	Linux的scriptreplay工具支持倍速回放等高級功能，macOS/BSD僅支持原速回放或立即輸出記錄。
+    Linux的scriptreplay工具支持倍速回放等高級功能，macOS/BSD僅支持原速回放或立即輸出記錄。
 
-	指令語法：
+    指令語法：
 
-	```html
-	<!-- macOS/BSD -->
-	$ script -p 記錄文件
-	$ script -pd 記錄文件 <!-- 使用 -d 參數，不按照時間戳動態回放，立即輸出 -->
+    ```html
+    <!-- macOS/BSD -->
+    $ script -p 記錄文件
+    $ script -pd 記錄文件 <!-- 使用 -d 參數，不按照時間戳動態回放，立即輸出 -->
 
-	<!-- Linux -->
-	$ scriptreplay -T 時間記錄文件 指令記錄文件
-	$ scriptreplay -m 最大延遲秒數 -T 時間記錄文件 指令記錄文件 <!-- 使用 -m 參數，設置回放指令的最大間隔時間（避免長時間的暫停） -->
-	$ scriptreplay -d 回放速度倍數 -T 時間記錄文件 指令記錄文件 <!-- 使用 -d 參數，設置指令回放的倍速 -->
-	```
+    <!-- Linux -->
+    $ scriptreplay -T 時間記錄文件 指令記錄文件
+    $ scriptreplay -m 最大延遲秒數 -T 時間記錄文件 指令記錄文件 <!-- 使用 -m 參數，設置回放指令的最大間隔時間（避免長時間的暫停） -->
+    $ scriptreplay -d 回放速度倍數 -T 時間記錄文件 指令記錄文件 <!-- 使用 -d 參數，設置指令回放的倍速 -->
+    ```
 
 ## 管道
 Shell中的**管道**操作符`|`用於將一個進程的輸出作爲另一進程的輸入。
@@ -683,31 +685,31 @@ ls: xxx: No such file or directory
 
 - 重定向指定類型輸出：
 
-	可將錯誤輸出到`error.txt`文件中：
+    可將錯誤輸出到`error.txt`文件中：
 
-	```sh
-	$ ls xxx 2> error.txt # 指令在終端無輸出
-	$ cat error.txt # 錯誤信息被重定向到 error.txt 文件中
-	ls: xxx: No such file or directory
-	```
+    ```sh
+    $ ls xxx 2> error.txt # 指令在終端無輸出
+    $ cat error.txt # 錯誤信息被重定向到 error.txt 文件中
+    ls: xxx: No such file or directory
+    ```
 
-	錯誤信息在標準錯誤輸出中生成，重定向標準輸出到文件`error.txt`，終端依舊會出現錯誤信息，
-	而`error.txt`文件內容爲空：
+    錯誤信息在標準錯誤輸出中生成，重定向標準輸出到文件`error.txt`，終端依舊會出現錯誤信息，
+    而`error.txt`文件內容爲空：
 
-	```sh
-	$ ls xxx 1> error.txt # 重定向標準輸出
-	ls: xxx: No such file or directory # 錯誤信息依舊輸出到終端，error.txt 文件中內容爲空
-	```
+    ```sh
+    $ ls xxx 1> error.txt # 重定向標準輸出
+    ls: xxx: No such file or directory # 錯誤信息依舊輸出到終端，error.txt 文件中內容爲空
+    ```
 
 - 連接描述符：
 
-	將標準錯誤輸出連接到標準輸出，則重定向標準輸出終端不會出現錯誤信息：
+    將標準錯誤輸出連接到標準輸出，則重定向標準輸出終端不會出現錯誤信息：
 
-	```sh
-	$ ls xxx 1> error.txt 2>&1 # 終端無輸出
-	$ cat error.txt # 錯誤信息被重定向到 error.txt 文件中
-	ls: xxx: No such file or directory
-	```
+    ```sh
+    $ ls xxx 1> error.txt 2>&1 # 終端無輸出
+    $ cat error.txt # 錯誤信息被重定向到 error.txt 文件中
+    ls: xxx: No such file or directory
+    ```
 
 ## 交互快捷鍵
 bash/zsh/fish均支持下列快捷鍵：
@@ -831,6 +833,7 @@ fish定義、修改變量：
 # fish
 $ set num 233
 $ echo $num # 輸出 233
+233
 $ num+=1
 $ echo $num
 233 # fish 不支持 += 操作，輸出結果未發生改變
@@ -853,11 +856,11 @@ bash/zsh中使用`local`關鍵字定義**本地變量**。
 num=1
 
 set_value() {
-	num=2 # 直接使用變量名相當於修改外部變量
+    num=2 # 直接使用變量名相當於修改外部變量
 }
 
 set_local_value() {
-	local num=3 # 使用 local 關鍵字修飾，創建本地變量，不影響外部變量的值
+    local num=3 # 使用 local 關鍵字修飾，創建本地變量，不影響外部變量的值
 }
 
 echo $num
@@ -883,22 +886,22 @@ fish中使用`set`函數定義變量，fish中支持更多變量作用域：
 
 - `set -l/--local`
 
-	**本地變量**，在語法塊（如if、for、while等語句）內生效；在語法塊外部使用等價於`-f`。
+    **本地變量**，在語法塊（如if、for、while等語句）內生效；在語法塊外部使用等價於`-f`。
 
 - `set -f/--function`
 
-	**函數變量**，在整個函數內生效。
+    **函數變量**，在整個函數內生效。
 
 - `set -g/--global`
 
-	**全局變量**，對整個fish會話以及後續該會話執行的腳本生效。
+    **全局變量**，對整個fish會話以及後續該會話執行的腳本生效。
 
 - `set -U/--universal`
 
-	**通用變量**，對本機所有fish生效。
+    **通用變量**，對本機所有fish生效。
 
-	使用該參數會持久化設置的變量，每次fish啟動均會設置該變量，
-	變量會寫入`~/.config/fish/fish_variables`中。
+    使用該參數會持久化設置的變量，每次fish啟動均會設置該變量，
+    變量會寫入`~/.config/fish/fish_variables`中。
 
 對於不顯式指定作用域的set指令，若變量名之前已經定義且在當前作用域可見，則復用之前的作用域；
 若變量名不存在或當前作用域不可見，則創建變量時作用域設置為當前作用域。
@@ -908,31 +911,31 @@ fish中使用`set`函數定義變量，fish中支持更多變量作用域：
 
 - 外部不指定作用域的set變量可以在函數內訪問和修改
 
-	```fish
-	$ set normal_value normal_value_out
-	$ function test_normal_value
-	    echo "read normal_value: $normal_value"
-	    set normal_value normal_value_inner
-	end
-	$ test_normal_value
-	read normal_value: normal_value_out # 外部變量值可被訪問
-	$ echo $normal_value
-	normal_value_inner # 外部變量值已被修改
-	```
+    ```fish
+    $ set normal_value normal_value_out
+    $ function test_normal_value
+        echo "read normal_value: $normal_value"
+        set normal_value normal_value_inner
+    end
+    $ test_normal_value
+    read normal_value: normal_value_out # 外部變量值可被訪問
+    $ echo $normal_value
+    normal_value_inner # 外部變量值已被修改
+    ```
 
 - 外部變量指定`-l/--local`作用域，無法在函數內訪問與修改
 
-	```fish
-	$ set -l local_value local_value_out
-	$ function test_local_value
-	    echo "read local_value: $local_value"
-	    set local_value local_value_inner
-	end
-	$ test_local_value
-	read local_value: # 外部變量值無法訪問
-	$ echo $local_value
-	local_value_out # 外部變量值未被修改
-	```
+    ```fish
+    $ set -l local_value local_value_out
+    $ function test_local_value
+        echo "read local_value: $local_value"
+        set local_value local_value_inner
+    end
+    $ test_local_value
+    read local_value: # 外部變量值無法訪問
+    $ echo $local_value
+    local_value_out # 外部變量值未被修改
+    ```
 
 更詳細的set指令說明參考[fish官方文檔](https://fishshell.com/docs/current/cmds/set.html)。
 
@@ -949,26 +952,26 @@ export指令由對應的Shell提供，以fish為例，fish中的export指令實�
 
 ```fish
 function export --description 'Set env variable. Alias for `set -gx` for bash compatibility.'
-	if not set -q argv[1]
-		set -x
-		return 0
-	end
-	for arg in $argv
-		set -l v (string split -m 1 "=" -- $arg)
-		switch (count $v)
-			case 1
-				set -gx $v $$v
-			case 2
-				if contains -- $v[1] PATH CDPATH MANPATH
-					set -l colonized_path (string replace -- "$$v[1]" (string join ":" -- $$v[1]) $v[2])
-					set -gx $v[1] (string split ":" -- $colonized_path)
-				else
-					# status is 1 from the contains check, and `set` does not change the status on success: reset it.
-					true
-					set -gx $v[1] $v[2]
-				end
-		end
-	end
+    if not set -q argv[1]
+        set -x
+        return 0
+    end
+    for arg in $argv
+        set -l v (string split -m 1 "=" -- $arg)
+        switch (count $v)
+            case 1
+                set -gx $v $$v
+            case 2
+                if contains -- $v[1] PATH CDPATH MANPATH
+                    set -l colonized_path (string replace -- "$$v[1]" (string join ":" -- $$v[1]) $v[2])
+                    set -gx $v[1] (string split ":" -- $colonized_path)
+                else
+                    # status is 1 from the contains check, and `set` does not change the status on success: reset it.
+                    true
+                    set -gx $v[1] $v[2]
+                end
+        end
+    end
 end
 ```
 
@@ -1091,17 +1094,17 @@ $ echo $nums[2..3]
 $ echo $nums[0] # fish數組下標從1開始，數組越界
 fish: Array index out of bounds
 echo $nums[0]
-		   ^
+           ^
 $ echo $nums[1]
 1
 $ echo $[nums[1]] # 錯誤，fish不支持bash/zsh中的數組訪問語法
 fish: $[ is not a valid variable in fish.
 echo $[nums[1]]
-	  ^
+      ^
 $ echo ${nums[1]} # 錯誤，fish不支持bash/zsh中的數組訪問語法
 fish: '${' is not a valid variable in fish.
 echo ${nums[1]}
-	  ^
+      ^
 ```
 
 ## 數值計算
@@ -1158,11 +1161,11 @@ $ echo (math "$num * 10") # 亦可將計算表達式以文本形式傳入，則�
 
 ```sh
 if [ 條件 ]; then # 正確
-	...
+    ...
 fi
 
 if [條件]; then # 錯誤
-	...
+    ...
 fi
 ```
 
@@ -1173,11 +1176,11 @@ fi
 
 ```sh
 if ! [ 條件 ]; then # 正確
-	...
+    ...
 fi
 
 if ![ 條件 ]; then # 錯誤
-	...
+    ...
 fi
 ```
 
@@ -1232,12 +1235,12 @@ bash/zsh的if分支結構語法結構類似：
 # bash/zsh 分支語法
 if [ 條件1 ]
 then
-	...
+    ...
 elif [ 條件2 ]
 then
-	...
+    ...
 else
-	...
+    ...
 fi
 
 # bash/zsh 多個條件可以使用邏輯運算符連接
@@ -1252,11 +1255,11 @@ fish的if分支語法更近似現代腳本語言：
 
 ```fish
 if [ 條件1 ]
-	...
+    ...
 else if [ 條件2 ]
-	...
+    ...
 else
-	...
+    ...
 end
 
 # fish 條件邏輯操作符除了可以使用 bash/zsh 的 !、&&、|| 等
@@ -1266,8 +1269,8 @@ if [ 條件1 ]; and [ 條件2 ]; or [ 條件3 ]
 end
 # 多個條件分行則無需分號分隔
 if [ 條件1 ]
-	and [ 條件2 ]
-	or [ 條件3 ]
+    and [ 條件2 ]
+    or [ 條件3 ]
 end
 if not [ 條件 ]
 end
@@ -1278,12 +1281,12 @@ bash/zsh模式匹配語法：
 ```sh
 # bash/zsh 使用 case 語句進行模式匹配
 case ... in
-	xxx1) # 匹配內容則跳轉到指定分支
-		... ;; # 語句塊結束使用雙分號 ;;
-	xxx1 | xxx2) # 多條件使用 | 操作符連接，滿足匹配內容的其中一個即可
-		... ;;
-	*) # 沒有匹配到內容跳轉到默認分支
-		... ;;
+    xxx1) # 匹配內容則跳轉到指定分支
+        ... ;; # 語句塊結束使用雙分號 ;;
+    xxx1 | xxx2) # 多條件使用 | 操作符連接，滿足匹配內容的其中一個即可
+        ... ;;
+    *) # 沒有匹配到內容跳轉到默認分支
+        ... ;;
 esac
 ```
 
@@ -1291,12 +1294,12 @@ fish使用`switch`語句進行模式匹配：
 
 ```fish
 switch ...
-	case xxx1
-		...
-	case xxx2 xxx3
-		...
-	case '*'
-		...
+    case xxx1
+        ...
+    case xxx2 xxx3
+        ...
+    case '*'
+        ...
 end
 ```
 
@@ -1342,32 +1345,32 @@ bash/zsh的`for`語法：
 ```sh
 # 傳統C風格循環
 for ((變量名=數值; 變量名<=數值; 變量名++)); do
-	...
+    ...
 done
 
 # 基於列表遍歷的循環
 for 變量名 in {起始值..結束值}; do
-	...
+    ...
 done
 
 # zsh 支持列表遍歷語法
 # bash 4.0 之後支持設定遍歷間隔
 for 變量名 in {起始值..結束值..間隔}; do
-	...
+    ...
 done
 
 # 使用 seq 函數列表進行遍歷
 for 變量名 in $(seq 起始值 結束值); do
-	...
+    ...
 done
 
 for 變量名 in $(seq 起始值 間隔 結束值); do
-	...
+    ...
 done
 
 # 無限循環
 for ((;;)); do
-	...
+    ...
 done
 ```
 
@@ -1378,12 +1381,12 @@ fish的`for`語法：
 ```fish
 # fish 僅支持列表遍歷循環，使用 seq 函數構建列表
 for 變量 in (seq 起始值 結束值)
-	...
+    ...
 end
 
 # seq 函數可構建帶有間隔的循環
 for 變量 in (seq 起始值 間隔 結束值)
-	...
+    ...
 end
 ```
 
@@ -1393,17 +1396,17 @@ end
 ```sh
 # bash/zsh
 while [ 條件 ]; do
-	...
+    ...
 done
 
 # fish
 while [ 條件 ]
-	...
+    ...
 end
 
 # fish 無限循環
 while true
-	...
+    ...
 end
 ```
 
@@ -1412,19 +1415,19 @@ end
 ```sh
 # bash/zsh C風格
 for ((i=0; i<=10; i++)); do
-	echo $i
+    echo $i
 done
 
 # bash/zsh 列表遍歷
 for i in {1..10}; do
-	echo $i
+    echo $i
 done
 
 # bash/zsh while語句
 i=1
 while [ i -le 10 ]; do
-	echo $i
-	i=$[$i+1]
+    echo $i
+    i=$[$i+1]
 done
 ```
 
@@ -1433,14 +1436,14 @@ fish示例：
 ```fish
 # fish for語句
 for i in (seq 1 10)
-	echo $i
+    echo $i
 end
 
 # fish while語句
 set i 1
 while [ $i -le 10 ]
-	echo $i
-	set i (math $i+1)
+    echo $i
+    set i (math $i+1)
 end
 ```
 
@@ -1450,8 +1453,8 @@ bash/zsh中select結構語法：
 
 ```sh
 select $xxx in "xxx1" "xxx2"; do # 提供選單，提示用戶在選項 xxx1 xxx2 中進行選擇
-	...
-	break # 執行邏輯後需要使用 break 終止 select 結構，否則會一直循環出現選單
+    ...
+    break # 執行邏輯後需要使用 break 終止 select 結構，否則會一直循環出現選單
 done
 ```
 
@@ -1580,14 +1583,14 @@ bash/zsh函數定義語法：
 ```sh
 # bash/zsh
 function 函數名() {
-	...
-	return 返回值
+    ...
+    return 返回值
 }
 
 # bash/zsh 定義函數 function 關鍵字可以省略
 函數名() {
-	...
-	return 返回值
+    ...
+    return 返回值
 }
 ```
 
@@ -1595,8 +1598,8 @@ fish函數定義：
 
 ```fish
 function 函數名
-	...
-	return 返回值
+    ...
+    return 返回值
 end
 ```
 
@@ -1626,13 +1629,13 @@ bash/zsh的函數參數處理：
 
 ```sh
 show() {
-	echo "Args count: " $#
-	echo "Arg 1:" $1
-	echo "Arg 2:" $2 "\n"
-	echo "All args:"
-	for arg in $@; do
-		echo $arg
-	done
+    echo "Args count: " $#
+    echo "Arg 1:" $1
+    echo "Arg 2:" $2 "\n"
+    echo "All args:"
+    for arg in $@; do
+        echo $arg
+    done
 }
 
 # 調用函數
@@ -1661,9 +1664,9 @@ bash/zsh的參數獲取語法與序列生成語法組合使用時，參數獲取
 
 ```sh
 test() {
-	for i in {$1..$2}; do
-		echo i: $i
-	done
+    for i in {$1..$2}; do
+        echo i: $i
+    done
 }
 
 test 1 10
@@ -1675,9 +1678,9 @@ test 1 10
 
 ```sh
 test() {
-	for i in $(seq $1 $2); do
-		echo i: $i
-	done
+    for i in $(seq $1 $2); do
+        echo i: $i
+    done
 }
 
 test 1 10
@@ -1704,13 +1707,13 @@ fish的函數參數處理：
 
 ```fish
 function show
-	echo "Args count: " (count argv)
-	echo "Arg 1:" $argv[1]
-	echo "Arg 2:" $argv[2] \n
-	echo "All args:"
-	for arg in $argv
-		echo $arg
-	end
+    echo "Args count: " (count argv)
+    echo "Arg 1:" $argv[1]
+    echo "Arg 2:" $argv[2] \n
+    echo "All args:"
+    for arg in $argv
+        echo $arg
+    end
 end
 
 # 調用函數
@@ -1777,6 +1780,33 @@ $ echo $status
 1
 ```
 
+## 命令行參數處理
+`getopt`工具可用於輔助處理命令行參數，基本用法：
+
+```
+getopt "參數定義" 輸出變量
+```
+
+參數定義中，每個字母代表一個接收的短參數，字母後可添加冒號，表示該參數需要傳入值。
+
+示例：
+
+```bash
+# 接收-a/-b/-c/-d四種參數，其中-b/-c需要傳入值，參數寫入變量argument中
+getopt "ab:c:d" argument
+
+# 通過循環獲取參數
+while getopts "ab:c:d" argument; do
+    case "$argument" in
+        a) echo "option -a";;
+        b) echo "option -b, value: $OPTARG";;
+        c) echo "option -c, value: $OPTARG";;
+        d) echo "option -d";;
+        ?) echo "unknown argument";;
+    esac
+done
+```
+
 
 
 # 其它 Shell 特性
@@ -1787,19 +1817,19 @@ bash/zsh/fish均內置了生成隨機數的功能。
 
 - bash/zsh中通過訪問`RANDOM`變量獲取隨機數：
 
-	```sh
-	$ $[$RANDOM%隨機數範圍]
-	```
+    ```sh
+    $ $[$RANDOM%隨機數範圍]
+    ```
 
-	`$RANDOM`返回**0~32767**，執行取餘計算可得到指定範圍範圍的隨機數。
+    `$RANDOM`返回**0~32767**，執行取餘計算可得到指定範圍範圍的隨機數。
 
 - fish通過`random`函數獲取隨機數：
 
-	```fish
-	$ random 隨機數起始範圍 隨機數結束範圍
-	```
+    ```fish
+    $ random 隨機數起始範圍 隨機數結束範圍
+    ```
 
-	`random`函數輸入隨機數的起止範圍作爲參數。
+    `random`函數輸入隨機數的起止範圍作爲參數。
 
 ## Fork Bomb
 `Fork Bomb`（**Fork炸彈**）是bash/zsh中存在的經典惡意腳本：
@@ -1819,7 +1849,7 @@ Fork炸彈利用bash/zsh中簡短的函數語法，使用符號`:`或`.`作爲�
 
 ```sh
 :() { # 定義函數
-	: | :& # 函數體內部遞歸併通過管道創建新進程在後台運行
+    : | :& # 函數體內部遞歸併通過管道創建新進程在後台運行
 }
 : # 調用函數
 ```
