@@ -152,7 +152,10 @@ Kolla Ansible的官方鏡像托管在紅帽的鏡像平臺[Quay.io](https://quay
 ```
 
 之後安裝Ansible（需要注意Ansible版本，不能直接使用最新版本，
-不同版本Kolla依賴的Ansible版本也有所差異，參考對應版本的部署文檔，當前以`2023.1`版本為例）：
+不同版本Kolla依賴的Ansible版本也有所差異，參考對應版本的部署文檔）。
+實際Ansible不必直接安裝，安裝kolla-ansible時通常會自動安裝合適版本的Ansible作為依賴。
+
+以`2023.1`版本為例，安裝Ansible：
 
 ```
 # pip install -U pip
@@ -177,8 +180,12 @@ Kolla Ansible的官方鏡像托管在紅帽的鏡像平臺[Quay.io](https://quay
 
 ```html
 # mkdir -p /etc/kolla
+
+<!-- 配置文件包括 globals.yml 和 passwords.yml  -->
 # cp /opt/openstack/openstack-venv-版本/share/kolla-ansible/etc_examples/kolla/* /etc/kolla
-# cp /opt/openstack/openstack-venv-版本/share/kolla-ansible/ansible/inventory/all-in-one . <!-- 使用all-in-one安裝-->
+
+<!-- 使用all-in-one安裝-->
+# cp /opt/openstack/openstack-venv-版本/share/kolla-ansible/ansible/inventory/all-in-one .
 ```
 
 編輯配置文件`/etc/kolla/globals.yml`，核心配置內容：
@@ -186,13 +193,17 @@ Kolla Ansible的官方鏡像托管在紅帽的鏡像平臺[Quay.io](https://quay
 ```yml
 ...
 kolla_base_distro: "ubuntu" # 設置鏡像基於的發行版，基於Ubuntu的鏡像通常經過較為充分的測試，同時體積較小，推薦選用
-openstack_release: "zed" # 指定部署的OpenStack版本，默認的master為開發中版本，不穩定，不推薦使用
+openstack_release: "20xx.x" # 指定部署的OpenStack版本，默認的master為開發中版本，不穩定，不推薦使用
 ...
 network_interface: "網卡設備" # 管理網
 kolla_internal_vip_address: "x.x.x.x" # VIP地址，若禁用haproxy/proxysql，則填寫管理網網卡地址
 neutron_external_interface: "網卡設備" # 虛擬機業務網
 enable_haproxy: "no" # 是否啓用HAProxy，默認啓用，All in One部署無需開啟
 enable_proxysql: "no" # 是否啓用ProxySQL，默認啓用，All in One部署無需開啟
+...
+enable_skyline: "yes" # Skyline是下一代OpenStack管理面板，推薦啓用
+...
+kolla_container_engine: "podman" # 容器引擎，支持docker或podman
 ...
 # 存儲配置部分查看Cinder相關段落
 ...
@@ -224,6 +235,10 @@ glance, keystone, neutron, nova, heat, horizon
 # kolla-ansible post-deploy -i ./all-in-one <!-- 會在 /etc/kolla 路徑下生成 admin-openrc.sh 以及clouds.yaml 文件 -->
 ```
 
+`kolla-genpwd`生成密碼需要`/etc/kolla/password.yml`文件已存在，password.yml文件中，
+`keystone_admin_password`配置控制Horizon/Skyline網管頁面以及openstack命令行工具的密碼；
+`database_password`配置控制數據庫密碼。
+
 `bootstrap-servers`操作不是必要的，相關的軟件包安裝、環境配置可以手動執行；
 2024.2版本之後的kolla-ansible工具改為了Python實現，部分依賴轉移到了venv環境中，
 但bootstrap-servers依舊在系統環境安裝依賴，導致依賴配置不正確，且安裝了大量不必要依賴；
@@ -232,8 +247,18 @@ glance, keystone, neutron, nova, heat, horizon
 - 添加host主機名映射
 - 在venv環境中安裝Python依賴
 
-    ```
-    # pip install docker dbus-python
+    ```html
+    <!--
+    需要環境中安裝依賴用於編譯dbus-python：
+    apt install build-essential cmake python3-dev pkg-config libdbus-1-dev libglib2.0-dev
+    -->
+    # pip install dbus-python
+
+    <!-- 對於docker容器引擎，需要在venv中安裝docker包 -->
+    # pip install podman
+
+    <!-- 對於podman容器引擎，需要在venv中安裝podman包 -->
+    # pip install podman
     ```
 
 -  手動配置docker，
@@ -251,10 +276,6 @@ glance, keystone, neutron, nova, heat, horizon
         }
     }
     ```
-
-`kolla-genpwd`生成密碼需要`/etc/kolla/password.yml`文件已存在，password.yml文件中，
-`keystone_admin_password`配置控制Horizon網管頁面以及openstack命令行工具的密碼；
-`database_password`配置控制數據庫密碼。
 
 集群部署完成後，常用管理操作：
 
@@ -324,7 +345,7 @@ Kolla Ansible支持版本升級，基本升級流程：
 早期版本中部分Python API依賴需要通過系統包管理器安裝如`docker`、`dbus-python`等，
 自2024.2版本開始系統包管理器安裝的依賴無法識別，需要改爲統一使用pip安裝：
 
-```
+```html
 # pip install docker dbus-python
 ```
 
@@ -332,7 +353,7 @@ Kolla Ansible支持版本升級，基本升級流程：
 需要額外使用apt安裝下列依賴才能正常完成編譯流程：
 
 ```
-# apt install cmake python3-dev pkg-config libdbus-1-dev libglib2.0-dev
+# apt install build-essential cmake python3-dev pkg-config libdbus-1-dev libglib2.0-dev
 ```
 
 部署完成後這些依賴不再需要，可以移除（但升級OpenStack版本時需要再次安裝）。
@@ -351,7 +372,20 @@ enable_cinder: "yes"
 enable_cinder_backend_lvm: "yes" # Cinder支持多種後端，LVM是最簡單的實現，適合all-in-one模式下使用
 ```
 
-使用Cinder LVM後端需要創建名為`cinder-volumes`的LVM Volume Group，
+使用Cinder LVM後端需要安裝lvm軟件包：
+
+```
+# apt install lvm2
+```
+
+使用Cinder LVM後端還需要在LVM中創建名為`cinder-volumes`的Volume Group（卷組），
+用於存放虛擬機磁盤（卷）：
+
+```
+# pvcreate 磁盤塊設備
+# vgcreate cinder-volumes PV塊設備1,PV塊設備2...
+```
+
 否則會在prechecks階段得到下列錯誤：
 
 ```
@@ -359,13 +393,6 @@ enable_cinder_backend_lvm: "yes" # Cinder支持多種後端，LVM是最簡單的
 TASK [cinder : Checking LVM volume group exists for Cinder] ************************************************************
 fatal: [localhost]: FAILED! => {"changed": false, "cmd": ["vgs", "cinder-volumes"], "delta": "0:00:00.060885", "end": "2023-05-15 12:53:14.532086", "failed_when_result": true, "msg": "non-zero return code", "rc": 5, "start": "2023-05-15 12:53:14.471201", "stderr": "  Volume group \"cinder-volumes\" not found\n  Cannot process volume group cinder-volumes", "stderr_lines": ["  Volume group \"cinder-volumes\" not found", "  Cannot process volume group cinder-volumes"], "stdout": "", "stdout_lines": []}
 ...
-```
-
-創建cinder-volumes卷組：
-
-```
-# pvcreate 磁盤塊設備
-# vgcreate cinder-volumes PV塊設備
 ```
 
 ## Octavia（負載均衡器配置）
