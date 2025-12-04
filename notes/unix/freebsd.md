@@ -135,6 +135,8 @@ menuentry 'FreeBSD' {
 FreeBSD中使用Unix傳統的`ifconfig`工具管理網絡；
 FreeBSD不支持Linux的新一代網絡工具鏈`iproute2`。
 
+FreeBSD提供了統一的配置管理工具bsdconfig，可使用`bsdconfig networking`修改網絡配置。
+
 ## 網卡配置
 FreeBSD中網卡配置直接寫在`/etc/rc.conf`中：
 
@@ -163,6 +165,12 @@ ifconfig_網卡名稱_aliases="inet x.x.x.x/x inet x.x.x.x/x inet6 xxxx::xxxx/xx
 # 設置默認網關
 defaultrouter="x.x.x.x"
 ipv6_defaultrouter="xxxx::xxxx"
+```
+
+修改配置后重啓網絡相關服務：
+
+```
+# service netif restart && service routing restart
 ```
 
 ## 無線網絡配置
@@ -379,6 +387,14 @@ FreeBSD並非**滾動發行版**，系統有明確的版本劃分，
 
 ```
 # freebsd-update install
+```
+
+系統升級完成後，上個版本的pkg包並未變化，需要更新pkg工具及升級軟件包：
+
+```
+# pkg bootstrap -f
+# pkg update
+# pkg upgrade
 ```
 
 ## 系統版本升級後pkg工具不可使用
