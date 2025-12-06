@@ -30,6 +30,7 @@
     - [Node](#node)
     - [Control Plane](#control-plane)
     - [Pod](#pod)
+        - [容器終端與輸入交互](#容器終端與輸入交互)
     - [Service](#service)
         - [Service類型](#service類型)
         - [Service代理模式](#service代理模式)
@@ -896,6 +897,35 @@ spec:
 ```
 $ kubectl delete pods --force Pod名稱
 ```
+
+### 容器終端與輸入交互
+默認配置下，Pod中的容器並不支持終端交互，可通過設置`spec.containers`的`tty`和`stdin`參數啓用終端交互：
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: Pod名稱
+  namespace: 命名空間
+spec:
+  containers:
+    - name: 容器名稱
+      image: 鏡像
+      tty: true # 啓用終端
+      stdin: true # 啓用標準輸入
+      ...
+```
+
+連接Pod中容器的交互終端可使用`kubectl attach`指令：
+
+```html
+<!-- 連接Pod中的默認容器 -->
+$ kubectl attach -it -n 命名空間 Pod名稱
+<!-- 連接Pod中的指定容器，若Pod中僅包含單個容器，則可省略該參數 -->
+$ kubectl attach -it -n 命名空間 Pod名稱 -c 容器名稱
+```
+
+進入容器交互終端後，使用`Ctrl + P`、`Ctrl + Q`組合鍵可退出交互終端。
 
 ## Service
 Service將一組相同的Pod組成服務，提供單一IP和域名。
