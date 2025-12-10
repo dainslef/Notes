@@ -126,6 +126,7 @@
         - [Ncat](#ncat)
     - [iptables/nftables (netfilter)](#iptablesnftables-netfilter)
         - [iptables基本操作](#iptables基本操作)
+    - [IPVS](#ipvs)
 - [Keepalived](#keepalived)
     - [vrrp_instance](#vrrp_instance)
     - [vrrp_sync_group](#vrrp_sync_group)
@@ -4775,6 +4776,32 @@ SNAT       all  --  10.8.0.0/24          anywhere             to:192.168.110.181
 <!-- 刪除指定規則 -->
 # iptables -D 規則類型 規則編號
 # iptables -t nat -D 規則類型 規則編號 <!-- 刪除NAT相關規則 -->
+```
+
+## IPVS
+IPVS是Linux內核提供的負載均衡功能，支持TCP、UDP等協議的負載均衡。
+IPVS使用虛擬服務器的概念，將多個實際服務器組合成一個虛擬服務器，
+客戶端通過訪問虛擬服務器的IP地址和端口來訪問實際服務器。
+IPVS支持多種負載均衡算法，如輪詢、最少連接、源地址哈希等。
+
+`ipvsadm`是Linux系統下的IP Virtual Server（IPVS）管理工具，
+查看IPVS狀態：
+
+```html
+# ipvsadm -L -n <!-- 查看IPVS虛擬服務器列表 -->
+# ipvsadm -L -n -t 虛擬服務器地址:端口 <!-- 查看指定虛擬服務器的詳細信息 -->
+```
+
+ipvsadm用於配置系統的IPVS：
+
+```html
+<!-- 創建虛擬服務器 -->
+# ipvsadm -A -t 虛擬服務器地址:端口
+<!-- 向虛擬服務器添加轉發規則 -->
+# ipvsadm -a -t 虛擬服務器地址:端口 -r 實際服務地址:端口
+
+<!-- 清理配置 -->
+ # ipvsadm -C
 ```
 
 
