@@ -66,6 +66,8 @@
     - [From / Into](#from--into)
     - [TryFrom / TryInto](#tryfrom--tryinto)
     - [FromStr（文本轉換）](#fromstr文本轉換)
+- [宏（Macro）](#宏macro)
+    - [macro_rules! 宏](#macro_rules-宏)
 
 <!-- /TOC -->
 
@@ -1610,3 +1612,42 @@ pub trait FromStr {
   fn from_str(s: &str) -> Result<Self, Self::Err>;
 }
 ```
+
+
+
+# 宏（Macro）
+宏是Rust語言的強大特性之一，常用於用於定義DSL、批量生成代碼等。
+
+## macro_rules! 宏
+`macro_rules!`是Rust中最常見的一類宏，通過文本替換展開代碼，
+相比C語言中純文本替換宏，Rust中的宏支持設定宏參數的類型，並支持模式匹配和正則匹配。
+
+macro_rules!宏的基本用法如下：
+
+```rs
+macro_rules! foo {
+    ($a:expr,$b:expr, ...) => { $a ... $b ... };
+    (...) => { ... };
+}
+```
+
+macro_rules!宏的參數語法為`$name: fragment-specifier`，
+fragment-specifier定義參考[官方文檔](https://doc.rust-lang.org/reference/macros-by-example.html#metavariables)：
+
+> Valid fragment specifiers are:
+>
+>     block: a BlockExpression
+>     expr: an Expression
+>     expr_2021: an Expression except UnderscoreExpression and ConstBlockExpression (see macro.decl.meta.edition2024)
+>     ident: an IDENTIFIER_OR_KEYWORD, RAW_IDENTIFIER, or $crate
+>     item: an Item
+>     lifetime: a LIFETIME_TOKEN
+>     literal: matches -?LiteralExpression
+>     meta: an Attr, the contents of an attribute
+>     pat: a Pattern (see macro.decl.meta.edition2021)
+>     pat_param: a PatternNoTopAlt
+>     path: a TypePath style path
+>     stmt: a Statement without the trailing semicolon (except for item statements that require semicolons)
+>     tt: a TokenTree (a single token or tokens in matching delimiters (), [], or {})
+>     ty: a Type
+>     vis: a possibly empty Visibility qualifier
