@@ -68,6 +68,7 @@
     - [FromStr（文本轉換）](#fromstr文本轉換)
 - [宏（Macro）](#宏macro)
     - [macro_rules! 宏](#macro_rules-宏)
+        - [導出 macro_rules!](#導出-macro_rules)
 
 <!-- /TOC -->
 
@@ -1651,3 +1652,50 @@ fragment-specifier定義參考[官方文檔](https://doc.rust-lang.org/reference
 >     tt: a TokenTree (a single token or tokens in matching delimiters (), [], or {})
 >     ty: a Type
 >     vis: a possibly empty Visibility qualifier
+
+### 導出 macro_rules!
+Rust中宏與其它內容不同，宏需要定義在使用處**之前**，且默認不可在當前模塊之外訪問。
+宏需要導出才能在外部訪問，使用相關屬性導出宏。
+
+`#[macro_use]`用在宏所在的模塊定義處，將模塊內的宏導出，但使用宏需要在導出定義之後。
+
+```rs
+bar!(); // Does not work! Relies on source code order!
+
+#[macro_use]
+mod foo {
+  macro_rules! bar {
+      () => ()
+  }
+}
+
+bar!(); // works
+```
+
+`#[macro_export]`將宏導出crate的根路徑。
+
+```rs
+#[macro_export]
+macro_rules! foo {
+  () => ()
+}
+
+// use macro
+crate::foo!();
+```
+
+`Rust 1.32`及之後版本，可以使用`use`關鍵字將宏像其它內容一樣導出：
+
+```rs
+mod foo {
+  macro_rules! bar {
+      () => ()
+  }
+
+  // 使用 pub use 形式導出到crate外部依舊需要搭配 #[macro_export]
+  pub(crate) use bar;
+}
+
+// use macro
+foo::bar!();
+```
