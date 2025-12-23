@@ -9,6 +9,7 @@
         - [文件數據庫](#文件數據庫)
 - [文件同步規則](#文件同步規則)
 - [同步類型](#同步類型)
+- [Syncthing 2.0](#syncthing-20)
 - [問題註記](#問題註記)
     - [Syncthing服務僅在與服務器存在SSH連接時正常連接，否則連接斷開](#syncthing服務僅在與服務器存在ssh連接時正常連接否則連接斷開)
     - [同步狀態為`Up to Date`，但Local State與Global State文件統計不同](#同步狀態為up-to-date但local-state與global-state文件統計不同)
@@ -184,6 +185,17 @@ Syncthing中的同步文件夾可設置為以下三種類型：
 本地的修改亦會被記錄狀態，存在本地修改時，
 Web UI下對應文件夾頁面中會出現紅色的`Revert Local Changes`按鈕，
 點擊該按鈕可roll back本地的改動。
+
+
+
+# Syncthing 2.0
+Syncthing 2.0版本中使用SQLite替代了原有的文件數據庫格式，
+初次從1.x版本升級到2.0版本時，會花費部分時間自動轉換數據庫格式。
+
+2.0版本的元數據目錄結構存在較大變化：
+
+- `index-v0.14.0.db` 1.x版本的文件數據庫目錄，數據庫文件為`ldb`格式
+- `index-v2` 2.x版本的文件數據庫目錄，數據庫文件為`db`（sqlite）格式
 
 
 
