@@ -21,6 +21,7 @@
         - [Docker鏡像構建傳入環境變量](#docker鏡像構建傳入環境變量)
     - [Docker容器日誌](#docker容器日誌)
     - [Docker容器資源監控](#docker容器資源監控)
+    - [Docker容器資源限制](#docker容器資源限制)
     - [Docker環境清理](#docker環境清理)
     - [Docker AppArmor](#docker-apparmor)
 - [Docker Hub](#docker-hub)
@@ -668,6 +669,16 @@ UID                 PID                 PPID                C                   
 999                 8071                8050                0                   Sep16               pts/0               00:16:17            mariadbd
 ...
 ```
+
+## Docker容器資源限制
+在創建容器時，可通過一系列參數限制容器的資源使用：
+
+- `-m/--memory`：限制容器可使用的最大內存
+- `--memory-swap`：限制容器可使用的最大交換分區大小
+- `--cpus`：限制容器可使用的CPU核心數
+
+Docker基於cgroup實現資源限制，
+關於cgroup的詳細內容可參考[維基百科](https://zh.wikipedia.org/zh-hans/Cgroups)。
 
 ## Docker環境清理
 Docker中多數資源（`image`、`network`、`buildx`）可通過相應資源的`prune`子指令進行清理。
@@ -1692,6 +1703,8 @@ $ nerdctl run -p [::]:主機端口:容器端口 ...
 <!-- 同時映射IPv4/IPv6地址 -->
 $ nerdctl run -p 主機端口:容器端口,[::]:主機端口:容器端口 ...
 ```
+
+使用nerdctl compose時，compose.yaml文件同樣需要添加類似改動。
 
 
 
