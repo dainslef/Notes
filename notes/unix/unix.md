@@ -3883,9 +3883,6 @@ $ systemctl status NetworkManager
 
 NetworkManager提供了基於命令行的網絡配置工具`nmcli`和基於TUI的`nmtui`。
 
-nmtui的TUI界面可便捷地管理網絡配置；
-可直接搜索並連接Wifi網絡，Wifi相關功能需要安裝`wpasupplicant`軟件包。
-
 nmcli修改配置基本操作：
 
 ```html
@@ -3899,14 +3896,6 @@ nmcli常用指令：
 <!-- 網絡設備狀態相關 -->
 $ nmcli device <!-- 查看接口狀態 -->
 # nmcli device reapply 接口名稱 <!-- 修改網絡配置後，重新加載指定接口的配置 -->
-
-<!-- 無線網絡相關 -->
-$ nmcli device wifi list <!-- 列出可用的無線網絡 -->
-<!-- 連接指定無線網絡 -->
-# nmcli device wifi connect 無線網絡名稱 password 密碼
-# nmcli device wifi connect 無線網絡名稱 password 密碼 hidden yes <!-- 無線網絡密碼 -->
-<!-- 關閉無線網卡 -->
-# nmcli radio wifi off
 
 <!-- 連接管理相關 -->
 $ nmcli connection <!-- 列出網絡連接信息 -->
@@ -3942,13 +3931,28 @@ broadcast (mode 3): Transmits everything on all slave interfaces. Provides fault
 802.3ad (mode 4): LACP (Link Aggregation Control Protocol). Requires a compatible switch. Provides dynamic link aggregation.
 balance-tlb (mode 5): Adaptive transmit load balancing. Outgoing traffic is distributed based on the current load of each slave. Incoming traffic is received by the current slave.
 balance-alb (mode 6): Adaptive load balancing. Includes balance-tlb plus receive load balancing 1 for IPv4 traffic, achieved by ARP negotiation.
+
+「bond名稱」為nmcli中顯示出的bond邏輯名稱
+「bond接口名稱」為bond在ip/ifconfig等工具中顯示出的邏輯網卡名稱
 -->
 # nmcli connection add type bond con-name bond名稱 ifname bond接口名稱 mode bond模式
-<!-- 向bond中加入子接口 -->
-# nmcli connection add type ethernet con-name bond連接名稱 ifname 子網卡接口名稱 master bond接口名稱
+<!-- 向bond中加入成員接口 -->
+# nmcli connection add type ethernet con-name bond連接名稱 ifname 子網卡接口名稱 master bond名稱
 ```
 
-nmtui提供友好的TUI，可直接編輯、啟用、禁用連接。
+nmcli配置Wi-Fi網絡（Wi-Fi相關功能需要安裝`wpasupplicant`軟件包）:
+
+```html
+<!-- 無線網絡相關 -->
+$ nmcli device wifi list <!-- 列出可用的無線網絡 -->
+<!-- 連接指定無線網絡 -->
+# nmcli device wifi connect 無線網絡名稱 password 密碼
+# nmcli device wifi connect 無線網絡名稱 password 密碼 hidden yes <!-- 無線網絡密碼 -->
+<!-- 關閉無線網卡 -->
+# nmcli radio wifi off
+```
+
+nmtui的TUI界面可便捷地管理網絡配置，可直接編輯、啟用、禁用連接。
 
 ### systemd-networkd
 使用systemd的發行版亦可使用`systemd-networkd`管理網絡。
