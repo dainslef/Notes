@@ -35,6 +35,7 @@
         - [DPI縮放](#dpi縮放)
         - [Gnome桌面環境可選軟件包配置](#gnome桌面環境可選軟件包配置)
         - [Qt5主題配置](#qt5主題配置)
+    - [VSCode remote-ssh](#vscode-remote-ssh)
 - [模塊（Module）](#模塊module)
     - [模塊結構](#模塊結構)
     - [引用函數](#引用函數)
@@ -1073,6 +1074,40 @@ platformTheme設置爲`gnome`則啓用[`QGnomePlatform`](https://github.com/Fedo
 
 相比qtstyleplugins，QGnomePlatform雖不能匹配任意GTK主題樣式，
 但對GTK默認的Adwaita主題還原度更高。
+
+## VSCode remote-ssh
+VSCode編輯器的remote-ssh功能默認無法直接連接到NixOS服務器，
+VSCode remote-ssh在初始化階段會通過Node.js下載腳本以及預編譯的服務端二進制文件，
+而NixOS默認不在系統路徑提供`ld-linux-x86-64.so.2`，導致Node.js無法正常運行，初始化流程失敗。
+
+詳細解決方案參考[NixOS WIKI](https://nixos.wiki/wiki/Visual_Studio_Code)：
+
+- `nix-ld`
+
+    開啟配置使系統在全局路徑提供`ld-linux-x86-64.so.2`，可解決remote-ssh初始化失敗問題：
+
+    ```nix
+    {
+      programs.nix-ld.enable = true;
+    }
+    ```
+
+    該方案較為簡單高效，推薦使用。
+
+- `nix-vscode-server`
+
+    使用社區提供的專用nixos-vscode-server服務：
+
+    ```nix
+    {
+      imports = [
+        (fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
+      ];
+      services.vscode-server.enable = true;
+    }
+    ```
+
+    該方案會引入較多的依賴，且存在較多的構建流程，推薦優先使用nix-ld方案。
 
 
 
