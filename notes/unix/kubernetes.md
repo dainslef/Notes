@@ -2386,6 +2386,18 @@ Helm提供了比較函數可搭配控制語句使用：
     {{- end }}
     ```
 
+- `and/or` 邏輯與/或用於組合多個條件
+
+    ```yaml
+    {{- if and (eq .Values.xxx "xxx1") (ne .Values.xxx "xxx2") }}
+    ...
+    {{- end }}
+
+    {{- if or (ne .Values.xxx "xxx1") (eq .Values.xxx "xxx2") }}
+    ...
+    {{- end }}
+    ```
+
 單獨調用函數使用雙重花括號，示例：
 
 ```yaml
@@ -2448,6 +2460,13 @@ $ kk version --show-supported-k8s <!-- 查看支持的Kubernetes版本 -->
 ```
 
 ## 使用KubeKey部署集群
+部署集群前需要在各個節點中安裝必備的工具：
+
+```html
+# apt install conntrack socat <!-- 大便系 -->
+# yum install conntrack socat <!-- 紅帽系 -->
+```
+
 部署集群前先生成配置文件：
 
 ```html
@@ -2496,7 +2515,7 @@ spec:
   registry:
     privateRegistry: ""
     namespaceOverride: ""
-    registryMirrors: [] # 設置第三方DockerHub鏡像源，牆國現已封殺Docker官方源，需要進行替換
+    registryMirrors: ["https://..."] # 設置第三方DockerHub鏡像源，牆國現已封殺Docker官方源，需要進行替換
     insecureRegistries: []
   network:
     plugin: calico # 網絡插件
