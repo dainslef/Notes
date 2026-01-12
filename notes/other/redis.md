@@ -156,6 +156,9 @@ Redis使用`CONFIG`指令管理配置，使用`CONFIG GET`查看配置，使用`
 > CONFIG GET 配置前綴*
 ```
 
+Redis的CONFIG指令設置的配置僅對**當前實例**生效，
+對於哨兵、集群等模式，需要在各個節點分別設置配置。
+
 ## 清理Key
 Redis中清理Key可通過DEL/FLUSH相關指令或設置過期時間自動清理。
 
@@ -190,8 +193,10 @@ Redis支持配置內存使用上限，達到內存上限時按照配置的回收
 > CONFIG GET maxmemory-policy
 1) "maxmemory-policy"
 2) "noeviction"
-<!-- 修改策略為allkeys-lru，該策略下會驅逐最少使用的鍵 -->
+<!-- 修改策略為allkeys-lru，該策略下會驅逐最長時間未被使用的鍵 -->
 > CONFIG SET maxmemory-policy allkeys-lru
+<!-- 修改策略為allkeys-lfu，該策略下會驅逐使用頻率最低的鍵 -->
+> CONFIG SET maxmemory-policy allkeys-lfu
 ```
 
 ## Replication（主從複製）
@@ -394,6 +399,7 @@ dir /xxx-redis/db # 設置Redis工作路徑，DB dump文件會寫入該路徑，
 logfile "" # 禁用日誌文件，直接輸出日誌到終端
 cluster-config-file /xxx-redis/temp/nodes-端口.conf # 設置集群節點配置路徑
 cluster-enabled yes # 以集群模式運行
+cluster-require-full-coverage no # 允許部分Slot不可用時繼續提供服務
 ...
 cluster-port 端口 # 集群通信端口，默認為“服務端口 + 10000”
 ...
@@ -476,6 +482,10 @@ S: ... x.x.x.3:6380
 ```
 
 Redis集群關係建立後會在cluster-config-file配置設置的文件中寫入集群關係。
+
+Redis集群默認使用配置`cluster-require-full-coverage yes`，
+當集群中有部分Slot不可用時，整個集群將無法提供服務；
+若需要繼續提供服務，則需要將該配置設置為`no`。
 
 Redis不支持使用域名創建集群，必須使用IP地址，相關問題參考
 [GitHub Issues](https://github.com/redis/redis/issues/2071)。
@@ -728,7 +738,6 @@ ZSET中每個元素均帶有一個數值（score，得分）表示元素在集�
     > ZRANGE KEY名稱 起始位置 結束位置 <!-- 默認按照元素位置範圍查找元素，僅輸出元素內容 -->
     > ZRANGE KEY名稱 起始位置 結束位置 WITHSCORES <!-- 添加WITHSCORES參數輸出元素內容和得分 -->
     > ZRANGE KEY名稱 起始位置 結束位置 LIMIT 偏移量 數目 <!-- 添加LIMIT參數設置輸出元素的起始位置並限制數目 -->
-    > ZRANGE KEY名稱 0 -1 <!-- 輸出所有元素 -->
     > ZRANGE KEY名稱 起始得分 結束得分 BYSCORE <!-- 按照得分範圍查找元素 -->
     ```
 
@@ -736,6 +745,12 @@ ZSET中每個元素均帶有一個數值（score，得分）表示元素在集�
 
     ```html
     > ZRANGE KEY名稱 結束得分 起始得分 REV BYSCORE <!-- 倒序查找時結束位置在前 -->
+    ```
+
+    獲取全部元素可使用：
+
+    ```
+    > ZRANGE KEY名稱 0 -1
     ```
 
 - `ZRANK/ZSCORE` 查看元素的排名（索引位置）和得分
