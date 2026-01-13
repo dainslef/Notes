@@ -51,6 +51,8 @@
     - [配置DNS策略](#配置dns策略)
     - [自定義域名](#自定義域名)
     - [自定義域名與NodeLocal DNSCache](#自定義域名與nodelocal-dnscache)
+- [Storage（存儲）](#storage存儲)
+    - [StorageClass](#storageclass)
 - [Labels 與 Selectors](#labels-與-selectors)
 - [ConfigMap 與 Secret](#configmap-與-secret)
 - [Taints（污点）](#taints污点)
@@ -1516,6 +1518,41 @@ BinaryData
 ====
 
 Events:  <none>
+```
+
+
+
+# Storage（存儲）
+[Storage](https://kubernetes.io/docs/concepts/storage/)
+用於為Pod中的容器提供持久化存儲能力。
+
+Kubernetes中存儲包括下列概念：
+
+- `StorageClass` 用於定義存儲類型的資源
+- `Volumes` 用於在Pod中掛載存儲資源
+    - `PersistentVolume`（PV） 用於集群中持久化存儲資源的抽象
+    - `PersistentVolumeClaim`（PVC） 用於申請使用PV資源的請求
+
+## StorageClass
+[StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/)用於定義存儲類型的資源，
+不同的StorageClass對應不同的存儲供應商（Provisioner），如NFS、Ceph、GlusterFS、本地存儲等。
+
+Kubernetes默認并未提供StorageClass資源，需要根據實際存儲供應商創建對應的StorageClass資源。
+無存儲供應商時可通過[local-path-provisioner](https://github.com/rancher/local-path-provisioner)提供本地存儲支持。
+
+local-path-provisioner在本地服務器的指定路徑下創建存儲目錄，
+通過StorageClass提供動態存儲供應能力，使PVC能夠申請本地存儲資源。
+
+可通過Helm安裝local-path-provisioner：
+
+```html
+$ helm repo add containeroo https://charts.containeroo.ch
+<!--
+常用參數：
+storageClass.defaultClass=true 設置為默認StorageClass
+nodePathMap=/opt/kubernetes 指定本地存儲路徑
+-->
+$ helm install --set storageClass.defaultClass=true,nodePathMap=/opt/kubernetes local-path-provisioner containeroo/local-path-provisioner
 ```
 
 
