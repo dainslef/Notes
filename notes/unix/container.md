@@ -2,8 +2,10 @@
 
 - [容器技術概述](#容器技術概述)
     - [容器技術實現](#容器技術實現)
-    - [Docker容器與傳統虛擬機的區別](#docker容器與傳統虛擬機的區別)
-    - [容器相關技術架構](#容器相關技術架構)
+    - [Linux容器類型](#linux容器類型)
+    - [Linux容器與KVM對比](#linux容器與kvm對比)
+    - [Docker容器與其它容器技術對比](#docker容器與其它容器技術對比)
+    - [Linux容器相關技術架構](#linux容器相關技術架構)
     - [Dockershim](#dockershim)
 - [Docker安裝與配置](#docker安裝與配置)
     - [docker-machine（已廢棄）](#docker-machine已廢棄)
@@ -80,8 +82,7 @@
 
 
 # 容器技術概述
-容器技術將應用與依賴項一同打包放置在隔離的環境中執行，
-僅僅依賴宿主機的**內核**，簡化了應用的運帷與部署。
+容器技術將應用與依賴項一同打包放置在隔離的環境中執行，僅僅依賴宿主機的**內核**。
 
 與傳統虛擬機不同，容器屬於`OS-level virtualization`（操作系統層次的虛擬化），
 每個容器實例實際僅僅是獨立的用戶空間實例。
@@ -90,35 +91,84 @@
 主流的Unix系統均提供了不同的容器技術，以Linux和FreeBSD為例：
 
 - Linux容器基於[`namespaces(7)`](https://man7.org/linux/man-pages/man7/namespaces.7.html)
+以及[`cgroups(7)`](https://man7.org/linux/man-pages/man7/cgroups.7.html)
 
     Linux的namespaces機制將資源劃分到不同命名空間中，不同命名空間內的進程資源相互隔離，
-    Linux的namespaces包含多個類別，包括Cgroup（根目錄隔離）、Network（網絡隔離）、PID（進程號隔離）等。
+    Linux的namespaces包含多個類別，包括Mount（掛載點隔離）、Network（網絡隔離）、PID（進程號隔離）等。
+
+    Linux的cgroups機制則用於對進程組的資源使用進行限制和監控。
 
 - FreeBSD容器基於[`Jails`](https://docs.freebsd.org/en/books/handbook/jails/)
 
     FreeBSD的Jails類似一個高級的`chroot`實現，普通chroot會共享宿主機除根路徑外的其它資源，
     Jails在普通的chroot上添加了多種資源控制等高級功能。
 
-## Docker容器與傳統虛擬機的區別
-`Docker`是使用`Go`語言實現的開源容器引擎。
+## Linux容器類型
+Linux容器主要有兩種類型：
+
+- `System Containers`（系統容器）
+
+    系統容器模擬完整的操作系統環境，通常會運行一個init系統（如systemd）來管理容器內的多個服務進程。
+    系統容器更像是一個輕量級的虛擬機，適合用於運行多個服務的場景。
+
+    典型的系統容器技術有`LXC/LXD`。
+
+- `Application Containers`（應用容器）
+
+    應用容器通常僅運行單個應用進程，並將該應用與其依賴打包在一起。
+    應用容器更輕量，啓動速度更快，適合用於微服務架構中。
+
+    典型的應用容器技術有`Docker`、`Podman`、`containerd`等。
+
+## Linux容器與KVM對比
+容器與KVM虛擬機在指令執行層存在較大差異：
+
+- 容器直接使用宿主機內核，每一次System Call（系統調用）直接發到宿主機內核，
+指令直接運行在宿主機CPU上，幾乎沒有額外開銷。
+- 虛擬機擁有獨自的系統內核，KVM虛擬機使用VMX指令集，
+依賴Hardware-Assisted Virtualization（硬件輔助虛擬化）技術（如Intel VT-x或AMD-V）。
+每一次System Call需要KVM將虛擬機內核的寄存器狀態加載至CPU的VMCS（Virtual Machine Control Structure）塊中，
+CPU切換到VMX Non-Root（Ring 1）模式執行，存在一定額外開銷。
+
+容器與KVM在IO路徑上存在較大差異：
+
+- 容器直接使用宿主機的IO設備驅動，IO請求直接發送到宿主機內核進行處理，IO路徑為：
+
+    ```
+    Host System Call (AIO/Direct IO) -> Host VFS -> Host Driver -> Physical Hardware
+    ```
+
+- 虛擬機需要通過虛擬化設備進行IO請求，IO請求需要經過虛擬化設備轉發到宿主機內核進行處理，IO路徑為：
+
+    ```
+    Guest VFS -> Guest Generic Block Layer -> Guest Driver (IDE/E1000) -> PIO/MMIO Write -> VM-Exit (Trap) -> Host KVM (Decode Exit) -> QEMU (I/O Emulation Loop) -> Host System Call (AIO/Direct IO) -> Host VFS -> Host Driver -> Physical Hardware
+    ```
+
+- 現代虛擬機技術引入了VirtIO等高效虛擬化設備，Virtio通過Virtqueue（共享記憶體環形隊列）讓虛擬機與Host直接交換數據，
+大幅提升了虛擬機的IO性能，但依舊存在額外開銷，IO路徑為：
+
+    ```
+    Guest VFS -> Guest Generic Block Layer -> Guest Virtio-Driver (Frontend) -> Populate Virtqueue (Shared Memory) -> Virtio Notify (Kick) -> VM-Exit (Single Trap) -> Host KVM (ioeventfd) -> QEMU Virtio-Backend -> Host System Call -> Host VFS -> Host Driver -> Physical Hardware
+    ```
+
+## Docker容器與其它容器技術對比
+`Docker`是使用`Go`語言實現的開源容器引擎，是目前最流行的應用容器技術之一。
 
 Docker基於容器技術，早期使用LinuX Containers（LXC）實現，之後切換到runC（libcontainer），
 直接使用Docker需要宿主機與容器同樣運行Linux系統，容器直接使用宿主機的內核。
-傳統虛擬機實例之間不能共享資源，而Docker實例可直接共享主機資源，
-以內存為例，傳統虛擬機分配1GB內存，則虛擬機實例會獨佔1GB內存，但多個Docker實例之間則可共享該內存。
 
-參考[StackOverflow](https://stackoverflow.com/questions/16047306/how-is-docker-different-from-a-virtual-machine)
-上的相關問答。
-
-Docker同樣相比傳統虛擬機存在一些限制，例如systemd在Docker中不能直接使用，
+Docker相比傳統虛擬機、LXC/LXD等系統容器存在一些限制，例如systemd在Docker中不能直接使用，
 Docker被設計用於提供單個進程/服務運行的最小環境，通常容器中不會運行systemd此類系統管理服務。
 
 關於在Docker中運行systemd，參考[StackOverflow](https://stackoverflow.com/questions/46800594/start-service-using-systemctl-inside-docker-container)上的相關問答。
 
-## 容器相關技術架構
+對比Podman，Docker使用了守護進程模式運行容器服務，以實現容器的管理與調度，
+Podman則採用了無守護進程模式，通過systemd實現容器的管理與調度。
+
+## Linux容器相關技術架構
 容器技術體系中，有兩層API標準：
 
-- `Container Runtime Interface (CRI)`
+- [`Container Runtime Interface (CRI)`](https://kubernetes.io/docs/concepts/containers/cri/)
 
     CRI是Kubernetes定義的、與容器運行時交互的API。
     Kubernetes通過該API對符合標準的容器運行時進行操作，
@@ -146,8 +196,10 @@ Docker被設計用於提供單個進程/服務運行的最小環境，通常容�
 
 ## Dockershim
 Kubernetes早期使用名為dockershim的機制調用Docker，
-但現在Kubernetes逐步放棄dockershim，轉而使用CRI與任何符合要求的容器運行時交互(不侷限於Docker)；
-自`Kubernetes v1.20`開始，Kubernetes發布了[官方聲明](https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/)，dockershim已被聲明為**deprecation（廢棄）**。
+但現在Kubernetes逐步放棄dockershim與Docker，
+轉而使用CRI與任何符合要求的容器運行時交互（默認直接使用containerd）；
+自`Kubernetes v1.20`開始，Kubernetes發布了[官方聲明](https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/)，
+dockershim已被聲明為**deprecation（廢棄）**。
 最新的[官方博客](https://kubernetes.io/blog/2021/11/12/are-you-ready-for-dockershim-removal/)中，
 dockershim的廢棄推遲到了`1.24`版本。
 
