@@ -4728,8 +4728,14 @@ Chain OUTPUT (policy ACCEPT)
 target     prot opt source               destination
 -->
 
-<!-- 展示規則同時輸出行號 -->
-# iptables -L --line-number
+<!-- iptables僅能管理IPv4相關規則，要管理IPv6相關規則需要使用ip6tables工具 -->
+# ip6tables
+
+<!-- 常用參數 -->
+# iptables -V <!-- 查看iptables版本，並輸出使用的內核接口（ip_tables / nf_tables） -->
+# iptables -L --line-number <!-- 展示規則同時輸出行號 -->
+# iptables -L -v <!-- 展示規則詳情，包括來源、目標、流量等 -->
+# iptables -L -vn <!-- 展示詳情時使用數值IP地址、端口號取代名稱 -->
 
 <!-- 額外展示NAT規則 -->
 # iptables -t nat -L
@@ -5616,14 +5622,17 @@ $ iftop -o source/destination
 `pidstat`工具相比系統自帶的ps工具，提供了更為完善的性能參數統計。
 
 默認指令會監控所有進程；
-統計指定進程，並指定監控間隔：
+統計指定進程，並指定監控間隔（時間單位為**秒**）：
 
 ```html
-<!-- 按照指定的時間間隔輸出間隔內的平均資源佔用，退出指令後會展示整個指令期間的平均資源佔用 -->
-$ pidstat -p 進程號 [interval]
+<!--
+按照指定的時間間隔輸出間隔內的平均資源佔用，
+退出指令後會展示整個指令期間的平均資源佔用
+-->
+$ pidstat -p 進程號 時間間隔
 
 <!-- 統計指定次數後退出 -->
-$ pidstat -p 進程號 [interval] [count]
+$ pidstat -p 進程號 時間間隔 輸出次數
 ```
 
 ### mpstat
@@ -5635,6 +5644,19 @@ $ mpstat
 
 <!-- 同時展示每個核心的負載 -->
 $ mpstat -P ALL
+```
+
+mpstat支持與pidstat類似的間隔監控方式（時間間隔默認單位為**秒**）：
+
+```html
+<!--
+按照時間間隔輸出CPU使用率，
+退出指令後會展示整個指令期間的平均CPU使用率
+-->
+$ mpstat 時間間隔
+
+<!-- 定期刷新輸出，持續輸出指定次數-->
+$ mpstat 時間間隔 輸出次數
 ```
 
 ### iostat
