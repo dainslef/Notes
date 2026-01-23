@@ -3,17 +3,19 @@
 - [概述](#概述)
     - [下載](#下載)
     - [環境變量配置](#環境變量配置)
+    - [容器化部署](#容器化部署)
     - [主服務配置](#主服務配置)
     - [IPv4/IPv6雙棧](#ipv4ipv6雙棧)
     - [服務啟動](#服務啟動)
-    - [消費數據](#消費數據)
-    - [分區擴展](#分區擴展)
-        - [分區數據均衡](#分區數據均衡)
+    - [性能測試](#性能測試)
 - [Topic & Partition](#topic--partition)
     - [分區消息順序與偏移量](#分區消息順序與偏移量)
     - [分區存儲機制](#分區存儲機制)
     - [話題操作](#話題操作)
-    - [話題刪除](#話題刪除)
+        - [消費話題數據](#消費話題數據)
+        - [話題刪除](#話題刪除)
+    - [分區擴展](#分區擴展)
+    - [分區數據均衡](#分區數據均衡)
 - [Kafka Connect](#kafka-connect)
     - [依賴服務配置](#依賴服務配置)
     - [JDBC Source Connector](#jdbc-source-connector)
@@ -52,6 +54,30 @@ export KAFKA_HOME=... # 配置Kafka軟件包路徑
 export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
 ```
 
+其它常用配置說明：
+
+- `KAFKA_BROKER_ID`：服務編號，默認值爲`1`。
+- `KAFKA_LISTENERS`：服務監聽地址與端口，默認值爲`PLAINTEXT://:9092`。
+- `KAFKA_ADVERTISED_LISTENERS`：服務對外宣告的地址與端口，默認值爲`PLAINTEXT://localhost:9092`。
+- `KAFKA_LOG_DIRS`：消息存儲路徑，默認值爲`/tmp/kraft-combined-logs`。
+- `KAFKA_NUM_PARTITIONS`：默認分區數量，默認值爲`1`。
+- ...
+
+## 容器化部署
+[DockerHub](https://hub.docker.com/r/apache/kafka)提供了官方的Kafka鏡像，可通過Docker快速部署Kafka服務。
+
+常見的部署方式是將數據目錄與配置目錄掛載到宿主機中，方便數據持久化以及修改配置：
+
+```
+$ docker run -td -p 9092-9093:9092-9093 -v 宿主機數據目錄:/tmp/kraft-combined-logs -v 宿主機配置目錄:/mnt/shared/config --name kafka apache/kafka:版本tag
+```
+
+Kafka官方鏡像支持通過環境變量配置服務參數，可以在啓動容器時通過`-e`參數傳入環境變量：
+
+```html
+$ docker run -td -e KAFKA_BROKER_ID=1 -e ...
+```
+
 ## 主服務配置
 單機版Kafka使用默認配置即可正常啓動。
 集羣版本Kafka需要修改以下配置：
@@ -74,6 +100,10 @@ export PATH+=:$KAFKA_HOME/bin # 將Kafka相關工具加入PATH環境變量
     # 示例：listeners = PLAINTEXT://spark-master:9092
     ```
 
+    Kafka從`3.1`版本開始引入了KRaft模式（Kafka Raft Metadata mode），
+    使用KRaft模式Kafka無需依賴ZooKeeper，
+    KRaft在`3.3`版本穩定，`3.5`版本開始舊的Zookeeper模式已被標記為**啟用**，
+    未來`4.0`版本Kafka將完全移除Zookeeper模式。
     對於使用KRaft機制的Kafka，不再需要ZooKeeper配置，需要修改進程角色和監聽地址：
 
     ```conf
@@ -216,129 +246,18 @@ $ kafka-server-stop
 
 配置Kafka集羣需要在集羣中每臺機器中執行服務啓動指令。
 
-## 消費數據
-命令行端數據生產/消費相關指令：
+## 性能測試
+Kafka提供了簡單的性能測試工具`kafka-producer-perf-test.sh`和`kafka-consumer-perf-test.sh`，
+可用於測試Kafka集羣的吞吐量和延遲。
+
+示例：
 
 ```html
-<!--
-消費數據
-使用 --from-beginning 參數輸出該話題從創建開始後的消息
-使用 --consumer.config 參數指定消費端使用的配置文件
-使用 --offset [偏移量] --partion [分區編號] 參數自定義讀取消息時的偏移量
+<!-- 生產者性能測試 -->
+$ kafka-producer-perf-test.sh --topic 話題名稱 --num-records 消息數量 --record-size 消息大小(字節) --throughput 吞吐量(條/秒) --producer-props bootstrap.servers=Broker地址:端口
 
-早期版本Kafka使用 --zookeeper 參數指定Zookeeper集群地址端口；
-現在已被棄用，改為使用 --bootstrap-server 參數指定Broker地址端口。
--->
-$ kafka-console-consumer --bootstrap-server Broker地址:端口 --topic 話題名稱
-
-<!--
-生產數據
-使用 --producer.config 參數指定生產者端使用的配置文件
--->
-$ kafka-console-producer --broker-list 監聽IP:端口 --topic 話題名稱
-```
-
-## 分區擴展
-一個話題的分區數目可以動態增加，使用`--partitions`參數增加分區數目：
-
-```
-$ kafka-topics --bootstrap-server Broker地址:端口 --alter --topic 話題名稱 --partitions 分區數目
-```
-
-分區擴展需要謹慎，因為Kafka僅支持話題的分區擴展，但不支持縮減分區，一旦分區增加了便無法撤消。
-
-### 分區數據均衡
-使用分區擴展指令後，分區數目會立即增加，但已存在的數目並未均衡到新的分區，
-需要手動執行`kafka-reassign-partitions`工具來遷移已存在的數據，
-詳細使用說明參考[官方文檔](https://kafka.apache.org/documentation/#basic_ops_cluster_expansion)。
-
-首先需要編寫JSON配置指定需要數據遷移的話題，格式如下：
-
-```json
-{
-    "version": 1,
-    "topics": [
-        { "topic": "topic_name_1" },
-        { "topic": "topic_name_2" },
-        ...
-    ]
-}
-```
-
-輸入該配置，使用`--generate`參數生成話題的分區信息和默認的話題分區重分配信息，指令格式如下：
-
-```c
-$ kafka-reassign-partitions --zookeeper [zookeeper_ip:port] --generate --topics-to-move-json-file [topic_info.json] --broker-list [broker_id_1,broker_id_2,...]
-```
-
-執行執行指令：
-
-```html
-<!-- 生成配置，計畫將話題的原數據遷移到 broker 5,6 上 -->
-$ kafka-reassign-partitions.sh --zookeeper localhost:2181 --topics-to-move-json-file topics-to-move.json --broker-list "5,6" --generate
-Current partition replica assignment
-
-{"version":1,
-"partitions":[{"topic":"foo1","partition":2,"replicas":[1,2]},
-              {"topic":"foo1","partition":0,"replicas":[3,4]},
-              {"topic":"foo2","partition":2,"replicas":[1,2]},
-              {"topic":"foo2","partition":0,"replicas":[3,4]},
-              {"topic":"foo1","partition":1,"replicas":[2,3]},
-              {"topic":"foo2","partition":1,"replicas":[2,3]}]
-}
-
-Proposed partition reassignment configuration
-
-{"version":1,
-"partitions":[{"topic":"foo1","partition":2,"replicas":[5,6]},
-              {"topic":"foo1","partition":0,"replicas":[5,6]},
-              {"topic":"foo2","partition":2,"replicas":[5,6]},
-              {"topic":"foo2","partition":0,"replicas":[5,6]},
-              {"topic":"foo1","partition":1,"replicas":[5,6]},
-              {"topic":"foo2","partition":1,"replicas":[5,6]}]
-}
-```
-
-工具自動生成了默認的新的分區分配信息，保存分區配置到文件中，修改不滿足需求的部分，確認合理後執行數據遷移：
-
-```html
-<!-- 執行數據遷移操作 -->
-$ kafka-reassign-partitions --zookeeper localhost:2181 --reassignment-json-file expand-cluster-reassignment.json --execute
-Current partition replica assignment
-
-{"version":1,
-"partitions":[{"topic":"foo1","partition":2,"replicas":[1,2]},
-              {"topic":"foo1","partition":0,"replicas":[3,4]},
-              {"topic":"foo2","partition":2,"replicas":[1,2]},
-              {"topic":"foo2","partition":0,"replicas":[3,4]},
-              {"topic":"foo1","partition":1,"replicas":[2,3]},
-              {"topic":"foo2","partition":1,"replicas":[2,3]}]
-}
-
-Save this to use as the --reassignment-json-file option during rollback
-Successfully started reassignment of partitions
-{"version":1,
-"partitions":[{"topic":"foo1","partition":2,"replicas":[5,6]},
-              {"topic":"foo1","partition":0,"replicas":[5,6]},
-              {"topic":"foo2","partition":2,"replicas":[5,6]},
-              {"topic":"foo2","partition":0,"replicas":[5,6]},
-              {"topic":"foo1","partition":1,"replicas":[5,6]},
-              {"topic":"foo2","partition":1,"replicas":[5,6]}]
-}
-```
-
-使用`--verify`參數可用於確認分區的遷移進度：
-
-```html
-<!-- 注意，執行該指令時的分區配置需要與執行--execute指令時的分區配置相同 -->
-$ kafka-reassign-partitions --zookeeper localhost:2181 --reassignment-json-file expand-cluster-reassignment.json --verify
-Status of partition reassignment:
-Reassignment of partition [foo1,0] completed successfully
-Reassignment of partition [foo1,1] is in progress
-Reassignment of partition [foo1,2] is in progress
-Reassignment of partition [foo2,0] completed successfully
-Reassignment of partition [foo2,1] completed successfully
-Reassignment of partition [foo2,2] completed successfully
+<!-- 消費者性能測試 -->
+$ kafka-consumer-perf-test.sh --topic 話題名稱 --messages 消息數量 --bootstrap-server Broker地址:端口 --group 消費組名稱
 ```
 
 
@@ -465,7 +384,29 @@ $ kafka-configs --alter --add-config 配置項=配置值 --bootstrap-server spar
 $ kafka-configs --alter --delete-config 配置項 --bootstrap-server spark-master --entity-type topics --entity-name 話題名稱
 ```
 
-## 話題刪除
+### 消費話題數據
+命令行端數據生產/消費相關指令：
+
+```html
+<!--
+消費數據
+使用 --from-beginning 參數輸出該話題從創建開始後的消息
+使用 --consumer.config 參數指定消費端使用的配置文件
+使用 --offset [偏移量] --partion [分區編號] 參數自定義讀取消息時的偏移量
+
+早期版本Kafka使用 --zookeeper 參數指定Zookeeper集群地址端口；
+現在已被棄用，改為使用 --bootstrap-server 參數指定Broker地址端口。
+-->
+$ kafka-console-consumer --bootstrap-server Broker地址:端口 --topic 話題名稱
+
+<!--
+生產數據
+使用 --producer.config 參數指定生產者端使用的配置文件
+-->
+$ kafka-console-producer --broker-list 監聽IP:端口 --topic 話題名稱
+```
+
+### 話題刪除
 Kafka中刪除話題操作較為複雜，直接使用刪除指令不會生效，需要在`server.proerties`配置中設置參數允許話題刪除：
 
 ```sh
@@ -502,6 +443,109 @@ $ kafka-topics --delete --topics 話題名稱 --bootstrap-server Broker地址:�
     <!-- 刪除話題的delete標記信息 -->
     [zk...] rmr /admin/delete_topics/話題名稱
     ```
+
+## 分區擴展
+一個話題的分區數目可以動態增加，使用`--partitions`參數增加分區數目：
+
+```
+$ kafka-topics --bootstrap-server Broker地址:端口 --alter --topic 話題名稱 --partitions 分區數目
+```
+
+分區擴展需要謹慎，因為Kafka僅支持話題的分區擴展，但不支持縮減分區，一旦分區增加了便無法撤消。
+
+## 分區數據均衡
+使用分區擴展指令後，分區數目會立即增加，但已存在的數目並未均衡到新的分區，
+需要手動執行`kafka-reassign-partitions`工具來遷移已存在的數據，
+詳細使用說明參考[官方文檔](https://kafka.apache.org/documentation/#basic_ops_cluster_expansion)。
+
+首先需要編寫JSON配置指定需要數據遷移的話題，格式如下：
+
+```json
+{
+    "version": 1,
+    "topics": [
+        { "topic": "topic_name_1" },
+        { "topic": "topic_name_2" },
+        ...
+    ]
+}
+```
+
+輸入該配置，使用`--generate`參數生成話題的分區信息和默認的話題分區重分配信息，指令格式如下：
+
+```
+$ kafka-reassign-partitions --bootstrap-server Broker地址:端口 --generate --topics-to-move-json-file [topic_info.json] --broker-list [broker_id_1,broker_id_2,...]
+```
+
+指令執行示例：
+
+```html
+<!-- 生成配置，計畫將話題的原數據遷移到 broker 5,6 上 -->
+$ kafka-reassign-partitions.sh --bootstrap-server Broker地址:端口 --topics-to-move-json-file topics-to-move.json --broker-list "5,6" --generate
+Current partition replica assignment
+
+{"version":1,
+"partitions":[{"topic":"foo1","partition":2,"replicas":[1,2]},
+              {"topic":"foo1","partition":0,"replicas":[3,4]},
+              {"topic":"foo2","partition":2,"replicas":[1,2]},
+              {"topic":"foo2","partition":0,"replicas":[3,4]},
+              {"topic":"foo1","partition":1,"replicas":[2,3]},
+              {"topic":"foo2","partition":1,"replicas":[2,3]}]
+}
+
+Proposed partition reassignment configuration
+
+{"version":1,
+"partitions":[{"topic":"foo1","partition":2,"replicas":[5,6]},
+              {"topic":"foo1","partition":0,"replicas":[5,6]},
+              {"topic":"foo2","partition":2,"replicas":[5,6]},
+              {"topic":"foo2","partition":0,"replicas":[5,6]},
+              {"topic":"foo1","partition":1,"replicas":[5,6]},
+              {"topic":"foo2","partition":1,"replicas":[5,6]}]
+}
+```
+
+工具自動生成了默認的新的分區分配信息，保存分區配置到文件中，修改不滿足需求的部分，確認合理後執行數據遷移：
+
+```html
+<!-- 執行數據遷移操作 -->
+$ kafka-reassign-partitions --bootstrap-server Broker地址:端口 --reassignment-json-file expand-cluster-reassignment.json --execute
+Current partition replica assignment
+
+{"version":1,
+"partitions":[{"topic":"foo1","partition":2,"replicas":[1,2]},
+              {"topic":"foo1","partition":0,"replicas":[3,4]},
+              {"topic":"foo2","partition":2,"replicas":[1,2]},
+              {"topic":"foo2","partition":0,"replicas":[3,4]},
+              {"topic":"foo1","partition":1,"replicas":[2,3]},
+              {"topic":"foo2","partition":1,"replicas":[2,3]}]
+}
+
+Save this to use as the --reassignment-json-file option during rollback
+Successfully started reassignment of partitions
+{"version":1,
+"partitions":[{"topic":"foo1","partition":2,"replicas":[5,6]},
+              {"topic":"foo1","partition":0,"replicas":[5,6]},
+              {"topic":"foo2","partition":2,"replicas":[5,6]},
+              {"topic":"foo2","partition":0,"replicas":[5,6]},
+              {"topic":"foo1","partition":1,"replicas":[5,6]},
+              {"topic":"foo2","partition":1,"replicas":[5,6]}]
+}
+```
+
+使用`--verify`參數可用於確認分區的遷移進度：
+
+```html
+<!-- 注意，執行該指令時的分區配置需要與執行--execute指令時的分區配置相同 -->
+$ kafka-reassign-partitions --bootstrap-server Broker地址:端口 --reassignment-json-file expand-cluster-reassignment.json --verify
+Status of partition reassignment:
+Reassignment of partition [foo1,0] completed successfully
+Reassignment of partition [foo1,1] is in progress
+Reassignment of partition [foo1,2] is in progress
+Reassignment of partition [foo2,0] completed successfully
+Reassignment of partition [foo2,1] completed successfully
+Reassignment of partition [foo2,2] completed successfully
+```
 
 
 
