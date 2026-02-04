@@ -11,7 +11,6 @@
         - [文本替換](#文本替換)
         - [插入/刪除/編輯指定行數的文本](#插入刪除編輯指定行數的文本)
     - [進程管理](#進程管理)
-    - [日誌記錄](#日誌記錄)
     - [用戶登入信息](#用戶登入信息)
     - [BIOS信息](#bios信息)
 - [Linux Standard Base](#linux-standard-base)
@@ -24,6 +23,7 @@
 - [用戶管理](#用戶管理)
     - [用戶密碼](#用戶密碼)
     - [用戶組管理](#用戶組管理)
+    - [日誌管理](#日誌管理)
 - [FTP（File Transfer Protocol）](#ftpfile-transfer-protocol)
     - [連接服務器](#連接服務器)
     - [常用指令](#常用指令)
@@ -706,22 +706,6 @@ pidof/pgrep等指令功能可使用管道組合指令模擬：
 $ ps A | grep 進程名 | awk '{print $1}'
 ```
 
-## 日誌記錄
-使用傳統syslog服務的Linux發行版日誌存放在`/var/log`路徑下，以純文本形式存儲；
-使用systemd服務的Linux發行版日誌使用二進制格式記錄，通過`journalctl`工具查看。
-
-```html
-<!-- 輸出內核日誌信息 -->
-$ dmesg
-
-<!-- 查看systemd日誌 -->
-$ journalctl
-<!-- 倒序查看systemd日誌 -->
-$ journalctl -r
-<!-- 查看指定服務的日誌 -->
-$ journalctl -u 服務名稱
-```
-
 ## 用戶登入信息
 使用`last`指令查看用戶認證成功的登入信息：
 
@@ -1093,6 +1077,53 @@ $ chown -R 用戶名:用戶組 路徑
 
 <!-- 更改指定文件所屬用戶組 -->
 $ chgrp 選項 用戶組名 文件名
+```
+
+
+
+## 日誌管理
+Linux視發行版配置不同部分發行版的日誌路徑存在差異，或未開啟特定日誌的持久化，常用日誌包括下列種類：
+
+- 內核日誌
+
+    內核日誌路徑通常為`/var/log/dmesg.編號`，查看內核日誌：
+
+    ```html
+    $ dmesg
+    $ dmesg -T <!-- 以標準時間展示內核日誌 -->
+    ```
+
+- 登入日誌
+
+    路徑通常為`/var/log/wtmp`（成功登入日誌）/`/var/log/btmp`（被攔截登入日誌），查看登入記錄：
+
+    ```html
+    $ last
+    $ lastb <!-- 展示被攔截的用戶信息 -->
+    ```
+
+服務日誌記錄功能早年由syslog服務提供，使用syslog服務的Linux發行版日誌存放在`/var/log`路徑下，以純文本形式存儲；
+現代Linux發行版多使用systemd提供的`systemd-journald`，日誌使用二進制格式記錄，通過`journalctl`工具查看。
+
+```html
+<!-- 查看systemd日誌 -->
+$ journalctl
+<!-- 倒序查看systemd日誌 -->
+$ journalctl -r
+<!-- 持續追蹤日誌更新 -->
+$ journalctl -f
+<!-- 查看指定服務的日誌 -->
+$ journalctl -u 服務名稱
+```
+
+journald服務配置文件為`/etc/systemd/journald.conf`，通常需要修改下列參數：
+
+```conf
+[Journal]
+# 日誌持久化配置，默認為auto
+Storage=persistent
+# 日誌最大存儲佔用，默認為10%的文件系統大小
+SystemMaxUse=100M
 ```
 
 
