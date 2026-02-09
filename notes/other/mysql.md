@@ -32,6 +32,7 @@
     - [optimize](#optimize)
     - [repair](#repair)
 - [文本類型](#文本類型)
+    - [VARCHAR類型的長度與索引優化](#varchar類型的長度與索引優化)
     - [CHAR相關類型與TEXT相關類型的區別](#char相關類型與text相關類型的區別)
     - [字符集](#字符集)
     - [字符類型自動轉換](#字符類型自動轉換)
@@ -86,6 +87,7 @@
 - [查看數據庫狀態](#查看數據庫狀態)
 - [性能測試](#性能測試)
     - [mysqlslap](#mysqlslap)
+    - [sysbench](#sysbench)
     - [寫入性能相關優化參數](#寫入性能相關優化參數)
 - [C API](#c-api)
     - [連接數據庫](#連接數據庫)
@@ -790,6 +792,15 @@ mysql> SET FOREIGN_KEY_CHECKS = 1;
 - TEXT(65,535 - 64KB)
 - MEDIUMTEXT(16,777,215 - 16MB)
 - LONGTEXT(4,294,967,295 - 4GB)
+
+## VARCHAR類型的長度與索引優化
+VARCHAR類型的長度會影響索引的優化效果，長度越長的VARCHAR類型索引的優化效果越差。
+應避免使用2的整數次方長度，會影響索引優化效果。
+
+VARCHAR類型長度為0~255時，僅佔用一個字節空間，索引優化效果最好，應避免使用VARCHAR(256)長度。
+對於較小的長度，可使用VARCHAR(63)而非VARCHAR(64)，組合索引時可以減少索引數量，降低索引優化的負擔。
+
+
 
 ## CHAR相關類型與TEXT相關類型的區別
 CHAR相關類型與TEXT相關類型存在顯著的區別：
@@ -1768,6 +1779,7 @@ mysqldump支持根據條件導出指定的內容（使用`-w/--where`參數）�
 
 ```
 $ mysqldump -u用戶名 -p密碼 -w"字段='目標值'" 數據庫名 表名
+$ mysqldump -u用戶名 -p密碼 -w"主鍵>起始範圍 and 主鍵<結束範圍" 數據庫名 表名
 ```
 
 其它常用參數：
@@ -1981,6 +1993,45 @@ mysqlslap工具的連接認證相關參數與mysql客戶端工具相同，其它
 
 ```
 $ mysqlslap -h 主機地址 -u用戶 -p密碼 --auto-generate-sql --number-int-cols=數值列數 --number-char-cols=文本列數 --auto-generate-sql-load-type=write
+```
+
+## sysbench
+sysbench是復合性能測試套件，支持多種性能測試，也支持主流數據庫的性能測試。
+
+```html
+<!-- 基本語法 -->
+$ sysbench 測試類型 參數... 命令
+
+<!-- 准备测试数据 -->
+$ sysbench oltp_common \
+  --mysql-host=數據庫地址 \
+  --mysql-port=數據庫端口 \
+  --mysql-user=用戶 \
+  --mysql-password=密碼 \
+  --mysql-db=數據庫名稱 \
+  --tables=表數量 \
+  --table-size=表行數 \
+  prepare
+
+<!--
+OLTP壓測，測試類型取值：
+oltp_read_write 讀寫混合測試
+oltp_read_only 只讀測試
+oltp_write_only 寫入測試（insert/update/delete混合）
+oltp_insert 插入測試（僅insert）
+-->
+$ sysbench 測試類型 \
+  --mysql-host=數據庫地址 \
+  --mysql-port=數據庫端口 \
+  --mysql-user=用戶 \
+  --mysql-password=密碼 \
+  --mysql-db=數據庫名稱 \
+  --tables=表數量 \
+  --table-size=表行數 \
+  --threads=線程數量 \
+  --time=測試秒數 \
+  --report-interval=命令行輸出間隔 \
+  run
 ```
 
 ## 寫入性能相關優化參數
