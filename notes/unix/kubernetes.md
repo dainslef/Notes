@@ -830,9 +830,9 @@ Node可以是物理機或虛擬機。每個Node均由Control Plane管理，並�
 
 一個Node中包含下列組件：
 
-- `kubelet` 用於確保由Kubernetes創建的容器正確地運行在Pod中
-- `kube-proxy` 管理節點的網絡規則（如iptables、IPVS等）
-- `容器運行時（通常是containerd）` 用於運行容器
+- `kubelet` 與kube-apiserver通信，調用容器運行時進行容器的創建與管理
+- `kube-proxy` 管理節點的網絡規則（如iptables、IPVS等），將外部流量導入Service和Pod
+- `容器運行時` 用於實際運行容器（通常是containerd）
 
 通常在集群中會存在多個Nodes，在某些資源受限或學習環境下，才會僅存在單個Node。
 
@@ -857,9 +857,11 @@ Control Plane可以部署在集群內的任何機器中，一個Control Plane節
 但Kubernetes將控制器統一編譯到一個`kube-controllers`二進制文件中）
 - `cloud-controller-manager` 用於在雲平台中特定的雲相關控制邏輯，如節點控制、服務控制、路由控制等
 
-通常而言，Control Plane節點應僅提供Node節點管理功能而不承擔工作負載，
+對於中、大型集群，通常使用獨立的Control Plane節點，
+Control Plane節點應僅提供Node節點管理功能而不承擔工作負載，
 業務相關的Pod默認不會調度在Control Plane中；
-對於單節點場景，可通過去除Control Plane的Taints來允許調度業務Pods。
+對於單節點場景或小型集群，通常不會單獨配置Control Plane節點，
+可通過去除Control Plane的Taints使之允許調度業務Pods。
 
 ## Pod
 Pod是Kubernetes中可創建和管理的最小部署單元。
