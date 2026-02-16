@@ -69,6 +69,8 @@
 - [宏（Macro）](#宏macro)
     - [macro_rules! 宏](#macro_rules-宏)
         - [導出 macro_rules!](#導出-macro_rules)
+        - [展開 macro_rules! 代碼](#展開-macro_rules-代碼)
+        - [使用 macro_rules! 循環生成內容](#使用-macro_rules-循環生成內容)
 
 <!-- /TOC -->
 
@@ -1698,4 +1700,43 @@ mod foo {
 
 // use macro
 foo::bar!();
+```
+
+### 展開 macro_rules! 代碼
+使用[`rust-analyzer`](https://github.com/rust-lang/rust-analyzer)搭配對應的VSCode插件，
+在宏代碼處執行VSCode指令：
+
+```
+> Expand Macro Recursively
+```
+
+之後會展示展開宏之後的代碼。
+
+### 使用 macro_rules! 循環生成內容
+macro_rules!支持使用類似正則表達式的語法生成批量匹配內容，並批量轉換生成代碼。
+使用`+`匹配至少一次，`*`匹配任意次。
+
+以一個最簡單的重複打印操作為例：
+
+```rs
+#[test]
+fn test_repeat_macro() {
+  macro_rules! custom_print {
+    ($($x:expr),+ $(,)?) => {
+      $(println!("Pint: {}", $x);)+
+    }
+  }
+
+  custom_print!(1, 2, 3);
+}
+```
+
+輸出結果：
+
+```
+running 1 test
+Pint: 1
+Pint: 2
+Pint: 3
+test translate::test_macro ... ok
 ```
