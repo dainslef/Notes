@@ -42,6 +42,8 @@
         - [synchronized語法](#synchronized語法)
         - [synchronized工作機制](#synchronized工作機制)
         - [synchronized可重入性](#synchronized可重入性)
+    - [Lock](#lock)
+        - [ReadWriteLock](#readwritelock)
     - [Executor 框架](#executor-框架)
 - [Annotation（註解）](#annotation註解)
     - [內置註解](#內置註解)
@@ -1472,6 +1474,153 @@ End second lock in Thread[main,5,main]
 End lock in Thread[main,5,main]
 Get lock in Thread[Thread-0,5,main]
 ```
+
+## Lock
+synchronized關鍵字僅適用於簡單的互斥加鎖情形。在實際開發中，需要更加靈活/功能更豐富/粒度更細的鎖。
+
+### ReadWriteLock
+`ReadWriteLock`(讀寫鎖)適用於對讀寫操作分別加鎖的場景下，讀鎖為**共享鎖**，寫鎖為**獨佔鎖**。
+通過`readLock()/writeLock()`方法分別獲取讀鎖/寫鎖。
+
+Java標準庫中的ReadWriteLock是**接口**，對應的實現類為`ReentrantReadWriteLock`，示例：
+
+基礎代碼：
+
+```kt
+import java.util.concurrent.Executors
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReadWriteLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
+
+class TestLock {
+
+    private val readWriteLock = ReentrantReadWriteLock()
+    private val executor = Executors.newWorkStealingPool()
+
+    private fun lock(getLock: (ReadWriteLock) -> Lock) = getLock(readWriteLock).run {
+        lock()
+        println("$this lock: ${Thread.currentThread().name}")
+    }
+
+    private fun unlock(getLock: (ReadWriteLock) -> Lock) = getLock(readWriteLock).run {
+        unlock()
+        println("$this unlock: ${Thread.currentThread().name}")
+    }
+
+    ...
+
+}
+```
+
+- 多線程讀取
+
+    ```kt
+    @Test
+    fun testReadLock() {
+        val operate = {
+            lock(ReadWriteLock::readLock)
+            Thread.sleep(2000)
+            unlock(ReadWriteLock::readLock)
+        }
+        executor.execute(operate)
+        executor.execute(operate)
+        readLine()
+    }
+    ```
+
+    輸出結果：
+
+    ```
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@1320b2df[Read locks = 2] lock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@1320b2df[Read locks = 2] lock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@1320b2df[Read locks = 1] unlock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@1320b2df[Read locks = 0] unlock: ForkJoinPool-1-worker-1
+    ```
+
+- 讀寫互斥
+
+    ```kt
+    @Test
+    fun testReadWriteLock() {
+        executor.execute {
+            lock(ReadWriteLock::readLock)
+            Thread.sleep(2000)
+            unlock(ReadWriteLock::readLock)
+        }
+        executor.execute {
+            lock(ReadWriteLock::writeLock)
+            Thread.sleep(2000)
+            unlock(ReadWriteLock::writeLock)
+        }
+        readLine()
+    }
+    ```
+
+    輸出結果：
+
+    ```
+    java.util.concurrent.locks.ReentrantReadWriteLock$WriteLock@163bd47a[Locked by thread ForkJoinPool-1-worker-2] lock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.ReentrantReadWriteLock$WriteLock@163bd47a[Unlocked] unlock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@49a93226[Read locks = 1] lock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@49a93226[Read locks = 0] unlock: ForkJoinPool-1-worker-1
+    ```
+
+- 鎖升級(不支持)
+
+    ReentrantReadWriteLock不支持鎖升級，同一線程先獲取讀鎖，在讀鎖未釋放的情況下立即獲取寫鎖會造成所屬線程死鎖。
+
+    ```kt
+    @Test
+    fun testLockUpgrade() {
+        executor.execute {
+            lock(ReadWriteLock::readLock)
+            lock(ReadWriteLock::writeLock)
+            unlock(ReadWriteLock::writeLock)
+            unlock(ReadWriteLock::readLock)
+        }
+        readLine()
+    }
+    ```
+
+    輸出結果：
+
+    ```
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@4f620f93[Read locks = 1] lock: ForkJoinPool-1-worker-1
+    ```
+
+    寫鎖加鎖的過程中發生了死鎖，因而僅輸出了讀鎖加鎖時的信息。
+
+- 鎖降級(支持)
+
+    ReentrantReadWriteLock支持鎖降級，同一線程先獲取寫鎖，在寫鎖未釋放的情況下立即獲取讀鎖不會造成所屬線程的死鎖。
+
+    ```kt
+    @Test
+    fun testLockDowngrade() {
+        executor.execute {
+            lock(ReadWriteLock::writeLock)
+            lock(ReadWriteLock::readLock)
+            lock(ReadWriteLock::readLock)
+            unlock(ReadWriteLock::readLock)
+            unlock(ReadWriteLock::readLock)
+            unlock(ReadWriteLock::writeLock)
+        }
+        readLine()
+    }
+    ```
+
+    輸出結果：
+
+    ```
+    java.util.concurrent.locks.ReentrantReadWriteLock$WriteLock@7795742e[Locked by thread ForkJoinPool-1-worker-1] lock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@63e0d333[Read locks = 1] lock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@63e0d333[Read locks = 2] lock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@63e0d333[Read locks = 1] unlock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock@63e0d333[Read locks = 0] unlock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.ReentrantReadWriteLock$WriteLock@7795742e[Unlocked] unlock: ForkJoinPool-1-worker-1
+    ```
+
+    在線程已獲得寫鎖的情況下，可以繼續多次添加讀鎖，不會發生死鎖。
 
 ## Executor 框架
 `Thread`類功能簡單，僅僅提供了原始的線程抽象，在實際的開發中，往往會使用更高層次的API。
