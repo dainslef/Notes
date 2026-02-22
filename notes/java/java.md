@@ -44,6 +44,7 @@
         - [synchronized可重入性](#synchronized可重入性)
     - [Lock](#lock)
         - [ReadWriteLock](#readwritelock)
+        - [StampedLock](#stampedlock)
     - [Executor 框架](#executor-框架)
 - [Annotation（註解）](#annotation註解)
     - [內置註解](#內置註解)
@@ -1621,6 +1622,209 @@ class TestLock {
     ```
 
     在線程已獲得寫鎖的情況下，可以繼續多次添加讀鎖，不會發生死鎖。
+
+### StampedLock
+`StampedLock`提供了三種模式用於控制讀寫訪問，StampedLock的狀態由**版本**(version)和**模式**(model)組成。
+鎖獲取方法會返回一個標誌(stamp)，用於表示和控制鎖狀態的訪問。這些方法的`try`版本會返回特殊值0來表示獲取權限失敗。
+鎖釋放和轉換方法要求標誌(stamp)作為參數，若標誌不匹配鎖的狀態，方法會失敗。
+
+完整的介紹可查閱[Oracle官方文檔](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/locks/StampedLock.html)。
+
+StampedLock的三種模式分別為：
+
+- Writing
+
+    方法`wirteLock()`會阻塞等待獨佔權限。返回一個標誌，用於`unlockWrite(long)`方法來釋放鎖。
+    當鎖處於寫模式時，不會有讀鎖被獲取，所有樂觀讀驗證將會失敗。
+
+- Reading
+
+    方法`readLock()`會阻塞等待非獨佔權限。返回一個標誌，用於`unlockRead(long)`方法來釋放鎖。
+
+- Optimistic Reading
+
+    方法`tryOptimisticRead()`僅在非當前鎖不處於寫模式時返回非零的標誌，
+    方法`validate(long)`用於檢測從獲取標誌到執行該方法期間鎖是否曾被寫模式佔有過。
+    樂觀讀模式可被認為是弱化的讀鎖模式，可在任意時刻被讀鎖打斷。
+    樂觀讀模式通常用於較短的數據讀取代碼，能夠減少數據競爭並提升吞吐量。
+
+    但是樂觀讀模式是脆弱的，樂觀讀模式下應該只讀取字段並在驗證通過後將字段保存到本地變量中用於接下來的使用，
+    樂觀模式下的字段讀取可能會造成數據不一致(wildly inconsistent)，因此使用該模式需要對數據抽象足夠熟悉，
+    驗證數據一致性、重複執行`validate()`方法。
+
+    典型的例子是讀取一個對象/數組，之後訪問該對象/數組的方法/元素，可以使用樂觀模式保證一致性。
+
+相比ReentrantReadWriteLock，提供了更加靈活的加鎖機制。StampedLock支持有條件地在三種鎖模式之間進行轉換。
+例如，方法`tryConvertToWriteLock(long)`會嘗試「升級」鎖，
+在「已經處於寫模式/處於讀模式但沒有其它讀鎖/處於樂觀讀模式切鎖可用」等三種情形下返回有效的標誌(非零)。
+這些方法被設計用於幫助減少基於重試的設計會引起的某些代碼膨脹。
+
+StampedLock被設計用於開發線程安全組件的內部工具。對StampedLock的使用依賴於被保護的數據、對象和方法。
+
+使用示例：
+
+- 基礎代碼
+
+    ```kt
+    import org.junit.Test
+
+    import java.util.concurrent.Executors
+    import java.util.concurrent.locks.StampedLock
+
+    class TestStampedLock {
+
+        private val stampedLock = StampedLock()
+        private val executor = Executors.newWorkStealingPool()
+
+        private fun lock(action: StampedLock.() -> Long) = stampedLock.run {
+            var stamp: Long
+            do stamp = action(this) while (stamp == 0L)
+            println("$this lock: ${Thread.currentThread().name}")
+            stamp
+        }
+
+        private fun unlock(stamp: Long, isValidateMode: Boolean = false) = stampedLock.run {
+            val lockStr = if (!isValidateMode) {
+                unlock(stamp)
+                "unlock"
+            } else {
+                "validate(${validate(stamp)})"
+            }
+            println("$this $lockStr: ${Thread.currentThread().name}")
+        }
+
+        ...
+
+    }
+    ```
+
+- 多線程讀取
+
+    ```kt
+    @Test
+    fun testReadLock() {
+        listOf(
+                { lock { readLock() }.let { Thread.sleep(2000); unlock(it) } }, // 讀鎖
+                { lock { readLock() }.let { Thread.sleep(2000); unlock(it) } }, // 讀鎖
+                { lock { tryOptimisticRead() }.let { Thread.sleep(2000); unlock(it, true) } } // 樂觀鎖
+        ).map { executor.submit(it) }
+        readLine()
+    }
+    ```
+
+    輸出結果：
+
+    ```
+    java.util.concurrent.locks.StampedLock@35060f17[Read-locks:1] lock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.StampedLock@35060f17[Read-locks:2] lock: ForkJoinPool-1-worker-3
+    java.util.concurrent.locks.StampedLock@35060f17[Read-locks:2] lock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.StampedLock@35060f17[Read-locks:1] unlock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.StampedLock@35060f17[Unlocked] unlock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.StampedLock@35060f17[Unlocked] validate(true): ForkJoinPool-1-worker-3
+    ```
+
+    由結果可知，多個讀鎖以及樂觀鎖均能同時獲取。
+
+- 讀寫互斥
+
+    ```kt
+    @Test
+    fun testReadWriteLock() {
+        listOf(
+                { lock { writeLock() }.let { Thread.sleep(2000); unlock(it) } }, // 寫鎖
+                { lock { readLock() }.let { Thread.sleep(2000); unlock(it) } }, // 讀鎖
+                { lock { tryOptimisticRead() }.let { Thread.sleep(2000); unlock(it, true) } } // 樂觀鎖
+        ).map { executor.submit(it) }
+        readLine()
+    }
+    ```
+
+    輸出結果：
+
+    ```
+    java.util.concurrent.locks.StampedLock@16870f74[Write-locked] lock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.StampedLock@16870f74[Unlocked] unlock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.StampedLock@16870f74[Read-locks:1] lock: ForkJoinPool-1-worker-3
+    java.util.concurrent.locks.StampedLock@16870f74[Read-locks:1] lock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.StampedLock@16870f74[Unlocked] unlock: ForkJoinPool-1-worker-3
+    java.util.concurrent.locks.StampedLock@16870f74[Unlocked] validate(true): ForkJoinPool-1-worker-2
+    ```
+
+    由結果可知，寫鎖是獨佔的，寫鎖結束後讀鎖、樂觀鎖才獲取到。
+
+- 鎖升級
+
+    ```kt
+    @Test
+    fun testLockUpgrade() {
+        listOf(
+                { lock { readLock() }.let { Thread.sleep(2000); unlock(it) } }, // 讀鎖
+                { lock { readLock() }.let { Thread.sleep(2000); unlock(lock { tryConvertToWriteLock(it) }) } } // 升級讀鎖到寫鎖
+        ).map { executor.submit(it) }
+        readLine()
+    }
+    ```
+
+    輸出結果：
+
+    ```
+    java.util.concurrent.locks.StampedLock@56fcbb67[Read-locks:1] lock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.StampedLock@56fcbb67[Read-locks:2] lock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.StampedLock@56fcbb67[Read-locks:1] unlock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.StampedLock@56fcbb67[Write-locked] lock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.StampedLock@56fcbb67[Unlocked] unlock: ForkJoinPool-1-worker-2
+    ```
+
+    StampedLock支持鎖升級，但讀鎖升級到寫鎖需要僅在當前只有一個讀鎖時才會成功。
+
+- 樂觀鎖
+
+    持有樂觀鎖期間，獲取讀鎖不會樂觀鎖失效：
+
+    ```kt
+    @Test
+    fun testOptimisticLockWithRead() {
+        listOf(
+                { lock { tryOptimisticRead() }.let { Thread.sleep(2000); unlock(it, true) } },
+                { lock { readLock() }.let { unlock(it) } },
+                { lock { readLock() }.let { unlock(it) } }
+        ).map { executor.submit(it) }
+        readLine()
+    }
+    ```
+
+    輸出結果：
+
+    ```
+    java.util.concurrent.locks.StampedLock@7443fabc[Read-locks:2] lock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.StampedLock@7443fabc[Read-locks:2] lock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.StampedLock@7443fabc[Read-locks:2] lock: ForkJoinPool-1-worker-3
+    java.util.concurrent.locks.StampedLock@7443fabc[Read-locks:1] unlock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.StampedLock@7443fabc[Unlocked] unlock: ForkJoinPool-1-worker-3
+    java.util.concurrent.locks.StampedLock@7443fabc[Unlocked] validate(true): ForkJoinPool-1-worker-1
+    ```
+
+    持有樂觀鎖期間，獲取寫鎖會造成樂觀鎖失效：
+
+    ```kt
+    @Test
+    fun testOptimisticLockWithWrite() {
+        listOf(
+                { lock { tryOptimisticRead() }.let { Thread.sleep(2000); unlock(it, true) } }, // 樂觀鎖
+                { lock { writeLock() }.let { unlock(it) } } // 在樂觀鎖持有期間獲取寫鎖，之後樂觀鎖失效
+        ).map { executor.submit(it) }
+        readLine()
+    }
+    ```
+
+    輸出結果：
+
+    ```
+    java.util.concurrent.locks.StampedLock@4890e721[Unlocked] lock: ForkJoinPool-1-worker-1
+    java.util.concurrent.locks.StampedLock@4890e721[Write-locked] lock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.StampedLock@4890e721[Unlocked] unlock: ForkJoinPool-1-worker-2
+    java.util.concurrent.locks.StampedLock@4890e721[Unlocked] validate(false): ForkJoinPool-1-worker-1
+    ```
 
 ## Executor 框架
 `Thread`類功能簡單，僅僅提供了原始的線程抽象，在實際的開發中，往往會使用更高層次的API。
