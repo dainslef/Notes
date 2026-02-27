@@ -2,9 +2,11 @@
 
 - [Ollama](#ollama)
     - [Ollama Linux部署](#ollama-linux部署)
+    - [Ollama運行模式](#ollama運行模式)
     - [Ollama操作說明](#ollama操作說明)
     - [Ollama配置](#ollama配置)
     - [Ollama數據存儲](#ollama數據存儲)
+    - [Ollama容器化部署](#ollama容器化部署)
 
 <!-- /TOC -->
 
@@ -22,11 +24,17 @@ Linux系統使用腳本部署：
 # curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-Ollama在部署過程中會檢測服務器硬件，若存在NVIDIA/AMD顯卡，則以GPU模式運行，否則以CPU模式運行；
 部署完成後，Ollama會創建systemd服務，並在`/usr/local/bin`路徑下安裝ollama工具。
 
 牆國推薦使用離線部署，[Ollama GitHub Release](https://github.com/ollama/ollama/releases)
 提供了常見平臺的完整離線包（不包含模型）。
+
+## Ollama運行模式
+Ollama在部署過程中會檢測服務器硬件，若存在NVIDIA/AMD顯卡，
+則以GPU模式運行（GPU模式需要正確配置顯卡驅動），否則以CPU模式運行。
+
+Ollama支持多種GPU加速後端，默認使用平台專屬的加速模式，NVIDIA GPU使用CUDA，AMD GPU使用ROCm。
+Ollama亦實驗性提供了Vulkan加速，通過環境變量`OLLAMA_VULKAN=1`啟用Vulkan加速。
 
 ## Ollama操作說明
 ollama指令操作說明：
@@ -60,3 +68,32 @@ Environment="OLLAMA_HOST=0.0.0.0:11434 OLLAMA_ORIGINS=* OLLAMA_KEEP_ALIVE=-1"
 
 ## Ollama數據存儲
 Linux平臺下，Ollama會將模型數據存儲至`/usr/share/ollama/.ollama/models`路徑下。
+
+## Ollama容器化部署
+Ollama支持容器部署，參考[Ollama博客](https://ollama.com/blog/ollama-is-now-available-as-an-official-docker-image)。
+
+Ollama官方提供了[Docker鏡像](https://hub.docker.com/r/ollama/ollama)，使用以下命令拉取：
+
+```html
+# docker pull ollama/ollama <!-- 通用鏡像 -->
+# docker pull ollama/ollama:rocm <!-- AMD GPU若使用rocm加速則需要搭配rocm標籤的鏡像 -->
+```
+
+以各自平台的GPU加速模式運行容器：
+
+```html
+<!-- Nvidia GPU 需要安裝 Nvidia container toolkit -->
+# docker run -d -v ollama:/root/.ollama -p 11434:11434 --gpus=all --name ollama ollama/ollama
+<!-- AMD GPU 需要掛載特定設備文件 -->
+# docker run -d -v ollama:/root/.ollama -p 11434:11434 --device=/dev/kfd --device=/dev/dri --gpus=all --name ollama ollama/ollama:rocm
+```
+
+以Vulkan加速模式運行容器：
+
+```html
+<!--
+通過環境變量 OLLAMA_VULKAN=1 啟用Vulkan加速
+即便是AMD GPU，使用Vulkan加速亦需要使用通用鏡像
+-->
+# docker run -d -v ollama:/root/.ollama -e OLLAMA_VULKAN=1 -p 11434:11434 --device=/dev/kfd --device=/dev/dri --gpus=all --name ollama ollama/ollama
+```
