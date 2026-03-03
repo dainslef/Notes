@@ -261,6 +261,12 @@ $ pacman -Ql 軟件包 <!-- 列出軟件包內容 -->
 $ pacman -F 文件 <!-- 查看哪些軟件包包含指定文件 -->
 ```
 
+若pacman包管理器執行報錯，則可使用調試參數輸出更多信息：
+
+```
+# pacman --debug ...
+```
+
 ### pacman配置
 pacman配置文件為`/etc/pacman.conf`，使用ini配置語法，結構較為簡單。
 
@@ -324,6 +330,10 @@ Do you want to delete it? [Y/n]
 ```
 # pacman-key --populate
 ```
+
+若以上步驟皆無效，則可修改`/etc/pacman.conf`，
+將`[core]`倉庫中的`SigLevel`設置爲`Never`，以臨時跳過簽名檢查，
+然後單獨升級安裝archlinux-keyring軟件包，之後恢復倉庫配置即可。
 
 ## 降級軟件包
 ArchLinux作為滾動發行版，並未提供完善的軟件包多版本共存機制，相同軟件包在源中僅能存在**單一**版本。
