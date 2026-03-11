@@ -56,24 +56,31 @@ $ brew install redisinsight
 ```
 
 ## 容器化部署
-[Docker Hub](https://hub.docker.com/_/redis)
-提供了官方的Redis鏡像，使用官方Docker鏡像時需要注意：
+[Docker Hub](https://hub.docker.com/_/redis)提供了官方的Redis鏡像。
+
+鏡像默認監聽6379端口，直接啟動映射端口即可使用：
+
+```
+$ docker run -td -p 6379:6379 --name redis redis
+```
+
+使用官方Docker鏡像時外掛配置時需要注意：
 
 - 避免開啟後台服務
 
-	配置項中不應使用`daemonize yes`，
-	在Docker容器中開啟進程服務化執行會導致容器啟動後立即退出。
+    配置項中不應使用`daemonize yes`，
+    在Docker容器中開啟進程服務化執行會導致容器啟動後立即退出。
 
 - 外部存儲權限
 
-	容器默認的工作目錄為`/data`，外部存儲可掛載在該路徑下。
-	外部存儲在宿主機需要設置用戶與用戶組為`999`：
+    容器默認的工作目錄為`/data`，外部存儲可掛載在該路徑下。
+    外部存儲在宿主機需要設置用戶與用戶組為`999`：
 
-	```
-	# chown -R 999:999 外置路徑
-	```
+    ```
+    # chown -R 999:999 外置路徑
+    ```
 
-	外部存儲使用root用戶容器可能無權限創建文件。
+    外部存儲使用root用戶容器可能無權限創建文件。
 
 ## 性能測試
 Redis內置了性能測試工具`redis-benchmark`。
@@ -81,7 +88,8 @@ Redis內置了性能測試工具`redis-benchmark`。
 redis-benchmark多數參數與redis-cli類似，支持一些測試相關參數：
 
 ```html
-$ redis-benchmark -t 測試類型 <!-- 測試指定類型，辱 ping,set,get 等 -->
+$ redis-benchmark -q <!-- 默認執行所有測試類型，默認輸出結果包含統計分佈，-q參數直接輸出結果 -->
+$ redis-benchmark -t 測試類型 <!-- 測試指定類型，如 ping,set,get 等 -->
 $ redis-benchmark -n 請求數目 <!-- 測試的總請求數目 -->
 ```
 
