@@ -1,5 +1,10 @@
 <!-- TOC -->
 
+- [GPU驅動](#gpu驅動)
+    - [AMD GPU驅動](#amd-gpu驅動)
+    - [NVIDIA GPU驅動](#nvidia-gpu驅動)
+    - [Vulkan驅動](#vulkan驅動)
+    - [TTM](#ttm)
 - [Ollama](#ollama)
     - [Ollama Linux部署](#ollama-linux部署)
     - [Ollama運行模式](#ollama運行模式)
@@ -9,6 +14,52 @@
     - [Ollama容器化部署](#ollama容器化部署)
 
 <!-- /TOC -->
+
+
+
+# GPU驅動
+儘管AI模型支持通過CPU運行，但GPU加速能顯著提升模型執行效率，
+啟用GPU加速需要正確安裝和配置GPU驅動。
+
+AMD/NVIDIA GPU有各自的專屬驅動與GPU加速，較新的GPU共同支持Vulkan加速。
+
+## AMD GPU驅動
+AMD GPU需要安裝[ROCm驅動](https://github.com/ROCm/ROCm)。
+
+## NVIDIA GPU驅動
+NVIDIA GPU需要安裝[CUDA驅動](https://developer.nvidia.com/cuda-downloads)。
+
+## Vulkan驅動
+較新的AMD/NVIDIA GPU均支持Vulkan加速，Vulkan配置較為簡單，啟用Vulkan加速僅需要標準的開源驅動，
+主流Linux發行版的開源驅動已包含Vulkan支持，確保系統安裝了Mesa驅動即可。
+
+與專屬GPU加速相比，部分模型在Vulkan加速下的性能有所下降，亦有部分模型在Vulkan加速下的性能更好，
+不同模型建議分別測試專屬GPU加速與Vulkan加速的性能表現，以選擇最佳的加速模式。
+
+## TTM
+`TTM(Translation Table Manager)`是Linux內核中的內存管理子系統，負責管理GPU內存的分配和映射。
+
+對於核心顯卡，可通過在GRUB/systemd-boot的`ttm`相關配置參數可調整GPU使用的內存比例：
+
+```html
+<!-- GRUB配置位於 /etc/default/grub -->
+GRUB_CMDLINE_LINUX_DEFAULT="... ttm.pages_limit=xxx ttm.page_pool_size=xxx"
+
+<!-- systemd-boot配置通常位於 /boot/loader/entries/*.conf -->
+options ... ttm.pages_limit=xxx ttm.page_pool_size=xxx
+```
+
+TTM數值大小計算方式：
+
+```
+內存GB數 × 1024 × 1024 / 4
+```
+
+以8GB內存為例，TTM數值大小為：
+
+```
+8 × 1024 × 1024 / 4 = 2097152
+```
 
 
 
