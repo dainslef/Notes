@@ -11,6 +11,7 @@
 - [`const`關鍵字](#const關鍵字)
     - [const用於變量初始化](#const用於變量初始化)
     - [const變量作爲數組長度](#const變量作爲數組長度)
+    - [constexpr](#constexpr)
 - [運算精度](#運算精度)
 - [8進制與16進制](#8進制與16進制)
 - [sizeof 運算符](#sizeof-運算符)
@@ -502,6 +503,33 @@ int array[length];
 在部分C語言編譯器中會報錯，但在C++中正確。
 `C99`開始支持變量作爲數組長度定義，但並非所有編譯器都支持這個特（GCC能夠支持）。
 `ANSI C`中，數組的長度只能由常量定義，即使`const`變量的值不會發生變化，但仍然**不是**常量。
+
+## constexpr
+[`constexpr`](https://en.cppreference.com/w/cpp/language/constexpr)
+是C++11引入的新關鍵字，constexpr可用於修飾變量、函數和對象的成員函數。
+
+- constexpr用於聲明常量表達式，該表達式的值在編譯期即可確定，並且在運行期不可更改。
+- constexpr函數可以在編譯期求值，也可以在運行期求值，具體取決於函數的參數是否爲常量表達式。
+
+示例：
+
+```cpp
+constexpr int square(int x)
+{
+    return x * x;
+}
+
+int main()
+{
+    constexpr int x = 5; // 常量表達式中傳入的參數同樣需要是常量表達式
+    constexpr int result1 = square(x); // 在編譯期求值
+    constexpr int result2 = square(6); // 直接使用數值常量表達式作爲參數亦滿足編譯期求值的要求
+
+    int y = 10;
+    int runtime_result = square(y); // 在運行期求值
+    return 0;
+}
+```
 
 
 
