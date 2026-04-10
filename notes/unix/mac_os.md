@@ -207,6 +207,16 @@ macOS系統的常用快捷鍵於Windows有較大差異，需要一段時間的�
 - `Wake for network access`
 在睡眠狀態下可被網絡訪問請求喚醒（會大幅度增加睡眠狀態下的電量消耗，建議設置成`Only on Power Adapter`）
 
+macOS可以通過`caffeinate`指令臨時進入防休眠狀態而不必直接修改系統配置：
+
+```html
+<!--
+執行caffeinate指令後，進程會一直保持前台運行，此時系統不會進入休眠狀態；
+進程強制結束後，恢復系統原本的休眠配置。
+-->
+$ caffeinate -d
+```
+
 ### 主機信息
 在`System Settings - General - Sharing - Local hostname`中配置本地主機名稱，
 本地主機名稱在本地網絡共享時使用，對命令行環境下無效。
