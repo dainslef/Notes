@@ -12,6 +12,7 @@
     - [Docker Desktop for macOS](#docker-desktop-for-macos)
         - [訪問Docker Desktop的虛擬機（HyperKit，已過時）](#訪問docker-desktop的虛擬機hyperkit已過時)
         - [訪問Docker Desktop的虛擬機（HVF）](#訪問docker-desktop的虛擬機hvf)
+        - [Use containerd for pulling and storing images](#use-containerd-for-pulling-and-storing-images)
 - [Docker基本使用](#docker基本使用)
     - [Docker容器管理](#docker容器管理)
         - [Docker容器自啟動](#docker容器自啟動)
@@ -313,6 +314,20 @@ $ docker create -it --name=host-vm --privileged --pid=host 鏡像 nsenter -m -u 
 $ docker start host-vm
 $ docker exec -it host-vm sh <!-- 進入宿主虛擬機環境 -->
 ```
+
+### Use containerd for pulling and storing images
+較新版本的Docker Desktop會提供該選項用於啟用containerd作為鏡像存儲後端，
+開啟此選項會導致部分鏡像拉取、推送相關的配置**失效**：
+
+```json
+{
+    ...,
+    "insecure-registries": ["xxx.xxx.xxx"],
+    ...
+}
+```
+
+若需要使用相關配置，則需要關閉`General`選項中的`Use containerd for pulling and storing images`選項。
 
 
 
@@ -1615,9 +1630,9 @@ endpoint = ["http://xxx.xxx.xxx:端口"] # 默認拉取鏡像使用HTTPS協議�
 
 # 若依舊使用HTTPS協議，則可自定義HTTPS證書相關配置
 [plugins."io.containerd.grpc.v1.cri".registry.configs."xxx.xxx.xxx:端口".tls]
-# 禁用TLS證書驗證
+# 內網環境可直接禁用TLS證書驗證
 insecure_skip_verify = true
-# 私有證書相關配置
+# 若使用私有證書，則需要私有證書相關配置
 ca_file = "..." # 根證書
 cert_file = "..." # 域名證書
 key_file = "..." # 證書密鑰
