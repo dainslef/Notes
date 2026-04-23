@@ -22,6 +22,7 @@
 啟用GPU加速需要正確安裝和配置GPU驅動。
 
 AMD/NVIDIA GPU有各自的專屬驅動與GPU加速，較新的GPU共同支持Vulkan加速。
+Apple Silicon GPU則使用Apple專屬的MLX加速（Metal後端），macOS系統無需安裝額外驅動。
 
 ## AMD GPU驅動
 AMD GPU需要安裝[ROCm驅動](https://github.com/ROCm/ROCm)。
@@ -87,14 +88,30 @@ Ollama在部署過程中會檢測服務器硬件，若存在NVIDIA/AMD顯卡，
 Ollama支持多種GPU加速後端，默認使用平台專屬的加速模式，NVIDIA GPU使用CUDA，AMD GPU使用ROCm。
 Ollama亦實驗性提供了Vulkan加速，通過環境變量`OLLAMA_VULKAN=1`啟用Vulkan加速。
 
+對於Apple Silicon設備，Ollama支持Apple專屬的MLX加速，啟用MLX加速能顯著提升模型運行性能；
+僅特定模型支持MLX加速（查看模型信息上是否有mlx標籤），普通模型依舊使用傳統的CPU/GPU模式運行。
+
 ## Ollama操作說明
 ollama指令操作說明：
 
 ```html
 # ollama serve <!-- 啟動服務（通常使用systemctl管理服務） -->
-# ollama ls/list <!-- 列出已下載的模型 -->
-# ollama pull 模型名稱 <!-- 拉取指定模型，可從 https://ollama.com/search 查找支持的模型 -->
-# ollama run/stop 模型名稱 <!-- 啟動/停止模型 -->
+$ ollama ls/list <!-- 列出已下載的模型 -->
+$ ollama pull 模型名稱 <!-- 拉取指定模型，可從 https://ollama.com/search 查找支持的模型 -->
+$ ollama run/stop 模型名稱 <!-- 啟動/停止模型 -->
+```
+
+ollama可與主流的AI Agent工具搭配使用，可直接啟動模型並進入指定AI Agent的交互界面：
+
+```html
+<!--
+Ollama支持下列AI Agent：
+claude
+codex
+copilot
+opencode
+-->
+$ ollama lunch Agent名稱 ---model 模型名稱
 ```
 
 ## Ollama配置
