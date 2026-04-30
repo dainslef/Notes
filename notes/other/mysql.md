@@ -17,6 +17,7 @@
         - [修改用戶密碼](#修改用戶密碼)
     - [跳過登入驗證](#跳過登入驗證)
     - [關於密碼策略](#關於密碼策略)
+    - [SSL登入](#ssl登入)
 - [基本操作](#基本操作)
     - [基本SQL語句](#基本sql語句)
         - [CASE 與 IF](#case-與-if)
@@ -477,6 +478,30 @@ mysql> SHOW VARIABLES LIKE 'validate_password%';
 ```
 
 可通過修改此類環境變量避免密碼策略相關的異常信息。
+
+## SSL登入
+較新版本的MySQL（9+）與MariaDB（12+）客戶端會強制要求SSL連接，若服務端未配置SSL會出現下列錯誤信息：
+
+```
+ERROR 2026 (HY000): TLS/SSL error: SSL is required, but the server does not support it
+```
+
+在內網環境下，SSL連結無必要，可通過命令行參數禁用SSL檢查：
+
+```html
+<!-- 適用於MySQL客戶端及MariaDB客戶端 -->
+$ mysql --skip-ssl ...
+
+<!-- 適用於較新的MySQL客戶端（MariaDB不適用該參數） -->
+$ mysql --ssl-mode=DISABLED ...
+```
+
+若要永久禁用SSL檢查，可以在配置文件`my.cnf`中添加下列內容：
+
+```ini
+[client]
+skip-ssl
+```
 
 
 
