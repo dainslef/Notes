@@ -128,6 +128,7 @@
         - [iptables基本操作](#iptables基本操作)
     - [IPVS](#ipvs)
 - [Keepalived](#keepalived)
+    - [global_defs](#global_defs)
     - [vrrp_instance](#vrrp_instance)
     - [vrrp_sync_group](#vrrp_sync_group)
     - [Keepalived完整示例](#keepalived完整示例)
@@ -4591,6 +4592,13 @@ text2pcap是tcpdump工具鏈之一，可將文本格式十六進制數據轉換�
 <!-- 添加IPv4/IPv6頭 -->
 # text2pcap -i 4 輸入文件 輸出文件
 # text2pcap -i 6 輸入文件 輸出文件
+```
+
+對於應用層數據，可組合使用參數添加不同數據層的頭部信息：
+
+```html
+<!-- 以RADIUS協議為例，添加以太網頭、IPv6頭以及UDP頭（指定源、目的端口） -->
+# text2pcap -e 0x86dd -i 6 -u 1812,1812 radius.txt radius.pcap
 ```
 
 ## Netcat (nc)
