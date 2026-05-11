@@ -6097,13 +6097,6 @@ Kitty的組合鍵使用`ctrl + shift`組合其它按鍵，常用快捷鍵：
 # Samba
 [Samba](https://www.samba.org/)是常用的文件共享服務。
 
-## Samba容器部署
-Samba目前并未提供官方容器，推薦使用[dockurr/samba](https://github.com/dockur/samba)容器部署Samba：
-
-```
-$ nerdctl run --restart=unless-stopped --name samba -tdp 445:445 -e "USER=用戶名" -e "PASS=密碼" -v 宿主機路徑:/storage dockurr/samba:版本
-```
-
 ## Samba用戶管理
 Samba使用操作系統的賬戶體系，但Linux/Unix系統中的Samba使用獨立的密碼。
 
@@ -6225,8 +6218,7 @@ $ fc-match --verbose 字形 <!-- 輸出特定字形的詳細信息 -->
 
 現在的用戶配置爲`$XDG_CONFIG_HOME/fontconfig/fonts.conf`
 （通常爲`$HOME/.config/fontconfig/fonts.conf`）；
-以及`$XDG_CONFIG_HOME/fontconfig/conf.d`
-（通常爲`$HOME/.config/fontconfig/conf.d`）。
+以及`$XDG_CONFIG_HOME/fontconfig/conf.d`（通常爲`$HOME/.config/fontconfig/conf.d`）。
 
 字體配置遵循XML語法。
 
