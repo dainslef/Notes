@@ -76,6 +76,8 @@
     - [OceanBase日誌](#oceanbase日誌)
     - [OceanBase組件運行失敗](#oceanbase組件運行失敗)
     - [OceanBase默認Shell](#oceanbase默認shell)
+    - [OceanBase集群架構](#oceanbase集群架構)
+    - [OceanBase高可用與副本](#oceanbase高可用與副本)
 - [常用功能和配置](#常用功能和配置)
     - [導出數據](#導出數據)
     - [導入數據](#導入數據)
@@ -1778,6 +1780,44 @@ OceanBase管理工具obd中部分功能使用bash脚本實現，但并未指定b
 [ERROR] ocp-express-py_script_start_check-4.2.1 RuntimeError: 'ip'
 [ERROR] OBD-1005: Some of the servers in the cluster have been stopped
 ...
+```
+
+## OceanBase集群架構
+OceanBase的集群架構包括下列概念，從大到小依次為：
+
+- Cluster。集群，跨城市的集群包含多個Region
+- Region，區域，對應不同的城市
+- Zone，機房，對應城市內的不同機房
+- OBServer，數據庫節點，對應機房內的數據庫服務器
+- Unit，數據庫實例，對應數據庫服務器內的數據庫實例
+- Table 表格，是OceanBase的邏輯數據存儲單位，表格內的數據會被分布在不同的分區上
+- Partition 分區，分區是OceanBase的分布式數據存儲單位，分區內的數據會被分布在不同的OBServer上
+
+```
+|--------------------- Cluster -------------------------| 跨城市集群
+|--------------- Region1  ---------|----- Region2 ------| 城市區域
+|----- Zone1 ----|----- Zone2 -----|------ Zone3 -------| 城市內機房
+|-- OBServer1-1 -|-- OBServer2-1 --|--- OBServer3-1 ----| 機房內數據庫節點
+|-- OBServer1-2 -|-- OBServer2-2 --|--- OBServer3-2 ----|
+|-- OBServer1-3 -|-- OBServer2-3 --|--- OBServer3-3 ----|
+```
+
+## OceanBase高可用與副本
+OceanBase高可用需要多個Zone，數據在一個Zone內僅能存在**一個**副本（無備份），單個Zone**無法**提供高可用保障；
+同一Zone內的OBServer節點之間為對等、協同關係，數據通過Partition（分區）機制分布在不同的OBServer節點上。
+
+當一個Zone內的某個節點故障，RootService會重新分配節點數據，
+需要從其它Zone的正常節點上恢復缺失節點的分區數據，以實現數據的恢復與再平衡。
+
+對於單套3節點的集群，若需要實現高可用，則通常使用3個Zone，每個Zone內部署1個OBServer節點，
+數據在3個Zone之間進行同步，任意一個Zone失效後，集群仍然可以正常提供服務；
+簡化的集群部署架構如下所示：
+
+```
+|--------------------- Cluster -------------------------| 單集群
+|--------------------- Region --------------------------| 單區域
+|----- Zone1 ----|----- Zone2 -----|------ Zone3 -------| 三節點三Zone
+|--- OBServer1 --|--- OBServer2 ---|---- OBServer3 -----| 每個Zone內單OBServer
 ```
 
 
