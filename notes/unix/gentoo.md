@@ -661,6 +661,38 @@ Gentoo的Mask機制可用於控制系統的軟件包版本，
 ## package.license / package.accept_keywords
 Gentoo會將存在潛在問題的軟件包進行標記，被標記的軟件包不可直接安裝。
 
+查詢軟件包無法安裝的具體原因：
+
+```
+$ emerge --pretend --verbose 軟件包名稱
+```
+
+示例：
+
+```
+$ emerge --pretend --verbose app-admin/helm
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies... done!
+Dependency resolution took 0.57 s (backtrack: 0/20).
+
+
+!!! All ebuilds that could satisfy "app-admin/helm" have been masked.
+!!! One of the following masked packages is required to complete your request:
+- app-admin/helm-3.19.2::gentoo (masked by: ~arm64 keyword)
+- app-admin/helm-3.19.0::gentoo (masked by: ~arm64 keyword)
+- app-admin/helm-3.18.6::gentoo (masked by: ~arm64 keyword)
+- app-admin/helm-3.17.2::gentoo (masked by: ~arm64 keyword)
+
+For more information, see the MASKED PACKAGES section in the emerge
+man page or refer to the Gentoo Handbook.
+
+
+ * IMPORTANT: 4 news items need reading for repository 'gentoo'.
+ * Use eselect news read to view new items.
+```
+
 軟件包被標記的常見原因；
 
 - 許可證
@@ -687,6 +719,7 @@ Gentoo會將存在潛在問題的軟件包進行標記，被標記的軟件包�
     文件示例：
 
     ```sh
+    # 語法
     軟件包 關鍵字
 
     # 示例
