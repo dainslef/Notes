@@ -32,6 +32,8 @@
         - [多版本管理](#多版本管理)
         - [Homebrew Taps](#homebrew-taps)
         - [Homebrew Cask](#homebrew-cask)
+            - [Homebrew Cask 應用版本](#homebrew-cask-應用版本)
+            - [Homebrew Cask 更新管理](#homebrew-cask-更新管理)
         - [Homebrew Services](#homebrew-services)
         - [配置國內源](#配置國內源)
 - [macOS安裝鏡像](#macos安裝鏡像)
@@ -677,14 +679,16 @@ $ brew untap homebrew/core homebrew/cask
 ```
 
 ### Homebrew Cask
-Homebrew提供了macOS專屬Bundle封裝應用的軟件倉庫`homebrew/cask`（原`caskroom/cask`倉庫）。
+Homebrew早期為macOS專屬Bundle封裝應用的軟件倉庫`caskroom/cask`，後併入官方倉庫，改名`homebrew/cask`。
 啟用Homebrew Casks倉庫：
 
 ```
 $ brew tap homebrew/cask
 ```
 
-早期Homebrew提供了`brew cask`指令現在已經**廢棄**，
+後續版本中，Cask倉庫已經被整合到Homebrew中，無需額外啓用；
+早期Homebrew提供的`brew cask`指令現在亦已**廢棄**。
+
 現在對於Casks的處理方式與普通包類似，僅將其視為一個軟件倉庫，
 使用與普通包相同的指令進行操作，必要時使用`--cask`參數指定操作。
 
@@ -696,27 +700,47 @@ $ brew tap homebrew/cask
 安裝常用應用：
 
 ```
-$ brew install --cask appcleaner the-unarchiver intellij-idea microsoft-office visual-studio-code blender qq the-unarchiver vlc docker google-chrome virtualbox visualvm dotnet-sdk steam wechat wireshark clashx-pro neteasemusic gimp mysqlworkbench android-file-transfer android-platform-tools
+$ brew install --cask appcleaner the-unarchiver intellij-idea microsoft-office visual-studio-code blender qq the-unarchiver vlc docker firefox virtualbox visualvm dotnet-sdk steam wechat wireshark clashx-pro neteasemusic gimp mysqlworkbench android-file-transfer android-platform-tools
 ```
 
+#### Homebrew Cask 應用版本
 部分應用打包時並未寫明確切的版本號（如`google-chrome`），此類應用升級需要執行重新安裝指令：
 
 ```
 $ brew reinstall --cask 需要更新的應用名稱
 ```
 
-默認官方Homebrew Cask倉庫僅保存最新版的應用，若需要同時安裝多個版本，
-則需要開啓`homebrew/cask-versions`（原`caskroom/versions`）倉庫。
+Cask應用現在官方倉庫會直接提供常見版本（與Formulae類似），
+版本格式與Formulae類似，使用`@版本號`的方式指定安裝版本。
 
-執行指令：
+早期的`homebrew/cask-versions`（原`caskroom/versions`）倉庫已經廢棄。
+早期`homebrew/cask-versions`倉庫保存了常見應用的各個版本，如測試版本/舊版穩定版本，
+如`Chrome`的`homebrew/cask-versions/google-chrome-beta`，
+`FireFox`的`homebrew/cask-versions/firefox-esr`，現在均使用與Formulae類似的`@版本號`方式提供：
 
 ```
-$ brew tap homebrew/cask-versions
+$ brew install google-chrome@beta
+$ brew install firefox@esr
 ```
 
-`homebrew/cask-versions`倉庫保存了常見應用的各個版本，如測試版本/舊版穩定版本，
-如`Office`的`homebrew/cask-versions/microsoft-office-2019`，
-`FireFox`的`homebrew/cask-versions/firefox-esr`。
+#### Homebrew Cask 更新管理
+部分Cask應用（如`google-chrome`、`firefox`等）具備自動更新檢測以及自動更新功能，
+無需使用Homebrew進行更新，此類應用會設置`auto_updates`屬性，Homebrew在升級時會忽略這些應用。
+
+早期版本Homebrew在升級檢測時對於具備auto_updates屬性的應用過於樂觀，
+在執行升級時，Homebrew對具備auto_updates屬性的應用會無條件忽略升級檢測；
+[cask: refine auto_updates behaviour](https://github.com/Homebrew/brew/pull/21974)
+提交中重新定義了auto_updates屬性的行為，
+Homebrew在升級時會通過`CFBundleVersion`/`CFBundleShortVersionString`等機制檢測應用的版本號，
+僅當已安裝應用版本號與最新版本一致時才會忽略升級，
+若版本號與倉庫中最新版本不一致，則會執行版本升級操作。
+
+在最新的Homebrew中，只有Cask版本號為`lastest`且具備`auto_updates`屬性的應用才會被完全忽略升級檢測；
+若需要Homebrew恢復之前版本的默認行為，可在環境變量中設置：
+
+```sh
+HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS=1
+```
 
 ### Homebrew Services
 對於使用Homebrew安裝的包，若包提供了服務，則可以使用`brew services`指令進行服務狀態管理。
