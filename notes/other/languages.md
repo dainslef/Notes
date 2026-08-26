@@ -1,6 +1,8 @@
 <!-- TOC -->
 
 - [類型系統](#類型系統)
+    - [子結構類型系統](#子結構類型系統)
+- [Type Class vs Interface](#type-class-vs-interface)
 
 <!-- /TOC -->
 
@@ -99,3 +101,51 @@
 	```
 	Python、Ruby、Haskell
 	```
+
+## 子結構類型系統
+[`Substructural type system`](https://en.wikipedia.org/wiki/Substructural_type_system)
+（子結構類型系統）是類型系統中的一個類別，可根據子邏輯減少或僅允許受控的行為。
+該類型系統在訪問**系統資源**如**文件**、**鎖**、**內存**時，
+可用於能夠保持追蹤狀態的變化，並阻止無效的狀態。
+
+子結構類型系統主要分為以下幾類：
+
+- Ordered type systems (discard exchange, weakening and contraction): Every variable is used exactly once in the order it was introduced.
+- Linear type systems (allow exchange, but neither weakening nor contraction): Every variable is used exactly once.
+- Affine type systems (allow exchange and weakening, but not contraction): Every variable is used at most once.
+- Relevant type systems (allow exchange and contraction, but not weakening): Every variable is used at least once.
+- Normal type systems (allow exchange, weakening and contraction): Every variable may be used arbitrarily.
+
+主要特性區別見下列表格：
+
+| Type | Exchange | Weakening | Contraction | Use |
+| :- | :- | :- | :- | :- |
+| Ordered | / | / | / | Exactly once in order |
+| Linear | Allowed | / | / | Exactly once |
+| Affine | Allowed | Allowed | / | At most once |
+| Relevant | Allowed | / | Allowed | At least once |
+| Normal | Allowed | Allowed | Allowed | Arbitrarily |
+
+
+
+# Type Class vs Interface
+type class（類型類）是Haskell系列的函數式語言提供的抽象方式，
+部分函數式語言也提供了類似type class的機制，
+如Rust的trait、Scala的implicit conversion；
+在OOP語言中，與之類似的概念是OOP語言中的interface（接口）。
+
+type class於interface之間的對比可參考StackOverflow、Reddit上的相關討論：
+
+- [Traits vs Interfaces](https://www.reddit.com/r/rust/comments/cn20vu/traits_vs_interfaces/)
+- [Difference between OOP interfaces and FP type classes](https://stackoverflow.com/questions/8122109/difference-between-oop-interfaces-and-fp-type-classes/8123973#8123973)
+- [Java's Interface and Haskell's type class: differences and similarities?](https://stackoverflow.com/questions/6948166/javas-interface-and-haskells-type-class-differences-and-similarities)
+
+以及Haskell Wiki上的論述[OOP vs type classes]((https://wiki.haskell.org/OOP_vs_type_classes))。
+
+interface與type class的一些特性對比：
+
+- interface自身為類型層次的一部分；type class在類型系統中位於獨立的層次。
+- 採用interface機制的語言（Java、C#等）中，通常在類型定義時就需要指明類型實現的接口，
+外部開發者通常不具備修改既定類型實現接口的能力；
+採用type class機制的語言，如Haskell、Rust均具備直接為外部類型添加type class實現的能力
+（Rust存在部分限制，僅能為外部類型實現自身定義trait的實現）。
