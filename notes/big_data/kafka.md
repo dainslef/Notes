@@ -18,6 +18,8 @@
     - [分區數據均衡](#分區數據均衡)
 - [Kafka Connect](#kafka-connect)
     - [依賴服務配置](#依賴服務配置)
+        - [Schema Registry（必備）](#schema-registry必備)
+        - [Kafka Rest（可選）](#kafka-rest可選)
     - [JDBC Source Connector](#jdbc-source-connector)
         - [单机多实例](#单机多实例)
         - [堆溢出問題](#堆溢出問題)
@@ -417,7 +419,7 @@ delete.topic.enable = true
 之後再使用話題刪除指令：
 
 ```
-$ kafka-topics --delete --topics 話題名稱 --bootstrap-server Broker地址:端口
+$ kafka-topics --delete --topic 話題名稱 --bootstrap-server Broker地址:端口
 ```
 
 若未啟用`delete.topic.enable`參數，則執行刪除指令不會真正刪除話題，僅為話題打上刪除標記。
@@ -556,38 +558,65 @@ Kafka Connect使得向Kafka輸入、輸出數據變得簡單。
 ## 依賴服務配置
 Kafka Connect使用前除了啓動Zookeeper和Kafka主進程外，還需要啓動以下服務：
 
-- `Schema Registry`（必備）
+### Schema Registry（必備）
+SchemaRegistry服務提供了對出入Kafka的消息的監控，並對數據進行序列化/反序列化處理。
+服務配置文件爲`$KAFKA_HOME/etc/schema-registry/schema-registry.properties`，配置說明：
 
-    SchemaRegistry服務提供了對出入Kafka的消息的監控，並對數據進行序列化/反序列化處理。
-    服務配置文件爲`$KAFKA_HOME/etc/schema-registry/schema-registry.properties`，配置說明：
+```conf
+listeners = http://服務地址:服務端口
+# 設置 Schema Registry 服務綁定的地址與服務端口，默認端口8081
+# 示例： listeners = http://spark-master:8081
 
-    ```conf
-    listeners = http://服務地址:服務端口
-    # 設置 Schema Registry 服務綁定的地址與服務端口，默認端口8081
-    # 示例： listeners = http://spark-master:8081
+kafkastore.connection.url = Zookeeper集羣地址:端口
+# 示例： kafkastore.connection.url = spark-master:2181, spark-slave0:2181, spark-slave1:2181
 
-    kafkastore.connection.url = Zookeeper集羣地址:端口
-    # 示例： kafkastore.connection.url = spark-master:2181, spark-slave0:2181, spark-slave1:2181
+kafkastore.bootstrap.servers = Kafka服務監聽協議://監聽地址:監聽端口
+# 對應 $KAFKA_HOME/etc/kafka/server.properties 中設定的 listeners 配置
+# 示例： kafkastore.bootstrap.servers = PLAINTEXT://spark-master:9092
 
-    kafkastore.bootstrap.servers = Kafka服務監聽協議://監聽地址:監聽端口
-    # 對應 $KAFKA_HOME/etc/kafka/server.properties 中設定的 listeners 配置
-    # 示例： kafkastore.bootstrap.servers = PLAINTEXT://spark-master:9092
+kafkastore.topic = 話題名稱
+# Schema Registry 服務存儲內部信息使用的 topic，默認話題名稱爲 _schemas
+# 示例： kafkastore.topic = _schemas
 
-    kafkastore.topic = 話題名稱
-    # Schema Registry 服務存儲內部信息使用的 topic，默認話題名稱爲 _schemas
-    # 示例： kafkastore.topic = _schemas
+debug = 是否開啓調試模式
+# 示例： debug = false
+```
 
-    debug = 是否開啓調試模式
-    # 示例： debug = false
-    ```
+啓動服務：
 
-    啓動服務：
+```
+$ schema-registry-start -daemon $KAFKA_HOME/etc/schema-registry/schema-registry.properties
+```
 
-    ```
-    $ schema-registry-start -daemon $KAFKA_HOME/etc/schema-registry/schema-registry.properties
-    ```
+若目標表格結構發生變化，則需要刪除舊的表格schema數據，否則會造成Kafka Connect啟動失敗；
+清理表格schema數據可以使用SchemaRegistry提供的
+[REST API](https://docs.confluent.io/platform/current/schema-registry/develop/api.html)：
 
-- `Kafka Rest`（可選）
+```
+GET /schemas
+GET /schemas/ids/{id}
+
+GET /subjects
+GET /subjects/{subject}/versions/{version}
+GET /subjects/{subject}/metadata
+POST /subjects/{subject}
+POST /subjects/{subject}/versions
+DELETE /subjects/{subject}
+...
+```
+
+刪除指定Schema操作示例：
+
+```html
+<!-- 查詢所有的schema名稱 -->
+curl http://SchemaRegistry地址:端口/subjects
+<!-- 刪除指定schema -->
+curl -X DELETE http://SchemaRegistry地址:端口/subjects/待刪除schema名稱?permanent=true
+```
+
+SchemaRegistry服務註冊的schema名稱命名規則通常為`話題名稱-value`。
+
+### Kafka Rest（可選）
 
     KafkaRest服務爲Kafka提供了`Rest API`支持，使Kafka可以通過HTTP請求進行互操作。
     通常該服務不必修改配置，JDBC Source Connector會在啟動時自動啟動該服務，
