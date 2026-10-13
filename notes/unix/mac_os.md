@@ -89,6 +89,7 @@
     - [Launchpad無效圖標](#launchpad無效圖標)
     - [<W> fish: An error occurred while redirecting file '/etc/paths.d/Wireshark'](#w-fish-an-error-occurred-while-redirecting-file-etcpathsdwireshark)
     - [Wireshark無法抓包](#wireshark無法抓包)
+    - [iPhone剪切板無法同步到Mac](#iphone剪切板無法同步到mac)
 
 <!-- /TOC -->
 
@@ -1778,3 +1779,14 @@ You can fix this by installing ChmodBPF.
 ```
 $ brew reinstall --cask wireshark
 ```
+
+## iPhone剪切板無法同步到Mac
+問題描述：<br>
+Mac剪切板內容可以單向同步到iPhone，但iPhone剪切板內容無法同步到Mac。
+
+解決方案：<br>
+確認Mac和iPhone均登錄了同一個Apple ID，
+且Mac和iPhone均開啟了藍牙和Wi-Fi功能並連接到同一網絡下。
+
+進入`General - AirPlay & Continuity - Handoff`，將選項關閉，
+然後重啟iPhone，iPhone重啟後重新打開該選項。
